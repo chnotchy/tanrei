@@ -661,8 +661,8 @@ export class TanreiFabMenu extends TanreiElement {
 
   protected override render() {
     const open = this.openForm;
-    // FBM-20: a button named by label that opens a menu and says whether it is open; the list a menu named by label.
-    // The glyphs are hidden. FBM-23: while label is empty, the name the product gives the element is the toggle's, and
+    // FBM-20: a button named by label that opens a menu and says whether it is open, and names the list only while it is
+    // (closed, the list is a popover that is not displayed); the list a menu named by label. The glyphs are hidden. FBM-23: while label is empty, the name the product gives the element is the toggle's, and
     // the list is named by the toggle.
     return html`
       <button
@@ -674,7 +674,7 @@ export class TanreiFabMenu extends TanreiElement {
         ${delegatedAria(this, { 'aria-label': this.label })}
         aria-haspopup="menu"
         aria-expanded=${String(open)}
-        aria-controls="list"
+        aria-controls=${open ? 'list' : nothing}
         ?disabled=${this.disabled}
         @click=${this.onToggleClick}
         @pointerdown=${this.press.onPointerDown}

@@ -23,6 +23,7 @@ import { appearProbe, bezierOf, expectAppearStart, expectExitEnd, expectTurnedAl
 import { type Frames, type Probe, expectAnimated, expectNoFlicker, sampleFrames } from '../../../test/frames.js';
 import { expectBaseline } from '../../../test/baseline.js';
 import { expectGoneWhileSkipped } from '../../../test/skipped-exit.js';
+import { controlledElements, controlledInTree } from '../../../test/controlled-list.js';
 
 const spec = loadSpec('menu');
 type P = Page;
@@ -1076,6 +1077,23 @@ test.describe('overlay', () => {
     await anchor(page, 'view').click();
     await expect(anchor(page, 'view')).toHaveAttribute('aria-expanded', 'false');
     await expect(menu(page, 'view')).not.toHaveAttribute('role');
+  });
+
+  test('MNU-24: the anchor names the menu by aria-controls while it is open and nothing while it is closed — closed, the menu is a box with no role whose surface is not displayed — and what it names is the exposed menu', async ({ page, browserName }) => {
+    await mountFixtures(page, spec, { fixtures: [overlay('view', [it('Copy'), it('Paste')])] });
+    await wire(page);
+    const a = anchor(page, 'view');
+    await expect(a).toHaveAttribute('aria-expanded', 'false');
+    expect(await controlledElements(a)).toBeNull();
+    if (browserName === 'chromium') expect(await controlledInTree(page, 'a-view', 'button')).toEqual([]);
+    await a.click();
+    await expect(a).toHaveAttribute('aria-expanded', 'true');
+    expect(await controlledElements(a)).toEqual([{ found: true, role: 'menu', exposed: true }]);
+    // What the engine computed: the relation reaches the menu, in the tree.
+    if (browserName === 'chromium') expect(await controlledInTree(page, 'a-view', 'button')).toMatchObject([{ inTree: true, role: 'menu', name: 'a-view' }]);
+    await page.keyboard.press('Escape');
+    await expect(a).toHaveAttribute('aria-expanded', 'false');
+    expect(await controlledElements(a)).toBeNull();
   });
 });
 

@@ -11,6 +11,7 @@ import { decodePng, paintedColor } from '../../../test/png.js';
 import { readSeam } from '../../../test/seam.js';
 import { motionEnded } from '../../../test/motions.js';
 import { expectBaseline } from '../../../test/baseline.js';
+import { controlledElements } from '../../../test/controlled-list.js';
 
 const spec = loadSpec('button-with-menu');
 type P = Page;
@@ -922,7 +923,7 @@ test.describe('behavior', () => {
     expect(await log(page)).toEqual(['close:tab']);
   });
 
-  test('SPB-17: two buttons in reading order, each a tab stop, named by label and menuLabel; the trailing half says it opens a menu and whether it is open; the icon and the chevron hidden; nothing around them', async ({ page }) => {
+  test('SPB-17: two buttons in reading order, each a tab stop, named by label and menuLabel; the trailing half says it opens a menu, whether it is open and, only while it is, which (MNU-24); the icon and the chevron hidden; nothing around them', async ({ page }) => {
     await mountFixtures(page, spec, { icons: true, fixtures: [{ ...withMenu('menu'), content: `<span slot="icon">save</span>${ITEMS}` }] });
     await wire(page);
     const buttons = host(page, 'menu').getByRole('button');
@@ -931,7 +932,17 @@ test.describe('behavior', () => {
     await expect(buttons.nth(1)).toHaveAccessibleName('More save options');
     await expect(trailing(page, 'menu')).toHaveAttribute('aria-haspopup', 'menu');
     await expect(trailing(page, 'menu')).toHaveAttribute('aria-expanded', 'false');
+    // Closed it names no menu: the menu is a box with no role whose surface is not displayed (MNU-24); open, it names
+    // the menu, exposed.
+    expect(await controlledElements(trailing(page, 'menu'))).toBeNull();
+    await trailing(page, 'menu').click();
+    await expect.poll(() => menuOpen(page, 'menu')).toBe(true);
+    await expect(trailing(page, 'menu')).toHaveAttribute('aria-expanded', 'true');
     await expect(trailing(page, 'menu')).toHaveAttribute('aria-controls', (await host(page, 'menu').locator('tanrei-menu').getAttribute('id'))!);
+    expect(await controlledElements(trailing(page, 'menu'))).toEqual([{ found: true, role: 'menu', exposed: true }]);
+    await page.keyboard.press('Escape');
+    await expect.poll(() => menuOpen(page, 'menu')).toBe(false);
+    expect(await controlledElements(trailing(page, 'menu'))).toBeNull();
     await expect(host(page, 'menu').locator('.icon')).toHaveAttribute('aria-hidden', 'true');
     await expect(host(page, 'menu').locator('.chevrons')).toHaveAttribute('aria-hidden', 'true');
     // A chevron slot's glyph is hidden too, and names nothing.

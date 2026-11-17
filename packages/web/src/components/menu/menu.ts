@@ -2604,8 +2604,10 @@ export class TanreiMenu extends TanreiElement {
   }
 
   /**
-   * MNU-24: the anchor says it opens a menu, whether it is open, and which. MNU-63: the area of a context menu says
-   * nothing of it — what the menu wrote on an element it no longer opens from is taken back, a product's own is kept.
+   * MNU-24: the anchor says it opens a menu, whether it is open, and — while it is open — which. Closed, the menu is a
+   * box with no role whose surface is not displayed, so the anchor names nothing then. MNU-63: the area of a context
+   * menu says nothing of it — what the menu wrote on an element it no longer opens from is taken back, a product's own
+   * is kept.
    */
   private syncAnchor() {
     const target = this.isContext ? null : this.anchorTarget;
@@ -2616,7 +2618,7 @@ export class TanreiMenu extends TanreiElement {
     hostAria(target, {
       'aria-haspopup': 'menu',
       'aria-expanded': String(this.open),
-      'aria-controls': target.getRootNode() === this.getRootNode() ? this.id : null,
+      'aria-controls': this.open && target.getRootNode() === this.getRootNode() ? this.id : null,
     });
   }
 
