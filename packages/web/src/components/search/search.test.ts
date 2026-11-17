@@ -2365,6 +2365,95 @@ test.describe('states', () => {
   });
 });
 
+test.describe('forwarded trailing content', () => {
+  // A product's own element may wrap the search and forward its children to the trailing slot with a slot of its own
+  // (`<tanrei-search><slot slot="trailing"></slot></tanrei-search>` in its shadow root). The Buttons then arrive
+  // flattened, and so does any text written among them, which the bar's row lays out as an item of its own.
+  const forwarded = (id: string, value = 'invoice'): Fixture => ({ ...spec.fixtures.find((f) => f.id === 'bar-value-slots')!, id, props: { ...spec.fixtures.find((f) => f.id === 'bar-value-slots')!.props, value } });
+  /** Moves the search into a wrapper's shadow root and forwards the wrapper's children to its trailing slot: the two Buttons, with text at the places given (0 before the first, 1 between them, 2 after the last), and white space everywhere. */
+  const forward = (page: P, id: string, texts: number[]) =>
+    page.evaluate(
+      ([id, texts]) => {
+        const stage = document.querySelector(`[data-fixture="${id}"]`)!;
+        const search = stage.querySelector('tanrei-search')!;
+        const buttons = [...search.querySelectorAll('[slot="trailing"]')];
+        const wrapper = document.createElement('div');
+        wrapper.dataset.wrapper = '';
+        wrapper.style.display = 'contents';
+        search.before(wrapper);
+        wrapper.attachShadow({ mode: 'open' }).append(search);
+        const forwarding = document.createElement('slot');
+        forwarding.slot = 'trailing';
+        search.append(forwarding);
+        buttons.forEach((button, n) => {
+          button.removeAttribute('slot');
+          wrapper.append('\n  ', ...(texts.includes(n) ? [`more ${n}`, '\n  '] : []), button);
+        });
+        wrapper.append('\n', ...(texts.includes(2) ? [`more 2`] : []), '\n');
+      },
+      [id, texts] as const,
+    );
+  /** The bar's action buttons and the text laid out among them, in the order they are drawn: each one's kind and the space before it, from the end of the one before (rounded to a hundredth). */
+  const row = (page: P, id: string) =>
+    page.evaluate((id) => {
+      const wrapper = document.querySelector(`[data-fixture="${id}"] [data-wrapper]`);
+      const search = (wrapper?.shadowRoot ?? document.querySelector(`[data-fixture="${id}"]`)!).querySelector('tanrei-search')!;
+      const items: { kind: string; left: number; right: number }[] = [];
+      const clear = search.shadowRoot!.querySelector('.bar > .clear')?.shadowRoot!.querySelector('button');
+      if (clear) items.push({ kind: 'clear', ...clear.getBoundingClientRect().toJSON() });
+      const walk = (nodes: NodeListOf<ChildNode>) => {
+        for (const node of nodes) {
+          if (node instanceof Element && node.localName === 'tanrei-button') items.push({ kind: 'button', ...node.shadowRoot!.querySelector('button')!.getBoundingClientRect().toJSON() });
+          else if (node instanceof Element) walk(node.childNodes);
+          else if (node.textContent!.trim()) {
+            const range = document.createRange();
+            range.selectNodeContents(node);
+            items.push({ kind: 'text', ...range.getBoundingClientRect().toJSON() });
+          }
+        }
+      };
+      walk((wrapper ?? search).childNodes);
+      items.sort((a, b) => a.left - b.left);
+      return items.slice(1).map((item, n) => `${item.kind} ${Math.round((item.left - items[n].right) * 100) / 100}`);
+    }, id);
+
+  test('SRC-34, SRC-27: Buttons forwarded to the trailing slot keep the space SRC-34 keeps before each, the text among them laid out where it is written and taking none of it; the text is reported in a debug build, white space is not', async ({ page }) => {
+    const seen = warnings(page);
+    const ids = ['white-space', 'start', 'between', 'end', 'no-clear', 'late'];
+    await mountFixtures(page, spec, { icons: true, reducedMotion: true, fixtures: [...ids.filter((id) => id !== 'no-clear').map((id) => forwarded(id)), forwarded('no-clear', ''), forwarded('contents')] });
+    // Under a 48 touch target the small clear button (36) and a medium Button (40) stand 10 apart, two medium Buttons 8.
+    await override(page, { '--tanrei-sys-target-touch': '48px' });
+    const texts: Record<string, number[]> = { 'white-space': [], start: [0], between: [1], end: [2], 'no-clear': [0, 1], late: [] };
+    for (const id of ids) await forward(page, id, texts[id]);
+    // The text stands right after what comes before it (the clear button's end is the trailing box's start), and the
+    // space SRC-34 keeps for a Button stands right before it.
+    await expect.poll(() => row(page, 'white-space')).toEqual(['button 10', 'button 8']);
+    await expect.poll(() => row(page, 'start')).toEqual(['text 0', 'button 10', 'button 8']);
+    await expect.poll(() => row(page, 'between')).toEqual(['button 10', 'text 0', 'button 8']);
+    await expect.poll(() => row(page, 'end')).toEqual(['button 10', 'button 8', 'text 0']);
+    // Without the clear button the first Button keeps none: nothing stands before it among the action buttons.
+    await expect.poll(() => row(page, 'no-clear')).toEqual(['button 0', 'text 0', 'button 8']);
+    // Text an element of display: contents holds, slotted there itself, is laid out as an item of the row too.
+    await page.evaluate(() => {
+      const search = document.querySelector('[data-fixture="contents"] tanrei-search')!;
+      const span = document.createElement('span');
+      span.slot = 'trailing';
+      span.style.display = 'contents';
+      span.textContent = 'more';
+      search.querySelector('[slot="trailing"]')!.before(span);
+    });
+    await expect.poll(() => row(page, 'contents')).toEqual(['text 0', 'button 10', 'button 8']);
+    // Text written later moves the spaces with it.
+    await expect.poll(() => row(page, 'late')).toEqual(['button 10', 'button 8']);
+    await page.evaluate(() => document.querySelector('[data-fixture="late"] [data-wrapper]')!.prepend('later'));
+    await expect.poll(() => row(page, 'late')).toEqual(['text 0', 'button 10', 'button 8']);
+    // SRC-27: the slot holds icon-only Buttons; the text is reported, once for each search that holds it.
+    const reported = () => seen.filter((w) => w.includes('SRC-27') && w.includes('trailing slot holds text'));
+    await expect.poll(() => reported().length).toBe(5);
+    for (const fragment of ['"more 0"', '"more 1"', '"more 2"', '"later"']) expect(reported().join('\n')).toContain(fragment);
+  });
+});
+
 test.describe('accessibility', () => {
   test('SRC-24: a search field named by label, never by placeholder; docked with suggestions, a combobox that controls the listbox and names the active option; options named by headline and described by supporting text; icons hidden; the full-screen view a modal dialog named by label', async ({ page }) => {
     await mount(page, [live('s', { value: 'inv' }), live('f', { presentation: 'full-screen', value: 'inv' })]);
