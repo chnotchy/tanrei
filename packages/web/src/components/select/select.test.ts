@@ -24,6 +24,7 @@ import { type Fixture, type FixtureItem, acmeSystemCss, loadSpec, missingWords, 
 import { expectBaseline } from '../../../test/baseline.js';
 import { expectGoneWhileSkipped } from '../../../test/skipped-exit.js';
 import { expectBoxTakesContainerSize, expectOptionsTakeDrawnSize } from '../../../test/input-box-size.js';
+import { controlledInTree, controlledList } from '../../../test/controlled-list.js';
 
 const spec = loadSpec('select');
 type P = Page;
@@ -157,6 +158,15 @@ const pressOn = async (target: Locator) => {
   await target.page().mouse.click(b.x + b.width / 2, b.y + b.height / 2);
 };
 const focusSelect = (page: P, id: string) => host(page, id).evaluate((el) => (el as HTMLElement).focus());
+/**
+ * Focuses a select brought into the window first, for a key that opens its list: a list opened while its select is out
+ * of the window is closed at once (SEL-24, POP-5), and WebKit on Linux scrolls a focused element into view a frame or
+ * more after focus(), after a key pressed at once has opened the list. A person presses a key on a select they see.
+ */
+const focusInView = async (page: P, id: string) => {
+  await host(page, id).scrollIntoViewIfNeeded();
+  await focusSelect(page, id);
+};
 const shownList = (page: P, id: string) => expect.poll(async () => (await read(page, id)).shown);
 /** The list has come to rest: until its entrance ends it is still growing toward the container's edge (SEL-30). */
 const arrived = (page: P, id: string) => motionEnded(part(page, id, '.motion'));
@@ -928,7 +938,8 @@ test.describe('behavior: the list', () => {
     await mount(page, [fx('one', { value: 'fr' }), fx('other', {})]);
     await listen(page, 'one');
     const c = container(page, 'one');
-    expect(await c.evaluate((el) => [el.getAttribute('aria-haspopup'), el.getAttribute('aria-expanded'), el.getAttribute('aria-controls'), !!(el.getRootNode() as ShadowRoot).getElementById('list')])).toEqual(['listbox', 'false', 'list', true]);
+    // Closed it names no list box: the one it opens is not exposed until then (SEL-48).
+    expect(await c.evaluate((el) => [el.getAttribute('aria-haspopup'), el.getAttribute('aria-expanded'), el.getAttribute('aria-controls'), !!(el.getRootNode() as ShadowRoot).getElementById('list')])).toEqual(['listbox', 'false', null, true]);
     // Not by hovering, not by focus arriving, not by waiting.
     await c.hover();
     await focusSelect(page, 'one');
@@ -939,6 +950,7 @@ test.describe('behavior: the list', () => {
       await page.keyboard.press(key === ' ' ? 'Space' : key);
       await shownList(page, 'one').toBe(true);
       expect(await read(page, 'one'), key).toMatchObject({ open: true, expanded: 'true', value: 'fr', active: 'France', focused: true });
+      expect(await c.evaluate((el) => (el.getRootNode() as ShadowRoot).getElementById(el.getAttribute('aria-controls') ?? '')?.getAttribute('role')), `${key}: open, it names its list box`).toBe('listbox');
       expect(await heard(page), key).toEqual(['toggle true']);
       await page.keyboard.press('Escape');
       await closedList(page, 'one');
@@ -2151,15 +2163,9 @@ test.describe('behavior: the list', () => {
     // No status: no row, and no room.
     expect((await box(status('stacked-open'))).height).toBe(0);
     // The options left in the list while loading are chosen as any option is.
-    // Each select below is brought into the window before it is focused: the fixtures above it are tall, and a list a
-    // key opens while its select is out of the window is closed at once (POP-5), and WebKit in Linux scrolls a focused
-    // element into view a frame or more after focus(), after the key that opens the list has been handled.
-    const focusInView = async (id: string) => {
-      await host(page, id).scrollIntoViewIfNeeded();
-      await focusSelect(page, id);
-    };
+    // Each select below is brought into the window before it is focused (`focusInView`): the fixtures above it are tall.
     await set(page, 'loading-more', { inline: false, open: false });
-    await focusInView('loading-more');
+    await focusInView(page, 'loading-more');
     await page.keyboard.press('ArrowDown');
     await shownList(page, 'loading-more').toBe(true);
     await arrived(page, 'loading-more');
@@ -2167,7 +2173,7 @@ test.describe('behavior: the list', () => {
     expect(await read(page, 'loading-more')).toMatchObject({ value: 'ke', open: false });
     // A press on the row is no input and takes no focus; an arrow key never makes it active.
     await set(page, 'open-status', { inline: false, open: false });
-    await focusInView('open-status');
+    await focusInView(page, 'open-status');
     await page.keyboard.press('ArrowDown');
     await shownList(page, 'open-status').toBe(true);
     await arrived(page, 'open-status');
@@ -2179,7 +2185,7 @@ test.describe('behavior: the list', () => {
     // A list with no option has no active option: the keys move nothing, Enter and Space choose nothing, Escape closes it.
     await set(page, 'open-empty', { inline: false, open: false });
     await listen(page, 'open-empty');
-    await focusInView('open-empty');
+    await focusInView(page, 'open-empty');
     await page.keyboard.press('Enter');
     await shownList(page, 'open-empty').toBe(true);
     for (const key of ['ArrowDown', 'End', 'Enter', 'Space']) await page.keyboard.press(key);
@@ -2391,6 +2397,41 @@ test.describe('behavior: conditions, exposure, size and direction', () => {
     // The error set later reaches the tree at once.
     await setField(page, 'one', { error: true, errorText: 'This plan is full.' });
     expect((await comboboxes())[0]).toMatchObject({ description: 'This plan is full.', invalid: 'true' });
+  });
+
+  test('SEL-48, SEL-23, SEL-68, SEL-69: the container names its list box by aria-controls while the list is open and nothing while it is closed, and the list box it names is exposed — also where the list shows its empty text, its loading row or its status alone: an empty list box of no height, no focus target, nothing to read, busy while loading', async ({ page, browserName }) => {
+    await mount(
+      page,
+      [
+        fx('closed', { label: 'Plan', value: 'fr' }),
+        ...spec.fixtures.filter((f) => ['open-empty', 'open-loading', 'open-status-error', 'open-status'].includes(f.id)),
+        fx('loading', { label: 'Area', open: true, status: 'loading', statusText: 'Loading areas' }, []),
+        fx('top', { label: 'Region', inline: false, emptyText: 'No regions yet' }, []),
+      ],
+      { reducedMotion: true },
+    );
+    const EMPTY = { found: true, role: 'listbox', exposed: true, height: 0, rows: 0, text: '', focusable: false };
+    // Closed: no reference — the list box is in a placed box that is not displayed.
+    expect(await controlledList(container(page, 'closed'))).toBeNull();
+    // Open with options: the list box, with its rows.
+    expect(await controlledList(container(page, 'open-status'))).toMatchObject({ found: true, role: 'listbox', exposed: true, rows: 3, focusable: false });
+    // Open with the status row, the empty text or the loading row alone: the empty list box, exposed and of no size.
+    for (const id of ['open-empty', 'open-loading', 'open-status-error', 'loading']) expect(await controlledList(container(page, id)), id).toEqual(EMPTY);
+    expect(await part(page, 'loading', '#list').getAttribute('aria-busy'), 'loading: the list box is busy').toBe('true');
+    // In the top layer, opened by the keyboard; closed again, no reference. The open lists above it are tall.
+    await focusInView(page, 'top');
+    await page.keyboard.press('ArrowDown');
+    await shownList(page, 'top').toBe(true);
+    expect(await controlledList(container(page, 'top'))).toEqual(EMPTY);
+    if (browserName === 'chromium') {
+      // What the engine computed: the relation reaches the list box, in the tree, named by the label, holding nothing.
+      expect(await controlledInTree(page, 'Region')).toEqual([{ inTree: true, role: 'listbox', name: 'Region', children: 0, focusable: false }]);
+      expect(await controlledInTree(page, 'Area')).toEqual([{ inTree: true, role: 'listbox', name: 'Area', children: 0, focusable: false }]);
+      expect(await controlledInTree(page, 'Plan')).toEqual([]);
+    }
+    await page.keyboard.press('Escape');
+    await closedList(page, 'top');
+    expect(await controlledList(container(page, 'top'))).toBeNull();
   });
 
   test('SEL-49: bare and given no width the select is as wide as its widest option would make it, so choosing never changes its width, and at least as wide as its placeholder; it is never wider than its layout gives it, and fills a width the product gives; in a Field it fills the width that Field gives it, whichever option is chosen', async ({ page }) => {
@@ -3053,16 +3094,17 @@ test.describe('the rows: drawn while the list is shown, and in a long list those
     );
   };
 
-  test('SEL-17, SEL-23, SEL-33, SEL-48: a closed select draws no row, and the number of elements in its shadow root does not grow with its options; it still shows the chosen option’s label, names its list box, and opens on a typed character with the option that character finds; opening draws the rows and closing takes them away', async ({ page }) => {
+  test('SEL-17, SEL-23, SEL-33, SEL-48: a closed select draws no row, and the number of elements in its shadow root does not grow with its options; it still shows the chosen option’s label and keeps its empty list box, named only once the list is open, and opens on a typed character with the option that character finds; opening draws the rows and closing takes them away', async ({ page }) => {
     await mount(page, [fx('few', { value: 'o3' }, many(5)), fx('some', { value: 'o30' }, many(60)), fx('many', { value: 'o1200' }, many(1632))], { reducedMotion: true });
     const [few, some, lots] = [await counted(page, 'few'), await counted(page, 'some'), await counted(page, 'many')];
     expect(few.rows).toBe(0);
     expect(some).toEqual(few);
     expect(lots).toEqual(few);
     expect(few.elements).toBeLessThan(40);
-    // Closed, everything it says of its options is there: the value, and the list box its container names.
+    // Closed, everything it says of its options is there: the value; and the empty list box, which its container names
+    // only once the list is open and the list box is exposed (SEL-48).
     await expect(part(page, 'many', '.value')).toHaveText('Option 1200');
-    expect(await container(page, 'many').evaluate((el) => [el.getAttribute('aria-expanded'), el.getAttribute('aria-activedescendant'), (el.getRootNode() as ShadowRoot).getElementById(el.getAttribute('aria-controls')!)?.getAttribute('role')])).toEqual(['false', null, 'listbox']);
+    expect(await container(page, 'many').evaluate((el) => [el.getAttribute('aria-expanded'), el.getAttribute('aria-activedescendant'), el.getAttribute('aria-controls'), (el.getRootNode() as ShadowRoot).getElementById('list')?.getAttribute('role')])).toEqual(['false', null, null, 'listbox']);
     // SEL-49: its width is still its widest option's (one hidden text, not an element for each option).
     expect((await box(container(page, 'many'))).width).toBeGreaterThan((await box(container(page, 'few'))).width);
     // Opened: a short list draws every row, each in its place.

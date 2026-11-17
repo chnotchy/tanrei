@@ -34,10 +34,12 @@ import { OPTION_GROUP_TAG, OPTION_TAG } from './option-tags.js';
 //                 never moved into the list: it stays on the field.
 //
 // The rows are drawn while the list is shown and at no other time: a field that is closed holds the placed box, the
-// sheet and an empty list box (what `aria-controls` names), and no row — so what a closed field costs to draw, and to
-// draw again, does not grow with the number of its options. The rows are made by the render that opens the list and
-// taken away once it has closed and faded out (`OptionListController.drawn`). Everything a closed field needs of its
-// options — the chosen one's label and glyph, the form's value, what a typed character finds — is read from the data.
+// sheet and an empty list box (which `aria-controls` names while the list is open, and only then: closed, the placed
+// box is not displayed, and a reference to what is not exposed is no reference), and no row — so what a closed field
+// costs to draw, and to draw again, does not grow with the number of its options. The rows are made by the render that
+// opens the list and taken away once it has closed and faded out (`OptionListController.drawn`). Everything a closed
+// field needs of its options — the chosen one's label and glyph, the form's value, what a typed character finds — is
+// read from the data.
 //
 // A long list (more than `OPTION_WINDOW_FROM` options shown) draws only the rows near the box that scrolls, and the
 // active option with its neighbours; a row that is not drawn is room of its height (`.skipped`), so the box scrolls
@@ -476,6 +478,10 @@ export function optionListStyles({ prefix, variants, minWidth, maxWidth }: Optio
   // - `.list.tail > .scroll`: What a field draws after the options (a combobox's status row) stands under the box that
   //   scrolls, in the sheet: the options scroll above it and it stays in view. The end padding is then below it, and a
   //   list that draws no option is that row alone.
+  // - `.list.bare > .scroll`: A list that has no option and draws that row alone keeps its list box, empty and of no
+  //   size, never `display: none`: the field's `aria-controls` names it while the list is open, and its `aria-busy`
+  //   says the options are on their way, so it stays in the accessibility tree (SEL-48, CMB-48). With no padding and no
+  //   row it takes no room, no pointer and no focus, and the sheet is drawn as before.
   // - `.skipped`: A long list: the room of the rows that are not drawn now, as tall as they would be (the script writes
   //   the height).
   // - `.group-title`: A group's title: above its options, inset from the rows' edges, wrapping; never a choice.
@@ -567,7 +573,7 @@ ${
     padding-block-end: 0;
   }
   .list.bare > .scroll {
-    display: none;
+    padding: 0;
   }
   .group {
     display: flex;
