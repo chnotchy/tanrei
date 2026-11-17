@@ -816,7 +816,7 @@ test.describe('host', () => {
     const margin = await resolveToken(page, T('container-margin'));
     // A bar at the window's foot, and what <tanrei-app-shell> writes on the root for its navigation bar (APS-17).
     await page.evaluate(() => document.body.insertAdjacentHTML('beforeend', '<nav id="foot" style="position: fixed; inset: auto 0 0 0; block-size: 80px"></nav>'));
-    await rootTokens(page, { '--tanrei-app-shell-scroll-offset-end': '80px' });
+    await rootTokens(page, { '--tanrei-app-shell-window-inset-bottom': '80px' });
     await show(page, { message: 'Conversation archived', action: 'Undo', duration: 'indefinite' });
     await expect.poll(() => showing(page)).toEqual(['Conversation archived']);
     await motionEnded(shown(page));
@@ -825,13 +825,13 @@ test.describe('host', () => {
     expect(b.bottom).toBeCloseTo(foot.y - margin, 0);
     expect(b.x + b.width / 2).toBeCloseTo(400, 0);
     // The frame keeps nothing there any more (a wide window shows no navigation bar): the margin above the window's edge.
-    await rootTokens(page, { '--tanrei-app-shell-scroll-offset-end': '' });
+    await rootTokens(page, { '--tanrei-app-shell-window-inset-bottom': '' });
     await expect.poll(async () => (await shownBar(page)).bottom).toBeCloseTo(600 - margin, 0);
     // SNK-25: expanded in a short window above the bar, the area ends above the bar, not at the window's edge.
     await host(page).evaluate((h: any) => h.dismissCurrent());
     await expect.poll(() => showing(page)).toEqual([]);
     await page.setViewportSize({ width: 800, height: 300 });
-    await rootTokens(page, { '--tanrei-app-shell-scroll-offset-end': '80px' });
+    await rootTokens(page, { '--tanrei-app-shell-window-inset-bottom': '80px' });
     await show(page, { title: TITLE, message: LONG, expandLabel: 'Show full message', duration: 'indefinite' });
     await expect.poll(() => showing(page)).toEqual([LONG]);
     await expect.poll(() => shown(page).locator('.expand').count()).toBe(1);
@@ -868,11 +868,11 @@ test.describe('host', () => {
     expect(narrow.right).toBeCloseTo(300 - 40 - margin, 0);
     expect(narrow.bottom).toBeCloseTo(600 - 20 - margin, 0);
     // The higher of the bottom inset and the frame's bottom bar, never their sum.
-    await rootTokens(page, { '--tanrei-app-shell-scroll-offset-end': '80px' });
+    await rootTokens(page, { '--tanrei-app-shell-window-inset-bottom': '80px' });
     await expect.poll(async () => (await shownBar(page)).bottom).toBeCloseTo(600 - 80 - margin, 0);
-    await rootTokens(page, { '--tanrei-app-shell-scroll-offset-end': '10px' });
+    await rootTokens(page, { '--tanrei-app-shell-window-inset-bottom': '10px' });
     await expect.poll(async () => (await shownBar(page)).bottom).toBeCloseTo(600 - 20 - margin, 0);
-    await rootTokens(page, { '--tanrei-app-shell-scroll-offset-end': '' });
+    await rootTokens(page, { '--tanrei-app-shell-window-inset-bottom': '' });
     // A wide window: centred between the side insets.
     await page.setViewportSize({ width: 800, height: 600 });
     await expect.poll(async () => {
@@ -998,14 +998,14 @@ test.describe('at the top end', () => {
     await page.setViewportSize({ width: 800, height: 600 });
     await mountHost(page);
     const margin = await resolveToken(page, T('container-margin'));
-    // What <tanrei-app-shell> writes on the root for its sticky header (APS-17): a 64 px app bar.
-    await rootTokens(page, { '--tanrei-app-shell-scroll-offset': '64px' });
+    // What <tanrei-app-shell> writes on the root for its header (APS-17): a 64 px app bar.
+    await rootTokens(page, { '--tanrei-app-shell-window-inset-top': '64px' });
     await show(page, { message: 'Report exported', placement: 'top-end', duration: 'indefinite' });
     await expect.poll(() => showing(page)).toEqual(['Report exported']);
     await motionEnded(shown(page));
     expect((await shownBar(page)).y).toBeCloseTo(64 + margin, 0);
     // The header is gone (a static header keeps nothing): the margin below the window's top edge.
-    await rootTokens(page, { '--tanrei-app-shell-scroll-offset': '' });
+    await rootTokens(page, { '--tanrei-app-shell-window-inset-top': '' });
     await expect.poll(async () => (await shownBar(page)).y).toBeCloseTo(margin, 0);
   });
 
@@ -1090,10 +1090,10 @@ test.describe('at the top end', () => {
     // Expanded in a 240 tall window, the text scrolls: the bar takes the window less the margins (SNK-25).
     expect(after.bottom).toBeCloseTo(240 - margin, 0);
     // Below a 64 px sticky header, the area is measured from below it.
-    await rootTokens(page, { '--tanrei-app-shell-scroll-offset': '64px' });
+    await rootTokens(page, { '--tanrei-app-shell-window-inset-top': '64px' });
     await expect.poll(async () => (await shownBar(page)).y).toBeCloseTo(64 + margin, 0);
     expect((await shownBar(page)).bottom).toBeCloseTo(240 - margin, 0);
-    await rootTokens(page, { '--tanrei-app-shell-scroll-offset': '' });
+    await rootTokens(page, { '--tanrei-app-shell-window-inset-top': '' });
     await shown(page).locator('.expand').click();
     await expect.poll(async () => (await shownBar(page)).height).toBeCloseTo(before.height, 0);
     expect((await shownBar(page)).y).toBeCloseTo(before.y, 0);
