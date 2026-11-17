@@ -1,5 +1,5 @@
-// <tanrei-snackbar> and <tanrei-snackbar-host>, driven by specs/snackbar.spec.json: every behaviour id is
-// cited by a test title, every fixture has a baseline (drawn in place, SNK-19), and every value is read back from the
+// <tanrei-snackbar> and <tanrei-snackbar-host>, driven by specs/snackbar.spec.json: a test's title cites
+// each behaviour id it checks, every fixture has a baseline (drawn in place, SNK-19), and every value is read back from the
 // tokens — never from a number written here.
 import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';

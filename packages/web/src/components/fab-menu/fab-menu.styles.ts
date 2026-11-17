@@ -80,9 +80,9 @@ const opacity = (state: string) => `
     opacity: ${T(`${state}-opacity`)};`;
 
 /**
- * The FAB menu (FBM-1…23 on the toggle and the list): the toggle — a collapsed main action button of its variant and size that takes the open
- * look, round corners and the close glyph while open — and the list, a column presented in the top layer (or in place,
- * `inline`) above it.
+ * The FAB menu: the toggle — a collapsed main action button of its variant and size that takes the open look, round
+ * corners and the close glyph while open — and the list, a column presented in the top layer (or in place, `inline`)
+ * above it.
  */
 export const menuStyles = css`
   /* FBM-12: inline, at the toggle's size, where the layout puts it — the page positions it, never the element. */

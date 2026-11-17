@@ -1,4 +1,4 @@
-// <tanrei-menu> and its items, driven by specs/menu.spec.json: every behaviour id is cited by a test title,
+// <tanrei-menu> and its items, driven by specs/menu.spec.json: a test's title cites each behaviour id it checks,
 // every fixture has a baseline (drawn in place with the `inline` test attribute), and every state, condition and choice
 // of kind is read back from the tokens — never from a number written here.
 // MNU-67, MNU-66: the product's ARIA on the host is tested with every other host's, in every engine, in

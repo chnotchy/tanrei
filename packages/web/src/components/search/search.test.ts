@@ -1,4 +1,4 @@
-// <tanrei-search>, driven by specs/search.spec.json: every behaviour id is cited by a test title, every
+// <tanrei-search>, driven by specs/search.spec.json: a test's title cites each behaviour id it checks, every
 // fixture has a baseline, and every size, color and width is read back from the tokens — never from a number written
 // here. Its clear and back buttons and the slots' buttons are real icon-only <tanrei-button>s.
 // SRC-54: the product's ARIA on the host is tested with every other control's, in every engine, in

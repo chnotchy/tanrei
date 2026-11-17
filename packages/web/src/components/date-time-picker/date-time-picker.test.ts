@@ -1,5 +1,5 @@
-// <tanrei-date-time-picker>, driven by specs/date-time-picker.spec.json: every behaviour id is cited by a
-// test title, every fixture has a baseline (a modal one is the window — 480 × 720, or 800 × 640 for a horizontal layout —
+// <tanrei-date-time-picker>, driven by specs/date-time-picker.spec.json: a test's title cites each behaviour
+// id it checks, every fixture has a baseline (a modal one is the window — 480 × 720, or 800 × 640 for a horizontal layout —
 // since the picker and its scrim are in the top layer; a docked one is drawn in place with the `inline` test attribute),
 // and every value is read back from the tokens — never from a number written here.
 // DTM-52: the product's ARIA on the host is tested with every other control's, in every engine, in

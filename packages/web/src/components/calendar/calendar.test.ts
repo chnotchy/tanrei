@@ -1,4 +1,4 @@
-// <tanrei-calendar>, driven by specs/calendar.spec.json: every behaviour id is cited by a test title, every
+// <tanrei-calendar>, driven by specs/calendar.spec.json: a test's title cites each behaviour id it checks, every
 // fixture has a baseline (the calendar at its natural size centred on a 400 × 440 stage, CAL-1's verify), and every value
 // is read back from the tokens — never from a number written here.
 // CAL-36: the product's ARIA on the host is tested with every other control's, in every engine, in

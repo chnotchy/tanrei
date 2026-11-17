@@ -1,5 +1,5 @@
-// <tanrei-dialog>, driven by specs/dialog.spec.json: every behaviour id (DLG-25 is retired) is cited by a
-// test title, every fixture has a baseline (the 640 × 640 window, 360 × 640 for the compact ones, since the dialog and
+// <tanrei-dialog>, driven by specs/dialog.spec.json: a test's title cites each behaviour id
+// it checks, every fixture has a baseline (the 640 × 640 window, 360 × 640 for the compact ones, since the dialog and
 // its scrim are in the top layer), and every value is read back from the tokens — never from a number written here.
 // DLG-29: the product's ARIA on the host is tested with every other control's, in every engine, in
 // src/primitives/delegated-aria.test.ts.
