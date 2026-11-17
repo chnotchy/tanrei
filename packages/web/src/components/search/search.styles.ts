@@ -23,6 +23,13 @@ const t = (name: string) => unsafeCSS(T(name));
 export const FIRST_FRAMES = 'data-first-frames';
 const QUIET = 'transition-property: none !important;';
 
+/**
+ * BTN-5, SRC-25: how far the first action button reaches toward the input — the middle of container.gap, so that a
+ * press on the query is never a button's. The clear button's rule reads it, and the search writes it on the trailing
+ * slot's first Button where no clear button stands before it (src/primitives/kept-length.ts).
+ */
+export const FIRST_ACTION_CAP = `calc(${T('container-gap')} / 2)`;
+
 /** The sizes every design system has (SRC-53). A layer may add more; those get their rules on demand. */
 export const CORE_SIZES = ['small', 'medium'] as const;
 const DEFAULT_SIZE = 'medium';
@@ -359,17 +366,13 @@ export const styles = css`
   /* BTN-5: the clear button reaches its target toward the input no further than the middle of container.gap, so that a
      press on the query is never a clear (among the action buttons the space kept above keeps their targets apart). */
   .clear {
-    ${unsafeCSS(TARGET_CAPS.start)}: calc(${t('container-gap')} / 2);
+    ${unsafeCSS(TARGET_CAPS.start)}: ${unsafeCSS(FIRST_ACTION_CAP)};
   }
   /* BTN-5: so does the trailing slot's first Button where no clear button stands before it: it is then the first action
-     button, container.gap after the input. (The first in the slot's order, which is the host's children's order among
-     those slotted there; the buttons after it keep their targets apart by the space above, not by a cap.) The clear
-     button, while it is drawn, is the element right before the trailing box, as the rule above has it; so its absence is
-     read from the sibling before that box, not by asking :has() of the bar for the sake of a slotted element, which
-     src/styles/has.test.ts holds no rule does. */
-  :not(.clear) + .trailing ::slotted(:nth-child(1 of [slot='trailing'])) {
-    ${unsafeCSS(TARGET_CAPS.start)}: calc(${t('container-gap')} / 2);
-  }
+     button, container.gap after the input. The search writes that cap on the Button the trailing box lays out first
+     (src/primitives/kept-length.ts), not from a ::slotted() rule: a Button a product's own slot forwards, or an element
+     of display: contents holds, is not the element ::slotted() matches, and the box knows which Button it lays out
+     first. The buttons after it keep their targets apart by the space above, not by a cap. */
 
   ${unsafeCSS(inputStyles)}
 
