@@ -1035,6 +1035,119 @@ test.describe('layout', () => {
     expect(rows[0].y).toBeLessThan(rows[1].y);
     expect(rows[1].y).toBeLessThan(rows[2].y);
   });
+
+  test('DLG-21: the direction is the nearest ancestor’s — not the root’s and not a setting of the dialog’s own; when it changes while the dialog is shown it is drawn for the new direction at once, without a motion, keeping its open state and its focus', async ({ page }) => {
+    // The verify: the direction set on an ancestor inside the page (the fixture's stage), not on the root.
+    await mount(page, [f('d', {}, { slots: { icon: 'delete' }, direction: 'rtl' })]);
+    expect(await page.evaluate(() => document.documentElement.getAttribute('dir'))).toBeNull();
+    expect(await host(page, 'd').evaluate((el) => [el.getAttribute('dir'), el.matches(':dir(rtl)'), Object.keys((el.constructor as unknown as { properties: object }).properties).some((p) => /^dir|direction/i.test(p))])).toEqual([null, true, false]);
+    await open(page, 'd');
+    const d = dialog(page, 'd');
+    const pad = await resolveToken(page, T('container-padding'));
+    /** The icon's, the dismissive action's and the confirming action's distance from the container's left and right edges. */
+    const placed = async () => {
+      const box = await bounds(d);
+      const from = async (locator: Locator) => {
+        const b = await bounds(locator);
+        return { left: b.x - box.x, right: box.x + box.width - (b.x + b.width) };
+      };
+      return { icon: await from(d.locator('.icon')), cancel: await from(action(page, 'd', 'Cancel')), discard: await from(action(page, 'd', 'Discard')) };
+    };
+    const rtl = await placed();
+    expect(rtl.icon.right, 'right-to-left: the icon at the right').toBeCloseTo(pad, 0);
+    expect(rtl.cancel.right, 'right-to-left: dismissive at the right').toBeCloseTo(pad, 0);
+    expect(rtl.discard.left, 'right-to-left: confirming at the left').toBeCloseTo(pad, 0);
+    // Shown, with keyboard focus on an action.
+    await tabTo(page, action(page, 'd', 'Discard'));
+    expect(await focused(page)).toBe('Discard');
+    await motionEnded(host(page, 'd'));
+    // Changed on the ancestor after the first render: no transition starts and nothing moves.
+    await watchTransitions(host(page, 'd'));
+    await page.locator('[data-fixture="d"]').evaluate(async (el) => {
+      el.setAttribute('dir', 'ltr');
+      await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+    });
+    expect(await transitionsRun(host(page, 'd')), 'no transition').toEqual([]);
+    expect(await host(page, 'd').evaluate((el, every) => ((0, eval)(every) as (root: Element) => Animation[])(el).map((a) => (a as CSSTransition).transitionProperty ?? (a as CSSAnimation).animationName), EVERY_ANIMATION), 'nothing moves').toEqual([]);
+    const ltr = await placed();
+    expect(ltr.icon.left, 'left-to-right: the icon at the left').toBeCloseTo(pad, 0);
+    expect(ltr.cancel.left, 'left-to-right: dismissive at the left').toBeCloseTo(pad, 0);
+    expect(ltr.discard.right, 'left-to-right: confirming at the right').toBeCloseTo(pad, 0);
+    // Its open state and its focus are kept; the reading order is still dismissive first.
+    expect(await isOpen(page, 'd')).toBe(true);
+    expect(await focused(page)).toBe('Discard');
+    expect(await log(page)).toEqual([]);
+    // Where no ancestor sets one, the document's.
+    await page.locator('[data-fixture="d"]').evaluate((el) => el.removeAttribute('dir'));
+    await page.evaluate(() => document.documentElement.setAttribute('dir', 'rtl'));
+    expect((await placed()).icon.right).toBeCloseTo(pad, 0);
+  });
+
+  test('DLG-22: in right-to-left the icon helper mirrors a glyph of the icon slot that the icon set marks, or the product forces, inside its own box, and not one the product forbids or an unmarked one; the dialog mirrors nothing itself, never a picture, and nothing in left-to-right', async ({ page }) => {
+    const MIRRORED = 'matrix(-1, 0, 0, 1, 0, 0)';
+    const icon = (name: string, attributes = '') => `<span slot="icon"${attributes ? ` ${attributes}` : ''}>${name}</span>`;
+    // The verify: arrow_forward is marked by the default icon set and check is not.
+    await mount(page, [
+      f('marked', {}, { content: icon('arrow_forward'), direction: 'rtl' }),
+      f('unmarked', {}, { content: icon('check'), direction: 'rtl' }),
+      f('forbidden', {}, { content: icon('arrow_forward', 'data-mirror="never"'), direction: 'rtl' }),
+      f('forced', {}, { content: icon('check', 'data-mirror="always"'), direction: 'rtl' }),
+      f('ltr', {}, { content: icon('arrow_forward') }),
+      f('picture', {}, { content: '<svg slot="icon" viewBox="0 0 20 20"><path d="M2 10h14"/></svg>', direction: 'rtl' }),
+    ]);
+    const glyph = (id: string) => host(page, id).locator('> [slot="icon"]');
+    const transform = (locator: Locator) => locator.evaluate((el) => getComputedStyle(el).transform);
+    // Marked by the name, whatever the direction; drawn mirrored only in right-to-left.
+    await expect(glyph('marked')).toHaveAttribute('data-tanrei-mirrored', '');
+    await expect(glyph('ltr')).toHaveAttribute('data-tanrei-mirrored', '');
+    expect(await glyph('unmarked').getAttribute('data-tanrei-mirrored')).toBeNull();
+    expect(await glyph('picture').getAttribute('data-tanrei-mirrored')).toBeNull();
+    // Drawn while the dialog is shown, each in turn.
+    const shown = async (id: string) => {
+      await open(page, id);
+      const seen = await transform(glyph(id));
+      await close(page, id);
+      await expect.poll(() => isOpen(page, id)).toBe(false);
+      return seen;
+    };
+    const drawn: Record<string, string> = {};
+    for (const id of ['unmarked', 'forbidden', 'forced', 'ltr', 'picture']) drawn[id] = await shown(id);
+    expect(drawn).toEqual({ unmarked: 'none', forbidden: 'none', forced: MIRRORED, ltr: 'none', picture: 'none' });
+    // Inside its own box, about its vertical centre line: the box's place and size, the glyph's color and fill, and
+    // DLG-16's order (the icon at the right of the headline) are those of the unmirrored one.
+    const measure = async (id: string) => {
+      await open(page, id);
+      const d = dialog(page, id);
+      const [box, part, headline, slotted] = [await bounds(d), await bounds(d.locator('.icon')), await bounds(d.locator('.headline')), glyph(id)];
+      const seen = {
+        transform: await transform(slotted),
+        place: [Math.round((part.x - box.x) * 100) / 100, Math.round((part.y - box.y) * 100) / 100, part.width, part.height],
+        afterHeadline: part.x >= headline.x + headline.width - 0.5,
+        paint: await slotted.evaluate((el) => [getComputedStyle(el).color, getComputedStyle(el).fontVariationSettings, getComputedStyle(el).fontSize]),
+        origin: await slotted.evaluate((el) => {
+          const r = el.getBoundingClientRect();
+          const [x, y] = getComputedStyle(el).transformOrigin.split(' ').map(Number.parseFloat);
+          return [Math.abs(x - r.width / 2) < 0.01, Math.abs(y - r.height / 2) < 0.01];
+        }),
+        own: await d.evaluate((el) => [el, ...el.querySelectorAll('*')].every((p) => getComputedStyle(p).transform === 'none')),
+      };
+      await close(page, id);
+      await expect.poll(() => isOpen(page, id)).toBe(false);
+      return seen;
+    };
+    const [mirrored, plain] = [await measure('marked'), await measure('unmarked')];
+    expect([mirrored.transform, plain.transform]).toEqual([MIRRORED, 'none']);
+    expect({ ...mirrored, transform: '', origin: [] }).toEqual({ ...plain, transform: '', origin: [] });
+    expect(mirrored.afterHeadline).toBe(true);
+    expect(mirrored.origin).toEqual([true, true]);
+    // The dialog transforms no part of its own: the mirroring is the icon helper's, on the slotted glyph.
+    expect(mirrored.own).toBe(true);
+    // The direction changes while it is shown: the mark stays, the drawing follows.
+    await open(page, 'marked');
+    await page.locator('[data-fixture="marked"]').evaluate((el) => el.setAttribute('dir', 'ltr'));
+    expect(await transform(glyph('marked'))).toBe('none');
+    await expect(glyph('marked')).toHaveAttribute('data-tanrei-mirrored', '');
+  });
 });
 
 test.describe('compact window', () => {
