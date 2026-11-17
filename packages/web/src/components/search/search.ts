@@ -9,6 +9,7 @@ import {
   cssZoom,
   GlyphDrawnController,
   KeptLengths,
+  drawnText,
   GlyphMirrorController,
   type KeyboardConvention,
   LinkController,
@@ -1337,7 +1338,9 @@ export class TanreiSearch extends TanreiElement {
   }
 
   #onSlotChange(event: Event) {
-    const slot = event.target as HTMLSlotElement;
+    // The slot of the search's own: a slot of the product's that forwards its children to it changes too, and its
+    // event reaches this one.
+    const slot = event.currentTarget as HTMLSlotElement;
     const elements = slot.assignedElements({ flatten: true });
     if (slot.name === 'leading') this.hasLeading = elements.length > 0;
     else if (slot.name === 'trailing') {
@@ -1346,6 +1349,9 @@ export class TanreiSearch extends TanreiElement {
       this.keepActions();
       // SRC-27: more than two trailing buttons are still laid out, and reported.
       if (elements.length > 2) report(this, 'SRC-27', `the trailing slot holds ${elements.length} elements; a search bar has room for two icon buttons`);
+      // SRC-27: so is text a slot of the product's forwards to it; the Buttons keep their spaces around it (SRC-34).
+      const text = slot.assignedNodes({ flatten: true }).filter(drawnText);
+      if (text.length) report(this, 'SRC-27', `the trailing slot holds text (${text.map((node) => JSON.stringify(node.data.trim())).join(', ')}); it is laid out among the buttons, but the slot holds icon-only Buttons`);
     }
   }
 
