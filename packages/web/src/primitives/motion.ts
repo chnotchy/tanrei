@@ -26,11 +26,13 @@ type Host = ReactiveControllerHost & HTMLElement;
 // ── The document's first paint (MOT-4) ────────────────────────────────────────────────────────────────────────────────
 
 let painted = false;
-let tellPainted!: () => void;
-const whenPainted = new Promise<void>((resolve) => (tellPainted = resolve));
+// The promise `afterFirstPaint()` answers with is made when it is first asked for, not at the top of the module: a
+// promise made there is kept in the bundle of every element that imports this module, and few of them ever ask.
+let whenPainted: Promise<void> | undefined;
+let tellPainted: (() => void) | undefined;
 const markPainted = () => {
   painted = true;
-  tellPainted();
+  tellPainted?.();
 };
 // The second frame callback after the document is parsed runs once its first frame has been painted. Paint Timing would
 // say so too, but Firefox reports no `first-paint`, and a `first-contentful-paint` before the parse ends (a browser may
@@ -50,7 +52,8 @@ if (typeof document !== 'undefined' && typeof requestAnimationFrame === 'functio
 export const documentPainted = (): boolean => painted;
 
 /** Resolves once the document has been painted (MOT-4); never on a server. */
-export const afterFirstPaint = (): Promise<void> => whenPainted;
+export const afterFirstPaint = (): Promise<void> =>
+  (whenPainted ??= painted ? Promise.resolve() : new Promise<void>((resolve) => (tellPainted = resolve)));
 
 // ── Reduced motion (MOT-6) ────────────────────────────────────────────────────────────────────────────────────────────
 
