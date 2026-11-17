@@ -6,6 +6,7 @@ import {
   GlyphDrawnController,
   GlyphMirrorController,
   MirrorWordController,
+  hearsMirrorWord,
   PressController,
   SHEET_FLING_VELOCITY,
   SelectionController,
@@ -542,6 +543,7 @@ disabledWaitsWhileFocused(TanreiSwitch);
 focusedAtFirst(TanreiSwitch);
 // The product's ARIA on the host is the element's that carries the role; its checked and disabled states are its own.
 delegatesAria(TanreiSwitch, { owns: ['aria-checked', 'aria-pressed', 'aria-disabled'], sentence: 'SWT-26' });
+hearsMirrorWord(TanreiSwitch);
 if (!customElements.get('tanrei-switch')) customElements.define('tanrei-switch', TanreiSwitch);
 
 declare global {
