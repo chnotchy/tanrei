@@ -198,7 +198,6 @@ export const RULES = {
     // in src/frames.test.ts — the duration of an animation the sampler's own test starts.
     allowed: {
       'src/components/accordion/accordion.test.ts': 1,
-      'src/components/button-with-menu/button-with-menu.test.ts': 1,
       'src/components/copy-button/copy-button.test.ts': 2,
       'src/components/image-preview/image-preview.test.ts': 2,
       'src/components/modal-layer/modal-layer.test.ts': 1,

@@ -8,6 +8,7 @@
 import AxeBuilder from '@axe-core/playwright';
 import { type Browser, type Locator, type Page, expect, test } from '@playwright/test';
 import { type Fixture, acmeSystemCss, loadSpec, mountFixtures, resolveColor, resolveToken, tab, tabTo, rootTokens } from '../../../test/harness.js';
+import { pressHoldAsRun } from '../../../test/harsh.js';
 import { expectWheelKeptFromPage } from '../../../test/contained-wheel.js';
 import { decodePng } from '../../../test/png.js';
 import { holdClock as holdPageClock, releaseClock } from '../../../test/page-clock.js';
@@ -902,7 +903,7 @@ test.describe('behavior', () => {
   const CLOCK = 1;
   test('CRL-5: a press that ends within a frame — Enter, Space, a click — is shown at once and for at least press-hold, on an item and on the playback control', async ({ page }) => {
     const hold = await resolveToken(page, '--tanrei-sys-motion-duration-press-hold', 'duration');
-    expect(hold).toBe(100);
+    expect(hold).toBe(pressHoldAsRun(100));
     for (const part of ['item', 'playback'] as const) {
       for (const name of ['Enter', 'Space', 'click'] as const) {
         await mountFixtures(page, spec, { icons: true, fixtures: only('centered', 'autoplay-paused') });

@@ -8,6 +8,7 @@
 import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
 import { type Fixture, acmeSystemCss, iconFaceArrives, includingSystem, loadSpec, mountFixtures, resolveColor, resolveToken, tab, tabTo, withoutIconFont, rootTokens } from '../../../test/harness.js';
+import { pressHoldAsRun } from '../../../test/harsh.js';
 import { transitionsRun, watchTransitions } from '../../../test/transitions.js';
 import { expectFromNextFrame, motionCount, motionEnded } from '../../../test/motions.js';
 import { entrances, loadOpen, mountOpenAgain } from '../../../test/mounted-open.js';
@@ -1164,7 +1165,7 @@ test.describe('press, feedback, corners and focus style', () => {
     expect(await (async () => {
       await mountFixtures(page, spec, { icons: true, ...onTanrei });
       return resolveToken(page, '--tanrei-sys-motion-duration-press-hold', 'duration');
-    })()).toBe(100);
+    })()).toBe(pressHoldAsRun(100));
     const hold = 1000;
     for (const [name, activate] of [
       ['Enter', () => page.keyboard.press('Enter')],

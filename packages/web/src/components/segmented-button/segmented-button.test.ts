@@ -19,6 +19,7 @@ import {
   withoutIconFont,
   rootTokens,
 } from '../../../test/harness.js';
+import { pressHoldAsRun } from '../../../test/harsh.js';
 import { opticalSizeAxis } from '../../../test/icons.js';
 import { clickCentre, heldPress } from '../../../test/watched-press.js';
 import { motionCount, motionEnded, settledCss } from '../../../test/motions.js';
@@ -699,7 +700,7 @@ test.describe('states, press, target, corners and focus style', () => {
 
   test('SEG-9: a press that ends within a frame — Enter, Space, a click — is shown at once and for at least press-hold', async ({ page }) => {
     const hold = await resolveToken(page, '--tanrei-sys-motion-duration-press-hold', 'duration');
-    expect(hold).toBe(100);
+    expect(hold).toBe(pressHoldAsRun(100));
     for (const [name, activate] of [
       ['Enter', () => page.keyboard.press('Enter')],
       ['Space', () => page.keyboard.press('Space')],

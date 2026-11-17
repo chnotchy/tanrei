@@ -8,6 +8,7 @@ import { axTree } from '../../../test/ax-tree.js';
 import { type Locator, type Page, expect, test } from '@playwright/test';
 import { bounds, css, override, warnings } from '../../../test/destinations.js';
 import { type Fixture, type FixtureItem, acmeSystemCss, drawerWindow, fixturesDocument, loadSpec, mountFixtures, resolveColor, resolveToken, tab, tabTo, rootTokens } from '../../../test/harness.js';
+import { pressHoldAsRun } from '../../../test/harsh.js';
 import { appearingFixture, mountForAppearing } from '../../../test/first-frame.js';
 import { type Frames, expectAnimated, expectFirstFrameAtRest, sampleFrames } from '../../../test/frames.js';
 import { expectKeyPressOutlastsPointer } from '../../../test/key-press-pointer-leaves.js';
@@ -419,7 +420,7 @@ test.describe('states, press and focus', () => {
     ] as const) {
       await mount(page, [fixture('r', MAIL)]);
       const hold = await resolveToken(page, '--tanrei-sys-motion-duration-press-hold', 'duration');
-      expect(hold, name).toBe(100);
+      expect(hold, name).toBe(pressHoldAsRun(100));
       await cell(page, 'r', 1).evaluate((el: HTMLElement) => el.focus());
       await item(page, 'r', 1)
         .locator('.container')

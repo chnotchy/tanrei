@@ -6,6 +6,7 @@
 import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
 import { type Fixture, type FixtureItem, acmeSystemCss, fixturesDocument, iconFaceArrives, loadSpec, mountFixtures, resolveColor, resolveToken, tab, tabTo, withoutIconFont, rootTokens, mountFixtureAsInAll } from '../../../test/harness.js';
+import { pressHoldAsRun } from '../../../test/harsh.js';
 import { expectOneThumb, readThumb } from '../../../test/thumb.js';
 import { releaseAtRest } from '../../../test/release-at-rest.js';
 import { STOPPED_AFTER, flingThenHold, strokes } from '../../../test/stopped-release.js';
@@ -2546,7 +2547,7 @@ test.describe('states, press, corners and focus style', () => {
 
   test('TAB-8: a press that ends within a frame — Enter, Space, a click — is shown at once and for at least press-hold', async ({ page }) => {
     const hold = await resolveToken(page, '--tanrei-sys-motion-duration-press-hold', 'duration');
-    expect(hold).toBe(100);
+    expect(hold).toBe(pressHoldAsRun(100));
     for (const [name, activate] of [
       ['Enter', () => page.keyboard.press('Enter')],
       ['Space', () => page.keyboard.press('Space')],

@@ -6,6 +6,7 @@
 import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
 import { type Fixture, acmeSystemCss, loadSpec, mountFixtures, resolveColor, resolveToken, tab, tabTo, rootTokens } from '../../../test/harness.js';
+import { pressHoldAsRun } from '../../../test/harsh.js';
 import { transitionsRun, watchTransitions } from '../../../test/transitions.js';
 import { MIRRORED, anchorOf, expectDisabledLink, expectDrawnAlike, expectLinkActivation, expectNewContext, expectRefusals, expectTargetLabel, markOf, settledPaint } from '../../../test/links.js';
 import { opticalSize } from '../../../test/icons.js';
@@ -1180,7 +1181,7 @@ test.describe('press, feedback, corners and focus style', () => {
 
   test('CHP-8: a press that ends within a frame — Enter, Space, a click — is shown at once and for at least press-hold, on the chip and on its remove action', async ({ page }) => {
     const hold = await resolveToken(page, '--tanrei-sys-motion-duration-press-hold', 'duration');
-    expect(hold).toBe(100);
+    expect(hold).toBe(pressHoldAsRun(100));
     for (const [name, target] of [['chip', (p: P) => inner(p, 'input')], ['remove', (p: P) => removeOf(p, 'input')]] as const) {
       for (const key of ['Enter', 'Space', 'click']) {
         await mountFixtures(page, spec);
