@@ -2212,8 +2212,11 @@ export class TanreiDateTimePicker extends TanreiElement {
   private readonly follow = (): boolean => {
     const box = this.anchorElement?.getBoundingClientRect();
     const body = this.renderRoot.querySelector<HTMLElement>('.body');
-    // DTM-41: the layout direction too — the start edges are aligned (DTM-2), so a change of it places the container again.
-    const layout = `${box?.x},${box?.y},${box?.width},${box?.height},${viewportKey()},${body?.scrollHeight},${getComputedStyle(this).direction}`;
+    // The surface's own size too, as laid out: a part that grows while the body's scroll height stays (a heading, the
+    // text size, less than a pixel) moves a flipped container's top. DTM-41: the layout direction too — the start edges
+    // are aligned (DTM-2), so a change of it places the container again.
+    const size = this.surface && layoutSize(this.surface);
+    const layout = `${box?.x},${box?.y},${box?.width},${box?.height},${viewportKey()},${body?.scrollHeight},${size?.width},${size?.height},${getComputedStyle(this).direction}`;
     if (layout === this.lastLayout) return false;
     this.lastLayout = layout;
     this.place();

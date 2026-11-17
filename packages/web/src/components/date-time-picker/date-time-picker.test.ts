@@ -262,6 +262,30 @@ test.describe('presentation, focus and closing', () => {
     expect((await rect(s)).height % 1, 'the picker is not a whole number of pixels tall').not.toBeCloseTo(0, 1);
   });
 
+  test('DTM-2: a docked picker flipped above its anchor that changes its own size while it is open — its body’s scroll height as it was, its anchor still — is placed again: it still stands the offset above its anchor', async ({ page }) => {
+    await mount(page, [docked('d', { value: '2026-09-17' })]);
+    await opener(page, 'd').evaluate((el) => ((el as HTMLElement).style.cssText = 'position: fixed; bottom: 8px; left: 8px;'));
+    const s = surface(page, 'd');
+    await open(page, 'd');
+    await expect(s).toHaveClass(/side-top/);
+    const offset = await resolveToken(page, T('docked-offset'));
+    const rect = (locator: Locator) => locator.evaluate((el) => ((r) => ({ top: r.top, bottom: r.bottom, height: r.height }))(el.getBoundingClientRect()));
+    const gap = async () => (await rect(opener(page, 'd'))).top - offset - (await rect(s)).bottom;
+    await expect.poll(async () => Math.abs(await gap())).toBeLessThan(0.1);
+    const anchor = await rect(opener(page, 'd'));
+    const scrollHeight = () => host(page, 'd').evaluate((el) => el.shadowRoot!.querySelector<HTMLElement>('.body')!.scrollHeight);
+    const before = { height: (await rect(s)).height, scroll: await scrollHeight() };
+    // The surface grows by a padding of its own (a footer that grows would too): the body holds what it held.
+    for (const grown of ['12px', '12.4px', '0px']) {
+      await s.evaluate((el, value) => ((el as HTMLElement).style.paddingBlockEnd = value), grown);
+      await expect.poll(async () => (await rect(s)).height, grown).toBeCloseTo(before.height + Number.parseFloat(grown), 1);
+      expect(await scrollHeight(), `${grown}: the body's scroll height is as it was`).toBe(before.scroll);
+      await expect.poll(async () => Math.abs(await gap()), `${grown}: the offset above the anchor`).toBeLessThan(0.1);
+      expect(await rect(opener(page, 'd')), 'the anchor did not move').toEqual(anchor);
+      await expect(s).toHaveClass(/side-top/);
+    }
+  });
+
   test('DTM-2: a docked picker stays inside the visible part of the window — above the on-screen keyboard, which shrinks the visual viewport and not the layout one — and takes its place again when the keyboard hides', async ({ page }) => {
     await mount(page, [docked('d', { value: '2026-09-17' })]);
     await opener(page, 'd').evaluate((el) => ((el as HTMLElement).style.cssText = 'position: fixed; top: 260px; left: 8px;'));
