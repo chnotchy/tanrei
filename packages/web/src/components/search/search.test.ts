@@ -2447,10 +2447,11 @@ test.describe('forwarded trailing content', () => {
     await expect.poll(() => row(page, 'late')).toEqual(['button 10', 'button 8']);
     await page.evaluate(() => document.querySelector('[data-fixture="late"] [data-wrapper]')!.prepend('later'));
     await expect.poll(() => row(page, 'late')).toEqual(['text 0', 'button 10', 'button 8']);
-    // SRC-27: the slot holds icon-only Buttons; the text is reported, once for each search that holds it.
+    // SRC-27: the slot holds icon-only Buttons; the text is reported, once for each search that holds it — the text an
+    // element of display: contents holds as well.
     const reported = () => seen.filter((w) => w.includes('SRC-27') && w.includes('trailing slot holds text'));
-    await expect.poll(() => reported().length).toBe(5);
-    for (const fragment of ['"more 0"', '"more 1"', '"more 2"', '"later"']) expect(reported().join('\n')).toContain(fragment);
+    await expect.poll(() => reported().length).toBe(6);
+    for (const fragment of ['"more 0"', '"more 1"', '"more 2"', '"more"', '"later"']) expect(reported().join('\n')).toContain(fragment);
   });
 
   /** Puts the first `count` trailing Buttons — slotted into the search, or forwarded by its wrapper — into one element of display: contents, which takes their place in the slot. */
@@ -2553,6 +2554,82 @@ test.describe('forwarded trailing content', () => {
       holder.append(holder.querySelector('tanrei-button')!.cloneNode(true));
     });
     await expect.poll(() => row(page, 'held')).toEqual(['button 10', 'button 8', 'button 8']);
+  });
+
+  test('SRC-27: text the trailing box lays out is reported whatever brought it — white space a product’s slot forwards that becomes text, text an element of display: contents holds, slotted or forwarded, or that is written into it later — each text once, as the box lays it out', async ({ page }) => {
+    const seen = warnings(page);
+    const ids = ['data', 'held', 'forwarded-held', 'later'];
+    await mountFixtures(page, spec, { icons: true, reducedMotion: true, fixtures: ids.map((id) => forwarded(id)) });
+    await override(page, { '--tanrei-sys-target-touch': '48px' });
+    for (const id of ['data', 'forwarded-held']) await forward(page, id, []);
+    // An element of display: contents before the first Button, slotted itself or among the forwarded children: two
+    // holding text from the start, one empty until text is written into it.
+    await page.evaluate(() => {
+      for (const [id, text] of [['held', 'held'], ['forwarded-held', 'forwarded held'], ['later', '']]) {
+        const stage = document.querySelector(`[data-fixture="${id}"]`)!;
+        const wrapper = stage.querySelector('[data-wrapper]');
+        const holder = document.createElement('span');
+        holder.dataset.holder = '';
+        holder.style.display = 'contents';
+        if (!wrapper) holder.slot = 'trailing';
+        holder.append(text);
+        (wrapper ?? stage.querySelector('tanrei-search')!).querySelector(':scope > tanrei-button')!.before(holder);
+      }
+    });
+    // What is drawn, in its order (the spaces around text are the other tests'; a text's width is not a whole pixel).
+    const kinds = async (id: string) => (await row(page, id)).map((item) => item.split(' ')[0]);
+    for (const id of ['held', 'forwarded-held']) await expect.poll(() => kinds(id), id).toEqual(['text', 'button', 'button']);
+    for (const id of ['data', 'later']) await expect.poll(() => row(page, id), id).toEqual(['button 10', 'button 8']);
+    // Text that comes with no slotchange: the white space forwarded before the first Button becomes text, and text is
+    // written into the empty holder.
+    await page.evaluate(() => {
+      (document.querySelector('[data-fixture="data"] [data-wrapper]')!.firstChild as Text).data = 'data';
+      document.querySelector('[data-fixture="later"] [data-holder]')!.append('later');
+    });
+    for (const id of ['data', 'later']) await expect.poll(() => kinds(id), id).toEqual(['text', 'button', 'button']);
+    const reported = () => seen.filter((w) => w.includes('SRC-27') && w.includes('trailing slot holds text'));
+    await expect.poll(() => reported().length).toBe(4);
+    for (const fragment of ['"data"', '"held"', '"forwarded held"', '"later"']) expect(reported().join('\n')).toContain(fragment);
+    // The box reads its row again when the clear button goes (the text then stands first); the same text is not
+    // reported again.
+    await page.locator('[data-fixture="data"] [data-wrapper] tanrei-search').evaluate(async (el: HTMLElement & { value: string; updateComplete: Promise<boolean> }) => {
+      el.value = '';
+      await el.updateComplete;
+    });
+    await expect.poll(() => kinds('data')).toEqual(['button', 'button']);
+    expect(reported()).toHaveLength(4);
+  });
+
+  test('SRC-27: more than two elements the trailing box lays out are reported, counted as it lays them out — an element of display: contents as the Buttons it holds, slotted or forwarded, and a Button written into it later', async ({ page }) => {
+    const seen = warnings(page);
+    const ids = ['held', 'forwarded-held', 'written', 'two'];
+    await mountFixtures(page, spec, { icons: true, reducedMotion: true, fixtures: ids.map((id) => forwarded(id)) });
+    await override(page, { '--tanrei-sys-target-touch': '48px' });
+    await forward(page, 'forwarded-held', []);
+    // Both Buttons in one element of display: contents, a third Button after it in the slot (slotted itself, or among
+    // the forwarded children): the slot is given two elements, and the box lays out three Buttons.
+    for (const id of ['held', 'forwarded-held', 'two']) await holdButtons(page, id, 2);
+    await page.evaluate(() => {
+      for (const id of ['held', 'forwarded-held']) {
+        const stage = document.querySelector(`[data-fixture="${id}"]`)!;
+        const holder = stage.querySelector('[data-holder]')!;
+        const third = holder.querySelector('tanrei-button')!.cloneNode(true) as HTMLElement;
+        if (!stage.querySelector('[data-wrapper]')) third.slot = 'trailing';
+        holder.after(third);
+      }
+    });
+    await holdButtons(page, 'written', 1);
+    for (const id of ['held', 'forwarded-held']) await expect.poll(() => row(page, id), id).toEqual(['button 10', 'button 8', 'button 8']);
+    for (const id of ['written', 'two']) await expect.poll(() => row(page, id), id).toEqual(['button 10', 'button 8']);
+    // A third Button written into the holder, with no slotchange.
+    await page.evaluate(() => {
+      const holder = document.querySelector('[data-fixture="written"] [data-holder]')!;
+      holder.append(holder.querySelector('tanrei-button')!.cloneNode(true));
+    });
+    await expect.poll(() => row(page, 'written')).toEqual(['button 10', 'button 8', 'button 8']);
+    // Three for each of the three searches that lay out three Buttons; none for the one whose holder holds its two.
+    const counts = () => seen.filter((w) => w.includes('SRC-27') && /trailing slot holds \d+ elements/.test(w)).map((w) => /holds (\d+) elements/.exec(w)![1]);
+    await expect.poll(counts).toEqual(['3', '3', '3']);
   });
 });
 

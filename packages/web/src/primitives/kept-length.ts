@@ -97,7 +97,7 @@ export function keptSpaces(selector: string, { gap, axis = 'inline' }: { gap: st
  * anonymous item of its own, and nothing for one that is. A product's slot that forwards its children to a box's slot
  * brings their text along, which no slot of a name takes otherwise.
  */
-export const drawnText = (node: Node): node is Text => node.nodeType === Node.TEXT_NODE && /[^ \t\n\r\f]/.test((node as Text).data);
+const drawnText = (node: Node): node is Text => node.nodeType === Node.TEXT_NODE && /[^ \t\n\r\f]/.test((node as Text).data);
 
 /** Rounded to a hundredth of a pixel, so that a measurement that did not change writes nothing. */
 const hundredths = (value: number) => Math.round(value * 100) / 100;
@@ -129,6 +129,16 @@ const observer =
 
 /** What a box lays out, in its order: one of the row's elements, a run of text, or another item (`'other'`). */
 type Item = HTMLElement | 'text' | 'other';
+/**
+ * What a box lays out, as it was read: every element it lays out (an element of `display: contents` is opened, so the
+ * elements it holds are counted and it is not), and every text that is not only white space, each in its order.
+ */
+export interface LaidOut {
+  readonly elements: readonly Element[];
+  readonly texts: readonly Text[];
+}
+/** What a host does with what its box lays out: read again whatever brought it there (a slotchange, a resize, a change the box watches). */
+type Read = (laidOut: LaidOut) => void;
 /** What a change is watched for: a run of text's data, the children an element (or a slot's host) holds, or all it holds. */
 type Watch = { node: Node; options: MutationObserverInit };
 const TEXT_DATA: MutationObserverInit = { characterData: true };
@@ -145,6 +155,9 @@ const EVERYTHING: MutationObserverInit = { childList: true, characterData: true,
  * before each is a spacer of the box's, and nothing of the row is written on the product's element. `cap`, with a box,
  * is how far the first element the box lays out may reach toward the row's start (BTN-5) where none of the host's
  * elements stands before it: written as that element's `TARGET_CAPS.start`, and taken off when another one is first.
+ * `laidOut`, with a box, is told what the box lays out after every read of it that found something else than the read
+ * before (each element and the text of each run): one place for a host to look at all of it, whatever brought it — a
+ * slotchange, or a change only the box watches (a run's text, what an element of `display: contents` holds).
  */
 export class KeptLengths {
   /** The host's own elements, as `set()` gave them. */
@@ -162,11 +175,14 @@ export class KeptLengths {
   private readonly capped = new Map<HTMLElement, string>();
   private mutations: MutationObserver | null = null;
   private watched: Watch[] = [];
+  /** What `laidOut` was told last: the elements, and each run's text. */
+  private told: { elements: readonly Element[]; texts: readonly string[] } = { elements: [], texts: [] };
 
   constructor(
     readonly changed?: Changed,
     private readonly spaces?: () => HTMLElement | null,
     private readonly cap?: string,
+    private readonly laidOut?: Read,
   ) {}
 
   set(row: readonly HTMLElement[], axis: 'inline' | 'block' = 'inline') {
@@ -210,6 +226,7 @@ export class KeptLengths {
     this.row = [];
     this.items = [];
     this.held = new Set();
+    this.told = { elements: [], texts: [] };
     this.watch([]);
     this.place([]);
   }
@@ -286,10 +303,12 @@ export class KeptLengths {
    * an element of `display: contents` holds it), and anything else that takes a cell. An element's style is read only
    * where its length cannot tell. What a change of the slot's content would not announce is watched (`watch()`): the
    * runs of text, white space included, and what the elements of `display: contents` hold. Without a box the row is
-   * the host's elements alone, and nothing is watched.
+   * the host's elements alone, and nothing is watched. What the box lays out goes to `laidOut` where it changed.
    */
   private read(box: HTMLElement | null) {
     const items: Item[] = [];
+    const elements: Element[] = [];
+    const texts: Text[] = [];
     const held = new Set<HTMLElement>();
     const watched: Watch[] = [];
     const root = box?.getRootNode();
@@ -313,6 +332,7 @@ export class KeptLengths {
         } else if (node instanceof Text) {
           if (!within) watched.push({ node, options: TEXT_DATA });
           if (!drawnText(node)) continue;
+          texts.push(node);
           if (!text) items.push('text');
           text = true;
         } else if (node instanceof Element && !this.spacers.includes(node as HTMLElement)) {
@@ -328,6 +348,7 @@ export class KeptLengths {
             continue;
           }
           items.push(element ?? 'other');
+          elements.push(node);
           text = false;
         }
       }
@@ -349,6 +370,16 @@ export class KeptLengths {
     this.row = row;
     this.held = held;
     this.watch(watched);
+    if (box && this.laidOut) this.tell(elements, texts);
+  }
+
+  /** What the box lays out, told to `laidOut` where it is not what was told last. */
+  private tell(elements: readonly Element[], texts: readonly Text[]) {
+    const data = texts.map((node) => node.data);
+    const told = this.told;
+    if (elements.length === told.elements.length && elements.every((element, i) => element === told.elements[i]) && data.length === told.texts.length && data.every((d, i) => d === told.texts[i])) return;
+    this.told = { elements, texts: data };
+    this.laidOut!({ elements, texts });
   }
 
   /**

@@ -8342,8 +8342,9 @@ its buttons and lays the space before each trailing button as an element of its 
 `src/primitives/kept-length.ts`, writing none of the row's lengths on the product's buttons, so a page's reset leaves
 it; the box reads its buttons itself, as it lays them out — what its slot holds flattened, so Buttons a product's own
 slot forwards are spaced too, and an element of `display: contents` opened, so the Buttons it holds are trailing
-Buttons —, text among them — reported, SRC-27 — takes a cell of its own that the spacers count, and a MutationObserver
-on what the box lays out (made only while it keeps spaces, so the number input's steppers pay nothing) re-reads it when
+Buttons —, text among them takes a cell of its own that the spacers count, what it lays out goes to the search after
+each read that found it changed, which reports from it (SRC-27: each text, and more than two elements counted as the
+box lays them out, whatever brought them there), and a MutationObserver on what the box lays out (made only while it keeps spaces, so the number input's steppers pay nothing) re-reads it when
 text or such an element's content changes without a slotchange; the first Button the box lays out, where no clear
 button stands before it, carries the cap toward the input, `container.gap / 2` as an inline `--tanrei-target-cap-start`
 the search writes and takes off — BTN-5, SRC-25 — since `::slotted()` matches neither a forwarded Button nor one an

@@ -9,7 +9,7 @@ import {
   cssZoom,
   GlyphDrawnController,
   KeptLengths,
-  drawnText,
+  type LaidOut,
   GlyphMirrorController,
   type KeyboardConvention,
   LinkController,
@@ -677,9 +677,14 @@ export class TanreiSearch extends TanreiElement {
    * before each of the trailing slot's buttons is a spacer in the trailing box, never a margin on the product's button;
    * the box reads its buttons itself, as it lays them out (forwarded by a product's slot, or held by an element of
    * display: contents), and the first of them takes the cap toward the input where no clear button stands before it
-   * (BTN-5, SRC-25).
+   * (BTN-5, SRC-25). What it lays out is what SRC-27 reports (`reportTrailing()`).
    */
-  private readonly kept = new KeptLengths(undefined, () => this.renderRoot?.querySelector<HTMLElement>('.bar .trailing') ?? null, FIRST_ACTION_CAP);
+  private readonly kept = new KeptLengths(
+    undefined,
+    () => this.renderRoot?.querySelector<HTMLElement>('.bar .trailing') ?? null,
+    FIRST_ACTION_CAP,
+    (laidOut) => this.reportTrailing(laidOut),
+  );
   /**
    * SRC-32: a suggestion's leading glyph is marked when the icon set mirrors its name in right-to-left
    * (src/primitives/glyph-mirror.ts); `iconGlyph()` draws the mark. The search glyph (SRC-2) is not named here, and the
@@ -1348,14 +1353,22 @@ export class TanreiSearch extends TanreiElement {
     if (slot.name === 'leading') this.hasLeading = elements.length > 0;
     else if (slot.name === 'trailing') {
       this.trailingCount = elements.length;
-      // SRC-34: another button in the same place is measured too, though nothing renders again.
+      // SRC-34: another button in the same place is measured too, though nothing renders again; SRC-27: the trailing
+      // box reports what it lays out as it reads it.
       this.keepActions();
-      // SRC-27: more than two trailing buttons are still laid out, and reported.
-      if (elements.length > 2) report(this, 'SRC-27', `the trailing slot holds ${elements.length} elements; a search bar has room for two icon buttons`);
-      // SRC-27: so is text a slot of the product's forwards to it; the Buttons keep their spaces around it (SRC-34).
-      const text = slot.assignedNodes({ flatten: true }).filter(drawnText);
-      if (text.length) report(this, 'SRC-27', `the trailing slot holds text (${text.map((node) => JSON.stringify(node.data.trim())).join(', ')}); it is laid out among the buttons, but the slot holds icon-only Buttons`);
     }
+  }
+
+  /**
+   * SRC-27: what the trailing box lays out, as it has just read it — after a slotchange, and after a change only the
+   * box watches (a run's text, what an element of display: contents holds) — so whatever brought it is reported alike.
+   * More than two elements are still laid out, and reported: the elements the box lays out, so an element of display:
+   * contents counts as the Buttons it holds. So is text, forwarded by a slot of the product's or held by an element of
+   * display: contents; the Buttons keep their spaces around it (SRC-34).
+   */
+  private reportTrailing({ elements, texts }: LaidOut) {
+    if (elements.length > 2) report(this, 'SRC-27', `the trailing slot holds ${elements.length} elements; a search bar has room for two icon buttons`);
+    if (texts.length) report(this, 'SRC-27', `the trailing slot holds text (${texts.map((node) => JSON.stringify(node.data.trim())).join(', ')}); it is laid out among the buttons, but the slot holds icon-only Buttons`);
   }
 
   // ── Opening and closing (SRC-5, SRC-6) ─────────────────────────────────────────────────────────────────
