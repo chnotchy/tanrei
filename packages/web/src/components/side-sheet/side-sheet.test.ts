@@ -9,6 +9,7 @@ import { bounds, css, override, warnings } from '../../../test/destinations.js';
 import { type Fixture, type FixtureItem, innerStrokeAtEdges, loadSpec, missingWords, mountFixtures, resolveColor, resolveToken, setWords, tab, tabTo } from '../../../test/harness.js';
 import { expectWheelKeptFromPage } from '../../../test/contained-wheel.js';
 import { EVERY_ANIMATION, expectFromNextFrame, motionEnded } from '../../../test/motions.js';
+import { transitionsRun, watchTransitions } from '../../../test/transitions.js';
 import { entrances, loadOpen, mountOpenAgain, runsAtRest } from '../../../test/mounted-open.js';
 import { bezierOf, expectSlideExitEnd, expectSlidOnly, resolveEasing, sheetProbe, slidOut, turnHeld } from '../../../test/appear.js';
 import { type Frames, expectNoFlicker, freezeFirstFrame, sampleFrames } from '../../../test/frames.js';
@@ -260,6 +261,114 @@ test.describe('drawing', () => {
     expect(std.x).toBe((await bounds(page.locator('[data-fixture="std"]'))).x);
     const close = await bounds(host(page, 'std').locator('tanrei-button.close'));
     expect(close.x).toBeCloseTo(std.x + (await px(page, T('header-padding-inline-end'))), 0);
+  });
+
+  test('SSH-21: the direction is the nearest ancestor’s — not the root’s and not a setting of the sheet’s own; when it changes while the sheet is shown it is drawn for the new direction at once, without a motion, keeping its open state and its focus', async ({ page }) => {
+    // The verify: the direction set on an ancestor inside the page (each fixture's stage), not on the root.
+    await mount(page, [{ ...fx('s', { variant: 'modal' }), direction: 'rtl' }, { ...fx('std', { variant: 'standard' }), direction: 'rtl' }]);
+    expect(await page.evaluate(() => document.documentElement.getAttribute('dir'))).toBeNull();
+    for (const id of ['s', 'std']) {
+      expect(await host(page, id).evaluate((el) => [el.getAttribute('dir'), el.matches(':dir(rtl)'), Object.keys((el.constructor as unknown as { properties: object }).properties).some((p) => /^dir|direction/i.test(p))]), id).toEqual([null, true, false]);
+    }
+    const [width, inset] = [await px(page, T('container-width')), await px(page, T('header-padding-inline-end'))];
+    /** Where each sheet stands: the modal one in the window, the standard one in its row, and each close button in its sheet. */
+    const placed = async () => {
+      const [modal, std, row] = [await bounds(sheet(page)), await bounds(sheet(page, 'std')), await bounds(page.locator('[data-fixture="std"]'))];
+      const [modalClose, stdClose] = [await bounds(close(page)), await bounds(close(page, 'std'))];
+      return {
+        modal: [modal.x, modal.width],
+        std: [std.x - row.x, row.x + row.width - (std.x + std.width)],
+        close: [modalClose.x - modal.x, modal.x + modal.width - (modalClose.x + modalClose.width), stdClose.x - std.x],
+      };
+    };
+    const rtl = await placed();
+    expect(rtl.modal, 'right-to-left: the modal sheet at the left edge').toEqual([0, width]);
+    expect(rtl.std[0], 'right-to-left: the standard sheet at the left end of its row').toBeCloseTo(0, 0);
+    expect(rtl.close[0], 'right-to-left: the close button at the left').toBeCloseTo(inset, 0);
+    // Shown, with keyboard focus on its close button.
+    await tabTo(page, close(page));
+    const focus = await focused(page);
+    await motionEnded(page);
+    // Changed on the ancestors after the first render: no transition starts and nothing moves.
+    for (const id of ['s', 'std']) await watchTransitions(host(page, id));
+    await page.evaluate(async () => {
+      for (const id of ['s', 'std']) document.querySelector(`[data-fixture="${id}"]`)!.setAttribute('dir', 'ltr');
+      await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+    });
+    for (const id of ['s', 'std']) {
+      expect(await transitionsRun(host(page, id)), `${id}: no transition`).toEqual([]);
+      expect(await host(page, id).evaluate((el, every) => ((0, eval)(every) as (root: Element) => Animation[])(el).map((a) => (a as CSSTransition).transitionProperty ?? (a as CSSAnimation).animationName), EVERY_ANIMATION), `${id}: nothing moves`).toEqual([]);
+    }
+    const ltr = await placed();
+    expect(ltr.modal, 'left-to-right: the modal sheet at the right edge').toEqual([WINDOW.width - width, width]);
+    expect(ltr.std[1], 'left-to-right: the standard sheet at the right end of its row').toBeCloseTo(0, 0);
+    expect(ltr.close[1], 'left-to-right: the close button at the right').toBeCloseTo(inset, 0);
+    // Its open state and its focus are kept.
+    expect(await host(page).evaluate((el: HTMLElement & { open: boolean }) => el.open)).toBe(true);
+    expect(await host(page, 'std').evaluate((el: HTMLElement & { open: boolean }) => el.open)).toBe(true);
+    expect(await focused(page)).toBe(focus);
+    expect(await close(page).evaluate((el) => el.matches(':focus-within'))).toBe(true);
+    // Where no ancestor sets one, the document's.
+    await page.locator('[data-fixture="s"]').evaluate((el) => el.removeAttribute('dir'));
+    await page.evaluate(() => document.documentElement.setAttribute('dir', 'rtl'));
+    await expect.poll(async () => (await placed()).modal).toEqual([0, width]);
+  });
+
+  test('SSH-22: the headline is text of its own direction, isolated — a left-to-right name, a number with its sign and a telephone number keep their order in a right-to-left sheet — and is still placed and aligned by the layout direction', async ({ page }) => {
+    await mount(page, [
+      { ...fx('latin', { variant: 'standard', headline: 'Filters v2.1' }), direction: 'rtl' },
+      { ...fx('phone', { variant: 'standard', headline: '+1 555 0100' }), direction: 'rtl' },
+      { ...fx('arabic', { variant: 'standard', headline: 'عوامل التصفية' }), direction: 'rtl' },
+      { ...fx('wrapped', { variant: 'standard', headline: 'Filters for every selected label, project and person' }), direction: 'rtl' },
+      fx('ltr', { variant: 'standard', headline: 'Filters v2.1' }),
+    ]);
+    const pad = await px(page, T('container-padding-inline'));
+    /** The headline's lines from the sheet's left and right edges, and the left edges of its first and last characters. */
+    const drawn = (id: string) =>
+      headline(page, id).evaluate((el) => {
+        const node = [...el.childNodes, ...el.querySelectorAll('*')].flatMap((n) => (n.nodeType === Node.TEXT_NODE ? [n] : [...n.childNodes].filter((c) => c.nodeType === Node.TEXT_NODE))).find((n) => n.textContent!.trim())!;
+        const text = node.textContent!;
+        const [from, to] = [text.length - text.trimStart().length, text.trimEnd().length - 1];
+        const at = (i: number) => {
+          const range = document.createRange();
+          range.setStart(node, i);
+          range.setEnd(node, i + 1);
+          return range.getBoundingClientRect().left;
+        };
+        const range = document.createRange();
+        range.selectNodeContents(el);
+        const sheet = (el.getRootNode() as ShadowRoot).querySelector('.sheet')!.getBoundingClientRect();
+        // One rectangle per line (a run split by the bidi algorithm is joined with the others of its line).
+        const lines = new Map<number, { left: number; right: number }>();
+        for (const r of range.getClientRects()) {
+          if (!r.width) continue;
+          const line = lines.get(Math.round(r.top)) ?? { left: Number.POSITIVE_INFINITY, right: Number.NEGATIVE_INFINITY };
+          lines.set(Math.round(r.top), { left: Math.min(line.left, r.left), right: Math.max(line.right, r.right) });
+        }
+        return {
+          unicodeBidi: getComputedStyle(el).unicodeBidi,
+          direction: getComputedStyle(el).direction,
+          lines: [...lines.values()].map((l) => [Math.round((l.left - sheet.left) * 100) / 100, Math.round((sheet.right - l.right) * 100) / 100]),
+          first: at(from),
+          last: at(to),
+        };
+      });
+    for (const id of ['latin', 'phone', 'arabic', 'wrapped', 'ltr']) {
+      const seen = await drawn(id);
+      // Its own run, by its first strong character; the box keeps the layout's direction.
+      expect(seen.unicodeBidi, id).toBe('plaintext');
+      expect(seen.direction, id).toBe(id === 'ltr' ? 'ltr' : 'rtl');
+      // Placed and aligned by the layout: every line starts padding-inline from the right edge in right-to-left, from the
+      // left one in left-to-right — a left-to-right text's lines in a right-to-left sheet too.
+      for (const [left, right] of seen.lines) {
+        if (id === 'ltr') expect(left, `${id}: a line at the left`).toBeCloseTo(pad, 0);
+        else expect(right, `${id}: a line at the right`).toBeCloseTo(pad, 0);
+      }
+      // Its own order: a left-to-right name and a number read from the left, an Arabic name from the right.
+      if (id === 'arabic') expect(seen.first, `${id}: reads right to left`).toBeGreaterThan(seen.last);
+      else if (id !== 'wrapped') expect(seen.first, `${id}: reads left to right`).toBeLessThan(seen.last);
+    }
+    expect((await drawn('wrapped')).lines.length, 'the long headline wraps').toBeGreaterThan(1);
   });
 
   test('SSH-8: the header — at least header.height, the headline from padding-inline, the close button header.padding-inline-end from the end and header.gap after the headline, both centred — then the content inset by padding-inline, then padding-block (or the actions); the color reaches under the insets', async ({ page }) => {
