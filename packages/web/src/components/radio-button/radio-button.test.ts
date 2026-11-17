@@ -8,7 +8,7 @@ import { type Locator, type Page, expect, test } from '@playwright/test';
 import { type Fixture, acmeSystemCss, loadSpec, mountFixtures, resolveColor, resolveToken, tab, tabTo, rootTokens } from '../../../test/harness.js';
 import { BEHIND, INSIDE, RATIOS, atRatio, depth, endMotion, holdMotionAt, offLine, paintedBehind, shoot, stageBehind, worst } from '../../../test/one-shape.js';
 import { transitionsRun, watchTransitions } from '../../../test/transitions.js';
-import { motionEnded, settledCss } from '../../../test/motions.js';
+import { motionCount, motionEnded, settledCss } from '../../../test/motions.js';
 import { allSettled } from '../../../test/settled.js';
 import { clickCentre, heldPress } from '../../../test/watched-press.js';
 import { expectBaseline } from '../../../test/baseline.js';
@@ -1524,6 +1524,121 @@ test.describe('form', () => {
     await page.evaluate(() => document.querySelector('form')!.reset());
     await expect.poll(() => selected(page)).toEqual(['v1']);
     expect(await data()).toEqual(['size=v1']);
+  });
+});
+
+test.describe('right to left', () => {
+  const stage = (page: P, id: string) => page.locator(`[data-fixture="${id}"]`);
+  const fx = (id: string, props: Fixture['props'], direction?: 'ltr' | 'rtl'): Fixture => ({ id, props: { value: 'one', name: id, ...props }, ...(direction ? { direction } : {}) });
+  /** Whether the control stands at the right of the label. */
+  const controlIsRight = (page: P, id: string) =>
+    host(page, id).evaluate((el) => {
+      const root = el.shadowRoot!;
+      return root.querySelector('.container')!.getBoundingClientRect().x > root.querySelector('.label')!.getBoundingClientRect().x;
+    });
+  /** The label's text: the left edge of each character but a space, in the order written, and the box of each line. */
+  const text = (page: P, id: string) =>
+    labelOf(page, id).evaluate((el) => {
+      const node = [...el.childNodes].find((child) => child.nodeType === Node.TEXT_NODE && child.textContent!.trim()) as Text;
+      const lefts = [...node.data].flatMap((char, index) => {
+        if (char === ' ') return [];
+        const range = document.createRange();
+        range.setStart(node, index);
+        range.setEnd(node, index + 1);
+        return [range.getBoundingClientRect().left];
+      });
+      const range = document.createRange();
+      range.selectNodeContents(node);
+      const lines = [...range.getClientRects()].filter((rect) => rect.width > 0).map((rect) => ({ left: rect.left, right: rect.right }));
+      const box = el.getBoundingClientRect();
+      return { lefts, lines, box: { left: box.left, right: box.right } };
+    });
+  const LONG_LTR = 'Every week, on the first working day, with a summary of every change';
+  const LONG_ARABIC = 'كل أسبوع، في أول يوم عمل، مع ملخص لكل تغيير في نظام التصميم';
+
+  test('RAD-22: the direction is the nearest ancestor’s inside the page — not the root’s, and no setting of the radio button’s own; a change while it is shown is drawn at once, without a motion, keeping its selection and its focus', async ({ page }) => {
+    await mountFixtures(page, spec, { fixtures: [fx('nested', { checked: true, label: 'Weekly' }), fx('stage-rtl', { label: 'Weekly' }, 'rtl'), fx('plain', { label: 'Weekly' })] });
+    // The document carries no dir: the platform's own is left to right, and a stage's dir is the radio button's.
+    expect(await page.evaluate(() => document.documentElement.getAttribute('dir'))).toBeNull();
+    expect(await controlIsRight(page, 'plain')).toBe(false);
+    expect(await controlIsRight(page, 'stage-rtl')).toBe(true);
+    // No direction setting of its own.
+    expect(await page.evaluate(() => (customElements.get('tanrei-radio-button') as unknown as { observedAttributes: string[] }).observedAttributes.filter((name) => /dir/.test(name)))).toEqual([]);
+    expect(await host(page, 'stage-rtl').getAttribute('dir')).toBeNull();
+    // The nearest ancestor wins: a left-to-right block inside a right-to-left one, across a shadow root. The radio
+    // button moves with its group and its form.
+    await stage(page, 'nested').evaluate((el) => {
+      el.setAttribute('dir', 'rtl');
+      const inner = document.createElement('div');
+      inner.id = 'inner';
+      inner.setAttribute('dir', 'ltr');
+      const shadowHost = document.createElement('div');
+      shadowHost.attachShadow({ mode: 'open' }).append(document.createElement('slot'));
+      shadowHost.append(el.querySelector('form')!);
+      inner.append(shadowHost);
+      el.append(inner);
+    });
+    const target = host(page, 'nested');
+    expect(await controlIsRight(page, 'nested')).toBe(false);
+    await tabTo(page, target);
+    // What focus started (the ring) has ended before the direction changes.
+    await motionEnded(target);
+    // Changed after the first render: drawn for the new direction in the same task, and nothing set moving by it.
+    const right = await target.evaluate((el) => {
+      document.querySelector('#inner')!.setAttribute('dir', 'rtl');
+      const root = el.shadowRoot!;
+      return root.querySelector('.container')!.getBoundingClientRect().x > root.querySelector('.label')!.getBoundingClientRect().x;
+    });
+    expect(right).toBe(true);
+    expect(await motionCount(target)).toBe(0);
+    // Its selection and its focus are kept.
+    await expect(target).toBeFocused();
+    expect(await target.evaluate((el) => (el as HTMLElement & { checked: boolean }).checked)).toBe(true);
+    await expect(input(page, 'nested')).toBeChecked();
+    // Taken away, the stage's right-to-left is the nearest again; the stage turned back, left to right.
+    await page.evaluate(() => document.querySelector('#inner')!.removeAttribute('dir'));
+    expect(await controlIsRight(page, 'nested')).toBe(true);
+    await stage(page, 'nested').evaluate((el) => el.setAttribute('dir', 'ltr'));
+    expect(await controlIsRight(page, 'nested')).toBe(false);
+    await expect(target).toBeFocused();
+    await expect(input(page, 'nested')).toBeChecked();
+  });
+
+  test('RAD-23: the label is text of its own direction, isolated — a left-to-right label, a number with its sign and a telephone number keep their order in a right-to-left layout and the control keeps its side; a right-to-left label reads from its right in a left-to-right one — its lines aligned to the layout’s start, not the text’s', async ({ page }) => {
+    await mountFixtures(page, spec, {
+      fixtures: [
+        fx('ltr-in-rtl', { label: 'Call +1 555 0100' }, 'rtl'),
+        fx('signed-rtl', { label: '−5' }, 'rtl'),
+        fx('phone-rtl', { label: '+1 555 0100' }, 'rtl'),
+        fx('arabic-in-ltr', { label: 'كل أسبوع' }),
+        fx('wrap-ltr-in-rtl', { label: LONG_LTR }, 'rtl'),
+        fx('wrap-arabic-in-ltr', { label: LONG_ARABIC }),
+      ],
+    });
+    for (const id of ['ltr-in-rtl', 'signed-rtl', 'arabic-in-ltr']) expect(await css(labelOf(page, id), 'unicode-bidi'), id).toBe('plaintext');
+    // Its own order: each character after the one before it, from the left; the layout's box is still right to left.
+    for (const id of ['ltr-in-rtl', 'signed-rtl', 'phone-rtl']) {
+      const { lefts } = await text(page, id);
+      for (let i = 1; i < lefts.length; i++) expect(lefts[i], `${id}: character ${i}`).toBeGreaterThan(lefts[i - 1]!);
+      expect(await css(labelOf(page, id), 'direction'), id).toBe('rtl');
+      // It reorders nothing beside it: the control is still at the layout's start, the right.
+      expect(await controlIsRight(page, id), id).toBe(true);
+    }
+    // A right-to-left label in a left-to-right layout reads from its right, after the control at the left.
+    const arabic = (await text(page, 'arabic-in-ltr')).lefts;
+    expect(arabic[0]).toBeGreaterThan(arabic.at(-1)!);
+    expect(await controlIsRight(page, 'arabic-in-ltr')).toBe(false);
+    // Lines that wrap are aligned to the layout's start: every line of a left-to-right label at the right edge in a
+    // right-to-left layout, every line of an Arabic label at the left edge in a left-to-right one.
+    for (const id of ['wrap-ltr-in-rtl', 'wrap-arabic-in-ltr']) await stage(page, id).evaluate((el) => (el.style.inlineSize = '200px'));
+    const ltr = await text(page, 'wrap-ltr-in-rtl');
+    expect(ltr.lines.length).toBeGreaterThan(1);
+    for (const line of ltr.lines) expect(line.right, 'a left-to-right line in right to left').toBeCloseTo(ltr.box.right, 0);
+    expect(new Set(ltr.lines.map((line) => Math.round(line.left))).size, 'lines of different lengths').toBeGreaterThan(1);
+    const rtl = await text(page, 'wrap-arabic-in-ltr');
+    expect(rtl.lines.length).toBeGreaterThan(1);
+    for (const line of rtl.lines) expect(line.left, 'a right-to-left line in left to right').toBeCloseTo(rtl.box.left, 0);
+    expect(new Set(rtl.lines.map((line) => Math.round(line.right))).size, 'lines of different lengths').toBeGreaterThan(1);
   });
 });
 
