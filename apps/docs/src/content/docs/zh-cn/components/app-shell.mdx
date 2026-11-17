@@ -2,7 +2,7 @@
 title: "应用外壳"
 description: "为页面或应用搭起框架。它安放页眉、导航、主内容、侧栏和页脚，根据窗口的宽度决定各自的呈现方式，并让键盘一步就能到达内容。"
 translationOf: components/app-shell.mdx
-sourceHash: 9045a147596e331dff0cc341434cf2feac3602a5
+sourceHash: b43441dd919900303318f276034a3e6301b02c0d
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -131,7 +131,11 @@ import ComponentAccessibility from '../../../../components/ComponentAccessibilit
 
 ### 指向标题的链接停在页眉下方
 
-外壳会测量粘性页眉，并给页面的滚动视图留出同样大小的内边距。指向标题的链接，以及获得键盘焦点的元素，都停在页眉的下方，绝不会被它盖住。在 Web 上，同一段距离也是根元素上的 `--tanrei-app-shell-scroll-offset`，供你自己的粘性部分使用，例如表格的表头行。在外壳里，请让 `--tanrei-prose-scroll-offset` 保持为 0。
+外壳会测量粘性页眉，并给页面的滚动视图留出同样大小的内边距。指向标题的链接，以及获得键盘焦点的元素，都停在页眉的下方，绝不会被它盖住。在 Web 上，同一段距离也是根元素上的 `--tanrei-app-shell-scroll-offset`，导航栏的高度则是 `--tanrei-app-shell-scroll-offset-end`，供你自己的粘性部分使用，例如表格的表头行。使用 `scroll: main` 时，滚动的主内容区域上方没有任何东西叠着，外壳不设置这两个属性。在外壳里，请让 `--tanrei-prose-scroll-offset` 保持为 0。
+
+### 浮层避开页眉和导航栏
+
+无论 `scroll` 取什么值，外壳还会在根元素上写出框架在窗口上占去了多少。`--tanrei-app-shell-window-inset-top` 是页眉（没有页眉的框架中则是菜单按钮）留在视野内时，从窗口顶边到它底边的距离；使用 `scroll: main` 时页眉从不移动，它上方的公告也计算在内。`--tanrei-app-shell-window-inset-bottom` 是导航栏显示时的高度。这两个属性供画在页面之上的东西使用：消息条读取它们，从而避开页眉和导航栏；你自己的浮层或固定定位的元素也可以这样做。
 
 ### 什么叠在什么之上
 

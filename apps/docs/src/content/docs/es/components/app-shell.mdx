@@ -2,7 +2,7 @@
 title: Estructura de la aplicación
 description: Enmarca una página o una aplicación. Coloca una cabecera, la navegación, el contenido principal, un contenido complementario y un pie, decide según el ancho de la ventana cómo se muestra cada uno y permite que el teclado llegue al contenido en un solo paso.
 translationOf: components/app-shell.mdx
-sourceHash: 9045a147596e331dff0cc341434cf2feac3602a5
+sourceHash: b43441dd919900303318f276034a3e6301b02c0d
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -131,7 +131,11 @@ Pon en la cabecera un Button de solo icono y márcalo con `data-app-shell-menu`.
 
 ### Los enlaces a un encabezado se detienen debajo de la cabecera
 
-La estructura mide la cabecera fija y da ese mismo margen interior a la vista de desplazamiento de la página. Un enlace a un encabezado, y un elemento que recibe el foco del teclado, se detienen debajo de la cabecera y nunca quedan tapados por ella. En la web, esa misma distancia es `--tanrei-app-shell-scroll-offset` en la raíz, para tus propias partes fijas, como la fila de encabezado de una tabla. Dentro de una estructura, deja `--tanrei-prose-scroll-offset` en 0.
+La estructura mide la cabecera fija y da ese mismo margen interior a la vista de desplazamiento de la página. Un enlace a un encabezado, y un elemento que recibe el foco del teclado, se detienen debajo de la cabecera y nunca quedan tapados por ella. En la web, esa misma distancia es `--tanrei-app-shell-scroll-offset` en la raíz, y la altura de la barra de navegación es `--tanrei-app-shell-scroll-offset-end`, para tus propias partes fijas, como la fila de encabezado de una tabla. Con `scroll: main`, la estructura no define ninguna de las dos: nada queda encima de la región principal mientras se desplaza. Dentro de una estructura, deja `--tanrei-prose-scroll-offset` en 0.
+
+### Las superposiciones se apartan del marco
+
+Sea cual sea `scroll`, la estructura también escribe en la raíz cuánto cubre el marco de la ventana. `--tanrei-app-shell-window-inset-top` es la distancia entre el borde superior de la ventana y el borde inferior de la cabecera (o del botón de menú, en un marco sin cabecera) mientras esta sigue a la vista; con `scroll: main` la cabecera no se mueve nunca, y cuenta también un anuncio que haya encima de ella. `--tanrei-app-shell-window-inset-bottom` es la altura de la barra de navegación mientras se muestra. Son para lo que se dibuja encima de la página: el snackbar las lee para quedar apartado de la cabecera y de la barra de navegación, y una superposición o un elemento fijo propios pueden hacer lo mismo.
 
 ### Qué queda encima de qué
 
