@@ -1,4 +1,4 @@
-// `.tanrei-timeline` (timeline.css, src/timeline.ts), driven by specs/timeline.spec.json: every behaviour id (TML-1…22)
+// `.tanrei-timeline` (timeline.css, src/timeline.ts), driven by specs/timeline.spec.json: every behaviour id
 // is cited by a test title, every fixture has a baseline, and every length and color is read back from the tokens,
 // never from a number written here (the spec's own `verify` numbers are checked beside them). A marker and a connector
 // are pseudo-elements: their sizes are read from their computed style, and what a marker PAINTS — a dot, a check, a

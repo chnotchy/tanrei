@@ -1,4 +1,4 @@
-// <tanrei-number-ticker>, driven by specs/number-ticker.spec.json: every behaviour id (NTK-1…17) is cited by a test
+// <tanrei-number-ticker>, driven by specs/number-ticker.spec.json: every behaviour id is cited by a test
 // title, every fixture has a baseline, and every duration, curve and distance is read back from the tokens — never from
 // a number written here. A motion is read at set moments: its animations are paused and moved to a time, so what is
 // read is the same on any machine.

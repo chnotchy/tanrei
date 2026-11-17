@@ -1,4 +1,4 @@
-// `<tanrei-link-card>` (link-card.css, link-card.ts), driven by specs/link-card.spec.json: every behaviour id (LKC-1…36)
+// `<tanrei-link-card>` (link-card.css, link-card.ts), driven by specs/link-card.spec.json: every behaviour id
 // is cited by a test title, every fixture has a baseline, and every length, color and time is read back from the
 // tokens, never from a number written here. A fixture cannot set the width of its stage:
 // LKC-12's verify names the widths a test sets — 720, 320, and 720 with the text doubled.

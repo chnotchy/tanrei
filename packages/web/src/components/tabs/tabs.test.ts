@@ -1,4 +1,4 @@
-// <tanrei-tabs>, <tanrei-tab> and <tanrei-tab-panel>, driven by specs/tabs.spec.json: every behaviour id (TAB-1…45, TAB-49…61) is
+// <tanrei-tabs>, <tanrei-tab> and <tanrei-tab-panel>, driven by specs/tabs.spec.json: every behaviour id is
 // cited by a test title, every fixture has a baseline, and every state, look and choice of kind is read back from the
 // tokens — never from a number written here.
 // TAB-62: the product's ARIA on the host is tested with every other control's, in every engine, in

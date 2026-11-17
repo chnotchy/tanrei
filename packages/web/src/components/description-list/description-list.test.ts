@@ -1,5 +1,5 @@
 // <tanrei-description-list> and description-list.css, driven by specs/description-list.spec.json: every behaviour id
-// (DSL-1…25) is cited by a test title, every fixture has a baseline, and every length and color is read back from the
+// is cited by a test title, every fixture has a baseline, and every length and color is read back from the
 // tokens — never from a number written here (the numbers of a `verify` are the spec's own, for the default system).
 import fs from 'node:fs';
 import path from 'node:path';

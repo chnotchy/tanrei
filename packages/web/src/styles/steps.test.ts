@@ -1,4 +1,4 @@
-// `.tanrei-steps` (steps.css, src/steps.ts), driven by specs/steps.spec.json: every behaviour id (STP-1…20) is cited by
+// `.tanrei-steps` (steps.css, src/steps.ts), driven by specs/steps.spec.json: every behaviour id is cited by
 // a test title, every fixture has a baseline, and every length and color is read back from the tokens, never from a
 // number written here. A marker and a connector are pseudo-elements: their sizes are read from their computed style,
 // and the NUMBER a marker draws — generated content, which no script can read — is proved by drawing the same list

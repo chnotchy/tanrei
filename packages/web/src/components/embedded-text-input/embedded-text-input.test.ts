@@ -1,4 +1,4 @@
-// <tanrei-embedded-text-input>, driven by specs/embedded-text-input.spec.json: every behaviour id (ETI-1…28) is cited by
+// <tanrei-embedded-text-input>, driven by specs/embedded-text-input.spec.json: every behaviour id is cited by
 // a test title, every fixture has a baseline, and every length and color is read back from the tokens — never from a
 // number written here. The fixtures whose id begins `held-` are drawn inside the sample holder, which
 // is where the holder's side of the contract is seen (ETI-10, ETI-11, ETI-12).

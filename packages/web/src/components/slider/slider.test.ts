@@ -1,4 +1,4 @@
-// <tanrei-slider>, driven by specs/slider.spec.json: every behaviour id (SLD-1…29) is cited by a test title, every
+// <tanrei-slider>, driven by specs/slider.spec.json: every behaviour id is cited by a test title, every
 // fixture has a baseline, and every part, state and choice of kind is read back from the tokens — never from a number
 // written here.
 // SLD-27: the product's ARIA on the host is tested with every other control's, in every engine, in

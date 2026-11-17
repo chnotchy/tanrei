@@ -1,4 +1,4 @@
-// <tanrei-marquee-text>, driven by specs/marquee-text.spec.json: every behaviour id (MRQ-1…18) is cited by a test title,
+// <tanrei-marquee-text>, driven by specs/marquee-text.spec.json: every behaviour id is cited by a test title,
 // every fixture has a baseline, and every length, speed, duration and easing is read back from the tokens — never from
 // a number written here.
 //

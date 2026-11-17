@@ -1,4 +1,4 @@
-// <tanrei-snackbar> and <tanrei-snackbar-host>, driven by specs/snackbar.spec.json: every behaviour id (SNK-1…37) is
+// <tanrei-snackbar> and <tanrei-snackbar-host>, driven by specs/snackbar.spec.json: every behaviour id is
 // cited by a test title, every fixture has a baseline (drawn in place, SNK-19), and every value is read back from the
 // tokens — never from a number written here.
 import AxeBuilder from '@axe-core/playwright';

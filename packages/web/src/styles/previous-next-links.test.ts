@@ -1,5 +1,5 @@
 // `.tanrei-previous-next-links` (previous-next-links.css, src/previous-next-links.ts), driven by specs/previous-next-links.spec.json: every behaviour id
-// (PNL-1…22) is cited by a test title, every fixture has a baseline, and every length, color and time is read back from
+// is cited by a test title, every fixture has a baseline, and every length, color and time is read back from
 // the tokens, never from a number written here. A fixture cannot set a width, so the stacked form (PNL-5) is a test
 // that sets the stage's width; several fixtures share a landmark's name, so the tests of the name give their own markup.
 import fs from 'node:fs';

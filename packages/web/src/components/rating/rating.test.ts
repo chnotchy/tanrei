@@ -1,4 +1,4 @@
-// <tanrei-rating>, driven by specs/rating.spec.json: every behaviour id (RAT-1…18) is cited by a test title, every
+// <tanrei-rating>, driven by specs/rating.spec.json: every behaviour id is cited by a test title, every
 // fixture has a baseline, and every length, color and duration is read back from the tokens — never from a number
 // written here.
 import AxeBuilder from '@axe-core/playwright';

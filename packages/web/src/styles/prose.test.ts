@@ -1,4 +1,4 @@
-// `.tanrei-prose` (prose.css), driven by specs/prose.spec.json: every behaviour id (PRS-1…30) is cited by a test title,
+// `.tanrei-prose` (prose.css), driven by specs/prose.spec.json: every behaviour id is cited by a test title,
 // every fixture — a section of specs/prose.specimen.md, built by test/specimen.ts — has a baseline, and every length
 // and text style is read back from the tokens, never from a number written here.
 import fs from 'node:fs';

@@ -1,4 +1,4 @@
-// <tanrei-field>, driven by specs/field.spec.json: every behaviour id (FLD-1…31) is cited by a test title, every fixture
+// <tanrei-field>, driven by specs/field.spec.json: every behaviour id is cited by a test title, every fixture
 // has a baseline, and every length and color is read back from the tokens — never from a number written here.
 // FLD-33: the product's ARIA on the host is tested with every other host's, in every engine, in
 // src/primitives/delegated-aria.test.ts.

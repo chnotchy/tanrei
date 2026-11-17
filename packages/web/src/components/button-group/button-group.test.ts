@@ -1,4 +1,4 @@
-// <tanrei-button-group>, driven by specs/button-group.spec.json: every behaviour id (BGR-1…24) is cited by a test title,
+// <tanrei-button-group>, driven by specs/button-group.spec.json: every behaviour id is cited by a test title,
 // every fixture has a baseline, and every gap, corner, target, divider and padding is read back from the tokens — never
 // from a number written here. Its items are the real <tanrei-button>s, labelled and icon-only, so these tests also cover
 // what BTN-10 says about an item of a connected group.

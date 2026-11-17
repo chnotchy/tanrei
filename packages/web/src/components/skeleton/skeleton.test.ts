@@ -1,5 +1,5 @@
 // <tanrei-skeleton> and `class="tanrei-skeleton-placeholder"`, driven by specs/skeleton.spec.json: every behaviour id
-// (SKL-1…26) starts the title of a test, every fixture is mounted and has a baseline, and every length, color and time
+// starts the title of a test, every fixture is mounted and has a baseline, and every length, color and time
 // is read back from the tokens — never from a number written here, except where the spec's own verify names one.
 //
 // What a skeleton is for is measured, not read from styles: the box it holds (in every frame of its show delay, and

@@ -1,4 +1,4 @@
-// <tanrei-page-header> and page-header.css, driven by specs/page-header.spec.json: every behaviour id (PGH-1…24) is
+// <tanrei-page-header> and page-header.css, driven by specs/page-header.spec.json: every behaviour id is
 // cited by a test title, every fixture has a baseline, and every length and color is read back from the tokens — never
 // from a number written here (the numbers of a `verify` are the spec's own, for the default system).
 import fs from 'node:fs';

@@ -1,4 +1,4 @@
-// <tanrei-drop-zone>, driven by specs/drop-zone.spec.json: every behaviour id (DRZ-1…21) starts the title of a test,
+// <tanrei-drop-zone>, driven by specs/drop-zone.spec.json: every behaviour id starts the title of a test,
 // every fixture has a baseline, and every length and color is read back from the tokens — never from a number written
 // here. A drag is a DragEvent that carries a DataTransfer the page made, dispatched where a browser would dispatch it:
 // on the element of the content under the pointer.

@@ -1,4 +1,4 @@
-// <tanrei-text-input>, driven by specs/text-input.spec.json: every behaviour id (TXI-1 to TXI-68) starts the title of a
+// <tanrei-text-input>, driven by specs/text-input.spec.json: every behaviour id starts the title of a
 // test, every fixture has a baseline, and every part, state and look is read back from the tokens — never from a number
 // written here. What a sentence says of "the Field that frames it" is tested with a Field around the input (`frame()`), and
 // the rows themselves — the label above, the requirement tag, the help, the error text, the drawn count — are the

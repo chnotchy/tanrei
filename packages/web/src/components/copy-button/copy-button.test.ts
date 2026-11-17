@@ -1,4 +1,4 @@
-// <tanrei-copy-button>, driven by specs/copy-button.spec.json: every behaviour id (CPY-1…18) is cited by a test title,
+// <tanrei-copy-button>, driven by specs/copy-button.spec.json: every behaviour id is cited by a test title,
 // every fixture has a baseline, and every color, length and time is read back from the tokens — the Button's, since the
 // copy button has none of its own but one duration. The copied and failed forms last two seconds after a
 // press, which a fixture cannot hold: the tests press with the browser's clipboard replaced by a double, and once with

@@ -1,4 +1,4 @@
-// <tanrei-tooltip>, driven by specs/tooltip.spec.json: every behaviour id (TIP-1…29) is cited by a test title, every
+// <tanrei-tooltip>, driven by specs/tooltip.spec.json: every behaviour id is cited by a test title, every
 // fixture has a baseline (drawn on a 320 × 200 window, the spec's stage), and every value is read back from the tokens.
 import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';

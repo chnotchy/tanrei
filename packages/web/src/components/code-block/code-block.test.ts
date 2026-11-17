@@ -1,4 +1,4 @@
-// <tanrei-code-block>, driven by specs/code-block.spec.json: every behaviour id (COD-1…33) is cited by a test title,
+// <tanrei-code-block>, driven by specs/code-block.spec.json: every behaviour id is cited by a test title,
 // every fixture has a baseline, and every length and color is read back from the tokens — never from a number written
 // here. The code is the product's own `<pre><code>` in the light DOM (the harness writes it from the fixture's `code`
 // or its runs); the tests of what a fixture cannot hold — a width, a press, a selection — give the stage their own.

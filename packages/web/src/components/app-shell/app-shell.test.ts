@@ -1,4 +1,4 @@
-// <tanrei-app-shell> and app-shell.css, driven by specs/app-shell.spec.json: every behaviour id (APS-1…34) is cited by
+// <tanrei-app-shell> and app-shell.css, driven by specs/app-shell.spec.json: every behaviour id is cited by
 // a test title, every fixture has a baseline, and every length and color is read back from the tokens — never from a
 // number written here (the numbers of a `verify` are the spec's own, for the default system). A fixture is drawn alone,
 // in the window APS-2's verify names for it (`appShellWindow`): the frame reads the window's width and nothing else.

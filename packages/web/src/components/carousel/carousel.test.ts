@@ -1,9 +1,9 @@
-// <tanrei-carousel> and <tanrei-carousel-item>, driven by specs/carousel.spec.json: every behaviour id (CRL-1…38 and
-// CRL-40) is cited by a test title, every fixture has a baseline, and every state and choice of kind is read back from
+// <tanrei-carousel> and <tanrei-carousel-item>, driven by specs/carousel.spec.json: every behaviour id but
+// CRL-39 is cited by a test title, every fixture has a baseline, and every state and choice of kind is read back from
 // the tokens — never from a number written here, except the spec's own worked examples (the verify notes of CRL-9 –
 // CRL-13, CRL-26, CRL-27, CRL-29 and CRL-40).
 //
-// The fixtures are the spec's ten; the defaults are `centered` (a hero in the centre). A row with its hero at
+// The fixtures are the spec's; the defaults are `centered` (a hero in the centre). A row with its hero at
 // the start has no fixture: the tests that need one build it (`fixture(id, { heroAlignment: 'start' })`).
 import AxeBuilder from '@axe-core/playwright';
 import { type Browser, type Locator, type Page, expect, test } from '@playwright/test';
