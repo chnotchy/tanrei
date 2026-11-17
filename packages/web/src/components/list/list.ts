@@ -1471,6 +1471,9 @@ export class TanreiList extends TanreiElement {
       };
       motion.finished.then(done, done);
     }
+    // Begun in the task of the change, they begin in the first frame drawn after it, as the motions of presence do
+    // (showPresence()): WebKit dates them from the frame drawn before that task.
+    startFromNextFrame([...this.motions.values()]);
   }
 
   // ── Items that arrive and leave (LST-41) ─────────────────────────────────────────────────────────────────────────

@@ -6,7 +6,7 @@
 import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
 import { type Fixture, acmeSystemCss, iconFaceArrives, loadSpec, mountFixtures, resolveColor, resolveToken, rootTokens, setWords, tabTo, withoutIconFont } from '../../../test/harness.js';
-import { motionCount, motionEnded } from '../../../test/motions.js';
+import { heldTaskFrame, motionCount, motionEnded } from '../../../test/motions.js';
 import { type Frame, type Frames, type Probe, expectAnchored, expectAnimated, expectFirstFrameAtRest, expectNoFlicker, sampleFrames } from '../../../test/frames.js';
 import { bezierOf, resolveEasing } from '../../../test/appear.js';
 import { holdClock, releaseClock } from '../../../test/page-clock.js';
@@ -1047,6 +1047,14 @@ test.describe('reordering', () => {
     expect(startFrame).not.toBe('translate(0px, 0px)');
     await page.waitForTimeout(duration + 50);
     expect((await bounds(item(page, 'reorderable-wrap', 4))).y).toBeGreaterThan(before.y);
+  });
+
+  // WebKit dates a motion begun in a task from the frame drawn before it: an order changed in a task that outlasts the
+  // reorder motion (the product renders its rows on a loaded machine) would be drawn at its end in the first frame.
+  test('LST-41: an order the product changes in a long task is drawn from the old places in the first frame after that task, every move at its start', async ({ page }) => {
+    const seen = await heldTaskFrame(list(page, 'reorderable-wrap'), '(el) => el.append(el.firstElementChild)');
+    expect(seen.begun.filter((motion) => motion.endsWith('tanrei-list-item script')).length, 'every item moves').toBe(5);
+    expect(seen.at, 'every move stands at its start in the first frame drawn after the task').toEqual(seen.begun.map((motion) => `${motion} at 0 ms`));
   });
 
   test('LST-42: where motion is reduced, the dragged look, the neighbours, the drop and a new order are drawn at once — the item still follows the pointer', async ({ page }) => {
