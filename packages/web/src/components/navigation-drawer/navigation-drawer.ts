@@ -10,6 +10,7 @@ import {
   DestinationsController,
   GlyphMirrorController,
   MirrorWordController,
+  hearsMirrorWord,
   LINK_MARK,
   LinkController,
   OpenAxesController,
@@ -4872,6 +4873,8 @@ if (!customElements.get('tanrei-tooltip')) customElements.define('tanrei-tooltip
 // whether a group is open and what it opens, and the disabled state are its own.
 delegatesAria(TanreiNavigationDrawer, { sentence: 'NVD-78' });
 delegatesAria(TanreiNavigationDrawerItem, { owns: ['aria-current', 'aria-disabled'], sentence: 'NVD-78' });
+hearsMirrorWord(TanreiNavigationDrawerItem);
+hearsMirrorWord(TanreiNavigationDrawerGroup);
 delegatesAria(TanreiNavigationDrawerGroup, { owns: ['aria-current', 'aria-expanded', 'aria-controls', 'aria-disabled'], sentence: 'NVD-78' });
 if (!customElements.get(ITEM)) customElements.define(ITEM, TanreiNavigationDrawerItem);
 if (!customElements.get(GROUP)) customElements.define(GROUP, TanreiNavigationDrawerGroup);

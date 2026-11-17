@@ -2693,6 +2693,7 @@ if (!customElements.get('tanrei-tooltip')) customElements.define('tanrei-tooltip
 // its label names it, which is held until label is empty (src/primitives/delegated-aria.ts).
 holdsProductName(TanreiTab);
 hearsMirrorWord(TanreiTab);
+hearsMirrorWord(TanreiTabPanel);
 if (!customElements.get('tanrei-tab')) customElements.define('tanrei-tab', TanreiTab);
 if (!customElements.get('tanrei-tab-panel')) customElements.define('tanrei-tab-panel', TanreiTabPanel);
 // The product's ARIA on the row's host is its tab list's (src/primitives/delegated-aria.ts).

@@ -4,6 +4,7 @@ import {
   DestinationsController,
   GlyphMirrorController,
   MirrorWordController,
+  hearsMirrorWord,
   IndicatorDragController,
   type IndicatorPlace,
   NavigationDestination,
@@ -619,6 +620,7 @@ if (!customElements.get('tanrei-badge')) customElements.define('tanrei-badge', T
 // The product's ARIA on an item's host is its link's or button's (src/primitives/delegated-aria.ts); whether it is the
 // current page and the disabled state are its own (NVB-2, NVB-30).
 delegatesAria(TanreiNavigationBarItem, { owns: ['aria-current', 'aria-disabled'], sentence: 'NVB-34' });
+hearsMirrorWord(TanreiNavigationBarItem);
 if (!customElements.get('tanrei-navigation-bar-item')) customElements.define('tanrei-navigation-bar-item', TanreiNavigationBarItem);
 // NVB-34: the bar's host carries its landmark, and holds the product's name while its label names it.
 holdsProductName(TanreiNavigationBar);
