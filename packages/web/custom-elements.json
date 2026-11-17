@@ -34932,7 +34932,7 @@
                 "text": "string"
               },
               "default": "''",
-              "description": "The name of an icon — a glyph of the system's icon set — before the label (`leading-icon`).",
+              "description": "The name of an icon — a glyph of the system's icon set — before the label (`leading-icon`). A glyph the icon set flags as showing a direction is drawn mirrored in a right-to-left layout; `data-mirror=\"auto | always | never\"` on the option decides for this use, in the list and in the field that shows it.",
               "attribute": "leading-icon",
               "reflects": true
             },
@@ -34983,7 +34983,7 @@
                 "text": "string"
               },
               "default": "''",
-              "description": "The name of an icon — a glyph of the system's icon set — before the label (`leading-icon`).",
+              "description": "The name of an icon — a glyph of the system's icon set — before the label (`leading-icon`). A glyph the icon set flags as showing a direction is drawn mirrored in a right-to-left layout; `data-mirror=\"auto | always | never\"` on the option decides for this use, in the list and in the field that shows it.",
               "fieldName": "leadingIcon"
             },
             {

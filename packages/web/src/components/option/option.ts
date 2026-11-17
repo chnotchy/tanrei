@@ -45,7 +45,7 @@ export class TanreiOption extends TanreiElement {
   /** A line below the label that says more about the choice (`supporting-text`). Shown in the list only. */
   supportingText = '';
 
-  /** The name of an icon — a glyph of the system's icon set — before the label (`leading-icon`). */
+  /** The name of an icon — a glyph of the system's icon set — before the label (`leading-icon`). A glyph the icon set flags as showing a direction is drawn mirrored in a right-to-left layout; `data-mirror="auto | always | never"` on the option decides for this use, in the list and in the field that shows it. */
   leadingIcon = '';
 
   /** Prevents the option from being chosen. It stays reachable with the arrow keys. */

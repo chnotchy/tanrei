@@ -1,7 +1,8 @@
 import { type CSSResult, type ReactiveController, type ReactiveControllerHost, type TemplateResult, html, nothing, unsafeCSS } from 'lit';
 import { classMap } from 'lit/directives/class-map.js';
 import { styleMap } from 'lit/directives/style-map.js';
-import { iconGlyph } from '../styles/icons.js';
+import { MIRROR, iconGlyph } from '../styles/icons.js';
+import { mirrorWordOf } from './glyph-mirror.js';
 import { productText } from '../styles/product-text.js';
 import { cornerRadius } from '../styles/shape.js';
 import { AnchoredSurfaceController, anchoredSurfaceStyles } from './anchored.js';
@@ -76,6 +77,8 @@ export interface OptionData {
   value: string;
   supportingText: string;
   leadingIcon: string;
+  /** The product's word on mirroring the leading icon: the option's `data-mirror`, to write on each box that draws the glyph; nothing where it says none. */
+  mirror: string | typeof nothing;
   disabled: boolean;
   /** The language its words are in: its `lang` attribute, or its group's. Empty where neither says: the field's, then. */
   lang: string;
@@ -137,6 +140,7 @@ function readOption(element: Element, index: number, owner: Element | null): Opt
     value: element.getAttribute('value') ?? '',
     supportingText: element.getAttribute('supporting-text') ?? '',
     leadingIcon: (element.getAttribute('leading-icon') ?? '').trim(),
+    mirror: mirrorWordOf(element),
     disabled: element.hasAttribute('disabled') && element.getAttribute('disabled') !== 'false',
     lang: said(element, 'lang', owner),
     dir: said(element, 'dir', owner),
@@ -224,7 +228,7 @@ export function filterOptions(model: OptionModel, keep: (option: OptionData) => 
 type Host = ReactiveControllerHost & HTMLElement;
 
 /** What the field's own children, and each element that reaches it through a slot, are observed for. */
-const OBSERVED: MutationObserverInit = { childList: true, subtree: true, characterData: true, attributes: true, attributeFilter: [...OPTION_ATTRIBUTES, ...OPTION_TEXT_ATTRIBUTES] };
+const OBSERVED: MutationObserverInit = { childList: true, subtree: true, characterData: true, attributes: true, attributeFilter: [...OPTION_ATTRIBUTES, ...OPTION_TEXT_ATTRIBUTES, MIRROR] };
 
 /**
  * Keeps a field's options read: when the host is connected, and whenever a `<tanrei-option>` or a
@@ -1374,7 +1378,7 @@ export class OptionListController implements ReactiveController {
       >
         <span class="row-content">
           ${column(option)
-            ? html`<span class="row-column leading" aria-hidden="true"><span part="option-leading-icon" class="option-icon"><span class="ink">${option.leadingIcon}</span></span></span>`
+            ? html`<span class="row-column leading" aria-hidden="true"><span part="option-leading-icon" class="option-icon" data-mirror=${option.mirror}><span class="ink">${option.leadingIcon}</span></span></span>`
             : nothing}
           <span class="row-text"
             ><span part="option-label" class="option-label" id=${`${id}-label`}>${words(option.dir, drawn ? drawn(option) : option.label)}</span>${option.supportingText
