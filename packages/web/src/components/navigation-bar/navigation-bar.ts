@@ -99,7 +99,7 @@ function cutOut(element: Element, box: Box, radius: number, scale: Scale): strin
  * bar's list. Its icon and label are drawn twice: the second copy, in the covered colors and clipped to the active
  * indicator, is hidden from assistive technology (NVB-23).
  *
- * Its properties are the shared destination's (`src/primitives/destination.ts`): `value`, `label`, `icon`, `disabled`,
+ * Its properties are the shared destination's (`src/primitives/navigation-destination.ts`): `value`, `label`, `icon`, `disabled`,
  * `badge`, `badgeCount` (`badge-count`), `badgeLabel` (`badge-label`), `href`, `target`, `targetLabel`
  * (`target-label`) and the web-only `rel` and `download`.
  *

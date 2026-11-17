@@ -30,10 +30,7 @@ const SHIPPED = {
  * Modules whose style strings still carry CSS comments, or a build-only value, while another change moves them out:
  * what is found there is reported, not failed. Take a module off once nothing of it is reported (the test says so).
  */
-const PENDING = {
-  'src/styles/icons.ts': { names: ['ICONS_CSS'], why: 'the icons stylesheet is still a constant made by a call' },
-  'src/primitives/focus-ring.ts': { names: [], why: "the focus ring's style strings still say why in CSS comments" },
-};
+const PENDING = {};
 
 const unescape = (text) => text.replace(/\\u([0-9a-fA-F]{4})/g, (_, hex) => String.fromCharCode(Number.parseInt(hex, 16)));
 const normal = (text) => unescape(text).replace(/\\n/g, '\n').replace(/\s+/g, ' ').trim();
