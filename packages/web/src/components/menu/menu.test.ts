@@ -22,6 +22,7 @@ import { entrances, loadOpen } from '../../../test/mounted-open.js';
 import { appearProbe, bezierOf, expectAppearStart, expectExitEnd, expectTurnedAlone, resolveEasing, turnHeld } from '../../../test/appear.js';
 import { type Frames, type Probe, expectAnimated, expectNoFlicker, sampleFrames } from '../../../test/frames.js';
 import { expectBaseline } from '../../../test/baseline.js';
+import { mirroring, mirroringAfterDirection } from '../../../test/mirror-word.js';
 import { expectGoneWhileSkipped } from '../../../test/skipped-exit.js';
 import { controlledElements, controlledInTree } from '../../../test/controlled-list.js';
 
@@ -3880,6 +3881,45 @@ test.describe('separation, selection and marks', () => {
     expect(after.width).toBeCloseTo(before.width, 1);
     const r = await bounds(row(page, 'named', 0));
     expect(r.x + r.width - (after.x + after.width)).toBeCloseTo(await resolveToken(page, T('container-padding-inline-medium')), 1);
+  });
+
+  test('MNU-33: the product decides for one use with data-mirror — on an item for its leading and trailing icons and its own mark-icon, on a group for the mark-icon it names (an item’s own word does not reach it); always mirrors an unmarked name in right-to-left, never keeps a marked one, none leaves it to the icon set; nothing is mirrored in left-to-right; a change of the word or of an ancestor’s direction is drawn at once, without a motion, and the row mirrors nothing itself', async ({ page }) => {
+    const words = (id: string, direction?: 'rtl'): Fixture => ({
+      ...inline(id, [
+        it('Forward', { leadingIcon: 'arrow_forward', trailingIcon: 'send' }),
+        it('Never', { leadingIcon: 'arrow_forward', trailingIcon: 'send', 'data-mirror': 'never' }),
+        it('Always', { leadingIcon: 'search', trailingIcon: 'star', 'data-mirror': 'always' }),
+        cb('Own mark', { checked: true, markIcon: 'star', 'data-mirror': 'always' }),
+        group({ label: 'Grouped', markIcon: 'arrow_forward', 'data-mirror': 'never' }, [cb('By the group', { checked: true }), cb('Own word', { checked: true, 'data-mirror': 'always' })]),
+      ]),
+      ...(direction ? { direction } : {}),
+    });
+    await mountFixtures(page, spec, { icons: true, fixtures: [words('words', 'rtl'), words('words-ltr')] });
+    const glyphs = (id: string) => [
+      ...[0, 1, 2].flatMap((n) => [row(page, id, n).locator('.leading-icon'), row(page, id, n).locator('.trailing-icon')]),
+      ...[3, 4, 5].map((n) => row(page, id, n).locator('.check.named')),
+    ];
+    const RTL = ['mirrored', 'mirrored', 'plain', 'plain', 'mirrored', 'mirrored', 'mirrored', 'plain', 'plain'];
+    const LTR = RTL.map(() => 'plain');
+    await expect.poll(() => mirroring(glyphs('words'))).toEqual(RTL);
+    await expect.poll(() => mirroring(glyphs('words-ltr'))).toEqual(LTR);
+    // The row mirrors nothing itself, whatever its word.
+    for (const n of [1, 2, 4]) for (const part of [row(page, 'words', n), item(page, 'words', n)]) expect(await css(part, 'transform'), `${n}`).toBe('none');
+    // The word changed on an item and on a group already drawn.
+    const grouped = menu(page, 'words').locator('tanrei-menu-group');
+    await grouped.evaluate((el) => el.setAttribute('data-mirror', 'always'));
+    await item(page, 'words', 0).evaluate((el) => el.setAttribute('data-mirror', 'never'));
+    await expect.poll(() => mirroring(glyphs('words'))).toEqual(['plain', 'plain', ...RTL.slice(2, 7), 'mirrored', 'mirrored']);
+    await grouped.evaluate((el) => el.removeAttribute('data-mirror'));
+    await item(page, 'words', 0).evaluate((el) => el.removeAttribute('data-mirror'));
+    // Without a word, the group's arrow_forward is the icon set's: marked.
+    await expect.poll(() => mirroring(glyphs('words'))).toEqual([...RTL.slice(0, 7), 'mirrored', 'mirrored']);
+    await grouped.evaluate((el) => el.setAttribute('data-mirror', 'never'));
+    await expect.poll(() => mirroring(glyphs('words'))).toEqual(RTL);
+    // The direction changed on an ancestor while drawn: read in the same task, before any frame, with no motion started.
+    expect(await mirroringAfterDirection(page.locator('[data-fixture="words-ltr"]'), 'rtl', glyphs('words-ltr'))).toEqual(RTL);
+    expect(await mirroringAfterDirection(page.locator('[data-fixture="words"]'), 'ltr', glyphs('words'))).toEqual(LTR);
+    for (const id of ['words-ltr', 'words']) expect(await motionCount(menu(page, id)), id).toBe(0);
   });
 });
 

@@ -9,6 +9,7 @@ import {
   FollowController,
   GlyphDrawnController,
   GlyphMirrorController,
+  MirrorWordController,
   LINK_MARK,
   LONG_PRESS,
   LinkController,
@@ -127,6 +128,8 @@ interface ItemContext {
   shortcutVariant: string;
   /** MNU-38: the glyph the item's group names for its marks; empty where it names none. */
   groupMarkIcon: string;
+  /** MNU-33: the group around the item, whose `data-mirror` is the product's word on the glyph its `mark-icon` names. */
+  markGroup: Element | null;
 }
 
 /** MNU-38: the design system's choice of mark for each kind of item; the first value is what an unknown name draws. */
@@ -269,7 +272,7 @@ export abstract class TanreiMenuRowBase extends TanreiElement {
   /** A line below the label that says more about the item; it is the item's description. */
   supportingText = '';
 
-  /** The name of a glyph of the system's icon set before the label. A glyph the icon set flags as showing a direction (`arrow_forward`, `send`) is drawn mirrored in a right-to-left layout. */
+  /** The name of a glyph of the system's icon set before the label. A glyph the icon set flags as showing a direction (`arrow_forward`, `send`) is drawn mirrored in a right-to-left layout; `data-mirror="auto | always | never"` on the item decides for this use, for every glyph the item names. */
   leadingIcon = '';
 
   /**
@@ -291,6 +294,7 @@ export abstract class TanreiMenuRowBase extends TanreiElement {
     radioChecked: false,
     shortcutVariant: DEFAULT_SHORTCUT_VARIANT,
     groupMarkIcon: '',
+    markGroup: null,
   };
 
   /** MNU-8: focus the pointer moved here, which draws no focus ring. */
@@ -309,6 +313,13 @@ export abstract class TanreiMenuRowBase extends TanreiElement {
    * mark. The check (MNU-22, MNU-39) is not among them: it is never mirrored.
    */
   private readonly mirror = new GlyphMirrorController(this, { drawn: '.leading-icon, .trailing-icon, .check.named' });
+  /**
+   * MNU-33: the product's word on mirroring the glyphs the item names — its leading and trailing icons and its own
+   * `mark-icon` — is `data-mirror` on the item; on a mark its group names, `data-mirror` on that group. The submenu
+   * indicator and the link mark are the menu's own glyphs and take no word.
+   */
+  private readonly mirrorWord = new MirrorWordController(this);
+  private readonly groupMirrorWord = new MirrorWordController(this, () => this.context.markGroup);
 
   /** @internal How the activation being dispatched came: a Space keeps a checkbox or radio item's menu open (MNU-6). */
   activation: 'pointer' | 'enter' | 'space' = 'pointer';
@@ -657,7 +668,7 @@ export abstract class TanreiMenuRowBase extends TanreiElement {
     const kind = this.markKind;
     if (!kind) return nothing;
     const named = this.markIconName;
-    if (named) return html`<span class="check named"><span class="check-ink">${named}</span></span>`;
+    if (named) return html`<span class="check named" data-mirror=${this.ownMarkIcon.trim() ? this.mirrorWord.word : this.groupMirrorWord.word}><span class="check-ink">${named}</span></span>`;
     return html`${kind === 'checkbox'
         ? html`<span class="control box" data-tanrei-shape><span class="check box-check"><span class="check-ink">${CHECK}</span></span></span>`
         : html`<span class="control ring" data-tanrei-shape><span class="fill"></span></span>`}<span class="check system"><span class="check-ink">${CHECK}</span></span>`;
@@ -702,7 +713,7 @@ export abstract class TanreiMenuRowBase extends TanreiElement {
         <span class="content">
           ${markColumn ? html`<span part="mark" class=${classMap({ column: true, mark: true, checkbox: kind === 'checkbox', radio: kind === 'radio' })} aria-hidden="true">${this.renderMark()}</span>` : nothing}
           ${iconColumn
-            ? html`<span class="column leading"><span part="leading-icon" class=${classMap({ 'leading-icon': true, empty: !this.leadingIcon })} aria-hidden="true">${this.leadingIcon}</span></span>`
+            ? html`<span class="column leading"><span part="leading-icon" class=${classMap({ 'leading-icon': true, empty: !this.leadingIcon })} aria-hidden="true" data-mirror=${this.mirrorWord.word}>${this.leadingIcon}</span></span>`
             : nothing}
           <span class="text">
             <span part="label" class="label">${this.label}</span>
@@ -733,7 +744,7 @@ export abstract class TanreiMenuRowBase extends TanreiElement {
                 >`
               : trailingIconColumn
               ? html`<span class=${classMap({ column: true, 'trailing-icon-column': true, reserved: !trailingGlyph })}
-                  ><span part="trailing-icon" class=${classMap({ 'trailing-icon': true, empty: !trailingGlyph })} aria-hidden="true">${trailingGlyph}</span></span
+                  ><span part="trailing-icon" class=${classMap({ 'trailing-icon': true, empty: !trailingGlyph })} aria-hidden="true" data-mirror=${this.mirrorWord.word}>${trailingGlyph}</span></span
                 >`
               : nothing}
         </span>
@@ -756,7 +767,7 @@ export abstract class TanreiMenuItemBase extends TanreiMenuRowBase {
     shortcut: { converter: chordsConverter },
   };
 
-  /** The name of a glyph at the end of the row; one the icon set flags (`arrow_right`) is mirrored in a right-to-left layout. */
+  /** The name of a glyph at the end of the row; one the icon set flags (`arrow_right`) is mirrored in a right-to-left layout, and `data-mirror` on the item decides for this use. */
   trailingIcon = '';
 
   /**
@@ -1232,7 +1243,8 @@ export class TanreiMenuGroup extends TanreiElement {
 
   /**
    * The name of a glyph of the system's icon set that marks the group's checked checkbox and radio items, for those that
-   * name none of their own (`check` draws a plain check). Empty takes the design system's choice (MNU-38).
+   * name none of their own (`check` draws a plain check). Empty takes the design system's choice (MNU-38). `data-mirror`
+   * on the group decides whether that glyph is mirrored in a right-to-left layout.
    */
   markIcon = '';
 
@@ -1743,7 +1755,7 @@ export class TanreiMenu extends TanreiElement {
         const radioChecked = row instanceof TanreiMenuRadioItem && !!group && group.value !== null && group.value !== undefined && group.value === row.value;
         // The row's own mark or icon is always drawn in its column (renderRow); the section decides the others' room.
         const { mark: markColumn, icon: iconColumn } = columns.get(sectionOf.get(row)!)!;
-        row.setMenuContext({ position: index + 1, size: rows.length, markColumn, iconColumn, trailingIconColumn, radioChecked, shortcutVariant: shortcut(), groupMarkIcon: group?.markIcon ?? '' });
+        row.setMenuContext({ position: index + 1, size: rows.length, markColumn, iconColumn, trailingIconColumn, radioChecked, shortcutVariant: shortcut(), groupMarkIcon: group?.markIcon ?? '', markGroup: group ?? null });
         row.syncMark();
       });
       if (level instanceof TanreiSubmenu) syncSeparation(level, level.scrollElement);
