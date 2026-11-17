@@ -425,9 +425,13 @@ export class TanreiCarousel extends TanreiElement {
   /**
    * CRL-23: the row follows the direction it inherits, and a change of it while the page runs: the scroll offset and
    * where each item's content sits were written physically for the old direction, so the row is arranged again — the
-   * resting item kept where it was, without motion.
+   * resting item kept where it was, without motion. A row already arranged for the new direction — by a scroll or an
+   * advance that came before the carousel heard of the change (`directionChanged`) — is not arranged again: that would
+   * cut short the motion it may be running.
    */
-  private readonly direction = new DirectionController(this, () => this.arrange());
+  private readonly direction = new DirectionController(this, (direction) => {
+    if (!this.geometry || (direction === 'rtl') !== this.arrangedRtl) this.arrange();
+  });
 
   /** The arrangement of the last layout, the items it placed and the scroll offset they were placed at. */
   private geometry: CarouselGeometry | null = null;
@@ -573,6 +577,11 @@ export class TanreiCarousel extends TanreiElement {
 
   private get rtl(): boolean {
     return this.direction.rtl;
+  }
+
+  /** CRL-39: the row has been arranged, and for a direction other than the one it is in now. */
+  private get directionChanged(): boolean {
+    return this.geometry !== null && this.rtl !== this.arrangedRtl;
   }
 
   /** The scroll offset along the reading direction (a right-to-left row scrolls to negative `scrollLeft`). */
@@ -860,7 +869,7 @@ export class TanreiCarousel extends TanreiElement {
     // the other direction, and the browser moved it into the new direction's range when it laid the row out — before the
     // direction was seen, wherever a page reads its layout in between. That is no move of the person's and not where the
     // row rests: the arrangement for the new direction puts the resting item back, from the offset the row was placed at.
-    if (this.geometry && this.rtl !== this.arrangedRtl) {
+    if (this.directionChanged) {
       this.arrange();
       return;
     }
@@ -1437,6 +1446,17 @@ export class TanreiCarousel extends TanreiElement {
     const remaining = this.interval() - this.passed();
     if (remaining > 1) {
       this.advanceTimer = setTimeout(this.onTimeUp, remaining);
+      return;
+    }
+    // CRL-39: the direction has changed and the row is not arranged for it yet — the carousel hears of a change in the
+    // frame after it, and the interval may end before that frame. The advance would be written for the old direction
+    // (its offset given the other sign, which the row's new range cuts to its start) and lost. So the row is arranged
+    // for the new direction first, keeping the item at rest; the clock keeps the time it has counted, and the
+    // arrangement, which runs it again, has it advance at once.
+    if (this.directionChanged) {
+      this.elapsed = this.passed();
+      this.stopClock();
+      this.arrange();
       return;
     }
     this.elapsed = this.interval();
