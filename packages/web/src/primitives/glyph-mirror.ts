@@ -1,4 +1,4 @@
-import type { ReactiveController, ReactiveControllerHost } from 'lit';
+import { type ReactiveController, type ReactiveControllerHost, nothing } from 'lit';
 import { type IconSet, iconSets, systemIconSets } from '../generated/icon-sets.js';
 import { ICON_NAME, MIRROR, MIRRORED } from '../styles/icons.js';
 
@@ -12,6 +12,8 @@ import { ICON_NAME, MIRROR, MIRRORED } from '../styles/icons.js';
 //   GlyphMirrorController — a component, for the glyphs it draws itself and the glyphs the product put in its slots
 //   observeIcons()        — the page, for every bare `.tanrei-icon` (installed by `@tanrei/web` and `@tanrei/web/icons`)
 //   markGlyph()           — anything else that holds one element with a name
+// And one word of the product's: `data-mirror` on the glyph's element, or — for a glyph a component draws from a name it
+// was given — on the element that names it, which MirrorWordController carries to the component's box.
 // All of them write the same mark on the same element, so a `.tanrei-icon` in a component's slot is marked twice with
 // one result, never mirrored twice.
 
@@ -194,6 +196,66 @@ export class GlyphMirrorController implements ReactiveController {
     this.observed = assigned;
     for (const element of assigned) this.observer?.observe(element, GLYPH_CHANGES);
   }
+}
+
+/**
+ * The product's word on mirroring a glyph that a component draws from a NAME the product gave it (a tab's `icon`, a
+ * switch's `checked-icon`, a menu item's `leading-icon`): `data-mirror="auto | always | never"` on the element that
+ * names the glyph — the component's own element, or the item that names it — with the values and the default it has on
+ * a glyph the product places itself. The product cannot write on a box in a shadow root, so the component writes
+ * `word` as `data-mirror` on each box that draws such a glyph; the box's mark (`GlyphMirrorController`) and the styles
+ * of `iconGlyph()` then decide as they do for any glyph, and a change of direction is followed by CSS alone, at once. A
+ * glyph the component chooses itself (a chevron, a check) is given no word.
+ *
+ * ```ts
+ * private readonly mirrorWord = new MirrorWordController(this);
+ * html`<span class="icon" data-mirror=${this.mirrorWord.word}>${this.icon}</span>`
+ * ```
+ *
+ * The host renders again when the word changes on the element that names the glyph. That element is the host unless
+ * `namedBy` says otherwise (a menu item draws the mark its group names); it is asked again after every render.
+ */
+export class MirrorWordController implements ReactiveController {
+  private readonly observer = typeof MutationObserver === 'undefined' ? null : new MutationObserver(() => this.host.requestUpdate());
+  private observed: Element | null = null;
+
+  constructor(
+    private readonly host: Host,
+    private readonly namedBy: () => Element | null = () => host,
+  ) {
+    host.addController(this);
+  }
+
+  hostConnected() {
+    this.watch();
+  }
+
+  hostDisconnected() {
+    this.observer?.disconnect();
+    this.observed = null;
+  }
+
+  hostUpdated() {
+    this.watch();
+  }
+
+  /** What to write as `data-mirror` on a box that draws the glyph: the product's word, or nothing (`auto`). */
+  get word(): string | typeof nothing {
+    return mirrorWordOf(this.namedBy());
+  }
+
+  private watch() {
+    const element = this.host.isConnected ? this.namedBy() : null;
+    if (element === this.observed) return;
+    this.observer?.disconnect();
+    this.observed = element;
+    if (element) this.observer?.observe(element, { attributes: true, attributeFilter: [MIRROR] });
+  }
+}
+
+/** The product's word that `element` carries for the glyphs it names, as `MirrorWordController.word` gives it. */
+export function mirrorWordOf(element: Element | null | undefined): string | typeof nothing {
+  return element?.getAttribute(MIRROR) ?? nothing;
 }
 
 const ICON = '.tanrei-icon';

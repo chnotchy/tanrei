@@ -19,7 +19,9 @@
 //   glyph-pending — PendingGlyphs: `data-glyphs="pending"` on a light-DOM component whose glyphs a stylesheet draws, while the icon set cannot (TRV-40)
 //   glyph-mirror — GlyphMirrorController: `data-tanrei-mirrored` on a component's own glyphs and on the glyphs in its slots
 //                 whose name the active icon set mirrors in right-to-left (BTN-19); the styles are
-//                 `iconGlyph()`'s. markGlyph() is the one rule, observeIcons() the page's bare `.tanrei-icon`
+//                 `iconGlyph()`'s. markGlyph() is the one rule, observeIcons() the page's bare `.tanrei-icon`;
+//                 MirrorWordController: the product's `data-mirror` on the element that names a glyph the component
+//                 draws (a tab's `icon`), carried to the box that draws it
 //   axes        — OpenAxesController: sizes and variants a design system adds, and a value it does not have
 //   size-cascade — SizeProviderController and SizeConsumerController: a size set on a container is the size of what it
 //                 holds that sets none (BGR-26, BTN-48); nearestSize(): a size a component lacks, taken as its nearest;
@@ -305,7 +307,7 @@ export {
   takesRequired,
 } from './field.js';
 export { DRAWN_WIDTH, GlyphDrawnController } from './glyph.js';
-export { type GlyphMirrorOptions, GlyphMirrorController, type GlyphMirroring, activeIconSet, glyphMirrors, glyphName, markGlyph, observeIcons } from './glyph-mirror.js';
+export { type GlyphMirrorOptions, GlyphMirrorController, type GlyphMirroring, MirrorWordController, activeIconSet, glyphMirrors, glyphName, markGlyph, mirrorWordOf, observeIcons } from './glyph-mirror.js';
 export { report } from './report.js';
 export { type MissingWord, type TanreiWords, type WordKey, WordsController, missingWords, setWords, watchWords, wordFor, wordMissing } from './words.js';
 export { type MissingValueKind, type OwnWords, browserMissingMessage, missingValueMessage } from './missing-value.js';
