@@ -2579,7 +2579,10 @@ export class TanreiDateTimePicker extends TanreiElement {
     statesFromNextFrame([this]);
   }
 
-  /** DTM-37: the element that opens a docked picker says it opens a dialog, whether it is open, and which. */
+  /**
+   * DTM-37: the element that opens a docked picker says it opens a dialog, whether it is open, and — while it is open —
+   * which: closed, the picker is a box whose surface is not displayed, so the opener names nothing then.
+   */
   private syncOpener() {
     const element = this.openerElement;
     if (!element) return;
@@ -2590,7 +2593,7 @@ export class TanreiDateTimePicker extends TanreiElement {
     if (docked) hostAria(target, { 'aria-haspopup': 'dialog' });
     hostAria(target, {
       'aria-expanded': docked ? String(this.open) : null,
-      'aria-controls': docked && target.getRootNode() === this.getRootNode() ? this.id : null,
+      'aria-controls': docked && this.open && target.getRootNode() === this.getRootNode() ? this.id : null,
     });
   }
 
