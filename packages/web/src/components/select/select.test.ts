@@ -158,6 +158,15 @@ const pressOn = async (target: Locator) => {
   await target.page().mouse.click(b.x + b.width / 2, b.y + b.height / 2);
 };
 const focusSelect = (page: P, id: string) => host(page, id).evaluate((el) => (el as HTMLElement).focus());
+/**
+ * Focuses a select brought into the window first, for a key that opens its list: a list opened while its select is out
+ * of the window is closed at once (SEL-24, POP-5), and WebKit on Linux scrolls a focused element into view a frame or
+ * more after focus(), after a key pressed at once has opened the list. A person presses a key on a select they see.
+ */
+const focusInView = async (page: P, id: string) => {
+  await host(page, id).scrollIntoViewIfNeeded();
+  await focusSelect(page, id);
+};
 const shownList = (page: P, id: string) => expect.poll(async () => (await read(page, id)).shown);
 /** The list has come to rest: until its entrance ends it is still growing toward the container's edge (SEL-30). */
 const arrived = (page: P, id: string) => motionEnded(part(page, id, '.motion'));
@@ -2154,15 +2163,9 @@ test.describe('behavior: the list', () => {
     // No status: no row, and no room.
     expect((await box(status('stacked-open'))).height).toBe(0);
     // The options left in the list while loading are chosen as any option is.
-    // Each select below is brought into the window before it is focused: the fixtures above it are tall, and a list a
-    // key opens while its select is out of the window is closed at once (POP-5), and WebKit in Linux scrolls a focused
-    // element into view a frame or more after focus(), after the key that opens the list has been handled.
-    const focusInView = async (id: string) => {
-      await host(page, id).scrollIntoViewIfNeeded();
-      await focusSelect(page, id);
-    };
+    // Each select below is brought into the window before it is focused (`focusInView`): the fixtures above it are tall.
     await set(page, 'loading-more', { inline: false, open: false });
-    await focusInView('loading-more');
+    await focusInView(page, 'loading-more');
     await page.keyboard.press('ArrowDown');
     await shownList(page, 'loading-more').toBe(true);
     await arrived(page, 'loading-more');
@@ -2170,7 +2173,7 @@ test.describe('behavior: the list', () => {
     expect(await read(page, 'loading-more')).toMatchObject({ value: 'ke', open: false });
     // A press on the row is no input and takes no focus; an arrow key never makes it active.
     await set(page, 'open-status', { inline: false, open: false });
-    await focusInView('open-status');
+    await focusInView(page, 'open-status');
     await page.keyboard.press('ArrowDown');
     await shownList(page, 'open-status').toBe(true);
     await arrived(page, 'open-status');
@@ -2182,7 +2185,7 @@ test.describe('behavior: the list', () => {
     // A list with no option has no active option: the keys move nothing, Enter and Space choose nothing, Escape closes it.
     await set(page, 'open-empty', { inline: false, open: false });
     await listen(page, 'open-empty');
-    await focusInView('open-empty');
+    await focusInView(page, 'open-empty');
     await page.keyboard.press('Enter');
     await shownList(page, 'open-empty').toBe(true);
     for (const key of ['ArrowDown', 'End', 'Enter', 'Space']) await page.keyboard.press(key);
@@ -2415,8 +2418,8 @@ test.describe('behavior: conditions, exposure, size and direction', () => {
     // Open with the status row, the empty text or the loading row alone: the empty list box, exposed and of no size.
     for (const id of ['open-empty', 'open-loading', 'open-status-error', 'loading']) expect(await controlledList(container(page, id)), id).toEqual(EMPTY);
     expect(await part(page, 'loading', '#list').getAttribute('aria-busy'), 'loading: the list box is busy').toBe('true');
-    // In the top layer, opened by the keyboard; closed again, no reference.
-    await focusSelect(page, 'top');
+    // In the top layer, opened by the keyboard; closed again, no reference. The open lists above it are tall.
+    await focusInView(page, 'top');
     await page.keyboard.press('ArrowDown');
     await shownList(page, 'top').toBe(true);
     expect(await controlledList(container(page, 'top'))).toEqual(EMPTY);
