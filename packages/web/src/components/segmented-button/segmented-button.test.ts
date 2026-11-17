@@ -21,7 +21,7 @@ import {
 } from '../../../test/harness.js';
 import { opticalSizeAxis } from '../../../test/icons.js';
 import { clickCentre, heldPress } from '../../../test/watched-press.js';
-import { motionEnded, settledCss } from '../../../test/motions.js';
+import { motionCount, motionEnded, settledCss } from '../../../test/motions.js';
 import { expectBaseline } from '../../../test/baseline.js';
 
 const spec = loadSpec('segmented-button');
@@ -863,6 +863,190 @@ test.describe('accessibility', () => {
       await motionEnded(page);
       const results = await new AxeBuilder({ page }).include('.stage').analyze();
       expect(results.violations, `${theme}: ${results.violations.map((v) => `${v.id} ${v.nodes.map((n) => n.target).join(' ')}`).join(', ')}`).toEqual([]);
+    }
+  });
+});
+
+test.describe('right to left', () => {
+  const MIRRORED = 'matrix(-1, 0, 0, 1, 0, 0)';
+  const stage = (page: P, id: string) => page.locator(`[data-fixture="${id}"]`);
+  const fx = (id: string, items: FixtureItem[], props: Fixture['props'], direction?: 'ltr' | 'rtl'): Fixture => ({ ...fixture(id, items, props), ...(direction ? { direction } : {}) });
+  /** Whether the set's first segment stands at the right of its second. */
+  const firstIsRight = (page: P, id: string) =>
+    set(page, id).evaluate((el) => {
+      const [a, b] = [...el.querySelectorAll('tanrei-segment')].map((segment) => segment.getBoundingClientRect());
+      return a!.x > b!.x;
+    });
+  /** Whether a segment's leading glyph (its icon, or the check) stands at the right of its label. */
+  const glyphIsRight = (page: P, id: string, n: number) =>
+    seg(page, id, n).evaluate((el) => {
+      const root = el.shadowRoot!;
+      const [glyph, label] = [root.querySelector('.glyphs')!.getBoundingClientRect(), root.querySelector('.label')!.getBoundingClientRect()];
+      return glyph.x + glyph.width / 2 > label.x + label.width / 2;
+    });
+  /** A segment's label: the left edge of each character but a space in the order written, each line's box, and the label's box. */
+  const text = (page: P, id: string, n: number) =>
+    seg(page, id, n)
+      .locator('.label')
+      .evaluate((el) => {
+        const node = [...el.childNodes].find((child) => child.nodeType === Node.TEXT_NODE && child.textContent!.trim()) as Text;
+        const lefts = [...node.data].flatMap((char, index) => {
+          if (char === ' ') return [];
+          const range = document.createRange();
+          range.setStart(node, index);
+          range.setEnd(node, index + 1);
+          return [range.getBoundingClientRect().left];
+        });
+        const range = document.createRange();
+        range.selectNodeContents(node);
+        const lines = [...range.getClientRects()].filter((rect) => rect.width > 0).map((rect) => ({ left: rect.left, right: rect.right }));
+        const box = el.getBoundingClientRect();
+        return { lefts, lines, box: { left: box.left, right: box.right } };
+      });
+
+  test('SEG-26: the direction is the nearest ancestor’s inside the page — not the root’s, and no setting of the segmented button’s own; a change while it is shown is drawn at once, without a motion, keeping its selection and its focus', async ({ page }) => {
+    await mountFixtures(page, spec, { icons: true, fixtures: [fx('nested', DWM, { selection: 'single', value: 'week' }), fx('stage-rtl', DWM, { selection: 'single', value: 'week' }, 'rtl'), fx('plain', DWM, { selection: 'single', value: 'week' })] });
+    // The document carries no dir: the platform's own is left to right, and a stage's dir is the set's.
+    expect(await page.evaluate(() => document.documentElement.getAttribute('dir'))).toBeNull();
+    expect(await firstIsRight(page, 'plain')).toBe(false);
+    expect(await firstIsRight(page, 'stage-rtl')).toBe(true);
+    // No direction setting of its own, on the set or on a segment.
+    for (const tag of ['tanrei-segmented-button', 'tanrei-segment']) {
+      expect(await page.evaluate((name) => (customElements.get(name) as unknown as { observedAttributes: string[] }).observedAttributes.filter((attribute) => /dir/.test(attribute)), tag), tag).toEqual([]);
+    }
+    expect(await set(page, 'stage-rtl').getAttribute('dir')).toBeNull();
+    // The nearest ancestor wins: a left-to-right block inside a right-to-left one, across a shadow root.
+    await stage(page, 'nested').evaluate((el) => {
+      el.setAttribute('dir', 'rtl');
+      const inner = document.createElement('div');
+      inner.id = 'inner';
+      inner.setAttribute('dir', 'ltr');
+      const shadowHost = document.createElement('div');
+      shadowHost.attachShadow({ mode: 'open' }).append(document.createElement('slot'));
+      shadowHost.append(el.querySelector('tanrei-segmented-button')!);
+      inner.append(shadowHost);
+      el.append(inner);
+    });
+    const target = set(page, 'nested');
+    const week = seg(page, 'nested', 1);
+    expect(await firstIsRight(page, 'nested')).toBe(false);
+    await tabTo(page, week);
+    // What focus started (the ring) has ended before the direction changes.
+    await motionEnded(target);
+    // Changed after the first render: drawn for the new direction in the same task, and nothing set moving by it.
+    const right = await target.evaluate((el) => {
+      document.querySelector('#inner')!.setAttribute('dir', 'rtl');
+      const [a, b] = [...el.querySelectorAll('tanrei-segment')].map((segment) => segment.getBoundingClientRect());
+      return a!.x > b!.x;
+    });
+    expect(right).toBe(true);
+    expect(await motionCount(target)).toBe(0);
+    // Its selection and its focus are kept.
+    await expect(week).toBeFocused();
+    expect(await target.evaluate((el) => (el as HTMLElement & { value: string }).value)).toBe('week');
+    await expect(target.getByRole('radio', { name: 'Week', checked: true })).toHaveCount(1);
+    // Taken away, the stage's right-to-left is the nearest again; the stage turned back, left to right.
+    await page.evaluate(() => document.querySelector('#inner')!.removeAttribute('dir'));
+    expect(await firstIsRight(page, 'nested')).toBe(true);
+    await stage(page, 'nested').evaluate((el) => el.setAttribute('dir', 'ltr'));
+    expect(await firstIsRight(page, 'nested')).toBe(false);
+    await expect(week).toBeFocused();
+    await expect(target.getByRole('radio', { name: 'Week', checked: true })).toHaveCount(1);
+  });
+
+  // TODO: the product's decision for one use — mirroring forced for an unmarked name, forbidden for a marked one — has no
+  // web form for a segment's icon, which is given by name (the `icon` attribute): the glyph is drawn in the segment's
+  // shadow root, where the product cannot write `data-mirror`, and the segment reads no attribute that would carry it.
+  // The spec's web notes must name such an attribute before the segment can honour it and this test can check it.
+  test('SEG-27: in right-to-left the icon helper mirrors a segment’s icon the icon set marks, inside its own box — not an unmarked one or any icon in left-to-right; the check of a selected segment is never mirrored; place, size, color, fill and the order SEG-21 gives are unchanged, and the segment mirrors nothing itself', async ({ page }) => {
+    const icons = [s('next', 'Next', { icon: 'arrow_forward' }), s('find', 'Find', { icon: 'search' }), s('send', 'Send', { icon: 'send' })];
+    await mountFixtures(page, spec, {
+      icons: true,
+      fixtures: [
+        fx('rtl', icons, { selection: 'single' }, 'rtl'),
+        fx('ltr', icons, { selection: 'single' }, 'ltr'),
+        fx('checked', icons, { selection: 'single', value: 'next' }, 'rtl'),
+        fx('alone', [s('next', 'Next', { icon: 'arrow_forward', labelHidden: true }), s('back', 'Back', { icon: 'arrow_back', labelHidden: true })], { selection: 'single', value: 'next' }, 'rtl'),
+      ],
+    });
+    const icon = (id: string, n: number) => seg(page, id, n).locator('.icon');
+    const expected: [string, number, boolean][] = [
+      ['rtl', 0, true],
+      ['rtl', 1, false],
+      ['rtl', 2, true],
+      ['ltr', 0, false],
+      ['ltr', 2, false],
+      ['alone', 0, true],
+      ['alone', 1, true],
+    ];
+    for (const [id, n, mirrored] of expected) await expect.poll(() => css(icon(id, n), 'transform'), `${id} ${n}`).toBe(mirrored ? MIRRORED : 'none');
+    const [size, color] = [await resolveToken(page, T('icon-size-medium')), await resolveColor(page, T('unselected-icon-color'))];
+    for (const n of [0, 1, 2]) {
+      // The segment mirrors nothing itself: its glyphs, its container and the element are not transformed.
+      for (const part of [seg(page, 'rtl', n).locator('.glyphs'), btn(page, 'rtl', n), seg(page, 'rtl', n)]) expect(await css(part, 'transform'), `rtl ${n}`).toBe('none');
+      // Inside its own box: the glyph box at icon.size, centred in the leading position, in the unselected icon color.
+      const [glyph, lead] = [await bounds(icon('rtl', n)), await bounds(seg(page, 'rtl', n).locator('.glyphs'))];
+      expect(glyph.width, `rtl ${n}`).toBeCloseTo(size, 1);
+      expect(glyph.x + glyph.width / 2, `rtl ${n}`).toBeCloseTo(lead.x + lead.width / 2, 0);
+      expect(await css(icon('rtl', n), 'color'), `rtl ${n}`).toBe(color);
+      // The order SEG-21 gives: the glyph at the right of the label.
+      expect(await glyphIsRight(page, 'rtl', n), `rtl ${n}`).toBe(true);
+    }
+    // Mirrored or not, a glyph stands as far from its label (the content is centred in its segment), in the same family
+    // and fill.
+    const placed = (n: number) =>
+      seg(page, 'rtl', n).evaluate((el) => {
+        const glyph = el.shadowRoot!.querySelector('.icon')!;
+        const [own, label, style] = [glyph.getBoundingClientRect(), el.shadowRoot!.querySelector('.label')!.getBoundingClientRect(), getComputedStyle(glyph)];
+        return { fromLabel: Math.round((own.left - label.right) * 100) / 100, family: style.fontFamily, settings: style.fontVariationSettings };
+      });
+    expect(await placed(0)).toEqual(await placed(1));
+    // The check of a selected segment is never mirrored, nor marked.
+    const check = seg(page, 'checked', 0).locator('.check');
+    await expect(check).toBeVisible();
+    expect(await check.getAttribute('data-tanrei-mirrored')).toBeNull();
+    expect(await css(check, 'transform')).toBe('none');
+    // The mark follows the name: an icon renamed to an unmarked one is no longer mirrored, and back again.
+    await seg(page, 'rtl', 0).evaluate((el) => ((el as HTMLElement & { icon: string }).icon = 'search'));
+    await expect.poll(() => css(icon('rtl', 0), 'transform')).toBe('none');
+    await seg(page, 'rtl', 1).evaluate((el) => ((el as HTMLElement & { icon: string }).icon = 'chevron_right'));
+    await expect.poll(() => css(icon('rtl', 1), 'transform')).toBe(MIRRORED);
+  });
+
+  test('SEG-28: a segment’s label is text of its own direction, isolated — a left-to-right label, a number with its sign and a telephone number keep their order in a right-to-left layout and the glyph keeps its side; a right-to-left label reads from its right in a left-to-right one; lines that wrap stay centred whatever the text’s direction', async ({ page }) => {
+    const LONG_LTR = 'Every working day of the week';
+    const LONG_ARABIC = 'كل يوم عمل من أيام الأسبوع';
+    await mountFixtures(page, spec, {
+      icons: true,
+      fixtures: [
+        fx('ltr-in-rtl', [s('call', 'Call +1 555 0100', { icon: 'call' }), s('mail', 'Mail', { icon: 'mail' })], { selection: 'single' }, 'rtl'),
+        fx('numbers-rtl', [s('down', '−5'), s('phone', '+1 555 0100')], { selection: 'single' }, 'rtl'),
+        fx('arabic-in-ltr', [s('call', 'اتصل الآن', { icon: 'call' }), s('mail', 'Mail', { icon: 'mail' })], { selection: 'single' }),
+        fx('wrap-ltr-in-rtl', [s('a', LONG_LTR), s('b', 'Weekend')], { selection: 'single' }, 'rtl'),
+        fx('wrap-arabic-in-ltr', [s('a', LONG_ARABIC), s('b', 'Weekend')], { selection: 'single' }),
+      ],
+    });
+    for (const [id, n] of [['ltr-in-rtl', 0], ['numbers-rtl', 0], ['arabic-in-ltr', 0]] as const) expect(await css(seg(page, id, n).locator('.label'), 'unicode-bidi'), id).toBe('plaintext');
+    // Its own order: each character after the one before it, from the left; the segment is still laid out right to left.
+    for (const [id, n] of [['ltr-in-rtl', 0], ['numbers-rtl', 0], ['numbers-rtl', 1]] as const) {
+      const { lefts } = await text(page, id, n);
+      for (let i = 1; i < lefts.length; i++) expect(lefts[i], `${id} ${n}: character ${i}`).toBeGreaterThan(lefts[i - 1]!);
+      expect(await css(btn(page, id, n), 'direction'), `${id} ${n}`).toBe('rtl');
+    }
+    // It reorders nothing beside it: the glyph is still at the layout's start, the right, and the first segment too.
+    expect(await glyphIsRight(page, 'ltr-in-rtl', 0)).toBe(true);
+    expect(await firstIsRight(page, 'ltr-in-rtl')).toBe(true);
+    // A right-to-left label in a left-to-right layout reads from its right, after the glyph at the left.
+    const arabic = (await text(page, 'arabic-in-ltr', 0)).lefts;
+    expect(arabic[0]).toBeGreaterThan(arabic.at(-1)!);
+    expect(await glyphIsRight(page, 'arabic-in-ltr', 0)).toBe(false);
+    // Lines that wrap are placed by the segment, centred, not by the text: a left-to-right label in right to left and
+    // an Arabic one in left to right alike.
+    for (const id of ['wrap-ltr-in-rtl', 'wrap-arabic-in-ltr']) await stage(page, id).evaluate((el) => (el.style.inlineSize = '200px'));
+    for (const id of ['wrap-ltr-in-rtl', 'wrap-arabic-in-ltr']) {
+      const { lines, box } = await text(page, id, 0);
+      expect(lines.length, `${id}: it wraps`).toBeGreaterThan(1);
+      for (const line of lines) expect((line.left + line.right) / 2, id).toBeCloseTo((box.left + box.right) / 2, 0);
     }
   });
 });
