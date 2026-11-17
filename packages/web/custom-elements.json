@@ -38790,7 +38790,7 @@
                 "text": "string"
               },
               "default": "''",
-              "description": "The name of a glyph of the system's icon set at the row's start (history, folder); empty draws none (`leading-icon`). A glyph the icon set flags as showing a direction (`arrow_forward`, `send`) is drawn mirrored in a right-to-left layout.",
+              "description": "The name of a glyph of the system's icon set at the row's start (history, folder); empty draws none (`leading-icon`). A glyph the icon set flags as showing a direction (`arrow_forward`, `send`) is drawn mirrored in a right-to-left layout; `data-mirror=\"auto | always | never\"` on the suggestion decides for this use.",
               "attribute": "leading-icon"
             }
           ],
@@ -38828,7 +38828,7 @@
                 "text": "string"
               },
               "default": "''",
-              "description": "The name of a glyph of the system's icon set at the row's start (history, folder); empty draws none (`leading-icon`). A glyph the icon set flags as showing a direction (`arrow_forward`, `send`) is drawn mirrored in a right-to-left layout.",
+              "description": "The name of a glyph of the system's icon set at the row's start (history, folder); empty draws none (`leading-icon`). A glyph the icon set flags as showing a direction (`arrow_forward`, `send`) is drawn mirrored in a right-to-left layout; `data-mirror=\"auto | always | never\"` on the suggestion decides for this use.",
               "fieldName": "leadingIcon"
             }
           ],
@@ -38901,7 +38901,7 @@
                 "text": "string"
               },
               "default": "''",
-              "description": "The name of a glyph of the system's icon set at the row's start (article, tag); empty draws none (`leading-icon`). A glyph the icon set flags as showing a direction is drawn mirrored in a right-to-left layout.",
+              "description": "The name of a glyph of the system's icon set at the row's start (article, tag); empty draws none (`leading-icon`). A glyph the icon set flags as showing a direction is drawn mirrored in a right-to-left layout; `data-mirror=\"auto | always | never\"` on the element decides for this use.",
               "attribute": "leading-icon"
             },
             {
@@ -39008,7 +39008,7 @@
                 "text": "string"
               },
               "default": "''",
-              "description": "The name of a glyph of the system's icon set at the row's start (article, tag); empty draws none (`leading-icon`). A glyph the icon set flags as showing a direction is drawn mirrored in a right-to-left layout.",
+              "description": "The name of a glyph of the system's icon set at the row's start (article, tag); empty draws none (`leading-icon`). A glyph the icon set flags as showing a direction is drawn mirrored in a right-to-left layout; `data-mirror=\"auto | always | never\"` on the element decides for this use.",
               "fieldName": "leadingIcon"
             },
             {
@@ -39140,7 +39140,7 @@
                 "text": "string"
               },
               "default": "''",
-              "description": "The name of a glyph of the system's icon set at the row's start (article, tag); empty draws none (`leading-icon`). A glyph the icon set flags as showing a direction is drawn mirrored in a right-to-left layout.",
+              "description": "The name of a glyph of the system's icon set at the row's start (article, tag); empty draws none (`leading-icon`). A glyph the icon set flags as showing a direction is drawn mirrored in a right-to-left layout; `data-mirror=\"auto | always | never\"` on the element decides for this use.",
               "attribute": "leading-icon",
               "inheritedFrom": {
                 "name": "TanreiSearchRow",
@@ -39293,7 +39293,7 @@
                 "text": "string"
               },
               "default": "''",
-              "description": "The name of a glyph of the system's icon set at the row's start (article, tag); empty draws none (`leading-icon`). A glyph the icon set flags as showing a direction is drawn mirrored in a right-to-left layout.",
+              "description": "The name of a glyph of the system's icon set at the row's start (article, tag); empty draws none (`leading-icon`). A glyph the icon set flags as showing a direction is drawn mirrored in a right-to-left layout; `data-mirror=\"auto | always | never\"` on the element decides for this use.",
               "fieldName": "leadingIcon",
               "inheritedFrom": {
                 "name": "TanreiSearchRow",
@@ -39458,7 +39458,7 @@
                 "text": "string"
               },
               "default": "''",
-              "description": "The name of a glyph of the system's icon set at the row's start (article, tag); empty draws none (`leading-icon`). A glyph the icon set flags as showing a direction is drawn mirrored in a right-to-left layout.",
+              "description": "The name of a glyph of the system's icon set at the row's start (article, tag); empty draws none (`leading-icon`). A glyph the icon set flags as showing a direction is drawn mirrored in a right-to-left layout; `data-mirror=\"auto | always | never\"` on the element decides for this use.",
               "attribute": "leading-icon",
               "inheritedFrom": {
                 "name": "TanreiSearchRow",
@@ -39611,7 +39611,7 @@
                 "text": "string"
               },
               "default": "''",
-              "description": "The name of a glyph of the system's icon set at the row's start (article, tag); empty draws none (`leading-icon`). A glyph the icon set flags as showing a direction is drawn mirrored in a right-to-left layout.",
+              "description": "The name of a glyph of the system's icon set at the row's start (article, tag); empty draws none (`leading-icon`). A glyph the icon set flags as showing a direction is drawn mirrored in a right-to-left layout; `data-mirror=\"auto | always | never\"` on the element decides for this use.",
               "fieldName": "leadingIcon",
               "inheritedFrom": {
                 "name": "TanreiSearchRow",
