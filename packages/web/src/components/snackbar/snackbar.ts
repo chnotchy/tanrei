@@ -567,8 +567,8 @@ export class TanreiSnackbar extends TanreiElement {
     }
     // SNK-20: what a debug build tells the product.
     if (has('message') && !this.message.trim()) report(this, 'SNK-20', 'message is empty; give the snackbar a message');
-    if ((has('closable') || has('closeLabel')) && this.closable && this.words.lacks('closeLabel', this.closeLabel)) {
-      report(this, 'SNK-20', 'closable is set but close-label is empty, so the close button has no accessible name; give it a close-label');
+    if ((has('closable') || has('closeLabel')) && this.closable && !this.words.get('closeLabel', this.closeLabel)) {
+      this.words.missing('closeLabel', { id: 'SNK-20', effect: 'the close button has no accessible name' });
     }
     if ((has('status') || has('statusLabel')) && this.form !== 'default' && !this.statusLabel.trim()) {
       report(this, 'SNK-20', `status is "${this.form}" but status-label is empty, so the status is not given in words; give it a status-label`);

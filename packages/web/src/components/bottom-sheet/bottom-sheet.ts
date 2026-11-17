@@ -849,8 +849,8 @@ export class TanreiBottomSheet extends TanreiElement {
     if ((changed.has('label') || changed.has('headline') || changed.has('variant')) && !this.label.trim() && !this.headline.trim() && !namedByProduct(this)) {
       report(this, 'BSH-22', `label and headline are empty, so the ${this.modal ? 'modal dialog' : 'region'} has no accessible name; give it a label or a headline`);
     }
-    if ((changed.has('closable') || changed.has('closeLabel')) && this.closable && this.words.lacks('closeLabel', this.closeLabel)) {
-      report(this, 'BSH-29', 'close-label is empty, so the close button has no accessible name; give it a close-label');
+    if ((changed.has('closable') || changed.has('closeLabel')) && this.closable && !this.words.get('closeLabel', this.closeLabel)) {
+      this.words.missing('closeLabel', { id: 'BSH-29', effect: 'the close button has no accessible name' });
     }
     if ((changed.has('noHandle') || changed.has('closedBy') || changed.has('closable')) && this.noHandle && this.dismissible && !this.closable) {
       report(this, 'BSH-30', 'it has no drag handle and no close button, so it shows no way out a person can see; set closable (with a close-label) or put a Close button in its content');
@@ -858,8 +858,8 @@ export class TanreiBottomSheet extends TanreiElement {
     if (changed.has('dividerVisibility') && !isDividerVisibility(this.dividerVisibility)) {
       report(this, 'BSH-28', `divider-visibility "${this.dividerVisibility}" is not a value of the bottom sheet; it is drawn as "auto"`);
     }
-    if ((changed.has('handleLabel') || changed.has('two' as keyof TanreiBottomSheet) || changed.has('noHandle')) && this.interactive && this.words.lacks('handleLabel', this.handleLabel)) {
-      report(this, 'BSH-11', 'handle-label is empty, so the drag handle has no accessible name; give it a handle-label');
+    if ((changed.has('handleLabel') || changed.has('two' as keyof TanreiBottomSheet) || changed.has('noHandle')) && this.interactive && !this.words.get('handleLabel', this.handleLabel)) {
+      this.words.missing('handleLabel', { id: 'BSH-11', effect: 'the drag handle has no accessible name' });
     }
     if (changed.has('variant') && !VARIANTS.includes(this.variant)) report(this, 'BSH-25', `variant "${this.variant}" is not defined; the sheet is drawn as modal`);
     if (changed.has('detent') && !DETENTS.includes(this.detent)) report(this, 'BSH-25', `detent "${this.detent}" is not defined; the sheet rests at partial`);

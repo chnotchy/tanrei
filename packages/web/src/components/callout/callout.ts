@@ -608,8 +608,8 @@ export class TanreiCallout extends TanreiElement implements PlacingGroup {
     if (!this.empty && this.form !== 'default' && !this.titled && !this.statusLabel.trim()) {
       report(this, 'CLO-31', `status is "${this.form}" but the callout has no title and status-label is empty, so the status is not given in words; give it a title that says it, or a status-label`);
     }
-    if ((has('closable') || has('closeLabel')) && this.closable && this.words.lacks('closeLabel', this.closeLabel)) {
-      report(this, 'CLO-31', 'closable is set but close-label is empty, so the close button has no accessible name; give it a close-label');
+    if ((has('closable') || has('closeLabel')) && this.closable && !this.words.get('closeLabel', this.closeLabel)) {
+      this.words.missing('closeLabel', { id: 'CLO-31', effect: 'the close button has no accessible name' });
     }
     if ((has('statusLabel') || has('status')) && this.statusLabel.trim() && this.form === 'default') {
       report(this, 'CLO-31', `status-label "${this.statusLabel}" is ignored while status is default; give the callout a status, or put the words in its title`);
