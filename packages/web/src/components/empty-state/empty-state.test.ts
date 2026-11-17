@@ -1,4 +1,4 @@
-// <tanrei-empty-state>, driven by specs/empty-state.spec.json: every behaviour id (EMP-1…18) is cited by a test title,
+// <tanrei-empty-state>, driven by specs/empty-state.spec.json: every behaviour id is cited by a test title,
 // every fixture has a baseline, and every length and color is read back from the tokens — never from a number written
 // here, except where the spec's own verify names one.
 import fs from 'node:fs';

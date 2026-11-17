@@ -1,4 +1,4 @@
-// <tanrei-date-time-picker>, driven by specs/date-time-picker.spec.json: every behaviour id (DTM-1…47) is cited by a
+// <tanrei-date-time-picker>, driven by specs/date-time-picker.spec.json: every behaviour id is cited by a
 // test title, every fixture has a baseline (a modal one is the window — 480 × 720, or 800 × 640 for a horizontal layout —
 // since the picker and its scrim are in the top layer; a docked one is drawn in place with the `inline` test attribute),
 // and every value is read back from the tokens — never from a number written here.

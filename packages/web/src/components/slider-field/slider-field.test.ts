@@ -1,10 +1,10 @@
-// <tanrei-slider-field>, driven by specs/slider-field.spec.json: SLF-1 to SLF-13 and SLF-15, each cited by a test title. It is a
+// <tanrei-slider-field>, driven by specs/slider-field.spec.json: every behaviour id is cited by a test title. It is a
 // composed element, so what a composed element is — declarations, passing, parts, events and the value, the
 // form, focus, the twin of each fixture, reports — is held once, for every composed element, by
 // src/primitives/composed.test.ts, and its members' own behaviour by their own files (a
 // higher level's tests repeat no test of a member; FLD-29 and FLD-30, the value text, are the Field's). What is here is
-// the fourteen sentences of its own, as they hold of THIS element (SLF-15: the room the Field keeps for an always-shown
-// value indicator, FLD-34 and SLD-30, as it holds of the pair here).
+// the sentences of its own, as they hold of THIS element (SLF-15: the room the Field keeps for an always-shown value
+// indicator, FLD-34 and SLD-30, as it holds of the pair here).
 // SLF-14: the product's ARIA on the host is tested with every other control's, in every engine, in
 // src/primitives/delegated-aria.test.ts.
 import fs from 'node:fs';

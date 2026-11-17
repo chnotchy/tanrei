@@ -1,4 +1,4 @@
-// `.tanrei-code` (code.css), driven by specs/inline-code.spec.json: every behaviour id (ICD-1…16) is cited by a test
+// `.tanrei-code` (code.css), driven by specs/inline-code.spec.json: every behaviour id is cited by a test
 // title, every fixture has a baseline, and every length and color is read back from the tokens, never from a number
 // written here. Eight of the fixtures are sections of specs/inline-code.specimen.md, built as prose's are.
 import fs from 'node:fs';

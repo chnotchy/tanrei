@@ -1,4 +1,4 @@
-// <tanrei-pagination>, driven by specs/pagination.spec.json: every behaviour id (PGN-1…24) is cited by a test title,
+// <tanrei-pagination>, driven by specs/pagination.spec.json: every behaviour id is cited by a test title,
 // every fixture has a baseline, and every state, size and choice of kind is read back from the tokens — never from a
 // number written here, except where the spec's own verify gives it.
 // PGN-25: the product's ARIA on the host is tested with every other control's, in every engine, in

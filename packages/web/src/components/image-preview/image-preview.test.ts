@@ -1,4 +1,4 @@
-// <tanrei-image-preview>, driven by specs/image-preview.spec.json: every behaviour id (IMP-1…43) starts the title of a
+// <tanrei-image-preview>, driven by specs/image-preview.spec.json: every behaviour id starts the title of a
 // test, every fixture has a baseline, and every value is read back from the tokens. Its five controls are Tanrei
 // Buttons and its placeholder a Tanrei Skeleton: nothing of theirs is tested again here.
 //

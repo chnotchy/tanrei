@@ -1,4 +1,4 @@
-// <tanrei-loading-indicator>, driven by specs/loading-indicator.spec.json: every behaviour id (LDG-1…16) is cited by a
+// <tanrei-loading-indicator>, driven by specs/loading-indicator.spec.json: every behaviour id is cited by a
 // test title, every fixture has a baseline (recorded with reduced motion, LDG-4's verify, and with no show delay or
 // entrance, LDG-11's), and every length, color, duration and easing is read back from the tokens — never from a number
 // written here, except the per-instance times a test gives the element itself.

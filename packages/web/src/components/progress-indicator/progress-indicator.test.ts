@@ -1,4 +1,4 @@
-// <tanrei-progress-indicator>, driven by specs/progress-indicator.spec.json: every behaviour id (PRG-1…17) is cited by a
+// <tanrei-progress-indicator>, driven by specs/progress-indicator.spec.json: every behaviour id is cited by a
 // test title, every fixture has a baseline, and every length, color, duration and easing is read back from the tokens —
 // never from a number written here.
 // PRG-18: the product's ARIA on the host is tested with every other host's, in every engine, in

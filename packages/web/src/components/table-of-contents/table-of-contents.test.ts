@@ -1,5 +1,5 @@
 // <tanrei-table-of-contents> and table-of-contents.css, driven by specs/table-of-contents.spec.json: every behaviour id
-// (TOC-1…42) is cited by a test title, every fixture has a baseline, and every length and color is read back from the
+// is cited by a test title, every fixture has a baseline, and every length and color is read back from the
 // tokens — never from a number written here (the heights and insets of TOC-3's and TOC-24's verify are the spec's own
 // numbers for the default system). The rule (TOC-9 to TOC-17) cannot be shown by a fixture: its tests build the pages
 // its `verify` texts describe (`reading()`).

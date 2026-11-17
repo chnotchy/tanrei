@@ -1,4 +1,4 @@
-// <tanrei-file-picker>, driven by specs/file-picker.spec.json: every behaviour id (FPK-1…31) starts the title of a test,
+// <tanrei-file-picker>, driven by specs/file-picker.spec.json: every behaviour id starts the title of a test,
 // every fixture has a baseline, and every length and color is read back from the tokens — never from a number written
 // here. A file is chosen through the browser's own picker (Playwright's filechooser event), and a drag is a DragEvent
 // that carries a DataTransfer the page made. The sentences the web holds as the nearest thing (FPK-6, FPK-13, FPK-14,

@@ -1,4 +1,4 @@
-// <tanrei-tree-view> and tree-view.css, driven by specs/tree-view.spec.json: every behaviour id (TRV-1…71) is cited by a
+// <tanrei-tree-view> and tree-view.css, driven by specs/tree-view.spec.json: every behaviour id is cited by a
 // test title, every fixture has a baseline, and every length and color is read back from the tokens — never from a
 // number written here. What a tree of thousands costs is measured in tree-view.perf.test.ts.
 // TRV-72: the product's ARIA on the host is tested with every other host's, in every engine, in

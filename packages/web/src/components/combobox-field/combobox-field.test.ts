@@ -1,9 +1,9 @@
 // <tanrei-combobox-field>, driven by specs/combobox-field.spec.json: a composed element — a Field around one
 // combobox. What a composed element is, is held once for every such element by src/primitives/composed.test.ts
-// (declarations, passing, parts, events and the value, the form, focus, the twins — each of the sixty fixtures
+// (declarations, passing, parts, events and the value, the form, focus, the twins — each fixture
 // the same pixels and the same control as the Field's fixture `combobox-<id>` — and reports). The members' own
-// sentences are the members' tests (combobox.test.ts, CMB-1 to CMB-62; field.test.ts, FLD-1 to FLD-28). This file holds
-// what the combobox field's own sentences add, CBF-1 to CBF-7, and repeats no test of a member.
+// sentences are the members' tests (combobox.test.ts, field.test.ts). This file holds what the combobox field's own
+// sentences add, and repeats no test of a member.
 // CBF-8: the product's ARIA on the host is tested with every other control's, in every engine, in
 // src/primitives/delegated-aria.test.ts.
 import fs from 'node:fs';

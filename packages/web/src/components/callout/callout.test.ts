@@ -1,4 +1,4 @@
-// <tanrei-callout>, driven by specs/callout.spec.json: every behaviour id (CLO-1…31) is cited by a test title, every
+// <tanrei-callout>, driven by specs/callout.spec.json: every behaviour id is cited by a test title, every
 // fixture has a baseline, and every length and color is read back from the tokens — never from a number written here.
 // CLO-32: the product's ARIA on the host is tested with every other host's, in every engine, in
 // src/primitives/delegated-aria.test.ts.

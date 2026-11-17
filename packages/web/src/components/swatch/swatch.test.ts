@@ -1,4 +1,4 @@
-// <tanrei-swatch>, driven by specs/swatch.spec.json: every behaviour id (SWC-1…19) is cited by a test title, every
+// <tanrei-swatch>, driven by specs/swatch.spec.json: every behaviour id is cited by a test title, every
 // fixture has a baseline, and every length and color is read back from the tokens — never from a number written here.
 // SWC-20: the product's ARIA on the host is tested with every other host's, in every engine, in
 // src/primitives/delegated-aria.test.ts.

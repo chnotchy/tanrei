@@ -1,4 +1,4 @@
-// <tanrei-chat-composer>, driven by specs/chat-composer.spec.json: every behaviour id (CCM-1…44) is cited by a test
+// <tanrei-chat-composer>, driven by specs/chat-composer.spec.json: every behaviour id is cited by a test
 // title, every fixture has a baseline, and every length and color is read back from the tokens — never from a number
 // written here. What the web's way of composing asks of every composed element is held by the shared test
 // (src/primitives/composed.test.ts); this file holds the chat composer's own sentences — the capsule, the two

@@ -1,4 +1,4 @@
-// <tanrei-stepper> and <tanrei-stepper-step>, driven by specs/stepper.spec.json: every behaviour id (SPR-1…27) is
+// <tanrei-stepper> and <tanrei-stepper-step>, driven by specs/stepper.spec.json: every behaviour id is
 // cited by a test title, every fixture has a baseline, and every condition, state and choice of kind is read back from
 // the tokens — never from a number written here.
 // SPR-28: the product's ARIA on the host is tested with every other host's, in every engine, in

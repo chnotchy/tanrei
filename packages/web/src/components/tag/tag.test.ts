@@ -1,4 +1,4 @@
-// <tanrei-tag>, driven by specs/tag.spec.json: every behaviour id (TAG-1…21) is cited by a test title, every fixture has
+// <tanrei-tag>, driven by specs/tag.spec.json: every behaviour id is cited by a test title, every fixture has
 // a baseline, and every length and color is read back from the tokens — never from a number written here.
 import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';

@@ -1,4 +1,4 @@
-// <tanrei-file-item>, driven by specs/file-item.spec.json: every behaviour id (FIT-1…33) starts the title of a test,
+// <tanrei-file-item>, driven by specs/file-item.spec.json: every behaviour id starts the title of a test,
 // every fixture has a baseline, and every length and color is read back from the tokens — never from a number written
 // here. The closed table of formats (FIT-5) is read from the sentence itself. The row's tests hold the row the file
 // upload draws; the others hold the tile, the format's glyph, the picture and the pressable body. A file is a `File` the page makes: the element reads none of its bytes.

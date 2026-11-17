@@ -1,9 +1,9 @@
 // <tanrei-color-field>, driven by specs/color-field.spec.json: a composed element — a Field around one color
 // input. What a composed element is, is held once for every such element by src/primitives/composed.test.ts
-// (declarations, passing, parts, events and the value, the form, focus, the twins — each of the thirty-nine
-// fixtures the same pixels and the same control as the Field's fixture `color-<id>` — and reports). The members' own
-// sentences are the members' tests (color-input.test.ts, CLI-1 to CLI-44; field.test.ts, FLD-1 to FLD-28). This file
-// holds what the color field's own sentences add, CLF-43 to CLF-47, and repeats no test of a member.
+// (declarations, passing, parts, events and the value, the form, focus, the twins — each fixture
+// the same pixels and the same control as the Field's fixture `color-<id>` — and reports). The members' own sentences
+// are the members' tests (color-input.test.ts, field.test.ts). This file holds what the color field's own sentences
+// add, and repeats no test of a member.
 // CLF-48: the product's ARIA on the host is tested with every other control's, in every engine, in
 // src/primitives/delegated-aria.test.ts.
 import fs from 'node:fs';

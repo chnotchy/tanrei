@@ -1,4 +1,4 @@
-// <tanrei-modal-layer>, driven by specs/modal-layer.spec.json: every behaviour id (MDL-1…12) is cited by a test title,
+// <tanrei-modal-layer>, driven by specs/modal-layer.spec.json: every behaviour id is cited by a test title,
 // every fixture has a baseline (the 640 × 640 window, since the layer and its scrim are in the top layer), and every
 // value is read back from the tokens — never from a number written here. The components built from the layer (the
 // dialog, the sheets, the drawer, the picker, the search) are held to its tokens here too: one value changes them all.

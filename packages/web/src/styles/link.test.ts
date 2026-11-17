@@ -1,4 +1,4 @@
-// `.tanrei-link` (link.css, src/link.ts), driven by specs/link.spec.json: every behaviour id (LNK-1…35) is cited by a
+// `.tanrei-link` (link.css, src/link.ts), driven by specs/link.spec.json: every behaviour id is cited by a
 // test title, every fixture has a baseline, and every length, color and time is read back from the tokens, never from
 // a number written here. A fixture cannot put text around a link,
 // so the tests of a link in a paragraph give the stage their own markup.

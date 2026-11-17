@@ -1,4 +1,4 @@
-// <tanrei-one-time-code-input>, driven by specs/one-time-code-input.spec.json: every behaviour id (OTC-1…30) is cited by
+// <tanrei-one-time-code-input>, driven by specs/one-time-code-input.spec.json: every behaviour id is cited by
 // a test title, every fixture has a baseline, and every length and color is read back from the tokens — never from a
 // number written here (the numbers of a spec's own `verify` are the default system's, and are named as such).
 // OTC-31: the product's ARIA on the host is tested with every other control's, in every engine, in

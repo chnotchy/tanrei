@@ -1,4 +1,4 @@
-// <tanrei-figure> and figure.css, driven by specs/figure.spec.json: every behaviour id (FIG-1…26) is cited by a test
+// <tanrei-figure> and figure.css, driven by specs/figure.spec.json: every behaviour id is cited by a test
 // title, every fixture has a baseline, and every length and color is read back from the tokens — never from a number
 // written here (the numbers of a `verify` are the spec's own, for the default system).
 import fs from 'node:fs';
