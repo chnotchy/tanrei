@@ -23,8 +23,9 @@
  * - Held: an element whose height its tokens give is the box it will be — `inline-block` where the element is inline,
  *   `block` (or the flex box it will be) where it is a block — at least that tall, and what is written inside it adds
  *   no line of the page's text to that height (a line of the page's face can be taller than a small control):
- *   - a control whose height is a token of its own — its container height or container size, by its `size` (the
- *     default's where it names none) and, for an input box, by its `variant`;
+ *   - a control whose height is a token of its own — its container height or container size (a slider's, or its
+ *     handle's height where that is taller), by its `size` (the default's where it names none) and, for an input box,
+ *     by its `variant`;
  *   - a field and a group of fields: the control's box, or the column of controls, between the rows the field draws
  *     from its tokens — the label's line and gap above, the supporting text's gap and line below — each where the
  *     attributes say it is drawn;
@@ -185,8 +186,16 @@
   :where(tanrei-switch:not(:defined)) {
     min-block-size: var(--tanrei-comp-switch-track-height);
   }
+  /* A horizontal slider: as thick as the larger of its container's size and its handle's height, by its size (SLD-7) —
+     a system's handle may be taller than the container. */
   :where(tanrei-slider:not([orientation='vertical']):not(:defined)) {
-    min-block-size: var(--tanrei-comp-slider-container-size);
+    min-block-size: max(var(--tanrei-comp-slider-container-size), var(--tanrei-comp-slider-handle-height-small));
+  }
+  :where(tanrei-slider[size='medium']:not([orientation='vertical']):not(:defined)) {
+    min-block-size: max(var(--tanrei-comp-slider-container-size), var(--tanrei-comp-slider-handle-height-medium));
+  }
+  :where(tanrei-slider[size='large']:not([orientation='vertical']):not(:defined)) {
+    min-block-size: max(var(--tanrei-comp-slider-container-size), var(--tanrei-comp-slider-handle-height-large));
   }
   :where(tanrei-rating:not(:defined)) {
     min-block-size: var(--tanrei-comp-rating-container-size-medium);
@@ -246,9 +255,17 @@
     --_cloak-control: max(var(--_cloak-box), var(--_cloak-labelled));
   }
 
-  /* A field's control that is not an input box: the slider's container, the one-time code input's. */
+  /* A field's control that is not an input box: the slider's thickness — the larger of its container's size and its
+     handle's height, by its size (SLD-7) — and the one-time code input's container. The rules for an always-shown
+     value indicator stand after these, so that their taller box wins. */
   :where(tanrei-slider-field:not(:defined)) {
-    min-block-size: var(--tanrei-comp-slider-container-size);
+    min-block-size: max(var(--tanrei-comp-slider-container-size), var(--tanrei-comp-slider-handle-height-small));
+  }
+  :where(tanrei-slider-field[size='medium']:not(:defined)) {
+    min-block-size: max(var(--tanrei-comp-slider-container-size), var(--tanrei-comp-slider-handle-height-medium));
+  }
+  :where(tanrei-slider-field[size='large']:not(:defined)) {
+    min-block-size: max(var(--tanrei-comp-slider-container-size), var(--tanrei-comp-slider-handle-height-large));
   }
   /* A slider whose value indicator is always shown, as a field's control: the field keeps the room the indicator
      reaches above the slider (FLD-34, SLD-30), so the box is held from the indicator's top to the slider's bottom —
