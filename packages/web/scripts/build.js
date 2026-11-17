@@ -323,8 +323,8 @@ const tableOfContentsModule = fs.readFileSync(tableOfContentsFile, 'utf8');
 if (tableOfContentsModule.split(TABLE_OF_CONTENTS_CSS_NAME).length === 2) fs.writeFileSync(tableOfContentsFile, tableOfContentsModule.replace(TABLE_OF_CONTENTS_CSS_NAME, () => tableOfContentsText));
 else if (!tableOfContentsModule.includes(':where(tanrei-table-of-contents)')) throw new Error(`table-of-contents.js: expected one ${TABLE_OF_CONTENTS_CSS_NAME} to write table-of-contents.css into`);
 // The icon style is one source too (src/styles/icons.ts): the components draw their own icons with the same declarations.
-const { ICONS_CSS } = await import('../dist/styles/icons.js');
-fs.writeFileSync('dist/icons.css', ICONS_CSS);
+const { iconsCss } = await import('../dist/styles/icons.js');
+fs.writeFileSync('dist/icons.css', iconsCss());
 fs.writeFileSync('dist/shape.css', `/* Corner smoothing for a light-DOM box: put data-tanrei-shape on it and name its radius token in --tanrei-corner-radius (and set --tanrei-corner-pill: 1 on a pill). */\n@layer tanrei.components {\n${SHAPE_CSS.replace(/^/gm, '  ')}\n}\n`);
 // The page's base (`@tanrei/web/base.css`), and `@tanrei/web/tanrei.css`: the base, the tokens and every other
 // stylesheet the package exports, in one file, in the order of the exports (prose before the link, the steps and the

@@ -487,7 +487,7 @@
     },
     {
       "id": "MNU-7",
-      "text": "WHILE the menu is open THE menu SHALL move focus among the items of the surface that holds focus — the menu's own or one submenu's, never across levels — to the next and previous item with Down Arrow and Up Arrow, wrapping at the ends and passing through groups as if their items were the surface's, to the first and last item with Home and End, and to the next item of that surface whose label begins with the typed characters when printable characters are typed within one second of each other; disabled items SHALL be reachable but SHALL NOT activate, a submenu item SHALL take focus as any other item, and dividers, groups and group titles SHALL NOT take focus."
+      "text": "WHILE the menu is open THE menu SHALL move focus among the items of the surface that holds focus — the menu's own or one submenu's, never across levels — to the next and previous item with Down Arrow and Up Arrow, wrapping at the ends and passing through groups as if their items were the surface's, to the first and last item with Home and End, and to the next item of that surface whose label begins with the typed characters when printable characters are typed within one second of each other, compared without regard to case, to the width of a character or to the marks on a letter, as the label's language compares (as the combobox compares, CMB-25); disabled items SHALL be reachable but SHALL NOT activate, a submenu item SHALL take focus as any other item, and dividers, groups and group titles SHALL NOT take focus."
     },
     {
       "id": "MNU-8",
