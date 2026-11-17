@@ -48036,7 +48036,7 @@
                 "text": "string"
               },
               "default": "''",
-              "description": "The name of a glyph of the system's icon set. Give every tab of a row an icon, or none. A glyph the icon set flags as showing a direction (`arrow_forward`, `send`) is drawn mirrored in a right-to-left layout.",
+              "description": "The name of a glyph of the system's icon set. Give every tab of a row an icon, or none. A glyph the icon set flags as showing a direction (`arrow_forward`, `send`) is drawn mirrored in a right-to-left layout; `data-mirror=\"auto | always | never\"` on the tab decides for this use.",
               "attribute": "icon"
             },
             {
@@ -48094,7 +48094,7 @@
                 "text": "string"
               },
               "default": "''",
-              "description": "The name of a glyph of the system's icon set. Give every tab of a row an icon, or none. A glyph the icon set flags as showing a direction (`arrow_forward`, `send`) is drawn mirrored in a right-to-left layout.",
+              "description": "The name of a glyph of the system's icon set. Give every tab of a row an icon, or none. A glyph the icon set flags as showing a direction (`arrow_forward`, `send`) is drawn mirrored in a right-to-left layout; `data-mirror=\"auto | always | never\"` on the tab decides for this use.",
               "fieldName": "icon"
             },
             {
