@@ -22639,7 +22639,7 @@
                 "text": "string"
               },
               "default": "''",
-              "description": "The name of a glyph of the system's icon set at the row's start. Decorative; the leading slot's content is drawn in its place.",
+              "description": "The name of a glyph of the system's icon set at the row's start. Decorative; the leading slot's content is drawn in its place. Mirrored in right-to-left where the icon set says; `data-mirror=\"auto | always | never\"` on the row decides for this use, for both of its glyphs.",
               "attribute": "leading-icon"
             },
             {
@@ -22661,7 +22661,7 @@
                 "text": "string"
               },
               "default": "''",
-              "description": "The name of a glyph of the system's icon set at the row's very end (`chevron_right`). Decorative, mirrored where the icon set says.",
+              "description": "The name of a glyph of the system's icon set at the row's very end (`chevron_right`). Decorative, mirrored where the icon set says, and `data-mirror` on the row decides for this use.",
               "attribute": "trailing-icon"
             },
             {
@@ -22718,7 +22718,7 @@
                 "text": "string"
               },
               "default": "''",
-              "description": "The name of a glyph of the system's icon set at the row's start. Decorative; the leading slot's content is drawn in its place.",
+              "description": "The name of a glyph of the system's icon set at the row's start. Decorative; the leading slot's content is drawn in its place. Mirrored in right-to-left where the icon set says; `data-mirror=\"auto | always | never\"` on the row decides for this use, for both of its glyphs.",
               "fieldName": "leadingIcon"
             },
             {
@@ -22736,7 +22736,7 @@
                 "text": "string"
               },
               "default": "''",
-              "description": "The name of a glyph of the system's icon set at the row's very end (`chevron_right`). Decorative, mirrored where the icon set says.",
+              "description": "The name of a glyph of the system's icon set at the row's very end (`chevron_right`). Decorative, mirrored where the icon set says, and `data-mirror` on the row decides for this use.",
               "fieldName": "trailingIcon"
             },
             {
@@ -37660,7 +37660,7 @@
                 "text": "string"
               },
               "default": "''",
-              "description": "The name of the glyph of one mark in the system's icon set (`favorite`, `thumb_up`); empty draws `star`. A name the icon set mirrors in right-to-left is drawn mirrored.",
+              "description": "The name of the glyph of one mark in the system's icon set (`favorite`, `thumb_up`); empty draws `star`. A name the icon set mirrors in right-to-left is drawn mirrored; `data-mirror=\"auto | always | never\"` on the rating decides for the glyph `icon` names (the `star` it draws by itself takes no word).",
               "attribute": "icon"
             },
             {
@@ -37842,7 +37842,7 @@
                 "text": "string"
               },
               "default": "''",
-              "description": "The name of the glyph of one mark in the system's icon set (`favorite`, `thumb_up`); empty draws `star`. A name the icon set mirrors in right-to-left is drawn mirrored.",
+              "description": "The name of the glyph of one mark in the system's icon set (`favorite`, `thumb_up`); empty draws `star`. A name the icon set mirrors in right-to-left is drawn mirrored; `data-mirror=\"auto | always | never\"` on the rating decides for the glyph `icon` names (the `star` it draws by itself takes no word).",
               "fieldName": "icon"
             },
             {
