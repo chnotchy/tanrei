@@ -1,5 +1,5 @@
 import { css, unsafeCSS } from 'lit';
-import { RANGE_SIZES, RANGE_VARIANTS, rangeAxes, rangeTrackStyles } from '../../primitives/index.js';
+import { RANGE_SIZES, RANGE_VARIANTS, directionProbeStyles, rangeAxes, rangeTrackStyles } from '../../primitives/index.js';
 import { reducedMotion } from '../../styles/motion.js';
 
 /** The sizes every design system has; a layer may add more. The variant is not a token axis: the forms are drawn here. */
@@ -19,6 +19,7 @@ const T = (name: string) => `var(${PREFIX}-${name})`;
 // (PRG-14) and its forced colors.
 export const styles = [
   rangeTrackStyles(PREFIX),
+  directionProbeStyles,
   css`
     /* PRG-2, a bar: a segment two fifths of the track long crosses from beyond its start to beyond its end once per
        cycle, clipped to the track. It is moved by a transform alone — its own length back (two fifths of the track) to

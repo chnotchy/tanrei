@@ -7,6 +7,7 @@ import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
 import { type Fixture, loadSpec, mountFixtures, resolveColor, resolveToken, tab, rootTokens } from '../../../test/harness.js';
 import { decodePng, paintedColor } from '../../../test/png.js';
+import { motionCount } from '../../../test/motions.js';
 import { expectBaseline } from '../../../test/baseline.js';
 
 const spec = loadSpec('progress-indicator');
@@ -548,6 +549,107 @@ test.describe('behavior', () => {
     const [right, left] = await ringAt(page, 'quarter', [0.12, 0.88]);
     expect([near(right, indicatorColor), near(left, indicatorColor)]).toEqual([true, false]);
     expect(await css(part(page, 'quarter', 'ring'), 'direction')).toBe('rtl'); // the direction is there, and ignored
+  });
+
+  test('PRG-16: the direction is the nearest ancestor’s — not the root’s and not a setting of the indicator’s own; when it changes while the indicator is shown it is drawn for the new direction at once, without a motion, keeping its value and the place of an indeterminate segment in its cycle', async ({ page }) => {
+    const of = (id: string) => spec.fixtures.find((f) => f.id === id)!;
+    const ids = ['linear-rtl-determinate', 'linear-rtl-gap', 'linear-rtl-indeterminate', 'rtl-ring'];
+    // The verify: the direction set on an ancestor inside the page (each fixture's stage), not on the root.
+    await mountFixtures(page, spec, {
+      reducedMotion: false,
+      fixtures: [
+        { ...of('linear-determinate'), id: 'linear-rtl-determinate', direction: 'rtl' },
+        { ...of('linear-gap'), id: 'linear-rtl-gap', direction: 'rtl' },
+        { ...of('linear-indeterminate'), id: 'linear-rtl-indeterminate', direction: 'rtl' },
+        { ...of('circular-indeterminate'), id: 'rtl-ring', direction: 'rtl' },
+      ],
+    });
+    expect(await page.evaluate(() => document.documentElement.getAttribute('dir'))).toBeNull();
+    const told: Record<string, string> = {};
+    for (const id of ids) {
+      expect(await host(page, id).evaluate((el) => [el.getAttribute('dir'), el.matches(':dir(rtl)'), Object.keys((el.constructor as unknown as { properties: object }).properties).some((p) => /^dir|direction/i.test(p))]), id).toEqual([null, true, false]);
+      told[id] = await stage(page, id).ariaSnapshot();
+    }
+    /** The indicator's distance from the bar's left and right edges, and its width over the bar's. */
+    const filled = async (id: string) => {
+      const [bar, indicator] = [await box(host(page, id)), await box(part(page, id, 'indicator'))];
+      return { left: indicator.x - bar.x, right: bar.x + bar.width - (indicator.x + indicator.width), fraction: indicator.width / bar.width };
+    };
+    for (const id of ['linear-rtl-determinate', 'linear-rtl-gap']) {
+      const rtl = await filled(id);
+      expect(rtl.right, `${id}: right-to-left fills from the right`).toBeCloseTo(0, 1);
+      expect(rtl.fraction, id).toBeCloseTo(0.4, 2);
+    }
+    // Turning and crossing, some way into their cycles.
+    for (const [id, name] of [['linear-rtl-indeterminate', 'indicator'], ['rtl-ring', 'spin']] as const) {
+      await expect.poll(async () => part(page, id, name).evaluate((el) => el.getAnimations().map((a) => [a.playState, Number(a.currentTime) > 0]).join()), id).toBe('running,true');
+    }
+    // Changed on the ancestors after the first render. In the first frames drawn after it, each bar is already where it
+    // rests in left-to-right — the track after the gap too, not on its way from its right-to-left place — and no
+    // transition is left running; each segment's motion is the same animation, gone on from where it was.
+    const duration = await resolveToken(page, T('motion-cycle-duration'), 'duration');
+    const drawn = await page.evaluate(async (list) => {
+      const hosts = list.map((id) => document.querySelector(`[data-fixture="${id}"] tanrei-progress-indicator`)!);
+      const moving = ['linear-rtl-indeterminate', 'rtl-ring'].map((id) => {
+        const el = document.querySelector(`[data-fixture="${id}"] tanrei-progress-indicator`)!.shadowRoot!.querySelector(id === 'rtl-ring' ? '.spin' : '.indicator')!;
+        const [animation] = el.getAnimations();
+        return { el, animation, time: Number(animation.currentTime) };
+      });
+      for (const el of hosts) el.closest('.stage')!.setAttribute('dir', 'ltr');
+      await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
+      const boxes = hosts.slice(0, 2).map((el) => {
+        const bar = el.getBoundingClientRect();
+        return [...el.shadowRoot!.querySelectorAll('.bar > *')]
+          .filter((p) => getComputedStyle(p).display !== 'none')
+          .map((p) => {
+            const r = p.getBoundingClientRect();
+            return [p.className, Math.round((r.left - bar.left) * 100) / 100, Math.round(r.width * 100) / 100] as const;
+          });
+      });
+      return { boxes, cycles: moving.map(({ el, animation, time }) => [el.getAnimations().includes(animation), Number(animation.currentTime) - time, animation.playState] as const) };
+    }, ids);
+    // Nothing moves but the two cycles: no transition is left running.
+    for (const id of ids) expect(await motionCount(host(page, id)), id).toBe(['linear-rtl-determinate', 'linear-rtl-gap'].includes(id) ? 0 : 1);
+    for (const [same, on, state] of drawn.cycles) {
+      expect([same, state]).toEqual([true, 'running']);
+      expect(on).toBeGreaterThanOrEqual(0);
+      expect(on).toBeLessThan(duration);
+    }
+    const [width, gap] = [(await box(host(page, 'linear-rtl-gap'))).width, await resolveToken(page, T('track-gap'))];
+    for (const [i, id] of ['linear-rtl-determinate', 'linear-rtl-gap'].entries()) {
+      const indicator = drawn.boxes[i].find(([name]) => name === 'indicator')!;
+      expect(indicator[1], `${id}: left-to-right fills from the left`).toBe(0);
+      expect(indicator[2], id).toBeCloseTo(width * 0.4, 1);
+      const after = drawn.boxes[i].find(([name]) => name === 'track after');
+      expect(!!after, id).toBe(id === 'linear-rtl-gap');
+      if (after) expect(after[1], `${id}: the track after the gap already at rest`).toBeCloseTo(width * 0.4 + gap, 1);
+    }
+    // Keeping the value and what assistive technology is told.
+    for (const id of ['linear-rtl-determinate', 'linear-rtl-gap']) {
+      const ltr = await filled(id);
+      expect(ltr.left, id).toBeCloseTo(0, 1);
+      expect(ltr.fraction, id).toBeCloseTo(0.4, 2);
+      expect(await host(page, id).evaluate((el) => (el as HTMLElement & { value: number }).value), id).toBe(0.4);
+    }
+    for (const id of ids) expect(await stage(page, id).ariaSnapshot(), id).toBe(told[id]);
+    // The segment's place in its cycle: at one moment (one task, in which the animation's time does not move), it stands
+    // as far from the bar's left end in left-to-right as from its right end in right-to-left.
+    const place = await host(page, 'linear-rtl-indeterminate').evaluate((el) => {
+      const segment = el.shadowRoot!.querySelector('.indicator')!;
+      const [animation] = segment.getAnimations();
+      const measure = () => {
+        const [bar, r] = [el.getBoundingClientRect(), segment.getBoundingClientRect()];
+        return { time: Number(animation.currentTime), fromLeft: r.left - bar.left, fromRight: bar.right - r.right, width: r.width };
+      };
+      const ltr = measure();
+      el.closest('.stage')!.setAttribute('dir', 'rtl');
+      return { ltr, rtl: measure(), same: segment.getAnimations()[0] === animation };
+    });
+    expect(place.ltr.time).toBeGreaterThan(0);
+    expect(place.same).toBe(true);
+    expect(place.rtl.time).toBe(place.ltr.time);
+    expect(place.rtl.fromRight).toBeCloseTo(place.ltr.fromLeft, 1);
+    expect(place.rtl.width).toBeCloseTo(place.ltr.width, 1);
   });
 
   test('PRG-14: off screen the indeterminate animation is paused, and it resumes when it is seen again', async ({ page }) => {

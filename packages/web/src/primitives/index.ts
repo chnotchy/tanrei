@@ -32,8 +32,9 @@
 //   availability — AvailabilityController: a component or variant the active system does not have, recorded and reported
 //                 under the element the product wrote; setAvailabilityMode() and unavailableUses() are the product's two functions
 //   arc         — arcStyles: a ring of SVG circles (center, radius, stroke, circumference), ring-turn and pulse
-//   range-track — rangeTrackStyles(), renderRangeBar(), renderRangeRing(), rangeOf(), rangeAxes(): a value on a track as a
-//                 bar or a ring, from a component's own tokens (the progress indicator's determinate form, the meter)
+//   range-track — rangeTrackStyles(), renderRangeBar(), renderRangeRing(), rangeOf(), rangeAxes(), rangeDirection(): a value on a track as a
+//                 bar or a ring, from a component's own tokens (the progress indicator's determinate form, the meter),
+//                 drawn for a new direction at once
 //   delegated-aria — delegatesAria(Class, { owns, sentence, instead }), delegatedAria(host, own): the product's ARIA
 //                 states and relationships on the host, taken off it and exposed on the element inside that carries the
 //                 role (element reflection for an id reference, its text where the engine has none); an owned name set
@@ -223,7 +224,7 @@ export { PressController, type PressOptions, type PressedBy, pressHold } from '.
 export { type Point, type RippleTokens, fadeRipple, rippleStyles, startRipple } from './ripple.js';
 export { type StatePaints, type StateSelector, stateRules } from './states.js';
 export { arcStyles } from './arc.js';
-export { RANGE_SIZES, RANGE_VARIANTS, rangeAxes, rangeClasses, rangeOf, rangeTrackStyles, renderRangeBar, renderRangeRing } from './range-track.js';
+export { RANGE_SIZES, RANGE_VARIANTS, rangeAxes, rangeClasses, rangeDirection, rangeOf, rangeTrackStyles, renderRangeBar, renderRangeRing } from './range-track.js';
 export { DELEGATED_RELATIONS, DELEGATED_STATES, DelegatedAriaWriter, type DelegatedName, type DelegatesAriaOptions, type OwnAria, ariaAttribute, asComponent, delegatedAria, delegatedNames, delegates, delegatesAria, holdsProductName, nameHost, namedByProduct, ownedNames, syncDelegation } from './delegated-aria.js';
 export { OUTSIDE_FOCUS_ORDER } from './focus-order.js';
 export { DIRECTION_PROBE, DirectionController, directionProbeStyles } from './direction.js';

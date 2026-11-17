@@ -1,7 +1,8 @@
-import { type PropertyDeclarations, type PropertyValues } from 'lit';
+import { type PropertyDeclarations, type PropertyValues, html } from 'lit';
 import { keyed } from 'lit/directives/keyed.js';
 import {
   AvailabilityController,
+  DIRECTION_PROBE,
   OpenAxesController,
   SEPARATION_VALUES,
   type SeparationProp,
@@ -9,6 +10,7 @@ import {
   VisibilityController,
   hostAria,
   rangeClasses,
+  rangeDirection,
   rangeOf,
   renderRangeBar,
   renderRangeRing,
@@ -101,6 +103,9 @@ export class TanreiProgressIndicator extends TanreiElement {
   /** PRG-14: the indeterminate animation runs only while the indicator can be seen. */
   private readonly visibility = new VisibilityController(this);
 
+  /** PRG-16: a change of direction is drawn at once, with no value transition run by the flip (src/primitives/range-track.ts). */
+  private readonly direction = rangeDirection(this);
+
   private get determinate() {
     return typeof this.value === 'number' && !Number.isNaN(this.value);
   }
@@ -160,7 +165,7 @@ export class TanreiProgressIndicator extends TanreiElement {
     // transition from. Within one mode the same elements stay, so a value change transitions.
     const mode = `${this.circular ? 'circular' : 'linear'}-${determinate ? 'determinate' : 'indeterminate'}`;
     // The drawing is the meter's too (src/primitives/range-track.ts); a bar draws the stop indicator while determinate.
-    return keyed(mode, this.circular ? renderRangeRing(classes, fraction) : renderRangeBar(classes, fraction, determinate));
+    return html`${keyed(mode, this.circular ? renderRangeRing(classes, fraction) : renderRangeBar(classes, fraction, determinate))}${DIRECTION_PROBE}`;
   }
 }
 
