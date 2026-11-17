@@ -162,7 +162,6 @@ export const RULES = {
       'src/components/pagination/pagination.test.ts': 3,
       'src/components/popover/popover.test.ts': 3,
       'src/components/search/search.test.ts': 2,
-      'src/components/segmented-button/segmented-button.test.ts': 1,
       'src/components/select/select.test.ts': 3,
       'src/components/side-sheet/side-sheet.test.ts': 5,
       'src/components/skeleton/skeleton.test.ts': 2,
