@@ -336,11 +336,12 @@ test.describe('behavior', () => {
     expect(passes.frames.map((f) => f.translate)).toEqual([0, -distance, -distance].map((v) => expect.closeTo(v, 1)));
     expect(passes.frames[1]!.offset).toBeCloseTo(travel / (travel + rest), 3);
     for (const frame of passes.frames) expect(frame.easing).toBe(await easingOf(page, T('motion-easing')));
-    // The copy follows the text a gap behind; at the pass's end it stands where the text began.
-    const [textRight, copyLeft] = await line.evaluate((el) => [el.shadowRoot!.querySelector('.text')!.getBoundingClientRect().right, el.shadowRoot!.querySelector('.copy')!.getBoundingClientRect().left]);
-    expect(copyLeft - textRight).toBeCloseTo(gap, 0);
+    // The copy follows the text a gap behind; at the pass's end it stands where the text began. Both are read where the
+    // run is sought and held: read while it ran, each box would be of the moment it was read (WebKit lays a running
+    // translate out at the moment of the read).
     await seek(line, 0);
-    const begin = await line.evaluate((el) => el.shadowRoot!.querySelector('.text')!.getBoundingClientRect().left);
+    const [textRight, copyLeft, begin] = await line.evaluate((el) => [el.shadowRoot!.querySelector('.text')!.getBoundingClientRect().right, el.shadowRoot!.querySelector('.copy')!.getBoundingClientRect().left, el.shadowRoot!.querySelector('.text')!.getBoundingClientRect().left]);
+    expect(copyLeft - textRight).toBeCloseTo(gap, 0);
     await seek(line, travel);
     const copyAt = await line.evaluate((el) => el.shadowRoot!.querySelector('.copy')!.getBoundingClientRect().left);
     expect(copyAt).toBeCloseTo(begin, 0);
