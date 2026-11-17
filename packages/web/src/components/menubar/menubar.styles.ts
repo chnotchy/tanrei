@@ -48,6 +48,43 @@ export function titleStyles(focused: (focus: string) => string): CSSResult {
     return `.title.p > .container${state}`;
   };
   const motion = `${T('motion-state-duration')} ${T('motion-state-easing')}`;
+  // What each rule is for is said here, not in the CSS: a comment inside the string would ship in every bundle.
+  // - `.title`, min-inline-size: MBR-17: a title narrower than the target keeps the target's length in the row, so its
+  //   neighbours stand apart.
+  // - `.title.p::before`: MBR-17: the hit area — the target's height, centred, and half the gap toward each neighbour.
+  // - `.container`: MBR-2, MBR-3: at least container.height tall, as wide as its label and the padding on each side,
+  //   its corners the state's shape eased by the smoothing, the fill of its condition over the bar. MBR-27: the height
+  //   is a minimum.
+  // - `.container`, isolation: Its own stacking context, so the ripple sits above the container color and below the
+  //   content.
+  // - `.container.glyph`: MBR-21: the overflow item's container is at least as wide as it is tall, around the glyph
+  //   alone.
+  // - `.content`: MBR-37: a link item's mark stands container.gap after its label; a title and the overflow item hold
+  //   one thing.
+  // - `.label`: MBR-2: one line, never wrapped, shrunk or cut.
+  // - `.label` (productText): MBR-26: the label is text of its own direction, isolated; the title is still placed by
+  //   the layout's.
+  // - `.icon` (iconGlyph): MBR-21: the glyph more_horiz, through the icon helper: the unselected family and fill,
+  //   sys.icon.weight, the optical size clamped. MBR-25: mirrored by the helper where the icon set marks its name.
+  // - `.ink`: The ink is the glyph's name at its own width, which GlyphDrawnController compares with the glyph box:
+  //   until the icon set can draw the glyph nothing is drawn in its place — never its name.
+  // - `.indicator` (iconGlyph): MBR-47: while the bar mixes menus with bar items, a menu's title ends in expand_more at
+  //   indicator.size, container.gap after its label (the content's gap), in the condition's icon color; never mirrored,
+  //   never turned.
+  // - `conditionStates()`: MBR-4, MBR-6, MBR-7, MBR-18: the states and their precedence — pressed over focused over
+  //   hovered, disabled over all.
+  // - `focusRing()`: MBR-5, MBR-8: the system's focus indicator around the container, never animated, never for pointer
+  //   focus.
+  // - `reducedMotion()`: MBR-29: at once where motion is reduced.
+  // - `@media (forced-colors: active)`: MBR-28: the person's own colors. The label and the glyph in the button text
+  //   color, a disabled title in the disabled text color; the open title in the highlight colors; a hovered or pressed
+  //   title by a line of sys.border.hairline inside its container's edge — never by a fill the platform may remove. The
+  //   focus ring is the highlight color.
+  // - `.title.current.p > .container, .title.current.p:hover > .container, .title.current.p >
+  //   .container[data-pressed]`: MBR-46: the mode removes the fill of the current link item; a line of sys.border.thick
+  //   inside its container, in the person's link color, marks it instead, under the pointer and the press too.
+  // - `.title.link .label, .title.link .icon`: MBR-46: a link item's label and mark in the person's link color (a
+  //   disabled one in the disabled text color, below).
   return unsafeCSS(`
   .title {
     --_target: var(--tanrei-sys-target-pointer);
@@ -57,7 +94,6 @@ export function titleStyles(focused: (focus: string) => string): CSSResult {
     flex: none;
     align-items: center;
     justify-content: center;
-    /* MBR-17: a title narrower than the target keeps the target's length in the row, so its neighbours stand apart. */
     min-inline-size: ${TARGET};
     -webkit-tap-highlight-color: transparent;
   }
@@ -74,7 +110,6 @@ export function titleStyles(focused: (focus: string) => string): CSSResult {
       --_target: var(--tanrei-sys-target-touch);
     }
   }
-  /* MBR-17: the hit area — the target's height, centred, and half the gap toward each neighbour. */
   .title.p::before {
     content: '';
     position: absolute;
@@ -88,12 +123,9 @@ export function titleStyles(focused: (focus: string) => string): CSSResult {
   ${conditionBlock(PREFIX, 'selected', PARTS, '.title.current > .container')}
   ${conditionBlock(PREFIX, 'expanded', PARTS, '.title.expanded > .container')}
 
-  /* MBR-2, MBR-3: at least container.height tall, as wide as its label and the padding on each side, its corners the
-     state's shape eased by the smoothing, the fill of its condition over the bar. MBR-27: the height is a minimum. */
   .container {
     box-sizing: border-box;
     position: relative;
-    /* Its own stacking context, so the ripple sits above the container color and below the content. */
     isolation: isolate;
     display: flex;
     flex: none;
@@ -107,19 +139,16 @@ export function titleStyles(focused: (focus: string) => string): CSSResult {
     transition-duration: ${T('motion-state-duration')};
     transition-timing-function: ${T('motion-state-easing')};
   }
-  /* MBR-21: the overflow item's container is at least as wide as it is tall, around the glyph alone. */
   .container.glyph {
     min-inline-size: ${T('container-height')};
     padding-inline: 0;
   }
-  /* MBR-37: a link item's mark stands container.gap after its label; a title and the overflow item hold one thing. */
   .content {
     display: flex;
     align-items: center;
     justify-content: center;
     gap: ${T('container-gap')};
   }
-  /* MBR-2: one line, never wrapped, shrunk or cut. */
   .label {
     font: ${T('label-typescale-font')};
     letter-spacing: ${T('label-typescale-letter-spacing')};
@@ -127,10 +156,7 @@ export function titleStyles(focused: (focus: string) => string): CSSResult {
     color: var(--_l);
     transition: color ${motion};
   }
-  /* MBR-26: the label is text of its own direction, isolated; the title is still placed by the layout's. */
   ${productText('.label')}
-  /* MBR-21: the glyph more_horiz, through the icon helper: the unselected family and fill, sys.icon.weight, the optical
-     size clamped. MBR-25: mirrored by the helper where the icon set marks its name. */
   ${iconGlyph('.icon', { size: `${PREFIX}-icon-size`, selected: ':not(*)', duration: `${PREFIX}-motion-state-duration`, easing: `${PREFIX}-motion-state-easing` })}
   .icon {
     color: var(--_i);
@@ -138,8 +164,6 @@ export function titleStyles(focused: (focus: string) => string): CSSResult {
       color ${motion},
       font-variation-settings ${motion};
   }
-  /* The ink is the glyph's name at its own width, which GlyphDrawnController compares with the glyph box: until the icon
-     set can draw the glyph nothing is drawn in its place — never its name. */
   .ink {
     display: inline-block;
     vertical-align: top;
@@ -147,8 +171,6 @@ export function titleStyles(focused: (focus: string) => string): CSSResult {
   .icon:not([data-drawn]) {
     visibility: hidden;
   }
-  /* MBR-47: while the bar mixes menus with bar items, a menu's title ends in expand_more at indicator.size, container.gap
-     after its label (the content's gap), in the condition's icon color; never mirrored, never turned. */
   ${iconGlyph('.indicator', { size: `${PREFIX}-indicator-size`, selected: ':not(*)', duration: `${PREFIX}-motion-state-duration`, easing: `${PREFIX}-motion-state-easing` })}
   .indicator {
     color: var(--_i);
@@ -160,7 +182,6 @@ export function titleStyles(focused: (focus: string) => string): CSSResult {
     visibility: hidden;
   }
 
-  /* MBR-4, MBR-6, MBR-7, MBR-18: the states and their precedence — pressed over focused over hovered, disabled over all. */
   ${conditionStates(PREFIX, PARTS, { container: 'c', root: '.container', on })}
   .container[data-pressed]:not([data-pressed='none']) :is(.label, .icon, .indicator) {
     transition-duration: 0s;
@@ -168,10 +189,8 @@ export function titleStyles(focused: (focus: string) => string): CSSResult {
   ${pressHold('.content')}
   ${rippleStyles({ color: '--_c-p', grow: `${PREFIX}-motion-feedback-duration`, fade: `${PREFIX}-motion-state-duration`, easing: `${PREFIX}-motion-state-easing` })}
 
-  /* MBR-5, MBR-8: the system's focus indicator around the container, never animated, never for pointer focus. */
   ${focusRing((focus) => `${focused(focus)} .title:where(:not(.pf)) > .container`)}
 
-  /* MBR-29: at once where motion is reduced. */
   ${reducedMotion(`
     .container,
     .label,
@@ -181,9 +200,6 @@ export function titleStyles(focused: (focus: string) => string): CSSResult {
     }
   `)}
 
-  /* MBR-28: the person's own colors. The label and the glyph in the button text color, a disabled title in the disabled
-     text color; the open title in the highlight colors; a hovered or pressed title by a line of sys.border.hairline
-     inside its container's edge — never by a fill the platform may remove. The focus ring is the highlight color. */
   @media (forced-colors: active) {
     .title > .container {
       forced-color-adjust: none;
@@ -209,14 +225,11 @@ export function titleStyles(focused: (focus: string) => string): CSSResult {
     .title.expanded .indicator {
       color: HighlightText;
     }
-    /* MBR-46: the mode removes the fill of the current link item; a line of sys.border.thick inside its container, in
-       the person's link color, marks it instead, under the pointer and the press too. */
     .title.current.p > .container,
     .title.current.p:hover > .container,
     .title.current.p > .container[data-pressed] {
       box-shadow: inset 0 0 0 var(--tanrei-sys-border-thick) LinkText;
     }
-    /* MBR-46: a link item's label and mark in the person's link color (a disabled one in the disabled text color, below). */
     .title.link .label,
     .title.link .icon {
       color: LinkText;

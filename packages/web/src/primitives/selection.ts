@@ -93,7 +93,7 @@ export function selectionStates(prefix: string, parts: Record<string, string>, c
 }
 
 /** The container names the current state's shape token, the way `cornerRadius()` names one. */
-export const selectionContainerShape = cornerRadius('--_shape');
+export const selectionContainerShape = /* @__PURE__ */ cornerRadius('--_shape');
 
 /**
  * The root and its label (CHK-15, RAD-17, SWT-15): the control, then the label at its inline end `gap` away — RTL
@@ -101,6 +101,13 @@ export const selectionContainerShape = cornerRadius('--_shape');
  * the control (`block` is the control's block size), and every line after it continues below.
  */
 export function selectionLabel(prefix: string, block: string): CSSResult {
+  // What each rule is for is said here, not in the CSS: a comment inside the string would ship in every bundle.
+  // - `.root[data-readonly]`: A read-only control is not something to press (CHK-24, RAD-28, SWT-25).
+  // - `.native`, pointer-events: A click anywhere on the control reaches the input through the label, like a click on
+  //   the label's text.
+  // - `.root`, font (the second `.root` rule): The control is centered on the label's first line: the root carries the label's text style, so 1lh is
+  //   the label's line height on the control too. A line shorter than the control is padded down to its middle; a
+  //   taller one moves the control down to the line's middle.
   return unsafeCSS(`
   :host {
     display: inline-flex;
@@ -119,7 +126,6 @@ export function selectionLabel(prefix: string, block: string): CSSResult {
     -webkit-tap-highlight-color: transparent;
     transition: opacity var(${prefix}-motion-state-duration) var(${prefix}-motion-state-easing);
   }
-  /* A read-only control is not something to press (CHK-24, RAD-28, SWT-25). */
   .root[data-readonly] {
     cursor: default;
   }
@@ -134,13 +140,9 @@ export function selectionLabel(prefix: string, block: string): CSSResult {
     inset: 0;
     margin: 0;
     opacity: 0;
-    /* A click anywhere on the control reaches the input through the label, like a click on the label's text. */
     pointer-events: none;
     appearance: none;
   }
-  /* The control is centered on the label's first line: the root carries the label's text style, so 1lh is the label's
-     line height on the control too. A line shorter than the control is padded down to its middle; a taller one moves
-     the control down to the line's middle. */
   .root {
     font: var(${prefix}-label-typescale-font);
     letter-spacing: var(${prefix}-label-typescale-letter-spacing);

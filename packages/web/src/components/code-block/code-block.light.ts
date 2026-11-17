@@ -9,7 +9,7 @@
 //     attribute, so nothing moves when the element is defined (see "A block that is not upgraded" below);
 //   - the element itself (code-block.ts) adopts the same sheet into its root, so a block is drawn right without the
 //     stylesheet, and inside a product's own shadow root;
-//   - `@tanrei/web/prose.css`: `BARE_BLOCK_CSS`, for a bare `pre` that is prose's own (rendered Markdown without the
+//   - `@tanrei/web/prose.css`: `bareBlockCss()`, for a bare `pre` that is prose's own (rendered Markdown without the
 //     element), which gets the filled medium look and scrolls in its own box (PRS-15).
 //
 // Every value is a `--tanrei-comp-code-block-*` token. The element's shadow styles hand the light DOM what depends on
@@ -96,16 +96,56 @@ const HOST = 'tanrei-code-block';
  */
 export const CODE_BLOCK_DRAWN = '--_code-block-light';
 
+// What each rule is for is said here, not in the CSS: a comment inside the string would ship in every bundle.
+// - `${HOST}`: The mark of these rules on the block itself: the element asks for it before it adds them to a root a
+//   second time.
+// - `${HOST} > pre`: The code (COD-2, COD-3, COD-20): the product's pre and code, whatever the page says of those two
+//   elements.
+// - `${HOST}:defined:not([wrap]) > pre`: COD-4: as wide as its longest line and never narrower than the body, so a
+//   line's band and the padding after the longest line reach the end of what scrolls. COD-5: wrapped, it is as wide as
+//   the body.
+// - `${HOST} [data-line]`: Lines. Every line is a box (data-line) that holds what is drawn beside the code — the
+//   gutter, the prompt, a mark's label — and the code itself (data-line-code), without adding a character to the code.
+//   The element makes them; a page made with highlightToHtml or highlightToNodes has them already, and these rules draw
+//   them the same whether the element is defined or not.
+// - `${HOST} [data-line]:has(> [data-line-gutter])`: COD-3: where there is a gutter the padding is before it, and the
+//   gutter holds it.
+// - `${HOST} [data-line-code]`: An empty line is one line high. COD-4: a line is never broken, and is as long as its
+//   code.
+// - `${HOST}[wrap] [data-line-code]`: COD-5: a line that does not fit continues on following rows, broken at its spaces
+//   first and anywhere where a part has none; the rows begin where the line's code begins, because the gutter and the
+//   prompt stand beside the code.
+// - `${HOST} [data-line-gutter]`: COD-13: the gutter — from the left: the bar's column, the numbers, the signs. It
+//   stays in view, on the block's ground, while the code scrolls sideways under it; it is as tall as its line, and its
+//   number and sign are on the line's first row. Drawn, not text: generated content with an empty alternative text,
+//   never selected.
+// - `${HOST} [data-line-gutter][data-sign]::after`: COD-16: the sign, after the numbers, in the mark's color — in a
+//   column one character wide, whatever the sign's own glyph is: a face that has no minus takes it from another face,
+//   whose minus is as wide as that face made it, and a removed line's code would begin beside the other lines' (and
+//   move when the element is defined: the room a block that is not upgraded keeps is this character).
+// - `${HOST} [data-line][data-highlighted]`: COD-15, COD-16: a marked line — a bar at the block's left edge as tall as
+//   the line, in the mark's color, and a band behind all of its rows: the highlighted line's, or the faint tint of an
+//   added or a removed line, so that a reader scanning the block tells the two apart whatever the colors of their code.
+//   The code keeps its colors.
+// - `${HOST} [data-line-label]`: The label of a mark, in words, read before the line's code and never drawn or
+//   selected.
+// - `${HOST} [data-line-prompt]`: COD-17: the prompt and one space, before the first row of a line that is not empty;
+//   drawn, not text.
+// - the syntax roles' rules (`roleRule()`): Runs (COD-18): a syntax role changes a run's color and its weight, and
+//   nothing else — so highlighted code and the same code drawn plain have the same lines and columns, and colors that
+//   arrive move nothing (COD-28). One rule per value of the syntax axis; an unknown role is plain (COD-19).
+// - `@media (forced-colors: active)`: Forced colors (COD-23): the code is the platform's text color whatever its role
+//   (the mode's own doing; every run keeps the weight of its role); no band; the bar, the numbers and the signs in the
+//   text color. The gutter's bar is a gradient, which the mode would remove, so the gutter is drawn in system colors by
+//   name.
 /**
  * The rules of the code, the lines and the runs, without their layer: for what is in the document whether the element
  * is defined or not (the element's tag in a document; a product's shadow root adopts the same text).
  */
 const RULES = `
-/* The mark of these rules on the block itself: the element asks for it before it adds them to a root a second time. */
 ${HOST} {
   ${CODE_BLOCK_DRAWN}: yes;
 }
-/* ── The code (COD-2, COD-3, COD-20): the product's pre and code, whatever the page says of those two elements. ───── */
 ${HOST} > pre {
   box-sizing: border-box;
   margin: 0;
@@ -114,8 +154,6 @@ ${HOST} > pre {
   padding-block: var(--_code-block-pad-top) var(--_code-block-pad-block);
   background: none;${CODE_TEXT}
 }
-/* COD-4: as wide as its longest line and never narrower than the body, so a line's band and the padding after the
-   longest line reach the end of what scrolls. COD-5: wrapped, it is as wide as the body. */
 ${HOST}:defined:not([wrap]) > pre {
   inline-size: max-content;
   min-inline-size: 100%;
@@ -135,26 +173,18 @@ ${HOST} > pre > code {
   overflow-wrap: inherit;
 }
 
-/* ── Lines. Every line is a box (data-line) that holds what is drawn beside the code — the gutter, the prompt, a
-   mark's label — and the code itself (data-line-code), without adding a character to the code. The element makes
-   them; a page made with highlightToHtml or highlightToNodes has them already, and these rules draw them the same
-   whether the element is defined or not. ─────────────────────────────────────────────────────────────────────────── */
 ${HOST} [data-line] {
   position: relative;
   display: flex;
   padding-inline: var(--_code-block-pad-start) var(--_code-block-pad-end);
 }
-/* COD-3: where there is a gutter the padding is before it, and the gutter holds it. */
 ${HOST} [data-line]:has(> [data-line-gutter]) {
   padding-inline-start: 0;
 }
-/* An empty line is one line high. COD-4: a line is never broken, and is as long as its code. */
 ${HOST} [data-line-code] {
   flex: 1 0 auto;
   min-block-size: 1lh;
 }
-/* COD-5: a line that does not fit continues on following rows, broken at its spaces first and anywhere where a part
-   has none; the rows begin where the line's code begins, because the gutter and the prompt stand beside the code. */
 ${HOST}[wrap] [data-line-code] {
   flex: 1 1 0;
   min-inline-size: 0;
@@ -162,9 +192,6 @@ ${HOST}[wrap] [data-line-code] {
   overflow-wrap: anywhere;
 }
 
-/* COD-13: the gutter — from the left: the bar's column, the numbers, the signs. It stays in view, on the block's
-   ground, while the code scrolls sideways under it; it is as tall as its line, and its number and sign are on the
-   line's first row. Drawn, not text: generated content with an empty alternative text, never selected. */
 ${HOST} [data-line-gutter] {
   position: sticky;
   left: 0;
@@ -186,10 +213,6 @@ ${HOST} [data-line-gutter][data-number]::before {
   content: attr(data-number);
   content: attr(data-number) / '';
 }
-/* COD-16: the sign, after the numbers, in the mark's color — in a column one character wide, whatever the sign's own
-   glyph is: a face that has no minus takes it from another face, whose minus is as wide as that face made it, and a
-   removed line's code would begin beside the other lines' (and move when the element is defined: the room a block
-   that is not upgraded keeps is this character). */
 ${HOST} [data-line-gutter][data-sign]::after {
   content: attr(data-sign);
   content: attr(data-sign) / '';
@@ -202,9 +225,6 @@ ${HOST} [data-line-gutter][data-number][data-sign]::after {
   margin-inline-start: 1ch;
 }
 
-/* COD-15, COD-16: a marked line — a bar at the block's left edge as tall as the line, in the mark's color, and a band
-   behind all of its rows: the highlighted line's, or the faint tint of an added or a removed line, so that a reader
-   scanning the block tells the two apart whatever the colors of their code. The code keeps its colors. */
 ${HOST} [data-line][data-highlighted] {
   --_code-block-mark: ${T('line-highlighted-mark-color')};
   --_code-block-band: ${T('line-highlighted-container-color')};
@@ -225,7 +245,6 @@ ${HOST} [data-line]:is([data-highlighted], [data-added], [data-removed]) > [data
     linear-gradient(var(--_code-block-mark), var(--_code-block-mark)) left top / ${T('line-mark-width')} 100% no-repeat,
     var(--_code-block-band, var(--_code-block-ground));
 }
-/* The label of a mark, in words, read before the line's code and never drawn or selected. */
 ${HOST} [data-line-label] {
   position: absolute;
   overflow: hidden;
@@ -237,7 +256,6 @@ ${HOST} [data-line-label] {
   -webkit-user-select: none;
 }
 
-/* COD-17: the prompt and one space, before the first row of a line that is not empty; drawn, not text. */
 ${HOST} [data-line-prompt] {
   flex: none;
   color: ${T('prompt-color')};
@@ -250,14 +268,8 @@ ${HOST} [data-line-prompt]::before {
   content: attr(data-prompt) ' ' / '';
 }
 
-/* ── Runs (COD-18): a syntax role changes a run's color and its weight, and nothing else — so highlighted code and the
-   same code drawn plain have the same lines and columns, and colors that arrive move nothing (COD-28). One rule per
-   value of the syntax axis; an unknown role is plain (COD-19). ──────────────────────────────────────────────────── */
 ${SYNTAX_ROLES.map(roleRule).join('\n')}
 
-/* ── Forced colors (COD-23): the code is the platform's text color whatever its role (the mode's own doing; every run
-   keeps the weight of its role); no band; the bar, the numbers and the signs in the text color. The gutter's bar is a gradient,
-   which the mode would remove, so the gutter is drawn in system colors by name. ───────────────────────────────────── */
 @media (forced-colors: active) {
   ${HOST} [data-line]:is([data-highlighted], [data-added], [data-removed]) {
     background: none;
@@ -287,9 +299,10 @@ export const CODE_BLOCK_CSS = layered(RULES);
 /**
  * A bare `pre` — rendered Markdown that the product did not wrap in the element: the filled look at the medium size
  * with the code's text, scrolling in its own box (COD-1 to COD-4, PRS-15). Declarations only: the build writes them
- * under prose's own `pre` (scripts/build.js).
+ * under prose's own `pre` (scripts/build.js). A function, so that the element's bundle, which never draws a bare
+ * `pre`, does not carry the text.
  */
-export const BARE_BLOCK_CSS = `
+export const bareBlockCss = (): string => `
 box-sizing: border-box;
 overflow-x: auto;
 border-radius: ${T('container-shape')};

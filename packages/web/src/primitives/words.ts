@@ -62,7 +62,7 @@ function store(): Store {
   return (holder[STORE] ??= { page: new Map(), byLang: new Map(), hosts: new Set(), listeners: new Set(), missing: new Set(), reported: new Set(), version: 0 });
 }
 
-const KEYS: ReadonlySet<string> = new Set(wordKeys);
+const KEYS: ReadonlySet<string> = /* @__PURE__ */ new Set(wordKeys);
 const given = (text: string | null | undefined): text is string => typeof text === 'string' && text.trim() !== '';
 
 /**

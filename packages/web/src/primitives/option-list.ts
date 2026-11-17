@@ -329,7 +329,7 @@ const HAS = (condition: string, part: string) => part !== 'mark-color' || condit
  * token test says so). The variant's are given the names the primitive reads, under this private prefix.
  */
 const ROW = '--_option';
-const STATE_NAMES = Object.keys(SELECTION_STATES).filter(Boolean);
+const STATE_NAMES = /* @__PURE__ */ Object.keys(SELECTION_STATES).filter(Boolean);
 
 /** The rows' colors from one variant's tokens, under `selector`; `fallback` is the variant read where the system has none of `variant`. */
 export function optionVariantRules(prefix: string, variant: string, selector: string, fallback: string | null = null): string {
@@ -458,8 +458,51 @@ export function optionListStyles({ prefix, variants, minWidth, maxWidth }: Optio
   const T = (name: string) => `var(${prefix}-${name})`;
   const [first, ...others] = variants;
   const motion = `${T('motion-state-duration')} ${T('motion-state-easing')}`;
+  // What each rule is for is said here, not in the CSS: a comment inside the string would ship in every bundle.
+  // - `optionVariantRules()`: The rows' colors, from the variant's option tokens: the default's for every value the
+  //   field does not know.
+  // - `optionSizeRules()`: SEL-70, CMB-68: the rows' measures of the size the options are drawn at (the box's).
+  // - `separationHost()`: What separates the groups: the field's attribute, else its separation token.
+  // - `anchoredSurfaceStyles()`: The placed box and its motion: in the top layer, or in place for a fixture
+  //   (src/primitives/anchored.ts).
+  // - `.list`: The sheet: its color, elevation and corners (eased by the smoothing), its options clipped to that shape;
+  //   with maxWidth, as wide as its options need unwrapped — never narrower than the field or its least width, never
+  //   wider than its greatest width or the field where the field is wider — a long list taking the width of the rows it
+  //   drew as it opened (--_list-content, OptionListController); without it, as wide as the field (and at least its
+  //   least width, with minWidth), never wider than the window allows; as tall as its options and paddings up to its
+  //   greatest height and the room its side leaves.
+  // - `.scroll`: The options scroll inside the sheet, vertically only, the paddings with them. It also carries
+  //   press-hold for the rows' press (it has no transition of its own).
+  // - `.list.tail > .scroll`: What a field draws after the options (a combobox's status row) stands under the box that
+  //   scrolls, in the sheet: the options scroll above it and it stays in view. The end padding is then below it, and a
+  //   list that draws no option is that row alone.
+  // - `.skipped`: A long list: the room of the rows that are not drawn now, as tall as they would be (the script writes
+  //   the height).
+  // - `.group-title`: A group's title: above its options, inset from the rows' edges, wrapping; never a choice.
+  // - `.divider`: Divider: a line across the list's inner width with space above and below. Gap: empty space in its
+  //   place, and no line. The cascade answers which (the attribute over the token), so a change of either is followed
+  //   at once.
+  // - `.option-icon` (iconGlyph): The glyphs: an option's own, in the family and fill of its condition, and the check,
+  //   always the selected ones.
+  // - `itemRowStyles()`: The conditions, the states and their precedence, the paints, the ripple and the state motion
+  //   (item-row.ts).
+  // - `.row`: One row: the padding at each end (logical, so right-to-left mirrors), at least the option's height and
+  //   the minimum target tall, growing with its content and never cutting it.
+  // - `.row-content`: The columns — the leading icon, the texts, the check's box — a gap apart, each centred on the
+  //   label's first line.
+  // - `.option-label`, `.option-supporting`, `.group-title` (productText): Each text is its own run, in the direction
+  //   of its first strong character, aligned to the layout's start.
+  // - `.option-icon:not([data-drawn])`: An option's glyph, and the check, are drawn once the icon set can draw them
+  //   (GlyphDrawnController sets data-drawn): until then nothing stands in the box, never the glyph's name. An option
+  //   without a glyph keeps the column.
+  // - `.check`: The check: in the mark color of the chosen option's state, faded in and out over the state motion and
+  //   never moved or scaled; nothing in its box for any other option.
+  // - `focusRing()`: The focus indicator of the option that is active by the keyboard: inside the row, which the list
+  //   would otherwise clip, never animated. Focus itself is on the field, so the row carries the mark (kf) and the
+  //   focus style's name.
+  // - `@media (forced-colors: active)`: Forced colors: an edge round the list, the active option in the highlight
+  //   colors, a disabled option in the disabled text color; the chosen option is then shown by its check alone.
   return unsafeCSS(`
-  /* The rows' colors, from the variant's option tokens: the default's for every value the field does not know. */
   ${optionVariantRules(prefix, first, ':host')}
   ${others.map((variant) => optionVariantRules(prefix, variant, `:host([variant='${variant}'])`)).join('\n  ')}
   :host {
@@ -470,15 +513,12 @@ export function optionListStyles({ prefix, variants, minWidth, maxWidth }: Optio
     ${ROW}-container-shape-pill: var(${prefix}-option-shape-pill, 0);
 ${STATE_NAMES.map((state) => `    ${ROW}-${state}-container-shape: ${T('option-shape')};\n    ${ROW}-${state}-container-shape-pill: var(${prefix}-option-shape-pill, 0);\n    ${ROW}-${state}-opacity: ${T(`${state}-opacity`)};`).join('\n')}
   }
-  /* SEL-70, CMB-68: the rows' measures of the size the options are drawn at (the box's). */
   ${optionSizeRules(prefix, DEFAULT_OPTION_SIZE, ':host')}
   ${OPTION_SIZES.filter((size) => size !== DEFAULT_OPTION_SIZE)
     .map((size) => optionSizeRules(prefix, size, optionsDrawnAt(size)))
     .join('\n  ')}
-  /* What separates the groups: the field's attribute, else its separation token. */
   ${separationHost(`${prefix}-separation`)}
 
-  /* The placed box and its motion: in the top layer, or in place for a fixture (src/primitives/anchored.ts). */
   ${anchoredSurfaceStyles({
     surface: '.surface',
     motion: '.motion',
@@ -488,15 +528,6 @@ ${STATE_NAMES.map((state) => `    ${ROW}-${state}-container-shape: ${T('option-s
     exit: { duration: T('motion-close-duration'), easing: T('motion-close-easing') },
   })}
 
-  /* The sheet: its color, elevation and corners (eased by the smoothing), its options clipped to that shape; ${
-    maxWidth
-      ? `as wide as its options need unwrapped — never narrower than the field or its least width, never wider than its
-     greatest width or the field where the field is wider — a long list taking the width of the rows it drew as it opened
-     (--_list-content, OptionListController)`
-      : `as wide
-     as the field${minWidth ? ', at least its least width' : ''}`
-  }, never wider than the window allows; as tall as its options and paddings up to its
-     greatest height and the room its side leaves. */
   .list {
     box-sizing: border-box;
     display: flex;
@@ -518,8 +549,6 @@ ${
     cursor: default;
     ${cornerRadius(`${prefix}-list-shape`)}
   }
-  /* The options scroll inside the sheet, vertically only, the paddings with them. It also carries press-hold for the
-     rows' press (it has no transition of its own). */
   .scroll {
     position: relative;
     display: flex;
@@ -534,9 +563,6 @@ ${
     outline: none;
   }
   ${pressHold('.scroll')}
-  /* What a field draws after the options (a combobox's status row) stands under the box that scrolls, in the sheet: the
-     options scroll above it and it stays in view. The end padding is then below it, and a list that draws no option is
-     that row alone. */
   .list.tail > .scroll {
     padding-block-end: 0;
   }
@@ -548,11 +574,9 @@ ${
     flex: none;
     flex-direction: column;
   }
-  /* A long list: the room of the rows that are not drawn now, as tall as they would be (the script writes the height). */
   .skipped {
     flex: none;
   }
-  /* A group's title: above its options, inset from the rows' edges, wrapping; never a choice. */
   .group-title {
     display: block;
     padding-block: var(--_opt-option-padding-block);
@@ -562,8 +586,6 @@ ${
     color: ${T('group-title-color')};
     overflow-wrap: break-word;
   }
-  /* Divider: a line across the list's inner width with space above and below. Gap: empty space in its place, and no
-     line. The cascade answers which (the attribute over the token), so a change of either is followed at once. */
   .divider {
     flex: none;
     block-size: ${T('divider-thickness')};
@@ -586,11 +608,9 @@ ${
   }`,
   )}
 
-  /* The glyphs: an option's own, in the family and fill of its condition, and the check, always the selected ones. */
   ${iconGlyph('.option-icon', { size: '--_opt-option-leading-icon-size', selected: '.row.selected', duration: `${prefix}-motion-state-duration`, easing: `${prefix}-motion-state-easing` })}
   ${iconGlyph('.check', { size: '--_opt-option-mark-size', selected: '.mark', duration: `${prefix}-motion-state-duration`, easing: `${prefix}-motion-state-easing` })}
 
-  /* The conditions, the states and their precedence, the paints, the ripple and the state motion (item-row.ts). */
   ${itemRowStyles({
     prefix: ROW,
     parts: PARTS,
@@ -604,8 +624,6 @@ ${
   .row.p.d {
     cursor: default;
   }
-  /* One row: the padding at each end (logical, so right-to-left mirrors), at least the option's height and the minimum
-     target tall, growing with its content and never cutting it. */
   .row {
     display: flex;
     flex: none;
@@ -614,7 +632,6 @@ ${
     padding-inline: var(--_opt-option-padding-inline);
   }
   ${rowTarget('.row', 'var(--_opt-option-height)')}
-  /* The columns — the leading icon, the texts, the check's box — a gap apart, each centred on the label's first line. */
   .row-content {
     --_first: max(1lh, var(--_opt-option-mark-size), var(--_opt-option-leading-icon-size));
     display: flex;
@@ -654,12 +671,8 @@ ${
     font: ${T('option-supporting-text-typescale-font')};
     letter-spacing: ${T('option-supporting-text-typescale-letter-spacing')};
   }
-  /* Each text is its own run, in the direction of its first strong character, aligned to the layout's start. */
   ${productText(':is(.option-label, .option-supporting, .group-title)', { align: 'start' })}
 
-  /* An option's glyph, and the check, are drawn once the icon set can draw them (GlyphDrawnController sets
-     data-drawn): until then nothing stands in the box, never the glyph's name. An option without a glyph keeps the
-     column. */
   .option-icon:not([data-drawn]) {
     visibility: hidden;
   }
@@ -667,8 +680,6 @@ ${
     display: inline-block;
     vertical-align: top;
   }
-  /* The check: in the mark color of the chosen option's state, faded in and out over the state motion and never moved
-     or scaled; nothing in its box for any other option. */
   .check {
     color: var(--_m);
     opacity: 0;
@@ -689,8 +700,6 @@ ${
     transition: none;
   }
 
-  /* The focus indicator of the option that is active by the keyboard: inside the row, which the list would otherwise
-     clip, never animated. Focus itself is on the field, so the row carries the mark (kf) and the focus style's name. */
   ${focusRing((focus) => (focus === ':focus-visible' ? '.row.kf' : ".row.kf[data-focus-style='glow']"), { inside: true })}
 
   ${reducedMotion(`
@@ -698,8 +707,6 @@ ${
       transition: none;
     }
   `)}
-  /* Forced colors: an edge round the list, the active option in the highlight colors, a disabled option in the
-     disabled text color; the chosen option is then shown by its check alone. */
   @media (forced-colors: active) {
     .list {
       border: var(--tanrei-sys-border-hairline) solid CanvasText;

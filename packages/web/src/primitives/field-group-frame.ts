@@ -98,12 +98,39 @@ export const GROUP_PARTS = FRAME_PARTS.filter((part) => part !== 'label-icon');
  */
 export function groupFrameStyles({ prefix }: { prefix: `--tanrei-comp-${string}` }): CSSResult {
   const T = (name: string) => `var(${prefix}-${name})`;
+  // What each rule is for is said here, not in the CSS: a comment inside the string would ship in every bundle.
+  // - `frameColors()`: FGR-8, FGR-14: the current color of every part, from the tokens of the look and the state the
+  //   group is in. A group has no focused state (the control that has focus shows it).
+  // - `frameStyles()`: FGR-2, FGR-5, FGR-6, FGR-7, FGR-9, FGR-16, FGR-17, FGR-21: the field's rows, from the group's
+  //   tokens; its colors change at once (the group declares no motion).
+  // - `.group`: FGR-1: no container, edge, fill or elevation, and no padding around the rows: the root is the
+  //   positioning container of the announcer and nothing else (a fieldset's own border, padding, margin and minimum
+  //   width are taken off).
+  // - `.legend`: The legend is the label row's box: it has no padding of its own and is as wide as the row needs, up to
+  //   the group.
+  // - `.legend[data-unseen]`: FGR-2: labelHidden draws no label row; the legend stays the group's name, drawn nowhere.
+  // - `.label-row`: FGR-1: the gaps are those of what follows — the description supporting-text.gap below the label
+  //   row, the controls label.gap below whichever of the two is drawn last, the error error-text.gap below the last
+  //   control — so a row that is not drawn keeps no room and no gap.
+  // - `.error-text`: FGR-8: the error text below the last control, in the supporting text's style and the error-text
+  //   color.
+  // - `.controls`: FGR-3: a column in the order given, each control from the start edge at its own size — a checkbox or
+  //   a switch takes what its mark and its label need — the members gap.<spacing> apart. FGR-18: a row runs from the
+  //   start edge, which is the right in right-to-left; a column keeps its order.
+  // - `.controls[data-spacing='fields']`: FGR-3: a field fills the group's width.
+  // - `.controls[data-orientation='horizontal']`: FGR-13: a row that wraps, gap-inline apart along it and gap.<spacing>
+  //   between its lines, the controls aligned at their tops so that their first lines stand on one line; no control is
+  //   cut, scrolled or narrowed.
+  // - `.controls[data-orientation='horizontal'][data-spacing='fields'] ::slotted(*)`: FGR-13: fields share the row
+  //   equally, each never narrower than field.min-width nor than its content needs: they grow from that width alike,
+  //   and the row wraps where the next one would be narrower. A field alone on a line that is narrower still shrinks to
+  //   it.
+  // - `@media (forced-colors: active)`: FGR-17: forced colors — the error text is text like the rest; the words and the
+  //   invalid state carry the error.
   return unsafeCSS(`
   :host {
     --_frame-gap: ${T('gap-controls')};
   }
-  /* FGR-8, FGR-14: the current color of every part, from the tokens of the look and the state the group is in. A group
-     has no focused state (the control that has focus shows it). */
   ${frameColors(prefix, 'standard', { rest: '.group', error: '.group[data-error]', disabled: '.group[data-disabled]', disabledError: '.group[data-disabled][data-error]' }, GROUP_PARTS)}
   .group {
     --_frame-error-text: ${T('standard-error-text-color')};
@@ -111,12 +138,8 @@ export function groupFrameStyles({ prefix }: { prefix: `--tanrei-comp-${string}`
   .group[data-disabled] {
     --_frame-error-text: ${T('standard-disabled-error-text-color')};
   }
-  /* FGR-2, FGR-5, FGR-6, FGR-7, FGR-9, FGR-16, FGR-17, FGR-21: the field's rows, from the group's tokens; its colors
-     change at once (the group declares no motion). */
   ${frameStyles({ prefix, motion: null, disabled: '.group[data-disabled]' })}
 
-  /* FGR-1: no container, edge, fill or elevation, and no padding around the rows: the root is the positioning container
-     of the announcer and nothing else (a fieldset's own border, padding, margin and minimum width are taken off). */
   .group {
     position: relative;
     box-sizing: border-box;
@@ -125,14 +148,12 @@ export function groupFrameStyles({ prefix }: { prefix: `--tanrei-comp-${string}`
     padding: 0;
     border: 0;
   }
-  /* The legend is the label row's box: it has no padding of its own and is as wide as the row needs, up to the group. */
   .legend {
     box-sizing: border-box;
     max-inline-size: 100%;
     margin: 0;
     padding: 0;
   }
-  /* FGR-2: labelHidden draws no label row; the legend stays the group's name, drawn nowhere. */
   .legend[data-unseen] {
     position: absolute;
     inline-size: 1px;
@@ -142,9 +163,6 @@ export function groupFrameStyles({ prefix }: { prefix: `--tanrei-comp-${string}`
     clip-path: inset(50%);
     white-space: nowrap;
   }
-  /* FGR-1: the gaps are those of what follows — the description supporting-text.gap below the label row, the controls
-     label.gap below whichever of the two is drawn last, the error error-text.gap below the last control — so a row that
-     is not drawn keeps no room and no gap. */
   .label-row {
     margin-block-end: 0;
   }
@@ -157,7 +175,6 @@ export function groupFrameStyles({ prefix }: { prefix: `--tanrei-comp-${string}`
   .group:is([data-labelled], [data-described]) .controls {
     margin-block-start: ${T('label-gap')};
   }
-  /* FGR-8: the error text below the last control, in the supporting text's style and the error-text color. */
   .error-text {
     margin-block-start: ${T('error-text-gap')};
     min-inline-size: 0;
@@ -168,9 +185,6 @@ export function groupFrameStyles({ prefix }: { prefix: `--tanrei-comp-${string}`
   }
   ${productText('.error-text', { align: 'start' })}
 
-  /* FGR-3: a column in the order given, each control from the start edge at its own size — a checkbox or a switch takes
-     what its mark and its label need — the members gap.<spacing> apart. FGR-18: a row runs from the start edge, which
-     is the right in right-to-left; a column keeps its order. */
   .controls {
     display: flex;
     flex-direction: column;
@@ -178,26 +192,19 @@ export function groupFrameStyles({ prefix }: { prefix: `--tanrei-comp-${string}`
     gap: var(--_frame-gap);
     min-inline-size: 0;
   }
-  /* FGR-3: a field fills the group's width. */
   .controls[data-spacing='fields'] {
     align-items: stretch;
   }
-  /* FGR-13: a row that wraps, gap-inline apart along it and gap.<spacing> between its lines, the controls aligned at
-     their tops so that their first lines stand on one line; no control is cut, scrolled or narrowed. */
   .controls[data-orientation='horizontal'] {
     flex-flow: row wrap;
     align-items: flex-start;
     column-gap: ${T('gap-inline')};
     row-gap: var(--_frame-gap);
   }
-  /* FGR-13: fields share the row equally, each never narrower than field.min-width nor than its content needs: they
-     grow from that width alike, and the row wraps where the next one would be narrower. A field alone on a line that is
-     narrower still shrinks to it. */
   .controls[data-orientation='horizontal'][data-spacing='fields'] ::slotted(*) {
     flex: 1 1 ${T('field-min-width')};
   }
 
-  /* FGR-17: forced colors — the error text is text like the rest; the words and the invalid state carry the error. */
   @media (forced-colors: active) {
     .error-text {
       color: CanvasText;

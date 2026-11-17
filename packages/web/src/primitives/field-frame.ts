@@ -298,9 +298,43 @@ export function frameStyles({ prefix, label, motion, glyph = false, disabled }: 
   const timing = motion === undefined ? { duration: T('motion-state-duration'), easing: T('motion-state-easing') } : motion;
   const recolor = (...properties: string[]) => (timing ? `transition: ${properties.map((p) => `${p} ${timing.duration} ${timing.easing}`).join(', ')};` : '');
   const MARK = `${prefix}-requirement-mark`;
+  // What each rule is for is said here, not in the CSS: a comment inside the string would ship in every bundle.
+  // - `.label-row`: FLD-2: the label above the control, from the start edge, in the label's text style and color,
+  //   label.gap above what follows; it wraps rather than being cut and never moves.
+  // - `.label-row[data-tag]`: FLD-5: the requirement tag after the label's text, requirement.gap from it, centred on
+  //   the label's line: the Tag component at its small size, filled for required and tonal for optional, drawn from the
+  //   Tag's own tokens — nothing of the tag is set here, no token and no size, and its height is never read. What the
+  //   row lays out is a box one label line high around the tag, which centres it: a tag taller than the line reaches
+  //   equally above and below it and never makes the label's row taller. When the label and the tag do not fit on one
+  //   line the label wraps and the box moves, whole, to a line of its own after it.
+  // - `.label-row[data-tag] .label`: The gaps are the label's margins — outside its box, whose text is laid out by its
+  //   own direction (FLD-21): padding on that box is misplaced by WebKit for a left-to-right label in a right-to-left
+  //   form.
+  // - `.asterisk`: FLD-6: the asterisk after the label's text, requirement.asterisk-gap from it, in the label's own
+  //   text style — it is part of the label.
+  // - `.label-row[data-mark='auto'] .asterisk`: FLD-6: a frame that does not say (requiredMark auto, data-mark="auto")
+  //   draws the mark requirement.mark names — the tag, the first value; the asterisk; or none. A style query where the
+  //   browser has them, and the name the script read (data-required-mark) where it has not.
+  // - `.label-row[data-mark='auto']:where([data-wordless]) .asterisk`: FLD-24: a frame that has no word for the tag
+  //   draws the asterisk in its place — unless the system marks none, whose rule follows and is as specific.
+  // - `.label-icon` (iconGlyph, with a glyph): FLD-3: a glyph of the icon set before the label, label-icon.gap away, at
+  //   label-icon.size, centred on the label's first line, in the label-icon color; FLD-20: mirrored by the icon helper,
+  //   in its own box.
+  // - `.label-row[data-label-icon]` (with a glyph): The gap is the row's: the glyph's box lays its glyph out left to
+  //   right, whatever the frame's direction. Beside a tag the row's gap would stand between the label and the tag too:
+  //   there the label keeps it.
+  // - `.supporting-text`: FLD-7, FLD-31: a row of the frame's small text — the help, the error text —
+  //   supporting-text.gap below what it follows unless the component places it, in the supporting text's style and its
+  //   own color, wrapping and never cut.
+  // - `.label`, `.supporting-text` (productText): FLD-21: the label, the help and the error text are each a run of
+  //   their own, in the direction of their first strong character, their lines still aligned by the layout
+  //   (src/styles/product-text.ts). The tag's text is the Tag's own run (TAG-18).
+  // - `.announcer`: FLD-9: what is announced politely, drawn nowhere.
+  // - `reducedMotion()`: FLD-13: where motion is reduced, the colors change at once.
+  // - `@media (forced-colors: active)`: FLD-17: forced colors — every text in the platform's text color; the tag draws
+  //   itself as a tag is drawn there (an edge and a label in the text color, TAG-14). An error is then told from help
+  //   by its words and by the invalid state alone.
   return unsafeCSS(`
-  /* FLD-2: the label above the control, from the start edge, in the label's text style and color, label.gap above what
-     follows; it wraps rather than being cut and never moves. */
   .label-row {
     --_frame-label-line: ${line};
     display: flex;
@@ -318,17 +352,9 @@ export function frameStyles({ prefix, label, motion, glyph = false, disabled }: 
     color: var(--_frame-label);
     ${recolor('color')}
   }
-  /* FLD-5: the requirement tag after the label's text, requirement.gap from it, centred on the label's line: the Tag
-     component at its small size, filled for required and tonal for optional, drawn from the Tag's own tokens — nothing
-     of the tag is set here, no token and no size, and its height is never read. What the row lays out is
-     a box one label line high around the tag, which centres it: a tag taller than the line reaches equally above and
-     below it and never makes the label's row taller. When the label and the tag do not fit on one line the label wraps
-     and the box moves, whole, to a line of its own after it. */
   .label-row[data-tag] {
     flex-wrap: wrap;
   }
-  /* The gaps are the label's margins — outside its box, whose text is laid out by its own direction (FLD-21): padding
-     on that box is misplaced by WebKit for a left-to-right label in a right-to-left form. */
   .label-row[data-tag] .label {
     flex: 0 1 auto;
     margin-inline-end: ${T('requirement-gap')};
@@ -342,21 +368,14 @@ export function frameStyles({ prefix, label, motion, glyph = false, disabled }: 
   .requirement-tag {
     flex: none;
   }
-  /* FLD-6: the asterisk after the label's text, requirement.asterisk-gap from it, in the label's own text style — it is
-     part of the label. */
   .asterisk {
     margin-inline-start: ${T('requirement-asterisk-gap')};
     color: var(--_frame-required-asterisk);
     ${recolor('color')}
   }
-  /* FLD-6: a frame that does not say (requiredMark auto, data-mark="auto") draws the mark requirement.mark names — the
-     tag, the first value; the asterisk; or none. A style query where the browser has them, and the name the script
-     read (data-required-mark) where it has not. */
   .label-row[data-mark='auto'] .asterisk {
     display: none;
   }
-  /* FLD-24: a frame that has no word for the tag draws the asterisk in its place — unless the system marks none, whose
-     rule follows and is as specific. */
   .label-row[data-mark='auto']:where([data-wordless]) .asterisk {
     display: inline;
   }
@@ -374,8 +393,6 @@ export function frameStyles({ prefix, label, motion, glyph = false, disabled }: 
   ${
     glyph
       ? `
-  /* FLD-3: a glyph of the icon set before the label, label-icon.gap away, at label-icon.size, centred on the label's
-     first line, in the label-icon color; FLD-20: mirrored by the icon helper, in its own box. */
   ${iconGlyph('.label-icon', { size: `${prefix}-label-icon-size`, selected: '.never-selected', ...(timing ? { duration: `${prefix}-motion-state-duration` as const, easing: `${prefix}-motion-state-easing` as const } : {}) })}
   .label-icon {
     display: none;
@@ -386,8 +403,6 @@ export function frameStyles({ prefix, label, motion, glyph = false, disabled }: 
   .label-row[data-label-icon] .label-icon {
     display: inline-block;
   }
-  /* The gap is the row's: the glyph's box lays its glyph out left to right, whatever the frame's direction. Beside a
-     tag the row's gap would stand between the label and the tag too: there the label keeps it. */
   .label-row[data-label-icon] {
     column-gap: ${T('label-icon-gap')};
   }
@@ -406,8 +421,6 @@ export function frameStyles({ prefix, label, motion, glyph = false, disabled }: 
       : ''
   }
 
-  /* FLD-7, FLD-31: a row of the frame's small text — the help, the error text — supporting-text.gap below what it
-     follows unless the component places it, in the supporting text's style and its own color, wrapping and never cut. */
   .supporting-text {
     margin-block-start: ${T('supporting-text-gap')};
     min-inline-size: 0;
@@ -418,12 +431,8 @@ export function frameStyles({ prefix, label, motion, glyph = false, disabled }: 
     ${recolor('color')}
   }
 
-  /* FLD-21: the label, the help and the error text are each a run of their own, in the direction of their first
-     strong character, their lines still aligned by the layout (src/styles/product-text.ts). The tag's text is the Tag's
-     own run (TAG-18). */
   ${productText(':is(.label, .supporting-text)', { align: 'start' })}
 
-  /* FLD-9: what is announced politely, drawn nowhere. */
   .announcer {
     position: absolute;
     inline-size: 1px;
@@ -436,7 +445,6 @@ export function frameStyles({ prefix, label, motion, glyph = false, disabled }: 
     border: 0;
   }
 
-  /* FLD-13: where motion is reduced, the colors change at once. */
   ${reducedMotion(`
     .label,
     .label-icon,
@@ -445,9 +453,6 @@ export function frameStyles({ prefix, label, motion, glyph = false, disabled }: 
       transition: none !important;
     }
   `)}
-  /* FLD-17: forced colors — every text in the platform's text color; the tag draws itself as a tag is drawn there
-     (an edge and a label in the text color, TAG-14). An error is then told from help by its words and by the invalid
-     state alone. */
   @media (forced-colors: active) {
     .label,
     .label-icon,

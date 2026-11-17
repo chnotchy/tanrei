@@ -108,6 +108,13 @@ export interface ArrowStyleOptions {
  * elevation as the browser resolves it (`.shade`), read by script to make the filter that goes round both.
  */
 export function arrowStyles({ surface, box, width, height, fill, elevation }: ArrowStyleOptions): CSSResult {
+  // What each rule is for is said here, not in the CSS: a comment inside the string would ship in every bundle.
+  // - `${surface}[data-side='top'] .arrow`: Above the anchor: under the box's bottom edge, pointing down.
+  // - `${surface}[data-side='left'] .arrow`: At the anchor's left: on the box's right edge, pointing right.
+  // - `${surface}[data-arrow='shaded'] ${box}`: One shape, one elevation: the box gives up its own shadow for the
+  //   filter that goes round both.
+  // - `.shade`: The elevation as the browser resolves it, read by script to make that filter; and the filter. Neither
+  //   draws.
   return unsafeCSS(`
   .arrow {
     display: none;
@@ -119,7 +126,6 @@ export function arrowStyles({ surface, box, width, height, fill, elevation }: Ar
   ${surface}[data-arrow] .arrow {
     display: block;
   }
-  /* Above the anchor: under the box's bottom edge, pointing down. */
   ${surface}[data-side='top'] .arrow {
     inline-size: var(--_w);
     block-size: calc(2 * var(--_h));
@@ -134,7 +140,6 @@ export function arrowStyles({ surface, box, width, height, fill, elevation }: Ar
     top: calc(-1 * var(--_h));
     clip-path: polygon(50% 0, 100% 50%, 100% 100%, 0 100%, 0 50%);
   }
-  /* At the anchor's left: on the box's right edge, pointing right. */
   ${surface}[data-side='left'] .arrow {
     inline-size: calc(2 * var(--_h));
     block-size: var(--_w);
@@ -149,11 +154,9 @@ export function arrowStyles({ surface, box, width, height, fill, elevation }: Ar
     top: calc(var(--_arrow-at) - var(--_w) / 2);
     clip-path: polygon(50% 0, 100% 0, 100% 100%, 50% 100%, 0 50%);
   }
-  /* One shape, one elevation: the box gives up its own shadow for the filter that goes round both. */
   ${surface}[data-arrow='shaded'] ${box} {
     box-shadow: none;
   }
-  /* The elevation as the browser resolves it, read by script to make that filter; and the filter. Neither draws. */
   .shade {
     display: none;
     box-shadow: ${elevation};

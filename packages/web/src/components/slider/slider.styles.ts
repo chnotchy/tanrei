@@ -162,14 +162,25 @@ const geometry = (orientation: keyof typeof AXIS) => {
   const value = `var(--_vt) ${T('motion-value-easing')}`;
   const state = `var(--_st) ${T('motion-state-easing')}`;
   const dot = 'var(--_dot)';
+  // What each rule is for is said here, not in the CSS: a comment inside the string would ship in every bundle.
+  // - `${on}`: SLD-7: the hit area; a press that moves across the track is left to the page's scroll (SLD-2).
+  // - `${on} :is(.travel, .rail)`: SLD-7: the travel of a handle's center — the track, inset by half the container size
+  //   from each end of the slider, less half the track's thickness at each end, so that a handle is concentric with the
+  //   track's rounded end at min and max. The tracks are drawn in it, and the handles ride on its midline (the rail).
+  // - `${on} .piece`: SLD-6, SLD-8: a piece of the tracks, from one point of the travel to another — a fraction of it
+  //   (--_from, --_to) and an offset (--_from-off, --_to-off): half the thickness past an end of the travel is the
+  //   track's end, a handle's half width and gap before or after it is where it cuts the track. Each end's corners are
+  //   its own (--_from-r, --_to-r): rounded by track.shape at the track's ends, square where two pieces meet.
+  // - `${on} .dots`: SLD-9: a piece's dots lie along the whole travel and are clipped to the piece — the same two ends,
+  //   in percentages of the same box — so a dot stays where it is while its piece moves (and when the slider's length
+  //   changes), and is drawn only where the piece is.
+  // - `${on} .thumb`: SLD-16: a handle's center at its fraction of the travel, moved over the value motion.
+  // - `${on} .handle`: SLD-8: the handle, handle.width along the axis and handle.height across it, centered on the
+  //   thumb.
   return `
-  /* SLD-7: the hit area; a press that moves across the track is left to the page's scroll (SLD-2). */
   ${on} {
     touch-action: ${a.touch};
   }
-  /* SLD-7: the travel of a handle's center — the track, inset by half the container size from each end of the slider,
-     less half the track's thickness at each end, so that a handle is concentric with the track's rounded end at min and
-     max. The tracks are drawn in it, and the handles ride on its midline (the rail). */
   ${on} :is(.travel, .rail) {
     ${a.alongBoth}: calc(${T('container-size')} / 2 + var(--_th) / 2);
   }
@@ -181,10 +192,6 @@ const geometry = (orientation: keyof typeof AXIS) => {
     ${a.cross}: 50%;
     ${a.across}: 0;
   }
-  /* SLD-6, SLD-8: a piece of the tracks, from one point of the travel to another — a fraction of it (--_from, --_to) and
-     an offset (--_from-off, --_to-off): half the thickness past an end of the travel is the track's end, a handle's
-     half width and gap before or after it is where it cuts the track. Each end's corners are its own (--_from-r,
-     --_to-r): rounded by track.shape at the track's ends, square where two pieces meet. */
   ${on} .piece {
     ${a.crossBoth}: 0;
     ${a.start}: ${FROM};
@@ -196,9 +203,6 @@ const geometry = (orientation: keyof typeof AXIS) => {
       ${a.end} ${value},
       background-color ${state};
   }
-  /* SLD-9: a piece's dots lie along the whole travel and are clipped to the piece — the same two ends, in percentages of
-     the same box — so a dot stays where it is while its piece moves (and when the slider's length changes), and is drawn
-     only where the piece is. */
   ${on} .dots {
     clip-path: ${orientation === 'horizontal' ? CLIP.horizontal : CLIP.vertical};
     transition: clip-path ${value};
@@ -214,13 +218,11 @@ const geometry = (orientation: keyof typeof AXIS) => {
     ${a.start}: calc(var(--_at) * 100% - ${dot} / 2);
     ${a.cross}: calc(50% - ${dot} / 2);
   }
-  /* SLD-16: a handle's center at its fraction of the travel, moved over the value motion. */
   ${on} .thumb {
     ${a.start}: calc(var(--_f) * 100%);
     ${a.cross}: 0;
     transition: ${a.start} ${value};
   }
-  /* SLD-8: the handle, handle.width along the axis and handle.height across it, centered on the thumb. */
   ${on} .handle {
     ${a.along}: var(--_hw);
     ${a.across}: var(--_hh);

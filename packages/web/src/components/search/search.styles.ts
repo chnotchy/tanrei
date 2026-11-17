@@ -127,6 +127,13 @@ const onResultFocus = (focus: string) =>
   focus === ':focus-visible' ? '.row:is([data-focused], [data-current])' : ".row[data-focus-style='glow']:is([data-focused], [data-current])";
 
 /** The input's text: the value and the placeholder in input.typescale, their colors, the caret and the selection (SRC-3). */
+// What each rule is for is said here, not in the CSS: a comment inside the string would ship in every bundle.
+// - `.input::placeholder`, unicode-bidi: SRC-33: the placeholder is its own run, in the direction of its first strong
+//   character, at the field's start edge.
+// - `.input::selection`: SRC-3: the product's one selection pair for text entry, the text field's: the highlight and
+//   the text on it.
+// - `.input::-webkit-search-cancel-button, .input::-webkit-search-decoration`: SRC-4: the browser's own cancel button
+//   and decoration are hidden; the search draws its own clear button.
 const inputStyles = `
   .input {
     all: unset;
@@ -159,20 +166,17 @@ const inputStyles = `
     color: var(--_h);
     -webkit-text-fill-color: var(--_h);
     opacity: 1;
-    /* SRC-33: the placeholder is its own run, in the direction of its first strong character, at the field's start edge. */
     unicode-bidi: plaintext;
     text-align: left;
   }
   :host(:dir(rtl)) .input::placeholder {
     text-align: right;
   }
-  /* SRC-3: the product's one selection pair for text entry, the text field's: the highlight and the text on it. */
   .input::selection {
     background: var(--tanrei-comp-input-box-selection-color);
     color: var(--tanrei-comp-input-box-selection-content-color);
     -webkit-text-fill-color: var(--tanrei-comp-input-box-selection-content-color);
   }
-  /* SRC-4: the browser's own cancel button and decoration are hidden; the search draws its own clear button. */
   .input::-webkit-search-cancel-button,
   .input::-webkit-search-decoration {
     appearance: none;
