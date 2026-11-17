@@ -1,9 +1,11 @@
-// <tanrei-divider>, driven by specs/divider.spec.json: every behaviour id (DIV-1…14) is cited by a test title, every
+// <tanrei-divider>, driven by specs/divider.spec.json: every behaviour id (DIV-1…16) is cited by a test title, every
 // fixture has a baseline, and every length and color is read back from the tokens — never from a number written here.
 import AxeBuilder from '@axe-core/playwright';
 import { type Page, expect, test } from '@playwright/test';
 import { type Fixture, loadSpec, mountFixtures, resolveColor, resolveToken, tab, rootTokens } from '../../../test/harness.js';
 import { decodePng, paintedColor } from '../../../test/png.js';
+import { motionCount } from '../../../test/motions.js';
+import { transitionsRun, watchTransitions } from '../../../test/transitions.js';
 import { expectBaseline } from '../../../test/baseline.js';
 
 const spec = loadSpec('divider');
@@ -283,6 +285,57 @@ test.describe('behavior', () => {
     expect(await host(page, 'vertical-wavy').locator('.wave').evaluate((el) => getComputedStyle(el).transform)).toBe('none');
     await page.evaluate(() => document.documentElement.removeAttribute('dir'));
     expect(await firstCrestAbove(page, 'horizontal-wavy', 'left')).toBe(true);
+  });
+
+  test('DIV-15: the direction is the nearest ancestor’s — not the root’s and not a setting of the divider’s own; when it changes while the divider is shown it is drawn for the new direction at once, without a motion, keeping what it shows', async ({ page }) => {
+    const inset = await resolveToken(page, T('line-inset'));
+    // The verify: the direction set on an ancestor inside the page (each fixture's stage), not on the root.
+    await mountFixtures(page, spec, {
+      fixtures: [
+        { id: 'horizontal-start-rtl', props: { inset: 'start' }, direction: 'rtl' },
+        { id: 'horizontal-wavy-rtl', props: { lineStyle: 'wavy' }, direction: 'rtl' },
+        { id: 'horizontal-separator-rtl', props: { decorative: false, inset: 'start' }, direction: 'rtl' },
+      ],
+    });
+    const ids = ['horizontal-start-rtl', 'horizontal-wavy-rtl', 'horizontal-separator-rtl'];
+    expect(await page.evaluate(() => document.documentElement.getAttribute('dir'))).toBeNull();
+    for (const id of ids) {
+      expect((await box(host(page, id))).width, `${id}: a line to see`).toBeGreaterThan(2 * inset);
+      expect(await host(page, id).evaluate((el) => [el.getAttribute('dir'), el.matches(':dir(rtl)'), Object.keys((el.constructor as unknown as { properties: object }).properties).some((p) => /^dir|direction/i.test(p))]), id).toEqual([null, true, false]);
+    }
+    /** The line's distance from the host's left and right edges. */
+    const ends = async (id: string) => {
+      const [own, drawn] = [await box(host(page, id)), await box(line(page, id))];
+      return [drawn.x - own.x, own.x + own.width - (drawn.x + drawn.width)];
+    };
+    expect(await ends('horizontal-start-rtl'), 'right-to-left: the start inset at the right end').toEqual([0, inset]);
+    expect(await firstCrestAbove(page, 'horizontal-wavy-rtl', 'right'), 'right-to-left: the wave starts at the right').toBe(true);
+    const told = await stage(page, 'horizontal-separator-rtl').ariaSnapshot();
+    expect(told).toContain('separator');
+    // Changed on the ancestors after the first render: drawn for the new direction, with nothing to animate.
+    for (const id of ids) await watchTransitions(host(page, id));
+    await page.evaluate(async (list) => {
+      for (const id of list) document.querySelector(`[data-fixture="${id}"]`)!.setAttribute('dir', 'ltr');
+      await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+    }, ids);
+    for (const id of ids) {
+      expect(await transitionsRun(host(page, id)), `${id}: no transition`).toEqual([]);
+      expect(await motionCount(host(page, id)), `${id}: nothing moves`).toBe(0);
+    }
+    expect(await ends('horizontal-start-rtl'), 'left-to-right: the start inset at the left end').toEqual([inset, 0]);
+    expect(await ends('horizontal-separator-rtl')).toEqual([inset, 0]);
+    expect(await firstCrestAbove(page, 'horizontal-wavy-rtl', 'left'), 'left-to-right: the wave starts at the left').toBe(true);
+    expect(await host(page, 'horizontal-wavy-rtl').locator('.wave').evaluate((el) => getComputedStyle(el).transform)).toBe('none');
+    // What it shows and what it tells are kept: the same style, the same role and orientation, nothing else named.
+    expect(await host(page, 'horizontal-wavy-rtl').evaluate((el) => (el as unknown as { lineStyle: string }).lineStyle)).toBe('wavy');
+    expect(await stage(page, 'horizontal-separator-rtl').ariaSnapshot()).toBe(told);
+    await expect(host(page, 'horizontal-start-rtl')).toHaveAttribute('aria-hidden', 'true');
+    // Back again.
+    await stage(page, 'horizontal-start-rtl').evaluate((el) => el.setAttribute('dir', 'rtl'));
+    expect(await ends('horizontal-start-rtl')).toEqual([0, inset]);
+    // Where no ancestor sets one, the document's.
+    await stage(page, 'horizontal-start-rtl').evaluate((el) => el.removeAttribute('dir'));
+    expect(await ends('horizontal-start-rtl')).toEqual([inset, 0]);
   });
 
   test('DIV-5: decorative (the default) is hidden from assistive technology and not focusable', async ({ page }) => {
