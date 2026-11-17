@@ -5,7 +5,7 @@ import { expect, test } from '@playwright/test';
 import { type Fixture, acmeSystemCss, loadSpec, mountFixtures, resolveColor, resolveToken, tab, tabTo, rootTokens } from '../../../test/harness.js';
 import { axTree } from '../../../test/ax-tree.js';
 import { opticalSize } from '../../../test/icons.js';
-import { motionEnded } from '../../../test/motions.js';
+import { motionCount, motionEnded } from '../../../test/motions.js';
 import { resolveEasing } from '../../../test/appear.js';
 import { type Frames, type Probe, expectAnimated, expectFirstFrameAtRest, expectNoFlicker, freezeFirstFrame, sampleFrames } from '../../../test/frames.js';
 import { allSettled } from '../../../test/settled.js';
@@ -1472,6 +1472,167 @@ test('contrast set on a subtree reaches the component tokens inside it, not only
   // The container color transitions (state duration token), so wait for it to settle.
   await expect.poll(background).toBe('rgb(0, 0, 0)');
   expect(standard).not.toBe('rgb(0, 0, 0)');
+});
+
+test.describe('right to left', () => {
+  type P = import('@playwright/test').Page;
+  type L = import('@playwright/test').Locator;
+  const T = (name: string) => `--tanrei-comp-button-${name}`;
+  const host = (page: P, id: string) => page.locator(button(id));
+  const stage = (page: P, id: string) => page.locator(`[data-fixture="${id}"]`);
+  const css = (locator: L, property: string) => locator.evaluate((el, p) => getComputedStyle(el).getPropertyValue(p), property);
+  const box = async (locator: L) => (await locator.boundingBox())!;
+  const fx = (id: string, props: Fixture['props'], extra: Partial<Fixture> = {}): Fixture => ({ id, props, ...extra });
+  /** Whether the icon's box stands at the right of the label's. */
+  const iconIsRight = (page: P, id: string) =>
+    host(page, id).evaluate((el) => {
+      const root = el.shadowRoot!;
+      return root.querySelector('.icon')!.getBoundingClientRect().x > root.querySelector('.label')!.getBoundingClientRect().x;
+    });
+  /** The left edge of each character of the label's text (the host's own text node), in the order written. */
+  const lefts = (locator: L) =>
+    locator.evaluate((el) => {
+      const text = [...el.childNodes].find((node) => node.nodeType === Node.TEXT_NODE && node.textContent!.trim()) as Text;
+      return [...text.data].flatMap((char, index) => {
+        if (char === ' ') return [];
+        const range = document.createRange();
+        range.setStart(text, index);
+        range.setEnd(text, index + 1);
+        return [range.getBoundingClientRect().left];
+      });
+    });
+
+  test('BTN-18: the direction is the nearest ancestor’s inside the page — not the root’s, and no setting of the button’s own; a change while it is shown is drawn at once, without a motion, keeping its selection and its focus', async ({ page }) => {
+    await mountFixtures(page, spec, {
+      icons: true,
+      fixtures: [fx('nested', { variant: 'tonal', toggle: true, selected: true }, { content: 'Favorite', slots: { icon: 'favorite' } }), fx('stage-rtl', { variant: 'filled' }, { content: 'Create', slots: { icon: 'add' }, direction: 'rtl' }), fx('plain', { variant: 'filled' }, { content: 'Create', slots: { icon: 'add' } })],
+    });
+    // The document carries no dir: the platform's own is left to right, and a stage's dir is the button's.
+    expect(await page.evaluate(() => document.documentElement.getAttribute('dir'))).toBeNull();
+    expect(await iconIsRight(page, 'plain')).toBe(false);
+    expect(await iconIsRight(page, 'stage-rtl')).toBe(true);
+    // No direction setting of its own.
+    expect(await page.evaluate(() => (customElements.get('tanrei-button') as unknown as { observedAttributes: string[] }).observedAttributes.filter((name) => /dir/.test(name)))).toEqual([]);
+    expect(await host(page, 'stage-rtl').getAttribute('dir')).toBeNull();
+    // The nearest ancestor wins: a left-to-right block inside a right-to-left one, across a shadow root.
+    await stage(page, 'nested').evaluate((el) => {
+      el.setAttribute('dir', 'rtl');
+      const inner = document.createElement('div');
+      inner.id = 'inner';
+      inner.setAttribute('dir', 'ltr');
+      const shadowHost = document.createElement('div');
+      shadowHost.attachShadow({ mode: 'open' }).append(document.createElement('slot'));
+      shadowHost.append(el.querySelector('tanrei-button')!);
+      inner.append(shadowHost);
+      el.append(inner);
+    });
+    const target = host(page, 'nested');
+    expect(await iconIsRight(page, 'nested')).toBe(false);
+    await tabTo(page, target);
+    // What focus started (the ring) has ended before the direction changes.
+    await motionEnded(target);
+    // Changed after the first render: drawn for the new direction in the same task, and nothing set moving by it.
+    const right = await target.evaluate((el) => {
+      document.querySelector('#inner')!.setAttribute('dir', 'rtl');
+      const root = el.shadowRoot!;
+      return root.querySelector('.icon')!.getBoundingClientRect().x > root.querySelector('.label')!.getBoundingClientRect().x;
+    });
+    expect(right).toBe(true);
+    expect(await motionCount(target)).toBe(0);
+    // Its selection and its focus are kept.
+    await expect(target).toBeFocused();
+    expect(await target.evaluate((el) => (el as HTMLElement & { selected: boolean }).selected)).toBe(true);
+    await expect(target.locator('button')).toHaveAttribute('aria-pressed', 'true');
+    // Taken away, the stage's right-to-left is the nearest again; the stage turned back, left to right.
+    await page.evaluate(() => document.querySelector('#inner')!.removeAttribute('dir'));
+    expect(await iconIsRight(page, 'nested')).toBe(true);
+    await stage(page, 'nested').evaluate((el) => el.setAttribute('dir', 'ltr'));
+    expect(await iconIsRight(page, 'nested')).toBe(false);
+    await expect(target).toBeFocused();
+    expect(await target.evaluate((el) => (el as HTMLElement & { selected: boolean }).selected)).toBe(true);
+  });
+
+  test('BTN-19: in right-to-left the icon helper mirrors a glyph the icon set marks, or the product forces, inside its own box — not one the product forbids, an unmarked one, an image, or any glyph in left-to-right; its place, size, color, fill and the order BTN-11 gives are unchanged, and the button mirrors nothing itself', async ({ page }) => {
+    const svg = '<svg slot="icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 8h10l-3-3M12 8l-3 3"/></svg>';
+    await mountFixtures(page, spec, {
+      icons: true,
+      fixtures: [
+        fx('marked', { variant: 'filled' }, { content: 'Next', slots: { icon: 'arrow_forward' }, direction: 'rtl' }),
+        fx('unmarked', { variant: 'filled' }, { content: 'Done', slots: { icon: 'check' }, direction: 'rtl' }),
+        fx('forbidden', { variant: 'filled' }, { content: '<span slot="icon" data-mirror="never">arrow_forward</span>Next', direction: 'rtl' }),
+        fx('forced', { variant: 'filled' }, { content: '<span slot="icon" data-mirror="always">check</span>Done', direction: 'rtl' }),
+        fx('marked-ltr', { variant: 'filled' }, { content: 'Next', slots: { icon: 'arrow_forward' }, direction: 'ltr' }),
+        fx('image', { variant: 'filled' }, { content: `${svg}Next`, direction: 'rtl' }),
+        fx('trailing', { variant: 'filled', iconPosition: 'trailing' }, { content: 'Send', slots: { icon: 'send' }, direction: 'rtl' }),
+        fx('alone', { variant: 'filled', label: 'Reply' }, { slots: { icon: 'reply' }, direction: 'rtl' }),
+      ],
+    });
+    const slotted = (id: string) => host(page, id).locator('[slot="icon"]');
+    const expected: Record<string, boolean> = { marked: true, unmarked: false, forbidden: false, forced: true, 'marked-ltr': false, image: false, trailing: true, alone: true };
+    for (const [id, mirrored] of Object.entries(expected)) {
+      await expect.poll(() => css(slotted(id), 'transform'), id).toBe(mirrored ? MIRRORED : 'none');
+      // The button mirrors nothing itself: the glyph's box, the container and the host are not transformed.
+      for (const part of [host(page, id).locator('.icon'), host(page, id).locator('[part="container"]'), host(page, id)]) expect(await css(part, 'transform'), id).toBe('none');
+      // Inside its own box, about its centre line: the glyph stands where its box is, the box at its size.
+      const [glyph, own] = [await box(slotted(id)), await box(host(page, id).locator('.icon'))];
+      expect(glyph.x + glyph.width / 2, id).toBeCloseTo(own.x + own.width / 2, 0);
+      expect(own.width, id).toBeCloseTo(await resolveToken(page, T(id === 'alone' ? 'icon-size-without-label-medium' : 'icon-size-medium')), 1);
+    }
+    // Mirrored or not, the same glyph is drawn alike: the same place, size, color and fill (marked against forbidden).
+    const drawn = (id: string) =>
+      host(page, id).evaluate((el) => {
+        const style = getComputedStyle(el.querySelector('[slot="icon"]')!);
+        const [own, outer] = [el.shadowRoot!.querySelector('.icon')!.getBoundingClientRect(), el.getBoundingClientRect()];
+        return { x: Math.round((own.x - outer.x) * 100) / 100, size: own.width, color: style.color, family: style.fontFamily, settings: style.fontVariationSettings };
+      });
+    expect(await drawn('marked')).toEqual(await drawn('forbidden'));
+    expect(await css(host(page, 'marked').locator('.icon'), 'color')).toBe(await css(host(page, 'marked').locator('.label'), 'color'));
+    // The order BTN-11 gives is the layout's: a leading glyph at the right of the label, a trailing one at its left.
+    for (const id of ['marked', 'forbidden', 'forced']) expect(await iconIsRight(page, id), id).toBe(true);
+    expect(await iconIsRight(page, 'trailing')).toBe(false);
+    // The mark follows the name: a glyph renamed to an unmarked one is no longer mirrored.
+    await slotted('marked').evaluate((el) => (el.textContent = 'check'));
+    await expect.poll(() => css(slotted('marked'), 'transform')).toBe('none');
+  });
+
+  test('BTN-20: the label is text of its own direction, isolated — a left-to-right label, a number with its sign and a telephone number keep their order in a right-to-left layout and the glyph keeps its side; a right-to-left label reads from its right in a left-to-right one — still placed by the layout, its lines centred whatever its own direction', async ({ page }) => {
+    await mountFixtures(page, spec, {
+      icons: true,
+      fixtures: [
+        fx('ltr-in-rtl', { variant: 'filled' }, { content: 'Call +1 555 0100', slots: { icon: 'call' }, direction: 'rtl' }),
+        fx('signed-rtl', { variant: 'tonal' }, { content: '−5', direction: 'rtl' }),
+        fx('phone-rtl', { variant: 'tonal' }, { content: '+1 555 0100', direction: 'rtl' }),
+        fx('arabic-in-ltr', { variant: 'filled' }, { content: 'اتصل الآن', slots: { icon: 'call' } }),
+        fx('wrapping-rtl', { variant: 'outlined', fullWidth: true }, { content: 'Download the accessibility guide for every component of the system', direction: 'rtl' }),
+        fx('wrapping-ltr', { variant: 'outlined', fullWidth: true }, { content: 'Download the accessibility guide for every component of the system' }),
+      ],
+    });
+    for (const id of ['ltr-in-rtl', 'signed-rtl', 'arabic-in-ltr']) expect(await css(host(page, id).locator('.label'), 'unicode-bidi'), id).toBe('plaintext');
+    // Its own order: each character after the one before it, from the left; the layout's box is still right to left.
+    for (const id of ['ltr-in-rtl', 'signed-rtl', 'phone-rtl']) {
+      const at = await lefts(host(page, id));
+      for (let i = 1; i < at.length; i++) expect(at[i], `${id}: character ${i}`).toBeGreaterThan(at[i - 1]!);
+      expect(await css(host(page, id).locator('.label'), 'direction'), id).toBe('rtl');
+    }
+    // It reorders nothing beside it: the glyph is still at the layout's start, the right.
+    expect(await iconIsRight(page, 'ltr-in-rtl')).toBe(true);
+    // A right-to-left label in a left-to-right layout reads from its right, after the glyph at the left.
+    const arabic = await lefts(host(page, 'arabic-in-ltr'));
+    expect(arabic[0]).toBeGreaterThan(arabic.at(-1)!);
+    expect(await iconIsRight(page, 'arabic-in-ltr')).toBe(false);
+    // Lines are aligned by the button, not by the text: a left-to-right label that wraps is centred in either layout.
+    for (const id of ['wrapping-rtl', 'wrapping-ltr']) {
+      const lines = await host(page, id).evaluate((el) => {
+        const range = document.createRange();
+        range.selectNodeContents(el);
+        const rects = [...range.getClientRects()].filter((rect) => rect.width > 0);
+        const label = el.shadowRoot!.querySelector('.label')!.getBoundingClientRect();
+        return { label: label.x + label.width / 2, centres: rects.map((rect) => rect.x + rect.width / 2) };
+      });
+      expect(lines.centres.length, `${id}: it wraps`).toBeGreaterThan(1);
+      for (const centre of lines.centres) expect(centre, id).toBeCloseTo(lines.label, 0);
+    }
+  });
 });
 
 test.describe('accessibility', () => {
