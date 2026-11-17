@@ -21,9 +21,10 @@ import { ariaAttribute, asComponent } from './delegated-aria.js';
 // description and the states, a frame gives a control that draws the label itself whether the label is hidden and
 // whether an asterisk or the optional word follows it (`labelHidden`, `requiredMark`, `optionalText`: FLD-25). And a control may say of itself what only
 // it knows (`FieldSays`, through `FieldConnection.says`): that it draws the label (`drawsLabel`, FLD-25), how far its
-// content is inset from its own edges (`inset`, FLD-26), and that it refused what was entered, with its words
-// (`refusal`, FLD-28), and that it is drawn focused though focus may be elsewhere (`drawnFocused`, FLD-13: a list that
-// is open). It says so again by calling `said()`, which the frame that keeps the connection sets. A
+// content is inset from its own edges (`inset`, FLD-26), that it refused what was entered, with its words
+// (`refusal`, FLD-28), that it is drawn focused though focus may be elsewhere (`drawnFocused`, FLD-13: a list that
+// is open), and how far what it keeps drawn reaches above its own box (`above`, FLD-34: a slider's value indicator
+// that is always shown). It says so again by calling `said()`, which the frame that keeps the connection sets. A
 // control that says nothing is framed as before; a frame of an earlier day reads none of it and sets no `said`; and
 // a control whose frame answers without the two new values draws its floating label with no asterisk, as a bare one.
 // Nothing else carries any of this: a composed element takes no part in the exchange.
@@ -74,6 +75,12 @@ export interface FieldSays {
   refusal?: { text: string } | null;
   /** FLD-13: the control is drawn focused whether or not focus is inside it (a combobox or a select for as long as its list is open), so the frame draws its rows focused with it. */
   drawnFocused?: boolean;
+  /**
+   * FLD-34: how far what the control keeps drawn reaches above its own top edge (a slider's value indicator that is
+   * always shown, SLD-30), as a CSS length of the control's own tokens, which resolves where the frame reads it. The
+   * frame keeps that much room above the control.
+   */
+  above?: string | null;
 }
 
 /** What a control tells the frame when it asks (the `detail` of `tanrei-field-connect`). */
@@ -115,7 +122,7 @@ export interface FieldControlOptions {
   waits?: () => boolean;
 }
 
-const saysKey = (says: FieldSays | undefined) => (says ? JSON.stringify([!!says.drawsLabel, says.inset?.start ?? null, says.inset?.end ?? null, says.refusal ? says.refusal.text : null, !!says.drawnFocused]) : '');
+const saysKey = (says: FieldSays | undefined) => (says ? JSON.stringify([!!says.drawsLabel, says.inset?.start ?? null, says.inset?.end ?? null, says.refusal ? says.refusal.text : null, !!says.drawnFocused, says.above ?? null]) : '');
 
 const same = (a: FieldState | null, b: FieldState | null) =>
   a === b || (!!a && !!b && a.label === b.label && a.description === b.description && a.invalid === b.invalid && a.required === b.required && a.requiredText === b.requiredText && a.disabled === b.disabled && !!a.labelHidden === !!b.labelHidden && (a.requiredMark ?? 'none') === (b.requiredMark ?? 'none') && (a.optionalText ?? '') === (b.optionalText ?? ''));

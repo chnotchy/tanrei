@@ -1,9 +1,10 @@
-// <tanrei-slider-field>, driven by specs/slider-field.spec.json: SLF-1 to SLF-13, each cited by a test title. It is a
+// <tanrei-slider-field>, driven by specs/slider-field.spec.json: SLF-1 to SLF-13 and SLF-15, each cited by a test title. It is a
 // composed element, so what a composed element is — declarations, passing, parts, events and the value, the
 // form, focus, the twin of each fixture, reports — is held once, for every composed element, by
 // src/primitives/composed.test.ts, and its members' own behaviour by their own files (a
 // higher level's tests repeat no test of a member; FLD-29 and FLD-30, the value text, are the Field's). What is here is
-// the thirteen sentences of its own, as they hold of THIS element.
+// the fourteen sentences of its own, as they hold of THIS element (SLF-15: the room the Field keeps for an always-shown
+// value indicator, FLD-34 and SLD-30, as it holds of the pair here).
 // SLF-14: the product's ARIA on the host is tested with every other control's, in every engine, in
 // src/primitives/delegated-aria.test.ts.
 import fs from 'node:fs';
@@ -723,6 +724,68 @@ test.describe('accessibility', () => {
     const snapshot = await stage(page, 'value-words').ariaSnapshot();
     expect((snapshot.match(/120 %/g) ?? []).length).toBeLessThanOrEqual(1);
     expect(await valueText(page, 'value-words').getAttribute('aria-hidden')).toBe('true');
+  });
+});
+
+test.describe('room for the value indicator', () => {
+  type Box = { x: number; y: number; width: number; height: number };
+  /** Each drawn value indicator of the fixture's Slider, in the window's pixels: it stands in the top layer. */
+  const indicators = (page: P, id: string) =>
+    slider(page, id).evaluate((el) =>
+      [...el.shadowRoot!.querySelectorAll('.value-indicator')]
+        .filter((indicator) => indicator.matches(':popover-open') && getComputedStyle(indicator).visibility === 'visible')
+        .map((indicator) => {
+          const r = indicator.getBoundingClientRect();
+          return { x: r.x, y: r.y, width: r.width, height: r.height };
+        }),
+    );
+  /** The two boxes share some area (an edge they only touch is not shared). */
+  const intersect = (a: Box, b: Box) => a.x < b.x + b.width - 0.5 && b.x < a.x + a.width - 0.5 && a.y < b.y + b.height - 0.5 && b.y < a.y + a.height - 0.5;
+  const labelRow = (page: P, id: string) => box(field(page, id).locator('.frame > :is(.label-line, .label-row)'));
+
+  test('SLF-15: while valueIndicator is always it keeps room between the label row and the track — each handle\'s value indicator lies below the label row, label.gap from it, and above its handle, over neither, at every size, for one handle and a range, left to right and right to left; while none or active there is no such room', async ({ page }) => {
+    // Each fixture whole in the window: an indicator whose handle is scrolled out of sight is not drawn (SLD-28).
+    await page.setViewportSize({ width: 480, height: 1800 });
+    const fixtures: Fixture[] = [];
+    for (const size of ['small', 'medium', 'large']) for (const range of [false, true]) for (const direction of ['ltr', 'rtl'] as const)
+      fixtures.push(fx(`${size}-${range ? 'range' : 'one'}-${direction}`, { size, valueIndicator: 'always', value: 60, ...(range ? { ...RANGE, startValue: 20 } : {}) }, { direction }));
+    await mount(page, fixtures);
+    await settle(page);
+    await rest(page);
+    const [gap, offset] = [await resolveToken(page, '--tanrei-comp-field-label-gap'), await resolveToken(page, '--tanrei-comp-slider-value-indicator-offset')];
+    expect(gap).toBeGreaterThan(0);
+    for (const f of fixtures) {
+      const row = await labelRow(page, f.id);
+      const drawn = await indicators(page, f.id);
+      expect(drawn, `${f.id}: an indicator for each handle`).toHaveLength(f.props.range ? 2 : 1);
+      const handles = await Promise.all((f.props.range ? (['start', 'end'] as const) : (['end'] as const)).map((which) => box(handle(page, f.id, which))));
+      for (const [i, indicator] of drawn.entries()) {
+        expect(intersect(indicator, row), `${f.id}: the value indicator lies over no part of the label row`).toBe(false);
+        near(indicator.y - (row.y + row.height), gap, `${f.id}: label.gap below the label row`);
+        // Over its handle neither: its lower edge is the offset above the handle's top (SLD-17).
+        const knob = handles.find((each) => Math.abs(each.x + each.width / 2 - (indicator.x + indicator.width / 2)) < 1) ?? handles[i]!;
+        expect(intersect(indicator, knob), `${f.id}: over no part of its handle`).toBe(false);
+        near(knob.y - (indicator.y + indicator.height), offset, `${f.id}: the offset above its handle`);
+      }
+    }
+    // Shown only while a handle is pressed or focused, or never, the indicator keeps no room: the track's box is
+    // label.gap below the label row, as in a slider field without one.
+    for (const valueIndicator of ['active', 'none']) {
+      await set(page, 'small-one-ltr', { valueIndicator });
+      near((await box(slider(page, 'small-one-ltr'))).y - ((await labelRow(page, 'small-one-ltr')).y + (await labelRow(page, 'small-one-ltr')).height), gap, `${valueIndicator}: no room`);
+    }
+  });
+
+  test('SLF-15: with labelHidden the value indicator that is always shown lies inside the slider field\'s own box; and the fixture value-indicator has it 8 below the label row and 8 above the handle', async ({ page }) => {
+    await page.setViewportSize({ width: 480, height: 900 });
+    await mount(page, [...spec.fixtures.filter((f) => f.id === 'value-indicator'), fx('hidden', { value: 40, valueIndicator: 'always', labelHidden: true })]);
+    await settle(page);
+    await rest(page);
+    const [h, [indicator]] = [await box(host(page, 'hidden')), await indicators(page, 'hidden')];
+    expect(indicator!.y, 'inside the box, not over what is above it').toBeGreaterThanOrEqual(h.y - 0.5);
+    const [row, [shown], knob] = [await labelRow(page, 'value-indicator'), await indicators(page, 'value-indicator'), await box(handle(page, 'value-indicator'))];
+    near(shown!.y - (row.y + row.height), 8, 'below the label row');
+    near(knob.y - (shown!.y + shown!.height), 8, 'above the handle');
   });
 });
 

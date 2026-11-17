@@ -250,6 +250,25 @@
   :where(tanrei-slider-field:not(:defined)) {
     min-block-size: var(--tanrei-comp-slider-container-size);
   }
+  /* A slider whose value indicator is always shown, as a field's control: the field keeps the room the indicator
+     reaches above the slider (FLD-34, SLD-30), so the box is held from the indicator's top to the slider's bottom —
+     half the slider's thickness below the track's midline; half the handle's height, the offset and the indicator's
+     height (its container's least height, or its line of text where that is taller) above it — and never shorter than
+     the slider. */
+  :where(tanrei-slider-field[value-indicator='always']:not(:defined)),
+  :where(tanrei-field:not(:defined)):where(:has(> tanrei-slider[value-indicator='always']:not([orientation='vertical']))) {
+    --_cloak-handle: var(--tanrei-comp-slider-handle-height-small);
+    --_cloak-across: max(var(--tanrei-comp-slider-container-size), var(--_cloak-handle));
+    min-block-size: max(var(--_cloak-across), var(--_cloak-across) / 2 + var(--_cloak-handle) / 2 + var(--tanrei-comp-slider-value-indicator-offset) + max(var(--tanrei-comp-slider-value-indicator-container-height), var(--tanrei-comp-slider-value-indicator-label-typescale-line-height) * var(--tanrei-comp-slider-value-indicator-label-typescale-font-size)));
+  }
+  :where(tanrei-slider-field[value-indicator='always'][size='medium']:not(:defined)),
+  :where(tanrei-field:not(:defined)):where(:has(> tanrei-slider[value-indicator='always'][size='medium']:not([orientation='vertical']))) {
+    --_cloak-handle: var(--tanrei-comp-slider-handle-height-medium);
+  }
+  :where(tanrei-slider-field[value-indicator='always'][size='large']:not(:defined)),
+  :where(tanrei-field:not(:defined)):where(:has(> tanrei-slider[value-indicator='always'][size='large']:not([orientation='vertical']))) {
+    --_cloak-handle: var(--tanrei-comp-slider-handle-height-large);
+  }
   :where(tanrei-one-time-code-field:not(:defined)) {
     min-block-size: var(--tanrei-comp-one-time-code-input-container-height);
   }

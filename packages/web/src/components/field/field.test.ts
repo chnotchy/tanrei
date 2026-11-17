@@ -1,5 +1,6 @@
-// <tanrei-field>, driven by specs/field.spec.json: every behaviour id (FLD-1…31) is cited by a test title, every fixture
-// has a baseline, and every length and color is read back from the tokens — never from a number written here.
+// <tanrei-field>, driven by specs/field.spec.json: every behaviour id (FLD-1…31, FLD-34) is cited by a test title,
+// every fixture has a baseline, and every length and color is read back from the tokens — never from a number written
+// here.
 // FLD-33: the product's ARIA on the host is tested with every other host's, in every engine, in
 // src/primitives/delegated-aria.test.ts.
 import AxeBuilder from '@axe-core/playwright';
@@ -2105,6 +2106,61 @@ test.describe('the value text', () => {
     expect(await left('ltr', '$100')).toBeLessThan(await left('ltr', '$300'));
     // Placed by the layout: at the left end in right-to-left.
     near((await box(part(page, 'words', '.value-text'))).x, (await box(host(page, 'words'))).x, 'placed at the left end');
+  });
+});
+
+test.describe('room above the control', () => {
+  type Box = { x: number; y: number; width: number; height: number };
+  const sliderOf = (page: P, id: string) => control(page, id);
+  /** The drawn value indicators of the fixture's slider, in the window's pixels: they stand in the top layer. */
+  const indicators = (page: P, id: string) =>
+    sliderOf(page, id).evaluate((el) =>
+      [...el.shadowRoot!.querySelectorAll('.value-indicator')]
+        .filter((indicator) => indicator.matches(':popover-open') && getComputedStyle(indicator).visibility === 'visible')
+        .map((indicator) => {
+          const r = indicator.getBoundingClientRect();
+          return { x: r.x, y: r.y, width: r.width, height: r.height };
+        }),
+    );
+  const intersect = (a: Box, b: Box) => a.x < b.x + b.width - 0.5 && b.x < a.x + a.width - 0.5 && a.y < b.y + b.height - 0.5 && b.y < a.y + a.height - 0.5;
+  const rowOf = (page: P, id: string) => box(host(page, id).locator('.frame > :is(.label-line, .label-row)'));
+  const room = async (page: P, id: string) => (await box(sliderOf(page, id))).y - ((await rowOf(page, id)).y + (await rowOf(page, id)).height);
+
+  test('FLD-34: where its control says how far what it keeps drawn reaches above its box — a slider whose value indicator is always shown — the field keeps that room above the control, below the label row\'s gap, so that the indicator lies over neither the label row nor the control, left to right and right to left, and inside the field\'s box with no label row; a control that says nothing has none; and the room follows at once when what the control says changes', async ({ page }) => {
+    await page.setViewportSize({ width: 480, height: 900 });
+    await mount(page, [
+      ...spec.fixtures.filter((f) => f.id === 'slider-value-indicator'),
+      fx('rtl', { label: 'مستوى الصوت', valueText: '40' }, slider({ value: 40, valueIndicator: 'always' }), { direction: 'rtl' }),
+      fx('active', { label: 'Volume', valueText: '40' }, slider({ value: 40, valueIndicator: 'active' })),
+      fx('hidden', { label: 'Volume', labelHidden: true }, slider({ value: 40, valueIndicator: 'always' })),
+    ]);
+    await frames(page);
+    const gap = await token(page, 'label-gap');
+    for (const id of ['slider-value-indicator', 'rtl']) {
+      const [row, [indicator], knob] = [await rowOf(page, id), await indicators(page, id), await box(sliderOf(page, id).locator('.thumb .handle'))];
+      expect(intersect(indicator!, row), `${id}: the indicator lies over no part of the label row`).toBe(false);
+      expect(intersect(indicator!, knob), `${id}: nor over its handle`).toBe(false);
+      near(indicator!.y - (row.y + row.height), gap, `${id}: the label row's gap above the indicator`);
+      expect(await room(page, id), `${id}: room kept above the slider`).toBeGreaterThan(gap + 0.5);
+    }
+    // A slider whose indicator is shown only while a handle is pressed or focused says nothing: the gap alone.
+    near(await room(page, 'active'), gap, 'active: no room');
+    // No label row: the room is at the top of the field, and the indicator inside its box.
+    const [h, [inside]] = [await box(host(page, 'hidden')), await indicators(page, 'hidden')];
+    expect(inside!.y, 'inside the field').toBeGreaterThanOrEqual(h.y - 0.5);
+    // What the control says changes: the room follows at once — in the task of the change, once the two have drawn.
+    const always = await room(page, 'slider-value-indicator');
+    const change = (value: string) =>
+      host(page, 'slider-value-indicator').evaluate(async (field, v) => {
+        const inner = field.querySelector('tanrei-slider') as HTMLElement & { updateComplete: Promise<unknown> };
+        inner.setAttribute('value-indicator', v);
+        await inner.updateComplete;
+        await (field as HTMLElement & { updateComplete: Promise<unknown> }).updateComplete;
+        const [slider, row] = [inner.getBoundingClientRect(), field.shadowRoot!.querySelector('.frame > .label-line')!.getBoundingClientRect()];
+        return slider.top - row.bottom;
+      }, value);
+    near(await change('none'), gap, 'none: the gap alone');
+    near(await change('always'), always, 'always again');
   });
 });
 

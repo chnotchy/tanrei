@@ -26,6 +26,22 @@ const sizeBlock = (size: string, selector: string, fallback: string | null = nul
 }`;
 };
 
+/**
+ * SLD-30, FLD-34: how far an always-shown value indicator reaches above a horizontal slider's own box, as a length of
+ * its own tokens — the sum it is placed by (SLD-17): half the handle's height above the midline, the offset, and the
+ * indicator's height (its container's least height, or its one line of text where that is taller), less half the
+ * slider's thickness (SLD-7), and never below 0. Written so that the Field that is told it resolves it where it stands,
+ * as a text input's inset is: custom properties are inherited. A size a layer added falls back to the default's token,
+ * as its styles do; a name that is not a token's name is the default.
+ */
+export function INDICATOR_REACH(size: string): string {
+  const name = /^[a-z0-9-]+$/.test(size) ? size : DEFAULT_SIZE;
+  const handle = (CORE_SIZES as readonly string[]).includes(name) ? T(`handle-height-${name}`) : `var(${PREFIX}-handle-height-${name}, ${T(`handle-height-${DEFAULT_SIZE}`)})`;
+  const line = `${T('value-indicator-label-typescale-font-size')} * ${T('value-indicator-label-typescale-line-height')}`;
+  const indicator = `max(${T('value-indicator-container-height')}, ${line})`;
+  return `max(0px, ${handle} / 2 + ${T('value-indicator-offset')} + ${indicator} - max(${T('container-size')}, ${handle}) / 2)`;
+}
+
 /** SLD-23: a size a layer adds gets its block on demand; one the active system lacks draws small and is reported. */
 export const AXES: readonly OpenAxis[] = [
   { name: 'size', core: CORE_SIZES, default: DEFAULT_SIZE, rules: (value, selector) => sizeBlock(value, selector, DEFAULT_SIZE), probe: (value) => `${PREFIX}-track-thickness-${value}` },
