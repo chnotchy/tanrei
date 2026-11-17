@@ -129,7 +129,11 @@ Put one icon-only Button in the header and mark it with `data-app-shell-menu`. T
 
 ### Links to a heading rest below the header
 
-The shell measures the sticky header and gives the page's scrolling view that much padding. A link to a heading, and an element that takes keyboard focus, come to rest below the header, never under it. On the web the same distance is `--tanrei-app-shell-scroll-offset` on the root, for your own sticky parts such as a table's header row. Inside a shell, leave `--tanrei-prose-scroll-offset` at 0.
+The shell measures the sticky header and gives the page's scrolling view that much padding. A link to a heading, and an element that takes keyboard focus, come to rest below the header, never under it. On the web the same distance is `--tanrei-app-shell-scroll-offset` on the root, and the navigation bar's height is `--tanrei-app-shell-scroll-offset-end`, for your own sticky parts such as a table's header row. With `scroll: main` the shell sets neither: nothing stands over the main region as it scrolls. Inside a shell, leave `--tanrei-prose-scroll-offset` at 0.
+
+### Overlays stay clear of the frame
+
+Whatever `scroll` is, the shell also writes on the root how far the frame reaches over the window. `--tanrei-app-shell-window-inset-top` is the distance from the top of the window to the bottom of the header (or of the menu button, in a frame without a header) while that stays in view; with `scroll: main` the header never moves, and an announcement above it counts. `--tanrei-app-shell-window-inset-bottom` is the navigation bar's height while the bar is shown. They are for what is drawn over the page: a snackbar reads them to stand clear of the header and the navigation bar, and an overlay or a fixed element of your own can do the same.
 
 ### What stands over what
 

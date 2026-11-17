@@ -2,7 +2,7 @@
 title: "消息条（Snackbar）"
 description: "在屏幕底边或顶边的末端简短地告诉用户应用刚刚做了什么，最多带一个操作，不夺取焦点，也不打断用户的工作。"
 translationOf: components/snackbar.mdx
-sourceHash: 0013365a1fb96296b68e1c18bcae681f8c8fd162
+sourceHash: 12cd69bfd18b2f45dab0c255485b6412dd163b5f
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -287,9 +287,9 @@ import Example from '../../../../components/visuals/Example.astro';
 
 为整个产品选定一种位置并交给宿主，让人们知道消息会出现在哪里：`<tanrei-snackbar-host>` 上的 `placement` 作用于它显示的每一条消息条，而带着自己的 `placement` 请求的消息条会保留它。在手机上保持底部，这是 Material 放置消息条的地方，也是拇指所在之处。在业务应用的桌面屏幕上，例如仪表板、管理控制台，或者自己的工具栏、状态栏或表格分页位于底部的编辑器，使用 `top-end`，这是 Carbon 和 Fluent 放置通知的地方。
 
-在底部，条在安全区域的左右两边之间居中，与两边至少留一段边距。它的底边与安全区域的底边和底部导航栏中较高的那个留一段边距，所以它从不遮住导航栏；屏幕键盘显示时，它升到键盘之上。在 Web 上，它从 `--tanrei-app-shell-scroll-offset-end` 读取导航栏的高度，这个属性由[应用外壳](/zh-cn/components/app-shell/)设置在文档的根元素上；有自己框架的产品把这个属性设为自己底部栏的高度。
+在底部，条在安全区域的左右两边之间居中，与两边至少留一段边距。它的底边与安全区域的底边和底部导航栏中较高的那个留一段边距，所以它从不遮住导航栏；屏幕键盘显示时，它升到键盘之上。在 Web 上，它从 `--tanrei-app-shell-window-inset-bottom` 读取框架在窗口底部占去的高度，这个属性由[应用外壳](/zh-cn/components/app-shell/)设置在文档的根元素上，与 `scroll` 的取值无关；有自己框架的产品把这个属性设为自己底部栏的高度。
 
-在顶部末端，条与顶边和末端边缘各留一段边距，位于安全区域之内、吸顶标题栏之下，所以它从不遮住顶部应用栏。在 Web 上，它从 `--tanrei-app-shell-scroll-offset` 读取标题栏的高度，这个属性由[应用外壳](/zh-cn/components/app-shell/)设置在文档的根元素上；有自己框架的产品把这个属性设为自己吸顶标题栏的高度。它从顶边而不是底边出现；展开的条向下变高。其他一切都不变：仍然一次只显示一条，从不堆叠；它的控件仍然在宿主在焦点顺序中的位置被到达；朗读方式也相同。
+在顶部末端，条与顶边和末端边缘各留一段边距，位于安全区域之内、吸顶标题栏之下，所以它从不遮住顶部应用栏。在 Web 上，它从 `--tanrei-app-shell-window-inset-top` 读取标题栏在窗口顶部占去的高度，这个属性由[应用外壳](/zh-cn/components/app-shell/)设置在文档的根元素上，与 `scroll` 的取值无关；有自己框架的产品把这个属性设为从窗口顶边到自己标题栏底边的距离。它从顶边而不是底边出现；展开的条向下变高。其他一切都不变：仍然一次只显示一条，从不堆叠；它的控件仍然在宿主在焦点顺序中的位置被到达；朗读方式也相同。
 
 <Tabs syncKey="platform">
   <TabItem label="Web">
