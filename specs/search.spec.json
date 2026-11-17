@@ -1487,7 +1487,7 @@
             "supportingText": "supportingText",
             "leadingIcon": "leadingIcon"
           },
-          "notes": "A child element with `value`, `headline`, `supporting-text` and `leading-icon` attributes, as `<option>` in a `<datalist>`."
+          "notes": "A child element with `value`, `headline`, `supporting-text` and `leading-icon` attributes, as `<option>` in a `<datalist>`. `data-mirror` (`auto`, the default; `always`; `never`) on a suggestion, a result or a result group is the product's word on mirroring the glyph its `leading-icon` names (SRC-32), as on a glyph the product places itself."
         },
         "result": {
           "name": "tanrei-search-result",
