@@ -16,6 +16,7 @@ import { expectBaseline } from '../../../test/baseline.js';
 import { expectFromNextFrame, motionCount, motionEnded } from '../../../test/motions.js';
 import { type Frames, expectAnimated, expectFirstFrameAtRest, expectNoFlicker, sampleFrames } from '../../../test/frames.js';
 import { expectNeverSideways, sidewaysProbe } from '../../../test/sideways.js';
+import { controlledElements, controlledInTree } from '../../../test/controlled-list.js';
 
 const spec = loadSpec('app-shell');
 type P = Page;
@@ -948,13 +949,15 @@ test.describe('the menu button', () => {
     expect(await shown(menu(page))).toBe(false);
   });
 
-  test('APS-7, NVD-20, NVD-22: at 400 wide, activating the menu button opens the drawer with focus inside it, the button expanded and controlling the navigation, and one navigationOpenChange carried true; Escape in the drawer closes it, focus is on the menu button and one carried false; a press on the header does not close it, Escape on the menu button and a second activation of it do', async ({ page, browserName }) => {
+  test('APS-7, NVD-20, NVD-22: at 400 wide, activating the menu button opens the drawer with focus inside it, the button expanded and controlling the navigation — which it names only while the navigation is shown — and one navigationOpenChange carried true; Escape in the drawer closes it, focus is on the menu button and one carried false; a press on the header does not close it, Escape on the menu button and a second activation of it do', async ({ page, browserName }) => {
     await mount(page, real(), { width: 400 });
     const log = await record(page);
     const open = () => shell(page).evaluate((el) => [(el as unknown as { navigationOpen: boolean }).navigationOpen, el.hasAttribute('navigation-open')]);
     const drawerOpen = () => drawer(page).evaluate((el) => (el as unknown as { open: boolean }).open);
     const expanded = () => menu(page).evaluate((el) => el.shadowRoot!.querySelector('button')!.getAttribute('aria-expanded'));
     await expect.poll(expanded).toBe('false');
+    // Closed it names nothing: the drawer is a box whose panel is put away, with nothing exposed in it.
+    expect(await controlledElements(menu(page).locator('button'))).toBeNull();
     // The keyboard reaches the button and activates it.
     await menu(page).evaluate((el) => (el as HTMLElement).focus());
     await page.keyboard.press('Enter');
@@ -967,7 +970,10 @@ test.describe('the menu button', () => {
       const button = el.shadowRoot!.querySelector('button') as HTMLElement & { ariaControlsElements?: Element[] | null };
       return 'ariaControlsElements' in button ? (button.ariaControlsElements ?? []).map((controlled) => controlled.localName) : ['tanrei-navigation-drawer'];
     })).toEqual(['tanrei-navigation-drawer']);
+    expect(await controlledElements(menu(page).locator('button'))).toEqual([{ found: true, role: 'tanrei-navigation-drawer', exposed: true }]);
     if (browserName === 'chromium') expect((await axNode(page, 'button', 'Menu'))?.expanded).toBe(true);
+    // What the engine computed: the relation reaches the drawer, in the tree.
+    if (browserName === 'chromium') expect(await controlledInTree(page, 'Menu', 'button')).toMatchObject([{ inTree: true }]);
     await page.keyboard.press('Escape');
     await expect.poll(drawerOpen).toBe(false);
     expect(await open()).toEqual([false, false]);
@@ -977,6 +983,7 @@ test.describe('the menu button', () => {
     ]);
     await expect.poll(() => active(page)).toContain('menu');
     await expect.poll(expanded).toBe('false');
+    expect(await controlledElements(menu(page).locator('button'))).toBeNull();
     if (browserName === 'chromium') expect((await axNode(page, 'button', 'Menu'))?.expanded).toBe(false);
 
     // A press on the header (its headline) leaves it open: the scrim covers only what lies below the header.
