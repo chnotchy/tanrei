@@ -802,7 +802,10 @@ test.describe('reordering', () => {
     await expect(menu).not.toHaveAttribute('open', '');
     // A line: its own glyphs.
     await handle(page, 'reorderable-wrap', 2).click();
-    const line = item(page, 'reorderable-wrap', 2).locator('tanrei-menu-item');
+    // Read once its menu is open: the press is answered in the page, and the items are drawn with the menu.
+    const lineMenu = item(page, 'reorderable-wrap', 2).locator('tanrei-menu');
+    await expect(lineMenu).toHaveAttribute('open', '');
+    const line = lineMenu.locator('tanrei-menu-item');
     expect(await line.evaluateAll((els) => els.map((el) => (el as any).leadingIcon))).toEqual(['first_page', 'arrow_back', 'arrow_forward', 'last_page']);
   });
 

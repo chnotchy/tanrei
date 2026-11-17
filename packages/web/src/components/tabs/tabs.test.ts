@@ -3525,6 +3525,8 @@ test.describe('variants, the track, sizes and the transition', () => {
     const [r, g, b] = srgb ? n.slice(0, 3).map((c) => Math.round(c * 255)) : n.slice(0, 3);
     return [r, g, b, Math.round((n[3] ?? 1) * 100) / 100];
   };
+  /** The opacity the tonal indicator lays the selected content color at (sys.state.selected-state-layer-opacity), rounded as `rgba` rounds. */
+  const selectedLayer = async (page: P) => Math.round(Number(await token(page, '--tanrei-sys-state-selected-state-layer-opacity')) * 100) / 100;
   const selectedValue = (page: P, id: string) => row(page, id).evaluate((el: any) => el.selectedTab?.value as string | null);
   /** The first frame after `act` ran in the page: every tab's piece of the indicator, its label's colors, and what still moves. */
   const firstFrame = (page: P, id: string, act: string) =>
@@ -3549,13 +3551,14 @@ test.describe('variants, the track, sizes and the transition', () => {
       };
     }, act);
 
-  test('TAB-50, TAB-24: the tonal indicator is the selected content color at 16 % laid over what is beneath it, under a darker label, the hover layer showing through, drawn once at that opacity while it slides; the three variants say the same to assistive technology', async ({ page, browserName }) => {
+  test('TAB-50, TAB-24: the tonal indicator is the selected content color at the selected state layer opacity laid over what is beneath it, under a darker label, the hover layer showing through, drawn once at that opacity while it slides; the three variants say the same to assistive technology', async ({ page, browserName }) => {
     await mountFixtures(page, spec, { fixtures: only('primary', 'secondary', 'tonal', 'tonal-no-track'), reducedMotion: false });
+    const opacity = await selectedLayer(page);
     for (const id of ['tonal', 'tonal-no-track']) {
       await expect.poll(() => drawn(page, id, 0)).toEqual(await expected(page, 'tonal', 'selected'));
       await expect.poll(() => drawn(page, id, 1)).toEqual(await expected(page, 'tonal', ''));
       const layerColor = rgba(await resolveColor(page, T('tonal-selected-state-layer-color')));
-      expect(rgba(await css(cover(page, id, 0), 'background-color')), id).toEqual([...layerColor.slice(0, 3), 0.16]);
+      expect(rgba(await css(cover(page, id, 0), 'background-color')), id).toEqual([...layerColor.slice(0, 3), opacity]);
       // The darker label on the indicator, the quiet one beside it.
       expect(rgba(await css(tabAt(page, id, 0).locator('.cover .label'), 'color'))).toEqual(rgba(await resolveColor(page, '--tanrei-sys-color-on-secondary-container')));
       expect(rgba(await css(label(page, id, 1), 'color'))).toEqual(rgba(await resolveColor(page, '--tanrei-sys-color-on-surface-variant')));
@@ -3569,7 +3572,7 @@ test.describe('variants, the track, sizes and the transition', () => {
     await box(page, 'tonal', 0).hover();
     await expect.poll(() => css(layer(page, 'tonal', 0), 'background-color')).toBe(await resolveColor(page, T('tonal-hovered-selected-container-color')));
     expect(rgba(await css(layer(page, 'tonal', 0), 'background-color'))[3]).toBeGreaterThan(0);
-    expect(rgba(await css(cover(page, 'tonal', 0), 'background-color'))[3]).toBe(0.16);
+    expect(rgba(await css(cover(page, 'tonal', 0), 'background-color'))[3]).toBe(opacity);
     expect(await css(layer(page, 'tonal', 0), 'z-index')).toBe('1');
     await page.mouse.move(0, 0);
     // Mid-slide: every tab's piece is one drawing, at the opacity it has at rest, and no two pieces lie over each other.
@@ -3579,7 +3582,7 @@ test.describe('variants, the track, sizes and the transition', () => {
     await holdSlide(page, 'tonal', 0.5);
     const pieces = [] as { left: number; right: number }[];
     for (const n of [0, 1, 2]) {
-      expect(rgba(await css(cover(page, 'tonal', n), 'background-color'))[3], `${n}`).toBe(0.16);
+      expect(rgba(await css(cover(page, 'tonal', n), 'background-color'))[3], `${n}`).toBe(opacity);
       expect(await tabAt(page, 'tonal', n).evaluate((el) => el.shadowRoot!.querySelectorAll('.cover').length)).toBe(1);
       const [own, piece] = [await bounds(tabAt(page, 'tonal', n)), await pill(page, 'tonal', n)];
       pieces.push({ left: Math.max(own.x, piece.x), right: Math.min(own.x + own.width, piece.x + piece.width) });
@@ -4118,10 +4121,11 @@ test.describe('variants, the track, sizes and the transition', () => {
       probe.remove();
       return forced;
     });
+    const opacity = await selectedLayer(page);
     for (const id of ['primary', 'secondary', 'tonal', 'tonal-small-no-track', 'tonal-no-track-disabled']) {
       // Filled and opaque, whatever the variant's own indicator is.
       expect(rgba(await css(cover(page, id, 0), 'background-color')), id).toEqual(highlight);
-      expect(rgba(await css(cover(page, id, 0), 'background-color'))[3], id).not.toBe(0.16);
+      expect(rgba(await css(cover(page, id, 0), 'background-color'))[3], id).not.toBe(opacity);
       expect(rgba(await css(tabAt(page, id, 0).locator('.cover .label'), 'color')), id).toEqual(highlightText);
       expect(within(await bounds(label(page, id, 0)), await pill(page, id, 0)), id).toBe(true);
       // Every other label is the platform's text color — where the engine itself forces colors (one that only answers
