@@ -1,5 +1,5 @@
 import { type PropertyDeclarations, css } from 'lit';
-import { OPTION_GROUP_TAG, OPTION_TAG } from '../../primitives/option-list.js';
+import { OPTION_GROUP_TAG, OPTION_TAG } from '../../primitives/option-tags.js';
 import { TanreiElement } from '../../primitives/element.js';
 
 // The two elements a field that opens a list of options holds: `<tanrei-option>` and `<tanrei-option-group>`. One pair

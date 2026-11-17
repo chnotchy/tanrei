@@ -27853,7 +27853,7 @@
       "declarations": [
         {
           "kind": "class",
-          "description": "One destination of a navigation bar — the spec's item kind `destination`: an icon, a label under it and an\noptional badge on the icon, inside the item container. Placed as a child of `<tanrei-navigation-bar>`, in order; the\nbar decides whether it is the selected one and answers its activation.\n\nIt is a button, or with `href` a link (NVB-30): an `<a href>` in the shadow root, drawn exactly as the button\nis, whose context menu, new-tab gestures and address are the browser's own — except that it is not dragged as a link,\nbecause a sideways drag moves the active indicator. A link is not selected by a press (NVB-31): a plain activation\nmakes the bar fire `change` (or `reselect`) — cancelable, with `detail.href`, before the browser follows the link —\nand the page shown next sets the bar's `value`; a modified or a middle click, a link whose `target` is `new` and a\ndownload fire nothing. Without a `value` a link's `href` is its value. `target=\"new\"` opens a new tab, safely\n(`noopener`), and draws no mark — a cell has no place for one — so `targetLabel` says it (NVB-32). Space does not\nactivate a link.\n\nIt is named by its label whether or not the label is drawn, the selected one `aria-current=\"page\"`, its badge's\ntext and then, for a link that opens a new context, `targetLabel` its description; its host is a list item of the\nbar's list. Its icon and label are drawn twice: the second copy, in the covered colors and clipped to the active\nindicator, is hidden from assistive technology (NVB-23).\n\nIts properties are the shared destination's (`src/primitives/destination.ts`): `value`, `label`, `icon`, `disabled`,\n`badge`, `badgeCount` (`badge-count`), `badgeLabel` (`badge-label`), `href`, `target`, `targetLabel`\n(`target-label`) and the web-only `rel` and `download`.",
+          "description": "One destination of a navigation bar — the spec's item kind `destination`: an icon, a label under it and an\noptional badge on the icon, inside the item container. Placed as a child of `<tanrei-navigation-bar>`, in order; the\nbar decides whether it is the selected one and answers its activation.\n\nIt is a button, or with `href` a link (NVB-30): an `<a href>` in the shadow root, drawn exactly as the button\nis, whose context menu, new-tab gestures and address are the browser's own — except that it is not dragged as a link,\nbecause a sideways drag moves the active indicator. A link is not selected by a press (NVB-31): a plain activation\nmakes the bar fire `change` (or `reselect`) — cancelable, with `detail.href`, before the browser follows the link —\nand the page shown next sets the bar's `value`; a modified or a middle click, a link whose `target` is `new` and a\ndownload fire nothing. Without a `value` a link's `href` is its value. `target=\"new\"` opens a new tab, safely\n(`noopener`), and draws no mark — a cell has no place for one — so `targetLabel` says it (NVB-32). Space does not\nactivate a link.\n\nIt is named by its label whether or not the label is drawn, the selected one `aria-current=\"page\"`, its badge's\ntext and then, for a link that opens a new context, `targetLabel` its description; its host is a list item of the\nbar's list. Its icon and label are drawn twice: the second copy, in the covered colors and clipped to the active\nindicator, is hidden from assistive technology (NVB-23).\n\nIts properties are the shared destination's (`src/primitives/navigation-destination.ts`): `value`, `label`, `icon`, `disabled`,\n`badge`, `badgeCount` (`badge-count`), `badgeLabel` (`badge-label`), `href`, `target`, `targetLabel`\n(`target-label`) and the web-only `rel` and `download`.",
           "name": "TanreiNavigationBarItem",
           "cssParts": [
             {
@@ -27896,7 +27896,7 @@
               "default": "{ ...LitElement.shadowRootOptions, delegatesFocus: true }",
               "inheritedFrom": {
                 "name": "NavigationDestination",
-                "module": "src/primitives/destination.ts"
+                "module": "src/primitives/navigation-destination.ts"
               }
             },
             {
@@ -27910,7 +27910,7 @@
               "attribute": "value",
               "inheritedFrom": {
                 "name": "NavigationDestination",
-                "module": "src/primitives/destination.ts"
+                "module": "src/primitives/navigation-destination.ts"
               }
             },
             {
@@ -27925,7 +27925,7 @@
               "attribute": "label",
               "inheritedFrom": {
                 "name": "NavigationDestination",
-                "module": "src/primitives/destination.ts"
+                "module": "src/primitives/navigation-destination.ts"
               }
             },
             {
@@ -27940,7 +27940,7 @@
               "attribute": "icon",
               "inheritedFrom": {
                 "name": "NavigationDestination",
-                "module": "src/primitives/destination.ts"
+                "module": "src/primitives/navigation-destination.ts"
               }
             },
             {
@@ -27956,7 +27956,7 @@
               "reflects": true,
               "inheritedFrom": {
                 "name": "NavigationDestination",
-                "module": "src/primitives/destination.ts"
+                "module": "src/primitives/navigation-destination.ts"
               }
             },
             {
@@ -27972,7 +27972,7 @@
               "reflects": true,
               "inheritedFrom": {
                 "name": "NavigationDestination",
-                "module": "src/primitives/destination.ts"
+                "module": "src/primitives/navigation-destination.ts"
               }
             },
             {
@@ -27987,7 +27987,7 @@
               "attribute": "badge-count",
               "inheritedFrom": {
                 "name": "NavigationDestination",
-                "module": "src/primitives/destination.ts"
+                "module": "src/primitives/navigation-destination.ts"
               }
             },
             {
@@ -28002,7 +28002,7 @@
               "attribute": "badge-label",
               "inheritedFrom": {
                 "name": "NavigationDestination",
-                "module": "src/primitives/destination.ts"
+                "module": "src/primitives/navigation-destination.ts"
               }
             },
             {
@@ -28017,7 +28017,7 @@
               "attribute": "href",
               "inheritedFrom": {
                 "name": "NavigationDestination",
-                "module": "src/primitives/destination.ts"
+                "module": "src/primitives/navigation-destination.ts"
               }
             },
             {
@@ -28032,7 +28032,7 @@
               "attribute": "target",
               "inheritedFrom": {
                 "name": "NavigationDestination",
-                "module": "src/primitives/destination.ts"
+                "module": "src/primitives/navigation-destination.ts"
               }
             },
             {
@@ -28047,7 +28047,7 @@
               "attribute": "target-label",
               "inheritedFrom": {
                 "name": "NavigationDestination",
-                "module": "src/primitives/destination.ts"
+                "module": "src/primitives/navigation-destination.ts"
               }
             },
             {
@@ -28062,7 +28062,7 @@
               "attribute": "rel",
               "inheritedFrom": {
                 "name": "NavigationDestination",
-                "module": "src/primitives/destination.ts"
+                "module": "src/primitives/navigation-destination.ts"
               }
             },
             {
@@ -28077,7 +28077,7 @@
               "attribute": "download",
               "inheritedFrom": {
                 "name": "NavigationDestination",
-                "module": "src/primitives/destination.ts"
+                "module": "src/primitives/navigation-destination.ts"
               }
             },
             {
@@ -28090,7 +28090,7 @@
               "readonly": true,
               "inheritedFrom": {
                 "name": "NavigationDestination",
-                "module": "src/primitives/destination.ts"
+                "module": "src/primitives/navigation-destination.ts"
               }
             },
             {
@@ -28099,13 +28099,13 @@
               "description": "`element.click()` activates the destination as a person would; a disabled one does nothing.",
               "inheritedFrom": {
                 "name": "NavigationDestination",
-                "module": "src/primitives/destination.ts"
+                "module": "src/primitives/navigation-destination.ts"
               }
             }
           ],
           "superclass": {
             "name": "NavigationDestination",
-            "module": "src/primitives/destination.ts"
+            "module": "src/primitives/navigation-destination.ts"
           },
           "tagName": "tanrei-navigation-bar-item",
           "customElement": true,
@@ -28119,7 +28119,7 @@
               "fieldName": "value",
               "inheritedFrom": {
                 "name": "NavigationDestination",
-                "module": "src/primitives/destination.ts"
+                "module": "src/primitives/navigation-destination.ts"
               }
             },
             {
@@ -28132,7 +28132,7 @@
               "fieldName": "label",
               "inheritedFrom": {
                 "name": "NavigationDestination",
-                "module": "src/primitives/destination.ts"
+                "module": "src/primitives/navigation-destination.ts"
               }
             },
             {
@@ -28145,7 +28145,7 @@
               "fieldName": "icon",
               "inheritedFrom": {
                 "name": "NavigationDestination",
-                "module": "src/primitives/destination.ts"
+                "module": "src/primitives/navigation-destination.ts"
               }
             },
             {
@@ -28158,7 +28158,7 @@
               "fieldName": "disabled",
               "inheritedFrom": {
                 "name": "NavigationDestination",
-                "module": "src/primitives/destination.ts"
+                "module": "src/primitives/navigation-destination.ts"
               }
             },
             {
@@ -28171,7 +28171,7 @@
               "fieldName": "badge",
               "inheritedFrom": {
                 "name": "NavigationDestination",
-                "module": "src/primitives/destination.ts"
+                "module": "src/primitives/navigation-destination.ts"
               }
             },
             {
@@ -28184,7 +28184,7 @@
               "fieldName": "badgeCount",
               "inheritedFrom": {
                 "name": "NavigationDestination",
-                "module": "src/primitives/destination.ts"
+                "module": "src/primitives/navigation-destination.ts"
               }
             },
             {
@@ -28197,7 +28197,7 @@
               "fieldName": "badgeLabel",
               "inheritedFrom": {
                 "name": "NavigationDestination",
-                "module": "src/primitives/destination.ts"
+                "module": "src/primitives/navigation-destination.ts"
               }
             },
             {
@@ -28210,7 +28210,7 @@
               "fieldName": "href",
               "inheritedFrom": {
                 "name": "NavigationDestination",
-                "module": "src/primitives/destination.ts"
+                "module": "src/primitives/navigation-destination.ts"
               }
             },
             {
@@ -28223,7 +28223,7 @@
               "fieldName": "target",
               "inheritedFrom": {
                 "name": "NavigationDestination",
-                "module": "src/primitives/destination.ts"
+                "module": "src/primitives/navigation-destination.ts"
               }
             },
             {
@@ -28236,7 +28236,7 @@
               "fieldName": "targetLabel",
               "inheritedFrom": {
                 "name": "NavigationDestination",
-                "module": "src/primitives/destination.ts"
+                "module": "src/primitives/navigation-destination.ts"
               }
             },
             {
@@ -28249,7 +28249,7 @@
               "fieldName": "rel",
               "inheritedFrom": {
                 "name": "NavigationDestination",
-                "module": "src/primitives/destination.ts"
+                "module": "src/primitives/navigation-destination.ts"
               }
             },
             {
@@ -28262,7 +28262,7 @@
               "fieldName": "download",
               "inheritedFrom": {
                 "name": "NavigationDestination",
-                "module": "src/primitives/destination.ts"
+                "module": "src/primitives/navigation-destination.ts"
               }
             }
           ]
@@ -54286,7 +54286,51 @@
     },
     {
       "kind": "javascript-module",
-      "path": "src/primitives/destination.ts",
+      "path": "src/primitives/element.ts",
+      "declarations": [
+        {
+          "kind": "class",
+          "description": "An element of this package with a shadow root: MOT-3's settling, its rule composed last in the element's styles, and\na `focus()` called before its first update kept until it has drawn.",
+          "name": "TanreiElement",
+          "members": [],
+          "superclass": {
+            "name": "LitElement",
+            "package": "lit"
+          },
+          "customElement": true
+        },
+        {
+          "kind": "class",
+          "description": "An element of this package that draws in the light DOM: MOT-3's settling; its stylesheet carries the rule (`settleRule()`).",
+          "name": "TanreiLightElement",
+          "superclass": {
+            "name": "ReactiveElement",
+            "package": "lit"
+          }
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "TanreiElement",
+          "declaration": {
+            "name": "TanreiElement",
+            "module": "src/primitives/element.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "TanreiLightElement",
+          "declaration": {
+            "name": "TanreiLightElement",
+            "module": "src/primitives/element.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/primitives/navigation-destination.ts",
       "declarations": [
         {
           "kind": "class",
@@ -54571,51 +54615,7 @@
           "name": "NavigationDestination",
           "declaration": {
             "name": "NavigationDestination",
-            "module": "src/primitives/destination.ts"
-          }
-        }
-      ]
-    },
-    {
-      "kind": "javascript-module",
-      "path": "src/primitives/element.ts",
-      "declarations": [
-        {
-          "kind": "class",
-          "description": "An element of this package with a shadow root: MOT-3's settling, its rule composed last in the element's styles, and\na `focus()` called before its first update kept until it has drawn.",
-          "name": "TanreiElement",
-          "members": [],
-          "superclass": {
-            "name": "LitElement",
-            "package": "lit"
-          },
-          "customElement": true
-        },
-        {
-          "kind": "class",
-          "description": "An element of this package that draws in the light DOM: MOT-3's settling; its stylesheet carries the rule (`settleRule()`).",
-          "name": "TanreiLightElement",
-          "superclass": {
-            "name": "ReactiveElement",
-            "package": "lit"
-          }
-        }
-      ],
-      "exports": [
-        {
-          "kind": "js",
-          "name": "TanreiElement",
-          "declaration": {
-            "name": "TanreiElement",
-            "module": "src/primitives/element.ts"
-          }
-        },
-        {
-          "kind": "js",
-          "name": "TanreiLightElement",
-          "declaration": {
-            "name": "TanreiLightElement",
-            "module": "src/primitives/element.ts"
+            "module": "src/primitives/navigation-destination.ts"
           }
         }
       ]
