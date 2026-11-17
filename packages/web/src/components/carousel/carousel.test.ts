@@ -1,5 +1,5 @@
-// <tanrei-carousel> and <tanrei-carousel-item>, driven by specs/carousel.spec.json: every behaviour id but
-// CRL-39 is cited by a test title, every fixture has a baseline, and every state and choice of kind is read back from
+// <tanrei-carousel> and <tanrei-carousel-item>, driven by specs/carousel.spec.json: every behaviour id is cited
+// by a test title, every fixture has a baseline, and every state and choice of kind is read back from
 // the tokens — never from a number written here, except the spec's own worked examples (the verify notes of CRL-9 –
 // CRL-13, CRL-26, CRL-27, CRL-29 and CRL-40).
 //
@@ -13,7 +13,8 @@ import { decodePng } from '../../../test/png.js';
 import { holdClock as holdPageClock, releaseClock } from '../../../test/page-clock.js';
 import { STOPPED_AFTER } from '../../../test/stopped-release.js';
 import { clickCentre, heldPress } from '../../../test/watched-press.js';
-import { motionEnded } from '../../../test/motions.js';
+import { motionCount, motionEnded } from '../../../test/motions.js';
+import { transitionsRun, watchTransitions } from '../../../test/transitions.js';
 import { CarouselGeometry, type CarouselMetrics } from './carousel-geometry.js';
 import { expectBaseline } from '../../../test/baseline.js';
 
@@ -1939,6 +1940,109 @@ test.describe('behavior', () => {
     expect(dot0.x).toBeGreaterThan(dot1.x);
     expect(await css(playback(page, auto).locator('.icon'), 'direction')).toBe('ltr');
     expect(await css(playback(page, auto).locator('.icon'), 'transform')).toBe('none');
+  });
+
+  test('CRL-39: the direction is the nearest ancestor’s — not the root’s and not a setting of the carousel’s own; when it changes while the carousel is shown it is drawn for the new direction at once, without a motion, keeping the item at rest (in reading order, not the scroll offset) and its focus', async ({ page }) => {
+    const of = (id: string) => spec.fixtures.find((f) => f.id === id)!;
+    // The verify: the direction set on an ancestor inside the page (each fixture's stage), not on the root.
+    await mountFixtures(page, spec, { icons: true, fixtures: [{ ...of('centered'), id: 'rtl', direction: 'rtl' }, { ...of('loop'), id: 'rtl-loop', direction: 'rtl' }] });
+    expect(await page.evaluate(() => document.documentElement.getAttribute('dir'))).toBeNull();
+    for (const id of ['rtl', 'rtl-loop']) {
+      expect(await carousel(page, id).evaluate((el) => [el.getAttribute('dir'), el.matches(':dir(rtl)'), Object.keys((el.constructor as unknown as { properties: object }).properties).some((p) => /^dir|direction/i.test(p))]), id).toEqual([null, true, false]);
+    }
+    const id = 'rtl';
+    // Right-to-left: the hero's neighbour after it stands at its left.
+    expect((await bounds(item(page, id, 1))).x).toBeLessThan((await bounds(item(page, id, 0))).x);
+    // Two items on from the first, by the keys (the left arrow is toward the end in right-to-left), focus on the third.
+    const s = await step(page, id);
+    await tabTo(page, container(page, id, 0));
+    await page.keyboard.press('ArrowLeft');
+    await page.keyboard.press('ArrowLeft');
+    expect(await focused(page)).toBe('Lake shore');
+    await expect.poll(() => offset(page, id)).toBe(2 * s);
+    await atRest(page, id);
+    // The loop row rests one item on as well, at the turn in the middle of its track.
+    await scroller(page, 'rtl-loop').evaluate((el, by) => (el.scrollLeft -= by), s);
+    await atRest(page, 'rtl-loop');
+    const [rtl, rtlLoop] = [await boxes(page, id), await boxes(page, 'rtl-loop')];
+    const loopOffset = await offset(page, 'rtl-loop');
+    await motionEnded(page);
+    // Changed on the ancestors after the first render: in the first frames after it each row stands on the same item, as
+    // far along in reading order — from the left edge now — nothing moves and no transition starts. The page reads its
+    // layout in the same task, as a page does, so the browser lays the rows out for the new direction (and puts each
+    // row's offset, written for the old one, in its new range) before the carousels hear of the change.
+    for (const each of ['rtl', 'rtl-loop']) await watchTransitions(carousel(page, each));
+    const seen = await page.evaluate(async () => {
+      const hosts = ['rtl', 'rtl-loop'].map((each) => document.querySelector(`[data-fixture="${each}"] tanrei-carousel`)!);
+      for (const host of hosts) host.closest('[data-fixture]')!.setAttribute('dir', 'ltr');
+      for (const host of hosts) void host.shadowRoot!.querySelector('.scroller')!.scrollLeft;
+      await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+      return hosts.map((host) => {
+        const own = host.getBoundingClientRect();
+        return [...host.querySelectorAll('tanrei-carousel-item')].map((el) => {
+          const r = el.getBoundingClientRect();
+          return [Math.round((r.left - own.left) * 100) / 100, Math.round(r.width * 100) / 100];
+        });
+      });
+    });
+    expectNear(seen[0], rtl, 'the same items, as far along from the start edge, in the first frames', DEVICE);
+    expectNear(seen[1], rtlLoop, 'the loop row too', DEVICE);
+    await atRest(page, id);
+    await atRest(page, 'rtl-loop');
+    expect(await offset(page, id)).toBe(2 * s);
+    expect(await offset(page, 'rtl-loop')).toBe(loopOffset);
+    expectNear(await boxes(page, id), rtl, 'at rest there', DEVICE);
+    for (const each of ['rtl', 'rtl-loop']) {
+      expect(await transitionsRun(carousel(page, each)), `${each}: no transition`).toEqual([]);
+      expect(await motionCount(carousel(page, each)), `${each}: nothing moves`).toBe(0);
+    }
+    // Left-to-right now: the neighbour after the hero at its right; the focus and the Tab stop kept.
+    expect((await bounds(item(page, id, 3))).x).toBeGreaterThan((await bounds(item(page, id, 2))).x);
+    expect(await focused(page)).toBe('Lake shore');
+    await expect(container(page, id, 2)).toHaveAttribute('tabindex', '0');
+    // The keys follow the new direction: the right arrow is toward the end.
+    await page.keyboard.press('ArrowRight');
+    expect(await focused(page)).toBe('City park');
+    // Where no ancestor sets one, the document's — and the item at rest is kept when that changes too.
+    await atRest(page, id);
+    const ltr = await boxes(page, id);
+    const atOffset = await offset(page, id);
+    await page.evaluate(async () => {
+      document.querySelector('[data-fixture="rtl"]')!.removeAttribute('dir');
+      document.documentElement.setAttribute('dir', 'rtl');
+      void document.querySelector('[data-fixture="rtl"] tanrei-carousel')!.shadowRoot!.querySelector('.scroller')!.scrollLeft;
+      await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+    });
+    expect(await carousel(page, id).evaluate((el) => el.matches(':dir(rtl)'))).toBe(true);
+    expectNear(await boxes(page, id), ltr, 'the same items, as far along from the right edge', DEVICE);
+    await atRest(page, id);
+    expect(await offset(page, id)).toBe(atOffset);
+    expect(await focused(page)).toBe('City park');
+  });
+
+  test('CRL-39: a change of direction keeps the playback — autoplay times its advance on from where it was, and a paused carousel stays paused', async ({ page }) => {
+    const of = (id: string) => spec.fixtures.find((f) => f.id === id)!;
+    await clockPage(page, [{ ...of('autoplay'), id: 'autoplay', direction: 'rtl' }, { ...of('autoplay-paused'), id: 'paused', direction: 'rtl' }]);
+    const id = 'autoplay';
+    const every = await interval(page);
+    const s = await step(page, id);
+    await page.clock.runFor(every / 2);
+    expect(await offset(page, id)).toBe(0);
+    for (const each of ['autoplay', 'paused']) await page.locator(`[data-fixture="${each}"]`).evaluate((el) => el.setAttribute('dir', 'ltr'));
+    // The rows drawn for the new direction (the item after the hero at its right), which the next frame does: the page
+    // clock holds the page's timers, not its frames.
+    for (const each of ['autoplay', 'paused']) await expect.poll(async () => (await bounds(item(page, each, 1))).x > (await bounds(item(page, each, 0))).x, each).toBe(true);
+    // Not started from zero: the half interval that was left, and it advances.
+    await page.clock.runFor(every / 2 - 100);
+    expect(await offset(page, id)).toBe(0);
+    await page.clock.runFor(200);
+    await expect.poll(() => offset(page, id)).toBe(s);
+    expect(await now(page, id)).toBe(2);
+    // Paused, it stays paused, its control still offering play.
+    expect(await carousel(page, 'paused').evaluate((el: HTMLElement & { paused: boolean }) => el.paused)).toBe(true);
+    await page.clock.runFor(every * 2);
+    expect(await offset(page, 'paused')).toBe(0);
+    await expect(playback(page, 'paused')).toHaveAccessibleName(String(of('autoplay-paused').props.playLabel));
   });
 
   test('CRL-24: unknown alignments are drawn as their defaults, and an itemWidth or autoplayInterval that is not a positive number as null; a debug build reports each', async ({ page }) => {
