@@ -422,7 +422,7 @@
     },
     {
       "id": "SEL-33",
-      "text": "WHEN the person types printable characters while the select has focus, each within one second of the one before, THE select SHALL treat them as one string and make active the next option after the active one, wrapping to the first, whose label begins with that string, compared without regard to case as the label's language compares; a string of one character typed again SHALL move on to the next option that begins with it. WHILE the list is closed the first character SHALL open it (SEL-23) and then do the same. Typing SHALL NOT change value, and a Space typed within that second SHALL be a character of the string and SHALL NOT choose."
+      "text": "WHEN the person types printable characters while the select has focus, each within one second of the one before, THE select SHALL treat them as one string and make active the next option after the active one, wrapping to the first, whose label begins with that string, compared without regard to case, to the width of a character or to the marks on a letter, as the label's language compares (as the combobox compares, CMB-25); a string of one character typed again SHALL move on to the next option that begins with it. WHILE the list is closed the first character SHALL open it (SEL-23) and then do the same. Typing SHALL NOT change value, and a Space typed within that second SHALL be a character of the string and SHALL NOT choose."
     },
     {
       "id": "SEL-34",

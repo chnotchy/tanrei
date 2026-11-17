@@ -191,8 +191,12 @@ export function iconGlyph(on: string, tokens: { size: Property; selected: string
 export const ICON_VISIBILITY = '--tanrei-icon-visibility';
 export const GLYPH_VISIBILITY = `visibility: var(${ICON_VISIBILITY}, inherit);`;
 
-/** `@tanrei/web/icons.css`, written to dist/ by scripts/build.js. */
-export const ICONS_CSS = `/*
+/**
+ * `@tanrei/web/icons.css`, written to dist/ by scripts/build.js. A function, not a constant: the template calls
+ * functions, so a bundler keeps a constant made from it in every bundle that imports this module, whether or not
+ * anything reads it — and only the build does.
+ */
+export const iconsCss = () => `/*
  * Tanrei icons on the web. Token-driven; no icon is bundled.
  *
  * The default design system draws icons with Material Symbols Rounded at weight 300. Load that font in your

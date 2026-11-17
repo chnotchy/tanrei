@@ -325,7 +325,7 @@ export { TARGET_CAPS, minimumTarget, neighbourTarget, rowTargets } from './targe
 export { type CutTextContent, CutTextTip, type CutTextTipOptions, type CutTextTooltip, isCut } from './cut-text.js';
 export { KeptLengths, keptLength, keptSpaces } from './kept-length.js';
 export { type ItemRowOptions, itemRowStyles, rowTarget } from './item-row.js';
-export { RovingKeys, type RovingItem, TYPEAHEAD_WINDOW } from './roving.js';
+export { type LabelBegins, RovingKeys, type RovingItem, TYPEAHEAD_WINDOW } from './roving.js';
 export { answersPress, findInteractive, pressTakenWithin, slottedInteractive } from './interactive.js';
 export { VisibilityController } from './visibility.js';
 export { cssZoom, layoutScale } from './layout-scale.js';
@@ -493,7 +493,7 @@ export {
   unwatchConvention,
   watchConvention,
 } from './keyboard-convention.js';
-export { FILTER_SETTLE_MS, type Folded, completionOf, filterWords, fold, foldText, holdsWords, matchRun } from './filter.js';
+export { FILTER_SETTLE_MS, type Folded, completionOf, filterWords, fold, foldText, holdsWords, labelBegins, matchRun } from './filter.js';
 export { type IndicatorDragOptions, IndicatorDragController, type IndicatorPlace, type IndicatorStop, indicatorChoice, indicatorPlace } from './indicator-drag.js';
 export { type SharedChoice, keepInPlace, remember, remembered, sharedChoice } from './shared-choice.js';
 export { flatParent } from './flat-tree.js';

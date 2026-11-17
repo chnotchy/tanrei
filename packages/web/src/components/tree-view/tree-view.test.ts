@@ -11,6 +11,7 @@ import { expectFirstFrameAtRest } from '../../../test/frames.js';
 import { drawnOpticalSize, opticalSize } from '../../../test/icons.js';
 import { expectPressShownAndHeld, watchPress } from '../../../test/watched-press.js';
 import { holdClock, releaseClock } from '../../../test/page-clock.js';
+import { TYPEAHEAD_FOUND, TYPEAHEAD_LABELS, typeaheadAsFiltered } from '../../../test/typeahead.js';
 import { expectBaseline } from '../../../test/baseline.js';
 
 const spec = loadSpec('tree-view');
@@ -1165,6 +1166,15 @@ test.describe('the keyboard', () => {
     await page.waitForTimeout(1100);
     await page.keyboard.press('z');
     expect(await focused(page)).toBe('Al dente');
+    expect(await events(page)).toEqual([]);
+  });
+
+  test('TRV-23: the typed characters are compared with the labels as its filter compares (TRV-56) — without regard to case, to the width of a character or to the marks on a letter, the kana sound marks kept (か does not find が)', async ({ page }) => {
+    await mount(page, { fixtures: [raw('typed', { label: 'Cities', selection: 'single' }, `<ul>${TYPEAHEAD_LABELS.map((label) => `<li><span>${label}</span></li>`).join('')}</ul>`)] });
+    await watch(page);
+    await tabTo(page, row(page, 'typed', 'Apple'));
+    const seen = await typeaheadAsFiltered(page, () => focused(page));
+    expect(seen).toEqual(TYPEAHEAD_FOUND);
     expect(await events(page)).toEqual([]);
   });
 });
