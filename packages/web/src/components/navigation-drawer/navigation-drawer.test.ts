@@ -20,6 +20,7 @@ import { STOPPED_AFTER, flingThenHold, strokes } from '../../../test/stopped-rel
 import { clickCentre, heldPress } from '../../../test/watched-press.js';
 import { middlePressAimed } from '../../../test/middle-press.js';
 import { expectBaseline } from '../../../test/baseline.js';
+import { controlledElements, controlledInTree } from '../../../test/controlled-list.js';
 import { transitionsRun, watchTransitions } from '../../../test/transitions.js';
 import { STACKED_DIALOG, STACKED_LAYER, addStackedSurfaces, expectStackedInOrder, focusAmong, setOpenInOneTask } from '../../../test/stacked-surfaces.js';
 
@@ -1234,7 +1235,7 @@ test.describe('the collapsed form', () => {
     await expect.poll(() => activeValue(page)).toBe('header-button:Menu');
   });
 
-  test('NVD-37: the first header button of a collapsible drawer is its menu button — aria-expanded and aria-controls on its native button — and asks for the other form: expanded set, then expandedchange; an open modal drawer closes instead; without a header button it is reported', async ({ page }) => {
+  test('NVD-37: the first header button of a collapsible drawer is its menu button — aria-expanded and aria-controls on its native button, naming nothing while the drawer is open as its own modal dialog — and asks for the other form: expanded set, then expandedchange; an open modal drawer closes instead; without a header button it is reported', async ({ page }) => {
     const seen = warnings(page);
     await mount(page, [rail('std', MAIL), rail('mod', MAIL, { variant: 'modal', open: false }), fixture('plain', [MENU, ...MAIL]), fixture('none', MAIL, { collapsible: true })], { reducedMotion: true });
     await wire(page);
@@ -1249,13 +1250,19 @@ test.describe('the collapsed form', () => {
     await expect(drawer(page, 'std')).not.toHaveAttribute('collapsed');
     await inner('std').click();
     expect(await log(page)).toEqual(['expandedchange:true:true:true', 'expandedchange:false:false:true']);
-    // Modal: the menu button opens it; open, it closes it.
+    // Modal: the menu button opens it; open, it closes it. In the column it names the drawer; open as its own modal
+    // dialog it names nothing, since the dialog keeps the drawer's host out of the accessibility tree.
+    const controlled = async (id: string) => (await controlledElements(inner(id)))?.map((each) => ('role' in each ? each.role : 'missing')) ?? null;
+    expect(await controlled('mod')).toEqual(['tanrei-navigation-drawer']);
     await page.evaluate(() => ((window as any).log.length = 0));
     await inner('mod').click();
     await expect(drawer(page, 'mod')).toHaveAttribute('open', '');
     await expect(inner('mod')).toHaveAttribute('aria-expanded', 'true');
+    expect(await controlled('mod')).toBeNull();
+    expect(await controlled('std')).toEqual(['tanrei-navigation-drawer']);
     await inner('mod').click();
     await expect(drawer(page, 'mod')).not.toHaveAttribute('open');
+    expect(await controlled('mod')).toEqual(['tanrei-navigation-drawer']);
     expect(await log(page)).toEqual(['expandedchange:true:false:true', 'close:false']);
     await expect.poll(() => seen.filter((w) => w.includes('NVD-37')).length).toBe(1);
   });
@@ -1856,7 +1863,7 @@ test.describe('the collapsed form', () => {
     await expect(groupRow(page, 'groups-nested', 3)).toBeDisabled();
   });
 
-  test('NVD-46: a group’s row is one button named by its label with aria-expanded and aria-controls; its items a list labelled by it; closed or collapsed, its items are neither exposed nor focusable; an empty label is reported', async ({ page }) => {
+  test('NVD-46: a group’s row is one button named by its label with aria-expanded and aria-controls; its items a list labelled by it; closed or collapsed, its items are neither exposed nor focusable and the row names nothing; an empty label is reported', async ({ page, browserName }) => {
     const seen = warnings(page);
     await mount(page, [...only('groups', 'collapsed-groups'), fixture('blank', [grp('', [d('a', 'A')], { icon: 'folder' })], { value: 'a' })], { reducedMotion: true });
     const projects = drawer(page, 'groups').getByRole('button', { name: 'Projects' });
@@ -1867,6 +1874,20 @@ test.describe('the collapsed form', () => {
     await expect(drawer(page, 'groups').getByRole('button', { name: '2025' })).toHaveCount(0);
     await expect(drawer(page, 'collapsed-groups').getByRole('button', { name: 'Website' })).toHaveCount(0);
     await expect(group(page, 'collapsed-groups', 0).locator('.items').first()).toHaveAttribute('inert', '');
+    // What a row names is its items' list while they are shown, exposed; closed, or the drawer collapsed, it names
+    // nothing — the items are not displayed or inert, and a reference to them would reach nothing.
+    expect(await controlledElements(projects)).toEqual([{ found: true, role: 'list', exposed: true }]);
+    const archive = drawer(page, 'groups').getByRole('button', { name: 'Archive' });
+    expect(await controlledElements(archive)).toBeNull();
+    expect(await controlledElements(group(page, 'collapsed-groups', 0).locator('#row'))).toBeNull();
+    if (browserName === 'chromium') expect(await controlledInTree(page, 'Projects', 'button')).toMatchObject([{ inTree: true, role: 'list', name: 'Projects' }]);
+    await archive.click();
+    await expect(archive).toHaveAttribute('aria-expanded', 'true');
+    expect(await controlledElements(archive)).toEqual([{ found: true, role: 'list', exposed: true }]);
+    if (browserName === 'chromium') expect(await controlledInTree(page, 'Archive', 'button')).toMatchObject([{ inTree: true, role: 'list', name: 'Archive' }]);
+    await archive.click();
+    await expect(archive).toHaveAttribute('aria-expanded', 'false');
+    expect(await controlledElements(archive)).toBeNull();
     await expect.poll(() => seen.filter((w) => w.includes('NVD-46')).length).toBe(1);
   });
 
