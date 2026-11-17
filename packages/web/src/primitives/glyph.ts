@@ -1,19 +1,10 @@
 import type { ReactiveController, ReactiveControllerHost } from 'lit';
 import { FacesWatch } from './faces.js';
+import { DRAWN_WIDTH } from './glyph-drawn-width.js';
 
-/**
- * A glyph of the icon set is a ligature: while its font is missing (still loading, failed, or never made available —
- * fonts are named, not bundled) the browser spells the glyph's name in a text face instead (CHK-19). A
- * ligature is one glyph, about one em wide; its name spelled out is several. A glyph is drawn while its ink is at most
- * `DRAWN_WIDTH` of its box (the box is one em: `iconGlyph()` sizes both from the icon size). The one answer on the web to
- * whether a glyph of the icon set can be drawn yet: the checkbox (CHK-19), the switch (SWT-17), the menu's check (MNU-30),
- * the snackbar's glyphs (SNK-26) and every other mark of the icon set use it.
- *
- * It assumes that a face that draws the ligature draws it no wider than `DRAWN_WIDTH` em, and that a fallback face
- * spells the name wider than that. That holds for Material Symbols and Material Icons; an icon font whose ligatures are
- * wider than their em box would read as not drawable.
- */
-export const DRAWN_WIDTH = 1.5;
+// Whether a glyph of the icon set can be drawn yet is read from its ink's width: at most `DRAWN_WIDTH` of its box
+// (glyph-drawn-width.ts says why, and why it is a module of its own).
+export { DRAWN_WIDTH };
 
 /** What was read of a glyph: whether the icon set can draw it now. */
 type Reading = readonly [glyph: HTMLElement, drawn: boolean];

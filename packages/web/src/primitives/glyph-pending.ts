@@ -1,5 +1,5 @@
 import { FacesWatch } from './faces.js';
-import { DRAWN_WIDTH } from './glyph.js';
+import { DRAWN_WIDTH } from './glyph-drawn-width.js';
 import { readTogether } from './read-phase.js';
 
 /**

@@ -2692,7 +2692,7 @@ function facesReady(): Promise<void> {
  * registers) that is not yet one glyph of its face, described as `<host> › <element> "<text>" …`:
  * - a run in a family the page has no loaded face of — drawn, if at all, from a fallback or from a copy of the font
  *   installed on the machine, which the Linux recorder does not have; hidden or not, it is not ready;
- * - a run whose ink is wider than 1.5 em (`DRAWN_WIDTH`, src/primitives/glyph.ts) and that is painted: its name spelled
+ * - a run whose ink is wider than 1.5 em (`DRAWN_WIDTH`, src/primitives/glyph-drawn-width.ts) and that is painted: its name spelled
  *   out. A glyph whose box clips it (a Button's 1 em icon box shows `ad` of `add`) is measured at its whole width. A
  *   spelled run that is hidden (`visibility: hidden`: a glyph its icon set cannot draw — a name the set does not
  *   have, `data-drawn`) draws nothing, which is what its component means.

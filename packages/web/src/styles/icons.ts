@@ -189,7 +189,8 @@ export function iconGlyph(on: string, tokens: { size: Property; selected: string
  * at one class's specificity, would otherwise override.
  */
 export const ICON_VISIBILITY = '--tanrei-icon-visibility';
-export const GLYPH_VISIBILITY = `visibility: var(${ICON_VISIBILITY}, inherit);`;
+/** The declaration a glyph's rule writes. Marked pure: a bundler keeps a template with a value in it, read or not. */
+export const GLYPH_VISIBILITY = /* @__PURE__ */ (() => `visibility: var(${ICON_VISIBILITY}, inherit);`)();
 
 /**
  * `@tanrei/web/icons.css`, written to dist/ by scripts/build.js. A function, not a constant: the template calls
