@@ -707,6 +707,7 @@ After the first full translation each language rendered some recurring terms in 
 | width classes: Compact, Medium, Expanded (the names `foundations/layout` gives them) | Compact, Medium, Expanded (Latin) | Compact, Medium, Expanded (Latin) | compacta, media, expandida | कॉम्पैक्ट, मीडियम, एक्सपैंडेड | مضغوطة (Compact)، متوسطة (Medium)، موسَّعة (Expanded) — ضيقة is "narrow" |
 | a new tab (of the browser) | · | · | pestaña nueva | नया टैब | تبويب جديد — علامة تبويب is the Tabs component's tab |
 | handle, thumb (slider, switch) | ハンドル | 手柄 on the Slider's page, 滑块 on a switch | tirador | हैंडल | المقبض |
+| bundle (what a bundler writes for production) | · | 打包产物 — distinct from 打包, which these pages use for packing a package into a file (npm pack) | bundle, kept in English (`tu bundle`) — «paquete» is the npm package | · | · |
 
 In Arabic, الشكل is *shape* only; a *variant* is الطراز, and the fixed heading is «اختيار الطراز».
 
