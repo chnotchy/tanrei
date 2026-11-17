@@ -64,7 +64,8 @@
 //   item-row    — the row of a column of items (list, menu): its states, paints, ripple and target height
 //   places      — fillPlaces(), placeFaults(), reportPlaces(): a word of the product's with places a component fills
 //                : how it is read, and what a debug build says of one that does not fit
-//   roving      — RovingKeys: the arrow keys, Home, End and typeahead of a column of items that is one tab stop
+//   roving      — RovingKeys: the arrow keys, Home, End and typeahead of a column of items that is one tab stop;
+//                 labelBegins(): how typeahead compares a typed text with a label, in the host's language
 //   interactive — findInteractive() / slottedInteractive(): what an action's content must not hold (CRD-15, LST-20)
 //                 answersPress(): what a hit area that reaches over other content yields a press to (TAB-5)
 //                 pressTakenWithin(): what a press inside an item's content belongs to instead of the item (ACC-36)
@@ -325,7 +326,7 @@ export { TARGET_CAPS, minimumTarget, neighbourTarget, rowTargets } from './targe
 export { type CutTextContent, CutTextTip, type CutTextTipOptions, type CutTextTooltip, isCut } from './cut-text.js';
 export { KeptLengths, keptLength, keptSpaces } from './kept-length.js';
 export { type ItemRowOptions, itemRowStyles, rowTarget } from './item-row.js';
-export { RovingKeys, type RovingItem, TYPEAHEAD_WINDOW } from './roving.js';
+export { type LabelBegins, RovingKeys, type RovingItem, TYPEAHEAD_WINDOW, labelBegins } from './roving.js';
 export { answersPress, findInteractive, pressTakenWithin, slottedInteractive } from './interactive.js';
 export { VisibilityController } from './visibility.js';
 export { cssZoom, layoutScale } from './layout-scale.js';

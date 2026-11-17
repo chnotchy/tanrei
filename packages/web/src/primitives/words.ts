@@ -125,8 +125,8 @@ export function missingWords(): WordKey[] {
 }
 
 /** The nearest `lang` attribute around `element`, through shadow roots, in lower case; empty where there is none. */
-function nearestLang(element: Element): string {
-  for (let at: Node | null = element; at; ) {
+export function nearestLang(element?: Element): string {
+  for (let at: Node | null | undefined = element; at; ) {
     if (at instanceof Element && at.hasAttribute('lang')) return at.getAttribute('lang')!.trim().toLowerCase();
     const root: Node = at.getRootNode();
     at = at instanceof Element && at.parentElement ? at.parentElement : root instanceof ShadowRoot ? root.host : null;

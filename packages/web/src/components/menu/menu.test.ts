@@ -12,6 +12,7 @@ import { type Fixture, type FixtureItem, acmeSystemCss, iconFaceArrives, loadSpe
 import { MIRRORED, anchorOf, expectDrawnAlike, expectNewContext, expectRefusals, markOf } from '../../../test/links.js';
 import { expectWheelKeptFromPage } from '../../../test/contained-wheel.js';
 import { holdClock, releaseClock } from '../../../test/page-clock.js';
+import { TYPEAHEAD_FOUND, TYPEAHEAD_LABELS, typeaheadByLanguage } from '../../../test/typeahead.js';
 import { decodePng } from '../../../test/png.js';
 import { clickCentre, heldPress } from '../../../test/watched-press.js';
 import { middlePressAimed } from '../../../test/middle-press.js';
@@ -958,6 +959,21 @@ test.describe('overlay', () => {
     // No tabindex other than the items': titles, groups and dividers take no focus.
     expect(await menu(page, 'view').evaluate((el) => [...el.querySelectorAll('[tabindex]')].map((e) => e.localName).filter((n) => !n.includes('item')))).toEqual([]);
     expect(await menu(page, 'view').evaluate((el) => el.shadowRoot!.querySelectorAll('[tabindex]').length)).toBe(0);
+  });
+
+  test('MNU-7: typeahead compares the typed characters with the labels as the menu’s language compares — without regard to case or to the marks on a letter, and with the letters that language tells apart (Turkish i and ı)', async ({ page }) => {
+    await mountFixtures(page, spec, { fixtures: [overlay('lang', TYPEAHEAD_LABELS.map((label) => it(label)), { lang: 'en' })] });
+    await wire(page);
+    await anchor(page, 'lang').focus();
+    await page.keyboard.press('Enter');
+    await expect.poll(() => focused(page)).toBe('Irmak');
+    const seen = await typeaheadByLanguage(
+      page,
+      (lang) => menu(page, 'lang').evaluate((el, l) => el.setAttribute('lang', l), lang),
+      () => focused(page),
+    );
+    expect(seen).toEqual(TYPEAHEAD_FOUND);
+    expect(await log(page)).toEqual([]);
   });
 
   test('MNU-8: a pointer moving onto an item moves focus there without the ring, drawn hovered; leaving the surface keeps it; the arrows continue from it', async ({ page }) => {

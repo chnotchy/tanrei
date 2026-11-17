@@ -5,6 +5,7 @@ import {
   type KeyboardConvention,
   PressController,
   RovingKeys,
+  labelBegins,
   SizeConsumerController,
   ambientConvention,
   chordPressed,
@@ -2439,6 +2440,7 @@ export class TanreiTreeView extends TanreiLightElement {
           return labelOf(row);
         },
       })),
+      labelBegins(this),
     );
     if (to === null) return;
     key.preventDefault();
