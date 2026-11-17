@@ -1,5 +1,5 @@
-// <tanrei-loading-indicator>, driven by specs/loading-indicator.spec.json: a test's title cites each behaviour
-// id it checks, every fixture has a baseline (recorded with reduced motion, LDG-4's verify, and with no show delay or
+// <tanrei-loading-indicator>, driven by specs/loading-indicator.spec.json: every behaviour id is cited by a
+// test title, every fixture has a baseline (recorded with reduced motion, LDG-4's verify, and with no show delay or
 // entrance, LDG-11's), and every length, color, duration and easing is read back from the tokens — never from a number
 // written here, except the per-instance times a test gives the element itself.
 // LDG-18: the product's ARIA on the host is tested with every other host's, in every engine, in
@@ -8,6 +8,8 @@ import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
 import { type Fixture, loadSpec, mountFixtures, resolveColor, resolveToken, tab, rootTokens } from '../../../test/harness.js';
 import { decodePng, paintedColor } from '../../../test/png.js';
+import { motionCount } from '../../../test/motions.js';
+import { transitionsRun, watchTransitions } from '../../../test/transitions.js';
 import { expectBaseline } from '../../../test/baseline.js';
 
 const spec = loadSpec('loading-indicator');
@@ -206,6 +208,50 @@ test.describe('behavior', () => {
     expect([near(right, color), near(left, color)]).toEqual([true, false]);
     const duration = await resolveToken(page, T('motion-cycle-duration'), 'duration');
     expect(await at(indicator(page, 'large'), duration / 4, 'rotate')).toBe('90deg');
+  });
+
+  test('LDG-17: the direction is the nearest ancestor’s — not the root’s and not a setting of the indicator’s own; when it changes while the indicator is shown it is drawn for the new direction at once, without a motion, keeping its place in its cycle', async ({ page }) => {
+    const of = (id: string) => spec.fixtures.find((f) => f.id === id)!;
+    const ids = ['rtl-large', 'rtl-contained'];
+    // The verify: the direction set on an ancestor inside the page (each fixture's stage), not on the root.
+    await mountFixtures(page, spec, { reducedMotion: false, fixtures: [{ ...of('large'), id: 'rtl-large', direction: 'rtl' }, { ...of('contained-large'), id: 'rtl-contained', direction: 'rtl' }] });
+    expect(await page.evaluate(() => document.documentElement.getAttribute('dir'))).toBeNull();
+    for (const id of ids) {
+      expect(await host(page, id).evaluate((el) => [el.getAttribute('dir'), el.matches(':dir(rtl)'), Object.keys((el.constructor as unknown as { properties: object }).properties).some((p) => /^dir|direction/i.test(p))]), id).toEqual([null, true, false]);
+      // Turning, some way into its cycle.
+      await expect.poll(async () => indicator(page, id).evaluate((el) => el.getAnimations().map((a) => [a.playState, Number(a.currentTime) > 0]).join()), id).toBe('running,true');
+    }
+    // Changed on the ancestors after the first render: in the same task, the turn is the same animation at the same
+    // time; in the frames drawn after it, it goes on from there, the only motion, and no transition starts.
+    for (const id of ids) await watchTransitions(host(page, id));
+    const kept = await page.evaluate(async (list) => {
+      const turns = list.map((id) => {
+        const el = document.querySelector(`[data-fixture="${id}"] tanrei-loading-indicator`)!;
+        const turn = el.shadowRoot!.querySelector('.indicator')!;
+        const [animation] = turn.getAnimations();
+        return { el, turn, animation, time: Number(animation.currentTime) };
+      });
+      for (const { el } of turns) el.closest('.stage')!.setAttribute('dir', 'ltr');
+      const now = turns.map(({ turn, animation, time }) => [getComputedStyle(turn).direction, turn.getAnimations().includes(animation), Number(animation.currentTime) - time]);
+      await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+      const later = turns.map(({ turn, animation, time }) => [turn.getAnimations().includes(animation), animation.playState, Number(animation.currentTime) >= time]);
+      return { now, later };
+    }, ids);
+    expect(kept).toEqual({ now: [['ltr', true, 0], ['ltr', true, 0]], later: [[true, 'running', true], [true, 'running', true]] });
+    for (const id of ids) {
+      expect(await transitionsRun(host(page, id)), `${id}: no transition`).toEqual([]);
+      expect(await motionCount(host(page, id)), `${id}: the turn alone moves`).toBe(1);
+      expect((await animations(indicator(page, id))).map((a) => a.name), id).toEqual(['ring-turn']);
+    }
+    // Drawn the same either way: clockwise from the top (LDG-8), in each direction it is given.
+    const color = await paintedColor(page, `var(${T('indicator-color')})`);
+    const clockwise = async (id: string) => {
+      const [right, left] = await arcAt(page, id, [0.12, 0.88]);
+      return [near(right, color), near(left, color)];
+    };
+    expect(await clockwise('rtl-large'), 'left-to-right').toEqual([true, false]);
+    await stage(page, 'rtl-large').evaluate((el) => el.setAttribute('dir', 'rtl'));
+    expect(await clockwise('rtl-large'), 'right-to-left').toEqual([true, false]);
   });
 
   test('LDG-9: a size the active system does not have renders with medium’s tokens and is reported; a size a layer adds renders from its tokens', async ({ page }) => {
