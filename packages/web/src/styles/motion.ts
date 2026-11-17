@@ -82,8 +82,11 @@ export const REDUCED_MOTION_MEDIA = '(prefers-reduced-motion: reduce)';
 export const REDUCED_MOTION_ATTRIBUTE = 'data-tanrei-motion';
 /** The attribute's one value: there is none that turns motion back on against the person's setting. */
 export const REDUCED_MOTION_VALUE = 'reduce';
-/** The style container query of the root's `--tanrei-motion`, which the tokens set from either. */
-export const REDUCED_MOTION_STYLE = `style(--tanrei-motion: ${REDUCED_MOTION_VALUE})`;
+/**
+ * The style container query of the root's `--tanrei-motion`, which the tokens set from either. Marked pure: a bundler
+ * keeps a template with a value in it even where nothing reads it, as it cannot tell that writing the value is harmless.
+ */
+export const REDUCED_MOTION_STYLE = /* @__PURE__ */ (() => `style(--tanrei-motion: ${REDUCED_MOTION_VALUE})`)();
 
 /**
  * The rules a component draws where motion is reduced (MOT-6) — only what is particular to it. They are written under

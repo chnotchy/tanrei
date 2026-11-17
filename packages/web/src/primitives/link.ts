@@ -169,9 +169,10 @@ class LinkAttributesDirective extends Directive {
  * The anchor's attributes, written on the element it is placed on: `<a ${linkAttributes(form)}>`. With a form it owns
  * `href`, `target` (`_blank` for a new context), `rel` (D6), `download`, `role` (none, or the one the form keeps) and
  * — for a disabled link (D9) — `role="link"` and `aria-disabled="true"` in place of the first four. With `null` it touches nothing, so one template can draw the
- * component's native element and its anchor.
+ * component's native element and its anchor. Marked pure (making a directive runs nothing), so that a bundle that never
+ * writes it drops it.
  */
-export const linkAttributes = directive(LinkAttributesDirective);
+export const linkAttributes = /* @__PURE__ */ directive(LinkAttributesDirective);
 
 export interface LinkOptions {
   /**
