@@ -1,5 +1,5 @@
 /*
- * Previous and next links (specs/previous-next-links.spec.json, PNL-1 to PNL-22): the page before and the page
+ * Previous and next links (specs/previous-next-links.spec.json): the page before and the page
  * after the one a person is on — two links, each pressed as a whole and drawn as an outlined card with the title of
  * where it leads and the component's own arrow. Classes on the product's own elements, not an element: the anchors
  * are in the document, so they are links before any script runs (PNL-2).

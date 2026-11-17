@@ -1,5 +1,5 @@
 /*
- * Tree view (specs/tree-view.spec.json, TRV-1 to TRV-42): a hierarchy of items that open and
+ * Tree view (specs/tree-view.spec.json): a hierarchy of items that open and
  * close — rows that begin further in at each level, a chevron at the start of every row that holds others.
  *
  * `<tanrei-tree-view>` is an element with no shadow root around the product's own nested lists, which stay in the

@@ -1,5 +1,5 @@
 /*
- * Steps (specs/steps.spec.json, STP-1 to STP-20): a procedure to read and carry out somewhere else —
+ * Steps (specs/steps.spec.json): a procedure to read and carry out somewhere else —
  * each step a ring with its number, an optional title and a body of the product's content, joined to the next by a
  * hairline. A class on the product's own ordered list, not an element: the list is the document's list before any
  * script runs, and without this stylesheet it is the browser's numbered list.

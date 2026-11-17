@@ -1,5 +1,5 @@
 /*
- * Table of contents (specs/table-of-contents.spec.json, TOC-1 to TOC-42): the headings
+ * Table of contents (specs/table-of-contents.spec.json): the headings
  * of the page being read as links to them, sub-headings set in under their heading, the one being read marked.
  *
  * `<tanrei-table-of-contents>` is an element around the product's own nested list of anchors, which stay in the

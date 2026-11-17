@@ -1,5 +1,5 @@
 /*
- * Timeline (specs/timeline.spec.json, TML-1 to TML-22): events in the order of time — each a marker at
+ * Timeline (specs/timeline.spec.json): events in the order of time — each a marker at
  * the start edge, its time, a title and a body of the product's content, joined to the next by a hairline — and, where
  * the events have one, a status told by the marker's shape and in words. A class on the product's own ordered list,
  * not an element: the list is the document's list, with its `<time>` elements, before any script runs, and without

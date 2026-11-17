@@ -1,5 +1,5 @@
 /*
- * Accordion (specs/accordion.spec.json, ACC-1 to ACC-35): content that a row shows and hides in
+ * Accordion (specs/accordion.spec.json): content that a row shows and hides in
  * place — one item is a single disclosure, several are a set.
  *
  * `<tanrei-accordion>` is an element with no shadow root around the product's own native `details` elements, which
