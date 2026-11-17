@@ -116,7 +116,7 @@
     {
       "id": "BDG-15",
       "text": "THE badge SHALL take its layout direction from where it is used — the direction of the nearest ancestor that sets one, and the platform's own where none does — and SHALL have no direction setting of its own; WHEN that direction changes while the badge is shown THE badge SHALL draw itself for the new direction at once, without a motion of its own, keeping what it shows and its state.",
-      "verify": "Test with the direction set on an ancestor inside the page or the view tree, not on the root, and again changed after the first render. On the web the test is owed with the other right-to-left tests."
+      "verify": "Test with the direction set on an ancestor inside the page or the view tree, not on the root, and again changed after the first render."
     },
     {
       "id": "BDG-16",
