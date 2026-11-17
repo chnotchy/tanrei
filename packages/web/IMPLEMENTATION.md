@@ -6621,7 +6621,8 @@ as `<tanrei-dialog>` is: the top layer, `::backdrop` as the scrim, everything el
 trapped, centred at least `modal.container.margin` from the edges and above the on-screen keyboard; it appears as every
 modal surface does (`appearStyles()` and `AppearController`, role modal, from its centre: `sys.motion.appear.*` over the
 modal open and close motions, turned round from what it shows, at once before the first paint) and only fades where
-motion is reduced. A docked picker is a manual popover
+motion is reduced, its scrim with it, over `sys.motion.role.reduced` (`sheetScrimStyles()`, src/primitives/scrim.ts).
+A docked picker is a manual popover
 placed by script with the menu's `placeMenu()` (`src/primitives/placement.ts`): `docked.offset` below its
 anchor with the start edges aligned, flipped above when there is more room there, shifted to stay
 `docked.viewport-margin` inside the visible part of the window (above an on-screen keyboard), its height limited to the room, following the anchor (by events, `FollowController`); it
