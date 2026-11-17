@@ -885,8 +885,7 @@ export class TanreiChatComposer extends ComposedElement implements PlacingGroup 
   };
 
   /** The browser's picker closed with a choice: one arrival, told once. CCM-25: with a file kept or handed over, focus goes to the typing area. */
-  private readonly onArrival = (event: Event) => {
-    event.stopPropagation();
+  private readonly onArrival = () => {
     const { accepted, refused } = this.arriving;
     this.arriving = { accepted: [], refused: [] };
     if (this.isDisabled || (!accepted.length && !refused.length)) return;

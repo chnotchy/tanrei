@@ -678,8 +678,7 @@ export class TanreiFileUpload extends ComposedElement implements PlacingGroup {
   };
 
   /** FUP-57: the arrival is over — one choice is told once, by the file upload's own events. */
-  private readonly onArrival = (event: Event) => {
-    event.stopPropagation();
+  private readonly onArrival = () => {
     const { accepted, refused } = this.arriving;
     this.arriving = { accepted: [], refused: [] };
     if (this.isDisabled || (!accepted.length && !refused.length)) return;
