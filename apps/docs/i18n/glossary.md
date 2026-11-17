@@ -1204,6 +1204,8 @@ The later component pages, from what the pages say.
 | placeholder (a skeleton's shape) | `العنصر النائب`, plural `العناصر النائبة` — `النص النائب` stays a field's placeholder |
 | exposed (to assistive technology) / kept from it | `يُعرَض للتقنيات المساعدة`, always with its complement / `يُحجب عن التقنيات المساعدة` |
 | "What you write" (heading); "Use for" / "Draws" (a table's headers) | `ما تكتبه`; `يُستخدم لـ` / `ما يرسمه` |
+| bundle (what a bundler writes for production) / bundler | `الملف المجمَّع (bundle)` on the page's first mention, then `الملف المجمَّع` — not `الحزمة`, which is the npm package / `المُحزِّم` |
+| virtualization (drawing only the items in view) | `العرض الافتراضي (virtualization)` — a different thing from a screen reader's virtual cursor, `المؤشر الافتراضي (virtual cursor)` |
 
 ### Terms of the One-time-code input, the File upload and the code field (Arabic)
 
