@@ -7,7 +7,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
-import { type Fixture, iconFaceArrives, loadSpec, mountFixtures, resolveColor, resolveToken, tab, tabTo, withoutIconFont, rootTokens } from '../../../test/harness.js';
+import { type Fixture, iconFaceArrives, loadSpec, missingWords, mountFixtures, resolveColor, resolveToken, setWords, tab, tabTo, withoutIconFont, rootTokens } from '../../../test/harness.js';
 import { motionCount, motionEnded } from '../../../test/motions.js';
 import { type Frame, type Frames, type Probe, expectAnimated, expectFirstFrameAtRest, expectNoFlicker, freezeFirstFrame, sampleFrames } from '../../../test/frames.js';
 import { resolveEasing } from '../../../test/appear.js';
@@ -1797,6 +1797,18 @@ test.describe('behavior', () => {
     expect(of('all')).toContain('is ignored while status is default');
     // A callout that has what it needs reports nothing: four reports, one for each of the four above.
     expect(seen.filter((w) => w.includes('CLO-31'))).toHaveLength(4);
+  });
+
+  test('CLO-31: a close button named by no one is the missing word closeLabel — reported once for the page however many callouts lack it, naming close-label and the product’s words, and named once the product gives the word', async ({ page }) => {
+    const seen = warnings(page);
+    await mount(page, [fx('a', { closable: true }, 'Search now covers the release notes.'), fx('b', { closable: true }, 'The package is not on the registry yet.')]);
+    await expect(close(page, 'a')).toBeVisible();
+    await expect(close(page, 'b')).toBeVisible();
+    expect(seen.filter((w) => w.includes('CLO-31'))).toEqual([expect.stringMatching(/<tanrei-callout>: close-label is empty and the product's words have no closeLabel: the close button has no accessible name; .*setWords\(\) \(CLO-31\)/)]);
+    expect(await missingWords(page)).toContain('closeLabel');
+    await setWords(page, { closeLabel: 'Close' });
+    await expect(page.getByRole('button', { name: 'Close', exact: true })).toHaveCount(2);
+    expect(await missingWords(page)).not.toContain('closeLabel');
   });
 });
 
