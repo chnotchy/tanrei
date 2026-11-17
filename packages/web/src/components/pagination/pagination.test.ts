@@ -7,6 +7,7 @@ import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
 import { clickCentre, heldPress } from '../../../test/watched-press.js';
 import { type Fixture, acmeSystemCss, loadSpec, missingWords, mountFixtureAsInAll, mountFixtures, resolveColor, resolveToken, rootTokens, setWords, tab, tabTo } from '../../../test/harness.js';
+import { pressHoldAsRun } from '../../../test/harsh.js';
 import { withoutFocusVisibleOption } from '../../../test/focus-visible-option.js';
 import { expectKeyPressOutlastsPointer } from '../../../test/key-press-pointer-leaves.js';
 import { settledCss } from '../../../test/motions.js';
@@ -691,7 +692,7 @@ test.describe('states', () => {
     ] as const) {
       await mountFixtures(page, spec, { icons: true, fixtures: [fx('p', { href })] });
       const hold = await resolveToken(page, '--tanrei-sys-motion-duration-press-hold', 'duration');
-      expect(hold, name).toBe(100);
+      expect(hold, name).toBe(pressHoldAsRun(100));
       await control(page, 'p', 'next').focus();
       await control(page, 'p', 'next').evaluate((el) => {
         const log: { down?: number; on?: number; off?: number; up?: number; change?: number } = ((window as any).press = {});

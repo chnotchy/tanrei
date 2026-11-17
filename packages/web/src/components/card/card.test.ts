@@ -7,6 +7,7 @@ import fs from 'node:fs';
 import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
 import { type Fixture, acmeSystemCss, loadSpec, mountFixtures, resolveColor, resolveToken, tab, tabTo, rootTokens } from '../../../test/harness.js';
+import { pressHoldAsRun } from '../../../test/harsh.js';
 import { transitionsRun, watchTransitions } from '../../../test/transitions.js';
 import { anchorOf as linkAnchor, expectDisabledLink, expectDrawnAlike, expectLinkActivation, expectNewContext, expectRefusals, expectTargetLabel, painted, settledPaint } from '../../../test/links.js';
 import { decodePng } from '../../../test/png.js';
@@ -474,7 +475,7 @@ test.describe('press, feedback, corners and focus style', () => {
 
   test('CRD-8: a press that ends within a frame — Enter, Space, a click — is shown at once and for at least press-hold', async ({ page }) => {
     const hold = await resolveToken(page, '--tanrei-sys-motion-duration-press-hold', 'duration');
-    expect(hold).toBe(100);
+    expect(hold).toBe(pressHoldAsRun(100));
     const id = 'outlined-interactive';
     for (const [name, activate] of [
       ['Enter', () => page.keyboard.press('Enter')],

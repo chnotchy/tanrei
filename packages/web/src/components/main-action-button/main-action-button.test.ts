@@ -6,6 +6,7 @@
 import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
 import { type Fixture, acmeSystemCss, loadSpec, mountFixtures, resolveColor, resolveToken, tab, tabTo, rootTokens } from '../../../test/harness.js';
+import { pressHoldAsRun } from '../../../test/harsh.js';
 import { transitionsRun, watchTransitions } from '../../../test/transitions.js';
 import { decodePng } from '../../../test/png.js';
 import { opticalSize } from '../../../test/icons.js';
@@ -702,7 +703,7 @@ test.describe('press, feedback, corners and focus style', () => {
 
   test('MAB-8: a press that ends within a frame — Enter, Space, a click — is shown at once and for at least press-hold', async ({ page }) => {
     const hold = await resolveToken(page, '--tanrei-sys-motion-duration-press-hold', 'duration');
-    expect(hold).toBe(100);
+    expect(hold).toBe(pressHoldAsRun(100));
     // The keys first, the clicks last: after a click WebKit takes the page for a pointer's — across a new document —
     // and neither draws a scripted focus() as keyboard focus nor moves focus by Tab.
     for (const name of ['Enter', 'Space', 'click'] as const) {

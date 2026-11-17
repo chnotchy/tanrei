@@ -7,6 +7,7 @@ import fs from 'node:fs';
 import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
 import { type Fixture, acmeSystemCss, loadSpec, mountFixtures, presetFontFaces, resolveColor, resolveToken, tab, tabTo, rootTokens } from '../../../test/harness.js';
+import { pressHoldAsRun } from '../../../test/harsh.js';
 import { RATIOS, atRatio, endMotion, holdMotionAt, paintedBehind, shoot, stageBehind, worst } from '../../../test/one-shape.js';
 import { decodePng } from '../../../test/png.js';
 import { opticalSizeAxis } from '../../../test/icons.js';
@@ -463,7 +464,7 @@ test.describe('press, feedback, corners and focus style', () => {
 
   test('CHK-9: a press that ends within a frame — Space, a click — is shown at once and for at least press-hold', async ({ page }) => {
     const hold = await resolveToken(page, '--tanrei-sys-motion-duration-press-hold', 'duration');
-    expect(hold).toBe(100);
+    expect(hold).toBe(pressHoldAsRun(100));
     for (const [name, activate] of [
       ['Space', () => page.keyboard.press('Space')],
       ['click', () => clickCentre(page, container(page, 'unselected'))],

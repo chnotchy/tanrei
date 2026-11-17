@@ -5,6 +5,7 @@
 import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
 import { type Fixture, type FixtureItem, type Spec, acmeSystemCss, mountFixtures, resolveColor, resolveToken, tab, tabTo, rootTokens } from './harness.js';
+import { pressHoldAsRun } from './harsh.js';
 import { opticalSize } from './icons.js';
 import { motionEnded } from './motions.js';
 import { expectBaseline } from './baseline.js';
@@ -314,7 +315,7 @@ export function destinationSuite({ spec, tag, itemTag, ids, lines, range, own = 
       expect(await (async () => {
         await mount(page, spec.fixtures.filter((f) => f.id === 'four-destinations'));
         return resolveToken(page, '--tanrei-sys-motion-duration-press-hold', 'duration');
-      })()).toBe(100);
+      })()).toBe(pressHoldAsRun(100));
       const hold = 1000;
       for (const [name, activate] of [
         ['Enter', () => page.keyboard.press('Enter')],

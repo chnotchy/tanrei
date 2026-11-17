@@ -4,6 +4,7 @@ import fs from 'node:fs';
 import AxeBuilder from '@axe-core/playwright';
 import { type Page, expect, test } from '@playwright/test';
 import { type Fixture, acmeSystemCss, loadSpec, mountFixtures, resolveColor, resolveToken, tab, tabTo, rootTokens } from '../../../test/harness.js';
+import { pressHoldAsRun } from '../../../test/harsh.js';
 import { atRatio, shoot, stageBehind } from '../../../test/one-shape.js';
 import { expectKeyPressOutlastsPointer } from '../../../test/key-press-pointer-leaves.js';
 import { holdClock, releaseClock } from '../../../test/page-clock.js';
@@ -377,7 +378,7 @@ test.describe('behavior', () => {
   });
 
   test('SPB-9: a press on either half that ends within a frame is shown at once and for at least press-hold', async ({ page }) => {
-    expect(await resolveToken(page, '--tanrei-sys-motion-duration-press-hold', 'duration')).toBe(100);
+    expect(await resolveToken(page, '--tanrei-sys-motion-duration-press-hold', 'duration')).toBe(pressHoldAsRun(100));
     const hold = 1000;
     for (const [half, activate] of [
       ['leading', async () => leading(page, 'filled-medium').click()],

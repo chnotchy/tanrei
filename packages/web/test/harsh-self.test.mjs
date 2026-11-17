@@ -12,7 +12,10 @@
 // loaded machine may take longer than the race allows — the race notes in the page whether the timing it takes for
 // granted held (the hold had not ended by the read, the frame had come by it), and says so when it did not
 // (test/harsh/self/late.ts). It ends "late" when it said so, whether it then failed or passed: with harsh mode off it
-// must pass or be late, never fail otherwise, and where harsh mode makes it lose it must be late. The races that read
+// must pass or be late, never fail otherwise, and where harsh mode makes it lose it must be late. One race is the
+// other way round: it reads a state as over (a resting look while press-hold still runs), so a fast machine loses it
+// too, with harsh mode off it fails or is late, and harsh mode must make it fail, never let it win
+// (test/harsh/self/press-hold.self.ts). The races that read
 // late are listed in the run's diagnostics, and so is the error of every test that ended other than the table says.
 //
 //   node --test test/harsh-self.test.mjs        (part of `test:node`; the browsers Playwright installed are needed)
@@ -31,6 +34,9 @@ const CHROMIUM_ONLY_FAILS = { chromium: 'failed', firefox: 'passed', webkit: 'pa
 /** A race that nothing makes lose, whose read a loaded machine may still make late. */
 const ON_TIME_OR_LATE = 'passed or late';
 
+/** A race that a fast machine loses as well, and whose read a loaded machine may make late enough to win. */
+const FAILED_OR_LATE = 'failed or late';
+
 /**
  * How each test ends, by run and engine — 'passed', 'failed', 'late' (a race that failed saying it read late) or
  * 'skipped', or either of two as 'a or b' — for all three, or one per engine. The runs: `plain` (harsh mode off),
@@ -43,6 +49,12 @@ const EXPECTED = {
   'sound: a press-hold read while the pointer holds it': { plain: 'passed', harsh: 'passed' },
   'check: the self-check refuses gaps shorter than it was told to expect': { plain: 'skipped', harsh: 'passed' },
   'check: the self-check passes the gaps the run gives': { plain: 'skipped', harsh: 'passed' },
+  // A race the other way round: a fast machine loses it as well (the read comes within the hold), and a loaded one wins
+  // it. Harsh mode must not let it win: press-hold outlasts the gap after the click.
+  'race: the resting look read as soon as the click returns, before press-hold has ended': { plain: FAILED_OR_LATE, harsh: 'failed' },
+  'sound: the resting look waited for after the click': { plain: 'passed', harsh: 'passed' },
+  'sound: a test reads press-hold as the run makes it': { plain: 'passed', harsh: 'passed' },
+  'check: the self-check refuses a press-hold longer than the run makes it': { plain: 'skipped', harsh: 'passed' },
   // Firefox and WebKit play motion at its own speed unless asked (TANREI_HARSH_PAGE_MOTION=1): a motion race passes there.
   'race: a fade read once, a while after the click that starts it': { plain: 'passed', harsh: CHROMIUM_ONLY_FAILS, options: 'failed' },
   'race: a fade in a shadow root read once, a while after the click that starts it': { plain: 'passed', harsh: CHROMIUM_ONLY_FAILS, options: 'failed' },
@@ -147,7 +159,7 @@ function check(t, mode, env) {
   assert.deepEqual(seen, want);
 }
 
-test('harsh mode: its own tests end as they must with it off — every race passes or reads late', (t) => {
+test('harsh mode: its own tests end as they must with it off — every race ends as a fast machine leaves it, or reads late', (t) => {
   check(t, 'plain', {});
 });
 

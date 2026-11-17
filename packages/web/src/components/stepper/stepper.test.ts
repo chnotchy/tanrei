@@ -22,6 +22,7 @@ import {
   tabTo,
   withoutIconFont,
 } from '../../../test/harness.js';
+import { pressHoldAsRun } from '../../../test/harsh.js';
 import { holdClock, releaseClock } from '../../../test/page-clock.js';
 import { clickCentre, heldPress } from '../../../test/watched-press.js';
 import { motionCount, motionEnded, settledCss } from '../../../test/motions.js';
@@ -428,7 +429,7 @@ test.describe('pressing a step', () => {
     ] as const) {
       await mountFixtures(page, spec, { icons: true, fixtures: [fx('pressable-visited')] });
       const hold = await resolveToken(page, '--tanrei-sys-motion-duration-press-hold', 'duration');
-      expect(hold, name).toBe(100);
+      expect(hold, name).toBe(pressHoldAsRun(100));
       await step(page, 'pressable-visited', 0).focus();
       await btn(page, 'pressable-visited', 0).evaluate((el) => {
         const log: { down?: number; on?: number; off?: number; up?: number } = ((window as any).press = {});

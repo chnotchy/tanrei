@@ -3,6 +3,7 @@
 import AxeBuilder from '@axe-core/playwright';
 import { expect, test } from '@playwright/test';
 import { type Fixture, acmeSystemCss, loadSpec, mountFixtures, resolveColor, resolveToken, tab, tabTo, rootTokens } from '../../../test/harness.js';
+import { pressHoldAsRun } from '../../../test/harsh.js';
 import { axTree } from '../../../test/ax-tree.js';
 import { opticalSize } from '../../../test/icons.js';
 import { motionEnded } from '../../../test/motions.js';
@@ -400,7 +401,7 @@ test.describe('press, feedback, corners and focus style', () => {
 
   test('BTN-8: a press that ends within a frame — Enter, Space, a click — is shown at once and for at least press-hold', async ({ page }) => {
     const hold = await resolveToken(page, '--tanrei-sys-motion-duration-press-hold', 'duration');
-    expect(hold).toBe(100);
+    expect(hold).toBe(pressHoldAsRun(100));
     const down = await resolveColor(page, '--tanrei-comp-button-filled-pressed-container-color');
     const activations: [string, () => Promise<void>][] = [
       ['Enter', () => page.keyboard.press('Enter')],
@@ -440,7 +441,7 @@ test.describe('press, feedback, corners and focus style', () => {
     await mountFixtures(page, spec);
     await rootTokens(page, { '--tanrei-dial-motion-unit': '150ms' });
     const longer = await resolveToken(page, '--tanrei-sys-motion-duration-press-hold', 'duration');
-    expect(longer).toBe(300);
+    expect(longer).toBe(pressHoldAsRun(300));
     await page.locator(button('filled-medium')).focus();
     await watchPress(page, 'filled-medium');
     await page.keyboard.press('Enter');
