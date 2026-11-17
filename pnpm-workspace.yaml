@@ -30,5 +30,12 @@ minimumReleaseAgeExclude:
   - '@turbo/windows-64@2.11.2'
   - '@turbo/windows-arm64@2.11.2'
   - turbo@2.11.2
+# Security fixes no direct dependency reaches yet, each scoped to the vulnerable range so other lines are untouched.
+# react-native-builder-bob asks for glob ^13, whose fixes (GHSA-3g3m-2fjr-6pw4, and minimatch's GHSA-g3hv-75wg-m249)
+# are only in glob 14 and minimatch 11; bob calls only `glob(pattern, { cwd, absolute, nodir, ignore })`, which glob 14
+# keeps. Remove these once bob depends on glob 14.
+overrides:
+  glob@>=9.0.0 <14.0.2: ^14.0.2
+  minimatch@>=7.0.0 <11.0.1: ^11.0.1
 patchedDependencies:
   '@terrazzo/parser@2.7.1': patches/@terrazzo__parser@2.7.1.patch
