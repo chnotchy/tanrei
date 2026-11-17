@@ -7,6 +7,7 @@ import {
   GlyphDrawnController,
   GlyphMirrorController,
   MirrorWordController,
+  hearsMirrorWord,
   LINK_MARK,
   LinkController,
   PressController,
@@ -817,6 +818,7 @@ export class TanreiFileItem extends TanreiElement {
   }
 }
 
+hearsMirrorWord(TanreiFileItem);
 if (!customElements.get('tanrei-file-item')) customElements.define('tanrei-file-item', TanreiFileItem);
 
 declare global {

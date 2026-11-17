@@ -9,6 +9,7 @@ import {
   GlyphDrawnController,
   GlyphMirrorController,
   MirrorWordController,
+  hearsMirrorWord,
   OpenAxesController,
   PressController,
   RovingKeys,
@@ -711,6 +712,7 @@ export class TanreiFabMenu extends TanreiElement {
 
 // FBM-28: an item's host carries its role, and holds the product's name while its label names it.
 holdsProductName(TanreiFabMenuItem);
+hearsMirrorWord(TanreiFabMenuItem);
 if (!customElements.get('tanrei-fab-menu-item')) customElements.define('tanrei-fab-menu-item', TanreiFabMenuItem);
 // `autofocus` on it gives it focus when the page first loads too (src/primitives/autofocus.ts).
 focusedAtFirst(TanreiFabMenu);
