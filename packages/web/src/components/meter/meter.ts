@@ -2,13 +2,13 @@ import { type PropertyDeclarations, type PropertyValues, html } from 'lit';
 import {
   AvailabilityController,
   DIRECTION_PROBE,
-  DirectionController,
   OpenAxesController,
   SEPARATION_VALUES,
   type SeparationProp,
   SystemWatchController,
   hostAria,
   rangeClasses,
+  rangeDirection,
   rangeOf,
   renderRangeBar,
   renderRangeRing,
@@ -107,17 +107,8 @@ export class TanreiMeter extends TanreiElement {
   /** MTR-4: where a browser has no style queries, the separation is read when it renders — again when the system is switched. */
   private readonly system = new SystemWatchController(this);
 
-  /**
-   * MTR-13: a change of direction is drawn at once. The bar's ends are logical insets, so a flip of direction moves a
-   * physical inset from one value to another — which the value's transition would run (the track after a gap goes from
-   * `right: 0` to its start). When the direction changes, before the frame is painted, the transitions it started are
-   * finished.
-   */
-  private readonly direction = new DirectionController(this, () => {
-    for (const animation of this.renderRoot.querySelector('.bar')?.getAnimations({ subtree: true }) ?? []) {
-      if (animation instanceof CSSTransition) animation.finish();
-    }
-  });
+  /** MTR-13: a change of direction is drawn at once, with no value transition run by the flip (src/primitives/range-track.ts). */
+  private readonly direction = rangeDirection(this);
 
   /** MTR-10: the value as drawn — min while it is not a finite number. */
   private get drawnValue(): number {

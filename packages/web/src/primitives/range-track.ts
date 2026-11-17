@@ -1,8 +1,9 @@
-import { type CSSResult, type TemplateResult, css, html, nothing, svg, unsafeCSS } from 'lit';
+import { type CSSResult, type ReactiveControllerHost, type TemplateResult, css, html, nothing, svg, unsafeCSS } from 'lit';
 import { classMap } from 'lit/directives/class-map.js';
 import { styleMap } from 'lit/directives/style-map.js';
 import { cornerRadius, shape } from '../styles/shape.js';
 import { arcStyles } from './arc.js';
+import { DirectionController } from './direction.js';
 import type { OpenAxis } from './axes.js';
 import { separationHost, whenGap } from './separation.js';
 import { reducedMotion } from '../styles/motion.js';
@@ -58,6 +59,21 @@ export const rangeClasses = (fraction: number, determinate = true) => ({
   empty: determinate && fraction === 0,
   full: determinate && fraction === 1,
 });
+
+/**
+ * A change of direction is drawn at once (PRG-16, MTR-13). The bar's ends are logical insets, so a flip of direction
+ * moves a physical inset from one value to another — which the value's transition would run (the track after a gap
+ * goes from `right: 0` to its start, and the whole track under the indicator starts one of its own). When the
+ * direction changes, before the frame is painted, the transitions it started are finished. The component renders
+ * `DIRECTION_PROBE` beside its drawing and includes `directionProbeStyles`.
+ */
+export function rangeDirection(host: ReactiveControllerHost & HTMLElement & { readonly renderRoot: HTMLElement | DocumentFragment }): DirectionController {
+  return new DirectionController(host, () => {
+    for (const animation of host.renderRoot.querySelector('.bar')?.getAnimations({ subtree: true }) ?? []) {
+      if (animation instanceof CSSTransition) animation.finish();
+    }
+  });
+}
 
 /** The bar: the track twice (both forms), the indicator and — when `stop` — the stop indicator. */
 export function renderRangeBar(classes: Record<string, boolean>, fraction: number, stop: boolean): TemplateResult {
