@@ -213,11 +213,13 @@ export class GlyphMirrorController implements ReactiveController {
  * ```
  *
  * The host renders again when the word changes on the element that names the glyph. That element is the host unless
- * `namedBy` says otherwise (a menu item draws the mark its group names); it is asked again after every render.
+ * `namedBy` says otherwise (a menu item draws the mark its group names); it is asked again after every render. The
+ * element's class hears the attribute (`hearsMirrorWord()`, called once before the class is defined): no observer is
+ * made per element, so a list of a hundred items costs nothing until a word changes.
  */
 export class MirrorWordController implements ReactiveController {
-  private readonly observer = typeof MutationObserver === 'undefined' ? null : new MutationObserver(() => this.host.requestUpdate());
-  private observed: Element | null = null;
+  private heardOn: Element | null = null;
+  private readonly refresh = () => this.host.requestUpdate();
 
   constructor(
     private readonly host: Host,
@@ -227,16 +229,15 @@ export class MirrorWordController implements ReactiveController {
   }
 
   hostConnected() {
-    this.watch();
+    this.listen();
   }
 
   hostDisconnected() {
-    this.observer?.disconnect();
-    this.observed = null;
+    this.listen(null);
   }
 
   hostUpdated() {
-    this.watch();
+    this.listen();
   }
 
   /** What to write as `data-mirror` on a box that draws the glyph: the product's word, or nothing (`auto`). */
@@ -244,13 +245,45 @@ export class MirrorWordController implements ReactiveController {
     return mirrorWordOf(this.namedBy());
   }
 
-  private watch() {
-    const element = this.host.isConnected ? this.namedBy() : null;
-    if (element === this.observed) return;
-    this.observer?.disconnect();
-    this.observed = element;
-    if (element) this.observer?.observe(element, { attributes: true, attributeFilter: [MIRROR] });
+  private listen(element: Element | null = this.host.isConnected ? this.namedBy() : null) {
+    if (element === this.heardOn) return;
+    if (this.heardOn) listeners.get(this.heardOn)?.delete(this.refresh);
+    this.heardOn = element;
+    if (!element) return;
+    let each = listeners.get(element);
+    if (!each) listeners.set(element, (each = new Set()));
+    each.add(this.refresh);
   }
+}
+
+/** For each element that names a glyph, what renders again when its word changes. */
+const listeners = new WeakMap<Element, Set<() => void>>();
+
+type Hearing = { prototype: HTMLElement; observedAttributes?: string[] };
+
+/**
+ * Makes the elements of a class that names glyphs — a tab, a switch, a menu item, a menu group — hear `data-mirror`:
+ * it becomes one of the class's observed attributes, and a change of it renders again every host whose
+ * `MirrorWordController` reads the element. Call it once for the class, before it is defined. A subclass of a class
+ * that hears it hears it too.
+ */
+export function hearsMirrorWord(element: Hearing): void {
+  let observed: PropertyDescriptor | undefined;
+  for (let at: object | null = element; at && !observed; at = Object.getPrototypeOf(at)) observed = Object.getOwnPropertyDescriptor(at, 'observedAttributes');
+  if (((observed?.get?.call(element) as string[] | undefined) ?? []).includes(MIRROR)) return;
+  Object.defineProperty(element, 'observedAttributes', {
+    configurable: true,
+    get(this: unknown) {
+      return [...((observed?.get?.call(this) as string[] | undefined) ?? []), MIRROR];
+    },
+  });
+  // The element's own reaction to its attributes stays first; the word's comes after it.
+  const prototype = element.prototype as HTMLElement & { attributeChangedCallback?(name: string, old: string | null, value: string | null): void };
+  const own = prototype.attributeChangedCallback;
+  prototype.attributeChangedCallback = function (this: HTMLElement, name: string, old: string | null, value: string | null) {
+    own?.call(this, name, old, value);
+    if (name === MIRROR && old !== value) for (const refresh of listeners.get(this) ?? []) refresh();
+  };
 }
 
 /** The product's word that `element` carries for the glyphs it names, as `MirrorWordController.word` gives it. */
