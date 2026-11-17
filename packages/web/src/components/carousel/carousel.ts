@@ -856,6 +856,14 @@ export class TanreiCarousel extends TanreiElement {
 
   /** CRL-14: the row scrolled: the items follow; a scroll that is not the carousel's own is the person's move. */
   private readonly onScroll = () => {
+    // CRL-39: the direction has changed and the row is not arranged for it yet. The offset the row held was written for
+    // the other direction, and the browser moved it into the new direction's range when it laid the row out — before the
+    // direction was seen, wherever a page reads its layout in between. That is no move of the person's and not where the
+    // row rests: the arrangement for the new direction puts the resting item back, from the offset the row was placed at.
+    if (this.geometry && this.rtl !== this.arrangedRtl) {
+      this.arrange();
+      return;
+    }
     const offset = this.readOffset();
     const own = Math.abs(offset - this.written) < 1;
     // The write has been reported: the next scroll event is someone else's, wherever it leads (back here, too).
