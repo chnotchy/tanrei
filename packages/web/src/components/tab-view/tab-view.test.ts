@@ -10,6 +10,7 @@ import { type Fixture, type FixtureItem, acmeSystemCss, fixturesDocument, loadSp
 import { STOPPED_AFTER, flingThenHold, strokes } from '../../../test/stopped-release.js';
 import { expectBaseline } from '../../../test/baseline.js';
 import { motionCount, motionEnded } from '../../../test/motions.js';
+import { mirroring, mirroringAfterDirection } from '../../../test/mirror-word.js';
 
 const spec = loadSpec('tab-view');
 type P = Page;
@@ -1051,6 +1052,33 @@ test.describe('its own row, or a link', () => {
     await expect.poll(() => value(page, 'v')).toBe('overview');
     await finishSwitch(page, 'v');
     await expect(panel(page, 'v', 'overview')).toBeVisible();
+  });
+
+  test('TBV-16, TAB-32: data-mirror on a panel is the product’s word on mirroring the icon it names — the view gives it to the tab it draws, whose both copies follow it: always mirrors an unmarked name in right-to-left, never keeps a marked one, none leaves it to the icon set; nothing is mirrored in left-to-right; a change of the word or of an ancestor’s direction is drawn at once, without a motion', async ({ page }) => {
+    const words = (id: string, direction?: 'rtl'): Fixture => ({
+      ...fixture(id, [p('next', 'Next.', { icon: 'arrow_forward' }), p('done', 'Done.', { icon: 'check', 'data-mirror': 'always' }), p('sent', 'Sent.', { icon: 'send', 'data-mirror': 'never' })], { label: 'Project' }),
+      ...(direction ? { direction } : {}),
+    });
+    await mountFixtures(page, spec, { icons: true, fixtures: [words('words', 'rtl'), words('words-ltr')] });
+    const glyphs = (id: string) => [0, 1, 2].flatMap((n) => [tabAt(page, id, n).locator('.icon').nth(0), tabAt(page, id, n).locator('.icon').nth(1)]);
+    const RTL = ['mirrored', 'mirrored', 'mirrored', 'mirrored', 'plain', 'plain'];
+    const LTR = RTL.map(() => 'plain');
+    await expect.poll(() => mirroring(glyphs('words'))).toEqual(RTL);
+    await expect.poll(() => mirroring(glyphs('words-ltr'))).toEqual(LTR);
+    // The tab the view draws carries the panel's word, and nothing where the panel has none.
+    expect(await Promise.all([0, 1, 2].map((n) => tabAt(page, 'words', n).getAttribute('data-mirror')))).toEqual([null, 'always', 'never']);
+    // The word changed on a panel already drawn.
+    await panel(page, 'words', 'next').evaluate((el) => el.setAttribute('data-mirror', 'never'));
+    await expect.poll(() => mirroring(glyphs('words'))).toEqual(['plain', 'plain', ...RTL.slice(2)]);
+    await panel(page, 'words', 'next').evaluate((el) => el.removeAttribute('data-mirror'));
+    await expect.poll(() => mirroring(glyphs('words'))).toEqual(RTL);
+    await expect(tabAt(page, 'words', 0)).not.toHaveAttribute('data-mirror');
+    // The direction changed on an ancestor while drawn: read in the same task, before any frame, with no motion started.
+    await motionEnded(view(page, 'words'));
+    await motionEnded(view(page, 'words-ltr'));
+    expect(await mirroringAfterDirection(page.locator('[data-fixture="words-ltr"]'), 'rtl', glyphs('words-ltr'))).toEqual(RTL);
+    expect(await mirroringAfterDirection(page.locator('[data-fixture="words"]'), 'ltr', glyphs('words'))).toEqual(LTR);
+    for (const id of ['words-ltr', 'words']) expect(await motionCount(view(page, id)), id).toBe(0);
   });
 
   test('TBV-17: while tabs names a row the view draws none (the row’s props and the panels’ tab props unused, reported); changing tabs at run time removes or draws its own row at once, keeps the selection and shows its panel at once', async ({ page }) => {

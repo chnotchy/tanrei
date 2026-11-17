@@ -76,7 +76,7 @@ export class NavigationDestination extends TanreiElement implements Destination 
   /** Its name, drawn under the icon (as the region's label visibility says) and always its accessible name. Required. */
   label = '';
 
-  /** The name of a glyph of the system's icon set: outlined while unselected, filled while selected. Required. */
+  /** The name of a glyph of the system's icon set: outlined while unselected, filled while selected. Required. A glyph the icon set flags as showing a direction is drawn mirrored in a right-to-left layout; `data-mirror="auto | always | never"` on the element decides for this use. */
   icon = '';
 
   /** Unavailable: it keeps its place and its disabled look, cannot be activated and leaves the focus order. */

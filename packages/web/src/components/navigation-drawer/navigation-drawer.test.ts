@@ -12,6 +12,7 @@ import { appearingFixture, mountForAppearing } from '../../../test/first-frame.j
 import { type Frames, expectAnimated, expectFirstFrameAtRest, sampleFrames } from '../../../test/frames.js';
 import { expectKeyPressOutlastsPointer } from '../../../test/key-press-pointer-leaves.js';
 import { EVERY_ANIMATION, expectFromNextFrame, motionCount, motionEnded } from '../../../test/motions.js';
+import { mirroring, mirroringAfterDirection } from '../../../test/mirror-word.js';
 import { allSettled } from '../../../test/settled.js';
 import { entrances, loadOpen, mountOpenAgain, runsAtRest } from '../../../test/mounted-open.js';
 import { withoutFocusVisibleOption } from '../../../test/focus-visible-option.js';
@@ -896,6 +897,41 @@ test.describe('drawing', () => {
     await expect(site.getByRole('link', { name: 'Tabs' })).toHaveAttribute('aria-current', 'page');
     await setProps(page, 'site-sidebar', { value: '/nowhere/' });
     await expect(site.locator('[aria-current]')).toHaveCount(0);
+  });
+
+  test('NVD-51: in right-to-left a destination’s and a group’s glyph — a group’s openIcon too — is mirrored exactly when the icon set marks its name, unless data-mirror on its element decides: always mirrors an unmarked name, never keeps a marked one; nothing is mirrored in left-to-right; a change of the word or of an ancestor’s direction is drawn at once, without a motion, and the row mirrors nothing itself', async ({ page }) => {
+    // The groups' items draw no glyph, so a group's `.lead .icon` is its own.
+    const words = (id: string, direction?: 'rtl'): Fixture => ({
+      ...fixture(id, [
+        d('inbox', 'Inbox', 'arrow_forward'),
+        d('sent', 'Sent', 'check', { 'data-mirror': 'always' }),
+        d('drafts', 'Drafts', 'send', { 'data-mirror': 'never' }),
+        grp('Kept', [d('kept-a', 'A')], { icon: 'folder', openIcon: 'arrow_forward', open: true, 'data-mirror': 'never' }),
+        grp('Listed', [d('listed-a', 'B')], { icon: 'folder', openIcon: 'arrow_forward', open: true }),
+      ]),
+      ...(direction ? { direction } : {}),
+    });
+    await mountFixtures(page, spec, { icons: true, fixtures: [words('words', 'rtl'), words('words-ltr')] });
+    const glyphs = (id: string) => [...[0, 1, 2].map((n) => item(page, id, n).locator('.lead .icon')), ...[0, 1].map((n) => group(page, id, n).locator('.lead .icon'))];
+    const RTL = ['mirrored', 'mirrored', 'plain', 'plain', 'mirrored'];
+    const LTR = RTL.map(() => 'plain');
+    await expect.poll(() => mirroring(glyphs('words'))).toEqual(RTL);
+    await expect.poll(() => mirroring(glyphs('words-ltr'))).toEqual(LTR);
+    // The open groups draw their openIcon.
+    for (const n of [0, 1]) await expect(group(page, 'words', n).locator('.lead .icon')).toHaveText('arrow_forward');
+    // The row mirrors nothing itself, whatever its word.
+    for (const part of [item(page, 'words', 1), item(page, 'words', 1).locator('.row'), group(page, 'words', 0), group(page, 'words', 0).locator('.row').first()]) expect(await part.evaluate((el) => getComputedStyle(el).transform)).toBe('none');
+    // The word changed on a destination and on a group already drawn.
+    await item(page, 'words', 0).evaluate((el) => el.setAttribute('data-mirror', 'never'));
+    await group(page, 'words', 0).evaluate((el) => el.setAttribute('data-mirror', 'always'));
+    await expect.poll(() => mirroring(glyphs('words'))).toEqual(['plain', 'mirrored', 'plain', 'mirrored', 'mirrored']);
+    await item(page, 'words', 0).evaluate((el) => el.removeAttribute('data-mirror'));
+    await group(page, 'words', 0).evaluate((el) => el.setAttribute('data-mirror', 'never'));
+    await expect.poll(() => mirroring(glyphs('words'))).toEqual(RTL);
+    // The direction changed on an ancestor while drawn: read in the same task, before any frame, with no motion started.
+    expect(await mirroringAfterDirection(page.locator('[data-fixture="words-ltr"]'), 'rtl', glyphs('words-ltr'))).toEqual(RTL);
+    expect(await mirroringAfterDirection(page.locator('[data-fixture="words"]'), 'ltr', glyphs('words'))).toEqual(LTR);
+    for (const id of ['words-ltr', 'words']) expect(await motionCount(drawer(page, id)), id).toBe(0);
   });
 });
 

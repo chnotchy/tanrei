@@ -3,6 +3,7 @@ import {
   AvailabilityController,
   DestinationsController,
   GlyphMirrorController,
+  MirrorWordController,
   IndicatorDragController,
   type IndicatorPlace,
   NavigationDestination,
@@ -120,6 +121,8 @@ export class TanreiNavigationBarItem extends NavigationDestination {
    * right-to-left (src/primitives/glyph-mirror.ts); `iconGlyph()` draws the mark.
    */
   private readonly mirror = new GlyphMirrorController(this, { drawn: '.icon, .c-icon' });
+  /** NVB-25: the product's word on mirroring the destination's glyph, `data-mirror` on the item, given to both copies. */
+  private readonly mirrorWord = new MirrorWordController(this);
 
   /** @internal The item container, which the bar measures to move its active indicator (NVB-15, NVB-27). */
   get itemContainer(): HTMLElement | null {
@@ -183,12 +186,12 @@ export class TanreiNavigationBarItem extends NavigationDestination {
         <span class="content">
           <span part="icon-indicator" class="icon-indicator" data-tanrei-shape>
             <span class="icon-fill" aria-hidden="true"></span>
-            <span class="plain">${this.badged(html`<span part="icon" class="icon" aria-hidden="true">${this.icon}</span>`)}</span>
+            <span class="plain">${this.badged(html`<span part="icon" class="icon" aria-hidden="true" data-mirror=${this.mirrorWord.word}>${this.icon}</span>`)}</span>
           </span>
           <span class="label-box" aria-hidden="true"><span part="label" class="label" dir=${ownDirection(this.label)}>${this.label}</span></span>
         </span>
         <span part="covered-content" class="covered" aria-hidden="true">
-          <span class="c-icon-indicator">${this.badged(html`<span class="c-icon">${this.icon}</span>`, true)}</span>
+          <span class="c-icon-indicator">${this.badged(html`<span class="c-icon" data-mirror=${this.mirrorWord.word}>${this.icon}</span>`, true)}</span>
           <span class="c-label-box"><span class="c-label" dir=${ownDirection(this.label)}>${this.label}</span></span>
         </span>
       </span>

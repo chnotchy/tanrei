@@ -864,7 +864,7 @@
             "labelHidden": "labelHidden",
             "disabled": "disabled"
           },
-          "notes": "The same element the tabs' own panels are: `<tanrei-tab-panel value=\"overview\" label=\"Overview\" icon=\"dashboard\">`, a child of `tanrei-tab-view`, with `label-hidden` and `disabled` attributes, as `tanrei-tab` has them. label, icon, label-hidden and disabled are read only by a `tanrei-tab-view` that draws its own row; a panel of a `tanrei-tabs`, or of a linked view, ignores them."
+          "notes": "The same element the tabs' own panels are: `<tanrei-tab-panel value=\"overview\" label=\"Overview\" icon=\"dashboard\">`, a child of `tanrei-tab-view`, with `label-hidden` and `disabled` attributes, as `tanrei-tab` has them. label, icon, label-hidden and disabled are read only by a `tanrei-tab-view` that draws its own row; a panel of a `tanrei-tabs`, or of a linked view, ignores them. `data-mirror` (`auto`, the default; `always`; `never`) on a panel is the product's word on mirroring the icon it names: the view gives it to the tab it draws for the panel (TBV-16, TAB-32), and a panel the view does not draw a tab for ignores it, as it ignores `icon`."
         }
       },
       "parts": {
