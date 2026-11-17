@@ -1,5 +1,5 @@
 import { css, unsafeCSS } from 'lit';
-import { SCRIM_FILTER, appearStyles, conditionBlock, focusRing, minimumTarget, modalExitStyles, pressHold, rippleStyles, scrimFilter, stateRules } from '../../primitives/index.js';
+import { appearStyles, conditionBlock, focusRing, minimumTarget, modalExitStyles, pressHold, rippleStyles, sheetScrimStyles, stateRules } from '../../primitives/index.js';
 import { cornerRadius, shape } from '../../styles/shape.js';
 import { scriptTracking } from '../../styles/script-tracking.js';
 import { reducedMotion } from '../../styles/motion.js';
@@ -111,26 +111,15 @@ export const styles = css`
     enter: { duration: T('modal-motion-open-duration'), easing: T('modal-motion-open-easing') },
     exit: { duration: T('modal-motion-close-duration'), easing: T('modal-motion-close-easing') },
   })}
-  /* DTM-1, MDL-1: the modal layer's scrim, over the whole window behind the picker (its color and blur), fading with it. */
-  ${scrimFilter('.surface.modal', T('modal-scrim-blur'))}
-  .surface.modal::backdrop {
-    background: ${t('modal-scrim-color')};
-    backdrop-filter: ${SCRIM_FILTER};
-    opacity: 0;
-    transition-property: opacity;
-    transition-duration: ${t('modal-motion-close-duration')};
-    transition-timing-function: ${t('modal-motion-close-easing')};
-  }
-  .surface.modal[open]::backdrop {
-    opacity: 1;
-    transition-duration: ${t('modal-motion-open-duration')};
-    transition-timing-function: ${t('modal-motion-open-easing')};
-  }
-  @starting-style {
-    .surface.modal[open]::backdrop {
-      opacity: 0;
-    }
-  }
+  /* DTM-1, DTM-35, MDL-1, MDL-7: the modal layer's scrim, over the whole window behind the picker (its color and blur),
+     fading with it — over sys.motion.role.reduced where motion is reduced, as the container then fades. */
+  ${sheetScrimStyles({
+    dialog: '.surface.modal',
+    color: T('modal-scrim-color'),
+    blur: T('modal-scrim-blur'),
+    enter: { duration: T('modal-motion-open-duration'), easing: T('modal-motion-open-easing') },
+    exit: { duration: T('modal-motion-close-duration'), easing: T('modal-motion-close-easing') },
+  })}
   /* MDL-7: closed, it stays drawn in the top layer until its exit and its scrim's have played (src/primitives/modal-exit.ts). */
   ${modalExitStyles('.surface.modal')}
 
