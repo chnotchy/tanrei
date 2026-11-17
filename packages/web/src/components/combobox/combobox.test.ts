@@ -22,6 +22,7 @@ import { type Fixture, type FixtureItem, acmeSystemCss, loadSpec, missingWords, 
 import { expectBaseline } from '../../../test/baseline.js';
 import { expectGoneWhileSkipped } from '../../../test/skipped-exit.js';
 import { expectBoxTakesContainerSize, expectOptionsTakeDrawnSize } from '../../../test/input-box-size.js';
+import { controlledInTree, controlledList } from '../../../test/controlled-list.js';
 
 const spec = loadSpec('combobox');
 type P = Page;
@@ -2712,6 +2713,43 @@ test.describe('behavior: conditions, exposure, size and direction', () => {
     await set(page, 'one', { readOnly: false });
     await setFrame(page, 'one', { disabled: true });
     expect((await axNodes(page, 'combobox'))[0]).toMatchObject({ disabled: true, name: 'Token' });
+  });
+
+  test('CMB-48, CMB-32, CMB-33: the input names its list box by aria-controls while the list is open and nothing while it is closed, and the list box it names is exposed — also where no option is shown and the list shows its empty text or its loading row alone: an empty list box of no height, no focus target, nothing to read, busy while loading', async ({ page, browserName }) => {
+    await mount(
+      page,
+      [
+        fx('closed', { label: 'Plan', value: 'kyoto' }),
+        ...spec.fixtures.filter((f) => ['open-filtered-none', 'open-status'].includes(f.id)),
+        fx('loading', { label: 'Area', open: true, status: 'loading', statusText: 'Loading areas' }, []),
+        fx('top', { label: 'Region', inline: false }),
+      ],
+      { reducedMotion: true },
+    );
+    const EMPTY = { found: true, role: 'listbox', exposed: true, height: 0, rows: 0, text: '', focusable: false };
+    // Closed: no reference — the list box is in a placed box that is not displayed.
+    expect(await controlledList(input(page, 'closed'))).toBeNull();
+    // Open with options: the list box, with its rows.
+    expect(await controlledList(input(page, 'open-status'))).toMatchObject({ found: true, role: 'listbox', exposed: true, rows: 2, focusable: false });
+    // Open with the empty text or the loading row alone: the empty list box, exposed and of no size.
+    for (const id of ['open-filtered-none', 'loading']) expect(await controlledList(input(page, id)), id).toEqual(EMPTY);
+    expect(await part(page, 'loading', '#list').getAttribute('aria-busy'), 'loading: the list box is busy').toBe('true');
+    // In the top layer, filtered by typing to nothing; closed again, no reference.
+    await focusInput(page, 'top');
+    await type(page, 'zz');
+    await settle(page, 'top');
+    await shownList(page, 'top').toBe(true);
+    await expect.poll(async () => (await read(page, 'top')).status[0]).toBe('No matches');
+    expect(await controlledList(input(page, 'top'))).toEqual(EMPTY);
+    if (browserName === 'chromium') {
+      // What the engine computed: the relation reaches the list box, in the tree, named by the label, holding nothing.
+      expect(await controlledInTree(page, 'Region')).toEqual([{ inTree: true, role: 'listbox', name: 'Region', children: 0, focusable: false }]);
+      expect(await controlledInTree(page, 'Area')).toEqual([{ inTree: true, role: 'listbox', name: 'Area', children: 0, focusable: false }]);
+      expect(await controlledInTree(page, 'Plan')).toEqual([]);
+    }
+    await page.keyboard.press('Escape');
+    await closedList(page, 'top');
+    expect(await controlledList(input(page, 'top'))).toBeNull();
   });
 
   test('CMB-49: the combobox is a block exactly as wide as its place, framed and bare alike — inside a Field, the Field’s whole width — with no width of its own: never the platform’s default width for a text element, never the width of its options or of its value; a narrower place gives a narrower box', async ({ page }) => {
