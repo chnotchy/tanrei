@@ -90,9 +90,10 @@ const ONLY_DISABLED = (disabled: boolean): FieldState => ({ label: '', descripti
  * A control may say of itself what only it knows, through the same connection (`src/primitives/field.ts`): that it
  * draws the label itself, floating in its own box — the field then draws no label row and gives the control the name,
  * whether it is hidden, and an asterisk or none for a required one (FLD-25); how far its content is inset — the
- * supporting row starts and ends there (FLD-26); and that it refused what was entered, with its words — the field is
- * then in its error condition and shows them as its error text (FLD-28); and that it is drawn focused though focus is elsewhere — a
- * combobox or a select for as long as its list is open — so that the field's rows are drawn focused with it (FLD-13).
+ * supporting row starts and ends there (FLD-26); how far what it keeps drawn reaches above its box — a slider's value
+ * indicator that is always shown: the field keeps that room between its label row and the control (FLD-34); that it
+ * refused what was entered, with its words — the field is then in its error condition and shows them as its error
+ * text (FLD-28); and that it is drawn focused though focus is elsewhere — a combobox or a select for as long as its list is open — so that the field's rows are drawn focused with it (FLD-13).
  * `count-text` is a count about the control's value as it is to
  * be drawn ("12/40"), at the end of the supporting row: the field draws it, never counts, and keeps it from assistive
  * technology, which hears the count from the control (FLD-27). `value-text` is the control's present value in words
@@ -466,6 +467,8 @@ export class TanreiField extends TanreiElement {
     const framed = this.framed;
     // FLD-26: the supporting row starts and ends where the control says its content does.
     const inset = said.inset ? `--_inset-start: ${said.inset.start}; --_inset-end: ${said.inset.end}` : undefined;
+    // FLD-34: the room kept above the control for what it says it keeps drawn there.
+    const above = said.above ? `--_above: ${said.above}` : undefined;
     // FLD-13: the rows are drawn focused while focus is inside the field, or while its control says that it is drawn
     // focused (a select or a combobox for as long as its list is open, whether or not it has focus).
     // The label is the control's accessible name as a value, so the drawn text is hidden from assistive technology: it
@@ -496,7 +499,7 @@ export class TanreiField extends TanreiElement {
               </div>`
             : row
         }
-        <div class="control" ?data-inline=${this.inline}><slot @slotchange=${this.#onSlotChange}></slot></div>
+        <div class="control" ?data-inline=${this.inline} style=${ifDefined(above)}><slot @slotchange=${this.#onSlotChange}></slot></div>
         <div class="supporting-box">${
           // FLD-31: the row stands in a box that is always there, empty and 0 tall while there is no row, so that its
           // height can move when the error text comes or goes (MOT-5).

@@ -111,7 +111,8 @@
     },
     {
       "name": "valueIndicator",
-      "from": "slider.valueIndicator"
+      "from": "slider.valueIndicator",
+      "note": "While always, the field keeps room between the label row and the track for the value indicator (SLF-15)."
     },
     {
       "name": "valueText",
@@ -165,7 +166,7 @@
   "behavior": [
     {
       "id": "SLF-1",
-      "text": "THE slider field SHALL be a Field whose one control is a Slider — the two components themselves, each drawn from its own tokens in every state and behaving by its own sentences (FLD-1 to FLD-24, FLD-29 and FLD-30; SLD-1 to SLD-26) — and SHALL draw nothing of its own, have no token of its own, and give neither member a look, a state or a size that the member does not have where it stands alone."
+      "text": "THE slider field SHALL be a Field whose one control is a Slider — the two components themselves, each drawn from its own tokens in every state and behaving by its own sentences (FLD-1 to FLD-24, FLD-29, FLD-30 and FLD-34; SLD-1 to SLD-26 and SLD-30) — and SHALL draw nothing of its own, have no token of its own, and give neither member a look, a state or a size that the member does not have where it stands alone."
     },
     {
       "id": "SLF-2",
@@ -222,6 +223,11 @@
     {
       "id": "SLF-14",
       "text": "WHERE the platform has ARIA attributes (the web), WHEN the product sets an aria- attribute on the host, by the attribute or by the ARIA property that reflects it, THE slider field SHALL move it to the data-aria- attribute of the same name, so that the host is no second node with its name, description or state, and SHALL expose it on the element that carries its role — an id reference by the elements it names in the host's tree or a tree around it, an error message as part of the description while the slider field is invalid — except those the slider field owns (aria-label, aria-labelledby, aria-disabled), which it SHALL move and not expose: its name is label (SLF-5). WHEN the product removes the aria- attribute or its data-aria- twin, or sets the ARIA property that reflects it (ariaLabel, ariaDescribedByElements…) to null, THE slider field SHALL take it off that element. WHEN the product sets an aria- attribute the slider field owns THE slider field SHALL report it in debug builds."
+    },
+    {
+      "id": "SLF-15",
+      "text": "WHILE valueIndicator is always THE slider field SHALL keep room between its label row and the track for each handle's value indicator, as its Field keeps it above its Slider (FLD-34, SLD-30): every value indicator SHALL lie below the label row, comp.field.label.gap from it, and above its handle, over neither, at every size, for one handle and for a range, in either layout direction, and WHILE labelHidden is true inside the slider field's own box. WHILE valueIndicator is none or active THE slider field SHALL keep no such room: the track's box stands comp.field.label.gap below the label row.",
+      "verify": "Fixture value-indicator: the value indicator stands 8 below the label row and 8 above the handle. Unit: at sizes small, medium and large, for one handle and a range, left to right and right to left, the box of each value indicator and the box of the label row do not intersect."
     }
   ],
   "accessibility": {
