@@ -6246,11 +6246,14 @@ with at most one action, without taking focus (`specs/snackbar.spec.json`, SNK-1
 | `expandedchange` | `CustomEvent<{ expanded }>`, bubbling: the person toggled the expand button (the spec's `toggle`; a popover already fires a native `toggle` when shown and hidden). Not fired when the product sets `expanded` |
 
 **The host (SNK-8…13, SNK-17).** One snackbar at a time, in the order asked for. The host appends each as a
-`<tanrei-snackbar popover="manual">` child and shows it in the top layer, fixed at the bottom of the window, centred,
-`container.margin` above the bottom edge (plus the safe area, `env(safe-area-inset-bottom)`, and the on-screen keyboard,
-measured from `visualViewport`) and at least that far from the sides; while a modal surface holds the page's scroll the
-snackbar's sides add the room the window gains (`--tanrei-scroll-hold-inset-left` and `-right`, MDL-2), so that it does
-not move. **Over a modal surface (SNK-38)**: a modal `<dialog>` makes everything outside it inert, a top-layer popover
+`<tanrei-snackbar popover="manual">` child and shows it in the top layer, fixed at the bottom of the window, centred
+between the safe area's side insets (`env(safe-area-inset-left)`, `-right`) and at least `container.margin` inside them,
+`container.margin` above the higher of the safe area's bottom inset (`env(safe-area-inset-bottom)`) and what the frame
+keeps over the bottom of the window (`--tanrei-app-shell-scroll-offset-end`: the app shell's navigation bar, APS-17, or a
+product's own bar that sets it), plus the on-screen keyboard, measured from `visualViewport`; while a modal surface holds
+the page's scroll the snackbar's sides add the room the window gains (`--tanrei-scroll-hold-inset-left` and `-right`,
+MDL-2), so that it does not move. Expanded, at either placement, it is at most as tall as the window less the margins and
+what the frame keeps over its top and its bottom (SNK-25). **Over a modal surface (SNK-38)**: a modal `<dialog>` makes everything outside it inert, a top-layer popover
 too, so a snackbar shown from the host behind it could be neither pressed nor heard. `modalLayer` (`src/primitives/modal.ts`)
 lists the modal `<dialog>`s open in the window, the topmost last — `openModal()` adds one once `showModal()` has made it
 modal and `closeModal()` deletes it once it is not (`src/primitives/modal-exit.ts`), so every modal surface counts with no

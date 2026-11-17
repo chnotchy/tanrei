@@ -222,7 +222,7 @@
     },
     {
       "id": "SNK-13",
-      "text": "WHILE placement is bottom THE host SHALL place the snackbar at the bottom of its area, centred, comp.snackbar.container.margin above the bottom edge and at least comp.snackbar.container.margin from the side edges, inside the safe area and above the on-screen keyboard; at either placement it SHALL draw the snackbar above its area's content and, WHILE a Tanrei modal surface is open, above the topmost one and its scrim (SNK-38)."
+      "text": "WHILE placement is bottom THE host SHALL place the snackbar at the bottom of its area, centred between the safe area's side edges and at least comp.snackbar.container.margin inside them, its bottom edge comp.snackbar.container.margin above the higher of the safe area's bottom edge and the top of what the frame keeps over the bottom of the area (a navigation bar's present height, APS-17), raised by the on-screen keyboard's height WHILE the keyboard is shown, so that it never covers a bottom navigation bar or the keyboard; at either placement it SHALL draw the snackbar above its area's content and, WHILE a Tanrei modal surface is open, above the topmost one and its scrim (SNK-38)."
     },
     {
       "id": "SNK-14",
@@ -271,7 +271,7 @@
     },
     {
       "id": "SNK-25",
-      "text": "WHILE the snackbar is expanded and its whole content would make it taller than its host's area allows (the area's height less comp.snackbar.container.margin above and below, inside the safe area and above the on-screen keyboard) THE snackbar SHALL take that height and scroll its text inside the bar, keeping the status glyph, the controls and an action on its own row in place; WHILE the text scrolls it SHALL be reachable by keyboard (a focus stop, scrolled by the arrow keys, Page Up and Page Down), named by the title when there is one, and scrolled by wheel, trackpad and touch.",
+      "text": "WHILE the snackbar is expanded and its whole content would make it taller than its host's area allows (the area's height less comp.snackbar.container.margin above and below, inside the safe area, clear of what the frame keeps over the top and the bottom of the area (APS-17), and above the on-screen keyboard) THE snackbar SHALL take that height and scroll its text inside the bar, keeping the status glyph, the controls and an action on its own row in place; WHILE the text scrolls it SHALL be reachable by keyboard (a focus stop, scrolled by the arrow keys, Page Up and Page Down), named by the title when there is one, and scrolled by wheel, trackpad and touch.",
       "verify": "Fixture expanded-scrolls, on the harness's shorter stage (SNK-19)."
     },
     {
