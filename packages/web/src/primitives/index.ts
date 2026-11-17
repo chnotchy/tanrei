@@ -106,7 +106,9 @@
 //                 row or column by fit, each given the host's variant (DLG-10, DLG-20, SSH-11, SSH-17); compChoice(), and
 //                 compChoices() for several with one computed style
 //   destination — the destinations of a navigation region (bar, drawer): DestinationsController (selection, change /
-//                 reselect, reports), NavigationDestination and destinationStyles() (a bar's item)
+//                 reselect, reports) and destinationStyles() (a bar's item)
+//   navigation-destination — NavigationDestination, a bar's item: a module of its own, so that a bundle that takes only
+//                 the region's side (the drawer) does not carry the class
 //   native-text — NativeTextController: a component's value and its native text element kept in step around an input
 //                 method (text field, search: TXF-1, TXF-4, SRC-4)
 //   composition-end — CompositionEnd, isCompositionInput(): what an engine reports for an input method's composition
@@ -467,13 +469,13 @@ export {
   type DestinationContext,
   DestinationsController,
   type DestinationsHost,
-  NavigationDestination,
   type TanreiLabelVisibility,
   type TanreiNavigationChangeDetail,
   badgeDescription,
   destinationStyles,
   notifyDestinationUpdate,
 } from './destination.js';
+export { NavigationDestination } from './navigation-destination.js';
 export {
   BOUND_CHORDS,
   type Binding,

@@ -17,6 +17,7 @@ import { SELECTION_STATES } from './selection.js';
 import { nearestSize } from './size-cascade.js';
 import { separationHost, syncSeparation, whenGap } from './separation.js';
 import { reducedMotion } from '../styles/motion.js';
+import { OPTION_GROUP_TAG, OPTION_TAG } from './option-tags.js';
 
 // A list of options that opens from a field (a select, SEL-24 … SEL-45; a combobox, which shares the field, the list
 // and the options and adds a text input). Three things are shared, and each is here once:
@@ -50,10 +51,8 @@ import { reducedMotion } from '../styles/motion.js';
 // decide: which options are drawn (a combobox draws the ones its filter leaves), which is the chosen one, what an
 // option's label is drawn as (a combobox marks the match), and what choosing does.
 
-/** The option's element: one choice. Data for its field. */
-export const OPTION_TAG = 'tanrei-option';
-/** The group's element: a run of options under an optional title. */
-export const OPTION_GROUP_TAG = 'tanrei-option-group';
+// The option's element and the group's (src/primitives/option-tags.ts, where the elements take them from).
+export { OPTION_GROUP_TAG, OPTION_TAG };
 /** The attributes of the two elements that their field reads (the properties reflect to them). */
 export const OPTION_ATTRIBUTES = ['label', 'value', 'supporting-text', 'leading-icon', 'disabled'] as const;
 /**

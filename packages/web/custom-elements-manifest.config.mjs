@@ -341,7 +341,7 @@ const publicSurface = {
 export default {
   // The components, and the primitives that hold an element's base class (TanreiElement and TanreiLightElement, the
   // base of every element; NavigationDestination; the composed elements' ComposedElement and ComposedControl).
-  globs: ['src/components/**/*.ts', 'src/primitives/element.ts', 'src/primitives/destination.ts', 'src/primitives/composed.ts'],
+  globs: ['src/components/**/*.ts', 'src/primitives/element.ts', 'src/primitives/navigation-destination.ts', 'src/primitives/composed.ts'],
   exclude: ['**/*.test.ts'],
   outdir: '.',
   litelement: true,
