@@ -1,5 +1,5 @@
 /*
- * Breadcrumbs (specs/breadcrumbs.spec.json, BRC-1 to BRC-29): where a page sits in a
+ * Breadcrumbs (specs/breadcrumbs.spec.json): where a page sits in a
  * hierarchy of pages — the levels above as links, in order from the top, the page itself last.
  *
  * `<tanrei-breadcrumbs>` is an element around the product's own anchors, which stay in the document: before any

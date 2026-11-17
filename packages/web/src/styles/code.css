@@ -1,7 +1,7 @@
 /*
  * Code — the optional stylesheet `@tanrei/web/code.css`.
  *
- * INLINE CODE (specs/inline-code.spec.json, ICD-1 to ICD-16): a run of code inside a sentence — a command, a name, a
+ * INLINE CODE (specs/inline-code.spec.json): a run of code inside a sentence — a command, a name, a
  * value — in the code face at the size of the text around it, on a faint fill or plain. A class on the product's own
  * element, not an element: the text is in the document, for search, find-in-page and copy, before any script runs.
  *

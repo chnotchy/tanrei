@@ -1,5 +1,5 @@
 /*
- * Prose (specs/prose.spec.json, PRS-1 to PRS-30): long-form text — rendered Markdown, content
+ * Prose (specs/prose.spec.json): long-form text — rendered Markdown, content
  * from a CMS, any HTML you do not put classes on — set in the system's text styles by level, with one vertical rhythm
  * and a limit on line length. A class, not an element, and it parses nothing:
  *
