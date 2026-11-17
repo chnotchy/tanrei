@@ -8,6 +8,7 @@ import {
   cssZoom,
   GlyphDrawnController,
   GlyphMirrorController,
+  MirrorWordController,
   OpenAxesController,
   PressController,
   RovingKeys,
@@ -87,7 +88,7 @@ export class TanreiFabMenuItem extends TanreiElement {
   /** The item's text and its accessible name. Required. */
   label = '';
 
-  /** The name of the item's glyph in the system's icon set (its ligature text, `upload`). Required. A name the icon set flags is drawn mirrored in right-to-left. */
+  /** The name of the item's glyph in the system's icon set (its ligature text, `upload`). Required. A name the icon set flags is drawn mirrored in right-to-left; `data-mirror="auto | always | never"` on the item decides for this use. */
   icon = '';
 
   /** What the FAB menu says about this item. */
@@ -108,6 +109,8 @@ export class TanreiFabMenuItem extends TanreiElement {
    * `iconGlyph()` draws the mark, in the glyph's own box.
    */
   private readonly mirror = new GlyphMirrorController(this, { drawn: '.icon' });
+  /** FBM-26: the product's word on mirroring the item's glyph, `data-mirror` on the item, given to the glyph's box. */
+  private readonly mirrorWord = new MirrorWordController(this);
 
   /** FBM-8 / FBM-9 for an item: the pressed state, press-hold and the answer the system chooses. */
   private readonly press = new PressController(this, {
@@ -224,7 +227,7 @@ export class TanreiFabMenuItem extends TanreiElement {
           @pointercancel=${this.press.release}
           @pointerleave=${this.press.release}
         >
-          <span part="icon" class=${classMap({ icon: true, empty: !this.icon.trim() })} aria-hidden="true">${this.icon}</span>
+          <span part="icon" class=${classMap({ icon: true, empty: !this.icon.trim() })} aria-hidden="true" data-mirror=${this.mirrorWord.word}>${this.icon}</span>
           <span part="label" class="label">${this.label}</span>
         </div>
       </div>

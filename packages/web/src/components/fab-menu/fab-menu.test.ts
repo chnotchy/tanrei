@@ -10,6 +10,7 @@ import { type Locator, type Page, expect, test } from '@playwright/test';
 import { type Fixture, acmeSystemCss, iconFaceArrives, includingSystem, loadSpec, mountFixtures, resolveColor, resolveToken, tab, tabTo, withoutIconFont, rootTokens } from '../../../test/harness.js';
 import { transitionsRun, watchTransitions } from '../../../test/transitions.js';
 import { expectFromNextFrame, motionCount, motionEnded } from '../../../test/motions.js';
+import { mirroring, mirroringAfterDirection } from '../../../test/mirror-word.js';
 import { entrances, loadOpen, mountOpenAgain } from '../../../test/mounted-open.js';
 import { bezierOf, expectAppearStart, expectExitEnd, expectTurnedAlone, turnHeld } from '../../../test/appear.js';
 import { type Flicker, type Frame, type Frames, type Probe, expectAnimated, expectNoFlicker, sampleFrames } from '../../../test/frames.js';
@@ -1120,6 +1121,38 @@ test.describe('behavior', () => {
     expect(at[1]).toBeCloseTo(10, 0);
     await page.mouse.move(0, 0);
     await page.mouse.up();
+  });
+
+  test('FBM-26: in right-to-left an item’s glyph is mirrored exactly when the icon set marks its name, unless data-mirror on the item decides: always mirrors an unmarked name, never keeps a marked one; nothing is mirrored in left-to-right; a change of the word or of an ancestor’s direction is drawn at once, without a motion, and the item mirrors nothing itself', async ({ page }) => {
+    const ITEMS_WORDS = [
+      { kind: 'item', props: { label: 'Next', icon: 'arrow_forward' } },
+      { kind: 'item', props: { label: 'Done', icon: 'check', 'data-mirror': 'always' } },
+      { kind: 'item', props: { label: 'Sent', icon: 'send', 'data-mirror': 'never' } },
+    ];
+    await mountFixtures(page, spec, {
+      icons: true,
+      fixtures: [
+        { ...fixture('words', { inline: true, open: true }, ITEMS_WORDS), direction: 'rtl' },
+        fixture('words-ltr', { inline: true, open: true }, ITEMS_WORDS),
+      ],
+    });
+    const glyphs = (id: string) => ['Next', 'Done', 'Sent'].map((label) => item(page, id, label).locator('.icon'));
+    const RTL = ['mirrored', 'mirrored', 'plain'];
+    const LTR = RTL.map(() => 'plain');
+    for (const id of ['words', 'words-ltr']) await motionEnded(host(page, id));
+    await expect.poll(() => mirroring(glyphs('words'))).toEqual(RTL);
+    await expect.poll(() => mirroring(glyphs('words-ltr'))).toEqual(LTR);
+    // The item mirrors nothing itself, whatever its word.
+    for (const label of ['Done', 'Sent']) for (const part of [item(page, 'words', label), box(page, 'words', label)]) expect(await part.evaluate((el) => getComputedStyle(el).transform), label).toBe('none');
+    // The word changed on an item already drawn.
+    await item(page, 'words', 'Next').evaluate((el) => el.setAttribute('data-mirror', 'never'));
+    await expect.poll(() => mirroring(glyphs('words'))).toEqual(['plain', 'mirrored', 'plain']);
+    await item(page, 'words', 'Next').evaluate((el) => el.removeAttribute('data-mirror'));
+    await expect.poll(() => mirroring(glyphs('words'))).toEqual(RTL);
+    // The direction changed on an ancestor while drawn: read in the same task, before any frame, with no motion started.
+    expect(await mirroringAfterDirection(page.locator('[data-fixture="words-ltr"]'), 'rtl', glyphs('words-ltr'))).toEqual(RTL);
+    expect(await mirroringAfterDirection(page.locator('[data-fixture="words"]'), 'ltr', glyphs('words'))).toEqual(LTR);
+    for (const id of ['words-ltr', 'words']) expect(await motionCount(host(page, id)), id).toBe(0);
   });
 
   test('FBM-23: an empty label, an item without a label or an icon, and fewer than two or more than six items still render, and a debug build reports each', async ({ page }) => {

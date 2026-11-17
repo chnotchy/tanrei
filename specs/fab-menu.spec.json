@@ -625,7 +625,7 @@
           "events": {
             "click": "click"
           },
-          "notes": "A child element: `<tanrei-fab-menu-item label=\"Upload\" icon=\"upload\">`; its `click` bubbles."
+          "notes": "A child element: `<tanrei-fab-menu-item label=\"Upload\" icon=\"upload\">`; its `click` bubbles. `data-mirror` (`auto`, the default; `always`; `never`) on an item is the product's word on mirroring the glyph its `icon` names (FBM-26), as on a glyph the product places itself."
         }
       },
       "parts": {

@@ -9,6 +9,7 @@ import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
 import { type Fixture, acmeSystemCss, iconFaceArrives, loadSpec, missingWords, mountFixtures, resolveToken, setWords, tab, tabTo, withoutIconFont, rootTokens } from '../../../test/harness.js';
 import { EVERY_ANIMATION, motionCount } from '../../../test/motions.js';
+import { mirroring, mirroringAfterDirection } from '../../../test/mirror-word.js';
 import { expectBaseline } from '../../../test/baseline.js';
 
 const spec = loadSpec('file-item');
@@ -2948,6 +2949,35 @@ test.describe('behavior', () => {
     await expect.poll(() => mirrored(product)).toBe(false);
     await host(page, 'row-rtl').evaluate((el) => el.shadowRoot!.querySelector('.icon')!.setAttribute('data-mirror', 'always'));
     await expect.poll(() => mirrored(own(page, 'row-rtl', 'icon')), { message: 'forced by the product' }).toBe(true);
+  });
+
+  test('FIT-28: data-mirror on the item is the product’s word on the glyph `glyph` names — always mirrors an unmarked name in right-to-left, never keeps a marked one, none leaves it to the icon set — and the glyph the format chooses takes no word; nothing is mirrored in left-to-right; a change of the word or of an ancestor’s direction is drawn at once, without a motion', async ({ page }) => {
+    const rtl: Extra = { direction: 'rtl' };
+    const named = (id: string, glyph: string, word: string | null, extra: Extra = rtl) => fx(id, { name: 'file.bin', glyph, sizeText: '1 MB', ...(word ? { 'data-mirror': word } : {}), ...WORDS }, extra);
+    await mount(page, [
+      named('listed', 'arrow_forward', null),
+      named('forced', 'check', 'always'),
+      named('forbidden', 'send', 'never'),
+      named('forced-ltr', 'check', 'always', {}),
+      named('forbidden-ltr', 'arrow_forward', 'never', {}),
+      // The format's own glyph (draft, which the set marks): the product's word is not for it.
+      fx('format', { name: 'README', sizeText: '1 MB', 'data-mirror': 'never', ...WORDS }, rtl),
+    ]);
+    const glyphs = (...ids: string[]) => ids.map((id) => own(page, id, 'icon'));
+    const ALL = ['listed', 'forced', 'forbidden', 'forced-ltr', 'forbidden-ltr', 'format'];
+    await expect(own(page, 'format', 'icon')).toHaveText('draft');
+    await expect.poll(() => mirroring(glyphs(...ALL))).toEqual(['mirrored', 'mirrored', 'plain', 'plain', 'plain', 'mirrored']);
+    // The word changed on an item already drawn.
+    await host(page, 'listed').evaluate((el) => el.setAttribute('data-mirror', 'never'));
+    await expect.poll(() => mirroring(glyphs('listed'))).toEqual(['plain']);
+    await host(page, 'listed').evaluate((el) => el.removeAttribute('data-mirror'));
+    await expect.poll(() => mirroring(glyphs('listed'))).toEqual(['mirrored']);
+    // The direction changed on an ancestor while drawn: read in the same task, before any frame, with no motion started.
+    expect(await mirroringAfterDirection(page.locator('[data-fixture="forced-ltr"]'), 'rtl', glyphs('forced-ltr'))).toEqual(['mirrored']);
+    expect(await mirroringAfterDirection(page.locator('[data-fixture="forbidden-ltr"]'), 'rtl', glyphs('forbidden-ltr'))).toEqual(['plain']);
+    expect(await mirroringAfterDirection(page.locator('[data-fixture="forced"]'), 'ltr', glyphs('forced'))).toEqual(['plain']);
+    expect(await mirroringAfterDirection(page.locator('[data-fixture="listed"]'), 'ltr', glyphs('listed'))).toEqual(['plain']);
+    for (const id of ['forced-ltr', 'forbidden-ltr', 'forced', 'listed']) expect(await motionCount(host(page, id)), id).toBe(0);
   });
 
   test('FIT-29: a form it does not know is row, a status pending, a fit cover and a target same; a width or a height that is not a number above zero is as if it were not given; a glyph the icon set does not have draws nothing and keeps its box; each is reported — and preview without an address or a file draws the glyph and reports nothing', async ({ page }) => {

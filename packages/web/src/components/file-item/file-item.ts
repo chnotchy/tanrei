@@ -6,6 +6,7 @@ import {
   AvailabilityController,
   GlyphDrawnController,
   GlyphMirrorController,
+  MirrorWordController,
   LINK_MARK,
   LinkController,
   PressController,
@@ -148,7 +149,7 @@ export class TanreiFileItem extends TanreiElement {
   /** The file's kind as the browser reports it ("image/png"), from which the glyph is chosen (`media-type`). Empty, it is read from `file.type`, and then from the end of `name`. */
   mediaType = '';
 
-  /** The name of a glyph of the icon set, drawn in place of the one the file's format would choose. Empty lets the format choose. */
+  /** The name of a glyph of the icon set, drawn in place of the one the file's format would choose. Empty lets the format choose. A glyph the icon set flags as showing a direction is drawn mirrored in a right-to-left layout; `data-mirror="auto | always | never"` on the item decides for this use (the format's own glyph takes no word). */
   glyph = '';
 
   /** The file's format in the product's words ("PDF"), drawn first on the second line (`format-text`). Empty draws none. */
@@ -249,6 +250,8 @@ export class TanreiFileItem extends TanreiElement {
 
   /** FIT-28: a glyph is mirrored in right-to-left where the icon set marks its name; the one in the icon slot too. */
   private readonly mirror = new GlyphMirrorController(this, { slots: 'slot[name="icon"]', drawn: '.icon:not(.given), .glyph, .mark' });
+  /** FIT-28: the product's word on mirroring the glyph `glyph` names, `data-mirror` on the item, given to its box. */
+  private readonly mirrorWord = new MirrorWordController(this);
 
   /** FIT-31: each glyph box carries `data-drawn` while the icon set can draw its ligature; until then it draws nothing. */
   protected readonly glyphs = new GlyphDrawnController(this, () => this.renderRoot?.querySelectorAll<HTMLElement>('.icon, .glyph, .mark') ?? []);
@@ -753,7 +756,7 @@ export class TanreiFileItem extends TanreiElement {
     // and has no motion of its own — never a part of its own, which would be one more item of the body's line and its gap.
     const media = html`<span class="lead hold"
       ><span part="media" class="media" ?data-tanrei-shape=${tile || this.wantsPreview} ?data-pictured=${pictured} aria-hidden="true"
-        ><span part="icon" class="icon ${classMap({ given: slotted })}">${slotted ? nothing : html`<span class="ink">${glyph}</span>`}<slot name="icon" @slotchange=${this.onIconSlotChange}></slot></span
+        ><span part="icon" class="icon ${classMap({ given: slotted })}" data-mirror=${!slotted && this.glyph.trim() ? this.mirrorWord.word : nothing}>${slotted ? nothing : html`<span class="ink">${glyph}</span>`}<slot name="icon" @slotchange=${this.onIconSlotChange}></slot></span
         >${source
           ? html`<img part="preview" class="preview" alt="" decoding="async" draggable="false" src=${source} ?data-drawn=${pictured} @load=${this.onPicture} @error=${this.onPicture} />`
           : nothing}${tile ? layer : nothing}</span
