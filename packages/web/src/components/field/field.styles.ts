@@ -187,10 +187,14 @@ export const styles = css`
      block, a control that fills the width it is given fills it. A control with a size of its own (an inline-level box:
      a switch, a checkbox) keeps it at the start edge — and stands as an item of a column rather than on a line of
      text, so that the line's own height and the room under its baseline add nothing to the field's height
-     (data-inline, which the element sets from the control's own display). */
+     (data-inline, which the element sets from the control's own display). FLD-34: above the control, the room the
+     control says that what it keeps drawn reaches above its box (--_above, which the element writes from what the
+     control said: a slider's value indicator that is always shown) — below the label row's gap, or at the top of the
+     field where no label row is drawn — so that it lies over neither. A control that says nothing has none. */
   .control {
     display: block;
     min-inline-size: 0;
+    padding-block-start: var(--_above, 0px);
   }
   .control[data-inline] {
     display: flex;

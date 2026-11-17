@@ -899,7 +899,7 @@
   "behavior": [
     {
       "id": "FLD-1",
-      "text": "THE field SHALL lay out, from top to bottom and from its start edge: its label row (FLD-2), its control comp.field.label.gap below the last line of that row, and its supporting row (FLD-7) comp.field.supporting-text.gap below the control. It SHALL be as wide as its layout gives it and give the control that whole width to lay itself out in — a control that fills the width it is given fills it, and a control with a size of its own keeps it, at the start edge — and SHALL be as tall as its rows and its control together. THE field SHALL draw no container, edge, fill or elevation of its own, SHALL add no padding around its rows, and SHALL NOT change the size, the look or the behaviour of its control.",
+      "text": "THE field SHALL lay out, from top to bottom and from its start edge: its label row (FLD-2), its control comp.field.label.gap below the last line of that row — and below the room FLD-34 keeps above it, where its control asks for one —, and its supporting row (FLD-7) comp.field.supporting-text.gap below the control. It SHALL be as wide as its layout gives it and give the control that whole width to lay itself out in — a control that fills the width it is given fills it, and a control with a size of its own keeps it, at the start edge — and SHALL be as tall as its rows and its control together. THE field SHALL draw no container, edge, fill or elevation of its own, SHALL add no padding around its rows, and SHALL NOT change the size, the look or the behaviour of its control.",
       "verify": "Under the default system: a one-line label (20), 8, the control, 4, one line of supporting text (16). The same label, gaps and supporting line as the fixture stacked-supporting of the text field, to the pixel, when the two are drawn at one width."
     },
     {
@@ -1048,6 +1048,11 @@
     {
       "id": "FLD-33",
       "text": "WHERE the platform has ARIA attributes (the web), WHEN the product sets an aria- attribute on the field's host, by the attribute or by the ARIA property that reflects it, THE field SHALL move it to the data-aria- attribute of the same name, so that the host — which has no role — is no node of its own with a name, a description or a state, SHALL expose it on no element, and SHALL report it in debug builds, saying to write it on the control: the control is the product's own element, which keeps its own name, states and ARIA (FLD-10, FLD-23), and what the field gives it is its label, its texts and its marks (FLD-8, FLD-10, FLD-11, FLD-14). WHEN the product removes the aria- attribute or its data-aria- twin, or sets the ARIA property that reflects it to null, THE field SHALL take the moved value away."
+    },
+    {
+      "id": "FLD-34",
+      "text": "WHERE its control keeps something drawn beyond the top edge of its own box and says how far it reaches — for one, a slider whose value indicator is always shown (SLD-30) — THE field SHALL keep that much room above the control: below the label row's comp.field.label.gap, and at the top of the field WHILE no label row is drawn, so that what the control draws there lies between the label row and the control, over neither, and inside the field's own box. A control that says nothing SHALL have no room kept, as a slider whose value indicator is shown only while a handle is pressed or focused has none: that indicator is drawn over its neighbours for that while (SLD-17). WHEN what the control says changes — its value indicator, its size — THE field SHALL follow at once, without motion.",
+      "verify": "Fixture slider-value-indicator: under the default system the label row, 8, the value indicator (24), its lower edge 8 above the handle's top (SLD-17); the slider's own box starts 22 below the gap (SLD-30). Unit: the value indicator's box and the label row's box do not intersect, left to right and right to left; with valueIndicator none or active the slider is 8 below the label row; with labelHidden the value indicator lies inside the field's box; setting valueIndicator to always and back moves the slider down and up at once."
     }
   ],
   "accessibility": {

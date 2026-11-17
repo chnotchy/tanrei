@@ -1,4 +1,4 @@
-// <tanrei-slider>, driven by specs/slider.spec.json: every behaviour id (SLD-1…29) is cited by a test title, every
+// <tanrei-slider>, driven by specs/slider.spec.json: every behaviour id (SLD-1…30) is cited by a test title, every
 // fixture has a baseline, and every part, state and choice of kind is read back from the tokens — never from a number
 // written here.
 // SLD-27: the product's ARIA on the host is tested with every other control's, in every engine, in
@@ -1187,6 +1187,68 @@ test.describe('the value indicator in the top layer', () => {
     expect(scaled.handle.y - scaled.ind.bottom).toBeCloseTo(offset, 1);
     expect(scaled.ind.x + scaled.ind.width / 2).toBeCloseTo(scaled.handle.x + scaled.handle.width / 2, 0);
     expect(await indicatorOf(page, 'scaled').evaluate((el) => el.matches(':popover-open'))).toBe(true);
+  });
+});
+
+test.describe('in a field', () => {
+  test('SLD-30: while valueIndicator is always and it is horizontal, it says how far its indicator reaches above its box — half the handle\'s height, the offset and the indicator\'s height, less half its thickness — and its Field keeps that room above it, disabled too; with none, active or vertical it says nothing; standing alone it keeps its own size whatever valueIndicator is', async ({ page }) => {
+    const shown = { value: 40, label: 'Volume' };
+    const ids = ['always', 'always-medium', 'always-large', 'always-disabled', 'active', 'none', 'vertical'];
+    await mountFixtures(page, spec, {
+      fixtures: [
+        fixture('always', { ...shown, valueIndicator: 'always' }),
+        fixture('always-medium', { ...shown, valueIndicator: 'always', size: 'medium' }),
+        fixture('always-large', { ...shown, valueIndicator: 'always', size: 'large' }),
+        fixture('always-disabled', { ...shown, valueIndicator: 'always', disabled: true }),
+        fixture('active', { ...shown, valueIndicator: 'active' }),
+        fixture('none', { ...shown }),
+        fixture('vertical', { ...shown, valueIndicator: 'always', orientation: 'vertical' }),
+        fixture('alone-always', { ...shown, valueIndicator: 'always' }),
+        fixture('alone-active', { ...shown, valueIndicator: 'active' }),
+      ],
+    });
+    // Standing alone: as thick as the larger of the container and the handle (SLD-7), whatever valueIndicator is.
+    const across = Math.max(await resolveToken(page, T('container-size')), await resolveToken(page, T('handle-height-small')));
+    for (const id of ['alone-always', 'alone-active', 'none']) expect((await rect(host(page, id))).height, `${id} alone`).toBeCloseTo(across, 1);
+    // Each of the others moved into a Field of its own, which it asks when it is connected again (src/primitives/field.ts).
+    await page.evaluate((list) => {
+      for (const id of list) {
+        const slider = document.querySelector(`[data-fixture="${id}"] tanrei-slider`)!;
+        const field = document.createElement('tanrei-field');
+        field.setAttribute('label', 'Volume');
+        slider.replaceWith(field);
+        slider.removeAttribute('label');
+        field.append(slider);
+      }
+    }, ids);
+    await settle(page);
+    const gap = await resolveToken(page, '--tanrei-comp-field-label-gap');
+    /** From the label row's gap to the slider's top edge: the room the Field keeps above it. */
+    const room = async (id: string) => {
+      const row = await rect(page.locator(`[data-fixture="${id}"] tanrei-field`).locator('.frame > .label-row'));
+      return (await rect(host(page, id))).y - row.bottom - gap;
+    };
+    const [offset, least, line] = [
+      await resolveToken(page, T('value-indicator-offset')),
+      await resolveToken(page, T('value-indicator-container-height')),
+      (await resolveToken(page, T('value-indicator-label-typescale-font-size'))) * Number.parseFloat(await token(page, '--tanrei-sys-typescale-label-small-line-height')),
+    ];
+    for (const size of ['small', 'medium', 'large']) {
+      const id = size === 'small' ? 'always' : `always-${size}`;
+      const handle = await resolveToken(page, T(`handle-height-${size}`));
+      const thickness = Math.max(await resolveToken(page, T('container-size')), handle);
+      const reach = Math.max(0, handle / 2 + offset + Math.max(least, line) - thickness / 2);
+      expect(await room(id), `${size}: the reach the slider says`).toBeCloseTo(reach, 1);
+      // And that is where its drawn indicator's top is: the label row's gap below the row.
+      const [indicator, slider] = [await rect(indicatorOf(page, id)), await rect(host(page, id))];
+      expect(slider.y - indicator.y, `${size}: the indicator's top is the reach above the box`).toBeCloseTo(reach, 0);
+    }
+    // Disabled no indicator is drawn (SLD-20), and the room stays, so that disabling it moves nothing.
+    expect(await indicatorOf(page, 'always-disabled').evaluate((el) => el.matches(':popover-open'))).toBe(false);
+    expect(await room('always-disabled'), 'disabled: the same room').toBeCloseTo(await room('always'), 1);
+    // None, active, or vertical: it says nothing, and the field keeps the gap alone.
+    for (const id of ['active', 'none']) expect(await room(id), id).toBeCloseTo(0, 1);
+    expect((await rect(host(page, 'vertical'))).y - (await rect(page.locator('[data-fixture="vertical"] tanrei-field').locator('.frame > .label-row'))).bottom, 'vertical').toBeCloseTo(gap, 1);
   });
 });
 

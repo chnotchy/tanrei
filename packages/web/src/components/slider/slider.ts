@@ -4,7 +4,7 @@ import { AvailabilityController, DIRECTION_PROBE, DirectionController, FieldCont
 import type { TanreiSliderSizeRegistry } from '../../registry.js';
 import { FormDisabledController } from '../../primitives/form-disabled.js';
 import { FormSays } from '../../primitives/form-says.js';
-import { AXES, styles } from './slider.styles.js';
+import { AXES, INDICATOR_REACH, styles } from './slider.styles.js';
 import { FocusedStop, disabledWaitsWhileFocused } from '../../primitives/disabled-while-focused.js';
 import { focusedAtFirst } from '../../primitives/autofocus.js';
 import { TanreiElement } from '../../primitives/element.js';
@@ -272,12 +272,15 @@ export class TanreiSlider extends TanreiElement {
   /**
    * What a field around the slider gives it (src/primitives/field.ts): the name while it has no `label` of its own, the
    * description, the invalid state and `disabled` (FLD-8, FLD-10, FLD-11, FLD-14). The slider's role has no required
-   * state, so a required slider says so in its description.
+   * state, so a required slider says so in its description. SLD-30: a horizontal slider whose value indicator is always
+   * shown says how far it reaches above its box, so that the field keeps that room above it (FLD-34) — disabled too,
+   * where no indicator is drawn (SLD-20), so that disabling it moves nothing.
    */
   private readonly field: FieldControlController = new FieldControlController(this, {
     requiredState: false,
     // A range's `label` names its end handle, not the pair: under a field's label the pair is the field's to name.
     named: () => !!this.label.trim() && !(this.range && !!this.field.label),
+    says: () => ({ above: this.indicator === 'always' && this.axis === 'horizontal' ? INDICATOR_REACH(this.size) : null }),
   });
 
   private pressOf(id: HandleId) {
