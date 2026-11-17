@@ -1,11 +1,16 @@
 // Which web tests a change selects (src/affected.js): what CI's changes job runs on a pull request and on main. Each
 // case is a list of changed paths on the repository as it is.
 import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import path from 'node:path';
 import { test } from 'node:test';
-import { CANARY, EVERY_COMPONENT, affected, grepFor, importsOf } from '../src/affected.js';
+import { fileURLToPath } from 'node:url';
+import { CANARY, affected, crossCutting, grepFor, importsOf } from '../src/affected.js';
+
+const REPO = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../..');
 
 test('a change outside the web selects nothing', () => {
-  assert.deepEqual(affected(['docs/architecture/overview.md', 'apps/docs/astro.config.mjs', 'packages/compose/README.md', 'packages/flutter/lib/x.dart']), { all: false, units: [], files: [], reasons: [] });
+  assert.deepEqual(affected(['docs/architecture/overview.md', 'apps/docs/astro.config.mjs', 'packages/compose/README.md', 'packages/flutter/lib/x.dart']), { all: false, units: [], files: [], every: [], each: [], reasons: [] });
 });
 
 test('what pnpm generate writes is traced through its source, not on its own', () => {
@@ -79,15 +84,71 @@ test("a change to a component's own tests or baselines selects that component an
   assert.ok(affected(['packages/web/src/components/switch/switch.ts']).units.length > 1, 'its implementation still reaches what is built on it');
 });
 
-test('a test that draws the whole package from disk runs for a change to any component, and not for its own tests alone', () => {
-  assert.deepEqual(EVERY_COMPONENT, ['packages/web/src/perf-budget.test.ts']);
+test('the walks of every component are found by their marker line, each file in one way', () => {
+  const { every, each } = crossCutting();
+  for (const file of ['perf-budget', 'hidden', 'overlay-tree', 'styles/registered-properties', 'styles/has']) assert.ok(every.includes(`packages/web/src/${file}.test.ts`), file);
+  for (const file of ['systems', 'stacking', 'first-frame-all', 'fouce', 'targets', 'styles/product-text-direction', 'primitives/composed']) assert.ok(each.includes(`packages/web/src/${file}.test.ts`), file);
+  assert.deepEqual(every.filter((f) => each.includes(f)), []);
+  for (const f of [...every, ...each]) assert.ok(fs.existsSync(path.join(REPO, f)), f);
+});
+
+test("a change to one component runs the walks of every component; its own tests or baselines alone, or the docs, run none", () => {
+  const { every, each } = crossCutting();
   for (const file of ['packages/web/src/components/dialog/dialog.ts', 'specs/dialog.spec.json', 'tokens/comp/dialog.tokens.json', 'packages/web/src/primitives/focus-ring.ts', 'packages/web/src/styles/link.css']) {
     const r = affected([file]);
     assert.equal(r.all, false, file);
-    assert.ok(r.files.includes('packages/web/src/perf-budget.test.ts'), file);
-    assert.match(grepFor(r), /perf-budget\\\.test\\\.ts/, file);
+    assert.deepEqual([...r.files, ...r.every].filter((f) => every.includes(f)).sort(), every, file);
+    assert.deepEqual([...r.files, ...r.each].filter((f) => each.includes(f)).sort(), each, file);
+    const grep = grepFor(r);
+    assert.match(grep, /perf-budget\\\.test\\\.ts/, file);
+    assert.match(grep, /systems\\\.test\\\.ts/, file);
   }
   for (const file of ['packages/web/src/components/dialog/dialog.test.ts', 'packages/web/snapshots/dialog/x.png', 'docs/architecture/overview.md']) {
-    assert.equal(affected([file]).files.includes('packages/web/src/perf-budget.test.ts'), false, file);
+    const r = affected([file]);
+    assert.deepEqual([r.every, r.each], [[], []], file);
+    assert.equal(r.files.includes('packages/web/src/perf-budget.test.ts'), false, file);
   }
+});
+
+test('in a walk of each component, a test runs when its title names a selected component as a word, or names none', () => {
+  // As Playwright matches it: the project, the file under src/ and the titles, joined by spaces, ignoring case.
+  const re = new RegExp(grepFor({ units: ['button'], files: [], every: [], each: ['packages/web/src/systems.test.ts', 'packages/web/src/stacking.test.ts', 'packages/web/src/primitives/form-disabled.test.ts'] }), 'i');
+  for (const title of [
+    ' chromium systems.test.ts m3-like snapshot: button/filled-medium',
+    " chromium systems.test.ts cupertino button: cupertino passes axe's functional rules",
+    ' chromium stacking.test.ts a z-index in button orders its own parts only',
+    ' chromium stacking.test.ts button scrolled under a product’s sticky header',
+    ' chromium primitives/form-disabled.test.ts tanrei-button: disabled by its attribute',
+    ' chromium systems.test.ts presets are discovered from tokens/systems/',
+    ' chromium systems.test.ts two systems on one page do not leak into each other',
+  ]) assert.ok(re.test(title), title);
+  for (const title of [
+    ' chromium systems.test.ts m3-like snapshot: badge/count-single',
+    ' chromium stacking.test.ts a z-index in button-group orders its own parts only',
+    ' chromium primitives/form-disabled.test.ts tanrei-checkbox: disabled by its attribute',
+    ' chromium zoom.test.ts tooltip: under zoom 2',
+  ]) assert.ok(!re.test(title), title);
+});
+
+/**
+ * Web tests that read the registry and need no marker, with why. Any other test outside a component's directory that
+ * reads the specs, the inventory, the components' directories, the manifest or the whole bundle walks every component.
+ */
+const NOT_A_WALK = {
+  'packages/web/src/styles/prose.test.ts':
+    "reads the manifest to hold that the build named every element in dist/prose.css; the build writes that list from the manifest, so no component's change parts them",
+};
+
+test('a web test that reads the registry from disk says how a change selects it', () => {
+  const marked = new Set(Object.values(crossCutting()).flat());
+  const tests = (dir) =>
+    fs.readdirSync(dir, { withFileTypes: true }).flatMap((entry) => {
+      const full = path.join(dir, entry.name);
+      if (entry.isDirectory()) return entry.name === 'components' && dir.endsWith(path.join('web', 'src')) ? [] : tests(full);
+      return entry.name.endsWith('.test.ts') ? [path.relative(REPO, full).split(path.sep).join('/')] : [];
+    });
+  const reads = /specs\/inventory\.json|readdirSync\([^)]*\b(?:specs|components)\b|custom-elements\.json|dist\/all\.js/;
+  const unmarked = tests(path.join(REPO, 'packages/web/src')).filter((f) => reads.test(fs.readFileSync(path.join(REPO, f), 'utf8')) && !marked.has(f) && !NOT_A_WALK[f]);
+  assert.deepEqual(unmarked, [], 'add `// affected: every component — <why>` or `// affected: each component — <why>` (packages/tools/src/affected.js)');
+  for (const f of Object.keys(NOT_A_WALK)) assert.ok(fs.existsSync(path.join(REPO, f)), f);
 });

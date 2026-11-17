@@ -5,6 +5,7 @@
 //
 // This is the one test that imports the pack (the harness, the fixtures and every other test give their words
 // themselves, so that a sample that forgot one shows the gap).
+// affected: each component — each test names in its title the component it draws; the ones that name none hold the walk together.
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';

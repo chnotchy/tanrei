@@ -16,6 +16,7 @@
 //     style its own parts, not the page (Chromium's count of the elements styled, from its trace — never a time, which
 //     is the machine's as much as the package's); on a page that did not load its stylesheet, the page once, for the
 //     sheet.
+// affected: every component — every element of the package on one page, read from disk: a change to any of them can fail any test here.
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';

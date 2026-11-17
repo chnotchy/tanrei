@@ -46,6 +46,7 @@
 // - `PICTURED`: a fixture whose pictures cannot be held once mounted as they are when it appears. Not compared.
 // - a fixture a step in script draws more of once it is mounted (`drawnAfterMount`: scrolled, handed files, dragged
 //   over) is not compared either.
+// affected: each component — each test names in its title the component it draws; the ones that name none hold the walk together.
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';

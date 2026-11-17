@@ -29,6 +29,7 @@
 // and an engine that takes another branch (a style query it lacks) reads differently.
 //
 // A count over its budget is a finding. A count that falls is the budget's to follow: lower it in the same change.
+// affected: every component — every element of the package on one page, read from disk: a change to any of them can fail any test here.
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';

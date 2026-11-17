@@ -3,6 +3,7 @@
 // Korean, and in scripts that join their letters or stack marks on them. Each case gives its title a tracking of its own
 // through the token it reads, so the rule is seen whatever value the default system has: a negative one is dropped in
 // Chinese, Japanese and Korean and a positive one kept; in Arabic or Hindi there is none.
+// affected: every component — every component’s title, and every stylesheet the package ships, under titles that name requirements.
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';

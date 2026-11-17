@@ -2,6 +2,7 @@
 // Nothing in a component knows these systems exist — every assertion reads the system's own tokens.
 // Every component is drawn under every preset (axe's functional rules in light and dark, standard and high contrast, and
 // a baseline per fixture at snapshots/systems/<system>/<component>/<fixture>.png): add it to SUBJECTS.
+// affected: each component — each test names in its title the component it draws; the ones that name none hold the walk together.
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
