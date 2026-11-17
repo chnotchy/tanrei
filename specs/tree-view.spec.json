@@ -537,7 +537,7 @@
     },
     {
       "id": "TRV-23",
-      "text": "WHEN the user types printable characters while focus is on a row THE tree view SHALL move focus to the next row that is shown, after the focused one and going on from the first row after the last, whose label begins with the characters typed within one second of each other, compared without regard to case as the platform's locale does; one character typed again SHALL go on to the next such row; IF no label matches THE tree view SHALL keep focus where it is. It SHALL NOT open a closed parent to find a match, SHALL NOT change the selection, and SHALL NOT take a space typed inside such a run as an activation. WHILE filterable is true the chord of filterShortcut SHALL NOT be taken as type-ahead (TRV-62)."
+      "text": "WHEN the user types printable characters while focus is on a row THE tree view SHALL move focus to the next row that is shown, after the focused one and going on from the first row after the last, whose label begins with the characters typed within one second of each other, compared without regard to case, to the width of a character or to the marks on a letter, as the label's language compares (as the combobox compares, CMB-25); one character typed again SHALL go on to the next such row; IF no label matches THE tree view SHALL keep focus where it is. It SHALL NOT open a closed parent to find a match, SHALL NOT change the selection, and SHALL NOT take a space typed inside such a run as an activation. WHILE filterable is true the chord of filterShortcut SHALL NOT be taken as type-ahead (TRV-62)."
     },
     {
       "id": "TRV-24",

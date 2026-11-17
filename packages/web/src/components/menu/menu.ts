@@ -16,6 +16,7 @@ import {
   OpenAxesController,
   PressController,
   RovingKeys,
+  labelBegins,
   SEPARATION_VALUES,
   SHORTCUT_UPDATE,
   type SeparationProp,
@@ -2095,6 +2096,7 @@ export class TanreiMenu extends TanreiElement {
       event.key,
       current,
       rows.map((each) => ({ focusable: true, label: each.label })),
+      labelBegins,
     );
     if (target === null) return;
     event.preventDefault();

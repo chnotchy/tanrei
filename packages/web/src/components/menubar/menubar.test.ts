@@ -13,6 +13,7 @@ import { type Fixture, type FixtureItem, acmeSystemCss, loadSpec, missingWords, 
 import { expectKeyPressOutlastsPointer } from '../../../test/key-press-pointer-leaves.js';
 import { type Frames, type Probe, expectNoFlicker, sampleFrames } from '../../../test/frames.js';
 import { holdClock, releaseClock } from '../../../test/page-clock.js';
+import { TYPEAHEAD_FOUND, TYPEAHEAD_LABELS, typeaheadAsFiltered } from '../../../test/typeahead.js';
 import { expectBaseline } from '../../../test/baseline.js';
 
 const spec = loadSpec('menubar');
@@ -620,6 +621,17 @@ test.describe('the keys', () => {
     await expect.poll(() => focus(page, 'editor')).toBe('title:Edit');
     await tab(page, { back: true });
     expect(await focus(page, 'editor')).toBe('before');
+  });
+
+  test('MBR-12: a typed character is compared with the titles as the filters compare — without regard to case, to the width of a character or to the marks on a letter, the kana sound marks kept (か does not find が)', async ({ page }) => {
+    await mountFixtures(page, spec, { fixtures: [fx('typed', TYPEAHEAD_LABELS.map((label) => m(label, it('One'))))], lead: '<button id="before">before</button>' });
+    await wire(page);
+    await page.locator('#before').focus();
+    await tab(page);
+    await expect.poll(() => focus(page, 'typed')).toBe('title:Apple');
+    const seen = await typeaheadAsFiltered(page, async () => (await focus(page, 'typed')).replace('title:', ''));
+    expect(seen).toEqual(TYPEAHEAD_FOUND);
+    expect(await open(page, 'typed')).toEqual([]);
   });
 
   test('MBR-12: the Tab stop follows the menu opened last, by any input — a menu reached by travelling, or opened by a pointer — and the keys the bar handles neither scroll nor reach what is around it, while it handles no other key and not Escape', async ({ page }) => {

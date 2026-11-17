@@ -4,6 +4,13 @@
  */
 export const TYPEAHEAD_WINDOW = 1000;
 
+/**
+ * Whether `label` begins with the typed `text`: how typeahead compares, given to `RovingKeys.target`. The one a column
+ * of items gives is `labelBegins` (`filter.ts`), the comparison of the components' filters, so that typing to an item
+ * and filtering for it find the same labels.
+ */
+export type LabelBegins = (label: string, text: string) => boolean;
+
 /** One item of a column that is moved through with the keyboard. */
 export interface RovingItem {
   /** Whether it takes focus (a static list item does not; a disabled one does: it is reachable, not activatable). */
@@ -16,8 +23,9 @@ export interface RovingItem {
  * The keyboard model of a column of items (a list with interactive items or options, LST-17; an open menu, MNU-7):
  * Down and Up Arrow move to the next and previous item that takes focus — wrapping at the ends or stopping there —
  * Home and End to the first and last, and printable characters typed within `TYPEAHEAD_WINDOW` of each other to the
- * next item whose text begins with them (case-insensitive; a new search starts after the current item, a longer one
- * keeps matching from it). Moving focus never activates or selects: the component moves focus to the index returned.
+ * next item whose text begins with them (as the comparison given to `target` says, `labelBegins`; a new search
+ * starts after the current item, a longer one keeps matching from it). Moving focus never activates or selects: the
+ * component moves focus to the index returned.
  *
  * One instance per column: it remembers what was typed.
  */
@@ -38,9 +46,11 @@ export class RovingKeys {
 
   /**
    * The index `key` moves focus to from `current` (-1: no item has focus yet), or `null` when the key is not one of the
-   * column's. A Space that does not continue a search is not the column's: it activates the focused item.
+   * column's. A Space that does not continue a search is not the column's: it activates the focused item. `begins` is
+   * how a typed text is compared with a label (`labelBegins`); without it the column has no typeahead, and a
+   * printable character is not its key.
    */
-  target(key: string, current: number, items: readonly RovingItem[], now = performance.now()): number | null {
+  target(key: string, current: number, items: readonly RovingItem[], begins?: LabelBegins, now = performance.now()): number | null {
     const order = items.flatMap((item, index) => (item.focusable ? [index] : []));
     if (order.length === 0) return null;
     const at = order.indexOf(current);
@@ -56,19 +66,20 @@ export class RovingKeys {
         return order[order.length - 1];
     }
     // A printable character is one code point (`key` of a letter, a digit, punctuation, a Space).
-    if ([...key].length !== 1) return null;
+    if (!begins || [...key].length !== 1) return null;
     const continues = this.searching(now);
     if (key === ' ' && !continues) return null;
-    const typed = continues ? this.typed + key.toLowerCase() : key.toLowerCase();
+    const typed = continues ? this.typed + key : key;
     this.typed = typed;
     this.at = now;
-    // One character typed again is that character once more, looked for after the current item.
-    const again = !!this.options.repeat && [...typed].length > 1 && [...typed].every((character) => character === [...typed][0]);
-    const text = again ? [...typed][0] : typed;
-    const from = at < 0 ? 0 : [...text].length === 1 ? at + 1 : at;
+    // One character typed — or typed again, in either case — is looked for after the current item; a longer text from it.
+    const [first, ...rest] = typed;
+    const one = !rest.length || (!!this.options.repeat && rest.every((character) => begins(character, first)));
+    const text = one ? first : typed;
+    const from = at < 0 ? 0 : one ? at + 1 : at;
     for (let step = 0; step < order.length; step += 1) {
       const index = order[(from + step) % order.length];
-      if (items[index].label.trim().toLowerCase().startsWith(text)) return index;
+      if (begins(items[index].label, text)) return index;
     }
     // Nothing matches: the key was the column's all the same (it is not typed into anything), focus stays.
     return current >= 0 ? current : null;

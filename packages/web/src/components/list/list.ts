@@ -14,6 +14,7 @@ import {
   LinkController,
   PressController,
   RovingKeys,
+  labelBegins,
   TOUCH_SLOP as SLOP,
   type TanreiLinkTarget,
   WordsController,
@@ -2100,7 +2101,7 @@ export class TanreiList extends TanreiElement {
     const current = items.indexOf(item);
     const key = this.rovingKey(event.key, items, current);
     if (key === null) return;
-    const target = typeof key === 'number' ? key : this.keys.target(key, current, items.map((each) => ({ focusable: this.mode !== 'none' || each.pressable, label: each.name })));
+    const target = typeof key === 'number' ? key : this.keys.target(key, current, items.map((each) => ({ focusable: this.mode !== 'none' || each.pressable, label: each.name })), labelBegins);
     if (target === null) return;
     // The key is the list's: it scrolls nothing and does not reach the item (a Space that continues a search is typed).
     event.preventDefault();

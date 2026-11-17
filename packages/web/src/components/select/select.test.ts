@@ -18,6 +18,7 @@ import { motionEnded } from '../../../test/motions.js';
 import { entrances, loadOpen, mountOpenAgain, runsAtRest } from '../../../test/mounted-open.js';
 import { expectWheelKeptFromPage } from '../../../test/contained-wheel.js';
 import { holdClock, releaseClock } from '../../../test/page-clock.js';
+import { TYPEAHEAD_FOUND, TYPEAHEAD_LABELS, typeaheadAsFiltered } from '../../../test/typeahead.js';
 import { expectPressShownAndHeld, watchPress } from '../../../test/watched-press.js';
 import { type Fixture, type FixtureItem, acmeSystemCss, loadSpec, missingWords, mountFixtures, resolveColor, resolveToken, setWords, tab, tabTo, withoutIconFont, iconFaceArrives, inputBoxCopies, inputBoxOwn, inputBoxSetApart, inputBoxToken, rootTokens, mountFixtureAsInAll } from '../../../test/harness.js';
 import { expectBaseline } from '../../../test/baseline.js';
@@ -1535,6 +1536,15 @@ test.describe('behavior: the list', () => {
     await page.keyboard.press('Space');
     await closedList(page, 'one');
     expect(await heard(page)).toEqual(['change cl', 'toggle false select']);
+  });
+
+  test('SEL-33: the string is compared with the labels as the filters compare — without regard to case, to the width of a character or to the marks on a letter, the kana sound marks kept (か does not find が)', async ({ page }) => {
+    await mount(page, [fx('typed', {}, TYPEAHEAD_LABELS.map((label, n) => option(label, `c${n}`)))]);
+    await focusSelect(page, 'typed');
+    // The first character opens the list and looks from its start: École is active once the first search has run.
+    const seen = await typeaheadAsFiltered(page, async () => (await read(page, 'typed')).active);
+    expect(seen).toEqual(TYPEAHEAD_FOUND);
+    expect((await read(page, 'typed')).value).toBe('');
   });
 
   test('SEL-34: a press on an option, or Enter or Space on the active one, sets value, shows its label and emits change once with the new value, then closes the list with the reason select, so toggle follows change; the chosen option chosen again emits no change and still closes; setting value from the product emits nothing', async ({ page }) => {

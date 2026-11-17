@@ -1,6 +1,7 @@
 // How a typed text is compared with a label: the combobox's filter (CMB-25, CMB-29), with the run of the label that
 // answered it (CMB-38), the filter field of the navigation drawer and the tree view (NVD-81, TRV-56), which marks
-// no run (NVD-85, TRV-60), and the search's completion of what was typed (SRC-55, SRC-56).
+// no run (NVD-85, TRV-60), the search's completion of what was typed (SRC-55, SRC-56), and the typeahead of a column
+// of items (SEL-33, LST-17, MNU-7, TRV-23, MBR-12), so that typing to an item and filtering for it find the same labels.
 //
 // Without regard to case, to the width of a character or to the marks on a letter: each letter with the marks that
 // follow it is folded by itself — its compatibility form (a full-width "ｔ" is "t", a half-width "ｶ" is "カ"), without
@@ -41,6 +42,16 @@ export function fold(label: string): Folded {
 
 /** A text as it is compared: folded, without the spaces around it. */
 export const foldText = (text: string) => fold(text.trim()).text;
+
+/**
+ * SEL-33, LST-17, MNU-7, TRV-23, MBR-12: whether `label`, without the spaces around it, begins with the typed `text`,
+ * compared as above (typed "e" begins "École", "か" does not begin "がっこう"). The comparison typeahead gives
+ * `RovingKeys.target`.
+ */
+export const labelBegins = (label: string, text: string) => folded(label.trim()).startsWith(folded(text));
+
+/** The folded text alone, letter by letter as `fold` folds it, for a caller that needs no place in the label. */
+const folded = (text: string) => (text.match(CLUSTER) ?? []).map(foldCluster).join('');
 
 /** CMB-38: the first run of `label` that matched `query` (already folded), as the three pieces of the label; null when none did. */
 export function matchRun(folded: Folded, query: string): [string, string, string] | null {
