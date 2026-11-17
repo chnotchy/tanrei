@@ -65,6 +65,13 @@ const MENU = '[data-app-shell-menu]';
 /** What the frame gives the page: the height it keeps over the top of the scrolling view, and over its bottom (APS-17). */
 const OFFSET = '--tanrei-app-shell-scroll-offset';
 const OFFSET_END = '--tanrei-app-shell-scroll-offset-end';
+/**
+ * What the frame keeps over the top and the bottom of the window, whatever scrolls, for what is drawn over the page (a
+ * snackbar, SNK-13, SNK-35): with `scroll="main"` the scrolling view has nothing over it, yet the header and the navigation
+ * bar still stand at the window's edges (APS-17).
+ */
+const INSET_TOP = '--tanrei-app-shell-window-inset-top';
+const INSET_BOTTOM = '--tanrei-app-shell-window-inset-bottom';
 /** The footer's measured height, for the stylesheet (APS-11). */
 const FOOTER = '--_aps-footer';
 /** A side sheet's measured width in the aside, for the stylesheet: what the navigation leaves it (APS-5, APS-10). */
@@ -194,7 +201,10 @@ let ids = 0;
  * - **the scroll offset**: the header's measured height as `--tanrei-app-shell-scroll-offset` on the document's root
  *   (the stylesheet sets the root's scroll padding from it), and the navigation bar's as
  *   `--tanrei-app-shell-scroll-offset-end`, so a link's target and a focused element rest clear of both. The product's
- *   own sticky parts read the same properties;
+ *   own sticky parts read the same properties. Both are nothing with `scroll="main"`: nothing stands over the main region;
+ * - **the window's insets**: how far the header and the navigation bar reach over the top and the bottom of the window,
+ *   whatever scrolls, as `--tanrei-app-shell-window-inset-top` and `--tanrei-app-shell-window-inset-bottom` on the
+ *   document's root, for what is drawn over the page (a snackbar) to stay clear of them;
  * - **a landmark** for a region whose element does not give one (`role="banner"` on a header that is not a
  *   `<header>`, `aria-label` from `aside-label` on an aside without a name), and `tabindex="-1"` on a `<main>` that
  *   lacks it;
@@ -216,6 +226,8 @@ let ids = 0;
  * @fires {CustomEvent<TanreiAppShellNavigationOpenChangeDetail>} navigationopenchange - The navigation asks to be presented over the content, or to be put away: the menu button was activated (`detail.navigationOpen` true, and false while it was open), or the open navigation closed — by its scrim, Escape, the platform's back, a drag, a destination — or the window became wide enough for it to stand beside the content (false). `navigationOpen` already holds it.
  * @cssprop --tanrei-app-shell-scroll-offset - On the document's root: the height the frame keeps over the top of the page (a sticky header's), for the product's own sticky parts.
  * @cssprop --tanrei-app-shell-scroll-offset-end - On the document's root: the height the frame keeps over the bottom of the page (the navigation bar's).
+ * @cssprop --tanrei-app-shell-window-inset-top - On the document's root, whatever scrolls: how far the frame reaches over the top of the window (to the bottom edge of a header it keeps in view), for what is drawn over the page.
+ * @cssprop --tanrei-app-shell-window-inset-bottom - On the document's root, whatever scrolls: how far the frame reaches over the bottom of the window (the navigation bar's height while it is shown), for what is drawn over the page.
  * @cssprop --tanrei-app-shell-window-class - Inherited by everything the frame holds: `compact`, `medium` or `expanded`, for a style container query.
  */
 export class TanreiAppShell extends TanreiLightElement {
@@ -305,6 +317,8 @@ export class TanreiAppShell extends TanreiLightElement {
   private header: Element | null = null;
   /** APS-17, APS-34: what the frame keeps over the top of the page — the header, or the menu button of a frame without one. */
   private top: Element | null = null;
+  /** APS-17: the announcement above the header, which moves the header's bottom edge while the main region scrolls. */
+  private announcement: Element | null = null;
   private bar: Element | null = null;
   private footer: Element | null = null;
   /** APS-5, APS-10: a side sheet in the aside, whose width — its own, and changing as it slides — is measured. */
@@ -381,8 +395,8 @@ export class TanreiAppShell extends TanreiLightElement {
     // APS-33: removed, it listens for no chord.
     this.syncChord();
     this.header = this.bar = this.footer = this.sheet = this.navigation = null;
-    publish(this, OFFSET, null);
-    publish(this, OFFSET_END, null);
+    this.announcement = null;
+    for (const name of [OFFSET, OFFSET_END, INSET_TOP, INSET_BOTTOM]) publish(this, name, null);
     for (const [element, names] of this.given) for (const name of names) element.removeAttribute(name);
     this.given.clear();
   }
@@ -604,17 +618,19 @@ export class TanreiAppShell extends TanreiLightElement {
     // APS-5, APS-10: and the width of a side sheet in the aside, which the navigation leaves it; the window's width is
     // watched again with them (the observer lets go of everything it watched).
     const top = header ?? menuSlot;
+    const announcement = this.region('announcement');
     const sheet = aside?.localName === 'tanrei-side-sheet' ? aside : null;
-    if (header !== this.header || top !== this.top || bar !== this.bar || footer !== this.footer || sheet !== this.sheet) {
+    if (header !== this.header || top !== this.top || announcement !== this.announcement || bar !== this.bar || footer !== this.footer || sheet !== this.sheet) {
       this.sizes?.disconnect();
       this.header = header;
       this.top = top;
+      this.announcement = announcement;
       this.bar = bar;
       this.footer = footer;
       this.sheet = sheet;
-      for (const observed of [document.documentElement, top, bar, footer, sheet]) if (observed) this.sizes?.observe(observed);
-      if (!top) publish(this, OFFSET, null);
-      if (!bar) publish(this, OFFSET_END, null);
+      for (const observed of [document.documentElement, top, announcement, bar, footer, sheet]) if (observed) this.sizes?.observe(observed);
+      if (!top) this.measure();
+      if (!bar) this.measureBar();
       if (!footer) this.style.removeProperty(FOOTER);
       if (!sheet) this.style.removeProperty(ASIDE);
     }
@@ -667,7 +683,8 @@ export class TanreiAppShell extends TanreiLightElement {
       // APS-5: the sheet's width in every frame it slides, so that the navigation leaves it room as it comes.
       else if (entry.target === this.sheet) this.length(ASIDE, entry.borderBoxSize?.[0]?.inlineSize ?? entry.contentRect.width);
       else if (entry.target === this.top) this.measure(size);
-      else if (entry.target === this.bar) publish(this, OFFSET_END, this.scrolls !== 'main' && size > 0 ? size : null);
+      else if (entry.target === this.announcement) this.measure();
+      else if (entry.target === this.bar) this.measureBar(size);
       // APS-11: where the navigation and the aside stop staying in view (a browser keeps a sticky part inside the
       // frame, not inside its row: the stylesheet takes this much off the end of what it may reach).
       else if (entry.target === this.footer) this.length(FOOTER, size);
@@ -681,19 +698,32 @@ export class TanreiAppShell extends TanreiLightElement {
   }
 
   /**
-   * The header's height, while the header is kept over the top of the page (APS-17); in a frame without a header, the
-   * menu button's height and the gutter it is kept from the top of the window by, while it is shown (APS-34); nothing
-   * otherwise.
+   * APS-17: over the top of the scrolling view, the header's height while the header is kept over the top of the page;
+   * in a frame without a header, the menu button's height and the gutter it is kept from the top of the window by, while
+   * it is shown (APS-34); nothing otherwise, and nothing while the main region scrolls, which nothing stands over. Over
+   * the top of the window, the same while the page scrolls; while the main region scrolls, the header (or the menu
+   * button) never moves, and the window is kept down to its bottom edge, below an announcement too.
    */
   private measure(size: number | undefined = this.top?.getBoundingClientRect().height) {
     const top = this.top;
-    if (!top || top === this.header) {
-      const kept = this.scrolls !== 'main' && this.headerPosition !== 'static';
-      publish(this, OFFSET, kept && size !== undefined && size > 0 ? size : null);
+    if (!top || size === undefined || size <= 0) {
+      publish(this, OFFSET, null);
+      publish(this, INSET_TOP, null);
       return;
     }
-    const kept = this.scrolls !== 'main' && size !== undefined && size > 0;
-    publish(this, OFFSET, kept ? size + (parseFloat(getComputedStyle(top).marginBlockStart) || 0) : null);
+    // A static header scrolls away with the page; the menu button of a frame without a header is kept its gutter (its
+    // block-start margin) from the top of the window.
+    const kept = top !== this.header ? size + (parseFloat(getComputedStyle(top).marginBlockStart) || 0) : this.headerPosition !== 'static' ? size : null;
+    const page = this.scrolls !== 'main';
+    publish(this, OFFSET, page ? kept : null);
+    publish(this, INSET_TOP, page ? kept : top.getBoundingClientRect().bottom - this.getBoundingClientRect().top);
+  }
+
+  /** APS-17: the navigation bar's height while it is shown: over the bottom of the window, and of the scrolling view while the page scrolls. */
+  private measureBar(size: number | undefined = this.bar?.getBoundingClientRect().height) {
+    const shown = size !== undefined && size > 0 ? size : null;
+    publish(this, OFFSET_END, this.scrolls !== 'main' ? shown : null);
+    publish(this, INSET_BOTTOM, shown);
   }
 
   // ---- APS-5: the place being read while a person changes the navigation's width ----
@@ -1063,6 +1093,7 @@ export class TanreiAppShell extends TanreiLightElement {
     }
     this.read();
     if (changed.has('scrolls') || changed.has('headerPosition')) this.measure();
+    if (changed.has('scrolls')) this.measureBar();
     // APS-31: a footer hidden while focus was in it gives focus to the main region.
     if (changed.has('footerHidden') && this.footerHidden) this.rescueFocus();
     this.tell();
