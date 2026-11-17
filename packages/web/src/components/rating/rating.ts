@@ -1,5 +1,5 @@
 import { type PropertyDeclarations, type PropertyValues, html, nothing } from 'lit';
-import { AvailabilityController, FocusedStop, GlyphMirrorController, OpenAxesController, PressController, disabledWaitsWhileFocused, namedByProduct, report, syncFocusStyle } from '../../primitives/index.js';
+import { AvailabilityController, FocusedStop, GlyphMirrorController, MirrorWordController, OpenAxesController, PressController, disabledWaitsWhileFocused, namedByProduct, report, syncFocusStyle } from '../../primitives/index.js';
 import { FormDisabledController } from '../../primitives/form-disabled.js';
 import { formOf, pressDefaultButton } from '../../primitives/default-button.js';
 import { ambientLocale } from '../../primitives/locale-date.js';
@@ -103,7 +103,7 @@ export class TanreiRating extends TanreiElement {
   /** The size of each mark (20 / 24 / 32) and of the round container behind it (28 / 32 / 40). The hit area always meets the minimum target. A design system may add values. */
   size: TanreiRatingSize = 'medium';
 
-  /** The name of the glyph of one mark in the system's icon set (`favorite`, `thumb_up`); empty draws `star`. A name the icon set mirrors in right-to-left is drawn mirrored. */
+  /** The name of the glyph of one mark in the system's icon set (`favorite`, `thumb_up`); empty draws `star`. A name the icon set mirrors in right-to-left is drawn mirrored; `data-mirror="auto | always | never"` on the rating decides for the glyph `icon` names (the `star` it draws by itself takes no word). */
   icon = '';
 
   /** Names the rating for assistive technology ("Your rating of this recipe"). Required. Never drawn. */
@@ -141,8 +141,10 @@ export class TanreiRating extends TanreiElement {
   /** RAT-18: sizes a design system adds, and a value the active system does not have (src/primitives/axes.ts). */
   private readonly axes = new OpenAxesController(this, { component: 'rating', behavior: 'RAT-18', axes: AXES });
 
-  /** RAT-16: the glyph is marked when the icon set mirrors its name in right-to-left (src/primitives/glyph-mirror.ts). */
+  /** RAT-16, RAT-19: the glyph is marked when the icon set mirrors its name in right-to-left (src/primitives/glyph-mirror.ts). */
   private readonly mirror = new GlyphMirrorController(this, { drawn: '.glyph' });
+  /** RAT-19: the product's word on mirroring the glyph `icon` names, `data-mirror` on the rating; the star it draws by itself takes none. */
+  private readonly mirrorWord = new MirrorWordController(this);
 
   /** Disabled under the focus it holds, its stop keeps its `tabindex` for one frame (src/primitives/disabled-while-focused.ts). */
   private readonly stop = new FocusedStop(this);
@@ -470,6 +472,7 @@ export class TanreiRating extends TanreiElement {
     const focusable = !off || keep;
     const stop = score > 0 ? Math.ceil(score) - 1 : 0;
     const glyph = this.icon || STAR_GLYPH;
+    const word = this.icon ? this.mirrorWord.word : nothing;
     const label = this.label || nothing;
 
     const marks = Array.from({ length: count }, (_, index) => {
@@ -491,8 +494,8 @@ export class TanreiRating extends TanreiElement {
         tabindex=${radio && focusable ? (index === stop ? '0' : '-1') : nothing}
       >
         <span part="mark" class="mark" aria-hidden="true">
-          <span class="layer off"><span class="glyph">${glyph}</span></span>
-          <span class="layer on"><span class="glyph">${glyph}</span></span>
+          <span class="layer off"><span class="glyph" data-mirror=${word}>${glyph}</span></span>
+          <span class="layer on"><span class="glyph" data-mirror=${word}>${glyph}</span></span>
         </span>
       </span>`;
     });

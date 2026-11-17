@@ -2,7 +2,7 @@ import { type PropertyDeclarations, type PropertyValues, html, nothing } from 'l
 import { classMap } from 'lit/directives/class-map.js';
 import { styleMap } from 'lit/directives/style-map.js';
 import { type CutTextContent, CutTextTip, isCut } from '../../primitives/cut-text.js';
-import { AvailabilityController, GlyphDrawnController, GlyphMirrorController, OpenAxesController, SizeConsumerController, deepActive, notifyItemUpdate, report } from '../../primitives/index.js';
+import { AvailabilityController, GlyphDrawnController, GlyphMirrorController, MirrorWordController, OpenAxesController, SizeConsumerController, deepActive, notifyItemUpdate, report } from '../../primitives/index.js';
 import type { TanreiListRowSizeRegistry } from '../../registry.js';
 import type { TanreiListItemFrame } from '../list/list.js';
 import '../tooltip/tooltip.js';
@@ -105,13 +105,13 @@ export class TanreiListRow extends TanreiElement {
   /** How many lines the supporting text may take: 1 or 2 (two make a three-line row). Another number is read as the nearer. */
   supportingLines = 1;
 
-  /** The name of a glyph of the system's icon set at the row's start. Decorative; the leading slot's content is drawn in its place. */
+  /** The name of a glyph of the system's icon set at the row's start. Decorative; the leading slot's content is drawn in its place. Mirrored in right-to-left where the icon set says; `data-mirror="auto | always | never"` on the row decides for this use, for both of its glyphs. */
   leadingIcon = '';
 
   /** A short value at the row's end: a count, a size, a time. One line, never more than half of the row. */
   trailingText = '';
 
-  /** The name of a glyph of the system's icon set at the row's very end (`chevron_right`). Decorative, mirrored where the icon set says. */
+  /** The name of a glyph of the system's icon set at the row's very end (`chevron_right`). Decorative, mirrored where the icon set says, and `data-mirror` on the row decides for this use. */
   trailingIcon = '';
 
   /**
@@ -151,9 +151,11 @@ export class TanreiListRow extends TanreiElement {
   /** LRW-14: sizes a design system adds, and a value the active system does not have (src/primitives/axes.ts). */
   private readonly axes = new OpenAxesController(this, { component: 'list-row', behavior: 'LRW-14', axes: AXES });
 
-  /** LRW-4, LRW-6: the glyphs are drawn only while the icon set can draw them, and mirrored where it says they point. */
+  /** LRW-4, LRW-6, LRW-18: the glyphs are drawn only while the icon set can draw them, and mirrored where it says they point. */
   private readonly glyphs = new GlyphDrawnController(this, () => this.renderRoot.querySelectorAll<HTMLElement>('.leading-icon, .trailing-icon'));
   private readonly mirror = new GlyphMirrorController(this, { drawn: '.leading-icon, .trailing-icon' });
+  /** LRW-18: the product's word on mirroring both glyphs, `data-mirror` on the row, given to each glyph's box. */
+  private readonly mirrorWord = new MirrorWordController(this);
 
   /** @internal LST-49: the name the row gives the list item it is in: its headline. */
   get listItemName(): string {
@@ -353,7 +355,7 @@ export class TanreiListRow extends TanreiElement {
           <span part="leading" class=${classMap({ leading: true, has: this.leadingFilled || drawsIcon || keepsRoom })}>
             <slot name="leading" @slotchange=${this.#onLeadingChange}></slot>
             ${drawsIcon
-              ? html`<span part="leading-icon" class="leading-icon" aria-hidden="true"><span class="ink">${leadingIcon}</span></span>`
+              ? html`<span part="leading-icon" class="leading-icon" aria-hidden="true" data-mirror=${this.mirrorWord.word}><span class="ink">${leadingIcon}</span></span>`
               : keepsRoom
                 ? html`<span class="leading-room" aria-hidden="true"></span>`
                 : nothing}
@@ -367,7 +369,7 @@ export class TanreiListRow extends TanreiElement {
           </span>
           ${trailingText ? html`<span part="trailing-text" class="trailing-text"><bdi>${trailingText}</bdi></span>` : nothing}
           <span part="trailing" class=${classMap({ trailing: true, has: this.trailingFilled })}><slot name="trailing" @slotchange=${this.#onTrailingChange}></slot></span>
-          ${trailingIcon ? html`<span part="trailing-icon" class="trailing-icon" aria-hidden="true"><span class="ink">${trailingIcon}</span></span>` : nothing}
+          ${trailingIcon ? html`<span part="trailing-icon" class="trailing-icon" aria-hidden="true" data-mirror=${this.mirrorWord.word}><span class="ink">${trailingIcon}</span></span>` : nothing}
         </div>
       </div>
       <span class="tip-clock"></span>
