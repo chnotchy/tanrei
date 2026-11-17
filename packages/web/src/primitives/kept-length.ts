@@ -1,4 +1,5 @@
 import { type CSSResult, unsafeCSS } from 'lit';
+import { TARGET_CAPS } from './target.js';
 
 // A row of controls that stand close together (SRC-34: a search bar's action buttons; TBR-16: a floating toolbar's
 // items). The row lays them a gap apart, measured between their visible bounds, and moves two neighbours further apart
@@ -26,9 +27,13 @@ import { type CSSResult, unsafeCSS } from 'lit';
 //        a spacer `KeptLengths` puts in the box, in the cell before that element's — never a margin on the product's
 //        element. A page's rules beat the rules a shadow root gives what it slots (`::slotted()`), whatever their
 //        layer, so a reset such as `* { margin: 0 }` would take such a margin away; the box and its spacers are out of
-//        the page's reach. The box lays out what its slot holds as it is flattened (a product's own slot may forward
-//        its children to it), text among the elements included: a spacer's cell counts the cells of those other
-//        items, so the space stands right before its element wherever text stands.
+//        the page's reach. `KeptLengths` reads the box's elements from the box itself, as it lays them out: what its
+//        slot holds flattened (a product's own slot may forward its children to it), an element of `display:
+//        contents` opened (the elements it holds are the box's, and spaced as they are), text among them included —
+//        a spacer's cell counts the cells of the other items, so the space stands right before its element wherever
+//        text stands. While it keeps such spaces it watches what the box lays out (a MutationObserver), so text that
+//        comes, changes or goes, and elements written into an element of `display: contents`, move the spacers at
+//        once, though the slot's own content did not change.
 //    The row's own `gap` between these elements is 0 (the gap token is inside the margin or the spacer). Until the
 //    lengths arrive a spacer is the gap and a margin is none.
 //
@@ -38,6 +43,7 @@ const LENGTH = '--tanrei-kept-length';
 const BEFORE = '--tanrei-kept-before';
 const FOLLOWS = '--tanrei-kept-follows';
 const PROPERTIES = [LENGTH, BEFORE, FOLLOWS] as const;
+const CAP = TARGET_CAPS.start;
 
 const TOUCH = 'var(--tanrei-sys-target-touch)';
 /** Half of what a length lacks of the touch target; nothing where it is not known yet. */
@@ -121,47 +127,64 @@ const observer =
         for (const write of writes) write?.();
       });
 
+/** What a box lays out, in its order: one of the row's elements, a run of text, or another item (`'other'`). */
+type Item = HTMLElement | 'text' | 'other';
+/** What a change is watched for: a run of text's data, the children an element (or a slot's host) holds, or all it holds. */
+type Watch = { node: Node; options: MutationObserverInit };
+const TEXT_DATA: MutationObserverInit = { characterData: true };
+const CHILDREN: MutationObserverInit = { childList: true };
+const EVERYTHING: MutationObserverInit = { childList: true, characterData: true, subtree: true };
+
 /**
- * The measuring half: give it the row — its elements in the order they are laid out — with `set()`, again whenever the
- * row or its axis changes, and `clear()` when the host leaves the page. An element that takes no room (hidden) is no
- * one's neighbour. `changed` is called after lengths were written, for a host that measures what follows from them:
- * it reads there and then, and returns what it writes — the writes of every host follow the reads of them all.
- * `spaces` is the box of the host's that `keptSpaces()` lays out: the space before each element slotted into it is a
- * spacer of the box's, and nothing is written on the product's element.
+ * The measuring half: give it the host's own elements of the row — in the order they are laid out — with `set()`,
+ * again whenever they or the axis change, and `clear()` when the host leaves the page. An element that takes no room
+ * (hidden) is no one's neighbour. `changed` is called after lengths were written, for a host that measures what follows
+ * from them: it reads there and then, and returns what it writes — the writes of every host follow the reads of them
+ * all. `spaces` is the box of the host's that `keptSpaces()` lays out: the elements it lays out follow the host's in
+ * the row, read from the box itself (`set()` reads it again, and so does any change of what it lays out); the space
+ * before each is a spacer of the box's, and nothing of the row is written on the product's element. `cap`, with a box,
+ * is how far the first element the box lays out may reach toward the row's start (BTN-5) where none of the host's
+ * elements stands before it: written as that element's `TARGET_CAPS.start`, and taken off when another one is first.
  */
 export class KeptLengths {
+  /** The host's own elements, as `set()` gave them. */
+  private given: HTMLElement[] = [];
+  /** Every element observed: the host's, then the elements the box holds (those it lays out, and those it opens or hides). */
   private row: HTMLElement[] = [];
   private axis: 'inline' | 'block' = 'inline';
   private readonly lengths = new Map<HTMLElement, number>();
   private readonly spacers: HTMLElement[] = [];
+  /** What the box lays out, in order, as it was read last. */
+  private items: Item[] = [];
+  /** The elements the box holds, laid out or not. */
+  private held = new Set<HTMLElement>();
+  /** The product's elements that carry the cap, each with the cap it had of its own before (`''`: none). */
+  private readonly capped = new Map<HTMLElement, string>();
+  private mutations: MutationObserver | null = null;
+  private watched: Watch[] = [];
 
   constructor(
     readonly changed?: Changed,
     private readonly spaces?: () => HTMLElement | null,
+    private readonly cap?: string,
   ) {}
 
   set(row: readonly HTMLElement[], axis: 'inline' | 'block' = 'inline') {
-    if (axis === this.axis && row.length === this.row.length && row.every((element, i) => element === this.row[i])) {
-      // The same row, but what else the box lays out among its elements (text) may have changed: the spacers' cells follow.
-      if (this.spaces && this.row.length && observer) this.write();
+    if (axis === this.axis && row.length === this.given.length && row.every((element, i) => element === this.given[i])) {
+      // The same elements of the host's; what the box lays out may have changed (the slot's content): it is read again.
+      if (this.spaces && observer) this.write();
       return;
     }
-    for (const element of this.row) if (!row.includes(element)) this.forget(element);
     const before = this.row;
-    this.row = [...row];
     if (axis !== this.axis) this.lengths.clear();
+    this.given = [...row];
+    this.axis = axis;
     // Every element of the row is reported anew, as a row given to an observer of its own was.
     for (const element of before) this.unobserve(element);
-    this.axis = axis;
-    if (!row.length || !observer) {
-      this.place([]);
-      return;
-    }
-    for (const element of this.row) {
-      rows.set(element, this);
-      observer.observe(element);
-    }
-    this.write();
+    this.row = [];
+    if (observer) this.write();
+    else this.place([]);
+    for (const element of before) if (!this.row.includes(element)) this.forget(element);
   }
 
   /** The observer's report of one element of the row. */
@@ -179,16 +202,33 @@ export class KeptLengths {
   }
 
   clear() {
-    this.set([], this.axis);
+    for (const element of this.row) {
+      this.unobserve(element);
+      this.forget(element);
+    }
+    this.given = [];
+    this.row = [];
+    this.items = [];
+    this.held = new Set();
+    this.watch([]);
+    this.place([]);
   }
 
   private forget(element: HTMLElement) {
     this.lengths.delete(element);
     for (const property of PROPERTIES) element.style.removeProperty(property);
+    if (this.capped.has(element)) {
+      const own = this.capped.get(element)!;
+      this.capped.delete(element);
+      if (own) element.style.setProperty(CAP, own);
+      else element.style.removeProperty(CAP);
+    }
   }
 
-  /** What each element reads, written where it differs; whether anything was written. */
+  /** The row read again (what the box lays out), what each element reads written where it differs; whether anything was written. */
   write() {
+    const box = this.spaces?.() ?? null;
+    this.read(box);
     let wrote = false;
     const put = (element: HTMLElement, property: string, value: string | null) => {
       if (element.style.getPropertyValue(property) === (value ?? '')) return;
@@ -197,78 +237,133 @@ export class KeptLengths {
       wrote = true;
     };
     const px = (element: HTMLElement) => (this.lengths.has(element) ? `${this.lengths.get(element)}px` : null);
-    const box = this.spaces?.() ?? null;
-    // The spacers the box needs: the cell each stands in (counted along the box, the cells of its elements and of the
-    // other items it lays out included) and the lengths of its two neighbours.
-    const others = box ? this.othersBefore(box) : null;
-    const spacers: Spacer[] = [];
-    let cell = 0;
-    let counted = 0;
     let before: HTMLElement | null = null;
-    for (const element of this.row) {
+    // The host's own elements: the space before each is its margin, flagged.
+    for (const element of this.given) {
+      if (this.held.has(element)) continue;
       // An element that takes no room is not laid out: it keeps nothing and is no one's neighbour.
       if (this.lengths.get(element) === 0) {
         for (const property of PROPERTIES) put(element, property, null);
         continue;
       }
-      const ahead = others?.get(element);
-      if (ahead !== undefined) {
-        for (const property of PROPERTIES) put(element, property, null);
-        cell += ahead - counted;
-        counted = ahead;
-        if (before) spacers.push({ cell: ++cell, length: px(element), before: px(before) });
-        cell += 1;
-      } else {
-        put(element, LENGTH, px(element));
-        put(element, FOLLOWS, before ? '1' : null);
-        put(element, BEFORE, before ? px(before) : null);
-      }
+      put(element, LENGTH, px(element));
+      put(element, FOLLOWS, before ? '1' : null);
+      put(element, BEFORE, before ? px(before) : null);
       before = element;
+    }
+    // The box's: the spacers it needs, each in the cell right before its element (counted along the box, the cells of
+    // the other items it lays out included) with the lengths of its two neighbours; the first element, where nothing of
+    // the row stands before it, takes the cap.
+    const spacers: Spacer[] = [];
+    let first: HTMLElement | null = null;
+    let cell = 0;
+    for (const item of this.items) {
+      if (typeof item !== 'string' && this.lengths.get(item) !== 0) {
+        if (before) spacers.push({ cell: ++cell, length: px(item), before: px(before) });
+        else first = item;
+        before = item;
+      }
+      cell += 1;
+    }
+    for (const element of this.held) {
+      for (const property of PROPERTIES) put(element, property, null);
+      if (element === first && this.cap) {
+        if (!this.capped.has(element)) this.capped.set(element, element.style.getPropertyValue(CAP));
+        put(element, CAP, this.cap);
+      } else if (this.capped.has(element)) {
+        put(element, CAP, this.capped.get(element) || null);
+        this.capped.delete(element);
+      }
     }
     if (this.place(spacers, box, put)) wrote = true;
     return wrote;
   }
 
   /**
-   * For each element of the row that the box lays out, how many of the box's other items come before it: an item that
-   * is no element of the row's takes a cell of its own, which the spacers' cells must count. Such an item is a run of
-   * text — the box makes one anonymous item of each run of text that is not only white space, as a product's slot
-   * forwards it, or an element of `display: contents` holds it — or an element of the box that takes no length along
-   * the row or that the row does not hold. The box's children are read as it lays them out: a slot, and an element of
-   * `display: contents`, give way to what they hold. An element's style is read only where its length cannot tell.
+   * What the box lays out, read as it lays it out, and the row observed to match: the box's children, a slot giving way
+   * to what it holds and an element of `display: contents` to what it holds, are its items — each element, each run of
+   * text that is not only white space (the box makes one anonymous item of a run, as a product's slot forwards it or
+   * an element of `display: contents` holds it), and anything else that takes a cell. An element's style is read only
+   * where its length cannot tell. What a change of the slot's content would not announce is watched (`watch()`): the
+   * runs of text, white space included, and what the elements of `display: contents` hold. Without a box the row is
+   * the host's elements alone, and nothing is watched.
    */
-  private othersBefore(box: HTMLElement): Map<HTMLElement, number> {
-    const before = new Map<HTMLElement, number>();
-    const row = new Set(this.row);
-    let others = 0;
+  private read(box: HTMLElement | null) {
+    const items: Item[] = [];
+    const held = new Set<HTMLElement>();
+    const watched: Watch[] = [];
+    const root = box?.getRootNode();
     let text = false;
-    const walk = (parent: Node) => {
-      const children = parent instanceof HTMLSlotElement && parent.assignedNodes().length ? parent.assignedNodes() : ((parent as Element).shadowRoot ?? parent).childNodes;
+    /** `within`: the children are inside what is watched already (a subtree watched whole). */
+    const walk = (children: Iterable<Node>, within: boolean) => {
       for (const node of children) {
-        if (node instanceof HTMLSlotElement) walk(node);
-        else if (node instanceof Text) {
+        if (node instanceof HTMLSlotElement) {
+          const own = node.getRootNode() === root;
+          const assigned = node.assignedNodes();
+          if (assigned.length) {
+            // A slot of the product's own forwards its host's children: a change of which it forwards reaches the box's
+            // slot as a slotchange, but the data of a run of text it forwards does not.
+            const host = (node.getRootNode() as ShadowRoot).host;
+            if (!own && host) watched.push({ node: host, options: CHILDREN });
+            walk(assigned, false);
+          } else {
+            if (!own && !within) watched.push({ node, options: EVERYTHING });
+            walk(node.childNodes, true);
+          }
+        } else if (node instanceof Text) {
+          if (!within) watched.push({ node, options: TEXT_DATA });
           if (!drawnText(node)) continue;
-          if (!text) others += 1;
+          if (!text) items.push('text');
           text = true;
         } else if (node instanceof Element && !this.spacers.includes(node as HTMLElement)) {
-          const length = this.lengths.get(node as HTMLElement);
-          if (row.has(node as HTMLElement) && length !== 0) {
-            before.set(node as HTMLElement, others);
-          } else {
-            const display = getComputedStyle(node).display;
-            if (display === 'none') continue;
-            if (display === 'contents') {
-              walk(node);
-              continue;
-            }
-            others += 1;
+          const element = node instanceof HTMLElement ? node : null;
+          if (element) held.add(element);
+          const display = element && this.lengths.get(element) ? null : getComputedStyle(node).display;
+          if (display === 'none') continue;
+          if (display === 'contents') {
+            // What it holds is laid out in its place, and may change without a slotchange.
+            const inside = node.shadowRoot ?? node;
+            if (node.shadowRoot || !within) watched.push({ node: inside, options: EVERYTHING });
+            walk(inside.childNodes, true);
+            continue;
           }
+          items.push(element ?? 'other');
           text = false;
         }
       }
     };
-    walk(box);
-    return before;
+    if (box) walk(box.childNodes, false);
+    this.items = items;
+    // The row: the host's elements the box does not hold, then the box's — each one observed once.
+    const row = [...this.given.filter((element) => !held.has(element)), ...held];
+    for (const element of this.row) {
+      if (row.includes(element)) continue;
+      this.unobserve(element);
+      this.forget(element);
+    }
+    for (const element of row) {
+      if (rows.get(element) === this) continue;
+      rows.set(element, this);
+      observer?.observe(element);
+    }
+    this.row = row;
+    this.held = held;
+    this.watch(watched);
+  }
+
+  /**
+   * What the box lays out, watched while there are spaces to keep (only a host with a box has any), so a change the
+   * slot does not announce reads the box again. The watch is made again only when what is watched changes.
+   */
+  private watch(watched: Watch[]) {
+    if (watched.length === this.watched.length && watched.every((w, i) => w.node === this.watched[i].node && w.options === this.watched[i].options)) return;
+    this.watched = watched;
+    this.mutations?.disconnect();
+    if (!watched.length || typeof MutationObserver === 'undefined') return;
+    this.mutations ??= new MutationObserver(() => {
+      if (this.write()) this.changed?.()?.();
+    });
+    for (const { node, options } of watched) this.mutations.observe(node, options);
   }
 
   /** The box's spacers made, placed and given their neighbours' lengths; the ones it no longer needs taken out. */

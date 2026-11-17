@@ -63,7 +63,7 @@ import type { TanreiKeyboardShortcut } from '../keyboard-shortcut/keyboard-short
 import '../loading-indicator/loading-indicator.js';
 import { pressDefaultButton } from '../../primitives/default-button.js';
 import { FormDisabledController } from '../../primitives/form-disabled.js';
-import { AXES, FIRST_FRAMES, groupStyles, rowStyles, styles, suggestionStyles } from './search.styles.js';
+import { AXES, FIRST_ACTION_CAP, FIRST_FRAMES, groupStyles, rowStyles, styles, suggestionStyles } from './search.styles.js';
 import type { TanreiSearchSizeRegistry } from '../../registry.js';
 import { ownDirection } from '../../styles/product-text.js';
 import { disabledWaitsWhileFocused } from '../../primitives/disabled-while-focused.js';
@@ -674,9 +674,12 @@ export class TanreiSearch extends TanreiElement {
   /**
    * SRC-34: the bar's action buttons — the clear button while it is shown, then the trailing slot's — each keep a touch
    * target's length along the row; their lengths are measured for the styles (src/primitives/kept-length.ts). The space
-   * before each of the trailing slot's buttons is a spacer in the trailing box, never a margin on the product's button.
+   * before each of the trailing slot's buttons is a spacer in the trailing box, never a margin on the product's button;
+   * the box reads its buttons itself, as it lays them out (forwarded by a product's slot, or held by an element of
+   * display: contents), and the first of them takes the cap toward the input where no clear button stands before it
+   * (BTN-5, SRC-25).
    */
-  private readonly kept = new KeptLengths(undefined, () => this.renderRoot?.querySelector<HTMLElement>('.bar .trailing') ?? null);
+  private readonly kept = new KeptLengths(undefined, () => this.renderRoot?.querySelector<HTMLElement>('.bar .trailing') ?? null, FIRST_ACTION_CAP);
   /**
    * SRC-32: a suggestion's leading glyph is marked when the icon set mirrors its name in right-to-left
    * (src/primitives/glyph-mirror.ts); `iconGlyph()` draws the mark. The search glyph (SRC-2) is not named here, and the
@@ -2584,12 +2587,13 @@ export class TanreiSearch extends TanreiElement {
     return this.value !== '' && !this.inert_;
   }
 
-  /** SRC-34: the bar's action buttons in reading order — the clear button while it is shown, then the trailing slot's elements. */
+  /**
+   * SRC-34: the bar's action buttons in reading order — the clear button while it is shown, then the trailing slot's
+   * elements, which the trailing box gives as it lays them out (read again here, as the slot's content changed).
+   */
   private keepActions() {
-    const bar = this.renderRoot.querySelector('.bar');
-    const clear = bar?.querySelector<HTMLElement>(':scope > .clear') ?? null;
-    const trailing = bar?.querySelector<HTMLSlotElement>('slot[name="trailing"]')?.assignedElements({ flatten: true }) ?? [];
-    this.kept.set([...(clear ? [clear] : []), ...trailing.filter((element): element is HTMLElement => element instanceof HTMLElement)]);
+    const clear = this.renderRoot.querySelector<HTMLElement>('.bar > .clear');
+    this.kept.set(clear ? [clear] : []);
   }
 
   /**
