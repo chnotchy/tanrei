@@ -265,8 +265,10 @@ export const styles = css`
   .field[data-entries] .input {
     flex-basis: var(${P}-entries-typing-min-width);
   }
-  /* CMB-79: the live region that says what was added or removed is read, never drawn. */
-  .announcer {
+  /* CMB-79: the live region that says what was added or removed is read, never drawn; so are the status row's (CMB-33),
+     whose text the row draws beside them. */
+  .announcer,
+  .live {
     position: absolute;
     inline-size: 1px;
     block-size: 1px;
@@ -477,9 +479,9 @@ export const styles = css`
   /* CMB-32: the status row, after the last option — inset as an option's row is, taking no input and no state:
      statusText, wrapping, in status.typescale and status.color (status.error.color while the source failed), the empty
      text in the same place and style, or the loading indicator at the row's start; one line of text high whether or not
-     the indicator shows yet. CMB-33: its two live regions exist from the moment the list opens, so the row itself is
-     always there and takes no room until it has something to show. It is not in the list box, which holds options and
-     groups only, and not in the box that scrolls: the options scroll above it, and it stays in view. */
+     the indicator shows yet. CMB-33: its two live regions are always there, so the row is too, and it takes no room
+     until it has something to show. It is not in the list box, which holds options and groups only, and not in the box
+     that scrolls: the options scroll above it, and it stays in view. */
   .status {
     display: flex;
     flex: none;

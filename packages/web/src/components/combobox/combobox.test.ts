@@ -153,7 +153,8 @@ const read = (page: P, id: string) =>
       ring: [...root.querySelectorAll('.row.kf')].map(label),
       selected: [...root.querySelectorAll('.row[aria-selected="true"]')].map(label),
       rows: [...root.querySelectorAll('.scroll .row')].map(label),
-      status: [...root.querySelectorAll('.status .said')].map((said) => said.textContent ?? ''),
+      // The status row's live regions, polite then assertive: what assistive technology reads.
+      status: [...root.querySelectorAll('.status .live')].map((live) => live.textContent ?? ''),
       focused: root.activeElement === field,
     };
   });
@@ -1008,14 +1009,14 @@ test.describe('behavior: the box, and what it takes from the Field that frames i
     const status = (id: string) => host(page, id).evaluate(async (el) => (await (el as HTMLElement & { updateComplete: Promise<unknown> }).updateComplete, { shown: el.shadowRoot!.querySelector('.status')!.hasAttribute('data-shown'), said: el.shadowRoot!.querySelector('.status [role="status"]')!.textContent ?? '' }));
     // No words: no row for it, and nothing said.
     expect(await status('wordless')).toEqual({ shown: false, said: '' });
-    expect(await status('own')).toEqual({ shown: true, said: 'Nothing here' });
+    await expect.poll(() => status('own')).toEqual({ shown: true, said: 'Nothing here' });
     await expect.poll(() => seen.filter((w) => w.includes('CMB-32') && w.includes('emptyText')).length).toBe(1);
     expect(seen.find((w) => w.includes('CMB-32') && w.includes('emptyText'))).toContain('empty-text is empty');
     expect(await missingWords(page)).toEqual(['emptyText']);
     expect(await host(page, 'wordless').evaluate((el) => el.shadowRoot!.textContent)).not.toContain('No matches');
     // The product's words, set once; an instance's own prop wins.
     await setWords(page, { emptyText: 'No matches' });
-    expect(await status('wordless')).toEqual({ shown: true, said: 'No matches' });
+    await expect.poll(() => status('wordless')).toEqual({ shown: true, said: 'No matches' });
     expect(await status('own')).toEqual({ shown: true, said: 'Nothing here' });
     expect(await missingWords(page)).toEqual([]);
   });
@@ -1513,7 +1514,7 @@ test.describe('behavior: the list', () => {
     await listen(page, 'closed');
     await selectAll(page, 'closed');
     await type(page, 'zzz');
-    expect(await read(page, 'closed')).toMatchObject({ shown: true, rows: [], status: ['No matches', ''] });
+    await expect.poll(() => read(page, 'closed')).toMatchObject({ shown: true, rows: [], status: ['No matches', ''] });
     await heard(page);
     await page.keyboard.press('Enter');
     expect(await heard(page)).toEqual([]);
@@ -1523,7 +1524,7 @@ test.describe('behavior: the list', () => {
     await heard(page);
     await page.keyboard.press('Enter');
     expect(await heard(page)).toEqual(['toggle true']);
-    expect(await read(page, 'closed')).toMatchObject({ value: 'tokyo', text: 'zzz', shown: true, status: ['No matches', ''] });
+    await expect.poll(() => read(page, 'closed')).toMatchObject({ value: 'tokyo', text: 'zzz', shown: true, status: ['No matches', ''] });
     // A whole label typed and the list closed: Enter chooses its option, then acts.
     await page.keyboard.press('Escape');
     await selectAll(page, 'closed');
@@ -1886,7 +1887,8 @@ test.describe('behavior: the list', () => {
     row_ = status('open-loading');
     const spinner = row_.locator('tanrei-loading-indicator');
     expect(await spinner.evaluate((el) => [el.getAttribute('size'), el.getAttribute('label')])).toEqual(['small', 'Loading people']);
-    expect(await row_.locator('.said').allTextContents()).toEqual(['', '']);
+    expect(await row_.locator('.live').allTextContents()).toEqual(['', '']);
+    await expect(row_.locator('.said'), 'no text drawn').toHaveText('');
     near((await box(spinner)).x - (await box(row_)).x, await token(page, 'option-padding-inline-medium'), 'at the row’s start', 1);
     await set(page, 'open-status', { statusText: 'x' });
     near((await box(row_)).height, (await box(status('open-status'))).height, 'one line of text tall');
@@ -1925,29 +1927,40 @@ test.describe('behavior: the list', () => {
     await expect.poll(() => seen.some((w) => w.includes('CMB-32'))).toBe(true);
   });
 
-  test('CMB-33: the status row’s live regions are there from the moment the list opens: while idle statusText, or the empty text, is in the polite one (role status); while the source failed it is in the assertive one (role alert); while loading both are empty and the list box is busy; the combobox composes no text of its own', async ({ page }) => {
-    await mount(page, [fx('one', { filter: 'none', noChevron: true, open: true, inline: false, inputValue: 'a' }, [option('Aiko Tanaka', 'aiko')])], { reducedMotion: true });
-    await shownList(page, 'one').toBe(true);
+  test('CMB-33: the status row’s live regions are empty while the list is closed and are given the row’s text once it is shown — a text set before it opens included: statusText or the empty text in the polite one (role status) while idle, in the assertive one (role alert) while the source failed; while loading both are empty and the list box is busy; a text changed while open is a change of the same region; the drawn text is kept from assistive technology; the combobox composes no text of its own', async ({ page }) => {
+    await mount(page, [fx('one', { filter: 'none', noChevron: true, inline: false, inputValue: 'a', status: 'error', statusText: 'People could not be loaded.' }, [option('Aiko Tanaka', 'aiko')])], { reducedMotion: true });
     const regions = () =>
       part(page, 'one', '.status').evaluate((el) => ({
         polite: el.querySelector('[role="status"]')!.textContent,
         assertive: el.querySelector('[role="alert"]')!.textContent,
         busy: (el.getRootNode() as ShadowRoot).querySelector('[role="listbox"]')!.getAttribute('aria-busy'),
+        drawn: el.querySelector('.said')?.getAttribute('aria-hidden') ?? null,
       }));
-    // Present, and empty, before there is anything to say: a text that arrives is a change, and is read.
-    expect(await regions()).toEqual({ polite: '', assertive: '', busy: null });
+    // The source failed before the list opened: closed, there is nothing to read.
+    expect(await regions(), 'closed: nothing to read').toEqual({ polite: '', assertive: '', busy: null, drawn: 'true' });
+    // Shown, what the row already says is read.
+    await set(page, 'one', { open: true });
+    await shownList(page, 'one').toBe(true);
+    await expect.poll(regions).toEqual({ polite: '', assertive: 'People could not be loaded.', busy: null, drawn: 'true' });
     const polite = await part(page, 'one', '.status [role="status"]').elementHandle();
     await set(page, 'one', { status: 'loading', statusText: 'Loading people' });
-    expect(await regions(), 'loading announces nothing, and the list is busy').toEqual({ polite: '', assertive: '', busy: 'true' });
+    expect(await regions(), 'loading announces nothing, and the list is busy').toEqual({ polite: '', assertive: '', busy: 'true', drawn: 'true' });
     await set(page, 'one', { status: 'idle', statusText: '1 of 48 people shown' });
-    expect(await regions()).toEqual({ polite: '1 of 48 people shown', assertive: '', busy: null });
+    expect(await regions()).toEqual({ polite: '1 of 48 people shown', assertive: '', busy: null, drawn: 'true' });
     expect(await part(page, 'one', '.status [role="status"]').evaluate((el, before) => el === before, polite), 'the same region: its text changed').toBe(true);
     await set(page, 'one', { status: 'error', statusText: 'People could not be loaded.' });
-    expect(await regions()).toEqual({ polite: '', assertive: 'People could not be loaded.', busy: null });
+    expect(await regions()).toEqual({ polite: '', assertive: 'People could not be loaded.', busy: null, drawn: 'true' });
+    // Closed, the regions are empty again; opened, what the row says is read again.
+    await set(page, 'one', { open: false });
+    await closedList(page, 'one');
+    expect(await regions()).toMatchObject({ polite: '', assertive: '' });
+    await set(page, 'one', { open: true });
+    await shownList(page, 'one').toBe(true);
+    await expect.poll(regions).toMatchObject({ polite: '', assertive: 'People could not be loaded.' });
     // The empty text is said the same way; the number of options is the list's to expose, not the row's.
     await host(page, 'one').evaluate((el) => el.replaceChildren());
     await set(page, 'one', { status: 'idle', statusText: '' });
-    expect(await regions()).toEqual({ polite: 'No matches', assertive: '', busy: null });
+    await expect.poll(regions).toEqual({ polite: 'No matches', assertive: '', busy: null, drawn: 'true' });
   });
 
   test('CMB-34: an option is one row — option.padding-inline from each edge, the leading icon column as CMB-67 says, the label with the supporting text below it, and the check’s box at the end, option.gap apart — at least option.height and the minimum target tall, wrapping and growing rather than cutting; the whole row is its target', async ({ page }) => {
@@ -3029,7 +3042,7 @@ test.describe('behavior: conditions, exposure, size and direction', () => {
     // The other props: the first value's behaviour, each reported.
     await focusInput(page, 'props');
     await type(page, 'ky');
-    expect(await read(page, 'props'), 'filter: contains; status: idle').toMatchObject({ rows: ['Kyoto', 'Tokyo'], status: ['x', ''] });
+    await expect.poll(() => read(page, 'props'), 'filter: contains; status: idle').toMatchObject({ rows: ['Kyoto', 'Tokyo'], status: ['x', ''] });
     expect(await part(page, 'props', '[role="listbox"]').getAttribute('aria-busy')).toBeNull();
     for (const word of ['fuzzy', 'waiting']) await expect.poll(() => seen.some((w) => w.includes('CMB-56') && w.includes(word)), { message: word }).toBe(true);
   });
