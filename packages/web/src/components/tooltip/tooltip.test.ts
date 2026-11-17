@@ -1085,6 +1085,81 @@ test.describe('drawing', () => {
     expect(await s.evaluate((el) => el.scrollHeight <= el.clientHeight && el.scrollWidth <= el.clientWidth)).toBe(true);
   });
 
+  test('TIP-21: the title and the text are each text of their own direction, isolated — a left-to-right name, a number with its sign and a telephone number keep their order in a right-to-left tooltip — and each is still placed and its lines aligned by the layout direction', async ({ page }) => {
+    await page.setViewportSize({ width: 800, height: 600 });
+    const rtl = (id: string, props: Fixture['props'], content?: string): Fixture => ({ ...f(id, props, content), direction: 'rtl' });
+    const LONG = 'Files in the trash still count toward your storage until they are deleted for good.';
+    await mount(page, [
+      rtl('latin', { variant: 'rich', title: 'Storage v2.1', text: LONG }, 'info'),
+      rtl('phone', { text: '+1 555 0100' }),
+      rtl('signed', { text: '−5 °C' }),
+      rtl('arabic', { variant: 'rich', title: 'التخزين', text: 'تُحتسب الملفات في سلة المهملات ضمن مساحة التخزين حتى تُحذف نهائيًا.' }, 'info'),
+      f('ltr', { variant: 'rich', title: 'Storage v2.1', text: LONG }, 'info'),
+    ]);
+    /** Each part's lines, from the container's left and right edges, and the left edges of its first and last characters. */
+    const drawn = (id: string, part: '.title' | '.text') =>
+      container(page, id).locator(part).evaluate((el) => {
+        const box = el.closest('.bubble')!.getBoundingClientRect();
+        const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
+        const nodes: Text[] = [];
+        for (let node = walker.nextNode(); node; node = walker.nextNode()) if (node.textContent!.trim()) nodes.push(node as Text);
+        const [first, last] = [nodes[0], nodes.at(-1)!];
+        const at = (node: Text, i: number) => {
+          const range = document.createRange();
+          range.setStart(node, i);
+          range.setEnd(node, i + 1);
+          return range.getBoundingClientRect().left;
+        };
+        const range = document.createRange();
+        range.selectNodeContents(el);
+        const lines = new Map<number, { left: number; right: number }>();
+        for (const r of range.getClientRects()) {
+          if (!r.width) continue;
+          const line = lines.get(Math.round(r.top)) ?? { left: Number.POSITIVE_INFINITY, right: Number.NEGATIVE_INFINITY };
+          lines.set(Math.round(r.top), { left: Math.min(line.left, r.left), right: Math.max(line.right, r.right) });
+        }
+        return {
+          unicodeBidi: getComputedStyle(el).unicodeBidi,
+          direction: getComputedStyle(el).direction,
+          lines: [...lines.values()].map((l) => [Math.round((l.left - box.left) * 100) / 100, Math.round((box.right - l.right) * 100) / 100]),
+          first: at(first, first.textContent!.length - first.textContent!.trimStart().length),
+          last: at(last, last.textContent!.trimEnd().length - 1),
+        };
+      });
+    const inset = { plain: await resolveToken(page, T('plain-container-padding-inline')), rich: await resolveToken(page, T('rich-container-padding-inline')) };
+    const cases: [id: string, part: '.title' | '.text', reads: 'ltr' | 'rtl', variant: 'plain' | 'rich'][] = [
+      ['latin', '.title', 'ltr', 'rich'],
+      ['latin', '.text', 'ltr', 'rich'],
+      ['phone', '.text', 'ltr', 'plain'],
+      ['signed', '.text', 'ltr', 'plain'],
+      ['arabic', '.title', 'rtl', 'rich'],
+      ['arabic', '.text', 'rtl', 'rich'],
+      ['ltr', '.title', 'ltr', 'rich'],
+      ['ltr', '.text', 'ltr', 'rich'],
+    ];
+    for (const [id, part, reads, variant] of cases) {
+      await anchorAt(page, id, 380, 400);
+      await openIt(page, id);
+      const seen = await drawn(id, part);
+      const what = `${id} ${part}`;
+      // Its own run, by its first strong character; the box keeps the layout's direction.
+      expect(seen.unicodeBidi, what).toBe('plaintext');
+      expect(seen.direction, what).toBe(id === 'ltr' ? 'ltr' : 'rtl');
+      // Placed and aligned by the layout: every line starts the padding from the right edge in right-to-left, from the
+      // left one in left-to-right — a left-to-right text's lines in a right-to-left tooltip too.
+      expect(seen.lines.length, what).toBeGreaterThan(0);
+      for (const [left, right] of seen.lines) expect(id === 'ltr' ? left : right, `${what}: a line at the ${id === 'ltr' ? 'left' : 'right'}`).toBeCloseTo(inset[variant], 0);
+      // Its own order: from the left for a left-to-right name and for a number, from the right for an Arabic text.
+      if (reads === 'ltr') expect(seen.first, `${what}: reads left to right`).toBeLessThan(seen.last);
+      else expect(seen.first, `${what}: reads right to left`).toBeGreaterThan(seen.last);
+      await set(page, id, { open: false });
+      await expect.poll(() => shown(page, id)).toBe(false);
+    }
+    // The long text wraps, so its lines' alignment is seen.
+    await openIt(page, 'latin');
+    expect((await drawn('latin', '.text')).lines.length).toBeGreaterThan(1);
+  });
+
   test('TIP-13: it takes no focus and holds nothing focusable, makes nothing inert, is drawn above an open dialog, and a press on it closes it and reaches nothing under it', async ({ page }) => {
     await mount(page, [f('a', {})]);
     await tabTo(page, button(page, 'a'));
