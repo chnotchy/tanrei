@@ -9,7 +9,8 @@ import { type Fixture, acmeSystemCss, loadSpec, missingWords, mountFixtures, res
 import { expectKeyPressOutlastsPointer } from '../../../test/key-press-pointer-leaves.js';
 import { expectWheelKeptFromPage } from '../../../test/contained-wheel.js';
 import { withoutFocusVisibleOption } from '../../../test/focus-visible-option.js';
-import { motionEnded } from '../../../test/motions.js';
+import { EVERY_ANIMATION, motionEnded } from '../../../test/motions.js';
+import { transitionsRun, watchTransitions } from '../../../test/transitions.js';
 import { releaseAtRest } from '../../../test/release-at-rest.js';
 import { STOPPED_AFTER, flingThenHold, strokes } from '../../../test/stopped-release.js';
 import { expectBaseline } from '../../../test/baseline.js';
@@ -1817,6 +1818,64 @@ test.describe('semantics, locale, layout and reports', () => {
     await button(page, 'c', 'next').click();
     await hold(page, 'c', 10_000);
     expect((await bounds(host(page, 'c').locator('.page.current'))).x - grid.x).toBeCloseTo(-0.75 * width, 0);
+  });
+
+  test('CAL-28: the direction is the nearest ancestor’s — not the root’s and not a setting of the calendar’s own; when it changes while the calendar is shown it is drawn for the new direction at once, without a motion, keeping the displayed month, the selection and its focus', async ({ page }) => {
+    // The verify: the direction set on an ancestor inside the page (each fixture's stage), not on the root.
+    await mount(page, [
+      { ...f('c', { value: '2026-09-17' }), direction: 'rtl' },
+      { ...f('r', { mode: 'range', start: '2026-10-05', end: '2026-10-09' }), direction: 'rtl' },
+    ]);
+    expect(await page.evaluate(() => document.documentElement.getAttribute('dir'))).toBeNull();
+    for (const id of ['c', 'r']) {
+      expect(await host(page, id).evaluate((el) => [el.getAttribute('dir'), el.matches(':dir(rtl)'), Object.keys((el.constructor as unknown as { properties: object }).properties).some((p) => /^dir|direction/i.test(p))]), id).toEqual([null, true, false]);
+    }
+    /** Whether the first weekday and the view toggle stand at the right. */
+    const atRight = async (id: string) => {
+      const headers = host(page, id).locator('[role="columnheader"]');
+      return [(await bounds(headers.first())).x > (await bounds(headers.last())).x, (await bounds(toggle(page, id))).x > (await bounds(button(page, id, 'next'))).x];
+    };
+    expect(await atRight('c'), 'right-to-left').toEqual([true, true]);
+    // Shown on another month than the one it opened on, with keyboard focus on a day of it — moved there by the keys,
+    // so that no press of a button is still being let go of when the direction changes, and the pointer off the
+    // calendars, so that nothing comes under it when the layout mirrors.
+    await page.mouse.move(0, 0);
+    await tabTo(page, day(page, 'c', '2026-09-17'));
+    await page.keyboard.press('PageDown');
+    await expect.poll(() => focused(page)).toBe('2026-10-17');
+    await land(page, 'c');
+    expect(await shown(page, 'c')).toBe('October 2026');
+    const active = await focused(page);
+    // In right-to-left the left arrow is the next day.
+    await page.keyboard.press('ArrowLeft');
+    const next = await focused(page);
+    expect(next! > active!).toBe(true);
+    await motionEnded(page);
+    const selection = async () => [await shown(page, 'r'), ...(await host(page, 'r').evaluate((el: HTMLElement & { start: string; end: string }) => [el.start, el.end]))];
+    const before = { c: await shown(page, 'c'), r: await selection(), value: await host(page, 'c').evaluate((el: HTMLElement & { value: string }) => el.value) };
+    // Changed on the ancestors after the first render: no transition starts and nothing moves.
+    for (const id of ['c', 'r']) await watchTransitions(host(page, id));
+    await page.evaluate(async () => {
+      for (const id of ['c', 'r']) document.querySelector(`[data-fixture="${id}"]`)!.setAttribute('dir', 'ltr');
+      await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+    });
+    for (const id of ['c', 'r']) {
+      expect(await transitionsRun(host(page, id)), `${id}: no transition`).toEqual([]);
+      expect(await host(page, id).evaluate((el, every) => ((0, eval)(every) as (root: Element) => Animation[])(el).map((a) => a.id || (a as CSSTransition).transitionProperty || (a as CSSAnimation).animationName), EVERY_ANIMATION), `${id}: nothing moves`).toEqual([]);
+      expect(await moving(page, id), `${id}: the days at rest`).toBe(null);
+      expect(await atRight(id), `${id}: left-to-right`).toEqual([false, false]);
+    }
+    // The displayed month, the selection and the focus are kept; nothing was chosen.
+    expect({ c: await shown(page, 'c'), r: await selection(), value: await host(page, 'c').evaluate((el: HTMLElement & { value: string }) => el.value) }).toEqual(before);
+    expect(await focused(page)).toBe(next);
+    expect(await log(page)).toEqual([]);
+    // And the arrows follow the new direction: the right arrow is the next day now.
+    await page.keyboard.press('ArrowRight');
+    expect((await focused(page))! > next!).toBe(true);
+    // Where no ancestor sets one, the document's.
+    await page.locator('[data-fixture="r"]').evaluate((el) => el.removeAttribute('dir'));
+    await page.evaluate(() => document.documentElement.setAttribute('dir', 'rtl'));
+    expect(await atRight('r')).toEqual([true, true]);
   });
 
   test('CAL-27: unknown mode, startView and firstDayOfWeek behave as the default and are reported; malformed dates, end before start, value in range mode and min after max are ignored and reported', async ({ page }) => {
