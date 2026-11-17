@@ -903,6 +903,47 @@ test.describe('keyboard and semantics', () => {
     expect(seen.join('\n')).toMatch(/it holds <input>, which is none of its item kinds.*\(TBR-12\)/);
   });
 
+  test('TBR-12: text of its own in a toolbar or a group is not drawn and is reported, each text once, and again when another is added; the white space between items is not reported', async ({ page }) => {
+    const seen = warnings(page);
+    const tool = (label: string, glyph: string) => `<tanrei-button variant="text" label="${label}"><span slot="icon">${glyph}</span></tanrei-button>`;
+    await mountFixtures(page, spec, {
+      icons: true,
+      fixtures: [
+        { id: 'text', props: { variant: 'floating', label: 'Text' }, content: `${tool('Pen', 'edit')}Ink<tanrei-toolbar-group>${tool('Square', 'square')} Shape ${tool('Circle', 'circle')}</tanrei-toolbar-group>${tool('Eraser', 'ink_eraser')}` },
+        { id: 'spaced', props: { variant: 'floating', label: 'Spaced' }, content: `\n  ${tool('Pen', 'edit')}\n  <tanrei-toolbar-group>\n    ${tool('Square', 'square')}\n    ${tool('Circle', 'circle')}\n  </tanrei-toolbar-group>\n  ${tool('Eraser', 'ink_eraser')}\n` },
+      ],
+    });
+    // The spaced toolbar and its group do hold white space of their own between their items.
+    const blank = (el: Element) => [...el.childNodes].filter((node) => node.nodeType === Node.TEXT_NODE && !node.textContent!.trim()).length;
+    expect(await bar(page, 'spaced').evaluate(blank)).toBeGreaterThan(0);
+    expect(await bar(page, 'spaced').locator('tanrei-toolbar-group').evaluate(blank)).toBeGreaterThan(0);
+    // The text is drawn nowhere: no box of its own, and the items stand as they would without it.
+    const drawn = (el: Element) =>
+      [el, ...el.querySelectorAll('tanrei-toolbar-group')].flatMap((parent) => [...parent.childNodes]).filter((node) => node.nodeType === Node.TEXT_NODE && node.textContent!.trim()).map((node) => {
+        const range = new Range();
+        range.selectNodeContents(node);
+        return range.getClientRects().length;
+      });
+    expect(await bar(page, 'text').evaluate(drawn)).toEqual([0, 0]);
+    expect((await bounds(bar(page, 'text'))).width).toBeCloseTo((await bounds(bar(page, 'spaced'))).width, 1);
+    const reports = () => seen.filter((w) => w.includes('TBR-12'));
+    await expect.poll(() => reports().length).toBe(2);
+    expect(reports()[0]).toMatch(/it holds the text "Ink", which is none of its item kinds; it is not drawn.*\(TBR-12\)/);
+    expect(reports().join('\n')).toMatch(/a group holds the text "Shape", which is none of its item kinds; it is not drawn.*\(TBR-12\)/);
+    // A text added is reported once more; the texts already reported are not reported again.
+    await bar(page, 'text').evaluate((el) => el.append(' Marker '));
+    await expect.poll(() => reports().length).toBe(3);
+    expect(reports()[2]).toMatch(/it holds the text "Marker"/);
+    // White space added is not reported. An element that is none of the kinds, added after it, marks that the content
+    // was read again.
+    await bar(page, 'spaced').evaluate((el) => el.append('\n    ', Object.assign(document.createElement('input'), { ariaLabel: 'Size' })));
+    await bar(page, 'text').evaluate((el) => el.append(Object.assign(document.createElement('input'), { ariaLabel: 'Size' })));
+    await expect.poll(() => reports().length).toBe(5);
+    expect(reports().slice(3).every((w) => /it holds <input>/.test(w))).toBe(true);
+    expect(reports().filter((w) => w.includes('"Ink"'))).toHaveLength(1);
+    expect(reports().filter((w) => w.includes('"Shape"'))).toHaveLength(1);
+  });
+
   test('TBR-13: a variant the system does not have renders as inline, an orientation the component does not define as horizontal, an overflow and a separation it does not define as menu and auto, and a debug build reports each', async ({ page }) => {
     const seen = warnings(page);
     await mountFixtures(page, spec, {

@@ -139,8 +139,9 @@ const isItem = (element: Element) => element.localName === BUTTON || element.loc
  * toggles one choice or a set of choices, TBR-28) and `<tanrei-divider>` separators; in a horizontal toolbar,
  * `<tanrei-select>` and `<tanrei-number-input>` elements, which keep Up and Down Arrow, and one `<tanrei-text-input>` or
  * `<tanrei-slider>` as the last child, a Tab stop of its own (TBR-29). An item with `toolbar-overflow="never"` is never
- * hidden, and while the items scroll the run of them that ends the line stays at the end (TBR-30). Anything else is
- * still laid out, and reported in debug builds (TBR-12).
+ * hidden, and while the items scroll the run of them that ends the line stays at the end (TBR-30). Any other element
+ * is still laid out, and reported in debug builds; text written directly in the toolbar or in a group is not drawn,
+ * and is reported (TBR-12).
  * @csspart container - The surface: the variant's fill, elevation, corners and edge, holding the items.
  * @csspart separator - A line between two groups or where a separator stands (TBR-23); empty space under a gap separation.
  * @csspart overflow-button - The icon-only Button at the end that opens the menu of the hidden items (TBR-18).
@@ -1104,7 +1105,7 @@ export class TanreiToolbar extends TanreiElement implements PlacingGroup {
 
   // ── Content ──
 
-  /** TBR-12: a toolbar with no item, or with content that is none of its kinds, still lays it out, and says so. */
+  /** TBR-12: a toolbar with no item, or with an element that is none of its kinds, still lays it out, and says so; it says so of text of its own too, which is not drawn. */
   private checkContent() {
     const children = [...this.children];
     const kinds = (child: Element) => !!this.roleOf(child) || child.localName === GROUP || child.localName === SEPARATOR || this.isAnchoredMenu(child);
@@ -1124,6 +1125,13 @@ export class TanreiToolbar extends TanreiElement implements PlacingGroup {
       for (const child of [...group.children].filter((c) => !this.roleOf(c) && !this.isAnchoredMenu(c))) {
         report(this, 'TBR-12', `a group holds <${child.localName}>, which is none of its item kinds here; it is laid out, but ${why(child)}`);
       }
+    }
+    // Text written directly in the toolbar or a group is assigned to no slot (each slot takes one element), so it is
+    // not drawn; the white space between the items is not text of its own. Each text is reported once, by what it says.
+    const words = (parent: Element) => [...parent.childNodes].flatMap((node) => (node.nodeType === Node.TEXT_NODE && node.textContent?.trim() ? [node.textContent.trim()] : []));
+    for (const text of words(this)) report(this, 'TBR-12', `it holds the text "${text}", which is none of its item kinds; it is not drawn: a word belongs in an item's label`);
+    for (const group of this.groups()) {
+      for (const text of words(group)) report(this, 'TBR-12', `a group holds the text "${text}", which is none of its item kinds; it is not drawn: a word belongs in an item's label`);
     }
   }
 
