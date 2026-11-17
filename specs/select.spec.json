@@ -3297,7 +3297,7 @@
             "leadingIcon": "leadingIcon",
             "disabled": "disabled"
           },
-          "notes": "`<tanrei-option value=\"jp\">Japan</tanrei-option>`: the label is the `label` attribute or, without one, the element's text, as `<option>`. Attributes `supporting-text`, `leading-icon`, `disabled`. The element is data for its select: it draws nothing itself. `tanrei-option` and `tanrei-option-group` are one pair of elements for the select and the combobox: a select that needs a filter becomes a combobox with the same children. Whether an option may have the empty value is each parent's rule (a select's may, SEL-17; a combobox's may not)."
+          "notes": "`<tanrei-option value=\"jp\">Japan</tanrei-option>`: the label is the `label` attribute or, without one, the element's text, as `<option>`. Attributes `supporting-text`, `leading-icon`, `disabled`. `data-mirror` (`auto`, the default; `always`; `never`) on an option is the product's word on mirroring the glyph its `leading-icon` names, in the list and in the container (SEL-57), as on a glyph the product places itself. The element is data for its select: it draws nothing itself. `tanrei-option` and `tanrei-option-group` are one pair of elements for the select and the combobox: a select that needs a filter becomes a combobox with the same children. Whether an option may have the empty value is each parent's rule (a select's may, SEL-17; a combobox's may not)."
         },
         "option-group": {
           "name": "tanrei-option-group",

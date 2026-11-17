@@ -3783,7 +3783,7 @@
             "leadingIcon": "leadingIcon",
             "disabled": "disabled"
           },
-          "notes": "`<tanrei-option value=\"tokyo\">Tokyo</tanrei-option>`: the element a select holds, and the same data: the label is the `label` attribute or, without one, the element's text. Attributes `supporting-text`, `leading-icon`, `disabled`. It draws nothing itself. `tanrei-option` and `tanrei-option-group` are one pair of elements for the select and the combobox, defined once; an option with the empty value is refused by the combobox (CMB-17, CMB-57), not by the element, because a select allows it."
+          "notes": "`<tanrei-option value=\"tokyo\">Tokyo</tanrei-option>`: the element a select holds, and the same data: the label is the `label` attribute or, without one, the element's text. Attributes `supporting-text`, `leading-icon`, `disabled`. `data-mirror` (`auto`, the default; `always`; `never`) on an option is the product's word on mirroring the glyph its `leading-icon` names, in the list and in the container (CMB-54), as on a glyph the product places itself. It draws nothing itself. `tanrei-option` and `tanrei-option-group` are one pair of elements for the select and the combobox, defined once; an option with the empty value is refused by the combobox (CMB-17, CMB-57), not by the element, because a select allows it."
         },
         "option-group": {
           "name": "tanrei-option-group",

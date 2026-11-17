@@ -1669,7 +1669,7 @@ export class TanreiCombobox extends TanreiElement {
       >
         <div part="container" class="container" data-tanrei-shape aria-disabled=${inert ? 'true' : nothing} @mousedown=${this.#onContainerPress}>
           <span part="leading-icon" class="icon leading-slot" aria-hidden="true"><slot name="leading-icon" @slotchange=${this.#onLeadingSlotChange}></slot></span>
-          <span part="leading-icon" class="icon leading-own" aria-hidden="true"><span class="ink">${leading === 'option' ? chosen?.leadingIcon : nothing}</span></span>
+          <span part="leading-icon" class="icon leading-own" aria-hidden="true" data-mirror=${leading === 'option' ? (chosen?.mirror ?? nothing) : nothing}><span class="ink">${leading === 'option' ? chosen?.leadingIcon : nothing}</span></span>
           <div class="body">
             ${chips}<input
               id="input"
