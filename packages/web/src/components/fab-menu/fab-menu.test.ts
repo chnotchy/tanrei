@@ -7,7 +7,7 @@
 // src/primitives/delegated-aria.test.ts.
 import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
-import { type Fixture, acmeSystemCss, iconFaceArrives, includingSystem, loadSpec, mountFixtures, resolveColor, resolveToken, tab, tabTo, withoutIconFont, rootTokens } from '../../../test/harness.js';
+import { type Fixture, type FixtureItem, acmeSystemCss, iconFaceArrives, includingSystem, loadSpec, mountFixtures, resolveColor, resolveToken, tab, tabTo, withoutIconFont, rootTokens } from '../../../test/harness.js';
 import { transitionsRun, watchTransitions } from '../../../test/transitions.js';
 import { expectFromNextFrame, motionCount, motionEnded } from '../../../test/motions.js';
 import { mirroring, mirroringAfterDirection } from '../../../test/mirror-word.js';
@@ -1124,7 +1124,7 @@ test.describe('behavior', () => {
   });
 
   test('FBM-26: in right-to-left an item’s glyph is mirrored exactly when the icon set marks its name, unless data-mirror on the item decides: always mirrors an unmarked name, never keeps a marked one; nothing is mirrored in left-to-right; a change of the word or of an ancestor’s direction is drawn at once, without a motion, and the item mirrors nothing itself', async ({ page }) => {
-    const ITEMS_WORDS = [
+    const ITEMS_WORDS: FixtureItem[] = [
       { kind: 'item', props: { label: 'Next', icon: 'arrow_forward' } },
       { kind: 'item', props: { label: 'Done', icon: 'check', 'data-mirror': 'always' } },
       { kind: 'item', props: { label: 'Sent', icon: 'send', 'data-mirror': 'never' } },
