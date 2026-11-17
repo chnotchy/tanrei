@@ -960,7 +960,22 @@ export class TanreiTableOfContents extends TanreiElement {
       // moved from under a hand: not while the pointer is over the list, nor while keyboard focus is inside it.
       if (!this.matches(':hover') && !this.matches(':focus-within')) this.showRow(item.a);
     }
+    this.syncControls();
     this.watch();
+  }
+
+  /**
+   * TOC-31: while it is open, the compact row controls the list — the product's own, which is exposed then — by
+   * element reference: an id of the shadow root could name only the box around the list, which no engine exposes, so
+   * the reference would reach nothing. Closed, the list is inert and the row names nothing.
+   */
+  private syncControls() {
+    const row = this.row as (HTMLElement & { ariaControlsElements?: Element[] | null }) | null;
+    if (!row || !('ariaControlsElements' in row)) return;
+    // The outermost list comes first in document order.
+    const list = this.compact && this.open ? ([...this.querySelectorAll('ul, ol')].find((each) => each.closest(TAG) === this) ?? null) : null;
+    const now = row.ariaControlsElements ?? [];
+    if (now.length !== (list ? 1 : 0) || (list && now[0] !== list)) row.ariaControlsElements = list ? [list] : null;
   }
 
   /** TOC-39: a size the core does not have was added by a design system — its rules are added to the root — or is unknown to the active one, which a debug build says. */
@@ -991,7 +1006,6 @@ export class TanreiTableOfContents extends TanreiElement {
               type="button"
               data-tanrei-shape
               aria-expanded=${open ? 'true' : 'false'}
-              aria-controls="list"
               aria-describedby=${label.trim() && name ? 'current' : nothing}
               aria-labelledby=${productNamed ? (name ? 'nav current' : 'nav') : nothing}
               @click=${this.onRowClick}
