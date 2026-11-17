@@ -1,38 +1,15 @@
-import { nearestLang } from './words.js';
-
 /**
  * How long typed characters add up to one typeahead search (LST-17, MNU-7: "within one second of each other"). A
  * behaviour of the spec, not a design value: no system re-values it.
  */
 export const TYPEAHEAD_WINDOW = 1000;
 
-/** One collator for each language typeahead has compared in ('' is the browser's language). */
-const collators: Record<string, Intl.Collator> = {};
-
-/** The collator of `lang`, made once; the browser's language's where `lang` is not a language tag `Intl` reads. */
-function collator(lang: string): Intl.Collator {
-  try {
-    return (collators[lang] ??= new Intl.Collator(lang || undefined, { usage: 'search', sensitivity: 'base' }));
-  } catch {
-    return collator('');
-  }
-}
-
-/** Whether `label` begins with the typed `text`. */
-export type LabelBegins = (label: string, text: string) => boolean;
-
 /**
- * How typeahead compares a typed text with a label (SEL-33, LST-17, MNU-7, TRV-23, MBR-12): whether the label, without
- * the spaces around it, begins with the text, as the language around `host` compares (its nearest `lang`, through
- * shadow roots; the browser's language where there is none) — by base letters, so that neither case, nor the width of
- * a character, nor the marks on a letter count ("e" begins "École"), while the letters that language tells apart stay
- * apart (in Turkish "i" begins "İzmir" and not "Irmak", and "ı" begins "Irmak"). As many of the label's first
- * characters as the text has are compared with it: one comparison for each label, however long the list.
+ * Whether `label` begins with the typed `text`: how typeahead compares, given to `RovingKeys.target`. The one a column
+ * of items gives is `labelBegins` (`filter.ts`), the comparison of the components' filters, so that typing to an item
+ * and filtering for it find the same labels.
  */
-export function labelBegins(host?: Element): LabelBegins {
-  const compare = collator(nearestLang(host)).compare;
-  return (label, text) => !compare(label.trim().slice(0, text.length), text);
-}
+export type LabelBegins = (label: string, text: string) => boolean;
 
 /** One item of a column that is moved through with the keyboard. */
 export interface RovingItem {
@@ -46,7 +23,7 @@ export interface RovingItem {
  * The keyboard model of a column of items (a list with interactive items or options, LST-17; an open menu, MNU-7):
  * Down and Up Arrow move to the next and previous item that takes focus — wrapping at the ends or stopping there —
  * Home and End to the first and last, and printable characters typed within `TYPEAHEAD_WINDOW` of each other to the
- * next item whose text begins with them (as the comparison given to `target` says, `labelBegins(host)`; a new search
+ * next item whose text begins with them (as the comparison given to `target` says, `labelBegins`; a new search
  * starts after the current item, a longer one keeps matching from it). Moving focus never activates or selects: the
  * component moves focus to the index returned.
  *
@@ -70,7 +47,7 @@ export class RovingKeys {
   /**
    * The index `key` moves focus to from `current` (-1: no item has focus yet), or `null` when the key is not one of the
    * column's. A Space that does not continue a search is not the column's: it activates the focused item. `begins` is
-   * how a typed text is compared with a label (`labelBegins(host)`); without it the column has no typeahead, and a
+   * how a typed text is compared with a label (`labelBegins`); without it the column has no typeahead, and a
    * printable character is not its key.
    */
   target(key: string, current: number, items: readonly RovingItem[], begins?: LabelBegins, now = performance.now()): number | null {

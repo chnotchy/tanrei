@@ -2096,7 +2096,7 @@ export class TanreiMenu extends TanreiElement {
       event.key,
       current,
       rows.map((each) => ({ focusable: true, label: each.label })),
-      labelBegins(this),
+      labelBegins,
     );
     if (target === null) return;
     event.preventDefault();

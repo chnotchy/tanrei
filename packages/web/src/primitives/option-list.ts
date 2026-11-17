@@ -6,12 +6,13 @@ import { productText } from '../styles/product-text.js';
 import { cornerRadius } from '../styles/shape.js';
 import { AnchoredSurfaceController, anchoredSurfaceStyles } from './anchored.js';
 import { containedWheel } from './contained-wheel.js';
+import { labelBegins } from './filter.js';
 import { focusRing, syncFocusStyle } from './focus-ring.js';
 import type { OpenAxis } from './axes.js';
 import { itemRowStyles, rowTarget } from './item-row.js';
 import { PointerMovedController } from './pointer-moved.js';
 import { PressController, pressHold } from './press.js';
-import { RovingKeys, labelBegins } from './roving.js';
+import { RovingKeys } from './roving.js';
 import { SELECTION_STATES } from './selection.js';
 import { nearestSize } from './size-cascade.js';
 import { separationHost, syncSeparation, whenGap } from './separation.js';
@@ -1219,7 +1220,7 @@ export class OptionListController implements ReactiveController {
         key,
         current,
         options.map((option) => ({ focusable: true, label: option.label })),
-        labelBegins(this.host),
+        labelBegins,
       );
     if (target === null) return false;
     this.makeActive(options[target], true);

@@ -10,7 +10,7 @@ import { motionCount, motionEnded } from '../../../test/motions.js';
 import { type Frame, type Frames, type Probe, expectAnchored, expectAnimated, expectFirstFrameAtRest, expectNoFlicker, sampleFrames } from '../../../test/frames.js';
 import { bezierOf, resolveEasing } from '../../../test/appear.js';
 import { holdClock, releaseClock } from '../../../test/page-clock.js';
-import { TYPEAHEAD_FOUND, TYPEAHEAD_LABELS, typeaheadByLanguage } from '../../../test/typeahead.js';
+import { TYPEAHEAD_FOUND, TYPEAHEAD_LABELS, typeaheadAsFiltered } from '../../../test/typeahead.js';
 import { MIRRORED, anchorOf, expectDisabledLink, expectLinkActivation, expectNewContext, expectRefusals, expectTargetLabel, markOf } from '../../../test/links.js';
 import { expectBaseline } from '../../../test/baseline.js';
 
@@ -466,16 +466,12 @@ test.describe('semantics and keyboard', () => {
     expect(await focused(page)).toBe('Tile 2');
   });
 
-  test('LST-17: typeahead compares the typed characters with the names as the list’s language compares — without regard to case or to the marks on a letter, and with the letters that language tells apart (Turkish i and ı)', async ({ page }) => {
-    await mountFixtures(page, spec, { fixtures: [fixture('lang', { selection: 'single', label: 'Cities', lang: 'en' }, TYPEAHEAD_LABELS.map((label, n) => [label, { value: `c${n}` }] as [string, Props]))] });
-    await tabTo(page, item(page, 'lang', 0));
-    const value = () => list(page, 'lang').evaluate((el) => (el as unknown as { value: unknown }).value);
+  test('LST-17: typeahead compares the typed characters with the names as the filters compare — without regard to case, to the width of a character or to the marks on a letter, the kana sound marks kept (か does not find が)', async ({ page }) => {
+    await mountFixtures(page, spec, { fixtures: [fixture('typed', { selection: 'single', label: 'Cities' }, TYPEAHEAD_LABELS.map((label, n) => [label, { value: `c${n}` }] as [string, Props]))] });
+    await tabTo(page, item(page, 'typed', 0));
+    const value = () => list(page, 'typed').evaluate((el) => (el as unknown as { value: unknown }).value);
     const chosen = await value();
-    const seen = await typeaheadByLanguage(
-      page,
-      (lang) => list(page, 'lang').evaluate((el, l) => el.setAttribute('lang', l), lang),
-      () => focused(page),
-    );
+    const seen = await typeaheadAsFiltered(page, () => focused(page));
     expect(seen).toEqual(TYPEAHEAD_FOUND);
     expect(await value(), 'moving focus never selects').toEqual(chosen);
   });

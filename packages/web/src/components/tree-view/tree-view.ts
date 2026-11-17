@@ -5,7 +5,6 @@ import {
   type KeyboardConvention,
   PressController,
   RovingKeys,
-  labelBegins,
   SizeConsumerController,
   ambientConvention,
   chordPressed,
@@ -20,7 +19,7 @@ import {
   syncFocusStyle,
 } from '../../primitives/index.js';
 import { readTogether } from '../../primitives/read-phase.js';
-import { FILTER_SETTLE_MS, filterWords, holdsWords } from '../../primitives/filter.js';
+import { FILTER_SETTLE_MS, filterWords, holdsWords, labelBegins } from '../../primitives/filter.js';
 import { fillPlaces } from '../../primitives/places.js';
 import { PendingGlyphs, isGlyphProbe } from '../../primitives/glyph-pending.js';
 import { type CutTextContent, CutTextTip, isCut } from '../../primitives/cut-text.js';
@@ -2440,7 +2439,7 @@ export class TanreiTreeView extends TanreiLightElement {
           return labelOf(row);
         },
       })),
-      labelBegins(this),
+      labelBegins,
     );
     if (to === null) return;
     key.preventDefault();

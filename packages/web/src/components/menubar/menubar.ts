@@ -1496,14 +1496,13 @@ export class TanreiMenubar extends TanreiElement {
       return;
     }
     // MBR-12: one printable character, with no modifier but Shift: the next title after the focused one, wrapping,
-    // whose label begins with it as the bar's language compares (whatever its letter case or its marks); nowhere when
-    // none does.
+    // whose label begins with it, compared as the filters compare (`labelBegins`: whatever its case, its width or the
+    // marks on its letters, the kana sound marks kept); nowhere when none does.
     if ([...key].length !== 1) return;
     handled();
-    const begins = labelBegins(this);
     for (let step = 1; step <= titles.length; step += 1) {
       const index = (at + step) % titles.length;
-      if (begins(this.labelOf(titles[index]), key)) {
+      if (labelBegins(this.labelOf(titles[index]), key)) {
         this.move(titles, index);
         return;
       }

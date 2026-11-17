@@ -13,7 +13,7 @@ import { type Fixture, type FixtureItem, acmeSystemCss, loadSpec, missingWords, 
 import { expectKeyPressOutlastsPointer } from '../../../test/key-press-pointer-leaves.js';
 import { type Frames, type Probe, expectNoFlicker, sampleFrames } from '../../../test/frames.js';
 import { holdClock, releaseClock } from '../../../test/page-clock.js';
-import { TYPEAHEAD_FOUND, TYPEAHEAD_LABELS, typeaheadByLanguage } from '../../../test/typeahead.js';
+import { TYPEAHEAD_FOUND, TYPEAHEAD_LABELS, typeaheadAsFiltered } from '../../../test/typeahead.js';
 import { expectBaseline } from '../../../test/baseline.js';
 
 const spec = loadSpec('menubar');
@@ -623,19 +623,15 @@ test.describe('the keys', () => {
     expect(await focus(page, 'editor')).toBe('before');
   });
 
-  test('MBR-12: a typed character is compared with the titles as the bar’s language compares — without regard to case or to the marks on a letter, and with the letters that language tells apart (Turkish i and ı)', async ({ page }) => {
-    await mountFixtures(page, spec, { fixtures: [fx('lang', TYPEAHEAD_LABELS.map((label) => m(label, it('One'))), { lang: 'en' })], lead: '<button id="before">before</button>' });
+  test('MBR-12: a typed character is compared with the titles as the filters compare — without regard to case, to the width of a character or to the marks on a letter, the kana sound marks kept (か does not find が)', async ({ page }) => {
+    await mountFixtures(page, spec, { fixtures: [fx('typed', TYPEAHEAD_LABELS.map((label) => m(label, it('One'))))], lead: '<button id="before">before</button>' });
     await wire(page);
     await page.locator('#before').focus();
     await tab(page);
-    await expect.poll(() => focus(page, 'lang')).toBe('title:Irmak');
-    const seen = await typeaheadByLanguage(
-      page,
-      (lang) => bar(page, 'lang').evaluate((el, l) => el.setAttribute('lang', l), lang),
-      async () => (await focus(page, 'lang')).replace('title:', ''),
-    );
+    await expect.poll(() => focus(page, 'typed')).toBe('title:Apple');
+    const seen = await typeaheadAsFiltered(page, async () => (await focus(page, 'typed')).replace('title:', ''));
     expect(seen).toEqual(TYPEAHEAD_FOUND);
-    expect(await open(page, 'lang')).toEqual([]);
+    expect(await open(page, 'typed')).toEqual([]);
   });
 
   test('MBR-12: the Tab stop follows the menu opened last, by any input — a menu reached by travelling, or opened by a pointer — and the keys the bar handles neither scroll nor reach what is around it, while it handles no other key and not Escape', async ({ page }) => {
