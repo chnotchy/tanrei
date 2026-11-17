@@ -21,7 +21,8 @@
 //   (`pressHoldRules`, test/harsh/press-hold.ts). A test that reads the token reads the lengthened hold; a test that
 //   checks the system's own value compares with `pressHoldAsRun()`. The other race — a component's press-hold read
 //   after an action's round trip, taking it to last — wins against a hold this long: TANREI_HARSH_PRESS_HOLD=0 leaves
-//   the hold as it is, and the gap makes that race lose instead.
+//   the hold as it is, and the gap makes that race lose instead. So harsh mode is run twice before a pull request: by
+//   default, for a read too early, and with TANREI_HARSH_PRESS_HOLD=0, for a read too late.
 // - Chromium: the page's animations and transitions played slower (CDP `Animation.setPlaybackRate`), so a single read
 //   during a motion lands in the motion, not after it. Firefox and WebKit have no such rate; on request
 //   (TANREI_HARSH_PAGE_MOTION=1) their pages' own animations are slowed instead (test/harsh/slow-motion.ts) — not by
@@ -92,8 +93,10 @@ export const pressHoldFor = (after: number): number => 2 * after;
  *   still running when a test that does not wait for it reads once: SEL-60 and TAB-45 fail with it;
  *   with both, the four old tests failed 4 runs in 4 each in Chromium, and their fixed versions passed 3 in 3 in
  *   Chromium, Firefox and WebKit. Firefox and WebKit have no motion rate: there the old BRC-16 failed 3 in 3, the old
- *   MDL-9 1 in 3 in Firefox, and the two motion reads passed. (Measured before press-hold was made longer: a read
- *   like the old BRC-16's, of a component's press-hold, loses now with TANREI_HARSH_PRESS_HOLD=0.)
+ *   MDL-9 1 in 3 in Firefox, and the two motion reads passed. (Measured before press-hold was made longer. Measured
+ *   again since, the old BRC-16 passes 3 runs in 3 in each of Chromium, Firefox and WebKit with the longer hold, and
+ *   fails 3 in 3 in each with TANREI_HARSH_PRESS_HOLD=0: a read too late of a component's press-hold is caught by that
+ *   second run, which is why harsh mode is run both ways before a pull request.)
  * - press-hold made longer by twice the gap after an action (100 ms becomes 700 ms): with the hold at its own length a
  *   read after an action always came after the hold had ended, so a test that read a resting look after a click without
  *   waiting for the hold passed here and failed on a fast machine in every engine. Harsh mode's own race of it

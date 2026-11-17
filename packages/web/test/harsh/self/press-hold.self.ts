@@ -54,10 +54,10 @@ const BUTTON = `<style>${TOKENS}</style>
 const ATTEMPTS = 5;
 
 /**
- * Clicks the button and reads once, as soon as the click returns, whether it is pressed — as a test does that takes the
- * hold to be over by then — with what the page noted. A read that came after the hold had ended (a loaded machine
- * answered that late) passes whatever harsh mode does, and its pass would say nothing: the click is made again from a
- * new page, up to `ATTEMPTS` times, and the race says it was late when even the last read was (late.ts).
+ * Clicks the button and reads once, as soon as the click returns, whether it is pressed, with what the page noted. A
+ * read that came after the hold had ended (the gap after the click, or a loaded machine, made it that late) ends the
+ * race the same way whatever else harsh mode does, and says nothing of it: the click is made again from a new page, up
+ * to `ATTEMPTS` times, and the race says it was late when even the last read was (late.ts).
  */
 const readOnceClicked = async (page: Page): Promise<{ pressed: string | null; when: string }> => {
   for (let attempt = 1; ; attempt += 1) {
@@ -81,6 +81,14 @@ test('race: the resting look read as soon as the click returns, before press-hol
   // the hold — and with the hold at its own length (100 ms), so would harsh mode's gap after the click (300 ms).
   const { pressed, when } = await readOnceClicked(page);
   expect(pressed, when).toBeNull();
+});
+
+test('race: press-hold read as still held once the click returns', async ({ page }) => {
+  // The opposite read: it takes the hold to last past the click's round trip. A fast machine wins it, a loaded one
+  // loses it. Harsh mode's longer hold lets it win too; with the hold at its own length (TANREI_HARSH_PRESS_HOLD=0) the
+  // gap after the click outlasts the hold, and it loses, reading late.
+  const { pressed, when } = await readOnceClicked(page);
+  expect(pressed, when).toBe('');
 });
 
 test('sound: the resting look waited for after the click', async ({ page }) => {
