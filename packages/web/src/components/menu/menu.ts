@@ -10,6 +10,7 @@ import {
   GlyphDrawnController,
   GlyphMirrorController,
   MirrorWordController,
+  hearsMirrorWord,
   LINK_MARK,
   LONG_PRESS,
   LinkController,
@@ -2765,6 +2766,8 @@ export class TanreiMenu extends TanreiElement {
 // MNU-67: the hosts carry their roles, and hold the product's name while they name themselves. MNU-66: a link item's
 // anchor carries its role, and what the product writes on the host is moved there in that mode alone.
 holdsProductName(TanreiMenuRowBase);
+hearsMirrorWord(TanreiMenuRowBase);
+hearsMirrorWord(TanreiMenuGroup);
 delegatesAria(TanreiMenuItem, { sentence: 'MNU-66', owns: ['aria-disabled', 'aria-current', 'aria-keyshortcuts'], when: (host) => (host as TanreiMenuItem).isLink });
 holdsProductName(TanreiMenuGroup);
 holdsProductName(TanreiMenu);
