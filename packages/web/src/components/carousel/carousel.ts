@@ -1082,6 +1082,16 @@ export class TanreiCarousel extends TanreiElement {
     // Where the row was when the carousel last set it: a scroll away from there is someone else's (the product's, the
     // browser's), which wins and settles in its turn.
     let last: number | null = claim ? null : this.readOffset();
+    // CRL-39: a frame that comes after a change of direction and before the carousel has heard of it (a frame later)
+    // would write the offset for the old direction — given the other sign, which the row's new range cuts to its start —
+    // and a last frame would then rest there, the move lost. The arrangement for the new direction takes over instead:
+    // the motion still has its target, where it puts the row at once. The direction is read from the cascade, but in
+    // the frame the scroll offset read and written next lays the page out anyway, so the read costs no style of its own.
+    const stale = () => {
+      if (!this.directionChanged) return false;
+      this.arrange();
+      return true;
+    };
     const overtaken = () => {
       if (held || last === null || Math.abs(this.readOffset() - last) <= 1) return false;
       this.stopScrolling();
@@ -1096,7 +1106,7 @@ export class TanreiCarousel extends TanreiElement {
     };
     if (Math.abs(to - from) < 0.5 || duration <= 0 || typeof KeyframeEffect === 'undefined') {
       this.scrollFrame = requestAnimationFrame(() => {
-        if (overtaken()) return;
+        if (stale() || overtaken()) return;
         this.setOffset(to);
         finish();
       });
@@ -1106,7 +1116,7 @@ export class TanreiCarousel extends TanreiElement {
     this.scrolling = timing;
     timing.play();
     const step = () => {
-      if (this.scrolling !== timing || overtaken()) return;
+      if (this.scrolling !== timing || stale() || overtaken()) return;
       // The motion's last frame writes `to` itself, not the curve's value there: an engine may call a motion finished
       // while its progress is a hair under 1 (WebKit, within its timing tolerance: 0.9999999999999999), and the offset
       // that gives (415.99999999999994 for 416) is cut to the whole pixel below by an engine that keeps whole offsets —
