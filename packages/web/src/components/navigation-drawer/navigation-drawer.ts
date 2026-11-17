@@ -177,7 +177,6 @@ type DrawerDestination = TanreiNavigationDrawerItem | TanreiNavigationDrawerGrou
 /** A duration as the browser computes it ("0.5s"), in ms. */
 const ms = (value: string) => (Number.parseFloat(value) || 0) * (value.trim().endsWith('ms') ? 1 : 1000);
 
-/** Whether an update changed `key` (a private or protected reactive property, which `PropertyValues<this>` does not name). */
 /**
  * NVD-56: when a box waited for is first seen. \`isIntersecting\` is true also for a box that only touches the window's
  * edge, of which nothing is seen, and a tooltip counts such an anchor out of sight and closes at once
@@ -187,6 +186,7 @@ const ms = (value: string) => (Number.parseFloat(value) || 0) * (value.trim().en
 const SIGHT: IntersectionObserverInit = { threshold: [0, 1e-6] };
 const seen = (entries: IntersectionObserverEntry[]) => entries.some((entry) => entry.isIntersecting && entry.intersectionRatio > 0);
 
+/** Whether an update changed `key` (a private or protected reactive property, which `PropertyValues<this>` does not name). */
 const has = (changed: PropertyValues, key: string) => (changed as Map<PropertyKey, unknown>).has(key);
 
 /** The groups that hold `cell`, outermost first (within its drawer). */
@@ -529,8 +529,9 @@ abstract class DrawerCell extends TanreiElement {
     this.cutTip.pointerLeave(event.pointerType);
     this.hovered = false;
     clearTimeout(this.tipTimer);
-    // It stays while the cell has keyboard focus, as a tooltip does.
-    if (this.cell?.matches(':focus-visible')) return;
+    // NVD-56: only a cell drawn without its label has a name to hide (an expanded row draws no `.tip`); and it stays
+    // while the cell has keyboard focus, as a tooltip does.
+    if (!this.unnamed || this.cell?.matches(':focus-visible')) return;
     this.tipTimer = setTimeout(() => this.showName(false), this.tipWaits().hide);
   };
 
