@@ -40492,7 +40492,7 @@
                 "text": "string"
               },
               "default": "''",
-              "description": "The name of a glyph of the system's icon set. Give every segment of a set an icon, or none. A name the icon set flags is drawn mirrored in right-to-left.",
+              "description": "The name of a glyph of the system's icon set. Give every segment of a set an icon, or none. A name the icon set flags is drawn mirrored in right-to-left; `data-mirror=\"auto | always | never\"` on the segment decides for this use.",
               "attribute": "icon"
             },
             {
@@ -40559,7 +40559,7 @@
                 "text": "string"
               },
               "default": "''",
-              "description": "The name of a glyph of the system's icon set. Give every segment of a set an icon, or none. A name the icon set flags is drawn mirrored in right-to-left.",
+              "description": "The name of a glyph of the system's icon set. Give every segment of a set an icon, or none. A name the icon set flags is drawn mirrored in right-to-left; `data-mirror=\"auto | always | never\"` on the segment decides for this use.",
               "fieldName": "icon"
             },
             {
@@ -46595,7 +46595,7 @@
                 "text": "string"
               },
               "default": "''",
-              "description": "The glyph (a name in the system's icon set) the handle shows while on; empty shows none (`checked-icon`). A name the icon set flags is drawn mirrored in right-to-left.",
+              "description": "The glyph (a name in the system's icon set) the handle shows while on; empty shows none (`checked-icon`). A name the icon set flags is drawn mirrored in right-to-left; `data-mirror=\"auto | always | never\"` on the switch decides for both glyphs.",
               "attribute": "checked-icon"
             },
             {
@@ -46606,7 +46606,7 @@
                 "text": "string"
               },
               "default": "''",
-              "description": "The glyph the handle shows while off; empty shows none (`unchecked-icon`). A name the icon set flags is drawn mirrored in right-to-left.",
+              "description": "The glyph the handle shows while off; empty shows none (`unchecked-icon`). A name the icon set flags is drawn mirrored in right-to-left; `data-mirror=\"auto | always | never\"` on the switch decides for both glyphs.",
               "attribute": "unchecked-icon"
             },
             {
@@ -46742,7 +46742,7 @@
                 "text": "string"
               },
               "default": "''",
-              "description": "The glyph (a name in the system's icon set) the handle shows while on; empty shows none (`checked-icon`). A name the icon set flags is drawn mirrored in right-to-left.",
+              "description": "The glyph (a name in the system's icon set) the handle shows while on; empty shows none (`checked-icon`). A name the icon set flags is drawn mirrored in right-to-left; `data-mirror=\"auto | always | never\"` on the switch decides for both glyphs.",
               "fieldName": "checkedIcon"
             },
             {
@@ -46751,7 +46751,7 @@
                 "text": "string"
               },
               "default": "''",
-              "description": "The glyph the handle shows while off; empty shows none (`unchecked-icon`). A name the icon set flags is drawn mirrored in right-to-left.",
+              "description": "The glyph the handle shows while off; empty shows none (`unchecked-icon`). A name the icon set flags is drawn mirrored in right-to-left; `data-mirror=\"auto | always | never\"` on the switch decides for both glyphs.",
               "fieldName": "uncheckedIcon"
             },
             {
