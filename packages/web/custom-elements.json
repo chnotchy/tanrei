@@ -24687,7 +24687,7 @@
                 "text": "string"
               },
               "default": "''",
-              "description": "The name of a glyph of the system's icon set before the label. A glyph the icon set flags as showing a direction (`arrow_forward`, `send`) is drawn mirrored in a right-to-left layout.",
+              "description": "The name of a glyph of the system's icon set before the label. A glyph the icon set flags as showing a direction (`arrow_forward`, `send`) is drawn mirrored in a right-to-left layout; `data-mirror=\"auto | always | never\"` on the item decides for this use, for every glyph the item names.",
               "attribute": "leading-icon"
             },
             {
@@ -24758,7 +24758,7 @@
                 "text": "string"
               },
               "default": "''",
-              "description": "The name of a glyph of the system's icon set before the label. A glyph the icon set flags as showing a direction (`arrow_forward`, `send`) is drawn mirrored in a right-to-left layout.",
+              "description": "The name of a glyph of the system's icon set before the label. A glyph the icon set flags as showing a direction (`arrow_forward`, `send`) is drawn mirrored in a right-to-left layout; `data-mirror=\"auto | always | never\"` on the item decides for this use, for every glyph the item names.",
               "fieldName": "leadingIcon"
             },
             {
@@ -24798,7 +24798,7 @@
                 "text": "string"
               },
               "default": "''",
-              "description": "The name of a glyph at the end of the row; one the icon set flags (`arrow_right`) is mirrored in a right-to-left layout.",
+              "description": "The name of a glyph at the end of the row; one the icon set flags (`arrow_right`) is mirrored in a right-to-left layout, and `data-mirror` on the item decides for this use.",
               "attribute": "trailing-icon"
             },
             {
@@ -24850,7 +24850,7 @@
                 "text": "string"
               },
               "default": "''",
-              "description": "The name of a glyph of the system's icon set before the label. A glyph the icon set flags as showing a direction (`arrow_forward`, `send`) is drawn mirrored in a right-to-left layout.",
+              "description": "The name of a glyph of the system's icon set before the label. A glyph the icon set flags as showing a direction (`arrow_forward`, `send`) is drawn mirrored in a right-to-left layout; `data-mirror=\"auto | always | never\"` on the item decides for this use, for every glyph the item names.",
               "attribute": "leading-icon",
               "inheritedFrom": {
                 "name": "TanreiMenuRowBase",
@@ -24923,7 +24923,7 @@
                 "text": "string"
               },
               "default": "''",
-              "description": "The name of a glyph at the end of the row; one the icon set flags (`arrow_right`) is mirrored in a right-to-left layout.",
+              "description": "The name of a glyph at the end of the row; one the icon set flags (`arrow_right`) is mirrored in a right-to-left layout, and `data-mirror` on the item decides for this use.",
               "fieldName": "trailingIcon"
             },
             {
@@ -24967,7 +24967,7 @@
                 "text": "string"
               },
               "default": "''",
-              "description": "The name of a glyph of the system's icon set before the label. A glyph the icon set flags as showing a direction (`arrow_forward`, `send`) is drawn mirrored in a right-to-left layout.",
+              "description": "The name of a glyph of the system's icon set before the label. A glyph the icon set flags as showing a direction (`arrow_forward`, `send`) is drawn mirrored in a right-to-left layout; `data-mirror=\"auto | always | never\"` on the item decides for this use, for every glyph the item names.",
               "fieldName": "leadingIcon",
               "inheritedFrom": {
                 "name": "TanreiMenuRowBase",
@@ -25136,7 +25136,7 @@
                 "text": "string"
               },
               "default": "''",
-              "description": "The name of a glyph at the end of the row; one the icon set flags (`arrow_right`) is mirrored in a right-to-left layout.",
+              "description": "The name of a glyph at the end of the row; one the icon set flags (`arrow_right`) is mirrored in a right-to-left layout, and `data-mirror` on the item decides for this use.",
               "attribute": "trailing-icon",
               "inheritedFrom": {
                 "name": "TanreiMenuItemBase",
@@ -25196,7 +25196,7 @@
                 "text": "string"
               },
               "default": "''",
-              "description": "The name of a glyph of the system's icon set before the label. A glyph the icon set flags as showing a direction (`arrow_forward`, `send`) is drawn mirrored in a right-to-left layout.",
+              "description": "The name of a glyph of the system's icon set before the label. A glyph the icon set flags as showing a direction (`arrow_forward`, `send`) is drawn mirrored in a right-to-left layout; `data-mirror=\"auto | always | never\"` on the item decides for this use, for every glyph the item names.",
               "attribute": "leading-icon",
               "inheritedFrom": {
                 "name": "TanreiMenuRowBase",
@@ -25338,7 +25338,7 @@
                 "text": "string"
               },
               "default": "''",
-              "description": "The name of a glyph at the end of the row; one the icon set flags (`arrow_right`) is mirrored in a right-to-left layout.",
+              "description": "The name of a glyph at the end of the row; one the icon set flags (`arrow_right`) is mirrored in a right-to-left layout, and `data-mirror` on the item decides for this use.",
               "fieldName": "trailingIcon",
               "inheritedFrom": {
                 "name": "TanreiMenuItemBase",
@@ -25390,7 +25390,7 @@
                 "text": "string"
               },
               "default": "''",
-              "description": "The name of a glyph of the system's icon set before the label. A glyph the icon set flags as showing a direction (`arrow_forward`, `send`) is drawn mirrored in a right-to-left layout.",
+              "description": "The name of a glyph of the system's icon set before the label. A glyph the icon set flags as showing a direction (`arrow_forward`, `send`) is drawn mirrored in a right-to-left layout; `data-mirror=\"auto | always | never\"` on the item decides for this use, for every glyph the item names.",
               "fieldName": "leadingIcon",
               "inheritedFrom": {
                 "name": "TanreiMenuRowBase",
@@ -25501,7 +25501,7 @@
                 "text": "string"
               },
               "default": "''",
-              "description": "The name of a glyph at the end of the row; one the icon set flags (`arrow_right`) is mirrored in a right-to-left layout.",
+              "description": "The name of a glyph at the end of the row; one the icon set flags (`arrow_right`) is mirrored in a right-to-left layout, and `data-mirror` on the item decides for this use.",
               "attribute": "trailing-icon",
               "inheritedFrom": {
                 "name": "TanreiMenuItemBase",
@@ -25561,7 +25561,7 @@
                 "text": "string"
               },
               "default": "''",
-              "description": "The name of a glyph of the system's icon set before the label. A glyph the icon set flags as showing a direction (`arrow_forward`, `send`) is drawn mirrored in a right-to-left layout.",
+              "description": "The name of a glyph of the system's icon set before the label. A glyph the icon set flags as showing a direction (`arrow_forward`, `send`) is drawn mirrored in a right-to-left layout; `data-mirror=\"auto | always | never\"` on the item decides for this use, for every glyph the item names.",
               "attribute": "leading-icon",
               "inheritedFrom": {
                 "name": "TanreiMenuRowBase",
@@ -25661,7 +25661,7 @@
                 "text": "string"
               },
               "default": "''",
-              "description": "The name of a glyph at the end of the row; one the icon set flags (`arrow_right`) is mirrored in a right-to-left layout.",
+              "description": "The name of a glyph at the end of the row; one the icon set flags (`arrow_right`) is mirrored in a right-to-left layout, and `data-mirror` on the item decides for this use.",
               "fieldName": "trailingIcon",
               "inheritedFrom": {
                 "name": "TanreiMenuItemBase",
@@ -25713,7 +25713,7 @@
                 "text": "string"
               },
               "default": "''",
-              "description": "The name of a glyph of the system's icon set before the label. A glyph the icon set flags as showing a direction (`arrow_forward`, `send`) is drawn mirrored in a right-to-left layout.",
+              "description": "The name of a glyph of the system's icon set before the label. A glyph the icon set flags as showing a direction (`arrow_forward`, `send`) is drawn mirrored in a right-to-left layout; `data-mirror=\"auto | always | never\"` on the item decides for this use, for every glyph the item names.",
               "fieldName": "leadingIcon",
               "inheritedFrom": {
                 "name": "TanreiMenuRowBase",
@@ -25823,7 +25823,7 @@
                 "text": "string"
               },
               "default": "''",
-              "description": "The name of a glyph at the end of the row; one the icon set flags (`arrow_right`) is mirrored in a right-to-left layout.",
+              "description": "The name of a glyph at the end of the row; one the icon set flags (`arrow_right`) is mirrored in a right-to-left layout, and `data-mirror` on the item decides for this use.",
               "attribute": "trailing-icon",
               "inheritedFrom": {
                 "name": "TanreiMenuItemBase",
@@ -25883,7 +25883,7 @@
                 "text": "string"
               },
               "default": "''",
-              "description": "The name of a glyph of the system's icon set before the label. A glyph the icon set flags as showing a direction (`arrow_forward`, `send`) is drawn mirrored in a right-to-left layout.",
+              "description": "The name of a glyph of the system's icon set before the label. A glyph the icon set flags as showing a direction (`arrow_forward`, `send`) is drawn mirrored in a right-to-left layout; `data-mirror=\"auto | always | never\"` on the item decides for this use, for every glyph the item names.",
               "attribute": "leading-icon",
               "inheritedFrom": {
                 "name": "TanreiMenuRowBase",
@@ -25974,7 +25974,7 @@
                 "text": "string"
               },
               "default": "''",
-              "description": "The name of a glyph at the end of the row; one the icon set flags (`arrow_right`) is mirrored in a right-to-left layout.",
+              "description": "The name of a glyph at the end of the row; one the icon set flags (`arrow_right`) is mirrored in a right-to-left layout, and `data-mirror` on the item decides for this use.",
               "fieldName": "trailingIcon",
               "inheritedFrom": {
                 "name": "TanreiMenuItemBase",
@@ -26026,7 +26026,7 @@
                 "text": "string"
               },
               "default": "''",
-              "description": "The name of a glyph of the system's icon set before the label. A glyph the icon set flags as showing a direction (`arrow_forward`, `send`) is drawn mirrored in a right-to-left layout.",
+              "description": "The name of a glyph of the system's icon set before the label. A glyph the icon set flags as showing a direction (`arrow_forward`, `send`) is drawn mirrored in a right-to-left layout; `data-mirror=\"auto | always | never\"` on the item decides for this use, for every glyph the item names.",
               "fieldName": "leadingIcon",
               "inheritedFrom": {
                 "name": "TanreiMenuRowBase",
@@ -26183,7 +26183,7 @@
                 "text": "string"
               },
               "default": "''",
-              "description": "The name of a glyph of the system's icon set before the label. A glyph the icon set flags as showing a direction (`arrow_forward`, `send`) is drawn mirrored in a right-to-left layout.",
+              "description": "The name of a glyph of the system's icon set before the label. A glyph the icon set flags as showing a direction (`arrow_forward`, `send`) is drawn mirrored in a right-to-left layout; `data-mirror=\"auto | always | never\"` on the item decides for this use, for every glyph the item names.",
               "attribute": "leading-icon",
               "inheritedFrom": {
                 "name": "TanreiMenuRowBase",
@@ -26300,7 +26300,7 @@
                 "text": "string"
               },
               "default": "''",
-              "description": "The name of a glyph of the system's icon set before the label. A glyph the icon set flags as showing a direction (`arrow_forward`, `send`) is drawn mirrored in a right-to-left layout.",
+              "description": "The name of a glyph of the system's icon set before the label. A glyph the icon set flags as showing a direction (`arrow_forward`, `send`) is drawn mirrored in a right-to-left layout; `data-mirror=\"auto | always | never\"` on the item decides for this use, for every glyph the item names.",
               "fieldName": "leadingIcon",
               "inheritedFrom": {
                 "name": "TanreiMenuRowBase",
@@ -26388,7 +26388,7 @@
                 "text": "string"
               },
               "default": "''",
-              "description": "The name of a glyph of the system's icon set that marks the group's checked checkbox and radio items, for those that\nname none of their own (`check` draws a plain check). Empty takes the design system's choice (MNU-38).",
+              "description": "The name of a glyph of the system's icon set that marks the group's checked checkbox and radio items, for those that\nname none of their own (`check` draws a plain check). Empty takes the design system's choice (MNU-38). `data-mirror`\non the group decides whether that glyph is mirrored in a right-to-left layout.",
               "attribute": "mark-icon"
             }
           ],
@@ -26426,7 +26426,7 @@
                 "text": "string"
               },
               "default": "''",
-              "description": "The name of a glyph of the system's icon set that marks the group's checked checkbox and radio items, for those that\nname none of their own (`check` draws a plain check). Empty takes the design system's choice (MNU-38).",
+              "description": "The name of a glyph of the system's icon set that marks the group's checked checkbox and radio items, for those that\nname none of their own (`check` draws a plain check). Empty takes the design system's choice (MNU-38). `data-mirror`\non the group decides whether that glyph is mirrored in a right-to-left layout.",
               "fieldName": "markIcon"
             }
           ],
