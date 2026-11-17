@@ -1500,6 +1500,63 @@ test.describe('behavior', () => {
     expect(dist('avatar.css')).toContain('@layer tanrei.components');
     expect(await page.evaluate(() => document.querySelectorAll('tanrei-avatar:not(:defined), tanrei-avatar-group:not(:defined)').length)).toBe(0);
   });
+
+  // AVT-16, AVT-20: a page's reset is unlayered, so it beats every rule of the components' layer: a margin or a padding
+  // the stylesheet gave the group or its members would be taken away before the script runs, and the row would jump
+  // when the element is defined. Each member stands where the element will draw it, at every size, in both directions,
+  // with the reset and without it.
+  for (const reset of [false, true]) {
+    for (const dir of ['ltr', 'rtl'] as const) {
+      test(`AVT-16, AVT-20: before the group is defined each member stands where the element draws it — ${dir}, ${reset ? 'under' : 'without'} a page’s reset (* { margin: 0; padding: 0 })`, async ({ page }) => {
+        const people = [['Ada Lovelace', 'AL'], ['Grace Hopper', 'GH'], ['Katherine Johnson', 'KJ']];
+        const groups = [
+          ['small', 'circle'],
+          ['medium', 'circle'],
+          ['large', 'square'],
+          ['medium', 'square'],
+        ] as const;
+        const body = groups
+          .map(([size, shape], g) => `<p class="line"><tanrei-avatar-group id="group-${g}" label="Authors" size="${size}" shape="${shape}">${people.map(([label, initials]) => `<tanrei-avatar label="${label}" initials="${initials}"></tanrei-avatar>`).join('')}</tanrei-avatar-group><span class="mark" id="after-${g}">after</span></p>`)
+          .join('');
+        await page.setContent(`<!doctype html><html lang="en" dir="${dir}" data-tanrei-theme="light"><head><meta charset="utf-8"><title>before definition</title>
+          ${reset ? '<style>* { margin: 0; padding: 0 }</style>' : ''}
+          <style>${dist('tokens.css')}</style><style>${dist('avatar.css')}</style>
+          <style>body { margin: 16px; inline-size: 480px; font: var(--tanrei-sys-typescale-body-font); } p.line { margin: 8px 0; }</style></head><body>${body}</body></html>`);
+        expect(await page.evaluate(() => !!customElements.get('tanrei-avatar-group'))).toBe(false);
+        const measure = () =>
+          page.evaluate(() => {
+            const rect = (el: Element) => {
+              const r = el.getBoundingClientRect();
+              return [r.left, r.top, r.width, r.height].map((v) => Math.round(v * 4) / 4);
+            };
+            return Object.fromEntries(
+              [...document.querySelectorAll('tanrei-avatar-group')].flatMap((group): [string, number[]][] => [[group.id, rect(group)], ...[...group.children].map((member, i): [string, number[]] => [`${group.id} member ${i}`, rect(member)]), [`${group.id} after`, rect(group.nextElementSibling!)]]),
+            );
+          });
+        const before = await measure();
+        await page.addScriptTag({ type: 'module', content: dist('tanrei.bundle.js') });
+        await page.waitForFunction(() => !!customElements.get('tanrei-avatar-group'));
+        await settled(page);
+        const after = await measure();
+        // Each member, each group and what follows it: where it was before the element was defined.
+        for (const [id, was] of Object.entries(before)) was.forEach((v, i) => expect(Math.abs(v - after[id][i]), `${id}: ${was.join(',')} → ${after[id].join(',')}`).toBeLessThanOrEqual(0.25));
+        // And where the element draws it: each member over the one before by the overlap of the group's size, from the
+        // start edge of the row.
+        for (const [g, [size]] of groups.entries()) {
+          const side = await token(page, `container-size-${size}`);
+          const overlap = await token(page, `group-overlap-${size}`);
+          const row = after[`group-${g}`];
+          expect(row[2], `group-${g}'s width`).toBe(3 * side - 2 * overlap);
+          for (const i of [0, 1, 2]) {
+            const member = after[`group-${g} member ${i}`];
+            const fromStart = dir === 'ltr' ? member[0] - row[0] : row[0] + row[2] - (member[0] + member[2]);
+            expect(fromStart, `group-${g} member ${i} from the start edge`).toBe(i * (side - overlap));
+            expect(member.slice(2), `group-${g} member ${i}`).toEqual([side, side]);
+          }
+        }
+      });
+    }
+  }
 });
 
 test.describe('accessibility', () => {
