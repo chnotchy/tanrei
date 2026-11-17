@@ -810,6 +810,87 @@ test.describe('host', () => {
     expect((await bounds(shown(page).locator('.bar'))).width).toBeCloseTo(300 - 2 * margin, 0);
   });
 
+  test('SNK-13, SNK-25: above a bottom navigation bar — what the frame keeps over the bottom of the window — and clear of it when expanded', async ({ page }) => {
+    await page.setViewportSize({ width: 800, height: 600 });
+    await mountHost(page);
+    const margin = await resolveToken(page, T('container-margin'));
+    // A bar at the window's foot, and what <tanrei-app-shell> writes on the root for its navigation bar (APS-17).
+    await page.evaluate(() => document.body.insertAdjacentHTML('beforeend', '<nav id="foot" style="position: fixed; inset: auto 0 0 0; block-size: 80px"></nav>'));
+    await rootTokens(page, { '--tanrei-app-shell-scroll-offset-end': '80px' });
+    await show(page, { message: 'Conversation archived', action: 'Undo', duration: 'indefinite' });
+    await expect.poll(() => showing(page)).toEqual(['Conversation archived']);
+    await motionEnded(shown(page));
+    const foot = await bounds(page.locator('#foot'));
+    const b = await shownBar(page);
+    expect(b.bottom).toBeCloseTo(foot.y - margin, 0);
+    expect(b.x + b.width / 2).toBeCloseTo(400, 0);
+    // The frame keeps nothing there any more (a wide window shows no navigation bar): the margin above the window's edge.
+    await rootTokens(page, { '--tanrei-app-shell-scroll-offset-end': '' });
+    await expect.poll(async () => (await shownBar(page)).bottom).toBeCloseTo(600 - margin, 0);
+    // SNK-25: expanded in a short window above the bar, the area ends above the bar, not at the window's edge.
+    await host(page).evaluate((h: any) => h.dismissCurrent());
+    await expect.poll(() => showing(page)).toEqual([]);
+    await page.setViewportSize({ width: 800, height: 300 });
+    await rootTokens(page, { '--tanrei-app-shell-scroll-offset-end': '80px' });
+    await show(page, { title: TITLE, message: LONG, expandLabel: 'Show full message', duration: 'indefinite' });
+    await expect.poll(() => showing(page)).toEqual([LONG]);
+    await expect.poll(() => shown(page).locator('.expand').count()).toBe(1);
+    await motionEnded(shown(page));
+    await shown(page).locator('.expand').click();
+    await motionEnded(shown(page).locator('.bar'));
+    const expanded = await shownBar(page);
+    expect(expanded.bottom).toBeCloseTo(300 - 80 - margin, 0);
+    expect(expanded.y).toBeCloseTo(margin, 0);
+  });
+
+  test('SNK-13, SNK-35: inside the safe area’s side insets at either placement, and above the higher of its bottom inset and the frame’s bottom bar', async ({ page, browserName }) => {
+    test.skip(browserName !== 'chromium', 'only Chromium lets a test set the safe-area insets (the DevTools protocol’s Emulation.setSafeAreaInsetsOverride)');
+    await page.setViewportSize({ width: 300, height: 600 });
+    await mountHost(page);
+    const margin = await resolveToken(page, T('container-margin'));
+    const cdp = await page.context().newCDPSession(page);
+    await cdp.send('Emulation.setSafeAreaInsetsOverride', { insets: { top: 0, left: 30, right: 40, bottom: 20 } });
+    // The page has the insets: an element of the test's own reads them.
+    const inset = await page.evaluate(() => {
+      const probe = document.body.appendChild(document.createElement('div'));
+      probe.style.padding = 'env(safe-area-inset-top, 0px) env(safe-area-inset-right, 0px) env(safe-area-inset-bottom, 0px) env(safe-area-inset-left, 0px)';
+      const { paddingLeft, paddingRight, paddingBottom } = getComputedStyle(probe);
+      probe.remove();
+      return [paddingLeft, paddingRight, paddingBottom];
+    });
+    expect(inset).toEqual(['30px', '40px', '20px']);
+    await show(page, { message: 'Conversation archived', action: 'Undo', duration: 'indefinite' });
+    await expect.poll(() => showing(page)).toEqual(['Conversation archived']);
+    await motionEnded(shown(page));
+    // A narrow window: the margin inside each side inset, the margin above the bottom one.
+    const narrow = await shownBar(page);
+    expect(narrow.x).toBeCloseTo(30 + margin, 0);
+    expect(narrow.right).toBeCloseTo(300 - 40 - margin, 0);
+    expect(narrow.bottom).toBeCloseTo(600 - 20 - margin, 0);
+    // The higher of the bottom inset and the frame's bottom bar, never their sum.
+    await rootTokens(page, { '--tanrei-app-shell-scroll-offset-end': '80px' });
+    await expect.poll(async () => (await shownBar(page)).bottom).toBeCloseTo(600 - 80 - margin, 0);
+    await rootTokens(page, { '--tanrei-app-shell-scroll-offset-end': '10px' });
+    await expect.poll(async () => (await shownBar(page)).bottom).toBeCloseTo(600 - 20 - margin, 0);
+    await rootTokens(page, { '--tanrei-app-shell-scroll-offset-end': '' });
+    // A wide window: centred between the side insets.
+    await page.setViewportSize({ width: 800, height: 600 });
+    await expect.poll(async () => {
+      const box = await shownBar(page);
+      return box.x + box.width / 2;
+    }).toBeCloseTo(30 + (800 - 30 - 40) / 2, 0);
+    // SNK-35: at the top end of a compact window, across the top inside the side insets as well.
+    await host(page).evaluate((h: any) => h.dismissCurrent());
+    await expect.poll(() => showing(page)).toEqual([]);
+    await page.setViewportSize({ width: 300, height: 600 });
+    await show(page, { message: 'Report exported', placement: 'top-end', duration: 'indefinite' });
+    await expect.poll(() => showing(page)).toEqual(['Report exported']);
+    await motionEnded(shown(page));
+    const top = await shownBar(page);
+    expect(top.x).toBeCloseTo(30 + margin, 0);
+    expect(top.right).toBeCloseTo(300 - 40 - margin, 0);
+  });
+
   test('SNK-19: drawn outside a host it is in place and at rest — centred across its width, no popover, timeout, entrance or announcement — and still emits', async ({ page }) => {
     await mountFixtures(page, spec, { icons: true });
     await override(page, { [T('timeout-short')]: '100ms' });
