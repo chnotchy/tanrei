@@ -1584,6 +1584,33 @@ test.describe('behavior', () => {
     expect(await host(page, 'listed').evaluate((el) => (el as any).validity.valid)).toBe(true);
   });
 
+  test('TXI-30: with no invalidText or unavailableText and no Field to show words for it, the form is told the input’s name as the message of an entry error, else the row as drawn — never the reason’s name', async ({ page }) => {
+    await mountFixtures(page, spec, {
+      fixtures: [fixture('named', { type: 'date', locale: 'en-US', label: 'Due', max: '2026-12-31' }), fixture('nameless', { type: 'date', locale: 'en-US', max: '2026-12-31' })],
+    });
+    const validity = (id: string) =>
+      host(page, id).evaluate((el: HTMLElement) => {
+        const control = el as unknown as { validity: ValidityState; validationMessage: string };
+        return [control.validity.badInput, control.validity.rangeOverflow, control.validationMessage];
+      });
+    // Half-filled: invalid.
+    for (const id of ['named', 'nameless']) {
+      await seg(page, id, 'month').click();
+      await page.keyboard.type('0927');
+      await blurAll(page);
+    }
+    expect(await validity('named')).toEqual([true, false, 'Due']);
+    expect(await validity('nameless')).toEqual([true, false, '09/27/']);
+    // After max: unavailable.
+    for (const id of ['named', 'nameless']) {
+      await seg(page, id, 'month').click();
+      await page.keyboard.type('01052027');
+      await blurAll(page);
+    }
+    expect(await validity('named')).toEqual([false, true, 'Due']);
+    expect(await validity('nameless')).toEqual([false, true, '01/05/2027']);
+  });
+
   test('TXI-31: a value the product sets fills every segment — an empty one empties them — ends an entry error, emits nothing and is not checked against min, max and disabledDates; a malformed value, min, max or listed date is treated as empty or absent and reported, and so is a min later than max', async ({ page }) => {
     const seen = warnings(page);
     await mountFixtures(page, spec, {
