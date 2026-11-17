@@ -13,6 +13,7 @@ import { STOPPED_AFTER, flingThenHold, strokes } from '../../../test/stopped-rel
 import { clickCentre, heldPress } from '../../../test/watched-press.js';
 import { expectWheelKeptFromPage } from '../../../test/contained-wheel.js';
 import { motionCount, motionEnded } from '../../../test/motions.js';
+import { mirroringAfterDirection } from '../../../test/mirror-word.js';
 import { boxAtRest } from '../../../test/at-rest.js';
 import { expectBaseline } from '../../../test/baseline.js';
 
@@ -1062,7 +1063,7 @@ test.describe('layout', () => {
     expect(await focused(page)).toBe('hotel');
   });
 
-  test('TAB-32: in right-to-left a tab’s icon is mirrored in both copies exactly when the icon set marks its name, or the product forces it with data-mirror="always" on the tab, and never where data-mirror="never" forbids it — in its own box, its place, size and color unchanged; never in left-to-right; the tab mirrors nothing itself', async ({ page }) => {
+  test('TAB-32: in right-to-left a tab’s icon is mirrored in both copies exactly when the icon set marks its name, or the product forces it with data-mirror="always" on the tab, and never where data-mirror="never" forbids it — in its own box, its place, size and color unchanged; never in left-to-right; a change of direction redrawn at once, without a motion; the tab mirrors nothing itself', async ({ page }) => {
     const icons = (id: string, first: FixtureItem['props'], second: FixtureItem['props'], direction?: 'rtl'): Fixture => ({
       ...fixture(id, [t('a', 'Send', { icon: 'send', ...first }), t('b', 'Done', { icon: 'check', ...second })], { value: 'a' }),
       ...(direction ? { direction } : {}),
@@ -1096,6 +1097,13 @@ test.describe('layout', () => {
     await expect.poll(() => mirrored('listed', 1)).toBe('mirrored');
     await tabAt(page, 'listed', 1).evaluate((el) => el.removeAttribute('data-mirror'));
     await expect.poll(() => mirrored('listed', 1)).toBe('plain');
+    // The direction changed on an ancestor while the row is shown: each copy is drawn for it in the same task, without a
+    // motion — the list's word, the product's `always` and its `never` alike.
+    const glyphs = (id: string) => [...copies(id, 0), ...copies(id, 1)];
+    expect(await mirroringAfterDirection(page.locator('[data-fixture="ltr"]'), 'rtl', glyphs('ltr'))).toEqual(['mirrored', 'mirrored', 'mirrored', 'mirrored']);
+    expect(await mirroringAfterDirection(page.locator('[data-fixture="decided"]'), 'ltr', glyphs('decided'))).toEqual(['plain', 'plain', 'plain', 'plain']);
+    expect(await mirroringAfterDirection(page.locator('[data-fixture="decided"]'), 'rtl', glyphs('decided'))).toEqual(['plain', 'plain', 'mirrored', 'mirrored']);
+    for (const id of ['ltr', 'decided']) expect(await motionCount(row(page, id)), id).toBe(0);
   });
 
   test('TAB-22: a tab without a label still renders, and a debug build reports it', async ({ page }) => {
