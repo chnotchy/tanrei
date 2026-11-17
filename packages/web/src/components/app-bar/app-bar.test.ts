@@ -7,7 +7,8 @@ import { fileURLToPath } from 'node:url';
 import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
 import { type Fixture, type FixtureItem, fixturesDocument, loadSpec, markMarkup, mountFixtures, resolveColor, resolveToken, tab, tabTo, rootTokens } from '../../../test/harness.js';
-import { motionEnded } from '../../../test/motions.js';
+import { motionCount, motionEnded } from '../../../test/motions.js';
+import { transitionsRun, watchTransitions } from '../../../test/transitions.js';
 import { expectBaseline } from '../../../test/baseline.js';
 
 const spec = loadSpec('app-bar');
@@ -65,13 +66,13 @@ const expectedCondition = async (page: P, condition: 'flat' | 'scrolled', visibi
   edgeHeight: await resolveToken(page, T('outline-width')),
 });
 
-/** A page with a bar above a scrolling list, the bar connected to it by id. */
-async function scrollPage(page: P, barAttributes: string, { rows = 60 }: { rows?: number } = {}) {
+/** A page with a bar above a scrolling list, the bar connected to it by id; `dir` is the direction of the screen around them. */
+async function scrollPage(page: P, barAttributes: string, { rows = 60, dir = '' }: { rows?: number; dir?: '' | 'ltr' | 'rtl' } = {}) {
   await mountFixtures(page, spec, { icons: true, fixtures: [] });
   await page.evaluate(
-    ([attributes, count]) => {
+    ([attributes, count, direction]) => {
       const main = document.querySelector('main')!;
-      main.innerHTML = `<div id="screen" style="display:flex;flex-direction:column;inline-size:360px;block-size:480px">
+      main.innerHTML = `<div id="screen"${direction ? ` dir="${direction}"` : ''} style="display:flex;flex-direction:column;inline-size:360px;block-size:480px">
         <tanrei-app-bar ${attributes}>
           <tanrei-button variant="text" slot="navigation" label="Menu"><span slot="icon">menu</span></tanrei-button>
           <tanrei-button variant="text" slot="actions" label="Search"><span slot="icon">search</span></tanrei-button>
@@ -79,7 +80,7 @@ async function scrollPage(page: P, barAttributes: string, { rows = 60 }: { rows?
         <div id="list" style="flex:1;overflow:auto">${Array.from({ length: count as number }, (_, i) => `<p style="margin:0;block-size:40px">Row ${i}</p>`).join('')}</div>
       </div>`;
     },
-    [barAttributes, rows] as const,
+    [barAttributes, rows, dir] as const,
   );
   await page.locator('#screen tanrei-app-bar').evaluate((el: any) => el.updateComplete);
 }
@@ -429,6 +430,66 @@ test.describe('scrolling', () => {
     await scrollTo(page, 0);
     expect((await bounds(screenBar(page))).height).toBe(expandedHeight);
     expect(await topTitleOpacity()).toBe(0);
+  });
+
+  test('APB-16: the direction is the nearest ancestor’s — not the root’s and not a setting of the bar’s own; when it changes while the bar is shown it is drawn for the new direction at once, without a motion, keeping its size and the scroll state it follows', async ({ page }) => {
+    // The verify: the direction set on an ancestor inside the page (the screen around the bar and its list), not on the root.
+    await scrollPage(page, 'size="large" headline="Inbox" scroll-target="list"', { dir: 'rtl' });
+    expect(await page.evaluate(() => document.documentElement.getAttribute('dir'))).toBeNull();
+    expect(await screenBar(page).evaluate((el) => [el.getAttribute('dir'), el.matches(':dir(rtl)'), Object.keys((el.constructor as unknown as { properties: object }).properties).some((p) => /^dir|direction/i.test(p))])).toEqual([null, true, false]);
+    const [pad, inset] = [await resolveToken(page, T('container-padding-inline')), await resolveToken(page, T('title-inset'))];
+    /** Where the navigation item, the action and the expanded title stand: their distance from the bar's left and right edges. */
+    const placed = () =>
+      screenBar(page).evaluate((el) => {
+        const own = el.getBoundingClientRect();
+        const at = (node: Element) => {
+          const r = node.getBoundingClientRect();
+          return [Math.round((r.left - own.left) * 100) / 100, Math.round((own.right - r.right) * 100) / 100];
+        };
+        const title = el.shadowRoot!.querySelector('.expanded .title')!;
+        const range = document.createRange();
+        range.selectNodeContents(title);
+        const text = range.getBoundingClientRect();
+        return {
+          navigation: at(el.querySelector('[slot="navigation"]')!),
+          action: at(el.querySelector('[slot="actions"]')!),
+          title: [Math.round((text.left - own.left) * 100) / 100, Math.round((own.right - text.right) * 100) / 100],
+          height: own.height,
+        };
+      });
+    // Part of the way collapsed: the bar follows the list's scroll one for one (APB-8).
+    const expanded = (await bounds(screenBar(page))).height;
+    await scrollTo(page, 12);
+    const rtl = await placed();
+    expect(rtl.height).toBe(expanded - 12);
+    expect(rtl.navigation[1], 'right-to-left: the navigation item at the right').toBeCloseTo(pad, 0);
+    expect(rtl.action[0], 'right-to-left: the action at the left').toBeCloseTo(pad, 0);
+    expect(rtl.title[1], 'right-to-left: the expanded title from the right').toBeCloseTo(inset, 0);
+    // Changed on the ancestor after the first render: in the first frames drawn after it the bar is placed for the new
+    // direction, as high as it was, nothing moving, the list where it was and the bar still not scrolled.
+    await watchTransitions(screenBar(page));
+    const after = await screenBar(page).evaluate(async (el) => {
+      el.closest('#screen')!.setAttribute('dir', 'ltr');
+      await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
+      return { height: el.getBoundingClientRect().height, scrolled: el.hasAttribute('scrolled'), top: document.getElementById('list')!.scrollTop };
+    });
+    expect(after).toEqual({ height: expanded - 12, scrolled: false, top: 12 });
+    expect(await transitionsRun(screenBar(page)), 'no transition').toEqual([]);
+    expect(await motionCount(screenBar(page)), 'nothing moves').toBe(0);
+    const ltr = await placed();
+    expect(ltr.height).toBe(expanded - 12);
+    expect(ltr.navigation[0], 'left-to-right: the navigation item at the left').toBeCloseTo(pad, 0);
+    expect(ltr.action[1], 'left-to-right: the action at the right').toBeCloseTo(pad, 0);
+    expect(ltr.title[0], 'left-to-right: the expanded title from the left').toBeCloseTo(inset, 0);
+    // It goes on following the scroll it followed: further one for one, and back.
+    await scrollTo(page, 20);
+    expect((await bounds(screenBar(page))).height).toBe(expanded - 20);
+    await scrollTo(page, 0);
+    expect((await bounds(screenBar(page))).height).toBe(expanded);
+    // Where no ancestor sets one, the document's.
+    await page.locator('#screen').evaluate((el) => el.removeAttribute('dir'));
+    await page.evaluate(() => document.documentElement.setAttribute('dir', 'rtl'));
+    expect((await placed()).navigation[1]).toBeCloseTo(pad, 0);
   });
 
   test('APB-9: a connected bar takes scrolled from its scrolling element — a small one as soon as content is under it, a large one only once fully collapsed', async ({ page }) => {
