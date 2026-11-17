@@ -1,5 +1,5 @@
-// <tanrei-keyboard-shortcut>, driven by specs/keyboard-shortcut.spec.json: a test's title cites each behaviour
-// id it checks, every fixture has a baseline, and every length and color is read back from the tokens — never from a
+// <tanrei-keyboard-shortcut>, driven by specs/keyboard-shortcut.spec.json: every behaviour id is cited by a
+// test title, every fixture has a baseline, and every length and color is read back from the tokens — never from a
 // number written here. The legends each convention writes are the spec's own (KBS-3, KBS-4); what is read aloud is the
 // product's label, or the notation of aria-keyshortcuts — the shortcut has no names for keys (KBS-11).
 import AxeBuilder from '@axe-core/playwright';
@@ -7,6 +7,8 @@ import { type Locator, type Page, expect, test } from '@playwright/test';
 import { type Fixture, loadSpec, mountFixtures, resolveColor, resolveToken, setWords, tab, rootTokens } from '../../../test/harness.js';
 import { type Rgb, offLine, shoot } from '../../../test/one-shape.js';
 import { paintedColor } from '../../../test/png.js';
+import { motionCount } from '../../../test/motions.js';
+import { transitionsRun, watchTransitions } from '../../../test/transitions.js';
 import { expectBaseline } from '../../../test/baseline.js';
 
 const spec = loadSpec('keyboard-shortcut');
@@ -603,6 +605,64 @@ test.describe('behavior', () => {
       expect(xs, fixture).toEqual([...xs].sort((a, b) => a - b));
     }
     expect(await written(page, 'sequence-standard')).toBe('Ctrl+K Ctrl+C');
+  });
+
+  test('KBS-19: the direction is the nearest ancestor’s — not the root’s and not a setting of the shortcut’s own; when it changes while the shortcut is shown it is placed for the new direction at once, without a motion, its keys still left to right and keeping what it shows and its state', async ({ page }) => {
+    const of = (id: string) => spec.fixtures.find((f) => f.id === id)!;
+    const ids = ['rtl-keycap', 'rtl-sequence', 'rtl-disabled'];
+    // The verify: the direction set on an ancestor inside the page (each fixture's stage), not on the root.
+    await mountFixtures(page, spec, {
+      fixtures: [
+        { ...of('keycap-standard'), id: 'rtl-keycap', direction: 'rtl' },
+        { ...of('sequence-plain-apple'), id: 'rtl-sequence', direction: 'rtl' },
+        { ...of('disabled-keycap'), id: 'rtl-disabled', direction: 'rtl' },
+      ],
+    });
+    expect(await page.evaluate(() => document.documentElement.getAttribute('dir'))).toBeNull();
+    // Each stage is a line wider than its shortcut, so the side the shortcut starts on shows.
+    for (const id of ids) await stage(page, id).evaluate((el) => (el.style.inlineSize = '320px'));
+    /** The shortcut's distance from its stage's content edges, left and right. */
+    const sides = (id: string) =>
+      stage(page, id).evaluate((el) => {
+        const r = el.getBoundingClientRect();
+        const s = getComputedStyle(el);
+        const own = el.querySelector('tanrei-keyboard-shortcut')!.getBoundingClientRect();
+        return [own.left - (r.left + Number.parseFloat(s.paddingLeft)), r.right - Number.parseFloat(s.paddingRight) - own.right].map((v) => Math.round(v));
+      });
+    const inOrder = async (id: string) => {
+      const xs = await Promise.all((await host(page, id).locator('.label, .separator').all()).map(async (p) => (await box(p)).x));
+      return xs.length > 1 && xs.every((x, i) => i === 0 || x > xs[i - 1]);
+    };
+    const shown: Record<string, unknown[]> = {};
+    for (const id of ids) {
+      expect(await host(page, id).evaluate((el) => [el.getAttribute('dir'), el.matches(':dir(rtl)'), Object.keys((el.constructor as unknown as { properties: object }).properties).some((p) => /^dir|direction/i.test(p))]), id).toEqual([null, true, false]);
+      const [left, right] = await sides(id);
+      expect(right, `${id}: right-to-left starts at the right`).toBe(0);
+      expect(left, id).toBeGreaterThan(0);
+      expect(await inOrder(id), `${id}: the keys left to right (KBS-16)`).toBe(true);
+      shown[id] = [await written(page, id), await spoken(page, id), await aria(page, id), await host(page, id).evaluate((el) => (el as HTMLElement & { disabled: boolean }).disabled), await css(labels(page, id).first(), 'color')];
+    }
+    // Changed on the ancestors after the first render: placed for the new direction, with nothing to animate.
+    for (const id of ids) await watchTransitions(host(page, id));
+    await page.evaluate(async (list) => {
+      for (const id of list) document.querySelector(`[data-fixture="${id}"]`)!.setAttribute('dir', 'ltr');
+      await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+    }, ids);
+    for (const id of ids) {
+      expect(await transitionsRun(host(page, id)), `${id}: no transition`).toEqual([]);
+      expect(await motionCount(host(page, id)), `${id}: nothing moves`).toBe(0);
+    }
+    for (const id of ids) {
+      const [left, right] = await sides(id);
+      expect(left, `${id}: left-to-right starts at the left`).toBe(0);
+      expect(right, id).toBeGreaterThan(0);
+      expect(await inOrder(id), id).toBe(true);
+      expect([await written(page, id), await spoken(page, id), await aria(page, id), await host(page, id).evaluate((el) => (el as HTMLElement & { disabled: boolean }).disabled), await css(labels(page, id).first(), 'color')], `${id}: what it shows and its state`).toEqual(shown[id]);
+    }
+    // Where no ancestor sets one, the document's.
+    await stage(page, 'rtl-keycap').evaluate((el) => el.removeAttribute('dir'));
+    await page.evaluate(() => document.documentElement.setAttribute('dir', 'rtl'));
+    expect((await sides('rtl-keycap'))[1]).toBe(0);
   });
 
   test('KBS-17: a symbol the text style’s font lacks is drawn from the system’s fonts at the same size and baseline, never a missing-glyph box', async ({ page }) => {
