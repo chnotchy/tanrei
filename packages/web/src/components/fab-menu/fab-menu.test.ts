@@ -1,4 +1,4 @@
-// <tanrei-fab-menu>, driven by specs/fab-menu.spec.json: every behaviour id is cited by a test title, every
+// <tanrei-fab-menu>, driven by specs/fab-menu.spec.json: a test's title cites each behaviour id it checks, every
 // fixture has a baseline, and every state, size and choice of kind is read back from the tokens — never from a number
 // written here. The FAB menu lives in the m3-like layer: its fixtures are drawn under m3-like (the harness draws a
 // component that lives in a layer under that layer's system), and a choice of kind another system makes is read under a

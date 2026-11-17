@@ -1,4 +1,4 @@
-// <tanrei-switch>, driven by specs/switch.spec.json: every behaviour id is cited by a test title, every
+// <tanrei-switch>, driven by specs/switch.spec.json: a test's title cites each behaviour id it checks, every
 // fixture has a baseline, and every condition, state and choice of kind is read back from the tokens — never from a
 // number written here. A drag (SWT-19…21) is dispatched in the page, each event stamped with the time the pointer was
 // there, so a release's velocity is the test's own; one test drives the real mouse, for the click that follows it.

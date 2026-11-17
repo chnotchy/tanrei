@@ -665,7 +665,7 @@ What to know (each is held by a test):
 
 ## `<tanrei-divider>`
 
-A thin line between groups of content, solid, dotted, dashed or wavy (`specs/divider.spec.json`, DIV-1…14).
+A thin line between groups of content, solid, dotted, dashed or wavy (`specs/divider.spec.json`).
 
 ```html
 <tanrei-divider></tanrei-divider>
@@ -736,7 +736,7 @@ and is reported in debug builds (DIV-7).
 
 ## `<tanrei-badge>`
 
-A dot or a small count on an anchor's top-end corner (`specs/badge.spec.json`, BDG-1…14).
+A dot or a small count on an anchor's top-end corner (`specs/badge.spec.json`).
 
 ```html
 <tanrei-badge label="New messages"><tanrei-button variant="text" label="Chat"><span slot="icon">chat</span></tanrei-button></tanrei-badge>
@@ -770,7 +770,7 @@ tabular figures; the label is an isolated LTR run, so `999+` keeps its plus sign
 ## `<tanrei-tag>`
 
 A static label for a category or a status: a word in the layout, inline with the text beside it, that never answers a
-pointer, a key or focus (`specs/tag.spec.json`, TAG-1…20). A label that is pressed, switched or removed is a
+pointer, a key or focus (`specs/tag.spec.json`). A label that is pressed, switched or removed is a
 `<tanrei-chip>`; a dot or a count on another element is a `<tanrei-badge>`.
 
 ```html
@@ -827,7 +827,7 @@ the slotted glyph name (`tanrei-tag:not(:defined) > [slot] { display: none; }`).
 ## `<tanrei-tag-group>`
 
 A set of `<tanrei-tag>` or `<tanrei-chip>` children laid out in lines that wrap, spaced for what it holds, and exposed
-as one named list (`specs/tag-group.spec.json`, TGR-1…16). It draws nothing of its own, takes no focus, handles no key,
+as one named list (`specs/tag-group.spec.json`). It draws nothing of its own, takes no focus, handles no key,
 keeps no selection and fires no event; it supplies no words — the name of the set is the instance's `label`.
 
 ```html
@@ -909,7 +909,7 @@ between them. A page that wants the layout from the first paint adds
 ## `<tanrei-keyboard-shortcut>`
 
 The keys that perform a command, drawn as keys or as text for the keyboard the person is using, and read aloud by name
-(`specs/keyboard-shortcut.spec.json`, KBS-1…18).
+(`specs/keyboard-shortcut.spec.json`).
 
 ```html
 <p>Search with <tanrei-keyboard-shortcut keys="mod+k" size="small"></tanrei-keyboard-shortcut>.</p>
@@ -967,8 +967,7 @@ shortcut tells it with an internal, non-composed event, so the host re-reads the
 
 ## `<tanrei-progress-indicator>`
 
-How far a task has come, as a bar or a ring; indeterminate when that is unknown (`specs/progress-indicator.spec.json`,
-PRG-1…17).
+How far a task has come, as a bar or a ring; indeterminate when that is unknown (`specs/progress-indicator.spec.json`).
 
 ```html
 <tanrei-progress-indicator value="0.4" label="Uploading report.pdf"></tanrei-progress-indicator>
@@ -1015,7 +1014,7 @@ does not define is `auto`; each is reported (PRG-12). Parts: `track`, `indicator
 
 ## `<tanrei-meter>`
 
-Where a known value stands in a known range, as a bar or a ring (`specs/meter.spec.json`, MTR-1…15).
+Where a known value stands in a known range, as a bar or a ring (`specs/meter.spec.json`).
 
 ```html
 <tanrei-meter value="0.62" label="Storage used" value-text="9.3 GB of 15 GB"></tanrei-meter>
@@ -1061,7 +1060,7 @@ the meter does not define draws linear, auto or default; each is reported (MTR-1
 
 ## `<tanrei-number-ticker>`
 
-A number that changes, its changed digits moved to the new value (`specs/number-ticker.spec.json`, NTK-1…17).
+A number that changes, its changed digits moved to the new value (`specs/number-ticker.spec.json`).
 
 ```html
 <tanrei-number-ticker value="1234"></tanrei-number-ticker>
@@ -1140,7 +1139,7 @@ cross-fade from the column at full opacity.
 
 ## `<tanrei-loading-indicator>`
 
-A short wait of unknown length (`specs/loading-indicator.spec.json`, LDG-1…16).
+A short wait of unknown length (`specs/loading-indicator.spec.json`).
 
 ```html
 <tanrei-loading-indicator label="Loading messages"></tanrei-loading-indicator>
@@ -1210,7 +1209,7 @@ is reported in a debug build. Reduced motion: every change shows at once. Forced
 
 ## `<tanrei-checkbox>`
 
-One independent choice, a partly-on parent, or a required choice left unmade (`specs/checkbox.spec.json`, CHK-1…19).
+One independent choice, a partly-on parent, or a required choice left unmade (`specs/checkbox.spec.json`).
 
 ```html
 <tanrei-checkbox label="Email me updates" name="updates"></tanrei-checkbox>
@@ -1275,7 +1274,7 @@ be taken for a missing one. Parts: `container`, `box`, `mark`, `label`.
 
 ## `<tanrei-radio-button>`
 
-One option of a group; exactly one is chosen (`specs/radio-button.spec.json`, RAD-1…27).
+One option of a group; exactly one is chosen (`specs/radio-button.spec.json`).
 
 ```html
 <div role="radiogroup" aria-labelledby="freq-label">
@@ -1343,7 +1342,7 @@ one nameless radio in a shadow root to the next.)
 ## `<tanrei-switch>`
 
 A setting that takes effect at once, with a handle that follows a finger dragged along the track
-(`specs/switch.spec.json`, SWT-1…21).
+(`specs/switch.spec.json`).
 
 ```html
 <tanrei-switch label="Wi-Fi" checked></tanrei-switch>
@@ -1422,7 +1421,7 @@ are not drawn); the handle still travels.
 ## `<tanrei-card>`
 
 A group of related content set apart from its background, which can also be one action that opens what it shows
-(`specs/card.spec.json`, CRD-1…17).
+(`specs/card.spec.json`).
 
 ```html
 <tanrei-card>
@@ -1487,7 +1486,7 @@ edge on every variant.
 ## `<tanrei-scroll-area>`
 
 A box that scrolls the product's content and marks, at each edge it watches, that more lies beyond it
-(`specs/scroll-area.spec.json`, SCA-1…17).
+(`specs/scroll-area.spec.json`).
 
 ```html
 <tanrei-scroll-area label="Messages" style="block-size: 320px">…</tanrei-scroll-area>
@@ -1558,7 +1557,7 @@ under them. The area has no words of its own (SCA-17).
 ## `<tanrei-marquee-text>`
 
 One line of text that does not fit its place and, while its trigger holds, moves sideways at a steady pace to show all
-of it (`specs/marquee-text.spec.json`, MRQ-1…18).
+of it (`specs/marquee-text.spec.json`).
 
 ```html
 <tanrei-marquee-text>Track 7 — A very long title that does not fit</tanrei-marquee-text>
@@ -1636,7 +1635,7 @@ is announced. The playback control is a `<tanrei-button variant="text" size="sma
 ## `<tanrei-carousel>` and `<tanrei-carousel-item>`
 
 A row of visual items that scrolls sideways around one item in focus, each item opening what it shows
-(`specs/carousel.spec.json`, CRL-1…38 and CRL-40).
+(`specs/carousel.spec.json`).
 
 The carousel is as wide as its parent (CRL-8). In a parent that is as wide as its content — a table cell, an inline
 block, a flex item that is not stretched — it has a width of its own, which no item changes: one hero (`item-width`, or
@@ -1786,7 +1785,7 @@ labels and an indicator whose dots do not fit. Parts: `row`, `list`, `controls`,
 The box people type in, and everything typed in it: one line of text, or several that follow the text or are resized by
 a handle, or a date or a time entered unit by unit in the locale's form — or code, held exactly as it is written — with
 icons, a prefix and a suffix, a picker button, and, in the two looks that have one, the label that floats inside the
-box (`specs/text-input.spec.json`, TXI-1…63; `listing: advanced`). **It draws no label row, no requirement tag, no
+box (`specs/text-input.spec.json`; `listing: advanced`). **It draws no label row, no requirement tag, no
 help, no error text and no count** (TXI-63): those are the rows of the `<tanrei-field>` that frames it — and
 `<tanrei-text-field>`, below, is the two as one element, which is what a form uses. The bare input is for a place
 whose label stands elsewhere: a filter in a toolbar, a cell of a table, a row with its label beside it.
@@ -2066,7 +2065,7 @@ suffix beside entries, entries in a multi-line input and in a row of segments ar
 
 Lets people enter and edit text as one complete field: a `<tanrei-text-input>` under a `<tanrei-field>`'s label — or,
 in the filled and the outlined look, with the label floating in the box — with the Field's help, its error and the
-count (`specs/text-field.spec.json`, TXF-62…67). It is a **composed** element: its shadow root is the two
+count (`specs/text-field.spec.json`). It is a **composed** element: its shadow root is the two
 members' own elements and nothing else, and everything it does is "Composed elements", above.
 
 ```html
@@ -2105,8 +2104,8 @@ members' own elements and nothing else, and everything it does is "Composed elem
 ## `<tanrei-field>` and `<tanrei-field-group>`
 
 The frame a form gives every control — a label that can say the control is required or optional, a line of help, the
-reason a value was refused — for a control that cannot draw it itself (`specs/field.spec.json`, FLD-1…31), and for a
-set of controls under one name (`specs/field-group.spec.json`, FGR-1…23). Neither is a control: neither is
+reason a value was refused — for a control that cannot draw it itself (`specs/field.spec.json`), and for a
+set of controls under one name (`specs/field-group.spec.json`). Neither is a control: neither is
 form-associated, holds a value, emits an event, takes focus or handles a key. The controls are the elements of the
 default slot and stay in the product's light DOM, with their place in a `<form>`, their `name`, `value` and events.
 
@@ -2318,7 +2317,7 @@ group:
 
 One question with exactly one answer among a few options shown all at once: the field group itself, in its radio-group
 kind, around the product's own `<tanrei-radio-button>` elements, whose chosen value the group holds under one name
-(`specs/radio-group.spec.json`, RGP-1…19; the field group's FGR-25; the radio button's RAD-25). It is a **composed**
+(`specs/radio-group.spec.json`; the field group's FGR-25; the radio button's RAD-25). It is a **composed**
 element, in the construction of `<tanrei-checkbox-group>`: the members that hold the value are the
 product's own children.
 
@@ -2496,8 +2495,7 @@ reach the element with the role.
 
 ## `<tanrei-size-transition>`
 
-A box whose size follows its content as one motion, the edge it is anchored to still (`specs/size-transition.spec.json`,
-SZT-1…13).
+A box whose size follows its content as one motion, the edge it is anchored to still (`specs/size-transition.spec.json`).
 
 ```html
 <tanrei-size-transition>
@@ -2733,7 +2731,7 @@ What the web does in its own way, and what it cannot do:
 
 ## `<tanrei-select-field>`
 
-One value chosen from a closed list as one complete field of a form (`specs/select-field.spec.json`, SEF-1 to SEF-5):
+One value chosen from a closed list as one complete field of a form (`specs/select-field.spec.json`):
 **composed** — a `<tanrei-field>` around one `<tanrei-select>`, built as "Composed elements" above says.
 It takes every attribute, property, event and child a framed select takes, under the same names: a select in a form
 is this tag.
@@ -2868,7 +2866,7 @@ a size adds it to the box and all five take it; the select offers `small`, the f
 
 One value found by typing: a box that looks and measures like a text input, with a list of options that narrows as
 the person types and that they choose from, or, where the product allows it, a value of their own
-(`specs/combobox.spec.json`, CMB-1…62; `listing: advanced`). **The bare control**: it draws no label
+(`specs/combobox.spec.json`; `listing: advanced`). **The bare control**: it draws no label
 row, no requirement tag, no help and no error text — those are the rows of the `<tanrei-field>` that frames it, and
 `<tanrei-combobox-field>`, below, is the two as one element, which is what a form uses. The bare combobox is for a
 place whose label stands elsewhere: a filter in a toolbar, a cell of a table, a row of an editor. The pattern is the
@@ -3058,7 +3056,7 @@ What the web does in its own way, and what it cannot do:
 
 Lets people find one value by typing as one complete field: a `<tanrei-combobox>` under a `<tanrei-field>`'s label —
 or, in the filled and the outlined look, with the label floating in the box — with the Field's requirement mark, its
-help and its error (`specs/combobox-field.spec.json`, CBF-1…7). It is a **composed** element: its shadow
+help and its error (`specs/combobox-field.spec.json`). It is a **composed** element: its shadow
 root is the two members' own elements and nothing else, it draws nothing of its own and has no token. It takes the
 attributes, children and listeners of a framed combobox, name for name.
 
@@ -3124,7 +3122,7 @@ What to know:
 
 The box of a number: typed in the locale's form or stepped by a key or a button, kept within limits when it is
 committed, with its unit beside it — a box that looks and measures like a text input, with no row around it
-(`specs/number-input.spec.json`, NMI-1 to NMI-46; `listing: advanced`). It is `<tanrei-number-field>` without the frame: the label above, the requirement mark, the help and the error are the rows
+(`specs/number-input.spec.json`; `listing: advanced`). It is `<tanrei-number-field>` without the frame: the label above, the requirement mark, the help and the error are the rows
 of the `<tanrei-field>` that frames it, or it is bare and named by its own `label`. It stands on the box a select and a
 combobox share (`src/primitives/field-trigger.ts`); its steppers are `<tanrei-button>`s.
 
@@ -3263,8 +3261,8 @@ What a browser does differently:
 ## `<tanrei-number-field>`
 
 A number as one complete field of a form: a composed element ("Composed elements", above) whose shadow root
-holds a `<tanrei-field>` around a `<tanrei-number-input>` and nothing else (`specs/number-field.spec.json`, NUM-47 to
-NUM-51). The tag, the class, the React name, the 29 properties, the 4 events and the slot are what they were before the
+holds a `<tanrei-field>` around a `<tanrei-number-input>` and nothing else (`specs/number-field.spec.json`).
+The tag, the class, the React name, the 29 properties, the 4 events and the slot are what they were before the
 split; it draws nothing, holds no state and has no token.
 
 ```html
@@ -3293,7 +3291,7 @@ the Field's `number-<id>`, pixel for pixel, in three engines and under each pres
 
 The box in which people set one color: a sample of it, the value as text they read, type and paste, a button that asks
 for a picker and, in the two looks that have one, the label that floats inside the box — a box that looks and measures
-like a text input's (`specs/color-input.spec.json`, CLI-1…44; `listing: advanced`). **It draws no label row, no
+like a text input's (`specs/color-input.spec.json`; `listing: advanced`). **It draws no label row, no
 requirement tag, no help and no error text** (CLI-44): those are the rows of the `<tanrei-field>` that frames it —
 and `<tanrei-color-field>`, below, is the two as one element, which is what a form uses. The bare input is for a
 place that already names the color: a row of a palette's tones, a cell of a table. It stands on the box a select, a
@@ -3414,7 +3412,7 @@ What a browser does differently:
 
 Lets people set one color as one complete field of a form: a `<tanrei-color-input>` under a `<tanrei-field>`'s label —
 or, in the filled and the outlined look, with the label floating in the box — with the Field's help and its error
-(`specs/color-field.spec.json`, CLF-43…47). It is a **composed** element: its shadow root is the two
+(`specs/color-field.spec.json`). It is a **composed** element: its shadow root is the two
 members' own elements and nothing else, and everything it does is "Composed elements", above.
 
 ```html
@@ -3456,7 +3454,7 @@ members' own elements and nothing else, and everything it does is "Composed elem
 ## `<tanrei-one-time-code-input>`
 
 A short code sent to the person — a sign-in or verification code — as one text value drawn in separate cells
-(`specs/one-time-code-input.spec.json`, OTC-1…30). It is a control a Field frames: it has no label, help or error of
+(`specs/one-time-code-input.spec.json`). It is a control a Field frames: it has no label, help or error of
 its own, and asks the nearest `<tanrei-field>` for its name, description and states (`src/primitives/field.ts`).
 
 ```html
@@ -3511,7 +3509,7 @@ its own, and asks the nearest `<tanrei-field>` for its name, description and sta
 ## `<tanrei-one-time-code-field>`
 
 Asks for a short code as one complete field: a `<tanrei-one-time-code-input>` under a `<tanrei-field>`'s label, with
-the Field's help and its error (`specs/one-time-code-field.spec.json`, OTF-1…8). It is the first **composed** element
+the Field's help and its error (`specs/one-time-code-field.spec.json`). It is the first **composed** element
 : its shadow root is the two members' own elements and nothing else, and everything it does is "Composed
 elements", above.
 
@@ -3550,7 +3548,7 @@ elements", above.
 
 One question with a list for an answer: the field group's label, requirement, description and one error around the
 product's own `<tanrei-checkbox>` elements, whose checked values the group holds under one name, and — with
-`select-all-label` — one more checkbox that checks them all (`specs/checkbox-group.spec.json`, CKG-1…14; the
+`select-all-label` — one more checkbox that checks them all (`specs/checkbox-group.spec.json`; the
 checkbox's CHK-23). It is a **composed** element and the first whose value members are **the product's own
 children**: what "Composed elements", above, says of a member in the shadow root is read for that case below.
 
@@ -3632,7 +3630,7 @@ listener on an ancestor before the checkbox stops it, in a group or out of one; 
 
 Collects a list of short texts — e-mail addresses, telephone numbers, keywords — typed one after another: a
 `<tanrei-field>` around a `<tanrei-text-input>`, with a small input `<tanrei-chip>` for each entry in the Text input's
-`entries` slot (`specs/chip-field.spec.json`, CHF-1…30). A **composed** element ("Composed elements" above)
+`entries` slot (`specs/chip-field.spec.json`). A **composed** element ("Composed elements" above)
 that differs from a composed field in five things, which are all of what its own file holds: its
 value is a list of its own, its chips are made from that value, it dispatches three events itself, it reads the typed
 text for separators, and it has one live region.
@@ -3692,8 +3690,8 @@ text for separators, and it has one live region.
 ## `<tanrei-slider-field>`
 
 Lets people choose a value, or a range, as one complete field: a `<tanrei-slider>` under a `<tanrei-field>`'s label,
-with the value in words at the end of the label row, the Field's help and its error (`specs/slider-field.spec.json`,
-SLF-1…13). **Composed**: its shadow root is the two members' own elements and nothing else, and everything
+with the value in words at the end of the label row, the Field's help and its error (`specs/slider-field.spec.json`).
+**Composed**: its shadow root is the two members' own elements and nothing else, and everything
 it does is "Composed elements", above — plus the one thing it fills itself.
 
 ```html
@@ -3758,7 +3756,7 @@ names its end handle and is not reported as a second label of the control (FLD-1
 
 Shows one file: a glyph that says its format, or a small picture of it; its name; a second line with what the product
 says of it; a bar while it is sent; and the actions to take it back and to try it again
-(`specs/file-item.spec.json`, FIT-1…33). **It never reads, keeps or sends the file** (FIT-7, FIT-33): what it shows is
+(`specs/file-item.spec.json`). **It never reads, keeps or sends the file** (FIT-7, FIT-33): what it shows is
 what its props say, it removes nothing and it changes no status — whoever holds it does. It stands alone, in a list of
 the product's own, or as a row of a `<tanrei-file-upload>`: one element, one drawing.
 
@@ -3882,7 +3880,7 @@ What is the web's own:
 
 Lets people choose files through the browser's own picker — from the product's Button and, where there is room, from a
 place files can also be dragged onto — says the limits in words before the choice, judges what was chosen against
-them, and hands over what passed and what was refused (`specs/file-picker.spec.json`, FPK-1…31). **It keeps nothing,
+them, and hands over what passed and what was refused (`specs/file-picker.spec.json`). **It keeps nothing,
 lists nothing and takes no part in a form** (FPK-7): a second choice is judged as if it were the first, and whoever
 holds the files shows them.
 
@@ -3984,7 +3982,7 @@ Method: `judge(files: Iterable<File>): { accepted: File[], refused: { file, reas
 ## `<tanrei-drop-zone>`
 
 Wraps any part of a screen so that files can be dropped anywhere on it, while what it holds is used exactly as without
-it (`specs/drop-zone.spec.json`, DRZ-1…21): **it draws nothing at rest and adds no hover, no press, no focus stop and
+it (`specs/drop-zone.spec.json`): **it draws nothing at rest and adds no hover, no press, no focus stop and
 no role**. While files are dragged over it, one overlay covers it — the scrim, an edge inside its box and a panel with
 the upload glyph and the product's message — and on the drop it judges the files by the File picker's rule and emits
 the File picker's `select` and `reject`. It keeps nothing, and **it is never the only way to add a file**: the screen
@@ -4055,7 +4053,7 @@ both bubble and neither is composed.
 
 ## `<tanrei-file-upload>`
 
-Lets people choose files and lists what was chosen (`specs/file-upload.spec.json`, FUP-1…58). It is a
+Lets people choose files and lists what was chosen (`specs/file-upload.spec.json`). It is a
 **composed** element ("Composed elements", above): it draws nothing of its own and arranges two kinds
 of member, a `<tanrei-file-picker>` above and `<tanrei-file-item>`s below, and adds the state that ties them — which
 files are kept, the room that is left, one form for every row, one message for many changes, where focus goes after a
@@ -4258,7 +4256,7 @@ writes the list itself (the `<ul>`; inside an upload each item is told it is a l
 
 ## `<tanrei-embedded-text-input>`
 
-The typing alone, for a box that something else draws (specs/embedded-text-input.spec.json, ETI-1 to ETI-28). A
+The typing alone, for a box that something else draws (specs/embedded-text-input.spec.json). A
 form-associated element with a shadow root that delegates focus (every point of it is its text) and renders one
 `<textarea>` while `multiline` and one `<input>` otherwise, with no box of the browser's or of Tanrei's.
 
@@ -4285,7 +4283,7 @@ The Text input's own height routine was not moved onto `auto-height.ts` in this 
 
 ## `<tanrei-chat-composer>`
 
-A feature (specs/chat-composer.spec.json, CCM-1 to CCM-44), built the web's way of composing: its shadow
+A feature (specs/chat-composer.spec.json), built the web's way of composing: its shadow
 root holds the capsule — `part="container"`, its own — and in it the strip (`part="strip"`: a default slot for the
 product's `<tanrei-file-item>`s while `attachments="given"`, or the file items it draws itself while it is `own`), a
 `<tanrei-file-picker>` around its trigger, a `<tanrei-embedded-text-input multiline>`, the counter
@@ -4312,7 +4310,7 @@ composer.
 ## `<tanrei-main-action-button>`
 
 The screen's single most important action on a raised container that floats above the content, showing its icon and
-its label (extended) or collapsing to its icon alone (`specs/main-action-button.spec.json`, MAB-1…20). It replaces the
+its label (extended) or collapsing to its icon alone (`specs/main-action-button.spec.json`). It replaces the
 FAB and the extended FAB: a FAB is a collapsed main action button, an extended FAB an extended one.
 
 ```html
@@ -4387,7 +4385,7 @@ the web). Forced colors: a `ButtonText` edge, since the shadow is dropped.
 ## `<tanrei-fab-menu>` and `<tanrei-fab-menu-item>`
 
 A floating action button that opens a short list of related actions, and turns into the list's close button while they
-show (`specs/fab-menu.spec.json`, FBM-1…24). It lives in the m3-like layer: `import '@tanrei/web/m3-like'` registers it,
+show (`specs/fab-menu.spec.json`). It lives in the m3-like layer: `import '@tanrei/web/m3-like'` registers it,
 and its tokens are in the m3-like systems' sheets (`@tanrei/web/systems/m3-like.css`, `m3-expressive-like.css`) and in
 the sheet of a product that includes it.
 
@@ -4487,7 +4485,7 @@ from the inline-end bottom corner, the open ones with `inline`.
 ## `<tanrei-chip>`
 
 A compact choice, a suggested action or an item the user entered, as a small labelled control
-(`specs/chip.spec.json`, CHP-1…28).
+(`specs/chip.spec.json`).
 
 ```html
 <tanrei-chip label="Add to calendar"><span slot="icon">event</span></tanrei-chip>
@@ -4586,7 +4584,7 @@ focusable by `focus()`, by a pointer and by assistive technology. The chip itsel
 
 ## `<tanrei-list>`
 
-A box that holds your own items — rows, tiles, cards, files — in one column, one line, or lines that wrap into a grid; people read them, open them one by one, choose from them, or drag them into another order (`specs/list.spec.json`, LST-1…49).
+A box that holds your own items — rows, tiles, cards, files — in one column, one line, or lines that wrap into a grid; people read them, open them one by one, choose from them, or drag them into another order (`specs/list.spec.json`).
 
 ```html
 <tanrei-list gap="small" dividers>
@@ -4714,7 +4712,7 @@ put it in your own scroll container. A line wider than the list goes past its en
 
 ## `<tanrei-list-row>`
 
-`specs/list-row.spec.json` (LRW-1 to LRW-15): one row of text with something before it and something after it — an
+`specs/list-row.spec.json`: one row of text with something before it and something after it — an
 overline, a headline and a line or two of supporting text; a glyph, an avatar, a picture or a control at its start; a
 short value, a control and a glyph at its end. Put it as the direct child of a `<tanrei-list-item>`, or on its own. It
 draws no fill, edge or state and is never pressable: a row that opens something is the content of an `interactive` or
@@ -4761,7 +4759,7 @@ internal `tanrei-list-item-content` event.
 ## `<tanrei-menu>`
 
 A short set of actions or choices on a temporary surface that opens from the element that asked for it, with further
-levels in submenus (`specs/menu.spec.json`, MNU-1…57).
+levels in submenus (`specs/menu.spec.json`).
 
 ```html
 <tanrei-button variant="text" id="more" label="More"><span slot="icon">more_vert</span></tanrei-button>
@@ -5025,7 +5023,7 @@ layer has no size to hold.
 
 ## `<tanrei-menubar>`, `<tanrei-menubar-menu>` and `<tanrei-menubar-item>`
 
-An application's commands in one persistent row of named menus (`specs/menubar.spec.json`, MBR-1…46). It is for an
+An application's commands in one persistent row of named menus (`specs/menubar.spec.json`). It is for an
 application's commands and not for a site's navigation: a row of links to pages is navigation, and belongs in a
 navigation landmark. A title opens a menu; beside the titles the row takes the one or two entries that act by
 themselves — an action, or a link (`<tanrei-menubar-item>`, below). Moving along the bar runs nothing.
@@ -5179,7 +5177,7 @@ word for the overflow item, once per page.
 ## `<tanrei-tabs>`
 
 Switches between views of one subject with a row of labelled tabs on a track, above the view it shows
-(`specs/tabs.spec.json`, TAB-1…30). The selected tab is marked by the active indicator alone — the thumb on the track,
+(`specs/tabs.spec.json`). The selected tab is marked by the active indicator alone — the thumb on the track,
 which slides to a newly selected tab and follows a finger, a pen or a mouse dragged across the row. The default system
 draws no underline and no divider (both are drawn, transparent); m3-like colors them and makes the track and the thumb
 transparent, which is Material's row. The row shows its own panels, or belongs to a [`<tanrei-tab-view>`](#tanrei-tab-view) — drawn by it as its
@@ -5457,8 +5455,8 @@ and thumb.
 ## `<tanrei-tab-view>`
 
 Shows the view of the selected tab under its own row of tabs, or linked to a row of `<tanrei-tabs>` placed elsewhere,
-and lets a person swipe from view to view with the tabs' indicator following the finger (`specs/tab-view.spec.json`,
-TBV-1…23). `size` and `track` are the row's, forwarded as `variant` is (TBV-16). `transition` (`auto` \| `slide` \|
+and lets a person swipe from view to view with the tabs' indicator following the finger (`specs/tab-view.spec.json`).
+`size` and `track` are the row's, forwarded as `variant` is (TBV-16). `transition` (`auto` \| `slide` \|
 `fade` \| `none`, TBV-22) is the form of a switch: `auto` reads `--tanrei-comp-tab-view-motion-transition` from the
 cascade when a switch or a swipe begins; `fade` takes the distance, its share, the blur and the opacity's end as 0 and
 the fade's motion (the probe's inert `animation-duration`); `none` starts no switch at all — the path of a choice that
@@ -5609,7 +5607,7 @@ Part: `container`. Slots: the default one (the panels) and `tabs` (the view's ow
 ## `<tanrei-toolbar>`
 
 A set of related controls held as one Tab stop: inline where its content needs it (the default), docked across the bottom
-edge, or floating over the content (`specs/toolbar.spec.json`, TBR-1…25). Its items are your own `<tanrei-button>` and
+edge, or floating over the content (`specs/toolbar.spec.json`). Its items are your own `<tanrei-button>` and
 `<tanrei-button-with-menu>` children, alone or in `<tanrei-toolbar-group>`s, with `<tanrei-divider>` separators.
 
 ```html
@@ -5737,7 +5735,7 @@ docked on 360 × 64, floating centred on 360 × 96, vertical on 96 × 240 (96 ×
 ## `<tanrei-tooltip>`
 
 Describes an element in a few words when a person points at it, focuses it with the keyboard or long-presses it,
-without taking focus or blocking anything (`specs/tooltip.spec.json`, TIP-1…29).
+without taking focus or blocking anything (`specs/tooltip.spec.json`).
 
 ```html
 <tanrei-tooltip text="Move to trash">
@@ -5875,7 +5873,7 @@ name and role are never touched. Parts: `container`, `arrow`, `title`, `supporti
 
 Shows content a person can read and operate on a small surface that opens beside a control — when it is pressed, or as a
 pointer or keyboard focus rests on it — and stays with it, without dimming or blocking the rest of the page
-(`specs/popover.spec.json`, POP-1…51).
+(`specs/popover.spec.json`).
 
 ```html
 <tanrei-button id="share" variant="outlined">Share</tanrei-button>
@@ -6014,7 +6012,7 @@ no event, focus moves in, a compact window draws it as a sheet.
 
 A notice that is part of the content and stays there — a note, a caution, the reason for something, a summary of what
 is wrong — in the flow of the page, as a quiet fill or an outline, in a status's colors with its glyph
-(`specs/callout.spec.json`, CLO-1…31). What just happened, above the content and briefly, is a `<tanrei-snackbar>`; a
+(`specs/callout.spec.json`). What just happened, above the content and briefly, is a `<tanrei-snackbar>`; a
 question that must be answered is a `<tanrei-dialog>`; a banner is a callout placed above a region's content.
 
 ```html
@@ -6129,7 +6127,7 @@ below it goes at definition).
 
 What stands in the place of content that is not there — a search with no results, a list nobody has added to, a page
 before its first item: what is missing, why or what to do, and the action that does it. Quiet and flat: no fill, no
-edge, no elevation (`specs/empty-state.spec.json`, EMP-1…18). A notice beside content that is there is a
+edge, no elevation (`specs/empty-state.spec.json`). A notice beside content that is there is a
 `<tanrei-callout>`; a failure to load is a callout with the error status in the same place.
 
 ```html
@@ -6204,7 +6202,7 @@ tall at definition as before it, less the glyph it then draws (measured in `empt
 
 Tells a person briefly, at the bottom of the window, what the app just did or what happened (neutrally, or as
 information, a warning, an error or a success), on a raised surface of the scheme or as a bar of the opposite scheme,
-with at most one action, without taking focus (`specs/snackbar.spec.json`, SNK-1…33).
+with at most one action, without taking focus (`specs/snackbar.spec.json`).
 
 ```html
 <!-- Last on the page: the host's place in the focus order is where a snackbar's controls are. -->
@@ -6387,7 +6385,7 @@ to close it). Parts: `container`, `icon`, `text`, `title`, `supporting-text`, `a
 
 Shows one month as a grid of days, in the page or inside a picker, lets a person choose one date or one range of
 dates from it, and moves from month to month as one column of weeks that follows a scroll and a drag
-(`specs/calendar.spec.json`, CAL-1…34).
+(`specs/calendar.spec.json`).
 
 ```html
 <tanrei-calendar id="check-in" label="Check-in date" value="2026-09-17" min="2026-09-01"></tanrei-calendar>
@@ -6549,7 +6547,7 @@ no `aria-selected`. Parts: `navigation`, `view-toggle`, `grid`, `day`
 ## `<tanrei-date-time-picker>`
 
 Lets a person choose a date, a time, or a date and time — or a span of any of them — from a Calendar and time wheels or
-a clock dial, in a dialog or in a surface that drops down from a field (`specs/date-time-picker.spec.json`, DTM-1…47).
+a clock dial, in a dialog or in a surface that drops down from a field (`specs/date-time-picker.spec.json`).
 
 ```html
 <!-- A modal picker for a time, opened from any button. -->
@@ -6753,7 +6751,7 @@ fixtures are drawn by the test harness: a modal one in a 480 × 720 window (800 
 ## `<tanrei-dialog>`
 
 Stops a person for a decision the task cannot go on without, in a surface that dims and blocks everything behind it
-(`specs/dialog.spec.json`, DLG-1…24).
+(`specs/dialog.spec.json`).
 
 ```html
 <tanrei-button id="discard">Discard</tanrei-button>
@@ -6852,7 +6850,7 @@ Parts: `container`, `header`, `icon`, `headline`, `scroll`, `supporting-text`, `
 
 Supplementary content or a short task in a surface that rises from the bottom edge: `standard`, over the lower part of
 its parent while the content above stays usable (a layout region), or `modal`, a modal step over a scrim
-(`specs/bottom-sheet.spec.json`, BSH-1…30).
+(`specs/bottom-sheet.spec.json`).
 
 ```html
 <tanrei-button id="share">Share</tanrei-button>
@@ -6959,7 +6957,7 @@ test harness (`test/harness.ts`) in a 400 × 720 window on a `surface` page.
 ## `<tanrei-handle>`
 
 The mark a person drags, or moves from the keyboard, to change the size of what it stands on: a short capsule for one
-axis, a quarter-circle arc for two (`specs/handle.spec.json`, HDL-1…25). It sizes nothing: it reports the drag, the
+axis, a quarter-circle arc for two (`specs/handle.spec.json`). It sizes nothing: it reports the drag, the
 step a key asks for and an activation, and its owner keeps the size and gives it back as `value`.
 
 ```html
@@ -7029,7 +7027,7 @@ arc, the handle at its bottom edge, its end edge or its corner.
 ## `<tanrei-resizable-frame>`
 
 A box whose width and height a person changes by a handle on its edge or its corner, from the keyboard, or by
-activating the handle (`specs/resizable-frame.spec.json`, RSF-1…19). It is built from `<tanrei-handle>`: one per name
+activating the handle (`specs/resizable-frame.spec.json`). It is built from `<tanrei-handle>`: one per name
 in `handles`, in its shadow root, given its `value`, `min`, `max`, `label` and `revealed` by the frame on every render.
 
 ```html
@@ -7101,7 +7099,7 @@ The fixtures are drawn by the test harness in a room 640 wide, their content a b
 ## `<tanrei-split-view>`
 
 Two panes, side by side or one above the other, and a Handle on the line between them that shares the room
-(`specs/split-view.spec.json`, SPV-1…16). It is built from `<tanrei-handle>`: one, in its shadow root, given its `axis`,
+(`specs/split-view.spec.json`). It is built from `<tanrei-handle>`: one, in its shadow root, given its `axis`,
 `value`, `min`, `max`, `label`, `valueText` and `disabled` by the split view on every render.
 
 ```html
@@ -7159,7 +7157,7 @@ The fixtures are drawn by the test harness in a region 480 × 200, each pane's c
 
 Supplementary content or a secondary task in a panel at the end edge, with a headline, an optional close button and
 actions: `standard`, beside the content in the layout (a layout region), where actions are optional, or
-`modal`, over the content with a scrim, which offers at least one (`specs/side-sheet.spec.json`, SSH-1…23).
+`modal`, over the content with a scrim, which offers at least one (`specs/side-sheet.spec.json`).
 
 ```html
 <div style="display: flex; block-size: 100dvh">
@@ -7278,7 +7276,7 @@ action), not on a system switch alone.
 
 Names the current screen at its top edge and holds the way back and the screen's most used actions, its bottom edge
 drawn as the edge of a region that stays — or, under `divider-visibility="scroll"`, only once content scrolls under it
-(`specs/app-bar.spec.json`, APB-1…33).
+(`specs/app-bar.spec.json`).
 
 ```html
 <tanrei-app-bar headline="Inbox">
@@ -7366,7 +7364,7 @@ after it. A large bar exposes one title: the expanded one while any of it is vis
 ## `<tanrei-navigation-bar>`
 
 Three to five top-level destinations along the bottom edge of a compact window, one of them the current screen
-(`specs/navigation-bar.spec.json`, NVB-1…33). It is the tabs' model: every destination's indicator is its whole equal
+(`specs/navigation-bar.spec.json`). It is the tabs' model: every destination's indicator is its whole equal
 share of the bar, hover, press and focus are drawn in that box, and a drag carries the indicator.
 
 ```html
@@ -7526,7 +7524,7 @@ expanded drawer with its labels gone — every row cut after its icon, at the sa
 moving between them with every icon exactly in place. With `responsive` the window's width chooses which of them it is.
 A destination with `href` is a link, and the drawer is then a site's sidebar: the page says which destination is the
 current one, the selection is in view when the drawer appears, and a long tree keeps its place from page to page by
-the site's hand (`specs/navigation-drawer.spec.json`, NVD-1…64).
+the site's hand (`specs/navigation-drawer.spec.json`).
 
 ```html
 <tanrei-navigation-drawer label="Mail" value="inbox" open collapsible expanded="false" style="block-size: 100dvh">
@@ -7887,7 +7885,7 @@ glyph — grows in width from its centre over `motion.selection-*` (NVD-41). Par
 ## `<tanrei-segmented-button>`
 
 Two to five related options drawn side by side as the joined segments of one control, for one choice or several
-(`specs/segmented-button.spec.json`, SEG-1…25).
+(`specs/segmented-button.spec.json`).
 
 ```html
 <tanrei-segmented-button label="Range" value="week">
@@ -7978,7 +7976,7 @@ test harness (`test/harness.ts`) on a 400 × 96 stage.
 
 A few related Buttons, labelled or icon-only, in one row or one column, spaced apart (`standard`) or joined into one
 shape (`connected`), the confirming and the dismissive ones placed by the orientation, named as a group when it has a
-label (`specs/button-group.spec.json`, BGR-1…23).
+label (`specs/button-group.spec.json`).
 
 ```html
 <tanrei-button-group>
@@ -8116,7 +8114,7 @@ stage, and the vertical ones on a 400 × 240 stage.
 
 Where a person is in a flow the product runs in a fixed order of steps: the current step, the complete ones, one with an
 error, the ones to come — and, where the product allows it, the steps they can press to go back to
-(`specs/stepper.spec.json`, SPR-1…27).
+(`specs/stepper.spec.json`).
 
 ```html
 <tanrei-stepper label="Checkout progress" value="payment" pressable="visited"
@@ -8175,7 +8173,7 @@ motion. Parts: `steps`, `compact`, `bar`, `position` (stepper); `container`, `ma
 ## `<tanrei-search>`, `<tanrei-search-suggestion>`, `<tanrei-search-result>` and `<tanrei-search-result-group>`
 
 Lets people search the product from a bar or a compact trigger, and offers suggestions and results while they type in a
-view under the bar, in a dialog or over the whole screen (`specs/search.spec.json`, SRC-1…56). The field with its
+view under the bar, in a dialog or over the whole screen (`specs/search.spec.json`). The field with its
 suggestions comes first below; the site search — a trigger, a dialog view, results that are links, a status row — is
 under "A site search".
 
@@ -8469,7 +8467,7 @@ test harness (`test/harness.ts`): a bar 328 wide centred on a 360 × 72 stage, t
 
 ## `<tanrei-slider>`
 
-A value, or a range of two, chosen along a track (`specs/slider.spec.json`, SLD-1…24).
+A value, or a range of two, chosen along a track (`specs/slider.spec.json`).
 
 ```html
 <tanrei-slider name="volume" label="Volume" value="40" value-indicator="active"></tanrei-slider>
@@ -8562,7 +8560,7 @@ harness on a 320 × 96 stage (the vertical one on 96 × 240). Parts: `track`, `a
 ## `<tanrei-button-with-menu>`
 
 A main action with one press, and related actions in a menu from a second, joined button beside it
-(`specs/button-with-menu.spec.json`, SPB-1…32).
+(`specs/button-with-menu.spec.json`).
 
 ```html
 <tanrei-button-with-menu label="Save" menu-label="More save options">
@@ -8925,7 +8923,7 @@ switches to the emphasized weight of the role it is in (on the same element, or 
 <p class="tanrei-text-body">Text with <strong class="tanrei-text-emphasized">stress</strong>.</p>
 ```
 
-`prose.css` — **Prose** (`specs/prose.spec.json`, PRS-1 to PRS-30): long-form text you did not lay out by
+`prose.css` — **Prose** (`specs/prose.spec.json`): long-form text you did not lay out by
 hand — rendered Markdown, content from a CMS — set in the system's text styles by level, with one vertical rhythm and a
 limit on line length. A class, not an element, and it parses nothing:
 
@@ -9376,7 +9374,7 @@ Good to know:
 
 ## `<tanrei-description-list>` (`description-list.css`)
 
-`specs/description-list.spec.json` (DSL-1 to DSL-23): what is known about one thing as named facts — a quiet term and
+`specs/description-list.spec.json`: what is known about one thing as named facts — a quiet term and
 the value that answers it — with the terms beside their values, above them, or under a large figure. It is laid out by
 its own width and takes no input.
 
@@ -9447,7 +9445,7 @@ Good to know:
 
 ## `<tanrei-figure>` (`figure.css`)
 
-`specs/figure.spec.json` (FIG-1 to FIG-26): one thing to look at — a picture, a chart, a specimen, a live example — on
+`specs/figure.spec.json`: one thing to look at — a picture, a chart, a specimen, a live example — on
 a stage of its own, framed or not, with a caption below, and optionally a title with your controls above and a block
 joined beneath. It is never pressed and has no state.
 
@@ -9538,7 +9536,7 @@ Good to know:
 
 ## `<tanrei-accordion>` (`accordion.css`)
 
-Content that a row shows and hides in place (`specs/accordion.spec.json`, ACC-1 to ACC-35). The element has **no shadow root**: its items are your own native `<details>` elements, which open and close, take focus, carry the expanded state and keep their closed content in the document before any script runs and without it.
+Content that a row shows and hides in place (`specs/accordion.spec.json`). The element has **no shadow root**: its items are your own native `<details>` elements, which open and close, take focus, carry the expanded state and keep their closed content in the document before any script runs and without it.
 
 ```html
 <link rel="stylesheet" href="@tanrei/web/icons.css" />
@@ -9596,7 +9594,7 @@ How it is built, and what follows from it:
 
 ## `<tanrei-table-of-contents>` (`table-of-contents.css`)
 
-The headings of the page being read as links to them, the one being read marked, and a compact form — one row that names the current section and opens the same list — for a window with no room beside the text (`specs/table-of-contents.spec.json`, TOC-1 to TOC-42). The items are **your own nested list of anchors, in the document**: before the element is defined, and with scripting off, the page holds a plain list of links that work. The element keeps a small shadow root for what you did not write — a `<nav>` named by `label`, the title, and the compact form's block and row — and one stylesheet draws your list.
+The headings of the page being read as links to them, the one being read marked, and a compact form — one row that names the current section and opens the same list — for a window with no room beside the text (`specs/table-of-contents.spec.json`). The items are **your own nested list of anchors, in the document**: before the element is defined, and with scripting off, the page holds a plain list of links that work. The element keeps a small shadow root for what you did not write — a `<nav>` named by `label`, the title, and the compact form's block and row — and one stylesheet draws your list.
 
 ```html
 <link rel="stylesheet" href="@tanrei/web/table-of-contents.css" />
@@ -9657,7 +9655,7 @@ How it is built, and what follows from it:
 
 ## `<tanrei-app-shell>` (`app-shell.css`)
 
-`specs/app-shell.spec.json` (APS-1 to APS-34): the frame of a page or an app. It places a header, the navigation, the
+`specs/app-shell.spec.json`: the frame of a page or an app. It places a header, the navigation, the
 main content, an aside and a footer, decides from the window's width how each is shown, and lets a keyboard reach the
 content in one step. It draws the frame and none of what stands in it.
 
@@ -9823,7 +9821,7 @@ Good to know:
 
 ## `<tanrei-page-header>` (`page-header.css`)
 
-`specs/page-header.spec.json` (PGH-1 to PGH-24): the head of a page's content — the page's title as its heading, with
+`specs/page-header.spec.json`: the head of a page's content — the page's title as its heading, with
 a sentence that says what the page is, a line of facts, the page's actions and the way back up above it. In the
 content, scrolling with it, laid out by its own width, and never a control.
 
@@ -9891,7 +9889,7 @@ Good to know:
 
 ## `<tanrei-avatar>` and `<tanrei-avatar-group>` (`avatar.css`)
 
-`specs/avatar.spec.json` (AVT-1 to AVT-23): a person, or a team or a project, as a small picture — initials or a glyph
+`specs/avatar.spec.json`: a person, or a team or a project, as a small picture — initials or a glyph
 where there is no picture — in a circle or a rounded square of three sizes; several as one overlapping group that
 counts the ones it does not draw. A picture, never a control: no hover, focus, press or event.
 
@@ -9984,7 +9982,7 @@ indicator is a rectangle around the circle.
 
 ## `<tanrei-swatch>`
 
-`specs/swatch.spec.json` (SWC-1 to SWC-19): a color shown as a sample with its name beside it — a small square or dot
+`specs/swatch.spec.json`: a color shown as a sample with its name beside it — a small square or dot
 of exactly that color, over a checkerboard where the color lets what is behind it through, edged so that a color close
 to the surface still shows where it ends. A sample to look at, never a control and never a picker: no hover, focus,
 press or event.
@@ -10038,7 +10036,7 @@ listbox), and a stylesheet that holds the swatch's box before the element is def
 
 ## `<tanrei-breadcrumbs>` (`breadcrumbs.css`)
 
-`specs/breadcrumbs.spec.json` (BRC-1 to BRC-29): where a page sits in a hierarchy of pages — the levels above as links,
+`specs/breadcrumbs.spec.json`: where a page sits in a hierarchy of pages — the levels above as links,
 in order from the top, the page itself last. On the web it is **an element around your own anchors**, which stay in the
 document: they are links before any script runs, and a crawler, a router that works on the page's anchors and a
 router's own link component all find them.
@@ -10126,7 +10124,7 @@ no least width, so it folds when the row is narrower and unfolds when there is r
 
 ## Pagination (`<tanrei-pagination>`)
 
-`specs/pagination.spec.json` (PGN-1 to PGN-24): moves through the numbered pages of one list (search results, the
+`specs/pagination.spec.json`: moves through the numbered pages of one list (search results, the
 posts of a blog, the rows of a table). It draws a row of page numbers with the current page marked. The pages that do
 not fit are left out behind an ellipsis. Previous and next stand on either side, with first and last where you ask for
 them. A short form says which page of how many. For the page before and after in a sequence of titled pages, use the
@@ -10223,7 +10221,7 @@ compact form is drawn. The element is `display: block` by default, as wide as it
 
 ## `<tanrei-tree-view>` (`tree-view.css`)
 
-`specs/tree-view.spec.json` (TRV-1 to TRV-42): a hierarchy of items that open and close — rows that begin further in
+`specs/tree-view.spec.json`: a hierarchy of items that open and close — rows that begin further in
 at each level, a chevron at the start of every row that holds others; read and opened only, or with one item or
 several chosen; one stop in the focus order, moved through with the arrow keys of the tree pattern.
 
@@ -10312,7 +10310,7 @@ focus arrives; without `hidden="until-found"` closed rows are not found by find-
 
 ## `<tanrei-skeleton>` (`skeleton.css`, `class="tanrei-skeleton-placeholder"`)
 
-`specs/skeleton.spec.json` (SKL-1 to SKL-26): what stands where content will be while it loads — quiet placeholders in
+`specs/skeleton.spec.json`: what stands where content will be while it loads — quiet placeholders in
 the shape of what is coming, which keep the box the content will take, in a region that says once that it is busy. A
 short wait with no shape to hold is a `<tanrei-loading-indicator>`, a wait that can be measured a
 `<tanrei-progress-indicator>`, and a place where nothing will come a `<tanrei-empty-state>`.
@@ -10411,7 +10409,7 @@ children; the placeholders are the same elements with the same class.
 
 ## Link (`link.css`, `class="tanrei-link"`)
 
-`specs/link.spec.json` (LNK-1 to LNK-35): text that leads somewhere — a phrase in a sentence, a line by
+`specs/link.spec.json`: text that leads somewhere — a phrase in a sentence, a line by
 itself, a glyph alone — in the text style of where it sits, underlined as the design system chooses (at rest, in the
 default system) and marked where it leaves the site. On the web it is **a class on your own anchor**,
 not an element: the anchor is in the document, so it is a link before any script runs and for whatever reads the page
@@ -10594,7 +10592,7 @@ What the web draws differently, and what a browser cannot do:
 
 ## Steps (`steps.css`, `class="tanrei-steps"`)
 
-`specs/steps.spec.json` (STP-1 to STP-20): a procedure to read and carry out somewhere else — each step a ring with
+`specs/steps.spec.json`: a procedure to read and carry out somewhere else — each step a ring with
 its number, an optional title and a body of your content, joined to the next by a hairline. On the web it is **a class
 on your own ordered list**, not an element: the list is the document's list before any script runs, a Markdown
 renderer's `<ol>` needs one class and no wrapper, and without the stylesheet it is the browser's numbered list. It is
@@ -10649,7 +10647,7 @@ What the stylesheet alone cannot do:
 
 ## Timeline (`timeline.css`, `class="tanrei-timeline"`)
 
-`specs/timeline.spec.json` (TML-1 to TML-22): events in the order of time — each a marker at the start edge, its
+`specs/timeline.spec.json`: events in the order of time — each a marker at the start edge, its
 time, a title and a body of your content, joined to the next by a hairline — and, where the events have one, a status
 told by the marker's shape and in words. A list to read, never a control. On the web it is **a class on your own
 ordered list**, the steps' form: the list is the document's list, with its `<time>` elements, before any script runs,
@@ -10730,7 +10728,7 @@ What the stylesheet alone cannot do:
 
 ## Previous and next links (`previous-next-links.css`, `class="tanrei-previous-next-links"`)
 
-`specs/previous-next-links.spec.json` (PNL-1 to PNL-22): the page before and the page after the one a person is on — two links,
+`specs/previous-next-links.spec.json`: the page before and the page after the one a person is on — two links,
 each pressed as a whole and drawn as an outlined container with the title of where it leads and the component's own
 arrow. On the web it is **classes on your own `nav` and anchors**, not an element: the anchors are in the document, so
 they are links before any script runs. It is not in `custom-elements.json`.
@@ -11046,7 +11044,7 @@ token, state and choice of kind applies unchanged — two visually hidden live r
 
 ## `<tanrei-link-card>` (`link-card.css`)
 
-One link drawn as a block: the destination's title, a sentence about it, its picture and the site it is on. Contract: `specs/link-card.spec.json` (LKC-1 to LKC-36). **It loads nothing about the destination**: it draws the values it is given, and the only requests it makes are the two pictures it was handed.
+One link drawn as a block: the destination's title, a sentence about it, its picture and the site it is on. Contract: `specs/link-card.spec.json`. **It loads nothing about the destination**: it draws the values it is given, and the only requests it makes are the two pictures it was handed.
 
 **The form**: an element with no shadow root around the product's own anchor, and one stylesheet, `@tanrei/web/link-card.css`, which draws all of it before the element is defined and with scripting off. Upgrade moves nothing.
 
@@ -11126,8 +11124,8 @@ is read from the body, which carries the tokens on properties that move nothing:
 ## `<tanrei-image-preview>` and `<tanrei-image-preview-item>`
 
 Shows one picture of a set over the whole window, to be looked at closely: enlarged and back, moved about while
-enlarged, moved on to the next picture or back, until it is closed. Contract: `specs/image-preview.spec.json`
-(IMP-1 to IMP-43). A **feature**: its stage and its pager are its own; its five controls are real
+enlarged, moved on to the next picture or back, until it is closed. Contract: `specs/image-preview.spec.json`.
+A **feature**: its stage and its pager are its own; its five controls are real
 `<tanrei-button>` elements and its placeholder a real `<tanrei-skeleton>`, as small parts, never a copy of them — it has no member, so
 no prop is forwarded, there is no `from` and no twin, and it takes no part in a form.
 
@@ -11231,8 +11229,8 @@ diagonals, corner marks and the picture's own size in a bitmap face): nothing a 
 No component loads anything about a destination: a link's site icon and a link card's title, description and
 picture are values the product gives. `@tanrei/web/links/node` is the tool that reads them — **once, on the machine that
 builds the site**, into a file the site commits. It is a Node module: the package names it under the `node` condition
-alone, no browser entry point imports it, and it adds no dependency. Its contract and its 31 requirements are
-[`src/links/node/REQUIREMENTS.md`](src/links/node/REQUIREMENTS.md) (LKD-1 to LKD-31); each has a test that begins with
+alone, no browser entry point imports it, and it adds no dependency. Its contract and its requirements are
+[`src/links/node/REQUIREMENTS.md`](src/links/node/REQUIREMENTS.md); each has a test that begins with
 its id.
 
 ```js

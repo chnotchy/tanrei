@@ -1,5 +1,5 @@
-// <tanrei-navigation-drawer>, its items, groups and sections, driven by specs/navigation-drawer.spec.json: every behaviour
-// id is cited by a test title, every fixture has a baseline, and every value is read back from the tokens.
+// <tanrei-navigation-drawer>, its items, groups and sections, driven by specs/navigation-drawer.spec.json: a test's title
+// cites each behaviour id it checks, every fixture has a baseline, and every value is read back from the tokens.
 // NVD-78: the product's ARIA on the host is tested with every other control's, in every engine, in
 // src/primitives/delegated-aria.test.ts.
 import AxeBuilder from '@axe-core/playwright';

@@ -1,4 +1,4 @@
-// <tanrei-toolbar>, driven by specs/toolbar.spec.json: every behaviour id is cited by a test title, every
+// <tanrei-toolbar>, driven by specs/toolbar.spec.json: a test's title cites each behaviour id it checks, every
 // fixture has a baseline, and every size, color and edge is read back from the tokens — never from a number written
 // here. Its items are the real <tanrei-button>s, icon-only and labelled, so these tests also show that the toolbar leaves
 // them as they are (TBR-9).

@@ -1,4 +1,4 @@
-// <tanrei-radio-button>, driven by specs/radio-button.spec.json: every behaviour id is cited by a test title,
+// <tanrei-radio-button>, driven by specs/radio-button.spec.json: a test's title cites each behaviour id it checks,
 // every fixture has a baseline, and every condition, state and choice of kind is read back from the tokens — never from
 // a number written here. Each spec fixture is staged as its own group (test/harness.ts); the group tests build one.
 // RAD-29: the product's ARIA on the host is tested with every other control's, in every engine, in
