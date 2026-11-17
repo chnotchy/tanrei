@@ -33,6 +33,11 @@ export interface ItemRowOptions {
 export function itemRowStyles({ prefix, parts, conditions, on, paints }: ItemRowOptions): CSSResult {
   const motion = `var(${prefix}-motion-state-duration) var(${prefix}-motion-state-easing)`;
   const painted = Object.keys(paints).join(', ');
+  // What each rule is for is said here, not in the CSS: a comment inside the string would ship in every bundle.
+  // - `.row`, isolation: Its own stacking context, so the ripple sits above the container color and below the content.
+  // - `.row.p`, user-select: A row is pressed, never selected as text (MNU-15). WebKit keeps the text selectable until
+  //   its own name says so: a drag that began on a row selected the rows' text. (A press held on a selection is never
+  //   the engine's drag of the text: PressController refuses it.)
   return unsafeCSS(`
   ${Object.entries(conditions)
     .map(([condition, selector]) => conditionBlock(prefix, condition, parts, selector))
@@ -40,7 +45,6 @@ export function itemRowStyles({ prefix, parts, conditions, on, paints }: ItemRow
   .row {
     box-sizing: border-box;
     position: relative;
-    /* Its own stacking context, so the ripple sits above the container color and below the content. */
     isolation: isolate;
     outline: none;
     ${selectionContainerShape}
@@ -52,9 +56,6 @@ export function itemRowStyles({ prefix, parts, conditions, on, paints }: ItemRow
   }
   .row.p {
     cursor: pointer;
-    /* A row is pressed, never selected as text (MNU-15). WebKit keeps the text selectable until its own name
-       says so: a drag that began on a row selected the rows' text. (A press held on a selection is never the engine's
-       drag of the text: PressController refuses it.) */
     -webkit-user-select: none;
     user-select: none;
   }

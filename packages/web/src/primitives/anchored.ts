@@ -123,6 +123,9 @@ export interface AnchoredStyleOptions {
  * cross-fade over `sys.motion.role.reduced` where motion is reduced.
  */
 export function anchoredSurfaceStyles({ surface, motion, offset, margin, arrow, enter, exit, appear }: AnchoredStyleOptions): CSSResult {
+  // What each rule is for is said here, not in the CSS: a comment inside the string would ship in every bundle.
+  // - `${surface}:not(.open)`: Closed or closing, it takes no pointer: a press reaches what lies under it.
+  // - `${motion}`: What the arrow is placed against.
   return unsafeCSS(`
   ${surface} {
     box-sizing: border-box;
@@ -158,11 +161,9 @@ export function anchoredSurfaceStyles({ surface, motion, offset, margin, arrow, 
   ${surface}.inline {
     position: absolute;
   }
-  /* Closed or closing, it takes no pointer: a press reaches what lies under it. */
   ${surface}:not(.open) {
     pointer-events: none;
   }
-  /* What the arrow is placed against. */
   ${motion} {
     position: relative;
   }

@@ -117,7 +117,7 @@ export type DelegatedName = StateName | RelationName;
 const ALL: readonly DelegatedName[] = [...DELEGATED_STATES, ...(Object.keys(DELEGATED_RELATIONS) as RelationName[])];
 
 /** The ARIA property that reflects each name (ARIA's reflection: `aria-roledescription` is `ariaRoleDescription`). */
-const ARIA_PROPERTIES: Record<DelegatedName, string> = {
+const ARIA_PROPERTIES: Record<DelegatedName, string> = /* @__PURE__ */ (() => ({
   'aria-label': 'ariaLabel',
   'aria-description': 'ariaDescription',
   'aria-roledescription': 'ariaRoleDescription',
@@ -135,7 +135,7 @@ const ARIA_PROPERTIES: Record<DelegatedName, string> = {
   'aria-busy': 'ariaBusy',
   'aria-placeholder': 'ariaPlaceholder',
   ...DELEGATED_RELATIONS,
-};
+}))();
 const NAMES = Symbol('tanrei.delegatedAria.names');
 const OWNS = Symbol('tanrei.delegatedAria.owns');
 const WHEN = Symbol('tanrei.delegatedAria.when');
@@ -303,14 +303,15 @@ class TreeWatch {
 const watchOf = (host: Delegating) => (host[WATCH] ??= new TreeWatch(host));
 
 /** The setter of each name's ARIA property as the platform has it (`Element.prototype`), where it has one. */
-const platformSetters = new Map<DelegatedName, (value: unknown) => void>(
-  typeof Element === 'undefined'
-    ? []
-    : ALL.flatMap((name) => {
-        const set = Object.getOwnPropertyDescriptor(Element.prototype, ARIA_PROPERTIES[name])?.set;
-        return set ? [[name, set] as const] : [];
-      }),
-);
+const platformSetters = /* @__PURE__ */ (() =>
+  new Map<DelegatedName, (value: unknown) => void>(
+    typeof Element === 'undefined'
+      ? []
+      : ALL.flatMap((name) => {
+          const set = Object.getOwnPropertyDescriptor(Element.prototype, ARIA_PROPERTIES[name])?.set;
+          return set ? [[name, set] as const] : [];
+        }),
+  ))();
 
 
 /** What `delegatesAria()` is told. */
@@ -500,8 +501,8 @@ interface Naming extends HTMLElement {
 }
 
 // The DOM's own methods, which `holdsProductName()` replaces on a class for its two names.
-const domSet = typeof Element === 'undefined' ? null : Element.prototype.setAttribute;
-const domRemove = typeof Element === 'undefined' ? null : Element.prototype.removeAttribute;
+const domSet = /* @__PURE__ */ (() => (typeof Element === 'undefined' ? null : Element.prototype.setAttribute))();
+const domRemove = /* @__PURE__ */ (() => (typeof Element === 'undefined' ? null : Element.prototype.removeAttribute))();
 
 /** Holds the name the product wrote (`aria-X` = `value`) as `data-aria-X`, so that the host's own is its whole name, or it has none. */
 function hold(host: Naming, name: NamingName, value: string) {

@@ -50,7 +50,7 @@ export async function slottedInteractive(slot: HTMLSlotElement | null | undefine
  * `findInteractive()` looks for, less an element that is only a place focus is sent to (`tabindex="-1"`), plus a label
  * (a press on it is its control's) and whatever shows the pointer of a link.
  */
-const ANSWERS = `${INTERACTIVE.replace('[tabindex]', '[tabindex]:not([tabindex^="-"])')}, label`;
+const ANSWERS = /* @__PURE__ */ [INTERACTIVE.replace('[tabindex]', '[tabindex]:not([tabindex^="-"])'), 'label'].join(', ');
 
 /**
  * Whether a press whose composed path is `path` lands on something that answers it itself: the element pressed, or one
@@ -94,7 +94,7 @@ const WIDGET_ROLES = [
   'grid',
 ];
 /** What takes a press itself inside content: what `findInteractive()` looks for, a label, and every widget role. */
-const TAKES_PRESS = [INTERACTIVE, 'label', ...WIDGET_ROLES.map((role) => `[role~="${role}"]`)].join(', ');
+const TAKES_PRESS = /* @__PURE__ */ [INTERACTIVE, 'label', ...WIDGET_ROLES.map((role) => `[role~="${role}"]`)].join(', ');
 
 /**
  * Whether a press whose composed path is `path` is taken by something inside `within` before it reaches `within`

@@ -48,7 +48,7 @@ const quietWhile = (host: string): CSSResult =>
  * The shadow root's rule: nothing in it starts a transition while the host settles — except the element that appears.
  * Composed last in every element's styles (`TanreiElement`).
  */
-export const settleStyles: CSSResult = quietWhile(`[${SETTLING}]`);
+export const settleStyles: CSSResult = /* @__PURE__ */ (() => quietWhile(`[${SETTLING}]`))();
 
 /**
  * The shadow root's rule for a hover under a pointer that has not moved since the surface the host is in opened: nothing
@@ -56,7 +56,7 @@ export const settleStyles: CSSResult = quietWhile(`[${SETTLING}]`);
  * `settleStyles` in the styles of every element that draws anything under a pointer; one that draws nothing there (its
  * spec says it has no hovered state: an avatar) leaves it out (`TanreiElement.drawsHover`), as it has no hover to hold.
  */
-export const stillPointerStyles: CSSResult = quietWhile(`[${STILL_POINTER}]:hover`);
+export const stillPointerStyles: CSSResult = /* @__PURE__ */ (() => quietWhile(`[${STILL_POINTER}]:hover`))();
 
 /**
  * The same rule for an element that draws in the light DOM (its stylesheet is the document's: a tree view, a table of
@@ -95,15 +95,15 @@ export const reducedMotion = (rules: CSSResult | string): CSSResult => {
   return unsafeCSS(`@media ${REDUCED_MOTION_MEDIA} {\n${text}\n}\n@container ${REDUCED_MOTION_STYLE} {\n${text}\n}`);
 };
 
-/** What `writeReducedMotion()` finds: the opening of a light-DOM stylesheet's reduced block. */
-const REDUCED_BLOCK = `@media ${REDUCED_MOTION_MEDIA} {`;
-
 /**
  * A light-DOM stylesheet (src/styles/*.css, read by scripts/build.js) writes its reduced form as plain CSS, under the
  * media query, so that its source is a stylesheet as it stands; the build writes each such block again right after
  * it, under the root's style query, as `reducedMotion()` does in a shadow root.
  */
 export const writeReducedMotion = (source: string): string => {
+  // What it finds: the opening of a light-DOM stylesheet's reduced block. (Made here, not at the top of the module: the
+  // build alone calls this, and a constant made from another would be in every element's bundle.)
+  const REDUCED_BLOCK = `@media ${REDUCED_MOTION_MEDIA} {`;
   let out = '';
   let from = 0;
   for (let at = source.indexOf(REDUCED_BLOCK); at >= 0; at = source.indexOf(REDUCED_BLOCK, from)) {

@@ -93,6 +93,8 @@ const EXIT = { duration: S('motion-exit-duration'), easing: S('motion-exit-easin
 export function sheetLookStyles({ sheet, motion = sheet, paddingBlockEnd = '0px', scrim }: SheetLookOptions): CSSResult {
   const scrimColor = scrim?.color ?? S('scrim-color');
   const scrimBlur = scrim?.blur ?? S('scrim-blur');
+  // What each rule is for is said here, not in the CSS: a comment inside the string would ship in every bundle.
+  // - `${sheet}.keyboard`: Over the keyboard, nothing is under the bottom inset.
   return unsafeCSS(`
   ${sheet} {
     box-sizing: border-box;
@@ -112,7 +114,6 @@ export function sheetLookStyles({ sheet, motion = sheet, paddingBlockEnd = '0px'
     border-end-start-radius: 0;
     border-end-end-radius: 0;
   }
-  /* Over the keyboard, nothing is under the bottom inset. */
   ${sheet}.keyboard {
     padding-block-end: ${paddingBlockEnd};
   }
