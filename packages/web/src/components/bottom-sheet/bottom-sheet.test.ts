@@ -10,7 +10,8 @@ import { clickCentre, heldPress } from '../../../test/watched-press.js';
 import { type Fixture, acmeSystemCss, innerStrokeAtEdges, loadSpec, missingWords, mountFixtures, resolveColor, resolveToken, setWords, tab, tabTo } from '../../../test/harness.js';
 import { expectKeyPressOutlastsPointer } from '../../../test/key-press-pointer-leaves.js';
 import { expectWheelKeptFromPage } from '../../../test/contained-wheel.js';
-import { expectFromNextFrame, motionEnded } from '../../../test/motions.js';
+import { EVERY_ANIMATION, expectFromNextFrame, motionEnded } from '../../../test/motions.js';
+import { transitionsRun, watchTransitions } from '../../../test/transitions.js';
 import { entrances, loadOpen, mountOpenAgain, runsAtRest } from '../../../test/mounted-open.js';
 import { bezierOf, expectSlideExitEnd, expectSlidOnly, resolveEasing, sheetProbe, slidOut, turnHeld } from '../../../test/appear.js';
 import { type Frames, expectNoFlicker, freezeFirstFrame, sampleFrames } from '../../../test/frames.js';
@@ -1267,6 +1268,63 @@ test.describe('the header and the close button', () => {
     await mount(page, [fixtureOf('modal')]);
     await expect(header(page, 'modal')).toHaveCount(0);
     await expect(host(page, 'modal').locator('.divider')).toHaveCount(0);
+  });
+
+  test('BSH-27: the direction is the nearest ancestor’s — not the root’s and not a setting of the sheet’s own; when it changes while the sheet is shown it is drawn for the new direction at once, without a motion, keeping its open state, its height and its focus', async ({ page }) => {
+    // The verify: the direction set on an ancestor inside the page (each fixture's stage), not on the root.
+    await mount(page, [
+      { ...fx('s', { detent: 'partial', headline: 'Terms of service', closable: true, closeLabel: 'Close' }, LONG), direction: 'rtl' },
+      { ...fx('std', { variant: 'standard', headline: 'Nearby places', closable: true, closeLabel: 'Close nearby places' }), direction: 'rtl' },
+    ]);
+    expect(await page.evaluate(() => document.documentElement.getAttribute('dir'))).toBeNull();
+    for (const id of ['s', 'std']) {
+      expect(await host(page, id).evaluate((el) => [el.getAttribute('dir'), el.matches(':dir(rtl)'), Object.keys((el.constructor as unknown as { properties: object }).properties).some((p) => /^dir|direction/i.test(p))]), id).toEqual([null, true, false]);
+    }
+    const [pad, end] = [await px(page, T('container-padding')), await px(page, T('header-padding-inline-end'))];
+    /** Each sheet's box, and its headline's and close button's distance from its left and right edges. */
+    const placed = async (id: string) => {
+      const [s, title, button] = [await bounds(sheet(page, id)), await bounds(host(page, id).locator('.headline')), await bounds(close(page, id))];
+      return { box: [s.x, s.y, s.width, s.height], headline: [title.x - s.x, s.x + s.width - (title.x + title.width)], close: [button.x - s.x, s.x + s.width - (button.x + button.width)] };
+    };
+    const rtl = { s: await placed('s'), std: await placed('std') };
+    for (const id of ['s', 'std'] as const) {
+      expect(rtl[id].headline[1], `${id}: right-to-left, the headline from the right`).toBeCloseTo(pad, 0);
+      expect(rtl[id].close[0], `${id}: right-to-left, the close button at the left`).toBeCloseTo(end, 0);
+    }
+    // Shown at its partial height, its content scrolled a little, and keyboard focus on its close button.
+    await content(page).evaluate((el) => el.scrollBy(0, 40));
+    const scrolled = await scrollTop(page);
+    expect(scrolled).toBeGreaterThan(0);
+    await tabTo(page, close(page));
+    const focus = await focused(page);
+    await motionEnded(page);
+    // Changed on the ancestors after the first render: no transition starts and nothing moves.
+    for (const id of ['s', 'std']) await watchTransitions(host(page, id));
+    await page.evaluate(async () => {
+      for (const id of ['s', 'std']) document.querySelector(`[data-fixture="${id}"]`)!.setAttribute('dir', 'ltr');
+      await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+    });
+    for (const id of ['s', 'std']) {
+      expect(await transitionsRun(host(page, id)), `${id}: no transition`).toEqual([]);
+      expect(await host(page, id).evaluate((el, every) => ((0, eval)(every) as (root: Element) => Animation[])(el).map((a) => (a as CSSTransition).transitionProperty ?? (a as CSSAnimation).animationName), EVERY_ANIMATION), `${id}: nothing moves`).toEqual([]);
+    }
+    const ltr = { s: await placed('s'), std: await placed('std') };
+    for (const id of ['s', 'std'] as const) {
+      expect(ltr[id].headline[0], `${id}: left-to-right, the headline from the left`).toBeCloseTo(pad, 0);
+      expect(ltr[id].close[1], `${id}: left-to-right, the close button at the right`).toBeCloseTo(end, 0);
+      // Its height and its place are kept: the container stays centred at the bottom.
+      expect(ltr[id].box, `${id}: the same box`).toEqual(rtl[id].box);
+    }
+    // Its open state, its detent, the content's scroll and its focus are kept.
+    expect(await host(page).evaluate((el: HTMLElement & { open: boolean; detent: string }) => [el.open, el.detent])).toEqual([true, 'partial']);
+    expect(await host(page, 'std').evaluate((el: HTMLElement & { open: boolean }) => el.open)).toBe(true);
+    expect(await scrollTop(page)).toBe(scrolled);
+    expect(await focused(page)).toBe(focus);
+    expect(await close(page).evaluate((el) => el.matches(':focus-within'))).toBe(true);
+    // Where no ancestor sets one, the document's.
+    await page.locator('[data-fixture="std"]').evaluate((el) => el.removeAttribute('dir'));
+    await page.evaluate(() => document.documentElement.setAttribute('dir', 'rtl'));
+    expect((await placed('std')).close[0]).toBeCloseTo(end, 0);
   });
 
   test('BSH-28: the header is drawn at the top of a sheet without a handle, and a drag on it moves the sheet; a divider-visibility the sheet does not define is drawn as auto and reported', async ({ page }) => {
