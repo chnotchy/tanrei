@@ -1189,12 +1189,7 @@ const STAGING: Record<string, Staging> = {
   // is written: it names nothing, and the avatar draws its fallback (AVT-4).
   avatar: {
     tag: (f) => (f.items ? 'tanrei-avatar-group' : 'tanrei-avatar'),
-    // TODO: the fixture `group-max-rtl` is the right-to-left row of
-    // AVT-20's verify and does not name its direction; until the spec does, it is drawn in a right-to-left box here.
-    wrap: (element, f) => {
-      const drawn = element.replaceAll('src="fixtures/avatar.png"', `src="${avatarPicture()}"`);
-      return f.id === 'group-max-rtl' && !f.direction ? `<div dir="rtl">${drawn}</div>` : drawn;
-    },
+    wrap: (element) => element.replaceAll('src="fixtures/avatar.png"', `src="${avatarPicture()}"`),
   },
   badge: {
     // The anchor (the spec's default slot): the glyph of the system's icon set that the content names, at sys.icon.medium
