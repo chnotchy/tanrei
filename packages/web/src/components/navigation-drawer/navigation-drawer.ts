@@ -9,6 +9,8 @@ import {
   type DestinationContext,
   DestinationsController,
   GlyphMirrorController,
+  MirrorWordController,
+  hearsMirrorWord,
   LINK_MARK,
   LinkController,
   OpenAxesController,
@@ -304,7 +306,7 @@ abstract class DrawerCell extends TanreiElement {
   /** What the collapsed drawer draws under the icon, on one line ("Files" for "My files"), where the drawer's `collapsedLabels` draws labels. Empty draws the label, truncated. */
   shortLabel = '';
 
-  /** The name of a glyph of the system's icon set: outlined while unselected, filled while selected. Empty draws none. A glyph the icon set flags as showing a direction (`arrow_forward`, `send`) is drawn mirrored in a right-to-left layout. */
+  /** The name of a glyph of the system's icon set: outlined while unselected, filled while selected. Empty draws none. A glyph the icon set flags as showing a direction (`arrow_forward`, `send`) is drawn mirrored in a right-to-left layout; `data-mirror="auto | always | never"` on the element decides for this use (a group's openIcon too). */
   icon = '';
 
   /** Unavailable: it keeps its place and its disabled look, cannot be activated and leaves the focus order. */
@@ -321,6 +323,11 @@ abstract class DrawerCell extends TanreiElement {
    * group's chevron (`expand_more`, NVD-44) is not named here.
    */
   protected readonly mirror = new GlyphMirrorController(this, { drawn: '.icon, .link-mark, .chevron.start', slots: 'slot[name="trailing"]' });
+  /**
+   * NVD-51: the product's word on mirroring the glyph the row names — a destination's icon, a group's icon and openIcon —
+   * is `data-mirror` on its element. The link mark and the chevron are the drawer's own glyphs and take no word.
+   */
+  protected readonly mirrorWord = new MirrorWordController(this);
 
   /** NVD-8, NVD-9: the pressed state, press-hold and the answer the system chooses (src/primitives/press.ts). */
   protected readonly press = new PressController(this, {
@@ -661,7 +668,7 @@ abstract class DrawerCell extends TanreiElement {
 
   /** The glyph (hidden from assistive technology); a destination puts its badge on it. */
   protected glyph(): TemplateResult {
-    return html`<span part="icon" class="icon" aria-hidden="true">${this.glyphName}</span>`;
+    return html`<span part="icon" class="icon" aria-hidden="true" data-mirror=${this.mirrorWord.word}>${this.glyphName}</span>`;
   }
 
   /**
@@ -4866,6 +4873,8 @@ if (!customElements.get('tanrei-tooltip')) customElements.define('tanrei-tooltip
 // whether a group is open and what it opens, and the disabled state are its own.
 delegatesAria(TanreiNavigationDrawer, { sentence: 'NVD-78' });
 delegatesAria(TanreiNavigationDrawerItem, { owns: ['aria-current', 'aria-disabled'], sentence: 'NVD-78' });
+hearsMirrorWord(TanreiNavigationDrawerItem);
+hearsMirrorWord(TanreiNavigationDrawerGroup);
 delegatesAria(TanreiNavigationDrawerGroup, { owns: ['aria-current', 'aria-expanded', 'aria-controls', 'aria-disabled'], sentence: 'NVD-78' });
 if (!customElements.get(ITEM)) customElements.define(ITEM, TanreiNavigationDrawerItem);
 if (!customElements.get(GROUP)) customElements.define(GROUP, TanreiNavigationDrawerGroup);

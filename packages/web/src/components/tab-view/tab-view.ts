@@ -3,6 +3,7 @@ import { classMap } from 'lit/directives/class-map.js';
 import { AvailabilityController, DelegatedAriaWriter, SHEET_FLING_VELOCITY, SheetDrag, choiceAttribute, compChoice, delegatedNames, delegatesAria, findInteractive, hostAria, motionReduced, report } from '../../primitives/index.js';
 import { type LinkedTabView, type TanreiTab, TanreiTabPanel, TanreiTabs, type TanreiTabsSize, type TanreiTabsVariant } from '../tabs/tabs.js';
 import { tabViewStyles } from './tab-view.styles.js';
+import { MIRROR } from '../../styles/icons.js';
 import { TanreiElement } from '../../primitives/element.js';
 
 /** What `change` carries: the value of the panel the user selected or swiped to, which the view's `value` (and its tabs') now holds. */
@@ -412,6 +413,11 @@ export class TanreiTabView extends TanreiElement implements LinkedTabView {
         tab.value = panel.value;
         tab.label = panel.label;
         tab.icon = panel.icon;
+        // TAB-32: the product's word on mirroring the icon is `data-mirror` on the panel, which names it; the tab drawn
+        // for the panel carries it, as a tab the product writes would.
+        const word = panel.getAttribute(MIRROR);
+        if (word === null) tab.removeAttribute(MIRROR);
+        else if (tab.getAttribute(MIRROR) !== word) tab.setAttribute(MIRROR, word);
         tab.labelHidden = panel.labelHidden;
         tab.disabled = panel.disabled;
         return tab;

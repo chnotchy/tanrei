@@ -27949,7 +27949,7 @@
                 "text": "string"
               },
               "default": "''",
-              "description": "The name of a glyph of the system's icon set: outlined while unselected, filled while selected. Required.",
+              "description": "The name of a glyph of the system's icon set: outlined while unselected, filled while selected. Required. A glyph the icon set flags as showing a direction is drawn mirrored in a right-to-left layout; `data-mirror=\"auto | always | never\"` on the element decides for this use.",
               "attribute": "icon",
               "inheritedFrom": {
                 "name": "NavigationDestination",
@@ -28154,7 +28154,7 @@
                 "text": "string"
               },
               "default": "''",
-              "description": "The name of a glyph of the system's icon set: outlined while unselected, filled while selected. Required.",
+              "description": "The name of a glyph of the system's icon set: outlined while unselected, filled while selected. Required. A glyph the icon set flags as showing a direction is drawn mirrored in a right-to-left layout; `data-mirror=\"auto | always | never\"` on the element decides for this use.",
               "fieldName": "icon",
               "inheritedFrom": {
                 "name": "NavigationDestination",
@@ -28921,7 +28921,7 @@
                 "text": "string"
               },
               "default": "''",
-              "description": "The name of a glyph of the system's icon set: outlined while unselected, filled while selected. Empty draws none. A glyph the icon set flags as showing a direction (`arrow_forward`, `send`) is drawn mirrored in a right-to-left layout.",
+              "description": "The name of a glyph of the system's icon set: outlined while unselected, filled while selected. Empty draws none. A glyph the icon set flags as showing a direction (`arrow_forward`, `send`) is drawn mirrored in a right-to-left layout; `data-mirror=\"auto | always | never\"` on the element decides for this use (a group's openIcon too).",
               "attribute": "icon",
               "inheritedFrom": {
                 "name": "DrawerCell",
@@ -29058,7 +29058,7 @@
                 "text": "string"
               },
               "default": "''",
-              "description": "The name of a glyph of the system's icon set: outlined while unselected, filled while selected. Empty draws none. A glyph the icon set flags as showing a direction (`arrow_forward`, `send`) is drawn mirrored in a right-to-left layout.",
+              "description": "The name of a glyph of the system's icon set: outlined while unselected, filled while selected. Empty draws none. A glyph the icon set flags as showing a direction (`arrow_forward`, `send`) is drawn mirrored in a right-to-left layout; `data-mirror=\"auto | always | never\"` on the element decides for this use (a group's openIcon too).",
               "fieldName": "icon",
               "inheritedFrom": {
                 "name": "DrawerCell",
@@ -29330,7 +29330,7 @@
                 "text": "string"
               },
               "default": "''",
-              "description": "The name of a glyph of the system's icon set: outlined while unselected, filled while selected. Empty draws none. A glyph the icon set flags as showing a direction (`arrow_forward`, `send`) is drawn mirrored in a right-to-left layout.",
+              "description": "The name of a glyph of the system's icon set: outlined while unselected, filled while selected. Empty draws none. A glyph the icon set flags as showing a direction (`arrow_forward`, `send`) is drawn mirrored in a right-to-left layout; `data-mirror=\"auto | always | never\"` on the element decides for this use (a group's openIcon too).",
               "attribute": "icon",
               "inheritedFrom": {
                 "name": "DrawerCell",
@@ -29440,7 +29440,7 @@
                 "text": "string"
               },
               "default": "''",
-              "description": "The name of a glyph of the system's icon set: outlined while unselected, filled while selected. Empty draws none. A glyph the icon set flags as showing a direction (`arrow_forward`, `send`) is drawn mirrored in a right-to-left layout.",
+              "description": "The name of a glyph of the system's icon set: outlined while unselected, filled while selected. Empty draws none. A glyph the icon set flags as showing a direction (`arrow_forward`, `send`) is drawn mirrored in a right-to-left layout; `data-mirror=\"auto | always | never\"` on the element decides for this use (a group's openIcon too).",
               "fieldName": "icon",
               "inheritedFrom": {
                 "name": "DrawerCell",
@@ -48165,7 +48165,7 @@
                 "text": "string"
               },
               "default": "''",
-              "description": "The name of a glyph of the system's icon set for this panel's tab in the view's own row. Give every panel one, or none.",
+              "description": "The name of a glyph of the system's icon set for this panel's tab in the view's own row. Give every panel one, or none. `data-mirror=\"auto | always | never\"` on the panel decides whether it is mirrored in right-to-left, as on a tab.",
               "attribute": "icon"
             },
             {
@@ -48218,7 +48218,7 @@
                 "text": "string"
               },
               "default": "''",
-              "description": "The name of a glyph of the system's icon set for this panel's tab in the view's own row. Give every panel one, or none.",
+              "description": "The name of a glyph of the system's icon set for this panel's tab in the view's own row. Give every panel one, or none. `data-mirror=\"auto | always | never\"` on the panel decides whether it is mirrored in right-to-left, as on a tab.",
               "fieldName": "icon"
             },
             {
@@ -54428,7 +54428,7 @@
                 "text": "string"
               },
               "default": "''",
-              "description": "The name of a glyph of the system's icon set: outlined while unselected, filled while selected. Required.",
+              "description": "The name of a glyph of the system's icon set: outlined while unselected, filled while selected. Required. A glyph the icon set flags as showing a direction is drawn mirrored in a right-to-left layout; `data-mirror=\"auto | always | never\"` on the element decides for this use.",
               "attribute": "icon"
             },
             {
@@ -54571,7 +54571,7 @@
                 "text": "string"
               },
               "default": "''",
-              "description": "The name of a glyph of the system's icon set: outlined while unselected, filled while selected. Required.",
+              "description": "The name of a glyph of the system's icon set: outlined while unselected, filled while selected. Required. A glyph the icon set flags as showing a direction is drawn mirrored in a right-to-left layout; `data-mirror=\"auto | always | never\"` on the element decides for this use.",
               "fieldName": "icon"
             },
             {

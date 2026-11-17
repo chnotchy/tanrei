@@ -7,6 +7,8 @@ import { type Locator, type Page, expect, test } from '@playwright/test';
 import { FOUR, bounds, css, destination, destinationSuite, override } from '../../../test/destinations.js';
 import { type Fixture, fixturesDocument, loadSpec, mountFixtures, resolveColor, resolveToken, tab, tabTo } from '../../../test/harness.js';
 import { middlePressAimed } from '../../../test/middle-press.js';
+import { mirroring, mirroringAfterDirection } from '../../../test/mirror-word.js';
+import { motionCount } from '../../../test/motions.js';
 import { releaseAtRest } from '../../../test/release-at-rest.js';
 import { STOPPED_AFTER, flingThenHold, strokes } from '../../../test/stopped-release.js';
 import { indicatorChoice, indicatorPlace } from '../../primitives/indicator-drag.js';
@@ -1802,6 +1804,32 @@ test.describe('links', () => {
       expect(await flipped('links', 3, part), part).toBe(false);
       expect(await flipped('links-rtl', 0, part), part).toBe(false);
     }
+  });
+
+  test('NVB-25: the product decides for one destination with data-mirror on its item — always mirrors both copies of an unmarked glyph in right-to-left, never keeps a marked one unmirrored, none leaves it to the icon set; nothing is mirrored in left-to-right; a change of the word or of an ancestor’s direction is drawn at once, without a motion, and the item mirrors nothing itself', async ({ page }) => {
+    const words = (id: string, direction?: 'rtl'): Fixture => ({
+      id,
+      props: { value: 'next', label: 'Main' },
+      items: [destination('next', 'Next', 'arrow_forward'), destination('done', 'Done', 'check', { 'data-mirror': 'always' }), destination('sent', 'Sent', 'send', { 'data-mirror': 'never' })],
+      ...(direction ? { direction } : {}),
+    });
+    await mountFixtures(page, spec, { icons: true, fixtures: [words('words', 'rtl'), words('words-ltr')] });
+    const glyphs = (id: string) => [0, 1, 2].flatMap((n) => [item(page, id, n).locator('.icon'), item(page, id, n).locator('.c-icon')]);
+    const RTL = ['mirrored', 'mirrored', 'mirrored', 'mirrored', 'plain', 'plain'];
+    const LTR = RTL.map(() => 'plain');
+    await expect.poll(() => mirroring(glyphs('words'))).toEqual(RTL);
+    await expect.poll(() => mirroring(glyphs('words-ltr'))).toEqual(LTR);
+    // The item mirrors nothing itself, whatever its word.
+    for (const n of [1, 2]) for (const part of [item(page, 'words', n), cell(page, 'words', n)]) expect(await css(part, 'transform'), `${n}`).toBe('none');
+    // The word changed on an item already drawn.
+    await item(page, 'words', 0).evaluate((el) => el.setAttribute('data-mirror', 'never'));
+    await expect.poll(() => mirroring(glyphs('words'))).toEqual(['plain', 'plain', ...RTL.slice(2)]);
+    await item(page, 'words', 0).evaluate((el) => el.removeAttribute('data-mirror'));
+    await expect.poll(() => mirroring(glyphs('words'))).toEqual(RTL);
+    // The direction changed on an ancestor while drawn: read in the same task, before any frame, with no motion started.
+    expect(await mirroringAfterDirection(page.locator('[data-fixture="words-ltr"]'), 'rtl', glyphs('words-ltr'))).toEqual(RTL);
+    expect(await mirroringAfterDirection(page.locator('[data-fixture="words"]'), 'ltr', glyphs('words'))).toEqual(LTR);
+    for (const id of ['words-ltr', 'words']) expect(await motionCount(bar(page, id)), id).toBe(0);
   });
 
   test('NVB-30, NVB-7: forced colors — a link destination is drawn in the mode’s own colors, none of the tokens’: an unselected one’s icon and label in a system color the mode gives a link, the selected one on the system’s highlight as a button destination is, and a disabled link as disabled', async ({ page }) => {

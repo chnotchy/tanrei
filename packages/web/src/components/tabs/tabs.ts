@@ -791,7 +791,7 @@ export class TanreiTabPanel extends TanreiElement {
    */
   label = '';
 
-  /** The name of a glyph of the system's icon set for this panel's tab in the view's own row. Give every panel one, or none. */
+  /** The name of a glyph of the system's icon set for this panel's tab in the view's own row. Give every panel one, or none. `data-mirror="auto | always | never"` on the panel decides whether it is mirrored in right-to-left, as on a tab. */
   icon = '';
 
   /** Draws this panel's tab in the view's own row as its icon alone, keeping `label` as its accessible name. */
@@ -802,6 +802,10 @@ export class TanreiTabPanel extends TanreiElement {
 
   /** TBV-10: a panel of a `<tanrei-tab-view>` draws its focus ring inside the view's edge, following its corners. */
   private inView = false;
+
+  private readonly mirrorWord = new MirrorWordController(this);
+  /** The word the view was last told of. */
+  private toldWord: string | typeof nothing = nothing;
 
   constructor() {
     super();
@@ -816,9 +820,14 @@ export class TanreiTabPanel extends TanreiElement {
   }
 
   protected override updated(changed: PropertyValues<this>) {
+    // TAB-32: the product's word on mirroring the icon of the panel's tab in a view's own row, `data-mirror` on the panel;
+    // the panel renders again when it changes, and the view gives it to the tab it draws.
+    const word = this.mirrorWord.word;
+    const reworded = word !== this.toldWord;
+    this.toldWord = word;
     // TBV-6, TBV-16: the row (or the view) re-reads its panels when their value — or, for a view's own row, a tab prop —
     // changes; an internal event, kept out of the panel's public API.
-    if (this.hasUpdated && (['value', 'label', 'icon', 'labelHidden', 'disabled'] as const).some((key) => changed.has(key))) notifyItemUpdate(this, 'tanrei-tab-update');
+    if (this.hasUpdated && (reworded || (['value', 'label', 'icon', 'labelHidden', 'disabled'] as const).some((key) => changed.has(key)))) notifyItemUpdate(this, 'tanrei-tab-update');
   }
 
   protected override render() {
@@ -2684,6 +2693,7 @@ if (!customElements.get('tanrei-tooltip')) customElements.define('tanrei-tooltip
 // its label names it, which is held until label is empty (src/primitives/delegated-aria.ts).
 holdsProductName(TanreiTab);
 hearsMirrorWord(TanreiTab);
+hearsMirrorWord(TanreiTabPanel);
 if (!customElements.get('tanrei-tab')) customElements.define('tanrei-tab', TanreiTab);
 if (!customElements.get('tanrei-tab-panel')) customElements.define('tanrei-tab-panel', TanreiTabPanel);
 // The product's ARIA on the row's host is its tab list's (src/primitives/delegated-aria.ts).
