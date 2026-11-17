@@ -1,4 +1,4 @@
-// <tanrei-number-input>, driven by specs/number-input.spec.json: every behaviour id (NMI-1 to NMI-46) starts the title
+// <tanrei-number-input>, driven by specs/number-input.spec.json: every behaviour id starts the title
 // of a test, every fixture has a baseline, and every length and color is read back from the tokens — never from a
 // number written here. What a sentence says of "the Field that frames it" is tested with a Field around the input
 // (`frame()`), and the rows themselves — the label above, the requirement tag, the help, the error text and its

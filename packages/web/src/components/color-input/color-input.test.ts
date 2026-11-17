@@ -1,4 +1,4 @@
-// <tanrei-color-input>, driven by specs/color-input.spec.json: every behaviour id (CLI-1 to CLI-44) starts the title of
+// <tanrei-color-input>, driven by specs/color-input.spec.json: every behaviour id starts the title of
 // a test, every fixture has a baseline, and every length and color is read back from the tokens — never from a number
 // written here. What a sentence says of "the Field that frames it" is tested with a Field around the input (`frame()`), and the
 // rows themselves — the label above, the requirement tag, the help, the error text — are the Field's sentences and the

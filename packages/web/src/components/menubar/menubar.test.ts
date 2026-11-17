@@ -1,5 +1,5 @@
 // <tanrei-menubar>, <tanrei-menubar-menu> and <tanrei-menubar-item>, driven by specs/menubar.spec.json: every behaviour
-// id (MBR-1 … MBR-47) is cited by a test title, every fixture has a baseline, and every size, color and duration is read back from the tokens —
+// id is cited by a test title, every fixture has a baseline, and every size, color and duration is read back from the tokens —
 // never from a number written here. A fixture cannot fill a bar's menu (its items are the menu's own kinds), so the
 // tests fill the menus with the real menu elements: these tests also show that the bar leaves them as they are.
 // MBR-48: the product's ARIA on the host is tested with every other host's, in every engine, in

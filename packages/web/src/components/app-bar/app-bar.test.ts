@@ -1,4 +1,4 @@
-// <tanrei-app-bar>, driven by specs/app-bar.spec.json: every behaviour id (APB-1…34) is cited by a test title, every
+// <tanrei-app-bar>, driven by specs/app-bar.spec.json: every behaviour id is cited by a test title, every
 // fixture has a baseline, and every length, color and duration is read back from the tokens — never from a number
 // written here.
 import fs from 'node:fs';

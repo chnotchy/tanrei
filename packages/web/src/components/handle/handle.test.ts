@@ -1,4 +1,4 @@
-// <tanrei-handle>, driven by specs/handle.spec.json: every behaviour id (HDL-1…27) is cited by a test title, every
+// <tanrei-handle>, driven by specs/handle.spec.json: every behaviour id is cited by a test title, every
 // fixture has a baseline, and every value is read back from the tokens.
 // HDL-26: the product's ARIA on the host is tested with every other control's, in every engine, in
 // src/primitives/delegated-aria.test.ts.

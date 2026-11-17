@@ -1,4 +1,4 @@
-// <tanrei-keyboard-shortcut>, driven by specs/keyboard-shortcut.spec.json: every behaviour id (KBS-1…18) is cited by a
+// <tanrei-keyboard-shortcut>, driven by specs/keyboard-shortcut.spec.json: every behaviour id is cited by a
 // test title, every fixture has a baseline, and every length and color is read back from the tokens — never from a
 // number written here. The legends each convention writes are the spec's own (KBS-3, KBS-4); what is read aloud is the
 // product's label, or the notation of aria-keyshortcuts — the shortcut has no names for keys (KBS-11).

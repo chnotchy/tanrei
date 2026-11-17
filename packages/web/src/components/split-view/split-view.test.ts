@@ -1,4 +1,4 @@
-// <tanrei-split-view>, driven by specs/split-view.spec.json: every behaviour id (SPV-1…16) is cited by a test title,
+// <tanrei-split-view>, driven by specs/split-view.spec.json: every behaviour id is cited by a test title,
 // every fixture has a baseline, and every value is read back from the tokens. The handle is the Handle's own (its tests
 // hold how it is drawn and how it takes a drag and a key); these hold what the split view does with it.
 import AxeBuilder from '@axe-core/playwright';

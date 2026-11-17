@@ -1,4 +1,4 @@
-// <tanrei-resizable-frame>, driven by specs/resizable-frame.spec.json: every behaviour id (RSF-1…19) is cited by a test
+// <tanrei-resizable-frame>, driven by specs/resizable-frame.spec.json: every behaviour id is cited by a test
 // title, every fixture has a baseline, and every value is read back from the tokens. The handles are the Handle's own
 // (its tests hold how each is drawn and how it takes a drag and a key); these hold what the frame does with them.
 import AxeBuilder from '@axe-core/playwright';

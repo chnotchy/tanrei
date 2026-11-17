@@ -1,4 +1,4 @@
-// <tanrei-meter>, driven by specs/meter.spec.json: every behaviour id (MTR-1…15) is cited by a test title, every
+// <tanrei-meter>, driven by specs/meter.spec.json: every behaviour id is cited by a test title, every
 // fixture has a baseline, and every length, color, duration and easing is read back from the tokens — never from a
 // number written here.
 // MTR-16: the product's ARIA on the host is tested with every other host's, in every engine, in

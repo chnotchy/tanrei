@@ -1,4 +1,4 @@
-// <tanrei-accordion> and accordion.css, driven by specs/accordion.spec.json: every behaviour id (ACC-1…36) is cited by a
+// <tanrei-accordion> and accordion.css, driven by specs/accordion.spec.json: every behaviour id is cited by a
 // test title, every fixture has a baseline, and every length and color is read back from the tokens — never from a
 // number written here (the heights and insets of ACC-2's verify are the spec's own numbers for the default system).
 import AxeBuilder from '@axe-core/playwright';

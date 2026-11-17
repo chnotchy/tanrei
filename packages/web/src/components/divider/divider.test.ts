@@ -1,4 +1,4 @@
-// <tanrei-divider>, driven by specs/divider.spec.json: every behaviour id (DIV-1…14) is cited by a test title, every
+// <tanrei-divider>, driven by specs/divider.spec.json: every behaviour id is cited by a test title, every
 // fixture has a baseline, and every length and color is read back from the tokens — never from a number written here.
 import AxeBuilder from '@axe-core/playwright';
 import { type Page, expect, test } from '@playwright/test';

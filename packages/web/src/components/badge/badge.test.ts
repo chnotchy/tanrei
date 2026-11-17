@@ -1,4 +1,4 @@
-// <tanrei-badge>, driven by specs/badge.spec.json: every behaviour id (BDG-1…14, BDG-16) is cited by a test title, every fixture
+// <tanrei-badge>, driven by specs/badge.spec.json: every behaviour id but BDG-15 is cited by a test title, every fixture
 // has a baseline, and every length and color is read back from the tokens — never from a number written here.
 import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';

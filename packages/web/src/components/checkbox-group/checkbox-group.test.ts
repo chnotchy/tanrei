@@ -1,10 +1,10 @@
-// <tanrei-checkbox-group>, driven by specs/checkbox-group.spec.json: CKG-1 to CKG-14, each cited by a test title.
+// <tanrei-checkbox-group>, driven by specs/checkbox-group.spec.json: every behaviour id is cited by a test title.
 //
 // It is a composed element whose value members are the product's own children: the field group's own
 // element in its shadow root, around the select-all checkbox and a slot. What every composed element is —
 // declarations, passing, parts, the one event, reports — is held by src/primitives/composed.test.ts; what that
 // file cannot ask of members the product places — the value, the form, focus, the twins — is held
-// here, with the fourteen sentences. Its members' own behaviour is held by their own files: nothing of
+// here, with the spec's sentences. Its members' own behaviour is held by their own files: nothing of
 // the field group's frame or of a checkbox's look is measured again, but through the twins.
 //
 // The twins: the tools' `twin` key cannot compare members the product places on both sides, so the pairs

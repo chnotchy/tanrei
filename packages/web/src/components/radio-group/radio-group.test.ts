@@ -1,12 +1,12 @@
-// <tanrei-radio-group>, driven by specs/radio-group.spec.json: every behaviour id (RGP-1…20) is cited by a test title,
+// <tanrei-radio-group>, driven by specs/radio-group.spec.json: every behaviour id is cited by a test title,
 // every fixture has a baseline, and every length and color is read back from the field group's tokens — the radio group
 // has none of its own — never from a number written here.
 //
 // A composed element: the field group's own element, in its radio-group kind, around the
 // product's radio buttons. What every composed element owes is held by `src/primitives/composed.test.ts` — the
-// declarations, the forwarded props, the parts, the one `change`, the reports, and the twins: each of the twenty
-// fixtures is the same pixels and the same radio group as the field group's `radio-buttons-*` fixture it names, in
-// three engines. The frame's own sentences are the field group's tests (FGR-1 … FGR-25). What is here is what
+// declarations, the forwarded props, the parts, the one `change`, the reports, and the twins: each
+// fixture is the same pixels and the same radio group as the field group's `radio-buttons-*` fixture it names, in
+// three engines. The frame's own sentences are the field group's tests (field-group.test.ts). What is here is what
 // the group adds — the value, the event, the keys and the stop, the form — and, for the sentences that cite the field
 // group, that the frame inside the group is drawn and exposed as they say.
 // RGP-21: the product's ARIA on the host is tested with every other control's, in every engine, in

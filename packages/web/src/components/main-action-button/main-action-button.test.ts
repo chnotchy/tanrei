@@ -1,4 +1,4 @@
-// <tanrei-main-action-button>, driven by specs/main-action-button.spec.json: every behaviour id (MAB-1…20) is cited by a
+// <tanrei-main-action-button>, driven by specs/main-action-button.spec.json: every behaviour id is cited by a
 // test title, every fixture has a baseline, and every state, size, form and choice of kind is read back from the tokens —
 // never from a number written here.
 // MAB-25: the product's ARIA on the host is tested with every other control's, in every engine, in

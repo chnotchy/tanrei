@@ -1,4 +1,4 @@
-// <tanrei-popover>, driven by specs/popover.spec.json: every behaviour id (POP-1…43) is cited by a test title, every
+// <tanrei-popover>, driven by specs/popover.spec.json: every behaviour id is cited by a test title, every
 // fixture has a baseline, and every color, length and time is read back from the tokens. The fixtures are drawn in
 // place (`inline`), each on its 480 × 480 stage; what a fixture cannot hold — the top layer, the window's edges, focus,
 // dismissal, nesting — is tested on the real overlay, mounted by the tests as a product would write it: its own opener,

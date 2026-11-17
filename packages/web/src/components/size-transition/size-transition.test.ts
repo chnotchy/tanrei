@@ -1,4 +1,4 @@
-// <tanrei-size-transition>, driven by specs/size-transition.spec.json: every behaviour id (SZT-1…13) is cited by a test
+// <tanrei-size-transition>, driven by specs/size-transition.spec.json: every behaviour id is cited by a test
 // title, every fixture has a baseline, and every duration and distance is read back from the tokens — never from a
 // number written here. A motion is read frame by frame (each frame callback reads the box where the frame draws it),
 // and held to what must hold in every frame — an edge that stays, a size that never jumps back — not to a frame count,

@@ -1,4 +1,4 @@
-// <tanrei-table> and table.css, driven by specs/table.spec.json: every behaviour id (TBL-1…59) is cited by a test title,
+// <tanrei-table> and table.css, driven by specs/table.spec.json: every behaviour id is cited by a test title,
 // every fixture has a baseline, and every length and color is read back from the tokens — never from a number written
 // here (the two row heights of TBL-4's verify are the spec's own numbers for the default system).
 import fs from 'node:fs';
