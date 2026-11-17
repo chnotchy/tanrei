@@ -160,6 +160,11 @@ export const styles = css`
     display: flex;
     justify-content: center;
     translate: calc((var(--tanrei-comp-switch-track-width) - var(--tanrei-comp-switch-track-height)) * var(--_travel-direction) * ${unsafeCSS(p)}) 0;
+  }
+  /* SWT-22: the place travels only while the element has marked a travel (or a drag holds it). The translate's sign is
+     the direction's, so a change of direction changes it too: at rest that is drawn at once, not travelled. (As heavy as
+     .thumb alone, so that reduced motion, below, still takes the travel away.) */
+  :where(${unsafeCSS(BETWEEN)}) .thumb {
     transition: translate ${unsafeCSS(travel)};
   }
 
