@@ -2,7 +2,7 @@
 title: Menú
 description: Un conjunto corto de acciones u opciones en una superficie temporal que se abre desde el elemento que lo pidió.
 translationOf: components/menu.mdx
-sourceHash: 0efa21c846500b22bfd3a30cbaca612c9a4ed23c
+sourceHash: 46ad6599db908950bf4f4a13b4a8757cae8b9f65
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -547,7 +547,7 @@ También depende de la plataforma que una pulsación fuera llegue además a lo q
 - Un elemento de enlace se expone como un elemento de menú, no como un enlace: un menú se lee por sus elementos, por su número y con las teclas de flecha, y eso solo se cumple mientras todas las filas son elementos de menú. Por debajo sigue siendo el enlace de la plataforma. Mientras abre un contexto nuevo, su `targetLabel` cierra su descripción, y su marca queda oculta. Un elemento de enlace actual se expone además como la página actual.
 - Un grupo se expone como un grupo que recibe su nombre de su título. Los divisores son separadores que no reciben el foco; donde los grupos se separan con espacio vacío, no hay separador. Los títulos no reciben el foco y no se leen como elementos.
 - Un elemento de submenú se expone como un elemento que abre un menú, con su estado expandido, también mientras está deshabilitado. Su superficie es un menú por sí misma, que recibe su nombre de la etiqueta del elemento, y cada superficie cuenta sus propias posiciones.
-- Al ancla se le indica que abre un menú y si el menú está abierto, donde la plataforma tiene esa propiedad (en la web, `aria-haspopup`, `aria-controls` y `aria-expanded`).
+- Al ancla se le indica que abre un menú y si el menú está abierto, donde la plataforma tiene esa propiedad (en la web, `aria-haspopup` y `aria-expanded`). Mientras el menú está abierto, también se le indica qué elemento es el menú (en la web, `aria-controls`); mientras está cerrado, no señala ningún elemento.
 - Un menú contextual deja su área como está: el área no es un botón y no se le indica que abre un menú. El menú se abre con un clic derecho, una pulsación larga, Mayús+F10, la tecla de menú contextual o la orden de menú contextual de las tecnologías de apoyo, y su único nombre es el `aria-label` que le des, igual que los menús contextuales propios de las plataformas no tienen nombre.
 - Al abrirse, el foco pasa al primer elemento habilitado. Al cerrarse, el foco vuelve al ancla si estaba dentro del menú. Flecha arriba y Flecha abajo dan la vuelta, Inicio y Fin van a los extremos, y al escribir el foco pasa al siguiente elemento cuya etiqueta empieza por las letras escritas. Enter activa y cierra. Espacio en un elemento de casilla de verificación o de opción deja el menú abierto. Escape cierra y devuelve el foco. Tab cierra y sigue adelante desde el ancla. En un submenú, la tecla de flecha hacia el inicio de la línea y Escape cierran solo ese nivel y devuelven el foco a su elemento; las teclas de flecha a lo largo de la línea que no hacen nada nunca llegan a la página que hay detrás del menú.
 - Los elementos deshabilitados se siguen alcanzando con las teclas de flecha, pero no se activan.
