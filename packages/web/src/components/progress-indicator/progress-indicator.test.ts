@@ -632,8 +632,12 @@ test.describe('behavior', () => {
       expect(await host(page, id).evaluate((el) => (el as HTMLElement & { value: number }).value), id).toBe(0.4);
     }
     for (const id of ids) expect(await stage(page, id).ariaSnapshot(), id).toBe(told[id]);
-    // The segment's place in its cycle: at one moment (one task, in which the animation's time does not move), it stands
-    // as far from the bar's left end in left-to-right as from its right end in right-to-left.
+    // The segment's place in its cycle: at one time of its animation, it stands as far from the bar's left end in
+    // left-to-right as from its right end in right-to-left. The animation is held at that time while both places are
+    // read. Reading in one task does not hold a running one: WebKit lays a running transform animation out at the moment
+    // the layout is read, while its currentTime stands still for the task, so two reads a direction change apart (a
+    // style pass and a layout) see the segment a little further on. Nor does pause() alone, whose hold waits for the
+    // next frame; setting the current time completes it at once.
     const place = await host(page, 'linear-rtl-indeterminate').evaluate((el) => {
       const segment = el.shadowRoot!.querySelector('.indicator')!;
       const [animation] = segment.getAnimations();
@@ -641,12 +645,18 @@ test.describe('behavior', () => {
         const [bar, r] = [el.getBoundingClientRect(), segment.getBoundingClientRect()];
         return { time: Number(animation.currentTime), fromLeft: r.left - bar.left, fromRight: bar.right - r.right, width: r.width };
       };
+      const time = animation.currentTime;
+      animation.pause();
+      animation.currentTime = time;
       const ltr = measure();
       el.closest('.stage')!.setAttribute('dir', 'rtl');
-      return { ltr, rtl: measure(), same: segment.getAnimations()[0] === animation };
+      const rtl = measure();
+      const same = segment.getAnimations()[0] === animation;
+      animation.play();
+      return { ltr, rtl, same, resumed: animation.playState };
     });
     expect(place.ltr.time).toBeGreaterThan(0);
-    expect(place.same).toBe(true);
+    expect([place.same, place.resumed]).toEqual([true, 'running']);
     expect(place.rtl.time).toBe(place.ltr.time);
     expect(place.rtl.fromRight).toBeCloseTo(place.ltr.fromLeft, 1);
     expect(place.rtl.width).toBeCloseTo(place.ltr.width, 1);
