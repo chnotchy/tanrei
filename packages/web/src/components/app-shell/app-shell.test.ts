@@ -65,6 +65,8 @@ const own = (id: string, props: Fixture['props'], content: string, extra: Partia
 const shown = (locator: Locator) => locator.evaluate((el) => el.getClientRects().length > 0);
 const windowClass = (page: P) => shell(page).evaluate((el) => (el as unknown as { windowClass: string | null }).windowClass);
 const inherited = (page: P) => main(page).evaluate((el) => getComputedStyle(el).getPropertyValue('--tanrei-app-shell-window-class').trim());
+/** A custom property on the document's root, as the cascade has it there (what the frame wrote, or its stylesheet). */
+const rootProperty = (page: P, name: string) => page.evaluate((n) => getComputedStyle(document.documentElement).getPropertyValue(n).trim(), name);
 const scrollY = (page: P) => page.evaluate(() => Math.round(window.scrollY));
 const active = (page: P) =>
   page.evaluate(() => {
@@ -2204,16 +2206,62 @@ test.describe('what scrolls', () => {
     await expect.poll(offset).toBe('80px');
     await shell(page).evaluate((el) => el.setAttribute('scroll', 'main'));
     await expect.poll(offset).toBe('');
+    // …while what the frame keeps over the top of the window is still the header, which never moves then.
+    await expect.poll(() => rootProperty(page, '--tanrei-app-shell-window-inset-top')).toBe('80px');
     // The navigation bar's height at the bottom, in a compact window.
     await mount(page, real({ sections: 6, bar: true }), { width: 400 });
     const end = () => page.evaluate(() => [getComputedStyle(document.documentElement).getPropertyValue('--tanrei-app-shell-scroll-offset-end').trim(), getComputedStyle(document.documentElement).scrollPaddingBottom]);
     const barHeight = (await edges(region(page, 'navigation-bar'))).height;
     await expect.poll(end).toEqual([`${barHeight}px`, `${barHeight}px`]);
+    expect(await rootProperty(page, '--tanrei-app-shell-window-inset-bottom')).toBe(`${barHeight}px`);
     await resize(page, 800);
     await expect.poll(end).toEqual(['', 'auto']);
+    await expect.poll(() => rootProperty(page, '--tanrei-app-shell-window-inset-bottom')).toBe('');
     // Removed from the page, the frame takes back what it wrote on the root.
+    await resize(page, 400);
+    await expect.poll(() => rootProperty(page, '--tanrei-app-shell-window-inset-bottom')).toBe(`${barHeight}px`);
     await shell(page).evaluate((el) => el.remove());
-    expect(await page.evaluate(() => document.documentElement.style.getPropertyValue('--tanrei-app-shell-scroll-offset'))).toBe('');
+    expect(await page.evaluate(() => ['--tanrei-app-shell-scroll-offset', '--tanrei-app-shell-scroll-offset-end', '--tanrei-app-shell-window-inset-top', '--tanrei-app-shell-window-inset-bottom'].map((name) => document.documentElement.style.getPropertyValue(name)))).toEqual(['', '', '', '']);
+  });
+
+  test('APS-17, APS-15, SNK-13, SNK-35: with scroll main, 400 wide, what the frame keeps over the window — the header’s bottom edge (below an announcement too) and the navigation bar’s height — is made known whatever scrolls, while the scrolling view’s offsets are nothing; a snackbar at the top end stands below the header and one at the bottom above the bar', async ({ page }) => {
+    const announcement = '<div slot="announcement"><p style="margin: 0; block-size: 40px">Maintenance tonight</p></div>';
+    await mount(page, real({ sections: 6, bar: true, announcement, props: { scroll: 'main' } }), { width: 400 });
+    await page.evaluate(() => document.getElementById('main')!.insertAdjacentHTML('beforeend', '<tanrei-snackbar-host></tanrei-snackbar-host>'));
+    await page.waitForFunction(() => !!document.querySelector('tanrei-snackbar-host')?.shadowRoot);
+    const [header, bar] = [await edges(region(page, 'header')), await edges(region(page, 'navigation-bar'))];
+    expect(header.top).toBe(40);
+    expect(bar.bottom).toBe(800);
+    const insets = () => Promise.all(['--tanrei-app-shell-window-inset-top', '--tanrei-app-shell-window-inset-bottom'].map((name) => rootProperty(page, name)));
+    await expect.poll(insets).toEqual([`${header.bottom}px`, `${bar.height}px`]);
+    // The main region is the scrolling view, and nothing stands over it: no offset, and no padding on the root.
+    expect(await Promise.all(['--tanrei-app-shell-scroll-offset', '--tanrei-app-shell-scroll-offset-end'].map((name) => rootProperty(page, name)))).toEqual(['', '']);
+    expect(await page.evaluate(() => [getComputedStyle(document.documentElement).scrollPaddingTop, getComputedStyle(document.documentElement).scrollPaddingBottom])).toEqual(['auto', 'auto']);
+    // The announcement goes: the header's bottom edge is measured again.
+    await region(page, 'announcement').evaluate((el) => el.remove());
+    await expect.poll(insets).toEqual([`${(await edges(region(page, 'header'))).bottom}px`, `${bar.height}px`]);
+    const top = await edges(region(page, 'header'));
+    expect(top.top).toBe(0);
+    const margin = await resolveToken(page, '--tanrei-comp-snackbar-container-margin');
+    const snackbar = page.locator('tanrei-snackbar-host tanrei-snackbar');
+    const showOne = async (options: Record<string, unknown>) => {
+      await page.evaluate((o) => void (document.querySelector('tanrei-snackbar-host') as unknown as { show(o: unknown): Promise<unknown> }).show(o), { duration: 'indefinite', ...options });
+      await expect.poll(() => snackbar.evaluate((el) => el.matches(':popover-open'))).toBe(true);
+      await motionEnded(snackbar);
+      return snackbar.evaluate((el) => {
+        const box = el.shadowRoot!.querySelector('.bar')!.getBoundingClientRect();
+        return { top: box.top, bottom: box.bottom };
+      });
+    };
+    const dismiss = async () => {
+      await page.evaluate(() => (document.querySelector('tanrei-snackbar-host') as unknown as { dismissCurrent(): void }).dismissCurrent());
+      await expect.poll(() => snackbar.count()).toBe(0);
+    };
+    // SNK-35: at the top end, the margin below the header, never over it.
+    near((await showOne({ message: 'Report exported', placement: 'top-end' })).top, top.bottom + margin);
+    await dismiss();
+    // SNK-13: at the bottom, the margin above the navigation bar, never over it.
+    near((await showOne({ message: 'Conversation archived' })).bottom, bar.top - margin);
   });
 });
 

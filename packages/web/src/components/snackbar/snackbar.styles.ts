@@ -120,10 +120,10 @@ export const styles = css`
   :host([popover]) {
     --_inset-left: calc(env(safe-area-inset-left, 0px) + ${held('left')});
     --_inset-right: calc(env(safe-area-inset-right, 0px) + ${held('right')});
-    /* What the frame keeps over the top of the window (a sticky header, APS-17) and over its bottom, or the safe area's
-       inset where that is more. */
-    --_inset-top: max(env(safe-area-inset-top, 0px), var(--tanrei-app-shell-scroll-offset, 0px));
-    --_inset-bottom: max(env(safe-area-inset-bottom, 0px), var(--tanrei-app-shell-scroll-offset-end, 0px));
+    /* What the frame keeps over the top of the window (its header, APS-17) and over its bottom, whatever scrolls, or the
+       safe area's inset where that is more. */
+    --_inset-top: max(env(safe-area-inset-top, 0px), var(--tanrei-app-shell-window-inset-top, 0px));
+    --_inset-bottom: max(env(safe-area-inset-bottom, 0px), var(--tanrei-app-shell-window-inset-bottom, 0px));
     box-sizing: border-box;
     position: fixed;
     inset: auto var(--_inset-right) calc(${t('container-margin')} + var(--_inset-bottom) + var(--tanrei-snackbar-keyboard, 0px)) var(--_inset-left);
@@ -149,7 +149,7 @@ export const styles = css`
     display: none;
   }
   /* SNK-35: at the top end — the margin below the top edge and from the end edge, inside the safe area and below what
-     the frame keeps over the top of the window (a sticky header of <tanrei-app-shell>, APS-17, or a product's own frame
+     the frame keeps over the top of the window (the header of <tanrei-app-shell>, APS-17, or a product's own frame
      that sets the same property), so it never covers a top app bar. The end side is the direction's, and so is the
      safe-area inset on that side, with the room the window gains on that side while the page's scroll is held (MDL-2).
      Its area (SNK-25, SNK-37) is the one every placement has: below what the frame keeps over the top of the window. */

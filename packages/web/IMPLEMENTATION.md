@@ -6249,8 +6249,8 @@ with at most one action, without taking focus (`specs/snackbar.spec.json`, SNK-1
 `<tanrei-snackbar popover="manual">` child and shows it in the top layer, fixed at the bottom of the window, centred
 between the safe area's side insets (`env(safe-area-inset-left)`, `-right`) and at least `container.margin` inside them,
 `container.margin` above the higher of the safe area's bottom inset (`env(safe-area-inset-bottom)`) and what the frame
-keeps over the bottom of the window (`--tanrei-app-shell-scroll-offset-end`: the app shell's navigation bar, APS-17, or a
-product's own bar that sets it), plus the on-screen keyboard, measured from `visualViewport`; while a modal surface holds
+keeps over the bottom of the window (`--tanrei-app-shell-window-inset-bottom`: the app shell's navigation bar, whatever
+scrolls, APS-17, or a product's own bar that sets it), plus the on-screen keyboard, measured from `visualViewport`; while a modal surface holds
 the page's scroll the snackbar's sides add the room the window gains (`--tanrei-scroll-hold-inset-left` and `-right`,
 MDL-2), so that it does not move. Expanded, at either placement, it is at most as tall as the window less the margins and
 what the frame keeps over its top and its bottom (SNK-25). **Over a modal surface (SNK-38)**: a modal `<dialog>` makes everything outside it inert, a top-layer popover
@@ -9768,7 +9768,13 @@ stylesheet and tokens disagree. `<tanrei-page-header>`'s wide width is written t
   changes; the stylesheet sets the root's `scroll-padding-block-start` from it, so a link to a heading and a focused
   element rest below the header. The navigation bar's height is `--tanrei-app-shell-scroll-offset-end`. Your own sticky
   parts read the same properties. **Inside a frame leave `--tanrei-prose-scroll-offset` at 0.** Until the element is
-  defined the offset is a small app bar's height;
+  defined the offset is a small app bar's height. With `scroll="main"` both are nothing: nothing stands over the `<main>`
+  that scrolls;
+- **the window's insets**: how far the frame reaches over the top and the bottom of the window, whatever scrolls, as
+  `--tanrei-app-shell-window-inset-top` (the header's bottom edge while it stays in view: with `scroll="main"` it never
+  moves, and an announcement above it counts) and `--tanrei-app-shell-window-inset-bottom` (the navigation bar's height
+  while it is shown) on `<html>`. What is drawn over the page reads them — the snackbar host keeps its snackbars clear of
+  the header and the bar with them (SNK-13, SNK-35); a product's own overlay may too;
 - `role="banner"`, `contentinfo` or `complementary` on a region whose element is not a `<header>`, a `<footer>` or an
   `<aside>`; `aria-label` from `aside-label` on an aside without a name; `tabindex="-1"` on a `<main>` that lacks it;
 - the skip link's move at once, whatever the page's `scroll-behavior`; without script the anchor does the same;
