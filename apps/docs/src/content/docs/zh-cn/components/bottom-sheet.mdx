@@ -41,7 +41,7 @@ import Example from '../../../../components/visuals/Example.astro';
 
 面板通过 `variant` 提供两种形态。**模态**是默认形态，是一个模态浮层：它让整个窗口变暗，把焦点留在里面，并在关闭时把焦点交还。**标准**形态是一个布局区域，而不是浮层：它盖住你放置它的父元素的底部，不绘制遮罩，用户可以继续操作它上方的内容。
 
-面板里放什么由你决定。面板按自己的内边距为内容留出边距（如果是行自带内边距的列表，把 `inset` 设为 false），裁剪内容，为它提供内容颜色，并让它滚动。给它一个 `headline`，它就会在内容上方绘制页眉：标题（一个标题元素，`label` 为空时也是面板的名称），以及在打开 `closable` 时，一个以 `closeLabel` 命名的关闭按钮——一个 small 按钮，在默认系统中是 tonal，与 Tanrei 的每个关闭按钮一样。页眉下方按 `dividerVisibility` 绘制一条分隔线，内容滚动时页眉保持不动。`closable` 默认关闭，因为手柄以及模态面板的遮罩就是面板的出口；在标准面板或没有手柄的面板中请把它打开。
+面板里放什么由你决定。面板按自己的内边距为内容留出边距（如果是行自带内边距的列表，把 `inset` 设为 false，在 Web 上是 `flush`），裁剪内容，为它提供内容颜色，并让它滚动。给它一个 `headline`，它就会在内容上方绘制页眉：标题（一个标题元素，`label` 为空时也是面板的名称），以及在打开 `closable` 时，一个以 `closeLabel` 命名的关闭按钮——一个 small 按钮，在默认系统中是 tonal，与 Tanrei 的每个关闭按钮一样。页眉下方按 `dividerVisibility` 绘制一条分隔线，内容滚动时页眉保持不动。`closable` 默认关闭，因为手柄以及模态面板的遮罩就是面板的出口；在标准面板或没有手柄的面板中请把它打开。
 
 面板打开时应当获得焦点的元素，用平台自己的方式标记：在 Web 上是 `autofocus`，在 SwiftUI 上是 `.defaultFocus` 或 `@AccessibilityFocusState`，在 Compose 上是作为 `initialFocus` 传入的 `FocusRequester`，在 Flutter 上是 `autofocus: true`，在 React Native 上是 `initialFocusRef`。没有标记时，焦点落在面板本身，因此最先朗读的是它的标签。
 
@@ -262,7 +262,7 @@ import Example from '../../../../components/visuals/Example.astro';
 ### 推荐
 
 - 让面板的任务一目了然：在内容顶部放一个标题；如果面板没有其他关闭方式，再放一个“完成”或“关闭”按钮。
-- 对于行自带内边距的列表，关闭 `inset`，让各行延伸到边缘。
+- 对于行自带内边距的列表，关闭 `inset`（在 Web 上是 `flush`），让各行延伸到边缘。
 - 只要面板的内容可能高过 partial 高度，就保留手柄，让使用键盘和开关控制的用户也能改变它的高度。
 - 如果用户在面板打开期间需要用到它上方的内容，使用标准形态。
 

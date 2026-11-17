@@ -39,7 +39,7 @@ The sheet emits `close` only while `dismissible` is true, and exactly once for e
 
 The sheet has two forms on `variant`. **Modal**, the default, is a modal overlay: it dims the whole window, keeps focus inside, and returns focus when it closes. **Standard** is a layout region, not an overlay: it covers the bottom of the parent you place it in, draws no scrim, and lets the person keep working in the content above it.
 
-What goes in the sheet is yours. The sheet insets its content by its padding (set `inset` to false for a list whose rows pad themselves), clips it, hands it a content color and scrolls it. Give it a `headline` and it draws a header above the content: the headline, a heading that also names the sheet where `label` is empty, and, with `closable` on, a close button named by `closeLabel` — a small Button, tonal in the default system, as every close button in Tanrei is. A divider stands below the header as `dividerVisibility` says, and the header stays in place while the content scrolls. `closable` is off by default, because the handle and, for a modal sheet, the scrim are the sheet's ways out; turn it on for a standard sheet or a sheet without a handle.
+What goes in the sheet is yours. The sheet insets its content by its padding (set `inset` to false, `flush` on the web, for a list whose rows pad themselves), clips it, hands it a content color and scrolls it. Give it a `headline` and it draws a header above the content: the headline, a heading that also names the sheet where `label` is empty, and, with `closable` on, a close button named by `closeLabel` — a small Button, tonal in the default system, as every close button in Tanrei is. A divider stands below the header as `dividerVisibility` says, and the header stays in place while the content scrolls. `closable` is off by default, because the handle and, for a modal sheet, the scrim are the sheet's ways out; turn it on for a standard sheet or a sheet without a handle.
 
 Mark the element that should get focus when the sheet opens with the platform's own mark: `autofocus` on the web, `.defaultFocus` or an `@AccessibilityFocusState` on SwiftUI, a `FocusRequester` passed as `initialFocus` on Compose, `autofocus: true` on Flutter, and `initialFocusRef` on React Native. Without a mark, focus goes to the sheet itself, so its label is read first.
 
@@ -260,7 +260,7 @@ Dragging is never the only way. The handle changes the height with one press or 
 ### Do
 
 - Put the sheet's task in plain view: a title at the top of the content, and a Done or Close button when the sheet has no other way to close.
-- Turn `inset` off for a list whose rows carry their own padding, so that the rows reach the edges.
+- Turn `inset` off (`flush` on the web) for a list whose rows carry their own padding, so that the rows reach the edges.
 - Leave the handle on for any sheet whose content can grow taller than its partial height, so that keyboard and switch users can change its height.
 - Use the standard form when the person needs the content above the sheet while it is open.
 
