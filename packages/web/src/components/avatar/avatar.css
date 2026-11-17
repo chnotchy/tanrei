@@ -50,28 +50,34 @@
     display: none;
   }
 
-  /* The group: one row that does not wrap. Every box is drawn back by the overlap and the row starts that far in. */
+  /*
+   * The group: one row that does not wrap, each box over the one before it by the overlap of the group's size and the
+   * row as wide as its boxes less their overlaps — where the element draws them. The row's tracks make the overlap, never
+   * a margin or a padding: a page's reset (`* { margin: 0; padding: 0 }`) is not in a layer, so it beats every rule here
+   * and would take them away before the script runs. The first track is a whole box; each following one is a box less
+   * the overlap, and its box stands at the track's end, so it reaches back over the end of the one before it (and is
+   * drawn above it, being later) and the row ends where its last box ends — the room the element keeps at its end.
+   */
   :where(tanrei-avatar-group:not(:defined)) {
-    display: inline-flex;
+    display: inline-grid;
+    grid-auto-flow: column;
+    grid-template-columns: var(--tanrei-comp-avatar-container-size-medium);
+    grid-auto-columns: calc(var(--tanrei-comp-avatar-container-size-medium) - var(--tanrei-comp-avatar-group-overlap-medium));
+    justify-items: end;
+    align-items: center;
     flex: none;
     vertical-align: middle;
-    padding-inline-start: var(--tanrei-comp-avatar-group-overlap-medium);
   }
   :where(tanrei-avatar-group:not(:defined)) > :where(tanrei-avatar) {
-    margin-inline-start: calc(-1 * var(--tanrei-comp-avatar-group-overlap-medium));
     box-shadow: 0 0 0 var(--tanrei-comp-avatar-group-outline-width) var(--tanrei-comp-avatar-group-outline-color);
   }
   :where(tanrei-avatar-group[size='small']:not(:defined)) {
-    padding-inline-start: var(--tanrei-comp-avatar-group-overlap-small);
-  }
-  :where(tanrei-avatar-group[size='small']:not(:defined)) > :where(tanrei-avatar) {
-    margin-inline-start: calc(-1 * var(--tanrei-comp-avatar-group-overlap-small));
+    grid-template-columns: var(--tanrei-comp-avatar-container-size-small);
+    grid-auto-columns: calc(var(--tanrei-comp-avatar-container-size-small) - var(--tanrei-comp-avatar-group-overlap-small));
   }
   :where(tanrei-avatar-group[size='large']:not(:defined)) {
-    padding-inline-start: var(--tanrei-comp-avatar-group-overlap-large);
-  }
-  :where(tanrei-avatar-group[size='large']:not(:defined)) > :where(tanrei-avatar) {
-    margin-inline-start: calc(-1 * var(--tanrei-comp-avatar-group-overlap-large));
+    grid-template-columns: var(--tanrei-comp-avatar-container-size-large);
+    grid-auto-columns: calc(var(--tanrei-comp-avatar-container-size-large) - var(--tanrei-comp-avatar-group-overlap-large));
   }
   /* What is not a member is not drawn by the group. */
   :where(tanrei-avatar-group:not(:defined)) > :where(:not(tanrei-avatar)) {
