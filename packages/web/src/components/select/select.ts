@@ -939,7 +939,7 @@ export class TanreiSelect extends TanreiElement {
           aria-disabled=${inert ? 'true' : nothing}
           aria-haspopup="listbox"
           aria-expanded=${expanded ? 'true' : 'false'}
-          aria-controls="list"
+          aria-controls=${expanded ? 'list' : nothing}
           aria-activedescendant=${(expanded && this.list.activeId) || nothing}
           @pointerdown=${this.#onPointerDown}
           @click=${this.#onClick}

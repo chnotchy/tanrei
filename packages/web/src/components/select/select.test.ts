@@ -24,6 +24,7 @@ import { type Fixture, type FixtureItem, acmeSystemCss, loadSpec, missingWords, 
 import { expectBaseline } from '../../../test/baseline.js';
 import { expectGoneWhileSkipped } from '../../../test/skipped-exit.js';
 import { expectBoxTakesContainerSize, expectOptionsTakeDrawnSize } from '../../../test/input-box-size.js';
+import { controlledInTree, controlledList } from '../../../test/controlled-list.js';
 
 const spec = loadSpec('select');
 type P = Page;
@@ -928,7 +929,8 @@ test.describe('behavior: the list', () => {
     await mount(page, [fx('one', { value: 'fr' }), fx('other', {})]);
     await listen(page, 'one');
     const c = container(page, 'one');
-    expect(await c.evaluate((el) => [el.getAttribute('aria-haspopup'), el.getAttribute('aria-expanded'), el.getAttribute('aria-controls'), !!(el.getRootNode() as ShadowRoot).getElementById('list')])).toEqual(['listbox', 'false', 'list', true]);
+    // Closed it names no list box: the one it opens is not exposed until then (SEL-48).
+    expect(await c.evaluate((el) => [el.getAttribute('aria-haspopup'), el.getAttribute('aria-expanded'), el.getAttribute('aria-controls'), !!(el.getRootNode() as ShadowRoot).getElementById('list')])).toEqual(['listbox', 'false', null, true]);
     // Not by hovering, not by focus arriving, not by waiting.
     await c.hover();
     await focusSelect(page, 'one');
@@ -939,6 +941,7 @@ test.describe('behavior: the list', () => {
       await page.keyboard.press(key === ' ' ? 'Space' : key);
       await shownList(page, 'one').toBe(true);
       expect(await read(page, 'one'), key).toMatchObject({ open: true, expanded: 'true', value: 'fr', active: 'France', focused: true });
+      expect(await c.evaluate((el) => (el.getRootNode() as ShadowRoot).getElementById(el.getAttribute('aria-controls') ?? '')?.getAttribute('role')), `${key}: open, it names its list box`).toBe('listbox');
       expect(await heard(page), key).toEqual(['toggle true']);
       await page.keyboard.press('Escape');
       await closedList(page, 'one');
@@ -2393,6 +2396,41 @@ test.describe('behavior: conditions, exposure, size and direction', () => {
     expect((await comboboxes())[0]).toMatchObject({ description: 'This plan is full.', invalid: 'true' });
   });
 
+  test('SEL-48, SEL-23, SEL-68, SEL-69: the container names its list box by aria-controls while the list is open and nothing while it is closed, and the list box it names is exposed — also where the list shows its empty text, its loading row or its status alone: an empty list box of no height, no focus target, nothing to read, busy while loading', async ({ page, browserName }) => {
+    await mount(
+      page,
+      [
+        fx('closed', { label: 'Plan', value: 'fr' }),
+        ...spec.fixtures.filter((f) => ['open-empty', 'open-loading', 'open-status-error', 'open-status'].includes(f.id)),
+        fx('loading', { label: 'Area', open: true, status: 'loading', statusText: 'Loading areas' }, []),
+        fx('top', { label: 'Region', inline: false, emptyText: 'No regions yet' }, []),
+      ],
+      { reducedMotion: true },
+    );
+    const EMPTY = { found: true, role: 'listbox', exposed: true, height: 0, rows: 0, text: '', focusable: false };
+    // Closed: no reference — the list box is in a placed box that is not displayed.
+    expect(await controlledList(container(page, 'closed'))).toBeNull();
+    // Open with options: the list box, with its rows.
+    expect(await controlledList(container(page, 'open-status'))).toMatchObject({ found: true, role: 'listbox', exposed: true, rows: 3, focusable: false });
+    // Open with the status row, the empty text or the loading row alone: the empty list box, exposed and of no size.
+    for (const id of ['open-empty', 'open-loading', 'open-status-error', 'loading']) expect(await controlledList(container(page, id)), id).toEqual(EMPTY);
+    expect(await part(page, 'loading', '#list').getAttribute('aria-busy'), 'loading: the list box is busy').toBe('true');
+    // In the top layer, opened by the keyboard; closed again, no reference.
+    await focusSelect(page, 'top');
+    await page.keyboard.press('ArrowDown');
+    await shownList(page, 'top').toBe(true);
+    expect(await controlledList(container(page, 'top'))).toEqual(EMPTY);
+    if (browserName === 'chromium') {
+      // What the engine computed: the relation reaches the list box, in the tree, named by the label, holding nothing.
+      expect(await controlledInTree(page, 'Region')).toEqual([{ inTree: true, role: 'listbox', name: 'Region', children: 0, focusable: false }]);
+      expect(await controlledInTree(page, 'Area')).toEqual([{ inTree: true, role: 'listbox', name: 'Area', children: 0, focusable: false }]);
+      expect(await controlledInTree(page, 'Plan')).toEqual([]);
+    }
+    await page.keyboard.press('Escape');
+    await closedList(page, 'top');
+    expect(await controlledList(container(page, 'top'))).toBeNull();
+  });
+
   test('SEL-49: bare and given no width the select is as wide as its widest option would make it, so choosing never changes its width, and at least as wide as its placeholder; it is never wider than its layout gives it, and fills a width the product gives; in a Field it fills the width that Field gives it, whichever option is chosen', async ({ page }) => {
     await mountSpec(page, ['small-label-hidden-icons', 'stacked-placeholder', 'long-value', 'stacked-value']);
     const id = 'small-label-hidden-icons';
@@ -3053,16 +3091,17 @@ test.describe('the rows: drawn while the list is shown, and in a long list those
     );
   };
 
-  test('SEL-17, SEL-23, SEL-33, SEL-48: a closed select draws no row, and the number of elements in its shadow root does not grow with its options; it still shows the chosen option’s label, names its list box, and opens on a typed character with the option that character finds; opening draws the rows and closing takes them away', async ({ page }) => {
+  test('SEL-17, SEL-23, SEL-33, SEL-48: a closed select draws no row, and the number of elements in its shadow root does not grow with its options; it still shows the chosen option’s label and keeps its empty list box, named only once the list is open, and opens on a typed character with the option that character finds; opening draws the rows and closing takes them away', async ({ page }) => {
     await mount(page, [fx('few', { value: 'o3' }, many(5)), fx('some', { value: 'o30' }, many(60)), fx('many', { value: 'o1200' }, many(1632))], { reducedMotion: true });
     const [few, some, lots] = [await counted(page, 'few'), await counted(page, 'some'), await counted(page, 'many')];
     expect(few.rows).toBe(0);
     expect(some).toEqual(few);
     expect(lots).toEqual(few);
     expect(few.elements).toBeLessThan(40);
-    // Closed, everything it says of its options is there: the value, and the list box its container names.
+    // Closed, everything it says of its options is there: the value; and the empty list box, which its container names
+    // only once the list is open and the list box is exposed (SEL-48).
     await expect(part(page, 'many', '.value')).toHaveText('Option 1200');
-    expect(await container(page, 'many').evaluate((el) => [el.getAttribute('aria-expanded'), el.getAttribute('aria-activedescendant'), (el.getRootNode() as ShadowRoot).getElementById(el.getAttribute('aria-controls')!)?.getAttribute('role')])).toEqual(['false', null, 'listbox']);
+    expect(await container(page, 'many').evaluate((el) => [el.getAttribute('aria-expanded'), el.getAttribute('aria-activedescendant'), el.getAttribute('aria-controls'), (el.getRootNode() as ShadowRoot).getElementById('list')?.getAttribute('role')])).toEqual(['false', null, null, 'listbox']);
     // SEL-49: its width is still its widest option's (one hidden text, not an element for each option).
     expect((await box(container(page, 'many'))).width).toBeGreaterThan((await box(container(page, 'few'))).width);
     // Opened: a short list draws every row, each in its place.
