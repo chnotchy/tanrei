@@ -33,23 +33,24 @@ export function scrimFilter(on: string, blur: string): CSSResult {
 export const SCRIM_FILTER = unsafeCSS('var(--_scrim-filter, none)');
 
 export interface SheetScrimOptions {
-  /** The modal `<dialog>` whose `::backdrop` is the scrim (`dialog.sheet`); its open state is `[open]`. */
+  /** The modal `<dialog>` whose `::backdrop` is the scrim (`dialog.sheet`, `dialog`); its open state is `[open]`. */
   dialog: string;
   /** The scrim's color and blur, each one custom property as `var(--name)`. */
   color: string;
   blur: string;
-  /** The sheet's entrance and exit: the scrim fades in step with them, over the same durations and curves. */
+  /** The surface's entrance and exit: the scrim fades in step with them, over the same durations and curves. */
   enter: { duration: string; easing: string };
   exit: { duration: string; easing: string };
-  /** The cross-fade under reduced motion, which the sheet's own fade takes too: by default `sys.motion.role.reduced`. */
+  /** The cross-fade under reduced motion, which the surface's own fade takes too: by default `sys.motion.role.reduced`. */
   reduced?: string;
 }
 
 /**
- * The scrim of a sheet that slides from its edge (a modal bottom or side sheet, a surface presented as a bottom sheet):
- * its `::backdrop`, in its color and blur, fading in from transparent in step with the sheet's entrance and out in step
- * with its exit — the same duration and curve as the slide (MDL-7) — and, where motion is reduced, over the cross-fade
- * that replaces the slide (`sys.motion.role.reduced`, MOT-6), as `appearStyles()` fades the sheet there. Compose it
+ * The scrim of a sheet that slides from its edge (a modal bottom or side sheet, a surface presented as a bottom sheet),
+ * or of a dialog centred in the window: its `::backdrop`, in its color and blur, fading in from transparent in step with
+ * the surface's entrance and out in step with its exit — the same duration and curve (MDL-7) — and, where motion is
+ * reduced, over the cross-fade that replaces the motion (`sys.motion.role.reduced`, MOT-6), as `appearStyles()` fades
+ * the surface there. Compose it
  * before `modalExitStyles()`, which holds the scrim where the dialog changes hands. A rule that turns the scrim's
  * transition off names `transition-property` (the open rule here leaves it alone).
  */

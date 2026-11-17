@@ -1,5 +1,5 @@
 import { css, unsafeCSS } from 'lit';
-import { SCRIM_FILTER, actionBoxStyles, appearStyles, compactProbeStyles, dividerVisibilityHost, focusRing, iconGlyph, modalExitStyles, scrimFilter, sheetLookStyles, whenScroll, whenChosen as chosen } from '../../primitives/index.js';
+import { actionBoxStyles, appearStyles, compactProbeStyles, dividerVisibilityHost, focusRing, iconGlyph, modalExitStyles, sheetLookStyles, sheetScrimStyles, whenScroll, whenChosen as chosen } from '../../primitives/index.js';
 import { productText } from '../../styles/product-text.js';
 import { cornerRadius, shape } from '../../styles/shape.js';
 import { scriptTracking } from '../../styles/script-tracking.js';
@@ -91,26 +91,15 @@ export const styles = css`
     enter: { duration: T('motion-enter-duration'), easing: T('motion-enter-easing') },
     exit: { duration: T('motion-exit-duration'), easing: T('motion-exit-easing') },
   })}
-  /* DLG-1, MDL-1: the modal layer's scrim, over the whole window behind the dialog (its color and blur), fading with it. */
-  ${scrimFilter('dialog', T('scrim-blur'))}
-  dialog::backdrop {
-    background: ${t('scrim-color')};
-    backdrop-filter: ${SCRIM_FILTER};
-    opacity: 0;
-    transition-property: opacity;
-    transition-duration: ${t('motion-exit-duration')};
-    transition-timing-function: ${t('motion-exit-easing')};
-  }
-  dialog[open]::backdrop {
-    opacity: 1;
-    transition-duration: ${t('motion-enter-duration')};
-    transition-timing-function: ${t('motion-enter-easing')};
-  }
-  @starting-style {
-    dialog[open]::backdrop {
-      opacity: 0;
-    }
-  }
+  /* DLG-1, DLG-13, MDL-1, MDL-7: the modal layer's scrim, over the whole window behind the dialog (its color and blur),
+     fading with it — over sys.motion.role.reduced where motion is reduced, as the container then fades. */
+  ${sheetScrimStyles({
+    dialog: 'dialog',
+    color: T('scrim-color'),
+    blur: T('scrim-blur'),
+    enter: { duration: T('motion-enter-duration'), easing: T('motion-enter-easing') },
+    exit: { duration: T('motion-exit-duration'), easing: T('motion-exit-easing') },
+  })}
   /* DLG-17, DLG-18: in a compact window, the bottom sheet's appearance — docked to the window's bottom edge (over the
      keyboard), as wide as the window up to the bottom sheet's greatest width whatever width names, its color, elevation
      and top corners, square at the bottom, its parts inside the dialog's padding and above the bottom inset — sliding up

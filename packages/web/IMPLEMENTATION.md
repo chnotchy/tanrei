@@ -6796,7 +6796,8 @@ centre): from `sys.motion.appear.*` to whole over `motion.enter-*`, and back the
 closed at once — focus and the page are given back — and kept drawn in the top layer, inert, until its exit and its
 scrim's have played, in every engine (`closeModal()`, src/primitives/modal-exit.ts, MDL-7); opened again while it leaves,
 it is taken back with `openModal()`, so that it goes on from what it shows. Mounted open before the first paint, it is
-there at once. Where motion is reduced it only fades, over `sys.motion.role.reduced`. Focus moves when it opens and
+there at once. Where motion is reduced it only fades, and its scrim with it, over `sys.motion.role.reduced`
+(`sheetScrimStyles()`, src/primitives/scrim.ts). Focus moves when it opens and
 closes, not when the motion ends. A snackbar shown while it is open is shown inside it (SNK-38, `modalLayer` in
 `src/primitives/modal.ts`).
 
