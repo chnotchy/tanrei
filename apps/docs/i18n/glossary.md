@@ -707,7 +707,7 @@ After the first full translation each language rendered some recurring terms in 
 | width classes: Compact, Medium, Expanded (the names `foundations/layout` gives them) | Compact, Medium, Expanded (Latin) | Compact, Medium, Expanded (Latin) | compacta, media, expandida | कॉम्पैक्ट, मीडियम, एक्सपैंडेड | مضغوطة (Compact)، متوسطة (Medium)، موسَّعة (Expanded) — ضيقة is "narrow" |
 | a new tab (of the browser) | · | · | pestaña nueva | नया टैब | تبويب جديد — علامة تبويب is the Tabs component's tab |
 | handle, thumb (slider, switch) | ハンドル | 手柄 on the Slider's page, 滑块 on a switch | tirador | हैंडल | المقبض |
-| bundle (what a bundler writes for production) | バンドル; a bundler is バンドラー | 打包产物 — distinct from 打包, which these pages use for packing a package into a file (npm pack) | bundle, kept in English (`tu bundle`) — «paquete» is the npm package | · | · |
+| bundle (what a bundler writes for production) | バンドル; a bundler is バンドラー | 打包产物 — distinct from 打包, which these pages use for packing a package into a file (npm pack) | bundle, kept in English (`tu bundle`) — «paquete» is the npm package | बंडल (masculine); a bundler is बंडलर | · |
 
 In Arabic, الشكل is *shape* only; a *variant* is الطراز, and the fixed heading is «اختيار الطراز».
 
@@ -928,6 +928,7 @@ The later component pages, from what the pages say.
 | sort; sortable column; sort button | सॉर्ट करना; सॉर्ट करने लायक़ कॉलम; सॉर्ट बटन |
 | chosen row; checked / not checked (a row's checkbox) | चुनी गई पंक्ति; चेक किया हुआ / चेक नहीं किया हुआ |
 | "What you write" / "Known gaps on the web" (headings) | आप क्या लिखते हैं / वेब पर ज्ञात कमियाँ |
+| performance (a heading, and what a page or a component costs to run) | परफ़ॉर्मेंस |
 
 ### Terms of the One-time-code input, the File upload and the code field (Hindi)
 
