@@ -4,6 +4,7 @@
 // indicator's transform), which this does not count.
 //
 // Chromium only: the layout count is read over the DevTools protocol.
+// affected: each component — each test names in its title the component it draws; the ones that name none hold the walk together.
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';

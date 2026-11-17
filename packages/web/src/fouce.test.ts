@@ -10,6 +10,7 @@
 //   a fixture moves;
 // - as Chromium's own measure of it, the sum of every `layout-shift` entry recorded meanwhile (the Layout Instability
 //   API; the other engines have none). Core Web Vitals calls a page's CLS good under 0.1; a page here is held to 0.01.
+// affected: each component — each test names in its title the component it draws; the ones that name none hold the walk together.
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';

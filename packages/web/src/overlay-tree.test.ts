@@ -6,6 +6,7 @@
 //
 // Each component with a top-layer surface is opened as a real overlay (never `inline`, which has no popover) and read
 // over the DevTools protocol: what Chromium computed for the popover element itself, and the tree around it.
+// affected: every component — each component with a top-layer surface, under titles that do not all name it as a word.
 import { type Page, expect, test } from '@playwright/test';
 import { type Fixture, loadSpec, mountFixtures } from '../test/harness.js';
 

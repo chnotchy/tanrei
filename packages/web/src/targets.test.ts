@@ -16,6 +16,7 @@
 // (hit-testing is the layout's and the same in every engine; the components' own tests press in all three). Two
 // Buttons a product lays out side by side itself, outside any Tanrei row, are pressed the same way, with and without the
 // caps the product may set on its row (BTN-5).
+// affected: each component — each test names in its title the component it draws; the ones that name none hold the walk together.
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';

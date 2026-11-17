@@ -9,6 +9,7 @@
 // must not scroll sideways: the document is exactly as wide as its window. What is in the top layer or fixed to the
 // window (a dialog, a menu, a snackbar) is laid out against the window and never widens the page, wherever it is
 // written.
+// affected: each component — each test names in its title the component it draws; the ones that name none hold the walk together.
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';

@@ -11,6 +11,7 @@
 // every fixture of every spec, in a right-to-left page — where the fixtures' left-to-right words are the other
 // direction. Only WebKit has anything to find; the other engines place the line in the content box whatever the
 // paddings are.
+// affected: each component — each test names in its title the component it draws; the ones that name none hold the walk together.
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';

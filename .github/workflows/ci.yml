@@ -215,7 +215,7 @@ jobs:
           BASE: ${{ github.event_name == 'push' && github.event.before || github.event.pull_request.base.sha }}
         run: |
           node packages/tools/src/affected.js "$BASE" > "$RUNNER_TEMP/affected.json"
-          jq -r 'if .all then "every web test: \(.reasons | join("; "))" else "components: \(.units | join(", "))\nfiles: \(.files | join(", "))" end' "$RUNNER_TEMP/affected.json"
+          jq -r 'if .all then "every web test: \(.reasons | join("; "))" else "components: \(.units | join(", "))\nfiles: \(.files | join(", "))\nwalks of every component, in full: \(.every | join(", "))\nwalks of every component, the selected ones: \(.each | join(", "))" end' "$RUNNER_TEMP/affected.json"
           echo "json=$(jq -c . "$RUNNER_TEMP/affected.json")" >> "$GITHUB_OUTPUT"
       # A targeted run (a dispatch with `grep`) counts the tests its pattern matches in each Playwright project, to size
       # its shards; the test files import the built web package, so it is built first (about a minute in all). No other
@@ -292,7 +292,8 @@ jobs:
           # The web's matrix. Every test in the three engines (26 shards) on a dispatched run, a release and a push without
           # a base to compare with (the first push of a branch, or one whose base could not be read). Otherwise the selection: on a pull request in Chromium alone (the cheap check that
           # gates a merge; the other engines run on main and before a release), on a push to main in all three; its shards from its size, about 400 Chromium tests a shard
-          # (a component has about 100). A selection of nothing runs no web job.
+          # (a component has about 100, its share of the walks of every component among them; a walk run in full, about 10).
+          # A selection of nothing runs no web job.
           web=$(on web)
           # Each engine's shards in a run of every test: about 26 minutes each of tests on a runner (the seconds of
           # packages/web/test/durations.json at two workers), so that a runner half again as slow still ends near 41 of
@@ -324,7 +325,7 @@ jobs:
             if [ "$(echo "$SELECTION" | jq -r .all)" = true ]; then
               n=1000 # each engine's full count
             else
-              size=$(echo "$SELECTION" | jq '(.units | length) * 100 + (.files | length) * 50')
+              size=$(echo "$SELECTION" | jq '(.units | length) * 100 + (.files | length) * 50 + (.every | length) * 10')
               if [ "$size" -eq 0 ]; then web=false; fi
               n=$(( (size + 399) / 400 )); [ "$n" -lt 1 ] && n=1
               grep=$(echo "$SELECTION" | jq -r .grep)

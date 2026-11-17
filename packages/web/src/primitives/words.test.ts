@@ -2,6 +2,7 @@
 // every element makes — its own prop, else the set of its nearest `lang`, else the document's, else nothing. The
 // subject is a field around a slider (its requirement tag is the plainest word a component draws); the components'
 // own tests hold what each one draws without words.
+// affected: every component — every source of the package is read for the word pack, under titles that name no component.
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';

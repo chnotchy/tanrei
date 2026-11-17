@@ -6,7 +6,9 @@
 // tokens, its baselines) or a component drawn by a stylesheet (src/styles/<name>.css and its tests). From there it
 // widens to what depends on it — the specs that are built from it or use it (`builtFrom`, `uses`), and every module
 // of packages/web/src and packages/web/test that imports it, however indirectly. A test file reached that way runs in
-// full. A change whose reach cannot be traced (the Playwright config, a generator, a sys token) selects everything.
+// full. A test that walks every component, which no import leads to, says in a marker line how a change selects it
+// (CROSS_CUTTING below). A change whose reach cannot be traced (the Playwright config, a generator, a sys token)
+// selects everything.
 //
 // Node built-ins only: the changes job runs this before anything is installed.
 import { execFileSync } from 'node:child_process';
@@ -33,11 +35,32 @@ const NO_WEB_EFFECT = [
 ];
 
 /**
- * Test files that draw the whole package (`dist/all.js`, every stylesheet) read from disk rather than importing it, so
- * no import leads to them: they depend on every component, and run whenever any component's code, spec, tokens or
- * stylesheet changes — not for a change to a component's own tests or baselines, which the package does not ship.
+ * A web test that walks every component — the specs, the inventory, the manifest, the whole bundle or every stylesheet,
+ * read from disk rather than imported, so no import leads to it — says so in a line of its own:
+ *
+ *   // affected: every component — <why>
+ *     Any component can break any of its tests (they draw the package whole, or many components on one page). The file
+ *     runs in full whenever any component's code, spec, tokens or stylesheet changes.
+ *   // affected: each component — <why>
+ *     Each of its tests draws one component, or a few, and names each one it draws in its title (`button`,
+ *     `tanrei-button`, `m3-like/button`, `a z-index in button orders`). A change runs the tests that name a selected
+ *     component, and the tests that name none (what holds the walk together).
+ *
+ * Neither runs for a change to a component's own tests or baselines alone, which the package does not ship.
  */
-export const EVERY_COMPONENT = ['packages/web/src/perf-budget.test.ts'];
+const CROSS_CUTTING = /^\/\/ affected: (every|each) component\b/m;
+
+/** The web tests that walk every component, by how a change selects them (CROSS_CUTTING). */
+export function crossCutting(root = REPO) {
+  const every = [];
+  const each = [];
+  for (const file of walk(path.join(root, SRC))) {
+    if (!file.endsWith('.test.ts')) continue;
+    const m = CROSS_CUTTING.exec(fs.readFileSync(file, 'utf8'));
+    if (m) (m[1] === 'every' ? every : each).push(posix(path.relative(root, file)));
+  }
+  return { every: every.sort(), each: each.sort() };
+}
 
 const posix = (p) => p.split(path.sep).join('/');
 
@@ -128,9 +151,16 @@ function unitOfWebFile(file, units) {
   return undefined;
 }
 
+/** Every unit's name: a component's directory under packages/web/src/components/, or a spec. */
+function unitNames(root) {
+  const componentDirs = fs.existsSync(path.join(root, SRC, 'components')) ? fs.readdirSync(path.join(root, SRC, 'components')) : [];
+  return new Set([...componentDirs, ...specGraph(root).names]);
+}
+
 /**
  * What a list of changed paths selects. `all` is true when every test must run; otherwise `units` are the components
- * whose tests run and `files` the other test files that run in full.
+ * whose tests run, `files` the other test files that run in full; and of the files that walk every component
+ * (CROSS_CUTTING), `every` those that run in full and `each` those whose tests run for the selected components alone.
  */
 export function affected(changed, root = REPO) {
   const componentDirs = new Set(fs.existsSync(path.join(root, SRC, 'components')) ? fs.readdirSync(path.join(root, SRC, 'components')) : []);
@@ -191,7 +221,7 @@ export function affected(changed, root = REPO) {
       everything(file, 'its reach into the web is not traced');
     }
   }
-  if (all) return { all, units: [], files: [], reasons };
+  if (all) return { all, units: [], files: [], every: [], each: [], reasons };
 
   // Widen through imports: every module that imports a changed one, however indirectly.
   const reached = new Set(startFiles);
@@ -226,24 +256,42 @@ export function affected(changed, root = REPO) {
       }
     }
   }
-  if (selected.size) for (const f of EVERY_COMPONENT) if (fs.existsSync(path.join(root, f))) files.add(f);
+  const every = new Set();
+  const each = new Set();
+  if (selected.size) {
+    const walks = crossCutting(root);
+    for (const f of walks.every) if (!files.has(f)) every.add(f);
+    for (const f of walks.each) if (!files.has(f)) each.add(f);
+  }
   for (const u of ownTestsOnly) selected.add(u);
   if (canary && !selected.size && !files.size) for (const u of CANARY) selected.add(u);
-  return { all: false, units: [...selected].sort(), files: [...files].sort(), reasons };
+  return { all: false, units: [...selected].sort(), files: [...files].sort(), every: [...every].sort(), each: [...each].sort(), reasons };
 }
 
 /**
  * The `--grep` that runs a selection: a test whose file is a selected component's, a selected stylesheet's or one of
  * the files, or whose title names a selected component (`<name>: …`, the form the suites that run over every
- * component use). Playwright matches it against the file path and the titles together.
+ * component use). Playwright matches it against the project, the file path and the titles joined by spaces, ignoring
+ * case. In a file that walks each component (`each`), a test runs when its title names a selected component as a word
+ * of its own — `button`, `tanrei-button`, `m3-like/button`, not `button-group` — or names no component at all.
  */
-export function grepFor({ units, files }) {
+export function grepFor({ units, files, every = [], each = [] }, root = REPO) {
   const parts = [];
+  const escape = (f) => f.replace(/^packages\/web\/src\//, '').replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
   if (units.length) {
     const names = units.join('|');
     parts.push(`components/(${names})/`, `styles/(${names})[.-]`, `(^| )(${names}): `);
   }
-  for (const f of files) parts.push(f.replace(/^packages\/web\/src\//, '').replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
+  for (const f of [...files, ...every]) parts.push(escape(f));
+  if (each.length) {
+    const prefix = JSON.parse(fs.readFileSync(path.join(root, 'tanrei.config.json'), 'utf8')).web.tagPrefix;
+    const word = (names) => `(?:[^a-z0-9-]|${prefix}-)(?:${names})(?![a-z0-9-])`;
+    const anyName = [...unitNames(root)].sort((a, b) => b.length - a.length).join('|');
+    // The space after the file is left for `word` to take as the boundary before a title's first word.
+    const walks = ` (?:${each.map(escape).join('|')})`;
+    if (units.length) parts.push(`${walks}.*${word(units.join('|'))}`);
+    parts.push(`${walks}(?!.*${word(anyName)})`);
+  }
   return parts.join('|');
 }
 

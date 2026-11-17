@@ -9,6 +9,7 @@
 // - each element of it that a z-index places (positioned, or a flex or grid item, with a z-index other than `auto`)
 //   is ordered in a stacking context inside the fixture, never in the page's; an element in the top layer is its own;
 // - a sticky header of the page's at z-index 1, laid over the fixture, is what is drawn at every point of it.
+// affected: each component — each test names in its title the component it draws; the ones that name none hold the walk together.
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';

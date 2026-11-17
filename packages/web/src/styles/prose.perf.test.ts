@@ -7,6 +7,7 @@
 //
 // The stylesheet tests (prose.test.ts, "no selector looks for an island…"; has.test.ts, for `:has()` in every sheet of
 // the package) hold the shape of the selectors; this one holds what the shape is for.
+// affected: every component — one test puts every element and every stylesheet of the package on the page around the table.
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
