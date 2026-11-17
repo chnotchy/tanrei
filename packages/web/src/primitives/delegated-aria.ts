@@ -902,6 +902,7 @@ class DelegatedAria extends AsyncDirective {
 
 /**
  * On the element that carries the role: the component's own ARIA (`own`) and, for every name its class exposes
- * (`delegatesAria()`) that `own` leaves empty, the product's, from `data-aria-*` on the host.
+ * (`delegatesAria()`) that `own` leaves empty, the product's, from `data-aria-*` on the host. Marked pure (making a
+ * directive runs nothing), so that a bundle that never writes it drops the directive and its writer.
  */
-export const delegatedAria = directive(DelegatedAria);
+export const delegatedAria = /* @__PURE__ */ directive(DelegatedAria);

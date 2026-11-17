@@ -24,8 +24,11 @@ import { compChoice } from './actions.js';
 /** `sys.behavior.separation`. The first value is the default, and what an unknown name falls back to. */
 export const SEPARATIONS = ['divider', 'gap'] as const;
 export type Separation = (typeof SEPARATIONS)[number];
-/** The `separation` prop of a component that reads the choice: `auto` takes the component token. */
-export const SEPARATION_VALUES = ['auto', ...SEPARATIONS] as const;
+/**
+ * The `separation` prop of a component that reads the choice: `auto` takes the component token. Marked pure: a bundler
+ * keeps an array spread from another value even where nothing reads it, as spreading may run code it cannot see.
+ */
+export const SEPARATION_VALUES = /* @__PURE__ */ (() => ['auto', ...SEPARATIONS] as const)();
 export type SeparationProp = (typeof SEPARATION_VALUES)[number];
 
 const PRIVATE = '--_separation';
