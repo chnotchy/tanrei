@@ -350,7 +350,7 @@ export const GROUP_ITEM_PROPERTIES = [
 ] as const;
 
 /** The declarations that take a box out of whatever group is around it: every group property back to `initial`. */
-export const groupItemReset = GROUP_ITEM_PROPERTIES.map((property) => `${property}: initial;`).join('\n    ');
+export const groupItemReset = /* @__PURE__ */ GROUP_ITEM_PROPERTIES.map((property) => `${property}: initial;`).join('\n    ');
 
 /**
  * The item's styles inside a group, on its container (`on`). Outside a group none of these selectors match.
@@ -419,6 +419,11 @@ export function groupItemStyles({ on, rippleInset }: GroupItemStyleOptions): CSS
   const past = (side: 'left' | 'right' | 'top' | 'bottom') => `${side}: calc(var(--_seam-${side}) * var(--_bleed) * -1);`;
   // What stays inside the outline (the ripple) is inset by its width on the sides that have one: not on a seam.
   const inside = (width: string) => (['top', 'right', 'bottom', 'left'] as const).map((side) => `${side}: calc((1 - var(--_seam-${side})) * var(${width}));`).join('\n    ');
+  // What each rule is for is said here, not in the CSS: a comment inside the string would ship in every bundle.
+  // - `${connected}`, --_own-shadow: The container paints its fill; its shadows are its ::after's (below). Transparent,
+  //   not none: a list value.
+  // - `@media (forced-colors: active)` (with a ripple inset): Forced colors replace the outline with a border (the
+  //   component's rule): none along a seam.
   return unsafeCSS(`
   ${connected} {
     ${CORNERS.map(given).join('\n    ')}
@@ -435,7 +440,6 @@ export function groupItemStyles({ on, rippleInset }: GroupItemStyleOptions): CSS
     --_add-bottom: 0px;
     --_seam-left: var(--_seam-start);
     --_seam-right: var(--_seam-end);
-    /* The container paints its fill; its shadows are its ::after's (below). Transparent, not none: a list value. */
     --_own-shadow: 0 0 0 0 transparent;
     min-inline-size: calc(var(--tanrei-group-min-width, 0px) + var(--_add-start) + var(--_add-end));
     transition-property: background-color, color, opacity;
@@ -480,7 +484,7 @@ export function groupItemStyles({ on, rippleInset }: GroupItemStyleOptions): CSS
   }
   ${
     rippleInset
-      ? `/* Forced colors replace the outline with a border (the component's rule): none along a seam. */
+      ? `
   @media (forced-colors: active) {
     ${connected} {
       ${(['top', 'right', 'bottom', 'left'] as const).map((side) => `border-${side}-width: calc((1 - var(--_seam-${side})) * var(${rippleInset}));`).join('\n      ')}

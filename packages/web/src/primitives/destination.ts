@@ -333,6 +333,30 @@ export function destinationStyles(
       .join('');
   const selection = `${t('motion-selection-duration')} ${t('motion-selection-easing')}`;
   const recolor = 'var(--_recolor-duration) var(--_recolor-easing)';
+  // What each rule is for is said here, not in the CSS: a comment inside the string would ship in every bundle.
+  // - `.cell`: The cell: the whole hit area, the native link or button, at least the touch target on both axes (in a
+  //   bar, across only while the bar's equal share holds it: NVB-6); the item container and the label centred in it as
+  //   a group.
+  // - `.cell`, --_recolor-duration: A part the states and the selection both recolor takes the state motion, and the
+  //   selection motion while the selection changes (data-condition-change, markConditionChange).
+  // - `.cell *`: The cell is the one hit target: nothing inside it is hit-tested, so a press anywhere in it lands on
+  //   the native link or button itself. Where a clicked button takes focus (WebKit on Linux: GTK, WPE), a press that
+  //   lands on the icon or the label inside the shadow root leaves the sequential focus navigation starting point on
+  //   that descendant of the focused button, and Tab and Shift+Tab then move focus nowhere (NVB-1, NVB-5).
+  // - `.container`: The item container: its corners, the icon centred in it; its size is the component's (a bar's is
+  //   the whole cell less its inset). Its own stacking context: the indicator, then the ripple, then the icon.
+  // - `.indicator`: The active indicator and the state layer: the item container's color in the current condition and
+  //   state. It grows from the centre in width when its destination becomes the selected one (the element animates it),
+  //   and the previous one fades out over the selection motion.
+  // - `.indicator`, animation-duration: The selection motion, read by the element through real properties (no animation
+  //   is named here).
+  // - `.label-box`: The label under the item container, item.gap away, centred, in item.label.typescale, on one line
+  //   cut with an ellipsis. A label that is not drawn collapses to nothing over the selection motion, so the item
+  //   container moves to the cell's centre as it goes.
+  // - `focusRing()`: Keyboard focus: the ring (or the glow) around the item container, never animated.
+  // - `@media (forced-colors: active)`: The mode draws everything inside a link in the person's own link color, whatever
+  //   a stylesheet says: an unselected link destination's icon and label are left to it. The selected one and a
+  //   disabled one (which has no address, so it is no link to the mode) are drawn as a button destination's are.
   return unsafeCSS(`
   :host {
     display: flex;
@@ -347,8 +371,6 @@ export function destinationStyles(
     .map((variant) => `\n  ${conditionBlock(prefix, `${variant}-unselected`, parts, `.cell.${variant}`)}\n  ${conditionBlock(prefix, `${variant}-selected`, parts, `.cell.${variant}.selected`)}`)
     .join('')}
 
-  /* The cell: the whole hit area, the native link or button, at least the touch target on both axes (in a bar, across
-     only while the bar's equal share holds it: NVB-6); the item container and the label centred in it as a group. */
   .cell {
     all: unset;
     box-sizing: border-box;
@@ -365,16 +387,10 @@ export function destinationStyles(
     user-select: none;
     -webkit-tap-highlight-color: transparent;
     ${set('-r')}
-    /* A part the states and the selection both recolor takes the state motion, and the selection motion while the
-       selection changes (data-condition-change, markConditionChange). */
     --_recolor-duration: ${t('motion-state-duration')};
     --_recolor-easing: ${t('motion-state-easing')};
     transition: opacity ${t('motion-state-duration')} ${t('motion-state-easing')};
   }
-  /* The cell is the one hit target: nothing inside it is hit-tested, so a press anywhere in it lands on the native
-     link or button itself. Where a clicked button takes focus (WebKit on Linux: GTK, WPE), a press that lands on the
-     icon or the label inside the shadow root leaves the sequential focus navigation starting point on that descendant of
-     the focused button, and Tab and Shift+Tab then move focus nowhere (NVB-1, NVB-5). */
   .cell * {
     pointer-events: none;
   }
@@ -386,8 +402,6 @@ export function destinationStyles(
     cursor: default;
   }
 
-  /* The item container: its corners, the icon centred in it; its size is the component's (a bar's is the whole cell less
-     its inset). Its own stacking context: the indicator, then the ripple, then the icon. */
   .container {
     box-sizing: border-box;
     position: relative;
@@ -398,9 +412,6 @@ export function destinationStyles(
     justify-content: center;
     ${cornerRadius(`${prefix}-item-container-shape`)}
   }
-  /* The active indicator and the state layer: the item container's color in the current condition and state. It grows
-     from the centre in width when its destination becomes the selected one (the element animates it), and the previous
-     one fades out over the selection motion. */
   .indicator {
     position: absolute;
     z-index: -2;
@@ -409,7 +420,6 @@ export function destinationStyles(
     corner-shape: inherit;
     background: var(--_c);
     pointer-events: none;
-    /* The selection motion, read by the element through real properties (no animation is named here). */
     animation-duration: ${t('motion-selection-duration')};
     animation-timing-function: ${t('motion-selection-easing')};
     transition: background-color ${recolor};
@@ -426,9 +436,6 @@ export function destinationStyles(
       font-variation-settings ${recolor};
   }
 
-  /* The label under the item container, item.gap away, centred, in item.label.typescale, on one line cut with an ellipsis.
-     A label that is not drawn collapses to nothing over the selection motion, so the item container moves to the cell's
-     centre as it goes. */
   .label-box {
     display: grid;
     align-self: stretch;
@@ -477,7 +484,6 @@ export function destinationStyles(
 
   ${rippleStyles({ color: '--_c-p', grow: `${prefix}-motion-feedback-duration`, fade: `${prefix}-motion-state-duration`, easing: `${prefix}-motion-state-easing` })}
 
-  /* Keyboard focus: the ring (or the glow) around the item container, never animated. */
   ${focusRing((focus) => `.cell${focus} .container`, focusWithin === undefined ? {} : { within: focusWithin })}
   ${shape}
   ${pressHold('.hold')}
@@ -498,9 +504,6 @@ export function destinationStyles(
     }
   `)}
   @media (forced-colors: active) {
-    /* The mode draws everything inside a link in the person's own link color, whatever a stylesheet says: an
-       unselected link destination's icon and label are left to it. The selected one and a disabled one (which has no
-       address, so it is no link to the mode) are drawn as a button destination's are. */
     .cell.selected .indicator {
       background: Highlight;
     }

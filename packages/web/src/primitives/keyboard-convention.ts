@@ -112,7 +112,7 @@ export interface Binding {
 }
 
 /** KBS-1: the named keys, as `KeyboardEvent.key` reports them. */
-const EVENT_KEYS: Record<string, string> = {
+const EVENT_KEYS: Record<string, string> = /* @__PURE__ */ (() => ({
   enter: 'Enter',
   escape: 'Escape',
   tab: 'Tab',
@@ -130,7 +130,7 @@ const EVENT_KEYS: Record<string, string> = {
   'caps-lock': 'CapsLock',
   plus: '+',
   ...Object.fromEntries(Array.from({ length: 24 }, (_, i) => [`f${i + 1}`, `F${i + 1}`])),
-};
+}))();
 
 /** SRC-38: a chord in the keyboard shortcut's key names (`mod+k`, `/`) as a binding, or null where it is not one chord of modifiers and one key. */
 export function readBinding(chord: string): Binding | null {

@@ -393,7 +393,7 @@ export function readText(locale: string, kind: DateKind, typed: string): string 
  * CLDR's weekData `firstDay` by region, for the browsers whose `Intl.Locale` has no week information (Firefox). Regions
  * not listed start on Monday (CLDR's "001").
  */
-const FIRST_DAY_BY_REGION: Readonly<Record<string, Weekday>> = (() => {
+const FIRST_DAY_BY_REGION: Readonly<Record<string, Weekday>> = /* @__PURE__ */ (() => {
   const table: Record<string, Weekday> = {};
   const sunday =
     'AG AS BD BR BS BT BW BZ CA CN CO DM DO ET GT GU HK HN ID IL IN JM JP KE KH KR LA MH MM MO MT MX MZ NI NP PA PE PH PK PR PT PY SA SG SV TH TT TW UM US VE VI WS YE ZA ZW';

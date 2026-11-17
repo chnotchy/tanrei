@@ -126,7 +126,7 @@ const CODE_RULES = '/* code:rules */';
 const CODE_BLOCK = '/* code:block */';
 const codeSource = sheet('src/styles/code.css');
 if (!codeSource.includes(CODE_SHAPE)) throw new Error('code.css: nowhere to write the corner rule');
-const { CODE_BLOCK_CSS, BARE_BLOCK_CSS, SYNTAX_ROLES } = await import('../dist/components/code-block/code-block.light.js');
+const { CODE_BLOCK_CSS, bareBlockCss, SYNTAX_ROLES } = await import('../dist/components/code-block/code-block.light.js');
 // A block that is not upgraded: rules of code.css alone, which the element does not carry.
 const { CODE_BLOCK_BEFORE_CSS } = await import('../dist/components/code-block/code-block.before.js');
 // The syntax roles are the values of a token axis (comp.code-block.syntax): the rules of code.css are one
@@ -140,7 +140,7 @@ if (!prose.includes(CODE_RULES) || !prose.includes(CODE_BLOCK)) throw new Error(
 const withCode = (text) =>
   text
     .replace(CODE_RULES, between(code, 'code:rules').replace(/^/gm, '  ').trim())
-    .replace(CODE_BLOCK, BARE_BLOCK_CSS.replace(/^/gm, '      ').trim());
+    .replace(CODE_BLOCK, bareBlockCss().replace(/^/gm, '      ').trim());
 fs.writeFileSync(
   'dist/prose.css',
   `${withCode(byName(prose).replaceAll(NOT_PROSE, ['.tanrei-not-prose', ...new Set(tags)].map((name) => `:where(${name})`).join(', ')).replace(LINK_RULES, between(link, 'link:rules').replace(/^/gm, '  ').trim()))}\n@layer tanrei.components {\n  ${between(link, 'link:keyframes').trim()}\n  ${between(code, 'code:context').trim()}\n}\n`,

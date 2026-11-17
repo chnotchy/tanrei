@@ -153,6 +153,22 @@ export const stackedBoxStyles = (): CSSResult =>
  */
 export function floatingLabelStyles(): CSSResult {
   const motion = `var(--_state-duration) var(${P}-motion-state-easing)`;
+  // What each rule is for is said here, not in the CSS: a comment inside the string would ship in every bundle.
+  // - `${OUTLINED + FLOAT} .floating`: Outlined: centred on the outline's top edge, starting at padding-inline — over a
+  //   leading icon, not at the value.
+  // - `${OUTLINED + FLOAT}[data-label-wraps] .floating`: Wrapped, its last line is centred on the edge; the lines above
+  //   it take the room above the container.
+  // - `${FILLED + FLOAT} .floating`: Filled: at the top of the container, above the value, at the value's start in both
+  //   positions.
+  // - `.floating .asterisk, .measure .asterisk, .notch-label .asterisk`: The asterisk after the label's text,
+  //   requirement.asterisk-gap from it, in the label's own text style and at the label's place: it floats and rests
+  //   with it.
+  // - `.measure`: Two copies of the label, never drawn, laid out as the label is resting and floated: the element
+  //   counts their lines (and the widest floated one) to give a label that wraps its room.
+  // - `.field[data-label-wraps] .container`: The room a wrapped label takes, resting and floated alike, so the field
+  //   never changes height when it floats: an outlined field reserves room above its container for the floated lines
+  //   above the last, and its container holds the resting lines, centred; a filled field's band holds every floated
+  //   line.
   return unsafeCSS(`
   .floating,
   .measure {
@@ -181,26 +197,21 @@ export function floatingLabelStyles(): CSSResult {
     font: var(--_floated-font);
     letter-spacing: var(--_floated-letter-spacing);
   }
-  /* Outlined: centred on the outline's top edge, starting at padding-inline — over a leading icon, not at the value. */
   ${OUTLINED + FLOAT} .floating {
     inset-block-start: calc(var(--_ow) / 2);
     inset-inline-start: var(--_pad);
     max-inline-size: calc(100% - var(--_pad) - var(--_end));
     translate: 0 -50%;
   }
-  /* Wrapped, its last line is centred on the edge; the lines above it take the room above the container. */
   ${OUTLINED + FLOAT}[data-label-wraps] .floating {
     translate: 0 calc(-50% - (var(--_float-lines) - 1) * var(--_floated-line) / 2);
   }
-  /* Filled: at the top of the container, above the value, at the value's start in both positions. */
   ${FILLED + FLOAT} .floating {
     inset-block-start: var(--_pad-label);
     inset-inline-start: var(--_text-start);
     max-inline-size: calc(100% - var(--_text-start) - var(--_text-end));
     translate: 0 0;
   }
-  /* The asterisk after the label's text, requirement.asterisk-gap from it, in the label's own text style and at the
-     label's place: it floats and rests with it. */
   .floating .asterisk,
   .measure .asterisk,
   .notch-label .asterisk {
@@ -210,8 +221,6 @@ export function floatingLabelStyles(): CSSResult {
     color: var(--_ra);
     transition: color ${motion};
   }
-  /* Two copies of the label, never drawn, laid out as the label is resting and floated: the element counts their
-     lines (and the widest floated one) to give a label that wraps its room. */
   .measure {
     inset-block-start: 0;
     visibility: hidden;
@@ -227,9 +236,6 @@ export function floatingLabelStyles(): CSSResult {
     inset-inline-start: var(--_text-start);
     max-inline-size: calc(100% - var(--_text-start) - var(--_text-end));
   }
-  /* The room a wrapped label takes, resting and floated alike, so the field never changes height when it floats: an
-     outlined field reserves room above its container for the floated lines above the last, and its container holds
-     the resting lines, centred; a filled field's band holds every floated line. */
   .field[data-label-wraps] .container {
     margin-block-start: calc((var(--_float-lines) - 1) * var(--_floated-line));
     min-block-size: max(var(--_height), calc(2 * var(--_pad-block) + var(--_rest-lines) * var(--_label-line)));
@@ -260,6 +266,8 @@ export function floatingLabelStyles(): CSSResult {
  */
 export function triggerEdgeStyles(): CSSResult {
   const motion = `var(--_state-duration) var(${P}-motion-state-easing)`;
+  // What each rule is for is said here, not in the CSS: a comment inside the string would ship in every bundle.
+  // - `.field[data-label-wraps] .notch-label`: A wrapped floated label opens the gap by the width of its widest line.
   return unsafeCSS(`
   .edge {
     position: absolute;
@@ -322,7 +330,6 @@ export function triggerEdgeStyles(): CSSResult {
     font: var(--_floated-font);
     letter-spacing: var(--_floated-letter-spacing);
   }
-  /* A wrapped floated label opens the gap by the width of its widest line. */
   .field[data-label-wraps] .notch-label {
     inline-size: var(--_float-widest);
   }

@@ -9542,9 +9542,14 @@
           "description": "The stylesheet text: the rules in the components' layer, as `code.css` carries them and the element adopts them."
         },
         {
-          "kind": "variable",
-          "name": "BARE_BLOCK_CSS",
-          "description": "A bare `pre` — rendered Markdown that the product did not wrap in the element: the filled look at the medium size\nwith the code's text, scrolling in its own box (COD-1 to COD-4, PRS-15). Declarations only: the build writes them\nunder prose's own `pre` (scripts/build.js)."
+          "kind": "function",
+          "name": "bareBlockCss",
+          "return": {
+            "type": {
+              "text": "string"
+            }
+          },
+          "description": "A bare `pre` — rendered Markdown that the product did not wrap in the element: the filled look at the medium size\nwith the code's text, scrolling in its own box (COD-1 to COD-4, PRS-15). Declarations only: the build writes them\nunder prose's own `pre` (scripts/build.js). A function, so that the element's bundle, which never draws a bare\n`pre`, does not carry the text."
         }
       ],
       "exports": [
@@ -9654,9 +9659,9 @@
         },
         {
           "kind": "js",
-          "name": "BARE_BLOCK_CSS",
+          "name": "bareBlockCss",
           "declaration": {
-            "name": "BARE_BLOCK_CSS",
+            "name": "bareBlockCss",
             "module": "src/components/code-block/code-block.light.ts"
           }
         }

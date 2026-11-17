@@ -59,7 +59,7 @@ export const afterFirstPaint = (): Promise<void> => whenPainted;
 // style to work out first. The media query is asked again each time: a list kept from before answers in WebKit what
 // held at its last rendering update, so a setting changed since (emulated, in a test) would be read a frame late. The
 // kept list is only the one the watchers listen to.
-const reducedQuery = typeof matchMedia === 'function' ? matchMedia(REDUCED_MOTION_MEDIA) : null;
+const reducedQuery = typeof matchMedia === 'function' ? /* @__PURE__ */ matchMedia(REDUCED_MOTION_MEDIA) : null;
 const reducedByPerson = () => typeof matchMedia === 'function' && matchMedia(REDUCED_MOTION_MEDIA).matches;
 const reducedInApp = () => typeof document !== 'undefined' && document.documentElement?.getAttribute(REDUCED_MOTION_ATTRIBUTE) === REDUCED_MOTION_VALUE;
 
