@@ -1,9 +1,10 @@
-// <tanrei-badge>, driven by specs/badge.spec.json: every behaviour id but BDG-15 is cited by a test title, every fixture
+// <tanrei-badge>, driven by specs/badge.spec.json: every behaviour id is cited by a test title, every fixture
 // has a baseline, and every length and color is read back from the tokens — never from a number written here.
 import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
 import { type Fixture, loadSpec, mountFixtures, resolveColor, resolveToken, tabTo, rootTokens } from '../../../test/harness.js';
 import { expectBaseline } from '../../../test/baseline.js';
+import { motionCount } from '../../../test/motions.js';
 
 const spec = loadSpec('badge');
 type P = Page;
@@ -345,6 +346,65 @@ test.describe('behavior', () => {
     await expect(host(page, 'alone').locator('.corner')).toBeHidden();
     await expect(page.locator('#taken')).not.toHaveAttribute('aria-description');
     await expect.poll(() => seen.filter((w) => w.includes('BDG-16'))).toHaveLength(alone.length + 1);
+  });
+});
+
+test.describe('direction', () => {
+  /**
+   * Which of the anchor's top corners the badge sits on: the dot's center, or the pill's leading circle (a square of its
+   * drawn height at its start: the left in LTR, the right in RTL), `offset` inside that corner on both axes.
+   */
+  async function corner(page: P, id: string, offset: number): Promise<'top-right' | 'top-left' | 'neither'> {
+    const [drawn, a] = [await box(container(page, id)), await box(anchor(page, id))];
+    const y = drawn.y + drawn.height / 2;
+    if (Math.abs(y - (a.y + offset)) > 0.01) return 'neither';
+    const [left, right] = [drawn.x + drawn.height / 2, drawn.x + drawn.width - drawn.height / 2];
+    if (Math.abs(left - (a.x + a.width - offset)) <= 0.01) return 'top-right';
+    if (Math.abs(right - (a.x + offset)) <= 0.01) return 'top-left';
+    return 'neither';
+  }
+  const from = (id: string, as: string, direction?: 'rtl'): Fixture => ({ ...spec.fixtures.find((f) => f.id === id)!, id: as, ...(direction ? { direction } : {}) });
+
+  test('BDG-15: the direction comes from the nearest ancestor that sets one — not from the root — and a change after the first render is drawn at once, with no motion, keeping what it shows and its description', async ({ page }) => {
+    await mountFixtures(page, spec, {
+      icons: true,
+      fixtures: [from('count-overflow', 'count-in-rtl', 'rtl'), from('count-overflow', 'count-in-ltr'), from('dot', 'dot-in-rtl', 'rtl'), from('dot', 'dot-in-ltr')],
+    });
+    // The direction is the stage's, an ancestor inside the page; the root sets none, and the badge has none of its own.
+    expect(await page.evaluate(() => document.documentElement.hasAttribute('dir'))).toBe(false);
+    expect(await host(page, 'count-in-rtl').evaluate((el) => el.hasAttribute('dir'))).toBe(false);
+    const [offset, dotOffset] = [await resolveToken(page, T('container-offset')), await resolveToken(page, T('dot-offset'))];
+    // Where no ancestor sets one, the page's own: left to right.
+    expect([await corner(page, 'count-in-ltr', offset), await corner(page, 'dot-in-ltr', dotOffset)]).toEqual(['top-right', 'top-right']);
+    expect([await corner(page, 'count-in-rtl', offset), await corner(page, 'dot-in-rtl', dotOffset)]).toEqual(['top-left', 'top-left']);
+
+    // Changed after the first render: drawn for the new direction at once — read in the next round trip, no wait.
+    await page.locator('[data-fixture="count-in-ltr"], [data-fixture="dot-in-ltr"]').evaluateAll((els) => els.forEach((el) => el.setAttribute('dir', 'rtl')));
+    expect([await corner(page, 'count-in-ltr', offset), await corner(page, 'dot-in-ltr', dotOffset)]).toEqual(['top-left', 'top-left']);
+    // No motion of its own: nothing moves in the badge, and its corner and container carry no transition.
+    expect(await motionCount(stage(page, 'count-in-ltr'))).toBe(0);
+    expect(await motionCount(stage(page, 'dot-in-ltr'))).toBe(0);
+    for (const part of [host(page, 'count-in-ltr').locator('.corner'), container(page, 'count-in-ltr')]) {
+      expect(Number.parseFloat(await css(part, 'transition-duration'))).toBe(0);
+    }
+    // What it shows and its state are kept: the capped count, its plus sign after the digits (BDG-11), the description.
+    await expect(label(page, 'count-in-ltr')).toHaveText('999+');
+    await expect(anchor(page, 'count-in-ltr')).toHaveAttribute('aria-description', 'More than 999 unread');
+    await expect(anchor(page, 'dot-in-ltr')).toHaveAttribute('aria-description', 'New messages');
+    // …and its size: the pill is as large as its twin drawn right to left from the start, the dot is dot.size.
+    const [turned, twin, dot] = [await box(container(page, 'count-in-ltr')), await box(container(page, 'count-in-rtl')), await box(container(page, 'dot-in-ltr'))];
+    expect([turned.width, turned.height]).toEqual([twin.width, twin.height]);
+    const size = await resolveToken(page, T('dot-size'));
+    expect([dot.width, dot.height]).toEqual([size, size]);
+
+    // And back: left to right again, at once.
+    await stage(page, 'count-in-ltr').evaluate((el) => el.setAttribute('dir', 'ltr'));
+    expect(await corner(page, 'count-in-ltr', offset)).toBe('top-right');
+
+    // The nearest ancestor wins over the root: a right-to-left stage stays right to left in a left-to-right page, and a
+    // left-to-right stage stays left to right in a right-to-left page.
+    await page.evaluate(() => document.documentElement.setAttribute('dir', 'rtl'));
+    expect([await corner(page, 'count-in-rtl', offset), await corner(page, 'count-in-ltr', offset)]).toEqual(['top-left', 'top-right']);
   });
 });
 
