@@ -17,6 +17,7 @@ import { decodePng } from '../../../test/png.js';
 import { fileURLToPath } from 'node:url';
 import { buildSync } from 'esbuild';
 import { expectBaseline } from '../../../test/baseline.js';
+import { motionCount, motionEnded } from '../../../test/motions.js';
 import { expectBoxTakesContainerSize } from '../../../test/input-box-size.js';
 
 const spec = loadSpec('text-input');
@@ -1299,6 +1300,61 @@ test.describe('behavior', () => {
       expect(box.x + box.width - (row.x + row.width), `${id}: at the right edge`).toBeCloseTo(pad, 1);
     }
     expect(await rowText(page, 'stacked-date-rtl')).toBe('27.09.2026');
+  });
+
+  test('TXI-34: the direction is the nearest ancestor’s that sets one — the document’s where none does — and the input has no setting of its own; changed while it is shown, the input is drawn for the new direction at once, without a motion, keeping its value, its selection and caret, and its focus', async ({ page }) => {
+    const icons = spec.fixtures.find((f) => f.id === 'outlined-icons')!;
+    // Set on an ancestor inside the page — the fixture's stage, not the root — before the input is first drawn.
+    await mountFixtures(page, spec, { icons: true, fixtures: [{ ...icons, id: 'r', props: { ...icons.props, value: 'Ada Lovelace' }, direction: 'rtl' }, { ...icons, id: 'plain' }] });
+    const r = host(page, 'r');
+    /**
+     * The input's direction, on which side its leading icon and its floated label stand, and whether the outline's gap
+     * (TXI-13) is open under the label: the label's box within the gap's, to half a pixel.
+     */
+    const laidOut = async (id: string) => {
+      const [box, lead, trail, label, gap] = await Promise.all(['.field > .container', '.leading', '.trailing', '.label', '.outline-notch'].map((s) => bounds(part(page, id, s))));
+      const centre = (b: { x: number; width: number }) => b.x + b.width / 2;
+      return {
+        direction: await css(host(page, id), 'direction'),
+        leading: centre(lead) > centre(trail) ? 'right' : 'left',
+        label: centre(label) - box.x > box.x + box.width - centre(label) ? 'right' : 'left',
+        gapUnderLabel: label.x >= gap.x - 0.5 && label.x + label.width <= gap.x + gap.width + 0.5,
+      };
+    };
+    /** What the input holds: its value, the inner element's selection, and whether keyboard focus is in it. */
+    const held = () =>
+      r.evaluate((el: HTMLElement & { value: string }) => {
+        const inner = el.shadowRoot!.querySelector<HTMLInputElement>('.input')!;
+        return { value: el.value, selection: [inner.selectionStart, inner.selectionEnd, inner.selectionDirection], focused: document.activeElement === el && el.shadowRoot!.activeElement === inner };
+      });
+    // No ancestor sets one: the document's own, left to right.
+    expect(await laidOut('plain')).toEqual({ direction: 'ltr', leading: 'left', label: 'left', gapUnderLabel: true });
+    expect(await laidOut('r')).toEqual({ direction: 'rtl', leading: 'right', label: 'right', gapUnderLabel: true });
+    // No setting of its own: neither the spec nor the element has an attribute that names a direction, and the input
+    // writes no `dir` on itself (the inner element's own `dir` is the typed text's, TXI-24).
+    expect((spec.props ?? []).filter((p) => /^dir|direction/i.test(p.name))).toEqual([]);
+    expect(await r.evaluate((el) => [el.getAttribute('dir'), (el.constructor as unknown as { observedAttributes: string[] }).observedAttributes.filter((name) => /^dir|direction/i.test(name))])).toEqual([null, []]);
+    // Focused, a part of the value selected, then the direction changed while it is shown — under motions long enough
+    // that one the change started would still run when it is counted.
+    await tabTo(page, r);
+    await input(page, 'r').evaluate((el: HTMLInputElement) => el.setSelectionRange(2, 6, 'forward'));
+    await motionEnded(r);
+    await override(page, { [T('motion-label-duration')]: '60s', [T('motion-state-duration-small')]: '60s', [T('motion-state-duration-medium')]: '60s', [T('motion-state-duration-large')]: '60s' });
+    const kept = { value: 'Ada Lovelace', selection: [2, 6, 'forward'], focused: true };
+    expect(await held()).toEqual(kept);
+    for (const dir of ['ltr', 'rtl'] as const) {
+      await page.locator('[data-fixture="r"]').evaluate((el, d) => el.setAttribute('dir', d), dir);
+      expect(await motionCount(r), dir).toBe(0);
+      // And none in the frames that follow, where something that measures itself again would start one.
+      await page.evaluate(() => new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve))));
+      expect(await motionCount(r), dir).toBe(0);
+      const side = dir === 'ltr' ? 'left' : 'right';
+      expect(await laidOut('r'), dir).toEqual({ direction: dir, leading: side, label: side, gapUnderLabel: true });
+      expect(await held(), dir).toEqual(kept);
+    }
+    // The selection is live: what is typed replaces it ("a Lo").
+    await page.keyboard.type('X');
+    await expect(r).toHaveJSProperty('value', 'AdXvelace');
   });
 
   test('TXI-26: a stacked field has no edge at rest; focused, a line inside its edge in the focused color and width that moves nothing; in error the error line at rest; hovered, the state layer and no edge', async ({ page }) => {

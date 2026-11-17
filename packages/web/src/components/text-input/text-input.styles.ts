@@ -967,6 +967,14 @@ export const styles = css`
     display: flex;
     pointer-events: none;
     corner-shape: inherit;
+    /* TXI-34: the pieces are laid out left to right in either direction, and the whole edge is mirrored in right-to-left.
+       Laid out in the layout's direction, a piece's start and end edges are its left and right ones in one direction and
+       the other way round in the other, so a change of direction while the field is shown swaps the physical widths of
+       its sides — which every engine transitions, whatever name the transition gives them. Mirrored, the widths stay. */
+    direction: ltr;
+  }
+  :host(:dir(rtl)) .outline {
+    scale: -1 1;
   }
   .outline > span {
     box-sizing: border-box;
