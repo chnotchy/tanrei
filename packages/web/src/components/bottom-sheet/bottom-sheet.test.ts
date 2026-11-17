@@ -1,4 +1,4 @@
-// <tanrei-bottom-sheet>, driven by specs/bottom-sheet.spec.json: every behaviour id is cited by a test title,
+// <tanrei-bottom-sheet>, driven by specs/bottom-sheet.spec.json: a test's title cites each behaviour id it checks,
 // every fixture has a baseline, and every value is read back from the tokens.
 // BSH-31: the product's ARIA on the host is tested with every other control's, in every engine, in
 // src/primitives/delegated-aria.test.ts.

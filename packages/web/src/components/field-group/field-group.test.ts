@@ -1,5 +1,6 @@
-// <tanrei-field-group>, driven by specs/field-group.spec.json: every behaviour id is cited by a test title,
-// every fixture has a baseline, and every length and color is read back from the tokens — never from a number written here.
+// <tanrei-field-group>, driven by specs/field-group.spec.json: every behaviour id is cited by a test title
+// here but FGR-26, which ../field/required.test.ts tests with the Field's, every fixture has a baseline, and every
+// length and color is read back from the tokens — never from a number written here.
 // FGR-27: the product's ARIA on the host is tested with every other control's, in every engine, in
 // src/primitives/delegated-aria.test.ts.
 import AxeBuilder from '@axe-core/playwright';

@@ -1,5 +1,5 @@
-// <tanrei-text-input>, driven by specs/text-input.spec.json: every behaviour id starts the title of a
-// test, every fixture has a baseline, and every part, state and look is read back from the tokens — never from a number
+// <tanrei-text-input>, driven by specs/text-input.spec.json: a test's title starts with each
+// behaviour id it checks, every fixture has a baseline, and every part, state and look is read back from the tokens — never from a number
 // written here. What a sentence says of "the Field that frames it" is tested with a Field around the input (`frame()`), and
 // the rows themselves — the label above, the requirement tag, the help, the error text, the drawn count — are the
 // Field's sentences and the Field's tests (src/components/field/field.test.ts, FLD-2 to FLD-9 and FLD-25 to FLD-28).
