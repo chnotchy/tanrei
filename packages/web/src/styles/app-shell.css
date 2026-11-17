@@ -45,6 +45,10 @@
  *   data-menu (on the element)               shown | hidden, where the browser has no style queries (APS-6)
  *   --tanrei-app-shell-scroll-offset         (on the document's root) the header's measured height (APS-17)
  *   --tanrei-app-shell-scroll-offset-end     (on the document's root) the navigation bar's measured height
+ *                                            (both nothing while the main region scrolls: nothing stands over it)
+ *   --tanrei-app-shell-window-inset-top      (on the document's root) how far the frame reaches over the top of the
+ *                                            window, whatever scrolls: for what is drawn over the page (APS-17)
+ *   --tanrei-app-shell-window-inset-bottom   (on the document's root) the same over the bottom of the window
  *   --_aps-footer (on the element)           the footer's measured height: where the navigation and the aside stop staying in view (APS-11)
  *   --_aps-aside (on the element)            a side sheet's measured width, as it slides: what an aside beside the main region
  *                                            takes of the window, which the navigation leaves it (APS-5, APS-10)
@@ -627,6 +631,17 @@
     :where(:root):where(:has(tanrei-app-shell:not([scroll='main']) > [slot='navigation-bar'])) {
       --tanrei-app-shell-scroll-offset-end: var(--tanrei-comp-navigation-bar-container-height);
       scroll-padding-block-end: var(--tanrei-app-shell-scroll-offset-end);
+    }
+  }
+  /* APS-17: what the frame keeps over the top and the bottom of the window, whatever scrolls, for what is drawn over the
+     page (a snackbar) — until the element has measured them, a small app bar's height while the header stays in view
+     (while the main region scrolls the header never moves) and the navigation bar's in a compact window. */
+  :where(:root):where(:has(tanrei-app-shell:not([header-position='static']) > [slot='header'], tanrei-app-shell[scroll='main'] > [slot='header'])) {
+    --tanrei-app-shell-window-inset-top: var(--tanrei-comp-app-bar-container-height-small);
+  }
+  @media (width < token(comp.app-shell.breakpoint.medium)) {
+    :where(:root):where(:has(tanrei-app-shell > [slot='navigation-bar'])) {
+      --tanrei-app-shell-window-inset-bottom: var(--tanrei-comp-navigation-bar-container-height);
     }
   }
 
