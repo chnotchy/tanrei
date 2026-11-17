@@ -4,6 +4,7 @@ import {
   AvailabilityController,
   GlyphDrawnController,
   GlyphMirrorController,
+  MirrorWordController,
   OpenAxesController,
   PressController,
   RovingKeys,
@@ -89,7 +90,7 @@ export class TanreiSegment extends TanreiElement {
   /** The segment's text and its accessible name. Required, even when `labelHidden` is true. */
   label = '';
 
-  /** The name of a glyph of the system's icon set. Give every segment of a set an icon, or none. A name the icon set flags is drawn mirrored in right-to-left. */
+  /** The name of a glyph of the system's icon set. Give every segment of a set an icon, or none. A name the icon set flags is drawn mirrored in right-to-left; `data-mirror="auto | always | never"` on the segment decides for this use. */
   icon = '';
 
   /** Draws the icon alone and keeps `label` as the accessible name (an icon-only segment). */
@@ -120,6 +121,8 @@ export class TanreiSegment extends TanreiElement {
    * (SEG-16).
    */
   private readonly mirror = new GlyphMirrorController(this, { drawn: '.icon' });
+  /** SEG-27: the product's word on mirroring the segment's icon, `data-mirror` on the segment, given to the icon's box. */
+  private readonly mirrorWord = new MirrorWordController(this);
 
   /** SEG-25: the check is drawn only while the icon set can draw it (src/primitives/glyph.ts). */
   private readonly drawnGlyphs = new GlyphDrawnController(this, () => this.renderRoot.querySelectorAll<HTMLElement>('.check'));
@@ -225,7 +228,7 @@ export class TanreiSegment extends TanreiElement {
 
   private glyphs(checked: boolean) {
     return html`<span class="glyphs">
-      ${this.icon ? html`<span part="icon" class="glyph icon">${this.icon}</span>` : nothing}
+      ${this.icon ? html`<span part="icon" class="glyph icon" data-mirror=${this.mirrorWord.word}>${this.icon}</span>` : nothing}
       ${checked || this.context.check ? html`<span part="check" class="glyph check"><span class="ink">${CHECK_GLYPH}</span></span>` : nothing}
     </span>`;
   }

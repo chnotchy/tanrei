@@ -5,6 +5,7 @@ import {
   AvailabilityController,
   GlyphDrawnController,
   GlyphMirrorController,
+  MirrorWordController,
   PressController,
   SHEET_FLING_VELOCITY,
   SelectionController,
@@ -100,10 +101,10 @@ export class TanreiSwitch extends TanreiElement {
   /** Draws no visible label but keeps `label` as the accessible name (the `label-hidden` attribute). */
   labelHidden = false;
 
-  /** The glyph (a name in the system's icon set) the handle shows while on; empty shows none (`checked-icon`). A name the icon set flags is drawn mirrored in right-to-left. */
+  /** The glyph (a name in the system's icon set) the handle shows while on; empty shows none (`checked-icon`). A name the icon set flags is drawn mirrored in right-to-left; `data-mirror="auto | always | never"` on the switch decides for both glyphs. */
   checkedIcon = '';
 
-  /** The glyph the handle shows while off; empty shows none (`unchecked-icon`). A name the icon set flags is drawn mirrored in right-to-left. */
+  /** The glyph the handle shows while off; empty shows none (`unchecked-icon`). A name the icon set flags is drawn mirrored in right-to-left; `data-mirror="auto | always | never"` on the switch decides for both glyphs. */
   uncheckedIcon = '';
 
   /** Web only: the name it is submitted under. */
@@ -130,6 +131,8 @@ export class TanreiSwitch extends TanreiElement {
    * (src/primitives/glyph-mirror.ts); `iconGlyph()` draws the mark, in the glyph's own box, wherever the handle is.
    */
   private readonly mirror = new GlyphMirrorController(this, { drawn: '.icon' });
+  /** SWT-23: the product's word on mirroring both glyphs, `data-mirror` on the switch, given to each glyph's box. */
+  private readonly mirrorWord = new MirrorWordController(this);
 
   /** SWT-17: a glyph is drawn only while the icon set can draw it (src/primitives/glyph.ts). */
   private readonly glyphs = new GlyphDrawnController(this, () => this.renderRoot.querySelectorAll<HTMLElement>('.icon'));
@@ -521,8 +524,8 @@ export class TanreiSwitch extends TanreiElement {
               <span part="handle" class="handle">
                 <span class="paint off"></span>
                 <span class="paint on"></span>
-                ${this.uncheckedIcon ? html`<span class="glyph off"><span part="icon" class="icon off"><span class="ink">${this.uncheckedIcon}</span></span></span>` : nothing}
-                ${this.checkedIcon ? html`<span class="glyph on"><span part="icon" class="icon on"><span class="ink">${this.checkedIcon}</span></span></span>` : nothing}
+                ${this.uncheckedIcon ? html`<span class="glyph off"><span part="icon" class="icon off" data-mirror=${this.mirrorWord.word}><span class="ink">${this.uncheckedIcon}</span></span></span>` : nothing}
+                ${this.checkedIcon ? html`<span class="glyph on"><span part="icon" class="icon on" data-mirror=${this.mirrorWord.word}><span class="ink">${this.checkedIcon}</span></span></span>` : nothing}
               </span>
             </span>
           </span>

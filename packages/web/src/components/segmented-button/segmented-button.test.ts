@@ -22,6 +22,7 @@ import {
 import { opticalSizeAxis } from '../../../test/icons.js';
 import { clickCentre, heldPress } from '../../../test/watched-press.js';
 import { motionCount, motionEnded, settledCss } from '../../../test/motions.js';
+import { mirroring, mirroringAfterDirection } from '../../../test/mirror-word.js';
 import { expectBaseline } from '../../../test/baseline.js';
 
 const spec = loadSpec('segmented-button');
@@ -954,10 +955,37 @@ test.describe('right to left', () => {
     await expect(target.getByRole('radio', { name: 'Week', checked: true })).toHaveCount(1);
   });
 
-  // TODO: the product's decision for one use — mirroring forced for an unmarked name, forbidden for a marked one — has no
-  // web form for a segment's icon, which is given by name (the `icon` attribute): the glyph is drawn in the segment's
-  // shadow root, where the product cannot write `data-mirror`, and the segment reads no attribute that would carry it.
-  // The spec's web notes must name such an attribute before the segment can honour it and this test can check it.
+  test('SEG-27: the product decides for one segment with data-mirror on it — always mirrors its icon in right-to-left, an unmarked name too, never keeps a marked name unmirrored, auto or none leaves it to the icon set; nothing is mirrored in left-to-right; a change of the word or of an ancestor’s direction is drawn at once, without a motion, and the segment mirrors nothing itself', async ({ page }) => {
+    const decided = [s('next', 'Next', { icon: 'arrow_forward', 'data-mirror': 'never' }), s('find', 'Find', { icon: 'search', 'data-mirror': 'always' }), s('send', 'Send', { icon: 'send', 'data-mirror': 'auto' })];
+    await mountFixtures(page, spec, {
+      icons: true,
+      fixtures: [
+        fx('listed', [s('next', 'Next', { icon: 'arrow_forward' }), s('find', 'Find', { icon: 'search' })], { selection: 'single' }, 'rtl'),
+        fx('decided', decided, { selection: 'single' }, 'rtl'),
+        fx('decided-ltr', decided, { selection: 'single' }, 'ltr'),
+      ],
+    });
+    const icons = (id: string) => [0, 1, 2].slice(0, id === 'listed' ? 2 : 3).map((n) => seg(page, id, n).locator('.icon'));
+    await expect.poll(() => mirroring(icons('listed'))).toEqual(['mirrored', 'plain']);
+    await expect.poll(() => mirroring(icons('decided'))).toEqual(['plain', 'mirrored', 'mirrored']);
+    await expect.poll(() => mirroring(icons('decided-ltr'))).toEqual(['plain', 'plain', 'plain']);
+    // The segment mirrors nothing itself, whatever its word: its glyphs, its container and the element.
+    for (const n of [0, 1]) for (const part of [seg(page, 'decided', n).locator('.glyphs'), btn(page, 'decided', n), seg(page, 'decided', n)]) expect(await css(part, 'transform'), `decided ${n}`).toBe('none');
+    // The word changed on a segment already drawn.
+    await seg(page, 'listed', 1).evaluate((el) => el.setAttribute('data-mirror', 'always'));
+    await expect.poll(() => mirroring(icons('listed'))).toEqual(['mirrored', 'mirrored']);
+    await seg(page, 'listed', 0).evaluate((el) => el.setAttribute('data-mirror', 'never'));
+    await expect.poll(() => mirroring(icons('listed'))).toEqual(['plain', 'mirrored']);
+    for (const n of [0, 1]) await seg(page, 'listed', n).evaluate((el) => el.removeAttribute('data-mirror'));
+    await expect.poll(() => mirroring(icons('listed'))).toEqual(['mirrored', 'plain']);
+    // The direction changed on an ancestor while drawn: read in the same task, before any frame, with no motion started.
+    expect(await mirroringAfterDirection(stage(page, 'decided-ltr'), 'rtl', icons('decided-ltr'))).toEqual(['plain', 'mirrored', 'mirrored']);
+    expect(await mirroringAfterDirection(stage(page, 'decided'), 'ltr', icons('decided'))).toEqual(['plain', 'plain', 'plain']);
+    expect(await mirroringAfterDirection(stage(page, 'listed'), 'ltr', icons('listed'))).toEqual(['plain', 'plain']);
+    expect(await mirroringAfterDirection(stage(page, 'listed'), 'rtl', icons('listed'))).toEqual(['mirrored', 'plain']);
+    for (const id of ['decided-ltr', 'decided', 'listed']) expect(await motionCount(set(page, id)), id).toBe(0);
+  });
+
   test('SEG-27: in right-to-left the icon helper mirrors a segment’s icon the icon set marks, inside its own box — not an unmarked one or any icon in left-to-right; the check of a selected segment is never mirrored; place, size, color, fill and the order SEG-21 gives are unchanged, and the segment mirrors nothing itself', async ({ page }) => {
     const icons = [s('next', 'Next', { icon: 'arrow_forward' }), s('find', 'Find', { icon: 'search' }), s('send', 'Send', { icon: 'send' })];
     await mountFixtures(page, spec, {

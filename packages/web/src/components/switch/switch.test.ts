@@ -24,6 +24,7 @@ import {
 } from '../../../test/harness.js';
 import { clickCentre, heldPress } from '../../../test/watched-press.js';
 import { motionCount, motionEnded } from '../../../test/motions.js';
+import { type Mirroring, mirroring, mirroringAfterDirection } from '../../../test/mirror-word.js';
 import { STOPPED_AFTER, flingThenHold } from '../../../test/stopped-release.js';
 import { expectBaseline } from '../../../test/baseline.js';
 
@@ -1954,10 +1955,50 @@ test.describe('right to left', () => {
     expect(await running(thumbOf(page, 'nested'), 'translate')).toBe(await resolveToken(page, T('motion-selection-duration'), 'duration'));
   });
 
-  // TODO: the product's decision for one use — mirroring forced for an unmarked name, forbidden for a marked one — has no
-  // web form for a glyph the switch is given by name (checkedIcon, uncheckedIcon): the glyph is drawn in the shadow root,
-  // where the product cannot write `data-mirror`, and the element reads no attribute that would carry it. The spec's
-  // web notes must name such an attribute before the switch can honour it and this test can check it.
+  test('SWT-23: the product decides for one use with data-mirror on the switch — always mirrors both handle glyphs in right-to-left, unmarked names too, never keeps marked names unmirrored, auto or none leaves it to the icon set; nothing is mirrored in left-to-right; a change of the word or of an ancestor’s direction is drawn at once, without a motion, and the switch mirrors nothing itself', async ({ page }) => {
+    const marked = { checkedIcon: 'arrow_forward', uncheckedIcon: 'send', label: 'Wi-Fi' };
+    const unmarked = { checkedIcon: 'check', uncheckedIcon: 'close', label: 'Wi-Fi' };
+    await mountFixtures(page, spec, {
+      icons: true,
+      fixtures: [
+        fx('listed', { ...marked, uncheckedIcon: 'close' }, 'rtl'),
+        fx('auto', { ...marked, uncheckedIcon: 'close', 'data-mirror': 'auto' }, 'rtl'),
+        fx('forced', { ...unmarked, 'data-mirror': 'always' }, 'rtl'),
+        fx('forbidden', { ...marked, checked: true, 'data-mirror': 'never' }, 'rtl'),
+        fx('forced-ltr', { ...unmarked, checked: true, 'data-mirror': 'always' }, 'ltr'),
+        fx('forbidden-ltr', { ...marked, 'data-mirror': 'never' }, 'ltr'),
+      ],
+    });
+    const glyphs = (id: string) => [glyphOf(page, id, 'on'), glyphOf(page, id, 'off')];
+    const expected: Record<string, Mirroring[]> = {
+      listed: ['mirrored', 'plain'],
+      auto: ['mirrored', 'plain'],
+      forced: ['mirrored', 'mirrored'],
+      forbidden: ['plain', 'plain'],
+      'forced-ltr': ['plain', 'plain'],
+      'forbidden-ltr': ['plain', 'plain'],
+    };
+    for (const [id, each] of Object.entries(expected)) await expect.poll(() => mirroring(glyphs(id)), id).toEqual(each);
+    // The switch mirrors nothing itself, whatever its word: the glyph's layer, the handle, the track and the host.
+    for (const id of ['forced', 'forbidden']) {
+      for (const part of [host(page, id).locator('.glyph.on'), handleOf(page, id), trackOf(page, id), host(page, id)]) expect(await css(part, 'transform'), id).toBe('none');
+    }
+    // The word changed on a switch already drawn.
+    await host(page, 'listed').evaluate((el) => el.setAttribute('data-mirror', 'never'));
+    await expect.poll(() => mirroring(glyphs('listed'))).toEqual(['plain', 'plain']);
+    await host(page, 'listed').evaluate((el) => el.setAttribute('data-mirror', 'always'));
+    await expect.poll(() => mirroring(glyphs('listed'))).toEqual(['mirrored', 'mirrored']);
+    await host(page, 'listed').evaluate((el) => el.removeAttribute('data-mirror'));
+    await expect.poll(() => mirroring(glyphs('listed'))).toEqual(['mirrored', 'plain']);
+    // The direction changed on an ancestor while drawn: read in the same task, before any frame, with no motion started.
+    expect(await mirroringAfterDirection(stage(page, 'forced-ltr'), 'rtl', glyphs('forced-ltr'))).toEqual(['mirrored', 'mirrored']);
+    expect(await mirroringAfterDirection(stage(page, 'forbidden-ltr'), 'rtl', glyphs('forbidden-ltr'))).toEqual(['plain', 'plain']);
+    expect(await mirroringAfterDirection(stage(page, 'forced'), 'ltr', glyphs('forced'))).toEqual(['plain', 'plain']);
+    expect(await mirroringAfterDirection(stage(page, 'listed'), 'ltr', glyphs('listed'))).toEqual(['plain', 'plain']);
+    expect(await mirroringAfterDirection(stage(page, 'listed'), 'rtl', glyphs('listed'))).toEqual(['mirrored', 'plain']);
+    for (const id of ['forced-ltr', 'forbidden-ltr', 'forced', 'listed']) expect(await motionCount(host(page, id)), id).toBe(0);
+  });
+
   test('SWT-23: in right-to-left the icon helper mirrors a handle glyph the icon set marks — checkedIcon and uncheckedIcon alike — inside its own box, not an unmarked one or any glyph in left-to-right; its place, size, color, fill and the handle’s positions (SWT-11) are unchanged, and the switch mirrors nothing itself', async ({ page }) => {
     await mountFixtures(page, spec, {
       icons: true,
