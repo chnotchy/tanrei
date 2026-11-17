@@ -11,7 +11,7 @@ import { releaseAtRest } from '../../../test/release-at-rest.js';
 import { STOPPED_AFTER, flingThenHold, strokes } from '../../../test/stopped-release.js';
 import { clickCentre, heldPress } from '../../../test/watched-press.js';
 import { expectWheelKeptFromPage } from '../../../test/contained-wheel.js';
-import { motionEnded } from '../../../test/motions.js';
+import { motionCount, motionEnded } from '../../../test/motions.js';
 import { boxAtRest } from '../../../test/at-rest.js';
 import { expectBaseline } from '../../../test/baseline.js';
 
@@ -1006,6 +1006,95 @@ test.describe('layout', () => {
     const number = await cutEnds(label(page, 'number-rtl', 0));
     expect([number.direction, number.dir]).toEqual(['rtl', null]);
     expect(number.last.left).toBeGreaterThan(number.first.left);
+  });
+
+  test('TAB-31: the direction is the nearest ancestor’s that sets one — the document’s where none does — and the row has no setting of its own; changed while it is shown, the row is drawn for the new direction at once, without a motion, keeping the selected tab in view and focused', async ({ page }) => {
+    const long = ['alpha', 'bravo', 'charlie', 'delta', 'echo', 'foxtrot', 'golf', 'hotel'].map((v) => t(v, `${v[0].toUpperCase()}${v.slice(1)} tab`));
+    // Set on an ancestor inside the page — the fixture's stage, not the root — before the row is first drawn.
+    await mountFixtures(page, spec, { fixtures: [{ ...fixture('r', long, { value: 'golf' }, panels(long.map((each) => each.props.value as string))), direction: 'rtl' }, fixture('plain', THREE, { value: 'overview' })] });
+    const stage = page.locator('[data-fixture="r"]');
+    const scroller = track(page, 'r');
+    /** Whether tab `n` lies inside the track's box, within a pixel (a scroll position is whole pixels, a tab's edge need not be). */
+    const inView = async (n: number) => {
+      const [s, b] = [await bounds(scroller), await bounds(tabAt(page, 'r', n))];
+      return b.x >= s.x - 1 && b.x + b.width <= s.x + s.width + 1;
+    };
+    /** The row's direction, which way its tabs run, and whether the indicator rests on the selected tab's container. */
+    const laidOut = async () => {
+      const [first, second] = [await bounds(tabAt(page, 'r', 0)), await bounds(tabAt(page, 'r', 1))];
+      const [seated, thumb] = [await seat(page, 'r', 6), await pill(page, 'r', 6)];
+      return {
+        direction: await css(row(page, 'r'), 'direction'),
+        runs: first.x < second.x ? 'rightward' : 'leftward',
+        seated: Math.abs(thumb.x - seated.x) <= 0.5 && Math.abs(thumb.width - seated.width) <= 0.5,
+      };
+    };
+    // No ancestor sets one: the document's own, left to right.
+    expect(await css(row(page, 'plain'), 'direction')).toBe('ltr');
+    expect((await bounds(tabAt(page, 'plain', 0))).x).toBeLessThan((await bounds(tabAt(page, 'plain', 1))).x);
+    await motionEnded(row(page, 'r'));
+    expect(await laidOut()).toEqual({ direction: 'rtl', runs: 'leftward', seated: true });
+    await expect.poll(() => inView(6)).toBe(true);
+    // No setting of its own: neither the spec nor the element has an attribute that names a direction, and the row
+    // writes no `dir` on itself.
+    expect((spec.props ?? []).filter((p) => /dir/i.test(p.name))).toEqual([]);
+    expect(await row(page, 'r').evaluate((el) => [el.getAttribute('dir'), (el.constructor as unknown as { observedAttributes: string[] }).observedAttributes.filter((name) => /dir/i.test(name))])).toEqual([null, []]);
+    // Focused, then the direction changed while it is shown — under a motion long enough that one started by the change
+    // would still run when it is counted.
+    await tabTo(page, tabAt(page, 'r', 6));
+    await motionEnded(row(page, 'r'));
+    await override(page, { [T('motion-indicator-duration')]: '60s', [T('motion-state-duration')]: '60s' });
+    for (const dir of ['ltr', 'rtl'] as const) {
+      await stage.evaluate((el, d) => el.setAttribute('dir', d), dir);
+      expect(await motionCount(row(page, 'r')), dir).toBe(0);
+      // And none in the frames that follow, where a row that measures itself again would start one.
+      await frames(page);
+      expect(await laidOut(), dir).toEqual({ direction: dir, runs: dir === 'ltr' ? 'rightward' : 'leftward', seated: true });
+      expect(await inView(6), dir).toBe(true);
+      expect(await focused(page), dir).toBe('golf');
+      expect(await row(page, 'r').evaluate((el: HTMLElement & { value: string }) => el.value), dir).toBe('golf');
+      await expect(panel(page, 'r', 'golf')).toBeVisible();
+      expect(await motionCount(row(page, 'r')), dir).toBe(0);
+    }
+    // The keys follow the new direction at once (TAB-12): in right-to-left, Left Arrow is the next tab.
+    await page.keyboard.press('ArrowLeft');
+    expect(await focused(page)).toBe('hotel');
+  });
+
+  test('TAB-32: in right-to-left a tab’s icon is mirrored in both copies exactly when the icon set marks its name, or the product forces it with data-mirror="always" on the tab, and never where data-mirror="never" forbids it — in its own box, its place, size and color unchanged; never in left-to-right; the tab mirrors nothing itself', async ({ page }) => {
+    const icons = (id: string, first: FixtureItem['props'], second: FixtureItem['props'], direction?: 'rtl'): Fixture => ({
+      ...fixture(id, [t('a', 'Send', { icon: 'send', ...first }), t('b', 'Done', { icon: 'check', ...second })], { value: 'a' }),
+      ...(direction ? { direction } : {}),
+    });
+    await mountFixtures(page, spec, { fixtures: [icons('listed', {}, {}, 'rtl'), icons('decided', { 'data-mirror': 'never' }, { 'data-mirror': 'always' }, 'rtl'), icons('ltr', {}, { 'data-mirror': 'always' })] });
+    await motionEnded(page);
+    const copies = (id: string, n: number) => [icon(page, id, n), cover(page, id, n).locator('.icon')];
+    const mirrored = async (id: string, n: number) => {
+      const seen = await Promise.all(copies(id, n).map((each) => css(each, 'transform')));
+      expect(new Set(seen).size, `${id} ${n}: both copies alike`).toBe(1);
+      return seen[0] === 'matrix(-1, 0, 0, 1, 0, 0)' ? 'mirrored' : seen[0] === 'none' ? 'plain' : seen[0];
+    };
+    // send is marked by the default icon set and check is not; the product's word wins either way.
+    expect([await mirrored('listed', 0), await mirrored('listed', 1)]).toEqual(['mirrored', 'plain']);
+    expect([await mirrored('decided', 0), await mirrored('decided', 1)]).toEqual(['plain', 'mirrored']);
+    // Never in left-to-right, marked or forced.
+    expect([await mirrored('ltr', 0), await mirrored('ltr', 1)]).toEqual(['plain', 'plain']);
+    // In its own box, about its centre: the same place, size, color and fill as the same glyph left unmirrored.
+    for (const n of [0, 1]) {
+      const [a, b] = [await bounds(icon(page, 'listed', n)), await bounds(icon(page, 'decided', n))];
+      const [ra, rb] = [await bounds(row(page, 'listed')), await bounds(row(page, 'decided'))];
+      expect([a.x - ra.x, a.y - ra.y, a.width, a.height]).toEqual([expect.closeTo(b.x - rb.x, 1), expect.closeTo(b.y - rb.y, 1), expect.closeTo(b.width, 1), expect.closeTo(b.height, 1)]);
+      for (const property of ['color', 'font-variation-settings', 'transform-origin']) expect(await css(icon(page, 'listed', n), property), `${n} ${property}`).toBe(await css(icon(page, 'decided', n), property));
+    }
+    // The order TAB-21 gives stands: the first tab at the right.
+    expect((await bounds(tabAt(page, 'listed', 0))).x).toBeGreaterThan((await bounds(tabAt(page, 'listed', 1))).x);
+    // The tab draws nothing else mirrored: its content, its label and the whole tab keep their own transform.
+    for (const part of [content(page, 'listed', 0), label(page, 'listed', 0), box(page, 'listed', 0)]) expect(await css(part, 'transform')).toBe('none');
+    // The product's word followed when it changes on a tab already drawn.
+    await tabAt(page, 'listed', 1).evaluate((el) => el.setAttribute('data-mirror', 'always'));
+    await expect.poll(() => mirrored('listed', 1)).toBe('mirrored');
+    await tabAt(page, 'listed', 1).evaluate((el) => el.removeAttribute('data-mirror'));
+    await expect.poll(() => mirrored('listed', 1)).toBe('plain');
   });
 
   test('TAB-22: a tab without a label still renders, and a debug build reports it', async ({ page }) => {

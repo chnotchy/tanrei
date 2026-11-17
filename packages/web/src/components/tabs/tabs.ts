@@ -4,6 +4,8 @@ import { classMap } from 'lit/directives/class-map.js';
 import {
   AvailabilityController,
   CoalescedSync,
+  DIRECTION_PROBE,
+  DirectionController,
   GlyphMirrorController,
   OpenAxesController,
   PressController,
@@ -36,6 +38,7 @@ import {
   syncFocusStyle,
 } from '../../primitives/index.js';
 import type { TanreiTabsSizeRegistry, TanreiTabsVariantRegistry } from '../../registry.js';
+import { MIRROR } from '../../styles/icons.js';
 import { ownDirection } from '../../styles/product-text.js';
 import { TanreiTooltip } from '../tooltip/tooltip.js';
 import { AXES, ICON_PLACEMENT, INLINE_VARIANTS, ORIENTATIONS, TRACK_CHOICE, TRACK_PROPERTY, TRANSITION_CHOICE, TRANSITION_PROPERTY, TRANSITION_VALUES, panelStyles, tabStyles, tabsStyles } from './tabs.styles.js';
@@ -323,8 +326,19 @@ export class TanreiTab extends TanreiElement {
   /** The tab's text and its accessible name. Required, even when `labelHidden` is true. */
   label = '';
 
-  /** The name of a glyph of the system's icon set. Give every tab of a row an icon, or none. A glyph the icon set flags as showing a direction (`arrow_forward`, `send`) is drawn mirrored in a right-to-left layout. */
+  /** The name of a glyph of the system's icon set. Give every tab of a row an icon, or none. A glyph the icon set flags as showing a direction (`arrow_forward`, `send`) is drawn mirrored in a right-to-left layout; `data-mirror="auto | always | never"` on the tab decides for this use. */
   icon = '';
+
+  // TAB-32: the product's word on mirroring the tab's glyph is `data-mirror` on the tab, as on any element that holds a
+  // glyph; the tab draws the glyph itself, so it gives that word to both of its boxes.
+  static override get observedAttributes(): string[] {
+    return [...super.observedAttributes, MIRROR];
+  }
+
+  override attributeChangedCallback(name: string, old: string | null, value: string | null) {
+    super.attributeChangedCallback(name, old, value);
+    if (name === MIRROR && old !== value) this.requestUpdate();
+  }
 
   /** Draws the icon alone and keeps `label` as the accessible name (an icon-only tab). */
   labelHidden = false;
@@ -726,7 +740,8 @@ export class TanreiTab extends TanreiElement {
     const placement = styleQueries() ? null : compChoice(this, '--_size-icon-placement', ICON_PLACEMENT);
     const label = this.drawsLabel;
     const icon = !!this.icon;
-    const glyph = (named: boolean) => (icon ? html`<span part=${named ? 'icon' : nothing} class="icon" aria-hidden="true">${this.icon}</span>` : nothing);
+    const mirroring = this.getAttribute(MIRROR) ?? nothing;
+    const glyph = (named: boolean) => (icon ? html`<span part=${named ? 'icon' : nothing} class="icon" aria-hidden="true" data-mirror=${mirroring}>${this.icon}</span>` : nothing);
     // TAB-33, TAB-21: the box that cuts the label has the label's own direction, so it is cut at its own end in every engine.
     // TAB-16, TAB-50: the label keeps the width it needs at the selected weight (the copy its ::after draws, unseen).
     const text = (named: boolean) => (label ? html`<span part=${named ? 'label' : nothing} class="label" dir=${ownDirection(this.label)} data-label=${this.label}><span class="text">${this.label}</span></span>` : nothing);
@@ -1016,6 +1031,16 @@ export class TanreiTabs extends TanreiElement {
   private readonly axes = new OpenAxesController(this, { component: 'tabs', behavior: 'TAB-7', axes: AXES });
 
   private readonly keys = new RovingKeys({ wrap: true });
+  /**
+   * TAB-31: a change of the layout direction while the row is shown. What CSS draws follows by itself, but the scroll
+   * offset and the indicator's place are physical values measured for the old direction: both are measured again at
+   * once — the selected tab brought into view without a motion, as TAB-15 does when the row first appears.
+   */
+  private readonly direction = new DirectionController(this, () => {
+    this.stopScrolling();
+    this.place();
+    this.reveal(this.selectedTab, false);
+  });
   /**
    * The re-read of the tabs and panels (`sync()`), once per turn however many of them said they changed in it: a row of
    * N tabs built, or N labels changed at once, re-reads its N tabs once — not once per tab, which made the build O(N²).
@@ -2656,6 +2681,7 @@ export class TanreiTabs extends TanreiElement {
       <div part="tablist" class="row" role=${choice ? 'radiogroup' : 'tablist'} ${delegatedAria(this, { 'aria-label': this.label })} aria-orientation=${this.vertical && !choice ? 'vertical' : nothing}>
         <div part="divider" class="divider" aria-hidden="true"></div>
         <div part="scroller track" class="scroller" data-tanrei-shape @wheel=${containedWheel}><div class="tabs"><slot></slot></div></div>
+        ${DIRECTION_PROBE}
       </div>
       <slot></slot>
     `;

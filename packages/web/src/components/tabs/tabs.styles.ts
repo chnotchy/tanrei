@@ -1,5 +1,5 @@
 import { css, unsafeCSS } from 'lit';
-import { type OpenAxis, focusRing, iconGlyph, pressHold, rippleStyles, stateRules, whenChosen } from '../../primitives/index.js';
+import { type OpenAxis, directionProbeStyles, focusRing, iconGlyph, pressHold, rippleStyles, stateRules, whenChosen } from '../../primitives/index.js';
 import { productText } from '../../styles/product-text.js';
 import { cornerRadius, shape } from '../../styles/shape.js';
 import { reducedMotion } from '../../styles/motion.js';
@@ -159,6 +159,8 @@ export const tabsStyles = css`
   .row {
     position: relative;
   }
+  /* TAB-31: what tells the row that its direction changed (src/primitives/direction.ts), in the row's box. */
+  ${directionProbeStyles}
   /* TAB-20: the line under the whole row, under the track, the tabs, the indicator and the underline, across the full
      width while the tabs scroll. Transparent in the default system. */
   .divider {
