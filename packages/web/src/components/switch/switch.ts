@@ -175,7 +175,15 @@ export class TanreiSwitch extends TanreiElement {
    * no change — whatever started it: a press, Space, the label, assistive technology or element.click().
    */
   #onClick(event: Event) {
-    if (this.readOnly) event.preventDefault();
+    if (this.readOnly) {
+      event.preventDefault();
+      return;
+    }
+    // SWT-13, SWT-22: the native switch has switched already (a checkbox switches before its click is dispatched), and
+    // the handle travels only while a travel is marked. So it is marked here, at the click's target, before any listener
+    // the page has for the bubbling click reads the layout and so draws the new condition; `input` marks it again. A
+    // click cancelled later is no travel: the mark goes two frames on.
+    this.markTravel();
   }
 
   /**
