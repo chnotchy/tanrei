@@ -23,7 +23,7 @@ import {
   rootTokens,
 } from '../../../test/harness.js';
 import { clickCentre, heldPress } from '../../../test/watched-press.js';
-import { motionEnded } from '../../../test/motions.js';
+import { motionCount, motionEnded } from '../../../test/motions.js';
 import { STOPPED_AFTER, flingThenHold } from '../../../test/stopped-release.js';
 import { expectBaseline } from '../../../test/baseline.js';
 
@@ -993,12 +993,18 @@ test.describe('press, feedback, corners, focus style, geometry and motion', () =
 
   test('SWT-13: switching carries the progress, and with it the handle, its size and the track, outline, handle and icon colors, over selection-duration with selection-easing; reduced motion shows the new condition at once', async ({ page }) => {
     const duration = await resolveToken(page, T('motion-selection-duration'), 'duration');
-    // The handle's place is what the progress is first drawn by: the thumb's translate.
-    const timing = await thumbOf(page, 'unselected').evaluate((el) => {
-      const s = getComputedStyle(el);
+    // The handle's place is what the progress is first drawn by: the thumb's translate, carried while the switch has
+    // marked a travel (at rest a change of direction is drawn at once, SWT-22). Switched, it runs for selection-duration.
+    const travelling = await host(page, 'unselected').evaluate(async (el) => {
+      (el as any).checked = true;
+      await (el as any).updateComplete;
+      const s = getComputedStyle(el.shadowRoot!.querySelector('.thumb')!);
       const at = s.transitionProperty.split(', ').indexOf('translate');
-      return { at, duration: s.transitionDuration.split(', ')[at], easing: s.transitionTimingFunction.split(/, (?![^(]*\))/)[at] };
+      const timing = { at, duration: s.transitionDuration.split(', ')[at], easing: s.transitionTimingFunction.split(/, (?![^(]*\))/)[at] };
+      const all = el.shadowRoot!.getAnimations().filter((a) => a instanceof CSSTransition);
+      return { timing, place: all.filter((a) => (a as CSSTransition).transitionProperty === 'translate').map((a) => Number(a.effect!.getTiming().duration)), durations: [...new Set(all.map((a) => Number(a.effect!.getTiming().duration)))], easings: [...new Set(all.map((a) => String(a.effect!.getTiming().easing)))] };
     });
+    const { timing } = travelling;
     expect(timing.at).toBeGreaterThanOrEqual(0);
     expect(Number.parseFloat(timing.duration) * 1000).toBe(duration);
     const easing = await page.evaluate((name) => {
@@ -1009,13 +1015,7 @@ test.describe('press, feedback, corners, focus style, geometry and motion', () =
       return value;
     }, T('motion-selection-easing'));
     expect(timing.easing).toBe(easing);
-    // The progress is what travels (and so every part at once: SWT-3 / SWT-13 above reads each); switched, it runs for selection-duration.
-    const travelling = await host(page, 'unselected').evaluate(async (el) => {
-      (el as any).checked = true;
-      await (el as any).updateComplete;
-      const all = el.shadowRoot!.getAnimations().filter((a) => a instanceof CSSTransition);
-      return { place: all.filter((a) => (a as CSSTransition).transitionProperty === 'translate').map((a) => Number(a.effect!.getTiming().duration)), durations: [...new Set(all.map((a) => Number(a.effect!.getTiming().duration)))], easings: [...new Set(all.map((a) => String(a.effect!.getTiming().easing)))] };
-    });
+    // The progress is what travels (and so every part at once: SWT-3 / SWT-13 above reads each).
     expect(travelling.place).toHaveLength(1);
     expect(travelling.place[0]).toBeCloseTo(duration, 3);
     // Every transition the change started has that one duration and that one curve.
@@ -1857,6 +1857,189 @@ test.describe('form', () => {
     expect(await data()).toEqual(['bt=yes']);
     await page.evaluate(() => document.querySelector('form')!.reset());
     expect(await data()).toEqual(['wifi=on']);
+  });
+});
+
+test.describe('right to left', () => {
+  const stage = (page: P, id: string) => page.locator(`[data-fixture="${id}"]`);
+  const fx = (id: string, props: Fixture['props'], direction?: 'ltr' | 'rtl'): Fixture => ({ id, props, ...(direction ? { direction } : {}) });
+  const MIRRORED = 'matrix(-1, 0, 0, 1, 0, 0)';
+  /** Whether the track stands at the right of the label. */
+  const trackIsRight = (page: P, id: string) =>
+    host(page, id).evaluate((el) => {
+      const root = el.shadowRoot!;
+      return root.querySelector('.track')!.getBoundingClientRect().x > root.querySelector('.label')!.getBoundingClientRect().x;
+    });
+  /** The label's text: the left edge of each character but a space, in the order written, and the box of each line. */
+  const text = (page: P, id: string) =>
+    labelOf(page, id).evaluate((el) => {
+      const node = [...el.childNodes].find((child) => child.nodeType === Node.TEXT_NODE && child.textContent!.trim()) as Text;
+      const lefts = [...node.data].flatMap((char, index) => {
+        if (char === ' ') return [];
+        const range = document.createRange();
+        range.setStart(node, index);
+        range.setEnd(node, index + 1);
+        return [range.getBoundingClientRect().left];
+      });
+      const range = document.createRange();
+      range.selectNodeContents(node);
+      const lines = [...range.getClientRects()].filter((rect) => rect.width > 0).map((rect) => ({ left: rect.left, right: rect.right }));
+      const box = el.getBoundingClientRect();
+      return { lefts, lines, box: { left: box.left, right: box.right } };
+    });
+  const LONG_LTR = 'Turn on Wi-Fi to sync the design system over every network you join';
+  const LONG_ARABIC = 'شغّل الواي فاي لمزامنة نظام التصميم عبر كل شبكة تنضم إليها';
+
+  test('SWT-22: the direction is the nearest ancestor’s inside the page — not the root’s, and no setting of the switch’s own; a change while it is shown is drawn at once, without a motion, keeping its selection and its focus', async ({ page }) => {
+    await mountFixtures(page, spec, { fixtures: [fx('nested', { checked: true, label: 'Wi-Fi' }), fx('stage-rtl', { label: 'Wi-Fi' }, 'rtl'), fx('plain', { label: 'Wi-Fi' })] });
+    // The document carries no dir: the platform's own is left to right, and a stage's dir is the switch's.
+    expect(await page.evaluate(() => document.documentElement.getAttribute('dir'))).toBeNull();
+    expect(await trackIsRight(page, 'plain')).toBe(false);
+    expect(await trackIsRight(page, 'stage-rtl')).toBe(true);
+    // No direction setting of its own.
+    expect(await page.evaluate(() => (customElements.get('tanrei-switch') as unknown as { observedAttributes: string[] }).observedAttributes.filter((name) => /dir/.test(name)))).toEqual([]);
+    expect(await host(page, 'stage-rtl').getAttribute('dir')).toBeNull();
+    // The nearest ancestor wins: a left-to-right block inside a right-to-left one, across a shadow root.
+    await stage(page, 'nested').evaluate((el) => {
+      el.setAttribute('dir', 'rtl');
+      const inner = document.createElement('div');
+      inner.id = 'inner';
+      inner.setAttribute('dir', 'ltr');
+      const shadowHost = document.createElement('div');
+      shadowHost.attachShadow({ mode: 'open' }).append(document.createElement('slot'));
+      shadowHost.append(el.querySelector('tanrei-switch')!);
+      inner.append(shadowHost);
+      el.append(inner);
+    });
+    const target = host(page, 'nested');
+    /** Where the handle is along the track: 'end' at the inline end (on), 'start' at the inline start (off), by the page's left and right. */
+    const handleSide = () =>
+      target.evaluate((el) => {
+        const root = el.shadowRoot!;
+        const [track, handle] = [root.querySelector('.track')!.getBoundingClientRect(), root.querySelector('.handle')!.getBoundingClientRect()];
+        return handle.x + handle.width / 2 > track.x + track.width / 2 ? 'right' : 'left';
+      });
+    expect(await trackIsRight(page, 'nested')).toBe(false);
+    expect(await handleSide()).toBe('right');
+    await tabTo(page, target);
+    // What focus started (the ring) has ended before the direction changes.
+    await motionEnded(target);
+    // Changed after the first render: drawn for the new direction in the same task — the track at the right of the
+    // label, the handle of a switch that is on at its left end — and nothing set moving by it.
+    const drawn = await target.evaluate((el) => {
+      document.querySelector('#inner')!.setAttribute('dir', 'rtl');
+      const root = el.shadowRoot!;
+      const [track, handle, label] = ['.track', '.handle', '.label'].map((selector) => root.querySelector(selector)!.getBoundingClientRect());
+      return { trackIsRight: track!.x > label!.x, handle: handle!.x + handle!.width / 2 > track!.x + track!.width / 2 ? 'right' : 'left' };
+    });
+    expect(drawn).toEqual({ trackIsRight: true, handle: 'left' });
+    expect(await motionCount(target)).toBe(0);
+    // Its selection and its focus are kept.
+    await expect(target).toBeFocused();
+    expect(await target.evaluate((el) => (el as HTMLElement & { checked: boolean }).checked)).toBe(true);
+    await expect(input(page, 'nested')).toBeChecked();
+    // Taken away, the stage's right-to-left is the nearest again; the stage turned back, left to right.
+    await page.evaluate(() => document.querySelector('#inner')!.removeAttribute('dir'));
+    expect(await trackIsRight(page, 'nested')).toBe(true);
+    await stage(page, 'nested').evaluate((el) => el.setAttribute('dir', 'ltr'));
+    expect(await trackIsRight(page, 'nested')).toBe(false);
+    expect(await handleSide()).toBe('right');
+    await expect(target).toBeFocused();
+    await expect(input(page, 'nested')).toBeChecked();
+    // A tap still travels (SWT-13) — also where a listener of the page's reads the layout while the click is dispatched,
+    // after the native switch has switched and before its input event.
+    await target.evaluate((el) => el.addEventListener('click', () => el.getBoundingClientRect()));
+    await page.keyboard.press('Space');
+    await expect(input(page, 'nested')).not.toBeChecked();
+    expect(await running(thumbOf(page, 'nested'), 'translate')).toBe(await resolveToken(page, T('motion-selection-duration'), 'duration'));
+  });
+
+  // TODO: the product's decision for one use — mirroring forced for an unmarked name, forbidden for a marked one — has no
+  // web form for a glyph the switch is given by name (checkedIcon, uncheckedIcon): the glyph is drawn in the shadow root,
+  // where the product cannot write `data-mirror`, and the element reads no attribute that would carry it. The spec's
+  // web notes must name such an attribute before the switch can honour it and this test can check it.
+  test('SWT-23: in right-to-left the icon helper mirrors a handle glyph the icon set marks — checkedIcon and uncheckedIcon alike — inside its own box, not an unmarked one or any glyph in left-to-right; its place, size, color, fill and the handle’s positions (SWT-11) are unchanged, and the switch mirrors nothing itself', async ({ page }) => {
+    await mountFixtures(page, spec, {
+      icons: true,
+      fixtures: [
+        fx('marked-on', { checked: true, checkedIcon: 'arrow_forward', uncheckedIcon: 'close', label: 'Wi-Fi' }, 'rtl'),
+        fx('marked-off', { checkedIcon: 'check', uncheckedIcon: 'send', label: 'Wi-Fi' }, 'rtl'),
+        fx('unmarked', { checked: true, checkedIcon: 'check', label: 'Wi-Fi' }, 'rtl'),
+        fx('marked-ltr', { checked: true, checkedIcon: 'arrow_forward', uncheckedIcon: 'reply', label: 'Wi-Fi' }, 'ltr'),
+      ],
+    });
+    const expected: [string, 'on' | 'off', boolean][] = [
+      ['marked-on', 'on', true],
+      ['marked-on', 'off', false],
+      ['marked-off', 'off', true],
+      ['marked-off', 'on', false],
+      ['unmarked', 'on', false],
+      ['marked-ltr', 'on', false],
+      ['marked-ltr', 'off', false],
+    ];
+    for (const [id, which, mirrored] of expected) await expect.poll(() => css(glyphOf(page, id, which), 'transform'), `${id} ${which}`).toBe(mirrored ? MIRRORED : 'none');
+    const iconSize = await resolveToken(page, T('icon-size'));
+    for (const [id, which, condition] of [['marked-on', 'on', 'selected'], ['marked-off', 'off', 'unselected'], ['unmarked', 'on', 'selected'], ['marked-ltr', 'on', 'selected']] as const) {
+      // The switch mirrors nothing itself: the glyph's layer, the handle, the track and the host are not transformed.
+      for (const part of [host(page, id).locator(`.glyph.${which}`), handleOf(page, id), trackOf(page, id), host(page, id)]) expect(await css(part, 'transform'), id).toBe('none');
+      // Inside its own box: the glyph box is where it is unmirrored — centred on the handle, at icon.size — in the
+      // condition's color and fill.
+      const [g, hc] = [await bounds(glyphOf(page, id, which)), await center(handleOf(page, id))];
+      expect([g.width, g.height], id).toEqual([iconSize, iconSize]);
+      expect(g.x + g.width / 2, id).toBeCloseTo(hc.x, 5);
+      expect(g.y + g.height / 2, id).toBeCloseTo(hc.y, 5);
+      expect(await css(glyphOf(page, id, which), 'color'), id).toBe(await resolveColor(page, T(`${condition}-icon-color`)));
+      const fill = await glyphOf(page, id, which).evaluate((el) => /"FILL" ([\d.]+)/.exec(getComputedStyle(el).fontVariationSettings)?.[1]);
+      expect(Number(fill), id).toBe(Number(await token(page, `--tanrei-sys-icon-fill-${condition}`)));
+    }
+    // SWT-11's positions are kept: in right-to-left a switch that is on has its handle at the left end, one that is off
+    // at the right end.
+    for (const [id, end] of [['marked-on', 'left'], ['marked-off', 'right']] as const) {
+      const [t, h] = [await bounds(trackOf(page, id)), await center(handleOf(page, id))];
+      expect(h.x, id).toBeCloseTo(end === 'left' ? t.x + t.height / 2 : t.x + t.width - t.height / 2, 5);
+    }
+    // The mark follows the name: a glyph renamed to an unmarked one is no longer mirrored, and back again.
+    await host(page, 'marked-on').evaluate((el) => ((el as HTMLElement & { checkedIcon: string }).checkedIcon = 'check'));
+    await expect.poll(() => css(glyphOf(page, 'marked-on', 'on'), 'transform')).toBe('none');
+    await host(page, 'unmarked').evaluate((el) => ((el as HTMLElement & { checkedIcon: string }).checkedIcon = 'chevron_right'));
+    await expect.poll(() => css(glyphOf(page, 'unmarked', 'on'), 'transform')).toBe(MIRRORED);
+  });
+
+  test('SWT-24: the label is text of its own direction, isolated — a left-to-right label, a number with its sign and a telephone number keep their order in a right-to-left layout and the track keeps its side; a right-to-left label reads from its right in a left-to-right one — its lines aligned to the layout’s start, not the text’s', async ({ page }) => {
+    await mountFixtures(page, spec, {
+      fixtures: [
+        fx('ltr-in-rtl', { label: 'Call +1 555 0100' }, 'rtl'),
+        fx('signed-rtl', { label: '−5' }, 'rtl'),
+        fx('phone-rtl', { label: '+1 555 0100' }, 'rtl'),
+        fx('arabic-in-ltr', { label: 'الواي فاي' }),
+        fx('wrap-ltr-in-rtl', { label: LONG_LTR }, 'rtl'),
+        fx('wrap-arabic-in-ltr', { label: LONG_ARABIC }),
+      ],
+    });
+    for (const id of ['ltr-in-rtl', 'signed-rtl', 'arabic-in-ltr']) expect(await css(labelOf(page, id), 'unicode-bidi'), id).toBe('plaintext');
+    // Its own order: each character after the one before it, from the left; the layout's box is still right to left.
+    for (const id of ['ltr-in-rtl', 'signed-rtl', 'phone-rtl']) {
+      const { lefts } = await text(page, id);
+      for (let i = 1; i < lefts.length; i++) expect(lefts[i], `${id}: character ${i}`).toBeGreaterThan(lefts[i - 1]!);
+      expect(await css(labelOf(page, id), 'direction'), id).toBe('rtl');
+      // It reorders nothing beside it: the track is still at the layout's start, the right.
+      expect(await trackIsRight(page, id), id).toBe(true);
+    }
+    // A right-to-left label in a left-to-right layout reads from its right, after the track at the left.
+    const arabic = (await text(page, 'arabic-in-ltr')).lefts;
+    expect(arabic[0]).toBeGreaterThan(arabic.at(-1)!);
+    expect(await trackIsRight(page, 'arabic-in-ltr')).toBe(false);
+    // Lines that wrap are aligned to the layout's start: every line of a left-to-right label at the right edge in a
+    // right-to-left layout, every line of an Arabic label at the left edge in a left-to-right one.
+    for (const id of ['wrap-ltr-in-rtl', 'wrap-arabic-in-ltr']) await stage(page, id).evaluate((el) => (el.style.inlineSize = '200px'));
+    const ltr = await text(page, 'wrap-ltr-in-rtl');
+    expect(ltr.lines.length).toBeGreaterThan(1);
+    for (const line of ltr.lines) expect(line.right, 'a left-to-right line in right to left').toBeCloseTo(ltr.box.right, 0);
+    expect(new Set(ltr.lines.map((line) => Math.round(line.left))).size, 'lines of different lengths').toBeGreaterThan(1);
+    const rtl = await text(page, 'wrap-arabic-in-ltr');
+    expect(rtl.lines.length).toBeGreaterThan(1);
+    for (const line of rtl.lines) expect(line.left, 'a right-to-left line in left to right').toBeCloseTo(rtl.box.left, 0);
+    expect(new Set(rtl.lines.map((line) => Math.round(line.right))).size, 'lines of different lengths').toBeGreaterThan(1);
   });
 });
 
