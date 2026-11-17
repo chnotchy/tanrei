@@ -927,6 +927,8 @@ The later component pages, from what the pages say.
 | sort; sortable column; sort button | सॉर्ट करना; सॉर्ट करने लायक़ कॉलम; सॉर्ट बटन |
 | chosen row; checked / not checked (a row's checkbox) | चुनी गई पंक्ति; चेक किया हुआ / चेक नहीं किया हुआ |
 | "What you write" / "Known gaps on the web" (headings) | आप क्या लिखते हैं / वेब पर ज्ञात कमियाँ |
+| performance (a heading, and what a page or a component costs to run) | परफ़ॉर्मेंस |
+| bundle (what a bundler writes for production), bundler | बंडल, बंडलर, both masculine |
 
 ### Terms of the One-time-code input, the File upload and the code field (Hindi)
 
