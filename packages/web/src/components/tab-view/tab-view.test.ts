@@ -9,6 +9,7 @@ import { type Locator, type Page, expect, test } from '@playwright/test';
 import { type Fixture, type FixtureItem, acmeSystemCss, fixturesDocument, loadSpec, mountFixtures, resolveToken, tab, tabTo, rootTokens } from '../../../test/harness.js';
 import { STOPPED_AFTER, flingThenHold, strokes } from '../../../test/stopped-release.js';
 import { expectBaseline } from '../../../test/baseline.js';
+import { motionCount, motionEnded } from '../../../test/motions.js';
 
 const spec = loadSpec('tab-view');
 type P = Page;
@@ -856,6 +857,61 @@ test.describe('semantics, focus and layout', () => {
     // Nothing mirrors the panel's content itself; its own row mirrors as the tabs do (TAB-21): the first tab on the right.
     expect(await css(panel(page, 'v', 'activity'), 'transform')).toBe('none');
     expect((await bounds(tabAt(page, 'v', 0))).x).toBeGreaterThan((await bounds(tabAt(page, 'v', 1))).x);
+  });
+
+  test('TBV-19: the direction is the nearest ancestor’s that sets one — the document’s where none does — and the view has no setting of its own; changed while it is shown, the view is drawn for the new direction at once, without a motion, keeping the selected panel and its focus', async ({ page }) => {
+    const panels = [p('overview'), p('activity', '<button id="in-activity">In activity</button>'), p('settings')];
+    // Set on an ancestor inside the page — the fixture's stage, not the root — before the view is first drawn.
+    await mountFixtures(page, spec, { fixtures: [{ ...fixture('v', panels, { value: 'activity' }), direction: 'rtl' }, fixture('plain')], reducedMotion: false });
+    const stage = page.locator('[data-fixture="v"]');
+    /** The view's direction, which way its own row runs, and whether the row's indicator rests on the selected tab. */
+    const laidOut = async () => {
+      const [first, second] = [await bounds(tabAt(page, 'v', 0)), await bounds(tabAt(page, 'v', 1))];
+      const [seat, thumb] = [await bounds(tabAt(page, 'v', 1).locator('.box')), (await pill(page, 'v', 1))!];
+      return {
+        direction: await css(view(page, 'v'), 'direction'),
+        runs: first.x < second.x ? 'rightward' : 'leftward',
+        seated: Math.abs(thumb.x - seat.x) <= 0.5 && Math.abs(thumb.width - seat.width) <= 0.5,
+      };
+    };
+    /** Which panels show, and how the shown one is drawn: at rest, whole and in place. */
+    const shown = async () => ({
+      value: await value(page, 'v'),
+      tabs: await tabsValue(page, 'v'),
+      panels: await Promise.all(['overview', 'activity', 'settings'].map(async (each) => (await drawn(panel(page, 'v', each))).visible)),
+      drawn: await drawn(panel(page, 'v', 'activity')),
+    });
+    const atRest = { value: 'activity', tabs: 'activity', panels: [false, true, false], drawn: { x: 0, opacity: 1, blur: 0, hidden: false, inert: false, visible: true } };
+    // No ancestor sets one: the document's own, left to right.
+    expect(await css(view(page, 'plain'), 'direction')).toBe('ltr');
+    expect((await bounds(tabAt(page, 'plain', 0))).x).toBeLessThan((await bounds(tabAt(page, 'plain', 1))).x);
+    await motionEnded(view(page, 'v'));
+    expect(await laidOut()).toEqual({ direction: 'rtl', runs: 'leftward', seated: true });
+    expect(await shown()).toEqual(atRest);
+    // No setting of its own: neither the spec nor the element has an attribute that names a direction, and the view
+    // writes no `dir` on itself or on the row it draws.
+    expect((spec.props ?? []).filter((each) => /dir/i.test(each.name))).toEqual([]);
+    expect(await view(page, 'v').evaluate((el) => [el.getAttribute('dir'), el.querySelector(':scope > tanrei-tabs')!.getAttribute('dir'), (el.constructor as unknown as { observedAttributes: string[] }).observedAttributes.filter((name) => /dir/i.test(name))])).toEqual([null, null, []]);
+    // Focus in the shown panel, then the direction changed while it is shown — under motions long enough that one the
+    // change started would still run when it is counted.
+    await tabTo(page, page.locator('#in-activity'));
+    await motionEnded(view(page, 'v'));
+    await override(page, { [T('motion-switch-duration')]: '60s', [T('motion-fade-duration')]: '60s', '--tanrei-comp-tabs-motion-indicator-duration': '60s', '--tanrei-comp-tabs-motion-state-duration': '60s' });
+    for (const dir of ['ltr', 'rtl'] as const) {
+      await stage.evaluate((el, d) => el.setAttribute('dir', d), dir);
+      expect(await motionCount(view(page, 'v')), dir).toBe(0);
+      // And none in the frames that follow, where something that measures itself again would start one.
+      await page.evaluate(() => new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve))));
+      expect(await motionCount(view(page, 'v')), dir).toBe(0);
+      expect(await laidOut(), dir).toEqual({ direction: dir, runs: dir === 'ltr' ? 'rightward' : 'leftward', seated: true });
+      expect(await shown(), dir).toEqual(atRest);
+      expect(await page.evaluate(() => document.activeElement?.id), dir).toBe('in-activity');
+    }
+    // The swipe follows the new direction at once (TBV-13): in left-to-right, a drag toward the left goes to the next tab.
+    await stage.evaluate((el) => el.setAttribute('dir', 'ltr'));
+    const now = await gesture(page, 'v', slow(-(await width(page, 'v')) * 0.3), { up: null });
+    expect(now.offset).toBeCloseTo(0.3, 3);
+    await lift(page, 'v');
   });
 });
 
