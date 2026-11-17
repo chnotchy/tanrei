@@ -261,6 +261,9 @@ const listeners = new WeakMap<Element, Set<() => void>>();
 
 type Hearing = { prototype: HTMLElement; observedAttributes?: string[] };
 
+/** The classes that hear the word; their subclasses inherit it. */
+const hearing = new WeakSet<object>();
+
 /**
  * Makes the elements of a class that names glyphs — a tab, a switch, a menu item, a menu group — hear `data-mirror`:
  * it becomes one of the class's observed attributes, and a change of it renders again every host whose
@@ -268,9 +271,10 @@ type Hearing = { prototype: HTMLElement; observedAttributes?: string[] };
  * that hears it hears it too.
  */
 export function hearsMirrorWord(element: Hearing): void {
+  for (let at: object | null = element; at; at = Object.getPrototypeOf(at)) if (hearing.has(at)) return;
+  hearing.add(element);
   let observed: PropertyDescriptor | undefined;
   for (let at: object | null = element; at && !observed; at = Object.getPrototypeOf(at)) observed = Object.getOwnPropertyDescriptor(at, 'observedAttributes');
-  if (((observed?.get?.call(element) as string[] | undefined) ?? []).includes(MIRROR)) return;
   Object.defineProperty(element, 'observedAttributes', {
     configurable: true,
     get(this: unknown) {
