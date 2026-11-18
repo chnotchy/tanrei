@@ -4,6 +4,8 @@ import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
 import { type Fixture, loadSpec, mountFixtureAsInAll, mountFixtures, resolveColor, resolveToken, rootTokens, setWords, tabTo, withoutIconFont } from '../../../test/harness.js';
 import { expectBaseline } from '../../../test/baseline.js';
+import { mirroring, mirroringAfterDirection } from '../../../test/mirror-word.js';
+import { motionCount } from '../../../test/motions.js';
 
 const spec = loadSpec('list-row');
 type P = Page;
@@ -258,6 +260,38 @@ test.describe('behavior', () => {
     const mirrored = part(rtl, 'trailing-icon');
     expect(await css(mirrored, 'transform')).not.toBe('none');
     near((await box(mirrored)).x - r.x, await token(page, T('container-padding-inline-end')), 'chevron at the left');
+  });
+
+  test('LRW-18: in right-to-left the glyphs leadingIcon and trailingIcon name are mirrored exactly when the icon set marks their names, unless data-mirror on the row decides: always mirrors an unmarked name, never keeps a marked one; nothing is mirrored in left-to-right; a change of the word or of an ancestor’s direction is drawn at once, without a motion, and the row mirrors nothing itself', async ({ page }) => {
+    const rtl: Partial<Fixture> = { direction: 'rtl' };
+    await mount(page, [
+      fx('listed', { headline: 'Listed', leadingIcon: 'arrow_forward', trailingIcon: 'check' }, rtl),
+      fx('forced', { headline: 'Forced', leadingIcon: 'search', trailingIcon: 'check', 'data-mirror': 'always' }, rtl),
+      fx('forbidden', { headline: 'Forbidden', leadingIcon: 'arrow_forward', trailingIcon: 'chevron_right', 'data-mirror': 'never' }, rtl),
+      fx('forced-ltr', { headline: 'Forced', leadingIcon: 'search', trailingIcon: 'check', 'data-mirror': 'always' }),
+      fx('forbidden-ltr', { headline: 'Forbidden', leadingIcon: 'arrow_forward', trailingIcon: 'chevron_right', 'data-mirror': 'never' }),
+    ]);
+    const glyphs = (id: string) => [part(row(page, id), 'leading-icon'), part(row(page, id), 'trailing-icon')];
+    const expected: Record<string, string[]> = {
+      listed: ['mirrored', 'plain'],
+      forced: ['mirrored', 'mirrored'],
+      forbidden: ['plain', 'plain'],
+      'forced-ltr': ['plain', 'plain'],
+      'forbidden-ltr': ['plain', 'plain'],
+    };
+    for (const [id, each] of Object.entries(expected)) await expect.poll(() => mirroring(glyphs(id)), id).toEqual(each);
+    // The row mirrors nothing itself, whatever its word.
+    expect(await css(row(page, 'forced'), 'transform')).toBe('none');
+    // The word changed on a row already drawn.
+    await row(page, 'listed').evaluate((el) => el.setAttribute('data-mirror', 'always'));
+    await expect.poll(() => mirroring(glyphs('listed'))).toEqual(['mirrored', 'mirrored']);
+    await row(page, 'listed').evaluate((el) => el.removeAttribute('data-mirror'));
+    await expect.poll(() => mirroring(glyphs('listed'))).toEqual(['mirrored', 'plain']);
+    // The direction changed on an ancestor while drawn: read in the same task, before any frame, with no motion started.
+    expect(await mirroringAfterDirection(stage(page, 'forced-ltr'), 'rtl', glyphs('forced-ltr'))).toEqual(['mirrored', 'mirrored']);
+    expect(await mirroringAfterDirection(stage(page, 'forbidden-ltr'), 'rtl', glyphs('forbidden-ltr'))).toEqual(['plain', 'plain']);
+    expect(await mirroringAfterDirection(stage(page, 'forced'), 'ltr', glyphs('forced'))).toEqual(['plain', 'plain']);
+    for (const id of ['forced-ltr', 'forbidden-ltr', 'forced']) expect(await motionCount(row(page, id)), id).toBe(0);
   });
 
   test('LRW-7: a cut headline or supporting text shows whole in a tooltip on hover and on the item’s keyboard focus; Escape hides it; none where nothing is cut', async ({ page }) => {

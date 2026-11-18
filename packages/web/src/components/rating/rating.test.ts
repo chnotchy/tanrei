@@ -5,7 +5,8 @@ import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
 import { type Fixture, loadSpec, mountFixtures, resolveColor, resolveToken, rootTokens, tab, tabTo } from '../../../test/harness.js';
 import { expectBaseline } from '../../../test/baseline.js';
-import { motionEnded, settledCss } from '../../../test/motions.js';
+import { motionCount, motionEnded, settledCss } from '../../../test/motions.js';
+import { mirroring, mirroringAfterDirection } from '../../../test/mirror-word.js';
 import { clickCentre, heldPress } from '../../../test/watched-press.js';
 
 const spec = loadSpec('rating');
@@ -474,6 +475,37 @@ test.describe('behavior', () => {
     expect(await css(item(page, 'mirrored', 0).locator('.on .glyph'), 'transform')).toBe('matrix(-1, 0, 0, 1, 0, 0)');
     expect(await css(item(page, 'plain', 0).locator('.on .glyph'), 'transform')).toBe('none');
     expect((spec.props ?? []).map((p) => p.name)).not.toContain('direction');
+  });
+
+  test('RAT-19: in right-to-left the glyph icon names is mirrored in every mark, in both of its layers, exactly when the icon set marks its name, unless data-mirror on the rating decides: always mirrors an unmarked name, never keeps a marked one; the star drawn without icon takes no word; nothing is mirrored in left-to-right; a change of the word or of an ancestor’s direction is drawn at once, without a motion, and the rating mirrors nothing itself', async ({ page }) => {
+    await mountFixtures(page, spec, {
+      icons: true,
+      fixtures: [
+        fixture('listed', { value: 2, max: 3, icon: 'send' }, 'rtl'),
+        fixture('forced', { value: 2, max: 3, icon: 'favorite', 'data-mirror': 'always' }, 'rtl'),
+        fixture('forbidden', { value: 2, max: 3, icon: 'send', 'data-mirror': 'never' }, 'rtl'),
+        fixture('star', { value: 2, max: 3, 'data-mirror': 'always' }, 'rtl'),
+        fixture('forced-ltr', { value: 2, max: 3, icon: 'favorite', 'data-mirror': 'always' }),
+      ],
+    });
+    // Every mark's two layers: the first mark is selected (on) and the last is not (off), both drawn.
+    const glyphs = (id: string) => [0, 1, 2].flatMap((n) => [item(page, id, n).locator('.on .glyph'), item(page, id, n).locator('.off .glyph')]);
+    const all = (each: string) => Array(6).fill(each);
+    for (const [id, each] of [['listed', 'mirrored'], ['forced', 'mirrored'], ['forbidden', 'plain'], ['star', 'plain'], ['forced-ltr', 'plain']] as const) {
+      await expect.poll(() => mirroring(glyphs(id)), id).toEqual(all(each));
+    }
+    // The rating mirrors nothing itself, whatever its word.
+    for (const part of [host(page, 'forced'), item(page, 'forced', 0), item(page, 'forced', 0).locator('.mark')]) expect(await css(part, 'transform')).toBe('none');
+    // The word changed on a rating already drawn.
+    await host(page, 'listed').evaluate((el) => el.setAttribute('data-mirror', 'never'));
+    await expect.poll(() => mirroring(glyphs('listed'))).toEqual(all('plain'));
+    await host(page, 'listed').evaluate((el) => el.removeAttribute('data-mirror'));
+    await expect.poll(() => mirroring(glyphs('listed'))).toEqual(all('mirrored'));
+    // The direction changed on an ancestor while drawn: read in the same task, before any frame, with no motion started.
+    for (const id of ['forced-ltr', 'forced']) await motionEnded(host(page, id));
+    expect(await mirroringAfterDirection(page.locator('[data-fixture="forced-ltr"]'), 'rtl', glyphs('forced-ltr'))).toEqual(all('mirrored'));
+    expect(await mirroringAfterDirection(page.locator('[data-fixture="forced"]'), 'ltr', glyphs('forced'))).toEqual(all('plain'));
+    for (const id of ['forced-ltr', 'forced']) expect(await motionCount(host(page, id)), id).toBe(0);
   });
 
   test('RAT-17: with forced colors every mark is in the text color, filled or outlined, the hovered container in the highlight color, a disabled rating in the disabled text color', async ({ page }) => {
