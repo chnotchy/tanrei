@@ -251,7 +251,7 @@ test.describe('the parts and their order', () => {
     expect(await px(eyebrow(page, 'japanese'), 'letter-spacing'), 'japanese eyebrow').toBe(await px(eyebrow(page, 'eyebrow'), 'letter-spacing'));
     const tracking = await page.evaluate(() => {
       const probe = document.createElement('div');
-      probe.style.cssText = 'font: var(--tanrei-sys-typescale-heading-1-font); letter-spacing: var(--tanrei-sys-typescale-heading-1-letter-spacing)';
+      probe.style.cssText = 'font: var(--tanrei-sys-typescale-heading-1-font-weight) var(--tanrei-sys-typescale-heading-1-font-size)/var(--tanrei-sys-typescale-heading-1-line-height) var(--tanrei-sys-typescale-heading-1-font-family); letter-spacing: var(--tanrei-sys-typescale-heading-1-letter-spacing)';
       document.body.append(probe);
       const value = Number.parseFloat(getComputedStyle(probe).letterSpacing);
       probe.remove();

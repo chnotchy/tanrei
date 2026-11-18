@@ -542,7 +542,7 @@ test.describe('behavior', () => {
         const stage = document.querySelector(`[data-fixture="${fixture}"]`)!;
         const tag = stage.querySelector('tanrei-tag')!;
         const p = document.createElement('p');
-        p.style.font = 'var(--tanrei-sys-typescale-body-font)';
+        p.style.font = 'var(--tanrei-sys-typescale-body-font-weight) var(--tanrei-sys-typescale-body-font-size)/var(--tanrei-sys-typescale-body-line-height) var(--tanrei-sys-typescale-body-font-family)';
         p.style.margin = '0';
         p.append('The carousel is ', tag, ' on the web');
         stage.append(p);

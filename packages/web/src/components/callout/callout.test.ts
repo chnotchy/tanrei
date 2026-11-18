@@ -129,7 +129,7 @@ const iconColor = (page: P, status: string, variant: string) => colorOf(page, `c
 const role = (page: P, name: string) =>
   page.evaluate((n) => {
     const probe = document.createElement('div');
-    probe.style.cssText = `position:absolute;visibility:hidden;font:var(${n}-font);letter-spacing:var(${n}-letter-spacing)`;
+    probe.style.cssText = `position:absolute;visibility:hidden;font:var(${n}-font-weight) var(${n}-font-size)/var(${n}-line-height) var(${n}-font-family);letter-spacing:var(${n}-letter-spacing)`;
     document.body.append(probe);
     const s = getComputedStyle(probe);
     const out = { fontSize: s.fontSize, lineHeight: s.lineHeight, fontWeight: s.fontWeight, letterSpacing: s.letterSpacing, fontFamily: s.fontFamily.replaceAll('"', '') };
@@ -1295,7 +1295,7 @@ test.describe('behavior', () => {
     // The page as a server sends it: the tokens, the stylesheets, the content — and no script yet.
     await page.setContent(`<!doctype html><html lang="en" data-tanrei-theme="light"><head><meta charset="utf-8"><title>before definition</title>
       <style>${dist('tokens.css')}</style><style>${dist('prose.css')}</style><style>${dist('callout.css')}</style>
-      <style>body { margin: 16px; inline-size: 480px; font: var(--tanrei-sys-typescale-body-font); } p.after { margin: 8px 0; }</style></head><body>${callouts}</body></html>`);
+      <style>body { margin: 16px; inline-size: 480px; font: var(--tanrei-sys-typescale-body-font-weight) var(--tanrei-sys-typescale-body-font-size)/var(--tanrei-sys-typescale-body-line-height) var(--tanrei-sys-typescale-body-font-family); } p.after { margin: 8px 0; }</style></head><body>${callouts}</body></html>`);
     expect(await page.evaluate(() => !!customElements.get('tanrei-callout'))).toBe(false);
     const measure = () =>
       page.evaluate(() => {

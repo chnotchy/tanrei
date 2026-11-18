@@ -560,7 +560,7 @@ test.describe('behavior', () => {
       const stage = document.querySelector('[data-fixture="inline"]')!;
       const shortcut = stage.querySelector('tanrei-keyboard-shortcut')!;
       const p = document.createElement('p');
-      p.style.font = 'var(--tanrei-sys-typescale-body-font)';
+      p.style.font = 'var(--tanrei-sys-typescale-body-font-weight) var(--tanrei-sys-typescale-body-font-size)/var(--tanrei-sys-typescale-body-line-height) var(--tanrei-sys-typescale-body-font-family)';
       p.append('Press ', shortcut, ' to search');
       stage.append(p);
       const marker = () => Object.assign(document.createElement('span'), { style: 'display:inline-block;inline-size:0;block-size:0' });

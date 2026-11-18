@@ -6,7 +6,7 @@ import AxeBuilder from '@axe-core/playwright';
 import { atRest } from '../../../test/at-rest.js';
 import { type Locator, type Page, expect, test } from '@playwright/test';
 import { bounds, css, override, warnings } from '../../../test/destinations.js';
-import { type Fixture, type FixtureItem, innerStrokeAtEdges, loadSpec, mountFixtures, resolveColor, resolveToken, tab, tabTo } from '../../../test/harness.js';
+import { type Fixture, type FixtureItem, innerStrokeAtEdges, loadSpec, mountFixtures, resolveColor, resolveToken, roleFont, tab, tabTo } from '../../../test/harness.js';
 import { expectWheelKeptFromPage } from '../../../test/contained-wheel.js';
 import { EVERY_ANIMATION, expectFromNextFrame, motionEnded } from '../../../test/motions.js';
 import { entrances, loadOpen, mountOpenAgain, runsAtRest } from '../../../test/mounted-open.js';
@@ -313,7 +313,7 @@ test.describe('drawing', () => {
     const role = await page.evaluate(
       ([font, spacing]) => {
         const p = document.createElement('div');
-        p.style.font = `var(${font})`;
+        p.style.font = font;
         p.style.letterSpacing = `var(${spacing})`;
         document.body.appendChild(p);
         const s = getComputedStyle(p);
@@ -321,7 +321,7 @@ test.describe('drawing', () => {
         p.remove();
         return v;
       },
-      [T('headline-typescale-font'), T('headline-typescale-letter-spacing')] as const,
+      [roleFont(T('headline-typescale')), T('headline-typescale-letter-spacing')] as const,
     );
     expect(await headline(page).evaluate((el) => ['fontSize', 'lineHeight', 'fontWeight', 'fontFamily', 'letterSpacing'].map((k) => (getComputedStyle(el) as any)[k]))).toEqual(role);
     await expect(host(page).getByRole('heading', { name: 'Filters' })).toHaveCount(1);
@@ -338,7 +338,7 @@ test.describe('drawing', () => {
     await expect(content(page)).toHaveCSS('color', await resolveColor(page, T('content-color')));
     const body = await page.evaluate(() => {
       const p = document.createElement('div');
-      p.style.font = 'var(--tanrei-sys-typescale-body-font)';
+      p.style.font = 'var(--tanrei-sys-typescale-body-font-weight) var(--tanrei-sys-typescale-body-font-size)/var(--tanrei-sys-typescale-body-line-height) var(--tanrei-sys-typescale-body-font-family)';
       document.body.appendChild(p);
       const v = [getComputedStyle(p).fontSize, getComputedStyle(p).lineHeight];
       p.remove();

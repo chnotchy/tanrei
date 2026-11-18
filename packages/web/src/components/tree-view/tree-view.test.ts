@@ -393,7 +393,7 @@ test.describe('the column, the rows and their parts', () => {
       await page.evaluate((d) => {
         const el = document.createElement('p');
         el.id = `probe-${d}`;
-        el.style.cssText = `font: var(--tanrei-comp-tree-view-label-typescale-${d}-font); letter-spacing: var(--tanrei-comp-tree-view-label-typescale-${d}-letter-spacing)`;
+        el.style.cssText = `font: var(--tanrei-comp-tree-view-label-typescale-${d}-font-weight) var(--tanrei-comp-tree-view-label-typescale-${d}-font-size)/var(--tanrei-comp-tree-view-label-typescale-${d}-line-height) var(--tanrei-comp-tree-view-label-typescale-${d}-font-family); letter-spacing: var(--tanrei-comp-tree-view-label-typescale-${d}-letter-spacing)`;
         document.body.append(el);
       }, size);
       return page.locator(`#probe-${size}`);
@@ -464,7 +464,7 @@ test.describe('the column, the rows and their parts', () => {
     await expect.poll(() => css(row(page, 'all-parts', 'index.ts').locator('[data-supporting-text]'), 'color')).toBe(await resolveColor(page, T('selected-supporting-text-color')));
     const style = await page.evaluate(() => {
       const el = document.createElement('p');
-      el.style.cssText = 'font: var(--tanrei-comp-tree-view-supporting-text-typescale-font)';
+      el.style.cssText = 'font: var(--tanrei-comp-tree-view-supporting-text-typescale-font-weight) var(--tanrei-comp-tree-view-supporting-text-typescale-font-size)/var(--tanrei-comp-tree-view-supporting-text-typescale-line-height) var(--tanrei-comp-tree-view-supporting-text-typescale-font-family)';
       document.body.append(el);
       return getComputedStyle(el).fontSize;
     });

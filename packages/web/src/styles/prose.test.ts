@@ -77,7 +77,7 @@ async function textStyle(page: P, selector: string, role: string) {
     (el, [r, keys]) => {
       const pick = (e: Element) => Object.fromEntries(keys.map((k) => [k, (getComputedStyle(e) as unknown as Record<string, string>)[k].replaceAll('"', '').replace(/^normal$/, '0px')]));
       const probe = document.createElement('span');
-      probe.style.cssText = `font: var(--tanrei-${r}-font); letter-spacing: var(--tanrei-${r}-letter-spacing)`;
+      probe.style.cssText = `font: var(--tanrei-${r}-font-weight) var(--tanrei-${r}-font-size)/var(--tanrei-${r}-line-height) var(--tanrei-${r}-font-family); letter-spacing: var(--tanrei-${r}-letter-spacing)`;
       document.body.append(probe);
       const out = { element: pick(el), role: pick(probe) };
       probe.remove();
@@ -709,7 +709,7 @@ test.describe('what is not text', () => {
       const inherited = getComputedStyle(document.querySelector('.tanrei-prose')!);
       const control = document.createElement('div');
       control.id = 'control';
-      control.style.cssText = `inline-size: 720px; font: var(--tanrei-comp-prose-text-typescale-medium-font); letter-spacing: var(--tanrei-comp-prose-text-typescale-medium-letter-spacing); overflow-wrap: break-word; color: ${inherited.color}`;
+      control.style.cssText = `inline-size: 720px; font: var(--tanrei-comp-prose-text-typescale-medium-font-weight) var(--tanrei-comp-prose-text-typescale-medium-font-size)/var(--tanrei-comp-prose-text-typescale-medium-line-height) var(--tanrei-comp-prose-text-typescale-medium-font-family); letter-spacing: var(--tanrei-comp-prose-text-typescale-medium-letter-spacing); overflow-wrap: break-word; color: ${inherited.color}`;
       control.innerHTML = `<tanrei-card id="c-card">${html}</tanrei-card><div id="c-plain">${html}</div>`;
       document.body.append(control);
     }, inside);

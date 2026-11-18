@@ -6,7 +6,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
-import { type Fixture, type FixtureItem, declarations, fixturesDocument, loadSpec, markMarkup, mountFixtures, resolveColor, resolveToken, tab, tabTo, rootTokens, typeRoleOf } from '../../../test/harness.js';
+import { type Fixture, type FixtureItem, declarations, fixturesDocument, loadSpec, markMarkup, mountFixtures, resolveColor, resolveToken, tab, tabTo, roleFont, rootTokens, typeRoleOf } from '../../../test/harness.js';
 import { motionEnded } from '../../../test/motions.js';
 import { expectBaseline } from '../../../test/baseline.js';
 
@@ -254,14 +254,14 @@ test.describe('layout', () => {
       page.evaluate(
         ([n, p, f]) => {
           const el = document.createElement('div');
-          el.style.cssText = `position:absolute;visibility:hidden;${f ? `font:var(${f});` : ''}${p}:var(${n})`;
+          el.style.cssText = `position:absolute;visibility:hidden;${f ? `font:${f};` : ''}${p}:${n}`;
           document.body.appendChild(el);
           const s = getComputedStyle(el);
           const value = p === 'font' ? `${s.fontWeight} ${s.fontSize} ${s.lineHeight} ${s.fontFamily}` : s.getPropertyValue(p);
           el.remove();
           return value;
         },
-        [name, property, font ?? ''] as const,
+        [property === 'font' ? roleFont(name) : `var(${name})`, property, font ? roleFont(font) : ''] as const,
       );
     const text = (locator: Locator) =>
       locator.evaluate((el) => {
@@ -271,15 +271,15 @@ test.describe('layout', () => {
     const title = inner(page, 'small-subtitle', '.row .title');
     const subtitle = inner(page, 'small-subtitle', '.row .subtitle');
     expect(await text(title)).toEqual({
-      font: await probe(T('title-typescale-small-font'), 'font'),
-      letterSpacing: await probe(T('title-typescale-small-letter-spacing'), 'letter-spacing', T('title-typescale-small-font')),
+      font: await probe(T('title-typescale-small'), 'font'),
+      letterSpacing: await probe(T('title-typescale-small-letter-spacing'), 'letter-spacing', T('title-typescale-small')),
       color: await resolveColor(page, T('title-color')),
       whiteSpace: 'nowrap',
       overflow: 'ellipsis',
     });
     expect(await text(subtitle)).toEqual({
-      font: await probe(T('subtitle-typescale-small-font'), 'font'),
-      letterSpacing: await probe(T('subtitle-typescale-small-letter-spacing'), 'letter-spacing', T('subtitle-typescale-small-font')),
+      font: await probe(T('subtitle-typescale-small'), 'font'),
+      letterSpacing: await probe(T('subtitle-typescale-small-letter-spacing'), 'letter-spacing', T('subtitle-typescale-small')),
       color: await resolveColor(page, T('subtitle-color')),
       whiteSpace: 'nowrap',
       overflow: 'ellipsis',
@@ -359,12 +359,12 @@ test.describe('layout', () => {
       const title = inner(page, id, '.expanded .title');
       expect(await title.evaluate((el) => getComputedStyle(el).font), id).toBe(await page.evaluate((n) => {
         const p = document.createElement('div');
-        p.style.font = `var(${n})`;
+        p.style.font = n;
         document.body.appendChild(p);
         const v = getComputedStyle(p).font;
         p.remove();
         return v;
-      }, T('title-typescale-large-font')));
+      }, roleFont(T('title-typescale-large'))));
       const t = await bounds(title);
       expect(t.x - own.x, id).toBe(inset);
       const last = await bounds(inner(page, id, id === 'large' ? '.expanded .title' : '.expanded .subtitle'));
@@ -373,12 +373,12 @@ test.describe('layout', () => {
     const subtitle = inner(page, 'large-subtitle', '.expanded .subtitle');
     expect(await css(subtitle, 'font-size')).toBe(await page.evaluate((n) => {
       const p = document.createElement('div');
-      p.style.font = `var(${n})`;
+      p.style.font = n;
       document.body.appendChild(p);
       const v = getComputedStyle(p).fontSize;
       p.remove();
       return v;
-    }, T('subtitle-typescale-large-font')));
+    }, roleFont(T('subtitle-typescale-large'))));
     // One line, cut at the end, title.inset from the end edge too.
     await bar(page, 'large').evaluate((el: any) => (el.headline = 'A very long screen title that cannot fit on one line of a large bar'));
     await bar(page, 'large').evaluate((el: any) => el.updateComplete);

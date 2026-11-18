@@ -88,7 +88,7 @@ const tokenColor = (page: P, name: string) => colorOf(page, `var(${T(name)})`);
 const role = (page: P, name: string) =>
   page.evaluate((n) => {
     const probe = document.createElement('div');
-    probe.style.cssText = `position:absolute;visibility:hidden;font:var(${n}-font);letter-spacing:var(${n}-letter-spacing)`;
+    probe.style.cssText = `position:absolute;visibility:hidden;font:var(${n}-font-weight) var(${n}-font-size)/var(${n}-line-height) var(${n}-font-family);letter-spacing:var(${n}-letter-spacing)`;
     document.body.append(probe);
     const s = getComputedStyle(probe);
     const out = { fontSize: s.fontSize, lineHeight: s.lineHeight, fontWeight: s.fontWeight, letterSpacing: s.letterSpacing, fontFamily: s.fontFamily.replaceAll('"', '') };

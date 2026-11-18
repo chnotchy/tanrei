@@ -24,7 +24,7 @@ const mountSpec = (page: P, ids: string[] = [], options: { theme?: 'light' | 'da
 const mount = (page: P, html: string, { direction, width = 480 }: { direction?: 'ltr' | 'rtl'; width?: number } = {}) =>
   mountFixtures(page, spec, {
     icons: true,
-    fixtures: [{ id: 't', props: {}, content: `<div id="text" style="inline-size: ${width}px; font: var(--tanrei-sys-typescale-body-font); letter-spacing: var(--tanrei-sys-typescale-body-letter-spacing); color: var(--tanrei-sys-color-on-surface)">${html}</div>`, ...(direction ? { direction } : {}) }],
+    fixtures: [{ id: 't', props: {}, content: `<div id="text" style="inline-size: ${width}px; font: var(--tanrei-sys-typescale-body-font-weight) var(--tanrei-sys-typescale-body-font-size)/var(--tanrei-sys-typescale-body-line-height) var(--tanrei-sys-typescale-body-font-family); letter-spacing: var(--tanrei-sys-typescale-body-letter-spacing); color: var(--tanrei-sys-color-on-surface)">${html}</div>`, ...(direction ? { direction } : {}) }],
   });
 const CODE = (text: string, attributes = '') => `<code class="tanrei-code"${attributes ? ` ${attributes}` : ''}>${text}</code>`;
 
@@ -169,9 +169,9 @@ test.describe('the text', () => {
     expect(await px(h2.locator('code'), 'font-size')).not.toBeCloseTo(await resolveToken(page, T('label-typescale-font-size')), 0);
     // Whatever the text is.
     await mountFixtures(page, spec, {
-      fixtures: [{ id: 't', props: {}, content: `${[1, 2, 3, 4, 5, 6].map((n) => `<h${n} style="font: var(--tanrei-sys-typescale-heading-${n}-font)">h ${CODE('x', `id="h${n}"`)}</h${n}>`).join('')}
-        <p style="font: var(--tanrei-sys-typescale-caption-font)">caption ${CODE('x', 'id="caption"')}</p><p style="font: var(--tanrei-sys-typescale-label-font)">label ${CODE('x', 'id="label"')}</p>
-        <table style="font: var(--tanrei-sys-typescale-body-small-font)"><tr><td>cell ${CODE('x', 'id="cell"')}</td></tr></table>` }],
+      fixtures: [{ id: 't', props: {}, content: `${[1, 2, 3, 4, 5, 6].map((n) => `<h${n} style="font: var(--tanrei-sys-typescale-heading-${n}-font-weight) var(--tanrei-sys-typescale-heading-${n}-font-size)/var(--tanrei-sys-typescale-heading-${n}-line-height) var(--tanrei-sys-typescale-heading-${n}-font-family)">h ${CODE('x', `id="h${n}"`)}</h${n}>`).join('')}
+        <p style="font: var(--tanrei-sys-typescale-caption-font-weight) var(--tanrei-sys-typescale-caption-font-size)/var(--tanrei-sys-typescale-caption-line-height) var(--tanrei-sys-typescale-caption-font-family)">caption ${CODE('x', 'id="caption"')}</p><p style="font: var(--tanrei-sys-typescale-label-font-weight) var(--tanrei-sys-typescale-label-font-size)/var(--tanrei-sys-typescale-label-line-height) var(--tanrei-sys-typescale-label-font-family)">label ${CODE('x', 'id="label"')}</p>
+        <table style="font: var(--tanrei-sys-typescale-body-small-font-weight) var(--tanrei-sys-typescale-body-small-font-size)/var(--tanrei-sys-typescale-body-small-line-height) var(--tanrei-sys-typescale-body-small-font-family)"><tr><td>cell ${CODE('x', 'id="cell"')}</td></tr></table>` }],
     });
     for (const id of ['h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'caption', 'label', 'cell']) {
       const code = page.locator(`#${id}`);

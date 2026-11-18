@@ -7,7 +7,7 @@
 // src/primitives/delegated-aria.test.ts.
 import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
-import { type Fixture, innerStrokeAtEdges, loadSpec, mountFixtures, popoverWindow, resolveColor, resolveToken, rootTokens, tab, tabTo } from '../../../test/harness.js';
+import { type Fixture, innerStrokeAtEdges, loadSpec, mountFixtures, popoverWindow, resolveColor, resolveToken, roleFont, rootTokens, tab, tabTo } from '../../../test/harness.js';
 import { appearProbe, bezierOf, expectAppearStart, expectExitEnd, expectSlideExitEnd, expectSlidOnly, expectTurnedAlone, resolveEasing, sheetProbe, slidOut, turnHeld } from '../../../test/appear.js';
 import { type Frames, expectAnimated, expectNoFlicker, freezeFirstFrame, sampleFrames } from '../../../test/frames.js';
 import { expectFromNextFrame, motionEnded } from '../../../test/motions.js';
@@ -1084,12 +1084,12 @@ test.describe('size and layout', () => {
     expect(Number.parseFloat(await css(headline, 'font-size'))).toBeCloseTo(await resolveToken(page, T('headline-typescale-font-size')), 1);
     expect(await css(headline, 'font-weight')).toBe(await token(page, '--tanrei-sys-typescale-heading-6-font-weight').then(async () => page.evaluate((n) => {
       const probe = document.createElement('div');
-      probe.style.font = `var(${n})`;
+      probe.style.font = n;
       document.body.appendChild(probe);
       const weight = getComputedStyle(probe).fontWeight;
       probe.remove();
       return weight;
-    }, T('headline-typescale-font'))));
+    }, roleFont(T('headline-typescale')))));
     await expect(page.getByRole('heading', { name: 'Storage' })).toHaveCount(1);
     const one = await rect(headline);
     await set(page, { headline: 'Everything that counts toward the storage of this account and of the people it is shared with' });
