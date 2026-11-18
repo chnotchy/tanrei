@@ -1227,6 +1227,22 @@ test.describe('changes, direction, text size, forced colors', () => {
     expect(await sides()).toMatchObject({ firstAtLeft: true });
   });
 
+  test('TBL-26: the direction the scroll follows is the layout’s — a table that a page keeps left to right with the CSS direction property alone keeps its scroll when a dir around it changes, since its layout does not turn', async ({ page }) => {
+    await mountFixtures(page, spec, { fixtures: [{ ...fixture('wide-sticky-column'), id: 'kept' }], dir: 'ltr' });
+    await size(page, 'kept', { width: 480 });
+    // The page holds this region left to right whatever the language: a style, no dir attribute.
+    await stage(page, 'kept').evaluate((el) => el.style.setProperty('direction', 'ltr'));
+    await host(page, 'kept').evaluate((el) => (el.scrollLeft = 180));
+    await expect(host(page, 'kept')).toHaveAttribute('data-more-start', '');
+    // The page's language turns right to left: the table still lies left to right, scrolled where it was.
+    await page.evaluate(() => document.documentElement.setAttribute('dir', 'rtl'));
+    expect(await host(page, 'kept').evaluate((el) => getComputedStyle(el).direction)).toBe('ltr');
+    // (The watch hears the change in a microtask of the task that made it: a frame later, it has been heard.)
+    await frame(page);
+    expect(Math.round((await scroll(host(page, 'kept'))).left)).toBe(180);
+    await expect(host(page, 'kept')).toHaveAttribute('data-more-start', '');
+  });
+
   test('TBL-27: in a right-to-left layout the columns run from the right, the scroll begins at the right edge, a first column that stays is at the right with its line on its left, and the lines of TBL-21 are at the edges columns lie beyond; top and bottom do not change', async ({ page }) => {
     await mountFixtures(page, spec, { fixtures: some('rtl-wide-sticky-column', 'rtl') });
     const id = 'rtl-wide-sticky-column';
