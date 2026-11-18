@@ -948,7 +948,7 @@ export class TanreiSelect extends TanreiElement {
           @blur=${this.#onBlur}
         >
           <span part="leading-icon" class="icon leading-slot" aria-hidden="true"><slot name="leading-icon" @slotchange=${this.#onLeadingSlotChange}></slot></span>
-          <span part="leading-icon" class="icon leading-own" aria-hidden="true"><span class="ink">${leading === 'option' ? chosen?.leadingIcon : nothing}</span></span>
+          <span part="leading-icon" class="icon leading-own" aria-hidden="true" data-mirror=${leading === 'option' ? (chosen?.mirror ?? nothing) : nothing}><span class="ink">${leading === 'option' ? chosen?.leadingIcon : nothing}</span></span>
           <div class="body">
             <span class="sizer" aria-hidden="true">${this.sizerLines(model)}</span>
             <span class="line"

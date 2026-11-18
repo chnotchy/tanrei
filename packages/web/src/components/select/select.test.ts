@@ -14,7 +14,8 @@ import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
 import { appearProbe, bezierOf, expectAppearStart, expectExitEnd, resolveEasing } from '../../../test/appear.js';
 import { expectNoFlicker, sampleFrames } from '../../../test/frames.js';
-import { motionEnded } from '../../../test/motions.js';
+import { motionCount, motionEnded } from '../../../test/motions.js';
+import { mirroring, mirroringAfterDirection } from '../../../test/mirror-word.js';
 import { entrances, loadOpen, mountOpenAgain, runsAtRest } from '../../../test/mounted-open.js';
 import { expectWheelKeptFromPage } from '../../../test/contained-wheel.js';
 import { holdClock, releaseClock } from '../../../test/page-clock.js';
@@ -2662,6 +2663,32 @@ test.describe('behavior: conditions, exposure, size and direction', () => {
     expect(await mirrored(host(page, 'image').locator('[slot="leading-icon"]'))).toBe(false);
     // Left to right: marked all the same, and not mirrored.
     expect(await mirrored(part(page, 'ltr', '.leading-own'))).toBe(false);
+  });
+
+  test('SEL-57: data-mirror on an option is the product’s word on its leadingIcon, in the list and in the container — always mirrors an unmarked name in right-to-left, never keeps a marked one, none leaves it to the icon set; nothing is mirrored in left-to-right; a change of the word or of an ancestor’s direction is drawn at once, without a motion', async ({ page }) => {
+    const OPTIONS = '<tanrei-option value="a" leading-icon="arrow_forward">A</tanrei-option><tanrei-option value="b" leading-icon="check" data-mirror="always">B</tanrei-option><tanrei-option value="c" leading-icon="send" data-mirror="never">C</tanrei-option>';
+    await mount(page, [fx('words', { value: 'b', open: true }, OPTIONS, { direction: 'rtl' }), fx('words-ltr', { value: 'b', open: true }, OPTIONS), fx('chosen', { value: 'c' }, OPTIONS, { direction: 'rtl' })]);
+    const glyphs = (id: string) => [...['A', 'B', 'C'].map((label) => row(page, id, label).locator('.option-icon')), part(page, id, '.leading-own')];
+    // The container shows the chosen option's glyph with that option's word: B, forced.
+    const RTL = ['mirrored', 'mirrored', 'plain', 'mirrored'];
+    const LTR = RTL.map(() => 'plain');
+    await expect.poll(() => mirroring(glyphs('words'))).toEqual(RTL);
+    await expect.poll(() => mirroring(glyphs('words-ltr'))).toEqual(LTR);
+    // C, chosen, is forbidden in the container too.
+    await expect.poll(() => mirroring([part(page, 'chosen', '.leading-own')])).toEqual(['plain']);
+    // The word changed on an option already drawn: in its row and, while it is the chosen one, in the container.
+    const option = (id: string, value: string) => host(page, id).locator(`tanrei-option[value="${value}"]`);
+    await option('words', 'a').evaluate((el) => el.setAttribute('data-mirror', 'never'));
+    await option('words', 'b').evaluate((el) => el.setAttribute('data-mirror', 'never'));
+    await expect.poll(() => mirroring(glyphs('words'))).toEqual(['plain', 'plain', 'plain', 'plain']);
+    await option('words', 'a').evaluate((el) => el.removeAttribute('data-mirror'));
+    await option('words', 'b').evaluate((el) => el.setAttribute('data-mirror', 'always'));
+    await expect.poll(() => mirroring(glyphs('words'))).toEqual(RTL);
+    // The direction changed on an ancestor while drawn: read in the same task, before any frame, with no motion started.
+    for (const id of ['words', 'words-ltr']) await motionEnded(host(page, id));
+    expect(await mirroringAfterDirection(page.locator('[data-fixture="words-ltr"]'), 'rtl', glyphs('words-ltr'))).toEqual(RTL);
+    expect(await mirroringAfterDirection(page.locator('[data-fixture="words"]'), 'ltr', glyphs('words'))).toEqual(LTR);
+    for (const id of ['words-ltr', 'words']) expect(await motionCount(host(page, id)), id).toBe(0);
   });
 
   test('SEL-58, SEL-59: the floating label, the placeholder, the value, an option’s label and supporting text and a group’s title are each a run of their own direction, isolated, placed and aligned by the layout direction; a value that does not fit is cut at the end of its own direction', async ({ page }) => {

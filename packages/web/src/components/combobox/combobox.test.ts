@@ -13,7 +13,8 @@ import { type Locator, type Page, expect, test } from '@playwright/test';
 import { appearProbe, bezierOf, expectAppearStart, expectExitEnd, resolveEasing } from '../../../test/appear.js';
 import { expectFirstFrameAtRest, expectNoFlicker, sampleFrames } from '../../../test/frames.js';
 import { appearingFixture } from '../../../test/first-frame.js';
-import { motionEnded } from '../../../test/motions.js';
+import { motionCount, motionEnded } from '../../../test/motions.js';
+import { mirroring, mirroringAfterDirection } from '../../../test/mirror-word.js';
 import { entrances, loadOpen, mountOpenAgain, runsAtRest } from '../../../test/mounted-open.js';
 import { expectWheelKeptFromPage } from '../../../test/contained-wheel.js';
 import { holdClock } from '../../../test/page-clock.js';
@@ -2940,6 +2941,38 @@ test.describe('behavior: conditions, exposure, size and direction', () => {
     expect(await mirrored(host(page, 'image').locator('[slot="leading-icon"]'))).toBe(false);
     // Left to right: marked all the same, and not mirrored.
     expect(await mirrored(part(page, 'ltr', '.leading-own'))).toBe(false);
+  });
+
+  test('CMB-54: data-mirror on an option is the product’s word on its leadingIcon, in the list and in the container — always mirrors an unmarked name in right-to-left, never keeps a marked one, none leaves it to the icon set; nothing is mirrored in left-to-right; a change of the word or of an ancestor’s direction is drawn at once, without a motion', async ({ page }) => {
+    const OPTIONS = '<tanrei-option value="a" leading-icon="arrow_forward">A</tanrei-option><tanrei-option value="b" leading-icon="check" data-mirror="always">B</tanrei-option><tanrei-option value="c" leading-icon="send" data-mirror="never">C</tanrei-option>';
+    await mount(page, [
+      fx('words', { open: true }, OPTIONS, { direction: 'rtl' }),
+      fx('words-ltr', { open: true }, OPTIONS),
+      fx('chosen', { value: 'b' }, OPTIONS, { direction: 'rtl' }),
+      fx('chosen-ltr', { value: 'b' }, OPTIONS),
+      fx('kept', { value: 'c' }, OPTIONS, { direction: 'rtl' }),
+    ]);
+    const rows = (id: string) => ['A', 'B', 'C'].map((label) => row(page, id, label).locator('.option-icon'));
+    const own = (id: string) => [part(page, id, '.leading-own')];
+    await expect.poll(() => mirroring(rows('words'))).toEqual(['mirrored', 'mirrored', 'plain']);
+    await expect.poll(() => mirroring(rows('words-ltr'))).toEqual(['plain', 'plain', 'plain']);
+    // The container shows the chosen option's glyph with that option's word.
+    await expect.poll(() => mirroring([...own('chosen'), ...own('chosen-ltr'), ...own('kept')])).toEqual(['mirrored', 'plain', 'plain']);
+    // The word changed on an option already drawn: in its row and, while it is the chosen one, in the container.
+    const option = (id: string, value: string) => host(page, id).locator(`tanrei-option[value="${value}"]`);
+    await option('words', 'a').evaluate((el) => el.setAttribute('data-mirror', 'never'));
+    await option('chosen', 'b').evaluate((el) => el.setAttribute('data-mirror', 'never'));
+    await expect.poll(() => mirroring([...rows('words'), ...own('chosen')])).toEqual(['plain', 'mirrored', 'plain', 'plain']);
+    await option('words', 'a').evaluate((el) => el.removeAttribute('data-mirror'));
+    await option('chosen', 'b').evaluate((el) => el.setAttribute('data-mirror', 'always'));
+    await expect.poll(() => mirroring([...rows('words'), ...own('chosen')])).toEqual(['mirrored', 'mirrored', 'plain', 'mirrored']);
+    // The direction changed on an ancestor while drawn: read in the same task, before any frame, with no motion started.
+    for (const id of ['words', 'words-ltr', 'chosen', 'chosen-ltr']) await motionEnded(host(page, id));
+    expect(await mirroringAfterDirection(page.locator('[data-fixture="words-ltr"]'), 'rtl', rows('words-ltr'))).toEqual(['mirrored', 'mirrored', 'plain']);
+    expect(await mirroringAfterDirection(page.locator('[data-fixture="words"]'), 'ltr', rows('words'))).toEqual(['plain', 'plain', 'plain']);
+    expect(await mirroringAfterDirection(page.locator('[data-fixture="chosen-ltr"]'), 'rtl', own('chosen-ltr'))).toEqual(['mirrored']);
+    expect(await mirroringAfterDirection(page.locator('[data-fixture="chosen"]'), 'ltr', own('chosen'))).toEqual(['plain']);
+    for (const id of ['words-ltr', 'words', 'chosen-ltr', 'chosen']) expect(await motionCount(host(page, id)), id).toBe(0);
   });
 
   test('CMB-55: a floating label, the placeholder, an option’s label and supporting text, a group’s title and the status row’s text are each a run of their own direction, isolated, placed and aligned by the layout direction; the text in the input is laid out by its own direction, and an empty input by the layout’s, so its caret and placeholder stand at its start edge', async ({ page, browserName }) => {
