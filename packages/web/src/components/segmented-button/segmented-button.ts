@@ -317,6 +317,7 @@ export class TanreiSegmentedButton extends TanreiElement {
     value: { type: String },
     values: { attribute: 'values', converter: { fromAttribute: parseValues } },
     size: { type: String, reflect: true },
+    fullWidth: { type: Boolean, reflect: true, attribute: 'full-width' },
     label: { type: String },
     check: { state: true },
   };
@@ -332,6 +333,12 @@ export class TanreiSegmentedButton extends TanreiElement {
 
   /** Visual height (32 / 36 / 40 in the default system, Button's heights). The hit area always meets the minimum target. */
   size: TanreiSegmentedButtonSize = 'medium';
+
+  /**
+   * Takes the whole width its container gives it (the `full-width` attribute), shared equally among the segments, each
+   * segment's content centred in its share, at the height of its size (SEG-30).
+   */
+  fullWidth = false;
 
   /** The accessible name of the set: the question its options answer ("Range", "Text alignment"). Required. */
   label = '';
