@@ -68,6 +68,23 @@ export function webPartsOf(name: string): DrawnPart[] | null {
   });
 }
 
+/**
+ * Every part the spec says where the web draws, by its id: the anatomy's parts and the parts of its members (a text
+ * field's `text-input.container`), as `platforms.web.parts` names them; a part the web draws no box for is left out.
+ */
+export function webPartTargets(name: string): Map<string, PartTarget> {
+  const parts = getSpec(name).platforms.web?.parts ?? {};
+  const targets = new Map<string, PartTarget>();
+  for (const [id, value] of Object.entries(parts)) {
+    const read = readPart(value, definedTags) as Record<string, unknown>;
+    if ('noBox' in read) continue;
+    if (read.problem) throw new Error(`${name}: platforms.web.parts "${id}": "${String(value)}" ${String(read.problem)}`);
+    const { problem: _problem, aspect, ...rest } = read;
+    targets.set(id, (aspect ? { ...rest, aspect } : rest) as PartTarget);
+  }
+  return targets;
+}
+
 /** The fixture a component's anatomy figure draws: the spec's `anatomyFixture`, else its first fixture. */
 export function anatomyFixtureOf(name: string): string | undefined {
   const spec = getSpec(name);
