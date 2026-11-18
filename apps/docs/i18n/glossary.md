@@ -1108,6 +1108,8 @@ These supersede an older Arabic cell where the two disagree.
 | millisecond | `ميلي ثانية`; a value keeps its unit (`100ms`) |
 | read overlay / operated overlay | `تراكب قراءة` / `تراكب مُشغَّل (operated overlay)` |
 | SF Symbol | `أيقونة SF Symbol` — not `رمز`, which is a token |
+| symbol set (a platform's set of icons that is not a font, such as SF Symbols) | `مجموعة أيقونات` — never `مجموعة الرموز`, which reads as a set of tokens |
+| legend (of a table or a figure: what its marks mean) | `وسيلة الإيضاح`, as Arabic interfaces name a chart's legend — never `مفتاح الرموز`, which reads as a key of tokens |
 | destructive (an action) | `لا رجعة فيه` |
 | ships (a system ships a component) | `يتضمن` |
 | a position the component announces in English | inline code inside the quotes, so the run keeps its order: `` «`2 of 3`» `` |
