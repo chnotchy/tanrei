@@ -24,7 +24,7 @@ import Example from '../../../components/visuals/Example.astro';
 
 ### Usage
 
-The Web and React samples show the current spec. SwiftUI, Compose, Flutter and React Native are lagging: they do not have `separation` yet, and their samples show what they ship.
+The Web and React samples show the current spec: the indicator waits before it is shown, and so do the demos on this page, which appear after the delay. SwiftUI, Compose, Flutter and React Native are lagging: they do not have `separation` or the show delay yet, they draw and expose the indicator as soon as it is inserted, and their samples show what they ship.
 
 <Tabs syncKey="platform">
   <TabItem label="Web">
@@ -37,6 +37,9 @@ The Web and React samples show the current spec. SwiftUI, Compose, Flutter and R
 
     <!-- A gap between the indicator and the rest of the track, whatever the design system chose. -->
     <tanrei-progress-indicator separation="gap" value="0.4" label="Uploading report.pdf"></tanrei-progress-indicator>
+
+    <!-- A task the person has just started and is watching: shown at once, with no delay. -->
+    <tanrei-progress-indicator show-delay="0" value="0" label="Exporting"></tanrei-progress-indicator>
 
     <script type="module">
       import '@tanrei/web/components/progress-indicator';
@@ -53,6 +56,7 @@ The Web and React samples show the current spec. SwiftUI, Compose, Flutter and R
     <ProgressIndicator value={files} max={10} valueText={`${files} of 10 files`} label="Uploading" />
     <ProgressIndicator variant="circular" size="small" value={null} label="Syncing" />
     <ProgressIndicator separation="gap" value={sent / total} label="Uploading report.pdf" />
+    <ProgressIndicator showDelay={0} value={exported} label="Exporting" />
     ```
   </TabItem>
   <TabItem label="SwiftUI">
@@ -177,11 +181,20 @@ A determinate indicator is told from the rest of its track in one of two ways. U
 
 The design system chooses once for every component that has this choice, and the default system chooses divider. Leave `separation` at `auto` to follow that choice, so the indicator agrees with the button groups and menus around it. Set `divider` or `gap` on one indicator only when that one has a reason to differ.
 
+### Show delay
+
+A task that ends in a moment should show nothing. So the indicator waits before it is shown: 300 ms in the default system, counted from the moment it is inserted, the same wait as a [loading indicator](/components/loading-indicator/)'s. Then it appears at once, drawing the value the task has reached by then. A task shorter than the delay never shows a bar that flashes on and off. During the delay the indicator already takes its full size, so nothing beside it moves when it appears.
+
+Insert the indicator when the task starts and remove it when the task ends. The delay counts from insertion: an indicator that is hidden and shown again without being removed does not wait again, and one inserted again waits the whole delay again. A task that is done before the delay ends shows nothing, as long as you remove the indicator then.
+
+The system decides the delay for every indicator. Set `showDelay`, in milliseconds, on one indicator only when it needs a different pace: `0` shows it as it is inserted, for a task the person has just started and is watching. A value you set is used as given: the motion dial does not scale it. Leave it unset to take the system's value.
+
 ### Do
 
 - Give it a label that says what is in progress: "Uploading report.pdf", not "Progress". If a caption is shown next to it, use the same words.
 - Use a value text when a percentage is not the natural reading: "3 of 10 files", "Step 2 of 4".
 - Tell people when the task ends, in words: a message that it is done, or what went wrong and what to do next.
+- Leave the delay to the system unless one indicator needs another pace.
 
 ### Don't
 
@@ -196,15 +209,16 @@ The design system chooses once for every component that has this choice, and the
 
 ### What the component handles
 
-- It exposes the progress bar role with the label as its name. Determinate, it exposes the range, the current value (clamped to the range) and the value text when there is one; indeterminate, it exposes no value and the platform's busy state. Flutter has no progress bar role or busy state yet, so there it exposes the label and the value.
+- Once shown, it exposes the progress bar role with the label as its name. Determinate, it exposes the range, the current value (clamped to the range) and the value text when there is one; indeterminate, it exposes no value and the platform's busy state. Flutter has no progress bar role or busy state yet, so there it exposes the label and the value.
+- During its show delay it is not in the accessibility tree at all: no role, no name, no value, no busy state. A task too short to see is not heard either.
 - It is never focusable, and it does not announce its changes. Assistive technology reads the current value when the person reaches it.
-- When reduced motion is requested, a value change shows at once, and the indeterminate form stops moving and gently pulses its opacity instead, at most once a second.
+- When reduced motion is requested, a value change shows at once, and the indeterminate form stops moving and gently pulses its opacity instead, at most once a second. The show delay is kept: it is a wait, not motion.
 - Its looping animation stops while it cannot be seen — in an app in the background everywhere, and scrolled out of view or on a hidden screen where the platform can tell — and resumes when it can.
-- An empty label, a value outside the range and an unknown `separation` are reported in debug builds.
+- An empty label, a value outside the range, an unknown `separation` and a `showDelay` it cannot use are reported in debug builds.
 
 ### What you need to do
 
 - Announce the end of the task yourself: a message in a live region, or focus moved to the result. The indicator will not say that the task is done or has failed.
 - Keep the indicator color at least 3:1 against the track and the surface behind it if you change them, with a divider and with a gap alike. The value is read from where the indicator meets the track.
 - On a surface of the highest container tone, such as a filled card, the track is hard to see: it has nearly the same tone. Where an indicator stands on one, point `comp.progress-indicator.track.color` at a stronger role in a layer. What the indicator shows is still read where it meets the track.
-- If the task holds up a region of the page, mark that region busy while it runs (`aria-busy` on the web).
+- If the task holds up a region of the page, mark that region busy while it runs (`aria-busy` on the web), from the start of the task, without waiting for the indicator's delay.

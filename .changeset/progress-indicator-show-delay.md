@@ -5,6 +5,7 @@
 '@tanrei/swiftui': patch
 '@tanrei/compose': patch
 '@tanrei/flutter': patch
+'@tanrei/docs': patch
 ---
 
 Progress indicator: a show delay, as the loading indicator has. From its insertion it now waits before it is drawn and
@@ -19,4 +20,6 @@ shows it as it is inserted. The vocabulary grows by that one token. The delay is
 What changes for a product: every progress indicator it inserts now appears after the delay. Give `show-delay="0"` to
 one that must be there as it is inserted. The file item's bar does so, and is drawn as before. React's
 `ProgressIndicator` takes `showDelay`. SwiftUI, Compose, Flutter and React Native carry the new token in their
-generated tokens but do not have the delay yet: they draw and expose the indicator as it is inserted.
+generated tokens but do not have the delay yet: they draw and expose the indicator as it is inserted. The progress
+indicator's docs page, in the six languages, has a section on the show delay, and its note on the lagging platforms
+says they do not have it yet.
