@@ -13,6 +13,7 @@ import { expectPressShownAndHeld, watchPress } from '../../../test/watched-press
 import { holdClock, releaseClock } from '../../../test/page-clock.js';
 import { TYPEAHEAD_FOUND, TYPEAHEAD_LABELS, typeaheadAsFiltered } from '../../../test/typeahead.js';
 import { expectBaseline } from '../../../test/baseline.js';
+import { EVERY_ANIMATION } from '../../../test/motions.js';
 
 const spec = loadSpec('tree-view');
 type P = Page;
@@ -1801,6 +1802,66 @@ test.describe('right to left', () => {
     expect(await css(glyph('icons', 'src'), 'transform')).toBe('none');
     expect((await drawn(row(page, 'icons', 'src'))).chevron).toMatchObject({ scale: 'none', rotate: '90deg' });
     expect((await drawn(row(page, 'icons-rtl', 'عام'))).chevron).toMatchObject({ scale: '-1 1', rotate: '-90deg' });
+  });
+
+  test('TRV-38, TRV-36, TRV-4: a start chevron is drawn mirrored in right-to-left exactly when the icon set marks chevron_right — a closed one points left under the default set, and right, as in left-to-right, under a product layer’s set that marks nothing (acme), the tree mirroring no glyph itself — and an open one points down in both directions under both; under that set a change of direction turns nothing, and a switch of the design system that changes the answer is drawn at once', async ({ page }) => {
+    const { direction: _rtl, ...ltr } = fixture('rtl');
+    const fixtures: Fixture[] = [fixture('rtl'), { ...ltr, id: 'ltr' }];
+    /** Where chevron_right's tip points as drawn: its rotate after its scale after its transform (CSS Transforms 2), on screen. */
+    const pointing = (r: Locator) =>
+      r.evaluate((el) => {
+        const style = getComputedStyle(el, '::before');
+        const degrees = (value: string) => (value === 'none' ? 0 : value.endsWith('turn') ? Number.parseFloat(value) * 360 : Number.parseFloat(value));
+        const [sx, sy = sx] = style.scale === 'none' ? [1, 1] : style.scale.split(' ').map(Number);
+        const shown = new DOMMatrix().rotate(degrees(style.rotate)).scale(sx, sy).multiply(new DOMMatrix(style.transform === 'none' ? undefined : style.transform));
+        const tip = shown.transformPoint(new DOMPoint(1, 0));
+        return Math.abs(tip.x) > Math.abs(tip.y) ? (tip.x > 0 ? 'right' : 'left') : tip.y > 0 ? 'down' : 'up';
+      });
+    /** The open parent's chevron and the closed one's, as each fixture draws them. */
+    const chevrons = (id: string) => Promise.all(['المشروع', 'الأنماط'].map((label) => pointing(row(page, id, label))));
+
+    // A product layer whose icon set (static Material Icons) no set describes: the name is not marked, so the chevron
+    // is drawn as it is in both directions, and the open one turned as in left-to-right — down, not up. (With its motion:
+    // a turn that ran would be read on its way. The page's first mount, so that the design system's switch on its root
+    // is heard below: a mount writes a new document, and the page keeps one watch of the root it saw first.)
+    await mount(page, { fixtures, system: 'acme', systemCss: await acmeSystemCss() });
+    await expect(item(page, 'rtl', 'الأنماط')).not.toHaveAttribute('data-tanrei-leaf');
+    expect(await css(row(page, 'rtl', 'الأنماط'), 'content', '::before')).toMatch(/chevron_right/);
+    expect(await chevrons('rtl')).toEqual(['down', 'right']);
+    expect(await chevrons('ltr')).toEqual(['down', 'right']);
+    // Its turn does not depend on the direction there, so a change of direction leaves it where it is (read in the
+    // same task: a turn that started would be read at its start).
+    const turn = await css(row(page, 'ltr', 'المشروع'), 'rotate', '::before');
+    for (const dir of ['rtl', 'ltr'] as const) {
+      expect(
+        await stage(page, 'ltr').evaluate((el, to) => {
+          el.setAttribute('dir', to);
+          const before = getComputedStyle(el.querySelector('li[data-t="المشروع"] > :first-child')!, '::before');
+          return [before.rotate, before.scale];
+        }, dir),
+        dir,
+      ).toEqual([turn, 'none']);
+      expect(await chevrons('ltr'), dir).toEqual(['down', 'right']);
+    }
+
+    // The default system switched in on the document's root while the trees are shown: chevron_right is marked, so the
+    // closed chevron is mirrored in right-to-left, and the open one's other quarter turn is drawn at once — no turn of
+    // it runs, and it points down throughout.
+    const turning = await page.evaluate(async (every) => {
+      document.documentElement.removeAttribute('data-tanrei-system');
+      // (The switch is heard by a mutation observer, at the end of this task.)
+      await Promise.resolve();
+      return ((0, eval)(every) as (root: Document) => Animation[])(document).filter((motion) => motion instanceof CSSTransition && motion.transitionProperty === 'rotate').length;
+    }, EVERY_ANIMATION);
+    expect(turning).toBe(0);
+    expect(await chevrons('rtl')).toEqual(['down', 'left']);
+    expect(await chevrons('ltr')).toEqual(['down', 'right']);
+
+    // The default system from the first render: its icon set marks chevron_right, so the closed chevron is mirrored in
+    // right-to-left (toward the end of the line, left) and the open one turned the other way, down.
+    await mount(page, { fixtures });
+    expect(await chevrons('rtl')).toEqual(['down', 'left']);
+    expect(await chevrons('ltr')).toEqual(['down', 'right']);
   });
 
   test('TRV-39: a left-to-right label in a right-to-left row reads left to right and keeps its own order, with its lines on the layout’s side; its supporting text and its trailing text are each text of their own direction, and a trailing text that does not fit is cut at its own end', async ({ page, browserName }) => {

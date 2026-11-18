@@ -54,6 +54,8 @@
  *   data-pressed (on a row)                the answer to a press the system names: overlay, ripple, dim, none (TRV-29)
  *   data-focus-style (on a row)            the focus style, where the browser has no style queries (TRV-30)
  *   data-glyphs="pending" (on the tree)    the icon set cannot draw a glyph yet: none is drawn, every box is kept (TRV-40)
+ *   data-tanrei-chevron-unmirrored         the icon set does not mark chevron_right as mirrored: the start chevron is
+ *     (on the tree)                        drawn and turned in right-to-left as in left-to-right (TRV-38)
  *   data-tanrei-leaf (on an li)            an item whose list holds no item and that is not expandable: a leaf (TRV-42)
  *   data-tanrei-moving (on a list)         the list is being revealed or hidden: drawn and clipped while its height moves (TRV-11)
  *   data-tanrei-at-once (on an li)         this change of open is drawn without motion (TRV-9, TRV-14, TRV-42)
@@ -201,12 +203,19 @@
   :where(tanrei-tree-view[hidden]) {
     display: none;
   }
-  /* TRV-36: the chevron is mirrored, and its quarter turn ends pointing down all the same. */
+  /* TRV-36: the start side is the right. */
   :where(tanrei-tree-view):dir(rtl) {
     --_trv-start: right;
     --_trv-after-left: var(--_trv-gap);
     --_trv-after-right: 0px;
     --_trv-rtl: 1;
+  }
+  /* TRV-36, TRV-38: the start chevron is mirrored where the icon set marks chevron_right, and its quarter turn then
+     goes the other way, to end pointing down all the same. Every set Tanrei ships marks it, so it is drawn so before
+     the element is defined; where the active set does not (a product layer's own), the element writes
+     data-tanrei-chevron-unmirrored and the chevron is drawn and turned as in left-to-right: the tree mirrors no glyph
+     itself. */
+  :where(tanrei-tree-view:not([data-tanrei-chevron-unmirrored])):dir(rtl) {
     --_trv-turn: -0.25turn;
     --_trv-mirror: -1 1;
   }
@@ -514,7 +523,7 @@
       'GRAD' 0;
     /* (The glyph is icons.css's font: it is not drawn where icons.css is not loaded, and its box is kept.) */
     opacity: var(--tanrei-icons, 0);
-    /* TRV-36, TRV-38: mirrored in a right-to-left layout, as the icon set marks chevron_right. */
+    /* TRV-36, TRV-38: mirrored in a right-to-left layout where the icon set marks chevron_right (above). */
     scale: var(--_trv-mirror);
     transition: var(
       --_trv-still,
