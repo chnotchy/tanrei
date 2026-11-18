@@ -6957,6 +6957,7 @@ private object TonePerStateSystemSource {
             headerHeight = 72.dp,
             headerPaddingInline = 8.dp,
             inputTypescale = typescale.bodyLarge,
+            leadingIconGap = 8.dp,
             leadingIconSize = 24.dp,
             motionCloseDuration = 250,
             motionCloseEasing = TanreiCubicBezier(x1 = 0.3f, y1 = 0f, x2 = 1f, y2 = 1f),

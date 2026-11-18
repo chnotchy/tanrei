@@ -7514,6 +7514,7 @@ const TanreiSystem m3ExpressiveLikeSystem = TanreiSystem(
     headerHeight: 72.0,
     headerPaddingInline: 8.0,
     inputTypescale: _typescaleBodyLarge,
+    leadingIconGap: 8.0,
     leadingIconSize: 24.0,
     motionCloseDuration: 100,
     motionCloseEasing: TanreiCubicBezier(0.3, 0.0, 0.8, 0.15),

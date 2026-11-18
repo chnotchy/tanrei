@@ -7449,6 +7449,7 @@ const TanreiSystem cupertinoSystem = TanreiSystem(
     headerHeight: 56.0,
     headerPaddingInline: 8.0,
     inputTypescale: _typescaleBodyLarge,
+    leadingIconGap: 8.0,
     leadingIconSize: 20.0,
     motionCloseDuration: 250,
     motionCloseEasing: TanreiCubicBezier(0.3, 0.0, 1.0, 1.0),

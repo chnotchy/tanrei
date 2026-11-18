@@ -8765,6 +8765,7 @@ public data class TanreiSearchTokens(
     public val headerHeight: Dp,
     public val headerPaddingInline: Dp,
     public val inputTypescale: TanreiTextStyle,
+    public val leadingIconGap: Dp,
     public val leadingIconSize: Dp,
     public val motionCloseDuration: Int,
     public val motionCloseEasing: TanreiCubicBezier,

@@ -12115,6 +12115,7 @@ export const acme = {
       hoveredOpacity: 1,
       hoveredOutlineWidth: 1,
       inputTypescale: "bodyLarge",
+      leadingIconGap: 8,
       leadingIconSize: 24,
       motionCloseDuration: 250,
       motionCloseEasing: [0.3, 0, 1, 1],

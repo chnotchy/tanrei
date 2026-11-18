@@ -312,6 +312,18 @@ export const styles = css`
       color ${unsafeCSS(MOTION)},
       font-variation-settings ${unsafeCSS(MOTION)};
   }
+  /* SRC-1: the input stands the larger of container.gap and leading-icon.gap after the bar's search glyph: the gap is
+     derived from the buttons' targets (0 in the default system), and the glyph is no button, so its text must not touch
+     it. The glyph is the search's own element, so the space it adds is its own margin, on the side that faces the input:
+     a physical side read from the host's direction, since the glyph box sets its own direction (ltr) for its ligature. */
+  .bar > .glyph {
+    --_glyph-space: max(0px, calc(${t('leading-icon-gap')} - ${t('container-gap')}));
+    margin-right: var(--_glyph-space);
+  }
+  :host(:dir(rtl)) .bar > .glyph {
+    margin-right: 0;
+    margin-left: var(--_glyph-space);
+  }
   /* SRC-30: until the icon set can draw a glyph — the search glyph, or the close and back arrow inside the clear and back
      Buttons — nothing is drawn in its place (GlyphDrawnController sets data-drawn); every box keeps its size, so the
      bar's layout does not change, and the Buttons stay operable and named. The button's glyph box is the Button's icon

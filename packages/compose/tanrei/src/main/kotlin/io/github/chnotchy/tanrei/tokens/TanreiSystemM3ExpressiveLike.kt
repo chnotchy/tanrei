@@ -7034,6 +7034,7 @@ private object M3ExpressiveLikeSystemSource {
             headerHeight = 72.dp,
             headerPaddingInline = 8.dp,
             inputTypescale = typescale.bodyLarge,
+            leadingIconGap = 8.dp,
             leadingIconSize = 24.dp,
             motionCloseDuration = 100,
             motionCloseEasing = TanreiCubicBezier(x1 = 0.3f, y1 = 0f, x2 = 0.8f, y2 = 0.15f),

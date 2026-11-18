@@ -6366,6 +6366,7 @@
     --tanrei-comp-search-input-typescale-letter-spacing: var(--tanrei-sys-typescale-body-large-letter-spacing);
     --tanrei-comp-search-input-typescale-line-height: var(--tanrei-sys-typescale-body-large-line-height);
     --tanrei-comp-search-input-typescale-font: var(--tanrei-sys-typescale-body-large-font);
+    --tanrei-comp-search-leading-icon-gap: var(--tanrei-comp-search-trigger-container-gap);
     --tanrei-comp-search-leading-icon-size: var(--tanrei-sys-icon-medium);
     --tanrei-comp-search-motion-close-duration: var(--tanrei-sys-motion-role-appear-anchored-exit);
     --tanrei-comp-search-motion-close-easing: var(--tanrei-sys-motion-easing-exit);

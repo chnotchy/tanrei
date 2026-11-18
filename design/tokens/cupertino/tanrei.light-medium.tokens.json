@@ -68265,7 +68265,7 @@
               "value": 8,
               "unit": "px"
             },
-            "$description": "Between the bar's elements (glyph or leading button, input, the first action button) and the full-screen header's (back button, input, clear button). Neighbouring hit areas meet at the middle of it (SRC-25), so it is what keeps an icon button's target whole on the side where it meets the input: at sys.target.touch minus a button's width or more, the button keeps its full target there. So it is derived as sys.target.touch less the narrowest button there (the bar's small clear button), never below zero: 36 − 36 = 0 in the default system. The action buttons stand button-gap from one another instead."
+            "$description": "Between the bar's elements (glyph or leading button, input, the first action button; after the glyph, at least leading-icon.gap) and the full-screen header's (back button, input, clear button). Neighbouring hit areas meet at the middle of it (SRC-25), so it is what keeps an icon button's target whole on the side where it meets the input: at sys.target.touch minus a button's width or more, the button keeps its full target there. So it is derived as sys.target.touch less the narrowest button there (the bar's small clear button), never below zero: 36 − 36 = 0 in the default system. The action buttons stand button-gap from one another instead."
           },
           "height": {
             "$type": "dimension",
@@ -68468,6 +68468,14 @@
           }
         },
         "leading-icon": {
+          "gap": {
+            "$type": "dimension",
+            "$value": {
+              "value": 8,
+              "unit": "px"
+            },
+            "$description": "The least space between the bar's search glyph and the input: the input stands the larger of this and container.gap after the glyph (SRC-1). container.gap is derived from the buttons' targets and is 0 in the default system; the glyph is no button, so no target depends on the space after it, and the text would touch the glyph. The trigger's gap, so that the bar and the trigger that stands for it set their text as far from their glyph."
+          },
           "size": {
             "$type": "dimension",
             "$value": {

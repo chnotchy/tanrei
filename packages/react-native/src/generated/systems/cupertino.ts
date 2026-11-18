@@ -9033,6 +9033,7 @@ export const cupertino = {
       hoveredOpacity: 1,
       hoveredOutlineWidth: 1,
       inputTypescale: "bodyLarge",
+      leadingIconGap: 8,
       leadingIconSize: 20,
       motionCloseDuration: 250,
       motionCloseEasing: [0.3, 0, 1, 1],

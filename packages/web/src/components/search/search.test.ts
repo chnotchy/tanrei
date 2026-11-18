@@ -134,7 +134,8 @@ test.describe('layout', () => {
     const glyph = await bounds(host(page, 'bar').locator('.glyph'));
     const field = await bounds(input(page, 'bar'));
     expect(glyph.x - b.x).toBeCloseTo(pad, 1);
-    expect(field.x - (glyph.x + glyph.width)).toBeCloseTo(gap, 1);
+    // After the search glyph, the larger of the gap and leading-icon.gap (the next test reads the text's start).
+    expect(field.x - (glyph.x + glyph.width)).toBeCloseTo(Math.max(gap, await resolveToken(page, T('leading-icon-gap'))), 1);
     expect(b.x + b.width - (field.x + field.width)).toBeCloseTo(pad, 1);
     for (const box of [glyph, field]) expect(box.y + box.height / 2).toBeCloseTo(b.y + b.height / 2, 0);
     // bar-value: the clear button is last, padding-inline-with-button from the end, gap after the input.
@@ -172,6 +173,52 @@ test.describe('layout', () => {
     const rClear = await bounds(host(page, 'bar-value').locator('.clear'));
     expect(r.x + r.width - (rGlyph.x + rGlyph.width)).toBeCloseTo(pad, 1);
     expect(rClear.x - r.x).toBeCloseTo(padButton, 1);
+  });
+
+  test('SRC-1: the query’s text stands the larger of container.gap and leading-icon.gap after the bar’s search glyph — never touching it where the gap is 0 — closed and open, docked at either size, and in right to left; the back button’s glyph in the full-screen and dialog headers stands at least as far from it', async ({ page }) => {
+    /** Where the input's text begins: its content edge on the side its own direction starts from (text-align: start). */
+    const textStart = (field: Locator) =>
+      field.evaluate((el: HTMLInputElement) => {
+        const r = el.getBoundingClientRect();
+        const s = getComputedStyle(el);
+        const n = (v: string) => Number.parseFloat(v) || 0;
+        const rtl = s.direction === 'rtl';
+        return { rtl, align: s.textAlign, at: rtl ? r.right - n(s.borderRightWidth) - n(s.paddingRight) - n(s.textIndent) : r.left + n(s.borderLeftWidth) + n(s.paddingLeft) + n(s.textIndent) };
+      });
+    /** From the leading glyph's box to the text's start, read along the row's direction. */
+    const space = async (glyph: Locator, field: Locator, rtl: boolean) => {
+      const [box, text] = [await bounds(glyph), await textStart(field)];
+      expect(text.rtl, 'the text runs in the row’s direction, so it begins beside the glyph').toBe(rtl);
+      expect(['start', rtl ? 'right' : 'left']).toContain(text.align);
+      return rtl ? box.x - text.at : text.at - (box.x + box.width);
+    };
+    const bars = ['bar-value', 'docked', 'size-small'];
+    const headers = ['full-screen', 'dialog-results'];
+    const measure = async (rtl: boolean) => {
+      const [gap, leading] = [await resolveToken(page, T('container-gap')), await resolveToken(page, T('leading-icon-gap'))];
+      const want = Math.max(gap, leading);
+      for (const id of bars) {
+        const s = await space(host(page, id).locator('.bar > .glyph'), input(page, id), rtl);
+        expect(s, `${id}${rtl ? ', rtl' : ''}: the text never touches the glyph`).toBeGreaterThan(0);
+        expect(s, `${id}${rtl ? ', rtl' : ''}`).toBeCloseTo(want, 1);
+      }
+      for (const id of headers) expect(await space(host(page, id).locator('.header .back .button-glyph'), headerInput(page, id), rtl), `${id}${rtl ? ', rtl' : ''}`).toBeGreaterThanOrEqual(want - 0.5);
+      return { gap, leading };
+    };
+    // The default system: the gap is 0 (SRC-25), so the text stands leading-icon.gap from the glyph.
+    const { gap, leading } = await measure(false);
+    expect(gap).toBe(0);
+    expect(leading).toBeGreaterThan(0);
+    // Right to left, with a query written right to left, so that its text begins at the start edge beside the glyph.
+    await page.evaluate(() => (document.documentElement.dir = 'rtl'));
+    for (const id of [...bars, ...headers]) await host(page, id).evaluate((el) => ((el as unknown as { value: string }).value = 'חשבונית'));
+    for (const id of bars) await expect(input(page, id)).toHaveValue('חשבונית');
+    for (const id of headers) await expect(headerInput(page, id)).toHaveValue('חשבונית');
+    await measure(true);
+    // Under a 48 target the gap is 12, larger than leading-icon.gap: the text stands the gap from the glyph.
+    await override(page, { '--tanrei-sys-target-touch': '48px' });
+    const wider = await measure(true);
+    expect(wider.gap).toBeGreaterThan(wider.leading);
   });
 
   test('SRC-34: the bar’s action buttons — the clear button and the trailing slot’s — stand container.button-gap apart and two of them further only as far as each needs to keep sys.target.touch of length along the row: touching in the default system, whose target (36) no Button is narrower than; under a 48 target the small clear button and a medium Button 10 apart, two medium Buttons 8, two large ones touching; all three touching where the target is 0; the first still container.gap after the input and the last padding-inline-with-button from the end; no button is widened or restyled, whatever the pointer', async ({ page, browserName }) => {

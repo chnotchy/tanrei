@@ -7379,6 +7379,7 @@ private let tanreiSearchTokens = TanreiSearchTokens(
   headerHeight: 72,
   headerPaddingInline: 8,
   inputTypescale: tanreiTypescale.bodyLarge,
+  leadingIconGap: 8,
   leadingIconSize: 24,
   motionCloseDuration: 250,
   motionCloseEasing: TanreiCubicBezier(0.3, 0, 1, 1),
