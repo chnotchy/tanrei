@@ -17,6 +17,7 @@ import {
   SizeConsumerController,
   type SubmitButtonState,
   type TanreiLinkTarget,
+  WordsController,
   afterClick,
   delegatedAria,
   delegatesAria,
@@ -332,6 +333,14 @@ export class TanreiButton extends TanreiElement {
    * `data-mirror` says so (src/primitives/glyph-mirror.ts); `iconGlyph()` draws the mark.
    */
   private readonly mirror = new GlyphMirrorController(this, { slots: 'slot[name="icon"]', drawn: '.mark' });
+
+  /** BTN-37: the product's words, read where the instance gives no `busyLabel` (src/primitives/words.ts). */
+  private readonly words = new WordsController(this);
+
+  /** BTN-37: what a busy button says — its own `busyLabel`, else the product's word of that name, else nothing. */
+  private get busyWords(): string {
+    return this.words.get('busyLabel', this.busyLabel);
+  }
 
   /**
    * BTN-22 … BTN-26: the link the button is while it has a destination, what its anchor carries, and what a debug
@@ -649,12 +658,12 @@ export class TanreiButton extends TanreiElement {
     // The region exists only while the button is busy (a status region on every button would be one in every list of
     // the page's regions), so the words are put in a frame after it was, where a screen reader hears a change.
     if (changed.has('busy') && this.busy) {
-      const words = this.busyLabel;
+      const words = this.busyWords;
       requestAnimationFrame(() => {
         const status = this.status;
         if (status && this.busy && !this.isDisabled) status.textContent = words;
       });
-      if (!words) report(this, 'BTN-37', 'it is busy and busyLabel is empty, so nothing tells people who cannot see the arc that it is working; give it the words ("Saving")');
+      if (!words) this.words.missing('busyLabel', { id: 'BTN-37', effect: 'it is busy, and nothing tells people who cannot see the arc that it is working ("Saving")' });
     }
     // BTN-32: the update has reflected `disabled` by now. Unset inside a disabled fieldset, the button was rendered
     // from the property alone and is still disabled by the fieldset: it is drawn again.
@@ -731,7 +740,7 @@ export class TanreiButton extends TanreiElement {
     const reachable = this.reachable;
     const busy = this.busy && !disabled;
     // The product's `aria-description` on the host (a badge's on its anchor, BDG-8) comes first (src/primitives/delegated-aria.ts).
-    const description = [this.link.describe(this.getAttribute('data-aria-description')), busy ? this.busyLabel : ''].filter(Boolean).join(', ');
+    const description = [this.link.describe(this.getAttribute('data-aria-description')), busy ? this.busyWords : ''].filter(Boolean).join(', ');
     const tag = link ? literal`a` : literal`button`;
     const iconOnly = !this.hasLabel;
     const trailing = this.hasIcon && this.hasLabel && this.iconPosition === 'trailing';
