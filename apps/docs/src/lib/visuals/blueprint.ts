@@ -108,7 +108,7 @@ function partOf(element: Element, part: string): Element[] {
 }
 
 /** The box of what a part's target is, as drawn, in the viewport's coordinates; null where nothing of it is drawn. */
-function targetBox(host: Element, target: PartTarget): { box: Box; element: Element | null } | null {
+export function targetBox(host: Element, target: PartTarget): { box: Box; element: Element | null } | null {
   let elements: Element[] = [];
   let range: Range | null = null;
   if ('host' in target) elements = [host];
