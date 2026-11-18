@@ -6,6 +6,7 @@ description: Lets people choose a value, or a range of values, by dragging a han
 import { Tabs, TabItem } from '../../../components/tabs';
 import ComponentAvailability from '../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../components/ComponentSpecs.astro';
+import ColorRoleMap from '../../../components/visuals/ColorRoleMap.astro';
 import ComponentAccessibility from '../../../components/ComponentAccessibility.astro';
 import FocusOrder from '../../../components/visuals/FocusOrder.astro';
 import Example from '../../../components/visuals/Example.astro';
@@ -189,6 +190,8 @@ In the default system the thumb is a ring: a 20 circle filled with the surface c
 The stop dots, and the dot that marks the end of the travel, are half as thick as the track: 2, 3 and 4 at small, medium and large. The value indicator sits a little above the top of the ring, centered on it. Disabled, the ring keeps its fill, and its outline fades with the active track.
 
 A design system can draw the thumb its own way from the same tokens. With an outline of 0 the thumb is a solid shape, and with a gap between the tracks and the thumb, the tracks stop short of it and are rounded there. `m3-like` draws Material's upright bar that way.
+
+<ColorRoleMap name="slider" headingLevel={3} />
 
 <ComponentSpecs name="slider" />
 

@@ -2,12 +2,13 @@
 title: Botón
 description: Permite realizar una acción, activar y desactivar algo o ir a un destino con un solo toque o clic.
 translationOf: components/button.mdx
-sourceHash: 36addf0eeb1ba6a6d96c2235a9545674ee54d61a
+sourceHash: a28f86892ca2dc8b29e976cfdf9760d548a6783b
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ColorRoleMap from '../../../../components/visuals/ColorRoleMap.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
 import Example from '../../../../components/visuals/Example.astro';
 import StateMatrix from '../../../../components/visuals/StateMatrix.astro';
@@ -366,6 +367,18 @@ Cuando la misma palabra se dibuja en varios botones, como «Quitar» en cada fil
 </Example>
 
 <StateMatrix name="button" />
+
+<ColorRoleMap name="button" variant="filled" headingLevel={3} />
+
+<ColorRoleMap name="button" variant="tonal" />
+
+<ColorRoleMap name="button" variant="elevated" />
+
+<ColorRoleMap name="button" variant="outlined" />
+
+<ColorRoleMap name="button" variant="text" />
+
+<ColorRoleMap name="button" variant="filled" destructive />
 
 <ComponentSpecs name="button" />
 

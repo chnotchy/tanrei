@@ -25,7 +25,10 @@
 // a fixture drawn in a window of its own (an `iframe`, which is not a preview of this page), and one the page drew and
 // took its document's step in script for before the comparison began, are in a state the copy is not, and are left
 // out, as is a state matrix (its cells are held in states the copy is not in; test/browser/state-matrix.test.mjs checks
-// each against its tokens); parts placed against something outside the preview (an open surface's list) and visually
+// each against its tokens), and so is a color role map's table, whose rows script writes from what the page draws (the
+// role in the system drawn, the ratio in the scheme drawn: test/browser/color-roles.test.mjs checks them), where the
+// copy, made from the served HTML, holds the words the page is served with — the map's component is compared, as an
+// anatomy figure's is; parts placed against something outside the preview (an open surface's list) and visually
 // hidden parts are not compared.
 //
 // Every wait for the page has a bound, `bounds` (SETTLE in waits.mjs: the fonts, an element's update as long as its
@@ -50,7 +53,8 @@ export async function comparePreviews({ componentCss, still, bounds }) {
     '[data-example]:not([data-stage]) > figure > [data-part=frame] > [data-part=stage] > :not([data-example-canvas], [data-resize-handle])',
     '[data-example][data-stage] > figure > [data-part=frame] > .docs-stage-box > [data-fixture-scope] > .stage',
     '.docs-file-tree > figure > [data-part=stage] > *',
-    '[data-example] > figure > [data-part=frame] > [data-part=stage] > [data-example-canvas] > :not([data-example-overlay], .docs-state-matrix)',
+    '[data-example] > figure > [data-part=frame] > [data-part=stage] > [data-example-canvas] > :not([data-example-overlay], .docs-state-matrix, .docs-roles)',
+    '[data-example] > figure > [data-part=frame] > [data-part=stage] > [data-example-canvas] > .docs-roles > .docs-roles-subject',
   ].join(', ');
   for (const stage of document.querySelectorAll('[data-example-pending]')) stage.removeAttribute('data-example-pending');
   const served = new DOMParser().parseFromString(await (await fetch(location.href)).text(), 'text/html');

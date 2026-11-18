@@ -2,12 +2,13 @@
 title: スライダー
 description: トラックに沿ってハンドルをドラッグし、値または値の範囲を選びます。連続的にも、刻みごとにも選べます。
 translationOf: components/slider.mdx
-sourceHash: 468e1835b70e3ce76c0eebfcec96922300eab111
+sourceHash: 95915300085270f4089f9fc0181bf74a0c4bafd1
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ColorRoleMap from '../../../../components/visuals/ColorRoleMap.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
 import FocusOrder from '../../../../components/visuals/FocusOrder.astro';
 import Example from '../../../../components/visuals/Example.astro';
@@ -191,6 +192,8 @@ import Playground from '../../../../components/visuals/Playground.astro';
 目盛りの点と、移動範囲の端を示す点は、トラックの半分の太さです。small、medium、large でそれぞれ 2、3、4 になります。値の表示はリングの上端の少し上に、リングの中心に揃えて出ます。無効状態では、リングは塗りを保ち、輪郭線はアクティブトラックと一緒に薄くなります。
 
 デザインシステムは、同じトークンでハンドルを別の形に描けます。輪郭線を 0 にすれば塗りだけのハンドルになり、トラックとハンドルの間に隙間を取れば、トラックはハンドルの手前で止まり、そこで丸くなります。`m3-like` は、この方法で Material の縦長のバーを描きます。
+
+<ColorRoleMap name="slider" headingLevel={3} />
 
 <ComponentSpecs name="slider" />
 

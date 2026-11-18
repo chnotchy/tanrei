@@ -2,12 +2,13 @@
 title: Campo de texto
 description: Permite introducir y editar texto (una línea, o varias que siguen al texto o cuyo tamaño se cambia a mano) o una fecha o una hora que se introducen unidad por unidad en el formato de la configuración regional, o código que se conserva exactamente como se escribe, con una etiqueta que puede decir si el campo es obligatorio u opcional, iconos opcionales, prefijo y sufijo, texto de apoyo, un recuento de caracteres y un botón de selector.
 translationOf: components/text-field.mdx
-sourceHash: 46c9e9ee51271a92fbae0ec4352c853a0b237635
+sourceHash: 331493daa8087e066ea293f0507d681726b0e491
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ColorRoleMap from '../../../../components/visuals/ColorRoleMap.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
 import Example from '../../../../components/visuals/Example.astro';
 import DoDont from '../../../../components/visuals/DoDont.astro';
@@ -315,6 +316,8 @@ El campo de texto no tiene ningún token propio. Su caja lee los [tokens de la e
 <tanrei-text-field label="Correo electrónico"
   style="--tanrei-comp-field-label-gap: 12px"></tanrei-text-field>
 ```
+
+<ColorRoleMap name="text-field" variant="outlined" fixture="outlined-filled" headingLevel={3} />
 
 <ComponentSpecs name="text-field" />
 

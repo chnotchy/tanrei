@@ -6,6 +6,7 @@ description: Lets people enter and edit text — one line, or several that follo
 import { Tabs, TabItem } from '../../../components/tabs';
 import ComponentAvailability from '../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../components/ComponentSpecs.astro';
+import ColorRoleMap from '../../../components/visuals/ColorRoleMap.astro';
 import ComponentAccessibility from '../../../components/ComponentAccessibility.astro';
 import Example from '../../../components/visuals/Example.astro';
 import DoDont from '../../../components/visuals/DoDont.astro';
@@ -313,6 +314,8 @@ The text field has no token of its own. Its box reads the [text input's tokens](
 <tanrei-text-field label="Email"
   style="--tanrei-comp-field-label-gap: 12px"></tanrei-text-field>
 ```
+
+<ColorRoleMap name="text-field" variant="outlined" fixture="outlined-filled" headingLevel={3} />
 
 <ComponentSpecs name="text-field" />
 

@@ -2,12 +2,13 @@
 title: Menú
 description: Un conjunto corto de acciones u opciones en una superficie temporal que se abre desde el elemento que lo pidió.
 translationOf: components/menu.mdx
-sourceHash: 46ad6599db908950bf4f4a13b4a8757cae8b9f65
+sourceHash: 878b5542450efcd827234b2b5fbdcadb23a6cd79
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ColorRoleMap from '../../../../components/visuals/ColorRoleMap.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
 import Example from '../../../../components/visuals/Example.astro';
 import DoDont from '../../../../components/visuals/DoDont.astro';
@@ -388,6 +389,10 @@ En el sistema predeterminado, un elemento de casilla de verificación se marca c
 Una fila marcada se reconoce por su marca. En el sistema predeterminado no se rellena con el contraste estándar, de modo que la única fila rellena de un menú en reposo es la de la página en la que está la persona. Con contraste medio y alto, cuando la persona ha pedido señales más fuertes, la fila marcada también se rellena: una capa del propio color del contenido de la fila sobre la superficie del menú, un paso más intensa que la de una fila con el cursor encima, tanto en el tema claro como en el oscuro, de modo que una fila marcada, una fila con el cursor encima y una fila en reposo se distinguen sobre una superficie elevada. El menú lee el relleno de sus tokens en el esquema en el que se dibuja; es el sistema de diseño quien lo decide para cada esquema de contraste. El elemento cuyo submenú está abierto conserva el relleno del paso del cursor mientras su submenú está abierto, lo que señala el camino hasta el nivel en uso, y nunca parece una fila rellena.
 
 El título de un grupo empieza donde empieza el contenido de las filas: sobre la marca o el icono inicial cuando el menú dibuja esas columnas, y sobre las etiquetas cuando no dibuja ninguna de las dos. Termina a la misma distancia del otro borde, salta de línea, crece con un texto más grande y se refleja en un diseño de derecha a izquierda.
+
+<ColorRoleMap name="menu" fixture="icons-shortcut" headingLevel={3} />
+
+<ColorRoleMap name="menu" fixture="checkbox-checked" selected />
 
 <ComponentSpecs name="menu" />
 

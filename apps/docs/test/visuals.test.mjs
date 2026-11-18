@@ -16,7 +16,7 @@ register('./vite-shim.mjs', import.meta.url);
 const { anatomyOf, anatomyAlt, blueprintStageOf, webPartsOf } = await import('../src/lib/visuals/anatomy.ts');
 const { measureLinesOf, measuresOf } = await import('../src/lib/visuals/measure.ts');
 const { motionsOf } = await import('../src/lib/visuals/motion.ts');
-const { rolesOf } = await import('../src/lib/visuals/roles.ts');
+const { roleMapOf, rolesOf } = await import('../src/lib/visuals/roles.ts');
 const { drawnMatrixOf, drawsStateMatrix, matrixOf, PSEUDO_STATES } = await import('../src/lib/visuals/states.ts');
 const { holdSelector, holdSelectorList, wordsOf } = await import('../src/lib/visuals/pseudo-states.ts');
 const { fixtureDocument } = await import('../src/lib/fixture-documents.ts');
@@ -272,6 +272,70 @@ describe('color roles', () => {
     const icon = rolesOf('button', ['filled']).find((entry) => entry.token === `${NS}.comp.button.filled.icon.color`);
     assert.deepEqual(icon.chain, [`${NS}.comp.button.filled.label.color`, `${NS}.sys.color.on-primary`]);
     assert.equal(icon.role, `${NS}.sys.color.on-primary`);
+  });
+  test('a role map: the filled button’s parts, each with the token of its variant and its role in every shipped system', () => {
+    const map = roleMapOf('button', { variant: 'filled' });
+    assert.deepEqual(
+      map.rows.map((row) => [row.part, row.token, row.paint]),
+      [
+        ['container', `${NS}.comp.button.filled.container.color`, 'fill'],
+        ['label', `${NS}.comp.button.filled.label.color`, 'text'],
+        ['icon', `${NS}.comp.button.filled.icon.color`, 'text'],
+        ['outline', `${NS}.comp.button.filled.outline.color`, 'edge'],
+      ],
+    );
+    const [container, label] = map.rows;
+    assert.deepEqual(Object.keys(container.roles), shippedSystems.map((system) => system.id));
+    assert.deepEqual(container.roles[NS], { role: `${NS}.sys.color.primary`, chain: [`${NS}.sys.color.primary`], derived: null });
+    assert.equal(label.roles[NS].role, `${NS}.sys.color.on-primary`);
+    assert.equal(container.hex, resolved(`${NS}.comp.button.filled.container.color`).$value.hex);
+    assert.match(map.html, /<tanrei-button[^>]* variant="filled"/);
+  });
+  test('a role map draws the props it is given: destructive, a state held, a selected item, a member’s parts', () => {
+    const destructive = roleMapOf('button', { variant: 'filled', destructive: true });
+    assert.equal(destructive.rows[0].token, `${NS}.comp.button.filled.destructive.container.color`);
+    assert.equal(destructive.rows[0].roles[NS].role, `${NS}.sys.color.error`);
+    assert.match(destructive.html, /<tanrei-button[^>]* destructive[\s>]/);
+    const hovered = roleMapOf('button', { variant: 'filled', state: 'hovered' });
+    assert.equal(hovered.held, 'hovered');
+    assert.equal(hovered.rows[0].token, `${NS}.comp.button.filled.hovered.container.color`);
+    assert.deepEqual([hovered.rows[0].roles[NS].role, hovered.rows[0].roles[NS].derived], [`${NS}.sys.color.primary`, 'mix']);
+    const menu = roleMapOf('menu', { fixture: 'checkbox-checked', selected: true });
+    assert.equal(menu.rows.find((row) => row.part === 'label').token, `${NS}.comp.menu.selected.label.color`);
+    assert.equal(roleMapOf('menu').rows.find((row) => row.part === 'label').token, `${NS}.comp.menu.unselected.label.color`, 'a menu writes no plain label: its unselected one');
+    const field = roleMapOf('text-field', { variant: 'outlined', fixture: 'outlined-filled' });
+    assert.equal(field.rows.find((row) => row.part === 'text-input.outline').token, `${NS}.comp.input-box.outlined.outline.color`);
+    assert.equal(field.rows.find((row) => row.part === 'field.label').token, `${NS}.comp.field.standard.label.color`);
+    assert.throws(() => roleMapOf('button', { variant: 'plaid' }), /not one of its variants/);
+  });
+  test('every role map a page places has rows, and every language’s page places the same', () => {
+    const placedIn = (base) => {
+      const dir = here(`../src/content/docs/${base}components`);
+      return Object.fromEntries(fs.readdirSync(dir).filter((file) => file.endsWith('.mdx')).map((file) => [file, [...fs.readFileSync(`${dir}/${file}`, 'utf8').matchAll(/<ColorRoleMap [^>]*\/>/g)].map(([tag]) => tag)]));
+    };
+    const english = placedIn('');
+    const placed = Object.values(english).flat();
+    assert.ok(placed.length >= 10, `role maps placed: ${placed.length}`);
+    for (const tag of placed) {
+      const attribute = (key) => new RegExp(`\\s${key}="([\\w-]+)"`).exec(tag)?.[1];
+      const flag = (key) => new RegExp(`\\s${key}(\\s|/)`).test(tag);
+      const map = roleMapOf(attribute('name'), { variant: attribute('variant'), state: attribute('state'), fixture: attribute('fixture'), selected: flag('selected'), destructive: flag('destructive') });
+      assert.ok(map && map.rows.length > 0, `${tag}: a part drawn with a color token`);
+    }
+    for (const { lang, dir } of translations) {
+      const translated = placedIn(`${dir}/`);
+      for (const [file, tags] of Object.entries(english)) if (tags.length && file in translated) assert.deepEqual(translated[file], tags, `${lang}: ${file}`);
+    }
+  });
+  test('the role map’s words are in every language, one alternative for each plural form', () => {
+    for (const lang of languages) {
+      const words = strings(lang).visuals;
+      for (const key of ['colorRolePair', 'colorRolesPart', 'colorRolesRole', 'colorRolesContrast', 'colorRolesDerived', 'colorRolesFixed', 'colorRolesTransparent', 'colorRolesNotDrawn', 'colorRolesDiffers', 'colorRolesCaption']) assert.ok(words[key], `${lang}: visuals.${key}`);
+      assert.match(words.colorRolePair, /\{part\}.*\{role\}|\{role\}.*\{part\}/, `${lang}: the pair names both`);
+      assert.match(words.colorRolesDiffers, /\{drawn\}/, lang);
+      assert.deepEqual(Object.keys(words.colorRolesPaint).sort(), ['edge', 'fill', 'text'], lang);
+      for (const form of new Intl.PluralRules(lang).resolvedOptions().pluralCategories) assert.ok(words.colorRolesAlt[form] ?? words.colorRolesAlt.other, `${lang}: colorRolesAlt.${form}`);
+    }
   });
   test('every color token of every component is one entry, and a chain ends where no alias goes on', () => {
     for (const name of names.filter(inDefault)) {
