@@ -1415,7 +1415,7 @@ export const cellStyles = css`
     rotate: -0.25turn;
   }
   /* NVD-50: a change of the direction around the drawer is drawn at once: while the drawer computes the start chevron's
-     style for the new direction (TanreiNavigationDrawerGroup.turnAtOnce), its turn takes no transition, and one under
+     style for the new direction (TanreiNavigationDrawer.turnAtOnce), its turn takes no transition, and one under
      way ends at the turn the new direction gives it; its colour's motion is not the direction's and runs on. */
   .chevron.start.at-once {
     transition-property: color;
