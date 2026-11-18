@@ -62,6 +62,58 @@ test.describe('sampleFrames', () => {
     expect(widths(await sampleFrames(page.locator('#stage'), () => widen(page), { probe: barWidth }))).toEqual(calm);
   });
 
+  test('a motion without a target, whose progress a script writes each frame, is held and moved on too: frame n shows it n/60 s in', async ({ page }) => {
+    // A row scrolled by a script from a clock no element runs (`new Animation(new KeyframeEffect(null, …))`): no
+    // `getAnimations()` returns it. A box without a transition of its own stands for the scroll offset.
+    const length = 300;
+    const PLAIN = '<div id="bar" style="inline-size: 100px; block-size: 10px; background: rgb(0, 0, 0)"></div>';
+    const move = (inFrame = false) =>
+      page.evaluate(
+        ([duration, fromFrame]) =>
+          new Promise<void>((resolve) => {
+            const start = () => {
+              const bar = document.querySelector<HTMLElement>('#bar')!;
+              const clock = new Animation(new KeyframeEffect(null, [], { duration, easing: 'linear', fill: 'forwards' }));
+              clock.play();
+              const step = () => {
+                const finished = clock.playState === 'finished';
+                bar.style.inlineSize = `${finished ? 200 : 100 + 100 * (clock.effect?.getComputedTiming().progress ?? 1)}px`;
+                if (!finished) requestAnimationFrame(step);
+              };
+              requestAnimationFrame(step);
+              resolve();
+            };
+            if (fromFrame) requestAnimationFrame(start);
+            else start();
+          }),
+        [length, inFrame] as const,
+      );
+    await stage(page, PLAIN);
+    const seen = await sampleFrames(page.locator('#stage'), () => move(), { probe: barWidth });
+    expect(seen.frames[0]).toMatchObject({ index: 0, time: 0, probe: { width: 100 } });
+    for (const [time, width] of widths(seen)) expect(width, `the width ${time} ms in`).toBeCloseTo(100 + 100 * Math.min(Number(time) / length, 1), 1);
+    expect(widths(seen).filter(([time]) => Number(time) > 0 && Number(time) < length)).toHaveLength(17);
+    expect(seen.rest.probe.width).toBe(200);
+    expect(seen.complete).toBe(true);
+    expect(seen.motions).toEqual([expect.objectContaining({ kind: 'script', on: '', duration: length, easing: 'linear', endless: false })]);
+    // On a page that takes 40 ms to draw each frame, the very same frames.
+    await stage(page, PLAIN);
+    await page.evaluate(() => {
+      const busy = () => {
+        const until = performance.now() + 40;
+        while (performance.now() < until);
+        requestAnimationFrame(busy);
+      };
+      requestAnimationFrame(busy);
+    });
+    expect(widths(await sampleFrames(page.locator('#stage'), () => move(), { probe: barWidth }))).toEqual(widths(seen));
+    // Played in an animation frame callback (a component that starts its motion from the next frame): the same frames.
+    await stage(page, PLAIN);
+    expect(widths(await sampleFrames(page.locator('#stage'), () => move(true), { probe: barWidth }))).toEqual(widths(seen));
+    // The page's own motion runs on once the sampling is over.
+    await expect(page.locator('#bar')).toHaveCSS('width', '200px');
+  });
+
   test('an act of several inputs is one moment: the motion stands still between them, however long the round trips take', async ({ page }) => {
     await stage(page, BAR);
     const seen = await sampleFrames(
