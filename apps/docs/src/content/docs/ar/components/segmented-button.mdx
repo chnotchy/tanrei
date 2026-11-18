@@ -2,7 +2,7 @@
 title: الزر المقسَّم
 description: يتيح للأشخاص اختيار خيار واحد، أو عدة خيارات، من خيارين إلى خمسة خيارات مترابطة مرسومة جنبًا إلى جنب مقاطعَ متصلة لعنصر تحكم واحد.
 translationOf: components/segmented-button.mdx
-sourceHash: a874adc09eecdb81a13c36cf37fa26c0423a4b50
+sourceHash: 2fceee654ffe757f838472c4a96334e610a4a53b
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -265,6 +265,20 @@ import Example from '../../../../components/visuals/Example.astro';
 - كل مقطع بعرض أعرض مقطع، مقيسًا كما لو كان محدَّدًا، فظهور علامة الاختيار لا يحرّك جارًا أبدًا. وإن ضاقت الفسحة التفّت التسميات على أسطر أكثر وكبر كل مقطع إلى ارتفاع أطولها. ولا تُقتطع أبدًا.
 - الخاصية `labelHidden` ترسم الأيقونة وحدها. والتسمية تبقى مطلوبة، لأنها تبقى الاسم المتاح للتقنيات المساعدة للمقطع.
 - الحجم يضبط ارتفاع المجموعة. والأحجام ليست ارتفاعات Button في كل درجة (في الإعداد الجاهز `m3-like` يطابق الحجمان small و medium ارتفاعَي Button والحجم large أقل)، فطابِق المجموعة مع الأزرار التي بجانبها بالارتفاع، لا باسم الحجم.
+
+### بعرض كامل
+
+أضف `full-width` لتصير المجموعة بعرض حاويتها، مثل إعداد يمتد على عرض شاشة ضيقة أو بطاقة أو لوحة. وتتقاسم المقاطع هذا العرض بالتساوي أيًّا كانت تسمياتها، ويتوسّط محتوى كل مقطع حصته. وتحتفظ المجموعة بارتفاع حجمها وهوامشها الداخلية وزواياها. وفي حاوية أضيق من عرض المجموعة الطبيعي تبقى المقاطع تتقاسم العرض بالتساوي، وتنتقل تسمياتها إلى السطر التالي بدل أن تُقطع.
+
+<Example label="مجموعة بعرض كامل" system="m3-like">
+  <div style="inline-size: 20rem">
+    <tanrei-segmented-button label="النطاق" value="week" full-width>
+      <tanrei-segment value="day" label="يوم"></tanrei-segment>
+      <tanrei-segment value="week" label="أسبوع"></tanrei-segment>
+      <tanrei-segment value="month" label="شهر"></tanrei-segment>
+    </tanrei-segmented-button>
+  </div>
+</Example>
 
 ### افعل
 

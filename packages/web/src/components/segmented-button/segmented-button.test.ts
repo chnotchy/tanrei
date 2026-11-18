@@ -257,7 +257,8 @@ test.describe('keyboard and semantics', () => {
 
   test('SEG-20: single is a radio group of radios, multiple a group of toggle buttons; each named by its label, drawn or not, with its position; the glyphs, check, dividers and outline hidden', async ({ page }) => {
     await mountFixtures(page, spec, { icons: true });
-    await expect(page.getByRole('radiogroup', { name: 'Range' })).toHaveCount(6);
+    const ranges = spec.fixtures.filter((f) => f.props?.label === 'Range' && f.props?.selection !== 'multiple').length;
+    await expect(page.getByRole('radiogroup', { name: 'Range' })).toHaveCount(ranges);
     await expect(page.getByRole('radiogroup', { name: 'Text alignment' })).toHaveCount(1);
     const single = page.locator('[data-fixture="single"]');
     await expect(single.getByRole('radio', { name: 'Week', checked: true })).toHaveCount(1);
@@ -371,6 +372,54 @@ test.describe('layout', () => {
     const block = await resolveToken(page, T('container-padding-block-medium'));
     expect(heights[0]).toBeGreaterThanOrEqual(label.height + 2 * block - 0.5);
     expect(await css(seg(page, 'narrow', 0).locator('.label'), 'text-overflow')).not.toBe('ellipsis');
+  });
+
+  test('SEG-30: while fullWidth is true the set takes its container’s whole width and shares it equally among its segments, each content centred, at its size’s height; in a narrower container it still shares it equally and labels wrap; false is the natural width', async ({ page }) => {
+    await mountFixtures(page, spec, {
+      fixtures: [
+        ...spec.fixtures.filter((f) => f.id === 'single' || f.id === 'full-width'),
+        fixture('tight', [s('a', 'A label that is long enough to wrap'), s('b', 'B'), s('c', 'C')], { value: 'b', fullWidth: true }),
+      ],
+    });
+    await page.addStyleTag({ content: '.stage[data-fixture="tight"] { inline-size: 200px; }' });    // The width the stage gives its content: its own less its padding.
+    const room = (id: string) =>
+      page.locator(`[data-fixture="${id}"]`).evaluate((el) => {
+        const style = getComputedStyle(el);
+        return el.clientWidth - Number.parseFloat(style.paddingLeft) - Number.parseFloat(style.paddingRight);
+      });
+    const [padding, divider] = await Promise.all(['set-padding', 'divider-width'].map((n) => resolveToken(page, T(n))));
+    const widths = async (id: string) => Promise.all([0, 1, 2].map(async (n) => (await bounds(seg(page, id, n))).width));
+
+    await expect(set(page, 'full-width')).toHaveAttribute('full-width', '');
+    const [full, natural] = [await bounds(set(page, 'full-width')), await bounds(set(page, 'single'))];
+    expect(full.width).toBeCloseTo(await room('full-width'), 0);
+    expect(natural.width).toBeLessThan(full.width);
+    expect(full.height).toBeCloseTo(natural.height, 1);
+    // Equal shares of the width less the set's padding and the two dividers, whatever each segment holds.
+    const shares = await widths('full-width');
+    expect(new Set(shares.map((w) => w.toFixed(1))).size).toBe(1);
+    expect(shares[0]).toBeCloseTo((full.width - 2 * padding - 2 * divider) / 3, 0);
+    // Each segment's content is centred in its share: the selected one's check and label as one row too.
+    await motionEnded(set(page, 'full-width'));
+    for (const n of [0, 1, 2]) {
+      const [box, content] = [await bounds(btn(page, 'full-width', n)), await bounds(seg(page, 'full-width', n).locator('.content'))];
+      expect(content.x - box.x, `segment ${n + 1}`).toBeCloseTo(box.x + box.width - (content.x + content.width), 0);
+    }
+
+    // Narrower than its natural width: as wide as the container, shared equally, the long label wrapping.
+    const tight = await bounds(set(page, 'tight'));
+    expect(tight.width).toBeCloseTo(await room('tight'), 0);
+    const narrow = await widths('tight');
+    expect(new Set(narrow.map((w) => w.toFixed(1))).size).toBe(1);
+    const line = Number.parseFloat(await css(seg(page, 'tight', 0).locator('.label'), 'line-height'));
+    expect((await bounds(seg(page, 'tight', 0).locator('.label'))).height).toBeGreaterThan(line * 1.5);
+    const stage = await bounds(page.locator('[data-fixture="tight"]'));
+    expect(tight.x + tight.width, 'drawn inside its container').toBeLessThanOrEqual(stage.x + stage.width);
+
+    // fullWidth false: the natural width again, the single fixture's.
+    await set(page, 'full-width').evaluate((el: HTMLElement) => ((el as unknown as { fullWidth: boolean }).fullWidth = false));
+    await expect(set(page, 'full-width')).not.toHaveAttribute('full-width');
+    await expect.poll(async () => (await bounds(set(page, 'full-width'))).width).toBeCloseTo(natural.width, 0);
   });
 
   test('SEG-15: the content is centred, glyph first; the label in the size’s label style and its condition’s color; the icon at the size’s icon size in the icon color and the family and fill of its condition', async ({ page }) => {

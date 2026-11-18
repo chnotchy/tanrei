@@ -80,6 +80,12 @@ export const setStyles = css`
       --_target: var(--tanrei-sys-target-touch);
     }
   }
+  /* SEG-30: full width — the host is as wide as its container and the set fills it; its equal columns (SEG-14) share
+     that width, less the set's padding and the dividers. */
+  :host([full-width]) {
+    display: flex;
+    inline-size: 100%;
+  }
   :host([hidden]) {
     display: none;
   }

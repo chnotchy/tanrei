@@ -2,7 +2,7 @@
 title: セグメントボタン
 description: 関連する 2〜5 個の選択肢を、つながったセグメントとして横に並べた 1 つのコントロールです。1 つ、または複数を選べます。
 translationOf: components/segmented-button.mdx
-sourceHash: a874adc09eecdb81a13c36cf37fa26c0423a4b50
+sourceHash: 2fceee654ffe757f838472c4a96334e610a4a53b
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -265,6 +265,20 @@ import Example from '../../../../components/visuals/Example.astro';
 - どのセグメントも、いちばん幅の広いセグメントに合わせた同じ幅になります。幅は選ばれた状態で測るので、チェックが現れても隣が動くことはありません。幅が足りないときは、ラベルを省略せずに折り返し、すべてのセグメントがいちばん高いものに合わせて伸びます。
 - `labelHidden` にするとアイコンだけを描きます。それでもラベルは必須です。セグメントのアクセシブルネームになるからです。
 - サイズはセットの高さを決めます。すべてのサイズがボタンと同じ高さになるわけではありません（`m3-like` プリセットでは、small と medium はボタンと同じで、large はボタンより低くなります）。隣のボタンとは、サイズの名前ではなく高さで合わせてください。
+
+### 全幅
+
+`full-width` を指定すると、セットはコンテナと同じ幅になります。幅の狭い画面、カード、シートの横幅いっぱいに設定を置くときなどに使います。セグメントはラベルの長さにかかわらずその幅を均等に分け合い、各セグメントの中身はそれぞれの幅の中央に置かれます。高さ、余白、角はそのサイズのままです。コンテナがセット本来の幅より狭いときも、セグメントは幅を均等に分け合い、ラベルは切り詰められずに折り返します。
+
+<Example label="全幅のセット" system="m3-like">
+  <div style="inline-size: 20rem">
+    <tanrei-segmented-button label="期間" value="week" full-width>
+      <tanrei-segment value="day" label="日"></tanrei-segment>
+      <tanrei-segment value="week" label="週"></tanrei-segment>
+      <tanrei-segment value="month" label="月"></tanrei-segment>
+    </tanrei-segmented-button>
+  </div>
+</Example>
 
 ### 推奨
 
