@@ -78,6 +78,12 @@
       "description": "Visual height (36 / 36 / 40 in the core, never drawn below sys.target.minimum), matching Button's heights so that the set can share a row with buttons. The hit area always meets the minimum target. A design system may add values."
     },
     {
+      "name": "fullWidth",
+      "type": "boolean",
+      "default": false,
+      "description": "Makes the set take the whole width its container gives it, shared equally among its segments, each segment's content centred in its share, at the height of its size (SEG-30): a setting held across a narrow screen, a sheet or a card. The same prop as Button's fullWidth."
+    },
+    {
       "name": "label",
       "type": "string",
       "default": "",
@@ -195,7 +201,7 @@
     {
       "id": "SEG-14",
       "text": "THE segmented button SHALL give every segment the same width: the widest segment's content plus the padding of its size on each side (comp.segmented-button.container.padding-inline.medium for medium, and so on), a segment's content being its leading glyph (its icon, or the check where one would be drawn), the gap of its size (comp.segmented-button.container.gap.medium, and so on) and its label, measured as if the segment were selected, so that selecting a segment never changes a width; WHERE the layout gives the set more width THE segmented button SHALL divide it equally among the segments, and WHERE less, it SHALL divide what it has equally and let labels wrap onto more lines rather than truncate, growing every segment to the tallest, with at least the padding-block of its size (comp.segmented-button.container.padding-block.medium, and so on) above and below.",
-      "verify": "Fixtures: each renders the set at its natural width, start-aligned and vertically centred on a 400 × 96 stage, holding the fixture's segments in order; selection, value, values, size and label apply to the set and each segment's props to that segment. Every fixture fits in one row at 14–16 px text."
+      "verify": "Fixtures: each renders the set at its natural width (at the stage's 400 while fullWidth is true, SEG-30), start-aligned and vertically centred on a 400 × 96 stage, holding the fixture's segments in order; selection, value, values, size and label apply to the set and each segment's props to that segment. Every fixture fits in one row at 14–16 px text."
     },
     {
       "id": "SEG-15",
@@ -260,6 +266,11 @@
     {
       "id": "SEG-29",
       "text": "WHERE the platform has ARIA attributes (the web), WHEN the product sets an aria- attribute on a segment's host, by the attribute or by the ARIA property that reflects it, THE segmented button SHALL move it to the data-aria- attribute of the same name, so that the host is no second node with its name, description or state, and SHALL expose it on the element that carries the segment's role — an id reference by the elements it names in the host's tree or a tree around it, an error message as part of the description while the segment is invalid — except those a segment owns (aria-checked, aria-pressed, aria-disabled), which it SHALL move and not expose. WHEN the product removes the aria- attribute or its data-aria- twin, or sets the ARIA property that reflects it (ariaLabel, ariaDescribedByElements…) to null, THE segmented button SHALL take it off that element. WHEN the product sets an aria- attribute a segment owns THE segmented button SHALL report it in debug builds. The set's host carries its radio group or group role itself (SEG-20), so what the product writes on it is not moved, but for a name: WHILE the set's label is not empty THE segmented button SHALL hold the product's aria-label and aria-labelledby on that host as their data-aria- twins, so that label is the set's whole name although the platform gives aria-labelledby the precedence, and WHEN label is emptied SHALL give them back as they were written; WHILE it is empty a name the product gives so is the set's name and SHALL NOT be reported as having none in debug builds (SEG-22); WHEN the product removes one, or its data-aria- twin, or sets the ARIA property that reflects it to null, THE segmented button SHALL take it away."
+    },
+    {
+      "id": "SEG-30",
+      "text": "WHILE fullWidth is true THE segmented button SHALL take the whole inline size its container gives it and divide it, less the set's padding and the dividers between the segments, into equal shares, one per segment, whatever each segment holds, as SEG-14 divides any width its layout gives the set: each segment's content SHALL be centred in its share (SEG-15), and the set SHALL keep the height, the paddings, the corners, the outline, the dividers and the minimum target of its size; WHERE that width is narrower than the set's natural width THE segmented button SHALL share what there is equally and let labels wrap as SEG-14 says, rather than truncate them or draw past its container. WHILE fullWidth is false THE segmented button SHALL take its natural width (SEG-14).",
+      "verify": "The fixture full-width is as wide as its 400-wide stage, its three segments (Day, Week, Month) of one width, each label centred in its segment, and as high as the single fixture; the same set without fullWidth on the same stage is narrower. In a container narrower than its natural width a full-width set is as wide as the container and its segments still share it equally."
     }
   ],
   "accessibility": {
@@ -601,6 +612,38 @@
           }
         }
       ]
+    },
+    {
+      "id": "full-width",
+      "props": {
+        "selection": "single",
+        "value": "week",
+        "fullWidth": true,
+        "label": "Range"
+      },
+      "items": [
+        {
+          "kind": "segment",
+          "props": {
+            "value": "day",
+            "label": "Day"
+          }
+        },
+        {
+          "kind": "segment",
+          "props": {
+            "value": "week",
+            "label": "Week"
+          }
+        },
+        {
+          "kind": "segment",
+          "props": {
+            "value": "month",
+            "label": "Month"
+          }
+        }
+      ]
     }
   ],
   "platforms": {
@@ -612,6 +655,7 @@
         "value": "value",
         "values": "values",
         "size": "size",
+        "fullWidth": "fullWidth",
         "label": "label"
       },
       "events": {
@@ -640,7 +684,7 @@
         "outline": "set@outline",
         "focus-ring": "tanrei-segment container@focus-ring"
       },
-      "notes": "`tanrei-segmented-button` (selection, value, values, size, label) holds `tanrei-segment` children. `value` is an attribute and a property; `values` is a property (an array); the `values` attribute is also read, as JSON or as space-separated words, because the fixture harness writes attributes. It sets its own `value` or `values` before firing `change`, as a native control does. It puts role radiogroup (single) or group (multiple) and `aria-label` on its own element, and on each segment's inner `<button>` role radio with `aria-checked`, `aria-posinset` and `aria-setsize` (single), or `aria-pressed` (multiple), with a roving tabindex. A toggle button may not carry `aria-posinset`, so in a multiple set the row is a `role=\"list\"` and each segment a `role=\"listitem\"` that carries the position; ElementInternals is not used for the roles, because axe cannot see it. It is not form-associated. The check is the icon helper's `check` glyph in the `check` part (SEG-16)."
+      "notes": "`tanrei-segmented-button` (selection, value, values, size, full-width, label) holds `tanrei-segment` children. `value` is an attribute and a property; `values` is a property (an array); the `values` attribute is also read, as JSON or as space-separated words, because the fixture harness writes attributes. It sets its own `value` or `values` before firing `change`, as a native control does. It puts role radiogroup (single) or group (multiple) and `aria-label` on its own element, and on each segment's inner `<button>` role radio with `aria-checked`, `aria-posinset` and `aria-setsize` (single), or `aria-pressed` (multiple), with a roving tabindex. A toggle button may not carry `aria-posinset`, so in a multiple set the row is a `role=\"list\"` and each segment a `role=\"listitem\"` that carries the position; ElementInternals is not used for the roles, because axe cannot see it. It is not form-associated. The check is the icon helper's `check` glyph in the `check` part (SEG-16). `fullWidth` is the `full-width` attribute (reflected): the host is a block-level flex box as wide as its container and the set's equal columns fill it (SEG-30)."
     },
     "swiftui": {
       "status": "lagging",
@@ -650,6 +694,7 @@
         "value": "selection",
         "values": "selection",
         "size": "size",
+        "fullWidth": "fullWidth",
         "label": "label"
       },
       "events": {
@@ -668,7 +713,7 @@
           "notes": "`TanreiSegment(_ title:, icon:).tag(value)` in the view builder, as a `Picker`'s tagged options; `.labelStyle(.iconOnly)` is labelHidden; `disabled` follows `.disabled(_:)`."
         }
       },
-      "notes": "`TanreiSegmentedButton(_ label:, selection: Binding<V?>, size:) { TanreiSegment … }` for single selection and `TanreiSegmentedButton(_ label:, selection: Binding<Set<V>>, size:) { … }` for multiple: the binding's type is selection, and writing it is change. SwiftUI's `Picker` with `.pickerStyle(.segmented)` is not used: its segments cannot be tokenised. A single-choice segment is a button with the `.isSelected` trait and its position as its accessibility value; a multiple-choice segment adds the `.isToggle` trait (iOS 17). Lagging behind SEG-16 and SEG-25: without an installed icon font it strokes the check as a vector of its own (`TanreiChipGlyph`, on the checkbox's mark geometry) instead of drawing nothing. Lagging behind SEG-16's weight (the check drawn at comp.segmented-button.check.weight): its check is drawn at sys.icon.weight."
+      "notes": "`TanreiSegmentedButton(_ label:, selection: Binding<V?>, size:) { TanreiSegment … }` for single selection and `TanreiSegmentedButton(_ label:, selection: Binding<Set<V>>, size:) { … }` for multiple: the binding's type is selection, and writing it is change. SwiftUI's `Picker` with `.pickerStyle(.segmented)` is not used: its segments cannot be tokenised. A single-choice segment is a button with the `.isSelected` trait and its position as its accessibility value; a multiple-choice segment adds the `.isToggle` trait (iOS 17). Lagging behind SEG-16 and SEG-25: without an installed icon font it strokes the check as a vector of its own (`TanreiChipGlyph`, on the checkbox's mark geometry) instead of drawing nothing. Lagging behind SEG-16's weight (the check drawn at comp.segmented-button.check.weight): its check is drawn at sys.icon.weight. Not built on this platform yet: `fullWidth: Bool = false` (SEG-30)."
     },
     "compose": {
       "status": "lagging",
@@ -678,6 +723,7 @@
         "value": "selectedValue",
         "values": "selectedValues",
         "size": "size",
+        "fullWidth": "fullWidth",
         "label": "contentDescription"
       },
       "events": {
@@ -696,7 +742,7 @@
           "notes": "`TanreiSegment(value, label, icon, labelHidden, enabled)` called in the `TanreiSegmentedButton { }` content lambda. `enabled` is the inverse flag."
         }
       },
-      "notes": "One composable for both selections (Material's `SingleChoiceSegmentedButtonRow` and `MultiChoiceSegmentedButtonRow` in one): `TanreiSegmentedButton(selectionMode, selectedValue, selectedValues, onSelectionChange, size, contentDescription) { TanreiSegment(…) }`. State hoisting: the caller keeps `selectedValue` or `selectedValues` and moves it from `onSelectionChange`. The row is a `selectableGroup()`; a single-choice segment is `selectable(role = Role.RadioButton)` and a multiple-choice one `toggleable(role = Role.Button)`, as the filter chip is. Compose has no radio group role. `onSelectionChange` is `(Set<String>) -> Unit` for both selections: a single choice passes a set of one (as the list does). Lagging behind SEG-16 and SEG-25: without an installed icon font it strokes the check as a vector of its own (`TanreiDrawnGlyph`, `tanreiCheckPath`) instead of drawing nothing. Lagging behind SEG-16's weight (the check drawn at comp.segmented-button.check.weight): its check is drawn at sys.icon.weight."
+      "notes": "One composable for both selections (Material's `SingleChoiceSegmentedButtonRow` and `MultiChoiceSegmentedButtonRow` in one): `TanreiSegmentedButton(selectionMode, selectedValue, selectedValues, onSelectionChange, size, contentDescription) { TanreiSegment(…) }`. State hoisting: the caller keeps `selectedValue` or `selectedValues` and moves it from `onSelectionChange`. The row is a `selectableGroup()`; a single-choice segment is `selectable(role = Role.RadioButton)` and a multiple-choice one `toggleable(role = Role.Button)`, as the filter chip is. Compose has no radio group role. `onSelectionChange` is `(Set<String>) -> Unit` for both selections: a single choice passes a set of one (as the list does). Lagging behind SEG-16 and SEG-25: without an installed icon font it strokes the check as a vector of its own (`TanreiDrawnGlyph`, `tanreiCheckPath`) instead of drawing nothing. Lagging behind SEG-16's weight (the check drawn at comp.segmented-button.check.weight): its check is drawn at sys.icon.weight. Not built on this platform yet: `fullWidth: Boolean = false` (SEG-30)."
     },
     "flutter": {
       "status": "lagging",
@@ -706,6 +752,7 @@
         "value": "selected",
         "values": "selected",
         "size": "size",
+        "fullWidth": "fullWidth",
         "label": "semanticLabel"
       },
       "events": {
@@ -724,7 +771,7 @@
           "notes": "`TanreiSegment<T>(value:, label:, icon:, labelHidden:, enabled:)` in the `segments:` list. `enabled` is the inverse flag."
         }
       },
-      "notes": "Shaped like Flutter's `SegmentedButton<T>` but built with the widgets library, without Material: `TanreiSegmentedButton<T>(segments:, selected: Set<T>, onSelectionChanged:, multiSelectionEnabled:, size:, semanticLabel:)`. `selected` holds zero or one value while `multiSelectionEnabled` is false; the caller moves it from `onSelectionChanged`. A single-choice segment is `Semantics(inMutuallyExclusiveGroup: true, checked:)` and a multiple-choice one `Semantics(button: true, toggled:)`, inside a `Semantics(container: true, label:)` for the set. A single-choice set is exposed with `SemanticsRole.radioGroup`, named by `semanticLabel` (SEG-20). Lagging behind SEG-25: it writes the check as the Material Symbols code point U+E5CA (`tanreiCheckGlyph`), and without the icon font it draws whatever the fallback face has for that code point instead of nothing. Lagging behind SEG-16's weight (the check drawn at comp.segmented-button.check.weight): its check is drawn at sys.icon.weight."
+      "notes": "Shaped like Flutter's `SegmentedButton<T>` but built with the widgets library, without Material: `TanreiSegmentedButton<T>(segments:, selected: Set<T>, onSelectionChanged:, multiSelectionEnabled:, size:, semanticLabel:)`. `selected` holds zero or one value while `multiSelectionEnabled` is false; the caller moves it from `onSelectionChanged`. A single-choice segment is `Semantics(inMutuallyExclusiveGroup: true, checked:)` and a multiple-choice one `Semantics(button: true, toggled:)`, inside a `Semantics(container: true, label:)` for the set. A single-choice set is exposed with `SemanticsRole.radioGroup`, named by `semanticLabel` (SEG-20). Lagging behind SEG-25: it writes the check as the Material Symbols code point U+E5CA (`tanreiCheckGlyph`), and without the icon font it draws whatever the fallback face has for that code point instead of nothing. Lagging behind SEG-16's weight (the check drawn at comp.segmented-button.check.weight): its check is drawn at sys.icon.weight. Not built on this platform yet: `fullWidth` (`bool`, default false; SEG-30)."
     },
     "react-native": {
       "status": "lagging",
@@ -734,6 +781,7 @@
         "value": "value",
         "values": "values",
         "size": "size",
+        "fullWidth": "fullWidth",
         "label": "accessibilityLabel"
       },
       "events": {
@@ -752,7 +800,7 @@
           "notes": "The element type of the set's `items` array: `{ value, label, icon?, labelHidden?, disabled? }`, where `icon` is the glyph's name."
         }
       },
-      "notes": "`<SegmentedButton items={Segment[]} selectionMode value | values onSelectionChange size accessibilityLabel>`; controlled, the caller moves `value` or `values` from `onSelectionChange`. The set has the `radiogroup` role (single) or the `group` role (multiple); each segment the `radio` role with `accessibilityState.checked`, or the `button` role with `accessibilityState.selected`, as a toggle Button is. The arrow keys work where a hardware keyboard is attached. Lagging behind SEG-25: it writes the ligature `check` into the glyph box, and without the icon font it prints the word instead of drawing nothing. Lagging behind SEG-16's weight (the check drawn at comp.segmented-button.check.weight): its check is drawn at sys.icon.weight."
+      "notes": "`<SegmentedButton items={Segment[]} selectionMode value | values onSelectionChange size accessibilityLabel>`; controlled, the caller moves `value` or `values` from `onSelectionChange`. The set has the `radiogroup` role (single) or the `group` role (multiple); each segment the `radio` role with `accessibilityState.checked`, or the `button` role with `accessibilityState.selected`, as a toggle Button is. The arrow keys work where a hardware keyboard is attached. Lagging behind SEG-25: it writes the ligature `check` into the glyph box, and without the icon font it prints the word instead of drawing nothing. Lagging behind SEG-16's weight (the check drawn at comp.segmented-button.check.weight): its check is drawn at sys.icon.weight. Not built on this platform yet: `fullWidth` (`boolean`, default false; SEG-30)."
     }
   }
 }

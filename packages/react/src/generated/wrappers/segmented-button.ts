@@ -14,7 +14,7 @@ const SegmentedButtonElement = /* @__PURE__ */ createComponent({
     onChange: 'change' as EventName<TanreiEvent<TanreiSegmentedButtonElement, CustomEvent<TanreiSegmentedButtonChangeDetail>>>,
   },
 });
-const SegmentedButtonAttributes = { selection: ['selection', 'single'], value: ['value', null], values: ['values'], size: ['size', 'medium'], label: ['label', ''] } as const;
+const SegmentedButtonAttributes = { selection: ['selection', 'single'], value: ['value', null], values: ['values'], size: ['size', 'medium'], fullWidth: ['full-width', false], label: ['label', ''] } as const;
 /**
  * Lets people choose one option, or several, from two to five related options drawn side by side as the joined segments of one control.
  *

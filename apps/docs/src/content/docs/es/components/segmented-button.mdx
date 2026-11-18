@@ -2,7 +2,7 @@
 title: Botón segmentado
 description: Permite elegir una opción, o varias, entre dos y cinco opciones relacionadas que se dibujan una junto a otra como los segmentos unidos de un solo control.
 translationOf: components/segmented-button.mdx
-sourceHash: a874adc09eecdb81a13c36cf37fa26c0423a4b50
+sourceHash: 2fceee654ffe757f838472c4a96334e610a4a53b
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -265,6 +265,20 @@ El conjunto no tiene un `disabled` propio. Deshabilita los segmentos uno a uno. 
 - Todos los segmentos son tan anchos como el más ancho, medido como si estuviera seleccionado, así que la aparición de la marca nunca mueve a un vecino. Con menos espacio, las etiquetas saltan de línea y todos los segmentos crecen hasta la altura del más alto. Nunca se truncan.
 - `labelHidden` dibuja solo el icono. La etiqueta sigue siendo obligatoria, porque continúa siendo el nombre accesible del segmento.
 - El tamaño define la altura del conjunto. Los tamaños no coinciden con las alturas del botón en todos los pasos (en el preajuste `m3-like`, small y medium coinciden con los del botón y large es más bajo), así que empareja un conjunto con los botones que tiene al lado por la altura, no por el nombre del tamaño.
+
+### Ancho completo
+
+Añade `full-width` para que el conjunto sea tan ancho como su contenedor, por ejemplo un ajuste que ocupa todo el ancho de una pantalla estrecha, una tarjeta o una hoja. Los segmentos se reparten ese ancho a partes iguales, sean cuales sean sus etiquetas, y el contenido de cada segmento queda centrado en su parte. El conjunto conserva la altura, los márgenes interiores y las esquinas de su tamaño. En un contenedor más estrecho que el ancho natural del conjunto, los segmentos se siguen repartiendo el ancho a partes iguales y sus etiquetas pasan a la línea siguiente en lugar de cortarse.
+
+<Example label="Un conjunto de ancho completo" system="m3-like">
+  <div style="inline-size: 20rem">
+    <tanrei-segmented-button label="Intervalo" value="week" full-width>
+      <tanrei-segment value="day" label="Día"></tanrei-segment>
+      <tanrei-segment value="week" label="Semana"></tanrei-segment>
+      <tanrei-segment value="month" label="Mes"></tanrei-segment>
+    </tanrei-segmented-button>
+  </div>
+</Example>
 
 ### Recomendado
 

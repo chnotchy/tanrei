@@ -40653,6 +40653,18 @@
             },
             {
               "kind": "field",
+              "name": "fullWidth",
+              "privacy": "public",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Takes the whole width its container gives it (the `full-width` attribute), shared equally among the segments, each\nsegment's content centred in its share, at the height of its size (SEG-30).",
+              "attribute": "full-width",
+              "reflects": true
+            },
+            {
+              "kind": "field",
               "name": "label",
               "privacy": "public",
               "type": {
@@ -40717,6 +40729,15 @@
               "default": "'medium'",
               "description": "Visual height (32 / 36 / 40 in the default system, Button's heights). The hit area always meets the minimum target.",
               "fieldName": "size"
+            },
+            {
+              "name": "full-width",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Takes the whole width its container gives it (the `full-width` attribute), shared equally among the segments, each\nsegment's content centred in its share, at the height of its size (SEG-30).",
+              "fieldName": "fullWidth"
             },
             {
               "name": "label",
