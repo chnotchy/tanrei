@@ -65,13 +65,13 @@ describe('every page holds them', () => {
     assert.deepEqual(inlineCode(html).scripts, [speculationRulesText]);
     assert.match(pagePolicy(html), /'sha256-[A-Za-z0-9+/=]+'/);
   });
-  test('the host’s policy allows inline speculation rules on every page, and still no other inline script than it did (public/_headers)', () => {
+  test('the host’s policy allows the rules as an inline script, and names no keyword an engine does not know (public/_headers)', () => {
     const rules = headerRules(read('public/_headers'));
     for (const pathname of ['/', '/components/button/', '/ja/foundations/color/']) {
       const policy = headersFor(rules, pathname)['content-security-policy'];
       const scripts = policy.split(';').map((d) => d.trim()).find((d) => d.startsWith('script-src ')).split(/\s+/).slice(1);
-      assert.ok(scripts.includes("'inline-speculation-rules'"), pathname);
-      assert.deepEqual(scripts, ["'self'", "'unsafe-inline'", "'inline-speculation-rules'", "'wasm-unsafe-eval'", 'https://static.cloudflareinsights.com'], pathname);
+      assert.ok(!scripts.includes("'inline-speculation-rules'"), `${pathname}: WebKit reports the keyword as an invalid source`);
+      assert.deepEqual(scripts, ["'self'", "'unsafe-inline'", "'wasm-unsafe-eval'", 'https://static.cloudflareinsights.com'], pathname);
     }
   });
   const built = path.join(docs, 'dist/index.html');

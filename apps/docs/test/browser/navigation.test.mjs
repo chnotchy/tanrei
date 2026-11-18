@@ -26,6 +26,8 @@ if (!fs.existsSync(path.join(dist, 'index.html'))) throw new Error('apps/docs/di
 
 const FROM = '/components/button/';
 const TO = '/components/checkbox/';
+// FROM's link to the page after it, at the foot of the content (previous/next links): one a pointer can rest on.
+const NEXT = '/components/main-action-button/';
 
 /** Kept by each new document: whether `pagereveal` came with a view transition. */
 const KEEP_REVEAL = () => {
@@ -120,6 +122,40 @@ describe('the speculation rules, in Chromium', () => {
         'https://github.com/': false,
         [`http://example.com/components/`]: false,
       });
+    } finally {
+      await context.close();
+    }
+  });
+  test('are allowed by both policies — the page’s by their hash, the host’s with no keyword of their own — and acted on once a pointer rests on a link', LIMIT, async () => {
+    const context = await browser.newContext({ viewport: { width: 1440, height: 800 } });
+    try {
+      await context.addInitScript(() => {
+        window.__docsRefused = [];
+        addEventListener('securitypolicyviolation', (event) => window.__docsRefused.push(`${event.violatedDirective}: ${event.blockedURI}`));
+      });
+      const page = await context.newPage();
+      const problems = [];
+      page.on('console', (message) => message.type() === 'error' && problems.push(message.text()));
+      const cdp = await context.newCDPSession(page);
+      const ruleSets = [];
+      const attempts = [];
+      let attempted;
+      const prerendered = new Promise((resolve) => (attempted = resolve));
+      cdp.on('Preload.ruleSetUpdated', ({ ruleSet }) => ruleSets.push(ruleSet));
+      cdp.on('Preload.prerenderStatusUpdated', ({ key, status }) => {
+        attempts.push({ url: key.url, status });
+        if (key.url === `${origin}${NEXT}`) attempted();
+      });
+      await cdp.send('Preload.enable');
+      await page.goto(`${origin}${FROM}`);
+      await page.locator(`a[rel="next"][href="${NEXT}"]`).hover();
+      // The test's own limit is the backstop: a rule set the policy refused never prerenders anything.
+      await prerendered;
+      assert.deepEqual(await page.evaluate(() => window.__docsRefused), [], 'no refusal of either policy');
+      assert.deepEqual(problems, [], 'no console errors');
+      assert.equal(ruleSets.length, 1, 'one rule set');
+      assert.equal(ruleSets[0].errorType, undefined, `the rule set is read without an error (${ruleSets[0].errorMessage})`);
+      assert.ok(attempts.some(({ url }) => url === `${origin}${NEXT}`), `the hovered page is prerendered (${JSON.stringify(attempts)})`);
     } finally {
       await context.close();
     }

@@ -9,8 +9,10 @@
 // (`/_astro/`), every address of a file that is not a page — the pages' Markdown, the index for language models, the
 // sitemap, the pictures — and a link that downloads its file.
 //
-// The host's policy allows the rules (`'inline-speculation-rules'`, public/_headers) and the page's own policy names
-// their hash, as it names every inline script's (src/lib/csp.mjs).
+// The host's policy allows the rules as it allows every inline script (`'unsafe-inline'`, public/_headers) and the
+// page's own policy names their hash, as it names every inline script's (src/lib/csp.mjs). Neither names the rules'
+// own keyword (`'inline-speculation-rules'`): the hash is enough, and WebKit, which does not know the keyword, reports
+// it as an invalid source on every page.
 
 /** Addresses of the site that are not pages to read. */
 export const NOT_PAGES = ['/pagefind/*', '/_astro/*', '/*.md', '/*.txt', '/*.xml', '/*.json', '/*.png', '/*.svg', '/*.ico', '/*.woff2'];
