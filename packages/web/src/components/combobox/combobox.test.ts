@@ -1238,6 +1238,48 @@ test.describe('behavior: the list', () => {
     await expect(part(page, groups, '.scroll .divider'), 'nor its separation').toHaveCount(0);
   });
 
+  test('CMB-25, CMB-38, CMB-29: the typed text is compared with each label as the label’s language compares — in Turkish “i” is not the small letter of “I”, “ß” is “ss”, a marked letter is found by its base letter, a full-width one by its half-width form, a kana sound mark is kept — and the run drawn as the match is the letters of the label that answered', async ({ page }) => {
+    const labels = ['Isparta', 'İzmir', 'Diyarbakır', 'Straße', 'Évora', 'ＴＯＫＹＯ', 'がっこう', 'かばん', 'ぱん'];
+    const options = labels.map((label, n) => option(label, `l${n}`));
+    await mount(page, [fx('tr', { lang: 'tr' }, options), fx('de', { lang: 'de' }, options)], { reducedMotion: true });
+    /** The rows shown for `text`, each with its marked run in brackets. */
+    const typed = async (id: string, text: string) => {
+      await focusInput(page, id);
+      await selectAll(page, id);
+      await type(page, text);
+      await settle(page, id);
+      return part(page, id, '.scroll .row .option-label').evaluateAll((labelled) =>
+        labelled.map((el) => [...el.childNodes].map((node) => (node.nodeName === 'MARK' ? `[${node.textContent}]` : node.nodeType === Node.TEXT_NODE ? node.textContent : '')).join('')),
+      );
+    };
+    // Turkish: "i" is the small letter of "İ", and "ı" of "I".
+    expect(await typed('tr', 'i')).toEqual(['[İ]zmir', 'D[i]yarbakır']);
+    expect(await typed('tr', 'ı')).toEqual(['[I]sparta', 'Diyarbak[ı]r']);
+    // German, as most languages: "i" is the small letter of "I" and of "İ", and "ı" a letter of its own.
+    expect(await typed('de', 'i')).toEqual(['[I]sparta', '[İ]zmir', 'D[i]yarbakır']);
+    expect(await typed('de', 'ı')).toEqual(['Diyarbak[ı]r']);
+    for (const id of ['tr', 'de']) {
+      expect(await typed(id, 'ss'), `${id}: "ß" is "ss"`).toEqual(['Stra[ß]e']);
+      expect(await typed(id, 'strasse'), id).toEqual(['[Straße]']);
+      expect(await typed(id, 'evora'), `${id}: whatever the marks`).toEqual(['[Évora]']);
+      expect(await typed(id, 'tok'), `${id}: whatever the width`).toEqual(['[ＴＯＫ]ＹＯ']);
+      // The two sound marks of kana are the letter's own, in every engine (WebKit's collator keeps them, Chromium's and
+      // Firefox's drop them at base strength); hiragana and katakana, and full and half width, are told apart by none.
+      expect(await typed(id, 'か'), `${id}: a sound mark of kana is the letter’s own`).toEqual(['[か]ばん']);
+      expect(await typed(id, 'が'), id).toEqual(['[が]っこう']);
+      expect(await typed(id, 'ば'), id).toEqual(['か[ば]ん']);
+      expect(await typed(id, 'カ'), `${id}: katakana finds hiragana`).toEqual(['[か]ばん']);
+      expect(await typed(id, 'ｶﾞ'), `${id}: a half-width kana with its sound mark`).toEqual(['[が]っこう']);
+      expect(await typed(id, 'ﾊﾟ'), `${id}: the semi-voiced mark is not the voiced one`).toEqual(['[ぱ]ん']);
+    }
+    // CMB-29: a text equal to a whole label, compared the same way, chooses its option when focus leaves.
+    await focusInput(page, 'tr');
+    await selectAll(page, 'tr');
+    await type(page, 'izmir');
+    await blurInput(page, 'tr');
+    await expect.poll(async () => (await read(page, 'tr')).value).toBe('l1');
+  });
+
   test('CMB-26: typing makes the first shown option that is not disabled active, and none where a custom value is allowed; a list opened by a key makes the chosen option active, or the first enabled one; Down and Up Arrow move by one across groups and go round at the ends — through the text, with none active, where a custom value is allowed — or stop there with no-wrap, Up Arrow on the first leaving none where a custom value is allowed; Page Down and Page Up by ten and never round; Home, End, Left and Right Arrow are the text’s; a disabled option is reached; a pointer makes an option active without the ring, the keyboard with it; nothing here changes value or the text', async ({ page }) => {
     await mount(page, [
       fx('one', { value: 'lisbon' }, [group('A', [option('Kyoto', 'kyoto', { disabled: true }), option('Kobe', 'kobe')]), group('B', [option('Lisbon', 'lisbon'), option('Tokyo', 'tokyo', { disabled: true })]), option('Toronto', 'toronto')]),

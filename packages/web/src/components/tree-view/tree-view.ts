@@ -20,6 +20,7 @@ import {
 } from '../../primitives/index.js';
 import { readTogether } from '../../primitives/read-phase.js';
 import { FILTER_SETTLE_MS, filterWords, holdsWords, labelBegins } from '../../primitives/filter.js';
+import { ambientLocale } from '../../primitives/locale-date.js';
 import { fillPlaces } from '../../primitives/places.js';
 import { PendingGlyphs, isGlyphProbe } from '../../primitives/glyph-pending.js';
 import { type CutTextContent, CutTextTip, isCut } from '../../primitives/cut-text.js';
@@ -1918,7 +1919,7 @@ export class TanreiTreeView extends TanreiLightElement {
     const matches = new Set<Item>();
     for (const item of items) {
       const row = rowOf(item);
-      if (row && holdsWords(labelTextNodes(row).map((node) => node.data).join(''), words)) matches.add(item);
+      if (row && holdsWords(labelTextNodes(row).map((node) => node.data).join(''), words, ambientLocale(row))) matches.add(item);
     }
     const ancestors = (item: Element) => {
       const above: Item[] = [];
@@ -2437,6 +2438,9 @@ export class TanreiTreeView extends TanreiLightElement {
         focusable: true,
         get label() {
           return labelOf(row);
+        },
+        get lang() {
+          return ambientLocale(row);
         },
       })),
       labelBegins,

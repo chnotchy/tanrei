@@ -55,6 +55,7 @@ import {
   type ModalMoves,
 } from '../../primitives/index.js';
 import { FILTER_SETTLE_MS, filterWords, holdsWords } from '../../primitives/filter.js';
+import { ambientLocale } from '../../primitives/locale-date.js';
 import { WordsController } from '../../primitives/words.js';
 import { fillPlaces } from '../../primitives/places.js';
 // Not re-exported by the primitives' index: internal to a region and its destinations.
@@ -2348,7 +2349,7 @@ export class TanreiNavigationDrawer extends TanreiElement {
 
   /**
    * NVD-81…86: the filter of filterValue over the cells as they are now — which rows match (every word, anywhere in the
-   * label, in any order, without regard to case, width or marks), which a filter hides, which closed groups it draws
+   * label, in any order, as the label's language compares, without regard to case, width or marks), which a filter hides, which closed groups it draws
    * open, and the active match. It marks no run of a label (NVD-85).
    */
   private reckonFilter(): FilterState {
@@ -2362,7 +2363,7 @@ export class TanreiNavigationDrawer extends TanreiElement {
     // NVD-79: collapsed, the cells are drawn as though no filter were applied, and filterValue is kept.
     if (!words.length || this.collapsed) return NO_FILTER;
     const cells = this.ownCells();
-    const matches = new Set(cells.filter((cell) => holdsWords(cell.label, words)));
+    const matches = new Set(cells.filter((cell) => holdsWords(cell.label, words, ambientLocale(cell))));
     // NVD-82: each match, each group that holds one, and the whole of a group found by its own name.
     const shown = new Set<Element>();
     for (const cell of matches) {

@@ -89,9 +89,10 @@
 //                 what a control tells its form, said where the element composed around it hears it; `formOf()` is in
 //                 default-button. Imported from their own modules, not from here.
 //   values      — parseValues(): the `values` attribute of a selection of several values (list, segmented button)
-//   filter      — fold(), filterWords(), holdsWords(), matchRun(), completionOf(): how a typed text is compared with a
-//                 label, which run of it answered in a combobox, and what completes it in a search (CMB-25, CMB-38,
-//                 NVD-81, TRV-56, SRC-55)
+//   filter      — labelBegins(), containsText(), sameText(), letters(), filterWords(), holdsWords(), matchRun(),
+//                 completionOf(): how a typed text is compared with a label, by the collator of the label's language
+//                 (its `ambientLocale()`), which run of it answered in a combobox, and what completes it in a search
+//                 (CMB-25, CMB-38, NVD-81, TRV-56, SRC-55, and the typeahead of SEL-33, LST-17, MNU-7, TRV-23, MBR-12)
 //   keyboard-convention — whose keyboard a keyboard shortcut writes (KBS-2): the ambient `data-tanrei-keyboard-convention`
 //                 across shadow roots, the platform's, one page-wide watcher; the chords' attribute converter; and the
 //                 internal event a keyboard shortcut tells its host with (KBS-12, a menu item's aria-keyshortcuts)
@@ -499,7 +500,7 @@ export {
   unwatchConvention,
   watchConvention,
 } from './keyboard-convention.js';
-export { FILTER_SETTLE_MS, type Folded, completionOf, filterWords, fold, foldText, holdsWords, labelBegins, matchRun } from './filter.js';
+export { FILTER_SETTLE_MS, completionOf, containsText, filterWords, holdsWords, labelBegins, letters, matchRun, sameText } from './filter.js';
 export { type IndicatorDragOptions, IndicatorDragController, type IndicatorPlace, type IndicatorStop, indicatorChoice, indicatorPlace } from './indicator-drag.js';
 export { type SharedChoice, keepInPlace, remember, remembered, sharedChoice } from './shared-choice.js';
 export { flatParent } from './flat-tree.js';

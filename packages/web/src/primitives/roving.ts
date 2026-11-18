@@ -5,11 +5,11 @@
 export const TYPEAHEAD_WINDOW = 1000;
 
 /**
- * Whether `label` begins with the typed `text`: how typeahead compares, given to `RovingKeys.target`. The one a column
- * of items gives is `labelBegins` (`filter.ts`), the comparison of the components' filters, so that typing to an item
- * and filtering for it find the same labels.
+ * Whether `label` begins with the typed `text`, compared in the label's language `lang`: how typeahead compares, given
+ * to `RovingKeys.target`. The one a column of items gives is `labelBegins` (`filter.ts`), the comparison of the
+ * components' filters, so that typing to an item and filtering for it find the same labels.
  */
-export type LabelBegins = (label: string, text: string) => boolean;
+export type LabelBegins = (label: string, text: string, lang?: string) => boolean;
 
 /** One item of a column that is moved through with the keyboard. */
 export interface RovingItem {
@@ -17,6 +17,11 @@ export interface RovingItem {
   focusable: boolean;
   /** The text it starts with, for typeahead (a list item's headline, a menu item's label). */
   label: string;
+  /**
+   * The language its label is in, for typeahead: the item's `ambientLocale()` (its nearest `lang`). Read only for the
+   * items a typed text is compared with, so a getter may give it. Without one, the browser's language.
+   */
+  readonly lang?: string;
 }
 
 /**
@@ -74,12 +79,14 @@ export class RovingKeys {
     this.at = now;
     // One character typed — or typed again, in either case — is looked for after the current item; a longer text from it.
     const [first, ...rest] = typed;
-    const one = !rest.length || (!!this.options.repeat && rest.every((character) => begins(character, first)));
+    // The same character again is told in the column's language: the focused item's, else the first item's.
+    const same = (character: string) => begins(character, first, items[at < 0 ? order[0] : current].lang);
+    const one = !rest.length || (!!this.options.repeat && rest.every(same));
     const text = one ? first : typed;
     const from = at < 0 ? 0 : one ? at + 1 : at;
     for (let step = 0; step < order.length; step += 1) {
       const index = order[(from + step) % order.length];
-      if (begins(items[index].label, text)) return index;
+      if (begins(items[index].label, text, items[index].lang)) return index;
     }
     // Nothing matches: the key was the column's all the same (it is not typed into anything), focus stays.
     return current >= 0 ? current : null;

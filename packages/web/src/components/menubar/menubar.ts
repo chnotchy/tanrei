@@ -1,6 +1,6 @@
 import { LitElement, type PropertyDeclarations, type PropertyValues, html, nothing } from 'lit';
 import { classMap } from 'lit/directives/class-map.js';
-import { AvailabilityController, GlyphDrawnController, GlyphMirrorController, LINK_MARK, LinkController, PressController, RovingKeys, labelBegins, type TanreiLinkTarget, WordsController, afterClick, deepActive, hostAria, linkRel, readTarget, report, syncFocusStyle } from '../../primitives/index.js';
+import { AvailabilityController, GlyphDrawnController, GlyphMirrorController, LINK_MARK, LinkController, PressController, RovingKeys, ambientLocale, labelBegins, type TanreiLinkTarget, WordsController, afterClick, deepActive, hostAria, linkRel, readTarget, report, syncFocusStyle } from '../../primitives/index.js';
 import { hiddenHost } from '../../primitives/hidden.js';
 import { FORWARDED_ROWS, type TanreiMenu, type TanreiMenuBarChannel, type TanreiMenuCloseDetail, type TanreiSubmenuToggleDetail } from '../menu/menu.js';
 import { barStyles, itemStyles, menuStyles } from './menubar.styles.js';
@@ -1496,13 +1496,14 @@ export class TanreiMenubar extends TanreiElement {
       return;
     }
     // MBR-12: one printable character, with no modifier but Shift: the next title after the focused one, wrapping,
-    // whose label begins with it, compared as the filters compare (`labelBegins`: whatever its case, its width or the
-    // marks on its letters, the kana sound marks kept); nowhere when none does.
+    // whose label begins with it, compared as the filters compare (`labelBegins`: in the label's language, whatever its
+    // case, its width or the marks on its letters, the kana sound marks kept); nowhere when none does.
     if ([...key].length !== 1) return;
     handled();
     for (let step = 1; step <= titles.length; step += 1) {
       const index = (at + step) % titles.length;
-      if (labelBegins(this.labelOf(titles[index]), key)) {
+      const title = titles[index];
+      if (labelBegins(this.labelOf(title), key, ambientLocale(title === OVERFLOW ? this : title))) {
         this.move(titles, index);
         return;
       }

@@ -8,6 +8,7 @@ import { cornerRadius } from '../styles/shape.js';
 import { AnchoredSurfaceController, anchoredSurfaceStyles } from './anchored.js';
 import { containedWheel } from './contained-wheel.js';
 import { labelBegins } from './filter.js';
+import { ambientLocale } from './locale-date.js';
 import { focusRing, syncFocusStyle } from './focus-ring.js';
 import type { OpenAxis } from './axes.js';
 import { itemRowStyles, rowTarget } from './item-row.js';
@@ -1235,7 +1236,13 @@ export class OptionListController implements ReactiveController {
       target = this.keys.target(
         key,
         current,
-        options.map((option) => ({ focusable: true, label: option.label })),
+        options.map((option) => ({
+          focusable: true,
+          label: option.label,
+          get lang() {
+            return ambientLocale(option.element);
+          },
+        })),
         labelBegins,
       );
     if (target === null) return false;

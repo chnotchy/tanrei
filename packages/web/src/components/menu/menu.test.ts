@@ -13,7 +13,7 @@ import { pressHoldAsRun } from '../../../test/harsh.js';
 import { MIRRORED, anchorOf, expectDrawnAlike, expectNewContext, expectRefusals, markOf } from '../../../test/links.js';
 import { expectWheelKeptFromPage } from '../../../test/contained-wheel.js';
 import { holdClock, releaseClock } from '../../../test/page-clock.js';
-import { TYPEAHEAD_FOUND, TYPEAHEAD_LABELS, typeaheadAsFiltered } from '../../../test/typeahead.js';
+import { LANGUAGES, LANGUAGE_FOUND, LANGUAGE_LABELS, TYPEAHEAD_FOUND, TYPEAHEAD_LABELS, typeaheadAsFiltered, typeaheadByLanguage } from '../../../test/typeahead.js';
 import { decodePng } from '../../../test/png.js';
 import { clickCentre, heldPress } from '../../../test/watched-press.js';
 import { middlePressAimed } from '../../../test/middle-press.js';
@@ -973,6 +973,20 @@ test.describe('overlay', () => {
     const seen = await typeaheadAsFiltered(page, () => focused(page));
     expect(seen).toEqual(TYPEAHEAD_FOUND);
     expect(await log(page)).toEqual([]);
+  });
+
+  test('MNU-7: typeahead compares the typed characters with the labels as the label’s language compares — in Turkish “i” is not the small letter of “I”, “ß” is “ss”, a marked letter is found by its base letter, a full-width one by its half-width form, and a kana sound mark is kept', async ({ page }) => {
+    await mountFixtures(page, spec, { fixtures: LANGUAGES.map((lang) => overlay(lang, LANGUAGE_LABELS.map((label) => it(label)), { lang })) });
+    await wire(page);
+    for (const lang of LANGUAGES) {
+      await anchor(page, lang).focus();
+      await page.keyboard.press('Enter');
+      await expect.poll(() => focused(page)).toBe('Apple');
+      expect(await typeaheadByLanguage(page, () => focused(page)), lang).toEqual(LANGUAGE_FOUND[lang]);
+      await page.keyboard.press('Escape');
+      await expect.poll(() => page.evaluate(() => document.activeElement?.id)).toBe(`a-${lang}`);
+    }
+    expect(await log(page)).toEqual(LANGUAGES.map(() => 'close:escape'));
   });
 
   test('MNU-8: a pointer moving onto an item moves focus there without the ring, drawn hovered; leaving the surface keeps it; the arrows continue from it', async ({ page }) => {

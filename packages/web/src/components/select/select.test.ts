@@ -19,7 +19,7 @@ import { mirroring, mirroringAfterDirection } from '../../../test/mirror-word.js
 import { entrances, loadOpen, mountOpenAgain, runsAtRest } from '../../../test/mounted-open.js';
 import { expectWheelKeptFromPage } from '../../../test/contained-wheel.js';
 import { holdClock, releaseClock } from '../../../test/page-clock.js';
-import { TYPEAHEAD_FOUND, TYPEAHEAD_LABELS, typeaheadAsFiltered } from '../../../test/typeahead.js';
+import { LANGUAGES, LANGUAGE_FOUND, LANGUAGE_LABELS, TYPEAHEAD_FOUND, TYPEAHEAD_LABELS, typeaheadAsFiltered, typeaheadByLanguage } from '../../../test/typeahead.js';
 import { expectPressShownAndHeld, watchPress } from '../../../test/watched-press.js';
 import { type Fixture, type FixtureItem, acmeSystemCss, loadSpec, missingWords, mountFixtures, resolveColor, resolveToken, setWords, tab, tabTo, withoutIconFont, iconFaceArrives, inputBoxCopies, inputBoxOwn, inputBoxSetApart, inputBoxToken, rootTokens, mountFixtureAsInAll } from '../../../test/harness.js';
 import { expectBaseline } from '../../../test/baseline.js';
@@ -1558,6 +1558,19 @@ test.describe('behavior: the list', () => {
     const seen = await typeaheadAsFiltered(page, async () => (await read(page, 'typed')).active);
     expect(seen).toEqual(TYPEAHEAD_FOUND);
     expect((await read(page, 'typed')).value).toBe('');
+  });
+
+  test('SEL-33: the string is compared with the labels as the label’s language compares — in Turkish “i” is not the small letter of “I”, “ß” is “ss”, a marked letter is found by its base letter, a full-width one by its half-width form, and a kana sound mark is kept', async ({ page }) => {
+    const options = LANGUAGE_LABELS.map((label, n) => option(label, `l${n}`));
+    await mount(page, LANGUAGES.map((lang) => fx(lang, { lang }, options)));
+    for (const lang of LANGUAGES) {
+      await focusSelect(page, lang);
+      // The first character opens the list and looks from its start, before which nothing is active: Apple is passed.
+      expect(await typeaheadByLanguage(page, async () => (await read(page, lang)).active), lang).toEqual(LANGUAGE_FOUND[lang]);
+      expect((await read(page, lang)).value).toBe('');
+      await page.keyboard.press('Escape');
+      await closedList(page, lang);
+    }
   });
 
   test('SEL-34: a press on an option, or Enter or Space on the active one, sets value, shows its label and emits change once with the new value, then closes the list with the reason select, so toggle follows change; the chosen option chosen again emits no change and still closes; setting value from the product emits nothing', async ({ page }) => {
