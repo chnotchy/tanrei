@@ -11355,6 +11355,7 @@ export const tonePerState = {
       indicatorColor: { kind: "role", role: "primary" },
       motionCycleDuration: 1000,
       motionCycleEasing: [0.2, 0, 0, 1],
+      motionShowDelay: 300,
       motionValueDuration: 300,
       motionValueEasing: [0.2, 0, 0, 1],
       stopIndicatorSize: 0,

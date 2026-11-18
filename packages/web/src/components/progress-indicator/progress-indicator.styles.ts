@@ -97,12 +97,12 @@ export const styles = [
       transition: none;
     }
 
-    /* PRG-21: the delay token — the loading indicator's, so that the two wait alike — computed through an inert
-       property of a probe the element reads as it is inserted. */
+    /* PRG-21: the show delay token, computed through an inert property of a probe the element reads as it is
+       inserted. */
     .timing {
       display: none;
       transition-property: none;
-      transition-delay: var(--tanrei-comp-loading-indicator-motion-show-delay);
+      transition-delay: ${unsafeCSS(T('motion-show-delay'))};
     }
 
     @media (forced-colors: active) {

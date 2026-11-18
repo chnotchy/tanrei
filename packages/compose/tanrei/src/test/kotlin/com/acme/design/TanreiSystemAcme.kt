@@ -6753,6 +6753,7 @@ private object AcmeSystemSource {
             indicatorColor = TanreiPaint.Role(TanreiColorRole.Primary),
             motionCycleDuration = 1000,
             motionCycleEasing = TanreiCubicBezier(x1 = 0.2f, y1 = 0f, x2 = 0f, y2 = 1f),
+            motionShowDelay = 300,
             motionValueDuration = 300,
             motionValueEasing = TanreiCubicBezier(x1 = 0.2f, y1 = 0f, x2 = 0f, y2 = 1f),
             stopIndicatorSize = 0.dp,

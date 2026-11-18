@@ -43,7 +43,7 @@ export type TanreiProgressIndicatorSize = keyof TanreiProgressIndicatorSizeRegis
  * system's `sys.behavior.separation`. Whether the stop indicator is drawn is its size alone, under either (PRG-5).
  *
  * Insert it when the task starts and remove it when the task ends. From its insertion it waits `showDelay` (null takes
- * `comp.loading-indicator.motion.show-delay`, the loading indicator's wait) with its box kept, drawing nothing and
+ * `motion.show-delay`, which follows the same role as the loading indicator's) with its box kept, drawing nothing and
  * exposing nothing (`aria-hidden="true"`); then it is shown at once, with the value it has then and an indeterminate
  * cycle from its beginning. Moving it within the document starts a new delay; hiding it (`hidden`, CSS, scrolling)
  * neither restarts nor pauses it. A change of `showDelay` applies from the next insertion.
@@ -106,7 +106,7 @@ export class TanreiProgressIndicator extends TanreiElement {
 
   /**
    * How long, in milliseconds, it waits from its insertion before it is drawn and exposed; 0 shows it as it is inserted.
-   * Null takes `comp.loading-indicator.motion.show-delay`, as does a negative or non-finite value (reported).
+   * Null takes `motion.show-delay`, as does a negative or non-finite value (reported).
    */
   showDelay: number | null = null;
 
@@ -183,7 +183,7 @@ export class TanreiProgressIndicator extends TanreiElement {
     if (changed.has('label') && !this.label && !namedByProduct(this)) report(this, 'PRG-15', 'label is empty, so the progress indicator has no accessible name; give it a label');
     // PRG-21: a delay it cannot use takes the token, and is reported.
     const ignored = changed.has('showDelay') ? unusableMilliseconds(this, this.showDelay, 'show-delay') : null;
-    if (ignored !== null) report(this, 'PRG-21', `showDelay ${ignored} is not a finite, non-negative number of milliseconds; it takes comp.loading-indicator.motion.show-delay`);
+    if (ignored !== null) report(this, 'PRG-21', `showDelay ${ignored} is not a finite, non-negative number of milliseconds; it takes comp.progress-indicator.motion.show-delay`);
     if (this.isConnected) this.expose();
   }
 

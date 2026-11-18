@@ -261,6 +261,11 @@
             "$type": "cubicBezier",
             "$value": "{tanrei.sys.motion.easing.standard}",
             "$description": "How the bar's indeterminate segment and the reduced-motion pulse move through a cycle. The ring always turns at constant speed."
+          },
+          "show-delay": {
+            "$type": "duration",
+            "$value": "{tanrei.sys.motion.role.show-delay}",
+            "$description": "How long the indicator waits, from the moment it is inserted, before it is drawn and exposed to assistive technology, so that a task shorter than this shows nothing instead of a bar that flashes. Its box is kept during the wait."
           }
         }
       }

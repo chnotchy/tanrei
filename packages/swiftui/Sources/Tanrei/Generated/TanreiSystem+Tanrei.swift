@@ -6983,6 +6983,7 @@ private let tanreiProgressIndicatorTokens = TanreiProgressIndicatorTokens(
   indicatorColor: .role(.primary),
   motionCycleDuration: 1000,
   motionCycleEasing: TanreiCubicBezier(0.2, 0, 0, 1),
+  motionShowDelay: 300,
   motionValueDuration: 300,
   motionValueEasing: TanreiCubicBezier(0.2, 0, 0, 1),
   stopIndicatorSize: 0,

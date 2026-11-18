@@ -704,8 +704,8 @@ async function blank(page: P) {
     }).observe(document.body, { subtree: true, attributes: true, attributeOldValue: true, attributeFilter: ['role', 'aria-label', 'aria-busy', 'aria-valuenow'] });
   });
 }
-/** The show delay a progress indicator takes when it is given none: the loading indicator's (PRG-21). */
-const SHOW_DELAY = '--tanrei-comp-loading-indicator-motion-show-delay';
+/** The show delay a progress indicator takes when it is given none (PRG-21). */
+const SHOW_DELAY = T('motion-show-delay');
 const reduceMotion = (page: P, reduce = true) => page.emulateMedia({ reducedMotion: reduce ? 'reduce' : 'no-preference' });
 const exposed = (page: P) => page.evaluate(() => (window as any).exposed as string[]);
 /** Inserts a labelled indicator into `into`, and says what it exposes as it is inserted, before any frame. */
@@ -859,10 +859,12 @@ test.describe('show delay', () => {
     expect(await started(page, 'pulsing')).toEqual({ animations: [{ name: 'pulse', time: 0, progress: 0 }], transitions: [] });
   });
 
-  test('PRG-21: showDelay in milliseconds as given; null takes the loading indicator’s show-delay token; a negative, non-finite or empty value takes the token and is reported', async ({ page }) => {
+  test('PRG-21: showDelay in milliseconds as given; null takes motion.show-delay, which follows the show-delay role; a negative, non-finite or empty value takes the token and is reported', async ({ page }) => {
     await blank(page);
     const seen = warnings(page);
     const delay = await resolveToken(page, SHOW_DELAY, 'duration');
+    // The component's own token, which aliases the role the loading indicator's follows too.
+    expect(delay).toBe(await resolveToken(page, '--tanrei-sys-motion-role-show-delay', 'duration'));
 
     // As given.
     await insert(page, 'longer', { 'show-delay': String(delay + 500), value: '0.4' });
@@ -872,14 +874,14 @@ test.describe('show delay', () => {
     expect(await exposure(page, 'longer')).toEqual(SHOWN());
     await expect(byId(page, 'longer')).toHaveJSProperty('showDelay', delay + 500);
 
-    // The token is the loading indicator's: a product that sets it sets both.
-    await rootTokens(page, { [SHOW_DELAY]: `${delay + 200}ms` });
+    // The token is read as it resolves: a system that sets it apart is followed, and the loading indicator's is not read.
+    await rootTokens(page, { [SHOW_DELAY]: `${delay + 200}ms`, '--tanrei-comp-loading-indicator-motion-show-delay': '0ms' });
     await insert(page, 'system', { value: '0.4' });
     await page.clock.runFor(delay + 199);
     expect(await exposure(page, 'system')).toEqual(WAITING_EXPOSURE);
     await page.clock.runFor(1);
     expect(await exposure(page, 'system')).toEqual(SHOWN());
-    await rootTokens(page, { [SHOW_DELAY]: '' });
+    await rootTokens(page, { [SHOW_DELAY]: '', '--tanrei-comp-loading-indicator-motion-show-delay': '' });
 
     // Null (the property's default, or set) takes the token.
     await page.evaluate(() => {

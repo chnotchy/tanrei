@@ -984,7 +984,7 @@ How far a task has come, as a bar or a ring; indeterminate when that is unknown 
 | `min`, `max` | number | `0`, `1` | a value outside is drawn and exposed clamped; `max` not above `min` draws the track only (PRG-11) |
 | `label` | string | `""` | the accessible name, required (PRG-15) |
 | `valueText` / `value-text` | string | `""` | read instead of the percentage |
-| `showDelay` / `show-delay` | number (ms) \| null | `null` | the wait from insertion before it is drawn and exposed; null takes `comp.loading-indicator.motion.show-delay`, the loading indicator's, 0 is at once |
+| `showDelay` / `show-delay` | number (ms) \| null | `null` | the wait from insertion before it is drawn and exposed; null takes `motion.show-delay` (the show-delay role, as the loading indicator's), 0 is at once |
 
 **The bar** fills the inline size its layout gives it (block flow, a flex column, a grid), from the inline-start (the
 right in RTL). Its track and indicator are rounded by `track.shape`, which the browser clamps to half the thickness.

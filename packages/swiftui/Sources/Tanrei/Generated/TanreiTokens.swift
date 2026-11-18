@@ -13023,6 +13023,7 @@ public struct TanreiProgressIndicatorTokens: Sendable, Equatable {
   public var indicatorColor: TanreiPaint
   public var motionCycleDuration: Double
   public var motionCycleEasing: TanreiCubicBezier
+  public var motionShowDelay: Double
   public var motionValueDuration: Double
   public var motionValueEasing: TanreiCubicBezier
   public var stopIndicatorSize: CGFloat
@@ -13036,6 +13037,7 @@ public struct TanreiProgressIndicatorTokens: Sendable, Equatable {
     indicatorColor: TanreiPaint,
     motionCycleDuration: Double,
     motionCycleEasing: TanreiCubicBezier,
+    motionShowDelay: Double,
     motionValueDuration: Double,
     motionValueEasing: TanreiCubicBezier,
     stopIndicatorSize: CGFloat,
@@ -13048,6 +13050,7 @@ public struct TanreiProgressIndicatorTokens: Sendable, Equatable {
     self.indicatorColor = indicatorColor
     self.motionCycleDuration = motionCycleDuration
     self.motionCycleEasing = motionCycleEasing
+    self.motionShowDelay = motionShowDelay
     self.motionValueDuration = motionValueDuration
     self.motionValueEasing = motionValueEasing
     self.stopIndicatorSize = stopIndicatorSize

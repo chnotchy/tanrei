@@ -18839,6 +18839,7 @@ class TanreiProgressIndicatorTokens {
     required this.indicatorColor,
     required this.motionCycleDuration,
     required this.motionCycleEasing,
+    required this.motionShowDelay,
     required this.motionValueDuration,
     required this.motionValueEasing,
     required this.stopIndicatorSize,
@@ -18855,6 +18856,8 @@ class TanreiProgressIndicatorTokens {
   final int motionCycleDuration;
   /// `comp.progress-indicator.motion-cycle-easing`
   final TanreiCubicBezier motionCycleEasing;
+  /// `comp.progress-indicator.motion-show-delay`
+  final int motionShowDelay;
   /// `comp.progress-indicator.motion-value-duration`
   final int motionValueDuration;
   /// `comp.progress-indicator.motion-value-easing`
@@ -18877,6 +18880,7 @@ class TanreiProgressIndicatorTokens {
     TanreiPaint? indicatorColor,
     int? motionCycleDuration,
     TanreiCubicBezier? motionCycleEasing,
+    int? motionShowDelay,
     int? motionValueDuration,
     TanreiCubicBezier? motionValueEasing,
     double? stopIndicatorSize,
@@ -18889,6 +18893,7 @@ class TanreiProgressIndicatorTokens {
         indicatorColor: indicatorColor ?? this.indicatorColor,
         motionCycleDuration: motionCycleDuration ?? this.motionCycleDuration,
         motionCycleEasing: motionCycleEasing ?? this.motionCycleEasing,
+        motionShowDelay: motionShowDelay ?? this.motionShowDelay,
         motionValueDuration: motionValueDuration ?? this.motionValueDuration,
         motionValueEasing: motionValueEasing ?? this.motionValueEasing,
         stopIndicatorSize: stopIndicatorSize ?? this.stopIndicatorSize,

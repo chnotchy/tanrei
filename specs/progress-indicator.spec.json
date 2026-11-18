@@ -89,7 +89,7 @@
       "name": "showDelay",
       "type": "number",
       "default": null,
-      "description": "How long, in milliseconds, this indicator waits from the moment it is inserted before it is drawn and exposed to assistive technology; 0 shows it as it is inserted. Null takes comp.loading-indicator.motion.show-delay, the system's answer for every indicator, so that a progress indicator waits as a loading indicator does. Set it only where one indicator needs another pace than the rest (a task the person has just started and watches, an indicator inside a component that draws its progress whenever it is there)."
+      "description": "How long, in milliseconds, this indicator waits from the moment it is inserted before it is drawn and exposed to assistive technology; 0 shows it as it is inserted. Null takes comp.progress-indicator.motion.show-delay, the system's answer for every progress indicator, which follows sys.motion.role.show-delay as a loading indicator's does, so that the two wait alike unless a design system sets one apart. Set it only where one indicator needs another pace than the rest (a task the person has just started and watches, an indicator inside a component that draws its progress whenever it is there)."
     }
   ],
   "states": [
@@ -183,7 +183,7 @@
     },
     {
       "id": "PRG-21",
-      "text": "THE progress indicator SHALL take its show delay from showDelay, a number of milliseconds used as given (the motion dial does not scale it). WHILE showDelay is null THE progress indicator SHALL use comp.loading-indicator.motion.show-delay in its place, the delay a loading indicator waits, so that the two kinds of indicator wait alike; IF showDelay is negative or not a finite number THE progress indicator SHALL use the token likewise and in debug builds report the value it ignored."
+      "text": "THE progress indicator SHALL take its show delay from showDelay, a number of milliseconds used as given (the motion dial does not scale it). WHILE showDelay is null THE progress indicator SHALL use comp.progress-indicator.motion.show-delay in its place; IF showDelay is negative or not a finite number THE progress indicator SHALL use the token likewise and in debug builds report the value it ignored."
     },
     {
       "id": "PRG-22",
