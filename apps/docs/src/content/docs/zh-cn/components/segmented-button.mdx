@@ -2,7 +2,7 @@
 title: "分段按钮"
 description: "让用户从两到五个相关的选项中选择一个或多个；这些选项并排绘制，是同一个控件中彼此相连的分段。"
 translationOf: components/segmented-button.mdx
-sourceHash: a874adc09eecdb81a13c36cf37fa26c0423a4b50
+sourceHash: 2fceee654ffe757f838472c4a96334e610a4a53b
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -265,6 +265,20 @@ import Example from '../../../../components/visuals/Example.astro';
 - 每个分段都与最宽的那个等宽，宽度按它被选中时的样子来测量，所以对勾出现时绝不会挤动相邻的分段。空间不够时，标签会换成多行，每个分段都增高到与最高的那个等高。标签绝不截断。
 - `labelHidden` 只画图标。标签仍然是必填的，因为它始终是分段的无障碍名称。
 - 尺寸决定整组的高度。这些尺寸并不是每一级都等于 Button 的高度（在 `m3-like` 预设中，small 和 medium 与 Button 的相同，large 则更矮），所以让一组分段与旁边的按钮相配时，要按高度，而不是按尺寸的名称。
+
+### 全宽
+
+设置 `full-width`，整组就和它的容器一样宽，例如在窄屏幕、卡片或面板上横贯整个宽度的一项设置。无论标签长短，各分段都平分这个宽度，每个分段的内容在自己那一份中居中。整组保持自己尺寸的高度、内边距和圆角。容器比整组的自然宽度还窄时，各分段仍然平分宽度，标签会换行，而不会被截断。
+
+<Example label="全宽的分段按钮" system="m3-like">
+  <div style="inline-size: 20rem">
+    <tanrei-segmented-button label="范围" value="week" full-width>
+      <tanrei-segment value="day" label="日"></tanrei-segment>
+      <tanrei-segment value="week" label="周"></tanrei-segment>
+      <tanrei-segment value="month" label="月"></tanrei-segment>
+    </tanrei-segmented-button>
+  </div>
+</Example>
 
 ### 推荐
 

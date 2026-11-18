@@ -264,6 +264,20 @@ The set has no `disabled` of its own. Disable segments one by one. A disabled se
 - `labelHidden` draws the icon alone. The label is still required, because it stays the segment's accessible name.
 - The size sets the set's height. The sizes are not Button's heights at every step (in the `m3-like` preset small and medium match Button's and large is lower), so match a set to the buttons beside it by height, not by the name of the size.
 
+### Full width
+
+Set `full-width` to make the set as wide as its container, such as a setting held across a narrow screen, a card or a sheet. The segments share that width equally, whatever their labels, and each segment's content is centred in its share. The set keeps the height, the paddings and the corners of its size. In a container narrower than the set's natural width the segments still share the width equally, and their labels wrap rather than being cut off.
+
+<Example label="A full-width set" system="m3-like">
+  <div style="inline-size: 20rem">
+    <tanrei-segmented-button label="Range" value="week" full-width>
+      <tanrei-segment value="day" label="Day"></tanrei-segment>
+      <tanrei-segment value="week" label="Week"></tanrei-segment>
+      <tanrei-segment value="month" label="Month"></tanrei-segment>
+    </tanrei-segmented-button>
+  </div>
+</Example>
+
 ### Do
 
 - Give the set a label that asks the question its options answer: "Range", "Text alignment".
