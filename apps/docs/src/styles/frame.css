@@ -468,3 +468,40 @@
     display: none;
   }
 }
+
+/* From one of the site's pages to the next (cross-document view transitions): the page cross-fades once, and the
+   frame — the header, and the sidebar where it stands beside the content — stays where it is. The fade lasts the
+   pace of a change of state of a large surface, on the curve of a change in place (sys.motion.role.state.large,
+   sys.motion.easing.state): the frame is the same surface, and what changes is what it holds. The frame's regions
+   are stacking contexts already (APS-32), so the names make none. The new page's frame is drawn from the first frame
+   on (its old picture is not drawn, and the new one does not fade), and a link followed from the open modal drawer
+   takes the drawer away at once. While motion is reduced a page replaces the last without a transition. */
+@view-transition {
+  navigation: auto;
+}
+tanrei-app-shell > [slot='header'] {
+  view-transition-name: docs-header;
+}
+tanrei-app-shell > tanrei-navigation-drawer.docs-sidebar {
+  view-transition-name: docs-sidebar;
+}
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: var(--tanrei-sys-motion-role-state-large);
+  animation-timing-function: var(--tanrei-sys-motion-easing-state);
+}
+::view-transition-group(docs-header),
+::view-transition-group(docs-sidebar),
+::view-transition-new(docs-header),
+::view-transition-new(docs-sidebar) {
+  animation: none;
+}
+::view-transition-old(docs-header),
+::view-transition-old(docs-sidebar) {
+  display: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  @view-transition {
+    navigation: none;
+  }
+}

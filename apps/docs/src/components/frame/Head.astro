@@ -18,12 +18,17 @@
 // And it names the page's version in Markdown, `<path>.md` beside the page, for a program that reads the page
 // (`<link rel="alternate" type="text/markdown">`): every page the site's search reads has one, written from it when the
 // site is built (lib/page-markdown.mjs). A page left out of the search (the page that was not found) has none.
+//
+// And it says which of the site's pages the browser may load before the reader follows a link to one
+// (lib/speculation-rules.mjs): right after the framework's tags, not before them — the page's own policy
+// stands after its `<meta charset>`, among the framework's tags, and governs only what comes after it (lib/csp.mjs).
 import Default from '@astrojs/starlight/components/Head.astro';
 import inter from '@fontsource-variable/inter/files/inter-latin-wght-normal.woff2?url';
 import robotoMono from '@fontsource-variable/roboto-mono/files/roboto-mono-latin-wght-normal.woff2?url';
 import { firstFamilies } from '../../lib/first-faces.mjs';
 import { markdownPathOf } from '../../lib/page-markdown.mjs';
 import { sampleGlyph } from '../../lib/repo';
+import { speculationRulesText } from '../../lib/speculation-rules.mjs';
 import { translations } from '../../../i18n/locales.mjs';
 import { ns, tokensIn } from '../../lib/tokens';
 
@@ -102,6 +107,7 @@ const markdown = route.entry.data.pagefind === false ? undefined : markdownPathO
 {markdown && <link rel="alternate" type="text/markdown" href={markdown} />}
 <link rel="describedby" href="/llms.txt" />
 <Default />
+<script type="speculationrules" is:inline set:html={speculationRulesText} />
 <script is:inline set:html={iconsReady} />
 
 <script>
