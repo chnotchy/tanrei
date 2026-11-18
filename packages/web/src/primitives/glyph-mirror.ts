@@ -105,13 +105,39 @@ export function markGlyph(element: Element): boolean {
 const refreshers = new Set<() => void>();
 let systemObserver: MutationObserver | null = null;
 
+/** The root whose attributes `systemObserver` watches. */
+let watchedRoot: Element | null = null;
+const SYSTEM_SWITCH: MutationObserverInit = { attributes: true, attributeFilter: ['data-tanrei-system', 'class', 'style'] };
+
+/**
+ * Watches the document's root of now where it is not the one watched, and returns whether it was another. A page that
+ * writes a new document into its window (`document.open()`, as a test's second mount of fixtures does) keeps its
+ * scripts and this observer, and has a new root: the switches heard are the new root's. The document's own children are
+ * watched for that, and each new watch looks too.
+ */
+function followRoot(observer: MutationObserver): boolean {
+  const root = document.documentElement;
+  if (!root || root === watchedRoot) return false;
+  // An observer cannot let go of one of its targets alone: the old root goes with all of them.
+  observer.disconnect();
+  observer.observe(document, { childList: true });
+  observer.observe(root, SYSTEM_SWITCH);
+  watchedRoot = root;
+  return true;
+}
+
 function watchSystem(refresh: () => void) {
   refreshers.add(refresh);
-  if (systemObserver || typeof MutationObserver === 'undefined' || typeof document === 'undefined') return;
-  systemObserver = new MutationObserver(() => {
-    for (const each of [...refreshers]) each();
-  });
-  systemObserver.observe(document.documentElement, { attributes: true, attributeFilter: ['data-tanrei-system', 'class', 'style'] });
+  if (typeof MutationObserver === 'undefined' || typeof document === 'undefined') return;
+  if (!systemObserver) {
+    const observer = new MutationObserver((records) => {
+      // A new root is as much a switch as a changed attribute of it; another child of the document changed is none.
+      if (!followRoot(observer) && records.every((record) => record.type === 'childList')) return;
+      for (const each of [...refreshers]) each();
+    });
+    systemObserver = observer;
+  }
+  followRoot(systemObserver);
 }
 
 function unwatchSystem(refresh: () => void) {
@@ -119,6 +145,7 @@ function unwatchSystem(refresh: () => void) {
   if (refreshers.size) return;
   systemObserver?.disconnect();
   systemObserver = null;
+  watchedRoot = null;
 }
 
 /** The family a stylesheet draws its own glyph with (a tree view's chevron): the icon set's, unselected. */
