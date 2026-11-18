@@ -1568,7 +1568,10 @@ export class TanreiTable extends TanreiLightElement {
 
   /**
    * TBL-26: a `dir` changed somewhere above. Where that turned this table, the column a person was looking at is
-   * brought back: the same distance from the start, in the new direction.
+   * brought back: the same distance from the start, in the new direction. The direction is the computed `direction`
+   * — the layout's, which the scroll offset follows — not `directionOf()`'s `:dir()`, which follows the `dir`
+   * attributes alone: a page that holds the table's region left to right with the CSS property, its `dir` turned
+   * around it, would have the offset written for a right-to-left layout and lost.
    *
    * @internal
    */
