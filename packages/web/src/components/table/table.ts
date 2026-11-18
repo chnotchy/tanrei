@@ -21,6 +21,7 @@ import type { TanreiTableSizeRegistry } from '../../registry.js';
 import { adopt, adoptUnlessDrawn } from '../../primitives/sheets.js';
 import { TanreiLightElement } from '../../primitives/element.js';
 import { readInPhase } from '../../primitives/read-phase.js';
+import { DirAttributeWatch } from '../../primitives/direction.js';
 
 /** The core sizes (small, medium), plus any a design system's generated `.d.ts` registers. */
 export type TanreiTableSize = keyof TanreiTableSizeRegistry;
@@ -178,49 +179,6 @@ function positionSheet(columns: number, count: number): CSSStyleSheet | null {
 let captions = 0;
 /** TBL-60: the name a table gives the radio buttons the product gave none, so that they are one group. */
 let groups = 0;
-
-/**
- * TBL-26: nothing tells a script that the layout direction it inherits changed, and no engine agrees on what becomes
- * of a scroll offset when it does. The direction comes from a `dir` on an ancestor, so each root a table
- * is in — the document, and every shadow root between it and the document — is watched for that one attribute, by one
- * observer for all its tables.
- */
-const turns = new Map<Node, { observer: MutationObserver; tables: Set<TanreiTable> }>();
-function rootsOf(element: Element): Node[] {
-  const roots: Node[] = [];
-  for (let root = element.getRootNode(); ; ) {
-    roots.push(root);
-    if (!(root instanceof ShadowRoot)) break;
-    root = root.host.getRootNode();
-  }
-  return roots;
-}
-function watchTurns(table: TanreiTable, roots: Node[]) {
-  if (typeof MutationObserver === 'undefined') return;
-  for (const root of roots) {
-    let watch = turns.get(root);
-    if (!watch) {
-      const tables = new Set<TanreiTable>();
-      const observer = new MutationObserver(() => {
-        for (const each of tables) each.turned();
-      });
-      observer.observe(root, { attributes: true, attributeFilter: ['dir'], subtree: true });
-      turns.set(root, (watch = { observer, tables }));
-    }
-    watch.tables.add(table);
-  }
-}
-function unwatchTurns(table: TanreiTable, roots: Node[]) {
-  for (const root of roots) {
-    const watch = turns.get(root);
-    if (!watch) continue;
-    watch.tables.delete(table);
-    if (!watch.tables.size) {
-      watch.observer.disconnect();
-      turns.delete(root);
-    }
-  }
-}
 
 /**
  * What the sizes say is read for every table at once and written for every table after (TBL-19 to TBL-22). A table
@@ -515,7 +473,11 @@ export class TanreiTable extends TanreiLightElement {
   /** The layout direction and the offset along it when the box last scrolled (TBL-26). */
   private direction: string | null = null;
   private offset = 0;
-  private roots: Node[] = [];
+  /**
+   * TBL-26: nothing tells a script that the layout direction it inherits changed, and no engine agrees on what becomes
+   * of a scroll offset when it does: a `dir` changed in a root the table is in is heard here.
+   */
+  private readonly turns = new DirAttributeWatch(this, () => this.turned());
   /** The status line the box holds now, and the paragraph this element wrote in it for the `status` property (TBL-51). */
   private statusLine: HTMLElement | null = null;
   private ownStatus: HTMLElement | null = null;
@@ -564,8 +526,7 @@ export class TanreiTable extends TanreiLightElement {
     observeSize(this, this);
     this.mutations?.observe(this, { childList: true, subtree: true, attributes: true, attributeFilter: ATTRIBUTES });
     this.direction = null;
-    this.roots = rootsOf(this);
-    watchTurns(this, this.roots);
+    this.turns.connect();
     if (this.hasUpdated) this.read();
   }
 
@@ -580,8 +541,7 @@ export class TanreiTable extends TanreiLightElement {
     this.listenChoices(false);
     this.focusedSort = null;
     this.focusedBox = null;
-    unwatchTurns(this, this.roots);
-    this.roots = [];
+    this.turns.disconnect();
     this.watched = null;
   }
 
