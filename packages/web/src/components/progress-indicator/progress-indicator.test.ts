@@ -7,7 +7,7 @@ import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
 import { type Fixture, loadSpec, mountFixtures, resolveColor, resolveToken, tab, rootTokens } from '../../../test/harness.js';
 import { decodePng, paintedColor } from '../../../test/png.js';
-import { motionCount } from '../../../test/motions.js';
+import { HOLD_NOW, motionCount } from '../../../test/motions.js';
 import { expectBaseline } from '../../../test/baseline.js';
 
 const spec = loadSpec('progress-indicator');
@@ -634,27 +634,24 @@ test.describe('behavior', () => {
     for (const id of ids) expect(await stage(page, id).ariaSnapshot(), id).toBe(told[id]);
     // The segment's place in its cycle: at one time of its animation, it stands as far from the bar's left end in
     // left-to-right as from its right end in right-to-left. The animation is held at that time while both places are
-    // read. Reading in one task does not hold a running one: WebKit lays a running transform animation out at the moment
-    // the layout is read, while its currentTime stands still for the task, so two reads a direction change apart (a
-    // style pass and a layout) see the segment a little further on. Nor does pause() alone, whose hold waits for the
-    // next frame; setting the current time completes it at once.
-    const place = await host(page, 'linear-rtl-indeterminate').evaluate((el) => {
+    // read (`HOLD_NOW`): in one task a running transform is still read at the moment of each read, so two reads a
+    // direction change apart see the segment a little further on.
+    const place = await host(page, 'linear-rtl-indeterminate').evaluate((el, holdNow) => {
+      const hold = (0, eval)(holdNow) as (motions: Animation[]) => () => void;
       const segment = el.shadowRoot!.querySelector('.indicator')!;
       const [animation] = segment.getAnimations();
       const measure = () => {
         const [bar, r] = [el.getBoundingClientRect(), segment.getBoundingClientRect()];
         return { time: Number(animation.currentTime), fromLeft: r.left - bar.left, fromRight: bar.right - r.right, width: r.width };
       };
-      const time = animation.currentTime;
-      animation.pause();
-      animation.currentTime = time;
+      const resume = hold([animation]);
       const ltr = measure();
       el.closest('.stage')!.setAttribute('dir', 'rtl');
       const rtl = measure();
       const same = segment.getAnimations()[0] === animation;
-      animation.play();
+      resume();
       return { ltr, rtl, same, resumed: animation.playState };
-    });
+    }, HOLD_NOW);
     expect(place.ltr.time).toBeGreaterThan(0);
     expect([place.same, place.resumed]).toEqual([true, 'running']);
     expect(place.rtl.time).toBe(place.ltr.time);

@@ -13,6 +13,7 @@
 // controller sets on it) in the root, through shadow roots — so a test names no part of a component's shadow root.
 import { type Locator, type Page, expect } from '@playwright/test';
 import type { Frame, Frames, Probe } from './frames.js';
+import { HOLD_NOW } from './motions.js';
 
 /**
  * The motion element of the first surface in `root` (through shadow roots): its opacity, its scale on each axis, its
@@ -234,7 +235,7 @@ export function expectTurnedAlone(turn: Turn): void {
  * the same turn as a fast one.
  */
 export const turnHeld = (host: Locator, to: boolean): Promise<Turn> =>
-  host.evaluate(async (el, open) => {
+  host.evaluate(async (el, [open, holdNow]) => {
     const find = (node: ParentNode): HTMLElement | null => {
       for (const child of Array.from(node.children)) {
         if (child.hasAttribute('data-tanrei-appear')) return child as HTMLElement;
@@ -268,7 +269,10 @@ export const turnHeld = (host: Locator, to: boolean): Promise<Turn> =>
     Object.assign(el, { open });
     await (el as unknown as { updateComplete: Promise<unknown> }).updateComplete;
     const turned = own();
-    for (const animation of turned) animation.pause();
+    // Held where they are, each paused and given its own time again (`HOLD_NOW`): those the turn began are at their
+    // start, but one that runs on from before it would otherwise be read at the moment of the read in WebKit, and on
+    // Linux pause() alone would not stop it before the next frame. They are left held.
+    ((0, eval)(holdNow) as (motions: Animation[]) => () => void)(turned);
     return {
       held,
       turned: read(),
@@ -276,4 +280,4 @@ export const turnHeld = (host: Locator, to: boolean): Promise<Turn> =>
       kept: turned.filter((animation) => before.includes(animation)).map(describe),
       listed: motion.getAnimations().map(describe).join('; '),
     };
-  }, to);
+  }, [to, HOLD_NOW] as const);

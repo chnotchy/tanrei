@@ -8,7 +8,7 @@ import { FOUR, bounds, css, destination, destinationSuite, override } from '../.
 import { type Fixture, fixturesDocument, loadSpec, mountFixtures, resolveColor, resolveToken, tab, tabTo } from '../../../test/harness.js';
 import { middlePressAimed } from '../../../test/middle-press.js';
 import { mirroring, mirroringAfterDirection } from '../../../test/mirror-word.js';
-import { motionCount } from '../../../test/motions.js';
+import { HOLD_NOW, motionCount } from '../../../test/motions.js';
 import { releaseAtRest } from '../../../test/release-at-rest.js';
 import { STOPPED_AFTER, flingThenHold, strokes } from '../../../test/stopped-release.js';
 import { indicatorChoice, indicatorPlace } from '../../primitives/indicator-drag.js';
@@ -662,7 +662,7 @@ test.describe('the active indicator', () => {
     // What the new selection starts is read in the task that starts it, and the slide is held there: nothing below
     // depends on how long an answer takes (CI read the end color of the 2 s recolor "400 ms" in — five round trips of
     // WebKit on Linux and the wait were 1.7 s).
-    const seen = await bar(page, 'four-destinations').evaluate(async (el: any, name) => {
+    const seen = await bar(page, 'four-destinations').evaluate(async (el: any, [name, holdNow]) => {
       el.value = 'starred';
       await el.updateComplete;
       const items = [...el.querySelectorAll('tanrei-navigation-bar-item')] as any[];
@@ -674,7 +674,8 @@ test.describe('the active indicator', () => {
       const g = (items[2].shadowRoot.querySelector('.icon-fill') as HTMLElement).getAnimations().find((each) => each.id === 'tanrei-destination-grow');
       const grow = g ? { duration: g.effect!.getTiming().duration, frames: (g.effect as KeyframeEffect).getKeyframes().map((k) => k.insetInline) } : null;
       // The new icon's recolor: the one transition of its color, with the timing its style gives color at this moment,
-      // and what it draws at the start, 400 ms in and at the end of its own timeline (paused, set, read, put back).
+      // and what it draws at the start, 400 ms in and at the end of its own timeline (held, set, read, put back: every
+      // motion of the icon runs when it is held, `HOLD_NOW`, and is played again from where it was).
       const icon = items[2].shadowRoot.querySelector('.icon') as HTMLElement;
       const all = icon.getAnimations();
       const running = all.filter((each) => (each as CSSTransition).transitionProperty === 'color');
@@ -683,7 +684,8 @@ test.describe('the active indicator', () => {
       const at = Math.max(listed(style.transitionProperty).indexOf('color'), 0);
       const pick = (values: string[]) => values[at % values.length];
       const timing = [pick(listed(style.transitionDuration)), pick(listed(style.transitionTimingFunction))];
-      const was = all.map((each) => each.currentTime);
+      const held = all.every((each) => each.playState === 'running');
+      const resume = ((0, eval)(holdNow) as (motions: Animation[]) => () => void)(all);
       const drawn = (time: number) => {
         for (const each of all) {
           each.pause();
@@ -693,12 +695,9 @@ test.describe('the active indicator', () => {
       };
       const duration = running.length === 1 ? Math.round(Number(running[0].effect!.getTiming().duration)) : null;
       const colors = running.length === 1 ? [drawn(0), drawn(400), drawn(duration!)] : [];
-      all.forEach((each, i) => {
-        each.currentTime = was[i] ?? 0;
-        each.play();
-      });
-      return { slide, grow, recolor: { found: running.length, duration, timing, colors } };
-    }, SLIDE);
+      resume();
+      return { slide, grow, recolor: { found: running.length, duration, timing, colors, held } };
+    }, [SLIDE, HOLD_NOW] as const);
     expect(seen.slide).toEqual({ duration: 2000, moving: true });
     // The icon indicator grows in width from its centre at full height.
     expect(seen.grow).toEqual({ duration: 2000, frames: ['50%', '0px'] });
@@ -706,7 +705,7 @@ test.describe('the active indicator', () => {
     // selection motion's duration and easing, from the unselected color to the selected one, and 400 ms in — the state
     // motion long over — still on its way, between the two.
     expect(await resolveToken(page, T('motion-state-duration'), 'duration')).toBeLessThan(400);
-    expect(seen.recolor).toMatchObject({ found: 1, duration: 2000, timing: selection });
+    expect(seen.recolor).toMatchObject({ found: 1, duration: 2000, timing: selection, held: true });
     // A color as numbers, however the engine writes one that is on its way (`rgb(75, 75, 75)`, `color(srgb 0.29 0.29 0.29)`).
     const channels = (color: string) => {
       const numbers = (color.match(/-?[\d.]+(?:e-?\d+)?/g) ?? []).slice(0, 3).map(Number);
