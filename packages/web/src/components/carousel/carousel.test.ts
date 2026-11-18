@@ -18,6 +18,8 @@ import { motionCount, motionEnded } from '../../../test/motions.js';
 import { transitionsRun, watchTransitions } from '../../../test/transitions.js';
 import { CarouselGeometry, type CarouselMetrics } from './carousel-geometry.js';
 import { expectBaseline } from '../../../test/baseline.js';
+import { type Frames, expectAnimated, sampleFrames } from '../../../test/frames.js';
+import { bezierOf, cubicBezier, resolveEasing } from '../../../test/appear.js';
 
 const spec = loadSpec('carousel');
 type P = Page;
@@ -1784,6 +1786,59 @@ test.describe('behavior', () => {
     await page.waitForTimeout(200);
     expect(await traced(page)).toEqual([664]);
   });
+
+  // The move by the keys read in the frames the page paints (`sampleFrames`), with the motion tokens at their values and
+  // the page clock never installed (test/page-clock.ts says why): every motion is held and moved on 1/60 s a frame — the
+  // carousel's scroll clock, an animation without a target, included — so frame n is the moment n/60 s into the move on
+  // any machine, and a move made at once is one step however the machine draws its frames.
+  for (const dir of ['ltr', 'rtl'] as const) {
+    test(`CRL-17, CRL-18: the arrow key toward the next item scrolls the row to it frame by frame, over comp.carousel.motion.scroll-duration on comp.carousel.motion.scroll-easing, and in one frame where motion is reduced — ${dir}`, async ({ page }) => {
+      await mountFixtures(page, spec, { icons: true, dir, fixtures: only('centered') });
+      const id = 'centered';
+      // CRL-17: Right Arrow moves to the next item, and Left Arrow in right-to-left.
+      const next = dir === 'rtl' ? 'ArrowLeft' : 'ArrowRight';
+      await tabTo(page, container(page, id, 0));
+      await atRest(page, id);
+      const s = await step(page, id);
+      const duration = await resolveToken(page, T('motion-scroll-duration'), 'duration');
+      const easing = await resolveEasing(page, T('motion-scroll-easing'));
+      const probe = (root: Element) => {
+        const el = root.shadowRoot!.querySelector('.scroller')!;
+        // The offset along the reading direction, and whether the row scrolls to the left (a right-to-left row does).
+        return { offset: Math.round(Math.abs(el.scrollLeft) * 100) / 100, leftward: el.scrollLeft < 0 };
+      };
+      const offsets = (seen: Frames) => [seen.before, ...seen.frames, seen.rest].map((frame) => frame.probe.offset as number);
+
+      const moved = await sampleFrames(carousel(page, id), () => page.keyboard.press(next), { probe, elements: false });
+      expect(await focused(page)).toBe('Old forest');
+      expect(moved.complete).toBe(true);
+      // It moves (four frames at least between the two resting positions), only toward the next item, and ends on it.
+      expectAnimated(moved, 'offset', { minSteps: 4 });
+      const way = offsets(moved);
+      expect(way.every((o, i) => i === 0 || o >= way[i - 1]!), `toward ${s}: ${way.join(' → ')}`).toBe(true);
+      expect([way[0], way.at(-1)]).toEqual([0, s]);
+      // Frame by frame, where the token's curve puts the row that far into the token's duration: a frame of a move made
+      // in fewer frames, or on another curve, is pixels away. (Within a pixel: an engine may keep whole offsets.)
+      const curve = bezierOf(easing);
+      for (const { time, probe: read } of moved.frames) {
+        const expected = s * cubicBezier(curve, Math.min(time / duration, 1));
+        expect(Math.abs((read.offset as number) - expected), `the offset ${Math.round(time)} ms in, ${round(expected)} on the curve: ${way.join(' → ')}`).toBeLessThanOrEqual(1);
+      }
+      expect(moved.motions.filter((m) => m.kind === 'script').map((m) => ({ duration: m.duration, easing: m.easing })), 'one scroll motion, timed by the tokens').toEqual([{ duration, easing }]);
+      // CRL-23: right-to-left scrolls the other way.
+      for (const frame of moved.frames) if ((frame.probe.offset as number) > 0) expect(frame.probe.leftward, `frame ${frame.index}`).toBe(dir === 'rtl');
+      expect((await boxes(page, id))[1], 'the next item at slot 0').toEqual([100, 200]);
+
+      // Where motion is reduced the same key moves the row in one frame, with no scroll motion.
+      await page.emulateMedia({ reducedMotion: 'reduce' });
+      const jumped = await sampleFrames(carousel(page, id), () => page.keyboard.press(next), { probe, elements: false });
+      expect(await focused(page)).toBe('Lake shore');
+      expect(jumped.complete).toBe(true);
+      expect(jumped.motions.filter((m) => m.kind === 'script')).toEqual([]);
+      const jump = offsets(jumped);
+      expect(jump.filter((o, i) => i === 0 || o !== jump[i - 1]), `at once: ${jump.join(' → ')}`).toEqual([s, 2 * s]);
+    });
+  }
 
   test('CRL-19: a list named by label around the items; each a list item with a button, its position and the count; the controls outside the list', async ({ page }) => {
     const id = 'centered';
