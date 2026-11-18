@@ -51,6 +51,8 @@ interface SegmentContext {
   multiple: boolean;
   /** Whether the set's size draws a check (its check size is not 0, SEG-16). */
   check: boolean;
+  /** Whether the set is disabled, which disables every segment whatever its own disabled (SEG-31). */
+  setDisabled: boolean;
 }
 
 /** The event a segment fires when a prop the set depends on changes. */
@@ -101,7 +103,7 @@ export class TanreiSegment extends TanreiElement {
   disabled = false;
 
   /** What the set says about this segment. */
-  private context: SegmentContext = { selected: false, tabStop: false, position: 0, size: 0, multiple: false, check: true };
+  private context: SegmentContext = { selected: false, tabStop: false, position: 0, size: 0, multiple: false, check: true, setDisabled: false };
   /** Whether the set has told it anything yet: the first selection is drawn, not animated. */
   private told = false;
   /** The first frames after it connected, when the set's first word is drawn without motion. */
@@ -113,7 +115,7 @@ export class TanreiSegment extends TanreiElement {
   private readonly press = new PressController(this, {
     container: () => this.button,
     holdCarrier: () => this.renderRoot?.querySelector('.hold') ?? null,
-    disabled: () => this.disabled,
+    disabled: () => this.unavailable,
   });
 
   /**
@@ -130,11 +132,12 @@ export class TanreiSegment extends TanreiElement {
 
   constructor() {
     super();
-    // SEG-3: a disabled segment swallows every click that reaches it, from its content or dispatched on it.
+    // SEG-3, SEG-31: a disabled segment — by itself or by its set — swallows every click that reaches it, from its
+    // content or dispatched on it.
     this.addEventListener(
       'click',
       (event) => {
-        if (this.disabled) {
+        if (this.unavailable) {
           event.preventDefault();
           event.stopImmediatePropagation();
         }
@@ -173,9 +176,14 @@ export class TanreiSegment extends TanreiElement {
     return this.context.selected;
   }
 
+  /** SEG-31: the segment is disabled while its own disabled or its set's is true. */
+  private get unavailable(): boolean {
+    return this.disabled || this.context.setDisabled;
+  }
+
   /** `element.click()` activates the segment as a person would, through its native button; a disabled one does nothing. */
   override click() {
-    if (this.disabled) return;
+    if (this.unavailable) return;
     const button = this.button;
     if (button) button.click();
     else super.click();
@@ -265,7 +273,7 @@ export class TanreiSegment extends TanreiElement {
         aria-posinset=${!multiple && position ? String(position) : nothing}
         aria-setsize=${!multiple && size ? String(size) : nothing}
         tabindex=${tabStop ? '0' : '-1'}
-        ?disabled=${this.disabled}
+        ?disabled=${this.unavailable}
         @pointerdown=${this.press.onPointerDown}
         @pointerup=${this.press.release}
         @pointercancel=${this.press.release}
@@ -317,6 +325,7 @@ export class TanreiSegmentedButton extends TanreiElement {
     value: { type: String },
     values: { attribute: 'values', converter: { fromAttribute: parseValues } },
     size: { type: String, reflect: true },
+    disabled: { type: Boolean, reflect: true },
     label: { type: String },
     check: { state: true },
   };
@@ -332,6 +341,15 @@ export class TanreiSegmentedButton extends TanreiElement {
 
   /** Visual height (32 / 36 / 40 in the default system, Button's heights). The hit area always meets the minimum target. */
   size: TanreiSegmentedButtonSize = 'medium';
+
+  /**
+   * Disables every segment at once (SEG-31): none can be chosen, cleared or focused, the set and each segment are
+   * exposed as disabled, and `value` and `values` are kept. A segment's own `disabled` is left as it is.
+   */
+  disabled = false;
+
+  /** Whether the set wrote `aria-disabled` on its host, which is all it takes away again (SEG-31). */
+  private wroteDisabled = false;
 
   /** The accessible name of the set: the question its options answer ("Range", "Text alignment"). Required. */
   label = '';
@@ -407,6 +425,11 @@ export class TanreiSegmentedButton extends TanreiElement {
     return this.selection === 'multiple';
   }
 
+  /** SEG-3, SEG-31: a segment is disabled while its own disabled or the set's is true. */
+  private off(segment: TanreiSegment): boolean {
+    return this.disabled || segment.disabled;
+  }
+
   /**
    * SEG-12: the segments drawn selected — the FIRST segment with the value (single), or with each of the values
    * (multiple). A value naming no segment selects nothing.
@@ -434,10 +457,11 @@ export class TanreiSegmentedButton extends TanreiElement {
   /**
    * SEG-1, SEG-2: the activation of `segment`. Single: selects it and fires `change` once, unless it already is the
    * selected one (a single choice is never cleared by its own segment). Multiple: adds its value, or removes it, and
-   * fires `change` with the new values. A disabled segment does nothing (SEG-3).
+   * fires `change` with the new values. A disabled segment, or any segment of a disabled set, does nothing (SEG-3,
+   * SEG-31).
    */
   private activate(segment: TanreiSegment) {
-    if (segment.disabled) return;
+    if (this.off(segment)) return;
     const selected = this.selectedSegments().has(segment);
     if (this.multiple) {
       const values = this.values ?? [];
@@ -482,7 +506,7 @@ export class TanreiSegmentedButton extends TanreiElement {
     const target = this.keys.target(
       key,
       segments.indexOf(segment),
-      segments.map((each) => ({ focusable: !each.disabled, label: each.label })),
+      segments.map((each) => ({ focusable: !this.off(each), label: each.label })),
     );
     if (target === null) return;
     event.preventDefault();
@@ -534,14 +558,16 @@ export class TanreiSegmentedButton extends TanreiElement {
     const segments = this.segments;
     const selected = this.selectedSegments();
     const multiple = this.multiple;
-    const enabled = segments.filter((segment) => !segment.disabled);
+    const enabled = segments.filter((segment) => !this.off(segment));
     // SEG-18, SEG-19: one Tab stop. Single: the selected segment, or the first enabled one. Multiple: the segment that had
-    // focus last, or the first selected one, or the first enabled one. A disabled segment never is.
-    const firstSelected = segments.find((segment) => selected.has(segment) && !segment.disabled);
-    const last = this.lastFocused && segments.includes(this.lastFocused) && !this.lastFocused.disabled ? this.lastFocused : null;
+    // focus last, or the first selected one, or the first enabled one. A disabled segment never is, so a disabled set
+    // (SEG-31) has none.
+    const firstSelected = segments.find((segment) => selected.has(segment) && !this.off(segment));
+    const last = this.lastFocused && segments.includes(this.lastFocused) && !this.off(this.lastFocused) ? this.lastFocused : null;
     const stop = (multiple ? (last ?? firstSelected) : firstSelected) ?? enabled[0] ?? null;
+    const setDisabled = this.disabled;
     segments.forEach((segment, index) => {
-      segment.setSegmentContext({ selected: selected.has(segment), tabStop: segment === stop, position: index + 1, size: segments.length, multiple, check: this.check });
+      segment.setSegmentContext({ selected: selected.has(segment), tabStop: segment === stop, position: index + 1, size: segments.length, multiple, check: this.check, setDisabled });
     });
 
     const seen = new Set<string>();
@@ -577,6 +603,9 @@ export class TanreiSegmentedButton extends TanreiElement {
     // SEG-29: the set's label is its whole name over the product's, which names it while the label is empty.
     nameHost(this, this.label);
     hostAria(this, { role: this.multiple ? 'group' : 'radiogroup' });
+    // SEG-31: the set itself is exposed as disabled; only the aria-disabled it wrote is taken away again.
+    if (this.disabled || this.wroteDisabled) hostAria(this, { 'aria-disabled': this.disabled ? 'true' : null });
+    this.wroteDisabled = this.disabled;
     this.sync();
   }
 

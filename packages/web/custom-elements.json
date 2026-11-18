@@ -40653,6 +40653,18 @@
             },
             {
               "kind": "field",
+              "name": "disabled",
+              "privacy": "public",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Disables every segment at once (SEG-31): none can be chosen, cleared or focused, the set and each segment are\nexposed as disabled, and `value` and `values` are kept. A segment's own `disabled` is left as it is.",
+              "attribute": "disabled",
+              "reflects": true
+            },
+            {
+              "kind": "field",
               "name": "label",
               "privacy": "public",
               "type": {
@@ -40717,6 +40729,15 @@
               "default": "'medium'",
               "description": "Visual height (32 / 36 / 40 in the default system, Button's heights). The hit area always meets the minimum target.",
               "fieldName": "size"
+            },
+            {
+              "name": "disabled",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Disables every segment at once (SEG-31): none can be chosen, cleared or focused, the set and each segment are\nexposed as disabled, and `value` and `values` are kept. A segment's own `disabled` is left as it is.",
+              "fieldName": "disabled"
             },
             {
               "name": "label",

@@ -158,6 +158,78 @@ test.describe('selection', () => {
     await expect(btn(page, 'selected-disabled', 2)).toBeDisabled();
   });
 
+  test('SEG-31: a disabled set disables every segment — nothing selected, cleared or emitted, Tab passes over it, value and values kept — and is exposed as a disabled radio group or group of disabled segments; its false never enables a segment disabled by itself', async ({ page }) => {
+    await mountFixtures(page, spec, {
+      fixtures: [
+        ...spec.fixtures.filter((f) => f.id === 'set-disabled'),
+        fixture('m', [s('a', 'A'), s('b', 'B'), s('c', 'C')], { selection: 'multiple', values: ['b'], label: 'Days', disabled: true }),
+        fixture('own', [s('a', 'A'), s('b', 'B', { disabled: true }), s('c', 'C')], { value: 'a', label: 'Own', disabled: true }),
+      ],
+    });
+    await wire(page);    await expect(set(page, 'set-disabled')).toHaveAttribute('disabled', '');
+    // Exposed: the set itself, and every segment with its checked or pressed state and its position.
+    const single = page.locator('[data-fixture="set-disabled"]');
+    await expect(set(page, 'set-disabled')).toHaveAttribute('aria-disabled', 'true');
+    await expect(single.getByRole('radiogroup', { name: 'Range', disabled: true })).toHaveCount(1);
+    await expect(single.getByRole('radio', { name: 'Week', checked: true, disabled: true })).toHaveCount(1);
+    for (const name of ['Day', 'Month']) await expect(single.getByRole('radio', { name, checked: false, disabled: true })).toHaveCount(1);
+    await expect(btn(page, 'set-disabled', 1)).toHaveAttribute('aria-posinset', '2');
+    const multiple = page.locator('[data-fixture="m"]');
+    await expect(multiple.getByRole('group', { name: 'Days', disabled: true })).toHaveCount(1);
+    await expect(multiple.getByRole('button', { name: 'B', pressed: true, disabled: true })).toHaveCount(1);
+    for (const n of [0, 1, 2]) {
+      await expect(btn(page, 'set-disabled', n)).toBeDisabled();
+      await expect(btn(page, 'm', n)).toBeDisabled();
+    }
+    // No input selects or clears anything: a press, click() or a dispatched click on any segment.
+    for (const id of ['set-disabled', 'm']) {
+      for (const n of [0, 1, 2]) {
+        await btn(page, id, n).click({ force: true });
+        await seg(page, id, n).evaluate((el) => (el as HTMLElement).click());
+        await seg(page, id, n).dispatchEvent('click');
+      }
+    }
+    expect(await log(page)).toEqual([]);
+    expect(await set(page, 'set-disabled').evaluate((el: HTMLElement) => (el as unknown as { value: string }).value)).toBe('week');
+    expect(await set(page, 'm').evaluate((el: HTMLElement) => (el as unknown as { values: string[] }).values)).toEqual(['b']);
+    // No segment is in the focus order: Tab passes over every disabled set.
+    for (const n of [0, 1, 2]) {
+      for (const id of ['set-disabled', 'm', 'own']) await expect(btn(page, id, n)).not.toHaveAttribute('tabindex', '0');
+    }
+    for (let presses = 0; presses < 4; presses++) {
+      await tab(page);
+      expect(await page.evaluate(() => document.activeElement?.localName ?? null)).not.toBe('tanrei-segment');
+    }
+    // Drawn from the disabled tokens of each condition; the outline and the dividers keep their own colors.
+    await expect.poll(() => drawn(page, 'set-disabled', 1)).toEqual(await expected(page, 'selected', 'disabled'));
+    await expect.poll(() => drawn(page, 'set-disabled', 0)).toEqual(await expected(page, 'unselected', 'disabled'));
+    expect(await css(set(page, 'set-disabled').locator('.set'), 'border-top-color', '::after')).toBe(await resolveColor(page, T('outline-color')));
+    expect(await css(seg(page, 'set-disabled', 1).locator('.divider'), 'background-color')).toBe(await resolveColor(page, T('divider-color')));
+    // The product's value still selects.
+    await set(page, 'set-disabled').evaluate((el: HTMLElement) => ((el as unknown as { value: string }).value = 'month'));
+    await expect(btn(page, 'set-disabled', 2)).toHaveAttribute('aria-checked', 'true');
+    expect(await log(page)).toEqual([]);
+
+    // Enabled again: the segment disabled by itself stays disabled, the selected one is the Tab stop again, and the set
+    // takes away the aria-disabled it wrote.
+    await set(page, 'own').evaluate((el: HTMLElement) => ((el as unknown as { disabled: boolean }).disabled = false));
+    await expect(set(page, 'own')).not.toHaveAttribute('aria-disabled');
+    await expect(btn(page, 'own', 0)).toBeEnabled();
+    await expect(btn(page, 'own', 2)).toBeEnabled();
+    await expect(btn(page, 'own', 1)).toBeDisabled();
+    await expect(btn(page, 'own', 0)).toHaveAttribute('tabindex', '0');
+    await btn(page, 'own', 2).click();
+    expect(await log(page)).toEqual(['c:c']);
+    // The arrows skip the segment disabled by itself: C → (B skipped) → A, which the move selects.
+    await seg(page, 'own', 2).focus();
+    await page.keyboard.press('ArrowLeft');
+    expect(await focused(page)).toBe('a');
+    // An aria-disabled the product wrote on an enabled set is not the set's to take away.
+    await set(page, 'own').evaluate((el: HTMLElement) => el.setAttribute('aria-disabled', 'true'));
+    await set(page, 'own').evaluate((el: HTMLElement) => ((el as unknown as { label: string }).label = 'Own set'));
+    await expect(set(page, 'own')).toHaveAttribute('aria-disabled', 'true');
+  });
+
   test('SEG-12: the selected segment — the first with the value — is drawn from the selected condition, the others from the unselected; a value naming no segment selects nothing; empty and repeated values are reported', async ({ page }) => {
     const seen = warnings(page);
     await mountFixtures(page, spec, {
@@ -257,7 +329,8 @@ test.describe('keyboard and semantics', () => {
 
   test('SEG-20: single is a radio group of radios, multiple a group of toggle buttons; each named by its label, drawn or not, with its position; the glyphs, check, dividers and outline hidden', async ({ page }) => {
     await mountFixtures(page, spec, { icons: true });
-    await expect(page.getByRole('radiogroup', { name: 'Range' })).toHaveCount(6);
+    const ranges = spec.fixtures.filter((f) => f.props?.label === 'Range' && f.props?.selection !== 'multiple').length;
+    await expect(page.getByRole('radiogroup', { name: 'Range' })).toHaveCount(ranges);
     await expect(page.getByRole('radiogroup', { name: 'Text alignment' })).toHaveCount(1);
     const single = page.locator('[data-fixture="single"]');
     await expect(single.getByRole('radio', { name: 'Week', checked: true })).toHaveCount(1);
