@@ -2,7 +2,7 @@
 title: "图标"
 description: "每个设计系统一套图标集，一种字重，一条规则——未选中时用线框，选中时用填充。"
 translationOf: foundations/icons.mdx
-sourceHash: 00a0f40417096ca36efa5fbb0163bcf9de3f79a6
+sourceHash: e895c68d474db6234aacd129aa8642e72cb5b4f3
 ---
 
 import Example from '../../../../components/visuals/Example.astro';
@@ -11,7 +11,9 @@ import SystemValues from '../../../../components/tokens/SystemValues.astro';
 
 Tanrei 的默认图标是 [Material Symbols](https://fonts.google.com/icons) 的 **Rounded** 样式，**字重 300**。和文本字体一样，这款字体只按名称引用，不随包分发：由产品自行加载。
 
-图标怎样绘制，由一小组令牌决定。图标框有三种尺寸：`sys.icon.small`、`medium` 和 `large`（默认为 16、20 和 24px），字体的光学尺寸跟随图标框。
+图标怎样绘制，由一小组令牌决定。图标框有四种尺寸：`sys.icon.extra-small`、`small`、`medium` 和 `large`，默认为 `medium`；字体的光学尺寸跟随图标框。各内置系统解析出的结果如下：
+
+<SystemValues tokens={['sys.icon.extra-small', 'sys.icon.small', 'sys.icon.medium', 'sys.icon.large']} />
 
 <TokenNotes tokens={['ref.typeface.icon', 'sys.icon.family', 'sys.icon.weight', 'sys.icon.fill']} source={['tokens/ref/typeface.tokens.json', 'tokens/sys/measure.tokens.json']} />
 

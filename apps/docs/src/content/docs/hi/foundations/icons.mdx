@@ -2,7 +2,7 @@
 title: आइकन
 description: हर डिज़ाइन सिस्टम का एक आइकन सेट, एक वेट, और एक नियम — चयनित न हो तो आउटलाइन वाला, चयनित हो तो भरा हुआ।
 translationOf: foundations/icons.mdx
-sourceHash: 00a0f40417096ca36efa5fbb0163bcf9de3f79a6
+sourceHash: e895c68d474db6234aacd129aa8642e72cb5b4f3
 ---
 
 import Example from '../../../../components/visuals/Example.astro';
@@ -11,7 +11,9 @@ import SystemValues from '../../../../components/tokens/SystemValues.astro';
 
 Tanrei के डिफ़ॉल्ट आइकन [Material Symbols](https://fonts.google.com/icons) हैं, **Rounded** शैली में, **वेट 300** पर। टेक्स्ट के टाइपफ़ेस की तरह इस फ़ॉन्ट का भी सिर्फ़ नाम से रेफ़रेंस लिया जाता है, इसे साथ में नहीं दिया जाता: इसे प्रॉडक्ट लोड करता है।
 
-आइकन कैसे बनता है, यह टोकन का एक छोटा ग्रुप तय करता है। आइकन बॉक्स तीन साइज़ में आता है, `sys.icon.small`, `medium` और `large` (डिफ़ॉल्ट रूप से 16, 20 और 24px), और फ़ॉन्ट का ऑप्टिकल साइज़ बॉक्स के अनुसार चलता है।
+आइकन कैसे बनता है, यह टोकन का एक छोटा ग्रुप तय करता है। आइकन बॉक्स चार साइज़ में आता है, `sys.icon.extra-small`, `small`, `medium` और `large`, जिनमें डिफ़ॉल्ट `medium` है, और फ़ॉन्ट का ऑप्टिकल साइज़ बॉक्स के अनुसार चलता है। साथ आने वाले सिस्टम इन मानों पर रिज़ॉल्व होते हैं:
+
+<SystemValues tokens={['sys.icon.extra-small', 'sys.icon.small', 'sys.icon.medium', 'sys.icon.large']} />
 
 <TokenNotes tokens={['ref.typeface.icon', 'sys.icon.family', 'sys.icon.weight', 'sys.icon.fill']} source={['tokens/ref/typeface.tokens.json', 'tokens/sys/measure.tokens.json']} />
 
