@@ -1836,16 +1836,17 @@ test.describe('semantics, locale, layout and reports', () => {
       return [(await bounds(headers.first())).x > (await bounds(headers.last())).x, (await bounds(toggle(page, id))).x > (await bounds(button(page, id, 'next'))).x];
     };
     expect(await atRight('c'), 'right-to-left').toEqual([true, true]);
-    // Shown on another month than the one it opened on, with keyboard focus on a day of it — moved there by the keys,
-    // so that no press of a button is still being let go of when the direction changes, and the pointer off the
-    // calendars, so that nothing comes under it when the layout mirrors.
+    // Shown on another month than the one it opened on — moved there by a click on the next month, as a person would —
+    // with keyboard focus on a day of it, and the pointer off the calendars, so that nothing comes under it when the
+    // layout mirrors. The press's hold and the motion back from it end before the direction changes (motionEnded
+    // below), so that a motion seen then is the change's own.
+    await button(page, 'c', 'next').click();
     await page.mouse.move(0, 0);
-    await tabTo(page, day(page, 'c', '2026-09-17'));
-    await page.keyboard.press('PageDown');
-    await expect.poll(() => focused(page)).toBe('2026-10-17');
     await land(page, 'c');
     expect(await shown(page, 'c')).toBe('October 2026');
+    await tabTo(page, day(page, 'c', '2026-10-17'));
     const active = await focused(page);
+    expect(active).toBe('2026-10-17');
     // In right-to-left the left arrow is the next day.
     await page.keyboard.press('ArrowLeft');
     const next = await focused(page);
