@@ -124,7 +124,6 @@ export const RULES = {
       'src/styles/code.test.ts': 1,
       'src/styles/link.test.ts': 2,
       'src/styles/registered-properties.test.ts': 1,
-      'test/destinations.ts': 2,
       'test/links.ts': 1,
     },
   },
@@ -207,7 +206,6 @@ export const RULES = {
       'src/components/tabs/tabs.test.ts': 1,
       'src/components/tree-view/tree-view.test.ts': 1,
       'src/frames.test.ts': 10,
-      'test/destinations.ts': 3,
     },
   },
   'a step of the duration scale, a spring or a curve of the scale named in a test': {
