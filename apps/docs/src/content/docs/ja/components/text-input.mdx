@@ -2,7 +2,7 @@
 title: テキスト入力欄
 description: 文字を入力するボックスと、その中で入力するものすべてです。1 行または複数行のテキスト、日付や時刻、コードを扱います。ラベルの行、補足、エラーテキストは自分では持ちません。ラベルがほかの場所にあるところや、プロダクトが自分で組み立てるフィールドの中で使います。
 translationOf: components/text-input.mdx
-sourceHash: 6c87fdde2d1e13f7175a5ac8376dff69aa18a85d
+sourceHash: 311e78c804bb9f73162359b32e0ba56d70af184c
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -19,7 +19,7 @@ import Example from '../../../../components/visuals/Example.astro';
   <tanrei-text-input class="not-content" type="search" label="トークンを絞り込む" placeholder="トークンを絞り込む">
     <span slot="leading-icon">search</span>
   </tanrei-text-input>
-  <div class="not-content" style="display: grid; grid-template-columns: auto 12rem; align-items: center; gap: 0.75rem; font: var(--tanrei-sys-typescale-body-font); color: var(--tanrei-sys-color-on-surface)">
+  <div class="not-content tanrei-text-body" style="display: grid; grid-template-columns: auto 12rem; align-items: center; gap: 0.75rem; color: var(--tanrei-sys-color-on-surface)">
     <span>表示名</span>
     <tanrei-text-input label="表示名" value="山田 花子"></tanrei-text-input>
   </div>

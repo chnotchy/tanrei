@@ -2,7 +2,7 @@
 title: Pestañas
 description: Cambia entre vistas de un mismo tema con una fila de pestañas con etiqueta sobre una pista. Hay una pestaña seleccionada, marcada por un indicador que se desliza entre las pestañas y sigue al dedo que se arrastra por la fila.
 translationOf: components/tabs.mdx
-sourceHash: 6143dc5e191f33f5fdbd7cf35556e4c219c660fd
+sourceHash: 6a993118c6fdd21574ce317917665ef13e6fbe08
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -28,13 +28,13 @@ Esta página describe las pestañas tal como están especificadas ahora: pestañ
     <tanrei-tab value="activity" label="Actividad" icon="history"></tanrei-tab>
     <tanrei-tab value="settings" label="Configuración" icon="settings"></tanrei-tab>
     <tanrei-tab-panel value="overview">
-      <p style="font: var(--tanrei-sys-typescale-body-font)">Tres servicios, todos en funcionamiento.</p>
+      <p class="tanrei-text-body">Tres servicios, todos en funcionamiento.</p>
     </tanrei-tab-panel>
     <tanrei-tab-panel value="activity">
-      <p style="font: var(--tanrei-sys-typescale-body-font)">Desplegado hace 2 horas.</p>
+      <p class="tanrei-text-body">Desplegado hace 2 horas.</p>
     </tanrei-tab-panel>
     <tanrei-tab-panel value="settings">
-      <p style="font: var(--tanrei-sys-typescale-body-font)">Región, dominios y acceso.</p>
+      <p class="tanrei-text-body">Región, dominios y acceso.</p>
     </tanrei-tab-panel>
   </tanrei-tabs>
 </Example>
@@ -333,16 +333,16 @@ Cuando la misma pregunta se responde en muchos lugares (la plataforma de cada ej
   <tanrei-tabs variant="secondary" group="docs-demo-units" value="metric" label="Unidades de distancia">
     <tanrei-tab value="metric" label="Métrico"></tanrei-tab>
     <tanrei-tab value="imperial" label="Imperial"></tanrei-tab>
-    <tanrei-tab-panel value="metric"><p style="font: var(--tanrei-sys-typescale-body-font)">Un maratón son 42.195 km.</p></tanrei-tab-panel>
-    <tanrei-tab-panel value="imperial"><p style="font: var(--tanrei-sys-typescale-body-font)">Un maratón son 26.2 millas.</p></tanrei-tab-panel>
+    <tanrei-tab-panel value="metric"><p class="tanrei-text-body">Un maratón son 42.195 km.</p></tanrei-tab-panel>
+    <tanrei-tab-panel value="imperial"><p class="tanrei-text-body">Un maratón son 26.2 millas.</p></tanrei-tab-panel>
   </tanrei-tabs>
   <tanrei-tabs variant="secondary" group="docs-demo-units" value="metric" label="Unidades de velocidad">
     <tanrei-tab value="metric" label="Métrico"></tanrei-tab>
     <tanrei-tab value="imperial" label="Imperial"></tanrei-tab>
     <tanrei-tab value="nautical" label="Náutico"></tanrei-tab>
-    <tanrei-tab-panel value="metric"><p style="font: var(--tanrei-sys-typescale-body-font)">Caminar a paso ligero son 6 km/h.</p></tanrei-tab-panel>
-    <tanrei-tab-panel value="imperial"><p style="font: var(--tanrei-sys-typescale-body-font)">Caminar a paso ligero son 3.7 mph.</p></tanrei-tab-panel>
-    <tanrei-tab-panel value="nautical"><p style="font: var(--tanrei-sys-typescale-body-font)">Caminar a paso ligero son 3.2 nudos.</p></tanrei-tab-panel>
+    <tanrei-tab-panel value="metric"><p class="tanrei-text-body">Caminar a paso ligero son 6 km/h.</p></tanrei-tab-panel>
+    <tanrei-tab-panel value="imperial"><p class="tanrei-text-body">Caminar a paso ligero son 3.7 mph.</p></tanrei-tab-panel>
+    <tanrei-tab-panel value="nautical"><p class="tanrei-text-body">Caminar a paso ligero son 3.2 nudos.</p></tanrei-tab-panel>
   </tanrei-tabs>
 </Example>
 
@@ -359,9 +359,9 @@ Con `orientation` en `vertical`, las pestañas se apilan en una columna en el bo
     <tanrei-tab value="general" label="General" icon="settings"></tanrei-tab>
     <tanrei-tab value="notifications" label="Notificaciones" icon="notifications"></tanrei-tab>
     <tanrei-tab value="privacy" label="Privacidad" icon="lock"></tanrei-tab>
-    <tanrei-tab-panel value="general"><p style="font: var(--tanrei-sys-typescale-body-font); margin: 0; padding-inline: var(--tanrei-sys-space-space200)">Idioma, región y página de inicio.</p></tanrei-tab-panel>
-    <tanrei-tab-panel value="notifications"><p style="font: var(--tanrei-sys-typescale-body-font); margin: 0; padding-inline: var(--tanrei-sys-space-space200)">Correo, notificaciones push y un resumen semanal.</p></tanrei-tab-panel>
-    <tanrei-tab-panel value="privacy"><p style="font: var(--tanrei-sys-typescale-body-font); margin: 0; padding-inline: var(--tanrei-sys-space-space200)">Quién puede ver tu perfil.</p></tanrei-tab-panel>
+    <tanrei-tab-panel value="general"><p class="tanrei-text-body" style="margin: 0; padding-inline: var(--tanrei-sys-space-space200)">Idioma, región y página de inicio.</p></tanrei-tab-panel>
+    <tanrei-tab-panel value="notifications"><p class="tanrei-text-body" style="margin: 0; padding-inline: var(--tanrei-sys-space-space200)">Correo, notificaciones push y un resumen semanal.</p></tanrei-tab-panel>
+    <tanrei-tab-panel value="privacy"><p class="tanrei-text-body" style="margin: 0; padding-inline: var(--tanrei-sys-space-space200)">Quién puede ver tu perfil.</p></tanrei-tab-panel>
   </tanrei-tabs>
 </Example>
 

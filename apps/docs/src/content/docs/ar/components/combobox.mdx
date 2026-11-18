@@ -2,7 +2,7 @@
 title: مربع التحرير والسرد
 description: الصندوق الذي يكتب فيه الأشخاص ليعثروا على قيمة واحدة أو أكثر، وقائمة الخيارات التي يفتحها، بلا صف تسمية ولا مساعدة ولا نص خطأ من عنده. لموضع تقف تسميته في مكان آخر، أو داخل حقل يركّبه المنتج بنفسه.
 translationOf: components/combobox.mdx
-sourceHash: a6ba669c6cd3732e0cd1bc8d18ea34fc57196da0
+sourceHash: ef2b39f71bc39c4c179f7a3c71a51d07b7b7c999
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -23,7 +23,7 @@ import Example from '../../../../components/visuals/Example.astro';
     <tanrei-option value="secondary" supporting-text="sys.color.secondary">secondary</tanrei-option>
     <tanrei-option value="surface" supporting-text="sys.color.surface">surface</tanrei-option>
   </tanrei-combobox>
-  <div class="not-content" style="display: grid; grid-template-columns: auto 12rem; align-items: center; gap: 0.75rem; font: var(--tanrei-sys-typescale-body-font); color: var(--tanrei-sys-color-on-surface)">
+  <div class="not-content tanrei-text-body" style="display: grid; grid-template-columns: auto 12rem; align-items: center; gap: 0.75rem; color: var(--tanrei-sys-color-on-surface)">
     <span>المنطقة الزمنية</span>
     <tanrei-combobox label="المنطقة الزمنية" value="Europe/Lisbon" empty-text="لا توجد نتائج مطابقة">
       <tanrei-option value="Asia/Tokyo">طوكيو</tanrei-option>
