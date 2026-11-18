@@ -5,12 +5,14 @@
 //   locator's and a page's actions go through its frame, and the mouse, the keyboard and the touchscreen are their own);
 // - slow every page the test opens — the `page` fixture's, a page of a context the test makes itself, a popup —
 //   before the test can use it (`newPage()` resolves once it is slowed; a popup is slowed as it appears) — its motion
-//   left at its own speed where the test asks (`MOTION_AT_ITS_OWN_SPEED`, test/harsh.ts);
+//   left at its own speed where the test asks (`MOTION_AT_ITS_OWN_SPEED`, test/harsh.ts) — and make its press-hold
+//   longer (test/harsh/press-hold.ts);
 // - check, once a worker before its first test, that all of this takes effect (`checkHarsh`), and fail the worker's
 //   tests if it does not.
 import type { Browser, BrowserContext, Page, test as realTest } from '@playwright/test';
 import * as real from '../../node_modules/@playwright/test/index.mjs';
-import { HARSH_TIMEOUT, type Harsh, MOTION_AT_ITS_OWN_SPEED, harsh } from '../harsh.js';
+import { HARSH_TIMEOUT, type Harsh, MOTION_AT_ITS_OWN_SPEED, harsh, pressHoldDeclarations, pressHoldRules } from '../harsh.js';
+import { lengthenPressHold } from './press-hold.js';
 import { slowMotion } from './slow-motion.js';
 
 // The real module is reached by its file, past the mapping of its name to this one; a type checker follows that file's
@@ -131,9 +133,16 @@ async function gapActions(page: Page) {
 
 const slowed = new WeakMap<Page, Promise<void>>();
 
+/** The stylesheet that makes press-hold longer by `ms` (test/harsh/press-hold.ts), made once a worker for each length. */
+const pressHoldSheets = new Map<number, string>();
+const pressHoldSheet = (ms: number): string => {
+  if (!pressHoldSheets.has(ms)) pressHoldSheets.set(ms, pressHoldRules(ms));
+  return pressHoldSheets.get(ms)!;
+};
+
 /**
- * The gaps (every engine), the motion rate (Chromium's engine rate; test/harsh/slow-motion.ts in Firefox and WebKit, on
- * request) and the CPU throttling (Chromium), on one page — once: every
+ * The gaps (every engine), the longer press-hold (every engine), the motion rate (Chromium's engine rate;
+ * test/harsh/slow-motion.ts in Firefox and WebKit, on request) and the CPU throttling (Chromium), on one page — once: every
  * caller waits for the same work, so a page handed over by `newPage()` is slowed before the test has it.
  */
 function slowDown(page: Page): Promise<void> {
@@ -142,6 +151,12 @@ function slowDown(page: Page): Promise<void> {
   if (!done) {
     done = (async () => {
       await gapActions(page);
+      // Press-hold, in every document to come and in the one the page has; a page with scripting off is left as it is.
+      if (harsh.pressHold > 0 && !unscripted.has(page.context())) {
+        const css = pressHoldSheet(harsh.pressHold);
+        await page.addInitScript(lengthenPressHold, css);
+        await page.evaluate(lengthenPressHold, css);
+      }
       if (page.context().browser()?.browserType().name() !== 'chromium') {
         // Firefox and WebKit have no rate to set: on request, the page's animations are slowed in the page
         // (test/harsh/slow-motion.ts), in every document to come and in the one it has. A page with scripting off is left
@@ -210,6 +225,8 @@ const MOTION_SLACK = 0.5;
  *   a script's `animate()`, an `Animation` made and played), not at its own speed, and the page reads its playback
  *   rate as 1 — in Chromium by the engine's rate, in Firefox and WebKit, when `expected.pageMotion` asks, by
  *   test/harsh/slow-motion.ts;
+ * - press-hold, where the token sheets declare it, resolves `expected.pressHold` ms longer than they declare it, in a
+ *   shadow root too, and the page does not see the sheet that makes it so;
  * - in Firefox, when `expected.frame` asks for late frames, frames come no sooner than that many ms apart (four fifths
  *   of it: the engine's timer is not exact).
  * The fixture below calls it with the run's settings; harsh mode's own tests (test/harsh/self/) call it with more than
@@ -299,6 +316,40 @@ export async function checkHarsh(browser: Browser, expected: Harsh): Promise<voi
           problems.push(`a ${kind} moved ${rate.toFixed(2)} of the time that passed, not ${expected.motion} (the motion rate)`);
       }
       if (reported.some((rate) => rate !== 1)) problems.push(`the page reads its animations' playback rates as ${reported.join(', ')}, not 1: the rate shows`);
+    }
+    if (expected.pressHold > 0) {
+      // On the root and in a contrast scope, as the default system's sheet declares it, each read in a shadow root
+      // against the value the sheet declares, at a motion dial of 50 ms.
+      const { value } = pressHoldDeclarations()[0]!;
+      const { lengths, sheets } = await page.evaluate(
+        (declared) => {
+          const root = document.documentElement;
+          root.style.setProperty('--tanrei-dial-motion-unit', '50ms');
+          const scope = document.createElement('div');
+          scope.setAttribute('data-tanrei-contrast', 'high');
+          document.body.append(scope);
+          const lengths: Record<string, number> = {};
+          for (const [where, parent] of [
+            ['the root', document.body],
+            ['a contrast scope', scope],
+          ] as const) {
+            const host = document.createElement('div');
+            parent.append(host);
+            const shadow = host.attachShadow({ mode: 'open' });
+            shadow.innerHTML = `<div id="run" style="transition-delay: var(--tanrei-sys-motion-duration-press-hold)"></div><div id="own" style="transition-delay: ${declared}"></div>`;
+            const delay = (id: string) => Number.parseFloat(getComputedStyle(shadow.getElementById(id)!).transitionDelay) * 1000;
+            lengths[where] = delay('run') - delay('own');
+            host.remove();
+          }
+          scope.remove();
+          root.style.removeProperty('--tanrei-dial-motion-unit');
+          return { lengths, sheets: document.adoptedStyleSheets.length };
+        },
+        value,
+      );
+      for (const [where, longer] of Object.entries(lengths))
+        if (!(Math.abs(longer - expected.pressHold) <= 1)) problems.push(`press-hold at ${where} was ${Math.round(longer)} ms longer than the token sheet declares it, not ${expected.pressHold} ms`);
+      if (sheets !== 0) problems.push(`the page sees ${sheets} adopted stylesheet(s) it did not adopt: harsh mode's press-hold shows`);
     }
     if (expected.frame > 0 && engine === 'firefox') {
       // Six frames, each counted from the page's clock in its callback.

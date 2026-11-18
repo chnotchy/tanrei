@@ -22,6 +22,7 @@ import {
   tabTo,
   rootTokens,
 } from '../../../test/harness.js';
+import { pressHoldAsRun } from '../../../test/harsh.js';
 import { clickCentre, heldPress } from '../../../test/watched-press.js';
 import { motionCount, motionEnded } from '../../../test/motions.js';
 import { STOPPED_AFTER, flingThenHold } from '../../../test/stopped-release.js';
@@ -457,7 +458,7 @@ test.describe('press, feedback, corners, focus style, geometry and motion', () =
 
   test('SWT-7: a press that ends within a frame — Space, a click — is shown at once and for at least press-hold', async ({ page }) => {
     const hold = await resolveToken(page, '--tanrei-sys-motion-duration-press-hold', 'duration');
-    expect(hold).toBe(100);
+    expect(hold).toBe(pressHoldAsRun(100));
     for (const [name, activate] of [
       ['Space', () => page.keyboard.press('Space')],
       ['click', () => clickCentre(page, container(page, 'unselected'))],

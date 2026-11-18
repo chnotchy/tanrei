@@ -8,6 +8,7 @@ import { type Page, expect, test } from '@playwright/test';
 import { bounds, css, override, warnings } from '../../../test/destinations.js';
 import { clickCentre, heldPress } from '../../../test/watched-press.js';
 import { type Fixture, acmeSystemCss, innerStrokeAtEdges, loadSpec, missingWords, mountFixtures, resolveColor, resolveToken, setWords, tab, tabTo } from '../../../test/harness.js';
+import { pressHoldAsRun } from '../../../test/harsh.js';
 import { expectKeyPressOutlastsPointer } from '../../../test/key-press-pointer-leaves.js';
 import { expectWheelKeptFromPage } from '../../../test/contained-wheel.js';
 import { EVERY_ANIMATION, expectFromNextFrame, motionEnded } from '../../../test/motions.js';
@@ -474,7 +475,7 @@ test.describe('the drag handle', () => {
     ] as const) {
       await mount(page, [fx('s', {}, LONG)]);
       const hold = await resolveToken(page, '--tanrei-sys-motion-duration-press-hold', 'duration');
-      expect(hold, name).toBe(100);
+      expect(hold, name).toBe(pressHoldAsRun(100));
       await handle(page).evaluate((el: HTMLElement) => el.focus());
       await handle(page).evaluate((el) => {
         const l: { down?: number; on?: number; off?: number; up?: number } = ((window as any).press = {});
