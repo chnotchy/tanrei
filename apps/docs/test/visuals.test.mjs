@@ -15,7 +15,7 @@ import { fileURLToPath } from 'node:url';
 register('./vite-shim.mjs', import.meta.url);
 const { anatomyOf, anatomyAlt, blueprintStageOf, webPartsOf } = await import('../src/lib/visuals/anatomy.ts');
 const { measureLinesOf, measuresOf } = await import('../src/lib/visuals/measure.ts');
-const { motionsOf } = await import('../src/lib/visuals/motion.ts');
+const { motionDemoOf, motionRoleOf, motionsOf, numbered } = await import('../src/lib/visuals/motion.ts');
 const { rolesOf } = await import('../src/lib/visuals/roles.ts');
 const { drawnMatrixOf, drawsStateMatrix, matrixOf, PSEUDO_STATES } = await import('../src/lib/visuals/states.ts');
 const { holdSelector, holdSelectorList, wordsOf } = await import('../src/lib/visuals/pseudo-states.ts');
@@ -256,6 +256,52 @@ describe('motion', () => {
     assert.equal(motions.submenu.delay, true);
     assert.equal(motions.submenu.easing, null);
     assert.equal(motions.state.ms, resolved(`${NS}.comp.menu.motion.state-duration`).$value.value);
+  });
+  test('a motion’s role is the sys.motion.role token its chain of aliases reaches, through another component’s', () => {
+    assert.equal(motionRoleOf(`${NS}.comp.switch.motion.selection-duration`), `${NS}.sys.motion.role.selection.travel`);
+    // The dialog's entrance is the modal layer's, which is a role's.
+    assert.match(motionRoleOf(`${NS}.comp.dialog.motion.enter-duration`) ?? '', new RegExp(`^${NS}\\.sys\\.motion\\.role\\.`));
+  });
+
+  /** Every `<MotionDemo …/>` a language's component pages place, by file. */
+  const demosIn = (base) => {
+    const dir = here(`../src/content/docs/${base}components`);
+    return Object.fromEntries(
+      fs
+        .readdirSync(dir)
+        .filter((file) => file.endsWith('.mdx'))
+        .map((file) => [file, [...fs.readFileSync(`${dir}/${file}`, 'utf8').matchAll(/<MotionDemo name="([\w-]+)" motion="([\w-]+)" from="([\w-]+)" to="([\w-]+)" \/>/g)].map((match) => match.slice(1))]),
+    );
+  };
+  test('every motion demo plays a motion of its component between two fixtures of the same elements, and names the role it stands for', () => {
+    const placed = Object.values(demosIn('')).flat();
+    assert.ok(placed.length >= 3, 'the demos are placed');
+    for (const [name, motion, from, to] of placed) {
+      const demo = motionDemoOf(name, motion, from, to);
+      assert.equal(demo.motion.ms, resolved(demo.motion.duration).$value.value, `${name}: ${motion}`);
+      assert.ok(demo.role, `${name}: ${motion} stands for a motion role`);
+      assert.ok(demo.durationVars.includes(demo.durationVar), `${name}: slow motion stretches the motion it names`);
+      // The play is a change of attributes: the two fixtures differ.
+      assert.notEqual(numbered(demo.from.html).replace(/data-fixture="[^"]*"/, ''), numbered(demo.to.html).replace(/data-fixture="[^"]*"/, ''), `${name}: ${from} and ${to} differ`);
+    }
+    assert.throws(() => motionDemoOf('switch', 'nothing', 'unselected', 'selected'), /has no motion "nothing"/);
+    assert.throws(() => motionDemoOf('accordion', 'disclosure', 'single', 'all-open'), /not the same elements/);
+  });
+  test('every language’s page of a component places the same motion demos', () => {
+    const english = demosIn('');
+    for (const { lang, dir } of translations) {
+      const translated = demosIn(`${dir}/`);
+      for (const [file, demos] of Object.entries(english)) if (demos.length && file in translated) assert.deepEqual(translated[file], demos, `${lang}: ${file}`);
+    }
+  });
+  test('the demo’s sentences hold the places it fills, in every language', () => {
+    for (const lang of languages) {
+      const words = strings(lang).visuals;
+      for (const place of ['{component}', '{motion}', '{from}', '{to}']) assert.ok(words.motionAlt.includes(place), `${lang}: motionAlt ${place}`);
+      for (const place of ['{from}', '{to}']) assert.ok(words.motionCaption.includes(place), `${lang}: motionCaption ${place}`);
+      for (const place of ['{motion}', '{ms}', '{role}']) assert.ok(words.motionTiming.includes(place), `${lang}: motionTiming ${place}`);
+      for (const place of ['{factor}', '{ms}']) assert.ok(words.motionSlowed.includes(place), `${lang}: motionSlowed ${place}`);
+    }
   });
 });
 

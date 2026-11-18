@@ -128,6 +128,17 @@ A component's focus order is `<FocusOrder name="…" fixture="…" />` (`src/com
 
 `test/browser/focus-order.test.mjs` opens the pages in each engine (`DOCS_ENGINES`; all three by default), presses Tab through each figure from a stop just before it (Option and Tab in WebKit), and asks that each press reaches the element the next number stands on, that one press more leaves the component, and that the caption says as many stops; and that a keyboard map, in three languages, draws a row for each row of the spec, each chord as caps read in the page's words. `test/visuals.test.mjs` reads every phrase of every spec into chords the Keyboard shortcut draws, leaving no key in words, and asks that every key has a name in every language and that every language's page places the same figures and maps.
 
+### The motion demo
+
+A component's motion is `<MotionDemo name="…" motion="…" from="…" to="…" />` (`src/components/visuals/MotionDemo.astro`, its script `src/lib/visuals/motion.client.ts`, its data `motionDemoOf` in `src/lib/visuals/motion.ts`), placed by a page where its prose speaks of that motion, the same in every language.
+
+- **It plays the component's own motion**: the stage is the web package's own stage of the fixture `from` (as the anatomy figure's: a fixture drawn in a window, or whose document takes a step in script, has none, and the build says so), and the play sets on the live elements the attributes that differ in the stage of `to`, which must be the same elements. `motion` is a duration of the component's `motion` group by its id (`selection` for `selection-duration`), never a delay.
+- **Once, in view, never in a loop**: it plays when half of it is in view, and again from `from` only when the frame's first action is pressed. Its second action, a toggle, is slow motion: every duration custom property of the component's motion stretched to four times, read in the system the stage is drawn under, and an animation script starts at an unstretched duration slowed by its `playbackRate`.
+- **Where the device asks for reduced motion it shows the end**: the stage is given `to`'s elements before they are defined, nothing in it runs, the actions are not shown and the caption says why.
+- **Its numbers are the tokens'**: the caption names the motion, its milliseconds (the default system's at build time, then the stage's system's, read from the custom property) and the `sys.motion.role.*` token it stands for. The component is a picture, `inert` and hidden from assistive technology; the figure's text alternative is `visuals.motionAlt`.
+
+`test/browser/motion-demo.test.mjs` measures each placed demo's play through every shadow root: at full speed what moves lasts its token's duration on disk, in slow motion four times it, it plays once by itself, and under reduced motion nothing in the figure runs. `test/visuals.test.mjs` asks that every placed demo is a motion of its component between two fixtures of the same elements, with a role, and that every language's page places the same demos.
+
 ## Adding a page in both locales
 
 1. Create `src/content/docs/<path>.mdx` (English is the root locale) and add its slug to the sidebar in `astro.config.mjs`.
