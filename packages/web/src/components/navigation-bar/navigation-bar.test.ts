@@ -218,7 +218,6 @@ destinationSuite({
   itemTag: 'tanrei-navigation-bar-item',
   lines: 1,
   range: [3, 5],
-  own: ['selection'],
   ids: {
     activate: 'NVB-1',
     disabled: 'NVB-2',
@@ -231,7 +230,6 @@ destinationSuite({
     cornersAndFocusStyle: 'NVB-10',
     labels: 'NVB-13',
     icon: 'NVB-14',
-    selection: 'NVB-15',
     badge: 'NVB-16',
     count: 'NVB-17',
     semantics: 'NVB-19',
