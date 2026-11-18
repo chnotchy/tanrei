@@ -16,7 +16,15 @@
 //
 // `@tanrei/web/app-shell.css` lays all of it out before any script runs and where none does (styles/frame.css loads
 // it, with what each part shows until its element is defined).
+//
+// After the shell, at the end of the body, it says which of the site's pages the browser may load before the reader
+// follows a link to one (lib/speculation-rules.mjs). Not in the head: an engine that reads the rules weighs the page's
+// links against them, and with the rules read before the links, WebKit loaded the Calendar's page (some two hundred
+// links) 1.3 s later than with no rules — the document read 0.7 s later, its scripts run 0.6 s later. With the rules
+// after the links it loads 0.1 s later than with none. The page's own policy stands in the head, before them, and so
+// governs them (lib/csp.mjs).
 import { frameWords } from './frame';
+import { speculationRulesText } from '../../lib/speculation-rules.mjs';
 
 const route = Astro.locals.starlightRoute;
 const words = frameWords(Astro);
@@ -46,6 +54,7 @@ const notices = [route.isFallback && Astro.locals.t('i18n.untranslatedContent'),
   {route.hasSidebar && <slot name="sidebar" />}
   <slot />
 </tanrei-app-shell>
+<script type="speculationrules" is:inline set:html={speculationRulesText} />
 
 <script>
   import '@tanrei/web/components/app-shell';
