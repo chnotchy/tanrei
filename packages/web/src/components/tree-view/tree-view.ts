@@ -22,6 +22,7 @@ import { readTogether } from '../../primitives/read-phase.js';
 import { FILTER_SETTLE_MS, filterWords, holdsWords, labelBegins } from '../../primitives/filter.js';
 import { fillPlaces } from '../../primitives/places.js';
 import { PendingGlyphs, isGlyphProbe } from '../../primitives/glyph-pending.js';
+import { GeneratedGlyphMirror } from '../../primitives/glyph-mirror.js';
 import { type CutTextContent, CutTextTip, isCut } from '../../primitives/cut-text.js';
 import { TanreiTooltip } from '../tooltip/tooltip.js';
 import { debugBuild } from '../../primitives/report.js';
@@ -138,6 +139,15 @@ const KEY = /^[a-z0-9][a-z0-9-]*$/;
 /** What the element writes on the product's lists and items (tree-view.css reads each). */
 const MOVING = 'data-tanrei-moving';
 const AT_ONCE = 'data-tanrei-at-once';
+/**
+ * TRV-36, TRV-38: on the tree, where the icon set active there does not mark the start chevron's glyph as mirrored (a
+ * product layer's own set): tree-view.css then draws it in right-to-left as in left-to-right, unmirrored and turned the
+ * same way. Every set Tanrei ships marks it, so the stylesheet mirrors it where this is absent — before the element is
+ * defined too.
+ */
+const CHEVRON_UNMIRRORED = 'data-tanrei-chevron-unmirrored';
+/** The glyph tree-view.css draws in a parent's chevron box at the start (TRV-4). */
+const CHEVRON_GLYPH = 'chevron_right';
 const LEAF = 'data-tanrei-leaf';
 const LOADING = 'data-tanrei-loading';
 const OWN_LIST = 'data-tanrei-loading-list';
@@ -562,7 +572,9 @@ export class TanreiTreeView extends TanreiLightElement {
   private left: Item | null = null;
   private leftTimer: ReturnType<typeof setTimeout> | undefined;
   private readonly keys = new RovingKeys({ wrap: false, repeat: true });
-  private readonly glyphs = new PendingGlyphs(this, 'chevron_right');
+  private readonly glyphs = new PendingGlyphs(this, CHEVRON_GLYPH);
+  /** TRV-38: whether the icon set mirrors the start chevron, which tree-view.css draws as a row's `::before`. */
+  private readonly chevronMirror = new GeneratedGlyphMirror(this, CHEVRON_GLYPH, (mirrored) => this.markChevron(mirrored));
   private named = false;
   private checking = false;
   private depthChecked = false;
@@ -579,6 +591,7 @@ export class TanreiTreeView extends TanreiLightElement {
     for (const [type, listener] of this.listeners) this.addEventListener(type, listener);
     this.mutations?.observe(this, { subtree: true, childList: true, characterData: true, attributes: true, attributeFilter: ITEM_ATTRIBUTES });
     this.glyphs.connect();
+    this.chevronMirror.connect();
     if (this.hasUpdated) {
       this.read();
       this.watchScroll();
@@ -590,6 +603,7 @@ export class TanreiTreeView extends TanreiLightElement {
     for (const [type, listener] of this.listeners) this.removeEventListener(type, listener);
     this.mutations?.disconnect();
     this.glyphs.disconnect();
+    this.chevronMirror.disconnect();
     this.cutTip.hide();
     this.unwatchScroll();
     for (const press of this.pressControllers) press.hostDisconnected();
@@ -1208,6 +1222,24 @@ export class TanreiTreeView extends TanreiLightElement {
       this.filter = { ...this.filter, active: this.findActive(this.filter) };
       this.writeActive();
     }
+  }
+
+  /**
+   * TRV-38: marks the tree where its icon set does not mirror the start chevron. A design system switched while the
+   * tree is shown turns an open parent's chevron to the other quarter turn in right-to-left (mirrored, it turns the
+   * other way to point down); that is drawn at once, as a change of open is (`data-tanrei-at-once`), not over the
+   * disclosure's motion, the chevron pointing down before and after.
+   */
+  private markChevron(mirrored: boolean) {
+    if (this.hasAttribute(CHEVRON_UNMIRRORED) !== mirrored) return;
+    const open = this.hasUpdated ? [...this.querySelectorAll<Item>(`li:is([data-open], [${FILTER_OPEN}])`)].filter((item) => item.closest(TAG) === this) : [];
+    for (const item of open) item.setAttribute(AT_ONCE, '');
+    this.toggleAttribute(CHEVRON_UNMIRRORED, !mirrored);
+    for (const item of open) {
+      const row = rowOf(item);
+      if (row) void getComputedStyle(row, '::before').rotate;
+    }
+    for (const item of open) item.removeAttribute(AT_ONCE);
   }
 
   /** Draws a change of an item's open: its state, its list revealed or hidden, and the focus kept (TRV-12). */

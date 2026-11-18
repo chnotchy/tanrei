@@ -47,12 +47,20 @@ function scopeSystem(element: Element): string | null {
  * nothing is mirrored by itself there.
  */
 export function activeIconSet(element: Element): IconSet | null {
+  return iconSetAt(element, () => getComputedStyle(element).fontFamily);
+}
+
+/**
+ * The set of the design system around `element`, and for a system Tanrei does not ship the set whose `families` hold
+ * the first of `families()` — the font families the glyph is drawn with, read only where the system does not say.
+ */
+function iconSetAt(element: Element, families: () => string): IconSet | null {
   const system = scopeSystem(element) || DEFAULT_SYSTEM;
   if (Object.hasOwn(systemIconSets, system)) {
     const id = systemIconSets[system];
     return id && Object.hasOwn(iconSets, id) ? iconSets[id] : null;
   }
-  const family = getComputedStyle(element).fontFamily.split(',')[0]?.trim().replace(/^["']|["']$/g, '').toLowerCase();
+  const family = families().split(',')[0]?.trim().replace(/^["']|["']$/g, '').toLowerCase();
   if (!family) return null;
   return Object.values(iconSets).find((set) => set.families.some((name) => name.toLowerCase() === family)) ?? null;
 }
@@ -111,6 +119,41 @@ function unwatchSystem(refresh: () => void) {
   if (refreshers.size) return;
   systemObserver?.disconnect();
   systemObserver = null;
+}
+
+/** The family a stylesheet draws its own glyph with (a tree view's chevron): the icon set's, unselected. */
+const GENERATED_FAMILY = '--tanrei-sys-icon-family-unselected';
+
+/**
+ * The rule for a glyph that a light-DOM stylesheet draws itself as generated content (a `::before`'s `content`, such
+ * as a tree view's chevron): a pseudo-element carries no attribute, so it cannot be marked, and the HOST is told
+ * instead. `decided(mirrored)` is called with whether the icon set active at the host mirrors the glyph called `name`
+ * in a right-to-left layout — the answer `markGlyph()` gives for that name, the family read from the token the
+ * stylesheet draws it with (`sys.icon.family.unselected`; the host's own font is its text's) — when the host is
+ * connected and again whenever the design system is switched; the host writes a mark of its own that its stylesheet
+ * reads. The glyph is the component's own choice, so no product's `data-mirror` decides it.
+ */
+export class GeneratedGlyphMirror {
+  private readonly refresh = () => {
+    if (this.host.isConnected) this.decided(!!iconSetAt(this.host, () => getComputedStyle(this.host).getPropertyValue(GENERATED_FAMILY))?.mirrored.has(this.name));
+  };
+
+  constructor(
+    private readonly host: Element,
+    private readonly name: string,
+    private readonly decided: (mirrored: boolean) => void,
+  ) {}
+
+  /** Call when the host is connected: decides now, and again when the design system is switched. */
+  connect() {
+    watchSystem(this.refresh);
+    this.refresh();
+  }
+
+  /** Call when the host is disconnected. */
+  disconnect() {
+    unwatchSystem(this.refresh);
+  }
 }
 
 /** What tells a glyph's mark to be decided again: its name (its text or its `data-icon`) or the product's `data-mirror` changed. */
