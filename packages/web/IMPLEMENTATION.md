@@ -10324,8 +10324,12 @@ What the element settles that the spec left to it:
   the other quarter turn there, which its transition would run when a `dir` above the tree changes. With no shadow root
   for `DirectionController`'s probe, the element hears a `dir` changed in the roots it is in (`DirAttributeWatch`, the
   table's watch too) in a microtask of the task that changed it, and where its direction changed draws the open
-  chevrons' new turn with their transition off (`data-tanrei-at-once`), before any frame — which also ends a turn that a
-  read of style in that task began.
+  chevrons' new turn with their turn's transition off (`data-tanrei-at-once`), before any frame — which also ends a turn
+  that a read of style in that task began. Their colour's transition is kept: a colour changed in the same task (a
+  theme switched with the language, a hover) still moves. A parent whose list is closing is drawn so too: its turn
+  under way, mirrored the other way, would go on from where it stood toward its end and point up on its way; it ends
+  at the closed chevron the new direction draws. (A parent with no list of its own, closing, is not marked: nothing
+  moving says that it turns.)
 - **The loading row** is an `<li data-tanrei-loading>` the element appends to the parent's list (to a list of its own
   where the parent has none yet), so it is revealed, hidden and run beside by the guide with the rows. It is kept from
   assistive technology whole — a tree may hold tree items alone — and the parent is `aria-busy`.

@@ -1826,6 +1826,99 @@ test.describe('right to left', () => {
     expect(await shownRows(page, 'single')).toHaveLength(10);
   });
 
+  test('TRV-37, TRV-4: a change of direction draws only the open chevrons’ turn at once — a change of their colour that the same task makes (a theme switched with the language) still moves over the state’s motion', async ({ page }) => {
+    await mount(page, { fixtures: some('single') });
+    await motionEnded(page);
+    /** The colour of each open parent's start chevron. */
+    const colours = (root: Element) =>
+      Object.fromEntries(['src', 'components'].map((label) => [label, getComputedStyle(root.querySelector(`li[data-t="${label}"] > :first-child`)!, '::before').getPropertyValue('color')]));
+    // Another role for the unselected chevron, and back: a product that switches its theme and its direction at once.
+    for (const [dir, chevron] of [
+      ['rtl', 'var(--tanrei-sys-color-primary)'],
+      ['ltr', ''],
+    ] as const) {
+      const before = await stage(page, 'single').evaluate(colours);
+      const seen = await sampleFrames(
+        stage(page, 'single'),
+        () =>
+          stage(page, 'single').evaluate(
+            (el, [to, name, value]) => {
+              el.style.setProperty(name, value);
+              el.setAttribute('dir', to);
+            },
+            [dir, T('unselected-chevron-color'), chevron] as const,
+          ),
+        { probe: colours },
+      );
+      expect(
+        seen.motions.filter((motion) => motion.name === 'rotate').map((motion) => motion.on),
+        `${dir}: no turn runs`,
+      ).toEqual([]);
+      for (const label of ['src', 'components']) {
+        const drawn = seen.frames.map((frame) => frame.probe[label]);
+        expect(seen.rest.probe[label], `${dir}: ${label}'s chevron has the new colour`).not.toBe(before[label]);
+        // Its first frame is the colour it had, and it passes through others on its way: a motion, not a jump.
+        expect(drawn[0], `${dir}: ${label}'s chevron in the first frame`).toBe(before[label]);
+        expect(new Set(drawn).size, `${dir}: ${label}'s chevron's colours, frame by frame: ${drawn.join(' | ')}`).toBeGreaterThan(3);
+      }
+    }
+  });
+
+  test('TRV-37, TRV-36: a change of direction while a parent closes ends its chevron’s turn there, at the closed chevron the new direction draws — no frame turns it the wrong way', async ({ page }) => {
+    await mount(page, { fixtures: some('single') });
+    await motionEnded(page);
+    /** Where the closing parent's chevron_right points as drawn: its rotate after its scale (CSS Transforms 2), on screen. */
+    const pointing = (root: Element) => {
+      const style = getComputedStyle(root.querySelector('li[data-t="components"] > :first-child')!, '::before');
+      const degrees = style.rotate === 'none' ? 0 : style.rotate.endsWith('turn') ? Number.parseFloat(style.rotate) * 360 : Number.parseFloat(style.rotate);
+      const [sx, sy = sx] = style.scale === 'none' ? [1, 1] : style.scale.split(' ').map(Number);
+      const tip = new DOMMatrix().rotate(degrees).scale(sx, sy).transformPoint(new DOMPoint(1, 0));
+      return { x: Math.round(tip.x * 100) / 100, y: Math.round(tip.y * 100) / 100 };
+    };
+    for (const [from, to] of [
+      ['ltr', 'rtl'],
+      ['rtl', 'ltr'],
+    ] as const) {
+      await stage(page, 'single').evaluate((el, dir) => el.setAttribute('dir', dir), from);
+      await item(page, 'single', 'components').evaluate((li) => li.setAttribute('data-open', ''));
+      await motionEnded(page);
+      // The product closes it; its chevron's turn is held half way, where a frame of the motion would show it.
+      const turning = await item(page, 'single', 'components').evaluate(async (li, every) => {
+        li.removeAttribute('data-open');
+        await Promise.resolve();
+        const turn = ((0, eval)(every) as (root: Element) => Animation[])(li.firstElementChild!).find((motion) => motion instanceof CSSTransition && motion.transitionProperty === 'rotate');
+        if (!turn) return false;
+        turn.pause();
+        turn.currentTime = Number(turn.effect!.getComputedTiming().duration) / 2;
+        (window as unknown as { __turn?: Animation }).__turn = turn;
+        return true;
+      }, EVERY_ANIMATION);
+      expect(turning, `${from}: the closing chevron turns`).toBe(true);
+      // The turn goes on, and in the same task the direction changes.
+      const seen = await sampleFrames(
+        stage(page, 'single'),
+        () =>
+          stage(page, 'single').evaluate((el, dir) => {
+            (window as unknown as { __turn: Animation }).__turn.play();
+            el.setAttribute('dir', dir);
+          }, to),
+        { probe: pointing },
+      );
+      // Closed, chevron_right points to the end of the line: right in left-to-right, left in right-to-left (mirrored).
+      const end = to === 'rtl' ? -1 : 1;
+      expect(seen.rest.probe, `${from} to ${to}: at rest`).toEqual({ x: end, y: 0 });
+      expect(
+        seen.motions.filter((motion) => motion.name === 'rotate').map((motion) => motion.on),
+        `${from} to ${to}: the turn under way is ended in the changing task`,
+      ).toEqual([]);
+      // In no frame does it point up, or back toward the start: it points down at most, on its way to the end.
+      for (const frame of seen.frames) {
+        const tip = frame.probe as { x: number; y: number };
+        expect(tip.y >= 0 && tip.x * end >= 0, `${from} to ${to}, frame ${frame.index}: the tip at ${tip.x}, ${tip.y}`).toBe(true);
+      }
+    }
+  });
+
   test('TRV-38: in a right-to-left layout an icon is mirrored exactly when the icon set marks its name — arrow_forward is, settings is not — in its own box, and never when the product forbids it; the chevron’s quarter turn ends pointing down in both directions', async ({ page }) => {
     await mount(page, { fixtures: [...some('icons-rtl', 'icons'), raw('forbidden', { label: 'Forbidden' }, '<ul><li><span><span class="tanrei-icon" data-mirror="never">arrow_forward</span>لا</span></li></ul>', { direction: 'rtl' })] });
     const glyph = (id: string, label: string) => row(page, id, label).locator('> .tanrei-icon');

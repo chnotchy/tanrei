@@ -1256,19 +1256,25 @@ export class TanreiTreeView extends TanreiLightElement {
   }
 
   /**
-   * Draws at once what `change` does to the open parents' start chevrons — their turn — as a change of open drawn at
-   * once is (`data-tanrei-at-once`): their style is computed with their transition off, which also ends a turn that a
-   * read of style after the change began.
+   * Draws at once what `change` does to the start chevrons of the open parents and of those closing — their turn — as
+   * a change of open drawn at once is (`data-tanrei-at-once`): their style is computed with their turn's transition
+   * off, which also ends a turn under way (a parent's closing, which mirrored the other way would go on from where it
+   * is toward its end, pointing up) and one that a read of style after the change began. Their colour's motion runs on.
    */
   private turnAtOnce(change: () => void) {
-    const open = this.hasUpdated ? [...this.querySelectorAll<Item>(`li:is([data-open], [${FILTER_OPEN}])`)].filter((item) => item.closest(TAG) === this) : [];
-    for (const item of open) item.setAttribute(AT_ONCE, '');
+    const turning = new Set<Item>();
+    if (this.hasUpdated) {
+      for (const item of this.querySelectorAll<Item>(`li:is([data-open], [${FILTER_OPEN}])`)) turning.add(item);
+      for (const list of this.querySelectorAll(`[${MOVING}]`)) if (list.parentElement instanceof HTMLLIElement) turning.add(list.parentElement);
+    }
+    const items = [...turning].filter((item) => item.closest(TAG) === this);
+    for (const item of items) item.setAttribute(AT_ONCE, '');
     change();
-    for (const item of open) {
+    for (const item of items) {
       const row = rowOf(item);
       if (row) void getComputedStyle(row, '::before').rotate;
     }
-    for (const item of open) item.removeAttribute(AT_ONCE);
+    for (const item of items) item.removeAttribute(AT_ONCE);
   }
 
   /** Draws a change of an item's open: its state, its list revealed or hidden, and the focus kept (TRV-12). */
