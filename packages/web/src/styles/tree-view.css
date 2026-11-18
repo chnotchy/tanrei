@@ -58,7 +58,8 @@
  *     (on the tree)                        drawn and turned in right-to-left as in left-to-right (TRV-38)
  *   data-tanrei-leaf (on an li)            an item whose list holds no item and that is not expandable: a leaf (TRV-42)
  *   data-tanrei-moving (on a list)         the list is being revealed or hidden: drawn and clipped while its height moves (TRV-11)
- *   data-tanrei-at-once (on an li)         this change of open is drawn without motion (TRV-9, TRV-14, TRV-42)
+ *   data-tanrei-at-once (on an li)         the chevron's turn is drawn without motion, its colour's motion kept: a
+ *                                          change of open (TRV-9, TRV-14, TRV-42), of direction or mirror (TRV-37, TRV-38)
  *   hidden="until-found" (on a list)       a closed list the browser's find-in-page may still search (TRV-14)
  *   li[data-tanrei-loading]                the loading row, the last item of a loading parent's list (TRV-13)
  *   li[data-tanrei-new]                    a new row, while a new item is named in it (TRV-48)
@@ -1053,8 +1054,11 @@
   }
 
   /* ── Drawn at once (TRV-9, TRV-14, TRV-42), and where motion is reduced (TRV-11, TRV-31) ────────────────────── */
+  /* Only the turn is drawn at once: the chevron's colour moves as it would (a hover, or a theme switched in the task
+     that changes the direction). The turn's place in the list names a property that is never set, so the durations
+     stay paired with their properties, and a turn under way is ended, not left to run to the same end. */
   :where(tanrei-tree-view) :where(li[data-tanrei-at-once]) > :where(:first-child:not(ul, ol))::before {
-    transition: none;
+    transition-property: --_trv-turn-at-once, color;
   }
   @media (prefers-reduced-motion: reduce) {
     :where(tanrei-tree-view) :where(li) > :where(:first-child:not(ul, ol)) {

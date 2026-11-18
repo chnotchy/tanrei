@@ -1826,6 +1826,44 @@ test.describe('right to left', () => {
     expect(await shownRows(page, 'single')).toHaveLength(10);
   });
 
+  test('TRV-37, TRV-4: a change of direction draws only the open chevrons’ turn at once — a change of their colour that the same task makes (a theme switched with the language) still moves over the state’s motion', async ({ page }) => {
+    await mount(page, { fixtures: some('single') });
+    await motionEnded(page);
+    /** The colour of each open parent's start chevron. */
+    const colours = (root: Element) =>
+      Object.fromEntries(['src', 'components'].map((label) => [label, getComputedStyle(root.querySelector(`li[data-t="${label}"] > :first-child`)!, '::before').getPropertyValue('color')]));
+    // Another role for the unselected chevron, and back: a product that switches its theme and its direction at once.
+    for (const [dir, chevron] of [
+      ['rtl', 'var(--tanrei-sys-color-primary)'],
+      ['ltr', ''],
+    ] as const) {
+      const before = await stage(page, 'single').evaluate(colours);
+      const seen = await sampleFrames(
+        stage(page, 'single'),
+        () =>
+          stage(page, 'single').evaluate(
+            (el, [to, name, value]) => {
+              el.style.setProperty(name, value);
+              el.setAttribute('dir', to);
+            },
+            [dir, T('unselected-chevron-color'), chevron] as const,
+          ),
+        { probe: colours },
+      );
+      expect(
+        seen.motions.filter((motion) => motion.name === 'rotate').map((motion) => motion.on),
+        `${dir}: no turn runs`,
+      ).toEqual([]);
+      for (const label of ['src', 'components']) {
+        const drawn = seen.frames.map((frame) => frame.probe[label]);
+        expect(seen.rest.probe[label], `${dir}: ${label}'s chevron has the new colour`).not.toBe(before[label]);
+        // Its first frame is the colour it had, and it passes through others on its way: a motion, not a jump.
+        expect(drawn[0], `${dir}: ${label}'s chevron in the first frame`).toBe(before[label]);
+        expect(new Set(drawn).size, `${dir}: ${label}'s chevron's colours, frame by frame: ${drawn.join(' | ')}`).toBeGreaterThan(3);
+      }
+    }
+  });
+
   test('TRV-38: in a right-to-left layout an icon is mirrored exactly when the icon set marks its name — arrow_forward is, settings is not — in its own box, and never when the product forbids it; the chevron’s quarter turn ends pointing down in both directions', async ({ page }) => {
     await mount(page, { fixtures: [...some('icons-rtl', 'icons'), raw('forbidden', { label: 'Forbidden' }, '<ul><li><span><span class="tanrei-icon" data-mirror="never">arrow_forward</span>لا</span></li></ul>', { direction: 'rtl' })] });
     const glyph = (id: string, label: string) => row(page, id, label).locator('> .tanrei-icon');
