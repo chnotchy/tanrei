@@ -627,7 +627,7 @@
             "labelHidden": "labelHidden",
             "disabled": "disabled"
           },
-          "notes": "A child element: `<tanrei-segment value=\"week\" label=\"Week\" icon=\"…\">`, with `label-hidden` and `disabled` attributes, as `<option>` in a `<select>`."
+          "notes": "A child element: `<tanrei-segment value=\"week\" label=\"Week\" icon=\"…\">`, with `label-hidden` and `disabled` attributes, as `<option>` in a `<select>`. `data-mirror` (`auto`, the default; `always`; `never`) on a `<tanrei-segment>` is the product's word on mirroring the icon it names (SEG-27), as on a glyph the product places itself."
         }
       },
       "parts": {
