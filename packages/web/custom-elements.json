@@ -17273,7 +17273,7 @@
                 "text": "string"
               },
               "default": "''",
-              "description": "The name of the item's glyph in the system's icon set (its ligature text, `upload`). Required. A name the icon set flags is drawn mirrored in right-to-left.",
+              "description": "The name of the item's glyph in the system's icon set (its ligature text, `upload`). Required. A name the icon set flags is drawn mirrored in right-to-left; `data-mirror=\"auto | always | never\"` on the item decides for this use.",
               "attribute": "icon"
             }
           ],
@@ -17299,7 +17299,7 @@
                 "text": "string"
               },
               "default": "''",
-              "description": "The name of the item's glyph in the system's icon set (its ligature text, `upload`). Required. A name the icon set flags is drawn mirrored in right-to-left.",
+              "description": "The name of the item's glyph in the system's icon set (its ligature text, `upload`). Required. A name the icon set flags is drawn mirrored in right-to-left; `data-mirror=\"auto | always | never\"` on the item decides for this use.",
               "fieldName": "icon"
             }
           ],
@@ -18706,7 +18706,7 @@
                 "text": "string"
               },
               "default": "''",
-              "description": "The name of a glyph of the icon set, drawn in place of the one the file's format would choose. Empty lets the format choose.",
+              "description": "The name of a glyph of the icon set, drawn in place of the one the file's format would choose. Empty lets the format choose. A glyph the icon set flags as showing a direction is drawn mirrored in a right-to-left layout; `data-mirror=\"auto | always | never\"` on the item decides for this use (the format's own glyph takes no word).",
               "attribute": "glyph"
             },
             {
@@ -19058,7 +19058,7 @@
                 "text": "string"
               },
               "default": "''",
-              "description": "The name of a glyph of the icon set, drawn in place of the one the file's format would choose. Empty lets the format choose.",
+              "description": "The name of a glyph of the icon set, drawn in place of the one the file's format would choose. Empty lets the format choose. A glyph the icon set flags as showing a direction is drawn mirrored in a right-to-left layout; `data-mirror=\"auto | always | never\"` on the item decides for this use (the format's own glyph takes no word).",
               "fieldName": "glyph"
             },
             {
