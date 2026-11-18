@@ -282,6 +282,17 @@ By default the trailing half holds the chevron in a square of the button's heigh
 
 A narrow trailing half is drawn narrower than the minimum target, but its hit area is not: the target reaches outward, past the end edge. Leave room for it there, as beside a narrow icon-only Button.
 
+### Full width
+
+Set `full-width` to make a button with menu as wide as its container, such as the one action at the foot of a narrow form, a card or a sheet. The leading half takes the extra width and centres its icon and label in it, as a full-width [Button](/components/button/#full-width) does; the trailing half keeps its own width, default or narrow. Both halves keep the height, the paddings and the corners of their size, and a label that does not fit wraps rather than being cut off. In a [toolbar](/components/toolbar/), the toolbar decides the width and `full-width` does nothing.
+
+<Example label="Full width">
+  <div style="inline-size: 20rem; display: grid; gap: 0.75rem">
+    <tanrei-button-with-menu full-width label="Save" menu-label="More save options"><span slot="icon">save</span></tanrei-button-with-menu>
+    <tanrei-button-with-menu variant="outlined" full-width trailing-width="narrow" label="Merge" menu-label="More merge options"></tanrei-button-with-menu>
+  </div>
+</Example>
+
 ### Destructive actions
 
 Set `destructive` on a button with menu whose main action deletes or discards something a person may not get back: Delete, with "Delete all versions" in its menu. Both halves keep the emphasis of the variant and take the error color in it, as a destructive [Button](/components/button/#destructive-actions) of the same variant does. A filled one is filled with the error color and a tonal one with the error container; an elevated or outlined one draws its label and chevron in the error color, and an outlined one its edge and divider too. Disabled, it looks like any disabled button with menu of its variant.

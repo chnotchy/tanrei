@@ -2,7 +2,7 @@
 title: زر مع قائمة
 description: ينفّذ إجراء رئيسيًّا بضغطة واحدة، ويقدّم إجراءات مرتبطة به في قائمة خيارات من زر ثانٍ موصول بجانبه.
 translationOf: components/button-with-menu.mdx
-sourceHash: fc9fa1614058622bad95aa4f9dbc578e3c4dc196
+sourceHash: 47ec0e350aae6acb1cf1aa3da68162409befa062
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -283,6 +283,17 @@ import Example from '../../../../components/visuals/Example.astro';
 </Example>
 
 يُرسم نصف النهاية الضيق أضيق من الحد الأدنى للهدف، لكن مساحة لمسه ليست كذلك: فالهدف يمتد نحو الخارج، إلى ما وراء حافة النهاية. اترك له فسحة هناك، كما تترك بجانب زر ضيق ذي أيقونة وحدها.
+
+### بعرض كامل
+
+أضف `full-width` ليصير الزر مع قائمة بعرض حاويته، مثل الإجراء الوحيد في أسفل نموذج أو بطاقة أو لوحة ضيقة. ويأخذ نصف البداية العرض الزائد كله ويضع أيقونته وتسميته في وسطه، كما يفعل [زر](/ar/components/button/#بعرض-كامل) بعرض كامل؛ ويحتفظ نصف النهاية بعرضه، default كان أو narrow. ويحتفظ النصفان بارتفاع حجمهما وهوامشهما الداخلية وزواياهما، والتسمية التي لا تتسع تنتقل إلى السطر التالي بدل أن تُقطع. وفي [شريط أدوات](/ar/components/toolbar/) يقرر الشريط العرض، ولا تفعل `full-width` شيئًا.
+
+<Example label="بعرض كامل">
+  <div style="inline-size: 20rem; display: grid; gap: 0.75rem">
+    <tanrei-button-with-menu full-width label="حفظ" menu-label="خيارات حفظ إضافية"><span slot="icon">save</span></tanrei-button-with-menu>
+    <tanrei-button-with-menu variant="outlined" full-width trailing-width="narrow" label="دمج" menu-label="خيارات دمج إضافية"></tanrei-button-with-menu>
+  </div>
+</Example>
 
 ### الإجراءات المدمرة
 

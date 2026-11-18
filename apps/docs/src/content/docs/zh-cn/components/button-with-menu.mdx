@@ -2,7 +2,7 @@
 title: "带菜单的按钮"
 description: "按一次即可执行主操作，并通过旁边与之相连的第二个按钮，在菜单中提供相关的操作。"
 translationOf: components/button-with-menu.mdx
-sourceHash: fc9fa1614058622bad95aa4f9dbc578e3c4dc196
+sourceHash: 47ec0e350aae6acb1cf1aa3da68162409befa062
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -283,6 +283,17 @@ Material 3 把对应的组件称为 split button；在 m3-like 预设中，带�
 </Example>
 
 窄的后半边画出来比最小目标窄，但点击区域并不窄：目标向外延伸，越过末尾侧的边缘。请在那里为它留出空间，就像在 narrow 纯图标 Button 旁边一样。
+
+### 全宽
+
+设置 `full-width`，带菜单的按钮就和它的容器一样宽，例如窄表单、卡片或面板底部唯一的操作。多出来的宽度都给前半边，它把图标和标签放在其中居中，和全宽的[按钮](/zh-cn/components/button/#全宽)一样；后半边保持自己的宽度，无论是 default 还是 narrow。两个半边都保持自己尺寸的高度、内边距和圆角，放不下的标签会换行，而不会被截断。在[工具栏](/zh-cn/components/toolbar/)里，宽度由工具栏决定，`full-width` 不起作用。
+
+<Example label="全宽">
+  <div style="inline-size: 20rem; display: grid; gap: 0.75rem">
+    <tanrei-button-with-menu full-width label="保存" menu-label="更多保存选项"><span slot="icon">save</span></tanrei-button-with-menu>
+    <tanrei-button-with-menu variant="outlined" full-width trailing-width="narrow" label="合并" menu-label="更多合并选项"></tanrei-button-with-menu>
+  </div>
+</Example>
 
 ### 破坏性操作
 

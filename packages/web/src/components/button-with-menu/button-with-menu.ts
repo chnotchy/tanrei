@@ -44,6 +44,9 @@ export interface TanreiButtonWithMenuCloseDetail {
 /** The menu's item kinds, as the menu spec defines them: what the menu slot presents. */
 const MENU_CONTENT = 'tanrei-menu-item, tanrei-menu-checkbox-item, tanrei-menu-radio-item, tanrei-submenu';
 
+/** SPB-38: the component that lays a button with menu out, and gives it its width (TBR-9). */
+const TOOLBAR = 'tanrei-toolbar';
+
 /**
  * SPB-33: the internal channel by which a component that keeps one Tab stop among its items makes each half a stop of
  * its own (a toolbar, TBR-25): which half is its Tab stop (0 the leading, 1 the trailing, null neither), and the two
@@ -139,6 +142,7 @@ export class TanreiButtonWithMenu extends TanreiElement {
     size: { type: String, noAccessor: true },
     separation: { type: String, reflect: true },
     trailingWidth: { type: String, reflect: true, attribute: 'trailing-width' },
+    fullWidth: { type: Boolean, reflect: true, attribute: 'full-width' },
     label: { type: String },
     menuLabel: { type: String, attribute: 'menu-label' },
     open: { type: Boolean, reflect: true },
@@ -208,6 +212,14 @@ export class TanreiButtonWithMenu extends TanreiElement {
    * builds, SPB-8).
    */
   trailingWidth: TanreiButtonWithMenuTrailingWidth = 'default';
+
+  /**
+   * Takes the whole width its container gives it, at the height of its size (the `full-width` attribute, SPB-38): the
+   * leading half takes the extra width, its icon and label centred in it as a full-width Button's are, and the trailing
+   * half keeps the width `trailing-width` gives it. A label that does not fit wraps, its lines centred. Ignored in a
+   * toolbar, which lays the button with menu out and gives it its width.
+   */
+  fullWidth = false;
 
   /** The leading half's visible text and accessible name ("Save"). Required. */
   label = '';
@@ -366,6 +378,10 @@ export class TanreiButtonWithMenu extends TanreiElement {
 
   override connectedCallback() {
     super.connectedCallback();
+    // SPB-38: the custom state `placed` while a toolbar lays the button with menu out (it is the toolbar's child, or its
+    // group's): `full-width` does nothing under it, so the toolbar's width holds. Moving it in or out connects it again.
+    if (this.parentElement?.closest(TOOLBAR)) this.internals.states.add('placed');
+    else this.internals.states.delete('placed');
     this.children$.observe(this, { childList: true, subtree: true, attributes: true, attributeFilter: ['slot'] });
     this.readChildren();
     // SPB-20: a parser or a framework may append the children after the element connects; the menu slot is judged

@@ -2247,6 +2247,106 @@ test.describe('the size a container sets', () => {
   });
 });
 
+test.describe('full width', () => {
+  /** The inline size of a fixture's stage, inside its padding: the width its container gives the button with menu. */
+  const room = (page: P, id: string) =>
+    page.locator(`[data-fixture="${id}"]`).evaluate((el) => {
+      const s = getComputedStyle(el);
+      return el.getBoundingClientRect().width - Number.parseFloat(s.paddingLeft) - Number.parseFloat(s.paddingRight);
+    });
+  /** Where the leading half's content (the icon and the label) stands in its content box: the room before and after it. */
+  const content = (page: P, id: string) =>
+    leading(page, id).evaluate((el) => {
+      const s = getComputedStyle(el);
+      const r = el.getBoundingClientRect();
+      const parts = [...el.querySelectorAll('.icon, .label')].map((p) => p.getBoundingClientRect()).filter((b) => b.width > 0);
+      const left = Math.min(...parts.map((b) => b.left));
+      const right = Math.max(...parts.map((b) => b.right));
+      return { before: left - (r.left + Number.parseFloat(s.paddingLeft)), after: r.right - Number.parseFloat(s.paddingRight) - right, parts: parts.length };
+    });
+  const icon = { slots: { icon: 'save' } };
+
+  test('SPB-38: full width, the button with menu is as wide as its container; the trailing half keeps its own width at either trailingWidth and either separation, the leading half takes the rest at its size’s height, its icon and label centred as one row; without full width it is as wide as its content again', async ({ page }) => {
+    await mountFixtures(page, spec, {
+      icons: true,
+      fixtures: [
+        spec.fixtures.find((f) => f.id === 'filled-full-width')!,
+        { ...fixture('plain', { variant: 'filled' }), ...icon },
+        fixture('narrow-gap-full', { variant: 'outlined', separation: 'gap', trailingWidth: 'narrow', fullWidth: true }),
+        fixture('narrow-gap', { variant: 'outlined', separation: 'gap', trailingWidth: 'narrow' }),
+      ],
+    });
+    await measured(page);
+    const height = await resolveToken(page, T('container-height-medium'));
+    for (const [id, own] of [['filled-full-width', 'plain'], ['narrow-gap-full', 'narrow-gap']] as const) {
+      const space = await room(page, id);
+      const [whole, lead, trail, trailOwn] = [await bounds(host(page, id)), await bounds(leading(page, id)), await bounds(trailing(page, id)), await bounds(trailing(page, own))];
+      expect(Math.abs(whole.width - space), `${id}: as wide as its container`).toBeLessThan(0.5);
+      expect(Math.abs(trail.width - trailOwn.width), `${id}: the trailing half keeps its width`).toBeLessThan(0.5);
+      // The leading half takes the rest: under divider the halves touch; under gap they stand inner-gap apart.
+      const gap = id === 'narrow-gap-full' ? await resolveToken(page, T('container-inner-gap')) : 0;
+      expect(Math.abs(lead.width + gap + trail.width - space), `${id}: the leading half takes the rest`).toBeLessThan(0.5);
+      for (const box of [lead, trail]) expect(Math.abs(box.height - height), `${id}: its size’s height`).toBeLessThan(0.5);
+      const drawn = await content(page, id);
+      expect(Math.abs(drawn.before - drawn.after), `${id}: content centred`).toBeLessThan(1);
+      expect(drawn.before, id).toBeGreaterThan(0);
+    }
+    expect((await content(page, 'filled-full-width')).parts).toBe(2);
+    // Without full width it is as wide as its content again.
+    await host(page, 'filled-full-width').evaluate(async (el: HTMLElement & { fullWidth: boolean; updateComplete: Promise<unknown> }) => {
+      el.fullWidth = false;
+      await el.updateComplete;
+    });
+    expect(Math.abs((await bounds(host(page, 'filled-full-width'))).width - (await bounds(host(page, 'plain'))).width)).toBeLessThan(0.5);
+  });
+
+  test('SPB-38: a full-width button with menu whose leading half is narrower than its label wraps it, its lines centred, inside its container; the trailing half keeps its width', async ({ page }) => {
+    await mountFixtures(page, spec, { icons: true, fixtures: [fixture('long', { variant: 'tonal', fullWidth: true, label: 'Save to every region now' }), fixture('short', { variant: 'tonal' })] });
+    await page.evaluate(() => {
+      for (const stage of document.querySelectorAll<HTMLElement>('[data-fixture]')) stage.style.inlineSize = '160px';
+    });
+    await measured(page);
+    const whole = await bounds(host(page, 'long'));
+    expect(whole.width).toBeLessThanOrEqual(160.5);
+    expect(Math.abs((await bounds(trailing(page, 'long'))).width - (await bounds(trailing(page, 'short'))).width)).toBeLessThan(0.5);
+    const label = await leading(page, 'long')
+      .locator('.label')
+      .evaluate((el) => ({ height: el.getBoundingClientRect().height, line: Number.parseFloat(getComputedStyle(el).lineHeight), align: getComputedStyle(el).textAlign, fits: el.scrollWidth <= el.clientWidth }));
+    expect(label.height).toBeGreaterThan(label.line * 1.5);
+    expect(label.align).toBe('center');
+    expect(label.fits).toBe(true);
+    // Both halves grow together with the wrapped label.
+    expect(Math.abs((await bounds(trailing(page, 'long'))).height - (await bounds(leading(page, 'long'))).height)).toBeLessThan(0.5);
+  });
+
+  test('SPB-38: a toolbar lays the button with menu out and gives it its width — a full-width one in a toolbar is as wide as one without full width, and takes its whole container again once moved out', async ({ page }) => {
+    await mountFixtures(page, spec, { fixtures: [fixture('alone', { variant: 'filled' })] });
+    const widths = await page.evaluate(async () => {
+      const toolbar = document.createElement('tanrei-toolbar');
+      toolbar.setAttribute('label', 'Actions');
+      toolbar.style.inlineSize = '480px';
+      const item = (id: string, full: boolean) => `<tanrei-button-with-menu id="${id}"${full ? ' full-width' : ''} label="Save" menu-label="More save options"></tanrei-button-with-menu>`;
+      toolbar.innerHTML = `${item('free', false)}${item('full', true)}`;
+      document.body.appendChild(toolbar);
+      await customElements.whenDefined('tanrei-toolbar');
+      await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+      const width = (id: string) => Math.round(document.getElementById(id)!.getBoundingClientRect().width * 10) / 10;
+      const inside = { free: width('free'), full: width('full'), placed: document.getElementById('full')!.matches(':state(placed)') };
+      // Moved out of the toolbar, into a box of its own: it fills that box.
+      const box = document.createElement('div');
+      box.style.inlineSize = '300px';
+      document.body.appendChild(box);
+      box.appendChild(document.getElementById('full')!);
+      await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+      return { ...inside, out: width('full'), placedOut: document.getElementById('full')!.matches(':state(placed)') };
+    });
+    expect(widths.placed).toBe(true);
+    expect(widths.full).toBe(widths.free);
+    expect(widths.placedOut).toBe(false);
+    expect(widths.out).toBe(300);
+  });
+});
+
 test.describe('fixtures', () => {
   for (const f of spec.fixtures) {
     test(`snapshot: ${f.id}`, async ({ page }) => {

@@ -151,6 +151,18 @@ export const styles = css`
     min-inline-size: 0;
     max-inline-size: 100%;
   }
+  /* SPB-38: full width — the host is as wide as its container, and the leading half takes everything beyond what the
+     two halves need, its content centred (the half's own centring, as a full-width Button's) and its label wrapping,
+     lines centred, where it does not fit; the trailing half keeps the width trailing-width gives it. Under the custom
+     state \`placed\` a toolbar lays the button with menu out and gives it its width, so none of this applies. */
+  :host([full-width]:not(:state(placed))) {
+    display: flex;
+    inline-size: 100%;
+  }
+  :host([full-width]:not(:state(placed))) .row,
+  :host([full-width]:not(:state(placed))) .leading {
+    flex: 1 1 auto;
+  }
   /* The menu's host holds nothing in the flow: its surface is in the top layer. */
   tanrei-menu {
     position: absolute;

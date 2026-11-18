@@ -2,7 +2,7 @@
 title: Botón con menú
 description: Realiza una acción principal con una sola pulsación y ofrece acciones relacionadas en un menú desde un segundo botón unido a su lado.
 translationOf: components/button-with-menu.mdx
-sourceHash: fc9fa1614058622bad95aa4f9dbc578e3c4dc196
+sourceHash: 47ec0e350aae6acb1cf1aa3da68162409befa062
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -283,6 +283,17 @@ De forma predeterminada, la mitad final contiene el chevron en un cuadrado de la
 </Example>
 
 Una mitad final estrecha se dibuja más estrecha que el objetivo mínimo, pero su área de pulsación no lo es: el objetivo se extiende hacia fuera, más allá del borde de fin. Déjale espacio ahí, como junto a un Button estrecho de solo icono.
+
+### Ancho completo
+
+Añade `full-width` para que un botón con menú sea tan ancho como su contenedor, por ejemplo la única acción al pie de un formulario, una tarjeta o una hoja estrechos. La mitad inicial se queda con el ancho de más y centra en él su icono y su etiqueta, como un [Button](/es/components/button/#ancho-completo) de ancho completo; la mitad final conserva su propio ancho, default o narrow. Las dos mitades conservan la altura, los márgenes interiores y las esquinas de su tamaño, y una etiqueta que no cabe pasa a la línea siguiente en lugar de cortarse. En una [barra de herramientas](/es/components/toolbar/), es la barra la que decide el ancho y `full-width` no hace nada.
+
+<Example label="Ancho completo">
+  <div style="inline-size: 20rem; display: grid; gap: 0.75rem">
+    <tanrei-button-with-menu full-width label="Guardar" menu-label="Más opciones de guardado"><span slot="icon">save</span></tanrei-button-with-menu>
+    <tanrei-button-with-menu variant="outlined" full-width trailing-width="narrow" label="Fusionar" menu-label="Más opciones de fusión"></tanrei-button-with-menu>
+  </div>
+</Example>
 
 ### Acciones destructivas
 
