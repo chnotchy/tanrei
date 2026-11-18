@@ -198,6 +198,86 @@ test.describe('sampleFrames', () => {
     });
     await expect(sampled).rejects.toThrow(/sampleFrames: a motion began and ended between two frames read here[^]*transition \|background-color on div/);
   });
+
+  // A transition turned back before it began: its state written and read, then written back and read, in one frame's
+  // callback, before that frame's style (a carousel's settle aiming back from the frame its scroll changed a control).
+  // The engine cancels it and replaces it with its way back shortened to no length, whose `transitionrun` and
+  // `transitionend` come together, with an `elapsedTime` of 0. Between these two `color-mix()` values (as a
+  // component's state tokens write them) all three engines do; between two plain colours Chromium and WebKit only
+  // cancel it.
+  const TURNED =
+    '<style>#turned { inline-size: 10px; block-size: 10px; background-color: color-mix(in srgb, rgb(0, 0, 255) 12%, transparent); transition: background-color 250ms linear; } #turned.on { background-color: color-mix(in srgb, rgb(0, 0, 255) 100%, transparent); }</style><div id="turned"></div>';
+  /** Records the elapsed time of every `transitionend` of `#turned`, in the page's `ends`. */
+  const hearEnds = (page: Page) =>
+    page.locator('#turned').evaluate((el) => {
+      const w = window as unknown as { ends: number[] };
+      w.ends = [];
+      el.addEventListener('transitionend', (event) => w.ends.push((event as TransitionEvent).elapsedTime));
+    });
+  const ends = (page: Page) => page.evaluate(() => (window as unknown as { ends: number[] }).ends);
+  const turnedColour: Probe = (root) => ({ colour: getComputedStyle(root.querySelector('#turned')!).backgroundColor });
+
+  test('a transition turned back before it began, shortened to no length, is no motion missed: nothing was drawn moving', async ({ page }) => {
+    await stage(page, TURNED);
+    await hearEnds(page);
+    const seen = await sampleFrames(
+      page.locator('#stage'),
+      async () => {
+        await page.locator('#turned').evaluate(
+          (el) =>
+            new Promise<void>((resolve) =>
+              requestAnimationFrame(() => {
+                el.classList.add('on');
+                void getComputedStyle(el).backgroundColor;
+                el.classList.remove('on');
+                void getComputedStyle(el).backgroundColor;
+                resolve();
+              }),
+            ),
+        );
+        // Its events come in the next frame: two frames go by before the act ends.
+        await twoFrames(page);
+      },
+      { probe: turnedColour },
+    );
+    expect(await ends(page), 'the way back ran and ended at once, for no time').toEqual([0]);
+    expect(seen.motions).toEqual([]);
+    expect(seen.complete).toBe(true);
+    // Every frame shows it where it stood.
+    expect([...new Set([...seen.frames, seen.rest].map((frame) => frame.probe.colour))]).toEqual([seen.before.probe.colour]);
+    expectFirstFrameAtRest(seen);
+  });
+
+  test('…while a short motion begun and ended between two frames, and a transition turned back after it had run, still fail the sampling: each ran for a time no frame shows', async ({ page }) => {
+    // A transition of 20 ms, little more than a frame, finished in the task that begins it.
+    await stage(page, BAR);
+    const short = sampleFrames(page.locator('#stage'), async () => {
+      await page.locator('#bar').evaluate((el: HTMLElement) => {
+        el.style.transitionDuration = '20ms';
+        el.style.inlineSize = '200px';
+        void getComputedStyle(el).inlineSize;
+        for (const animation of el.getAnimations()) animation.finish();
+      });
+      await twoFrames(page);
+    });
+    await expect(short).rejects.toThrow(/sampleFrames: a motion began and ended between two frames read here[^]*transition \|(inline-size|width) on div/);
+    // Turned back 100 ms into its way: the way back is 100 ms long, and is finished in the same task.
+    await stage(page, TURNED);
+    await hearEnds(page);
+    const turned = sampleFrames(page.locator('#stage'), async () => {
+      await page.locator('#turned').evaluate((el) => {
+        el.classList.add('on');
+        void getComputedStyle(el).backgroundColor;
+        for (const animation of el.getAnimations()) animation.currentTime = 100;
+        el.classList.remove('on');
+        void getComputedStyle(el).backgroundColor;
+        for (const animation of el.getAnimations()) animation.finish();
+      });
+      await twoFrames(page);
+    });
+    await expect(turned).rejects.toThrow(/sampleFrames: a motion began and ended between two frames read here[^]*transition \|background-color on div/);
+    expect(await ends(page), 'the way back ended after 100 ms').toEqual([expect.closeTo(0.1, 3)]);
+  });
 });
 
 // An element whose mark turns blue: in its first update (right), from a resize observer under a transition (the first
