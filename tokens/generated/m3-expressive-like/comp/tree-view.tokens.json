@@ -224,10 +224,12 @@
             "$type": "dimension",
             "$description": "The box of the glyph before the label, per size: a navigation drawer's destination glyph, medium its regular row's and small its compact row's, so that a tree beside a drawer draws its glyphs at the drawer's size. The glyph is centred on the label's first line.",
             "medium": {
-              "$value": "{tanrei.comp.navigation-drawer.item.icon.size.regular}"
+              "$value": "{tanrei.sys.icon.small}",
+              "$extensions": {}
             },
             "small": {
-              "$value": "{tanrei.comp.navigation-drawer.item.icon.size.compact}"
+              "$value": "{tanrei.sys.icon.extra-small}",
+              "$extensions": {}
             }
           },
           "gap": {

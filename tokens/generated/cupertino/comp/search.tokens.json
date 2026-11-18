@@ -283,7 +283,18 @@
                 }
               },
               "small": {
-                "$value": "{tanrei.comp.combobox.option.height.small}"
+                "$value": {
+                  "value": 32,
+                  "unit": "px"
+                },
+                "$extensions": {
+                  "dev.tanrei.derive": {
+                    "fn": "mul",
+                    "of": "{tanrei.sys.control.height.small}",
+                    "by": 1,
+                    "min": "{tanrei.sys.target.minimum}"
+                  }
+                }
               }
             },
             "padding-inline": {
@@ -294,17 +305,38 @@
                 "$extensions": {}
               },
               "small": {
-                "$value": "{tanrei.comp.combobox.option.padding-inline.small}"
+                "$value": "{tanrei.comp.tree-view.container.padding-inline.small}",
+                "$extensions": {}
               }
             },
             "padding-block": {
               "$type": "dimension",
               "$description": "Above and below a suggestion's text: a combobox option's, which goes with the height and the text style the suggestion takes from it.",
               "medium": {
-                "$value": "{tanrei.comp.combobox.option.padding-block.medium}"
+                "$value": {
+                  "value": 8,
+                  "unit": "px"
+                },
+                "$extensions": {
+                  "dev.tanrei.derive": {
+                    "fn": "pad",
+                    "of": "{tanrei.sys.space.space100}",
+                    "height": "{tanrei.comp.search.suggestion.container.height.medium}"
+                  }
+                }
               },
               "small": {
-                "$value": "{tanrei.comp.combobox.option.padding-block.small}"
+                "$value": {
+                  "value": 4,
+                  "unit": "px"
+                },
+                "$extensions": {
+                  "dev.tanrei.derive": {
+                    "fn": "pad",
+                    "of": "{tanrei.sys.space.space50}",
+                    "height": "{tanrei.comp.search.suggestion.container.height.small}"
+                  }
+                }
               }
             },
             "gap": {
@@ -315,7 +347,8 @@
                 "$extensions": {}
               },
               "small": {
-                "$value": "{tanrei.comp.combobox.option.gap.small}"
+                "$value": "{tanrei.comp.tree-view.container.gap.small}",
+                "$extensions": {}
               }
             },
             "shape": {
@@ -333,7 +366,7 @@
           "completion": {
             "emphasis": {
               "$type": "number",
-              "$description": "How much weight the completion of a query suggestion gains — the part of its headline after the query as typed, and an inline completion in the query row — added to the weight of suggestion.headline.typescale. Weight alone, in the headline's own color and with no fill: the completion is what the person has not typed, read to tell the suggestions apart, not a match. Three of the emphasis steps of the headline's family, the labels (500 to 800 in the default system), as web search boxes set it in bold: weight is all that tells it apart, where a match (result.mark) has its color and its fill as well, so one step would hardly show.",
+              "$description": "How much weight the completion of a query suggestion gains — the part of its headline after the query as typed, and an inline completion in the query row — added to the weight of suggestion.headline.typescale. Weight alone, in the headline's own color and with no fill: the completion is what the person has not typed, read to tell the suggestions apart, not a match. Two of the emphasis steps of the headline's family, the labels (500 to 700, bold, in the default system), as web search boxes draw it: weight is all that tells it apart, where a match (result.mark) has its color and its fill as well, so one step would hardly show.",
               "$value": "{tanrei.sys.typescale.emphasis.body}",
               "$extensions": {
                 "dev.tanrei.vocabulary": {
@@ -359,7 +392,8 @@
             "typescale": {
               "$type": "typography",
               "$description": "A suggestion's and a result's headline: a combobox option's label.",
-              "$value": "{tanrei.comp.combobox.option.label.typescale}"
+              "$value": "{tanrei.sys.typescale.body}",
+              "$extensions": {}
             }
           },
           "supporting-text": {

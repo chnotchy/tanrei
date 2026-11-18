@@ -7376,7 +7376,7 @@ private let cupertinoSearchTokens = TanreiSearchTokens(
   statusTypescale: cupertinoTypescale.bodySmall,
   suggestionCompletionEmphasis: 200,
   suggestionContainerShape: 8,
-  suggestionHeadlineTypescale: cupertinoTypescale.bodyLarge,
+  suggestionHeadlineTypescale: cupertinoTypescale.body,
   suggestionSupportingTextTypescale: cupertinoTypescale.bodySmall,
   triggerContainerGap: 8,
   triggerContainerHeight: 40,
@@ -7477,7 +7477,7 @@ private let cupertinoSearchTokens = TanreiSearchTokens(
     small: TanreiSearchSizeTokens(
       suggestionContainerHeight: 32,
       suggestionContainerPaddingInline: 8,
-      suggestionContainerPaddingBlock: 6,
+      suggestionContainerPaddingBlock: 4,
       suggestionContainerGap: 8,
       suggestionLeadingIconSize: 20
     ),
@@ -8837,7 +8837,7 @@ private let cupertinoTableOfContentsTokens = TanreiTableOfContentsTokens(
   railWidth: 1,
   rowIndent: 12,
   rowPaddingInline: 12,
-  rowShape: 8,
+  rowShape: 4,
   titleColor: .role(.onSurface),
   titleTypescale: cupertinoTypescale.label,
   parts: TanreiTableOfContentsParts(

@@ -6949,7 +6949,7 @@ private object TanreiSystemSource {
             statusColor = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant),
             statusErrorColor = TanreiPaint.Role(TanreiColorRole.Error),
             statusTypescale = typescale.bodySmall,
-            suggestionCompletionEmphasis = 300f,
+            suggestionCompletionEmphasis = 200f,
             suggestionContainerShape = 4.dp,
             suggestionHeadlineTypescale = typescale.label,
             suggestionSupportingTextTypescale = typescale.bodySmall,

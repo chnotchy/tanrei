@@ -7203,7 +7203,7 @@ const TanreiSystem tonePerStateSystem = TanreiSystem(
     statusColor: TanreiPaint.role(TanreiColorRole.onSurfaceVariant),
     statusErrorColor: TanreiPaint.role(TanreiColorRole.error),
     statusTypescale: _typescaleBodySmall,
-    suggestionCompletionEmphasis: 300.0,
+    suggestionCompletionEmphasis: 200.0,
     suggestionContainerShape: 4.0,
     suggestionHeadlineTypescale: _typescaleLabel,
     suggestionSupportingTextTypescale: _typescaleBodySmall,

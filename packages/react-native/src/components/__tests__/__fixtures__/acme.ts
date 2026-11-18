@@ -12134,7 +12134,7 @@ export const acme = {
       statusColor: { kind: "role", role: "onSurfaceVariant" },
       statusErrorColor: { kind: "role", role: "error" },
       statusTypescale: "bodySmall",
-      suggestionCompletionEmphasis: 300,
+      suggestionCompletionEmphasis: 200,
       suggestionContainerShape: 4,
       suggestionHeadlineTypescale: "label",
       suggestionSupportingTextTypescale: "bodySmall",

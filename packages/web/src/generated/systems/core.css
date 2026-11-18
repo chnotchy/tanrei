@@ -6185,7 +6185,7 @@
     --tanrei-comp-search-status-typescale-letter-spacing: var(--tanrei-sys-typescale-body-small-letter-spacing);
     --tanrei-comp-search-status-typescale-line-height: var(--tanrei-sys-typescale-body-small-line-height);
     --tanrei-comp-search-status-typescale-font: var(--tanrei-sys-typescale-body-small-font);
-    --tanrei-comp-search-suggestion-completion-emphasis: calc(var(--tanrei-sys-typescale-emphasis-label) * 3);
+    --tanrei-comp-search-suggestion-completion-emphasis: calc(var(--tanrei-sys-typescale-emphasis-label) * 2);
     --tanrei-comp-search-suggestion-container-gap-medium: var(--tanrei-comp-combobox-option-gap-medium);
     --tanrei-comp-search-suggestion-container-gap-small: var(--tanrei-comp-combobox-option-gap-small);
     --tanrei-comp-search-suggestion-container-height-medium: var(--tanrei-comp-combobox-option-height-medium);

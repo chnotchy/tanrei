@@ -7489,9 +7489,9 @@ private let m3LikeSearchTokens = TanreiSearchTokens(
   statusColor: .role(.onSurfaceVariant),
   statusErrorColor: .role(.error),
   statusTypescale: m3LikeTypescale.bodySmall,
-  suggestionCompletionEmphasis: 600,
+  suggestionCompletionEmphasis: 300,
   suggestionContainerShape: 8,
-  suggestionHeadlineTypescale: m3LikeTypescale.label,
+  suggestionHeadlineTypescale: m3LikeTypescale.body,
   suggestionSupportingTextTypescale: m3LikeTypescale.bodySmall,
   triggerContainerGap: 8,
   triggerContainerHeight: 40,
@@ -7592,15 +7592,15 @@ private let m3LikeSearchTokens = TanreiSearchTokens(
     small: TanreiSearchSizeTokens(
       suggestionContainerHeight: 32,
       suggestionContainerPaddingInline: 8,
-      suggestionContainerPaddingBlock: 6,
+      suggestionContainerPaddingBlock: 4,
       suggestionContainerGap: 8,
       suggestionLeadingIconSize: 20
     ),
     medium: TanreiSearchSizeTokens(
-      suggestionContainerHeight: 48,
-      suggestionContainerPaddingInline: 12,
+      suggestionContainerHeight: 56,
+      suggestionContainerPaddingInline: 16,
       suggestionContainerPaddingBlock: 8,
-      suggestionContainerGap: 12,
+      suggestionContainerGap: 16,
       suggestionLeadingIconSize: 24
     )
   ),
@@ -8952,7 +8952,7 @@ private let m3LikeTableOfContentsTokens = TanreiTableOfContentsTokens(
   railWidth: 1,
   rowIndent: 12,
   rowPaddingInline: 12,
-  rowShape: 8,
+  rowShape: 4,
   titleColor: .role(.onSurface),
   titleTypescale: m3LikeTypescale.label,
   parts: TanreiTableOfContentsParts(
@@ -9982,7 +9982,7 @@ private let m3LikeTreeViewTokens = TanreiTreeViewTokens(
       containerGap: 12,
       levelIndent: 32,
       labelTypescale: m3LikeTypescale.body,
-      iconSize: 24,
+      iconSize: 20,
       chevronSize: 20
     )
   ),

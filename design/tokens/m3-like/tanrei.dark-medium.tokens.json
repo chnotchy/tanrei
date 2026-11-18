@@ -75950,8 +75950,8 @@
           "completion": {
             "emphasis": {
               "$type": "number",
-              "$value": 600,
-              "$description": "How much weight the completion of a query suggestion gains — the part of its headline after the query as typed, and an inline completion in the query row — added to the weight of suggestion.headline.typescale. Weight alone, in the headline's own color and with no fill: the completion is what the person has not typed, read to tell the suggestions apart, not a match. Three of the emphasis steps of the headline's family, the labels (500 to 800 in the default system), as web search boxes set it in bold: weight is all that tells it apart, where a match (result.mark) has its color and its fill as well, so one step would hardly show."
+              "$value": 300,
+              "$description": "How much weight the completion of a query suggestion gains — the part of its headline after the query as typed, and an inline completion in the query row — added to the weight of suggestion.headline.typescale. Weight alone, in the headline's own color and with no fill: the completion is what the person has not typed, read to tell the suggestions apart, not a match. Two of the emphasis steps of the headline's family, the labels (500 to 700, bold, in the default system), as web search boxes draw it: weight is all that tells it apart, where a match (result.mark) has its color and its fill as well, so one step would hardly show."
             }
           },
           "container": {
@@ -75959,7 +75959,7 @@
               "medium": {
                 "$type": "dimension",
                 "$value": {
-                  "value": 12,
+                  "value": 16,
                   "unit": "px"
                 }
               },
@@ -75975,7 +75975,7 @@
               "medium": {
                 "$type": "dimension",
                 "$value": {
-                  "value": 48,
+                  "value": 56,
                   "unit": "px"
                 }
               },
@@ -75998,7 +75998,7 @@
               "small": {
                 "$type": "dimension",
                 "$value": {
-                  "value": 6,
+                  "value": 4,
                   "unit": "px"
                 }
               }
@@ -76007,7 +76007,7 @@
               "medium": {
                 "$type": "dimension",
                 "$value": {
-                  "value": 12,
+                  "value": 16,
                   "unit": "px"
                 }
               },
@@ -76041,9 +76041,9 @@
                   "value": 14,
                   "unit": "px"
                 },
-                "fontWeight": 500,
+                "fontWeight": 400,
                 "letterSpacing": {
-                  "value": 0.1,
+                  "value": 0.25,
                   "unit": "px"
                 },
                 "lineHeight": 1.4286
@@ -90779,7 +90779,7 @@
           "shape": {
             "$type": "dimension",
             "$value": {
-              "value": 8,
+              "value": 4,
               "unit": "px"
             },
             "$description": "The corners of a row's container, where hover, focus and press are drawn, and of the focus ring inside it."
@@ -99832,7 +99832,7 @@
             "medium": {
               "$type": "dimension",
               "$value": {
-                "value": 24,
+                "value": 20,
                 "unit": "px"
               }
             },

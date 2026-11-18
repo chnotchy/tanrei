@@ -11118,9 +11118,9 @@ export const m3ExpressiveLike = {
       statusColor: { kind: "role", role: "onSurfaceVariant" },
       statusErrorColor: { kind: "role", role: "error" },
       statusTypescale: "bodySmall",
-      suggestionCompletionEmphasis: 600,
+      suggestionCompletionEmphasis: 300,
       suggestionContainerShape: 8,
-      suggestionHeadlineTypescale: "label",
+      suggestionHeadlineTypescale: "body",
       suggestionSupportingTextTypescale: "bodySmall",
       triggerContainerGap: 8,
       triggerContainerHeight: 40,
@@ -11279,8 +11279,8 @@ export const m3ExpressiveLike = {
         },
       },
       sizes: {
-        small: { suggestionContainerHeight: 32, suggestionContainerPaddingInline: 8, suggestionContainerPaddingBlock: 6, suggestionContainerGap: 8, suggestionLeadingIconSize: 20 },
-        medium: { suggestionContainerHeight: 48, suggestionContainerPaddingInline: 12, suggestionContainerPaddingBlock: 8, suggestionContainerGap: 12, suggestionLeadingIconSize: 24 },
+        small: { suggestionContainerHeight: 32, suggestionContainerPaddingInline: 8, suggestionContainerPaddingBlock: 4, suggestionContainerGap: 8, suggestionLeadingIconSize: 20 },
+        medium: { suggestionContainerHeight: 56, suggestionContainerPaddingInline: 16, suggestionContainerPaddingBlock: 8, suggestionContainerGap: 16, suggestionLeadingIconSize: 24 },
       },
     },
     segmentedButton: {
@@ -13125,7 +13125,7 @@ export const m3ExpressiveLike = {
       railWidth: 1,
       rowIndent: 12,
       rowPaddingInline: 12,
-      rowShape: 8,
+      rowShape: 4,
       titleColor: { kind: "role", role: "onSurface" },
       titleTypescale: "label",
       parts: {
@@ -14576,7 +14576,7 @@ export const m3ExpressiveLike = {
       },
       sizes: {
         small: { containerHeight: 32, containerPaddingBlock: 6, containerPaddingInline: 8, containerGap: 8, levelIndent: 24, labelTypescale: "bodySmall", iconSize: 16, chevronSize: 16 },
-        medium: { containerHeight: 48, containerPaddingBlock: 12, containerPaddingInline: 12, containerGap: 12, levelIndent: 32, labelTypescale: "body", iconSize: 24, chevronSize: 20 },
+        medium: { containerHeight: 48, containerPaddingBlock: 12, containerPaddingInline: 12, containerGap: 12, levelIndent: 32, labelTypescale: "body", iconSize: 20, chevronSize: 20 },
       },
     },
   },
