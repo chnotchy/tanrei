@@ -2,7 +2,7 @@
 title: Botón segmentado
 description: Permite elegir una opción, o varias, entre dos y cinco opciones relacionadas que se dibujan una junto a otra como los segmentos unidos de un solo control.
 translationOf: components/segmented-button.mdx
-sourceHash: 2fceee654ffe757f838472c4a96334e610a4a53b
+sourceHash: eb4dd8ec91041d2f457f91539083795571d83a30
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -257,7 +257,7 @@ Una prueba rápida: si al pulsarlo hace algo, es un grupo de botones. Si define 
 - **Única** (`selection="single"`, el valor predeterminado) es un grupo de botones de opción. Elegir un segmento desmarca el anterior. Pulsar de nuevo el segmento elegido no hace nada, así que una elección única no se puede borrar desde su propio segmento. El conjunto puede empezar sin nada elegido (`value` vacío), para un formulario que debe mostrar que todavía no se ha elegido nada.
 - **Múltiple** es un grupo de botones conmutadores. Cada segmento se activa y se desactiva, y el conjunto puede quedarse sin ninguno. Si tu producto necesita al menos uno, no apliques un cambio que deje el conjunto vacío.
 
-El conjunto no tiene un `disabled` propio. Deshabilita los segmentos uno a uno. Un segmento deshabilitado conserva su lugar y su contorno, y las teclas de flecha lo saltan.
+Pon `disabled` en el conjunto para deshabilitar todos sus segmentos a la vez, por ejemplo en un ajuste que ahora no se puede cambiar. Un segmento está deshabilitado mientras lo esté el conjunto o él mismo, así que quitar el `disabled` del conjunto nunca habilita un segmento que deshabilitaste por separado. El conjunto conserva su valor, deja de ser una parada de tabulación y se expone como deshabilitado, igual que cada uno de sus segmentos. Un segmento deshabilitado conserva su lugar y su contorno, y las teclas de flecha lo saltan.
 
 ### Etiquetas, iconos y la marca de verificación
 

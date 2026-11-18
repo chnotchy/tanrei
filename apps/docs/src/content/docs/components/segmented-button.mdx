@@ -255,7 +255,7 @@ A quick test: if pressing it does something, it is a button group. If it sets a 
 - **Single** (`selection="single"`, the default) is a radio group. Choosing a segment clears the one before it. Pressing the chosen segment again does nothing, so a single choice cannot be cleared by its own segment. The set may start with nothing chosen (`value` empty), for a form that must show that nothing has been picked yet.
 - **Multiple** is a group of toggle buttons. Each segment switches on and off, and the set may end up with none. If your product needs at least one, don't apply a change that would leave the set empty.
 
-The set has no `disabled` of its own. Disable segments one by one. A disabled segment keeps its place and its outline, and the arrow keys skip it.
+Set `disabled` on the set to disable every segment at once, for a setting that cannot be changed right now. A segment is disabled while the set's `disabled` or its own is true, so taking the set's away never enables a segment you disabled by itself. The set keeps its value, leaves the Tab order, and is exposed as disabled, as each of its segments is. A disabled segment keeps its place and its outline, and the arrow keys skip it.
 
 ### Labels, icons and the check
 
