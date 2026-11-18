@@ -2,7 +2,7 @@
 title: Indicador de progreso
 description: Muestra cuánto ha avanzado una tarea, o que está en curso cuando no se sabe cuánto, en forma de barra o de anillo.
 translationOf: components/progress-indicator.mdx
-sourceHash: a3a25acb0bd8dba2353811061e0fbe63c03d1013
+sourceHash: 361085f33cda0cfac32225532ab93914bdb6dea2
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -26,7 +26,7 @@ import Example from '../../../../components/visuals/Example.astro';
 
 ### Uso
 
-Los ejemplos de Web y React muestran la especificación actual. SwiftUI, Compose, Flutter y React Native van rezagados: todavía no tienen `separation`, y sus ejemplos muestran lo que ofrecen.
+Los ejemplos de Web y React muestran la especificación actual: el indicador espera antes de mostrarse, y también las demostraciones de esta página, que aparecen después del retardo. SwiftUI, Compose, Flutter y React Native van rezagados: todavía no tienen `separation` ni el retardo de aparición, dibujan y exponen el indicador en cuanto se inserta, y sus ejemplos muestran lo que ofrecen.
 
 <Tabs syncKey="platform">
   <TabItem label="Web">
@@ -39,6 +39,9 @@ Los ejemplos de Web y React muestran la especificación actual. SwiftUI, Compose
 
     <!-- Una separación entre el indicador y el resto de la pista, elija lo que elija el sistema de diseño. -->
     <tanrei-progress-indicator separation="gap" value="0.4" label="Subiendo report.pdf"></tanrei-progress-indicator>
+
+    <!-- Una tarea que la persona acaba de empezar y está mirando: se muestra de inmediato, sin retardo. -->
+    <tanrei-progress-indicator show-delay="0" value="0" label="Exportando"></tanrei-progress-indicator>
 
     <script type="module">
       import '@tanrei/web/components/progress-indicator';
@@ -55,6 +58,7 @@ Los ejemplos de Web y React muestran la especificación actual. SwiftUI, Compose
     <ProgressIndicator value={files} max={10} valueText={`${files} de 10 archivos`} label="Subiendo" />
     <ProgressIndicator variant="circular" size="small" value={null} label="Sincronizando" />
     <ProgressIndicator separation="gap" value={sent / total} label="Subiendo report.pdf" />
+    <ProgressIndicator showDelay={0} value={exported} label="Exportando" />
     ```
   </TabItem>
   <TabItem label="SwiftUI">
@@ -179,11 +183,20 @@ Un indicador determinado se distingue del resto de su pista de una de dos manera
 
 El sistema de diseño elige una vez para todos los componentes que tienen esta elección, y el sistema predeterminado elige divider. Deja `separation` en `auto` para seguir esa elección, de modo que el indicador concuerde con los grupos de botones y los menús que lo rodean. Define `divider` o `gap` en un indicador solo cuando ese tenga un motivo para ser distinto.
 
+### Retardo de aparición
+
+Una tarea que termina en un instante no debería mostrar nada. Por eso el indicador espera antes de mostrarse: 300 ms en el sistema predeterminado, contados desde el momento en que se inserta, la misma espera que la de un [indicador de carga](/es/components/loading-indicator/). Después aparece de inmediato, con el valor al que ha llegado la tarea para entonces. Una tarea más corta que el retardo nunca muestra una barra que se enciende y se apaga. Durante el retardo el indicador ya ocupa su tamaño completo, así que nada de lo que tiene al lado se mueve cuando aparece.
+
+Inserta el indicador cuando empiece la tarea y quítalo cuando termine. El retardo cuenta desde la inserción: un indicador que se oculta y se vuelve a mostrar sin quitarlo no espera otra vez, y uno que se inserta de nuevo vuelve a esperar el retardo entero. Una tarea que termina antes de que acabe el retardo no muestra nada, siempre que quites el indicador en ese momento.
+
+El sistema decide el retardo de todos los indicadores. Define `showDelay`, en milisegundos, en un indicador solo cuando necesite un ritmo distinto: `0` lo muestra en cuanto se inserta, para una tarea que la persona acaba de empezar y está mirando. Un valor que definas se usa tal como lo das: el dial de movimiento no lo escala. Déjalo sin definir para tomar el valor del sistema.
+
 ### Recomendado
 
 - Dale una etiqueta que diga qué está en curso: «Subiendo report.pdf», no «Progreso». Si junto a él se muestra una leyenda, usa las mismas palabras.
 - Usa un texto de valor cuando un porcentaje no sea la lectura natural: «3 de 10 archivos», «Paso 2 de 4».
 - Di a las personas cuándo termina la tarea, con palabras: un mensaje de que ha terminado, o de qué ha fallado y qué hacer a continuación.
+- Deja el retardo en manos del sistema salvo que un indicador necesite otro ritmo.
 
 ### Evita
 
@@ -198,15 +211,16 @@ El sistema de diseño elige una vez para todos los componentes que tienen esta e
 
 ### De qué se encarga el componente
 
-- Expone el rol de barra de progreso con la etiqueta como nombre. Determinado, expone el intervalo, el valor actual (limitado al intervalo) y el texto de valor cuando lo hay; indeterminado, no expone ningún valor y expone el estado ocupado de la plataforma. Flutter todavía no tiene rol de barra de progreso ni estado ocupado, así que ahí expone la etiqueta y el valor.
+- Una vez mostrado, expone el rol de barra de progreso con la etiqueta como nombre. Determinado, expone el intervalo, el valor actual (limitado al intervalo) y el texto de valor cuando lo hay; indeterminado, no expone ningún valor y expone el estado ocupado de la plataforma. Flutter todavía no tiene rol de barra de progreso ni estado ocupado, así que ahí expone la etiqueta y el valor.
+- Durante su retardo de aparición no está en el árbol de accesibilidad: sin rol, sin nombre, sin valor, sin estado ocupado. Una tarea demasiado corta para verse tampoco se oye.
 - Nunca recibe el foco y no anuncia sus cambios. La tecnología de apoyo lee el valor actual cuando la persona llega a él.
-- Cuando se pide reducir movimiento, un cambio de valor se muestra de inmediato, y la forma indeterminada deja de moverse y, en su lugar, hace pulsar suavemente su opacidad, como máximo una vez por segundo.
+- Cuando se pide reducir movimiento, un cambio de valor se muestra de inmediato, y la forma indeterminada deja de moverse y, en su lugar, hace pulsar suavemente su opacidad, como máximo una vez por segundo. El retardo de aparición se conserva: es una espera, no movimiento.
 - Su animación en bucle se detiene mientras no se puede ver (en todas partes cuando la aplicación está en segundo plano, y cuando queda desplazado fuera de la vista o en una pantalla oculta donde la plataforma puede saberlo) y se reanuda cuando se puede ver.
-- Las compilaciones de depuración notifican una etiqueta vacía, un valor fuera del intervalo y un `separation` desconocido.
+- Las compilaciones de depuración notifican una etiqueta vacía, un valor fuera del intervalo, un `separation` desconocido y un `showDelay` que no puede usar.
 
 ### Qué debes hacer tú
 
 - Anuncia tú el final de la tarea: un mensaje en una región activa (live region), o el foco movido al resultado. El indicador no dirá que la tarea ha terminado o ha fallado.
 - Si los cambias, mantén el color del indicador con un contraste de al menos 3:1 frente a la pista y a la superficie que tiene detrás, tanto con un divisor como con una separación. El valor se lee allí donde el indicador se encuentra con la pista.
 - Sobre una superficie con el tono de contenedor más alto, como una tarjeta rellena, la pista cuesta verla: tiene casi el mismo tono. Donde un indicador esté sobre una, apunta `comp.progress-indicator.track.color` a un rol más fuerte en una capa. Lo que muestra el indicador se sigue leyendo allí donde se encuentra con la pista.
-- Si la tarea bloquea una región de la página, marca esa región como ocupada mientras se ejecuta (`aria-busy` en la web).
+- Si la tarea bloquea una región de la página, marca esa región como ocupada mientras se ejecuta (`aria-busy` en la web), desde el inicio de la tarea, sin aguardar al retardo del indicador.

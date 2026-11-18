@@ -1,6 +1,6 @@
 import { type PropertyDeclarations, type PropertyValues, html, svg } from 'lit';
 import { classMap } from 'lit/directives/class-map.js';
-import { AvailabilityController, OpenAxesController, VisibilityController, hostAria, motionReduced, report } from '../../primitives/index.js';
+import { AvailabilityController, OpenAxesController, ShowDelay, VisibilityController, hostAria, milliseconds, motionReduced, report, unusableMilliseconds, usableMilliseconds } from '../../primitives/index.js';
 import type { TanreiLoadingIndicatorSizeRegistry } from '../../registry.js';
 import { AXES, styles } from './loading-indicator.styles.js';
 import { TanreiElement } from '../../primitives/element.js';
@@ -17,15 +17,8 @@ const ENTRANCES = ['fade', 'grow'] as const;
 type Entrance = (typeof ENTRANCES)[number];
 const ENTRANCE_TOKEN = '--tanrei-comp-loading-indicator-motion-entrance';
 
-/** LDG-14: an attribute that is empty or does not parse as a finite number is not a number (and is reported). */
-const milliseconds = {
-  fromAttribute: (value: string | null) => (value === null ? null : value.trim() === '' ? Number.NaN : Number(value)),
-};
-const usable = (value: unknown): value is number => typeof value === 'number' && Number.isFinite(value) && value >= 0;
-
-/** What one insertion runs with (LDG-16): resolved as it is inserted, kept until it is removed. */
+/** What one insertion's entrance runs with (LDG-16): resolved as it is inserted, kept until it is removed. */
 interface Run {
-  delay: number;
   duration: number;
   easing: string;
   entrance: Entrance;
@@ -96,92 +89,69 @@ export class TanreiLoadingIndicator extends TanreiElement {
   /** LDG-7: the arc turns only while it can be seen. */
   private readonly visibility = new VisibilityController(this);
 
-  /** LDG-11, LDG-12: false during the show delay. */
-  private shown = false;
   private run: Run | null = null;
-  private timer: ReturnType<typeof setTimeout> | undefined;
   private entering = false;
   private entry: Animation | null = null;
   /** LDG-14: an inert element the duration tokens are computed through, kept in the shadow root. */
   private readonly probe = Object.assign(document.createElement('span'), { className: 'timing' });
+  /**
+   * LDG-11, LDG-12, LDG-15, LDG-16: the show delay (src/primitives/show-delay.ts), not shown while it runs; when it
+   * ends the indicator is exposed, enters, and its cycle starts from its beginning.
+   */
+  private readonly delay = new ShowDelay(this, this.probe, () => {
+    this.entering = true;
+    this.expose();
+    this.requestUpdate();
+  });
   /** Counts the insertions: a read asked for by one is not taken by the next. */
   private insertions = 0;
 
   override connectedCallback() {
     super.connectedCallback();
     // LDG-16: every insertion waits its whole delay, with the values of that moment.
-    clearTimeout(this.timer);
-    this.timer = undefined;
     this.cancelEntrance();
-    this.shown = false;
     this.run = null;
     this.requestUpdate();
     const insertion = ++this.insertions;
     // The probe is placed as the host is inserted, before any host of the turn reads: a probe added in the read would
     // have the next host's read style the page again.
     if (!this.probe.isConnected) this.renderRoot.appendChild(this.probe);
-    // A delay the product gives needs no token: it starts now. The token's is read with the tokens of the entrance.
-    const given = usable(this.showDelay) ? this.showDelay : null;
-    if (given === 0) this.show();
-    else {
-      this.expose();
-      if (given !== null) this.wait(given);
-    }
-    // The tokens are read with every other host's of the turn (src/primitives/read-phase.ts): a hundred indicators
-    // inserted at once style the page once, not once each — still before any frame, so the first frame draws them.
+    // A delay of 0 shows it here, as it is inserted.
+    this.delay.start();
+    if (!this.delay.shown) this.expose();
+    // The entrance's tokens are read with every other host's of the turn (src/primitives/read-phase.ts), after the
+    // delay's: a hundred indicators inserted at once style the page once, not once each — still before any frame.
     readTogether(() => {
       if (insertion !== this.insertions || !this.isConnected) return;
       const run = this.resolve();
       return () => {
         if (insertion !== this.insertions || !this.isConnected) return;
         this.run = run;
-        if (given === null) {
-          if (run.delay === 0) this.show();
-          else this.wait(run.delay);
-        }
         this.startEntrance();
       };
     });
   }
 
-  /** LDG-15: a wait, not motion — kept under reduced motion, and counted while the indicator cannot be seen. */
-  private wait(delay: number) {
-    this.timer = setTimeout(() => this.show(), delay);
-  }
-
   override disconnectedCallback() {
     super.disconnectedCallback();
     // LDG-16: removed during the delay, it has shown nothing; removed while shown, it is gone at once.
-    clearTimeout(this.timer);
-    this.timer = undefined;
+    this.delay.stop();
     this.cancelEntrance();
-    this.shown = false;
   }
 
-  /** LDG-14: the delay, the entrance's duration, curve and kind, from the props or else from the tokens as they resolve now. */
+  /** LDG-14: the entrance's duration, curve and kind, from the props or else from the tokens as they resolve now. */
   private resolve(): Run {
     // A duration token is an expression: it is computed through real properties, never parsed.
     const style = getComputedStyle(this.probe);
     const ms = (value: string) => (Number.parseFloat(value) || 0) * 1000;
-    const token = { delay: ms(style.transitionDelay), duration: ms(style.transitionDuration), easing: style.transitionTimingFunction };
     const named = (ENTRANCES as readonly string[]).includes(this.entrance) ? (this.entrance as Entrance) : null;
     // The system's choice of kind arrives as its name; an unknown name is the first kind.
     const system = getComputedStyle(this).getPropertyValue(ENTRANCE_TOKEN).trim() as Entrance;
     return {
-      delay: usable(this.showDelay) ? this.showDelay : token.delay,
-      duration: usable(this.enterDuration) ? this.enterDuration : token.duration,
-      easing: token.easing,
+      duration: usableMilliseconds(this.enterDuration) ? this.enterDuration : ms(style.transitionDuration),
+      easing: style.transitionTimingFunction,
       entrance: named ?? (ENTRANCES.includes(system) ? system : ENTRANCES[0]),
     };
-  }
-
-  /** LDG-12: shown — exposed, entering, and the cycle starting from its beginning. */
-  private show() {
-    this.timer = undefined;
-    this.shown = true;
-    this.entering = true;
-    this.expose();
-    this.requestUpdate();
   }
 
   /**
@@ -190,9 +160,9 @@ export class TanreiLoadingIndicator extends TanreiElement {
    * aria-labelledby are held, while it is empty they are its name, and while it waits, with no role, they are held.
    */
   private expose() {
-    nameHost(this, this.shown ? this.label : null);
+    nameHost(this, this.delay.shown ? this.label : null);
     // LDG-6: not focusable, not a live region.
-    if (this.shown) hostAria(this, { role: 'progressbar', 'aria-busy': 'true', 'aria-hidden': null });
+    if (this.delay.shown) hostAria(this, { role: 'progressbar', 'aria-busy': 'true', 'aria-hidden': null });
     else hostAria(this, { role: null, 'aria-busy': null, 'aria-hidden': 'true' });
   }
 
@@ -221,10 +191,8 @@ export class TanreiLoadingIndicator extends TanreiElement {
     if (changed.has('label') && !this.label && !namedByProduct(this)) report(this, 'LDG-10', 'label is empty, so the loading indicator has no accessible name; give it a label');
     // LDG-14: a value it cannot use takes the token, and is reported.
     for (const [name, attribute, token] of [['showDelay', 'show-delay', 'show-delay'], ['enterDuration', 'enter-duration', 'enter-duration']] as const) {
-      const value = this[name];
-      if (!changed.has(name) || value === null || value === undefined || usable(value)) continue;
-      const written = this.getAttribute(attribute);
-      const shown = Number.isNaN(value) && written !== null ? `"${written}"` : String(value);
+      const shown = changed.has(name) ? unusableMilliseconds(this, this[name], attribute) : null;
+      if (shown === null) continue;
       report(this, 'LDG-14', `${name} ${shown} is not a finite, non-negative number of milliseconds; it takes comp.loading-indicator.motion.${token}`);
     }
     if (changed.has('entrance') && this.entrance !== 'auto' && !(ENTRANCES as readonly string[]).includes(this.entrance)) {
@@ -248,7 +216,7 @@ export class TanreiLoadingIndicator extends TanreiElement {
   protected override render() {
     // LDG-11: while it waits, its box is kept and nothing is drawn or run.
     return html`
-      <div part="container" class=${classMap({ container: true, waiting: !this.shown })} data-tanrei-shape>
+      <div part="container" class=${classMap({ container: true, waiting: !this.delay.shown })} data-tanrei-shape>
         <div part="indicator" class=${classMap({ indicator: true, paused: !this.visibility.visible })}>
           <svg aria-hidden="true" focusable="false">${svg`<circle></circle>`}</svg>
         </div>

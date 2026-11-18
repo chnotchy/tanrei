@@ -7124,6 +7124,7 @@ const TanreiSystem m3ExpressiveLikeSystem = TanreiSystem(
     indicatorColor: TanreiPaint.role(TanreiColorRole.primary),
     motionCycleDuration: 1750,
     motionCycleEasing: TanreiCubicBezier(0.2, 0.0, 0.0, 1.0),
+    motionShowDelay: 300,
     motionValueDuration: 300,
     motionValueEasing: TanreiCubicBezier(0.2, 0.0, 0.0, 1.0),
     stopIndicatorSize: 4.0,

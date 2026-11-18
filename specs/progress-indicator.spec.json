@@ -84,6 +84,12 @@
       "type": "string",
       "default": "",
       "description": "How assistive technology reads the value when a percentage is not the natural reading (\"3 of 10 files\"). Empty reads the platform's percentage."
+    },
+    {
+      "name": "showDelay",
+      "type": "number",
+      "default": null,
+      "description": "How long, in milliseconds, this indicator waits from the moment it is inserted before it is drawn and exposed to assistive technology; 0 shows it as it is inserted. Null takes comp.progress-indicator.motion.show-delay, the system's answer for every progress indicator, which follows sys.motion.role.show-delay as a loading indicator's does, so that the two wait alike unless a design system sets one apart. Set it only where one indicator needs another pace than the rest (a task the person has just started and watches, an indicator inside a component that draws its progress whenever it is there)."
     }
   ],
   "states": [
@@ -122,11 +128,11 @@
     },
     {
       "id": "PRG-8",
-      "text": "WHILE value is a number THE progress indicator SHALL expose the progressbar role to assistive technology with label as its name, min and max as its range, the clamped value as its current value, and valueText as the value's text when valueText is not empty."
+      "text": "WHILE the progress indicator is shown (PRG-20) and value is a number THE progress indicator SHALL expose the progressbar role to assistive technology with label as its name, min and max as its range, the clamped value as its current value, and valueText as the value's text when valueText is not empty."
     },
     {
       "id": "PRG-9",
-      "text": "WHILE value is null THE progress indicator SHALL expose the progressbar role with label as its name, no current value, and the platform's busy or indeterminate state."
+      "text": "WHILE the progress indicator is shown (PRG-20) and value is null THE progress indicator SHALL expose the progressbar role with label as its name, no current value, and the platform's busy or indeterminate state."
     },
     {
       "id": "PRG-10",
@@ -164,19 +170,42 @@
     },
     {
       "id": "PRG-18",
-      "text": "WHERE the platform has ARIA attributes (the web), the host carries its progressbar role (PRG-8) itself, so what the product writes on it is not moved, but for a name: WHILE label is not empty THE progress indicator SHALL hold the product's aria-label and aria-labelledby on that host as their data-aria- twins, so that label is its whole name although the platform gives aria-labelledby the precedence, and WHEN label is emptied SHALL give them back as they were written; WHILE label is empty a name the product gives so — aria-label, or aria-labelledby naming an element — SHALL be its name and SHALL NOT be reported as having none in debug builds (PRG-15). WHEN the product removes one, or its data-aria- twin, or sets the ARIA property that reflects it (ariaLabel, ariaLabelledByElements) to null, THE progress indicator SHALL take it away."
+      "text": "WHERE the platform has ARIA attributes (the web), the host carries its progressbar role (PRG-8) itself, so what the product writes on it is not moved, but for a name: WHILE label is not empty THE progress indicator SHALL hold the product's aria-label and aria-labelledby on that host as their data-aria- twins, so that label is its whole name although the platform gives aria-labelledby the precedence, and WHEN label is emptied SHALL give them back as they were written; WHILE label is empty a name the product gives so — aria-label, or aria-labelledby naming an element — SHALL be its name and SHALL NOT be reported as having none in debug builds (PRG-15). WHILE it waits to be shown (PRG-19) it has no role, and SHALL hold them as well, so that nothing names an element with no role, and give them back when it is shown. WHEN the product removes one, or its data-aria- twin, or sets the ARIA property that reflects it (ariaLabel, ariaLabelledByElements) to null, THE progress indicator SHALL take it away."
+    },
+    {
+      "id": "PRG-19",
+      "text": "WHEN the progress indicator is inserted into a view THE progress indicator SHALL wait for its show delay (PRG-21) before it is shown, and WHILE it waits SHALL draw nothing (no track, no indicator, no stop indicator), SHALL run no animation, SHALL be absent from the accessibility tree (no role, no name, no range, no current value, no busy state), and SHALL still take the box it takes when shown (PRG-3), so that nothing around it moves when it appears; a show delay of 0 SHALL show it as it is inserted.",
+      "verify": "Fixtures show the indicator once its show delay is over: a harness renders each fixture with showDelay 0, so that its first frame is the shown indicator, and the baselines do not change. The wait, the kept box and the absent semantics are tested by unit tests on the platform's test clock."
+    },
+    {
+      "id": "PRG-20",
+      "text": "WHEN its show delay ends THE progress indicator SHALL be shown at once, with no entrance of its own: it SHALL expose itself as PRG-8 or PRG-9 says for the props it has then, without announcing itself (PRG-10); it SHALL draw the value it has then at once, without the motion of PRG-6 from a value it had during the delay; and WHILE indeterminate it SHALL start the motion of PRG-2, or the pulse of PRG-7, at the beginning of a cycle."
+    },
+    {
+      "id": "PRG-21",
+      "text": "THE progress indicator SHALL take its show delay from showDelay, a number of milliseconds used as given (the motion dial does not scale it). WHILE showDelay is null THE progress indicator SHALL use comp.progress-indicator.motion.show-delay in its place; IF showDelay is negative or not a finite number THE progress indicator SHALL use the token likewise and in debug builds report the value it ignored."
+    },
+    {
+      "id": "PRG-22",
+      "text": "THE progress indicator SHALL treat its show delay as a waiting time, not motion: WHERE motion is reduced it SHALL keep it, on every platform, including one whose reduced-motion setting removes every animation; and it SHALL keep counting it while the progress indicator cannot be seen (scrolled out of view, in a hidden view), because the delay measures the wait, not what is seen."
+    },
+    {
+      "id": "PRG-23",
+      "text": "WHEN the progress indicator is removed before its show delay ends THE progress indicator SHALL have drawn, exposed and announced nothing, and WHEN it is removed while shown it SHALL disappear at once. WHEN it is inserted again THE progress indicator SHALL wait its whole show delay again; hiding it without removing it (a hidden ancestor, scrolling) SHALL neither restart nor pause the delay (PRG-22). WHEN showDelay changes while the delay is running THE progress indicator SHALL finish the running delay as it started and use the new value from its next insertion. WHEN value, min, max or another prop changes while it waits — value reaching max included — THE progress indicator SHALL keep waiting, neither ending nor restarting the delay, and SHALL be shown with the props it has when the delay ends: a task that is done is ended by the product, which removes the indicator, and one removed before its delay ends has shown nothing."
     }
   ],
   "accessibility": {
     "role": "progressbar",
     "keyboard": [],
-    "labeling": "label is the accessible name. valueText, when given, replaces the platform's percentage as the spoken value. A visible caption next to the indicator is the product's composition; when it exists, use the same words as label.",
+    "labeling": "label is the accessible name. valueText, when given, replaces the platform's percentage as the spoken value. A visible caption next to the indicator is the product's composition; when it exists, use the same words as label. During its show delay it is not exposed at all (PRG-19).",
     "minimumTarget": true,
     "notes": [
       "Not interactive: the indicator takes no input and is never focusable (PRG-10), so the minimum target holds without extending anything.",
       "The value is read from the boundary between indicator and track: comp.progress-indicator.indicator.color must stay at least 3:1 against comp.progress-indicator.track.color and against the surface behind it, under divider and under gap alike. A faint track may leave the track's end hard to see; the stop indicator, in a system that gives it a size, marks it.",
       "Indeterminate is announced as busy with no value: on the web a progressbar without aria-valuenow (and aria-busy), on Apple platforms a progress element with no value, on Android the indeterminate range info, in Flutter a progress indicator with a null value.",
-      "Reduced motion replaces movement with an opacity pulse of at most one per second (PRG-7), below the three-per-second flash threshold."
+      "Reduced motion replaces movement with an opacity pulse of at most one per second (PRG-7), below the three-per-second flash threshold.",
+      "A task shorter than the show delay shows and exposes nothing (PRG-19): no bar that flashes for a sighted person, and no progressbar that appears and vanishes for a screen-reader user. The product's own busy marking of the region does not wait for the delay.",
+      "The show delay is kept where motion is reduced: it is a wait, not motion (PRG-22)."
     ]
   },
   "tokens": "comp.progress-indicator",
@@ -362,14 +391,15 @@
         "min": "min",
         "max": "max",
         "label": "label",
-        "valueText": "valueText"
+        "valueText": "valueText",
+        "showDelay": "showDelay"
       },
       "parts": {
         "track": "track",
         "indicator": "indicator",
         "stop-indicator": "stop-indicator"
       },
-      "notes": "As a native `<progress>`: no `value` attribute (or removing it) is indeterminate. `valueText` is the `value-text` attribute. The host carries `role=\"progressbar\"` and the aria-value attributes. `separation` is an attribute (`auto`, `divider`, `gap`); auto reads the name in `--tanrei-comp-progress-indicator-track-separation`."
+      "notes": "As a native `<progress>`: no `value` attribute (or removing it) is indeterminate. `valueText` is the `value-text` attribute. The host carries `role=\"progressbar\"` and the aria-value attributes once shown; during the show delay it carries none of them and is `aria-hidden=\"true\"`, and its parts are `visibility: hidden` while the host keeps its size (PRG-19). The delay starts in `connectedCallback` and is cancelled in `disconnectedCallback`, so moving the element within the document starts a new delay; hiding it with `hidden` or CSS does not (PRG-23) — insert and remove it with the task. `showDelay` is a number property in milliseconds, null by default, set by the `show-delay` attribute; an attribute that is empty or does not parse as a finite number is not a number (PRG-21), so `show-delay=\"\"` takes the token and does not show at once. `separation` is an attribute (`auto`, `divider`, `gap`); auto reads the name in `--tanrei-comp-progress-indicator-track-separation`. Snapshot harness: each fixture is rendered with `show-delay=\"0\"` (PRG-19)."
     },
     "swiftui": {
       "status": "lagging",
@@ -382,9 +412,10 @@
         "min": "bounds",
         "max": "bounds",
         "label": "label",
-        "valueText": "currentValueLabel"
+        "valueText": "currentValueLabel",
+        "showDelay": "showDelay"
       },
-      "notes": "Initialisers follow `ProgressView`: `TanreiProgressIndicator(_ label:, value: Double?, in bounds: ClosedRange<Double> = 0...1, currentValueLabel:)`. `value: nil` is indeterminate; `bounds` carries min and max as `Slider`'s `in:` does. Not built on this platform yet: `separation` (auto, divider, gap), PRG-17 and the seven gap and divider fixtures; reading comp.progress-indicator.track.separation as a typed choice needs the token emitters to write a choice of kind as a typed enumeration, which they do not yet. Not built on this platform yet: the stage color a fixture's surface names, which the linear-on-container-highest fixture draws on."
+      "notes": "Initialisers follow `ProgressView`: `TanreiProgressIndicator(_ label:, value: Double?, in bounds: ClosedRange<Double> = 0...1, currentValueLabel:)`. `value: nil` is indeterminate; `bounds` carries min and max as `Slider`'s `in:` does. Not built on this platform yet: `separation` (auto, divider, gap), PRG-17 and the seven gap and divider fixtures; reading comp.progress-indicator.track.separation as a typed choice needs the token emitters to write a choice of kind as a typed enumeration, which they do not yet. Not built on this platform yet: the stage color a fixture's surface names, which the linear-on-container-highest fixture draws on. Not built on this platform yet: `showDelay` and PRG-19 to PRG-23 — the indicator is drawn and exposed as it is inserted, as with a show delay of 0; the target is `showDelay: Duration? = nil`, as the loading indicator's."
     },
     "compose": {
       "status": "lagging",
@@ -397,9 +428,10 @@
         "min": "valueRange",
         "max": "valueRange",
         "label": "contentDescription",
-        "valueText": "stateDescription"
+        "valueText": "stateDescription",
+        "showDelay": "showDelayMillis"
       },
-      "notes": "Two overloads, as Material's indicators have: with `progress: () -> Float` it is determinate (a lambda, so a changing value redraws without recomposing), read within `valueRange: ClosedFloatingPointRange<Float> = 0f..1f` (as `Slider` names it); without `progress` it is indeterminate. `stateDescription` is the semantics property of the same name. Not built on this platform yet: `separation` (auto, divider, gap), PRG-17 and the seven gap and divider fixtures; reading comp.progress-indicator.track.separation as a typed choice needs the token emitters to write a choice of kind as a typed enumeration, which they do not yet. Not built on this platform yet: the stage color a fixture's surface names, which the linear-on-container-highest fixture draws on."
+      "notes": "Two overloads, as Material's indicators have: with `progress: () -> Float` it is determinate (a lambda, so a changing value redraws without recomposing), read within `valueRange: ClosedFloatingPointRange<Float> = 0f..1f` (as `Slider` names it); without `progress` it is indeterminate. `stateDescription` is the semantics property of the same name. Not built on this platform yet: `separation` (auto, divider, gap), PRG-17 and the seven gap and divider fixtures; reading comp.progress-indicator.track.separation as a typed choice needs the token emitters to write a choice of kind as a typed enumeration, which they do not yet. Not built on this platform yet: the stage color a fixture's surface names, which the linear-on-container-highest fixture draws on. Not built on this platform yet: `showDelay` and PRG-19 to PRG-23 — the indicator is drawn and exposed as it is inserted, as with a show delay of 0; the target is `showDelayMillis: Long? = null` on both overloads, as the loading indicator's."
     },
     "flutter": {
       "status": "lagging",
@@ -412,9 +444,10 @@
         "min": "min",
         "max": "max",
         "label": "semanticsLabel",
-        "valueText": "semanticsValue"
+        "valueText": "semanticsValue",
+        "showDelay": "showDelay"
       },
-      "notes": "As Flutter's `ProgressIndicator`: `value: null` is indeterminate, and `semanticsLabel` / `semanticsValue` are its names. Unlike Flutter's (a fraction from 0 to 1), `value` is read between `min` and `max`, as `Slider` does. Not built on this platform yet: `separation` (auto, divider, gap), PRG-17 and the seven gap and divider fixtures; reading comp.progress-indicator.track.separation as a typed choice needs the token emitters to write a choice of kind as a typed enumeration, which they do not yet. Not built on this platform yet: the stage color a fixture's surface names, which the linear-on-container-highest fixture draws on."
+      "notes": "As Flutter's `ProgressIndicator`: `value: null` is indeterminate, and `semanticsLabel` / `semanticsValue` are its names. Unlike Flutter's (a fraction from 0 to 1), `value` is read between `min` and `max`, as `Slider` does. Not built on this platform yet: `separation` (auto, divider, gap), PRG-17 and the seven gap and divider fixtures; reading comp.progress-indicator.track.separation as a typed choice needs the token emitters to write a choice of kind as a typed enumeration, which they do not yet. Not built on this platform yet: the stage color a fixture's surface names, which the linear-on-container-highest fixture draws on. Not built on this platform yet: `showDelay` and PRG-19 to PRG-23 — the indicator is drawn and exposed as it is inserted, as with a show delay of 0; the target is `showDelay: Duration?`, as the loading indicator's."
     },
     "react-native": {
       "status": "lagging",
@@ -427,9 +460,10 @@
         "min": "min",
         "max": "max",
         "label": "accessibilityLabel",
-        "valueText": "valueText"
+        "valueText": "valueText",
+        "showDelay": "showDelay"
       },
-      "notes": "`value` undefined or null is indeterminate. min, max, value and valueText are passed together as `accessibilityValue` (`{ min, max, now, text }`); indeterminate sets `accessibilityState={{ busy: true }}` and no `now`. Not built on this platform yet: `separation` (auto, divider, gap), PRG-17 and the seven gap and divider fixtures; reading comp.progress-indicator.track.separation as a typed choice needs the token emitters to write a choice of kind as a typed enumeration, which they do not yet. Not built on this platform yet: the stage color a fixture's surface names, which the linear-on-container-highest fixture draws on."
+      "notes": "`value` undefined or null is indeterminate. min, max, value and valueText are passed together as `accessibilityValue` (`{ min, max, now, text }`); indeterminate sets `accessibilityState={{ busy: true }}` and no `now`. Not built on this platform yet: `separation` (auto, divider, gap), PRG-17 and the seven gap and divider fixtures; reading comp.progress-indicator.track.separation as a typed choice needs the token emitters to write a choice of kind as a typed enumeration, which they do not yet. Not built on this platform yet: the stage color a fixture's surface names, which the linear-on-container-highest fixture draws on. Not built on this platform yet: `showDelay` and PRG-19 to PRG-23 — the indicator is drawn and exposed as it is inserted, as with a show delay of 0; the target is `showDelay`, a number of milliseconds, as the loading indicator's."
     }
   }
 }

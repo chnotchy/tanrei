@@ -8117,6 +8117,7 @@ public data class TanreiProgressIndicatorTokens(
     public val indicatorColor: TanreiPaint,
     public val motionCycleDuration: Int,
     public val motionCycleEasing: TanreiCubicBezier,
+    public val motionShowDelay: Int,
     public val motionValueDuration: Int,
     public val motionValueEasing: TanreiCubicBezier,
     public val stopIndicatorSize: Dp,

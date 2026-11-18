@@ -550,7 +550,7 @@
               "value": 300,
               "unit": "ms"
             },
-            "$description": "How long a loading indicator or a skeleton waits before it appears, so that a short wait shows nothing at all.",
+            "$description": "How long a loading indicator, a progress indicator or a skeleton waits before it appears, so that a short wait shows nothing at all.",
             "$extensions": {
               "dev.tanrei.derive": {
                 "fn": "mul",
