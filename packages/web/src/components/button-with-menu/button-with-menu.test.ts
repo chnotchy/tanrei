@@ -3,7 +3,9 @@
 import fs from 'node:fs';
 import AxeBuilder from '@axe-core/playwright';
 import { type Page, expect, test } from '@playwright/test';
-import { type Fixture, acmeSystemCss, loadSpec, mountFixtures, resolveColor, resolveToken, tab, tabTo, rootTokens } from '../../../test/harness.js';
+import { type Fixture, acmeSystemCss, loadSpec, missingWords, mountFixtures, resolveColor, resolveToken, setWords, tab, tabTo, rootTokens } from '../../../test/harness.js';
+import { resolveEasing } from '../../../test/appear.js';
+import { type Probe, expectAnimated, expectFirstFrameAtRest, expectNoFlicker, freezeFirstFrame, sampleFrames } from '../../../test/frames.js';
 import { pressHoldAsRun } from '../../../test/harsh.js';
 import { atRatio, shoot, stageBehind } from '../../../test/one-shape.js';
 import { expectKeyPressOutlastsPointer } from '../../../test/key-press-pointer-leaves.js';
@@ -2100,6 +2102,223 @@ test.describe('destructive', () => {
     for (const half of HALVES) expect(await attributes('destructive', half), half).toEqual(await attributes('plain', half));
     expect(await page.locator('[data-fixture="destructive"]').ariaSnapshot()).toBe(await page.locator('[data-fixture="plain"]').ariaSnapshot());
     expect(await page.locator('[data-fixture="destructive"]').ariaSnapshot()).toBe('- button "Delete project"\n- button "More delete options"');
+  });
+});
+
+test.describe('busy', () => {
+  const stageOf = (page: P, id: string) => page.locator(`[data-fixture="${id}"]`);
+  const setBusy = (page: P, id: string, busy: boolean) =>
+    host(page, id).evaluate(async (el: HTMLElement & { busy: boolean; updateComplete: Promise<unknown> }, on) => {
+      el.busy = on;
+      await el.updateComplete;
+    }, busy);
+  /** SPB-39: what a busy button with menu's stage draws and exposes in one frame — its leading half's label, icon and arc, both halves' boxes, and the leading half's ARIA. */
+  const busyFrame: Probe = (root) => {
+    const shadow = root.querySelector('tanrei-button-with-menu')!.shadowRoot!;
+    const lead = shadow.querySelector('button.leading')!;
+    const [a, b] = [lead.getBoundingClientRect(), shadow.querySelector('button.trailing')!.getBoundingClientRect()];
+    const style = (selector: string) => getComputedStyle(lead.querySelector(selector)!);
+    return {
+      label: Number(style('.label-text').opacity),
+      icon: Number(style('.icon').opacity),
+      iconShown: style('.icon').visibility === 'visible',
+      arc: !!lead.querySelector('.busy-arc'),
+      box: [a.x, a.y, a.width, a.height, b.x, b.y, b.width, b.height].join(','),
+      ariaDisabled: lead.getAttribute('aria-disabled') ?? '',
+      description: lead.getAttribute('aria-description') ?? '',
+    };
+  };
+  const look = (page: P, id: string, half: 'leading' | 'trailing') =>
+    host(page, id)
+      .locator(`button.${half}`)
+      .evaluate((el) => ({ background: getComputedStyle(el).backgroundColor, color: getComputedStyle(el).color, opacity: getComputedStyle(el).opacity, shadow: getComputedStyle(el, '::after').boxShadow }));
+  const saving = { ...fixture('saving', { variant: 'tonal', busy: true, busyLabel: 'Saving' }), slots: { icon: 'save' } };
+
+  test('SPB-39: a busy button with menu keeps both halves’ boxes, draws its leading half from its enabled tokens with no hovered state, keeps the label and the icon laid out and undrawn, and turns the loading indicator’s arc at the leading half’s centre in its icon box and label color; the trailing half is drawn and hovered as without busy; not busy, the arc is gone at once and the label back once faded in', async ({ page }) => {
+    await mountFixtures(page, spec, {
+      icons: true,
+      fixtures: [spec.fixtures.find((f) => f.id === 'filled-busy')!, spec.fixtures.find((f) => f.id === 'filled-icon')!, fixture('busy-destructive', { variant: 'outlined', destructive: true, busy: true, busyLabel: 'Deleting', label: 'Delete' })],
+    });
+    await measured(page);
+    for (const half of ['leading', 'trailing'] as const) {
+      const [busy, rest] = [await bounds(host(page, 'filled-busy').locator(`button.${half}`)), await bounds(host(page, 'filled-icon').locator(`button.${half}`))];
+      expect(Math.abs(busy.width - rest.width), `${half} width`).toBeLessThan(0.5);
+      expect(Math.abs(busy.height - rest.height), `${half} height`).toBeLessThan(0.5);
+      expect(await look(page, 'filled-busy', half), half).toEqual(await look(page, 'filled-icon', half));
+    }
+    // Hovered: the leading half keeps its resting container; the trailing half shows its hovered state.
+    await leading(page, 'filled-busy').hover();
+    await motionEnded(host(page, 'filled-busy'));
+    expect((await look(page, 'filled-busy', 'leading')).background).toBe(await resolveColor(page, T('filled-container-color')));
+    await trailing(page, 'filled-busy').hover();
+    await motionEnded(host(page, 'filled-busy'));
+    expect((await look(page, 'filled-busy', 'trailing')).background).toBe(await resolveColor(page, T('filled-hovered-container-color')));
+    await page.mouse.move(0, 0);
+    // The label and the icon are laid out and not drawn; the name stays.
+    expect(await leading(page, 'filled-busy').locator('.label-text').evaluate((el) => getComputedStyle(el).opacity)).toBe('0');
+    expect(await leading(page, 'filled-busy').locator('.icon').evaluate((el) => getComputedStyle(el).visibility)).toBe('hidden');
+    await expect(leading(page, 'filled-busy')).toHaveAccessibleName('Save');
+    // The arc: centred in the leading half, the icon's box, the label's color, the loading indicator's stroke, turning.
+    const arc = (id: string) =>
+      leading(page, id).evaluate((el) => {
+        const arc = el.querySelector('.busy-arc')!;
+        // (Its box, not its turning ink: the rectangle around a rotated square is larger than the square.)
+        const [a, c] = [arc.getBoundingClientRect(), el.getBoundingClientRect()];
+        const circle = arc.querySelector('circle')!;
+        return { dx: a.left + a.width / 2 - (c.left + c.width / 2), dy: a.top + a.height / 2 - (c.top + c.height / 2), size: (arc as HTMLElement).offsetWidth, stroke: getComputedStyle(circle).stroke, width: getComputedStyle(circle).strokeWidth, animation: getComputedStyle(arc).animationName };
+      });
+    const filled = await arc('filled-busy');
+    expect(Math.abs(filled.dx)).toBeLessThan(0.5);
+    expect(Math.abs(filled.dy)).toBeLessThan(0.5);
+    expect(filled.size).toBeCloseTo(await resolveToken(page, T('icon-size-medium')), 1);
+    expect(filled.stroke).toBe(await resolveColor(page, T('filled-label-color')));
+    expect(Number.parseFloat(filled.width)).toBeCloseTo(await resolveToken(page, T('busy-indicator-thickness')), 1);
+    expect(Number.parseFloat(filled.width)).toBeCloseTo(await resolveToken(page, '--tanrei-comp-button-busy-indicator-thickness'), 1);
+    expect(filled.animation).toBe('busy-turn');
+    // A destructive one draws its arc in its destructive label color, and nothing in its trailing half.
+    expect((await arc('busy-destructive')).stroke).toBe(await resolveColor(page, T('outlined-destructive-label-color')));
+    await expect(trailing(page, 'busy-destructive').locator('.busy-arc')).toHaveCount(0);
+    // Not busy: the arc is gone at once, and the label is drawn again once it has faded in.
+    await setBusy(page, 'filled-busy', false);
+    await expect(leading(page, 'filled-busy').locator('.busy-arc')).toHaveCount(0);
+    await motionEnded(host(page, 'filled-busy'));
+    expect(await leading(page, 'filled-busy').locator('.label-text').evaluate((el) => getComputedStyle(el).opacity)).toBe('1');
+  });
+
+  test('SPB-39: when busy ends the leading half’s label and icon fade back in, and when it begins they fade out, over busy-fade-duration on state-easing with nothing changing place or size in either half; the arc goes and comes at once', async ({ page }) => {
+    await mountFixtures(page, spec, { icons: true, fixtures: [saving] });
+    const duration = await resolveToken(page, T('motion-busy-fade-duration'), 'duration');
+    expect(duration).toBe(await resolveToken(page, '--tanrei-comp-button-motion-busy-fade-duration', 'duration'));
+    const easing = await resolveEasing(page, T('motion-state-easing'));
+    for (const [busy, from, to] of [[false, 0, 1], [true, 1, 0]] as const) {
+      const seen = await sampleFrames(stageOf(page, 'saving'), () => setBusy(page, 'saving', busy), { probe: busyFrame });
+      const way = busy ? 'out' : 'in';
+      expect(seen.before.probe, way).toMatchObject({ label: from, icon: from, iconShown: busy, arc: !busy });
+      expect(seen.rest.probe, way).toMatchObject({ label: to, icon: to, iconShown: !busy, arc: busy });
+      expectAnimated(seen, 'label');
+      expectAnimated(seen, 'icon');
+      expectNoFlicker(seen);
+      for (const frame of seen.frames) {
+        expect(frame.probe.box, `${way}, frame ${frame.index}: the boxes`).toBe(seen.before.probe.box);
+        expect(frame.probe.arc, `${way}, frame ${frame.index}: the arc`).toBe(busy);
+        if (Number(frame.probe.icon) > 0) expect(frame.probe.iconShown, `${way}, frame ${frame.index}: the icon is drawn`).toBe(true);
+      }
+      const fades = seen.motions.filter((motion) => motion.name === 'opacity');
+      expect(fades.map((motion) => motion.on).sort(), way).toEqual(['span.icon', 'span.label-text']);
+      for (const motion of fades) expect([motion.on, motion.duration, motion.easing]).toEqual([motion.on, duration, easing]);
+    }
+  });
+
+  test('SPB-39, SPB-40: what the leading half exposes changes at once when busy changes, not at the end of the fade: in the fade’s first frame its name is the same and aria-disabled and its description already say whether it is busy', async ({ page }) => {
+    await mountFixtures(page, spec, { icons: true, fixtures: [saving] });
+    const native = leading(page, 'saving');
+    await expect(native).toHaveAccessibleName('Save');
+    await expect(native).toHaveAccessibleDescription('Saving');
+    for (const busy of [false, true]) {
+      const frozen = await freezeFirstFrame(stageOf(page, 'saving'), () => setBusy(page, 'saving', busy), { probe: busyFrame });
+      try {
+        expect(frozen.frame.probe.label, `busy ${busy}: the fade has not moved on`).toBe(busy ? 1 : 0);
+        expect(frozen.frame.probe).toMatchObject({ ariaDisabled: busy ? 'true' : '', description: busy ? 'Saving' : '' });
+        await expect(native).toHaveAccessibleName('Save');
+        await expect(native).toHaveAccessibleDescription(busy ? 'Saving' : '');
+      } finally {
+        await frozen.release();
+      }
+      await motionEnded(host(page, 'saving'));
+    }
+  });
+
+  test('SPB-39: under reduced motion the label and the icon are drawn again, and stop being drawn, at once, and the arc does not turn: the whole circle, its opacity easing once per cycle', async ({ page }) => {
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    await mountFixtures(page, spec, { icons: true, fixtures: [saving] });
+    const drawn = await leading(page, 'saving').evaluate((el) => {
+      const arc = el.querySelector('.busy-arc')!;
+      return { animation: getComputedStyle(arc).animationName, dash: getComputedStyle(arc.querySelector('circle')!).strokeDasharray };
+    });
+    expect(drawn).toEqual({ animation: 'busy-pulse', dash: 'none' });
+    for (const busy of [false, true]) {
+      const seen = await sampleFrames(stageOf(page, 'saving'), () => setBusy(page, 'saving', busy), { probe: busyFrame });
+      expectFirstFrameAtRest(seen);
+      expect(seen.frames[0]!.probe, `busy ${busy}`).toMatchObject({ label: busy ? 0 : 1, icon: busy ? 0 : 1, iconShown: !busy, arc: busy });
+      expect(seen.motions.filter((motion) => motion.name === 'opacity' || motion.name === 'visibility'), `busy ${busy}`).toEqual([]);
+    }
+  });
+
+  test('SPB-40: a busy leading half keeps its focus and its place in the focus order, emits no click by any means, exposes aria-disabled and busyLabel after the product’s description, has busyLabel announced once and nothing when it ends; the trailing half still toggles and its menu works; disabled, busy changes nothing; an empty busyLabel is reported', async ({ page }) => {
+    const seen = reports(page);
+    await mountFixtures(page, spec, { icons: true, fixtures: [fixture('before', { label: 'Before' }), withMenu('menu'), fixture('quiet', { variant: 'tonal', busy: true }), fixture('off', { busy: true, busyLabel: 'Saving', disabled: true })] });
+    await wire(page);
+    await host(page, 'menu').evaluate((el) => el.setAttribute('aria-description', 'Saves to the cloud'));
+    await tabTo(page, leading(page, 'menu'));
+    const said: string[] = [];
+    await page.exposeFunction('said', (text: string) => said.push(text));
+    await host(page, 'menu').evaluate((el) => {
+      let last = '';
+      new MutationObserver(() => {
+        const text = el.shadowRoot!.querySelector('[role="status"]')?.textContent ?? '';
+        if (text && text !== last) (window as unknown as { said: (text: string) => void }).said(text);
+        last = text;
+      }).observe(el.shadowRoot!, { childList: true, characterData: true, subtree: true });
+    });
+    // Made busy while its leading half holds focus: it keeps it.
+    await host(page, 'menu').evaluate(async (el: HTMLElement & { busy: boolean; busyLabel: string; updateComplete: Promise<unknown> }) => {
+      el.busyLabel = 'Saving';
+      el.busy = true;
+      await el.updateComplete;
+    });
+    expect(await focused(page)).toBe('button.leading');
+    await page.keyboard.press('Enter');
+    await page.keyboard.press('Space');
+    // (A press on it as a person makes one: Playwright would wait for an element with aria-disabled to be enabled.)
+    await leading(page, 'menu').click({ force: true });
+    await host(page, 'menu').evaluate((el) => (el as HTMLElement).click());
+    await host(page, 'menu').evaluate((el) => el.dispatchEvent(new MouseEvent('click', { bubbles: true, composed: true })));
+    expect(await log(page)).toEqual([]);
+    await expect.poll(() => said).toEqual(['Saving']);
+    const native = leading(page, 'menu');
+    expect(await native.getAttribute('aria-disabled')).toBe('true');
+    expect(await native.evaluate((el) => (el as HTMLButtonElement).disabled)).toBe(false);
+    expect(await native.getAttribute('aria-description')).toBe('Saves to the cloud, Saving');
+    // The trailing half keeps its name and state and still asks for its menu, which opens and works.
+    await expect(trailing(page, 'menu')).toHaveAccessibleName('More save options');
+    expect(await trailing(page, 'menu').getAttribute('aria-disabled')).toBeNull();
+    await trailing(page, 'menu').click();
+    await expect.poll(() => menuOpen(page, 'menu')).toBe(true);
+    await page.locator('tanrei-menu-item[label="Save a copy"]').click();
+    await expect.poll(() => log(page)).toEqual(['toggle:true', 'item:Save a copy', 'close:item']);
+    await tabTo(page, trailing(page, 'menu'));
+    await page.keyboard.press('ArrowDown');
+    await expect.poll(() => log(page)).toEqual(['toggle:true', 'item:Save a copy', 'close:item', 'toggle:true']);
+    await page.keyboard.press('Escape');
+    await expect.poll(() => menuOpen(page, 'menu')).toBe(false);
+    // Focus elsewhere, Tab reaches the leading half again: it is in the focus order.
+    await tabTo(page, leading(page, 'menu'));
+    expect(await focused(page)).toBe('button.leading');
+    // Not busy: nothing is announced, and a press is a press again.
+    await setBusy(page, 'menu', false);
+    expect(await native.getAttribute('aria-disabled')).toBeNull();
+    expect(await native.getAttribute('aria-description')).toBe('Saves to the cloud');
+    await expect(host(page, 'menu').locator('[role="status"]')).toHaveCount(0);
+    await page.keyboard.press('Enter');
+    expect((await log(page)).at(-1)).toBe('click');
+    expect(said).toEqual(['Saving']);
+    // Disabled, busy changes nothing: both halves disabled, no arc, no aria-disabled of its own.
+    expect(await leading(page, 'off').evaluate((el) => [(el as HTMLButtonElement).disabled, el.getAttribute('aria-disabled'), !!el.querySelector('.busy-arc')])).toEqual([true, null, false]);
+    // A busy leading half without words still renders, and a debug build says so once.
+    await expect(leading(page, 'quiet').locator('.busy-arc')).toHaveCount(1);
+    expect(seen.filter((w) => w.includes('busyLabel'))).toHaveLength(1);
+  });
+
+  test('SPB-40: a busy leading half without its own busyLabel says the product’s words (setWords), and records the key as missing when nobody gave it', async ({ page }) => {
+    await mountFixtures(page, spec, { icons: true, fixtures: [fixture('quiet', { busy: true })] });
+    expect(await missingWords(page)).toEqual(['busyLabel']);
+    await setWords(page, { busyLabel: 'Working' });
+    await expect(leading(page, 'quiet')).toHaveAccessibleDescription('Working');
+    await host(page, 'quiet').evaluate(async (el: HTMLElement & { busyLabel: string; updateComplete: Promise<unknown> }) => {
+      el.busyLabel = 'Saving';
+      await el.updateComplete;
+    });
+    await expect(leading(page, 'quiet')).toHaveAccessibleDescription('Saving');
   });
 });
 

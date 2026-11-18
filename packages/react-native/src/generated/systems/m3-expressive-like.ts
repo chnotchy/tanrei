@@ -1412,6 +1412,7 @@ export const m3ExpressiveLike = {
       standardGap: 8,
     },
     buttonWithMenu: {
+      busyIndicatorThickness: 4,
       containerInnerGap: 2,
       containerInnerShape: 4,
       containerInnerShapeOpen: 9999,
@@ -1426,6 +1427,8 @@ export const m3ExpressiveLike = {
       focusedOpacity: 1,
       hoveredContainerShape: 9999,
       hoveredOpacity: 1,
+      motionBusyCycleDuration: 1000,
+      motionBusyFadeDuration: 150,
       motionFeedbackDuration: 450,
       motionHoverCloseDelay: 300,
       motionHoverOpenDelay: 300,

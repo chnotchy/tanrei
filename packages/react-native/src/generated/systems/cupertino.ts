@@ -1187,6 +1187,7 @@ export const cupertino = {
       standardGap: 8,
     },
     buttonWithMenu: {
+      busyIndicatorThickness: 2,
       containerInnerGap: 2,
       containerInnerShape: 8,
       containerInnerShapeOpen: 8,
@@ -1201,6 +1202,8 @@ export const cupertino = {
       focusedOpacity: 1,
       hoveredContainerShape: 10,
       hoveredOpacity: 1,
+      motionBusyCycleDuration: 1000,
+      motionBusyFadeDuration: 200,
       motionFeedbackDuration: 450,
       motionHoverCloseDelay: 300,
       motionHoverOpenDelay: 300,

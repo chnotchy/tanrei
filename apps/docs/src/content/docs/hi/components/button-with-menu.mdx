@@ -2,7 +2,7 @@
 title: मेन्यू वाला बटन
 description: एक बार दबाने पर मुख्य क्रिया करता है, और अपने बग़ल में जुड़े दूसरे बटन से खुलने वाले मेन्यू में संबंधित क्रियाएँ देता है।
 translationOf: components/button-with-menu.mdx
-sourceHash: fc9fa1614058622bad95aa4f9dbc578e3c4dc196
+sourceHash: 4a0c1aecfa51ca8e911234d2ef634840821696f9
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -296,6 +296,17 @@ Material 3 अपने समकक्ष कंपोनेंट को स�
   <tanrei-button-with-menu variant="elevated" destructive label="हटाएँ" menu-label="हटाने के और विकल्प"></tanrei-button-with-menu>
   <tanrei-button-with-menu variant="outlined" destructive label="हटाएँ" menu-label="हटाने के और विकल्प"></tanrei-button-with-menu>
   <tanrei-button-with-menu separation="gap" destructive label="हटाएँ" menu-label="हटाने के और विकल्प"></tanrei-button-with-menu>
+</Example>
+
+### व्यस्त
+
+मुख्य क्रिया जब तक चल रही हो, `busy` और `busy-label` ("सेव हो रहा है") सेट करें, जैसे किसी व्यस्त [Button](/hi/components/button/) पर करते हैं। शुरुआती हिस्सा अपना साइज़, फ़ोकस के क्रम में अपनी जगह और व्यक्ति का फ़ोकस बनाए रखता है। यह अपने लेबल और आइकन की जगह लोडिंग इंडिकेटर का आर्क बनाता है, और हर दबाने को ठुकरा देता है, ताकि क्रिया दो बार शुरू न हो। व्यस्त होते ही सहायक तकनीक `busy-label` एक बार पढ़कर सुनाती है। क्रिया पूरी होने पर बताएँ कि क्या हुआ: तब मेन्यू वाला बटन कुछ नहीं सुनाता।
+
+`busy` सिर्फ़ शुरुआती हिस्से पर लागू होता है। अंतिम हिस्सा और उसका मेन्यू जैसे थे वैसे ही रहते हैं, इसलिए बाक़ी विकल्प अब भी एक दबाने की दूरी पर हैं। जो आइटम मुख्य क्रिया के चलते हुए नहीं चल सकते, उन्हें अक्षम करें।
+
+<Example label="व्यस्त">
+  <tanrei-button-with-menu busy busy-label="सेव हो रहा है" label="सेव करें" menu-label="सेव करने के और विकल्प"><span slot="icon">save</span></tanrei-button-with-menu>
+  <tanrei-button-with-menu variant="outlined" busy busy-label="सेव हो रहा है" label="सेव करें" menu-label="सेव करने के और विकल्प"></tanrei-button-with-menu>
 </Example>
 
 ## स्पेक

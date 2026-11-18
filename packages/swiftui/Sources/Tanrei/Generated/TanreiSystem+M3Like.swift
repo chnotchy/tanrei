@@ -957,6 +957,7 @@ private let m3LikeButtonGroupTokens = TanreiButtonGroupTokens(
 )
 
 private let m3LikeButtonWithMenuTokens = TanreiButtonWithMenuTokens(
+  busyIndicatorThickness: 4,
   containerInnerGap: 2,
   containerInnerShape: 4,
   containerInnerShapeOpen: 9999,
@@ -965,6 +966,8 @@ private let m3LikeButtonWithMenuTokens = TanreiButtonWithMenuTokens(
   containerShape: 9999,
   dividerInset: 8,
   dividerThickness: 1,
+  motionBusyCycleDuration: 1000,
+  motionBusyFadeDuration: 150,
   motionFeedbackDuration: 450,
   motionHoverCloseDelay: 300,
   motionHoverOpenDelay: 300,

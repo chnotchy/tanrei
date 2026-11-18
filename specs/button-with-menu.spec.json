@@ -127,6 +127,19 @@
       "description": "Prevents interaction with both halves and removes them from the focus order."
     },
     {
+      "name": "busy",
+      "type": "boolean",
+      "default": false,
+      "description": "The main action it started is under way: the leading half keeps its focus, its place in the focus order and its size, draws the loading indicator's arc in place of its label and icon, refuses every activation, and tells assistive technology through busyLabel, as a busy Button does (SPB-39, SPB-40). The trailing half and its menu stay as they are, so the related actions are still one press away. For a save or a send that takes a moment; it is not disabled, so focus stays where the person left it."
+    },
+    {
+      "name": "busyLabel",
+      "type": "string",
+      "default": "",
+      "description": "What assistive technology is told while the button with menu is busy (\"Saving\"): announced once when it becomes busy and read after the leading half's name while it is. Tanrei ships no words of its own. Required while busy is true; ignored otherwise.",
+      "words": "busyLabel"
+    },
+    {
       "name": "hoverOpen",
       "type": "boolean",
       "default": false,
@@ -179,7 +192,8 @@
     "disabled",
     "hovered",
     "focused",
-    "pressed"
+    "pressed",
+    "loading"
   ],
   "behavior": [
     {
@@ -346,6 +360,16 @@
       "id": "SPB-37",
       "text": "WHILE size is not set and a container around the button with menu sets a size for what it holds — a toolbar's size (TBR-31), the nearest such container where several do — THE button with menu SHALL draw both halves at that size, their heights following the system's density as at a size of its own, and at its nearest size where it has none of that name, in the order extra-small, small, medium, large, extra-large, the larger of two as near; a container whose size is not set SHALL pass none. WHILE size is set THE button with menu SHALL be drawn at its own size, whatever a container sets. WHEN the size it takes changes — a container's size set, changed or removed, its own size set or removed, or the button with menu moved into or out of such a container — THE button with menu SHALL be drawn at the size it now takes at once.",
       "verify": "In a toolbar whose size is small, a Button with menu without a size has both halves as high as comp.button-with-menu.container.height.small, and one with size large as high as comp.button-with-menu.container.height.large, at density 0.75, 1 and 1.5; removing the toolbar's size, or moving it out, draws it at medium; one whose size is set to medium keeps medium in a small toolbar."
+    },
+    {
+      "id": "SPB-39",
+      "text": "WHILE busy is true and disabled is false THE button with menu SHALL draw its leading half's container, outline, elevation and opacity from its enabled tokens (of its variant, or of its destructive parts, SPB-34), SHALL keep the leading half's label and icon in place without drawing them so that neither half's width or height changes, and SHALL draw at the centre of the leading half the loading indicator's arc (LDG-1; under reduced motion LDG-4's whole circle, its opacity easing once per cycle) in a box of the icon size of its size (comp.button-with-menu.icon.size.medium, and so on), comp.button-with-menu.busy.indicator.thickness thick, in the leading half's label color, turning once per comp.button-with-menu.motion.busy-cycle-duration, as a busy Button draws its own (BTN-36). The leading half SHALL show neither the hovered nor the pressed state, and SHALL show the focused one. WHEN busy becomes true THE button with menu SHALL fade the leading half's label and icon out, and WHEN busy becomes false SHALL fade them back in, over comp.button-with-menu.motion.busy-fade-duration on comp.button-with-menu.motion.state-easing, a change of opacity alone in which nothing changes place or size, turned round from the opacity then drawn where busy changes again during it (MOT-2); the arc SHALL appear and go at once, and what the leading half exposes to assistive technology (SPB-40) SHALL change at once, not at the end of the fade, its name staying as it was throughout. WHERE motion is reduced THE button with menu SHALL draw the label and the icon, or stop drawing them, at once. THE trailing half, its chevron and the divider SHALL be drawn as they are without busy, each half in its own state.",
+      "verify": "The fixture filled-busy is filled-icon with the leading half's label and icon laid out and transparent and the arc at the leading half's centre, in comp.button-with-menu.filled.label.color, in a box of comp.button-with-menu.icon.size.medium; both halves have filled-icon's boxes. Hovered, the leading half keeps its resting container color while the trailing half shows its hovered state. Making it busy, and not busy, fades the label and the icon over busy-fade-duration and moves nothing."
+    },
+    {
+      "id": "SPB-40",
+      "text": "WHILE busy is true and disabled is false THE button with menu SHALL keep the leading half's focus and its place in the focus order, SHALL NOT emit click by any means (a press, a key, assistive technology or a script's click), SHALL expose on the leading half that it cannot be activated now (on the web aria-disabled) and busyLabel as its description, read after its name, and WHEN busy becomes true SHALL have busyLabel announced once, politely, without moving focus; nothing SHALL be announced when it ends, because what the action did is the product's to say. THE trailing half SHALL keep its name, role, state, focus and keys, and SHALL emit toggle and present its menu as it does without busy (SPB-2, SPB-15, SPB-22), so that the related actions stay one press away. WHILE disabled is true busy SHALL change nothing (SPB-3, SPB-7). WHILE busy is true and busyLabel is empty THE button with menu SHALL still render and in debug builds report that its busy leading half does not say so.",
+      "verify": "Made busy while its leading half holds focus, the focus stays; Enter, Space, a press and element.click() emit no click; the leading half has aria-disabled and busyLabel as its description, busyLabel is heard once and nothing when busy ends. The trailing half still emits toggle on a press and on Down Arrow, and its menu opens and its items work. An empty busyLabel is reported once."
     }
   ],
   "accessibility": {
@@ -383,7 +407,8 @@
       "The divider is decoration: it is not exposed and takes no press. The two halves are two buttons whether a line or a gap is between them.",
       "A narrow trailing half is drawn narrower than the minimum target; its hit area is not (SPB-6). Its target reaches outward past the end edge, so leave room for it there.",
       "In the default system the outline of the outlined variant, and the divider of the outlined, tonal and elevated variants, are the hairline (the divider's color), far below 3:1 against their ground. That is within WCAG 1.4.11: the leading half is identified by its label, the trailing half by its chevron, and each half answers hover, focus and press on its own shape. The divider of the filled variant keeps the functional outline role, because a hairline cannot be seen on that fill.",
-      "destructive adds a color, never a meaning (WCAG 1.4.1, use of color): the error color tells people who see it that the main action deletes or discards something, and nothing tells a screen reader user so but the label. So the label names the action and what it acts on (\"Delete project\", not \"OK\"). Disabled, a destructive button with menu looks like any disabled one of its variant: a button that cannot be pressed does nothing."
+      "destructive adds a color, never a meaning (WCAG 1.4.1, use of color): the error color tells people who see it that the main action deletes or discards something, and nothing tells a screen reader user so but the label. So the label names the action and what it acts on (\"Delete project\", not \"OK\"). Disabled, a destructive button with menu looks like any disabled one of its variant: a button that cannot be pressed does nothing.",
+      "busy is the leading half's, as a busy Button's is: it keeps focus and its place in the focus order, says that it cannot be activated now and what is under way (busyLabel, announced once), and announces nothing when it ends, so the product says what the action did. The trailing half and its menu stay usable, so the related actions are still offered; disable the menu's items that cannot run alongside the action."
     ]
   },
   "tokens": "comp.button-with-menu",
@@ -466,6 +491,19 @@
       "props": {
         "variant": "filled",
         "size": "large",
+        "label": "Save",
+        "menuLabel": "More save options"
+      },
+      "slots": {
+        "icon": "save"
+      }
+    },
+    {
+      "id": "filled-busy",
+      "props": {
+        "variant": "filled",
+        "busy": true,
+        "busyLabel": "Saving",
         "label": "Save",
         "menuLabel": "More save options"
       },
@@ -809,6 +847,8 @@
         "menuLabel": "menuLabel",
         "open": "open",
         "disabled": "disabled",
+        "busy": "busy",
+        "busyLabel": "busyLabel",
         "hoverOpen": "hoverOpen",
         "hoverDelay": "hoverDelay"
       },
@@ -828,7 +868,7 @@
         "menu": "tanrei-menu surface",
         "focus-ring": "container@focus-ring"
       },
-      "notes": "`<tanrei-button-with-menu label=\"Save\" menu-label=\"More save options\" hover-open hover-delay=\"400\">` with optional glyph elements in `slot=\"icon\"`, `slot=\"chevron\"` and `slot=\"chevron-open\"` (the trailing half draws `expand_more` through the icon helper when both chevron slots are empty), and the menu's item elements (`tanrei-menu-item`, `tanrei-menu-checkbox-item`, `tanrei-menu-radio-item`, `tanrei-menu-group`) as children with `slot=\"menu\"`, which it forwards into a `tanrei-menu` in its shadow root. Only the leading half's `click` reaches listeners on the element; the trailing half fires `toggle` (a CustomEvent whose `detail.open` is the value asked for, not the popover's ToggleEvent, which does not leave the shadow root), for a press, a key or a hover alike, and the menu's close fires `close` with `detail.reason`. The product sets `open` from both. `hoverDelay` is a number of milliseconds; unset (null) takes the token. Hover opening listens for `pointerenter` / `pointerleave` with `pointerType` `mouse` or `pen`, and opens the menu through the menu's internal no-focus channel (SPB-22); Escape for a menu open from hover is a capturing keydown on the document. Each half draws its outline as an inside border and its elevation ring as an inset box-shadow layer, the blurred layers staying outside (SPB-26). The trailing half carries `aria-haspopup=\"menu\"`, `aria-expanded` and `aria-controls`, and is the menu's focus-return target. `separation` (`auto`, `divider`, `gap`) and `trailing-width` (`default`, `narrow`) are attributes; auto reads the name in `--tanrei-comp-button-with-menu-container-separation`. Under divider the halves touch, the rule is drawn over the seam, and neither half draws a border or an inset ring on its inner edge. `destructive` is a boolean attribute; it draws both halves from the variant's destructive parts, exposes nothing more (SPB-35), and is not passed to the menu's items."
+      "notes": "`<tanrei-button-with-menu label=\"Save\" menu-label=\"More save options\" hover-open hover-delay=\"400\">` with optional glyph elements in `slot=\"icon\"`, `slot=\"chevron\"` and `slot=\"chevron-open\"` (the trailing half draws `expand_more` through the icon helper when both chevron slots are empty), and the menu's item elements (`tanrei-menu-item`, `tanrei-menu-checkbox-item`, `tanrei-menu-radio-item`, `tanrei-menu-group`) as children with `slot=\"menu\"`, which it forwards into a `tanrei-menu` in its shadow root. Only the leading half's `click` reaches listeners on the element; the trailing half fires `toggle` (a CustomEvent whose `detail.open` is the value asked for, not the popover's ToggleEvent, which does not leave the shadow root), for a press, a key or a hover alike, and the menu's close fires `close` with `detail.reason`. The product sets `open` from both. `hoverDelay` is a number of milliseconds; unset (null) takes the token. Hover opening listens for `pointerenter` / `pointerleave` with `pointerType` `mouse` or `pen`, and opens the menu through the menu's internal no-focus channel (SPB-22); Escape for a menu open from hover is a capturing keydown on the document. Each half draws its outline as an inside border and its elevation ring as an inset box-shadow layer, the blurred layers staying outside (SPB-26). The trailing half carries `aria-haspopup=\"menu\"`, `aria-expanded` and `aria-controls`, and is the menu's focus-return target. `busy` is a boolean attribute and `busy-label` a string one: while busy the leading half keeps the native button enabled, carries `aria-disabled=\"true\"` and `busyLabel` in `aria-description`, refuses its click in the capture phase on the host, and a `role=\"status\"` region in the shadow root, rendered only while busy, is given `busyLabel` a frame after it appears (SPB-40); `busyLabel` falls back to the product's words (`busyLabel`).`separation` (`auto`, `divider`, `gap`) and `trailing-width` (`default`, `narrow`) are attributes; auto reads the name in `--tanrei-comp-button-with-menu-container-separation`. Under divider the halves touch, the rule is drawn over the seam, and neither half draws a border or an inset ring on its inner edge. `destructive` is a boolean attribute; it draws both halves from the variant's destructive parts, exposes nothing more (SPB-35), and is not passed to the menu's items."
     },
     "swiftui": {
       "status": "planned",
@@ -843,6 +883,8 @@
         "menuLabel": "menuLabel",
         "open": "isMenuPresented",
         "disabled": "disabled",
+        "busy": "busy",
+        "busyLabel": "busyLabel",
         "hoverOpen": "opensOnHover",
         "hoverDelay": "hoverDelay"
       },
@@ -851,7 +893,7 @@
         "toggle": "isMenuPresented",
         "close": "isMenuPresented"
       },
-      "notes": "`TanreiButtonWithMenu(_ title:, icon:, menuLabel:, isMenuPresented: Binding<Bool>, opensOnHover: Bool = false, hoverDelay: Duration? = nil, action:, chevron:, openChevron:) { TanreiMenuItem … }`: the title first, as `Button(_:action:)`; `chevron` and `openChevron` are optional glyph builders (the chevron and chevron-open slots); the trailing view builder is the menu's content, presented as `TanreiMenu` is. The trailing half writes the binding (toggle), and so does the menu when it closes (close); a product that needs the close reason reads the menu's. `disabled` follows `.disabled(_:)`. Hover uses `.onContinuousHover` (macOS, and iPadOS with a pointer); a nil `hoverDelay` takes the token. SwiftUI's `Menu(primaryAction:)` is not used: neither half can be tokenised. Ships the previous revision today (6 px corners, a fixed turning chevron, no hover opening); the rest is owed, including a check of SPB-26 on this platform. Also owed: the component's current name, `separation` and `trailingWidth`, the divider (SPB-31), the outer padding (SPB-32), a trailing half that keeps its shape while open (SPB-13), the tighter padding beside the icon, and the new fixtures; reading comp.button-with-menu.container.separation as a typed choice needs the native token emitters to write a component's choice of kind as a typed enumeration, which they do not yet. Not built on this platform yet: `role: ButtonRole? = nil`, as SwiftUI's own `Button(role:)` takes it: `.destructive` is destructive (SPB-34), and the role is given to the leading half alone (SPB-35)."
+      "notes": "`TanreiButtonWithMenu(_ title:, icon:, menuLabel:, isMenuPresented: Binding<Bool>, opensOnHover: Bool = false, hoverDelay: Duration? = nil, action:, chevron:, openChevron:) { TanreiMenuItem … }`: the title first, as `Button(_:action:)`; `chevron` and `openChevron` are optional glyph builders (the chevron and chevron-open slots); the trailing view builder is the menu's content, presented as `TanreiMenu` is. The trailing half writes the binding (toggle), and so does the menu when it closes (close); a product that needs the close reason reads the menu's. `disabled` follows `.disabled(_:)`. Hover uses `.onContinuousHover` (macOS, and iPadOS with a pointer); a nil `hoverDelay` takes the token. SwiftUI's `Menu(primaryAction:)` is not used: neither half can be tokenised. Ships the previous revision today (6 px corners, a fixed turning chevron, no hover opening); the rest is owed, including a check of SPB-26 on this platform. Also owed: the component's current name, `separation` and `trailingWidth`, the divider (SPB-31), the outer padding (SPB-32), a trailing half that keeps its shape while open (SPB-13), the tighter padding beside the icon, and the new fixtures; reading comp.button-with-menu.container.separation as a typed choice needs the native token emitters to write a component's choice of kind as a typed enumeration, which they do not yet. Not built on this platform yet: `role: ButtonRole? = nil`, as SwiftUI's own `Button(role:)` takes it: `.destructive` is destructive (SPB-34), and the role is given to the leading half alone (SPB-35). Not built on this platform yet either: `busy: Bool = false` and `busyLabel: String = \"\"` (SPB-39, SPB-40), as `TanreiButton`'s, applied to the leading half alone."
     },
     "compose": {
       "status": "planned",
@@ -866,6 +908,8 @@
         "menuLabel": "menuContentDescription",
         "open": "menuExpanded",
         "disabled": "enabled",
+        "busy": "busy",
+        "busyLabel": "busyLabel",
         "hoverOpen": "openOnHover",
         "hoverDelay": "hoverDelayMillis"
       },
@@ -874,7 +918,7 @@
         "toggle": "onMenuExpandedChange",
         "close": "onMenuDismissRequest"
       },
-      "notes": "`TanreiButtonWithMenu(text, onClick, menuContentDescription, menuExpanded, onMenuExpandedChange, onMenuDismissRequest, variant, size, enabled, icon, chevron, openChevron, openOnHover = false, hoverDelayMillis: Long? = null) { TanreiMenuItem(…) }`: `chevron` and `openChevron` are optional glyph lambdas (the chevron and chevron-open slots); the content lambda is the menu's, shown in the `TanreiMenu` popup. State hoisting: the caller keeps `menuExpanded`, sets it from `onMenuExpandedChange` (a press, a key or a hover) and to false from `onMenuDismissRequest`, which carries the reason. Hover reads `PointerEventType.Enter` / `Exit` for `PointerType.Mouse` and `Stylus` only; a null delay takes the token. The trailing half is `Role.Button` with a content description, and its expanded state as `expand` / `collapse` semantics actions. `enabled` is the inverse flag. Ships the previous revision today (6 px corners, a fixed turning chevron, no hover opening); the rest is owed, including a check of SPB-26 on this platform. Also owed: the component's current name, `separation` and `trailingWidth`, the divider (SPB-31), the outer padding (SPB-32), a trailing half that keeps its shape while open (SPB-13), the tighter padding beside the icon, and the new fixtures; reading comp.button-with-menu.container.separation as a typed choice needs the native token emitters to write a component's choice of kind as a typed enumeration, which they do not yet. Not built on this platform yet: `destructive: Boolean = false` (SPB-34); Compose has no destructive role, so it draws and adds no semantics (SPB-35)."
+      "notes": "`TanreiButtonWithMenu(text, onClick, menuContentDescription, menuExpanded, onMenuExpandedChange, onMenuDismissRequest, variant, size, enabled, icon, chevron, openChevron, openOnHover = false, hoverDelayMillis: Long? = null) { TanreiMenuItem(…) }`: `chevron` and `openChevron` are optional glyph lambdas (the chevron and chevron-open slots); the content lambda is the menu's, shown in the `TanreiMenu` popup. State hoisting: the caller keeps `menuExpanded`, sets it from `onMenuExpandedChange` (a press, a key or a hover) and to false from `onMenuDismissRequest`, which carries the reason. Hover reads `PointerEventType.Enter` / `Exit` for `PointerType.Mouse` and `Stylus` only; a null delay takes the token. The trailing half is `Role.Button` with a content description, and its expanded state as `expand` / `collapse` semantics actions. `enabled` is the inverse flag. Ships the previous revision today (6 px corners, a fixed turning chevron, no hover opening); the rest is owed, including a check of SPB-26 on this platform. Also owed: the component's current name, `separation` and `trailingWidth`, the divider (SPB-31), the outer padding (SPB-32), a trailing half that keeps its shape while open (SPB-13), the tighter padding beside the icon, and the new fixtures; reading comp.button-with-menu.container.separation as a typed choice needs the native token emitters to write a component's choice of kind as a typed enumeration, which they do not yet. Not built on this platform yet: `destructive: Boolean = false` (SPB-34); Compose has no destructive role, so it draws and adds no semantics (SPB-35). Not built on this platform yet either: `busy: Boolean = false` and `busyLabel: String = \"\"` (SPB-39, SPB-40), as `TanreiButton`'s, applied to the leading half alone."
     },
     "flutter": {
       "status": "planned",
@@ -889,6 +933,8 @@
         "menuLabel": "menuSemanticLabel",
         "open": "menuController",
         "disabled": "onPressed",
+        "busy": "busy",
+        "busyLabel": "busySemanticLabel",
         "hoverOpen": "openOnHover",
         "hoverDelay": "hoverDelay"
       },
@@ -897,7 +943,7 @@
         "toggle": "onMenuToggle",
         "close": "onMenuClose"
       },
-      "notes": "`TanreiButtonWithMenu(label:, icon:, chevron:, openChevron:, menuSemanticLabel:, onPressed:, menuController:, menuChildren: [TanreiMenuItem(…)], onMenuToggle:, onMenuClose:, openOnHover: false, hoverDelay: null, variant:, size:)`, built with the widgets library: `chevron` and `openChevron` are optional glyph widgets (the chevron and chevron-open slots); `menuChildren` are the menu's items, shown through `TanreiMenuAnchor`. The controller is a `TanreiMenuController` (the Tanrei menu's own), passed or created internally; it is open, so the button with menu opens and closes the menu itself; `onMenuToggle` and `onMenuClose` report it. Hover uses a `MouseRegion` and ignores `PointerDeviceKind.touch`; `hoverDelay` is a `Duration?`, null taking the token. A null `onPressed` disables it. Ships the previous revision today (6 px corners, a fixed turning chevron, no hover opening); the rest is owed, including a check of SPB-26 on this platform. Also owed: the component's current name, `separation` and `trailingWidth`, the divider (SPB-31), the outer padding (SPB-32), a trailing half that keeps its shape while open (SPB-13), the tighter padding beside the icon, and the new fixtures; reading comp.button-with-menu.container.separation as a typed choice needs the native token emitters to write a component's choice of kind as a typed enumeration, which they do not yet. Not built on this platform yet: `isDestructiveAction: false`, the widgets library's name for it (SPB-34); it draws and adds no semantics (SPB-35)."
+      "notes": "`TanreiButtonWithMenu(label:, icon:, chevron:, openChevron:, menuSemanticLabel:, onPressed:, menuController:, menuChildren: [TanreiMenuItem(…)], onMenuToggle:, onMenuClose:, openOnHover: false, hoverDelay: null, variant:, size:)`, built with the widgets library: `chevron` and `openChevron` are optional glyph widgets (the chevron and chevron-open slots); `menuChildren` are the menu's items, shown through `TanreiMenuAnchor`. The controller is a `TanreiMenuController` (the Tanrei menu's own), passed or created internally; it is open, so the button with menu opens and closes the menu itself; `onMenuToggle` and `onMenuClose` report it. Hover uses a `MouseRegion` and ignores `PointerDeviceKind.touch`; `hoverDelay` is a `Duration?`, null taking the token. A null `onPressed` disables it. Ships the previous revision today (6 px corners, a fixed turning chevron, no hover opening); the rest is owed, including a check of SPB-26 on this platform. Also owed: the component's current name, `separation` and `trailingWidth`, the divider (SPB-31), the outer padding (SPB-32), a trailing half that keeps its shape while open (SPB-13), the tighter padding beside the icon, and the new fixtures; reading comp.button-with-menu.container.separation as a typed choice needs the native token emitters to write a component's choice of kind as a typed enumeration, which they do not yet. Not built on this platform yet: `isDestructiveAction: false`, the widgets library's name for it (SPB-34); it draws and adds no semantics (SPB-35). Not built on this platform yet either: `busy: false` and `busySemanticLabel:` (SPB-39, SPB-40), as `TanreiButton`'s, applied to the leading half alone."
     },
     "react-native": {
       "status": "planned",
@@ -912,6 +958,8 @@
         "menuLabel": "menuAccessibilityLabel",
         "open": "menuVisible",
         "disabled": "disabled",
+        "busy": "busy",
+        "busyLabel": "busyLabel",
         "hoverOpen": "hoverOpen",
         "hoverDelay": "hoverDelay"
       },
@@ -920,7 +968,7 @@
         "toggle": "onMenuToggle",
         "close": "onMenuDismiss"
       },
-      "notes": "`<ButtonWithMenu label icon chevron openChevron menuAccessibilityLabel menuVisible hoverOpen hoverDelay onPress onMenuToggle onMenuDismiss menuItems={[…]} variant size>`: `chevron` and `openChevron` are optional glyph names (the chevron and chevron-open slots); `menuItems` is the `Menu`'s `items` array (the union of its four kinds), shown by a `Menu` on the overlay layer that `TanreiProvider` renders. Controlled: the caller sets `menuVisible` from `onMenuToggle` and to false from `onMenuDismiss`, which carries the reason. Hover uses `Pressable`'s `onHoverIn` / `onHoverOut`, which fire only for a pointer (iPadOS, Android with a mouse, web); `hoverDelay` is in milliseconds, undefined taking the token. The trailing half has the `button` role with `accessibilityState.expanded`. Ships the previous revision today (6 px corners, a fixed turning chevron, no hover opening); the rest is owed, including a check of SPB-26 on this platform. Also owed: the component's current name, `separation` and `trailingWidth`, the divider (SPB-31), the outer padding (SPB-32), a trailing half that keeps its shape while open (SPB-13), the tighter padding beside the icon, and the new fixtures; reading comp.button-with-menu.container.separation as a typed choice needs the native token emitters to write a component's choice of kind as a typed enumeration, which they do not yet. Not built on this platform yet: `destructive` (SPB-34); it draws and adds no accessibility props (SPB-35)."
+      "notes": "`<ButtonWithMenu label icon chevron openChevron menuAccessibilityLabel menuVisible hoverOpen hoverDelay onPress onMenuToggle onMenuDismiss menuItems={[…]} variant size>`: `chevron` and `openChevron` are optional glyph names (the chevron and chevron-open slots); `menuItems` is the `Menu`'s `items` array (the union of its four kinds), shown by a `Menu` on the overlay layer that `TanreiProvider` renders. Controlled: the caller sets `menuVisible` from `onMenuToggle` and to false from `onMenuDismiss`, which carries the reason. Hover uses `Pressable`'s `onHoverIn` / `onHoverOut`, which fire only for a pointer (iPadOS, Android with a mouse, web); `hoverDelay` is in milliseconds, undefined taking the token. The trailing half has the `button` role with `accessibilityState.expanded`. Ships the previous revision today (6 px corners, a fixed turning chevron, no hover opening); the rest is owed, including a check of SPB-26 on this platform. Also owed: the component's current name, `separation` and `trailingWidth`, the divider (SPB-31), the outer padding (SPB-32), a trailing half that keeps its shape while open (SPB-13), the tighter padding beside the icon, and the new fixtures; reading comp.button-with-menu.container.separation as a typed choice needs the native token emitters to write a component's choice of kind as a typed enumeration, which they do not yet. Not built on this platform yet: `destructive` (SPB-34); it draws and adds no accessibility props (SPB-35). Not built on this platform yet either: `busy` and `busyLabel` (SPB-39, SPB-40), as `Button`'s, applied to the leading half alone."
     }
   }
 }

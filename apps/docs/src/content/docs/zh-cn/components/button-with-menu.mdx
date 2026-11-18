@@ -2,7 +2,7 @@
 title: "带菜单的按钮"
 description: "按一次即可执行主操作，并通过旁边与之相连的第二个按钮，在菜单中提供相关的操作。"
 translationOf: components/button-with-menu.mdx
-sourceHash: fc9fa1614058622bad95aa4f9dbc578e3c4dc196
+sourceHash: 4a0c1aecfa51ca8e911234d2ef634840821696f9
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -296,6 +296,17 @@ Material 3 把对应的组件称为 split button；在 m3-like 预设中，带�
   <tanrei-button-with-menu variant="elevated" destructive label="删除" menu-label="更多删除选项"></tanrei-button-with-menu>
   <tanrei-button-with-menu variant="outlined" destructive label="删除" menu-label="更多删除选项"></tanrei-button-with-menu>
   <tanrei-button-with-menu separation="gap" destructive label="删除" menu-label="更多删除选项"></tanrei-button-with-menu>
+</Example>
+
+### 忙碌
+
+在主操作进行期间，请设置 `busy` 和 `busy-label`（“正在保存”），和忙碌的[按钮](/zh-cn/components/button/)一样。前半边保持它的尺寸、它在焦点顺序中的位置，以及用户的焦点。它在标签和图标的位置画出加载指示器的圆弧，并拒绝每一次按下，所以操作不会开始两次。变为忙碌时，辅助技术会朗读一次 `busy-label`。操作结束时请说明发生了什么：那时带菜单的按钮什么也不朗读。
+
+`busy` 只作用于前半边。后半边和它的菜单保持原样，所以其他选项仍然只差一次按下。主操作进行期间无法执行的菜单项，请把它们禁用。
+
+<Example label="忙碌">
+  <tanrei-button-with-menu busy busy-label="正在保存" label="保存" menu-label="更多保存选项"><span slot="icon">save</span></tanrei-button-with-menu>
+  <tanrei-button-with-menu variant="outlined" busy busy-label="正在保存" label="保存" menu-label="更多保存选项"></tanrei-button-with-menu>
 </Example>
 
 ## 规格

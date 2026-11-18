@@ -2622,6 +2622,29 @@
             },
             {
               "kind": "field",
+              "name": "busy",
+              "privacy": "public",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "SPB-39, SPB-40: the main action it started is under way. The leading half keeps its focus, its place in the focus\norder and its size, draws the loading indicator's arc in place of its label and icon, refuses every activation\n(it fires no `click`), and announces `busyLabel` once — as a busy Button does. The trailing half and its menu stay\nusable. Nothing is announced when it ends: say what the action did. Ignored while disabled.",
+              "attribute": "busy",
+              "reflects": true
+            },
+            {
+              "kind": "field",
+              "name": "busyLabel",
+              "privacy": "public",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "What assistive technology is told while busy (\"Saving\"): your words, in your language. Required while busy.",
+              "attribute": "busy-label"
+            },
+            {
+              "kind": "field",
               "name": "hoverOpen",
               "privacy": "public",
               "type": {
@@ -2749,6 +2772,24 @@
               "default": "false",
               "description": "Prevents interaction with both halves, removes them from the focus order and presents no menu.",
               "fieldName": "disabled"
+            },
+            {
+              "name": "busy",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "SPB-39, SPB-40: the main action it started is under way. The leading half keeps its focus, its place in the focus\norder and its size, draws the loading indicator's arc in place of its label and icon, refuses every activation\n(it fires no `click`), and announces `busyLabel` once — as a busy Button does. The trailing half and its menu stay\nusable. Nothing is announced when it ends: say what the action did. Ignored while disabled.",
+              "fieldName": "busy"
+            },
+            {
+              "name": "busy-label",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "What assistive technology is told while busy (\"Saving\"): your words, in your language. Required while busy.",
+              "fieldName": "busyLabel"
             },
             {
               "name": "hover-open",

@@ -1184,6 +1184,7 @@ private object M3LikeSystemSource {
     @Suppress("UNUSED_PARAMETER")
     fun buttonWithMenu(typescale: TanreiTypescale, elevation: TanreiElevation): TanreiButtonWithMenuTokens =
         TanreiButtonWithMenuTokens(
+            busyIndicatorThickness = 4.dp,
             containerInnerGap = 2.dp,
             containerInnerShape = 4.dp,
             containerInnerShapeOpen = 9999.dp,
@@ -1192,6 +1193,8 @@ private object M3LikeSystemSource {
             containerShape = 9999.dp,
             dividerInset = 8.dp,
             dividerThickness = 1.dp,
+            motionBusyCycleDuration = 1000,
+            motionBusyFadeDuration = 150,
             motionFeedbackDuration = 450,
             motionHoverCloseDelay = 300,
             motionHoverOpenDelay = 300,

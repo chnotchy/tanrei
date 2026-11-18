@@ -864,6 +864,7 @@ private let tanreiButtonGroupTokens = TanreiButtonGroupTokens(
 )
 
 private let tanreiButtonWithMenuTokens = TanreiButtonWithMenuTokens(
+  busyIndicatorThickness: 2,
   containerInnerGap: 2,
   containerInnerShape: 6,
   containerInnerShapeOpen: 6,
@@ -872,6 +873,8 @@ private let tanreiButtonWithMenuTokens = TanreiButtonWithMenuTokens(
   containerShape: 9999,
   dividerInset: 8,
   dividerThickness: 1,
+  motionBusyCycleDuration: 1000,
+  motionBusyFadeDuration: 200,
   motionFeedbackDuration: 450,
   motionHoverCloseDelay: 300,
   motionHoverOpenDelay: 300,

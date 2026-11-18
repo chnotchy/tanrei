@@ -4057,6 +4057,18 @@
         }
       },
       "button-with-menu": {
+        "busy": {
+          "indicator": {
+            "thickness": {
+              "$type": "dimension",
+              "$value": {
+                "value": 2,
+                "unit": "px"
+              },
+              "$description": "The arc's stroke: a busy Button's."
+            }
+          }
+        },
         "container": {
           "gap": {
             "large": {
@@ -6234,6 +6246,22 @@
           }
         },
         "motion": {
+          "busy-cycle-duration": {
+            "$type": "duration",
+            "$value": {
+              "value": 1000,
+              "unit": "ms"
+            },
+            "$description": "One turn of the busy leading half's arc (SPB-39): a busy Button's, so that the two components agree. Under reduced motion it does not turn, and its opacity eases once per this time instead."
+          },
+          "busy-fade-duration": {
+            "$type": "duration",
+            "$value": {
+              "value": 200,
+              "unit": "ms"
+            },
+            "$description": "How long the leading half's label and icon take to fade out when the button with menu becomes busy, and back in when it stops (SPB-39), with state-easing: a busy Button's. The arc appears and goes at once, and under reduced motion the label and the icon do too."
+          },
           "feedback-duration": {
             "$type": "duration",
             "$value": {

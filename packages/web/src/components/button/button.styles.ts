@@ -1,5 +1,5 @@
 import { css, unsafeCSS } from 'lit';
-import { DISABLED, type OpenAxis, drawnSizeAt, drawnSizeAxis, focusRing, groupItemStyles, iconGlyph, neighbourTarget, pressHold, rippleStyles, stateRules, styledAsAnchorToo } from '../../primitives/index.js';
+import { type BusyParts, DISABLED, type OpenAxis, busyReducedStyles, busyStyles, drawnSizeAt, drawnSizeAxis, focusRing, groupItemStyles, iconGlyph, neighbourTarget, pressHold, rippleStyles, stateRules, styledAsAnchorToo } from '../../primitives/index.js';
 import { productText } from '../../styles/product-text.js';
 import { cornerRadius, shape } from '../../styles/shape.js';
 import { reducedMotion } from '../../styles/motion.js';
@@ -163,6 +163,17 @@ const paint = (suffix: string) => `
 // BTN-36: a busy button carries aria-disabled too, and is drawn from its enabled tokens: neither hovered nor disabled.
 // (:where() keeps each selector's weight, so the order of precedence among the states is as it was.)
 const on = (state: string) => (state === ':disabled' ? `button${DISABLED}:where(:not(.busy))` : state === ':hover' ? 'button:hover:where(:not(.busy))' : `button${state}`);
+/** BTN-36: what a busy button keeps laid out and does not draw, and the tokens its arc and its fade read. */
+const BUSY: BusyParts = {
+  on: 'button.busy',
+  label: '.label',
+  glyphs: '.icon, .mark',
+  ring: '--_glyph',
+  thickness: '--tanrei-comp-button-busy-indicator-thickness',
+  cycle: '--tanrei-comp-button-motion-busy-cycle-duration',
+  fade: '--tanrei-comp-button-motion-busy-fade-duration',
+  easing: '--tanrei-comp-button-motion-state-easing',
+};
 
 const buttonStyles = css`
   :host {
@@ -416,100 +427,21 @@ const buttonStyles = css`
      has, comp.button.busy.indicator.thickness thick, once per comp.button.motion.busy-cycle-duration. The label and the
      icon fade out as busy begins and back in as it ends, over comp.button.motion.busy-fade-duration on state-easing
      (the icon's and the mark's transition is iconGlyph()'s fade, above; a transition turned round goes on from the
-     opacity it shows); the arc appears and goes at once, and so do the label and the icon under reduced motion. */
-  button.busy {
-    cursor: default;
-  }
-  .label {
-    transition: opacity var(--tanrei-comp-button-motion-busy-fade-duration) var(--tanrei-comp-button-motion-state-easing);
-  }
-  /* (The label is transparent, not hidden: it is still the button's name. The icon is hidden too once it has faded, and
-     drawn again from the start of its way back, its visibility being a transition of its own.) */
-  button.busy .label {
-    opacity: 0;
-  }
-  button.busy .icon,
-  button.busy .mark {
-    opacity: 0;
-    visibility: hidden;
-  }
-  .busy-arc {
-    --_ring: var(--_glyph);
-    --_stroke: var(--tanrei-comp-button-busy-indicator-thickness);
-    position: absolute;
-    inset: 0;
-    margin: auto;
-    inline-size: var(--_ring);
-    block-size: var(--_ring);
-    pointer-events: none;
-    animation: busy-turn var(--tanrei-comp-button-motion-busy-cycle-duration) var(--tanrei-sys-motion-easing-linear) infinite;
-  }
+     opacity it shows); the arc appears and goes at once, and so do the label and the icon under reduced motion. The
+     label is transparent, not hidden: it is still the button's name. BTN-37: the polite region busyLabel is announced
+     through is drawn nowhere. (src/primitives/busy.ts) */
+  ${unsafeCSS(busyStyles(BUSY))}
   button.icon-only .busy-arc {
     color: var(--_glyph-color);
   }
-  .busy-arc svg {
-    position: absolute;
-    inset: 0;
-    inline-size: 100%;
-    block-size: 100%;
-    overflow: visible;
-    transform: rotate(-90deg);
-  }
-  .busy-arc circle {
-    --_c: calc(pi * (var(--_ring) - var(--_stroke)));
-    cx: 50%;
-    cy: 50%;
-    r: calc(50% - var(--_stroke) / 2);
-    fill: none;
-    stroke: currentColor;
-    stroke-width: var(--_stroke);
-    stroke-linecap: round;
-    stroke-dasharray: max(0px, calc(var(--_c) / 4 - var(--_stroke))) var(--_c);
-    stroke-dashoffset: calc(var(--_stroke) / -2);
-  }
-  @keyframes busy-turn {
-    from {
-      rotate: 0deg;
-    }
-    to {
-      rotate: 360deg;
-    }
-  }
-  @keyframes busy-pulse {
-    0%,
-    100% {
-      opacity: 1;
-    }
-    50% {
-      opacity: 0;
-    }
-  }
-  /* BTN-37: the polite region busyLabel is announced through, drawn nowhere. (Fixed to the window, so that the host
-     needs no containing block of its own and the region widens no scroll box it stands in.) */
-  .live {
-    position: fixed;
-    inset-block-start: 0;
-    inset-inline-start: 0;
-    overflow: hidden;
-    inline-size: 1px;
-    block-size: 1px;
-    clip-path: inset(50%);
-    white-space: nowrap;
-  }
 
   ${reducedMotion(css`
-    button,
-    .label {
+    button {
       transition: none;
     }
-    /* BTN-36: LDG-4's form — the whole circle, its opacity easing once per cycle, not turning. */
-    .busy-arc {
-      animation: busy-pulse var(--tanrei-comp-button-motion-busy-cycle-duration) var(--tanrei-sys-motion-easing-standard) infinite;
-    }
-    .busy-arc circle {
-      stroke-dasharray: none;
-      stroke-dashoffset: 0;
-    }
+    /* BTN-36: the label at once, and LDG-4's form of the arc — the whole circle, its opacity easing once per cycle, not
+       turning. */
+    ${unsafeCSS(busyReducedStyles(BUSY))}
   `)}
   @media (forced-colors: active) {
     button {

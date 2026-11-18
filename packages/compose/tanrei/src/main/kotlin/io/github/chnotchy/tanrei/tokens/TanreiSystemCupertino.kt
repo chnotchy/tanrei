@@ -1053,6 +1053,7 @@ private object CupertinoSystemSource {
     @Suppress("UNUSED_PARAMETER")
     fun buttonWithMenu(typescale: TanreiTypescale, elevation: TanreiElevation): TanreiButtonWithMenuTokens =
         TanreiButtonWithMenuTokens(
+            busyIndicatorThickness = 2.dp,
             containerInnerGap = 2.dp,
             containerInnerShape = 8.dp,
             containerInnerShapeOpen = 8.dp,
@@ -1061,6 +1062,8 @@ private object CupertinoSystemSource {
             containerShape = 10.dp,
             dividerInset = 8.dp,
             dividerThickness = 1.dp,
+            motionBusyCycleDuration = 1000,
+            motionBusyFadeDuration = 200,
             motionFeedbackDuration = 450,
             motionHoverCloseDelay = 300,
             motionHoverOpenDelay = 300,

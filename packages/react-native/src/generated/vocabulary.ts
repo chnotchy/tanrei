@@ -918,6 +918,7 @@ export type TanreiButtonWithMenuVariants = { readonly [Key in TanreiCoreButtonWi
  * `<state><Part>`), then one holder per axis (`sizes`, `variants`), keyed by the axis value.
  */
 export interface TanreiButtonWithMenuTokens {
+  readonly busyIndicatorThickness: number;
   readonly containerInnerGap: number;
   readonly containerInnerShape: number;
   readonly containerInnerShapeOpen: number;
@@ -932,6 +933,8 @@ export interface TanreiButtonWithMenuTokens {
   readonly focusedOpacity: number;
   readonly hoveredContainerShape: number;
   readonly hoveredOpacity: number;
+  readonly motionBusyCycleDuration: number;
+  readonly motionBusyFadeDuration: number;
   readonly motionFeedbackDuration: number;
   readonly motionHoverCloseDelay: number;
   readonly motionHoverOpenDelay: number;

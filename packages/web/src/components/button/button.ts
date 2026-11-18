@@ -1,4 +1,4 @@
-import { LitElement, type PropertyDeclarations, type PropertyValues, nothing, svg } from 'lit';
+import { LitElement, type PropertyDeclarations, type PropertyValues, nothing } from 'lit';
 import { classMap } from 'lit/directives/class-map.js';
 import { ref } from 'lit/directives/ref.js';
 import { html, literal } from 'lit/static-html.js';
@@ -18,6 +18,9 @@ import {
   type SubmitButtonState,
   type TanreiLinkTarget,
   afterClick,
+  announceBusy,
+  busyArc,
+  busyStatus,
   delegatedAria,
   delegatesAria,
   namedByProduct,
@@ -638,22 +641,12 @@ export class TanreiButton extends TanreiElement {
     this.hasLabel = nodes.some((node) => (node instanceof Element ? !node.slot : node.nodeType === Node.TEXT_NODE && !!node.textContent?.trim()));
   }
 
-  /** BTN-37: the polite region busyLabel is announced through. */
-  private get status() {
-    return this.renderRoot?.querySelector<HTMLElement>('.live') ?? null;
-  }
-
   protected override updated(changed: PropertyValues) {
     // BTN-37: busyLabel is announced once when the button becomes busy (the region was emptied when it was not), and
-    // nothing is said when it ends.
-    // The region exists only while the button is busy (a status region on every button would be one in every list of
-    // the page's regions), so the words are put in a frame after it was, where a screen reader hears a change.
+    // nothing is said when it ends (src/primitives/busy.ts).
     if (changed.has('busy') && this.busy) {
       const words = this.busyLabel;
-      requestAnimationFrame(() => {
-        const status = this.status;
-        if (status && this.busy && !this.isDisabled) status.textContent = words;
-      });
+      announceBusy(this.renderRoot, words, () => this.busy && !this.isDisabled);
       if (!words) report(this, 'BTN-37', 'it is busy and busyLabel is empty, so nothing tells people who cannot see the arc that it is working; give it the words ("Saving")');
     }
     // BTN-32: the update has reflected `disabled` by now. Unset inside a disabled fieldset, the button was rendered
@@ -775,9 +768,9 @@ export class TanreiButton extends TanreiElement {
         <span part="icon" class="icon" aria-hidden="true"><slot name="icon" @slotchange=${this.#onIconSlotChange}></slot></span>
         <span part="label" class="label"><slot @slotchange=${this.#onLabelSlotChange}></slot></span>
         ${mark ? html`<span part="icon" class="mark" aria-hidden="true">${LINK_MARK}</span>` : nothing}
-        ${busy ? html`<span class="busy-arc" aria-hidden="true">${svg`<svg focusable="false"><circle></circle></svg>`}</span>` : nothing}
+        ${busy ? busyArc() : nothing}
       </${tag}>
-      ${busy ? html`<span class="live" role="status"></span>` : nothing}
+      ${busy ? busyStatus() : nothing}
     `;
   }
 }

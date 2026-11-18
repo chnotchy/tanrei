@@ -1720,6 +1720,7 @@ public data class TanreiButtonWithMenuStateTokens(
 /** `comp.button-with-menu`. Members are flat tokens, then per-state tokens, then one holder per axis (`sizes[size]`, `variants[variant]`). */
 @Immutable
 public data class TanreiButtonWithMenuTokens(
+    public val busyIndicatorThickness: Dp,
     public val containerInnerGap: Dp,
     public val containerInnerShape: Dp,
     public val containerInnerShapeOpen: Dp,
@@ -1728,6 +1729,8 @@ public data class TanreiButtonWithMenuTokens(
     public val containerShape: Dp,
     public val dividerInset: Dp,
     public val dividerThickness: Dp,
+    public val motionBusyCycleDuration: Int,
+    public val motionBusyFadeDuration: Int,
     public val motionFeedbackDuration: Int,
     public val motionHoverCloseDelay: Int,
     public val motionHoverOpenDelay: Int,
