@@ -2,7 +2,7 @@
 title: アイコン
 description: アイコンセットはデザインシステムごとに 1 つ、太さも 1 つ、規則も 1 つ。未選択は線、選択中は塗り。
 translationOf: foundations/icons.mdx
-sourceHash: 015fc28f524480f4a6447422a60e7b0a6bdde767
+sourceHash: 00a0f40417096ca36efa5fbb0163bcf9de3f79a6
 ---
 
 import Example from '../../../../components/visuals/Example.astro';
@@ -91,6 +91,17 @@ Tanrei が決めるのはアイコンの「描き方」であって、「どの�
 React Native の `<Text>` はフォントのバリエーション軸を設定できません。そのためバリアブルのアイコンフォントでは `FILL` がグリフに届かず、アイコンはどちらの状態でも同じ見た目になります。React Native で塗りの規則を守るには、上のようにスタティックフォント 2 ファミリーを使うか、アイコンを SVG で描いてください。
 
 ネイティブ 4 パッケージのアイコンヘルパーは、いま「状態ごとのファミリー」モデルへ移行しているところです。各パッケージの README にその記載が載るまでは、そのパッケージは単一のファミリーを読むものと考えてください。
+
+## フォントの読み込み
+
+アイコンフォントを読み込むのはプロダクトで、読み込むのは描く分だけにします。Material Symbols Rounded のファイル全体は、すべてのグリフを 4 つの軸のすべての値で持っていて、5.4 MB あります。何に絞ればよいかは、`tanrei build` がプロダクト自身のシステムについて表示します。
+
+- **グリフの名前**。Tanrei のコンポーネントが自分で描くことのあるもの（山形、チェック、閉じるボタンの×など）で、仕様が挙げるグリフと、Web コンポーネントのコードが宣言するグリフから作られます。ここに、自分の画面が使う名前を足してください。
+- **軸の値**。システムがアイコンを描く値です。`FILL` は 2 つの塗りのトークン、つまりアウトラインと塗りにわたります。`wght` は `sys.icon.weight` と `sys.icon.mark.weight`（チェックボックスのチェックのような、コントロール自身のマークのやや太い太さ）にわたります。`opsz` は `sys.icon.optical-size.min` と `.max`、つまりフォントが描くオプティカルサイズの範囲で、アイコンのボックスのサイズはこの間に収められます。`GRAD` は 0 のままで、動かすトークンはありません。
+
+<SystemValues tokens={['sys.icon.weight', 'sys.icon.mark.weight', 'sys.icon.optical-size.min', 'sys.icon.optical-size.max']} />
+
+値はシステムのものなので、太さを変えるレイヤでは、フォントを絞る範囲も変わります。自分のビルドの出力から取ってください。Web での読み込み方は、[Web のガイド](/ja/getting-started/web/#アイコン)にあります。Google Fonts から `icon_names=` で読み込む方法と、fontTools で間引いたファイルから読み込む方法の両方と、読み込む間にアイコンが名前の文字で見えないようにする方法です。このサイトも同じようにしていて、アイコンフォントは、サイトのビルドのときに、コンポーネントとページが描く名前に絞っています。
 
 <style>{`
   .icon-demo { display: inline-flex; align-items: center; gap: 0.5rem; font: inherit; color: inherit; background: none; border: 0; padding: 0.25rem 0.5rem; cursor: pointer; }

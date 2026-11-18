@@ -2,7 +2,7 @@
 title: Iconos
 description: "Un conjunto de iconos por sistema de diseño, un peso y una regla: con contorno cuando no está seleccionado, con relleno cuando lo está."
 translationOf: foundations/icons.mdx
-sourceHash: 015fc28f524480f4a6447422a60e7b0a6bdde767
+sourceHash: 00a0f40417096ca36efa5fbb0163bcf9de3f79a6
 ---
 
 import Example from '../../../../components/visuals/Example.astro';
@@ -91,6 +91,17 @@ Tanrei decide cómo se dibuja un icono, no qué iconos existen. Cada conjunto no
 El `<Text>` de React Native no puede definir los ejes de variación de una fuente, así que con una fuente de iconos variable `FILL` nunca llega al glifo, y un icono se ve igual en los dos estados. Para mantener allí la regla, usa dos familias estáticas como se indica arriba, o dibuja los iconos como SVG.
 
 Las utilidades de iconos de los cuatro paquetes nativos se están pasando ahora al modelo de una familia por estado; hasta que el README de un paquete lo describa, cuenta con que ese paquete lea una sola familia.
+
+## Cargar la fuente
+
+La fuente de iconos la carga el producto, y solo la parte que dibuja: el archivo completo de Material Symbols Rounded contiene todos los glifos en todos los valores de sus cuatro ejes, 5,4 MB. `tanrei build` muestra a qué recortarla, para el sistema del propio producto:
+
+- **Los nombres de los glifos** que los componentes de Tanrei pueden dibujar por sí mismos: un cheurón, una marca de verificación, la cruz de un botón de cerrar… La lista sale de los glifos que nombran las especificaciones y de los que declara el código de los componentes web. Añade los nombres que usan tus propias pantallas.
+- **Los valores de eje** con los que el sistema dibuja los iconos. `FILL` abarca los dos tokens de relleno, contorno y relleno. `wght` abarca `sys.icon.weight` y `sys.icon.mark.weight`, el peso algo mayor de la marca propia de un control, como la de una casilla de verificación. `opsz` abarca `sys.icon.optical-size.min` y `.max`, los tamaños ópticos que dibuja la fuente, entre los que se mantiene el tamaño de la caja de un icono. `GRAD` se queda en 0: ningún token lo mueve.
+
+<SystemValues tokens={['sys.icon.weight', 'sys.icon.mark.weight', 'sys.icon.optical-size.min', 'sys.icon.optical-size.max']} />
+
+Como los valores pertenecen al sistema, una capa que cambia un peso cambia también aquello a lo que se recorta la fuente: tómalos de tu propia compilación. En la web, la [guía de Web](/es/getting-started/web/#iconos) explica cómo cargar la fuente de las dos maneras, desde Google Fonts con `icon_names=` o desde un archivo recortado con fontTools, y cómo evitar que los iconos muestren su nombre en letras mientras se carga. Este sitio hace lo mismo: al compilarse, su fuente de iconos se recorta a los nombres que dibujan sus componentes y sus páginas.
 
 <style>{`
   .icon-demo { display: inline-flex; align-items: center; gap: 0.5rem; font: inherit; color: inherit; background: none; border: 0; padding: 0.25rem 0.5rem; cursor: pointer; }
