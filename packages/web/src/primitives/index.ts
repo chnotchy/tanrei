@@ -23,7 +23,9 @@
 //                 MirrorWordController: the product's `data-mirror` on the element that names a glyph the component
 //                 draws (a tab's `icon`), carried to the box that draws it; hearsMirrorWord(Class): the element's
 //                 class hears the attribute; GeneratedGlyphMirror: the same answer for a glyph a light-DOM stylesheet
-//                 draws as generated content, which no mark can be written on, handed to its host (TRV-38)
+//                 draws as generated content, which no mark can be written on, handed to its host (TRV-38), and
+//                 generatedGlyphMirrors() that answer once (the previous and next links' arrows, PNL-21);
+//                 watchIconSet(): told when the design system is switched on the document's root
 //   axes        — OpenAxesController: sizes and variants a design system adds, and a value it does not have
 //   size-cascade — SizeProviderController and SizeConsumerController: a size set on a container is the size of what it
 //                 holds that sets none (BGR-26, BTN-48); nearestSize(): a size a component lacks, taken as its nearest;
@@ -309,7 +311,7 @@ export {
   takesRequired,
 } from './field.js';
 export { DRAWN_WIDTH, GlyphDrawnController } from './glyph.js';
-export { GeneratedGlyphMirror, type GlyphMirrorOptions, GlyphMirrorController, type GlyphMirroring, MirrorWordController, activeIconSet, glyphMirrors, glyphName, hearsMirrorWord, markGlyph, mirrorWordOf, observeIcons } from './glyph-mirror.js';
+export { GeneratedGlyphMirror, type GlyphMirrorOptions, GlyphMirrorController, type GlyphMirroring, MirrorWordController, activeIconSet, generatedGlyphMirrors, glyphMirrors, glyphName, hearsMirrorWord, markGlyph, mirrorWordOf, observeIcons, watchIconSet } from './glyph-mirror.js';
 export { report } from './report.js';
 export { type MissingWord, type TanreiWords, type WordKey, WordsController, missingWords, setWords, watchWords, wordFor, wordMissing } from './words.js';
 export { type MissingValueKind, type OwnWords, browserMissingMessage, missingValueMessage } from './missing-value.js';

@@ -999,6 +999,45 @@ test.describe('forced colors, scaling, direction', () => {
     }
   });
 
+  test('PNL-21 in a shadow root of the product’s, observed by its own call, the arrows follow the icon set of the design system around the shadow root’s host — a product layer’s on the document’s root (acme), and the default one switched in there while they are shown', async ({ page }) => {
+    const SITE = 'https://pnl-shadow.test';
+    await fresh(page);
+    await page.route(`${SITE}/**`, (route) => {
+      const url = new URL(route.request().url());
+      if (url.pathname === '/tanrei.bundle.js') return route.fulfill({ contentType: 'text/javascript', body: read('dist/tanrei.bundle.js') });
+      return route.fulfill({ contentType: 'text/html', body: '<!doctype html><html lang="en" data-tanrei-theme="light"><head><meta charset="utf-8"><title>shadow</title></head><body></body></html>' });
+    });
+    await page.goto(`${SITE}/`);
+    await page.addStyleTag({ content: read('dist/tokens.css') });
+    await page.addStyleTag({ content: await acmeSystemCss() });
+    await page.evaluate(
+      async ([sheet, nav]) => {
+        document.documentElement.setAttribute('data-tanrei-system', 'acme');
+        const host = document.body.appendChild(document.createElement('div'));
+        host.dir = 'rtl';
+        host.style.inlineSize = '720px';
+        const shadow = host.attachShadow({ mode: 'open' });
+        shadow.innerHTML = `<style>${sheet}</style>${nav}`;
+        const module = (await import('/tanrei.bundle.js' as string)) as { observePreviousNextLinks(root: ShadowRoot): () => void };
+        module.observePreviousNextLinks(shadow);
+      },
+      [read('dist/previous-next-links.css'), pages()] as const,
+    );
+    const items = page.locator('.tanrei-previous-next-links-item');
+    /** Whether each item is marked unmirrored, and its arrow's transform. */
+    const drawn = () =>
+      items.evaluateAll((all) =>
+        all.map((el) => [el.hasAttribute('data-tanrei-unmirrored'), getComputedStyle(el, el.getAttribute('data-direction') === 'previous' ? '::before' : '::after').transform.replace(/\s/g, '')]),
+      );
+    await expect(items).toHaveCount(2);
+    // acme's family is described by no set: neither arrow is mirrored right to left.
+    expect(await drawn()).toEqual([[true, 'none'], [true, 'none']]);
+    // The default system switched in on the root, outside the shadow root: its set marks both names.
+    await page.evaluate(() => document.documentElement.removeAttribute('data-tanrei-system'));
+    await expect(items.first()).not.toHaveAttribute('data-tanrei-unmirrored');
+    expect(await drawn()).toEqual([[false, 'matrix(-1,0,0,1,0,0)'], [false, 'matrix(-1,0,0,1,0,0)']]);
+  });
+
   test('PNL-22 a label and a title are text of their own direction, isolated: a left-to-right title in a right-to-left pair reads in its own order and its lines are aligned as the Arabic label above it', async ({ page }) => {
     await mountSpec(page, ['ltr-title-rtl', 'long-titles-rtl']);
     for (const [direction, text] of [['previous', 'Web Components 1.2'], ['next', 'Jetpack Compose']] as const) {
