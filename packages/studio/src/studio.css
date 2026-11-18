@@ -213,7 +213,7 @@
 }
 .ts h2.ts-eyebrow {
   margin: 0;
-  font: var(--tanrei-sys-typescale-eyebrow-font);
+  font: var(--tanrei-sys-typescale-eyebrow-font-weight) var(--tanrei-sys-typescale-eyebrow-font-size)/var(--tanrei-sys-typescale-eyebrow-line-height) var(--tanrei-sys-typescale-eyebrow-font-family);
   letter-spacing: var(--tanrei-sys-typescale-eyebrow-letter-spacing);
   text-transform: uppercase;
   color: var(--tanrei-sys-color-on-surface);
@@ -461,7 +461,7 @@
   margin-inline-start: auto;
 }
 .ts-preview-word {
-  font: var(--tanrei-comp-tabs-label-typescale-font);
+  font: var(--tanrei-comp-tabs-label-typescale-font-weight) var(--tanrei-comp-tabs-label-typescale-font-size)/var(--tanrei-comp-tabs-label-typescale-line-height) var(--tanrei-comp-tabs-label-typescale-font-family);
   letter-spacing: var(--tanrei-comp-tabs-label-typescale-letter-spacing);
   color: var(--tanrei-sys-color-on-surface-variant);
   white-space: nowrap;
@@ -513,7 +513,7 @@
   min-inline-size: 0;
   background: var(--tanrei-sys-color-surface);
   color: var(--tanrei-sys-color-on-surface);
-  font: var(--tanrei-sys-typescale-body-font);
+  font: var(--tanrei-sys-typescale-body-font-weight) var(--tanrei-sys-typescale-body-font-size)/var(--tanrei-sys-typescale-body-line-height) var(--tanrei-sys-typescale-body-font-family);
   letter-spacing: var(--tanrei-sys-typescale-body-letter-spacing);
 }
 .ts-scope[data-mode='both'] .ts-pane + .ts-pane {
@@ -528,7 +528,7 @@
 .ts-pane-label {
   display: none;
   padding: var(--tanrei-sys-space-space100) var(--tanrei-sys-space-space200) 0;
-  font: var(--tanrei-sys-typescale-label-small-font);
+  font: var(--tanrei-sys-typescale-label-small-font-weight) var(--tanrei-sys-typescale-label-small-font-size)/var(--tanrei-sys-typescale-label-small-line-height) var(--tanrei-sys-typescale-label-small-font-family);
   letter-spacing: var(--tanrei-sys-typescale-label-small-letter-spacing);
   text-transform: uppercase;
   color: var(--tanrei-sys-color-on-surface-variant);
@@ -796,7 +796,7 @@
   display: inline-flex;
   overflow: hidden;
   border-radius: var(--tanrei-sys-shape-corner-small);
-  font: var(--tanrei-sys-typescale-label-small-font);
+  font: var(--tanrei-sys-typescale-label-small-font-weight) var(--tanrei-sys-typescale-label-small-font-size)/var(--tanrei-sys-typescale-label-small-line-height) var(--tanrei-sys-typescale-label-small-font-family);
   letter-spacing: var(--tanrei-sys-typescale-label-small-letter-spacing);
 }
 .ts-intent span {

@@ -23,6 +23,11 @@ const BARS = [40, 72, 55, 30, 66, 45, 80, 52, 61, 38, 75, 58];
 /** Amounts are written in dollars and shown in each language's currency, at about its size. */
 const RATE: Record<string, number> = { USD: 1, EUR: 1, JPY: 150, CNY: 7, INR: 80, SAR: 4 };
 const cap = (s: string) => s[0].toUpperCase() + s.slice(1);
+/**
+ * A text style, whole, from the custom properties of its role (`base`): the `font` shorthand composed from the role's
+ * longhands, read where the text is drawn, and its tracking beside it. A role has no composite custom property.
+ */
+const roleFont = (base: string) => `font: var(${base}-font-weight) var(${base}-font-size)/var(${base}-line-height) var(${base}-font-family); letter-spacing: var(${base}-letter-spacing);`;
 
 /**
  * The values a component's variant axis declares, as the model holds them: the `variant` axis, or — for a component
@@ -67,7 +72,7 @@ function kit({ ctx, view, distinct }: Drawing) {
   const icon = (name: string, attrs: Json = {}) => h('span', { class: `${studio.tagPrefix}-icon`, 'aria-hidden': 'true', translate: 'no', ...attrs }, name);
   const slotIcon = (name: string) => icon(name, { slot: 'icon' });
   const typescale = `${NS}.sys.typescale.`;
-  const font = (role: string) => `font: var(${studio.cssVar(`${typescale}${role}`)}-font); letter-spacing: var(${studio.cssVar(`${typescale}${role}`)}-letter-spacing);`;
+  const font = (role: string) => roleFont(studio.cssVar(`${typescale}${role}`));
   const text = (role: string, tagName: 'h3' | 'h4' | 'h5' | 'p' | 'span', words: string, attrs: Json = {}) => h(tagName, { style: font(role), ...attrs }, words);
   const currency = s.currency;
   const money = new Intl.NumberFormat(s.locale, { style: 'currency', currency, maximumFractionDigits: 0 });
@@ -177,7 +182,7 @@ function system(k: Kit) {
   const { t, view, studio, NS, typescale, icon } = k;
   const tokens = view.model.tokens as Record<string, Json>;
   const v = (id: string) => `var(${studio.cssVar(id)})`;
-  const font = (id: string) => `font: var(${studio.cssVar(id)}-font); letter-spacing: var(${studio.cssVar(id)}-letter-spacing);`;
+  const font = (id: string) => roleFont(studio.cssVar(id));
   const added = (prefix: string, core: string[]) => Object.keys(tokens).filter((id) => id.startsWith(prefix) && tokens[id].vocabulary?.extension && !core.includes(id.slice(prefix.length)));
   /**
    * Emphasis is a weight step, not a role: the sheet's `<role>-font-weight-emphasized` — the role's weight plus its
