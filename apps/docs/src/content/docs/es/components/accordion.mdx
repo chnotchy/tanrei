@@ -2,7 +2,7 @@
 title: Acordeón
 description: Contenido que una fila muestra y oculta sin salir de su lugar. Un solo elemento es un único desplegable; varios forman un conjunto cuyos elementos se abren cada uno por su cuenta o de uno en uno.
 translationOf: components/accordion.mdx
-sourceHash: aecaadd19c8c644d3738c1d1aceb8d2eb1572126
+sourceHash: c60d6cee74543abbd141215ca5fc9f39558cf29d
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -11,6 +11,7 @@ import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
 import FocusOrder from '../../../../components/visuals/FocusOrder.astro';
 import Example from '../../../../components/visuals/Example.astro';
+import MotionDemo from '../../../../components/visuals/MotionDemo.astro';
 
 ## Descripción general
 
@@ -222,6 +223,8 @@ En la web, `exclusive` es el atributo `name` de `<details>`, que el elemento per
 - Con el texto al 200%, las etiquetas saltan de línea, las cabeceras crecen y el chevron se queda en la primera línea.
 - Con colores forzados, el borde y las líneas tienen el color del texto, y una cabecera deshabilitada tiene el color del texto deshabilitado.
 - Las compilaciones de depuración notifican una cabecera sin nombre, un control dentro de una etiqueta, un elemento sin contenido, un valor desconocido y más de tres niveles de anidamiento.
+
+<MotionDemo name="accordion" motion="disclosure" from="single" to="single-open" />
 
 ### Qué debes hacer tú
 

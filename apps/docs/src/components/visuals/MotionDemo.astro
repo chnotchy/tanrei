@@ -1,0 +1,98 @@
+---
+// A component's motion, played on the live component in the docs' one frame (Example.astro): from one of its fixtures
+// to another, the web package's own stages of both (lib/visuals/motion.ts, `motionDemoOf`). A page writes one line,
+// `<MotionDemo name="switch" motion="selection" from="unselected" to="selected" />`, and the six languages share it.
+//
+// - **It plays once**, when the figure comes into view, and never again by itself: the frame's first action plays it
+//   again, from the first fixture. The play is the attributes that differ between the two fixtures' stages, set on the
+//   live elements, so what moves is the component's own motion (lib/visuals/motion.client.ts).
+// - **Where the device asks for reduced motion it shows the end**: the second fixture's stage, still, from the moment
+//   its elements are defined, and nothing in it moves; the caption says why.
+// - **Slow motion** (the frame's second action, a toggle) stretches every duration of the component's motion by the
+//   inverse of `SLOW`, on its custom properties, and plays it again; an animation started by script that runs at an
+//   unstretched duration is slowed by its `playbackRate` instead.
+// - **Its numbers are the tokens'**: the caption names the motion, its duration in milliseconds — read from the
+//   component's custom property in the system the stage is drawn under — and the motion role the duration stands for.
+// - The component is a picture: `inert` and hidden from assistive technology; the figure is an image named by a
+//   sentence in the page's language (`visuals.motionAlt`). It follows the page's look as every frame does, and holds
+//   the room of the larger of the two fixtures' baselines before anything is defined.
+// - **Its stage says which fixture it shows** (`data-motion-shows`: `from` as served and while a play is set up again,
+//   `to` once a play has set the second fixture's attributes, and under reduced motion): the comparison of the page's
+//   previews with the web package's drawing (test/browser/compare-previews.mjs) draws the copy of the figure as that
+//   fixture, from the two the figure holds.
+import Example from './Example.astro';
+import { contentLang, strings } from '../../lib/i18n';
+import { stagingStyle } from '../../lib/fixture-gallery';
+import { ns } from '../../lib/tokens';
+import { motionAlt, motionDemoOf, numbered } from '../../lib/visuals/motion';
+
+interface Props {
+  /** The component, by its spec's name. */
+  name: string;
+  /** The motion, by its id (`selection` for `motion.selection-duration`). */
+  motion: string;
+  /** The fixture the stage stands in before the motion. */
+  from: string;
+  /** The fixture the motion reaches: the same elements, with other attributes. */
+  to: string;
+}
+const { name, motion, from, to } = Astro.props;
+const lang = contentLang(Astro);
+const t = strings(lang);
+const demo = motionDemoOf(name, motion, from, to);
+if (!demo.role) throw new Error(`MotionDemo: ${demo.motion.duration} stands for no motion role (sys.motion.role.*)`);
+/** How fast slow motion plays: a quarter of the speed, four times the duration. */
+const SLOW = 0.25;
+const room = { width: Math.max(demo.from.room.width, demo.to.room.width), height: Math.max(demo.from.room.height, demo.to.room.height) };
+const states = JSON.stringify({ from: numbered(demo.from.html), to: numbered(demo.to.html) }).replaceAll('<', '\\u003c');
+const data = JSON.stringify({ durationVar: demo.durationVar, durationVars: demo.durationVars, slow: SLOW });
+const escapeAttribute = (value: string) => value.replace(/&/g, '&amp;').replace(/"/g, '&quot;');
+// Written as markup: a `slot` attribute in what a page passes to a slot of the frame is taken by the framework for its
+// own slots, and the glyph would be drawn as the button's words (as Playground.astro's reset).
+const actions = [
+  `<tanrei-button class="docs-example-action" variant="text" size="small" label="${escapeAttribute(t.visuals.replay)}" data-motion-replay><span slot="icon" data-pagefind-ignore>replay</span></tanrei-button>`,
+  `<tanrei-button class="docs-example-action" variant="text" size="small" toggle label="${escapeAttribute(`${t.visuals.slow} (${SLOW}×)`)}" data-motion-slow><span slot="icon" data-pagefind-ignore>slow_motion_video</span></tanrei-button>`,
+].join('');
+/** A sentence of the dictionary in pieces: its words, and the places (`{name}`) the markup fills. */
+const pieces = (template: string) => template.split(/(\{\w+\})/).map((piece) => (/^\{\w+\}$/.test(piece) ? { place: piece.slice(1, -1) } : { text: piece }));
+const short = (dotted: string) => dotted.replace(new RegExp(`^${ns}\\.`), '');
+---
+
+<Fragment set:html={stagingStyle(demo.from.staging)} />
+<Example label={t.visuals.motionTitle} reserve={{ block: `${room.height}px`, inline: `${room.width}px` }} pattern="none" system={demo.from.system} actions={2} data-motion-figure={name}>
+  <Fragment slot="actions" set:html={actions} />
+  <div class="docs-motion" data-motion={data} data-fixture-scope role="img" aria-label={motionAlt(demo, t.visuals.motionAlt)} style={`min-inline-size: ${room.width}px; min-block-size: ${room.height}px;`}>
+    <script type="application/json" data-motion-states set:html={states} />
+    <div class="docs-motion-stage" inert aria-hidden="true" data-motion-stage data-motion-shows="from" set:html={numbered(demo.from.html)} />
+  </div>
+  <Fragment slot="caption">
+    {pieces(t.visuals.motionCaption).map((piece) => ('text' in piece ? piece.text : <code>{piece.place === 'from' ? demo.from.fixture : demo.to.fixture}</code>))}{' '}
+    {
+      pieces(t.visuals.motionTiming).map((piece) =>
+        'text' in piece ? piece.text : piece.place === 'motion' ? <code>{demo.motion.id}</code> : piece.place === 'ms' ? <span data-motion-ms>{demo.motion.ms}</span> : <code>{short(demo.role!)}</code>,
+      )
+    }{' '}
+    <span data-motion-slowed hidden>
+      {pieces(t.visuals.motionSlowed).map((piece) => ('text' in piece ? piece.text : piece.place === 'factor' ? String(SLOW) : <span data-motion-slow-ms>{demo.motion.ms / SLOW}</span>))}
+    </span>
+    <span data-motion-reduced hidden>{t.visuals.reducedMotionNote}</span>
+  </Fragment>
+</Example>
+
+<script>
+  import '../../lib/visuals/motion.client';
+</script>
+
+<style is:global>
+  /* The stage stands at the top of the room both fixtures hold, so that a motion that grows the component (an item
+     opening) grows it downward, as a page draws it. */
+  .docs-motion {
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+  }
+  /* Where the device asks for reduced motion there is nothing to play again or slow down. */
+  [data-motion-reduced] :is([data-motion-replay], [data-motion-slow]) {
+    display: none;
+  }
+</style>

@@ -10,6 +10,7 @@ import ColorRoleMap from '../../../components/visuals/ColorRoleMap.astro';
 import ComponentAccessibility from '../../../components/ComponentAccessibility.astro';
 import FocusOrder from '../../../components/visuals/FocusOrder.astro';
 import Example from '../../../components/visuals/Example.astro';
+import MotionDemo from '../../../components/visuals/MotionDemo.astro';
 import DoDont from '../../../components/visuals/DoDont.astro';
 import Playground from '../../../components/visuals/Playground.astro';
 
@@ -309,6 +310,8 @@ A design system can also draw a line on the row's bottom edge under the selected
 | `auto` (the default) | Takes the design system's answer (`comp.tabs.motion.transition`, slide in the default system). |
 
 Use `none` for a row beside content it has just changed, where a sliding indicator would be the only thing still moving. Under `none` a drag across the row still carries the indicator, and lands on its tab at once on release. Hover, focus and press are answered the same under every value. Where motion is reduced, a selection is drawn as `none` draws it, whatever `transition` says.
+
+<MotionDemo name="tabs" motion="indicator" from="primary" to="primary-second-selected" />
 
 A [Tab view](/components/tab-view/) has a `transition` of its own for its panels. Set to `none`, it also stops the slide of the row it draws.
 

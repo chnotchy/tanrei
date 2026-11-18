@@ -2,7 +2,7 @@
 title: टैब
 description: ट्रैक पर रखे लेबल वाले टैब की एक पंक्ति से एक ही विषय के व्यू के बीच स्विच करता है। एक टैब चयनित रहता है, जिसे एक इंडिकेटर दिखाता है, जो टैब के बीच सरकता है और पंक्ति पर ड्रैग की गई उँगली के साथ चलता है।
 translationOf: components/tabs.mdx
-sourceHash: f3c062a570bfa55082e741b6c7b02a3063c81bc4
+sourceHash: 1d912893a46525ec8008c7406cbfb36d66a21d3c
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -12,6 +12,7 @@ import ColorRoleMap from '../../../../components/visuals/ColorRoleMap.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
 import FocusOrder from '../../../../components/visuals/FocusOrder.astro';
 import Example from '../../../../components/visuals/Example.astro';
+import MotionDemo from '../../../../components/visuals/MotionDemo.astro';
 import DoDont from '../../../../components/visuals/DoDont.astro';
 import Playground from '../../../../components/visuals/Playground.astro';
 
@@ -311,6 +312,8 @@ small साइज़ की पंक्ति small साइज़ के [�
 | `auto` (डिफ़ॉल्ट) | डिज़ाइन सिस्टम का जवाब लेता है (`comp.tabs.motion.transition`, डिफ़ॉल्ट सिस्टम में slide)। |
 
 `none` उस पंक्ति के लिए इस्तेमाल करें जो उस कॉन्टेंट के बग़ल में है जिसे उसने अभी-अभी बदला है, जहाँ सरकता हुआ इंडिकेटर अकेली ऐसी चीज़ होता जो अब भी चल रही है। `none` के साथ भी पंक्ति पर ड्रैग इंडिकेटर को साथ ले चलता है, और छोड़ते ही इंडिकेटर अपने टैब पर तुरंत पहुँच जाता है। होवर, फ़ोकस और दबाने का जवाब हर मान के साथ एक जैसा रहता है। जहाँ मोशन कम किया गया है, वहाँ चयन वैसे ही दिखाया जाता है जैसे `none` दिखाता है, `transition` चाहे जो कहे।
+
+<MotionDemo name="tabs" motion="indicator" from="primary" to="primary-second-selected" />
 
 [टैब व्यू](/hi/components/tab-view/) के पास अपने पैनल के लिए अपना `transition` है। `none` पर सेट होने पर वह अपनी बनाई पंक्ति का सरकना भी रोक देता है।
 
