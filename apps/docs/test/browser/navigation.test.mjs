@@ -15,7 +15,7 @@ import { after, before, describe, test } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import { serveDist } from './host.mjs';
 import { launch } from './launch.mjs';
-import { NOT_PAGES, speculationRules } from '../../src/lib/speculation-rules.mjs';
+import { speculationRules } from '../../src/lib/speculation-rules.mjs';
 
 // Each test's limit, the backstop for a wait with none of its own (launch.mjs).
 const LIMIT = { timeout: 120_000 };
@@ -94,27 +94,37 @@ describe('the speculation rules, in Chromium', () => {
       const page = await context.newPage();
       await page.goto(`${origin}${FROM}`);
       const found = await page.evaluate(
-        ({ patterns }) => {
+        () => {
           const base = location.href;
-          const matches = (pattern, href) => new URLPattern(pattern, base).test(new URL(href, base));
-          const named = (href) => matches('/*', href) && !patterns.some((pattern) => matches(pattern, href));
+          const rules = [...document.querySelectorAll('script[type="speculationrules"]')].map((script) => JSON.parse(script.textContent));
+          // The page's own rule, read as the browser reads it: the address against its pattern, the link against its selector.
+          const [{ href_matches: site }, { not: { selector_matches: notPages } }] = rules[0].prerender[0].where.and;
+          const named = (href, download = false) => {
+            const link = document.createElement('a');
+            link.setAttribute('href', href);
+            if (download) link.setAttribute('download', '');
+            return new URLPattern(site, base).test(new URL(href, base)) && !link.matches(notPages);
+          };
           return {
             supported: HTMLScriptElement.supports('speculationrules'),
-            rules: [...document.querySelectorAll('script[type="speculationrules"]')].map((script) => JSON.parse(script.textContent)),
-            named: Object.fromEntries(['/', '/components/checkbox/', '/ja/foundations/color/', '/pagefind/pagefind.js', '/_astro/x.js', '/components/button.md', '/llms.txt', '/sitemap-index.xml', '/og/components/button.png', '/favicon.svg', 'https://github.com/', `${location.protocol}//example.com/components/`].map((href) => [href, named(href)])),
+            rules,
+            named: Object.fromEntries(['/', '/components/checkbox/', '/ja/foundations/color/', '../checkbox/', '/pagefind/pagefind.js', '/_astro/x.js', '/components/button.md', '../button.md', '/llms.txt', '/sitemap-index.xml', '/og/components/button.png', '/favicon.svg', 'https://github.com/', `${location.protocol}//example.com/components/`].map((href) => [href, named(href)])),
+            download: named('/components/checkbox/', true),
           };
         },
-        { patterns: NOT_PAGES },
       );
       assert.equal(found.supported, true);
       assert.deepEqual(found.rules, [speculationRules]);
+      assert.equal(found.download, false, 'a link that downloads');
       assert.deepEqual(found.named, {
         '/': true,
         '/components/checkbox/': true,
         '/ja/foundations/color/': true,
+        '../checkbox/': true,
         '/pagefind/pagefind.js': false,
         '/_astro/x.js': false,
         '/components/button.md': false,
+        '../button.md': false,
         '/llms.txt': false,
         '/sitemap-index.xml': false,
         '/og/components/button.png': false,

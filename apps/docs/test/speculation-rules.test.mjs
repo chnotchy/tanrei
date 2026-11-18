@@ -11,7 +11,7 @@ import { describe, test } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import { headerRules, headersFor } from './browser/host.mjs';
 import { inlineCode, pagePolicy } from '../src/lib/csp.mjs';
-import { EAGERNESS, NOT_PAGES, speculationRules, speculationRulesText } from '../src/lib/speculation-rules.mjs';
+import { EAGERNESS, NOT_PAGES, SITE, speculationRules, speculationRulesText } from '../src/lib/speculation-rules.mjs';
 
 const docs = fileURLToPath(new URL('../', import.meta.url));
 const read = (file) => fs.readFileSync(path.join(docs, file), 'utf8');
@@ -29,18 +29,18 @@ describe('the rules', () => {
       assert.deepEqual(rule.where, speculationRules.prerender[0].where, action);
     }
   });
-  test('name the site’s own addresses alone: no pattern names an origin', () => {
+  test('name the site’s own addresses alone, with one pattern that names no origin', () => {
     const { and } = speculationRules.prerender[0].where;
-    assert.deepEqual(and[0], { href_matches: '/*' });
-    const patterns = JSON.stringify(speculationRules).match(/"href_matches":"[^"]*"/g);
-    for (const pattern of patterns) assert.doesNotMatch(pattern, /:\/\/|^"href_matches":"[^/]/, pattern);
+    assert.equal(SITE, '/*');
+    assert.deepEqual(and[0], { href_matches: SITE });
+    const patterns = JSON.stringify(speculationRules).match(/"href_matches":/g);
+    assert.equal(patterns.length, 2, 'one pattern in each rule: an engine weighs every link against each pattern again whenever the page changes');
   });
-  test('leave out the search’s files, the built assets, the files that are not pages, and a link that downloads', () => {
+  test('leave out the search’s files, the built assets, the files that are not pages, and a link that downloads, by one selector', () => {
     const { and } = speculationRules.prerender[0].where;
-    const left = and.filter((term) => term.not?.href_matches).map((term) => term.not.href_matches);
-    assert.deepEqual(left, NOT_PAGES);
-    for (const pattern of ['/pagefind/*', '/_astro/*', '/*.md', '/*.txt', '/*.xml', '/*.png']) assert.ok(left.includes(pattern), pattern);
-    assert.ok(and.some((term) => term.not?.selector_matches === '[download]'));
+    assert.equal(and.length, 2);
+    assert.deepEqual(and[1], { not: { selector_matches: NOT_PAGES.join(', ') } });
+    for (const selector of ['[download]', '[href*="/pagefind/"]', '[href*="/_astro/"]', '[href$=".md"]', '[href$=".txt"]', '[href$=".xml"]', '[href$=".png"]']) assert.ok(NOT_PAGES.includes(selector), selector);
   });
   test('are JSON, as the browser reads them', () => {
     assert.deepEqual(JSON.parse(speculationRulesText), speculationRules);
