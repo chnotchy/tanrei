@@ -26,15 +26,17 @@
 // written a frame late (it is, wherever a script reads layout in the mounting task). Style is never brought up to date
 // in the middle of a task: there, an attribute an element writes after its first render would start a transition the
 // page never starts. A motion that began and ended between two frames read here all the same is in no frame: its
-// events show it, and the sampling fails instead of returning frames without it. WebKit dates a transition begun in a
-// task from the frame drawn before that task (on a page where nothing else moves): one that the task outlasted ends in
-// the next frame, and sends its `transitionrun`, `transitionstart` and `transitionend` there — on macOS and in CI's
-// Linux container alike. The sampler's own task after the changing one holds it at its start before that frame in most
-// runs, and its frames are read whole; where the engine draws the frame first (once in about twenty runs of a 300 ms
-// transition behind a 500 ms task, in either), the sampling fails with it as missed. A component starts such a motion
-// from the next frame itself (an appearance's entrance and exit: `AppearController`, src/primitives/motion.ts; a modal
-// dialog's entrance and exit and its scrim's fade: `openModal()` and `closeModal()`, src/primitives/modal-exit.ts; a
-// box whose size follows its content: `AnimatedSize`, src/primitives/motion.ts).
+// events show it, and the sampling fails instead of returning frames without it — unless its end says it ran for no
+// time (`elapsedTime` 0: a transition turned back before it began, shortened to no length), which drew nothing that
+// moved. WebKit dates a transition begun in a task from the frame drawn before that task (on a page where nothing else
+// moves): one that the task outlasted ends in the next frame, and sends its `transitionrun`, `transitionstart` and
+// `transitionend` there — on macOS and in CI's Linux container alike. The sampler's own task after the changing one
+// holds it at its start before that frame in most runs, and its frames are read whole; where the engine draws the
+// frame first (once in about twenty runs of a 300 ms transition behind a 500 ms task, in either), the sampling fails
+// with it as missed. A component starts such a motion from the next frame itself (an appearance's entrance and exit:
+// `AppearController`, src/primitives/motion.ts; a modal dialog's entrance and exit and its scrim's fade: `openModal()`
+// and `closeModal()`, src/primitives/modal-exit.ts; a box whose size follows its content: `AnimatedSize`,
+// src/primitives/motion.ts).
 //
 // A motion that began before the sampler was installed is not the change's, and its events are not taken for one the
 // frames missed. WebKit ends a transition that turned back (a state layer's focus that Tab passed through on its way to
@@ -286,7 +288,12 @@ function install(root: Element, o: InPage): Promise<void> {
   };
 
   // A motion that began and ended between two frames read here (a machine that drew no frame for its whole duration)
-  // is in no frame: its events tell, and the sampling fails rather than show frames without it.
+  // is in no frame: its events tell, and the sampling fails rather than show frames without it. Its end tells how long
+  // it ran (`elapsedTime`, the time it was active): one that ran for no time drew nothing that moved, and is no motion
+  // missed. A transition that turns back before it has begun (a state written in a task and written back in the next
+  // frame's callbacks, before that frame's style: a carousel's settle aiming back from the frame its scroll changed a
+  // control) is cancelled, and every engine may replace it with its way back shortened to no length, whose run and end
+  // come together in one frame with an `elapsedTime` of 0.
   const named = (pseudo: string, name: string) => `${pseudo}|${name}`;
   const heldNames = new WeakMap<Element, Set<string>>();
   const begun = new WeakMap<Element, Set<string>>();
@@ -311,7 +318,7 @@ function install(root: Element, o: InPage): Promise<void> {
       const ids = begun.get(t) ?? new Set<string>();
       ids.add(id);
       begun.set(t, ids);
-    } else if ((event.type === 'transitionend' || event.type === 'animationend') && begun.get(t)?.has(id) && !heldNames.get(t)?.has(id) && !box.contains(t)) {
+    } else if ((event.type === 'transitionend' || event.type === 'animationend') && e.elapsedTime > 0 && begun.get(t)?.has(id) && !heldNames.get(t)?.has(id) && !box.contains(t)) {
       const what = `${event.type === 'transitionend' ? 'transition' : 'animation'} ${id} on ${[t.localName, ...t.classList].join('.')}`;
       if (!missed.includes(what)) missed.push(what);
     }
