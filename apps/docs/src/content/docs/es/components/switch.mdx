@@ -2,7 +2,7 @@
 title: Interruptor
 description: Activa o desactiva un ajuste, con efecto inmediato.
 translationOf: components/switch.mdx
-sourceHash: 3c9248e2d903cb5a621415b66cd6f02bbb77c85b
+sourceHash: a738f87f832f1b7c373ab88ca2341d3e8d86083e
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -10,6 +10,7 @@ import ComponentAvailability from '../../../../components/ComponentAvailability.
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
 import Example from '../../../../components/visuals/Example.astro';
+import MotionDemo from '../../../../components/visuals/MotionDemo.astro';
 
 ## Descripción general
 
@@ -158,6 +159,8 @@ En el sistema predeterminado, el interruptor tiene una pista de 52 × 32 con un 
 ### El mismo tirador que las pestañas
 
 El interruptor y las [pestañas](/es/components/tabs/) comparten un mismo modelo: un tirador sobre una pista, que se desliza hasta lo elegido y sigue al dedo. Un interruptor tiene dos estados que no son equivalentes, así que su pista, su contorno y su tirador difieren entre desactivado y activado. Las pestañas ofrecen dos o más elecciones equivalentes, así que su pista nunca cambia. Usa un interruptor para un ajuste que está activado o desactivado, y pestañas para elegir entre vistas.
+
+<MotionDemo name="switch" motion="selection" from="unselected" to="selected" />
 
 ### Solo lectura
 

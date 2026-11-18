@@ -2,7 +2,7 @@
 title: مفتاح التبديل
 description: يفعّل إعدادًا واحدًا أو يوقفه، ويسري ذلك فورًا.
 translationOf: components/switch.mdx
-sourceHash: 3c9248e2d903cb5a621415b66cd6f02bbb77c85b
+sourceHash: a738f87f832f1b7c373ab88ca2341d3e8d86083e
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -10,6 +10,7 @@ import ComponentAvailability from '../../../../components/ComponentAvailability.
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
 import Example from '../../../../components/visuals/Example.astro';
+import MotionDemo from '../../../../components/visuals/MotionDemo.astro';
 
 ## نظرة عامة
 
@@ -158,6 +159,8 @@ import Example from '../../../../components/visuals/Example.astro';
 ### المقبض نفسه كما في علامات التبويب
 
 يشترك مفتاح التبديل و[علامات التبويب](/ar/components/tabs/) في نموذج واحد: مقبض على مسار ينزلق إلى ما اختير ويتبع الإصبع. لمفتاح التبديل حالتان غير متكافئتين، فيختلف مساره وحدّه ومقبضه بين الإيقاف والتفعيل. أما علامات التبويب فتعرض خيارين متكافئين أو أكثر، فلا يتغير مسارها أبدًا. استخدم مفتاح التبديل لإعداد مفعَّل أو موقوف، وعلامات التبويب للاختيار بين العروض.
+
+<MotionDemo name="switch" motion="selection" from="unselected" to="selected" />
 
 ### للقراءة فقط
 

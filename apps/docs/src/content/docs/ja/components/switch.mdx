@@ -2,7 +2,7 @@
 title: スイッチ
 description: 1 つの設定をオンまたはオフにし、その場で反映します。
 translationOf: components/switch.mdx
-sourceHash: 3c9248e2d903cb5a621415b66cd6f02bbb77c85b
+sourceHash: a738f87f832f1b7c373ab88ca2341d3e8d86083e
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -10,6 +10,7 @@ import ComponentAvailability from '../../../../components/ComponentAvailability.
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
 import Example from '../../../../components/visuals/Example.astro';
+import MotionDemo from '../../../../components/visuals/MotionDemo.astro';
 
 ## 概要
 
@@ -158,6 +159,8 @@ import Example from '../../../../components/visuals/Example.astro';
 ### タブと同じハンドル
 
 スイッチと[タブ](/ja/components/tabs/)は、1 つのモデルを共有しています。トラックの上のハンドルが、選ばれたものへ滑り、指に付いてくるというモデルです。スイッチの 2 つの状態は対等ではないので、トラック、輪郭線、ハンドルがオフとオンで変わります。タブは 2 つ以上の対等な選択肢を並べるので、トラックは変わりません。オンかオフの設定にはスイッチを、ビューの切り替えにはタブを使います。
+
+<MotionDemo name="switch" motion="selection" from="unselected" to="selected" />
 
 ### 読み取り専用
 

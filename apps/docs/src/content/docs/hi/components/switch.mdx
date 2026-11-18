@@ -2,7 +2,7 @@
 title: स्विच
 description: एक सेटिंग को चालू या बंद करता है, और बदलाव तुरंत लागू होता है।
 translationOf: components/switch.mdx
-sourceHash: 3c9248e2d903cb5a621415b66cd6f02bbb77c85b
+sourceHash: a738f87f832f1b7c373ab88ca2341d3e8d86083e
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -10,6 +10,7 @@ import ComponentAvailability from '../../../../components/ComponentAvailability.
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
 import Example from '../../../../components/visuals/Example.astro';
+import MotionDemo from '../../../../components/visuals/MotionDemo.astro';
 
 ## अवलोकन
 
@@ -158,6 +159,8 @@ import Example from '../../../../components/visuals/Example.astro';
 ### टैब वाला ही हैंडल
 
 स्विच और [टैब](/hi/components/tabs/) एक ही मॉडल साझा करते हैं: ट्रैक पर एक हैंडल, जो चुनी हुई चीज़ की ओर सरकता है और उँगली के साथ चलता है। स्विच के दो स्टेट बराबर नहीं हैं, इसलिए उसका ट्रैक, आउटलाइन और हैंडल बंद और चालू के बीच अलग होते हैं। टैब दो या ज़्यादा बराबर विकल्प देते हैं, इसलिए उनका ट्रैक कभी नहीं बदलता। चालू या बंद वाली सेटिंग के लिए स्विच इस्तेमाल करें, और व्यू के बीच चुनने के लिए टैब।
+
+<MotionDemo name="switch" motion="selection" from="unselected" to="selected" />
 
 ### केवल पढ़ने के लिए
 

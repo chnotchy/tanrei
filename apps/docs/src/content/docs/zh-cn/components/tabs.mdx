@@ -2,7 +2,7 @@
 title: "标签页"
 description: "用轨道上一行带标签的标签页，在同一主题的多个视图之间切换。其中一个标签页处于选中状态，由指示器标出；指示器在标签页之间滑动，也会跟随在这一行上拖动的手指。"
 translationOf: components/tabs.mdx
-sourceHash: 6143dc5e191f33f5fdbd7cf35556e4c219c660fd
+sourceHash: dfdea00ec9508694215fc6814e06611853ede941
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -11,6 +11,7 @@ import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
 import FocusOrder from '../../../../components/visuals/FocusOrder.astro';
 import Example from '../../../../components/visuals/Example.astro';
+import MotionDemo from '../../../../components/visuals/MotionDemo.astro';
 import DoDont from '../../../../components/visuals/DoDont.astro';
 import Playground from '../../../../components/visuals/Playground.astro';
 
@@ -308,6 +309,8 @@ Tanrei 系统不提供[分段按钮](/zh-cn/components/segmented-button/)，因�
 | `auto`（默认） | 采用设计系统的答案（`comp.tabs.motion.transition`，默认系统中是 slide）。 |
 
 这一行位于它刚刚改变的内容旁边、滑动的指示器会成为唯一还在动的东西时，请使用 `none`。在 `none` 之下，在这一行上拖动仍然会带着指示器移动，松手时指示器立即落到它的标签页上。无论取哪个值，悬停、聚焦和按下的响应都相同。在减弱动态效果时，无论 `transition` 怎么设置，选择都按 `none` 的方式绘制。
+
+<MotionDemo name="tabs" motion="indicator" from="primary" to="primary-second-selected" />
 
 [标签页视图](/zh-cn/components/tab-view/)为它的面板另有一个自己的 `transition`。把它设为 `none`，视图绘制的那一行标签页也不再滑动。
 

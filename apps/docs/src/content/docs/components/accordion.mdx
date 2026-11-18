@@ -9,6 +9,7 @@ import ComponentSpecs from '../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../components/ComponentAccessibility.astro';
 import FocusOrder from '../../../components/visuals/FocusOrder.astro';
 import Example from '../../../components/visuals/Example.astro';
+import MotionDemo from '../../../components/visuals/MotionDemo.astro';
 
 ## Overview
 
@@ -220,6 +221,8 @@ On the web `exclusive` is the `name` attribute of `<details>`, which the element
 - At 200% text labels wrap, headers grow and the chevron stays on the first line.
 - In forced colors the edge and the lines are the text color, and a disabled header is the disabled text's color.
 - A header with no name, a control in a label, an item with no content, an unknown value and more than three levels of nesting are reported in debug builds.
+
+<MotionDemo name="accordion" motion="disclosure" from="single" to="single-open" />
 
 ### What you need to do
 

@@ -2,7 +2,7 @@
 title: Pestañas
 description: Cambia entre vistas de un mismo tema con una fila de pestañas con etiqueta sobre una pista. Hay una pestaña seleccionada, marcada por un indicador que se desliza entre las pestañas y sigue al dedo que se arrastra por la fila.
 translationOf: components/tabs.mdx
-sourceHash: 6143dc5e191f33f5fdbd7cf35556e4c219c660fd
+sourceHash: dfdea00ec9508694215fc6814e06611853ede941
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -11,6 +11,7 @@ import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
 import FocusOrder from '../../../../components/visuals/FocusOrder.astro';
 import Example from '../../../../components/visuals/Example.astro';
+import MotionDemo from '../../../../components/visuals/MotionDemo.astro';
 import DoDont from '../../../../components/visuals/DoDont.astro';
 import Playground from '../../../../components/visuals/Playground.astro';
 
@@ -308,6 +309,8 @@ Un sistema de diseño también puede dibujar una línea en el borde inferior de 
 | `auto` (el valor predeterminado) | Toma la respuesta del sistema de diseño (`comp.tabs.motion.transition`, slide en el sistema predeterminado). |
 
 Usa `none` en una fila situada junto a un contenido que acaba de cambiar, donde un indicador que se desliza sería lo único que sigue moviéndose. Con `none`, un arrastre por la fila sigue llevando el indicador, que al soltar se coloca sobre su pestaña de inmediato. El paso del cursor, el foco y la pulsación se responden igual con todos los valores. Donde el movimiento está reducido, una selección se dibuja como la dibuja `none`, diga lo que diga `transition`.
+
+<MotionDemo name="tabs" motion="indicator" from="primary" to="primary-second-selected" />
 
 Una [vista de pestañas](/es/components/tab-view/) tiene una `transition` propia para sus paneles. Con el valor `none`, detiene también el deslizamiento de la fila que dibuja.
 
