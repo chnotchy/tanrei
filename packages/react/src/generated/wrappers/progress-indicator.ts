@@ -11,7 +11,7 @@ const ProgressIndicatorElement = /* @__PURE__ */ createComponent({
   react: React,
   events: {},
 });
-const ProgressIndicatorAttributes = { variant: ['variant', 'linear'], size: ['size', 'medium'], separation: ['separation', 'auto'], value: ['value', null], min: ['min', 0], max: ['max', 1], label: ['label', ''], valueText: ['value-text', ''] } as const;
+const ProgressIndicatorAttributes = { variant: ['variant', 'linear'], size: ['size', 'medium'], separation: ['separation', 'auto'], value: ['value', null], min: ['min', 0], max: ['max', 1], label: ['label', ''], valueText: ['value-text', ''], showDelay: ['show-delay', null] } as const;
 /**
  * Shows how far a task has come, or that it is under way when how far is unknown, as a bar or a ring.
  */

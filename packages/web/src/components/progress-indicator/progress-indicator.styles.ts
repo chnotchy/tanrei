@@ -16,7 +16,7 @@ const T = (name: string) => `var(${PREFIX}-${name})`;
 // the ring, their sizes (PRG-3), colors and ends (PRG-4), the gap and the stop indicator (PRG-5), a value change
 // (PRG-6), the separation (PRG-17) — is the one the meter draws too (src/primitives/range-track.ts). What follows is the
 // progress indicator's own: the indeterminate motion (PRG-2), its reduced-motion form (PRG-7), its pause off screen
-// (PRG-14) and its forced colors.
+// (PRG-14), its show delay (PRG-19, PRG-21) and its forced colors.
 export const styles = [
   rangeTrackStyles(PREFIX),
   directionProbeStyles,
@@ -81,6 +81,28 @@ export const styles = [
     :host .paused .indicator,
     :host .paused .spin {
       animation-play-state: paused;
+    }
+
+    /* PRG-19: during the show delay the box is kept (the host's size) and nothing is drawn — no track, no indicator, no
+       stop indicator — and nothing runs, a value change included; the drawing that is shown when the delay ends is a
+       new one (PRG-20), its value drawn at once and an indeterminate cycle starting from its beginning. */
+    .waiting {
+      visibility: hidden;
+    }
+    :host .waiting .track,
+    :host .waiting .indicator,
+    :host .waiting circle.indicator,
+    :host .waiting .spin {
+      animation: none;
+      transition: none;
+    }
+
+    /* PRG-21: the delay token — the loading indicator's, so that the two wait alike — computed through an inert
+       property of a probe the element reads as it is inserted. */
+    .timing {
+      display: none;
+      transition-property: none;
+      transition-delay: var(--tanrei-comp-loading-indicator-motion-show-delay);
     }
 
     @media (forced-colors: active) {

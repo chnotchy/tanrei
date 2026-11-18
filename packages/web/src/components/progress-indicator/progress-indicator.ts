@@ -6,9 +6,11 @@ import {
   OpenAxesController,
   SEPARATION_VALUES,
   type SeparationProp,
+  ShowDelay,
   SystemWatchController,
   VisibilityController,
   hostAria,
+  milliseconds,
   rangeClasses,
   rangeDirection,
   rangeOf,
@@ -16,6 +18,7 @@ import {
   renderRangeRing,
   report,
   syncSeparation,
+  unusableMilliseconds,
 } from '../../primitives/index.js';
 import type { TanreiProgressIndicatorSizeRegistry } from '../../registry.js';
 import { AXES, VARIANTS, styles } from './progress-indicator.styles.js';
@@ -39,10 +42,16 @@ export type TanreiProgressIndicatorSize = keyof TanreiProgressIndicatorSizeRegis
  * drawn at all is `separation` (PRG-17): `auto` follows `comp.progress-indicator.track.separation`, and so the design
  * system's `sys.behavior.separation`. Whether the stop indicator is drawn is its size alone, under either (PRG-5).
  *
- * The host is the progressbar (`role="progressbar"`, `aria-label` from `label`, `aria-valuemin` / `-max` / `-now` and
- * `aria-valuetext` from `value-text` while determinate; `aria-busy="true"` and no value while indeterminate). It is
- * never focusable and never announces a change by itself. Where motion is reduced a value change shows
- * at once and the indeterminate form pulses in place; off screen, its animation is paused.
+ * Insert it when the task starts and remove it when the task ends. From its insertion it waits `showDelay` (null takes
+ * `comp.loading-indicator.motion.show-delay`, the loading indicator's wait) with its box kept, drawing nothing and
+ * exposing nothing (`aria-hidden="true"`); then it is shown at once, with the value it has then and an indeterminate
+ * cycle from its beginning. Moving it within the document starts a new delay; hiding it (`hidden`, CSS, scrolling)
+ * neither restarts nor pauses it. A change of `showDelay` applies from the next insertion.
+ *
+ * Once shown, the host is the progressbar (`role="progressbar"`, `aria-label` from `label`, `aria-valuemin` / `-max` /
+ * `-now` and `aria-valuetext` from `value-text` while determinate; `aria-busy="true"` and no value while
+ * indeterminate). It is never focusable and never announces a change by itself. Where motion is reduced a value change
+ * shows at once and the indeterminate form pulses in place; the delay is kept. Off screen, its animation is paused.
  *
  * @tag tanrei-progress-indicator
  * @csspart track - The whole of the task: the bar's track, or the ring's circle (the form the separation draws).
@@ -62,6 +71,7 @@ export class TanreiProgressIndicator extends TanreiElement {
     max: { type: Number },
     label: { type: String },
     valueText: { type: String, attribute: 'value-text' },
+    showDelay: { attribute: 'show-delay', converter: milliseconds },
   };
 
   /** A bar (`linear`, the default) or a ring (`circular`). */
@@ -94,6 +104,12 @@ export class TanreiProgressIndicator extends TanreiElement {
   /** How assistive technology reads the value when a percentage is not the natural reading ("3 of 10 files"); the `value-text` attribute. */
   valueText = '';
 
+  /**
+   * How long, in milliseconds, it waits from its insertion before it is drawn and exposed; 0 shows it as it is inserted.
+   * Null takes `comp.loading-indicator.motion.show-delay`, as does a negative or non-finite value (reported).
+   */
+  showDelay: number | null = null;
+
   /** PRG-12: sizes a design system adds, and a size the active system does not have (src/primitives/axes.ts). */
   private readonly axes = new OpenAxesController(this, { component: 'progress-indicator', behavior: 'PRG-12', axes: AXES });
 
@@ -105,6 +121,35 @@ export class TanreiProgressIndicator extends TanreiElement {
 
   /** PRG-16: a change of direction is drawn at once, with no value transition run by the flip (src/primitives/range-track.ts). */
   private readonly direction = rangeDirection(this);
+
+  /** PRG-21: an inert element the delay token is computed through, kept in the shadow root. */
+  private readonly probe = Object.assign(document.createElement('span'), { className: 'timing' });
+
+  /**
+   * PRG-19, PRG-20, PRG-22, PRG-23: the show delay (src/primitives/show-delay.ts), not shown while it runs; when it ends
+   * the indicator is exposed and drawn at once, with no entrance of its own.
+   */
+  private readonly delay = new ShowDelay(this, this.probe, () => {
+    this.expose();
+    this.requestUpdate();
+  });
+
+  override connectedCallback() {
+    super.connectedCallback();
+    // PRG-23: every insertion waits its whole delay, with the value of that moment. The probe is placed before any host
+    // of the turn reads: a probe added in the read would have the next host's read style the page again.
+    if (!this.probe.isConnected) this.renderRoot.appendChild(this.probe);
+    this.requestUpdate();
+    // A delay of 0 shows it here, as it is inserted.
+    this.delay.start();
+    if (!this.delay.shown) this.expose();
+  }
+
+  override disconnectedCallback() {
+    super.disconnectedCallback();
+    // PRG-23: removed during the delay, it has shown nothing; removed while shown, it is gone at once.
+    this.delay.stop();
+  }
 
   private get determinate() {
     return typeof this.value === 'number' && !Number.isNaN(this.value);
@@ -136,18 +181,30 @@ export class TanreiProgressIndicator extends TanreiElement {
     }
     // PRG-15: a bar alone is not a name.
     if (changed.has('label') && !this.label && !namedByProduct(this)) report(this, 'PRG-15', 'label is empty, so the progress indicator has no accessible name; give it a label');
+    // PRG-21: a delay it cannot use takes the token, and is reported.
+    const ignored = changed.has('showDelay') ? unusableMilliseconds(this, this.showDelay, 'show-delay') : null;
+    if (ignored !== null) report(this, 'PRG-21', `showDelay ${ignored} is not a finite, non-negative number of milliseconds; it takes comp.loading-indicator.motion.show-delay`);
+    if (this.isConnected) this.expose();
+  }
 
-    // PRG-8 / PRG-9 / PRG-10: the host is the progressbar; never focusable, never a live region.
-    const range = this.determinate ? this.range : null;
-    // PRG-18: its label is its whole name over the product's, which names it while the label is empty.
-    nameHost(this, this.label);
+  /**
+   * PRG-8 / PRG-9 / PRG-10: once shown, the host is the progressbar; never focusable, never a live region. PRG-19: while
+   * it waits it is absent from the accessibility tree — no role, no name, no range, no busy state.
+   */
+  private expose() {
+    const shown = this.delay.shown;
+    const range = shown && this.determinate ? this.range : null;
+    // PRG-18: its label is its whole name over the product's, which names it while the label is empty; while it waits,
+    // with no role, the product's name is held too.
+    nameHost(this, shown ? this.label : null);
     hostAria(this, {
-      role: 'progressbar',
+      role: shown ? 'progressbar' : null,
       'aria-valuemin': range ? String(range.min) : null,
       'aria-valuemax': range ? String(range.max) : null,
       'aria-valuenow': range ? String(range.now) : null,
       'aria-valuetext': range && this.valueText ? this.valueText : null,
-      'aria-busy': range ? null : 'true',
+      'aria-busy': shown && !range ? 'true' : null,
+      'aria-hidden': shown ? null : 'true',
     });
   }
 
@@ -160,10 +217,13 @@ export class TanreiProgressIndicator extends TanreiElement {
     const determinate = this.determinate;
     const fraction = determinate ? this.range.fraction : 0;
     // PRG-5: the gap is left only while the value lies strictly between min and max (and the separation is gap).
-    const classes = { ...rangeClasses(fraction, determinate), indeterminate: !determinate, paused: !this.visibility.visible };
+    // PRG-19: while it waits nothing is drawn and nothing runs, in the box it takes when shown.
+    const waiting = !this.delay.shown;
+    const classes = { ...rangeClasses(fraction, determinate), indeterminate: !determinate, paused: !this.visibility.visible, waiting };
     // PRG-6: switching between determinate and indeterminate takes effect at once — a new drawing, with nothing to
-    // transition from. Within one mode the same elements stay, so a value change transitions.
-    const mode = `${this.circular ? 'circular' : 'linear'}-${determinate ? 'determinate' : 'indeterminate'}`;
+    // transition from. Within one mode the same elements stay, so a value change transitions. PRG-20: so is the end of
+    // the delay — the value it has then drawn at once, and an indeterminate cycle from its beginning.
+    const mode = `${this.circular ? 'circular' : 'linear'}-${determinate ? 'determinate' : 'indeterminate'}${waiting ? '-waiting' : ''}`;
     // The drawing is the meter's too (src/primitives/range-track.ts); a bar draws the stop indicator while determinate.
     return html`${keyed(mode, this.circular ? renderRangeRing(classes, fraction) : renderRangeBar(classes, fraction, determinate))}${DIRECTION_PROBE}`;
   }

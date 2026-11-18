@@ -50,6 +50,9 @@
 //   focus-order — OUTSIDE_FOCUS_ORDER: a control a host takes out of the focus order (a number field's steppers, NUM-25)
 //   host-aria   — `hostAria()`: semantics a non-interactive component carries on its host (divider, progress…)
 //   visibility  — VisibilityController: whether the host can be seen, so a running animation pauses off screen
+//   show-delay  — ShowDelay: an indicator's wait from its insertion before it is drawn and exposed (LDG-11, PRG-19), its
+//                 delay the product's or the token's; milliseconds, usableMilliseconds() and unusableMilliseconds(): a
+//                 time in milliseconds given as a property or an attribute, and how one it cannot use is reported
 //   shared-choice — sharedChoice(), remembered(), remember(), keepInPlace(): what rows that share a choice have in common —
 //                  one registry of groups for a document, one read of the storage for a key (TAB-36…41, TBV-21).
 //   read-phase  — readInPhase(owner, read): a read of the layout or the cascade made after the frame's layout and before
@@ -334,6 +337,7 @@ export { type ItemRowOptions, itemRowStyles, rowTarget } from './item-row.js';
 export { type LabelBegins, RovingKeys, type RovingItem, TYPEAHEAD_WINDOW } from './roving.js';
 export { answersPress, findInteractive, pressTakenWithin, slottedInteractive } from './interactive.js';
 export { VisibilityController } from './visibility.js';
+export { ShowDelay, type ShowDelayHost, milliseconds, unusableMilliseconds, usableMilliseconds } from './show-delay.js';
 export { cssZoom, layoutScale } from './layout-scale.js';
 export { deepActive, focusWithin, hasFocusVisibleOption, holdPageScroll, modalLayer, openerFor, pressGivesFocus, returnFocus, SCROLL_HOLD_INSET, tabbables, trapFocus, windowBox } from './modal.js';
 export { containWheel, containedWheel } from './contained-wheel.js';

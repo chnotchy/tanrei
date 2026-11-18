@@ -36413,7 +36413,7 @@
           "type": {
             "text": "array"
           },
-          "default": "[ rangeTrackStyles(PREFIX), directionProbeStyles, css` /* PRG-2, a bar: a segment two fifths of the track long crosses from beyond its start to beyond its end once per cycle, clipped to the track. It is moved by a transform alone — its own length back (two fifths of the track) to two and a half of its lengths on (the whole track) — so no frame of it lays anything out: an inset would be laid out sixty times a second for as long as the bar is shown. --_way is the inline direction (PRG-13). */ .bar.indeterminate { overflow: hidden; --_way: 1; } :host(:dir(rtl)) .bar.indeterminate { --_way: -1; } .bar.indeterminate .track { inset-inline-start: 0; } .bar.indeterminate .indicator { inline-size: 40%; animation: bar-cross ${unsafeCSS(T('motion-cycle-duration'))} ${unsafeCSS(T('motion-cycle-easing'))} infinite; } @keyframes bar-cross { from { transform: translateX(calc(var(--_way) * -100%)); } to { transform: translateX(calc(var(--_way) * 250%)); } } /* PRG-2, a ring: an arc a quarter of the circle long turns clockwise once per cycle at constant speed. */ .ring.indeterminate circle.indicator { stroke-dasharray: max(0px, calc(var(--_c) / 4 - var(--_cap))) var(--_c); } .ring.indeterminate .spin { animation: ring-turn ${unsafeCSS(T('motion-cycle-duration'))} var(--tanrei-sys-motion-easing-linear) infinite; } /* PRG-7: under reduced motion (a value change shows at once: the shared drawing) the indeterminate form stands still — the indicator over the whole track, its opacity easing from 1 to 0 and back once per cycle, over a track that does not move. */ ${reducedMotion(css` .bar.indeterminate .indicator { inset-inline-start: 0; inline-size: 100%; } .ring.indeterminate circle.indicator { stroke-dasharray: none; stroke-dashoffset: 0; } .bar.indeterminate .indicator, .ring.indeterminate circle.indicator { animation: pulse ${unsafeCSS(T('motion-cycle-duration'))} ${unsafeCSS(T('motion-cycle-easing'))} infinite; } .ring.indeterminate .spin { animation: none; } `)} /* PRG-14: off screen, nothing runs — over every animation above, the reduced-motion pulse included. */ :host .paused .indicator, :host .paused .spin { animation-play-state: paused; } @media (forced-colors: active) { .bar .track, .bar .indicator, .bar .stop, circle { forced-color-adjust: none; } .bar .track { background: GrayText; } .bar .indicator, .bar .stop { background: Highlight; } circle.track { stroke: GrayText; } circle.indicator { stroke: Highlight; } } `, ]"
+          "default": "[ rangeTrackStyles(PREFIX), directionProbeStyles, css` /* PRG-2, a bar: a segment two fifths of the track long crosses from beyond its start to beyond its end once per cycle, clipped to the track. It is moved by a transform alone — its own length back (two fifths of the track) to two and a half of its lengths on (the whole track) — so no frame of it lays anything out: an inset would be laid out sixty times a second for as long as the bar is shown. --_way is the inline direction (PRG-13). */ .bar.indeterminate { overflow: hidden; --_way: 1; } :host(:dir(rtl)) .bar.indeterminate { --_way: -1; } .bar.indeterminate .track { inset-inline-start: 0; } .bar.indeterminate .indicator { inline-size: 40%; animation: bar-cross ${unsafeCSS(T('motion-cycle-duration'))} ${unsafeCSS(T('motion-cycle-easing'))} infinite; } @keyframes bar-cross { from { transform: translateX(calc(var(--_way) * -100%)); } to { transform: translateX(calc(var(--_way) * 250%)); } } /* PRG-2, a ring: an arc a quarter of the circle long turns clockwise once per cycle at constant speed. */ .ring.indeterminate circle.indicator { stroke-dasharray: max(0px, calc(var(--_c) / 4 - var(--_cap))) var(--_c); } .ring.indeterminate .spin { animation: ring-turn ${unsafeCSS(T('motion-cycle-duration'))} var(--tanrei-sys-motion-easing-linear) infinite; } /* PRG-7: under reduced motion (a value change shows at once: the shared drawing) the indeterminate form stands still — the indicator over the whole track, its opacity easing from 1 to 0 and back once per cycle, over a track that does not move. */ ${reducedMotion(css` .bar.indeterminate .indicator { inset-inline-start: 0; inline-size: 100%; } .ring.indeterminate circle.indicator { stroke-dasharray: none; stroke-dashoffset: 0; } .bar.indeterminate .indicator, .ring.indeterminate circle.indicator { animation: pulse ${unsafeCSS(T('motion-cycle-duration'))} ${unsafeCSS(T('motion-cycle-easing'))} infinite; } .ring.indeterminate .spin { animation: none; } `)} /* PRG-14: off screen, nothing runs — over every animation above, the reduced-motion pulse included. */ :host .paused .indicator, :host .paused .spin { animation-play-state: paused; } /* PRG-19: during the show delay the box is kept (the host's size) and nothing is drawn — no track, no indicator, no stop indicator — and nothing runs, a value change included; the drawing that is shown when the delay ends is a new one (PRG-20), its value drawn at once and an indeterminate cycle starting from its beginning. */ .waiting { visibility: hidden; } :host .waiting .track, :host .waiting .indicator, :host .waiting circle.indicator, :host .waiting .spin { animation: none; transition: none; } /* PRG-21: the delay token — the loading indicator's, so that the two wait alike — computed through an inert property of a probe the element reads as it is inserted. */ .timing { display: none; transition-property: none; transition-delay: var(--tanrei-comp-loading-indicator-motion-show-delay); } @media (forced-colors: active) { .bar .track, .bar .indicator, .bar .stop, circle { forced-color-adjust: none; } .bar .track { background: GrayText; } .bar .indicator, .bar .stop { background: Highlight; } circle.track { stroke: GrayText; } circle.indicator { stroke: Highlight; } } `, ]"
         }
       ],
       "exports": [
@@ -36457,7 +36457,7 @@
       "declarations": [
         {
           "kind": "class",
-          "description": "Shows how far a task has come, or that it is under way when how far is unknown, as a bar or a ring.\n\nContract: specs/progress-indicator.spec.json. As a native `<progress>`: no `value` attribute (or removing it, or\n`value = null`) is indeterminate. Every visual value is a `--tanrei-comp-progress-indicator-*` token — the bar's\nthickness and the ring's size and stroke per size, the track and indicator colors, the ends' shape, the gap after the\nindicator, the stop indicator, and the motion of a value change and of the indeterminate cycle. Whether the gap is\ndrawn at all is `separation` (PRG-17): `auto` follows `comp.progress-indicator.track.separation`, and so the design\nsystem's `sys.behavior.separation`. Whether the stop indicator is drawn is its size alone, under either (PRG-5).\n\nThe host is the progressbar (`role=\"progressbar\"`, `aria-label` from `label`, `aria-valuemin` / `-max` / `-now` and\n`aria-valuetext` from `value-text` while determinate; `aria-busy=\"true\"` and no value while indeterminate). It is\nnever focusable and never announces a change by itself. Where motion is reduced a value change shows\nat once and the indeterminate form pulses in place; off screen, its animation is paused.",
+          "description": "Shows how far a task has come, or that it is under way when how far is unknown, as a bar or a ring.\n\nContract: specs/progress-indicator.spec.json. As a native `<progress>`: no `value` attribute (or removing it, or\n`value = null`) is indeterminate. Every visual value is a `--tanrei-comp-progress-indicator-*` token — the bar's\nthickness and the ring's size and stroke per size, the track and indicator colors, the ends' shape, the gap after the\nindicator, the stop indicator, and the motion of a value change and of the indeterminate cycle. Whether the gap is\ndrawn at all is `separation` (PRG-17): `auto` follows `comp.progress-indicator.track.separation`, and so the design\nsystem's `sys.behavior.separation`. Whether the stop indicator is drawn is its size alone, under either (PRG-5).\n\nInsert it when the task starts and remove it when the task ends. From its insertion it waits `showDelay` (null takes\n`comp.loading-indicator.motion.show-delay`, the loading indicator's wait) with its box kept, drawing nothing and\nexposing nothing (`aria-hidden=\"true\"`); then it is shown at once, with the value it has then and an indeterminate\ncycle from its beginning. Moving it within the document starts a new delay; hiding it (`hidden`, CSS, scrolling)\nneither restarts nor pauses it. A change of `showDelay` applies from the next insertion.\n\nOnce shown, the host is the progressbar (`role=\"progressbar\"`, `aria-label` from `label`, `aria-valuemin` / `-max` /\n`-now` and `aria-valuetext` from `value-text` while determinate; `aria-busy=\"true\"` and no value while\nindeterminate). It is never focusable and never announces a change by itself. Where motion is reduced a value change\nshows at once and the indeterminate form pulses in place; the delay is kept. Off screen, its animation is paused.",
           "name": "TanreiProgressIndicator",
           "cssParts": [
             {
@@ -36564,6 +36564,17 @@
               "default": "''",
               "description": "How assistive technology reads the value when a percentage is not the natural reading (\"3 of 10 files\"); the `value-text` attribute.",
               "attribute": "value-text"
+            },
+            {
+              "kind": "field",
+              "name": "showDelay",
+              "privacy": "public",
+              "type": {
+                "text": "number | null"
+              },
+              "default": "null",
+              "description": "How long, in milliseconds, it waits from its insertion before it is drawn and exposed; 0 shows it as it is inserted.\nNull takes `comp.loading-indicator.motion.show-delay`, as does a negative or non-finite value (reported).",
+              "attribute": "show-delay"
             }
           ],
           "attributes": [
@@ -36638,6 +36649,15 @@
               "default": "''",
               "description": "How assistive technology reads the value when a percentage is not the natural reading (\"3 of 10 files\"); the `value-text` attribute.",
               "fieldName": "valueText"
+            },
+            {
+              "name": "show-delay",
+              "type": {
+                "text": "number | null"
+              },
+              "default": "null",
+              "description": "How long, in milliseconds, it waits from its insertion before it is drawn and exposed; 0 shows it as it is inserted.\nNull takes `comp.loading-indicator.motion.show-delay`, as does a negative or non-finite value (reported).",
+              "fieldName": "showDelay"
             }
           ],
           "superclass": {
@@ -36646,6 +36666,14 @@
           },
           "tagName": "tanrei-progress-indicator",
           "customElement": true
+        },
+        {
+          "kind": "variable",
+          "name": "waiting",
+          "type": {
+            "text": "boolean"
+          },
+          "default": "!this.delay.shown"
         }
       ],
       "exports": [
