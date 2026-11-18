@@ -1053,6 +1053,11 @@ export class TanreiNavigationDrawerGroup extends DrawerCell {
     return html`<span part="chevron" class="chevron start">chevron_right</span>`;
   }
 
+  /** @internal NVD-50: the start chevron, while the drawer draws it for a new direction at once. */
+  get startChevronBox(): Element | null {
+    return this.renderRoot?.querySelector('.chevron.start') ?? null;
+  }
+
   private given = '';
 
   /**
@@ -1655,6 +1660,20 @@ interface Snapshot {
  */
 export class TanreiNavigationDrawer extends TanreiElement {
   private readonly availability = new AvailabilityController(this, 'navigation-drawer');
+  /**
+   * NVD-50: a change of the layout direction while the drawer is shown is drawn at once. What CSS draws follows by
+   * itself, but a flip gives an open group's start chevron the other quarter turn, which its transition would run. The
+   * direction comes from a `dir` on an ancestor, so each root the drawer is in — its own, and each shadow root's host's
+   * up to the document — is watched for that one attribute: a change is heard in a microtask of the task that made it,
+   * before any style is computed for it, and there the chevrons' style is computed for the new direction with their
+   * turn's transition off (`turnAtOnce`), so no turn begins — not even one ended before it is painted, whose events a
+   * page would still hear. (A ResizeObserver hears it only after the frame's style has begun the turn.)
+   * TODO: one observer per drawer; where `DirAttributeWatch` is in src/primitives/direction.ts (one observer per root,
+   * for every element that watches it), use it instead.
+   */
+  private dirWatch: MutationObserver | null = null;
+  /** The direction the drawer's chevrons were last drawn for. */
+  private drawnDirection = '';
   static override styles = drawerStyles;
 
   static override properties: PropertyDeclarations = {
@@ -2989,6 +3008,56 @@ export class TanreiNavigationDrawer extends TanreiElement {
     return [...this.children].filter((child): child is HTMLElement => child.getAttribute('slot') === 'header-button');
   }
 
+  /** NVD-50: watches (or stops watching) `dir` in each root the drawer is in, from the direction it is in now. */
+  private watchDir(on: boolean) {
+    this.dirWatch?.disconnect();
+    this.dirWatch = null;
+    if (!on || typeof MutationObserver === 'undefined') return;
+    this.drawnDirection = this.directionNow();
+    const watch = new MutationObserver(() => this.turned());
+    for (let root = this.getRootNode(); ; ) {
+      watch.observe(root, { attributes: true, attributeFilter: ['dir'], subtree: true });
+      if (!(root instanceof ShadowRoot)) break;
+      root = root.host.getRootNode();
+    }
+    this.dirWatch = watch;
+  }
+
+  /**
+   * The direction the drawer is in, asked of the document and not of the cascade: `:dir()` is answered from the `dir`
+   * attributes around it — what the chevrons' own rules follow — and computes no style. An engine that cannot answer
+   * is asked for the computed value.
+   */
+  private directionNow(): string {
+    try {
+      return this.matches(':dir(rtl)') ? 'rtl' : 'ltr';
+    } catch {
+      return getComputedStyle(this).direction;
+    }
+  }
+
+  /** NVD-50: a `dir` changed in a root the drawer is in; where that changed the drawer's direction, its chevrons turn at once. */
+  private turned() {
+    if (!this.isConnected) return;
+    const direction = this.directionNow();
+    if (direction === this.drawnDirection) return;
+    this.drawnDirection = direction;
+    this.turnAtOnce();
+  }
+
+  /**
+   * NVD-50: the groups' start chevrons computed for the direction now with their turn's transition off (the styles'
+   * `.chevron.start.at-once`): an open one's new quarter turn is drawn at once, a turn under way ends at the turn the
+   * new direction gives it, and no turn begins when the transition is given back, the turn being already where it rests.
+   * Their colour's motion is not the direction's and runs on. All are marked before one is read: one style computation.
+   */
+  private turnAtOnce() {
+    const chevrons = this.groups.map((group) => group.startChevronBox).filter((box): box is Element => box !== null);
+    for (const chevron of chevrons) chevron.classList.add('at-once');
+    for (const chevron of chevrons) void getComputedStyle(chevron).rotate;
+    for (const chevron of chevrons) chevron.classList.remove('at-once');
+  }
+
   private get mainActions(): HTMLElement[] {
     return [...this.children].filter((child): child is HTMLElement => child.getAttribute('slot') === 'main-action');
   }
@@ -3003,6 +3072,7 @@ export class TanreiNavigationDrawer extends TanreiElement {
     this.reflectState();
     this.syncMainAction();
     super.connectedCallback();
+    this.watchDir(true);
     // What the drawer opens after its first frame takes its motion (NVD-58).
     // NVD-62: until then it is drawn as it is given, without motion (the styles' `data-arriving`).
     // The first frame is the read phase's (src/primitives/read-phase.ts), after its layout and before its paint: the
@@ -3188,6 +3258,7 @@ export class TanreiNavigationDrawer extends TanreiElement {
 
   override disconnectedCallback() {
     super.disconnectedCallback();
+    this.watchDir(false);
     this.sizes.disconnect();
     this.watchWindow(false);
     // NVD-98: a drawer taken away ends its drag, and gives the document back.

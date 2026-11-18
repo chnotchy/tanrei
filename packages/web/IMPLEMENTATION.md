@@ -7871,7 +7871,12 @@ apart, scrolling while the header stays. A section draws the divider component a
 then its heading (`heading.typescale`, `heading.color`, at least `heading.height`, starting where labels without an icon
 start; collapsed, its row keeps its height, its text fades and it is `aria-hidden`), then its cells. The color reaches
 under `env(safe-area-inset-top)`, `-bottom` and the start side's. Enlarged text grows every cell alike in both forms and
-keeps both widths; the short label stays on one line. Logical throughout, so right-to-left mirrors.
+keeps both widths; the short label stays on one line. Logical throughout, so right-to-left mirrors. A change of the
+direction around the drawer is drawn at once (NVD-50): the one value it moves that a transition would run is an open
+group's start chevron, which turns the other way in right-to-left (the icon set mirrors `chevron_right`), so the drawer
+hears a `dir` changed in a root it is in (a MutationObserver of that attribute in its own root and each shadow root's
+host's, in a microtask of the task that changed it, before any style is computed for it) and computes the groups' start chevrons' style for the new direction with their `rotate`
+transition off: no turn begins, and one under way ends at the turn the new direction gives it.
 
 **Semantics (NVD-15, NVD-23, NVD-42, NVD-46).** The destinations are `<button>`s (or `<a href>`) named by their labels in
 both forms, the selected one `aria-current="page"`, their badge's description and then their trailing content their
