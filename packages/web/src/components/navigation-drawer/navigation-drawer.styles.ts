@@ -1,5 +1,6 @@
 import { css, unsafeCSS } from 'lit';
 import { type OpenAxis, SCRIM_FILTER, conditionBlock, directionProbeStyles, focusRing, iconGlyph, modalExitStyles, pressHold, rippleStyles, scrimFilter, stateRules } from '../../primitives/index.js';
+import { MIRRORED_GLYPH } from '../../styles/icons.js';
 import { productText } from '../../styles/product-text.js';
 import { cornerRadius, shape } from '../../styles/shape.js';
 import { scriptTracking } from '../../styles/script-tracking.js';
@@ -1398,8 +1399,7 @@ export const cellStyles = css`
       color var(--_recolor-duration) var(--_recolor-easing),
       rotate ${t('motion-disclosure-duration')} ${t('motion-disclosure-easing')};
   }
-  /* NVD-68: an end chevron turns half a turn while open; a start one a quarter turn, from the end of the line to down
-     (the icon set mirrors chevron_right in right-to-left, so it turns the other way there). */
+  /* NVD-68: an end chevron turns half a turn while open; a start one a quarter turn, from the end of the line to down. */
   .cell.open .chevron.end {
     rotate: 0.5turn;
   }
@@ -1412,7 +1412,9 @@ export const cellStyles = css`
   .cell.open .chevron.start {
     rotate: 0.25turn;
   }
-  :host(:dir(rtl)) .cell.open .chevron.start {
+  /* Where the helper draws it mirrored — in right-to-left, when the icon set marks chevron_right (NVD-51) — its tip points
+     the other way, so it turns the other way to point down; an unmarked one turns as in left-to-right. */
+  .cell.open .chevron.start${unsafeCSS(MIRRORED_GLYPH)} {
     rotate: -0.25turn;
   }
   .cell.collapsed :is(.text, .trailing) {

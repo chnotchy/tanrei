@@ -7873,9 +7873,12 @@ start; collapsed, its row keeps its height, its text fades and it is `aria-hidde
 under `env(safe-area-inset-top)`, `-bottom` and the start side's. Enlarged text grows every cell alike in both forms and
 keeps both widths; the short label stays on one line. Logical throughout, so right-to-left mirrors. A change of the
 direction around the drawer is drawn at once (NVD-50): the one value it moves that a transition would run is an open
-group's start chevron, which turns the other way in right-to-left (the icon set mirrors `chevron_right`), so a
+group's start chevron where the helper draws it mirrored, which turns the other way in right-to-left to point down, so a
 `DirectionController` on the drawer has each group finish that `rotate` transition in the ResizeObserver callback of the
-frame the change is drawn in, before it is painted.
+frame the change is drawn in, before it is painted. The other turn is keyed on the glyph's mirror mark
+(`MIRRORED_GLYPH`, `src/styles/icons.ts`), not on `:dir(rtl)` alone: under an icon set that does not mark
+`chevron_right` (a product layer's own set) the chevron is drawn unmirrored and keeps the left-to-right turn, so an open
+group's chevron points down there too, and a change of direction turns nothing.
 
 **Semantics (NVD-15, NVD-23, NVD-42, NVD-46).** The destinations are `<button>`s (or `<a href>`) named by their labels in
 both forms, the selected one `aria-current="page"`, their badge's description and then their trailing content their

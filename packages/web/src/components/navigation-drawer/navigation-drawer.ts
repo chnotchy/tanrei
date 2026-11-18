@@ -1050,15 +1050,19 @@ export class TanreiNavigationDrawerGroup extends DrawerCell {
     return this.open || this.context.filterOpen;
   }
 
-  /** NVD-68: the start chevron, chevron_right turned a quarter turn while open (the icon set mirrors it in right-to-left). */
+  /**
+   * NVD-68: the start chevron, chevron_right turned a quarter turn while open to point down: the other way where the
+   * helper draws it mirrored (right-to-left, under an icon set that marks the name, NVD-51).
+   */
   protected override startChevron() {
     return html`<span part="chevron" class="chevron start">chevron_right</span>`;
   }
 
   /**
-   * @internal NVD-50: the layout direction around the drawer changed. An open start chevron turns the other way in
-   * right-to-left, so the flip gave its `rotate` a new value and started its transition from the old direction's turn:
-   * that turn ends at once (its colour's transition is not the direction's and runs on).
+   * @internal NVD-50: the layout direction around the drawer changed. An open start chevron that is drawn mirrored in
+   * right-to-left (its icon set marks chevron_right) turns the other way there, so the flip gave its `rotate` a new value
+   * and started its transition from the old direction's turn: that turn ends at once (its colour's transition is not the
+   * direction's and runs on). An unmarked one keeps its turn, and nothing runs.
    */
   directionChanged() {
     for (const motion of this.renderRoot?.querySelector('.chevron.start')?.getAnimations() ?? []) {
@@ -1670,7 +1674,7 @@ export class TanreiNavigationDrawer extends TanreiElement {
   private readonly availability = new AvailabilityController(this, 'navigation-drawer');
   /**
    * NVD-50: a change of the layout direction while the drawer is shown is drawn at once. What CSS draws follows by
-   * itself, but a flip gives an open group's start chevron the other quarter turn, which its transition would run: the
+   * itself, but a flip gives an open group's mirrored start chevron the other quarter turn, which its transition would run: the
    * groups end that turn in the ResizeObserver callback of the frame the flip is drawn in, before it is painted.
    */
   private readonly direction = new DirectionController(this, () => {
