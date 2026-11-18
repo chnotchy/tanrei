@@ -200,10 +200,11 @@ export class TanreiButtonWithMenu extends TanreiElement {
   separation: TanreiButtonWithMenuSeparation = 'auto';
 
   /**
-   * How wide the trailing half is: `default` holds the chevron in a square of the height (32 / 40 / 56) and adds the
-   * padding of the rounded outer end (36 / 44 / 60 in the default system); `narrow` is the chevron and
-   * `trailing.padding-inline-narrow` on each side of it, with no outer padding (28 / 32 / 32: the width of a narrow
-   * icon-only Button, SPB-32). The hit area meets the minimum target at both: a narrow half reaches it past its end
+   * How wide the trailing half is: `default` holds the chevron in a square of the height
+   * (`container.height` of its size, 36 / 40 / 56 in the default system) and adds `container.outer-inset`, the
+   * padding of the rounded outer end (40 / 44 / 60 in all); `narrow` is the chevron and
+   * `trailing.padding-inline-narrow` on each side of it, and the same outer padding at its end (32 / 36 / 36: the
+   * width of a narrow icon-only Button and that padding, SPB-32). The hit area meets the minimum target at both: a narrow half reaches it past its end
    * edge and is not drawn wider. The `trailing-width` attribute. Anything else is `default` (reported in debug
    * builds, SPB-8).
    */

@@ -315,7 +315,7 @@ Icon button is a form of Button: a `<tanrei-button>` with an icon in the `icon` 
 | Property / attribute | Type | Default | |
 |---|---|---|---|
 | `iconPosition` / `icon-position` | `leading` \| `trailing` | `leading` | the icon's side of the label, in the reading direction; reflected |
-| `width` | `default` \| `narrow` \| `wide` | `default` | how wide an icon-only button is: as wide as it is high (32 / 40 / 56), its glyph and `container.padding-inline-narrow` on each side of it — 28 / 32 / 32 in the default system, whose inset is 4 at every size — or `container.width-wide` (40 / 52 / 72) of its size. Ignored with a label; anything else is `default` and reported (BTN-21); reflected |
+| `width` | `default` \| `narrow` \| `wide` | `default` | how wide an icon-only button is: as wide as it is high, `container.height` of its size (36 / 40 / 56 in the default system), its glyph and `container.padding-inline-narrow` on each side of it — 28 / 32 / 32 in the default system, whose inset is 4 at every size — or `container.width-wide` (40 / 52 / 72) of its size. Ignored with a label; anything else is `default` and reported (BTN-21); reflected |
 | `toggle` | boolean | `false` | a two-state button: activation switches `selected` and fires `change`; reflected |
 | `selected` | boolean | `false` | whether a toggle is on — ignored unless `toggle`; reflected |
 | `label` | string | `""` | the accessible name: required for an icon-only button; beside a drawn label it is the whole name in place of the drawn text, which it must contain (BTN-16; see "The name") |
@@ -7910,7 +7910,7 @@ Two to five related options drawn side by side as the joined segments of one con
 | `selection` | `single` \| `multiple` | `single` | single is a radio group (one value, never cleared by its own segment); multiple switches each segment on and off (none is allowed). Anything else is single; reflected |
 | `value` | string \| `null` | `null` | the selected segment's value while single; `null` selects none. Attribute and property, not reflected |
 | `values` | string[] | `[]` | the selected segments' values while multiple. A property (assign a new array); the `values` attribute is read as a JSON array or as whitespace-separated values, as the list's |
-| `size` | `small` \| `medium` \| `large` (or a value the system adds) | `medium` | 32 / 36 / 40 in the default system, Button's heights. Unknown: drawn as `medium`, reported (SEG-8); reflected |
+| `size` | `small` \| `medium` \| `large` (or a value the system adds) | `medium` | 36 / 36 / 40 in the default system, Button's heights. Unknown: drawn as `medium`, reported (SEG-8); reflected |
 | `label` | string | `""` | the set's accessible name: the question its options answer (an empty one is reported, SEG-22) |
 
 | `<tanrei-segment>` | Type | Default | |
@@ -8592,7 +8592,7 @@ A main action with one press, and related actions in a menu from a second, joine
 | `<tanrei-button-with-menu>` | Type | Default | |
 |---|---|---|---|
 | `variant` | `filled` \| `tonal` \| `elevated` \| `outlined` | `filled` | emphasis, as Button's variants of the same names; a layer may add values; unknown is drawn as filled and reported (SPB-8); reflected |
-| `size` | `small` \| `medium` \| `large` | `medium` | Button's heights (32 / 40 / 56 in the default system); open as `variant`; reflected |
+| `size` | `small` \| `medium` \| `large` | `medium` | Button's heights (36 / 40 / 56 in the default system, the small one held at `sys.target.minimum`); open as `variant`; reflected |
 | `separation` | `auto` \| `divider` \| `gap` | `auto` | how the two halves are joined (SPB-30, see Separation): `auto` takes `comp.button-with-menu.container.separation`, the system's answer. Anything else is `auto` and reported (SPB-8); reflected |
 | `trailing-width` (`trailingWidth`) | `default` \| `narrow` | `default` | the trailing half holds the chevron in a square of the height, or — narrow — between `trailing.padding-inline-narrow`, then the outer padding at its end (32 / 36 / 36 wide in the default system: a narrow icon-only Button's width and the outer padding, from its own tokens, SPB-32). Anything else is `default` and reported (SPB-8); reflected |
 | `label` | string | `""` | the leading half's text and accessible name. Required (empty is reported, SPB-20) |
