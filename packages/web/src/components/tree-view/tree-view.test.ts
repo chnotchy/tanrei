@@ -1955,8 +1955,7 @@ test.describe('right to left', () => {
 
     // A product layer whose icon set (static Material Icons) no set describes: the name is not marked, so the chevron
     // is drawn as it is in both directions, and the open one turned as in left-to-right — down, not up. (With its motion:
-    // a turn that ran would be read on its way. The page's first mount, so that the design system's switch on its root
-    // is heard below: a mount writes a new document, and the page keeps one watch of the root it saw first.)
+    // a turn that ran would be read on its way.)
     await mount(page, { fixtures, system: 'acme', systemCss: await acmeSystemCss() });
     await expect(item(page, 'rtl', 'الأنماط')).not.toHaveAttribute('data-tanrei-leaf');
     expect(await css(row(page, 'rtl', 'الأنماط'), 'content', '::before')).toMatch(/chevron_right/);
@@ -1995,6 +1994,25 @@ test.describe('right to left', () => {
     await mount(page, { fixtures });
     expect(await chevrons('rtl')).toEqual(['down', 'left']);
     expect(await chevrons('ltr')).toEqual(['down', 'right']);
+  });
+
+  test('TRV-38: a page that mounts its fixtures again — a new document written into the same window, its root a new element — hears a design system switched on the new root: the start chevron is unmirrored under a product layer’s set and mirrored once the default system is switched in', async ({ page }) => {
+    /** Whether the tree says its set does not mirror the chevron, and the closed parent's chevron as drawn. */
+    const chevron = async () => [await host(page, 'rtl').evaluate((el) => el.hasAttribute('data-tanrei-chevron-unmirrored')), await css(row(page, 'rtl', 'الأنماط'), 'scale', '::before')];
+    // The first document: the default system, whose set marks chevron_right.
+    await mount(page, { fixtures: [fixture('rtl')] });
+    expect(await chevron()).toEqual([false, '-1 1']);
+    // The second, under acme, whose set (static Material Icons) no set describes; then the default system on its root.
+    await mount(page, { fixtures: [fixture('rtl')], system: 'acme', systemCss: await acmeSystemCss() });
+    expect(await page.evaluate(() => document.documentElement.getAttribute('data-tanrei-system'))).toBe('acme');
+    expect(await chevron()).toEqual([true, 'none']);
+    await page.evaluate(() => document.documentElement.removeAttribute('data-tanrei-system'));
+    await expect(host(page, 'rtl')).not.toHaveAttribute('data-tanrei-chevron-unmirrored');
+    expect(await chevron()).toEqual([false, '-1 1']);
+    // …and back.
+    await page.evaluate(() => document.documentElement.setAttribute('data-tanrei-system', 'acme'));
+    await expect(host(page, 'rtl')).toHaveAttribute('data-tanrei-chevron-unmirrored', '');
+    expect(await chevron()).toEqual([true, 'none']);
   });
 
   test('TRV-39: a left-to-right label in a right-to-left row reads left to right and keeps its own order, with its lines on the layout’s side; its supporting text and its trailing text are each text of their own direction, and a trailing text that does not fit is cut at its own end', async ({ page, browserName }) => {

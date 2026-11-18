@@ -965,6 +965,79 @@ test.describe('forced colors, scaling, direction', () => {
     expect(read('src/styles/previous-next-links.css').replace(/\/\*[\s\S]*?\*\//g, '')).not.toMatch(/(?<!-)\b(left|right):|margin-(left|right)|padding-(left|right)|border-(left|right)/);
   });
 
+  test('PNL-21 under a product layer drawn in an icon family no set describes (acme), neither arrow is mirrored, right to left or left to right; under a product layer drawn in a family the set describes, its list mirrors both right to left; a design system switched on the root while they are shown is followed', async ({ page }) => {
+    const mirrored = async (one: Locator, direction: Direction) => (await css(one, 'transform', ARROW[direction])).replace(/\s/g, '');
+    /** Each item of the fixture: whether it is marked unmirrored, and its arrow's transform. */
+    const drawn = (id: string) =>
+      Promise.all((['previous', 'next'] as const).map(async (direction) => [await item(page, id, direction).evaluate((el) => el.hasAttribute('data-tanrei-unmirrored')), await mirrored(item(page, id, direction), direction)]));
+    const MIRROR = 'matrix(-1,0,0,1,0,0)';
+    await mountSpec(page, ['both-rtl', 'both'], { system: 'acme', systemCss: await acmeSystemCss() });
+    // acme draws its glyphs in static Material Icons, a family no icon set describes: nothing mirrors by itself.
+    expect(await page.evaluate(() => getComputedStyle(document.documentElement).getPropertyValue('--tanrei-sys-icon-family-unselected'))).toMatch(/^\s*["']?Material Icons Outlined["']?\s*(,|$)/);
+    expect(await drawn('both-rtl')).toEqual([[true, 'none'], [true, 'none']]);
+    expect(await drawn('both')).toEqual([[true, 'none'], [true, 'none']]);
+    // The default system switched in on the root: its set marks both names, so right to left both are mirrored.
+    await page.evaluate(() => document.documentElement.removeAttribute('data-tanrei-system'));
+    await expect(item(page, 'both-rtl', 'previous')).not.toHaveAttribute('data-tanrei-unmirrored');
+    expect(await drawn('both-rtl')).toEqual([[false, MIRROR], [false, MIRROR]]);
+    expect(await drawn('both')).toEqual([[false, 'none'], [false, 'none']]);
+    // …and acme switched back in.
+    await page.evaluate(() => document.documentElement.setAttribute('data-tanrei-system', 'acme'));
+    await expect(item(page, 'both-rtl', 'previous')).toHaveAttribute('data-tanrei-unmirrored', '');
+    expect(await drawn('both-rtl')).toEqual([[true, 'none'], [true, 'none']]);
+
+    // A product layer Tanrei does not ship, drawn in a family the icon set describes: the set is found by the family,
+    // and its list mirrors both arrows right to left; left to right nothing is mirrored.
+    const scope = (dir: 'ltr' | 'rtl') => `<div dir="${dir}" data-tanrei-system="product" style="inline-size:720px; --tanrei-sys-icon-family-unselected: 'Material Symbols Rounded'">${pages()}</div>`;
+    await mount(page, `${scope('rtl')}${scope('ltr')}`);
+    for (const [dir, transform] of [['rtl', MIRROR], ['ltr', 'none']] as const) {
+      for (const direction of ['previous', 'next'] as const) {
+        const one = page.locator(`[dir="${dir}"][data-tanrei-system="product"] [data-direction="${direction}"]`);
+        await expect(one, `${dir} ${direction}`).not.toHaveAttribute('data-tanrei-unmirrored');
+        expect(await mirrored(one, direction), `${dir} ${direction}`).toBe(transform);
+      }
+    }
+  });
+
+  test('PNL-21 in a shadow root of the product’s, observed by its own call, the arrows follow the icon set of the design system around the shadow root’s host — a product layer’s on the document’s root (acme), and the default one switched in there while they are shown', async ({ page }) => {
+    const SITE = 'https://pnl-shadow.test';
+    await fresh(page);
+    await page.route(`${SITE}/**`, (route) => {
+      const url = new URL(route.request().url());
+      if (url.pathname === '/tanrei.bundle.js') return route.fulfill({ contentType: 'text/javascript', body: read('dist/tanrei.bundle.js') });
+      return route.fulfill({ contentType: 'text/html', body: '<!doctype html><html lang="en" data-tanrei-theme="light"><head><meta charset="utf-8"><title>shadow</title></head><body></body></html>' });
+    });
+    await page.goto(`${SITE}/`);
+    await page.addStyleTag({ content: read('dist/tokens.css') });
+    await page.addStyleTag({ content: await acmeSystemCss() });
+    await page.evaluate(
+      async ([sheet, nav]) => {
+        document.documentElement.setAttribute('data-tanrei-system', 'acme');
+        const host = document.body.appendChild(document.createElement('div'));
+        host.dir = 'rtl';
+        host.style.inlineSize = '720px';
+        const shadow = host.attachShadow({ mode: 'open' });
+        shadow.innerHTML = `<style>${sheet}</style>${nav}`;
+        const module = (await import('/tanrei.bundle.js' as string)) as { observePreviousNextLinks(root: ShadowRoot): () => void };
+        module.observePreviousNextLinks(shadow);
+      },
+      [read('dist/previous-next-links.css'), pages()] as const,
+    );
+    const items = page.locator('.tanrei-previous-next-links-item');
+    /** Whether each item is marked unmirrored, and its arrow's transform. */
+    const drawn = () =>
+      items.evaluateAll((all) =>
+        all.map((el) => [el.hasAttribute('data-tanrei-unmirrored'), getComputedStyle(el, el.getAttribute('data-direction') === 'previous' ? '::before' : '::after').transform.replace(/\s/g, '')]),
+      );
+    await expect(items).toHaveCount(2);
+    // acme's family is described by no set: neither arrow is mirrored right to left.
+    expect(await drawn()).toEqual([[true, 'none'], [true, 'none']]);
+    // The default system switched in on the root, outside the shadow root: its set marks both names.
+    await page.evaluate(() => document.documentElement.removeAttribute('data-tanrei-system'));
+    await expect(items.first()).not.toHaveAttribute('data-tanrei-unmirrored');
+    expect(await drawn()).toEqual([[false, 'matrix(-1,0,0,1,0,0)'], [false, 'matrix(-1,0,0,1,0,0)']]);
+  });
+
   test('PNL-22 a label and a title are text of their own direction, isolated: a left-to-right title in a right-to-left pair reads in its own order and its lines are aligned as the Arabic label above it', async ({ page }) => {
     await mountSpec(page, ['ltr-title-rtl', 'long-titles-rtl']);
     for (const [direction, text] of [['previous', 'Web Components 1.2'], ['next', 'Jetpack Compose']] as const) {

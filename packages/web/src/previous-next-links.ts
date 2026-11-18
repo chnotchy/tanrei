@@ -18,7 +18,7 @@
 // What the browser gives an anchor stays the browser's (PNL-2, PNL-14): Enter fires `click` and then follows the
 // address unless the product cancelled the click; a modified or a middle click opens a tab. Nothing here follows a link.
 import { syncFocusStyle } from './primitives/focus-ring.js';
-import { type IconSet, iconSets, systemIconSets } from './generated/icon-sets.js';
+import { generatedGlyphMirrors, watchIconSet } from './primitives/glyph-mirror.js';
 import { LINK_KEYS, readDestination } from './primitives/link.js';
 import { PressController } from './primitives/press.js';
 import { report } from './primitives/report.js';
@@ -44,23 +44,6 @@ function itemOf(node: EventTarget | null): HTMLAnchorElement | null {
 function directionOf(item: Element): Direction | null {
   const written = item.getAttribute('data-direction');
   return written === null || written === 'next' ? 'next' : written === 'previous' ? 'previous' : null;
-}
-
-/**
- * The icon set the item's arrow is drawn from, as `activeIconSet()` finds it for a glyph (src/primitives/
- * glyph-mirror.ts): the set of the design system around the item, and for a system Tanrei does not ship the set that
- * holds the icon family the arrow is drawn with — the item's own font is its text's, so the family is read from the
- * token. Null: no set describes it, and nothing is mirrored by itself.
- */
-function arrowSet(item: Element): IconSet | null {
-  const system = item.closest('[data-tanrei-system]')?.getAttribute('data-tanrei-system') || 'tanrei';
-  if (Object.hasOwn(systemIconSets, system)) {
-    const id = systemIconSets[system];
-    return id && Object.hasOwn(iconSets, id) ? iconSets[id] : null;
-  }
-  const family = getComputedStyle(item).getPropertyValue('--tanrei-sys-icon-family-unselected').split(',')[0]?.trim().replace(/^["']|["']$/g, '').toLowerCase();
-  if (!family) return null;
-  return Object.values(iconSets).find((set) => set.families.some((name) => name.toLowerCase() === family)) ?? null;
 }
 
 /** An item that can be followed now. */
@@ -96,8 +79,8 @@ function readItem(item: HTMLAnchorElement) {
     report(item, 'PNL-7', 'its label is empty, so it does not say its direction in words: the arrow is hidden from assistive technology; give it a span with class "tanrei-previous-next-links-label"');
   }
   // PNL-21: the icon set says whether the arrow is mirrored in a right-to-left layout; the stylesheet mirrors it
-  // unless this mark says the active set does not.
-  item.toggleAttribute(UNMIRRORED, !arrowSet(item)?.mirrored.has(ARROWS[direction]));
+  // unless this mark says the active set does not. The arrow is the stylesheet's generated content of the item.
+  item.toggleAttribute(UNMIRRORED, !generatedGlyphMirrors(item, ARROWS[direction]));
 }
 
 /** One landmark (PNL-1, PNL-3): its name, the order of its items, and a second item of a direction. */
@@ -226,10 +209,17 @@ export function observePreviousNextLinks(root: Document | ShadowRoot = document)
     for (const one of roots) if (one.isConnected) readRoot(one);
   });
   observer.observe(root, { attributes: true, attributeFilter: ATTRIBUTES, childList: true, subtree: true, characterData: true });
-  for (const one of root.querySelectorAll(`.${ROOT}`)) readRoot(one);
+  const readAll = () => {
+    for (const one of root.querySelectorAll(`.${ROOT}`)) readRoot(one);
+  };
+  // A shadow root's items take the design system around its host, which is switched on the document's root, out of
+  // the observer's sight: the icon set's watch tells them (PNL-21). The document's observer sees its root itself.
+  const unwatch = root instanceof ShadowRoot ? watchIconSet(readAll) : null;
+  readAll();
 
   const stop = () => {
     observer.disconnect();
+    unwatch?.();
     for (const [type, listener] of listeners) root.removeEventListener(type, listener, true);
     release();
     if (observed[OBSERVING] === stop) delete observed[OBSERVING];
