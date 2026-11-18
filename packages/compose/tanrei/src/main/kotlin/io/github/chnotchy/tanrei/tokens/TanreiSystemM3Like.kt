@@ -7061,9 +7061,9 @@ private object M3LikeSystemSource {
             statusColor = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant),
             statusErrorColor = TanreiPaint.Role(TanreiColorRole.Error),
             statusTypescale = typescale.bodySmall,
-            suggestionCompletionEmphasis = 300f,
+            suggestionCompletionEmphasis = 600f,
             suggestionContainerShape = 8.dp,
-            suggestionHeadlineTypescale = typescale.body,
+            suggestionHeadlineTypescale = typescale.label,
             suggestionSupportingTextTypescale = typescale.bodySmall,
             triggerContainerGap = 8.dp,
             triggerContainerHeight = 40.dp,
@@ -7165,8 +7165,8 @@ private object M3LikeSystemSource {
                 ),
             ),
             sizes = TanreiSearchSizes(
-                small = TanreiSearchSizeTokens(suggestionContainerHeight = 32.dp, suggestionContainerPaddingInline = 8.dp, suggestionContainerPaddingBlock = 4.dp, suggestionContainerGap = 8.dp, suggestionLeadingIconSize = 20.dp),
-                medium = TanreiSearchSizeTokens(suggestionContainerHeight = 56.dp, suggestionContainerPaddingInline = 16.dp, suggestionContainerPaddingBlock = 8.dp, suggestionContainerGap = 16.dp, suggestionLeadingIconSize = 24.dp),
+                small = TanreiSearchSizeTokens(suggestionContainerHeight = 32.dp, suggestionContainerPaddingInline = 8.dp, suggestionContainerPaddingBlock = 6.dp, suggestionContainerGap = 8.dp, suggestionLeadingIconSize = 20.dp),
+                medium = TanreiSearchSizeTokens(suggestionContainerHeight = 48.dp, suggestionContainerPaddingInline = 12.dp, suggestionContainerPaddingBlock = 8.dp, suggestionContainerGap = 12.dp, suggestionLeadingIconSize = 24.dp),
             ),
         )
 
@@ -8373,7 +8373,7 @@ private object M3LikeSystemSource {
             railWidth = 1.dp,
             rowIndent = 12.dp,
             rowPaddingInline = 12.dp,
-            rowShape = 4.dp,
+            rowShape = 8.dp,
             titleColor = TanreiPaint.Role(TanreiColorRole.OnSurface),
             titleTypescale = typescale.label,
             hovered = TanreiTableOfContentsStateTokens(opacity = 1f),
@@ -9307,7 +9307,7 @@ private object M3LikeSystemSource {
             ),
             sizes = TanreiTreeViewSizes(
                 small = TanreiTreeViewSizeTokens(containerHeight = 32.dp, containerPaddingBlock = 6.dp, containerPaddingInline = 8.dp, containerGap = 8.dp, levelIndent = 24.dp, labelTypescale = typescale.bodySmall, iconSize = 16.dp, chevronSize = 16.dp),
-                medium = TanreiTreeViewSizeTokens(containerHeight = 48.dp, containerPaddingBlock = 12.dp, containerPaddingInline = 12.dp, containerGap = 12.dp, levelIndent = 32.dp, labelTypescale = typescale.body, iconSize = 20.dp, chevronSize = 20.dp),
+                medium = TanreiTreeViewSizeTokens(containerHeight = 48.dp, containerPaddingBlock = 12.dp, containerPaddingInline = 12.dp, containerGap = 12.dp, levelIndent = 32.dp, labelTypescale = typescale.body, iconSize = 24.dp, chevronSize = 20.dp),
             ),
         )
 }

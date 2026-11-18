@@ -9054,7 +9054,7 @@ export const cupertino = {
       statusTypescale: "bodySmall",
       suggestionCompletionEmphasis: 200,
       suggestionContainerShape: 8,
-      suggestionHeadlineTypescale: "body",
+      suggestionHeadlineTypescale: "bodyLarge",
       suggestionSupportingTextTypescale: "bodySmall",
       triggerContainerGap: 8,
       triggerContainerHeight: 40,
@@ -9188,7 +9188,7 @@ export const cupertino = {
         },
       },
       sizes: {
-        small: { suggestionContainerHeight: 32, suggestionContainerPaddingInline: 8, suggestionContainerPaddingBlock: 4, suggestionContainerGap: 8, suggestionLeadingIconSize: 20 },
+        small: { suggestionContainerHeight: 32, suggestionContainerPaddingInline: 8, suggestionContainerPaddingBlock: 6, suggestionContainerGap: 8, suggestionLeadingIconSize: 20 },
         medium: { suggestionContainerHeight: 44, suggestionContainerPaddingInline: 12, suggestionContainerPaddingBlock: 8, suggestionContainerGap: 12, suggestionLeadingIconSize: 20 },
       },
     },
@@ -10647,7 +10647,7 @@ export const cupertino = {
       railWidth: 1,
       rowIndent: 12,
       rowPaddingInline: 12,
-      rowShape: 4,
+      rowShape: 8,
       titleColor: { kind: "role", role: "onSurface" },
       titleTypescale: "label",
       parts: {

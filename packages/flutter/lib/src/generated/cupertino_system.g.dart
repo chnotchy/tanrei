@@ -7468,7 +7468,7 @@ const TanreiSystem cupertinoSystem = TanreiSystem(
     statusTypescale: _typescaleBodySmall,
     suggestionCompletionEmphasis: 200.0,
     suggestionContainerShape: 8.0,
-    suggestionHeadlineTypescale: _typescaleBody,
+    suggestionHeadlineTypescale: _typescaleBodyLarge,
     suggestionSupportingTextTypescale: _typescaleBodySmall,
     triggerContainerGap: 8.0,
     triggerContainerHeight: 40.0,
@@ -7569,7 +7569,7 @@ const TanreiSystem cupertinoSystem = TanreiSystem(
       small: TanreiSearchSizeTokens(
         suggestionContainerHeight: 32.0,
         suggestionContainerPaddingInline: 8.0,
-        suggestionContainerPaddingBlock: 4.0,
+        suggestionContainerPaddingBlock: 6.0,
         suggestionContainerGap: 8.0,
         suggestionLeadingIconSize: 20.0,
       ),
@@ -8915,7 +8915,7 @@ const TanreiSystem cupertinoSystem = TanreiSystem(
     railWidth: 1.0,
     rowIndent: 12.0,
     rowPaddingInline: 12.0,
-    rowShape: 4.0,
+    rowShape: 8.0,
     titleColor: TanreiPaint.role(TanreiColorRole.onSurface),
     titleTypescale: _typescaleLabel,
     parts: TanreiTableOfContentsParts(

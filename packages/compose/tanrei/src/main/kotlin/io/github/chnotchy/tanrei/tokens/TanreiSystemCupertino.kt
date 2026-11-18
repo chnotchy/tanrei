@@ -6932,7 +6932,7 @@ private object CupertinoSystemSource {
             statusTypescale = typescale.bodySmall,
             suggestionCompletionEmphasis = 200f,
             suggestionContainerShape = 8.dp,
-            suggestionHeadlineTypescale = typescale.body,
+            suggestionHeadlineTypescale = typescale.bodyLarge,
             suggestionSupportingTextTypescale = typescale.bodySmall,
             triggerContainerGap = 8.dp,
             triggerContainerHeight = 40.dp,
@@ -7034,7 +7034,7 @@ private object CupertinoSystemSource {
                 ),
             ),
             sizes = TanreiSearchSizes(
-                small = TanreiSearchSizeTokens(suggestionContainerHeight = 32.dp, suggestionContainerPaddingInline = 8.dp, suggestionContainerPaddingBlock = 4.dp, suggestionContainerGap = 8.dp, suggestionLeadingIconSize = 20.dp),
+                small = TanreiSearchSizeTokens(suggestionContainerHeight = 32.dp, suggestionContainerPaddingInline = 8.dp, suggestionContainerPaddingBlock = 6.dp, suggestionContainerGap = 8.dp, suggestionLeadingIconSize = 20.dp),
                 medium = TanreiSearchSizeTokens(suggestionContainerHeight = 44.dp, suggestionContainerPaddingInline = 12.dp, suggestionContainerPaddingBlock = 8.dp, suggestionContainerGap = 12.dp, suggestionLeadingIconSize = 20.dp),
             ),
         )
@@ -8242,7 +8242,7 @@ private object CupertinoSystemSource {
             railWidth = 1.dp,
             rowIndent = 12.dp,
             rowPaddingInline = 12.dp,
-            rowShape = 4.dp,
+            rowShape = 8.dp,
             titleColor = TanreiPaint.Role(TanreiColorRole.OnSurface),
             titleTypescale = typescale.label,
             hovered = TanreiTableOfContentsStateTokens(opacity = 1f),

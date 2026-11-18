@@ -12136,7 +12136,7 @@ export const acme = {
       statusTypescale: "bodySmall",
       suggestionCompletionEmphasis: 300,
       suggestionContainerShape: 4,
-      suggestionHeadlineTypescale: "body",
+      suggestionHeadlineTypescale: "label",
       suggestionSupportingTextTypescale: "bodySmall",
       triggerContainerGap: 8,
       triggerContainerHeight: 40,
@@ -12295,8 +12295,8 @@ export const acme = {
         },
       },
       sizes: {
-        small: { suggestionContainerHeight: 36, suggestionContainerPaddingInline: 8, suggestionContainerPaddingBlock: 6, suggestionContainerGap: 8, suggestionLeadingIconSize: 20 },
-        medium: { suggestionContainerHeight: 56, suggestionContainerPaddingInline: 16, suggestionContainerPaddingBlock: 8, suggestionContainerGap: 16, suggestionLeadingIconSize: 24 },
+        small: { suggestionContainerHeight: 36, suggestionContainerPaddingInline: 8, suggestionContainerPaddingBlock: 8, suggestionContainerGap: 8, suggestionLeadingIconSize: 20 },
+        medium: { suggestionContainerHeight: 48, suggestionContainerPaddingInline: 12, suggestionContainerPaddingBlock: 8, suggestionContainerGap: 12, suggestionLeadingIconSize: 24 },
       },
     },
     segmentedButton: {
@@ -15892,7 +15892,7 @@ export const acme = {
       railWidth: 1,
       rowIndent: 12,
       rowPaddingInline: 12,
-      rowShape: 3,
+      rowShape: 6,
       titleColor: { kind: "role", role: "onSurface" },
       titleTypescale: "label",
       parts: {
@@ -17375,7 +17375,7 @@ export const acme = {
       },
       sizes: {
         small: { containerHeight: 36, containerPaddingBlock: 8, containerPaddingInline: 8, containerGap: 8, levelIndent: 24, labelTypescale: "bodySmall", iconSize: 16, chevronSize: 16 },
-        medium: { containerHeight: 48, containerPaddingBlock: 12, containerPaddingInline: 12, containerGap: 12, levelIndent: 32, labelTypescale: "body", iconSize: 20, chevronSize: 20 },
+        medium: { containerHeight: 48, containerPaddingBlock: 12, containerPaddingInline: 12, containerGap: 12, levelIndent: 32, labelTypescale: "body", iconSize: 24, chevronSize: 20 },
       },
     },
   },

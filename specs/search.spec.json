@@ -252,7 +252,7 @@
         "medium"
       ],
       "default": "medium",
-      "description": "How much room a row of the view takes — a suggestion, a result, a result group's linked heading —: its least height, its paddings, the gap after its icon column and the size of its glyph, and never its text style. medium (a 56 row in the default system) is for a product used by touch as well as by pointer; small (a 36 row with a 20 glyph, the tree view's small row, held at the minimum target) is for a tool used with a pointer, a command palette looked through with the keyboard. Its heights follow the system's density at either size, and a row is never lower than the target at either (SRC-16). The bar, the trigger and the view's header are not changed. The search takes no size from a container around it (SRC-53). A design system may add values.",
+      "description": "How much room a row of the view takes — a suggestion, a result, a result group's linked heading —: its least height, its paddings, the gap after its icon column and the size of its glyph, and never its text style. medium (a 48 row in the default system, a combobox option's) is for a product used by touch as well as by pointer; small (a 36 row with a 20 glyph, the tree view's small row, held at the minimum target) is for a tool used with a pointer, a command palette looked through with the keyboard. Its heights follow the system's density at either size, and a row is never lower than the target at either (SRC-16). The bar, the trigger and the view's header are not changed. The search takes no size from a container around it (SRC-53). A design system may add values.",
       "axis": "tanrei.comp.search.size"
     }
   ],
