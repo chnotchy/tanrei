@@ -48,17 +48,16 @@ describe('the rules', () => {
 });
 
 describe('every page holds them', () => {
-  test('the head writes them, inline and unchanged, right after the framework’s tags, where the page’s policy governs them (Head.astro)', () => {
-    const head = read('src/components/frame/Head.astro');
-    assert.match(head, /^import \{ speculationRulesText \} from '\.\.\/\.\.\/lib\/speculation-rules\.mjs';$/m);
-    assert.match(head, /^<Default \/>\n<script type="speculationrules" is:inline set:html=\{speculationRulesText\} \/>$/m);
+  test('the frame writes them, inline and unchanged, after the shell, at the end of the body (PageFrame.astro), and the head does not (Head.astro)', () => {
+    const frame = read('src/components/frame/PageFrame.astro');
+    assert.match(frame, /^import \{ speculationRulesText \} from '\.\.\/\.\.\/lib\/speculation-rules\.mjs';$/m);
+    assert.match(frame, /^<\/tanrei-app-shell>\n<script type="speculationrules" is:inline set:html=\{speculationRulesText\} \/>$/m);
+    assert.doesNotMatch(read('src/components/frame/Head.astro'), /speculation/, 'read before the links, WebKit loaded the Calendar’s page 1.3 s later');
   });
-  test('Theme Studio’s page, which writes a head of its own, writes them after its charset (StudioPage.astro)', () => {
+  test('Theme Studio’s page, which writes a document of its own, writes them at the end of its body (StudioPage.astro)', () => {
     const studio = read('src/components/StudioPage.astro');
     assert.match(studio, /^import \{ speculationRulesText \} from '\.\.\/lib\/speculation-rules\.mjs';$/m);
-    const rules = studio.indexOf('<script type="speculationrules" is:inline set:html={speculationRulesText} />');
-    assert.ok(rules > studio.indexOf('<meta charset="utf-8" />'), 'after the charset');
-    assert.ok(rules < studio.indexOf('</head>'), 'in the head');
+    assert.match(studio, /^ {4}<script type="speculationrules" is:inline set:html=\{speculationRulesText\} \/>\n {2}<\/body>$/m);
   });
   test('the page’s own policy names their hash, as it names every inline script’s (src/lib/csp.mjs)', () => {
     const html = `<!doctype html><html><head><meta charset="utf-8">${SCRIPT}</head><body></body></html>`;
