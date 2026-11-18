@@ -192,7 +192,8 @@ import { themeScript } from '@tanrei/web/theme-script';
   background: var(--tanrei-sys-color-surface-container-low);
   border-radius: var(--tanrei-sys-shape-corner-medium);
   box-shadow: var(--tanrei-sys-elevation-level1);
-  font: var(--tanrei-sys-typescale-body-font);
+  font: var(--tanrei-sys-typescale-body-font-weight) var(--tanrei-sys-typescale-body-font-size)/var(--tanrei-sys-typescale-body-line-height) var(--tanrei-sys-typescale-body-font-family);
+  letter-spacing: var(--tanrei-sys-typescale-body-letter-spacing);
 }
 ```
 
@@ -200,7 +201,7 @@ import { themeScript } from '@tanrei/web/theme-script';
 
 ## テキストスタイル
 
-テキストスタイルは階層で名付けられています（`heading-2` は `h2`、`body` は `p`、`label` はコントロール上のテキスト）。それぞれが、ひとまとまりのカスタムプロパティです。ショートハンドの `--tanrei-sys-typescale-<role>-font` に加えて、`-font-family`、`-font-size`、`-font-weight`、`-line-height`、`-letter-spacing`、`-font-weight-emphasized` があります。次の 2 つの任意のスタイルシートを使うと、これらを要素に適用できます。
+テキストスタイルは階層で名付けられています（`heading-2` は `h2`、`body` は `p`、`label` はコントロール上のテキスト）。それぞれが、ひとまとまりの個別のカスタムプロパティです。`--tanrei-sys-typescale-<role>-font-family`、`-font-size`、`-font-weight`、`-line-height`、`-letter-spacing`、`-font-weight-emphasized` があります。ショートハンドのプロパティはありません。上の例のように、テキストを描くところで個別のプロパティから `font` を組み立ててください。スタイルを変えるときも、個別のプロパティを 1 つずつ変えます。`--tanrei-sys-typescale-body-font-size: 1rem` をルートか、ページの 1 つの要素や区画に設定すると、そのテキストの文字サイズだけが変わり、ほかは変わりません。次の 2 つの任意のスタイルシートを使うと、これらを要素に適用できます。
 
 ```js
 import '@tanrei/web/text.css';   // .tanrei-text-<role>、.tanrei-text-emphasized

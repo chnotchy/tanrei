@@ -55,6 +55,8 @@ On the web `@tanrei/web/text.css` gives every role a utility class, `.tanrei-tex
 <p class="tanrei-text-body">Running text with <strong class="tanrei-text-emphasized">stress</strong>.</p>
 ```
 
+A role is its longhands — `-font-family`, `-font-size`, `-font-weight`, `-line-height`, `-letter-spacing` and `-font-weight-emphasized` — and has no shorthand property. To change a style, set one longhand at a time, on the root or on one element or section of the page: `--tanrei-sys-typescale-body-font-size: 1rem` changes the size of body text and nothing else. Italic is not a token: no role sets a style, so it is the text's own (`em`, or `font-style: italic` on the element).
+
 ### Prose: text you did not lay out
 
 A help article, release notes, terms, a message written in Markdown, a page from a CMS: the product does not place that text piece by piece, and it still has to read as one text with the rest of the interface. **Prose** is the part of the system for it — the table above applied to whatever a renderer produces, with one vertical rhythm and a limit on line length. It styles and spaces; it does not parse. Tanrei ships no Markdown parser on any platform.
@@ -155,7 +157,7 @@ A preset that imitates another design system keeps the sixteen names and gives t
 - **`m3-like`** re-values every role from Material Design 3's type scale — `heading-1` takes Material's *headline large*, `body` its *body medium*, `label` its *label large* — and adds `display-large` (57px) and `display-small` (36px), because Material has three display sizes and one product needs one. Its emphasis steps are Material's: 100 on display, headings and body, 200 on labels. The fidelity harness measures every text style Material publishes, all thirty including the emphasized ones, alongside the color roles and Button: of 288 measured tokens, 273 are equal, 14 are covered by another token, 1 is unmapped under a registered mimicry gap, and none is different — shown as 273 / 274 on the [design systems page](/foundations/design-systems/), which counts the covered ones out. The numbers are read from `tokens/generated/m3-like/fidelity.json`, which the build rewrites.
 - **`cupertino`** re-values every role from Apple's eleven iOS text styles — Large Title down to Caption 2 — and adds the three the core does not name: `body-callout`, `body-subhead` and `caption-small`. Large Title and Titles 1 to 3 are Regular, as Apple's are. Its emphasis steps are 300 on display and headings and 200 on body and labels: Apple's emphasized Large Title, Title 1 and Title 2 are Bold, and its emphasized body styles Semibold. Apple steps Title 3 and Headline less (both emphasized to Semibold), which one step per family cannot draw.
 
-A role a preset adds is an ordinary token on every platform: `m3-like`'s `display-large` is `--tanrei-sys-typescale-display-large-font` on the web and a member of the typescale on each native package. The Theme Studio preview draws it in the type ramp beside the sixteen.
+A role a preset adds is an ordinary token on every platform: `m3-like`'s `display-large` is `--tanrei-sys-typescale-display-large-font-size` and its other longhands on the web and a member of the typescale on each native package. The Theme Studio preview draws it in the type ramp beside the sixteen.
 
 ## Character
 

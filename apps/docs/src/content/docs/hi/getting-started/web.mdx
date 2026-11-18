@@ -192,7 +192,8 @@ import { themeScript } from '@tanrei/web/theme-script';
   background: var(--tanrei-sys-color-surface-container-low);
   border-radius: var(--tanrei-sys-shape-corner-medium);
   box-shadow: var(--tanrei-sys-elevation-level1);
-  font: var(--tanrei-sys-typescale-body-font);
+  font: var(--tanrei-sys-typescale-body-font-weight) var(--tanrei-sys-typescale-body-font-size)/var(--tanrei-sys-typescale-body-line-height) var(--tanrei-sys-typescale-body-font-family);
+  letter-spacing: var(--tanrei-sys-typescale-body-letter-spacing);
 }
 ```
 
@@ -200,7 +201,7 @@ import { themeScript } from '@tanrei/web/theme-script';
 
 ## टेक्स्ट स्टाइल
 
-टेक्स्ट स्टाइल के नाम उनके स्तर पर रखे गए हैं (`heading-2` एक `h2` है, `body` एक `p`, और `label` किसी कंट्रोल पर लिखा टेक्स्ट), और हर स्टाइल कस्टम प्रॉपर्टी का एक सेट है: शॉर्टहैंड के रूप में `--tanrei-sys-typescale-<role>-font`, और साथ में `-font-family`, `-font-size`, `-font-weight`, `-line-height`, `-letter-spacing` और `-font-weight-emphasized`। दो वैकल्पिक स्टाइलशीट इन्हें आपके लिए एलिमेंट पर लगा देती हैं:
+टेक्स्ट स्टाइल के नाम उनके स्तर पर रखे गए हैं (`heading-2` एक `h2` है, `body` एक `p`, और `label` किसी कंट्रोल पर लिखा टेक्स्ट), और हर स्टाइल अलग-अलग कस्टम प्रॉपर्टी का एक सेट है: `--tanrei-sys-typescale-<role>-font-family`, `-font-size`, `-font-weight`, `-line-height`, `-letter-spacing` और `-font-weight-emphasized`। कोई शॉर्टहैंड प्रॉपर्टी नहीं है: ऊपर की तरह, जहाँ टेक्स्ट बनता है वहीं इन्हीं से `font` बनाएँ, और स्टाइल बदलते समय एक बार में एक प्रॉपर्टी बदलें। `--tanrei-sys-typescale-body-font-size: 1rem` रूट पर, या पेज के किसी एक एलिमेंट या हिस्से पर, उस टेक्स्ट का साइज़ बदलता है, और कुछ नहीं। दो वैकल्पिक स्टाइलशीट इन्हें आपके लिए एलिमेंट पर लगा देती हैं:
 
 ```js
 import '@tanrei/web/text.css';   // .tanrei-text-<role>, .tanrei-text-emphasized

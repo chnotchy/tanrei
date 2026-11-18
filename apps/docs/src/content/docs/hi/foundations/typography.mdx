@@ -2,7 +2,7 @@
 title: टाइपोग्राफ़ी
 description: स्तर के नाम वाले सोलह टेक्स्ट स्टाइल — एक डिस्प्ले, छह हेडिंग, बॉडी के तीन साइज़, लेबल, कोड, एक आइब्रो — Inter में सेट, जिनमें एम्फ़ेसिस कोई रोल नहीं, वेट का एक स्टेप है।
 translationOf: foundations/typography.mdx
-sourceHash: b32cb8363dab91a1ec83737ccb7c1a5419aefdee
+sourceHash: def97902c53dacc5166adf0db642048d1f203458
 ---
 
 import TokenNotes from '../../../../components/tokens/TokenNotes.astro';
@@ -56,6 +56,8 @@ Tanrei के टेक्स्ट स्टाइल के नाम उस *
 <h2 class="tanrei-text-heading-2">सेक्शन</h2>
 <p class="tanrei-text-body">चलता टेक्स्ट, जिसमें <strong class="tanrei-text-emphasized">ज़ोर</strong> भी है।</p>
 ```
+
+रोल उसकी अलग-अलग प्रॉपर्टी ही है — `-font-family`, `-font-size`, `-font-weight`, `-line-height`, `-letter-spacing` और `-font-weight-emphasized` — और उसकी कोई शॉर्टहैंड प्रॉपर्टी नहीं है। किसी स्टाइल को बदलने के लिए एक बार में एक प्रॉपर्टी सेट करें, रूट पर या पेज के किसी एक एलिमेंट या हिस्से पर: `--tanrei-sys-typescale-body-font-size: 1rem` बॉडी टेक्स्ट का साइज़ बदलता है, और कुछ नहीं। इटैलिक टोकन नहीं है: कोई रोल फ़ॉन्ट स्टाइल सेट नहीं करता, इसलिए इटैलिक टेक्स्ट का अपना है (`em`, या एलिमेंट पर `font-style: italic`)।
 
 ### प्रोज़: वह टेक्स्ट जिसका लेआउट आपने नहीं बनाया
 
@@ -157,7 +159,7 @@ Tanrei किसी भी डिज़ाइन सिस्टम के ल�
 - **`m3-like`** हर रोल को Material Design 3 के टाइप स्केल से नया मान देता है — `heading-1` Material का "headline large" लेता है, `body` उसका "body medium", `label` उसका "label large" — और `display-large` (57px) और `display-small` (36px) जोड़ता है, क्योंकि Material में डिस्प्ले के तीन साइज़ हैं और एक प्रॉडक्ट को एक चाहिए। इसके एम्फ़ेसिस स्टेप Material के हैं: डिस्प्ले, हेडिंग और बॉडी पर 100, लेबल पर 200। फ़िडेलिटी हार्नेस Material के प्रकाशित हर टेक्स्ट स्टाइल को मापता है, एम्फ़ेसिस वालों समेत सभी तीस, और साथ में कलर रोल और Button को: मापे गए 288 टोकन में से 273 बराबर हैं, 14 किसी दूसरे टोकन से कवर हैं, 1 एक दर्ज मिमिक्री गैप के अंतर्गत बिना मैपिंग के है, और कोई भी अलग नहीं है — [डिज़ाइन सिस्टम पेज](/hi/foundations/design-systems/) पर यह 273 / 274 के रूप में दिखता है, जो कवर किए गए टोकन को गिनती से बाहर रखता है। ये संख्याएँ `tokens/generated/m3-like/fidelity.json` से पढ़ी जाती हैं, जिसे बिल्ड दोबारा लिखता है।
 - **`cupertino`** हर रोल को Apple के iOS के ग्यारह टेक्स्ट स्टाइल से नया मान देता है — Large Title से लेकर Caption 2 तक — और वे तीन जोड़ता है जिनका कोर में नाम नहीं: `body-callout`, `body-subhead` और `caption-small`। Large Title और Title 1 से 3, Apple की तरह, Regular हैं। इसके एम्फ़ेसिस स्टेप डिस्प्ले और हेडिंग पर 300 और बॉडी और लेबल पर 200 हैं: Apple के एम्फ़ेसिस वाले Large Title, Title 1 और Title 2 Bold हैं, और एम्फ़ेसिस वाले बॉडी स्टाइल Semibold। Apple में Title 3 और Headline का स्टेप छोटा है (एम्फ़ेसिस के साथ दोनों Semibold), जिसे हर फ़ैमिली का एक स्टेप नहीं बना सकता।
 
-प्रीसेट का जोड़ा हुआ रोल हर प्लैटफ़ॉर्म पर एक साधारण टोकन है: `m3-like` का `display-large` वेब पर `--tanrei-sys-typescale-display-large-font` है और हर नेटिव पैकेज में टाइप स्केल का एक सदस्य। Theme Studio का प्रीव्यू इसे टाइप रैंप में सोलह के बग़ल में बनाता है।
+प्रीसेट का जोड़ा हुआ रोल हर प्लैटफ़ॉर्म पर एक साधारण टोकन है: `m3-like` का `display-large` वेब पर `--tanrei-sys-typescale-display-large-font-size` और उसकी बाक़ी अलग-अलग प्रॉपर्टी है और हर नेटिव पैकेज में टाइप स्केल का एक सदस्य। Theme Studio का प्रीव्यू इसे टाइप रैंप में सोलह के बग़ल में बनाता है।
 
 ## चरित्र
 
