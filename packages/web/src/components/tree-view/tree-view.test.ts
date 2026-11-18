@@ -7,13 +7,13 @@ import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
 import { type DocumentOptions, type Fixture, acmeSystemCss, fixturesDocument, iconFaceArrives, loadSpec, missingWords, mountFixtures, setWords, resolveColor, resolveToken, tab, tabTo, withoutIconFont, rootTokens } from '../../../test/harness.js';
 import { appearingFixture } from '../../../test/first-frame.js';
-import { expectFirstFrameAtRest } from '../../../test/frames.js';
+import { expectFirstFrameAtRest, sampleFrames } from '../../../test/frames.js';
 import { drawnOpticalSize, opticalSize } from '../../../test/icons.js';
 import { expectPressShownAndHeld, watchPress } from '../../../test/watched-press.js';
 import { holdClock, releaseClock } from '../../../test/page-clock.js';
 import { TYPEAHEAD_FOUND, TYPEAHEAD_LABELS, typeaheadAsFiltered } from '../../../test/typeahead.js';
 import { expectBaseline } from '../../../test/baseline.js';
-import { EVERY_ANIMATION } from '../../../test/motions.js';
+import { EVERY_ANIMATION, motionEnded } from '../../../test/motions.js';
 
 const spec = loadSpec('tree-view');
 type P = Page;
@@ -1765,24 +1765,64 @@ test.describe('right to left', () => {
     await page.mouse.up();
   });
 
-  test('TRV-37: the direction comes from the nearest ancestor that sets one, not from the root, and a change of it is drawn at once, with no motion, keeping the selection, every parent’s open and the focus', async ({ page }) => {
+  test('TRV-37, TRV-36: the direction comes from the nearest ancestor that sets one, not from the root, and a change of it is drawn at once, with no motion — an open parent’s start chevron turned the new way in the first frame, a closed one’s mirrored, each way — keeping the selection, every parent’s open and the focus', async ({ page }) => {
     await mount(page, { fixtures: some('single', 'rtl') });
     expect(await page.locator('html').getAttribute('dir')).toBeNull();
     expect((await drawn(row(page, 'rtl', 'المشروع'))).rtl).toBe(true);
     expect(await host(page, 'rtl').getAttribute('dir')).toBeNull();
     const r = row(page, 'single', 'checkbox.ts');
     await tabTo(page, row(page, 'single', 'checkbox.ts'));
+    await motionEnded(page);
     const before = await drawn(r);
     const tree = await edges(host(page, 'single'));
-    await stage(page, 'single').evaluate((el) => el.setAttribute('dir', 'rtl'));
+    /** How each parent's start chevron is drawn — its turn and its mirror — two open (src, components) and two closed. */
+    const chevrons = (root: Element) =>
+      Object.fromEntries(
+        ['src', 'components', 'styles', 'test'].map((label) => {
+          const glyph = getComputedStyle(root.querySelector(`li[data-t="${label}"] > :first-child`)!, '::before');
+          return [label, `${glyph.rotate} ${glyph.scale}`];
+        }),
+      );
+    /** The same, as the direction draws it at rest: an open one turned to point down (the other way where mirrored, TRV-36). */
+    const drawnFor = (dir: 'ltr' | 'rtl') => {
+      const [open, closed] = dir === 'rtl' ? ['-90deg -1 1', 'none -1 1'] : ['90deg none', 'none none'];
+      return { src: open, components: open, styles: closed, test: closed };
+    };
+    expect(await stage(page, 'single').evaluate(chevrons), 'left to right from the first render').toEqual(drawnFor('ltr'));
+    for (const dir of ['rtl', 'ltr', 'rtl'] as const) {
+      const seen = await sampleFrames(stage(page, 'single'), () => stage(page, 'single').evaluate((el, to) => el.setAttribute('dir', to), dir), { probe: chevrons });
+      // At once: no turn runs (a colour's motion may), and the first frame drawn after the change is the one it rests in.
+      expect(
+        seen.motions.filter((motion) => motion.name === 'rotate').map((motion) => motion.on),
+        dir,
+      ).toEqual([]);
+      expectFirstFrameAtRest(seen);
+      expect(seen.rest.probe, dir).toEqual(drawnFor(dir));
+      expect(await focused(page), dir).toBe('checkbox.ts');
+      await expect(row(page, 'single', 'checkbox.ts')).toHaveAttribute('aria-selected', 'true');
+      await expect(item(page, 'single', 'components')).toHaveAttribute('data-open', '');
+    }
+    // A page that reads style in the task that changes the direction begins the open chevrons' turns there; they are
+    // ended before that task is over, at their new turn, so no frame draws them.
+    for (const dir of ['ltr', 'rtl'] as const) {
+      const turns = await stage(page, 'single').evaluate(
+        async (el, [to, every]) => {
+          const rotating = () => ((0, eval)(every) as (root: Element) => Animation[])(el).filter((motion) => motion instanceof CSSTransition && motion.transitionProperty === 'rotate').length;
+          el.setAttribute('dir', to);
+          const begun = rotating();
+          await Promise.resolve();
+          return [begun, rotating()];
+        },
+        [dir, EVERY_ANIMATION] as const,
+      );
+      expect(turns, dir).toEqual([2, 0]);
+      expect(await stage(page, 'single').evaluate(chevrons), dir).toEqual(drawnFor(dir));
+    }
     const after = await drawn(r);
     expect(after.rtl).toBe(true);
     near(after.container.right, tree.right - (before.container.left - tree.left));
     near(after.chevron.right, tree.right - (before.chevron.left - tree.left));
     expect(await moving(page)).toBe(0);
-    expect(await focused(page)).toBe('checkbox.ts');
-    await expect(row(page, 'single', 'checkbox.ts')).toHaveAttribute('aria-selected', 'true');
-    await expect(item(page, 'single', 'components')).toHaveAttribute('data-open', '');
     expect(await shownRows(page, 'single')).toHaveLength(10);
   });
 

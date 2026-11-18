@@ -23,6 +23,7 @@ import { FILTER_SETTLE_MS, filterWords, holdsWords, labelBegins } from '../../pr
 import { fillPlaces } from '../../primitives/places.js';
 import { PendingGlyphs, isGlyphProbe } from '../../primitives/glyph-pending.js';
 import { GeneratedGlyphMirror } from '../../primitives/glyph-mirror.js';
+import { DirAttributeWatch, directionOf } from '../../primitives/direction.js';
 import { type CutTextContent, CutTextTip, isCut } from '../../primitives/cut-text.js';
 import { TanreiTooltip } from '../tooltip/tooltip.js';
 import { debugBuild } from '../../primitives/report.js';
@@ -575,6 +576,9 @@ export class TanreiTreeView extends TanreiLightElement {
   private readonly glyphs = new PendingGlyphs(this, CHEVRON_GLYPH);
   /** TRV-38: whether the icon set mirrors the start chevron, which tree-view.css draws as a row's `::before`. */
   private readonly chevronMirror = new GeneratedGlyphMirror(this, CHEVRON_GLYPH, (mirrored) => this.markChevron(mirrored));
+  /** TRV-37: the direction the tree was last drawn for, and what tells it that a `dir` around it changed. */
+  private direction = '';
+  private readonly turns = new DirAttributeWatch(this, () => this.turned());
   private named = false;
   private checking = false;
   private depthChecked = false;
@@ -592,6 +596,8 @@ export class TanreiTreeView extends TanreiLightElement {
     this.mutations?.observe(this, { subtree: true, childList: true, characterData: true, attributes: true, attributeFilter: ITEM_ATTRIBUTES });
     this.glyphs.connect();
     this.chevronMirror.connect();
+    this.direction = directionOf(this);
+    this.turns.connect();
     if (this.hasUpdated) {
       this.read();
       this.watchScroll();
@@ -604,6 +610,7 @@ export class TanreiTreeView extends TanreiLightElement {
     this.mutations?.disconnect();
     this.glyphs.disconnect();
     this.chevronMirror.disconnect();
+    this.turns.disconnect();
     this.cutTip.hide();
     this.unwatchScroll();
     for (const press of this.pressControllers) press.hostDisconnected();
@@ -1232,9 +1239,31 @@ export class TanreiTreeView extends TanreiLightElement {
    */
   private markChevron(mirrored: boolean) {
     if (this.hasAttribute(CHEVRON_UNMIRRORED) !== mirrored) return;
+    this.turnAtOnce(() => this.toggleAttribute(CHEVRON_UNMIRRORED, !mirrored));
+  }
+
+  /**
+   * TRV-37: a `dir` changed in a root the tree is in. Where that changed the tree's direction, an open parent's start
+   * chevron, mirrored in right-to-left, has the other quarter turn (TRV-36): the new turn is drawn at once, before the
+   * frame that draws the new direction, not over the disclosure's motion. (Its colour's motion is not the direction's.)
+   */
+  private turned() {
+    if (!this.isConnected) return;
+    const direction = directionOf(this);
+    if (direction === this.direction) return;
+    this.direction = direction;
+    this.turnAtOnce(() => {});
+  }
+
+  /**
+   * Draws at once what `change` does to the open parents' start chevrons — their turn — as a change of open drawn at
+   * once is (`data-tanrei-at-once`): their style is computed with their transition off, which also ends a turn that a
+   * read of style after the change began.
+   */
+  private turnAtOnce(change: () => void) {
     const open = this.hasUpdated ? [...this.querySelectorAll<Item>(`li:is([data-open], [${FILTER_OPEN}])`)].filter((item) => item.closest(TAG) === this) : [];
     for (const item of open) item.setAttribute(AT_ONCE, '');
-    this.toggleAttribute(CHEVRON_UNMIRRORED, !mirrored);
+    change();
     for (const item of open) {
       const row = rowOf(item);
       if (row) void getComputedStyle(row, '::before').rotate;

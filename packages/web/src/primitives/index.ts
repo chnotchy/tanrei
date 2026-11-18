@@ -193,7 +193,9 @@
 //   overlay-focus — focusOverlay(), tabThroughOverlay(), returnOverlayFocus(): focus into, through and back from an
 //                 operated overlay that is not modal, as if it stood directly after its opener (POP-19, POP-20, POP-22)
 //   direction   — DirectionController, DIRECTION_PROBE and directionProbeStyles: a script told when the layout direction it
-//                 inherits changes (an ancestor's `dir`, at run time), for what it wrote physically (carousel, slider)
+//                 inherits changes (an ancestor's `dir`, at run time), for what it wrote physically (carousel, slider);
+//                 DirAttributeWatch and directionOf(): the same for a light-DOM element, which has no shadow root to
+//                 hold the probe (table, tree view)
 //   field       — a field and the control it frames, in different trees: FieldControlController (the control asks with
 //                 the composed `tanrei-field-connect` event and writes the name, the description and the states it is
 //                 told), FieldProviderController (the frame answers, tells of every change, and takes back),
@@ -231,7 +233,7 @@ export { arcStyles } from './arc.js';
 export { RANGE_SIZES, RANGE_VARIANTS, rangeAxes, rangeClasses, rangeDirection, rangeOf, rangeTrackStyles, renderRangeBar, renderRangeRing } from './range-track.js';
 export { DELEGATED_RELATIONS, DELEGATED_STATES, DelegatedAriaWriter, type DelegatedName, type DelegatesAriaOptions, type OwnAria, ariaAttribute, asComponent, delegatedAria, delegatedNames, delegates, delegatesAria, holdsProductName, nameHost, namedByProduct, ownedNames, syncDelegation } from './delegated-aria.js';
 export { OUTSIDE_FOCUS_ORDER } from './focus-order.js';
-export { DIRECTION_PROBE, DirectionController, directionProbeStyles } from './direction.js';
+export { DIRECTION_PROBE, DirAttributeWatch, DirectionController, directionOf, directionProbeStyles } from './direction.js';
 export { lineArrow } from './disclosure.js';
 export { PendingGlyphs, isGlyphProbe } from './glyph-pending.js';
 export { FacesWatch, type FacesChanged } from './faces.js';
