@@ -2,7 +2,7 @@
 title: "分段按钮"
 description: "让用户从两到五个相关的选项中选择一个或多个；这些选项并排绘制，是同一个控件中彼此相连的分段。"
 translationOf: components/segmented-button.mdx
-sourceHash: a874adc09eecdb81a13c36cf37fa26c0423a4b50
+sourceHash: 3ebab8b46fe36a4c682487fb2aaa876868acf5b4
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -257,7 +257,7 @@ import Example from '../../../../components/visuals/Example.astro';
 - **单选**（`selection="single"`，默认）是一个单选组。选中一个分段会取消之前选中的那一个。再次按下已选中的分段不起任何作用，所以单选的选择无法通过它自己的分段来清除。这一组可以在开始时什么都不选（`value` 为空），用于必须表明“尚未选择”的表单。
 - **多选**是一组切换按钮。每个分段各自打开和关闭，整组最后可以一个都不选。如果你的产品要求至少选一个，就不要应用会让整组变空的更改。
 
-整组没有自己的 `disabled`。请逐个禁用分段。禁用的分段保留自己的位置和轮廓，方向键会跳过它。
+给整组设置 `disabled`，所有分段会一起禁用，适用于暂时不能更改的设置。只要整组的 `disabled` 或分段自己的 `disabled` 有一个为 true，该分段就是禁用的；所以去掉整组的 `disabled`，也不会启用你单独禁用的分段。整组保留自己的值，不再是 Tab 停靠点，并和每个分段一样暴露为禁用。禁用的分段保留自己的位置和轮廓，方向键会跳过它。
 
 ### 标签、图标与对勾
 
