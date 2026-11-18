@@ -11,6 +11,8 @@ import {
   KeptLengths,
   type LaidOut,
   GlyphMirrorController,
+  MirrorWordController,
+  hearsMirrorWord,
   type KeyboardConvention,
   LinkController,
   type LinkForm,
@@ -34,6 +36,7 @@ import {
   holdPageScroll,
   hostAria,
   markGlyph,
+  mirrorWordOf,
   naturalHeight,
   notifyItemUpdate,
   placeMenu,
@@ -175,8 +178,11 @@ export class TanreiSearchSuggestion extends TanreiElement {
   /** A second line under the headline ("Folder · 24 messages"), and its description (`supporting-text`). */
   supportingText = '';
 
-  /** The name of a glyph of the system's icon set at the row's start (history, folder); empty draws none (`leading-icon`). A glyph the icon set flags as showing a direction (`arrow_forward`, `send`) is drawn mirrored in a right-to-left layout. */
+  /** The name of a glyph of the system's icon set at the row's start (history, folder); empty draws none (`leading-icon`). A glyph the icon set flags as showing a direction (`arrow_forward`, `send`) is drawn mirrored in a right-to-left layout; `data-mirror="auto | always | never"` on the suggestion decides for this use. */
   leadingIcon = '';
+
+  /** SRC-32: the product's word on mirroring the leading icon, `data-mirror` on the suggestion; a change renders it again, which tells the search. */
+  private readonly mirrorWord = new MirrorWordController(this);
 
   protected override updated() {
     // The search re-reads its suggestions whenever one changes; an internal event, kept out of the suggestion's public API.
@@ -291,8 +297,11 @@ export abstract class TanreiSearchRow extends TanreiElement {
    */
   excerpt: string[] = [];
 
-  /** The name of a glyph of the system's icon set at the row's start (article, tag); empty draws none (`leading-icon`). A glyph the icon set flags as showing a direction is drawn mirrored in a right-to-left layout. */
+  /** The name of a glyph of the system's icon set at the row's start (article, tag); empty draws none (`leading-icon`). A glyph the icon set flags as showing a direction is drawn mirrored in a right-to-left layout; `data-mirror="auto | always | never"` on the element decides for this use. */
   leadingIcon = '';
+
+  /** SRC-32: the product's word on mirroring the leading icon, `data-mirror` on the element, given to the icon's box. */
+  private readonly mirrorWord = new MirrorWordController(this);
 
   /**
    * Where it goes: a URL, a path or a fragment. Not empty, it makes the row an `<a>`, which the browser
@@ -439,7 +448,7 @@ export abstract class TanreiSearchRow extends TanreiElement {
     const runs = runsOf(this.excerpt);
     const excerpt = slot ?? (runs.some(Boolean) ? runs.map((run, index) => (index % 2 ? html`<mark>${run}</mark>` : run)) : null);
     return html`<div part="row" class="row" data-tanrei-shape ?data-current=${this.current} ?data-focused=${this.focusShown}
-      >${control}${this.iconColumn ? html`<span class=${this.leadingIcon ? 'icon' : 'icon empty'} aria-hidden="true">${this.leadingIcon}</span>` : nothing}<span class="text" aria-hidden="true"
+      >${control}${this.iconColumn ? html`<span class=${this.leadingIcon ? 'icon' : 'icon empty'} aria-hidden="true" data-mirror=${this.mirrorWord.word}>${this.leadingIcon}</span>` : nothing}<span class="text" aria-hidden="true"
         ><span part="headline" class="headline">${this.headline}</span>${excerpt === null ? nothing : html`<span part="excerpt" class="excerpt">${excerpt}</span>`}</span
       ></div
     >`;
@@ -2711,7 +2720,7 @@ export class TanreiSearch extends TanreiElement {
                   @pointerleave=${this.rowPress.release}
                   @click=${this.onRowClick}
                 >
-                  ${listing.icons || s.leadingIcon ? html`<span class="option-icon ${s.leadingIcon ? '' : 'empty'}" aria-hidden="true">${s.leadingIcon}</span>` : nothing}
+                  ${listing.icons || s.leadingIcon ? html`<span class="option-icon ${s.leadingIcon ? '' : 'empty'}" aria-hidden="true" data-mirror=${mirrorWordOf(s)}>${s.leadingIcon}</span>` : nothing}
                   <span class="text">
                     <span class="headline" id="${optionId(s)}-headline">${this.renderCompletion(s.headline, listing.value)}</span>
                     ${s.supportingText ? html`<span class="supporting" id="${optionId(s)}-supporting">${s.supportingText}</span>` : nothing}
@@ -2914,6 +2923,8 @@ export class TanreiSearch extends TanreiElement {
   }
 }
 
+hearsMirrorWord(TanreiSearchRow);
+hearsMirrorWord(TanreiSearchSuggestion);
 if (!customElements.get(RESULT)) customElements.define(RESULT, TanreiSearchResult);
 if (!customElements.get(RESULT_GROUP)) customElements.define(RESULT_GROUP, TanreiSearchResultGroup);
 if (!customElements.get('tanrei-search-suggestion')) customElements.define('tanrei-search-suggestion', TanreiSearchSuggestion);

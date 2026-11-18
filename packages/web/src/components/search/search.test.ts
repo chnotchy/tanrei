@@ -20,7 +20,8 @@ import {
   rootTokens,
 } from '../../../test/harness.js';
 import { opticalSize } from '../../../test/icons.js';
-import { motionEnded } from '../../../test/motions.js';
+import { motionCount, motionEnded } from '../../../test/motions.js';
+import { mirroring, mirroringAfterDirection } from '../../../test/mirror-word.js';
 import { type MotionRun, entrances, loadOpen, mountOpenAgain, runsAtRest } from '../../../test/mounted-open.js';
 import { expectWheelKeptFromPage } from '../../../test/contained-wheel.js';
 import { holdClock } from '../../../test/page-clock.js';
@@ -3652,6 +3653,44 @@ test.describe('results', () => {
     expect((await bounds(statusRow(page, 's'))).height).toBe(0);
     await expect(s.locator('.listbox')).toHaveCount(0);
     expect((await bounds(link(page, 's', 'first'))).y - (await bounds(s.locator('.view .scroll'))).y).toBeCloseTo(await resolveToken(page, T('view-padding-block')), 1);
+  });
+
+  test('SRC-32: in right-to-left a suggestion’s and a result’s leading icon is mirrored exactly when the icon set marks its name, unless data-mirror on the suggestion or the result decides: always mirrors an unmarked name, never keeps a marked one; nothing is mirrored in left-to-right; a change of the word or of an ancestor’s direction is drawn at once, without a motion', async ({ page }) => {
+    const words = (id: string, direction?: 'rtl'): Fixture => ({
+      id,
+      props: { label: 'Search mail', placeholder: 'Search mail', value: 'inv', expanded: true, clearLabel: 'Clear search', queryRow: 'none' },
+      items: [
+        suggestion('next', 'Next', { leadingIcon: 'arrow_forward' }),
+        suggestion('done', 'Done', { leadingIcon: 'check', 'data-mirror': 'always' }),
+        suggestion('sent', 'Sent', { leadingIcon: 'send', 'data-mirror': 'never' }),
+        {
+          kind: 'result-group',
+          props: { headline: 'Messages' },
+          items: [result('r-next', 'Forwarded', { leadingIcon: 'arrow_forward', 'data-mirror': 'never' }), result('r-find', 'Found', { leadingIcon: 'search', 'data-mirror': 'always' }), result('r-sent', 'Sent', { leadingIcon: 'send' })],
+        },
+      ],
+      ...(direction ? { direction } : {}),
+    });
+    await mountFixtures(page, spec, { icons: true, fixtures: [words('words', 'rtl'), words('words-ltr')] });
+    const resultIcon = (id: string, value: string) => host(page, id).locator(`tanrei-search-result[value="${value}"] .icon`);
+    const glyphs = (id: string) => [...[0, 1, 2].map((n) => row(page, id, n).locator('.option-icon')), ...['r-next', 'r-find', 'r-sent'].map((value) => resultIcon(id, value))];
+    const RTL = ['mirrored', 'mirrored', 'plain', 'plain', 'mirrored', 'mirrored'];
+    const LTR = RTL.map(() => 'plain');
+    await expect.poll(() => mirroring(glyphs('words'))).toEqual(RTL);
+    await expect.poll(() => mirroring(glyphs('words-ltr'))).toEqual(LTR);
+    // The word changed on a suggestion and on a result already drawn.
+    const element = (id: string, tag: string, value: string) => host(page, id).locator(`${tag}[value="${value}"]`);
+    await element('words', 'tanrei-search-suggestion', 'next').evaluate((el) => el.setAttribute('data-mirror', 'never'));
+    await element('words', 'tanrei-search-result', 'r-sent').evaluate((el) => el.setAttribute('data-mirror', 'never'));
+    await expect.poll(() => mirroring(glyphs('words'))).toEqual(['plain', ...RTL.slice(1, 5), 'plain']);
+    await element('words', 'tanrei-search-suggestion', 'next').evaluate((el) => el.removeAttribute('data-mirror'));
+    await element('words', 'tanrei-search-result', 'r-sent').evaluate((el) => el.removeAttribute('data-mirror'));
+    await expect.poll(() => mirroring(glyphs('words'))).toEqual(RTL);
+    // The direction changed on an ancestor while drawn: read in the same task, before any frame, with no motion started.
+    for (const id of ['words', 'words-ltr']) await motionEnded(host(page, id));
+    expect(await mirroringAfterDirection(page.locator('[data-fixture="words-ltr"]'), 'rtl', glyphs('words-ltr'))).toEqual(RTL);
+    expect(await mirroringAfterDirection(page.locator('[data-fixture="words"]'), 'ltr', glyphs('words'))).toEqual(LTR);
+    for (const id of ['words-ltr', 'words']) expect(await motionCount(host(page, id)), id).toBe(0);
   });
 });
 
