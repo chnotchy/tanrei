@@ -1012,6 +1012,47 @@ test.describe('drawing', () => {
     await page.evaluate(() => document.documentElement.setAttribute('dir', 'rtl'));
     expect(await css(drawer(page, 'plain'), 'direction')).toBe('rtl');
   });
+
+  test('NVD-68, NVD-51, NVD-50: an open group’s start chevron points down in both directions whether or not the icon set mirrors chevron_right — mirrored and turned the other way under the default set, unmirrored and turned as in left-to-right under a product layer’s set that marks nothing (acme) — and a change of direction under that set turns nothing', async ({ page }) => {
+    const groups = spec.fixtures.find((f) => f.id === 'groups')!;
+    const fixtures: Fixture[] = [{ ...groups, id: 'rtl', direction: 'rtl' }, { ...groups, id: 'ltr' }];
+    /** Where chevron_right's tip points as drawn: its rotate after its scale after its transform (CSS Transforms 2), on screen. */
+    const pointing = (glyph: Locator) =>
+      glyph.evaluate((el) => {
+        const style = getComputedStyle(el);
+        const degrees = (value: string) => (value === 'none' ? 0 : value.endsWith('turn') ? Number.parseFloat(value) * 360 : Number.parseFloat(value));
+        const [sx, sy = sx] = style.scale === 'none' ? [1, 1] : style.scale.split(' ').map(Number);
+        const drawn = new DOMMatrix().rotate(degrees(style.rotate)).scale(sx, sy).multiply(new DOMMatrix(style.transform === 'none' ? undefined : style.transform));
+        const tip = drawn.transformPoint(new DOMPoint(1, 0));
+        return Math.abs(tip.x) > Math.abs(tip.y) ? (tip.x > 0 ? 'right' : 'left') : tip.y > 0 ? 'down' : 'up';
+      });
+    const chevrons = (id: string) => [0, 1].map((n) => group(page, id, n).locator('.chevron.start'));
+    /** Each group's start chevron (Projects open, Archive closed): whether it is marked, and where it points. */
+    const drawnNow = (id: string) => Promise.all(chevrons(id).map(async (glyph) => [await glyph.evaluate((el) => el.hasAttribute('data-tanrei-mirrored')), await pointing(glyph)]));
+
+    // The default system: its icon set marks chevron_right, so the helper mirrors it in right-to-left (toward the end of
+    // the line, left) and the open one is turned the other way, down.
+    await mount(page, fixtures, { reducedMotion: true });
+    await expect(chevrons('rtl')[0]).toHaveText('chevron_right');
+    await expect.poll(() => drawnNow('rtl')).toEqual([[true, 'down'], [true, 'left']]);
+    expect(await drawnNow('ltr')).toEqual([[true, 'down'], [true, 'right']]);
+
+    // A product layer whose icon set (static Material Icons) no set describes: nothing is marked, so chevron_right is
+    // drawn as it is in both directions, and the open one is turned as in left-to-right — down, not up.
+    await mount(page, fixtures, { reducedMotion: true, system: 'acme', systemCss: await acmeSystemCss() });
+    await expect(chevrons('rtl')[0]).toHaveText('chevron_right');
+    await expect.poll(() => drawnNow('rtl')).toEqual([[false, 'down'], [false, 'right']]);
+    expect(await drawnNow('ltr')).toEqual([[false, 'down'], [false, 'right']]);
+    // Its turn does not depend on the direction there, so a change of direction leaves it where it is.
+    const turn = await css(chevrons('ltr')[0], 'rotate');
+    for (const dir of ['rtl', 'ltr'] as const) {
+      expect(await page.locator('[data-fixture="ltr"]').evaluate((el, to) => {
+        el.setAttribute('dir', to);
+        return getComputedStyle(el.querySelector('tanrei-navigation-drawer-group')!.shadowRoot!.querySelector('.chevron.start')!).rotate;
+      }, dir), dir).toBe(turn);
+      expect(await drawnNow('ltr'), dir).toEqual([[false, 'down'], [false, 'right']]);
+    }
+  });
 });
 
 test.describe('the collapsed form', () => {

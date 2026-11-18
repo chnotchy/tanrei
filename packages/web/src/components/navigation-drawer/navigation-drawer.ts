@@ -1048,7 +1048,10 @@ export class TanreiNavigationDrawerGroup extends DrawerCell {
     return this.open || this.context.filterOpen;
   }
 
-  /** NVD-68: the start chevron, chevron_right turned a quarter turn while open (the icon set mirrors it in right-to-left). */
+  /**
+   * NVD-68: the start chevron, chevron_right turned a quarter turn while open to point down: the other way where the
+   * helper draws it mirrored (right-to-left, under an icon set that marks the name, NVD-51).
+   */
   protected override startChevron() {
     return html`<span part="chevron" class="chevron start">chevron_right</span>`;
   }
@@ -1662,12 +1665,13 @@ export class TanreiNavigationDrawer extends TanreiElement {
   private readonly availability = new AvailabilityController(this, 'navigation-drawer');
   /**
    * NVD-50: a change of the layout direction while the drawer is shown is drawn at once. What CSS draws follows by
-   * itself, but a flip gives an open group's start chevron the other quarter turn, which its transition would run. The
-   * direction comes from a `dir` on an ancestor, so each root the drawer is in — its own, and each shadow root's host's
-   * up to the document — is watched for that one attribute: a change is heard in a microtask of the task that made it,
-   * before any style is computed for it, and there the chevrons' style is computed for the new direction with their
-   * turn's transition off (`turnAtOnce`), so no turn begins — not even one ended before it is painted, whose events a
-   * page would still hear. (A ResizeObserver hears it only after the frame's style has begun the turn.)
+   * itself, but a flip gives an open group's mirrored start chevron the other quarter turn, which its transition would
+   * run (an unmirrored one keeps its turn, NVD-68). The direction comes from a `dir` on an ancestor, so each root the
+   * drawer is in — its own, and each shadow root's host's up to the document — is watched for that one attribute: a
+   * change is heard in a microtask of the task that made it, before any style is computed for it, and there the
+   * chevrons' style is computed for the new direction with their turn's transition off (`turnAtOnce`), so no turn begins
+   * — not even one ended before it is painted, whose events a page would still hear. (A ResizeObserver hears it only
+   * after the frame's style has begun the turn.)
    * TODO: one observer per drawer; where `DirAttributeWatch` is in src/primitives/direction.ts (one observer per root,
    * for every element that watches it), use it instead.
    */
