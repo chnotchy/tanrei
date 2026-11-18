@@ -40665,6 +40665,18 @@
             },
             {
               "kind": "field",
+              "name": "disabled",
+              "privacy": "public",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Disables every segment at once (SEG-31): none can be chosen, cleared or focused, the set and each segment are\nexposed as disabled, and `value` and `values` are kept. A segment's own `disabled` is left as it is.",
+              "attribute": "disabled",
+              "reflects": true
+            },
+            {
+              "kind": "field",
               "name": "label",
               "privacy": "public",
               "type": {
@@ -40738,6 +40750,15 @@
               "default": "false",
               "description": "Takes the whole width its container gives it (the `full-width` attribute), shared equally among the segments, each\nsegment's content centred in its share, at the height of its size (SEG-30).",
               "fieldName": "fullWidth"
+            },
+            {
+              "name": "disabled",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Disables every segment at once (SEG-31): none can be chosen, cleared or focused, the set and each segment are\nexposed as disabled, and `value` and `values` are kept. A segment's own `disabled` is left as it is.",
+              "fieldName": "disabled"
             },
             {
               "name": "label",
