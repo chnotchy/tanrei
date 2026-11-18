@@ -16,6 +16,10 @@
 // - The component is a picture: `inert` and hidden from assistive technology; the figure is an image named by a
 //   sentence in the page's language (`visuals.motionAlt`). It follows the page's look as every frame does, and holds
 //   the room of the larger of the two fixtures' baselines before anything is defined.
+// - **Its stage says which fixture it shows** (`data-motion-shows`: `from` as served and while a play is set up again,
+//   `to` once a play has set the second fixture's attributes, and under reduced motion): the comparison of the page's
+//   previews with the web package's drawing (test/browser/compare-previews.mjs) draws the copy of the figure as that
+//   fixture, from the two the figure holds.
 import Example from './Example.astro';
 import { contentLang, strings } from '../../lib/i18n';
 import { stagingStyle } from '../../lib/fixture-gallery';
@@ -59,7 +63,7 @@ const short = (dotted: string) => dotted.replace(new RegExp(`^${ns}\\.`), '');
   <Fragment slot="actions" set:html={actions} />
   <div class="docs-motion" data-motion={data} data-fixture-scope role="img" aria-label={motionAlt(demo, t.visuals.motionAlt)} style={`min-inline-size: ${room.width}px; min-block-size: ${room.height}px;`}>
     <script type="application/json" data-motion-states set:html={states} />
-    <div class="docs-motion-stage" inert aria-hidden="true" data-motion-stage set:html={numbered(demo.from.html)} />
+    <div class="docs-motion-stage" inert aria-hidden="true" data-motion-stage data-motion-shows="from" set:html={numbered(demo.from.html)} />
   </div>
   <Fragment slot="caption">
     {pieces(t.visuals.motionCaption).map((piece) => ('text' in piece ? piece.text : <code>{piece.place === 'from' ? demo.from.fixture : demo.to.fixture}</code>))}{' '}

@@ -25,7 +25,8 @@
 // a fixture drawn in a window of its own (an `iframe`, which is not a preview of this page), and one the page drew and
 // took its document's step in script for before the comparison began, are in a state the copy is not, and are left
 // out, as is a state matrix (its cells are held in states the copy is not in; test/browser/state-matrix.test.mjs checks
-// each against its tokens); parts placed against something outside the preview (an open surface's list) and visually
+// each against its tokens); a figure that changes from one fixture to another by design is compared as the fixture it
+// says it shows; parts placed against something outside the preview (an open surface's list) and visually
 // hidden parts are not compared.
 //
 // Every wait for the page has a bound, `bounds` (SETTLE in waits.mjs: the fonts, an element's update as long as its
@@ -195,6 +196,19 @@ export async function comparePreviews({ componentCss, still, bounds }) {
     wrap.style.inlineSize = `${layout.clientWidth - parseFloat(around.paddingLeft) - parseFloat(around.paddingRight) + 1}px`;
     for (const property of ['display', 'flex-direction', 'flex-wrap', 'align-items', 'justify-content']) wrap.style.setProperty(property, around.getPropertyValue(property));
     const copy = document.importNode(source[index], true);
+    // A figure that goes from one fixture to another by design (the motion demo, components/visuals/MotionDemo.astro)
+    // says on its stage which of the two it shows (`data-motion-shows`): as served it shows the first, after its play
+    // and under reduced motion the second. Its copy is drawn as the fixture the figure shows, from the two its HTML
+    // holds; one it names and does not hold stays as served, and differs.
+    const shows = element.querySelector('[data-motion-stage]')?.dataset.motionShows;
+    const copyStage = copy.querySelector('[data-motion-stage]');
+    if (shows && copyStage && copyStage.dataset.motionShows !== shows) {
+      const states = JSON.parse(copy.querySelector('script[data-motion-states]')?.textContent ?? '{}');
+      if (typeof states[shows] === 'string') {
+        copyStage.innerHTML = states[shows];
+        copyStage.dataset.motionShows = shows;
+      }
+    }
     if (element.matches('[data-fixture-scope] > .stage')) {
       // A fixture's stage takes its width from its staging, as its copy does; one the gallery laid out at another width
       // (the column's, or the reader's) is laid out there in its copy too.

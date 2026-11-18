@@ -150,6 +150,8 @@ for (const engine of ENGINES) {
           // Once: long after the motion would have ended, it has not played again.
           await page.waitForTimeout(token * 3 + 500);
           assert.equal(await page.evaluate((selector) => document.querySelector(selector).dataset.motionPlays, FRAME(name)), '1', 'it plays once by itself');
+          // The stage says it shows the second fixture once the play has reached it (compare-previews.mjs reads it).
+          assert.equal(await page.evaluate((selector) => document.querySelector(`${selector} [data-motion-stage]`).dataset.motionShows, FRAME(name)), 'to', 'after the play the stage shows `to`');
 
           const full = await playAndRead(page, name, '[data-motion-replay]');
           assert.equal(full.plays, 2, 'the action plays it again');
@@ -197,6 +199,7 @@ for (const engine of ENGINES) {
                 ended: Boolean(subject.querySelector(ended)),
                 plays: frame.dataset.motionPlays ?? null,
                 note: !frame.querySelector('[data-motion-reduced]').hidden,
+                shows: subject.querySelector('[data-motion-stage]').dataset.motionShows,
                 shadowRoots: shadows(subject).length,
               };
             },
@@ -208,6 +211,7 @@ for (const engine of ENGINES) {
           assert.equal(seen.ended, true, `${name}: the stage shows where the motion ends`);
           assert.equal(seen.plays, null, `${name}: nothing is played`);
           assert.equal(seen.note, true, `${name}: the caption says why`);
+          assert.equal(seen.shows, 'to', `${name}: the stage says it shows the second fixture`);
         }
       } finally {
         await context.close();

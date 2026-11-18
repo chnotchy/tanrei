@@ -14,6 +14,8 @@
 //   `playbackRate` instead, so nothing is slowed twice.
 // - **Reduced motion**: the stage is given the second fixture's elements before they are defined, so they are drawn at
 //   the end from their first frame; there is nothing to play, and the actions are not shown.
+// - **The stage says which fixture it shows** (`data-motion-shows`, `from` or `to`), so that a test comparing the
+//   figure with a drawing of its served markup draws that fixture (test/browser/compare-previews.mjs).
 //
 // test/browser/motion-demo.test.mjs measures the play: the duration of what moves is the token's at full speed and
 // four times it in slow motion, and nothing in the figure — its shadow trees included — runs under reduced motion.
@@ -132,6 +134,7 @@ function demo(subject: HTMLElement) {
     if (caption.reduced) caption.reduced.hidden = false;
     if (caption.slowed) caption.slowed.hidden = true;
     stage.replaceChildren(parse(states.to));
+    stage.dataset.motionShows = 'to';
   };
 
   /** Slows an animation script started at an unstretched duration of the component's (see the head of this file). */
@@ -144,7 +147,10 @@ function demo(subject: HTMLElement) {
 
   const play = async (again: boolean) => {
     if (reduced.matches) return;
-    if (again) stage.replaceChildren(parse(states.from));
+    if (again) {
+      stage.replaceChildren(parse(states.from));
+      stage.dataset.motionShows = 'from';
+    }
     await defined(stage);
     await updated(stage);
     // An element starts no transition while it settles, until two frames after its first update (the web package's
@@ -161,6 +167,7 @@ function demo(subject: HTMLElement) {
         else element.setAttribute(name, value);
       }
     }
+    stage.dataset.motionShows = 'to';
     await updated(stage);
     // What the change starts is found in the frame it is drawn, and in the frames after it (a component that measures
     // before it moves starts its motion a frame later), until a frame finds nothing running.
