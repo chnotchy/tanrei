@@ -90,6 +90,17 @@ React Native's `<Text>` cannot set font-variation axes, so with a variable icon 
 
 The icon helpers of the four native packages are being moved to the family-per-state model now; until a package's README describes it, expect that package to read a single family.
 
+## Loading the font
+
+The product loads the icon font, and only the part of it that it draws: the whole Material Symbols Rounded file holds every glyph at every value of its four axes, 5.4 MB. `tanrei build` prints what to cut it down to, for the product's own system:
+
+- **The glyph names** Tanrei's components may draw by themselves: a chevron, a check, the cross of a close button… The list comes from the glyphs the specs name and the web components' code declares. Add the names your own screens use.
+- **The axis values** the system draws icons at. `FILL` spans the two fill tokens, outlined and filled. `wght` spans `sys.icon.weight` and `sys.icon.mark.weight`, the heavier weight of a control's own mark, such as the check in a checkbox. `opsz` spans `sys.icon.optical-size.min` and `.max`, the optical sizes the font draws, between which an icon box's size is kept. `GRAD` stays at 0: no token moves it.
+
+<SystemValues tokens={['sys.icon.weight', 'sys.icon.mark.weight', 'sys.icon.optical-size.min', 'sys.icon.optical-size.max']} />
+
+Because the values belong to the system, a layer that changes a weight changes what the font is cut down to: take them from your own build. On the web, the [Web guide](/getting-started/web/#icons) shows how to load the font both ways, from Google Fonts with `icon_names=` or from a file you cut down with fontTools, and how to keep icons from showing their names in letters while it loads. This site does the same: its icon font is cut down, when the site is built, to the names its components and pages draw.
+
 <style>{`
   .icon-demo { display: inline-flex; align-items: center; gap: 0.5rem; font: inherit; color: inherit; background: none; border: 0; padding: 0.25rem 0.5rem; cursor: pointer; }
   .icon-demo[role='tablist'] { gap: 1rem; cursor: default; }

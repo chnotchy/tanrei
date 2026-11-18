@@ -2,7 +2,7 @@
 title: "图标"
 description: "每个设计系统一套图标集，一种字重，一条规则——未选中时用线框，选中时用填充。"
 translationOf: foundations/icons.mdx
-sourceHash: 015fc28f524480f4a6447422a60e7b0a6bdde767
+sourceHash: 00a0f40417096ca36efa5fbb0163bcf9de3f79a6
 ---
 
 import Example from '../../../../components/visuals/Example.astro';
@@ -91,6 +91,17 @@ Tanrei 决定的是图标怎样绘制，而不是有哪些图标。各图标集�
 React Native 的 `<Text>` 无法设置字体变体轴，所以使用可变图标字体时，`FILL` 到不了字形，图标在两种状态下看起来一样。要在那里守住这条规则，可以像上面那样使用两个静态字体族，或者用 SVG 绘制图标。
 
 四个原生软件包的图标辅助函数正在迁移到“每种状态一个字体族”的模型；在某个软件包的 README 说明这一点之前，应当认为该软件包只读取单个字体族。
+
+## 加载字体
+
+图标字体由产品加载，而且只加载它会绘制的部分：完整的 Material Symbols Rounded 文件包含所有字形在四个轴上的所有取值，共 5.4 MB。裁剪到什么程度，由 `tanrei build` 针对产品自己的系统打印出来：
+
+- **字形名称**：Tanrei 组件自身可能绘制的字形（箭头、对勾、关闭按钮的叉号……），来自规格列出的字形和 Web 组件代码中声明的字形。把你自己的界面用到的名称加进去。
+- **轴值**：系统绘制图标所用的值。`FILL` 覆盖两个填充令牌，即线框与填充。`wght` 覆盖 `sys.icon.weight` 和 `sys.icon.mark.weight`——后者是控件自身标记（例如复选框里的对勾）那个更重的字重。`opsz` 覆盖 `sys.icon.optical-size.min` 和 `.max`，即字体绘制的视觉尺寸范围，图标框的尺寸被限定在这个范围之内。`GRAD` 保持为 0：没有令牌会改变它。
+
+<SystemValues tokens={['sys.icon.weight', 'sys.icon.mark.weight', 'sys.icon.optical-size.min', 'sys.icon.optical-size.max']} />
+
+这些值属于系统，所以改变字重的层也会改变字体的裁剪范围：请从你自己的构建输出中获取。在 Web 上如何加载，见 [Web 指南](/zh-cn/getting-started/web/#图标)：既可以用 `icon_names=` 从 Google Fonts 加载，也可以加载用 fontTools 裁剪好的文件，还介绍了如何在加载期间不让图标以字母显示出名称。本站也是这样做的：站点构建时，图标字体会被裁剪到组件和页面所绘制的名称。
 
 <style>{`
   .icon-demo { display: inline-flex; align-items: center; gap: 0.5rem; font: inherit; color: inherit; background: none; border: 0; padding: 0.25rem 0.5rem; cursor: pointer; }

@@ -2,7 +2,7 @@
 title: Web
 description: Usa los tokens CSS y los Web Components de Tanrei en cualquier proyecto web.
 translationOf: getting-started/web.mdx
-sourceHash: a1b231cf019548883f335af1fe0e839e4b6afccd
+sourceHash: e682fc27d0ffa3d2a4397282a4d7860691730687
 ---
 
 import Steps from '../../../../components/Steps.astro';
@@ -231,7 +231,66 @@ import '@tanrei/web/icons.css';
 
 `.tanrei-icon` dibuja un nombre de [Material Symbols](https://fonts.google.com/icons) con el peso de icono del sistema y toma su tamaño del lugar donde se encuentra. Nunca eliges entre contorno y relleno: consulta [Iconos](/es/foundations/icons/).
 
-El archivo completo de Material Symbols Rounded contiene todos los glifos en todos los pesos, rellenos, grados y tamaños ópticos: 5,4 MB, que una página con una conexión lenta puede tardar medio minuto en recibir. Carga solo los glifos que dibuja tu producto. `tanrei build` muestra los nombres que los componentes de Tanrei pueden dibujar por sí mismos (un cheurón, una marca de verificación, la cruz de un botón de cerrar…) y los valores de eje con los que tu sistema dibuja los iconos; añade tus propios nombres a esa lista. Desde Google Fonts, pasa los nombres, en orden alfabético, en `icon_names=` y los ejes como rangos en `family=` (`Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,300..500,0..1,0` para el sistema predeterminado). Si sirves el archivo tú mismo, recórtalo con un generador de subconjuntos que conserve las funciones de ligadura de la fuente (`rlig`, `rclt`) y los dos rellenos; este sitio dibuja sus iconos con un archivo así. En ambos casos, registra la fuente de los iconos con `font-display: block`: mientras se carga el archivo, un icono es invisible en lugar de mostrar su nombre en letras. Eso dura solo el periodo de bloqueo del navegador, unos 3 segundos; para que los nombres sigan ocultos en una conexión más lenta, establece `--tanrei-icon-visibility: hidden` en la raíz desde un script mientras se carga la fuente de los iconos, y quítalo cuando ya pueda dibujarlos (el README del paquete muestra el script). Cada icono de la página conserva su caja, así que nada se mueve cuando aparece; este sitio hace lo mismo.
+### Cargar solo los glifos que dibujas
+
+El archivo completo de Material Symbols Rounded contiene todos los glifos en todos los pesos, rellenos, grados y tamaños ópticos: 5,4 MB, que una página con una conexión lenta puede tardar medio minuto en recibir. Carga solo los glifos que dibuja tu producto, y solo con los valores con los que tu sistema los dibuja. `tanrei build` muestra las dos cosas, debajo de la línea que empieza por `glyphs the components may draw`:
+
+- los nombres que los componentes de Tanrei pueden dibujar por sí mismos (un cheurón, una marca de verificación, la cruz de un botón de cerrar…), en orden alfabético y separados por comas. Añade los nombres que dibujan tus propias pantallas;
+- los valores de eje con los que tu sistema dibuja los iconos. En el sistema predeterminado son `FILL 0–1 · wght 300–500 · GRAD 0 · opsz 20–48`: contorno y relleno, el peso de los iconos y el peso, algo mayor, de la marca propia de un control, y los tamaños ópticos con los que se dibujan las cajas de los iconos (el tamaño de la caja, mantenido entre el menor y el mayor tamaño óptico que tiene la fuente). Son de tu sistema —una capa que cambia el peso de los iconos cambia el rango de `wght`—, así que cópialos de tu compilación, no de esta página.
+
+### Desde Google Fonts
+
+```html
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,300..500,0..1,0&icon_names=add,check,close,expand_more&display=block">
+```
+
+- `family=` nombra los cuatro ejes en el orden que pide Google Fonts, `opsz,wght,FILL,GRAD`, y después el rango de cada uno según tu compilación, en ese mismo orden y con `..` entre sus extremos: `20..48,300..500,0..1,0`.
+- `icon_names=` es la lista de nombres, separados por comas y en orden alfabético, como indica la documentación de Google Fonts. La lista que muestra `tanrei build` ya viene ordenada; vuelve a ordenarla cuando hayas añadido los tuyos.
+- `display=block` registra las fuentes con `font-display: block` (más abajo).
+
+### Desde un archivo que sirves tú
+
+Recorta tú mismo la fuente variable con [fontTools](https://github.com/fonttools/fonttools) (`pip install fonttools brotli`; brotli es lo que escribe WOFF2): primero reduce los ejes a los valores de tu compilación y después conserva solo tus nombres.
+
+```sh
+# Los ejes: los valores que mostró `tanrei build`.
+fonttools varLib.instancer MaterialSymbolsRounded.woff2 FILL=0:1 wght=300:500 GRAD=0 opsz=20:48 -o icons.ttf
+
+# Los glifos: cada nombre y su gemelo relleno, y las ligaduras que llevan a ellos.
+pyftsubset icons.ttf \
+  --text="abcdefghijklmnopqrstuvwxyz0123456789_" \
+  --glyphs="add,add.fill,check,check.fill,close,close.fill,expand_more,expand_more.fill" \
+  --ignore-missing-glyphs \
+  --layout-features="rlig,rclt" \
+  --no-layout-closure \
+  --flavor=woff2 --output-file=material-symbols-rounded.subset.woff2
+```
+
+Cada opción se debe a cómo funciona una fuente de iconos por ligaduras. Un nombre se convierte en su glifo cuando se da forma a sus letras: `--text` conserva las letras con las que se escriben los nombres, y `--layout-features`, las dos funciones en las que Material Symbols guarda sus ligaduras. Un icono seleccionado es el mismo nombre con `FILL` a 1, que cambia el glifo por su gemelo `.fill`; por eso `--glyphs` nombra los dos. Un glifo que se dibuja igual con ambos rellenos no tiene gemelo, y `--ignore-missing-glyphs` lo deja pasar. Sin `--no-layout-closure`, el generador de subconjuntos conserva todos los glifos a los que llegan las letras conservadas —todos los iconos— y el archivo vuelve a pesar megabytes. Para una lista larga, `--glyphs-file` lee los nombres de un archivo. `hb-subset`, de HarfBuzz, también puede recortar el mismo archivo; este sitio recorta su propia fuente de iconos con HarfBuzz al compilarse, a los nombres que dibujan sus componentes y sus páginas, con las mismas dos funciones, los dos rellenos y solo los valores de eje que usan sus sistemas.
+
+Después, registra el archivo con el nombre de familia que usan los tokens y los pesos que has conservado:
+
+```css
+@font-face {
+  font-family: 'Material Symbols Rounded';
+  font-style: normal;
+  font-weight: 300 500;
+  font-display: block;
+  src: url('/fonts/material-symbols-rounded.subset.woff2') format('woff2');
+}
+```
+
+### Mientras se carga la fuente
+
+En ambos casos, la fuente de los iconos se registra con `font-display: block`: mientras se carga el archivo, un icono es invisible en lugar de mostrar su nombre en letras. Eso dura solo el periodo de bloqueo del navegador, unos 3 segundos; para que los nombres sigan ocultos en una conexión más lenta, establece `--tanrei-icon-visibility: hidden` en la raíz desde un script mientras se carga la fuente de los iconos, y quítalo cuando ya pueda dibujarlos (el README del paquete muestra el script). Cada icono de la página conserva su caja, así que nada se mueve cuando aparece; este sitio hace lo mismo.
+
+Un `preload` pide el archivo junto con las hojas de estilo, en lugar de esperar a que se maquete el primer icono:
+
+```html
+<link rel="preload" href="/fonts/material-symbols-rounded.subset.woff2" as="font" type="font/woff2" crossorigin>
+```
+
+Necesita la dirección del archivo, así que sirve para un archivo que alojas tú: el de Google Fonts lo nombra la hoja de estilo de Google, no tu página. Mide antes de quedártelo. Este sitio no precarga su archivo de iconos: recortado, el archivo es pequeño y se pide en cuanto se maqueta un glifo; precargado, le quitaba la conexión lenta a las hojas de estilo y a los tipos de letra del texto, y el renderizado del mayor elemento con contenido de una página móvil con la red limitada llegaba 0,7 s más tarde, sin que la página terminara de cargar antes. En su lugar, precarga los tipos de letra del texto de la primera pantalla.
 
 ## Rendimiento
 
