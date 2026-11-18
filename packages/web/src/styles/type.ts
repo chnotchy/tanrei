@@ -2,13 +2,13 @@ import { type CSSResult, unsafeCSS } from 'lit';
 
 /**
  * Text is set from a type role's LONGHAND custom properties — `<role>-font-weight`, `-font-size`, `-line-height` and
- * `-font-family`, read where the text is drawn — never from the role's composite (`<role>-font`).
+ * `-font-family`, read where the text is drawn. A role has no composite custom property.
  *
- * A custom property's `var()` is resolved where the property is declared. The tokens are declared on the root, so the
- * composite is resolved there, from the root's longhands: a product that sets one longhand on an element
- * (`--tanrei-comp-button-label-typescale-medium-font-size` on one button, or on a section of its page) changes the
- * longhand and leaves the composite, and a `font` that reads it, as they were. Read one by one where the text is drawn,
- * each longhand takes the value that element sees, so overriding one changes that property and nothing else.
+ * A custom property's `var()` is resolved where the property is declared. The tokens are declared on the root, so a
+ * composite would be resolved there, from the root's longhands: a product that set one longhand on an element
+ * (`--tanrei-comp-button-label-typescale-medium-font-size` on one button, or on a section of its page) would leave it,
+ * and a `font` that read it, as they were. Read one by one where the text is drawn, each longhand takes the value that
+ * element sees, so overriding one changes that property and nothing else.
  *
  * They are composed into the `font` shorthand, not set as four properties: the shorthand also resets what a role does not
  * name (`font-style`, `font-variant`, `font-feature-settings`, `font-variation-settings`, `font-stretch` …), so that a
