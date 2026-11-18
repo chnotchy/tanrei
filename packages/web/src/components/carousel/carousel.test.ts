@@ -2029,21 +2029,45 @@ test.describe('behavior', () => {
     const s = await step(page, id);
     await page.clock.runFor(every / 2);
     expect(await offset(page, id)).toBe(0);
+    // The clock runs on at once, without waiting for the frame that tells the carousels of the change: the interval may
+    // end before it.
     for (const each of ['autoplay', 'paused']) await page.locator(`[data-fixture="${each}"]`).evaluate((el) => el.setAttribute('dir', 'ltr'));
-    // The rows drawn for the new direction (the item after the hero at its right), which the next frame does: the page
-    // clock holds the page's timers, not its frames.
-    for (const each of ['autoplay', 'paused']) await expect.poll(async () => (await bounds(item(page, each, 1))).x > (await bounds(item(page, each, 0))).x, each).toBe(true);
     // Not started from zero: the half interval that was left, and it advances.
     await page.clock.runFor(every / 2 - 100);
     expect(await offset(page, id)).toBe(0);
     await page.clock.runFor(200);
     await expect.poll(() => offset(page, id)).toBe(s);
     expect(await now(page, id)).toBe(2);
+    // Drawn for the new direction: the item after the hero at its right.
+    for (const each of ['autoplay', 'paused']) await expect.poll(async () => (await bounds(item(page, each, 1))).x > (await bounds(item(page, each, 0))).x, each).toBe(true);
     // Paused, it stays paused, its control still offering play.
     expect(await carousel(page, 'paused').evaluate((el: HTMLElement & { paused: boolean }) => el.paused)).toBe(true);
     await page.clock.runFor(every * 2);
     expect(await offset(page, 'paused')).toBe(0);
     await expect(playback(page, 'paused')).toHaveAccessibleName(String(of('autoplay-paused').props.playLabel));
+  });
+
+  test('CRL-39, CRL-32: an interval that ends before the carousel has drawn a change of direction still advances one item, in reading order, in the new direction', async ({ page }) => {
+    const of = (id: string) => spec.fixtures.find((f) => f.id === id)!;
+    await clockPage(page, [{ ...of('autoplay'), id: 'autoplay', direction: 'rtl' }]);
+    const id = 'autoplay';
+    const every = await interval(page);
+    const s = await step(page, id);
+    await page.clock.runFor(every - 100);
+    expect(await offset(page, id)).toBe(0);
+    // The direction changes and the interval ends in the same step: the clock runs on at once, with no wait for the
+    // frame that tells the carousel of the change.
+    await page.locator(`[data-fixture="${id}"]`).evaluate((el) => el.setAttribute('dir', 'ltr'));
+    await page.clock.runFor(200);
+    await expect.poll(() => offset(page, id), 'one item on').toBe(s);
+    expect(await now(page, id)).toBe(2);
+    // Drawn for the new direction, the second item the hero: the first at its left, the third at its right.
+    const order = async () => (await Promise.all([0, 1, 2].map(async (i) => (await bounds(item(page, id, i))).x))).every((x, i, all) => i === 0 || x > all[i - 1]);
+    await expect.poll(order, 'left to right').toBe(true);
+    await expect(container(page, id, 0), 'the Tab stop is not moved by the advance').toHaveAttribute('tabindex', '0');
+    // Exactly one: the next advance only an interval later.
+    await page.clock.runFor(every - 200);
+    expect(await offset(page, id)).toBe(s);
   });
 
   test('CRL-24: unknown alignments are drawn as their defaults, and an itemWidth or autoplayInterval that is not a positive number as null; a debug build reports each', async ({ page }) => {
