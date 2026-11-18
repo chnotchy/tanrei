@@ -2,7 +2,7 @@
 title: Iconos
 description: "Un conjunto de iconos por sistema de diseño, un peso y una regla: con contorno cuando no está seleccionado, con relleno cuando lo está."
 translationOf: foundations/icons.mdx
-sourceHash: 00a0f40417096ca36efa5fbb0163bcf9de3f79a6
+sourceHash: e895c68d474db6234aacd129aa8642e72cb5b4f3
 ---
 
 import Example from '../../../../components/visuals/Example.astro';
@@ -11,7 +11,9 @@ import SystemValues from '../../../../components/tokens/SystemValues.astro';
 
 Los iconos predeterminados de Tanrei son [Material Symbols](https://fonts.google.com/icons), **Rounded**, con **peso 300**. Igual que los tipos de letra del texto, la fuente se referencia por su nombre y no se incluye: la carga el producto.
 
-La manera de dibujar un icono es un pequeño grupo de tokens. La caja del icono tiene tres tamaños, `sys.icon.small`, `medium` y `large` (16, 20 y 24px de forma predeterminada), y el tamaño óptico de la fuente sigue a la caja.
+La manera de dibujar un icono es un pequeño grupo de tokens. La caja del icono tiene cuatro tamaños, `sys.icon.extra-small`, `small`, `medium` y `large`, de los cuales `medium` es el predeterminado, y el tamaño óptico de la fuente sigue a la caja. Esto es lo que resuelven los sistemas incluidos:
+
+<SystemValues tokens={['sys.icon.extra-small', 'sys.icon.small', 'sys.icon.medium', 'sys.icon.large']} />
 
 <TokenNotes tokens={['ref.typeface.icon', 'sys.icon.family', 'sys.icon.weight', 'sys.icon.fill']} source={['tokens/ref/typeface.tokens.json', 'tokens/sys/measure.tokens.json']} />
 

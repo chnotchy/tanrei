@@ -2,7 +2,7 @@
 title: الأيقونات
 description: "مجموعة أيقونات واحدة لكل نظام تصميم، ووزن واحد، وقاعدة واحدة: محدَّدة الأطراف حين لا تكون محددة، ومعبَّأة حين تكون محددة."
 translationOf: foundations/icons.mdx
-sourceHash: 00a0f40417096ca36efa5fbb0163bcf9de3f79a6
+sourceHash: e895c68d474db6234aacd129aa8642e72cb5b4f3
 ---
 
 import Example from '../../../../components/visuals/Example.astro';
@@ -11,7 +11,9 @@ import SystemValues from '../../../../components/tokens/SystemValues.astro';
 
 الأيقونات الافتراضية في Tanrei هي [Material Symbols](https://fonts.google.com/icons) بالنمط **Rounded** و**الوزن 300**. وكما في خطوط النص، يُشار إلى الخط باسمه ولا يُضمَّن: المنتج هو الذي يحمّله.
 
-طريقة رسم الأيقونة مجموعة صغيرة من الرموز (tokens). يأتي صندوق الأيقونة بثلاثة أحجام، `sys.icon.small` و `medium` و `large` (16 و 20 و 24px افتراضيًّا)، ويتبع الحجمُ البصري للخط (optical size) الصندوقَ.
+طريقة رسم الأيقونة مجموعة صغيرة من الرموز (tokens). يأتي صندوق الأيقونة بأربعة أحجام، `sys.icon.extra-small` و `small` و `medium` و `large`، والافتراضي منها `medium`، ويتبع الحجمُ البصري للخط (optical size) الصندوقَ. ما تُحَلّ إليه الأنظمة المضمَّنة:
+
+<SystemValues tokens={['sys.icon.extra-small', 'sys.icon.small', 'sys.icon.medium', 'sys.icon.large']} />
 
 <TokenNotes tokens={['ref.typeface.icon', 'sys.icon.family', 'sys.icon.weight', 'sys.icon.fill']} source={['tokens/ref/typeface.tokens.json', 'tokens/sys/measure.tokens.json']} />
 

@@ -9,7 +9,9 @@ import SystemValues from '../../../components/tokens/SystemValues.astro';
 
 Tanrei's default icons are [Material Symbols](https://fonts.google.com/icons), **Rounded**, at **weight 300**. Like the text faces, the font is referenced by name and not bundled: a product loads it.
 
-How an icon is drawn is a small group of tokens. The icon box comes in three sizes, `sys.icon.small`, `medium` and `large` (16, 20 and 24px by default), and the font's optical size follows the box.
+How an icon is drawn is a small group of tokens. The icon box comes in four sizes, `sys.icon.extra-small`, `small`, `medium` and `large`, of which `medium` is the default, and the font's optical size follows the box. What the shipped systems resolve them to:
+
+<SystemValues tokens={['sys.icon.extra-small', 'sys.icon.small', 'sys.icon.medium', 'sys.icon.large']} />
 
 <TokenNotes tokens={['ref.typeface.icon', 'sys.icon.family', 'sys.icon.weight', 'sys.icon.fill']} source={['tokens/ref/typeface.tokens.json', 'tokens/sys/measure.tokens.json']} />
 

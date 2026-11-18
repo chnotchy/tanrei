@@ -2,7 +2,7 @@
 title: アイコン
 description: アイコンセットはデザインシステムごとに 1 つ、太さも 1 つ、規則も 1 つ。未選択は線、選択中は塗り。
 translationOf: foundations/icons.mdx
-sourceHash: 00a0f40417096ca36efa5fbb0163bcf9de3f79a6
+sourceHash: e895c68d474db6234aacd129aa8642e72cb5b4f3
 ---
 
 import Example from '../../../../components/visuals/Example.astro';
@@ -11,7 +11,9 @@ import SystemValues from '../../../../components/tokens/SystemValues.astro';
 
 Tanrei の既定のアイコンは [Material Symbols](https://fonts.google.com/icons) の **Rounded**、**太さ 300** です。文字用の書体と同じく、フォントは名前で参照するだけで同梱しません。読み込むのはプロダクトの役目です。
 
-アイコンの描き方は、少数のトークンで決まります。アイコンの枠は `sys.icon.small`・`medium`・`large` の 3 サイズ（既定では 16・20・24px）で、フォントのオプティカルサイズは枠の大きさに追従します。
+アイコンの描き方は、少数のトークンで決まります。アイコンの枠は `sys.icon.extra-small`・`small`・`medium`・`large` の 4 サイズで、既定は `medium` です。フォントのオプティカルサイズは枠の大きさに追従します。同梱システムでの解決値は次のとおりです。
+
+<SystemValues tokens={['sys.icon.extra-small', 'sys.icon.small', 'sys.icon.medium', 'sys.icon.large']} />
 
 <TokenNotes tokens={['ref.typeface.icon', 'sys.icon.family', 'sys.icon.weight', 'sys.icon.fill']} source={['tokens/ref/typeface.tokens.json', 'tokens/sys/measure.tokens.json']} />
 
