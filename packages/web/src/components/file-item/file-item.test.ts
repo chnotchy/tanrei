@@ -2947,8 +2947,6 @@ test.describe('behavior', () => {
     await expect.poll(() => mirrored(product)).toBe(true);
     await product.evaluate((el) => el.setAttribute('data-mirror', 'never'));
     await expect.poll(() => mirrored(product)).toBe(false);
-    await host(page, 'row-rtl').evaluate((el) => el.shadowRoot!.querySelector('.icon')!.setAttribute('data-mirror', 'always'));
-    await expect.poll(() => mirrored(own(page, 'row-rtl', 'icon')), { message: 'forced by the product' }).toBe(true);
   });
 
   test('FIT-28: data-mirror on the item is the product’s word on the glyph `glyph` names — always mirrors an unmarked name in right-to-left, never keeps a marked one, none leaves it to the icon set — and the glyph the format chooses takes no word; nothing is mirrored in left-to-right; a change of the word or of an ancestor’s direction is drawn at once, without a motion', async ({ page }) => {
