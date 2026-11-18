@@ -47,6 +47,17 @@
 // only once the sampler has started, so whatever begins after is the change's, and a motion of the change that begins
 // and ends between two frames still fails the sampling, on the very element and property an earlier one ran on.
 //
+// A script's motion whose effect has no target (`new Animation(new KeyframeEffect(null, …))`, a clock whose progress a
+// script reads in its animation frame callbacks to move what no keyframe can, such as a row's scroll offset) is in no
+// element's `getAnimations()`, so `EVERY_ANIMATION` never finds it. The sampler sees it where the page plays it
+// (`play()`, which it watches while it is installed), pauses it there at once — no frame the engine draws before the
+// sampler's own task lets a script read it a frame's time in, and nothing but a script reads it, so no style changes —
+// and holds and moves it on like the others, wherever in the page it was played: it has no element to place it in or
+// out of the root. What it moves, a script writes in the next frame's callbacks, before that frame is read: so it is
+// given the next frame's time, and frame n shows it n/60 s in, as it does a CSS motion. One played before the sampler
+// was installed, or started without `play()` (by `reverse()`, or a `startTime` written), is not seen, and runs on at
+// the machine's pace.
+//
 // Held motions stand still while the test acts: an act of several inputs (a key, then another) is one moment, however
 // long the round trips take. What moves on its own clock is not held — a script that moves a box frame by frame from
 // `performance.now()`, a smooth scroll — and a timer is the page's own: hold the page clock for it (test/page-clock.ts;
@@ -107,7 +118,7 @@ export interface HeldMotion {
   kind: 'transition' | 'animation' | 'script';
   /** The property of a transition, the name of a CSS animation, the id of a script's (often empty). */
   name: string;
-  /** The element it runs on, as `localName.class.class` and its pseudo-element. */
+  /** The element it runs on, as `localName.class.class` and its pseudo-element ('' for an effect without a target). */
   on: string;
   /** Its duration in whole ms, and its easing as the engine serializes it. */
   duration: number;
@@ -327,16 +338,29 @@ function install(root: Element, o: InPage): Promise<void> {
     asked = true;
     soon.port2.postMessage(0);
   };
-  // A script's motion changes no style: its start is seen where it is made (`animate()`, `play()`).
+  // A script's motion changes no style: its start is seen where it is made (`animate()`, `play()`). One whose effect has
+  // no target is in no element's `getAnimations()`: it is kept here as it is played, to be held with the others. It is
+  // paused in `play()` itself (nothing but a script reads it, so pausing it there changes no style) and dated by
+  // `catchNew` as a motion begun there: a frame the engine draws before the sampler's task (a busy page's, in WebKit)
+  // would otherwise let a script read it as far in as that frame came.
   const animate = Element.prototype.animate;
   const play = Animation.prototype.play;
+  const targetless = new Set<Animation>();
+  /** Paused by the sampler as it was played, not yet held: `catchNew` holds it all the same. */
+  const pausedAtPlay = new Set<Animation>();
   Element.prototype.animate = function (this: Element, ...args: Parameters<Element['animate']>) {
     ask();
     return animate.apply(this, args);
   };
   Animation.prototype.play = function (this: Animation) {
+    const loose = this.effect instanceof KeyframeEffect && !this.effect.target;
+    if (loose) targetless.add(this);
     ask();
-    return play.call(this);
+    play.call(this);
+    if (loose && !held.has(this) && phase !== 'installing' && phase !== 'done') {
+      this.pause();
+      pausedAtPlay.add(this);
+    }
   };
   const changes = new MutationObserver(ask);
   changes.observe(document.documentElement, { attributes: true });
@@ -357,9 +381,15 @@ function install(root: Element, o: InPage): Promise<void> {
     let caught = 0;
     // Caught between frames, a motion's first frame is the next one.
     const at = between && phase === 'motion' ? (index + 1) * o.step : time;
-    for (const a of every(root)) {
+    for (const a of targetless)
+      if (a.playState === 'idle' || a.playState === 'finished') {
+        targetless.delete(a);
+        pausedAtPlay.delete(a);
+      }
+    for (const a of [...every(root), ...targetless]) {
       // One the page paused (a scrubbed timeline) is the page's; one that is over is no motion.
-      if (held.has(a) || ours(a) || !a.effect || a.playState !== 'running') continue;
+      if (held.has(a) || ours(a) || !a.effect || (a.playState !== 'running' && !(pausedAtPlay.has(a) && a.playState === 'paused'))) continue;
+      pausedAtPlay.delete(a);
       const endless = a.effect.getComputedTiming().endTime === Number.POSITIVE_INFINITY || a.playbackRate === 0;
       const set = initial && !(endless && o.endlessAtStart) ? Number(a.currentTime ?? 0) : 0;
       a.pause();
@@ -377,7 +407,11 @@ function install(root: Element, o: InPage): Promise<void> {
     return caught;
   };
 
-  /** Moves every held motion to this frame's time; one that reaches its end is finished (its events follow next frame). */
+  /**
+   * Moves every held motion to this frame's time; one that reaches its end is finished (its events follow next frame).
+   * A motion without a target is read by a script in the next frame, before that frame is read: it is moved to the next
+   * frame's time while frames move on.
+   */
   const advance = (finishAll: boolean) => {
     let running = 0;
     for (const [a, h] of held) {
@@ -385,20 +419,21 @@ function install(root: Element, o: InPage): Promise<void> {
         held.delete(a);
         continue;
       }
+      const ahead = phase === 'motion' && targetless.has(a) ? o.step : 0;
       // The page moved it itself (`play()`, `reverse()`, a time of its own): it goes on from there.
       // (A time read back may be rounded — Firefox coarsens it — so only a move of half a millisecond or more is the page's.)
       if (a.playState !== 'paused' || Math.abs(Number(a.currentTime ?? 0) - h.set) >= 0.5) {
         a.pause();
         h.set = Number(a.currentTime ?? 0);
-        h.at = previousTime;
+        h.at = previousTime + ahead;
       }
       if (h.endless) {
         a.currentTime = h.set;
-        h.at = time;
+        h.at = time + ahead;
         continue;
       }
       const rate = a.playbackRate;
-      const t = h.set + (time - h.at) * rate;
+      const t = h.set + (time + ahead - h.at) * rate;
       const end = Number(a.effect!.getComputedTiming().endTime);
       if (finishAll || (rate > 0 && t >= end) || (rate < 0 && t <= 0)) {
         a.finish();
@@ -406,7 +441,7 @@ function install(root: Element, o: InPage): Promise<void> {
       } else {
         a.currentTime = t;
         h.set = t;
-        h.at = time;
+        h.at = time + ahead;
         running++;
       }
     }
@@ -495,8 +530,9 @@ function install(root: Element, o: InPage): Promise<void> {
     ticking.cancel();
     box.remove();
     // What is still held runs on at the machine's pace.
-    for (const a of held.keys()) if (a.playState === 'paused') a.play();
+    for (const a of [...held.keys(), ...pausedAtPlay]) if (a.playState === 'paused') a.play();
     held.clear();
+    pausedAtPlay.clear();
     if (!keep && w.__tanreiFrames === sampler) delete w.__tanreiFrames;
     // Released while installing (a failure, or a sampler installed over it): the test is not left waiting.
     started();
