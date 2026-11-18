@@ -3856,7 +3856,8 @@ test.describe('behavior: several values (selection multiple)', () => {
     await page.keyboard.press('Enter');
     await settle(page, 'strict');
     expect(await readMany(page, 'strict')).toMatchObject({ values: ['kyoto'], text: 'zzz' });
-    expect((await read(page, 'strict')).status[0]).toBe('No matches');
+    // The regions are given the row's text in the frame after the list is shown (CMB-33), which a settled update may precede.
+    await expect.poll(async () => (await read(page, 'strict')).status[0]).toBe('No matches');
     expect(changes(await heard(page))).toEqual([]);
   });
 
