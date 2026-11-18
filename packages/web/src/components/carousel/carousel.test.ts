@@ -18,6 +18,7 @@ import { motionCount, motionEnded } from '../../../test/motions.js';
 import { transitionsRun, watchTransitions } from '../../../test/transitions.js';
 import { CarouselGeometry, type CarouselMetrics } from './carousel-geometry.js';
 import { expectBaseline } from '../../../test/baseline.js';
+import { expectAnimated, sampleFrames } from '../../../test/frames.js';
 
 const spec = loadSpec('carousel');
 type P = Page;
@@ -2069,6 +2070,89 @@ test.describe('behavior', () => {
     // Exactly one: the next advance only an interval later.
     await page.clock.runFor(every - 200);
     expect(await offset(page, id)).toBe(s);
+  });
+
+  test('CRL-39, CRL-32: an interval that ends in the task that changes the direction still advances over comp.carousel.motion.autoplay-duration — frame by frame toward the next item, not in one frame', async ({ page }) => {
+    const of = (id: string) => spec.fixtures.find((f) => f.id === id)!;
+    const id = 'autoplay';
+    // The motions at their tokens' values, not made instant as `clockPage()` makes them: made instant, an advance arranged
+    // for the new direction first and one that an arrangement puts at its target at once look the same. And no page
+    // clock: a held clock runs the carousel's frames as timers, at times two to a drawn frame, which no browser does.
+    // Mounted paused, so that the time starts when the test says.
+    const every = 2000;
+    await mountFixtures(page, spec, { icons: true, fixtures: [{ ...of('autoplay'), id, direction: 'rtl', props: { ...of('autoplay').props, autoplayInterval: every, paused: true } }] });
+    await page.mouse.move(1200, 700);
+    const duration = await resolveToken(page, T('motion-autoplay-duration'), 'duration');
+    expect(duration, 'the advance is a motion').toBeGreaterThan(0);
+    const s = await step(page, id);
+    expect(await offset(page, id)).toBe(0);
+    // The end of the interval, taken from its timer: what the timer calls is called later by the test, in the task that
+    // changes the direction — before any frame can tell the carousel of the change (a resize observer's report, after the
+    // next layout). No public member ends an interval, so the carousel's own timer callback (`onTimeUp`, private) is
+    // reached through a cast. Each offset the row reports is kept with the time of the timeline that times the motion.
+    type Timed = { onTimeUp: () => void; timeUp?: () => void; paused: boolean };
+    await carousel(page, id).evaluate((host) => {
+      const own = host as unknown as Timed;
+      const timeUp = own.onTimeUp;
+      own.onTimeUp = () => {
+        own.onTimeUp = timeUp;
+        own.timeUp = timeUp;
+      };
+      const el = host.shadowRoot!.querySelector('.scroller')!;
+      const scrolls: [number, number][] = ((window as unknown as { __scrolls: [number, number][] }).__scrolls = []);
+      el.addEventListener('scroll', () => scrolls.push([Number(el.ownerDocument.timeline.currentTime), Math.abs(el.scrollLeft)]));
+      own.paused = false;
+    });
+    await expect.poll(() => carousel(page, id).evaluate((host) => 'timeUp' in host), 'the interval has passed').toBe(true);
+    expect(await offset(page, id), 'its end taken, the row has not moved').toBe(0);
+    const seen = await sampleFrames(
+      scroller(page, id),
+      () =>
+        carousel(page, id).evaluate((host, ms) => {
+          const own = host as unknown as Timed;
+          const timeUp = own.timeUp!;
+          host.closest('[data-fixture]')!.setAttribute('dir', 'ltr');
+          timeUp();
+          // The end of the next interval is taken too, and never called: the row is read at the one item it advanced
+          // to. What the timer calls sooner is the carousel's own — an advance put off by an arrangement, at once.
+          const ended = performance.now();
+          own.onTimeUp = () => {
+            if (performance.now() - ended < ms / 2) timeUp();
+            else own.onTimeUp = timeUp;
+          };
+        }, every),
+      {
+        // Enough frames for the advance played at a fifth of its speed (harsh mode, in Chromium), and for its end. The
+        // motion is timed by a Web Animation without a target, which the sampler does not hold: its frames are read as
+        // the page draws them.
+        frames: Math.ceil((duration * 5) / (1000 / 60)) + 30,
+        elements: false,
+        probe: (root) => ({ offset: Math.round(Math.abs(root.scrollLeft) * 100) / 100 }),
+      },
+    );
+    const offsets = [seen.before, ...seen.frames].map((frame) => Number(frame.probe.offset));
+    const way = offsets.filter((o, i, all) => i === 0 || o !== all[i - 1]);
+    const arrived = seen.frames.findIndex((frame) => Number(frame.probe.offset) >= s - 0.5);
+    expect(arrived, `it reaches the next item: ${way.join(' → ')}`).toBeGreaterThanOrEqual(0);
+    // It moves on the way there: no frame takes it all.
+    expectAnimated({ ...seen, frames: seen.frames.slice(0, arrived + 1), complete: false }, 'offset', { minSteps: 4 });
+    // Toward the next item all the way: never back, never past it — nor to the old direction's offset, cut to the start.
+    expect(
+      offsets.every((o, i) => o >= -0.5 && o <= s + 0.5 && (i === 0 || o >= offsets[i - 1] - 0.5)),
+      `0 → ${s}: ${way.join(' → ')}`,
+    ).toBe(true);
+    await expect.poll(() => offset(page, id), 'one item on').toBe(s);
+    // Over the autoplay duration: from the first offset the row reports off its start to the first at the next item, at
+    // least half of it passed on the timeline that times the motion (a jump is one report).
+    const scrolls = await page.evaluate(() => (window as unknown as { __scrolls: [number, number][] }).__scrolls);
+    const off = scrolls.find(([, o]) => o > 0.5);
+    const at = scrolls.find(([, o]) => o >= s - 0.5);
+    expect(off && at ? at[0] - off[0] : -1, `${duration} ms of motion: ${scrolls.map(([t, o]) => `${Math.round(t)}:${Math.round(o)}`).join(' ')}`).toBeGreaterThanOrEqual(duration / 2);
+    expect(await now(page, id)).toBe(2);
+    // Drawn for the new direction, the second item the hero: the first at its left, the third at its right.
+    const xs = await Promise.all([0, 1, 2].map(async (i) => (await bounds(item(page, id, i))).x));
+    expect(xs.every((x, i) => i === 0 || x > xs[i - 1]), `left to right: ${xs.join(', ')}`).toBe(true);
+    await expect(container(page, id, 0), 'the Tab stop is not moved by the advance').toHaveAttribute('tabindex', '0');
   });
 
   test('CRL-39, CRL-43, CRL-30: a move the person starts in the frame before the carousel hears of a change of direction still ends on its item, in reading order, in the new direction', async ({ page }) => {
