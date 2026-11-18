@@ -2417,20 +2417,10 @@ test.describe('behavior', () => {
         const loop = !!row.props.loop;
         const base = await offset(page, id);
         const one = await step(page, id);
-        /** Scrolls the row to a resting position `to` at once and waits until it rests there. */
-        const restAt = async (to: number) => {
-          await scroller(page, id).evaluate((el, at) => (el.scrollLeft = at), (dir === 'rtl' ? -1 : 1) * to);
-          await expect.poll(() => offset(page, id), `${id} rests at ${to}`).toBe(to);
-          await atRest(page, id);
-        };
         if (motions.includes('settle')) {
-          // A row with ends settles from two positions in, where neither control changes as it settles. Back to the first
-          // position, the scroll would enable the previous control and the settle, aiming back from the same frame,
-          // disable it again before that frame is drawn: its state transitions turn back at their start, shortened to no
-          // length, and a motion that begins and ends between two frames read is one `sampleFrames` takes for missed. (A
-          // looping row has no ends; it settles back to where it rests.)
-          const at = loop ? base : base + 2 * one;
-          if (!loop) await restAt(at);
+          // Scrolled from the first position and settling back to it. On a row with ends the scroll enables the previous
+          // control and the settle, aiming back from the same frame, disables it again before that frame is drawn: its
+          // state transitions turn back before they begin, shortened to no length, and nothing of them is drawn moving.
           const settle = await sampleFrames(
             page,
             () =>
@@ -2439,18 +2429,16 @@ test.describe('behavior', () => {
                 el.scrollLeft = to;
                 await new Promise((r) => requestAnimationFrame(r));
                 el.dispatchEvent(new Event('scrollend'));
-              }, (dir === 'rtl' ? -1 : 1) * (at + 0.37 * one)),
+              }, (dir === 'rtl' ? -1 : 1) * (base + 0.37 * one)),
             { probe: drawnProbe, elements: false },
           );
           expect(rowMotions(settle), `${id}: a settle is the scroll motion`).toEqual([scrolls]);
           // (Within a pixel: an engine may keep whole offsets.)
           const left = offsetsOf(settle, (frame) => frame.probe[`offset:${id}`] as number).from;
-          expect(Math.abs(left - (at + 0.37 * one)), `${id}: the settle begins where the scroll left the row (${left})`).toBeLessThanOrEqual(1);
-          expectGapsHeld(settle, id, 'a settle', { gap, one, to: at, duration: scrolls.duration, loop });
-          await expect.poll(() => offset(page, id), `${id} settles`).toBe(at);
+          expect(Math.abs(left - (base + 0.37 * one)), `${id}: the settle begins where the scroll left the row (${left})`).toBeLessThanOrEqual(1);
+          expectGapsHeld(settle, id, 'a settle', { gap, one, to: base, duration: scrolls.duration, loop });
+          await expect.poll(() => offset(page, id), `${id} settles`).toBe(base);
           await atRest(page, id);
-          // Back at the first position, its item the Tab stop again.
-          if (!loop) await restAt(base);
         }
         await tabTo(page, container(page, id, 0));
         await atRest(page, id);
