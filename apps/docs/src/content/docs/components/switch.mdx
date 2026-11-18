@@ -8,6 +8,7 @@ import ComponentAvailability from '../../../components/ComponentAvailability.ast
 import ComponentSpecs from '../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../components/ComponentAccessibility.astro';
 import Example from '../../../components/visuals/Example.astro';
+import MotionDemo from '../../../components/visuals/MotionDemo.astro';
 
 ## Overview
 
@@ -156,6 +157,8 @@ In the default system the switch has a 52 × 32 track with a 2 outline, and a ha
 ### The same thumb as tabs
 
 The switch and [tabs](/components/tabs/) share one model: a thumb on a track that slides to what is chosen and follows a finger. A switch has two states that are not equals, so its track, outline and handle differ between off and on. Tabs offer two or more equal choices, so their track never changes. Use a switch for a setting that is on or off, and tabs to choose among views.
+
+<MotionDemo name="switch" motion="selection" from="unselected" to="selected" />
 
 ### Read-only
 

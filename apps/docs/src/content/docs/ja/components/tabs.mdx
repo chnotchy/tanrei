@@ -2,7 +2,7 @@
 title: タブ
 description: 同じ対象の複数のビューを、トラックの上に置いたラベル付きのタブの並びで切り替えます。選択中のタブは 1 つで、タブの間を滑り、並びの上をドラッグする指にも付いてくるインジケーターがそれを示します。
 translationOf: components/tabs.mdx
-sourceHash: f3c062a570bfa55082e741b6c7b02a3063c81bc4
+sourceHash: 1d912893a46525ec8008c7406cbfb36d66a21d3c
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -12,6 +12,7 @@ import ColorRoleMap from '../../../../components/visuals/ColorRoleMap.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
 import FocusOrder from '../../../../components/visuals/FocusOrder.astro';
 import Example from '../../../../components/visuals/Example.astro';
+import MotionDemo from '../../../../components/visuals/MotionDemo.astro';
 import DoDont from '../../../../components/visuals/DoDont.astro';
 import Playground from '../../../../components/visuals/Playground.astro';
 
@@ -311,6 +312,8 @@ import Playground from '../../../../components/visuals/Playground.astro';
 | `auto`（既定） | デザインシステムの答えに従います（`comp.tabs.motion.transition`。既定のシステムでは slide）。 |
 
 切り替えたばかりの内容のそばにある並びには `none` を使います。そこでは、滑るインジケーターだけがまだ動いているものになるからです。`none` でも、並びの上のドラッグはインジケーターを運び、離すとすぐにタブの上に置かれます。ホバー、フォーカス、押下への応答は、どの値でも同じです。動きを減らす設定では、`transition` が何であっても、選択は `none` と同じように描かれます。
+
+<MotionDemo name="tabs" motion="indicator" from="primary" to="primary-second-selected" />
 
 [タブビュー](/ja/components/tab-view/)は、パネルのための `transition` を別に持っています。それを `none` にすると、ビューが描く並びのインジケーターも滑らなくなります。
 

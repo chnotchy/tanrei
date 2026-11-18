@@ -2,7 +2,7 @@
 title: علامات التبويب
 description: تبدّل بين عروض الموضوع الواحد بصف من التبويبات المسمّاة على مسار. تبويب واحد محدَّد، يميّزه مؤشر ينزلق بين التبويبات ويتبع الإصبع المسحوب عبر الصف.
 translationOf: components/tabs.mdx
-sourceHash: f3c062a570bfa55082e741b6c7b02a3063c81bc4
+sourceHash: 1d912893a46525ec8008c7406cbfb36d66a21d3c
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -12,6 +12,7 @@ import ColorRoleMap from '../../../../components/visuals/ColorRoleMap.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
 import FocusOrder from '../../../../components/visuals/FocusOrder.astro';
 import Example from '../../../../components/visuals/Example.astro';
+import MotionDemo from '../../../../components/visuals/MotionDemo.astro';
 import DoDont from '../../../../components/visuals/DoDont.astro';
 import Playground from '../../../../components/visuals/Playground.astro';
 
@@ -311,6 +312,8 @@ import Playground from '../../../../components/visuals/Playground.astro';
 | `auto` (الافتراضي) | تأخذ جواب نظام التصميم (`comp.tabs.motion.transition`، وهو القيمة slide في النظام الافتراضي). |
 
 استخدم `none` لصف بجانب محتوى غيّره لتوّه، حيث يكون المؤشر المنزلق الشيء الوحيد الذي ما زال يتحرك. ومع `none` يظل السحب عبر الصف يحمل المؤشر، ويحطّ المؤشر على تبويبه فورًا عند الإفلات. والتحويم والتركيز والضغط يُستجاب لها بالطريقة نفسها مع كل قيمة. وحيث تكون الحركة مقلَّلة يُرسم التحديد كما ترسمه `none`، أيًّا كان ما تقوله `transition`.
+
+<MotionDemo name="tabs" motion="indicator" from="primary" to="primary-second-selected" />
 
 [عرض التبويبات](/ar/components/tab-view/) له `transition` خاصة به للوحاته. فإذا عُيِّنت بالقيمة `none` أوقفت أيضًا انزلاق الصف الذي يرسمه.
 

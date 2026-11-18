@@ -2,7 +2,7 @@
 title: "开关"
 description: "打开或关闭一项设置，并立即生效。"
 translationOf: components/switch.mdx
-sourceHash: 3c9248e2d903cb5a621415b66cd6f02bbb77c85b
+sourceHash: a738f87f832f1b7c373ab88ca2341d3e8d86083e
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -10,6 +10,7 @@ import ComponentAvailability from '../../../../components/ComponentAvailability.
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
 import Example from '../../../../components/visuals/Example.astro';
+import MotionDemo from '../../../../components/visuals/MotionDemo.astro';
 
 ## 概览
 
@@ -158,6 +159,8 @@ import Example from '../../../../components/visuals/Example.astro';
 ### 与标签页相同的滑块
 
 开关和[标签页](/zh-cn/components/tabs/)共用一个模型：轨道上的一个滑块，它滑向被选中的那一项，并跟随手指。开关的两个状态并不对等，所以它的轨道、轮廓和滑块在开与关之间各不相同。标签页提供两个或更多对等的选择，所以它的轨道始终不变。开或关的设置用开关，在视图之间选择用标签页。
+
+<MotionDemo name="switch" motion="selection" from="unselected" to="selected" />
 
 ### 只读
 
