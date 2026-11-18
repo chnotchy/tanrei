@@ -284,6 +284,8 @@
   }
 
   /* ── The marker (TOC-7): a heavier stroke on the rail beside the current row, as high as the row ────────────── */
+  /* Its box is also the row's hit area (TOC-24): square, as wide and high as the anchor, where the anchor's own box
+     is rounded and takes no press in its corners. A press on it is the anchor's: a pseudo-element is its element. */
   :where(tanrei-table-of-contents) :where(li) > :where(a)::before {
     content: '';
     position: absolute;
@@ -294,8 +296,8 @@
     border: 0 solid var(--tanrei-comp-table-of-contents-marker-color);
     border-left-width: calc(var(--tanrei-comp-table-of-contents-marker-width) * var(--_toc-left));
     border-right-width: calc(var(--tanrei-comp-table-of-contents-marker-width) * var(--_toc-right));
+    border-radius: 0;
     opacity: 0;
-    pointer-events: none;
     transition: opacity var(--tanrei-comp-table-of-contents-motion-state-duration) var(--tanrei-comp-table-of-contents-motion-state-easing);
   }
 
