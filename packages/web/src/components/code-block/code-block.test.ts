@@ -51,7 +51,7 @@ const px = async (target: Locator, property: string, pseudo?: string) => Number.
 const lineOf = (page: P, font: string) =>
   page.evaluate((name) => {
     const probe = document.createElement('div');
-    probe.style.cssText = `position:absolute;visibility:hidden;font:var(${name})`;
+    probe.style.cssText = `position:absolute;visibility:hidden;font:${name}`;
     document.body.appendChild(probe);
     const value = Number.parseFloat(getComputedStyle(probe).lineHeight);
     probe.remove();
