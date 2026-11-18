@@ -55,9 +55,14 @@ const data: ColorRolesData = {
   feedback: cssVar([ns, 'sys', 'behavior', 'pressed-feedback']),
   rows: map.rows.map(({ part, target, cssVar: property, paint, roles }) => ({ part, target, cssVar: property, paint, roles: Object.fromEntries(Object.entries(roles).map(([id, { role, derived }]) => [id, { role, derived }])) })),
 };
-const named = map.rows.map((row) => ({ ...row, shown: row.roles[shownSystem] ?? row.roles[ns] }));
+// A token that is no role is named as the script names it once it has read the token (lib/visuals/color-roles.ts):
+// transparent where its value is, else of no role; the page's first words are its last.
+const named = map.rows.map((row) => {
+  const shown = row.roles[shownSystem] ?? row.roles[ns];
+  return { ...row, shown, roleText: roleName(shown.role) ?? (/^#[\da-f]{6}00$/i.test(row.hex) ? t.visuals.colorRolesTransparent : t.visuals.colorRolesFixed) };
+});
 const pair = (part: string, role: string) => t.visuals.colorRolePair.replaceAll('{part}', part).replaceAll('{role}', role);
-const pairs = named.map((row) => pair(row.part, roleName(row.shown.role) ?? t.visuals.colorRolesFixed));
+const pairs = named.map((row) => pair(row.part, row.roleText));
 const forms = t.visuals.colorRolesAlt;
 const alt = (forms[new Intl.PluralRules(lang).select(pairs.length)] ?? forms.other)
   .replaceAll('{component}', spec.title)
@@ -94,7 +99,7 @@ const [before = '', after = ''] = t.visuals.drawnFrom.split('{fixture}');
                 </th>
                 <td data-wrap="false">
                   <tanrei-swatch class="docs-roles-swatch" decorative size="small" color={row.hex} data-role-swatch />
-                  <span class="docs-mono" dir="auto" data-role-name>{roleName(row.shown.role) ?? t.visuals.colorRolesFixed}</span>
+                  <span class="docs-mono" dir="auto" data-role-name>{row.roleText}</span>
                   <span class="docs-muted" data-role-derived hidden={!(row.shown.role && row.shown.derived)}>
                     {' '}
                     ({t.visuals.colorRolesDerived})
