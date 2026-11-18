@@ -48,8 +48,6 @@ const languages = [source, ...translations];
     <link rel="icon" href="/favicon.ico" sizes="32x32" />
     {/* The scheme the reader forced and the contrast the documentation keeps, before the first paint (lib/appearance.ts). */}
     <script is:inline set:html={standaloneBootstrap} />
-    {/* Which of the site's pages the browser may load before a link is followed, as every page of the frame says (lib/speculation-rules.mjs). */}
-    <script type="speculationrules" is:inline set:html={speculationRulesText} />
     <link rel="stylesheet" href={studioCss} />
   </head>
   <body>
@@ -76,5 +74,7 @@ const languages = [source, ...translations];
       if (document.readyState === 'complete') full();
       else addEventListener('load', full, { once: true });
     </script>
+    {/* Which of the site's pages the browser may load before a link is followed, at the end of the body as every page of the frame says it (lib/speculation-rules.mjs). */}
+    <script type="speculationrules" is:inline set:html={speculationRulesText} />
   </body>
 </html>

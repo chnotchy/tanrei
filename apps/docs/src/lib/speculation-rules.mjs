@@ -1,8 +1,9 @@
 // What a page asks the browser to load before the reader follows a link (Speculation Rules,
 // https://developer.chrome.com/docs/web-platform/prerender-pages): the site's own pages, prerendered once the reader
 // shows they are about to follow a link (`moderate`: a pointer resting on it, or pressing it), and fetched by an engine
-// that prefetches but does not prerender. Head.astro writes it into every page of the frame as `<script type="speculationrules">`, and
-// StudioPage.astro into Theme Studio's, which has a head of its own.
+// that prefetches but does not prerender. PageFrame.astro writes it at the end of the body of every page of the frame,
+// as `<script type="speculationrules">`, after the page's links (it says why), and StudioPage.astro at the end of Theme
+// Studio's, which is a page of its own.
 //
 // Only the site's own documents. A pattern without an origin is read against the page's address, so `/*` names this
 // site alone: a link to another site is never loaded. Left out are the search's files (`/pagefind/`), the built assets
