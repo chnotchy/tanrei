@@ -1,0 +1,191 @@
+---
+// A component's color role map: the live component, drawn from the web package's own stage of one fixture with a
+// variant, a state and its flags set on it, and beside it a table of the color token each of its parts is drawn with —
+// a swatch of the token as the page draws it, the system's color role the token is, and its contrast against what is
+// drawn behind the part — with a leader from each part to its row, in the docs' one frame (Example.astro). A page
+// writes one line, `<ColorRoleMap name="button" variant="filled" />`, and the six languages share it.
+//
+// - The tokens and their roles come from the repository (lib/visuals/roles.ts, `roleMapOf`): the most particular
+//   token the component reads for the figure's variant, state and flags, followed through the aliases each shipped
+//   system writes it as to the first color role. The swatch, the comparison and the contrast are read in the browser
+//   (lib/visuals/color-roles.ts), under the system, scheme and contrast the page is drawn in.
+// - The component is a picture here, as in the anatomy figure: `inert`, an image named by a sentence in the page's
+//   language that pairs each part with its role (`visuals.colorRolesAlt`). The table is the page's own: each row's
+//   header is a focus stop, and focusing it outlines its part (not by color alone).
+// - It holds its room before anything is defined: the fixture's baseline; the table is laid out in the first frame by
+//   the Table's stylesheet, which every page loads.
+import Example from './Example.astro';
+import Table from '../Table.astro';
+import { contentLang, strings } from '../../lib/i18n';
+import { stagingStyle } from '../../lib/fixture-gallery';
+import { getSpec } from '../../lib/repo';
+import { cssVar, ns } from '../../lib/tokens';
+import { roleMapOf } from '../../lib/visuals/roles';
+import type { ColorRolesData } from '../../lib/visuals/color-roles';
+import './blueprint.css';
+
+interface Props {
+  /** The component, by its spec's name. */
+  name: string;
+  /** The variant to draw, where the component has variants. */
+  variant?: string;
+  /** The state to draw, one of the spec's: `enabled` by default. */
+  state?: string;
+  selected?: boolean;
+  destructive?: boolean;
+  /** A shipped preset the figure is always drawn under, where what it shows lives there alone. */
+  system?: string;
+  /** The fixture to draw, where it is not the spec's `anatomyFixture` or first (a menu's checked items). */
+  fixture?: string;
+  /** The level of the heading the figure writes above it: none where the page writes its own, or a figure stands under another's. */
+  headingLevel?: 2 | 3 | 4;
+}
+const { name, variant, state = 'enabled', selected = false, destructive = false, system, fixture, headingLevel } = Astro.props;
+const lang = contentLang(Astro);
+const t = strings(lang);
+const spec = getSpec(name);
+const map = roleMapOf(name, { variant, state, selected, destructive, fixture });
+if (!map) throw new Error(`ColorRoleMap: ${name} has no fixture its parts can be found on in the page (lib/visuals/anatomy.ts, blueprintStageOf)`);
+if (!map.rows.length) throw new Error(`ColorRoleMap: no part of ${name} is drawn with a color token for ${JSON.stringify({ variant, state, selected, destructive })}`);
+const shownSystem = system ?? map.stage.system ?? ns;
+const roleName = (role: string | null) => (role ? role.split('.').slice(1).join('.') : null);
+const data: ColorRolesData = {
+  tag: map.stage.tag,
+  held: map.held,
+  feedback: cssVar([ns, 'sys', 'behavior', 'pressed-feedback']),
+  rows: map.rows.map(({ part, target, cssVar: property, paint, roles }) => ({ part, target, cssVar: property, paint, roles: Object.fromEntries(Object.entries(roles).map(([id, { role, derived }]) => [id, { role, derived }])) })),
+};
+// A token that is no role is named as the script names it once it has read the token (lib/visuals/color-roles.ts):
+// transparent where its value is, else of no role; the page's first words are its last.
+const named = map.rows.map((row) => {
+  const shown = row.roles[shownSystem] ?? row.roles[ns];
+  return { ...row, shown, roleText: roleName(shown.role) ?? (/^#[\da-f]{6}00$/i.test(row.hex) ? t.visuals.colorRolesTransparent : t.visuals.colorRolesFixed) };
+});
+const pair = (part: string, role: string) => t.visuals.colorRolePair.replaceAll('{part}', part).replaceAll('{role}', role);
+const pairs = named.map((row) => pair(row.part, row.roleText));
+const forms = t.visuals.colorRolesAlt;
+const alt = (forms[new Intl.PluralRules(lang).select(pairs.length)] ?? forms.other)
+  .replaceAll('{component}', spec.title)
+  .replaceAll('{count}', String(pairs.length))
+  .replaceAll('{list}', new Intl.ListFormat(lang, { style: 'long', type: 'conjunction' }).format(pairs));
+// The figure's title says what it draws: the props that make it, as code (the section's heading names the figure).
+const facts = [variant, state === 'enabled' ? undefined : state, selected ? 'selected' : undefined, destructive ? 'destructive' : undefined].filter(Boolean).join(' · ');
+const Heading = headingLevel ? (`h${headingLevel}` as const) : null;
+const [before = '', after = ''] = t.visuals.drawnFrom.split('{fixture}');
+---
+
+{Heading && <Heading>{t.visuals.colorRolesTitle}</Heading>}
+<Fragment set:html={stagingStyle(map.stage.staging)} />
+<Example label={facts || t.visuals.colorRolesTitle} titleCode={Boolean(facts)} reserve={{ block: `${map.stage.room.height}px`, inline: `${map.stage.room.width}px` }} pattern="none" system={system ?? map.stage.system} data-color-roles-figure>
+  <div class="docs-roles">
+    <div class="docs-blueprint docs-roles-subject" data-color-roles={JSON.stringify(data)} data-fixture-scope role="img" aria-label={alt}>
+      <div class="docs-blueprint-stage" inert aria-hidden="true" set:html={map.html} />
+    </div>
+    <Table label={`${spec.title} · ${t.visuals.colorRolesTitle}`} size="small" rowHeaders class="docs-roles-table">
+      <table data-color-roles-table data-not-drawn={t.visuals.colorRolesNotDrawn} data-differs={t.visuals.colorRolesDiffers} data-fixed={t.visuals.colorRolesFixed} data-transparent={t.visuals.colorRolesTransparent}>
+        <thead>
+          <tr>
+            <th scope="col" data-wrap="false">{t.visuals.colorRolesPart}</th>
+            <th scope="col" data-wrap="false">{t.visuals.colorRolesRole}</th>
+            <th scope="col" data-align="end" data-wrap="false">{t.visuals.colorRolesContrast}</th>
+          </tr>
+        </thead>
+        <tbody>
+          {
+            named.map((row, index) => (
+              <tr data-role-row={index} data-token={row.token}>
+                <th scope="row" data-wrap="false" tabindex="0">
+                  <span class="docs-mono" translate="no" dir="ltr" data-role-part>{row.part}</span> <span class="docs-muted">{t.visuals.colorRolesPaint[row.paint]}</span>
+                </th>
+                <td data-wrap="false">
+                  <tanrei-swatch class="docs-roles-swatch" decorative size="small" color={row.hex} data-role-swatch />
+                  <span class="docs-mono" dir="auto" data-role-name>{row.roleText}</span>
+                  <span class="docs-muted" data-role-derived hidden={!(row.shown.role && row.shown.derived)}>
+                    {' '}
+                    ({t.visuals.colorRolesDerived})
+                  </span>
+                </td>
+                <td data-align="end" data-wrap="false" data-role-contrast>
+                  —
+                </td>
+              </tr>
+            ))
+          }
+        </tbody>
+      </table>
+    </Table>
+  </div>
+  <Fragment slot="caption">
+    {t.visuals.colorRolesCaption}{' '}
+    {before}
+    <code>{map.stage.fixture}</code>
+    {after}
+  </Fragment>
+</Example>
+
+<script>
+  import '../../lib/register-web';
+  import '../../lib/visuals/color-roles';
+</script>
+
+<style is:global>
+  /* The component at the start, the table at the end, and between them the room the leaders cross. */
+  .docs-roles {
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: center;
+    gap: var(--tanrei-sys-space-space900);
+  }
+  .docs-roles-subject {
+    flex: none;
+  }
+  /* The table takes the room the component leaves it (a Table is a container of its inline size, with no width of its
+     own to give), and never less than a few columns' worth: where the stage is narrower than both, the stage scrolls
+     (the one row a figure stands in); where the room is narrower than its rows, the Table scrolls its columns. */
+  .docs-roles {
+    inline-size: 100%;
+  }
+  .docs-roles-table {
+    flex: 1 1 0;
+    min-inline-size: 18rem;
+  }
+  /* A row's header is a focus stop: focusing it outlines its part in the figure. */
+  [data-color-roles-table] th[scope='row']:focus-visible {
+    outline: var(--tanrei-sys-focus-outer-width) solid var(--tanrei-sys-color-focus-ring);
+    outline-offset: calc(-1 * var(--tanrei-sys-focus-outer-width));
+  }
+  .docs-roles-swatch {
+    margin-inline-end: var(--tanrei-sys-space-space100);
+  }
+  /* Its room is held before it is defined; without script it is not drawn, and the role beside it still reads. */
+  .docs-roles-swatch:not(:defined) {
+    display: inline-block;
+    inline-size: var(--tanrei-comp-swatch-container-size-small);
+    block-size: var(--tanrei-comp-swatch-container-size-small);
+    vertical-align: middle;
+    visibility: hidden;
+  }
+  @media (scripting: none) {
+    .docs-roles-swatch:not(:defined) {
+      display: none;
+    }
+  }
+  /* The outline of a focused row's part, and its leader drawn heavier: a shape, not a color alone. */
+  .docs-blueprint-lines .highlight {
+    display: none;
+    stroke: var(--tanrei-sys-color-focus-ring);
+    stroke-width: var(--tanrei-sys-focus-outer-width);
+    stroke-dasharray: var(--tanrei-sys-space-space50) var(--tanrei-sys-space-space25);
+  }
+  .docs-blueprint-lines .highlight[data-active] {
+    display: inline;
+  }
+  .docs-blueprint-lines .leader[data-active] {
+    stroke-width: var(--tanrei-sys-focus-outer-width);
+  }
+  @media (forced-colors: active) {
+    .docs-blueprint-lines .highlight {
+      stroke: Highlight;
+    }
+  }
+</style>

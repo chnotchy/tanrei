@@ -77,7 +77,7 @@ const escapeAttribute = (value: string) => value.replace(/&/g, '&amp;').replace(
 const startTagOf = (html: string, tag: string) => new RegExp(`<${tag}(?=[\\s/>])([^>]*)>`).exec(html);
 
 /** Sets attributes on the first element named `tag` in a piece of markup, replacing any it has of the same name. */
-function withAttributes(html: string, tag: string, attributes: Record<string, string>): string {
+export function withAttributes(html: string, tag: string, attributes: Record<string, string>): string {
   const open = startTagOf(html, tag)!;
   let rest = open[1];
   for (const name of Object.keys(attributes)) rest = rest.replace(new RegExp(`\\s${name}(="[^"]*")?(?=[\\s/>]|$)`), '');

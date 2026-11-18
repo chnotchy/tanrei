@@ -120,6 +120,44 @@ export const shippedSystems: ShippedSystem[] = Object.values(layerFiles)
     return { id: layer.id, name: layer.name, extends: layer.extends, tree };
   });
 
+// ── What each shipped system writes a token as ─────────────────────────
+// A token's value as a system writes it, before it is resolved: an alias, or the derivation that values it (a mix, a
+// layer of alpha, a fixed value). The default system's is in the hand-written sources and in the states and layer
+// operations the build writes beside them (tokens/generated/comp.states.light.tokens.json); a preset's is its own
+// generated tree (tokens/generated/<id>/comp/, tokens/generated/<id>/generated/). Read for the light scheme: the
+// raised-contrast schemes change the amounts of a derivation, not what it is made from.
+const defaultStates = import.meta.glob<Json>('../../../../tokens/generated/comp.states.light.tokens.json', { eager: true, import: 'default' });
+const presetSources = import.meta.glob<Json>(['../../../../tokens/generated/*/comp/*.tokens.json', '../../../../tokens/generated/*/generated/comp.states.light.tokens.json'], { eager: true, import: 'default' });
+
+/** How a system writes a token: the alias it points at, or the derivation that values it, or neither (a literal). */
+export interface Written {
+  alias?: string;
+  /** The `dev.<namespace>.derive` of the token: `{ fn: 'mix', base, with, amount }`, `{ fn: 'alpha', of, amount }`, `{ fixed }`. */
+  derive?: Json;
+}
+
+const aliasOf = (value: unknown) => (typeof value === 'string' && value.startsWith('{') ? value.slice(1, -1) : undefined);
+
+/** What `system` (a shipped system's id) writes the token `dotted` as; null where none of its sources has it. */
+export function writtenIn(system: string, dotted: string): Written | null {
+  const trees =
+    system === ns
+      ? [...Object.values(defaultStates), ...Object.values(sources)]
+      : Object.entries(presetSources)
+          .filter(([file]) => file.split('/tokens/generated/')[1]?.split('/')[0] === system)
+          .sort(([a], [b]) => Number(!a.includes('/generated/comp.states.')) - Number(!b.includes('/generated/comp.states.')))
+          .map(([, tree]) => tree);
+  for (const tree of trees) {
+    const node = at(tree, dotted);
+    if (!node || !('$value' in node)) continue;
+    const alias = aliasOf(node.$value);
+    if (alias) return { alias };
+    const derive = node.$extensions?.[`dev.${ns}.derive`];
+    return derive ? { derive } : {};
+  }
+  return null;
+}
+
 /** A token's node in the hand-written sources (with its `$extensions`), or undefined. */
 export function sourceNode(dotted: string): Json | undefined {
   for (const tree of Object.values(sources)) {

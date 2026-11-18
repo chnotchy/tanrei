@@ -2,12 +2,13 @@
 title: "文本字段"
 description: "让用户输入和编辑文本——单行，或者随文本增高、可手动调整大小的多行——也可以按区域设置的格式逐个单位地输入日期或时间，或者输入代码并按写下的样子原样保存；它带有可以说明必填或选填的标签，以及可选的图标、前缀和后缀、辅助文本、字符计数和选择器按钮。"
 translationOf: components/text-field.mdx
-sourceHash: 46c9e9ee51271a92fbae0ec4352c853a0b237635
+sourceHash: 331493daa8087e066ea293f0507d681726b0e491
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ColorRoleMap from '../../../../components/visuals/ColorRoleMap.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
 import Example from '../../../../components/visuals/Example.astro';
 import DoDont from '../../../../components/visuals/DoDont.astro';
@@ -315,6 +316,8 @@ input.addEventListener('input', () => (field.countText = input.countText));
 <tanrei-text-field label="邮箱"
   style="--tanrei-comp-field-label-gap: 12px"></tanrei-text-field>
 ```
+
+<ColorRoleMap name="text-field" variant="outlined" fixture="outlined-filled" headingLevel={3} />
 
 <ComponentSpecs name="text-field" />
 

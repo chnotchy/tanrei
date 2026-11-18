@@ -2,12 +2,13 @@
 title: "滑块"
 description: "让用户沿轨道拖动手柄，以连续或步进的方式选择一个值或一个取值范围。"
 translationOf: components/slider.mdx
-sourceHash: 468e1835b70e3ce76c0eebfcec96922300eab111
+sourceHash: 95915300085270f4089f9fc0181bf74a0c4bafd1
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ColorRoleMap from '../../../../components/visuals/ColorRoleMap.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
 import FocusOrder from '../../../../components/visuals/FocusOrder.astro';
 import Example from '../../../../components/visuals/Example.astro';
@@ -191,6 +192,8 @@ import Playground from '../../../../components/visuals/Playground.astro';
 刻度圆点，以及标记行程终点的那个圆点，粗细是轨道的一半：小号、中号和大号分别为 2、3 和 4。数值指示器位于圆环顶部略靠上的位置，与圆环居中对齐。禁用时，圆环保留它的填充，轮廓则随活动轨道一起变淡。
 
 设计系统可以用同一组令牌按自己的方式绘制手柄。轮廓为 0 时，手柄是一个实心的形状；轨道与手柄之间留有间隙时，轨道在到达手柄之前就终止，并在那里取圆角。`m3-like` 就是这样画出 Material 的竖条的。
+
+<ColorRoleMap name="slider" headingLevel={3} />
 
 <ComponentSpecs name="slider" />
 

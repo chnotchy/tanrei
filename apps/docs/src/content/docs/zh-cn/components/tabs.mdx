@@ -2,12 +2,13 @@
 title: "标签页"
 description: "用轨道上一行带标签的标签页，在同一主题的多个视图之间切换。其中一个标签页处于选中状态，由指示器标出；指示器在标签页之间滑动，也会跟随在这一行上拖动的手指。"
 translationOf: components/tabs.mdx
-sourceHash: 6143dc5e191f33f5fdbd7cf35556e4c219c660fd
+sourceHash: f3c062a570bfa55082e741b6c7b02a3063c81bc4
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ColorRoleMap from '../../../../components/visuals/ColorRoleMap.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
 import FocusOrder from '../../../../components/visuals/FocusOrder.astro';
 import Example from '../../../../components/visuals/Example.astro';
@@ -228,6 +229,8 @@ import Playground from '../../../../components/visuals/Playground.astro';
     <tanrei-tab value="imperial" label="英制"></tanrei-tab>
   </tanrei-tabs>
 </Example>
+
+<ColorRoleMap name="tabs" variant="primary" selected headingLevel={3} />
 
 <ComponentSpecs name="tabs" />
 

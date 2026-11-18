@@ -6,6 +6,7 @@ description: Switches between views of the same subject with a row of labelled t
 import { Tabs, TabItem } from '../../../components/tabs';
 import ComponentAvailability from '../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../components/ComponentSpecs.astro';
+import ColorRoleMap from '../../../components/visuals/ColorRoleMap.astro';
 import ComponentAccessibility from '../../../components/ComponentAccessibility.astro';
 import FocusOrder from '../../../components/visuals/FocusOrder.astro';
 import Example from '../../../components/visuals/Example.astro';
@@ -226,6 +227,8 @@ The tabs do not draw the panels, but they decide which one shows. On the web, `<
     <tanrei-tab value="imperial" label="Imperial"></tanrei-tab>
   </tanrei-tabs>
 </Example>
+
+<ColorRoleMap name="tabs" variant="primary" selected headingLevel={3} />
 
 <ComponentSpecs name="tabs" />
 

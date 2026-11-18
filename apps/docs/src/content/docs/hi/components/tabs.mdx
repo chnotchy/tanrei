@@ -2,12 +2,13 @@
 title: टैब
 description: ट्रैक पर रखे लेबल वाले टैब की एक पंक्ति से एक ही विषय के व्यू के बीच स्विच करता है। एक टैब चयनित रहता है, जिसे एक इंडिकेटर दिखाता है, जो टैब के बीच सरकता है और पंक्ति पर ड्रैग की गई उँगली के साथ चलता है।
 translationOf: components/tabs.mdx
-sourceHash: 6143dc5e191f33f5fdbd7cf35556e4c219c660fd
+sourceHash: f3c062a570bfa55082e741b6c7b02a3063c81bc4
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ColorRoleMap from '../../../../components/visuals/ColorRoleMap.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
 import FocusOrder from '../../../../components/visuals/FocusOrder.astro';
 import Example from '../../../../components/visuals/Example.astro';
@@ -228,6 +229,8 @@ import Playground from '../../../../components/visuals/Playground.astro';
     <tanrei-tab value="imperial" label="इंपीरियल"></tanrei-tab>
   </tanrei-tabs>
 </Example>
+
+<ColorRoleMap name="tabs" variant="primary" selected headingLevel={3} />
 
 <ComponentSpecs name="tabs" />
 

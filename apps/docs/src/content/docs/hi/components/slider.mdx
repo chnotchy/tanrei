@@ -2,12 +2,13 @@
 title: स्लाइडर
 description: लोगों को ट्रैक पर हैंडल को ड्रैग करके कोई मान, या मानों की रेंज, चुनने देता है, निरंतर या स्टेप में।
 translationOf: components/slider.mdx
-sourceHash: 468e1835b70e3ce76c0eebfcec96922300eab111
+sourceHash: 95915300085270f4089f9fc0181bf74a0c4bafd1
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ColorRoleMap from '../../../../components/visuals/ColorRoleMap.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
 import FocusOrder from '../../../../components/visuals/FocusOrder.astro';
 import Example from '../../../../components/visuals/Example.astro';
@@ -191,6 +192,8 @@ import Playground from '../../../../components/visuals/Playground.astro';
 स्टॉप बिंदु, और वह बिंदु जो हैंडल के रास्ते का अंत दिखाता है, ट्रैक से आधे मोटे हैं: small, medium और large पर 2, 3 और 4। मान इंडिकेटर रिंग के ऊपरी सिरे से थोड़ा ऊपर रहता है, उसके केंद्र की सीध में। अक्षम होने पर रिंग अपना फ़िल रखती है, और उसकी आउटलाइन सक्रिय ट्रैक के साथ फीकी पड़ती है।
 
 कोई डिज़ाइन सिस्टम उन्हीं टोकन से हैंडल को अपने तरीक़े से बना सकता है। आउटलाइन 0 होने पर हैंडल एक ठोस शेप है, और ट्रैक और हैंडल के बीच गैप होने पर ट्रैक उससे पहले रुक जाते हैं और वहाँ गोल होते हैं। `m3-like` इसी तरह Material की खड़ी पट्टी बनाता है।
+
+<ColorRoleMap name="slider" headingLevel={3} />
 
 <ComponentSpecs name="slider" />
 

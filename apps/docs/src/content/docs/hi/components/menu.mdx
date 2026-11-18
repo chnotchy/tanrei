@@ -2,12 +2,13 @@
 title: मेन्यू
 description: क्रियाओं या विकल्पों का एक छोटा सेट, जो एक अस्थायी सरफ़ेस पर उस एलिमेंट से खुलता है जिसने उसे माँगा।
 translationOf: components/menu.mdx
-sourceHash: 46ad6599db908950bf4f4a13b4a8757cae8b9f65
+sourceHash: 878b5542450efcd827234b2b5fbdcadb23a6cd79
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ColorRoleMap from '../../../../components/visuals/ColorRoleMap.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
 import Example from '../../../../components/visuals/Example.astro';
 import DoDont from '../../../../components/visuals/DoDont.astro';
@@ -388,6 +389,10 @@ import DoDont from '../../../../components/visuals/DoDont.astro';
 चेक की हुई पंक्ति अपने चिह्न से पहचानी जाती है। डिफ़ॉल्ट सिस्टम में स्टैंडर्ड कॉन्ट्रास्ट पर वह भरी नहीं जाती, इसलिए सामान्य अवस्था वाले मेन्यू में भरी हुई अकेली पंक्ति उस पेज की होती है जिस पर व्यक्ति है। मीडियम और हाई कॉन्ट्रास्ट पर, जहाँ व्यक्ति ने ज़्यादा मज़बूत संकेत माँगे हैं, चेक की हुई पंक्ति भी भरी जाती है: मेन्यू की सरफ़ेस के ऊपर पंक्ति के अपने कॉन्टेंट के रंग की एक लेयर, जो लाइट थीम में भी और डार्क थीम में भी होवर की हुई पंक्ति से एक स्टेप ज़्यादा गहरी होती है, ताकि उठी हुई सरफ़ेस पर चेक की हुई पंक्ति, होवर की हुई पंक्ति और सामान्य अवस्था की पंक्ति अलग-अलग पहचानी जाएँ। मेन्यू यह फ़िल उस स्कीम के टोकन से पढ़ता है जिसमें वह बन रहा है; हर कॉन्ट्रास्ट स्कीम के लिए फ़िल डिज़ाइन सिस्टम तय करता है। जिस आइटम का सबमेन्यू खुला है, वह सबमेन्यू खुला रहने तक होवर वाला फ़िल बनाए रखता है, जो इस्तेमाल हो रहे स्तर तक का रास्ता दिखाता है, और वह कभी भरी हुई पंक्ति जैसा नहीं दिखता।
 
 ग्रुप का शीर्षक वहाँ से शुरू होता है जहाँ से पंक्तियों का कॉन्टेंट शुरू होता है: जब मेन्यू चेक या शुरुआती आइकन के कॉलम बनाता है तो उनके ऊपर, और जब दोनों में से कोई नहीं बनाता तो लेबल के ऊपर। वह दूसरे किनारे से उतनी ही दूरी पर ख़त्म होता है, अगली पंक्ति में जाता है, बड़े टेक्स्ट के साथ बढ़ता है और दाएँ से बाएँ वाले लेआउट में मिरर होता है।
+
+<ColorRoleMap name="menu" fixture="icons-shortcut" headingLevel={3} />
+
+<ColorRoleMap name="menu" fixture="checkbox-checked" selected />
 
 <ComponentSpecs name="menu" />
 

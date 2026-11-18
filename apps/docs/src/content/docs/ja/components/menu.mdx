@@ -2,12 +2,13 @@
 title: メニュー
 description: 呼び出した要素から開く一時的なサーフェスに、少数のアクションや選択肢を並べて見せます。
 translationOf: components/menu.mdx
-sourceHash: 46ad6599db908950bf4f4a13b4a8757cae8b9f65
+sourceHash: 878b5542450efcd827234b2b5fbdcadb23a6cd79
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ColorRoleMap from '../../../../components/visuals/ColorRoleMap.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
 import Example from '../../../../components/visuals/Example.astro';
 import DoDont from '../../../../components/visuals/DoDont.astro';
@@ -388,6 +389,10 @@ import DoDont from '../../../../components/visuals/DoDont.astro';
 チェックされた行は、マークで示します。既定のシステムでは、標準コントラストではチェックされた行を塗りません。そのため、操作していないメニューで塗られている行は、利用者が今いるページの行だけです。より強い手がかりを求める中コントラストと高コントラストでは、チェックされた行も塗ります。行自身の内容の色をメニューのサーフェスの上に薄く重ねた層で、ライトテーマでもダークテーマでも、ホバーした行より一段強く見えます。そのため、浮き上がったサーフェスの上でも、チェックされた行、ホバーした行、何もしていない行を見分けられます。メニューは、描いているスキームのトークンから塗りを読みます。コントラストのスキームごとに塗りを決めるのはデザインシステムです。サブメニューを開いている項目は、開いている間ホバーの塗りを保ち、いま使っている階層までの道筋を示します。塗られた行のように見えることはありません。
 
 グループのタイトルは、行の内容が始まる位置から始まります。メニューがチェックや先頭アイコンの列を描くときはその列の上から、どちらも描かないときはラベルの上からです。反対側の端からも同じ距離で終わり、折り返し、文字を大きくすると大きくなり、右から左のレイアウトでは反転します。
+
+<ColorRoleMap name="menu" fixture="icons-shortcut" headingLevel={3} />
+
+<ColorRoleMap name="menu" fixture="checkbox-checked" selected />
 
 <ComponentSpecs name="menu" />
 

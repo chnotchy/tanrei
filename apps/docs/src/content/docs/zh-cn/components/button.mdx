@@ -2,12 +2,13 @@
 title: "按钮"
 description: "让用户只需轻点或点击一次，就能执行一项操作、打开或关闭某个功能，或前往某个目标位置。"
 translationOf: components/button.mdx
-sourceHash: 36addf0eeb1ba6a6d96c2235a9545674ee54d61a
+sourceHash: a28f86892ca2dc8b29e976cfdf9760d548a6783b
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ColorRoleMap from '../../../../components/visuals/ColorRoleMap.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
 import Example from '../../../../components/visuals/Example.astro';
 import StateMatrix from '../../../../components/visuals/StateMatrix.astro';
@@ -366,6 +367,18 @@ narrow 按钮的宽度恰好等于图标加上两侧的留白，所以图标始�
 </Example>
 
 <StateMatrix name="button" />
+
+<ColorRoleMap name="button" variant="filled" headingLevel={3} />
+
+<ColorRoleMap name="button" variant="tonal" />
+
+<ColorRoleMap name="button" variant="elevated" />
+
+<ColorRoleMap name="button" variant="outlined" />
+
+<ColorRoleMap name="button" variant="text" />
+
+<ColorRoleMap name="button" variant="filled" destructive />
 
 <ComponentSpecs name="button" />
 

@@ -2,12 +2,13 @@
 title: タブ
 description: 同じ対象の複数のビューを、トラックの上に置いたラベル付きのタブの並びで切り替えます。選択中のタブは 1 つで、タブの間を滑り、並びの上をドラッグする指にも付いてくるインジケーターがそれを示します。
 translationOf: components/tabs.mdx
-sourceHash: 6143dc5e191f33f5fdbd7cf35556e4c219c660fd
+sourceHash: f3c062a570bfa55082e741b6c7b02a3063c81bc4
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ColorRoleMap from '../../../../components/visuals/ColorRoleMap.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
 import FocusOrder from '../../../../components/visuals/FocusOrder.astro';
 import Example from '../../../../components/visuals/Example.astro';
@@ -228,6 +229,8 @@ import Playground from '../../../../components/visuals/Playground.astro';
     <tanrei-tab value="imperial" label="ヤード・ポンド法"></tanrei-tab>
   </tanrei-tabs>
 </Example>
+
+<ColorRoleMap name="tabs" variant="primary" selected headingLevel={3} />
 
 <ComponentSpecs name="tabs" />
 

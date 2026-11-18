@@ -2,12 +2,13 @@
 title: قائمة الخيارات
 description: مجموعة قصيرة من الإجراءات أو الاختيارات على سطح مؤقت يُفتح من العنصر الذي طلبه.
 translationOf: components/menu.mdx
-sourceHash: 46ad6599db908950bf4f4a13b4a8757cae8b9f65
+sourceHash: 878b5542450efcd827234b2b5fbdcadb23a6cd79
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ColorRoleMap from '../../../../components/visuals/ColorRoleMap.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
 import Example from '../../../../components/visuals/Example.astro';
 import DoDont from '../../../../components/visuals/DoDont.astro';
@@ -388,6 +389,10 @@ import DoDont from '../../../../components/visuals/DoDont.astro';
 الصف المحدَّد يُعرَف بعلامته. في النظام الافتراضي لا يُعبَّأ عند التباين القياسي، فيكون الصف الوحيد المعبَّأ في قائمة خيارات ساكنة هو صف الصفحة التي فيها الشخص. وعند التباين المتوسط والعالي، حيث طلب الشخص إشارات أقوى، يُعبَّأ الصف المحدَّد أيضًا: طبقة من لون محتوى الصف نفسه فوق سطح قائمة الخيارات، أقوى بدرجة واحدة من الصف الذي عليه التحويم في السمة الفاتحة وفي الداكنة، فيُفرَّق على السطح المرتفع بين الصف المحدَّد والصف الذي عليه التحويم والصف الساكن. وقائمة الخيارات تقرأ التعبئة من رموزها في المخطط الذي تُرسم فيه؛ ونظام التصميم هو الذي يقررها لكل مخطط تباين. والعنصر الذي قائمته الفرعية مفتوحة يحتفظ بتعبئة التحويم ما دامت مفتوحة، وهذا يبيّن المسار إلى المستوى المستخدَم، ولا يبدو أبدًا صفًّا معبَّأً.
 
 يبدأ عنوان المجموعة حيث يبدأ محتوى الصفوف: فوق علامة الصح أو أيقونة البداية حين ترسم قائمة الخيارات هذين العمودين، وفوق التسميات حين لا ترسم أيًّا منهما. وينتهي على المسافة نفسها من الحافة الأخرى، ويلتف، ويكبر مع النص الأكبر، وينعكس في التخطيط من اليمين إلى اليسار.
+
+<ColorRoleMap name="menu" fixture="icons-shortcut" headingLevel={3} />
+
+<ColorRoleMap name="menu" fixture="checkbox-checked" selected />
 
 <ComponentSpecs name="menu" />
 

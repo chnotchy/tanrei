@@ -6,6 +6,7 @@ description: Lets people take an action, switch something on and off, or go to a
 import { Tabs, TabItem } from '../../../components/tabs';
 import ComponentAvailability from '../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../components/ComponentSpecs.astro';
+import ColorRoleMap from '../../../components/visuals/ColorRoleMap.astro';
 import ComponentAccessibility from '../../../components/ComponentAccessibility.astro';
 import Example from '../../../components/visuals/Example.astro';
 import StateMatrix from '../../../components/visuals/StateMatrix.astro';
@@ -364,6 +365,18 @@ When the same word is drawn on several buttons, such as "Remove" in every row of
 </Example>
 
 <StateMatrix name="button" />
+
+<ColorRoleMap name="button" variant="filled" headingLevel={3} />
+
+<ColorRoleMap name="button" variant="tonal" />
+
+<ColorRoleMap name="button" variant="elevated" />
+
+<ColorRoleMap name="button" variant="outlined" />
+
+<ColorRoleMap name="button" variant="text" />
+
+<ColorRoleMap name="button" variant="filled" destructive />
 
 <ComponentSpecs name="button" />
 
