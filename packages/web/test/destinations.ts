@@ -1,13 +1,14 @@
 // The tests every region of destinations whose item is `NavigationDestination` shares (a navigation bar, NVB-*): activation,
 // selection, the states and the press, focus, labels, icon, badge and semantics. Each component's
 // own test file calls `destinationSuite()` with the behaviour ids its spec gives each sentence — written out there, so
-// the parity check finds every id in that file — and tests what only it has (its layout, its insets) itself.
+// the parity check finds every id in that file — and tests what only it has (its layout, its insets, how its selection
+// moves) itself.
 import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
 import { type Fixture, type FixtureItem, type Spec, acmeSystemCss, mountFixtures, resolveColor, resolveToken, tab, tabTo, rootTokens } from './harness.js';
 import { pressHoldAsRun } from './harsh.js';
 import { opticalSize } from './icons.js';
-import { HOLD_NOW, motionEnded } from './motions.js';
+import { motionEnded } from './motions.js';
 import { expectBaseline } from './baseline.js';
 
 type P = Page;
@@ -25,7 +26,6 @@ export interface DestinationIds {
   cornersAndFocusStyle: string;
   labels: string;
   icon: string;
-  selection: string;
   badge: string;
   count: string;
   semantics: string;
@@ -43,11 +43,6 @@ export interface DestinationSuiteOptions {
   lines: 1;
   /** How many destinations the region is made for. */
   range: readonly [number, number];
-  /**
-   * The shared sentences the component's spec words its own way, which its own test file tests instead: a bar's indicator
-   * slides rather than grows (NVB-15).
-   */
-  own?: readonly 'selection'[];
 }
 
 export const destination = (value: string, label: string, icon: string, props: FixtureItem['props'] = {}): FixtureItem => ({ kind: 'destination', props: { value, label, icon, ...props } });
@@ -70,9 +65,8 @@ export const bounds = async (locator: Locator) => (await locator.boundingBox())!
 
 const token = (page: P, name: string) => page.evaluate((n) => getComputedStyle(document.documentElement).getPropertyValue(n).trim(), name);
 
-export function destinationSuite({ spec, tag, itemTag, ids, lines, range, own = [] }: DestinationSuiteOptions) {
+export function destinationSuite({ spec, tag, itemTag, ids, lines, range }: DestinationSuiteOptions) {
   const prefix = `--tanrei-comp-${spec.name}`;
-  const shared = (sentence: 'selection') => (own.includes(sentence) ? test.skip : test);
   const T = (name: string) => `${prefix}-${name}`;
   const region = (page: P, id: string) => page.locator(`[data-fixture="${id}"] ${tag}`);
   const item = (page: P, id: string, n: number) => region(page, id).locator(itemTag).nth(n);
@@ -484,100 +478,6 @@ export function destinationSuite({ spec, tag, itemTag, ids, lines, range, own = 
         else expect(g.settings).toContain(`"opsz" ${opsz}`);
         expect(g.optical).toBe('auto');
       }
-    });
-
-    shared('selection')(`${ids.selection}: a new selection grows its indicator in width from the centre at full height, fades the old one and recolors over the selection motion; at once where motion is reduced`, async ({ page }) => {
-      await mount(page, [...spec.fixtures.filter((f) => f.id === 'four-destinations' || f.id === 'labels-selected')]);
-      const duration = await resolveToken(page, T('motion-selection-duration'), 'duration');
-      expect(duration).toBeGreaterThan(0);
-      await override(page, { [T('motion-selection-duration')]: '2000ms' });
-      const [wasSelected, unselected] = [await resolveColor(page, T('selected-item-container-color')), await resolveColor(page, T('unselected-item-container-color'))];
-      const [iconFrom, iconTo] = [await resolveColor(page, T('unselected-item-icon-color')), await resolveColor(page, T('selected-item-icon-color'))];
-      // Selected by value (a press recolors at once: the pressed state arrives without a transition). What the change
-      // starts is read in the task that makes it, and the fade and the recolor half-way through on each one's own timeline
-      // (paused, set, read, put back) — not after a wall-clock wait, which a busy renderer can outlast: CI read the end
-      // value of a 2 s fade "500 ms" in.
-      const seen = await region(page, 'four-destinations').evaluate(async (el: any, [itemTag, holdNow]) => {
-        el.value = 'starred';
-        await el.updateComplete;
-        const items = [...el.querySelectorAll(itemTag)] as any[];
-        await Promise.all(items.map((each) => each.updateComplete));
-        const part = (n: number, selector: string) => items[n].shadowRoot.querySelector(selector) as HTMLElement;
-        const indicator = part(2, '.indicator');
-        const a = indicator.getAnimations().find((each) => (each as Animation).id === 'tanrei-destination-grow');
-        const box = indicator.getBoundingClientRect();
-        const host = indicator.parentElement!.getBoundingClientRect();
-        const grow = a ? { duration: a.effect!.getTiming().duration, frames: (a.effect as KeyframeEffect).getKeyframes().map((k) => k.insetInline), width: box.width < host.width, height: box.height === host.height, centred: Math.abs(box.x + box.width / 2 - (host.x + host.width / 2)) < 0.5 } : null;
-        /**
-         * The one transition of `property` (a color) on `on`, drawn half-way through its own motion: every animation of the
-         * part is held (`HOLD_NOW`) and set, on its own timeline, to the moment the drawn color is half-way from where it
-         * starts to where it ends (found by bisection — an engine may put the easing on the effect or on its keyframes,
-         * and a spring's curve is nearly done at half its duration), read there, and put back. Each one runs when it is
-         * held (`held`), so each is played again.
-         */
-        const halfway = (on: HTMLElement, property: string): { found: number; duration?: number; value?: string; held?: boolean } => {
-          const all = on.getAnimations();
-          const running = all.filter((each) => (each as CSSTransition).transitionProperty === property);
-          if (running.length !== 1) return { found: running.length };
-          ((window as any).selectionMotion ??= []).push({ on, transition: running[0] });
-          const duration = Number(running[0].effect!.getTiming().duration);
-          const held = all.every((each) => each.playState === 'running');
-          const resume = ((0, eval)(holdNow) as (motions: Animation[]) => () => void)(all);
-          const drawn = (time: number) => {
-            for (const each of all) {
-              each.pause();
-              each.currentTime = time;
-            }
-            const [r, g, b, alpha = 1] = (getComputedStyle(on).getPropertyValue(property).match(/[\d.]+/g) ?? []).map(Number);
-            return [r, g, b, alpha * 255];
-          };
-          const [from, to] = [drawn(0), drawn(duration)];
-          const channel = [0, 1, 2, 3].reduce((best, c) => (Math.abs(to[c] - from[c]) > Math.abs(to[best] - from[best]) ? c : best), 0);
-          const done = (time: number) => (drawn(time)[channel] - from[channel]) / (to[channel] - from[channel]);
-          let [early, late] = [0, duration];
-          for (let step = 0; step < 24; step++) {
-            const time = (early + late) / 2;
-            if (done(time) < 0.5) early = time;
-            else late = time;
-          }
-          drawn(late);
-          const value = getComputedStyle(on).getPropertyValue(property);
-          resume();
-          return { found: 1, duration, value, held };
-        };
-        return { grow, fade: halfway(part(0, '.indicator'), 'background-color'), recolor: halfway(part(2, '.icon'), 'color') };
-      }, [itemTag, HOLD_NOW] as const);
-      expect(seen.grow).toEqual({ duration: 2000, frames: ['50%', '0px'], width: true, height: true, centred: true });
-      // The previous indicator fades and the new icon recolors over the selection motion (not the state motion): half-way
-      // through, they are neither color.
-      expect(seen.fade, 'the previous indicator fades').toMatchObject({ found: 1, duration: 2000, held: true });
-      expect([wasSelected, unselected]).not.toContain(seen.fade.value);
-      expect(seen.recolor, 'the new icon recolors').toMatchObject({ found: 1, duration: 2000, held: true });
-      expect([iconFrom, iconTo]).not.toContain(seen.recolor.value);
-      // They keep that motion when the mark of the change comes off (two frames on, markConditionChange): each is still the
-      // transition it started as — not one restarted over the state motion.
-      const kept = await page.evaluate(async () => {
-        const frame = () => new Promise((r) => requestAnimationFrame(r));
-        for (let n = 0; n < 3; n++) await frame();
-        return ((window as any).selectionMotion as { on: HTMLElement; transition: Animation }[]).map(({ on, transition }) => {
-          const now = on.getAnimations().filter((each) => (each as CSSTransition).transitionProperty === (transition as CSSTransition).transitionProperty);
-          return now.length === 0 ? transition.playState === 'finished' : now.length === 1 && now[0] === transition;
-        });
-      });
-      expect(kept, 'the fade and the recolor run on over the selection motion').toEqual([true, true]);
-      const old = item(page, 'four-destinations', 0);
-      await expect.poll(() => css(old.locator('.indicator'), 'background-color'), { timeout: 4000 }).toBe(unselected);
-      // After the change, the parts recolor over the state motion again.
-      expect(await css(old.locator('.indicator'), 'transition-duration')).toBe(`${(await resolveToken(page, T('motion-state-duration'), 'duration')) / 1000}s`);
-      // Labels shown only for the selected destination move over the same motion.
-      expect(await css(item(page, 'labels-selected', 0).locator('.label-box'), 'transition-duration')).toContain('2s');
-      // Reduced motion: at once.
-      await page.emulateMedia({ reducedMotion: 'reduce' });
-      await region(page, 'four-destinations').evaluate((el: any) => (el.value = 'settings'));
-      expect(await item(page, 'four-destinations', 3).locator('.indicator').evaluate((el) => el.getAnimations().length)).toBe(0);
-      expect(await css(item(page, 'four-destinations', 2).locator('.indicator'), 'transition-duration')).toBe('0s');
-      expect(await css(item(page, 'labels-selected', 0).locator('.label-box'), 'transition-duration')).toBe('0s');
-      expect(await css(item(page, 'four-destinations', 3).locator('.indicator'), 'background-color')).toBe(await resolveColor(page, T('selected-item-container-color')));
     });
 
     test(`${ids.badge}: a badge is the badge component on the icon, from badgeCount and badgeLabel; it stays while disabled, and its text is the destination's description`, async ({ page }) => {
