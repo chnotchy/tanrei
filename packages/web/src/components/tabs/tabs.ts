@@ -7,6 +7,8 @@ import {
   DIRECTION_PROBE,
   DirectionController,
   GlyphMirrorController,
+  MirrorWordController,
+  hearsMirrorWord,
   OpenAxesController,
   PressController,
   type PressedBy,
@@ -38,7 +40,6 @@ import {
   syncFocusStyle,
 } from '../../primitives/index.js';
 import type { TanreiTabsSizeRegistry, TanreiTabsVariantRegistry } from '../../registry.js';
-import { MIRROR } from '../../styles/icons.js';
 import { ownDirection } from '../../styles/product-text.js';
 import { TanreiTooltip } from '../tooltip/tooltip.js';
 import { AXES, ICON_PLACEMENT, INLINE_VARIANTS, ORIENTATIONS, TRACK_CHOICE, TRACK_PROPERTY, TRANSITION_CHOICE, TRANSITION_PROPERTY, TRANSITION_VALUES, panelStyles, tabStyles, tabsStyles } from './tabs.styles.js';
@@ -329,17 +330,6 @@ export class TanreiTab extends TanreiElement {
   /** The name of a glyph of the system's icon set. Give every tab of a row an icon, or none. A glyph the icon set flags as showing a direction (`arrow_forward`, `send`) is drawn mirrored in a right-to-left layout; `data-mirror="auto | always | never"` on the tab decides for this use. */
   icon = '';
 
-  // TAB-32: the product's word on mirroring the tab's glyph is `data-mirror` on the tab, as on any element that holds a
-  // glyph; the tab draws the glyph itself, so it gives that word to both of its boxes.
-  static override get observedAttributes(): string[] {
-    return [...super.observedAttributes, MIRROR];
-  }
-
-  override attributeChangedCallback(name: string, old: string | null, value: string | null) {
-    super.attributeChangedCallback(name, old, value);
-    if (name === MIRROR && old !== value) this.requestUpdate();
-  }
-
   /** Draws the icon alone and keeps `label` as the accessible name (an icon-only tab). */
   labelHidden = false;
 
@@ -364,6 +354,8 @@ export class TanreiTab extends TanreiElement {
    * right-to-left (src/primitives/glyph-mirror.ts); `iconGlyph()` draws the mark.
    */
   private readonly mirror = new GlyphMirrorController(this, { drawn: '.icon' });
+  /** TAB-32: the product's word on mirroring the tab's glyph, `data-mirror` on the tab, given to both of its boxes. */
+  private readonly mirrorWord = new MirrorWordController(this);
 
   /** TAB-8 / TAB-9: the pressed state, press-hold and the answer the system chooses (src/primitives/press.ts). */
   private readonly press = new PressController(this, {
@@ -740,8 +732,7 @@ export class TanreiTab extends TanreiElement {
     const placement = styleQueries() ? null : compChoice(this, '--_size-icon-placement', ICON_PLACEMENT);
     const label = this.drawsLabel;
     const icon = !!this.icon;
-    const mirroring = this.getAttribute(MIRROR) ?? nothing;
-    const glyph = (named: boolean) => (icon ? html`<span part=${named ? 'icon' : nothing} class="icon" aria-hidden="true" data-mirror=${mirroring}>${this.icon}</span>` : nothing);
+    const glyph = (named: boolean) => (icon ? html`<span part=${named ? 'icon' : nothing} class="icon" aria-hidden="true" data-mirror=${this.mirrorWord.word}>${this.icon}</span>` : nothing);
     // TAB-33, TAB-21: the box that cuts the label has the label's own direction, so it is cut at its own end in every engine.
     // TAB-16, TAB-50: the label keeps the width it needs at the selected weight (the copy its ::after draws, unseen).
     const text = (named: boolean) => (label ? html`<span part=${named ? 'label' : nothing} class="label" dir=${ownDirection(this.label)} data-label=${this.label}><span class="text">${this.label}</span></span>` : nothing);
@@ -2692,6 +2683,7 @@ if (!customElements.get('tanrei-tooltip')) customElements.define('tanrei-tooltip
 // TAB-22, TAB-62: a tab's host is the tab itself and keeps what is written on it, but for a name of the product's while
 // its label names it, which is held until label is empty (src/primitives/delegated-aria.ts).
 holdsProductName(TanreiTab);
+hearsMirrorWord(TanreiTab);
 if (!customElements.get('tanrei-tab')) customElements.define('tanrei-tab', TanreiTab);
 if (!customElements.get('tanrei-tab-panel')) customElements.define('tanrei-tab-panel', TanreiTabPanel);
 // The product's ARIA on the row's host is its tab list's (src/primitives/delegated-aria.ts).

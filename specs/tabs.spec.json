@@ -3625,7 +3625,7 @@
             "labelHidden": "labelHidden",
             "disabled": "disabled"
           },
-          "notes": "A child element: `<tanrei-tab value=\"overview\" label=\"Overview\" icon=\"dashboard\">`, with `label-hidden` and `disabled` attributes, as `<option>` in a `<select>`."
+          "notes": "A child element: `<tanrei-tab value=\"overview\" label=\"Overview\" icon=\"dashboard\">`, with `label-hidden` and `disabled` attributes, as `<option>` in a `<select>`. `data-mirror` (`auto`, the default; `always`; `never`) on a `<tanrei-tab>` is the product's word on mirroring the icon it names, in both of its copies (TAB-32), as on a glyph the product places itself."
         }
       },
       "parts": {
