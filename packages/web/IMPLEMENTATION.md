@@ -984,6 +984,7 @@ How far a task has come, as a bar or a ring; indeterminate when that is unknown 
 | `min`, `max` | number | `0`, `1` | a value outside is drawn and exposed clamped; `max` not above `min` draws the track only (PRG-11) |
 | `label` | string | `""` | the accessible name, required (PRG-15) |
 | `valueText` / `value-text` | string | `""` | read instead of the percentage |
+| `showDelay` / `show-delay` | number (ms) \| null | `null` | the wait from insertion before it is drawn and exposed; null takes `motion.show-delay` (the show-delay role, as the loading indicator's), 0 is at once |
 
 **The bar** fills the inline size its layout gives it (block flow, a flex column, a grid), from the inline-start (the
 right in RTL). Its track and indicator are rounded by `track.shape`, which the browser clamps to half the thickness.
@@ -1007,7 +1008,18 @@ and indeterminate is a new drawing, at once. Under `prefers-reduced-motion: redu
 indeterminate form stands still: the indicator over the whole track, its opacity pulsing 1 → 0 → 1 once per cycle. Off
 screen (an IntersectionObserver) the animation is paused.
 
-**Semantics.** The host is the progressbar: `role`, `aria-label`, and — determinate — `aria-valuemin`, `-max`, `-now`
+**Show delay.** Insert it when the task starts and remove it when the task ends. As the loading indicator does, it waits
+from its insertion (`connectedCallback`, cancelled when it is removed) before it is drawn and exposed, so a task shorter
+than the delay shows nothing; moving it within the document starts a new delay, hiding it (`hidden`, CSS, scrolling)
+neither restarts nor pauses it, and reduced motion keeps it (PRG-22, PRG-23). During the delay the host keeps its box,
+its drawing is `visibility: hidden`, nothing runs (no cycle, no value transition), and it carries no `role`, name, range
+or busy state and is `aria-hidden="true"` (PRG-19). When it ends the indicator is shown at once, with no entrance: a new
+drawing of the value it has then, and an indeterminate cycle from its beginning (PRG-20). A delay that is empty,
+negative or not a finite number takes the token and is reported (PRG-21); a change of `showDelay` applies from the next
+insertion. The delay is `ShowDelay` (`src/primitives/show-delay.ts`), shared with the loading indicator. A component that
+draws its progress whenever it is there (the file item's bar) sets `show-delay="0"`.
+
+**Semantics.** Once shown, the host is the progressbar: `role`, `aria-label`, and — determinate — `aria-valuemin`, `-max`, `-now`
 (clamped) and `aria-valuetext`; indeterminate, `aria-busy="true"` and no value. Never focusable, never a live region.
 A size the active system lacks draws medium, a variant the component does not define draws linear and a separation it
 does not define is `auto`; each is reported (PRG-12). Parts: `track`, `indicator`, `stop-indicator`.

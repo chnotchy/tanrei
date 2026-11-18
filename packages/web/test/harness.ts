@@ -1210,8 +1210,11 @@ const STAGING: Record<string, Staging> = {
       ...(dismissible === false ? { closedby: 'none' } : {}),
     }),
   },
+  // A progress indicator's fixture is the shown indicator from its first frame: no show delay (PRG-19's verify). A
+  // test's own fixture may name one.
   'progress-indicator': {
     css: () => `[data-fixture^='linear'] { inline-size: 160px; }`,
+    props: (props) => ({ showDelay: 0, ...props }),
   },
   // A bar fills its layout's width: the progress indicator's 160-wide stage, so the two draw alike side by side.
   // A marquee text is as wide as its place (MRQ-1): its stage gives it 240 in the body text style and color, which the

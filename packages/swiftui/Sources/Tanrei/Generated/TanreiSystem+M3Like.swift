@@ -7076,6 +7076,7 @@ private let m3LikeProgressIndicatorTokens = TanreiProgressIndicatorTokens(
   indicatorColor: .role(.primary),
   motionCycleDuration: 1750,
   motionCycleEasing: TanreiCubicBezier(0.2, 0, 0, 1),
+  motionShowDelay: 300,
   motionValueDuration: 300,
   motionValueEasing: TanreiCubicBezier(0.2, 0, 0, 1),
   stopIndicatorSize: 4,

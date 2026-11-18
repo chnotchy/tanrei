@@ -71451,6 +71451,14 @@
             ],
             "$description": "How the bar's indeterminate segment and the reduced-motion pulse move through a cycle. The ring always turns at constant speed."
           },
+          "show-delay": {
+            "$type": "duration",
+            "$value": {
+              "value": 300,
+              "unit": "ms"
+            },
+            "$description": "How long the indicator waits, from the moment it is inserted, before it is drawn and exposed to assistive technology, so that a task shorter than this shows nothing instead of a bar that flashes. Its box is kept during the wait."
+          },
           "value-duration": {
             "$type": "duration",
             "$value": {
@@ -106752,7 +106760,7 @@
               "value": 300,
               "unit": "ms"
             },
-            "$description": "How long a loading indicator or a skeleton waits before it appears, so that a short wait shows nothing at all."
+            "$description": "How long a loading indicator, a progress indicator or a skeleton waits before it appears, so that a short wait shows nothing at all."
           },
           "state": {
             "compact": {

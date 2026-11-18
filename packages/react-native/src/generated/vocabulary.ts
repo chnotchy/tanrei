@@ -4039,6 +4039,7 @@ export interface TanreiProgressIndicatorTokens {
   readonly indicatorColor: TanreiPaint;
   readonly motionCycleDuration: number;
   readonly motionCycleEasing: TanreiCubicBezier;
+  readonly motionShowDelay: number;
   readonly motionValueDuration: number;
   readonly motionValueEasing: TanreiCubicBezier;
   readonly stopIndicatorSize: number;

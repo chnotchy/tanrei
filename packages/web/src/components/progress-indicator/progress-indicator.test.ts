@@ -1,6 +1,7 @@
 // <tanrei-progress-indicator>, driven by specs/progress-indicator.spec.json: a test's title cites each behaviour
 // id it checks, every fixture has a baseline, and every length, color, duration and easing is read back from the tokens —
-// never from a number written here.
+// never from a number written here, except the per-instance delays a test gives the element itself. Fixtures are
+// rendered with no show delay (PRG-19's verify), so their first frame is the shown indicator.
 // PRG-18: the product's ARIA on the host is tested with every other host's, in every engine, in
 // src/primitives/delegated-aria.test.ts.
 import AxeBuilder from '@axe-core/playwright';
@@ -684,6 +685,322 @@ test.describe('behavior', () => {
     expect(seen.find((w) => w.includes('PRG-15'))).toMatch(/<tanrei-progress-indicator>: label is empty/);
     await host(page, 'linear-nameless').evaluate((el) => ((el as any).label = 'Saving'));
     await expect(host(page, 'linear-nameless')).toHaveAccessibleName('Saving');
+  });
+});
+
+/**
+ * An empty page whose timers (`setTimeout`) hold still until the test moves them with `page.clock.runFor()`; CSS
+ * animations and transitions keep the document's own timeline. Every time an indicator's `role`, `aria-label`,
+ * `aria-busy` or `aria-valuenow` is set it is logged (`window.exposed`), so a test can say it never was.
+ */
+async function blank(page: P) {
+  await mountFixtures(page, spec, { fixtures: [], reducedMotion: false });
+  await page.clock.install({ time: 0 });
+  await page.clock.pauseAt(1000);
+  await page.evaluate(() => {
+    const seen: string[] = ((window as any).exposed = []);
+    new MutationObserver((records) => {
+      for (const r of records) if (r.oldValue === null) seen.push(`${(r.target as Element).id}:${r.attributeName}`);
+    }).observe(document.body, { subtree: true, attributes: true, attributeOldValue: true, attributeFilter: ['role', 'aria-label', 'aria-busy', 'aria-valuenow'] });
+  });
+}
+/** The show delay a progress indicator takes when it is given none (PRG-21). */
+const SHOW_DELAY = T('motion-show-delay');
+const reduceMotion = (page: P, reduce = true) => page.emulateMedia({ reducedMotion: reduce ? 'reduce' : 'no-preference' });
+const exposed = (page: P) => page.evaluate(() => (window as any).exposed as string[]);
+/** Inserts a labelled indicator into `into`, and says what it exposes as it is inserted, before any frame. */
+const insert = (page: P, id: string, attributes: Record<string, string> = {}, into = 'main') =>
+  page.evaluate(
+    ([id, attributes, into]) => {
+      const el = document.createElement('tanrei-progress-indicator');
+      el.id = id;
+      el.setAttribute('label', 'Uploading');
+      for (const [name, value] of Object.entries(attributes)) el.setAttribute(name, value);
+      document.querySelector(into)!.append(el);
+      return { role: el.getAttribute('role'), hidden: el.getAttribute('aria-hidden') };
+    },
+    [id, attributes, into] as const,
+  );
+const byId = (page: P, id: string) => page.locator(`#${id}`);
+/**
+ * What an indicator exposes, whether its drawing (the bar or the ring), its indicator and its track are drawn, and what
+ * runs in it: a CSS animation by its name, a transition by the property it moves.
+ */
+const state = (page: P, id: string) =>
+  byId(page, id).evaluate((el) => {
+    const root = el.shadowRoot!;
+    return {
+      role: el.getAttribute('role'),
+      label: el.getAttribute('aria-label'),
+      busy: el.getAttribute('aria-busy'),
+      now: el.getAttribute('aria-valuenow'),
+      hidden: el.getAttribute('aria-hidden'),
+      drawn: ['.bar, .ring', '.indicator', '.track'].map((s) => getComputedStyle(root.querySelector(s)!).visibility),
+      running: root.getAnimations().map((a) => (a instanceof CSSAnimation ? a.animationName : a instanceof CSSTransition ? `transition ${a.transitionProperty}` : a.id)).sort(),
+    };
+  });
+const WAITING = { role: null, label: null, busy: null, now: null, hidden: 'true', drawn: ['hidden', 'hidden', 'hidden'], running: [] };
+const exposure = async (page: P, id: string) => {
+  const { role, label, busy, now, hidden } = await state(page, id);
+  return { role, label, busy, now, hidden };
+};
+const WAITING_EXPOSURE = { role: null, label: null, busy: null, now: null, hidden: 'true' };
+/** Shown: determinate with the value it has (`now`), or indeterminate (busy). */
+const SHOWN = (now: string | null = '0.4') => ({ role: 'progressbar', label: 'Uploading', busy: now === null ? 'true' : null, now, hidden: null });
+/** The share of the track the indicator covers, as drawn. */
+const drawnShare = (page: P, id: string) =>
+  byId(page, id).evaluate((el) => {
+    const root = el.shadowRoot!;
+    return root.querySelector('.indicator')!.getBoundingClientRect().width / root.querySelector('.bar')!.getBoundingClientRect().width;
+  });
+
+/**
+ * Watches an inserted indicator for the moment it is shown, and looks at its drawing in that same task, once it has
+ * rendered — before any frame can pass: what runs in it (each animation's name, current time and progress through its
+ * cycle, and each transition's property). A start time is no measure of when an animation began: an engine sets it to
+ * the time of a frame, so it is the current time, at the moment of showing, that says the cycle starts at its beginning.
+ */
+const watchStart = (page: P, id: string) =>
+  byId(page, id).evaluate((el) => {
+    new MutationObserver((_, observer) => {
+      if (el.getAttribute('role') !== 'progressbar') return;
+      observer.disconnect();
+      void (el as any).updateComplete.then(() => {
+        const running = el.shadowRoot!.getAnimations();
+        const animations = running.filter((a) => a instanceof CSSAnimation).map((a) => ({ name: (a as CSSAnimation).animationName, time: a.currentTime, progress: a.effect!.getComputedTiming().progress }));
+        const transitions = running.filter((a) => a instanceof CSSTransition).map((a) => (a as CSSTransition).transitionProperty);
+        (window as any).starts = { ...(window as any).starts, [el.id]: { animations, transitions } };
+      });
+    }).observe(el, { attributes: true, attributeFilter: ['role'] });
+  });
+/** What `watchStart` saw as the indicator was shown. */
+const started = (page: P, id: string) =>
+  page.evaluate((id) => ((window as any).starts?.[id] ?? null) as { animations: { name: string; time: number | null; progress: number | null }[]; transitions: string[] } | null, id);
+
+test.describe('show delay', () => {
+  test('PRG-19: from its insertion it waits its show delay with its box kept, drawing, running and exposing nothing; a show delay of 0 shows it as it is inserted', async ({ page }) => {
+    await blank(page);
+    const delay = await resolveToken(page, SHOW_DELAY, 'duration');
+    expect(delay).toBeGreaterThan(0);
+    expect(await insert(page, 'bar', { value: '0.4' })).toEqual({ role: null, hidden: 'true' });
+    expect(await insert(page, 'ring', { value: '0.4', variant: 'circular', size: 'large' })).toEqual({ role: null, hidden: 'true' });
+    expect(await insert(page, 'busy')).toEqual({ role: null, hidden: 'true' });
+    expect(await insert(page, 'turning', { variant: 'circular' })).toEqual({ role: null, hidden: 'true' });
+    for (const id of ['bar', 'ring', 'busy', 'turning']) expect(await state(page, id), id).toEqual(WAITING);
+    await expect(page.getByRole('progressbar')).toHaveCount(0);
+    // The box it takes when shown (PRG-3), compared again once it is shown.
+    const thickness = await resolveToken(page, T('linear-thickness-medium'));
+    const ring = await resolveToken(page, T('circular-size-large'));
+    const boxes = async () => Promise.all(['bar', 'ring', 'busy'].map((id) => box(byId(page, id))));
+    const waiting = await boxes();
+    expect(waiting.map(({ height }) => height)).toEqual([thickness, ring, thickness]);
+    expect(waiting[1].width).toBe(ring);
+    expect(waiting[0].width).toBeGreaterThan(ring);
+    // Nothing painted — no track, no indicator: the page's surface in each box.
+    const surface = await resolveColor(page, '--tanrei-sys-color-surface');
+    for (const [n, id] of ['bar', 'ring', 'busy'].entries()) {
+      const shot = decodePng(await page.screenshot({ clip: waiting[n] }));
+      const painted = new Set<string>();
+      for (let y = 0; y < shot.height; y++) for (let x = 0; x < shot.width; x++) painted.add(shot.at(x, y));
+      expect([...painted], id).toEqual([surface]);
+    }
+
+    await page.clock.runFor(delay - 1);
+    for (const id of ['bar', 'ring', 'busy', 'turning']) expect(await state(page, id), id).toEqual(WAITING);
+    await page.clock.runFor(1);
+    for (const id of ['bar', 'ring']) expect(await exposure(page, id), id).toEqual(SHOWN());
+    for (const id of ['busy', 'turning']) expect(await exposure(page, id), id).toEqual(SHOWN(null));
+    for (const id of ['bar', 'ring', 'busy']) expect((await state(page, id)).drawn, id).toEqual(['visible', 'visible', 'visible']);
+    expect(await boxes()).toEqual(waiting);
+
+    // 0: shown, and exposed, as it is inserted.
+    expect(await insert(page, 'at-once', { 'show-delay': '0', value: '0.4' })).toEqual({ role: 'progressbar', hidden: null });
+    expect((await state(page, 'at-once')).drawn).toEqual(['visible', 'visible', 'visible']);
+  });
+
+  test('PRG-20: when its delay ends it is shown at once and exposed as PRG-8 or PRG-9 says, without announcing itself; a value changed during the delay is drawn at once, and an indeterminate cycle starts at its beginning', async ({ page }) => {
+    await blank(page);
+    const delay = await resolveToken(page, SHOW_DELAY, 'duration');
+    // A value that changes during the delay runs no transition while it waits, and is not moved to when it is shown.
+    await insert(page, 'moved', { value: '0.2' });
+    await watchStart(page, 'moved');
+    await page.clock.runFor(delay / 2);
+    await byId(page, 'moved').evaluate(async (el: any) => { el.value = 0.7; await el.updateComplete; });
+    expect(await state(page, 'moved')).toEqual(WAITING);
+    await page.clock.runFor(delay / 2);
+    expect(await exposure(page, 'moved')).toEqual(SHOWN('0.7'));
+    expect(await started(page, 'moved')).toEqual({ animations: [], transitions: [] });
+    expect(await drawnShare(page, 'moved')).toBeCloseTo(0.7, 2);
+    await expect(page.getByRole('progressbar', { name: 'Uploading' })).toHaveCount(1);
+    for (const name of ['aria-live', 'tabindex']) await expect(byId(page, 'moved'), name).not.toHaveAttribute(name);
+    // Shown, a value change moves as PRG-6 says.
+    await byId(page, 'moved').evaluate(async (el: any) => { el.value = 0.9; await el.updateComplete; });
+    // (An engine names the transition by the physical property the logical one maps to.)
+    expect((await state(page, 'moved')).running.some((name) => name.startsWith('transition '))).toBe(true);
+
+    // Indeterminate: nothing runs to the delay's last millisecond, and the cycle begins as it is shown — in the task that
+    // shows it, the motion is new, at 0 ms and no way into its cycle.
+    await insert(page, 'bar');
+    await insert(page, 'ring', { variant: 'circular' });
+    for (const id of ['bar', 'ring']) await watchStart(page, id);
+    await page.clock.runFor(delay - 1);
+    for (const id of ['bar', 'ring']) expect(await state(page, id), id).toEqual(WAITING);
+    await page.clock.runFor(1);
+    for (const id of ['bar', 'ring']) expect(await exposure(page, id), id).toEqual(SHOWN(null));
+    expect(await started(page, 'bar')).toEqual({ animations: [{ name: 'bar-cross', time: 0, progress: 0 }], transitions: [] });
+    expect(await started(page, 'ring')).toEqual({ animations: [{ name: 'ring-turn', time: 0, progress: 0 }], transitions: [] });
+    // The reduced-motion pulse likewise starts at the beginning of its cycle.
+    await reduceMotion(page);
+    await insert(page, 'pulsing');
+    await watchStart(page, 'pulsing');
+    await page.clock.runFor(delay - 1);
+    expect(await state(page, 'pulsing')).toEqual(WAITING);
+    await page.clock.runFor(1);
+    expect(await started(page, 'pulsing')).toEqual({ animations: [{ name: 'pulse', time: 0, progress: 0 }], transitions: [] });
+  });
+
+  test('PRG-21: showDelay in milliseconds as given; null takes motion.show-delay, which follows the show-delay role; a negative, non-finite or empty value takes the token and is reported', async ({ page }) => {
+    await blank(page);
+    const seen = warnings(page);
+    const delay = await resolveToken(page, SHOW_DELAY, 'duration');
+    // The component's own token, which aliases the role the loading indicator's follows too.
+    expect(delay).toBe(await resolveToken(page, '--tanrei-sys-motion-role-show-delay', 'duration'));
+
+    // As given.
+    await insert(page, 'longer', { 'show-delay': String(delay + 500), value: '0.4' });
+    await page.clock.runFor(delay + 499);
+    expect(await exposure(page, 'longer')).toEqual(WAITING_EXPOSURE);
+    await page.clock.runFor(1);
+    expect(await exposure(page, 'longer')).toEqual(SHOWN());
+    await expect(byId(page, 'longer')).toHaveJSProperty('showDelay', delay + 500);
+
+    // The token is read as it resolves: a system that sets it apart is followed, and the loading indicator's is not read.
+    await rootTokens(page, { [SHOW_DELAY]: `${delay + 200}ms`, '--tanrei-comp-loading-indicator-motion-show-delay': '0ms' });
+    await insert(page, 'system', { value: '0.4' });
+    await page.clock.runFor(delay + 199);
+    expect(await exposure(page, 'system')).toEqual(WAITING_EXPOSURE);
+    await page.clock.runFor(1);
+    expect(await exposure(page, 'system')).toEqual(SHOWN());
+    await rootTokens(page, { [SHOW_DELAY]: '', '--tanrei-comp-loading-indicator-motion-show-delay': '' });
+
+    // Null (the property's default, or set) takes the token.
+    await page.evaluate(() => {
+      const el = document.createElement('tanrei-progress-indicator') as any;
+      Object.assign(el, { id: 'nulls', label: 'Uploading', value: 0.4, showDelay: null });
+      document.querySelector('main')!.append(el);
+    });
+    // Values it cannot use take the token too.
+    const invalid = { empty: { 'show-delay': '' }, negative: { 'show-delay': '-5' }, word: { 'show-delay': 'soon' }, nan: { 'show-delay': 'NaN' }, endless: { 'show-delay': 'Infinity' } };
+    for (const [id, attributes] of Object.entries(invalid)) await insert(page, id, { ...attributes, value: '0.4' });
+    const ids = ['nulls', ...Object.keys(invalid)];
+    await page.clock.runFor(delay - 1);
+    for (const id of ids) expect(await exposure(page, id), id).toEqual(WAITING_EXPOSURE);
+    await page.clock.runFor(1);
+    for (const id of ids) expect(await exposure(page, id), id).toEqual(SHOWN());
+    const reports = seen.filter((w) => w.includes('PRG-21'));
+    for (const value of ['showDelay ""', 'showDelay -5', 'showDelay "soon"', 'showDelay "NaN"', 'showDelay Infinity']) {
+      expect(reports.some((w) => w.includes(`: ${value} is not`)), value).toBe(true);
+    }
+    expect(reports).toHaveLength(5);
+  });
+
+  test('PRG-22: the delay is a wait, not motion — kept under reduced motion, and counted while the indicator cannot be seen', async ({ page }) => {
+    await blank(page);
+    await reduceMotion(page);
+    const delay = await resolveToken(page, SHOW_DELAY, 'duration');
+    await insert(page, 'reduced', { value: '0.4' });
+    await page.clock.runFor(delay - 1);
+    expect(await state(page, 'reduced')).toEqual(WAITING);
+    await page.clock.runFor(1);
+    expect(await exposure(page, 'reduced')).toEqual(SHOWN());
+    await reduceMotion(page, false);
+    await page.evaluate(() => document.querySelector('main')!.insertAdjacentHTML('beforeend', '<div id="closed" hidden></div><div style="block-size: 300vh"></div><div id="far"></div>'));
+    await insert(page, 'in-hidden', { value: '0.4' }, '#closed');
+    await insert(page, 'off-screen', { value: '0.4' }, '#far');
+    await insert(page, 'self-hidden', { value: '0.4' });
+    await byId(page, 'self-hidden').evaluate((el) => ((el as HTMLElement).hidden = true));
+    await page.clock.runFor(delay);
+    for (const id of ['in-hidden', 'off-screen', 'self-hidden']) expect(await exposure(page, id), id).toEqual(SHOWN());
+    // Seen again, it is simply there: no second wait.
+    await page.evaluate(() => { document.getElementById('closed')!.hidden = false; document.getElementById('self-hidden')!.hidden = false; });
+    for (const id of ['in-hidden', 'self-hidden']) expect((await state(page, id)).drawn, id).toEqual(['visible', 'visible', 'visible']);
+  });
+
+  test('PRG-23: removed during the delay it has exposed nothing; inserted again it waits the whole delay; hiding neither restarts nor pauses it; a change of showDelay mid-wait applies from the next insertion; a change of value mid-wait, to max included, neither ends nor restarts it', async ({ page }) => {
+    await blank(page);
+    const delay = await resolveToken(page, SHOW_DELAY, 'duration');
+
+    // Removed before the delay ends: nothing was ever exposed, and nothing is later.
+    await insert(page, 'brief', { value: '0.4' });
+    await page.clock.runFor(delay / 2);
+    await byId(page, 'brief').evaluate((el) => { (window as any).brief = el; el.remove(); });
+    await page.clock.runFor(delay * 2);
+    expect(await page.evaluate(() => (window as any).brief.getAttribute('role'))).toBeNull();
+    expect((await exposed(page)).filter((e) => e.startsWith('brief:'))).toEqual([]);
+
+    // Inserted again: the whole delay again.
+    expect(await page.evaluate(() => { document.querySelector('main')!.append((window as any).brief); return (window as any).brief.getAttribute('aria-hidden'); })).toBe('true');
+    await page.clock.runFor(delay - 1);
+    expect(await state(page, 'brief')).toEqual(WAITING);
+    await page.clock.runFor(1);
+    expect(await exposure(page, 'brief')).toEqual(SHOWN());
+
+    // Removed while shown, its cycle running: gone at once, nothing left running. Moved within the document, it waits again.
+    await insert(page, 'gone', { 'show-delay': '0' });
+    const left = await byId(page, 'gone').evaluate((el) => {
+      const root = el.shadowRoot!;
+      const before = root.getAnimations().map((a) => (a as CSSAnimation).animationName);
+      el.remove();
+      return { before, after: root.getAnimations().map((a) => a.playState) };
+    });
+    expect(left).toEqual({ before: ['bar-cross'], after: [] });
+    await page.evaluate(() => document.querySelector('main')!.insertAdjacentHTML('beforeend', '<section id="elsewhere"></section>'));
+    await insert(page, 'mover', { value: '0.4' });
+    await page.clock.runFor(delay);
+    expect(await exposure(page, 'mover')).toEqual(SHOWN());
+    await byId(page, 'mover').evaluate((el) => document.getElementById('elsewhere')!.append(el));
+    expect(await state(page, 'mover')).toEqual(WAITING);
+    await page.clock.runFor(delay);
+    expect(await exposure(page, 'mover')).toEqual(SHOWN());
+
+    // Hidden without being removed: the delay neither restarts nor pauses.
+    await insert(page, 'hidden-mid', { value: '0.4' });
+    await page.clock.runFor(delay / 2);
+    await byId(page, 'hidden-mid').evaluate((el) => ((el as HTMLElement).hidden = true));
+    await page.clock.runFor(delay / 4);
+    await byId(page, 'hidden-mid').evaluate((el) => ((el as HTMLElement).hidden = false));
+    await page.clock.runFor(delay / 4);
+    expect(await exposure(page, 'hidden-mid')).toEqual(SHOWN());
+
+    // showDelay changed mid-wait: the running delay finishes as it started; the new value applies from the next insertion.
+    await insert(page, 'changed', { value: '0.4' });
+    await page.clock.runFor(delay / 2);
+    await byId(page, 'changed').evaluate((el: any) => { el.showDelay = 0; });
+    expect(await state(page, 'changed')).toEqual(WAITING);
+    await page.clock.runFor(delay / 2);
+    expect(await exposure(page, 'changed')).toEqual(SHOWN());
+    const next = await byId(page, 'changed').evaluate((el: any) => {
+      el.remove();
+      document.querySelector('main')!.append(el);
+      return el.getAttribute('role');
+    });
+    expect(next).toBe('progressbar');
+
+    // The value changed mid-wait — to max, the task done, and from indeterminate — and other props: it keeps waiting,
+    // and is shown with the props it has when the delay ends.
+    await insert(page, 'done', { value: '0.4' });
+    await insert(page, 'measured');
+    await page.clock.runFor(delay / 2);
+    await byId(page, 'done').evaluate(async (el: any) => { el.value = 1; await el.updateComplete; });
+    await byId(page, 'measured').evaluate(async (el: any) => { Object.assign(el, { value: 3, max: 10, variant: 'circular' }); await el.updateComplete; });
+    for (const id of ['done', 'measured']) expect(await state(page, id), id).toEqual(WAITING);
+    await page.clock.runFor(delay / 2 - 1);
+    for (const id of ['done', 'measured']) expect(await exposure(page, id), id).toEqual(WAITING_EXPOSURE);
+    await page.clock.runFor(1);
+    expect(await exposure(page, 'done')).toEqual(SHOWN('1'));
+    expect(await drawnShare(page, 'done')).toBeCloseTo(1, 2);
+    expect(await exposure(page, 'measured')).toEqual(SHOWN('3'));
+    await expect(byId(page, 'measured')).toHaveAttribute('aria-valuemax', '10');
   });
 });
 

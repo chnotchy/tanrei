@@ -726,9 +726,10 @@ export class TanreiFileItem extends TanreiElement {
     const second = words.length > 0 || marked;
     const dot = html` <span aria-hidden="true">·</span> `;
     const before = [this.formatText, this.sizeText].filter((text) => !!text);
-    // FIT-10: the bar while the file is being sent; a fraction clamped to 0 and 1, or null for "under way".
+    // FIT-10: the bar while the file is being sent; a fraction clamped to 0 and 1, or null for "under way". It is drawn
+    // whenever the status is uploading, so it has no show delay of its own: the file item is there, and so is its bar.
     const progress = typeof this.progress === 'number' && !Number.isNaN(this.progress) ? Math.min(1, Math.max(0, this.progress)) : null;
-    const bar = status === 'uploading' ? html`<tanrei-progress-indicator part="progress" separation="divider" .label=${name} .value=${progress}></tanrei-progress-indicator>` : nothing;
+    const bar = status === 'uploading' ? html`<tanrei-progress-indicator part="progress" separation="divider" show-delay="0" .label=${name} .value=${progress}></tanrei-progress-indicator>` : nothing;
     // FIT-8: a tile's name is not drawn only behind a picture that is drawn.
     const hidden = tile && (given.nameHidden ?? this.nameHidden) && pictured;
     const cut = nameParts(name);

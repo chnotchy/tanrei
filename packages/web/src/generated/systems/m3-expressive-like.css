@@ -6077,6 +6077,7 @@
     --tanrei-comp-progress-indicator-linear-thickness-small: var(--tanrei-dial-size-unit);
     --tanrei-comp-progress-indicator-motion-cycle-duration: round(nearest, calc(var(--tanrei-dial-motion-unit) * 35), 1ms);
     --tanrei-comp-progress-indicator-motion-cycle-easing: var(--tanrei-sys-motion-easing-standard);
+    --tanrei-comp-progress-indicator-motion-show-delay: var(--tanrei-sys-motion-role-show-delay);
     --tanrei-comp-progress-indicator-motion-value-duration: var(--tanrei-sys-motion-duration-medium2);
     --tanrei-comp-progress-indicator-motion-value-easing: var(--tanrei-sys-motion-easing-standard);
     --tanrei-comp-progress-indicator-stop-indicator-size: var(--tanrei-dial-size-unit);

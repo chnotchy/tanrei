@@ -1146,7 +1146,7 @@ const BOLD = `<tanrei-button label="Bold"><span slot="icon">format_bold</span></
 
 const HOLDING: Record<string, Holding> = {
   'loading-indicator': { sentence: 'LDG-18', markup: (rest) => `<tanrei-loading-indicator id="subject" show-delay="0" ${rest}></tanrei-loading-indicator>`, report: { id: 'LDG-10', says: 'no accessible name' } },
-  'progress-indicator': { sentence: 'PRG-18', markup: (rest) => `<tanrei-progress-indicator id="subject" value="0.4" ${rest}></tanrei-progress-indicator>`, report: { id: 'PRG-15', says: 'no accessible name' } },
+  'progress-indicator': { sentence: 'PRG-18', markup: (rest) => `<tanrei-progress-indicator id="subject" show-delay="0" value="0.4" ${rest}></tanrei-progress-indicator>`, report: { id: 'PRG-15', says: 'no accessible name' } },
   meter: { sentence: 'MTR-16', markup: (rest) => `<tanrei-meter id="subject" value="0.4" ${rest}></tanrei-meter>`, report: { id: 'MTR-14', says: 'no accessible name' } },
   menubar: {
     sentence: 'MBR-48',
@@ -1287,6 +1287,7 @@ interface Nameless {
 
 const NAMELESS: Record<string, Nameless> = {
   'loading-indicator (waiting)': { sentence: 'LDG-18', markup: (rest) => `<tanrei-loading-indicator id="subject" show-delay="100000" ${rest}></tanrei-loading-indicator>`, expose: '' },
+  'progress-indicator (waiting)': { sentence: 'PRG-18', markup: (rest) => `<tanrei-progress-indicator id="subject" show-delay="100000" value="0.4" ${rest}></tanrei-progress-indicator>`, expose: '' },
   'avatar (decorative)': { sentence: 'AVT-24', markup: (rest) => `<tanrei-avatar id="subject" initials="AL" decorative ${rest}></tanrei-avatar>`, expose: 'decorative' },
   'swatch (its text drawn)': { sentence: 'SWC-20', markup: (rest) => `<tanrei-swatch id="subject" color="#0f766e" label="Teal" ${rest}></tanrei-swatch>`, expose: 'label' },
   'callout (closed)': { sentence: 'CLO-32', markup: (rest) => `<tanrei-callout id="subject" open="false" ${rest}>Body text</tanrei-callout>`, expose: 'open' },

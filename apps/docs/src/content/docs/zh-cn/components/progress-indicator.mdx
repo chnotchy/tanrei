@@ -2,7 +2,7 @@
 title: "进度指示器"
 description: "以条形或圆环显示任务已经进行到哪里；进度未知时，则表示任务正在进行。"
 translationOf: components/progress-indicator.mdx
-sourceHash: a3a25acb0bd8dba2353811061e0fbe63c03d1013
+sourceHash: 361085f33cda0cfac32225532ab93914bdb6dea2
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -26,7 +26,7 @@ import Example from '../../../../components/visuals/Example.astro';
 
 ### 用法
 
-Web 和 React 的示例展示的是当前的规格。SwiftUI、Compose、Flutter 和 React Native 待跟进：它们还没有 `separation`，示例展示的是它们实际提供的内容。
+Web 和 React 的示例展示的是当前的规格：指示器先等待再显示，本页的演示也是这样，它们会在延迟之后出现。SwiftUI、Compose、Flutter 和 React Native 待跟进：它们还没有 `separation`，也没有显示延迟，一插入就绘制指示器并把它提供给辅助技术，示例展示的是它们实际提供的内容。
 
 <Tabs syncKey="platform">
   <TabItem label="Web">
@@ -39,6 +39,9 @@ Web 和 React 的示例展示的是当前的规格。SwiftUI、Compose、Flutter
 
     <!-- 指示器与轨道其余部分之间留一段间隙，不管设计系统选择的是什么。 -->
     <tanrei-progress-indicator separation="gap" value="0.4" label="正在上传 report.pdf"></tanrei-progress-indicator>
+
+    <!-- 用户刚刚开始、正在看着的任务：立即显示，没有延迟。 -->
+    <tanrei-progress-indicator show-delay="0" value="0" label="正在导出"></tanrei-progress-indicator>
 
     <script type="module">
       import '@tanrei/web/components/progress-indicator';
@@ -55,6 +58,7 @@ Web 和 React 的示例展示的是当前的规格。SwiftUI、Compose、Flutter
     <ProgressIndicator value={files} max={10} valueText={`第 ${files} 个文件，共 10 个`} label="正在上传" />
     <ProgressIndicator variant="circular" size="small" value={null} label="正在同步" />
     <ProgressIndicator separation="gap" value={sent / total} label="正在上传 report.pdf" />
+    <ProgressIndicator showDelay={0} value={exported} label="正在导出" />
     ```
   </TabItem>
   <TabItem label="SwiftUI">
@@ -179,11 +183,20 @@ Web 和 React 的示例展示的是当前的规格。SwiftUI、Compose、Flutter
 
 设计系统为所有具有这项选择的组件统一选择一次，默认系统选择的是 divider。让 `separation` 保持 `auto` 就会遵循这一选择，这样指示器与周围的按钮组和菜单保持一致。只有当某一个指示器有理由与众不同时，才在它上面设置 `divider` 或 `gap`。
 
+### 显示延迟
+
+转眼就结束的任务不应该显示任何东西。所以指示器先等待再显示：在默认系统中是 300 毫秒，从它被插入的那一刻算起，与[加载指示器](/zh-cn/components/loading-indicator/)的等待相同。然后它立即出现，显示任务到那时已经达到的数值。比这段延迟更短的任务，永远不会显示一个一闪而过的进度条。在延迟期间，指示器已经占据它的完整尺寸，所以它出现时，旁边的任何东西都不会移动。
+
+在任务开始时插入指示器，在任务结束时移除它。延迟从插入时算起：只是被隐藏后再次显示、没有被移除的指示器不会再等一次；重新插入的指示器会再等完整的一段延迟。在延迟结束之前就完成的任务不会显示任何东西，只要你在那时移除指示器。
+
+延迟由系统为所有指示器统一决定。只有在某一个指示器需要不同的节奏时，才在它上面设置以毫秒为单位的 `showDelay`：`0` 表示指示器一插入就显示，适合用户刚刚开始、正在看着的任务。你设置的值会原样使用：动效调节量不会缩放它。不设置它，就采用系统的值。
+
 ### 推荐
 
 - 给它一个说明正在进行什么的标签：写“正在上传 report.pdf”，不写“进度”。如果它旁边显示了说明文字，请使用同样的措辞。
 - 百分比读起来不自然时，使用数值文本：“第 3 个文件，共 10 个”“第 2 步，共 4 步”。
 - 任务结束时，用文字告诉用户：一条说明任务已完成的消息，或者说明出了什么问题以及接下来该怎么做。
+- 除非某个指示器需要另一种节奏，否则把延迟交给系统决定。
 
 ### 避免
 
@@ -198,15 +211,16 @@ Web 和 React 的示例展示的是当前的规格。SwiftUI、Compose、Flutter
 
 ### 组件负责的部分
 
-- 它提供进度条角色，以标签作为名称。确定形式下，它提供范围、当前值（限制在范围之内），以及数值文本（如果有的话）；不确定形式下，它不提供数值，而提供平台的“忙碌”状态。Flutter 目前还没有进度条角色和忙碌状态，所以在那里它提供标签和数值。
+- 显示之后，它提供进度条角色，以标签作为名称。确定形式下，它提供范围、当前值（限制在范围之内），以及数值文本（如果有的话）；不确定形式下，它不提供数值，而提供平台的“忙碌”状态。Flutter 目前还没有进度条角色和忙碌状态，所以在那里它提供标签和数值。
+- 在显示延迟期间，它完全不在无障碍树之内：没有角色，没有名称，没有数值，没有忙碌状态。短到看不见的任务，同样也听不到。
 - 它从不可聚焦，也不会朗读自己的变化。用户到达它时，辅助技术会读出当前值。
-- 用户要求减弱动态效果时，数值的变化会立即显示；不确定的形式停止运动，改为轻缓地改变不透明度，每秒至多一次。
+- 用户要求减弱动态效果时，数值的变化会立即显示；不确定的形式停止运动，改为轻缓地改变不透明度，每秒至多一次。显示延迟保持不变：它是等待，不是动效。
 - 在看不见它的时候，它的循环动画会停止——在所有平台上，应用处于后台时都是如此；在平台能够判断的情况下，它被滚出视野或位于隐藏的屏幕上时也是如此——看得见时再恢复。
-- 空的标签、超出范围的数值和未知的 `separation` 会在调试构建中报告。
+- 空的标签、超出范围的数值、未知的 `separation` 和无法使用的 `showDelay` 会在调试构建中报告。
 
 ### 需要你做的事
 
 - 任务的结束要由你自己来朗读：在实时区域（live region）里放一条消息，或者把焦点移到结果上。指示器不会说明任务已经完成或已经失败。
 - 如果你更改了颜色，请让指示器的颜色相对于轨道和它背后的表面至少保持 3:1 的对比度，使用分隔线和使用间隙时都是如此。数值是从指示器与轨道相接的位置读出来的。
 - 在最高容器色调的表面上（例如填充卡片），轨道几乎是同一色调，很难看清。指示器放在这样的表面上时，请在图层中把 `comp.progress-indicator.track.color` 指向更强的角色。指示器所显示的内容仍然从它与轨道相接的位置读出。
-- 如果任务会阻塞页面的某个区域，请在任务运行期间把这个区域标记为忙碌（在 Web 上是 `aria-busy`）。
+- 如果任务会阻塞页面的某个区域，请在任务运行期间把这个区域标记为忙碌（在 Web 上是 `aria-busy`），从任务开始时就标记，不要等指示器的延迟结束。
