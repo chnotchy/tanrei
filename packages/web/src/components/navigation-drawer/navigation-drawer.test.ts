@@ -981,6 +981,17 @@ test.describe('drawing', () => {
     // Focused on a destination of the open group, then the direction changed on both stages while they are shown.
     await tabTo(page, cell(page, 'tree', 2));
     await motionEnded(page);
+    // Without a motion: no turn begins at all — not even one ended before a frame paints it, whose events a page hears.
+    await page.evaluate(() => {
+      const heard: string[] = [];
+      (window as unknown as { nvd50Turns: string[] }).nvd50Turns = heard;
+      for (const each of document.querySelectorAll('tanrei-navigation-drawer-group'))
+        for (const type of ['transitionrun', 'transitionstart', 'transitionend'])
+          each.shadowRoot!.addEventListener(type, (event) => {
+            const { propertyName } = event as TransitionEvent;
+            if (propertyName === 'rotate') heard.push(`${type} ${propertyName} on ${[...(event.target as Element).classList].join('.')}`);
+          }, { capture: true });
+    });
     for (const dir of ['ltr', 'rtl'] as const) {
       const seen = await sampleFrames(page, () => page.evaluate((to) => {
         for (const id of ['tree', 'rail']) document.querySelector(`[data-fixture="${id}"]`)!.setAttribute('dir', to);
@@ -995,6 +1006,8 @@ test.describe('drawing', () => {
       await expect(cell(page, 'tree', 1)).toHaveAttribute('aria-current', 'page');
       expect(await activeValue(page), dir).toBe('home');
     }
+    await page.evaluate(() => new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve))));
+    expect(await page.evaluate(() => (window as unknown as { nvd50Turns: string[] }).nvd50Turns), 'a turn of a start chevron').toEqual([]);
     // Where no ancestor sets one, the document's.
     await page.evaluate(() => document.documentElement.setAttribute('dir', 'rtl'));
     expect(await css(drawer(page, 'plain'), 'direction')).toBe('rtl');

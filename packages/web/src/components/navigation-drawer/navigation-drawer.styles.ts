@@ -1,5 +1,5 @@
 import { css, unsafeCSS } from 'lit';
-import { type OpenAxis, SCRIM_FILTER, conditionBlock, directionProbeStyles, focusRing, iconGlyph, modalExitStyles, pressHold, rippleStyles, scrimFilter, stateRules } from '../../primitives/index.js';
+import { type OpenAxis, SCRIM_FILTER, conditionBlock, focusRing, iconGlyph, modalExitStyles, pressHold, rippleStyles, scrimFilter, stateRules } from '../../primitives/index.js';
 import { productText } from '../../styles/product-text.js';
 import { cornerRadius, shape } from '../../styles/shape.js';
 import { scriptTracking } from '../../styles/script-tracking.js';
@@ -279,9 +279,6 @@ export const drawerStyles = css`
     background: var(--_edge);
     pointer-events: none;
   }
-  /* NVD-50: what tells the drawer that the direction around it changed (DirectionController), inside the panel, which
-     clips it. */
-  ${directionProbeStyles}
   /* The modal drawer's navigation landmark: the dialog's whole content (a box of its own, so it is reached by focus). */
   .landmark {
     display: flex;
@@ -1414,6 +1411,12 @@ export const cellStyles = css`
   }
   :host(:dir(rtl)) .cell.open .chevron.start {
     rotate: -0.25turn;
+  }
+  /* NVD-50: a change of the direction around the drawer is drawn at once: while the drawer computes the start chevron's
+     style for the new direction (TanreiNavigationDrawerGroup.turnAtOnce), its turn takes no transition, and one under
+     way ends at the turn the new direction gives it; its colour's motion is not the direction's and runs on. */
+  .chevron.start.at-once {
+    transition-property: color;
   }
   .cell.collapsed :is(.text, .trailing) {
     opacity: 0;
