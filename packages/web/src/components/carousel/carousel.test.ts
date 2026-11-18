@@ -279,7 +279,8 @@ const stepDrawn = async (page: P, ids: string[], count = 1) => {
  * offset. Two quiet frames alone are not enough: WebKit keeps `scrollLeft` in whole CSS pixels, and the decelerating tail
  * of a motion can move the row less than one over several frames, which change nothing and so report nothing while the
  * motion still runs. A motion begun before the wait ends within its duration of the wait's start or of its own last
- * scroll event, whichever is later.
+ * scroll event, whichever is later. Not for a page whose clock the test holds (`clockPage()`): the held clock holds the
+ * page's frames too, so the wait would never end — poll what the row shows instead.
  */
 const atRest = (page: P, id: string) =>
   scroller(page, id).evaluate(async (el) => {
@@ -2068,6 +2069,40 @@ test.describe('behavior', () => {
     // Exactly one: the next advance only an interval later.
     await page.clock.runFor(every - 200);
     expect(await offset(page, id)).toBe(s);
+  });
+
+  test('CRL-39, CRL-43, CRL-30: a move the person starts in the frame before the carousel hears of a change of direction still ends on its item, in reading order, in the new direction', async ({ page }) => {
+    const of = (id: string) => spec.fixtures.find((f) => f.id === id)!;
+    await mountFixtures(page, spec, { icons: true, fixtures: [{ ...of('indicator'), id: 'rtl', direction: 'rtl' }] });
+    const id = 'rtl';
+    const s = await step(page, id);
+    // Where motion is reduced a move is one frame: its only frame is its last, written before the frame's layout — and
+    // so before the carousel hears, after that layout, of a change of direction made in the same task.
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    /** Whether items `from` to `to` stand in reading order: left to right, or right to left. */
+    const inOrder = (rtl: boolean, from: number, to: number) => async () => {
+      const xs = await Promise.all(Array.from({ length: to - from + 1 }, async (_, i) => (await bounds(item(page, id, from + i))).x));
+      return xs.every((x, i) => i === 0 || (rtl ? x < xs[i - 1] : x > xs[i - 1]));
+    };
+    // The next control (CRL-43), pressed in the task that turns the stage left-to-right.
+    await carousel(page, id).evaluate((host) => {
+      host.shadowRoot!.querySelector<HTMLElement>('tanrei-button.next')!.click();
+      host.closest('[data-fixture]')!.setAttribute('dir', 'ltr');
+    });
+    await expect.poll(() => offset(page, id), 'one item on').toBe(s);
+    expect(await now(page, id)).toBe(2);
+    await expect.poll(inOrder(false, 0, 2), 'left to right, the second item the hero').toBe(true);
+    // The indicator's key toward the end (CRL-30: the right arrow in left-to-right), in the task that turns it back.
+    await carousel(page, id).evaluate((host) => {
+      host.shadowRoot!.querySelector('.indicator')!.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true, composed: true, cancelable: true }));
+      host.closest('[data-fixture]')!.setAttribute('dir', 'rtl');
+    });
+    await expect.poll(() => offset(page, id), 'one more item on').toBe(2 * s);
+    expect(await now(page, id)).toBe(3);
+    await expect.poll(inOrder(true, 1, 3), 'right to left, the third item the hero').toBe(true);
+    // At rest there: nothing moves it on.
+    await atRest(page, id);
+    expect(await offset(page, id)).toBe(2 * s);
   });
 
   test('CRL-24: unknown alignments are drawn as their defaults, and an itemWidth or autoplayInterval that is not a positive number as null; a debug build reports each', async ({ page }) => {
