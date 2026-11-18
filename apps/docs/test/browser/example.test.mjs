@@ -6,7 +6,8 @@
 // - its stage is drawn in the other direction when the direction is turned, and as wide as its handle says;
 // - every frame follows the page's look: the design system chosen in the header's menu (a frame pinned to a preset
 //   excepted) and the scheme chosen in its appearance menu;
-// - what a stage holds is defined once it comes near the view, not with the page.
+// - what a stage holds is defined once it comes near the view, not with the page, and a stage away from the view keeps
+//   its room while a tag it holds is defined for another part of the page.
 //
 //   pnpm --filter @tanrei/docs build && pnpm --filter @tanrei/docs test:browser
 //   DOCS_ENGINES=chromium node --test test/browser/example.test.mjs   # in one engine (all three by default)
@@ -205,6 +206,52 @@ for (const engine of ENGINES) {
       await drawn(page, far.id);
       assert.equal(await page.evaluate((selector) => document.querySelector(selector).querySelector('[data-example-stage]').hasAttribute('data-example-pending'), far.id), false);
       assert.equal(await page.evaluate((selector) => document.querySelector(selector).querySelectorAll('[data-example-stage] :not(:defined)').length, far.id), 0);
+      await context.close();
+    });
+
+    // The Calendar's page: its first example, in the view, defines the calendar; the six further down hold one each,
+    // which the browser upgrades with it while their stages are still away from the view.
+    test('a stage away from the view keeps its room when a tag it holds is defined for another part of the page, and takes the room it needs when it comes near', LIMIT, async () => {
+      const context = await browser.newContext({ viewport: WIDE, reducedMotion: 'reduce', colorScheme: 'light' });
+      const page = await context.newPage();
+      // Every script is held until the page has been read as it is drawn without them.
+      let release;
+      const held = new Promise((resolve) => (release = resolve));
+      await page.route(/\.m?js(\?|$)/, async (route) => {
+        await held;
+        await route.continue();
+      });
+      // (DOMContentLoaded waits for the module scripts, which are held: the page is read once it has been parsed.)
+      await page.goto(`${origin}/components/calendar/`, { waitUntil: 'commit' });
+      await page.waitForFunction(() => document.readyState !== 'loading');
+      // (WebKit's fonts are ready only once the document has loaded, after the scripts held: their wait is bounded, as
+      // the layout shift's test bounds it.)
+      await page.evaluate(() => Promise.race([document.fonts.ready, new Promise((resolve) => setTimeout(resolve, 5_000))]));
+      const heights = () =>
+        page.evaluate(() =>
+          [...document.querySelectorAll('[data-example-stage]:has(> tanrei-calendar)')].map((stage) => ({ id: stage.id, height: stage.getBoundingClientRect().height, pending: stage.hasAttribute('data-example-pending'), defined: stage.querySelector(':scope > tanrei-calendar').matches(':defined') })),
+        );
+      const before = await heights();
+      release();
+      await page.waitForLoadState('load');
+      await page.waitForFunction(() => customElements.get('tanrei-calendar'));
+      await settlePage(page, { tags: ['tanrei-calendar'], among: '[data-example-stage]', update: '[data-example-stage] > tanrei-calendar', fonts: false });
+      const after = await heights();
+      const away = after.filter((stage) => stage.pending);
+      assert.ok(after.length - away.length >= 1, 'the first calendar, in the view, is drawn');
+      assert.ok(away.length >= 1, 'a calendar further down is away from the view');
+      for (const stage of away) {
+        const was = before.find((each) => each.id === stage.id);
+        assert.equal(stage.defined, true, `#${stage.id}'s calendar is upgraded with the tag`);
+        assert.ok(Math.abs(stage.height - was.height) < 0.5, `#${stage.id}, away from the view, keeps its room (${was.height} px) once the calendar is defined: it is ${stage.height} px`);
+      }
+      // Once it comes near, it takes the calendar's room, as the first stage did.
+      const [first] = after.filter((stage) => !stage.pending);
+      const last = away.at(-1);
+      await settle(page, `#${last.id}`, { scroll: 'center', pending: '[data-example-pending]' });
+      const drawnLast = (await heights()).find((stage) => stage.id === last.id);
+      assert.equal(drawnLast.pending, false);
+      assert.ok(Math.abs(drawnLast.height - first.height) < 0.5, `#${last.id}, drawn, is as tall as the first calendar's stage (${first.height} px): it is ${drawnLast.height} px`);
       await context.close();
     });
   });
