@@ -2,12 +2,13 @@
 title: Control deslizante
 description: Permite elegir un valor, o un intervalo de valores, arrastrando un tirador a lo largo de una pista, de forma continua o por pasos.
 translationOf: components/slider.mdx
-sourceHash: 468e1835b70e3ce76c0eebfcec96922300eab111
+sourceHash: 95915300085270f4089f9fc0181bf74a0c4bafd1
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ColorRoleMap from '../../../../components/visuals/ColorRoleMap.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
 import FocusOrder from '../../../../components/visuals/FocusOrder.astro';
 import Example from '../../../../components/visuals/Example.astro';
@@ -191,6 +192,8 @@ En el sistema predeterminado, el tirador es un anillo: un círculo de 20 relleno
 Los puntos de parada, y el punto que marca el final del recorrido, tienen la mitad del grosor de la pista: 2, 3 y 4 en small, medium y large. El indicador de valor se sitúa un poco por encima de la parte superior del anillo, centrado en él. Deshabilitado, el anillo conserva su relleno, y su contorno se atenúa junto con la pista activa.
 
 Un sistema de diseño puede dibujar el tirador a su manera con los mismos tokens. Con un contorno de 0, el tirador es una forma maciza y, con una separación entre las pistas y el tirador, las pistas se detienen antes de llegar a él y se redondean ahí. `m3-like` dibuja así la barra vertical de Material.
+
+<ColorRoleMap name="slider" headingLevel={3} />
 
 <ComponentSpecs name="slider" />
 

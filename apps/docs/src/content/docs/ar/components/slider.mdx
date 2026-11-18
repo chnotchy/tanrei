@@ -2,12 +2,13 @@
 title: شريط التمرير
 description: يتيح للأشخاص اختيار قيمة، أو مدى من القيم، بسحب مقبض على طول مسار، باستمرار أو على درجات.
 translationOf: components/slider.mdx
-sourceHash: 468e1835b70e3ce76c0eebfcec96922300eab111
+sourceHash: 95915300085270f4089f9fc0181bf74a0c4bafd1
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ColorRoleMap from '../../../../components/visuals/ColorRoleMap.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
 import FocusOrder from '../../../../components/visuals/FocusOrder.astro';
 import Example from '../../../../components/visuals/Example.astro';
@@ -191,6 +192,8 @@ import Playground from '../../../../components/visuals/Playground.astro';
 نقاط التوقف، والنقطة التي تعلّم نهاية مسافة الحركة، ثخانتها نصف ثخانة المسار: 2 و 3 و 4 في الأحجام small و medium و large. ويقع مؤشر القيمة فوق أعلى الحلقة بقليل، موسَّطًا عليها. وفي حالة التعطيل تحتفظ الحلقة بتعبئتها، ويبهت حدّها مع المسار النشط.
 
 يستطيع نظام التصميم أن يرسم المقبض بطريقته من الرموز (tokens) نفسها. مع حدّ عرضه 0 يكون المقبض شكلًا مصمتًا، ومع فجوة بين المسارين والمقبض يتوقف المساران دونه ويُدوَّران هناك. وهكذا يرسم النظام `m3-like` شريط Material القائم.
+
+<ColorRoleMap name="slider" headingLevel={3} />
 
 <ComponentSpecs name="slider" />
 
