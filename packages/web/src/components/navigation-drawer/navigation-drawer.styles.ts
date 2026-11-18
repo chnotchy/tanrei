@@ -1,5 +1,5 @@
 import { css, unsafeCSS } from 'lit';
-import { type OpenAxis, SCRIM_FILTER, conditionBlock, focusRing, iconGlyph, modalExitStyles, pressHold, rippleStyles, scrimFilter, stateRules } from '../../primitives/index.js';
+import { type OpenAxis, SCRIM_FILTER, conditionBlock, directionProbeStyles, focusRing, iconGlyph, modalExitStyles, pressHold, rippleStyles, scrimFilter, stateRules } from '../../primitives/index.js';
 import { productText } from '../../styles/product-text.js';
 import { cornerRadius, shape } from '../../styles/shape.js';
 import { scriptTracking } from '../../styles/script-tracking.js';
@@ -279,6 +279,9 @@ export const drawerStyles = css`
     background: var(--_edge);
     pointer-events: none;
   }
+  /* NVD-50: what tells the drawer that the direction around it changed (DirectionController), inside the panel, which
+     clips it. */
+  ${directionProbeStyles}
   /* The modal drawer's navigation landmark: the dialog's whole content (a box of its own, so it is reached by focus). */
   .landmark {
     display: flex;

@@ -929,23 +929,75 @@ test.describe('drawing', () => {
     await item(page, 'words', 0).evaluate((el) => el.removeAttribute('data-mirror'));
     await group(page, 'words', 0).evaluate((el) => el.setAttribute('data-mirror', 'never'));
     await expect.poll(() => mirroring(glyphs('words'))).toEqual(RTL);
-    // The direction changed on an ancestor while drawn: read in the same task, before any frame, with no motion started.
+    // The direction changed on an ancestor while drawn: the glyphs read in the same task, before any frame; and nothing
+    // moves in the first frame drawn after it — an open group's start chevron, which turns the other way there, is
+    // drawn turned the new way at once (NVD-50).
     for (const id of ['words-ltr', 'words']) await motionEnded(drawer(page, id));
     expect(await mirroringAfterDirection(page.locator('[data-fixture="words-ltr"]'), 'rtl', glyphs('words-ltr'))).toEqual(RTL);
     expect(await mirroringAfterDirection(page.locator('[data-fixture="words"]'), 'ltr', glyphs('words'))).toEqual(LTR);
-    // TODO: an open group's start chevron turns from a quarter turn to the opposite one (its `rotate` transition) when
-    // the direction changes, where NVD-50 says the drawer is drawn for the new direction at once; the chevron is the
-    // drawer's own glyph, outside the product's word, so it is left out here until the drawer draws that change at once.
-    for (const id of ['words-ltr', 'words']) {
-      const running = await drawer(page, id).evaluate(
-        (root, source) =>
-          ((0, eval)(source) as (r: Element) => Animation[])(root)
-            .map((motion) => ((motion.effect as KeyframeEffect | null)?.target as Element | null)?.className ?? '')
-            .filter((target) => !/\bchevron\b/.test(target)),
-        EVERY_ANIMATION,
-      );
-      expect(running, id).toEqual([]);
+    await page.evaluate(() => new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve))));
+    for (const id of ['words-ltr', 'words']) expect(await motionCount(drawer(page, id)), id).toBe(0);
+  });
+
+  test('NVD-50: the direction is the nearest ancestor’s that sets one — the document’s where none does — and the drawer has no setting of its own; changed while it is shown, the drawer is drawn for the new direction at once, without a motion — an open group’s start chevron turned the new way in the first frame — keeping its form, its open state, the selected destination and its focus', async ({ page }) => {
+    const tree = [d('inbox', 'Inbox', 'inbox'), grp('Folders', [d('work', 'Work', 'work'), d('home', 'Home', 'home')], { icon: 'folder', open: true }), grp('Labels', [d('red', 'Red', 'label')], { icon: 'label' })];
+    // The verify: the direction set on an ancestor inside the page (each fixture's stage), not on the root, before the
+    // first render; one drawer expanded with its chevrons at the start (the default), one collapsed.
+    await mount(page, [{ ...fixture('tree', tree, { value: 'work' }), direction: 'rtl' }, { ...rail('rail', MAIL), direction: 'rtl' }, fixture('plain', MAIL)]);
+    expect(await page.evaluate(() => document.documentElement.getAttribute('dir'))).toBeNull();
+    // No ancestor sets one: the document's own, left to right.
+    expect(await css(drawer(page, 'plain'), 'direction')).toBe('ltr');
+    // No setting of its own: neither the spec nor the element has a property or an attribute that names a direction,
+    // and the drawer writes no `dir` on itself.
+    expect((spec.props ?? []).filter((p) => /dir/i.test(p.name))).toEqual([]);
+    for (const id of ['tree', 'rail']) {
+      expect(
+        await drawer(page, id).evaluate((el) => [el.getAttribute('dir'), el.matches(':dir(rtl)'), (el.constructor as unknown as { observedAttributes: string[] }).observedAttributes.filter((name) => /dir/i.test(name))]),
+        id,
+      ).toEqual([null, true, []]);
     }
+    const column = await px(page, T('collapsed-container-width-regular'));
+    /** Where each drawer stands in its stage, and how the tree's open and closed groups' start chevrons are turned. */
+    const probe = (root: Element) => {
+      const at = (id: string) => {
+        const stage = root.querySelector(`[data-fixture="${id}"]`)!.getBoundingClientRect();
+        const panel = root.querySelector(`[data-fixture="${id}"] tanrei-navigation-drawer`)!.shadowRoot!.querySelector('.drawer')!.getBoundingClientRect();
+        return { start: Math.round(panel.left - stage.left), end: Math.round(stage.right - panel.right), width: Math.round(panel.width) };
+      };
+      const [open, closed] = [...root.querySelectorAll('[data-fixture="tree"] tanrei-navigation-drawer-group')].map((group) => getComputedStyle(group.shadowRoot!.querySelector('.chevron.start')!).rotate);
+      const [tree, rail] = [at('tree'), at('rail')];
+      return { treeAt: tree.start === 0 ? 'left' : tree.end === 0 ? 'right' : `${tree.start} ${tree.end}`, railAt: rail.start === 0 ? 'left' : rail.end === 0 ? 'right' : `${rail.start} ${rail.end}`, railWidth: rail.width, open, closed };
+    };
+    const quarter = (dir: 'ltr' | 'rtl') => page.evaluate((turn) => {
+      const el = document.createElement('div');
+      el.style.rotate = turn;
+      document.body.append(el);
+      const value = getComputedStyle(el).rotate;
+      el.remove();
+      return value;
+    }, dir === 'rtl' ? '-0.25turn' : '0.25turn');
+    const drawnFor = async (dir: 'ltr' | 'rtl') => ({ treeAt: dir === 'rtl' ? 'right' : 'left', railAt: dir === 'rtl' ? 'right' : 'left', railWidth: column, open: await quarter(dir), closed: 'none' });
+    expect(await page.locator(':root').evaluate(probe), 'right-to-left from the first render').toEqual(await drawnFor('rtl'));
+    // Focused on a destination of the open group, then the direction changed on both stages while they are shown.
+    await tabTo(page, cell(page, 'tree', 2));
+    await motionEnded(page);
+    for (const dir of ['ltr', 'rtl'] as const) {
+      const seen = await sampleFrames(page, () => page.evaluate((to) => {
+        for (const id of ['tree', 'rail']) document.querySelector(`[data-fixture="${id}"]`)!.setAttribute('dir', to);
+      }, dir), { probe });
+      // At once: the first frame drawn after the change is the state it rests in, the chevron turned the new way.
+      expectFirstFrameAtRest(seen);
+      expect(seen.rest.probe, dir).toEqual(await drawnFor(dir));
+      // Its form, its open state, the selected destination and its focus are kept.
+      expect(await drawer(page, 'tree').evaluate((el: HTMLElement & { open: boolean; value: string; collapsed: boolean }) => [el.open, el.collapsed, el.value]), dir).toEqual([true, false, 'work']);
+      expect(await drawer(page, 'rail').evaluate((el: HTMLElement & { open: boolean; collapsed: boolean }) => [el.open, el.collapsed]), dir).toEqual([true, true]);
+      expect(await group(page, 'tree', 0).evaluate((el: HTMLElement & { open: boolean }) => el.open), dir).toBe(true);
+      await expect(cell(page, 'tree', 1)).toHaveAttribute('aria-current', 'page');
+      expect(await activeValue(page), dir).toBe('home');
+    }
+    // Where no ancestor sets one, the document's.
+    await page.evaluate(() => document.documentElement.setAttribute('dir', 'rtl'));
+    expect(await css(drawer(page, 'plain'), 'direction')).toBe('rtl');
   });
 });
 

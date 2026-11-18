@@ -8,6 +8,8 @@ import {
   type Destination,
   type DestinationContext,
   DestinationsController,
+  DIRECTION_PROBE,
+  DirectionController,
   GlyphMirrorController,
   MirrorWordController,
   hearsMirrorWord,
@@ -1053,6 +1055,17 @@ export class TanreiNavigationDrawerGroup extends DrawerCell {
     return html`<span part="chevron" class="chevron start">chevron_right</span>`;
   }
 
+  /**
+   * @internal NVD-50: the layout direction around the drawer changed. An open start chevron turns the other way in
+   * right-to-left, so the flip gave its `rotate` a new value and started its transition from the old direction's turn:
+   * that turn ends at once (its colour's transition is not the direction's and runs on).
+   */
+  directionChanged() {
+    for (const motion of this.renderRoot?.querySelector('.chevron.start')?.getAnimations() ?? []) {
+      if (motion instanceof CSSTransition && motion.transitionProperty === 'rotate') motion.finish();
+    }
+  }
+
   private given = '';
 
   /**
@@ -1655,6 +1668,14 @@ interface Snapshot {
  */
 export class TanreiNavigationDrawer extends TanreiElement {
   private readonly availability = new AvailabilityController(this, 'navigation-drawer');
+  /**
+   * NVD-50: a change of the layout direction while the drawer is shown is drawn at once. What CSS draws follows by
+   * itself, but a flip gives an open group's start chevron the other quarter turn, which its transition would run: the
+   * groups end that turn in the ResizeObserver callback of the frame the flip is drawn in, before it is painted.
+   */
+  private readonly direction = new DirectionController(this, () => {
+    for (const group of this.groups) group.directionChanged();
+  });
   static override styles = drawerStyles;
 
   static override properties: PropertyDeclarations = {
@@ -4793,6 +4814,7 @@ export class TanreiNavigationDrawer extends TanreiElement {
       <div part="content" class="items" role="list" @scroll=${this.onScroll} @wheel=${containedWheel}>${this.filterLine()}<slot></slot></div>
       ${this.filterable ? html`<span class="filter-said" role="status" aria-atomic="true">${this.filterSaid}</span>` : nothing}
       <span class="clock"></span>
+      ${DIRECTION_PROBE}
     `;
   }
 
