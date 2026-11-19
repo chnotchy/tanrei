@@ -4,7 +4,6 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import io.github.chnotchy.tanrei.tokens.Cupertino
-import io.github.chnotchy.tanrei.tokens.M3ExpressiveLike
 import io.github.chnotchy.tanrei.tokens.M3Like
 import io.github.chnotchy.tanrei.tokens.Tanrei
 import io.github.chnotchy.tanrei.tokens.TanreiFontStack
@@ -22,7 +21,7 @@ import org.junit.Test
  * comes first. Nothing here parses a CSS keyword, and no system's fonts are bundled.
  */
 class TanreiTypographyTest {
-    private val systems = listOf(TanreiSystem.Tanrei, TanreiSystem.M3Like, TanreiSystem.M3ExpressiveLike, TanreiSystem.Cupertino)
+    private val systems = listOf(TanreiSystem.Tanrei, TanreiSystem.M3Like, TanreiSystem.Cupertino)
 
     @Test
     fun `the default system's stacks - named families in order, the generic class, no CSS keyword left`() {

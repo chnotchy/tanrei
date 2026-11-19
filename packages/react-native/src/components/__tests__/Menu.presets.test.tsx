@@ -4,8 +4,8 @@
 import { act, fireEvent, render, screen } from '@testing-library/react-native';
 import { Dimensions } from 'react-native';
 import { cupertino } from '../../generated/systems/cupertino';
-import { m3ExpressiveLike } from '../../generated/systems/m3-expressive-like';
 import { m3Like } from '../../generated/systems/m3-like';
+import { tanrei } from '../../generated/systems/tanrei';
 import type { TanreiColorRole, TanreiSystem } from '../../generated/vocabulary';
 import { describeFixtureBaselines, describeSharedVocabulary, settleMotion, textStyle, viewStyle } from '../../testing/harness';
 import { resolveElevation } from '../../theme/elevation';
@@ -71,13 +71,10 @@ describe('m3-like drives the Menu', () => {
   test('MNU-16: m3-like answers a press with a ripple', () => {
     expect(system.behavior.pressedFeedback).toBe('ripple');
   });
-});
 
-describe('m3-expressive-like drives the Menu', () => {
-  test('it inherits m3-like\'s menu until its fidelity reference covers menus, with no added condition', () => {
-    const tokens = m3ExpressiveLike.components.menu;
-    expect(tokens).toEqual(m3Like.components.menu);
-    expect(Object.keys(tokens.conditions)).toEqual(['unselected', 'selected', 'destructive']);
+  test('it adds no Menu condition', () => {
+    const tokens = m3Like.components.menu;
+    expect(Object.keys(tokens.conditions)).toEqual(Object.keys(tanrei.components.menu.conditions));
   });
 });
 

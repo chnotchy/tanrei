@@ -42,11 +42,15 @@ declare module '../vocabulary' {
     readonly displayLarge?: TanreiTypography;
     readonly displaySmall?: TanreiTypography;
   }
+  interface TanreiButtonSizeRegistry {
+    xlarge: true;
+    xxlarge: true;
+  }
 }
 
 export const m3Like = {
   id: "m3-like",
-  dials: { density: 1, motionUnit: 50, shapeUnit: 4, sizeUnit: 4, spaceUnit: 8, strokeUnit: 1, typeBase: 16, typeContrast: 1 },
+  dials: { controlHeight: 40, motionUnit: 50, shapeUnit: 4, sizeUnit: 4, spaceUnit: 8, strokeUnit: 1, typeBase: 16, typeContrast: 1 },
   intents: ["error", "info", "primary", "secondary", "success", "tertiary", "warning"],
   colors: {
     light: {
@@ -1975,9 +1979,11 @@ export const m3Like = {
       pressedOpacity: 1,
       toneContainerOpacity: 0.16,
       sizes: {
-        small: { containerHeight: 32, containerPaddingInlineNarrow: 4, containerWidthWide: 40, containerPaddingInlineStart: 12, containerPaddingInlineEnd: 12, containerPaddingInlineStartWithIcon: 12, containerPaddingInlineEndWithIcon: 12, containerPaddingBlock: 6, labelTypescale: "label", iconSize: 18, iconSizeWithoutLabel: 20, containerGap: 8, outlineWidth: 1, motionStateDuration: 150 },
-        medium: { containerHeight: 40, containerPaddingInlineNarrow: 4, containerWidthWide: 52, containerPaddingInlineStart: 16, containerPaddingInlineEnd: 16, containerPaddingInlineStartWithIcon: 16, containerPaddingInlineEndWithIcon: 16, containerPaddingBlock: 6, labelTypescale: "label", iconSize: 18, iconSizeWithoutLabel: 24, containerGap: 8, outlineWidth: 1, motionStateDuration: 150 },
-        large: { containerHeight: 56, containerPaddingInlineNarrow: 12, containerWidthWide: 72, containerPaddingInlineStart: 24, containerPaddingInlineEnd: 24, containerPaddingInlineStartWithIcon: 24, containerPaddingInlineEndWithIcon: 24, containerPaddingBlock: 6, labelTypescale: "label", iconSize: 18, iconSizeWithoutLabel: 24, containerGap: 8, outlineWidth: 1, motionStateDuration: 150 },
+        small: { containerHeight: 32, containerPaddingInlineNarrow: 4, containerWidthWide: 40, containerPaddingInlineStart: 16, containerPaddingInlineEnd: 16, containerPaddingInlineStartWithIcon: 16, containerPaddingInlineEndWithIcon: 16, containerPaddingBlock: 6, labelTypescale: "label", iconSize: 20, iconSizeWithoutLabel: 20, containerGap: 8, outlineWidth: 1, motionStateDuration: 150 },
+        medium: { containerHeight: 40, containerPaddingInlineNarrow: 4, containerWidthWide: 52, containerPaddingInlineStart: 16, containerPaddingInlineEnd: 16, containerPaddingInlineStartWithIcon: 16, containerPaddingInlineEndWithIcon: 16, containerPaddingBlock: 6, labelTypescale: "label", iconSize: 20, iconSizeWithoutLabel: 24, containerGap: 8, outlineWidth: 1, motionStateDuration: 150 },
+        large: { containerHeight: 56, containerPaddingInlineNarrow: 12, containerWidthWide: 72, containerPaddingInlineStart: 24, containerPaddingInlineEnd: 24, containerPaddingInlineStartWithIcon: 24, containerPaddingInlineEndWithIcon: 24, containerPaddingBlock: 6, labelTypescale: "heading5", iconSize: 24, iconSizeWithoutLabel: 24, containerGap: 8, outlineWidth: 1, motionStateDuration: 150 },
+        xlarge: { containerHeight: 96, containerPaddingInlineNarrow: 16, containerWidthWide: 128, containerPaddingInlineStart: 48, containerPaddingInlineEnd: 48, containerPaddingInlineStartWithIcon: 48, containerPaddingInlineEndWithIcon: 48, containerPaddingBlock: 6, labelTypescale: "heading3", iconSize: 32, iconSizeWithoutLabel: 32, containerGap: 12, outlineWidth: 2, motionStateDuration: 150 },
+        xxlarge: { containerHeight: 136, containerPaddingInlineNarrow: 32, containerWidthWide: 184, containerPaddingInlineStart: 64, containerPaddingInlineEnd: 64, containerPaddingInlineStartWithIcon: 64, containerPaddingInlineEndWithIcon: 64, containerPaddingBlock: 6, labelTypescale: "heading1", iconSize: 40, iconSizeWithoutLabel: 40, containerGap: 16, outlineWidth: 3, motionStateDuration: 150 },
       },
       variants: {
         filled: {
@@ -8165,9 +8171,9 @@ export const m3Like = {
       },
     },
     loadingIndicator: {
-      containedContainerColor: { kind: "role", role: "surfaceContainerLowest" },
-      containedContainerElevation: "level2",
-      containedIndicatorColor: { kind: "role", role: "onSurfaceVariant" },
+      containedContainerColor: { kind: "role", role: "primaryContainer" },
+      containedContainerElevation: "level0",
+      containedIndicatorColor: { kind: "role", role: "onPrimaryContainer" },
       containerShape: 9999,
       indicatorColor: { kind: "role", role: "primary" },
       motionCycleDuration: 1000,
@@ -8177,7 +8183,7 @@ export const m3Like = {
       motionShowDelay: 300,
       sizes: {
         small: { indicatorSize: 24, indicatorThickness: 4, containerSize: 32 },
-        medium: { indicatorSize: 40, indicatorThickness: 4, containerSize: 48 },
+        medium: { indicatorSize: 38, indicatorThickness: 4, containerSize: 48 },
         large: { indicatorSize: 48, indicatorThickness: 4, containerSize: 56 },
       },
     },

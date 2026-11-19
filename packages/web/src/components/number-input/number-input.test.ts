@@ -247,7 +247,7 @@ const systemColor = (page: P, name: string) =>
     probe.remove();
     return value;
   }, name);
-const SYSTEMS = [undefined, 'm3-like', 'm3-expressive-like', 'cupertino'] as const;
+const SYSTEMS = [undefined, 'm3-like', 'cupertino'] as const;
 const THEMES = ['light', 'dark'] as const;
 
 test.describe('the arithmetic and the reading of a text (number-text.ts)', () => {

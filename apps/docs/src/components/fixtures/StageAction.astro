@@ -1,0 +1,23 @@
+---
+// One of a gallery stage's own actions in its frame's header (components/fixtures/FixtureGallery.astro): a small
+// icon-only Button, its glyph in the icon slot and its name in `label`, as the frame's own actions are
+// (components/visuals/Example.astro).
+//
+// It is a component of its own because the gallery hands its actions to the frame's `actions` slot: in markup handed to
+// a component's slot, Astro takes an element's `slot` attribute for one of that component's slots and drops it, at any
+// depth, so a glyph written there lost its `slot="icon"`, was the Button's label, and every stage's scheme switch read
+// "dark_mode" (test/browser/fixture-openers.test.mjs measures the glyph against its word). Written here, in this
+// component's own markup, the attribute is the Button's.
+interface Props {
+  /** The action's name: its accessible name and tooltip. */
+  label: string;
+  /** The glyph's name in the icon set (its ligature). */
+  icon: string;
+  /** The action is a switch (`aria-pressed`). */
+  toggle?: boolean;
+  [attribute: `data-${string}`]: string | undefined;
+}
+const { label, icon, toggle = false, ...rest } = Astro.props;
+---
+
+<tanrei-button class="docs-example-action" variant="text" size="small" toggle={toggle || undefined} label={label} {...rest}><span slot="icon" data-pagefind-ignore>{icon}</span></tanrei-button>

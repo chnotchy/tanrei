@@ -235,18 +235,18 @@ test.describe('layout', () => {
     near((await content(items(timeline(page, 'large')).first())).left - (await box(timeline(page, 'large'))).x, 40, 'large: 28 and 12', 0.05);
   });
 
-  test('TML-2 the item gap is between the end of one event and the beginning of the next at every size, and follows the system’s density (16 at 1, 12 at 0.75, 24 at 1.5); the order is the product’s: nothing is sorted, numbered, hidden or read from a time', async ({ page }) => {
+  test('TML-2 the item gap is between the end of one event and the beginning of the next at every size, and follows the system’s spacing (16 at a space unit of 8, 12 at 6, 24 at 12); the order is the product’s: nothing is sorted, numbered, hidden or read from a time', async ({ page }) => {
     await mountSpec(page, ['titles-only', 'large-plan']);
-    for (const [density, expected] of [['1', 16], ['0.75', 12], ['1.5', 24]] as const) {
-      await rootTokens(page, { '--tanrei-dial-density': density === '1' ? '' : density });
+    for (const [space, expected] of [['8px', 16], ['6px', 12], ['12px', 24]] as const) {
+      await rootTokens(page, { '--tanrei-dial-space-unit': space === '8px' ? '' : space });
       const between = await resolveToken(page, T('item-gap'));
-      expect(between, `density ${density}`).toBe(expected);
+      expect(between, `space unit ${space}`).toBe(expected);
       for (const id of ['titles-only', 'large-plan']) {
         const boxes = await Promise.all((await items(timeline(page, id)).all()).map(box));
-        for (let i = 1; i < boxes.length; i++) near(boxes[i].y - boxes[i - 1].bottom, between, `${id} at density ${density}: before event ${i + 1}`, 0.05);
+        for (let i = 1; i < boxes.length; i++) near(boxes[i].y - boxes[i - 1].bottom, between, `${id} at space unit ${space}: before event ${i + 1}`, 0.05);
       }
     }
-    await rootTokens(page, { '--tanrei-dial-density': '' });
+    await rootTokens(page, { '--tanrei-dial-space-unit': '' });
     // The verify: 2026 then 2025, drawn and exposed in that order — and an older date first stays first.
     await mount(page, OL(`<li><time class="tanrei-timeline-time" datetime="2026-01-01">2026</time><p class="tanrei-timeline-title">Later</p></li><li><time class="tanrei-timeline-time" datetime="2025-01-01">2025</time><p class="tanrei-timeline-title">Earlier</p></li><li><time class="tanrei-timeline-time" datetime="2027-01-01">2027</time><p class="tanrei-timeline-title">Latest</p></li>`, 'aria-label="Years"'));
     const years = page.getByRole('list', { name: 'Years' }).getByRole('listitem');

@@ -19,11 +19,12 @@
 # The native record commands already write every snapshot they run, so `rewrite_all` changes only the web job.
 #
 # Each platform job uploads only the files that changed under its baseline directories; the commit job adds only
-# those directories, so nothing else can reach the branch. A push made with GITHUB_TOKEN starts no push or
-# pull_request workflow. The commit job starts CI on the branch only when `start_ci` is set (`gh workflow run ci.yml`, a
-# workflow_dispatch run: all three engines, about 38 jobs). By default it does not: a branch's three-engine run comes
-# with the merge train it joins, and one run per recording would fill the account's runners. How-to:
-# CONTRIBUTING.md#recording-baselines.
+# those directories, so nothing else can reach the branch. A push made with GITHUB_TOKEN creates the pull request's
+# pull_request runs, but they wait for approval (the actor is github-actions[bot]) and are not approved, so none of
+# their jobs runs. The commit job therefore dispatches CI on the branch after it pushes: by default with
+# `scope: pull-request` (what the pull request's own run would have been: its changes against the default branch, the
+# web in Chromium alone), which tests the recorded head; with `start_ci`, the full run instead (all three engines, about
+# 38 jobs), which otherwise comes with the merge train the branch joins. How-to: CONTRIBUTING.md#recording-baselines.
 name: Record baselines
 
 on:
@@ -52,7 +53,7 @@ on:
         type: boolean
         default: false
       start_ci:
-        description: "Start a three-engine CI run on the branch after committing (off: the merge train runs it)"
+        description: "Start the full three-engine CI run on the branch after committing (off: the pull request's Chromium scope runs, and the merge train runs the full one)"
         required: false
         type: boolean
         default: false
@@ -336,7 +337,7 @@ jobs:
     timeout-minutes: 10
     permissions:
       contents: write # push the baseline commits
-      actions: write # start CI on the branch afterwards (workflow_dispatch)
+      actions: write # dispatch CI on the branch afterwards (workflow_dispatch)
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -348,7 +349,7 @@ jobs:
           # merge-multiple a lone artifact is extracted without its own folder, and a per-artifact layout breaks.)
           merge-multiple: true
           path: ${{ runner.temp }}/in
-      - name: Commit each platform's baselines, push, and (with start_ci) start CI on the branch
+      - name: Commit each platform's baselines, push, and dispatch CI on the branch
         env:
           GH_TOKEN: ${{ github.token }}
           REASON: ${{ inputs.reason }}
@@ -402,12 +403,15 @@ jobs:
           if [ "$made" = 0 ]; then echo "No baseline changed; nothing to commit."; exit 0; fi
           git pull --rebase origin "$BRANCH"
           git push origin "HEAD:$BRANCH"
-          # A push by GITHUB_TOKEN starts no push or pull_request workflow; a workflow_dispatch it sends does start one.
+          # The push creates the pull request's pull_request runs, but as github-actions[bot]'s they wait for approval and
+          # are never approved (CONTRIBUTING.md#recording-baselines). A workflow_dispatch sent with GITHUB_TOKEN does run,
+          # and its checks attach to the branch's head commit, so they show on the pull request.
           if [ "$START_CI" = true ]; then
             gh workflow run ci.yml --repo "$GITHUB_REPOSITORY" --ref "$BRANCH"
-            ci_note="CI was started on \`$BRANCH\` (a workflow_dispatch run of ci.yml; its checks show on the pull request)."
+            ci_note="The full CI run (all three engines) was started on \`$BRANCH\` (a workflow_dispatch run of ci.yml; its checks show on the pull request)."
           else
-            ci_note="CI was not started: the branch's three-engine run comes with its merge train (set start_ci to start one here)."
+            gh workflow run ci.yml --repo "$GITHUB_REPOSITORY" --ref "$BRANCH" -f scope=pull-request
+            ci_note="CI was started on \`$BRANCH\` in the pull request's scope (its changes against the default branch, the web in Chromium alone; its checks show on the pull request). The three-engine run comes with the merge train (set start_ci to start it here instead)."
           fi
           {
             echo "### Baselines committed to \`$BRANCH\`"

@@ -38,8 +38,7 @@ const isTargetSizeFinding = (finding) => finding.startsWith('target size: ');
 
 /**
  * A target-floor finding that fails in every system, a product layer's too: a hit area under the drawn floor
- * (`sys.target.pointer` or `.touch` under `sys.target.minimum`) means nothing, and a density of zero or less draws
- * nothing at all.
+ * (`sys.target.pointer` or `.touch` under `sys.target.minimum`) means nothing.
  */
 export const isRefusedEverywhere = (finding) => finding.startsWith('target floor: ');
 
@@ -101,7 +100,7 @@ export function ladderReaders(documents) {
     if ('$value' in node) {
       const id = path.join('.');
       const rule = node.$extensions?.['dev.tanrei.derive'];
-      const step = (rule?.fn === 'mul' && rule.by === 1 && rule.times === undefined && rule.round === undefined && typeof rule.of === 'string' && rule.of.match(STEP)?.[1]) || (typeof node.$value === 'string' && node.$value.match(STEP)?.[1]);
+      const step = (rule?.fn === 'mul' && rule.by === 1 && rule.round === undefined && typeof rule.of === 'string' && rule.of.match(STEP)?.[1]) || (typeof node.$value === 'string' && node.$value.match(STEP)?.[1]);
       if (step) steps.set(id, step);
       else if (typeof node.$value === 'string' && /^\{[^{}]+\}$/.test(node.$value)) aliases.set(id, node.$value.slice(1, -1));
       return;
@@ -120,6 +119,70 @@ export function ladderReaders(documents) {
   }
   return Object.fromEntries([...steps].sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0)));
 }
+
+/** The mark of a height a control or a row is drawn at in its default size: `"dev.tanrei.aligned": "control"`. */
+export const ALIGNED = 'dev.tanrei.aligned';
+
+/**
+ * The heights the core vocabulary marks as drawn at the control height in their default size (`ALIGNED`): every token
+ * of `documents` that carries the mark. Each reads `sys.control.height.medium`, directly or through an alias, with
+ * nothing but a `min` (checked against `ladderReaders`).
+ * @param {object[]} documents DTCG documents of the core vocabulary (as `targetFloors` reads them)
+ * @returns {string[]}
+ */
+export function alignedTokens(documents) {
+  const marked = [];
+  const walk = (node, path) => {
+    if (!node || typeof node !== 'object') return;
+    if ('$value' in node) {
+      if (node.$extensions?.[ALIGNED] === 'control') marked.push(path.join('.'));
+      return;
+    }
+    for (const [key, child] of Object.entries(node)) if (!key.startsWith('$')) walk(child, [...path, key]);
+  };
+  for (const doc of documents) walk(doc, []);
+  return marked.sort();
+}
+
+/**
+ * The pressable heights the core still derives from the size unit by a coefficient of its own rather than from a step
+ * of the control height ladder. Every other height the core floors at `sys.target.minimum` reads a step. Each family
+ * of components is rewired to the ladder in a change of its own (menus and options; tabs, navigation and trees; lists,
+ * rows, accordions and tables; fields, pickers and the segmented button; the frames and marks that are no control),
+ * and takes its tokens off this list in that change: the check below fails both for a pressable height that is
+ * neither a step nor listed, and for a listed one that has become a step. Empty, every pressable height is a step.
+ */
+export const HEIGHTS_NOT_YET_ON_THE_LADDER = Object.freeze([
+  'accordion.container.height.medium',
+  'accordion.container.height.small',
+  'calendar.cell.size',
+  'calendar.view-toggle.container.height',
+  'calendar.year.container.height',
+  'combobox.option.height.medium',
+  'date-time-picker.range-field.container.height',
+  'date-time-picker.wheel.row.height',
+  'input-box.container.height.medium',
+  'list-row.container.height.one-line.medium',
+  'list-row.container.height.one-line.small',
+  'list-row.container.height.three-line.medium',
+  'list-row.container.height.three-line.small',
+  'list-row.container.height.two-line.medium',
+  'list-row.container.height.two-line.small',
+  'list.container.height.medium',
+  'main-action-button.container.height.large',
+  'menu.container.height.medium',
+  'navigation-drawer.collapsed.item.container.width.regular',
+  'navigation-drawer.item.container.height.regular',
+  'one-time-code-input.container.height',
+  'search.suggestion.container.height.medium',
+  'segmented-button.container.height.medium',
+  'select.option.height.medium',
+  'table-of-contents.compact.row.height',
+  'table-of-contents.row.height.medium',
+  'tabs.container.height-with-icon',
+  'tabs.container.height.medium',
+  'tree-view.container.height.medium',
+].map((id) => `${CONFIG.namespace}.comp.${id}`));
 
 /** Why an imitation preset's measurements are information and not warnings — the words its report and headers use. */
 export const PRESET_CRITERIA_NOTE =
@@ -718,7 +781,7 @@ export function auditInvariants(model) {
 
   // The target floor. sys.target.minimum is the least height (and width, for an icon-only control) anything a person
   // presses is drawn at, and pointer and touch the least areas a press is taken from: none of them under WCAG 2.5.8's
-  // 24px, a hit area never under what is drawn, and a density above zero. Every height the core floors at the minimum
+  // 24px, and a hit area never under what is drawn. Every height the core floors at the minimum
   // (`model.floored`, `targetFloors`, and any rule of this system with that `min`) is held at it, so a layer that pins
   // or re-points one below it is told.
   const px = (id) => model.tokens[`${CONFIG.namespace}.${id}`]?.value?.value;
@@ -728,14 +791,34 @@ export function auditInvariants(model) {
     if (typeof value === 'number' && value < TARGET_THRESHOLDS.minimum) failures.push(`target size: sys.target.${name}: ${value}px < ${TARGET_THRESHOLDS.minimum}px (WCAG 2.5.8: the least target a person presses)`);
     if (name !== 'minimum' && typeof value === 'number' && typeof minimum === 'number' && value < minimum) failures.push(`target floor: sys.target.${name}: ${value}px is under sys.target.minimum (${minimum}px) — the area a press is taken from is never smaller than what is drawn; set it to the minimum or above`);
   }
-  const density = model.tokens[`${CONFIG.namespace}.dial.density`]?.value;
-  if (typeof density === 'number' && !(density > 0)) failures.push(`target floor: dial.density: ${density} — a density is above zero (1 is the default; below 1 draws closer, above 1 gives more room)`);
   if (typeof minimum === 'number') {
     const MIN = `{${CONFIG.namespace}.sys.target.minimum}`;
     const floored = new Set([...(model.floored ?? []), ...Object.values(model.tokens).filter((token) => token.derive?.min === MIN).map((token) => token.id)]);
     for (const id of [...floored].sort()) {
       const value = model.tokens[id]?.value?.value;
       if (typeof value === 'number' && value < minimum) failures.push(`target size: ${id.slice(CONFIG.namespace.length + 1)}: ${value}px < sys.target.minimum ${minimum}px (a box a person presses is drawn at least the minimum target; derive it with "min": "${MIN}", or lower the minimum)`);
+    }
+  }
+
+  // The control height is the default size's height: nothing pressable is drawn lower than the minimum, so a minimum
+  // above it would leave no control drawn at it. Refused in every system, a product layer's too.
+  const controlHeight = px('dial.control.height');
+  if (typeof minimum === 'number' && typeof controlHeight === 'number' && minimum > controlHeight) failures.push(`target floor: sys.target.minimum: ${minimum}px is above dial.control.height (${controlHeight}px) — a control of the default size is drawn at the control height; lower the minimum or raise the control height`);
+
+  // One control height. In the core and the default system every height marked as drawn at it (`model.aligned`) reads
+  // the medium step of the ladder, and every height the core floors at the minimum (`model.floored`) reads a step —
+  // save those still listed in HEIGHTS_NOT_YET_ON_THE_LADDER, which is held to what is true.
+  if ((model.system === CONFIG.namespace || model.system === 'core') && model.ladder) {
+    for (const id of model.aligned ?? []) {
+      if (model.ladder[id] !== 'medium') failures.push(`${short(id)}: marked ${ALIGNED}, but it does not read sys.control.height.medium — derive it with { "fn": "mul", "of": "{${CONFIG.namespace}.sys.control.height.medium}", "by": 1, "min": "{${CONFIG.namespace}.sys.target.minimum}" }, or alias a token that does`);
+    }
+    const pending = new Set(HEIGHTS_NOT_YET_ON_THE_LADDER);
+    for (const id of model.floored ?? []) {
+      if (!(id in model.ladder) && !pending.has(id)) failures.push(`${short(id)}: a pressable height that reads no step of the control height ladder — read the step of its size, { "fn": "mul", "of": "{${CONFIG.namespace}.sys.control.height.<step>}", "by": 1, "min": "{${CONFIG.namespace}.sys.target.minimum}" }`);
+    }
+    const floored = new Set(model.floored ?? []);
+    for (const id of pending) {
+      if (id in model.ladder || !floored.has(id)) failures.push(`${short(id)}: listed in HEIGHTS_NOT_YET_ON_THE_LADDER, but it ${id in model.ladder ? 'reads a step of the ladder now' : 'is no pressable height the core floors'} — take it off the list`);
     }
   }
 

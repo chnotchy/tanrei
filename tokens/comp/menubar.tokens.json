@@ -104,7 +104,8 @@
                 "of": "{tanrei.sys.control.height.medium}",
                 "by": 1,
                 "min": "{tanrei.sys.target.minimum}"
-              }
+              },
+              "dev.tanrei.aligned": "control"
             },
             "$description": "Minimum height of a title's container: the medium Button's 40, because a title is pressed as a button is. It grows with enlarged text; the hit area extends to the minimum target."
           },

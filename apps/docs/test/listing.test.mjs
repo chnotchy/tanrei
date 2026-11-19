@@ -12,7 +12,7 @@ import { describe, test } from 'node:test';
 import { fileURLToPath } from 'node:url';
 
 register('./vite-shim.mjs', import.meta.url);
-const { ABSENT_ATTR, LISTING_ATTR, LISTING_EVERYTHING, LISTING_KEY, ON_REQUEST_ATTR, SYSTEM_ONLY_ATTR, absentFrom, componentPages, groupOf, isOnRequest, listedFirst, listingBootstrap, shownIn, shownUnder, sidebarSlugs, sidebarTree, usedIn } = await import('../src/lib/listing.mjs');
+const { LISTING_ATTR, LISTING_EVERYTHING, LISTING_KEY, ON_REQUEST_ATTR, componentPages, groupOf, isOnRequest, leftOutOfDefault, listedFirst, listingBootstrap, shippedBy, shownIn, sidebarSlugs, sidebarTree, usedIn } = await import('../src/lib/listing.mjs');
 const { aroundPlace, listingFacts } = await import('../src/lib/page-head.ts');
 const { levelRole, levels, listings, manifests, statusComponents } = await import('../src/lib/repo.ts');
 const { pageGroup } = await import('../src/lib/search.mjs');
@@ -129,7 +129,9 @@ describe('the sidebar', () => {
     const text = read('src/components/frame/Sidebar.astro');
     assert.match(text, /const drawn = sidebarTree\(sidebar, statusComponents, listings, base, \(category\) => t\.category\[category\] \?\? category, manifests\)/);
     assert.match(text, /<Fragment set:html=\{cells\(drawn, true\)\} \/>/);
-    assert.match(text, /entry\.onRequest \? ` \$\{ON_REQUEST_ATTR\} trailing-text="\$\{escape\(t\.listing\.advanced\)\}"`/);
+    assert.match(text, /entry\.onRequest \? ` \$\{ON_REQUEST_ATTR\}` : ''\}\$\{shipped \? ` supporting-text="\$\{escape\(shipped\)\}"` : ''\}\$\{trailing \? ` trailing-text="\$\{escape\(trailing\)\}"` : ''\}/);
+    assert.match(text, /entry\.shippedBy \? t\.listing\.shippedBy\.replace\('\{systems\}', entry\.shippedBy\.join\(', '\)\) : undefined/);
+    assert.match(text, /entry\.onRequest && !entry\.shippedBy \? t\.listing\.advanced : undefined/);
     // The switch's row is the first of the drawer's list (a list item, as a list holds), after the row of the
     // appearance's button a compact window draws there, and before the rows of pages.
     assert.match(text, /<div role="listitem" class="docs-look-row"><Appearance id="docs-appearance-drawer" part="button" \/><Appearance id="docs-appearance-drawer" part="panel" \/><\/div>\s*<div role="listitem" class="docs-listing-row"><ListingSwitch lang=\{route\.lang\} \/><\/div>\s*<Fragment set:html=\{cells\(drawn, true\)\} \/>/);
@@ -143,9 +145,9 @@ describe('the index of components', () => {
   const text = read('src/components/ComponentIndex.astro');
   test('draws every row of the status file, marks the ones shown on request, and says each one’s level', () => {
     assert.match(text, /statusComponents\.filter\(\(c\) => groupOf\(c\) === category\)\.map\(/);
-    assert.match(text, /const onRequest = isOnRequest\(c, listings\);/);
-    assert.match(text, /const lacking = absentFrom\(c\.name, manifests\);/);
-    assert.match(text, /<tanrei-list-item href=\{href\} \{\.\.\.marked\(onRequest\)\} \{\.\.\.absent\(lacking\)\}>/);
+    assert.match(text, /const onRequest = onRequestOf\(c\);/);
+    assert.match(text, /const onRequestOf = \(c: \(typeof statusComponents\)\[number\]\) => isOnRequest\(c, listings\) \|\| leftOutOfDefault\(c\.name, manifests\);/);
+    assert.match(text, /<tanrei-list-item href=\{href\} \{\.\.\.marked\(onRequest\)\}>/);
     assert.match(text, /<span class="title">\{c\.title\}<\/span>/);
     assert.match(text, /const meta = `\$\{shipped\}\/\$\{platforms\.length\} · \$\{\(role && t\.level\[role\]\) \?\? c\.level\}`;/);
     assert.match(text, /<ListingSwitch lang=\{lang\} \/>/);
@@ -166,10 +168,10 @@ describe('the switch', () => {
     assert.match(text, /<tanrei-switch class="docs-listing" label=\{t\.listing\.showAll\} data-docs-listing-switch \/>/);
     for (const lang of languages) {
       const words = strings(lang).listing;
-      for (const key of ['showAll', 'advanced', 'placedInstead', 'notIn']) assert.ok(String(words[key] ?? '').trim(), `${lang}: listing.${key}`);
+      for (const key of ['showAll', 'advanced', 'placedInstead', 'shippedBy']) assert.ok(String(words[key] ?? '').trim(), `${lang}: listing.${key}`);
+      assert.deepEqual([...words.shippedBy.matchAll(/\{(\w+)\}/g)].map((match) => match[1]), ['systems'], `${lang}: listing.shippedBy has one place, the systems`);
+      if (lang !== source.lang) assert.notEqual(words.shippedBy, strings(source.lang).listing.shippedBy, `${lang}: listing.shippedBy is not translated`);
       assert.equal(words.placedInstead.split('{components}').length, 2, `${lang}: one place for the components`);
-      assert.deepEqual([...words.notIn.matchAll(/\{(\w+)\}/g)].map((match) => match[1]), ['system'], `${lang}: listing.notIn has one place, the system`);
-      if (lang !== source.lang) assert.notEqual(words.notIn, strings(source.lang).listing.notIn, `${lang}: listing.notIn is not translated`);
       assert.ok(String(strings(lang).usedIn ?? '').trim(), `${lang}: usedIn`);
       if (lang !== source.lang) assert.notEqual(words.showAll, strings(source.lang).listing.showAll, `${lang}: not translated`);
     }
@@ -214,64 +216,36 @@ describe('the choice of design system', () => {
     assert.equal(manifests[0].system, DEFAULT);
     assert.ok(manifests.length > 1, 'the premise: there are presets');
   });
-  test('a list under a system leaves out exactly what its manifest says it does not have', () => {
-    for (const manifest of onDisk) {
-      const out = new Set(manifest.omitted.map((entry) => entry.name));
-      assert.deepEqual(names(shownUnder(pages, manifests, manifest.system)), names(pages).filter((name) => !out.has(name)), manifest.system);
-      for (const row of statusComponents) assert.equal(absentFrom(row.name, manifests).includes(manifest.system), out.has(row.name), `${manifest.system}: ${row.name}`);
-    }
-  });
-  test('selecting m3-like shows the FAB menu and the segmented button; the default system shows neither', () => {
-    for (const name of ['fab-menu', 'segmented-button']) {
-      assert.ok(names(shownUnder(pages, manifests, 'm3-like')).includes(name), `m3-like: ${name}`);
-      assert.ok(!names(shownUnder(pages, manifests, DEFAULT)).includes(name), `${DEFAULT}: ${name}`);
-    }
-    assert.ok(!names(shownUnder(pages, manifests, 'cupertino')).includes('fab-menu') && names(shownUnder(pages, manifests, 'cupertino')).includes('segmented-button'));
-  });
-
   /** The sidebar as the framework gives it, the index first, with `current` as the page being read. */
   const given = (current) => [{ type: 'group', label: 'Components', collapsed: false, entries: sidebarSlugs(statusComponents).map((slug) => ({ type: 'link', label: slug, href: `/${slug}/`, isCurrent: slug === current })) }];
   const links = (entries) => entries.flatMap((entry) => (entry.type === 'link' ? [entry] : links(entry.entries)));
-  test('the sidebar marks each component with the systems that do not have it, and a group none of whose components a system has', () => {
+  test('what the default system leaves out is shown on request, marked with the systems that ship it; every other component as its listing says', () => {
+    const outOfDefault = onDisk.find((manifest) => manifest.system === DEFAULT).omitted.map((entry) => entry.name);
+    assert.ok(outOfDefault.includes('fab-menu') && outOfDefault.includes('segmented-button'), 'the premise: the default system leaves the FAB menu and the segmented button out');
+    for (const name of statusComponents.map((row) => row.name)) assert.equal(leftOutOfDefault(name, manifests), outOfDefault.includes(name), name);
+    assert.deepEqual(shippedBy('fab-menu', manifests), manifests.filter((manifest) => !manifest.omitted.some((entry) => entry.name === 'fab-menu')).map((manifest) => manifest.system));
+    assert.ok(!shippedBy('fab-menu', manifests).includes(DEFAULT) && shippedBy('button', manifests).includes(DEFAULT));
     const [components] = sidebarTree(given('components'), statusComponents, listings, '', (category) => category, manifests);
-    for (const link of links(components.entries).slice(1)) assert.deepEqual(link.absentFrom ?? [], absentFrom(link.label.slice('components/'.length), manifests), link.label);
-    const fab = components.entries.find((entry) => entry.type === 'group' && entry.entries.some((child) => child.href === '/components/fab-menu/'));
-    assert.ok(fab.absentFrom?.includes(DEFAULT), 'the layer’s group is not drawn under the default system');
-    for (const group of components.entries.filter((entry) => entry.type === 'group')) {
-      const every = manifests.map((manifest) => manifest.system).filter((id) => group.entries.every((child) => (child.absentFrom ?? []).includes(id)));
-      assert.deepEqual(group.absentFrom ?? [], every, group.label);
+    assert.deepEqual(links(components.entries).slice(1).map((link) => link.label.slice('components/'.length)).sort(), names(pages).sort(), 'every page is in the tree');
+    for (const link of links(components.entries).slice(1)) {
+      const name = link.label.slice('components/'.length);
+      const out = outOfDefault.includes(name);
+      assert.equal(!!link.onRequest, out || specOf(name).listing === listings.onRequest, `${name}: shown on request`);
+      assert.deepEqual(link.shippedBy, out ? shippedBy(name, manifests) : undefined, `${name}: the systems that ship it`);
     }
-    // Without the manifests nothing is marked.
-    const [bare] = sidebarTree(given('components'), statusComponents, listings, '', (category) => category);
-    assert.ok(links(bare.entries).every((link) => !link.absentFrom));
+    // A group all of whose rows are shown on request is shown on request with them.
+    for (const group of components.entries.filter((entry) => entry.type === 'group')) assert.equal(!!group.onRequest, group.entries.every((child) => child.onRequest), group.label);
+    // The page being read stays, and still says which systems ship it.
+    const [open] = sidebarTree(given('components/fab-menu'), statusComponents, listings, '', (category) => category, manifests);
+    const own = links(open.entries).find((link) => link.isCurrent);
+    assert.deepEqual([own.onRequest, own.shippedBy], [undefined, shippedBy('fab-menu', manifests)]);
+    // The look is no input of the lists: nothing of them reads it, and the head's script writes no rule for them.
+    const filter = read('src/lib/list-filter.ts').replace(/^\s*\/\/.*$/gm, '');
+    assert.doesNotMatch(filter, /appearance|LOOK|look/);
+    assert.doesNotMatch(read('src/lib/appearance.ts'), /display:none/);
+    for (const file of ['src/components/frame/Sidebar.astro', 'src/components/ComponentIndex.astro', 'src/lib/listing.mjs']) assert.doesNotMatch(read(file).replace(/^\s*\/\/.*$/gm, ''), /data-docs-look|docsLook|LOOK_ATTR|absent|faint|notIn/, file);
   });
-  test('the page being read is marked as any other row: no system takes a row out of the sidebar', () => {
-    const [components] = sidebarTree(given('components/fab-menu'), statusComponents, listings, '', (category) => category, manifests);
-    const own = links(components.entries).find((link) => link.isCurrent);
-    assert.equal(own.href, '/components/fab-menu/');
-    assert.deepEqual(own.absentFrom, absentFrom('fab-menu', manifests));
-    assert.ok(own.absentFrom.includes(DEFAULT), 'the premise: the default system does not have the FAB menu');
-  });
-
-  test('a row a system does not have is drawn faint under it, never taken out: the lists’ script marks it and gives a sidebar row the words that say so', () => {
-    const filter = read('src/lib/list-filter.ts');
-    assert.match(filter, /for \(const row of document\.querySelectorAll\(`\[\$\{ABSENT_ATTR\}\]`\)\) markFaint\(row, system\);/);
-    assert.match(filter, /row\.toggleAttribute\(FAINT_ATTR, faint\);/);
-    // What the script takes out of the document is what is shown on request and what is said under another system only.
-    assert.match(filter, /document\.querySelectorAll\(`\[\$\{ON_REQUEST_ATTR\}\], \[\$\{SYSTEM_ONLY_ATTR\}\]`\)/);
-    // The head's rule hides only what is said under another system.
-    assert.doesNotMatch(read('src/lib/appearance.ts'), /\$\{absent\}~=/);
-    const sidebar = read('src/components/frame/Sidebar.astro');
-    assert.match(sidebar, /\$\{NOT_IN_ATTR\}="\$\{escape\(t\.listing\.notIn\)\}"/);
-    assert.match(sidebar, /<span class="docs-sidebar-supporting" \$\{SYSTEM_ONLY_ATTR\}="\$\{escape\(id\)\}">\$\{escape\(t\.listing\.notIn\.replace\('\{system\}', id\)\)\}<\/span>/);
-    assert.match(filter, /if \(faint\) row\.setAttribute\('supporting-text', words\.replace\('\{system\}', system \?\? ''\)\);\s*else row\.removeAttribute\('supporting-text'\);/);
-    const index = read('src/components/ComponentIndex.astro');
-    assert.match(index, /lacking\.map\(\(id\) => <>\{' '\}<span \{\.\.\.\{ \[SYSTEM_ONLY_ATTR\]: id \}\}>\{t\.listing\.notIn\.replace\('\{system\}', id\)\}<\/span><\/>\)/);
-    // Faint is the secondary text role, which holds text's contrast — never an opacity or a lighter color.
-    assert.match(index, /tanrei-list-item\[data-docs-faint\] \.title \{\s*color: var\(--tanrei-sys-color-on-surface-variant\);\s*\}/);
-    for (const file of ['src/components/ComponentIndex.astro', 'src/styles/frame.css']) assert.doesNotMatch(read(file), /\[data-docs-faint\][^{]*\{[^}]*opacity/, file);
-  });
-  test('no list has a choice of system of its own: the look is chosen in the header’s Appearance panel (in a compact window, first in the drawer), and the index says what the chosen system does not have', () => {
+  test('no list has a choice of system of its own: the look is chosen in the header’s Appearance panel (in a compact window, first in the drawer)', () => {
     assert.ok(!fs.existsSync(here('../src/components/SystemSelect.astro')), 'the index’s select of the system is gone');
     const panel = read('src/components/frame/Appearance.astro');
     assert.match(panel, /<tanrei-list class="docs-appearance-look" selection="single" label=\{t\.system\.choice\} value=\{look\}/);
@@ -283,10 +257,9 @@ describe('the choice of design system', () => {
     const index = read('src/components/ComponentIndex.astro');
     assert.match(index, /<div class="controls">\s*<ListingSwitch lang=\{lang\} \/>\s*<\/div>/);
     assert.doesNotMatch(index, /tanrei-select-field|setAppearance/);
-    assert.match(index, /manifests\.filter\(\(manifest\) => manifest\.omitted\.length > 0\)\.map\(\(manifest\) => \(\s*<p class="absent" \{\.\.\.\{ \[SYSTEM_ONLY_ATTR\]: manifest\.system \}\}>/);
   });
   test('its words are in the six languages, each sentence with its places', () => {
-    const places = { choice: [], notIn: ['system'], insteadUse: ['component', 'components'], noteTitle: [], has: ['systems', 'entries'], lacks: ['systems'], livesIn: ['layer'], leftOutBy: ['layer'], use: ['components'], listed: [], take: ['guide'], guide: [], layerFile: [], yourCode: [] };
+    const places = { choice: [], insteadUse: ['component', 'components'], noteTitle: [], has: ['systems', 'entries'], lacks: ['systems'], livesIn: ['layer'], leftOutBy: ['layer'], use: ['components'], take: ['guide'], guide: [], layerFile: [], yourCode: [] };
     for (const lang of languages) {
       const words = strings(lang).system;
       for (const [key, want] of Object.entries(places)) {

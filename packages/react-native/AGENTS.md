@@ -136,7 +136,7 @@ The root `AGENTS.md` is law. This file only adds React Native specifics.
 | `src/components/__tests__/<Pascal>.test.tsx` | Behaviour, a11y, token-binding and fixture tests |
 | `src/components/__tests__/<Pascal>.subject.tsx` | The component as the test harness sees it: `defineSubject({ component, spec, tokens, render, axes })` |
 | `src/components/__tests__/__snapshots__/<Pascal>/<fixture-id>.json` | One baseline per spec fixture |
-| `src/components/__tests__/<Pascal>.presets.test.tsx`, `__snapshots__/<Pascal>/<system-id>/<fixture-id>.json` | Shipped presets (`m3-like`, `m3-expressive-like`, `cupertino`): the component's vocabulary, preset-driven behaviour, light-scheme baselines (`m3-like`, `cupertino`; `m3-expressive-like` is covered by behaviour tests only). Never mixed with the default baselines |
+| `src/components/__tests__/<Pascal>.presets.test.tsx`, `__snapshots__/<Pascal>/<system-id>/<fixture-id>.json` | Shipped presets (`m3-like`, `cupertino`): the component's vocabulary, preset-driven behaviour, light-scheme baselines. Never mixed with the default baselines |
 | `src/components/__tests__/<Pascal>.extensions.test.tsx`, `__fixtures__/acme.ts`, `scripts/acme-fixture.mjs` | A system that extends the vocabulary, end to end (generated fixture + its generator) |
 | `src/components/__tests__/<Pascal>.perScheme.test.tsx`, `__fixtures__/tone-per-state.ts` | A component color that differs per scheme (paint kind `scheme`), end to end: the fixture layer with non-monotonic `tone` rules, built by the same generator through `buildProductSystem`, rendered in all six schemes |
 | `src/components/__tests__/__fixtures__/button-flat-tokens.tanrei.json` | The default system's Button tokens in flat form: the value-identity pin |

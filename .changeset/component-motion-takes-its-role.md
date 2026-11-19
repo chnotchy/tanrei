@@ -23,7 +23,7 @@ token names are replaced.
   over 250 ms and leaves over 200; dialogs, the image preview and the modal picker over 350 / 300; sheets and the modal
   drawer over 400 / 350; the snackbar over 350 / 300. Surfaces enter on the standard curve and leave on the
   accelerating one. The ripple (450 ms) and the loading indicator's and the skeleton's wait (300 ms) are unchanged.
-- **m3-like and m3-expressive-like draw exactly what they drew**: their roles are Material 3's durations and curves, and
+- **m3-like draws exactly what it drew**: its roles are Material 3's durations and curves, and
   where a component's role holds another value in the preset, the preset pins that component token to the value it
   had, with its reason (25 tokens: the app bar's scroll change, the tabs' indicator and the tab view's switch, the
   selection curves of the checkbox, the radio button, the chip and the segmented button, the snackbar's and the

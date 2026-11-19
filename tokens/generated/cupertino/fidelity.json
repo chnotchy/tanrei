@@ -1,29 +1,31 @@
 {
   "system": "cupertino",
-  "reference": {
-    "name": "Apple Human Interface Guidelines",
-    "source": "https://developer.apple.com/design/human-interface-guidelines/",
-    "version": "read 2026-11-12",
-    "license": "Copyright Apple Inc. The figures are recorded as published facts, to measure an independent approximation against; Tanrei is not affiliated with, endorsed by, or sponsored by Apple Inc.",
-    "description": "iOS and iPadOS (macOS for the pointer target): control sizes, the text styles at the default Dynamic Type size, the system colors and grays in the light and dark appearances, at the default and the increased contrast.",
-    "pages": [
-      {
-        "url": "https://developer.apple.com/design/human-interface-guidelines/accessibility",
-        "data": "https://developer.apple.com/tutorials/data/design/human-interface-guidelines/accessibility.json",
-        "changed": "2025-06-09"
-      },
-      {
-        "url": "https://developer.apple.com/design/human-interface-guidelines/color",
-        "data": "https://developer.apple.com/tutorials/data/design/human-interface-guidelines/color.json",
-        "changed": "2025-12-16"
-      },
-      {
-        "url": "https://developer.apple.com/design/human-interface-guidelines/typography",
-        "data": "https://developer.apple.com/tutorials/data/design/human-interface-guidelines/typography.json",
-        "changed": "2025-12-16"
-      }
-    ]
-  },
+  "reference": [
+    {
+      "name": "Apple Human Interface Guidelines",
+      "source": "https://developer.apple.com/design/human-interface-guidelines/",
+      "version": "read 2026-11-12",
+      "license": "Copyright Apple Inc. The figures are recorded as published facts, to measure an independent approximation against; Tanrei is not affiliated with, endorsed by, or sponsored by Apple Inc.",
+      "description": "iOS and iPadOS (macOS for the pointer target): control sizes, the text styles at the default Dynamic Type size, the system colors and grays in the light and dark appearances, at the default and the increased contrast.",
+      "pages": [
+        {
+          "url": "https://developer.apple.com/design/human-interface-guidelines/accessibility",
+          "data": "https://developer.apple.com/tutorials/data/design/human-interface-guidelines/accessibility.json",
+          "changed": "2025-06-09"
+        },
+        {
+          "url": "https://developer.apple.com/design/human-interface-guidelines/color",
+          "data": "https://developer.apple.com/tutorials/data/design/human-interface-guidelines/color.json",
+          "changed": "2025-12-16"
+        },
+        {
+          "url": "https://developer.apple.com/design/human-interface-guidelines/typography",
+          "data": "https://developer.apple.com/tutorials/data/design/human-interface-guidelines/typography.json",
+          "changed": "2025-12-16"
+        }
+      ]
+    }
+  ],
   "scope": "The control sizes of iOS and iPadOS (and macOS for a pointer), the iOS text styles at the default Dynamic Type size (Large), and the system colors that cupertino's status and accent colors stand for, in the default light and dark appearances.",
   "total": 52,
   "equal": 50,

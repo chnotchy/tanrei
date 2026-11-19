@@ -85,8 +85,8 @@ test('every figure: each number once, inside and clear; each line its token’s 
       figures.push(await page.evaluate((at) => {
         const frame = document.querySelectorAll('[data-blueprint-figure]')[at];
         const done = () => frame.querySelector('[data-example-overlay][data-drawn]:not([data-drawing])');
-        // A figure is a picture: nothing of it is modal over the page (a modal fixture is drawn in a window of its own,
-        // in the gallery, and stands under no figure). `:modal` is looked for in every shadow tree, where a dialog is.
+        // A figure is a picture: nothing of it is modal over the page (a modal fixture is drawn closed in the gallery,
+        // opened only from its stage, and stands under no figure). `:modal` is looked for in every shadow tree, where a dialog is.
         const modal = [];
         const walk = (root) => {
           for (const element of root.querySelectorAll('*')) {

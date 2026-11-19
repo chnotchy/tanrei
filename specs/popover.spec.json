@@ -383,7 +383,7 @@
     },
     {
       "id": "POP-27",
-      "text": "WHEN the popover is told to close while it is still opening, or to open while it is still closing THE popover SHALL turn round from the opacity and the size it has reached, without first jumping to the start or the end of either motion, and SHALL take no longer over the rest than the whole duration of the motion it turns to. WHILE the popover is closed or closing THE popover SHALL take no pointer input and no focus — a press reaches what lies under it — and WHILE it is closed it SHALL take no room in the layout, draw nothing and expose nothing to assistive technology."
+      "text": "WHEN the popover is told to close while it is still opening, or to open while it is still closing THE popover SHALL turn round from the opacity and the size it has reached, without first jumping to the start or the end of either motion, and SHALL take no longer over the rest than the whole duration of the motion it turns to. WHILE the popover is closed or closing THE popover SHALL take no pointer input and no focus — a press reaches what lies under it (MOT-7) — and WHILE it is closed it SHALL take no room in the layout, draw nothing and expose nothing to assistive technology."
     },
     {
       "id": "POP-28",

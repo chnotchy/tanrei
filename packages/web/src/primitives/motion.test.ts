@@ -8,7 +8,8 @@
 //                                     either motion it goes on from the value shown (MOT-2); `exit()` resolves when
 //                                     the exit's transitions have finished and on nothing else (no timer); an overlay
 //                                     mounted open before the document's first paint appears at once, after it enters
-//                                     (MOT-4); reduced motion is a cross-fade (MOT-6); `unfold` scales one axis
+//                                     (MOT-4); reduced motion is a cross-fade (MOT-6); `unfold` scales one axis;
+//                                     closed or leaving it takes no pointer (MOT-7)
 //   AnimatedSize                      the content stays at its anchor edge and nothing scrolls while the box moves
 //                                     (MOT-5); a change in the middle goes on as one motion, never cut short; at once
 //                                     where it must be
@@ -45,7 +46,10 @@ const motionModule = () =>
  * The elements the tests use, each composing the primitives as a component will:
  *
  *   <x-appear>    a surface that appears from its centre (role modal), with Settle; a row inside it writes its state
- *                 after the first render (a state written late, which settling must draw without a motion)
+ *                 after the first render (a state written late, which settling must draw without a motion); its open
+ *                 state is on a box round the motion element (`box`), as a placed box's is
+ *   <x-own>       the same appearance with its open state on the motion element itself, as a menu's surface has it,
+ *                 and a part inside that takes the pointer of its own (`pointer-events: auto`)
  *   <x-anchored>  one that appears from its anchor (role anchored, `data-side` from the `side` attribute), starting
  *                 8 px toward it (a test layer's own appearance, `--x-appear-*`), so that a side changed while it
  *                 leaves replaces the exit's transitions
@@ -92,8 +96,23 @@ class Appearing extends kept(LitElement) {
   }
 }
 customElements.define('x-appear', class extends Appearing {
-  static styles = [surface, appearStyles({ motion: '.motion', open: '.surface.open', role: 'modal', origin: 'center' }), settleStyles];
+  static styles = [surface, appearStyles({ motion: '.motion', open: '.surface.open', box: '.surface', role: 'modal', origin: 'center' }), settleStyles];
   settle = new Settle(this);
+});
+// Its open state on the motion element itself (a menu's surface), and a part inside that takes the pointer of its own.
+customElements.define('x-own', class extends kept(LitElement) {
+  static properties = { open: { type: Boolean } };
+  static styles = [surface, css\`.box { pointer-events: auto; }\`, appearStyles({ motion: '.motion', open: '.motion.open', role: 'modal', origin: 'center' })];
+  appear = new AppearController(this, { motion: () => this.renderRoot.querySelector('.motion') });
+  constructor() { super(); this.open = false; }
+  render() {
+    return html\`<div class=\${this.open ? 'surface motion open' : 'surface motion'}><div class="box"><div class="row"></div></div></div>\`;
+  }
+  updated(changed) {
+    if (!changed.has('open')) return;
+    if (this.open) this.appear.enter();
+    else if (changed.get('open') !== undefined) this.left = this.appear.exit();
+  }
 });
 customElements.define('x-anchored', class extends Appearing {
   static styles = [
@@ -467,6 +486,42 @@ test.describe('appearStyles and AppearController', () => {
     await finishAll(host);
     expect(await host.evaluate(async (el: HTMLElement & { left: Promise<boolean> }) => el.left)).toBe(true);
   });
+
+  for (const tag of ['x-appear', 'x-own']) {
+    test(`MOT-7: closed or leaving, the surface (${tag === 'x-appear' ? 'its open state on a box round it' : 'its open state on itself'}) takes no pointer — a press where it is still drawn reaches what lies under it, and the pointer on it is not hover; told to open again while it leaves, it takes the pointer at once`, async ({ page }) => {
+      // What lies under the surface: a button where its box is drawn (100, 100; 120 × 80), before it in the document.
+      await open(page, `<div id="stage"><button id="under" type="button" style="position: absolute; inset-block-start: 100px; inset-inline-start: 100px; inline-size: 120px; block-size: 80px; margin: 0">under</button><${tag} id="a" open></${tag}></div>`);
+      await painted(page);
+      await page.locator('#under').evaluate((el) => el.addEventListener('click', () => ((window as unknown as { pressed: number }).pressed = ((window as unknown as { pressed?: number }).pressed ?? 0) + 1)));
+      const host = page.locator('#a');
+      const at = { x: 160, y: 140 };
+      const hit = () => page.evaluate(({ x, y }) => document.elementFromPoint(x, y)?.id ?? null, at);
+      const pressed = () => page.evaluate(() => (window as unknown as { pressed?: number }).pressed ?? 0);
+      // Open, it takes the press.
+      expect(await hit(), 'open, the surface is what lies at its centre').toBe('a');
+      // Leaving, held half way out: still drawn, and closed for the pointer.
+      await changeHeldAt(host, { open: false }, 0.5);
+      const opacity = Number(await host.locator('.motion').evaluate((el) => getComputedStyle(el).opacity));
+      expect(opacity, 'still drawn while it leaves').toBeGreaterThan(0.05);
+      expect(await hit(), 'leaving, what lies under it is at its centre').toBe('under');
+      await page.mouse.click(at.x, at.y);
+      expect(await pressed(), 'a click there reaches what lies under it').toBe(1);
+      expect(await host.locator('.motion').evaluate((el) => el.matches(':hover')), 'the pointer on it is not hover').toBe(false);
+      // Told to open again while it leaves: it takes the pointer from then on, while it enters.
+      await changeHeldAt(host, { open: true }, 0.5);
+      expect(await hit(), 'entering again, it takes the pointer').toBe('a');
+      // Closed at rest (drawn transparent here, where a component takes it out of the top layer): still none.
+      await host.evaluate(async (el: HTMLElement & { open: boolean; updateComplete: Promise<unknown>; left: Promise<boolean> }) => {
+        el.open = false;
+        await el.updateComplete;
+      });
+      await finishAll(host);
+      expect(await host.evaluate(async (el: HTMLElement & { left: Promise<boolean> }) => el.left)).toBe(true);
+      expect(await hit(), 'closed, what lies under it is at its centre').toBe('under');
+      await page.mouse.click(at.x, at.y);
+      expect(await pressed()).toBe(2);
+    });
+  }
 
   test('an anchored surface starts toward its anchor and grows from the edge that faces it; under unfold (m3-like) it scales along the one axis that leaves the anchor', async ({ page }) => {
     await open(page, '<div id="stage"></div>');

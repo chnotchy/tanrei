@@ -55,7 +55,7 @@ test('the harness notices a wrong value', async () => {
   const id = 'tanrei.comp.button.container.height.medium';
   const wrong = { ...model, tokens: { ...model.tokens, [id]: { ...model.tokens[id], value: { value: 41, unit: 'px' } } } };
   const result = measureFidelity(wrong, input);
-  assert.equal(result.different.length, 5, 'one wrong height is wrong for each of the five button components');
+  assert.equal(result.different.length, 8, "one wrong height is wrong for each of material-web's five button components, for androidx's small button (Tanrei's medium, by role), and for its small icon button's height and default width");
   assert.ok(result.fidelity < 1);
 });
 

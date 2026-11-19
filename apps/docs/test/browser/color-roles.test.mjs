@@ -108,7 +108,8 @@ async function figuresOf(page) {
         const frame = document.querySelectorAll('[data-color-roles-figure]')[at];
         return {
           title: frame.querySelector('[data-part="title"]').textContent.trim(),
-          system: frame.querySelector('[data-example-stage]').getAttribute('data-tanrei-system'),
+          system: document.documentElement.dataset.docsLook,
+          scoped: frame.querySelector('[data-example-stage]').hasAttribute('data-tanrei-system'),
           rows: [...frame.querySelectorAll('[data-role-row]')].map((row) => ({
             part: row.querySelector('[data-role-part]').textContent.trim(),
             token: row.dataset.token,
@@ -194,7 +195,7 @@ describe('the color role maps', () => {
     const figures = await figuresOf(page);
     await context.close();
     for (const figure of figures) {
-      assert.equal(figure.system, preset, `${figure.title}: drawn under ${preset}`);
+      assert.deepEqual([figure.system, figure.scoped], [preset, false], `${figure.title}: drawn in ${preset}, the page’s look, with no system of its own`);
       for (const row of figure.rows) {
         const value = resolvedIn(preset, row.token);
         if (!value) continue;

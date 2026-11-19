@@ -660,6 +660,33 @@ test.describe('overlay', () => {
     await expect.poll(() => isOpen(page, 'edit')).toBe(false);
   });
 
+  test('MNU-4, MOT-7: closed by a choice, the surface takes no pointer while it leaves — a press on another menu’s anchor under it reaches that anchor, which opens its menu', async ({ page }) => {
+    await mountFixtures(page, spec, { fixtures: [overlay('edit', EDIT), overlay('other', EDIT)] });
+    // The other menu's anchor stands where the first menu's surface is drawn, below the first anchor.
+    await page.addStyleTag({ content: `#a-edit { position: fixed; top: 100px; left: 200px; } #a-other { position: fixed; top: 190px; left: 210px; }` });
+    await wire(page);
+    // The exit is held open for the whole test: it cannot end while the press is made, however slow the machine.
+    await rootTokens(page, { [T('motion-close-duration')]: '600s' });
+    await openMenu(page, 'edit', 'Cut');
+    const under = await centre(anchor(page, 'other'));
+    const s = await surfaceBox(menu(page, 'edit'));
+    expect(under.x > s.x && under.x < s.x + s.width && under.y > s.y && under.y < s.y + s.height, 'the other anchor is under the surface').toBe(true);
+    const hit = () => page.evaluate(({ x, y }) => document.elementFromPoint(x, y)?.closest('[data-fixture]')?.getAttribute('data-fixture') ?? null, under);
+    const hitId = () => page.evaluate(({ x, y }) => document.elementFromPoint(x, y)?.id ?? null, under);
+    expect(await hit(), 'open, the surface takes the press').toBe('edit');
+    // Chosen: the menu closes and its surface leaves, still drawn in the top layer.
+    await item(page, 'edit', 0).click();
+    await expect.poll(() => log(page)).toEqual(['click:Cut', 'close:item']);
+    expect(await isOpen(page, 'edit'), 'still in the top layer while it leaves').toBe(true);
+    expect(Number(await css(surface(page, 'edit'), 'opacity')), 'still drawn while it leaves').toBeGreaterThan(0.05);
+    expect(await hitId(), 'leaving, the other anchor is what lies at the point').toBe('a-other');
+    // The press reaches the other anchor, and its menu opens.
+    await page.mouse.click(under.x, under.y);
+    await expect.poll(() => menu(page, 'other').evaluate((el: HTMLElement & { open: boolean }) => el.open)).toBe(true);
+    await expect.poll(() => isOpen(page, 'other')).toBe(true);
+    expect(await isOpen(page, 'edit'), 'the first is still leaving').toBe(true);
+  });
+
   test('MNU-4: placed above its anchor the surface grows from its bottom edge, below it from its top edge; where appear.origin is center it grows from its centre on either side', async ({ page }) => {
     await mountFixtures(page, spec, { fixtures: [overlay('edit', EDIT)] });
     await page.addStyleTag({ content: `#a-edit { position: fixed; top: 400px; left: 200px; }` });
@@ -1391,7 +1418,7 @@ test.describe('items', () => {
     await expectStarts('icon-space-sub', { Send: both, Share: both });
   });
 
-  test('MNU-64: a small menu draws every row, its submenus’ too, from the small tokens — lower, set in less, smaller glyphs, the same text — never below the target; a menu takes no size from a container around it; an unknown size is medium and reported, an added one is drawn from its tokens, a change is drawn at once, and the heights follow the density', async ({ page, browserName }) => {
+  test('MNU-64: a small menu draws every row, its submenus’ too, from the small tokens — lower, set in less, smaller glyphs, the same text — never below the target; a menu takes no size from a container around it; an unknown size is medium and reported, an added one is drawn from its tokens, a change is drawn at once, and the heights follow the size unit', async ({ page, browserName }) => {
     const seen = warnings(page);
     const small = spec.fixtures.find((f) => f.id === 'size-small')!;
     await mountFixtures(page, spec, {
@@ -1476,12 +1503,12 @@ test.describe('items', () => {
     // A change is drawn at once.
     await menu(page, 'size-unset').evaluate((el: HTMLElement & { size: string }) => (el.size = 'small'));
     await expect.poll(async () => (await drawnRow('size-unset', 'Cut')).height).toBeCloseTo(cut.height, 1);
-    // The heights follow the system's density: a small row is the small token at each.
-    for (const density of ['0.75', '1.5', '']) {
-      await rootTokens(page, { '--tanrei-dial-density': density });
+    // The heights follow the system's size unit: a small row is the small token at each.
+    for (const unit of ['5px', '6px', '']) {
+      await rootTokens(page, { '--tanrei-dial-size-unit': unit });
       const step = await resolveToken(page, T('container-height-small'));
-      // (A row's least height: a row with a keyboard shortcut grows with the shortcut's keycaps, which follow the density too.)
-      await expect.poll(async () => parseFloat(await css(rowOf(labelled(page, 'size-small', 'Cut')), 'min-block-size')), `density ${density || 1}`).toBeCloseTo(Math.max(step, pointer), 1);
+      // (A row's least height: a row with a keyboard shortcut grows with the shortcut's keycaps, which follow the size unit too.)
+      await expect.poll(async () => parseFloat(await css(rowOf(labelled(page, 'size-small', 'Cut')), 'min-block-size')), `size unit ${unit || "4px"}`).toBeCloseTo(Math.max(step, pointer), 1);
     }
     // MNU-12: no size is lower than the pointer target for a fine pointer — seen under a layer whose pointer target (48)
     // is taller than the small row, as the default system's (36) is not.

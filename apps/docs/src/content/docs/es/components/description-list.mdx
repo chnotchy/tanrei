@@ -2,7 +2,7 @@
 title: Lista de descripciones
 description: Presenta lo que se sabe de una cosa como datos con nombre, un término discreto y el valor que le responde, con los términos al lado de sus valores, encima de ellos o debajo de una cifra grande. Se dispone según su propia anchura y nunca es un control.
 translationOf: components/description-list.mdx
-sourceHash: f50d04d5ce041d7fe0606862aa11f2eb7359f970
+sourceHash: 46443c618d44954a116061bc7d85860c9ada2c76
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -155,7 +155,7 @@ La lista lo decide todo a partir de su propia anchura, nunca de la de la ventana
 | `medium` (predeterminado) | 14 sobre un interlineado de 20, y 14 sobre 22 | 12; con una línea, 12 a cada lado de ella | Datos que se leen: una página, una tarjeta, un diálogo. |
 | `small` | 12 sobre 16, y 13 sobre 20 | 6; con una línea, 6 a cada lado de ella | Datos que se recorren con la vista: un panel lateral, un inspector. |
 
-La cifra de la disposición stat es de 32 sobre 40 en `medium` y de 20 sobre 28 en `small`. El espacio entre datos sigue la [densidad](/es/foundations/size-and-density/) del sistema en los dos tamaños. Una lista que no define `size` se dibuja con el tamaño que defina un contenedor a su alrededor para lo que contiene, y con medium si ninguno lo define. No pasa ningún tamaño a lo que contienen sus valores: una etiqueta o un botón dentro de un valor tiene el suyo.
+La cifra de la disposición stat es de 32 sobre 40 en `medium` y de 20 sobre 28 en `small`. El espacio entre datos sigue el espaciado del sistema, `dial.space.unit`, en los dos tamaños. Una lista que no define `size` se dibuja con el tamaño que defina un contenedor a su alrededor para lo que contiene, y con medium si ninguno lo define. No pasa ningún tamaño a lo que contienen sus valores: una etiqueta o un botón dentro de un valor tiene el suyo.
 
 ### Cómo distinguir los datos
 
