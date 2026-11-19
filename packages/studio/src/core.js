@@ -44,7 +44,6 @@ export const ESSENTIALS = ['type.base', 'space.unit', 'shape.unit', 'type.contra
 const DIAL_RANGES = {
   'type.base': { min: 12, max: 22, step: 0.5 },
   'type.contrast': { min: 0.6, max: 1.5, step: 0.05 },
-  density: { min: 0.75, max: 1.5, step: 0.05 },
   'space.unit': { min: 4, max: 14, step: 0.5 },
   'size.unit': { min: 3, max: 7, step: 0.25 },
   'shape.unit': { min: 0, max: 8, step: 0.5 },
@@ -56,7 +55,7 @@ const DIAL_RANGES = {
  * to 48, the largest platform figure (Material's 48 dp). A whole pixel at a time.
  */
 export const TARGET_MINIMUM = { min: 24, max: 48, step: 1 };
-/** The steps of the control height ladder the Size row shows next to the density. */
+/** The steps of the control height ladder the Size row shows next to the size unit. */
 export const LADDER_SHOWN = ['small', 'medium', 'large'];
 const LAYER_KEYS = ['$schema', 'id', 'name', 'extends', 'description', 'specVersion', 'attribution', 'palettes', 'vocabulary', 'tokens', 'rules'];
 
@@ -405,7 +404,7 @@ export function createStudio({ config, sources, vocabulary, resolver, layers, mc
 
   /**
    * Of the tokens that move with the dials, those the browser follows by itself: the rules the emitter writes as CSS
-   * arithmetic (`derivedExpression`), `mul` (with its density, step and floor), `add` (a step a number of units from
+   * arithmetic (`derivedExpression`), `mul` (with its step and floor), `add` (a step a number of units from
    * another value, with its floor), `sub` held at zero (an inner corner) and `pad` (a block padding that follows its
    * box's height). A `pick` follows a choice of kind
    * and is written as the value it picks: of these types it is valued again, as a text style's tracking is.
@@ -594,14 +593,13 @@ export function createStudio({ config, sources, vocabulary, resolver, layers, mc
     return next;
   }
 
-  // ── the size row: the minimum target, and the heights the density gives ──────────────────────
+  // ── the size row: the minimum target, and the heights the size unit gives ────────────────────
   const TARGET = `${NS}.sys.target.`;
   const MINIMUM = `${TARGET}minimum`;
   const LADDER = `${NS}.sys.control.height.`;
   /**
    * `sys.target.minimum` under this layer: `{ id, value, base, unit, min, max, step, changed, reason }`; null where the
-   * chain has no such token. Its value is the developer's own (no dial scales it), so the size unit and the density
-   * never move it. `max` is the control's 48, or less where the touch or pointer target is set apart from the
+   * chain has no such token. Its value is the developer's own (no dial scales it), so the size unit never moves it. `max` is the control's 48, or less where the touch or pointer target is set apart from the
    * minimum below 48: the build refuses a minimum above them.
    */
   function targetMinimum(layer) {
@@ -636,18 +634,18 @@ export function createStudio({ config, sources, vocabulary, resolver, layers, mc
   }
   /**
    * The heights the ladder's small, medium and large give in a computed view, by the engine's own arithmetic
-   * (`evaluateNumeric`): each step's rule, with `dial.density` and `sys.target.minimum` taken from `at` where it gives
+   * (`evaluateNumeric`): each step's rule, with `dial.size.unit` and `sys.target.minimum` taken from `at` where it gives
    * them (a value being dragged) and from the view otherwise. `step` is the ladder's height; `drawn` is what a
    * pressable control of that size is drawn at, the step read through the minimum (`mul` by 1 with `min`, as every
-   * pressable height reads it). A step the layer wrote as a value is that value at any density.
+   * pressable height reads it). A step the layer wrote as a value is that value at any size unit.
    */
   function heights(view, at = {}) {
     const tokens = view.model?.tokens;
     if (!tokens?.[MINIMUM]) return [];
-    const given = new Map([[`${DIAL}density`, at.density], [MINIMUM, at.minimum]].filter(([, value]) => typeof value === 'number'));
+    const given = new Map([[`${DIAL}size.unit`, at.unit], [MINIMUM, at.minimum]].filter(([id, value]) => typeof value === 'number' && tokens[id]));
     const norm = (v) => (typeof v === 'number' ? { value: v } : v);
     const lookup = (id) => {
-      if (given.has(id)) return id === MINIMUM ? { value: given.get(id), unit: tokens[MINIMUM].value.unit } : { value: given.get(id) };
+      if (given.has(id)) return { value: given.get(id), unit: tokens[id].value.unit };
       if (!tokens[id]) throw new Error(`${id}: not in the view`);
       return norm(tokens[id].value);
     };

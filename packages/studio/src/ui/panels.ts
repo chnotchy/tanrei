@@ -486,14 +486,14 @@ function aboutPanel(ctx: Ctx) {
 }
 
 /**
- * The size of what is pressed: density, with the heights it gives; the size unit; and the minimum target, the least
- * size anything pressable is drawn at — a value of its own, which neither dial moves.
+ * The size of what is pressed: the size unit, with the heights it gives; and the minimum target, the least size
+ * anything pressable is drawn at — a value of its own, which no dial moves.
  */
 function sizePanel(ctx: Ctx) {
   const { t, studio } = ctx;
-  // What the density and the minimum give, as the engine works it out (core.heights): while either is dragged, at the
+  // What the size unit and the minimum give, as the engine works it out (core.heights): while either is dragged, at the
   // value shown; else at the layer's.
-  const shown: { density?: number; minimum?: number } = {};
+  const shown: { unit?: number; minimum?: number } = {};
   const heights = h('p', { class: 'ts-hint', 'data-heights': true, 'aria-live': 'polite' });
   let said = '';
   const drawHeights = () => {
@@ -520,19 +520,19 @@ function sizePanel(ctx: Ctx) {
     })
     : null;
   const dials = studio.dials(ctx.layer()) as Json[];
-  const rows = ['density', 'size.unit'].map((key) => dials.find((dial) => dial.key === key)).filter((dial): dial is Json => Boolean(dial)).map((dial) => {
+  const rows = ['size.unit'].map((key) => dials.find((dial) => dial.key === key)).filter((dial): dial is Json => Boolean(dial)).map((dial) => {
     const [name, note] = t.dials.names[dial.key] ?? [dial.key, ''];
-    return dial.key === 'density' ? dialRow(ctx, dial, { name, note, onvalue: (value) => ((shown.density = value), drawHeights()), after: heights }) : dialRow(ctx, dial, { name, note });
+    return dialRow(ctx, dial, { name, note, onvalue: (value) => ((shown.unit = value), drawHeights()), after: heights });
   });
   // What the layer says once a value is committed (and every other change: an undo, another base).
   ctx.onUpdate(() => {
-    delete shown.density;
+    delete shown.unit;
     delete shown.minimum;
     drawHeights();
   });
   drawHeights();
   const resetAll = linkButton(t.resetAll, () => {
-    const layer = dials.filter((dial) => dial.key === 'density' || dial.key === 'size.unit').reduce((next: Json, dial: Json) => studio.setDial(next, dial.id, dial.base), ctx.layer());
+    const layer = dials.filter((dial) => dial.key === 'size.unit').reduce((next: Json, dial: Json) => studio.setDial(next, dial.id, dial.base), ctx.layer());
     ctx.commit(minimum ? studio.setTargetMinimum(layer, (studio.targetMinimum(layer) as Json).base) : layer);
   }, { 'data-reset-dials': 'size' });
   return panel(ctx, { title: t.rail.rows.size, help: t.rail.help.size, key: 'size', actions: [resetAll] }, h('div', { class: 'ts-rows', 'data-dials': 'size' }, rows, minimumRow));

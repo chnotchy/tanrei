@@ -6,7 +6,7 @@ import { resolveToken, rootTokens } from './harness.js';
  * The size cascade for an input box (TXI-73, NMI-49, CLI-47, SEL-73, CMB-83): a box that sets no size of its own is
  * drawn at the size its nearest container sets — a toolbar's here (TBR-31) —, a set size only and never a container's
  * default; its own size, medium included, wins; a size it lacks is its nearest; a change, a removal and a move are drawn
- * at once; at density 0.75, 1 and 1.5 every height is its size's token; and no size attribute is written on a box that
+ * at once; at size unit 4, 5 and 6 every height is its size's token; and no size attribute is written on a box that
  * takes its size. `T` names a token of the box (`inputBoxToken(<component>)`); `attrs` is what each box is written with
  * besides its id, its size and its label; `inner.selector` selects, in the box's shadow root, a Button whose size follows
  * the size the box draws (a stepper, a picker button), and `inner.sizes` is that Button's size in the small box that takes
@@ -45,12 +45,12 @@ export async function expectBoxTakesContainerSize(
       [change, ids] as const,
     );
   const all = ['taken', 'own', 'own-medium', 'free', 'alone'];
-  for (const density of ['0.75', '1', '1.5']) {
-    await rootTokens(page, { '--tanrei-dial-density': density });
+  for (const unit of ['4px', '5px', '6px']) {
+    await rootTokens(page, { '--tanrei-dial-size-unit': unit });
     const [small, medium, large] = [await height('small'), await height('medium'), await height('large')];
-    expect(await boxes(all), `density ${density}`).toEqual({ taken: small, own: large, 'own-medium': medium, free: medium, alone: medium });
+    expect(await boxes(all), `size unit ${unit}`).toEqual({ taken: small, own: large, 'own-medium': medium, free: medium, alone: medium });
   }
-  await rootTokens(page, { '--tanrei-dial-density': '' });
+  await rootTokens(page, { '--tanrei-dial-size-unit': '' });
   const [small, medium, large] = [await height('small'), await height('medium'), await height('large')];
   // A small box is as tall as the small Buttons beside it (TXI-16): the toolbar's items stand in one line.
   expect(small).toBe(await resolveToken(page, '--tanrei-comp-button-container-height-small'));

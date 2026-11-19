@@ -180,8 +180,8 @@ test.describe('behavior', () => {
     await expect(rows.nth(2).locator('.leading-room')).toHaveCount(0);
   });
 
-  test('LRW-17: without a size of its own a row is drawn at the size its nearest list sets — a set size, never a default — its own size, medium included, wins; a size it lacks is its nearest; a change, a removal and a move are drawn before the next frame; at density 0.75, 1 and 1.5 every height is its size’s token', async ({ page }) => {
-    // One line: its text fits every size's height at every density of the sweep, so each row is its token's height.
+  test('LRW-17: without a size of its own a row is drawn at the size its nearest list sets — a set size, never a default — its own size, medium included, wins; a size it lacks is its nearest; a change, a removal and a move are drawn before the next frame; at size unit 4, 5 and 6 every height is its size’s token', async ({ page }) => {
+    // One line: its text fits every size's height at every size unit of the sweep, so each row is its token's height.
     const r = (id: string, size = '') => `<tanrei-list-row id="${id}" ${size ? `size="${size}" ` : ''}leading-icon="wifi" headline="Wi-Fi"></tanrei-list-row>`;
     const item = (content: string) => `<tanrei-list-item>${content}</tanrei-list-item>`;
     await mountHtml(page, {
@@ -207,16 +207,16 @@ test.describe('behavior', () => {
       );
     // A size it takes, or the default, is not its own: no size attribute is written on a row that sets none.
     expect(await page.evaluate((list) => list.map((id) => document.getElementById(id)!.getAttribute('size')), all)).toEqual([null, 'medium', null, null, null, null]);
-    for (const density of ['0.75', '1', '1.5']) {
-      await rootTokens(page, { '--tanrei-dial-density': density });
+    for (const unit of ['4px', '5px', '6px']) {
+      await rootTokens(page, { '--tanrei-dial-size-unit': unit });
       await settled(page);
       const size = await tokens();
-      expect(await heights(...all), `density ${density}`).toEqual({ taken: size.small, 'own-medium': size.medium, free: size.medium, through: size.small, nearest: size.medium, alone: size.medium });
+      expect(await heights(...all), `size unit ${unit}`).toEqual({ taken: size.small, 'own-medium': size.medium, free: size.medium, through: size.small, nearest: size.medium, alone: size.medium });
     }
-    // The sweep moved the heights: medium at 1.5 is not the one at 1.
-    await rootTokens(page, { '--tanrei-dial-density': '1.5' });
+    // The sweep moved the heights: medium at a size unit of 6px is not the one at 4px.
+    await rootTokens(page, { '--tanrei-dial-size-unit': '6px' });
     const roomy = (await tokens()).medium;
-    await rootTokens(page, { '--tanrei-dial-density': '' });
+    await rootTokens(page, { '--tanrei-dial-size-unit': '' });
     await settled(page);
     const size = await tokens();
     expect(roomy).toBeGreaterThan(size.medium);

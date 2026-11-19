@@ -2,7 +2,7 @@
 title: "表格"
 description: "呈现有行有列的数据，带具名的列、可选的行标题、说明文字和表尾行。放不下时在自己的框内滚动。列标题可以请求让各行按这一列排序，行也可以被选择；表格自己从不排序。"
 translationOf: components/table.mdx
-sourceHash: 4a4e0c9ed0fdd67465b80d254f9158df13d09392
+sourceHash: 656e86326718080808bd0cacf66a7c0bec62b45c
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -492,7 +492,7 @@ export function rehypeTanreiTable() {
 | `medium`（默认） | 46 | 供人阅读的表格：行数不多，单元格会换行。 |
 | `small` | 32 | 供人扫读的表格：几百行，标识符和值。 |
 
-行没有自己的高度。它与其中最高的单元格一样高；无论哪种尺寸，带有复选框、单选按钮或排序按钮的行都不会低于目标。内边距随系统的[密度](/zh-cn/foundations/size-and-density/)变化。没有设置 `size` 的表格按外围容器为其内容设置的尺寸绘制，没有容器设置时按 `medium` 绘制；它不会把尺寸传给单元格里的内容。
+行没有自己的高度。它与其中最高的单元格一样高；无论哪种尺寸，带有复选框、单选按钮或排序按钮的行都不会低于目标。内边距随系统的间距 `dial.space.unit` 变化。没有设置 `size` 的表格按外围容器为其内容设置的尺寸绘制，没有容器设置时按 `medium` 绘制；它不会把尺寸传给单元格里的内容。
 
 ### 区分各行
 

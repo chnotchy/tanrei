@@ -2,7 +2,7 @@ import type { ReactiveController, ReactiveControllerHost } from 'lit';
 import { forwardAs } from './forward.js';
 
 // The size cascade (system → container → component). The system decides how much room every height takes, once: its
-// density moves the size steps' tokens, so nothing here reads it. What is set locally is a size, which a container
+// height ladder sets the size steps' tokens, so nothing here reads it. What is set locally is a size, which a container
 // passes down to what it holds: a container that has a size SET provides it (BGR-26, TBR-31), and a component that sets
 // none of its own draws the one its nearest providing container sets (BTN-48, SPB-37, CPY-21, and the input boxes'
 // TXI-73, NMI-49, CLI-47, SEL-73, CMB-83, as Carbon's Layout size and SwiftUI's `.controlSize` reach a text field and a

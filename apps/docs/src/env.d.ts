@@ -45,7 +45,7 @@ declare module 'virtual:tanrei-react-names' {
   export default names;
 }
 
-// The token engine's numeric rules, which the docs evaluate at other densities (src/lib/tokens.ts, `atDensity`): the
+// The token engine's numeric rules, which the docs evaluate at other values of a dial (src/lib/tokens.ts, `atDial`): the
 // package is JavaScript without declarations, so the two names the docs read are typed here.
 declare module '@tanrei/token-engine' {
   /** The extension a derived token's rule is written under (`dev.tanrei.derive`). */
