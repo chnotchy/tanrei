@@ -2,7 +2,7 @@
 title: Tabla de contenido
 description: Enumera los encabezados de la página que se está leyendo como enlaces a ellos y marca aquel cuya sección se está leyendo. Donde no hay sitio junto al texto, una sola fila da el nombre de la sección actual y abre la misma lista.
 translationOf: components/table-of-contents.mdx
-sourceHash: da2c0269333c7c8d80d5b1abac732d7474add022
+sourceHash: fbcb3e541a2cdda38d1d9eec3a0f2c612cf179ae
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -162,7 +162,7 @@ El componente ocupa la anchura que recibe y no decide nada sobre su lugar. Lo de
 | `medium` (predeterminado) | 44, por encima del objetivo del puntero | La mayoría de las páginas. |
 | `small` | 36, el objetivo mínimo | Una lista larga de encabezados junto al texto, en un producto que se usa con un puntero. |
 
-`size` es la altura de una fila; no es la forma compacta. Una fila nunca es más baja que el objetivo del puntero para un puntero, ni que el objetivo táctil para el tacto, en ninguno de los dos tamaños: un sistema que fije cualquiera de los dos objetivos más alto dibuja sus filas small a esa altura. Las dos alturas siguen la [densidad](/es/foundations/size-and-density/) del sistema. El estilo de texto y la sangría son los mismos en los dos. Una tabla de contenido que no define `size` se dibuja con el tamaño que defina un contenedor a su alrededor para lo que contiene, y con medium si ninguno lo define.
+`size` es la altura de una fila; no es la forma compacta. Una fila nunca es más baja que el objetivo del puntero para un puntero, ni que el objetivo táctil para el tacto, en ninguno de los dos tamaños: un sistema que fije cualquiera de los dos objetivos más alto dibuja sus filas small a esa altura. Las dos alturas siguen la [escala de tamaños](/es/foundations/size-and-density/) del sistema. El estilo de texto y la sangría son los mismos en los dos. Una tabla de contenido que no define `size` se dibuja con el tamaño que defina un contenedor a su alrededor para lo que contiene, y con medium si ninguno lo define.
 
 ### Cuál es el elemento actual
 

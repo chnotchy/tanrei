@@ -1391,7 +1391,7 @@ test.describe('items', () => {
     await expectStarts('icon-space-sub', { Send: both, Share: both });
   });
 
-  test('MNU-64: a small menu draws every row, its submenus’ too, from the small tokens — lower, set in less, smaller glyphs, the same text — never below the target; a menu takes no size from a container around it; an unknown size is medium and reported, an added one is drawn from its tokens, a change is drawn at once, and the heights follow the density', async ({ page, browserName }) => {
+  test('MNU-64: a small menu draws every row, its submenus’ too, from the small tokens — lower, set in less, smaller glyphs, the same text — never below the target; a menu takes no size from a container around it; an unknown size is medium and reported, an added one is drawn from its tokens, a change is drawn at once, and the heights follow the size unit', async ({ page, browserName }) => {
     const seen = warnings(page);
     const small = spec.fixtures.find((f) => f.id === 'size-small')!;
     await mountFixtures(page, spec, {
@@ -1476,12 +1476,12 @@ test.describe('items', () => {
     // A change is drawn at once.
     await menu(page, 'size-unset').evaluate((el: HTMLElement & { size: string }) => (el.size = 'small'));
     await expect.poll(async () => (await drawnRow('size-unset', 'Cut')).height).toBeCloseTo(cut.height, 1);
-    // The heights follow the system's density: a small row is the small token at each.
-    for (const density of ['0.75', '1.5', '']) {
-      await rootTokens(page, { '--tanrei-dial-density': density });
+    // The heights follow the system's size unit: a small row is the small token at each.
+    for (const unit of ['5px', '6px', '']) {
+      await rootTokens(page, { '--tanrei-dial-size-unit': unit });
       const step = await resolveToken(page, T('container-height-small'));
-      // (A row's least height: a row with a keyboard shortcut grows with the shortcut's keycaps, which follow the density too.)
-      await expect.poll(async () => parseFloat(await css(rowOf(labelled(page, 'size-small', 'Cut')), 'min-block-size')), `density ${density || 1}`).toBeCloseTo(Math.max(step, pointer), 1);
+      // (A row's least height: a row with a keyboard shortcut grows with the shortcut's keycaps, which follow the size unit too.)
+      await expect.poll(async () => parseFloat(await css(rowOf(labelled(page, 'size-small', 'Cut')), 'min-block-size')), `size unit ${unit || "4px"}`).toBeCloseTo(Math.max(step, pointer), 1);
     }
     // MNU-12: no size is lower than the pointer target for a fine pointer — seen under a layer whose pointer target (48)
     // is taller than the small row, as the default system's (36) is not.

@@ -106,7 +106,7 @@
             "since": "0.1.0"
           },
           "dev.tanrei.llm": {
-            "usage": "The least drawn size of anything pressable (minimum), the least areas a press is taken from (touch, pointer) and the spacing between targets. Every height of a pressable box or row is derived with min: sys.target.minimum, so no density or size step draws it lower. touch and pointer alias minimum, so one value sets all three; a system that takes a press from a larger area than it draws (a product that follows a platform guideline) sets touch or pointer above it.",
+            "usage": "The least drawn size of anything pressable (minimum), the least areas a press is taken from (touch, pointer) and the spacing between targets. Every height of a pressable box or row is derived with min: sys.target.minimum, so no size step draws it lower. touch and pointer alias minimum, so one value sets all three; a system that takes a press from a larger area than it draws (a product that follows a platform guideline) sets touch or pointer above it.",
             "rules": [
               "Never shrink a hit area below these to fit a layout.",
               "minimum is the developer's value: set it in a layer; no dial scales it.",
@@ -168,18 +168,18 @@
         "$type": "dimension",
         "$extensions": {
           "dev.tanrei.vocabulary": {
-            "rationale": "One product draws its controls at a few heights, the same for every control of one size name, and moves them all with one density.",
+            "rationale": "One product draws its controls at a few heights, the same for every control of one size name, and moves them all together.",
             "since": "0.1.0"
           },
           "dev.tanrei.llm": {
-            "usage": "The control height ladder: extra-small 24, small 32, medium 40, large 56, extra-large 72 at density 1, each dial.size.unit × a step × dial.density rounded to dial.size.unit. A component height of one of these sizes aliases its step, with min: sys.target.minimum where a person presses it.",
+            "usage": "The control height ladder: extra-small 24, small 32, medium 40, large 56, extra-large 72 by default, each dial.size.unit × a step on the size unit's grid. A component height of one of these sizes aliases its step, with min: sys.target.minimum where a person presses it.",
             "rules": [
               "The ladder itself has no minimum: extra-small is for things nobody presses (a tag, a keyboard shortcut). A pressable height reads a step through { \"fn\": \"mul\", \"of\": \"{step}\", \"by\": 1, \"min\": \"{tanrei.sys.target.minimum}\" }."
             ]
           }
         },
         "height": {
-          "$description": "The heights a control is drawn at, one per size name, on the size unit's grid and moved by the density.",
+          "$description": "The heights a control is drawn at, one per size name, on the size unit's grid.",
           "extra-small": {
             "$value": {
               "value": 24,
@@ -190,7 +190,6 @@
                 "fn": "mul",
                 "of": "{tanrei.dial.size.unit}",
                 "by": 6,
-                "times": "{tanrei.dial.density}",
                 "round": "{tanrei.dial.size.unit}"
               }
             }
@@ -205,7 +204,6 @@
                 "fn": "mul",
                 "of": "{tanrei.dial.size.unit}",
                 "by": 8,
-                "times": "{tanrei.dial.density}",
                 "round": "{tanrei.dial.size.unit}"
               }
             }
@@ -220,7 +218,6 @@
                 "fn": "mul",
                 "of": "{tanrei.dial.size.unit}",
                 "by": 10,
-                "times": "{tanrei.dial.density}",
                 "round": "{tanrei.dial.size.unit}"
               }
             }
@@ -235,7 +232,6 @@
                 "fn": "mul",
                 "of": "{tanrei.dial.size.unit}",
                 "by": 14,
-                "times": "{tanrei.dial.density}",
                 "round": "{tanrei.dial.size.unit}"
               }
             }
@@ -250,7 +246,6 @@
                 "fn": "mul",
                 "of": "{tanrei.dial.size.unit}",
                 "by": 18,
-                "times": "{tanrei.dial.density}",
                 "round": "{tanrei.dial.size.unit}"
               }
             }

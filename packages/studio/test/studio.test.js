@@ -118,14 +118,14 @@ test('Essentials: four controls and a color write the minimal layer', async () =
   assert.deepEqual(studio.setEssential(studio.setEssential(studio.blank(), 'space.unit', 12), 'space.unit', 8), studio.blank());
 });
 
-test('the Size row: the minimum target is a value of its own, 24 to 48, and the density shows the heights it gives', async () => {
+test('the Size row: the minimum target is a value of its own, 24 to 48, and the size unit shows the heights it gives', async () => {
   const MINIMUM = 'tanrei.sys.target.minimum';
   const targets = (layer) => Object.fromEntries(['minimum', 'touch', 'pointer'].map((kind) => [kind, studio.preview(layer).model.tokens[`tanrei.sys.target.${kind}`].value.value]));
   const blank = { ...studio.blank(), id: 'size-row' };
   assert.deepEqual(studio.targetMinimum(blank), { id: MINIMUM, base: 36, unit: 'px', value: 36, min: 24, max: 48, step: 1, changed: false, reason: '' });
 
-  // The size unit and the density never move the targets: no dial scales the minimum, and touch and pointer alias it.
-  for (const [dial, value] of [['size.unit', 3], ['size.unit', 7], ['density', 0.75], ['density', 1.5]]) {
+  // The size unit never moves the targets: no dial scales the minimum, and touch and pointer alias it.
+  for (const [dial, value] of [['size.unit', 3], ['size.unit', 7]]) {
     assert.deepEqual(targets(studio.setDial(blank, `tanrei.dial.${dial}`, value)), { minimum: 36, touch: 36, pointer: 36 }, `${dial} ${value}`);
   }
 
@@ -149,27 +149,27 @@ test('the Size row: the minimum target is a value of its own, 24 to 48, and the 
     assert.equal(studio.setTargetMinimum(layer, under + 1).tokens, undefined, `${base}: ${under + 1} is above its touch or pointer target`);
   }
 
-  // The heights the density gives, by the engine: the ladder's small, medium and large, read through the minimum.
+  // The heights the size unit gives, by the engine: the ladder's small, medium and large, read through the minimum.
   const heights = (view, at) => studio.heights(view, at).map(({ size, step, drawn, held }) => [size, step, drawn, held]);
   const view = studio.preview(blank);
   assert.deepEqual(heights(view), [['small', 32, 36, true], ['medium', 40, 40, false], ['large', 56, 56, false]]);
   // At a value being dragged, before the layer is computed with it — and what computing it gives is the same.
-  for (const [density, expected] of [[0.75, [['small', 24, 36, true], ['medium', 32, 36, true], ['large', 44, 44, false]]], [0.9, [['small', 28, 36, true], ['medium', 36, 36, false], ['large', 52, 52, false]]], [1.5, [['small', 48, 48, false], ['medium', 60, 60, false], ['large', 84, 84, false]]]]) {
-    assert.deepEqual(heights(view, { density }), expected, `density ${density}`);
-    const computed = studio.preview(studio.setDial(blank, 'tanrei.dial.density', density));
-    assert.deepEqual(heights(computed), expected, `density ${density}, computed`);
+  for (const [unit, expected] of [[3, [['small', 24, 36, true], ['medium', 30, 36, true], ['large', 42, 42, false]]], [3.5, [['small', 28, 36, true], ['medium', 35, 36, true], ['large', 49, 49, false]]], [6, [['small', 48, 48, false], ['medium', 60, 60, false], ['large', 84, 84, false]]]]) {
+    assert.deepEqual(heights(view, { unit }), expected, `size unit ${unit}`);
+    const computed = studio.preview(studio.setDial(blank, 'tanrei.dial.size.unit', unit));
+    assert.deepEqual(heights(computed), expected, `size unit ${unit}, computed`);
     assert.deepEqual(heights(computed).map(([size]) => computed.model.tokens[`tanrei.sys.control.height.${size}`].value.value), expected.map(([, step]) => step));
   }
   assert.deepEqual(heights(view, { minimum: 48 }), [['small', 32, 48, true], ['medium', 40, 48, true], ['large', 56, 56, false]]);
   assert.deepEqual(heights(studio.preview(studio.setTargetMinimum(blank, 48))), heights(view, { minimum: 48 }));
 
-  // Both ends of the control, at both ends of the density, build with nothing said of a target: the layer the Studio
+  // Both ends of the control, at both ends of the size unit, build with nothing said of a target: the layer the Studio
   // writes passes the build's checks.
   for (const minimum of [24, 48]) {
-    for (const density of [0.75, 1.5]) {
-      const layer = studio.setTargetMinimum(studio.setDial(blank, 'tanrei.dial.density', density), minimum);
+    for (const unit of [3, 7]) {
+      const layer = studio.setTargetMinimum(studio.setDial(blank, 'tanrei.dial.size.unit', unit), minimum);
       assert.equal(layer.tokens[MINIMUM].$value.value, minimum);
-      await assertPreviewIsTheBuild(layer, { warnings: (warnings) => assert.deepEqual(warnings.filter((w) => /target/i.test(w)), [], `minimum ${minimum}, density ${density}`) });
+      await assertPreviewIsTheBuild(layer, { warnings: (warnings) => assert.deepEqual(warnings.filter((w) => /target/i.test(w)), [], `minimum ${minimum}, size unit ${unit}`) });
     }
   }
 });

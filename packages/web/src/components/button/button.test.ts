@@ -253,7 +253,7 @@ test.describe('behavior', () => {
     expect(styles.background).toMatch(/0\.12\)$/);
   });
 
-  test('BTN-48: without a size of its own a button is drawn at the size its nearest container sets — a set size, never a default — its own size, medium included, wins; a size it lacks is its nearest; a change, a removal and a move are drawn before the next frame; at density 0.75, 1 and 1.5 and minimum 24, 36 and 48 every height is its size’s token, the ladder step held at the minimum', async ({ page }) => {
+  test('BTN-48: without a size of its own a button is drawn at the size its nearest container sets — a set size, never a default — its own size, medium included, wins; a size it lacks is its nearest; a change, a removal and a move are drawn before the next frame; at size unit 4, 5 and 6 and minimum 24, 36 and 48 every height is its size’s token, the ladder step held at the minimum', async ({ page }) => {
     // Containers that pass a size are button groups (BGR-26). A group holds Buttons alone, so a group in a group is
     // reported (BGR-10) and still laid out — here it is how one container stands nearer a button than another.
     await page.evaluate(() => {
@@ -295,10 +295,10 @@ test.describe('behavior', () => {
     expect(await page.evaluate((list) => list.map((id) => document.getElementById(id)!.getAttribute('size')), all)).toEqual([null, 'large', 'medium', null, null, null, null]);
 
     for (const minimum of ['24px', '36px', '48px']) {
-      for (const density of ['0.75', '1', '1.5']) {
-        await rootTokens(page, { '--tanrei-dial-density': density, '--tanrei-sys-target-minimum': minimum });
+      for (const unit of ['4px', '5px', '6px']) {
+        await rootTokens(page, { '--tanrei-dial-size-unit': unit, '--tanrei-sys-target-minimum': minimum });
         const size = await tokens();
-        const at = `density ${density}, minimum ${minimum}`;
+        const at = `size unit ${unit}, minimum ${minimum}`;
         // Each size's height is its ladder step, held at the minimum (the token engine's rule, read back here).
         const min = await resolveToken(page, '--tanrei-sys-target-minimum');
         for (const name of ['small', 'medium', 'large'] as const) {
@@ -315,10 +315,10 @@ test.describe('behavior', () => {
         });
       }
     }
-    // The sweep moved the heights: the large step at 1.5 is not the one at 1.
-    await rootTokens(page, { '--tanrei-dial-density': '1.5', '--tanrei-sys-target-minimum': '' });
+    // The sweep moved the heights: the large step at a size unit of 6px is not the one at 4px.
+    await rootTokens(page, { '--tanrei-dial-size-unit': '6px', '--tanrei-sys-target-minimum': '' });
     const roomy = (await tokens()).large;
-    await rootTokens(page, { '--tanrei-dial-density': '' });
+    await rootTokens(page, { '--tanrei-dial-size-unit': '' });
     const size = await tokens();
     expect(roomy).toBeGreaterThan(size.large);
 

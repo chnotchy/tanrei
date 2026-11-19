@@ -254,8 +254,8 @@ export function tokenDetail(ctx: Ctx, id: string, open: (id: string) => void): H
 export function ruleText(rule: Json, ns: string): string {
   const name = (v: unknown) => (isRef(v) ? short((v as string).slice(1, -1), ns) : String(v));
   if (rule.fn === 'mul') {
-    // max(min, round(of × by^exp × times, round)), in the order the engine applies it.
-    const product = `${name(rule.of)} × ${rule.by}${rule.exp !== undefined ? ` ^ ${name(rule.exp)}` : ''}${rule.times !== undefined ? ` × ${name(rule.times)}` : ''}`;
+    // max(min, round(of × by^exp, round)), in the order the engine applies it.
+    const product = `${name(rule.of)} × ${rule.by}${rule.exp !== undefined ? ` ^ ${name(rule.exp)}` : ''}`;
     const rounded = rule.round !== undefined ? `round(${product}, ${name(rule.round)})` : product;
     return rule.min !== undefined ? `max(${name(rule.min)}, ${rounded})` : rounded;
   }

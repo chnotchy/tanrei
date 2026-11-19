@@ -268,7 +268,6 @@ export interface TanreiState {
 
 /** The dial values this system was derived from (informational at runtime: derivation is build-time). */
 export interface TanreiDials {
-  readonly density: number;
   readonly motionUnit: number;
   readonly shapeUnit: number;
   readonly sizeUnit: number;

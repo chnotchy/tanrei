@@ -167,28 +167,31 @@ export function sourceNode(dotted: string): Json | undefined {
   return undefined;
 }
 
-// ── A height at another density ─────────────────────────────────────────
-// The token engine's own rules, evaluated over the default system's sources with `dial.density` set to another number:
-// what a product that sets that density gets. A value no rule derives (a dial, the minimum target) is the default
-// system's resolved one.
+// ── A height at another value of a dial ──────────────────────────────────
+// The token engine's own rules, evaluated over the default system's sources with one dial set to another value: what a
+// product that sets that dial gets. A value no rule derives (another dial, the minimum target) is the default system's
+// resolved one.
 
 const isRef = (value: unknown): value is string => typeof value === 'string' && /^\{[^}]+\}$/.test(value);
 
 /** A dimension token's value, and the value its own rule gives without its `min` (where it has one). */
-export interface DensityValue {
+export interface DialValue {
   value: number;
   unit?: string;
   /** What the token's rule gives before its floor, where the floor holds it higher; else undefined. */
   unfloored?: number;
 }
 
-function evaluateAt(dotted: string, density: number, memo: Map<string, { value: number; unit?: string }>): { value: number; unit?: string } {
-  if (dotted === `${ns}.dial.density`) return { value: density };
+/** A dial set to a value of its own type: what `evaluateAt` reads in place of the default system's. */
+type Setting = { id: string; value: { value: number; unit?: string } };
+
+function evaluateAt(dotted: string, setting: Setting | null, memo: Map<string, { value: number; unit?: string }>): { value: number; unit?: string } {
+  if (setting && dotted === setting.id) return setting.value;
   const known = memo.get(dotted);
   if (known) return known;
   const node = sourceNode(dotted);
   const rule = node?.$extensions?.[DERIVE];
-  const lookup = (id: string) => evaluateAt(id, density, memo);
+  const lookup = (id: string) => evaluateAt(id, setting, memo);
   let out: { value: number; unit?: string };
   if (rule && 'fn' in rule) out = evaluateNumeric(rule, lookup, { type: 'dimension' });
   else if (isRef(node?.$value)) out = lookup(node.$value.slice(1, -1));
@@ -203,23 +206,27 @@ function evaluateAt(dotted: string, density: number, memo: Map<string, { value: 
 }
 
 /**
- * What a token of the default system resolves to when `dial.density` is `density`. Evaluated at 1 it must equal what
- * the build resolved, or the build stops: a layer of the default system that pinned the token would make the other
- * columns a guess.
+ * What a token of the default system resolves to when the dial `dial` (`size.unit`) is `value`, in the dial's own
+ * unit. Evaluated at the default dials it must equal what the build resolved, or the build stops: a layer of the default
+ * system that pinned the token would make the other columns a guess.
  */
-export function atDensity(dotted: string, density: number): DensityValue {
+export function atDial(dotted: string, dial: string, value: number): DialValue {
+  const dialId = `${ns}.dial.${dial}`;
+  const own = at(contexts.light, dialId)?.$value;
+  if (!own || typeof own.value !== 'number') throw new Error(`${dialId}: not a dimension dial of the default system.`);
   const resolved = at(contexts.light, dotted)?.$value;
-  const atOne = evaluateAt(dotted, 1, new Map());
-  if (resolved?.value !== atOne.value) throw new Error(`${dotted}: its rule gives ${atOne.value} at density 1, and the default system resolves it to ${resolved?.value}. A layer pins it; a table of densities cannot be read from its rule.`);
+  const atDefault = evaluateAt(dotted, null, new Map());
+  if (resolved?.value !== atDefault.value) throw new Error(`${dotted}: its rule gives ${atDefault.value} at the default dials, and the default system resolves it to ${resolved?.value}. A layer pins it; a table of heights cannot be read from its rule.`);
+  const setting: Setting = { id: dialId, value: { value, unit: own.unit } };
   const memo = new Map();
-  const out: DensityValue = evaluateAt(dotted, density, memo);
+  const out: DialValue = evaluateAt(dotted, setting, memo);
   // The floor of the rule that holds it, following an alias to the rule.
   let id = dotted;
   for (let node = sourceNode(id); node && isRef(node.$value) && !node.$extensions?.[DERIVE]; node = sourceNode(id)) id = node.$value.slice(1, -1);
   const rule = sourceNode(id)?.$extensions?.[DERIVE];
   if (rule && 'fn' in rule && rule.min !== undefined) {
     const { min, ...unfloored } = rule;
-    const before = evaluateNumeric(unfloored, (ref: string) => evaluateAt(ref, density, memo), { type: 'dimension' }).value;
+    const before = evaluateNumeric(unfloored, (ref: string) => evaluateAt(ref, setting, memo), { type: 'dimension' }).value;
     if (before < out.value) out.unfloored = before;
   }
   return { ...out };

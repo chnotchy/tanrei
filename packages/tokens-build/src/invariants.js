@@ -38,8 +38,7 @@ const isTargetSizeFinding = (finding) => finding.startsWith('target size: ');
 
 /**
  * A target-floor finding that fails in every system, a product layer's too: a hit area under the drawn floor
- * (`sys.target.pointer` or `.touch` under `sys.target.minimum`) means nothing, and a density of zero or less draws
- * nothing at all.
+ * (`sys.target.pointer` or `.touch` under `sys.target.minimum`) means nothing.
  */
 export const isRefusedEverywhere = (finding) => finding.startsWith('target floor: ');
 
@@ -101,7 +100,7 @@ export function ladderReaders(documents) {
     if ('$value' in node) {
       const id = path.join('.');
       const rule = node.$extensions?.['dev.tanrei.derive'];
-      const step = (rule?.fn === 'mul' && rule.by === 1 && rule.times === undefined && rule.round === undefined && typeof rule.of === 'string' && rule.of.match(STEP)?.[1]) || (typeof node.$value === 'string' && node.$value.match(STEP)?.[1]);
+      const step = (rule?.fn === 'mul' && rule.by === 1 && rule.round === undefined && typeof rule.of === 'string' && rule.of.match(STEP)?.[1]) || (typeof node.$value === 'string' && node.$value.match(STEP)?.[1]);
       if (step) steps.set(id, step);
       else if (typeof node.$value === 'string' && /^\{[^{}]+\}$/.test(node.$value)) aliases.set(id, node.$value.slice(1, -1));
       return;
@@ -718,7 +717,7 @@ export function auditInvariants(model) {
 
   // The target floor. sys.target.minimum is the least height (and width, for an icon-only control) anything a person
   // presses is drawn at, and pointer and touch the least areas a press is taken from: none of them under WCAG 2.5.8's
-  // 24px, a hit area never under what is drawn, and a density above zero. Every height the core floors at the minimum
+  // 24px, and a hit area never under what is drawn. Every height the core floors at the minimum
   // (`model.floored`, `targetFloors`, and any rule of this system with that `min`) is held at it, so a layer that pins
   // or re-points one below it is told.
   const px = (id) => model.tokens[`${CONFIG.namespace}.${id}`]?.value?.value;
@@ -728,8 +727,6 @@ export function auditInvariants(model) {
     if (typeof value === 'number' && value < TARGET_THRESHOLDS.minimum) failures.push(`target size: sys.target.${name}: ${value}px < ${TARGET_THRESHOLDS.minimum}px (WCAG 2.5.8: the least target a person presses)`);
     if (name !== 'minimum' && typeof value === 'number' && typeof minimum === 'number' && value < minimum) failures.push(`target floor: sys.target.${name}: ${value}px is under sys.target.minimum (${minimum}px) — the area a press is taken from is never smaller than what is drawn; set it to the minimum or above`);
   }
-  const density = model.tokens[`${CONFIG.namespace}.dial.density`]?.value;
-  if (typeof density === 'number' && !(density > 0)) failures.push(`target floor: dial.density: ${density} — a density is above zero (1 is the default; below 1 draws closer, above 1 gives more room)`);
   if (typeof minimum === 'number') {
     const MIN = `{${CONFIG.namespace}.sys.target.minimum}`;
     const floored = new Set([...(model.floored ?? []), ...Object.values(model.tokens).filter((token) => token.derive?.min === MIN).map((token) => token.id)]);

@@ -103,7 +103,6 @@
                   "fn": "mul",
                   "of": "{tanrei.dial.size.unit}",
                   "by": 14,
-                  "times": "{tanrei.dial.density}",
                   "round": "{tanrei.dial.size.unit}",
                   "min": "{tanrei.sys.target.minimum}"
                 }
@@ -119,7 +118,6 @@
                   "fn": "mul",
                   "of": "{tanrei.dial.size.unit}",
                   "by": 12,
-                  "times": "{tanrei.dial.density}",
                   "round": "{tanrei.dial.size.unit}",
                   "min": "{tanrei.sys.target.minimum}"
                 }

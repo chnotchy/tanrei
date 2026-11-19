@@ -1,8 +1,8 @@
 // The numeric half of the rule language. Closed and declarative:
-//   mul    { of: "{id}", by: n, exp?: "{id}" | n,    → max(min, round(of × by^exp × times, to the step `round`))
-//            times?: "{id}", round?: "{id}",            (exp defaults to 1, so by^1 = by exactly; times is a number
-//            min?: "{id}" }                              token, absent = 1; round is the step, absent = 0.25px / 1ms;
-//                                                        min is a floor applied after rounding, absent = none)
+//   mul    { of: "{id}", by: n, exp?: "{id}" | n,    → max(min, round(of × by^exp, to the step `round`))
+//            round?: "{id}", min?: "{id}" }              (exp defaults to 1, so by^1 = by exactly; round is the step,
+//                                                        absent = 0.25px / 1ms; min is a floor applied after
+//                                                        rounding, absent = none)
 //   add    { of: "{id}", by: "{id}", times?: n,      → max(min, of + by × times), on 0.25px / 1ms: a step a whole
 //            min?: "{id}" }                              number of units from another value (times absent = 1, and
 //                                                        negative below it; min is a floor, absent = none), so a
@@ -10,10 +10,10 @@
 //   scale  { base: "{id}", ratio: n, step: n }       → base × ratio^step
 //   clamp  { of: "{id}", min: n, max: n }
 //   pad    { of: "{id}", height: "{id}", by?: n }    → max(0, of × by + (height − height₁) / 2), on 0.25px: the block
-//                                                       padding of a box whose height follows a density — it gives up
-//                                                       half of what the height lost and takes half of what it gained,
-//                                                       so the box stays 2 × padding + one line. height₁ is the height
-//                                                       with every `times` read as 1 and no `min` (`unscaledLookup`);
+//                                                       padding of a box whose height moves — it gives up half of
+//                                                       what the height lost and takes half of what it gained, so
+//                                                       the box stays 2 × padding + one line. height₁ is the height
+//                                                       with no `min` (`unscaledLookup`);
 //                                                       by (absent = 1) is what a layer's `scale` multiplies
 //   sub    { of: "{id}", by: "{id}" }                → max(0, of − by), in of's unit: an inner corner inside an outer
 //                                                       one at an inset (the concentric radius); never below zero
@@ -58,24 +58,19 @@ export function roundToStep(value, step) {
 export function ruleDependencies(rule) {
   if (!rule || typeof rule !== 'object' || 'fixed' in rule) return [];
   if (!('fn' in rule)) return Object.values(rule).flatMap(ruleDependencies); // composite: keyed by sub-field
-  // numeric: of, base, exp · mul { times, round, min } · add { by, min } · pad { of, height } (its by is a number) · sub { of, by } · pick { by, values{} } · color: mix { base, with, amount }, alpha { of, amount }, contrast-pick { on, from[] }
+  // numeric: of, base, exp · mul { round, min } · add { by, min } · pad { of, height } (its by is a number) · sub { of, by } · pick { by, values{} } · color: mix { base, with, amount }, alpha { of, amount }, contrast-pick { on, from[] }
   const picked = rule.fn === 'pick' && rule.values && typeof rule.values === 'object' ? Object.values(rule.values) : [];
-  return [rule.of, rule.base, rule.exp, rule.by, rule.times, rule.round, rule.min, rule.height, rule.with, rule.amount, rule.on, ...(Array.isArray(rule.from) ? rule.from : []), ...picked].filter(isRef).map(refId);
+  return [rule.of, rule.base, rule.exp, rule.by, rule.round, rule.min, rule.height, rule.with, rule.amount, rule.on, ...(Array.isArray(rule.from) ? rule.from : []), ...picked].filter(isRef).map(refId);
 }
 
 const sameUnit = (fn, field, rule, term, of) => {
   if ((term.unit ?? null) !== (of.unit ?? null)) throw new Error(`"${fn}" ${field} ${rule[field]} (${term.unit ?? 'no unit'}) is not in the unit of ${rule.of} (${of.unit ?? 'no unit'})`);
 };
 
-/** The optional terms of `mul`: the factor `times`, the step `round` and the floor `min` (undefined when absent). */
+/** The optional terms of `mul`: the step `round` and the floor `min` (undefined when absent). */
 function mulTerms(rule, of, lookup, ctx) {
-  for (const field of ['times', 'round', 'min']) if (rule[field] !== undefined && !isRef(rule[field])) throw new Error(`"mul" ${field} must be a token, as "{id}"`);
-  let times = 1;
-  if (rule.times !== undefined && !ctx.unscaling) {
-    const factor = lookup(refId(rule.times));
-    if (factor.unit !== undefined) throw new Error(`"mul" times ${rule.times} must be a number token; it is in ${factor.unit}`);
-    times = factor.value;
-  }
+  if ('times' in rule) throw new Error('"mul" has no "times": a height that moves with another is a step of the control height ladder, or an "add"');
+  for (const field of ['round', 'min']) if (rule[field] !== undefined && !isRef(rule[field])) throw new Error(`"mul" ${field} must be a token, as "{id}"`);
   let step;
   if (rule.round !== undefined) {
     const grid = lookup(refId(rule.round));
@@ -89,7 +84,7 @@ function mulTerms(rule, of, lookup, ctx) {
     sameUnit('mul', 'min', rule, floor, of);
     min = floor.value;
   }
-  return [times, step, min];
+  return [step, min];
 }
 
 /**
@@ -98,7 +93,7 @@ function mulTerms(rule, of, lookup, ctx) {
  * @param {(id: string) => {value: number, unit?: string, names?: string[]}} lookup resolved value of another token;
  *   for a choice of kind, `value` is its index and `names` its list (`dev.tanrei.enum.values`)
  * @param {{ type: string, fontSize?: number, unscaled?: (id: string) => {value: number, unit?: string}, unscaling?: boolean }} ctx
- *   `unscaled`: a token's value with every `times` read as 1 and no `min` (`unscaledLookup`), which `pad` measures a
+ *   `unscaled`: a token's value with no `min` (`unscaledLookup`), which `pad` measures a
  *   height's change from; `unscaling`: this evaluation is one of those (set by `unscaledLookup`)
  */
 export function evaluateNumeric(rule, lookup, ctx) {
@@ -108,8 +103,8 @@ export function evaluateNumeric(rule, lookup, ctx) {
       const of = lookup(refId(rule.of));
       const exp = rule.exp === undefined ? 1 : num(rule.exp);
       const coefficient = exp === 1 ? rule.by : rule.by ** exp;
-      const [times, step, min] = mulTerms(rule, of, lookup, ctx);
-      const product = of.value * coefficient * times;
+      const [step, min] = mulTerms(rule, of, lookup, ctx);
+      const product = of.value * coefficient;
       const rounded = step === undefined ? roundTo(product, ROUND[ctx.type] ?? ROUND.number) : roundToStep(product, step);
       return { value: min === undefined ? rounded : Math.max(min, rounded), unit: of.unit };
     }
@@ -132,7 +127,7 @@ export function evaluateNumeric(rule, lookup, ctx) {
       const base = rule.by === undefined ? of.value : roundTo(of.value * rule.by, ROUND[ctx.type] ?? ROUND.number);
       // Where no height has moved, nothing has been given up or taken.
       if (ctx.unscaling) return { value: base, unit: of.unit };
-      if (typeof ctx.unscaled !== 'function') throw new Error('"pad" needs the height its rule gives with "times" at 1 and no "min" (ctx.unscaled; see unscaledLookup)');
+      if (typeof ctx.unscaled !== 'function') throw new Error('"pad" needs the height its rule gives with no "min" (ctx.unscaled; see unscaledLookup)');
       const [height, height1] = [lookup(refId(rule.height)), ctx.unscaled(refId(rule.height))];
       sameUnit('pad', 'height', rule, height, of);
       return { value: Math.max(0, roundTo(base + (height.value - height1.value) / 2, ROUND[ctx.type] ?? ROUND.number)), unit: of.unit };
@@ -173,7 +168,7 @@ export function evaluateNumeric(rule, lookup, ctx) {
 }
 
 /**
- * The values tokens take with every `times` read as 1 and no `min`: the height a `pad` measures its box's change from.
+ * The values tokens take with no `min`: the height a `pad` measures its box's change from.
  * Each token is described by the caller, so the engine, the build and Theme Studio walk their own structures alike.
  * @param {(id: string) => { alias?: string, rule?: object, type?: string, value?: {value: number, unit?: string} }} describe
  *   a token as an alias (`alias`: the id it points at), a numeric rule to evaluate (`rule`, `type`), or its value

@@ -1850,7 +1850,7 @@ test.describe('nested, missing, unknown, empty', () => {
     expect(await css(header(page, 'added', 2), 'font')).toBe(reference[1]);
   });
 
-  test('ACC-37: without a size of its own an accordion is drawn at the size its nearest container sets — a set size, never a default — and its own size, medium included, wins; a size it lacks is its nearest; it passes none to an accordion in its content; a change, a removal and a move are drawn before the next frame, keeping every item’s open and the focus; at density 0.75, 1 and 1.5 every header is its size’s height', async ({ page }) => {
+  test('ACC-37: without a size of its own an accordion is drawn at the size its nearest container sets — a set size, never a default — and its own size, medium included, wins; a size it lacks is its nearest; it passes none to an accordion in its content; a change, a removal and a move are drawn before the next frame, keeping every item’s open and the focus; at size unit 4, 5 and 6 every header is its size’s height', async ({ page }) => {
     await mountFixtures(page, spec, { icons: true, fixtures: [raw('anchor', {}, THREE)] });
     // The containers that pass a size are the button group and the toolbar; a button group stands in for any of them
     // here (it reports content that is not a Button, BGR-10, and still lays it out).
@@ -1886,12 +1886,12 @@ test.describe('nested, missing, unknown, empty', () => {
     };
     // A size it takes, or the default, is not its own: no size attribute is written on an accordion that sets none.
     expect(await page.evaluate((ids) => ids.map((id) => document.getElementById(id)!.getAttribute('size')), all)).toEqual([null, 'medium', null, null, null, null]);
-    for (const density of ['0.75', '1', '1.5']) {
-      await rootTokens(page, { '--tanrei-dial-density': density });
+    for (const unit of ['4px', '5px', '6px']) {
+      await rootTokens(page, { '--tanrei-dial-size-unit': unit });
       const size = await headers();
-      await expect.poll(heights, `density ${density}`).toEqual({ taken: size.small, 'own-medium': size.medium, free: size.medium, nearest: size.medium, nested: size.medium, alone: size.medium });
+      await expect.poll(heights, `size unit ${unit}`).toEqual({ taken: size.small, 'own-medium': size.medium, free: size.medium, nearest: size.medium, nested: size.medium, alone: size.medium });
     }
-    await rootTokens(page, { '--tanrei-dial-density': '' });
+    await rootTokens(page, { '--tanrei-dial-size-unit': '' });
     const size = await headers();
     expect(size.medium).toBeGreaterThan(size.small);
     // Every member of the size: the label's text style, the chevron's box and the space under the content are small's.

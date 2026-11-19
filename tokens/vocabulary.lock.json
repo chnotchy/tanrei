@@ -6929,7 +6929,6 @@
     "tanrei.comp.tree-view.unselected.state-layer.color": "color",
     "tanrei.comp.tree-view.unselected.supporting-text.color": "color",
     "tanrei.comp.tree-view.unselected.trailing-text.color": "color",
-    "tanrei.dial.density": "number",
     "tanrei.dial.motion.unit": "duration",
     "tanrei.dial.shape.unit": "dimension",
     "tanrei.dial.size.unit": "dimension",

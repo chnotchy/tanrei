@@ -70,7 +70,7 @@ const ASKED = {
   'export.downloaded': [['acme.system.json']],
   'export.put': [['design/acme.system.json']],
   'rail.hueChroma': [['0', '0'], ['265', '16']],
-  'rail.size': [['1', '4px', '36px'], ['0.85', '4.25px', '44px']],
+  'rail.size': [['4px', '36px'], ['4.25px', '44px']],
   'rail.held': [['36px', '32px'], ['48px', '40px']],
   'rail.lock': [['Brand color'], ['Gray']],
   'exporting.depend': [['M3-like (Material 3-inspired)']],
