@@ -106,7 +106,9 @@ interface Subject {
 const SUBJECTS: Record<string, Subject> = {
   'app-bar': { boxes: ['tanrei-app-bar .subtitle', 'tanrei-app-bar .title'] },
   button: { boxes: ['tanrei-button .label'], content: true },
-  'button-with-menu': { boxes: ['tanrei-button-with-menu .label'] },
+  // The label's text is held by `.label-text`, inside `.label` under productText(): a busy leading half fades the text
+  // and keeps its box (SPB-39).
+  'button-with-menu': { boxes: ['tanrei-button-with-menu .label-text'] },
   callout: { boxes: ['tanrei-callout .headline'] },
   checkbox: { boxes: ['tanrei-checkbox .label'] },
   chip: { boxes: ['tanrei-chip .label'] },
