@@ -223,7 +223,7 @@ test('search_tokens: substring, glob, filters and pagination', async () => {
   assert.ok(substring.tokens.some((t) => t.id === 'tanrei.sys.color.focus-ring'));
 
   const dials = (await server.call('search_tokens', { tier: 'dial' })).data;
-  assert.equal(dials.total, 7);
+  assert.equal(dials.total, 8);
   assert.ok(dials.tokens.every((t) => t.kind === 'dial'));
   assert.ok(dials.tokens.every((t) => typeof t.description === 'string' && t.description.length > 10 && t.description.length <= 140), 'a short description: its own, or the vocabulary rationale');
   const durations = (await server.call('search_tokens', { type: 'duration', kind: 'derived', limit: 5 })).data;
@@ -950,8 +950,8 @@ test('resources: philosophy, the layer schema, every shipped layer, every system
   // Both ideals, and how they hold together.
   for (const phrase of [/a small core/, /exact reproduction/, /any layer may extend it/, /a step in a series/, /a value on a component axis/, /the layer's own tokens/, /"tanrei\.comp\.button\.size\.3x": \{ "from": "large", "scale": 1\.5/, /rationale/, /Additive only/, /own namespace = the layer id/, /nothing in `tanrei\.\*` may reference them/, /Interaction states are not extensible/, /--acme-/, /for core and extensions alike/, /propose_extension/]) assert.match(philosophy.text, phrase);
   assert.doesNotMatch(philosophy.text, /never in tokens|can never add|cannot add/i);
-  // The dials as the vocabulary has them (seven), and the minimum target that is none of them.
-  for (const phrase of [/Seven numeric dials/, /size\.unit 4px/, /`sys\.target\.minimum`, which is no dial \(36px/, /`sys\.target\.pointer` and `\.touch` alias it/, /`sys\.target\.pointer` or `\.touch` under `sys\.target\.minimum`/]) assert.match(philosophy.text, phrase);
+  // The dials as the vocabulary has them (eight), and the minimum target that is none of them.
+  for (const phrase of [/Eight numeric dials/, /control\.height 40px/, /size\.unit 4px/, /`sys\.target\.minimum`, which is no dial \(36px/, /`sys\.target\.pointer` and `\.touch` alias it/, /`sys\.target\.pointer` or `\.touch` under `sys\.target\.minimum`/]) assert.match(philosophy.text, phrase);
   assert.doesNotMatch(philosophy.text, /density/, 'no density dial');
   assert.doesNotMatch(philosophy.text, /\b(44|48)px\b/, 'no platform figure is named as the default');
   assert.equal(JSON.parse((await read('tanrei://schema/system')).text).title, 'Tanrei design system layer');

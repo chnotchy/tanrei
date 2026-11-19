@@ -76,6 +76,25 @@ test('checkSources holds an add rule to the literal next to it', () => {
   assert.deepEqual(checkSources(Object.values(wrong)), ['tanrei.sys.control.height.large: rule gives 56, $value says 52']);
 });
 
+test('pad measures from a dial’s reference: a box that follows the control height below it gives up half of what it lost; above it, the box grows and the padding keeps its value', () => {
+  const refSources = structuredClone(sources);
+  refSources['dial/dial.tokens.json'].tanrei.dial.height.$extensions = { 'dev.tanrei.reference': px(40) };
+  refSources['sys/space.tokens.json'] = { tanrei: { sys: { space: { $type: 'dimension', $extensions: voc, space75: { $value: px(6), $extensions: { [DERIVE]: { fn: 'mul', of: '{tanrei.dial.size.unit}', by: 1.5 } } }, padding: { $value: px(6), $extensions: { [DERIVE]: { fn: 'pad', of: '{tanrei.sys.space.space75}', height: '{tanrei.sys.control.height.medium}' } } } } } } };
+  assert.deepEqual(checkSources(Object.values(refSources)), []);
+  for (const [height, padding] of [[40, 6], [32, 2], [24, 0], [48, 6], [56, 6]]) {
+    const system = mergeLayers([{ id: 'acme', tokens: { 'tanrei.dial.height': { $value: px(height), reason: 'The height under test.' } } }]);
+    assert.equal(values(resolveNumericTokens(refSources, system))['tanrei.sys.space.padding'], padding, `at ${height}: the box stays two paddings and one line`);
+  }
+  // Without a reference the dial is read as it is set, and nothing is given up.
+  const system = mergeLayers([{ id: 'acme', tokens: { 'tanrei.dial.height': { $value: px(32), reason: 'The height under test.' } } }]);
+  const plain = structuredClone(refSources);
+  delete plain['dial/dial.tokens.json'].tanrei.dial.height.$extensions;
+  assert.equal(values(resolveNumericTokens(plain, system))['tanrei.sys.space.padding'], 6);
+  const wrong = structuredClone(refSources);
+  wrong['dial/dial.tokens.json'].tanrei.dial.height.$extensions = { 'dev.tanrei.reference': { value: 40, unit: 'ms' } };
+  assert.match(checkSources(Object.values(wrong)).join('\n'), /tanrei\.dial\.height: its reference must be \{ "value": <number>, "unit": "px" \}/);
+});
+
 test('a ladder written with add follows its height through a layer, its distances kept', () => {
   for (const [height, expected] of [[40, [32, 40, 56]], [36, [28, 36, 52]], [32, [24, 32, 48]]]) {
     const system = mergeLayers([{ id: 'acme', tokens: { 'tanrei.dial.height': { $value: px(height), reason: 'The height under test.' } } }]);

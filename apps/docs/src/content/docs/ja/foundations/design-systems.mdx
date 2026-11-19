@@ -2,7 +2,7 @@
 title: デザインシステムとカスタマイズ
 description: 語彙は 1 つ、デザインシステムは多数。ダイヤルを回す・パレットを宣言する・トークンの参照先を差し替える — 1 コミットで全プラットフォームが追従します。
 translationOf: foundations/design-systems.mdx
-sourceHash: 201c3a081671808f31fccd76186bb1621ba716ec
+sourceHash: 01133940a45d802734c51108961ed75ad1812d8b
 ---
 
 import Callout from '../../../../components/Callout.astro';
@@ -21,14 +21,15 @@ Tanrei のコアの語彙は、「1 つのデザインシステムが、1 つの
 
 ## ダイヤル：1 箇所変えれば全体に波及
 
-デザインシステムは、既定のままで自然に見え、1 つ変えれば全体が追従するべきものです。すべての値の下に、7 つの数値 **ダイヤル（dial）** があります。
+デザインシステムは、既定のままで自然に見え、1 つ変えれば全体が追従するべきものです。すべての値の下に、8 つの数値 **ダイヤル（dial）** があります。
 
 | ダイヤル | 既定値 | 動くもの |
 |---|---|---|
 | `dial.type.base` | 16px | すべての文字サイズ |
 | `dial.type.contrast` | 1 | 見出しと本文の差の大きさ |
 | `dial.space.unit` | 8px | すべての余白・間隔 |
-| `dial.size.unit` | 4px | コントロールの高さ、アイコンサイズ |
+| `dial.size.unit` | 4px | コントロールのサイズどうしの間隔、アイコンサイズ |
+| `dial.control.height` | 40px | 既定のサイズでのコントロールと行の高さ。small と large はそこからサイズ単位の整数倍だけ離れる（[サイズと密度](/ja/foundations/size-and-density/)） |
 | `dial.shape.unit` | 2px | すべての角丸 |
 | `dial.stroke.unit` | 1px | 枠線、リング、フォーカス表示 |
 | `dial.motion.unit` | 50ms | すべての時間 |

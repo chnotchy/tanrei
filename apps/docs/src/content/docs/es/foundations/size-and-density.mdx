@@ -2,35 +2,35 @@
 title: Tamaño y densidad
 description: Una escala de cinco alturas para los tamaños de los controles, el tamaño mínimo al que se dibuja todo lo que se pulsa y un tamaño que un contenedor pasa a lo que contiene.
 translationOf: foundations/size-and-density.mdx
-sourceHash: 8b50a80f2bcbb500410d614e2175a99d4c2a81db
+sourceHash: 0c15202bde8b986e755b2cf5d0a67cc68cf59d97
 ---
 
 import DialHeights from '../../../../components/tokens/DialHeights.astro';
 import SystemValues from '../../../../components/tokens/SystemValues.astro';
 
-La altura de un control o de una fila sale de tres valores. La **escala de tamaños** y el **objetivo mínimo** son de todo el sistema de diseño: un producto fija cada uno una sola vez, en su capa. El **tamaño** es de un componente o de un grupo de ellos: un botón es small, medium o large allí donde está.
+La altura de un control o de una fila sale de tres valores. La **altura de control** y el **objetivo mínimo** son de todo el sistema de diseño: un producto fija cada uno una sola vez, en su capa. El **tamaño** es de un componente o de un grupo de ellos: un botón es small, medium o large allí donde está.
 
 ## La escala de tamaños
 
-La escala son cinco alturas, `tanrei.sys.control.height.*`, que leen los tamaños de los controles: cada una es la unidad de tamaño (`dial.size.unit`, 4px de forma predeterminada) por un factor, sobre la cuadrícula de la unidad de tamaño. Estas son las alturas con algunas unidades de tamaño, calculadas a partir de las reglas de los propios tokens:
+La escala son cinco alturas, `tanrei.sys.control.height.*`, que leen los tamaños de los controles: `medium` es la altura de control, `tanrei.dial.control.height` (40 de forma predeterminada), y las demás quedan un número entero de unidades de tamaño (`dial.size.unit`, 4px de forma predeterminada) por debajo y por encima: `small` dos y `extra-small` cuatro por debajo, `large` cuatro y `extra-large` ocho por encima. Estas son las alturas con algunas alturas de control, calculadas a partir de las reglas de los propios tokens:
 
-<DialHeights group="sys.control.height" dial="size.unit" values={[3, 3.5, 4, 5, 6]} source="tokens/sys/measure.tokens.json" />
+<DialHeights group="sys.control.height" dial="control.height" values={[36, 40, 44, 48, 56]} source="tokens/sys/measure.tokens.json" />
 
-Muchos componentes toman sus alturas de estos escalones, y los que leen el mismo escalón miden lo mismo con cualquier unidad de tamaño: los tamaños `small`, `medium` y `large` del Button leen los escalones small, medium y large. La escala en sí no tiene suelo, porque `extra-small` es para lo que nadie pulsa, como un tag o un atajo de teclado.
+Muchos componentes toman sus alturas de estos escalones, y los que leen el mismo escalón miden lo mismo con cualquier altura de control: los tamaños `small`, `medium` y `large` del Button leen los escalones small, medium y large. La escala en sí no tiene suelo, porque `extra-small` es para lo que nadie pulsa, como un tag o un atajo de teclado.
 
 ## El objetivo mínimo
 
 `tanrei.sys.target.minimum` es la altura mínima a la que se dibuja todo lo que una persona pulsa, y el ancho mínimo de un control que solo tiene icono. Toda altura de una caja o de una fila que se pulsa se deriva con él como suelo, así que ningún tamaño la dibuja más baja. Es el valor del desarrollador: ningún dial lo escala, porque un suelo que encogiera con lo que limita no sería un suelo.
 
-En el sistema predeterminado, el mínimo es 36, igual para un puntero que para un dedo. Las alturas del Button muestran cómo actúa: un valor entre paréntesis es lo que dan el tamaño y la unidad de tamaño, y la altura que lo precede es la que el mínimo mantiene en el botón.
+En el sistema predeterminado, el mínimo es 36, igual para un puntero que para un dedo. Las alturas del Button muestran cómo actúa: un valor entre paréntesis es lo que dan el tamaño y la altura de control, y la altura que lo precede es la que el mínimo mantiene en el botón.
 
-<DialHeights group="comp.button.container.height" dial="size.unit" values={[3, 3.5, 4, 5, 6]} source="tokens/comp/button.tokens.json" />
+<DialHeights group="comp.button.container.height" dial="control.height" values={[36, 40, 44, 48, 56]} source="tokens/comp/button.tokens.json" />
 
 Otros dos valores dicen desde qué área se recibe una pulsación: `sys.target.touch` bajo un dedo y `sys.target.pointer` bajo un puntero preciso. Ambos son el mínimo de forma predeterminada, así que un solo valor fija los tres. Un sistema que sigue las pautas de una plataforma los sube; entonces, un control que está solo recibe la pulsación desde esa área mayor, más allá de lo que dibuja, y una fila que toca a sus vecinas se dibuja con esa altura. Una marca que se dibuja más pequeña que el objetivo, como la caja de una casilla de verificación o un chip pequeño, conserva su tamaño y extiende su área de pulsación hasta el objetivo. Lo que fija cada sistema incluido:
 
 <SystemValues tokens={['sys.target.minimum', 'sys.target.touch', 'sys.target.pointer']} />
 
-La compilación comprueba cada sistema: ninguno de los tres por debajo de 24px (WCAG 2.5.8), `touch` y `pointer` nunca por debajo del mínimo y ninguna altura con suelo por debajo del mínimo. Si la capa de un producto fija un objetivo por debajo de 24px, se le avisa con una advertencia; un área de pulsación por debajo del mínimo se rechaza en cualquier sistema.
+La compilación comprueba cada sistema: ninguno de los tres por debajo de 24px (WCAG 2.5.8), `touch` y `pointer` nunca por debajo del mínimo, el mínimo nunca por encima de la altura de control y ninguna altura con suelo por debajo del mínimo. Si la capa de un producto fija un objetivo por debajo de 24px, se le avisa con una advertencia; un área de pulsación por debajo del mínimo, o un mínimo por encima de la altura de control, se rechaza en cualquier sistema.
 
 ## Cómo fijarlos en una capa
 
@@ -38,12 +38,12 @@ Ambos son tokens que una capa fija con un motivo:
 
 ```json
 "tokens": {
-  "tanrei.dial.size.unit": { "$value": { "value": 3.5, "unit": "px" }, "reason": "An editor people look at all day: controls and icons a little smaller." },
+  "tanrei.dial.control.height": { "$value": { "value": 32, "unit": "px" }, "reason": "A tool used all day with a mouse: controls and rows lower." },
   "tanrei.sys.target.minimum": { "$value": { "value": 32, "unit": "px" }, "reason": "Used with a mouse; 32 is the least we draw." }
 }
 ```
 
-En la web, las alturas son expresiones CSS de los diales, así que fijar `--tanrei-dial-size-unit` en el elemento raíz mueve todas las alturas a la vez, sin compilar de nuevo. En [Theme Studio](/es/foundations/theme-studio/), la fila Tamaño reúne la unidad de tamaño y el objetivo mínimo.
+En la web, las alturas son expresiones CSS de los diales, así que fijar `--tanrei-dial-control-height` en el elemento raíz mueve a la vez todas las alturas que la siguen, sin compilar de nuevo. En [Theme Studio](/es/foundations/theme-studio/), la fila Tamaño reúne la altura de control, la unidad de tamaño y el objetivo mínimo.
 
 ## Un tamaño fijado en un contenedor
 

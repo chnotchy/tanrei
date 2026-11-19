@@ -2183,7 +2183,7 @@ test.describe('missing, unknown, empty, changed', () => {
     expect(await events(page)).toEqual([]);
   });
 
-  test('TRV-73: without a size of its own a tree draws every row at the size its nearest container sets — a set size, never a default — and its own size, medium included, wins; a size it lacks is its nearest; a change, a removal and a move are drawn before the next frame, keeping every parent’s open and the focus; at size unit 4, 5 and 6 every row is its size’s height', async ({ page }) => {
+  test('TRV-73: without a size of its own a tree draws every row at the size its nearest container sets — a set size, never a default — and its own size, medium included, wins; a size it lacks is its nearest; a change, a removal and a move are drawn before the next frame, keeping every parent’s open and the focus; at control height 40, 48 and 56 every row is its size’s height', async ({ page }) => {
     await mount(page, { fixtures: [raw('anchor', { label: 'Anchor' }, SMALL)] });
     // The containers that pass a size are the button group and the toolbar; a button group stands in for any of them
     // here (it reports content that is not a Button, BGR-10, and still lays it out).
@@ -2217,14 +2217,14 @@ test.describe('missing, unknown, empty, changed', () => {
     };
     // A size it takes, or the default, is not its own: no size attribute is written on a tree that sets none.
     expect(await page.evaluate((ids) => ids.map((id) => document.getElementById(id)!.getAttribute('size')), all)).toEqual([null, 'medium', null, null, null]);
-    for (const unit of ['4px', '5px', '6px']) {
-      await rootTokens(page, { '--tanrei-dial-size-unit': unit });
+    for (const height of ['40px', '48px', '56px']) {
+      await rootTokens(page, { '--tanrei-dial-control-height': height });
       const size = await rows();
-      await expect.poll(heights, `size unit ${unit}`).toEqual({ taken: size.small, 'own-medium': size.medium, free: size.medium, nearest: size.medium, alone: size.medium });
+      await expect.poll(heights, `control height ${height}`).toEqual({ taken: size.small, 'own-medium': size.medium, free: size.medium, nearest: size.medium, alone: size.medium });
     }
-    await rootTokens(page, { '--tanrei-dial-size-unit': '6px' });
+    await rootTokens(page, { '--tanrei-dial-control-height': '56px' });
     const roomy = (await rows()).small;
-    await rootTokens(page, { '--tanrei-dial-size-unit': '' });
+    await rootTokens(page, { '--tanrei-dial-control-height': '' });
     const size = await rows();
     expect(roomy).toBeGreaterThan(size.small);
     // The tree's own rules for the size it draws: the label's text style and the glyphs' boxes are the small ones.

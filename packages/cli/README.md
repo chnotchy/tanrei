@@ -33,14 +33,15 @@ npx tanrei build
 }
 ```
 
-A layer sets values in this order of preference: a dial first. The dials are seven numbers every token is derived from — `type.base`, `type.contrast`, `space.unit`, `size.unit`, `shape.unit`, `stroke.unit`, `motion.unit`, each `tanrei.dial.<name>`. Two values decide how big things are:
+A layer sets values in this order of preference: a dial first. The dials are eight numbers every token is derived from — `type.base`, `type.contrast`, `space.unit`, `size.unit`, `control.height`, `shape.unit`, `stroke.unit`, `motion.unit`, each `tanrei.dial.<name>`. Three values decide how big things are:
 
 | | |
 |---|---|
-| `tanrei.dial.size.unit` | 4px: the grid control heights and icon sizes sit on |
+| `tanrei.dial.control.height` | 40px: the height controls and rows are drawn at in their default size; small and large are whole size units below and above it (32 and 56) |
+| `tanrei.dial.size.unit` | 4px: the distance between the control sizes, and the scale of icons |
 | `tanrei.sys.target.minimum` | 36px: the least height anything a person presses is drawn at. No dial scales it, and no size step draws a pressable height below it. `tanrei.sys.target.pointer` and `.touch`, the least areas a press is taken from, alias it; a layer that follows a platform guideline sets them higher |
 
-`tanrei validate` and `tanrei build` refuse a pointer or touch target under the minimum, in every layer. A target under 24px (WCAG 2.5.8) or a pressable height under the minimum is a warning in your layer. `init` prints the same summary.
+`tanrei validate` and `tanrei build` refuse a pointer or touch target under the minimum, and a minimum above the control height, in every layer. A target under 24px (WCAG 2.5.8) or a pressable height under the minimum is a warning in your layer. `init` prints the same summary.
 
 `tanrei.json` says where each output goes. List only what you ship.
 

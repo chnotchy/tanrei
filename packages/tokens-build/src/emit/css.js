@@ -53,8 +53,8 @@ function shadow(token) {
 // height moves with it at runtime.
 // A `mul` with `round` and `min` is `max(min, round(nearest, calc(of * by), round))`, the engine's order: rounded to
 // the step, ties upward, then floored. A `pad` is `max(0px, round(nearest, calc(of + (height - height₁) / 2), 0.25px))`,
-// where height₁ is the height's own expression with no `min` (`unscaledExpression`), so a padding follows a floor or a
-// size unit set at runtime with its box; with a `by` (a padding a layer scaled), `of` is `of × by` on the 0.25px step.
+// where height₁ is the height's own expression with no `min` and the control height at least at its reference
+// (`unscaledExpression`), so a padding follows a floor, a control height or a size unit set at runtime with its box; with a `by` (a padding a layer scaled), `of` is `of × by` on the 0.25px step.
 const zeroOf = (type) => (type === 'number' ? '0' : type === 'duration' ? '0ms' : '0px');
 const refOf = (v) => ref(v.slice(1, -1));
 function derivedExpression(rule, type, tokens, { read = refOf, unscaling = false } = {}) {
@@ -87,11 +87,15 @@ function derivedExpression(rule, type, tokens, { read = refOf, unscaling = false
   return floored(`round(nearest, ${product}, ${type === 'duration' ? '1ms' : '0.25px'})`);
 }
 
-/** Whether a token's value depends on a `min` or a `pad` anywhere below it: what `pad` must unscale. */
+/**
+ * Whether a token's value depends on a `min`, a `pad` or a dial with a reference (the control height) anywhere below
+ * it: what `pad` must unscale.
+ */
 function scales(id, tokens, seen = new Set()) {
   const token = tokens[id];
   if (!token || seen.has(id)) return false;
   seen.add(id);
+  if (token.reference) return true;
   if (token.alias) return scales(token.alias, tokens, seen);
   const rule = token.derive;
   if (!rule || 'fixed' in rule || token.type === 'typography') return false;
@@ -99,10 +103,11 @@ function scales(id, tokens, seen = new Set()) {
   return ruleDependencies(rule).some((dep) => scales(dep, tokens, seen));
 }
 
-/** A token's expression with no `min`: `var()` where nothing below it scales. */
+/** A token's expression with no `min` and every dial with a reference at it: `var()` where nothing below it scales. */
 function unscaledExpression(id, tokens) {
   if (!scales(id, tokens)) return ref(id);
   const token = tokens[id];
+  if (token.reference) return `max(${ref(id)}, ${dimension(token.reference, token.path)})`;
   if (token.alias) return unscaledExpression(token.alias, tokens);
   const written = derivedExpression(token.derive, token.type, tokens, { read: (v) => unscaledExpression(v.slice(1, -1), tokens), unscaling: true });
   if (!written) throw new Error(`css: ${id} follows a floor through a "${token.derive.fn}" rule, which CSS cannot write; a "pad" cannot measure its height from it`);
