@@ -96,7 +96,8 @@
     "navigation-drawer/collapsed/item/container/padding-block/regular": "navigation-drawer/collapsed/item/container/padding-block/medium",
     "navigation-drawer/collapsed/item/container/padding-block/compact": "navigation-drawer/collapsed/item/container/padding-block/small",
     "navigation-drawer/heading/height/regular": "navigation-drawer/heading/height/medium",
-    "navigation-drawer/heading/height/compact": "navigation-drawer/heading/height/small"
+    "navigation-drawer/heading/height/compact": "navigation-drawer/heading/height/small",
+    "navigation-drawer/collapsed/item/container/padding-inline": "navigation-drawer/collapsed/item/label/padding-inline"
   },
   "textStyles": {
     "tanrei/typescale/display-medium": "tanrei/typescale/display",

@@ -6096,6 +6096,7 @@ private object M3LikeSystemSource {
             breakpointExpanded = 1024.dp,
             collapsedItemContainerShape = 9999.dp,
             collapsedItemGap = 4.dp,
+            collapsedItemLabelPaddingInline = 4.dp,
             collapsedItemLabelTypescale = typescale.labelSmall,
             containerMaxWidth = 400.dp,
             containerMinWidth = 200.dp,

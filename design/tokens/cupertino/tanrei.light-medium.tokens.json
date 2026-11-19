@@ -59688,6 +59688,14 @@
               "$description": "From the collapsed item container to the short label below it, where collapsedLabels draws one."
             },
             "label": {
+              "padding-inline": {
+                "$type": "dimension",
+                "$value": {
+                  "value": 4,
+                  "unit": "px"
+                },
+                "$description": "On each side of a short label, inside the icon column: the label is the column's width less this on each side (72 - 8 = 64 at medium in the default system), centred in the column, as Material's rail lets its label span the item. Read only where collapsedLabels draws a label."
+              },
               "typescale": {
                 "$type": "typography",
                 "$value": {
@@ -59709,7 +59717,7 @@
                   },
                   "lineHeight": 1.3846
                 },
-                "$description": "The short label under the icon, on one line, where collapsedLabels draws one: across the icon column less container.padding-inline on each side, not held to the collapsed item container's width, and cut with an ellipsis where it is wider."
+                "$description": "The short label under the icon, on one line, where collapsedLabels draws one: across the icon column less collapsed.item.label.padding-inline on each side, not held to the collapsed item container's width, and cut with an ellipsis where it is wider."
               }
             }
           }

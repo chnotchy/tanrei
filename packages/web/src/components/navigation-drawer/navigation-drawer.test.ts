@@ -1166,7 +1166,7 @@ test.describe('the collapsed form', () => {
   test('NVD-32: where a short label is drawn the item container stays the square behind the icon and the label is collapsed.item.gap under it, outside it, centred on one line across the column less its margins, cut with an ellipsis, collapsed padding-block below it, the hit area over both; under m3-like, in collapsed-labels-always, the cell is Material’s — a 56 by 32 indicator behind the glyph and the short label under it', async ({ page }) => {
     await mount(page, only('collapsed-labels-always', 'collapsed-short-labels'), { reducedMotion: true });
     const [pad, gap, cw, column, margin] = await Promise.all(
-      [T('collapsed-item-container-padding-block-medium'), T('collapsed-item-gap'), T('collapsed-item-container-width-medium'), T('collapsed-container-width-medium'), T('container-padding-inline')].map((n) => px(page, n)),
+      [T('collapsed-item-container-padding-block-medium'), T('collapsed-item-gap'), T('collapsed-item-container-width-medium'), T('collapsed-container-width-medium'), T('collapsed-item-label-padding-inline')].map((n) => px(page, n)),
     );
     const p = await bounds(panel(page, 'collapsed-labels-always'));
     for (const n of [0, 1, 2, 3]) {
@@ -1179,9 +1179,9 @@ test.describe('the collapsed form', () => {
       // The short label: the gap under the item container, collapsed padding-block below it inside the cell.
       expect(short.y - (c.y + c.height)).toBeCloseTo(gap, 1);
       expect(hit.y + hit.height - (short.y + short.height)).toBeCloseTo(pad, 0);
-      // Across the column less its margins (48 = 72 - 2 × 12), centred on the icon column, not the item container's width.
+      // Across nearly the column (64 = 72 - 2 × 4), centred on the icon column, not the item container's width.
       expect(short.width).toBeCloseTo(column - 2 * margin, 1);
-      expect(short.width).toBe(48);
+      expect(short.width).toBe(64);
       expect(short.x - p.x).toBeCloseTo(margin, 1);
       expect(centre(short).x).toBeCloseTo(centre(c).x, 1);
       // The hit area (the cell) covers the icon and the short label.
@@ -1192,8 +1192,8 @@ test.describe('the collapsed form', () => {
       await expect(item(page, 'collapsed-labels-always', n).locator('.short')).toHaveCSS('opacity', '1');
     }
     expect(await css(item(page, 'collapsed-labels-always', 0).locator('.short'), 'text-align')).toBe('center');
-    // The verify: Starred, Shared and Recent are drawn whole; a label wider than
-    // the column's room (Notifications) is still cut. The text's own width is compared, since scrollWidth is rounded.
+    // The verify: every label but Notifications is drawn whole, Settings among them; a label wider than the column's
+    // room (Notifications) is still cut. The text's own width is compared, since scrollWidth is rounded.
     const cut = (id: string, n: number) =>
       item(page, id, n)
         .locator('.short-text')
@@ -1202,7 +1202,7 @@ test.describe('the collapsed form', () => {
           range.selectNodeContents(el);
           return range.getBoundingClientRect().width > el.getBoundingClientRect().width + 0.01;
         });
-    expect(await Promise.all([0, 1, 2].map((n) => cut('collapsed-labels-always', n)))).toEqual([false, false, false]);
+    expect(await Promise.all([0, 1, 2, 3].map((n) => cut('collapsed-labels-always', n)))).toEqual([false, false, false, false]);
     expect(await Promise.all([0, 1, 2, 3].map((n) => cut('collapsed-short-labels', n)))).toEqual([false, false, false, true]);
     await mount(page, only('collapsed-labels-always'), { reducedMotion: true, system: 'm3-like' });
     const m3 = await Promise.all(['.icon-indicator', '.short', '.icon'].map((s) => bounds(item(page, 'collapsed-labels-always', 0).locator(s))));

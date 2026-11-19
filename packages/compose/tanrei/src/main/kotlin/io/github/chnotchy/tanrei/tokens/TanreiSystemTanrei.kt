@@ -5984,6 +5984,7 @@ private object TanreiSystemSource {
             breakpointExpanded = 1024.dp,
             collapsedItemContainerShape = 6.dp,
             collapsedItemGap = 4.dp,
+            collapsedItemLabelPaddingInline = 4.dp,
             collapsedItemLabelTypescale = typescale.labelSmall,
             containerMaxWidth = 400.dp,
             containerMinWidth = 200.dp,

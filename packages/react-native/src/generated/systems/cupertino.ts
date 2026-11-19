@@ -7874,6 +7874,7 @@ export const cupertino = {
       breakpointExpanded: 1024,
       collapsedItemContainerShape: 10,
       collapsedItemGap: 4,
+      collapsedItemLabelPaddingInline: 4,
       collapsedItemLabelTypescale: "labelSmall",
       containerMaxWidth: 400,
       containerMinWidth: 200,

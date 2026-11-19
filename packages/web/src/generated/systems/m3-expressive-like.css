@@ -5394,6 +5394,7 @@
     --tanrei-comp-navigation-drawer-collapsed-item-container-width-medium: round(nearest, calc(var(--tanrei-dial-size-unit) * 14), 0.25px);
     --tanrei-comp-navigation-drawer-collapsed-item-container-width-small: max(var(--tanrei-sys-target-minimum), var(--tanrei-sys-control-height-small));
     --tanrei-comp-navigation-drawer-collapsed-item-gap: var(--tanrei-sys-space-space50);
+    --tanrei-comp-navigation-drawer-collapsed-item-label-padding-inline: var(--tanrei-sys-space-space50);
     --tanrei-comp-navigation-drawer-collapsed-item-label-typescale-font-family: var(--tanrei-sys-typescale-label-small-font-family);
     --tanrei-comp-navigation-drawer-collapsed-item-label-typescale-font-size: var(--tanrei-sys-typescale-label-small-font-size);
     --tanrei-comp-navigation-drawer-collapsed-item-label-typescale-font-weight: var(--tanrei-sys-typescale-label-small-font-weight);

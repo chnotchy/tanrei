@@ -6292,6 +6292,7 @@ private let cupertinoNavigationDrawerTokens = TanreiNavigationDrawerTokens(
   breakpointExpanded: 1024,
   collapsedItemContainerShape: 10,
   collapsedItemGap: 4,
+  collapsedItemLabelPaddingInline: 4,
   collapsedItemLabelTypescale: cupertinoTypescale.labelSmall,
   containerMaxWidth: 400,
   containerMinWidth: 200,

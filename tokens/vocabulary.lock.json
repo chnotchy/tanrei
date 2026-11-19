@@ -4302,6 +4302,7 @@
     "tanrei.comp.navigation-drawer.collapsed.item.container.width.medium": "dimension",
     "tanrei.comp.navigation-drawer.collapsed.item.container.width.small": "dimension",
     "tanrei.comp.navigation-drawer.collapsed.item.gap": "dimension",
+    "tanrei.comp.navigation-drawer.collapsed.item.label.padding-inline": "dimension",
     "tanrei.comp.navigation-drawer.collapsed.item.label.typescale": "typography",
     "tanrei.comp.navigation-drawer.container.color.modal": "color",
     "tanrei.comp.navigation-drawer.container.color.standard": "color",

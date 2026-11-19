@@ -1424,15 +1424,16 @@ export const cellStyles = css`
 
   /* NVD-32, NVD-33, NVD-34: the short label, collapsed.item.gap under the collapsed item container (outside it: the
      item container stays behind the icon alone, as Material's rail keeps its indicator), centred on the icon column in
-     one line of collapsed.item.label.typescale, across the column less its margins (container.padding-inline on each
-     side: the row starts after the start one), not the item container's width, and cut with an ellipsis where it is
-     wider. It fades in over the second half of a collapse and out over the first half of an expansion (NVD-35), and
+     one line of collapsed.item.label.typescale, across nearly the column's width (the column less
+     collapsed.item.label.padding-inline on each side; the row starts container.padding-inline into the column), as
+     Material's rail lets its label span the item, not the item container's width, and cut with an ellipsis where it
+     is wider. It fades in over the second half of a collapse and out over the first half of an expansion (NVD-35), and
      with the selection over the selection motion (NVD-41). */
   .short {
     position: absolute;
     inset-block-start: calc(50% + ${d('--_nvd-ind-h')} / 2 + ${d('--_nvd-pill-pad')} + ${t('collapsed-item-gap')});
-    inset-inline-start: 0;
-    inline-size: calc(${unsafeCSS(COLUMN)} - 2 * ${unsafeCSS(PAD_INLINE)});
+    inset-inline-start: calc(${t('collapsed-item-label-padding-inline')} - ${unsafeCSS(PAD_INLINE)});
+    inline-size: calc(${unsafeCSS(COLUMN)} - 2 * ${t('collapsed-item-label-padding-inline')});
     overflow: hidden;
     text-align: center;
     white-space: nowrap;

@@ -3646,6 +3646,7 @@ export interface TanreiNavigationDrawerTokens {
   readonly breakpointExpanded: number;
   readonly collapsedItemContainerShape: number;
   readonly collapsedItemGap: number;
+  readonly collapsedItemLabelPaddingInline: number;
   readonly collapsedItemLabelTypescale: TanreiTypescaleRole;
   readonly containerMaxWidth: number;
   readonly containerMinWidth: number;

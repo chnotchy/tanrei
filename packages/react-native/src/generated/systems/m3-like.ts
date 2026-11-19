@@ -9699,6 +9699,7 @@ export const m3Like = {
       breakpointExpanded: 1024,
       collapsedItemContainerShape: 9999,
       collapsedItemGap: 4,
+      collapsedItemLabelPaddingInline: 4,
       collapsedItemLabelTypescale: "labelSmall",
       containerMaxWidth: 400,
       containerMinWidth: 200,

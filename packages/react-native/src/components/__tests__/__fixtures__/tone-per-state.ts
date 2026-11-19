@@ -10466,6 +10466,7 @@ export const tonePerState = {
       breakpointExpanded: 1024,
       collapsedItemContainerShape: 6,
       collapsedItemGap: 4,
+      collapsedItemLabelPaddingInline: 4,
       collapsedItemLabelTypescale: "labelSmall",
       containerMaxWidth: 400,
       containerMinWidth: 200,
