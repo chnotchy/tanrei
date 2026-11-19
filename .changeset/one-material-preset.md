@@ -42,5 +42,14 @@ What breaks:
   (`superseded-by`). `tokens/fidelity/reference/androidx-material3-buttons.json` is now `androidx-material3.json`.
 
 Baselines: the snapshot baselines of the `m3-like` fixtures that draw these parts change, and that is the intended
-result of this change. They are recorded again on Linux, not in this change. Every `m3-expressive-like` baseline is
-removed with its system.
+result of this change. They are recorded again on Linux, not in this change. On the web, 25 of the 107
+`packages/web/snapshots/systems/m3-like/` baselines change, found by rendering every one before and after the change
+on one machine and comparing the two renders: app-bar/small-scrolled, button/{elevated,filled,outlined,text,tonal}-medium,
+button-group/connected, calendar/range, callout/closable-title-actions, chat-composer/inline-rtl,
+code-block/syntax-marked, copy-button/labelled-tonal, date-time-picker/modal-date-time, dialog/icon,
+empty-state/actions, figure/docs-demo-code, file-picker/drop-area-error, file-upload/drop-area-statuses,
+image-preview/several-rtl, loading-indicator/contained-medium, navigation-drawer/collapsed-labels-always,
+page-header/everything, popover/arrow-actions, side-sheet/modal and toolbar/floating. The native platforms'
+`m3-like` baselines of the button, button group, icon button, loading indicator and the fixtures that draw Buttons
+change too, when those platforms catch up. Every `m3-expressive-like` baseline is removed with its system: 107 on
+the web and 35 each on SwiftUI, Compose and Flutter.
