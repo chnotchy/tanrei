@@ -3204,8 +3204,8 @@ export class TanreiNavigationDrawer extends TanreiElement {
       if (this.held) {
         this.moveHeld();
         if (ends) {
-          // Its scrim fades out over the move, nothing is left inert (the app shell hears `close` first), and focus
-          // stays where it is.
+          // Its scrim is taken away at once (MOT-7), nothing is left inert (the app shell hears `close` first), and
+          // focus stays where it is.
           this.open = false;
           if (this.shown) this.withdraw(false, true);
           else this.dispatchEvent(new Event('close'));
@@ -4109,8 +4109,8 @@ export class TanreiNavigationDrawer extends TanreiElement {
    * (a change of presentation or variant, a removal) it comes down at once.
    *
    * It is no longer modal at once — the page is given back and focus goes back now, not when the motion ends (MDL-5) —
-   * and stays drawn in the top layer over its fading scrim until that motion has ended (closeModal, MDL-7), in every
-   * engine. A drawer that slides leaves inert, sliding out.
+   * and stays drawn in the top layer until that motion has ended, its scrim gone from the first frame (closeModal, MDL-7,
+   * MOT-7), in every engine. A drawer that slides leaves inert, sliding out.
    *
    * A collapsible drawer narrows to its column, its look becoming the column's (WIDENING), and leaves `interactive`:
    * what focus goes back to is often slotted in it (the menu button), and it is becoming the column, which is part of
@@ -4195,7 +4195,7 @@ export class TanreiNavigationDrawer extends TanreiElement {
   /** Counts the openings and closings of a held drawer, and its moves, so that only the last one's end is acted on. */
   private overRun = 0;
   private moveRun = 0;
-  /** A held drawer is closing (its exit, and its scrim's, still playing) or moving to a new presentation (NVD-22, NVD-54). */
+  /** A held drawer is closing (its exit still playing) or moving to a new presentation (NVD-22, NVD-54). */
   private leavingHeld = false;
   private moving = false;
 
@@ -4275,7 +4275,7 @@ export class TanreiNavigationDrawer extends TanreiElement {
   }
 
   /**
-   * NVD-19, NVD-22, NVD-54: a held drawer's slide, its move and its scrim's fade, which a held drawer plays by its own
+   * NVD-19, NVD-22, NVD-54: a held drawer's slide, its move and its scrim's fade in, which a held drawer plays by its own
    * state (no AppearController, no dialog: `statesFromNextFrame` leaves what carries `data-tanrei-appear` to those),
    * begin in the first frame drawn after this task (`startFromNextFrame`): WebKit dated them from the frame drawn before
    * it, and where the task took longer than they last drew the drawer in place, or gone, at once. Only those standing
@@ -4290,7 +4290,7 @@ export class TanreiNavigationDrawer extends TanreiElement {
   /**
    * NVD-20, NVD-22: a held drawer closes: everything changes as it begins — `close`, so that the app shell takes its
    * inert away first, then focus back where it was — and the panel slides out (a collapsible one narrows back to its
-   * column) as its scrim fades, taking no press. Nothing happens when that motion ends: the scrim has faded to nothing
+   * column), its scrim gone at once (MOT-7). Nothing happens when that motion ends: the scrim was taken away as it began
    * and the panel has left the window or become its column at rest, which is the same element. Without `notify` (the
    * frame's header gone) nothing is emitted and focus stays.
    */
@@ -4308,7 +4308,7 @@ export class TanreiNavigationDrawer extends TanreiElement {
     const opener = restore ? this.opener : null;
     if (restore) this.restoreFocus();
     else this.opener = null;
-    // NVD-20, NVD-22: its slide, its scrim's fade and the colors of what focus left and went back to (the app shell's
+    // NVD-20, NVD-22: its slide and the colors of what focus left and went back to (the app shell's
     // menu button, outside it) begin in the first frame drawn after this task.
     this.heldFromNextFrame(true);
     statesFromNextFrame([this, opener]);
@@ -4321,8 +4321,9 @@ export class TanreiNavigationDrawer extends TanreiElement {
 
   /**
    * NVD-54: a held drawer moves from its place and form in the old presentation to those of the new one over
-   * motion.expand, as the one surface it is (`data-moving`: the panel's and the scrim's motions take that duration and
-   * curve, and the host's own place in the layout changes at once). It stands over the content while it moves.
+   * motion.expand, as the one surface it is (`data-moving`: the panel's motions take that duration and curve, its scrim
+   * comes or goes at once (MOT-7), and the host's own place in the layout changes at once). It stands over the content
+   * while it moves.
    */
   private moveHeld() {
     this.moving = true;
@@ -4332,7 +4333,7 @@ export class TanreiNavigationDrawer extends TanreiElement {
     void this.updateComplete.then(() => {
       if (run !== this.moveRun) return;
       this.placeHeld();
-      // The panel's and the scrim's move, and the rows' new form, begin in the first frame drawn after this task. The
+      // The panel's move and the rows' new form begin in the first frame drawn after this task. The
       // move is waited for (settleOver), as a close is: it is played even where a page clock holds frame callbacks.
       this.heldFromNextFrame(true);
       statesFromNextFrame([this]);
