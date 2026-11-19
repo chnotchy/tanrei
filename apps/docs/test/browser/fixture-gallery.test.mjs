@@ -6,8 +6,8 @@
 //
 // It was written after the fixtures stood in a table, where at 390 wide the drawing of 1953 of 2390 fixtures began
 // past the table's visible box (the reader had to scroll the table sideways to find it), and where the drawing of
-// nine components was missing altogether. Every fixture of a component the web implements is drawn: in the page, or
-// alone in a window whose document the page writes from the web package's own document of it. No address on the site
+// nine components was missing altogether. Every fixture of a component the web implements is drawn: in the page (a modal one closed, under the
+// picture of it open), or alone in a window whose document the page writes from the web package's own document of it. No address on the site
 // is a fixture's document.
 //
 //   pnpm --filter @tanrei/docs build && pnpm --filter @tanrei/docs test:browser
@@ -372,7 +372,8 @@ async function measure() {
       continue;
     }
     const area = stage.querySelector('.docs-stage-box').getBoundingClientRect();
-    const drawn = stage.dataset.stage === 'window' ? stage.querySelector('.docs-window') : stage.querySelector('[data-fixture-scope] > .stage');
+    // A window's box; a modal fixture's picture and button, which its stage holds closed (what opens stands in the page's top layer).
+    const drawn = stage.dataset.stage === 'window' ? stage.querySelector('.docs-window') : stage.dataset.stageModal !== undefined ? stage.querySelector('.docs-stage-opener') : stage.querySelector('[data-fixture-scope] > .stage');
     if (!drawn) {
       found.push(`${id}: nothing is drawn on its stage`);
       continue;
