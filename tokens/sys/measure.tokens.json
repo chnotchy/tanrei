@@ -152,18 +152,18 @@
         "$type": "dimension",
         "$extensions": {
           "dev.tanrei.vocabulary": {
-            "rationale": "One product draws its controls at a few heights, the same for every control of one size name, and moves them all together.",
+            "rationale": "One product draws its controls at a few heights, the same for every control of one size name, and moves them all with its control height.",
             "since": "0.1.0"
           },
           "dev.tanrei.llm": {
-            "usage": "The control height ladder: extra-small 24, small 32, medium 40, large 56, extra-large 72 by default, each dial.size.unit × a step on the size unit's grid. A component height of one of these sizes aliases its step, with min: sys.target.minimum where a person presses it.",
+            "usage": "The control height ladder: steps a number of size units from dial.control.height — extra-small H − 4u, small H − 2u, medium H, large H + 4u, extra-large H + 8u (24, 32, 40, 56, 72 at H 40 and u 4). A component height of one of these sizes aliases its step, with min: sys.target.minimum where a person presses it.",
             "rules": [
               "The ladder itself has no minimum: extra-small is for things nobody presses (a tag, a keyboard shortcut). A pressable height reads a step through { \"fn\": \"mul\", \"of\": \"{step}\", \"by\": 1, \"min\": \"{tanrei.sys.target.minimum}\" }."
             ]
           }
         },
         "height": {
-          "$description": "The heights a control is drawn at, one per size name, on the size unit's grid.",
+          "$description": "The heights a control is drawn at, one per size name: medium is the control height, and the others are whole size units from it.",
           "extra-small": {
             "$value": {
               "value": 24,
@@ -171,10 +171,10 @@
             },
             "$extensions": {
               "dev.tanrei.derive": {
-                "fn": "mul",
-                "of": "{tanrei.dial.size.unit}",
-                "by": 6,
-                "round": "{tanrei.dial.size.unit}"
+                "fn": "add",
+                "of": "{tanrei.dial.control.height}",
+                "by": "{tanrei.dial.size.unit}",
+                "times": -4
               }
             }
           },
@@ -185,10 +185,10 @@
             },
             "$extensions": {
               "dev.tanrei.derive": {
-                "fn": "mul",
-                "of": "{tanrei.dial.size.unit}",
-                "by": 8,
-                "round": "{tanrei.dial.size.unit}"
+                "fn": "add",
+                "of": "{tanrei.dial.control.height}",
+                "by": "{tanrei.dial.size.unit}",
+                "times": -2
               }
             }
           },
@@ -199,10 +199,10 @@
             },
             "$extensions": {
               "dev.tanrei.derive": {
-                "fn": "mul",
-                "of": "{tanrei.dial.size.unit}",
-                "by": 10,
-                "round": "{tanrei.dial.size.unit}"
+                "fn": "add",
+                "of": "{tanrei.dial.control.height}",
+                "by": "{tanrei.dial.size.unit}",
+                "times": 0
               }
             }
           },
@@ -213,10 +213,10 @@
             },
             "$extensions": {
               "dev.tanrei.derive": {
-                "fn": "mul",
-                "of": "{tanrei.dial.size.unit}",
-                "by": 14,
-                "round": "{tanrei.dial.size.unit}"
+                "fn": "add",
+                "of": "{tanrei.dial.control.height}",
+                "by": "{tanrei.dial.size.unit}",
+                "times": 4
               }
             }
           },
@@ -227,10 +227,10 @@
             },
             "$extensions": {
               "dev.tanrei.derive": {
-                "fn": "mul",
-                "of": "{tanrei.dial.size.unit}",
-                "by": 18,
-                "round": "{tanrei.dial.size.unit}"
+                "fn": "add",
+                "of": "{tanrei.dial.control.height}",
+                "by": "{tanrei.dial.size.unit}",
+                "times": 8
               }
             }
           }

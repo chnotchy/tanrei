@@ -2460,7 +2460,7 @@ test.describe('behavior: the list', () => {
     await expect.poll(() => at('icon-space-auto', 'Print')).toBeCloseTo(kept, 0);
   });
 
-  test('CMB-68: a small combobox draws its options and group titles from the small tokens — lower, set in less, smaller glyphs, the same text — never below the target; a medium or a large combobox draws medium ones; an unknown size is medium and reported, one added to the options is drawn from their tokens, a change is drawn at once, and the heights follow the size unit', async ({ page, browserName }) => {
+  test('CMB-68: a small combobox draws its options and group titles from the small tokens — lower, set in less, smaller glyphs, the same text — never below the target; a medium or a large combobox draws medium ones; an unknown size is medium and reported, one added to the options is drawn from their tokens, a change is drawn at once, and the heights follow the control height', async ({ page, browserName }) => {
     const seen = warnings(page);
     const smallFixture = spec.fixtures.find((f) => f.id === 'size-small')!;
     const at = (id: string, size: string) => ({ ...smallFixture, id, props: { ...smallFixture.props, size } }) as Fixture;
@@ -2510,11 +2510,11 @@ test.describe('behavior: the list', () => {
     await expect.poll(async () => (await drawn('size-medium', 'Mail')).height).toBeCloseTo(mail.height, 0);
     await host(page, 'size-medium').evaluate((el: HTMLElement & { size: string }) => (el.size = 'large'));
     await expect.poll(async () => (await drawn('size-medium', 'Mail')).height).toBeCloseTo(mailMedium.height, 0);
-    // The heights follow the system's size unit: a small option is the small token at each.
-    for (const unit of ['5px', '6px', '']) {
-      await rootTokens(page, { '--tanrei-dial-size-unit': unit });
+    // The heights follow the system's control height: a small option is the small token at each.
+    for (const height of ['48px', '56px', '']) {
+      await rootTokens(page, { '--tanrei-dial-control-height': height });
       const step = await token(page, 'option-height-small');
-      await expect.poll(async () => (await drawn('size-small', 'Mail')).height, `size unit ${unit || "4px"}`).toBeCloseTo(Math.max(step, pointer), 0);
+      await expect.poll(async () => (await drawn('size-small', 'Mail')).height, `control height ${height || "40px"}`).toBeCloseTo(Math.max(step, pointer), 0);
     }
     // CMB-34: no size is lower than the pointer target for a fine pointer — seen under a layer whose pointer target (48)
     // is taller than the small row, as the default system's (36) is not.
@@ -3742,7 +3742,7 @@ test.describe('the rows: drawn while the list is shown, and in a long list those
 });
 
 test.describe('the size a container sets', () => {
-  test('CMB-83: without a size of its own a combobox draws its box at the size its nearest container sets — a toolbar’s (TBR-31), a set size and never a default —; its own size, medium included, wins; a size it lacks is its nearest; a change, a removal and a move are drawn at once; at size unit 4, 5 and 6 every height is its size’s token, the small one a small Button’s; no size attribute is written on one that takes its size; and axe finds nothing', async ({ page }) => {
+  test('CMB-83: without a size of its own a combobox draws its box at the size its nearest container sets — a toolbar’s (TBR-31), a set size and never a default —; its own size, medium included, wins; a size it lacks is its nearest; a change, a removal and a move are drawn at once; at control height 40, 48 and 56 every height is its size’s token, the small one a small Button’s; no size attribute is written on one that takes its size; and axe finds nothing', async ({ page }) => {
     await mountFixtures(page, spec, { fixtures: spec.fixtures.filter((f) => f.id === 'stacked-empty') });
     await expectBoxTakesContainerSize(page, 'tanrei-combobox', T);
   });

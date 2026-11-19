@@ -27,9 +27,9 @@ a product may want a saturated brand color and a quiet focus ring). It does not 
 nor because a component uses it today. Core changes happen only in the Tanrei repository (tokens/, lock file, review).
 
 ## Tiers and kinds
-Four tiers, one reference order: \`dial < ref < sys < comp\`. Components read \`comp\` tokens only. Seven numeric dials sit
-under everything: type.base 16px, type.contrast 1, space.unit 8px, size.unit 4px, shape.unit 2px, stroke.unit 1px,
-motion.unit 50ms. Control heights are size.unit × a step, on the size unit's grid, and a pressable height never goes below \`sys.target.minimum\`, which is no dial (36px, the developer's value). Color seeds are palette declarations, not dials. Every value is one of three kinds:
+Four tiers, one reference order: \`dial < ref < sys < comp\`. Components read \`comp\` tokens only. Eight numeric dials sit
+under everything: type.base 16px, type.contrast 1, space.unit 8px, size.unit 4px, control.height 40px, shape.unit 2px,
+stroke.unit 1px, motion.unit 50ms. \`control.height\` is the height controls and rows are drawn at in their default size: the ladder sys.control.height.* is whole size units from it (small 32, medium 40, large 56), and a pressable height never goes below \`sys.target.minimum\`, which is no dial (36px, the developer's value). Color seeds are palette declarations, not dials. Every value is one of three kinds:
 - **derived** — a rule in a closed language: \`mul\` ({ of, by, exp?, round?, min? } → max(min, round(of × by^exp, round)): round a step, ties upward, min a floor after rounding), \`add\` ({ of, by, times?, min? } → max(min, of + by × times): a step a number of units from another value), \`scale\`, \`clamp\`, \`sub\` ({ of, by } → max(0, of − by): a corner inside another at an inset), \`pad\` ({ of, height, by? } → max(0, of × by + (height − height₁) / 2), by being 1 unless a scale multiplies it and height₁ being the height with no min: a block padding that gives up or takes half of what its box's height lost or gained), \`em\`; \`tone\`, \`alpha\`, \`contrast-pick\` for color roles; \`mix\`, \`alpha\`, \`tone\`,
   \`contrast-pick\` ({ on, from: […] } → the most readable candidate, per scheme) for per-state component colors. No other arithmetic, conditionals or user functions.
 - **fixed** — a literal with a stated reason, exempt from the dials.   - **alias** — a reference that can be re-pointed.
@@ -68,7 +68,7 @@ The ruler never changes, for core and extensions alike: text 4.5:1 (7:1 in high 
 control's height must hold its content. \`sys.target.minimum\` (36px; \`sys.target.pointer\` and \`.touch\` alias it, and a layer may set them higher, never lower) and both of those are never under 24px (WCAG 2.5.8), and every pressable height the core floors at the minimum stays at or above it. These are constants in code. In the default system a violation fails the build; in
 a product layer it is a warning — printed, written to a11y-report.json, stamped into every generated file. An imitation
 preset is held to fidelity to its original, not to Tanrei's accessibility criteria, in every contrast scheme: its
-contrast is reported as measurements, not warnings; a structural or functional failure fails its build, as in the default system. One finding fails every build, a product layer's too: \`sys.target.pointer\` or \`.touch\` under \`sys.target.minimum\`.
+contrast is reported as measurements, not warnings; a structural or functional failure fails its build, as in the default system. Two findings fail every build, a product layer's too: \`sys.target.pointer\` or \`.touch\` under \`sys.target.minimum\`, and \`sys.target.minimum\` above \`dial.control.height\`.
 
 ## Workflow for a product
 search_tokens → explain_token (\`howToChange\`, \`howToExtend\`) → propose_extension if a word is missing → edit the layer →

@@ -62,7 +62,7 @@ Systems are built once and cached; a layer file is rebuilt when it, or a layer i
 
 | URI | |
 |---|---|
-| `tanrei://philosophy` | One page: the two ideals, the one-product test for the core, tiers and kinds, the seven dials and the minimum target, the layer operations, the three kinds of extension, accessibility severity. Read once. |
+| `tanrei://philosophy` | One page: the two ideals, the one-product test for the core, tiers and kinds, the eight dials and the minimum target, the layer operations, the three kinds of extension, accessibility severity. Read once. |
 | `tanrei://schema/system` | The JSON Schema of a layer file. |
 | `tanrei://systems/<id>` | Each shipped layer file as authored — worked examples of every operation. |
 | `tanrei://components/<id>` | Each shipped system's components manifest, as the repository generates it. |
@@ -79,7 +79,7 @@ The server's `instructions` give the agent the hard rules up front — the same 
 
 ## Size and targets
 
-Two values decide how big things are. `tanrei.dial.size.unit` (4px) is the grid control heights sit on: a height is `size.unit` × its step, on the size unit's grid. `tanrei.sys.target.minimum` (36px) is the least height anything a person presses is drawn at: no dial scales it, every pressable height is derived with `"min": "{tanrei.sys.target.minimum}"`, and `tanrei.sys.target.pointer` and `.touch`, the least areas a press is taken from, alias it — a layer that follows a platform guideline sets them higher. `validate_layer` and `tanrei build` refuse a pointer or touch target under the minimum in every layer; a target under 24px or a pressable height under the minimum is a warning in a product layer.
+Three values decide how big things are. `tanrei.dial.control.height` (40px) is the height controls and rows are drawn at in their default size; `tanrei.dial.size.unit` (4px) is the distance between the sizes: small is two size units below the control height and large four above it. `tanrei.sys.target.minimum` (36px) is the least height anything a person presses is drawn at: no dial scales it, every pressable height is derived with `"min": "{tanrei.sys.target.minimum}"`, and `tanrei.sys.target.pointer` and `.touch`, the least areas a press is taken from, alias it — a layer that follows a platform guideline sets them higher. `validate_layer` and `tanrei build` refuse a pointer or touch target under the minimum, and a minimum above the control height, in every layer; a target under 24px or a pressable height under the minimum is a warning in a product layer.
 
 ## An example session
 

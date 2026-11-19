@@ -14,7 +14,7 @@ const HEIGHT = '{tanrei.dial.height}';
 const MINIMUM = '{tanrei.sys.target.minimum}';
 const add = (times, extra = {}) => derive({ fn: 'add', of: HEIGHT, by: UNIT, times, ...extra });
 const sources = {
-  'dial/dial.tokens.json': { tanrei: { dial: { $extensions: voc, size: { unit: { $type: 'dimension', $value: px(4) } }, height: { $type: 'dimension', $value: px(40) } } } },
+  'dial/dial.tokens.json': { tanrei: { dial: { $extensions: voc, size: { unit: { $type: 'dimension', $value: px(4) } }, height: { $type: 'dimension', $value: px(40), $extensions: { 'dev.tanrei.reference': px(40) } } } } },
   'sys/target.tokens.json': { tanrei: { sys: { target: { $type: 'dimension', $extensions: voc, minimum: { $value: px(24), $extensions: derive({ fixed: 'The developer’s value; no dial scales it.' }) } } } } },
   'sys/space.tokens.json': { tanrei: { sys: { space: { $type: 'dimension', $extensions: voc, space75: { $value: px(6), $extensions: derive({ fn: 'mul', of: UNIT, by: 1.5 }) } } } } },
   'sys/control.tokens.json': {
@@ -31,6 +31,7 @@ const sources = {
     tanrei: { comp: { button: { $type: 'dimension', $extensions: voc,
       small: { $value: px(32), $extensions: add(-2, { min: MINIMUM }) },
       'padding-block': { $value: px(6), $extensions: derive({ fn: 'pad', of: '{tanrei.sys.space.space75}', height: '{tanrei.comp.button.small}' }) },
+      'medium-padding': { $value: px(6), $extensions: derive({ fn: 'pad', of: '{tanrei.sys.space.space75}', height: '{tanrei.sys.control.height.medium}' }) },
     } } },
   },
 };
@@ -41,7 +42,7 @@ function modelTokens(docs) {
   for (const doc of Object.values(docs)) {
     for (const { id, token, type } of walkTokens(doc)) {
       const alias = typeof token.$value === 'string' ? token.$value.slice(1, -1) : undefined;
-      tokens[id] = { id, type, path: id.split('.').slice(1), alias, derive: token.$extensions?.[DERIVE], value: token.$value };
+      tokens[id] = { id, type, path: id.split('.').slice(1), alias, derive: token.$extensions?.[DERIVE], reference: token.$extensions?.['dev.tanrei.reference'], value: token.$value };
     }
   }
   return tokens;
@@ -57,10 +58,14 @@ test('add: of + by × times, a whole number of units unrounded, a fraction on th
   assert.equal(written('tanrei.comp.button.small'), 'max(var(--tanrei-sys-target-minimum), calc(var(--tanrei-dial-height) + var(--tanrei-dial-size-unit) * -2))');
 });
 
-test('pad over an add with a floor measures from the sum without it', () => {
+test('pad over an add measures from the sum without its floor, and with the height at least at its reference', () => {
   assert.equal(
     written('tanrei.comp.button.padding-block'),
-    'max(0px, round(nearest, calc(var(--tanrei-sys-space-space75) + (var(--tanrei-comp-button-small) - calc(var(--tanrei-dial-height) + var(--tanrei-dial-size-unit) * -2)) / 2), 0.25px))',
+    'max(0px, round(nearest, calc(var(--tanrei-sys-space-space75) + (var(--tanrei-comp-button-small) - calc(max(var(--tanrei-dial-height), 2.5rem) + var(--tanrei-dial-size-unit) * -2)) / 2), 0.25px))',
+  );
+  assert.equal(
+    written('tanrei.comp.button.medium-padding'),
+    'max(0px, round(nearest, calc(var(--tanrei-sys-space-space75) + (var(--tanrei-sys-control-height-medium) - calc(max(var(--tanrei-dial-height), 2.5rem) + var(--tanrei-dial-size-unit) * 0)) / 2), 0.25px))',
   );
 });
 
@@ -74,6 +79,7 @@ function evaluateCss(expression, read) {
     .replace(/round\(nearest, /g, 'R(')
     .replace(/calc\(/g, '(')
     .replace(/max\(/g, 'Math.max(')
+    .replace(/(\d+(?:\.\d+)?)rem/g, (_, n) => String(Number(n) * 16))
     .replace(/(\d+(?:\.\d+)?)px/g, '$1');
   // eslint-disable-next-line no-new-func
   return new Function('R', `return ${js};`)((x, step) => Math.floor(x / step + 0.5 + 1e-9) * step);
@@ -101,5 +107,5 @@ test('the written CSS gives the engine’s values, across heights, floors and si
       }
     }
   }
-  assert.equal(compared, 7 * 3 * 3 * 9, 'nine derived tokens in each of 63 settings');
+  assert.equal(compared, 7 * 3 * 3 * 10, 'ten derived tokens in each of 63 settings');
 });

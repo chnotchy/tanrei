@@ -50,7 +50,7 @@ declare module '../vocabulary' {
 
 export const m3ExpressiveLike = {
   id: "m3-expressive-like",
-  dials: { motionUnit: 50, shapeUnit: 4, sizeUnit: 4, spaceUnit: 8, strokeUnit: 1, typeBase: 16, typeContrast: 1 },
+  dials: { controlHeight: 40, motionUnit: 50, shapeUnit: 4, sizeUnit: 4, spaceUnit: 8, strokeUnit: 1, typeBase: 16, typeContrast: 1 },
   intents: ["error", "info", "primary", "secondary", "success", "tertiary", "warning"],
   colors: {
     light: {

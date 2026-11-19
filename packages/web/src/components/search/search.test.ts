@@ -468,7 +468,7 @@ test.describe('layout', () => {
     await expect.poll(() => resultAt('mixed-never')).toBeCloseTo(kept, 0);
   });
 
-  test('SRC-53: a small search draws every row of its view — a suggestion and a result — from the small tokens, lower, set in less, a smaller glyph, the same text, never below the target, the bar unchanged; a search takes no size from a container around it; an unknown size is medium and reported, an added one is drawn from its tokens, a change is drawn at once, and the heights follow the size unit', async ({ page, browserName }) => {
+  test('SRC-53: a small search draws every row of its view — a suggestion and a result — from the small tokens, lower, set in less, a smaller glyph, the same text, never below the target, the bar unchanged; a search takes no size from a container around it; an unknown size is medium and reported, an added one is drawn from its tokens, a change is drawn at once, and the heights follow the control height', async ({ page, browserName }) => {
     const seen = warnings(page);
     const smallFixture = spec.fixtures.find((f) => f.id === 'size-small')!;
     const { size: _, ...unset } = smallFixture.props as Record<string, unknown>;
@@ -541,11 +541,11 @@ test.describe('layout', () => {
     // A change is drawn at once.
     await host(page, 'size-medium').evaluate((el: HTMLElement & { size: string }) => (el.size = 'small'));
     await expect.poll(async () => (await drawn(row(page, 'size-medium', 0))).height).toBeCloseTo(first.height, 0);
-    // The heights follow the system's size unit: a small row is the small token at each.
-    for (const unit of ['5px', '6px', '']) {
-      await rootTokens(page, { '--tanrei-dial-size-unit': unit });
+    // The heights follow the system's control height: a small row is the small token at each.
+    for (const height of ['48px', '56px', '']) {
+      await rootTokens(page, { '--tanrei-dial-control-height': height });
       const step = await resolveToken(page, T('suggestion-container-height-small'));
-      await expect.poll(async () => (await drawn(row(page, 'size-small', 0))).height, `size unit ${unit || "4px"}`).toBeCloseTo(Math.max(step, pointer), 0);
+      await expect.poll(async () => (await drawn(row(page, 'size-small', 0))).height, `control height ${height || "40px"}`).toBeCloseTo(Math.max(step, pointer), 0);
     }
     // SRC-16: no size is lower than the pointer target for a fine pointer — seen under a layer whose pointer target (48)
     // is taller than the small row, as the default system's (36) is not.

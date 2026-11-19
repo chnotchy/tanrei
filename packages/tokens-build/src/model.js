@@ -10,7 +10,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { CONFIG } from './config.js';
-import { COMPONENTS_HELD_IN_EVERY_SCHEME, ladderReaders, targetFloors } from './invariants.js';
+import { COMPONENTS_HELD_IN_EVERY_SCHEME, alignedTokens, ladderReaders, targetFloors } from './invariants.js';
 import { TokenReadError, readBundle } from './reader.js';
 import { SCHEMES } from './scheme.js';
 
@@ -159,6 +159,8 @@ function simplified(token, tokenPath) {
     state: token.$extensions?.['dev.tanrei.state'],
     // Set on a choice of kind: { values: [...] }; the value is an index into it.
     enum: token.$extensions?.['dev.tanrei.enum'],
+    // Set on a dial a padding measures from (the control height): its core default, { value, unit }.
+    reference: token.$extensions?.['dev.tanrei.reference'],
     // Set on an inner corner: { outer: "{id}", inset: "{id}" }, the corner it stands in and how far inside it.
     concentric: token.$extensions?.['dev.tanrei.concentric'],
   };
@@ -229,6 +231,12 @@ export function coreLadderReaders() {
   return (ladder ??= ladderReaders(coreComponentDocuments()));
 }
 
+/** The heights the core vocabulary marks as drawn at the control height in their default size (`alignedTokens`). */
+let aligned;
+export function coreAlignedTokens() {
+  return (aligned ??= alignedTokens(coreComponentDocuments()));
+}
+
 let componentDocuments;
 function coreComponentDocuments() {
   if (componentDocuments) return componentDocuments;
@@ -263,7 +271,7 @@ function modelFrom(resolver, systemId, components, colorsFrom) {
     }
   }
   assertEveryRole(colors);
-  return { system: systemId, schemes: SCHEMES, tokens, colors, componentColors, components, floored: coreTargetFloors(), ladder: coreLadderReaders() };
+  return { system: systemId, schemes: SCHEMES, tokens, colors, componentColors, components, floored: coreTargetFloors(), ladder: coreLadderReaders(), aligned: coreAlignedTokens() };
 }
 
 const SYS_COLOR = `${NS}.sys.color.`;
@@ -295,7 +303,7 @@ function assertEveryRole(colors) {
 function partialModel(base, systemId, components, colors, otherSchemes = {}) {
   const tokens = simplifyAll(base);
   const light = Object.fromEntries(Object.entries(tokens).filter(([id, t]) => id.startsWith(COMP) && t.type === 'color'));
-  return { system: systemId, schemes: SCHEMES, tokens, colors, componentColors: { ...otherSchemes, light }, components, partial: true, floored: coreTargetFloors(), ladder: coreLadderReaders() };
+  return { system: systemId, schemes: SCHEMES, tokens, colors, componentColors: { ...otherSchemes, light }, components, partial: true, floored: coreTargetFloors(), ladder: coreLadderReaders(), aligned: coreAlignedTokens() };
 }
 
 // ── What the invariants read ─────────────────────────────────────────────

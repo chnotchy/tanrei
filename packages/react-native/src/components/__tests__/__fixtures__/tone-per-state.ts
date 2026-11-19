@@ -21,7 +21,7 @@ declare module '@tanrei/react-native' {
 
 export const tonePerState = {
   id: "tone-per-state",
-  dials: { motionUnit: 50, shapeUnit: 2, sizeUnit: 4, spaceUnit: 8, strokeUnit: 1, typeBase: 16, typeContrast: 1 },
+  dials: { controlHeight: 40, motionUnit: 50, shapeUnit: 2, sizeUnit: 4, spaceUnit: 8, strokeUnit: 1, typeBase: 16, typeContrast: 1 },
   intents: ["accent", "brand", "error", "info", "primary", "secondary", "success", "warning"],
   colors: {
     light: {
