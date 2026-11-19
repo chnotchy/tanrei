@@ -660,6 +660,33 @@ test.describe('overlay', () => {
     await expect.poll(() => isOpen(page, 'edit')).toBe(false);
   });
 
+  test('MNU-4, MOT-7: closed by a choice, the surface takes no pointer while it leaves — a press on another menu’s anchor under it reaches that anchor, which opens its menu', async ({ page }) => {
+    await mountFixtures(page, spec, { fixtures: [overlay('edit', EDIT), overlay('other', EDIT)] });
+    // The other menu's anchor stands where the first menu's surface is drawn, below the first anchor.
+    await page.addStyleTag({ content: `#a-edit { position: fixed; top: 100px; left: 200px; } #a-other { position: fixed; top: 190px; left: 210px; }` });
+    await wire(page);
+    // The exit is held open for the whole test: it cannot end while the press is made, however slow the machine.
+    await rootTokens(page, { [T('motion-close-duration')]: '600s' });
+    await openMenu(page, 'edit', 'Cut');
+    const under = await centre(anchor(page, 'other'));
+    const s = await surfaceBox(menu(page, 'edit'));
+    expect(under.x > s.x && under.x < s.x + s.width && under.y > s.y && under.y < s.y + s.height, 'the other anchor is under the surface').toBe(true);
+    const hit = () => page.evaluate(({ x, y }) => document.elementFromPoint(x, y)?.closest('[data-fixture]')?.getAttribute('data-fixture') ?? null, under);
+    const hitId = () => page.evaluate(({ x, y }) => document.elementFromPoint(x, y)?.id ?? null, under);
+    expect(await hit(), 'open, the surface takes the press').toBe('edit');
+    // Chosen: the menu closes and its surface leaves, still drawn in the top layer.
+    await item(page, 'edit', 0).click();
+    await expect.poll(() => log(page)).toEqual(['click:Cut', 'close:item']);
+    expect(await isOpen(page, 'edit'), 'still in the top layer while it leaves').toBe(true);
+    expect(Number(await css(surface(page, 'edit'), 'opacity')), 'still drawn while it leaves').toBeGreaterThan(0.05);
+    expect(await hitId(), 'leaving, the other anchor is what lies at the point').toBe('a-other');
+    // The press reaches the other anchor, and its menu opens.
+    await page.mouse.click(under.x, under.y);
+    await expect.poll(() => menu(page, 'other').evaluate((el: HTMLElement & { open: boolean }) => el.open)).toBe(true);
+    await expect.poll(() => isOpen(page, 'other')).toBe(true);
+    expect(await isOpen(page, 'edit'), 'the first is still leaving').toBe(true);
+  });
+
   test('MNU-4: placed above its anchor the surface grows from its bottom edge, below it from its top edge; where appear.origin is center it grows from its centre on either side', async ({ page }) => {
     await mountFixtures(page, spec, { fixtures: [overlay('edit', EDIT)] });
     await page.addStyleTag({ content: `#a-edit { position: fixed; top: 400px; left: 200px; }` });
