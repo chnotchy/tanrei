@@ -31,6 +31,12 @@ declare module 'virtual:tanrei-docs/sheet-worker' {
   const address: string | null;
   export default address;
 }
+// The address of the stylesheet of each shipped system a reader may choose instead of the default, by id: what differs
+// from the default system's sheet on the root (src/lib/look-sheets.mjs).
+declare module 'virtual:tanrei-docs/looks' {
+  const looks: Readonly<Record<string, string>>;
+  export default looks;
+}
 
 // Which module of `@tanrei/web` defines each element (src/lib/element-modules.mjs, from the package's manifest): a
 // function for each tag that imports its module, and how many modules there are.

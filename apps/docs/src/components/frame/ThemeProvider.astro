@@ -18,11 +18,13 @@
 // (lib/sheet-worker.mjs): Firefox fetched the script of a worker this module started only once the document was parsed.
 import build from 'virtual:tanrei-docs/sheet-key';
 import worker from 'virtual:tanrei-docs/sheet-worker';
+import looks from 'virtual:tanrei-docs/looks';
 import { appearanceBootstrap, bootConfig } from '../../lib/appearance';
 import { manifests } from '../../lib/repo';
 
-// The shipped systems, the default first (lib/repo.ts puts the configuration's namespace first).
-const script = appearanceBootstrap(bootConfig(manifests.map((manifest) => manifest.system), build, worker));
+// The shipped systems, the default first (lib/repo.ts puts the configuration's namespace first), and the address of
+// each other one's stylesheet (lib/look-sheets.mjs).
+const script = appearanceBootstrap(bootConfig(manifests.map((manifest) => manifest.system), build, worker, looks));
 ---
 
 <script is:inline set:html={script} />

@@ -238,7 +238,11 @@ export function listRuleOf(look: string, only: string): string {
 /** What the head's script and the module are told: the looks and the names. */
 export interface BootConfig {
   key: string;
-  looks: string[];
+  /**
+   * Every look that is a shipped system, the default first, with the address of the stylesheet that draws it over the
+   * default system's on the root (lib/look-sheets.mjs) — null for the default, which every page holds already.
+   */
+  looks: Record<string, string | null>;
   defaultLook: string;
   names: { theme: string; tanreiTheme: string; mode: string; contrast: string; look: string };
   shared: string;
@@ -254,11 +258,12 @@ export interface BootConfig {
 /**
  * The configuration of a site whose shipped systems are `looks`, the first the default. `build` names what a theme's
  * stylesheet is computed from (lib/sheet-key.mjs): a sheet that another build computed is not used. `worker` is the
- * address of the script of the worker that computes it (lib/sheet-worker.mjs), or null.
+ * address of the script of the worker that computes it (lib/sheet-worker.mjs), or null. `sheets` is the address of
+ * each other system's stylesheet, by id (`virtual:tanrei-docs/looks`).
  */
-export const bootConfig = (looks: string[], build = '', worker: string | null = null): BootConfig => ({
+export const bootConfig = (looks: string[], build = '', worker: string | null = null, sheets: Readonly<Record<string, string>> = {}): BootConfig => ({
   key: APPEARANCE_KEY,
-  looks,
+  looks: Object.fromEntries(looks.map((look, at) => [look, at === 0 ? null : (sheets[look] ?? null)])),
   defaultLook: looks[0] ?? '',
   names: { theme: THEME_ATTR, tanreiTheme: TANREI_THEME_ATTR, mode: MODE_ATTR, contrast: CONTRAST_ATTR, look: LOOK_ATTR },
   shared: SHARED_ATTR,
@@ -279,7 +284,7 @@ export const sheetKey = (build: string, hash: string) => `${build}:${hash}`;
  * build names its script) and runs at once the module after it, which takes the worker.
  */
 export function appearanceBootstrap(config: BootConfig): string {
-  return `(function(c){var me=document.currentScript,normalize=${normalize},sharedFrom=${sharedFrom},attributesOf=${attributesOf},listRuleOf=${listRuleOf},customOf=${customOf},readSheet=${readSheet},placeSheet=${placeSheet};var stored=null,custom=null;try{stored=JSON.parse(localStorage.getItem(c.key)||'null')}catch(e){}try{custom=customOf(JSON.parse(localStorage.getItem(c.custom.key)||'null'),c.looks)}catch(e){}var asked=sharedFrom(location.search),given=stored&&typeof stored==='object'?stored:{},merged={};for(var k in given)merged[k]=given[k];if(asked)for(var a in asked)merged[a]=asked[a];var shown=normalize(merged,c.looks,c.defaultLook,!!custom),root=document.documentElement,attrs=attributesOf(shown,matchMedia('(prefers-color-scheme: dark)').matches,c.names);for(var n in attrs){if(attrs[n]===null)root.removeAttribute(n);else root.setAttribute(n,attrs[n])}if(asked)root.setAttribute(c.shared,'');if(custom)root.setAttribute(c.custom.available,'');var listed=shown.look;if(custom&&shown.look===c.custom.look){listed=custom.base;root.setAttribute(c.custom.base,custom.base);root.setAttribute(c.custom.pending,'');var key=c.custom.build+':'+custom.hash;setTimeout(function(){if(!root.hasAttribute(c.custom.pending))return;if(!document.getElementById(c.custom.style)){root.setAttribute(c.names.look,c.defaultLook);root.removeAttribute(c.custom.base);root.setAttribute(c.custom.late,'')}root.removeAttribute(c.custom.pending)},c.custom.wait);var held=null;try{held=localStorage.getItem(c.custom.held)}catch(e){}var answer=function(css){if(root.getAttribute(c.names.look)!==c.custom.look)return;if(css===null){root.setAttribute(c.custom.missing,key);if(c.custom.worker&&typeof Worker==='function')try{window[c.custom.early]=new Worker(c.custom.worker,{type:'module'})}catch(e){}if(me&&me.parentNode&&typeof MutationObserver==='function'){var start=function(){var next=me.nextElementSibling;while(next&&next.localName!=='script')next=next.nextElementSibling;if(!next)return false;if(next.type==='module'&&next.src){var early=document.createElement('script');early.type='module';early.src=next.src;document.head.appendChild(early)}return true};if(!start()){var parsed=new MutationObserver(function(){if(start())parsed.disconnect()});parsed.observe(me.parentNode,{childList:true})}}return}placeSheet(css,key,c.custom.style);requestAnimationFrame(function(){requestAnimationFrame(function(){root.removeAttribute(c.custom.pending)})})};if(held===key)readSheet(c.custom.db,c.custom.store,key,answer);else answer(null)}var r=document.createElement('style');r.id=c.rule.id;r.textContent=listRuleOf(listed,c.rule.only);document.head.appendChild(r)})(${JSON.stringify(config)})`;
+  return `(function(c){var me=document.currentScript,normalize=${normalize},sharedFrom=${sharedFrom},attributesOf=${attributesOf},listRuleOf=${listRuleOf},customOf=${customOf},readSheet=${readSheet},placeSheet=${placeSheet};var looks=Object.keys(c.looks),stored=null,custom=null;try{stored=JSON.parse(localStorage.getItem(c.key)||'null')}catch(e){}try{custom=customOf(JSON.parse(localStorage.getItem(c.custom.key)||'null'),looks)}catch(e){}var asked=sharedFrom(location.search),given=stored&&typeof stored==='object'?stored:{},merged={};for(var k in given)merged[k]=given[k];if(asked)for(var a in asked)merged[a]=asked[a];var shown=normalize(merged,looks,c.defaultLook,!!custom),root=document.documentElement,attrs=attributesOf(shown,matchMedia('(prefers-color-scheme: dark)').matches,c.names);for(var n in attrs){if(attrs[n]===null)root.removeAttribute(n);else root.setAttribute(n,attrs[n])}if(asked)root.setAttribute(c.shared,'');if(custom)root.setAttribute(c.custom.available,'');var listed=shown.look;if(custom&&shown.look===c.custom.look){listed=custom.base;root.setAttribute(c.custom.base,custom.base);root.setAttribute(c.custom.pending,'');var key=c.custom.build+':'+custom.hash;setTimeout(function(){if(!root.hasAttribute(c.custom.pending))return;if(!document.getElementById(c.custom.style)){root.setAttribute(c.names.look,c.defaultLook);root.removeAttribute(c.custom.base);root.setAttribute(c.custom.late,'')}root.removeAttribute(c.custom.pending)},c.custom.wait);var held=null;try{held=localStorage.getItem(c.custom.held)}catch(e){}var answer=function(css){if(root.getAttribute(c.names.look)!==c.custom.look)return;if(css===null){root.setAttribute(c.custom.missing,key);if(c.custom.worker&&typeof Worker==='function')try{window[c.custom.early]=new Worker(c.custom.worker,{type:'module'})}catch(e){}if(me&&me.parentNode&&typeof MutationObserver==='function'){var start=function(){var next=me.nextElementSibling;while(next&&next.localName!=='script')next=next.nextElementSibling;if(!next)return false;if(next.type==='module'&&next.src){var early=document.createElement('script');early.type='module';early.src=next.src;document.head.appendChild(early)}return true};if(!start()){var parsed=new MutationObserver(function(){if(start())parsed.disconnect()});parsed.observe(me.parentNode,{childList:true})}}return}placeSheet(css,key,c.custom.style);requestAnimationFrame(function(){requestAnimationFrame(function(){root.removeAttribute(c.custom.pending)})})};if(held===key)readSheet(c.custom.db,c.custom.store,key,answer);else answer(null)}var r=document.createElement('style');r.id=c.rule.id;r.textContent=listRuleOf(listed,c.rule.only);document.head.appendChild(r)})(${JSON.stringify(config)})`;
 }
 
 /**
