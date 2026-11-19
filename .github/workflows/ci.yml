@@ -751,10 +751,10 @@ jobs:
         # Five files each run in a job of their own (`$alone` in apps/docs/test/browser/durations.json): the fixture
         # gallery, the icon font's test and the two previews files each open four pages at a time in Chromium for their
         # whole run, and beside any of them the other files' pages loaded too slowly in WebKit and Firefox; the reader's
-        # own theme measures how soon a press is drawn, which beside other files WebKit missed. The other three share
+        # own theme measures how soon a press is drawn, which beside other files WebKit missed. The other five share
         # the rest by time.
-        shard: [1, 2, 3, 4, 5, 6, 7, 8]
-        shards: [8]
+        shard: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+        shards: [10]
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -771,7 +771,7 @@ jobs:
         with:
           name: docs-site
       - name: Browser tests of the docs app (the previews against the package's own drawing)
-        env: # this shard's files: the gallery alone, or a third of the others by time; the split printed at the head of its log
+        env: # this shard's files: the gallery alone, or a fifth of the others by time; the split printed at the head of its log
           TEST_SHARD: ${{ matrix.shard }}/${{ matrix.shards }}
         run: pnpm --filter @tanrei/docs test:browser
 
