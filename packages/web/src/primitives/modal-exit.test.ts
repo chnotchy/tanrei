@@ -12,7 +12,7 @@ import { type Locator, type Page, expect, test } from '@playwright/test';
 import { buildSync } from 'esbuild';
 import { type Frames, type Probe, expectNoFlicker, sampleFrames } from '../../test/frames.js';
 import { type Fixture, dialogWindow, fixtureHost, fixturesDocument, loadSpec, mountFixtures, popoverWindow } from '../../test/harness.js';
-import { motionEnded } from '../../test/motions.js';
+import { EVERY_ANIMATION, KEEP_PAUSED, motionEnded } from '../../test/motions.js';
 
 interface Surface {
   name: string;
@@ -198,6 +198,48 @@ for (const surface of SURFACES) {
       await page.locator(`#${opener}`).focus();
       await expect(page.locator(`#${opener}`)).toBeFocused();
     });
+
+    // A collapsible drawer narrows back into the page as its column, holding what focus goes back to: it is not taken
+    // away, and so takes the pointer as it narrows (closeModal's `interactive`). Every other surface is taken away.
+    if (surface.exit !== 'narrow')
+      test(`MOT-7: while the ${surface.name} leaves, neither it nor its scrim takes the pointer — a press on it${surface.scrim ? ' or on the scrim' : ''} reaches the page under it`, async ({ page }) => {
+        await page.emulateMedia({ reducedMotion: 'no-preference' });
+        const host = await mount(page, surface);
+        await open(page, host, surface);
+        // What lies under it: an element of the page over the whole window, which the top layer stands above.
+        await page.evaluate(() => {
+          document.body.insertAdjacentHTML('beforeend', '<div id="under" style="position: fixed; inset: 0"></div>');
+          const under = document.getElementById('under')!;
+          under.addEventListener('click', () => (under.dataset.pressed = String(Number(under.dataset.pressed ?? 0) + 1)));
+        });
+        const box = await host.evaluate((el) => {
+          const r = el.shadowRoot!.querySelector('dialog')!.getBoundingClientRect();
+          return { x: r.x + r.width / 2, y: r.y + r.height / 2 };
+        });
+        const points = [box, ...(surface.scrim ? [{ x: 4, y: 4 }] : [])];
+        const hits = () => page.evaluate((at) => at.map(({ x, y }) => document.elementFromPoint(x, y)?.id || document.elementFromPoint(x, y)?.localName || null), points);
+        expect((await hits()).includes('under'), 'open, it and its scrim stand over the page').toBe(false);
+        // Closed, and every motion of its exit held a third of the way for as long as the test reads: it is leaving.
+        const held = await host.evaluate(
+          async (el: Openable, [prop, every, keep]) => {
+            el[prop] = false;
+            await el.updateComplete;
+            const motions = ((0, eval)(every) as (root: Element) => Animation[])(el).filter((animation) => Number.isFinite(Number(animation.effect?.getComputedTiming().endTime)));
+            for (const animation of motions) {
+              animation.pause();
+              animation.currentTime = Number(animation.effect!.getComputedTiming().endTime) / 3;
+            }
+            await ((0, eval)(keep) as (motions: Animation[]) => Promise<void>)(motions);
+            return motions.length;
+          },
+          [propOf(surface), EVERY_ANIMATION, KEEP_PAUSED] as const,
+        );
+        expect(held, 'its exit is under way').toBeGreaterThan(0);
+        expect(await host.evaluate((el) => (el.shadowRoot!.querySelector('dialog') as HTMLDialogElement).matches(':popover-open')), 'still drawn in the top layer').toBe(true);
+        expect(await hits(), 'what lies under it and its scrim is the page').toEqual(points.map(() => 'under'));
+        for (const point of points) await page.mouse.click(point.x, point.y);
+        expect(await page.locator('#under').getAttribute('data-pressed'), 'each press reaches the page').toBe(String(points.length));
+      });
 
     if (surface.reduced === 'at-once') {
       test(`MDL-7: where motion is reduced the ${surface.name} disappears at once, its scrim with it, focus back`, async ({ page }) => {

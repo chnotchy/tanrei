@@ -3,13 +3,13 @@ import { APPEARING, REDUCED_MOTION_ATTRIBUTE, REDUCED_MOTION_MEDIA, REDUCED_MOTI
 import { flatParent } from './flat-tree.js';
 import { type PhaseRead, readThenWrite, readTogether } from './read-together.js';
 
-// How a component moves, in four pieces, held to the principles of docs/architecture/motion.md (MOT-1 to MOT-6):
+// How a component moves, in four pieces, held to the principles of docs/architecture/motion.md (MOT-1 to MOT-7):
 //
 //   documentPainted()   whether the document has been painted once: an overlay mounted open before it appears at once,
 //                       after it plays its entrance (MOT-4)
 //   appearStyles()      the one appearance of a surface — its opacity, scale, distance and blur from
 //                       `sys.motion.appear.*`, grown from its anchor, its centre or an edge, left the same way back on the
-//                       exit curve, and the reduced form (MOT-6)
+//                       exit curve, the reduced form (MOT-6), and no pointer input while it is closed or leaving (MOT-7)
 //   AppearController    opens and closes that surface: the entrance skipped where MOT-4 says so, turned round from the
 //                       value shown (MOT-2), and `exit()` resolved when the exit has finished — never by a timer
 //   AnimatedSize        a box whose size follows its content as one motion, its content fixed to an edge, nothing
@@ -131,6 +131,15 @@ export interface AppearOptions {
    * drawn in the top layer, its `[open]` gone, until its exit and its scrim's have played: `[open]` is its condition.
    */
   open: string;
+  /**
+   * The box round the motion element that holds `open`, where that is not the motion element itself: a placed box in
+   * the top layer (`.surface.open` round `.motion`), a dialog round what moves in it. Closed or leaving, it takes no
+   * pointer, as the motion element does (MOT-7): a box that holds the motion element takes a press where the motion
+   * element takes none. A box outside the motion element's shadow root — the component's host shown as a popover, a
+   * list in another component's shadow root — cannot be named here: its component gives it no pointer while the surface
+   * leaves.
+   */
+  box?: string;
   role: AppearRole;
   origin: AppearOrigin;
   /** The entrance's duration and curve: by default the role's `enter` and `sys.motion.easing.enter`. */
@@ -188,6 +197,12 @@ const under = (condition: string, motion: string) => `:is(${condition}) :is(${mo
  * from its edge by its own size, unfaded and unscaled, whatever the appearance (and stands at its `offset` open, where a
  * gesture of the person's moves it). Under reduced motion every appearance
  * is a cross-fade over `role.reduced`: no scale, no distance, no blur (WCAG 2.3.3 counts none of opacity as motion).
+ *
+ * Closed or leaving — from the moment `open` stops matching until it matches again — the motion element, the `box`
+ * round it and everything inside them take no pointer (MOT-7): a press where the surface is still drawn reaches what
+ * lies under it, and the pointer on it is not hover. Told to open again while it leaves, it takes the pointer again at
+ * once, while it enters. The rule is `!important`, so that a part inside that takes the pointer of its own
+ * (`pointer-events: auto`) takes none either; open, the surface takes the pointer as its own rules say.
  *
  * It sets `opacity`, `scale`, `translate`, `filter`, `transform-origin` and the transition of the motion element: a
  * component draws nothing of its own with them there (an elevation's filter goes on another element). The writing
@@ -271,11 +286,18 @@ export function appearStyles(options: AppearOptions): CSSResult {
   const timing = (t: AppearTiming, properties = MOVED) => `transition-property: ${properties}; transition-duration: ${t.duration}; transition-timing-function: ${t.easing};`;
   const reducedClosed = `opacity: ${sheet ? 0 : 'var(--_appear-opacity)'}; scale: none; translate: ${stands}; filter: none;`;
   const reducedProperties = 'opacity';
+  // MOT-7: the surface — the motion element and the box round it — where `open` matches neither it nor an element round
+  // it, and everything inside it.
+  const shut = `:is(${options.box ? `${options.box}, ` : ''}${motion}):not(:is(${options.open}), :is(${options.open}) *)`;
   return unsafeCSS(`
   :is(${motion}) {
     ${start}
     ${closed}
     ${timing(exit)}
+  }
+  ${shut},
+  ${shut} * {
+    pointer-events: none !important;
   }
   ${places.join('\n  ')}
   ${options.unfold === false ? '' : `@container style(--tanrei-sys-behavior-appearance: unfold) {\n    ${unfolds.join('\n    ')}\n  }`}

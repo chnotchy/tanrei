@@ -257,6 +257,12 @@ export const menuStyles = css`
   .list.inline.presented {
     display: flex;
   }
+  /* MOT-7: while the items leave, the list and the items in it take no pointer: a press reaches what lies under them,
+     and the pointer on them is not hover. Each item's own box closes with its appearance (appearStyles()); the list
+     and the items' hosts round it are boxes that would take the press it no longer takes. */
+  .list:not(.presented) {
+    pointer-events: none;
+  }
   .list::backdrop {
     background: transparent;
   }
