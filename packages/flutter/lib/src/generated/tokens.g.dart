@@ -16843,23 +16843,23 @@ class TanreiNavigationDrawerConditions {
   }
 }
 
-/// The key of a density of navigation-drawer (`comp.navigation-drawer`, axis `density`).
+/// The key of a size of navigation-drawer (`comp.navigation-drawer`, axis `size`).
 ///
 /// The set is open: the constants are the core values, and a design system may add its own —
-/// `const TanreiNavigationDrawerDensity('…')`, or the typed constants generated next to a system that extends. A value the
-/// active system does not have renders as [regular].
-extension type const TanreiNavigationDrawerDensity(String name) {
-  static const regular = TanreiNavigationDrawerDensity('regular');
-  static const compact = TanreiNavigationDrawerDensity('compact');
+/// `const TanreiNavigationDrawerSize('…')`, or the typed constants generated next to a system that extends. A value the
+/// active system does not have renders as [medium].
+extension type const TanreiNavigationDrawerSize(String name) {
+  static const medium = TanreiNavigationDrawerSize('medium');
+  static const small = TanreiNavigationDrawerSize('small');
 
   /// The core values, in the order the component declares them.
-  static const List<TanreiNavigationDrawerDensity> core = <TanreiNavigationDrawerDensity>[regular, compact];
+  static const List<TanreiNavigationDrawerSize> core = <TanreiNavigationDrawerSize>[medium, small];
 }
 
-/// The tokens of one navigation-drawer density.
+/// The tokens of one navigation-drawer size.
 @immutable
-class TanreiNavigationDrawerDensityTokens {
-  const TanreiNavigationDrawerDensityTokens({
+class TanreiNavigationDrawerSizeTokens {
+  const TanreiNavigationDrawerSizeTokens({
     required this.containerGap,
     required this.itemContainerHeight,
     required this.itemPaddingInline,
@@ -16876,37 +16876,37 @@ class TanreiNavigationDrawerDensityTokens {
     required this.headingHeight,
   });
 
-  /// `comp.navigation-drawer.container-gap.<density>`
+  /// `comp.navigation-drawer.container-gap.<size>`
   final double containerGap;
-  /// `comp.navigation-drawer.item-container-height.<density>`
+  /// `comp.navigation-drawer.item-container-height.<size>`
   final double itemContainerHeight;
-  /// `comp.navigation-drawer.item-padding-inline.<density>`
+  /// `comp.navigation-drawer.item-padding-inline.<size>`
   final double itemPaddingInline;
-  /// `comp.navigation-drawer.item-padding-block.<density>`
+  /// `comp.navigation-drawer.item-padding-block.<size>`
   final double itemPaddingBlock;
-  /// `comp.navigation-drawer.item-nest-indent.<density>`
+  /// `comp.navigation-drawer.item-nest-indent.<size>`
   final double itemNestIndent;
-  /// `comp.navigation-drawer.item-icon-size.<density>`
+  /// `comp.navigation-drawer.item-icon-size.<size>`
   final double itemIconSize;
-  /// `comp.navigation-drawer.item-icon-indicator-width.<density>`
+  /// `comp.navigation-drawer.item-icon-indicator-width.<size>`
   final double itemIconIndicatorWidth;
-  /// `comp.navigation-drawer.item-icon-indicator-height.<density>`
+  /// `comp.navigation-drawer.item-icon-indicator-height.<size>`
   final double itemIconIndicatorHeight;
-  /// `comp.navigation-drawer.item-label-typescale.<density>`
+  /// `comp.navigation-drawer.item-label-typescale.<size>`
   final TanreiTextStyle itemLabelTypescale;
-  /// `comp.navigation-drawer.item-trailing-icon-size.<density>`
+  /// `comp.navigation-drawer.item-trailing-icon-size.<size>`
   final double itemTrailingIconSize;
-  /// `comp.navigation-drawer.collapsed-container-width.<density>`
+  /// `comp.navigation-drawer.collapsed-container-width.<size>`
   final double collapsedContainerWidth;
-  /// `comp.navigation-drawer.collapsed-item-container-width.<density>`
+  /// `comp.navigation-drawer.collapsed-item-container-width.<size>`
   final double collapsedItemContainerWidth;
-  /// `comp.navigation-drawer.collapsed-item-container-padding-block.<density>`
+  /// `comp.navigation-drawer.collapsed-item-container-padding-block.<size>`
   final double collapsedItemContainerPaddingBlock;
-  /// `comp.navigation-drawer.heading-height.<density>`
+  /// `comp.navigation-drawer.heading-height.<size>`
   final double headingHeight;
 
   /// A copy with the given tokens replaced.
-  TanreiNavigationDrawerDensityTokens copyWith({
+  TanreiNavigationDrawerSizeTokens copyWith({
     double? containerGap,
     double? itemContainerHeight,
     double? itemPaddingInline,
@@ -16921,7 +16921,7 @@ class TanreiNavigationDrawerDensityTokens {
     double? collapsedItemContainerWidth,
     double? collapsedItemContainerPaddingBlock,
     double? headingHeight,
-  }) => TanreiNavigationDrawerDensityTokens(
+  }) => TanreiNavigationDrawerSizeTokens(
         containerGap: containerGap ?? this.containerGap,
         itemContainerHeight: itemContainerHeight ?? this.itemContainerHeight,
         itemPaddingInline: itemPaddingInline ?? this.itemPaddingInline,
@@ -16939,58 +16939,58 @@ class TanreiNavigationDrawerDensityTokens {
       );
 }
 
-/// Every density of navigation-drawer: the core values by name, the values a design system added in [extra].
-/// Look one up with `densitys[key]`; the lookup is total.
+/// Every size of navigation-drawer: the core values by name, the values a design system added in [extra].
+/// Look one up with `sizes[key]`; the lookup is total.
 @immutable
-class TanreiNavigationDrawerDensitys {
-  const TanreiNavigationDrawerDensitys({
-    required this.regular,
-    required this.compact,
-    this.extra = const <TanreiNavigationDrawerDensity, TanreiNavigationDrawerDensityTokens>{},
+class TanreiNavigationDrawerSizes {
+  const TanreiNavigationDrawerSizes({
+    required this.medium,
+    required this.small,
+    this.extra = const <TanreiNavigationDrawerSize, TanreiNavigationDrawerSizeTokens>{},
   });
 
-  /// `comp.navigation-drawer` density `regular`
-  final TanreiNavigationDrawerDensityTokens regular;
-  /// `comp.navigation-drawer` density `compact`
-  final TanreiNavigationDrawerDensityTokens compact;
+  /// `comp.navigation-drawer` size `medium`
+  final TanreiNavigationDrawerSizeTokens medium;
+  /// `comp.navigation-drawer` size `small`
+  final TanreiNavigationDrawerSizeTokens small;
 
-  /// The densitys a design system added to the core vocabulary.
-  final Map<TanreiNavigationDrawerDensity, TanreiNavigationDrawerDensityTokens> extra;
+  /// The sizes a design system added to the core vocabulary.
+  final Map<TanreiNavigationDrawerSize, TanreiNavigationDrawerSizeTokens> extra;
 
   /// A copy with the given tokens replaced. The entries of [extra] are added to the existing ones (and replace
   /// those with the same key): a copy never loses a value the design system added.
-  TanreiNavigationDrawerDensitys copyWith({
-    TanreiNavigationDrawerDensityTokens? regular,
-    TanreiNavigationDrawerDensityTokens? compact,
-    Map<TanreiNavigationDrawerDensity, TanreiNavigationDrawerDensityTokens>? extra,
-  }) => TanreiNavigationDrawerDensitys(
-        regular: regular ?? this.regular,
-        compact: compact ?? this.compact,
-        extra: extra == null ? this.extra : <TanreiNavigationDrawerDensity, TanreiNavigationDrawerDensityTokens>{...this.extra, ...extra},
+  TanreiNavigationDrawerSizes copyWith({
+    TanreiNavigationDrawerSizeTokens? medium,
+    TanreiNavigationDrawerSizeTokens? small,
+    Map<TanreiNavigationDrawerSize, TanreiNavigationDrawerSizeTokens>? extra,
+  }) => TanreiNavigationDrawerSizes(
+        medium: medium ?? this.medium,
+        small: small ?? this.small,
+        extra: extra == null ? this.extra : <TanreiNavigationDrawerSize, TanreiNavigationDrawerSizeTokens>{...this.extra, ...extra},
       );
 
-  /// The tokens of [density].
+  /// The tokens of [size].
   ///
-  /// A density this design system does not have resolves to [regular], the default; debug builds report it
+  /// A size this design system does not have resolves to [medium], the default; debug builds report it
   /// through [debugTanreiReportUnknownValue] and release builds stay silent.
-  TanreiNavigationDrawerDensityTokens operator [](TanreiNavigationDrawerDensity density) => switch (density.name) {
-        'regular' => regular,
-        'compact' => compact,
-        _ => extra[density] ?? _fallback(density),
+  TanreiNavigationDrawerSizeTokens operator [](TanreiNavigationDrawerSize size) => switch (size.name) {
+        'medium' => medium,
+        'small' => small,
+        _ => extra[size] ?? _fallback(size),
       };
 
-  /// Whether this design system has [density].
-  bool has(TanreiNavigationDrawerDensity density) => TanreiNavigationDrawerDensity.core.contains(density) || extra.containsKey(density);
+  /// Whether this design system has [size].
+  bool has(TanreiNavigationDrawerSize size) => TanreiNavigationDrawerSize.core.contains(size) || extra.containsKey(size);
 
-  /// Every density this design system has: the core values, then the added ones.
-  List<TanreiNavigationDrawerDensity> get keys => <TanreiNavigationDrawerDensity>[...TanreiNavigationDrawerDensity.core, ...extra.keys];
+  /// Every size this design system has: the core values, then the added ones.
+  List<TanreiNavigationDrawerSize> get keys => <TanreiNavigationDrawerSize>[...TanreiNavigationDrawerSize.core, ...extra.keys];
 
-  TanreiNavigationDrawerDensityTokens _fallback(TanreiNavigationDrawerDensity density) {
+  TanreiNavigationDrawerSizeTokens _fallback(TanreiNavigationDrawerSize size) {
     assert(() {
-      debugTanreiReportUnknownValue('navigation-drawer density', density.name, 'regular');
+      debugTanreiReportUnknownValue('navigation-drawer size', size.name, 'medium');
       return true;
     }());
-    return regular;
+    return medium;
   }
 }
 
@@ -17066,7 +17066,7 @@ class TanreiNavigationDrawerTokens {
     required this.stickyDividerWidth,
     required this.variants,
     required this.conditions,
-    required this.densitys,
+    required this.sizes,
     required this.hovered,
     required this.focused,
     required this.pressed,
@@ -17173,8 +17173,8 @@ class TanreiNavigationDrawerTokens {
   final TanreiNavigationDrawerVariants variants;
   /// The `condition` axis: `conditions[condition]`.
   final TanreiNavigationDrawerConditions conditions;
-  /// The `density` axis: `densitys[density]`.
-  final TanreiNavigationDrawerDensitys densitys;
+  /// The `size` axis: `sizes[size]`.
+  final TanreiNavigationDrawerSizes sizes;
   /// `comp.navigation-drawer.hovered.*`
   final TanreiNavigationDrawerStateTokens hovered;
   /// `comp.navigation-drawer.focused.*`
@@ -17236,7 +17236,7 @@ class TanreiNavigationDrawerTokens {
     double? stickyDividerWidth,
     TanreiNavigationDrawerVariants? variants,
     TanreiNavigationDrawerConditions? conditions,
-    TanreiNavigationDrawerDensitys? densitys,
+    TanreiNavigationDrawerSizes? sizes,
     TanreiNavigationDrawerStateTokens? hovered,
     TanreiNavigationDrawerStateTokens? focused,
     TanreiNavigationDrawerStateTokens? pressed,
@@ -17292,7 +17292,7 @@ class TanreiNavigationDrawerTokens {
         stickyDividerWidth: stickyDividerWidth ?? this.stickyDividerWidth,
         variants: variants ?? this.variants,
         conditions: conditions ?? this.conditions,
-        densitys: densitys ?? this.densitys,
+        sizes: sizes ?? this.sizes,
         hovered: hovered ?? this.hovered,
         focused: focused ?? this.focused,
         pressed: pressed ?? this.pressed,

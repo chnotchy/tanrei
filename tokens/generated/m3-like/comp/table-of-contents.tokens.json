@@ -89,7 +89,7 @@
         "row": {
           "height": {
             "$type": "dimension",
-            "$description": "An item's least height, per size: one line of its label and its size's padding-block twice in the default system. Medium is 44 in the default system, above the pointer target, so that a row of the default size is never a smaller target than any other control. Small is the small step of the control heights, never below the minimum target (36 in the default system): the size a product asks for by name, for a long list beside the text. A minimum at both: a row grows with a label that wraps and with enlarged text, and it is never lower than the touch target for touch nor the pointer target for a fine pointer, whatever this says (TOC-24).",
+            "$description": "An item's least height, per size: one line of its label and its size's padding-block twice in the default system. Medium is the control height (40 in the default system), so that a row of the default size stands as tall as every other control of that size. Small is the small step of the control heights, never below the minimum target (36 in the default system): the size a product asks for by name, for a long list beside the text. A minimum at both: a row grows with a label that wraps and with enlarged text, and it is never lower than the touch target for touch nor the pointer target for a fine pointer, whatever this says (TOC-24).",
             "medium": {
               "$value": {
                 "value": 44,
@@ -99,10 +99,9 @@
                 "dev.tanrei.derive": {
                   "fn": "mul",
                   "of": "{tanrei.dial.size.unit}",
-                  "by": 11,
-                  "round": "{tanrei.dial.size.unit}",
-                  "min": "{tanrei.sys.target.minimum}"
-                }
+                  "by": 11
+                },
+                "dev.tanrei.aligned": "control"
               }
             },
             "small": {
@@ -129,17 +128,8 @@
             "$type": "dimension",
             "$description": "Above and below a row's label, per size. With one line of the label it gives the size's height exactly in the default system; it holds the room when the label wraps or the text is enlarged.",
             "medium": {
-              "$value": {
-                "value": 12,
-                "unit": "px"
-              },
-              "$extensions": {
-                "dev.tanrei.derive": {
-                  "fn": "pad",
-                  "of": "{tanrei.sys.space.space150}",
-                  "height": "{tanrei.comp.table-of-contents.row.height.medium}"
-                }
-              }
+              "$value": "{tanrei.sys.space.space150}",
+              "$extensions": {}
             },
             "small": {
               "$value": {
@@ -227,12 +217,11 @@
                 "dev.tanrei.derive": {
                   "fn": "mul",
                   "of": "{tanrei.dial.size.unit}",
-                  "by": 12,
-                  "round": "{tanrei.dial.size.unit}",
-                  "min": "{tanrei.sys.target.minimum}"
-                }
+                  "by": 12
+                },
+                "dev.tanrei.aligned": "control"
               },
-              "$description": "The least height of the compact form's row: 48 in the default system, above the touch target, because the compact form is the form of narrow windows. A minimum: it grows with enlarged text."
+              "$description": "The least height of the compact form's row: the control height (40 in the default system), as tall as the Buttons and fields beside it. The compact form is the form of narrow windows, so for touch the row is never lower than the touch target, whatever this says (TOC-24). A minimum: it grows with enlarged text."
             },
             "padding-inline": {
               "$type": "dimension",

@@ -28570,19 +28570,19 @@
         },
         {
           "kind": "variable",
-          "name": "CORE_DENSITIES",
+          "name": "CORE_SIZES",
           "type": {
-            "text": "['regular', 'compact']"
+            "text": "['medium', 'small']"
           },
-          "default": "['regular', 'compact']"
+          "default": "['medium', 'small']"
         },
         {
           "kind": "variable",
-          "name": "DEFAULT_DENSITY",
+          "name": "DEFAULT_SIZE",
           "type": {
             "text": "string"
           },
-          "default": "'regular'"
+          "default": "'medium'"
         },
         {
           "kind": "variable",
@@ -28590,8 +28590,8 @@
           "type": {
             "text": "readonly OpenAxis[]"
           },
-          "default": "[ { name: 'variant', core: CORE_VARIANTS, default: DEFAULT_VARIANT, rules: (value, selector) => variantBlock(value, selector, DEFAULT_VARIANT), probe: (value) => `${PREFIX}-container-color-${value}` }, { name: 'density', core: CORE_DENSITIES, default: DEFAULT_DENSITY, rules: (value, selector) => densityBlock(value, selector, DEFAULT_DENSITY), probe: (value) => `${PREFIX}-item-container-height-${value}` }, ]",
-          "description": "The open axes (NVD-26): a variant or a density a layer added gets its block on demand, built by the same function and\nfalling back to the default's tokens (a variant is presented as a standard drawer); a value the active system lacks\nis reported."
+          "default": "[ { name: 'variant', core: CORE_VARIANTS, default: DEFAULT_VARIANT, rules: (value, selector) => variantBlock(value, selector, DEFAULT_VARIANT), probe: (value) => `${PREFIX}-container-color-${value}` }, { name: 'size', core: CORE_SIZES, default: DEFAULT_SIZE, rules: (value, selector) => sizeBlock(value, selector, DEFAULT_SIZE), probe: (value) => `${PREFIX}-item-container-height-${value}` }, ]",
+          "description": "The open axes (NVD-26): a variant or a size a layer added gets its block on demand, built by the same function and\nfalling back to the default's tokens (a variant is presented as a standard drawer); a value the active system lacks\nis reported."
         },
         {
           "kind": "variable",
@@ -28633,17 +28633,17 @@
         },
         {
           "kind": "js",
-          "name": "CORE_DENSITIES",
+          "name": "CORE_SIZES",
           "declaration": {
-            "name": "CORE_DENSITIES",
+            "name": "CORE_SIZES",
             "module": "src/components/navigation-drawer/navigation-drawer.styles.ts"
           }
         },
         {
           "kind": "js",
-          "name": "DEFAULT_DENSITY",
+          "name": "DEFAULT_SIZE",
           "declaration": {
-            "name": "DEFAULT_DENSITY",
+            "name": "DEFAULT_SIZE",
             "module": "src/components/navigation-drawer/navigation-drawer.styles.ts"
           }
         },
@@ -29772,14 +29772,14 @@
             },
             {
               "kind": "field",
-              "name": "density",
+              "name": "size",
               "privacy": "public",
               "type": {
-                "text": "TanreiNavigationDrawerDensity"
+                "text": "TanreiNavigationDrawerSize"
               },
-              "default": "'regular'",
-              "description": "How much room a row takes (NVD-65): `regular`, a menu item's row, for a product used by touch as well as by pointer;\n`compact`, a tree view's compact row, for a tool used with a pointer whose drawer lists many places. The rows, the\nheadings, the gaps, the nesting indent and the collapsed column follow it; for touch a row is never lower than the\ntouch target. A value a design system added is drawn from its own tokens; one the active system lacks is drawn as\n`regular` and reported (NVD-26). Reflected.",
-              "attribute": "density",
+              "default": "'medium'",
+              "description": "How much room a row takes (NVD-65): `medium`, a menu item's row at the control height, for a product used by touch\nas well as by pointer; `small`, a tree view's small row, for a tool used with a pointer whose drawer lists many\nplaces. The rows, the headings, the gaps, the nesting indent and the collapsed column follow it; for touch a row is never lower than the\ntouch target. A value a design system added is drawn from its own tokens; one the active system lacks is drawn as\n`medium` and reported (NVD-26). Reflected.",
+              "attribute": "size",
               "reflects": true
             },
             {
@@ -30275,13 +30275,13 @@
               "fieldName": "collapsedLabels"
             },
             {
-              "name": "density",
+              "name": "size",
               "type": {
-                "text": "TanreiNavigationDrawerDensity"
+                "text": "TanreiNavigationDrawerSize"
               },
-              "default": "'regular'",
-              "description": "How much room a row takes (NVD-65): `regular`, a menu item's row, for a product used by touch as well as by pointer;\n`compact`, a tree view's compact row, for a tool used with a pointer whose drawer lists many places. The rows, the\nheadings, the gaps, the nesting indent and the collapsed column follow it; for touch a row is never lower than the\ntouch target. A value a design system added is drawn from its own tokens; one the active system lacks is drawn as\n`regular` and reported (NVD-26). Reflected.",
-              "fieldName": "density"
+              "default": "'medium'",
+              "description": "How much room a row takes (NVD-65): `medium`, a menu item's row at the control height, for a product used by touch\nas well as by pointer; `small`, a tree view's small row, for a tool used with a pointer whose drawer lists many\nplaces. The rows, the headings, the gaps, the nesting indent and the collapsed column follow it; for touch a row is never lower than the\ntouch target. A value a design system added is drawn from its own tokens; one the active system lacks is drawn as\n`medium` and reported (NVD-26). Reflected.",
+              "fieldName": "size"
             },
             {
               "name": "chevron",

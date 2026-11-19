@@ -48,15 +48,15 @@ const variantBlock = (variant: string, selector: string, fallback: string | null
   --_shape-pill: ${fallback ? `var(${PREFIX}-container-shape-${variant}-pill, var(${PREFIX}-container-shape-${fallback}-pill, 0))` : `var(${PREFIX}-container-shape-${variant}-pill, 0)`};
 }`;
 
-export const CORE_DENSITIES = ['regular', 'compact'] as const;
-export const DEFAULT_DENSITY = 'regular';
+export const CORE_SIZES = ['medium', 'small'] as const;
+export const DEFAULT_SIZE = 'medium';
 
 /**
- * NVD-65: the members of the density axis (`dev.tanrei.axes.density.members`), as the private custom properties the
- * drawer sets on its host for its density and its cells, groups and sections inherit (`*` is the density). Every
- * length, glyph size and text style below that a density changes is read through these, never from a token directly.
+ * NVD-65: the members of the size axis (`dev.tanrei.axes.size.members`), as the private custom properties the
+ * drawer sets on its host for its size and its cells, groups and sections inherit (`*` is the size). Every
+ * length, glyph size and text style below that a size changes is read through these, never from a token directly.
  */
-const DENSITY_MEMBERS: readonly (readonly [string, string])[] = [
+const SIZE_MEMBERS: readonly (readonly [string, string])[] = [
   ['--_nvd-gap', 'container-gap-*'],
   ['--_nvd-height', 'item-container-height-*'],
   ['--_nvd-pad', 'item-padding-inline-*'],
@@ -74,31 +74,31 @@ const DENSITY_MEMBERS: readonly (readonly [string, string])[] = [
   ['--_nvd-heading', 'heading-height-*'],
 ];
 
-/** One density's members under `selector`; a value the core does not have falls back to the default's tokens. */
-const densityBlock = (density: string, selector: string, fallback: string | null = null) => `${selector} {${DENSITY_MEMBERS.map(
-  ([name, token]) => `\n  ${name}: ${fallback ? `var(${PREFIX}-${token.replace('*', density)}, var(${PREFIX}-${token.replace('*', fallback)}))` : `var(${PREFIX}-${token.replace('*', density)})`};`,
+/** One size's members under `selector`; a value the core does not have falls back to the default's tokens. */
+const sizeBlock = (size: string, selector: string, fallback: string | null = null) => `${selector} {${SIZE_MEMBERS.map(
+  ([name, token]) => `\n  ${name}: ${fallback ? `var(${PREFIX}-${token.replace('*', size)}, var(${PREFIX}-${token.replace('*', fallback)}))` : `var(${PREFIX}-${token.replace('*', size)})`};`,
 ).join('')}
 }`;
 
 /**
- * A member as a cell, a group or a section reads it: the drawer's value for its density, or the default density's
+ * A member as a cell, a group or a section reads it: the drawer's value for its size, or the default size's
  * token where the element stands outside a drawer.
  */
 const D = (name: string) => {
-  const member = DENSITY_MEMBERS.find(([n]) => n === name);
-  if (!member) throw new Error(`not a density member: ${name}`);
-  return `var(${name}, var(${PREFIX}-${member[1].replace('*', DEFAULT_DENSITY)}))`;
+  const member = SIZE_MEMBERS.find(([n]) => n === name);
+  if (!member) throw new Error(`not a size member: ${name}`);
+  return `var(${name}, var(${PREFIX}-${member[1].replace('*', DEFAULT_SIZE)}))`;
 };
 const d = (name: string) => unsafeCSS(D(name));
 
 /**
- * The open axes (NVD-26): a variant or a density a layer added gets its block on demand, built by the same function and
+ * The open axes (NVD-26): a variant or a size a layer added gets its block on demand, built by the same function and
  * falling back to the default's tokens (a variant is presented as a standard drawer); a value the active system lacks
  * is reported.
  */
 export const AXES: readonly OpenAxis[] = [
   { name: 'variant', core: CORE_VARIANTS, default: DEFAULT_VARIANT, rules: (value, selector) => variantBlock(value, selector, DEFAULT_VARIANT), probe: (value) => `${PREFIX}-container-color-${value}` },
-  { name: 'density', core: CORE_DENSITIES, default: DEFAULT_DENSITY, rules: (value, selector) => densityBlock(value, selector, DEFAULT_DENSITY), probe: (value) => `${PREFIX}-item-container-height-${value}` },
+  { name: 'size', core: CORE_SIZES, default: DEFAULT_SIZE, rules: (value, selector) => sizeBlock(value, selector, DEFAULT_SIZE), probe: (value) => `${PREFIX}-item-container-height-${value}` },
 ];
 
 /** The icon column's width (the collapsed drawer's) and the drawer's inner padding. */
@@ -211,9 +211,9 @@ export const drawerStyles = css`
   }
   ${unsafeCSS(variantBlock(DEFAULT_VARIANT, ':host'))}
   ${unsafeCSS(CORE_VARIANTS.filter((v) => v !== DEFAULT_VARIANT).map((v) => variantBlock(v, `:host([data-as='${v}'])`)).join('\n'))}
-  /* NVD-65: the density's members, set on the host and inherited by its cells, groups and sections (a density a
-     layer added: AXES). NVD-6: for a fine pointer a regular cell's hit area is at least the pointer target, a compact
-     one's the cell and half the gap around it; for touch a compact cell is drawn at least the touch target high. */
+  /* NVD-65: the size's members, set on the host and inherited by its cells, groups and sections (a size a
+     layer added: AXES). NVD-6: for a fine pointer a medium cell's hit area is at least the pointer target, a small
+     one's the cell and half the gap around it; for touch a small cell is drawn at least the touch target high. */
   /* NVD-73: guides hover — the lines are drawn while the pointer is over the drawer or focus is in it (inherited by the
      groups, which fade them). NVD-77: the surface pinned rows stand on: a modal drawer's own container color. */
   :host {
@@ -226,17 +226,17 @@ export const drawerStyles = css`
   :host(:focus-within) {
     --_nvd-guides-on: 1;
   }
-  ${unsafeCSS(densityBlock(DEFAULT_DENSITY, ':host'))}
-  ${unsafeCSS(CORE_DENSITIES.filter((v) => v !== DEFAULT_DENSITY).map((v) => densityBlock(v, `:host([density='${v}'])`)).join('\n'))}
+  ${unsafeCSS(sizeBlock(DEFAULT_SIZE, ':host'))}
+  ${unsafeCSS(CORE_SIZES.filter((v) => v !== DEFAULT_SIZE).map((v) => sizeBlock(v, `:host([size='${v}'])`)).join('\n'))}
   :host {
     --_nvd-target: var(--tanrei-sys-target-pointer);
   }
-  :host([density='compact']) {
+  :host([size='small']) {
     --_nvd-target: 0px;
   }
   @media (pointer: coarse) {
-    :host([density='compact']) {
-      --_nvd-height: max(${t('item-container-height-compact')}, var(--tanrei-sys-target-touch));
+    :host([size='small']) {
+      --_nvd-height: max(${t('item-container-height-small')}, var(--tanrei-sys-target-touch));
     }
   }
   /* NVD-40: a collapsible modal drawer's column, while it is closed, is drawn as a standard drawer's. */
@@ -1011,7 +1011,7 @@ export const cellStyles = css`
   :host {
     display: block;
     outline: none;
-    /* NVD-65: the glyph sizes of the drawer's density, as properties the icon helper reads. */
+    /* NVD-65: the glyph sizes of the drawer's size, as properties the icon helper reads. */
     --_nvd-cell-icon: ${d('--_nvd-icon')};
     --_nvd-cell-trailing-icon: ${d('--_nvd-trailing-icon')};
   }

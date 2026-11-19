@@ -6560,8 +6560,8 @@ private let cupertinoNavigationDrawerTokens = TanreiNavigationDrawerTokens(
       )
     )
   ),
-  densitys: TanreiNavigationDrawerDensitys(
-    regular: TanreiNavigationDrawerDensityTokens(
+  sizes: TanreiNavigationDrawerSizes(
+    medium: TanreiNavigationDrawerSizeTokens(
       containerGap: 4,
       itemContainerHeight: 48,
       itemPaddingInline: 12,
@@ -6577,7 +6577,7 @@ private let cupertinoNavigationDrawerTokens = TanreiNavigationDrawerTokens(
       collapsedItemContainerPaddingBlock: 12,
       headingHeight: 36
     ),
-    compact: TanreiNavigationDrawerDensityTokens(
+    small: TanreiNavigationDrawerSizeTokens(
       containerGap: 2,
       itemContainerHeight: 32,
       itemPaddingInline: 8,

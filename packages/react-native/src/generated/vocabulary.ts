@@ -3606,19 +3606,19 @@ export interface TanreiNavigationDrawerConditionTokens {
 export type TanreiNavigationDrawerConditions = { readonly [Key in TanreiCoreNavigationDrawerCondition]: TanreiNavigationDrawerConditionTokens } & { readonly [Key in TanreiNavigationDrawerCondition]?: TanreiNavigationDrawerConditionTokens };
 
 /**
- * Every value of `comp.navigation-drawer`'s `density` axis. The core values are listed here; a system that adds one
+ * Every value of `comp.navigation-drawer`'s `size` axis. The core values are listed here; a system that adds one
  * declares it by module augmentation — its generated file does that. At runtime a value the active system
- * does not have falls back to `regular` (with a dev-only warning).
+ * does not have falls back to `medium` (with a dev-only warning).
  */
-export interface TanreiNavigationDrawerDensityRegistry {
-  regular: true;
-  compact: true;
+export interface TanreiNavigationDrawerSizeRegistry {
+  medium: true;
+  small: true;
 }
-export type TanreiNavigationDrawerDensity = keyof TanreiNavigationDrawerDensityRegistry;
-export type TanreiCoreNavigationDrawerDensity = "regular" | "compact";
+export type TanreiNavigationDrawerSize = keyof TanreiNavigationDrawerSizeRegistry;
+export type TanreiCoreNavigationDrawerSize = "medium" | "small";
 
-/** The tokens of one `density` of `comp.navigation-drawer`. */
-export interface TanreiNavigationDrawerDensityTokens {
+/** The tokens of one `size` of `comp.navigation-drawer`. */
+export interface TanreiNavigationDrawerSizeTokens {
   readonly containerGap: number;
   readonly itemContainerHeight: number;
   readonly itemPaddingInline: number;
@@ -3635,11 +3635,11 @@ export interface TanreiNavigationDrawerDensityTokens {
   readonly headingHeight: number;
 }
 /** Core values are required; a value a system added is present only in that system. */
-export type TanreiNavigationDrawerDensitys = { readonly [Key in TanreiCoreNavigationDrawerDensity]: TanreiNavigationDrawerDensityTokens } & { readonly [Key in TanreiNavigationDrawerDensity]?: TanreiNavigationDrawerDensityTokens };
+export type TanreiNavigationDrawerSizes = { readonly [Key in TanreiCoreNavigationDrawerSize]: TanreiNavigationDrawerSizeTokens } & { readonly [Key in TanreiNavigationDrawerSize]?: TanreiNavigationDrawerSizeTokens };
 
 /**
  * `comp.navigation-drawer`: one member per token that is on no axis (a per-state one carries the state in its name,
- * `<state><Part>`), then one holder per axis (`variants`, `conditions`, `densitys`), keyed by the axis value.
+ * `<state><Part>`), then one holder per axis (`variants`, `conditions`, `sizes`), keyed by the axis value.
  */
 export interface TanreiNavigationDrawerTokens {
   readonly breakpointCollapsed: number;
@@ -3696,7 +3696,7 @@ export interface TanreiNavigationDrawerTokens {
   readonly stickyDividerWidth: number;
   readonly variants: TanreiNavigationDrawerVariants;
   readonly conditions: TanreiNavigationDrawerConditions;
-  readonly densitys: TanreiNavigationDrawerDensitys;
+  readonly sizes: TanreiNavigationDrawerSizes;
 }
 
 /**
@@ -6056,7 +6056,7 @@ declare module './vocabulary' {
   interface TanreiNavigationBarConditionRegistry {}
   interface TanreiNavigationDrawerVariantRegistry {}
   interface TanreiNavigationDrawerConditionRegistry {}
-  interface TanreiNavigationDrawerDensityRegistry {}
+  interface TanreiNavigationDrawerSizeRegistry {}
   interface TanreiOneTimeCodeInputConditionRegistry {}
   interface TanreiPageHeaderSizeRegistry {}
   interface TanreiPaginationSizeRegistry {}

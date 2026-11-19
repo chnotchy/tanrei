@@ -6732,10 +6732,10 @@ private let acmeNavigationDrawerTokens = TanreiNavigationDrawerTokens(
       )
     )
   ),
-  densitys: TanreiNavigationDrawerDensitys(
-    regular: TanreiNavigationDrawerDensityTokens(
+  sizes: TanreiNavigationDrawerSizes(
+    medium: TanreiNavigationDrawerSizeTokens(
       containerGap: 4,
-      itemContainerHeight: 48,
+      itemContainerHeight: 40,
       itemPaddingInline: 12,
       itemPaddingBlock: 4,
       itemNestIndent: 36,
@@ -6745,11 +6745,11 @@ private let acmeNavigationDrawerTokens = TanreiNavigationDrawerTokens(
       itemLabelTypescale: acmeTypescale.label,
       itemTrailingIconSize: 20,
       collapsedContainerWidth: 72,
-      collapsedItemContainerWidth: 48,
-      collapsedItemContainerPaddingBlock: 12,
+      collapsedItemContainerWidth: 40,
+      collapsedItemContainerPaddingBlock: 8,
       headingHeight: 36
     ),
-    compact: TanreiNavigationDrawerDensityTokens(
+    small: TanreiNavigationDrawerSizeTokens(
       containerGap: 2,
       itemContainerHeight: 36,
       itemPaddingInline: 8,
@@ -8997,7 +8997,7 @@ private let acmeTableOfContentsTokens = TanreiTableOfContentsTokens(
   compactListPaddingBlock: 8,
   compactListPaddingInline: 16,
   compactRowGap: 8,
-  compactRowHeight: 48,
+  compactRowHeight: 40,
   compactRowPaddingInline: 16,
   compactSupportingTextColor: .role(.onSurfaceVariant),
   compactSupportingTextTypescale: acmeTypescale.bodySmall,
@@ -9091,8 +9091,8 @@ private let acmeTableOfContentsTokens = TanreiTableOfContentsTokens(
       rowPaddingBlock: 8
     ),
     medium: TanreiTableOfContentsSizeTokens(
-      rowHeight: 44,
-      rowPaddingBlock: 12
+      rowHeight: 40,
+      rowPaddingBlock: 10
     )
   ),
   hovered: TanreiTableOfContentsStateTokens(
@@ -9606,7 +9606,7 @@ private let acmeTabsTokens = TanreiTabsTokens(
       iconPlacement: 1
     ),
     medium: TanreiTabsSizeTokens(
-      containerHeight: 48,
+      containerHeight: 40,
       containerPaddingInline: 16,
       activeIndicatorPaddingInline: 16,
       activeIndicatorPaddingBlock: 4,
@@ -10038,8 +10038,8 @@ private let acmeTreeViewTokens = TanreiTreeViewTokens(
       chevronSize: 16
     ),
     medium: TanreiTreeViewSizeTokens(
-      containerHeight: 48,
-      containerPaddingBlock: 12,
+      containerHeight: 40,
+      containerPaddingBlock: 8,
       containerPaddingInline: 12,
       containerGap: 12,
       levelIndent: 32,

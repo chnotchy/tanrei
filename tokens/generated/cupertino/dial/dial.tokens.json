@@ -4665,7 +4665,7 @@
             "tanrei.comp.navigation-drawer.item.container.shape": {
               "$value": "{tanrei.sys.shape.corner.medium}"
             },
-            "tanrei.comp.navigation-drawer.item.label.typescale.regular": {
+            "tanrei.comp.navigation-drawer.item.label.typescale.medium": {
               "$value": "{tanrei.sys.typescale.body-large}",
               "reason": "An iPadOS sidebar row is set in Body (17pt), body-large here."
             },
@@ -5324,7 +5324,7 @@
               },
               "reason": "This preset's own size, which is not the default system's (Material's) size; moving it is a fidelity decision for this preset."
             },
-            "tanrei.comp.navigation-drawer.item.icon.size.regular": {
+            "tanrei.comp.navigation-drawer.item.icon.size.medium": {
               "$value": "{tanrei.sys.icon.small}",
               "reason": "This preset's own glyph size, smaller than the default system's; moving it is a fidelity decision for this preset."
             },
@@ -5412,6 +5412,66 @@
             "tanrei.comp.table-of-contents.row.shape": {
               "$value": "{tanrei.sys.shape.corner.extra-small}",
               "reason": "This preset keeps the corner it drew on a table of contents row, the extra-small corner, where the default system rounds it by the small one; whether its original rounds a row so is a fidelity decision for this preset."
+            },
+            "tanrei.comp.tabs.container.height.medium": {
+              "derive": {
+                "fn": "mul",
+                "of": "{tanrei.dial.size.unit}",
+                "by": 12
+              },
+              "reason": "This preset keeps the tab it drew, where the default system draws a tab at the control height; whether its original draws them so is a fidelity decision for this preset."
+            },
+            "tanrei.comp.tree-view.container.height.medium": {
+              "derive": {
+                "fn": "mul",
+                "of": "{tanrei.dial.size.unit}",
+                "by": 12
+              },
+              "reason": "This preset keeps the tree row it drew, where the default system draws a tree row at the control height; whether its original draws them so is a fidelity decision for this preset."
+            },
+            "tanrei.comp.tree-view.container.padding-block.medium": {
+              "$value": "{tanrei.sys.space.space150}",
+              "reason": "This preset keeps the padding of the tree row it drew, with the row's 48."
+            },
+            "tanrei.comp.table-of-contents.row.height.medium": {
+              "derive": {
+                "fn": "mul",
+                "of": "{tanrei.dial.size.unit}",
+                "by": 11
+              },
+              "reason": "This preset keeps the table of contents row it drew, where the default system draws one at the control height; whether its original draws them so is a fidelity decision for this preset."
+            },
+            "tanrei.comp.table-of-contents.row.padding-block.medium": {
+              "$value": "{tanrei.sys.space.space150}",
+              "reason": "This preset keeps the padding of the table of contents row it drew, with the row's 44."
+            },
+            "tanrei.comp.table-of-contents.compact.row.height": {
+              "derive": {
+                "fn": "mul",
+                "of": "{tanrei.dial.size.unit}",
+                "by": 12
+              },
+              "reason": "This preset keeps the compact table of contents row it drew, where the default system draws it at the control height; whether its original draws them so is a fidelity decision for this preset."
+            },
+            "tanrei.comp.navigation-drawer.item.container.height.medium": {
+              "derive": {
+                "fn": "mul",
+                "of": "{tanrei.dial.size.unit}",
+                "by": 12
+              },
+              "reason": "This preset keeps the drawer row it drew, where the default system draws one at the control height; whether its original (the iPadOS sidebar) draws them so is a fidelity decision for this preset."
+            },
+            "tanrei.comp.navigation-drawer.collapsed.item.container.width.medium": {
+              "derive": {
+                "fn": "mul",
+                "of": "{tanrei.dial.size.unit}",
+                "by": 12
+              },
+              "reason": "This preset keeps the collapsed cell it drew, as wide as its row is tall."
+            },
+            "tanrei.comp.navigation-drawer.collapsed.item.container.padding-block.medium": {
+              "$value": "{tanrei.sys.space.space150}",
+              "reason": "This preset keeps the padding of the collapsed cell it drew."
             },
             "tanrei.comp.button-with-menu.icon.size.large": {
               "$value": "{tanrei.sys.icon.extra-small}",

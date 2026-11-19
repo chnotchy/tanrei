@@ -6731,8 +6731,8 @@ const TanreiSystem m3ExpressiveLikeSystem = TanreiSystem(
         ),
       ),
     ),
-    densitys: TanreiNavigationDrawerDensitys(
-      regular: TanreiNavigationDrawerDensityTokens(
+    sizes: TanreiNavigationDrawerSizes(
+      medium: TanreiNavigationDrawerSizeTokens(
         containerGap: 0.0,
         itemContainerHeight: 56.0,
         itemPaddingInline: 16.0,
@@ -6748,7 +6748,7 @@ const TanreiSystem m3ExpressiveLikeSystem = TanreiSystem(
         collapsedItemContainerPaddingBlock: 0.0,
         headingHeight: 36.0,
       ),
-      compact: TanreiNavigationDrawerDensityTokens(
+      small: TanreiNavigationDrawerSizeTokens(
         containerGap: 2.0,
         itemContainerHeight: 32.0,
         itemPaddingInline: 8.0,

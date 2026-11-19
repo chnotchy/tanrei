@@ -6681,10 +6681,10 @@ const TanreiSystem tanreiSystem = TanreiSystem(
         ),
       ),
     ),
-    densitys: TanreiNavigationDrawerDensitys(
-      regular: TanreiNavigationDrawerDensityTokens(
+    sizes: TanreiNavigationDrawerSizes(
+      medium: TanreiNavigationDrawerSizeTokens(
         containerGap: 4.0,
-        itemContainerHeight: 48.0,
+        itemContainerHeight: 40.0,
         itemPaddingInline: 12.0,
         itemPaddingBlock: 4.0,
         itemNestIndent: 36.0,
@@ -6694,11 +6694,11 @@ const TanreiSystem tanreiSystem = TanreiSystem(
         itemLabelTypescale: _typescaleLabel,
         itemTrailingIconSize: 20.0,
         collapsedContainerWidth: 72.0,
-        collapsedItemContainerWidth: 48.0,
-        collapsedItemContainerPaddingBlock: 12.0,
+        collapsedItemContainerWidth: 40.0,
+        collapsedItemContainerPaddingBlock: 8.0,
         headingHeight: 36.0,
       ),
-      compact: TanreiNavigationDrawerDensityTokens(
+      small: TanreiNavigationDrawerSizeTokens(
         containerGap: 2.0,
         itemContainerHeight: 36.0,
         itemPaddingInline: 8.0,
@@ -8918,7 +8918,7 @@ const TanreiSystem tanreiSystem = TanreiSystem(
     compactListPaddingBlock: 8.0,
     compactListPaddingInline: 16.0,
     compactRowGap: 8.0,
-    compactRowHeight: 48.0,
+    compactRowHeight: 40.0,
     compactRowPaddingInline: 16.0,
     compactSupportingTextColor: TanreiPaint.role(TanreiColorRole.onSurfaceVariant),
     compactSupportingTextTypescale: _typescaleBodySmall,
@@ -9012,8 +9012,8 @@ const TanreiSystem tanreiSystem = TanreiSystem(
         rowPaddingBlock: 8.0,
       ),
       medium: TanreiTableOfContentsSizeTokens(
-        rowHeight: 44.0,
-        rowPaddingBlock: 12.0,
+        rowHeight: 40.0,
+        rowPaddingBlock: 10.0,
       ),
     ),
     hovered: TanreiTableOfContentsStateTokens(
@@ -9525,7 +9525,7 @@ const TanreiSystem tanreiSystem = TanreiSystem(
         iconPlacement: 1.0,
       ),
       medium: TanreiTabsSizeTokens(
-        containerHeight: 48.0,
+        containerHeight: 40.0,
         containerPaddingInline: 16.0,
         activeIndicatorPaddingInline: 16.0,
         activeIndicatorPaddingBlock: 4.0,
@@ -9950,8 +9950,8 @@ const TanreiSystem tanreiSystem = TanreiSystem(
         chevronSize: 16.0,
       ),
       medium: TanreiTreeViewSizeTokens(
-        containerHeight: 48.0,
-        containerPaddingBlock: 12.0,
+        containerHeight: 40.0,
+        containerPaddingBlock: 8.0,
         containerPaddingInline: 12.0,
         containerGap: 12.0,
         levelIndent: 32.0,

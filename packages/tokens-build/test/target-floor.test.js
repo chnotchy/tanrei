@@ -33,7 +33,7 @@ test('the floored heights: every pressable height and row the core derives with 
     'comp.menu.container.height.small',
     'comp.select.option.height.small', // an alias of the menu's
     'comp.list-row.container.height.three-line.medium',
-    'comp.navigation-drawer.collapsed.item.container.width.compact',
+    'comp.navigation-drawer.collapsed.item.container.width.small',
     'comp.snackbar.controls.height',
   ]) assert.ok(floors.includes(`${NS}.${id}`), id);
   for (const id of ['comp.tag.container.height.small', 'comp.chip.container.height.small', 'comp.checkbox.container.size', 'comp.app-bar.container.height.small']) assert.ok(!floors.includes(`${NS}.${id}`), `${id} is not floored: nobody presses it, a mark reaches, or a frame`);
@@ -132,13 +132,13 @@ test('the sweep: at every control height and minimum no floored height is under 
     }
   }
   // Heights by control height at a minimum of 32: Button small, medium and large, a tree's row, a tree's small row, a
-  // one-line list row. The Button and the small tree row follow the ladder; the tree's medium row and the list row are
-  // not on it yet (HEIGHTS_NOT_YET_ON_THE_LADDER), and keep their own.
+  // one-line list row. The Button and the tree's rows follow the ladder, the medium row at the control height; the list
+  // row is not on it yet (HEIGHTS_NOT_YET_ON_THE_LADDER), and keeps its own.
   assert.deepEqual(table, {
-    32: [32, 32, 48, 48, 32, 56],
-    36: [32, 36, 52, 48, 32, 56],
-    40: [32, 40, 56, 48, 32, 56],
+    32: [32, 32, 48, 32, 32, 56],
+    36: [32, 36, 52, 36, 32, 56],
+    40: [32, 40, 56, 40, 32, 56],
     48: [40, 48, 64, 48, 40, 56],
-    56: [48, 56, 72, 48, 48, 56],
+    56: [48, 56, 72, 56, 48, 56],
   });
 });

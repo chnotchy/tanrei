@@ -59620,17 +59620,17 @@
         "collapsed": {
           "container": {
             "width": {
-              "compact": {
-                "$type": "dimension",
-                "$value": {
-                  "value": 56,
-                  "unit": "px"
-                }
-              },
-              "regular": {
+              "medium": {
                 "$type": "dimension",
                 "$value": {
                   "value": 72,
+                  "unit": "px"
+                }
+              },
+              "small": {
+                "$type": "dimension",
+                "$value": {
+                  "value": 56,
                   "unit": "px"
                 }
               }
@@ -59639,17 +59639,17 @@
           "item": {
             "container": {
               "padding-block": {
-                "compact": {
-                  "$type": "dimension",
-                  "$value": {
-                    "value": 8,
-                    "unit": "px"
-                  }
-                },
-                "regular": {
+                "medium": {
                   "$type": "dimension",
                   "$value": {
                     "value": 12,
+                    "unit": "px"
+                  }
+                },
+                "small": {
+                  "$type": "dimension",
+                  "$value": {
+                    "value": 8,
                     "unit": "px"
                   }
                 }
@@ -59671,17 +59671,17 @@
                 "$description": "The collapsed item container's corners, at most half its height. The expanded row's own corners: collapsing a drawer removes its labels and changes no shape."
               },
               "width": {
-                "compact": {
-                  "$type": "dimension",
-                  "$value": {
-                    "value": 32,
-                    "unit": "px"
-                  }
-                },
-                "regular": {
+                "medium": {
                   "$type": "dimension",
                   "$value": {
                     "value": 48,
+                    "unit": "px"
+                  }
+                },
+                "small": {
+                  "$type": "dimension",
+                  "$value": {
+                    "value": 32,
                     "unit": "px"
                   }
                 }
@@ -59792,17 +59792,17 @@
             }
           },
           "gap": {
-            "compact": {
-              "$type": "dimension",
-              "$value": {
-                "value": 2,
-                "unit": "px"
-              }
-            },
-            "regular": {
+            "medium": {
               "$type": "dimension",
               "$value": {
                 "value": 4,
+                "unit": "px"
+              }
+            },
+            "small": {
+              "$type": "dimension",
+              "$value": {
+                "value": 2,
                 "unit": "px"
               }
             }
@@ -59821,7 +59821,7 @@
               "value": 200,
               "unit": "px"
             },
-            "$description": "The least width a person can give the expanded drawer beside the content (minWidth null). Above the collapsed column's width in every density; halfway between the two is where a drag folds a collapsible drawer to its column."
+            "$description": "The least width a person can give the expanded drawer beside the content (minWidth null). Above the collapsed column's width at every size; halfway between the two is where a drag folds a collapsible drawer to its column."
           },
           "padding-block": {
             "$type": "dimension",
@@ -59985,7 +59985,7 @@
               "value": 1,
               "unit": "px"
             },
-            "$description": "The guide line's width: a hairline, in every density."
+            "$description": "The guide line's width: a hairline, at every size."
           }
         },
         "header": {
@@ -60058,17 +60058,17 @@
             }
           },
           "height": {
-            "compact": {
-              "$type": "dimension",
-              "$value": {
-                "value": 28,
-                "unit": "px"
-              }
-            },
-            "regular": {
+            "medium": {
               "$type": "dimension",
               "$value": {
                 "value": 36,
+                "unit": "px"
+              }
+            },
+            "small": {
+              "$type": "dimension",
+              "$value": {
+                "value": 28,
                 "unit": "px"
               }
             }
@@ -60106,17 +60106,17 @@
         "item": {
           "container": {
             "height": {
-              "compact": {
-                "$type": "dimension",
-                "$value": {
-                  "value": 32,
-                  "unit": "px"
-                }
-              },
-              "regular": {
+              "medium": {
                 "$type": "dimension",
                 "$value": {
                   "value": 48,
+                  "unit": "px"
+                }
+              },
+              "small": {
+                "$type": "dimension",
+                "$value": {
+                  "value": 32,
                   "unit": "px"
                 }
               }
@@ -60136,21 +60136,21 @@
               "value": 12,
               "unit": "px"
             },
-            "$description": "Between the icon (or the icon's kept room), the label and the trailing content of an expanded row, the same in every density: a compact drawer draws its rows lower and its glyphs smaller and keeps a name as far from its glyph as a regular one does (the tree view's icon.gap)."
+            "$description": "Between the icon (or the icon's kept room), the label and the trailing content of an expanded row, the same at every size: a small drawer draws its rows lower and its glyphs smaller and keeps a name as far from its glyph as a medium one does (the tree view's icon.gap)."
           },
           "icon-indicator": {
             "height": {
-              "compact": {
-                "$type": "dimension",
-                "$value": {
-                  "value": 16,
-                  "unit": "px"
-                }
-              },
-              "regular": {
+              "medium": {
                 "$type": "dimension",
                 "$value": {
                   "value": 20,
+                  "unit": "px"
+                }
+              },
+              "small": {
+                "$type": "dimension",
+                "$value": {
+                  "value": 16,
                   "unit": "px"
                 }
               }
@@ -60164,17 +60164,17 @@
               "$description": "The radius of the icon indicator's four corners, at most half its height."
             },
             "width": {
-              "compact": {
-                "$type": "dimension",
-                "$value": {
-                  "value": 16,
-                  "unit": "px"
-                }
-              },
-              "regular": {
+              "medium": {
                 "$type": "dimension",
                 "$value": {
                   "value": 20,
+                  "unit": "px"
+                }
+              },
+              "small": {
+                "$type": "dimension",
+                "$value": {
+                  "value": 16,
                   "unit": "px"
                 }
               }
@@ -60182,17 +60182,17 @@
           },
           "icon": {
             "size": {
-              "compact": {
-                "$type": "dimension",
-                "$value": {
-                  "value": 16,
-                  "unit": "px"
-                }
-              },
-              "regular": {
+              "medium": {
                 "$type": "dimension",
                 "$value": {
                   "value": 20,
+                  "unit": "px"
+                }
+              },
+              "small": {
+                "$type": "dimension",
+                "$value": {
+                  "value": 16,
                   "unit": "px"
                 }
               }
@@ -60200,7 +60200,7 @@
           },
           "label": {
             "typescale": {
-              "compact": {
+              "medium": {
                 "$type": "typography",
                 "$value": {
                   "fontFamily": [
@@ -60222,7 +60222,7 @@
                   "lineHeight": 1.2941
                 }
               },
-              "regular": {
+              "small": {
                 "$type": "typography",
                 "$value": {
                   "fontFamily": [
@@ -60247,49 +60247,49 @@
             }
           },
           "nest-indent": {
-            "compact": {
-              "$type": "dimension",
-              "$value": {
-                "value": 24,
-                "unit": "px"
-              }
-            },
-            "regular": {
+            "medium": {
               "$type": "dimension",
               "$value": {
                 "value": 36,
                 "unit": "px"
               }
+            },
+            "small": {
+              "$type": "dimension",
+              "$value": {
+                "value": 24,
+                "unit": "px"
+              }
             }
           },
           "padding-block": {
-            "compact": {
-              "$type": "dimension",
-              "$value": {
-                "value": 2,
-                "unit": "px"
-              }
-            },
-            "regular": {
+            "medium": {
               "$type": "dimension",
               "$value": {
                 "value": 4,
                 "unit": "px"
               }
+            },
+            "small": {
+              "$type": "dimension",
+              "$value": {
+                "value": 2,
+                "unit": "px"
+              }
             }
           },
           "padding-inline": {
-            "compact": {
-              "$type": "dimension",
-              "$value": {
-                "value": 8,
-                "unit": "px"
-              }
-            },
-            "regular": {
+            "medium": {
               "$type": "dimension",
               "$value": {
                 "value": 12,
+                "unit": "px"
+              }
+            },
+            "small": {
+              "$type": "dimension",
+              "$value": {
+                "value": 8,
                 "unit": "px"
               }
             }
@@ -60321,17 +60321,17 @@
           },
           "trailing-icon": {
             "size": {
-              "compact": {
-                "$type": "dimension",
-                "$value": {
-                  "value": 16,
-                  "unit": "px"
-                }
-              },
-              "regular": {
+              "medium": {
                 "$type": "dimension",
                 "$value": {
                   "value": 20,
+                  "unit": "px"
+                }
+              },
+              "small": {
+                "$type": "dimension",
+                "$value": {
+                  "value": 16,
                   "unit": "px"
                 }
               }
@@ -84125,7 +84125,7 @@
                 "value": 48,
                 "unit": "px"
               },
-              "$description": "The least height of the compact form's row: 48 in the default system, above the touch target, because the compact form is the form of narrow windows. A minimum: it grows with enlarged text."
+              "$description": "The least height of the compact form's row: the control height (40 in the default system), as tall as the Buttons and fields beside it. The compact form is the form of narrow windows, so for touch the row is never lower than the touch target, whatever this says (TOC-24). A minimum: it grows with enlarged text."
             },
             "padding-inline": {
               "$type": "dimension",

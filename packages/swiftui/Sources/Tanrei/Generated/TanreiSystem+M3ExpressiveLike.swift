@@ -6709,8 +6709,8 @@ private let m3ExpressiveLikeNavigationDrawerTokens = TanreiNavigationDrawerToken
       )
     )
   ),
-  densitys: TanreiNavigationDrawerDensitys(
-    regular: TanreiNavigationDrawerDensityTokens(
+  sizes: TanreiNavigationDrawerSizes(
+    medium: TanreiNavigationDrawerSizeTokens(
       containerGap: 0,
       itemContainerHeight: 56,
       itemPaddingInline: 16,
@@ -6726,7 +6726,7 @@ private let m3ExpressiveLikeNavigationDrawerTokens = TanreiNavigationDrawerToken
       collapsedItemContainerPaddingBlock: 0,
       headingHeight: 36
     ),
-    compact: TanreiNavigationDrawerDensityTokens(
+    small: TanreiNavigationDrawerSizeTokens(
       containerGap: 2,
       itemContainerHeight: 32,
       itemPaddingInline: 8,

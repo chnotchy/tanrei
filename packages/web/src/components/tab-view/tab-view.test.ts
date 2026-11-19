@@ -11,6 +11,7 @@ import { STOPPED_AFTER, flingThenHold, strokes } from '../../../test/stopped-rel
 import { expectBaseline } from '../../../test/baseline.js';
 import { motionCount, motionEnded } from '../../../test/motions.js';
 import { mirroring, mirroringAfterDirection } from '../../../test/mirror-word.js';
+import { CONTROL_HEIGHTS, atControlHeight } from '../../../test/control-height.js';
 
 const spec = loadSpec('tab-view');
 type P = Page;
@@ -232,6 +233,18 @@ const rowEnd = (page: P, id: string, type: 'pointerup' | 'pointercancel' = 'poin
     { id, type, pointerId: ROW_POINTER },
   );
 const rowDragging = (page: P, id: string) => row(page, id).evaluate((el: any) => el.dragging as boolean);
+
+test.describe('the control height', () => {
+  test('TBV-25: at control height 32, 36 and 40, the minimum no higher, the tabs of a Tab view’s own row are that tall under a fine pointer, and its panel starts below them', async ({ page }) => {
+    await mountFixtures(page, spec, { fixtures: [fixture('own')] });
+    for (const height of CONTROL_HEIGHTS) {
+      await atControlHeight(page, height);
+      const tab = ownRow(page, 'own').locator('tanrei-tab').first().locator('.tab');
+      await expect.poll(async () => (await bounds(tab)).height, `at ${height}`).toBeCloseTo(height, 1);
+      expect((await bounds(panel(page, 'own', 'overview'))).y, `the panel at ${height}`).toBeGreaterThanOrEqual((await bounds(tab)).y + height - 0.5);
+    }
+  });
+});
 
 test.describe('selection and link', () => {
   test('TBV-1: shows the panel of its tabs’ selected tab — its own row’s or the linked row’s (the first enabled one while it is null) — and hides the others; the view’s value and the tabs’ are kept equal, either way, without change', async ({ page }) => {

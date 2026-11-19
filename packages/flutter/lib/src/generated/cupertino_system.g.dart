@@ -6666,8 +6666,8 @@ const TanreiSystem cupertinoSystem = TanreiSystem(
         ),
       ),
     ),
-    densitys: TanreiNavigationDrawerDensitys(
-      regular: TanreiNavigationDrawerDensityTokens(
+    sizes: TanreiNavigationDrawerSizes(
+      medium: TanreiNavigationDrawerSizeTokens(
         containerGap: 4.0,
         itemContainerHeight: 48.0,
         itemPaddingInline: 12.0,
@@ -6683,7 +6683,7 @@ const TanreiSystem cupertinoSystem = TanreiSystem(
         collapsedItemContainerPaddingBlock: 12.0,
         headingHeight: 36.0,
       ),
-      compact: TanreiNavigationDrawerDensityTokens(
+      small: TanreiNavigationDrawerSizeTokens(
         containerGap: 2.0,
         itemContainerHeight: 32.0,
         itemPaddingInline: 8.0,

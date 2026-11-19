@@ -10896,9 +10896,9 @@ export const tanrei = {
           },
         },
       },
-      densitys: {
-        regular: { containerGap: 4, itemContainerHeight: 48, itemPaddingInline: 12, itemPaddingBlock: 4, itemNestIndent: 36, itemIconSize: 24, itemIconIndicatorWidth: 24, itemIconIndicatorHeight: 24, itemLabelTypescale: "label", itemTrailingIconSize: 20, collapsedContainerWidth: 72, collapsedItemContainerWidth: 48, collapsedItemContainerPaddingBlock: 12, headingHeight: 36 },
-        compact: { containerGap: 2, itemContainerHeight: 36, itemPaddingInline: 8, itemPaddingBlock: 4, itemNestIndent: 24, itemIconSize: 16, itemIconIndicatorWidth: 16, itemIconIndicatorHeight: 16, itemLabelTypescale: "label", itemTrailingIconSize: 16, collapsedContainerWidth: 56, collapsedItemContainerWidth: 36, collapsedItemContainerPaddingBlock: 10, headingHeight: 28 },
+      sizes: {
+        medium: { containerGap: 4, itemContainerHeight: 40, itemPaddingInline: 12, itemPaddingBlock: 4, itemNestIndent: 36, itemIconSize: 24, itemIconIndicatorWidth: 24, itemIconIndicatorHeight: 24, itemLabelTypescale: "label", itemTrailingIconSize: 20, collapsedContainerWidth: 72, collapsedItemContainerWidth: 40, collapsedItemContainerPaddingBlock: 8, headingHeight: 36 },
+        small: { containerGap: 2, itemContainerHeight: 36, itemPaddingInline: 8, itemPaddingBlock: 4, itemNestIndent: 24, itemIconSize: 16, itemIconIndicatorWidth: 16, itemIconIndicatorHeight: 16, itemLabelTypescale: "label", itemTrailingIconSize: 16, collapsedContainerWidth: 56, collapsedItemContainerWidth: 36, collapsedItemContainerPaddingBlock: 10, headingHeight: 28 },
       },
     },
     numberInput: { motionRepeatDelay: 500, motionRepeatInterval: 100, motionRepeatIntervalFast: 50, stepperGap: 0, stepperInset: 4 },
@@ -15594,7 +15594,7 @@ export const tanrei = {
       compactListPaddingBlock: 8,
       compactListPaddingInline: 16,
       compactRowGap: 8,
-      compactRowHeight: 48,
+      compactRowHeight: 40,
       compactRowPaddingInline: 16,
       compactSupportingTextColor: { kind: "role", role: "onSurfaceVariant" },
       compactSupportingTextTypescale: "bodySmall",
@@ -15732,7 +15732,7 @@ export const tanrei = {
       },
       sizes: {
         small: { rowHeight: 36, rowPaddingBlock: 8 },
-        medium: { rowHeight: 44, rowPaddingBlock: 12 },
+        medium: { rowHeight: 40, rowPaddingBlock: 10 },
       },
     },
     table: {
@@ -16514,7 +16514,7 @@ export const tanrei = {
       },
       sizes: {
         small: { containerHeight: 36, containerPaddingInline: 12, activeIndicatorPaddingInline: 12, activeIndicatorPaddingBlock: 2, iconSize: 20, iconPlacement: 1 },
-        medium: { containerHeight: 48, containerPaddingInline: 16, activeIndicatorPaddingInline: 16, activeIndicatorPaddingBlock: 4, iconSize: 24, iconPlacement: 0 },
+        medium: { containerHeight: 40, containerPaddingInline: 16, activeIndicatorPaddingInline: 16, activeIndicatorPaddingBlock: 4, iconSize: 24, iconPlacement: 0 },
       },
     },
     tagGroup: {
@@ -17097,7 +17097,7 @@ export const tanrei = {
       },
       sizes: {
         small: { containerHeight: 36, containerPaddingBlock: 8, containerPaddingInline: 8, containerGap: 8, levelIndent: 24, labelTypescale: "bodySmall", iconSize: 16, chevronSize: 16 },
-        medium: { containerHeight: 48, containerPaddingBlock: 12, containerPaddingInline: 12, containerGap: 12, levelIndent: 32, labelTypescale: "body", iconSize: 24, chevronSize: 20 },
+        medium: { containerHeight: 40, containerPaddingBlock: 8, containerPaddingInline: 12, containerGap: 12, levelIndent: 32, labelTypescale: "body", iconSize: 24, chevronSize: 20 },
       },
     },
   },

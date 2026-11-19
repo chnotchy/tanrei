@@ -6271,9 +6271,9 @@ private object TonePerStateSystemSource {
                     ),
                 ),
             ),
-            densitys = TanreiNavigationDrawerDensitys(
-                regular = TanreiNavigationDrawerDensityTokens(containerGap = 4.dp, itemContainerHeight = 48.dp, itemPaddingInline = 12.dp, itemPaddingBlock = 4.dp, itemNestIndent = 36.dp, itemIconSize = 24.dp, itemIconIndicatorWidth = 24.dp, itemIconIndicatorHeight = 24.dp, itemLabelTypescale = typescale.label, itemTrailingIconSize = 20.dp, collapsedContainerWidth = 72.dp, collapsedItemContainerWidth = 48.dp, collapsedItemContainerPaddingBlock = 12.dp, headingHeight = 36.dp),
-                compact = TanreiNavigationDrawerDensityTokens(containerGap = 2.dp, itemContainerHeight = 36.dp, itemPaddingInline = 8.dp, itemPaddingBlock = 4.dp, itemNestIndent = 24.dp, itemIconSize = 16.dp, itemIconIndicatorWidth = 16.dp, itemIconIndicatorHeight = 16.dp, itemLabelTypescale = typescale.label, itemTrailingIconSize = 16.dp, collapsedContainerWidth = 56.dp, collapsedItemContainerWidth = 36.dp, collapsedItemContainerPaddingBlock = 10.dp, headingHeight = 28.dp),
+            sizes = TanreiNavigationDrawerSizes(
+                medium = TanreiNavigationDrawerSizeTokens(containerGap = 4.dp, itemContainerHeight = 40.dp, itemPaddingInline = 12.dp, itemPaddingBlock = 4.dp, itemNestIndent = 36.dp, itemIconSize = 24.dp, itemIconIndicatorWidth = 24.dp, itemIconIndicatorHeight = 24.dp, itemLabelTypescale = typescale.label, itemTrailingIconSize = 20.dp, collapsedContainerWidth = 72.dp, collapsedItemContainerWidth = 40.dp, collapsedItemContainerPaddingBlock = 8.dp, headingHeight = 36.dp),
+                small = TanreiNavigationDrawerSizeTokens(containerGap = 2.dp, itemContainerHeight = 36.dp, itemPaddingInline = 8.dp, itemPaddingBlock = 4.dp, itemNestIndent = 24.dp, itemIconSize = 16.dp, itemIconIndicatorWidth = 16.dp, itemIconIndicatorHeight = 16.dp, itemLabelTypescale = typescale.label, itemTrailingIconSize = 16.dp, collapsedContainerWidth = 56.dp, collapsedItemContainerWidth = 36.dp, collapsedItemContainerPaddingBlock = 10.dp, headingHeight = 28.dp),
             ),
         )
 
@@ -8274,7 +8274,7 @@ private object TonePerStateSystemSource {
             compactListPaddingBlock = 8.dp,
             compactListPaddingInline = 16.dp,
             compactRowGap = 8.dp,
-            compactRowHeight = 48.dp,
+            compactRowHeight = 40.dp,
             compactRowPaddingInline = 16.dp,
             compactSupportingTextColor = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant),
             compactSupportingTextTypescale = typescale.bodySmall,
@@ -8367,7 +8367,7 @@ private object TonePerStateSystemSource {
             ),
             sizes = TanreiTableOfContentsSizes(
                 small = TanreiTableOfContentsSizeTokens(rowHeight = 36.dp, rowPaddingBlock = 8.dp),
-                medium = TanreiTableOfContentsSizeTokens(rowHeight = 44.dp, rowPaddingBlock = 12.dp),
+                medium = TanreiTableOfContentsSizeTokens(rowHeight = 40.dp, rowPaddingBlock = 10.dp),
             ),
         )
 
@@ -8855,7 +8855,7 @@ private object TonePerStateSystemSource {
             ),
             sizes = TanreiTabsSizes(
                 small = TanreiTabsSizeTokens(containerHeight = 36.dp, containerPaddingInline = 12.dp, activeIndicatorPaddingInline = 12.dp, activeIndicatorPaddingBlock = 2.dp, iconSize = 20.dp, iconPlacement = 1f),
-                medium = TanreiTabsSizeTokens(containerHeight = 48.dp, containerPaddingInline = 16.dp, activeIndicatorPaddingInline = 16.dp, activeIndicatorPaddingBlock = 4.dp, iconSize = 24.dp, iconPlacement = 0f),
+                medium = TanreiTabsSizeTokens(containerHeight = 40.dp, containerPaddingInline = 16.dp, activeIndicatorPaddingInline = 16.dp, activeIndicatorPaddingBlock = 4.dp, iconSize = 24.dp, iconPlacement = 0f),
             ),
         )
 
@@ -9225,7 +9225,7 @@ private object TonePerStateSystemSource {
             ),
             sizes = TanreiTreeViewSizes(
                 small = TanreiTreeViewSizeTokens(containerHeight = 36.dp, containerPaddingBlock = 8.dp, containerPaddingInline = 8.dp, containerGap = 8.dp, levelIndent = 24.dp, labelTypescale = typescale.bodySmall, iconSize = 16.dp, chevronSize = 16.dp),
-                medium = TanreiTreeViewSizeTokens(containerHeight = 48.dp, containerPaddingBlock = 12.dp, containerPaddingInline = 12.dp, containerGap = 12.dp, levelIndent = 32.dp, labelTypescale = typescale.body, iconSize = 24.dp, chevronSize = 20.dp),
+                medium = TanreiTreeViewSizeTokens(containerHeight = 40.dp, containerPaddingBlock = 8.dp, containerPaddingInline = 12.dp, containerGap = 12.dp, levelIndent = 32.dp, labelTypescale = typescale.body, iconSize = 24.dp, chevronSize = 20.dp),
             ),
         )
 }

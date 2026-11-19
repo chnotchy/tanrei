@@ -179,9 +179,9 @@ test.describe('the column, the header and its parts', () => {
       // The text is centred in the row: what the height has beyond it is shared.
       near(label.top - row.top, row.bottom - label.bottom, 1);
     }
-    // The small header is a regular navigation drawer's row: its height, its text style, its chevron.
-    expect(await resolveToken(page, T('container-height-small'))).toBe(await resolveToken(page, '--tanrei-comp-navigation-drawer-item-container-height-regular'));
-    expect(await resolveToken(page, T('chevron-size-small'))).toBe(await resolveToken(page, '--tanrei-comp-navigation-drawer-item-trailing-icon-size-regular'));
+    // The small header takes a medium navigation drawer row's chevron. (Its height is still its own 48: the drawer's row
+    // is drawn at the control height, and the accordion's heights move to the ladder with the lists and rows.)
+    expect(await resolveToken(page, T('chevron-size-small'))).toBe(await resolveToken(page, '--tanrei-comp-navigation-drawer-item-trailing-icon-size-medium'));
     // Every part, container.gap apart.
     const gap = await resolveToken(page, T('container-gap'));
     const all = header(page, 'all-parts', 1);

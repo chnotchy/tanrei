@@ -6348,9 +6348,9 @@ private object M3ExpressiveLikeSystemSource {
                     ),
                 ),
             ),
-            densitys = TanreiNavigationDrawerDensitys(
-                regular = TanreiNavigationDrawerDensityTokens(containerGap = 0.dp, itemContainerHeight = 56.dp, itemPaddingInline = 16.dp, itemPaddingBlock = 4.dp, itemNestIndent = 36.dp, itemIconSize = 24.dp, itemIconIndicatorWidth = 56.dp, itemIconIndicatorHeight = 32.dp, itemLabelTypescale = typescale.label, itemTrailingIconSize = 20.dp, collapsedContainerWidth = 80.dp, collapsedItemContainerWidth = 56.dp, collapsedItemContainerPaddingBlock = 0.dp, headingHeight = 36.dp),
-                compact = TanreiNavigationDrawerDensityTokens(containerGap = 2.dp, itemContainerHeight = 32.dp, itemPaddingInline = 8.dp, itemPaddingBlock = 2.dp, itemNestIndent = 24.dp, itemIconSize = 16.dp, itemIconIndicatorWidth = 16.dp, itemIconIndicatorHeight = 16.dp, itemLabelTypescale = typescale.label, itemTrailingIconSize = 16.dp, collapsedContainerWidth = 56.dp, collapsedItemContainerWidth = 32.dp, collapsedItemContainerPaddingBlock = 8.dp, headingHeight = 28.dp),
+            sizes = TanreiNavigationDrawerSizes(
+                medium = TanreiNavigationDrawerSizeTokens(containerGap = 0.dp, itemContainerHeight = 56.dp, itemPaddingInline = 16.dp, itemPaddingBlock = 4.dp, itemNestIndent = 36.dp, itemIconSize = 24.dp, itemIconIndicatorWidth = 56.dp, itemIconIndicatorHeight = 32.dp, itemLabelTypescale = typescale.label, itemTrailingIconSize = 20.dp, collapsedContainerWidth = 80.dp, collapsedItemContainerWidth = 56.dp, collapsedItemContainerPaddingBlock = 0.dp, headingHeight = 36.dp),
+                small = TanreiNavigationDrawerSizeTokens(containerGap = 2.dp, itemContainerHeight = 32.dp, itemPaddingInline = 8.dp, itemPaddingBlock = 2.dp, itemNestIndent = 24.dp, itemIconSize = 16.dp, itemIconIndicatorWidth = 16.dp, itemIconIndicatorHeight = 16.dp, itemLabelTypescale = typescale.label, itemTrailingIconSize = 16.dp, collapsedContainerWidth = 56.dp, collapsedItemContainerWidth = 32.dp, collapsedItemContainerPaddingBlock = 8.dp, headingHeight = 28.dp),
             ),
         )
 
