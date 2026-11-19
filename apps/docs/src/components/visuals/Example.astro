@@ -105,6 +105,8 @@ const t = strings(lang);
 
 if (system && !shippedSystems.some((shipped) => shipped.id === system)) throw new Error(`Example: "${system}" is not a shipped system`);
 const pinned = system && system !== ns ? system : undefined;
+// A pinned stage shows its system on purpose (`data-docs-shows-system`): in it, and nowhere else but a component's own
+// page, the site defines a component that system has and the default system does not (lib/omitted-elements.ts).
 // One opt-in stylesheet per preset, each scoped to [data-tanrei-system="<id>"]: linked here only for a frame pinned to
 // a preset; the script loads the one the reader chose (lib/example.ts). Not the root's (core.css), which is no system a
 // frame or a reader chooses.
@@ -197,6 +199,7 @@ const SNAPSHOT = '(window.docsExampleSources ??= new WeakMap()).set(document.cur
         id={stageId}
         class:list={['docs-example-stage', { column, canvas: Boolean(reserve) }, stageClass]}
         data-tanrei-system={pinned}
+        data-docs-shows-system={pinned}
         data-example-stage
         data-example-pending
         data-pagefind-ignore

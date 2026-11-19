@@ -6,8 +6,18 @@
 // which is the table and nothing else: for each tag, a function that imports its module through the package's own export
 // (`@tanrei/web/components/<name>`). The bundler makes each of those modules a chunk of its own, asked for only when
 // the function is called, and the manifest itself (several megabytes) never reaches a page.
+//
+// Beside the table it serves `outside`: each tag of a component the default system does not have, with that component,
+// the shipped systems that have it and what the default system uses instead — read from the components manifests the
+// package's entries are built from (`@tanrei/web/systems/<id>.components.json`). `@tanrei/web` registers no such
+// component, so the site defines one only where it shows a system that has it (lib/omitted-elements.ts).
 import fs from 'node:fs';
 import { createRequire } from 'node:module';
+import path from 'node:path';
+
+const CONFIG = new URL('../../../../tanrei.config.json', import.meta.url);
+/** The default system: the one `@tanrei/web` registers the components of. */
+export const DEFAULT_SYSTEM = JSON.parse(fs.readFileSync(CONFIG, 'utf8')).namespace;
 
 /** The virtual module's name, as a page's script imports it. */
 export const ELEMENT_MODULES = 'virtual:tanrei-element-modules';
@@ -42,14 +52,48 @@ export function elementModules(manifest) {
 }
 
 /**
- * The virtual module's source: `loaders`, a function for each tag that imports the module defining it (the same
- * function for the tags of one module), and `modules`, how many modules there are.
- * @param {{ specifier: string, tags: string[] }[]} rows
+ * The tags of the components a system does not have: for each, its component, the shipped systems that have it, and
+ * what the system uses instead. A tag is a component's when the module that defines it is that component's module, as
+ * the manifests name it (`web.module`), so the elements a component holds among its children (a segment, a FAB menu's
+ * item) are its too.
+ * @param {{ specifier: string, tags: string[] }[]} rows  `elementModules`
+ * @param {Map<string, { components: { name: string, web?: { module?: string } }[], omitted: { name: string, insteadUse?: string[] }[] }>} manifests  each shipped system's components manifest, by id
+ * @param {string} system  the default system's id
+ * @returns {Record<string, { component: string, systems: string[], insteadUse: string[] }>}
  */
-export function elementModulesSource(rows) {
+export function outsideTags(rows, manifests, system) {
+  const own = manifests.get(system);
+  if (!own) throw new Error(`${ELEMENT_MODULES}: no components manifest of the default system "${system}"`);
+  const outside = {};
+  for (const { name, insteadUse = [] } of own.omitted) {
+    const systems = [...manifests].filter(([, manifest]) => manifest.components.some((component) => component.name === name)).map(([id]) => id);
+    const module = [...manifests.values()].flatMap((manifest) => manifest.components).find((component) => component.name === name)?.web?.module;
+    const row = module && rows.find((each) => each.specifier === module);
+    if (!row) continue; // no web element (a component the web does not ship), so nothing to hold back
+    for (const tag of row.tags) outside[tag] = { component: name, systems, insteadUse };
+  }
+  return outside;
+}
+
+/**
+ * The virtual module's source: `loaders`, a function for each tag that imports the module defining it (the same
+ * function for the tags of one module), `modules`, how many modules there are, `outside` (`outsideTags`) and
+ * `system`, the default system's id.
+ * @param {{ specifier: string, tags: string[] }[]} rows
+ * @param {ReturnType<typeof outsideTags>} [outside]
+ * @param {string} [system]
+ */
+export function elementModulesSource(rows, outside = {}, system = DEFAULT_SYSTEM) {
   const lines = rows.map(({ specifier }, index) => `const m${index} = () => import(${JSON.stringify(specifier)});`);
   const entries = rows.flatMap(({ tags }, index) => tags.map((tag) => `  ${JSON.stringify(tag)}: m${index},`));
-  return [...lines, 'export const loaders = {', ...entries, '};', `export const modules = ${rows.length};`, ''].join('\n');
+  return [...lines, 'export const loaders = {', ...entries, '};', `export const modules = ${rows.length};`, `export const outside = ${JSON.stringify(outside)};`, `export const system = ${JSON.stringify(system)};`, ''].join('\n');
+}
+
+/** Each shipped system's components manifest, by id, as the installed `@tanrei/web` holds them (`systems/<id>.components.json`). */
+export function systemManifests(require = createRequire(import.meta.url)) {
+  const dir = path.dirname(require.resolve(`@tanrei/web/systems/${DEFAULT_SYSTEM}.components.json`));
+  const files = fs.readdirSync(dir).filter((file) => file.endsWith('.components.json')).sort();
+  return { dir, manifests: new Map(files.map((file) => [file.slice(0, -'.components.json'.length), JSON.parse(fs.readFileSync(path.join(dir, file), 'utf8'))])) };
 }
 
 /**
@@ -93,7 +137,7 @@ const RESOLVED_NAMES = `\0${REACT_NAMES}`;
  */
 export function elementModulesPlugin() {
   const manifest = createRequire(import.meta.url).resolve('@tanrei/web/custom-elements.json');
-  const config = new URL('../../../../tanrei.config.json', import.meta.url);
+  const config = CONFIG;
   return {
     name: 'tanrei-docs:element-modules',
     resolveId(source) {
@@ -104,7 +148,10 @@ export function elementModulesPlugin() {
     load(id) {
       if (id === RESOLVED) {
         this.addWatchFile(manifest);
-        return elementModulesSource(elementModules(JSON.parse(fs.readFileSync(manifest, 'utf8'))));
+        const rows = elementModules(JSON.parse(fs.readFileSync(manifest, 'utf8')));
+        const { dir, manifests } = systemManifests();
+        for (const id of manifests.keys()) this.addWatchFile(path.join(dir, `${id}.components.json`));
+        return elementModulesSource(rows, outsideTags(rows, manifests, DEFAULT_SYSTEM));
       }
       if (id === RESOLVED_NAMES) {
         this.addWatchFile(manifest);
