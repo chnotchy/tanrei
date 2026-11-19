@@ -293,13 +293,13 @@ struct TanreiButtonPresetTests {
   /// A shipped preset that EXTENDS the size axis and revalues every size, the gap and
   /// the outline width included. Expected numbers are asserted once against the system instance;
   /// the rendering is compared with what the instance says.
-  @Test("BTN-3 BTN-5 m3-like: xlarge is 136 tall with a 3pt outline and a 16pt gap, xsmall 32 tall")
+  @Test("BTN-3 BTN-5 m3-like: xxlarge is 136 tall with a 3pt outline and a 16pt gap, small 32 tall")
   func m3LikeSizes() throws {
     let system = TanreiSystem.m3Like
     let colors = system.colors.light
     let sizes = system.button.sizes
-    #expect(sizes.keys == [.small, .medium, .large, .xlarge, .xsmall])  // core, then what was added by key
-    let order: [TanreiButtonSize] = [.xsmall, .small, .medium, .large, .xlarge]
+    #expect(sizes.keys == [.small, .medium, .large, .xlarge, .xxlarge])  // core, then what was added by key
+    let order: [TanreiButtonSize] = [.small, .medium, .large, .xlarge, .xxlarge]
     #expect(order.map { sizes[$0].containerHeight } == [32, 40, 56, 96, 136])
     #expect(order.map { sizes[$0].iconSize } == [20, 20, 24, 32, 40])
     #expect(order.map { sizes[$0].containerGap } == [8, 8, 8, 12, 16])
@@ -308,35 +308,35 @@ struct TanreiButtonPresetTests {
     func button(_ size: TanreiButtonSize) -> some View {
       TanreiButton("Deploy", variant: .outlined, size: size, action: {}) { Image(systemName: "arrow.up") }
     }
-    let xlarge = sizes[.xlarge]
-    let (bitmap, reports) = try Reports.collecting { try Snapshot.render(button(.xlarge), theme: theme(system)) }
+    let xxlarge = sizes[.xxlarge]
+    let (bitmap, reports) = try Reports.collecting { try Snapshot.render(button(.xxlarge), theme: theme(system)) }
     #expect(reports.messages.isEmpty)  // an added size of THIS system: no fallback
-    #expect(CGFloat(bitmap.height) == (xlarge.containerHeight + 2 * inset) * Snapshot.scale)
-    #expect(xlarge.containerHeight == 136)
+    #expect(CGFloat(bitmap.height) == (xxlarge.containerHeight + 2 * inset) * Snapshot.scale)
+    #expect(xxlarge.containerHeight == 136)
 
     // Outline: `outlineWidth` points of the outline paint from the leading edge at mid-height
     // (the straight part of any corner), then the surface — the outlined container draws nothing.
     let outline = colors[system.button.variants.outlined.enabled.outlineColor].rgba8()
-    let midY = inset + xlarge.containerHeight / 2
-    #expect(pixel(bitmap, x: inset + xlarge.outlineWidth - 0.5, y: midY).isClose(to: outline))
-    #expect(!pixel(bitmap, x: inset + xlarge.outlineWidth + 0.5, y: midY).isClose(to: outline))
-    #expect(xlarge.outlineWidth == 3)
+    let midY = inset + xxlarge.containerHeight / 2
+    #expect(pixel(bitmap, x: inset + xxlarge.outlineWidth - 0.5, y: midY).isClose(to: outline))
+    #expect(!pixel(bitmap, x: inset + xxlarge.outlineWidth + 0.5, y: midY).isClose(to: outline))
+    #expect(xxlarge.outlineWidth == 3)
 
     // Gap: without it the same button is exactly `containerGap` narrower.
     var noGap = system
-    noGap.button.sizes.extra[.xlarge]?.containerGap = 0
-    let narrower = try Snapshot.render(button(.xlarge), theme: theme(noGap))
-    #expect(CGFloat(bitmap.width - narrower.width) == xlarge.containerGap * Snapshot.scale)
-    #expect(xlarge.containerGap == 16)
+    noGap.button.sizes.extra[.xxlarge]?.containerGap = 0
+    let narrower = try Snapshot.render(button(.xxlarge), theme: theme(noGap))
+    #expect(CGFloat(bitmap.width - narrower.width) == xxlarge.containerGap * Snapshot.scale)
+    #expect(xxlarge.containerGap == 16)
 
-    let xsmall = try Snapshot.render(TanreiButton("Deploy", variant: .outlined, size: .xsmall, action: {}), theme: theme(system))
-    #expect(CGFloat(xsmall.height) == (sizes[.xsmall].containerHeight + 2 * inset) * Snapshot.scale)
-    #expect(sizes[.xsmall].containerHeight == 32)
+    let small = try Snapshot.render(TanreiButton("Deploy", variant: .outlined, size: .small, action: {}), theme: theme(system))
+    #expect(CGFloat(small.height) == (sizes[.small].containerHeight + 2 * inset) * Snapshot.scale)
+    #expect(sizes[.small].containerHeight == 32)
 
     // Under a system without these sizes the same code draws the default size (BTN-7).
-    let (fallback, fallbackReports) = try Reports.collecting { try Snapshot.render(button(.xlarge), theme: theme(.tanrei)) }
+    let (fallback, fallbackReports) = try Reports.collecting { try Snapshot.render(button(.xxlarge), theme: theme(.tanrei)) }
     #expect(CGFloat(fallback.height) == (TanreiSystem.tanrei.button.sizes.medium.containerHeight + 2 * inset) * Snapshot.scale)
-    #expect(fallbackReports.mention("xlarge"))
+    #expect(fallbackReports.mention("xxlarge"))
   }
 
   @Test("m3-like: elevation is soft shadows with no border ring")

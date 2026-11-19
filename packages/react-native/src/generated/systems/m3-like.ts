@@ -43,8 +43,8 @@ declare module '../vocabulary' {
     readonly displaySmall?: TanreiTypography;
   }
   interface TanreiButtonSizeRegistry {
-    xsmall: true;
     xlarge: true;
+    xxlarge: true;
   }
 }
 
@@ -1979,11 +1979,11 @@ export const m3Like = {
       pressedOpacity: 1,
       toneContainerOpacity: 0.16,
       sizes: {
-        small: { containerHeight: 40, containerPaddingInlineNarrow: 4, containerWidthWide: 52, containerPaddingInlineStart: 16, containerPaddingInlineEnd: 16, containerPaddingInlineStartWithIcon: 16, containerPaddingInlineEndWithIcon: 16, containerPaddingBlock: 6, labelTypescale: "label", iconSize: 20, iconSizeWithoutLabel: 24, containerGap: 8, outlineWidth: 1, motionStateDuration: 150 },
-        medium: { containerHeight: 56, containerPaddingInlineNarrow: 12, containerWidthWide: 72, containerPaddingInlineStart: 24, containerPaddingInlineEnd: 24, containerPaddingInlineStartWithIcon: 24, containerPaddingInlineEndWithIcon: 24, containerPaddingBlock: 6, labelTypescale: "heading5", iconSize: 24, iconSizeWithoutLabel: 24, containerGap: 8, outlineWidth: 1, motionStateDuration: 150 },
-        large: { containerHeight: 96, containerPaddingInlineNarrow: 16, containerWidthWide: 128, containerPaddingInlineStart: 48, containerPaddingInlineEnd: 48, containerPaddingInlineStartWithIcon: 48, containerPaddingInlineEndWithIcon: 48, containerPaddingBlock: 6, labelTypescale: "heading3", iconSize: 32, iconSizeWithoutLabel: 32, containerGap: 12, outlineWidth: 2, motionStateDuration: 150 },
-        xsmall: { containerHeight: 32, containerPaddingInlineNarrow: 4, containerWidthWide: 40, containerPaddingInlineStart: 16, containerPaddingInlineEnd: 16, containerPaddingInlineStartWithIcon: 16, containerPaddingInlineEndWithIcon: 16, containerPaddingBlock: 6, labelTypescale: "label", iconSize: 20, iconSizeWithoutLabel: 20, containerGap: 8, outlineWidth: 1, motionStateDuration: 150 },
-        xlarge: { containerHeight: 136, containerPaddingInlineNarrow: 32, containerWidthWide: 184, containerPaddingInlineStart: 64, containerPaddingInlineEnd: 64, containerPaddingInlineStartWithIcon: 64, containerPaddingInlineEndWithIcon: 64, containerPaddingBlock: 6, labelTypescale: "heading1", iconSize: 40, iconSizeWithoutLabel: 40, containerGap: 16, outlineWidth: 3, motionStateDuration: 150 },
+        small: { containerHeight: 32, containerPaddingInlineNarrow: 4, containerWidthWide: 40, containerPaddingInlineStart: 16, containerPaddingInlineEnd: 16, containerPaddingInlineStartWithIcon: 16, containerPaddingInlineEndWithIcon: 16, containerPaddingBlock: 6, labelTypescale: "label", iconSize: 20, iconSizeWithoutLabel: 20, containerGap: 8, outlineWidth: 1, motionStateDuration: 150 },
+        medium: { containerHeight: 40, containerPaddingInlineNarrow: 4, containerWidthWide: 52, containerPaddingInlineStart: 16, containerPaddingInlineEnd: 16, containerPaddingInlineStartWithIcon: 16, containerPaddingInlineEndWithIcon: 16, containerPaddingBlock: 6, labelTypescale: "label", iconSize: 20, iconSizeWithoutLabel: 24, containerGap: 8, outlineWidth: 1, motionStateDuration: 150 },
+        large: { containerHeight: 56, containerPaddingInlineNarrow: 12, containerWidthWide: 72, containerPaddingInlineStart: 24, containerPaddingInlineEnd: 24, containerPaddingInlineStartWithIcon: 24, containerPaddingInlineEndWithIcon: 24, containerPaddingBlock: 6, labelTypescale: "heading5", iconSize: 24, iconSizeWithoutLabel: 24, containerGap: 8, outlineWidth: 1, motionStateDuration: 150 },
+        xlarge: { containerHeight: 96, containerPaddingInlineNarrow: 16, containerWidthWide: 128, containerPaddingInlineStart: 48, containerPaddingInlineEnd: 48, containerPaddingInlineStartWithIcon: 48, containerPaddingInlineEndWithIcon: 48, containerPaddingBlock: 6, labelTypescale: "heading3", iconSize: 32, iconSizeWithoutLabel: 32, containerGap: 12, outlineWidth: 2, motionStateDuration: 150 },
+        xxlarge: { containerHeight: 136, containerPaddingInlineNarrow: 32, containerWidthWide: 184, containerPaddingInlineStart: 64, containerPaddingInlineEnd: 64, containerPaddingInlineStartWithIcon: 64, containerPaddingInlineEndWithIcon: 64, containerPaddingBlock: 6, labelTypescale: "heading1", iconSize: 40, iconSizeWithoutLabel: 40, containerGap: 16, outlineWidth: 3, motionStateDuration: 150 },
       },
       variants: {
         filled: {
@@ -12101,7 +12101,7 @@ export const m3Like = {
       containerPaddingInlineStart: 16,
       containerShape: 4,
       controlsGap: 4,
-      controlsHeight: 40,
+      controlsHeight: 32,
       controlsLabelTypescale: "label",
       controlsPaddingInline: 14,
       controlsShape: 9999,

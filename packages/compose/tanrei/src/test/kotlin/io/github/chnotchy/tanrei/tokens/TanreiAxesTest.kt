@@ -71,9 +71,9 @@ class TanreiAxesTest {
     fun `m3-like adds two sizes to the axis and revalues all five`() {
         val system = TanreiSystem.M3Like
         val sizes = system.button.sizes
-        assertEquals(listOf("small", "medium", "large", "xsmall", "xlarge"), sizes.keys.map { it.key })
-        assertEquals(setOf(TanreiButtonSize.Xsmall, TanreiButtonSize.Xlarge), sizes.extra.keys)
-        val order = listOf(sizes.xsmall, sizes.small, sizes.medium, sizes.large, sizes.xlarge)
+        assertEquals(listOf("small", "medium", "large", "xlarge", "xxlarge"), sizes.keys.map { it.key })
+        assertEquals(setOf(TanreiButtonSize.Xlarge, TanreiButtonSize.Xxlarge), sizes.extra.keys)
+        val order = listOf(sizes.small, sizes.medium, sizes.large, sizes.xlarge, sizes.xxlarge)
         assertEquals(listOf(32.dp, 40.dp, 56.dp, 96.dp, 136.dp), order.map { it.containerHeight })
         // Leading and trailing padding are the same with and without an icon, at every size.
         for (size in order) {
@@ -93,7 +93,7 @@ class TanreiAxesTest {
         // The systems that do not have these sizes read the default value there, like the component does.
         for (other in listOf(TanreiSystem.Tanrei, TanreiSystem.Cupertino)) {
             assertEquals(other.id, other.button.sizes.medium, other.button.sizes.xlarge)
-            assertEquals(other.id, other.button.sizes.medium, other.button.sizes.xsmall)
+            assertEquals(other.id, other.button.sizes.medium, other.button.sizes.xxlarge)
         }
     }
 

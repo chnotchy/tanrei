@@ -153,9 +153,9 @@
         "Material 3"
       ],
       "kind": "mechanism",
-      "status": "open",
+      "status": "resolved",
       "trait": "The reference's default button size is its `small` (40dp); Tanrei's `size` defaults to `medium` on every platform.",
-      "proposal": "Let a layer set the default value of a component axis, delivered to platforms with the system."
+      "proposal": "Resolved by mapping the sizes by role, not by name: m3-like's `medium` is Material's `small` (40dp), the size its buttons and icon buttons take by default, its `small` and `large` are Material's extra small (32dp) and medium (56dp), and Material's large (96dp) and extra large (136dp) are the two sizes it adds above them. A layer would set the default value of a component axis only if one product's default were not the middle of its scale."
     },
     {
       "id": "platform-symbol-sets",
@@ -533,9 +533,9 @@
         "Material 3"
       ],
       "kind": "vocabulary",
-      "status": "resolved",
-      "trait": "Material's side sheet closes with a standard icon button 40 tall. Tanrei draws every host's close button at the small Button size (SSH-5), and no token sets one host's close button apart in size: a system re-values the variant per host, not the size.",
-      "proposal": "Resolved by value: m3-like values the small Button size 40, Material's standard icon button, so every host's close button is Material's height. A small enumerated token per host (comp.<host>.close-button.size, a Button size) would be added only if one product needs one host's close control to differ in size from the others."
+      "status": "open",
+      "trait": "Material's side sheet closes with a standard icon button 40 tall, its small size, the one an icon button takes by default. Tanrei draws every host's close button at the small Button size (SSH-5), one step below the default, and m3-like maps Material's sizes to Tanrei's by role, so its small Button is Material's extra small, 32. No token sets one host's close button apart in size: a system re-values the variant per host, not the size.",
+      "proposal": "A small enumerated token per host (comp.<host>.close-button.size, a Button size) would let m3-like close with its medium Button, Material's 40. Add it if one product needs one host's close control to differ in size from the others; until then m3-like's side sheet closes with a 32 text Button. Valuing m3-like's small Button 40 instead would close this gap by opening a wider one: every Button at the default size would be Material's medium, 56, where Material draws its default 40."
     },
     {
       "id": "side-sheet-actions-in-header",

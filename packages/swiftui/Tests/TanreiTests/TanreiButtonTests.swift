@@ -1170,7 +1170,7 @@ struct TanreiButtonIconHeightTests {
 
   /// An icon — the size's own, or one far taller than the container — never changes the height: the
   /// container is its height token (a minimum the LABEL may exceed), with or without an icon.
-  /// Before the fix: an `xsmall` (32) with a 20pt icon (now m3-like's) rendered 36.
+  /// Before the fix: a 32 size with a 20pt icon (now m3-like's small) rendered 36.
   @Test("an icon never grows the container: every size of every shipped system keeps its token height", arguments: cases)
   func tokenHeight(item: Case) throws {
     let system = item.shipped.system
@@ -1188,13 +1188,13 @@ struct TanreiButtonIconHeightTests {
     }
   }
 
-  @Test("the cases cover the sizes a preset adds, and the reported one: m3-like xsmall is 32 with a 20pt icon")
+  @Test("the cases cover the sizes a preset adds, and the reported one: m3-like small is 32 with a 20pt icon")
   func reportedCase() throws {
-    #expect(Self.cases.contains { $0.shipped == .m3Like && $0.size == .xsmall })
-    #expect(Self.cases.contains { $0.shipped == .m3Like && $0.size == .xlarge })
+    #expect(Self.cases.contains { $0.shipped == .m3Like && $0.size == .small })
+    #expect(Self.cases.contains { $0.shipped == .m3Like && $0.size == .xxlarge })
     let sizes = TanreiSystem.m3Like.button.sizes
-    #expect(sizes[.xsmall].containerHeight == 32 && sizes[.xsmall].iconSize == 20)
-    let rendered = try height(TanreiButton("Deploy", size: .xsmall, action: {}) { Rectangle() }, .m3Like)
+    #expect(sizes[.small].containerHeight == 32 && sizes[.small].iconSize == 20)
+    let rendered = try height(TanreiButton("Deploy", size: .small, action: {}) { Rectangle() }, .m3Like)
     #expect(rendered == 32)
   }
 

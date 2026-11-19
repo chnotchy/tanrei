@@ -1314,6 +1314,22 @@ private let m3LikeButtonTokens = TanreiButtonTokens(
   toneContainerOpacity: 0.16,
   sizes: TanreiButtonSizes(
     small: TanreiButtonSizeTokens(
+      containerHeight: 32,
+      containerPaddingInlineNarrow: 4,
+      containerWidthWide: 40,
+      containerPaddingInlineStart: 16,
+      containerPaddingInlineEnd: 16,
+      containerPaddingInlineStartWithIcon: 16,
+      containerPaddingInlineEndWithIcon: 16,
+      containerPaddingBlock: 6,
+      labelTypescale: m3LikeTypescale.label,
+      iconSize: 20,
+      iconSizeWithoutLabel: 20,
+      containerGap: 8,
+      outlineWidth: 1,
+      motionStateDuration: 150
+    ),
+    medium: TanreiButtonSizeTokens(
       containerHeight: 40,
       containerPaddingInlineNarrow: 4,
       containerWidthWide: 52,
@@ -1329,7 +1345,7 @@ private let m3LikeButtonTokens = TanreiButtonTokens(
       outlineWidth: 1,
       motionStateDuration: 150
     ),
-    medium: TanreiButtonSizeTokens(
+    large: TanreiButtonSizeTokens(
       containerHeight: 56,
       containerPaddingInlineNarrow: 12,
       containerWidthWide: 72,
@@ -1345,40 +1361,24 @@ private let m3LikeButtonTokens = TanreiButtonTokens(
       outlineWidth: 1,
       motionStateDuration: 150
     ),
-    large: TanreiButtonSizeTokens(
-      containerHeight: 96,
-      containerPaddingInlineNarrow: 16,
-      containerWidthWide: 128,
-      containerPaddingInlineStart: 48,
-      containerPaddingInlineEnd: 48,
-      containerPaddingInlineStartWithIcon: 48,
-      containerPaddingInlineEndWithIcon: 48,
-      containerPaddingBlock: 6,
-      labelTypescale: m3LikeTypescale.heading3,
-      iconSize: 32,
-      iconSizeWithoutLabel: 32,
-      containerGap: 12,
-      outlineWidth: 2,
-      motionStateDuration: 150
-    ),
     extra: [
-      TanreiButtonSize(rawValue: "xsmall"): TanreiButtonSizeTokens(
-        containerHeight: 32,
-        containerPaddingInlineNarrow: 4,
-        containerWidthWide: 40,
-        containerPaddingInlineStart: 16,
-        containerPaddingInlineEnd: 16,
-        containerPaddingInlineStartWithIcon: 16,
-        containerPaddingInlineEndWithIcon: 16,
+      TanreiButtonSize(rawValue: "xlarge"): TanreiButtonSizeTokens(
+        containerHeight: 96,
+        containerPaddingInlineNarrow: 16,
+        containerWidthWide: 128,
+        containerPaddingInlineStart: 48,
+        containerPaddingInlineEnd: 48,
+        containerPaddingInlineStartWithIcon: 48,
+        containerPaddingInlineEndWithIcon: 48,
         containerPaddingBlock: 6,
-        labelTypescale: m3LikeTypescale.label,
-        iconSize: 20,
-        iconSizeWithoutLabel: 20,
-        containerGap: 8,
-        outlineWidth: 1,
+        labelTypescale: m3LikeTypescale.heading3,
+        iconSize: 32,
+        iconSizeWithoutLabel: 32,
+        containerGap: 12,
+        outlineWidth: 2,
         motionStateDuration: 150
       ),
-      TanreiButtonSize(rawValue: "xlarge"): TanreiButtonSizeTokens(
+      TanreiButtonSize(rawValue: "xxlarge"): TanreiButtonSizeTokens(
         containerHeight: 136,
         containerPaddingInlineNarrow: 32,
         containerWidthWide: 184,
@@ -8267,7 +8267,7 @@ private let m3LikeSnackbarTokens = TanreiSnackbarTokens(
   containerPaddingInlineStart: 16,
   containerShape: 4,
   controlsGap: 4,
-  controlsHeight: 40,
+  controlsHeight: 32,
   controlsLabelTypescale: m3LikeTypescale.label,
   controlsPaddingInline: 14,
   controlsShape: 9999,
@@ -10336,8 +10336,8 @@ extension TanreiColorRole {
 }
 
 extension TanreiButtonSize {
-  /// The `xsmall` size "m3-like" adds to button.
-  public static let xsmall = TanreiButtonSize(rawValue: "xsmall")
   /// The `xlarge` size "m3-like" adds to button.
   public static let xlarge = TanreiButtonSize(rawValue: "xlarge")
+  /// The `xxlarge` size "m3-like" adds to button.
+  public static let xxlarge = TanreiButtonSize(rawValue: "xxlarge")
 }

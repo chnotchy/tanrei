@@ -228,11 +228,11 @@ void main() {
       expect(labelStyle(tester, 'Deploy').color, colors.extra[M3LikeColorRoles.onTertiary]);
     });
 
-    test('adds the sizes xsmall and xlarge to the three core ones: Material 3\'s five', () {
+    test('adds the sizes xlarge and xxlarge above the three core ones: Material 3\'s five, by role', () {
       expect(sizes.keys, <TanreiButtonSize>[
         ...TanreiButtonSize.core,
-        M3LikeButtonSize.xsmall,
         M3LikeButtonSize.xlarge,
+        M3LikeButtonSize.xxlarge,
       ]);
       List<double> values(TanreiButtonSizeTokens size) => <double>[
         size.containerHeight,
@@ -249,21 +249,21 @@ void main() {
       ];
       // height, padding start / end (without and with an icon), icon beside a label, icon alone,
       // gap, outline width, narrow inset, wide width
-      expect(values(sizes.xsmall), <double>[32, 16, 16, 16, 16, 20, 20, 8, 1, 4, 40]);
-      expect(values(sizes.small), <double>[40, 16, 16, 16, 16, 20, 24, 8, 1, 4, 52]);
-      expect(values(sizes.medium), <double>[56, 24, 24, 24, 24, 24, 24, 8, 1, 12, 72]);
-      expect(values(sizes.large), <double>[96, 48, 48, 48, 48, 32, 32, 12, 2, 16, 128]);
-      expect(values(sizes.xlarge), <double>[136, 64, 64, 64, 64, 40, 40, 16, 3, 32, 184]);
+      expect(values(sizes.small), <double>[32, 16, 16, 16, 16, 20, 20, 8, 1, 4, 40]);
+      expect(values(sizes.medium), <double>[40, 16, 16, 16, 16, 20, 24, 8, 1, 4, 52]);
+      expect(values(sizes.large), <double>[56, 24, 24, 24, 24, 24, 24, 8, 1, 12, 72]);
+      expect(values(sizes.xlarge), <double>[96, 48, 48, 48, 48, 32, 32, 12, 2, 16, 128]);
+      expect(values(sizes.xxlarge), <double>[136, 64, 64, 64, 64, 40, 40, 16, 3, 32, 184]);
       // The label grows with the size: label, label, heading-5, heading-3, heading-1.
       final TanreiTypescale type = system.typescale;
-      expect(sizes.xsmall.labelTypescale, same(type.label));
       expect(sizes.small.labelTypescale, same(type.label));
-      expect(sizes.medium.labelTypescale, same(type.heading5));
-      expect(sizes.large.labelTypescale, same(type.heading3));
-      expect(sizes.xlarge.labelTypescale, same(type.heading1));
+      expect(sizes.medium.labelTypescale, same(type.label));
+      expect(sizes.large.labelTypescale, same(type.heading5));
+      expect(sizes.xlarge.labelTypescale, same(type.heading3));
+      expect(sizes.xxlarge.labelTypescale, same(type.heading1));
     });
 
-    testWidgets('an outlined xlarge Button is 136 tall with an outline of 3 and a gap of 16', (
+    testWidgets('an outlined xxlarge Button is 136 tall with an outline of 3 and a gap of 16', (
       WidgetTester tester,
     ) async {
       final List<String> reports = <String>[];
@@ -278,7 +278,7 @@ void main() {
           TanreiButton(
             onPressed: () {},
             variant: TanreiButtonVariant.outlined,
-            size: M3LikeButtonSize.xlarge,
+            size: M3LikeButtonSize.xxlarge,
             icon: Builder(
               key: iconKey,
               builder: (BuildContext context) =>
@@ -289,37 +289,37 @@ void main() {
           theme: theme,
         ),
       );
-      final TanreiButtonSizeTokens xlarge = sizes[M3LikeButtonSize.xlarge];
-      expect(xlarge, same(sizes.extra[M3LikeButtonSize.xlarge]));
+      final TanreiButtonSizeTokens xxlarge = sizes[M3LikeButtonSize.xxlarge];
+      expect(xxlarge, same(sizes.extra[M3LikeButtonSize.xxlarge]));
       expect(reports, isEmpty);
 
-      expect(containerSize(tester).height, xlarge.containerHeight);
+      expect(containerSize(tester).height, xxlarge.containerHeight);
       expect(containerSize(tester).height, 136);
 
       final BorderSide outline = (containerDecoration(tester).border!).top;
-      expect(outline.width, xlarge.outlineWidth);
+      expect(outline.width, xxlarge.outlineWidth);
       expect(outline.width, 3);
       expect(outline.color, theme.paint(system.button.variants.outlined.enabled.outlineColor));
 
       final Rect icon = tester.getRect(find.byKey(iconKey));
       final Rect label = tester.getRect(find.text('Deploy'));
-      expect(icon.size, Size.square(xlarge.iconSize));
-      expect(label.left - icon.right, xlarge.containerGap);
+      expect(icon.size, Size.square(xxlarge.iconSize));
+      expect(label.left - icon.right, xxlarge.containerGap);
       expect(label.left - icon.right, 16);
     });
 
-    testWidgets('an xsmall Button is 32 tall', (WidgetTester tester) async {
+    testWidgets('a small Button is 32 tall, Material 3\'s extra small', (WidgetTester tester) async {
       await tester.pumpWidget(
         tanreiTestApp(
           TanreiButton(
             onPressed: () {},
-            size: M3LikeButtonSize.xsmall,
+            size: TanreiButtonSize.small,
             child: const Text('Deploy'),
           ),
           theme: theme,
         ),
       );
-      expect(containerSize(tester).height, sizes.xsmall.containerHeight);
+      expect(containerSize(tester).height, sizes.small.containerHeight);
       expect(containerSize(tester).height, 32);
       // The hit area still meets the minimum target of the system.
       expect(
@@ -328,7 +328,7 @@ void main() {
       );
     });
 
-    testWidgets('BTN-7: under tanrei, which has no xlarge, the same Button is the default size', (
+    testWidgets('BTN-7: under tanrei, which has no xxlarge, the same Button is the default size', (
       WidgetTester tester,
     ) async {
       final List<String> reports = <String>[];
@@ -341,15 +341,15 @@ void main() {
         tanreiTestApp(
           TanreiButton(
             onPressed: () {},
-            size: M3LikeButtonSize.xlarge,
+            size: M3LikeButtonSize.xxlarge,
             child: const Text('Deploy'),
           ),
           theme: const TanreiThemeData(system: tanreiSystem),
         ),
       );
-      expect(tanreiSystem.button.sizes.has(M3LikeButtonSize.xlarge), isFalse);
+      expect(tanreiSystem.button.sizes.has(M3LikeButtonSize.xxlarge), isFalse);
       expect(containerSize(tester).height, tanreiSystem.button.sizes.medium.containerHeight);
-      expect(reports, contains('button size xlarge'));
+      expect(reports, contains('button size xxlarge'));
     });
   });
 

@@ -2241,8 +2241,8 @@ public struct TanreiSystem: Sendable, Equatable {
   exception is `extra`, below, which defaults to empty).
 - `Generated/TanreiSystem+Tanrei.swift` holds the **values** of the default system:
   `extension TanreiSystem { public static let tanrei = TanreiSystem(…) }`.
-- The shipped presets are generated the same way: `.m3Like` (adds the button sizes `.xsmall` and
-  `.xlarge` and revalues all five) and `.cupertino`.
+- The shipped presets are generated the same way: `.m3Like` (adds the button sizes `.xlarge` and
+  `.xxlarge` and revalues all five) and `.cupertino`.
 
 **Supplying your own system.** A product describes its system as a layer file
 (`tokens/systems/<id>.system.json`) and generates it. The Swift emitter turns a system's
