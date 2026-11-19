@@ -177,6 +177,9 @@ for (const engine of ENGINES) {
         await settlePage(page, { tags: ['tanrei-callout'], fonts: false, frames: 0 });
         const callout = page.locator('#callout-demo-closable');
         await callout.evaluate((element) => (element.open = false));
+        // Closing collapses the callout in the layout, so the button under it moves up as the motion runs: pressed
+        // before it ends, the press can land where the button was.
+        await page.waitForFunction((element) => !element.matches(':state(leaving)') && element.getAnimations({ subtree: true }).length === 0, await callout.elementHandle(), { timeout: 15_000 });
         await page.locator('tanrei-button[onclick*="callout-demo-closable"]').click();
         assert.equal(await callout.evaluate((element) => element.open), true);
         assert.deepEqual(refused, []);
