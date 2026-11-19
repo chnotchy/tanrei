@@ -12,6 +12,9 @@ import {
   type SeparationProp,
   SizeConsumerController,
   SystemWatchController,
+  announceBusy,
+  busyArc,
+  busyStatus,
   report,
   syncFocusStyle,
   syncSeparation,
@@ -23,6 +26,7 @@ import { TanreiMenu, type TanreiMenuCloseDetail, type TanreiMenuCloseReason } fr
 import { AXES, CORE_SIZES, TRAILING_WIDTHS, styles } from './button-with-menu.styles.js';
 import { focusedAtFirst } from '../../primitives/autofocus.js';
 import { TanreiElement } from '../../primitives/element.js';
+import { WordsController } from '../../primitives/words.js';
 
 /** The core variants (filled, tonal, elevated, outlined), plus any a design system's generated `.d.ts` registers. */
 export type TanreiButtonWithMenuVariant = keyof TanreiButtonWithMenuVariantRegistry;
@@ -147,6 +151,8 @@ export class TanreiButtonWithMenu extends TanreiElement {
     menuLabel: { type: String, attribute: 'menu-label' },
     open: { type: Boolean, reflect: true },
     disabled: { type: Boolean, reflect: true },
+    busy: { type: Boolean, reflect: true },
+    busyLabel: { type: String, attribute: 'busy-label' },
     hoverOpen: { type: Boolean, attribute: 'hover-open', reflect: true },
     hoverDelay: { type: Number, attribute: 'hover-delay' },
     iconChildren: { state: true },
@@ -204,10 +210,10 @@ export class TanreiButtonWithMenu extends TanreiElement {
   separation: TanreiButtonWithMenuSeparation = 'auto';
 
   /**
-   * How wide the trailing half is: `default` holds the chevron in a square of the height (32 / 40 / 56) and adds the
-   * padding of the rounded outer end (36 / 44 / 60 in the default system); `narrow` is the chevron and
-   * `trailing.padding-inline-narrow` on each side of it, with no outer padding (28 / 32 / 32: the width of a narrow
-   * icon-only Button, SPB-32). The hit area meets the minimum target at both: a narrow half reaches it past its end
+   * How wide the trailing half is: `default` holds the chevron between `trailing.padding-inline` on each side (a
+   * square of the height in the default system); `narrow` makes the half a slim handle on the main action, the chevron
+   * between `trailing.padding-inline-narrow` on each side. At both widths the half adds `container.outer-inset` at its
+   * rounded outer end (SPB-32). The hit area meets the minimum target at both: a narrow half reaches it past its end
    * edge and is not drawn wider. The `trailing-width` attribute. Anything else is `default` (reported in debug
    * builds, SPB-8).
    */
@@ -232,6 +238,17 @@ export class TanreiButtonWithMenu extends TanreiElement {
 
   /** Prevents interaction with both halves, removes them from the focus order and presents no menu. */
   disabled = false;
+
+  /**
+   * SPB-39, SPB-40: the main action it started is under way. The leading half keeps its focus, its place in the focus
+   * order and its size, draws the loading indicator's arc in place of its label and icon, refuses every activation
+   * (it fires no `click`), and announces `busyLabel` once — as a busy Button does. The trailing half and its menu stay
+   * usable. Nothing is announced when it ends: say what the action did. Ignored while disabled.
+   */
+  busy = false;
+
+  /** What assistive technology is told while busy ("Saving"): your words, in your language. Required while busy. */
+  busyLabel = '';
 
   /** Also asks to open the menu when a mouse or a pen rests on the trailing half for `hoverDelay`; never for touch. A press and the keys still open it. */
   hoverOpen = false;
@@ -301,11 +318,15 @@ export class TanreiButtonWithMenu extends TanreiElement {
    */
   private readonly mirror = new GlyphMirrorController(this, { slots: 'slot.icon-slot, slot.chevron-slot, slot.chevron-open-slot' });
 
+  // SPB-39: a busy leading half shows no pressed state.
   private readonly leadingPress = new PressController(this, {
     container: () => this.leading,
     holdCarrier: () => this.labelElement,
-    disabled: () => this.disabled,
+    disabled: () => this.disabled || this.busyNow,
   });
+
+  /** SPB-40: the product's words, for a busyLabel left empty (src/primitives/words.ts). */
+  private readonly words = new WordsController(this);
 
   private readonly trailingPress = new PressController(this, {
     container: () => this.trailing,
@@ -349,13 +370,22 @@ export class TanreiButtonWithMenu extends TanreiElement {
     return this.open && !this.disabled;
   }
 
+  /** SPB-39, SPB-40: the leading half is busy — busy, and not disabled (disabled, busy changes nothing). */
+  private get busyNow() {
+    return this.busy && !this.disabled;
+  }
+
   constructor() {
     super();
     // SPB-3: a disabled native button already swallows its own clicks; this also covers a click dispatched on the host.
+    // SPB-40: a busy leading half stays an enabled native button, so that it keeps focus: its click — by a press, a key,
+    // assistive technology, `element.click()` or a click dispatched on the host — is refused here, before anything
+    // hears it. The trailing half's is not: it still toggles the menu.
     this.addEventListener(
       'click',
       (event) => {
-        if (this.disabled) {
+        const path = event.composedPath();
+        if (this.disabled || (this.busyNow && (path[0] === this || path.includes(this.leading as EventTarget)))) {
           event.preventDefault();
           event.stopImmediatePropagation();
         }
@@ -697,6 +727,13 @@ export class TanreiButtonWithMenu extends TanreiElement {
     this.listenForEscape(this.fromHover && this.openForm && !this.escapeTaken);
     // SPB-23: a menu that opened from hover after the pointer had already left starts its grace at once.
     if (changed.has('fromHover')) this.startCloseGrace();
+    // SPB-40: busyLabel is announced once when the leading half becomes busy (the region exists only while it is), and
+    // nothing is said when it ends; without words a debug build says that the busy half does not say so.
+    if ((changed.has('busy') || changed.has('disabled')) && this.busyNow) {
+      const words = this.words.get('busyLabel', this.busyLabel);
+      if (words) announceBusy(this.renderRoot, words, () => this.busyNow);
+      else this.words.missing('busyLabel', { id: 'SPB-40', effect: 'the leading half is busy and nothing tells people who cannot see the arc that it is working' });
+    }
     // SPB-20: a half without a name still renders; a debug build says so (the empty menu: checkEmptyMenu()).
     if (changed.has('label') && !this.label.trim() && !namedByProduct(this)) report(this, 'SPB-20', 'label is empty, so the leading half has no accessible name; give it a label');
     if (changed.has('menuLabel') && !this.menuLabel.trim()) {
@@ -716,15 +753,20 @@ export class TanreiButtonWithMenu extends TanreiElement {
     // SPB-21: the closed glyph is the chevron slot's, or the icon set's expand_more when it is empty; with a chevron-open
     // glyph the two cross-fade (`swap`), else the closed one turns.
     const swap = this.chevronOpenChildren.length > 0;
+    // SPB-39, SPB-40: a busy leading half stays an enabled native button (it keeps focus and its place in the focus
+    // order), says with aria-disabled that it cannot be activated now and with its description what is under way — after
+    // the product's own description — and draws the arc; the label and the icon stay laid out, not drawn. Its name stays.
+    const busy = this.busyNow;
+    const description = busy ? [this.getAttribute('data-aria-description'), this.words.get('busyLabel', this.busyLabel)].filter(Boolean).join(', ') : '';
     return html`
       <div class="row">
         <button
           part="container leading"
           type="button"
           data-tanrei-shape
-          class=${classMap({ leading: true, 'with-icon': this.iconChildren.length > 0, ...this.leadingPlace.classes() })}
+          class=${classMap({ leading: true, 'with-icon': this.iconChildren.length > 0, busy, ...this.leadingPlace.classes() })}
           tabindex=${this.rovingStop === undefined ? nothing : this.rovingStop === 0 ? '0' : '-1'}
-          ${delegatedAria(this, { 'aria-label': this.label })}
+          ${delegatedAria(this, { 'aria-label': this.label, 'aria-description': description, 'aria-disabled': busy && 'true' })}
           ?disabled=${this.disabled}
           @pointerdown=${this.onHalfPointerDown}
           @pointerup=${this.leadingPress.release}
@@ -736,7 +778,8 @@ export class TanreiButtonWithMenu extends TanreiElement {
           @focus=${this.onFocus}
         >
           <span part="icon" class="icon" aria-hidden="true"><slot class="icon-slot" name="icon"></slot></span>
-          <span part="label" class="label">${this.label}</span>
+          <span part="label" class="label"><span class="label-text">${this.label}</span></span>
+          ${busy ? busyArc() : nothing}
         </button>
         <span part="divider" class="divider" aria-hidden="true"></span>
         <button
@@ -765,6 +808,7 @@ export class TanreiButtonWithMenu extends TanreiElement {
           </span>
         </button>
       </div>
+      ${busy ? busyStatus() : nothing}
       <tanrei-menu
         anchor="trailing"
         placement="bottom-end"

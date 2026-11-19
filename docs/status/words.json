@@ -59,6 +59,10 @@
         {
           "component": "button",
           "prop": "busyLabel"
+        },
+        {
+          "component": "button-with-menu",
+          "prop": "busyLabel"
         }
       ]
     },

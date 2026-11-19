@@ -992,6 +992,7 @@ const TanreiSystem cupertinoSystem = TanreiSystem(
     standardGap: 8.0,
   ),
   buttonWithMenu: TanreiButtonWithMenuTokens(
+    busyIndicatorThickness: 2.0,
     containerInnerGap: 2.0,
     containerInnerShape: 8.0,
     containerInnerShapeOpen: 8.0,
@@ -1000,6 +1001,8 @@ const TanreiSystem cupertinoSystem = TanreiSystem(
     containerShape: 10.0,
     dividerInset: 8.0,
     dividerThickness: 1.0,
+    motionBusyCycleDuration: 1000,
+    motionBusyFadeDuration: 200,
     motionFeedbackDuration: 450,
     motionHoverCloseDelay: 300,
     motionHoverOpenDelay: 300,

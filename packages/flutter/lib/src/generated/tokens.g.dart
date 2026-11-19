@@ -4188,6 +4188,7 @@ class TanreiButtonWithMenuStateTokens {
 @immutable
 class TanreiButtonWithMenuTokens {
   const TanreiButtonWithMenuTokens({
+    required this.busyIndicatorThickness,
     required this.containerInnerGap,
     required this.containerInnerShape,
     required this.containerInnerShapeOpen,
@@ -4196,6 +4197,8 @@ class TanreiButtonWithMenuTokens {
     required this.containerShape,
     required this.dividerInset,
     required this.dividerThickness,
+    required this.motionBusyCycleDuration,
+    required this.motionBusyFadeDuration,
     required this.motionFeedbackDuration,
     required this.motionHoverCloseDelay,
     required this.motionHoverOpenDelay,
@@ -4211,6 +4214,8 @@ class TanreiButtonWithMenuTokens {
     required this.disabled,
   });
 
+  /// `comp.button-with-menu.busy-indicator-thickness`
+  final double busyIndicatorThickness;
   /// `comp.button-with-menu.container-inner-gap`
   final double containerInnerGap;
   /// `comp.button-with-menu.container-inner-shape`
@@ -4227,6 +4232,10 @@ class TanreiButtonWithMenuTokens {
   final double dividerInset;
   /// `comp.button-with-menu.divider-thickness`
   final double dividerThickness;
+  /// `comp.button-with-menu.motion-busy-cycle-duration`
+  final int motionBusyCycleDuration;
+  /// `comp.button-with-menu.motion-busy-fade-duration`
+  final int motionBusyFadeDuration;
   /// `comp.button-with-menu.motion-feedback-duration`
   final int motionFeedbackDuration;
   /// `comp.button-with-menu.motion-hover-close-delay`
@@ -4256,6 +4265,7 @@ class TanreiButtonWithMenuTokens {
 
   /// A copy with the given tokens replaced.
   TanreiButtonWithMenuTokens copyWith({
+    double? busyIndicatorThickness,
     double? containerInnerGap,
     double? containerInnerShape,
     double? containerInnerShapeOpen,
@@ -4264,6 +4274,8 @@ class TanreiButtonWithMenuTokens {
     double? containerShape,
     double? dividerInset,
     double? dividerThickness,
+    int? motionBusyCycleDuration,
+    int? motionBusyFadeDuration,
     int? motionFeedbackDuration,
     int? motionHoverCloseDelay,
     int? motionHoverOpenDelay,
@@ -4278,6 +4290,7 @@ class TanreiButtonWithMenuTokens {
     TanreiButtonWithMenuStateTokens? pressed,
     TanreiButtonWithMenuStateTokens? disabled,
   }) => TanreiButtonWithMenuTokens(
+        busyIndicatorThickness: busyIndicatorThickness ?? this.busyIndicatorThickness,
         containerInnerGap: containerInnerGap ?? this.containerInnerGap,
         containerInnerShape: containerInnerShape ?? this.containerInnerShape,
         containerInnerShapeOpen: containerInnerShapeOpen ?? this.containerInnerShapeOpen,
@@ -4286,6 +4299,8 @@ class TanreiButtonWithMenuTokens {
         containerShape: containerShape ?? this.containerShape,
         dividerInset: dividerInset ?? this.dividerInset,
         dividerThickness: dividerThickness ?? this.dividerThickness,
+        motionBusyCycleDuration: motionBusyCycleDuration ?? this.motionBusyCycleDuration,
+        motionBusyFadeDuration: motionBusyFadeDuration ?? this.motionBusyFadeDuration,
         motionFeedbackDuration: motionFeedbackDuration ?? this.motionFeedbackDuration,
         motionHoverCloseDelay: motionHoverCloseDelay ?? this.motionHoverCloseDelay,
         motionHoverOpenDelay: motionHoverOpenDelay ?? this.motionHoverOpenDelay,

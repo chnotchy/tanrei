@@ -2,7 +2,7 @@
 title: زر مع قائمة
 description: ينفّذ إجراء رئيسيًّا بضغطة واحدة، ويقدّم إجراءات مرتبطة به في قائمة خيارات من زر ثانٍ موصول بجانبه.
 translationOf: components/button-with-menu.mdx
-sourceHash: 47ec0e350aae6acb1cf1aa3da68162409befa062
+sourceHash: eee785ee6871aa588962ac46ade5a58c504985ca
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -307,6 +307,17 @@ import Example from '../../../../components/visuals/Example.astro';
   <tanrei-button-with-menu variant="elevated" destructive label="حذف" menu-label="خيارات حذف إضافية"></tanrei-button-with-menu>
   <tanrei-button-with-menu variant="outlined" destructive label="حذف" menu-label="خيارات حذف إضافية"></tanrei-button-with-menu>
   <tanrei-button-with-menu separation="gap" destructive label="حذف" menu-label="خيارات حذف إضافية"></tanrei-button-with-menu>
+</Example>
+
+### مشغول
+
+ما دام الإجراء الرئيسي جاريًا، اضبط `busy` و`busy-label` («جارٍ الحفظ»)، كما تفعل مع [زر](/ar/components/button/) مشغول. يحتفظ نصف البداية بحجمه وبمكانه في ترتيب التركيز وبتركيز الشخص. ويرسم قوس مؤشر التحميل مكان تسميته وأيقونته، ويرفض كل ضغطة، فلا يبدأ الإجراء مرتين. وتسمع التقنيات المساعدة النص `busy-label` مرة واحدة، حين يصبح مشغولًا. قل ما حدث حين ينتهي الإجراء: فالزر مع قائمة لا يُعلن شيئًا عندئذ.
+
+لا تنطبق `busy` إلا على نصف البداية. ويبقى نصف النهاية وقائمته كما هما، فتبقى الخيارات الأخرى على بُعد ضغطة واحدة. عطِّل عناصر القائمة التي لا يمكن تنفيذها ما دام الإجراء الرئيسي جاريًا.
+
+<Example label="مشغول">
+  <tanrei-button-with-menu busy busy-label="جارٍ الحفظ" label="حفظ" menu-label="خيارات حفظ إضافية"><span slot="icon">save</span></tanrei-button-with-menu>
+  <tanrei-button-with-menu variant="outlined" busy busy-label="جارٍ الحفظ" label="حفظ" menu-label="خيارات حفظ إضافية"></tanrei-button-with-menu>
 </Example>
 
 ## المواصفات

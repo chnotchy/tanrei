@@ -2570,7 +2570,7 @@
                 "text": "TanreiButtonWithMenuTrailingWidth"
               },
               "default": "'default'",
-              "description": "How wide the trailing half is: `default` holds the chevron in a square of the height (32 / 40 / 56) and adds the\npadding of the rounded outer end (36 / 44 / 60 in the default system); `narrow` is the chevron and\n`trailing.padding-inline-narrow` on each side of it, with no outer padding (28 / 32 / 32: the width of a narrow\nicon-only Button, SPB-32). The hit area meets the minimum target at both: a narrow half reaches it past its end\nedge and is not drawn wider. The `trailing-width` attribute. Anything else is `default` (reported in debug\nbuilds, SPB-8).",
+              "description": "How wide the trailing half is: `default` holds the chevron between `trailing.padding-inline` on each side (a\nsquare of the height in the default system); `narrow` makes the half a slim handle on the main action, the chevron\nbetween `trailing.padding-inline-narrow` on each side. At both widths the half adds `container.outer-inset` at its\nrounded outer end (SPB-32). The hit area meets the minimum target at both: a narrow half reaches it past its end\nedge and is not drawn wider. The `trailing-width` attribute. Anything else is `default` (reported in debug\nbuilds, SPB-8).",
               "attribute": "trailing-width",
               "reflects": true
             },
@@ -2631,6 +2631,29 @@
               "description": "Prevents interaction with both halves, removes them from the focus order and presents no menu.",
               "attribute": "disabled",
               "reflects": true
+            },
+            {
+              "kind": "field",
+              "name": "busy",
+              "privacy": "public",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "SPB-39, SPB-40: the main action it started is under way. The leading half keeps its focus, its place in the focus\norder and its size, draws the loading indicator's arc in place of its label and icon, refuses every activation\n(it fires no `click`), and announces `busyLabel` once — as a busy Button does. The trailing half and its menu stay\nusable. Nothing is announced when it ends: say what the action did. Ignored while disabled.",
+              "attribute": "busy",
+              "reflects": true
+            },
+            {
+              "kind": "field",
+              "name": "busyLabel",
+              "privacy": "public",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "What assistive technology is told while busy (\"Saving\"): your words, in your language. Required while busy.",
+              "attribute": "busy-label"
             },
             {
               "kind": "field",
@@ -2723,7 +2746,7 @@
                 "text": "TanreiButtonWithMenuTrailingWidth"
               },
               "default": "'default'",
-              "description": "How wide the trailing half is: `default` holds the chevron in a square of the height (32 / 40 / 56) and adds the\npadding of the rounded outer end (36 / 44 / 60 in the default system); `narrow` is the chevron and\n`trailing.padding-inline-narrow` on each side of it, with no outer padding (28 / 32 / 32: the width of a narrow\nicon-only Button, SPB-32). The hit area meets the minimum target at both: a narrow half reaches it past its end\nedge and is not drawn wider. The `trailing-width` attribute. Anything else is `default` (reported in debug\nbuilds, SPB-8).",
+              "description": "How wide the trailing half is: `default` holds the chevron between `trailing.padding-inline` on each side (a\nsquare of the height in the default system); `narrow` makes the half a slim handle on the main action, the chevron\nbetween `trailing.padding-inline-narrow` on each side. At both widths the half adds `container.outer-inset` at its\nrounded outer end (SPB-32). The hit area meets the minimum target at both: a narrow half reaches it past its end\nedge and is not drawn wider. The `trailing-width` attribute. Anything else is `default` (reported in debug\nbuilds, SPB-8).",
               "fieldName": "trailingWidth"
             },
             {
@@ -2770,6 +2793,24 @@
               "default": "false",
               "description": "Prevents interaction with both halves, removes them from the focus order and presents no menu.",
               "fieldName": "disabled"
+            },
+            {
+              "name": "busy",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "SPB-39, SPB-40: the main action it started is under way. The leading half keeps its focus, its place in the focus\norder and its size, draws the loading indicator's arc in place of its label and icon, refuses every activation\n(it fires no `click`), and announces `busyLabel` once — as a busy Button does. The trailing half and its menu stay\nusable. Nothing is announced when it ends: say what the action did. Ignored while disabled.",
+              "fieldName": "busy"
+            },
+            {
+              "name": "busy-label",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "What assistive technology is told while busy (\"Saving\"): your words, in your language. Required while busy.",
+              "fieldName": "busyLabel"
             },
             {
               "name": "hover-open",
@@ -3033,7 +3074,7 @@
                 "text": "TanreiButtonWidth"
               },
               "default": "'default'",
-              "description": "How wide an icon-only button is: `default` as wide as it is high (32 / 40 / 56), `narrow` its glyph and\n`comp.button.container.padding-inline-narrow` on each side of it (28 / 32 / 32 in the default system, whose inset\nis 4 at every size; it has no narrow width of its own, so it follows its glyph) for a tight row of icon actions,\n`wide` (40 / 52 / 72) for the one action of a row that should weigh more. Ignored with a label. The height does\nnot change, and the hit area meets the minimum target at every width — a narrow button is never drawn wider to\nreach it. Anything else is drawn as `default` (reported in debug builds, BTN-21).",
+              "description": "How wide an icon-only button is: `default` as wide as it is high, `comp.button.container.height` of its size\n(36 / 40 / 56 in the default system), `narrow` its glyph and\n`comp.button.container.padding-inline-narrow` on each side of it (28 / 32 / 32 in the default system, whose inset\nis 4 at every size; it has no narrow width of its own, so it follows its glyph) for a tight row of icon actions,\n`wide` (40 / 52 / 72) for the one action of a row that should weigh more. Ignored with a label. The height does\nnot change, and the hit area meets the minimum target at every width — a narrow button is never drawn wider to\nreach it. Anything else is drawn as `default` (reported in debug builds, BTN-21).",
               "attribute": "width",
               "reflects": true
             },
@@ -3385,7 +3426,7 @@
                 "text": "TanreiButtonWidth"
               },
               "default": "'default'",
-              "description": "How wide an icon-only button is: `default` as wide as it is high (32 / 40 / 56), `narrow` its glyph and\n`comp.button.container.padding-inline-narrow` on each side of it (28 / 32 / 32 in the default system, whose inset\nis 4 at every size; it has no narrow width of its own, so it follows its glyph) for a tight row of icon actions,\n`wide` (40 / 52 / 72) for the one action of a row that should weigh more. Ignored with a label. The height does\nnot change, and the hit area meets the minimum target at every width — a narrow button is never drawn wider to\nreach it. Anything else is drawn as `default` (reported in debug builds, BTN-21).",
+              "description": "How wide an icon-only button is: `default` as wide as it is high, `comp.button.container.height` of its size\n(36 / 40 / 56 in the default system), `narrow` its glyph and\n`comp.button.container.padding-inline-narrow` on each side of it (28 / 32 / 32 in the default system, whose inset\nis 4 at every size; it has no narrow width of its own, so it follows its glyph) for a tight row of icon actions,\n`wide` (40 / 52 / 72) for the one action of a row that should weigh more. Ignored with a label. The height does\nnot change, and the hit area meets the minimum target at every width — a narrow button is never drawn wider to\nreach it. Anything else is drawn as `default` (reported in debug builds, BTN-21).",
               "fieldName": "width"
             },
             {
@@ -35501,7 +35542,7 @@
                 "text": "TanreiPaginationSize"
               },
               "default": "'medium'",
-              "description": "An item's height (32 / 40 in the default system). The hit area always meets the minimum target.",
+              "description": "An item's height, `comp.pagination.container.height` of its size (36 / 40 in the default system, never below `sys.target.minimum`). The hit area always meets the minimum target.",
               "attribute": "size",
               "reflects": true
             },
@@ -35673,7 +35714,7 @@
                 "text": "TanreiPaginationSize"
               },
               "default": "'medium'",
-              "description": "An item's height (32 / 40 in the default system). The hit area always meets the minimum target.",
+              "description": "An item's height, `comp.pagination.container.height` of its size (36 / 40 in the default system, never below `sys.target.minimum`). The hit area always meets the minimum target.",
               "fieldName": "size"
             },
             {

@@ -1268,6 +1268,7 @@ export const tanrei = {
       standardGap: 0,
     },
     buttonWithMenu: {
+      busyIndicatorThickness: 2,
       containerInnerGap: 2,
       containerInnerShape: 6,
       containerInnerShapeOpen: 6,
@@ -1282,6 +1283,8 @@ export const tanrei = {
       focusedOpacity: 1,
       hoveredContainerShape: 9999,
       hoveredOpacity: 1,
+      motionBusyCycleDuration: 1000,
+      motionBusyFadeDuration: 200,
       motionFeedbackDuration: 450,
       motionHoverCloseDelay: 300,
       motionHoverOpenDelay: 300,
