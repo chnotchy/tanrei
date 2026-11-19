@@ -101,7 +101,9 @@ test('the wrappers are found, each with a built element module', () => {
 });
 
 test('each entry holds what the components manifests say: a system’s entry its components, and nothing it leaves out', () => {
-  assert.ok(systems.length >= 4, `found ${systems.length} manifests`);
+  // One manifest for each system the repository ships: every layer of tokens/systems but the root, core.
+  const shipped = fs.readdirSync(new URL('../../../tokens/systems/', import.meta.url)).filter((file) => file.endsWith('.system.json') && file !== 'core.system.json');
+  assert.equal(systems.length, shipped.length, `found ${systems.length} manifests for ${shipped.length} shipped systems`);
   assert.deepEqual(contents.get(ALL).names.filter((name) => wrapperNames.has(name)), [...wrapperNames].sort(), `${ALL} exports every wrapper`);
   const named = new Set();
   for (const system of systems) {
