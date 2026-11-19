@@ -2551,7 +2551,7 @@ export class TanreiDateTimePicker extends TanreiElement {
       holdPageScroll(this, false);
       window.visualViewport?.removeEventListener('resize', this.onWindow);
       // DTM-35: no longer modal at once — the page and focus are given back now — and drawn in the top layer until its
-      // exit and its scrim's have played (closeModal), in every engine.
+      // exit has played, its scrim gone from the first frame (closeModal, MOT-7), in every engine.
       void closeModal(surface);
       void this.appear.exit(!this.isConnected);
     } else if (surface) {
