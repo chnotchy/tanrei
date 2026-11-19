@@ -49,7 +49,8 @@ const LONGHANDS = {
   'font-family': { value: 'serif', expect: (t: Text) => expect(t.family).toBe('serif') },
   'font-size': { value: '41px', expect: (t: Text) => expect(t.size).toBe(41) },
   'font-weight': { value: '777', expect: (t: Text) => expect(t.weight).toBe('777') },
-  'line-height': { value: '2.5', expect: (t: Text) => expect(t.line / t.size).toBeCloseTo(2.5, 2) },
+  // The ratio, drawn rounded to a whole pixel at the text's size.
+  'line-height': { value: '2.5', expect: (t: Text) => expect(t.line).toBe(Math.round(t.size * 2.5)) },
   'letter-spacing': { value: '0.25em', expect: (t: Text) => expect(t.tracking / t.size).toBeCloseTo(0.25, 2) },
 } as const;
 type Longhand = keyof typeof LONGHANDS;

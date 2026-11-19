@@ -32,7 +32,7 @@ async function fields(page: Page, selector: string, role: string) {
     ([sel, r, keys]) => {
       const pick = (el: Element) => Object.fromEntries(keys.map((k) => [k, (getComputedStyle(el) as unknown as Record<string, string>)[k].replaceAll('"', '')]));
       const probe = document.createElement('span');
-      probe.style.cssText = `font: var(--tanrei-sys-typescale-${r}-font-weight) var(--tanrei-sys-typescale-${r}-font-size)/var(--tanrei-sys-typescale-${r}-line-height) var(--tanrei-sys-typescale-${r}-font-family); letter-spacing: var(--tanrei-sys-typescale-${r}-letter-spacing)`;
+      probe.style.cssText = `font: var(--tanrei-sys-typescale-${r}-font-weight) var(--tanrei-sys-typescale-${r}-font-size)/round(nearest, var(--tanrei-sys-typescale-${r}-line-height) * 1em, 1px) var(--tanrei-sys-typescale-${r}-font-family); letter-spacing: var(--tanrei-sys-typescale-${r}-letter-spacing)`;
       probe.textContent = 'probe';
       document.body.append(probe);
       const out = { element: pick(document.querySelector(sel)!), role: pick(probe) };

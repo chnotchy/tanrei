@@ -666,7 +666,7 @@ test.describe('behavior: the box, its name and its Field', () => {
       near(await px(label, 'font-size'), await token(page, 'label-floated-typescale-medium-font-size'), `${id}: floated over a text that is not a color`);
     }
     // Filled: at least twice padding-block-with-label plus one line of each text style.
-    const ratio = async (name: string) => Number(await css(page.locator('html'), T(`${name}-line-height-ratio`)));
+    const ratio = async (name: string) => Number(await css(page.locator('html'), T(`${name}-line-height`)));
     const lines = Math.round((await token(page, 'label-floated-typescale-medium-font-size')) * (await ratio('label-floated-typescale-medium'))) + Math.round((await token(page, 'input-typescale-medium-font-size')) * (await ratio('input-typescale-medium')));
     expect((await box(container(page, 'filled'))).height).toBeGreaterThanOrEqual(2 * (await token(page, 'container-padding-block-with-label-medium')) + lines - 0.6);
     // Outlined: the outline opens a gap of notch-padding on each side of the floated label.
@@ -782,7 +782,7 @@ test.describe('behavior: the value and its text', () => {
     expect(await page.evaluate(() => (window as unknown as { __captured: string[] }).__captured)).toEqual(['#0f766e|tanrei-color-input']);
     expect(await heard(page)).toEqual(['input #0f766e']);
     // On one line.
-    near((await box(field)).height, Math.round((await px(field, 'font-size')) * Number(await css(page.locator('html'), T('input-typescale-medium-line-height-ratio')))), 'one line', 1);
+    near((await box(field)).height, Math.round((await px(field, 'font-size')) * Number(await css(page.locator('html'), T('input-typescale-medium-line-height')))), 'one line', 1);
   });
 
   test('CLI-17: while a Japanese input method composes the field reads nothing, says nothing and leaves every key to it; the committed text is read once, when the composition ends; a value the product sets meanwhile waits for the end', async ({ page }) => {
@@ -1667,7 +1667,7 @@ test.describe('behavior: forms, size, forced colors and direction', () => {
     await frames(page, 6);
     const [c, s, field, button] = [await box(container(page, 'one')), await box(swatch(page, 'one')), await box(input(page, 'one')), await box(pickerButton(page, 'one'))];
     expect(c.height, 'the container grew with the input’s line').toBeGreaterThan(before);
-    near(field.height, Math.round((await px(input(page, 'one'), 'font-size')) * Number(await css(page.locator('html'), T('input-typescale-medium-line-height-ratio')))), 'the value stays on one line', 1);
+    near(field.height, Math.round((await px(input(page, 'one'), 'font-size')) * Number(await css(page.locator('html'), T('input-typescale-medium-line-height')))), 'the value stays on one line', 1);
     near(s.width, await token(page, 'icon-size-medium'), 'the swatch keeps swatch.size');
     near(s.height, await token(page, 'icon-size-medium'), 'the swatch keeps swatch.size');
     near(button.height, await resolveToken(page, '--tanrei-comp-button-container-height-medium'), 'the picker button keeps its Button’s size');

@@ -132,7 +132,7 @@ const linked = (name: string) => ({ title: titleOf(name), href: componentHref(ba
   /* What the chosen system does not have, in the quiet small text of the list's meta line. */
   .absent {
     margin: 0;
-    font: var(--tanrei-sys-typescale-body-small-font-weight) var(--tanrei-sys-typescale-body-small-font-size)/var(--tanrei-sys-typescale-body-small-line-height) var(--tanrei-sys-typescale-body-small-font-family);
+    font: var(--tanrei-sys-typescale-body-small-font-weight) var(--tanrei-sys-typescale-body-small-font-size)/round(nearest, var(--tanrei-sys-typescale-body-small-line-height) * 1em, 1px) var(--tanrei-sys-typescale-body-small-font-family);
     letter-spacing: var(--tanrei-sys-typescale-body-small-letter-spacing);
     color: var(--tanrei-sys-color-on-surface-variant);
   }
@@ -178,11 +178,11 @@ const linked = (name: string) => ({ title: titleOf(name), href: componentHref(ba
     color: var(--tanrei-sys-color-on-surface-variant);
   }
   .title {
-    font: var(--tanrei-sys-typescale-body-font-weight) var(--tanrei-sys-typescale-body-font-size)/var(--tanrei-sys-typescale-body-line-height) var(--tanrei-sys-typescale-body-font-family);
+    font: var(--tanrei-sys-typescale-body-font-weight) var(--tanrei-sys-typescale-body-font-size)/round(nearest, var(--tanrei-sys-typescale-body-line-height) * 1em, 1px) var(--tanrei-sys-typescale-body-font-family);
     letter-spacing: var(--tanrei-sys-typescale-body-letter-spacing);
   }
   .meta {
-    font: var(--tanrei-sys-typescale-body-small-font-weight) var(--tanrei-sys-typescale-body-small-font-size)/var(--tanrei-sys-typescale-body-small-line-height) var(--tanrei-sys-typescale-body-small-font-family);
+    font: var(--tanrei-sys-typescale-body-small-font-weight) var(--tanrei-sys-typescale-body-small-font-size)/round(nearest, var(--tanrei-sys-typescale-body-small-line-height) * 1em, 1px) var(--tanrei-sys-typescale-body-small-font-family);
     letter-spacing: var(--tanrei-sys-typescale-body-small-letter-spacing);
     color: var(--tanrei-sys-color-on-surface-variant);
   }

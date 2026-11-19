@@ -529,7 +529,7 @@ test.describe('behavior: the trigger', () => {
     }
     // A filled select that draws its label is at least twice its label padding plus one line of each text style.
     const pad = await token(page, 'container-padding-block-with-label-small');
-    const lines = Math.round((await token(page, 'label-floated-typescale-small-line-height-ratio')) * (await token(page, 'label-floated-typescale-small-font-size'))) + Math.round((await token(page, 'input-typescale-small-line-height-ratio')) * (await token(page, 'input-typescale-small-font-size')));
+    const lines = Math.round((await token(page, 'label-floated-typescale-small-line-height')) * (await token(page, 'label-floated-typescale-small-font-size'))) + Math.round((await token(page, 'input-typescale-small-line-height')) * (await token(page, 'input-typescale-small-font-size')));
     expect((await box(container(page, 'filled-small'))).height).toBeGreaterThanOrEqual(Math.max(await token(page, 'container-height-small'), 2 * pad + lines) - 0.6);
     // The outlined gap: the notch is open by the floated label's width and notch-padding on each side.
     const notch = await box(part(page, 'outlined-value', '.outline-notch'));

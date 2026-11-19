@@ -131,7 +131,7 @@ export const styles = css`
   /* KBS-6, KBS-7: the legends and the separators in the size's text role and the variant's legend color. */
   .label,
   .separator {
-    font: var(--_font-weight) var(--_font-size)/var(--_line-height) var(--_font-family);
+    font: var(--_font-weight) var(--_font-size)/round(nearest, var(--_line-height) * 1em, 1px) var(--_font-family);
     letter-spacing: var(--_tracking);
     color: var(--_legend);
     white-space: nowrap;

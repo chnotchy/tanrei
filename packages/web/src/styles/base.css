@@ -27,7 +27,7 @@
   body {
     margin: 0;
     font:
-      var(--tanrei-sys-typescale-body-font-weight) var(--tanrei-sys-typescale-body-font-size)/var(--tanrei-sys-typescale-body-line-height)
+      var(--tanrei-sys-typescale-body-font-weight) var(--tanrei-sys-typescale-body-font-size)/round(nearest, var(--tanrei-sys-typescale-body-line-height) * 1em, 1px)
       var(--tanrei-sys-typescale-body-font-family);
   }
 }

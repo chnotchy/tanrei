@@ -138,22 +138,20 @@ test('a type role reaches CSS as its longhands only: no `font` composite, for a 
     assert.ok(typography.some((t) => t.alias) && typography.some((t) => !t.alias), system);
     for (const token of typography) {
       const name = idToVar(token.id);
-      for (const longhand of ['font-family', 'font-size', 'font-weight', 'line-height', 'line-height-ratio', 'letter-spacing']) assert.ok(css.includes(`${name}-${longhand}: `), `${system}: ${name}-${longhand}`);
+      for (const longhand of ['font-family', 'font-size', 'font-weight', 'line-height', 'letter-spacing']) assert.ok(css.includes(`${name}-${longhand}: `), `${system}: ${name}-${longhand}`);
       assert.ok(!css.includes(`${name}-font: `), `${system}: ${name}-font is not written`);
     }
   }
 });
 
-test('a role\'s line is a whole pixel on every platform: CSS rounds the size times the ratio where the text is drawn, the IR rounds it once', async () => {
+test('a role\'s line is a whole pixel on every platform: CSS carries the one ratio, which the web rounds where it draws, and the IR rounds it once', async () => {
   for (const system of ['tanrei', 'm3-like', 'm3-expressive-like', 'cupertino']) {
     const model = await (await resolveSystem({ system })).model();
     const css = emitCss(model, system === 'tanrei' ? {} : { scope: system });
     for (const token of Object.values(model.tokens).filter((t) => t.type === 'typography' && !t.alias)) {
-      const name = idToVar(token.id);
-      const ratio = +token.value.lineHeight.toFixed(4);
-      // In em, so it follows a size set on one element, the reader's text size and the type dial; rounded at each.
-      assert.ok(css.includes(`${name}-line-height: round(nearest, ${ratio}em, 1px);`), `${system}: ${name}-line-height`);
-      assert.ok(css.includes(`${name}-line-height-ratio: ${ratio};`), `${system}: ${name}-line-height-ratio`);
+      // The ratio, the one entry a product overrides: the text and every box that holds its lines read it where they
+      // are (src/styles/type.ts in the web package), so nothing is resolved on the root in its place.
+      assert.ok(css.includes(`${idToVar(token.id)}-line-height: ${token.value.lineHeight};`), `${system}: ${idToVar(token.id)}-line-height`);
     }
     for (const [role, style] of Object.entries(buildIR(model).typescale)) {
       assert.ok(Number.isInteger(style.lineHeight), `${system}: ${role} draws a ${style.lineHeight}px line`);

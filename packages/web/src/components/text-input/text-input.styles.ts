@@ -210,9 +210,9 @@ export const styles = css`
     /* Where the text ends: before the trailing icon and its gap, or at the text padding. */
     --_text-end: var(--_end);
     /* One line of a text style, as a length (a typescale's line height is a ratio of its size). */
-    --_floated-line: round(nearest, var(--_floated-line-height-ratio) * var(--_floated-font-size), 1px);
-    --_label-line: round(nearest, var(--_label-line-height-ratio) * var(--_label-font-size), 1px);
-    --_input-line: round(nearest, var(--_input-line-height-ratio) * var(--_input-font-size), 1px);
+    --_floated-line: round(nearest, var(--_floated-line-height) * var(--_floated-font-size), 1px);
+    --_label-line: round(nearest, var(--_label-line-height) * var(--_label-font-size), 1px);
+    --_input-line: round(nearest, var(--_input-line-height) * var(--_input-font-size), 1px);
     /* TXI-51: where the first line of a multi-line field starts, from the container's top edge — where a single-line
        field of the same variant, size, label and text size draws its one line (TXI-16): centred in container.height, or
        padding-block below the edge where enlarged text makes the field taller than that. A fixed distance: no part of it
@@ -374,7 +374,7 @@ export const styles = css`
     background: none;
     font: inherit;
     letter-spacing: inherit;
-    line-height: var(--_input-line-height);
+    line-height: round(nearest, var(--_input-line-height) * 1em, 1px);
     color: var(--_n);
     caret-color: var(--_r);
     -webkit-text-fill-color: currentcolor;
@@ -579,7 +579,7 @@ export const styles = css`
     flex: 0 1 auto;
     align-items: baseline;
     min-inline-size: 0;
-    line-height: var(--_input-line-height);
+    line-height: round(nearest, var(--_input-line-height) * 1em, 1px);
     color: var(--_n);
     font-variant-numeric: tabular-nums;
     white-space: nowrap;
@@ -667,7 +667,7 @@ export const styles = css`
     display: none;
     color: var(--_a);
     white-space: pre;
-    line-height: var(--_input-line-height);
+    line-height: round(nearest, var(--_input-line-height) * 1em, 1px);
     transition: color var(--_state-duration) var(${unsafeCSS(BOX)}-motion-state-easing);
   }
   .prefix {

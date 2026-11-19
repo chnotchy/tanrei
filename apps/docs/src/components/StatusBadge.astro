@@ -49,7 +49,7 @@ const look = LOOKS[status];
      as plain text in the tag's own text style, and the glyph's name — which would be spelled out — not shown. */
   .status-tag:not(:defined) {
     display: inline-block;
-    font: var(--tanrei-comp-tag-label-typescale-small-font-weight) var(--tanrei-comp-tag-label-typescale-small-font-size)/var(--tanrei-comp-tag-label-typescale-small-line-height) var(--tanrei-comp-tag-label-typescale-small-font-family);
+    font: var(--tanrei-comp-tag-label-typescale-small-font-weight) var(--tanrei-comp-tag-label-typescale-small-font-size)/round(nearest, var(--tanrei-comp-tag-label-typescale-small-line-height) * 1em, 1px) var(--tanrei-comp-tag-label-typescale-small-font-family);
     letter-spacing: var(--tanrei-comp-tag-label-typescale-small-letter-spacing);
     color: var(--tanrei-sys-color-on-surface);
     white-space: nowrap;

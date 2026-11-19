@@ -519,7 +519,7 @@ test.describe('what is drawn', () => {
   test('PGN-22: enlarged text grows each item with its number, never below its height, keeps the gap and the arrows’ size, and draws compact where the row no longer fits; nothing overlaps and the page does not scroll sideways', async ({ page }) => {
     await mountFixtures(page, spec, { icons: true, fixtures: [fx('big', { page: 5, count: 200, countText: 'Page {page} of {count}' })] });
     const size = await resolveToken(page, T('label-typescale-font-size'));
-    const line = Math.round(size * Number(await page.evaluate((n) => getComputedStyle(document.documentElement).getPropertyValue(n), T('label-typescale-line-height-ratio'))));
+    const line = Math.round(size * Number(await page.evaluate((n) => getComputedStyle(document.documentElement).getPropertyValue(n), T('label-typescale-line-height'))));
     const medium = await resolveToken(page, T('container-height-medium'));
     const gap = await resolveToken(page, T('gap'));
     // The row's width at the text's own size, which fits the stage set to it.

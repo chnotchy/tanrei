@@ -33,7 +33,8 @@ export const pascal = (parts) => {
 /**
  * A role's line box in px: its size times its line height (a ratio, as DTCG writes it), rounded to a whole pixel. The
  * ratio is a rounded fraction (16 / 12 is written 1.3333), so the bare product is 15.9996, a line no platform should
- * draw: every platform's line is this number, and the web's `<role>-line-height` is the same rounding in CSS.
+ * draw: every native platform's line is this number, and the web takes the same rounding where it draws the ratio
+ * (`round(nearest, var(<role>-line-height) * 1em, 1px)`).
  */
 export const lineBox = (size, ratio) => Math.round(size * ratio);
 

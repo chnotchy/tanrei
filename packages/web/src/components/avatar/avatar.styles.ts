@@ -98,7 +98,7 @@ const box = css`
      glyph's box of the same size, so that two letters still stand inside the avatar. */
   .label {
     flex: none;
-    font: var(--_font-weight) var(--_font-size)/var(--_line-height) var(--_font-family);
+    font: var(--_font-weight) var(--_font-size)/round(nearest, var(--_line-height) * 1em, 1px) var(--_font-family);
     font-size: min(var(--_font-size), var(--_icon));
     letter-spacing: var(--_tracking);
     color: ${t('label-color')};

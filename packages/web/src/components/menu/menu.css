@@ -55,7 +55,7 @@
     min-block-size: max(var(--_mnu-ff-height), var(--tanrei-sys-target-pointer));
     padding-block: var(--_mnu-ff-padding-block);
     font:
-      var(--tanrei-comp-menu-label-typescale-font-weight) var(--tanrei-comp-menu-label-typescale-font-size)/var(--tanrei-comp-menu-label-typescale-line-height)
+      var(--tanrei-comp-menu-label-typescale-font-weight) var(--tanrei-comp-menu-label-typescale-font-size)/round(nearest, var(--tanrei-comp-menu-label-typescale-line-height) * 1em, 1px)
       var(--tanrei-comp-menu-label-typescale-font-family);
   }
   :where(tanrei-menu[inline][open]:not(:defined)) :where(tanrei-menu-item, tanrei-menu-checkbox-item, tanrei-menu-radio-item, tanrei-submenu)::before {
@@ -68,7 +68,7 @@
     content: '';
     display: block;
     font:
-      var(--tanrei-comp-menu-supporting-text-typescale-font-weight) var(--tanrei-comp-menu-supporting-text-typescale-font-size)/var(--tanrei-comp-menu-supporting-text-typescale-line-height)
+      var(--tanrei-comp-menu-supporting-text-typescale-font-weight) var(--tanrei-comp-menu-supporting-text-typescale-font-size)/round(nearest, var(--tanrei-comp-menu-supporting-text-typescale-line-height) * 1em, 1px)
       var(--tanrei-comp-menu-supporting-text-typescale-font-family);
     block-size: 1lh;
   }
@@ -86,7 +86,7 @@
     box-sizing: content-box;
     padding-block: var(--_mnu-ff-padding-block);
     font:
-      var(--tanrei-comp-menu-group-title-typescale-font-weight) var(--tanrei-comp-menu-group-title-typescale-font-size)/var(--tanrei-comp-menu-group-title-typescale-line-height)
+      var(--tanrei-comp-menu-group-title-typescale-font-weight) var(--tanrei-comp-menu-group-title-typescale-font-size)/round(nearest, var(--tanrei-comp-menu-group-title-typescale-line-height) * 1em, 1px)
       var(--tanrei-comp-menu-group-title-typescale-font-family);
     block-size: 1lh;
   }

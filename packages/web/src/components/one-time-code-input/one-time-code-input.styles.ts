@@ -91,7 +91,7 @@ export const styles = css`
     --_gap: var(${P}-container-gap);
     --_pad: var(${P}-container-padding-inline);
     --_width: var(${P}-container-width);
-    --_line: round(nearest, var(${P}-input-typescale-line-height-ratio) * var(${P}-input-typescale-font-size), 1px);
+    --_line: round(nearest, var(${P}-input-typescale-line-height) * var(${P}-input-typescale-font-size), 1px);
     /* OTC-23: a cell is never narrower than a character of the input's text style with the padding on each side: a
        figure (tabular, so every digit is one \`ch\`) for digits, the widest letter's room (1em) for letters. */
     --_min: min(var(--_width), calc(1ch + 2 * var(--_pad)));
@@ -196,7 +196,7 @@ export const styles = css`
      input's text style with tabular figures. */
   .char {
     display: block;
-    line-height: var(${P}-input-typescale-line-height);
+    line-height: round(nearest, var(${P}-input-typescale-line-height) * 1em, 1px);
     white-space: pre;
     user-select: none;
     -webkit-user-select: none;

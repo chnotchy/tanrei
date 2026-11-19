@@ -116,9 +116,9 @@ export const styles = css`
     --_end: var(--_pad);
     --_text-end: var(--_pad);
     /* One line of a text style, as a length (a typescale's line height is a ratio of its size). */
-    --_floated-line: round(nearest, var(--_floated-line-height-ratio) * var(--_floated-font-size), 1px);
-    --_label-line: round(nearest, var(--_label-line-height-ratio) * var(--_label-font-size), 1px);
-    --_input-line: round(nearest, var(--_input-line-height-ratio) * var(--_input-font-size), 1px);
+    --_floated-line: round(nearest, var(--_floated-line-height) * var(--_floated-font-size), 1px);
+    --_label-line: round(nearest, var(--_label-line-height) * var(--_label-font-size), 1px);
+    --_input-line: round(nearest, var(--_input-line-height) * var(--_input-font-size), 1px);
     display: flex;
     flex-direction: column;
     min-inline-size: 0;
@@ -214,7 +214,7 @@ export const styles = css`
     padding-block: var(--_pad-block);
     ${typefaceFrom('--_input')}
     letter-spacing: var(--_input-letter-spacing);
-    line-height: var(--_input-line-height);
+    line-height: round(nearest, var(--_input-line-height) * 1em, 1px);
   }
   /* CLI-15: a filled color input that draws its label keeps room for the floated label above the input, from the start. */
   ${unsafeCSS(FILLED)}[data-labelled] .body {
@@ -242,7 +242,7 @@ export const styles = css`
     background: none;
     font: inherit;
     letter-spacing: inherit;
-    line-height: var(--_input-line-height);
+    line-height: round(nearest, var(--_input-line-height) * 1em, 1px);
     color: var(--_n);
     caret-color: var(--_r);
     -webkit-text-fill-color: currentcolor;

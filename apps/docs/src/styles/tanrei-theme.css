@@ -79,10 +79,8 @@
   --sl-text-h4: var(--tanrei-sys-typescale-heading-4-font-size);
   --sl-text-h5: var(--tanrei-sys-typescale-heading-5-font-size);
   --sl-text-h6: var(--tanrei-sys-typescale-heading-6-font-size);
-  /* The framework multiplies these by a size of its own (`calc(var(--sl-line-height) * 1rem)`), so they are the bare
-     ratios, not the roles' line boxes. */
-  --sl-line-height: var(--tanrei-sys-typescale-body-large-line-height-ratio);
-  --sl-line-height-headings: var(--tanrei-sys-typescale-heading-1-line-height-ratio);
+  --sl-line-height: var(--tanrei-sys-typescale-body-large-line-height);
+  --sl-line-height-headings: var(--tanrei-sys-typescale-heading-1-line-height);
 
   --docs-radius-control: var(--tanrei-sys-shape-corner-small);
   --docs-radius-container: var(--tanrei-sys-shape-corner-medium);
@@ -146,7 +144,7 @@ body {
 /* ── Shared docs primitives (used by the generated components) ─────────── */
 /* The `eyebrow` role as the token defines it — the plain face (Inter), small and tracked wide; the uppercase is applied here, never stored in the token. */
 .docs-eyebrow {
-  font: var(--tanrei-sys-typescale-eyebrow-font-weight) var(--tanrei-sys-typescale-eyebrow-font-size)/var(--tanrei-sys-typescale-eyebrow-line-height) var(--tanrei-sys-typescale-eyebrow-font-family);
+  font: var(--tanrei-sys-typescale-eyebrow-font-weight) var(--tanrei-sys-typescale-eyebrow-font-size)/round(nearest, var(--tanrei-sys-typescale-eyebrow-line-height) * 1em, 1px) var(--tanrei-sys-typescale-eyebrow-font-family);
   letter-spacing: var(--tanrei-sys-typescale-eyebrow-letter-spacing);
   text-transform: uppercase;
   color: var(--tanrei-sys-color-on-surface-variant);

@@ -1220,7 +1220,7 @@ const STAGING: Record<string, Staging> = {
   // A marquee text is as wide as its place (MRQ-1): its stage gives it 240 in the body text style and color, which the
   // long fixtures' text does not fit and "Short title" does.
   'marquee-text': {
-    css: () => `tanrei-marquee-text { inline-size: 240px; color: var(--tanrei-sys-color-on-surface); font: var(--tanrei-sys-typescale-body-font-weight) var(--tanrei-sys-typescale-body-font-size)/var(--tanrei-sys-typescale-body-line-height) var(--tanrei-sys-typescale-body-font-family); }`,
+    css: () => `tanrei-marquee-text { inline-size: 240px; color: var(--tanrei-sys-color-on-surface); font: var(--tanrei-sys-typescale-body-font-weight) var(--tanrei-sys-typescale-body-font-size)/round(nearest, var(--tanrei-sys-typescale-body-line-height) * 1em, 1px) var(--tanrei-sys-typescale-body-font-family); }`,
   },
   meter: {
     css: () => `[data-fixture^='linear'] { inline-size: 160px; }`,
@@ -1229,12 +1229,12 @@ const STAGING: Record<string, Staging> = {
   // that its long fixture's text wraps in, an inline one as wide as its text.
   'size-transition': {
     css: () =>
-      `tanrei-size-transition { color: var(--tanrei-sys-color-on-surface); font: var(--tanrei-sys-typescale-body-font-weight) var(--tanrei-sys-typescale-body-font-size)/var(--tanrei-sys-typescale-body-line-height) var(--tanrei-sys-typescale-body-font-family); } tanrei-size-transition:not([axis='inline']):not([axis='both']) { inline-size: 240px; }`,
+      `tanrei-size-transition { color: var(--tanrei-sys-color-on-surface); font: var(--tanrei-sys-typescale-body-font-weight) var(--tanrei-sys-typescale-body-font-size)/round(nearest, var(--tanrei-sys-typescale-body-line-height) * 1em, 1px) var(--tanrei-sys-typescale-body-font-family); } tanrei-size-transition:not([axis='inline']):not([axis='both']) { inline-size: 240px; }`,
   },
   // A ticker has no text style of its own (NTK-1): it is staged as a dashboard's figure, in a heading's style and the
   // surface's text color, which it takes from its stage.
   'number-ticker': {
-    css: () => `.stage:has(> tanrei-number-ticker) { font: var(--tanrei-sys-typescale-heading-2-font-weight) var(--tanrei-sys-typescale-heading-2-font-size)/var(--tanrei-sys-typescale-heading-2-line-height) var(--tanrei-sys-typescale-heading-2-font-family); letter-spacing: var(--tanrei-sys-typescale-heading-2-letter-spacing); color: var(--tanrei-sys-color-on-surface); }`,
+    css: () => `.stage:has(> tanrei-number-ticker) { font: var(--tanrei-sys-typescale-heading-2-font-weight) var(--tanrei-sys-typescale-heading-2-font-size)/round(nearest, var(--tanrei-sys-typescale-heading-2-line-height) * 1em, 1px) var(--tanrei-sys-typescale-heading-2-font-family); letter-spacing: var(--tanrei-sys-typescale-heading-2-letter-spacing); color: var(--tanrei-sys-color-on-surface); }`,
   },
   // A scroll area is as large as its layout gives it (SCA-1): its stage gives it a box 280 × 160, and the fixture's text
   // is content that does not fit it — twenty-four lines of "Long content", or a row of twelve tiles that cannot wrap
@@ -1243,10 +1243,10 @@ const STAGING: Record<string, Staging> = {
   // both edges a fixture watches have content beyond them, and the step waits until the area has drawn both.
   'scroll-area': {
     css: () => `tanrei-scroll-area { inline-size: 280px; block-size: 160px; }
-      .scroll-fixture-line { padding: 8px 12px; color: var(--tanrei-sys-color-on-surface); font: var(--tanrei-sys-typescale-body-font-weight) var(--tanrei-sys-typescale-body-font-size)/var(--tanrei-sys-typescale-body-line-height) var(--tanrei-sys-typescale-body-font-family); }
+      .scroll-fixture-line { padding: 8px 12px; color: var(--tanrei-sys-color-on-surface); font: var(--tanrei-sys-typescale-body-font-weight) var(--tanrei-sys-typescale-body-font-size)/round(nearest, var(--tanrei-sys-typescale-body-line-height) * 1em, 1px) var(--tanrei-sys-typescale-body-font-family); }
       .scroll-fixture-line:nth-child(odd), .scroll-fixture-tile:nth-child(odd) { background: var(--tanrei-sys-color-surface-container-highest); }
       .scroll-fixture-row { display: flex; block-size: 100%; }
-      .scroll-fixture-tile { flex: none; box-sizing: border-box; inline-size: 96px; block-size: 136px; padding: 8px; color: var(--tanrei-sys-color-on-surface); font: var(--tanrei-sys-typescale-body-font-weight) var(--tanrei-sys-typescale-body-font-size)/var(--tanrei-sys-typescale-body-line-height) var(--tanrei-sys-typescale-body-font-family); }`,
+      .scroll-fixture-tile { flex: none; box-sizing: border-box; inline-size: 96px; block-size: 136px; padding: 8px; color: var(--tanrei-sys-color-on-surface); font: var(--tanrei-sys-typescale-body-font-weight) var(--tanrei-sys-typescale-body-font-size)/round(nearest, var(--tanrei-sys-typescale-body-line-height) * 1em, 1px) var(--tanrei-sys-typescale-body-font-family); }`,
     slot: (name, text) => {
       if (name !== 'default') return undefined;
       const words = text.replaceAll('&', '&amp;').replaceAll('<', '&lt;');
@@ -1360,7 +1360,7 @@ const STAGING: Record<string, Staging> = {
   // as written. An item that holds a List row (its own `items`) holds the row alone, and the row holds nothing more.
   list: {
     css: () => `.stage > tanrei-list { inline-size: 360px; }
-      .stage > tanrei-list .fixture-tile { display: block; box-sizing: border-box; padding: var(--tanrei-sys-space-space150) var(--tanrei-sys-space-space200); border-radius: var(--tanrei-sys-shape-corner-small); background: var(--tanrei-sys-color-surface-container-highest); color: var(--tanrei-sys-color-on-surface); font: var(--tanrei-sys-typescale-body-font-weight) var(--tanrei-sys-typescale-body-font-size)/var(--tanrei-sys-typescale-body-line-height) var(--tanrei-sys-typescale-body-font-family); }`,
+      .stage > tanrei-list .fixture-tile { display: block; box-sizing: border-box; padding: var(--tanrei-sys-space-space150) var(--tanrei-sys-space-space200); border-radius: var(--tanrei-sys-shape-corner-small); background: var(--tanrei-sys-color-surface-container-highest); color: var(--tanrei-sys-color-on-surface); font: var(--tanrei-sys-typescale-body-font-weight) var(--tanrei-sys-typescale-body-font-size)/round(nearest, var(--tanrei-sys-typescale-body-line-height) * 1em, 1px) var(--tanrei-sys-typescale-body-font-family); }`,
     itemContent: (item) => {
       const content = item.content ?? '';
       if (item.kind !== 'list-item' || item.items?.length) return content;
@@ -1388,7 +1388,7 @@ const STAGING: Record<string, Staging> = {
   // its text in the body style.
   'resizable-frame': {
     css: () => `.stage > tanrei-resizable-frame { inline-size: 640px; }
-      .resizable-frame-content { box-sizing: border-box; min-block-size: 100%; padding: 16px; background: var(--tanrei-sys-color-surface-container-low); color: var(--tanrei-sys-color-on-surface); font: var(--tanrei-sys-typescale-body-font-weight) var(--tanrei-sys-typescale-body-font-size)/var(--tanrei-sys-typescale-body-line-height) var(--tanrei-sys-typescale-body-font-family); }`,
+      .resizable-frame-content { box-sizing: border-box; min-block-size: 100%; padding: 16px; background: var(--tanrei-sys-color-surface-container-low); color: var(--tanrei-sys-color-on-surface); font: var(--tanrei-sys-typescale-body-font-weight) var(--tanrei-sys-typescale-body-font-size)/round(nearest, var(--tanrei-sys-typescale-body-line-height) * 1em, 1px) var(--tanrei-sys-typescale-body-font-family); }`,
     slot: (name, text) => (name === 'default' ? `<div class="resizable-frame-content">${text.replaceAll('&', '&amp;').replaceAll('<', '&lt;')}</div>` : undefined),
   },
   // A split view divides the room its layout gives it (SPV-1): its stage gives it a region 480 × 200. What a fixture puts
@@ -1396,14 +1396,14 @@ const STAGING: Record<string, Staging> = {
   // body style.
   'split-view': {
     css: () => `.stage > tanrei-split-view { inline-size: 480px; block-size: 200px; }
-      .split-view-content { box-sizing: border-box; block-size: 100%; padding: 16px; background: var(--tanrei-sys-color-surface-container-low); color: var(--tanrei-sys-color-on-surface); font: var(--tanrei-sys-typescale-body-font-weight) var(--tanrei-sys-typescale-body-font-size)/var(--tanrei-sys-typescale-body-line-height) var(--tanrei-sys-typescale-body-font-family); }`,
+      .split-view-content { box-sizing: border-box; block-size: 100%; padding: 16px; background: var(--tanrei-sys-color-surface-container-low); color: var(--tanrei-sys-color-on-surface); font: var(--tanrei-sys-typescale-body-font-weight) var(--tanrei-sys-typescale-body-font-size)/round(nearest, var(--tanrei-sys-typescale-body-line-height) * 1em, 1px) var(--tanrei-sys-typescale-body-font-family); }`,
     slot: (name, text) => `<div slot="${name}" class="split-view-content">${text.replaceAll('&', '&amp;').replaceAll('<', '&lt;')}</div>`,
   },
   // A list row is 360 wide (LRW-1's verify), standing alone. What a fixture puts in its leading slot stands for the
   // product's avatar or picture: a 40 disc of a container role holding the text as a monogram, in the label text style.
   'list-row': {
     css: () => `.stage > tanrei-list-row { inline-size: 360px; }
-      .stage > tanrei-list-row > [slot='leading'] { display: inline-grid; place-items: center; inline-size: 40px; block-size: 40px; border-radius: var(--tanrei-sys-shape-corner-full); background: var(--tanrei-sys-color-primary-container); color: var(--tanrei-sys-color-on-primary-container); font: var(--tanrei-sys-typescale-label-font-weight) var(--tanrei-sys-typescale-label-font-size)/var(--tanrei-sys-typescale-label-line-height) var(--tanrei-sys-typescale-label-font-family); }`,
+      .stage > tanrei-list-row > [slot='leading'] { display: inline-grid; place-items: center; inline-size: 40px; block-size: 40px; border-radius: var(--tanrei-sys-shape-corner-full); background: var(--tanrei-sys-color-primary-container); color: var(--tanrei-sys-color-on-primary-container); font: var(--tanrei-sys-typescale-label-font-weight) var(--tanrei-sys-typescale-label-font-size)/round(nearest, var(--tanrei-sys-typescale-label-line-height) * 1em, 1px) var(--tanrei-sys-typescale-label-font-family); }`,
   },
   // A menu fixture draws the open surface in place (MNU-19's verify): the `inline` test attribute, at its natural size,
   // with its elevation and without an anchor, placement or open motion — room below for the elevation's shadow.
@@ -1673,7 +1673,7 @@ const STAGING: Record<string, Staging> = {
     css: () => `${read('dist/icons.css')}\n${read('dist/prose.css')}
       .stage > .tanrei-prose { inline-size: 720px; color: var(--tanrei-sys-color-on-surface); }
       .stage[data-fixture='anchors'] .tanrei-prose-anchor { opacity: 1; }
-      .specimen-placeholder { display: grid; place-items: center; block-size: 96px; background: var(--tanrei-sys-color-surface-container); color: var(--tanrei-sys-color-on-surface-variant); font: var(--tanrei-sys-typescale-label-font-weight) var(--tanrei-sys-typescale-label-font-size)/var(--tanrei-sys-typescale-label-line-height) var(--tanrei-sys-typescale-label-font-family); }`,
+      .specimen-placeholder { display: grid; place-items: center; block-size: 96px; background: var(--tanrei-sys-color-surface-container); color: var(--tanrei-sys-color-on-surface-variant); font: var(--tanrei-sys-typescale-label-font-weight) var(--tanrei-sys-typescale-label-font-size)/round(nearest, var(--tanrei-sys-typescale-label-line-height) * 1em, 1px) var(--tanrei-sys-typescale-label-font-family); }`,
     element: (f, attributes) => {
       const lang = f.id === 'japanese' ? ' lang="ja"' : f.id === 'rtl' ? ' lang="ar"' : '';
       const content = f.content ?? '';
@@ -1695,7 +1695,7 @@ const STAGING: Record<string, Staging> = {
   // its address the package's own copy of the fixture picture (test/pictures.ts) — no fixture makes a request.
   link: {
     css: () => `${read('dist/icons.css')}\n${read('dist/link.css')}
-      .stage:has(.tanrei-link) { box-sizing: content-box; inline-size: 320px; --tanrei-text-emphasized-weight: var(--tanrei-sys-typescale-body-font-weight-emphasized); font: var(--tanrei-sys-typescale-body-font-weight) var(--tanrei-sys-typescale-body-font-size)/var(--tanrei-sys-typescale-body-line-height) var(--tanrei-sys-typescale-body-font-family); letter-spacing: var(--tanrei-sys-typescale-body-letter-spacing); color: var(--tanrei-sys-color-on-surface); }
+      .stage:has(.tanrei-link) { box-sizing: content-box; inline-size: 320px; --tanrei-text-emphasized-weight: var(--tanrei-sys-typescale-body-font-weight-emphasized); font: var(--tanrei-sys-typescale-body-font-weight) var(--tanrei-sys-typescale-body-font-size)/round(nearest, var(--tanrei-sys-typescale-body-line-height) * 1em, 1px) var(--tanrei-sys-typescale-body-font-family); letter-spacing: var(--tanrei-sys-typescale-body-letter-spacing); color: var(--tanrei-sys-color-on-surface); }
       .stage:has(> .tanrei-link[data-variant='inverse']) { background: var(--tanrei-sys-color-inverse-surface); color: var(--tanrei-sys-color-inverse-on-surface); }`,
     element: (f) => {
       if (f.content?.includes('<')) return f.content;
@@ -1769,7 +1769,7 @@ const STAGING: Record<string, Staging> = {
       .stage:has(.tanrei-steps) { color: var(--tanrei-sys-color-on-surface); }
       .stage > .tanrei-steps { inline-size: 400px; }
       .stage > .tanrei-prose:has(.tanrei-steps) { inline-size: 720px; }
-      .specimen-placeholder { display: grid; place-items: center; block-size: 96px; background: var(--tanrei-sys-color-surface-container); color: var(--tanrei-sys-color-on-surface-variant); font: var(--tanrei-sys-typescale-label-font-weight) var(--tanrei-sys-typescale-label-font-size)/var(--tanrei-sys-typescale-label-line-height) var(--tanrei-sys-typescale-label-font-family); }`,
+      .specimen-placeholder { display: grid; place-items: center; block-size: 96px; background: var(--tanrei-sys-color-surface-container); color: var(--tanrei-sys-color-on-surface-variant); font: var(--tanrei-sys-typescale-label-font-weight) var(--tanrei-sys-typescale-label-font-size)/round(nearest, var(--tanrei-sys-typescale-label-line-height) * 1em, 1px) var(--tanrei-sys-typescale-label-font-family); }`,
     element: (f, attributes) => {
       const content = f.content ?? '';
       if (content.includes('<')) return content;
@@ -1887,7 +1887,7 @@ const STAGING: Record<string, Staging> = {
   // language ar, as prose's and the table's have.
   accordion: {
     css: () => `${read('dist/icons.css')}\n${read('dist/accordion.css')}
-      .stage:has(> tanrei-accordion) { box-sizing: border-box; inline-size: 512px; max-inline-size: 100%; font: var(--tanrei-sys-typescale-body-font-weight) var(--tanrei-sys-typescale-body-font-size)/var(--tanrei-sys-typescale-body-line-height) var(--tanrei-sys-typescale-body-font-family); letter-spacing: var(--tanrei-sys-typescale-body-letter-spacing); color: var(--tanrei-sys-color-on-surface); }`,
+      .stage:has(> tanrei-accordion) { box-sizing: border-box; inline-size: 512px; max-inline-size: 100%; font: var(--tanrei-sys-typescale-body-font-weight) var(--tanrei-sys-typescale-body-font-size)/round(nearest, var(--tanrei-sys-typescale-body-line-height) * 1em, 1px) var(--tanrei-sys-typescale-body-font-family); letter-spacing: var(--tanrei-sys-typescale-body-letter-spacing); color: var(--tanrei-sys-color-on-surface); }`,
     items: accordionMarkup,
     wrap: (element, f) => (f.direction === 'rtl' && /[\u0600-\u06ff]/.test(JSON.stringify(f)) ? element.replace('<tanrei-accordion', '<tanrei-accordion lang="ar"') : element),
   },
@@ -1942,7 +1942,7 @@ const STAGING: Record<string, Staging> = {
   'inline-code': {
     css: () => `${read('dist/icons.css')}\n${read('dist/prose.css')}\n${read('dist/code.css')}
       .stage > .tanrei-prose, .stage > .inline-code-grid { box-sizing: border-box; inline-size: 480px; color: var(--tanrei-sys-color-on-surface); }
-      .inline-code-grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--tanrei-sys-space-space100) var(--tanrei-sys-space-space200); font: var(--tanrei-sys-typescale-body-font-weight) var(--tanrei-sys-typescale-body-font-size)/var(--tanrei-sys-typescale-body-line-height) var(--tanrei-sys-typescale-body-font-family); letter-spacing: var(--tanrei-sys-typescale-body-letter-spacing); }`,
+      .inline-code-grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--tanrei-sys-space-space100) var(--tanrei-sys-space-space200); font: var(--tanrei-sys-typescale-body-font-weight) var(--tanrei-sys-typescale-body-font-size)/round(nearest, var(--tanrei-sys-typescale-body-line-height) * 1em, 1px) var(--tanrei-sys-typescale-body-font-family); letter-spacing: var(--tanrei-sys-typescale-body-letter-spacing); }`,
     element: (f) => {
       if (f.content?.includes('<')) return f.content;
       const escape = (v: unknown) => String(v).replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('"', '&quot;');
@@ -1997,7 +1997,7 @@ const STAGING: Record<string, Staging> = {
   // and in the body text style (SKL-1's and SKL-3's), as a column of a page is, and never wider than the window.
   skeleton: {
     css: () => `${read('dist/skeleton.css')}
-      .stage:has(> tanrei-skeleton) { box-sizing: content-box; inline-size: 300px; max-inline-size: calc(100% - 32px); font: var(--tanrei-sys-typescale-body-font-weight) var(--tanrei-sys-typescale-body-font-size)/var(--tanrei-sys-typescale-body-line-height) var(--tanrei-sys-typescale-body-font-family); letter-spacing: var(--tanrei-sys-typescale-body-letter-spacing); }`,
+      .stage:has(> tanrei-skeleton) { box-sizing: content-box; inline-size: 300px; max-inline-size: calc(100% - 32px); font: var(--tanrei-sys-typescale-body-font-weight) var(--tanrei-sys-typescale-body-font-size)/round(nearest, var(--tanrei-sys-typescale-body-line-height) * 1em, 1px) var(--tanrei-sys-typescale-body-font-family); letter-spacing: var(--tanrei-sys-typescale-body-letter-spacing); }`,
     items: (_spec, f) =>
       (f.items ?? [])
         .map(({ props }) => {
@@ -2017,9 +2017,9 @@ const STAGING: Record<string, Staging> = {
   figure: {
     css: () => `${read('dist/figure.css')}
       .stage:has(> tanrei-figure) { box-sizing: border-box; inline-size: 512px; max-inline-size: 100%; }
-      .stage > tanrei-figure .fixture-specimen { font: var(--tanrei-sys-typescale-body-font-weight) var(--tanrei-sys-typescale-body-font-size)/var(--tanrei-sys-typescale-body-line-height) var(--tanrei-sys-typescale-body-font-family); }
-      .stage > tanrei-figure .fixture-picture { display: grid; place-items: center; box-sizing: border-box; inline-size: 100%; block-size: 10rem; background: var(--tanrei-sys-color-surface-container-highest); color: var(--tanrei-sys-color-on-surface-variant); font: var(--tanrei-sys-typescale-body-small-font-weight) var(--tanrei-sys-typescale-body-small-font-size)/var(--tanrei-sys-typescale-body-small-line-height) var(--tanrei-sys-typescale-body-small-font-family); }
-      .stage > tanrei-figure .fixture-attachment { padding: var(--tanrei-sys-space-space150) var(--tanrei-sys-space-space200); border-radius: var(--tanrei-sys-shape-corner-small); background: var(--tanrei-sys-color-surface-container-high); color: var(--tanrei-sys-color-on-surface); font: var(--tanrei-sys-typescale-code-font-weight) var(--tanrei-sys-typescale-code-font-size)/var(--tanrei-sys-typescale-code-line-height) var(--tanrei-sys-typescale-code-font-family); overflow-wrap: anywhere; }`,
+      .stage > tanrei-figure .fixture-specimen { font: var(--tanrei-sys-typescale-body-font-weight) var(--tanrei-sys-typescale-body-font-size)/round(nearest, var(--tanrei-sys-typescale-body-line-height) * 1em, 1px) var(--tanrei-sys-typescale-body-font-family); }
+      .stage > tanrei-figure .fixture-picture { display: grid; place-items: center; box-sizing: border-box; inline-size: 100%; block-size: 10rem; background: var(--tanrei-sys-color-surface-container-highest); color: var(--tanrei-sys-color-on-surface-variant); font: var(--tanrei-sys-typescale-body-small-font-weight) var(--tanrei-sys-typescale-body-small-font-size)/round(nearest, var(--tanrei-sys-typescale-body-small-line-height) * 1em, 1px) var(--tanrei-sys-typescale-body-small-font-family); }
+      .stage > tanrei-figure .fixture-attachment { padding: var(--tanrei-sys-space-space150) var(--tanrei-sys-space-space200); border-radius: var(--tanrei-sys-shape-corner-small); background: var(--tanrei-sys-color-surface-container-high); color: var(--tanrei-sys-color-on-surface); font: var(--tanrei-sys-typescale-code-font-weight) var(--tanrei-sys-typescale-code-font-size)/round(nearest, var(--tanrei-sys-typescale-code-line-height) * 1em, 1px) var(--tanrei-sys-typescale-code-font-family); overflow-wrap: anywhere; }`,
     props: ({ inset, ...props }) => (inset === false ? { ...props, flush: true } : props),
     wrap: (element, f) => {
       const given = /^\s*<(figure|!--children-->)/.test(f.content ?? '');
@@ -2043,7 +2043,7 @@ const STAGING: Record<string, Staging> = {
     page: true,
     items: () => '',
     css: () => `${read('dist/app-shell.css')}\n${read('dist/link.css')}\n${read('dist/icons.css')}
-      .stage:has(> tanrei-app-shell) { padding: 0; font: var(--tanrei-sys-typescale-body-font-weight) var(--tanrei-sys-typescale-body-font-size)/var(--tanrei-sys-typescale-body-line-height) var(--tanrei-sys-typescale-body-font-family); letter-spacing: var(--tanrei-sys-typescale-body-letter-spacing); }
+      .stage:has(> tanrei-app-shell) { padding: 0; font: var(--tanrei-sys-typescale-body-font-weight) var(--tanrei-sys-typescale-body-font-size)/round(nearest, var(--tanrei-sys-typescale-body-line-height) * 1em, 1px) var(--tanrei-sys-typescale-body-font-family); letter-spacing: var(--tanrei-sys-typescale-body-letter-spacing); }
       tanrei-app-shell > .fixture-region { outline: var(--tanrei-sys-border-hairline) dashed var(--tanrei-sys-color-outline); outline-offset: calc(-1 * var(--tanrei-sys-border-hairline)); }
       tanrei-app-shell > header.fixture-region { display: flex; align-items: center; gap: var(--tanrei-sys-space-space100); box-sizing: border-box; min-block-size: var(--tanrei-comp-app-bar-container-height-small); padding-inline: var(--tanrei-sys-space-space100); background: var(--tanrei-sys-color-surface); }
       tanrei-app-shell > nav.fixture-region[slot='navigation'] { box-sizing: border-box; inline-size: var(--tanrei-comp-navigation-drawer-container-width); padding: var(--tanrei-sys-space-space200); }
@@ -2064,7 +2064,7 @@ const STAGING: Record<string, Staging> = {
   'page-header': {
     items: () => '',
     css: () => `${read('dist/page-header.css')}
-      .stage:has(> tanrei-page-header) { box-sizing: border-box; inline-size: 800px; max-inline-size: 100%; font: var(--tanrei-sys-typescale-body-font-weight) var(--tanrei-sys-typescale-body-font-size)/var(--tanrei-sys-typescale-body-line-height) var(--tanrei-sys-typescale-body-font-family); letter-spacing: var(--tanrei-sys-typescale-body-letter-spacing); color: var(--tanrei-sys-color-on-surface); }`,
+      .stage:has(> tanrei-page-header) { box-sizing: border-box; inline-size: 800px; max-inline-size: 100%; font: var(--tanrei-sys-typescale-body-font-weight) var(--tanrei-sys-typescale-body-font-size)/round(nearest, var(--tanrei-sys-typescale-body-line-height) * 1em, 1px) var(--tanrei-sys-typescale-body-font-family); letter-spacing: var(--tanrei-sys-typescale-body-letter-spacing); color: var(--tanrei-sys-color-on-surface); }`,
     props: ({ title, description, eyebrow, level, ...props }, f) => (/^\s*</.test(f.content ?? '') ? { ...props, ...(title === undefined ? {} : { title }), ...(description === undefined ? {} : { description }), ...(eyebrow === undefined ? {} : { eyebrow }), ...(level === undefined ? {} : { level }) } : props),
     wrap: (element, f) => {
       const lang = f.id.startsWith('japanese') ? ' lang="ja"' : f.direction === 'rtl' && /[\u0600-\u06ff]/.test(JSON.stringify(f)) ? ' lang="ar"' : '';
@@ -2159,7 +2159,7 @@ const STAGING: Record<string, Staging> = {
     css: () => `.stage > tanrei-drop-zone { inline-size: 360px; block-size: 240px; }
       .drop-zone-sample { box-sizing: border-box; block-size: 100%; display: flex; flex-direction: column; align-items: flex-start; gap: 12px; padding: 16px;
         background: var(--tanrei-sys-color-surface-container-low); color: var(--tanrei-sys-color-on-surface); }
-      .drop-zone-sample > p { margin: 0; font: var(--tanrei-sys-typescale-body-font-weight) var(--tanrei-sys-typescale-body-font-size)/var(--tanrei-sys-typescale-body-line-height) var(--tanrei-sys-typescale-body-font-family); letter-spacing: var(--tanrei-sys-typescale-body-letter-spacing); }`,
+      .drop-zone-sample > p { margin: 0; font: var(--tanrei-sys-typescale-body-font-weight) var(--tanrei-sys-typescale-body-font-size)/round(nearest, var(--tanrei-sys-typescale-body-line-height) * 1em, 1px) var(--tanrei-sys-typescale-body-font-family); letter-spacing: var(--tanrei-sys-typescale-body-letter-spacing); }`,
     props: ({ accept, ...props }) => ({ ...props, ...(Array.isArray(accept) ? { accept: accept.join(',') } : {}) }),
     content: (content) => `<div class="drop-zone-sample"><p>${content}</p><tanrei-button variant="outlined">New video</tanrei-button></div>`,
     drawsAfter: (fixture) => fixture.id.startsWith('dragged'),
@@ -2963,17 +2963,15 @@ export function writeRootTokens(vars: Record<string, string>): void {
 }
 export const rootTokens = (page: Page, vars: Record<string, string>): Promise<void> => page.evaluate(writeRootTokens, vars);
 /**
- * A stylesheet's text without the one length a check for written design values must let through, which is no design
- * value: the whole pixel a role's line is rounded to where a box holds its lines away from the text
- * (`round(nearest, <-line-height-ratio> * <-font-size>, 1px)`, src/styles/type.ts), as the role's `-line-height` is.
+ * A stylesheet's text without the lengths a check for written design values must let through, which are no design
+ * values: a role's line rounded to a whole pixel, where the text is drawn (`round(nearest, <-line-height> * 1em, 1px)`,
+ * the text's own size) and where a box holds its lines (`round(nearest, <-line-height> * <-font-size>, 1px)`,
+ * src/styles/type.ts).
  */
-export const withoutLineStep = (text: string): string => text.replace(/(-line-height-ratio[^;]*?), 1px\)/g, '$1)');
+export const withoutLineStep = (text: string): string => text.replace(/round\(nearest, ([^;]*?line-height[^;]*?)(?: \* 1em)?, 1px\)/g, 'round(nearest, $1)');
 
-/**
- * The longhands of a type role that a component composes its `font` from (src/styles/type.ts), and the ratio a box that
- * holds the role's lines away from the text multiplies its size by.
- */
-const ROLE_LONGHANDS = ['font-weight', 'font-size', 'line-height', 'line-height-ratio', 'font-family'] as const;
+/** The longhands of a type role that a component composes its `font` from (src/styles/type.ts). */
+const ROLE_LONGHANDS = ['font-weight', 'font-size', 'line-height', 'font-family'] as const;
 
 /**
  * A type role's tokens for a font written as the `font` shorthand's `[weight] size/line-height [family]`: the longhands a
@@ -2989,14 +2987,13 @@ export function typeRole(base: string, font: string): Record<string, string> {
   const parts = /^(?:(\d+)\s+)?(\S+)\/(\S+)(?:\s+(.+))?$/.exec(font.trim());
   if (!parts) throw new Error(`typeRole: "${font}" is not "[weight] size/line-height [family]"`);
   const [, weight, size, line, family] = parts;
-  // The ratio the role's boxes multiply its size by: the line given as a number, or a line in px over a size in px.
+  // A role's line height is a ratio (src/styles/type.ts): a line in px is written as its ratio to a size in px.
   const ratio = /^[\d.]+$/.test(line) ? line : /^[\d.]+px$/.test(line) && /^[\d.]+px$/.test(size) ? String(Number.parseFloat(line) / Number.parseFloat(size)) : null;
   if (ratio === null) throw new Error(`typeRole: "${font}" gives a line that is neither a number nor px over a size in px`);
   return {
     ...(weight ? { [`${base}-font-weight`]: weight } : {}),
     [`${base}-font-size`]: size,
-    [`${base}-line-height`]: line,
-    [`${base}-line-height-ratio`]: ratio,
+    [`${base}-line-height`]: ratio,
     ...(family ? { [`${base}-font-family`]: family } : {}),
   };
 }
@@ -3006,10 +3003,10 @@ export const typeRoleOf = (base: string, from: string): Record<string, string> =
 
 /**
  * A `font` value composed from a type role's longhands, as a component composes it (src/styles/type.ts):
- * `roleFont(T('title-typescale'))` gives `var(<base>-font-weight) var(<base>-font-size)/var(<base>-line-height) var(<base>-font-family)`.
+ * `roleFont(T('title-typescale'))` gives `var(<base>-font-weight) var(<base>-font-size)/round(nearest, var(<base>-line-height) * 1em, 1px) var(<base>-font-family)`.
  * A role has no composite custom property; this is what a probe draws a role's text with.
  */
-export const roleFont = (base: string): string => `var(${base}-font-weight) var(${base}-font-size)/var(${base}-line-height) var(${base}-font-family)`;
+export const roleFont = (base: string): string => `var(${base}-font-weight) var(${base}-font-size)/round(nearest, var(${base}-line-height) * 1em, 1px) var(${base}-font-family)`;
 
 /** Declarations for a stylesheet or a `style` attribute: `{ '--a': 'b' }` gives `--a: b;`. */
 export const declarations = (vars: Record<string, string>): string =>

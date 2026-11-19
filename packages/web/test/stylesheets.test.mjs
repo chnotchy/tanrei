@@ -23,8 +23,9 @@ test('the base is one cascade layer, tanrei.base, that writes tokens on <html> a
     for (const declaration of body.split(';').map((d) => d.trim()).filter(Boolean)) {
       const [property, value] = declaration.split(/:\s*/);
       // The colors and the face are the system's; the one literal is the body's margin taken away. The face is a role's
-      // `font` composed from its longhands (src/styles/type.ts), so that one longhand set below the root reaches it.
-      const face = /^var\(--tanrei-sys-typescale-([a-z0-9-]+)-font-weight\) var\(--tanrei-sys-typescale-\1-font-size\)\/var\(--tanrei-sys-typescale-\1-line-height\) var\(--tanrei-sys-typescale-\1-font-family\)$/;
+      // `font` composed from its longhands (src/styles/type.ts), so that one longhand set below the root reaches it; its
+      // line the ratio rounded to a whole pixel at the body's size.
+      const face = /^var\(--tanrei-sys-typescale-([a-z0-9-]+)-font-weight\) var\(--tanrei-sys-typescale-\1-font-size\)\/round\(nearest, var\(--tanrei-sys-typescale-\1-line-height\) \* 1em, 1px\) var\(--tanrei-sys-typescale-\1-font-family\)$/;
       assert.ok(/^var\(--tanrei-sys-[a-z0-9-]+\)$/.test(value) || (property === 'font' && face.test(value.replace(/\s+/g, ' '))) || (property === 'margin' && value === '0'), `${selector} { ${declaration} }`);
       // The page's scheme is the tokens' (a forced theme on <html> must win), and the root's font size is what rem means.
       assert.notEqual(property, 'color-scheme');
@@ -104,10 +105,10 @@ test('the cloak is exported on its own, hides every element the package defines,
     }
     // A value is a token's (or a private name's that holds one), a keyword, or arithmetic on them: no length, color or
     // time of its own. The one exception is no design value: the whole pixel a role's line is rounded to, as the role's
-    // own `-line-height` is (`round(nearest, <-line-height-ratio> * <-font-size>, 1px)`).
+    // text's line is (`round(nearest, <-line-height> * <-font-size>, 1px)`, src/styles/type.ts).
     for (const [, property, value] of body.matchAll(/([a-z-]+):\s*([^;]+);/g)) {
       assert.ok(![...value.matchAll(/var\((--[a-z0-9_-]+)\)/g)].some(([, name]) => !/^--tanrei-comp-|^--_cloak-/.test(name)), `${property}: ${value}`);
-      const own = value.replaceAll(/(round\(nearest, var\(--tanrei-comp-[a-z0-9-]+-line-height-ratio\) \* var\(--tanrei-comp-[a-z0-9-]+-font-size\)), 1px\)/g, '$1)');
+      const own = value.replaceAll(/(round\(nearest, var\(--tanrei-comp-[a-z0-9-]+-line-height\) \* var\(--tanrei-comp-[a-z0-9-]+-font-size\)), 1px\)/g, '$1)');
       assert.ok(!/\d(?:px|rem|em|%|ms|s|vh|vw)\b|#[0-9a-f]{3}|rgb|hsl|oklch/i.test(own), `${property}: ${value}`);
     }
   }

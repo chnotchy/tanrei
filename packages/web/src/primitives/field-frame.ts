@@ -295,7 +295,7 @@ export function frameStyles({ prefix, label, motion, glyph = false, disabled }: 
   const T = (name: string) => `var(${prefix}-${name})`;
   const font = typeface(label?.typeface ?? ((longhand) => T(`label-typescale-${longhand}`)));
   const tracking = label?.letterSpacing ?? T('label-typescale-letter-spacing');
-  const line = label?.line ?? `round(nearest, ${T('label-typescale-line-height-ratio')} * ${T('label-typescale-font-size')}, 1px)`;
+  const line = label?.line ?? `round(nearest, ${T('label-typescale-line-height')} * ${T('label-typescale-font-size')}, 1px)`;
   const timing = motion === undefined ? { duration: T('motion-state-duration'), easing: T('motion-state-easing') } : motion;
   const recolor = (...properties: string[]) => (timing ? `transition: ${properties.map((p) => `${p} ${timing.duration} ${timing.easing}`).join(', ')};` : '');
   const MARK = `${prefix}-requirement-mark`;

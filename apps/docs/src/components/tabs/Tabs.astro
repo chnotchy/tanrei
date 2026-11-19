@@ -79,7 +79,7 @@ const label = Astro.props.label ?? (syncKey === 'platform' ? t.platformChoice : 
       content: attr(label);
       display: block;
       margin-block: var(--tanrei-sys-space-space200) var(--tanrei-sys-space-space100);
-      font: var(--tanrei-sys-typescale-label-large-font-weight) var(--tanrei-sys-typescale-label-large-font-size)/var(--tanrei-sys-typescale-label-large-line-height) var(--tanrei-sys-typescale-label-large-font-family);
+      font: var(--tanrei-sys-typescale-label-large-font-weight) var(--tanrei-sys-typescale-label-large-font-size)/round(nearest, var(--tanrei-sys-typescale-label-large-line-height) * 1em, 1px) var(--tanrei-sys-typescale-label-large-font-family);
       letter-spacing: var(--tanrei-sys-typescale-label-large-letter-spacing);
       color: var(--tanrei-sys-color-on-surface-variant);
     }

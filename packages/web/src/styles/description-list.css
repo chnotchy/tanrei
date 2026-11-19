@@ -189,7 +189,7 @@
       margin: 0;
       padding: 0;
       font:
-        var(--_dl-term-font-weight) var(--_dl-term-font-size)/var(--_dl-term-line-height)
+        var(--_dl-term-font-weight) var(--_dl-term-font-size)/round(nearest, var(--_dl-term-line-height) * 1em, 1px)
         var(--_dl-term-font-family);
       letter-spacing: var(--_dl-term-tracking);
       color: var(--tanrei-comp-description-list-term-color);
@@ -211,7 +211,7 @@
       margin: 0;
       padding: 0;
       font:
-        var(--_dl-value-font-weight) var(--_dl-value-font-size)/var(--_dl-value-line-height)
+        var(--_dl-value-font-weight) var(--_dl-value-font-size)/round(nearest, var(--_dl-value-line-height) * 1em, 1px)
         var(--_dl-value-font-family);
       letter-spacing: var(--_dl-value-tracking);
       font-variant-numeric: tabular-nums;
@@ -235,7 +235,7 @@
       grid-column: 2;
       min-block-size: 1lh;
       font:
-        var(--_dl-value-font-weight) var(--_dl-value-font-size)/var(--_dl-value-line-height)
+        var(--_dl-value-font-weight) var(--_dl-value-font-size)/round(nearest, var(--_dl-value-line-height) * 1em, 1px)
         var(--_dl-value-font-family);
     }
     /* DSL-8: Japanese and Chinese lines break by their own rules. */
@@ -325,7 +325,7 @@
      The document's order is unchanged: the term is still read before its value (DSL-17). */
   :where(tanrei-description-list[layout='stat']) > :where(dl) > :where(div) > :where(dd:first-of-type) {
     order: -1;
-    font: var(--_dl-stat-font-weight) var(--_dl-stat-font-size)/var(--_dl-stat-line-height) var(--_dl-stat-font-family);
+    font: var(--_dl-stat-font-weight) var(--_dl-stat-font-size)/round(nearest, var(--_dl-stat-line-height) * 1em, 1px) var(--_dl-stat-font-family);
     letter-spacing: var(--_dl-stat-tracking);
     font-variant-numeric: tabular-nums;
     /* DSL-6: the figure's letter-spacing follows its script (src/styles/script-tracking.ts). */

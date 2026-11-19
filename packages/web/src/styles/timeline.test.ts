@@ -268,7 +268,7 @@ test.describe('layout', () => {
       expect(await item.evaluate((li) => li.firstElementChild!.className)).toBe('tanrei-timeline-time');
       expect(await px(time, 'font-size')).toBe(await resolveToken(page, T(`time-typescale-${size}-font-size`)));
       expect(await css(time, 'font-weight')).toBe(await weight(page, T(`time-typescale-${size}-font-weight`)));
-      near(await px(time, 'line-height'), Math.round((await resolveToken(page, T(`time-typescale-${size}-font-size`))) * Number(await css(html, T(`time-typescale-${size}-line-height-ratio`)))), `${id}: the time's line`, 0.05);
+      near(await px(time, 'line-height'), Math.round((await resolveToken(page, T(`time-typescale-${size}-font-size`))) * Number(await css(html, T(`time-typescale-${size}-line-height`)))), `${id}: the time's line`, 0.05);
       expect(rgba(await css(time, 'color'))).toEqual(await color(page, T('time-color')));
       near((await box(time.locator('xpath=following-sibling::*[1]'))).y - (await box(time)).bottom, await resolveToken(page, T('time-gap')), `${id}: the time gap`, 0.05);
       expect([await css(time, 'display'), await css(time, 'white-space-collapse'), await css(time, 'text-overflow'), await css(time, 'overflow-x')]).toEqual(['block', 'collapse', 'clip', 'visible']);
@@ -303,7 +303,7 @@ test.describe('layout', () => {
       expect(await title.evaluate((el) => el.previousElementSibling!.className)).toBe('tanrei-timeline-time');
       expect(await px(title, 'font-size')).toBe(await resolveToken(page, T(`title-typescale-${size}-font-size`)));
       expect(await css(title, 'font-weight')).toBe(await weight(page, T(`title-typescale-${size}-font-weight`)));
-      near(await px(title, 'line-height'), Math.round((await resolveToken(page, T(`title-typescale-${size}-font-size`))) * Number(await css(html, T(`title-typescale-${size}-line-height-ratio`)))), `${id}: the title's line`, 0.05);
+      near(await px(title, 'line-height'), Math.round((await resolveToken(page, T(`title-typescale-${size}-font-size`))) * Number(await css(html, T(`title-typescale-${size}-line-height`)))), `${id}: the title's line`, 0.05);
       near((await box(item.locator('p').last())).y - (await box(title)).bottom, await resolveToken(page, T('title-gap')), `${id}: the title gap`, 0.05);
       expect(await title.evaluate((el) => [el.localName, el.getAttribute('role')])).toEqual(['p', null]);
     }
@@ -344,7 +344,7 @@ test.describe('layout', () => {
       const body = items(timeline(page, id)).first().locator('p').last();
       expect(await px(body, 'font-size')).toBe(await resolveToken(page, T(`body-typescale-${size}-font-size`)));
       expect(await css(body, 'font-weight')).toBe(await weight(page, T(`body-typescale-${size}-font-weight`)));
-      near(await px(body, 'line-height'), Math.round((await resolveToken(page, T(`body-typescale-${size}-font-size`))) * Number(await css(html, T(`body-typescale-${size}-line-height-ratio`)))), `${id}: the body's line`, 0.05);
+      near(await px(body, 'line-height'), Math.round((await resolveToken(page, T(`body-typescale-${size}-font-size`))) * Number(await css(html, T(`body-typescale-${size}-line-height`)))), `${id}: the body's line`, 0.05);
     }
     await page.addStyleTag({ content: '.stage[data-fixture="dated"] { color: rgb(1, 2, 3); }' });
     expect(await css(items(timeline(page, 'dated')).first().locator('p').last(), 'color')).toBe('rgb(1, 2, 3)');

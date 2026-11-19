@@ -12,7 +12,7 @@ import { typefaceOf } from '../../styles/type.js';
 const PREFIX = '--tanrei-comp-breadcrumbs';
 const t = (name: string) => unsafeCSS(`var(${PREFIX}-${name})`);
 /** One line of the trail's text, as a length (the glyphs' own font is the icon set's). */
-const LINE = unsafeCSS(`round(nearest, var(${PREFIX}-label-typescale-font-size) * var(${PREFIX}-label-typescale-line-height-ratio), 1px)`);
+const LINE = unsafeCSS(`round(nearest, var(${PREFIX}-label-typescale-font-size) * var(${PREFIX}-label-typescale-line-height), 1px)`);
 /** BRC-23: along the trail a hit area reaches halfway to the entry beside it — half a separator and its gap. */
 const HALFWAY = unsafeCSS(`calc((var(${PREFIX}-separator-size) / 2 + var(${PREFIX}-separator-gap)) * -1)`);
 

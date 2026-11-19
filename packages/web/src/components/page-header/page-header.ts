@@ -63,7 +63,7 @@ function sheet(id: string, text: () => string): CSSStyleSheet | null {
  */
 const sizeRules = (size: string) => {
   const token = (name: string) => `var(${PREFIX}-${name.replace('*', size)}, var(${PREFIX}-${name.replace('*', DEFAULT_SIZE)}))`;
-  return `:where(${TAG}[size='${size}']) { ${TYPE_LONGHANDS.map((longhand) => `--_pgh-title-${longhand}: ${token(`title-typescale-*-${longhand}`)};`).join(' ')} --_pgh-title-tracking: ${token('title-typescale-*-letter-spacing')}; --_pgh-title-line: round(nearest, ${token('title-typescale-*-font-size')} * ${token('title-typescale-*-line-height-ratio')}, 1px); ${TYPE_LONGHANDS.map((longhand) => `--_pgh-description-${longhand}: ${token(`description-typescale-*-${longhand}`)};`).join(' ')} --_pgh-description-tracking: ${token('description-typescale-*-letter-spacing')}; --_pgh-description-gap: ${token('description-gap-*')}; --_pgh-end: ${token('container-padding-block-end-*')}; }`;
+  return `:where(${TAG}[size='${size}']) { ${TYPE_LONGHANDS.map((longhand) => `--_pgh-title-${longhand}: ${token(`title-typescale-*-${longhand}`)};`).join(' ')} --_pgh-title-tracking: ${token('title-typescale-*-letter-spacing')}; --_pgh-title-line: round(nearest, ${token('title-typescale-*-font-size')} * ${token('title-typescale-*-line-height')}, 1px); ${TYPE_LONGHANDS.map((longhand) => `--_pgh-description-${longhand}: ${token(`description-typescale-*-${longhand}`)};`).join(' ')} --_pgh-description-tracking: ${token('description-typescale-*-letter-spacing')}; --_pgh-description-gap: ${token('description-gap-*')}; --_pgh-end: ${token('container-padding-block-end-*')}; }`;
 };
 
 /**

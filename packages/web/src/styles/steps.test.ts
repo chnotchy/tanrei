@@ -413,7 +413,7 @@ test.describe('layout', () => {
         const title = item.locator(':scope > :first-child');
         expect(await px(title, 'font-size'), id).toBe(await resolveToken(page, T(`title-typescale-${size}-font-size`)));
         expect(await css(title, 'font-weight')).toBe(await weight(page, T(`title-typescale-${size}-font-weight`)));
-        near(await px(title, 'line-height'), Math.round((await resolveToken(page, T(`title-typescale-${size}-font-size`))) * Number(await css(html, T(`title-typescale-${size}-line-height-ratio`)))), `${id}: the title's line`, 0.05);
+        near(await px(title, 'line-height'), Math.round((await resolveToken(page, T(`title-typescale-${size}-font-size`))) * Number(await css(html, T(`title-typescale-${size}-line-height`)))), `${id}: the title's line`, 0.05);
         expect(await css(title, 'color')).toBe(await css(stage(page, id), 'color'));
         const body = item.locator(':scope > :nth-child(2)');
         near((await box(body)).y - (await box(title)).bottom, gap, `${id}: the body begins the title gap below`, 0.05);
@@ -447,7 +447,7 @@ test.describe('layout', () => {
       const item = items(steps(page, id)).first();
       expect(await px(item, 'font-size')).toBe(await resolveToken(page, T(`body-typescale-${size}-font-size`)));
       expect(await css(item, 'font-weight')).toBe(await weight(page, T(`body-typescale-${size}-font-weight`)));
-      near(await px(item, 'line-height'), Math.round((await resolveToken(page, T(`body-typescale-${size}-font-size`))) * Number(await css(html, T(`body-typescale-${size}-line-height-ratio`)))), `${id}: the body's line`, 0.05);
+      near(await px(item, 'line-height'), Math.round((await resolveToken(page, T(`body-typescale-${size}-font-size`))) * Number(await css(html, T(`body-typescale-${size}-line-height`)))), `${id}: the body's line`, 0.05);
     }
     // No color of its own: on another surface's content color the number, the title and the body are that color.
     await page.addStyleTag({ content: '.stage[data-fixture="short"] { color: rgb(1, 2, 3); }' });

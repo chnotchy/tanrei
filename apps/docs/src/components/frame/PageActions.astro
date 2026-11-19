@@ -147,7 +147,7 @@ const hrefs = pageActionHrefs(markdown, Astro.site ?? config.site, w.ask);
     block-size: var(--tanrei-comp-button-with-menu-container-height-small);
     padding-inline: calc(var(--tanrei-comp-button-with-menu-leading-padding-inline-start-with-icon-small) + var(--tanrei-comp-button-with-menu-container-outer-inset) + var(--tanrei-comp-button-with-menu-icon-size-small) + var(--tanrei-comp-button-with-menu-container-gap-small))
       calc(var(--tanrei-comp-button-with-menu-leading-padding-inline-end-small) + 2 * var(--tanrei-comp-button-with-menu-trailing-padding-inline-small) + var(--tanrei-comp-button-with-menu-icon-size-small) + var(--tanrei-comp-button-with-menu-container-outer-inset));
-    font: var(--tanrei-comp-button-with-menu-label-typescale-small-font-weight) var(--tanrei-comp-button-with-menu-label-typescale-small-font-size)/var(--tanrei-comp-button-with-menu-label-typescale-small-line-height) var(--tanrei-comp-button-with-menu-label-typescale-small-font-family);
+    font: var(--tanrei-comp-button-with-menu-label-typescale-small-font-weight) var(--tanrei-comp-button-with-menu-label-typescale-small-font-size)/round(nearest, var(--tanrei-comp-button-with-menu-label-typescale-small-line-height) * 1em, 1px) var(--tanrei-comp-button-with-menu-label-typescale-small-font-family);
     letter-spacing: var(--tanrei-comp-button-with-menu-label-typescale-small-letter-spacing);
     white-space: nowrap;
     visibility: hidden;

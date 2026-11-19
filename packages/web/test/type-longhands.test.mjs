@@ -23,6 +23,7 @@ const pkg = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 /** `font` values that are not a role's, by `<file>: <value>`, with the reason. Only shrinks. */
 export const ALLOWED = {
   'src/primitives/glyph-pending.ts: normal ${EM}px/1 var(${FAMILY})': "a hidden probe that measures the icon font's glyphs, at a size of its own; no text is drawn with it",
+  "src/styles/type.ts: ${read('font-weight')} ${read('font-size')}/${lineBox(read('line-height'))} ${read('font-family')}": 'the helper every component composes its font with; what it writes is what the check reads everywhere else',
 };
 
 /** The sources under `dir` (`.ts` and `.css`), or with `tests` the browser tests among them (`.test.ts`). */
@@ -52,8 +53,10 @@ function fontValues(text) {
   return values;
 }
 
+// The line is the role's ratio rounded where the text is drawn (`lineBox()` in src/styles/type.ts): the bare ratio would
+// draw a 12 px label on a 15.9996 px line, between pixels.
 const composed = (value) => {
-  const parts = /^(\S+) (\S+)\/(\S+) (\S+)$/.exec(value);
+  const parts = /^(\S+) (\S+)\/round\(nearest, (\S+) \* 1em, 1px\) (\S+)$/.exec(value);
   return !!parts && parts[1].includes('font-weight') && parts[2].includes('font-size') && parts[3].includes('line-height') && parts[4].includes('font-family');
 };
 
@@ -119,6 +122,18 @@ test('the checks see the declarations: the composed ones are found and counted',
   // And they refuse what they are for.
   assert.equal(code('a { font: var(--tanrei-comp-x-label-typescale-font); }').match(COMPOSITE)?.length, 1);
   assert.equal(code('`  --_font: ${ref((v) => `${P}-${m}-${v}-font`)};`').match(COMPOSITE)?.length, 2);
-  assert.equal(composed('var(--a-font-size) var(--a-font-weight)/var(--a-line-height) var(--a-font-family)'), false);
-  assert.equal(composed('var(--a-font-weight) var(--a-font-size)/var(--a-line-height) var(--a-font-family)'), true);
+  assert.equal(composed('var(--a-font-size) var(--a-font-weight)/round(nearest, var(--a-line-height) * 1em, 1px) var(--a-font-family)'), false);
+  assert.equal(composed('var(--a-font-weight) var(--a-font-size)/var(--a-line-height) var(--a-font-family)'), false, 'the bare ratio is not a line');
+  assert.equal(composed('var(--a-font-weight) var(--a-font-size)/round(nearest, var(--a-line-height) * 1em, 1px) var(--a-font-family)'), true);
+});
+
+test('no source draws a role\'s line height bare: `line-height` takes the ratio rounded where the text is drawn', () => {
+  // `line-height: var(<role>-line-height)` is the bare ratio, a line between pixels; write `lineBox()` (src/styles/type.ts),
+  // `round(nearest, var(<role>-line-height) * 1em, 1px)`.
+  const bare = /(?<![-\w])line-height:\s*(?:var\(--[\w-]*line-height\)|\$\{[^}]*line-height[^}]*\})\s*[;`]/g;
+  const found = SOURCES.flatMap(({ file, text }) => [...text.matchAll(bare)].map((m) => `${file}: ${m[0]}`));
+  assert.deepEqual(found, []);
+  assert.equal(code('a { line-height: var(--tanrei-sys-typescale-body-line-height); }').match(bare)?.length, 1);
+  assert.equal(code('a { line-height: round(nearest, var(--tanrei-sys-typescale-body-line-height) * 1em, 1px); }').match(bare), null);
+  assert.equal(code('a { --_x-line-height: var(--tanrei-sys-typescale-body-line-height); }').match(bare), null, 'a private name that holds the ratio is no line');
 });

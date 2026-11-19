@@ -26,8 +26,8 @@ test('the FAB menu lives in m3-like: its tokens are in the sheets of the systems
   assert.deepEqual([...held()], [['fab-menu', 'm3-like']]);
   assert.equal(sourceFiles(REPO_ROOT)['comp/fab-menu.tokens.json'], undefined, 'the core vocabulary does not have it');
   assert.equal(fabMenu(sheet('tokens.css')).length, 0);
-  assert.equal(fabMenu(sheet('systems/m3-like.css')).length, 282);
-  assert.equal(fabMenu(sheet('systems/m3-expressive-like.css')).length, 282, 'm3-expressive-like extends m3-like, and has it');
+  assert.equal(fabMenu(sheet('systems/m3-like.css')).length, 281);
+  assert.equal(fabMenu(sheet('systems/m3-expressive-like.css')).length, 281, 'm3-expressive-like extends m3-like, and has it');
   assert.equal(fabMenu(sheet('systems/cupertino.css')).length, 0);
   // Each sheet says where what it does not have lives, apart from what it leaves out.
   assert.match(sheet('tokens.css'), /--tanrei-unavailable-layer: "fab-menu=m3-like";/);
@@ -46,8 +46,8 @@ test('a product on the default system includes the FAB menu from m3-like and dra
   assert.deepEqual(validateSystem({ layers: [product] }), []);
   const { chain } = readSystemChain({ layers: [product] });
   const css = emitCss(await (await resolveChain(chain)).model());
-  // All 282 declarations, and around them exactly the default system's sheet: the product sets no value of its own.
-  assert.equal(fabMenu(css).length, 282);
+  // All 281 declarations, and around them exactly the default system's sheet: the product sets no value of its own.
+  assert.equal(fabMenu(css).length, 281);
   const rest = (text) => declarations(text).filter((line) => !line.trim().startsWith('--tanrei-comp-fab-menu-') && !line.includes('--tanrei-unavailable'));
   assert.deepEqual(rest(css), rest(sheet('tokens.css')));
   // The document's own aliases, resolved against the default system's tokens — not m3-like's values for it.

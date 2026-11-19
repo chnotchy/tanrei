@@ -35,7 +35,7 @@ const em = (tk: (typeof tokens)[number]) => Math.round((tk.value.letterSpacing.v
         </div>
         <p
           class="specimen"
-          style={`font: var(${tk.cssVar}-font-weight) var(${tk.cssVar}-font-size)/var(${tk.cssVar}-line-height) var(${tk.cssVar}-font-family); letter-spacing: var(${tk.cssVar}-letter-spacing); --specimen-emphasized: var(${tk.cssVar}-font-weight-emphasized, ${emphasized(tk)});${role === 'eyebrow' ? 'text-transform: uppercase;' : ''}`}
+          style={`font: var(${tk.cssVar}-font-weight) var(${tk.cssVar}-font-size)/round(nearest, var(${tk.cssVar}-line-height) * 1em, 1px) var(${tk.cssVar}-font-family); letter-spacing: var(${tk.cssVar}-letter-spacing); --specimen-emphasized: var(${tk.cssVar}-font-weight-emphasized, ${emphasized(tk)});${role === 'eyebrow' ? 'text-transform: uppercase;' : ''}`}
         >
           {sample(role)}
         </p>
@@ -113,7 +113,7 @@ const em = (tk: (typeof tokens)[number]) => Math.round((tk.value.letterSpacing.v
     max-inline-size: 100%;
     padding-block: max(0px, calc((var(--tanrei-comp-switch-track-height) - 1lh) / 2));
     padding-inline-start: calc(var(--tanrei-comp-switch-track-width) + var(--tanrei-comp-switch-label-gap));
-    font: var(--tanrei-comp-switch-label-typescale-font-weight) var(--tanrei-comp-switch-label-typescale-font-size)/var(--tanrei-comp-switch-label-typescale-line-height) var(--tanrei-comp-switch-label-typescale-font-family);
+    font: var(--tanrei-comp-switch-label-typescale-font-weight) var(--tanrei-comp-switch-label-typescale-font-size)/round(nearest, var(--tanrei-comp-switch-label-typescale-line-height) * 1em, 1px) var(--tanrei-comp-switch-label-typescale-font-family);
     letter-spacing: var(--tanrei-comp-switch-label-typescale-letter-spacing);
     visibility: hidden;
   }

@@ -165,7 +165,7 @@ export const styles = css`
     ${unsafeCSS(paint(''))}
     --_ripple: var(--_c-p);
     --_ripple-inset: var(--tanrei-comp-chip-outline-width);
-    font: var(--_font-weight) var(--_font-size)/var(--_line-height) var(--_font-family);
+    font: var(--_font-weight) var(--_font-size)/round(nearest, var(--_line-height) * 1em, 1px) var(--_font-family);
     letter-spacing: var(--_tracking);
     -webkit-user-select: none;
     user-select: none;

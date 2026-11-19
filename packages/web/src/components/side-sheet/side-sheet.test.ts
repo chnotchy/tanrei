@@ -447,7 +447,7 @@ test.describe('drawing', () => {
     await expect(content(page)).toHaveCSS('color', await resolveColor(page, T('content-color')));
     const body = await page.evaluate(() => {
       const p = document.createElement('div');
-      p.style.font = 'var(--tanrei-sys-typescale-body-font-weight) var(--tanrei-sys-typescale-body-font-size)/var(--tanrei-sys-typescale-body-line-height) var(--tanrei-sys-typescale-body-font-family)';
+      p.style.font = 'var(--tanrei-sys-typescale-body-font-weight) var(--tanrei-sys-typescale-body-font-size)/round(nearest, var(--tanrei-sys-typescale-body-line-height) * 1em, 1px) var(--tanrei-sys-typescale-body-font-family)';
       document.body.appendChild(p);
       const v = [getComputedStyle(p).fontSize, getComputedStyle(p).lineHeight];
       p.remove();

@@ -192,7 +192,7 @@ Cada token es una propiedad personalizada que lleva el nombre de su ruta: `tanre
   background: var(--tanrei-sys-color-surface-container-low);
   border-radius: var(--tanrei-sys-shape-corner-medium);
   box-shadow: var(--tanrei-sys-elevation-level1);
-  font: var(--tanrei-sys-typescale-body-font-weight) var(--tanrei-sys-typescale-body-font-size)/var(--tanrei-sys-typescale-body-line-height) var(--tanrei-sys-typescale-body-font-family);
+  font: var(--tanrei-sys-typescale-body-font-weight) var(--tanrei-sys-typescale-body-font-size)/round(nearest, var(--tanrei-sys-typescale-body-line-height) * 1em, 1px) var(--tanrei-sys-typescale-body-font-family);
   letter-spacing: var(--tanrei-sys-typescale-body-letter-spacing);
 }
 ```
@@ -201,7 +201,7 @@ Para poner un token desde un script, usa `setTokens()` de `@tanrei/web`: `setTok
 
 ## Estilos de texto
 
-Los estilos de texto se nombran por nivel (`heading-2` es un `h2`, `body` un `p`, `label` el texto de un control), y cada uno es un conjunto de propiedades personalizadas individuales: `--tanrei-sys-typescale-<role>-font-family`, `-font-size`, `-font-weight`, `-line-height`, `-letter-spacing` y `-font-weight-emphasized`. No hay una propiedad abreviada: compón `font` con ellas donde se dibuja el texto, como arriba, y cambia un estilo propiedad por propiedad. `--tanrei-sys-typescale-body-font-size: 1rem`, en la raíz o en un elemento o una sección de la página, cambia el tamaño de ese texto y nada más. `-line-height` es una longitud: el tamaño por la proporción del rol, redondeado a un píxel entero donde se dibuja el texto, así que una línea nunca queda entre dos píxeles y sigue el tamaño con el que se dibuja; `-line-height-ratio` es la proporción sin redondear, para calcular lejos del texto: `round(nearest, var(--tanrei-sys-typescale-body-line-height-ratio) * var(--tanrei-sys-typescale-body-font-size), 1px)` es una línea de texto de cuerpo. Dos hojas de estilos opcionales los aplican a los elementos por ti:
+Los estilos de texto se nombran por nivel (`heading-2` es un `h2`, `body` un `p`, `label` el texto de un control), y cada uno es un conjunto de propiedades personalizadas individuales: `--tanrei-sys-typescale-<role>-font-family`, `-font-size`, `-font-weight`, `-line-height`, `-letter-spacing` y `-font-weight-emphasized`. No hay una propiedad abreviada: compón `font` con ellas donde se dibuja el texto, como arriba, y cambia un estilo propiedad por propiedad. `--tanrei-sys-typescale-body-font-size: 1rem`, en la raíz o en un elemento o una sección de la página, cambia el tamaño de ese texto y nada más. `-line-height` es una proporción del tamaño, así que se usa redondeada, como arriba: `round(nearest, var(…-line-height) * 1em, 1px)` pone la línea en un píxel entero al tamaño con el que se dibuja (sin redondear, una etiqueta de 12 px a 1.3333 mide 15.9996 px, entre dos píxeles), y `round(nearest, var(…-line-height) * var(…-font-size), 1px)` es una línea del rol donde no se dibuja su texto. Los componentes de Tanrei lo leen igual, así que un solo `-line-height` en la raíz o en un elemento mueve el texto y cada caja que contiene sus líneas. Dos hojas de estilos opcionales los aplican a los elementos por ti:
 
 ```js
 import '@tanrei/web/text.css';   // .tanrei-text-<role>, .tanrei-text-emphasized

@@ -234,19 +234,19 @@
   :where(tanrei-color-input:not(:defined), tanrei-combobox:not(:defined), tanrei-number-input:not(:defined), tanrei-select:not(:defined), tanrei-text-input:not(:defined), tanrei-chip-field:not(:defined), tanrei-color-field:not(:defined), tanrei-combobox-field:not(:defined), tanrei-number-field:not(:defined), tanrei-select-field:not(:defined), tanrei-text-field:not(:defined)) {
     --_cloak-stacked: var(--tanrei-comp-input-box-stacked-container-height-medium);
     --_cloak-box: var(--tanrei-comp-input-box-container-height-medium);
-    --_cloak-labelled: calc(2 * var(--tanrei-comp-input-box-container-padding-block-with-label-medium) + round(nearest, var(--tanrei-comp-input-box-label-floated-typescale-medium-line-height-ratio) * var(--tanrei-comp-input-box-label-floated-typescale-medium-font-size), 1px) + round(nearest, var(--tanrei-comp-input-box-input-typescale-medium-line-height-ratio) * var(--tanrei-comp-input-box-input-typescale-medium-font-size), 1px));
+    --_cloak-labelled: calc(2 * var(--tanrei-comp-input-box-container-padding-block-with-label-medium) + round(nearest, var(--tanrei-comp-input-box-label-floated-typescale-medium-line-height) * var(--tanrei-comp-input-box-label-floated-typescale-medium-font-size), 1px) + round(nearest, var(--tanrei-comp-input-box-input-typescale-medium-line-height) * var(--tanrei-comp-input-box-input-typescale-medium-font-size), 1px));
     --_cloak-control: var(--_cloak-stacked);
     min-block-size: var(--_cloak-control);
   }
   :where(tanrei-color-input, tanrei-combobox, tanrei-number-input, tanrei-select, tanrei-text-input, tanrei-chip-field, tanrei-color-field, tanrei-combobox-field, tanrei-number-field, tanrei-select-field, tanrei-text-field):where([size='small']):where(:not(:defined)) {
     --_cloak-stacked: var(--tanrei-comp-input-box-stacked-container-height-small);
     --_cloak-box: var(--tanrei-comp-input-box-container-height-small);
-    --_cloak-labelled: calc(2 * var(--tanrei-comp-input-box-container-padding-block-with-label-small) + round(nearest, var(--tanrei-comp-input-box-label-floated-typescale-small-line-height-ratio) * var(--tanrei-comp-input-box-label-floated-typescale-small-font-size), 1px) + round(nearest, var(--tanrei-comp-input-box-input-typescale-small-line-height-ratio) * var(--tanrei-comp-input-box-input-typescale-small-font-size), 1px));
+    --_cloak-labelled: calc(2 * var(--tanrei-comp-input-box-container-padding-block-with-label-small) + round(nearest, var(--tanrei-comp-input-box-label-floated-typescale-small-line-height) * var(--tanrei-comp-input-box-label-floated-typescale-small-font-size), 1px) + round(nearest, var(--tanrei-comp-input-box-input-typescale-small-line-height) * var(--tanrei-comp-input-box-input-typescale-small-font-size), 1px));
   }
   :where(tanrei-color-input, tanrei-combobox, tanrei-number-input, tanrei-select, tanrei-text-input, tanrei-chip-field, tanrei-color-field, tanrei-combobox-field, tanrei-number-field, tanrei-select-field, tanrei-text-field):where([size='large']):where(:not(:defined)) {
     --_cloak-stacked: var(--tanrei-comp-input-box-stacked-container-height-large);
     --_cloak-box: var(--tanrei-comp-input-box-container-height-large);
-    --_cloak-labelled: calc(2 * var(--tanrei-comp-input-box-container-padding-block-with-label-large) + round(nearest, var(--tanrei-comp-input-box-label-floated-typescale-large-line-height-ratio) * var(--tanrei-comp-input-box-label-floated-typescale-large-font-size), 1px) + round(nearest, var(--tanrei-comp-input-box-input-typescale-large-line-height-ratio) * var(--tanrei-comp-input-box-input-typescale-large-font-size), 1px));
+    --_cloak-labelled: calc(2 * var(--tanrei-comp-input-box-container-padding-block-with-label-large) + round(nearest, var(--tanrei-comp-input-box-label-floated-typescale-large-line-height) * var(--tanrei-comp-input-box-label-floated-typescale-large-font-size), 1px) + round(nearest, var(--tanrei-comp-input-box-input-typescale-large-line-height) * var(--tanrei-comp-input-box-input-typescale-large-font-size), 1px));
   }
   :where(tanrei-color-input, tanrei-combobox, tanrei-number-input, tanrei-select, tanrei-text-input, tanrei-chip-field, tanrei-color-field, tanrei-combobox-field, tanrei-number-field, tanrei-select-field, tanrei-text-field):where([variant='outlined'], [variant='filled']):where(:not(:defined)) {
     --_cloak-control: var(--_cloak-box);
@@ -276,7 +276,7 @@
   :where(tanrei-field:not(:defined)):where(:has(> tanrei-slider[value-indicator='always']:not([orientation='vertical']))) {
     --_cloak-handle: var(--tanrei-comp-slider-handle-height-small);
     --_cloak-across: max(var(--tanrei-comp-slider-container-size), var(--_cloak-handle));
-    min-block-size: max(var(--_cloak-across), var(--_cloak-across) / 2 + var(--_cloak-handle) / 2 + var(--tanrei-comp-slider-value-indicator-offset) + max(var(--tanrei-comp-slider-value-indicator-container-height), round(nearest, var(--tanrei-comp-slider-value-indicator-label-typescale-line-height-ratio) * var(--tanrei-comp-slider-value-indicator-label-typescale-font-size), 1px)));
+    min-block-size: max(var(--_cloak-across), var(--_cloak-across) / 2 + var(--_cloak-handle) / 2 + var(--tanrei-comp-slider-value-indicator-offset) + max(var(--tanrei-comp-slider-value-indicator-container-height), round(nearest, var(--tanrei-comp-slider-value-indicator-label-typescale-line-height) * var(--tanrei-comp-slider-value-indicator-label-typescale-font-size), 1px)));
   }
   :where(tanrei-slider-field[value-indicator='always'][size='medium']:not(:defined)),
   :where(tanrei-field:not(:defined)):where(:has(> tanrei-slider[value-indicator='always'][size='medium']:not([orientation='vertical']))) {
@@ -303,35 +303,35 @@
        between.
      A label or a text longer than its line wraps when the field is defined, and is held at one line. */
   :where(tanrei-chip-field, tanrei-color-field, tanrei-combobox-field, tanrei-number-field, tanrei-one-time-code-field, tanrei-select-field, tanrei-slider-field, tanrei-text-field):where(:not(:defined)):where([label]:not([label=''], [label-hidden], [variant='outlined'], [variant='filled'])) {
-    padding-block-start: calc(round(nearest, var(--tanrei-comp-field-label-typescale-line-height-ratio) * var(--tanrei-comp-field-label-typescale-font-size), 1px) + var(--tanrei-comp-field-label-gap));
+    padding-block-start: calc(round(nearest, var(--tanrei-comp-field-label-typescale-line-height) * var(--tanrei-comp-field-label-typescale-font-size), 1px) + var(--tanrei-comp-field-label-gap));
   }
   :where(tanrei-field):where(:not(:defined)):where([label]:not([label=''], [label-hidden])):where(:not(:has(> :is(tanrei-color-input, tanrei-combobox, tanrei-number-input, tanrei-select, tanrei-text-input):is([variant='outlined'], [variant='filled'])))) {
-    padding-block-start: calc(round(nearest, var(--tanrei-comp-field-label-typescale-line-height-ratio) * var(--tanrei-comp-field-label-typescale-font-size), 1px) + var(--tanrei-comp-field-label-gap));
+    padding-block-start: calc(round(nearest, var(--tanrei-comp-field-label-typescale-line-height) * var(--tanrei-comp-field-label-typescale-font-size), 1px) + var(--tanrei-comp-field-label-gap));
   }
   /* A Field around a filled box: the box floats the Field's label (not hidden) in it, and is then as high as a filled
      box with a label — which the box's own rule cannot know, its label being the Field's. The Field keeps what that
      adds above the box. */
   :where(tanrei-field):where(:not(:defined)):where(:has(> :is(tanrei-color-input, tanrei-combobox, tanrei-number-input, tanrei-select, tanrei-text-input)[variant='filled'])) {
     --_cloak-box: var(--tanrei-comp-input-box-container-height-medium);
-    --_cloak-labelled: calc(2 * var(--tanrei-comp-input-box-container-padding-block-with-label-medium) + round(nearest, var(--tanrei-comp-input-box-label-floated-typescale-medium-line-height-ratio) * var(--tanrei-comp-input-box-label-floated-typescale-medium-font-size), 1px) + round(nearest, var(--tanrei-comp-input-box-input-typescale-medium-line-height-ratio) * var(--tanrei-comp-input-box-input-typescale-medium-font-size), 1px));
+    --_cloak-labelled: calc(2 * var(--tanrei-comp-input-box-container-padding-block-with-label-medium) + round(nearest, var(--tanrei-comp-input-box-label-floated-typescale-medium-line-height) * var(--tanrei-comp-input-box-label-floated-typescale-medium-font-size), 1px) + round(nearest, var(--tanrei-comp-input-box-input-typescale-medium-line-height) * var(--tanrei-comp-input-box-input-typescale-medium-font-size), 1px));
   }
   :where(tanrei-field):where(:not(:defined)):where(:has(> :is(tanrei-color-input, tanrei-combobox, tanrei-number-input, tanrei-select, tanrei-text-input)[variant='filled'][size='small'])) {
     --_cloak-box: var(--tanrei-comp-input-box-container-height-small);
-    --_cloak-labelled: calc(2 * var(--tanrei-comp-input-box-container-padding-block-with-label-small) + round(nearest, var(--tanrei-comp-input-box-label-floated-typescale-small-line-height-ratio) * var(--tanrei-comp-input-box-label-floated-typescale-small-font-size), 1px) + round(nearest, var(--tanrei-comp-input-box-input-typescale-small-line-height-ratio) * var(--tanrei-comp-input-box-input-typescale-small-font-size), 1px));
+    --_cloak-labelled: calc(2 * var(--tanrei-comp-input-box-container-padding-block-with-label-small) + round(nearest, var(--tanrei-comp-input-box-label-floated-typescale-small-line-height) * var(--tanrei-comp-input-box-label-floated-typescale-small-font-size), 1px) + round(nearest, var(--tanrei-comp-input-box-input-typescale-small-line-height) * var(--tanrei-comp-input-box-input-typescale-small-font-size), 1px));
   }
   :where(tanrei-field):where(:not(:defined)):where(:has(> :is(tanrei-color-input, tanrei-combobox, tanrei-number-input, tanrei-select, tanrei-text-input)[variant='filled'][size='large'])) {
     --_cloak-box: var(--tanrei-comp-input-box-container-height-large);
-    --_cloak-labelled: calc(2 * var(--tanrei-comp-input-box-container-padding-block-with-label-large) + round(nearest, var(--tanrei-comp-input-box-label-floated-typescale-large-line-height-ratio) * var(--tanrei-comp-input-box-label-floated-typescale-large-font-size), 1px) + round(nearest, var(--tanrei-comp-input-box-input-typescale-large-line-height-ratio) * var(--tanrei-comp-input-box-input-typescale-large-font-size), 1px));
+    --_cloak-labelled: calc(2 * var(--tanrei-comp-input-box-container-padding-block-with-label-large) + round(nearest, var(--tanrei-comp-input-box-label-floated-typescale-large-line-height) * var(--tanrei-comp-input-box-label-floated-typescale-large-font-size), 1px) + round(nearest, var(--tanrei-comp-input-box-input-typescale-large-line-height) * var(--tanrei-comp-input-box-input-typescale-large-font-size), 1px));
   }
   :where(tanrei-field):where(:not(:defined)):where([label]:not([label=''], [label-hidden])):where(:has(> :is(tanrei-color-input, tanrei-combobox, tanrei-number-input, tanrei-select, tanrei-text-input)[variant='filled']:not([label]:not([label=''])))) {
     padding-block-start: calc(max(var(--_cloak-box), var(--_cloak-labelled)) - var(--_cloak-box));
   }
   :where(tanrei-chip-field, tanrei-color-field, tanrei-combobox-field, tanrei-field, tanrei-number-field, tanrei-one-time-code-field, tanrei-select-field, tanrei-slider-field, tanrei-text-field):where(:not(:defined)):where([supporting-text]:not([supporting-text='']), [error][error-text]:not([error-text='']), [counter], [count-text]:not([count-text=''])) {
-    padding-block-end: calc(var(--tanrei-comp-field-supporting-text-gap) + round(nearest, var(--tanrei-comp-field-supporting-text-typescale-line-height-ratio) * var(--tanrei-comp-field-supporting-text-typescale-font-size), 1px));
+    padding-block-end: calc(var(--tanrei-comp-field-supporting-text-gap) + round(nearest, var(--tanrei-comp-field-supporting-text-typescale-line-height) * var(--tanrei-comp-field-supporting-text-typescale-font-size), 1px));
   }
   @container style(--tanrei-comp-field-error-text-placement: append) {
     :where(tanrei-chip-field, tanrei-color-field, tanrei-combobox-field, tanrei-field, tanrei-number-field, tanrei-one-time-code-field, tanrei-select-field, tanrei-slider-field, tanrei-text-field):where(:not(:defined)):where([supporting-text]:not([supporting-text=''])):where([error][error-text]:not([error-text=''])) {
-      padding-block-end: calc(var(--tanrei-comp-field-supporting-text-gap) + 2 * round(nearest, var(--tanrei-comp-field-supporting-text-typescale-line-height-ratio) * var(--tanrei-comp-field-supporting-text-typescale-font-size), 1px) + var(--tanrei-comp-field-error-text-gap));
+      padding-block-end: calc(var(--tanrei-comp-field-supporting-text-gap) + 2 * round(nearest, var(--tanrei-comp-field-supporting-text-typescale-line-height) * var(--tanrei-comp-field-supporting-text-typescale-font-size), 1px) + var(--tanrei-comp-field-error-text-gap));
     }
   }
 
@@ -341,13 +341,13 @@
      last control while the group is in error (the error text's gap, then one line). A checkbox group's checkbox that
      selects all of them stands first, a control like the others. */
   :where(tanrei-checkbox-group, tanrei-field-group, tanrei-radio-group):where(:not(:defined)):where([label]:not([label=''], [label-hidden])) {
-    --_cloak-rows: calc(round(nearest, var(--tanrei-comp-field-group-label-typescale-line-height-ratio) * var(--tanrei-comp-field-group-label-typescale-font-size), 1px) + var(--tanrei-comp-field-group-label-gap));
+    --_cloak-rows: calc(round(nearest, var(--tanrei-comp-field-group-label-typescale-line-height) * var(--tanrei-comp-field-group-label-typescale-font-size), 1px) + var(--tanrei-comp-field-group-label-gap));
   }
   :where(tanrei-checkbox-group, tanrei-field-group, tanrei-radio-group):where(:not(:defined)):where([supporting-text]:not([supporting-text=''])) {
-    --_cloak-rows: calc(round(nearest, var(--tanrei-comp-field-group-supporting-text-typescale-line-height-ratio) * var(--tanrei-comp-field-group-supporting-text-typescale-font-size), 1px) + var(--tanrei-comp-field-group-label-gap));
+    --_cloak-rows: calc(round(nearest, var(--tanrei-comp-field-group-supporting-text-typescale-line-height) * var(--tanrei-comp-field-group-supporting-text-typescale-font-size), 1px) + var(--tanrei-comp-field-group-label-gap));
   }
   :where(tanrei-checkbox-group, tanrei-field-group, tanrei-radio-group):where(:not(:defined)):where([label]:not([label=''], [label-hidden])):where([supporting-text]:not([supporting-text=''])) {
-    --_cloak-rows: calc(round(nearest, var(--tanrei-comp-field-group-label-typescale-line-height-ratio) * var(--tanrei-comp-field-group-label-typescale-font-size), 1px) + var(--tanrei-comp-field-group-supporting-text-gap) + round(nearest, var(--tanrei-comp-field-group-supporting-text-typescale-line-height-ratio) * var(--tanrei-comp-field-group-supporting-text-typescale-font-size), 1px) + var(--tanrei-comp-field-group-label-gap));
+    --_cloak-rows: calc(round(nearest, var(--tanrei-comp-field-group-label-typescale-line-height) * var(--tanrei-comp-field-group-label-typescale-font-size), 1px) + var(--tanrei-comp-field-group-supporting-text-gap) + round(nearest, var(--tanrei-comp-field-group-supporting-text-typescale-line-height) * var(--tanrei-comp-field-group-supporting-text-typescale-font-size), 1px) + var(--tanrei-comp-field-group-label-gap));
   }
   :where(tanrei-checkbox-group, tanrei-field-group, tanrei-radio-group):where(:not(:defined)):where([label]:not([label=''], [label-hidden]), [supporting-text]:not([supporting-text=''])) {
     padding-block-start: var(--_cloak-rows);
@@ -359,7 +359,7 @@
     padding-block-start: calc(var(--_cloak-rows) + var(--tanrei-comp-checkbox-container-size) + var(--tanrei-comp-field-group-gap-controls));
   }
   :where(tanrei-checkbox-group, tanrei-field-group, tanrei-radio-group):where(:not(:defined)):where([error][error-text]:not([error-text=''])) {
-    padding-block-end: calc(var(--tanrei-comp-field-group-error-text-gap) + round(nearest, var(--tanrei-comp-field-group-supporting-text-typescale-line-height-ratio) * var(--tanrei-comp-field-group-supporting-text-typescale-font-size), 1px));
+    padding-block-end: calc(var(--tanrei-comp-field-group-error-text-gap) + round(nearest, var(--tanrei-comp-field-group-supporting-text-typescale-line-height) * var(--tanrei-comp-field-group-supporting-text-typescale-font-size), 1px));
   }
   :where(tanrei-one-time-code-input:not(:defined)) {
     min-block-size: var(--tanrei-comp-one-time-code-input-container-height);
@@ -441,15 +441,15 @@
     line-height: 0;
   }
   :where(tanrei-stepper:not(:defined)) {
-    --_cloak-step: calc(2 * var(--tanrei-comp-stepper-container-padding) + var(--tanrei-comp-stepper-marker-size) + var(--tanrei-comp-stepper-marker-gap) + round(nearest, var(--tanrei-comp-stepper-label-typescale-line-height-ratio) * var(--tanrei-comp-stepper-label-typescale-font-size), 1px));
-    --_cloak-step-described: calc(var(--_cloak-step) + var(--tanrei-comp-stepper-description-gap) + round(nearest, var(--tanrei-comp-stepper-description-typescale-line-height-ratio) * var(--tanrei-comp-stepper-description-typescale-font-size), 1px));
+    --_cloak-step: calc(2 * var(--tanrei-comp-stepper-container-padding) + var(--tanrei-comp-stepper-marker-size) + var(--tanrei-comp-stepper-marker-gap) + round(nearest, var(--tanrei-comp-stepper-label-typescale-line-height) * var(--tanrei-comp-stepper-label-typescale-font-size), 1px));
+    --_cloak-step-described: calc(var(--_cloak-step) + var(--tanrei-comp-stepper-description-gap) + round(nearest, var(--tanrei-comp-stepper-description-typescale-line-height) * var(--tanrei-comp-stepper-description-typescale-font-size), 1px));
     min-block-size: var(--_cloak-step);
   }
   :where(tanrei-stepper[layout='vertical']:not(:defined)) {
     flex-direction: column;
-    --_cloak-step: calc(2 * var(--tanrei-comp-stepper-container-padding) + max(var(--tanrei-comp-stepper-marker-size), round(nearest, var(--tanrei-comp-stepper-label-typescale-line-height-ratio) * var(--tanrei-comp-stepper-label-typescale-font-size), 1px)));
-    --_cloak-step-label: calc(round(nearest, var(--tanrei-comp-stepper-label-typescale-line-height-ratio) * var(--tanrei-comp-stepper-label-typescale-font-size), 1px));
-    --_cloak-step-description: calc(var(--tanrei-comp-stepper-description-gap) + round(nearest, var(--tanrei-comp-stepper-description-typescale-line-height-ratio) * var(--tanrei-comp-stepper-description-typescale-font-size), 1px));
+    --_cloak-step: calc(2 * var(--tanrei-comp-stepper-container-padding) + max(var(--tanrei-comp-stepper-marker-size), round(nearest, var(--tanrei-comp-stepper-label-typescale-line-height) * var(--tanrei-comp-stepper-label-typescale-font-size), 1px)));
+    --_cloak-step-label: calc(round(nearest, var(--tanrei-comp-stepper-label-typescale-line-height) * var(--tanrei-comp-stepper-label-typescale-font-size), 1px));
+    --_cloak-step-description: calc(var(--tanrei-comp-stepper-description-gap) + round(nearest, var(--tanrei-comp-stepper-description-typescale-line-height) * var(--tanrei-comp-stepper-description-typescale-font-size), 1px));
     /* The text starts half of what the marker is higher than the label's line below the top, so that the marker is
        centred on that line: the text is then (marker + line) / 2 high to the end of the label's line. */
     --_cloak-step-described: calc(2 * var(--tanrei-comp-stepper-container-padding) + max(var(--tanrei-comp-stepper-marker-size), var(--_cloak-step-label) + var(--_cloak-step-description), (var(--tanrei-comp-stepper-marker-size) + var(--_cloak-step-label)) / 2 + var(--_cloak-step-description)));
@@ -457,10 +457,10 @@
   :where(tanrei-stepper[layout='compact']:not(:defined)) {
     --_cloak-step: initial;
     --_cloak-step-described: initial;
-    min-block-size: calc(var(--tanrei-comp-stepper-bar-thickness) + round(nearest, var(--tanrei-comp-stepper-label-typescale-line-height-ratio) * var(--tanrei-comp-stepper-label-typescale-font-size), 1px));
+    min-block-size: calc(var(--tanrei-comp-stepper-bar-thickness) + round(nearest, var(--tanrei-comp-stepper-label-typescale-line-height) * var(--tanrei-comp-stepper-label-typescale-font-size), 1px));
   }
   :where(tanrei-stepper[layout='compact'][position-text]:not([position-text='']):not(:defined)) {
-    min-block-size: calc(var(--tanrei-comp-stepper-bar-thickness) + var(--tanrei-comp-stepper-position-gap) + round(nearest, var(--tanrei-comp-stepper-position-typescale-line-height-ratio) * var(--tanrei-comp-stepper-position-typescale-font-size), 1px) + round(nearest, var(--tanrei-comp-stepper-label-typescale-line-height-ratio) * var(--tanrei-comp-stepper-label-typescale-font-size), 1px));
+    min-block-size: calc(var(--tanrei-comp-stepper-bar-thickness) + var(--tanrei-comp-stepper-position-gap) + round(nearest, var(--tanrei-comp-stepper-position-typescale-line-height) * var(--tanrei-comp-stepper-position-typescale-font-size), 1px) + round(nearest, var(--tanrei-comp-stepper-label-typescale-line-height) * var(--tanrei-comp-stepper-label-typescale-font-size), 1px));
   }
   :where(tanrei-stepper-step):where(:not(:defined):not([hidden])) {
     display: block;
@@ -483,11 +483,11 @@
     line-height: 0;
   }
   :where(tanrei-snackbar:not([popover]):not(:defined)) {
-    --_cloak-message: calc(round(nearest, var(--tanrei-comp-snackbar-supporting-text-typescale-line-height-ratio) * var(--tanrei-comp-snackbar-supporting-text-typescale-font-size), 1px));
+    --_cloak-message: calc(round(nearest, var(--tanrei-comp-snackbar-supporting-text-typescale-line-height) * var(--tanrei-comp-snackbar-supporting-text-typescale-font-size), 1px));
     min-block-size: max(var(--tanrei-comp-snackbar-container-min-height), max(var(--tanrei-comp-snackbar-container-padding-block), (var(--tanrei-comp-snackbar-container-min-height) - var(--_cloak-message)) / 2) + var(--_cloak-message) + var(--tanrei-comp-snackbar-container-padding-block));
   }
   :where(tanrei-snackbar[headline]:not([headline='']):not([popover]):not(:defined)) {
-    --_cloak-title: calc(round(nearest, var(--tanrei-comp-snackbar-title-typescale-line-height-ratio) * var(--tanrei-comp-snackbar-title-typescale-font-size), 1px));
+    --_cloak-title: calc(round(nearest, var(--tanrei-comp-snackbar-title-typescale-line-height) * var(--tanrei-comp-snackbar-title-typescale-font-size), 1px));
     min-block-size: max(var(--tanrei-comp-snackbar-container-min-height), max(var(--tanrei-comp-snackbar-container-padding-block), (var(--tanrei-comp-snackbar-container-min-height) - var(--_cloak-title)) / 2) + var(--_cloak-title) + var(--tanrei-comp-snackbar-title-gap) + var(--_cloak-message) + var(--tanrei-comp-snackbar-container-padding-block));
   }
 
@@ -502,19 +502,19 @@
   }
   :where(tanrei-swatch:not(:defined)) {
     --_cloak-side: var(--tanrei-comp-swatch-container-size-medium);
-    --_cloak-label: calc(round(nearest, var(--tanrei-comp-swatch-label-typescale-medium-line-height-ratio) * var(--tanrei-comp-swatch-label-typescale-medium-font-size), 1px));
-    --_cloak-supporting: calc(round(nearest, var(--tanrei-comp-swatch-supporting-text-typescale-medium-line-height-ratio) * var(--tanrei-comp-swatch-supporting-text-typescale-medium-font-size), 1px));
+    --_cloak-label: calc(round(nearest, var(--tanrei-comp-swatch-label-typescale-medium-line-height) * var(--tanrei-comp-swatch-label-typescale-medium-font-size), 1px));
+    --_cloak-supporting: calc(round(nearest, var(--tanrei-comp-swatch-supporting-text-typescale-medium-line-height) * var(--tanrei-comp-swatch-supporting-text-typescale-medium-font-size), 1px));
     min-block-size: var(--_cloak-side);
   }
   :where(tanrei-swatch[size='small']:not(:defined)) {
     --_cloak-side: var(--tanrei-comp-swatch-container-size-small);
-    --_cloak-label: calc(round(nearest, var(--tanrei-comp-swatch-label-typescale-small-line-height-ratio) * var(--tanrei-comp-swatch-label-typescale-small-font-size), 1px));
-    --_cloak-supporting: calc(round(nearest, var(--tanrei-comp-swatch-supporting-text-typescale-small-line-height-ratio) * var(--tanrei-comp-swatch-supporting-text-typescale-small-font-size), 1px));
+    --_cloak-label: calc(round(nearest, var(--tanrei-comp-swatch-label-typescale-small-line-height) * var(--tanrei-comp-swatch-label-typescale-small-font-size), 1px));
+    --_cloak-supporting: calc(round(nearest, var(--tanrei-comp-swatch-supporting-text-typescale-small-line-height) * var(--tanrei-comp-swatch-supporting-text-typescale-small-font-size), 1px));
   }
   :where(tanrei-swatch[size='large']:not(:defined)) {
     --_cloak-side: var(--tanrei-comp-swatch-container-size-large);
-    --_cloak-label: calc(round(nearest, var(--tanrei-comp-swatch-label-typescale-large-line-height-ratio) * var(--tanrei-comp-swatch-label-typescale-large-font-size), 1px));
-    --_cloak-supporting: calc(round(nearest, var(--tanrei-comp-swatch-supporting-text-typescale-large-line-height-ratio) * var(--tanrei-comp-swatch-supporting-text-typescale-large-font-size), 1px));
+    --_cloak-label: calc(round(nearest, var(--tanrei-comp-swatch-label-typescale-large-line-height) * var(--tanrei-comp-swatch-label-typescale-large-font-size), 1px));
+    --_cloak-supporting: calc(round(nearest, var(--tanrei-comp-swatch-supporting-text-typescale-large-line-height) * var(--tanrei-comp-swatch-supporting-text-typescale-large-font-size), 1px));
   }
   :where(tanrei-swatch:not([label-hidden], [decorative]):not(:defined)):where([label]:not([label=''])) {
     min-block-size: max(var(--_cloak-side), var(--_cloak-label));
@@ -534,7 +534,7 @@
     line-height: 0;
   }
   :where(tanrei-embedded-text-input:not(:defined)) {
-    min-block-size: calc(round(nearest, var(--tanrei-comp-embedded-text-input-input-typescale-line-height-ratio) * var(--tanrei-comp-embedded-text-input-input-typescale-font-size), 1px));
+    min-block-size: calc(round(nearest, var(--tanrei-comp-embedded-text-input-input-typescale-line-height) * var(--tanrei-comp-embedded-text-input-input-typescale-font-size), 1px));
   }
 
   /* An element the page sizes — a scroll area, a split view: the box it will be (a block; a scroll area a column that
@@ -607,7 +607,7 @@
     line-height: 0;
   }
   :where(tanrei-chat-composer:not([layout='stacked']):not(:defined)) {
-    min-block-size: max(var(--tanrei-comp-chat-composer-container-height), round(nearest, var(--tanrei-comp-embedded-text-input-input-typescale-line-height-ratio) * var(--tanrei-comp-embedded-text-input-input-typescale-font-size), 1px) + 2 * var(--tanrei-comp-chat-composer-input-padding-block) + 2 * var(--tanrei-comp-chat-composer-container-padding-block));
+    min-block-size: max(var(--tanrei-comp-chat-composer-container-height), round(nearest, var(--tanrei-comp-embedded-text-input-input-typescale-line-height) * var(--tanrei-comp-embedded-text-input-input-typescale-font-size), 1px) + 2 * var(--tanrei-comp-chat-composer-input-padding-block) + 2 * var(--tanrei-comp-chat-composer-container-padding-block));
   }
 
   /* A carousel: its row of items, and the controls row under it where it draws one — an indicator, or the playback

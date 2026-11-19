@@ -6,7 +6,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import AxeBuilder from '@axe-core/playwright';
 import { type Page, expect, test } from '@playwright/test';
-import { type Fixture, loadSpec, mountFixtures, resolveColor, resolveToken, tabTo } from '../../test/harness.js';
+import { type Fixture, loadSpec, mountFixtures, resolveColor, resolveToken, tabTo, withoutLineStep } from '../../test/harness.js';
 import { drawnOpticalSize, opticalSize } from '../../test/icons.js';
 import { compounds, functions, hasForAnother, list } from '../../test/selectors.js';
 import { fixturePicture } from '../../test/pictures.js';
@@ -77,7 +77,7 @@ async function textStyle(page: P, selector: string, role: string) {
     (el, [r, keys]) => {
       const pick = (e: Element) => Object.fromEntries(keys.map((k) => [k, (getComputedStyle(e) as unknown as Record<string, string>)[k].replaceAll('"', '').replace(/^normal$/, '0px')]));
       const probe = document.createElement('span');
-      probe.style.cssText = `font: var(--tanrei-${r}-font-weight) var(--tanrei-${r}-font-size)/var(--tanrei-${r}-line-height) var(--tanrei-${r}-font-family); letter-spacing: var(--tanrei-${r}-letter-spacing)`;
+      probe.style.cssText = `font: var(--tanrei-${r}-font-weight) var(--tanrei-${r}-font-size)/round(nearest, var(--tanrei-${r}-line-height) * 1em, 1px) var(--tanrei-${r}-font-family); letter-spacing: var(--tanrei-${r}-letter-spacing)`;
       document.body.append(probe);
       const out = { element: pick(el), role: pick(probe) };
       probe.remove();
@@ -173,7 +173,7 @@ test.describe('the stylesheet', () => {
   });
 
   test('every value is a token: no literal color, length, duration or opacity', () => {
-    const body = read('src/styles/prose.css').replace(/\/\*[\s\S]*?\*\//g, '');
+    const body = withoutLineStep(read('src/styles/prose.css').replace(/\/\*[\s\S]*?\*\//g, ''));
     const literals = [...body.matchAll(/:\s*([^;{}]+);/g)]
       .map((m) => m[1].replace(/var\([^()]*(\([^()]*\))*[^()]*\)/g, '').replace(/calc\(|\)/g, ''))
       .flatMap((value) => value.match(/#[0-9a-f]{3,8}\b|\brgba?\(|\bhsl|\b\d*\.?\d+(px|rem|em|ms|s)\b/gi) ?? []);
@@ -709,7 +709,7 @@ test.describe('what is not text', () => {
       const inherited = getComputedStyle(document.querySelector('.tanrei-prose')!);
       const control = document.createElement('div');
       control.id = 'control';
-      control.style.cssText = `inline-size: 720px; font: var(--tanrei-comp-prose-text-typescale-medium-font-weight) var(--tanrei-comp-prose-text-typescale-medium-font-size)/var(--tanrei-comp-prose-text-typescale-medium-line-height) var(--tanrei-comp-prose-text-typescale-medium-font-family); letter-spacing: var(--tanrei-comp-prose-text-typescale-medium-letter-spacing); overflow-wrap: break-word; color: ${inherited.color}`;
+      control.style.cssText = `inline-size: 720px; font: var(--tanrei-comp-prose-text-typescale-medium-font-weight) var(--tanrei-comp-prose-text-typescale-medium-font-size)/round(nearest, var(--tanrei-comp-prose-text-typescale-medium-line-height) * 1em, 1px) var(--tanrei-comp-prose-text-typescale-medium-font-family); letter-spacing: var(--tanrei-comp-prose-text-typescale-medium-letter-spacing); overflow-wrap: break-word; color: ${inherited.color}`;
       control.innerHTML = `<tanrei-card id="c-card">${html}</tanrei-card><div id="c-plain">${html}</div>`;
       document.body.append(control);
     }, inside);

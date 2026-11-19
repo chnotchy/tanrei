@@ -72,13 +72,13 @@
   :where(tanrei-app-bar:not(:defined))::before {
     content: attr(headline);
     font:
-      var(--tanrei-comp-app-bar-title-typescale-small-font-weight) var(--tanrei-comp-app-bar-title-typescale-small-font-size)/var(--tanrei-comp-app-bar-title-typescale-small-line-height)
+      var(--tanrei-comp-app-bar-title-typescale-small-font-weight) var(--tanrei-comp-app-bar-title-typescale-small-font-size)/round(nearest, var(--tanrei-comp-app-bar-title-typescale-small-line-height) * 1em, 1px)
       var(--tanrei-comp-app-bar-title-typescale-small-font-family);
   }
   :where(tanrei-app-bar[headline]:not([headline='']):not(:defined))::after {
     content: attr(subtitle);
     font:
-      var(--tanrei-comp-app-bar-subtitle-typescale-small-font-weight) var(--tanrei-comp-app-bar-subtitle-typescale-small-font-size)/var(--tanrei-comp-app-bar-subtitle-typescale-small-line-height)
+      var(--tanrei-comp-app-bar-subtitle-typescale-small-font-weight) var(--tanrei-comp-app-bar-subtitle-typescale-small-font-size)/round(nearest, var(--tanrei-comp-app-bar-subtitle-typescale-small-line-height) * 1em, 1px)
       var(--tanrei-comp-app-bar-subtitle-typescale-small-font-family);
   }
 
@@ -92,12 +92,12 @@
   }
   :where(tanrei-app-bar[size='large']:not(:defined))::before {
     font:
-      var(--tanrei-comp-app-bar-title-typescale-large-font-weight) var(--tanrei-comp-app-bar-title-typescale-large-font-size)/var(--tanrei-comp-app-bar-title-typescale-large-line-height)
+      var(--tanrei-comp-app-bar-title-typescale-large-font-weight) var(--tanrei-comp-app-bar-title-typescale-large-font-size)/round(nearest, var(--tanrei-comp-app-bar-title-typescale-large-line-height) * 1em, 1px)
       var(--tanrei-comp-app-bar-title-typescale-large-font-family);
   }
   :where(tanrei-app-bar[size='large'][headline]:not([headline='']):not(:defined))::after {
     font:
-      var(--tanrei-comp-app-bar-subtitle-typescale-large-font-weight) var(--tanrei-comp-app-bar-subtitle-typescale-large-font-size)/var(--tanrei-comp-app-bar-subtitle-typescale-large-line-height)
+      var(--tanrei-comp-app-bar-subtitle-typescale-large-font-weight) var(--tanrei-comp-app-bar-subtitle-typescale-large-font-size)/round(nearest, var(--tanrei-comp-app-bar-subtitle-typescale-large-line-height) * 1em, 1px)
       var(--tanrei-comp-app-bar-subtitle-typescale-large-font-family);
   }
   /* A large bar that is scrolled and follows nothing is drawn collapsed: its top row alone (APB-9). */
@@ -109,12 +109,12 @@
   }
   :where(tanrei-app-bar[size='large'][scrolled][scroll-target='none']:not(:defined))::before {
     font:
-      var(--tanrei-comp-app-bar-title-typescale-small-font-weight) var(--tanrei-comp-app-bar-title-typescale-small-font-size)/var(--tanrei-comp-app-bar-title-typescale-small-line-height)
+      var(--tanrei-comp-app-bar-title-typescale-small-font-weight) var(--tanrei-comp-app-bar-title-typescale-small-font-size)/round(nearest, var(--tanrei-comp-app-bar-title-typescale-small-line-height) * 1em, 1px)
       var(--tanrei-comp-app-bar-title-typescale-small-font-family);
   }
   :where(tanrei-app-bar[size='large'][scrolled][scroll-target='none'][headline]:not([headline='']):not(:defined))::after {
     font:
-      var(--tanrei-comp-app-bar-subtitle-typescale-small-font-weight) var(--tanrei-comp-app-bar-subtitle-typescale-small-font-size)/var(--tanrei-comp-app-bar-subtitle-typescale-small-line-height)
+      var(--tanrei-comp-app-bar-subtitle-typescale-small-font-weight) var(--tanrei-comp-app-bar-subtitle-typescale-small-font-size)/round(nearest, var(--tanrei-comp-app-bar-subtitle-typescale-small-line-height) * 1em, 1px)
       var(--tanrei-comp-app-bar-subtitle-typescale-small-font-family);
   }
 }

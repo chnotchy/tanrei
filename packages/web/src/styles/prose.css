@@ -89,7 +89,7 @@
     --_prose-measure: calc(var(--tanrei-comp-prose-measure) * var(--_prose-text-size));
     --tanrei-text-emphasized-weight: var(--_prose-text-emphasized);
     font:
-      var(--_prose-text-font-weight) var(--_prose-text-font-size)/var(--_prose-text-line-height)
+      var(--_prose-text-font-weight) var(--_prose-text-font-size)/round(nearest, var(--_prose-text-line-height) * 1em, 1px)
       var(--_prose-text-font-family);
     letter-spacing: var(--_prose-text-tracking);
     /* PRS-19: a string with no break opportunity breaks anywhere rather than overflow. */
@@ -121,7 +121,7 @@
      lines longer than 35 characters). Inherited as a number, so every block of running text takes it; a heading,
      the lead and secondary text set their own style's font, and with it their own line height. */
   :where(.tanrei-prose):where(:lang(ja)) {
-    line-height: var(--tanrei-comp-prose-japanese-line-height);
+    line-height: round(nearest, var(--tanrei-comp-prose-japanese-line-height) * 1em, 1px);
   }
 
   /* ── What is prose's own (PRS-16) ──────────────────────────────────────────────────────────────────────────────── */
@@ -143,7 +143,7 @@
     :where(h1, .tanrei-prose-heading:has(> h1)) {
       --tanrei-text-emphasized-weight: var(--tanrei-sys-typescale-heading-1-font-weight-emphasized);
       font:
-        var(--tanrei-sys-typescale-heading-1-font-weight) var(--tanrei-sys-typescale-heading-1-font-size)/var(--tanrei-sys-typescale-heading-1-line-height)
+        var(--tanrei-sys-typescale-heading-1-font-weight) var(--tanrei-sys-typescale-heading-1-font-size)/round(nearest, var(--tanrei-sys-typescale-heading-1-line-height) * 1em, 1px)
         var(--tanrei-sys-typescale-heading-1-font-family);
       letter-spacing: var(--tanrei-sys-typescale-heading-1-letter-spacing);
       /* PRS-23: its own space before stays above a heading that is navigated to. */
@@ -152,7 +152,7 @@
     :where(h2, .tanrei-prose-heading:has(> h2)) {
       --tanrei-text-emphasized-weight: var(--tanrei-sys-typescale-heading-2-font-weight-emphasized);
       font:
-        var(--tanrei-sys-typescale-heading-2-font-weight) var(--tanrei-sys-typescale-heading-2-font-size)/var(--tanrei-sys-typescale-heading-2-line-height)
+        var(--tanrei-sys-typescale-heading-2-font-weight) var(--tanrei-sys-typescale-heading-2-font-size)/round(nearest, var(--tanrei-sys-typescale-heading-2-line-height) * 1em, 1px)
         var(--tanrei-sys-typescale-heading-2-font-family);
       letter-spacing: var(--tanrei-sys-typescale-heading-2-letter-spacing);
       scroll-margin-block-start: calc(var(--tanrei-comp-prose-heading-2-gap-before) + var(--tanrei-prose-scroll-offset, 0px));
@@ -160,7 +160,7 @@
     :where(h3, .tanrei-prose-heading:has(> h3)) {
       --tanrei-text-emphasized-weight: var(--tanrei-sys-typescale-heading-3-font-weight-emphasized);
       font:
-        var(--tanrei-sys-typescale-heading-3-font-weight) var(--tanrei-sys-typescale-heading-3-font-size)/var(--tanrei-sys-typescale-heading-3-line-height)
+        var(--tanrei-sys-typescale-heading-3-font-weight) var(--tanrei-sys-typescale-heading-3-font-size)/round(nearest, var(--tanrei-sys-typescale-heading-3-line-height) * 1em, 1px)
         var(--tanrei-sys-typescale-heading-3-font-family);
       letter-spacing: var(--tanrei-sys-typescale-heading-3-letter-spacing);
       scroll-margin-block-start: calc(var(--tanrei-comp-prose-heading-3-gap-before) + var(--tanrei-prose-scroll-offset, 0px));
@@ -168,7 +168,7 @@
     :where(h4, .tanrei-prose-heading:has(> h4)) {
       --tanrei-text-emphasized-weight: var(--tanrei-sys-typescale-heading-4-font-weight-emphasized);
       font:
-        var(--tanrei-sys-typescale-heading-4-font-weight) var(--tanrei-sys-typescale-heading-4-font-size)/var(--tanrei-sys-typescale-heading-4-line-height)
+        var(--tanrei-sys-typescale-heading-4-font-weight) var(--tanrei-sys-typescale-heading-4-font-size)/round(nearest, var(--tanrei-sys-typescale-heading-4-line-height) * 1em, 1px)
         var(--tanrei-sys-typescale-heading-4-font-family);
       letter-spacing: var(--tanrei-sys-typescale-heading-4-letter-spacing);
       scroll-margin-block-start: calc(var(--tanrei-comp-prose-heading-4-gap-before) + var(--tanrei-prose-scroll-offset, 0px));
@@ -176,7 +176,7 @@
     :where(h5, .tanrei-prose-heading:has(> h5)) {
       --tanrei-text-emphasized-weight: var(--tanrei-sys-typescale-heading-5-font-weight-emphasized);
       font:
-        var(--tanrei-sys-typescale-heading-5-font-weight) var(--tanrei-sys-typescale-heading-5-font-size)/var(--tanrei-sys-typescale-heading-5-line-height)
+        var(--tanrei-sys-typescale-heading-5-font-weight) var(--tanrei-sys-typescale-heading-5-font-size)/round(nearest, var(--tanrei-sys-typescale-heading-5-line-height) * 1em, 1px)
         var(--tanrei-sys-typescale-heading-5-font-family);
       letter-spacing: var(--tanrei-sys-typescale-heading-5-letter-spacing);
       scroll-margin-block-start: calc(var(--tanrei-comp-prose-heading-5-gap-before) + var(--tanrei-prose-scroll-offset, 0px));
@@ -184,7 +184,7 @@
     :where(h6, .tanrei-prose-heading:has(> h6)) {
       --tanrei-text-emphasized-weight: var(--tanrei-sys-typescale-heading-6-font-weight-emphasized);
       font:
-        var(--tanrei-sys-typescale-heading-6-font-weight) var(--tanrei-sys-typescale-heading-6-font-size)/var(--tanrei-sys-typescale-heading-6-line-height)
+        var(--tanrei-sys-typescale-heading-6-font-weight) var(--tanrei-sys-typescale-heading-6-font-size)/round(nearest, var(--tanrei-sys-typescale-heading-6-line-height) * 1em, 1px)
         var(--tanrei-sys-typescale-heading-6-font-family);
       letter-spacing: var(--tanrei-sys-typescale-heading-6-letter-spacing);
       scroll-margin-block-start: calc(var(--tanrei-comp-prose-heading-6-gap-before) + var(--tanrei-prose-scroll-offset, 0px));
@@ -210,7 +210,7 @@
     :where(.tanrei-prose-lead) {
       --tanrei-text-emphasized-weight: var(--tanrei-comp-prose-lead-typescale-font-weight-emphasized);
       font:
-        var(--tanrei-comp-prose-lead-typescale-font-weight) var(--tanrei-comp-prose-lead-typescale-font-size)/var(--tanrei-comp-prose-lead-typescale-line-height)
+        var(--tanrei-comp-prose-lead-typescale-font-weight) var(--tanrei-comp-prose-lead-typescale-font-size)/round(nearest, var(--tanrei-comp-prose-lead-typescale-line-height) * 1em, 1px)
         var(--tanrei-comp-prose-lead-typescale-font-family);
       letter-spacing: var(--tanrei-comp-prose-lead-typescale-letter-spacing);
     }
@@ -218,7 +218,7 @@
     :where(small, sup, [data-footnotes], .footnotes) {
       --tanrei-text-emphasized-weight: var(--_prose-small-emphasized);
       font:
-        var(--_prose-small-font-weight) var(--_prose-small-font-size)/var(--_prose-small-line-height)
+        var(--_prose-small-font-weight) var(--_prose-small-font-size)/round(nearest, var(--_prose-small-line-height) * 1em, 1px)
         var(--_prose-small-font-family);
       letter-spacing: var(--_prose-small-tracking);
     }
@@ -269,7 +269,7 @@
     }
     /* PRS-31, for a block of running text in Japanese inside a prose in another language. */
     :where(p:not(.tanrei-prose-lead), li, dd, blockquote):where(:lang(ja)) {
-      line-height: var(--tanrei-comp-prose-japanese-line-height);
+      line-height: round(nearest, var(--tanrei-comp-prose-japanese-line-height) * 1em, 1px);
     }
     /* Footnotes are secondary text: their blocks keep the line height of its style (PRS-14). */
     :where([data-footnotes], .footnotes) > :where(ol, ul) > :where(li),

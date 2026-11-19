@@ -157,7 +157,7 @@
     --_table-header-line-height: var(--tanrei-comp-table-header-text-typescale-medium-line-height);
     --_table-header-tracking: var(--tanrei-comp-table-header-text-typescale-medium-letter-spacing);
     /* The height of one line of a header's label, as a length: a sort mark is centred on the label's last line. */
-    --_table-header-leading: round(nearest, var(--tanrei-comp-table-header-text-typescale-medium-line-height-ratio) * var(--tanrei-comp-table-header-text-typescale-medium-font-size), 1px);
+    --_table-header-leading: round(nearest, var(--tanrei-comp-table-header-text-typescale-medium-line-height) * var(--tanrei-comp-table-header-text-typescale-medium-font-size), 1px);
     /* TBL-40, TBL-47: the least height of a header cell that is a sort button and of a row that holds a checkbox — the
        pointer's target, and the touch target for a coarse pointer (below), at every size. */
     --_table-sort-target: var(--tanrei-sys-target-pointer);
@@ -208,7 +208,7 @@
     --_table-header-font-weight: var(--tanrei-comp-table-header-text-typescale-small-font-weight);
     --_table-header-line-height: var(--tanrei-comp-table-header-text-typescale-small-line-height);
     --_table-header-tracking: var(--tanrei-comp-table-header-text-typescale-small-letter-spacing);
-    --_table-header-leading: round(nearest, var(--tanrei-comp-table-header-text-typescale-small-line-height-ratio) * var(--tanrei-comp-table-header-text-typescale-small-font-size), 1px);
+    --_table-header-leading: round(nearest, var(--tanrei-comp-table-header-text-typescale-small-line-height) * var(--tanrei-comp-table-header-text-typescale-small-font-size), 1px);
   }
   @media (pointer: coarse) {
     :where(tanrei-table) {
@@ -305,7 +305,7 @@
       padding: 0;
       padding-block-end: var(--tanrei-comp-table-caption-gap);
       font:
-        var(--tanrei-comp-table-caption-text-typescale-font-weight) var(--tanrei-comp-table-caption-text-typescale-font-size)/var(--tanrei-comp-table-caption-text-typescale-line-height)
+        var(--tanrei-comp-table-caption-text-typescale-font-weight) var(--tanrei-comp-table-caption-text-typescale-font-size)/round(nearest, var(--tanrei-comp-table-caption-text-typescale-line-height) * 1em, 1px)
         var(--tanrei-comp-table-caption-text-typescale-font-family);
       letter-spacing: var(--tanrei-comp-table-caption-text-typescale-letter-spacing);
       color: var(--tanrei-comp-table-caption-text-color);
@@ -344,7 +344,7 @@
       border: 0 solid var(--_table-line-color);
       border-block-end-width: calc(var(--_table-row-line) * var(--_table-cell-lines));
       font:
-        var(--_table-cell-font-weight) var(--_table-cell-font-size)/var(--_table-cell-line-height)
+        var(--_table-cell-font-weight) var(--_table-cell-font-size)/round(nearest, var(--_table-cell-line-height) * 1em, 1px)
         var(--_table-cell-font-family);
       letter-spacing: var(--_table-cell-tracking);
       /* TBL-4: figures of equal width, so the numbers of a column line up (after `font`, which resets it). */
@@ -376,7 +376,7 @@
       padding-block-end: calc(var(--_table-pad-block) + var(--_table-row-gap) - var(--_table-header-line) * var(--_table-header-cell-lines));
       border-block-end-width: calc(var(--_table-header-line) * var(--_table-header-cell-lines));
       font:
-        var(--_table-header-font-weight) var(--_table-header-font-size)/var(--_table-header-line-height)
+        var(--_table-header-font-weight) var(--_table-header-font-size)/round(nearest, var(--_table-header-line-height) * 1em, 1px)
         var(--_table-header-font-family);
       letter-spacing: var(--_table-header-tracking);
       font-variant-numeric: tabular-nums;
@@ -882,7 +882,7 @@
     border-block-start-width: var(--_table-status-line);
     background-color: var(--tanrei-comp-table-sticky-container-color);
     font:
-      var(--tanrei-comp-table-status-text-typescale-font-weight) var(--tanrei-comp-table-status-text-typescale-font-size)/var(--tanrei-comp-table-status-text-typescale-line-height)
+      var(--tanrei-comp-table-status-text-typescale-font-weight) var(--tanrei-comp-table-status-text-typescale-font-size)/round(nearest, var(--tanrei-comp-table-status-text-typescale-line-height) * 1em, 1px)
       var(--tanrei-comp-table-status-text-typescale-font-family);
     letter-spacing: var(--tanrei-comp-table-status-text-typescale-letter-spacing);
     color: var(--tanrei-comp-table-status-text-color);

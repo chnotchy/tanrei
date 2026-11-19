@@ -16,7 +16,7 @@ const t = (name: string) => unsafeCSS(T(name));
 /** A text role, used whole: the `font` shorthand composed from its longhands (styles/type.ts) and its letter spacing. */
 const role = (part: string) => unsafeCSS(`${typeface((longhand) => T(`${part}-typescale-${longhand}`))}\n    letter-spacing: ${T(`${part}-typescale-letter-spacing`)};`);
 /** The height of one line of a text role, for the boxes that are centred on a row's lines (FIT-2). */
-const line = (part: string) => `round(nearest, ${T(`${part}-typescale-line-height-ratio`)} * ${T(`${part}-typescale-font-size`)}, 1px)`;
+const line = (part: string) => `round(nearest, ${T(`${part}-typescale-line-height`)} * ${T(`${part}-typescale-font-size`)}, 1px)`;
 const FORMS = ['row', 'tile'] as const;
 type Form = (typeof FORMS)[number];
 const on = (form: Form) => `.item[data-form='${form}']`;

@@ -162,7 +162,7 @@ test.describe('the parts and their order', () => {
         await resolveToken(page, T(`title-typescale-${name}-font-size`)),
         await page.evaluate((t) => getComputedStyle(document.documentElement).getPropertyValue(t).trim(), T(`title-typescale-${name}-font-weight`)),
       ]);
-      near(await px(heading, 'line-height'), Math.round((await resolveToken(page, T(`title-typescale-${name}-font-size`))) * Number(await page.evaluate((t) => getComputedStyle(document.documentElement).getPropertyValue(t), T(`title-typescale-${name}-line-height-ratio`)))), 0.01);
+      near(await px(heading, 'line-height'), Math.round((await resolveToken(page, T(`title-typescale-${name}-font-size`))) * Number(await page.evaluate((t) => getComputedStyle(document.documentElement).getPropertyValue(t), T(`title-typescale-${name}-line-height`)))), 0.01);
       expect(await px(heading, 'font-size')).toBe(await resolveToken(page, `--tanrei-sys-typescale-${roles[name]}-font-size`));
       expect(await css(heading, 'color')).toBe(await resolveColor(page, T('title-color')));
     }
@@ -251,7 +251,7 @@ test.describe('the parts and their order', () => {
     expect(await px(eyebrow(page, 'japanese'), 'letter-spacing'), 'japanese eyebrow').toBe(await px(eyebrow(page, 'eyebrow'), 'letter-spacing'));
     const tracking = await page.evaluate(() => {
       const probe = document.createElement('div');
-      probe.style.cssText = 'font: var(--tanrei-sys-typescale-heading-1-font-weight) var(--tanrei-sys-typescale-heading-1-font-size)/var(--tanrei-sys-typescale-heading-1-line-height) var(--tanrei-sys-typescale-heading-1-font-family); letter-spacing: var(--tanrei-sys-typescale-heading-1-letter-spacing)';
+      probe.style.cssText = 'font: var(--tanrei-sys-typescale-heading-1-font-weight) var(--tanrei-sys-typescale-heading-1-font-size)/round(nearest, var(--tanrei-sys-typescale-heading-1-line-height) * 1em, 1px) var(--tanrei-sys-typescale-heading-1-font-family); letter-spacing: var(--tanrei-sys-typescale-heading-1-letter-spacing)';
       document.body.append(probe);
       const value = Number.parseFloat(getComputedStyle(probe).letterSpacing);
       probe.remove();
