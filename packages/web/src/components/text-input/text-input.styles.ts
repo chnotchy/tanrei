@@ -210,9 +210,9 @@ export const styles = css`
     /* Where the text ends: before the trailing icon and its gap, or at the text padding. */
     --_text-end: var(--_end);
     /* One line of a text style, as a length (a typescale's line height is a ratio of its size). */
-    --_floated-line: calc(var(--_floated-line-height) * var(--_floated-font-size));
-    --_label-line: calc(var(--_label-line-height) * var(--_label-font-size));
-    --_input-line: calc(var(--_input-line-height) * var(--_input-font-size));
+    --_floated-line: round(nearest, var(--_floated-line-height-ratio) * var(--_floated-font-size), 1px);
+    --_label-line: round(nearest, var(--_label-line-height-ratio) * var(--_label-font-size), 1px);
+    --_input-line: round(nearest, var(--_input-line-height-ratio) * var(--_input-font-size), 1px);
     /* TXI-51: where the first line of a multi-line field starts, from the container's top edge — where a single-line
        field of the same variant, size, label and text size draws its one line (TXI-16): centred in container.height, or
        padding-block below the edge where enlarged text makes the field taller than that. A fixed distance: no part of it

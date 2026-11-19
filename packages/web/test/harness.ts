@@ -2962,8 +2962,18 @@ export function writeRootTokens(vars: Record<string, string>): void {
   for (; own > 0; own--) root.setProperty(`--root-write-${(counter.tanreiRootWrites = (counter.tanreiRootWrites ?? 0) + 1)}`, '1');
 }
 export const rootTokens = (page: Page, vars: Record<string, string>): Promise<void> => page.evaluate(writeRootTokens, vars);
-/** The longhands of a type role that a component composes its `font` from (src/styles/type.ts). */
-const ROLE_LONGHANDS = ['font-weight', 'font-size', 'line-height', 'font-family'] as const;
+/**
+ * A stylesheet's text without the one length a check for written design values must let through, which is no design
+ * value: the whole pixel a role's line is rounded to where a box holds its lines away from the text
+ * (`round(nearest, <-line-height-ratio> * <-font-size>, 1px)`, src/styles/type.ts), as the role's `-line-height` is.
+ */
+export const withoutLineStep = (text: string): string => text.replace(/(-line-height-ratio[^;]*?), 1px\)/g, '$1)');
+
+/**
+ * The longhands of a type role that a component composes its `font` from (src/styles/type.ts), and the ratio a box that
+ * holds the role's lines away from the text multiplies its size by.
+ */
+const ROLE_LONGHANDS = ['font-weight', 'font-size', 'line-height', 'line-height-ratio', 'font-family'] as const;
 
 /**
  * A type role's tokens for a font written as the `font` shorthand's `[weight] size/line-height [family]`: the longhands a
@@ -2979,10 +2989,14 @@ export function typeRole(base: string, font: string): Record<string, string> {
   const parts = /^(?:(\d+)\s+)?(\S+)\/(\S+)(?:\s+(.+))?$/.exec(font.trim());
   if (!parts) throw new Error(`typeRole: "${font}" is not "[weight] size/line-height [family]"`);
   const [, weight, size, line, family] = parts;
+  // The ratio the role's boxes multiply its size by: the line given as a number, or a line in px over a size in px.
+  const ratio = /^[\d.]+$/.test(line) ? line : /^[\d.]+px$/.test(line) && /^[\d.]+px$/.test(size) ? String(Number.parseFloat(line) / Number.parseFloat(size)) : null;
+  if (ratio === null) throw new Error(`typeRole: "${font}" gives a line that is neither a number nor px over a size in px`);
   return {
     ...(weight ? { [`${base}-font-weight`]: weight } : {}),
     [`${base}-font-size`]: size,
     [`${base}-line-height`]: line,
+    [`${base}-line-height-ratio`]: ratio,
     ...(family ? { [`${base}-font-family`]: family } : {}),
   };
 }

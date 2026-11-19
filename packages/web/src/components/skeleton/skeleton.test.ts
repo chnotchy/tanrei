@@ -228,8 +228,8 @@ test.describe('skeleton', () => {
     await mount(page, [...of('text', 'text-lines', 'text-short', 'long-text'), fx('styled', { label: 'Loading', showDelay: 0 }, styled), fx('sized', { label: 'Loading', showDelay: 0 }, ph('data-lines="2" style="block-size: 100px"'))], { reducedMotion: true });
     const fill = await resolveColor(page, T('placeholder-color'));
     const last = await number(page, 'placeholder-last-line-inline-size');
-    const [size, lineHeight] = [await resolveToken(page, '--tanrei-sys-typescale-body-font-size'), await page.evaluate(() => Number(getComputedStyle(document.documentElement).getPropertyValue('--tanrei-sys-typescale-body-line-height')))];
-    const line = size * lineHeight;
+    const [size, lineHeight] = [await resolveToken(page, '--tanrei-sys-typescale-body-font-size'), await page.evaluate(() => Number(getComputedStyle(document.documentElement).getPropertyValue('--tanrei-sys-typescale-body-line-height-ratio')))];
+    const line = Math.round(size * lineHeight);
     // The verify: 3 lines of the body style (14 on 22) are 66 high, bars 14 high and 8 apart; 300 wide, the third bar is 180 long.
     const three = placeholders(page, 'text-lines').first();
     near((await rect(three)).height, 66, 'three lines of body text', 0.05);
@@ -277,7 +277,7 @@ test.describe('skeleton', () => {
       <div style="display: flex; gap: 12px">${ph('data-shape="block" id="share" style="flex: 1"')}<div style="block-size: 50px; inline-size: 60px"></div></div>
       ${ph('data-shape="block" id="ratio" style="aspect-ratio: 2"')}${ph('data-shape="block" id="lines" data-lines="5"')}${ph('data-shape="block" id="low" style="block-size: 6px"')}`;
     await mount(page, [...of('block', 'block-sized', 'block-line'), fx('layout', { label: 'Loading', showDelay: 0 }, layout)], { reducedMotion: true });
-    const line = (await resolveToken(page, '--tanrei-sys-typescale-body-font-size')) * (await page.evaluate(() => Number(getComputedStyle(document.documentElement).getPropertyValue('--tanrei-sys-typescale-body-line-height'))));
+    const line = Math.round((await resolveToken(page, '--tanrei-sys-typescale-body-font-size')) * (await page.evaluate(() => Number(getComputedStyle(document.documentElement).getPropertyValue('--tanrei-sys-typescale-body-line-height-ratio')))));
     const size = async (locator: Locator) => [(await rect(locator)).width, (await rect(locator)).height];
     const expectSize = async (locator: Locator, [width, height]: number[], message: string) => {
       const [w, h] = await size(locator);
@@ -311,7 +311,7 @@ test.describe('skeleton', () => {
       near(box.height, side, `${message}: block size`, 0.05);
     };
     await square(placeholders(page, 'circle').first(), 40, 'the block size is the side');
-    near(line, (await resolveToken(page, '--tanrei-sys-typescale-body-font-size')) * (await page.evaluate(() => Number(getComputedStyle(document.documentElement).getPropertyValue('--tanrei-sys-typescale-body-line-height')))), 'no size: one line box', 0.05);
+    near(line, Math.round((await resolveToken(page, '--tanrei-sys-typescale-body-font-size')) * (await page.evaluate(() => Number(getComputedStyle(document.documentElement).getPropertyValue('--tanrei-sys-typescale-body-line-height-ratio'))))), 'no size: one line box', 0.05);
     await square(placeholders(page, 'circle-line').first(), line, 'no size: one line box, square');
     const inside = host(page, 'cases');
     await square(inside.locator('#by-inline'), 48, 'the inline size is the side');

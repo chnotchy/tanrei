@@ -14,8 +14,14 @@ import { type CSSResult, unsafeCSS } from 'lit';
  * name (`font-style`, `font-variant`, `font-feature-settings`, `font-variation-settings`, `font-stretch` …), so that a
  * label does not take an icon glyph's variation axes or a table cell's tabular figures from what holds it — as it always
  * did. The letter spacing is the fifth longhand of a role, read beside it (`font` never sets it).
+ *
+ * `-line-height` is the line box as a length — the size times the ratio, in `em` and rounded to a whole pixel — so a
+ * line is whole wherever it is drawn, at whatever size. A box that holds lines of a role away from where they are drawn
+ * cannot take that length (its `em` is the box's), so it multiplies the role's size by `-line-height-ratio`, the bare
+ * ratio, and rounds the same way: `round(nearest, <-line-height-ratio> * <-font-size>, 1px)`. The `font` shorthand
+ * reads only the first four.
  */
-export const TYPE_LONGHANDS = ['font-family', 'font-size', 'font-weight', 'line-height'] as const;
+export const TYPE_LONGHANDS = ['font-family', 'font-size', 'font-weight', 'line-height', 'line-height-ratio'] as const;
 export type TypeLonghand = (typeof TYPE_LONGHANDS)[number];
 
 /**

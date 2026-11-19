@@ -90,7 +90,7 @@ const on = (state: string) => `.control${state}`;
 const paint = (suffix: string, container = true) => `${container ? `\n    background: var(--_c${suffix});` : ''}
     color: var(--_o${suffix});`;
 /** A line of the message, and of the title: the controls and the glyph are centred on the text's first line (SNK-29). */
-const lineOf = (text: string) => `calc(${T(`${text}-typescale-line-height`)} * ${T(`${text}-typescale-font-size`)})`;
+const lineOf = (text: string) => `round(nearest, ${T(`${text}-typescale-line-height-ratio`)} * ${T(`${text}-typescale-font-size`)}, 1px)`;
 
 export const styles = css`
   :host {

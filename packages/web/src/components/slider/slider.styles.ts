@@ -38,7 +38,7 @@ const sizeBlock = (size: string, selector: string, fallback: string | null = nul
 export function INDICATOR_REACH(size: string): string {
   const name = /^[a-z0-9-]+$/.test(size) ? size : DEFAULT_SIZE;
   const handle = (CORE_SIZES as readonly string[]).includes(name) ? T(`handle-height-${name}`) : `var(${PREFIX}-handle-height-${name}, ${T(`handle-height-${DEFAULT_SIZE}`)})`;
-  const line = `${T('value-indicator-label-typescale-font-size')} * ${T('value-indicator-label-typescale-line-height')}`;
+  const line = `round(nearest, ${T('value-indicator-label-typescale-font-size')} * ${T('value-indicator-label-typescale-line-height-ratio')}, 1px)`;
   const indicator = `max(${T('value-indicator-container-height')}, ${line})`;
   return `max(0px, ${handle} / 2 + ${T('value-indicator-offset')} + ${indicator} - max(${T('container-size')}, ${handle}) / 2)`;
 }

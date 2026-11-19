@@ -79,8 +79,10 @@
   --sl-text-h4: var(--tanrei-sys-typescale-heading-4-font-size);
   --sl-text-h5: var(--tanrei-sys-typescale-heading-5-font-size);
   --sl-text-h6: var(--tanrei-sys-typescale-heading-6-font-size);
-  --sl-line-height: var(--tanrei-sys-typescale-body-large-line-height);
-  --sl-line-height-headings: var(--tanrei-sys-typescale-heading-1-line-height);
+  /* The framework multiplies these by a size of its own (`calc(var(--sl-line-height) * 1rem)`), so they are the bare
+     ratios, not the roles' line boxes. */
+  --sl-line-height: var(--tanrei-sys-typescale-body-large-line-height-ratio);
+  --sl-line-height-headings: var(--tanrei-sys-typescale-heading-1-line-height-ratio);
 
   --docs-radius-control: var(--tanrei-sys-shape-corner-small);
   --docs-radius-container: var(--tanrei-sys-shape-corner-medium);

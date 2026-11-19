@@ -7,7 +7,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { REPO_ROOT, rgba } from './model.js';
-import { typeFamily } from './pure.js';
+import { lineBox, typeFamily } from './pure.js';
 
 const DIR = 'tokens/fidelity';
 const REM = 16;
@@ -115,7 +115,7 @@ export function measureFidelity(model, { map, reference }) {
         // The step a role takes: named by the map where the reference decides otherwise, else the one rule (pure.js).
         const family = map.typescale.families?.[tanreiRole] ?? typeFamily(tanreiRole);
         expected = Number(expectedRaw); actual = token.value.fontWeight + (emphasized ? (model.tokens[`tanrei.sys.typescale.emphasis.${family}`]?.value ?? 0) : 0);
-      } else if (field === 'lineHeight') { expected = px(expectedRaw); actual = Math.round(token.value.fontSize.value * token.value.lineHeight * 100) / 100; }
+      } else if (field === 'lineHeight') { expected = px(expectedRaw); actual = lineBox(token.value.fontSize.value, token.value.lineHeight); }
       else { expected = Math.round(px(expectedRaw) * 1000) / 1000; actual = Math.round(token.value[field].value * 1000) / 1000; }
       if (String(expected) !== String(actual)) result.different.push({ ref: id, tanrei: `tanrei.sys.typescale.${tanreiRole}`, problems: [{ scheme: 'light', expected, actual }] });
       else result.equal += 1;
@@ -207,7 +207,7 @@ export function measureFidelity(model, { map, reference }) {
           const field = token.value[rule.field];
           if (rule.field === 'fontFamily') { expected = expectedRaw.replaceAll(/['"]/g, ''); actual = (Array.isArray(field) ? field[0] : field); }
           else if (rule.field === 'fontWeight') { expected = Number(expectedRaw); actual = field; }
-          else if (rule.field === 'lineHeight') { expected = px(expectedRaw); actual = Math.round(token.value.fontSize.value * field * 100) / 100; }
+          else if (rule.field === 'lineHeight') { expected = px(expectedRaw); actual = lineBox(token.value.fontSize.value, field); }
           else { expected = Math.round(px(expectedRaw) * 1000) / 1000; actual = Math.round(field.value * 1000) / 1000; }
         } else if (token.type === 'color') {
           const color = parseHex(String(expectedRaw));

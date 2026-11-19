@@ -3,6 +3,7 @@
 // the library and in consumers' files survive. Nothing in a Figma file is typed by hand.
 import { fontStack } from '../ir.js';
 import { CONFIG } from '../model.js';
+import { lineBox } from '../pure.js';
 
 const NS = CONFIG.namespace;
 const PREFIX = CONFIG.web.cssPrefix;
@@ -152,7 +153,7 @@ export function emitFigmaPlan(model) {
     fontFamilies: t.value.fontFamily,
     fontSize: t.value.fontSize.value,
     fontWeight: t.value.fontWeight,
-    lineHeightPx: round(t.value.fontSize.value * t.value.lineHeight),
+    lineHeightPx: lineBox(t.value.fontSize.value, t.value.lineHeight),
     letterSpacingPx: t.value.letterSpacing.value,
     description: t.description ?? '',
   }));

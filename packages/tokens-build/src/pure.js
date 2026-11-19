@@ -29,6 +29,14 @@ export const pascal = (parts) => {
   return c[0].toUpperCase() + c.slice(1);
 };
 
+// ── type ────────────────────────────────────────────────────────────────
+/**
+ * A role's line box in px: its size times its line height (a ratio, as DTCG writes it), rounded to a whole pixel. The
+ * ratio is a rounded fraction (16 / 12 is written 1.3333), so the bare product is 15.9996, a line no platform should
+ * draw: every platform's line is this number, and the web's `<role>-line-height` is the same rounding in CSS.
+ */
+export const lineBox = (size, ratio) => Math.round(size * ratio);
+
 // ── color helpers ───────────────────────────────────────────────────────
 export function rgba(color) {
   const [r, g, b] = color.components.map((c) => Math.round(c * 255));

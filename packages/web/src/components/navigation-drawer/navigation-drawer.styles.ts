@@ -104,8 +104,8 @@ export const AXES: readonly OpenAxis[] = [
 /** The icon column's width (the collapsed drawer's) and the drawer's inner padding. */
 const COLUMN = D('--_nvd-column');
 const PAD_INLINE = T('container-padding-inline');
-/** One line of the short label: its typescale's size times its line height (a number). */
-const SHORT_LINE = `calc(${T('collapsed-item-label-typescale-font-size')} * ${T('collapsed-item-label-typescale-line-height')})`;
+/** One line of the short label: its typescale's size times its line height ratio, on a whole pixel as the text's line is. */
+const SHORT_LINE = `round(nearest, ${T('collapsed-item-label-typescale-font-size')} * ${T('collapsed-item-label-typescale-line-height-ratio')}, 1px)`;
 const EXPAND = T('motion-expand-duration');
 const EXPAND_EASING = T('motion-expand-easing');
 /** The first half of the change of form, and the second (NVD-35). */

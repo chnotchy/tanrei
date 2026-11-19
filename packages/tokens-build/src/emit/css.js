@@ -156,7 +156,7 @@ export function declarations(token, tokens) {
     case 'typography': {
       if (token.alias) {
         const target = idToVar(token.alias);
-        return ['font-family', 'font-size', 'font-weight', 'font-weight-emphasized', 'letter-spacing', 'line-height'].map((p) => [
+        return ['font-family', 'font-size', 'font-weight', 'font-weight-emphasized', 'letter-spacing', 'line-height', 'line-height-ratio'].map((p) => [
           `${name}-${p}`,
           `var(${target}-${p})`,
         ]);
@@ -175,13 +175,24 @@ export function declarations(token, tokens) {
         [`${name}-font-weight`, String(v.fontWeight)],
         ...(isRole ? [[`${name}-font-weight-emphasized`, `calc(var(${name}-font-weight) + var(${PREFIX}-sys-typescale-emphasis-${typeFamily(token.path[2])}))`]] : []),
         [`${name}-letter-spacing`, tracking],
-        [`${name}-line-height`, String(v.lineHeight)],
+        [`${name}-line-height`, lineBox(v.lineHeight)],
+        [`${name}-line-height-ratio`, String(v.lineHeight)],
       ];
     }
     default:
       throw new Error(`css: unsupported token type "${token.type}" (${token.id})`);
   }
 }
+
+// A role's line box (`<role>-line-height`) is a length, never the bare ratio: the size times the ratio, rounded to a
+// whole pixel. A ratio is a rounded fraction (16 / 12 is written 1.3333), so the bare ratio draws a 12 px line
+// 15.9996 px tall; the browser lays that out on a fraction of a pixel, and every box below it lands between pixels.
+// In `em`, the length is taken where the text is drawn, from the size that element has: it follows a size a product
+// sets on one element, the reader's text size and the type dial, as the ratio did, and it is whole at every one of
+// them. `<role>-line-height-ratio` is the ratio itself, for arithmetic away from the text — a box that holds lines of
+// the role, `round(nearest, var(<role>-line-height-ratio) * var(<role>-font-size), 1px)`, or a framework that
+// multiplies a line height by a size of its own.
+const lineBox = (ratio) => `round(nearest, ${+ratio.toFixed(4)}em, 1px)`;
 
 // A pill: a radius of at least half the short side is clamped by the
 // browser, so a superellipse could only change its exponent and would flatten the caps where Figma's construction draws

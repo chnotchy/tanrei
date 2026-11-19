@@ -201,7 +201,7 @@ import { themeScript } from '@tanrei/web/theme-script';
 
 ## テキストスタイル
 
-テキストスタイルは階層で名付けられています（`heading-2` は `h2`、`body` は `p`、`label` はコントロール上のテキスト）。それぞれが、ひとまとまりの個別のカスタムプロパティです。`--tanrei-sys-typescale-<role>-font-family`、`-font-size`、`-font-weight`、`-line-height`、`-letter-spacing`、`-font-weight-emphasized` があります。ショートハンドのプロパティはありません。上の例のように、テキストを描くところで個別のプロパティから `font` を組み立ててください。スタイルを変えるときも、個別のプロパティを 1 つずつ変えます。`--tanrei-sys-typescale-body-font-size: 1rem` をルートか、ページの 1 つの要素や区画に設定すると、そのテキストの文字サイズだけが変わり、ほかは変わりません。次の 2 つの任意のスタイルシートを使うと、これらを要素に適用できます。
+テキストスタイルは階層で名付けられています（`heading-2` は `h2`、`body` は `p`、`label` はコントロール上のテキスト）。それぞれが、ひとまとまりの個別のカスタムプロパティです。`--tanrei-sys-typescale-<role>-font-family`、`-font-size`、`-font-weight`、`-line-height`、`-letter-spacing`、`-font-weight-emphasized` があります。ショートハンドのプロパティはありません。上の例のように、テキストを描くところで個別のプロパティから `font` を組み立ててください。スタイルを変えるときも、個別のプロパティを 1 つずつ変えます。`--tanrei-sys-typescale-body-font-size: 1rem` をルートか、ページの 1 つの要素や区画に設定すると、そのテキストの文字サイズだけが変わり、ほかは変わりません。`-line-height` は長さです。テキストを描くところで、文字サイズにロールの比率を掛けて整数ピクセルに丸めるので、行がピクセルの途中に来ることはなく、描かれる文字サイズに追従します。`-line-height-ratio` は丸める前の比率で、テキストから離れたところで計算するためのものです。`round(nearest, var(--tanrei-sys-typescale-body-line-height-ratio) * var(--tanrei-sys-typescale-body-font-size), 1px)` が本文 1 行の高さです。次の 2 つの任意のスタイルシートを使うと、これらを要素に適用できます。
 
 ```js
 import '@tanrei/web/text.css';   // .tanrei-text-<role>、.tanrei-text-emphasized

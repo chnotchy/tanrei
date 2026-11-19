@@ -16,9 +16,10 @@ export const styles = css`
     display: block;
     position: relative;
     min-inline-size: 0;
-    /* One line of the text style, as a length (a typescale's line height is a ratio of its size): what minRows and
-       maxRows count in (ETI-7), and the height of a single line. It grows with the text size (ETI-24). */
-    --_line: calc(${t('input-typescale-line-height')} * ${t('input-typescale-font-size')});
+    /* One line of the text style, as a length (its size times its line height ratio, on a whole pixel as the text's
+       line is): what minRows and maxRows count in (ETI-7), and the height of a single line. It grows with the text
+       size (ETI-24). */
+    --_line: round(nearest, ${t('input-typescale-line-height-ratio')} * ${t('input-typescale-font-size')}, 1px);
   }
 
   /* ETI-12: a press in an area at least a touch target high (a pointer target for a fine pointer) — the lines, and

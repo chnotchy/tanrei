@@ -64,21 +64,21 @@
     --_timeline-body-line-height: var(--tanrei-comp-timeline-body-typescale-medium-line-height);
     --_timeline-body-tracking: var(--tanrei-comp-timeline-body-typescale-medium-letter-spacing);
     --_timeline-body-emphasized: var(--tanrei-comp-timeline-body-typescale-medium-font-weight-emphasized);
-    --_timeline-body-line: calc(var(--tanrei-comp-timeline-body-typescale-medium-font-size) * var(--tanrei-comp-timeline-body-typescale-medium-line-height));
+    --_timeline-body-line: round(nearest, var(--tanrei-comp-timeline-body-typescale-medium-font-size) * var(--tanrei-comp-timeline-body-typescale-medium-line-height-ratio), 1px);
     --_timeline-title-font-family: var(--tanrei-comp-timeline-title-typescale-medium-font-family);
     --_timeline-title-font-size: var(--tanrei-comp-timeline-title-typescale-medium-font-size);
     --_timeline-title-font-weight: var(--tanrei-comp-timeline-title-typescale-medium-font-weight);
     --_timeline-title-line-height: var(--tanrei-comp-timeline-title-typescale-medium-line-height);
     --_timeline-title-tracking: var(--tanrei-comp-timeline-title-typescale-medium-letter-spacing);
     --_timeline-title-emphasized: var(--tanrei-comp-timeline-title-typescale-medium-font-weight-emphasized);
-    --_timeline-title-line: calc(var(--tanrei-comp-timeline-title-typescale-medium-font-size) * var(--tanrei-comp-timeline-title-typescale-medium-line-height));
+    --_timeline-title-line: round(nearest, var(--tanrei-comp-timeline-title-typescale-medium-font-size) * var(--tanrei-comp-timeline-title-typescale-medium-line-height-ratio), 1px);
     --_timeline-time-font-family: var(--tanrei-comp-timeline-time-typescale-medium-font-family);
     --_timeline-time-font-size: var(--tanrei-comp-timeline-time-typescale-medium-font-size);
     --_timeline-time-font-weight: var(--tanrei-comp-timeline-time-typescale-medium-font-weight);
     --_timeline-time-line-height: var(--tanrei-comp-timeline-time-typescale-medium-line-height);
     --_timeline-time-tracking: var(--tanrei-comp-timeline-time-typescale-medium-letter-spacing);
     --_timeline-time-emphasized: var(--tanrei-comp-timeline-time-typescale-medium-font-weight-emphasized);
-    --_timeline-time-line: calc(var(--tanrei-comp-timeline-time-typescale-medium-font-size) * var(--tanrei-comp-timeline-time-typescale-medium-line-height));
+    --_timeline-time-line: round(nearest, var(--tanrei-comp-timeline-time-typescale-medium-font-size) * var(--tanrei-comp-timeline-time-typescale-medium-line-height-ratio), 1px);
     /* TML-1, TML-6: the marker's box, which is also the marker column. */
     --_timeline-marker: var(--tanrei-comp-timeline-marker-height-medium);
     /* TML-2: the space between two events, which follows the system's density. */
@@ -107,21 +107,21 @@
     --_timeline-body-line-height: var(--tanrei-comp-timeline-body-typescale-large-line-height);
     --_timeline-body-tracking: var(--tanrei-comp-timeline-body-typescale-large-letter-spacing);
     --_timeline-body-emphasized: var(--tanrei-comp-timeline-body-typescale-large-font-weight-emphasized);
-    --_timeline-body-line: calc(var(--tanrei-comp-timeline-body-typescale-large-font-size) * var(--tanrei-comp-timeline-body-typescale-large-line-height));
+    --_timeline-body-line: round(nearest, var(--tanrei-comp-timeline-body-typescale-large-font-size) * var(--tanrei-comp-timeline-body-typescale-large-line-height-ratio), 1px);
     --_timeline-title-font-family: var(--tanrei-comp-timeline-title-typescale-large-font-family);
     --_timeline-title-font-size: var(--tanrei-comp-timeline-title-typescale-large-font-size);
     --_timeline-title-font-weight: var(--tanrei-comp-timeline-title-typescale-large-font-weight);
     --_timeline-title-line-height: var(--tanrei-comp-timeline-title-typescale-large-line-height);
     --_timeline-title-tracking: var(--tanrei-comp-timeline-title-typescale-large-letter-spacing);
     --_timeline-title-emphasized: var(--tanrei-comp-timeline-title-typescale-large-font-weight-emphasized);
-    --_timeline-title-line: calc(var(--tanrei-comp-timeline-title-typescale-large-font-size) * var(--tanrei-comp-timeline-title-typescale-large-line-height));
+    --_timeline-title-line: round(nearest, var(--tanrei-comp-timeline-title-typescale-large-font-size) * var(--tanrei-comp-timeline-title-typescale-large-line-height-ratio), 1px);
     --_timeline-time-font-family: var(--tanrei-comp-timeline-time-typescale-large-font-family);
     --_timeline-time-font-size: var(--tanrei-comp-timeline-time-typescale-large-font-size);
     --_timeline-time-font-weight: var(--tanrei-comp-timeline-time-typescale-large-font-weight);
     --_timeline-time-line-height: var(--tanrei-comp-timeline-time-typescale-large-line-height);
     --_timeline-time-tracking: var(--tanrei-comp-timeline-time-typescale-large-letter-spacing);
     --_timeline-time-emphasized: var(--tanrei-comp-timeline-time-typescale-large-font-weight-emphasized);
-    --_timeline-time-line: calc(var(--tanrei-comp-timeline-time-typescale-large-font-size) * var(--tanrei-comp-timeline-time-typescale-large-line-height));
+    --_timeline-time-line: round(nearest, var(--tanrei-comp-timeline-time-typescale-large-font-size) * var(--tanrei-comp-timeline-time-typescale-large-line-height-ratio), 1px);
     --_timeline-marker: var(--tanrei-comp-timeline-marker-height-large);
   }
   /* TML-10: the space before it is its container's (PRS-15) — prose's rhythm inside a prose, none of its own elsewhere. */

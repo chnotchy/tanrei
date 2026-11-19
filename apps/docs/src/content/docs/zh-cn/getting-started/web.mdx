@@ -201,7 +201,7 @@ import { themeScript } from '@tanrei/web/theme-script';
 
 ## 文本样式
 
-文本样式按层级命名（`heading-2` 对应 `h2`，`body` 对应 `p`，`label` 对应控件上的文字），每个样式都是一组单独的自定义属性：`--tanrei-sys-typescale-<role>-font-family`、`-font-size`、`-font-weight`、`-line-height`、`-letter-spacing` 和 `-font-weight-emphasized`。没有简写属性：像上面的例子那样，在绘制文本的地方用这些属性组合出 `font`；修改样式时也一次只改一个属性。在根元素上，或在页面的某个元素、某个区域上设置 `--tanrei-sys-typescale-body-font-size: 1rem`，只会改变那里文本的字号，其他一概不变。另有两份可选的样式表，可以替你把它们应用到元素上：
+文本样式按层级命名（`heading-2` 对应 `h2`，`body` 对应 `p`，`label` 对应控件上的文字），每个样式都是一组单独的自定义属性：`--tanrei-sys-typescale-<role>-font-family`、`-font-size`、`-font-weight`、`-line-height`、`-letter-spacing` 和 `-font-weight-emphasized`。没有简写属性：像上面的例子那样，在绘制文本的地方用这些属性组合出 `font`；修改样式时也一次只改一个属性。在根元素上，或在页面的某个元素、某个区域上设置 `--tanrei-sys-typescale-body-font-size: 1rem`，只会改变那里文本的字号，其他一概不变。`-line-height` 是一个长度：在绘制文本的地方，用字号乘以角色的比例，再取整到整像素，所以行不会落在两个像素之间，并且跟随绘制时的字号；`-line-height-ratio` 是未取整的比例，用于在文本之外做计算：`round(nearest, var(--tanrei-sys-typescale-body-line-height-ratio) * var(--tanrei-sys-typescale-body-font-size), 1px)` 就是一行正文的高度。另有两份可选的样式表，可以替你把它们应用到元素上：
 
 ```js
 import '@tanrei/web/text.css';   // .tanrei-text-<role>、.tanrei-text-emphasized

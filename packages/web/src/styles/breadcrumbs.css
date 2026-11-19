@@ -98,7 +98,7 @@
   /* ── A level (BRC-3): its label in the trail's text style; text until it has a destination ──────────────────── */
   :where(tanrei-breadcrumbs) > :where(a, span) {
     /* One line of the trail's text, as a length that a glyph — whose own font is the icon set's — can read. */
-    --_brc-line: calc(var(--tanrei-comp-breadcrumbs-label-typescale-font-size) * var(--tanrei-comp-breadcrumbs-label-typescale-line-height));
+    --_brc-line: round(nearest, var(--tanrei-comp-breadcrumbs-label-typescale-font-size) * var(--tanrei-comp-breadcrumbs-label-typescale-line-height-ratio), 1px);
     position: relative;
     isolation: isolate;
     display: block;

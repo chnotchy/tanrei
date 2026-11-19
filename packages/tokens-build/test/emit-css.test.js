@@ -138,10 +138,33 @@ test('a type role reaches CSS as its longhands only: no `font` composite, for a 
     assert.ok(typography.some((t) => t.alias) && typography.some((t) => !t.alias), system);
     for (const token of typography) {
       const name = idToVar(token.id);
-      for (const longhand of ['font-family', 'font-size', 'font-weight', 'line-height', 'letter-spacing']) assert.ok(css.includes(`${name}-${longhand}: `), `${system}: ${name}-${longhand}`);
+      for (const longhand of ['font-family', 'font-size', 'font-weight', 'line-height', 'line-height-ratio', 'letter-spacing']) assert.ok(css.includes(`${name}-${longhand}: `), `${system}: ${name}-${longhand}`);
       assert.ok(!css.includes(`${name}-font: `), `${system}: ${name}-font is not written`);
     }
   }
+});
+
+test('a role\'s line is a whole pixel on every platform: CSS rounds the size times the ratio where the text is drawn, the IR rounds it once', async () => {
+  for (const system of ['tanrei', 'm3-like', 'm3-expressive-like', 'cupertino']) {
+    const model = await (await resolveSystem({ system })).model();
+    const css = emitCss(model, system === 'tanrei' ? {} : { scope: system });
+    for (const token of Object.values(model.tokens).filter((t) => t.type === 'typography' && !t.alias)) {
+      const name = idToVar(token.id);
+      const ratio = +token.value.lineHeight.toFixed(4);
+      // In em, so it follows a size set on one element, the reader's text size and the type dial; rounded at each.
+      assert.ok(css.includes(`${name}-line-height: round(nearest, ${ratio}em, 1px);`), `${system}: ${name}-line-height`);
+      assert.ok(css.includes(`${name}-line-height-ratio: ${ratio};`), `${system}: ${name}-line-height-ratio`);
+    }
+    for (const [role, style] of Object.entries(buildIR(model).typescale)) {
+      assert.ok(Number.isInteger(style.lineHeight), `${system}: ${role} draws a ${style.lineHeight}px line`);
+      // The rounding only takes off what writing the ratio to four places put on: 12 × 1.3333 = 15.9996 is a 16px line.
+      assert.ok(Math.abs(style.lineHeight - style.size * model.tokens[`tanrei.sys.typescale.${role}`].value.lineHeight) < 0.01, `${system}: ${role} is ${style.size}px on a ${style.lineHeight}px line`);
+    }
+  }
+  // The case that drew a 12px label 15.984px tall in Chromium (its layout unit floors 15.9996).
+  const model = await (await resolveSystem({ system: 'tanrei' })).model();
+  assert.equal(model.tokens['tanrei.sys.typescale.label-small'].value.lineHeight, 1.3333);
+  assert.equal(buildIR(model).typescale['label-small'].lineHeight, 16);
 });
 
 test('every shadow gets an -inset-ring companion (SPB-26): the ring layer inset, the blurred layers as they are; aliases forward it', async () => {

@@ -103,10 +103,12 @@ test('the cloak is exported on its own, hides every element the package defines,
       if (/(?:^|;)\s*display:\s*(?!\s|none\b)/.test(body)) assert.match(selector, /:not\([^)]*\[hidden\]/, selector);
     }
     // A value is a token's (or a private name's that holds one), a keyword, or arithmetic on them: no length, color or
-    // time of its own.
+    // time of its own. The one exception is no design value: the whole pixel a role's line is rounded to, as the role's
+    // own `-line-height` is (`round(nearest, <-line-height-ratio> * <-font-size>, 1px)`).
     for (const [, property, value] of body.matchAll(/([a-z-]+):\s*([^;]+);/g)) {
       assert.ok(![...value.matchAll(/var\((--[a-z0-9_-]+)\)/g)].some(([, name]) => !/^--tanrei-comp-|^--_cloak-/.test(name)), `${property}: ${value}`);
-      assert.ok(!/\d(?:px|rem|em|%|ms|s|vh|vw)\b|#[0-9a-f]{3}|rgb|hsl|oklch/i.test(value), `${property}: ${value}`);
+      const own = value.replaceAll(/(round\(nearest, var\(--tanrei-comp-[a-z0-9-]+-line-height-ratio\) \* var\(--tanrei-comp-[a-z0-9-]+-font-size\)), 1px\)/g, '$1)');
+      assert.ok(!/\d(?:px|rem|em|%|ms|s|vh|vw)\b|#[0-9a-f]{3}|rgb|hsl|oklch/i.test(own), `${property}: ${value}`);
     }
   }
   const names = stylesheetExports(pkg);

@@ -116,9 +116,9 @@ export const styles = css`
     --_end: var(--_pad);
     --_text-end: var(--_pad);
     /* One line of a text style, as a length (a typescale's line height is a ratio of its size). */
-    --_floated-line: calc(var(--_floated-line-height) * var(--_floated-font-size));
-    --_label-line: calc(var(--_label-line-height) * var(--_label-font-size));
-    --_input-line: calc(var(--_input-line-height) * var(--_input-font-size));
+    --_floated-line: round(nearest, var(--_floated-line-height-ratio) * var(--_floated-font-size), 1px);
+    --_label-line: round(nearest, var(--_label-line-height-ratio) * var(--_label-font-size), 1px);
+    --_input-line: round(nearest, var(--_input-line-height-ratio) * var(--_input-font-size), 1px);
     display: flex;
     flex-direction: column;
     min-inline-size: 0;

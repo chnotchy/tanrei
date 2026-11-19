@@ -8,7 +8,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
-import { fixtureHost, fixturesDocument, loadSpec, mountFixtures, resolveColor, resolveToken, tab } from '../../test/harness.js';
+import { fixtureHost, fixturesDocument, loadSpec, mountFixtures, resolveColor, resolveToken, tab, withoutLineStep } from '../../test/harness.js';
 import { decodePng } from '../../test/png.js';
 import { expectBaseline } from '../../test/baseline.js';
 
@@ -137,7 +137,7 @@ const expectNumbers = async (list: Locator, numbers: (number | string)[]) => exp
 
 test.describe('the stylesheet', () => {
   test('every value is a token: no literal color, length, duration or opacity', () => {
-    const body = read('src/styles/steps.css').replace(/\/\*[\s\S]*?\*\//g, '');
+    const body = withoutLineStep(read('src/styles/steps.css').replace(/\/\*[\s\S]*?\*\//g, ''));
     const literals = [...body.matchAll(/:\s*([^;{}]+);/g)]
       .map((m) => m[1].replace(/var\([^()]*(\([^()]*\))*[^()]*\)/g, '').replace(/calc\(|\)/g, ''))
       .flatMap((value) => value.match(/#[0-9a-f]{3,8}\b|\brgba?\(|\bhsl|\b\d*\.?\d+(px|rem|em|ms|s)\b/gi) ?? []);
@@ -413,7 +413,7 @@ test.describe('layout', () => {
         const title = item.locator(':scope > :first-child');
         expect(await px(title, 'font-size'), id).toBe(await resolveToken(page, T(`title-typescale-${size}-font-size`)));
         expect(await css(title, 'font-weight')).toBe(await weight(page, T(`title-typescale-${size}-font-weight`)));
-        near(await px(title, 'line-height'), (await resolveToken(page, T(`title-typescale-${size}-font-size`))) * Number(await css(html, T(`title-typescale-${size}-line-height`))), `${id}: the title's line`, 0.05);
+        near(await px(title, 'line-height'), Math.round((await resolveToken(page, T(`title-typescale-${size}-font-size`))) * Number(await css(html, T(`title-typescale-${size}-line-height-ratio`)))), `${id}: the title's line`, 0.05);
         expect(await css(title, 'color')).toBe(await css(stage(page, id), 'color'));
         const body = item.locator(':scope > :nth-child(2)');
         near((await box(body)).y - (await box(title)).bottom, gap, `${id}: the body begins the title gap below`, 0.05);
@@ -447,7 +447,7 @@ test.describe('layout', () => {
       const item = items(steps(page, id)).first();
       expect(await px(item, 'font-size')).toBe(await resolveToken(page, T(`body-typescale-${size}-font-size`)));
       expect(await css(item, 'font-weight')).toBe(await weight(page, T(`body-typescale-${size}-font-weight`)));
-      near(await px(item, 'line-height'), (await resolveToken(page, T(`body-typescale-${size}-font-size`))) * Number(await css(html, T(`body-typescale-${size}-line-height`))), `${id}: the body's line`, 0.05);
+      near(await px(item, 'line-height'), Math.round((await resolveToken(page, T(`body-typescale-${size}-font-size`))) * Number(await css(html, T(`body-typescale-${size}-line-height-ratio`)))), `${id}: the body's line`, 0.05);
     }
     // No color of its own: on another surface's content color the number, the title and the body are that color.
     await page.addStyleTag({ content: '.stage[data-fixture="short"] { color: rgb(1, 2, 3); }' });

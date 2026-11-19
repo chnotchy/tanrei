@@ -1231,7 +1231,7 @@ test.describe('in a field', () => {
     const [offset, least, line] = [
       await resolveToken(page, T('value-indicator-offset')),
       await resolveToken(page, T('value-indicator-container-height')),
-      (await resolveToken(page, T('value-indicator-label-typescale-font-size'))) * Number.parseFloat(await token(page, '--tanrei-sys-typescale-label-small-line-height')),
+      Math.round((await resolveToken(page, T('value-indicator-label-typescale-font-size'))) * Number.parseFloat(await token(page, '--tanrei-sys-typescale-label-small-line-height-ratio'))),
     ];
     for (const size of ['small', 'medium', 'large']) {
       const id = size === 'small' ? 'always' : `always-${size}`;

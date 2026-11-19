@@ -70,7 +70,7 @@
     --_pgh-title-font-weight: var(--tanrei-comp-page-header-title-typescale-medium-font-weight);
     --_pgh-title-line-height: var(--tanrei-comp-page-header-title-typescale-medium-line-height);
     --_pgh-title-tracking: var(--tanrei-comp-page-header-title-typescale-medium-letter-spacing);
-    --_pgh-title-line: calc(var(--tanrei-comp-page-header-title-typescale-medium-font-size) * var(--tanrei-comp-page-header-title-typescale-medium-line-height));
+    --_pgh-title-line: round(nearest, var(--tanrei-comp-page-header-title-typescale-medium-font-size) * var(--tanrei-comp-page-header-title-typescale-medium-line-height-ratio), 1px);
     --_pgh-description-font-family: var(--tanrei-comp-page-header-description-typescale-medium-font-family);
     --_pgh-description-font-size: var(--tanrei-comp-page-header-description-typescale-medium-font-size);
     --_pgh-description-font-weight: var(--tanrei-comp-page-header-description-typescale-medium-font-weight);
@@ -113,7 +113,7 @@
     --_pgh-title-font-weight: var(--tanrei-comp-page-header-title-typescale-small-font-weight);
     --_pgh-title-line-height: var(--tanrei-comp-page-header-title-typescale-small-line-height);
     --_pgh-title-tracking: var(--tanrei-comp-page-header-title-typescale-small-letter-spacing);
-    --_pgh-title-line: calc(var(--tanrei-comp-page-header-title-typescale-small-font-size) * var(--tanrei-comp-page-header-title-typescale-small-line-height));
+    --_pgh-title-line: round(nearest, var(--tanrei-comp-page-header-title-typescale-small-font-size) * var(--tanrei-comp-page-header-title-typescale-small-line-height-ratio), 1px);
     --_pgh-description-font-family: var(--tanrei-comp-page-header-description-typescale-small-font-family);
     --_pgh-description-font-size: var(--tanrei-comp-page-header-description-typescale-small-font-size);
     --_pgh-description-font-weight: var(--tanrei-comp-page-header-description-typescale-small-font-weight);
@@ -317,7 +317,7 @@
       --_pgh-description-gap: var(--tanrei-comp-page-header-description-gap-large);
     }
     :where(tanrei-page-header[size='large']) > :where([data-part='actions']) {
-      --_pgh-title-line: calc(var(--tanrei-comp-page-header-title-typescale-large-font-size) * var(--tanrei-comp-page-header-title-typescale-large-line-height));
+      --_pgh-title-line: round(nearest, var(--tanrei-comp-page-header-title-typescale-large-font-size) * var(--tanrei-comp-page-header-title-typescale-large-line-height-ratio), 1px);
     }
   }
 

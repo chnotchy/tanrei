@@ -447,7 +447,7 @@ test.describe('layout', () => {
     });
     const [pad, iconSize, inset] = await Promise.all([resolveToken(page, T('container-padding-inline-medium')), resolveToken(page, T('icon-size-medium')), resolveToken(page, T('track-padding'))]);
     expect(inset).toBeGreaterThan(0);
-    const oneLine = (await resolveToken(page, T('label-typescale-font-size'))) * Number(await token(page, T('label-typescale-line-height')));
+    const oneLine = Math.round((await resolveToken(page, T('label-typescale-font-size'))) * Number(await token(page, T('label-typescale-line-height-ratio'))));
     // Hug (the default): each tab its label plus the padding, the label whole; the tabs start track.padding in from the
     // row's start edge and end the same distance before the track's end, which ends with its last tab (narrower than 360).
     for (const n of [0, 1, 2]) {
