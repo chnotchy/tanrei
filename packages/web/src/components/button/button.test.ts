@@ -2,7 +2,7 @@
 // src/primitives/delegated-aria.test.ts.
 import AxeBuilder from '@axe-core/playwright';
 import { expect, test } from '@playwright/test';
-import { type Fixture, acmeSystemCss, loadSpec, mountFixtures, resolveColor, resolveToken, tab, tabTo, rootTokens } from '../../../test/harness.js';
+import { type Fixture, acmeSystemCss, loadSpec, missingWords, mountFixtures, resolveColor, resolveToken, setWords, tab, tabTo, rootTokens } from '../../../test/harness.js';
 import { pressHoldAsRun } from '../../../test/harsh.js';
 import { axTree } from '../../../test/ax-tree.js';
 import { opticalSize } from '../../../test/icons.js';
@@ -2820,6 +2820,36 @@ test.describe('busy, reachable while disabled, full width', () => {
     await page.keyboard.press('Enter');
     expect(await clicked(page)).toBe(1);
     expect(said).toEqual(['Deploying']);
+    expect(seen.filter((w) => w.includes('BTN-37'))).toHaveLength(1);
+  });
+
+  test('BTN-37: busyLabel is a word of the product — a busy button without its own is the missing word busyLabel, reported once for the page naming busy-label and the product’s words; given once with setWords(), it is what every busy button without its own is described by and announces, and an instance’s own busyLabel still wins', async ({ page }) => {
+    const seen = warnings(page);
+    await mountOne(page, [fx('a', { variant: 'filled', busy: true }), fx('b', { variant: 'tonal', busy: true }), fx('own', { variant: 'filled', busy: true, busyLabel: 'Deploying' }), fx('later', { variant: 'filled' })]);
+    expect(seen.filter((w) => w.includes('BTN-37'))).toEqual([expect.stringMatching(/<tanrei-button>: busy-label is empty and the product's words have no busyLabel: .*setWords\(\) \(BTN-37\)/)]);
+    expect(await missingWords(page)).toContain('busyLabel');
+    expect(await inner(page, 'a').getAttribute('aria-description')).toBeNull();
+    await setWords(page, { busyLabel: 'Working' });
+    await expect(inner(page, 'a')).toHaveAttribute('aria-description', 'Working');
+    await expect(inner(page, 'b')).toHaveAttribute('aria-description', 'Working');
+    await expect(inner(page, 'own')).toHaveAttribute('aria-description', 'Deploying');
+    expect(await missingWords(page)).not.toContain('busyLabel');
+    // A button made busy after the word was given announces it.
+    await page.locator(button('later')).evaluate(async (el: HTMLElement & { busy: boolean; updateComplete: Promise<unknown> }) => {
+      el.busy = true;
+      await el.updateComplete;
+    });
+    await expect(page.locator(button('later')).locator('[role="status"]')).toHaveText('Working');
+    await expect(inner(page, 'later')).toHaveAttribute('aria-description', 'Working');
+    // The set of the language a button stands under answers before the document's.
+    await setWords(page, { busyLabel: '処理中' }, { lang: 'ja' });
+    await page.locator('[data-fixture="b"]').evaluate((el) => el.setAttribute('lang', 'ja'));
+    await page.locator(button('b')).evaluate(async (el: HTMLElement & { requestUpdate(): void; updateComplete: Promise<unknown> }) => {
+      el.requestUpdate();
+      await el.updateComplete;
+    });
+    await expect(inner(page, 'b')).toHaveAttribute('aria-description', '処理中');
+    await expect(inner(page, 'a')).toHaveAttribute('aria-description', 'Working');
     expect(seen.filter((w) => w.includes('BTN-37'))).toHaveLength(1);
   });
 
