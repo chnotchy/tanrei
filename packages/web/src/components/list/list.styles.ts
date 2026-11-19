@@ -3,6 +3,7 @@ import type { OpenAxis } from '../../primitives/index.js';
 import { TARGET_CAPS, drawnSizeAt, drawnSizeAxis, focusRing, iconGlyph, itemRowStyles, pressHold, rowTarget } from '../../primitives/index.js';
 import { cornerRadius, shape } from '../../styles/shape.js';
 import { reducedMotion } from '../../styles/motion.js';
+import { typefaceOf } from '../../styles/type.js';
 
 // Every visual value is a token (tokens/comp/list.tokens.json). An item's two conditions, unselected and selected, are
 // its state variants: each colors the box, the content's foreground and the check in every state, and the item only
@@ -204,7 +205,7 @@ export const itemStyles = css`
     padding-inline: ${unsafeCSS(T('container-padding-inline-start'))} ${unsafeCSS(T('container-padding-inline-end'))};
   }
   .row.p .content {
-    font: ${unsafeCSS(T('content-typescale-font'))};
+    ${typefaceOf(T, 'content-typescale')}
     letter-spacing: ${unsafeCSS(T('content-typescale-letter-spacing'))};
   }
   /* LST-26: a link item's box is an anchor, and nothing of a text link — no underline, no link or visited color. */

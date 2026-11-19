@@ -6,7 +6,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
-import { type Fixture, type FixtureItem, fixturesDocument, loadSpec, markMarkup, mountFixtures, resolveColor, resolveToken, tab, tabTo, rootTokens } from '../../../test/harness.js';
+import { type Fixture, type FixtureItem, declarations, fixturesDocument, loadSpec, markMarkup, mountFixtures, resolveColor, resolveToken, tab, tabTo, rootTokens, typeRoleOf } from '../../../test/harness.js';
 import { motionCount, motionEnded } from '../../../test/motions.js';
 import { transitionsRun, watchTransitions } from '../../../test/transitions.js';
 import { expectBaseline } from '../../../test/baseline.js';
@@ -661,7 +661,7 @@ test.describe('insets and items', () => {
     expect(seen.find((w) => w.includes('APB-14'))).toMatch(/size "huge" is not a value of the active design system; it is drawn as "small"/);
     // A layer that adds `medium` (as m3-like may): its height and title role, a title row of its own.
     await page.addStyleTag({
-      content: `:root { ${T('container-height-medium')}: 160px; ${T('title-typescale-medium-font')}: var(--tanrei-sys-typescale-heading-2-font); ${T('title-typescale-medium-letter-spacing')}: 0px; ${T('subtitle-typescale-medium-font')}: var(--tanrei-sys-typescale-body-font); ${T('subtitle-typescale-medium-letter-spacing')}: 0px; }`,
+      content: `:root { ${T('container-height-medium')}: 160px; ${declarations(typeRoleOf(T('title-typescale-medium'), '--tanrei-sys-typescale-heading-2'))} ${T('title-typescale-medium-letter-spacing')}: 0px; ${declarations(typeRoleOf(T('subtitle-typescale-medium'), '--tanrei-sys-typescale-body'))} ${T('subtitle-typescale-medium-letter-spacing')}: 0px; }`,
     });
     await bar(page, 'huge').evaluate((el: any) => (el.size = 'medium'));
     await expect(inner(page, 'huge', '.expanded .title')).toHaveText('Inbox');

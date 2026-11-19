@@ -9,6 +9,7 @@
 // is defined" (code-block.test.ts) holds the two together for every fixture, in both layout directions.
 
 import { CORE_SIZES, CORE_VARIANTS, DEFAULT_SIZE, DEFAULT_VARIANT, T, layered, layoutBlock, sizeBlock, variantBlock } from './code-block.light.js';
+import { typefaceOf } from '../../styles/type.js';
 
 const HOST = 'tanrei-code-block';
 const FALLBACK = `${HOST}:not(:defined)`;
@@ -98,7 +99,7 @@ ${FALLBACK}${has('headline')}::before {
   max-inline-size: 100%;
   margin-block-start: ${T('copy-button-inset')};
   padding-inline-start: var(--_code-block-pad-inline);
-  font: ${T('title-typescale-font')};
+  ${typefaceOf(T, 'title-typescale')}
   letter-spacing: ${T('title-typescale-letter-spacing')};
   color: ${T('title-color')};
   text-overflow: ellipsis;
@@ -112,7 +113,7 @@ ${FALLBACK}${HEADED}::after {
   align-items: center;
   margin-block-start: ${T('copy-button-inset')};
   margin-inline-end: var(--_code-block-pad-inline);
-  font: ${T('language-typescale-font')};
+  ${typefaceOf(T, 'language-typescale')}
   letter-spacing: ${T('language-typescale-letter-spacing')};
   color: ${T('language-color')};
   white-space: nowrap;

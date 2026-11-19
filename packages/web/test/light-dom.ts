@@ -51,7 +51,7 @@ export const LIGHT_DOM_SUBJECTS: LightDomSubject[] = [
   {
     tag: 'tanrei-page-header',
     css: 'page-header.css',
-    mark: '--_pgh-title-font',
+    mark: '--_pgh-title-font-size',
     html: (n) => `<tanrei-page-header><h1>Title ${n}</h1></tanrei-page-header>`,
     drawn: { part: 'h1', property: 'margin-top' },
     inside: '',

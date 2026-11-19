@@ -1,6 +1,7 @@
 import { type CSSResult, type TemplateResult, html, nothing, unsafeCSS } from 'lit';
 import { productText } from '../styles/product-text.js';
 import { FRAME_PARTS, type FrameProps, frameAnnouncer, frameColors, frameLabelRow, frameLabelled, frameRequirement, frameStyles, frameText } from './field-frame.js';
+import { typefaceOf } from '../styles/type.js';
 
 // The field frame for a SET (FGR-1 … FGR-9, FGR-13, FGR-16 … FGR-18, FGR-21): the label row of a field,
 // then the description under it — before the controls, and staying while the set is in error — the controls in a column
@@ -179,7 +180,7 @@ export function groupFrameStyles({ prefix }: { prefix: `--tanrei-comp-${string}`
     margin-block-start: ${T('error-text-gap')};
     min-inline-size: 0;
     overflow-wrap: break-word;
-    font: ${T('supporting-text-typescale-font')};
+    ${typefaceOf(T, 'supporting-text-typescale')}
     letter-spacing: ${T('supporting-text-typescale-letter-spacing')};
     color: var(--_frame-error-text);
   }

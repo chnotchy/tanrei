@@ -1,6 +1,7 @@
 import { css, unsafeCSS } from 'lit';
 import type { OpenAxis } from '../../primitives/index.js';
 import { drawnSizeAxis, iconGlyph } from '../../primitives/index.js';
+import { typeface } from '../../styles/type.js';
 
 // Every visual value is a token (tokens/comp/list-row.tokens.json). A row has no state of its own: what changes what it
 // draws is its size, its number of lines (LRW-3) and what the list item it is in tells it (LRW-8, LRW-9).
@@ -41,8 +42,8 @@ export const AXES: readonly OpenAxis[] = [
   },
 ];
 
-/** A text role used whole: the font shorthand and its tracking. */
-const role = (part: string) => unsafeCSS(`font: var(${PREFIX}-${part}-typescale-font);\n    letter-spacing: var(${PREFIX}-${part}-typescale-letter-spacing);`);
+/** A text role used whole: the `font` shorthand composed from its longhands (styles/type.ts) and its tracking. */
+const role = (part: string) => unsafeCSS(`${typeface((longhand) => `var(${PREFIX}-${part}-typescale-${longhand})`)}\n    letter-spacing: var(${PREFIX}-${part}-typescale-letter-spacing);`);
 
 export const styles = css`
   ${unsafeCSS(sizeBlock(DEFAULT_SIZE, '.row'))}

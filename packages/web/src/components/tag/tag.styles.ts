@@ -2,6 +2,7 @@ import { css, unsafeCSS } from 'lit';
 import { type OpenAxis, iconGlyph } from '../../primitives/index.js';
 import { productText } from '../../styles/product-text.js';
 import { cornerRadius, shape } from '../../styles/shape.js';
+import { TYPE_LONGHANDS } from '../../styles/type.js';
 
 // Every visual value is a token (tokens/comp/tag.tokens.json). A tag is text, not a control (TAG-9): it has no state, so
 // there is no state rule, no state layer, no ripple, no focus indicator, no minimum target and no transition here. What
@@ -44,12 +45,12 @@ const partsBlock = (variant: string, selector: string, state: string, fallback: 
 const variantBlock = (variant: string, selector: string, fallback: string | null = null) =>
   `${partsBlock(variant, selector, '', fallback)}\n${partsBlock(variant, disabledOf(selector), 'disabled-', fallback)}`;
 
-// The label's text role is used whole: its font shorthand and its letter spacing.
+// The label's text role is used whole: the `font` shorthand composed from its longhands (styles/type.ts) and its letter spacing.
 const sizeBlock = (size: string, selector: string, fallback: string | null = null) =>
   `${selector} {\n${Object.entries(SIZE_MEMBERS)
     .flatMap(([key, member]) =>
       member === 'label-typescale'
-        ? [`  --_font: ${ref((v) => `${PREFIX}-${member}-${v}-font`, size, fallback)};`, `  --_tracking: ${ref((v) => `${PREFIX}-${member}-${v}-letter-spacing`, size, fallback)};`]
+        ? [...TYPE_LONGHANDS.map((longhand) => `  --_${longhand}: ${ref((v) => `${PREFIX}-${member}-${v}-${longhand}`, size, fallback)};`), `  --_tracking: ${ref((v) => `${PREFIX}-${member}-${v}-letter-spacing`, size, fallback)};`]
         : [`  --_${key}: ${ref((v) => `${PREFIX}-${member}-${v}`, size, fallback)};`],
     )
     .join('\n')}\n}`;
@@ -113,7 +114,7 @@ export const styles = css`
     background: var(--_c);
     color: var(--_l);
     --_mark: var(--_i);
-    font: var(--_font);
+    font: var(--_font-weight) var(--_font-size)/var(--_line-height) var(--_font-family);
     letter-spacing: var(--_tracking);
     white-space: nowrap;
   }

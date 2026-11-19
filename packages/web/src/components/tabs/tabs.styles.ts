@@ -3,6 +3,7 @@ import { type OpenAxis, directionProbeStyles, focusRing, iconGlyph, pressHold, r
 import { productText } from '../../styles/product-text.js';
 import { cornerRadius, shape } from '../../styles/shape.js';
 import { reducedMotion } from '../../styles/motion.js';
+import { typefaceOf } from '../../styles/type.js';
 
 // Every visual value is a token (tokens/comp/tabs.tokens.json). A tab has two looks in each variant: a tab
 // that is not selected reads the variant's own parts, the selected tab its `selected.` parts. How a state looks is the
@@ -385,7 +386,7 @@ export const tabStyles = css`
     justify-content: center;
     padding-inline: ${S('padding-inline')};
     padding-block: max(${t('track-padding')}, var(--_ut));
-    font: ${t('label-typescale-font')};
+    ${typefaceOf(t, 'label-typescale')}
     letter-spacing: ${t('label-typescale-letter-spacing')};
   }
   /* TAB-14: a tab whose indicator is a circle (data-round, measured by the tab in a row that hugs) is that circle and

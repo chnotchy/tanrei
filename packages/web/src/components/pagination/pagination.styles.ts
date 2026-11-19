@@ -14,6 +14,7 @@ import {
 import { productText } from '../../styles/product-text.js';
 import { shape } from '../../styles/shape.js';
 import { reducedMotion } from '../../styles/motion.js';
+import { typefaceOf } from '../../styles/type.js';
 
 // Every visual value is a token (tokens/comp/pagination.tokens.json). An item has two parts — a page or a control
 // (`item`) and the current page (`current`) — which are its state variants: each colors the container, the number and
@@ -130,7 +131,7 @@ export const styles = css`
     ${unsafeCSS(selectionContainerShape)}
     background: var(--_c);
     color: var(--_l);
-    font: ${t('label-typescale-font')};
+    ${typefaceOf(t, 'label-typescale')}
     letter-spacing: ${t('label-typescale-letter-spacing')};
     /* PGN-9: figures of one width, so that the row keeps its width from page to page. */
     font-variant-numeric: tabular-nums;
@@ -205,7 +206,7 @@ export const styles = css`
     inline-size: var(--_height);
     min-block-size: var(--_height);
     color: ${t('ellipsis-color')};
-    font: ${t('label-typescale-font')};
+    ${typefaceOf(t, 'label-typescale')}
     letter-spacing: ${t('label-typescale-letter-spacing')};
     -webkit-user-select: none;
     user-select: none;
@@ -220,7 +221,7 @@ export const styles = css`
     display: block;
     padding-inline: ${t('count-padding-inline')};
     color: ${t('count-color')};
-    font: ${t('count-typescale-font')};
+    ${typefaceOf(t, 'count-typescale')}
     letter-spacing: ${t('count-typescale-letter-spacing')};
     font-variant-numeric: tabular-nums;
     white-space: nowrap;

@@ -5,6 +5,7 @@ import type { TanreiDescriptionListSizeRegistry } from '../../registry.js';
 import { adopt, adoptUnlessDrawn } from '../../primitives/sheets.js';
 import { TanreiLightElement } from '../../primitives/element.js';
 import { FacesWatch } from '../../primitives/faces.js';
+import { TYPE_LONGHANDS } from '../../styles/type.js';
 
 /** How a fact is drawn (DSL-3, DSL-5, DSL-6): the term beside its value, above it, or under it as a figure's label. */
 export type TanreiDescriptionListLayout = 'inline' | 'stacked' | 'stat';
@@ -36,11 +37,11 @@ const COLUMNS_IN_SHEET = 6;
 const SIZE_MEMBERS: readonly (readonly [string, string])[] = [
   ['--_dl-fact-gap', 'fact-gap-*'],
   ['--_dl-term-gap', 'term-gap-*'],
-  ['--_dl-term-font', 'term-typescale-*-font'],
+  ...TYPE_LONGHANDS.map((longhand) => [`--_dl-term-${longhand}`, `term-typescale-*-${longhand}`] as const),
   ['--_dl-term-tracking', 'term-typescale-*-letter-spacing'],
-  ['--_dl-value-font', 'value-typescale-*-font'],
+  ...TYPE_LONGHANDS.map((longhand) => [`--_dl-value-${longhand}`, `value-typescale-*-${longhand}`] as const),
   ['--_dl-value-tracking', 'value-typescale-*-letter-spacing'],
-  ['--_dl-stat-font', 'stat-value-typescale-*-font'],
+  ...TYPE_LONGHANDS.map((longhand) => [`--_dl-stat-${longhand}`, `stat-value-typescale-*-${longhand}`] as const),
   ['--_dl-stat-tracking', 'stat-value-typescale-*-letter-spacing'],
 ];
 /** Attribute values are interpolated into CSS: only token-name characters are accepted. */

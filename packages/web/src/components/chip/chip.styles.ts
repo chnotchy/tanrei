@@ -3,6 +3,7 @@ import { DISABLED, type OpenAxis, focusRing, iconGlyph, minimumTarget, pressHold
 import { productText } from '../../styles/product-text.js';
 import { cornerRadius, shape } from '../../styles/shape.js';
 import { reducedMotion } from '../../styles/motion.js';
+import { TYPE_LONGHANDS } from '../../styles/type.js';
 
 // Every visual value is a token (tokens/comp/chip.tokens.json). For each state the chip reads that state's tokens of its
 // current look — it never computes how a state looks: hover, focus and press mix the look's container with its
@@ -64,7 +65,7 @@ const sizeBlock = (size: string, selector: string, fallback: string | null = nul
   `${selector} {\n${Object.entries(SIZE_MEMBERS)
     .flatMap(([key, member]) =>
       member === 'label-typescale'
-        ? [`  --_font: ${ref((v) => `${PREFIX}-${member}-${v}-font`, size, fallback)};`, `  --_tracking: ${ref((v) => `${PREFIX}-${member}-${v}-letter-spacing`, size, fallback)};`]
+        ? [...TYPE_LONGHANDS.map((longhand) => `  --_${longhand}: ${ref((v) => `${PREFIX}-${member}-${v}-${longhand}`, size, fallback)};`), `  --_tracking: ${ref((v) => `${PREFIX}-${member}-${v}-letter-spacing`, size, fallback)};`]
         : [`  --_${key}: ${ref((v) => `${PREFIX}-${member}-${v}`, size, fallback)};`],
     )
     .join('\n')}\n}`;
@@ -164,7 +165,7 @@ export const styles = css`
     ${unsafeCSS(paint(''))}
     --_ripple: var(--_c-p);
     --_ripple-inset: var(--tanrei-comp-chip-outline-width);
-    font: var(--_font);
+    font: var(--_font-weight) var(--_font-size)/var(--_line-height) var(--_font-family);
     letter-spacing: var(--_tracking);
     -webkit-user-select: none;
     user-select: none;

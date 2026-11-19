@@ -55,11 +55,20 @@
        taken from its container by the element (the custom state size-small); DSL-23: any other size is the default's. */
     --_dl-fact-gap: var(--tanrei-comp-description-list-fact-gap-medium);
     --_dl-term-gap: var(--tanrei-comp-description-list-term-gap-medium);
-    --_dl-term-font: var(--tanrei-comp-description-list-term-typescale-medium-font);
+    --_dl-term-font-family: var(--tanrei-comp-description-list-term-typescale-medium-font-family);
+    --_dl-term-font-size: var(--tanrei-comp-description-list-term-typescale-medium-font-size);
+    --_dl-term-font-weight: var(--tanrei-comp-description-list-term-typescale-medium-font-weight);
+    --_dl-term-line-height: var(--tanrei-comp-description-list-term-typescale-medium-line-height);
     --_dl-term-tracking: var(--tanrei-comp-description-list-term-typescale-medium-letter-spacing);
-    --_dl-value-font: var(--tanrei-comp-description-list-value-typescale-medium-font);
+    --_dl-value-font-family: var(--tanrei-comp-description-list-value-typescale-medium-font-family);
+    --_dl-value-font-size: var(--tanrei-comp-description-list-value-typescale-medium-font-size);
+    --_dl-value-font-weight: var(--tanrei-comp-description-list-value-typescale-medium-font-weight);
+    --_dl-value-line-height: var(--tanrei-comp-description-list-value-typescale-medium-line-height);
     --_dl-value-tracking: var(--tanrei-comp-description-list-value-typescale-medium-letter-spacing);
-    --_dl-stat-font: var(--tanrei-comp-description-list-stat-value-typescale-medium-font);
+    --_dl-stat-font-family: var(--tanrei-comp-description-list-stat-value-typescale-medium-font-family);
+    --_dl-stat-font-size: var(--tanrei-comp-description-list-stat-value-typescale-medium-font-size);
+    --_dl-stat-font-weight: var(--tanrei-comp-description-list-stat-value-typescale-medium-font-weight);
+    --_dl-stat-line-height: var(--tanrei-comp-description-list-stat-value-typescale-medium-line-height);
     --_dl-stat-tracking: var(--tanrei-comp-description-list-stat-value-typescale-medium-letter-spacing);
     /* DSL-13: the separation this list draws — its attribute's, else comp.description-list.separation's. */
     --_dl-separation: var(--tanrei-comp-description-list-separation);
@@ -91,11 +100,20 @@
   :where(tanrei-description-list[size='small'], tanrei-description-list:state(size-small)) {
     --_dl-fact-gap: var(--tanrei-comp-description-list-fact-gap-small);
     --_dl-term-gap: var(--tanrei-comp-description-list-term-gap-small);
-    --_dl-term-font: var(--tanrei-comp-description-list-term-typescale-small-font);
+    --_dl-term-font-family: var(--tanrei-comp-description-list-term-typescale-small-font-family);
+    --_dl-term-font-size: var(--tanrei-comp-description-list-term-typescale-small-font-size);
+    --_dl-term-font-weight: var(--tanrei-comp-description-list-term-typescale-small-font-weight);
+    --_dl-term-line-height: var(--tanrei-comp-description-list-term-typescale-small-line-height);
     --_dl-term-tracking: var(--tanrei-comp-description-list-term-typescale-small-letter-spacing);
-    --_dl-value-font: var(--tanrei-comp-description-list-value-typescale-small-font);
+    --_dl-value-font-family: var(--tanrei-comp-description-list-value-typescale-small-font-family);
+    --_dl-value-font-size: var(--tanrei-comp-description-list-value-typescale-small-font-size);
+    --_dl-value-font-weight: var(--tanrei-comp-description-list-value-typescale-small-font-weight);
+    --_dl-value-line-height: var(--tanrei-comp-description-list-value-typescale-small-line-height);
     --_dl-value-tracking: var(--tanrei-comp-description-list-value-typescale-small-letter-spacing);
-    --_dl-stat-font: var(--tanrei-comp-description-list-stat-value-typescale-small-font);
+    --_dl-stat-font-family: var(--tanrei-comp-description-list-stat-value-typescale-small-font-family);
+    --_dl-stat-font-size: var(--tanrei-comp-description-list-stat-value-typescale-small-font-size);
+    --_dl-stat-font-weight: var(--tanrei-comp-description-list-stat-value-typescale-small-font-weight);
+    --_dl-stat-line-height: var(--tanrei-comp-description-list-stat-value-typescale-small-line-height);
     --_dl-stat-tracking: var(--tanrei-comp-description-list-stat-value-typescale-small-letter-spacing);
   }
   :where(tanrei-description-list[separation='divider']) {
@@ -170,7 +188,9 @@
       min-inline-size: 0;
       margin: 0;
       padding: 0;
-      font: var(--_dl-term-font);
+      font:
+        var(--_dl-term-font-weight) var(--_dl-term-font-size)/var(--_dl-term-line-height)
+        var(--_dl-term-font-family);
       letter-spacing: var(--_dl-term-tracking);
       color: var(--tanrei-comp-description-list-term-color);
       /* DSL-19, DSL-20: placed by the layout direction; the text itself is of its own direction. */
@@ -190,7 +210,9 @@
       min-block-size: 1lh;
       margin: 0;
       padding: 0;
-      font: var(--_dl-value-font);
+      font:
+        var(--_dl-value-font-weight) var(--_dl-value-font-size)/var(--_dl-value-line-height)
+        var(--_dl-value-font-family);
       letter-spacing: var(--_dl-value-tracking);
       font-variant-numeric: tabular-nums;
       color: var(--tanrei-comp-description-list-value-color);
@@ -212,7 +234,9 @@
       content: '\200b' / '';
       grid-column: 2;
       min-block-size: 1lh;
-      font: var(--_dl-value-font);
+      font:
+        var(--_dl-value-font-weight) var(--_dl-value-font-size)/var(--_dl-value-line-height)
+        var(--_dl-value-font-family);
     }
     /* DSL-8: Japanese and Chinese lines break by their own rules. */
     & > :where(div) > :where(:lang(ja), :lang(zh)),
@@ -301,7 +325,7 @@
      The document's order is unchanged: the term is still read before its value (DSL-17). */
   :where(tanrei-description-list[layout='stat']) > :where(dl) > :where(div) > :where(dd:first-of-type) {
     order: -1;
-    font: var(--_dl-stat-font);
+    font: var(--_dl-stat-font-weight) var(--_dl-stat-font-size)/var(--_dl-stat-line-height) var(--_dl-stat-font-family);
     letter-spacing: var(--_dl-stat-tracking);
     font-variant-numeric: tabular-nums;
     /* DSL-6: the figure's letter-spacing follows its script (src/styles/script-tracking.ts). */

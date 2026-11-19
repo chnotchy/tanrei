@@ -72,27 +72,41 @@
 @layer tanrei.components {
   /* ── The container: the running text's style, by size (PRS-1; PRS-30: any other size is the default) ──────────── */
   :where(.tanrei-prose) {
-    --_prose-text-font: var(--tanrei-comp-prose-text-typescale-medium-font);
+    --_prose-text-font-family: var(--tanrei-comp-prose-text-typescale-medium-font-family);
+    --_prose-text-font-size: var(--tanrei-comp-prose-text-typescale-medium-font-size);
+    --_prose-text-font-weight: var(--tanrei-comp-prose-text-typescale-medium-font-weight);
+    --_prose-text-line-height: var(--tanrei-comp-prose-text-typescale-medium-line-height);
     --_prose-text-size: var(--tanrei-comp-prose-text-typescale-medium-font-size);
     --_prose-text-tracking: var(--tanrei-comp-prose-text-typescale-medium-letter-spacing);
     --_prose-text-emphasized: var(--tanrei-comp-prose-text-typescale-medium-font-weight-emphasized);
-    --_prose-small-font: var(--tanrei-comp-prose-small-typescale-medium-font);
+    --_prose-small-font-family: var(--tanrei-comp-prose-small-typescale-medium-font-family);
+    --_prose-small-font-size: var(--tanrei-comp-prose-small-typescale-medium-font-size);
+    --_prose-small-font-weight: var(--tanrei-comp-prose-small-typescale-medium-font-weight);
+    --_prose-small-line-height: var(--tanrei-comp-prose-small-typescale-medium-line-height);
     --_prose-small-tracking: var(--tanrei-comp-prose-small-typescale-medium-letter-spacing);
     --_prose-small-emphasized: var(--tanrei-comp-prose-small-typescale-medium-font-weight-emphasized);
     /* PRS-18: a count of ems of the running text — a rem length, so it grows with the reader's text size (PRS-27). */
     --_prose-measure: calc(var(--tanrei-comp-prose-measure) * var(--_prose-text-size));
     --tanrei-text-emphasized-weight: var(--_prose-text-emphasized);
-    font: var(--_prose-text-font);
+    font:
+      var(--_prose-text-font-weight) var(--_prose-text-font-size)/var(--_prose-text-line-height)
+      var(--_prose-text-font-family);
     letter-spacing: var(--_prose-text-tracking);
     /* PRS-19: a string with no break opportunity breaks anywhere rather than overflow. */
     overflow-wrap: break-word;
   }
   :where(.tanrei-prose[data-size='large']) {
-    --_prose-text-font: var(--tanrei-comp-prose-text-typescale-large-font);
+    --_prose-text-font-family: var(--tanrei-comp-prose-text-typescale-large-font-family);
+    --_prose-text-font-size: var(--tanrei-comp-prose-text-typescale-large-font-size);
+    --_prose-text-font-weight: var(--tanrei-comp-prose-text-typescale-large-font-weight);
+    --_prose-text-line-height: var(--tanrei-comp-prose-text-typescale-large-line-height);
     --_prose-text-size: var(--tanrei-comp-prose-text-typescale-large-font-size);
     --_prose-text-tracking: var(--tanrei-comp-prose-text-typescale-large-letter-spacing);
     --_prose-text-emphasized: var(--tanrei-comp-prose-text-typescale-large-font-weight-emphasized);
-    --_prose-small-font: var(--tanrei-comp-prose-small-typescale-large-font);
+    --_prose-small-font-family: var(--tanrei-comp-prose-small-typescale-large-font-family);
+    --_prose-small-font-size: var(--tanrei-comp-prose-small-typescale-large-font-size);
+    --_prose-small-font-weight: var(--tanrei-comp-prose-small-typescale-large-font-weight);
+    --_prose-small-line-height: var(--tanrei-comp-prose-small-typescale-large-line-height);
     --_prose-small-tracking: var(--tanrei-comp-prose-small-typescale-large-letter-spacing);
     --_prose-small-emphasized: var(--tanrei-comp-prose-small-typescale-large-font-weight-emphasized);
   }
@@ -128,38 +142,50 @@
     /* A heading, and the wrapper that holds it with its anchor (the wrapper's line is the heading's line). */
     :where(h1, .tanrei-prose-heading:has(> h1)) {
       --tanrei-text-emphasized-weight: var(--tanrei-sys-typescale-heading-1-font-weight-emphasized);
-      font: var(--tanrei-sys-typescale-heading-1-font);
+      font:
+        var(--tanrei-sys-typescale-heading-1-font-weight) var(--tanrei-sys-typescale-heading-1-font-size)/var(--tanrei-sys-typescale-heading-1-line-height)
+        var(--tanrei-sys-typescale-heading-1-font-family);
       letter-spacing: var(--tanrei-sys-typescale-heading-1-letter-spacing);
       /* PRS-23: its own space before stays above a heading that is navigated to. */
       scroll-margin-block-start: calc(var(--tanrei-comp-prose-heading-1-gap-before) + var(--tanrei-prose-scroll-offset, 0px));
     }
     :where(h2, .tanrei-prose-heading:has(> h2)) {
       --tanrei-text-emphasized-weight: var(--tanrei-sys-typescale-heading-2-font-weight-emphasized);
-      font: var(--tanrei-sys-typescale-heading-2-font);
+      font:
+        var(--tanrei-sys-typescale-heading-2-font-weight) var(--tanrei-sys-typescale-heading-2-font-size)/var(--tanrei-sys-typescale-heading-2-line-height)
+        var(--tanrei-sys-typescale-heading-2-font-family);
       letter-spacing: var(--tanrei-sys-typescale-heading-2-letter-spacing);
       scroll-margin-block-start: calc(var(--tanrei-comp-prose-heading-2-gap-before) + var(--tanrei-prose-scroll-offset, 0px));
     }
     :where(h3, .tanrei-prose-heading:has(> h3)) {
       --tanrei-text-emphasized-weight: var(--tanrei-sys-typescale-heading-3-font-weight-emphasized);
-      font: var(--tanrei-sys-typescale-heading-3-font);
+      font:
+        var(--tanrei-sys-typescale-heading-3-font-weight) var(--tanrei-sys-typescale-heading-3-font-size)/var(--tanrei-sys-typescale-heading-3-line-height)
+        var(--tanrei-sys-typescale-heading-3-font-family);
       letter-spacing: var(--tanrei-sys-typescale-heading-3-letter-spacing);
       scroll-margin-block-start: calc(var(--tanrei-comp-prose-heading-3-gap-before) + var(--tanrei-prose-scroll-offset, 0px));
     }
     :where(h4, .tanrei-prose-heading:has(> h4)) {
       --tanrei-text-emphasized-weight: var(--tanrei-sys-typescale-heading-4-font-weight-emphasized);
-      font: var(--tanrei-sys-typescale-heading-4-font);
+      font:
+        var(--tanrei-sys-typescale-heading-4-font-weight) var(--tanrei-sys-typescale-heading-4-font-size)/var(--tanrei-sys-typescale-heading-4-line-height)
+        var(--tanrei-sys-typescale-heading-4-font-family);
       letter-spacing: var(--tanrei-sys-typescale-heading-4-letter-spacing);
       scroll-margin-block-start: calc(var(--tanrei-comp-prose-heading-4-gap-before) + var(--tanrei-prose-scroll-offset, 0px));
     }
     :where(h5, .tanrei-prose-heading:has(> h5)) {
       --tanrei-text-emphasized-weight: var(--tanrei-sys-typescale-heading-5-font-weight-emphasized);
-      font: var(--tanrei-sys-typescale-heading-5-font);
+      font:
+        var(--tanrei-sys-typescale-heading-5-font-weight) var(--tanrei-sys-typescale-heading-5-font-size)/var(--tanrei-sys-typescale-heading-5-line-height)
+        var(--tanrei-sys-typescale-heading-5-font-family);
       letter-spacing: var(--tanrei-sys-typescale-heading-5-letter-spacing);
       scroll-margin-block-start: calc(var(--tanrei-comp-prose-heading-5-gap-before) + var(--tanrei-prose-scroll-offset, 0px));
     }
     :where(h6, .tanrei-prose-heading:has(> h6)) {
       --tanrei-text-emphasized-weight: var(--tanrei-sys-typescale-heading-6-font-weight-emphasized);
-      font: var(--tanrei-sys-typescale-heading-6-font);
+      font:
+        var(--tanrei-sys-typescale-heading-6-font-weight) var(--tanrei-sys-typescale-heading-6-font-size)/var(--tanrei-sys-typescale-heading-6-line-height)
+        var(--tanrei-sys-typescale-heading-6-font-family);
       letter-spacing: var(--tanrei-sys-typescale-heading-6-letter-spacing);
       scroll-margin-block-start: calc(var(--tanrei-comp-prose-heading-6-gap-before) + var(--tanrei-prose-scroll-offset, 0px));
     }
@@ -183,13 +209,17 @@
     /* A lead paragraph, marked by the author. */
     :where(.tanrei-prose-lead) {
       --tanrei-text-emphasized-weight: var(--tanrei-comp-prose-lead-typescale-font-weight-emphasized);
-      font: var(--tanrei-comp-prose-lead-typescale-font);
+      font:
+        var(--tanrei-comp-prose-lead-typescale-font-weight) var(--tanrei-comp-prose-lead-typescale-font-size)/var(--tanrei-comp-prose-lead-typescale-line-height)
+        var(--tanrei-comp-prose-lead-typescale-font-family);
       letter-spacing: var(--tanrei-comp-prose-lead-typescale-letter-spacing);
     }
     /* Secondary text: small print, footnotes (PRS-14) and the references to them. */
     :where(small, sup, [data-footnotes], .footnotes) {
       --tanrei-text-emphasized-weight: var(--_prose-small-emphasized);
-      font: var(--_prose-small-font);
+      font:
+        var(--_prose-small-font-weight) var(--_prose-small-font-size)/var(--_prose-small-line-height)
+        var(--_prose-small-font-family);
       letter-spacing: var(--_prose-small-tracking);
     }
     /* PRS-14: a reference is raised above the baseline and does not make its line taller. */

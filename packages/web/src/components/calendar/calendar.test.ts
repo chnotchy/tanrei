@@ -5,7 +5,7 @@
 // src/primitives/delegated-aria.test.ts.
 import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
-import { type Fixture, acmeSystemCss, loadSpec, missingWords, mountFixtures, resolveColor, resolveToken, setWords, tab, tabTo, rootTokens } from '../../../test/harness.js';
+import { type Fixture, acmeSystemCss, loadSpec, missingWords, mountFixtures, resolveColor, resolveToken, setWords, tab, tabTo, rootTokens, typeRole } from '../../../test/harness.js';
 import { expectKeyPressOutlastsPointer } from '../../../test/key-press-pointer-leaves.js';
 import { expectWheelKeptFromPage } from '../../../test/contained-wheel.js';
 import { withoutFocusVisibleOption } from '../../../test/focus-visible-option.js';
@@ -1770,7 +1770,7 @@ test.describe('semantics, locale, layout and reports', () => {
     const [a, b] = [await bounds(day(page, 'c', '2026-09-13')), await bounds(day(page, 'c', '2026-09-14'))];
     expect(a.width).toBeCloseTo(b.width, 1);
     expect(a.width * 7).toBeCloseTo(cal.width, 0);
-    await override(page, { [T('day-label-typescale-font')]: '48px/60px Inter' });
+    await override(page, typeRole(T('day-label-typescale'), '48px/60px Inter'));
     await page.locator('[data-fixture="c"]').evaluate((el) => ((el as HTMLElement).style.cssText = ''));
     expect((await bounds(box(page, 'c', '2026-09-17'))).height).toBeGreaterThan(await resolveToken(page, T('day-container-size')));
   });

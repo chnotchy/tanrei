@@ -3,6 +3,7 @@ import { type OpenAxis, appearStyles, focusRing, iconGlyph, minimumTarget, press
 import { productText } from '../../styles/product-text.js';
 import { cornerRadius, shape } from '../../styles/shape.js';
 import { reducedMotion } from '../../styles/motion.js';
+import { typefaceOf } from '../../styles/type.js';
 
 // Every visual value is a token (tokens/comp/fab-menu.tokens.json). Each variant has three looks: the
 // closed toggle (its plain parts), the open toggle (`open.`) and the items (`item.`), each in every state. The component
@@ -364,7 +365,7 @@ export const itemStyles = css`
     ${unsafeCSS(cornerRadius('--tanrei-comp-fab-menu-item-shape'))}
     ${unsafeCSS(itemPaint(''))}
     color: var(--_label);
-    font: ${t('item-label-typescale-font')};
+    ${typefaceOf(t, 'item-label-typescale')}
     letter-spacing: ${t('item-label-typescale-letter-spacing')};
     cursor: pointer;
     -webkit-user-select: none;

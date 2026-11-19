@@ -4,6 +4,7 @@ import { productText } from '../../styles/product-text.js';
 import { cornerRadius, shape } from '../../styles/shape.js';
 import { scriptTracking } from '../../styles/script-tracking.js';
 import { reducedMotion } from '../../styles/motion.js';
+import { typefaceOf } from '../../styles/type.js';
 
 // Every visual value is a token (tokens/comp/snackbar.tokens.json). The action is the snackbar's one control of its own:
 // it has its container and content colors per state, and its geometry under `controls.*`. The expand and close buttons
@@ -300,7 +301,7 @@ export const styles = css`
     border: 0;
   }
   .title {
-    font: ${t('title-typescale-font')};
+    ${typefaceOf(t, 'title-typescale')}
     letter-spacing: ${t('title-typescale-letter-spacing')};
     color: var(--_title);
     overflow-wrap: break-word;
@@ -308,7 +309,7 @@ export const styles = css`
   /* SNK-22: the title's letter-spacing follows its script (src/styles/script-tracking.ts). */
   ${unsafeCSS(scriptTracking('.title', String(t('title-typescale-letter-spacing')), { shadow: true }))}
   .message {
-    font: ${t('supporting-text-typescale-font')};
+    ${typefaceOf(t, 'supporting-text-typescale')}
     letter-spacing: ${t('supporting-text-typescale-letter-spacing')};
     color: var(--_text);
     overflow-wrap: break-word;
@@ -437,7 +438,7 @@ export const styles = css`
 
   .action {
     padding-inline: ${t('controls-padding-inline')};
-    font: ${t('controls-label-typescale-font')};
+    ${typefaceOf(t, 'controls-label-typescale')}
     letter-spacing: ${t('controls-label-typescale-letter-spacing')};
     /* SNK-16: the label never wraps or is cut. */
     white-space: nowrap;

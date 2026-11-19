@@ -3,6 +3,7 @@ import { conditionBlock, conditionStates, focusRing, iconGlyph, pressHold, rippl
 import { productText } from '../../styles/product-text.js';
 import { cornerRadius, shape } from '../../styles/shape.js';
 import { reducedMotion } from '../../styles/motion.js';
+import { typefaceOf } from '../../styles/type.js';
 
 // Every visual value is a token (tokens/comp/menubar.tokens.json): the bar's fill, paddings and gap; a title's height,
 // padding, corners and text style; the size of the overflow item's glyph and of a link item's mark, and the gap between
@@ -150,7 +151,7 @@ export function titleStyles(focused: (focus: string) => string): CSSResult {
     gap: ${T('container-gap')};
   }
   .label {
-    font: ${T('label-typescale-font')};
+    ${typefaceOf(T, 'label-typescale')}
     letter-spacing: ${T('label-typescale-letter-spacing')};
     white-space: nowrap;
     color: var(--_l);

@@ -49,7 +49,9 @@
     min-block-size: var(--tanrei-comp-menubar-container-height);
     padding-inline: var(--tanrei-comp-menubar-container-padding-inline);
     border-radius: var(--tanrei-comp-menubar-container-shape);
-    font: var(--tanrei-comp-menubar-label-typescale-font);
+    font:
+      var(--tanrei-comp-menubar-label-typescale-font-weight) var(--tanrei-comp-menubar-label-typescale-font-size)/var(--tanrei-comp-menubar-label-typescale-line-height)
+      var(--tanrei-comp-menubar-label-typescale-font-family);
     letter-spacing: var(--tanrei-comp-menubar-label-typescale-letter-spacing);
     white-space: nowrap;
     color: var(--tanrei-comp-menubar-unselected-label-color);

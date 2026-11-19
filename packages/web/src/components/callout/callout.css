@@ -27,12 +27,16 @@
     box-sizing: border-box;
     padding-block: var(--tanrei-comp-callout-container-padding-block);
     padding-inline: var(--tanrei-comp-callout-container-padding-inline);
-    font: var(--tanrei-comp-callout-body-typescale-medium-font);
+    font:
+      var(--tanrei-comp-callout-body-typescale-medium-font-weight) var(--tanrei-comp-callout-body-typescale-medium-font-size)/var(--tanrei-comp-callout-body-typescale-medium-line-height)
+      var(--tanrei-comp-callout-body-typescale-medium-font-family);
     letter-spacing: var(--tanrei-comp-callout-body-typescale-medium-letter-spacing);
     overflow-wrap: break-word;
   }
   :where(tanrei-callout[size='large']:not(:defined)) {
-    font: var(--tanrei-comp-callout-body-typescale-large-font);
+    font:
+      var(--tanrei-comp-callout-body-typescale-large-font-weight) var(--tanrei-comp-callout-body-typescale-large-font-size)/var(--tanrei-comp-callout-body-typescale-large-line-height)
+      var(--tanrei-comp-callout-body-typescale-large-font-family);
     letter-spacing: var(--tanrei-comp-callout-body-typescale-large-letter-spacing);
   }
   /* CLO-13: a callout that starts closed takes no space before it is defined either. */
@@ -55,11 +59,15 @@
     display: block;
     margin: 0;
     margin-block-end: var(--tanrei-comp-callout-title-gap);
-    font: var(--tanrei-comp-callout-title-typescale-medium-font);
+    font:
+      var(--tanrei-comp-callout-title-typescale-medium-font-weight) var(--tanrei-comp-callout-title-typescale-medium-font-size)/var(--tanrei-comp-callout-title-typescale-medium-line-height)
+      var(--tanrei-comp-callout-title-typescale-medium-font-family);
     letter-spacing: var(--tanrei-comp-callout-title-typescale-medium-letter-spacing);
   }
   :where(tanrei-callout[size='large']:not(:defined)) > :where([slot='title']) {
-    font: var(--tanrei-comp-callout-title-typescale-large-font);
+    font:
+      var(--tanrei-comp-callout-title-typescale-large-font-weight) var(--tanrei-comp-callout-title-typescale-large-font-size)/var(--tanrei-comp-callout-title-typescale-large-line-height)
+      var(--tanrei-comp-callout-title-typescale-large-font-family);
     letter-spacing: var(--tanrei-comp-callout-title-typescale-large-letter-spacing);
   }
   /* CLO-7: the title's letter-spacing follows its script (src/styles/script-tracking.ts). */

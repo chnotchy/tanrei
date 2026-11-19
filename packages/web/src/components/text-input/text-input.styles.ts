@@ -3,6 +3,7 @@ import { TARGET_CAPS, type OpenAxis, drawnSizeAt, drawnSizeAxis, focusGlow, focu
 import { productText } from '../../styles/product-text.js';
 import { cornerRadius, shape } from '../../styles/shape.js';
 import { reducedMotion } from '../../styles/motion.js';
+import { TYPE_LONGHANDS, typefaceFrom } from '../../styles/type.js';
 
 // Every visual value is a token: the box's (tokens/comp/input-box.tokens.json) or the text input's own
 // (tokens/comp/text-input.tokens.json). The input draws the box and what is in it, and
@@ -39,7 +40,7 @@ const PARTS = {
 /** The two looks of each variant (TXI-11): the plain parts, and their `error.` twins while error is true. */
 const LOOKS = { plain: '', error: 'error-' } as const;
 /**
- * The members of the size axis (`dev.tanrei.axes.size.members`). Text styles are used whole: font and tracking. A stacked
+ * The members of the size axis (`dev.tanrei.axes.size.members`). Text styles are used whole: their longhands (styles/type.ts) and tracking. A stacked
  * field has a height and a block padding of its own, as tall as a Button of the same size (TXI-16).
  */
 const SIZE_MEMBERS = {
@@ -85,7 +86,7 @@ const sizeBlock = (size: string, selector: string, fallback: string | null = nul
   `${selector} {\n${Object.entries(SIZE_MEMBERS)
     .flatMap(([key, member]) =>
       TYPESCALES.has(member)
-        ? ['font', 'letter-spacing', 'line-height', 'font-size'].map((field) => `  --_${key}-${field}: ${ref((v) => `${BOX}-${member}-${v}-${field}`, size, fallback)};`)
+        ? [...TYPE_LONGHANDS, 'letter-spacing'].map((field) => `  --_${key}-${field}: ${ref((v) => `${BOX}-${member}-${v}-${field}`, size, fallback)};`)
         : [`  --_${key}: ${ref((v) => `${BOX}-${member}-${v}`, size, fallback)};`],
     )
     .join('\n')}\n}`;
@@ -310,7 +311,7 @@ export const styles = css`
     align-items: center;
     min-inline-size: 0;
     padding-block: var(--_pad-block);
-    font: var(--_input-font);
+    ${typefaceFrom('--_input')}
     letter-spacing: var(--_input-letter-spacing);
   }
   /* TXI-16: a filled field that draws its label keeps room for the floated label above the input line, from the start. */
@@ -818,7 +819,7 @@ export const styles = css`
     inset-inline-start: var(--_text-start);
     max-inline-size: calc(100% - var(--_text-start) - var(--_text-end));
     overflow-wrap: break-word;
-    font: var(--_label-font);
+    ${typefaceFrom('--_label')}
     letter-spacing: var(--_label-letter-spacing);
   }
   .label {
@@ -857,7 +858,7 @@ export const styles = css`
     inset-block-start: calc(var(--_pad-label) + var(--_float-lines) * var(--_floated-line) + var(--_input-line) / 2);
   }
   ${unsafeCSS(FLOATED)} .label {
-    font: var(--_floated-font);
+    ${typefaceFrom('--_floated')}
     letter-spacing: var(--_floated-letter-spacing);
   }
   /* Outlined: centred on the outline's top edge, starting at padding-inline — over a leading icon, not at the input text. */
@@ -889,7 +890,7 @@ export const styles = css`
   .measure-floated {
     inset-inline-start: var(--_pad);
     max-inline-size: calc(100% - var(--_pad) - var(--_end));
-    font: var(--_floated-font);
+    ${typefaceFrom('--_floated')}
     letter-spacing: var(--_floated-letter-spacing);
   }
   ${unsafeCSS(FILLED)} .measure-floated {
@@ -1012,7 +1013,7 @@ export const styles = css`
     visibility: hidden;
     white-space: nowrap;
     padding-inline: var(${unsafeCSS(BOX)}-outline-notch-padding);
-    font: var(--_floated-font);
+    ${typefaceFrom('--_floated')}
     letter-spacing: var(--_floated-letter-spacing);
   }
   /* TXI-13: a wrapped floated label opens the gap by the width of its widest line. */

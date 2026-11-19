@@ -22,8 +22,10 @@ test('the base is one cascade layer, tanrei.base, that writes tokens on <html> a
   for (const [selector, body] of rules) {
     for (const declaration of body.split(';').map((d) => d.trim()).filter(Boolean)) {
       const [property, value] = declaration.split(/:\s*/);
-      // The colors and the face are the system's; the one literal is the body's margin taken away.
-      assert.ok(/^var\(--tanrei-sys-[a-z0-9-]+\)$/.test(value) || (property === 'margin' && value === '0'), `${selector} { ${declaration} }`);
+      // The colors and the face are the system's; the one literal is the body's margin taken away. The face is a role's
+      // `font` composed from its longhands (src/styles/type.ts), so that one longhand set below the root reaches it.
+      const face = /^var\(--tanrei-sys-typescale-([a-z0-9-]+)-font-weight\) var\(--tanrei-sys-typescale-\1-font-size\)\/var\(--tanrei-sys-typescale-\1-line-height\) var\(--tanrei-sys-typescale-\1-font-family\)$/;
+      assert.ok(/^var\(--tanrei-sys-[a-z0-9-]+\)$/.test(value) || (property === 'font' && face.test(value.replace(/\s+/g, ' '))) || (property === 'margin' && value === '0'), `${selector} { ${declaration} }`);
       // The page's scheme is the tokens' (a forced theme on <html> must win), and the root's font size is what rem means.
       assert.notEqual(property, 'color-scheme');
       if (selector === 'html') assert.ok(!/^font/.test(property), `html { ${declaration} }: a face on the root changes rem`);

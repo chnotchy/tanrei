@@ -4,6 +4,7 @@ import { productText } from '../../styles/product-text.js';
 import { cornerRadius, shape } from '../../styles/shape.js';
 import { scriptTracking } from '../../styles/script-tracking.js';
 import { reducedMotion } from '../../styles/motion.js';
+import { TYPE_LONGHANDS, typefaceFrom } from '../../styles/type.js';
 
 // Every visual value is a token (tokens/comp/callout.tokens.json). The callout itself has no state (CLO-10): what
 // changes what it draws is its variant, its status and its size, each read from that form's own tokens. The close
@@ -40,13 +41,13 @@ const variantBlock = (variant: string, selector: string, fallback: string | null
     })
     .join('\n')}\n}`;
 
-// Per size, the title's and the body's text roles, each used whole: the font shorthand and the letter
+// Per size, the title's and the body's text roles, each used whole: their longhands (styles/type.ts) and the letter
 // spacing — and the height of one line of each, for a browser that does not know the `lh` unit.
 const sizeBlock = (size: string, selector: string, fallback: string | null = null) =>
   `${selector} {\n${(['title', 'body'] as const)
     .flatMap((part) => {
       const role = (member: string) => ref((v) => `${PREFIX}-${part}-typescale-${v}-${member}`, size, fallback);
-      return [`  --_${part}-font: ${role('font')};`, `  --_${part}-tracking: ${role('letter-spacing')};`, `  --_${part}-line: calc(${role('line-height')} * ${role('font-size')});`];
+      return [...TYPE_LONGHANDS.map((longhand) => `  --_${part}-${longhand}: ${role(longhand)};`), `  --_${part}-tracking: ${role('letter-spacing')};`, `  --_${part}-line: calc(${role('line-height')} * ${role('font-size')});`];
     })
     .join('\n')}\n}`;
 
@@ -66,7 +67,7 @@ ${Object.keys(PARTS)
  * debug builds. A variant a layer adds has no edge: only `outlined` draws one (CLO-4).
  */
 export const AXES: readonly OpenAxis[] = [
-  { name: 'size', core: CORE_SIZES, default: DEFAULT_SIZE, rules: (value, selector) => sizeBlock(value, selector, DEFAULT_SIZE), probe: (value) => `${PREFIX}-body-typescale-${value}-font` },
+  { name: 'size', core: CORE_SIZES, default: DEFAULT_SIZE, rules: (value, selector) => sizeBlock(value, selector, DEFAULT_SIZE), probe: (value) => `${PREFIX}-body-typescale-${value}-font-size` },
   { name: 'variant', core: CORE_VARIANTS, default: DEFAULT_VARIANT, rules: (value, selector) => variantBlock(value, selector, DEFAULT_VARIANT), probe: (value) => `${PREFIX}-container-color-${value}` },
 ];
 
@@ -148,14 +149,20 @@ export const styles = css`
     text-align: start;
     /* The first line of the text is the body's, or the title's where there is one: the glyph and the close button are
        centred on a line of this font (CLO-1). */
-    --_first-font: var(--_body-font);
+    --_first-font-family: var(--_body-font-family);
+    --_first-font-size: var(--_body-font-size);
+    --_first-font-weight: var(--_body-font-weight);
+    --_first-line-height: var(--_body-line-height);
     --_first-line: var(--_body-line);
   }
   .container[hidden] {
     display: none;
   }
   .container.titled {
-    --_first-font: var(--_title-font);
+    --_first-font-family: var(--_title-font-family);
+    --_first-font-size: var(--_title-font-size);
+    --_first-font-weight: var(--_title-font-weight);
+    --_first-line-height: var(--_title-line-height);
     --_first-line: var(--_title-line);
   }
   /* CLO-1: after the close button the end padding is the nearer one. */
@@ -177,7 +184,7 @@ export const styles = css`
   .end {
     display: flex;
     align-items: center;
-    font: var(--_first-font);
+    ${typefaceFrom('--_first')}
     block-size: var(--_first-line);
     block-size: 1lh;
   }
@@ -251,7 +258,7 @@ export const styles = css`
      heading the product gives in the slot is drawn as every other title is: its own margins and text style are taken
      off, its role and level are untouched. */
   .title {
-    font: var(--_title-font);
+    ${typefaceFrom('--_title')}
     letter-spacing: var(--_title-tracking);
     color: var(--_title);
     overflow-wrap: break-word;
@@ -278,7 +285,7 @@ export const styles = css`
   /* CLO-8: the body — the text style of its size and the body color of its form, inherited by what the product placed
      there, so bare text is styled and a component or a prose inside keeps its own. It wraps; nothing cuts it. */
   .body {
-    font: var(--_body-font);
+    ${typefaceFrom('--_body')}
     letter-spacing: var(--_body-tracking);
     color: var(--_body);
     overflow-wrap: break-word;

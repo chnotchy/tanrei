@@ -3,6 +3,7 @@ import { TARGET_CAPS, type OpenAxis, drawnSizeAt, drawnSizeAxis, focusGlow, focu
 import { INPUT_BOX, TRIGGER_SIZE_MEMBERS, floatingLabelStyles, floatingLabelText, stackedBoxStyles, triggerEdgeStyles, triggerOn, triggerTokens } from '../../primitives/field-trigger.js';
 import { cornerRadius, shape } from '../../styles/shape.js';
 import { reducedMotion } from '../../styles/motion.js';
+import { typefaceFrom } from '../../styles/type.js';
 
 // Every visual value is a token: the box's (tokens/comp/input-box.tokens.json; CLI-45), and for the swatch's shape and
 // hairline the color input's own (tokens/comp/color-input.tokens.json). The input draws the box and what is in it, and
@@ -211,7 +212,7 @@ export const styles = css`
     align-items: center;
     margin-inline-start: var(--_gap);
     padding-block: var(--_pad-block);
-    font: var(--_input-font);
+    ${typefaceFrom('--_input')}
     letter-spacing: var(--_input-letter-spacing);
     line-height: var(--_input-line-height);
   }

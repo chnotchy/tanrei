@@ -17,6 +17,7 @@ import {
 } from '../../primitives/index.js';
 import { productText } from '../../styles/product-text.js';
 import { scriptTracking } from '../../styles/script-tracking.js';
+import { typefaceOf, typefaceFrom } from '../../styles/type.js';
 
 // Every visual value is a token (tokens/comp/popover.tokens.json). The popover paints one container — it has no
 // variants and answers no state of its own (POP-6) — and lays out a header, the content and the actions in it. Its
@@ -134,7 +135,7 @@ export const styles = css`
     padding-block-start: ${t('container-padding-block')};
     padding-inline: ${t('container-padding-inline')};
     /* The row's first line is the headline's: the close button is centred on a line of this height. */
-    font: ${t('headline-typescale-font')};
+    ${typefaceOf(t, 'headline-typescale')}
   }
   /* A header with nothing below it ends the container. */
   .header.last {
@@ -145,7 +146,7 @@ export const styles = css`
     flex: 1 1 auto;
     min-inline-size: 0;
     margin: 0;
-    font: ${t('headline-typescale-font')};
+    ${typefaceOf(t, 'headline-typescale')}
     letter-spacing: ${t('headline-typescale-letter-spacing')};
     color: ${t('headline-color')};
     overflow-wrap: break-word;
@@ -189,7 +190,7 @@ export const styles = css`
     overscroll-behavior: contain;
     padding-block-start: ${t('container-gap')};
     padding-inline: ${t('container-padding-inline')};
-    font: var(--tanrei-sys-typescale-body-font);
+    ${typefaceFrom('--tanrei-sys-typescale-body')}
     letter-spacing: var(--tanrei-sys-typescale-body-letter-spacing);
     overflow-wrap: break-word;
     outline: none;

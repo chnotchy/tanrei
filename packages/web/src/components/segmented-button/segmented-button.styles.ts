@@ -14,6 +14,7 @@ import {
 import { productText } from '../../styles/product-text.js';
 import { cornerRadius, shape } from '../../styles/shape.js';
 import { reducedMotion } from '../../styles/motion.js';
+import { TYPE_LONGHANDS, typefaceFrom } from '../../styles/type.js';
 
 // Every visual value is a token (tokens/comp/segmented-button.tokens.json). A segment has two conditions — unselected
 // and selected — which are its state variants: each colors the container, label and icon (the check too)
@@ -42,14 +43,14 @@ const SIZE_MEMBERS = {
 const ref = (name: (size: string) => string, size: string, fallback: string | null) => (fallback ? `var(${name(size)}, var(${name(fallback)}))` : `var(${name(size)})`);
 
 /**
- * One size's members as private properties on the set (`--_size-height`, `--_size-font`…). They are inherited through
+ * One size's members as private properties on the set (`--_size-height`, `--_size-font-size`…). They are inherited through
  * the flat tree, so the set's segments — slotted into it — read the set's size.
  */
 const sizeBlock = (size: string, selector: string, fallback: string | null = null) =>
   `${selector} {\n${Object.entries(SIZE_MEMBERS)
     .flatMap(([key, member]) =>
       member === 'label-typescale'
-        ? [`  --_size-font: ${ref((v) => `${PREFIX}-${member}-${v}-font`, size, fallback)};`, `  --_size-tracking: ${ref((v) => `${PREFIX}-${member}-${v}-letter-spacing`, size, fallback)};`]
+        ? [...TYPE_LONGHANDS.map((longhand) => `  --_size-${longhand}: ${ref((v) => `${PREFIX}-${member}-${v}-${longhand}`, size, fallback)};`), `  --_size-tracking: ${ref((v) => `${PREFIX}-${member}-${v}-letter-spacing`, size, fallback)};`]
         : [`  --_size-${key}: ${ref((v) => `${PREFIX}-${member}-${v}`, size, fallback)};`],
     )
     .join('\n')}\n}`;
@@ -214,7 +215,7 @@ export const segmentStyles = css`
     background: var(--_c);
     box-shadow: var(--_e);
     color: var(--_l);
-    font: var(--_size-font);
+    ${typefaceFrom('--_size')}
     letter-spacing: var(--_size-tracking);
     text-align: center;
     cursor: pointer;

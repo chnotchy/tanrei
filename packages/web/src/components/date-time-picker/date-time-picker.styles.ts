@@ -3,6 +3,7 @@ import { appearStyles, conditionBlock, focusRing, minimumTarget, modalExitStyles
 import { cornerRadius, shape } from '../../styles/shape.js';
 import { scriptTracking } from '../../styles/script-tracking.js';
 import { reducedMotion } from '../../styles/motion.js';
+import { typefaceOf } from '../../styles/type.js';
 
 // Every visual value is a token (tokens/comp/date-time-picker.tokens.json). The selectors have two conditions —
 // unselected and selected — which are their state variants: each colors the container, the label and the
@@ -195,7 +196,7 @@ export const styles = css`
   .title {
     flex: 1 1 auto;
     min-inline-size: 0;
-    font: ${t('header-label-typescale-font')};
+    ${typefaceOf(t, 'header-label-typescale')}
     letter-spacing: ${t('header-label-typescale-letter-spacing')};
     color: ${t('header-label-color')};
     overflow-wrap: break-word;
@@ -206,7 +207,7 @@ export const styles = css`
   }
   /* (The header's value alone: a selector's and a range field's text carry the same class, in their own roles.) */
   .header > .value {
-    font: ${t('header-value-typescale-font')};
+    ${typefaceOf(t, 'header-value-typescale')}
     letter-spacing: ${t('header-value-typescale-letter-spacing')};
     color: ${t('header-value-color')};
     overflow-wrap: break-word;
@@ -342,7 +343,7 @@ export const styles = css`
     min-inline-size: var(--_target);
     min-block-size: max(${t('range-field-container-height')}, var(--_target));
     padding-inline: ${t('range-field-container-padding-inline')};
-    font: ${t('range-field-label-typescale-font')};
+    ${typefaceOf(t, 'range-field-label-typescale')}
     letter-spacing: ${t('range-field-label-typescale-letter-spacing')};
     text-align: center;
     overflow-wrap: anywhere;
@@ -355,7 +356,7 @@ export const styles = css`
   }
   /* DTM-15: the dash, in the range field's role and the separator's color; hidden from assistive technology. */
   .range-separator {
-    font: ${t('range-field-label-typescale-font')};
+    ${typefaceOf(t, 'range-field-label-typescale')}
     letter-spacing: ${t('range-field-label-typescale-letter-spacing')};
     color: ${t('separator-color')};
     -webkit-user-select: none;
@@ -416,7 +417,7 @@ export const styles = css`
     inline-size: ${t('wheel-width')};
     block-size: max(${t('wheel-height')}, var(--_row));
     overflow: hidden;
-    font: ${t('wheel-label-typescale-font')};
+    ${typefaceOf(t, 'wheel-label-typescale')}
     letter-spacing: ${t('wheel-label-typescale-letter-spacing')};
     cursor: grab;
     touch-action: none;
@@ -435,7 +436,7 @@ export const styles = css`
     display: grid;
     inline-size: auto;
     min-inline-size: max(${t('period-container-width')}, var(--_target));
-    font: ${t('period-label-typescale-font')};
+    ${typefaceOf(t, 'period-label-typescale')}
     letter-spacing: ${t('period-label-typescale-letter-spacing')};
   }
   .measure {
@@ -552,14 +553,14 @@ export const styles = css`
   }
   .separator {
     flex: none;
-    font: ${t('separator-typescale-font')};
+    ${typefaceOf(t, 'separator-typescale')}
     letter-spacing: ${t('separator-typescale-letter-spacing')};
     color: ${t('separator-color')};
     -webkit-user-select: none;
     user-select: none;
   }
   .wheels .separator {
-    font: ${t('wheel-label-typescale-font')};
+    ${typefaceOf(t, 'wheel-label-typescale')}
     letter-spacing: ${t('wheel-label-typescale-letter-spacing')};
   }
 
@@ -579,7 +580,7 @@ export const styles = css`
     justify-content: center;
     min-inline-size: max(${t('selector-container-width')}, var(--_target));
     min-block-size: max(${t('selector-container-height')}, var(--_target));
-    font: ${t('selector-label-typescale-font')};
+    ${typefaceOf(t, 'selector-label-typescale')}
     letter-spacing: ${t('selector-label-typescale-letter-spacing')};
     ${unsafeCSS(cornerRadius(`${PREFIX}-selector-container-shape`))}
     cursor: pointer;
@@ -592,7 +593,7 @@ export const styles = css`
      name in period.label.typescale. It is a selector of the unselected condition in every state: nothing here colors it. */
   .selector.period {
     min-inline-size: max(${t('period-container-width')}, var(--_target));
-    font: ${t('period-label-typescale-font')};
+    ${typefaceOf(t, 'period-label-typescale')}
     letter-spacing: ${t('period-label-typescale-letter-spacing')};
   }
   .selector.period > .value {
@@ -668,7 +669,7 @@ export const styles = css`
     left: calc(50% + var(--_r) * var(--_x));
     top: calc(50% + var(--_r) * var(--_y));
     translate: -50% -50%;
-    font: ${t('dial-label-typescale-font')};
+    ${typefaceOf(t, 'dial-label-typescale')}
     letter-spacing: ${t('dial-label-typescale-letter-spacing')};
     color: ${t('dial-label-color')};
     white-space: nowrap;
@@ -759,7 +760,7 @@ export const styles = css`
   .error {
     flex: none;
     padding-inline: ${t('container-padding-inline')};
-    font: ${t('error-typescale-font')};
+    ${typefaceOf(t, 'error-typescale')}
     letter-spacing: ${t('error-typescale-letter-spacing')};
     color: ${t('error-color')};
     overflow-wrap: break-word;

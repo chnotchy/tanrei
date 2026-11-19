@@ -1,6 +1,7 @@
 import { css, unsafeCSS } from 'lit';
 import { heldShape } from '../../styles/shape.js';
 import { reducedMotion } from '../../styles/motion.js';
+import { typefaceOf } from '../../styles/type.js';
 
 // Every visual value is a token (tokens/comp/resizable-frame.tokens.json); the handles are `<tanrei-handle>`, drawn by
 // their own tokens. The element writes its sizes as custom properties on the box (`--_rsf-*`: the width and the height
@@ -183,7 +184,7 @@ export const styles = css`
     border-radius: ${t('size-indicator-container-shape')};
     background-color: ${t('size-indicator-container-color')};
     color: ${t('size-indicator-label-color')};
-    font: ${t('size-indicator-label-typescale-font')};
+    ${typefaceOf(t, 'size-indicator-label-typescale')}
     letter-spacing: ${t('size-indicator-label-typescale-letter-spacing')};
     white-space: nowrap;
     font-variant-numeric: tabular-nums;

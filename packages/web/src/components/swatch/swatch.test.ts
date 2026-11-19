@@ -4,7 +4,7 @@
 // src/primitives/delegated-aria.test.ts.
 import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
-import { type Fixture, loadSpec, mountFixtureAsInAll, mountFixtures, resolveColor, resolveToken, rootTokens, tab } from '../../../test/harness.js';
+import { type Fixture, declarations, loadSpec, mountFixtureAsInAll, mountFixtures, resolveColor, resolveToken, rootTokens, tab, typeRole } from '../../../test/harness.js';
 import { decodePng, paintedColor } from '../../../test/png.js';
 import { expectBaseline } from '../../../test/baseline.js';
 
@@ -424,7 +424,7 @@ test.describe('behavior', () => {
     const reported = seen.filter((w) => w.includes('SWC-19')).join('\n');
     for (const said of ['size "huge"', 'shape "hexagon"']) expect(reported, said).toContain(said);
     expect(seen.filter((w) => w.includes('SWC-19') && /"(small|medium|large|square|circle)" is not/.test(w))).toEqual([]);
-    const layer = `<style>:root { ${T('container-size-huge')}: 48px; ${T('gap-huge')}: 20px; ${T('label-typescale-huge-font')}: 500 30px/1.25 Inter; ${T('label-typescale-huge-letter-spacing')}: 0em; ${T('supporting-text-typescale-huge-font')}: 400 20px/1.25 Inter; ${T('supporting-text-typescale-huge-letter-spacing')}: 0em; ${T('container-shape-hexagon')}: 12px; ${T('container-shape-hexagon-pill')}: 0; }</style>`;
+    const layer = `<style>:root { ${T('container-size-huge')}: 48px; ${T('gap-huge')}: 20px; ${declarations(typeRole(T('label-typescale-huge'), '500 30px/1.25 Inter'))} ${T('label-typescale-huge-letter-spacing')}: 0em; ${declarations(typeRole(T('supporting-text-typescale-huge'), '400 20px/1.25 Inter'))} ${T('supporting-text-typescale-huge-letter-spacing')}: 0em; ${T('container-shape-hexagon')}: 12px; ${T('container-shape-hexagon-pill')}: 0; }</style>`;
     await mountHtml(page, { layer, added: '<tanrei-swatch color="#0f766e" label="Teal" size="huge" shape="hexagon"></tanrei-swatch>' });
     const added = swatch(page, 'added');
     expect(await box(sample(added)).then((b) => [b.width, b.height])).toEqual([48, 48]);
