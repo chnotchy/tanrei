@@ -1677,7 +1677,7 @@ const ar: typeof en = {
   builtFrom: 'مبني من',
   usedIn: 'يُستخدم في',
   listing: { showAll: 'كل المكوّنات', advanced: 'متقدّم', placedInstead: 'معظم المنتجات تستخدم {components}، وهذا المكوّن جزء منه.', notIn: 'غير موجود في {system}' },
-  legend: 'مفتاح الرموز',
+  legend: 'وسيلة الإيضاح',
   totals: 'الإجمالي لكل منصة',
   total: 'الإجمالي',
   generatedFrom: 'مولَّد من',
