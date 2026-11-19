@@ -536,7 +536,7 @@ A design system may add variants. A variant it adds behaves as standard.
 | Narrower than that | `modal` | A modal drawer that is not collapsible |
 
 - **The presentation is derived, never stored.** It follows the width alone: the drawer does not write it to `variant`, `open` or `expanded`. `presentationChange` says what it is, the first time and whenever the width changes it.
-- **A new presentation is entered closed.** It is drawn at once, without motion. An overlay that was open comes down and `close` fires once. `expanded`, `value` and each group's `open` are kept, so the standard presentation comes back in the form it was left in.
+- **`open` is kept across presentations.** A change of width fires no `close`. A drawer open over the content stands beside it when the window widens, its scrim gone at once and nothing inert, and is over the content again, still open, when the window narrows; focus that was in what is then behind it moves to the menu button. `expanded`, `value` and each group's `open` are kept too, so the standard presentation comes back in the form it was left in.
 - **In the `modal` presentation, the menu button is yours.** Show a menu button of your own, in the app bar for example, while the presentation is `modal`, and set `open` from it. The drawer's own menu button only closes it there.
 - **The drawer remembers nothing between visits.** To keep a person's choice of form, store what `expandedChange` carries and set `expanded` from it.
 

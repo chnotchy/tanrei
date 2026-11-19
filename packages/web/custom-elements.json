@@ -737,7 +737,7 @@
                 "text": "boolean"
               },
               "default": "false",
-              "description": "Whether the navigation is presented over the content — below the header — while it has no place of its own in the\nlayout (or only its column). The menu button makes it true and, while it is true, false; closing the navigation makes\nit false, and so does the window becoming wide enough for the navigation to stand beside the content. A change\nbetween the two narrower classes keeps it.",
+              "description": "Whether the navigation is presented over the content — below the header — while it has no place of its own in the\nlayout (or only its column). The menu button makes it true and, while it is true, false; closing the navigation makes\nit false. A change of the window's class keeps it: while the navigation stands beside the content it is shown there\nwhatever this says and nothing is inert, and it is over the content again, open, when the window narrows again.",
               "attribute": "navigation-open",
               "reflects": true
             },
@@ -787,7 +787,7 @@
               "type": {
                 "text": "CustomEvent<TanreiAppShellNavigationOpenChangeDetail>"
               },
-              "description": "The navigation asks to be presented over the content, or to be put away: the menu button was activated (`detail.navigationOpen` true, and false while it was open), or the open navigation closed — by its scrim, Escape, the platform's back, a drag, a destination — or the window became wide enough for it to stand beside the content (false). `navigationOpen` already holds it."
+              "description": "The navigation asks to be presented over the content, or to be put away: the menu button was activated (`detail.navigationOpen` true, and false while it was open), or the open navigation closed — by its scrim, Escape, the platform's back, a drag, a destination (false). A change of the window's class emits none. `navigationOpen` already holds it."
             }
           ],
           "attributes": [
@@ -852,7 +852,7 @@
                 "text": "boolean"
               },
               "default": "false",
-              "description": "Whether the navigation is presented over the content — below the header — while it has no place of its own in the\nlayout (or only its column). The menu button makes it true and, while it is true, false; closing the navigation makes\nit false, and so does the window becoming wide enough for the navigation to stand beside the content. A change\nbetween the two narrower classes keeps it.",
+              "description": "Whether the navigation is presented over the content — below the header — while it has no place of its own in the\nlayout (or only its column). The menu button makes it true and, while it is true, false; closing the navigation makes\nit false. A change of the window's class keeps it: while the navigation stands beside the content it is shown there\nwhatever this says and nothing is inert, and it is over the content again, open, when the window narrows again.",
               "fieldName": "navigationOpen"
             },
             {
@@ -29730,7 +29730,7 @@
                 "text": "boolean"
               },
               "default": "false",
-              "description": "Whether the drawer is shown: a standard one takes its place in the layout, a modal one is presented. While `responsive` it only opens the presentations that lie over the content: a change between those presentations keeps it, and the drawer's coming to stand beside the content sets it back to false. Reflected.",
+              "description": "Whether the drawer is shown: a standard one takes its place in the layout, a modal one is presented. While `responsive` it only opens the presentations that lie over the content, and every change of presentation keeps it: standing beside the content the drawer is shown there whatever it says, and is over the content again, open, when the window narrows. Reflected.",
               "attribute": "open",
               "reflects": true
             },
@@ -30193,18 +30193,18 @@
               "description": "The person changed the filter text (typing, deleting, pasting, an input method, the clear button, Escape): `detail.value` (and `filterValue`) is the new text. Not fired when the product sets `filterValue`."
             },
             {
-              "name": "close",
-              "type": {
-                "text": "Event"
-              },
-              "description": "A modal drawer closed: the scrim, Escape, back, a drag, the menu button, or after a destination was activated. `open` is already false."
-            },
-            {
               "name": "widthchange",
               "type": {
                 "text": "CustomEvent<TanreiNavigationDrawerWidthChangeDetail>"
               },
               "description": "A person changed the width of the drawer beside the content — a drag that ended at a new width, a key, a press on the edge: `detail.width` (and `width`) in CSS pixels. Not fired when the product sets `width`, nor for a drag that only folds or unfolds the drawer."
+            },
+            {
+              "name": "close",
+              "type": {
+                "text": "Event"
+              },
+              "description": "A modal drawer closed: the scrim, Escape, back, a drag, the menu button, or after a destination was activated. `open` is already false."
             },
             {
               "name": "presentationchange",
@@ -30244,7 +30244,7 @@
                 "text": "boolean"
               },
               "default": "false",
-              "description": "Whether the drawer is shown: a standard one takes its place in the layout, a modal one is presented. While `responsive` it only opens the presentations that lie over the content: a change between those presentations keeps it, and the drawer's coming to stand beside the content sets it back to false. Reflected.",
+              "description": "Whether the drawer is shown: a standard one takes its place in the layout, a modal one is presented. While `responsive` it only opens the presentations that lie over the content, and every change of presentation keeps it: standing beside the content the drawer is shown there whatever it says, and is over the content again, open, when the window narrows. Reflected.",
               "fieldName": "open"
             },
             {

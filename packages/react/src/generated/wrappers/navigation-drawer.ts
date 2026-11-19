@@ -13,8 +13,8 @@ const NavigationDrawerElement = /* @__PURE__ */ createComponent({
   events: {
     onExpandedChange: 'expandedchange' as EventName<TanreiEvent<TanreiNavigationDrawerElement, CustomEvent<TanreiNavigationDrawerExpandedChangeDetail>>>,
     onFilterChange: 'filterchange' as EventName<TanreiEvent<TanreiNavigationDrawerElement, CustomEvent<TanreiNavigationDrawerFilterChangeDetail>>>,
-    onClose: 'close' as EventName<TanreiEvent<TanreiNavigationDrawerElement>>,
     onWidthChange: 'widthchange' as EventName<TanreiEvent<TanreiNavigationDrawerElement, CustomEvent<TanreiNavigationDrawerWidthChangeDetail>>>,
+    onClose: 'close' as EventName<TanreiEvent<TanreiNavigationDrawerElement>>,
     onPresentationChange: 'presentationchange' as EventName<TanreiEvent<TanreiNavigationDrawerElement, CustomEvent<TanreiNavigationDrawerPresentationChangeDetail>>>,
     onChange: 'change' as EventName<TanreiEvent<TanreiNavigationDrawerElement, CustomEvent<TanreiNavigationChangeDetail>>>,
     onReselect: 'reselect' as EventName<TanreiEvent<TanreiNavigationDrawerElement, CustomEvent<TanreiNavigationChangeDetail>>>,
@@ -33,8 +33,8 @@ const NavigationDrawerAttributes = { variant: ['variant', 'standard'], open: ['o
  * Events:
  * - `onExpandedChange` (`expandedchange`) — The user asked for the drawer's other form — a collapsible drawer's (its menu button or an app shell's, its resize handle, or a group's cell while collapsed), or the standard presentation of a responsive drawer with no collapsed form shown or hidden (an app shell's menu button): `detail.expanded`. `expanded` (or, for a modal drawer, `open`) already holds it.
  * - `onFilterChange` (`filterchange`) — The person changed the filter text (typing, deleting, pasting, an input method, the clear button, Escape): `detail.value` (and `filterValue`) is the new text. Not fired when the product sets `filterValue`.
- * - `onClose` (`close`) — A modal drawer closed: the scrim, Escape, back, a drag, the menu button, or after a destination was activated. `open` is already false.
  * - `onWidthChange` (`widthchange`) — A person changed the width of the drawer beside the content — a drag that ended at a new width, a key, a press on the edge: `detail.width` (and `width`) in CSS pixels. Not fired when the product sets `width`, nor for a drag that only folds or unfolds the drawer.
+ * - `onClose` (`close`) — A modal drawer closed: the scrim, Escape, back, a drag, the menu button, or after a destination was activated. `open` is already false.
  * - `onPresentationChange` (`presentationchange`) — A responsive drawer decided its presentation for the first time, or the window's width changed it: `detail.presentation` (and `presentation`) is `standard`, `column` or `modal`. A product shows its own menu button while it is `modal`.
  * - `onChange` (`change`) — The user activated another destination: `detail.value` (and, for a button destination, the drawer's `value`) is its value. For a link it is fired before the link is followed, only for a plain activation of a link that opens in place, carries `detail.href`, leaves `value` to the page, and is cancelable: `preventDefault()` stops the browser's navigation.
  * - `onReselect` (`reselect`) — The user activated the selected destination again; for a link, as `change`.

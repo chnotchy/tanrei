@@ -538,7 +538,7 @@ Un sistema de diseño puede añadir variantes. Una variante que añada se compor
 | Más estrecha que eso | `modal` | Un panel modal que no se puede contraer |
 
 - **La presentación se deriva, nunca se guarda.** Depende únicamente del ancho: el panel no la escribe en `variant`, `open` ni `expanded`. `presentationChange` dice cuál es, la primera vez y cada vez que el ancho la cambia.
-- **Se entra cerrado en una presentación nueva.** Se dibuja de inmediato, sin movimiento. Una superposición que estaba abierta se retira y `close` se emite una vez. `expanded`, `value` y el `open` de cada grupo se conservan, de modo que la presentación `standard` vuelve en la forma en que se dejó.
+- **`open` se conserva entre presentaciones.** Un cambio de ancho no emite `close`. Un panel abierto sobre el contenido se coloca a su lado cuando la ventana se ensancha, con el velo retirado al instante y nada inerte, y vuelve a estar sobre el contenido, todavía abierto, cuando la ventana se estrecha; el foco que estaba en lo que entonces queda detrás pasa al botón de menú. `expanded`, `value` y el `open` de cada grupo también se conservan, de modo que la presentación `standard` vuelve en la forma en que se dejó.
 - **En la presentación `modal`, el botón de menú es cosa tuya.** Muestra un botón de menú propio, por ejemplo en la barra de la aplicación, mientras la presentación sea `modal`, y define `open` desde él. Ahí, el botón de menú del propio panel solo lo cierra.
 - **El panel no recuerda nada entre visitas.** Para conservar la forma que eligió una persona, guarda lo que lleva `expandedChange` y define `expanded` a partir de ello.
 
