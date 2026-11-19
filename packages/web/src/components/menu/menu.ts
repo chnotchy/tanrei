@@ -18,6 +18,7 @@ import {
   OpenAxesController,
   PressController,
   RovingKeys,
+  ambientLocale,
   labelBegins,
   SEPARATION_VALUES,
   SHORTCUT_UPDATE,
@@ -2108,7 +2109,13 @@ export class TanreiMenu extends TanreiElement {
     const target = keys.target(
       event.key,
       current,
-      rows.map((each) => ({ focusable: true, label: each.label })),
+      rows.map((each) => ({
+        focusable: true,
+        label: each.label,
+        get lang() {
+          return ambientLocale(each);
+        },
+      })),
       labelBegins,
     );
     if (target === null) return;

@@ -3,85 +3,131 @@
 // no run (NVD-85, TRV-60), the search's completion of what was typed (SRC-55, SRC-56), and the typeahead of a column
 // of items (SEL-33, LST-17, MNU-7, TRV-23, MBR-12), so that typing to an item and filtering for it find the same labels.
 //
-// Without regard to case, to the width of a character or to the marks on a letter: each letter with the marks that
-// follow it is folded by itself — its compatibility form (a full-width "ｔ" is "t", a half-width "ｶ" is "カ"), without
-// its marks (an "á" is "a"), in lower case — so that a place in the folded text is a place in the label, and the run
-// that matched can be drawn. The two sound marks of kana are letters' own and are kept: "が" is not "か".
+// As the label's language compares: by the collator of that language (`ambientLocale()` of the element the label is
+// read from — its nearest `lang` — given here as `lang`), for searching, at its base strength: without regard to case,
+// to the width of a character or to the marks on a letter, and with the letters the language tells apart told apart
+// (in Turkish "i" is not "ı", whose capital is "I"; in German "ß" is "ss"). A label is compared a run of its letters
+// (grapheme clusters) at a time with the whole typed text, so that a place where they compare equal is a place in the
+// label, and the run that matched can be drawn.
+//
+// The two sound marks of kana are letters' own and are kept: "が" is not "か", nor "ば" "ぱ". Chromium's and Firefox's
+// collators take them for marks at base strength and drop them (WebKit's keeps them), so two texts a collator finds
+// equal must also carry the same marks on the same kana (a check of the web's own, `sameKanaMarks`). Kana in hiragana
+// and in katakana, full or half width, large or small compare equal in every engine ("か" is "カ" and "ｶ", "ゃ" "や").
 
-const CLUSTER = /\P{M}\p{M}*|\p{M}+/gu;
-const KANA_SOUND_MARKS = new Set(['゙', '゚']);
-const foldCluster = (cluster: string) =>
-  cluster
-    .normalize('NFKD')
-    .replace(/\p{M}/gu, (mark) => (KANA_SOUND_MARKS.has(mark) ? mark : ''))
-    .normalize('NFKC')
-    .toLowerCase();
+/** The collator of each language a label was compared in, made once. */
+const collators = new Map<string, Intl.Collator>();
 
-/** A label as it is compared: its letters, the folded text, and where each folded character came from. */
-export interface Folded {
-  /** The label's letters, each with its marks. */
-  clusters: string[];
-  /** The folded text. */
-  text: string;
-  /** For each character of the folded text, the letter of the label it came from. */
-  from: number[];
+function collatorOf(lang: string | undefined): Intl.Collator {
+  const key = lang ?? '';
+  let collator = collators.get(key);
+  if (!collator) {
+    try {
+      collator = new Intl.Collator(lang || undefined, { usage: 'search', sensitivity: 'base' });
+    } catch {
+      // A tag `Intl` cannot read: the browser's own language.
+      collator = new Intl.Collator(undefined, { usage: 'search', sensitivity: 'base' });
+    }
+    collators.set(key, collator);
+  }
+  return collator;
 }
 
-/** Folds a label letter by letter (see the header). */
-export function fold(label: string): Folded {
-  const clusters = label.match(CLUSTER) ?? [];
-  let text = '';
-  const from: number[] = [];
-  clusters.forEach((cluster, index) => {
-    const folded = foldCluster(cluster);
-    text += folded;
-    for (let i = 0; i < folded.length; i++) from.push(index);
-  });
-  return { clusters, text, from };
+let graphemes: Intl.Segmenter | null = null;
+
+/** A text's letters: its grapheme clusters, each letter with its marks (a half-width kana with its sound mark). */
+export function letters(text: string): string[] {
+  graphemes ??= new Intl.Segmenter(undefined, { granularity: 'grapheme' });
+  return Array.from(graphemes.segment(text), (part) => part.segment);
 }
 
-/** A text as it is compared: folded, without the spaces around it. */
-export const foldText = (text: string) => fold(text.trim()).text;
+const KANA = /[\p{Script=Hiragana}\p{Script=Katakana}]/u;
+const SOUND_MARKS = new Set(['゙', '゚']);
+
+/**
+ * The kana of a text and the sound marks on them, in order (a kana written `k`): decomposed for compatibility, so that a
+ * precomposed "が", "か" with a combining mark and a half-width "ｶﾞ" read alike.
+ */
+function kanaMarks(text: string): string {
+  let out = '';
+  for (const character of text.normalize('NFKD')) {
+    if (SOUND_MARKS.has(character)) out += character;
+    else if (KANA.test(character)) out += 'k';
+  }
+  return out;
+}
+
+/** Whether two texts the collator finds equal carry the same sound marks on the same kana (see the header). */
+const sameKanaMarks = (a: string, b: string) => kanaMarks(a) === kanaMarks(b);
+
+/** Whether `a` and `b` compare equal in `lang` (see the header). */
+export function sameText(a: string, b: string, lang?: string): boolean {
+  return collatorOf(lang).compare(a, b) === 0 && sameKanaMarks(a, b);
+}
+
+/** Whether a text compares equal to no text at all in `lang`: empty, or only what the collator ignores. */
+const blank = (text: string, lang?: string) => !text || collatorOf(lang).compare(text, '') === 0;
+
+/**
+ * The most letters of a label a run that compares equal to a typed text of `count` letters is looked for in: a letter
+ * may stand for several typed ones ("ß" for "ss") or several for one ("ss" for "ß", "ffi" for "ﬃ"), and the label may
+ * hold a letter the collator ignores (a soft hyphen).
+ */
+const runLimit = (count: number) => 2 * count + 2;
+
+/**
+ * The first run of `label`'s letters that compares equal to `text` in `lang`, starting at a letter from `from` up to
+ * `until` (exclusive), shortest first, as the index of its first letter and the index after its last; `[0, 0]` for a
+ * text that compares equal to no text; null where none does.
+ */
+function runOf(label: readonly string[], text: string, lang: string | undefined, until = label.length): [number, number] | null {
+  if (blank(text, lang)) return [0, 0];
+  const { compare } = collatorOf(lang);
+  const limit = runLimit(letters(text).length);
+  for (let first = 0; first < until; first++) {
+    let run = '';
+    for (let last = first; last < label.length && last - first < limit; last++) {
+      run += label[last];
+      if (compare(run, text) === 0 && sameKanaMarks(run, text)) return [first, last + 1];
+    }
+  }
+  return null;
+}
 
 /**
  * SEL-33, LST-17, MNU-7, TRV-23, MBR-12: whether `label`, without the spaces around it, begins with the typed `text`,
- * compared as above (typed "e" begins "École", "か" does not begin "がっこう"). The comparison typeahead gives
- * `RovingKeys.target`.
+ * compared in the label's language `lang` as above (typed "e" begins "École", "か" does not begin "がっこう", and in
+ * Turkish "i" does not begin "Isparta"). The comparison typeahead gives `RovingKeys.target`.
  */
-export const labelBegins = (label: string, text: string) => folded(label.trim()).startsWith(folded(text));
+export const labelBegins = (label: string, text: string, lang?: string): boolean => runOf(letters(label.trim()), text, lang, 1) !== null;
 
-/** The folded text alone, letter by letter as `fold` folds it, for a caller that needs no place in the label. */
-const folded = (text: string) => (text.match(CLUSTER) ?? []).map(foldCluster).join('');
+/** CMB-25: where `label` (its letters) contains `text` in `lang`: the first run that compares equal, or null. */
+export function containsText(label: readonly string[], text: string, lang?: string): [number, number] | null {
+  return runOf(label, text, lang);
+}
 
-/** CMB-38: the first run of `label` that matched `query` (already folded), as the three pieces of the label; null when none did. */
-export function matchRun(folded: Folded, query: string): [string, string, string] | null {
-  if (!query) return null;
-  const at = folded.text.indexOf(query);
-  if (at < 0) return null;
-  const first = folded.from[at];
-  const last = folded.from[at + query.length - 1];
-  const { clusters } = folded;
-  return [clusters.slice(0, first).join(''), clusters.slice(first, last + 1).join(''), clusters.slice(last + 1).join('')];
+/** CMB-38: `label` (its letters) in three pieces around `run` — before it, the run, after it; null for an empty run. */
+export function matchRun(label: readonly string[], run: readonly [number, number] | null): [string, string, string] | null {
+  if (!run || run[0] === run[1]) return null;
+  return [label.slice(0, run[0]).join(''), label.slice(run[0], run[1]).join(''), label.slice(run[1]).join('')];
 }
 
 /**
- * NVD-81, TRV-56: the words of a filter text — the runs of characters between white space, each folded. None while the
- * text holds nothing but white space: then no filter is applied.
+ * NVD-81, TRV-56: the words of a filter text — the runs of characters between white space. None while the text holds
+ * nothing but white space: then no filter is applied.
  */
 export function filterWords(text: string): string[] {
-  return text
-    .split(/\s+/u)
-    .filter(Boolean)
-    .map((word) => fold(word).text)
-    .filter(Boolean);
+  return text.split(/\s+/u).filter(Boolean);
 }
 
 /**
- * NVD-81, TRV-56: whether `label` holds every word — each anywhere in it, in any order. `folded` may be given where the
- * caller keeps the label folded.
+ * NVD-81, TRV-56: whether `label` holds every word — each anywhere in it, in any order — compared in the label's
+ * language `lang`.
  */
-export function holdsWords(label: string, words: readonly string[], folded: Folded = fold(label)): boolean {
-  return words.length > 0 && words.every((word) => folded.text.includes(word));
+export function holdsWords(label: string, words: readonly string[], lang?: string): boolean {
+  if (!words.length) return false;
+  const all = letters(label);
+  return words.every((word) => runOf(all, word, lang) !== null);
 }
 
 /**
@@ -91,19 +137,15 @@ export function holdsWords(label: string, words: readonly string[], folded: Fold
 export const FILTER_SETTLE_MS = 1000;
 
 /**
- * SRC-55, SRC-56: where `label` begins with `typed`, compared as above, the label in two pieces — the letters that
- * answer what was typed, and the rest, its completion (possibly empty); null where it does not begin with it. A typed
- * text that ends inside a letter of the label (half of a ligature's fold) does not begin it.
+ * SRC-55, SRC-56: where `label` begins with `typed`, compared in the label's language `lang` as above, the label in two
+ * pieces — the letters that answer what was typed, and the rest, its completion (possibly empty); null where it does
+ * not begin with it. Only whole letters of the label answer: a typed text that would end inside one (half of what a
+ * ligature stands for) does not begin it.
  */
-export function completionOf(label: string, typed: string): [string, string] | null {
-  if (!typed) return null;
-  const query = fold(typed).text;
-  if (!query) return null;
-  const folded = fold(label);
-  if (!folded.text.startsWith(query)) return null;
-  const last = folded.from[query.length - 1];
-  // The typed text must end where a letter of the label ends.
-  if (query.length < folded.text.length && folded.from[query.length] === last) return null;
-  const { clusters } = folded;
-  return [clusters.slice(0, last + 1).join(''), clusters.slice(last + 1).join('')];
+export function completionOf(label: string, typed: string, lang?: string): [string, string] | null {
+  if (blank(typed, lang)) return null;
+  const all = letters(label);
+  const run = runOf(all, typed, lang, 1);
+  if (!run) return null;
+  return [all.slice(0, run[1]).join(''), all.slice(run[1]).join('')];
 }

@@ -55,7 +55,8 @@ import { AXES, CORE_SIZES, INSET, PREFIX, styles } from './combobox.styles.js';
 import { disabledWaitsWhileFocused } from '../../primitives/disabled-while-focused.js';
 import { focusedAtFirst } from '../../primitives/autofocus.js';
 import { TanreiElement } from '../../primitives/element.js';
-import { type Folded, fold, foldText, matchRun } from '../../primitives/filter.js';
+import { containsText, letters, matchRun, sameText } from '../../primitives/filter.js';
+import { ambientLocale } from '../../primitives/locale-date.js';
 import { PausedAnnouncement } from '../../primitives/paused-announcement.js';
 
 /** The three looks of the input box (`comp.input-box`): a filled box with no label of its own (`stacked`: the label above is its Field's), or the label floating inside a `filled` or `outlined` box. A design system may leave some out or add values. */
@@ -94,6 +95,18 @@ const ENTRY_PARTS = 'container: entry-container, label: entry-label, remove: ent
 
 type Layout = 'stacked' | 'filled' | 'outlined';
 const FILTERS: readonly string[] = ['contains', 'none'];
+/** An option's label as the filter compares it (CMB-25): its letters, and the language it is in (its nearest `lang`). */
+interface ComparedLabel {
+  letters: string[];
+  lang: string;
+}
+/** The filter by one text over one set of options: those shown, and the run of each label that answered (CMB-38). */
+interface Filtered {
+  model: OptionModel;
+  query: string;
+  out: OptionModel;
+  runs: Map<Element, [number, number] | null>;
+}
 const STATUSES: readonly string[] = ['idle', 'loading', 'error'];
 
 /** Runs `task` once the document has been read: an element upgraded while its children are still being parsed has none yet. */
@@ -593,32 +606,59 @@ export class TanreiCombobox extends TanreiElement {
 
   // ── CMB-25: which options are shown ───────────────────────────────────────────────────────────────────────────
 
-  private folded: { model: OptionModel; labels: Map<Element, Folded> } | null = null;
-  private filtered: { model: OptionModel; query: string; out: OptionModel } | null = null;
+  private compared: { model: OptionModel; labels: Map<Element, ComparedLabel> } | null = null;
+  private filtered: Filtered | null = null;
 
-  /** An option's label as it is compared, folded once for as long as the options stay. */
-  private foldedLabel(option: OptionData): Folded {
+  /** An option's label as it is compared — its letters and its language — read once for as long as the options stay. */
+  private comparedLabel(option: OptionData): ComparedLabel {
     const model = this.options$.model;
-    if (this.folded?.model !== model) this.folded = { model, labels: new Map() };
-    let folded = this.folded.labels.get(option.element);
-    if (!folded) this.folded.labels.set(option.element, (folded = fold(option.label)));
-    return folded;
+    if (this.compared?.model !== model) this.compared = { model, labels: new Map() };
+    let label = this.compared.labels.get(option.element);
+    if (!label) this.compared.labels.set(option.element, (label = { letters: letters(option.label), lang: ambientLocale(option.element) }));
+    return label;
   }
 
-  /** The folded text the combobox filters by now; empty while it shows every option. */
+  /** The text the combobox filters by now; empty while it shows every option. */
   private get needle(): string {
-    return this.filterNow === 'contains' && this.query ? fold(this.query).text : '';
+    return (this.filterNow === 'contains' && this.query) || '';
+  }
+
+  /** CMB-25, CMB-38: the first run of an option's label that contains the text the combobox filters by now, or null. */
+  private runIn(option: OptionData): [number, number] | null {
+    const filtered = this.filtering();
+    return filtered ? this.runOf(filtered, option) : null;
+  }
+
+  /** The run of an option's label that answered a filter's text, compared once for as long as the filter stays. */
+  private runOf(filtered: Filtered, option: OptionData): [number, number] | null {
+    let run = filtered.runs.get(option.element);
+    if (run === undefined) {
+      const label = this.comparedLabel(option);
+      filtered.runs.set(option.element, (run = containsText(label.letters, filtered.query, label.lang)));
+    }
+    return run;
+  }
+
+  /** Whether an option answers `filtered`'s text. */
+  private answers(filtered: Filtered) {
+    return (option: OptionData) => this.runOf(filtered, option) !== null;
+  }
+
+  /** The filter of the options by the text now, kept while the options and the text stay; null while there is none. */
+  private filtering(): Filtered | null {
+    const model = this.options$.model;
+    const query = this.needle;
+    if (!query) return null;
+    if (this.filtered?.model !== model || this.filtered.query !== query) {
+      this.filtered = { model, query, runs: new Map(), out: model };
+      this.filtered.out = filterOptions(model, this.answers(this.filtered));
+    }
+    return this.filtered;
   }
 
   /** CMB-25: the options shown now, in their order: every one, or, while the combobox filters, those whose label contains the text. */
   private get shown(): OptionModel {
-    const model = this.options$.model;
-    const query = this.needle;
-    if (!query) return model;
-    if (this.filtered?.model !== model || this.filtered.query !== query) {
-      this.filtered = { model, query, out: filterOptions(model, (option) => this.foldedLabel(option).text.includes(query)) };
-    }
-    return this.filtered.out;
+    return this.filtering()?.out ?? this.options$.model;
   }
 
   /** CMB-60: the product's words, read where the instance gives none (src/primitives/words.ts). */
@@ -758,9 +798,9 @@ export class TanreiCombobox extends TanreiElement {
 
   /** CMB-29: the first option that is not disabled whose whole label is `text`, compared as the filter compares and ignoring the spaces around it. */
   private named(text: string): OptionData | null {
-    const wanted = foldText(text);
+    const wanted = text.trim();
     if (!wanted) return null;
-    return this.options$.model.options.find((option) => !option.disabled && option.value !== '' && foldText(option.label) === wanted) ?? null;
+    return this.options$.model.options.find((option) => !option.disabled && option.value !== '' && sameText(option.label.trim(), wanted, this.comparedLabel(option).lang)) ?? null;
   }
 
   /** The form it belongs to, if any. */
@@ -1568,7 +1608,7 @@ export class TanreiCombobox extends TanreiElement {
 
   /** CMB-38: an option's label with the first run that matched the text in a `<mark>`: one text, drawn heavier there. */
   private readonly labelText = (option: OptionData): unknown => {
-    const run = matchRun(this.foldedLabel(option), this.needle);
+    const run = matchRun(this.comparedLabel(option).letters, this.runIn(option));
     // The run is drawn, not said: without a role of its own it is no node of the option's label for assistive technology.
     return run ? html`${run[0]}<mark role="none">${run[1]}</mark>${run[2]}` : option.label;
   };
