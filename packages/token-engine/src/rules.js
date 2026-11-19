@@ -3,6 +3,10 @@
 //            times?: "{id}", round?: "{id}",            (exp defaults to 1, so by^1 = by exactly; times is a number
 //            min?: "{id}" }                              token, absent = 1; round is the step, absent = 0.25px / 1ms;
 //                                                        min is a floor applied after rounding, absent = none)
+//   add    { of: "{id}", by: "{id}", times?: n,      → max(min, of + by × times), on 0.25px / 1ms: a step a whole
+//            min?: "{id}" }                              number of units from another value (times absent = 1, and
+//                                                        negative below it; min is a floor, absent = none), so a
+//                                                        ladder of heights keeps its distances whatever its default
 //   scale  { base: "{id}", ratio: n, step: n }       → base × ratio^step
 //   clamp  { of: "{id}", min: n, max: n }
 //   pad    { of: "{id}", height: "{id}", by?: n }    → max(0, of × by + (height − height₁) / 2), on 0.25px: the block
@@ -18,7 +22,7 @@
 //                                                       a literal of this token's type or "{id}" (one entry per name)
 //   fixed  { fixed: "reason" }                        → keep the literal; dials do not move it
 // The color half — tone, alpha, mix, contrast-pick — lives in palette.js (color roles) and states.js (per-state
-// component tokens); together they are the ten functions, and the language has no others. `pick` is the one table
+// component tokens); together they are the twelve functions, and the language has no others. `pick` is the one table
 // in it: a token whose value is set by a choice of kind (`sys.behavior.appearance` sets how far a surface that appears
 // is scaled), so that a layer that makes the choice gets the values that go with it, and a layer that pins one of
 // those values keeps its pin.
@@ -54,7 +58,7 @@ export function roundToStep(value, step) {
 export function ruleDependencies(rule) {
   if (!rule || typeof rule !== 'object' || 'fixed' in rule) return [];
   if (!('fn' in rule)) return Object.values(rule).flatMap(ruleDependencies); // composite: keyed by sub-field
-  // numeric: of, base, exp · mul { times, round, min } · pad { of, height } (its by is a number) · sub { of, by } · pick { by, values{} } · color: mix { base, with, amount }, alpha { of, amount }, contrast-pick { on, from[] }
+  // numeric: of, base, exp · mul { times, round, min } · add { by, min } · pad { of, height } (its by is a number) · sub { of, by } · pick { by, values{} } · color: mix { base, with, amount }, alpha { of, amount }, contrast-pick { on, from[] }
   const picked = rule.fn === 'pick' && rule.values && typeof rule.values === 'object' ? Object.values(rule.values) : [];
   return [rule.of, rule.base, rule.exp, rule.by, rule.times, rule.round, rule.min, rule.height, rule.with, rule.amount, rule.on, ...(Array.isArray(rule.from) ? rule.from : []), ...picked].filter(isRef).map(refId);
 }
@@ -108,6 +112,18 @@ export function evaluateNumeric(rule, lookup, ctx) {
       const product = of.value * coefficient * times;
       const rounded = step === undefined ? roundTo(product, ROUND[ctx.type] ?? ROUND.number) : roundToStep(product, step);
       return { value: min === undefined ? rounded : Math.max(min, rounded), unit: of.unit };
+    }
+    case 'add': {
+      if (!isRef(rule.of) || !isRef(rule.by)) throw new Error('"add" needs "of" and "by", each a token as "{id}"');
+      if (rule.times !== undefined && !(typeof rule.times === 'number' && Number.isFinite(rule.times))) throw new Error(`"add" times must be a number; it is ${JSON.stringify(rule.times)}`);
+      if (rule.min !== undefined && !isRef(rule.min)) throw new Error('"add" min must be a token, as "{id}"');
+      const [of, by] = [lookup(refId(rule.of)), lookup(refId(rule.by))];
+      sameUnit('add', 'by', rule, by, of);
+      const sum = roundTo(of.value + by.value * (rule.times ?? 1), ROUND[ctx.type] ?? ROUND.number);
+      if (rule.min === undefined || ctx.unscaling) return { value: sum, unit: of.unit };
+      const floor = lookup(refId(rule.min));
+      sameUnit('add', 'min', rule, floor, of);
+      return { value: Math.max(floor.value, sum), unit: of.unit };
     }
     case 'pad': {
       if (!isRef(rule.of) || !isRef(rule.height)) throw new Error('"pad" needs "of" and "height", each a token as "{id}"');
