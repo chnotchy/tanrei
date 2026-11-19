@@ -7361,6 +7361,7 @@ private let cupertinoSearchTokens = TanreiSearchTokens(
   headerHeight: 56,
   headerPaddingInline: 8,
   inputTypescale: cupertinoTypescale.bodyLarge,
+  leadingIconGap: 8,
   leadingIconSize: 20,
   motionCloseDuration: 250,
   motionCloseEasing: TanreiCubicBezier(0.3, 0, 1, 1),

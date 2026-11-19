@@ -20317,6 +20317,7 @@ class TanreiSearchTokens {
     required this.headerHeight,
     required this.headerPaddingInline,
     required this.inputTypescale,
+    required this.leadingIconGap,
     required this.leadingIconSize,
     required this.motionCloseDuration,
     required this.motionCloseEasing,
@@ -20392,6 +20393,8 @@ class TanreiSearchTokens {
   final double headerPaddingInline;
   /// `comp.search.input-typescale`
   final TanreiTextStyle inputTypescale;
+  /// `comp.search.leading-icon-gap`
+  final double leadingIconGap;
   /// `comp.search.leading-icon-size`
   final double leadingIconSize;
   /// `comp.search.motion-close-duration`
@@ -20496,6 +20499,7 @@ class TanreiSearchTokens {
     double? headerHeight,
     double? headerPaddingInline,
     TanreiTextStyle? inputTypescale,
+    double? leadingIconGap,
     double? leadingIconSize,
     int? motionCloseDuration,
     TanreiCubicBezier? motionCloseEasing,
@@ -20555,6 +20559,7 @@ class TanreiSearchTokens {
         headerHeight: headerHeight ?? this.headerHeight,
         headerPaddingInline: headerPaddingInline ?? this.headerPaddingInline,
         inputTypescale: inputTypescale ?? this.inputTypescale,
+        leadingIconGap: leadingIconGap ?? this.leadingIconGap,
         leadingIconSize: leadingIconSize ?? this.leadingIconSize,
         motionCloseDuration: motionCloseDuration ?? this.motionCloseDuration,
         motionCloseEasing: motionCloseEasing ?? this.motionCloseEasing,

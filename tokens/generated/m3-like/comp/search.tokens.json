@@ -105,7 +105,7 @@
           },
           "gap": {
             "$type": "dimension",
-            "$description": "Between the bar's elements (glyph or leading button, input, the first action button) and the full-screen header's (back button, input, clear button). Neighbouring hit areas meet at the middle of it (SRC-25), so it is what keeps an icon button's target whole on the side where it meets the input: at sys.target.touch minus a button's width or more, the button keeps its full target there. So it is derived as sys.target.touch less the narrowest button there (the bar's small clear button), never below zero: 36 − 36 = 0 in the default system. The action buttons stand button-gap from one another instead.",
+            "$description": "Between the bar's elements (glyph or leading button, input, the first action button; after the glyph, at least leading-icon.gap) and the full-screen header's (back button, input, clear button). Neighbouring hit areas meet at the middle of it (SRC-25), so it is what keeps an icon button's target whole on the side where it meets the input: at sys.target.touch minus a button's width or more, the button keeps its full target there. So it is derived as sys.target.touch less the narrowest button there (the bar's small clear button), never below zero: 36 − 36 = 0 in the default system. The action buttons stand button-gap from one another instead.",
             "$value": "{tanrei.sys.space.space100}",
             "$extensions": {}
           },
@@ -125,6 +125,17 @@
           "size": {
             "$type": "dimension",
             "$value": "{tanrei.sys.icon.medium}"
+          },
+          "gap": {
+            "$type": "dimension",
+            "$description": "The least space between the bar's search glyph and the input: the input stands the larger of this and container.gap after the glyph (SRC-1). container.gap is derived from the buttons' targets and is 0 in the default system; the glyph is no button, so no target depends on the space after it, and the text would touch the glyph. The trigger's gap, so that the bar and the trigger that stands for it set their text as far from their glyph.",
+            "$value": "{tanrei.comp.search.trigger.container.gap}",
+            "$extensions": {
+              "dev.tanrei.vocabulary": {
+                "rationale": "One product keeps its search bar's buttons close to the input, for their targets, while the text keeps its distance from the search glyph, which is no button: the space after the glyph and the space between the input and a button are two decisions.",
+                "since": "0.1.0"
+              }
+            }
           }
         },
         "input": {
@@ -265,7 +276,7 @@
           "container": {
             "height": {
               "$type": "dimension",
-              "$description": "A suggestion row's minimum height: the menu item's.",
+              "$description": "A suggestion row's minimum height: a combobox option's, so that a list of suggestions and a list of options are drawn alike.",
               "medium": {
                 "$value": {
                   "value": 56,
@@ -299,15 +310,19 @@
             },
             "padding-inline": {
               "$type": "dimension",
+              "$description": "At each end of a suggestion's row: a combobox option's.",
               "medium": {
-                "$value": "{tanrei.sys.space.space200}"
+                "$value": "{tanrei.sys.space.space200}",
+                "$extensions": {}
               },
               "small": {
-                "$value": "{tanrei.comp.tree-view.container.padding-inline.small}"
+                "$value": "{tanrei.comp.tree-view.container.padding-inline.small}",
+                "$extensions": {}
               }
             },
             "padding-block": {
               "$type": "dimension",
+              "$description": "Above and below a suggestion's text: a combobox option's, which goes with the height and the text style the suggestion takes from it.",
               "medium": {
                 "$value": {
                   "value": 8,
@@ -326,7 +341,6 @@
                   "value": 4,
                   "unit": "px"
                 },
-                "$description": "4 above and below a small row's line at the small step's height (32), and half of what the row gains above that: the text keeps the search's one text style, whose line is taller than the tree view's small label, so the tree's 6 would make a 32 row 36. 6 in the default system's 36 row.",
                 "$extensions": {
                   "dev.tanrei.derive": {
                     "fn": "pad",
@@ -338,12 +352,14 @@
             },
             "gap": {
               "$type": "dimension",
-              "$description": "Between a suggestion's leading icon and its text.",
+              "$description": "Between a suggestion's leading icon and its text: a combobox option's.",
               "medium": {
-                "$value": "{tanrei.sys.space.space200}"
+                "$value": "{tanrei.sys.space.space200}",
+                "$extensions": {}
               },
               "small": {
-                "$value": "{tanrei.comp.tree-view.container.gap.small}"
+                "$value": "{tanrei.comp.tree-view.container.gap.small}",
+                "$extensions": {}
               }
             },
             "shape": {
@@ -361,7 +377,7 @@
           "completion": {
             "emphasis": {
               "$type": "number",
-              "$description": "How much weight the completion of a query suggestion gains — the part of its headline after the query as typed, and an inline completion in the query row — added to the weight of suggestion.headline.typescale. Weight alone, in the headline's own color and with no fill: the completion is what the person has not typed, read to tell the suggestions apart, not a match. Three of the body family's emphasis steps (400 to 700, bold, in the default system), as web search boxes draw it: weight is all that tells it apart, where a match (result.mark) has its color and its fill as well, so one step would hardly show.",
+              "$description": "How much weight the completion of a query suggestion gains — the part of its headline after the query as typed, and an inline completion in the query row — added to the weight of suggestion.headline.typescale. Weight alone, in the headline's own color and with no fill: the completion is what the person has not typed, read to tell the suggestions apart, not a match. Two of the emphasis steps of the headline's family, the labels (500 to 700, bold, in the default system), as web search boxes draw it: weight is all that tells it apart, where a match (result.mark) has its color and its fill as well, so one step would hardly show.",
               "$value": 300,
               "$extensions": {
                 "dev.tanrei.derive": {
@@ -390,7 +406,9 @@
           "headline": {
             "typescale": {
               "$type": "typography",
-              "$value": "{tanrei.sys.typescale.body}"
+              "$description": "A suggestion's and a result's headline: a combobox option's label.",
+              "$value": "{tanrei.sys.typescale.body}",
+              "$extensions": {}
             }
           },
           "supporting-text": {

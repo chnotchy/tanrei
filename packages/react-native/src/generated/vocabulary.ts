@@ -4375,6 +4375,7 @@ export interface TanreiSearchTokens {
   readonly hoveredOpacity: number;
   readonly hoveredOutlineWidth: number;
   readonly inputTypescale: TanreiTypescaleRole;
+  readonly leadingIconGap: number;
   readonly leadingIconSize: number;
   readonly motionCloseDuration: number;
   readonly motionCloseEasing: TanreiCubicBezier;

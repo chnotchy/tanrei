@@ -5537,6 +5537,82 @@
               "$value": "{tanrei.sys.shape.corner.small}",
               "reason": "This preset keeps the corner it drew, the small corner, on a suggestion's highlight, where the default system derives the inner corner from the outer one less the inset; whether its original rounds a row so is a fidelity decision for this preset."
             },
+            "tanrei.comp.search.suggestion.container.height.medium": {
+              "derive": {
+                "fn": "mul",
+                "of": "{tanrei.dial.size.unit}",
+                "by": 14,
+                "times": "{tanrei.dial.density}",
+                "round": "{tanrei.dial.size.unit}",
+                "min": "{tanrei.sys.target.minimum}"
+              },
+              "reason": "This preset keeps the suggestion row it drew, where the default system draws a search view's rows as a combobox's options; whether its original draws them so is a fidelity decision for this preset."
+            },
+            "tanrei.comp.search.suggestion.container.height.small": {
+              "derive": {
+                "fn": "mul",
+                "of": "{tanrei.sys.control.height.small}",
+                "by": 1,
+                "min": "{tanrei.sys.target.minimum}"
+              },
+              "reason": "This preset keeps the suggestion row it drew, where the default system draws a search view's rows as a combobox's options; whether its original draws them so is a fidelity decision for this preset."
+            },
+            "tanrei.comp.search.suggestion.container.padding-inline.medium": {
+              "$value": "{tanrei.sys.space.space200}",
+              "reason": "This preset keeps the suggestion row it drew, where the default system draws a search view's rows as a combobox's options; whether its original draws them so is a fidelity decision for this preset."
+            },
+            "tanrei.comp.search.suggestion.container.padding-inline.small": {
+              "$value": "{tanrei.comp.tree-view.container.padding-inline.small}",
+              "reason": "This preset keeps the suggestion row it drew, where the default system draws a search view's rows as a combobox's options; whether its original draws them so is a fidelity decision for this preset."
+            },
+            "tanrei.comp.search.suggestion.container.padding-block.medium": {
+              "derive": {
+                "fn": "pad",
+                "of": "{tanrei.sys.space.space100}",
+                "height": "{tanrei.comp.search.suggestion.container.height.medium}"
+              },
+              "reason": "This preset keeps the suggestion row it drew, where the default system draws a search view's rows as a combobox's options; whether its original draws them so is a fidelity decision for this preset."
+            },
+            "tanrei.comp.search.suggestion.container.padding-block.small": {
+              "derive": {
+                "fn": "pad",
+                "of": "{tanrei.sys.space.space50}",
+                "height": "{tanrei.comp.search.suggestion.container.height.small}"
+              },
+              "reason": "This preset keeps the suggestion row it drew, where the default system draws a search view's rows as a combobox's options; whether its original draws them so is a fidelity decision for this preset."
+            },
+            "tanrei.comp.search.suggestion.container.gap.medium": {
+              "$value": "{tanrei.sys.space.space200}",
+              "reason": "This preset keeps the suggestion row it drew, where the default system draws a search view's rows as a combobox's options; whether its original draws them so is a fidelity decision for this preset."
+            },
+            "tanrei.comp.search.suggestion.container.gap.small": {
+              "$value": "{tanrei.comp.tree-view.container.gap.small}",
+              "reason": "This preset keeps the suggestion row it drew, where the default system draws a search view's rows as a combobox's options; whether its original draws them so is a fidelity decision for this preset."
+            },
+            "tanrei.comp.search.suggestion.headline.typescale": {
+              "$value": "{tanrei.sys.typescale.body}",
+              "reason": "This preset keeps the headline it drew, in body, where the default system sets a search view's rows in a combobox option's label; whether its original sets them so is a fidelity decision for this preset."
+            },
+            "tanrei.comp.search.suggestion.completion.emphasis": {
+              "derive": {
+                "fn": "mul",
+                "of": "{tanrei.sys.typescale.emphasis.body}",
+                "by": 3
+              },
+              "reason": "This preset keeps the completion it drew, three of the body family's steps over a body headline, where the default system raises a label headline by two of the label family's; whether its original draws it so is a fidelity decision for this preset."
+            },
+            "tanrei.comp.tree-view.icon.size.medium": {
+              "$value": "{tanrei.sys.icon.small}",
+              "reason": "This preset keeps the glyph it drew before a medium tree row's label, where the default system takes a navigation drawer row's; whether its original draws it so is a fidelity decision for this preset."
+            },
+            "tanrei.comp.tree-view.icon.size.small": {
+              "$value": "{tanrei.sys.icon.extra-small}",
+              "reason": "This preset keeps the glyph it drew before a small tree row's label, where the default system takes a navigation drawer row's; whether its original draws it so is a fidelity decision for this preset."
+            },
+            "tanrei.comp.table-of-contents.row.shape": {
+              "$value": "{tanrei.sys.shape.corner.extra-small}",
+              "reason": "This preset keeps the corner it drew on a table of contents row, the extra-small corner, where the default system rounds it by the small one; whether its original rounds a row so is a fidelity decision for this preset."
+            },
             "tanrei.comp.menu.leading-icon.size.medium": {
               "$value": "{tanrei.sys.icon.medium}"
             },
