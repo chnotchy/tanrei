@@ -1,7 +1,8 @@
 name: CI
-# A targeted run (a dispatch with `grep`, below) is named for what it ran, so that it never reads as the full run's green.
-# Every other run keeps GitHub's own name (an empty run-name).
-run-name: ${{ github.event_name == 'workflow_dispatch' && inputs.grep && format('CI targeted · {0} · ×{1} · {2}', inputs.grep, inputs.repeat, inputs.engines || 'every engine') || '' }}
+# A targeted run (a dispatch with `grep`, below) is named for what it ran, so that it never reads as the full run's green;
+# a dispatch with `scope: pull-request` is named as the pull request's run it stands for. Every other run keeps GitHub's
+# own name (an empty run-name).
+run-name: ${{ github.event_name == 'workflow_dispatch' && (inputs.grep && format('CI targeted · {0} · ×{1} · {2}', inputs.grep, inputs.repeat, inputs.engines || 'every engine') || inputs.scope == 'pull-request' && format('CI · pull-request scope · {0}', github.ref_name)) || '' }}
 
 on:
   push:
@@ -12,10 +13,14 @@ on:
   # (validate, changes, ci-ok) carry the condition; the rest are skipped with them.
   pull_request:
     types: [opened, synchronize, reopened, ready_for_review]
-  # Started by the record-baselines workflow after it pushes baselines (a push made with GITHUB_TOKEN starts no
-  # push or pull_request run, but it may dispatch one). A dispatched run's checks attach to the branch's head commit, so
-  # they show on the pull request. It runs everything, like a push to main.
-  # Unless `grep` is given: then it is a targeted run (CONTRIBUTING.md#a-targeted-run) — the web tests that match it,
+  # A dispatched run's checks attach to the branch's head commit, so they show on the pull request. By default it runs
+  # everything, like a push to main.
+  # With `scope: pull-request` it runs what a pull request from the branch to the default branch runs: the same jobs,
+  # the areas and web tests its changes against the merge base select, the web in Chromium alone, the changeset check.
+  # The record-baselines workflow sends one after it pushes baselines: a push made with GITHUB_TOKEN creates
+  # pull_request runs that wait for approval and are never approved (CONTRIBUTING.md#recording-baselines), so this run
+  # is what tests the recorded head before the merge train does.
+  # With `grep` it is a targeted run (CONTRIBUTING.md#a-targeted-run) — the web tests that match it,
   # `repeat` times each, in the engines named, and no other suite — which shows a fix holds before the full run and
   # never stands for it.
   workflow_dispatch:
@@ -32,6 +37,11 @@ on:
         description: "Targeted run: a comma list of chromium, firefox, webkit. Empty: all three"
         type: string
         default: ""
+      scope:
+        description: "full: every job, all three engines. pull-request: what a pull request from this branch runs (its changes against the default branch, Chromium alone)"
+        type: choice
+        options: [full, pull-request]
+        default: full
   workflow_call: # release.yml runs these same jobs before it publishes anything
     outputs:
       native-paused: # the paused platforms whose jobs were skipped (packages/tools/paused-platforms.json); release.yml publishes none of them
@@ -94,7 +104,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   # What each job builds from, so a pull request and a push to main run only the jobs their changes can affect (a
-  # dispatched run and a release run every job). Every platform reads the tokens, the specs and what the generators write from
+  # dispatched run and a release run every job; a dispatch with `scope: pull-request` runs what the branch's pull
+  # request would). Every platform reads the tokens, the specs and what the generators write from
   # them, so a change to those runs everything. One output per area; the jobs below run when theirs is 'true', and
   # "CI result" accepts a skipped job only when its area is 'false'. A paused platform (packages/tools/paused-platforms.json,
   # the env block above) answers 'false' whatever changed and whatever started the run.
@@ -129,12 +140,34 @@ jobs:
       native-paused: ${{ steps.out.outputs.native-paused }}
       targeted: ${{ steps.out.outputs.targeted }}
       web-repeat: ${{ steps.out.outputs.web-repeat }}
+      pr-scope: ${{ steps.out.outputs.pr-scope }}
     steps:
       # Every kind of run reads the pause list from the tree; a pull request and a push also compare with their base.
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
           persist-credentials: false
+      # A dispatch with `scope: pull-request` stands for the pull request from its branch to the default branch: its base
+      # is where the branch left the default branch (what a pull request's three-dot diff compares with), and its open
+      # pull request, if any, gives the labels below. It is refused with `grep` and on the default branch.
+      - id: pr-base
+        if: github.event_name == 'workflow_dispatch' && inputs.scope == 'pull-request'
+        env:
+          GREP: ${{ inputs.grep }}
+          REF_TYPE: ${{ github.ref_type }}
+          BRANCH: ${{ github.ref_name }}
+          DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          [ -z "$GREP" ] || { echo "::error::scope pull-request and grep are two kinds of run: give one of them"; exit 1; }
+          if [ "$REF_TYPE" != branch ] || [ "$BRANCH" = "$DEFAULT_BRANCH" ]; then
+            echo "::error::scope pull-request needs a branch other than $DEFAULT_BRANCH"
+            exit 1
+          fi
+          sha=$(git merge-base "origin/$DEFAULT_BRANCH" HEAD)
+          pr=$(gh api "repos/$GITHUB_REPOSITORY/pulls?state=open&base=$DEFAULT_BRANCH&head=$GITHUB_REPOSITORY_OWNER:$BRANCH" --jq '.[0].number // ""')
+          echo "Pull-request scope: $BRANCH against $DEFAULT_BRANCH at $sha${pr:+ (pull request #$pr)}"
+          { echo "sha=$sha"; echo "pr=$pr"; } >> "$GITHUB_OUTPUT"
       # A pull request is compared with its base; a push to main with the commit main was at before it
       # (github.event.before), so a merge runs the areas it changed. The first push of a branch has no such commit —
       # before is all zeros, and the action would then compare main with itself and find nothing changed — so the step
@@ -142,11 +175,11 @@ jobs:
       # fails without failing the job and the push runs every area too.
       - uses: dorny/paths-filter@ceb8a2b8f2d89434be7ff52d3de7ec3738c5cc9d # v4.0.3
         id: filter
-        if: github.event_name == 'pull_request' || (github.event_name == 'push' && github.event.before != '0000000000000000000000000000000000000000')
+        if: github.event_name == 'pull_request' || steps.pr-base.outputs.sha || (github.event_name == 'push' && github.event.before != '0000000000000000000000000000000000000000')
         continue-on-error: ${{ github.event_name == 'push' }}
         with:
           token: ""
-          base: ${{ github.event_name == 'push' && github.event.before || '' }}
+          base: ${{ github.event_name == 'push' && github.event.before || steps.pr-base.outputs.sha || '' }}
           filters: |
             shared: &shared
               - tokens/**
@@ -200,19 +233,20 @@ jobs:
               - packages/studio/**
             workflows:
               - .github/**
-      # A pull request and a push to main run the areas their paths changed; a dispatched run and a release run every
-      # area. The core suites' matrix entries are kept here, filtered by their outputs.
+      # A pull request (and a dispatch that stands for one) and a push to main run the areas their paths changed; any
+      # other dispatched run and a release run every area. The core suites' matrix entries are kept here, filtered by their outputs.
       # `ci:web-only` on a pull request (CONTRIBUTING.md#web-only-iteration): the other platforms' jobs
       # (Flutter, Compose, React Native, SwiftUI) are skipped while the web is iterated on a preview, and "CI result"
       # fails on purpose so the pull request cannot merge unverified. The labels are read from the API, not from the
-      # event, so the label also applies to a re-run. It never applies to main, a dispatched run or a release.
+      # event, so the label also applies to a re-run, and to a dispatch with `scope: pull-request` (the open pull request
+      # from its branch). It never applies to main, any other dispatched run or a release.
       # Which web tests the change can affect (packages/tools/src/affected.js): the components it touches, those built
       # from or using them, and every module and test that imports what changed. Node built-ins only, so nothing is
       # installed first. A change it cannot trace selects every test.
       - id: select
         if: steps.filter.outcome == 'success' && steps.filter.outputs.web == 'true'
         env:
-          BASE: ${{ github.event_name == 'push' && github.event.before || github.event.pull_request.base.sha }}
+          BASE: ${{ github.event_name == 'push' && github.event.before || steps.pr-base.outputs.sha || github.event.pull_request.base.sha }}
         run: |
           node packages/tools/src/affected.js "$BASE" > "$RUNNER_TEMP/affected.json"
           jq -r 'if .all then "every web test: \(.reasons | join("; "))" else "components: \(.units | join(", "))\nfiles: \(.files | join(", "))\nwalks of every component, in full: \(.every | join(", "))\nwalks of every component, the selected ones: \(.each | join(", "))" end' "$RUNNER_TEMP/affected.json"
@@ -242,10 +276,12 @@ jobs:
           echo "counts=$counts" >> "$GITHUB_OUTPUT"
       - id: out
         env:
-          ALL: ${{ (github.event_name != 'pull_request' && github.event_name != 'push') || (github.event_name == 'push' && steps.filter.outcome != 'success') }}
+          ALL: ${{ (github.event_name != 'pull_request' && github.event_name != 'push' && !steps.pr-base.outputs.sha) || (github.event_name == 'push' && steps.filter.outcome != 'success') }}
           FILTER: ${{ toJSON(steps.filter.outputs) }}
           SELECTION: ${{ steps.select.outputs.json }}
-          PR: ${{ github.event.pull_request.number }}
+          # The run stands for a pull request: a pull_request run, or a dispatch with `scope: pull-request`.
+          PR_SCOPE: ${{ github.event_name == 'pull_request' || steps.pr-base.outputs.sha != '' }}
+          PR: ${{ github.event.pull_request.number || steps.pr-base.outputs.pr }}
           GH_TOKEN: ${{ github.token }}
           TARGET_GREP: ${{ github.event_name == 'workflow_dispatch' && inputs.grep || '' }}
           TARGET_REPEAT: ${{ github.event_name == 'workflow_dispatch' && inputs.repeat || '' }}
@@ -266,11 +302,10 @@ jobs:
             echo "::error::repeat and engines apply to a targeted run only: give grep as well, or leave them empty for the full run"
             exit 1
           fi
-          echo "targeted=$targeted" >> "$GITHUB_OUTPUT"
-          echo "web-repeat=$repeat" >> "$GITHUB_OUTPUT"
+          { echo "targeted=$targeted"; echo "web-repeat=$repeat"; echo "pr-scope=$PR_SCOPE"; } >> "$GITHUB_OUTPUT"
           web_only=false
           held=false
-          if [ "$GITHUB_EVENT_NAME" = pull_request ]; then
+          if [ -n "$PR" ]; then
             pr=$(gh api "repos/$GITHUB_REPOSITORY/pulls/$PR")
             labels=$(echo "$pr" | jq -r '.labels[].name')
             if echo "$labels" | grep -qx 'ci:web-only'; then
@@ -290,7 +325,7 @@ jobs:
           echo "docs=$(on docs)" >> "$GITHUB_OUTPUT"
           echo "workflows=$(on workflows)" >> "$GITHUB_OUTPUT"
           # The web's matrix. Every test in the three engines (26 shards) on a dispatched run, a release and a push without
-          # a base to compare with (the first push of a branch, or one whose base could not be read). Otherwise the selection: on a pull request in Chromium alone (the cheap check that
+          # a base to compare with (the first push of a branch, or one whose base could not be read). Otherwise the selection: on a pull request (or a dispatch with `scope: pull-request`) in Chromium alone (the cheap check that
           # gates a merge; the other engines run on main and before a release), on a push to main in all three; its shards from its size, about 400 Chromium tests a shard
           # (a component has about 100, its share of the walks of every component among them; a walk run in full, about 10).
           # A selection of nothing runs no web job.
@@ -330,7 +365,7 @@ jobs:
               n=$(( (size + 399) / 400 )); [ "$n" -lt 1 ] && n=1
               grep=$(echo "$SELECTION" | jq -r .grep)
             fi
-            if [ "$GITHUB_EVENT_NAME" = pull_request ]; then
+            if [ "$PR_SCOPE" = true ]; then
               engines=$(echo "$full" | jq -c --argjson n "$n" '[.[0] | .n = ([.n, $n] | min)]')
             else
               engines=$(echo "$full" | jq -c --argjson n "$n" 'map(.n = ([.n, $n] | min))')
@@ -374,11 +409,12 @@ jobs:
           cat "$GITHUB_OUTPUT"
 
   # A pull request that changes a released package carries a changeset (scripts/ci/check-changeset.mjs says which
-  # paths count). Node and git only, nothing installed: a few seconds. On any other event it is skipped, and "CI
-  # result" accepts that skip.
+  # paths count). Node and git only, nothing installed: a few seconds. A dispatch with `scope: pull-request` checks the
+  # same, against the default branch (the script compares three-dot, from the merge base). On any other event it is
+  # skipped, and "CI result" accepts that skip.
   changeset:
     name: Changeset
-    if: github.event_name == 'pull_request' && (!github.event.pull_request.draft || contains(github.event.pull_request.labels.*.name, 'ci:run'))
+    if: (github.event_name == 'pull_request' && (!github.event.pull_request.draft || contains(github.event.pull_request.labels.*.name, 'ci:run'))) || (github.event_name == 'workflow_dispatch' && inputs.scope == 'pull-request')
     runs-on: ubuntu-24.04
     timeout-minutes: 5
     steps:
@@ -387,7 +423,7 @@ jobs:
           fetch-depth: 0
           persist-credentials: false
       - env:
-          BASE: ${{ github.event.pull_request.base.sha }}
+          BASE: ${{ github.event.pull_request.base.sha || format('origin/{0}', github.event.repository.default_branch) }}
         run: node scripts/ci/check-changeset.mjs "$BASE"
 
   # The workflows' own security audit (zizmor, https://docs.zizmor.sh/audits/): template injection, credentials left
@@ -1178,7 +1214,7 @@ jobs:
   # One check that stands for the whole workflow: the jobs above are matrices whose check names carry their shard, and a
   # branch protection rule can require this one name instead. validate and changes must succeed; every other job must
   # have succeeded unless its area (the changes job) was 'false', in which case it may be skipped — and web-report may
-  # be skipped only when web was, changeset only when the run is not a pull request's. Any other skip fails it: a job
+  # be skipped only when web was, changeset only when the run neither is a pull request's nor stands for one. Any other skip fails it: a job
   # skipped because what it needs failed, or one skipped although its area changed.
   # A paused platform's area is 'false' (packages/tools/paused-platforms.json), so its skipped jobs pass here; the log
   # below prints `area native-paused` with the platforms this run did not check.
@@ -1224,7 +1260,7 @@ jobs:
             | select(.value.result != "success")
             | select((.value.result == "skipped" and (
                 if .key == "web-report" then $needs.web.result == "skipped"
-                elif .key == "changeset" then $event != "pull_request"
+                elif .key == "changeset" then $event != "pull_request" and $areas."pr-scope" != "true"
                 elif $area[.key] then ($areas[$area[.key]] // "") != "true"
                 else false end)) | not)
             | "\(.key): \(.value.result)"')
