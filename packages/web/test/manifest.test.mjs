@@ -168,7 +168,7 @@ test('each shipped system has its own elements manifest: the default system’s 
   assert.ok(cupertino.has(tag('segmented-button')) && !cupertino.has(tag('fab-menu')));
   // Each holds the elements of the package but those of the components its system does not ship.
   const all = new Set(elements.map((element) => element.tagName));
-  for (const id of [config.namespace, 'm3-like', 'm3-expressive-like', 'cupertino']) {
+  for (const id of [config.namespace, 'm3-like', 'cupertino']) {
     const shipped = JSON.parse(read(`../../../tokens/generated/${id}/components.json`));
     const tags = tagsOf(id);
     for (const entry of shipped.omitted) assert.equal(tags.has(tag(entry.name)), false, `${id}: <${tag(entry.name)}>`);

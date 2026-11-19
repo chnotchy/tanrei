@@ -281,7 +281,7 @@
     },
     {
       "id": "TIP-29",
-      "text": "WHEN the tooltip is told to close while it is still entering, or to open while it is still leaving THE tooltip SHALL turn round from the opacity, the size and the position it has reached, without first jumping to the start or the end of either motion, and SHALL take no longer over the rest than the whole duration of the motion it turns to. WHILE the tooltip is closed or leaving THE tooltip SHALL take no pointer input — a press reaches what lies under it, and the pointer on it is not hover (TIP-1) — and WHILE it is closed it SHALL take no room in the layout and draw nothing, so that a tooltip nobody can see never stands in the way of what is under it.",
+      "text": "WHEN the tooltip is told to close while it is still entering, or to open while it is still leaving THE tooltip SHALL turn round from the opacity, the size and the position it has reached, without first jumping to the start or the end of either motion, and SHALL take no longer over the rest than the whole duration of the motion it turns to. WHILE the tooltip is closed or leaving THE tooltip SHALL take no pointer input — a press reaches what lies under it, and the pointer on it is not hover (TIP-1, MOT-7) — and WHILE it is closed it SHALL take no room in the layout and draw nothing, so that a tooltip nobody can see never stands in the way of what is under it.",
       "verify": "Test by leaving and re-entering the anchor inside the exit motion and by leaving it inside the enter motion: the opacity of the frame after the turn is the opacity of the frame before it. Test a press at the tooltip's place during the exit motion and after it: it reaches the element under it."
     }
   ],

@@ -1891,7 +1891,7 @@ test.describe('seams', () => {
     }
   });
 
-  for (const system of ['cupertino', 'm3-like', 'm3-expressive-like']) {
+  for (const system of ['cupertino', 'm3-like']) {
     test(`SPB-26, SPB-31: the same under ${system} — its outline widths, its corners, its fills and its elevation meet at the seam without a pixel painted twice`, async ({ browser }) => {
       // Four pages of two dozen seams each, at two device pixels per pixel.
       test.slow();
@@ -2411,7 +2411,7 @@ test.describe('accessibility', () => {
 });
 
 test.describe('the size a container sets', () => {
-  test('SPB-37: without a size of its own a button with menu draws both halves at the size its nearest container sets — a toolbar’s, a set size and never a default — its own size, medium included, wins; a change, a removal and a move are drawn at once; at density 0.75, 1 and 1.5 every height is its size’s token; no size attribute is written on one that takes its size', async ({ page }) => {
+  test('SPB-37: without a size of its own a button with menu draws both halves at the size its nearest container sets — a toolbar’s, a set size and never a default — its own size, medium included, wins; a change, a removal and a move are drawn at once; at control height 40, 48 and 56 every height is its size’s token; no size attribute is written on one that takes its size', async ({ page }) => {
     await mountFixtures(page, spec, { fixtures: spec.fixtures.filter((f) => f.id === 'filled-medium') });
     await page.evaluate(() => {
       const stage = document.createElement('div');
@@ -2436,10 +2436,10 @@ test.describe('the size a container sets', () => {
         [change, ids] as const,
       );
     const all = ['taken', 'own', 'own-medium', 'free', 'alone'];
-    for (const density of ['0.75', '1', '1.5']) {
-      await rootTokens(page, { '--tanrei-dial-density': density });
+    for (const control of ['40px', '48px', '56px']) {
+      await rootTokens(page, { '--tanrei-dial-control-height': control });
       const [small, medium, large] = [await height('small'), await height('medium'), await height('large')];
-      expect(await halves(all), `density ${density}`).toEqual({
+      expect(await halves(all), `control height ${control}`).toEqual({
         taken: [small, small],
         own: [large, large],
         'own-medium': [medium, medium],
@@ -2447,7 +2447,7 @@ test.describe('the size a container sets', () => {
         alone: [medium, medium],
       });
     }
-    await rootTokens(page, { '--tanrei-dial-density': '' });
+    await rootTokens(page, { '--tanrei-dial-control-height': '' });
     const [small, medium, large] = [await height('small'), await height('medium'), await height('large')];
     expect(await page.evaluate(() => ['taken', 'free', 'alone'].map((id) => document.getElementById(id)!.getAttribute('size')))).toEqual([null, null, null]);
     // A size it lacks is its nearest; set, changed and removed on the container; set and given back on itself.

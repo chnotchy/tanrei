@@ -3,7 +3,6 @@
 // a literal appears only where a preset's value is pinned on purpose.
 import { render, screen } from '@testing-library/react-native';
 import { cupertino } from '../../generated/systems/cupertino';
-import { m3ExpressiveLike } from '../../generated/systems/m3-expressive-like';
 import { m3Like } from '../../generated/systems/m3-like';
 import { tanrei } from '../../generated/systems/tanrei';
 import type { TanreiColorRole, TanreiSystem } from '../../generated/vocabulary';
@@ -37,29 +36,22 @@ describe('m3-like drives the LoadingIndicator', () => {
   const system: TanreiSystem = m3Like;
   const tokens = system.components.loadingIndicator;
 
-  test('Material\'s ring stands in: 24 / 40 / 48 with a stroke of 4, in primary', async () => {
-    expect(sizes.map((size) => tokens.sizes[size].indicatorSize)).toEqual([24, 40, 48]);
+  test('Material\'s ring stands in: 24 / 38 / 48 with a stroke of 4, in primary', async () => {
+    expect(sizes.map((size) => tokens.sizes[size].indicatorSize)).toEqual([24, 38, 48]);
     expect(sizes.map((size) => tokens.sizes[size].indicatorThickness)).toEqual([4, 4, 4]);
     await mount(system);
-    expect(viewStyle(host())).toMatchObject({ width: 40, height: 40 });
+    expect(viewStyle(host())).toMatchObject({ width: 38, height: 38 });
     expect(circle()).toMatchObject({ borderWidth: 4, borderColor: role(system, 'primary') });
   });
 
-  test('contained, each mark sits inside its circle: 24 in 32, 40 in 48, 48 in 56', async () => {
+  test('contained, each mark sits inside its circle: 24 in 32, 38 in 48, 48 in 56', async () => {
     expect(sizes.map((size) => tokens.sizes[size].containerSize)).toEqual([32, 48, 56]);
     for (const size of sizes) expect(tokens.sizes[size].containerSize).toBeGreaterThan(tokens.sizes[size].indicatorSize);
-    await mount(system, { contained: true });
-    expect(viewStyle(host())).toMatchObject({ width: 48, height: 48 });
-    expect(viewStyle(part('motion')!)).toMatchObject({ width: 40, height: 40 });
   });
-});
-
-describe('m3-expressive-like drives the LoadingIndicator', () => {
-  const system: TanreiSystem = m3ExpressiveLike;
-  const tokens = system.components.loadingIndicator;
 
   test('contained: a 38 mark on a flat 48 primary-container circle, in on-primary-container', async () => {
     expect([tokens.sizes.medium.indicatorSize, tokens.sizes.medium.containerSize]).toEqual([38, 48]);
+    expect(tokens.containedContainerElevation).toBe('level0');
     await mount(system, { contained: true });
     expect(viewStyle(host())).toMatchObject({ width: 48, height: 48, backgroundColor: role(system, 'primaryContainer') });
     // sys.elevation.level0: no shadow, no ring.

@@ -48,16 +48,25 @@ function shadow(token) {
 // `--tanrei-dial-*` property moves every derived token live. Rounding mirrors the build (0.25px, 1ms),
 // which keeps build-time and runtime results identical at a 16px root. Tone mapping cannot run in CSS,
 // so colors stay build-time values. A `sub` rule is the same subtraction, held at zero, so that an inner corner
-// follows an outer one a product sets at runtime; both of its terms are already on the build's step.
-// A `mul` with `times`, `round` and `min` is `max(min, round(nearest, calc(of * by * times), round))`, the engine's
-// order: rounded to the step, ties upward, then floored. A `pad` is `max(0px, round(nearest, calc(of + (height -
-// height₁) / 2), 0.25px))`, where height₁ is the height's own expression with every `times` read as 1 and no `min`
-// (`unscaledExpression`), so a padding follows a density, a floor or a size unit set at runtime with its box; with a
-// `by` (a padding a layer scaled), `of` is `of × by` on the 0.25px step.
+// follows an outer one a product sets at runtime; both of its terms are already on the build's step. An `add` is
+// `max(min, calc(of + by * times))`: a step a whole number of units from another value, so a ladder written from one
+// height moves with it at runtime.
+// A `mul` with `round` and `min` is `max(min, round(nearest, calc(of * by), round))`, the engine's order: rounded to
+// the step, ties upward, then floored. A `pad` is `max(0px, round(nearest, calc(of + (height - height₁) / 2), 0.25px))`,
+// where height₁ is the height's own expression with no `min` and the control height at least at its reference
+// (`unscaledExpression`), so a padding follows a floor, a control height or a size unit set at runtime with its box; with a `by` (a padding a layer scaled), `of` is `of × by` on the 0.25px step.
 const zeroOf = (type) => (type === 'number' ? '0' : type === 'duration' ? '0ms' : '0px');
 const refOf = (v) => ref(v.slice(1, -1));
 function derivedExpression(rule, type, tokens, { read = refOf, unscaling = false } = {}) {
   if (rule?.fn === 'sub') return `max(${zeroOf(type)}, calc(${read(rule.of)} - ${read(rule.by)}))`;
+  if (rule?.fn === 'add') {
+    // `of + by × times`: a whole number of units lands on the build's step by itself; any other factor is rounded
+    // to it as the engine rounds (0.25px, 1ms), ties upward.
+    const times = rule.times ?? 1;
+    const sum = times === 1 ? `calc(${read(rule.of)} + ${read(rule.by)})` : `calc(${read(rule.of)} + ${read(rule.by)} * ${times})`;
+    const stepped = Number.isInteger(times) || type === 'number' ? sum : `round(nearest, ${sum}, ${type === 'duration' ? '1ms' : '0.25px'})`;
+    return rule.min !== undefined && !unscaling ? `max(${read(rule.min)}, ${stepped})` : stepped;
+  }
   if (rule?.fn === 'pad') {
     // The padding before its box moved: `of`, or `of × by` on the engine's 0.25px step.
     const of = rule.by === undefined || rule.by === 1 ? read(rule.of) : `round(nearest, calc(${read(rule.of)} * ${rule.by}), 0.25px)`;
@@ -67,42 +76,41 @@ function derivedExpression(rule, type, tokens, { read = refOf, unscaling = false
   }
   if (!rule || rule.fn !== 'mul') return null;
   const of = read(rule.of);
-  const times = rule.times !== undefined && !unscaling ? read(rule.times) : null;
   const min = rule.min !== undefined && !unscaling ? read(rule.min) : null;
   const floored = (expression) => (min ? `max(${min}, ${expression})` : expression);
-  if (rule.by === 1 && rule.exp === undefined && !times && rule.round === undefined) return floored(of);
+  if (rule.by === 1 && rule.exp === undefined && rule.round === undefined) return floored(of);
   const exponent = typeof rule.exp === 'string' ? read(rule.exp) : rule.exp;
   const coefficient = rule.exp === undefined ? String(rule.by) : `pow(${rule.by}, ${exponent})`;
-  // A density is a decimal no engine holds exactly — 0.95 is 0.9499999… in the 32-bit floats Firefox computes lengths
-  // in — so a product that is a tie in decimal arithmetic (4 × 10 × 0.95 = 38, half way between 36 and 40) can land a
-  // hair under it and round down where the engine, which rounds the decimal value, rounds up. A ten-thousandth of the
-  // unit lifts it over the tie in every engine, and moves nothing else: a product off a tie is further than that from one.
-  const tie = times && (rule.round !== undefined || type !== 'number') ? [type === 'duration' ? '0.0001ms' : type === 'number' ? '0.0001' : '0.0001px'] : [];
-  const product = `calc(${[[of, ...(rule.by === 1 && rule.exp === undefined ? [] : [coefficient]), ...(times ? [times] : [])].join(' * '), ...tie].join(' + ')})`;
+  const product = `calc(${[of, ...(rule.by === 1 && rule.exp === undefined ? [] : [coefficient])].join(' * ')})`;
   if (rule.round !== undefined) return floored(`round(nearest, ${product}, ${read(rule.round)})`);
   if (type === 'number') return floored(product);
   return floored(`round(nearest, ${product}, ${type === 'duration' ? '1ms' : '0.25px'})`);
 }
 
-/** Whether a token's value depends on a `times`, a `min` or a `pad` anywhere below it: what `pad` must unscale. */
+/**
+ * Whether a token's value depends on a `min`, a `pad` or a dial with a reference (the control height) anywhere below
+ * it: what `pad` must unscale.
+ */
 function scales(id, tokens, seen = new Set()) {
   const token = tokens[id];
   if (!token || seen.has(id)) return false;
   seen.add(id);
+  if (token.reference) return true;
   if (token.alias) return scales(token.alias, tokens, seen);
   const rule = token.derive;
   if (!rule || 'fixed' in rule || token.type === 'typography') return false;
-  if (rule.fn === 'pad' || (rule.fn === 'mul' && (rule.times !== undefined || rule.min !== undefined))) return true;
+  if (rule.fn === 'pad' || (rule.fn === 'mul' && rule.min !== undefined) || (rule.fn === 'add' && rule.min !== undefined)) return true;
   return ruleDependencies(rule).some((dep) => scales(dep, tokens, seen));
 }
 
-/** A token's expression with every `times` read as 1 and no `min`: `var()` where nothing below it scales. */
+/** A token's expression with no `min` and every dial with a reference at it: `var()` where nothing below it scales. */
 function unscaledExpression(id, tokens) {
   if (!scales(id, tokens)) return ref(id);
   const token = tokens[id];
+  if (token.reference) return `max(${ref(id)}, ${dimension(token.reference, token.path)})`;
   if (token.alias) return unscaledExpression(token.alias, tokens);
   const written = derivedExpression(token.derive, token.type, tokens, { read: (v) => unscaledExpression(v.slice(1, -1), tokens), unscaling: true });
-  if (!written) throw new Error(`css: ${id} follows a density or a floor through a "${token.derive.fn}" rule, which CSS cannot write; a "pad" cannot measure its height from it`);
+  if (!written) throw new Error(`css: ${id} follows a floor through a "${token.derive.fn}" rule, which CSS cannot write; a "pad" cannot measure its height from it`);
   return written;
 }
 

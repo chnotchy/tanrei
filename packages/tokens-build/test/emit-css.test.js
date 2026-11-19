@@ -125,7 +125,7 @@ test('emphasis is a weight step: every role gets <role>-font-weight-emphasized =
     if (system === 'm3-like') assert.ok(roles.includes('display-large') && css.includes('--tanrei-sys-typescale-display-large-font-weight-emphasized: calc(var(--tanrei-sys-typescale-display-large-font-weight) + var(--tanrei-sys-typescale-emphasis-display));'), 'an added role takes its family step');
     // The four steps are plain numbers, and the button's label alias forwards the emphasized weight (it does not USE it: the label keeps its weight).
     assert.match(css, /--tanrei-sys-typescale-emphasis-label: \d+;/);
-    assert.ok(css.includes('--tanrei-comp-button-label-typescale-medium-font-weight-emphasized: var(--tanrei-sys-typescale-label-font-weight-emphasized);'), system);
+    assert.match(css, /--tanrei-comp-button-label-typescale-medium-font-weight-emphasized: var\(--tanrei-sys-typescale-[a-z0-9-]+-font-weight-emphasized\);/, system);
     assert.ok(!/--tanrei-sys-typescale-emphasized-/.test(css), `${system}: no emphasized twin roles`);
   }
 });

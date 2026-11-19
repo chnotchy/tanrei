@@ -12,7 +12,7 @@ it closes, and reduced motion is a fade instead of an appearance at once.
   faces the point), from its centre where `sys.motion.appear.origin` is center, over `comp.menu.motion.open-duration`
   and `-easing`, and leaves the same way back over `comp.menu.motion.close-duration` and `-easing`. Told to close while
   it opens, or to open while it closes, it turns round from where it is.
-- Under the `unfold` appearance (m3-like and m3-expressive-like) the menu unfolds from that edge at its full width, and
+- Under the `unfold` appearance (m3-like) the menu unfolds from that edge at its full width, and
   a submenu from the edge that faces its item at its full height.
 - Where motion is reduced each surface fades in and out over `sys.motion.role.reduced` (100 ms), with no scale,
   distance or blur.

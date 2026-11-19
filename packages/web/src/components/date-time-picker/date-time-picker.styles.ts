@@ -159,6 +159,12 @@ export const styles = css`
   .surface.docked.leaving {
     animation: docked-close ${t('docked-motion-close-duration')} ${t('docked-motion-close-easing')} both;
   }
+  /* MOT-7: leaving, it and everything in it take no pointer: a press reaches what lies under it, and the pointer on it
+     is not hover. (Its motion is its own, not appearStyles(), whose closed state says the same of every surface.) */
+  .surface.docked.leaving,
+  .surface.docked.leaving * {
+    pointer-events: none !important;
+  }
   @keyframes docked-open {
     from {
       opacity: 0;

@@ -29,15 +29,22 @@ cites them by id rather than restating them.
   the app ([Reduced motion](#reduced-motion)) — THE component SHALL replace every movement, scaling and blur with a
   change of opacity over `sys.motion.role.reduced`, and SHALL make changes of size at once. (WCAG 2.3.3 counts an
   element that moves into place or changes its size as it appears as motion, and a change of color or opacity as none.)
-- **MOT-7** — WHEN a surface that draws a scrim begins to close THE component SHALL draw its scrim at no opacity, and
+- **MOT-7** — WHILE a surface that appears and is taken away again (a menu, a popover, a tooltip, a snackbar, a dialog,
+  a sheet) is closed or leaving THE surface SHALL take no pointer input: a press where it is still drawn SHALL reach
+  what lies under it, and a pointer on it SHALL NOT be hover. WHEN it is told to open again while it leaves THE surface
+  SHALL take pointer input again at once, while it enters. WHILE a modal surface leaves, its scrim SHALL take no pointer
+  input either, and what it made inert SHALL no longer be inert, so that the press reaches the page and focus goes back
+  when the surface closes (MDL-5), not when its motion ends. A surface that is not taken away but becomes part of the
+  page as it closes (a collapsible navigation drawer, which narrows back to its column) is none of these.
+- **MOT-8** — WHEN a surface that draws a scrim begins to close THE component SHALL draw its scrim at no opacity, and
   without its blur, from the first frame of the closing, at once, whatever motion the surface leaves by and whether or
   not motion is reduced; WHEN it opens THE component SHALL fade the scrim in over its enter motion (MOT-6 where motion is
   reduced); WHEN a closing is turned round THE component SHALL fade the scrim in again from no opacity. WHEN a surface
   that stays open stops being drawn over the content (a drawer whose presentation becomes standard) THE component SHALL
   take its scrim away at once; WHEN it comes to be drawn over the content while open, THE component SHALL draw the scrim
   at once. A scrim SHALL never be eased by the exit curve. (From the first frame of a closing the scrim takes no press
-  and what it covered is no longer inert: a scrim still drawn would show a barrier that is gone. Faded on the exit
-  curve, which gathers speed, it stayed almost whole for most of the exit and then vanished.)
+  (MOT-7) and what it covered is no longer inert: a scrim still drawn would show a barrier that is gone. Faded on the
+  exit curve, which gathers speed, it stayed almost whole for most of the exit and then vanished.)
 
 Under MOT-2 a surface that appears and leaves runs one path both ways: it leaves the way it came, and a surface turned
 round in the middle of either goes back from where it is.
@@ -157,6 +164,25 @@ Two sweeps hold every fixture to this: `src/first-frame-all.test.ts` makes each 
 already there and compares its first frame with its rest, and `src/written-open-all.test.ts` loads each fixture written
 open (and, where the harness draws a surface in place, the real overlay it stands for) by a navigation and counts every
 transition and animation that starts before the page is at rest.
+
+## A surface that leaves, on the web
+
+How the web package keeps MOT-7. The rule is in the appearance itself, so that a surface drawn with it cannot leave it
+out: `appearStyles()` (`packages/web/src/primitives/motion.ts`) gives the motion element, the box round it that holds
+its open state (`box`: an anchored surface's placed box, a tooltip's, the dialog round an image preview's pages), and
+everything inside them `pointer-events: none` wherever its open condition does not match — closed, and from the moment
+it is told to close until it is told to open again. A modal `<dialog>` is closed with `closeModal()`
+(`src/primitives/modal-exit.ts`): it is no longer modal at once, as HTML closes a dialog — the page is no longer inert,
+and focus goes back to the opener in the same task — and while it is still drawn in the top layer for its exit it is
+inert, takes no pointer, and its `::backdrop` takes none. A modal surface cannot stay modal until its exit ends: what a
+modal dialog blocks is inert, and an inert element cannot take focus, which goes back when it closes (MDL-5).
+
+A box that holds the surface but stands outside its shadow root is its component's to close for the pointer: a
+snackbar's host, shown as a popover round its bar, takes no pointer itself; a FAB menu's list, round the items, takes
+none while they leave. A surface that does not move with `appearStyles()` takes none while it leaves by its own rule
+or by being inert (a docked date-time picker, a search's docked view, a standard sheet): HTML has hit-testing treat an
+inert element as `pointer-events: none`. `src/primitives/motion.test.ts` holds the rule for the appearance, and
+`src/primitives/modal-exit.test.ts` for every modal surface.
 
 ## The presets
 

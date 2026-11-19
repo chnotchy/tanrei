@@ -2,7 +2,7 @@
 title: Tabla
 description: Presenta datos que tienen filas y columnas, con columnas con nombre y, de forma opcional, encabezados de fila, una leyenda y filas de pie. Se desplaza dentro de su propia caja cuando no cabe. El encabezado de una columna puede pedir las filas en su orden y las filas se pueden elegir; la tabla nunca ordena por sí misma.
 translationOf: components/table.mdx
-sourceHash: 4a4e0c9ed0fdd67465b80d254f9158df13d09392
+sourceHash: 656e86326718080808bd0cacf66a7c0bec62b45c
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -492,7 +492,7 @@ Una lista de claves y valores sin una segunda dimensión se parece más a una li
 | `medium` (predeterminado) | 46 | Una tabla que se lee: pocas filas, celdas que saltan de línea. |
 | `small` | 32 | Una tabla que se recorre con la vista: cientos de filas, identificadores y valores. |
 
-Una fila no tiene altura propia. Es tan alta como la más alta de sus celdas, y una fila que contiene una casilla de verificación, un botón de opción o un botón de ordenación nunca es más baja que el objetivo en ninguno de los dos tamaños. Los márgenes siguen la [densidad](/es/foundations/size-and-density/) del sistema. Una tabla que no fija `size` se dibuja con el tamaño que fija para su contenido un contenedor que la rodea, y con `medium` donde ninguno lo fija; no pasa ningún tamaño a lo que contienen sus celdas.
+Una fila no tiene altura propia. Es tan alta como la más alta de sus celdas, y una fila que contiene una casilla de verificación, un botón de opción o un botón de ordenación nunca es más baja que el objetivo en ninguno de los dos tamaños. Los márgenes siguen el espaciado del sistema, `dial.space.unit`. Una tabla que no fija `size` se dibuja con el tamaño que fija para su contenido un contenedor que la rodea, y con `medium` donde ninguno lo fija; no pasa ningún tamaño a lo que contienen sus celdas.
 
 ### Cómo distinguir las filas
 

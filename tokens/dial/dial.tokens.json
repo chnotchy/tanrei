@@ -8,8 +8,8 @@
           "rules": [
             "Set a dial with {\"$value\": …, \"reason\": \"…\"} in a layer; never in component code.",
             "A color is not a dial: declare or re-seed a palette under \"palettes\".",
-            "Changing space.unit without size.unit can make controls too small for their padding; the build reports it.",
-            "density is a plain number, 1 by default: below 1 controls and rows are drawn closer, above 1 they get more room. Heights stay on the size unit's grid and never go below sys.target.minimum; it moves heights, block paddings and the gaps between rows only, never text, glyphs, corners or the room across a row."
+            "Changing space.unit without control.height can make controls too small for their padding; the build reports it.",
+            "control.height is the height a control or a row is drawn at in its default size (medium): small and large are whole size units below and above it. It is never under sys.target.minimum: the build refuses a minimum above it."
           ]
         }
       },
@@ -62,19 +62,28 @@
           },
           "$extensions": {
             "dev.tanrei.vocabulary": {
-              "rationale": "One product sets the scale of control heights and icon sizes together.",
+              "rationale": "One product sets the distance between its control sizes and the scale of its icons together.",
               "since": "0.1.0"
             }
           }
         }
       },
-      "density": {
-        "$type": "number",
-        "$value": 1,
-        "$extensions": {
-          "dev.tanrei.vocabulary": {
-            "rationale": "One product decides once how much room its controls and rows take around their content: a tool looked through all day draws them closer, a product used mostly by touch gives them more.",
-            "since": "0.1.0"
+      "control": {
+        "height": {
+          "$type": "dimension",
+          "$value": {
+            "value": 40,
+            "unit": "px"
+          },
+          "$extensions": {
+            "dev.tanrei.vocabulary": {
+              "rationale": "One product decides how tall its controls and rows are drawn: a tool used all day with a mouse draws them low, a product used by touch gives them more.",
+              "since": "0.1.0"
+            },
+            "dev.tanrei.reference": {
+              "value": 40,
+              "unit": "px"
+            }
           }
         }
       },

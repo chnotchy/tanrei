@@ -3,8 +3,10 @@
 # manifests) on the branch changeset-release/main and opens or updates one pull request with the result. Merging it is
 # how a version is chosen. Nothing here publishes or tags: a maintainer dispatches release.yml from main for that.
 #
-# A pull request opened with GITHUB_TOKEN starts no pull_request run, so after the action pushes, this job dispatches
-# CI on the branch (a workflow_dispatch run's checks attach to the branch's head commit and show on the pull request).
+# A pull request opened or pushed to with GITHUB_TOKEN gets pull_request runs that wait for approval (the actor is
+# github-actions[bot]) and are not approved, so none of their jobs runs. After the action pushes, this job therefore
+# dispatches the full CI run on the branch, which is what tests its head (a workflow_dispatch run's checks attach to
+# the branch's head commit and show on the pull request).
 # The repository setting "Allow GitHub Actions to create and approve pull requests" must be on for the action to open
 # the pull request.
 name: Version Packages

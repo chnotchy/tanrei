@@ -45,7 +45,7 @@ class TanreiPaintTest {
 
     @Test
     fun `every generated scheme knows which scheme it is, and a copy stays that scheme`() {
-        for (shipped in listOf(TanreiSystem.Tanrei, TanreiSystem.M3Like, TanreiSystem.M3ExpressiveLike, TanreiSystem.Cupertino)) {
+        for (shipped in listOf(TanreiSystem.Tanrei, TanreiSystem.M3Like, TanreiSystem.Cupertino)) {
             for (scheme in TanreiScheme.entries) assertEquals("${shipped.id} ${scheme.key}", scheme, shipped.colors[scheme].scheme)
         }
         val changed = dark.copy(TanreiColorRole.Primary to Color.Red)

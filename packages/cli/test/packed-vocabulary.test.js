@@ -55,7 +55,7 @@ const COMMANDS = [
   ['.', ['audit', 'page.html']],
   ['.', ['audit', 'page.html', '--format', 'json']],
   ['.', ['audit', 'page.html', '--system', 'cupertino', '--format', 'json']],
-  ['.', ['audit', 'page.html', '--system', 'm3-expressive-like']],
+  ['.', ['audit', 'page.html', '--system', 'm3-like']],
   ['extended', ['validate']],
   ['extended', ['build']],
   ['extended', ['explain', 'acme.comp.rating.gap']],

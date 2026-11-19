@@ -2,7 +2,7 @@
 title: "描述列表"
 description: "把关于一件事物的已知信息呈现为一项项有名称的信息：一个低调的项名，加上回答它的值。项名可以在值的旁边、值的上方，或者在一个大数字的下方。它按自身的宽度布局，从不是控件。"
 translationOf: components/description-list.mdx
-sourceHash: f50d04d5ce041d7fe0606862aa11f2eb7359f970
+sourceHash: 46443c618d44954a116061bc7d85860c9ada2c76
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -155,7 +155,7 @@ import Example from '../../../../components/visuals/Example.astro';
 | `medium`（默认） | 14，行高 20；以及 14，行高 22 | 12；有线时，线的两侧各 12 | 供人阅读的信息：页面、卡片、对话框。 |
 | `small` | 12，行高 16；以及 13，行高 20 | 6；有线时，线的两侧各 6 | 供人扫读的信息：侧边面板、检查器。 |
 
-stat 的数字在 `medium` 时是 32，行高 40；在 `small` 时是 20，行高 28。信息项之间的间距在两种尺寸下都随系统的[密度](/zh-cn/foundations/size-and-density/)变化。没有设置 `size` 的列表，按外围容器为其内容设定的尺寸绘制；没有容器设定时，按 medium 绘制。它不会把尺寸传给值里的内容：值里的标签或按钮有各自的尺寸。
+stat 的数字在 `medium` 时是 32，行高 40；在 `small` 时是 20，行高 28。信息项之间的间距在两种尺寸下都随系统的间距 `dial.space.unit` 变化。没有设置 `size` 的列表，按外围容器为其内容设定的尺寸绘制；没有容器设定时，按 medium 绘制。它不会把尺寸传给值里的内容：值里的标签或按钮有各自的尺寸。
 
 ### 区分各项信息
 

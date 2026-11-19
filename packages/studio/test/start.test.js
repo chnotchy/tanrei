@@ -12,7 +12,7 @@ test('the start points: the default system, the root (not offered yet, and why),
   assert.deepEqual(points.filter(({ offered }) => !offered).map(({ id, reason }) => [id, reason]), [[studio.rootId, 'not-in-init']], 'only the root is listed and not offered');
   for (const point of points) assert.equal(point.name, shipped[point.id].name ?? point.id, `${point.id}: its own name`);
   const examples = points.filter(({ kind }) => kind === 'example').map(({ id }) => id);
-  for (const id of ['m3-like', 'cupertino', 'm3-expressive-like']) assert.ok(examples.includes(id), id);
+  for (const id of ['m3-like', 'cupertino']) assert.ok(examples.includes(id), id);
 });
 
 test('starting from a point: the layer keeps its id, name and description, on that system’s defaults; a fresh layer holds nothing to replace', () => {

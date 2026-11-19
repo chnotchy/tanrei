@@ -470,7 +470,7 @@ export async function validateLayer(input) {
   try {
     const ctx = await loadContext(input);
     const warnings = await ctx.warnings();
-    // What `tanrei build` refuses in a product layer too (a density of zero or less, a hit area under the drawn minimum)
+    // What `tanrei build` refuses in a product layer too (a hit area under the drawn minimum)
     // is a problem here, not a warning: a layer this answers valid for builds.
     const refused = warnings.filter(isRefusedEverywhere);
     if (refused.length) return { id: read.id, chain, valid: false, problems: refused };

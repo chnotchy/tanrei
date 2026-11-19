@@ -50,9 +50,9 @@ export function rowState(ctx: Ctx, layer: Layer, row: Row): RowState {
       return { value: brand?.stack?.[0] ?? '—', changed: Boolean(brand?.changed) };
     }
     case 'size': {
-      const [density, size] = [dial(ctx, layer, 'density'), dial(ctx, layer, 'size.unit')];
+      const [height, size] = [dial(ctx, layer, 'control.height'), dial(ctx, layer, 'size.unit')];
       const minimum = studio.targetMinimum(layer) as Json | null;
-      return { value: t.rail.size(trim(density.value), `${trim(size.value)}${size.unit}`, minimum ? `${trim(minimum.value)}${minimum.unit}` : '—'), changed: density.changed || size.changed || Boolean(minimum?.changed) };
+      return { value: t.rail.size(`${trim(height.value)}${height.unit}`, `${trim(size.value)}${size.unit}`, minimum ? `${trim(minimum.value)}${minimum.unit}` : '—'), changed: height.changed || size.changed || Boolean(minimum?.changed) };
     }
     case 'radius': {
       const shape = dial(ctx, layer, 'shape.unit');
@@ -95,7 +95,7 @@ function sample(ctx: Ctx, row: Row) {
       case 'typeface':
         return el.replaceChildren(h('i', { class: 'ts-sample-type', style: `font-family: ${v('ref.typeface.brand')};`, text: 'Ag' }));
       case 'size':
-        return el.replaceChildren(h('i', { class: 'ts-sample-size', style: `block-size: min(1.5rem, calc(${v('dial.size.unit')} * 4 * ${v('dial.density')}));` }));
+        return el.replaceChildren(h('i', { class: 'ts-sample-size', style: `block-size: min(1.5rem, calc(${v('dial.control.height')} * 0.6));` }));
       case 'radius':
         return el.replaceChildren(h('i', { class: 'ts-sample-corner', style: `border-start-end-radius: ${v('sys.shape.corner.large')};` }));
       case 'smoothing':
@@ -111,6 +111,21 @@ function sample(ctx: Ctx, row: Row) {
   return { el, draw };
 }
 
+/**
+ * The Size row's sample, under its control height: a Button, a field, a menu row and a tab, drawn by the preview's
+ * sheet side by side, so that what lines up at the chosen height is seen lining up (and what does not yet, too).
+ */
+export function sizeSample(ctx: Ctx): HTMLElement {
+  const { t, studio } = ctx;
+  const tag = (name: string) => `${studio.tagPrefix}-${name}` as 'div';
+  return h('div', { class: 'ts-size-sample', role: 'group', 'aria-label': t.rail.sample.label, 'data-size-sample': true, [`data-${studio.namespace}-system`]: ctx.scope },
+    h(tag('button'), { variant: 'outlined', 'data-sample': 'button' }, t.rail.sample.button),
+    h(tag('text-input'), { label: t.rail.sample.field, placeholder: t.rail.sample.field, 'data-sample': 'field' }),
+    h('span', { class: 'ts-size-sample-row', 'data-sample': 'menu-row' }, t.rail.sample.menuRow),
+    h(tag('tabs'), { label: t.rail.sample.tabs, 'data-sample': 'tabs' }, h(tag('tab'), { value: 'one', label: t.rail.sample.tab })),
+  );
+}
+
 /** The tokens a row writes, or the first ones it moves: what the preview marks while the row is pointed at or focused. */
 function rowTokens(ctx: Ctx, layer: Layer, row: Row): string[] {
   const { studio } = ctx;
@@ -123,7 +138,7 @@ function rowTokens(ctx: Ctx, layer: Layer, row: Row): string[] {
     case 'typeface':
       return (studio.typefaces(layer) as Json[]).filter((face) => face.key !== 'mono').map((face) => face.id);
     case 'size':
-      return [dial(ctx, layer, 'density').id, dial(ctx, layer, 'size.unit').id, `${NS}.sys.target.minimum`];
+      return [dial(ctx, layer, 'control.height').id, dial(ctx, layer, 'size.unit').id, `${NS}.sys.target.minimum`];
     case 'radius':
       return [dial(ctx, layer, 'shape.unit').id];
     case 'smoothing':
@@ -142,7 +157,8 @@ type Marking = { highlight?: (ids: string[]) => number; clearHighlight?: () => v
 // ── the shuffle ──────────────────────────────────────────────────────────────────────────────────
 /** Seeds to choose a brand color from: twelve hues apart, each saturated enough to be a brand. */
 const SEEDS = ['#2563eb', '#0f766e', '#7c3aed', '#db2777', '#ea580c', '#ca8a04', '#16a34a', '#0891b2', '#4f46e5', '#be123c', '#57534e', '#0a7aff'];
-const DENSITIES = [0.85, 0.9, 1, 1.1, 1.2];
+/** Control heights to shuffle among: the compact and the roomy ones systems draw. */
+const CONTROL_HEIGHTS = [32, 36, 40, 44];
 const SHAPES = [0, 1, 2, 3, 4, 6];
 const WEIGHTS = [200, 300, 400, 500];
 /** One of `choices` that is not `now` (when there is another): a shuffled row always changes. */
@@ -181,8 +197,8 @@ export function shuffle(ctx: Ctx, layer: Layer, locked: ReadonlySet<Row>, random
         break;
       }
       case 'size': {
-        const density = dial(ctx, next, 'density');
-        next = studio.setDial(next, density.id, another(DENSITIES.filter((value) => value >= density.min && value <= density.max), density.value, random));
+        const height = dial(ctx, next, 'control.height');
+        next = studio.setDial(next, height.id, another(CONTROL_HEIGHTS.filter((value) => value >= height.min && value <= height.max), height.value, random));
         break;
       }
       case 'radius': {

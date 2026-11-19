@@ -10,7 +10,7 @@ take the list's selection: a layer of the row's own content color at the selecte
 1.15:1 to 1.30:1 from a hovered row in every scheme and on every surface role. `comp.tree-view.selected.container.color`,
 `comp.navigation-drawer.selected.item.container.color` and `comp.table.row.selected.container.color` change value; the
 text of a selected row keeps its color. The snapshot baselines of the tree view, navigation drawer and table fixtures
-that show a selected row are recorded again for this. The presets `m3-like`, `m3-expressive-like` and `cupertino` draw
+that show a selected row are recorded again for this. The presets `m3-like` and `cupertino` draw
 as before.
 
 `pnpm validate` holds it: in the default system a selected row and a hovered one (list, tree view, navigation drawer,

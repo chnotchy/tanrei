@@ -10,6 +10,7 @@
     "./core": "./src/core.js",
     "./adapter-http": "./src/adapter-http.js",
     "./page-sheet": "./src/page-sheet.ts",
+    "./sheet-node": "./src/sheet-node.js",
     "./vite": "./vite-plugin.js",
     "./studio.css": "./src/studio.css"
   },

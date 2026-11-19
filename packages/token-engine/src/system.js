@@ -9,7 +9,7 @@
 //   (a value that follows a choice of kind — a `pick` rule — follows the choice the chain makes; a `$value` pins it)
 //   { "scale": n }                           n × whatever was inherited, without restating it (still dial-driven)
 import { SystemError } from './errors.js';
-import { DERIVE, ENUM, evaluateNumeric, ruleDependencies, unscaledLookup, walkTokens } from './rules.js';
+import { DERIVE, ENUM, REFERENCE, evaluateNumeric, ruleDependencies, unscaledLookup, walkTokens } from './rules.js';
 import { expandStateVocabulary, isColorRule } from './states.js';
 import { collectVocabulary, isHeldDocument, materializeVocabulary } from './vocabulary.js';
 
@@ -280,13 +280,13 @@ export function resolveNumericTokens(sources, system) {
     // A choice of kind answers with its names too, for a value that follows it (`pick`).
     return typeof v === 'number' ? { value: v, names: token.$extensions?.[ENUM]?.values } : v;
   };
-  // What a `pad` measures from: each height as its rule gives it with every `times` read as 1 and no `min`.
+  // What a `pad` measures from: each height as its rule gives it with no `min`, and the dials that have a reference at it.
   const unscaled = unscaledLookup((id) => {
     const entry = index.get(id);
     if (!entry) return { value: resolve(id) }; // a color, or an unknown token, which resolve names
     const rule = entry.token.$extensions?.[DERIVE];
     if (isRef(entry.token.$value)) return { alias: refId(entry.token.$value) };
-    return rule && !('fixed' in rule) && entry.type !== 'typography' ? { rule, type: entry.type } : { value: resolve(id) };
+    return rule && !('fixed' in rule) && entry.type !== 'typography' ? { rule, type: entry.type } : { value: resolve(id), reference: entry.token.$extensions?.[REFERENCE] };
   });
   for (const id of index.keys()) resolve(id);
   // Touch ruleDependencies so unknown references inside unused fields still surface.

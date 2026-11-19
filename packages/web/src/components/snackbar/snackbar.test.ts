@@ -1413,6 +1413,34 @@ test.describe('the appearance', () => {
     }
   });
 
+  test('SNK-17, MOT-7: while the bar leaves, neither it nor its host takes the pointer — a press where it is still drawn reaches what lies under it, and the pointer on it is not hover', async ({ page }) => {
+    await page.setViewportSize({ width: 800, height: 600 });
+    await mountHost(page);
+    // The exit is held open for the whole test: it cannot end while the press is made, however slow the machine.
+    await override(page, { [T('motion-exit-duration')]: '600s' });
+    // Indefinite: it stays until the test closes it (the host's short timeout here is 600 ms).
+    await show(page, { message: 'Conversation archived', duration: 'indefinite' });
+    await expect.poll(() => showing(page)).toEqual(['Conversation archived']);
+    await motionEnded(shown(page));
+    // What lies under it: an element of the page over the whole window, which the top layer stands above.
+    await page.evaluate(() => {
+      document.body.insertAdjacentHTML('beforeend', '<div id="under" style="position: fixed; inset: 0"></div>');
+      const under = document.getElementById('under')!;
+      under.addEventListener('click', () => (under.dataset.pressed = String(Number(under.dataset.pressed ?? 0) + 1)));
+    });
+    const b = await bounds(shown(page).locator('.bar'));
+    const at = { x: b.x + b.width / 2, y: b.y + b.height / 2 };
+    const hit = () => page.evaluate(({ x, y }) => document.elementFromPoint(x, y)?.localName === 'tanrei-snackbar' ? 'snackbar' : (document.elementFromPoint(x, y)?.id ?? null), at);
+    expect(await hit(), 'shown, the snackbar takes the press').toBe('snackbar');
+    await dismissShown(page);
+    expect(await showing(page), 'still in the top layer while it leaves').toEqual(['Conversation archived']);
+    expect(Number(await css(shown(page).locator('.bar'), 'opacity')), 'still drawn while it leaves').toBeGreaterThan(0.05);
+    expect(await hit(), 'leaving, what lies under it is at its centre').toBe('under');
+    await page.mouse.click(at.x, at.y);
+    expect(await page.locator('#under').getAttribute('data-pressed'), 'the press reaches what lies under it').toBe('1');
+    expect(await shown(page).locator('.bar').evaluate((el) => el.matches(':hover')), 'the pointer on it is not hover').toBe(false);
+  });
+
   test('SNK-17: closed while it appears, the bar turns round from the opacity and the scale it has reached, carrying the exit and none of the entrance; it stays in the top layer until the exit has played, and the next waits for that', async ({ page }) => {
     await mountHost(page);
     // Long enough that neither motion ends between two answers on a slow machine; the turn is read where it is held.

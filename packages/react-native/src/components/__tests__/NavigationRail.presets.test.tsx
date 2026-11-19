@@ -4,7 +4,6 @@
 import { render, screen } from '@testing-library/react-native';
 import { Dimensions } from 'react-native';
 import { cupertino } from '../../generated/systems/cupertino';
-import { m3ExpressiveLike } from '../../generated/systems/m3-expressive-like';
 import { m3Like } from '../../generated/systems/m3-like';
 import type { TanreiColorRole, TanreiSystem } from '../../generated/vocabulary';
 import { describeFixtureBaselines, describeSharedVocabulary, settleMotion, textStyle, viewStyle } from '../../testing/harness';
@@ -50,12 +49,6 @@ describe('m3-like drives the NavigationRail', () => {
     expect(viewStyle(part(0, 'container')!).borderRadius).toBe(system.shape.full);
     expect(viewStyle(part(0, 'fill')!).backgroundColor).toBe(role(system, 'secondaryContainer'));
     expect(system.behavior.pressedFeedback).toBe('ripple');
-  });
-});
-
-describe('m3-expressive-like drives the NavigationRail', () => {
-  test('it inherits m3-like\'s rail (its 96 width waits for the fidelity reference: mimicry gap navigation-rail-expanded)', () => {
-    expect(m3ExpressiveLike.components.navigationRail).toEqual(m3Like.components.navigationRail);
   });
 });
 

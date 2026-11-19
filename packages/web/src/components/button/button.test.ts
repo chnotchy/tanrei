@@ -253,7 +253,7 @@ test.describe('behavior', () => {
     expect(styles.background).toMatch(/0\.12\)$/);
   });
 
-  test('BTN-48: without a size of its own a button is drawn at the size its nearest container sets — a set size, never a default — its own size, medium included, wins; a size it lacks is its nearest; a change, a removal and a move are drawn before the next frame; at density 0.75, 1 and 1.5 and minimum 24, 36 and 48 every height is its size’s token, the ladder step held at the minimum', async ({ page }) => {
+  test('BTN-48: without a size of its own a button is drawn at the size its nearest container sets — a set size, never a default — its own size, medium included, wins; a size it lacks is its nearest; a change, a removal and a move are drawn before the next frame; at control height 40, 48 and 56 and minimum 24, 36 and 48 every height is its size’s token, the ladder step held at the minimum', async ({ page }) => {
     // Containers that pass a size are button groups (BGR-26). A group holds Buttons alone, so a group in a group is
     // reported (BGR-10) and still laid out — here it is how one container stands nearer a button than another.
     await page.evaluate(() => {
@@ -295,10 +295,10 @@ test.describe('behavior', () => {
     expect(await page.evaluate((list) => list.map((id) => document.getElementById(id)!.getAttribute('size')), all)).toEqual([null, 'large', 'medium', null, null, null, null]);
 
     for (const minimum of ['24px', '36px', '48px']) {
-      for (const density of ['0.75', '1', '1.5']) {
-        await rootTokens(page, { '--tanrei-dial-density': density, '--tanrei-sys-target-minimum': minimum });
+      for (const height of ['40px', '48px', '56px']) {
+        await rootTokens(page, { '--tanrei-dial-control-height': height, '--tanrei-sys-target-minimum': minimum });
         const size = await tokens();
-        const at = `density ${density}, minimum ${minimum}`;
+        const at = `control height ${height}, minimum ${minimum}`;
         // Each size's height is its ladder step, held at the minimum (the token engine's rule, read back here).
         const min = await resolveToken(page, '--tanrei-sys-target-minimum');
         for (const name of ['small', 'medium', 'large'] as const) {
@@ -315,10 +315,10 @@ test.describe('behavior', () => {
         });
       }
     }
-    // The sweep moved the heights: the large step at 1.5 is not the one at 1.
-    await rootTokens(page, { '--tanrei-dial-density': '1.5', '--tanrei-sys-target-minimum': '' });
+    // The sweep moved the heights: the large step at a control height of 56px is not the one at 40px.
+    await rootTokens(page, { '--tanrei-dial-control-height': '56px', '--tanrei-sys-target-minimum': '' });
     const roomy = (await tokens()).large;
-    await rootTokens(page, { '--tanrei-dial-density': '' });
+    await rootTokens(page, { '--tanrei-dial-control-height': '' });
     const size = await tokens();
     expect(roomy).toBeGreaterThan(size.large);
 
@@ -1068,9 +1068,8 @@ test.describe('icon side padding and icon-only widths', () => {
 
   // A preset keeps the narrow widths it drew — its own glyph and the inset it pins.
   for (const [system, widths] of [
-    ['m3-like', { small: 28, medium: 32, large: 48 }],
+    ['m3-like', { small: 28, medium: 32, large: 48, xlarge: 64, xxlarge: 104 }],
     ['cupertino', { small: 28, medium: 32, large: 48 }],
-    ['m3-expressive-like', { xsmall: 28, small: 28, medium: 32, large: 48, xlarge: 48 }],
   ] as const) {
     test(`BTN-12, BTN-21: under ${system} a narrow icon-only button is its glyph and the inset the preset pins on each side — ${Object.values(widths).join(' / ')} — the glyph centred, at the height of its size, and its hit area reaches the target`, async ({ page }) => {
       const sizes = Object.keys(widths) as (keyof typeof widths)[];
@@ -1692,9 +1691,10 @@ test.describe('values a design system adds', () => {
     expect((await box(page, 'size-3x'))!.height).toBe(large * 1.5);
     expect(await style(page, 'size-3x', 'padding-left')).toBe(`${(await resolveToken(page, '--tanrei-comp-button-container-padding-inline-start-large')) * 1.5}px`);
     expect(await style(page, 'size-3x', 'padding-top')).toBe('16px'); // the one member the layer overrode
-    const unit = await resolveToken(page, '--tanrei-dial-size-unit');
-    await rootTokens(page, { '--tanrei-dial-size-unit': '5px' });
-    expect((await box(page, 'size-3x'))!.height).toBe((large * 1.5 * 5) / unit);
+    // It follows the control height as large does: 10 more on large is 15 more on 3x.
+    const height = await resolveToken(page, '--tanrei-dial-control-height');
+    await rootTokens(page, { '--tanrei-dial-control-height': `${height + 10}px` });
+    expect((await box(page, 'size-3x'))!.height).toBe((large + 10) * 1.5);
 
     const danger = page.locator(button('variant-danger'));
     expect(await style(page, 'variant-danger', 'background-color')).toBe(await resolveColor(page, '--tanrei-sys-color-error'));

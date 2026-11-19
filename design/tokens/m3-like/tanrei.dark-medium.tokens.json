@@ -8059,6 +8059,20 @@
                 "value": 8,
                 "unit": "px"
               }
+            },
+            "xlarge": {
+              "$type": "dimension",
+              "$value": {
+                "value": 12,
+                "unit": "px"
+              }
+            },
+            "xxlarge": {
+              "$type": "dimension",
+              "$value": {
+                "value": 16,
+                "unit": "px"
+              }
             }
           },
           "height": {
@@ -8080,6 +8094,20 @@
               "$type": "dimension",
               "$value": {
                 "value": 32,
+                "unit": "px"
+              }
+            },
+            "xlarge": {
+              "$type": "dimension",
+              "$value": {
+                "value": 96,
+                "unit": "px"
+              }
+            },
+            "xxlarge": {
+              "$type": "dimension",
+              "$value": {
+                "value": 136,
                 "unit": "px"
               }
             }
@@ -8105,6 +8133,20 @@
                 "value": 6,
                 "unit": "px"
               }
+            },
+            "xlarge": {
+              "$type": "dimension",
+              "$value": {
+                "value": 6,
+                "unit": "px"
+              }
+            },
+            "xxlarge": {
+              "$type": "dimension",
+              "$value": {
+                "value": 6,
+                "unit": "px"
+              }
             }
           },
           "padding-inline-end-with-icon": {
@@ -8125,7 +8167,21 @@
             "small": {
               "$type": "dimension",
               "$value": {
-                "value": 12,
+                "value": 16,
+                "unit": "px"
+              }
+            },
+            "xlarge": {
+              "$type": "dimension",
+              "$value": {
+                "value": 48,
+                "unit": "px"
+              }
+            },
+            "xxlarge": {
+              "$type": "dimension",
+              "$value": {
+                "value": 64,
                 "unit": "px"
               }
             }
@@ -8148,7 +8204,21 @@
             "small": {
               "$type": "dimension",
               "$value": {
-                "value": 12,
+                "value": 16,
+                "unit": "px"
+              }
+            },
+            "xlarge": {
+              "$type": "dimension",
+              "$value": {
+                "value": 48,
+                "unit": "px"
+              }
+            },
+            "xxlarge": {
+              "$type": "dimension",
+              "$value": {
+                "value": 64,
                 "unit": "px"
               }
             }
@@ -8174,6 +8244,20 @@
                 "value": 4,
                 "unit": "px"
               }
+            },
+            "xlarge": {
+              "$type": "dimension",
+              "$value": {
+                "value": 16,
+                "unit": "px"
+              }
+            },
+            "xxlarge": {
+              "$type": "dimension",
+              "$value": {
+                "value": 32,
+                "unit": "px"
+              }
             }
           },
           "padding-inline-start-with-icon": {
@@ -8194,7 +8278,21 @@
             "small": {
               "$type": "dimension",
               "$value": {
-                "value": 12,
+                "value": 16,
+                "unit": "px"
+              }
+            },
+            "xlarge": {
+              "$type": "dimension",
+              "$value": {
+                "value": 48,
+                "unit": "px"
+              }
+            },
+            "xxlarge": {
+              "$type": "dimension",
+              "$value": {
+                "value": 64,
                 "unit": "px"
               }
             }
@@ -8217,7 +8315,21 @@
             "small": {
               "$type": "dimension",
               "$value": {
-                "value": 12,
+                "value": 16,
+                "unit": "px"
+              }
+            },
+            "xlarge": {
+              "$type": "dimension",
+              "$value": {
+                "value": 48,
+                "unit": "px"
+              }
+            },
+            "xxlarge": {
+              "$type": "dimension",
+              "$value": {
+                "value": 64,
                 "unit": "px"
               }
             }
@@ -8249,6 +8361,20 @@
               "$type": "dimension",
               "$value": {
                 "value": 40,
+                "unit": "px"
+              }
+            },
+            "xlarge": {
+              "$type": "dimension",
+              "$value": {
+                "value": 128,
+                "unit": "px"
+              }
+            },
+            "xxlarge": {
+              "$type": "dimension",
+              "$value": {
+                "value": 184,
                 "unit": "px"
               }
             }
@@ -11748,27 +11874,55 @@
                 "value": 20,
                 "unit": "px"
               }
+            },
+            "xlarge": {
+              "$type": "dimension",
+              "$value": {
+                "value": 32,
+                "unit": "px"
+              }
+            },
+            "xxlarge": {
+              "$type": "dimension",
+              "$value": {
+                "value": 40,
+                "unit": "px"
+              }
             }
           },
           "size": {
             "large": {
               "$type": "dimension",
               "$value": {
-                "value": 18,
+                "value": 24,
                 "unit": "px"
               }
             },
             "medium": {
               "$type": "dimension",
               "$value": {
-                "value": 18,
+                "value": 20,
                 "unit": "px"
               }
             },
             "small": {
               "$type": "dimension",
               "$value": {
-                "value": 18,
+                "value": 20,
+                "unit": "px"
+              }
+            },
+            "xlarge": {
+              "$type": "dimension",
+              "$value": {
+                "value": 32,
+                "unit": "px"
+              }
+            },
+            "xxlarge": {
+              "$type": "dimension",
+              "$value": {
+                "value": 40,
                 "unit": "px"
               }
             }
@@ -11785,15 +11939,15 @@
                   "sans-serif"
                 ],
                 "fontSize": {
-                  "value": 14,
+                  "value": 16,
                   "unit": "px"
                 },
                 "fontWeight": 500,
                 "letterSpacing": {
-                  "value": 0.1,
+                  "value": 0.1504,
                   "unit": "px"
                 },
-                "lineHeight": 1.4286
+                "lineHeight": 1.5
               }
             },
             "medium": {
@@ -11834,6 +11988,46 @@
                   "unit": "px"
                 },
                 "lineHeight": 1.4286
+              }
+            },
+            "xlarge": {
+              "$type": "typography",
+              "$value": {
+                "fontFamily": [
+                  "Roboto",
+                  "system-ui",
+                  "sans-serif"
+                ],
+                "fontSize": {
+                  "value": 24,
+                  "unit": "px"
+                },
+                "fontWeight": 400,
+                "letterSpacing": {
+                  "value": 0,
+                  "unit": "px"
+                },
+                "lineHeight": 1.3333
+              }
+            },
+            "xxlarge": {
+              "$type": "typography",
+              "$value": {
+                "fontFamily": [
+                  "Roboto",
+                  "system-ui",
+                  "sans-serif"
+                ],
+                "fontSize": {
+                  "value": 32,
+                  "unit": "px"
+                },
+                "fontWeight": 400,
+                "letterSpacing": {
+                  "value": 0,
+                  "unit": "px"
+                },
+                "lineHeight": 1.25
               }
             }
           }
@@ -11884,6 +12078,20 @@
                 "value": 150,
                 "unit": "ms"
               }
+            },
+            "xlarge": {
+              "$type": "duration",
+              "$value": {
+                "value": 150,
+                "unit": "ms"
+              }
+            },
+            "xxlarge": {
+              "$type": "duration",
+              "$value": {
+                "value": 150,
+                "unit": "ms"
+              }
             }
           },
           "state-easing": {
@@ -11916,6 +12124,20 @@
               "$type": "dimension",
               "$value": {
                 "value": 1,
+                "unit": "px"
+              }
+            },
+            "xlarge": {
+              "$type": "dimension",
+              "$value": {
+                "value": 2,
+                "unit": "px"
+              }
+            },
+            "xxlarge": {
+              "$type": "dimension",
+              "$value": {
+                "value": 3,
                 "unit": "px"
               }
             }
@@ -54172,76 +54394,17 @@
               "$value": {
                 "colorSpace": "srgb",
                 "components": [
-                  0.0588,
-                  0.051,
-                  0.0745
+                  0.3098,
+                  0.2157,
+                  0.5451
                 ],
-                "hex": "#0f0d13",
+                "hex": "#4f378b",
                 "alpha": 1
               }
             },
             "elevation": {
               "$type": "shadow",
-              "$value": [
-                {
-                  "offsetX": {
-                    "value": 0,
-                    "unit": "px"
-                  },
-                  "offsetY": {
-                    "value": 1,
-                    "unit": "px"
-                  },
-                  "blur": {
-                    "value": 2,
-                    "unit": "px"
-                  },
-                  "spread": {
-                    "value": 0,
-                    "unit": "px"
-                  },
-                  "color": {
-                    "colorSpace": "srgb",
-                    "components": [
-                      0,
-                      0,
-                      0
-                    ],
-                    "alpha": 0.3,
-                    "hex": "#000000"
-                  },
-                  "inset": false
-                },
-                {
-                  "offsetX": {
-                    "value": 0,
-                    "unit": "px"
-                  },
-                  "offsetY": {
-                    "value": 2,
-                    "unit": "px"
-                  },
-                  "blur": {
-                    "value": 6,
-                    "unit": "px"
-                  },
-                  "spread": {
-                    "value": 2,
-                    "unit": "px"
-                  },
-                  "color": {
-                    "colorSpace": "srgb",
-                    "components": [
-                      0,
-                      0,
-                      0
-                    ],
-                    "alpha": 0.15,
-                    "hex": "#000000"
-                  },
-                  "inset": false
-                }
-              ]
+              "$value": []
             }
           },
           "indicator": {
@@ -54250,11 +54413,11 @@
               "$value": {
                 "colorSpace": "srgb",
                 "components": [
-                  0.8471,
-                  0.8235,
-                  0.8667
+                  0.9647,
+                  0.9294,
+                  1
                 ],
-                "hex": "#d8d2dd",
+                "hex": "#f6edff",
                 "alpha": 1
               }
             }
@@ -54318,7 +54481,7 @@
             "medium": {
               "$type": "dimension",
               "$value": {
-                "value": 40,
+                "value": 38,
                 "unit": "px"
               }
             },
@@ -98421,7 +98584,7 @@
               "value": 8,
               "unit": "px"
             },
-            "$description": "The space between two blocks of one event's body: half the space between two events at density 1, so what belongs to one event is closer together than two events are."
+            "$description": "The space between two blocks of one event's body: half the space between two events, so what belongs to one event is closer together than two events are."
           },
           "typescale": {
             "large": {
@@ -98505,7 +98668,7 @@
               "value": 16,
               "unit": "px"
             },
-            "$description": "The space between the end of one event and the beginning of the next: the space prose puts between two blocks in the default system, times the system's density, so a denser system draws its events closer together."
+            "$description": "The space between the end of one event and the beginning of the next: the space prose puts between two blocks in the default system, so a system that spaces its blocks closer draws its events closer together."
           }
         },
         "marker": {
@@ -101167,9 +101330,14 @@
       }
     },
     "dial": {
-      "density": {
-        "$type": "number",
-        "$value": 1
+      "control": {
+        "height": {
+          "$type": "dimension",
+          "$value": {
+            "value": 40,
+            "unit": "px"
+          }
+        }
       },
       "motion": {
         "unit": {

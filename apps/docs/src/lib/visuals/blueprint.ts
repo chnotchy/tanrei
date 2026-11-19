@@ -22,8 +22,8 @@
 //   table is written again when the system changes.
 // - **It is drawn once the stage is at rest**: its elements have drawn, the fonts have arrived, and the motions that
 //   end (an entrance, a fade) have ended.
-// - **It is drawn again** when the stage changes size or direction, when the fonts arrive, and when the frame is drawn
-//   under another system (lib/visuals/frame.ts, `SYSTEM_EVENT`).
+// - **It is drawn again** when the stage changes size or direction, when the fonts arrive, and when the page's look
+//   changes (lib/visuals/frame.ts, `SYSTEM_EVENT`).
 import type { PartTarget } from './anatomy';
 import type { LineAxis } from './measure';
 import { SYSTEM_EVENT, settled, shadowRootsIn, whenDrawn } from './frame';

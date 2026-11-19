@@ -64,7 +64,7 @@ struct GallerySystem: Identifiable, Hashable {
   let system: TanreiSystem
   var id: String { system.id }
 
-  static let all: [GallerySystem] = [.tanrei, .m3Like, .m3ExpressiveLike, .cupertino, .acme].map(GallerySystem.init(system:))
+  static let all: [GallerySystem] = [.tanrei, .m3Like, .cupertino, .acme].map(GallerySystem.init(system:))
 
   static func == (a: GallerySystem, b: GallerySystem) -> Bool { a.id == b.id }
   func hash(into hasher: inout Hasher) { hasher.combine(id) }
