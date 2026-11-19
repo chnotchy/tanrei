@@ -48,7 +48,9 @@ function shadow(token) {
 // `--tanrei-dial-*` property moves every derived token live. Rounding mirrors the build (0.25px, 1ms),
 // which keeps build-time and runtime results identical at a 16px root. Tone mapping cannot run in CSS,
 // so colors stay build-time values. A `sub` rule is the same subtraction, held at zero, so that an inner corner
-// follows an outer one a product sets at runtime; both of its terms are already on the build's step.
+// follows an outer one a product sets at runtime; both of its terms are already on the build's step. An `add` is
+// `max(min, calc(of + by * times))`: a step a whole number of units from another value, so a ladder written from one
+// height moves with it at runtime.
 // A `mul` with `times`, `round` and `min` is `max(min, round(nearest, calc(of * by * times), round))`, the engine's
 // order: rounded to the step, ties upward, then floored. A `pad` is `max(0px, round(nearest, calc(of + (height -
 // height₁) / 2), 0.25px))`, where height₁ is the height's own expression with every `times` read as 1 and no `min`
@@ -58,6 +60,14 @@ const zeroOf = (type) => (type === 'number' ? '0' : type === 'duration' ? '0ms' 
 const refOf = (v) => ref(v.slice(1, -1));
 function derivedExpression(rule, type, tokens, { read = refOf, unscaling = false } = {}) {
   if (rule?.fn === 'sub') return `max(${zeroOf(type)}, calc(${read(rule.of)} - ${read(rule.by)}))`;
+  if (rule?.fn === 'add') {
+    // `of + by × times`: a whole number of units lands on the build's step by itself; any other factor is rounded
+    // to it as the engine rounds (0.25px, 1ms), ties upward.
+    const times = rule.times ?? 1;
+    const sum = times === 1 ? `calc(${read(rule.of)} + ${read(rule.by)})` : `calc(${read(rule.of)} + ${read(rule.by)} * ${times})`;
+    const stepped = Number.isInteger(times) || type === 'number' ? sum : `round(nearest, ${sum}, ${type === 'duration' ? '1ms' : '0.25px'})`;
+    return rule.min !== undefined && !unscaling ? `max(${read(rule.min)}, ${stepped})` : stepped;
+  }
   if (rule?.fn === 'pad') {
     // The padding before its box moved: `of`, or `of × by` on the engine's 0.25px step.
     const of = rule.by === undefined || rule.by === 1 ? read(rule.of) : `round(nearest, calc(${read(rule.of)} * ${rule.by}), 0.25px)`;
@@ -92,7 +102,7 @@ function scales(id, tokens, seen = new Set()) {
   if (token.alias) return scales(token.alias, tokens, seen);
   const rule = token.derive;
   if (!rule || 'fixed' in rule || token.type === 'typography') return false;
-  if (rule.fn === 'pad' || (rule.fn === 'mul' && (rule.times !== undefined || rule.min !== undefined))) return true;
+  if (rule.fn === 'pad' || (rule.fn === 'mul' && (rule.times !== undefined || rule.min !== undefined)) || (rule.fn === 'add' && rule.min !== undefined)) return true;
   return ruleDependencies(rule).some((dep) => scales(dep, tokens, seen));
 }
 
