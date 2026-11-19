@@ -2076,7 +2076,7 @@ test.describe('behavior: the list', () => {
     await expect.poll(() => at('icon-space-auto', 'Print')).toBeCloseTo(kept, 0);
   });
 
-  test('SEL-70: a small select draws its options and group titles from the small tokens — lower, set in less, smaller glyphs, the same text — never below the target; a medium or a large select draws medium ones; an unknown size is medium and reported, one added to the options is drawn from their tokens, a change is drawn at once, and the heights follow the density', async ({ page, browserName }) => {
+  test('SEL-70: a small select draws its options and group titles from the small tokens — lower, set in less, smaller glyphs, the same text — never below the target; a medium or a large select draws medium ones; an unknown size is medium and reported, one added to the options is drawn from their tokens, a change is drawn at once, and the heights follow the size unit', async ({ page, browserName }) => {
     const seen = warnings(page);
     const smallFixture = spec.fixtures.find((f) => f.id === 'size-small')!;
     const at = (id: string, size: string) => ({ ...smallFixture, id, props: { ...smallFixture.props, size } }) as Fixture;
@@ -2126,11 +2126,11 @@ test.describe('behavior: the list', () => {
     await expect.poll(async () => (await drawn('size-medium', 'Mail')).height).toBeCloseTo(mail.height, 0);
     await host(page, 'size-medium').evaluate((el: HTMLElement & { size: string }) => (el.size = 'large'));
     await expect.poll(async () => (await drawn('size-medium', 'Mail')).height).toBeCloseTo(mailMedium.height, 0);
-    // The heights follow the system's density: a small option is the small token at each.
-    for (const density of ['0.75', '1.5', '']) {
-      await rootTokens(page, { '--tanrei-dial-density': density });
+    // The heights follow the system's size unit: a small option is the small token at each.
+    for (const unit of ['5px', '6px', '']) {
+      await rootTokens(page, { '--tanrei-dial-size-unit': unit });
       const step = await token(page, 'option-height-small');
-      await expect.poll(async () => (await drawn('size-small', 'Mail')).height, `density ${density || 1}`).toBeCloseTo(Math.max(step, pointer), 0);
+      await expect.poll(async () => (await drawn('size-small', 'Mail')).height, `size unit ${unit || "4px"}`).toBeCloseTo(Math.max(step, pointer), 0);
     }
     // SEL-37: no size is lower than the pointer target for a fine pointer — seen under a layer whose pointer target (48)
     // is taller than the small row, as the default system's (36) is not.
@@ -3474,7 +3474,7 @@ test.describe('the clear button', () => {
 });
 
 test.describe('the size a container sets', () => {
-  test('SEL-73: without a size of its own a select draws its box at the size its nearest container sets — a toolbar’s (TBR-31), a set size and never a default —; its own size, medium included, wins; a size it lacks is its nearest; a change, a removal and a move are drawn at once; at density 0.75, 1 and 1.5 every height is its size’s token, the small one a small Button’s; no size attribute is written on one that takes its size; and axe finds nothing', async ({ page }) => {
+  test('SEL-73: without a size of its own a select draws its box at the size its nearest container sets — a toolbar’s (TBR-31), a set size and never a default —; its own size, medium included, wins; a size it lacks is its nearest; a change, a removal and a move are drawn at once; at size unit 4, 5 and 6 every height is its size’s token, the small one a small Button’s; no size attribute is written on one that takes its size; and axe finds nothing', async ({ page }) => {
     await mountFixtures(page, spec, { fixtures: spec.fixtures.filter((f) => f.id === 'stacked-empty') });
     await expectBoxTakesContainerSize(page, 'tanrei-select', T);
   });

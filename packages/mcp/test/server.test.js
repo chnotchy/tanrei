@@ -223,7 +223,7 @@ test('search_tokens: substring, glob, filters and pagination', async () => {
   assert.ok(substring.tokens.some((t) => t.id === 'tanrei.sys.color.focus-ring'));
 
   const dials = (await server.call('search_tokens', { tier: 'dial' })).data;
-  assert.equal(dials.total, 8);
+  assert.equal(dials.total, 7);
   assert.ok(dials.tokens.every((t) => t.kind === 'dial'));
   assert.ok(dials.tokens.every((t) => typeof t.description === 'string' && t.description.length > 10 && t.description.length <= 140), 'a short description: its own, or the vocabulary rationale');
   const durations = (await server.call('search_tokens', { type: 'duration', kind: 'derived', limit: 5 })).data;
@@ -604,21 +604,18 @@ test('validate_layer: the philosophy is enforced, with the way out', async () =>
 
 test('validate_layer: what tanrei build refuses in every layer is a problem; a target under its criterion a warning', async () => {
   const check = async (tokens) => (await server.call('validate_layer', { layer: { id: 'acme', extends: 'tanrei', tokens } })).data;
-  const zero = await check({ 'tanrei.dial.density': { $value: 0, reason: 'A density of zero, to be refused.' } });
-  assert.equal(zero.valid, false, 'a layer validate_layer answers valid for builds');
-  assert.deepEqual(zero.problems, ['target floor: dial.density: 0 — a density is above zero (1 is the default; below 1 draws closer, above 1 gives more room)']);
   const under = await check({ 'tanrei.sys.target.pointer': { $value: { value: 30, unit: 'px' }, reason: 'A pointer target under the minimum.' } });
-  assert.equal(under.valid, false);
+  assert.equal(under.valid, false, 'a layer validate_layer answers valid for builds');
   assert.match(under.problems[0], /^target floor: sys\.target\.pointer: 30px is under sys\.target\.minimum \(36px\)/);
   // Under WCAG 2.5.8's 24px, a product layer is warned, as of a contrast pair; the build goes on.
   const small = await check({ 'tanrei.sys.target.minimum': { $value: { value: 20, unit: 'px' }, reason: 'A minimum under the criterion.' } });
   assert.equal(small.valid, true);
   assert.ok(small.warnings.first.includes('target size: sys.target.minimum: 20px < 24px (WCAG 2.5.8: the least target a person presses)'), small.warnings.first.join('\n'));
-  const dense = await check({ 'tanrei.dial.density': { $value: 0.75, reason: 'A tool looked through all day.' } });
+  const dense = await check({ 'tanrei.dial.size.unit': { $value: { value: 3.5, unit: 'px' }, reason: 'A tool looked through all day.' } });
   assert.equal(dense.valid, true);
   // The description says what the checks do.
   const { description } = (await server.client.listTools()).tools.find((t) => t.name === 'validate_layer');
-  for (const phrase of [/tanrei\.dial\.density` at 0 or below/, /under `tanrei\.sys\.target\.minimum`/, /under 24px \(WCAG 2\.5\.8\)/]) assert.match(description, phrase);
+  for (const phrase of [/refuses in every layer: `tanrei\.sys\.target\.pointer`/, /under `tanrei\.sys\.target\.minimum`/, /under 24px \(WCAG 2\.5\.8\)/]) assert.match(description, phrase);
 });
 
 test('validate_layer: extensions are valid targets, and each way to get one wrong is named precisely', async () => {
@@ -953,8 +950,9 @@ test('resources: philosophy, the layer schema, every shipped layer, every system
   // Both ideals, and how they hold together.
   for (const phrase of [/a small core/, /exact reproduction/, /any layer may extend it/, /a step in a series/, /a value on a component axis/, /the layer's own tokens/, /"tanrei\.comp\.button\.size\.3x": \{ "from": "large", "scale": 1\.5/, /rationale/, /Additive only/, /own namespace = the layer id/, /nothing in `tanrei\.\*` may reference them/, /Interaction states are not extensible/, /--acme-/, /for core and extensions alike/, /propose_extension/]) assert.match(philosophy.text, phrase);
   assert.doesNotMatch(philosophy.text, /never in tokens|can never add|cannot add/i);
-  // The dials as the vocabulary has them (eight, density among them), and the minimum target that is none of them.
-  for (const phrase of [/Eight numeric dials/, /density 1/, /`sys\.target\.minimum`, which is no dial \(36px/, /`sys\.target\.pointer` and `\.touch` alias it/, /`dial\.density` at 0 or below/]) assert.match(philosophy.text, phrase);
+  // The dials as the vocabulary has them (seven), and the minimum target that is none of them.
+  for (const phrase of [/Seven numeric dials/, /size\.unit 4px/, /`sys\.target\.minimum`, which is no dial \(36px/, /`sys\.target\.pointer` and `\.touch` alias it/, /`sys\.target\.pointer` or `\.touch` under `sys\.target\.minimum`/]) assert.match(philosophy.text, phrase);
+  assert.doesNotMatch(philosophy.text, /density/, 'no density dial');
   assert.doesNotMatch(philosophy.text, /\b(44|48)px\b/, 'no platform figure is named as the default');
   assert.equal(JSON.parse((await read('tanrei://schema/system')).text).title, 'Tanrei design system layer');
   for (const id of SHIPPED) assert.deepEqual(JSON.parse((await read(`tanrei://systems/${id}`)).text), shippedLayer(id), `${id}: the layer file as authored`);

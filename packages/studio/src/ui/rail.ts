@@ -50,9 +50,9 @@ export function rowState(ctx: Ctx, layer: Layer, row: Row): RowState {
       return { value: brand?.stack?.[0] ?? '—', changed: Boolean(brand?.changed) };
     }
     case 'size': {
-      const [density, size] = [dial(ctx, layer, 'density'), dial(ctx, layer, 'size.unit')];
+      const size = dial(ctx, layer, 'size.unit');
       const minimum = studio.targetMinimum(layer) as Json | null;
-      return { value: t.rail.size(trim(density.value), `${trim(size.value)}${size.unit}`, minimum ? `${trim(minimum.value)}${minimum.unit}` : '—'), changed: density.changed || size.changed || Boolean(minimum?.changed) };
+      return { value: t.rail.size(`${trim(size.value)}${size.unit}`, minimum ? `${trim(minimum.value)}${minimum.unit}` : '—'), changed: size.changed || Boolean(minimum?.changed) };
     }
     case 'radius': {
       const shape = dial(ctx, layer, 'shape.unit');
@@ -95,7 +95,7 @@ function sample(ctx: Ctx, row: Row) {
       case 'typeface':
         return el.replaceChildren(h('i', { class: 'ts-sample-type', style: `font-family: ${v('ref.typeface.brand')};`, text: 'Ag' }));
       case 'size':
-        return el.replaceChildren(h('i', { class: 'ts-sample-size', style: `block-size: min(1.5rem, calc(${v('dial.size.unit')} * 4 * ${v('dial.density')}));` }));
+        return el.replaceChildren(h('i', { class: 'ts-sample-size', style: `block-size: min(1.5rem, calc(${v('dial.size.unit')} * 4));` }));
       case 'radius':
         return el.replaceChildren(h('i', { class: 'ts-sample-corner', style: `border-start-end-radius: ${v('sys.shape.corner.large')};` }));
       case 'smoothing':
@@ -123,7 +123,7 @@ function rowTokens(ctx: Ctx, layer: Layer, row: Row): string[] {
     case 'typeface':
       return (studio.typefaces(layer) as Json[]).filter((face) => face.key !== 'mono').map((face) => face.id);
     case 'size':
-      return [dial(ctx, layer, 'density').id, dial(ctx, layer, 'size.unit').id, `${NS}.sys.target.minimum`];
+      return [dial(ctx, layer, 'size.unit').id, `${NS}.sys.target.minimum`];
     case 'radius':
       return [dial(ctx, layer, 'shape.unit').id];
     case 'smoothing':
@@ -142,7 +142,7 @@ type Marking = { highlight?: (ids: string[]) => number; clearHighlight?: () => v
 // ── the shuffle ──────────────────────────────────────────────────────────────────────────────────
 /** Seeds to choose a brand color from: twelve hues apart, each saturated enough to be a brand. */
 const SEEDS = ['#2563eb', '#0f766e', '#7c3aed', '#db2777', '#ea580c', '#ca8a04', '#16a34a', '#0891b2', '#4f46e5', '#be123c', '#57534e', '#0a7aff'];
-const DENSITIES = [0.85, 0.9, 1, 1.1, 1.2];
+const SIZE_UNITS = [3.5, 4, 4.5, 5];
 const SHAPES = [0, 1, 2, 3, 4, 6];
 const WEIGHTS = [200, 300, 400, 500];
 /** One of `choices` that is not `now` (when there is another): a shuffled row always changes. */
@@ -181,8 +181,8 @@ export function shuffle(ctx: Ctx, layer: Layer, locked: ReadonlySet<Row>, random
         break;
       }
       case 'size': {
-        const density = dial(ctx, next, 'density');
-        next = studio.setDial(next, density.id, another(DENSITIES.filter((value) => value >= density.min && value <= density.max), density.value, random));
+        const size = dial(ctx, next, 'size.unit');
+        next = studio.setDial(next, size.id, another(SIZE_UNITS.filter((value) => value >= size.min && value <= size.max), size.value, random));
         break;
       }
       case 'radius': {

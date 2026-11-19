@@ -1572,7 +1572,7 @@ test.describe('missing, unknown, empty', () => {
     expect(seen.some((text) => text.includes('TOC-39') && text.includes('4 levels deep'))).toBe(true);
   });
 
-  test('TOC-42: without a size of its own a table of contents draws its rows at the size its nearest container sets — a set size, never a default — and its own size, medium included, wins; a size it lacks is its nearest; a change, a removal and a move are drawn before the next frame, keeping the current item, open and the focus; the disclosure row keeps its height; at density 0.75, 1 and 1.5 every row is its size’s height', async ({ page }) => {
+  test('TOC-42: without a size of its own a table of contents draws its rows at the size its nearest container sets — a set size, never a default — and its own size, medium included, wins; a size it lacks is its nearest; a change, a removal and a move are drawn before the next frame, keeping the current item, open and the focus; the disclosure row keeps its height; at size unit 4, 5 and 6 every row is its size’s height', async ({ page }) => {
     await mountFixtures(page, spec, { icons: true, fixtures: [raw('anchor', LABEL, THREE)] });
     // The containers that pass a size are the button group and the toolbar; a button group stands in for any of them
     // here (it reports content that is not a Button, BGR-10, and still lays it out).
@@ -1606,12 +1606,12 @@ test.describe('missing, unknown, empty', () => {
     };
     // A size it takes, or the default, is not its own: no size attribute is written on one that sets none.
     expect(await page.evaluate((ids) => ids.map((id) => document.getElementById(id)!.getAttribute('size')), all)).toEqual([null, 'medium', null, null, null, null]);
-    for (const density of ['0.75', '1', '1.5']) {
-      await rootTokens(page, { '--tanrei-dial-density': density });
+    for (const unit of ['4px', '5px', '6px']) {
+      await rootTokens(page, { '--tanrei-dial-size-unit': unit });
       const size = await rowsAt();
-      await expect.poll(heights, `density ${density}`).toEqual({ taken: size.small, 'own-medium': size.medium, folded: size.small, free: size.medium, nearest: size.medium, alone: size.medium });
+      await expect.poll(heights, `size unit ${unit}`).toEqual({ taken: size.small, 'own-medium': size.medium, folded: size.small, free: size.medium, nearest: size.medium, alone: size.medium });
     }
-    await rootTokens(page, { '--tanrei-dial-density': '' });
+    await rootTokens(page, { '--tanrei-dial-size-unit': '' });
     const size = await rowsAt();
     expect(size.medium).toBeGreaterThan(size.small);
     // Every member of the size: the block padding is small's; the label's text style is the same at both sizes.

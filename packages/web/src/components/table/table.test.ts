@@ -1446,7 +1446,7 @@ test.describe('changes, direction, text size, forced colors', () => {
     expect(seen.filter((m) => m.includes('"airy"')).length).toBe(0);
   });
 
-  test('TBL-62: without a size of its own a table is drawn at the size its nearest container sets — a set size, never a default — and its own size, medium included, wins; a size it lacks is its nearest; it passes none to what its cells hold; a change, a removal and a move are drawn before the next frame, keeping the chosen rows and focus; at density 0.75, 1 and 1.5 every cell is padded by its size’s tokens', async ({ page }) => {
+  test('TBL-62: without a size of its own a table is drawn at the size its nearest container sets — a set size, never a default — and its own size, medium included, wins; a size it lacks is its nearest; it passes none to what its cells hold; a change, a removal and a move are drawn before the next frame, keeping the chosen rows and focus; at space unit 6, 8 and 12 every cell is padded by its size’s tokens', async ({ page }) => {
     await mountFixtures(page, spec, { icons: true, fixtures: some('basic') });
     // The containers that pass a size are the button group and the toolbar; a button group stands in for any of them
     // here (it reports content that is not a Button, and still lays it out).
@@ -1480,12 +1480,12 @@ test.describe('changes, direction, text size, forced colors', () => {
     const sizes = async () => ({ small: await resolveToken(page, T('cell-padding-block-small')), medium: await resolveToken(page, T('cell-padding-block-medium')) });
     // A size it takes, or the default, is not its own: no size attribute is written on a table that sets none.
     expect(await page.evaluate((ids) => ids.map((id) => document.getElementById(id)!.getAttribute('size')), all)).toEqual([null, 'medium', null, null, null]);
-    for (const density of ['0.75', '1', '1.5']) {
-      await rootTokens(page, { '--tanrei-dial-density': density });
+    for (const space of ['6px', '8px', '12px']) {
+      await rootTokens(page, { '--tanrei-dial-space-unit': space });
       const size = await sizes();
-      await expect.poll(pads, `density ${density}`).toEqual({ taken: size.small, 'own-medium': size.medium, free: size.medium, nearest: size.medium, alone: size.medium });
+      await expect.poll(pads, `space unit ${space}`).toEqual({ taken: size.small, 'own-medium': size.medium, free: size.medium, nearest: size.medium, alone: size.medium });
     }
-    await rootTokens(page, { '--tanrei-dial-density': '' });
+    await rootTokens(page, { '--tanrei-dial-space-unit': '' });
     const size = await sizes();
     expect(size.medium).toBeGreaterThan(size.small);
     // Every member of the size: the cell's text style, its inline padding and the header's text style are small's.
