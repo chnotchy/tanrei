@@ -23,7 +23,12 @@
 // links) 1.3 s later than with no rules — the document read 0.7 s later, its scripts run 0.6 s later. With the rules
 // after the links it loads 0.1 s later than with none. The page's own policy stands in the head, before them, and so
 // governs them (lib/csp.mjs).
+//
+// A component's page names its component on the shell (`data-docs-subject`): the one place the site defines a component
+// the default system does not have, outside a frame pinned to a system that has it (lib/omitted-elements.ts).
 import { frameWords } from './frame';
+import { SUBJECT_ATTR } from '../../lib/omitted-elements';
+import { specOfPage } from '../../lib/page-head';
 import { speculationRulesText } from '../../lib/speculation-rules.mjs';
 
 const route = Astro.locals.starlightRoute;
@@ -32,7 +37,7 @@ const banner = route.entry.data.banner;
 const notices = [route.isFallback && Astro.locals.t('i18n.untranslatedContent'), route.entry.data.draft && Astro.locals.t('page.draft')].filter((text): text is string => typeof text === 'string');
 ---
 
-<tanrei-app-shell aside-order="before" aside-label={route.toc ? words.onThisPage : undefined} data-docs-sidebar={route.hasSidebar ? '' : undefined}>
+<tanrei-app-shell aside-order="before" aside-label={route.toc ? words.onThisPage : undefined} data-docs-sidebar={route.hasSidebar ? '' : undefined} {...{ [SUBJECT_ATTR]: specOfPage(route.id)?.name }}>
   <a class="tanrei-link" data-standalone slot="skip-link" href="#main">{words.skipLink}</a>
   {
     (banner || notices.length > 0) && (

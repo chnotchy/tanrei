@@ -53,6 +53,10 @@ declare module 'virtual:tanrei-docs/default-scope.css';
 declare module 'virtual:tanrei-element-modules' {
   export const loaders: Readonly<Record<string, () => Promise<unknown>>>;
   export const modules: number;
+  /** The tags of the components the default system does not have (src/lib/element-modules.mjs `outsideTags`). */
+  export const outside: Readonly<Record<string, import('./lib/omitted-elements').Outside>>;
+  /** The default system's id. */
+  export const system: string;
 }
 
 // The names the React package gives each element (src/lib/element-modules.mjs `reactNames`), for an example's code.

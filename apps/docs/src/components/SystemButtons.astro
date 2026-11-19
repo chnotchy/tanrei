@@ -33,7 +33,7 @@ const titleId = `${figureId(Astro)}-title`;
       </header>
       <div data-part="stage" class="rows">
         {shippedSystems.map((system) => (
-          <div class="row" data-tanrei-system={system.id}>
+          <div class="row" data-tanrei-system={system.id} data-docs-shows-system={system.id}>
             <p>
               <code>{system.id}</code>{' '}
               <span>{tokens.map((id) => systemValue(system, `${ns}.${id}`)).join(' · ')}</span>

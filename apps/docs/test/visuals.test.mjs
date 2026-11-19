@@ -524,7 +524,7 @@ describe('the playground', () => {
       for (const control of controls) {
         const prop = specs[name].props.find((entry) => entry.name === control.prop);
         const values = prop.type === 'enum' ? prop.values.filter((value) => prop.name !== 'variant' || !(lacking[name] ?? []).includes(value)) : [];
-        const expected = { enum: values.length <= SIDE_BY_SIDE ? 'segmented' : 'select', boolean: 'switch', number: 'number', string: 'text' }[prop.type];
+        const expected = { enum: values.length <= SIDE_BY_SIDE ? 'tabs' : 'select', boolean: 'switch', number: 'number', string: 'text' }[prop.type];
         assert.equal(control.kind, expected, `${name}.${control.prop}`);
         assert.deepEqual(control.values, values, `${name}.${control.prop}`);
         assert.equal(control.default, prop.default, `${name}.${control.prop}`);
@@ -534,7 +534,7 @@ describe('the playground', () => {
     assert.ok(counted > 1000, `${counted} controls in all: fewer than the specs' settable props`);
     const button = controlsOf('button');
     assert.equal(button.find((control) => control.prop === 'variant').kind, 'select', 'five variants open as a list');
-    assert.equal(button.find((control) => control.prop === 'size').kind, 'segmented', 'three sizes stand side by side');
+    assert.equal(button.find((control) => control.prop === 'size').kind, 'tabs', 'three sizes stand side by side');
   });
 
   test('every control writes only an attribute the web element reads, the attribute of the property it sets', () => {

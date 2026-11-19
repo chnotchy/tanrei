@@ -6,10 +6,11 @@
 // - **What it draws is the web package's.** The stage is the web package's own fixture document's stage of the spec's
 //   first fixture (or the one a page names), its staging scoped to the stage, as the Specs tab's gallery draws it:
 //   the site writes no markup of a component's own.
-// - **The controls come from the spec and the build's manifest.** A choice of a few values is a Segmented button, a
-//   longer one a Select, a flag a Switch, a number a Number field and a text a Text field, each named by the prop
-//   («variant»), as the Specs tab's table of props names it. A control writes only an attribute the manifest says the
-//   element reads; the code writes only what differs from the spec's default.
+// - **The controls come from the spec and the build's manifest.** A choice of a few values is a row of Tabs without
+//   panels (one choice that changes what is shown at once, which the default system draws as tabs: it ships no
+//   segmented button), a longer one a Select, a flag a Switch, a number a Number field and a text a Text field, each
+//   named by the prop («variant»), as the Specs tab's table of props names it. A control writes only an attribute
+//   the manifest says the element reads; the code writes only what differs from the spec's default.
 // - **The page's address keeps what is set** (`#play-<component>=…`, lib/visuals/playground-state.ts), so that a link
 //   opens the playground as it was left; the reset in the frame's header takes every control back to where it started.
 // - **Nothing moves as the page loads.** The canvas holds the room of the fixture's tallest baseline at any size, the
@@ -49,10 +50,11 @@ const room = [
   .join(' ') || undefined;
 const scope = { [STAGE_SCOPE]: '' };
 const id = `docs-playground-${name}`;
-// A segmented choice whose segments do not fit beside each other in one cell takes two. Its segments are as wide as
-// each other: the longest value and the selected segment's check, in characters, for each.
+// A row of tabs whose tabs do not fit beside each other in one cell takes two. Each tab hugs its value, with the small
+// size's padding on each side (about three characters together), and the row draws no track: in characters, against
+// the narrowest cell.
 const CELL = 26;
-const wide = (values: string[]) => values.length * (Math.max(...values.map((value) => value.length)) + 4) > CELL;
+const wide = (values: string[]) => values.reduce((sum, value) => sum + value.length + 3, 0) > CELL;
 const data = JSON.stringify({ component: name, tag: playground.tag, markup: playground.markup, controls: playground.controls, start: playground.start }).replaceAll('<', '\\u003c');
 const [before = '', after = ''] = t.visuals.playgroundNative.split('{link}');
 const escapeAttribute = (value: string) => value.replace(/&/g, '&amp;').replace(/"/g, '&quot;');
@@ -74,16 +76,19 @@ const reset = `<tanrei-button class="docs-example-action" variant="text" size="s
         const value = playground.start[control.prop];
         const common = { label: control.prop, 'data-playground-prop': control.prop, lang: 'en', translate: 'no' };
         return (
-          <div class="docs-playground-control" data-kind={control.kind} data-wide={control.kind === 'segmented' && wide(control.values) ? '' : undefined}>
+          <div class="docs-playground-control" data-kind={control.kind} data-wide={control.kind === 'tabs' && wide(control.values) ? '' : undefined}>
             <span class="docs-playground-name" aria-hidden="true" translate="no">
               <code class="tanrei-code">{control.prop}</code>
             </span>
-            {control.kind === 'segmented' && (
-              <tanrei-segmented-button {...common} size="small" selection="single" value={String(value)}>
+            {/* Tabs without panels: one choice, exposed as a radio group named by the prop, each tab a radio named
+                by its value; the arrow keys move and select (TAB-42). Tonal, without the track and small: the quiet
+                row the tabs' guidelines give a choice that stands beside what it changes. */}
+            {control.kind === 'tabs' && (
+              <tanrei-tabs {...common} variant="tonal" track="false" size="small" value={String(value)}>
                 {control.values.map((choice) => (
-                  <tanrei-segment value={choice} label={choice} />
+                  <tanrei-tab value={choice} label={choice} />
                 ))}
-              </tanrei-segmented-button>
+              </tanrei-tabs>
             )}
             {control.kind === 'select' && (
               <tanrei-select {...common} label-hidden size="small" value={String(value)}>
@@ -132,13 +137,13 @@ const reset = `<tanrei-button class="docs-example-action" variant="text" size="s
     block-size: var(--docs-playground-stage-block-size);
   }
   /* The controls: cells of one size in as many columns as fit, each the prop's name above its control. Every cell
-     holds the room of the tallest control (a small text field's box, a small segmented button, a pointer's target)
+     holds the room of the tallest control (a small text field's box, a small row of tabs, a pointer's target)
      before any is defined, so nothing moves when they are. */
   .docs-playground-controls {
     --docs-playground-control: max(
       var(--tanrei-comp-input-box-container-height-small),
       var(--tanrei-comp-input-box-stacked-container-height-small),
-      var(--tanrei-comp-segmented-button-container-height-small),
+      var(--tanrei-comp-tabs-container-height-small),
       var(--tanrei-sys-target-minimum)
     );
     display: grid;
@@ -169,7 +174,7 @@ const reset = `<tanrei-button class="docs-example-action" variant="text" size="s
     inline-size: 100%;
     min-inline-size: 0;
   }
-  .docs-playground-control > tanrei-segmented-button {
+  .docs-playground-control > tanrei-tabs {
     justify-self: start;
     max-inline-size: 100%;
   }
