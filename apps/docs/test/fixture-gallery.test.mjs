@@ -50,7 +50,7 @@ describe('the gallery of fixtures', () => {
         if (stage.kind === 'window') continue;
         const html = document.stages.find((each) => each.id === fixture.id).html;
         assert.equal(stage.html, stage.kind === 'opener' ? closed(spec, html, stage.presence) : html, `${spec.name}/${fixture.id}`);
-        assert.deepEqual(stage.reserve, document.sizes[fixture.id], `${spec.name}/${fixture.id}`);
+        assert.deepEqual(stage.reserve, document.sizes[fixture.id] ?? (stage.modal ? windowOf(spec, fixture) : undefined), `${spec.name}/${fixture.id}`);
       }
     }
     // The components whose fixtures only a window drew while the site had a renderer of its own are drawn in the page
@@ -60,7 +60,7 @@ describe('the gallery of fixtures', () => {
     }
   });
 
-  test('a presented fixture is drawn in the page where its document draws it in place, closed with an opener where its surface stands beside its anchor in the top layer, and alone in a window where it is modal', () => {
+  test('a presented fixture is drawn in the page where its document draws it in place, and closed with an opener where it stands in the top layer — beside its anchor, or modal', () => {
     const kinds = {};
     for (const spec of implemented) {
       const { page, windowed, stages } = fixtureDocument(spec.name);
@@ -71,17 +71,21 @@ describe('the gallery of fixtures', () => {
         // drawn in place, in the page.
         if (page || windowed.includes(fixture.id)) assert.equal(stage.kind, 'window', `${spec.name}/${fixture.id}`);
         else if (!presented(spec, fixture) || drawnInPlace(spec, html)) assert.equal(stage.kind, 'inline', `${spec.name}/${fixture.id}`);
-        else (kinds[`${spec.name} ${stage.kind}`] ??= []).push(fixture.id);
+        else (kinds[`${spec.name} ${stage.modal ? 'modal ' : ''}${stage.kind}`] ??= []).push(fixture.id);
         if (stage.kind === 'window') assert.ok(stage.window.width >= 40 && stage.window.height >= 40, `${spec.name}/${fixture.id}`);
+        // A modal opener holds the room of a window, open or not.
+        if (stage.modal) assert.ok(stage.kind === 'opener' && stage.reserve.width >= 40 && stage.reserve.height >= 40, `${spec.name}/${fixture.id}`);
       }
     }
-    // Every presented fixture not drawn in place, by component and how it is shown.
+    // Every presented fixture not drawn in place, by component and how it is shown. None is drawn open in a window.
     assert.deepEqual(Object.keys(kinds).sort(), [
-      'bottom-sheet inline', 'bottom-sheet window', 'button-with-menu opener', 'date-time-picker window', 'dialog window', 'image-preview window', 'modal-layer window', 'navigation-drawer inline', 'navigation-drawer window', 'popover window', 'side-sheet inline', 'side-sheet window', 'snackbar inline', 'table-of-contents inline', 'tooltip opener',
+      'bottom-sheet inline', 'bottom-sheet modal opener', 'button-with-menu opener', 'date-time-picker modal opener', 'dialog modal opener', 'image-preview modal opener', 'modal-layer modal opener', 'navigation-drawer inline', 'navigation-drawer modal opener', 'popover opener', 'side-sheet inline', 'side-sheet modal opener', 'snackbar inline', 'table-of-contents inline', 'tooltip opener',
     ]);
-    // A drawer, a sheet: modal in a window, standard in the page.
-    assert.deepEqual(kinds['navigation-drawer window'].sort(), ['modal', 'modal-collapsible-open', 'resized-modal']);
-    assert.ok(kinds['side-sheet inline'].includes('standard') && kinds['side-sheet window'].includes('modal'));
+    // A drawer, a sheet: modal opened from its stage, standard in the page.
+    assert.deepEqual(kinds['navigation-drawer modal opener'].sort(), ['modal', 'modal-collapsible-open', 'resized-modal']);
+    assert.ok(kinds['side-sheet inline'].includes('standard') && kinds['side-sheet modal opener'].includes('modal'));
+    // A popover's compact sheet opens beside its anchor, or as a sheet in a compact window, as a product's does.
+    assert.deepEqual(kinds['popover opener'].sort(), ['compact', 'compact-own']);
     // An anchored surface its document draws in place is in the page: an open menu, a select's list, a popover beside its anchor.
     for (const [name, id] of [['menu', 'actions'], ['select', 'stacked-open'], ['popover', 'basic'], ['fab-menu', 'filled-open'], ['date-time-picker', 'docked-date']]) {
       assert.equal(stageOf(specs[name], specs[name].fixtures.find((f) => f.id === id)).kind, 'inline', `${name}/${id}`);
@@ -100,6 +104,12 @@ describe('the gallery of fixtures', () => {
     assert.doesNotMatch(tooltip.html, /<tanrei-tooltip[^>]*\sopen[\s>]/);
     assert.match(tooltip.markup, /^<tanrei-tooltip[^>]*\sopen[\s>]/, 'the code a reader copies is the fixture as it is written: open');
     assert.throws(() => closed(specs.tooltip, '<div class="stage"><tanrei-tooltip text="x"></tanrei-tooltip></div>', 'open'), /without the attribute open/);
+    assert.equal(tooltip.modal, undefined);
+    // A modal one is closed too, and holds the room of the window its baseline was taken in.
+    const dialog = stageOf(specs.dialog, specs.dialog.fixtures.find((f) => f.id === 'basic'));
+    assert.deepEqual([dialog.kind, dialog.modal, dialog.presence], ['opener', true, 'open']);
+    assert.doesNotMatch(dialog.html, /<tanrei-dialog[^>]*\sopen[\s>]/);
+    assert.deepEqual(dialog.reserve, fixtureDocument('dialog').sizes.basic);
   });
 
   test('a window without a baseline is the one the web harness draws the fixture in', () => {
@@ -118,7 +128,7 @@ describe('the gallery of fixtures', () => {
         assert.ok(markup.startsWith('<'), `${spec.name}/${fixture.id}`);
       }
     }
-    // A presented fixture's markup is presented, as its window draws it.
+    // A presented fixture's markup is presented, as a product opens it.
     assert.match(stageOf(specs.dialog, specs.dialog.fixtures[0]).markup, /^<tanrei-dialog[^>]* open[\s>]/);
   });
 

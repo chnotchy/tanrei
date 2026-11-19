@@ -29,10 +29,12 @@ const docs = fileURLToPath(new URL('../../', import.meta.url));
 const dist = path.join(docs, 'dist');
 if (!fs.existsSync(path.join(dist, 'index.html'))) throw new Error('apps/docs/dist holds no site: run `pnpm --filter @tanrei/docs build` first');
 
-// A page of modal fixtures (each a dialog, drawn in a window so that it opens there and not on the page), a page of
-// fixtures that are not presented but are each a whole page's frame (each window grows to hold its document), and a
-// page in the other direction whose drawers are drawn in windows (the modal ones, and those as wide as the window).
-const PAGES = ['/components/dialog/', '/components/app-shell/', '/ar/components/navigation-drawer/'];
+// A page of fixtures that are not presented but are each a whole page's frame (each window grows to hold its
+// document), and a page in the other direction whose drawers as wide as the window are drawn in windows. (A modal
+// fixture is opened on the page from its stage, fixture-openers.test.mjs.)
+const PAGES = ['/components/app-shell/', '/ar/components/navigation-drawer/'];
+// The responsive drawers' windows: the narrowest presents its drawer modally there, as a 400 wide window does.
+const DRAWERS = '/components/navigation-drawer/';
 
 let host;
 let origin;
@@ -120,14 +122,14 @@ for (const engine of engines('chromium,firefox,webkit')) {
       });
     }
 
-    // A modal fixture opens as its window draws, and each engine would move the page's focus into the window and scroll
-    // the page to it — WebKit at its next frame, whether the frame is `inert` or not: a page of windows drawn as the
-    // reader scrolls past them was scrolled back to each one, and the next one drawn in turn.
+    // A drawer presented modally opens as its window draws, and each engine would move the page's focus into the window
+    // and scroll the page to it — WebKit at its next frame, whether the frame is `inert` or not: a page of windows drawn
+    // as the reader scrolls past them was scrolled back to each one, and the next one drawn in turn.
     test('a window that draws a modal fixture neither scrolls the page nor takes its focus', LIMIT, async () => {
       const context = await browsers.get(engine).newContext({ viewport: { width: 1440, height: 1000 }, reducedMotion: 'reduce' });
       try {
         const page = await context.newPage();
-        await page.goto(`${origin}/components/dialog/`, { waitUntil: 'load' });
+        await page.goto(`${origin}${DRAWERS}`, { waitUntil: 'load' });
         const moved = [];
         const count = Math.min(6, await page.locator('iframe.docs-window-frame').count());
         for (let i = 0; i < count; i++) {
@@ -159,70 +161,17 @@ for (const engine of engines('chromium,firefox,webkit')) {
       }
     });
 
-    // A fixture whose surface stands beside its anchor in the top layer is drawn closed in the page, and its stage's
-    // action opens the real surface there and closes it again; the action shows whether it is open, however it closed.
-    test('an opener’s stage draws its fixture closed, and its action opens and closes it on the page', LIMIT, async () => {
-      const context = await browsers.get(engine).newContext({ viewport: { width: 1440, height: 1000 }, reducedMotion: 'reduce' });
-      try {
-        const page = await context.newPage();
-        // Each is closed by what closes it in a product: the tooltip closes itself on Escape wherever focus is; the button
-        // with menu never closes itself — a press of its trailing half asks to (`toggle`), and the page closes it from
-        // that, as a product does (its fixture holds no menu item, so its open form presents no menu to dismiss).
-        const OPENERS = [
-          ['/components/tooltip/', 'plain', 'tanrei-tooltip', 'Escape'],
-          ['/components/button-with-menu/', 'filled-open', 'tanrei-button-with-menu', 'trailing'],
-        ];
-        for (const [pathname, id, tag, closing] of OPENERS) {
-          await page.goto(`${origin}${pathname}`, { waitUntil: 'load' });
-          const stage = page.locator(`.docs-stage[data-fixture-id="${id}"]`);
-          await stage.scrollIntoViewIfNeeded();
-          assert.equal(await stage.getAttribute('data-stage'), 'opener', `${pathname}${id}`);
-          const element = stage.locator(`[data-fixture-scope] > .stage ${tag}`);
-          await element.waitFor();
-          await page.waitForFunction((name) => customElements.get(name), tag);
-          assert.equal(await element.evaluate((el) => el.hasAttribute('open')), false, `${id} is drawn closed`);
-          const toggle = stage.locator('[data-stage-open]');
-          // Each step waits 5 s for the fixture's `open` and the action's `selected` to say `want`, and a step that runs
-          // out names itself and what they say then.
-          const step = async (what, want) => {
-            const handles = [await element.elementHandle(), await toggle.elementHandle()];
-            await page.waitForFunction(([el, action, open]) => el.hasAttribute('open') === open && action.hasAttribute('selected') === open, [...handles, want], { timeout: 5_000 }).catch(async (cause) => {
-              const now = await page.evaluate(([el, action]) => `open ${el.hasAttribute('open')}, the action selected ${action.hasAttribute('selected')}`, handles);
-              throw new Error(`${pathname}${id}: ${what}, and 5 s later the fixture is not ${want ? 'open' : 'closed'} (${now})`, { cause });
-            });
-          };
-          await toggle.click();
-          await step('the action was pressed', true);
-          // Closed by the fixture itself, and the action says so.
-          if (closing === 'Escape') {
-            await page.keyboard.press('Escape');
-            await step('Escape was pressed', false);
-          } else {
-            await element.locator('button#trailing').click();
-            await step('its trailing half was pressed', false);
-          }
-          // Opened again, and closed by the action.
-          await toggle.click();
-          await step('the action was pressed again', true);
-          await toggle.click();
-          await step('the action was pressed while it was open', false);
-        }
-      } finally {
-        await context.close();
-      }
-    });
-
     test('a window is drawn in the page’s scheme, and follows the stage’s system and direction', LIMIT, async () => {
       const context = await browsers.get(engine).newContext({ viewport: { width: 1440, height: 1000 }, colorScheme: 'dark', reducedMotion: 'reduce' });
       try {
         const page = await context.newPage();
-        await page.goto(`${origin}/components/dialog/`, { waitUntil: 'load' });
-        const frame = page.locator('.docs-stage[data-fixture-id="basic"] iframe');
+        await page.goto(`${origin}/components/app-shell/`, { waitUntil: 'load' });
+        const frame = page.locator('.docs-stage[data-fixture-id="compact"] iframe');
         await frame.scrollIntoViewIfNeeded();
         await page.waitForFunction((element) => element.contentDocument?.querySelector('body > .stages > .stage'), await frame.elementHandle(), { timeout: 15_000 });
         assert.equal(await frame.evaluate((element) => element.contentDocument.documentElement.dataset.tanreiTheme), 'dark', 'the window is written in the page’s scheme');
         // The stage drawn under a preset, and turned right to left, as the header's menu and the frame's action do.
-        await page.locator('.docs-stage[data-fixture-id="basic"] .docs-stage-box').evaluate((box) => {
+        await page.locator('.docs-stage[data-fixture-id="compact"] .docs-stage-box').evaluate((box) => {
           box.setAttribute('data-tanrei-system', 'm3-like');
           box.setAttribute('dir', 'rtl');
         });

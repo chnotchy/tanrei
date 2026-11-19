@@ -13,16 +13,19 @@
 //   the document draws in place (an open menu, a select's list, a popover beside its anchor, a docked picker: the
 //   element's `inline`, which draws it without placing it in the top layer, taking focus or dismissing it), and one
 //   that is presented in its own place in the layout (a standard drawer or sheet, an expanded snackbar).
-// - `opener`: a presented fixture whose surface stands beside its anchor in the top layer (a tooltip, a button's
-//   menu), which the page's own top layer would draw over the whole site, is drawn in the page closed, and its stage
-//   has an action that opens it — the real surface, on the page, as a product's opens.
-// - `window`: a modal fixture (a dialog, a modal sheet or drawer, a modal picker, an image preview), every fixture
-//   that is a whole page's frame (the app shell), and one whose staging sizes it by the window (a responsive drawer)
-//   is drawn alone in a window of its own: an `iframe` whose document the page writes itself (`srcdoc`) from the
-//   fixture's stage and the component's staging, at the size of the stage its baseline was taken of. What it puts in
-//   the top layer or places against the window stays in that window, and what reads the window's width (a drawer's
-//   breakpoints) reads the stage's. A window is drawn scaled down where the column is narrower than it. Nothing is
-//   fetched for it, so the host's refusal to let any document be framed does not reach it.
+// - `opener`: a presented fixture that the page's own top layer would draw over the whole site is drawn in the page
+//   closed, and opened from its stage: the real surface, on the page, as a product opens it. One whose surface stands
+//   beside its anchor (a tooltip, a button's menu, a popover) is opened by an action in the stage's header. A modal one
+//   (a dialog, a modal sheet or drawer, a modal picker, an image preview: `showModal()`, the rest of the page inert and
+//   focus held in it) is `modal`: its stage holds the room of the window its baseline was taken in, and a button in
+//   it opens the fixture, as a product's trigger does; focus goes into it, and back to the button when it closes.
+//   Nothing opens by itself.
+// - `window`: every fixture that is a whole page's frame (the app shell), and one whose staging sizes it by the window
+//   (a responsive drawer), is drawn alone in a window of its own: an `iframe` whose document the page writes itself
+//   (`srcdoc`) from the fixture's stage and the component's staging, at the size of the stage its baseline was taken
+//   of. What it puts in the top layer or places against the window stays in that window, and what reads the window's
+//   width (a drawer's breakpoints) reads the stage's. A window is drawn scaled down where the column is narrower than
+//   it. Nothing is fetched for it, so the host's refusal to let any document be framed does not reach it.
 import { fixtureDocument, stageMarkup } from './fixture-documents';
 import type { Spec, SpecProp } from './repo';
 
@@ -54,9 +57,15 @@ export interface Stage {
   presented?: boolean;
   /** For an opener: the attribute of its element that presents it (`open`), which the stage's action sets. */
   presence?: string;
+  /** For an opener: it is modal, and opened by a button in its stage, which holds the room of its baseline's window. */
+  modal?: boolean;
   /** The fixture as a product writes it, for the copy action: what the document's stage holds. */
   markup?: string;
-  /** For a stage drawn in the page: the room it holds before it is drawn — the size of its baseline, where it has one. */
+  /**
+   * For a stage drawn in the page: the room it holds before it is drawn — the size of its baseline, where it has one. A
+   * modal opener's stage holds it whether its fixture is open or not: the window its baseline was taken in (else the
+   * one the web harness draws it in).
+   */
   reserve?: Size;
 }
 
@@ -81,7 +90,7 @@ export function groupingAxis(spec: Spec): SpecProp | undefined {
 }
 
 /**
- * The window a presented fixture is drawn alone in: the window the web package's harness draws it in
+ * The window a fixture without a baseline is drawn alone in, or a modal one holds the room of: the window the web package's harness draws it in
  * (packages/web/test/harness.ts — `dialogWindow`, `popoverWindow`, `pickerWindow`, `drawerWindow`, `appShellWindow` and the stages its
  * staging gives the rest), so that what a reader sees is what each platform's baseline holds. A component whose harness
  * stage is not a window takes a window that holds its stage.
@@ -182,32 +191,33 @@ export function closed(spec: Spec, html: string, attribute: string): string {
   return html.replace(`<${tag}${attributes}`, `<${tag}${without}`);
 }
 
-type Presentation = 'inline' | 'opener' | 'window';
+type Presentation = 'inline' | 'opener' | 'modal' | 'window';
 const modalVariant = (spec: Spec, fixture: Fixture): Presentation => {
   const variant = spec.props.find((p) => p.name === 'variant');
-  return variant && effective(fixture, variant) === 'modal' ? 'window' : 'inline';
+  return variant && effective(fixture, variant) === 'modal' ? 'modal' : 'inline';
 };
 
 /**
  * How a presented fixture is shown where the web package's document does not draw its surface in place, by component,
  * from what its web element does when it is presented:
  *
- * - `window`: it is modal (`showModal()`: the top layer over a scrim, the rest of the window inert, focus held in it),
- *   or it reads the window (a popover's compact sheet, POP-39). In the page it would cover the site and take its focus.
- * - `opener`: its surface stands beside its anchor in the top layer (`showPopover()`). In the page every one of them
- *   would be drawn over the site at once, the site's header included; each is drawn closed, and opened by its stage's
- *   action, as a product opens it.
+ * - `modal`: it is modal (`showModal()`: the top layer over a scrim, the rest of the window inert, focus held in it).
+ *   Drawn open in the page, it would cover the site and take its focus as the reader scrolled to it: it is drawn
+ *   closed, and opened by a button in its stage, as a product's trigger opens it.
+ * - `opener`: its surface stands beside its anchor in the top layer (`showPopover()`; a popover is a sheet in a compact
+ *   window, POP-39, as a product's is). In the page every one of them would be drawn over the site at once, the site's
+ *   header included; each is drawn closed, and opened by its stage's action, as a product opens it.
  * - `inline`: it is presented in its own place in the layout, as any element is (a standard drawer or sheet, an
  *   expanded snackbar, a compact table of contents' open list).
  *
  * A component that is not named here stops the build (`stageOf`): how a new one is shown is decided, not guessed.
  */
 const PRESENTED: Record<string, (spec: Spec, fixture: Fixture) => Presentation> = {
-  dialog: () => 'window',
-  'modal-layer': () => 'window',
-  'image-preview': () => 'window',
-  'date-time-picker': () => 'window',
-  popover: () => 'window',
+  dialog: () => 'modal',
+  'modal-layer': () => 'modal',
+  'image-preview': () => 'modal',
+  'date-time-picker': () => 'modal',
+  popover: () => 'opener',
   'bottom-sheet': modalVariant,
   'side-sheet': modalVariant,
   'navigation-drawer': modalVariant,
@@ -239,9 +249,10 @@ export function stageOf(spec: Spec, fixture: Fixture): Stage {
     if (document.step) throw new Error(`fixture gallery: ${spec.name}/${fixture.id} is drawn in a window, and its document takes a step in script, which no window takes`);
     return { ...base, drawn: true, kind, html: stage.html, window: size ?? windowOf(spec, fixture), presented: presented(spec, fixture), markup };
   }
-  if (kind === 'opener') {
+  if (kind === 'opener' || kind === 'modal') {
     const presence = presenceOf(spec)!.name;
-    return { ...base, drawn: true, kind, html: closed(spec, stage.html, presence), presence, markup, reserve: size };
+    const opener = { ...base, drawn: true, kind: 'opener' as const, html: closed(spec, stage.html, presence), presence, markup };
+    return kind === 'modal' ? { ...opener, modal: true, reserve: size ?? windowOf(spec, fixture) } : { ...opener, reserve: size };
   }
   return { ...base, drawn: true, kind, html: stage.html, markup, reserve: size };
 }
