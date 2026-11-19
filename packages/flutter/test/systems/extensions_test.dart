@@ -3,7 +3,6 @@ import 'dart:io';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:tanrei/systems/cupertino.dart';
-import 'package:tanrei/systems/m3_expressive_like.dart';
 import 'package:tanrei/systems/m3_like.dart';
 import 'package:tanrei/tanrei.dart';
 
@@ -312,12 +311,12 @@ void main() {
       expect(darkHigh.colors.surfaceTint, isNot(m3LikeSystem.schemes.light.surfaceTint));
     });
 
-    test('under the declaring system, and one that inherits the role, nothing is reported', () {
+    test('under the declaring system nothing is reported', () {
       expect(acmeSystem.schemes.dark.brandGlow, isA<Color>());
       expect(m3LikeSystem.schemes.dark.surfaceTint, isA<Color>());
       expect(
-        m3ExpressiveLikeSystem.schemes.dark.surfaceTint,
-        m3ExpressiveLikeSystem.schemes.dark[M3LikeColorRoles.surfaceTint],
+        m3LikeSystem.schemes.dark.surfaceTint,
+        m3LikeSystem.schemes.dark[M3LikeColorRoles.surfaceTint],
       );
       expect(reports, isEmpty);
     });

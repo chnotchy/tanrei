@@ -4,7 +4,6 @@
 import { act, fireEvent, render, screen } from '@testing-library/react-native';
 import { Dimensions } from 'react-native';
 import { cupertino } from '../../generated/systems/cupertino';
-import { m3ExpressiveLike } from '../../generated/systems/m3-expressive-like';
 import { m3Like } from '../../generated/systems/m3-like';
 import type { TanreiColorRole, TanreiSystem } from '../../generated/vocabulary';
 import { describeFixtureBaselines, describeSharedVocabulary, settleMotion, textStyle, viewStyle } from '../../testing/harness';
@@ -44,7 +43,7 @@ describe('m3-like drives the SplitButton', () => {
   const system: TanreiSystem = m3Like;
   const tokens = system.components.splitButton;
 
-  test('restating its Button: full outer corners, 4 at the join (full again on the open trailing half), heights 32 / 40 / 56, icons 18 / 18 / 24', async () => {
+  test('full outer corners, 4 at the join (full again on the open trailing half), heights 32 / 40 / 56, icons 18 / 18 / 24', async () => {
     expect(tokens).toMatchObject({ containerShape: system.shape.full, containerInnerShape: 4, containerInnerShapeOpen: system.shape.full });
     expect(Object.values(tokens.sizes).map((each) => [each.containerHeight, each.iconSize])).toEqual([
       [32, 18],
@@ -64,12 +63,6 @@ describe('m3-like drives the SplitButton', () => {
 
   test('SPB-10: m3-like answers a press with a ripple', () => {
     expect(system.behavior.pressedFeedback).toBe('ripple');
-  });
-});
-
-describe('m3-expressive-like drives the SplitButton', () => {
-  test('it inherits m3-like\'s split button', () => {
-    expect(m3ExpressiveLike.components.splitButton).toEqual(m3Like.components.splitButton);
   });
 });
 

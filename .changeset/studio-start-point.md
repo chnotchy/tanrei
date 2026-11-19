@@ -7,7 +7,7 @@
 others: **Tanrei**, the default system; **Core**, Tanrei's root layer, listed and not offered yet — its values are
 neutral (grey, no accent), and it becomes a blank start once `tanrei init --extends core` can start a layer from it
 too — with that reason on the item; and, under
-**Theme gallery examples**, m3-like, cupertino and m3-expressive-like, each marked as an example, not an official
+**Theme gallery examples**, m3-like and cupertino, each marked as an example, not an official
 design. Another start keeps the layer's id, name and description on that system's defaults.
 
 - **Import a file…**, the menu's last item, loads a `<id>.system.json` in the layer's place through the browser's own

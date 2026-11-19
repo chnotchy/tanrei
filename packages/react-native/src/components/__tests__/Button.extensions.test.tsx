@@ -45,8 +45,8 @@ describe('the generated files', () => {
   });
 
   // Every shipped preset extends the type scale with the roles its source has and the core lacks; m3-like
-  // also adds the roles its reference publishes (`primaryFixed` …), and m3-expressive-like (which extends m3-like) two
-  // Button sizes on top. They pay; the default system does not.
+  // also adds the roles its reference publishes (`primaryFixed` …) and Material 3's two further Button sizes.
+  // They pay; the default system does not.
   test('the default system extends nothing, so its values file carries no trace of extensions', () => {
     const source = fs.readFileSync(path.join(PACKAGE, 'src/generated/systems/tanrei.ts'), 'utf8');
     // (`extraLarge`, `extraLong1`… are core step NAMES, and `extendedFab` a component's: the guard is about the word.)
@@ -58,8 +58,7 @@ describe('the generated files', () => {
   });
 
   test.each([
-    ['m3-like', ['displayLarge', 'displaySmall'], false],
-    ['m3-expressive-like', ['displayLarge', 'displaySmall'], true],
+    ['m3-like', ['displayLarge', 'displaySmall'], true],
     ['cupertino', ['bodyCallout', 'bodySubhead', 'captionSmall'], false],
   ] as const)('%s extends the vocabulary: ONE marked section in its values file (type roles %s; Button sizes: %s)', (id, roles, addsSizes) => {
     const source = fs.readFileSync(path.join(PACKAGE, 'src/generated/systems', `${id}.ts`), 'utf8');
@@ -90,11 +89,11 @@ describe('the generated files', () => {
     const plain = fs.readFileSync(path.join(PACKAGE, 'src/generated/systems/tanrei.ts'), 'utf8');
     expect(plain).not.toMatch(/seriesStep|Steps = /);
     expect(plain.match(/^import .*$/gm)).toEqual([expect.stringMatching(/^import type /)]);
-    for (const [id, name] of [['cupertino', 'cupertinoSteps'], ['m3-like', 'm3LikeSteps'], ['m3-expressive-like', 'm3ExpressiveLikeSteps']]) {
+    for (const [id, name] of [['cupertino', 'cupertinoSteps'], ['m3-like', 'm3LikeSteps']]) {
       const system = fs.readFileSync(path.join(PACKAGE, 'src/generated/systems', `${id}.ts`), 'utf8');
       expect(system).toContain("import { seriesStep } from '../../theme/lookup';");
       expect(system.match(/^import .*$/gm)).toHaveLength(2);
-      expect(system.match(/^export const \w+/gm)).toEqual([`export const ${id === 'm3-like' ? 'm3Like' : id === 'm3-expressive-like' ? 'm3ExpressiveLike' : id}`, `export const ${name}`]);
+      expect(system.match(/^export const \w+/gm)).toEqual([`export const ${id === 'm3-like' ? 'm3Like' : id}`, `export const ${name}`]);
       expect(system).toMatch(/Steps = \{\s+typescale: \{/);
     }
     // The merge anchor names every open interface, the spring set included (augmentation must not depend on file order).

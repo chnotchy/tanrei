@@ -1,8 +1,11 @@
 {
-  "$comment": "How the m3-like preset is measured against its reference. Every reference token of a covered component is either MAPPED to something Tanrei resolves — and must then be equal — or listed under `unmapped` with the mimicry gap that explains it. `{variant}` and `{state}` are filled from the tables below. Kinds: equal (default) · level (the reference names an elevation level; Tanrei's token must alias the level of the same name) · state-layer (the reference gives a layer color and opacity; Tanrei's state color must equal that layer composited over the resting container) · with-opacity (a color and a separate opacity token; Tanrei's token is that color with its alpha multiplied).",
+  "$comment": "How the m3-like preset is measured against its reference. Every reference token of a covered component is either MAPPED to something Tanrei resolves — and must then be equal — or listed under `unmapped` with the mimicry gap that explains it. `{variant}` and `{state}` are filled from the tables below. Kinds: equal (default) · level (the reference names an elevation level; Tanrei's token must alias the level of the same name) · state-layer (the reference gives a layer color and opacity; Tanrei's state color must equal that layer composited over the resting container) · with-opacity (a color and a separate opacity token; Tanrei's token is that color with its alpha multiplied). Sizes: the androidx snapshot is keyed by size (one token object per size; `{size}` is the Tanrei size it maps to). Where material-web's older single-size button disagrees with it, the androidx value is current Material 3, and the material-web token says `superseded-by`.",
   "system": "m3-like",
-  "reference": "reference/material-web.json",
-  "scope": "Every color role and every text style the reference publishes, and Button (five variants) at the reference's single size (40px = Tanrei's medium).",
+  "reference": [
+    "reference/material-web.json",
+    "reference/androidx-material3.json"
+  ],
+  "scope": "Every color role and every text style material-web publishes, and Button (five variants) at its single size (40px = Tanrei's small); from androidx, the five button sizes, the five icon button sizes (height, spaces, icon size, outline width, shape) and the loading indicator.",
   "colors": {
     "$comment": "md.sys.color.<role> is compared with tanrei.sys.color.<role> in light and dark. `rename` lists roles whose Tanrei name differs.",
     "rename": {},
@@ -40,6 +43,193 @@
       "heading-6": "label"
     }
   },
+  "sizes": [
+    {
+      "$comment": "Button, at each of the five sizes.",
+      "objects": {
+        "ButtonXSmallTokens": "xsmall",
+        "ButtonSmallTokens": "small",
+        "ButtonMediumTokens": "medium",
+        "ButtonLargeTokens": "large",
+        "ButtonXLargeTokens": "xlarge"
+      },
+      "map": [
+        {
+          "ref": "ContainerHeight",
+          "tanrei": "tanrei.comp.button.container.height.{size}"
+        },
+        {
+          "ref": "LeadingSpace",
+          "tanrei": "tanrei.comp.button.container.padding-inline-start.{size}"
+        },
+        {
+          "ref": "TrailingSpace",
+          "tanrei": "tanrei.comp.button.container.padding-inline-end.{size}"
+        },
+        {
+          "ref": "IconSize",
+          "tanrei": "tanrei.comp.button.icon.size.{size}"
+        },
+        {
+          "ref": "IconLabelSpace",
+          "tanrei": "tanrei.comp.button.container.gap.{size}"
+        },
+        {
+          "ref": "OutlinedOutlineWidth",
+          "tanrei": "tanrei.comp.button.outline.width.{size}"
+        },
+        {
+          "ref": "ContainerShapeRound",
+          "tanrei": "tanrei.comp.button.container.shape",
+          "kind": "shape"
+        }
+      ],
+      "unmapped": [
+        {
+          "ref": "ContainerShapeSquare",
+          "gap": "button-shape-option"
+        },
+        {
+          "ref": "SelectedContainerShapeRound",
+          "gap": "button-shape-option"
+        },
+        {
+          "ref": "SelectedContainerShapeSquare",
+          "gap": "button-shape-option"
+        },
+        {
+          "ref": "PressedContainerShape",
+          "gap": "per-size-state-shape"
+        }
+      ]
+    },
+    {
+      "$comment": "The icon button (Tanrei's icon-only Button) at each of the five sizes. Its default width is its height: the default space on each side of the glyph, twice, plus the glyph. Narrow is the glyph and padding-inline-narrow on each side; wide is container.width-wide.",
+      "objects": {
+        "XSmallIconButtonTokens": "xsmall",
+        "SmallIconButtonTokens": "small",
+        "MediumIconButtonTokens": "medium",
+        "LargeIconButtonTokens": "large",
+        "XLargeIconButtonTokens": "xlarge"
+      },
+      "map": [
+        {
+          "ref": "ContainerHeight",
+          "tanrei": "tanrei.comp.button.container.height.{size}"
+        },
+        {
+          "ref": "IconSize",
+          "tanrei": "tanrei.comp.button.icon.size-without-label.{size}"
+        },
+        {
+          "ref": "DefaultLeadingSpace",
+          "tanrei": "tanrei.comp.button.container.height.{size}",
+          "kind": "across",
+          "glyph": "IconSize"
+        },
+        {
+          "ref": "DefaultTrailingSpace",
+          "covered-by": "DefaultLeadingSpace"
+        },
+        {
+          "ref": "UniformLeadingSpace",
+          "tanrei": "tanrei.comp.button.container.height.{size}",
+          "kind": "across",
+          "glyph": "IconSize",
+          "note": "The large icon button names its default space Uniform."
+        },
+        {
+          "ref": "UniformTrailingSpace",
+          "covered-by": "UniformLeadingSpace"
+        },
+        {
+          "ref": "NarrowLeadingSpace",
+          "tanrei": "tanrei.comp.button.container.padding-inline-narrow.{size}"
+        },
+        {
+          "ref": "NarrowTrailingSpace",
+          "covered-by": "NarrowLeadingSpace"
+        },
+        {
+          "ref": "WideLeadingSpace",
+          "tanrei": "tanrei.comp.button.container.width-wide.{size}",
+          "kind": "across",
+          "glyph": "IconSize"
+        },
+        {
+          "ref": "WideTrailingSpace",
+          "covered-by": "WideLeadingSpace"
+        },
+        {
+          "ref": "OutlinedOutlineWidth",
+          "tanrei": "tanrei.comp.button.outline.width.{size}"
+        },
+        {
+          "ref": "ContainerShapeRound",
+          "tanrei": "tanrei.comp.button.container.shape",
+          "kind": "shape"
+        }
+      ],
+      "unmapped": [
+        {
+          "ref": "ContainerShapeSquare",
+          "gap": "button-shape-option"
+        },
+        {
+          "ref": "SelectedContainerShapeRound",
+          "gap": "button-shape-option"
+        },
+        {
+          "ref": "SelectedContainerShapeSquare",
+          "gap": "button-shape-option"
+        },
+        {
+          "ref": "PressedContainerShape",
+          "gap": "per-size-state-shape"
+        }
+      ]
+    },
+    {
+      "$comment": "The loading indicator, at its one size (Tanrei's medium).",
+      "objects": {
+        "LoadingIndicatorTokens": "medium"
+      },
+      "map": [
+        {
+          "ref": "ActiveSize",
+          "tanrei": "tanrei.comp.loading-indicator.indicator.size.{size}"
+        },
+        {
+          "ref": "ContainerWidth",
+          "tanrei": "tanrei.comp.loading-indicator.container.size.{size}"
+        },
+        {
+          "ref": "ContainerHeight",
+          "covered-by": "ContainerWidth"
+        },
+        {
+          "ref": "ContainerShape",
+          "tanrei": "tanrei.comp.loading-indicator.container.shape",
+          "kind": "shape"
+        },
+        {
+          "ref": "ActiveIndicatorColor",
+          "tanrei": "tanrei.comp.loading-indicator.indicator.color",
+          "kind": "role"
+        },
+        {
+          "ref": "ContainedActiveColor",
+          "tanrei": "tanrei.comp.loading-indicator.contained.indicator.color",
+          "kind": "role"
+        },
+        {
+          "ref": "ContainedContainerColor",
+          "tanrei": "tanrei.comp.loading-indicator.contained.container.color",
+          "kind": "role"
+        }
+      ]
+    }
+  ],
   "components": {
     "filled-button": "filled",
     "filled-tonal-button": "tonal",
@@ -60,7 +250,7 @@
     },
     {
       "ref": "container-height",
-      "tanrei": "tanrei.comp.button.container.height.medium"
+      "tanrei": "tanrei.comp.button.container.height.small"
     },
     {
       "ref": "container-shape",
@@ -119,7 +309,7 @@
     },
     {
       "ref": "outline-width",
-      "tanrei": "tanrei.comp.button.outline.width.medium"
+      "tanrei": "tanrei.comp.button.outline.width.small"
     },
     {
       "ref": "{state}-outline-color",
@@ -132,32 +322,33 @@
     },
     {
       "ref": "label-text-font",
-      "tanrei": "tanrei.comp.button.label.typescale.medium",
+      "tanrei": "tanrei.comp.button.label.typescale.small",
       "field": "fontFamily"
     },
     {
       "ref": "label-text-size",
-      "tanrei": "tanrei.comp.button.label.typescale.medium",
+      "tanrei": "tanrei.comp.button.label.typescale.small",
       "field": "fontSize"
     },
     {
       "ref": "label-text-line-height",
-      "tanrei": "tanrei.comp.button.label.typescale.medium",
+      "tanrei": "tanrei.comp.button.label.typescale.small",
       "field": "lineHeight"
     },
     {
       "ref": "label-text-tracking",
-      "tanrei": "tanrei.comp.button.label.typescale.medium",
+      "tanrei": "tanrei.comp.button.label.typescale.small",
       "field": "letterSpacing"
     },
     {
       "ref": "label-text-weight",
-      "tanrei": "tanrei.comp.button.label.typescale.medium",
+      "tanrei": "tanrei.comp.button.label.typescale.small",
       "field": "fontWeight"
     },
     {
       "ref": "with-icon-icon-size",
-      "tanrei": "tanrei.comp.button.icon.size.medium"
+      "superseded-by": "androidx.ButtonSmallTokens.IconSize",
+      "note": "material-web (v0_192) draws a button's icon at 18; current Material 3 draws a small button's at 20 (ButtonSmallTokens.IconSize), which m3-like follows."
     },
     {
       "ref": "with-icon-icon-color",
@@ -176,6 +367,8 @@
   ],
   "unmapped": [],
   "evidence": {
+    "tanrei.comp.button.size.xsmall": "androidx.ButtonXSmallTokens",
+    "tanrei.comp.button.size.xlarge": "androidx.ButtonXLargeTokens",
     "tanrei.comp.fab-menu": "androidx.FabMenuBaselineTokens"
   }
 }

@@ -19,7 +19,7 @@ controls and stay medium.
 - Changed token: `comp.image-preview.bar.button.variant` = tonal (was text).
 - Changed token: `comp.image-preview.bar.gap` = `sys.space.space150`, 12 (was 4), so that a 32 control and the gap still
   make the 44 of `sys.target.pointer` and each whole target stays apart from the next.
-- `m3-like` (and so `m3-expressive-like`) and `cupertino` set `comp.image-preview.bar.button.variant` to text, the look
+- `m3-like` and `cupertino` set `comp.image-preview.bar.button.variant` to text, the look
   they had. The controls still take each system's small Button size (32 under `m3-like`, where they were 40), which a
   pin cannot keep.
 

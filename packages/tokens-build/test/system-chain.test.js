@@ -1,5 +1,5 @@
 // Every system descends from the root layer `core`. The default system `tanrei` extends it, and so do the presets
-// `m3-like` and `cupertino` (`m3-expressive-like` extends `m3-like`); a product extends one of them. What a system
+// `m3-like` and `cupertino`; a product extends one of them. What a system
 // ships is worked out down that chain.
 //
 // The root is grey: a neutral palette without chroma, the status palettes, a role table drawn from them and the
@@ -102,7 +102,6 @@ const PRESETS = shippedSystems(REPO_ROOT).filter((system) => system !== DEFAULT_
 test('the presets extend the root, not the default system', () => {
   assert.deepEqual(Object.fromEntries(PRESETS.map((id) => [id, layerChain(id, read).map((layer) => layer.id)])), {
     cupertino: [ROOT_SYSTEM, 'cupertino'],
-    'm3-expressive-like': [ROOT_SYSTEM, 'm3-like', 'm3-expressive-like'],
     'm3-like': [ROOT_SYSTEM, 'm3-like'],
   });
 });
@@ -142,7 +141,6 @@ test('what each shipped system leaves out is what it left out before the root wa
   assert.deepEqual(availabilityOf(layerChain(ROOT_SYSTEM, read)), { components: [], variants: {} }, 'the root leaves nothing out');
   // The presets extend the root: each leaves out only what it says itself.
   assert.deepEqual(availabilityOf(layerChain('m3-like', read)), { components: [], variants: { 'navigation-bar': ['filled'], tabs: ['tonal'] } });
-  assert.deepEqual(availabilityOf(layerChain('m3-expressive-like', read)), availabilityOf(layerChain('m3-like', read)));
   assert.deepEqual(availabilityOf(layerChain('cupertino', read)), { components: [], variants: { 'navigation-bar': ['filled'] } });
 });
 

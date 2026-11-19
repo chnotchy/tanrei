@@ -4,7 +4,6 @@
 import { render, screen } from '@testing-library/react-native';
 import { View } from 'react-native';
 import { cupertino } from '../../generated/systems/cupertino';
-import { m3ExpressiveLike } from '../../generated/systems/m3-expressive-like';
 import { m3Like } from '../../generated/systems/m3-like';
 import type { TanreiSystem } from '../../generated/vocabulary';
 import { SHIPPED_SYSTEMS, describeFixtureBaselines, describeSharedVocabulary, painted, settleMotion, viewStyle } from '../../testing/harness';
@@ -41,10 +40,6 @@ describe.each(SHIPPED_SYSTEMS.map((system) => [system.id, system] as const))('%s
 describe('the presets\' dividers', () => {
   test('m3-like: a 1 dp line in outline-variant with a 16 dp inset — the defaults', () => {
     expect(m3Like.components.divider).toEqual({ lineColor: { kind: 'role', role: 'outlineVariant' }, lineThickness: 1, lineInset: 16 });
-  });
-
-  test('m3-expressive-like inherits m3-like', () => {
-    expect(m3ExpressiveLike.components.divider).toEqual(m3Like.components.divider);
   });
 
   test('cupertino: the separator gray (outline-variant), a 16 pt inset, 1 pt thick (the device-pixel hairline is a recorded mimicry gap)', () => {

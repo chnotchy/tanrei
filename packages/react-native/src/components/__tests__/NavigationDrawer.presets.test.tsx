@@ -4,7 +4,6 @@
 import { render, screen } from '@testing-library/react-native';
 import { Dimensions } from 'react-native';
 import { cupertino } from '../../generated/systems/cupertino';
-import { m3ExpressiveLike } from '../../generated/systems/m3-expressive-like';
 import { m3Like } from '../../generated/systems/m3-like';
 import type { TanreiColorRole, TanreiSystem } from '../../generated/vocabulary';
 import { describeFixtureBaselines, describeSharedVocabulary, settleMotion, textStyle, viewStyle } from '../../testing/harness';
@@ -68,12 +67,6 @@ describe('m3-like drives the NavigationDrawer', () => {
     await mount(system, { variant: 'modal', inline: true });
     expect(viewStyle(part('panel')!)).toMatchObject({ borderTopEndRadius: 16, boxShadow: createTanreiTheme(system, 'light').elevation('level1').boxShadow });
     expect((viewStyle(part('panel')!).boxShadow as unknown[]).length).toBeGreaterThan(0);
-  });
-});
-
-describe('m3-expressive-like drives the NavigationDrawer', () => {
-  test('it inherits m3-like\'s drawer', () => {
-    expect(m3ExpressiveLike.components.navigationDrawer).toEqual(m3Like.components.navigationDrawer);
   });
 });
 

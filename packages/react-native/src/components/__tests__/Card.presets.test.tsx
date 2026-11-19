@@ -3,7 +3,6 @@
 // a literal appears only where a preset's value is pinned on purpose.
 import { act, fireEvent, render } from '@testing-library/react-native';
 import { cupertino } from '../../generated/systems/cupertino';
-import { m3ExpressiveLike } from '../../generated/systems/m3-expressive-like';
 import { m3Like } from '../../generated/systems/m3-like';
 import { tanrei } from '../../generated/systems/tanrei';
 import type { TanreiColorRole, TanreiCoreCardVariant, TanreiSystem } from '../../generated/vocabulary';
@@ -64,12 +63,6 @@ describe('m3-like drives the Card', () => {
 
   test('CRD-9: m3-like answers a press with a ripple', () => {
     expect(system.behavior.pressedFeedback).toBe('ripple');
-  });
-});
-
-describe('m3-expressive-like drives the Card', () => {
-  test('it inherits m3-like\'s card', () => {
-    expect(m3ExpressiveLike.components.card).toEqual(m3Like.components.card);
   });
 });
 

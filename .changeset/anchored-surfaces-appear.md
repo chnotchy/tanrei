@@ -15,7 +15,7 @@ motion is a fade instead of an appearance at once.
   scale 0.96 under the default system — grown from the middle of the edge that faces the anchor (from their centre
   where `sys.motion.appear.origin` is center, or while they cover their anchor), and leave the same way back. They no
   longer unfold from a height of 0, and no longer only fade as they close.
-- Under the `unfold` appearance (m3-like and m3-expressive-like) they unfold from that edge at their full width, and
+- Under the `unfold` appearance (m3-like) they unfold from that edge at their full width, and
   fold back the same way, on Material's durations and curves as before.
 - Where motion is reduced they fade in and out over `sys.motion.role.reduced` (100 ms), with no scale, distance or blur.
 - A popover written open in the page's markup appears in the first frame without its motion; one mounted open after
