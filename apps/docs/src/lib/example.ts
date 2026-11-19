@@ -221,13 +221,33 @@ export function whenNear(frame: HTMLElement, then: () => void) {
   else frame.addEventListener(NEAR_EVENT, then, { once: true });
 }
 
+/** The mark of a stage that holds its room while it is away from the view, and the property that says how tall it is (components/visuals/Example.astro). */
+const HELD_ATTR = 'data-example-held';
+const HELD_PROPERTY = '--docs-example-held';
+
+/**
+ * A stage away from the view keeps the room it has until it comes near. What it holds is not defined for it until
+ * then, but a tag the page defines for a stage near the view (or that a component's module defines as it draws) is
+ * defined for every element of it on the page at once, and the browser upgrades them all: without this, each stage
+ * away from the view that holds one would grow to the element's size in the same frame (the Calendar's page grew by
+ * about 2.7k px so), and where the browser does not anchor the scroll to what the reader is looking at, push it out of
+ * the view (WebKit did, under the focus order's test). Held, a stage moves nothing until it is drawn, and the page's
+ * stylesheet lets it go the moment its mark is taken away, however that is done.
+ */
+function hold(stage: HTMLElement, height: number) {
+  stage.style.setProperty(HELD_PROPERTY, `${height}px`);
+  stage.setAttribute(HELD_ATTR, '');
+}
+
 /** A frame near the view: its elements are defined, its actions drawn, and a page's script told (`NEAR_EVENT`). */
 function draw(frame: HTMLElement) {
   const stage = stageOf(frame);
   if (!stage) return;
   reached.add(frame);
-  // What it holds is defined now (lib/define-on-demand.ts watches the mark).
+  // What it holds is defined now (lib/define-on-demand.ts watches the mark), at the room it takes.
   stage.removeAttribute('data-example-pending');
+  stage.removeAttribute(HELD_ATTR);
+  stage.style.removeProperty(HELD_PROPERTY);
   drawActions(frame, stage);
   widthHandle(stage);
   frame.dispatchEvent(new CustomEvent(NEAR_EVENT));
@@ -257,11 +277,18 @@ for (const frame of frames()) {
 // once the page's later scripts have run (it runs those that have arrived one after another, before any other task,
 // a timer's included), so on a component's page, with the gallery's, the tables' and the diagrams' scripts after this
 // one, the frame the reader is looking at would wait for all of them before even asking for its elements. The
-// observer is left the frames further down.
-for (const frame of frames()) {
-  if (!nearNow(frame)) continue;
-  near.unobserve(frame);
-  draw(frame);
+// observer is left the frames further down, each holding the room its stage has now (`hold`). Every frame's place is
+// read before any is drawn or held, so the page is laid out once for all of them, not once for each.
+const measured = [...frames()].map((frame) => {
+  const stage = stageOf(frame);
+  // A stage with no box (in a closed panel) has no room to keep: it is laid out when it is shown, and drawn as it comes near.
+  return { frame, stage, isNear: nearNow(frame), height: stage?.getClientRects().length ? stage.getBoundingClientRect().height : null };
+});
+for (const { frame, stage, isNear, height } of measured) {
+  if (isNear) {
+    near.unobserve(frame);
+    draw(frame);
+  } else if (stage && height !== null && stage.hasAttribute('data-example-pending')) hold(stage, height);
 }
 
 /** Whether a frame is near the view now, as the observer reckons it (`NEAR`): a box, within half a window of the view. */
