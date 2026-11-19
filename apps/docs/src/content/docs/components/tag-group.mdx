@@ -121,7 +121,7 @@ On the web it is `<tanrei-tag-group>`. The other platforms have not implemented 
 | Filters that work as one control: one on at a time, or several, crossed with one Tab press | A tag group of filter chips with `selection` (below). |
 | A row of toggle buttons that must stay on one line | A [toolbar](/components/toolbar/). |
 | Two to four different actions | A [button group](/components/button-group/). |
-| One choice among several | A [radio group](/components/radio-group/), [tabs](/components/tabs/) or a [segmented button](/components/segmented-button/). |
+| One choice among several | A [radio group](/components/radio-group/) where it sets a value, or [tabs](/components/tabs/) where it changes what is shown below. |
 | Controls that need a visible label, a requirement and an error | A [field group](/components/field-group/). |
 | Entered values inside a field | The field's own. A [combobox](/components/combobox/) lays out its chips itself. |
 
@@ -212,7 +212,7 @@ A selection holds filter chips only. Other chips in the set, such as an "Add" ch
 
 When you take a filter chip away, the group leaves `value` and `values` as they are. Change them yourself if the filter should be gone too.
 
-A choice that must always have exactly one answer, with no way to clear it, is a [segmented button](/components/segmented-button/) or a [radio group](/components/radio-group/).
+A choice that must always have exactly one answer, with no way to clear it, is a [radio group](/components/radio-group/), or [tabs](/components/tabs/) where it changes what is shown below.
 
 ### Removing a chip
 

@@ -2,7 +2,7 @@
 title: タググループ
 description: タグやチップの集まりを、折り返す行に並べ、中身に合った間隔を取り、1 つの名前付きのリストとして伝えます。メンバーはそのままの姿で、チップが取り除かれた後は、フォーカスが次のチップへ進みます。
 translationOf: components/tag-group.mdx
-sourceHash: 4ce57c2e65761a4834d18e35ee034e5430051f92
+sourceHash: d19d352a508815a57ba3fa88b36d8fc7a764474a
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -123,7 +123,7 @@ Web では `<tanrei-tag-group>` です。ほかのプラットフォームはま
 | 1 つのコントロールとして働く絞り込み。一度に 1 つだけ、またはいくつでもオンにでき、Tab 1 回で通り過ぎられる | `selection` を指定し、絞り込みチップを入れたタググループ（後述）。 |
 | 1 行に収めなければならないトグルボタンの並び | [ツールバー](/ja/components/toolbar/)。 |
 | 2〜4 個の異なるアクション | [ボタングループ](/ja/components/button-group/)。 |
-| いくつかの中から 1 つを選ぶ | [ラジオグループ](/ja/components/radio-group/)、[タブ](/ja/components/tabs/)、[セグメントボタン](/ja/components/segmented-button/)のいずれか。 |
+| いくつかの中から 1 つを選ぶ | 値を決めるなら[ラジオグループ](/ja/components/radio-group/)、下に表示する内容を切り替えるなら[タブ](/ja/components/tabs/)。 |
 | 目に見えるラベル、必須・任意の表示、エラーが必要なコントロール | [フィールドグループ](/ja/components/field-group/)。 |
 | フィールドの中に入力された値 | フィールド自身が扱います。[コンボボックス](/ja/components/combobox/)は、自分でチップを並べます。 |
 
@@ -214,7 +214,7 @@ small のチップは、集まりが 1 行に収まる、密度の高い場所�
 
 絞り込みチップを取り除いても、グループは `value` と `values` をそのままにします。その絞り込みもなくすべき場合は、利用者側で変更します。
 
-答えが常にちょうど 1 つで、選択を解除する方法がない選択には、[セグメントボタン](/ja/components/segmented-button/)か[ラジオグループ](/ja/components/radio-group/)を使います。
+答えが常にちょうど 1 つで、選択を解除する方法がない選択には、[ラジオグループ](/ja/components/radio-group/)を使います。下に表示する内容を切り替える選択なら[タブ](/ja/components/tabs/)です。
 
 ### チップを取り除く
 

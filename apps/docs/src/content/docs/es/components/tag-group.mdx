@@ -2,7 +2,7 @@
 title: Grupo de tags
 description: Dispone un conjunto de tags o de chips en una o en varias líneas, con la separación que corresponde a lo que contiene, y expone el conjunto como una sola lista con nombre. Los miembros siguen siendo lo que son, y cuando se quita un chip el foco pasa al siguiente.
 translationOf: components/tag-group.mdx
-sourceHash: 4ce57c2e65761a4834d18e35ee034e5430051f92
+sourceHash: d19d352a508815a57ba3fa88b36d8fc7a764474a
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -123,7 +123,7 @@ En la web es `<tanrei-tag-group>`. Las demás plataformas todavía no lo han imp
 | Filtros que funcionan como un solo control: uno activado a la vez, o varios, que se cruzan con una sola pulsación de Tab | Un grupo de tags formado por chips de filtro con `selection` (más abajo). |
 | Una fila de botones conmutadores que debe quedarse en una sola línea | Una [barra de herramientas](/es/components/toolbar/). |
 | De dos a cuatro acciones distintas | Un [grupo de botones](/es/components/button-group/). |
-| Una elección entre varias | Un [grupo de botones de opción](/es/components/radio-group/), unas [pestañas](/es/components/tabs/) o un [botón segmentado](/es/components/segmented-button/). |
+| Una elección entre varias | Un [grupo de botones de opción](/es/components/radio-group/) si define un valor, o unas [pestañas](/es/components/tabs/) si cambia lo que se muestra debajo. |
 | Controles que necesitan una etiqueta visible, una marca de obligatoriedad y un error | Un [grupo de campos](/es/components/field-group/). |
 | Valores introducidos dentro de un campo | La disposición del propio campo. Un [cuadro combinado](/es/components/combobox/) dispone sus chips él mismo. |
 
@@ -214,7 +214,7 @@ Una selección contiene solo chips de filtro. Los demás chips del conjunto, com
 
 Cuando quitas un chip de filtro, el grupo deja `value` y `values` como están. Cámbialos tú si el filtro también debe desaparecer.
 
-Una elección que siempre debe tener exactamente una respuesta, sin forma de borrarla, es un [botón segmentado](/es/components/segmented-button/) o un [grupo de botones de opción](/es/components/radio-group/).
+Una elección que siempre debe tener exactamente una respuesta, sin forma de borrarla, es un [grupo de botones de opción](/es/components/radio-group/), o unas [pestañas](/es/components/tabs/) si cambia lo que se muestra debajo.
 
 ### Quitar un chip
 
