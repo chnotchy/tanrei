@@ -27,5 +27,13 @@ What breaks:
 - The fidelity map maps androidx's `ButtonXSmallTokens` … `ButtonXLargeTokens` (and the icon button objects) to
   `small` … `xxlarge`, and material-web's single 40px button to `medium`. Every mapped value is still equal.
 
-`tanrei` and `cupertino` do not move. Baselines: the `m3-like` snapshot baselines of the fixtures that draw a Button
-change, the intended result of this change; they are recorded again on Linux, not in this change.
+`tanrei` and `cupertino` do not move: their generated outputs are byte for byte what they were. Baselines: 24 of the
+107 `packages/web/snapshots/systems/m3-like/` baselines change, the intended result of this change, found by rendering
+every one with the stylesheet before and after the change on one machine and comparing the two renders:
+app-bar/small-scrolled, button/{elevated,filled,outlined,text,tonal}-medium, button-group/connected, calendar/range,
+callout/closable-title-actions, chat-composer/inline-rtl, code-block/syntax-marked, copy-button/labelled-tonal,
+date-time-picker/modal-date-time, dialog/icon, empty-state/actions, figure/docs-demo-code, file-picker/drop-area-error,
+file-upload/drop-area-statuses, image-preview/several-rtl, navigation-drawer/collapsed-labels-always,
+page-header/everything, popover/arrow-actions, side-sheet/modal and toolbar/floating. They are recorded again on
+Linux, not in this change. The native platforms' `m3-like` baselines of the fixtures that draw Buttons change too,
+when those platforms catch up.
