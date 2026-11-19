@@ -17018,7 +17018,6 @@ class TanreiNavigationDrawerTokens {
   const TanreiNavigationDrawerTokens({
     required this.breakpointCollapsed,
     required this.breakpointExpanded,
-    required this.collapsedItemContainerPaddingInline,
     required this.collapsedItemContainerShape,
     required this.collapsedItemGap,
     required this.collapsedItemLabelTypescale,
@@ -17077,8 +17076,6 @@ class TanreiNavigationDrawerTokens {
   final double breakpointCollapsed;
   /// `comp.navigation-drawer.breakpoint-expanded`
   final double breakpointExpanded;
-  /// `comp.navigation-drawer.collapsed-item-container-padding-inline`
-  final double collapsedItemContainerPaddingInline;
   /// `comp.navigation-drawer.collapsed-item-container-shape`
   final double collapsedItemContainerShape;
   /// `comp.navigation-drawer.collapsed-item-gap`
@@ -17188,7 +17185,6 @@ class TanreiNavigationDrawerTokens {
   TanreiNavigationDrawerTokens copyWith({
     double? breakpointCollapsed,
     double? breakpointExpanded,
-    double? collapsedItemContainerPaddingInline,
     double? collapsedItemContainerShape,
     double? collapsedItemGap,
     TanreiTextStyle? collapsedItemLabelTypescale,
@@ -17244,7 +17240,6 @@ class TanreiNavigationDrawerTokens {
   }) => TanreiNavigationDrawerTokens(
         breakpointCollapsed: breakpointCollapsed ?? this.breakpointCollapsed,
         breakpointExpanded: breakpointExpanded ?? this.breakpointExpanded,
-        collapsedItemContainerPaddingInline: collapsedItemContainerPaddingInline ?? this.collapsedItemContainerPaddingInline,
         collapsedItemContainerShape: collapsedItemContainerShape ?? this.collapsedItemContainerShape,
         collapsedItemGap: collapsedItemGap ?? this.collapsedItemGap,
         collapsedItemLabelTypescale: collapsedItemLabelTypescale ?? this.collapsedItemLabelTypescale,

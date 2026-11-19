@@ -6461,7 +6461,6 @@ const TanreiSystem m3ExpressiveLikeSystem = TanreiSystem(
   navigationDrawer: TanreiNavigationDrawerTokens(
     breakpointCollapsed: 600.0,
     breakpointExpanded: 1024.0,
-    collapsedItemContainerPaddingInline: 0.0,
     collapsedItemContainerShape: 9999.0,
     collapsedItemGap: 4.0,
     collapsedItemLabelTypescale: _typescaleLabelSmall,

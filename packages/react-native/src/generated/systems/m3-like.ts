@@ -9697,7 +9697,6 @@ export const m3Like = {
     navigationDrawer: {
       breakpointCollapsed: 600,
       breakpointExpanded: 1024,
-      collapsedItemContainerPaddingInline: 0,
       collapsedItemContainerShape: 9999,
       collapsedItemGap: 4,
       collapsedItemLabelTypescale: "labelSmall",

@@ -1046,7 +1046,8 @@ export const cellStyles = css`
        color in place, over it), and the change of form's while the form changes (the drawer's). */
     --_recolor-duration: var(--_nvd-recolor-duration, ${t('motion-state-duration')});
     --_recolor-easing: var(--_nvd-recolor-easing, ${t('motion-state-easing')});
-    --_labels: calc(${t('collapsed-item-gap')} + ${unsafeCSS(SHORT_LINE)});
+    /* NVD-32: what a short label adds under the collapsed item container: its gap, its line and the padding-block below it. */
+    --_labels: calc(${t('collapsed-item-gap')} + ${unsafeCSS(SHORT_LINE)} + ${d('--_nvd-pill-pad')});
     transition: opacity ${t('motion-state-duration')} ${t('motion-state-easing')};
   }
   .cell.no-labels {
@@ -1054,11 +1055,12 @@ export const cellStyles = css`
   }
   /* NVD-31: while the drawer is collapsible, every cell has the same height and icon line in both forms: the icon line
      lies the larger of half the expanded row and collapsed padding-block plus half the icon indicator below the top, and
-     the cell reaches the larger of half the expanded row and half the icon indicator, the short label's gap and line
-     (unless collapsedLabels is never) and collapsed padding-block below it. The row is centred on that line. */
+     the cell reaches the larger of half the expanded row and half the icon indicator plus collapsed padding-block (the
+     item container's lower half), and, unless collapsedLabels is never, the short label's gap, its line and collapsed
+     padding-block again below it. The row is centred on that line. */
   .cell.collapsible {
     padding-block-start: max(0px, calc(${d('--_nvd-pill-pad')} + ${d('--_nvd-ind-h')} / 2 - ${d('--_nvd-height')} / 2));
-    padding-block-end: max(0px, calc(${d('--_nvd-ind-h')} / 2 + var(--_labels) + ${d('--_nvd-pill-pad')} - ${d('--_nvd-height')} / 2));
+    padding-block-end: max(0px, calc(${d('--_nvd-ind-h')} / 2 + ${d('--_nvd-pill-pad')} + var(--_labels) - ${d('--_nvd-height')} / 2));
   }
   /* Nothing inside the cell is hit-tested: a press anywhere in it lands on the native button or link itself. */
   .cell * {
@@ -1172,9 +1174,9 @@ export const cellStyles = css`
 
   /* NVD-13, NVD-32, NVD-35: the item container — the expanded row, as wide at every level of nesting (a nested
      destination's fill, state layer and focus indicator have a top-level row's width; its content alone starts
-     item.nest-indent further in per level), or the collapsed cell (collapsed.item.container.width, centred in the icon column, from collapsed
-     padding-block above the icon indicator to collapsed padding-block below the short label, or below the icon indicator
-     where the short label is not drawn) — one shape that changes size and corners around the same icon line over the
+     item.nest-indent further in per level), or the collapsed cell (collapsed.item.container.width, centred in the icon
+     column, from collapsed padding-block above the icon indicator to collapsed padding-block below it, behind the icon
+     alone: a short label is drawn under it, NVD-32) — one shape that changes size and corners around the same icon line over the
      change of form. Where the two forms give it the same height and corners, its end edge alone moves. */
   .container {
     box-sizing: border-box;
@@ -1202,16 +1204,8 @@ export const cellStyles = css`
     inset-block-start: calc(50% - ${d('--_nvd-ind-h')} / 2 - ${d('--_nvd-pill-pad')});
     inset-inline-start: ${unsafeCSS(PILL_X)};
     inline-size: ${d('--_nvd-pill')};
-    block-size: calc(2 * ${d('--_nvd-pill-pad')} + ${d('--_nvd-ind-h')} + var(--_labels));
-    ${unsafeCSS(cornerRadius(`${PREFIX}-collapsed-item-container-shape`))}
-  }
-  .cell.collapsed:not(.short-shown) .container {
     block-size: calc(2 * ${d('--_nvd-pill-pad')} + ${d('--_nvd-ind-h')});
-  }
-  /* NVD-41: a collapsed cell that gains or loses its short label (collapsedLabels selected) changes over the selection motion. */
-  .cell[data-condition-change] .container {
-    transition-duration: ${t('motion-selection-duration')};
-    transition-timing-function: ${t('motion-selection-easing')};
+    ${unsafeCSS(cornerRadius(`${PREFIX}-collapsed-item-container-shape`))}
   }
   /* The active indicator and the state layer: the item container's color in the current condition and state. NVD-41: a
      selection changes it in place, at its full size and shape, over the state motion — it never grows, shrinks or
@@ -1428,15 +1422,17 @@ export const cellStyles = css`
       opacity ${unsafeCSS(FIRST_HALF)};
   }
 
-  /* NVD-32, NVD-33, NVD-34: the short label, collapsed.item.gap under the icon indicator, centred on the icon column in
-     one line of collapsed.item.label.typescale, cut with an ellipsis inside the collapsed padding-inline. It fades in
-     over the second half of a collapse and out over the first half of an expansion (NVD-35), and with the selection
-     over the selection motion (NVD-41). */
+  /* NVD-32, NVD-33, NVD-34: the short label, collapsed.item.gap under the collapsed item container (outside it: the
+     item container stays behind the icon alone, as Material's rail keeps its indicator), centred on the icon column in
+     one line of collapsed.item.label.typescale, across the column less its margins (container.padding-inline on each
+     side: the row starts after the start one), not the item container's width, and cut with an ellipsis where it is
+     wider. It fades in over the second half of a collapse and out over the first half of an expansion (NVD-35), and
+     with the selection over the selection motion (NVD-41). */
   .short {
     position: absolute;
-    inset-block-start: calc(50% + ${d('--_nvd-ind-h')} / 2 + ${t('collapsed-item-gap')});
-    inset-inline-start: calc(${unsafeCSS(PILL_X)} + ${t('collapsed-item-container-padding-inline')});
-    inline-size: calc(${d('--_nvd-pill')} - 2 * ${t('collapsed-item-container-padding-inline')});
+    inset-block-start: calc(50% + ${d('--_nvd-ind-h')} / 2 + ${d('--_nvd-pill-pad')} + ${t('collapsed-item-gap')});
+    inset-inline-start: 0;
+    inline-size: calc(${unsafeCSS(COLUMN)} - 2 * ${unsafeCSS(PAD_INLINE)});
     overflow: hidden;
     text-align: center;
     white-space: nowrap;

@@ -6439,7 +6439,6 @@ private let m3ExpressiveLikeNavigationBarTokens = TanreiNavigationBarTokens(
 private let m3ExpressiveLikeNavigationDrawerTokens = TanreiNavigationDrawerTokens(
   breakpointCollapsed: 600,
   breakpointExpanded: 1024,
-  collapsedItemContainerPaddingInline: 0,
   collapsedItemContainerShape: 9999,
   collapsedItemGap: 4,
   collapsedItemLabelTypescale: m3ExpressiveLikeTypescale.labelSmall,

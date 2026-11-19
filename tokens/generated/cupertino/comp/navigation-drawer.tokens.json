@@ -40,7 +40,7 @@
               "The selected destination is drawn from the selected parts; every other destination from the unselected parts. While the drawer is collapsed they are the collapsed-selected and collapsed-unselected parts. Never pick a look by hand.",
               "Selected must differ from unselected by more than the icon's fill: an active indicator, a stronger color, or both.",
               "Hover, focus and press show on the item container: the row while expanded, the box around the icon while collapsed. It is also the active indicator, and it changes color in place: it never grows in width to show a selection.",
-              "A collapsed destination is its expanded row with the label gone: the same height, the same corners, the icon at the same point. Keep collapsed.item.container.shape aliased to item.container.shape, and collapsed.item.container.width the expanded row's least height, a square cell centred in the column, unless the system's collapsed column is a different design.",
+              "A collapsed destination is its expanded row with the label gone: the same height, the same corners, the icon at the same point. Keep collapsed.item.container.shape aliased to item.container.shape, and collapsed.item.container.width the expanded row's least height, a square cell centred in the column, unless the system's collapsed column is a different design. A short label (collapsedLabels) is drawn under the collapsed item container, never inside it, across the column less container.padding-inline on each side: the item container stays behind the icon alone, as Material's navigation rail keeps its active indicator behind the icon and gives the label the item's width.",
               "A row is a menu item's size and shape: item.container.height (the control height at medium), item.padding-inline, item.gap and item.container.shape take the values the menu's item has. A drawer destination is never a capsule in the default system.",
               "The icon indicator is a box behind the glyph alone. The default system leaves it transparent in every condition; a layer that marks a collapsed destination behind its glyph only fills it in the collapsed conditions and clears the collapsed item container.",
               "Every icon sits on the same point in both forms: its center is half the collapsed width from the drawer's start edge (plus the nesting indent), and its row keeps its height. Change collapsed.container.width, not a padding, to move the icon column; in the default system it is container.padding-inline, item.padding-inline and half the icon, twice.",
@@ -299,14 +299,9 @@
                   }
                 }
               },
-              "padding-inline": {
-                "$type": "dimension",
-                "$description": "Inside the collapsed item container, on each side of a short label, which is truncated inside it. Read only where collapsedLabels draws a label.",
-                "$value": "{tanrei.sys.space.space50}"
-              },
               "padding-block": {
                 "$type": "dimension",
-                "$description": "Above the icon indicator and below the short label (or below the icon indicator where none is drawn) inside the collapsed item container, per size; with the icon indicator it gives the expanded row's height in the default system.",
+                "$description": "Above and below the icon indicator inside the collapsed item container, per size, and below the short label where collapsedLabels draws one; with the icon indicator it gives the expanded row's height in the default system, so that the collapsed item container is a square behind the icon whether or not a short label is drawn under it.",
                 "medium": {
                   "$value": "{tanrei.sys.space.space150}",
                   "$extensions": {}
@@ -333,13 +328,13 @@
             },
             "gap": {
               "$type": "dimension",
-              "$description": "From the icon indicator to the short label below it, where collapsedLabels draws one.",
+              "$description": "From the collapsed item container to the short label below it, where collapsedLabels draws one.",
               "$value": "{tanrei.sys.space.space50}"
             },
             "label": {
               "typescale": {
                 "$type": "typography",
-                "$description": "The short label under the icon, on one line, where collapsedLabels draws one.",
+                "$description": "The short label under the icon, on one line, where collapsedLabels draws one: across the icon column less container.padding-inline on each side, not held to the collapsed item container's width, and cut with an ellipsis where it is wider.",
                 "$value": "{tanrei.sys.typescale.label-small}"
               }
             }
@@ -855,7 +850,7 @@
               "color": {
                 "$type": "color",
                 "$value": "{tanrei.comp.navigation-drawer.unselected.item.label.color}",
-                "$description": "The short label under the icon, where collapsedLabels draws one."
+                "$description": "The short label under the icon, where collapsedLabels draws one: outside the item container, on the drawer's surface."
               }
             },
             "supporting-text": {
@@ -911,8 +906,8 @@
             "label": {
               "color": {
                 "$type": "color",
-                "$value": "{tanrei.comp.navigation-drawer.selected.item.label.color}",
-                "$description": "The short label on the collapsed active indicator, where collapsedLabels draws one."
+                "$value": "{tanrei.sys.color.on-surface}",
+                "$description": "The short label under the collapsed active indicator, where collapsedLabels draws one. It is drawn outside the item container, on the drawer's surface, so it takes a color for that surface (stronger than an unselected label's), not the selected row's content color."
               }
             },
             "supporting-text": {

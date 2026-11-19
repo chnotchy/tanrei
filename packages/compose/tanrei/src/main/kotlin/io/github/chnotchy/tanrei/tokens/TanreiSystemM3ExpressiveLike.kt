@@ -6084,7 +6084,6 @@ private object M3ExpressiveLikeSystemSource {
         TanreiNavigationDrawerTokens(
             breakpointCollapsed = 600.dp,
             breakpointExpanded = 1024.dp,
-            collapsedItemContainerPaddingInline = 0.dp,
             collapsedItemContainerShape = 9999.dp,
             collapsedItemGap = 4.dp,
             collapsedItemLabelTypescale = typescale.labelSmall,

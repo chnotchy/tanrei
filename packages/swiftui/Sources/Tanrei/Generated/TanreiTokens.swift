@@ -11757,7 +11757,6 @@ public struct TanreiNavigationDrawerStateTokens: Sendable, Equatable {
 public struct TanreiNavigationDrawerTokens: Sendable, Equatable {
   public var breakpointCollapsed: CGFloat
   public var breakpointExpanded: CGFloat
-  public var collapsedItemContainerPaddingInline: CGFloat
   public var collapsedItemContainerShape: CGFloat
   public var collapsedItemGap: CGFloat
   public var collapsedItemLabelTypescale: TanreiTextStyle
@@ -11818,7 +11817,6 @@ public struct TanreiNavigationDrawerTokens: Sendable, Equatable {
   public init(
     breakpointCollapsed: CGFloat,
     breakpointExpanded: CGFloat,
-    collapsedItemContainerPaddingInline: CGFloat,
     collapsedItemContainerShape: CGFloat,
     collapsedItemGap: CGFloat,
     collapsedItemLabelTypescale: TanreiTextStyle,
@@ -11874,7 +11872,6 @@ public struct TanreiNavigationDrawerTokens: Sendable, Equatable {
   ) {
     self.breakpointCollapsed = breakpointCollapsed
     self.breakpointExpanded = breakpointExpanded
-    self.collapsedItemContainerPaddingInline = collapsedItemContainerPaddingInline
     self.collapsedItemContainerShape = collapsedItemContainerShape
     self.collapsedItemGap = collapsedItemGap
     self.collapsedItemLabelTypescale = collapsedItemLabelTypescale

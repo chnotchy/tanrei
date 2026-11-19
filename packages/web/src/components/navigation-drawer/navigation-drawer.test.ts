@@ -1109,11 +1109,13 @@ test.describe('the collapsed form', () => {
     expect(c.cells[0].height).toBe(40);
     expect(c.icons[0].y - c.cells[0].y).toBe(20);
     expect(c.cells[0].height).toBeCloseTo(above + Math.max(row / 2, ind / 2 + pad), 0);
-    // With labels: a cell grows to hold the short label, in both forms alike.
+    // With labels: a cell grows to hold the short label under its item container (the item container's lower half, the
+    // gap, the line and collapsed padding-block again), in both forms alike; the verify: 68 high.
     expect(ca.cells).toEqual(ea.cells);
     expect(ca.icons).toEqual(ea.icons);
     expect(ca.cells[0].height).toBeGreaterThan(c.cells[0].height);
-    expect(ca.cells[0].height).toBeCloseTo(above + Math.max(row / 2, ind / 2 + gap + line + pad), 0);
+    expect(ca.cells[0].height).toBeCloseTo(above + Math.max(row / 2, ind / 2 + pad + gap + line + pad), 0);
+    expect(ca.cells[0].height).toBe(68);
     // The main action's glyph does not move WHERE its padding before the glyph is half the difference of its height and
     // its glyph (NVD-39): measured here, and reported by the test when the system's button does not have that padding.
     expect(Math.abs(c.main.y - e.main.y)).toBeLessThanOrEqual(0.5);
@@ -1161,21 +1163,53 @@ test.describe('the collapsed form', () => {
     await expect(item(page, 'collapsed-groups', 1)).toBeHidden();
   });
 
-  test('NVD-32: where a short label is drawn it is collapsed.item.gap under the icon indicator, centred on one line, cut with an ellipsis, collapsed padding-block below it; under m3-like, in collapsed-labels-always, the cell is Material’s — a 56 by 32 indicator behind the glyph and the short label under it', async ({ page }) => {
-    await mount(page, only('collapsed-labels-always'), { reducedMotion: true });
-    const [pad, gap, cw] = await Promise.all([T('collapsed-item-container-padding-block-medium'), T('collapsed-item-gap'), T('collapsed-item-container-width-medium')].map((n) => px(page, n)));
-    const [c, indicator, short] = await Promise.all(['.row > .container', '.icon-indicator', '.short'].map((s) => bounds(item(page, 'collapsed-labels-always', 0).locator(s))));
-    expect(c.width).toBeCloseTo(cw, 1);
-    expect(indicator.y - c.y).toBeCloseTo(pad, 1);
-    expect(short.y - (indicator.y + indicator.height)).toBeCloseTo(gap, 1);
-    expect(c.y + c.height - (short.y + short.height)).toBeCloseTo(pad, 0);
-    await expect(item(page, 'collapsed-labels-always', 0).locator('.short')).toHaveCSS('opacity', '1');
+  test('NVD-32: where a short label is drawn the item container stays the square behind the icon and the label is collapsed.item.gap under it, outside it, centred on one line across the column less its margins, cut with an ellipsis, collapsed padding-block below it, the hit area over both; under m3-like, in collapsed-labels-always, the cell is Material’s — a 56 by 32 indicator behind the glyph and the short label under it', async ({ page }) => {
+    await mount(page, only('collapsed-labels-always', 'collapsed-short-labels'), { reducedMotion: true });
+    const [pad, gap, cw, column, margin] = await Promise.all(
+      [T('collapsed-item-container-padding-block-medium'), T('collapsed-item-gap'), T('collapsed-item-container-width-medium'), T('collapsed-container-width-medium'), T('container-padding-inline')].map((n) => px(page, n)),
+    );
+    const p = await bounds(panel(page, 'collapsed-labels-always'));
+    for (const n of [0, 1, 2, 3]) {
+      const [c, indicator, short, hit] = await Promise.all(['.row > .container', '.icon-indicator', '.short', '.cell'].map((s) => bounds(item(page, 'collapsed-labels-always', n).locator(s))));
+      // The verify: the item container is the same 40 by 40 square with a label as without one, behind the icon alone.
+      expect([c.width, c.height], `${n}`).toEqual([cw, cw]);
+      expect([c.width, c.height]).toEqual([40, 40]);
+      expect(indicator.y - c.y).toBeCloseTo(pad, 1);
+      expect(c.y + c.height - (indicator.y + indicator.height)).toBeCloseTo(pad, 1);
+      // The short label: the gap under the item container, collapsed padding-block below it inside the cell.
+      expect(short.y - (c.y + c.height)).toBeCloseTo(gap, 1);
+      expect(hit.y + hit.height - (short.y + short.height)).toBeCloseTo(pad, 0);
+      // Across the column less its margins (48 = 72 - 2 × 12), centred on the icon column, not the item container's width.
+      expect(short.width).toBeCloseTo(column - 2 * margin, 1);
+      expect(short.width).toBe(48);
+      expect(short.x - p.x).toBeCloseTo(margin, 1);
+      expect(centre(short).x).toBeCloseTo(centre(c).x, 1);
+      // The hit area (the cell) covers the icon and the short label.
+      expect(hit.y).toBeLessThanOrEqual(c.y);
+      expect(hit.y + hit.height).toBeGreaterThanOrEqual(short.y + short.height);
+      expect(hit.x).toBeLessThanOrEqual(short.x);
+      expect(hit.x + hit.width).toBeGreaterThanOrEqual(short.x + short.width);
+      await expect(item(page, 'collapsed-labels-always', n).locator('.short')).toHaveCSS('opacity', '1');
+    }
     expect(await css(item(page, 'collapsed-labels-always', 0).locator('.short'), 'text-align')).toBe('center');
+    // The verify: Starred, Shared and Recent are drawn whole; a label wider than
+    // the column's room (Notifications) is still cut. The text's own width is compared, since scrollWidth is rounded.
+    const cut = (id: string, n: number) =>
+      item(page, id, n)
+        .locator('.short-text')
+        .evaluate((el) => {
+          const range = document.createRange();
+          range.selectNodeContents(el);
+          return range.getBoundingClientRect().width > el.getBoundingClientRect().width + 0.01;
+        });
+    expect(await Promise.all([0, 1, 2].map((n) => cut('collapsed-labels-always', n)))).toEqual([false, false, false]);
+    expect(await Promise.all([0, 1, 2, 3].map((n) => cut('collapsed-short-labels', n)))).toEqual([false, false, false, true]);
     await mount(page, only('collapsed-labels-always'), { reducedMotion: true, system: 'm3-like' });
     const m3 = await Promise.all(['.icon-indicator', '.short', '.icon'].map((s) => bounds(item(page, 'collapsed-labels-always', 0).locator(s))));
     expect([m3[0].width, m3[0].height]).toEqual([56, 32]);
     expect(centre(m3[2]).x).toBeCloseTo(centre(m3[0]).x, 0);
     expect(m3[1].y).toBeGreaterThanOrEqual(m3[0].y + m3[0].height);
+    expect(centre(m3[1]).x).toBeCloseTo(centre(m3[0]).x, 0);
     await expect(item(page, 'collapsed-labels-always', 0).locator('.short')).toHaveCSS('opacity', '1');
     await page.mouse.move(700, 5);
     await expect.poll(() => css(item(page, 'collapsed-labels-always', 0).locator('.icon-indicator'), 'background-color')).toBe(await resolveColor(page, T('collapsed-selected-item-icon-indicator-color')));

@@ -6193,10 +6193,6 @@
               },
               "reason": "Material 3's navigation rail, which a collapsed drawer reproduces: its active indicator is 32 high."
             },
-            "tanrei.comp.navigation-drawer.collapsed.item.container.padding-inline": {
-              "$value": "{tanrei.sys.space.space0}",
-              "reason": "Material 3's navigation rail, which a collapsed drawer reproduces: it draws no shape around the whole destination."
-            },
             "tanrei.comp.navigation-drawer.collapsed.item.container.padding-block.medium": {
               "$value": "{tanrei.sys.space.space0}",
               "reason": "Material 3's navigation rail, which a collapsed drawer reproduces: it draws no shape around the whole destination."

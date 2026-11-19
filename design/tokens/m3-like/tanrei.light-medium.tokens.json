@@ -65118,7 +65118,7 @@
                   "hex": "#141218",
                   "alpha": 1
                 },
-                "$description": "The short label on the collapsed active indicator, where collapsedLabels draws one."
+                "$description": "The short label under the collapsed active indicator, where collapsedLabels draws one. It is drawn outside the item container, on the drawer's surface, so it takes a color for that surface (stronger than an unselected label's), not the selected row's content color."
               }
             },
             "state-layer": {
@@ -65743,7 +65743,7 @@
                   "hex": "#3d3a43",
                   "alpha": 1
                 },
-                "$description": "The short label under the icon, where collapsedLabels draws one."
+                "$description": "The short label under the icon, where collapsedLabels draws one: outside the item container, on the drawer's surface."
               }
             },
             "state-layer": {
@@ -65972,14 +65972,6 @@
                   }
                 }
               },
-              "padding-inline": {
-                "$type": "dimension",
-                "$value": {
-                  "value": 0,
-                  "unit": "px"
-                },
-                "$description": "Inside the collapsed item container, on each side of a short label, which is truncated inside it. Read only where collapsedLabels draws a label."
-              },
               "shape": {
                 "$type": "dimension",
                 "$value": {
@@ -66011,7 +66003,7 @@
                 "value": 4,
                 "unit": "px"
               },
-              "$description": "From the icon indicator to the short label below it, where collapsedLabels draws one."
+              "$description": "From the collapsed item container to the short label below it, where collapsedLabels draws one."
             },
             "label": {
               "typescale": {
@@ -66033,7 +66025,7 @@
                   },
                   "lineHeight": 1.3333
                 },
-                "$description": "The short label under the icon, on one line, where collapsedLabels draws one."
+                "$description": "The short label under the icon, on one line, where collapsedLabels draws one: across the icon column less container.padding-inline on each side, not held to the collapsed item container's width, and cut with an ellipsis where it is wider."
               }
             }
           }

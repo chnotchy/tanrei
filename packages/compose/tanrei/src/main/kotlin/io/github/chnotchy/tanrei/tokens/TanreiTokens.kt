@@ -7370,7 +7370,6 @@ public data class TanreiNavigationDrawerStateTokens(
 public data class TanreiNavigationDrawerTokens(
     public val breakpointCollapsed: Dp,
     public val breakpointExpanded: Dp,
-    public val collapsedItemContainerPaddingInline: Dp,
     public val collapsedItemContainerShape: Dp,
     public val collapsedItemGap: Dp,
     public val collapsedItemLabelTypescale: TanreiTextStyle,

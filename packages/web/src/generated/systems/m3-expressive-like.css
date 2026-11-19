@@ -5389,7 +5389,6 @@
     --tanrei-comp-navigation-drawer-collapsed-container-width-small: round(nearest, calc(var(--tanrei-dial-size-unit) * 14), 0.25px);
     --tanrei-comp-navigation-drawer-collapsed-item-container-padding-block-medium: var(--tanrei-sys-space-space0);
     --tanrei-comp-navigation-drawer-collapsed-item-container-padding-block-small: max(0px, round(nearest, calc(var(--tanrei-sys-space-space100) + (var(--tanrei-comp-navigation-drawer-collapsed-item-container-width-small) - calc(max(var(--tanrei-dial-control-height), 2.5rem) + var(--tanrei-dial-size-unit) * -2)) / 2), 0.25px));
-    --tanrei-comp-navigation-drawer-collapsed-item-container-padding-inline: var(--tanrei-sys-space-space0);
     --tanrei-comp-navigation-drawer-collapsed-item-container-shape: var(--tanrei-sys-shape-corner-full);
     --tanrei-comp-navigation-drawer-collapsed-item-container-shape-pill: 1;
     --tanrei-comp-navigation-drawer-collapsed-item-container-width-medium: round(nearest, calc(var(--tanrei-dial-size-unit) * 14), 0.25px);
