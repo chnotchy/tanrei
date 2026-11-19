@@ -206,7 +206,7 @@ test.describe('presentation, focus and closing', () => {
     await expectFromNextFrame(host(page, 'm'), '(el) => { el.open = false; }', ['tanrei-calendar span.box background-color'], 'closed');
   });
 
-  test('DTM-35, MOT-7: closing a modal picker, its scrim is drawn at no opacity and takes no press from the first frame while the container still leaves by its own motion, and opening fades it in from no opacity, in every engine; where motion is reduced it is gone from the first frame too', async ({ page }) => {
+  test('DTM-35, MOT-8: closing a modal picker, its scrim is drawn at no opacity and takes no press from the first frame while the container still leaves by its own motion, and opening fades it in from no opacity, in every engine; where motion is reduced it is gone from the first frame too', async ({ page }) => {
     await mount(page, [modal('m', { value: '2026-09-17' })]);
     const set = (value: boolean) => () => host(page, 'm').evaluate((el, v) => ((el as unknown as { open: boolean }).open = v), value);
     await set(true)();
@@ -2159,7 +2159,7 @@ test.describe('ranges, actions, motion, overflow and semantics', () => {
     expect(own(fading).filter(([name]) => name !== 'opacity')).toEqual([]);
   });
 
-  test('DTM-35 (MDL-7, MOT-6, MOT-7): where motion is reduced a modal picker’s scrim fades in with its container, over sys.motion.role.reduced — not over the modal open motion — and closing, only the container fades, the scrim gone at once', async ({ page }) => {
+  test('DTM-35 (MDL-7, MOT-6, MOT-8): where motion is reduced a modal picker’s scrim fades in with its container, over sys.motion.role.reduced — not over the modal open motion — and closing, only the container fades, the scrim gone at once', async ({ page }) => {
     await page.emulateMedia({ reducedMotion: 'reduce' });
     await mount(page, [modal('m', { value: '2026-09-17' })]);
     const reduced = await resolveToken(page, '--tanrei-sys-motion-role-reduced', 'duration');

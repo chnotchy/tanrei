@@ -358,7 +358,7 @@ test.describe('presentation and focus', () => {
   });
 
   for (const [form, size] of [['centred', WIDE], ['a sheet in a compact window', COMPACT]] as const) {
-    test(`DLG-13, DLG-18, MOT-7: closing ${form}, the scrim is drawn at no opacity and takes no press from the first frame while the container still leaves by its own motion, and opening fades it in from no opacity, in every engine; where motion is reduced it is gone from the first frame too`, async ({ page }) => {
+    test(`DLG-13, DLG-18, MOT-8: closing ${form}, the scrim is drawn at no opacity and takes no press from the first frame while the container still leaves by its own motion, and opening fades it in from no opacity, in every engine; where motion is reduced it is gone from the first frame too`, async ({ page }) => {
       await mount(page, [f('d')], size);
       await open(page, 'd');
       await motionEnded(page);
@@ -367,7 +367,7 @@ test.describe('presentation and focus', () => {
     });
   }
 
-  test('DLG-13 (MDL-7, MOT-6, MOT-7): where motion is reduced the scrim fades in with the container, over sys.motion.role.reduced — not over the dialog’s own motion — and closing, only the container fades, the scrim gone at once', async ({ page }) => {
+  test('DLG-13 (MDL-7, MOT-6, MOT-8): where motion is reduced the scrim fades in with the container, over sys.motion.role.reduced — not over the dialog’s own motion — and closing, only the container fades, the scrim gone at once', async ({ page }) => {
     await page.emulateMedia({ reducedMotion: 'reduce' });
     await mount(page, [f('d')]);
     const reduced = await resolveToken(page, '--tanrei-sys-motion-role-reduced', 'duration');
@@ -377,7 +377,7 @@ test.describe('presentation and focus', () => {
     const fades = (seen: Frames) => seen.motions.filter((motion) => motion.on.startsWith('dialog') && motion.name === 'opacity').map((motion) => `${motion.on} ${motion.duration}`);
     const opening = fades(await sampleFrames(dialog(page, 'd'), () => host(page, 'd').evaluate((el: any) => (el.open = true)), { probe: appearProbe }));
     const closing = fades(await sampleFrames(dialog(page, 'd'), () => close(page, 'd'), { probe: appearProbe }));
-    // MOT-7: closing, only the container fades; the scrim is gone at once.
+    // MOT-8: closing, only the container fades; the scrim is gone at once.
     for (const [name, seen, count] of [['opening', opening, 2], ['closing', closing, 1]] as const) {
       expect(seen.length, `${name}: ${seen.join(', ')}`).toBe(count);
       expect(seen.every((fade) => fade.endsWith(` ${reduced}`)), `${name}: ${seen.join(', ')}`).toBe(true);

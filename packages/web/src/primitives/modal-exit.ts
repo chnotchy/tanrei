@@ -17,7 +17,7 @@ import { deepActive, modalLayer } from './modal.js';
 // in the same task shows it as a manual popover: still in the top layer, with its `::backdrop` (the scrim), no longer
 // modal. While it leaves it is marked `data-tanrei-leaving`, inert, takes no pointer, and keeps the display and the box
 // the browser gave it as a modal dialog. Its exit starts from the values it showed: it is drawn once as it was shown,
-// with no transition, before the closed style moves it. Its scrim does not leave with it (MOT-7): from the first frame of
+// with no transition, before the closed style moves it. Its scrim does not leave with it (MOT-8): from the first frame of
 // the closing it is drawn at no opacity and without its blur, at once — the press it took and the inertness it stood
 // for end in the closing task, and a scrim faded on the exit curve, which gathers speed, stayed almost whole for most of
 // the exit and then vanished. When every transition on the dialog has finished (their own `finished`, never a timer) it
@@ -166,7 +166,7 @@ function gone(dialog: HTMLDialogElement, state: Leaving) {
 /**
  * Closes the modal `dialog` (MDL-5, MDL-7). It is no longer modal at once — the page is no longer inert, so focus can
  * go back to the opener in the same task — and stays drawn in the top layer, inert and taking no pointer, while its exit
- * plays from the values it showed, its scrim gone from the first frame (MOT-7); then it leaves the top layer. Resolves with true once it has, or with
+ * plays from the values it showed, its scrim gone from the first frame (MOT-8); then it leaves the top layer. Resolves with true once it has, or with
  * false when it was opened again first (`openModal`). `instant` (or a dialog out of the document): closed now.
  *
  * `interactive`: while it leaves it is not inert and takes the pointer (its scrim takes none) — a surface that becomes
@@ -217,7 +217,7 @@ export async function closeModal(
   // No longer modal, and back in the top layer as it leaves: what is shown in it moves out now (a snackbar, SNK-38), and
   // is drawn above it.
   modalLayer.delete(dialog);
-  // Asking flushes style: the exit's transitions exist now (the scrim has none: MOT-7). They begin in the first frame
+  // Asking flushes style: the exit's transitions exist now (the scrim has none: MOT-8). They begin in the first frame
   // drawn after this task, as an entrance does: WebKit dated them from the frame drawn before it, and where a long task
   // outlasted the exit the surface was gone in that frame without a frame of its motion.
   if (documentPainted()) startFromNextFrame(turning(dialog, moves), { leaving: true });
@@ -372,8 +372,8 @@ function showFocused(dialog: HTMLDialogElement, keep: HTMLElement | null) {
  * The CSS a dialog opened and closed with `openModal()` and `closeModal()` needs, for `dialog` (its selector): where
  * the dialog changes hands its scrim starts no transition and stands at the opacity it showed — a `::backdrop` takes
  * neither from the dialog's inline style — and while it leaves its scrim is drawn at no opacity and without its blur,
- * starts no transition and takes no pointer, so that a press reaches the page, which is no longer inert (MOT-7: it is
- * taken away at once as the dialog begins to close, whatever the dialog's own rules give its closed scrim, and whether
+ * starts no transition and takes no pointer, so that a press reaches the page, which is no longer inert (MOT-7; MOT-8:
+ * it is taken away at once as the dialog begins to close, whatever the dialog's own rules give its closed scrim, and whether
  * or not motion is reduced). Compose it after the dialog's own rules.
  */
 export function modalExitStyles(dialog: string): CSSResult {

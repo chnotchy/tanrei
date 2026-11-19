@@ -806,7 +806,7 @@ export class TanreiBottomSheet extends TanreiElement {
     const hadFocus = this.hasFocus();
     const dialog = this.dialog;
     // BSH-1: no longer modal at once — the page and focus are given back now — and drawn in the top layer until its exit
-    // has played, its scrim gone from the first frame (closeModal, MOT-7), in every engine.
+    // has played, its scrim gone from the first frame (closeModal, MOT-8), in every engine.
     if (dialog) void closeModal(dialog);
     void this.appear.exit(!this.isConnected);
     const opener = restore && hadFocus ? this.opener : null;

@@ -1475,7 +1475,7 @@ test.describe('the menu button', () => {
     });
   }
 
-  test('APS-7, NVD-19, NVD-20, NVD-22, MOT-7: opened over the content, and closed by Escape, at the end of a task that outlasts its motions, the navigation slides in over its fading scrim and out with its scrim gone, and what focus goes to takes its focused colors from the first frame drawn after that task', async ({ page }) => {
+  test('APS-7, NVD-19, NVD-20, NVD-22, MOT-8: opened over the content, and closed by Escape, at the end of a task that outlasts its motions, the navigation slides in over its fading scrim and out with its scrim gone, and what focus goes to takes its focused colors from the first frame drawn after that task', async ({ page }) => {
     // WebKit dates a transition begun in a task from the frame drawn before it: where the task took longer than the
     // motions last, the drawer and its scrim were drawn in place or gone, and what focus went to drawn focused, at once.
     await mount(page, real(), { width: 400 });
@@ -1490,7 +1490,7 @@ test.describe('the menu button', () => {
     await expectFromNextFrame(
       drawer(page),
       "(el, active) => { active.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true, composed: true, cancelable: true })); }",
-      // MOT-7: the scrim begins no motion as it closes.
+      // MOT-8: the scrim begins no motion as it closes.
       motions.filter((motion) => !motion.includes('scrim')),
       'closed by Escape',
     );
@@ -1629,7 +1629,7 @@ test.describe('the menu button', () => {
     expect(atOnce.frames[0]!.probe).toMatchObject({ width: 72, main: 72 });
   });
 
-  test('NVD-22, APS-7: closing below the header, nothing happens at the end — the last frame of the motion is the first frame of the closed drawer: the scrim gone from the first frame (MOT-7) and the panel out of the window (400) or its column at rest (800), nothing taken away, replaced or recolored — and focus is back on the menu button and nothing is inert from the first frame', async ({ page }) => {
+  test('NVD-22, APS-7: closing below the header, nothing happens at the end — the last frame of the motion is the first frame of the closed drawer: the scrim gone from the first frame (MOT-8) and the panel out of the window (400) or its column at rest (800), nothing taken away, replaced or recolored — and focus is back on the menu button and nothing is inert from the first frame', async ({ page }) => {
     for (const width of [400, 800] as const) {
       await mount(page, real({ sections: 2 }), { width });
       // Opened from the keyboard: the destination that takes focus is drawn focused from the start (a key pressed after
@@ -1657,7 +1657,7 @@ test.describe('the menu button', () => {
     }
   });
 
-  test('APS-7, NVD-22, NVD-40, MOT-7: closing below the header — a drawer with no collapsed form at 768 sliding out, a collapsible one at 800 narrowing to its column — its scrim is drawn at no opacity, hidden and taking no press from the first frame while the panel still moves, and opening fades it in from no opacity, in every engine; where motion is reduced it is gone from the first frame too', async ({ page }) => {
+  test('APS-7, NVD-22, NVD-40, MOT-8: closing below the header — a drawer with no collapsed form at 768 sliding out, a collapsible one at 800 narrowing to its column — its scrim is drawn at no opacity, hidden and taking no press from the first frame while the panel still moves, and opening fades it in from no opacity, in every engine; where motion is reduced it is gone from the first frame too', async ({ page }) => {
     const probe = (root: Element) => {
       const host = root.querySelector('tanrei-navigation-drawer')!;
       const scrim = getComputedStyle(host.shadowRoot!.querySelector('.scrim')!);

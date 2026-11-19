@@ -16,7 +16,7 @@ cites them by id rather than restating them.
   motion that is turned round SHALL go on from the value then shown. The last frame of a surface that leaves on an
   accelerating curve (`sys.motion.easing.exit`) is the one exception at the end: it may still hold a little of the
   surface (about 7–9 % of its opacity at 250–350 ms under the default system) when the surface is taken away. A scrim
-  is not such a surface (MOT-7).
+  is not such a surface (MOT-8).
 - **MOT-3** — WHEN a component is first drawn THE component SHALL draw its first frame in the state its props,
   attributes, content and the components around it give it, and SHALL run no transition into that state. An overlay
   mounted open is the one exception and follows MOT-4.

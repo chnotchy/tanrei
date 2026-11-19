@@ -375,7 +375,7 @@ test.describe('closing', () => {
 });
 
 test.describe('motion', () => {
-  test('MDL-7, MOT-7: closing, the scrim is drawn at no opacity and takes no press from the first frame — the container still drawn and fading out — and opening fades it in from no opacity, in every engine; where motion is reduced it is gone from the first frame too', async ({ page }) => {
+  test('MDL-7, MOT-8: closing, the scrim is drawn at no opacity and takes no press from the first frame — the container still drawn and fading out — and opening fades it in from no opacity, in every engine; where motion is reduced it is gone from the first frame too', async ({ page }) => {
     await mount(page, [f('l')]);
     await open(page, 'l');
     await motionEnded(page);

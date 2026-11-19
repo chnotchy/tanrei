@@ -3378,7 +3378,7 @@ test.describe('dialog view', () => {
     await page.keyboard.press('Escape');
   });
 
-  test('SRC-41, MOT-7: closing the dialog view, its scrim is drawn at no opacity and takes no press from the first frame while the view still fades out, and opening fades it in from no opacity, in every engine; where motion is reduced it is gone from the first frame too', async ({ page }) => {
+  test('SRC-41, MOT-8: closing the dialog view, its scrim is drawn at no opacity and takes no press from the first frame while the view still fades out, and opening fades it in from no opacity, in every engine; where motion is reduced it is gone from the first frame too', async ({ page }) => {
     await mountSite(page, [site('s')], { reducedMotion: false });
     const set = (value: boolean) => () => host(page, 's').evaluate((el, v) => ((el as unknown as { expanded: boolean }).expanded = v), value);
     await set(true)();
@@ -3391,7 +3391,7 @@ test.describe('dialog view', () => {
     const d = dialog(page, 's');
     const [open, close] = await Promise.all(['motion-open-duration', 'motion-close-duration'].map((n) => resolveToken(page, T(n), 'duration')));
     const seconds = (value: string) => value.split(',').map((part) => Math.round(Number.parseFloat(part) * 1000));
-    // Closed: the container waits to fade out over the close motion; its scrim fades out over none (MOT-7).
+    // Closed: the container waits to fade out over the close motion; its scrim fades out over none (MOT-8).
     expect(seconds(await css(d, 'transition-duration'))[0]).toBe(close);
     expect(seconds(await d.evaluate((el) => getComputedStyle(el, '::backdrop').transitionDuration))[0]).toBe(0);
     await trigger(page, 's').click();

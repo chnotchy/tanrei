@@ -1,4 +1,4 @@
-// MOT-7: a surface that draws a scrim takes the scrim away at once as it begins to close, and fades it in as it opens.
+// MOT-8: a surface that draws a scrim takes the scrim away at once as it begins to close, and fades it in as it opens.
 //
 // Read frame by frame (`sampleFrames`) on every modal `<dialog>` in the root, through shadow roots: its scrim is its
 // `::backdrop`, drawn while the dialog is in the top layer — modal while open, a popover while it leaves
@@ -75,7 +75,7 @@ export async function expectScrimTakenAwayAtClose(page: Page, stage: Locator, { 
   expect(new Set(values).size, `${what}: the scrim fades in over frames (${values.join(', ')})`).toBeGreaterThan(3);
   await motionEnded(page);
 
-  // MOT-7, MOT-6: where motion is reduced, the same.
+  // MOT-8, MOT-6: where motion is reduced, the same.
   await page.emulateMedia({ reducedMotion: 'reduce' });
   try {
     const reduced = await sampleFrames(stage, close, { probe: scrimProbe });

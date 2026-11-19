@@ -2389,7 +2389,7 @@ test.describe('compact window', () => {
     expect(await log(page)).toEqual(['p:escape', 'p:outside', 'p:close']);
   });
 
-  test('POP-41, MOT-7: closing as a sheet, its scrim is drawn at no opacity and takes no press from the first frame while the sheet still slides down, and opening fades it in from no opacity, in every engine; where motion is reduced it is gone from the first frame too', async ({ page }) => {
+  test('POP-41, MOT-8: closing as a sheet, its scrim is drawn at no opacity and takes no press from the first frame while the sheet still slides down, and opening fades it in from no opacity, in every engine; where motion is reduced it is gone from the first frame too', async ({ page }) => {
     await mount(page, page320(), { ...COMPACT, reducedMotion: false });
     await set(page, { open: true });
     await expect.poll(() => isSheet(page)).toBe(true);

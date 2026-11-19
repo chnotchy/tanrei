@@ -439,7 +439,7 @@
     },
     {
       "id": "POP-41",
-      "text": "WHEN the popover opens as a sheet (POP-39) THE popover SHALL slide its container up from below the window's bottom edge into its place while fading the scrim in, as a modal bottom sheet opens (BSH-1), over comp.bottom-sheet.motion.enter-duration with comp.bottom-sheet.motion.enter-easing, and WHEN it closes there it SHALL take the scrim away at once (MOT-7) and slide the container down out of view, over comp.bottom-sheet.motion.exit-duration with comp.bottom-sheet.motion.exit-easing, turning round from where it has got to as POP-27 says. WHERE motion is reduced it SHALL fade in and out in place without sliding, or appear and disappear at once on a platform whose reduced-motion setting removes every animation (Android's). Focus SHALL move when it opens or closes, not when its motion ends."
+      "text": "WHEN the popover opens as a sheet (POP-39) THE popover SHALL slide its container up from below the window's bottom edge into its place while fading the scrim in, as a modal bottom sheet opens (BSH-1), over comp.bottom-sheet.motion.enter-duration with comp.bottom-sheet.motion.enter-easing, and WHEN it closes there it SHALL take the scrim away at once (MOT-8) and slide the container down out of view, over comp.bottom-sheet.motion.exit-duration with comp.bottom-sheet.motion.exit-easing, turning round from where it has got to as POP-27 says. WHERE motion is reduced it SHALL fade in and out in place without sliding, or appear and disappear at once on a platform whose reduced-motion setting removes every animation (Android's). Focus SHALL move when it opens or closes, not when its motion ends."
     },
     {
       "id": "POP-42",

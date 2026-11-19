@@ -542,7 +542,7 @@ export const drawerStyles = css`
 
   /* NVD-19, NVD-22: a modal drawer is a native modal <dialog> in the top layer at the window's start edge, its full height,
      over ::backdrop (the scrim); it slides in from its start edge over the enter motion and out over the exit motion.
-     Closed, it is no longer modal at once and stays drawn in the top layer, sliding out, its scrim gone (MOT-7), until
+     Closed, it is no longer modal at once and stays drawn in the top layer, sliding out, its scrim gone (MOT-8), until
      that motion has ended (MDL-7: closeModal, src/primitives/modal-exit.ts), in every engine. */
   dialog.drawer {
     position: fixed;
@@ -581,7 +581,7 @@ export const drawerStyles = css`
     }
   }
   ${scrimFilter('dialog.drawer', T('scrim-blur'))}
-  /* NVD-19, NVD-22: the scrim fades in with the drawer, and is taken away at once as it begins to close (MOT-7:
+  /* NVD-19, NVD-22: the scrim fades in with the drawer, and is taken away at once as it begins to close (MOT-8:
      modalExitStyles below draws it at no opacity while the dialog leaves). */
   dialog.drawer::backdrop {
     background: ${t('scrim-color')};
@@ -603,7 +603,7 @@ export const drawerStyles = css`
 
   /* NVD-40: a collapsible modal drawer does not slide: it widens over the content from its column (placed over it: the
      column's box, measured when it opens) and narrows back to it over the change's motion, its scrim fading in as it
-     widens and gone as it begins to narrow (MOT-7). Its
+     widens and gone as it begins to narrow (MOT-8). Its
      look — the container color, the elevation, the end corners and the end edge — moves between the column's (the
      standard drawer's) and the modal variant's over the same motion, in step with its width: it opens from the column's
      look (\`@starting-style\`) and closes to it (closed, still in the top layer: closeModal, no longer modal), so the
@@ -643,7 +643,7 @@ export const drawerStyles = css`
     transition-duration: ${t('motion-expand-duration')};
     transition-timing-function: ${t('motion-expand-easing')};
   }
-  /* MDL-7, MOT-7: where a drawer changes hands as it closes (closeModal), its scrim starts no transition, and while it
+  /* MDL-7, MOT-8: where a drawer changes hands as it closes (closeModal), its scrim starts no transition, and while it
      leaves its scrim is drawn at no opacity and takes no pointer. After the dialog's own rules. */
   ${modalExitStyles('dialog.drawer')}
 
@@ -731,7 +731,7 @@ export const drawerStyles = css`
     visibility: hidden;
   }
   /* The scrim: below the header only, faded in with the drawer, over the change of form's motion for a column (NVD-40),
-     and taken away at once — no opacity, hidden, taking no press — as it begins to close (NVD-22, MOT-7). */
+     and taken away at once — no opacity, hidden, taking no press — as it begins to close (NVD-22, MOT-8). */
   ${scrimFilter(':host([data-held]) .scrim', T('scrim-blur'))}
   :host([data-held]) .scrim {
     display: block;
@@ -773,7 +773,7 @@ export const drawerStyles = css`
     }
   }
   /* NVD-54: a change of presentation moves the one surface — its width, its place and its look — over motion.expand,
-     and its scrim comes or goes at once (MOT-7: nothing opens or closes); the host's own place in the layout changes at
+     and its scrim comes or goes at once (MOT-8: nothing opens or closes); the host's own place in the layout changes at
      once, and the rest of the frame with it (APS-23). */
   :host([data-held][data-moving]) {
     transition: none;
