@@ -126,7 +126,9 @@ export function pageSheetOf(model, { namespace, emitCss, availability, defaultRu
   const kept = byPath(rules);
   for (const rule of defaultRules) {
     const path = JSON.stringify(rule.path);
-    const missing = rule.declarations.filter(([property]) => used.has(property) && !kept.get(path)?.has(property));
+    // A property the layer's sheet declares nowhere (a palette's tone the layer's system has no value for) is the default
+    // sheet's on a product's root under the layer too: it is left to the default sheet, not declared with no value.
+    const missing = rule.declarations.filter(([property]) => used.has(property) && !kept.get(path)?.has(property) && valueIn(ours, path, property) !== undefined);
     if (!missing.length) continue;
     let own = rules.find((each) => JSON.stringify(each.path) === path);
     if (!own) {

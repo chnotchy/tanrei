@@ -77,8 +77,8 @@ test('the default system lists neither the FAB menu nor the segmented button, an
   assert.deepEqual(tanrei.omittedVariants['text-field'], ['filled', 'outlined']);
 });
 
-test('m3-like and m3-expressive-like list both; cupertino lists the segmented button and not the FAB menu', () => {
-  for (const id of ['m3-like', 'm3-expressive-like']) {
+test('m3-like lists both; cupertino lists the segmented button and not the FAB menu', () => {
+  for (const id of ['m3-like']) {
     const manifest = committed(id);
     assert.ok(find(manifest, 'segmented-button'), id);
     const fab = find(manifest, 'fab-menu');

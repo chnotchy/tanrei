@@ -91,6 +91,8 @@ function resolveScheme(files, resolver, scheme, entriesOf, only) {
       state: token.$extensions?.['dev.tanrei.state'],
       // A choice of kind: `value` is an index into `enum.values`.
       enum: token.$extensions?.['dev.tanrei.enum'],
+      // A dial a padding measures from (the control height): its reference, { value, unit }.
+      reference: token.$extensions?.['dev.tanrei.reference'],
       // Not part of the build's model: what a tool shows next to a token.
       llm,
       rationale,

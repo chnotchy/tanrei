@@ -2085,6 +2085,34 @@ test.describe('ranges, actions, motion, overflow and semantics', () => {
     expect(await surface(page, 'd').evaluate((el) => getComputedStyle(el).animationName)).toBe('none');
   });
 
+  test('DTM-35, MOT-7: while a docked picker leaves it takes no pointer — a press where it is still drawn reaches what lies under it, and the pointer on it is not hover', async ({ page }) => {
+    await mount(page, [docked('d', { value: '2026-09-17' })]);
+    // The exit is held open for the whole test: it cannot end while the press is made, however slow the machine.
+    await override(page, { [T('docked-motion-close-duration')]: '600s' });
+    await open(page, 'd');
+    // What lies under it: an element of the page over the whole window, which the top layer stands above.
+    await page.evaluate(() => {
+      document.body.insertAdjacentHTML('beforeend', '<div id="under" style="position: fixed; inset: 0"></div>');
+      const under = document.getElementById('under')!;
+      under.addEventListener('click', () => (under.dataset.pressed = String(Number(under.dataset.pressed ?? 0) + 1)));
+    });
+    const b = await bounds(surface(page, 'd'));
+    const at = { x: b.x + b.width / 2, y: b.y + b.height / 2 };
+    const hit = () =>
+      page.evaluate(({ x, y }) => {
+        const at = document.elementFromPoint(x, y);
+        return at?.localName === 'tanrei-date-time-picker' ? 'picker' : (at?.id ?? null);
+      }, at);
+    expect(await hit(), 'open, the picker takes the press').toBe('picker');
+    await page.keyboard.press('Escape');
+    await expect(surface(page, 'd')).toHaveClass(/\bleaving\b/);
+    expect(await surface(page, 'd').evaluate((el) => el.matches(':popover-open')), 'still in the top layer while it leaves').toBe(true);
+    expect(await hit(), 'leaving, what lies under it is at its centre').toBe('under');
+    await page.mouse.click(at.x, at.y);
+    expect(await page.locator('#under').getAttribute('data-pressed'), 'the press reaches what lies under it').toBe('1');
+    expect(await surface(page, 'd').evaluate((el) => el.matches(':hover')), 'the pointer on it is not hover').toBe(false);
+  });
+
   test('DTM-35: a modal picker appears from where the appearance starts it — opacity 0 and scale 0.96 under the default system — about its centre over the open motion, and leaves the same way back over the close motion, its last frame leaving no more than the accelerating curve does; where reduced it only fades over sys.motion.role.reduced', async ({ page }) => {
     await mount(page, [modal('m', { value: '2026-09-17' })]);
     const s = surface(page, 'm');

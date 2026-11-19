@@ -44,9 +44,10 @@ export const ESSENTIALS = ['type.base', 'space.unit', 'shape.unit', 'type.contra
 const DIAL_RANGES = {
   'type.base': { min: 12, max: 22, step: 0.5 },
   'type.contrast': { min: 0.6, max: 1.5, step: 0.05 },
-  density: { min: 0.75, max: 1.5, step: 0.05 },
   'space.unit': { min: 4, max: 14, step: 0.5 },
   'size.unit': { min: 3, max: 7, step: 0.25 },
+  // A control height a whole pixel at a time, from WCAG 2.5.8's 24 to a roomy 64.
+  'control.height': { min: 24, max: 64, step: 1 },
   'shape.unit': { min: 0, max: 8, step: 0.5 },
   'stroke.unit': { min: 0.5, max: 3, step: 0.25 },
   'motion.unit': { min: 0, max: 120, step: 5 },
@@ -56,7 +57,7 @@ const DIAL_RANGES = {
  * to 48, the largest platform figure (Material's 48 dp). A whole pixel at a time.
  */
 export const TARGET_MINIMUM = { min: 24, max: 48, step: 1 };
-/** The steps of the control height ladder the Size row shows next to the density. */
+/** The steps of the control height ladder the Size row shows next to the control height. */
 export const LADDER_SHOWN = ['small', 'medium', 'large'];
 const LAYER_KEYS = ['$schema', 'id', 'name', 'extends', 'description', 'specVersion', 'attribution', 'palettes', 'vocabulary', 'tokens', 'rules'];
 
@@ -348,9 +349,19 @@ export function createStudio({ config, sources, vocabulary, resolver, layers, mc
   }
   /** A dial's entry as `setDial` writes it — a value and its reason — or none: what a slider moves. */
   const dialPin = (op) => op === undefined || (Boolean(op) && typeof op === 'object' && '$value' in op && !isRef(op.$value) && Object.keys(op).every((key) => key === '$value' || key === 'reason'));
-  /** A layer, but for what a drag moves: the sources of its palettes, and the values of its dials. */
+  /**
+   * What a slider moves, as dials: the dials of the base, and the minimum target — a value of its own that a control
+   * height drawn under it takes down with it (`setDial`).
+   */
+  function sliders(layer) {
+    const minimum = baseOf(layer).model.tokens[`${NS}.sys.target.minimum`];
+    const value = minimum && !minimum.alias && typeof minimum.value?.value === 'number' ? [{ id: minimum.id, type: minimum.type, value: minimum.value.value, unit: minimum.value.unit }] : [];
+    return [...baseOf(layer).dials, ...value];
+  }
+  /** A layer, but for what a drag moves: the sources of its palettes, and the values of its sliders. */
   function unmoved(layer) {
-    const tokens = Object.fromEntries(Object.entries(layer.tokens ?? {}).filter(([id, op]) => !(id.startsWith(DIAL) && dialPin(op))));
+    const moved = new Set(sliders(layer).map((dial) => dial.id));
+    const tokens = Object.fromEntries(Object.entries(layer.tokens ?? {}).filter(([id, op]) => !(moved.has(id) && dialPin(op))));
     return JSON.stringify({ ...layer, palettes: undefined, tokens: Object.keys(tokens).length ? tokens : undefined });
   }
 
@@ -405,11 +416,12 @@ export function createStudio({ config, sources, vocabulary, resolver, layers, mc
 
   /**
    * Of the tokens that move with the dials, those the browser follows by itself: the rules the emitter writes as CSS
-   * arithmetic (`derivedExpression`), `mul` (with its density, step and floor), `sub` held at zero (an inner corner) and
-   * `pad` (a block padding that follows its box's height). A `pick` follows a choice of kind
+   * arithmetic (`derivedExpression`), `mul` (with its step and floor), `add` (a step a number of units from
+   * another value, with its floor), `sub` held at zero (an inner corner) and `pad` (a block padding that follows its
+   * box's height). A `pick` follows a choice of kind
    * and is written as the value it picks: of these types it is valued again, as a text style's tracking is.
    */
-  const LIVE_RULES = new Set(['mul', 'sub', 'pad']);
+  const LIVE_RULES = new Set(['mul', 'add', 'sub', 'pad']);
   const NUMERIC = new Set(['dimension', 'number', 'duration']);
   /**
    * How the sheet of a view follows its dials: a token that moves with them is written as an alias or as the same
@@ -448,7 +460,7 @@ export function createStudio({ config, sources, vocabulary, resolver, layers, mc
   function dialProperties(view, layer) {
     const norm = (v) => (typeof v === 'number' ? { value: v } : v);
     const moved = new Map();
-    for (const dial of baseOf(layer).dials) {
+    for (const dial of sliders(layer)) {
       const op = layer.tokens?.[dial.id];
       if (!dialPin(op)) continue; // written some other way: the same in both layers (`unmoved`)
       const token = view.model.tokens[dial.id];
@@ -569,14 +581,20 @@ export function createStudio({ config, sources, vocabulary, resolver, layers, mc
   function setDial(layer, id, value, reason) {
     const dial = baseOf(layer).dials.find((d) => d.id === id);
     if (!dial || typeof value !== 'number' || Number.isNaN(value)) return layer;
-    if (value === dial.value) return withEntry(layer, 'tokens', id, undefined);
     const previous = layer.tokens?.[id]?.reason;
     const why = (reason ?? previous ?? '').trim();
-    return withEntry(layer, 'tokens', id, { $value: dial.type === 'number' ? value : { value, unit: dial.unit }, reason: why.length >= MIN_REASON ? why : DEFAULT_DIAL_REASON });
+    const next = value === dial.value ? withEntry(layer, 'tokens', id, undefined) : withEntry(layer, 'tokens', id, { $value: dial.type === 'number' ? value : { value, unit: dial.unit }, reason: why.length >= MIN_REASON ? why : DEFAULT_DIAL_REASON });
+    // The minimum target is never above the control height (the build refuses it): a control height set under the
+    // minimum takes the minimum down with it.
+    if (dial.key === 'control.height') {
+      const minimum = targetMinimum(next);
+      if (minimum && minimum.value > value) return setTargetMinimum(next, Math.max(TARGET_MINIMUM.min, Math.round(value)));
+    }
+    return next;
   }
 
-  // Essentials: spacing moves the size unit with it, because a control's height must hold its padding (the
-  // build's height invariant). The link is not stored: it holds while size.unit IS the proportional value.
+  // Essentials: spacing moves the size unit and the control height with it, because a control's height must hold its
+  // padding (the build's height invariant). The link is not stored: it holds while size.unit IS the proportional value.
   const proportionalSize = (layer, space) => {
     const all = baseOf(layer).dials;
     const [spaceDial, sizeDial] = [all.find((d) => d.key === 'space.unit'), all.find((d) => d.key === 'size.unit')];
@@ -589,19 +607,23 @@ export function createStudio({ config, sources, vocabulary, resolver, layers, mc
   function setEssential(layer, key, value) {
     const linked = essentials(layer).linked;
     let next = setDial(layer, `${DIAL}${key}`, value);
-    if (key === 'space.unit' && linked) next = setDial(next, `${DIAL}size.unit`, proportionalSize(layer, value));
+    if (key === 'space.unit' && linked) {
+      next = setDial(next, `${DIAL}size.unit`, proportionalSize(layer, value));
+      const [spaceDial, heightDial] = [baseOf(layer).dials.find((d) => d.key === 'space.unit'), baseOf(layer).dials.find((d) => d.key === 'control.height')];
+      if (heightDial) next = setDial(next, heightDial.id, Math.round((heightDial.value * value) / spaceDial.value));
+    }
     return next;
   }
 
-  // ── the size row: the minimum target, and the heights the density gives ──────────────────────
+  // ── the size row: the control height, the minimum target, and the heights they give ─────────────
   const TARGET = `${NS}.sys.target.`;
   const MINIMUM = `${TARGET}minimum`;
   const LADDER = `${NS}.sys.control.height.`;
   /**
    * `sys.target.minimum` under this layer: `{ id, value, base, unit, min, max, step, changed, reason }`; null where the
-   * chain has no such token. Its value is the developer's own (no dial scales it), so the size unit and the density
-   * never move it. `max` is the control's 48, or less where the touch or pointer target is set apart from the
-   * minimum below 48: the build refuses a minimum above them.
+   * chain has no such token. Its value is the developer's own (no dial scales it), so no dial moves it. `max` is the
+   * control's 48, or less where the control height is lower, or where the touch or pointer target is set apart from the
+   * minimum below 48: the build refuses a minimum above any of them.
    */
   function targetMinimum(layer) {
     const inherited = baseOf(layer).model.tokens[MINIMUM];
@@ -611,6 +633,8 @@ export function createStudio({ config, sources, vocabulary, resolver, layers, mc
     const op = layer.tokens?.[MINIMUM];
     const value = dialValue(op);
     let max = TARGET_MINIMUM.max;
+    const height = dials(layer).find((dial) => dial.key === 'control.height');
+    if (height) max = Math.min(max, height.value);
     for (const kind of ['touch', 'pointer']) {
       const area = tokens[TARGET + kind];
       if (area && area.alias !== MINIMUM && typeof area.value?.value === 'number') max = Math.min(max, area.value.value);
@@ -635,18 +659,18 @@ export function createStudio({ config, sources, vocabulary, resolver, layers, mc
   }
   /**
    * The heights the ladder's small, medium and large give in a computed view, by the engine's own arithmetic
-   * (`evaluateNumeric`): each step's rule, with `dial.density` and `sys.target.minimum` taken from `at` where it gives
-   * them (a value being dragged) and from the view otherwise. `step` is the ladder's height; `drawn` is what a
+   * (`evaluateNumeric`): each step's rule, with `dial.control.height`, `dial.size.unit` and `sys.target.minimum` taken from
+   * `at` (`height`, `unit`, `minimum`) where it gives them (a value being dragged) and from the view otherwise. `step` is the ladder's height; `drawn` is what a
    * pressable control of that size is drawn at, the step read through the minimum (`mul` by 1 with `min`, as every
-   * pressable height reads it). A step the layer wrote as a value is that value at any density.
+   * pressable height reads it). A step the layer wrote as a value is that value at any control height.
    */
   function heights(view, at = {}) {
     const tokens = view.model?.tokens;
     if (!tokens?.[MINIMUM]) return [];
-    const given = new Map([[`${DIAL}density`, at.density], [MINIMUM, at.minimum]].filter(([, value]) => typeof value === 'number'));
+    const given = new Map([[`${DIAL}control.height`, at.height], [`${DIAL}size.unit`, at.unit], [MINIMUM, at.minimum]].filter(([id, value]) => typeof value === 'number' && tokens[id]));
     const norm = (v) => (typeof v === 'number' ? { value: v } : v);
     const lookup = (id) => {
-      if (given.has(id)) return id === MINIMUM ? { value: given.get(id), unit: tokens[MINIMUM].value.unit } : { value: given.get(id) };
+      if (given.has(id)) return { value: given.get(id), unit: tokens[id].value.unit };
       if (!tokens[id]) throw new Error(`${id}: not in the view`);
       return norm(tokens[id].value);
     };
@@ -655,7 +679,7 @@ export function createStudio({ config, sources, vocabulary, resolver, layers, mc
       const token = tokens[LADDER + size];
       if (!token) continue;
       try {
-        const step = token.derive?.fn === 'mul' ? evaluateNumeric(token.derive, lookup, { type: token.type }) : token.value;
+        const step = typeof token.derive?.fn === 'string' ? evaluateNumeric(token.derive, lookup, { type: token.type }) : token.value;
         const drawn = evaluateNumeric({ fn: 'mul', of: `{${LADDER + size}}`, by: 1, min: `{${MINIMUM}}` }, (id) => (id === LADDER + size ? step : lookup(id)), { type: token.type });
         out.push({ size, id: token.id, step: step.value, drawn: drawn.value, unit: drawn.unit, held: drawn.value > step.value });
       } catch {
@@ -1191,8 +1215,8 @@ export function createStudio({ config, sources, vocabulary, resolver, layers, mc
   // ── export: the file written out, and the stylesheet ─────────────────────────────────────────
   /**
    * The shipped layers a layer depends on that it could hold itself: the examples of the theme gallery between it and
-   * the default system or the root — every shipped layer of its chain that is neither (m3-like; m3-expressive-like
-   * and m3-like). Nearest first. None when it extends the default system, the root or a layer of the host's own.
+   * the default system or the root — every shipped layer of its chain that is neither (m3-like, for a layer
+   * that extends it). Nearest first. None when it extends the default system, the root or a layer of the host's own.
    */
   function examplesOf(layer) {
     const out = [];

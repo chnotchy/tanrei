@@ -10,7 +10,7 @@ import { DERIVE, evaluateNumeric, mergeLayers, resolveNumericTokens, walkTokens 
 const px = (value) => ({ value, unit: 'px' });
 const voc = { 'dev.tanrei.vocabulary': { rationale: 'A test token.' } };
 const sources = () => ({
-  'dial/dial.tokens.json': { tanrei: { dial: { $extensions: voc, size: { unit: { $type: 'dimension', $value: px(4) } }, density: { $type: 'number', $value: 1 } } } },
+  'dial/dial.tokens.json': { tanrei: { dial: { $extensions: voc, size: { unit: { $type: 'dimension', $value: px(4) } } } } },
   'sys/measure.tokens.json': {
     tanrei: {
       sys: {
@@ -28,7 +28,7 @@ const sources = () => ({
           $type: 'dimension',
           $extensions: { ...voc, 'dev.tanrei.axes': { size: { default: 'large', values: ['large'], members: ['container.height', 'container.padding-block'] } } },
           container: {
-            height: { $type: 'dimension', large: { $value: px(56), $extensions: { [DERIVE]: { fn: 'mul', of: '{tanrei.dial.size.unit}', by: 14, times: '{tanrei.dial.density}', round: '{tanrei.dial.size.unit}', min: '{tanrei.sys.target.minimum}' } } } },
+            height: { $type: 'dimension', large: { $value: px(56), $extensions: { [DERIVE]: { fn: 'mul', of: '{tanrei.dial.size.unit}', by: 14, round: '{tanrei.dial.size.unit}', min: '{tanrei.sys.target.minimum}' } } } },
             'padding-block': { $type: 'dimension', large: { $value: px(6), $extensions: { [DERIVE]: { fn: 'pad', of: '{tanrei.sys.space.space75}', height: '{tanrei.comp.button.container.height.large}' } } } },
           },
         },
@@ -39,14 +39,14 @@ const sources = () => ({
 const system = ({ scale, tokens = {} } = {}) =>
   mergeLayers([{ id: 'acme', vocabulary: { 'tanrei.comp.button.size.huge': { from: 'large', ...(scale ? { scale } : {}), rationale: 'A hero call to action.' } }, tokens }]);
 const tokenOf = (docs, id) => Object.values(docs).flatMap((doc) => [...walkTokens(doc)]).find((entry) => entry.id === id).token;
-const DENSE = { 'tanrei.dial.density': { $value: 0.75, reason: 'A dense tool, for the test.' } };
+const floor = (value) => ({ 'tanrei.sys.target.minimum': { $value: px(value), reason: 'A floor above the height, for the test.' } });
 
 test('a cloned pad measures the height cloned beside it, not the one it was cloned from', () => {
-  const docs = resolveNumericTokens(sources(), system({ tokens: DENSE }));
+  const docs = resolveNumericTokens(sources(), system({ tokens: floor(64) }));
   assert.equal(tokenOf(docs, 'tanrei.comp.button.container.padding-block.huge').$extensions[DERIVE].height, '{tanrei.comp.button.container.height.huge}');
-  // 56 × 0.75 = 42 → 44 on the grid: 12 less than 56, so 6 less above and below, never below zero.
-  assert.deepEqual(tokenOf(docs, 'tanrei.comp.button.container.height.huge').$value, px(44));
-  assert.deepEqual(tokenOf(docs, 'tanrei.comp.button.container.padding-block.huge').$value, px(0));
+  // 56 held at 64: 8 more, so 4 more above and below.
+  assert.deepEqual(tokenOf(docs, 'tanrei.comp.button.container.height.huge').$value, px(64));
+  assert.deepEqual(tokenOf(docs, 'tanrei.comp.button.container.padding-block.huge').$value, px(10));
 });
 
 test('a scaled size: its height and its padding scale, and the padding still follows its box', () => {
@@ -56,9 +56,8 @@ test('a scaled size: its height and its padding scale, and the padding still fol
   };
   assert.deepEqual(tokenOf(resolveNumericTokens(sources(), system({ scale: 1.5 })), 'tanrei.comp.button.container.padding-block.huge').$extensions[DERIVE], { fn: 'pad', of: '{tanrei.sys.space.space75}', height: '{tanrei.comp.button.container.height.huge}', by: 1.5 });
   assert.deepEqual(at({}), [84, 9], '56 × 1.5 and 6 × 1.5, as a scaled alias gave');
-  // 84 × 1.25 = 105 → 104 on the grid: 20 more, so 10 more above and below.
-  assert.deepEqual(at({ 'tanrei.dial.density': { $value: 1.25, reason: 'A product used by touch, for the test.' } }), [104, 19]);
-  assert.deepEqual(at(DENSE), [64, 0], '84 × 0.75 = 63 → 64: 10 less on each side of 9, never below zero');
+  // 84 held at 104: 20 more, so 10 more above and below.
+  assert.deepEqual(at(floor(104)), [104, 19]);
 });
 
 test('a scaled size whose pad member the layer values: the layer’s value', () => {

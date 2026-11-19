@@ -352,7 +352,7 @@ public data class TanreiColorSchemes(
 /** The dials the values were derived from. Informational: derivation happens at build time. */
 @Immutable
 public data class TanreiDials(
-    public val density: Float,
+    public val controlHeight: Float,
     public val motionUnit: Float,
     public val shapeUnit: Float,
     public val sizeUnit: Float,

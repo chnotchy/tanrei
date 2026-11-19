@@ -112,7 +112,8 @@
                   "of": "{tanrei.sys.control.height.medium}",
                   "by": 1,
                   "min": "{tanrei.sys.target.minimum}"
-                }
+                },
+                "dev.tanrei.aligned": "control"
               }
             },
             "docked": {

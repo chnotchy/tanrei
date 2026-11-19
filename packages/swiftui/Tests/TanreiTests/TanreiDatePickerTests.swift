@@ -111,7 +111,7 @@ struct TanreiDatePickerPresetSnapshotTests {
   /// The modal range: the preset's surface, header, divider, navigation row, weekday row, selected days, band, today's ring
   /// and actions.
   nonisolated static let fixtureId = "modal-range"
-  nonisolated static let presets: [ShippedSystem] = [.m3Like, .m3ExpressiveLike, .cupertino]
+  nonisolated static let presets: [ShippedSystem] = [.m3Like, .cupertino]
 
   @Test("every shipped preset has one, and it is one of the spec's fixtures")
   func fixtureList() {

@@ -986,7 +986,7 @@ struct TanreiNavigationBarSnapshotTests {
 struct TanreiNavigationBarPresetSnapshotTests {
   /// Badges: the preset's container, top edge, indicator, both conditions' colors, the label style and the badge.
   nonisolated static let fixtureId = "badges"
-  nonisolated static let presets: [ShippedSystem] = [.m3Like, .m3ExpressiveLike, .cupertino]
+  nonisolated static let presets: [ShippedSystem] = [.m3Like, .cupertino]
 
   @Test("every shipped preset has one, and it is one of the spec's fixtures")
   func fixtureList() {

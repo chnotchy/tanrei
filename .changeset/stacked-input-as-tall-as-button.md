@@ -23,7 +23,7 @@ select, combobox, number and color fields, the chip field, the field group, the 
   `.container.padding-block.*` are now read by the filled and outlined boxes only. A layer that set those to resize its
   stacked boxes sets the stacked tokens instead.
 - The token build (`pnpm validate`) refuses a default system whose stacked heights are not its Button's.
-- `cupertino` and `m3-like` (and so `m3-expressive-like`) set the stacked tokens to their own `container.*` values:
+- `cupertino` and `m3-like` set the stacked tokens to their own `container.*` values:
   their fields keep the heights they had, and their pictures do not move.
 - The hit area does not shrink: where a box is shorter than the minimum target, its target still reaches it.
 - A small number input draws its steppers as small Buttons (they were medium at every size, NMI-25), so that it is

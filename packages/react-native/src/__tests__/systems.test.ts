@@ -41,7 +41,7 @@ describe.each(SHIPPED_SYSTEMS)('structure of the shipped system $id', (system) =
 
   test('the roles it adds to the type scale are the ones its source has, reachable under any system through its accessors', () => {
     const added = Object.keys(system.typescale).filter((key) => !(key in tanrei.typescale)).sort();
-    const expected: Record<string, string[]> = { tanrei: [], 'm3-like': ['displayLarge', 'displaySmall'], 'm3-expressive-like': ['displayLarge', 'displaySmall'], cupertino: ['bodyCallout', 'bodySubhead', 'captionSmall'] };
+    const expected: Record<string, string[]> = { tanrei: [], 'm3-like': ['displayLarge', 'displaySmall'], cupertino: ['bodyCallout', 'bodySubhead', 'captionSmall'] };
     expect(added).toEqual(expected[system.id]);
   });
 });

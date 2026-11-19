@@ -1379,7 +1379,7 @@ test.describe('iconSpace', () => {
 });
 
 test.describe('accessibility', () => {
-  test('LST-51: a small list draws its actions, links and options from the small tokens, never below the target, and gives its size to every List row it holds that sets none, while a row that sets one keeps it; a list that sets none gives none; an unknown size is medium and reported, an added one is drawn from its tokens, a change is drawn at once, and the heights follow the density', async ({ page, browserName }) => {
+  test('LST-51: a small list draws its actions, links and options from the small tokens, never below the target, and gives its size to every List row it holds that sets none, while a row that sets one keeps it; a list that sets none gives none; an unknown size is medium and reported, an added one is drawn from its tokens, a change is drawn at once, and the heights follow the control height', async ({ page, browserName }) => {
     const seen = warnings(page);
     const small = byId('size-small');
     const { size: _, ...unset } = small.props;
@@ -1432,11 +1432,11 @@ test.describe('accessibility', () => {
     await expect.poll(() => heightOf('size-unset', 0)).toBeCloseTo(rowOneLine, 0);
     await list(page, 'size-unset').evaluate((el) => el.removeAttribute('size'));
     await expect.poll(() => heightOf('size-unset', 0)).toBeCloseTo(rowOneLineMedium, 0);
-    // The heights follow the system's density: a small option of plain text is the small token at each.
-    for (const density of ['0.75', '1.5', '']) {
-      await override(page, { '--tanrei-dial-density': density });
+    // The heights follow the system's control height: a small option of plain text is the small token at each.
+    for (const height of ['48px', '56px', '']) {
+      await override(page, { '--tanrei-dial-control-height': height });
       const step = await resolveToken(page, T('container-height-small'));
-      await expect.poll(() => heightOf('size-small', 2), `density ${density || 1}`).toBeCloseTo(step, 0);
+      await expect.poll(() => heightOf('size-small', 2), `control height ${height || "40px"}`).toBeCloseTo(step, 0);
     }
     // LST-11: no size is lower than the pointer target for a fine pointer — seen under a layer whose pointer target
     // (48) is taller than the small item, as the default system's (36) is not.

@@ -435,11 +435,12 @@
     },
     "rule": {
       "type": "object",
-      "description": "One rule of the closed, declarative rule language: mul, scale, clamp, sub, pad, em, pick (numeric — packages/token-engine/src/rules.js) and tone, alpha, mix, contrast-pick (color — palette.js for color roles, states.js for per-state component tokens). `pick` is a value set by a choice of kind: `{ \"fn\": \"pick\", \"by\": \"{<choice>}\", \"values\": { \"<name>\": <value or alias>, … } }` gives one value per name of the choice, and the token takes the one the chain's choice names. `mul` is `{ \"fn\": \"mul\", \"of\": \"{<id>}\", \"by\": <n>, \"exp\"?: …, \"times\"?: \"{<number>}\", \"round\"?: \"{<step>}\", \"min\"?: \"{<floor>}\" }`: max(min, of × by^exp × times rounded to the nearest multiple of round, ties upward) — a height that follows a density, on a grid, never below a minimum. `pad` is `{ \"fn\": \"pad\", \"of\": \"{<padding>}\", \"height\": \"{<height>}\", \"by\"?: <n> }`: max(0, of × by + (height − height₁) / 2), where height₁ is the height with every `times` read as 1 and no `min` — a block padding that gives up or takes half of what its box's height lost or gained. `{ \"fixed\": \"<reason>\" }` keeps a literal. `sub` is `{ \"fn\": \"sub\", \"of\": \"{<outer>}\", \"by\": \"{<inset>}\" }`: of − by, never below zero — a corner inside another at an inset. On a typography token the rule is a map of field → rule (fontSize, letterSpacing). No other arithmetic, conditionals, strings or functions of your own.",
+      "description": "One rule of the closed, declarative rule language: mul, add, scale, clamp, sub, pad, em, pick (numeric — packages/token-engine/src/rules.js) and tone, alpha, mix, contrast-pick (color — palette.js for color roles, states.js for per-state component tokens). `pick` is a value set by a choice of kind: `{ \"fn\": \"pick\", \"by\": \"{<choice>}\", \"values\": { \"<name>\": <value or alias>, … } }` gives one value per name of the choice, and the token takes the one the chain's choice names. `mul` is `{ \"fn\": \"mul\", \"of\": \"{<id>}\", \"by\": <n>, \"exp\"?: …, \"times\"?: \"{<number>}\", \"round\"?: \"{<step>}\", \"min\"?: \"{<floor>}\" }`: max(min, of × by^exp × times rounded to the nearest multiple of round, ties upward) — a height that follows a density, on a grid, never below a minimum. `add` is `{ \"fn\": \"add\", \"of\": \"{<id>}\", \"by\": \"{<unit>}\", \"times\"?: <n>, \"min\"?: \"{<floor>}\" }`: max(min, of + by × times) — a step a whole number of units from another value (times absent: 1), so a ladder keeps its distances whatever its default. `pad` is `{ \"fn\": \"pad\", \"of\": \"{<padding>}\", \"height\": \"{<height>}\", \"by\"?: <n> }`: max(0, of × by + (height − height₁) / 2), where height₁ is the height with every `times` read as 1 and no `min` — a block padding that gives up or takes half of what its box's height lost or gained. `{ \"fixed\": \"<reason>\" }` keeps a literal. `sub` is `{ \"fn\": \"sub\", \"of\": \"{<outer>}\", \"by\": \"{<inset>}\" }`: of − by, never below zero — a corner inside another at an inset. On a typography token the rule is a map of field → rule (fontSize, letterSpacing). No other arithmetic, conditionals, strings or functions of your own.",
       "properties": {
         "fn": {
           "enum": [
             "mul",
+            "add",
             "scale",
             "clamp",
             "sub",
@@ -615,6 +616,44 @@
                 "type": "string",
                 "pattern": "^\\{[^{}]+\\}$",
                 "description": "A token in the unit of `of`: the least the result may be, applied after rounding, so a floor off the grid gives exactly the floor."
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "required": [
+              "fn"
+            ],
+            "properties": {
+              "fn": {
+                "const": "add"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "of",
+              "by"
+            ],
+            "properties": {
+              "of": {
+                "type": "string",
+                "pattern": "^\\{[^{}]+\\}$"
+              },
+              "by": {
+                "type": "string",
+                "pattern": "^\\{[^{}]+\\}$",
+                "description": "A token in the unit of `of`: the unit a whole number of which is added."
+              },
+              "times": {
+                "type": "number",
+                "description": "How many of `by` are added; below zero they are taken away. Absent: 1."
+              },
+              "min": {
+                "type": "string",
+                "pattern": "^\\{[^{}]+\\}$",
+                "description": "A token in the unit of `of`: the least the result may be."
               }
             }
           }

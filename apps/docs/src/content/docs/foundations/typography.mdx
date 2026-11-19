@@ -31,7 +31,7 @@ A role is a complete type style: family, size, weight, line height and tracking.
 | `code-small` | 12px · 400 · mono | Code inside dense UI. |
 | `eyebrow` | 12px · 500 · tracked | A section's kicker above a heading, uppercase by the component. |
 
-Every family is strictly monotonic in size: no heading is smaller than the next heading down, no body role is smaller than the next body role. Where a heading and a body role share a size — `heading-6` and `body` are both 14px, `heading-5` and `body-large` both 16px — the default system's rule is one sentence: **headings weigh 500, body weighs 400.** A preset sets its own weights (`m3-like`'s `heading-1` is Material's 400).
+Every family is strictly monotonic in size: no heading is smaller than the next heading down, no body role is smaller than the next body role. Where a heading and a body role share a size — `heading-6` and `body` are both 14px, `heading-5` and `body-large` both 16px — the default system's rule is one sentence: **headings weigh 500, body weighs 400.** Rows follow the same rule: a row that is a command or a place — a menu item, an option, a search suggestion, a row of a navigation drawer or a table of contents — is set at the label weight, 500; a row of content — a list's, a tree's, a table's — at the body weight, 400. A preset sets its own weights (`m3-like`'s `heading-1` is Material's 400).
 
 Pick the level the text has, not the size you want. An `h2` that must look small is still `heading-2`; a product that wants smaller section headings re-values `heading-2` in its layer, and every `h2` follows.
 

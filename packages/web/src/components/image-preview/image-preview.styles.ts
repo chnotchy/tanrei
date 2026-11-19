@@ -40,7 +40,6 @@ export const styles = css`
     outline: none;
     /* IMP-33: out, all of it fades over the exit motion — kept drawn in the top layer until it has (closeModal). */
     opacity: 0;
-    pointer-events: none;
     transition-property: opacity;
     transition-duration: ${t('motion-exit-duration')};
     transition-timing-function: ${t('motion-exit-easing')};
@@ -48,7 +47,6 @@ export const styles = css`
   dialog[open] {
     display: grid;
     opacity: 1;
-    pointer-events: auto;
     /* IMP-33: in, the container, the bar, the controls and the caption fade in over the enter motion. */
     transition-duration: ${t('motion-enter-duration')};
     transition-timing-function: ${t('motion-enter-easing')};
@@ -82,6 +80,8 @@ export const styles = css`
   ${appearStyles({
     motion: '.pages',
     open: 'dialog[open]',
+    /* MOT-7: closed or leaving, the dialog and everything in it take no pointer: a press reaches the page. */
+    box: 'dialog',
     role: 'modal',
     origin: 'center',
     enter: { duration: T('motion-enter-duration'), easing: T('motion-enter-easing') },

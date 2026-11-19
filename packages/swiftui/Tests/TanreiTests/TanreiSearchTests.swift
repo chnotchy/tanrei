@@ -1067,7 +1067,7 @@ struct TanreiSearchPresetSnapshotTests {
   /// The docked fixture: the preset's bar (fill, corners, height, glyph, value, clear button) and view (surface, elevation,
   /// corners, rows, text styles).
   nonisolated static let fixtureId = "docked"
-  nonisolated static let presets: [ShippedSystem] = [.m3Like, .m3ExpressiveLike, .cupertino]
+  nonisolated static let presets: [ShippedSystem] = [.m3Like, .cupertino]
 
   @Test("every shipped preset has one, and it is one of the spec's fixtures")
   func fixtureList() {

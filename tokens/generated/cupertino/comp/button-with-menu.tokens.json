@@ -159,7 +159,8 @@
                   "fn": "mul",
                   "of": "{tanrei.dial.size.unit}",
                   "by": 8.5
-                }
+                },
+                "dev.tanrei.aligned": "control"
               }
             },
             "large": {
