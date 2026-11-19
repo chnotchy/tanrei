@@ -2918,7 +2918,7 @@ test.describe('a drawer that follows the window', () => {
     expect(await page.evaluate(() => document.activeElement?.id)).toBe('after');
     await tabTo(page, cell(page, 'r', 0));
     await tabTo(page, page.locator('#after'));
-    // 800 again: over the content, open, as the person left it — its scrim there in the first frame (MOT-7), and focus,
+    // 800 again: over the content, open, as the person left it — its scrim there in the first frame (MOT-8), and focus,
     // left on the page that is now inert, on the drawer's menu button.
     const back = await sampleFrames(page.locator('body'), () => page.setViewportSize({ width: 800, height: 640 }), {
       elements: false,

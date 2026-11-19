@@ -1593,7 +1593,7 @@ test.describe('the menu button', () => {
     expect((await log()).filter(([name]) => name !== 'windowclasschange')).toEqual([['navigationopenchange', true]]);
   });
 
-  test('APS-4, APS-7, NVD-53, NVD-54, NVD-55, MOT-7: a drawer with no collapsed form at 375, 768, 1023, 1024 and 1440 wide — over the content below 1024, beside it from 1024 — keeps open across every resize: open at 375 and widened to 1440 its scrim is gone in the first frame and nothing is inert, nothing told; narrowed to 375 its scrim is there in the first frame, the regions under it inert and focus left in the main region on the menu button; the same across 1023 ↔ 1024; closed, it stays closed', async ({ page }) => {
+  test('APS-4, APS-7, NVD-53, NVD-54, NVD-55, MOT-8: a drawer with no collapsed form at 375, 768, 1023, 1024 and 1440 wide — over the content below 1024, beside it from 1024 — keeps open across every resize: open at 375 and widened to 1440 its scrim is gone in the first frame and nothing is inert, nothing told; narrowed to 375 its scrim is there in the first frame, the regions under it inert and focus left in the main region on the menu button; the same across 1023 ↔ 1024; closed, it stays closed', async ({ page }) => {
     const probe = (root: Element) => {
       const host = root.querySelector('tanrei-navigation-drawer')!;
       const scrim = getComputedStyle(host.shadowRoot!.querySelector('.scrim')!);
@@ -1665,7 +1665,7 @@ test.describe('the menu button', () => {
     expect(await told(log)).toEqual(['navigationopenchange:true', 'navigationopenchange:false', 'close:']);
   });
 
-  test('APS-7, NVD-40, NVD-54, MOT-7: the rail — a collapsible drawer — open over the content at 768 stays open through 1024 and back: beside the content in its full form with its scrim gone and nothing inert, then widened over the content again from its column with its scrim there at once', async ({ page }) => {
+  test('APS-7, NVD-40, NVD-54, MOT-8: the rail — a collapsible drawer — open over the content at 768 stays open through 1024 and back: beside the content in its full form with its scrim gone and nothing inert, then widened over the content again from its column with its scrim there at once', async ({ page }) => {
     await mount(page, real({ navigation: DRAWER('responsive collapsible') }), { width: 768 });
     const log = await record(page);
     await menu(page).click();
