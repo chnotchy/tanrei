@@ -420,6 +420,7 @@
     --tanrei-comp-button-group-motion-state-duration: var(--tanrei-sys-motion-role-state-default);
     --tanrei-comp-button-group-motion-state-easing: var(--tanrei-sys-motion-easing-state);
     --tanrei-comp-button-group-standard-gap: max(0px, calc(var(--tanrei-sys-target-touch) - var(--tanrei-comp-button-container-height-small)));
+    --tanrei-comp-button-with-menu-busy-indicator-thickness: var(--tanrei-comp-button-busy-indicator-thickness);
     --tanrei-comp-button-with-menu-container-gap-large: var(--tanrei-sys-space-space100);
     --tanrei-comp-button-with-menu-container-gap-medium: var(--tanrei-sys-space-space100);
     --tanrei-comp-button-with-menu-container-gap-small: var(--tanrei-sys-space-space100);
@@ -599,6 +600,8 @@
     --tanrei-comp-button-with-menu-leading-padding-inline-start-large: var(--tanrei-sys-space-space300);
     --tanrei-comp-button-with-menu-leading-padding-inline-start-medium: var(--tanrei-sys-space-space200);
     --tanrei-comp-button-with-menu-leading-padding-inline-start-small: var(--tanrei-sys-space-space200);
+    --tanrei-comp-button-with-menu-motion-busy-cycle-duration: var(--tanrei-comp-button-motion-busy-cycle-duration);
+    --tanrei-comp-button-with-menu-motion-busy-fade-duration: var(--tanrei-comp-button-motion-busy-fade-duration);
     --tanrei-comp-button-with-menu-motion-feedback-duration: var(--tanrei-sys-motion-role-feedback);
     --tanrei-comp-button-with-menu-motion-hover-close-delay: var(--tanrei-sys-motion-duration-medium2);
     --tanrei-comp-button-with-menu-motion-hover-open-delay: var(--tanrei-sys-motion-duration-medium2);

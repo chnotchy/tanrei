@@ -2,7 +2,7 @@
 title: Botón con menú
 description: Realiza una acción principal con una sola pulsación y ofrece acciones relacionadas en un menú desde un segundo botón unido a su lado.
 translationOf: components/button-with-menu.mdx
-sourceHash: 47ec0e350aae6acb1cf1aa3da68162409befa062
+sourceHash: eee785ee6871aa588962ac46ade5a58c504985ca
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -307,6 +307,17 @@ Pon `destructive` en un botón con menú cuya acción principal borra o descarta
   <tanrei-button-with-menu variant="elevated" destructive label="Eliminar" menu-label="Más opciones de eliminación"></tanrei-button-with-menu>
   <tanrei-button-with-menu variant="outlined" destructive label="Eliminar" menu-label="Más opciones de eliminación"></tanrei-button-with-menu>
   <tanrei-button-with-menu separation="gap" destructive label="Eliminar" menu-label="Más opciones de eliminación"></tanrei-button-with-menu>
+</Example>
+
+### Ocupado
+
+Mientras la acción principal está en curso, define `busy` y `busy-label` («Guardando»), como en un [Button](/es/components/button/#ocupado-y-deshabilitado-pero-alcanzable) ocupado. La mitad inicial conserva su tamaño, su lugar en el orden del foco y el foco de la persona. Dibuja el arco del indicador de carga en lugar de su etiqueta y su icono, y rechaza cualquier pulsación, así que la acción no puede empezar dos veces. La tecnología de apoyo oye `busy-label` una vez, cuando pasa a estar ocupado. Di qué ha pasado cuando la acción termine: el botón con menú no anuncia nada entonces.
+
+`busy` se aplica solo a la mitad inicial. La mitad final y su menú siguen como están, así que las demás opciones siguen a una pulsación. Deshabilita los elementos que no pueden ejecutarse mientras la acción principal está en curso.
+
+<Example label="Ocupado">
+  <tanrei-button-with-menu busy busy-label="Guardando" label="Guardar" menu-label="Más opciones de guardado"><span slot="icon">save</span></tanrei-button-with-menu>
+  <tanrei-button-with-menu variant="outlined" busy busy-label="Guardando" label="Guardar" menu-label="Más opciones de guardado"></tanrei-button-with-menu>
 </Example>
 
 ## Especificaciones

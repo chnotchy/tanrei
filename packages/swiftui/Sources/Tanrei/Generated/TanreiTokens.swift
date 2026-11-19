@@ -2695,6 +2695,7 @@ public struct TanreiButtonWithMenuStateTokens: Sendable, Equatable {
 
 /// Component tokens of button-with-menu (comp.button-with-menu).
 public struct TanreiButtonWithMenuTokens: Sendable, Equatable {
+  public var busyIndicatorThickness: CGFloat
   public var containerInnerGap: CGFloat
   public var containerInnerShape: CGFloat
   public var containerInnerShapeOpen: CGFloat
@@ -2703,6 +2704,8 @@ public struct TanreiButtonWithMenuTokens: Sendable, Equatable {
   public var containerShape: CGFloat
   public var dividerInset: CGFloat
   public var dividerThickness: CGFloat
+  public var motionBusyCycleDuration: Double
+  public var motionBusyFadeDuration: Double
   public var motionFeedbackDuration: Double
   public var motionHoverCloseDelay: Double
   public var motionHoverOpenDelay: Double
@@ -2722,6 +2725,7 @@ public struct TanreiButtonWithMenuTokens: Sendable, Equatable {
   public var disabled: TanreiButtonWithMenuStateTokens
 
   public init(
+    busyIndicatorThickness: CGFloat,
     containerInnerGap: CGFloat,
     containerInnerShape: CGFloat,
     containerInnerShapeOpen: CGFloat,
@@ -2730,6 +2734,8 @@ public struct TanreiButtonWithMenuTokens: Sendable, Equatable {
     containerShape: CGFloat,
     dividerInset: CGFloat,
     dividerThickness: CGFloat,
+    motionBusyCycleDuration: Double,
+    motionBusyFadeDuration: Double,
     motionFeedbackDuration: Double,
     motionHoverCloseDelay: Double,
     motionHoverOpenDelay: Double,
@@ -2744,6 +2750,7 @@ public struct TanreiButtonWithMenuTokens: Sendable, Equatable {
     pressed: TanreiButtonWithMenuStateTokens,
     disabled: TanreiButtonWithMenuStateTokens
   ) {
+    self.busyIndicatorThickness = busyIndicatorThickness
     self.containerInnerGap = containerInnerGap
     self.containerInnerShape = containerInnerShape
     self.containerInnerShapeOpen = containerInnerShapeOpen
@@ -2752,6 +2759,8 @@ public struct TanreiButtonWithMenuTokens: Sendable, Equatable {
     self.containerShape = containerShape
     self.dividerInset = dividerInset
     self.dividerThickness = dividerThickness
+    self.motionBusyCycleDuration = motionBusyCycleDuration
+    self.motionBusyFadeDuration = motionBusyFadeDuration
     self.motionFeedbackDuration = motionFeedbackDuration
     self.motionHoverCloseDelay = motionHoverCloseDelay
     self.motionHoverOpenDelay = motionHoverOpenDelay

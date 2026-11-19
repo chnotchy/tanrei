@@ -1,5 +1,5 @@
 import { css, unsafeCSS } from 'lit';
-import { type OpenAxis, drawnSizeAt, drawnSizeAxis, focusRing, groupItemReset, groupItemStyles, iconGlyph, neighbourTarget, pressHold, rippleStyles, separationHost, stateRules, whenGap } from '../../primitives/index.js';
+import { type BusyParts, type OpenAxis, busyReducedStyles, busyStyles, drawnSizeAt, drawnSizeAxis, focusRing, groupItemReset, groupItemStyles, iconGlyph, neighbourTarget, pressHold, rippleStyles, separationHost, stateRules, whenGap } from '../../primitives/index.js';
 import { productText } from '../../styles/product-text.js';
 import { cornerRadius, shape } from '../../styles/shape.js';
 import { reducedMotion } from '../../styles/motion.js';
@@ -117,7 +117,20 @@ const held = (token: string) => `min(var(${token}), var(--_half-block, var(${tok
 // connected item (the button group's, whose ring and ripple follow each corner), the carrier of press-hold and the icon
 // glyph, plus the one corner rule (styles/shape.ts). Each takes this component's selectors: both halves are
 // native buttons, and each is its own container.
-const on = (state: string) => `button${state}`;
+// SPB-39: a busy leading half (`.busy`) is drawn from its enabled tokens: not hovered (and, its PressController being
+// off, not pressed); it still shows keyboard focus. (:where() keeps the selector's weight, so the precedence holds.)
+const on = (state: string) => (state === ':hover' ? 'button:hover:where(:not(.busy))' : `button${state}`);
+/** SPB-39: what a busy leading half keeps laid out and does not draw, and the tokens its arc and its fade read. */
+const BUSY: BusyParts = {
+  on: '.leading.busy',
+  label: '.label-text',
+  glyphs: '.icon',
+  ring: '--_icon',
+  thickness: `${PREFIX}-busy-indicator-thickness`,
+  cycle: `${PREFIX}-motion-busy-cycle-duration`,
+  fade: `${PREFIX}-motion-busy-fade-duration`,
+  easing: `${PREFIX}-motion-state-easing`,
+};
 
 export const styles = css`
   :host {
@@ -388,7 +401,7 @@ export const styles = css`
   /* SPB-14: the icon and the chevron, each in the label color of its own half's state, drawn with the system's icon set —
      the family and fill of an unselected icon, sys.icon.weight, and the optical size of its box, clamped to
      sys.icon.optical-size — at the size's icon size. */
-  ${iconGlyph('.icon', { size: '--_icon', selected: '.never-selected', duration: `${PREFIX}-motion-state-duration`, easing: `${PREFIX}-motion-state-easing` })}
+  ${iconGlyph('.icon', { size: '--_icon', selected: '.never-selected', duration: `${PREFIX}-motion-state-duration`, easing: `${PREFIX}-motion-state-easing`, fade: `${PREFIX}-motion-busy-fade-duration` })}
   ${iconGlyph('.chevron', { size: '--_icon', selected: '.never-selected', duration: `${PREFIX}-motion-state-duration`, easing: `${PREFIX}-motion-state-easing` })}
   .icon {
     display: inline-flex;
@@ -451,6 +464,13 @@ export const styles = css`
     transition-duration: var(${P}-motion-hover-close-delay);
   }
 
+  /* SPB-39, SPB-40: busy — the leading half's label and icon keep their place and are not drawn (the label is
+     transparent, not hidden), fading out as busy begins and back in as it ends over motion.busy-fade-duration on
+     state-easing, and the loading indicator's arc turns at its centre, in the icon's box and the label's color,
+     busy.indicator.thickness thick, once per motion.busy-cycle-duration; the arc appears and goes at once. The polite
+     region busyLabel is announced through is drawn nowhere. (src/primitives/busy.ts) */
+  ${unsafeCSS(busyStyles(BUSY))}
+
   ${reducedMotion(css`
     button,
     .turn,
@@ -458,6 +478,8 @@ export const styles = css`
     .divider::before {
       transition: none;
     }
+    /* SPB-39: the label at once, and LDG-4's form of the arc. */
+    ${unsafeCSS(busyReducedStyles(BUSY))}
   `)}
   @media (forced-colors: active) {
     .divider::before,

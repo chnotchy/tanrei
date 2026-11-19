@@ -762,6 +762,32 @@
             "$type": "duration",
             "$value": "{tanrei.sys.motion.duration.medium2}",
             "$description": "How long a menu opened on hover stays open after the pointer has left both the trailing half and the menu, so the pointer can cross onto the menu or slip off an edge and come back (WCAG 1.4.13, hoverable)."
+          },
+          "busy-cycle-duration": {
+            "$type": "duration",
+            "$value": "{tanrei.comp.button.motion.busy-cycle-duration}",
+            "$description": "One turn of the busy leading half's arc (SPB-39): a busy Button's, so that the two components agree. Under reduced motion it does not turn, and its opacity eases once per this time instead."
+          },
+          "busy-fade-duration": {
+            "$type": "duration",
+            "$value": "{tanrei.comp.button.motion.busy-fade-duration}",
+            "$description": "How long the leading half's label and icon take to fade out when the button with menu becomes busy, and back in when it stops (SPB-39), with state-easing: a busy Button's. The arc appears and goes at once, and under reduced motion the label and the icon do too."
+          }
+        },
+        "busy": {
+          "$description": "What the leading half of a busy button with menu draws in place of its label and icon (SPB-39): the loading indicator's arc, in the label color, in the icon's box, as a busy Button draws it.",
+          "$extensions": {
+            "dev.tanrei.vocabulary": {
+              "rationale": "One product keeps a main action with more options on screen and focused while the action it started is under way (a save, a send), its options still offered, and must show that the main action is working rather than disable it and drop the person's focus.",
+              "since": "0.1.0"
+            }
+          },
+          "indicator": {
+            "thickness": {
+              "$type": "dimension",
+              "$value": "{tanrei.comp.button.busy.indicator.thickness}",
+              "$description": "The arc's stroke: a busy Button's."
+            }
           }
         }
       }

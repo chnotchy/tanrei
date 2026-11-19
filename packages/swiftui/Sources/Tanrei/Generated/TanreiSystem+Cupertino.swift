@@ -842,6 +842,7 @@ private let cupertinoButtonGroupTokens = TanreiButtonGroupTokens(
 )
 
 private let cupertinoButtonWithMenuTokens = TanreiButtonWithMenuTokens(
+  busyIndicatorThickness: 2,
   containerInnerGap: 2,
   containerInnerShape: 8,
   containerInnerShapeOpen: 8,
@@ -850,6 +851,8 @@ private let cupertinoButtonWithMenuTokens = TanreiButtonWithMenuTokens(
   containerShape: 10,
   dividerInset: 8,
   dividerThickness: 1,
+  motionBusyCycleDuration: 1000,
+  motionBusyFadeDuration: 200,
   motionFeedbackDuration: 450,
   motionHoverCloseDelay: 300,
   motionHoverOpenDelay: 300,
