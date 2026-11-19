@@ -2,6 +2,7 @@ import { css, unsafeCSS } from 'lit';
 import { type OpenAxis, iconGlyph } from '../../primitives/index.js';
 import { productText } from '../../styles/product-text.js';
 import { scriptTracking } from '../../styles/script-tracking.js';
+import { TYPE_LONGHANDS, typefaceFrom } from '../../styles/type.js';
 
 // Every visual value is a token (tokens/comp/empty-state.tokens.json). The empty state has no state (EMP-7): what
 // changes what it draws is its size and its alignment. It draws no fill, no edge and no elevation (EMP-1), so there is
@@ -19,7 +20,7 @@ const t = (name: string) => unsafeCSS(T(name));
 const ref = (name: (key: string) => string, key: string, fallback: string | null) => (fallback ? `var(${name(key)}, var(${name(fallback)}))` : `var(${name(key)})`);
 
 // Per size (the axis' members): the room above and below, the glyph's box, and the title's and the description's text
-// roles, each used whole — the font shorthand and the letter spacing.
+// roles, each used whole — its longhands (styles/type.ts) and the letter spacing.
 const sizeBlock = (size: string, selector: string, fallback: string | null = null) =>
   `${selector} {
   --_pad-block: ${ref((v) => `${PREFIX}-container-padding-block-${v}`, size, fallback)};
@@ -27,7 +28,7 @@ const sizeBlock = (size: string, selector: string, fallback: string | null = nul
 ${(['title', 'description'] as const)
   .flatMap((part) => {
     const role = (member: string) => ref((v) => `${PREFIX}-${part}-typescale-${v}-${member}`, size, fallback);
-    return [`  --_${part}-font: ${role('font')};`, `  --_${part}-tracking: ${role('letter-spacing')};`];
+    return [...TYPE_LONGHANDS.map((longhand) => `  --_${part}-${longhand}: ${role(longhand)};`), `  --_${part}-tracking: ${role('letter-spacing')};`];
   })
   .join('\n')}
 }`;
@@ -129,14 +130,14 @@ export const styles = css`
   .text {
     min-inline-size: 0;
     max-inline-size: min(100%, calc(${t('content-measure')} * 1em));
-    font: var(--_description-font);
+    ${typefaceFrom('--_description')}
     letter-spacing: var(--_description-tracking);
   }
   /* EMP-4: the title, in the text style of its size and in title.color; it wraps and is never cut. A heading the
      product gives in the slot is drawn as every other title is: its own margins and text style are taken off, its
      role and its level are untouched. */
   .title {
-    font: var(--_title-font);
+    ${typefaceFrom('--_title')}
     letter-spacing: var(--_title-tracking);
     color: ${t('title-color')};
     overflow-wrap: break-word;

@@ -134,7 +134,9 @@
     content: attr(label);
     display: block;
     margin-block-end: var(--tanrei-comp-table-of-contents-container-gap);
-    font: var(--tanrei-comp-table-of-contents-title-typescale-font);
+    font:
+      var(--tanrei-comp-table-of-contents-title-typescale-font-weight) var(--tanrei-comp-table-of-contents-title-typescale-font-size)/var(--tanrei-comp-table-of-contents-title-typescale-line-height)
+      var(--tanrei-comp-table-of-contents-title-typescale-font-family);
     letter-spacing: var(--tanrei-comp-table-of-contents-title-typescale-letter-spacing);
     color: var(--tanrei-comp-table-of-contents-title-color);
     text-align: var(--_toc-start);
@@ -145,7 +147,9 @@
   :where(tanrei-table-of-contents) > :where([slot='title']) {
     margin: 0;
     padding: 0;
-    font: var(--tanrei-comp-table-of-contents-title-typescale-font);
+    font:
+      var(--tanrei-comp-table-of-contents-title-typescale-font-weight) var(--tanrei-comp-table-of-contents-title-typescale-font-size)/var(--tanrei-comp-table-of-contents-title-typescale-line-height)
+      var(--tanrei-comp-table-of-contents-title-typescale-font-family);
     letter-spacing: var(--tanrei-comp-table-of-contents-title-typescale-letter-spacing);
     color: var(--tanrei-comp-table-of-contents-title-color);
     text-align: var(--_toc-start);
@@ -230,7 +234,9 @@
     padding-right: calc(var(--tanrei-comp-table-of-contents-row-padding-inline) + var(--_toc-inset) * var(--_toc-right));
     /* A row higher than its label (a system whose line is shorter, the touch target) shares the rest above and below. */
     align-content: center;
-    font: var(--tanrei-comp-table-of-contents-label-typescale-font);
+    font:
+      var(--tanrei-comp-table-of-contents-label-typescale-font-weight) var(--tanrei-comp-table-of-contents-label-typescale-font-size)/var(--tanrei-comp-table-of-contents-label-typescale-line-height)
+      var(--tanrei-comp-table-of-contents-label-typescale-font-family);
     letter-spacing: var(--tanrei-comp-table-of-contents-label-typescale-letter-spacing);
     color: var(--_toc-now-label);
     /* TOC-6: a row of a list in a landmark is not told from text beside it — no underline, and no visited state. */
@@ -268,7 +274,9 @@
     padding-block: var(--_toc-row-pad);
     padding-left: calc(var(--tanrei-comp-table-of-contents-row-padding-inline) + var(--_toc-inset) * var(--_toc-left));
     padding-right: calc(var(--tanrei-comp-table-of-contents-row-padding-inline) + var(--_toc-inset) * var(--_toc-right));
-    font: var(--tanrei-comp-table-of-contents-label-typescale-font);
+    font:
+      var(--tanrei-comp-table-of-contents-label-typescale-font-weight) var(--tanrei-comp-table-of-contents-label-typescale-font-size)/var(--tanrei-comp-table-of-contents-label-typescale-line-height)
+      var(--tanrei-comp-table-of-contents-label-typescale-font-family);
     font-weight: var(--tanrei-comp-table-of-contents-label-typescale-font-weight-emphasized);
     letter-spacing: var(--tanrei-comp-table-of-contents-label-typescale-letter-spacing);
     overflow-wrap: anywhere;

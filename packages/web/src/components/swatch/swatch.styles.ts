@@ -2,6 +2,7 @@ import { css, unsafeCSS } from 'lit';
 import type { OpenAxis } from '../../primitives/index.js';
 import { productText } from '../../styles/product-text.js';
 import { cornerRadius, shape } from '../../styles/shape.js';
+import { TYPE_LONGHANDS, typefaceFrom } from '../../styles/type.js';
 
 // Every visual value is a token (tokens/comp/swatch.tokens.json). A swatch has no state (SWC-13): what changes what it
 // draws is its size and its shape, each read from that value's own tokens, the color it is given, and whether its text
@@ -23,9 +24,9 @@ const sizeBlock = (size: string, selector: string, fallback: string | null = nul
   return `${selector} {
   --_side: ${ref((v) => `${PREFIX}-container-size-${v}`, size, fallback)};
   --_gap: ${ref((v) => `${PREFIX}-gap-${v}`, size, fallback)};
-  --_label-font: ${role('label', 'font')};
+  ${TYPE_LONGHANDS.map((longhand) => `--_label-${longhand}: ${role('label', longhand)};`).join('\n  ')}
   --_label-tracking: ${role('label', 'letter-spacing')};
-  --_supporting-font: ${role('supporting-text', 'font')};
+  ${TYPE_LONGHANDS.map((longhand) => `--_supporting-${longhand}: ${role('supporting-text', longhand)};`).join('\n  ')}
   --_supporting-tracking: ${role('supporting-text', 'letter-spacing')};
 }`;
 };
@@ -107,12 +108,12 @@ export const styles = css`
     overflow-wrap: break-word;
   }
   .label {
-    font: var(--_label-font);
+    ${typefaceFrom('--_label')}
     letter-spacing: var(--_label-tracking);
     color: ${t('label-color')};
   }
   .supporting {
-    font: var(--_supporting-font);
+    ${typefaceFrom('--_supporting')}
     letter-spacing: var(--_supporting-tracking);
     color: ${t('supporting-text-color')};
   }

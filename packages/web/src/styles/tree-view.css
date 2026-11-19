@@ -136,10 +136,11 @@
     --_trv-pad-inline: var(--tanrei-comp-tree-view-container-padding-inline-medium);
     --_trv-gap: var(--tanrei-comp-tree-view-container-gap-medium);
     --_trv-indent: var(--tanrei-comp-tree-view-level-indent-medium);
-    --_trv-label-font: var(--tanrei-comp-tree-view-label-typescale-medium-font);
+    --_trv-label-font-family: var(--tanrei-comp-tree-view-label-typescale-medium-font-family);
+    --_trv-label-font-size: var(--tanrei-comp-tree-view-label-typescale-medium-font-size);
+    --_trv-label-font-weight: var(--tanrei-comp-tree-view-label-typescale-medium-font-weight);
+    --_trv-label-line-height: var(--tanrei-comp-tree-view-label-typescale-medium-line-height);
     --_trv-label-tracking: var(--tanrei-comp-tree-view-label-typescale-medium-letter-spacing);
-    --_trv-label-size: var(--tanrei-comp-tree-view-label-typescale-medium-font-size);
-    --_trv-label-line: var(--tanrei-comp-tree-view-label-typescale-medium-line-height);
     --_trv-icon-size: var(--tanrei-comp-tree-view-icon-size-medium);
     --_trv-chevron-size: var(--tanrei-comp-tree-view-chevron-size-medium);
     /* TRV-2: the room between the icon and the label — the token, which no size changes, or the product's iconGap
@@ -226,10 +227,11 @@
     --_trv-pad-inline: var(--tanrei-comp-tree-view-container-padding-inline-small);
     --_trv-gap: var(--tanrei-comp-tree-view-container-gap-small);
     --_trv-indent: var(--tanrei-comp-tree-view-level-indent-small);
-    --_trv-label-font: var(--tanrei-comp-tree-view-label-typescale-small-font);
+    --_trv-label-font-family: var(--tanrei-comp-tree-view-label-typescale-small-font-family);
+    --_trv-label-font-size: var(--tanrei-comp-tree-view-label-typescale-small-font-size);
+    --_trv-label-font-weight: var(--tanrei-comp-tree-view-label-typescale-small-font-weight);
+    --_trv-label-line-height: var(--tanrei-comp-tree-view-label-typescale-small-line-height);
     --_trv-label-tracking: var(--tanrei-comp-tree-view-label-typescale-small-letter-spacing);
-    --_trv-label-size: var(--tanrei-comp-tree-view-label-typescale-small-font-size);
-    --_trv-label-line: var(--tanrei-comp-tree-view-label-typescale-small-line-height);
     --_trv-icon-size: var(--tanrei-comp-tree-view-icon-size-small);
     --_trv-chevron-size: var(--tanrei-comp-tree-view-chevron-size-small);
   }
@@ -416,7 +418,9 @@
     padding-inline: calc(max(0px, min(var(--_trv-r) * var(--_trv-a) + var(--_trv-m) * var(--_trv-b), 50% - var(--_trv-pad-inline) - calc(var(--_trv-kc) + var(--_trv-reserve) * var(--_trv-ki)) - var(--_trv-never) * var(--_trv-has-icon) * var(--_trv-ki))) + var(--_trv-pad-inline)) var(--_trv-pad-inline);
     /* TRV-6: the label's text style and color; it wraps, breaks where it must and is never cut. TRV-39: text of its
        own direction, its lines on the layout's side. */
-    font: var(--_trv-label-font);
+    font:
+      var(--_trv-label-font-weight) var(--_trv-label-font-size)/var(--_trv-label-line-height)
+      var(--_trv-label-font-family);
     letter-spacing: var(--_trv-label-tracking);
     color: var(--_trv-now-label);
     text-align: var(--_trv-start);
@@ -608,7 +612,9 @@
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
-    font: var(--tanrei-comp-tree-view-supporting-text-typescale-font);
+    font:
+      var(--tanrei-comp-tree-view-supporting-text-typescale-font-weight) var(--tanrei-comp-tree-view-supporting-text-typescale-font-size)/var(--tanrei-comp-tree-view-supporting-text-typescale-line-height)
+      var(--tanrei-comp-tree-view-supporting-text-typescale-font-family);
     letter-spacing: var(--tanrei-comp-tree-view-supporting-text-typescale-letter-spacing);
     color: var(--_trv-now-supporting);
     unicode-bidi: plaintext;
@@ -663,7 +669,9 @@
     margin-left: var(--_trv-after-right);
     margin-right: var(--_trv-after-left);
     overflow: hidden;
-    font: var(--tanrei-comp-tree-view-trailing-text-typescale-font);
+    font:
+      var(--tanrei-comp-tree-view-trailing-text-typescale-font-weight) var(--tanrei-comp-tree-view-trailing-text-typescale-font-size)/var(--tanrei-comp-tree-view-trailing-text-typescale-line-height)
+      var(--tanrei-comp-tree-view-trailing-text-typescale-font-family);
     /* One line, as tall as the label's (the row's `1lh`, which the unit means here): its text stands in the middle
        of the label's first line, as a line of its own height moved down by half the difference did. */
     line-height: 1lh;
@@ -783,7 +791,9 @@
     box-sizing: border-box;
     margin: 0;
     padding: 0 var(--_trv-pad-inline);
-    font: var(--tanrei-comp-tree-view-filter-status-typescale-font);
+    font:
+      var(--tanrei-comp-tree-view-filter-status-typescale-font-weight) var(--tanrei-comp-tree-view-filter-status-typescale-font-size)/var(--tanrei-comp-tree-view-filter-status-typescale-line-height)
+      var(--tanrei-comp-tree-view-filter-status-typescale-font-family);
     letter-spacing: var(--tanrei-comp-tree-view-filter-status-typescale-letter-spacing);
     color: var(--tanrei-comp-tree-view-filter-status-color);
     text-align: var(--_trv-start);
@@ -818,7 +828,9 @@
     margin-inline-end: var(--_trv-gap);
   }
   :where(tanrei-tree-view) :where(li[data-tanrei-loading]) > :where(:first-child) > :where([data-tanrei-loading-label]) {
-    font: var(--tanrei-comp-tree-view-supporting-text-typescale-font);
+    font:
+      var(--tanrei-comp-tree-view-supporting-text-typescale-font-weight) var(--tanrei-comp-tree-view-supporting-text-typescale-font-size)/var(--tanrei-comp-tree-view-supporting-text-typescale-line-height)
+      var(--tanrei-comp-tree-view-supporting-text-typescale-font-family);
     letter-spacing: var(--tanrei-comp-tree-view-supporting-text-typescale-letter-spacing);
     color: var(--tanrei-comp-tree-view-unselected-supporting-text-color);
   }
@@ -840,10 +852,11 @@
   :where(tanrei-tree-view) :where(li) > :where(:first-child:not(ul, ol)) > :where([data-tanrei-edit]) {
     /* The label's text style and color in the field (the embedded text input draws the typing in its own tokens,
        which its holder points here). */
-    --tanrei-comp-embedded-text-input-input-typescale-font: var(--_trv-label-font);
+    --tanrei-comp-embedded-text-input-input-typescale-font-family: var(--_trv-label-font-family);
+    --tanrei-comp-embedded-text-input-input-typescale-font-size: var(--_trv-label-font-size);
+    --tanrei-comp-embedded-text-input-input-typescale-font-weight: var(--_trv-label-font-weight);
+    --tanrei-comp-embedded-text-input-input-typescale-line-height: var(--_trv-label-line-height);
     --tanrei-comp-embedded-text-input-input-typescale-letter-spacing: var(--_trv-label-tracking);
-    --tanrei-comp-embedded-text-input-input-typescale-font-size: var(--_trv-label-size);
-    --tanrei-comp-embedded-text-input-input-typescale-line-height: var(--_trv-label-line);
     --tanrei-comp-embedded-text-input-standard-input-color: var(--_trv-label);
     --tanrei-corner-radius: var(--tanrei-comp-tree-view-container-shape);
     --tanrei-corner-pill: var(--tanrei-comp-tree-view-container-shape-pill, 0);

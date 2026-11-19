@@ -4,6 +4,7 @@ import { hiddenHost } from '../../primitives/hidden.js';
 import { productText } from '../../styles/product-text.js';
 import { cornerRadius, shape } from '../../styles/shape.js';
 import { reducedMotion } from '../../styles/motion.js';
+import { typeface } from '../../styles/type.js';
 
 // Every visual value is a token (tokens/comp/file-item.tokens.json). Three things answer a pointer: the body of a
 // pressable file item (hovered, focused, pressed), and its two actions (the same three). Each paints from that state's
@@ -12,8 +13,8 @@ import { reducedMotion } from '../../styles/motion.js';
 export const PREFIX = '--tanrei-comp-file-item';
 const T = (name: string) => `var(${PREFIX}-${name})`;
 const t = (name: string) => unsafeCSS(T(name));
-/** A text role, used whole: the font shorthand and its letter spacing. */
-const role = (part: string) => unsafeCSS(`font: ${T(`${part}-typescale-font`)};\n    letter-spacing: ${T(`${part}-typescale-letter-spacing`)};`);
+/** A text role, used whole: the `font` shorthand composed from its longhands (styles/type.ts) and its letter spacing. */
+const role = (part: string) => unsafeCSS(`${typeface((longhand) => T(`${part}-typescale-${longhand}`))}\n    letter-spacing: ${T(`${part}-typescale-letter-spacing`)};`);
 /** The height of one line of a text role, for the boxes that are centred on a row's lines (FIT-2). */
 const line = (part: string) => `calc(${T(`${part}-typescale-line-height`)} * ${T(`${part}-typescale-font-size`)})`;
 const FORMS = ['row', 'tile'] as const;

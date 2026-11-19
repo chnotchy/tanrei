@@ -2,6 +2,7 @@ import { css, unsafeCSS } from 'lit';
 import { focusGlow, stateRules } from '../../primitives/index.js';
 import { cornerRadius, shape } from '../../styles/shape.js';
 import { reducedMotion } from '../../styles/motion.js';
+import { typefaceFrom } from '../../styles/type.js';
 
 // Every visual value is a token (tokens/comp/one-time-code-input.tokens.json). A cell reads, for each state, that
 // state's tokens of its look — plain, or the `error.` parts while error is true — and never computes how a state looks:
@@ -104,7 +105,7 @@ export const styles = css`
     /* The margin of a row's first group lies outside the field (above): it is no part of what a scrolling ancestor
        measures, and the parts placed here are placed against the field. */
     contain: layout;
-    font: var(${P}-input-typescale-font);
+    ${typefaceFrom(`${P}-input-typescale`)}
     font-variant-numeric: tabular-nums;
     letter-spacing: var(${P}-input-typescale-letter-spacing);
   }

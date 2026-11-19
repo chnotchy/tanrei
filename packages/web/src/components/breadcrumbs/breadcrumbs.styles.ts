@@ -2,6 +2,7 @@ import { css, unsafeCSS } from 'lit';
 import { directionProbeStyles, focusRing, iconGlyph, pressHold, rippleStyles, stateRules } from '../../primitives/index.js';
 import { cornerRadius, shape } from '../../styles/shape.js';
 import { reducedMotion } from '../../styles/motion.js';
+import { typefaceOf } from '../../styles/type.js';
 
 // What the shadow root draws: the navigation landmark, the ordered list, the separators and the overflow button
 // (tokens/comp/breadcrumbs.tokens.json). The levels themselves — the product's own anchors — are drawn by
@@ -209,7 +210,7 @@ export const styles = css`
     position: absolute;
     inset-block-start: 0;
     inset-inline-start: 0;
-    font: ${t('label-typescale-font')};
+    ${typefaceOf(t, 'label-typescale')}
     letter-spacing: ${t('label-typescale-letter-spacing')};
     white-space: nowrap;
     visibility: hidden;

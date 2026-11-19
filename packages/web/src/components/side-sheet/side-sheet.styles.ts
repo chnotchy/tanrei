@@ -3,6 +3,7 @@ import { type OpenAxis, actionBoxStyles, appearStyles, cornerRadius, dividerVisi
 import { productText } from '../../styles/product-text.js';
 import { scriptTracking } from '../../styles/script-tracking.js';
 import { reducedMotion } from '../../styles/motion.js';
+import { typefaceOf, typefaceFrom } from '../../styles/type.js';
 
 // Every visual value is a token (tokens/comp/side-sheet.tokens.json). The sheet paints its panel per variant (standard or
 // modal: the color, elevation, start corners and start edge — `dev.tanrei.axes.variant.members`) and lays out its header,
@@ -124,7 +125,7 @@ export const styles = css`
     flex: 1 1 auto;
     min-inline-size: 0;
     margin: 0;
-    font: ${t('headline-typescale-font')};
+    ${typefaceOf(t, 'headline-typescale')}
     letter-spacing: ${t('headline-typescale-letter-spacing')};
     color: ${t('headline-color')};
     overflow-wrap: break-word;
@@ -160,7 +161,7 @@ export const styles = css`
     overflow-y: auto;
     overscroll-behavior: contain;
     padding-inline: ${t('container-padding-inline')};
-    font: var(--tanrei-sys-typescale-body-font);
+    ${typefaceFrom('--tanrei-sys-typescale-body')}
     letter-spacing: var(--tanrei-sys-typescale-body-letter-spacing);
     overflow-wrap: break-word;
     ${unsafeCSS(cornerRadius('--tanrei-sys-shape-corner-none'))}

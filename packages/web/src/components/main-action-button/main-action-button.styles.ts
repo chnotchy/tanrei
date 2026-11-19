@@ -3,6 +3,7 @@ import { type OpenAxis, focusRing, iconGlyph, minimumTarget, pressHold, rippleSt
 import { productText } from '../../styles/product-text.js';
 import { cornerRadius, shape } from '../../styles/shape.js';
 import { reducedMotion } from '../../styles/motion.js';
+import { TYPE_LONGHANDS } from '../../styles/type.js';
 
 // Every visual value is a token (tokens/comp/main-action-button.tokens.json). For each state the component reads that
 // state's tokens — it never computes how a state looks: hover, focus and press mix each variant's container with its
@@ -47,7 +48,7 @@ const sizeBlock = (size: string, selector: string, fallback: string | null = nul
   `${selector} {\n${Object.entries(SIZE_MEMBERS)
     .flatMap(([key, member]) => {
       if (member === 'label-typescale') {
-        return [`  --_font: ${ref((v) => `${PREFIX}-${member}-${v}-font`, size, fallback)};`, `  --_tracking: ${ref((v) => `${PREFIX}-${member}-${v}-letter-spacing`, size, fallback)};`];
+        return [...TYPE_LONGHANDS.map((longhand) => `  --_${longhand}: ${ref((v) => `${PREFIX}-${member}-${v}-${longhand}`, size, fallback)};`), `  --_tracking: ${ref((v) => `${PREFIX}-${member}-${v}-letter-spacing`, size, fallback)};`];
       }
       const line = `  --_${key}: ${ref((v) => `${PREFIX}-${member}-${v}`, size, fallback)};`;
       return member === 'container-shape' ? [line, `  --_${key}-pill: ${ref((v) => `${PREFIX}-${member}-${v}-pill`, size, fallback)};`] : [line];
@@ -110,7 +111,7 @@ export const styles = css`
     /* MAB-17: the elevation is a box-shadow on the container, cast outside it; nothing on the way to the page clips it. */
     ${unsafeCSS(paint(''))}
     /* MAB-12: the label's text role, whole; 1lh on the icon's box is this line's height. */
-    font: var(--_font);
+    font: var(--_font-weight) var(--_font-size)/var(--_line-height) var(--_font-family);
     letter-spacing: var(--_tracking);
     /* WebKit keeps the text selectable until its own name says so: a selection of the page swept over the button took
        its label (and the icon's name) with it, and a press held on that selection became the engine's drag of the

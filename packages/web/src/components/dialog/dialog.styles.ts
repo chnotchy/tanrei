@@ -3,6 +3,7 @@ import { actionBoxStyles, appearStyles, compactProbeStyles, dividerVisibilityHos
 import { productText } from '../../styles/product-text.js';
 import { cornerRadius, shape } from '../../styles/shape.js';
 import { scriptTracking } from '../../styles/script-tracking.js';
+import { typefaceOf, typefaceFrom } from '../../styles/type.js';
 
 // Every visual value is a token (tokens/comp/dialog.tokens.json). The dialog answers no state; its actions are Tanrei
 // Buttons with their own tokens, which it places (and, while they set none, gives its variant, DLG-20) and never restyles.
@@ -275,7 +276,7 @@ export const styles = css`
     flex: 1 1 auto;
     min-inline-size: 0;
     margin: 0;
-    font: ${t('headline-typescale-font')};
+    ${typefaceOf(t, 'headline-typescale')}
     letter-spacing: ${t('headline-typescale-letter-spacing')};
     color: ${t('headline-color')};
     overflow-wrap: break-word;
@@ -284,13 +285,13 @@ export const styles = css`
   ${unsafeCSS(scriptTracking('.headline', String(t('headline-typescale-letter-spacing')), { shadow: true }))}
   .supporting {
     margin: 0;
-    font: ${t('supporting-text-typescale-font')};
+    ${typefaceOf(t, 'supporting-text-typescale')}
     letter-spacing: ${t('supporting-text-typescale-letter-spacing')};
     color: ${t('supporting-text-color')};
     overflow-wrap: break-word;
   }
   .content {
-    font: var(--tanrei-sys-typescale-body-font);
+    ${typefaceFrom('--tanrei-sys-typescale-body')}
     letter-spacing: var(--tanrei-sys-typescale-body-letter-spacing);
     color: ${t('content-color')};
     overflow-wrap: break-word;
@@ -312,7 +313,7 @@ export const styles = css`
     display: flex;
     flex: none;
     align-items: center;
-    font: ${t('headline-typescale-font')};
+    ${typefaceOf(t, 'headline-typescale')}
     block-size: 1lh;
   }
   /* DLG-9, above: the icon above the headline, container.gap apart, both centred — only while there is an icon. */

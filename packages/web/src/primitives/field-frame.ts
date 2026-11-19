@@ -8,6 +8,7 @@ import { compChoice, whenChosen } from './actions.js';
 import { report } from './report.js';
 import type { WordsController } from './words.js';
 import { reducedMotion } from '../styles/motion.js';
+import { typeface, typefaceOf, type TypeLonghand } from '../styles/type.js';
 
 // The field frame: what a form gives every control — a label above it that can say the control is
 // required or optional, a line of help, the reason a value was refused — drawn once, here, for every component that
@@ -276,7 +277,7 @@ export interface FrameStyleOptions {
   /** The component's token prefix: `--tanrei-comp-field`. */
   prefix: `--tanrei-comp-${string}`;
   /** The label's text style, for a component whose label follows its size (the defaults read `<prefix>-label-typescale-*`). */
-  label?: { font: string; letterSpacing: string; line: string };
+  label?: { typeface: (longhand: TypeLonghand) => string; letterSpacing: string; line: string };
   /** The state motion's tokens; a frame that has none (a group) changes at once. */
   motion?: { duration: string; easing: string } | null;
   /** The frame has a label glyph (FLD-3). */
@@ -292,7 +293,7 @@ export interface FrameStyleOptions {
  */
 export function frameStyles({ prefix, label, motion, glyph = false, disabled }: FrameStyleOptions): CSSResult {
   const T = (name: string) => `var(${prefix}-${name})`;
-  const font = label?.font ?? T('label-typescale-font');
+  const font = typeface(label?.typeface ?? ((longhand) => T(`label-typescale-${longhand}`)));
   const tracking = label?.letterSpacing ?? T('label-typescale-letter-spacing');
   const line = label?.line ?? `calc(${T('label-typescale-line-height')} * ${T('label-typescale-font-size')})`;
   const timing = motion === undefined ? { duration: T('motion-state-duration'), easing: T('motion-state-easing') } : motion;
@@ -347,7 +348,7 @@ export function frameStyles({ prefix, label, motion, glyph = false, disabled }: 
     flex: 1 1 auto;
     min-inline-size: 0;
     overflow-wrap: break-word;
-    font: ${font};
+    ${font}
     letter-spacing: ${tracking};
     color: var(--_frame-label);
     ${recolor('color')}
@@ -425,7 +426,7 @@ export function frameStyles({ prefix, label, motion, glyph = false, disabled }: 
     margin-block-start: ${T('supporting-text-gap')};
     min-inline-size: 0;
     overflow-wrap: break-word;
-    font: ${T('supporting-text-typescale-font')};
+    ${typefaceOf(T, 'supporting-text-typescale')}
     letter-spacing: ${T('supporting-text-typescale-letter-spacing')};
     color: var(--_frame-supporting-text);
     ${recolor('color')}

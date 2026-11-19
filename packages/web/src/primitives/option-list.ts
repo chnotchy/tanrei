@@ -19,6 +19,7 @@ import { nearestSize } from './size-cascade.js';
 import { separationHost, syncSeparation, whenGap } from './separation.js';
 import { reducedMotion } from '../styles/motion.js';
 import { OPTION_GROUP_TAG, OPTION_TAG } from './option-tags.js';
+import { typefaceOf } from '../styles/type.js';
 
 // A list of options that opens from a field (a select, SEL-24 … SEL-45; a combobox, which shares the field, the list
 // and the options and adds a text input). Three things are shared, and each is here once:
@@ -591,7 +592,7 @@ ${
     display: block;
     padding-block: var(--_opt-option-padding-block);
     padding-inline: var(--_opt-group-title-padding-inline);
-    font: ${T('group-title-typescale-font')};
+    ${typefaceOf(T, 'group-title-typescale')}
     letter-spacing: ${T('group-title-typescale-letter-spacing')};
     color: ${T('group-title-color')};
     overflow-wrap: break-word;
@@ -649,7 +650,7 @@ ${
     align-items: flex-start;
     gap: var(--_opt-option-gap);
     min-inline-size: 0;
-    font: ${T('option-label-typescale-font')};
+    ${typefaceOf(T, 'option-label-typescale')}
     letter-spacing: ${T('option-label-typescale-letter-spacing')};
   }
   .row-column {
@@ -678,7 +679,7 @@ ${
     overflow-wrap: break-word;
   }
   .option-supporting {
-    font: ${T('option-supporting-text-typescale-font')};
+    ${typefaceOf(T, 'option-supporting-text-typescale')}
     letter-spacing: ${T('option-supporting-text-typescale-letter-spacing')};
   }
   ${productText(':is(.option-label, .option-supporting, .group-title)', { align: 'start' })}

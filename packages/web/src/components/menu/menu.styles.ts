@@ -4,6 +4,7 @@ import { appearStyles, focusRing, iconGlyph, itemRowStyles, pressHold, rowTarget
 import { productText } from '../../styles/product-text.js';
 import { cornerRadius, shape } from '../../styles/shape.js';
 import { reducedMotion } from '../../styles/motion.js';
+import { typefaceOf } from '../../styles/type.js';
 
 // Every visual value is a token (tokens/comp/menu.tokens.json). An item's five conditions — unselected, selected (a
 // checked checkbox or radio item), current (the link item of the page the person is on), destructive and expanded (a
@@ -302,7 +303,7 @@ export const groupStyles = css`
     display: block;
     padding-block: ${d('container-padding-block')};
     padding-inline: ${d('group-title-padding-inline')};
-    font: ${t('group-title-typescale-font')};
+    ${typefaceOf(t, 'group-title-typescale')}
     letter-spacing: ${t('group-title-typescale-letter-spacing')};
     color: ${t('group-title-color')};
     overflow-wrap: break-word;
@@ -376,7 +377,7 @@ export const itemStyles = css`
     align-items: flex-start;
     gap: ${d('container-gap')};
     min-inline-size: 0;
-    font: ${t('label-typescale-font')};
+    ${typefaceOf(t, 'label-typescale')}
     letter-spacing: ${t('label-typescale-letter-spacing')};
   }
   .column {
@@ -432,11 +433,11 @@ export const itemStyles = css`
     word-break: auto-phrase;
   }
   .supporting {
-    font: ${t('supporting-text-typescale-font')};
+    ${typefaceOf(t, 'supporting-text-typescale')}
     letter-spacing: ${t('supporting-text-typescale-letter-spacing')};
   }
   .trailing-text {
-    font: ${t('trailing-text-typescale-font')};
+    ${typefaceOf(t, 'trailing-text-typescale')}
     letter-spacing: ${t('trailing-text-typescale-letter-spacing')};
   }
   /* MNU-34: each text is its own run, in the direction of its first strong character, so a left-to-right name or a number
@@ -448,7 +449,7 @@ export const itemStyles = css`
   /* MNU-31, KBS-13: the shortcut is hosted — its legends and separators inherit the trailing text's role and the
      trailing-text color of the condition and state (painted above); its caps keep the keyboard shortcut's own tokens. */
   .shortcut {
-    font: ${t('trailing-text-typescale-font')};
+    ${typefaceOf(t, 'trailing-text-typescale')}
     letter-spacing: ${t('trailing-text-typescale-letter-spacing')};
   }
 

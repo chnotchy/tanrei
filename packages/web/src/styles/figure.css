@@ -170,7 +170,9 @@
         box-sizing: border-box;
         margin: 0;
         padding: 0;
-        font: var(--tanrei-comp-figure-title-typescale-font);
+        font:
+          var(--tanrei-comp-figure-title-typescale-font-weight) var(--tanrei-comp-figure-title-typescale-font-size)/var(--tanrei-comp-figure-title-typescale-line-height)
+          var(--tanrei-comp-figure-title-typescale-font-family);
         letter-spacing: var(--tanrei-comp-figure-title-typescale-letter-spacing);
         color: var(--tanrei-comp-figure-title-color);
         /* FIG-21, FIG-23: placed by the layout direction; the text itself is of its own direction. */
@@ -291,7 +293,9 @@
       margin: 0;
       margin-block-start: var(--tanrei-comp-figure-caption-gap);
       padding: 0;
-      font: var(--tanrei-comp-figure-caption-typescale-font);
+      font:
+        var(--tanrei-comp-figure-caption-typescale-font-weight) var(--tanrei-comp-figure-caption-typescale-font-size)/var(--tanrei-comp-figure-caption-typescale-line-height)
+        var(--tanrei-comp-figure-caption-typescale-font-family);
       letter-spacing: var(--tanrei-comp-figure-caption-typescale-letter-spacing);
       color: var(--tanrei-comp-figure-caption-color);
       text-align: var(--_figure-start);

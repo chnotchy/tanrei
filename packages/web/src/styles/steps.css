@@ -41,15 +41,24 @@
 @layer tanrei.components {
   /* ── The list: the text style and the measures of its size (STP-1, STP-7, STP-10; STP-19: any other size is the default) */
   :where(.tanrei-steps) {
-    --_steps-body-font: var(--tanrei-comp-steps-body-typescale-medium-font);
+    --_steps-body-font-family: var(--tanrei-comp-steps-body-typescale-medium-font-family);
+    --_steps-body-font-size: var(--tanrei-comp-steps-body-typescale-medium-font-size);
+    --_steps-body-font-weight: var(--tanrei-comp-steps-body-typescale-medium-font-weight);
+    --_steps-body-line-height: var(--tanrei-comp-steps-body-typescale-medium-line-height);
     --_steps-body-tracking: var(--tanrei-comp-steps-body-typescale-medium-letter-spacing);
     --_steps-body-emphasized: var(--tanrei-comp-steps-body-typescale-medium-font-weight-emphasized);
     --_steps-body-line: calc(var(--tanrei-comp-steps-body-typescale-medium-font-size) * var(--tanrei-comp-steps-body-typescale-medium-line-height));
-    --_steps-title-font: var(--tanrei-comp-steps-title-typescale-medium-font);
+    --_steps-title-font-family: var(--tanrei-comp-steps-title-typescale-medium-font-family);
+    --_steps-title-font-size: var(--tanrei-comp-steps-title-typescale-medium-font-size);
+    --_steps-title-font-weight: var(--tanrei-comp-steps-title-typescale-medium-font-weight);
+    --_steps-title-line-height: var(--tanrei-comp-steps-title-typescale-medium-line-height);
     --_steps-title-tracking: var(--tanrei-comp-steps-title-typescale-medium-letter-spacing);
     --_steps-title-emphasized: var(--tanrei-comp-steps-title-typescale-medium-font-weight-emphasized);
     --_steps-title-line: calc(var(--tanrei-comp-steps-title-typescale-medium-font-size) * var(--tanrei-comp-steps-title-typescale-medium-line-height));
-    --_steps-label-font: var(--tanrei-comp-steps-marker-label-typescale-medium-font);
+    --_steps-label-font-family: var(--tanrei-comp-steps-marker-label-typescale-medium-font-family);
+    --_steps-label-font-size: var(--tanrei-comp-steps-marker-label-typescale-medium-font-size);
+    --_steps-label-font-weight: var(--tanrei-comp-steps-marker-label-typescale-medium-font-weight);
+    --_steps-label-line-height: var(--tanrei-comp-steps-marker-label-typescale-medium-line-height);
     --_steps-label-tracking: var(--tanrei-comp-steps-marker-label-typescale-medium-letter-spacing);
     /* STP-2, STP-14: the marker's height — the size's, or the number's line where enlarged text makes that taller. */
     --_steps-marker: max(
@@ -69,21 +78,32 @@
     margin-inline: 0;
     padding: 0;
     list-style: none;
-    font: var(--_steps-body-font);
+    font:
+      var(--_steps-body-font-weight) var(--_steps-body-font-size)/var(--_steps-body-line-height)
+      var(--_steps-body-font-family);
     letter-spacing: var(--_steps-body-tracking);
     /* STP-14: a string with no break opportunity breaks rather than overflow. */
     overflow-wrap: break-word;
   }
   :where(.tanrei-steps[data-size='large']) {
-    --_steps-body-font: var(--tanrei-comp-steps-body-typescale-large-font);
+    --_steps-body-font-family: var(--tanrei-comp-steps-body-typescale-large-font-family);
+    --_steps-body-font-size: var(--tanrei-comp-steps-body-typescale-large-font-size);
+    --_steps-body-font-weight: var(--tanrei-comp-steps-body-typescale-large-font-weight);
+    --_steps-body-line-height: var(--tanrei-comp-steps-body-typescale-large-line-height);
     --_steps-body-tracking: var(--tanrei-comp-steps-body-typescale-large-letter-spacing);
     --_steps-body-emphasized: var(--tanrei-comp-steps-body-typescale-large-font-weight-emphasized);
     --_steps-body-line: calc(var(--tanrei-comp-steps-body-typescale-large-font-size) * var(--tanrei-comp-steps-body-typescale-large-line-height));
-    --_steps-title-font: var(--tanrei-comp-steps-title-typescale-large-font);
+    --_steps-title-font-family: var(--tanrei-comp-steps-title-typescale-large-font-family);
+    --_steps-title-font-size: var(--tanrei-comp-steps-title-typescale-large-font-size);
+    --_steps-title-font-weight: var(--tanrei-comp-steps-title-typescale-large-font-weight);
+    --_steps-title-line-height: var(--tanrei-comp-steps-title-typescale-large-line-height);
     --_steps-title-tracking: var(--tanrei-comp-steps-title-typescale-large-letter-spacing);
     --_steps-title-emphasized: var(--tanrei-comp-steps-title-typescale-large-font-weight-emphasized);
     --_steps-title-line: calc(var(--tanrei-comp-steps-title-typescale-large-font-size) * var(--tanrei-comp-steps-title-typescale-large-line-height));
-    --_steps-label-font: var(--tanrei-comp-steps-marker-label-typescale-large-font);
+    --_steps-label-font-family: var(--tanrei-comp-steps-marker-label-typescale-large-font-family);
+    --_steps-label-font-size: var(--tanrei-comp-steps-marker-label-typescale-large-font-size);
+    --_steps-label-font-weight: var(--tanrei-comp-steps-marker-label-typescale-large-font-weight);
+    --_steps-label-line-height: var(--tanrei-comp-steps-marker-label-typescale-large-line-height);
     --_steps-label-tracking: var(--tanrei-comp-steps-marker-label-typescale-large-letter-spacing);
     --_steps-marker: max(
       var(--tanrei-comp-steps-marker-height-large),
@@ -151,7 +171,9 @@
   /* ── The title (STP-6, STP-18): first in the step, in the title's text style whatever its level ───────────────── */
   :where(.tanrei-steps) > :where(li) > :where(:is(.tanrei-steps-title, h2, h3, h4, h5, h6):first-child) {
     --tanrei-text-emphasized-weight: var(--_steps-title-emphasized);
-    font: var(--_steps-title-font);
+    font:
+      var(--_steps-title-font-weight) var(--_steps-title-font-size)/var(--_steps-title-line-height)
+      var(--_steps-title-font-family);
     letter-spacing: var(--_steps-title-tracking);
     /* Text of its own direction, by its first strong character; placed and aligned by the layout's. */
     unicode-bidi: plaintext;
@@ -185,7 +207,9 @@
     /* The room between the number and the marker's edge, the ring inside it: two digits keep a circle. */
     padding-inline: calc(var(--tanrei-comp-steps-marker-padding-inline) - var(--tanrei-comp-steps-marker-outline-width));
     border: var(--tanrei-comp-steps-marker-outline-width) solid var(--tanrei-comp-steps-marker-outline-color);
-    font: var(--_steps-label-font);
+    font:
+      var(--_steps-label-font-weight) var(--_steps-label-font-size)/var(--_steps-label-line-height)
+      var(--_steps-label-font-family);
     /* The number at the marker's centre: one line as high as the marker is inside its ring. */
     line-height: calc(var(--_steps-marker) - 2 * var(--tanrei-comp-steps-marker-outline-width));
     letter-spacing: var(--_steps-label-tracking);

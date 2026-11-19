@@ -3,6 +3,7 @@ import { focusRing, iconGlyph, pressHold, rippleStyles, stateRules } from '../..
 import { productText } from '../../styles/product-text.js';
 import { cornerRadius, shape } from '../../styles/shape.js';
 import { reducedMotion } from '../../styles/motion.js';
+import { typefaceOf } from '../../styles/type.js';
 
 // What the shadow root draws: the navigation landmark, the title, and the compact presentation's block and row
 // (tokens/comp/table-of-contents.tokens.json). The list itself — the product's own anchors — is drawn by
@@ -38,7 +39,7 @@ export const styles = css`
     display: block;
     margin: 0;
     margin-block-end: ${t('container-gap')};
-    font: ${t('title-typescale-font')};
+    ${typefaceOf(t, 'title-typescale')}
     letter-spacing: ${t('title-typescale-letter-spacing')};
     color: ${t('title-color')};
     overflow-wrap: anywhere;
@@ -103,7 +104,7 @@ export const styles = css`
   .row-title {
     flex: 0 1 auto;
     min-inline-size: 0;
-    font: ${t('title-typescale-font')};
+    ${typefaceOf(t, 'title-typescale')}
     letter-spacing: ${t('title-typescale-letter-spacing')};
     overflow-wrap: anywhere;
   }
@@ -113,7 +114,7 @@ export const styles = css`
     flex: 1 1 0%;
     min-inline-size: 0;
     overflow: hidden;
-    font: ${t('compact-supporting-text-typescale-font')};
+    ${typefaceOf(t, 'compact-supporting-text-typescale')}
     letter-spacing: ${t('compact-supporting-text-typescale-letter-spacing')};
     color: ${t('compact-supporting-text-color')};
     text-overflow: ellipsis;

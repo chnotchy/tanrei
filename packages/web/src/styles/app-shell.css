@@ -416,7 +416,9 @@
     max-inline-size: calc(100% - 2 * (var(--tanrei-comp-app-shell-skip-link-offset) + var(--tanrei-comp-app-shell-skip-link-container-padding-inline)) - var(--_aps-inset-start) - var(--_aps-inset-end));
     clip-path: none;
     white-space: normal;
-    font: var(--tanrei-comp-app-shell-skip-link-label-typescale-font);
+    font:
+      var(--tanrei-comp-app-shell-skip-link-label-typescale-font-weight) var(--tanrei-comp-app-shell-skip-link-label-typescale-font-size)/var(--tanrei-comp-app-shell-skip-link-label-typescale-line-height)
+      var(--tanrei-comp-app-shell-skip-link-label-typescale-font-family);
     letter-spacing: var(--tanrei-comp-app-shell-skip-link-label-typescale-letter-spacing);
   }
   :where(tanrei-app-shell:dir(rtl)) > [slot='skip-link']:focus-visible {

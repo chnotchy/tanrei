@@ -3,6 +3,7 @@ import { type OpenAxis, drawnSizeAt, drawnSizeAxis, focusRing, groupItemReset, g
 import { productText } from '../../styles/product-text.js';
 import { cornerRadius, shape } from '../../styles/shape.js';
 import { reducedMotion } from '../../styles/motion.js';
+import { TYPE_LONGHANDS } from '../../styles/type.js';
 
 // Every visual value is a token (tokens/comp/button-with-menu.tokens.json). The button with menu owns its tokens:
 // they carry Button's values by default but are its own, so a system can style its buttons with menu apart from its buttons.
@@ -69,7 +70,7 @@ const sizeBlock = (size: string, selector: string, fallback: string | null = nul
   `${selector} {\n${Object.entries(SIZE_MEMBERS)
     .flatMap(([key, member]) =>
       member === 'label-typescale'
-        ? [`  --_font: ${ref((v) => `${PREFIX}-${member}-${v}-font`, size, fallback)};`, `  --_tracking: ${ref((v) => `${PREFIX}-${member}-${v}-letter-spacing`, size, fallback)};`]
+        ? [...TYPE_LONGHANDS.map((longhand) => `  --_${longhand}: ${ref((v) => `${PREFIX}-${member}-${v}-${longhand}`, size, fallback)};`), `  --_tracking: ${ref((v) => `${PREFIX}-${member}-${v}-letter-spacing`, size, fallback)};`]
         : [`  --_${key}: ${ref((v) => `${PREFIX}-${member}-${v}`, size, fallback)};`],
     )
     .join('\n')}\n}`;
@@ -172,7 +173,7 @@ export const styles = css`
        the page clips them. */
     ${unsafeCSS(paint(''))}
     /* SPB-14: the label's text role, whole. */
-    font: var(--_font);
+    font: var(--_font-weight) var(--_font-size)/var(--_line-height) var(--_font-family);
     letter-spacing: var(--_tracking);
     -webkit-user-select: none;
     user-select: none;

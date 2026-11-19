@@ -5,6 +5,7 @@ import { productText } from '../../styles/product-text.js';
 import { cornerRadius, shape } from '../../styles/shape.js';
 import { scriptTracking } from '../../styles/script-tracking.js';
 import { reducedMotion } from '../../styles/motion.js';
+import { TYPE_LONGHANDS, typefaceOf } from '../../styles/type.js';
 
 // Every visual value is a token (tokens/comp/navigation-drawer.tokens.json). The drawer paints its panel per variant
 // (standard or modal: the color, elevation, end corners and end edge) and lays out its header, sections, groups and
@@ -64,7 +65,7 @@ const DENSITY_MEMBERS: readonly (readonly [string, string])[] = [
   ['--_nvd-icon', 'item-icon-size-*'],
   ['--_nvd-ind-w', 'item-icon-indicator-width-*'],
   ['--_nvd-ind-h', 'item-icon-indicator-height-*'],
-  ['--_nvd-label-font', 'item-label-typescale-*-font'],
+  ...TYPE_LONGHANDS.map((longhand) => [`--_nvd-label-${longhand}`, `item-label-typescale-*-${longhand}`] as const),
   ['--_nvd-label-tracking', 'item-label-typescale-*-letter-spacing'],
   ['--_nvd-trailing-icon', 'item-trailing-icon-size-*'],
   ['--_nvd-column', 'collapsed-container-width-*'],
@@ -316,7 +317,7 @@ export const drawerStyles = css`
     min-inline-size: 0;
     /* NVD-38: the header slot's text style and color, inherited by what it holds: plain text is drawn in them, and an
        element of the product's that sets its own keeps it. */
-    font: ${t('header-typescale-font')};
+    ${typefaceOf(t, 'header-typescale')}
     letter-spacing: ${t('header-typescale-letter-spacing')};
     color: ${t('header-color')};
     /* --_lead: where the first header button ends, from the drawer's start (measured: the button is the product's). */
@@ -426,7 +427,7 @@ export const drawerStyles = css`
      filter.shortcut.typescale and filter.shortcut.color, with no cap, fill or edge — only while the field is empty and
      does not have focus. A press on it is a press on the field. */
   .filter-hint {
-    font: ${t('filter-shortcut-typescale-font')};
+    ${typefaceOf(t, 'filter-shortcut-typescale')}
     letter-spacing: ${t('filter-shortcut-typescale-letter-spacing')};
     color: ${t('filter-shortcut-color')};
     pointer-events: none;
@@ -441,7 +442,7 @@ export const drawerStyles = css`
     flex: none;
     inline-size: var(--_nvd-w, ${t('container-width')});
     padding-inline: calc(${t('container-padding-inline')} + ${d('--_nvd-pad')});
-    font: ${t('filter-status-typescale-font')};
+    ${typefaceOf(t, 'filter-status-typescale')}
     letter-spacing: ${t('filter-status-typescale-letter-spacing')};
     color: ${t('filter-status-color')};
     overflow-wrap: anywhere;
@@ -935,7 +936,7 @@ export const sectionStyles = css`
     flex: none;
     inline-size: var(--_nvd-w, ${t('container-width')});
     padding-inline: calc(${t('container-padding-inline')} + ${d('--_nvd-pad')});
-    font: ${t('heading-typescale-font')};
+    ${typefaceOf(t, 'heading-typescale')}
     letter-spacing: ${t('heading-typescale-letter-spacing')};
     color: ${t('heading-color')};
     opacity: 1;
@@ -1325,14 +1326,14 @@ export const cellStyles = css`
   }
   .label {
     flex: 0 1 auto;
-    font: ${d('--_nvd-label-font')};
+    ${typefaceOf(d, '--_nvd-label')}
     letter-spacing: ${d('--_nvd-label-tracking')};
     color: var(--_l);
     transition: color var(--_recolor-duration) var(--_recolor-easing);
   }
   .supporting {
     flex: 0 4 auto;
-    font: ${t('item-supporting-text-typescale-font')};
+    ${typefaceOf(t, 'item-supporting-text-typescale')}
     letter-spacing: ${t('item-supporting-text-typescale-letter-spacing')};
     color: var(--_s);
     transition: color var(--_recolor-duration) var(--_recolor-easing);
@@ -1361,7 +1362,7 @@ export const cellStyles = css`
     display: none;
   }
   .trailing-text {
-    font: ${t('item-trailing-text-typescale-font')};
+    ${typefaceOf(t, 'item-trailing-text-typescale')}
     letter-spacing: ${t('item-trailing-text-typescale-letter-spacing')};
     color: var(--_tt);
     white-space: nowrap;
@@ -1439,7 +1440,7 @@ export const cellStyles = css`
     overflow: hidden;
     text-align: center;
     white-space: nowrap;
-    font: ${t('collapsed-item-label-typescale-font')};
+    ${typefaceOf(t, 'collapsed-item-label-typescale')}
     letter-spacing: ${t('collapsed-item-label-typescale-letter-spacing')};
     color: var(--_l);
     opacity: 0;
@@ -1651,7 +1652,7 @@ export const groupStyles = css`
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
-    font: ${t('item-supporting-text-typescale-font')};
+    ${typefaceOf(t, 'item-supporting-text-typescale')}
     letter-spacing: ${t('item-supporting-text-typescale-letter-spacing')};
     color: ${t('unselected-item-supporting-text-color')};
   }

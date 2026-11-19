@@ -5,7 +5,7 @@
 // src/primitives/delegated-aria.test.ts.
 import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
-import { type Fixture, acmeSystemCss, loadSpec, mountFixtures, resolveColor, resolveToken, tab, tabTo, rootTokens } from '../../../test/harness.js';
+import { type Fixture, acmeSystemCss, loadSpec, mountFixtures, resolveColor, resolveToken, tab, tabTo, rootTokens, typeRole } from '../../../test/harness.js';
 import { pressHoldAsRun } from '../../../test/harsh.js';
 import { BEHIND, INSIDE, RATIOS, atRatio, depth, endMotion, holdMotionAt, offLine, paintedBehind, shoot, stageBehind, worst } from '../../../test/one-shape.js';
 import { transitionsRun, watchTransitions } from '../../../test/transitions.js';
@@ -1133,7 +1133,7 @@ test.describe('accessibility', () => {
     });
     expect(lines).toBeGreaterThan(1);
     // The control is centered on the label's first line, also when the line is taller than the control.
-    await override(page, { [T('label-typescale-font')]: '400 40px/1.5 Inter' });
+    await override(page, typeRole(T('label-typescale'), '400 40px/1.5 Inter'));
     const first = await labelOf(page, 'long').evaluate((el) => {
       const range = document.createRange();
       range.selectNodeContents(el);
@@ -1142,7 +1142,7 @@ test.describe('accessibility', () => {
     });
     const tall = await bounds(container(page, 'long'));
     expect(Math.abs(tall.y + tall.height / 2 - first)).toBeLessThanOrEqual(1);
-    await override(page, { [T('label-typescale-font')]: '' });
+    await override(page, typeRole(T('label-typescale'), ''));
     await page.evaluate(() => document.documentElement.setAttribute('dir', 'rtl'));
     const [rc, rl] = [await bounds(container(page, 'long')), await bounds(labelOf(page, 'long'))];
     expect(rc.x - (rl.x + rl.width)).toBeCloseTo(gap, 5);

@@ -2,6 +2,7 @@ import { css, unsafeCSS } from 'lit';
 import { cornerRadius, destinationStyles, iconGlyph, shape } from '../../primitives/index.js';
 import { productText } from '../../styles/product-text.js';
 import { reducedMotion } from '../../styles/motion.js';
+import { typefaceOf } from '../../styles/type.js';
 
 // Every visual value is a token (tokens/comp/navigation-bar.tokens.json). The bar paints its container, its top edge,
 // the layout of its cells and the active indicator while it moves; each destination paints its item container (its
@@ -260,7 +261,7 @@ const boxStyles = css`
     text-align: center;
     white-space: nowrap;
     text-overflow: ellipsis;
-    font: ${t('item-label-typescale-font')};
+    ${typefaceOf(t, 'item-label-typescale')}
     letter-spacing: ${t('item-label-typescale-letter-spacing')};
     color: var(--_cl);
     transition: color ${recolor};

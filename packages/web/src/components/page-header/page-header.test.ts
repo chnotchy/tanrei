@@ -1024,7 +1024,7 @@ test.describe('text size, forced colors, direction, unknown values', () => {
     await expect(stage(page, 'level').getByRole('heading', { level: 2, name: 'Danger zone' })).toHaveCount(1);
     expect(seen.filter((m) => m.includes('PGH-23') && m.includes('level "9"')).length).toBeGreaterThanOrEqual(1);
     // A design system adds a size: its tokens draw it, and what it does not set is the default's.
-    await override(page, { [T('title-typescale-compact-font')]: '700 20px/28px sans-serif', [T('title-typescale-compact-font-size')]: '20px', [T('title-typescale-compact-line-height')]: '1.4', [T('container-padding-block-end-compact')]: '4px' });
+    await override(page, { [T('title-typescale-compact-font-size')]: '20px', [T('title-typescale-compact-line-height')]: '1.4', [T('container-padding-block-end-compact')]: '4px' });
     const count = seen.length;
     await unknown.evaluate((el) => ((el as unknown as { size: string }).size = 'compact'));
     await expect.poll(() => px(title(page, 'unknown'), 'font-size')).toBe(20);

@@ -65,10 +65,16 @@
   /* ── The block (PGH-1, PGH-14): as wide as its place, as tall as its parts, no fill, edge, shape or outer space ── */
   :where(tanrei-page-header) {
     /* PGH-2, PGH-7: the size's text styles and spaces (PGH-23: any other size is the default's). */
-    --_pgh-title-font: var(--tanrei-comp-page-header-title-typescale-medium-font);
+    --_pgh-title-font-family: var(--tanrei-comp-page-header-title-typescale-medium-font-family);
+    --_pgh-title-font-size: var(--tanrei-comp-page-header-title-typescale-medium-font-size);
+    --_pgh-title-font-weight: var(--tanrei-comp-page-header-title-typescale-medium-font-weight);
+    --_pgh-title-line-height: var(--tanrei-comp-page-header-title-typescale-medium-line-height);
     --_pgh-title-tracking: var(--tanrei-comp-page-header-title-typescale-medium-letter-spacing);
     --_pgh-title-line: calc(var(--tanrei-comp-page-header-title-typescale-medium-font-size) * var(--tanrei-comp-page-header-title-typescale-medium-line-height));
-    --_pgh-description-font: var(--tanrei-comp-page-header-description-typescale-medium-font);
+    --_pgh-description-font-family: var(--tanrei-comp-page-header-description-typescale-medium-font-family);
+    --_pgh-description-font-size: var(--tanrei-comp-page-header-description-typescale-medium-font-size);
+    --_pgh-description-font-weight: var(--tanrei-comp-page-header-description-typescale-medium-font-weight);
+    --_pgh-description-line-height: var(--tanrei-comp-page-header-description-typescale-medium-line-height);
     --_pgh-description-tracking: var(--tanrei-comp-page-header-description-typescale-medium-letter-spacing);
     --_pgh-description-gap: var(--tanrei-comp-page-header-description-gap-medium);
     --_pgh-end: var(--tanrei-comp-page-header-container-padding-block-end-medium);
@@ -102,10 +108,16 @@
     --_pgh-start: right;
   }
   :where(tanrei-page-header[size='small']) {
-    --_pgh-title-font: var(--tanrei-comp-page-header-title-typescale-small-font);
+    --_pgh-title-font-family: var(--tanrei-comp-page-header-title-typescale-small-font-family);
+    --_pgh-title-font-size: var(--tanrei-comp-page-header-title-typescale-small-font-size);
+    --_pgh-title-font-weight: var(--tanrei-comp-page-header-title-typescale-small-font-weight);
+    --_pgh-title-line-height: var(--tanrei-comp-page-header-title-typescale-small-line-height);
     --_pgh-title-tracking: var(--tanrei-comp-page-header-title-typescale-small-letter-spacing);
     --_pgh-title-line: calc(var(--tanrei-comp-page-header-title-typescale-small-font-size) * var(--tanrei-comp-page-header-title-typescale-small-line-height));
-    --_pgh-description-font: var(--tanrei-comp-page-header-description-typescale-small-font);
+    --_pgh-description-font-family: var(--tanrei-comp-page-header-description-typescale-small-font-family);
+    --_pgh-description-font-size: var(--tanrei-comp-page-header-description-typescale-small-font-size);
+    --_pgh-description-font-weight: var(--tanrei-comp-page-header-description-typescale-small-font-weight);
+    --_pgh-description-line-height: var(--tanrei-comp-page-header-description-typescale-small-line-height);
     --_pgh-description-tracking: var(--tanrei-comp-page-header-description-typescale-small-letter-spacing);
     --_pgh-description-gap: var(--tanrei-comp-page-header-description-gap-small);
     --_pgh-end: var(--tanrei-comp-page-header-container-padding-block-end-small);
@@ -113,7 +125,10 @@
   /* PGH-12: a large head is everything a large head is, with the medium title and the medium space under it — until
      it is wide (below). */
   :where(tanrei-page-header[size='large']) {
-    --_pgh-description-font: var(--tanrei-comp-page-header-description-typescale-large-font);
+    --_pgh-description-font-family: var(--tanrei-comp-page-header-description-typescale-large-font-family);
+    --_pgh-description-font-size: var(--tanrei-comp-page-header-description-typescale-large-font-size);
+    --_pgh-description-font-weight: var(--tanrei-comp-page-header-description-typescale-large-font-weight);
+    --_pgh-description-line-height: var(--tanrei-comp-page-header-description-typescale-large-line-height);
     --_pgh-description-tracking: var(--tanrei-comp-page-header-description-typescale-large-letter-spacing);
     --_pgh-end: var(--tanrei-comp-page-header-container-padding-block-end-large);
   }
@@ -134,7 +149,9 @@
     min-inline-size: 0;
     margin: 0;
     margin-block-end: var(--tanrei-comp-page-header-eyebrow-gap);
-    font: var(--tanrei-comp-page-header-eyebrow-typescale-font);
+    font:
+      var(--tanrei-comp-page-header-eyebrow-typescale-font-weight) var(--tanrei-comp-page-header-eyebrow-typescale-font-size)/var(--tanrei-comp-page-header-eyebrow-typescale-line-height)
+      var(--tanrei-comp-page-header-eyebrow-typescale-font-family);
     letter-spacing: var(--tanrei-comp-page-header-eyebrow-typescale-letter-spacing);
     color: var(--tanrei-comp-page-header-eyebrow-color);
     text-transform: uppercase;
@@ -150,7 +167,9 @@
     grid-area: title / text-start / description / text-end;
     min-inline-size: 0;
     margin: 0;
-    font: var(--_pgh-title-font);
+    font:
+      var(--_pgh-title-font-weight) var(--_pgh-title-font-size)/var(--_pgh-title-line-height)
+      var(--_pgh-title-font-family);
     letter-spacing: var(--_pgh-title-tracking);
     color: var(--tanrei-comp-page-header-title-color);
     /* PGH-3: lines of balanced length, a string with no break opportunity broken anywhere, never hyphenated unasked. */
@@ -177,7 +196,9 @@
     max-inline-size: calc(var(--tanrei-comp-page-header-description-measure) * 1em);
     margin: 0;
     margin-block-start: var(--_pgh-description-gap);
-    font: var(--_pgh-description-font);
+    font:
+      var(--_pgh-description-font-weight) var(--_pgh-description-font-size)/var(--_pgh-description-line-height)
+      var(--_pgh-description-font-family);
     letter-spacing: var(--_pgh-description-tracking);
     color: var(--tanrei-comp-page-header-description-color);
     overflow-wrap: break-word;
@@ -202,7 +223,9 @@
     margin-block-start: var(--tanrei-comp-page-header-meta-gap);
     padding: 0;
     list-style: none;
-    font: var(--tanrei-comp-page-header-meta-typescale-font);
+    font:
+      var(--tanrei-comp-page-header-meta-typescale-font-weight) var(--tanrei-comp-page-header-meta-typescale-font-size)/var(--tanrei-comp-page-header-meta-typescale-line-height)
+      var(--tanrei-comp-page-header-meta-typescale-font-family);
     letter-spacing: var(--tanrei-comp-page-header-meta-typescale-letter-spacing);
     color: var(--tanrei-comp-page-header-meta-color);
     /* PGH-9: the dot of an item that begins a row stands before the row's start, and is not seen: the row is cut
@@ -284,7 +307,10 @@
     }
     /* PGH-12: a large head draws the large title, and the large space under it. */
     :where(tanrei-page-header[size='large']) > :where(h1, h2, h3, h4, h5, h6, [data-part='title']) {
-      --_pgh-title-font: var(--tanrei-comp-page-header-title-typescale-large-font);
+      --_pgh-title-font-family: var(--tanrei-comp-page-header-title-typescale-large-font-family);
+      --_pgh-title-font-size: var(--tanrei-comp-page-header-title-typescale-large-font-size);
+      --_pgh-title-font-weight: var(--tanrei-comp-page-header-title-typescale-large-font-weight);
+      --_pgh-title-line-height: var(--tanrei-comp-page-header-title-typescale-large-line-height);
       --_pgh-title-tracking: var(--tanrei-comp-page-header-title-typescale-large-letter-spacing);
     }
     :where(tanrei-page-header[size='large']) > :where(p:not([data-part], p:not([data-part]) ~ p), [data-part='description']) {

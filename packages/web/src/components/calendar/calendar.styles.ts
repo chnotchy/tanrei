@@ -2,6 +2,7 @@ import { css, unsafeCSS } from 'lit';
 import { TARGET_CAPS, conditionBlock, conditionStates, focusRing, iconGlyph, neighbourTarget, pressHold, rippleStyles, rowTargets } from '../../primitives/index.js';
 import { cornerRadius, shape } from '../../styles/shape.js';
 import { reducedMotion } from '../../styles/motion.js';
+import { typefaceOf } from '../../styles/type.js';
 
 // Every visual value is a token (tokens/comp/calendar.tokens.json). A day's or a year's five conditions — unselected,
 // adjacent, today, selected and in-range — are the state variants: each colors the container, the label
@@ -118,7 +119,7 @@ export const styles = css`
     place-items: center;
     min-inline-size: 0;
     min-block-size: var(--_cell);
-    font: ${t('weekday-typescale-font')};
+    ${typefaceOf(t, 'weekday-typescale')}
     letter-spacing: ${t('weekday-typescale-letter-spacing')};
     color: ${t('weekday-color')};
     text-align: center;
@@ -273,14 +274,14 @@ export const styles = css`
   .day .box {
     min-inline-size: min(${t('day-container-size')}, 100%);
     min-block-size: ${t('day-container-size')};
-    font: ${t('day-label-typescale-font')};
+    ${typefaceOf(t, 'day-label-typescale')}
     letter-spacing: ${t('day-label-typescale-letter-spacing')};
     ${unsafeCSS(cornerRadius(`${PREFIX}-day-container-shape`))}
   }
   .year .box {
     min-inline-size: min(${t('year-container-width')}, 100%);
     min-block-size: ${t('year-container-height')};
-    font: ${t('year-label-typescale-font')};
+    ${typefaceOf(t, 'year-label-typescale')}
     letter-spacing: ${t('year-label-typescale-letter-spacing')};
     ${unsafeCSS(cornerRadius(`${PREFIX}-year-container-shape`))}
   }
@@ -324,7 +325,7 @@ export const styles = css`
     gap: ${t('view-toggle-gap')};
     min-block-size: ${t('view-toggle-container-height')};
     padding-inline: ${t('view-toggle-container-padding-inline')};
-    font: ${t('view-toggle-label-typescale-font')};
+    ${typefaceOf(t, 'view-toggle-label-typescale')}
     letter-spacing: ${t('view-toggle-label-typescale-letter-spacing')};
     white-space: normal;
     ${unsafeCSS(cornerRadius(`${PREFIX}-view-toggle-container-shape`))}

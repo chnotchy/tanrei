@@ -3,6 +3,7 @@ import { heldFocusGlow } from '../../primitives/focus-ring.js';
 import { TARGET_CAPS, rowTargets } from '../../primitives/target.js';
 import { heldRadius, heldShape } from '../../styles/shape.js';
 import { reducedMotion } from '../../styles/motion.js';
+import { typefaceOf } from '../../styles/type.js';
 
 // What the chat composer draws itself and how it arranges what it holds (tokens/comp/chat-composer.tokens.json): the
 // capsule — its fill, its lift, its edge and its corners, in two conditions and four states, and while files are
@@ -290,7 +291,7 @@ export const styles = css`
   /* ── The counter (CCM-19) ── on one line, as text of its own direction, in digits of equal width. */
   .counter {
     flex: none;
-    font: ${t('counter-typescale-font')};
+    ${typefaceOf(t, 'counter-typescale')}
     letter-spacing: ${t('counter-typescale-letter-spacing')};
     font-variant-numeric: tabular-nums;
     color: ${t('counter-color')};

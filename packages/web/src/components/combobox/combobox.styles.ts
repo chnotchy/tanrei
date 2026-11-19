@@ -5,6 +5,7 @@ import { optionListStyles, optionVariantRules } from '../../primitives/option-li
 import { productText } from '../../styles/product-text.js';
 import { cornerRadius, shape } from '../../styles/shape.js';
 import { reducedMotion } from '../../styles/motion.js';
+import { typefaceFrom } from '../../styles/type.js';
 
 // Every visual value is a token. The combobox is two things: the box reads the one set of tokens every input box is
 // drawn from (tokens/comp/input-box.tokens.json; CMB-63), the list the combobox's own (tokens/comp/combobox.tokens.json).
@@ -193,7 +194,7 @@ export const styles = css`
     align-items: center;
     min-inline-size: 0;
     padding-block: var(--_pad-block);
-    font: var(--_input-font);
+    ${typefaceFrom('--_input')}
     letter-spacing: var(--_input-letter-spacing);
     line-height: var(--_input-line-height);
   }
@@ -486,7 +487,7 @@ export const styles = css`
     display: flex;
     flex: none;
     align-items: center;
-    font: var(${P}-status-typescale-font);
+    ${typefaceFrom(`${P}-status-typescale`)}
     letter-spacing: var(${P}-status-typescale-letter-spacing);
     color: var(${P}-status-color);
   }

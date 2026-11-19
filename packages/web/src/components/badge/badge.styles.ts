@@ -1,5 +1,6 @@
 import { css, unsafeCSS } from 'lit';
 import { cornerRadius, shape } from '../../styles/shape.js';
+import { typefaceFrom } from '../../styles/type.js';
 
 // Every visual value is a token (tokens/comp/badge.tokens.json). The host wraps the anchor and is exactly its size (an
 // inline flex box around one item); the badge itself is absolutely positioned on the anchor's top-end corner, so it
@@ -77,7 +78,7 @@ export const styles = css`
 
   .label {
     color: var(--tanrei-comp-badge-label-color);
-    font: var(--tanrei-comp-badge-label-typescale-font);
+    ${typefaceFrom('--tanrei-comp-badge-label-typescale')}
     letter-spacing: var(--tanrei-comp-badge-label-typescale-letter-spacing);
     /* BDG-12: digits of equal width, where the font has them, so a changing count does not shift its neighbours. */
     font-variant-numeric: tabular-nums;

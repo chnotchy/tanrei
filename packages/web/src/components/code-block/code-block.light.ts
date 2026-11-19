@@ -1,3 +1,4 @@
+import { typefaceFrom } from '../../styles/type.js';
 // The code block's rules for what is in the DOCUMENT (specs/code-block.spec.json): the product's own
 // `<pre><code>` stays in the light DOM (it is in the page before any script runs), so the lines, the gutter, the prompt,
 // the marks and the runs are styled from outside a shadow root. One source, written three times:
@@ -32,7 +33,10 @@ export const DEFAULT_SIZE = 'medium';
  * named apart, because a syntax role adds its emphasis to it (COD-18).
  */
 export const sizeBlock = (size: string, selector: string, fallback: string | null = null) => `${selector} {
-  --_code-block-font: ${ref((v) => `${PREFIX}-code-typescale-${v}-font`, size, fallback)};
+  --_code-block-font-family: ${ref((v) => `${PREFIX}-code-typescale-${v}-font-family`, size, fallback)};
+  --_code-block-font-size: ${ref((v) => `${PREFIX}-code-typescale-${v}-font-size`, size, fallback)};
+  --_code-block-font-weight: ${ref((v) => `${PREFIX}-code-typescale-${v}-font-weight`, size, fallback)};
+  --_code-block-line-height: ${ref((v) => `${PREFIX}-code-typescale-${v}-line-height`, size, fallback)};
   --_code-block-tracking: ${ref((v) => `${PREFIX}-code-typescale-${v}-letter-spacing`, size, fallback)};
   --_code-block-weight: ${ref((v) => `${PREFIX}-code-typescale-${v}-font-weight`, size, fallback)};
   --_code-block-pad-block: ${ref((v) => `${PREFIX}-container-padding-block-${v}`, size, fallback)};
@@ -63,7 +67,7 @@ export const layoutBlock = (selector: string) => `${selector} {
 
 /** The code's own text (COD-2): the face, the color, the tab stops, every character as given, left to right (COD-20). */
 const CODE_TEXT = `
-  font: var(--_code-block-font);
+  ${typefaceFrom('--_code-block')}
   letter-spacing: var(--_code-block-tracking);
   color: ${T('code-color')};
   tab-size: ${T('code-tab-size')};
@@ -309,7 +313,10 @@ border-radius: ${T('container-shape')};
 padding-block: ${T(`container-padding-block-${DEFAULT_SIZE}`)};
 padding-inline: ${T(`container-padding-inline-${DEFAULT_SIZE}`)};
 background: ${T(`${DEFAULT_VARIANT}-container-color`)};
---_code-block-font: ${T(`code-typescale-${DEFAULT_SIZE}-font`)};
+--_code-block-font-family: ${T(`code-typescale-${DEFAULT_SIZE}-font-family`)};
+--_code-block-font-size: ${T(`code-typescale-${DEFAULT_SIZE}-font-size`)};
+--_code-block-font-weight: ${T(`code-typescale-${DEFAULT_SIZE}-font-weight`)};
+--_code-block-line-height: ${T(`code-typescale-${DEFAULT_SIZE}-line-height`)};
 --_code-block-tracking: ${T(`code-typescale-${DEFAULT_SIZE}-letter-spacing`)};${CODE_TEXT}`
   .trim()
   .replace(/^ +/gm, '');

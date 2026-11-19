@@ -3,6 +3,7 @@ import { type OpenAxis, dividerVisibilityHost, whenScroll } from '../../primitiv
 import { productText } from '../../styles/product-text.js';
 import { scriptTracking } from '../../styles/script-tracking.js';
 import { reducedMotion } from '../../styles/motion.js';
+import { TYPE_LONGHANDS, typefaceFrom, typefaceOf } from '../../styles/type.js';
 
 // Every visual value is a token (tokens/comp/app-bar.tokens.json). The bar has no interaction states: its navigation and
 // action items are the product's icon buttons, which paint themselves from their own tokens (APB-11). What the bar paints
@@ -22,13 +23,13 @@ const ref = (name: (key: string) => string, key: string, fallback: string | null
 /** The members of the size axis (`dev.tanrei.axes.size.members`), as private custom properties. */
 const SIZE_MEMBERS = {
   h: (v: string) => `${PREFIX}-container-height-${v}`,
-  'title-font': (v: string) => `${PREFIX}-title-typescale-${v}-font`,
+  ...Object.fromEntries(TYPE_LONGHANDS.map((longhand) => [`title-${longhand}`, (v: string) => `${PREFIX}-title-typescale-${v}-${longhand}`])),
   'title-ls': (v: string) => `${PREFIX}-title-typescale-${v}-letter-spacing`,
-  'subtitle-font': (v: string) => `${PREFIX}-subtitle-typescale-${v}-font`,
+  ...Object.fromEntries(TYPE_LONGHANDS.map((longhand) => [`subtitle-${longhand}`, (v: string) => `${PREFIX}-subtitle-typescale-${v}-${longhand}`])),
   'subtitle-ls': (v: string) => `${PREFIX}-subtitle-typescale-${v}-letter-spacing`,
 } as const;
 
-/** One size's members under `selector`: `--_h` is its height, `--_title-font` its title's text role, and so on. */
+/** One size's members under `selector`: `--_h` is its height, `--_title-font-size` one of its title's text role's longhands, and so on. */
 const sizeBlock = (size: string, selector: string, fallback: string | null = null) =>
   `${selector} {\n${Object.entries(SIZE_MEMBERS)
     .map(([key, name]) => `  --_${key}: ${ref(name, size, fallback)};`)
@@ -276,11 +277,11 @@ export const styles = css`
     white-space: nowrap;
   }
   .probe-title {
-    font: ${t('title-typescale-small-font')};
+    ${typefaceOf(t, 'title-typescale-small')}
     letter-spacing: ${t('title-typescale-small-letter-spacing')};
   }
   .probe-subtitle {
-    font: ${t('subtitle-typescale-small-font')};
+    ${typefaceOf(t, 'subtitle-typescale-small')}
     letter-spacing: ${t('subtitle-typescale-small-letter-spacing')};
   }
   /* APB-29: the overflow menu's host stands out of the row; its surface is in the top layer. */
@@ -326,14 +327,14 @@ export const styles = css`
   }
   .title {
     margin: 0;
-    font: ${t('title-typescale-small-font')};
+    ${typefaceOf(t, 'title-typescale-small')}
     letter-spacing: ${t('title-typescale-small-letter-spacing')};
     color: ${t('title-color')};${unsafeCSS(oneLine)}
   }
   /* APB-5: the title's letter-spacing follows its script (src/styles/script-tracking.ts). */
   ${unsafeCSS(scriptTracking('.title', String(t('title-typescale-small-letter-spacing')), { shadow: true }))}
   .subtitle {
-    font: ${t('subtitle-typescale-small-font')};
+    ${typefaceOf(t, 'subtitle-typescale-small')}
     letter-spacing: ${t('subtitle-typescale-small-letter-spacing')};
     color: ${t('subtitle-color')};${unsafeCSS(oneLine)}
   }
@@ -367,13 +368,13 @@ export const styles = css`
     padding-block-end: ${t('container-padding-block-end')};
   }
   .block .title {
-    font: var(--_title-font);
+    ${typefaceFrom('--_title')}
     letter-spacing: var(--_title-ls);
   }
   /* APB-7: a large bar's title's too. */
   ${unsafeCSS(scriptTracking('.block .title', 'var(--_title-ls)', { shadow: true }))}
   .block .subtitle {
-    font: var(--_subtitle-font);
+    ${typefaceFrom('--_subtitle')}
     letter-spacing: var(--_subtitle-ls);
   }
 

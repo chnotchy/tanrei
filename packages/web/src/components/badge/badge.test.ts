@@ -2,7 +2,7 @@
 // has a baseline, and every length and color is read back from the tokens — never from a number written here.
 import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
-import { type Fixture, loadSpec, mountFixtures, resolveColor, resolveToken, tabTo, rootTokens } from '../../../test/harness.js';
+import { type Fixture, loadSpec, mountFixtures, resolveColor, resolveToken, tabTo, rootTokens, typeRole } from '../../../test/harness.js';
 import { expectBaseline } from '../../../test/baseline.js';
 import { motionCount } from '../../../test/motions.js';
 
@@ -282,7 +282,7 @@ test.describe('behavior', () => {
     expect(pill.y + pill.height / 2).toBeCloseTo(a.y + offset, 5);
     // A label that grows without the root size (a larger text style): the pill outgrows container.height, and the
     // leading circle — a square of the grown height — keeps its center on the corner point.
-    await override(page, { [T('label-typescale-font')]: '500 2rem/1.5 Inter' });
+    await override(page, typeRole(T('label-typescale'), '500 2rem/1.5 Inter'));
     await expect.poll(async () => (await box(container(page, 'count-double'))).height).toBeGreaterThan(height);
     await expect.poll(async () => { const [p, q] = [await box(container(page, 'count-double')), await box(anchor(page, 'count-double'))]; return p.x + p.height / 2 - (q.x + q.width - offset); }).toBeCloseTo(0, 3);
     const [grown, a2] = [await box(container(page, 'count-double')), await box(anchor(page, 'count-double'))];

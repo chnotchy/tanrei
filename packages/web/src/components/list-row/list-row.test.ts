@@ -2,7 +2,7 @@
 // fixture has a baseline, and every length and color is read back from the tokens — never from a number written here.
 import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
-import { type Fixture, loadSpec, mountFixtureAsInAll, mountFixtures, resolveColor, resolveToken, rootTokens, setWords, tabTo, withoutIconFont } from '../../../test/harness.js';
+import { type Fixture, loadSpec, mountFixtureAsInAll, mountFixtures, resolveColor, resolveToken, rootTokens, setWords, tabTo, typeRole, withoutIconFont } from '../../../test/harness.js';
 import { expectBaseline } from '../../../test/baseline.js';
 import { mirroring, mirroringAfterDirection } from '../../../test/mirror-word.js';
 import { motionCount } from '../../../test/motions.js';
@@ -433,10 +433,10 @@ test.describe('behavior', () => {
     await mount(page, [byId('all-parts')]);
     const before = (await box(row(page, 'all-parts'))).height;
     // Every text of the row at twice its size, the way a reader's enlarged text reaches it.
-    const fonts: Record<string, string> = {};
+    let fonts: Record<string, string> = {};
     for (const name of ['headline', 'overline', 'supporting-text', 'trailing-text']) {
       const size = await token(page, T(`${name}-typescale-font-size`));
-      fonts[T(`${name}-typescale-font`)] = `400 ${size * 2}px/1.5 sans-serif`;
+      fonts = { ...fonts, ...typeRole(T(`${name}-typescale`), `400 ${size * 2}px/1.5 sans-serif`) };
     }
     await rootTokens(page, fonts);
     await page.evaluate(() => {

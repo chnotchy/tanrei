@@ -4,6 +4,7 @@ import { debugBuild } from '../../primitives/report.js';
 import type { TanreiPageHeaderSizeRegistry } from '../../registry.js';
 import { adopt, adoptUnlessDrawn } from '../../primitives/sheets.js';
 import { TanreiLightElement } from '../../primitives/element.js';
+import { TYPE_LONGHANDS } from '../../styles/type.js';
 
 /** The core sizes (small, medium, large), plus any a design system's generated `.d.ts` registers. */
 export type TanreiPageHeaderSize = keyof TanreiPageHeaderSizeRegistry;
@@ -62,7 +63,7 @@ function sheet(id: string, text: () => string): CSSStyleSheet | null {
  */
 const sizeRules = (size: string) => {
   const token = (name: string) => `var(${PREFIX}-${name.replace('*', size)}, var(${PREFIX}-${name.replace('*', DEFAULT_SIZE)}))`;
-  return `:where(${TAG}[size='${size}']) { --_pgh-title-font: ${token('title-typescale-*-font')}; --_pgh-title-tracking: ${token('title-typescale-*-letter-spacing')}; --_pgh-title-line: calc(${token('title-typescale-*-font-size')} * ${token('title-typescale-*-line-height')}); --_pgh-description-font: ${token('description-typescale-*-font')}; --_pgh-description-tracking: ${token('description-typescale-*-letter-spacing')}; --_pgh-description-gap: ${token('description-gap-*')}; --_pgh-end: ${token('container-padding-block-end-*')}; }`;
+  return `:where(${TAG}[size='${size}']) { ${TYPE_LONGHANDS.map((longhand) => `--_pgh-title-${longhand}: ${token(`title-typescale-*-${longhand}`)};`).join(' ')} --_pgh-title-tracking: ${token('title-typescale-*-letter-spacing')}; --_pgh-title-line: calc(${token('title-typescale-*-font-size')} * ${token('title-typescale-*-line-height')}); ${TYPE_LONGHANDS.map((longhand) => `--_pgh-description-${longhand}: ${token(`description-typescale-*-${longhand}`)};`).join(' ')} --_pgh-description-tracking: ${token('description-typescale-*-letter-spacing')}; --_pgh-description-gap: ${token('description-gap-*')}; --_pgh-end: ${token('container-padding-block-end-*')}; }`;
 };
 
 /**
@@ -170,7 +171,7 @@ export class TanreiPageHeader extends TanreiLightElement {
 
   override connectedCallback() {
     super.connectedCallback();
-    adoptUnlessDrawn(this, sheet('head', () => HEADER_CSS), '--_pgh-title-font');
+    adoptUnlessDrawn(this, sheet('head', () => HEADER_CSS), '--_pgh-title-font-size');
     this.mutations?.observe(this, { childList: true });
     if (this.hasUpdated) this.read();
   }
@@ -213,7 +214,7 @@ export class TanreiPageHeader extends TanreiLightElement {
     if (CORE_SIZES.includes(size)) return;
     const known = KEY.test(size);
     if (known) adopt(this.getRootNode() as Root, writtenSheet(`size:${size}`, () => sizeRules(size)));
-    if (!known || getComputedStyle(this).getPropertyValue(`${PREFIX}-title-typescale-${size}-font`).trim() === '') {
+    if (!known || getComputedStyle(this).getPropertyValue(`${PREFIX}-title-typescale-${size}-font-size`).trim() === '') {
       report(this, 'PGH-23', `size "${size}" is not a value of the active design system; it is drawn as "${DEFAULT_SIZE}"`);
     }
   }

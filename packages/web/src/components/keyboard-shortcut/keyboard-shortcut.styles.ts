@@ -1,6 +1,7 @@
 import { css, unsafeCSS } from 'lit';
 import type { OpenAxis } from '../../primitives/index.js';
 import { cornerRadius, shape } from '../../styles/shape.js';
+import { TYPE_LONGHANDS } from '../../styles/type.js';
 
 // Every visual value is a token (tokens/comp/keyboard-shortcut.tokens.json). The shortcut is not a control: it has one
 // state besides rest, disabled, which fades the legends of its variant and keeps the caps at rest (KBS-9).
@@ -30,7 +31,7 @@ const sizeBlock = (size: string, selector: string, fallback: string | null = nul
   `${selector} {\n${Object.entries(SIZE_MEMBERS)
     .flatMap(([key, member]) => {
       if (member === 'label-typescale') {
-        return [`  --_font: ${ref((v) => `${PREFIX}-${member}-${v}-font`, size, fallback)};`, `  --_tracking: ${ref((v) => `${PREFIX}-${member}-${v}-letter-spacing`, size, fallback)};`];
+        return [...TYPE_LONGHANDS.map((longhand) => `  --_${longhand}: ${ref((v) => `${PREFIX}-${member}-${v}-${longhand}`, size, fallback)};`), `  --_tracking: ${ref((v) => `${PREFIX}-${member}-${v}-letter-spacing`, size, fallback)};`];
       }
       const line = `  --_${key}: ${ref((v) => `${PREFIX}-${member}-${v}`, size, fallback)};`;
       return member === 'container-shape' ? [line, `  --_${key}-pill: ${ref((v) => `${PREFIX}-${member}-${v}-pill`, size, fallback)};`] : [line];
@@ -130,7 +131,7 @@ export const styles = css`
   /* KBS-6, KBS-7: the legends and the separators in the size's text role and the variant's legend color. */
   .label,
   .separator {
-    font: var(--_font);
+    font: var(--_font-weight) var(--_font-size)/var(--_line-height) var(--_font-family);
     letter-spacing: var(--_tracking);
     color: var(--_legend);
     white-space: nowrap;

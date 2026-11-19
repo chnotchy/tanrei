@@ -3,6 +3,7 @@ import { type OpenAxis, conditionBlock, directionProbeStyles, focusRing, minimum
 import { productText } from '../../styles/product-text.js';
 import { cornerRadius, shape } from '../../styles/shape.js';
 import { reducedMotion } from '../../styles/motion.js';
+import { typefaceOf } from '../../styles/type.js';
 
 /** The sizes every design system has; a layer may add more. */
 export const CORE_SIZES = ['small', 'medium', 'large'] as const;
@@ -454,7 +455,7 @@ export const styles = css`
     ${unsafeCSS(cornerRadius(`${PREFIX}-value-indicator-container-shape`))}
     background: ${unsafeCSS(T('value-indicator-container-color'))};
     color: ${unsafeCSS(T('value-indicator-label-color'))};
-    font: ${unsafeCSS(T('value-indicator-label-typescale-font'))};
+    ${typefaceOf(T, 'value-indicator-label-typescale')}
     letter-spacing: ${unsafeCSS(T('value-indicator-label-typescale-letter-spacing'))};
     white-space: nowrap;
     pointer-events: none;
