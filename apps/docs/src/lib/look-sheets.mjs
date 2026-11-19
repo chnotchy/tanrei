@@ -11,12 +11,21 @@
 // virtual module `virtual:tanrei-docs/looks` (its default export: `{ "<id>": "<address>" }`), as the sheet's worker's
 // is given (lib/sheet-worker.mjs): the client's build leaves them where the rendering, which runs after it, reads them.
 // Under `astro dev` the dev server serves each from an address of its own, computed when it is first asked for.
+//
+// A figure that compares systems side by side (components/SystemGallery.astro, SystemButtons.astro) draws each under
+// its own scope, `[data-<ns>-system="<id>"]`, whatever the page's look: a preset with its scoped sheet, which the web
+// package ships, and the default system with the same sheet of its own, which the build computes here
+// (`virtual:tanrei-docs/default-scope.css`, @tanrei/studio/sheet-node `scopedSheet`) — the build writes the default
+// system only on the root, and under a page drawn in another look its scope would show that look.
 import crypto from 'node:crypto';
-import { nodePageSheet, shippedLayers } from '@tanrei/studio/sheet-node';
+import { nodePageSheet, scopedSheet, shippedLayers } from '@tanrei/studio/sheet-node';
 
 /** The virtual module's name. */
 export const LOOKS_MODULE = 'virtual:tanrei-docs/looks';
 const RESOLVED = `\0${LOOKS_MODULE}`;
+/** The virtual stylesheet of the default system under its own scope. */
+export const DEFAULT_SCOPE_MODULE = 'virtual:tanrei-docs/default-scope.css';
+const DEFAULT_SCOPE = `\0${DEFAULT_SCOPE_MODULE}`;
 /** Where the client's build leaves the addresses for the rendering: a key of the process's global object. */
 const FOUND = 'tanrei-docs:looks';
 /** The id of the layer each sheet is computed for: a layer of no change, which names nothing a sheet holds. */
@@ -61,6 +70,8 @@ export function lookSheetsPlugin(defaultId) {
   /** The sheets, computed once (under `astro dev`, when the first is asked for). */
   let computed;
   const sheets = () => (computed ??= lookSheets(defaultId));
+  /** The default system's scoped sheet, computed once. */
+  let defaultScope;
   const root = () => base.replace(/\/?$/, '/');
   return {
     name: 'tanrei-docs:looks',
@@ -79,9 +90,10 @@ export function lookSheetsPlugin(defaultId) {
         response.end(css);
       });
     },
-    resolveId: (id) => (id === LOOKS_MODULE ? RESOLVED : undefined),
+    resolveId: (id) => (id === LOOKS_MODULE ? RESOLVED : id === DEFAULT_SCOPE_MODULE ? DEFAULT_SCOPE : undefined),
     // Built, read when the rendering runs the module: after the client's build.
     load(id) {
+      if (id === DEFAULT_SCOPE) return (defaultScope ??= scopedSheet(defaultId));
       if (id !== RESOLVED) return undefined;
       if (serving) return `export default ${JSON.stringify(Object.fromEntries(sheetLooks(shippedLayers(), defaultId).map((look) => [look, `${root()}${DEV_PATH}${look}.css`])))};`;
       return `const looks = globalThis[Symbol.for(${JSON.stringify(FOUND)})];\nif (!looks) throw new Error(${JSON.stringify(`${LOOKS_MODULE}: the client's build wrote no look's sheet`)});\nexport default looks;`;

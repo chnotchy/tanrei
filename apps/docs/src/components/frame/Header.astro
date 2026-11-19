@@ -18,8 +18,8 @@
 //                     docs are drawn in, Tanrei's own or a showcase system — and opens the Appearance panel
 //                     (Appearance.astro): the color mode, the contrast and the look, a link to this page as it looks
 //                     now, and Theme Studio's link. The choice is lib/appearance.ts's, which the head's script applies
-//                     before the first paint; every example of every page follows it (components/visuals/Example.astro),
-//                     and so do the lists of components (lib/list-filter.ts). A compact window has no room for it beside
+//                     before the first paint, and the whole page is drawn in it — this header, the sidebar, the content,
+//                     every example and what an example opens. A compact window has no room for it beside
 //                     the wordmark and the actions: there the same button and panel stand first in the drawer's list
 //                     (Sidebar.astro), and the bar's is not drawn;
 //   the repository    an icon-only Button that is a link to the source repository on GitHub (lib/repository.ts, from
@@ -109,7 +109,7 @@ const languages = [{ dir: '', lang: source.lang, label: source.label }, ...trans
   {
     const frame = document.currentScript.parentElement;
     const root = document.documentElement;
-    const look = root.getAttribute('data-docs-system');
+    const look = root.getAttribute('data-docs-look');
     if (look) {
       for (const button of frame.querySelectorAll('.docs-look')) {
         // The reader's own theme is named by its word ("My theme"), not by its look's id.
@@ -131,7 +131,6 @@ const languages = [{ dir: '', lang: source.lang, label: source.label }, ...trans
   import '@tanrei/web/components/app-bar';
   import '@tanrei/web/components/button';
   import '@tanrei/web/components/menu';
-  import '../../lib/list-filter';
   import { CUSTOM_LOOK, isShared, keepShared, linkTo, onAppearance, placeCustomChoices, setAppearance, shownAppearance, type Appearance, type Contrast, type Mode } from '../../lib/appearance';
 
   type Choice = HTMLElement & { value: string | null };

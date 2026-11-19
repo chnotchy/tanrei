@@ -7,7 +7,7 @@
 // sized by its stylesheet before any of this runs; nothing here moves anything that is already drawn. The frame's own
 // actions — the code, its copy, the direction — are the frame's (lib/example.ts).
 import { RESIZE_EVENT, resizeHandle } from './resize-handle';
-import { CONTRAST_ATTR, THEME_ATTR } from './appearance';
+import { CONTRAST_ATTR, LOOK_SHEET_EVENT, LOOK_SHEET_ID, THEME_ATTR } from './appearance';
 import { whenNear } from './example';
 import { SUBJECT_ATTR } from './omitted-elements';
 import windowSheet from '../styles/fixture-window.css?url';
@@ -131,10 +131,17 @@ interface WindowData {
   page: boolean;
 }
 
-// One opt-in stylesheet per preset, scoped to [data-tanrei-system="<id>"]: a window drawn under a preset links it. Not
-// the root's (core.css), which is no preset.
-const presetSheets = import.meta.glob<string>(['../../../../packages/web/src/generated/systems/*.css', '!../../../../packages/web/src/generated/systems/core.css'], { query: '?url', import: 'default', eager: true });
-const presetSheetOf = (system: string) => Object.entries(presetSheets).find(([file]) => file.endsWith(`/${system}.css`))?.[1];
+/**
+ * The page's look's stylesheet as a window's document takes it, on its root as the page has it: a gallery example's
+ * address, or the reader's own theme's text; nothing under the default system (lib/appearance.ts, `LOOK_SHEET_ID`).
+ */
+function lookSheet(): { href?: string; css?: string } {
+  const sheet = document.getElementById(LOOK_SHEET_ID);
+  if (sheet instanceof HTMLLinkElement) return { href: sheet.getAttribute('href') ?? undefined };
+  if (sheet instanceof HTMLStyleElement) return { css: sheet.textContent ?? '' };
+  return {};
+}
+const inStyle = (css: string) => css.replaceAll('</style', '<\\/style');
 
 let module: Promise<string> | undefined;
 /** The address of the module a window's document runs (lib/fixture-window.ts), asked for once. */
@@ -142,29 +149,32 @@ const windowModule = () => (module ??= import('./fixture-window').then((loaded) 
 
 const attribute = (name: string, value: string | null | undefined) => (value ? ` ${name}="${value.replaceAll('&', '&amp;').replaceAll('"', '&quot;')}"` : '');
 
-/** What a window's document is drawn in: the stage's scheme, the page's contrast, the stage's system and direction. */
+/** What a window's document is drawn in: the stage's scheme, the page's contrast and look's stylesheet, the stage's direction. */
 interface Look {
   theme: 'light' | 'dark';
   contrast?: string;
-  system?: string;
+  sheet: { href?: string; css?: string };
   dir?: string;
 }
 
+/** The look's stylesheet in a window's document, marked so that it is replaced when the page's look changes. */
+const lookSheetMarkup = ({ href, css }: Look['sheet']) => (href ? `<link rel="stylesheet" data-docs-look${attribute('href', href)}>` : css !== undefined ? `<style data-docs-look>${inStyle(css)}</style>` : '');
+
 /**
  * A window's document: the fixture's stage, alone, with the component's staging, the stylesheets every page of the site
- * draws a fixture with (styles/fixture-window.css), the preset's where it is drawn under one, and the module that
- * defines its elements. Its root names the component as its page's frame does (`data-docs-subject`), so that a
- * component the default system does not have is defined in the window of its own fixtures (lib/omitted-elements.ts). It holds no inline script: a document written into a frame (`srcdoc`) keeps the page's
- * policy, which runs only the inline scripts the page itself holds.
+ * draws a fixture with (styles/fixture-window.css), the page's look's over them, and the module that defines its
+ * elements. Its root names the component as its page's frame does (`data-docs-subject`), so that a component the
+ * default system does not have is defined in the window of its own fixtures (lib/omitted-elements.ts). It holds no
+ * inline script: a document written into a frame (`srcdoc`) keeps the page's policy, which runs only the inline
+ * scripts the page itself holds.
  */
 function windowDocument(html: string, data: WindowData, look: Look, script: string, subject: string | undefined): string {
   const holder = data.page ? 'div' : 'main';
-  const preset = look.system ? presetSheetOf(look.system) : undefined;
   return (
-    `<!doctype html><html lang="en" ${HELD}${attribute('dir', look.dir)}${attribute('data-tanrei-theme', look.theme)}${attribute('data-tanrei-contrast', look.contrast)}${attribute('data-tanrei-system', look.system)}${attribute(SUBJECT_ATTR, subject)}>` +
+    `<!doctype html><html lang="en" ${HELD}${attribute('dir', look.dir)}${attribute('data-tanrei-theme', look.theme)}${attribute('data-tanrei-contrast', look.contrast)}${attribute(SUBJECT_ATTR, subject)}>` +
     `<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">` +
-    `<link rel="stylesheet"${attribute('href', windowSheet)}>${preset ? `<link rel="stylesheet" data-preset${attribute('href', preset)}>` : ''}` +
-    `<style>${data.staging.replaceAll('</style', '<\\/style')}</style></head>` +
+    `<link rel="stylesheet"${attribute('href', windowSheet)}>${lookSheetMarkup(look.sheet)}` +
+    `<style>${inStyle(data.staging)}</style></head>` +
     `<body><${holder} class="stages">${html}</${holder}><script type="module"${attribute('src', script)}></script></body></html>`
   );
 }
@@ -195,31 +205,25 @@ function lookOf(win: WindowStage): Look {
   return {
     theme: held ? schemeOf(held) : pageScheme(),
     contrast: document.documentElement.dataset.tanreiContrast,
-    system: win.box.getAttribute('data-tanrei-system') ?? undefined,
+    sheet: lookSheet(),
     dir: win.box.getAttribute('dir') ?? undefined,
   };
 }
 
-/** Gives a drawn window's document the stage's system and direction, as they are now (a reader chose a preset, turned the stage). */
+/** Gives a drawn window's document the page's look and the stage's direction, as they are now (a reader chose another look, turned the stage). */
 function drawLook(win: WindowStage) {
   const doc = drawnDocument(win.frame);
   if (!doc) return;
-  const { system, dir } = lookOf(win);
+  const { sheet, dir } = lookOf(win);
   const root = doc.documentElement;
   if (dir) root.setAttribute('dir', dir);
   else root.removeAttribute('dir');
-  const preset = system ? presetSheetOf(system) : undefined;
-  let link = doc.head.querySelector<HTMLLinkElement>('link[data-preset]');
-  if (preset && link?.getAttribute('href') !== preset) {
-    link?.remove();
-    link = doc.createElement('link');
-    link.rel = 'stylesheet';
-    link.dataset.preset = '';
-    link.href = preset;
-    doc.head.append(link);
-  }
-  if (system) root.setAttribute('data-tanrei-system', system);
-  else root.removeAttribute('data-tanrei-system');
+  const held = doc.head.querySelector<HTMLElement>('[data-docs-look]');
+  const same = held ? (held instanceof doc.defaultView!.HTMLLinkElement ? held.getAttribute('href') === sheet.href : sheet.css !== undefined && held.textContent === sheet.css) : sheet.href === undefined && sheet.css === undefined;
+  if (same) return;
+  held?.remove();
+  // After the window's own stylesheet, before the staging: where the page's document has it.
+  doc.head.querySelector('link[rel="stylesheet"]')?.insertAdjacentHTML('afterend', lookSheetMarkup(sheet));
 }
 
 /**
@@ -336,9 +340,10 @@ function windowStage(stage: HTMLElement, box: HTMLElement, canvas: HTMLElement, 
     new view.ResizeObserver(fit).observe(doc.body);
     fit();
   });
-  // The stage's system (the reader's choice in the header, lib/example.ts) and its direction (the frame's action) reach
-  // its window's document.
-  new MutationObserver(() => drawLook(win)).observe(box, { attributes: true, attributeFilter: ['data-tanrei-system', 'dir'] });
+  // The page's look (the reader's choice in the header, lib/appearance.ts) and the stage's direction (the frame's
+  // action) reach its window's document.
+  new MutationObserver(() => drawLook(win)).observe(box, { attributes: true, attributeFilter: ['dir'] });
+  document.addEventListener(LOOK_SHEET_EVENT, () => drawLook(win));
   nearWindows.observe(canvas);
   farWindows.observe(canvas);
   const width = () => Number(getComputedStyle(canvas).getPropertyValue('--docs-window-width')) || 1;

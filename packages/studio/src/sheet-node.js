@@ -3,18 +3,21 @@
 // default system's chain whole, any other shipped layer read when a chain needs it — with the build's own emitter and
 // the layers' rules. A host that computes a layer's sheet where the site is built (the documentation's sheets of the
 // shipped systems, which a page applies on its root) computes it with this, so that it is the sheet the worker gives a
-// reader's own theme, character for character.
+// reader's own theme, character for character. And a shipped system's sheet scoped to `[data-<ns>-system="<id>"]`, as
+// the build writes each preset's (`scopedSheet`): for a host that draws the default system inside a page drawn in
+// another (a figure that compares systems).
 import fs from 'node:fs';
 import { createRequire } from 'node:module';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import { createPaletteEngine } from '@tanrei/token-engine';
 import { emitCss } from '@tanrei/tokens-build/emit/css';
 import { ROOT_SYSTEM, heldComponents, layerChain, outsideStandIns, sheetAvailability } from '@tanrei/tokens-build/layers';
-import { createPageSheet } from './sheet.js';
+import { createPageSheet, systemOf } from './sheet.js';
+import { layerIndex, withoutProse } from './sheet-sources.js';
 
 /** A sheet's declarations by the rule they stand in, with its selectors and at-rules (./sheet.js). */
 export { sheetRules } from './sheet.js';
-import { layerIndex, withoutProse } from './sheet-sources.js';
 
 /** The repository this package stands in. */
 export const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../..');
@@ -81,4 +84,28 @@ export function nodePageSheet({ onLoad } = {}) {
     heldComponents,
     outsideStandIns,
   });
+}
+
+/**
+ * A shipped system's whole sheet scoped to `[data-<ns>-system="<id>"]`, computed from the repository's files with the
+ * build's pipeline and emitter: what `tanrei build` writes as a preset's `systems/<id>.css` (without its banner), and
+ * the same for the default system, which the build writes only unscoped, on the root.
+ * @param {string} id
+ */
+export function scopedSheet(id) {
+  const config = json('tanrei.config.json');
+  const resolver = json('tokens/tanrei.resolver.json');
+  const shipped = shippedLayers();
+  const ids = Object.keys(shipped);
+  const read = (each) => shipped[each];
+  const chain = layerChain(id, read);
+  const { model } = systemOf(chain, {
+    namespace: config.namespace,
+    sources: sheetSources(resolver),
+    vocabulary: json('tokens/sys/color.vocabulary.json'),
+    resolver,
+    engine: createPaletteEngine({ Hct, TonalPalette }),
+    lend: (each) => (Object.hasOwn(shipped, each) ? shipped[each] : undefined),
+  });
+  return emitCss(model, { scope: id, ...sheetAvailability(chain, heldComponents(ids, read), outsideStandIns(ids, read)) });
 }

@@ -161,7 +161,7 @@ for (const engine of engines('chromium,firefox,webkit')) {
       }
     });
 
-    test('a window is drawn in the page’s scheme, and follows the stage’s system and direction', LIMIT, async () => {
+    test('a window is drawn in the page’s scheme, and follows the page’s look and the stage’s direction', LIMIT, async () => {
       const context = await browsers.get(engine).newContext({ viewport: { width: 1440, height: 1000 }, colorScheme: 'dark', reducedMotion: 'reduce' });
       try {
         const page = await context.newPage();
@@ -170,14 +170,18 @@ for (const engine of engines('chromium,firefox,webkit')) {
         await frame.scrollIntoViewIfNeeded();
         await page.waitForFunction((element) => element.contentDocument?.querySelector('body > .stages > .stage'), await frame.elementHandle(), { timeout: 15_000 });
         assert.equal(await frame.evaluate((element) => element.contentDocument.documentElement.dataset.tanreiTheme), 'dark', 'the window is written in the page’s scheme');
-        // The stage drawn under a preset, and turned right to left, as the header's menu and the frame's action do.
-        await page.locator('.docs-stage[data-fixture-id="compact"] .docs-stage-box').evaluate((box) => {
-          box.setAttribute('data-tanrei-system', 'm3-like');
-          box.setAttribute('dir', 'rtl');
-        });
-        await page.waitForFunction((element) => element.contentDocument?.documentElement.getAttribute('data-tanrei-system') === 'm3-like', await frame.elementHandle(), { timeout: 5_000 });
-        const root = await frame.evaluate((element) => ({ dir: element.contentDocument.documentElement.dir, preset: !!element.contentDocument.querySelector('link[data-preset]') }));
-        assert.deepEqual(root, { dir: 'rtl', preset: true });
+        // A gallery example chosen in the header's panel, and the stage turned right to left, as the frame's action does.
+        await page.locator('#docs-appearance').click();
+        await page.waitForFunction(() => document.querySelector('tanrei-popover[anchor="docs-appearance"]')?.open === true);
+        await page.locator('tanrei-popover[anchor="docs-appearance"] tanrei-list-item[value="m3-like"]').click();
+        await page.keyboard.press('Escape');
+        await page.locator('.docs-stage[data-fixture-id="compact"] .docs-stage-box').evaluate((box) => box.setAttribute('dir', 'rtl'));
+        const sheet = await page.waitForFunction(() => document.getElementById('docs-look-sheet')?.sheet && document.getElementById('docs-look-sheet').getAttribute('href'), null, { timeout: 15_000 }).then((handle) => handle.jsonValue());
+        assert.match(sheet, /\/look-m3-like\.[0-9a-f]{8}\.css$/);
+        await page.waitForFunction(({ element, sheet }) => element.contentDocument?.querySelector('link[data-docs-look]')?.getAttribute('href') === sheet, { element: await frame.elementHandle(), sheet }, { timeout: 5_000 });
+        const root = await frame.evaluate((element) => ({ dir: element.contentDocument.documentElement.dir, scoped: element.contentDocument.documentElement.hasAttribute('data-tanrei-system'), primary: getComputedStyle(element.contentDocument.documentElement).getPropertyValue('--tanrei-sys-color-primary').trim() }));
+        const primary = await page.evaluate(() => getComputedStyle(document.documentElement).getPropertyValue('--tanrei-sys-color-primary').trim());
+        assert.deepEqual(root, { dir: 'rtl', scoped: false, primary }, 'the window’s root takes the page’s look, with no system of its own');
       } finally {
         await context.close();
       }

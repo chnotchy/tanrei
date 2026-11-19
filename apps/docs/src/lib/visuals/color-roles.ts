@@ -2,7 +2,7 @@
 // web package's own stage of one fixture, and beside it a table of the color token each of its parts is drawn with and
 // the system's color role that token is. Run once the figure's elements are defined and its time has come
 // (lib/visuals/frame.ts, `whenDrawn`), and again when the stage changes size or direction, when the fonts arrive, when
-// the reader changes the scheme or the contrast, and when the frame is drawn under another system.
+// the reader changes the scheme or the contrast, and when the page's look changes (lib/visuals/frame.ts, `SYSTEM_EVENT`).
 //
 // - **Each row's swatch is the token as the stage draws it**: its custom property, read in the stage's scope, so it is
 //   the value of the system, the scheme and the contrast the page is drawn in. The role named beside it is the one
@@ -19,7 +19,7 @@
 import { contrast } from '../../../../../packages/tokens-build/src/invariants.js';
 import { targetBox } from './blueprint';
 import type { PartTarget } from './anatomy';
-import { DEFAULT_SYSTEM_ATTR, SYSTEM_EVENT, settled, whenDrawn } from './frame';
+import { DEFAULT_SYSTEM_ATTR, SYSTEM_EVENT, settled, systemOf, whenDrawn } from './frame';
 import { hold, wordsOf } from './pseudo-states';
 
 /** Sent on a figure's frame each time its rows and leaders have been drawn. */
@@ -117,8 +117,7 @@ function backdropOf(element: Element, paint: 'fill' | 'text' | 'edge'): Rgba {
 const ratioText = (ratio: number) => `${ratio.toFixed(2)}:1`;
 
 function drawFigure(frame: HTMLElement, overlay: HTMLElement, subject: HTMLElement, table: HTMLElement, data: ColorRolesData) {
-  const stage = frame.querySelector<HTMLElement>('[data-example-stage]');
-  const system = stage?.getAttribute('data-tanrei-system') ?? frame.getAttribute(DEFAULT_SYSTEM_ATTR) ?? '';
+  const system = systemOf(frame);
   const fallback = frame.getAttribute(DEFAULT_SYSTEM_ATTR) ?? '';
   const host = subject.querySelector<HTMLElement>(data.tag);
   if (!host) return;
