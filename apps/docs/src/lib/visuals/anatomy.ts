@@ -7,6 +7,7 @@ import { readPart } from '../../../../../packages/tools/src/parts.js';
 import { fixtureDocument } from '../fixture-documents';
 import { stageOf } from '../fixture-gallery';
 import { definedTags, getSpec } from '../repo';
+import { firstDefaultFixture, systemShowingMarkup } from '../systems';
 
 export interface AnatomyPart {
   /** Its number in the figure and in the legend, from 1, in the spec's order. */
@@ -85,10 +86,13 @@ export function webPartTargets(name: string): Map<string, PartTarget> {
   return targets;
 }
 
-/** The fixture a component's anatomy figure draws: the spec's `anatomyFixture`, else its first fixture. */
+/**
+ * The fixture a component's anatomy figure draws: the spec's `anatomyFixture`, else its first fixture of a `variant`
+ * the default system has (the text field's first stacked one, not its first outlined one), else its first.
+ */
 export function anatomyFixtureOf(name: string): string | undefined {
   const spec = getSpec(name);
-  return spec.anatomyFixture ?? spec.fixtures[0]?.id;
+  return spec.anatomyFixture ?? firstDefaultFixture(name, spec.fixtures)?.id;
 }
 
 /** What a figure drawn over one of a component's fixtures stands on: the web package's own stage of it. */
@@ -102,7 +106,10 @@ export interface BlueprintStage {
   room: { width: number; height: number };
   /** The web element the parts are found in. */
   tag: string;
-  /** The shipped system the stage is always drawn under: a component that lives in a layer is drawn under that layer's. */
+  /**
+   * The shipped system the stage is always drawn under: a component that lives in a layer is drawn under that layer's,
+   * and a fixture that uses a value of `variant` the default system leaves out under a preset that has it.
+   */
   system?: string;
 }
 
@@ -123,6 +130,6 @@ export function blueprintStageOf(name: string, fixture = anatomyFixtureOf(name))
   const stage = document.stages.find((candidate) => candidate.id === fixture);
   const room = document.sizes[fixture];
   if (!stage || !room || !new RegExp(`<${tag}[\\s/>]`).test(stage.html)) return null;
-  const system = spec.layer && spec.layer !== 'core' ? spec.layer : undefined;
+  const system = spec.layer && spec.layer !== 'core' ? spec.layer : systemShowingMarkup(stage.html);
   return { fixture, html: stage.html, staging: document.staging, room, tag, system };
 }

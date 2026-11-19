@@ -6,12 +6,14 @@
 // Which attribute of the web build each control writes is asked of the build's manifest (`webAttribute`), so that a
 // playground never writes one the element does not read: a prop the element takes by property alone, or that a boolean
 // attribute cannot say (a switch that is on by default with no attribute to turn it off), has no control. And what the
-// playground draws is the web package's own fixture document's stage of the spec's first fixture — the one every
-// platform's baseline is compared with — so that the site never writes a component's markup a second time.
+// playground draws is the web package's own fixture document's stage of the spec's first fixture of a `variant` the
+// default system has — whose baseline every platform's is compared with — so that the site never writes a component's
+// markup a second time. A value of `variant` the default system leaves out is not offered (its manifest's
+// `omittedVariants`, which names a composed component's own values too: the text field's `outlined`).
 import { fixtureDocument } from '../fixture-documents';
 import { stageOf } from '../fixture-gallery';
-import { getSpec, statusOf, isImplemented, unavailable, webAttribute, webPropertyDefault, type Spec, type SpecProp } from '../repo';
-import { ns } from '../tokens';
+import { getSpec, statusOf, isImplemented, webAttribute, webPropertyDefault, type Spec, type SpecProp } from '../repo';
+import { firstDefaultFixture, omittedVariantsOf } from '../systems';
 import { attributeOf, fromAttribute, type Control, type ControlKind, type State } from './playground-state';
 
 export type { Control, ControlKind } from './playground-state';
@@ -47,7 +49,7 @@ export type Unwritable = { prop: string; reason: 'no-attribute' | 'cannot-turn-o
 export function controlsAndGaps(name: string): { controls: Control[]; unwritable: Unwritable[] } {
   const spec = getSpec(name);
   const tag = spec.platforms.web?.name;
-  const lacking = unavailable[ns]?.variants?.[name] ?? [];
+  const lacking = omittedVariantsOf(name);
   const controls: Control[] = [];
   const unwritable: Unwritable[] = [];
   for (const prop of spec.props) {
@@ -122,11 +124,11 @@ export const CODE_FLAVORS = ['html', 'react'] as const;
  */
 export const NATIVE_CODE: Record<string, never> = {};
 
-/** A component's playground, from the fixture it starts at (the spec's first, else the one named). */
+/** A component's playground, from the fixture it starts at (the spec's first of a variant the default system has, else the one named). */
 export function playgroundOf(name: string, fixtureId?: string): Playground {
   const spec = getSpec(name);
   const tag = spec.platforms.web?.name;
-  const fixture = fixtureId ? spec.fixtures.find((each) => each.id === fixtureId) : spec.fixtures[0];
+  const fixture = fixtureId ? spec.fixtures.find((each) => each.id === fixtureId) : firstDefaultFixture(name, spec.fixtures);
   if (!fixture) throw new Error(`${name}: no fixture ${fixtureId ? `"${fixtureId}"` : ''} to start a playground at`);
   const stage = stageOf(spec, fixture);
   if (!stage.drawn || stage.kind !== 'inline' || !stage.html) throw new Error(`${name}: the fixture "${fixture.id}" is not drawn in the page (lib/fixture-gallery.ts), so a playground cannot start at it`);

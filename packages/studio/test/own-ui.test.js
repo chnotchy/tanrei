@@ -5,14 +5,16 @@
 // `tanrei audit` runs), each failure at its file, line and column:
 // - it imports no entry but that one: not `@tanrei/web/all`, another system's, or a module of such a component;
 // - it writes no element of such a component either — in markup, in a string, built from the prefix
-//   (`${tagPrefix}-name`, `el('name')`), or in a stylesheet's selector — which would be left undefined.
+//   (`${tagPrefix}-name`, `el('name')`), or in a stylesheet's selector — which would be left undefined;
+// - and no value of a component's `variant` the default system leaves out (the text field's `outlined`), which a
+//   product of it still draws but is warned about in a debug build.
 // The documentation site, which defines its elements on demand, is held to the same in apps/docs/test/own-ui.test.mjs.
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
 import { test } from 'node:test';
 import { fileURLToPath } from 'node:url';
-import { defaultSystemContext, describe as say, entryFindings, omittedElements, ownFiles } from '../../tools/src/own-ui.js';
+import { defaultSystemContext, describe as say, entryFindings, omittedElements, omittedVariants, ownFiles } from '../../tools/src/own-ui.js';
 
 const studioDir = fileURLToPath(new URL('../', import.meta.url));
 const system = defaultSystemContext();
@@ -32,6 +34,20 @@ test('Studio registers its elements with the default system’s entry, and with 
 test('Studio writes no element of a component the default system does not have', () => {
   const stray = files.flatMap((file) => omittedElements(system, text(file), { file }).map((finding) => say(system, `packages/studio/${file}`, finding)));
   assert.deepEqual(stray, []);
+});
+
+test('Studio uses no value of a variant the default system leaves out, which a product of it is warned about', () => {
+  const stray = files.flatMap((file) => omittedVariants(system, text(file), { file }).map((finding) => say(system, `packages/studio/${file}`, finding)));
+  assert.deepEqual(stray, []);
+  // The check sees each way Studio writes one, and passes a value the default system has.
+  const code = [
+    `const a = el('text-field', { label: 'Email', variant: 'outlined' });`,
+    `const b = h('tanrei-select-field', { variant: "filled" });`,
+    `const c = h(\`\${studio.tagPrefix}-number-input\` as 'div', { variant: 'outlined' });`,
+    `const d = html\`<tanrei-combobox variant="outlined"></tanrei-combobox>\`;`,
+    `const e = el('text-field', { variant: 'stacked' }); const f = el('button', { variant: 'outlined' });`,
+  ].join('\n');
+  assert.deepEqual(omittedVariants(system, code, { file: 'src/ui/any.ts' }).map((finding) => `${finding.line} ${finding.component}`), ['1 text-field', '2 select-field', '3 number-input', '4 combobox']);
 });
 
 test('the check sees each way Studio writes an element', () => {

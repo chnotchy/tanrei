@@ -23,6 +23,7 @@ import { getSpec } from '../../lib/repo';
 import { fixtureDocument } from '../../lib/fixture-documents';
 import { STAGE_SCOPE, galleryOf, stagesScript, stagingStyle, stepScript, windowScript } from '../../lib/fixture-gallery';
 import { contentLang, strings } from '../../lib/i18n';
+import { systemShowingMarkup } from '../../lib/systems';
 import ResizeHandle from './ResizeHandle.astro';
 import Example from '../visuals/Example.astro';
 
@@ -45,6 +46,10 @@ const stylesheets = import.meta.glob<string>(['../../../../../packages/web/src/g
 const system = spec.layer && spec.layer !== 'core' ? spec.layer : undefined;
 const systemSheet = system ? Object.entries(stylesheets).find(([file]) => file.endsWith(`/${system}.css`))?.[1] : undefined;
 if (system && !systemSheet) throw new Error(`FixtureGallery: no generated stylesheet for the system "${system}"`);
+// A fixture that uses a value of `variant` the default system leaves out (the text field's `outlined`, a field's
+// outlined select) is drawn under a preset that has it, pinned as an example is (Example.astro): the default system
+// does not draw it, and its stage shows it on purpose.
+const pinOf = (stage: (typeof stages)[number]) => system ?? systemShowingMarkup(stage.html ?? '');
 ---
 
 {systemSheet && <link rel="stylesheet" href={systemSheet} />}
@@ -70,7 +75,7 @@ if (system && !systemSheet) throw new Error(`FixtureGallery: no generated styles
                 titleCode
                 class="docs-stage"
                 pattern="none"
-                system={system}
+                system={pinOf(stage)}
                 code={stage.drawn}
                 source={stage.markup}
                 resize={false}

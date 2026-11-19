@@ -3,7 +3,8 @@
 // not have — the segmented button, the FAB menu — added to a page stays undefined, as in a product on `@tanrei/web`,
 // whatever design system the reader chose, while an element of the default system's added beside it is defined; it is
 // defined on its own page, and in a frame pinned to a system that has it, and not in one pinned to a system that does
-// not. Where each such element of the built pages stands is held in test/own-ui.test.mjs.
+// not. And a value of `variant` the default system leaves out is drawn only in a frame pinned to a system that has it
+// (below). Where each such element of the built pages stands is held in test/own-ui.test.mjs.
 //
 //   pnpm --filter @tanrei/docs build && pnpm --filter @tanrei/docs test:browser
 //   DOCS_ENGINES=chromium node --test test/browser/omitted-elements.test.mjs   # in one engine (all three by default)
@@ -14,6 +15,8 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { after, before, describe, test } from 'node:test';
 import { fileURLToPath } from 'node:url';
+import { defaultSystemContext } from '../../../../packages/tools/src/own-ui.js';
+import { DEFAULT_SYSTEM } from '../../src/lib/element-modules.mjs';
 import { serveDist } from './host.mjs';
 import { engines, launch, settle, settlePage } from './launch.mjs';
 
@@ -118,5 +121,93 @@ for (const engine of ENGINES) {
       assert.equal(await definedIn(page, 'tanrei-fab-menu', stage('m3-like')), true, 'the FAB menu, in the m3-like stage');
       await context.close();
     });
+  });
+}
+
+// ── The variants the default system leaves out ──────────────────────────────────────────────────────────────────────
+// A value of a component's `variant` the default system leaves out (the text field's `outlined`) still draws in a
+// product on `@tanrei/web`, and a debug build reports it; the site uses one only in a frame pinned to a system that has
+// it. Each page below is scrolled from top to bottom, so that every stage is drawn as a reader meets it (a stage's
+// window is emptied again once it is far from the view), and at each step every element of the page, of every shadow
+// root and of every stage's window, is read: its `variant` (the property where it is defined, else the attribute) and
+// the system of the nearest pinned frame around it. A playground offers no such value either.
+
+const fromLayers = defaultSystemContext();
+const leftOut = fromLayers.shipped.get(DEFAULT_SYSTEM).omittedVariants;
+const hasVariant = (system, component, variant) => {
+  const manifest = fromLayers.shipped.get(system);
+  return Boolean(manifest?.components.some((each) => each.name === component) && !(manifest.omittedVariants[component] ?? []).includes(variant));
+};
+/** The pages that draw what the default system leaves out on purpose — each component's own, and the field's, whose fixtures hold them — and two of the site's own. */
+const VARIANT_PAGES = [...Object.keys(leftOut).map((name) => `/components/${name}/`), '/components/field/', '/', '/foundations/design-systems/'];
+
+/** Every use of a value in `leftOut` the page draws as it is scrolled through, with the pinned system around it, and the values its playground offers. */
+async function variantUses(page, leftOut) {
+  return page.evaluate(
+    async ({ leftOut, shows }) => {
+      const prefix = 'tanrei-';
+      const found = new Map();
+      const pinnedAround = (element) => {
+        for (let at = element; at; ) {
+          const pinned = at.closest(`[${shows}]`);
+          if (pinned) return pinned.getAttribute(shows);
+          const root = at.getRootNode();
+          at = root instanceof ShadowRoot ? root.host : (root.defaultView?.frameElement ?? null);
+        }
+        return null;
+      };
+      const read = (root) => {
+        for (const element of root.querySelectorAll('*')) {
+          const component = element.localName.startsWith(prefix) ? element.localName.slice(prefix.length) : null;
+          const variant = typeof element.variant === 'string' ? element.variant : element.getAttribute('variant');
+          if (component && leftOut[component]?.includes(variant)) {
+            const where = pinnedAround(element);
+            found.set(`${element.localName}:${variant}:${where}`, { component, variant, shows: where });
+          }
+          if (element.shadowRoot) read(element.shadowRoot);
+          if (element.localName === 'iframe' && element.contentDocument) read(element.contentDocument);
+        }
+      };
+      const frame = () => new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+      // A stage drawn in the page keeps what it drew; a window is emptied once it is far from the view, so the windows
+      // are read at each step and the whole page once at the end.
+      for (let y = 0; y <= document.documentElement.scrollHeight; y += innerHeight) {
+        scrollTo(0, y);
+        await frame();
+        await new Promise((resolve) => setTimeout(resolve, 60));
+        for (const stageWindow of document.querySelectorAll('iframe')) if (stageWindow.contentDocument) read(stageWindow.contentDocument);
+      }
+      read(document);
+      const offered = [...document.querySelectorAll('[data-playground]')].flatMap((playground) => [...playground.querySelectorAll('[data-playground-prop="variant"] tanrei-tab')].map((tab) => ({ component: playground.dataset.playground, variant: tab.getAttribute('value') })));
+      return { uses: [...found.values()], offered };
+    },
+    { leftOut, shows: 'data-docs-shows-system' },
+  );
+}
+
+for (const engine of ENGINES) {
+  describe(`the variants the default system leaves out, in ${engine}`, () => {
+    let browser;
+    before(async () => {
+      browser = await launch(engine);
+    });
+    after(async () => {
+      await browser?.close();
+    });
+
+    for (const address of VARIANT_PAGES) {
+      test(`${address}: each is drawn only in a frame pinned to a system that has it, and no playground offers one`, LIMIT, async () => {
+        const context = await browser.newContext({ viewport: { width: 1440, height: 900 } });
+        const page = await context.newPage();
+        await page.goto(`${origin}${address}`);
+        await settlePage(page);
+        const { uses, offered } = await variantUses(page, leftOut);
+        const stray = uses.filter(({ component, variant, shows }) => !(shows && hasVariant(shows, component, variant))).map(({ component, variant, shows }) => `${component}:${variant}${shows ? ` under ${shows}` : ''}`);
+        assert.deepEqual(stray, [], `${address}: drawn outside a frame pinned to a system that has it`);
+        assert.deepEqual(offered.filter(({ component, variant }) => leftOut[component]?.includes(variant)).map(({ component, variant }) => `${component}:${variant}`), [], `${address}: offered by its playground`);
+        if (address.startsWith('/components/') && address !== '/components/field/' && leftOut[address.split('/')[2]]) assert.ok(uses.length > 0, `${address} documents what the default system leaves out, under a system that has it`);
+        await context.close();
+      });
+    }
   });
 }

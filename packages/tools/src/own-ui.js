@@ -7,7 +7,8 @@
 // This module works the default system out from its layers, as `tanrei audit` does (nothing generated is read, so a
 // component the system file leaves out counts the moment it is left out), and reads a source with the check `tanrei
 // audit` runs (tokens-build/src/components-audit.js): every import that would register a component the default system
-// does not have, and every element of one. Read by apps/docs/test/own-ui.test.mjs and packages/studio/test/own-ui.test.js.
+// does not have, every element of one, and every static value of a `variant` it leaves out. Read by
+// apps/docs/test/own-ui.test.mjs and packages/studio/test/own-ui.test.js.
 import fs from 'node:fs';
 import path from 'node:path';
 import { heldComponents, layerChain, listSystems, shippedSystems } from '../../tokens-build/src/bundle.js';
@@ -62,6 +63,30 @@ export function omittedElements(system, text, { file, kind = textKind(file) }) {
 }
 
 /**
+ * Every static value of a component's `variant` the default system leaves out (its manifest's `omittedVariants`: the
+ * text field's `outlined`), which a product of it still draws but a debug build reports: the audit's findings of kind
+ * variant that say so, and the props of an element built by name or from the prefix (`el('text-field', { variant:
+ * 'outlined' })`, `h('tanrei-select', { variant: 'filled' })`).
+ * @param {ReturnType<typeof defaultSystemContext>} system
+ */
+export function omittedVariants(system, text, { file, kind = textKind(file) }) {
+  const leftOut = system.context.manifest.omittedVariants;
+  const prefix = `${CONFIG.web.tagPrefix}-`;
+  const fromAudit = auditText(system.context, text, { file, kind }).filter((finding) => finding.kind === 'variant' && (leftOut[finding.component] ?? []).includes(/variant="([^"]*)"/.exec(finding.found)?.[1]));
+  const built = [];
+  const call = new RegExp(`(?:\\b(?:el|tag)\\(\\s*['"\`]([a-z][\\w-]*)['"\`]|\\bh\\(\\s*(?:['"\`]${prefix}([a-z][\\w-]*)['"\`]|\`\\$\\{[\\w.]*tagPrefix\\}-([a-z][\\w-]*)\`(?:\\s+as\\s+'[^']*')?))\\s*,\\s*\\{([^{}]*)\\}`, 'g');
+  for (const match of text.matchAll(call)) {
+    const component = match[1] ?? match[2] ?? match[3];
+    const value = /\bvariant\s*:\s*['"`]([\w-]+)['"`]/.exec(match[4]);
+    if (!value || !(leftOut[component] ?? []).includes(value[1])) continue;
+    const offset = match.index + match[0].indexOf(value[0]);
+    const before = text.slice(0, offset);
+    built.push({ line: before.split('\n').length, column: offset - before.lastIndexOf('\n'), kind: 'variant', found: `variant: '${value[1]}'`, component });
+  }
+  return [...fromAudit, ...built].sort((a, b) => a.line - b.line || a.column - b.column);
+}
+
+/**
  * Every import that does not fit the default system: an entry of another system or of every component
  * (`@tanrei/web/all`), a module that registers only components it does not have, a React wrapper of one.
  * @param {ReturnType<typeof defaultSystemContext>} system
@@ -87,6 +112,10 @@ export function ownFiles(dir, base = dir, out = []) {
 /** A finding as a line of a failure: the file, the line and column, what was found and what the system uses instead. */
 export function describe(system, file, finding) {
   if (finding.kind === 'import') return `${file}:${finding.line}:${finding.column} ${finding.found}: ${finding.problem}`;
+  if (finding.kind === 'variant') {
+    const shipped = system.context.manifest.components.find((each) => each.name === finding.component)?.variants ?? [];
+    return `${file}:${finding.line}:${finding.column} ${finding.found} of ${finding.component}: "${CONFIG.namespace}" leaves it out; use ${shipped.join(', ') || 'what it ships'}`;
+  }
   const entry = system.omitted.find((each) => each.name === finding.component);
   return `${file}:${finding.line}:${finding.column} ${finding.found}: "${CONFIG.namespace}" does not have ${finding.component}; use ${entry?.insteadUse?.join(', ') ?? 'what it ships'}`;
 }

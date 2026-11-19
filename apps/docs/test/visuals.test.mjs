@@ -33,6 +33,10 @@ const read = (file) => fs.readFileSync(here(`../${file}`), 'utf8');
 const json = (file) => JSON.parse(fs.readFileSync(here(`../../../${file}`), 'utf8'));
 const config = json('tanrei.config.json');
 const NS = config.namespace;
+/** Component → the values of its `variant` the default system leaves out (its components manifest). */
+const LEFT_OUT = json(`tokens/generated/${NS}/components.json`).omittedVariants;
+/** A component's first fixture of a `variant` the default system has, where a figure that names none starts (else its first). */
+const firstShipped = (name) => specs[name].fixtures.find((fixture) => !(LEFT_OUT[name] ?? []).includes(fixture.props?.variant)) ?? specs[name].fixtures[0];
 const light = json(`design/tokens/${NS}.light.tokens.json`);
 /** A resolved token of the default system's light context, read from disk. */
 const resolved = (dotted) => dotted.split('.').reduce((node, key) => node?.[key], light);
@@ -154,13 +158,15 @@ describe('the parts of the anatomy and measure figures', () => {
       const stage = blueprintStageOf(name);
       if (!stage) continue;
       const document = fixtureDocument(name);
-      assert.equal(stage.fixture, specs[name].anatomyFixture ?? specs[name].fixtures[0].id, name);
+      assert.equal(stage.fixture, specs[name].anatomyFixture ?? firstShipped(name).id, name);
       assert.equal(stage.html, document.stages.find((candidate) => candidate.id === stage.fixture).html, name);
       assert.deepEqual(stage.room, document.sizes[stage.fixture], name);
       assert.equal(stage.tag, specs[name].platforms.web.name);
       assert.ok(!document.windowed.includes(stage.fixture), `${name}: a fixture drawn in a window has no figure in the page`);
     }
     assert.equal(blueprintStageOf('button').fixture, 'filled-leading-icon', 'the button’s figure shows its icon');
+    assert.equal(blueprintStageOf('text-field').fixture, 'stacked-empty', 'the text field’s figure shows the variant the default system draws, not its first fixture’s outlined');
+    assert.equal(blueprintStageOf('text-field').system, undefined);
     assert.match(blueprintStageOf('button').html, /^<div class="stage" data-fixture="filled-leading-icon"><tanrei-button\b/);
   });
   test('the button’s lines, with its icon: the padding on the icon’s side, the gap, the other padding, the heights', () => {
@@ -511,7 +517,7 @@ describe('the playground', () => {
   /** The web build's manifest, read from disk: each element's attributes by name. */
   const manifest = json('packages/web/custom-elements.json');
   const declared = new Map(manifest.modules.flatMap((module) => (module.declarations ?? []).filter((each) => each.tagName).map((each) => [each.tagName, new Map((each.attributes ?? []).map((attribute) => [attribute.name, attribute]))])));
-  const lacking = json('docs/status/status.json').unavailable?.[NS]?.variants ?? {};
+  const lacking = LEFT_OUT;
   const SETTABLE = ['enum', 'boolean', 'number', 'string'];
 
   test('a control for each prop a reader can set on the web element, of the kind its type and its number of values ask for', () => {
@@ -602,11 +608,11 @@ describe('the playground', () => {
     assert.equal(hashKey('button'), 'play-button');
   });
 
-  test('a playground starts at the web package’s own stage of the spec’s first fixture, its controls’ attributes as the playground writes them', () => {
+  test('a playground starts at the web package’s own stage of the spec’s first fixture of a variant the default system has, its controls’ attributes as the playground writes them', () => {
     for (const name of ['button', 'text-field', 'slider', 'tabs']) {
       const playground = playgroundOf(name);
       const document = fixtureDocument(name);
-      const first = specs[name].fixtures[0];
+      const first = firstShipped(name);
       assert.equal(playground.fixture, first.id, name);
       assert.ok(document.stages.some((stage) => stage.id === first.id && stage.html.startsWith(playground.stage.slice(0, playground.stage.indexOf('>') + 1))), `${name}: the document's stage`);
       assert.ok(playground.stage.includes(playground.markup), `${name}: the markup is what the stage holds`);

@@ -7,8 +7,8 @@
 // and not drawn.
 import { fixtureDocument, stageMarkup } from '../fixture-documents';
 import { HARNESS_STAGE_PADDING } from '../fixture-gallery';
-import { getSpec, unavailable, webAttribute, type Spec } from '../repo';
-import { ns } from '../tokens';
+import { getSpec, webAttribute, type Spec } from '../repo';
+import { firstDefaultFixture, omittedVariantsOf } from '../systems';
 
 /** The states the docs show by restyling the browser's own pseudo-classes. */
 export const PSEUDO_STATES = ['hovered', 'focused', 'pressed'] as const;
@@ -102,7 +102,8 @@ function sameBut(base: Record<string, unknown>, props: Record<string, unknown>, 
 
 /**
  * The state matrix of a component as it is drawn. Every cell is made from the web package's own fixture document of
- * the spec's first fixture (what every platform's baseline is compared with): the same element in each cell, with the
+ * the spec's first fixture of a `variant` the default system has (what every platform's baseline is compared with;
+ * `firstDefaultFixture`), here called the first: the same element in each cell, with the
  * row's value, the row's other props and the column's prop set on it. A row holds the room of the fixture that differs
  * from the first only by the row's value, where the spec has one, else the first fixture's. A value the default
  * system does not ship has no row. The doubled row sets the boolean props of the first fixture that sets the doubling
@@ -112,7 +113,7 @@ export function drawnMatrixOf(name: string, rowsBy?: string): DrawnStateMatrix {
   const spec = getSpec(name);
   const matrix = matrixOf(name, rowsBy);
   const document = fixtureDocument(name);
-  const [base] = spec.fixtures;
+  const base = firstDefaultFixture(name, spec.fixtures);
   const stage = base && document?.stages.find((candidate) => candidate.id === base.id);
   if (!base || !document || !stage) throw new Error(`${name}: no fixture document of its first fixture to draw a state matrix from (lib/fixture-documents.ts)`);
   const markup = stageMarkup(stage.html);
@@ -125,7 +126,7 @@ export function drawnMatrixOf(name: string, rowsBy?: string): DrawnStateMatrix {
   const booleans = new Set(spec.props.filter((prop) => prop.type === 'boolean').map((prop) => prop.name));
   const doubling = matrix.twice ? spec.fixtures.find((fixture) => fixture.props[matrix.twice!] === true) : undefined;
   const doubled = doubling ? Object.keys(doubling.props).filter((prop) => booleans.has(prop) && doubling.props[prop] === true) : [];
-  const lacking = matrix.rows?.prop === 'variant' ? (unavailable[ns]?.variants?.[name] ?? []) : [];
+  const lacking = matrix.rows?.prop === 'variant' ? omittedVariantsOf(name) : [];
   const values: (string | null)[] = matrix.rows ? matrix.rows.values.filter((value) => !lacking.includes(value)) : [null];
   const drawn = values.flatMap((value): StateRow[] => {
     const changes = value === null || !matrix.rows ? {} : { [matrix.rows.prop]: value };
@@ -146,10 +147,10 @@ export function drawnMatrixOf(name: string, rowsBy?: string): DrawnStateMatrix {
   return { ...matrix, tag, drawn };
 }
 
-/** Whether a component's state matrix can be drawn: its first fixture's document holds its web element. */
+/** Whether a component's state matrix can be drawn: the document of its first fixture of a default variant holds its web element. */
 export function drawsStateMatrix(name: string): boolean {
   const spec = getSpec(name);
-  const [base] = spec.fixtures;
+  const base = firstDefaultFixture(name, spec.fixtures);
   const stage = base && fixtureDocument(name)?.stages.find((candidate) => candidate.id === base.id);
   const tag = spec.platforms.web?.name;
   return !!stage && !!tag && !!startTagOf(stageMarkup(stage.html), tag);

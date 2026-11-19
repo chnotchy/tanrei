@@ -14,6 +14,13 @@
 //   defines it, named by page, line and column where it does not.
 // That the loader keeps to the rule in a browser is test/browser/omitted-elements.test.mjs's.
 //
+// A value of a component's `variant` the default system leaves out (its manifest's `omittedVariants`: the text
+// field's `outlined`) still renders and works in a product on `@tanrei/web`, drawn as that variant and reported in a
+// debug build (AVL-1). The site uses one only where it shows a system that has it on purpose: in a frame pinned to such
+// a system — an example of the component's own page that documents the variant, a stage of its fixtures. Held here:
+// the values, worked out from the layers; the rule; and on every built page, each element of such a value, each stage
+// of a fixture of one and each choice a playground offers, standing where the rule allows it.
+//
 //   pnpm --filter @tanrei/docs test:node
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
@@ -26,6 +33,7 @@ import { defaultSystemContext } from '../../../packages/tools/src/own-ui.js';
 
 register('./vite-shim.mjs', import.meta.url);
 const { SHOWS_ATTR, SUBJECT_ATTR, leftUndefined, mayDefine } = await import('../src/lib/omitted-elements.ts');
+const { defaultHasVariant, firstDefaultFixture, omittedVariantsIn, omittedVariantsOf, systemShowingMarkup, systemShowingVariant } = await import('../src/lib/systems.ts');
 
 const docs = fileURLToPath(new URL('../', import.meta.url));
 const repo = path.resolve(docs, '../..');
@@ -133,7 +141,7 @@ function placesIn(html, tags) {
     const shows = new RegExp(`\\b${SHOWS_ATTR}="([^"]+)"`).exec(attrs)?.[1];
     if (tags.has(name)) {
       const before = html.slice(0, match.index);
-      found.push({ tag: name, line: before.split('\n').length, column: match.index - before.lastIndexOf('\n'), subject, shows: shows ?? stack.findLast((open) => open.shows)?.shows });
+      found.push({ tag: name, attrs, line: before.split('\n').length, column: match.index - before.lastIndexOf('\n'), subject, shows: shows ?? stack.findLast((open) => open.shows)?.shows });
     }
     if (RAW.has(name)) {
       const end = html.indexOf(`</${name}`, tag.lastIndex);
@@ -171,6 +179,114 @@ describe('the built pages', () => {
     };
     walk(dist);
     assert.ok(pages > 100, `${pages} pages read`);
+    assert.deepEqual(stray, []);
+  });
+});
+
+// ── The variants the default system leaves out ──────────────────────────────────────────────────────────────────────
+
+/** Component → the values of its `variant` the default system leaves out, worked out from its layers. */
+const leftOut = fromLayers.shipped.get(DEFAULT_SYSTEM).omittedVariants;
+/** Each element of a component with such a value, by tag. */
+const variantTags = new Map(fromLayers.context.catalog.components.filter((component) => leftOut[component.name] && component.web?.tag).map((component) => [component.web.tag, component.name]));
+/** Whether a shipped system has this value of a component's `variant`. */
+const hasVariant = (system, component, variant) => {
+  const manifest = fromLayers.shipped.get(system);
+  return Boolean(manifest?.components.some((each) => each.name === component) && !(manifest.omittedVariants[component] ?? []).includes(variant));
+};
+/** Whether the site may use this value here: one the default system has anywhere, another only in a frame pinned to a system that has it. */
+const mayUseVariant = (component, variant, { shows }) => !(leftOut[component] ?? []).includes(variant) || Boolean(shows && hasVariant(shows, component, variant));
+const variantOf = (attrs) => /(?:^|\s)variant\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s>]+))/.exec(attrs ?? '')?.slice(1).find((value) => value !== undefined);
+
+describe('the variants the default system leaves out', () => {
+  test('they are worked out from its layers, a composed component’s own name among them, and the site reads the same', () => {
+    const layer = JSON.parse(fs.readFileSync(path.join(repo, `tokens/systems/${DEFAULT_SYSTEM}.system.json`), 'utf8'));
+    for (const [name, { omit = [] }] of Object.entries(layer.components?.variants ?? {})) for (const value of omit) assert.ok(leftOut[name]?.includes(value), `${name}: ${value} is left out by the default system’s file`);
+    assert.ok(leftOut['text-field']?.includes('outlined'), 'the text field gives its text input the variant: its outlined is left out too');
+    assert.deepEqual(manifests.get(DEFAULT_SYSTEM).omittedVariants, leftOut, 'the web package’s manifest says the same');
+    for (const name of fromLayers.context.catalog.components.map((component) => component.name)) assert.deepEqual(omittedVariantsOf(name), leftOut[name] ?? [], `${name}: lib/systems.ts`);
+    assert.ok(variantTags.size > 0);
+  });
+
+  test('one is used only in a frame pinned to a system that has it — on the component’s own page too — and a figure that names none starts from a variant the default system has', () => {
+    const shipped = [...fromLayers.shipped.keys()];
+    for (const [component, values] of Object.entries(leftOut)) {
+      for (const value of values) {
+        assert.equal(defaultHasVariant(component, value), false);
+        assert.equal(mayUseVariant(component, value, {}), false, `${component}:${value} on a page`);
+        assert.equal(mayUseVariant(component, value, { subject: component }), false, `${component}:${value} on its own page, outside a pinned frame`);
+        assert.equal(mayUseVariant(component, value, { shows: DEFAULT_SYSTEM }), false, `${component}:${value} in a frame of the default system`);
+        for (const id of shipped) assert.equal(mayUseVariant(component, value, { shows: id }), hasVariant(id, component, value), `${component}:${value} in a frame pinned to ${id}`);
+        const pinned = systemShowingVariant(component, value);
+        assert.ok(pinned && hasVariant(pinned, component, value), `${component}:${value} is shown under ${pinned}, which has it`);
+      }
+      const spec = JSON.parse(fs.readFileSync(path.join(repo, `specs/${component}.spec.json`), 'utf8'));
+      const first = firstDefaultFixture(component, spec.fixtures);
+      if (spec.fixtures.some((fixture) => defaultHasVariant(component, fixture.props?.variant))) assert.equal(defaultHasVariant(component, first.props?.variant), true, `${component}: a figure starts from ${first.id}`);
+    }
+    assert.equal(systemShowingVariant('text-field', 'stacked'), undefined);
+    assert.equal(mayUseVariant('text-field', 'stacked', {}), true);
+    // A stage of markup is pinned where anything in it uses such a value: a field's fixture of an outlined select.
+    const field = `<tanrei-field label="Plan"><tanrei-select variant='outlined'></tanrei-select></tanrei-field><tanrei-tabs variant="tonal"></tanrei-tabs>`;
+    assert.deepEqual(omittedVariantsIn(field), [{ component: 'select', variant: 'outlined' }]);
+    const pinned = systemShowingMarkup(field);
+    assert.ok(pinned && hasVariant(pinned, 'select', 'outlined'), `the stage is drawn under ${pinned}`);
+    assert.equal(systemShowingMarkup('<tanrei-text-field label="Email"></tanrei-text-field><tanrei-text-field variant="stacked"></tanrei-text-field>'), undefined);
+  });
+
+  test('every element of one, every stage of a fixture of one and every choice of a playground stands where the site may use it (dist/, when the site has been built)', { skip: !fs.existsSync(path.join(dist, 'index.html')) && 'apps/docs/dist holds no site: run `pnpm --filter @tanrei/docs build` first' }, () => {
+    const tags = new Set(variantTags.keys());
+    const stray = [];
+    let pages = 0;
+    let seen = 0;
+    const walk = (dir) => {
+      for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+        const full = path.join(dir, entry.name);
+        if (entry.isDirectory()) walk(full);
+        else if (entry.name.endsWith('.html')) {
+          pages++;
+          const html = fs.readFileSync(full, 'utf8');
+          const page = path.relative(dist, full);
+          // The elements the page writes, a blueprint's stage among them.
+          if ([...tags].some((each) => html.includes(`<${each}`))) {
+            for (const place of placesIn(html, tags)) {
+              const component = variantTags.get(place.tag);
+              const value = variantOf(place.attrs);
+              if (!value || !leftOut[component].includes(value)) continue;
+              seen++;
+              if (!mayUseVariant(component, value, place)) stray.push(`${page}:${place.line}:${place.column} <${place.tag} variant="${value}">${place.shows ? ` under ${place.shows}` : ''}`);
+            }
+          }
+          // The stages of a fixture gallery, which its script draws from the page's data: each stage of a fixture of
+          // such a value is pinned to a system that has it.
+          for (const [, gallery, data] of html.matchAll(/data-fixture-gallery data-component="([^"]+)".*?<script type="application\/json" data-fixture-stages>(.*?)<\/script>/gs)) {
+            for (const [id, markup] of Object.entries(JSON.parse(data))) {
+              for (const [, tag, attrs] of markup.matchAll(/<([a-z][\w-]*)(\s[^>]*)?>/g)) {
+                const component = variantTags.get(tag);
+                const value = component && variantOf(attrs);
+                if (!value || !leftOut[component].includes(value)) continue;
+                seen++;
+                const stage = new RegExp(`<[a-z][\\w-]*\\s[^>]*\\bid="docs-stage-${gallery}-${id}"[^>]*>`).exec(html)?.[0] ?? '';
+                const shows = new RegExp(`\\b${SHOWS_ATTR}="([^"]+)"`).exec(stage)?.[1];
+                if (!mayUseVariant(component, value, { shows })) stray.push(`${page}: the stage of ${gallery}’s fixture ${id} draws <${tag} variant="${value}">${shows ? ` under ${shows}` : ''}`);
+              }
+            }
+          }
+          // A playground's choices of `variant`, and the value it starts at (a page has one playground, of its component).
+          const component = /\bdata-playground="([^"]+)"/.exec(html)?.[1];
+          if (component) {
+            for (const [, control] of html.matchAll(/data-playground-prop="variant"([^>]*>(?:\s*<tanrei-tab\s[^>]*>[^<]*<\/tanrei-tab>)*)/g)) {
+              for (const [, value] of control.matchAll(/<tanrei-tab\s[^>]*\bvalue="([^"]+)"/g)) if ((leftOut[component] ?? []).includes(value)) stray.push(`${page}: ${component}’s playground offers variant "${value}"`);
+              const start = /^[^>]*\bvalue="([^"]+)"/.exec(control)?.[1];
+              if ((leftOut[component] ?? []).includes(start)) stray.push(`${page}: ${component}’s playground starts at variant "${start}"`);
+            }
+          }
+        }
+      }
+    };
+    walk(dist);
+    assert.ok(pages > 100, `${pages} pages read`);
+    assert.ok(seen > 0, 'the pages that document such a value draw it');
     assert.deepEqual(stray, []);
   });
 });

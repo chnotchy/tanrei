@@ -75,6 +75,72 @@ export function variantsLeftOut(name: string): { system: string; values: string[
   return manifests.flatMap((manifest) => (manifest.omittedVariants[name] ? [{ system: manifest.system, values: manifest.omittedVariants[name] }] : []));
 }
 
+/**
+ * Whether the default system has this value of a component's `variant`: a value its manifest leaves out (its
+ * `omittedVariants`, a composed component's own name for a value it gives its member: the text field's `outlined`) is
+ * not, and the site's own interface and an example of another subject do not use it, as a product of the default
+ * system would not. No value, or a component without `variant`, is the default's.
+ */
+export function defaultHasVariant(name: string, variant: unknown): boolean {
+  return typeof variant !== 'string' || !omittedVariantsOf(name).includes(variant);
+}
+
+/** The values of a component's `variant` the default system leaves out (none for most). */
+export const omittedVariantsOf = (name: string): string[] => defaultManifest.omittedVariants[name] ?? [];
+
+/**
+ * The fixture a figure of a component starts from where the page names none: the first of a `variant` the default
+ * system has (the text field's first stacked one, not its first outlined one), else the first.
+ */
+export function firstDefaultFixture<Fixture extends { props?: Record<string, unknown> }>(name: string, fixtures: readonly Fixture[]): Fixture | undefined {
+  return fixtures.find((fixture) => defaultHasVariant(name, fixture.props?.variant)) ?? fixtures[0];
+}
+
+/**
+ * The shipped preset a figure is drawn under to show a value of a component's `variant` the default system leaves out
+ * on purpose: the first, by id, that has the component and the value. Undefined for a value the default system has.
+ */
+export function systemShowingVariant(name: string, variant: unknown): string | undefined {
+  return defaultHasVariant(name, variant) ? undefined : systemShowing([{ component: name, variant: variant as string }]);
+}
+
+/** A use of a value of a component's `variant`: `text-field` and `outlined`. */
+export interface VariantUse {
+  component: string;
+  variant: string;
+}
+
+/** The first preset, by id, that has every one of these uses; it throws where none has them all. */
+function systemShowing(uses: readonly VariantUse[]): string {
+  const has = (manifest: ComponentsManifest, { component, variant }: VariantUse) => manifest.components.some((entry) => entry.name === component) && !(manifest.omittedVariants[component] ?? []).includes(variant);
+  const preset = presetManifests.find((manifest) => uses.every((use) => has(manifest, use)));
+  if (!preset) throw new Error(`no shipped system has ${uses.map(({ component, variant }) => `${component}:${variant}`).join(', ')}, which the default system leaves out`);
+  return preset.system;
+}
+
+/** The default system's components by their element's tag, for markup. */
+const byTag = new Map(defaultManifest.components.flatMap((entry) => (entry.web?.tag ? [[entry.web.tag, entry.name] as const] : [])));
+
+/** The uses in markup (a fixture's stage) of a value of `variant` the default system leaves out, as the markup writes them. */
+export function omittedVariantsIn(markup: string): VariantUse[] {
+  const uses: VariantUse[] = [];
+  for (const [, tag, attributes = ''] of markup.matchAll(/<([a-z][\w-]*)(\s[^>]*)?>/g)) {
+    const component = byTag.get(tag);
+    const variant = component && /(?:^|\s)variant\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s>]+))/.exec(attributes)?.slice(1).find((value) => value !== undefined);
+    if (component && variant && !defaultHasVariant(component, variant)) uses.push({ component, variant });
+  }
+  return uses;
+}
+
+/**
+ * The shipped preset a stage of markup is drawn under where it uses a value of `variant` the default system leaves
+ * out (a field's fixture of an outlined text input): the first that has them all. Undefined where it uses none.
+ */
+export function systemShowingMarkup(markup: string): string | undefined {
+  const uses = omittedVariantsIn(markup);
+  return uses.length ? systemShowing(uses) : undefined;
+}
+
 /** Components that share the same values, gathered: `values` and the components, in the order first met. */
 export interface SameValues {
   values: string[];
