@@ -17,6 +17,7 @@ import {
   SizeConsumerController,
   type SubmitButtonState,
   type TanreiLinkTarget,
+  WordsController,
   afterClick,
   announceBusy,
   busyArc,
@@ -337,6 +338,14 @@ export class TanreiButton extends TanreiElement {
    */
   private readonly mirror = new GlyphMirrorController(this, { slots: 'slot[name="icon"]', drawn: '.mark' });
 
+  /** BTN-37: the product's words, read where the instance gives no `busyLabel` (src/primitives/words.ts). */
+  private readonly words = new WordsController(this);
+
+  /** BTN-37: what a busy button says — its own `busyLabel`, else the product's word of that name, else nothing. */
+  private get busyWords(): string {
+    return this.words.get('busyLabel', this.busyLabel);
+  }
+
   /**
    * BTN-22 … BTN-26: the link the button is while it has a destination, what its anchor carries, and what a debug
    * build is told (src/primitives/link.ts). A toggle holds a state and takes none (BTN-26).
@@ -646,9 +655,9 @@ export class TanreiButton extends TanreiElement {
     // BTN-37: busyLabel is announced once when the button becomes busy (the region was emptied when it was not), and
     // nothing is said when it ends (src/primitives/busy.ts).
     if (changed.has('busy') && this.busy) {
-      const words = this.busyLabel;
+      const words = this.busyWords;
       announceBusy(this.renderRoot, words, () => this.busy && !this.isDisabled);
-      if (!words) report(this, 'BTN-37', 'it is busy and busyLabel is empty, so nothing tells people who cannot see the arc that it is working; give it the words ("Saving")');
+      if (!words) this.words.missing('busyLabel', { id: 'BTN-37', effect: 'it is busy, and nothing tells people who cannot see the arc that it is working ("Saving")' });
     }
     // BTN-32: the update has reflected `disabled` by now. Unset inside a disabled fieldset, the button was rendered
     // from the property alone and is still disabled by the fieldset: it is drawn again.
@@ -725,7 +734,7 @@ export class TanreiButton extends TanreiElement {
     const reachable = this.reachable;
     const busy = this.busy && !disabled;
     // The product's `aria-description` on the host (a badge's on its anchor, BDG-8) comes first (src/primitives/delegated-aria.ts).
-    const description = [this.link.describe(this.getAttribute('data-aria-description')), busy ? this.busyLabel : ''].filter(Boolean).join(', ');
+    const description = [this.link.describe(this.getAttribute('data-aria-description')), busy ? this.busyWords : ''].filter(Boolean).join(', ');
     const tag = link ? literal`a` : literal`button`;
     const iconOnly = !this.hasLabel;
     const trailing = this.hasIcon && this.hasLabel && this.iconPosition === 'trailing';
