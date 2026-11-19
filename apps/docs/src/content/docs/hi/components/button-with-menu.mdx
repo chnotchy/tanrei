@@ -2,7 +2,7 @@
 title: मेन्यू वाला बटन
 description: एक बार दबाने पर मुख्य क्रिया करता है, और अपने बग़ल में जुड़े दूसरे बटन से खुलने वाले मेन्यू में संबंधित क्रियाएँ देता है।
 translationOf: components/button-with-menu.mdx
-sourceHash: fc9fa1614058622bad95aa4f9dbc578e3c4dc196
+sourceHash: 47ec0e350aae6acb1cf1aa3da68162409befa062
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -283,6 +283,17 @@ Material 3 अपने समकक्ष कंपोनेंट को स�
 </Example>
 
 पतला अंतिम हिस्सा न्यूनतम टार्गेट से सँकरा बनता है, पर उसका हिट एरिया सँकरा नहीं होता: टार्गेट बाहर की ओर, अंतिम किनारे से आगे तक पहुँचता है। वहाँ उसके लिए जगह छोड़ें, जैसे narrow, सिर्फ़ आइकन वाले Button के बग़ल में छोड़ते हैं।
+
+### पूरी चौड़ाई
+
+`full-width` देने पर मेन्यू वाला बटन अपने कंटेनर जितना चौड़ा हो जाता है, जैसे किसी संकरे फ़ॉर्म, कार्ड या शीट के नीचे की इकलौती क्रिया। बढ़ी हुई चौड़ाई शुरुआती हिस्से को मिलती है, और वह अपना आइकन और लेबल उसके बीच में रखता है, जैसे पूरी चौड़ाई वाला [Button](/hi/components/button/#पूरी-चौड़ाई) रखता है; अंतिम हिस्सा अपनी चौड़ाई पर ही रहता है, चाहे default हो या narrow। दोनों हिस्सों की ऊँचाई, पैडिंग और कोने उनके साइज़ के ही रहते हैं, और जो लेबल न समाए, वह कटता नहीं, अगली लाइन में चला जाता है। [टूलबार](/hi/components/toolbar/) में चौड़ाई टूलबार तय करता है, और `full-width` कुछ नहीं करता।
+
+<Example label="पूरी चौड़ाई">
+  <div style="inline-size: 20rem; display: grid; gap: 0.75rem">
+    <tanrei-button-with-menu full-width label="सेव करें" menu-label="सेव करने के और विकल्प"><span slot="icon">save</span></tanrei-button-with-menu>
+    <tanrei-button-with-menu variant="outlined" full-width trailing-width="narrow" label="मर्ज करें" menu-label="मर्ज करने के और विकल्प"></tanrei-button-with-menu>
+  </div>
+</Example>
 
 ### विनाशकारी क्रियाएँ
 

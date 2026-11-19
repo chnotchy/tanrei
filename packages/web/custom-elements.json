@@ -2576,6 +2576,18 @@
             },
             {
               "kind": "field",
+              "name": "fullWidth",
+              "privacy": "public",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Takes the whole width its container gives it, at the height of its size (the `full-width` attribute, SPB-38): the\nleading half takes the extra width, its icon and label centred in it as a full-width Button's are, and the trailing\nhalf keeps the width `trailing-width` gives it. A label that does not fit wraps, its lines centred. Ignored in a\ntoolbar, which lays the button with menu out and gives it its width.",
+              "attribute": "full-width",
+              "reflects": true
+            },
+            {
+              "kind": "field",
               "name": "label",
               "privacy": "public",
               "type": {
@@ -2713,6 +2725,15 @@
               "default": "'default'",
               "description": "How wide the trailing half is: `default` holds the chevron in a square of the height (32 / 40 / 56) and adds the\npadding of the rounded outer end (36 / 44 / 60 in the default system); `narrow` is the chevron and\n`trailing.padding-inline-narrow` on each side of it, with no outer padding (28 / 32 / 32: the width of a narrow\nicon-only Button, SPB-32). The hit area meets the minimum target at both: a narrow half reaches it past its end\nedge and is not drawn wider. The `trailing-width` attribute. Anything else is `default` (reported in debug\nbuilds, SPB-8).",
               "fieldName": "trailingWidth"
+            },
+            {
+              "name": "full-width",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Takes the whole width its container gives it, at the height of its size (the `full-width` attribute, SPB-38): the\nleading half takes the extra width, its icon and label centred in it as a full-width Button's are, and the trailing\nhalf keeps the width `trailing-width` gives it. A label that does not fit wraps, its lines centred. Ignored in a\ntoolbar, which lays the button with menu out and gives it its width.",
+              "fieldName": "fullWidth"
             },
             {
               "name": "label",
