@@ -689,7 +689,7 @@ export class TanreiSideSheet extends TanreiElement {
     const dialog = this.dialog;
     dialog?.classList.remove('dragging');
     // SSH-2: no longer modal at once — the page and focus are given back now — and drawn in the top layer until its exit
-    // and its scrim's have played (closeModal), in every engine.
+    // has played, its scrim gone from the first frame (closeModal, MOT-7), in every engine.
     if (dialog) void closeModal(dialog);
     void this.appear.exit(!this.isConnected);
     const opener = restore && hadFocus ? this.opener : null;
