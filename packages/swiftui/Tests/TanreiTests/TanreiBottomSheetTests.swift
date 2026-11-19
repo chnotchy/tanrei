@@ -903,7 +903,7 @@ struct TanreiBottomSheetSnapshotTests {
 struct TanreiBottomSheetPresetSnapshotTests {
   /// The modal sheet whose content fits: the preset's scrim, container color, elevation, top corners and drag handle.
   nonisolated static let fixtureId = "modal"
-  nonisolated static let presets: [ShippedSystem] = [.m3Like, .m3ExpressiveLike, .cupertino]
+  nonisolated static let presets: [ShippedSystem] = [.m3Like, .cupertino]
 
   @Test("every shipped preset has one, and it is one of the spec's fixtures")
   func fixtureList() {

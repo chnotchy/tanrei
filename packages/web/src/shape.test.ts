@@ -95,7 +95,7 @@ test('the emitter marks every comp shape token by whether its alias chain reache
   // Every sheet that is shipped: each comp shape token is marked exactly when its alias chain ends at the full step —
   // whichever components those are in that system — and the default system has tokens of both kinds.
   const tokensCss = read('packages/web/dist/tokens.css');
-  for (const file of ['dist/tokens.css', 'dist/systems/m3-like.css', 'dist/systems/m3-expressive-like.css', 'dist/systems/cupertino.css']) {
+  for (const file of ['dist/tokens.css', 'dist/systems/m3-like.css', 'dist/systems/cupertino.css']) {
     const tokens = shapeTokens(read(`packages/web/${file}`));
     expect(tokens.length, file).toBeGreaterThan(0);
     const byName = new Map(tokens.map((token) => [token.name, token]));

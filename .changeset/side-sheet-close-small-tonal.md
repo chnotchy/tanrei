@@ -22,8 +22,7 @@ keeps the Button's own minimum target, and answers hover, focus and a press as a
   default to true), as the chip's `not-removable` is. Markup that wrote `closable` can drop it; markup that relied on
   its absence to draw no close button writes `not-closable`. In React, pass `closable={false}`.
 - `comp.side-sheet.close-button.variant` stays tonal; `m3-like` keeps its text pin. The button takes each system's small
-  size: 32 under `m3-like` (was 40, Material 3's icon button — filed as the mimicry gap `close-button-size`), 28 under
-  `cupertino` (was 34), 40 under `m3-expressive-like` (was 56).
+  size: 40 under `m3-like`, Material 3's icon button, and 28 under `cupertino` (was 34).
 
 SwiftUI, Compose, Flutter and React Native are lagging and still ship the earlier revision (a medium close button,
 `closable` false by default); they owe this change with the rest. Baselines: the side sheet's six fixtures and each

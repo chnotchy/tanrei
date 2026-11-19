@@ -11,8 +11,8 @@ palettes of the status containers and of the inverse status bars, and the six sy
 `cupertino` declare every palette and color they used to take from the root, each with a reason where Material 3 or
 Apple's guidelines have no counterpart.
 
-No shipped system moved: every stylesheet, bundle value and native constant of `tanrei`, `m3-like`,
-`m3-expressive-like` and `cupertino` is byte for byte what it was, and `fidelity.json` is unchanged. Only the bundles'
+No shipped system moved: every stylesheet, bundle value and native constant of `tanrei`, `m3-like`
+and `cupertino` is byte for byte what it was, and `fidelity.json` is unchanged. Only the bundles'
 recipe (`dial/dial.tokens.json`, which carries the layers as written) differs.
 
 What broke, for anyone who read `core` directly (a layer chain built on it, `diff_systems … core`, the Studio's preview

@@ -7,7 +7,7 @@ FAB menu: each item appears as every surface does, and leaves the way it came. *
 0.1.0-next.0 shipped): the items no longer only fade as they close, under reduced motion they fade instead of appearing
 at once, and under an appearance other than m3-like's they start from that appearance's values.
 
-- Under m3-like and m3-expressive-like an item enters as before: from opacity 0 and scale 0, grown from the middle of
+- Under m3-like an item enters as before: from opacity 0 and scale 0, grown from the middle of
   its end edge on both axes, over `comp.fab-menu.motion.open-duration` and `-easing`, the one nearest the toggle first
   and each next `comp.fab-menu.motion.stagger` later. Under a system that takes the FAB menu into another appearance
   (the default system's fade-scale: opacity 0 and scale 0.96) it starts from that appearance's values.

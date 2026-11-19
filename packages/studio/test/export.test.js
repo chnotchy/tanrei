@@ -15,9 +15,9 @@ test('the examples a layer could hold itself: every shipped layer between it and
   assert.ok(examples.length >= 2, `the gallery has examples (${examples})`);
   assert.equal(studio.writeOut({ id: 'acme', extends: studio.defaultId }), null, 'the default system is no example: nothing to write out');
   for (const id of examples) assert.notEqual(id, studio.defaultId);
-  const stacked = examples.find((id) => ![studio.rootId, studio.defaultId].includes(shipped[id].extends));
-  assert.ok(stacked, 'an example on an example');
-  assert.deepEqual(studio.examplesOf({ id: 'acme', extends: stacked }).map((layer) => layer.id), [stacked, shipped[stacked].extends], 'nearest first');
+  // Every example today extends the root, so a layer on one depends on that one example alone; an example on an
+  // example would add its own base after it, nearest first.
+  for (const id of examples) assert.deepEqual(studio.examplesOf({ id: 'acme', extends: id }).map((layer) => layer.id), [id, ...studio.examplesOf({ id, extends: shipped[id].extends }).map((layer) => layer.id)], `${id}: nearest first`);
 });
 
 test('the base of a layer written out is one of the Base system panel’s choices: the root, which is offered for no other layer', () => {
