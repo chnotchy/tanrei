@@ -93,13 +93,13 @@ export const styles = css`
     exit: { duration: T('motion-exit-duration'), easing: T('motion-exit-easing') },
   })}
   /* DLG-1, DLG-13, MDL-1, MDL-7: the modal layer's scrim, over the whole window behind the dialog (its color and blur),
-     fading with it — over sys.motion.role.reduced where motion is reduced, as the container then fades. */
+     fading in with it — over sys.motion.role.reduced where motion is reduced, as the container then fades — and taken
+     away at once as it begins to close (MOT-7, modalExitStyles below). */
   ${sheetScrimStyles({
     dialog: 'dialog',
     color: T('scrim-color'),
     blur: T('scrim-blur'),
     enter: { duration: T('motion-enter-duration'), easing: T('motion-enter-easing') },
-    exit: { duration: T('motion-exit-duration'), easing: T('motion-exit-easing') },
   })}
   /* DLG-17, DLG-18: in a compact window, the bottom sheet's appearance — docked to the window's bottom edge (over the
      keyboard), as wide as the window up to the bottom sheet's greatest width whatever width names, its color, elevation
@@ -107,7 +107,7 @@ export const styles = css`
      and down with the bottom sheet's motion over the dialog's own scrim, as a modal bottom sheet does, unfaded, unscaled
      and unblurred whatever the appearance (src/primitives/compact-sheet.ts). After the rules above, which it overrides. */
   ${sheetLookStyles({ sheet: 'dialog.compact', paddingBlockEnd: T('container-padding'), scrim: { color: T('scrim-color'), blur: T('scrim-blur') } })}
-  /* MDL-7: closed, it stays drawn in the top layer until its exit and its scrim's have played (src/primitives/modal-exit.ts). */
+  /* MDL-7, MOT-7: closed, it stays drawn in the top layer until its exit has played, its scrim gone from the first frame (src/primitives/modal-exit.ts). */
   ${modalExitStyles('dialog')}
 
   /* The container's inline padding at each side, for the script to observe (syncPadding in dialog.ts): a box with no

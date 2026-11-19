@@ -128,7 +128,7 @@ export interface AppearOptions {
    * shadow root (`.surface.open`, `[open]`). Keep it apart from the top layer's own state (`:popover-open`): the
    * surface is taken out of the top layer after `exit()` resolves, so it stays in it while its exit plays. A modal
    * `<dialog>` is opened and closed with `openModal()` and `closeModal()` (src/primitives/modal-exit.ts), which keep it
-   * drawn in the top layer, its `[open]` gone, until its exit and its scrim's have played: `[open]` is its condition.
+   * drawn in the top layer, its `[open]` gone, until its exit has played: `[open]` is its condition.
    */
   open: string;
   role: AppearRole;

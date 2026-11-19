@@ -9,6 +9,7 @@ import { type Locator, type Page, expect, test } from '@playwright/test';
 import { type Fixture, dialogWindow, loadSpec, mountFixtures, resolveColor, resolveToken, rootTokens, tab, tabTo } from '../../../test/harness.js';
 import { expectFromNextFrame, motionEnded } from '../../../test/motions.js';
 import { expectBaseline } from '../../../test/baseline.js';
+import { expectScrimTakenAwayAtClose } from '../../../test/scrim-at-close.js';
 import { entrances, loadOpen, mountOpenAgain, runsAtRest } from '../../../test/mounted-open.js';
 
 const spec = loadSpec('modal-layer');
@@ -374,7 +375,15 @@ test.describe('closing', () => {
 });
 
 test.describe('motion', () => {
-  test('MDL-7: the scrim and the container fade in over the enter motion and out over the exit motion, still drawn until the fade ends; reduced motion still fades', async ({ page }) => {
+  test('MDL-7, MOT-7: closing, the scrim is drawn at no opacity and takes no press from the first frame — the container still drawn and fading out — and opening fades it in from no opacity, in every engine; where motion is reduced it is gone from the first frame too', async ({ page }) => {
+    await mount(page, [f('l')]);
+    await open(page, 'l');
+    await motionEnded(page);
+    const set = (value: boolean) => () => host(page, 'l').evaluate((el, v) => ((el as unknown as { open: boolean }).open = v), value);
+    await expectScrimTakenAwayAtClose(page, page.locator('[data-fixture="l"]'), { open: set(true), close: set(false), what: 'the modal layer' });
+  });
+
+  test('MDL-7: the scrim and the container fade in over the enter motion and the container out over the exit motion, still drawn until the fade ends; reduced motion still fades', async ({ page }) => {
     await mount(page, [f('l')]);
     await open(page, 'l');
     const enter = await resolveToken(page, T('motion-enter-duration'), 'duration');

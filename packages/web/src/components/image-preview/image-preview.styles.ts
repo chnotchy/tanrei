@@ -61,7 +61,7 @@ export const styles = css`
   dialog::backdrop {
     background: transparent;
   }
-  /* MDL-7: closed, it stays drawn in the top layer until its exit and its scrim's have played (src/primitives/modal-exit.ts). */
+  /* MDL-7: closed, it stays drawn in the top layer until its exit has played (src/primitives/modal-exit.ts). */
   ${modalExitStyles('dialog')}
 
   /* IMP-1: the fill, behind the image, so that the image's clear parts show it (IMP-11) and so that the downward drag

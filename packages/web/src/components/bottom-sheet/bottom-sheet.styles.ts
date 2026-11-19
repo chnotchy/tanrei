@@ -54,7 +54,7 @@ const handleTokens = [
 ].join('\n    ');
 
 const ENTER = `${T('motion-enter-duration')} ${T('motion-enter-easing')}`;
-/** BSH-1: the sheet's entrance and exit, which its slide and its scrim's fade take alike. */
+/** BSH-1: the sheet's entrance and exit: its slide takes both, its scrim's fade the entrance (MOT-7). */
 const ENTER_MOTION = { duration: T('motion-enter-duration'), easing: T('motion-enter-easing') };
 const EXIT_MOTION = { duration: T('motion-exit-duration'), easing: T('motion-exit-easing') };
 
@@ -157,8 +157,9 @@ export const styles = css`
      block end): it slides up from its own height below the bottom edge over the enter motion — unfaded and unscaled
      whatever the appearance — and down the same way over the exit motion, from wherever it is drawn (a drag's offset is
      --_drag), turned round from where it has got to; kept in the top layer and displayed until it has left (the browser
-     has closed it by then: focus and the page are given back at once). The scrim fades in step, over the same duration
-     and curve. Under reduced motion both only fade, in place, over sys.motion.role.reduced. */
+     has closed it by then: focus and the page are given back at once). The scrim fades in in step, over the same
+     duration and curve, and is taken away at once as the sheet begins to close (MOT-7). Under reduced motion the sheet
+     and the scrim's entrance only fade, in place, over sys.motion.role.reduced. */
   dialog.sheet {
     position: fixed;
     inset-inline: 0;
@@ -169,14 +170,14 @@ export const styles = css`
     display: none;
   }
   ${appearStyles({ motion: 'dialog.sheet', open: '[open]', role: 'sheet', origin: 'block-end', enter: ENTER_MOTION, exit: EXIT_MOTION, offset: '0 var(--_drag, 0px)' })}
-  ${sheetScrimStyles({ dialog: 'dialog.sheet', color: T('scrim-color'), blur: T('scrim-blur'), enter: ENTER_MOTION, exit: EXIT_MOTION })}
+  ${sheetScrimStyles({ dialog: 'dialog.sheet', color: T('scrim-color'), blur: T('scrim-blur'), enter: ENTER_MOTION })}
   /* While the sheet follows a drag, settles by script (BSH-9) or is presented in place (moved in the document, or turned
      modal while open), no transition runs on it or on its scrim. (After the appearance, whose open rule weighs as much.) */
   dialog.sheet:is(.dragging, .settling, .instant),
   dialog.sheet.instant::backdrop {
     transition-property: none;
   }
-  /* MDL-7: closed, it stays drawn in the top layer until its exit and its scrim's have played (src/primitives/modal-exit.ts). */
+  /* MDL-7, MOT-7: closed, it stays drawn in the top layer until its exit has played, its scrim gone from the first frame (src/primitives/modal-exit.ts). */
   ${modalExitStyles('dialog')}
 
   /* BSH-4: a standard sheet is a layout region over the bottom of the parent that holds it and the content: the host

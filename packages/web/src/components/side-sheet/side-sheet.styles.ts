@@ -37,7 +37,7 @@ export const AXES: readonly OpenAxis[] = [
 
 const ENTER = `${T('motion-enter-duration')} ${T('motion-enter-easing')}`;
 const EXIT = `${T('motion-exit-duration')} ${T('motion-exit-easing')}`;
-/** SSH-2: the modal sheet's entrance and exit, which its slide and its scrim's fade take alike. */
+/** SSH-2: the modal sheet's entrance and exit: its slide takes both, its scrim's fade the entrance (MOT-7). */
 const ENTER_MOTION = { duration: T('motion-enter-duration'), easing: T('motion-enter-easing') };
 const EXIT_MOTION = { duration: T('motion-exit-duration'), easing: T('motion-exit-easing') };
 /** Far enough to let a shadow show on the sides that are not clipped (a clip-path inset needs a length). */
@@ -305,8 +305,9 @@ export const styles = css`
      same way over the exit motion, from wherever it is drawn (a drag's offset is --_drag), turned round from where it
      has got to; kept in the top layer and displayed until it has left (the browser has closed it by then: focus and the
      page are given back at once). A released drag that does not close it slides back over the enter motion. The scrim
-     fades in step, over the same duration and curve. Under reduced motion both only fade, in place (from wherever a
-     drag left it), over sys.motion.role.reduced, and a released drag goes back at once. */
+     fades in in step, over the same duration and curve, and is taken away at once as the sheet begins to close (MOT-7).
+     Under reduced motion the sheet and the scrim's entrance only fade, in place (from wherever a drag left it), over
+     sys.motion.role.reduced, and a released drag goes back at once. */
   dialog.sheet {
     position: fixed;
     inset-block: 0;
@@ -320,7 +321,7 @@ export const styles = css`
     display: none;
   }
   ${appearStyles({ motion: 'dialog.sheet', open: '[open]', role: 'sheet', origin: 'inline-end', enter: ENTER_MOTION, exit: EXIT_MOTION, offset: 'var(--_drag, 0px) 0' })}
-  ${sheetScrimStyles({ dialog: 'dialog.sheet', color: T('scrim-color'), blur: T('scrim-blur'), enter: ENTER_MOTION, exit: EXIT_MOTION })}
+  ${sheetScrimStyles({ dialog: 'dialog.sheet', color: T('scrim-color'), blur: T('scrim-blur'), enter: ENTER_MOTION })}
   /* SSH-4: while the sheet follows a drag, nothing transitions; presented in place (moved in the document, or turned
      modal while open), it and its scrim appear there at once. (After the appearance, whose open rule weighs as much.) */
   dialog.sheet.dragging {
@@ -331,7 +332,7 @@ export const styles = css`
   dialog.sheet.instant::backdrop {
     transition-property: none;
   }
-  /* MDL-7: closed, it stays drawn in the top layer until its exit and its scrim's have played (src/primitives/modal-exit.ts). */
+  /* MDL-7, MOT-7: closed, it stays drawn in the top layer until its exit has played, its scrim gone from the first frame (src/primitives/modal-exit.ts). */
   ${modalExitStyles('dialog')}
 
   /* SSH-1: where motion is reduced, a standard sheet opens and closes at once. */
