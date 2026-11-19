@@ -60,7 +60,7 @@ Two things the token pipeline knows about a stack do **not** reach this package:
   without a fallback keyword in the stack. If you need to know, look at `stack`.
 
 **What a product installs**, per shipped system (first named family of `brand`/`plain`, and of `mono` if it uses the
-code styles): `tanrei` and `m3-expressive-like` — Inter, Roboto Mono; `m3-like` — Roboto (already the Android system
+code styles): `tanrei` — Inter, Roboto Mono; `m3-like` — Roboto (already the Android system
 font; iOS needs the files), Roboto Mono; `cupertino` — nothing (the platform font). Japanese and other scripts fall
 through to the platform's own fallback fonts: React Native cannot be given the second family of a stack. For a
 product system, read `system.typefaces.*.families[0]`, or run `tanrei build`, which lists the families a system names.
@@ -2299,7 +2299,7 @@ place**, fully operable, without a `Modal`, motion or a focus move — the spec'
   (at the bottom) the actions in one column, the dial in the other; text entry is always vertical. The label and the
   actions stay while the rest scrolls between them when the window is short (in the horizontal layout the whole content
   scrolls), and everything scrolls when they alone leave no room. Heights are minimums and font scaling is on.
-- **Presets** — `m3-like` (and `m3-expressive-like`, which inherits it) and `cupertino` drive the same component with
+- **Presets** — `m3-like` and `cupertino` drive the same component with
   their own values and no preset code: m3-like's 96 × 80 `primaryContainer` selectors without an edge, `tertiaryContainer`
   period and 256 dial; cupertino's `surfaceContainerHighest` selectors and dial face with the `primary` edge, continuous
   corners and `dim` feedback. Baselines of `dial-hour` under both, beside the default ones.
@@ -2753,7 +2753,7 @@ optional header for your menu icon button and floating action button. The same p
   as the bar's; the header's buttons keep their own role and come first.
 - **Text size** (NVR-22) — the rail keeps its width; labels take their two lines and destinations grow. No large-content
   viewer.
-- **Not in the rail** — Material 3 Expressive's rail that expands in place (mimicry gap `navigation-rail-expanded`), and
+- **Not in the rail** — Material 3's rail that expands in place (mimicry gap `navigation-rail-expanded`), and
   an alignment option for the destinations (top only).
 
 ### `NavigationDrawer`
@@ -2866,7 +2866,7 @@ import { acme } from './generated/acme'; // export const acme = { … } as const
   generated before a vocabulary change stops type-checking instead of rendering wrong.
 - A system file holds only **values**. The token pipeline produces it
   (`packages/tokens-build/src/emit/ts.js` → `src/generated/systems/<id>.ts`); the shipped presets (`m3-like`,
-  `m3-expressive-like`, `cupertino`) are generated the same way and exposed as npm subpaths
+  `cupertino`) are generated the same way and exposed as npm subpaths
   (`@tanrei/react-native/systems/<id>`). A product runs the same generator on
   its own layer file and imports the result.
 - A quick experiment does not need the pipeline — a system is a plain object:
@@ -2887,7 +2887,7 @@ button.variants.filled.hovered // TanreiButtonVariantStateTokens: containerColor
 ```
 
 `containerGap` and `outlineWidth` are per size (they were flat members before): the default system has the
-same value at every size (8 and 1), `m3-expressive-like` does not (gap 8/8/8/12/16, outline 1/1/1/2/3).
+same value at every size (8 and 1), `m3-like` does not (gap 8/8/8/12/16, outline 1/1/1/2/3).
 
 `TanreiButtonSizes` / `TanreiButtonVariants` require the core values and make every other registered key
 optional — the same shape `TanreiSchemeColors` has for color roles. Interaction states are closed.
@@ -2924,8 +2924,8 @@ theme.paint(acmeTokens.comp.rating.star.color);                   // own colors 
 - The augmentation targets the package entry point (`'@tanrei/react-native'`); TypeScript merges it into the
   declaring module through the entry point's `export type *` (checked with TypeScript 5.4, 6.0 and 7.0
   against the built package). A system file of this repository augments `'../vocabulary'` instead; shipped
-  presets that extend the vocabulary do so (`m3-like`: color roles; `m3-expressive-like`: the Button sizes
-  `xsmall` and `xlarge` on top), and their keys are typed only in a program that imports that preset.
+  presets that extend the vocabulary do so (`m3-like`: color roles and the Button sizes
+  `xsmall` and `xlarge`), and their keys are typed only in a program that imports that preset.
 - `vocabulary.ts` ends with a **merge anchor**: an empty `declare module './vocabulary'` that names every open
   interface. It adds nothing; it makes the merge independent of file order. Without it TypeScript (5.4 – 7.0)
   drops a product's augmentation when that file comes before the first preset file that augments the same

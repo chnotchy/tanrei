@@ -89,7 +89,7 @@ studioTest('the page sheet from the worker is the core’s, for any layer; a lay
   // layer the chain does not hold (the worker has only that layer's index).
   const layers = [
     studio.setEssential(studio.setPalette({ id: 'acme', extends: 'tanrei' }, 'primary', { source: { seed: '#0b6e4f' } }), 'space.unit', 3),
-    studio.setPalette({ id: 'acme', extends: 'm3-expressive-like' }, 'primary', { source: { seed: '#d00000' } }),
+    studio.setPalette({ id: 'acme', extends: 'm3-like' }, 'primary', { source: { seed: '#d00000' } }),
     { id: 'acme', extends: 'tanrei', components: { include: [{ name: 'fab-menu', from: 'm3-like' }] } },
   ];
   for (const layer of layers) {

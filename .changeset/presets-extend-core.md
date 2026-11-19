@@ -5,7 +5,7 @@
 ---
 
 **Breaking — the presets extend `core`.** `m3-like` and `cupertino` now extend the root layer `core` directly, not the
-default system `tanrei` (`m3-expressive-like` still extends `m3-like`). A preset no longer inherits the default
+default system `tanrei`. A preset no longer inherits the default
 system's choice of components: each says for itself what it leaves out. `m3-like` leaves out the `filled` navigation
 bar and the `tonal` tabs; `cupertino` leaves out the `filled` navigation bar and the FAB menu, with its reason and what
 to use instead (`toolbar`, `button-with-menu`). The `include` lines that only undid the default system's omissions are

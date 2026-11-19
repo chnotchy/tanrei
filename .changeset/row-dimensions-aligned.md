@@ -22,7 +22,7 @@ the drawer's size, so they now take the same values instead of values of their o
   tree's glyph is 24 (was 20) and its label starts 4 further in; the small glyph stays 16.
 - `comp.table-of-contents.row.shape` is `sys.shape.corner.small` (6, was `corner.extra-small`, 3).
 
-The presets (`m3-like`, `m3-expressive-like`, `cupertino`) keep every one of these rows as they drew them: their
+The presets (`m3-like`, `cupertino`) keep every one of these rows as they drew them: their
 layers now set the values the default system no longer gives them.
 
 On the web a table of contents row takes a press in its corners too: the row's rounded box no longer decides where it

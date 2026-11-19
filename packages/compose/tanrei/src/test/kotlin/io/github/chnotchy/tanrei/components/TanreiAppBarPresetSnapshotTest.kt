@@ -8,7 +8,6 @@ import io.github.chnotchy.tanrei.theme.TanreiContrast
 import io.github.chnotchy.tanrei.theme.TanreiTheme
 import io.github.chnotchy.tanrei.theme.TanreiThemeMode
 import io.github.chnotchy.tanrei.tokens.Cupertino
-import io.github.chnotchy.tanrei.tokens.M3ExpressiveLike
 import io.github.chnotchy.tanrei.tokens.M3Like
 import io.github.chnotchy.tanrei.tokens.TanreiSystem
 import org.junit.Rule
@@ -18,12 +17,11 @@ import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
 
 /**
- * One representative fixture per shipped preset, at `src/test/snapshots/app-bar/<system-id>/<fixture-id>.png`
- * — apart from the default system's baselines, which belong to [TanreiAppBarSnapshotTest] and the parity checker. The
+ * One representative fixture per shipped preset, at `src/test/snapshots/app-bar/<system-id>/<fixture-id>.png` — apart
+ * from the default system's baselines, which belong to [TanreiAppBarSnapshotTest] and the parity checker. The
  * representative is picked for what the preset changes: `small-scrolled` for m3-like (a 64 bar set apart by the
- * surface-container tone, no edge, 4 inline padding), `large-subtitle` for m3-expressive-like (which inherits m3-like's
- * bar: the 152 large bar with a heading-2 title) and `large` for cupertino (a 96 large bar with the display title over a
- * transparent flat container). Same harness as the default's.
+ * surface-container tone, no edge, 4 inline padding) and `large` for cupertino (a 96 large bar with the display title
+ * over a transparent flat container). Same harness as the default's.
  */
 @RunWith(AndroidJUnit4::class)
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
@@ -34,9 +32,6 @@ class TanreiAppBarPresetSnapshotTest {
 
     @Test
     fun `m3-like - the representative fixture matches its baseline`() = verify(TanreiSystem.M3Like, "small-scrolled")
-
-    @Test
-    fun `m3-expressive-like - the representative fixture matches its baseline`() = verify(TanreiSystem.M3ExpressiveLike, "large-subtitle")
 
     @Test
     fun `cupertino - the representative fixture matches its baseline`() = verify(TanreiSystem.Cupertino, "large")

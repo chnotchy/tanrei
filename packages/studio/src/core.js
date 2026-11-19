@@ -1191,8 +1191,8 @@ export function createStudio({ config, sources, vocabulary, resolver, layers, mc
   // ── export: the file written out, and the stylesheet ─────────────────────────────────────────
   /**
    * The shipped layers a layer depends on that it could hold itself: the examples of the theme gallery between it and
-   * the default system or the root — every shipped layer of its chain that is neither (m3-like; m3-expressive-like
-   * and m3-like). Nearest first. None when it extends the default system, the root or a layer of the host's own.
+   * the default system or the root — every shipped layer of its chain that is neither (m3-like, for a layer
+   * that extends it). Nearest first. None when it extends the default system, the root or a layer of the host's own.
    */
   function examplesOf(layer) {
     const out = [];

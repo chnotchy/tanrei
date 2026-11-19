@@ -146,7 +146,7 @@ values them and a design system can change the set:
 | System | unselected | selected | weight |
 |---|---|---|---|
 | `tanrei`, `cupertino` | Material Symbols Rounded | the same family, `FILL` 1 | 300 |
-| `m3-like`, `m3-expressive-like` | Material Symbols Outlined | the same family, `FILL` 1 | 400 |
+| `m3-like` | Material Symbols Outlined | the same family, `FILL` 1 | 400 |
 | a static set (the `acme` test fixture) | Material Icons Outlined | **Material Icons** | 400 |
 
 A variable font tells the states apart with its `FILL` axis; a static set with a second family — there the axes are
@@ -185,7 +185,7 @@ behavior.focusStyle        // TanreiFocusStyle.Ring | Glow
 TanreiTheme.tokens.shape.cornerSmoothing   // Float 0–1: 0 a quarter circle, 0.6 the iOS continuous corner, 1 the most eased
 ```
 
-Shipped: the default is overlay / ring / smoothing 0; `m3-like` and `m3-expressive-like` ripple; `cupertino` dims
+Shipped: the default is overlay / ring / smoothing 0; `m3-like` ripples; `cupertino` dims
 and smooths its corners by 0.6. The first value of each enum is the fallback of a platform that cannot draw a
 choice — **Compose draws all of them**, so nothing falls back here.
 
@@ -262,7 +262,7 @@ TanreiTheme.colors                           // TanreiColors of the current sche
 |---|---|
 | `TanreiTokens.kt` | The **vocabulary**: `TanreiSystem` and its parts (`TanreiColorSchemes`, `TanreiTypescale` with `TanreiTypeEmphasis`, `TanreiShape` with `cornerSmoothing`, `TanreiSpace`, `TanreiState`, `TanreiMeasure`, `TanreiMotion`, `TanreiElevation`, `TanreiButtonTokens` …), `TanreiPaint`, `TanreiColorRole`, `TanreiInteractionState`. System-independent. |
 | `TanreiSystemTanrei.kt` | The **values** of the default system: `TanreiSystem.Tanrei`. |
-| `TanreiSystemM3Like.kt`, `TanreiSystemM3ExpressiveLike.kt`, `TanreiSystemCupertino.kt` | The shipped presets: `TanreiSystem.M3Like`, `TanreiSystem.M3ExpressiveLike`, `TanreiSystem.Cupertino`. Opt-in by reference. |
+| `TanreiSystemM3Like.kt`, `TanreiSystemCupertino.kt` | The shipped presets: `TanreiSystem.M3Like`, `TanreiSystem.Cupertino`. Opt-in by reference. |
 
 **Colors are paints.** A component color is a `TanreiPaint` — `Role`, `Mix(base, with, amount)`,
 `Alpha(of, amount)`, `None`, `Literal` or `Scheme` — evaluated at runtime against the current scheme
@@ -314,10 +314,10 @@ One size's group (`TanreiButtonSizeTokens`) holds everything that varies with si
 paddings, `labelTypescale`, `iconSize`, and — since they joined the size axis — `containerGap` and `outlineWidth`
 (the former flat `button.containerGap` / `button.outlineWidth` are gone; the default system keeps 8 and 1 at every size).
 
-The `m3-expressive-like` preset uses all of this: it adds the sizes `xsmall` and `xlarge` and revalues the five
+The `m3-like` preset uses all of this: it adds the sizes `xsmall` and `xlarge` and revalues the five
 (`TanreiButtonSize.Xlarge` → 136dp tall, 16dp gap, 3dp outline). Its accessors come from its generated file:
-`import io.github.chnotchy.tanrei.tokens.Xlarge`. A preset that extends another (`m3-expressive-like` ← `m3-like`)
-declares only what it added; inherited accessors (`TanreiColorRole.PrimaryFixed` …) are the ancestor's.
+`import io.github.chnotchy.tanrei.tokens.Xlarge`. A shipped system's file declares accessors only for what that
+system added (`declaredBy`).
 
 ```kotlin
 tokens.button.sizes.large                        // core: a named member
@@ -2819,7 +2819,7 @@ and what this README documents; everything else is `internal`.
 | `components` | `TanreiTextField` (`String` and `TextFieldValue` overloads): `value`, `onValueChange`, `label`, `modifier`, `variant`, `size`, `type`, `labelHidden`, `placeholder`, `supportingText`, `errorText`, `isError`, `enabled`, `readOnly`, `required`, `singleLine`, `minLines`, `maxLines`, `maxLength`, `counter`, `prefix`, `suffix`, `contentType`, `onCommit`, `keyboardActions`, `leadingIcon`, `trailingIcon`, `interactionSource`; `TanreiTextFieldType` (`Text`, `Email`, `Password`, `Number`, `Search`, `Tel`, `Url`) |
 | `primitives` | `TanreiText`; `TanreiDiagnostics` (`reporter`, `LogWarning`, and `missingStep`, which generated accessors call) |
 | `theme` | `TanreiTheme` (composable and accessor object: `tokens`, `colors`), `TanreiThemeMode`, `TanreiContrast`, `systemTanreiContrast`, `TanreiColorSchemes.select`, `LocalTanreiSystem`, `LocalTanreiColors`, `LocalTanreiContentColor`, `LocalTanreiTextStyle`, `LocalTanreiFontFamilies`, `TanreiFontFamilies` (`resolve`, `resolveIcon`), `LocalTanreiIconGlyph`, `TanreiFontStack.platformFontFamily` / `toFontFamily`, `TanreiTextStyle.toTextStyle` / `emphasized()`, `TanreiColorRole.color`, `TanreiPaint.color`, `TanreiCubicBezier.toEasing`, `tanreiTween`, `TanreiIconGlyph`, `TanreiIconStyle.glyph` / `variationSettings` |
-| `tokens` (generated) | the vocabulary (`TanreiSystem` and its parts, `TanreiPaint` (with `TanreiPaint.Scheme`), `TanreiScheme`, `TanreiColors(scheme, values)`, `TanreiColorRole`, `TanreiInteractionState`, `TanreiFontStack`, `TanreiTextStyle` (with `family` and `emphasized(emphasis)`), `TanreiTypeFamily`, `TanreiTypeEmphasis`, `TanreiBehavior` and its enums, `TanreiButtonVariant`, `TanreiButtonSize` …) and the shipped systems `TanreiSystem.Tanrei`, `.M3Like`, `.M3ExpressiveLike`, `.Cupertino` with their accessors |
+| `tokens` (generated) | the vocabulary (`TanreiSystem` and its parts, `TanreiPaint` (with `TanreiPaint.Scheme`), `TanreiScheme`, `TanreiColors(scheme, values)`, `TanreiColorRole`, `TanreiInteractionState`, `TanreiFontStack`, `TanreiTextStyle` (with `family` and `emphasized(emphasis)`), `TanreiTypeFamily`, `TanreiTypeEmphasis`, `TanreiBehavior` and its enums, `TanreiButtonVariant`, `TanreiButtonSize` …) and the shipped systems `TanreiSystem.Tanrei`, `.M3Like`, `.Cupertino` with their accessors |
 
 The building blocks components are made of (`tanreiFocusRing`, `tanreiElevation`, `tanreiGroupOpacity`,
 `tanreiMinimumTouchTarget`, the glow of a component whose edge is its focus indicator (`tanreiFocusGlow`), the interaction-state reducer and `TanreiDrawnStates` (which state each part draws under
@@ -2892,7 +2892,7 @@ TANREI_SNAPSHOT_REASON="<what changed and why>" ./gradlew :tanrei:recordRoborazz
 ```
 
 Shipped presets record one representative fixture per component next to the default's baselines, at
-`<component>/<system-id>/<fixture-id>.png` (Button: every variant at medium; icon button: `filled-selected` for the m3-like presets, `standard-unselected` — an off toggle — for cupertino; divider: `horizontal-inset-both` for the m3-like presets, `horizontal-inset-start` for cupertino; badge: `count-single` for the m3-like presets, `count-double` for cupertino; progress indicator: `linear-determinate` for m3-like and cupertino, `circular-determinate` for m3-expressive-like; loading indicator: `medium` for m3-like and cupertino, `contained-medium` for m3-expressive-like — every progress and loading baseline is recorded with reduced motion, at the start of a cycle; checkbox and radio button: `unselected` for m3-like, `selected` for m3-expressive-like and cupertino; switch: `selected-icon` for m3-like, `unselected` for m3-expressive-like, `selected` for cupertino; card: `elevated` for m3-like, `outlined-disabled` for m3-expressive-like, `filled` for cupertino; text field: `filled-filled` for m3-like, `outlined-filled` for m3-expressive-like, `outlined-label-hidden` for cupertino; FAB: `filled-large` for m3-like, `tonal-medium` for m3-expressive-like, `filled-medium` for cupertino; extended FAB: `tonal-medium` for m3-like, `filled-collapsed` for m3-expressive-like, `filled-medium` for cupertino — the stage of both leaves `space600` around them so the whole shadow is in the image; chip: `action-outlined` for m3-like, `input-avatar` for m3-expressive-like, `filter-selected` for cupertino; list: `three-line-image` for m3-like, `multiple-selected` for m3-expressive-like, `single-selected` for cupertino; menu: `icons-shortcut` for m3-like, `groups` for m3-expressive-like, `group-titles` for cupertino — drawn in place, with `space600` around them for the shadow; app bar: `small-scrolled` for m3-like, `large-subtitle` for m3-expressive-like, `large` for cupertino; navigation bar: `badges` for m3-like, `labels-selected` for m3-expressive-like, `four-destinations` for cupertino; navigation rail: `four-destinations` for m3-like, `badges` for m3-expressive-like, `long-label` for cupertino; navigation drawer: `standard` for m3-like, `modal` for m3-expressive-like, `standard` for cupertino; segmented button: `icons` for m3-like, `multiple` for m3-expressive-like, `single` for cupertino; button group: `connected` for m3-like, `connected-icon-buttons` for m3-expressive-like, `connected-large` for cupertino; split button: `filled-open` for m3-like, `outlined-medium` for m3-expressive-like, `filled-icon` for cupertino; FAB menu: `tonal-open` for m3-like, `filled-open` for m3-expressive-like, `surface-open` for cupertino — drawn in place).
+`<component>/<system-id>/<fixture-id>.png` (Button: every variant at medium; icon button: `filled-selected` for m3-like, `standard-unselected` — an off toggle — for cupertino; divider: `horizontal-inset-both` for m3-like, `horizontal-inset-start` for cupertino; badge: `count-single` for m3-like, `count-double` for cupertino; progress indicator: `linear-determinate`; loading indicator: `medium` — every progress and loading baseline is recorded with reduced motion, at the start of a cycle; checkbox and radio button: `unselected` for m3-like, `selected` for cupertino; switch: `selected-icon` for m3-like, `selected` for cupertino; card: `elevated` for m3-like, `filled` for cupertino; text field: `filled-filled` for m3-like, `outlined-label-hidden` for cupertino; FAB: `filled-large` for m3-like, `filled-medium` for cupertino; extended FAB: `tonal-medium` for m3-like, `filled-medium` for cupertino — the stage of both leaves `space600` around them so the whole shadow is in the image; chip: `action-outlined` for m3-like, `filter-selected` for cupertino; list: `three-line-image` for m3-like, `single-selected` for cupertino; menu: `icons-shortcut` for m3-like, `group-titles` for cupertino — drawn in place, with `space600` around them for the shadow; app bar: `small-scrolled` for m3-like, `large` for cupertino; navigation bar: `badges` for m3-like, `four-destinations` for cupertino; navigation rail: `four-destinations` for m3-like, `long-label` for cupertino; navigation drawer: `standard`; segmented button: `icons` for m3-like, `single` for cupertino; button group: `connected` for m3-like, `connected-large` for cupertino; split button: `filled-open` for m3-like, `filled-icon` for cupertino; FAB menu: `tonal-open` for m3-like, `surface-open` for cupertino — drawn in place).
 
 A snapshot diff is a finding. Re-record only when the visual change is the intended result of a spec or
 token change, and say so in the changeset (root `AGENTS.md`).

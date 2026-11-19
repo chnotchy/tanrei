@@ -129,17 +129,15 @@ test('the motion dial re-times every role', async () => {
   for (const [key, duration] of Object.entries(TANREI_ROLES)) assert.deepEqual(value(slower, ROLE + key), ms(duration * 1.2), key);
 });
 
-for (const system of ['m3-like', 'm3-expressive-like']) {
-  test(`${system} keeps Material 3's motion: its durations, its emphasized curves, and menus that unfold`, async () => {
-    const tokens = await tokensOf({ system });
-    for (const [key, duration] of Object.entries(M3_ROLES)) assert.deepEqual(value(tokens, ROLE + key), ms(duration), key);
-    assert.deepEqual(value(tokens, `${EASING}enter`), value(tokens, `${EASING}emphasized-decelerate`));
-    assert.deepEqual(value(tokens, `${EASING}exit`), value(tokens, `${EASING}emphasized-accelerate`));
-    assert.deepEqual(value(tokens, `${EASING}state`), value(tokens, `${EASING}standard`));
-    assert.deepEqual(value(tokens, `${EASING}spatial`), value(tokens, 'tanrei.sys.motion.spring.standard.fast-spatial.easing'));
-    assert.deepEqual(appearOf(tokens), LANGUAGES.unfold);
-  });
-}
+test("m3-like keeps Material 3's motion: its durations, its emphasized curves, and menus that unfold", async () => {
+  const tokens = await tokensOf({ system: 'm3-like' });
+  for (const [key, duration] of Object.entries(M3_ROLES)) assert.deepEqual(value(tokens, ROLE + key), ms(duration), key);
+  assert.deepEqual(value(tokens, `${EASING}enter`), value(tokens, `${EASING}emphasized-decelerate`));
+  assert.deepEqual(value(tokens, `${EASING}exit`), value(tokens, `${EASING}emphasized-accelerate`));
+  assert.deepEqual(value(tokens, `${EASING}state`), value(tokens, `${EASING}standard`));
+  assert.deepEqual(value(tokens, `${EASING}spatial`), value(tokens, 'tanrei.sys.motion.spring.standard.fast-spatial.easing'));
+  assert.deepEqual(appearOf(tokens), LANGUAGES.unfold);
+});
 
 test('m3-like’s roles are the durations its components draw, so a component that takes its role draws the same', async () => {
   const tokens = await tokensOf({ system: 'm3-like' });

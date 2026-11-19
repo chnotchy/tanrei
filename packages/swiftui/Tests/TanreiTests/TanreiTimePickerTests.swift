@@ -118,7 +118,7 @@ struct TanreiTimePickerSnapshotTests {
 struct TanreiTimePickerPresetSnapshotTests {
   /// The hour dial: the preset's surface, selectors in both conditions, the period, the dial and its handle, the actions.
   nonisolated static let fixtureId = "dial-hour"
-  nonisolated static let presets: [ShippedSystem] = [.m3Like, .m3ExpressiveLike, .cupertino]
+  nonisolated static let presets: [ShippedSystem] = [.m3Like, .cupertino]
 
   @Test("every shipped preset has one, and it is one of the spec's fixtures")
   func fixtureList() {

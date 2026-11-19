@@ -12,14 +12,12 @@ import Testing
 enum ShippedSystem: String, CaseIterable, Sendable, CustomTestStringConvertible {
   case tanrei
   case m3Like = "m3-like"
-  case m3ExpressiveLike = "m3-expressive-like"
   case cupertino
 
   var system: TanreiSystem {
     switch self {
     case .tanrei: return .tanrei
     case .m3Like: return .m3Like
-    case .m3ExpressiveLike: return .m3ExpressiveLike
     case .cupertino: return .cupertino
     }
   }
@@ -116,15 +114,14 @@ struct TanreiShippedSystemStructureTests {
     for scheme in system.schemes { #expect(scheme.colors.roles == system.colors.light.roles, "\(scheme.name)") }
   }
 
-  /// A palette a system declares is an open key: `tertiary` exists only in m3-like (and in
-  /// m3-expressive-like, which extends it), `accent` only in the default system, and both resolve without the unknown-role fallback.
+  /// A palette a system declares is an open key: `tertiary` exists only in m3-like, `accent` only in the default system,
+  /// and both resolve without the unknown-role fallback.
   @Test("declared palettes are open role keys that resolve in the declaring system only")
   func openRoleKeys() {
     let tertiary = TanreiColorRole(rawValue: "tertiary")
     let accent = TanreiColorRole(rawValue: "accent")
     #expect(TanreiSystem.m3Like.intents.contains(tertiary))
     #expect(!TanreiSystem.m3Like.intents.contains(accent))
-    #expect(TanreiSystem.m3ExpressiveLike.intents.contains(tertiary) && !TanreiSystem.m3ExpressiveLike.intents.contains(accent))
     #expect(TanreiSystem.tanrei.intents.contains(accent))
     #expect(!TanreiSystem.tanrei.intents.contains(tertiary))
     #expect(!TanreiSystem.cupertino.intents.contains(tertiary) && !TanreiSystem.cupertino.intents.contains(accent))
@@ -293,14 +290,12 @@ struct TanreiButtonPresetTests {
     #expect(pixel(bitmap, x: point.x, y: point.y).isClose(to: expected))
   }
 
-  // MARK: m3-expressive-like
-
   /// A shipped preset that EXTENDS the size axis and revalues every size, the gap and
   /// the outline width included. Expected numbers are asserted once against the system instance;
   /// the rendering is compared with what the instance says.
-  @Test("BTN-3 BTN-5 m3-expressive-like: xlarge is 136 tall with a 3pt outline and a 16pt gap, xsmall 32 tall")
-  func m3ExpressiveLikeSizes() throws {
-    let system = TanreiSystem.m3ExpressiveLike
+  @Test("BTN-3 BTN-5 m3-like: xlarge is 136 tall with a 3pt outline and a 16pt gap, xsmall 32 tall")
+  func m3LikeSizes() throws {
+    let system = TanreiSystem.m3Like
     let colors = system.colors.light
     let sizes = system.button.sizes
     #expect(sizes.keys == [.small, .medium, .large, .xlarge, .xsmall])  // core, then what was added by key
@@ -339,8 +334,8 @@ struct TanreiButtonPresetTests {
     #expect(sizes[.xsmall].containerHeight == 32)
 
     // Under a system without these sizes the same code draws the default size (BTN-7).
-    let (fallback, fallbackReports) = try Reports.collecting { try Snapshot.render(button(.xlarge), theme: theme(.m3Like)) }
-    #expect(CGFloat(fallback.height) == (TanreiSystem.m3Like.button.sizes.medium.containerHeight + 2 * inset) * Snapshot.scale)
+    let (fallback, fallbackReports) = try Reports.collecting { try Snapshot.render(button(.xlarge), theme: theme(.tanrei)) }
+    #expect(CGFloat(fallback.height) == (TanreiSystem.tanrei.button.sizes.medium.containerHeight + 2 * inset) * Snapshot.scale)
     #expect(fallbackReports.mention("xlarge"))
   }
 
