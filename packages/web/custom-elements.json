@@ -3074,7 +3074,7 @@
                 "text": "TanreiButtonWidth"
               },
               "default": "'default'",
-              "description": "How wide an icon-only button is: `default` as wide as it is high (32 / 40 / 56), `narrow` its glyph and\n`comp.button.container.padding-inline-narrow` on each side of it (28 / 32 / 32 in the default system, whose inset\nis 4 at every size; it has no narrow width of its own, so it follows its glyph) for a tight row of icon actions,\n`wide` (40 / 52 / 72) for the one action of a row that should weigh more. Ignored with a label. The height does\nnot change, and the hit area meets the minimum target at every width — a narrow button is never drawn wider to\nreach it. Anything else is drawn as `default` (reported in debug builds, BTN-21).",
+              "description": "How wide an icon-only button is: `default` as wide as it is high, `comp.button.container.height` of its size\n(36 / 40 / 56 in the default system), `narrow` its glyph and\n`comp.button.container.padding-inline-narrow` on each side of it (28 / 32 / 32 in the default system, whose inset\nis 4 at every size; it has no narrow width of its own, so it follows its glyph) for a tight row of icon actions,\n`wide` (40 / 52 / 72) for the one action of a row that should weigh more. Ignored with a label. The height does\nnot change, and the hit area meets the minimum target at every width — a narrow button is never drawn wider to\nreach it. Anything else is drawn as `default` (reported in debug builds, BTN-21).",
               "attribute": "width",
               "reflects": true
             },
@@ -3426,7 +3426,7 @@
                 "text": "TanreiButtonWidth"
               },
               "default": "'default'",
-              "description": "How wide an icon-only button is: `default` as wide as it is high (32 / 40 / 56), `narrow` its glyph and\n`comp.button.container.padding-inline-narrow` on each side of it (28 / 32 / 32 in the default system, whose inset\nis 4 at every size; it has no narrow width of its own, so it follows its glyph) for a tight row of icon actions,\n`wide` (40 / 52 / 72) for the one action of a row that should weigh more. Ignored with a label. The height does\nnot change, and the hit area meets the minimum target at every width — a narrow button is never drawn wider to\nreach it. Anything else is drawn as `default` (reported in debug builds, BTN-21).",
+              "description": "How wide an icon-only button is: `default` as wide as it is high, `comp.button.container.height` of its size\n(36 / 40 / 56 in the default system), `narrow` its glyph and\n`comp.button.container.padding-inline-narrow` on each side of it (28 / 32 / 32 in the default system, whose inset\nis 4 at every size; it has no narrow width of its own, so it follows its glyph) for a tight row of icon actions,\n`wide` (40 / 52 / 72) for the one action of a row that should weigh more. Ignored with a label. The height does\nnot change, and the hit area meets the minimum target at every width — a narrow button is never drawn wider to\nreach it. Anything else is drawn as `default` (reported in debug builds, BTN-21).",
               "fieldName": "width"
             },
             {
@@ -35542,7 +35542,7 @@
                 "text": "TanreiPaginationSize"
               },
               "default": "'medium'",
-              "description": "An item's height (32 / 40 in the default system). The hit area always meets the minimum target.",
+              "description": "An item's height, `comp.pagination.container.height` of its size (36 / 40 in the default system, never below `sys.target.minimum`). The hit area always meets the minimum target.",
               "attribute": "size",
               "reflects": true
             },
@@ -35714,7 +35714,7 @@
                 "text": "TanreiPaginationSize"
               },
               "default": "'medium'",
-              "description": "An item's height (32 / 40 in the default system). The hit area always meets the minimum target.",
+              "description": "An item's height, `comp.pagination.container.height` of its size (36 / 40 in the default system, never below `sys.target.minimum`). The hit area always meets the minimum target.",
               "fieldName": "size"
             },
             {

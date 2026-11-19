@@ -199,7 +199,8 @@ export class TanreiButton extends TanreiElement {
   }
 
   /**
-   * How wide an icon-only button is: `default` as wide as it is high (32 / 40 / 56), `narrow` its glyph and
+   * How wide an icon-only button is: `default` as wide as it is high, `comp.button.container.height` of its size
+   * (36 / 40 / 56 in the default system), `narrow` its glyph and
    * `comp.button.container.padding-inline-narrow` on each side of it (28 / 32 / 32 in the default system, whose inset
    * is 4 at every size; it has no narrow width of its own, so it follows its glyph) for a tight row of icon actions,
    * `wide` (40 / 52 / 72) for the one action of a row that should weigh more. Ignored with a label. The height does
