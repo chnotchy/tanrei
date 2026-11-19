@@ -97469,6 +97469,15 @@
       }
     },
     "dial": {
+      "control": {
+        "height": {
+          "$type": "dimension",
+          "$value": {
+            "value": 40,
+            "unit": "px"
+          }
+        }
+      },
       "motion": {
         "unit": {
           "$type": "duration",

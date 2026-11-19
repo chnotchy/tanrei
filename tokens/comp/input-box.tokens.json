@@ -420,7 +420,10 @@
                 "$value": "{tanrei.comp.button.container.height.small}"
               },
               "medium": {
-                "$value": "{tanrei.comp.button.container.height.medium}"
+                "$value": "{tanrei.comp.button.container.height.medium}",
+                "$extensions": {
+                  "dev.tanrei.aligned": "control"
+                }
               },
               "large": {
                 "$value": "{tanrei.comp.button.container.height.large}"

@@ -240,10 +240,10 @@ test('explain, systems, init, help', () => {
   // init names every dial the vocabulary has, and the three values that decide how big things are.
   const dialFile = JSON.parse(fs.readFileSync(path.resolve(pkg, '../../tokens/dial/dial.tokens.json'), 'utf8')).tanrei.dial;
   const dials = Object.entries(dialFile).filter(([key]) => !key.startsWith('$')).flatMap(([key, node]) => ('$value' in node ? [key] : Object.keys(node).filter((k) => !k.startsWith('$')).map((k) => `${key}.${k}`)));
-  assert.equal(dials.length, 7);
+  assert.equal(dials.length, 8);
   assert.match(init.stdout, new RegExp(`Start with the dials: ${dials.length} numbers every token is derived from \\(tanrei\\.dial\\.${dials.join(', ').replaceAll('.', '\\.')}\\)`));
-  for (const id of ['tanrei.dial.size.unit', 'tanrei.sys.target.minimum', 'tanrei.sys.target.pointer']) assert.match(init.stdout, new RegExp(id.replaceAll('.', '\\.')));
-  assert.match(init.stdout, /pointer or touch\nunder the minimum is refused/);
+  for (const id of ['tanrei.dial.control.height', 'tanrei.dial.size.unit', 'tanrei.sys.target.minimum', 'tanrei.sys.target.pointer']) assert.match(init.stdout, new RegExp(id.replaceAll('.', '\\.')));
+  assert.match(init.stdout, /pointer or touch\nunder the minimum, or a minimum above the control height, is refused/);
   assert.doesNotMatch(init.stdout, /\b(44|48)px\b/, 'no platform figure is named as the default');
 });
 

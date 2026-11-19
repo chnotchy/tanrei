@@ -224,7 +224,9 @@ export function initGuide(parent) {
   };
   walk(JSON.parse(fs.readFileSync(path.join(REPO_ROOT, 'tokens/dial/dial.tokens.json'), 'utf8'))[ns].dial, []);
   const rows = [
-    [`${ns}.dial.size.unit`, 'the grid control heights and icon sizes sit on'],
+    [`${ns}.dial.control.height`, 'the height controls and rows are drawn at in their default size (40 in the core);'],
+    ['', 'small and large are whole size units below and above it. Never under the minimum'],
+    [`${ns}.dial.size.unit`, 'the distance between the control sizes, and the scale of icons'],
     [`${ns}.sys.target.minimum`, 'the least height anything a person presses is drawn at; no dial scales it.'],
     ['', `${ns}.sys.target.pointer and .touch, the least areas a press is taken from, alias it`],
     ['', 'in the core; a layer may set them higher, never lower'],
@@ -232,10 +234,10 @@ export function initGuide(parent) {
   const width = Math.max(...rows.map(([name]) => name.length)) + 3;
   return `
 Start with the dials: ${dials.length} numbers every token is derived from (${ns}.dial.${dials.join(', ')}).
-Set one under "tokens" with { "$value": …, "reason": "…" }. How big things are is two values:
+Set one under "tokens" with { "$value": …, "reason": "…" }. How big things are is three values:
 ${rows.map(([name, text]) => `  ${name.padEnd(width)}${text}`).join('\n')}
 A target under ${TARGET_THRESHOLDS.minimum}px (WCAG 2.5.8) or a pressable height under the minimum is a warning; pointer or touch
-under the minimum is refused. \`tanrei explain <token-id>\` shows what "${parent}" sets each to.`;
+under the minimum, or a minimum above the control height, is refused. \`tanrei explain <token-id>\` shows what "${parent}" sets each to.`;
 }
 
 function init([id], flags) {

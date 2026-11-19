@@ -3994,7 +3994,7 @@
       "term": "dial.density",
       "since": "2026-11-19",
       "reason": "the density dial is removed: it multiplied different bases, so no one value lined controls and rows up",
-      "replacedBy": "the control height ladder, sys.control.height.*",
+      "replacedBy": "dial.control.height, the control height",
       "allow": [
         ".changeset/",
         "CHANGELOG.md"
@@ -4004,7 +4004,7 @@
       "term": "dial-density",
       "since": "2026-11-19",
       "reason": "the density dial is removed, and its custom property with it",
-      "replacedBy": "the control height ladder, --tanrei-sys-control-height-*",
+      "replacedBy": "--tanrei-dial-control-height, the control height",
       "allow": [
         ".changeset/",
         "CHANGELOG.md"

@@ -13,7 +13,9 @@
 //                                                       padding of a box whose height moves — it gives up half of
 //                                                       what the height lost and takes half of what it gained, so
 //                                                       the box stays 2 × padding + one line. height₁ is the height
-//                                                       with no `min` (`unscaledLookup`);
+//                                                       with no `min` and every dial that has a reference
+//                                                       (`dev.tanrei.reference`, the control height) at least at
+//                                                       it (`unscaledLookup`);
 //                                                       by (absent = 1) is what a layer's `scale` multiplies
 //   sub    { of: "{id}", by: "{id}" }                → max(0, of − by), in of's unit: an inner corner inside an outer
 //                                                       one at an inset (the concentric radius); never below zero
@@ -33,6 +35,13 @@ export const VOCABULARY = 'dev.tanrei.vocabulary';
 export const LLM = 'dev.tanrei.llm';
 /** A choice of kind: `{ values: string[] }` on a `number` token whose value is an index into it. */
 export const ENUM = 'dev.tanrei.enum';
+/**
+ * The value of a dial a `pad` measures from: `{ value, unit }`, the dial's value the block paddings' own values are
+ * written for (the control height: 40). A layer that sets the dial below it draws a box that gives up half of what it
+ * lost from the reference from each of its paddings; set above it, the box grows and its paddings keep their own
+ * values, so a taller control has room for more air inside it.
+ */
+export const REFERENCE = 'dev.tanrei.reference';
 /** The name a choice-of-kind token currently has, or undefined when the token is not one. */
 export const enumName = (token) => token?.$extensions?.[ENUM]?.values?.[token.$value];
 
@@ -168,10 +177,12 @@ export function evaluateNumeric(rule, lookup, ctx) {
 }
 
 /**
- * The values tokens take with no `min`: the height a `pad` measures its box's change from.
- * Each token is described by the caller, so the engine, the build and Theme Studio walk their own structures alike.
- * @param {(id: string) => { alias?: string, rule?: object, type?: string, value?: {value: number, unit?: string} }} describe
- *   a token as an alias (`alias`: the id it points at), a numeric rule to evaluate (`rule`, `type`), or its value
+ * The values tokens take with no `min`, and with every dial that has a reference at that reference or above it (the
+ * larger of the two): the height a `pad` measures its box's change from. Each token is described by the caller, so the engine, the build and Theme Studio walk
+ * their own structures alike.
+ * @param {(id: string) => { alias?: string, rule?: object, type?: string, value?: {value: number, unit?: string}, reference?: {value: number, unit?: string} }} describe
+ *   a token as an alias (`alias`: the id it points at), a numeric rule to evaluate (`rule`, `type`), or its value — or,
+ *   for a dial with a reference (`REFERENCE`), that reference
  * @returns {(id: string) => {value: number, unit?: string}} memoized
  */
 export function unscaledLookup(describe) {
@@ -183,8 +194,8 @@ export function unscaledLookup(describe) {
     }
     memo.set(id, null);
     try {
-      const { alias, rule, type, value } = describe(id);
-      const result = alias ? unscaled(alias) : rule && typeof rule.fn === 'string' ? evaluateNumeric(rule, unscaled, { type, unscaling: true, unscaled }) : value;
+      const { alias, rule, type, value, reference } = describe(id);
+      const result = reference ? (value && value.value > reference.value ? value : { ...reference }) : alias ? unscaled(alias) : rule && typeof rule.fn === 'string' ? evaluateNumeric(rule, unscaled, { type, unscaling: true, unscaled }) : value;
       memo.set(id, result);
       return result;
     } catch (error) {
@@ -258,7 +269,7 @@ export function checkSources(documents) {
     const { token, type } = target;
     if (isRef(token.$value)) return { alias: refId(token.$value) };
     const rule = token.$extensions?.[DERIVE];
-    return rule && !('fixed' in rule) && type !== 'typography' && id.split('.')[1] !== 'dial' ? { rule, type } : { value: lookup(id) };
+    return rule && !('fixed' in rule) && type !== 'typography' && id.split('.')[1] !== 'dial' ? { rule, type } : { value: lookup(id), reference: token.$extensions?.[REFERENCE] };
   });
   const problems = [];
   for (const { id, token, type, rationale } of tokens.values()) {
@@ -266,7 +277,12 @@ export function checkSources(documents) {
     const rule = token.$extensions?.[DERIVE];
     const value = token.$value;
     if (isRef(value)) continue; // alias: re-pointable, nothing to evaluate
-    if (id.split('.')[1] === 'dial') continue; // dials are the inputs; their literal is the default
+    if (id.split('.')[1] === 'dial') {
+      // Dials are the inputs; their literal is the default. A reference is a value of the dial's own unit.
+      const reference = token.$extensions?.[REFERENCE];
+      if (reference && !(typeof reference.value === 'number' && reference.unit === value?.unit)) problems.push(`${id}: its reference must be { "value": <number>, "unit": "${value?.unit ?? ''}" }, in the dial's own unit`);
+      continue;
+    }
     if (!rule) {
       problems.push(`${id}: a literal needs a rule or { "fixed": "<reason>" } in $extensions["${DERIVE}"]`);
       continue;
