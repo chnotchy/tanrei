@@ -8,7 +8,6 @@ import io.github.chnotchy.tanrei.theme.TanreiContrast
 import io.github.chnotchy.tanrei.theme.TanreiTheme
 import io.github.chnotchy.tanrei.theme.TanreiThemeMode
 import io.github.chnotchy.tanrei.tokens.Cupertino
-import io.github.chnotchy.tanrei.tokens.M3ExpressiveLike
 import io.github.chnotchy.tanrei.tokens.M3Like
 import io.github.chnotchy.tanrei.tokens.TanreiSystem
 import org.junit.Rule
@@ -18,11 +17,11 @@ import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
 
 /**
- * One representative fixture per shipped preset, at `src/test/snapshots/dialog/<system-id>/<fixture-id>.png`
- * — apart from the default system's baselines, which belong to [TanreiDialogSnapshotTest] and the parity checker. The
- * representative is picked for what the preset changes: `basic` for m3-like (surface-container-high at the 28 corner, the
- * heading-3 headline), `content` for m3-expressive-like (which inherits m3-like's dialog: the content slot's color) and
- * `basic` for cupertino (270 wide, the message in on-surface, continuous corners). Same harness as the default's.
+ * One representative fixture per shipped preset, at `src/test/snapshots/dialog/<system-id>/<fixture-id>.png` — apart
+ * from the default system's baselines, which belong to [TanreiDialogSnapshotTest] and the parity checker. The
+ * representative is picked for what the preset changes: `basic` for m3-like (surface-container-high at the 28 corner,
+ * the heading-3 headline) and `basic` for cupertino (270 wide, the message in on-surface, continuous corners). Same
+ * harness as the default's.
  */
 @RunWith(AndroidJUnit4::class)
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
@@ -33,9 +32,6 @@ class TanreiDialogPresetSnapshotTest {
 
     @Test
     fun `m3-like - the representative fixture matches its baseline`() = verify(TanreiSystem.M3Like, "basic")
-
-    @Test
-    fun `m3-expressive-like - the representative fixture matches its baseline`() = verify(TanreiSystem.M3ExpressiveLike, "content")
 
     @Test
     fun `cupertino - the representative fixture matches its baseline`() = verify(TanreiSystem.Cupertino, "basic")

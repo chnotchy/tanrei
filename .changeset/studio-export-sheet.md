@@ -7,7 +7,7 @@
 
 - **Export**, in the bar, opens a side sheet. Its first line says whether the schema, the token engine and the build's
   checks accept the file (problems stop the download; warnings lead to Accessibility). A layer on an example of the
-  theme gallery (m3-like, cupertino, m3-expressive-like) **depends on the example** by default, and can instead
+  theme gallery (m3-like, cupertino) **depends on the example** by default, and can instead
   **write every value**: the file then holds what the example gives as well as what you changed, extends what the
   example extends, and builds to the same stylesheet, documents and warnings as the file that depends on it. A component
   that lives in the example (the FAB menu) is still included from it. Three tabs follow: **File** (copy, or download as

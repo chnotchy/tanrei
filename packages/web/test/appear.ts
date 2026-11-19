@@ -162,7 +162,7 @@ export function slidOut(frame: Frame, edge: SheetEdge): number | undefined {
  * The sheet only slides, from its own size beyond `edge`, in every frame of a change: whole and unscaled, unblurred,
  * never past where it rests nor beyond its own size out; opening, its scrim fades in in step with it — out by as much as
  * the sheet is in, within `tolerance` (the same duration and curve) — and closing, its scrim is gone from the first frame
- * (MOT-7); and its motion is drawn over at least four frames between where it rests and where it is out (not dropped at
+ * (MOT-8); and its motion is drawn over at least four frames between where it rests and where it is out (not dropped at
  * once). Returns the shares out it was drawn at.
  */
 export function expectSlidOnly(seen: Frames, edge: SheetEdge, { tolerance = 0.02 }: { tolerance?: number } = {}): number[] {
@@ -181,7 +181,7 @@ export function expectSlidOnly(seen: Frames, edge: SheetEdge, { tolerance = 0.02
   for (const { frame, out } of drawn) {
     expect(out, `frame ${frame.index}: between where it rests (0) and out of the window (1)`).toBeGreaterThanOrEqual(-0.005);
     expect(out, `frame ${frame.index}: between where it rests (0) and out of the window (1)`).toBeLessThanOrEqual(1.005);
-    if (closing) expect(frame.probe.scrim, `frame ${frame.index}: closing, the scrim is gone (MOT-7) while the sheet is ${out.toFixed(3)} out`).toBe(0);
+    if (closing) expect(frame.probe.scrim, `frame ${frame.index}: closing, the scrim is gone (MOT-8) while the sheet is ${out.toFixed(3)} out`).toBe(0);
     else expect(Math.abs((frame.probe.scrim as number) - (1 - out)), `frame ${frame.index}: the scrim (${frame.probe.scrim}) fades in step with the slide (${out.toFixed(3)} out)`).toBeLessThanOrEqual(tolerance);
   }
   const between = drawn.filter(({ out }) => out > 0.01 && out < 0.99);

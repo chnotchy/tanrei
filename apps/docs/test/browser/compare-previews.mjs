@@ -22,7 +22,8 @@
 // What differs between a preview and its copy — a box, a margin, a color, a pseudo-element's glyph — is the page doing
 // to the component what the component's own stylesheet does not allow: a stylesheet loaded where the page's layers
 // beat it, a stylesheet the page does not load, a page rule that reaches into the component. Not what it cannot see:
-// a fixture drawn in a window of its own (an `iframe`, which is not a preview of this page), and one the page drew and
+// a fixture drawn in a window of its own (an `iframe`, which is not a preview of this page), a modal one drawn closed
+// in the room of its window (its canvas stands in that room, and draws nothing until it opens), and one the page drew and
 // took its document's step in script for before the comparison began, are in a state the copy is not, and are left
 // out, as is a state matrix (its cells are held in states the copy is not in; test/browser/state-matrix.test.mjs checks
 // each against its tokens), and so is a color role map's table, whose rows script writes from what the page draws (the

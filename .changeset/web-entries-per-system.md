@@ -13,7 +13,7 @@ reaches only the components its system ships, so it cannot pick one the system d
 
 **New — an entry per system, and one for everything.**
 
-- `@tanrei/web/<id>` (`m3-like`, `m3-expressive-like`, `cupertino`; the default system's is `@tanrei/web` itself)
+- `@tanrei/web/<id>` (`m3-like`, `cupertino`; the default system's is `@tanrei/web` itself)
   registers what system `<id>` ships: everything `@tanrei/web` registers, and the components only that system ships
   (the segmented button on the three presets, the FAB menu on the two m3-like systems). It exports their classes and
   types. `@tanrei/react/<id>` is the same set in React.

@@ -54,7 +54,7 @@ const handleTokens = [
 ].join('\n    ');
 
 const ENTER = `${T('motion-enter-duration')} ${T('motion-enter-easing')}`;
-/** BSH-1: the sheet's entrance and exit: its slide takes both, its scrim's fade the entrance (MOT-7). */
+/** BSH-1: the sheet's entrance and exit: its slide takes both, its scrim's fade the entrance (MOT-8). */
 const ENTER_MOTION = { duration: T('motion-enter-duration'), easing: T('motion-enter-easing') };
 const EXIT_MOTION = { duration: T('motion-exit-duration'), easing: T('motion-exit-easing') };
 
@@ -158,7 +158,7 @@ export const styles = css`
      whatever the appearance — and down the same way over the exit motion, from wherever it is drawn (a drag's offset is
      --_drag), turned round from where it has got to; kept in the top layer and displayed until it has left (the browser
      has closed it by then: focus and the page are given back at once). The scrim fades in in step, over the same
-     duration and curve, and is taken away at once as the sheet begins to close (MOT-7). Under reduced motion the sheet
+     duration and curve, and is taken away at once as the sheet begins to close (MOT-8). Under reduced motion the sheet
      and the scrim's entrance only fade, in place, over sys.motion.role.reduced. */
   dialog.sheet {
     position: fixed;
@@ -177,7 +177,7 @@ export const styles = css`
   dialog.sheet.instant::backdrop {
     transition-property: none;
   }
-  /* MDL-7, MOT-7: closed, it stays drawn in the top layer until its exit has played, its scrim gone from the first frame (src/primitives/modal-exit.ts). */
+  /* MDL-7, MOT-8: closed, it stays drawn in the top layer until its exit has played, its scrim gone from the first frame (src/primitives/modal-exit.ts). */
   ${modalExitStyles('dialog')}
 
   /* BSH-4: a standard sheet is a layout region over the bottom of the parent that holds it and the content: the host

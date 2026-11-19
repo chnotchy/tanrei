@@ -87,7 +87,7 @@ const EXIT = { duration: S('motion-exit-duration'), easing: S('motion-exit-easin
  * above it. It moves as a modal bottom sheet does, composed of the same pieces (`appearStyles()`, role sheet, from the
  * block end; `sheetScrimStyles()`): it slides up from its own height below the bottom edge over the bottom sheet's
  * enter motion and down the same way over its exit motion, unfaded and unscaled whatever the appearance, the scrim
- * fading in in step and taken away at once as it begins to close (MOT-7, `modalExitStyles()`); where motion is reduced
+ * fading in in step and taken away at once as it begins to close (MOT-8, `modalExitStyles()`); where motion is reduced
  * it and the scrim's entrance only fade, in place, over `sys.motion.role.reduced`. Compose
  * it after the component's own appearance of the dialog, which it overrides (its selectors weigh more).
  */

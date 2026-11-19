@@ -1,15 +1,21 @@
 // The numeric half of the rule language. Closed and declarative:
-//   mul    { of: "{id}", by: n, exp?: "{id}" | n,    → max(min, round(of × by^exp × times, to the step `round`))
-//            times?: "{id}", round?: "{id}",            (exp defaults to 1, so by^1 = by exactly; times is a number
-//            min?: "{id}" }                              token, absent = 1; round is the step, absent = 0.25px / 1ms;
-//                                                        min is a floor applied after rounding, absent = none)
+//   mul    { of: "{id}", by: n, exp?: "{id}" | n,    → max(min, round(of × by^exp, to the step `round`))
+//            round?: "{id}", min?: "{id}" }              (exp defaults to 1, so by^1 = by exactly; round is the step,
+//                                                        absent = 0.25px / 1ms; min is a floor applied after
+//                                                        rounding, absent = none)
+//   add    { of: "{id}", by: "{id}", times?: n,      → max(min, of + by × times), on 0.25px / 1ms: a step a whole
+//            min?: "{id}" }                              number of units from another value (times absent = 1, and
+//                                                        negative below it; min is a floor, absent = none), so a
+//                                                        ladder of heights keeps its distances whatever its default
 //   scale  { base: "{id}", ratio: n, step: n }       → base × ratio^step
 //   clamp  { of: "{id}", min: n, max: n }
 //   pad    { of: "{id}", height: "{id}", by?: n }    → max(0, of × by + (height − height₁) / 2), on 0.25px: the block
-//                                                       padding of a box whose height follows a density — it gives up
-//                                                       half of what the height lost and takes half of what it gained,
-//                                                       so the box stays 2 × padding + one line. height₁ is the height
-//                                                       with every `times` read as 1 and no `min` (`unscaledLookup`);
+//                                                       padding of a box whose height moves — it gives up half of
+//                                                       what the height lost and takes half of what it gained, so
+//                                                       the box stays 2 × padding + one line. height₁ is the height
+//                                                       with no `min` and every dial that has a reference
+//                                                       (`dev.tanrei.reference`, the control height) at least at
+//                                                       it (`unscaledLookup`);
 //                                                       by (absent = 1) is what a layer's `scale` multiplies
 //   sub    { of: "{id}", by: "{id}" }                → max(0, of − by), in of's unit: an inner corner inside an outer
 //                                                       one at an inset (the concentric radius); never below zero
@@ -18,7 +24,7 @@
 //                                                       a literal of this token's type or "{id}" (one entry per name)
 //   fixed  { fixed: "reason" }                        → keep the literal; dials do not move it
 // The color half — tone, alpha, mix, contrast-pick — lives in palette.js (color roles) and states.js (per-state
-// component tokens); together they are the ten functions, and the language has no others. `pick` is the one table
+// component tokens); together they are the twelve functions, and the language has no others. `pick` is the one table
 // in it: a token whose value is set by a choice of kind (`sys.behavior.appearance` sets how far a surface that appears
 // is scaled), so that a layer that makes the choice gets the values that go with it, and a layer that pins one of
 // those values keeps its pin.
@@ -29,6 +35,13 @@ export const VOCABULARY = 'dev.tanrei.vocabulary';
 export const LLM = 'dev.tanrei.llm';
 /** A choice of kind: `{ values: string[] }` on a `number` token whose value is an index into it. */
 export const ENUM = 'dev.tanrei.enum';
+/**
+ * The value of a dial a `pad` measures from: `{ value, unit }`, the dial's value the block paddings' own values are
+ * written for (the control height: 40). A layer that sets the dial below it draws a box that gives up half of what it
+ * lost from the reference from each of its paddings; set above it, the box grows and its paddings keep their own
+ * values, so a taller control has room for more air inside it.
+ */
+export const REFERENCE = 'dev.tanrei.reference';
 /** The name a choice-of-kind token currently has, or undefined when the token is not one. */
 export const enumName = (token) => token?.$extensions?.[ENUM]?.values?.[token.$value];
 
@@ -54,24 +67,19 @@ export function roundToStep(value, step) {
 export function ruleDependencies(rule) {
   if (!rule || typeof rule !== 'object' || 'fixed' in rule) return [];
   if (!('fn' in rule)) return Object.values(rule).flatMap(ruleDependencies); // composite: keyed by sub-field
-  // numeric: of, base, exp · mul { times, round, min } · pad { of, height } (its by is a number) · sub { of, by } · pick { by, values{} } · color: mix { base, with, amount }, alpha { of, amount }, contrast-pick { on, from[] }
+  // numeric: of, base, exp · mul { round, min } · add { by, min } · pad { of, height } (its by is a number) · sub { of, by } · pick { by, values{} } · color: mix { base, with, amount }, alpha { of, amount }, contrast-pick { on, from[] }
   const picked = rule.fn === 'pick' && rule.values && typeof rule.values === 'object' ? Object.values(rule.values) : [];
-  return [rule.of, rule.base, rule.exp, rule.by, rule.times, rule.round, rule.min, rule.height, rule.with, rule.amount, rule.on, ...(Array.isArray(rule.from) ? rule.from : []), ...picked].filter(isRef).map(refId);
+  return [rule.of, rule.base, rule.exp, rule.by, rule.round, rule.min, rule.height, rule.with, rule.amount, rule.on, ...(Array.isArray(rule.from) ? rule.from : []), ...picked].filter(isRef).map(refId);
 }
 
 const sameUnit = (fn, field, rule, term, of) => {
   if ((term.unit ?? null) !== (of.unit ?? null)) throw new Error(`"${fn}" ${field} ${rule[field]} (${term.unit ?? 'no unit'}) is not in the unit of ${rule.of} (${of.unit ?? 'no unit'})`);
 };
 
-/** The optional terms of `mul`: the factor `times`, the step `round` and the floor `min` (undefined when absent). */
+/** The optional terms of `mul`: the step `round` and the floor `min` (undefined when absent). */
 function mulTerms(rule, of, lookup, ctx) {
-  for (const field of ['times', 'round', 'min']) if (rule[field] !== undefined && !isRef(rule[field])) throw new Error(`"mul" ${field} must be a token, as "{id}"`);
-  let times = 1;
-  if (rule.times !== undefined && !ctx.unscaling) {
-    const factor = lookup(refId(rule.times));
-    if (factor.unit !== undefined) throw new Error(`"mul" times ${rule.times} must be a number token; it is in ${factor.unit}`);
-    times = factor.value;
-  }
+  if ('times' in rule) throw new Error('"mul" has no "times": a height that moves with another is a step of the control height ladder, or an "add"');
+  for (const field of ['round', 'min']) if (rule[field] !== undefined && !isRef(rule[field])) throw new Error(`"mul" ${field} must be a token, as "{id}"`);
   let step;
   if (rule.round !== undefined) {
     const grid = lookup(refId(rule.round));
@@ -85,7 +93,7 @@ function mulTerms(rule, of, lookup, ctx) {
     sameUnit('mul', 'min', rule, floor, of);
     min = floor.value;
   }
-  return [times, step, min];
+  return [step, min];
 }
 
 /**
@@ -94,7 +102,7 @@ function mulTerms(rule, of, lookup, ctx) {
  * @param {(id: string) => {value: number, unit?: string, names?: string[]}} lookup resolved value of another token;
  *   for a choice of kind, `value` is its index and `names` its list (`dev.tanrei.enum.values`)
  * @param {{ type: string, fontSize?: number, unscaled?: (id: string) => {value: number, unit?: string}, unscaling?: boolean }} ctx
- *   `unscaled`: a token's value with every `times` read as 1 and no `min` (`unscaledLookup`), which `pad` measures a
+ *   `unscaled`: a token's value with no `min` (`unscaledLookup`), which `pad` measures a
  *   height's change from; `unscaling`: this evaluation is one of those (set by `unscaledLookup`)
  */
 export function evaluateNumeric(rule, lookup, ctx) {
@@ -104,10 +112,22 @@ export function evaluateNumeric(rule, lookup, ctx) {
       const of = lookup(refId(rule.of));
       const exp = rule.exp === undefined ? 1 : num(rule.exp);
       const coefficient = exp === 1 ? rule.by : rule.by ** exp;
-      const [times, step, min] = mulTerms(rule, of, lookup, ctx);
-      const product = of.value * coefficient * times;
+      const [step, min] = mulTerms(rule, of, lookup, ctx);
+      const product = of.value * coefficient;
       const rounded = step === undefined ? roundTo(product, ROUND[ctx.type] ?? ROUND.number) : roundToStep(product, step);
       return { value: min === undefined ? rounded : Math.max(min, rounded), unit: of.unit };
+    }
+    case 'add': {
+      if (!isRef(rule.of) || !isRef(rule.by)) throw new Error('"add" needs "of" and "by", each a token as "{id}"');
+      if (rule.times !== undefined && !(typeof rule.times === 'number' && Number.isFinite(rule.times))) throw new Error(`"add" times must be a number; it is ${JSON.stringify(rule.times)}`);
+      if (rule.min !== undefined && !isRef(rule.min)) throw new Error('"add" min must be a token, as "{id}"');
+      const [of, by] = [lookup(refId(rule.of)), lookup(refId(rule.by))];
+      sameUnit('add', 'by', rule, by, of);
+      const sum = roundTo(of.value + by.value * (rule.times ?? 1), ROUND[ctx.type] ?? ROUND.number);
+      if (rule.min === undefined || ctx.unscaling) return { value: sum, unit: of.unit };
+      const floor = lookup(refId(rule.min));
+      sameUnit('add', 'min', rule, floor, of);
+      return { value: Math.max(floor.value, sum), unit: of.unit };
     }
     case 'pad': {
       if (!isRef(rule.of) || !isRef(rule.height)) throw new Error('"pad" needs "of" and "height", each a token as "{id}"');
@@ -116,7 +136,7 @@ export function evaluateNumeric(rule, lookup, ctx) {
       const base = rule.by === undefined ? of.value : roundTo(of.value * rule.by, ROUND[ctx.type] ?? ROUND.number);
       // Where no height has moved, nothing has been given up or taken.
       if (ctx.unscaling) return { value: base, unit: of.unit };
-      if (typeof ctx.unscaled !== 'function') throw new Error('"pad" needs the height its rule gives with "times" at 1 and no "min" (ctx.unscaled; see unscaledLookup)');
+      if (typeof ctx.unscaled !== 'function') throw new Error('"pad" needs the height its rule gives with no "min" (ctx.unscaled; see unscaledLookup)');
       const [height, height1] = [lookup(refId(rule.height)), ctx.unscaled(refId(rule.height))];
       sameUnit('pad', 'height', rule, height, of);
       return { value: Math.max(0, roundTo(base + (height.value - height1.value) / 2, ROUND[ctx.type] ?? ROUND.number)), unit: of.unit };
@@ -157,10 +177,12 @@ export function evaluateNumeric(rule, lookup, ctx) {
 }
 
 /**
- * The values tokens take with every `times` read as 1 and no `min`: the height a `pad` measures its box's change from.
- * Each token is described by the caller, so the engine, the build and Theme Studio walk their own structures alike.
- * @param {(id: string) => { alias?: string, rule?: object, type?: string, value?: {value: number, unit?: string} }} describe
- *   a token as an alias (`alias`: the id it points at), a numeric rule to evaluate (`rule`, `type`), or its value
+ * The values tokens take with no `min`, and with every dial that has a reference at that reference or above it (the
+ * larger of the two): the height a `pad` measures its box's change from. Each token is described by the caller, so the engine, the build and Theme Studio walk
+ * their own structures alike.
+ * @param {(id: string) => { alias?: string, rule?: object, type?: string, value?: {value: number, unit?: string}, reference?: {value: number, unit?: string} }} describe
+ *   a token as an alias (`alias`: the id it points at), a numeric rule to evaluate (`rule`, `type`), or its value — or,
+ *   for a dial with a reference (`REFERENCE`), that reference
  * @returns {(id: string) => {value: number, unit?: string}} memoized
  */
 export function unscaledLookup(describe) {
@@ -172,8 +194,8 @@ export function unscaledLookup(describe) {
     }
     memo.set(id, null);
     try {
-      const { alias, rule, type, value } = describe(id);
-      const result = alias ? unscaled(alias) : rule && typeof rule.fn === 'string' ? evaluateNumeric(rule, unscaled, { type, unscaling: true, unscaled }) : value;
+      const { alias, rule, type, value, reference } = describe(id);
+      const result = reference ? (value && value.value > reference.value ? value : { ...reference }) : alias ? unscaled(alias) : rule && typeof rule.fn === 'string' ? evaluateNumeric(rule, unscaled, { type, unscaling: true, unscaled }) : value;
       memo.set(id, result);
       return result;
     } catch (error) {
@@ -247,7 +269,7 @@ export function checkSources(documents) {
     const { token, type } = target;
     if (isRef(token.$value)) return { alias: refId(token.$value) };
     const rule = token.$extensions?.[DERIVE];
-    return rule && !('fixed' in rule) && type !== 'typography' && id.split('.')[1] !== 'dial' ? { rule, type } : { value: lookup(id) };
+    return rule && !('fixed' in rule) && type !== 'typography' && id.split('.')[1] !== 'dial' ? { rule, type } : { value: lookup(id), reference: token.$extensions?.[REFERENCE] };
   });
   const problems = [];
   for (const { id, token, type, rationale } of tokens.values()) {
@@ -255,7 +277,12 @@ export function checkSources(documents) {
     const rule = token.$extensions?.[DERIVE];
     const value = token.$value;
     if (isRef(value)) continue; // alias: re-pointable, nothing to evaluate
-    if (id.split('.')[1] === 'dial') continue; // dials are the inputs; their literal is the default
+    if (id.split('.')[1] === 'dial') {
+      // Dials are the inputs; their literal is the default. A reference is a value of the dial's own unit.
+      const reference = token.$extensions?.[REFERENCE];
+      if (reference && !(typeof reference.value === 'number' && reference.unit === value?.unit)) problems.push(`${id}: its reference must be { "value": <number>, "unit": "${value?.unit ?? ''}" }, in the dial's own unit`);
+      continue;
+    }
     if (!rule) {
       problems.push(`${id}: a literal needs a rule or { "fixed": "<reason>" } in $extensions["${DERIVE}"]`);
       continue;

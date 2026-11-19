@@ -7,9 +7,11 @@ import { getSpec } from '../lib/repo';
 import { shippedSystems, systemValue, ns } from '../lib/tokens';
 import { figureId } from '../lib/figure-id';
 
-// One opt-in stylesheet per preset, each scoped to [data-tanrei-system="<id>"]. Not the root's (core.css): it is shown
-// nowhere a system is chosen, and would add its megabyte to every page.
+// One opt-in stylesheet per preset, each scoped to [data-tanrei-system="<id>"], and the default system's under its own
+// scope (lib/look-sheets.mjs): each row is drawn in its system whatever the page's look. Not the root's (core.css): it
+// is shown nowhere a system is chosen, and would add its megabyte to every page.
 import.meta.glob(['../../../../packages/web/src/generated/systems/*.css', '!../../../../packages/web/src/generated/systems/core.css'], { eager: true });
+import 'virtual:tanrei-docs/default-scope.css';
 
 interface Props {
   label: string;
@@ -23,7 +25,7 @@ const variants = ['filled', 'outlined'].filter((v) => getSpec('button').props.fi
 const titleId = `${figureId(Astro)}-title`;
 ---
 
-<tanrei-figure class="not-content" flush data-tanrei-code="plain">
+<tanrei-figure class="not-content" flush data-tanrei-code="plain" data-docs-compare>
   <figure aria-labelledby={titleId}>
     <div data-part="frame">
       <header>
@@ -31,7 +33,7 @@ const titleId = `${figureId(Astro)}-title`;
       </header>
       <div data-part="stage" class="rows">
         {shippedSystems.map((system) => (
-          <div class="row" data-tanrei-system={system.id}>
+          <div class="row" data-tanrei-system={system.id} data-docs-shows-system={system.id}>
             <p>
               <code>{system.id}</code>{' '}
               <span>{tokens.map((id) => systemValue(system, `${ns}.${id}`)).join(' · ')}</span>

@@ -10,9 +10,11 @@ import { fill, strings } from '../lib/i18n';
 import { ns } from '../lib/tokens';
 
 type Json = Record<string, any>;
-// One opt-in stylesheet per preset, each scoped to [data-tanrei-system="<id>"]. Products import the one they use. Not
-// the root's (core.css): the gallery does not show the root.
+// One opt-in stylesheet per preset, each scoped to [data-tanrei-system="<id>"] (products import the one they use), and
+// the default system's under its own scope (lib/look-sheets.mjs): each figure is drawn in its system whatever the
+// page's look. Not the root's (core.css): the gallery does not show the root.
 import.meta.glob(['../../../../packages/web/src/generated/systems/*.css', '!../../../../packages/web/src/generated/systems/core.css'], { eager: true });
+import 'virtual:tanrei-docs/default-scope.css';
 const layers = import.meta.glob<Json>('../../../../tokens/systems/*.system.json', { eager: true, import: 'default' });
 const reports = import.meta.glob<Json>('../../../../tokens/generated/*/a11y-report.json', { eager: true, import: 'default' });
 const fidelities = import.meta.glob<Json>('../../../../tokens/generated/*/fidelity.json', { eager: true, import: 'default' });
@@ -55,13 +57,13 @@ const rows = [
 
 {
   systems.map(({ layer, isDefault, count, raised, declared, fidelity, extensions, changes, rules: ruleCount }) => (
-    <tanrei-figure class="system not-content" flush data-tanrei-code="plain">
+    <tanrei-figure class="system not-content" flush data-tanrei-code="plain" data-docs-compare>
       <figure aria-labelledby={`system-${layer.id}`} aria-describedby={`system-${layer.id}-caption`}>
         <div data-part="frame">
           <header>
             <h3 data-part="title" id={`system-${layer.id}`}><code>{layer.id}</code> <span>{layer.name}</span></h3>
           </header>
-          <div data-part="stage" class="stages" data-tanrei-system={layer.id} data-pagefind-ignore>
+          <div data-part="stage" class="stages" data-tanrei-system={layer.id} data-docs-shows-system={layer.id} data-pagefind-ignore>
             {rows.map((row) => (
               <div class="row" data-tanrei-theme={row.theme} data-tanrei-contrast={row.contrast}>
                 <span class="docs-eyebrow">{row.label}</span>
@@ -83,7 +85,7 @@ const rows = [
                     <dt>{t.fidelity}</dt>
                     <dd>
                       {fidelity
-                        ? <Fragment><strong>{fidelity.equal} / {fidelity.total - fidelity.covered}</strong> {t.equal} · {fidelity.different.length}{' '}{t.different} · {fidelity.unmapped.length}{' '}{t.unmappedGap} — {fidelity.reference.name} {fidelity.reference.version} ({fidelity.reference.license})</Fragment>
+                        ? <Fragment><strong>{fidelity.equal} / {fidelity.total - fidelity.covered}</strong> {t.equal} · {fidelity.different.length}{' '}{t.different} · {fidelity.unmapped.length}{' '}{t.unmappedGap} — {fidelity.reference.map((r: Json) => `${r.name} ${r.version} (${r.license})`).join(' · ')}</Fragment>
                         : t.unmeasured}
                     </dd>
                   </div>

@@ -405,7 +405,9 @@
               },
               "medium": {
                 "$value": "{tanrei.comp.input-box.container.height.medium}",
-                "$extensions": {}
+                "$extensions": {
+                  "dev.tanrei.aligned": "control"
+                }
               },
               "large": {
                 "$value": "{tanrei.comp.input-box.container.height.large}",

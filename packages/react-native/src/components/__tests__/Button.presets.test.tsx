@@ -3,11 +3,10 @@
 // Expected values are READ FROM THE SYSTEM INSTANCE; a literal appears only where the brief names one.
 import { act, fireEvent, render } from '@testing-library/react-native';
 import { cupertino } from '../../generated/systems/cupertino';
-import { m3ExpressiveLike } from '../../generated/systems/m3-expressive-like';
 import { m3Like } from '../../generated/systems/m3-like';
 import { tanrei } from '../../generated/systems/tanrei';
 import type { TanreiButtonTokens, TanreiButtonVariantStateTokens, TanreiColorRole, TanreiCoreButtonVariant, TanreiPaint, TanreiSystem } from '../../generated/vocabulary';
-import { byTestID, describeFixtureBaselines, describeSharedVocabulary, settleMotion, textStyle, viewStyle, withComponent } from '../../testing/harness';
+import { byTestID, describeAxisExtensions, describeFixtureBaselines, describeSharedVocabulary, settleMotion, textStyle, viewStyle, withComponent } from '../../testing/harness';
 import { intentRoles, unknownRoles } from '../../testing/systemRoles';
 import { lookupValue } from '../../theme/lookup';
 import { evaluatePaint, formatColor } from '../../theme/paint';
@@ -130,42 +129,55 @@ describe('m3-like drives the Button', () => {
   });
 });
 
-describe('m3-expressive-like drives the Button', () => {
-  // Extends m3-like: two more sizes (`xsmall`, `xlarge`, vocabulary extensions) and all five sizes revalued —
-  // including the two members that are per size since this preset needed them (`containerGap`, `outlineWidth`).
-  const system: TanreiSystem = m3ExpressiveLike;
+describe('m3-like drives the Button at its five sizes', () => {
+  // Material 3 has five button sizes: m3-like maps them by role (Material's small, its default, is `medium`), adds the
+  // two above `large` (`xlarge`, `xxlarge`, vocabulary extensions) and values all five — including the two members that
+  // are per size (`containerGap`, `outlineWidth`).
+  const system: TanreiSystem = m3Like;
   const sizes = system.components.button.sizes;
 
-  test('it has the three core sizes and the two it added; the systems it does not extend have only the core', () => {
-    expect(Object.keys(sizes).sort()).toEqual(['large', 'medium', 'small', 'xlarge', 'xsmall']);
-    for (const other of [tanrei, m3Like, cupertino]) expect(Object.keys(other.components.button.sizes).sort()).toEqual(['large', 'medium', 'small']);
+  test('it has the three core sizes and the two it added; the systems that do not extend the Button have only the core', () => {
+    expect(Object.keys(sizes).sort()).toEqual(['large', 'medium', 'small', 'xlarge', 'xxlarge']);
+    for (const other of [tanrei, cupertino]) expect(Object.keys(other.components.button.sizes).sort()).toEqual(['large', 'medium', 'small']);
   });
 
-  test('xlarge outlined is 136 tall with an outline 3 wide and a gap of 16', async () => {
+  test('xxlarge outlined is 136 tall with an outline 3 wide and a gap of 16', async () => {
     const warn = jest.spyOn(console, 'warn').mockImplementation(() => undefined);
-    await mount(system, { size: 'xlarge', variant: 'outlined' });
-    const xlarge = sizes.xlarge!;
-    expect(viewStyle(host())).toMatchObject({ minHeight: xlarge.containerHeight, gap: xlarge.containerGap });
-    expect(viewStyle(part('outline')!).borderWidth).toBe(xlarge.outlineWidth);
-    expect([xlarge.containerHeight, xlarge.outlineWidth, xlarge.containerGap]).toEqual([136, 3, 16]);
+    await mount(system, { size: 'xxlarge', variant: 'outlined' });
+    const xxlarge = sizes.xxlarge!;
+    expect(viewStyle(host())).toMatchObject({ minHeight: xxlarge.containerHeight, gap: xxlarge.containerGap });
+    expect(viewStyle(part('outline')!).borderWidth).toBe(xxlarge.outlineWidth);
+    expect([xxlarge.containerHeight, xxlarge.outlineWidth, xxlarge.containerGap]).toEqual([136, 3, 16]);
     // The outline is a ring: whatever its width, it never becomes a border of the host.
     expect(viewStyle(host()).borderWidth).toBeUndefined();
     expect(warn).not.toHaveBeenCalled();
   });
 
-  test('xsmall is 32 tall, with this size\'s own outline width and gap', async () => {
+  test('small is 32 tall, with this size\'s own outline width and gap', async () => {
     const warn = jest.spyOn(console, 'warn').mockImplementation(() => undefined);
-    await mount(system, { size: 'xsmall', variant: 'outlined' });
-    const xsmall = sizes.xsmall!;
-    expect(viewStyle(host())).toMatchObject({ minHeight: xsmall.containerHeight, gap: xsmall.containerGap });
-    expect(viewStyle(part('outline')!).borderWidth).toBe(xsmall.outlineWidth);
-    expect(xsmall.containerHeight).toBe(32);
+    await mount(system, { size: 'small', variant: 'outlined' });
+    const small = sizes.small!;
+    expect(viewStyle(host())).toMatchObject({ minHeight: small.containerHeight, gap: small.containerGap });
+    expect(viewStyle(part('outline')!).borderWidth).toBe(small.outlineWidth);
+    expect(small.containerHeight).toBe(32);
     expect(warn).not.toHaveBeenCalled();
   });
 
   test('all five sizes: heights 32 / 40 / 56 / 96 / 136, read by the Button from the size it is given', async () => {
-    const order = ['xsmall', 'small', 'medium', 'large', 'xlarge'] as const;
+    const order = ['small', 'medium', 'large', 'xlarge', 'xxlarge'] as const;
     expect(order.map((size) => sizes[size]!.containerHeight)).toEqual([32, 40, 56, 96, 136]);
+    // Material's per-size spacing, icons and outline (an icon beside a label is 20 at the small sizes, not 18).
+    expect(order.map((size) => sizes[size]!.containerPaddingInlineStart)).toEqual([16, 16, 24, 48, 64]);
+    expect(order.map((size) => sizes[size]!.containerPaddingInlineStartWithIcon)).toEqual([16, 16, 24, 48, 64]);
+    expect(order.map((size) => sizes[size]!.containerGap)).toEqual([8, 8, 8, 12, 16]);
+    expect(order.map((size) => sizes[size]!.iconSize)).toEqual([20, 20, 24, 32, 40]);
+    expect(order.map((size) => sizes[size]!.outlineWidth)).toEqual([1, 1, 1, 2, 3]);
+    // Without a label: Material's icon button glyph, narrow inset and wide width at each height.
+    expect(order.map((size) => sizes[size]!.iconSizeWithoutLabel)).toEqual([20, 24, 24, 32, 40]);
+    expect(order.map((size) => sizes[size]!.containerPaddingInlineNarrow)).toEqual([4, 4, 12, 16, 32]);
+    expect(order.map((size) => sizes[size]!.containerWidthWide)).toEqual([40, 52, 72, 128, 184]);
+    expect(order.map((size) => sizes[size]!.labelTypescale)).toEqual(['label', 'label', 'heading5', 'heading3', 'heading1']);
+    expect(system.components.button.containerShape).toBe(system.shape.full);
     for (const size of order) {
       const view = await mount(system, { size, icon: () => null });
       expect(viewStyle(host()).minHeight).toBe(sizes[size]!.containerHeight);
@@ -176,10 +188,14 @@ describe('m3-expressive-like drives the Button', () => {
 
   test('a size this preset added falls back to medium under a system that does not have it (with a dev warning)', async () => {
     const warn = jest.spyOn(console, 'warn').mockImplementation(() => undefined);
-    await mount(m3Like, { size: 'xlarge' });
-    expect(viewStyle(host()).minHeight).toBe(m3Like.components.button.sizes.medium.containerHeight);
+    await mount(cupertino, { size: 'xxlarge' });
+    expect(viewStyle(host()).minHeight).toBe(cupertino.components.button.sizes.medium.containerHeight);
     expect(warn).toHaveBeenCalled();
   });
+});
+
+describe('every value m3-like adds to a Button axis, through the harness (the checks every component gets)', () => {
+  describeAxisExtensions(buttonSubject, m3Like);
 });
 
 describe('cupertino drives the Button', () => {

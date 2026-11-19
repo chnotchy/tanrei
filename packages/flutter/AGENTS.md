@@ -119,7 +119,7 @@ The root `AGENTS.md` is law. This file only adds Flutter specifics.
 | `lib/tanrei.dart` | Barrel. Export every public file here. |
 | `lib/src/generated/tokens.g.dart` | Vocabulary types (generated) |
 | `lib/src/generated/tanrei_system.g.dart` | `const TanreiSystem tanreiSystem` (generated) |
-| `lib/src/generated/<id>_system.g.dart`, `lib/systems/<id>.dart` | The presets (`m3-like`, `m3-expressive-like`, `cupertino`) and their public entry points (generated). `test/systems.dart` lists every shipped system: add a new preset there |
+| `lib/src/generated/<id>_system.g.dart`, `lib/systems/<id>.dart` | The presets (`m3-like`, `cupertino`) and their public entry points (generated). `test/systems.dart` lists every shipped system: add a new preset there |
 | `lib/src/theme/` | `TanreiThemeData` (carries `system`; `textStyle(token, emphasized:)`), `TanreiTheme`, `paint.dart` (`TanreiPaint.resolve`, `tanreiMixColors`), `toTextStyle()`, `toCurve()`, `tanreiDuration()` |
 | `lib/src/theme/icon_style.dart` | The one helper over `system.icon` (`TanreiIconStyle`): `fill(selected:)`, `opticalSize(size)`, `toIconThemeData(...)`, `fontVariations(...)`. Not a component |
 | `lib/src/primitives/pressable.dart` | `TanreiPressableStateMixin<S, V>`: the input half of every pressable control — states, activation, BTN-8 press-hold, BTN-9 `drawnState` / `containerState` / `rippleFor`, state transitions (`animateVisuals`), `buildPressable` |

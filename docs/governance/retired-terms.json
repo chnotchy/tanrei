@@ -800,8 +800,8 @@
     {
       "term": "comp.timeline.density",
       "since": "2026-11-12",
-      "reason": "the timeline has no density of its own: the space between its events follows the system's density",
-      "replacedBy": "dial.density, the system's",
+      "reason": "the timeline has no density of its own: the space between its events follows the system's spacing",
+      "replacedBy": "dial.space.unit, the system's",
       "allow": [
         ".changeset/",
         "CHANGELOG.md"
@@ -3985,6 +3985,26 @@
       "since": "2026-11-12",
       "reason": "the search's density is its size: compact is small",
       "replacedBy": "--tanrei-comp-search-suggestion-leading-icon-size-small",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "dial.density",
+      "since": "2026-11-19",
+      "reason": "the density dial is removed: it multiplied different bases, so no one value lined controls and rows up",
+      "replacedBy": "dial.control.height, the control height",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "dial-density",
+      "since": "2026-11-19",
+      "reason": "the density dial is removed, and its custom property with it",
+      "replacedBy": "--tanrei-dial-control-height, the control height",
       "allow": [
         ".changeset/",
         "CHANGELOG.md"

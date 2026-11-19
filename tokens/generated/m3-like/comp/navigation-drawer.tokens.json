@@ -211,7 +211,6 @@
                   "fn": "mul",
                   "of": "{tanrei.sys.space.space25}",
                   "by": 1,
-                  "times": "{tanrei.dial.density}",
                   "round": "{tanrei.sys.space.space25}"
                 }
               }
@@ -464,7 +463,6 @@
                   "fn": "mul",
                   "of": "{tanrei.dial.size.unit}",
                   "by": 9,
-                  "times": "{tanrei.dial.density}",
                   "round": "{tanrei.dial.size.unit}"
                 }
               }
@@ -479,7 +477,6 @@
                   "fn": "mul",
                   "of": "{tanrei.dial.size.unit}",
                   "by": 7,
-                  "times": "{tanrei.dial.density}",
                   "round": "{tanrei.dial.size.unit}"
                 }
               }

@@ -50,7 +50,7 @@ export interface SheetScrimOptions {
  * the surface's entrance — the same duration and curve (MDL-7) — and, where motion is reduced, over the cross-fade that
  * replaces the motion (`sys.motion.role.reduced`, MOT-6), as `appearStyles()` fades the surface there. It does not fade
  * out with the surface's exit: `modalExitStyles()`, composed after it, takes it away at once as the dialog begins to
- * close (MOT-7), and holds it where the dialog changes hands. A rule that turns the scrim's
+ * close (MOT-8), and holds it where the dialog changes hands. A rule that turns the scrim's
  * transition off names `transition-property` (the open rule here leaves it alone).
  */
 export function sheetScrimStyles({ dialog, color, blur, enter, reduced = 'var(--tanrei-sys-motion-role-reduced)' }: SheetScrimOptions): CSSResult {

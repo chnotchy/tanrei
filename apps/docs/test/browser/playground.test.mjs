@@ -6,6 +6,9 @@
 // - an address opens the playground as it was left, and the reset takes every control and the element back;
 // - a control is named by its prop and is used from the keyboard; on a page that reads right to left its words are the
 //   page's;
+// - a choice of a few values is a row of tabs without panels, as the default system draws one choice that changes what
+//   is shown (it ships no segmented button): a radio group named by its prop, each tab a radio named by its value, one
+//   Tab stop, the arrow keys moving and selecting, a press selecting, and nothing axe finds in the frame;
 // - nothing moves as the page loads: the stage, the fixture's stage in it and the controls take the same room before
 //   anything is defined as once they are, at a phone's width and a desktop's.
 //
@@ -19,6 +22,7 @@ import path from 'node:path';
 import { register } from 'node:module';
 import { after, before, describe, test } from 'node:test';
 import { fileURLToPath } from 'node:url';
+import AxeBuilder from '@axe-core/playwright';
 import { serveDist } from './host.mjs';
 import { engines, launch, settle, settlePage } from './launch.mjs';
 
@@ -90,7 +94,7 @@ for (const engine of ENGINES) {
       await page.goto(`${origin}/components/button/`);
       await settled(page);
       const frame = page.locator(FRAME);
-      await frame.locator('[data-playground-prop="size"] tanrei-segment[value="large"]').click();
+      await frame.locator('[data-playground-prop="size"] tanrei-tab[value="large"]').click();
       await frame.locator('tanrei-switch[data-playground-prop="disabled"]').click();
       await frame.locator('tanrei-text-field[data-playground-prop="label"] input').fill('Go');
       await copyIs(page, /label="Go"/);
@@ -157,6 +161,58 @@ for (const engine of ENGINES) {
       const state = await read(page, 'tanrei-slider', ['disabled', 'value']);
       assert.deepEqual(state.element, { disabled: true, value: 70 });
       assert.equal(state.hash, '#play-slider=value:70,disabled:true');
+      await context.close();
+    });
+
+    test('a choice of a few values is a row of tabs without panels: a radio group, by keyboard and by pointer; axe finds nothing', LIMIT, async () => {
+      const context = await browser.newContext({ viewport: WIDE });
+      const page = await context.newPage();
+      await page.goto(`${origin}/components/button/`);
+      await settled(page);
+      const frame = page.locator(FRAME);
+      const row = frame.locator('tanrei-tabs[data-playground-prop="size"]');
+      assert.equal(await frame.locator('tanrei-segmented-button, tanrei-segment').count(), 0, 'no segmented button: the default system ships none');
+      // What assistive technology is told: the row's role, its name, and each tab's (TAB-42).
+      const told = () =>
+        row.evaluate((host) => {
+          const group = host.shadowRoot.querySelector('[role]');
+          const tabs = [...host.querySelectorAll('tanrei-tab')];
+          const roleOf = (tab) => tab.getAttribute('role') ?? tab.shadowRoot?.querySelector('[role]')?.getAttribute('role');
+          const checkedOf = (tab) => tab.getAttribute('aria-checked') ?? tab.shadowRoot?.querySelector('[role]')?.getAttribute('aria-checked');
+          return {
+            role: group?.getAttribute('role'),
+            name: group?.getAttribute('aria-label') ?? host.getAttribute('label'),
+            tabs: tabs.map((tab) => `${roleOf(tab)} ${tab.getAttribute('label')} ${checkedOf(tab)}`),
+            stops: tabs.filter((tab) => (tab.shadowRoot?.querySelector('[tabindex]') ?? tab).tabIndex === 0).length,
+          };
+        });
+      const before = await told();
+      assert.equal(before.role, 'radiogroup', 'a row without panels is one choice');
+      assert.equal(before.name, 'size');
+      assert.deepEqual(before.tabs, ['radio small false', 'radio medium true', 'radio large false']);
+      assert.equal(before.stops, 1, 'one Tab stop, the selected tab');
+      // By keyboard: each row is one Tab stop, its selected tab, and an arrow moves and selects.
+      const focused = () => page.evaluate(() => `${document.activeElement?.closest('[data-playground-prop]')?.dataset.playgroundProp} ${document.activeElement?.getAttribute('value')}`);
+      await row.locator('tanrei-tab[value="medium"]').focus();
+      await page.keyboard.press('Tab');
+      assert.equal(await focused(), 'width default', 'Tab leaves the row for the next one, at its selected tab');
+      await page.keyboard.press('Shift+Tab');
+      assert.equal(await focused(), 'size medium', 'Shift+Tab comes back to the selected tab');
+      await page.keyboard.press('ArrowRight');
+      await copyIs(page, /size="large"/);
+      let state = await read(page, 'tanrei-button', ['size']);
+      assert.deepEqual(state.element, { size: 'large' });
+      assert.deepEqual(state.controls, { size: 'large' });
+      assert.equal(state.hash, '#play-button=size:large');
+      assert.deepEqual((await told()).tabs, ['radio small false', 'radio medium false', 'radio large true']);
+      // By pointer.
+      await row.locator('tanrei-tab[value="small"]').click();
+      await copyIs(page, /size="small"/);
+      state = await read(page, 'tanrei-button', ['size']);
+      assert.deepEqual(state.element, { size: 'small' });
+      assert.equal(state.hash, '#play-button=size:small');
+      const axe = await new AxeBuilder({ page }).include(FRAME).analyze();
+      assert.deepEqual(axe.violations.map((violation) => `${violation.id}: ${violation.nodes[0]?.target}`), [], 'axe: the playground');
       await context.close();
     });
 

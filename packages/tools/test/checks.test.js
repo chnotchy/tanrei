@@ -150,7 +150,6 @@ test('what every system leaves out names what exists, and a layer changes what i
   // m3-like brings back what the default system leaves out and leaves out its own: every component, no filled
   // navigation bar and no tonal tabs.
   assert.deepEqual(availability['m3-like'], { components: [], variants: { 'navigation-bar': ['filled'], tabs: ['tonal'] }, outside: {} });
-  assert.deepEqual(availability['m3-expressive-like'], availability['m3-like']);
   // What lives in a layer a system does not extend is outside it, with that layer, not left out.
   assert.deepEqual(availability.tanrei.outside, { 'fab-menu': 'm3-like' });
   assert.deepEqual(availability.cupertino.outside, { 'fab-menu': 'm3-like' });

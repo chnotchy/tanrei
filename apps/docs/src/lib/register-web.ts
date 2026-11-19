@@ -28,11 +28,12 @@ const PAGE_SCRIPTS: Record<string, () => Promise<unknown>> = {
 };
 for (const [name, load] of Object.entries(PAGE_SCRIPTS)) if (document.querySelector(`.${name}`)) void load();
 
-// The whole package with every element (`@tanrei/web/all`), for a person at the browser's console: `await tanrei`.
-// It is fetched only when it is asked for.
+// The package's entry with every element of the default system (`@tanrei/web`), for a person at the browser's console:
+// `await tanrei`. It is what a product of the default system imports, so it defines no component that system does not
+// have (lib/omitted-elements.ts). It is fetched only when it is asked for.
 declare global {
   interface Window {
-    readonly tanrei: Promise<typeof import('@tanrei/web/all')>;
+    readonly tanrei: Promise<typeof import('@tanrei/web')>;
   }
 }
-Object.defineProperty(window, 'tanrei', { configurable: true, get: () => import('@tanrei/web/all') });
+Object.defineProperty(window, 'tanrei', { configurable: true, get: () => import('@tanrei/web') });

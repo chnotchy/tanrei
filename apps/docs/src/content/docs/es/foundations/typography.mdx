@@ -2,7 +2,7 @@
 title: Tipografía
 description: Dieciséis estilos de texto nombrados por nivel (un display, seis títulos, tres tamaños de cuerpo, etiquetas, código y un antetítulo), compuestos en Inter, con el énfasis como un paso de peso y no como un rol.
 translationOf: foundations/typography.mdx
-sourceHash: def97902c53dacc5166adf0db642048d1f203458
+sourceHash: e7ad0f5eb2a903476fe17d256850ee1744a19f4c
 ---
 
 import TokenNotes from '../../../../components/tokens/TokenNotes.astro';
@@ -33,7 +33,7 @@ Un rol es un estilo tipográfico completo: familia, tamaño, peso, interlineado 
 | `code-small` | 12px · 400 · mono | Código dentro de una interfaz densa. |
 | `eyebrow` | 12px · 500 · con espaciado entre letras | El antetítulo de una sección, encima de un título; el componente lo pone en mayúsculas. |
 
-Cada familia es estrictamente monótona en tamaño: ningún título es más pequeño que el título del nivel siguiente, y ningún rol de cuerpo es más pequeño que el rol de cuerpo siguiente. Donde un título y un rol de cuerpo comparten tamaño (`heading-6` y `body` miden ambos 14px; `heading-5` y `body-large`, ambos 16px), la regla del sistema predeterminado cabe en una frase: **los títulos pesan 500, el cuerpo pesa 400.** Un preajuste define sus propios pesos (el `heading-1` de `m3-like` es el 400 de Material).
+Cada familia es estrictamente monótona en tamaño: ningún título es más pequeño que el título del nivel siguiente, y ningún rol de cuerpo es más pequeño que el rol de cuerpo siguiente. Donde un título y un rol de cuerpo comparten tamaño (`heading-6` y `body` miden ambos 14px; `heading-5` y `body-large`, ambos 16px), la regla del sistema predeterminado cabe en una frase: **los títulos pesan 500, el cuerpo pesa 400.** Las filas siguen la misma regla: una fila que es un comando o un destino (un elemento de menú, una opción, una sugerencia de búsqueda, una fila de un panel de navegación o de una tabla de contenido) pesa 500, el peso de las etiquetas; una fila de contenido (la de una lista, un árbol o una tabla), 400, el del cuerpo. Un preajuste define sus propios pesos (el `heading-1` de `m3-like` es el 400 de Material).
 
 Elige el nivel que tiene el texto, no el tamaño que quieres. Un `h2` que debe verse pequeño sigue siendo `heading-2`; un producto que quiere títulos de sección más pequeños da un nuevo valor a `heading-2` en su capa, y todos los `h2` lo siguen.
 

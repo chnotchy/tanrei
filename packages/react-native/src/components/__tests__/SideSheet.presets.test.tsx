@@ -4,7 +4,6 @@
 import { render, screen } from '@testing-library/react-native';
 import { Dimensions, View } from 'react-native';
 import { cupertino } from '../../generated/systems/cupertino';
-import { m3ExpressiveLike } from '../../generated/systems/m3-expressive-like';
 import { m3Like } from '../../generated/systems/m3-like';
 import { tanrei } from '../../generated/systems/tanrei';
 import type { TanreiColorRole, TanreiSystem } from '../../generated/vocabulary';
@@ -53,12 +52,6 @@ describe('m3-like drives the SideSheet', () => {
     expect(theme.elevation('level1').boxShadow.length).toBeGreaterThan(0);
     expect(viewStyle(part(''))).toMatchObject({ boxShadow: theme.elevation('level1').boxShadow, borderTopStartRadius: tokens.variants.modal.containerShape });
     expect(textStyle(part('headline'))).toMatchObject({ color: role(system, 'onSurfaceVariant'), fontSize: theme.text('heading4').fontSize });
-  });
-});
-
-describe('m3-expressive-like drives the SideSheet', () => {
-  test('it inherits m3-like\'s side sheet', () => {
-    expect(m3ExpressiveLike.components.sideSheet).toEqual(m3Like.components.sideSheet);
   });
 });
 

@@ -566,7 +566,7 @@ struct TanreiBadgePresetTests {
   /// pill is 18 high.
   @Test("BDG-2 BDG-6 the presets' own values reach the badge")
   func presetValues() throws {
-    for system in [TanreiSystem.m3Like, .m3ExpressiveLike, .cupertino] {
+    for system in [TanreiSystem.m3Like, .cupertino] {
       #expect(system.badge.containerColor == .role(.error), "\(system.id)")
       #expect(system.badge.labelColor == .role(.onError), "\(system.id)")
       #expect(system.badge.outlineColor.resolve(in: system.colors.light).opacity == 0, "\(system.id)")
@@ -654,7 +654,7 @@ struct TanreiBadgeSnapshotTests {
 struct TanreiBadgePresetSnapshotTests {
   /// A two-digit count: it shows the preset's colors, pill height, padding, outline and placement.
   nonisolated static let fixtureId = "count-double"
-  nonisolated static let presets: [ShippedSystem] = [.m3Like, .m3ExpressiveLike, .cupertino]
+  nonisolated static let presets: [ShippedSystem] = [.m3Like, .cupertino]
 
   @Test("every shipped preset has one, and it is one of the spec's fixtures")
   func fixtureList() {

@@ -1583,7 +1583,7 @@ test.describe('the collapsed form', () => {
     expectAnimated(seen, 'width');
   });
 
-  test('NVD-40: closing, the drawer is never swapped for another look — 800 wide the dialog narrows to its column and its color, elevation, corners and edge move to the column’s with it, in every engine, the column then drawn as its last frame was, and the selected destination’s color moves with its width, focused or not (NVD-35); 390 wide the modal drawer slides all the way out before it leaves, its scrim gone from the first frame (MOT-7); 1280 wide the standard drawer keeps its look while it collapses — and the column’s last look is the docked column’s', async ({ page }) => {
+  test('NVD-40: closing, the drawer is never swapped for another look — 800 wide the dialog narrows to its column and its color, elevation, corners and edge move to the column’s with it, in every engine, the column then drawn as its last frame was, and the selected destination’s color moves with its width, focused or not (NVD-35); 390 wide the modal drawer slides all the way out before it leaves, its scrim gone from the first frame (MOT-8); 1280 wide the standard drawer keeps its look while it collapses — and the column’s last look is the docked column’s', async ({ page }) => {
     const docs = (open: boolean) => [rail('r', MAIL, { responsive: true, open, expanded: true })];
     // 1280: the docked drawer collapses to its column (NVD-35); its look is the standard drawer's throughout.
     await page.setViewportSize({ width: 1280, height: 720 });
@@ -1659,7 +1659,7 @@ test.describe('the collapsed form', () => {
     const shown = [sliding.before, ...sliding.frames].filter((frame) => frame.probe.shown);
     expect(shown.length).toBeGreaterThan(4);
     expectSteady({ ...sliding, frames: shown.slice(1), rest: shown.at(-1)! }, LOOK);
-    // What of it is on screen goes to nothing without a frame that cuts it short; its scrim is gone from the first frame (MOT-7).
+    // What of it is on screen goes to nothing without a frame that cuts it short; its scrim is gone from the first frame (MOT-8).
     expectNoJump(sliding, ['reach']);
     expectScrimGone(sliding);
     expect(sliding.rest.probe).toMatchObject({ shown: false, modal: false, reach: 0, scrim: 0 });
@@ -2152,7 +2152,7 @@ test.describe('forms and focus', () => {
     expect(await page.evaluate(() => document.activeElement?.id)).toBe('menu');
   });
 
-  test('NVD-22, NVD-40, MOT-7: closing a modal drawer — sliding out, or narrowing back to its column — its scrim is drawn at no opacity and takes no press from the first frame while the drawer still moves, and opening fades it in from no opacity, in every engine; where motion is reduced it is gone from the first frame too', async ({ page }) => {
+  test('NVD-22, NVD-40, MOT-8: closing a modal drawer — sliding out, or narrowing back to its column — its scrim is drawn at no opacity and takes no press from the first frame while the drawer still moves, and opening fades it in from no opacity, in every engine; where motion is reduced it is gone from the first frame too', async ({ page }) => {
     const closedFixture = (id: string) => {
       const given = spec.fixtures.find((f) => f.id === id)!;
       return { ...given, props: { ...given.props, open: false } };
@@ -4506,7 +4506,7 @@ function expectInStep(seen: Frames, name: string) {
 }
 /** The frames of a change, from before it to where it rests. */
 const course = (seen: Frames) => [seen.before, ...seen.frames, ...(seen.complete ? [seen.rest] : [])];
-/** MOT-7: a closing draws its scrim at no opacity from its first frame (a frame without one reads no scrim). */
+/** MOT-8: a closing draws its scrim at no opacity from its first frame (a frame without one reads no scrim). */
 function expectScrimGone(seen: Frames) {
   const drawn = seen.frames.filter((frame) => frame.probe.scrim !== undefined && Number(frame.probe.scrim) !== 0).map((frame) => `frame ${frame.index}: ${frame.probe.scrim}`);
   expect(drawn, 'the scrim from the first frame of the closing').toEqual([]);

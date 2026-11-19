@@ -134,15 +134,20 @@ describe('a built page’s scripts', { concurrency: 2 }, () => {
     });
   }
 
-  // A window's document runs one module (lib/fixture-window.ts), which defines what the window draws: a date-time
-  // picker's window holds Buttons in its shadow root that its fixture does not write.
-  test('a window of the fixtures’ gallery defines every element it draws, in its document and in every shadow root', LIMIT, async () => {
+  // A modal fixture of the gallery opens on the page from its stage (lib/fixture-stages.ts), and what it draws then is
+  // defined: a date-time picker holds Buttons in its shadow root that its fixture does not write.
+  test('a modal fixture opened from its stage defines every element it draws, in every shadow root', LIMIT, async () => {
     const { context, page, errors } = await open('/components/date-time-picker/');
     try {
-      const frame = page.locator('iframe.docs-window-frame').first();
-      await frame.scrollIntoViewIfNeeded();
-      await page.waitForFunction((element) => element.contentDocument?.querySelector('body > .stages > .stage') && !element.hasAttribute('inert'), await frame.elementHandle(), { timeout: 15_000 });
-      const left = await frame.evaluate((element) => {
+      const stage = page.locator('.docs-stage[data-fixture-id="modal-date"]');
+      await stage.scrollIntoViewIfNeeded();
+      const picker = stage.locator('[data-fixture-scope] > .stage tanrei-date-time-picker');
+      await picker.waitFor({ state: 'attached' });
+      await page.waitForFunction(() => customElements.get('tanrei-date-time-picker'), undefined, { timeout: 15_000 });
+      await stage.locator('[data-stage-trigger]').click();
+      await page.waitForFunction((element) => element.shadowRoot?.querySelector('dialog:modal'), await picker.elementHandle(), { timeout: 15_000 });
+      const left = await picker.evaluate(async (element) => {
+        await element.updateComplete;
         const out = new Set();
         const visit = (node, where) => {
           for (const el of node.querySelectorAll('*')) {
@@ -150,10 +155,11 @@ describe('a built page’s scripts', { concurrency: 2 }, () => {
             if (el.shadowRoot) visit(el.shadowRoot, `in the shadow root of ${el.localName}`);
           }
         };
-        visit(element.contentDocument, 'in the document');
+        visit(element.shadowRoot, 'in the shadow root of tanrei-date-time-picker');
+        visit(element, 'in the fixture');
         return [...out];
       });
-      assert.deepEqual(left, [], 'elements left undefined in the window');
+      assert.deepEqual(left, [], 'elements left undefined in the open picker');
       assert.deepEqual(errors, [], 'errors the page threw');
     } finally {
       await context.close();

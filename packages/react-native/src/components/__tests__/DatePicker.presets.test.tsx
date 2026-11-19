@@ -4,7 +4,6 @@
 import { render, screen } from '@testing-library/react-native';
 import { Dimensions, View } from 'react-native';
 import { cupertino } from '../../generated/systems/cupertino';
-import { m3ExpressiveLike } from '../../generated/systems/m3-expressive-like';
 import { m3Like } from '../../generated/systems/m3-like';
 import { tanrei } from '../../generated/systems/tanrei';
 import type { TanreiColorRole, TanreiSystem } from '../../generated/vocabulary';
@@ -60,12 +59,6 @@ describe('m3-like drives the DatePicker', () => {
 
   test('ripple is its pressed feedback (DTP-34)', () => {
     expect(system.behavior.pressedFeedback).toBe('ripple');
-  });
-});
-
-describe('m3-expressive-like drives the DatePicker', () => {
-  test('it inherits m3-like\'s date picker', () => {
-    expect(m3ExpressiveLike.components.datePicker).toEqual(m3Like.components.datePicker);
   });
 });
 

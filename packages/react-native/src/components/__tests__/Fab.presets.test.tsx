@@ -3,7 +3,6 @@
 // a literal appears only where a preset's value is pinned on purpose.
 import { act, fireEvent, render } from '@testing-library/react-native';
 import { cupertino } from '../../generated/systems/cupertino';
-import { m3ExpressiveLike } from '../../generated/systems/m3-expressive-like';
 import { m3Like } from '../../generated/systems/m3-like';
 import { tanrei } from '../../generated/systems/tanrei';
 import type { TanreiColorRole, TanreiCoreFabVariant, TanreiSystem } from '../../generated/vocabulary';
@@ -74,12 +73,9 @@ describe('m3-like drives the FloatingActionButton', () => {
   test('FAB-9: m3-like answers a press with a ripple', () => {
     expect(system.behavior.pressedFeedback).toBe('ripple');
   });
-});
 
-describe('m3-expressive-like drives the FloatingActionButton', () => {
-  test('it inherits m3-like\'s FAB (Expressive\'s own sizes are left to its fidelity work), with no added axis values', () => {
-    const tokens = m3ExpressiveLike.components.fab;
-    expect(tokens).toEqual(m3Like.components.fab);
+  test('it adds no FAB axis value (Material 3\'s newer FAB sizes are left to its fidelity work)', () => {
+    const tokens = m3Like.components.fab;
     expect(Object.keys(tokens.sizes).sort()).toEqual([...sizes].sort());
     expect(Object.keys(tokens.variants).sort()).toEqual([...variants].sort());
   });

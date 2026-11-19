@@ -217,7 +217,7 @@ for (const engine of ENGINES) {
       assert.ok(presets.length > 0, 'a preset is shipped');
       const [preset] = presets;
       await chooseLook(page, preset);
-      await page.waitForFunction(({ selector, preset }) => document.querySelector(selector).querySelector('[data-example-stage]').getAttribute('data-tanrei-system') === preset, { selector: MEASURE, preset });
+      await page.waitForFunction((preset) => document.getElementById('docs-look-sheet')?.sheet && document.getElementById('docs-look-sheet').getAttribute('href').includes(`/look-${preset}.`), preset);
       await drawn(page, MEASURE);
       await page.waitForFunction((selector) => !document.querySelector(selector).querySelector('[data-example-overlay][data-drawing]'), MEASURE);
       const figure = await measures(page);

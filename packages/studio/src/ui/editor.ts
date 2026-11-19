@@ -254,10 +254,14 @@ export function tokenDetail(ctx: Ctx, id: string, open: (id: string) => void): H
 export function ruleText(rule: Json, ns: string): string {
   const name = (v: unknown) => (isRef(v) ? short((v as string).slice(1, -1), ns) : String(v));
   if (rule.fn === 'mul') {
-    // max(min, round(of × by^exp × times, round)), in the order the engine applies it.
-    const product = `${name(rule.of)} × ${rule.by}${rule.exp !== undefined ? ` ^ ${name(rule.exp)}` : ''}${rule.times !== undefined ? ` × ${name(rule.times)}` : ''}`;
+    // max(min, round(of × by^exp, round)), in the order the engine applies it.
+    const product = `${name(rule.of)} × ${rule.by}${rule.exp !== undefined ? ` ^ ${name(rule.exp)}` : ''}`;
     const rounded = rule.round !== undefined ? `round(${product}, ${name(rule.round)})` : product;
     return rule.min !== undefined ? `max(${name(rule.min)}, ${rounded})` : rounded;
+  }
+  if (rule.fn === 'add') {
+    const sum = `${name(rule.of)} ${(rule.times ?? 1) < 0 ? '−' : '+'} ${name(rule.by)}${Math.abs(rule.times ?? 1) === 1 ? '' : ` × ${Math.abs(rule.times)}`}`;
+    return rule.min !== undefined ? `max(${name(rule.min)}, ${sum})` : sum;
   }
   if (rule.fn === 'pad') return `pad(${name(rule.of)}${rule.by !== undefined ? ` × ${rule.by}` : ''}, ${name(rule.height)})`;
   if (rule.fn === 'sub') return `max(0, ${name(rule.of)} − ${name(rule.by)})`;

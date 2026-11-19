@@ -2,9 +2,9 @@
 // dialog (centred, and as a sheet in a compact window), the modal layer, the modal side and bottom sheets, the image
 // preview, the popover's sheet, the modal navigation drawer (sliding, and collapsible: narrowing back to its column),
 // and the search's dialog and full-screen views. In every engine, frame by frame on a held clock (test/frames.ts):
-// closed, the surface and its scrim stay drawn in the top layer and move to their closed look — no frame where they are
-// gone before the motion ends — while focus is back on the opener from the first frame (MDL-5) and the page behind is
-// no longer inert. Where motion is reduced it fades in place, drawn until it has, or, where its spec says so, is gone at
+// closed, the surface stays drawn in the top layer and moves to its closed look — no frame where it is gone before the
+// motion ends — while its scrim is drawn at no opacity from the first frame (MOT-8), focus is back on the opener from
+// the first frame (MDL-5) and the page behind is no longer inert, taking the presses (MOT-7). Where motion is reduced it fades in place, drawn until it has, or, where its spec says so, is gone at
 // once. Opened again while it leaves, it goes back from the values it shows, modal again.
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -12,7 +12,7 @@ import { type Locator, type Page, expect, test } from '@playwright/test';
 import { buildSync } from 'esbuild';
 import { type Frames, type Probe, expectNoFlicker, sampleFrames } from '../../test/frames.js';
 import { type Fixture, dialogWindow, fixtureHost, fixturesDocument, loadSpec, mountFixtures, popoverWindow } from '../../test/harness.js';
-import { motionEnded } from '../../test/motions.js';
+import { EVERY_ANIMATION, KEEP_PAUSED, motionEnded } from '../../test/motions.js';
 
 interface Surface {
   name: string;
@@ -41,10 +41,10 @@ const SURFACES: Surface[] = [
   { name: 'modal bottom sheet', spec: 'bottom-sheet', fixture: 'modal', window: { width: 480, height: 640 }, exit: 'slide', scrim: true },
   { name: 'image preview', spec: 'image-preview', fixture: 'single', window: { width: 640, height: 640 }, exit: 'fade', scrim: false },
   { name: 'popover as a sheet', spec: 'popover', fixture: 'compact', window: popoverWindow, exit: 'slide', scrim: true },
-  // NVD-22: it slides out over its fading scrim, at once where motion is reduced.
+  // NVD-22: it slides out, its scrim taken away at once (MOT-8), and is gone at once where motion is reduced.
   { name: 'modal navigation drawer', spec: 'navigation-drawer', fixture: 'modal', window: { width: 480, height: 640 }, exit: 'slide', scrim: true, reduced: 'at-once' },
-  // NVD-22, NVD-40: a collapsible one narrows back to its column over its fading scrim, and once it has, its column
-  // takes the dialog's place; at once where motion is reduced.
+  // NVD-22, NVD-40: a collapsible one narrows back to its column, its scrim taken away at once (MOT-8), and once it
+  // has, its column takes the dialog's place; at once where motion is reduced.
   { name: 'collapsible modal navigation drawer', spec: 'navigation-drawer', fixture: 'modal-collapsible-closed', window: { width: 800, height: 640 }, exit: 'narrow', scrim: true, reduced: 'at-once' },
   ...(['dialog-results', 'full-screen'] as const).map(
     (fixture): Surface => ({
@@ -140,9 +140,9 @@ const close = (host: Locator, surface: Surface) => toggle(host, surface, false);
 const value = (seen: Frames, i: number, name: string) => seen.frames[i]!.probe[name] as number;
 
 /**
- * What a close shows, frame by frame: the surface drawn (and no longer modal) in every frame until its motion and its
- * scrim's have ended, moving there — never back, and never done in one jump — and gone at rest; focus on the opener
- * from the first frame.
+ * What a close shows, frame by frame: the surface drawn (and no longer modal) in every frame until its motion has
+ * ended, moving there — never back, and never done in one jump — and gone at rest; its scrim at no opacity in every
+ * frame (MOT-8); focus on the opener from the first frame.
  */
 function expectLeaves(seen: Frames, surface: Surface, opener: string, { reduced = false } = {}) {
   const frames = seen.frames;
@@ -176,17 +176,16 @@ function expectLeaves(seen: Frames, surface: Surface, opener: string, { reduced 
     expect(Math.abs(offset.at(-1)!), 'out of view by the end of its motion').toBeGreaterThan(Math.abs(offset[0]!));
   }
   if (surface.scrim) {
+    // MOT-8: the scrim does not leave with the surface: it is drawn at no opacity from the first frame of the closing.
     const scrim = way('scrim');
-    expect(steps(scrim), `the scrim fades with it: ${scrim.join(' → ')}`).toBeGreaterThanOrEqual(4);
-    expect(scrim.every((v, i) => i === 0 || v <= scrim[i - 1]! + 1e-4), `the scrim only fades out: ${scrim.join(' → ')}`).toBe(true);
-    expect(scrim.at(-1), 'and is clear by the end of the motion').toBeLessThan(0.05);
+    expect(scrim.every((v) => v === 0), `the scrim is drawn at no opacity from the first frame (MOT-8): ${scrim.join(' → ')}`).toBe(true);
   }
   expectNoFlicker(seen);
 }
 
 for (const surface of SURFACES) {
   test.describe(surface.name, () => {
-    test(`MDL-7: closed, the ${surface.name} and its scrim stay drawn in the top layer until their exit has played, focus back at once (MDL-5)`, async ({ page }) => {
+    test(`MDL-7, MOT-8: closed, the ${surface.name} stays drawn in the top layer until its exit has played${surface.scrim ? ', its scrim at no opacity from the first frame' : ''}, focus back at once (MDL-5)`, async ({ page }) => {
       await page.emulateMedia({ reducedMotion: 'no-preference' });
       const host = await mount(page, surface);
       await open(page, host, surface);
@@ -198,6 +197,48 @@ for (const surface of SURFACES) {
       await page.locator(`#${opener}`).focus();
       await expect(page.locator(`#${opener}`)).toBeFocused();
     });
+
+    // A collapsible drawer narrows back into the page as its column, holding what focus goes back to: it is not taken
+    // away, and so takes the pointer as it narrows (closeModal's `interactive`). Every other surface is taken away.
+    if (surface.exit !== 'narrow')
+      test(`MOT-7: while the ${surface.name} leaves, neither it nor its scrim takes the pointer — a press on it${surface.scrim ? ' or on the scrim' : ''} reaches the page under it`, async ({ page }) => {
+        await page.emulateMedia({ reducedMotion: 'no-preference' });
+        const host = await mount(page, surface);
+        await open(page, host, surface);
+        // What lies under it: an element of the page over the whole window, which the top layer stands above.
+        await page.evaluate(() => {
+          document.body.insertAdjacentHTML('beforeend', '<div id="under" style="position: fixed; inset: 0"></div>');
+          const under = document.getElementById('under')!;
+          under.addEventListener('click', () => (under.dataset.pressed = String(Number(under.dataset.pressed ?? 0) + 1)));
+        });
+        const box = await host.evaluate((el) => {
+          const r = el.shadowRoot!.querySelector('dialog')!.getBoundingClientRect();
+          return { x: r.x + r.width / 2, y: r.y + r.height / 2 };
+        });
+        const points = [box, ...(surface.scrim ? [{ x: 4, y: 4 }] : [])];
+        const hits = () => page.evaluate((at) => at.map(({ x, y }) => document.elementFromPoint(x, y)?.id || document.elementFromPoint(x, y)?.localName || null), points);
+        expect((await hits()).includes('under'), 'open, it and its scrim stand over the page').toBe(false);
+        // Closed, and every motion of its exit held a third of the way for as long as the test reads: it is leaving.
+        const held = await host.evaluate(
+          async (el: Openable, [prop, every, keep]) => {
+            el[prop] = false;
+            await el.updateComplete;
+            const motions = ((0, eval)(every) as (root: Element) => Animation[])(el).filter((animation) => Number.isFinite(Number(animation.effect?.getComputedTiming().endTime)));
+            for (const animation of motions) {
+              animation.pause();
+              animation.currentTime = Number(animation.effect!.getComputedTiming().endTime) / 3;
+            }
+            await ((0, eval)(keep) as (motions: Animation[]) => Promise<void>)(motions);
+            return motions.length;
+          },
+          [propOf(surface), EVERY_ANIMATION, KEEP_PAUSED] as const,
+        );
+        expect(held, 'its exit is under way').toBeGreaterThan(0);
+        expect(await host.evaluate((el) => (el.shadowRoot!.querySelector('dialog') as HTMLDialogElement).matches(':popover-open')), 'still drawn in the top layer').toBe(true);
+        expect(await hits(), 'what lies under it and its scrim is the page').toEqual(points.map(() => 'under'));
+        for (const point of points) await page.mouse.click(point.x, point.y);
+        expect(await page.locator('#under').getAttribute('data-pressed'), 'each press reaches the page').toBe(String(points.length));
+      });
 
     if (surface.reduced === 'at-once') {
       test(`MDL-7: where motion is reduced the ${surface.name} disappears at once, its scrim with it, focus back`, async ({ page }) => {
@@ -259,7 +300,7 @@ for (const surface of SURFACES) {
       if (surface.scrim) expect(rest.scrim, 'the scrim has faded in at rest').toBe(1);
     });
 
-    test(`MDL-7, MOT-1: closed by work that outlasts its exit, the ${surface.name}${surface.scrim ? ' and its scrim move' : ' moves'} out from the first frame drawn after it, still drawn`, async ({ page }) => {
+    test(`MDL-7, MOT-1, MOT-8: closed by work that outlasts its exit, the ${surface.name} moves out from the first frame drawn after it, still drawn${surface.scrim ? ', its scrim at no opacity in that frame' : ''}`, async ({ page }) => {
       // The exit is begun in the work that closes it, and WebKit dated it from the frame drawn before that work: where
       // the work outlasted the exit, the first frame after it had the exit over, and the surface and its scrim were gone
       // without a frame of their motion. Here it is closed in a frame callback, where WebKit's timeline holds that
@@ -308,8 +349,9 @@ for (const surface of SURFACES) {
       expect(first.exit, 'its exit takes time').toBeGreaterThan(0);
       expect(first.at.length, `it moves out: ${first.at.join(', ')}`).toBeGreaterThan(0);
       expect(first.at.filter((motion) => !motion.endsWith(' at 0 ms')), 'in the first frame after that work every motion of the surface and its scrim stands at its start').toEqual([]);
-      if (surface.scrim) expect(first.at.some((motion) => motion.includes('(scrim)')), `the scrim fades out: ${first.at.join(', ')}`).toBe(true);
-      expect(first.shown, 'and the surface and its scrim are drawn as they were shown open, in the top layer').toEqual(first.before);
+      // MOT-8: the scrim has no exit of its own; it is drawn at no opacity at once (a clear one, too: modalExitStyles()).
+      expect(first.at.filter((motion) => motion.includes('(scrim)')), `the scrim has no motion: ${first.at.join(', ')}`).toEqual([]);
+      expect(first.shown, 'and the surface is drawn as it was shown open, in the top layer, its scrim at no opacity').toEqual({ ...first.before, scrim: 0 });
       expect(first.focus, 'focus is back on the opener (MDL-5)').toBe(returned);
       // And it still leaves: its exit plays to its end, and then it is out of the top layer, not modal, not inert (or,
       // a collapsible drawer, its column has taken the dialog's place).
@@ -329,7 +371,8 @@ for (const surface of SURFACES) {
       await page.emulateMedia({ reducedMotion: 'no-preference' });
       const host = await mount(page, surface);
       await open(page, host, surface);
-      // Closed, and its exit held a third of the way (the dialog's and its scrim's transitions); then opened again.
+      // Closed, and its exit held a third of the way (the dialog's transitions: its scrim has none, MOT-8); then opened
+      // again.
       const read = await host.evaluate(async (el: Openable, prop) => {
         const dialog = el.shadowRoot!.querySelector('dialog')!;
         const shown = () => {

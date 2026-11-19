@@ -15,10 +15,17 @@
 // order they stand, each once its whole graph has arrived, and this one must be waiting for the link forms' elements
 // before any other defines one. (The appearance's module, ThemeProvider.astro, may run before it: it defines none.)
 //
+// And it links the default system's tokens (`@tanrei/web/tokens.css`) first of the page's stylesheets, before the
+// head's script of the appearance (ThemeProvider.astro): the look's stylesheet that script puts in the head is written
+// in the same cascade layer, over the root, and must come after the tokens in the document to be drawn over them — the
+// framework's own stylesheets are linked at the end of the head, after the script. The tokens are the first sheet of
+// the page, so `tanrei.tokens` is the first cascade layer, before Starlight's (test/stylesheets.test.mjs).
+//
 // And it names the page's version in Markdown, `<path>.md` beside the page, for a program that reads the page
 // (`<link rel="alternate" type="text/markdown">`): every page the site's search reads has one, written from it when the
 // site is built (lib/page-markdown.mjs). A page left out of the search (the page that was not found) has none.
 import Default from '@astrojs/starlight/components/Head.astro';
+import tokens from '@tanrei/web/tokens.css?url';
 import inter from '@fontsource-variable/inter/files/inter-latin-wght-normal.woff2?url';
 import robotoMono from '@fontsource-variable/roboto-mono/files/roboto-mono-latin-wght-normal.woff2?url';
 import { firstFamilies } from '../../lib/first-faces.mjs';
@@ -101,6 +108,7 @@ const markdown = route.entry.data.pagefind === false ? undefined : markdownPathO
 {files.map((href) => <link rel="preload" as="font" type="font/woff2" href={href} crossorigin />)}
 {markdown && <link rel="alternate" type="text/markdown" href={markdown} />}
 <link rel="describedby" href="/llms.txt" />
+<link rel="stylesheet" href={tokens} />
 <Default />
 <script is:inline set:html={iconsReady} />
 

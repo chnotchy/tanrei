@@ -179,7 +179,6 @@ void main() {
     expect(gallerySystems.map((TanreiSystem s) => s.id), <String>[
       'tanrei',
       'm3-like',
-      'm3-expressive-like',
       'cupertino',
     ]);
     // The gallery shows the specs it has an entry for; a spec still `planned` on Flutter has none

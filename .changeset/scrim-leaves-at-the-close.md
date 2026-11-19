@@ -2,7 +2,7 @@
 '@tanrei/web': minor
 ---
 
-A scrim leaves at once when its surface closes (MOT-7, a new motion principle), on every surface that draws one: the
+A scrim leaves at once when its surface closes (MOT-8, a new motion principle), on every surface that draws one: the
 modal layer, the dialog (centred and as a sheet), the modal bottom and side sheets, the modal date-time picker, the
 popover shown as a sheet, the search's dialog view and the modal navigation drawer, inside an app shell and outside one.
 From the first frame of a closing the scrim is drawn at no opacity, without its blur, and takes no press, while the

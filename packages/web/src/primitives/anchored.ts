@@ -124,8 +124,8 @@ export interface AnchoredStyleOptions {
  */
 export function anchoredSurfaceStyles({ surface, motion, offset, margin, arrow, enter, exit, appear }: AnchoredStyleOptions): CSSResult {
   // What each rule is for is said here, not in the CSS: a comment inside the string would ship in every bundle.
-  // - `${surface}:not(.open)`: Closed or closing, it takes no pointer: a press reaches what lies under it.
   // - `${motion}`: What the arrow is placed against.
+  // - `box`: Closed or closing, the placed box takes no pointer, as the surface in it does (MOT-7, `appearStyles()`).
   return unsafeCSS(`
   ${surface} {
     box-sizing: border-box;
@@ -161,13 +161,10 @@ export function anchoredSurfaceStyles({ surface, motion, offset, margin, arrow, 
   ${surface}.inline {
     position: absolute;
   }
-  ${surface}:not(.open) {
-    pointer-events: none;
-  }
   ${motion} {
     position: relative;
   }
-  ${appearStyles({ motion, open: `${surface}.open`, role: 'anchored', origin: 'anchor', enter, exit, appear })}
+  ${appearStyles({ motion, open: `${surface}.open`, box: surface, role: 'anchored', origin: 'anchor', enter, exit, appear })}
 `);
 }
 

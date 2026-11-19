@@ -1160,8 +1160,8 @@ test.describe('size and layout', () => {
     expect(await missingWords(page)).not.toContain('closeLabel');
   });
 
-  test('POP-13: the presets keep the bare close glyph they inherited — m3-like, m3-expressive-like and cupertino give the close button the text variant, at their own small Button size', async ({ page }) => {
-    for (const system of ['m3-like', 'm3-expressive-like', 'cupertino'] as const) {
+  test('POP-13: the presets keep the bare close glyph they inherited — m3-like and cupertino give the close button the text variant, at their own small Button size', async ({ page }) => {
+    for (const system of ['m3-like', 'cupertino'] as const) {
       await mountFixtures(page, spec, { icons: true, system, fixtures: spec.fixtures.filter((f) => f.id === 'closable') });
       const button = fixtureHost(page, 'closable').locator('tanrei-button.close');
       await expect(button, system).toHaveCount(1);
@@ -2389,7 +2389,7 @@ test.describe('compact window', () => {
     expect(await log(page)).toEqual(['p:escape', 'p:outside', 'p:close']);
   });
 
-  test('POP-41, MOT-7: closing as a sheet, its scrim is drawn at no opacity and takes no press from the first frame while the sheet still slides down, and opening fades it in from no opacity, in every engine; where motion is reduced it is gone from the first frame too', async ({ page }) => {
+  test('POP-41, MOT-8: closing as a sheet, its scrim is drawn at no opacity and takes no press from the first frame while the sheet still slides down, and opening fades it in from no opacity, in every engine; where motion is reduced it is gone from the first frame too', async ({ page }) => {
     await mount(page, page320(), { ...COMPACT, reducedMotion: false });
     await set(page, { open: true });
     await expect.poll(() => isSheet(page)).toBe(true);

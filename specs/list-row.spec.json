@@ -105,7 +105,7 @@
         "medium"
       ],
       "default": "medium",
-      "description": "How much room the row takes: its least heights and the space above and below its text. medium (56, 72 and 88 for one, two and three lines in the default system) is for a product used by touch as well as by pointer; small (40, 56 and 72) is for a tool used with a pointer. Its heights follow the system's density at either size. An item that is an action, a link or an option is never lower than the list's own minimum height and the target. While it is not set the row is drawn at the size its nearest container sets — a List's size (LRW-17) — and at medium where none does. A design system may add values.",
+      "description": "How much room the row takes: its least heights and the space above and below its text. medium (56, 72 and 88 for one, two and three lines in the default system) is for a product used by touch as well as by pointer; small (40, 56 and 72) is for a tool used with a pointer. Its heights follow the system's height ladder at either size. An item that is an action, a link or an option is never lower than the list's own minimum height and the target. While it is not set the row is drawn at the size its nearest container sets — a List's size (LRW-17) — and at medium where none does. A design system may add values.",
       "axis": "tanrei.comp.list-row.size"
     }
   ],
@@ -202,8 +202,8 @@
     },
     {
       "id": "LRW-17",
-      "text": "WHILE size is not set and a container around the row sets a size for what it holds — a List's size (LST-51), the nearest such container where several do — THE list row SHALL be drawn at that size, its heights following the system's density as at a size of its own, and at its nearest size where it has none of that name, in the order extra-small, small, medium, large, extra-large, the larger of two as near; a container whose size is not set SHALL pass none. WHILE size is set THE list row SHALL be drawn at its own size, whatever a container sets. WHEN the size it takes changes — a container's size set, changed or removed, its own size set or removed, or the row moved into or out of such a container — THE list row SHALL draw the new form at once, as LRW-14 says of its own.",
-      "verify": "A row without a size in a list whose size is small is as high as the row of small standing alone, at density 0.75, 1 and 1.5; a row whose size is medium in that list keeps medium; removing the list's size, or taking the row out of the list, draws the first at medium; a row in a list that sets no size is drawn at medium."
+      "text": "WHILE size is not set and a container around the row sets a size for what it holds — a List's size (LST-51), the nearest such container where several do — THE list row SHALL be drawn at that size, its heights following the system's height ladder as at a size of its own, and at its nearest size where it has none of that name, in the order extra-small, small, medium, large, extra-large, the larger of two as near; a container whose size is not set SHALL pass none. WHILE size is set THE list row SHALL be drawn at its own size, whatever a container sets. WHEN the size it takes changes — a container's size set, changed or removed, its own size set or removed, or the row moved into or out of such a container — THE list row SHALL draw the new form at once, as LRW-14 says of its own.",
+      "verify": "A row without a size in a list whose size is small is as high as the row of small standing alone, at size unit 4, 5 and 6; a row whose size is medium in that list keeps medium; removing the list's size, or taking the row out of the list, draws the first at medium; a row in a list that sets no size is drawn at medium."
     },
     {
       "id": "LRW-18",

@@ -126,8 +126,8 @@
     },
     {
       "id": "TML-2",
-      "text": "THE timeline SHALL separate the end of one event from the beginning of the next by comp.timeline.item.gap, which follows the system's density, at every size. THE timeline SHALL keep the order the product gives: it SHALL NOT sort, reverse, group, number, hide, collapse or page its events, and SHALL NOT read their times to do so.",
-      "verify": "Under the default system the space between two events is 16 at density 1, 12 at density 0.75 and 24 at density 1.5, at medium and at large. Two events with the times of 2026 and 2025, in that order, are drawn and exposed in that order."
+      "text": "THE timeline SHALL separate the end of one event from the beginning of the next by comp.timeline.item.gap, which follows the system's spacing, at every size. THE timeline SHALL keep the order the product gives: it SHALL NOT sort, reverse, group, number, hide, collapse or page its events, and SHALL NOT read their times to do so.",
+      "verify": "Under the default system the space between two events is 16 at a space unit of 8, 12 at 6 and 24 at 12, at medium and at large. Two events with the times of 2026 and 2025, in that order, are drawn and exposed in that order."
     },
     {
       "id": "TML-3",
