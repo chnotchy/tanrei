@@ -12,7 +12,9 @@
 //   shipped preset (`system`) where what it shows lives only there.
 // - **Its elements are defined when it comes near the view** (lib/example.ts): until then the stage is marked pending,
 //   and the elements it holds are left to it (lib/define-on-demand.ts) — a page of many examples does not fetch and
-//   define, as it loads, what the reader may never scroll to.
+//   define, as it loads, what the reader may never scroll to. A tag defined meanwhile for another part of the page
+//   upgrades what a pending stage holds too, so the stage keeps the room it had as the script started until then
+//   (`data-example-held`): what it upgrades moves nothing below it while it is away from the view.
 // - **Its actions** (lib/example.ts), written in a template and drawn when the frame comes near the view: the code,
 //   shown under the stage when the button is pressed and closed until then — in HTML, or in React with the React
 //   package's wrappers — and its copy; the stage drawn right to left (or left to right on a page that reads right to
@@ -326,6 +328,13 @@ const SNAPSHOT = '(window.docsExampleSources ??= new WeakMap()).set(document.cur
   }
   .docs-example-source {
     min-inline-size: 0;
+  }
+  /* A stage away from the view keeps the room it had as the page's script started (lib/example.ts, `hold`) for as long
+     as it holds its elements back: a tag defined meanwhile for another part of the page upgrades its elements too,
+     and they would otherwise grow it in that frame and move everything below it. It takes the room they take once its
+     mark is taken away. (The stage clips what overflows it, `overflow-y: hidden` in `@tanrei/web/figure.css`.) */
+  .docs-example-stage[data-example-pending][data-example-held] {
+    block-size: var(--docs-example-held);
   }
   /* Custom elements have no meaningful rendering until they upgrade: they are hidden in the room they take. */
   .docs-example-stage :global(:not(:defined)) {
