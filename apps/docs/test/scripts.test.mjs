@@ -5,7 +5,7 @@
 // table of the package's manifest (lib/element-modules.mjs, lib/define-on-demand.ts). The package's entries
 // (`@tanrei/web`, a system's `@tanrei/web/<id>`, `@tanrei/web/all`) import every module of their system — about
 // 2.4 MB, 540 KB compressed — so no script of the site imports one, but for the console's `await tanrei`, which
-// fetches `@tanrei/web/all` only when a person asks for it.
+// fetches `@tanrei/web`, the default system's, only when a person asks for it.
 //
 // What a built page then asks for and defines is asked of a browser in test/browser/scripts.test.mjs.
 //
@@ -47,14 +47,14 @@ describe('the package’s entries', () => {
   test('only the console asks for one, when a person does: `await tanrei`', () => {
     const asking = sources.filter((file) => new RegExp(`import\\(\\s*['"]${entry}['"]\\s*\\)`).test(read(file))).map(rel);
     assert.deepEqual(asking, ['src/lib/register-web.ts']);
-    assert.match(read(path.join(src, 'lib/register-web.ts')), /Object\.defineProperty\(window, 'tanrei', \{ configurable: true, get: \(\) => import\('@tanrei\/web\/all'\) \}\);/);
+    assert.match(read(path.join(src, 'lib/register-web.ts')), /Object\.defineProperty\(window, 'tanrei', \{ configurable: true, get: \(\) => import\('@tanrei\/web'\) \}\);/);
   });
 
   test('the demos’ elements are defined from the table, and the page’s words are set before any of their modules arrives', () => {
     const register = read(path.join(src, 'lib/register-web.ts'));
     const onDemand = read(path.join(src, 'lib/define-on-demand.ts'));
     assert.match(register, /^import '\.\/define-on-demand';$/m);
-    assert.match(onDemand, new RegExp(`^import \\{ loaders, modules \\} from '${ELEMENT_MODULES}';$`, 'm'));
+    assert.match(onDemand, new RegExp(`^import \\{ loaders, modules, outside, system \\} from '${ELEMENT_MODULES}';$`, 'm'));
     // It asks for modules only by `import()`, which settles after the script that imported it has run to its end.
     assert.match(onDemand, /void load\(\)\.then\(/);
     assert.match(register, /^for \(const given of document\.querySelectorAll<HTMLScriptElement>\('script\[data-tanrei-product-words\]'\)\) \{$/m);

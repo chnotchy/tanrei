@@ -25,7 +25,7 @@ const SETTABLE = ['enum', 'boolean', 'number', 'string'];
 export function kindOf(prop: SpecProp, values = prop.values ?? []): ControlKind | null {
   switch (prop.type) {
     case 'enum':
-      return values.length <= SIDE_BY_SIDE ? 'segmented' : 'select';
+      return values.length <= SIDE_BY_SIDE ? 'tabs' : 'select';
     case 'boolean':
       return 'switch';
     case 'number':

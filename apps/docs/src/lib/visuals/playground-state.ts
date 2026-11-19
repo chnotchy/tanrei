@@ -9,7 +9,7 @@
 // number that is not one) is read as nothing, so an address written by hand sets only what the controls can.
 
 /** The kinds of control: a row of a few values, a list that opens, a switch, a number and a text. */
-export type ControlKind = 'segmented' | 'select' | 'switch' | 'number' | 'text';
+export type ControlKind = 'tabs' | 'select' | 'switch' | 'number' | 'text';
 
 /** A prop's value as a control holds it; `null` for a number or a text the component leaves unset. */
 export type Value = string | number | boolean | null;
@@ -83,7 +83,7 @@ export function fromAttribute(control: Control, written: string | null): Value {
 /** A value read from the address; nothing (`undefined`) where the control would not hold it. */
 export function parseValue(control: Control, written: string): Value | undefined {
   switch (control.kind) {
-    case 'segmented':
+    case 'tabs':
     case 'select':
       return control.values.includes(written) ? written : undefined;
     case 'switch':
