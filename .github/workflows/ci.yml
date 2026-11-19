@@ -744,7 +744,7 @@ jobs:
         shell: bash
     needs: [changes, docs-build]
     if: needs.changes.outputs.docs == 'true'
-    timeout-minutes: 20 # its share of the browser tests, about 10–14 minutes with its setup
+    timeout-minutes: 20 # its share of the browser tests, about 4–13 minutes with its setup
     strategy:
       fail-fast: false # every shard reports, as the single job did
       matrix:
