@@ -216,10 +216,10 @@ for (const engine of ENGINES) {
               await context.close();
             }
           });
-          // The app bar under m3-expressive-like in a phone's window: its actions that never leave the bar (the search,
+          // The app bar under m3-like in a phone's window: its actions that never leave the bar (the search,
           // the mode, the language) and the wordmark do not fit at that system's sizes.
-          const fitsNot = look === 'm3-expressive-like' && width < 600;
-          test(`under ${look}: the page fits the window`, { ...LIMIT, todo: fitsNot ? 'the app bar’s actions that never leave it do not fit a 390 px window at m3-expressive-like’s sizes' : false }, () => {
+          const fitsNot = look === 'm3-like' && width < 600;
+          test(`under ${look}: the page fits the window`, { ...LIMIT, todo: fitsNot ? 'the app bar’s actions that never leave it do not fit a 390 px window at m3-like’s sizes: its medium icon-only Button is Material’s 56, where Material’s app bar holds 40 px icon buttons' : false }, () => {
             assert.equal(wider.get(`${look}@${width}`), width, 'nothing is wider than the window');
           });
         }
