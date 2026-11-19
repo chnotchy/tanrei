@@ -193,6 +193,12 @@ describe('shards by measured time (--shard-weights)', () => {
     const ci = fs.readFileSync(path.join(root, '.github/workflows/ci.yml'), 'utf8');
     const shards = Number(/docs-browser:[\s\S]*?shards: \[(\d+)\]/.exec(ci)?.[1]);
     assert.ok(shards > $alone.length, `ci.yml's docs browser job has ${shards} shards, and ${$alone.length} files run alone`);
+    // The jobs that share the other files plan within a tenth of each other: a share far longer than the rest is the
+    // job a slow runner cuts at its limit (measure the weights again, or give the job more shards).
+    const files = fs.readdirSync(path.join(docs, 'test/browser')).filter((file) => file.endsWith('.test.mjs'));
+    const shared = balance(files, { $alone, ...table }, shards).slice($alone.length).map((s) => s.seconds);
+    const plan = `the shared jobs plan ${shared.map(Math.round).join(' / ')} s`;
+    assert.ok(Math.max(...shared) - Math.min(...shared) <= Math.max(...shared) / 10, plan);
   });
 });
 
