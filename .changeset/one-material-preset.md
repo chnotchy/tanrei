@@ -22,16 +22,15 @@ What breaks:
   its design-tool export, its fidelity report, its place on the docs site and in the Theme Studio's start menu. There
   is no alias and no redirect from the old id: use `m3-like`, which now has what it had.
 - `m3-like`'s buttons are Material 3's five sizes (androidx.compose.material3's `Button*Tokens` and
-  `*IconButtonTokens`). `xsmall` (32) and `xlarge` (136) join its vocabulary, and `small`, `medium` and `large` are 40,
-  56 and 96 tall (were 32, 40 and 56), with Material's leading and trailing space (16 / 16 / 24 / 48 / 64; were 12 / 16
-  / 24 at small to large), icon-to-label gap (8 / 8 / 8 / 12 / 16; large was 8), icon size (20 / 20 / 24 / 32 / 40;
-  was 18), outline width (1 / 1 / 1 / 2 / 3; large was 1) and label style (label, label, heading-5, heading-3,
-  heading-1, after `ButtonDefaults.textStyleFor`; medium and large were label). An icon-only Button draws its glyph at
-  20 / 24 / 24 / 32 / 40 (small was 20, large 24), is 28 / 32 / 48 / 64 / 104 wide when narrow and 40 / 52 / 72 / 128 /
-  184 when wide (small to large were 40 / 52 / 72). Everything sized from a Button grows with it: a host's close button
-  and the snackbar's actions are 40 tall under `m3-like` (were 32), Material 3's standard icon button. Tanrei's `size`
-  still defaults to `medium` (56 under `m3-like`), where Material's default is its small (40): the mimicry gap
-  `axis-default`.
+  `*IconButtonTokens`), mapped to Tanrei's by role: `small`, `medium` and `large` are Material's extra small, small
+  and medium, 32, 40 and 56 tall as before, so a Button at the default size is Material's default, and `xlarge` (96)
+  and `xxlarge` (136), Material's large and extra large, join its vocabulary. From `small` to `xxlarge` they take
+  Material's leading and trailing space (16 / 16 / 24 / 48 / 64; small was 12), icon-to-label gap (8 / 8 / 8 / 12 /
+  16), icon size (20 / 20 / 24 / 32 / 40; was 18), outline width (1 / 1 / 1 / 2 / 3) and label style (label, label,
+  heading-5, heading-3, heading-1, after `ButtonDefaults.textStyleFor`; large was label). An icon-only Button draws
+  its glyph at 20 / 24 / 24 / 32 / 40, is 28 / 32 / 48 / 64 / 104 wide when narrow and 40 / 52 / 72 / 128 / 184 when
+  wide (small to large as before). A host's close button and the snackbar's actions stay at the small Button size,
+  32 under `m3-like`, where Material draws its 40 standard icon button: the mimicry gap `close-button-size`.
 - `m3-like`'s loading indicator is 38 in its 48 container (was 40), and contained it draws on-primary-container on a
   flat primary-container (was on-surface-variant on surface-container-lowest at level 2), as androidx's
   `LoadingIndicatorTokens` give it.

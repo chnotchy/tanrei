@@ -72,8 +72,8 @@
                 "small",
                 "medium",
                 "large",
-                "xsmall",
-                "xlarge"
+                "xlarge",
+                "xxlarge"
               ],
               "members": [
                 "container.height",
@@ -93,11 +93,11 @@
               ],
               "extensions": [
                 {
-                  "value": "xsmall",
+                  "value": "xlarge",
                   "declaredBy": "m3-like"
                 },
                 {
-                  "value": "xlarge",
+                  "value": "xxlarge",
                   "declaredBy": "m3-like"
                 }
               ]
@@ -120,6 +120,19 @@
             "$description": "The container's height, per size, and the width of an icon-only button at its default width.",
             "small": {
               "$value": {
+                "value": 32,
+                "unit": "px"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fn": "mul",
+                  "of": "{tanrei.dial.size.unit}",
+                  "by": 8
+                }
+              }
+            },
+            "medium": {
+              "$value": {
                 "value": 40,
                 "unit": "px"
               },
@@ -128,10 +141,11 @@
                   "fn": "mul",
                   "of": "{tanrei.dial.size.unit}",
                   "by": 10
-                }
+                },
+                "dev.tanrei.aligned": "control"
               }
             },
-            "medium": {
+            "large": {
               "$value": {
                 "value": 56,
                 "unit": "px"
@@ -141,11 +155,10 @@
                   "fn": "mul",
                   "of": "{tanrei.dial.size.unit}",
                   "by": 14
-                },
-                "dev.tanrei.aligned": "control"
+                }
               }
             },
-            "large": {
+            "xlarge": {
               "$value": {
                 "value": 96,
                 "unit": "px"
@@ -155,28 +168,15 @@
                   "fn": "mul",
                   "of": "{tanrei.dial.size.unit}",
                   "by": 24
-                }
-              }
-            },
-            "xsmall": {
-              "$value": {
-                "value": 32,
-                "unit": "px"
-              },
-              "$extensions": {
-                "dev.tanrei.derive": {
-                  "fn": "mul",
-                  "of": "{tanrei.dial.size.unit}",
-                  "by": 8
                 },
                 "dev.tanrei.vocabulary": {
-                  "rationale": "Material 3 has five button sizes; this is its smallest (32dp).",
+                  "rationale": "Material 3 has five button sizes. Its three smaller ones are Tanrei's by role: its extra small (32dp) is small, its small (40dp), the default a button and an icon button take, is medium, and its medium (56dp) is large. This is its large (96dp).",
                   "declaredBy": "m3-like",
                   "extension": true
                 }
               }
             },
-            "xlarge": {
+            "xxlarge": {
               "$value": {
                 "value": 136,
                 "unit": "px"
@@ -188,7 +188,7 @@
                   "by": 34
                 },
                 "dev.tanrei.vocabulary": {
-                  "rationale": "Material 3 has five button sizes; this is its largest (136dp).",
+                  "rationale": "Material 3 has five button sizes; this is its extra large (136dp), the largest. Tanrei's small, medium and large are its extra small, small and medium by role.",
                   "declaredBy": "m3-like",
                   "extension": true
                 }
@@ -209,28 +209,28 @@
               "$extensions": {}
             },
             "medium": {
-              "$value": "{tanrei.sys.space.space150}",
+              "$value": "{tanrei.sys.space.space50}",
               "$extensions": {}
             },
             "large": {
-              "$value": "{tanrei.sys.space.space200}",
+              "$value": "{tanrei.sys.space.space150}",
               "$extensions": {}
             },
-            "xsmall": {
-              "$value": "{tanrei.sys.space.space50}",
+            "xlarge": {
+              "$value": "{tanrei.sys.space.space200}",
               "$extensions": {
                 "dev.tanrei.vocabulary": {
-                  "rationale": "Material 3 has five button sizes; this is its smallest (32dp).",
+                  "rationale": "Material 3 has five button sizes. Its three smaller ones are Tanrei's by role: its extra small (32dp) is small, its small (40dp), the default a button and an icon button take, is medium, and its medium (56dp) is large. This is its large (96dp).",
                   "declaredBy": "m3-like",
                   "extension": true
                 }
               }
             },
-            "xlarge": {
+            "xxlarge": {
               "$value": "{tanrei.sys.space.space400}",
               "$extensions": {
                 "dev.tanrei.vocabulary": {
-                  "rationale": "Material 3 has five button sizes; this is its largest (136dp).",
+                  "rationale": "Material 3 has five button sizes; this is its extra large (136dp), the largest. Tanrei's small, medium and large are its extra small, small and medium by role.",
                   "declaredBy": "m3-like",
                   "extension": true
                 }
@@ -248,6 +248,19 @@
             },
             "small": {
               "$value": {
+                "value": 40,
+                "unit": "px"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fn": "mul",
+                  "of": "{tanrei.dial.size.unit}",
+                  "by": 10
+                }
+              }
+            },
+            "medium": {
+              "$value": {
                 "value": 52,
                 "unit": "px"
               },
@@ -259,7 +272,7 @@
                 }
               }
             },
-            "medium": {
+            "large": {
               "$value": {
                 "value": 72,
                 "unit": "px"
@@ -272,7 +285,7 @@
                 }
               }
             },
-            "large": {
+            "xlarge": {
               "$value": {
                 "value": 128,
                 "unit": "px"
@@ -282,28 +295,15 @@
                   "fn": "mul",
                   "of": "{tanrei.dial.size.unit}",
                   "by": 32
-                }
-              }
-            },
-            "xsmall": {
-              "$value": {
-                "value": 40,
-                "unit": "px"
-              },
-              "$extensions": {
-                "dev.tanrei.derive": {
-                  "fn": "mul",
-                  "of": "{tanrei.dial.size.unit}",
-                  "by": 10
                 },
                 "dev.tanrei.vocabulary": {
-                  "rationale": "Material 3 has five button sizes; this is its smallest (32dp).",
+                  "rationale": "Material 3 has five button sizes. Its three smaller ones are Tanrei's by role: its extra small (32dp) is small, its small (40dp), the default a button and an icon button take, is medium, and its medium (56dp) is large. This is its large (96dp).",
                   "declaredBy": "m3-like",
                   "extension": true
                 }
               }
             },
-            "xlarge": {
+            "xxlarge": {
               "$value": {
                 "value": 184,
                 "unit": "px"
@@ -315,7 +315,7 @@
                   "by": 46
                 },
                 "dev.tanrei.vocabulary": {
-                  "rationale": "Material 3 has five button sizes; this is its largest (136dp).",
+                  "rationale": "Material 3 has five button sizes; this is its extra large (136dp), the largest. Tanrei's small, medium and large are its extra small, small and medium by role.",
                   "declaredBy": "m3-like",
                   "extension": true
                 }
@@ -353,28 +353,10 @@
             },
             "large": {
               "$value": {
-                "value": 12,
-                "unit": "px"
-              },
-              "$extensions": {
-                "dev.tanrei.derive": {
-                  "fn": "mul",
-                  "of": "{tanrei.dial.space.unit}",
-                  "by": 1.5
-                }
-              }
-            },
-            "xsmall": {
-              "$value": {
                 "value": 8,
                 "unit": "px"
               },
               "$extensions": {
-                "dev.tanrei.vocabulary": {
-                  "rationale": "Material 3 has five button sizes; this is its smallest (32dp).",
-                  "declaredBy": "m3-like",
-                  "extension": true
-                },
                 "dev.tanrei.derive": {
                   "fn": "mul",
                   "of": "{tanrei.dial.space.unit}",
@@ -384,12 +366,30 @@
             },
             "xlarge": {
               "$value": {
+                "value": 12,
+                "unit": "px"
+              },
+              "$extensions": {
+                "dev.tanrei.vocabulary": {
+                  "rationale": "Material 3 has five button sizes. Its three smaller ones are Tanrei's by role: its extra small (32dp) is small, its small (40dp), the default a button and an icon button take, is medium, and its medium (56dp) is large. This is its large (96dp).",
+                  "declaredBy": "m3-like",
+                  "extension": true
+                },
+                "dev.tanrei.derive": {
+                  "fn": "mul",
+                  "of": "{tanrei.dial.space.unit}",
+                  "by": 1.5
+                }
+              }
+            },
+            "xxlarge": {
+              "$value": {
                 "value": 16,
                 "unit": "px"
               },
               "$extensions": {
                 "dev.tanrei.vocabulary": {
-                  "rationale": "Material 3 has five button sizes; this is its largest (136dp).",
+                  "rationale": "Material 3 has five button sizes; this is its extra large (136dp), the largest. Tanrei's small, medium and large are its extra small, small and medium by role.",
                   "declaredBy": "m3-like",
                   "extension": true
                 },
@@ -419,6 +419,19 @@
             },
             "medium": {
               "$value": {
+                "value": 16,
+                "unit": "px"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fn": "mul",
+                  "of": "{tanrei.dial.space.unit}",
+                  "by": 2
+                }
+              }
+            },
+            "large": {
+              "$value": {
                 "value": 24,
                 "unit": "px"
               },
@@ -430,12 +443,17 @@
                 }
               }
             },
-            "large": {
+            "xlarge": {
               "$value": {
                 "value": 48,
                 "unit": "px"
               },
               "$extensions": {
+                "dev.tanrei.vocabulary": {
+                  "rationale": "Material 3 has five button sizes. Its three smaller ones are Tanrei's by role: its extra small (32dp) is small, its small (40dp), the default a button and an icon button take, is medium, and its medium (56dp) is large. This is its large (96dp).",
+                  "declaredBy": "m3-like",
+                  "extension": true
+                },
                 "dev.tanrei.derive": {
                   "fn": "mul",
                   "of": "{tanrei.dial.space.unit}",
@@ -443,32 +461,14 @@
                 }
               }
             },
-            "xsmall": {
-              "$value": {
-                "value": 16,
-                "unit": "px"
-              },
-              "$extensions": {
-                "dev.tanrei.vocabulary": {
-                  "rationale": "Material 3 has five button sizes; this is its smallest (32dp).",
-                  "declaredBy": "m3-like",
-                  "extension": true
-                },
-                "dev.tanrei.derive": {
-                  "fn": "mul",
-                  "of": "{tanrei.dial.space.unit}",
-                  "by": 2
-                }
-              }
-            },
-            "xlarge": {
+            "xxlarge": {
               "$value": {
                 "value": 64,
                 "unit": "px"
               },
               "$extensions": {
                 "dev.tanrei.vocabulary": {
-                  "rationale": "Material 3 has five button sizes; this is its largest (136dp).",
+                  "rationale": "Material 3 has five button sizes; this is its extra large (136dp), the largest. Tanrei's small, medium and large are its extra small, small and medium by role.",
                   "declaredBy": "m3-like",
                   "extension": true
                 },
@@ -497,6 +497,19 @@
             },
             "medium": {
               "$value": {
+                "value": 16,
+                "unit": "px"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fn": "mul",
+                  "of": "{tanrei.dial.space.unit}",
+                  "by": 2
+                }
+              }
+            },
+            "large": {
+              "$value": {
                 "value": 24,
                 "unit": "px"
               },
@@ -508,12 +521,17 @@
                 }
               }
             },
-            "large": {
+            "xlarge": {
               "$value": {
                 "value": 48,
                 "unit": "px"
               },
               "$extensions": {
+                "dev.tanrei.vocabulary": {
+                  "rationale": "Material 3 has five button sizes. Its three smaller ones are Tanrei's by role: its extra small (32dp) is small, its small (40dp), the default a button and an icon button take, is medium, and its medium (56dp) is large. This is its large (96dp).",
+                  "declaredBy": "m3-like",
+                  "extension": true
+                },
                 "dev.tanrei.derive": {
                   "fn": "mul",
                   "of": "{tanrei.dial.space.unit}",
@@ -521,32 +539,14 @@
                 }
               }
             },
-            "xsmall": {
-              "$value": {
-                "value": 16,
-                "unit": "px"
-              },
-              "$extensions": {
-                "dev.tanrei.vocabulary": {
-                  "rationale": "Material 3 has five button sizes; this is its smallest (32dp).",
-                  "declaredBy": "m3-like",
-                  "extension": true
-                },
-                "dev.tanrei.derive": {
-                  "fn": "mul",
-                  "of": "{tanrei.dial.space.unit}",
-                  "by": 2
-                }
-              }
-            },
-            "xlarge": {
+            "xxlarge": {
               "$value": {
                 "value": 64,
                 "unit": "px"
               },
               "$extensions": {
                 "dev.tanrei.vocabulary": {
-                  "rationale": "Material 3 has five button sizes; this is its largest (136dp).",
+                  "rationale": "Material 3 has five button sizes; this is its extra large (136dp), the largest. Tanrei's small, medium and large are its extra small, small and medium by role.",
                   "declaredBy": "m3-like",
                   "extension": true
                 },
@@ -576,6 +576,19 @@
             },
             "medium": {
               "$value": {
+                "value": 16,
+                "unit": "px"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fn": "mul",
+                  "of": "{tanrei.dial.space.unit}",
+                  "by": 2
+                }
+              }
+            },
+            "large": {
+              "$value": {
                 "value": 24,
                 "unit": "px"
               },
@@ -587,12 +600,17 @@
                 }
               }
             },
-            "large": {
+            "xlarge": {
               "$value": {
                 "value": 48,
                 "unit": "px"
               },
               "$extensions": {
+                "dev.tanrei.vocabulary": {
+                  "rationale": "Material 3 has five button sizes. Its three smaller ones are Tanrei's by role: its extra small (32dp) is small, its small (40dp), the default a button and an icon button take, is medium, and its medium (56dp) is large. This is its large (96dp).",
+                  "declaredBy": "m3-like",
+                  "extension": true
+                },
                 "dev.tanrei.derive": {
                   "fn": "mul",
                   "of": "{tanrei.dial.space.unit}",
@@ -600,32 +618,14 @@
                 }
               }
             },
-            "xsmall": {
-              "$value": {
-                "value": 16,
-                "unit": "px"
-              },
-              "$extensions": {
-                "dev.tanrei.vocabulary": {
-                  "rationale": "Material 3 has five button sizes; this is its smallest (32dp).",
-                  "declaredBy": "m3-like",
-                  "extension": true
-                },
-                "dev.tanrei.derive": {
-                  "fn": "mul",
-                  "of": "{tanrei.dial.space.unit}",
-                  "by": 2
-                }
-              }
-            },
-            "xlarge": {
+            "xxlarge": {
               "$value": {
                 "value": 64,
                 "unit": "px"
               },
               "$extensions": {
                 "dev.tanrei.vocabulary": {
-                  "rationale": "Material 3 has five button sizes; this is its largest (136dp).",
+                  "rationale": "Material 3 has five button sizes; this is its extra large (136dp), the largest. Tanrei's small, medium and large are its extra small, small and medium by role.",
                   "declaredBy": "m3-like",
                   "extension": true
                 },
@@ -661,6 +661,19 @@
             },
             "medium": {
               "$value": {
+                "value": 16,
+                "unit": "px"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fn": "mul",
+                  "of": "{tanrei.dial.space.unit}",
+                  "by": 2
+                }
+              }
+            },
+            "large": {
+              "$value": {
                 "value": 24,
                 "unit": "px"
               },
@@ -672,12 +685,17 @@
                 }
               }
             },
-            "large": {
+            "xlarge": {
               "$value": {
                 "value": 48,
                 "unit": "px"
               },
               "$extensions": {
+                "dev.tanrei.vocabulary": {
+                  "rationale": "Material 3 has five button sizes. Its three smaller ones are Tanrei's by role: its extra small (32dp) is small, its small (40dp), the default a button and an icon button take, is medium, and its medium (56dp) is large. This is its large (96dp).",
+                  "declaredBy": "m3-like",
+                  "extension": true
+                },
                 "dev.tanrei.derive": {
                   "fn": "mul",
                   "of": "{tanrei.dial.space.unit}",
@@ -685,32 +703,14 @@
                 }
               }
             },
-            "xsmall": {
-              "$value": {
-                "value": 16,
-                "unit": "px"
-              },
-              "$extensions": {
-                "dev.tanrei.vocabulary": {
-                  "rationale": "Material 3 has five button sizes; this is its smallest (32dp).",
-                  "declaredBy": "m3-like",
-                  "extension": true
-                },
-                "dev.tanrei.derive": {
-                  "fn": "mul",
-                  "of": "{tanrei.dial.space.unit}",
-                  "by": 2
-                }
-              }
-            },
-            "xlarge": {
+            "xxlarge": {
               "$value": {
                 "value": 64,
                 "unit": "px"
               },
               "$extensions": {
                 "dev.tanrei.vocabulary": {
-                  "rationale": "Material 3 has five button sizes; this is its largest (136dp).",
+                  "rationale": "Material 3 has five button sizes; this is its extra large (136dp), the largest. Tanrei's small, medium and large are its extra small, small and medium by role.",
                   "declaredBy": "m3-like",
                   "extension": true
                 },
@@ -764,24 +764,6 @@
                 }
               }
             },
-            "xsmall": {
-              "$value": {
-                "value": 6,
-                "unit": "px"
-              },
-              "$extensions": {
-                "dev.tanrei.derive": {
-                  "fn": "pad",
-                  "of": "{tanrei.sys.space.space75}",
-                  "height": "{tanrei.comp.button.container.height.xsmall}"
-                },
-                "dev.tanrei.vocabulary": {
-                  "rationale": "Material 3 has five button sizes; this is its smallest (32dp).",
-                  "declaredBy": "m3-like",
-                  "extension": true
-                }
-              }
-            },
             "xlarge": {
               "$value": {
                 "value": 6,
@@ -794,7 +776,25 @@
                   "height": "{tanrei.comp.button.container.height.xlarge}"
                 },
                 "dev.tanrei.vocabulary": {
-                  "rationale": "Material 3 has five button sizes; this is its largest (136dp).",
+                  "rationale": "Material 3 has five button sizes. Its three smaller ones are Tanrei's by role: its extra small (32dp) is small, its small (40dp), the default a button and an icon button take, is medium, and its medium (56dp) is large. This is its large (96dp).",
+                  "declaredBy": "m3-like",
+                  "extension": true
+                }
+              }
+            },
+            "xxlarge": {
+              "$value": {
+                "value": 6,
+                "unit": "px"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fn": "pad",
+                  "of": "{tanrei.sys.space.space75}",
+                  "height": "{tanrei.comp.button.container.height.xxlarge}"
+                },
+                "dev.tanrei.vocabulary": {
+                  "rationale": "Material 3 has five button sizes; this is its extra large (136dp), the largest. Tanrei's small, medium and large are its extra small, small and medium by role.",
                   "declaredBy": "m3-like",
                   "extension": true
                 }
@@ -811,28 +811,28 @@
               "$extensions": {}
             },
             "medium": {
-              "$value": "{tanrei.sys.typescale.heading-5}",
+              "$value": "{tanrei.sys.typescale.label}",
               "$extensions": {}
             },
             "large": {
-              "$value": "{tanrei.sys.typescale.heading-3}",
+              "$value": "{tanrei.sys.typescale.heading-5}",
               "$extensions": {}
             },
-            "xsmall": {
-              "$value": "{tanrei.sys.typescale.label}",
+            "xlarge": {
+              "$value": "{tanrei.sys.typescale.heading-3}",
               "$extensions": {
                 "dev.tanrei.vocabulary": {
-                  "rationale": "Material 3 has five button sizes; this is its smallest (32dp).",
+                  "rationale": "Material 3 has five button sizes. Its three smaller ones are Tanrei's by role: its extra small (32dp) is small, its small (40dp), the default a button and an icon button take, is medium, and its medium (56dp) is large. This is its large (96dp).",
                   "declaredBy": "m3-like",
                   "extension": true
                 }
               }
             },
-            "xlarge": {
+            "xxlarge": {
               "$value": "{tanrei.sys.typescale.heading-1}",
               "$extensions": {
                 "dev.tanrei.vocabulary": {
-                  "rationale": "Material 3 has five button sizes; this is its largest (136dp).",
+                  "rationale": "Material 3 has five button sizes; this is its extra large (136dp), the largest. Tanrei's small, medium and large are its extra small, small and medium by role.",
                   "declaredBy": "m3-like",
                   "extension": true
                 }
@@ -859,6 +859,19 @@
             },
             "medium": {
               "$value": {
+                "value": 20,
+                "unit": "px"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fn": "mul",
+                  "of": "{tanrei.dial.size.unit}",
+                  "by": 5
+                }
+              }
+            },
+            "large": {
+              "$value": {
                 "value": 24,
                 "unit": "px"
               },
@@ -870,12 +883,17 @@
                 }
               }
             },
-            "large": {
+            "xlarge": {
               "$value": {
                 "value": 32,
                 "unit": "px"
               },
               "$extensions": {
+                "dev.tanrei.vocabulary": {
+                  "rationale": "Material 3 has five button sizes. Its three smaller ones are Tanrei's by role: its extra small (32dp) is small, its small (40dp), the default a button and an icon button take, is medium, and its medium (56dp) is large. This is its large (96dp).",
+                  "declaredBy": "m3-like",
+                  "extension": true
+                },
                 "dev.tanrei.derive": {
                   "fn": "mul",
                   "of": "{tanrei.dial.size.unit}",
@@ -883,32 +901,14 @@
                 }
               }
             },
-            "xsmall": {
-              "$value": {
-                "value": 20,
-                "unit": "px"
-              },
-              "$extensions": {
-                "dev.tanrei.vocabulary": {
-                  "rationale": "Material 3 has five button sizes; this is its smallest (32dp).",
-                  "declaredBy": "m3-like",
-                  "extension": true
-                },
-                "dev.tanrei.derive": {
-                  "fn": "mul",
-                  "of": "{tanrei.dial.size.unit}",
-                  "by": 5
-                }
-              }
-            },
-            "xlarge": {
+            "xxlarge": {
               "$value": {
                 "value": 40,
                 "unit": "px"
               },
               "$extensions": {
                 "dev.tanrei.vocabulary": {
-                  "rationale": "Material 3 has five button sizes; this is its largest (136dp).",
+                  "rationale": "Material 3 has five button sizes; this is its extra large (136dp), the largest. Tanrei's small, medium and large are its extra small, small and medium by role.",
                   "declaredBy": "m3-like",
                   "extension": true
                 },
@@ -931,14 +931,14 @@
             },
             "small": {
               "$value": {
-                "value": 24,
+                "value": 20,
                 "unit": "px"
               },
               "$extensions": {
                 "dev.tanrei.derive": {
                   "fn": "mul",
                   "of": "{tanrei.dial.size.unit}",
-                  "by": 6
+                  "by": 5
                 }
               }
             },
@@ -957,10 +957,28 @@
             },
             "large": {
               "$value": {
+                "value": 24,
+                "unit": "px"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fn": "mul",
+                  "of": "{tanrei.dial.size.unit}",
+                  "by": 6
+                }
+              }
+            },
+            "xlarge": {
+              "$value": {
                 "value": 32,
                 "unit": "px"
               },
               "$extensions": {
+                "dev.tanrei.vocabulary": {
+                  "rationale": "Material 3 has five button sizes. Its three smaller ones are Tanrei's by role: its extra small (32dp) is small, its small (40dp), the default a button and an icon button take, is medium, and its medium (56dp) is large. This is its large (96dp).",
+                  "declaredBy": "m3-like",
+                  "extension": true
+                },
                 "dev.tanrei.derive": {
                   "fn": "mul",
                   "of": "{tanrei.dial.size.unit}",
@@ -968,32 +986,14 @@
                 }
               }
             },
-            "xsmall": {
-              "$value": {
-                "value": 20,
-                "unit": "px"
-              },
-              "$extensions": {
-                "dev.tanrei.vocabulary": {
-                  "rationale": "Material 3 has five button sizes; this is its smallest (32dp).",
-                  "declaredBy": "m3-like",
-                  "extension": true
-                },
-                "dev.tanrei.derive": {
-                  "fn": "mul",
-                  "of": "{tanrei.dial.size.unit}",
-                  "by": 5
-                }
-              }
-            },
-            "xlarge": {
+            "xxlarge": {
               "$value": {
                 "value": 40,
                 "unit": "px"
               },
               "$extensions": {
                 "dev.tanrei.vocabulary": {
-                  "rationale": "Material 3 has five button sizes; this is its largest (136dp).",
+                  "rationale": "Material 3 has five button sizes; this is its extra large (136dp), the largest. Tanrei's small, medium and large are its extra small, small and medium by role.",
                   "declaredBy": "m3-like",
                   "extension": true
                 },
@@ -1038,28 +1038,10 @@
             },
             "large": {
               "$value": {
-                "value": 2,
-                "unit": "px"
-              },
-              "$extensions": {
-                "dev.tanrei.derive": {
-                  "fn": "mul",
-                  "of": "{tanrei.dial.stroke.unit}",
-                  "by": 2
-                }
-              }
-            },
-            "xsmall": {
-              "$value": {
                 "value": 1,
                 "unit": "px"
               },
               "$extensions": {
-                "dev.tanrei.vocabulary": {
-                  "rationale": "Material 3 has five button sizes; this is its smallest (32dp).",
-                  "declaredBy": "m3-like",
-                  "extension": true
-                },
                 "dev.tanrei.derive": {
                   "fn": "mul",
                   "of": "{tanrei.dial.stroke.unit}",
@@ -1069,12 +1051,30 @@
             },
             "xlarge": {
               "$value": {
+                "value": 2,
+                "unit": "px"
+              },
+              "$extensions": {
+                "dev.tanrei.vocabulary": {
+                  "rationale": "Material 3 has five button sizes. Its three smaller ones are Tanrei's by role: its extra small (32dp) is small, its small (40dp), the default a button and an icon button take, is medium, and its medium (56dp) is large. This is its large (96dp).",
+                  "declaredBy": "m3-like",
+                  "extension": true
+                },
+                "dev.tanrei.derive": {
+                  "fn": "mul",
+                  "of": "{tanrei.dial.stroke.unit}",
+                  "by": 2
+                }
+              }
+            },
+            "xxlarge": {
+              "$value": {
                 "value": 3,
                 "unit": "px"
               },
               "$extensions": {
                 "dev.tanrei.vocabulary": {
-                  "rationale": "Material 3 has five button sizes; this is its largest (136dp).",
+                  "rationale": "Material 3 has five button sizes; this is its extra large (136dp), the largest. Tanrei's small, medium and large are its extra small, small and medium by role.",
                   "declaredBy": "m3-like",
                   "extension": true
                 },
@@ -1994,21 +1994,21 @@
             "large": {
               "$value": "{tanrei.sys.motion.role.state.large}"
             },
-            "xsmall": {
-              "$value": "{tanrei.sys.motion.role.state.compact}",
+            "xlarge": {
+              "$value": "{tanrei.sys.motion.role.state.large}",
               "$extensions": {
                 "dev.tanrei.vocabulary": {
-                  "rationale": "Material 3 has five button sizes; this is its smallest (32dp).",
+                  "rationale": "Material 3 has five button sizes. Its three smaller ones are Tanrei's by role: its extra small (32dp) is small, its small (40dp), the default a button and an icon button take, is medium, and its medium (56dp) is large. This is its large (96dp).",
                   "declaredBy": "m3-like",
                   "extension": true
                 }
               }
             },
-            "xlarge": {
+            "xxlarge": {
               "$value": "{tanrei.sys.motion.role.state.large}",
               "$extensions": {
                 "dev.tanrei.vocabulary": {
-                  "rationale": "Material 3 has five button sizes; this is its largest (136dp).",
+                  "rationale": "Material 3 has five button sizes; this is its extra large (136dp), the largest. Tanrei's small, medium and large are its extra small, small and medium by role.",
                   "declaredBy": "m3-like",
                   "extension": true
                 }

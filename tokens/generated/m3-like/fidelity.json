@@ -16,7 +16,7 @@
       "description": "Material 3: the five button sizes and the five icon button sizes (XSmall … XLarge), and the loading indicator."
     }
   ],
-  "scope": "Every color role and every text style material-web publishes, and Button (five variants) at its single size (40px = Tanrei's small); from androidx, the five button sizes, the five icon button sizes (height, spaces, icon size, outline width, shape) and the loading indicator.",
+  "scope": "Every color role and every text style material-web publishes, and Button (five variants) at its single size (40px, Material's default, = Tanrei's medium); from androidx, the five button sizes, the five icon button sizes (height, spaces, icon size, outline width, shape) and the loading indicator.",
   "total": 420,
   "equal": 344,
   "covered": 35,

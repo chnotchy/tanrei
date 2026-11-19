@@ -2567,7 +2567,7 @@ ships three presets, each behind its own import so an app only compiles what it 
 
 | Import | Constant | Notes |
 |---|---|---|
-| `package:tanrei/systems/m3_like.dart` | `m3LikeSystem` | declares the `tertiary` palette and more roles (`M3LikeColorRoles`); adds the Button sizes `M3LikeButtonSize.xsmall` / `.xlarge` and revalues all five (heights 32 / 40 / 56 / 96 / 136, gap up to 16, outline width up to 3) |
+| `package:tanrei/systems/m3_like.dart` | `m3LikeSystem` | declares the `tertiary` palette and more roles (`M3LikeColorRoles`); adds the Button sizes `M3LikeButtonSize.xlarge` / `.xxlarge` and revalues all five (heights 32 / 40 / 56 / 96 / 136, gap up to 16, outline width up to 3) |
 | `package:tanrei/systems/cupertino.dart` | `cupertinoSystem` | |
 
 ### Fonts

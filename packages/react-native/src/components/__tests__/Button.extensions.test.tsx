@@ -64,7 +64,7 @@ describe('the generated files', () => {
     const source = fs.readFileSync(path.join(PACKAGE, 'src/generated/systems', `${id}.ts`), 'utf8');
     expect(source.match(/Vocabulary "[^"]+" ADDS to the core/g)).toHaveLength(1);
     expect(source).toMatch(new RegExp(`interface TanreiTypescale \\{\\s+${roles.map((role) => `readonly ${role}\\?: TanreiTypography;`).join('\\s+')}\\s+\\}`));
-    expect(/interface TanreiButtonSizeRegistry \{\s+xsmall: true;\s+xlarge: true;\s+\}/.test(source)).toBe(addsSizes);
+    expect(/interface TanreiButtonSizeRegistry \{\s+xlarge: true;\s+xxlarge: true;\s+\}/.test(source)).toBe(addsSizes);
     expect(source).not.toMatch(/ButtonVariantRegistry/);
   });
 
