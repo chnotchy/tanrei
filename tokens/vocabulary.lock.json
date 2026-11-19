@@ -4981,6 +4981,7 @@
     "tanrei.comp.search.hovered.opacity": "number",
     "tanrei.comp.search.hovered.outline.width": "dimension",
     "tanrei.comp.search.input.typescale": "typography",
+    "tanrei.comp.search.leading-icon.gap": "dimension",
     "tanrei.comp.search.leading-icon.size": "dimension",
     "tanrei.comp.search.motion.close-duration": "duration",
     "tanrei.comp.search.motion.close-easing": "cubicBezier",

@@ -7476,6 +7476,7 @@ private let m3LikeSearchTokens = TanreiSearchTokens(
   headerHeight: 72,
   headerPaddingInline: 8,
   inputTypescale: m3LikeTypescale.bodyLarge,
+  leadingIconGap: 8,
   leadingIconSize: 24,
   motionCloseDuration: 100,
   motionCloseEasing: TanreiCubicBezier(0.3, 0, 0.8, 0.15),

@@ -222,12 +222,14 @@
         "icon": {
           "size": {
             "$type": "dimension",
-            "$description": "The box of the glyph before the label, per size: no taller than one line of the label, so that it sits on the first line without making the row taller.",
+            "$description": "The box of the glyph before the label, per size: a navigation drawer's destination glyph, medium its regular row's and small its compact row's, so that a tree beside a drawer draws its glyphs at the drawer's size. The glyph is centred on the label's first line.",
             "medium": {
-              "$value": "{tanrei.sys.icon.small}"
+              "$value": "{tanrei.sys.icon.small}",
+              "$extensions": {}
             },
             "small": {
-              "$value": "{tanrei.sys.icon.extra-small}"
+              "$value": "{tanrei.sys.icon.extra-small}",
+              "$extensions": {}
             }
           },
           "gap": {

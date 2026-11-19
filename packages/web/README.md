@@ -236,7 +236,9 @@ and Tanrei with it, by `import()`; a static `import` would load it before the te
 Tanrei references fonts by name and bundles none. Make the families your system names available, with `@font-face`
 or a font service, under exactly those names; `tanrei build` lists them. For the default system: `Inter`,
 `Noto Sans JP`, `Noto Sans`, `Roboto Mono`, and `Material Symbols Rounded` for icons (use `font-display: block` for
-the icon font, so that an icon does not flash as its name).
+the icon font, so that an icon does not flash as its name). The whole icon font is several megabytes: load only the
+glyphs your product draws, starting from the names `tanrei build` prints, as the
+[Web guide's Icons section](https://tanrei.chnotchy.com/getting-started/web/#icons) describes.
 
 `font-display: block` hides an icon's name only for the browser's block period, about 3 seconds; on a slower line the
 name is then drawn in a text face. To keep it hidden until the font can draw, set `--tanrei-icon-visibility: hidden` on

@@ -7383,6 +7383,7 @@ private let tanreiSearchTokens = TanreiSearchTokens(
   headerHeight: 72,
   headerPaddingInline: 8,
   inputTypescale: tanreiTypescale.bodyLarge,
+  leadingIconGap: 8,
   leadingIconSize: 24,
   motionCloseDuration: 250,
   motionCloseEasing: TanreiCubicBezier(0.3, 0, 1, 1),
@@ -7400,9 +7401,9 @@ private let tanreiSearchTokens = TanreiSearchTokens(
   statusColor: .role(.onSurfaceVariant),
   statusErrorColor: .role(.error),
   statusTypescale: tanreiTypescale.bodySmall,
-  suggestionCompletionEmphasis: 300,
+  suggestionCompletionEmphasis: 200,
   suggestionContainerShape: 4,
-  suggestionHeadlineTypescale: tanreiTypescale.body,
+  suggestionHeadlineTypescale: tanreiTypescale.label,
   suggestionSupportingTextTypescale: tanreiTypescale.bodySmall,
   triggerContainerGap: 8,
   triggerContainerHeight: 40,
@@ -7503,15 +7504,15 @@ private let tanreiSearchTokens = TanreiSearchTokens(
     small: TanreiSearchSizeTokens(
       suggestionContainerHeight: 36,
       suggestionContainerPaddingInline: 8,
-      suggestionContainerPaddingBlock: 6,
+      suggestionContainerPaddingBlock: 8,
       suggestionContainerGap: 8,
       suggestionLeadingIconSize: 20
     ),
     medium: TanreiSearchSizeTokens(
-      suggestionContainerHeight: 56,
-      suggestionContainerPaddingInline: 16,
+      suggestionContainerHeight: 48,
+      suggestionContainerPaddingInline: 12,
       suggestionContainerPaddingBlock: 8,
-      suggestionContainerGap: 16,
+      suggestionContainerGap: 12,
       suggestionLeadingIconSize: 24
     )
   ),
@@ -8863,7 +8864,7 @@ private let tanreiTableOfContentsTokens = TanreiTableOfContentsTokens(
   railWidth: 1,
   rowIndent: 12,
   rowPaddingInline: 12,
-  rowShape: 3,
+  rowShape: 6,
   titleColor: .role(.onSurface),
   titleTypescale: tanreiTypescale.label,
   parts: TanreiTableOfContentsParts(
@@ -9893,7 +9894,7 @@ private let tanreiTreeViewTokens = TanreiTreeViewTokens(
       containerGap: 12,
       levelIndent: 32,
       labelTypescale: tanreiTypescale.body,
-      iconSize: 20,
+      iconSize: 24,
       chevronSize: 20
     )
   ),

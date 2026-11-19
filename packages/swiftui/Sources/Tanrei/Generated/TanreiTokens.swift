@@ -14070,6 +14070,7 @@ public struct TanreiSearchTokens: Sendable, Equatable {
   public var headerHeight: CGFloat
   public var headerPaddingInline: CGFloat
   public var inputTypescale: TanreiTextStyle
+  public var leadingIconGap: CGFloat
   public var leadingIconSize: CGFloat
   public var motionCloseDuration: Double
   public var motionCloseEasing: TanreiCubicBezier
@@ -14134,6 +14135,7 @@ public struct TanreiSearchTokens: Sendable, Equatable {
     headerHeight: CGFloat,
     headerPaddingInline: CGFloat,
     inputTypescale: TanreiTextStyle,
+    leadingIconGap: CGFloat,
     leadingIconSize: CGFloat,
     motionCloseDuration: Double,
     motionCloseEasing: TanreiCubicBezier,
@@ -14193,6 +14195,7 @@ public struct TanreiSearchTokens: Sendable, Equatable {
     self.headerHeight = headerHeight
     self.headerPaddingInline = headerPaddingInline
     self.inputTypescale = inputTypescale
+    self.leadingIconGap = leadingIconGap
     self.leadingIconSize = leadingIconSize
     self.motionCloseDuration = motionCloseDuration
     self.motionCloseEasing = motionCloseEasing

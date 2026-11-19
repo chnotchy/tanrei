@@ -170,7 +170,8 @@
           "shape": {
             "$type": "dimension",
             "$value": "{tanrei.sys.shape.corner.extra-small}",
-            "$description": "The corners of a row's container, where hover, focus and press are drawn, and of the focus ring inside it."
+            "$description": "The corners of a row's container, where hover, focus and press are drawn, and of the focus ring inside it.",
+            "$extensions": {}
           }
         },
         "rail": {
