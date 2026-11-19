@@ -20,9 +20,10 @@
 // of its row — and drawn only to a reader who asked for everything with the switch at the top of the drawer's list
 // (ListingSwitch.astro), or whose page it is. The switch stands first in the drawer's list, the top of what scrolls,
 // in a row of its own (a list holds list items only); a collapsed drawer, whose column holds the groups' glyphs, does
-// not draw it. The list does not follow the reader's look: the look is how the site is drawn, not which product's
-// catalogue is read (a component's page says which systems have it, ComponentAvailability.astro). Without script every
-// row is drawn.
+// not draw it. A component the default system leaves out is shown on request the same way, its row ending with the
+// systems that ship it (lib/listing.mjs): the web package registers only the default system's components. That is the
+// default system's manifest, never the reader's look: the look is how the site is drawn, not which product's catalogue
+// is read. Without script every row is drawn.
 //
 // The drawer filters itself (`filterable`, NVD-79 to NVD-95): a field above its list narrows it to the rows whose label
 // holds what is typed, opening for the time being the groups that hold them; it marks nothing in a label, and keeps
@@ -44,7 +45,7 @@
 import { currentHref, frameWords, groupIcon, type Entry } from './frame';
 import { localeBase, strings } from '../../lib/i18n';
 import { ON_REQUEST_ATTR, sidebarTree } from '../../lib/listing.mjs';
-import { listings, statusComponents } from '../../lib/repo';
+import { listings, manifests, statusComponents } from '../../lib/repo';
 import ListingSwitch from '../ListingSwitch.astro';
 import Appearance from './Appearance.astro';
 
@@ -55,17 +56,29 @@ const t = strings(route.lang);
 const base = localeBase(Astro);
 // What is drawn: the framework's sidebar with the components grouped by category and marked by their listing. The
 // drawer's `value` and the page's trail still read the framework's own (`sidebar`).
-const drawn = sidebarTree(sidebar, statusComponents, listings, base, (category) => t.category[category] ?? category) as Entry[];
+const drawn = sidebarTree(sidebar, statusComponents, listings, base, (category) => t.category[category] ?? category, manifests) as Entry[];
 /** Whether the page being read is among a group's entries, at any depth: that group is written open. */
 const holdsCurrent = (entry: Entry): boolean => (entry.type === 'link' ? !!entry.isCurrent : entry.entries.some(holdsCurrent));
 const escape = (text: string) => text.replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;');
+/**
+ * Where the default system leaves a component out (its page being read too), the systems that ship it: said under the
+ * row's label, as the drawer's supporting text, which the drawer reads after the row's name — at the row's end it would
+ * leave the label no room in the sidebar's width.
+ */
+const shippedOf = (entry: Entry) => (entry.type === 'link' && entry.shippedBy ? t.listing.shippedBy.replace('{systems}', entry.shippedBy.join(', ')) : undefined);
+/** The word at the end of a row shown on request by its spec's listing. */
+const markOf = (entry: Entry) => (entry.type === 'link' && entry.onRequest && !entry.shippedBy ? t.listing.advanced : undefined);
 const cells = (entries: Entry[], top: boolean): string =>
   entries
-    .map((entry) =>
-      entry.type === 'link'
-        ? `<tanrei-navigation-drawer-item label="${escape(entry.label)}" href="${escape(entry.href)}"${top ? ' icon="article"' : ''}${entry.onRequest ? ` ${ON_REQUEST_ATTR} trailing-text="${escape(t.listing.advanced)}"` : entry.badge ? ` trailing-text="${escape(entry.badge.text)}"` : ''}><a href="${escape(entry.href)}"${entry.isCurrent ? ' aria-current="page"' : ''}>${escape(entry.label)}${entry.onRequest ? ` <span class="docs-sidebar-mark">${escape(t.listing.advanced)}</span>` : ''}</a></tanrei-navigation-drawer-item>`
-        : `<tanrei-navigation-drawer-group label="${escape(entry.label)}"${top ? ` icon="${groupIcon(entry, base)}"` : ''}${holdsCurrent(entry) ? ' open' : ''}>${cells(entry.entries, false)}</tanrei-navigation-drawer-group>`,
-    )
+    .map((entry) => {
+      if (entry.type !== 'link') return `<tanrei-navigation-drawer-group label="${escape(entry.label)}"${top ? ` icon="${groupIcon(entry, base)}"` : ''}${entry.onRequest ? ` ${ON_REQUEST_ATTR}` : ''}${holdsCurrent(entry) ? ' open' : ''}>${cells(entry.entries, false)}</tanrei-navigation-drawer-group>`;
+      const mark = markOf(entry);
+      const shipped = shippedOf(entry);
+      const trailing = mark ?? entry.badge?.text;
+      // Until the drawer is defined, its anchor holds the label over the supporting text, as the drawer draws them.
+      const text = shipped ? `<span class="docs-sidebar-text"><span class="docs-sidebar-label">${escape(entry.label)}</span><span class="docs-sidebar-supporting">${escape(shipped)}</span></span>` : escape(entry.label);
+      return `<tanrei-navigation-drawer-item label="${escape(entry.label)}" href="${escape(entry.href)}"${top ? ' icon="article"' : ''}${entry.onRequest ? ` ${ON_REQUEST_ATTR}` : ''}${shipped ? ` supporting-text="${escape(shipped)}"` : ''}${trailing ? ` trailing-text="${escape(trailing)}"` : ''}><a href="${escape(entry.href)}"${entry.isCurrent ? ' aria-current="page"' : ''}>${text}${mark ? ` <span class="docs-sidebar-mark">${escape(mark)}</span>` : ''}</a></tanrei-navigation-drawer-item>`;
+    })
     .join('');
 ---
 
@@ -164,9 +177,10 @@ const cells = (entries: Entry[], top: boolean): string =>
     const keep = () => {
       // Until the groups are upgraded they have no `open` to read: a page left before its script arrived keeps what
       // was kept before, not five closed groups.
-      if (!groups.every((group) => typeof group.open === 'boolean')) return;
+      // A group shown on request that the lists hold out of the document is never upgraded: it keeps what was kept.
+      if (!groups.every((group) => !group.isConnected || typeof group.open === 'boolean')) return;
       try {
-        sessionStorage.setItem(key, JSON.stringify({ open: groups.map((group) => !!group.open), offset: drawer.scrollOffset ?? 0 }));
+        sessionStorage.setItem(key, JSON.stringify({ open: groups.map((group, index) => (group.isConnected ? !!group.open : !!kept.open?.[index])), offset: drawer.scrollOffset ?? 0 }));
       } catch {}
     };
     drawer.addEventListener('toggle', keep);

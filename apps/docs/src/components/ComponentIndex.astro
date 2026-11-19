@@ -9,11 +9,13 @@
 // everything with the switch above the list (ListingSwitch.astro), which is the sidebar's switch too. A category whose
 // components are all shown on request is marked with them, so that no heading stands over nothing.
 //
-// The list does not follow the reader's look: the look is how the site is drawn, not which product's catalogue is read.
-// Which systems have a component, and what the others use instead, is said on its page (ComponentAvailability.astro).
-import { statusComponents, platforms, componentHref, isImplemented, levelRole, listings } from '../lib/repo';
+// A component the default system leaves out is shown on request the same way, its row ending with the systems that
+// ship it (lib/listing.mjs): the web package registers only the default system's components. That is the default
+// system's manifest, never the reader's look: the look is how the site is drawn, not which product's catalogue is read.
+// What the others use instead is said on its page (ComponentAvailability.astro).
+import { statusComponents, platforms, componentHref, isImplemented, levelRole, listings, manifests } from '../lib/repo';
 import { contentLang, localeBase, strings } from '../lib/i18n';
-import { categoriesOf, groupOf, isOnRequest, ON_REQUEST_ATTR } from '../lib/listing.mjs';
+import { categoriesOf, groupOf, isOnRequest, leftOutOfDefault, ON_REQUEST_ATTR, shippedBy } from '../lib/listing.mjs';
 import ListingSwitch from './ListingSwitch.astro';
 import SourceNote from './SourceNote.astro';
 
@@ -33,6 +35,8 @@ const base = localeBase(Astro);
 const categories = categoriesOf(statusComponents);
 /** The attribute of a row, or of a category, drawn only to a reader who asked for everything. */
 const marked = (onRequest: boolean) => (onRequest ? { [ON_REQUEST_ATTR]: '' } : {});
+/** Whether a component is shown only to a reader who asked for everything: by its listing, or as one the default system leaves out. */
+const onRequestOf = (c: (typeof statusComponents)[number]) => isOnRequest(c, listings) || leftOutOfDefault(c.name, manifests);
 ---
 
 <div class="not-content index">
@@ -40,7 +44,7 @@ const marked = (onRequest: boolean) => (onRequest ? { [ON_REQUEST_ATTR]: '' } : 
     <ListingSwitch lang={lang} />
   </div>
   {categories.map((category) => (
-    <section {...marked(statusComponents.filter((c) => groupOf(c) === category).every((c) => isOnRequest(c, listings)))}>
+    <section {...marked(statusComponents.filter((c) => groupOf(c) === category).every(onRequestOf))}>
       <Heading class="docs-eyebrow">{t.category[category] ?? category}</Heading>
       <tanrei-list class="docs-index-list">
         {statusComponents.filter((c) => groupOf(c) === category).map((c) => {
@@ -48,9 +52,10 @@ const marked = (onRequest: boolean) => (onRequest ? { [ON_REQUEST_ATTR]: '' } : 
           const role = levelRole(c.level);
           const meta = `${shipped}/${platforms.length} · ${(role && t.level[role]) ?? c.level}`;
           const href = componentHref(base, c.name);
-          const onRequest = isOnRequest(c, listings);
-          // What the end of the row says: that nothing documents it yet, or that it is shown on request.
-          const end = href ? (onRequest ? t.listing.advanced : undefined) : t.status.planned;
+          const onRequest = onRequestOf(c);
+          // What the end of the row says: that nothing documents it yet, the systems that ship it where the default
+          // system leaves it out, or that it is shown on request.
+          const end = href ? (leftOutOfDefault(c.name, manifests) ? t.listing.shippedBy.replace('{systems}', shippedBy(c.name, manifests).join(', ')) : onRequest ? t.listing.advanced : undefined) : t.status.planned;
           // The content of the item: the title over the line of platforms and level, and the word at the end. The
           // item is the link (its own anchor, drawn by the list) or, without a page, a static item; the spaces between
           // the parts, and after each item, are for the search index, which reads words, not one run.

@@ -3,8 +3,10 @@
 // A component whose `listing` is the status file's `listings.onRequest` is shown only when the reader asks for
 // everything; nothing here hides a page, and no name of a value is written here: the callers pass `listings`.
 //
-// No list follows the reader's look: the look is how the site is drawn, not which product's catalogue is read. Which
-// systems have a component is said on its page (components/ComponentAvailability.astro).
+// A component the default system leaves out is shown on request too, marked with the systems that ship it: the web
+// package registers only the default system's components, so what it leaves out is not what a product normally uses.
+// That is the default system's manifest, never the reader's look: the look is how the site is drawn, not which
+// product's catalogue is read. The callers pass the manifests, the default first; no system's name is written here.
 //
 // Plain functions with no browser and no Vite in them: `astro.config.mjs` builds the sidebar with them, the site's
 // components mark their rows with them, and Node tests them (test/listing.test.mjs).
@@ -12,7 +14,27 @@
 /**
  * @typedef {{ name: string, title: string, category: string, level: string, listing: string, layer?: string, builtFrom?: string[], docs?: string | null }} Row  A row of the status file's `components`.
  * @typedef {{ listed: string, onRequest: string }} Listings  The status file's `listings`: which name is which.
+ * @typedef {{ system: string, omitted: { name: string }[] }} Manifest  What a list reads of a system's components manifest.
  */
+
+/**
+ * Whether the default system — the first of `manifests` (lib/repo.ts puts the configuration's namespace first) — leaves
+ * a component out: the web package registers only the default system's components, so a list shows such a one only to
+ * a reader who asked for everything, as it does a component shown on request.
+ *
+ * @param {string} name
+ * @param {Manifest[]} manifests
+ */
+export const leftOutOfDefault = (name, manifests) => manifests[0]?.omitted.some((entry) => entry.name === name) ?? false;
+
+/**
+ * The shipped systems that have a component — those whose manifest does not leave it out — in the order of `manifests`.
+ *
+ * @param {string} name
+ * @param {Manifest[]} manifests
+ * @returns {string[]}
+ */
+export const shippedBy = (name, manifests) => manifests.filter((manifest) => !manifest.omitted.some((entry) => entry.name === name)).map((manifest) => manifest.system);
 
 /** The address of a page among the components' own pages (`/components/button/`): a component documented elsewhere (a foundation) has none. */
 const OWN_PAGE = /^\/components\/[a-z0-9-]+\/$/;
@@ -77,8 +99,8 @@ export const shownIn = (rows, listings, { everything = false } = {}) => (everyth
 export const usedIn = (all, name) => all.filter((other) => (other.builtFrom ?? []).includes(name));
 
 /**
- * @typedef {{ type: 'link', label: string, href: string, isCurrent: boolean, badge?: { text: string }, onRequest?: boolean }} LinkEntry
- * @typedef {{ type: 'group', label: string, entries: Entry[], collapsed: boolean, badge?: { text: string } }} GroupEntry
+ * @typedef {{ type: 'link', label: string, href: string, isCurrent: boolean, badge?: { text: string }, onRequest?: boolean, shippedBy?: string[] }} LinkEntry
+ * @typedef {{ type: 'group', label: string, entries: Entry[], collapsed: boolean, badge?: { text: string }, onRequest?: boolean }} GroupEntry
  * @typedef {LinkEntry | GroupEntry} Entry
  */
 
@@ -93,20 +115,29 @@ export const usedIn = (all, name) => all.filter((other) => (other.builtFrom ?? [
  * @param {Listings} listings
  * @param {string} base  The language's base (`''`, `/ja`).
  * @param {(category: string) => string} categoryLabel
+ * @param {Manifest[]} [manifests]  The shipped systems' components manifests, the default first.
  * @returns {Entry[]}
  */
-export function sidebarTree(sidebar, rows, listings, base, categoryLabel) {
+export function sidebarTree(sidebar, rows, listings, base, categoryLabel, manifests = []) {
   const byHref = new Map(componentPages(rows).map((row) => [`${base}${row.docs}`, row]));
   return sidebar.map((entry) => {
     if (entry.type !== 'group') return entry;
     const own = entry.entries.filter((child) => child.type === 'link' && byHref.has(child.href));
-    if (own.length === 0) return { ...entry, entries: sidebarTree(entry.entries, rows, listings, base, categoryLabel) };
+    if (own.length === 0) return { ...entry, entries: sidebarTree(entry.entries, rows, listings, base, categoryLabel, manifests) };
     const rowOf = (/** @type {Entry} */ child) => /** @type {Row} */ (byHref.get(/** @type {LinkEntry} */ (child).href));
-    /** A component's link as it is drawn: marked as shown on request unless it is the page being read. */
-    const drawn = (/** @type {LinkEntry} */ child) => ({ ...child, ...(!child.isCurrent && isOnRequest(rowOf(child), listings) ? { onRequest: true } : {}) });
+    /**
+     * A component's link as it is drawn: marked as shown on request — by its spec's listing, or because the default
+     * system leaves it out, which also names the systems that ship it — unless it is the page being read.
+     */
+    const drawn = (/** @type {LinkEntry} */ child) => {
+      const row = rowOf(child);
+      const out = leftOutOfDefault(row.name, manifests);
+      return { ...child, ...(!child.isCurrent && (out || isOnRequest(row, listings)) ? { onRequest: true } : {}), ...(out ? { shippedBy: shippedBy(row.name, manifests) } : {}) };
+    };
     const groups = categoriesOf(own.map(rowOf)).map((category) => {
       const entries = own.filter((child) => groupOf(rowOf(child)) === category).map((child) => drawn(/** @type {LinkEntry} */ (child)));
-      return { type: /** @type {const} */ ('group'), label: categoryLabel(category), collapsed: false, entries };
+      // A group none of whose rows is shown by default is shown on request with them: no heading stands over nothing.
+      return { type: /** @type {const} */ ('group'), label: categoryLabel(category), collapsed: false, entries, ...(entries.every((child) => child.onRequest) ? { onRequest: true } : {}) };
     });
     return { ...entry, entries: [...entry.entries.filter((child) => !own.includes(child)), ...groups] };
   });
