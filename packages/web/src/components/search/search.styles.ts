@@ -660,16 +660,15 @@ export const styles = css`
     inset-block-start: var(--_top);
     inset-inline: 0;
   }
-  /* SRC-40, SRC-41: the scrim over the whole window behind it, fading with it — the dialog's backdrop, or an element
-     of its own where the view is drawn in place. */
+  /* SRC-40, SRC-41: the scrim over the whole window behind it, fading in with it and taken away at once as it begins to
+     close (MOT-7, modalExitStyles below) — the dialog's backdrop, or an element of its own where the view is drawn in
+     place. */
   ${scrimFilter('.full.hung', T('view-scrim-blur'))}
   .full.hung::backdrop {
     background: ${t('view-scrim-color')};
     backdrop-filter: ${SCRIM_FILTER};
     opacity: 0;
     transition-property: opacity;
-    transition-duration: ${t('motion-close-duration')};
-    transition-timing-function: ${t('motion-close-easing')};
   }
   .full.hung[open]::backdrop {
     opacity: 1;
@@ -681,7 +680,8 @@ export const styles = css`
       opacity: 0;
     }
   }
-  /* SRC-23, SRC-41: closed, the view stays drawn in the top layer until its fade and its scrim's have played; MOT-4:
+  /* SRC-23, SRC-41: closed, the view stays drawn in the top layer until its fade has played, its scrim gone from the
+     first frame (MOT-7); MOT-4:
      drawn open at once, the scrim starts no fade either (openModal, closeModal: src/primitives/modal-exit.ts). */
   ${modalExitStyles('.full')}
   ${scrimFilter('.scrim', T('view-scrim-blur'))}
