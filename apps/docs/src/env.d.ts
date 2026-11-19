@@ -37,6 +37,16 @@ declare module 'virtual:tanrei-docs/looks' {
   const looks: Readonly<Record<string, string>>;
   export default looks;
 }
+// Theme Studio's page sheet wired in Node, for the build (src/lib/look-sheets.mjs).
+declare module '@tanrei/studio/sheet-node' {
+  export function nodePageSheet(options?: { onLoad?: (id: string) => void }): { pageSheet(layer: unknown): Promise<string> };
+  export function scopedSheet(id: string): string;
+  export function shippedLayers(): Record<string, { id: string; extends?: string }>;
+  export function sheetRules(css: string): { path: string[]; declarations: [string, string][] }[];
+}
+// The default system's sheet under its own scope, `[data-tanrei-system="<id>"]`, for a figure that compares systems
+// (src/lib/look-sheets.mjs).
+declare module 'virtual:tanrei-docs/default-scope.css';
 
 // Which module of `@tanrei/web` defines each element (src/lib/element-modules.mjs, from the package's manifest): a
 // function for each tag that imports its module, and how many modules there are.

@@ -4,8 +4,8 @@
 //   HTML or — the reader's choice, kept for every example — in React with the React package's wrappers; the copy button
 //   copies the code in the flavor chosen;
 // - its stage is drawn in the other direction when the direction is turned, and as wide as its handle says;
-// - every frame follows the page's look: the design system chosen in the header's menu (a frame pinned to a preset
-//   excepted) and the scheme chosen in its appearance menu;
+// - every frame is drawn in the page's look, with no system of its own (a frame pinned to a preset excepted): the
+//   tokens the look's stylesheet gives the root, and the scheme chosen in the appearance menu;
 // - what a stage holds is defined once it comes near the view, not with the page, and a stage away from the view keeps
 //   its room while a tag it holds is defined for another part of the page.
 //
@@ -175,20 +175,32 @@ for (const engine of ENGINES) {
       await context.close();
     });
 
-    test('every frame follows the design system and the scheme the reader chose for the page', LIMIT, async () => {
+    test('every frame is drawn in the look and the scheme the reader chose for the page, with no system of its own', LIMIT, async () => {
       const { context, page } = await open();
       await drawn(page, FIRST);
       const presets = await page.locator('tanrei-popover[anchor="docs-appearance"] tanrei-list-item').evaluateAll((all) => all.map((item) => item.getAttribute('value')).slice(1));
       assert.ok(presets.length > 0, 'a preset is shipped');
       const [preset] = presets;
+      /** Every stage not pinned to a system: whether any has a scope of its own, and the brand role each takes, beside the root's. */
+      const stages = () =>
+        page.evaluate(() => {
+          const role = (element) => getComputedStyle(element).getPropertyValue('--tanrei-sys-color-primary').trim();
+          const all = [...document.querySelectorAll('[data-example]:not([data-pinned]) [data-example-stage]')];
+          return { scoped: all.filter((stage) => stage.hasAttribute('data-tanrei-system')).length, roles: [...new Set(all.map(role))], root: role(document.documentElement) };
+        });
+      const before = await stages();
       await chooseLook(page, preset);
-      await page.waitForFunction((preset) => [...document.querySelectorAll('[data-example]:not([data-pinned])')].every((frame) => frame.querySelector('[data-example-stage]').getAttribute('data-tanrei-system') === preset), preset);
+      await page.waitForFunction(({ id, preset }) => document.getElementById(id)?.sheet && document.getElementById(id).getAttribute('href').includes(`/look-${preset}.`), { id: 'docs-look-sheet', preset });
+      const under = await stages();
+      assert.deepEqual(under, { scoped: 0, roles: [under.root], root: under.root }, 'every stage takes the root’s tokens');
+      assert.notEqual(under.root, before.root, 'which are the look’s');
       // The scheme is the page's: the stage inherits it.
       await page.locator('#docs-mode').click();
       await page.waitForFunction((selector) => getComputedStyle(document.querySelector(selector).querySelector('[data-example-stage]')).colorScheme.includes('dark'), FIRST);
       // And back: the default system again.
       await chooseLook(page, config.namespace);
-      await page.waitForFunction(() => [...document.querySelectorAll('[data-example]:not([data-pinned])')].every((frame) => !frame.querySelector('[data-example-stage]').hasAttribute('data-tanrei-system')));
+      await page.waitForFunction(() => !document.getElementById('docs-look-sheet'));
+      assert.deepEqual(await stages(), before);
       await context.close();
     });
 

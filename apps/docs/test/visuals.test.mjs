@@ -762,15 +762,16 @@ describe('the one frame', () => {
     assert.match(css, /\.docs-example-overlay \{[^}]*position: absolute;[^}]*inset: 0;[^}]*\}/);
     assert.doesNotMatch(css, /content-visibility/, 'a stage is laid out: an element that measures its place once keeps what it chose');
   });
-  test('it follows the design system the reader chose for the page, unless a page pins it to a preset', () => {
-    // No switch of its own: the root's attribute, which the header's menu writes (lib/listing.mjs), and every change of it.
+  test('it is drawn in the page’s look, with no system of its own, unless a page pins it to a preset', () => {
+    // No switch of its own, and no scope: the stage takes the root's tokens, which the look's stylesheet draws
+    // (lib/appearance.ts); a change of the sheet is told to every frame not pinned.
     assert.doesNotMatch(template(frame), /<tanrei-tabs\b(?![^>]*data-example-flavors)/);
-    assert.match(script, /import \{ SYSTEM_ATTR \} from '\.\/listing\.mjs';/);
-    assert.match(script, /observe\(document\.documentElement, \{ attributes: true, attributeFilter: \[SYSTEM_ATTR\] \}\)/);
-    assert.match(script, /if \(frame\.dataset\.pinned\) return;/);
-    // A pinned preset's stylesheet is linked with the frame; the one the reader chose is loaded once, by the script.
+    assert.doesNotMatch(script, /data-tanrei-system|setAttribute\('data-tanrei|import\.meta\.glob/);
+    assert.match(script, /document\.addEventListener\(LOOK_SHEET_EVENT, \(\) => \{\s*for \(const frame of frames\(\)\) if \(!frame\.dataset\.pinned\) frame\.dispatchEvent\(new CustomEvent\(SYSTEM_EVENT/);
+    // A pinned preset's stylesheet is linked with the frame, and its stage is that system's scope.
     assert.match(template(frame), /\{stylesheet && <link rel="stylesheet" href=\{stylesheet\} \/>\}/);
     assert.match(frame, /const pinned = system && system !== ns \? system : undefined;/);
+    assert.match(template(frame), /data-tanrei-system=\{pinned\}/);
   });
   test('its code is what the stage held as the page was built: one inline script, the same in every frame', () => {
     assert.match(frame, /const SNAPSHOT = '\(window\.docsExampleSources \?\?= new WeakMap\(\)\)\.set\(document\.currentScript\.previousElementSibling, document\.currentScript\.previousElementSibling\.innerHTML\)';/);

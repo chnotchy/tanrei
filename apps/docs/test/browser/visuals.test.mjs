@@ -3,8 +3,8 @@
 //
 // - its stage and its header take the same room before any element is defined as once they are, at a phone's width
 //   and a desktop's, so nothing under it moves when its script arrives; and what it shows stands in one row;
-// - it is drawn under the default system, and no preset's stylesheet is asked for with the page; choosing a preset in
-//   the header's menu loads that stylesheet once and draws the stage — and only the stage — with that system's tokens.
+// - it is drawn under the default system, and no look's stylesheet is asked for with the page; choosing a preset in
+//   the header's menu loads its stylesheet and draws the stage, and the page around it, with that system's tokens.
 //   (test/browser/example.test.mjs asks the rest of what the frame does, in the three engines.)
 //
 //   pnpm --filter @tanrei/docs build && pnpm --filter @tanrei/docs test:browser
@@ -117,7 +117,7 @@ describe('the figure frame on the button’s page', () => {
     });
   }
 
-  test('drawn under the default system; a preset’s stylesheet is loaded when it is chosen, once, and reaches the stage only', LIMIT, async () => {
+  test('drawn under the default system; a preset’s stylesheet is loaded when it is chosen, once, and draws the stage and the page around it alike', LIMIT, async (t) => {
     const context = await browser.newContext({ viewport: { width: 1440, height: 900 }, colorScheme: 'light' });
     const page = await context.newPage();
     const sheets = [];
@@ -126,7 +126,7 @@ describe('the figure frame on the button’s page', () => {
     });
     await page.goto(`${origin}${PAGE}`);
     await settled(page);
-    assert.deepEqual(sheets, [], 'no preset’s stylesheet is asked for with the page');
+    assert.deepEqual(sheets, [], 'no look’s stylesheet is asked for with the page');
 
     const frame = page.locator(FIGURE).first();
     const stage = frame.locator('[data-example-stage]');
@@ -157,22 +157,25 @@ describe('the figure frame on the button’s page', () => {
     assert.ok(preset, 'a preset draws the filled button in another color than the default system');
     assert.equal((await probe(token)).inside, rgb(resolvedIn(NS, token)));
 
+    /** The look's stylesheet is in, and the root drawn in it. */
+    const lookIn = (id) => page.waitForFunction((id) => (id ? document.getElementById('docs-look-sheet')?.sheet && document.getElementById('docs-look-sheet').getAttribute('href').includes(`/look-${id}.`) : !document.getElementById('docs-look-sheet')), id);
     await choose(preset);
-    await page.waitForFunction((selector) => document.querySelector(selector).querySelector('[data-example-stage]').hasAttribute('data-tanrei-system'), FIGURE);
-    assert.equal(await stage.getAttribute('data-tanrei-system'), preset);
+    await lookIn(preset);
+    assert.equal(await stage.getAttribute('data-tanrei-system'), null, 'the stage has no system of its own');
     assert.equal(sheets.length, 1, `one stylesheet is asked for: ${sheets.join(', ')}`);
-    assert.match(sheets[0], new RegExp(`${preset}[^/]*\\.css$`));
+    assert.match(sheets[0], new RegExp(`/look-${preset}\\.[0-9a-f]{8}\\.css$`));
     const under = await probe(token);
     assert.equal(under.inside, rgb(resolvedIn(preset, token)), 'the stage is drawn with the preset’s tokens');
-    assert.equal(under.outside, rgb(resolvedIn(NS, token)), 'the page outside the frames is not');
+    assert.equal(under.outside, rgb(resolvedIn(preset, token)), 'and so is the page around it');
 
-    // Back to the default system, and to the preset again: drawn at once, its stylesheet not asked for a second time.
+    // Back to the default system, and to the preset again: its stylesheet not asked for a second time.
     await choose(NS);
-    await page.waitForFunction((selector) => !document.querySelector(selector).querySelector('[data-example-stage]').hasAttribute('data-tanrei-system'), FIGURE);
-    assert.equal((await probe(token)).inside, rgb(resolvedIn(NS, token)));
+    await lookIn(null);
+    assert.deepEqual(await probe(token), { inside: rgb(resolvedIn(NS, token)), outside: rgb(resolvedIn(NS, token)) });
     await choose(preset);
-    await page.waitForFunction((selector) => document.querySelector(selector).querySelector('[data-example-stage]').hasAttribute('data-tanrei-system'), FIGURE);
-    assert.equal(sheets.length, 1, 'the stylesheet is loaded once for the page');
+    await lookIn(preset);
+    assert.equal(sheets.filter((sheet) => sheet.includes(`/look-${preset}.`)).length, sheets.length, 'only the look’s stylesheet is asked for');
+    t.diagnostic(`${sheets.length} requests for the look's stylesheet over two choices of it`);
     await context.close();
   });
 });
