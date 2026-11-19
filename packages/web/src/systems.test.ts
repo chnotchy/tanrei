@@ -44,7 +44,7 @@ const SUBJECTS = [
   subject('marquee-text', (fixture) => fixture.id === 'default', { reducedMotion: true }),
   // At rest, its wrapped paragraph: the text style around it under each preset (it draws nothing of its own).
   subject('size-transition', (fixture) => fixture.id === 'block', { reducedMotion: true }),
-  // Contained: the indicator's size and color, and the container's size, color and elevation (m3-expressive-like differs in all).
+  // Contained: the indicator's size and color, and the container's size, color and elevation (m3-like's is Material 3's contained indicator).
   subject('loading-indicator', (fixture) => fixture.id === 'contained-medium', { reducedMotion: true }),
   // Checked: the box's size, corner and fill, the check glyph (the icon set's family, weight and mark size), the outline width and the label's text role together.
   subject('checkbox', (fixture) => fixture.id === 'selected', { icons: true }),
@@ -145,15 +145,15 @@ const SUBJECTS = [
   // complementary landmarks named "Filters").
   subject('side-sheet', (fixture) => fixture.id === 'modal', { icons: true, window: { width: 720, height: 480 }, wholeWindow: true, axeEach: true }),
   // Connected Cut, Copy, Paste: the buttons' outline, colors and height, the preset's inner corner against the buttons' own
-  // outer corners (pills in m3-like and m3-expressive-like, 10 in cupertino) and the joined gap.
+  // outer corners (pills in m3-like, 10 in cupertino) and the joined gap.
   subject('button-group', (fixture) => fixture.id === 'connected'),
   // Stepped with stops: the track's thickness and color, the active track, the handle's size, color and elevation (cupertino's
   // white thumb on its shadow), and the stop dots on both tracks (none in cupertino). Drawn alone: the value-indicator
-  // fixture holds its value indicator open in the top layer (SLD-28), and in m3-like and m3-expressive-like it rises
+  // fixture holds its value indicator open in the top layer (SLD-28), and in m3-like it rises
   // 6 px above that fixture's stage.
   subject('slider', (fixture) => fixture.id === 'discrete-stops', { alone: true }),
   // Filled with an icon: both halves' fill, height, paddings and label role, the icon and the chevron, the preset's outer
-  // corners (pills in m3-like and m3-expressive-like) against its inner corners, and the gap between the halves.
+  // corners (pills in m3-like) against its inner corners, and the gap between the halves.
   subject('button-with-menu', (fixture) => fixture.id === 'filled-icon', { icons: true }),
   // Totals: the header's label style and color, the row headers' and the footer's emphasized weight, the end-aligned
   // figures, the cell paddings and text role, and how the preset tells rows apart (a hairline, or m3-like's gap).
@@ -538,7 +538,7 @@ async function othersInTopLayer(page: Page, own: string): Promise<string[]> {
 }
 
 test('presets are discovered from tokens/systems/', () => {
-  expect([...presets].sort()).toEqual(['cupertino', 'm3-expressive-like', 'm3-like']);
+  expect([...presets].sort()).toEqual(['cupertino', 'm3-like']);
 });
 
 test('every fixture is in one axe unit of its subject', () => {

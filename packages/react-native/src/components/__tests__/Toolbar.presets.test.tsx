@@ -4,7 +4,6 @@
 import { render, screen } from '@testing-library/react-native';
 import { Dimensions } from 'react-native';
 import { cupertino } from '../../generated/systems/cupertino';
-import { m3ExpressiveLike } from '../../generated/systems/m3-expressive-like';
 import { m3Like } from '../../generated/systems/m3-like';
 import { tanrei } from '../../generated/systems/tanrei';
 import type { TanreiSystem } from '../../generated/vocabulary';
@@ -47,11 +46,10 @@ describe('every shipped system values the Toolbar vocabulary', () => {
 });
 
 describe('the presets drive the Toolbar', () => {
-  test('m3-like and m3-expressive-like draw the default\'s toolbar: it takes none of Material\'s values for it, and the gaps the default widened for its 48 targets stay where they were', () => {
+  test('m3-like draws the default\'s toolbar: it takes none of Material\'s values for it, and the gaps the default widened for its 48 targets stay where they were', () => {
     const { docked, floating } = tanrei.components.toolbar.variants;
     const gap = m3Like.measure.target.spacing;
     expect(m3Like.components.toolbar).toEqual({ ...tanrei.components.toolbar, variants: { ...tanrei.components.toolbar.variants, docked: { ...docked, containerGap: gap }, floating: { ...floating, containerGap: gap } } });
-    expect(m3ExpressiveLike.components.toolbar).toEqual(m3Like.components.toolbar);
   });
 
   test('cupertino (UIToolbar): docked on surface-container-low, 44 tall, with the outline-variant top edge', async () => {
@@ -73,7 +71,7 @@ describe('the presets drive the Toolbar', () => {
   });
 
   test('in every shipped system docked and floating differ at rest (elevation and corners at least)', () => {
-    for (const system of [tanrei, m3Like, m3ExpressiveLike, cupertino]) {
+    for (const system of [tanrei, m3Like, cupertino]) {
       const { docked, floating } = system.components.toolbar.variants;
       expect(docked.containerElevation).not.toBe(floating.containerElevation);
       expect(docked.containerShape).not.toBe(floating.containerShape);

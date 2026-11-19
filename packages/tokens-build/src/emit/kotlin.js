@@ -893,7 +893,7 @@ function seriesValue(s, ir, pad) {
  *
  * Accessors are top-level declarations, so two files of ONE package cannot both declare one. The shipped systems
  * share the library's package and every layer of their chain is shipped there too: each file declares only what
- * ITS system added (`declaredBy`), and what it inherited (`m3-expressive-like` ← `m3-like`) is declared by the
+ * ITS system added (`declaredBy`), and what it inherited (from a preset it extends) is declared by the
  * ancestor's file. A product's file lives in its own package and may stack layers that are generated nowhere
  * else, so it declares everything.
  */

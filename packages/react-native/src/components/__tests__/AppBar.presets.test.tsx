@@ -4,8 +4,8 @@
 import { render, screen } from '@testing-library/react-native';
 import { Dimensions } from 'react-native';
 import { cupertino } from '../../generated/systems/cupertino';
-import { m3ExpressiveLike } from '../../generated/systems/m3-expressive-like';
 import { m3Like } from '../../generated/systems/m3-like';
+import { tanrei } from '../../generated/systems/tanrei';
 import type { TanreiColorRole, TanreiSystem } from '../../generated/vocabulary';
 import { describeFixtureBaselines, describeSharedVocabulary, settleMotion, textStyle, viewStyle } from '../../testing/harness';
 import { formatColor } from '../../theme/paint';
@@ -66,12 +66,9 @@ describe('m3-like drives the AppBar', () => {
     expect(viewStyle(screen.getByTestId(ID)).backgroundColor).toBe(role(system, 'surfaceContainer'));
     expect(part('outline')).toBeNull();
   });
-});
 
-describe('m3-expressive-like drives the AppBar', () => {
-  test('it inherits m3-like\'s app bar, with no added size', () => {
-    expect(m3ExpressiveLike.components.appBar).toEqual(m3Like.components.appBar);
-    expect(Object.keys(m3ExpressiveLike.components.appBar.sizes)).toEqual(['small', 'large']);
+  test('it adds no AppBar size', () => {
+    expect(Object.keys(m3Like.components.appBar.sizes)).toEqual(Object.keys(tanrei.components.appBar.sizes));
   });
 });
 
