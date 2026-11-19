@@ -6,6 +6,7 @@ import { type Fixture, loadSpec, mountFixtureAsInAll, mountFixtures, resolveColo
 import { expectBaseline } from '../../../test/baseline.js';
 import { mirroring, mirroringAfterDirection } from '../../../test/mirror-word.js';
 import { motionCount } from '../../../test/motions.js';
+import { CONTROL_HEIGHTS, atControlHeight } from '../../../test/control-height.js';
 
 const spec = loadSpec('list-row');
 type P = Page;
@@ -180,8 +181,8 @@ test.describe('behavior', () => {
     await expect(rows.nth(2).locator('.leading-room')).toHaveCount(0);
   });
 
-  test('LRW-17: without a size of its own a row is drawn at the size its nearest list sets — a set size, never a default — its own size, medium included, wins; a size it lacks is its nearest; a change, a removal and a move are drawn before the next frame; at size unit 4, 5 and 6 every height is its size’s token', async ({ page }) => {
-    // One line: its text fits every size's height at every size unit of the sweep, so each row is its token's height.
+  test('LRW-17: without a size of its own a row is drawn at the size its nearest list sets — a set size, never a default — its own size, medium included, wins; a size it lacks is its nearest; a change, a removal and a move are drawn before the next frame; at control height 40, 48 and 56 every height is its size’s token', async ({ page }) => {
+    // One line: its text fits every size's height at every control height of the sweep, so each row is its token's height.
     const r = (id: string, size = '') => `<tanrei-list-row id="${id}" ${size ? `size="${size}" ` : ''}leading-icon="wifi" headline="Wi-Fi"></tanrei-list-row>`;
     const item = (content: string) => `<tanrei-list-item>${content}</tanrei-list-item>`;
     await mountHtml(page, {
@@ -207,16 +208,16 @@ test.describe('behavior', () => {
       );
     // A size it takes, or the default, is not its own: no size attribute is written on a row that sets none.
     expect(await page.evaluate((list) => list.map((id) => document.getElementById(id)!.getAttribute('size')), all)).toEqual([null, 'medium', null, null, null, null]);
-    for (const unit of ['4px', '5px', '6px']) {
-      await rootTokens(page, { '--tanrei-dial-size-unit': unit });
+    for (const height of ['40px', '48px', '56px']) {
+      await rootTokens(page, { '--tanrei-dial-control-height': height });
       await settled(page);
       const size = await tokens();
-      expect(await heights(...all), `size unit ${unit}`).toEqual({ taken: size.small, 'own-medium': size.medium, free: size.medium, through: size.small, nearest: size.medium, alone: size.medium });
+      expect(await heights(...all), `control height ${height}`).toEqual({ taken: size.small, 'own-medium': size.medium, free: size.medium, through: size.small, nearest: size.medium, alone: size.medium });
     }
-    // The sweep moved the heights: medium at a size unit of 6px is not the one at 4px.
-    await rootTokens(page, { '--tanrei-dial-size-unit': '6px' });
+    // The sweep moved the heights: medium at a control height of 56px is not the one at 40px.
+    await rootTokens(page, { '--tanrei-dial-control-height': '56px' });
     const roomy = (await tokens()).medium;
-    await rootTokens(page, { '--tanrei-dial-size-unit': '' });
+    await rootTokens(page, { '--tanrei-dial-control-height': '' });
     await settled(page);
     const size = await tokens();
     expect(roomy).toBeGreaterThan(size.medium);
@@ -500,6 +501,24 @@ test.describe('behavior', () => {
     expect(await css(page.locator('[data-fixture="alone"] tanrei-list-row .supporting'), 'color')).toBe(canvasText);
     expect(await css(page.locator('[data-fixture="disabled"] tanrei-list-row .headline'), 'color')).toBe(grayText);
     await page.emulateMedia({ forcedColors: 'none' });
+  });
+});
+
+test.describe('the control height', () => {
+  test('LRW-19: at control height 32, 36 and 40, the minimum no higher, one-line is that tall, two-line 52, 56 and 60 and three-line 72, 76 and 80 under a fine pointer — the one-line row and the supporting text’s line for each further line — every line of its text inside the row', async ({ page }) => {
+    await mount(page, [byId('one-line'), byId('two-line'), byId('three-line')]);
+    // The spec's verify: the heights at control height 32, 36 and 40.
+    const heights = { 'one-line': [32, 36, 40], 'two-line': [52, 56, 60], 'three-line': [72, 76, 80] } as const;
+    for (const [i, height] of CONTROL_HEIGHTS.entries()) {
+      await atControlHeight(page, height);
+      for (const [id, expected] of Object.entries(heights)) {
+        const host = row(page, id);
+        await expect.poll(async () => (await box(host)).height, `${id} at ${height}`).toBeCloseTo(expected[i]!, 1);
+        const [r, text] = [await box(host), await box(part(host, 'text'))];
+        expect(text.y, `${id} at ${height}: its text inside the row`).toBeGreaterThanOrEqual(r.y - 0.5);
+        expect(text.y + text.height, `${id} at ${height}`).toBeLessThanOrEqual(r.y + r.height + 0.5);
+      }
+    }
   });
 });
 

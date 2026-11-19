@@ -521,8 +521,8 @@ private let tanreiAccordionTokens = TanreiAccordionTokens(
   ),
   sizes: TanreiAccordionSizes(
     small: TanreiAccordionSizeTokens(
-      containerHeight: 48,
-      containerPaddingBlock: 12,
+      containerHeight: 36,
+      containerPaddingBlock: 6,
       containerPaddingInline: 12,
       labelTypescale: tanreiTypescale.label,
       supportingTextTypescale: tanreiTypescale.bodySmall,
@@ -532,8 +532,8 @@ private let tanreiAccordionTokens = TanreiAccordionTokens(
       contentPaddingBlockEnd: 12
     ),
     medium: TanreiAccordionSizeTokens(
-      containerHeight: 56,
-      containerPaddingBlock: 16,
+      containerHeight: 40,
+      containerPaddingBlock: 8,
       containerPaddingInline: 16,
       labelTypescale: tanreiTypescale.heading5,
       supportingTextTypescale: tanreiTypescale.body,
@@ -5185,15 +5185,15 @@ private let tanreiListRowTokens = TanreiListRowTokens(
   trailingTextTypescale: tanreiTypescale.bodySmall,
   sizes: TanreiListRowSizes(
     small: TanreiListRowSizeTokens(
-      containerHeightOneLine: 40,
+      containerHeightOneLine: 36,
       containerHeightTwoLine: 56,
-      containerHeightThreeLine: 72,
+      containerHeightThreeLine: 76,
       containerPaddingBlock: 4
     ),
     medium: TanreiListRowSizeTokens(
-      containerHeightOneLine: 56,
-      containerHeightTwoLine: 72,
-      containerHeightThreeLine: 88,
+      containerHeightOneLine: 40,
+      containerHeightTwoLine: 60,
+      containerHeightThreeLine: 80,
       containerPaddingBlock: 8
     )
   )
@@ -5293,7 +5293,7 @@ private let tanreiListTokens = TanreiListTokens(
       containerPaddingBlock: 6
     ),
     medium: TanreiListSizeTokens(
-      containerHeight: 48,
+      containerHeight: 40,
       containerPaddingBlock: 8
     )
   ),
@@ -9050,13 +9050,15 @@ private let tanreiTableTokens = TanreiTableTokens(
   ),
   sizes: TanreiTableSizes(
     small: TanreiTableSizeTokens(
+      rowHeight: 32,
       cellPaddingBlock: 6,
       cellPaddingInline: 12,
       cellTextTypescale: tanreiTypescale.bodySmall,
       headerTextTypescale: tanreiTypescale.labelSmall
     ),
     medium: TanreiTableSizeTokens(
-      cellPaddingBlock: 12,
+      rowHeight: 40,
+      cellPaddingBlock: 9,
       cellPaddingInline: 16,
       cellTextTypescale: tanreiTypescale.body,
       headerTextTypescale: tanreiTypescale.label

@@ -943,8 +943,8 @@ export const tanrei = {
         },
       },
       sizes: {
-        small: { containerHeight: 48, containerPaddingBlock: 12, containerPaddingInline: 12, labelTypescale: "label", supportingTextTypescale: "bodySmall", trailingTextTypescale: "bodySmall", iconSize: 20, chevronSize: 20, contentPaddingBlockEnd: 12 },
-        medium: { containerHeight: 56, containerPaddingBlock: 16, containerPaddingInline: 16, labelTypescale: "heading5", supportingTextTypescale: "body", trailingTextTypescale: "body", iconSize: 24, chevronSize: 24, contentPaddingBlockEnd: 16 },
+        small: { containerHeight: 36, containerPaddingBlock: 6, containerPaddingInline: 12, labelTypescale: "label", supportingTextTypescale: "bodySmall", trailingTextTypescale: "bodySmall", iconSize: 20, chevronSize: 20, contentPaddingBlockEnd: 12 },
+        medium: { containerHeight: 40, containerPaddingBlock: 8, containerPaddingInline: 16, labelTypescale: "heading5", supportingTextTypescale: "body", trailingTextTypescale: "body", iconSize: 24, chevronSize: 24, contentPaddingBlockEnd: 16 },
       },
     },
     appBar: {
@@ -8548,8 +8548,8 @@ export const tanrei = {
       trailingTextColor: { kind: "role", role: "onSurfaceVariant" },
       trailingTextTypescale: "bodySmall",
       sizes: {
-        small: { containerHeightOneLine: 40, containerHeightTwoLine: 56, containerHeightThreeLine: 72, containerPaddingBlock: 4 },
-        medium: { containerHeightOneLine: 56, containerHeightTwoLine: 72, containerHeightThreeLine: 88, containerPaddingBlock: 8 },
+        small: { containerHeightOneLine: 36, containerHeightTwoLine: 56, containerHeightThreeLine: 76, containerPaddingBlock: 4 },
+        medium: { containerHeightOneLine: 40, containerHeightTwoLine: 60, containerHeightThreeLine: 80, containerPaddingBlock: 8 },
       },
     },
     list: {
@@ -8700,7 +8700,7 @@ export const tanrei = {
       },
       sizes: {
         small: { containerHeight: 36, containerPaddingBlock: 6 },
-        medium: { containerHeight: 48, containerPaddingBlock: 8 },
+        medium: { containerHeight: 40, containerPaddingBlock: 8 },
       },
     },
     loadingIndicator: {
@@ -15893,8 +15893,8 @@ export const tanrei = {
         },
       },
       sizes: {
-        small: { cellPaddingBlock: 6, cellPaddingInline: 12, cellTextTypescale: "bodySmall", headerTextTypescale: "labelSmall" },
-        medium: { cellPaddingBlock: 12, cellPaddingInline: 16, cellTextTypescale: "body", headerTextTypescale: "label" },
+        small: { rowHeight: 32, cellPaddingBlock: 6, cellPaddingInline: 12, cellTextTypescale: "bodySmall", headerTextTypescale: "labelSmall" },
+        medium: { rowHeight: 40, cellPaddingBlock: 9, cellPaddingInline: 16, cellTextTypescale: "body", headerTextTypescale: "label" },
       },
     },
     tabs: {

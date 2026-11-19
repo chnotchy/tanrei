@@ -4961,7 +4961,7 @@ private object CupertinoSystemSource {
             trailingTextColor = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant),
             trailingTextTypescale = typescale.bodySmall,
             sizes = TanreiListRowSizes(
-                small = TanreiListRowSizeTokens(containerHeightOneLine = 40.dp, containerHeightTwoLine = 56.dp, containerHeightThreeLine = 72.dp, containerPaddingBlock = 4.dp),
+                small = TanreiListRowSizeTokens(containerHeightOneLine = 40.dp, containerHeightTwoLine = 56.dp, containerHeightThreeLine = 72.dp, containerPaddingBlock = 2.dp),
                 medium = TanreiListRowSizeTokens(containerHeightOneLine = 44.dp, containerHeightTwoLine = 72.dp, containerHeightThreeLine = 88.dp, containerPaddingBlock = 8.dp),
             ),
         )
@@ -8425,8 +8425,8 @@ private object CupertinoSystemSource {
                 ),
             ),
             sizes = TanreiTableSizes(
-                small = TanreiTableSizeTokens(cellPaddingBlock = 6.dp, cellPaddingInline = 12.dp, cellTextTypescale = typescale.bodySmall, headerTextTypescale = typescale.labelSmall),
-                medium = TanreiTableSizeTokens(cellPaddingBlock = 12.dp, cellPaddingInline = 16.dp, cellTextTypescale = typescale.body, headerTextTypescale = typescale.label),
+                small = TanreiTableSizeTokens(rowHeight = 0.dp, cellPaddingBlock = 6.dp, cellPaddingInline = 12.dp, cellTextTypescale = typescale.bodySmall, headerTextTypescale = typescale.labelSmall),
+                medium = TanreiTableSizeTokens(rowHeight = 44.dp, cellPaddingBlock = 12.dp, cellPaddingInline = 16.dp, cellTextTypescale = typescale.body, headerTextTypescale = typescale.label),
             ),
         )
 

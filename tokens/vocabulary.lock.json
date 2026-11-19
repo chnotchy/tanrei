@@ -6199,6 +6199,8 @@
     "tanrei.comp.table.motion.state-easing": "cubicBezier",
     "tanrei.comp.table.pressed.opacity": "number",
     "tanrei.comp.table.row.gap": "dimension",
+    "tanrei.comp.table.row.height.medium": "dimension",
+    "tanrei.comp.table.row.height.small": "dimension",
     "tanrei.comp.table.row.selected.container.color": "color",
     "tanrei.comp.table.row.selected.hovered.container.color": "color",
     "tanrei.comp.table.row.selected.hovered.text.color": "color",

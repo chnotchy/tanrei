@@ -5315,7 +5315,7 @@ private let m3ExpressiveLikeListRowTokens = TanreiListRowTokens(
       containerHeightOneLine: 40,
       containerHeightTwoLine: 56,
       containerHeightThreeLine: 72,
-      containerPaddingBlock: 4
+      containerPaddingBlock: 2
     ),
     medium: TanreiListRowSizeTokens(
       containerHeightOneLine: 56,
@@ -9177,13 +9177,15 @@ private let m3ExpressiveLikeTableTokens = TanreiTableTokens(
   ),
   sizes: TanreiTableSizes(
     small: TanreiTableSizeTokens(
+      rowHeight: 0,
       cellPaddingBlock: 6,
       cellPaddingInline: 12,
       cellTextTypescale: m3ExpressiveLikeTypescale.bodySmall,
       headerTextTypescale: m3ExpressiveLikeTypescale.labelSmall
     ),
     medium: TanreiTableSizeTokens(
-      cellPaddingBlock: 12,
+      rowHeight: 52,
+      cellPaddingBlock: 16,
       cellPaddingInline: 16,
       cellTextTypescale: m3ExpressiveLikeTypescale.body,
       headerTextTypescale: m3ExpressiveLikeTypescale.label

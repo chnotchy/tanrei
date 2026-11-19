@@ -17309,17 +17309,20 @@ public struct TanreiTableSize: RawRepresentable, Hashable, Sendable, CustomStrin
 
 /// Everything of table that depends on its size.
 public struct TanreiTableSizeTokens: Sendable, Equatable {
+  public var rowHeight: CGFloat
   public var cellPaddingBlock: CGFloat
   public var cellPaddingInline: CGFloat
   public var cellTextTypescale: TanreiTextStyle
   public var headerTextTypescale: TanreiTextStyle
 
   public init(
+    rowHeight: CGFloat,
     cellPaddingBlock: CGFloat,
     cellPaddingInline: CGFloat,
     cellTextTypescale: TanreiTextStyle,
     headerTextTypescale: TanreiTextStyle
   ) {
+    self.rowHeight = rowHeight
     self.cellPaddingBlock = cellPaddingBlock
     self.cellPaddingInline = cellPaddingInline
     self.cellTextTypescale = cellTextTypescale

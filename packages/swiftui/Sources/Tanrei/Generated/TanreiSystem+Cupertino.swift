@@ -5166,7 +5166,7 @@ private let cupertinoListRowTokens = TanreiListRowTokens(
       containerHeightOneLine: 40,
       containerHeightTwoLine: 56,
       containerHeightThreeLine: 72,
-      containerPaddingBlock: 4
+      containerPaddingBlock: 2
     ),
     medium: TanreiListRowSizeTokens(
       containerHeightOneLine: 44,
@@ -9028,12 +9028,14 @@ private let cupertinoTableTokens = TanreiTableTokens(
   ),
   sizes: TanreiTableSizes(
     small: TanreiTableSizeTokens(
+      rowHeight: 0,
       cellPaddingBlock: 6,
       cellPaddingInline: 12,
       cellTextTypescale: cupertinoTypescale.bodySmall,
       headerTextTypescale: cupertinoTypescale.labelSmall
     ),
     medium: TanreiTableSizeTokens(
+      rowHeight: 44,
       cellPaddingBlock: 12,
       cellPaddingInline: 16,
       cellTextTypescale: cupertinoTypescale.body,

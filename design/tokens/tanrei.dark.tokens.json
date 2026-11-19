@@ -34,14 +34,14 @@
             "medium": {
               "$type": "dimension",
               "$value": {
-                "value": 56,
+                "value": 40,
                 "unit": "px"
               }
             },
             "small": {
               "$type": "dimension",
               "$value": {
-                "value": 48,
+                "value": 36,
                 "unit": "px"
               }
             }
@@ -50,14 +50,14 @@
             "medium": {
               "$type": "dimension",
               "$value": {
-                "value": 16,
+                "value": 8,
                 "unit": "px"
               }
             },
             "small": {
               "$type": "dimension",
               "$value": {
-                "value": 12,
+                "value": 6,
                 "unit": "px"
               }
             }
@@ -48133,14 +48133,14 @@
               "medium": {
                 "$type": "dimension",
                 "$value": {
-                  "value": 56,
+                  "value": 40,
                   "unit": "px"
                 }
               },
               "small": {
                 "$type": "dimension",
                 "$value": {
-                  "value": 40,
+                  "value": 36,
                   "unit": "px"
                 }
               }
@@ -48149,14 +48149,14 @@
               "medium": {
                 "$type": "dimension",
                 "$value": {
-                  "value": 88,
+                  "value": 80,
                   "unit": "px"
                 }
               },
               "small": {
                 "$type": "dimension",
                 "$value": {
-                  "value": 72,
+                  "value": 76,
                   "unit": "px"
                 }
               }
@@ -48165,7 +48165,7 @@
               "medium": {
                 "$type": "dimension",
                 "$value": {
-                  "value": 72,
+                  "value": 60,
                   "unit": "px"
                 }
               },
@@ -48424,7 +48424,7 @@
             "medium": {
               "$type": "dimension",
               "$value": {
-                "value": 48,
+                "value": 40,
                 "unit": "px"
               }
             },
@@ -87119,7 +87119,7 @@
             "medium": {
               "$type": "dimension",
               "$value": {
-                "value": 12,
+                "value": 9,
                 "unit": "px"
               }
             },
@@ -87400,6 +87400,22 @@
               "unit": "px"
             },
             "$description": "The empty space between two rows while separation is gap, in place of the line. Added to the cells' own block padding."
+          },
+          "height": {
+            "medium": {
+              "$type": "dimension",
+              "$value": {
+                "value": 40,
+                "unit": "px"
+              }
+            },
+            "small": {
+              "$type": "dimension",
+              "$value": {
+                "value": 32,
+                "unit": "px"
+              }
+            }
           },
           "selected": {
             "container": {

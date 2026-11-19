@@ -10740,6 +10740,7 @@ public value class TanreiTableSize(public val key: String) {
 /** The tokens of one size of table. */
 @Immutable
 public data class TanreiTableSizeTokens(
+    public val rowHeight: Dp,
     public val cellPaddingBlock: Dp,
     public val cellPaddingInline: Dp,
     public val cellTextTypescale: TanreiTextStyle,
