@@ -512,3 +512,4 @@ export { FILTER_SETTLE_MS, type Folded, completionOf, filterWords, fold, foldTex
 export { type IndicatorDragOptions, IndicatorDragController, type IndicatorPlace, type IndicatorStop, indicatorChoice, indicatorPlace } from './indicator-drag.js';
 export { type SharedChoice, keepInPlace, remember, remembered, sharedChoice } from './shared-choice.js';
 export { flatParent } from './flat-tree.js';
+export { type BusyParts, announceBusy, busyArc, busyReducedStyles, busyStatus, busyStyles } from './busy.js';

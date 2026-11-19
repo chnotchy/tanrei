@@ -307,6 +307,17 @@ Set `destructive` on a button with menu whose main action deletes or discards so
   <tanrei-button-with-menu separation="gap" destructive label="Delete" menu-label="More delete options"></tanrei-button-with-menu>
 </Example>
 
+### Busy
+
+While the main action is under way, set `busy` and `busy-label` ("Saving"), as on a busy [Button](/components/button/#busy-and-disabled-but-reachable). The leading half keeps its size, its place in the focus order and the person's focus. It draws the loading indicator's arc in place of its label and icon, and refuses every press, so the action cannot start twice. Assistive technology hears `busy-label` once, when it becomes busy; say what happened when the action ends, because the button with menu announces nothing then.
+
+`busy` applies to the leading half only. The trailing half and its menu stay as they are, so the other options are still one press away. Disable the items that cannot run while the main action is under way.
+
+<Example label="Busy">
+  <tanrei-button-with-menu busy busy-label="Saving" label="Save" menu-label="More save options"><span slot="icon">save</span></tanrei-button-with-menu>
+  <tanrei-button-with-menu variant="outlined" busy busy-label="Saving" label="Save" menu-label="More save options"></tanrei-button-with-menu>
+</Example>
+
 ## Specs
 
 <Example label="Sizes, an icon, open and disabled">

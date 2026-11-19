@@ -14,7 +14,7 @@ export interface TanreiWords {
   backLabel?: string;
   /** Read by `breadcrumbs.overflowLabel`. */
   breadcrumbsOverflowLabel?: string;
-  /** Read by `button.busyLabel`. */
+  /** Read by `button.busyLabel`, `button-with-menu.busyLabel`. */
   busyLabel?: string;
   /** Read by `date-time-picker.cancelLabel`. */
   cancelLabel?: string;
@@ -227,7 +227,7 @@ export const wordReaders: Readonly<Record<WordKey, readonly string[]>> = {
   avatarGroupOverflowLabel: ['avatar.overflowLabel'],
   backLabel: ['search.backLabel'],
   breadcrumbsOverflowLabel: ['breadcrumbs.overflowLabel'],
-  busyLabel: ['button.busyLabel'],
+  busyLabel: ['button.busyLabel', 'button-with-menu.busyLabel'],
   cancelLabel: ['date-time-picker.cancelLabel'],
   cancelledText: ['file-upload.cancelledText', 'list.cancelledText'],
   characterCountNoLimitText: ['text-input.counterNoLimitText'],

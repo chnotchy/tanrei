@@ -2,7 +2,7 @@
 title: メニュー付きボタン
 description: 主なアクションを 1 回の押下で実行し、関連するアクションは、隣につながったもう 1 つのボタンから開くメニューで示します。
 translationOf: components/button-with-menu.mdx
-sourceHash: 47ec0e350aae6acb1cf1aa3da68162409befa062
+sourceHash: eee785ee6871aa588962ac46ade5a58c504985ca
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -307,6 +307,17 @@ Material 3 では、対応するコンポーネントを split button と呼び�
   <tanrei-button-with-menu variant="elevated" destructive label="削除" menu-label="削除のその他のオプション"></tanrei-button-with-menu>
   <tanrei-button-with-menu variant="outlined" destructive label="削除" menu-label="削除のその他のオプション"></tanrei-button-with-menu>
   <tanrei-button-with-menu separation="gap" destructive label="削除" menu-label="削除のその他のオプション"></tanrei-button-with-menu>
+</Example>
+
+### ビジー状態
+
+主なアクションが進んでいる間は、ビジー状態の[ボタン](/ja/components/button/)と同じように、`busy` と `busy-label`（「保存中」）を設定します。主アクション側の半分は、大きさも、フォーカス順の位置も、利用者のフォーカスも保ちます。ラベルとアイコンの代わりにローディングインジケーターの弧を描き、押されてもすべて受け付けないので、アクションが 2 度始まることはありません。支援技術には、ビジー状態になったときに 1 度だけ `busy-label` が読み上げられます。アクションが終わったときにはメニュー付きボタンは何も読み上げないので、何が起きたかは利用者側で伝えます。
+
+`busy` がかかるのは主アクション側の半分だけです。メニュー側の半分とメニューはそのままなので、ほかのオプションはあと 1 回押せば届きます。主なアクションが進んでいる間に実行できない項目は無効にしてください。
+
+<Example label="ビジー状態">
+  <tanrei-button-with-menu busy busy-label="保存中" label="保存" menu-label="保存のその他のオプション"><span slot="icon">save</span></tanrei-button-with-menu>
+  <tanrei-button-with-menu variant="outlined" busy busy-label="保存中" label="保存" menu-label="保存のその他のオプション"></tanrei-button-with-menu>
 </Example>
 
 ## 仕様
