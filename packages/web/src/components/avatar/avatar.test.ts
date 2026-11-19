@@ -778,15 +778,21 @@ test.describe('behavior', () => {
   test('AVT-11: with the text enlarged the avatar keeps its box and its glyph at their sizes, and its initials are held to the glyph’s box of the size, so they still stand inside the avatar (the initials’ text role itself follows the text dial)', async ({ page }) => {
     await mountSpec(page, 'initials', 'initials-small', 'initials-large', 'glyph', 'glyph-small', 'glyph-large', 'square', 'group-max');
     const ids = ['initials', 'initials-small', 'initials-large', 'glyph', 'glyph-small', 'glyph-large', 'square'];
-    const measure = async () => Object.fromEntries(await Promise.all(ids.map(async (id) => [id, [await box(avatar(page, id)).then((b) => [b.width, b.height]), id.startsWith('glyph') ? await box(avatar(page, id).locator('.icon')).then((b) => [b.width, b.height]) : null]] as const)));
+    // A size to a hundredth of a pixel: Firefox reports a box that begins part of a pixel down (the stages above it are
+    // lines of the page's body text) 0.00002 px taller than the same box on a whole pixel.
+    const size = (b: { width: number; height: number }) => [b.width, b.height].map((n) => Math.round(n * 100) / 100);
+    const measure = async () => Object.fromEntries(await Promise.all(ids.map(async (id) => [id, [await box(avatar(page, id)).then(size), id.startsWith('glyph') ? await box(avatar(page, id).locator('.icon')).then(size) : null]] as const)));
     const before = await measure();
-    const groupBefore = await box(group(page, 'group-max'));
+    // The group's size, not its place: the page's body text is enlarged too, so the lines of the stages above it are
+    // taller and the group stands further down.
+    const groupSize = async () => box(group(page, 'group-max')).then(size);
+    const groupBefore = await groupSize();
     const sizeBefore = Number.parseFloat(await css(avatar(page, 'initials').locator('.label'), 'font-size'));
     // 200 % text.
     await override(page, { '--tanrei-dial-type-base': '32px' });
     await frames(page);
     expect(await measure()).toEqual(before);
-    expect(await box(group(page, 'group-max'))).toEqual(groupBefore);
+    expect(await groupSize()).toEqual(groupBefore);
     const sizes = { 'initials-small': 'small', initials: 'medium', 'initials-large': 'large', square: 'medium' } as const;
     for (const [id, size] of Object.entries(sizes)) {
       const label = avatar(page, id).locator('.label');
