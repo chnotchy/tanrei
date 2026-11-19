@@ -2,7 +2,7 @@
 title: カラー入力欄
 description: 1 つの色を設定するボックスです。色見本と、読んで、入力して、貼り付けられるテキストの値と、ピッカーを求めるボタンがあります。ラベルの行、補足、エラーテキストは自分では持ちません。行や列がすでに色の名前を示しているところや、プロダクトが自分で組み立てるフィールドの中で使います。
 translationOf: components/color-input.mdx
-sourceHash: 0999afc891925277301cd2b28ed9cdb4fb54d9d0
+sourceHash: 6772f35648fcde26199cef0472d7caf5c6ff72c3
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -16,7 +16,7 @@ import Example from '../../../../components/visuals/Example.astro';
 <ComponentAvailability name="color-input" />
 
 <Example label="単独で使う例：トーンの一覧の行。それぞれの行が色の名前を示します" column>
-  <div class="not-content" style="display: grid; grid-template-columns: auto 14rem; align-items: center; gap: 0.5rem 0.75rem; font: var(--tanrei-sys-typescale-body-font); color: var(--tanrei-sys-color-on-surface)">
+  <div class="not-content tanrei-text-body" style="display: grid; grid-template-columns: auto 14rem; align-items: center; gap: 0.5rem 0.75rem; color: var(--tanrei-sys-color-on-surface)">
     <span>トーン 40</span>
     <tanrei-color-input label="プライマリ、トーン 40" value="#0f766e" picker picker-label="プライマリ、トーン 40 の色を選択"></tanrei-color-input>
     <span>トーン 80</span>

@@ -2,7 +2,7 @@
 title: टैब
 description: ट्रैक पर रखे लेबल वाले टैब की एक पंक्ति से एक ही विषय के व्यू के बीच स्विच करता है। एक टैब चयनित रहता है, जिसे एक इंडिकेटर दिखाता है, जो टैब के बीच सरकता है और पंक्ति पर ड्रैग की गई उँगली के साथ चलता है।
 translationOf: components/tabs.mdx
-sourceHash: 1d912893a46525ec8008c7406cbfb36d66a21d3c
+sourceHash: e850c193856826770af771cf4dd789cd8056abe1
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -30,13 +30,13 @@ import Playground from '../../../../components/visuals/Playground.astro';
     <tanrei-tab value="activity" label="गतिविधि" icon="history"></tanrei-tab>
     <tanrei-tab value="settings" label="सेटिंग" icon="settings"></tanrei-tab>
     <tanrei-tab-panel value="overview">
-      <p style="font: var(--tanrei-sys-typescale-body-font)">तीन सर्विस, सभी चल रही हैं।</p>
+      <p class="tanrei-text-body">तीन सर्विस, सभी चल रही हैं।</p>
     </tanrei-tab-panel>
     <tanrei-tab-panel value="activity">
-      <p style="font: var(--tanrei-sys-typescale-body-font)">2 घंटे पहले डिप्लॉय किया गया।</p>
+      <p class="tanrei-text-body">2 घंटे पहले डिप्लॉय किया गया।</p>
     </tanrei-tab-panel>
     <tanrei-tab-panel value="settings">
-      <p style="font: var(--tanrei-sys-typescale-body-font)">रीजन, डोमेन और ऐक्सेस।</p>
+      <p class="tanrei-text-body">रीजन, डोमेन और ऐक्सेस।</p>
     </tanrei-tab-panel>
   </tanrei-tabs>
 </Example>
@@ -339,16 +339,16 @@ small साइज़ की पंक्ति small साइज़ के [�
   <tanrei-tabs variant="secondary" group="docs-demo-units" value="metric" label="दूरी की इकाइयाँ">
     <tanrei-tab value="metric" label="मेट्रिक"></tanrei-tab>
     <tanrei-tab value="imperial" label="इंपीरियल"></tanrei-tab>
-    <tanrei-tab-panel value="metric"><p style="font: var(--tanrei-sys-typescale-body-font)">मैराथन 42.195 km की होती है।</p></tanrei-tab-panel>
-    <tanrei-tab-panel value="imperial"><p style="font: var(--tanrei-sys-typescale-body-font)">मैराथन 26.2 मील की होती है।</p></tanrei-tab-panel>
+    <tanrei-tab-panel value="metric"><p class="tanrei-text-body">मैराथन 42.195 km की होती है।</p></tanrei-tab-panel>
+    <tanrei-tab-panel value="imperial"><p class="tanrei-text-body">मैराथन 26.2 मील की होती है।</p></tanrei-tab-panel>
   </tanrei-tabs>
   <tanrei-tabs variant="secondary" group="docs-demo-units" value="metric" label="गति की इकाइयाँ">
     <tanrei-tab value="metric" label="मेट्रिक"></tanrei-tab>
     <tanrei-tab value="imperial" label="इंपीरियल"></tanrei-tab>
     <tanrei-tab value="nautical" label="नॉटिकल"></tanrei-tab>
-    <tanrei-tab-panel value="metric"><p style="font: var(--tanrei-sys-typescale-body-font)">तेज़ चाल 6 km/h की होती है।</p></tanrei-tab-panel>
-    <tanrei-tab-panel value="imperial"><p style="font: var(--tanrei-sys-typescale-body-font)">तेज़ चाल 3.7 mph की होती है।</p></tanrei-tab-panel>
-    <tanrei-tab-panel value="nautical"><p style="font: var(--tanrei-sys-typescale-body-font)">तेज़ चाल 3.2 नॉट की होती है।</p></tanrei-tab-panel>
+    <tanrei-tab-panel value="metric"><p class="tanrei-text-body">तेज़ चाल 6 km/h की होती है।</p></tanrei-tab-panel>
+    <tanrei-tab-panel value="imperial"><p class="tanrei-text-body">तेज़ चाल 3.7 mph की होती है।</p></tanrei-tab-panel>
+    <tanrei-tab-panel value="nautical"><p class="tanrei-text-body">तेज़ चाल 3.2 नॉट की होती है।</p></tanrei-tab-panel>
   </tanrei-tabs>
 </Example>
 
@@ -365,9 +365,9 @@ small साइज़ की पंक्ति small साइज़ के [�
     <tanrei-tab value="general" label="सामान्य" icon="settings"></tanrei-tab>
     <tanrei-tab value="notifications" label="सूचनाएँ" icon="notifications"></tanrei-tab>
     <tanrei-tab value="privacy" label="निजता" icon="lock"></tanrei-tab>
-    <tanrei-tab-panel value="general"><p style="font: var(--tanrei-sys-typescale-body-font); margin: 0; padding-inline: var(--tanrei-sys-space-space200)">भाषा, क्षेत्र और शुरुआती पेज।</p></tanrei-tab-panel>
-    <tanrei-tab-panel value="notifications"><p style="font: var(--tanrei-sys-typescale-body-font); margin: 0; padding-inline: var(--tanrei-sys-space-space200)">ईमेल, पुश और साप्ताहिक सारांश।</p></tanrei-tab-panel>
-    <tanrei-tab-panel value="privacy"><p style="font: var(--tanrei-sys-typescale-body-font); margin: 0; padding-inline: var(--tanrei-sys-space-space200)">आपकी प्रोफ़ाइल कौन देख सकता है।</p></tanrei-tab-panel>
+    <tanrei-tab-panel value="general"><p class="tanrei-text-body" style="margin: 0; padding-inline: var(--tanrei-sys-space-space200)">भाषा, क्षेत्र और शुरुआती पेज।</p></tanrei-tab-panel>
+    <tanrei-tab-panel value="notifications"><p class="tanrei-text-body" style="margin: 0; padding-inline: var(--tanrei-sys-space-space200)">ईमेल, पुश और साप्ताहिक सारांश।</p></tanrei-tab-panel>
+    <tanrei-tab-panel value="privacy"><p class="tanrei-text-body" style="margin: 0; padding-inline: var(--tanrei-sys-space-space200)">आपकी प्रोफ़ाइल कौन देख सकता है।</p></tanrei-tab-panel>
   </tanrei-tabs>
 </Example>
 

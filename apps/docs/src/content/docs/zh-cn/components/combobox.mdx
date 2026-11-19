@@ -2,7 +2,7 @@
 title: "组合框"
 description: "用户在里面键入以找到一个或多个值的那个方框，以及它打开的选项列表——它自己没有标签行、帮助文本和错误文本。用于标签位于别处的地方，或者放进产品自己组合的字段里。"
 translationOf: components/combobox.mdx
-sourceHash: a6ba669c6cd3732e0cd1bc8d18ea34fc57196da0
+sourceHash: ef2b39f71bc39c4c179f7a3c71a51d07b7b7c999
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -23,7 +23,7 @@ import Example from '../../../../components/visuals/Example.astro';
     <tanrei-option value="secondary" supporting-text="sys.color.secondary">secondary</tanrei-option>
     <tanrei-option value="surface" supporting-text="sys.color.surface">surface</tanrei-option>
   </tanrei-combobox>
-  <div class="not-content" style="display: grid; grid-template-columns: auto 12rem; align-items: center; gap: 0.75rem; font: var(--tanrei-sys-typescale-body-font); color: var(--tanrei-sys-color-on-surface)">
+  <div class="not-content tanrei-text-body" style="display: grid; grid-template-columns: auto 12rem; align-items: center; gap: 0.75rem; color: var(--tanrei-sys-color-on-surface)">
     <span>时区</span>
     <tanrei-combobox label="时区" value="Europe/Lisbon" empty-text="无匹配项">
       <tanrei-option value="Asia/Tokyo">东京</tanrei-option>

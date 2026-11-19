@@ -14,7 +14,7 @@ import Example from '../../../components/visuals/Example.astro';
 <ComponentAvailability name="number-ticker" />
 
 <Example label="Figures that rise to their values when they come into view">
-  <div style="display: flex; flex-wrap: wrap; gap: var(--tanrei-sys-space-space400); font: var(--tanrei-sys-typescale-heading-2-font); letter-spacing: var(--tanrei-sys-typescale-heading-2-letter-spacing)">
+  <div class="tanrei-text-heading-2" style="display: flex; flex-wrap: wrap; gap: var(--tanrei-sys-space-space400)">
     <tanrei-number-ticker start-value="0" value="1234" label="Orders"></tanrei-number-ticker>
     <tanrei-number-ticker start-value="0" value="98400" number-style="currency" currency="USD" fraction-digits="0" label="Revenue"></tanrei-number-ticker>
     <tanrei-number-ticker start-value="0" value="0.426" number-style="percent" fraction-digits="1" label="Conversion"></tanrei-number-ticker>
@@ -60,7 +60,7 @@ The Web and React samples show the current spec. SwiftUI, Compose, Flutter and R
 ## Specs
 
 <Example label="Animations: slide (the default system's), blur, blur-slide and flip">
-  <div style="display: flex; flex-wrap: wrap; gap: var(--tanrei-sys-space-space400); font: var(--tanrei-sys-typescale-heading-2-font); letter-spacing: var(--tanrei-sys-typescale-heading-2-letter-spacing)">
+  <div class="tanrei-text-heading-2" style="display: flex; flex-wrap: wrap; gap: var(--tanrei-sys-space-space400)">
     <tanrei-number-ticker start-value="1180" value="1234" animation="slide" label="Slide"></tanrei-number-ticker>
     <tanrei-number-ticker start-value="1180" value="1234" animation="blur" label="Blur"></tanrei-number-ticker>
     <tanrei-number-ticker start-value="1180" value="1234" animation="blur-slide" label="Blur slide"></tanrei-number-ticker>
@@ -69,7 +69,7 @@ The Web and React samples show the current spec. SwiftUI, Compose, Flutter and R
 </Example>
 
 <Example label="Trend: auto (19 to 20 moves both digits up) and digit (the ones go down from 9 to 0)">
-  <div style="display: flex; flex-wrap: wrap; gap: var(--tanrei-sys-space-space400); font: var(--tanrei-sys-typescale-heading-2-font); letter-spacing: var(--tanrei-sys-typescale-heading-2-letter-spacing)">
+  <div class="tanrei-text-heading-2" style="display: flex; flex-wrap: wrap; gap: var(--tanrei-sys-space-space400)">
     <tanrei-number-ticker start-value="19" value="20" trend="auto" label="Auto"></tanrei-number-ticker>
     <tanrei-number-ticker start-value="19" value="20" trend="digit" label="Digit"></tanrei-number-ticker>
   </div>

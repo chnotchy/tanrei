@@ -2763,7 +2763,7 @@ test.describe('behavior: conditions, exposure, size and direction', () => {
     const native = await page.evaluate(() => {
       const probe = document.createElement('input');
       probe.type = 'text';
-      probe.style.cssText = 'all: unset; display: inline-block; font: var(--tanrei-comp-input-box-input-typescale-medium-font); letter-spacing: var(--tanrei-comp-input-box-input-typescale-medium-letter-spacing);';
+      probe.style.cssText = 'all: unset; display: inline-block; font: var(--tanrei-comp-input-box-input-typescale-medium-font-weight) var(--tanrei-comp-input-box-input-typescale-medium-font-size)/var(--tanrei-comp-input-box-input-typescale-medium-line-height) var(--tanrei-comp-input-box-input-typescale-medium-font-family); letter-spacing: var(--tanrei-comp-input-box-input-typescale-medium-letter-spacing);';
       document.body.append(probe);
       const width = probe.getBoundingClientRect().width;
       probe.remove();

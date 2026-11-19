@@ -2,7 +2,7 @@
 title: ナンバーティッカー
 description: 件数、価格、スコア、ダッシュボードの数字のように変わる数を、変わった桁だけを新しい値まで動かして示します。見る人には変わったこと、その向き、おおよその量が伝わり、支援技術には落ち着いた最後の値だけが伝わります。
 translationOf: components/number-ticker.mdx
-sourceHash: 15f18dcfd7f51262f1254bebb892eab3398a41d2
+sourceHash: 578054f63e1a2b3fd3822895431acb55000bfb8d
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -16,7 +16,7 @@ import Example from '../../../../components/visuals/Example.astro';
 <ComponentAvailability name="number-ticker" />
 
 <Example label="画面に入ったときに値まで上がっていく数字">
-  <div style="display: flex; flex-wrap: wrap; gap: var(--tanrei-sys-space-space400); font: var(--tanrei-sys-typescale-heading-2-font); letter-spacing: var(--tanrei-sys-typescale-heading-2-letter-spacing)">
+  <div class="tanrei-text-heading-2" style="display: flex; flex-wrap: wrap; gap: var(--tanrei-sys-space-space400)">
     <tanrei-number-ticker start-value="0" value="1234" label="注文数"></tanrei-number-ticker>
     <tanrei-number-ticker start-value="0" value="98400" number-style="currency" currency="USD" fraction-digits="0" label="売上"></tanrei-number-ticker>
     <tanrei-number-ticker start-value="0" value="0.426" number-style="percent" fraction-digits="1" label="コンバージョン率"></tanrei-number-ticker>
@@ -62,7 +62,7 @@ Web と React の例は現在の仕様に沿っています。SwiftUI、Compose�
 ## 仕様
 
 <Example label="アニメーション：slide（既定のシステムの選択）、blur、blur-slide、flip">
-  <div style="display: flex; flex-wrap: wrap; gap: var(--tanrei-sys-space-space400); font: var(--tanrei-sys-typescale-heading-2-font); letter-spacing: var(--tanrei-sys-typescale-heading-2-letter-spacing)">
+  <div class="tanrei-text-heading-2" style="display: flex; flex-wrap: wrap; gap: var(--tanrei-sys-space-space400)">
     <tanrei-number-ticker start-value="1180" value="1234" animation="slide" label="スライド"></tanrei-number-ticker>
     <tanrei-number-ticker start-value="1180" value="1234" animation="blur" label="ぼかし"></tanrei-number-ticker>
     <tanrei-number-ticker start-value="1180" value="1234" animation="blur-slide" label="ぼかしとスライド"></tanrei-number-ticker>
@@ -71,7 +71,7 @@ Web と React の例は現在の仕様に沿っています。SwiftUI、Compose�
 </Example>
 
 <Example label="trend：auto（19 から 20 で両方の桁が上へ）と digit（1 の位が 9 から 0 へ下がる）">
-  <div style="display: flex; flex-wrap: wrap; gap: var(--tanrei-sys-space-space400); font: var(--tanrei-sys-typescale-heading-2-font); letter-spacing: var(--tanrei-sys-typescale-heading-2-letter-spacing)">
+  <div class="tanrei-text-heading-2" style="display: flex; flex-wrap: wrap; gap: var(--tanrei-sys-space-space400)">
     <tanrei-number-ticker start-value="19" value="20" trend="auto" label="自動"></tanrei-number-ticker>
     <tanrei-number-ticker start-value="19" value="20" trend="digit" label="桁ごと"></tanrei-number-ticker>
   </div>

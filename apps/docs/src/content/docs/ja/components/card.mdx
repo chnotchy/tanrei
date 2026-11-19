@@ -17,16 +17,16 @@ import Example from '../../../../components/visuals/Example.astro';
 
 <Example label="バリアント">
   <tanrei-card style="width: 15rem">
-    <div style="font: var(--tanrei-sys-typescale-heading-5-font)">Outlined</div>
-    <div style="font: var(--tanrei-sys-typescale-body-font)">売上は前四半期から 12% 伸びました。</div>
+    <div class="tanrei-text-heading-5">Outlined</div>
+    <div class="tanrei-text-body">売上は前四半期から 12% 伸びました。</div>
   </tanrei-card>
   <tanrei-card variant="filled" style="width: 15rem">
-    <div style="font: var(--tanrei-sys-typescale-heading-5-font)">Filled</div>
-    <div style="font: var(--tanrei-sys-typescale-body-font)">売上は前四半期から 12% 伸びました。</div>
+    <div class="tanrei-text-heading-5">Filled</div>
+    <div class="tanrei-text-body">売上は前四半期から 12% 伸びました。</div>
   </tanrei-card>
   <tanrei-card variant="elevated" style="width: 15rem">
-    <div style="font: var(--tanrei-sys-typescale-heading-5-font)">Elevated</div>
-    <div style="font: var(--tanrei-sys-typescale-body-font)">売上は前四半期から 12% 伸びました。</div>
+    <div class="tanrei-text-heading-5">Elevated</div>
+    <div class="tanrei-text-body">売上は前四半期から 12% 伸びました。</div>
   </tanrei-card>
 </Example>
 
@@ -176,33 +176,33 @@ Web と React の例は現在の仕様に沿っています。SwiftUI、Compose�
 <Example label="端まで広げる、操作できる、無効">
   <tanrei-card flush style="width: 15rem">
     <div style="height: 5rem; background: var(--tanrei-sys-color-primary-container)"></div>
-    <div style="padding: var(--tanrei-comp-card-container-padding); font: var(--tanrei-sys-typescale-body-font)">flush：中身が端まで届きます。</div>
+    <div class="tanrei-text-body" style="padding: var(--tanrei-comp-card-container-padding)">flush：中身が端まで届きます。</div>
   </tanrei-card>
   <tanrei-card interactive label="四半期レポート" style="width: 15rem">
-    <div style="font: var(--tanrei-sys-typescale-heading-5-font)">四半期レポート</div>
-    <div style="font: var(--tanrei-sys-typescale-body-font)">操作できるカード。ホバー、Tab でのフォーカス、押下を試せます。</div>
+    <div class="tanrei-text-heading-5">四半期レポート</div>
+    <div class="tanrei-text-body">操作できるカード。ホバー、Tab でのフォーカス、押下を試せます。</div>
   </tanrei-card>
   <tanrei-card variant="elevated" interactive disabled label="四半期レポート" style="width: 15rem">
-    <div style="font: var(--tanrei-sys-typescale-heading-5-font)">四半期レポート</div>
-    <div style="font: var(--tanrei-sys-typescale-body-font)">操作できるカードの無効状態。</div>
+    <div class="tanrei-text-heading-5">四半期レポート</div>
+    <div class="tanrei-text-body">操作できるカードの無効状態。</div>
   </tanrei-card>
 </Example>
 
 <Example label="リンクカード">
   <tanrei-card href="/ja/components/button/" label="ボタン" style="width: 15rem">
-    <div style="font: var(--tanrei-sys-typescale-heading-5-font)">ボタン</div>
-    <div style="font: var(--tanrei-sys-typescale-body-font)">リンクカード。Enter で移動でき、ブラウザーのリンクのメニューも使えます。</div>
+    <div class="tanrei-text-heading-5">ボタン</div>
+    <div class="tanrei-text-body">リンクカード。Enter で移動でき、ブラウザーのリンクのメニューも使えます。</div>
   </tanrei-card>
   <tanrei-card variant="filled" href="/ja/components/list/" target="new" target-label="新しいタブで開きます" label="リスト" style="width: 15rem">
     <div style="display: flex; align-items: center; gap: var(--tanrei-sys-space-space200)">
-      <div style="flex: 1; font: var(--tanrei-sys-typescale-heading-5-font)">リスト</div>
+      <div class="tanrei-text-heading-5" style="flex: 1">リスト</div>
       <span class="tanrei-icon" aria-hidden="true">open_in_new</span>
     </div>
-    <div style="font: var(--tanrei-sys-typescale-body-font)">新しいタブで開きます。グリフは中身の一部です。</div>
+    <div class="tanrei-text-body">新しいタブで開きます。グリフは中身の一部です。</div>
   </tanrei-card>
   <tanrei-card href="/ja/components/button/" disabled label="ボタン" style="width: 15rem">
-    <div style="font: var(--tanrei-sys-typescale-heading-5-font)">ボタン</div>
-    <div style="font: var(--tanrei-sys-typescale-body-font)">無効なリンクカード。移動できません。</div>
+    <div class="tanrei-text-heading-5">ボタン</div>
+    <div class="tanrei-text-body">無効なリンクカード。移動できません。</div>
   </tanrei-card>
 </Example>
 

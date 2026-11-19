@@ -2,7 +2,7 @@
 title: حقل إدخال اللون
 description: الصندوق الذي يعيّن فيه الناس لونًا واحدًا، فيه عيّنة منه، والقيمة نصًّا يقرؤونه ويكتبونه ويلصقونه، وزر يطلب منتقيًا، بلا صف تسمية ولا مساعدة ولا نص خطأ من عنده. لصف أو عمود يسمّي اللون سلفًا، أو داخل حقل يركّبه المنتج بنفسه.
 translationOf: components/color-input.mdx
-sourceHash: 0999afc891925277301cd2b28ed9cdb4fb54d9d0
+sourceHash: 6772f35648fcde26199cef0472d7caf5c6ff72c3
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -16,7 +16,7 @@ import Example from '../../../../components/visuals/Example.astro';
 <ComponentAvailability name="color-input" />
 
 <Example label="مجرَّدًا: صفوف قائمة من الدرجات اللونية، وكلٌّ منها يسمّيه صفه" column>
-  <div class="not-content" style="display: grid; grid-template-columns: auto 14rem; align-items: center; gap: 0.5rem 0.75rem; font: var(--tanrei-sys-typescale-body-font); color: var(--tanrei-sys-color-on-surface)">
+  <div class="not-content tanrei-text-body" style="display: grid; grid-template-columns: auto 14rem; align-items: center; gap: 0.5rem 0.75rem; color: var(--tanrei-sys-color-on-surface)">
     <span>الدرجة 40</span>
     <tanrei-color-input label="الأساسي، الدرجة 40" value="#0f766e" picker picker-label="اختيار لون الأساسي، الدرجة 40"></tanrei-color-input>
     <span>الدرجة 80</span>

@@ -17,8 +17,6 @@ that keeps a size in private properties keeps one per longhand.
   an icon glyph's variation axes or a table cell's tabular figures from what holds it.
 - A longhand a product sets on the root (`--tanrei-sys-typescale-body-font-weight`) now reaches components too; the
   composite carried the build's weight, line height and family, and only the size followed.
-- The composite `--…-<role>-font` is still generated, for a product's own rules; it is the root's, so a product that
-  wants a local override reads the longhands as the components do.
 - **What broke: setting a role's composite no longer restyles a component.** A product that set
   `--tanrei-comp-badge-label-typescale-font: 500 2rem/1.5 Inter`, on the root or anywhere, saw the badge's label change;
   now it changes nothing, because no component reads the composite. Set the longhands instead (`-font-weight`,

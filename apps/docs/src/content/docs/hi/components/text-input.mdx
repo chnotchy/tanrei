@@ -2,7 +2,7 @@
 title: टेक्स्ट इनपुट
 description: वह बॉक्स जिसमें लोग टाइप करते हैं, और उसमें टाइप की जाने वाली हर चीज़ — एक पंक्ति या कई पंक्तियाँ, तारीख़ या समय, कोड — लेबल की अपनी पंक्ति, सहायता या त्रुटि टेक्स्ट के बिना। उस जगह के लिए जहाँ लेबल कहीं और है, या उस फ़ील्ड के भीतर जिसे प्रॉडक्ट ख़ुद जोड़कर बनाता है।
 translationOf: components/text-input.mdx
-sourceHash: 6c87fdde2d1e13f7175a5ac8376dff69aa18a85d
+sourceHash: 311e78c804bb9f73162359b32e0ba56d70af184c
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -19,7 +19,7 @@ import Example from '../../../../components/visuals/Example.astro';
   <tanrei-text-input class="not-content" type="search" label="टोकन फ़िल्टर करें" placeholder="टोकन फ़िल्टर करें">
     <span slot="leading-icon">search</span>
   </tanrei-text-input>
-  <div class="not-content" style="display: grid; grid-template-columns: auto 12rem; align-items: center; gap: 0.75rem; font: var(--tanrei-sys-typescale-body-font); color: var(--tanrei-sys-color-on-surface)">
+  <div class="not-content tanrei-text-body" style="display: grid; grid-template-columns: auto 12rem; align-items: center; gap: 0.75rem; color: var(--tanrei-sys-color-on-surface)">
     <span>दिखने वाला नाम</span>
     <tanrei-text-input label="दिखने वाला नाम" value="Ada Lovelace"></tanrei-text-input>
   </div>

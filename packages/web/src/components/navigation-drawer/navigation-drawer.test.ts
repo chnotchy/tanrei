@@ -1447,7 +1447,7 @@ test.describe('the collapsed form', () => {
     // Plain text in the header slot inherits header.typescale and header.color; an element that sets its own keeps it.
     const style = await page.evaluate((name) => {
       const probe = document.createElement('span');
-      probe.style.font = `var(${name}-font)`;
+      probe.style.font = `var(${name}-font-weight) var(${name}-font-size)/var(${name}-line-height) var(${name}-font-family)`;
       probe.style.color = `var(${name.replace('-typescale', '')}-color)`;
       document.body.appendChild(probe);
       const { fontFamily, fontSize, fontWeight, color } = getComputedStyle(probe);

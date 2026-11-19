@@ -55,7 +55,7 @@ const shown = (target: Locator) => target.evaluate((el) => !el.hasAttribute('dat
 
 /** A page with the tokens and skeleton.css and NO script: the skeleton as a page draws it before its script has run. */
 const bare = (body: string, extra = '') =>
-  `<!doctype html><html lang="en" data-tanrei-theme="light"><head><meta charset="utf-8"><style>${dist('tokens.css')}</style><style>${dist('skeleton.css')}</style><style>body { margin: 0; background: var(--tanrei-sys-color-surface); font: var(--tanrei-sys-typescale-body-font); } ${extra}</style></head><body>${body}</body></html>`;
+  `<!doctype html><html lang="en" data-tanrei-theme="light"><head><meta charset="utf-8"><style>${dist('tokens.css')}</style><style>${dist('skeleton.css')}</style><style>body { margin: 0; background: var(--tanrei-sys-color-surface); font: var(--tanrei-sys-typescale-body-font-weight) var(--tanrei-sys-typescale-body-font-size)/var(--tanrei-sys-typescale-body-line-height) var(--tanrei-sys-typescale-body-font-family); } ${extra}</style></head><body>${body}</body></html>`;
 /** The package's script arrives: every skeleton of the page is defined. */
 async function define(page: P) {
   await page.addScriptTag({ type: 'module', content: dist('tanrei.bundle.js') });

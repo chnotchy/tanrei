@@ -2,7 +2,7 @@
 title: नंबर इनपुट
 description: किसी संख्या का बॉक्स — जो लोकेल के रूप में टाइप की जाती है या किसी कुंजी या बटन से स्टेप-दर-स्टेप बदली जाती है, सीमाओं के भीतर रखी जाती है, और जिसकी इकाई उसके बग़ल में रहती है — लेबल की अपनी पंक्ति, सहायता या त्रुटि टेक्स्ट के बिना। उस संख्या के लिए जिसका लेबल कहीं और है, या उस फ़ील्ड के भीतर जिसे प्रॉडक्ट ख़ुद जोड़कर बनाता है।
 translationOf: components/number-input.mdx
-sourceHash: d2d6bd8ae89fdd1c543ff780c061b338242047c6
+sourceHash: ac57790fbda3e373f5cc3274c25acc7cbfd799fc
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -20,7 +20,7 @@ import Example from '../../../../components/visuals/Example.astro';
     <tanrei-slider label="स्केल" min="0.25" max="4" step="0.05" value="1.5"></tanrei-slider>
     <tanrei-number-input label="स्केल" min="0.25" max="4" step="0.05" value="1.5" suffix-text="×" value-text="1.5 गुना" align="end" no-steppers></tanrei-number-input>
   </div>
-  <div class="not-content" style="display: grid; grid-template-columns: auto 10rem; align-items: center; gap: 0.75rem; font: var(--tanrei-sys-typescale-body-font); color: var(--tanrei-sys-color-on-surface)">
+  <div class="not-content tanrei-text-body" style="display: grid; grid-template-columns: auto 10rem; align-items: center; gap: 0.75rem; color: var(--tanrei-sys-color-on-surface)">
     <span>ओक की डेस्क</span>
     <tanrei-number-input label="मात्रा, ओक की डेस्क" value="2" min="1" max="99" increment-label="बढ़ाएँ" decrement-label="घटाएँ"></tanrei-number-input>
   </div>

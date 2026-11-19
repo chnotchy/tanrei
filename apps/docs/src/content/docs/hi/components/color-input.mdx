@@ -2,7 +2,7 @@
 title: कलर इनपुट
 description: वह बॉक्स जिसमें लोग एक रंग तय करते हैं — उसका नमूना, टेक्स्ट के रूप में मान जिसे वे पढ़, टाइप और पेस्ट कर सकते हैं, और एक बटन जो पिकर माँगता है — लेबल की अपनी पंक्ति, सहायता या त्रुटि टेक्स्ट के बिना। उस पंक्ति या कॉलम के लिए जो रंग का नाम पहले से देता है, या उस फ़ील्ड के भीतर जिसे प्रॉडक्ट ख़ुद जोड़कर बनाता है।
 translationOf: components/color-input.mdx
-sourceHash: 0999afc891925277301cd2b28ed9cdb4fb54d9d0
+sourceHash: 6772f35648fcde26199cef0472d7caf5c6ff72c3
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -16,7 +16,7 @@ import Example from '../../../../components/visuals/Example.astro';
 <ComponentAvailability name="color-input" />
 
 <Example label="अकेला इनपुट: टोन की एक लिस्ट की पंक्तियाँ, जिनमें हर इनपुट को नाम उसकी पंक्ति देती है" column>
-  <div class="not-content" style="display: grid; grid-template-columns: auto 14rem; align-items: center; gap: 0.5rem 0.75rem; font: var(--tanrei-sys-typescale-body-font); color: var(--tanrei-sys-color-on-surface)">
+  <div class="not-content tanrei-text-body" style="display: grid; grid-template-columns: auto 14rem; align-items: center; gap: 0.5rem 0.75rem; color: var(--tanrei-sys-color-on-surface)">
     <span>टोन 40</span>
     <tanrei-color-input label="प्राइमरी, टोन 40" value="#0f766e" picker picker-label="प्राइमरी, टोन 40 का रंग चुनें"></tanrei-color-input>
     <span>टोन 80</span>
