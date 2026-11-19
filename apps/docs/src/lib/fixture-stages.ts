@@ -1,7 +1,8 @@
 // What the gallery of fixtures does in the browser (components/fixtures/FixtureGallery.astro): drawing each fixture of
 // the page from the web package's document of it when its stage comes near the view (the frame says so,
 // lib/example.ts `whenNear`), and the document's step in script for it; each stage's width handle; its scheme;
-// opening a fixture drawn closed; writing each window's document when the window comes near the view and emptying it
+// opening a fixture drawn closed (from its stage's action, or a modal one from the button in its stage, over the page);
+// writing each window's document when the window comes near the view and emptying it
 // when it is far from it, drawing it again, and its scale where it is wider than the column. A stage is placed and
 // sized by its stylesheet before any of this runs; nothing here moves anything that is already drawn. The frame's own
 // actions — the code, its copy, the direction — are the frame's (lib/example.ts).
@@ -428,28 +429,19 @@ matchMedia('(prefers-color-scheme: dark)').addEventListener('change', followPage
  * was when the press began: a press while it is open is also a press outside it, which closes it before the action
  * hears the press, and leaves it closed.
  *
- * The fixture is answered as a product answers it: a component that leaves its state to the product (the button with
- * menu, which never opens or closes itself) asks with `toggle` (`detail.open`, the value asked for) and `close`, and the
- * attribute is set from them (a press of its trailing half turns it); one that opens and closes itself (the tooltip)
- * reports the same `toggle` after the fact, and setting the attribute to the value it already has changes nothing.
+ * The fixture is answered as a product answers it (`answer`): the button with menu, which never opens or closes itself,
+ * asks with `toggle` and `close` (a press of its trailing half turns it); one that opens and closes itself (the
+ * tooltip) reports the same `toggle` after the fact, and setting the attribute to the value it already has changes
+ * nothing.
  */
 function opener(stage: HTMLElement) {
   const toggle = stage.querySelector<HTMLElement & { selected?: boolean }>('[data-stage-open]');
   const presence = toggle?.dataset.stageOpen;
-  const tag = stage.closest<HTMLElement>('[data-fixture-gallery]')?.dataset.fixtureTag;
-  const element = tag ? stage.querySelector(`[data-fixture-scope] > .stage ${tag}`) : null;
+  const element = presence ? fixtureOf(stage) : null;
   if (!toggle || !presence || !element) return;
   const open = () => element.hasAttribute(presence);
   new MutationObserver(() => toggle.toggleAttribute('selected', open())).observe(element, { attributes: true, attributeFilter: [presence] });
-  // The element's own events only: what its children dispatch (a submenu item's `toggle`, which bubbles) and a native
-  // `toggle` of a popover are not requests of it.
-  element.addEventListener('toggle', (event) => {
-    const asked = event instanceof CustomEvent ? (event.detail as { open?: unknown } | null)?.open : undefined;
-    if (event.target === element && typeof asked === 'boolean') element.toggleAttribute(presence, asked);
-  });
-  element.addEventListener('close', (event) => {
-    if (event.target === element && event instanceof CustomEvent) element.removeAttribute(presence);
-  });
+  answer(element, presence);
   // Heard before the fixture's own listeners, which it adds when it opens: these are added first.
   let openAtPress: boolean | undefined;
   const pressed = (event: Event) => {
@@ -465,6 +457,54 @@ function opener(stage: HTMLElement) {
   });
 }
 
+/** The fixture's element in a stage drawn in the page: the component's element in the stage's canvas. */
+function fixtureOf(stage: HTMLElement): Element | null {
+  const tag = stage.closest<HTMLElement>('[data-fixture-gallery]')?.dataset.fixtureTag;
+  return tag ? stage.querySelector(`[data-fixture-scope] > .stage ${tag}`) : null;
+}
+
+/**
+ * A fixture drawn closed is answered as a product answers it. A component that leaves its state to the product asks
+ * with `toggle` (`detail.open`, the value asked for) and `close`, and the attribute that presents it is set from them;
+ * one that closes itself (a dialog dismissed, a modal drawer's destination chosen) reports `close` after the fact, and
+ * taking away an attribute it has taken away changes nothing. A press on one of its actions (`slot="actions"`: a
+ * dialog's Cancel, a sheet's Apply) closes it, as the product's handler of that action would: no action closes its
+ * component by itself.
+ */
+function answer(element: Element, presence: string) {
+  // The element's own events only: what its children dispatch (a submenu item's `toggle`, which bubbles) and a native
+  // `toggle` of a popover are not requests of it.
+  element.addEventListener('toggle', (event) => {
+    const asked = event instanceof CustomEvent ? (event.detail as { open?: unknown } | null)?.open : undefined;
+    if (event.target === element && typeof asked === 'boolean') element.toggleAttribute(presence, asked);
+  });
+  element.addEventListener('close', (event) => {
+    if (event.target === element) element.removeAttribute(presence);
+  });
+  element.addEventListener('click', (event) => {
+    const action = event.composedPath().find((node) => node instanceof Element && node.parentElement === element && node.getAttribute('slot') === 'actions');
+    if (action && !(action as Element & { disabled?: boolean }).disabled) element.removeAttribute(presence);
+  });
+}
+
+/**
+ * A modal fixture's button: it opens the fixture on the page, in the page's top layer over everything else, as a
+ * product's trigger does. Focus is on the button as it opens (a press does not focus a button in WebKit, as in Safari),
+ * so that the fixture — which gives focus back where it was when it closes — gives it back to the button. Nothing else
+ * opens it: a modal fixture is never open before a reader asks for it.
+ */
+function modalOpener(stage: HTMLElement) {
+  const trigger = stage.querySelector<HTMLElement>('[data-stage-trigger]');
+  const presence = trigger?.dataset.stageTrigger;
+  const element = presence ? fixtureOf(stage) : null;
+  if (!trigger || !presence || !element) return;
+  answer(element, presence);
+  trigger.addEventListener('click', () => {
+    trigger.focus();
+    element.setAttribute(presence, '');
+  });
+}
+
 // ── The stages ───────────────────────────────────────────────────────────────────────────────────────────────────────
 
 /**
@@ -473,7 +513,10 @@ function opener(stage: HTMLElement) {
  */
 function actions(stage: HTMLElement, box: HTMLElement) {
   scheme(stage, box);
-  if (stage.dataset.stage === 'opener') opener(stage);
+  if (stage.dataset.stage === 'opener') {
+    if (stage.dataset.stageModal === undefined) opener(stage);
+    else modalOpener(stage);
+  }
   stage.querySelector('[data-stage-redraw]')?.addEventListener('click', () => {
     const win = windows.get(box.querySelector('.docs-window') ?? box);
     if (win) writeWindow(win, true);

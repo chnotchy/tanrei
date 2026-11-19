@@ -109,11 +109,11 @@ for (const engine of ENGINES) {
     }
 
     test('a window’s document keeps the page’s policy: its module runs, and an inline script is refused', LIMIT, async () => {
-      const { page, refused } = await open('/components/dialog/');
+      const { page, refused } = await open('/components/app-shell/');
       try {
         const frame = page.locator('iframe.docs-window-frame').first();
         await frame.scrollIntoViewIfNeeded();
-        await page.waitForFunction((element) => element.contentWindow?.customElements.get('tanrei-dialog') && element.contentDocument.querySelector('body > .stages > .stage'), await frame.elementHandle(), { timeout: 15_000 });
+        await page.waitForFunction((element) => element.contentWindow?.customElements.get('tanrei-app-shell') && element.contentDocument.querySelector('body > .stages > .stage'), await frame.elementHandle(), { timeout: 15_000 });
         assert.deepEqual(refused, [], 'the window draws without a violation');
         const ran = await frame.evaluate(async (element) => {
           const view = element.contentWindow;
