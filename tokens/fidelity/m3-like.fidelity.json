@@ -5,7 +5,7 @@
     "reference/material-web.json",
     "reference/androidx-material3.json"
   ],
-  "scope": "Every color role and every text style material-web publishes, and Button (five variants) at its single size (40px = Tanrei's small); from androidx, the five button sizes, the five icon button sizes (height, spaces, icon size, outline width, shape) and the loading indicator.",
+  "scope": "Every color role and every text style material-web publishes, and Button (five variants) at its single size (40px, Material's default, = Tanrei's medium); from androidx, the five button sizes, the five icon button sizes (height, spaces, icon size, outline width, shape) and the loading indicator.",
   "colors": {
     "$comment": "md.sys.color.<role> is compared with tanrei.sys.color.<role> in light and dark. `rename` lists roles whose Tanrei name differs.",
     "rename": {},
@@ -45,13 +45,13 @@
   },
   "sizes": [
     {
-      "$comment": "Button, at each of the five sizes.",
+      "$comment": "Button, at each of the five sizes, mapped by role: Material's small (40dp) is the size a button takes by default, as Tanrei's medium is, so its extra small, small and medium are Tanrei's small, medium and large, and its large and extra large are the two sizes m3-like adds above them.",
       "objects": {
-        "ButtonXSmallTokens": "xsmall",
-        "ButtonSmallTokens": "small",
-        "ButtonMediumTokens": "medium",
-        "ButtonLargeTokens": "large",
-        "ButtonXLargeTokens": "xlarge"
+        "ButtonXSmallTokens": "small",
+        "ButtonSmallTokens": "medium",
+        "ButtonMediumTokens": "large",
+        "ButtonLargeTokens": "xlarge",
+        "ButtonXLargeTokens": "xxlarge"
       },
       "map": [
         {
@@ -106,11 +106,11 @@
     {
       "$comment": "The icon button (Tanrei's icon-only Button) at each of the five sizes. Its default width is its height: the default space on each side of the glyph, twice, plus the glyph. Narrow is the glyph and padding-inline-narrow on each side; wide is container.width-wide.",
       "objects": {
-        "XSmallIconButtonTokens": "xsmall",
-        "SmallIconButtonTokens": "small",
-        "MediumIconButtonTokens": "medium",
-        "LargeIconButtonTokens": "large",
-        "XLargeIconButtonTokens": "xlarge"
+        "XSmallIconButtonTokens": "small",
+        "SmallIconButtonTokens": "medium",
+        "MediumIconButtonTokens": "large",
+        "LargeIconButtonTokens": "xlarge",
+        "XLargeIconButtonTokens": "xxlarge"
       },
       "map": [
         {
@@ -250,7 +250,7 @@
     },
     {
       "ref": "container-height",
-      "tanrei": "tanrei.comp.button.container.height.small"
+      "tanrei": "tanrei.comp.button.container.height.medium"
     },
     {
       "ref": "container-shape",
@@ -309,7 +309,7 @@
     },
     {
       "ref": "outline-width",
-      "tanrei": "tanrei.comp.button.outline.width.small"
+      "tanrei": "tanrei.comp.button.outline.width.medium"
     },
     {
       "ref": "{state}-outline-color",
@@ -322,27 +322,27 @@
     },
     {
       "ref": "label-text-font",
-      "tanrei": "tanrei.comp.button.label.typescale.small",
+      "tanrei": "tanrei.comp.button.label.typescale.medium",
       "field": "fontFamily"
     },
     {
       "ref": "label-text-size",
-      "tanrei": "tanrei.comp.button.label.typescale.small",
+      "tanrei": "tanrei.comp.button.label.typescale.medium",
       "field": "fontSize"
     },
     {
       "ref": "label-text-line-height",
-      "tanrei": "tanrei.comp.button.label.typescale.small",
+      "tanrei": "tanrei.comp.button.label.typescale.medium",
       "field": "lineHeight"
     },
     {
       "ref": "label-text-tracking",
-      "tanrei": "tanrei.comp.button.label.typescale.small",
+      "tanrei": "tanrei.comp.button.label.typescale.medium",
       "field": "letterSpacing"
     },
     {
       "ref": "label-text-weight",
-      "tanrei": "tanrei.comp.button.label.typescale.small",
+      "tanrei": "tanrei.comp.button.label.typescale.medium",
       "field": "fontWeight"
     },
     {
@@ -367,8 +367,8 @@
   ],
   "unmapped": [],
   "evidence": {
-    "tanrei.comp.button.size.xsmall": "androidx.ButtonXSmallTokens",
-    "tanrei.comp.button.size.xlarge": "androidx.ButtonXLargeTokens",
+    "tanrei.comp.button.size.xlarge": "androidx.ButtonLargeTokens",
+    "tanrei.comp.button.size.xxlarge": "androidx.ButtonXLargeTokens",
     "tanrei.comp.fab-menu": "androidx.FabMenuBaselineTokens"
   }
 }
