@@ -57,14 +57,19 @@ export interface Stage {
   presented?: boolean;
   /** For an opener: the attribute of its element that presents it (`open`), which the stage's action sets. */
   presence?: string;
-  /** For an opener: it is modal, and opened by a button in its stage, which holds the room of its baseline's window. */
+  /** For an opener: it is modal, and opened by a button in its stage, under the picture of it open. */
   modal?: boolean;
+  /**
+   * For a modal opener with a baseline: the picture its stage shows of it open — its baseline, made smaller — at its
+   * address on the site and the size it is drawn at, in CSS pixels.
+   */
+  picture?: Size & { src: string };
   /** The fixture as a product writes it, for the copy action: what the document's stage holds. */
   markup?: string;
   /**
-   * For a stage drawn in the page: the room it holds before it is drawn — the size of its baseline, where it has one. A
-   * modal opener's stage holds it whether its fixture is open or not: the window its baseline was taken in (else the
-   * one the web harness draws it in).
+   * For a stage drawn in the page: the room it holds before it is drawn — the size of its baseline, where it has one.
+   * For a modal opener, the window its baseline was taken in (else the one the web harness draws it in), which its
+   * caption names.
    */
   reserve?: Size;
 }
@@ -141,6 +146,19 @@ export function windowOf(spec: Spec, fixture: Fixture): Size {
  * this is the room the fixture itself takes (the state matrix's cells hold it, lib/visuals/states.ts).
  */
 export const HARNESS_STAGE_PADDING = 16;
+
+/**
+ * How large a modal fixture's picture is drawn, against the window its baseline was taken in: half of it, so that the
+ * widest of those windows (800) is a picture that a phone's column holds whole, and a stage shows the fixture as a
+ * sample of its look beside its trigger rather than a window's room.
+ */
+export const PICTURE_SCALE = 0.5;
+
+/**
+ * The address of a modal fixture's picture: its baseline (packages/web/snapshots/<component>/<id>.png, taken in the
+ * light scheme under the default system), made smaller where the site is built (pages/fixture-pictures/).
+ */
+export const picturePath = (component: string, id: string) => `/fixture-pictures/${component}/${id}.webp`;
 
 /** A prop's value as the caption shows it: a long text is cut after its first words (the copied markup holds all of it). */
 const LONGEST = 40;
@@ -251,8 +269,12 @@ export function stageOf(spec: Spec, fixture: Fixture): Stage {
   }
   if (kind === 'opener' || kind === 'modal') {
     const presence = presenceOf(spec)!.name;
-    const opener = { ...base, drawn: true, kind: 'opener' as const, html: closed(spec, stage.html, presence), presence, markup };
-    return kind === 'modal' ? { ...opener, modal: true, reserve: size ?? windowOf(spec, fixture) } : { ...opener, reserve: size };
+    // Its stage draws it closed, and opens it: the props are those it opens with, less the one that opens it.
+    const facts = base.facts.filter((fact) => !fact.startsWith(`${presence}: `));
+    const opener = { ...base, facts, drawn: true, kind: 'opener' as const, html: closed(spec, stage.html, presence), presence, markup };
+    if (kind !== 'modal') return { ...opener, reserve: size };
+    const picture = size && { src: picturePath(spec.name, fixture.id), width: Math.round(size.width * PICTURE_SCALE), height: Math.round(size.height * PICTURE_SCALE) };
+    return { ...opener, modal: true, reserve: size ?? windowOf(spec, fixture), ...(picture ? { picture } : {}) };
   }
   return { ...base, drawn: true, kind, html: stage.html, markup, reserve: size };
 }

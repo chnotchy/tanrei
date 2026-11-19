@@ -2,8 +2,8 @@
 // as a product opens them, in each engine. A modal one (a dialog, a modal layer, an image preview, a modal picker, a
 // modal sheet or drawer) is opened by the button in its stage: it opens modally, focus goes into it, and Escape — or an
 // action, as a product's handler closes it — closes it and gives focus back to the button. Nothing opens as the reader
-// scrolls: the stages are closed, the page is not inert, and neither its focus nor its scroll moves. A stage holds the
-// room of the window its fixture's baseline was taken in, open or closed. What opens is drawn in the stage's scheme and
+// scrolls: the stages are closed, the page is not inert, and neither its focus nor its scroll moves. A stage shows the
+// fixture's picture open — its baseline, half the size of its window — above the button. What opens is drawn in the stage's scheme and
 // the page's text (a modal layer's content, which it does not style, is not set in the browser's serif); axe finds
 // nothing in the gallery, closed or open. One whose surface stands beside its anchor (a tooltip, a button's menu, a
 // compact popover) is opened and closed by its stage's action, and the action shows whether it is open.
@@ -143,7 +143,7 @@ for (const engine of engines('chromium,firefox,webkit')) {
         assert.equal(await page.locator(stage('basic')).getByRole('button', { name: 'Open basic', exact: true }).count(), 1);
 
         // Scrolled through stage by stage, with the reader's focus on something of the page: nothing opens, the page
-        // keeps its scroll and its focus, and every stage holds the room of its baseline's window.
+        // keeps its scroll and its focus, and every stage shows the picture of its fixture open.
         await page.evaluate(() => {
           const probe = Object.assign(document.createElement('button'), { id: 'probe', textContent: 'Probe' });
           probe.style.cssText = 'position: fixed; inset-block-start: 0; inset-inline-start: 0';
@@ -157,11 +157,19 @@ for (const engine of engines('chromium,firefox,webkit')) {
           // Once it is drawn and defined: a fixture that opened as it was drawn would move the page's focus and scroll.
           const at = await page.evaluate(() => scrollY);
           await settlePage(page, { fonts: false });
+          // Its picture has loaded, from the site.
+          await page.waitForFunction((selector) => document.querySelector(`${selector} .docs-stage-picture`)?.complete, stage(id), { timeout: 10_000 }).catch(() => {});
           const now = await page.evaluate(
             ([selector, args]) => {
-              const room = document.querySelector(`${selector} .docs-stage-room`);
-              const box = room?.getBoundingClientRect();
-              return { y: scrollY, focus: document.activeElement?.id, state: window.__modalState(args), room: box ? [box.width, box.height] : null, wanted: room ? [Number(room.style.getPropertyValue('--docs-room-width')), Number(room.style.getPropertyValue('--docs-room-height'))] : null, inert: document.querySelector('main')?.closest('[inert]') !== null };
+              const picture = document.querySelector(`${selector} .docs-stage-picture`);
+              const box = picture?.getBoundingClientRect();
+              return {
+                y: scrollY,
+                focus: document.activeElement?.id,
+                state: window.__modalState(args),
+                picture: picture ? { drawn: [box.width, box.height], wanted: [picture.width, picture.height], loaded: picture.complete && picture.naturalWidth > 0, natural: picture.naturalWidth, src: picture.getAttribute('src') } : null,
+                inert: document.querySelector('main')?.closest('[inert]') !== null,
+              };
             },
             [stage(id), [stage(id), 'tanrei-dialog']],
           );
@@ -169,16 +177,23 @@ for (const engine of engines('chromium,firefox,webkit')) {
           if (now.focus !== 'probe') moved.push(`${id}: the focus moved to ${now.focus}`);
           if (now.state.open || now.state.modal) moved.push(`${id}: it opened by itself`);
           if (now.inert) moved.push(`${id}: the page is inert`);
-          if (!now.room || !now.wanted || Math.abs(now.room[0] - now.wanted[0]) > 1 || Math.abs(now.room[1] - now.wanted[1]) > 1) moved.push(`${id}: its stage holds ${now.room?.map(Math.round).join(' × ')}, not the room of its window, ${now.wanted?.join(' × ')}`);
+          const { picture } = now;
+          if (!picture) moved.push(`${id}: its stage shows no picture of it`);
+          else {
+            if (!picture.loaded) moved.push(`${id}: its picture ${picture.src} did not load`);
+            // Half its window, drawn at twice that for the device pixel ratio the baselines are taken at.
+            else if (picture.natural !== picture.wanted[0] * 2) moved.push(`${id}: its picture is ${picture.natural} wide, not twice ${picture.wanted[0]}`);
+            if (Math.abs(picture.drawn[0] - picture.wanted[0]) > 1 || Math.abs(picture.drawn[1] - picture.wanted[1]) > 1) moved.push(`${id}: its picture is drawn ${picture.drawn.map(Math.round).join(' × ')}, not ${picture.wanted.join(' × ')}`);
+          }
         }
         assert.deepEqual(moved, []);
 
-        // Each opens from its button, takes focus, and closes on Escape, giving focus back to the button; its room is as it was.
+        // Each opens from its button, takes focus, and closes on Escape, giving focus back to the button; its stage is as it was.
         for (const [id] of ids) {
-          const before = await page.locator(`${stage(id)} .docs-stage-room`).boundingBox();
+          const before = await page.locator(`${stage(id)} .docs-stage-box`).boundingBox();
           await openAndEscape(page, id, 'tanrei-dialog');
-          const after = await page.locator(`${stage(id)} .docs-stage-room`).boundingBox();
-          assert.ok(Math.abs(before.height - after.height) <= 1 && Math.abs(before.width - after.width) <= 1, `${id}: its room was ${before.width} × ${before.height} and is ${after.width} × ${after.height}`);
+          const after = await page.locator(`${stage(id)} .docs-stage-box`).boundingBox();
+          assert.ok(Math.abs(before.height - after.height) <= 1 && Math.abs(before.width - after.width) <= 1, `${id}: its stage was ${before.width} × ${before.height} and is ${after.width} × ${after.height}`);
         }
 
         // An action closes it, as a product's handler does, and focus goes back to the button.
@@ -249,6 +264,48 @@ for (const engine of engines('chromium,firefox,webkit')) {
         await page.locator(`${stage('basic')} [data-stage-trigger]`).click();
         await expect(page, 'basic', 'tanrei-dialog', 'its button was pressed', { open: true, modal: true, focus: 'in it' });
         assert.deepEqual(said(await new AxeBuilder({ page }).include(`${stage('basic')} tanrei-dialog`).analyze()), [], 'axe: the open dialog');
+      } finally {
+        await context.close();
+      }
+    });
+
+    // A stage's own actions in its header — its scheme, an opener's action, a window's redraw — are icon-only Buttons:
+    // each icon is the icon set's glyph, drawn from its ligature in the icon slot, and not the ligature's word set as
+    // the button's label. It was written after every stage's scheme switch read "dark_mode" on every component page:
+    // the gallery's markup lost the `slot` of each icon on its way into the frame's actions.
+    test('a stage’s actions draw their icons as glyphs, not as the words of their ligatures', LIMIT, async () => {
+      const { context, page } = await openPage(engine);
+      try {
+        const drawn = [];
+        for (const [pathname, id, selector] of [
+          ['/components/button/', 'filled-medium', '[data-stage-theme]'],
+          ['/components/tooltip/', 'plain', '[data-stage-open]'],
+          ['/components/app-shell/', 'compact', '[data-stage-redraw]'],
+        ]) {
+          await page.goto(`${origin}${pathname}`, { waitUntil: 'load' });
+          const action = page.locator(`${stage(id)} ${selector}`);
+          await page.locator(stage(id)).scrollIntoViewIfNeeded();
+          await action.waitFor();
+          await page.waitForFunction(() => customElements.get('tanrei-button'));
+          await settlePage(page);
+          drawn.push(
+            await action.evaluate((button, where) => {
+              const icon = button.querySelector(':scope > span');
+              const word = icon?.textContent.trim() ?? '';
+              // The word in the page's text, as it would read were it a label: what a glyph is drawn in place of.
+              const probe = Object.assign(document.createElement('span'), { textContent: word });
+              probe.style.cssText = 'position: absolute; white-space: nowrap; font: inherit';
+              button.after(probe);
+              const asWord = probe.getBoundingClientRect().width;
+              probe.remove();
+              const box = icon?.getBoundingClientRect();
+              return { where, word, slot: icon?.slot ?? null, glyph: box ? Math.round(box.width) : null, height: box ? Math.round(box.height) : null, asWord: Math.round(asWord), button: Math.round(button.getBoundingClientRect().width) };
+            }, `${pathname} ${id}`),
+          );
+        }
+        // A glyph is about as wide as it is tall, far narrower than its ligature's word; the button is as wide as it is high.
+        const wrong = drawn.filter(({ slot, glyph, height, asWord }) => slot !== 'icon' || !(glyph > 0) || glyph > height * 1.25 || glyph > asWord / 2);
+        assert.deepEqual(wrong, [], JSON.stringify(drawn));
       } finally {
         await context.close();
       }

@@ -110,6 +110,18 @@ describe('the gallery of fixtures', () => {
     assert.deepEqual([dialog.kind, dialog.modal, dialog.presence], ['opener', true, 'open']);
     assert.doesNotMatch(dialog.html, /<tanrei-dialog[^>]*\sopen[\s>]/);
     assert.deepEqual(dialog.reserve, fixtureDocument('dialog').sizes.basic);
+    // Its stage shows its baseline, half the size of the window it was taken in, as a picture of the site's.
+    assert.deepEqual(dialog.picture, { src: '/fixture-pictures/dialog/basic.webp', width: 320, height: 320 });
+    // An opener's caption gives the props it opens with, and not the one that opens it.
+    for (const stage of [tooltip, dialog]) assert.ok(!stage.facts.some((fact) => fact.startsWith('open: ')), stage.facts.join(', '));
+    assert.ok(dialog.facts.some((fact) => fact.startsWith('headline: ')));
+    // Every modal opener with a baseline has its picture, and nothing else has one.
+    for (const spec of implemented) {
+      for (const stage of galleryOf(spec).flatMap((group) => group.stages)) {
+        const baseline = fixtureDocument(spec.name).sizes[stage.id];
+        assert.equal(Boolean(stage.picture), Boolean(stage.modal && baseline), `${spec.name}/${stage.id}`);
+      }
+    }
   });
 
   test('a window without a baseline is the one the web harness draws the fixture in', () => {
