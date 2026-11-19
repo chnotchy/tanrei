@@ -540,7 +540,7 @@ export class TanreiDialog extends TanreiElement {
     holdPageScroll(this, false);
     window.visualViewport?.removeEventListener('resize', this.onViewport);
     // DLG-13: no longer modal at once — the page and focus are given back now — and drawn in the top layer until its
-    // exit and its scrim's have played (closeModal), in every engine.
+    // exit has played, its scrim gone from the first frame (closeModal, MOT-7), in every engine.
     if (dialog) void closeModal(dialog);
     void this.appear.exit(!this.isConnected);
     const opener = this.opener as HTMLElement | null;
