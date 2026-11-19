@@ -298,8 +298,9 @@ const IMPORT = /\b(?:import|export)\s*(?:type\s+)?([\w$*\s{},]*?)\s*from\s*(['"]
 
 const indexes = new WeakMap();
 /**
- * Every element of the catalog with the components it is: a component's own element is that component's alone; an
- * element a component draws among its children (`web.items`) is the components' that draw it. And the same by React
+ * Every element of the catalog with the components it is: a component's own element is that component's alone; any
+ * other element of a component (`web.items`: one it draws among its children, or one its module defines beside it, as
+ * the snackbar's host) is the components' it belongs to. And the same by React
  * name: React wraps every element under the PascalCase of its name without the prefix (packages/react/scripts/generate.js).
  */
 export function elementIndex(catalog) {

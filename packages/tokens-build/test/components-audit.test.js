@@ -65,3 +65,11 @@ test('a static variant in every way markup writes one, and none that a template 
   ].join('\n');
   assert.deepEqual(found(text, 'a.html'), ['1:20 variant', '2:20 variant', '3:20 variant']);
 });
+
+test('an element a component’s module defines beside it is that component’s, not an element Tanrei does not have', () => {
+  // The snackbar's host queues and places snackbars; the avatar's group holds avatars. Neither is a component of its
+  // own, and the default system ships both components.
+  const text = `<${P}-snackbar-host placement="bottom"></${P}-snackbar-host>\n<${P}-avatar-group label="Team"></${P}-avatar-group>\n<${P}-snackbar-hosts></${P}-snackbar-hosts>`;
+  const findings = auditText(context, text, { file: 'a.html' });
+  assert.deepEqual(findings.map((f) => `${f.line} ${f.problem}`), [`3 Tanrei has no element <${P}-snackbar-hosts>`]);
+});

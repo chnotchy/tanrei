@@ -52,6 +52,15 @@ test('the catalog names the elements a component draws among its children, and n
   for (const component of catalog.components) for (const tag of component.web?.items ?? []) assert.equal(own.has(tag), false, `${component.name}: <${tag}> is a component's own element`);
 });
 
+test('every element the web package defines is in the catalog: a component’s own, or another of a component — one its module defines beside it, as the snackbar’s host', () => {
+  const byName = new Map(catalog.components.map((component) => [component.name, component]));
+  assert.deepEqual(byName.get('snackbar').web.items, [`${CONFIG.web.tagPrefix}-snackbar-host`]);
+  assert.deepEqual(byName.get('avatar').web.items, [`${CONFIG.web.tagPrefix}-avatar-group`]);
+  const known = new Set(catalog.components.flatMap((component) => [component.web?.tag, ...(component.web?.items ?? [])]).filter(Boolean));
+  const defined = JSON.parse(fs.readFileSync(path.join(REPO_ROOT, 'packages/web/custom-elements.json'), 'utf8')).modules.flatMap((module) => (module.declarations ?? []).filter((each) => each.customElement && each.tagName).map((each) => each.tagName));
+  assert.deepEqual(defined.filter((tag) => !known.has(tag)), [], 'an element the catalog does not know is one `tanrei audit` says Tanrei does not have');
+});
+
 test('the default system lists neither the FAB menu nor the segmented button, and says why and what to use', () => {
   const tanrei = committed(DEFAULT_SYSTEM);
   assert.equal(tanrei.system, DEFAULT_SYSTEM);
