@@ -314,9 +314,9 @@ One size's group (`TanreiButtonSizeTokens`) holds everything that varies with si
 paddings, `labelTypescale`, `iconSize`, and — since they joined the size axis — `containerGap` and `outlineWidth`
 (the former flat `button.containerGap` / `button.outlineWidth` are gone; the default system keeps 8 and 1 at every size).
 
-The `m3-like` preset uses all of this: it adds the sizes `xsmall` and `xlarge` and revalues the five
-(`TanreiButtonSize.Xlarge` → 136dp tall, 16dp gap, 3dp outline). Its accessors come from its generated file:
-`import io.github.chnotchy.tanrei.tokens.Xlarge`. A shipped system's file declares accessors only for what that
+The `m3-like` preset uses all of this: it adds the sizes `xlarge` and `xxlarge` and revalues the five
+(`TanreiButtonSize.Xxlarge` → 136dp tall, 16dp gap, 3dp outline). Its accessors come from its generated file:
+`import io.github.chnotchy.tanrei.tokens.Xxlarge`. A shipped system's file declares accessors only for what that
 system added (`declaredBy`).
 
 ```kotlin

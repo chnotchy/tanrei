@@ -181,8 +181,8 @@ test('list_systems: the shipped systems, and a product’s chain', async () => {
   const declared = Object.keys(shippedLayer('m3-like').vocabulary).length;
   assert.deepEqual([m3.extensions.total, m3.extensions.byKind], [declared, { 'axis-value': 2, component: 1, token: declared - 3 }]);
   assert.deepEqual(m3.extensions.first.slice(0, 3), [
-    { id: 'tanrei.comp.button.size.xsmall', kind: 'axis-value', declaredBy: 'm3-like' },
     { id: 'tanrei.comp.button.size.xlarge', kind: 'axis-value', declaredBy: 'm3-like' },
+    { id: 'tanrei.comp.button.size.xxlarge', kind: 'axis-value', declaredBy: 'm3-like' },
     { id: 'tanrei.comp.fab-menu', kind: 'component', declaredBy: 'm3-like' },
   ]);
   assert.ok(m3.extensions.first.slice(3).every((e) => e.declaredBy === 'm3-like' && /^tanrei\.sys\.(color|typescale)\./.test(e.id)), 'Material’s extra color roles, and its two extra display sizes');
@@ -310,10 +310,10 @@ test('resolve: value, where it comes from, and the CSS custom property', async (
   assert.equal((await server.call('resolve', { token: 'tanrei.ref.palette.neutral.10' })).data.tokens[0].rule.exact, undefined, 'generated from the seed');
 
   // A preset's extensions resolve like a product's: m3-like's two sizes, each member valued by the preset.
-  const sized = (await server.call('resolve', { tokens: ['tanrei.comp.button.container.height.xsmall', 'tanrei.comp.button.container.height.xlarge', 'tanrei.comp.button.outline.width.xlarge', 'tanrei.comp.button.container.gap.xlarge'], system: 'm3-like' })).data;
+  const sized = (await server.call('resolve', { tokens: ['tanrei.comp.button.container.height.xlarge', 'tanrei.comp.button.container.height.xxlarge', 'tanrei.comp.button.outline.width.xxlarge', 'tanrei.comp.button.container.gap.xxlarge'], system: 'm3-like' })).data;
   assert.deepEqual(sized.chain, ['core', 'm3-like']);
-  assert.deepEqual(sized.tokens.map((t) => [t.value, t.extension, t.declaredBy, t.setBy]), [['32px', true, 'm3-like', 'm3-like'], ['136px', true, 'm3-like', 'm3-like'], ['3px', true, 'm3-like', 'm3-like'], ['16px', true, 'm3-like', 'm3-like']]);
-  assert.equal((await server.call('resolve', { token: 'tanrei.comp.button.container.height.xlarge', system: 'cupertino' })).data.tokens[0].error.includes('not in system "cupertino"'), true, 'and exist only where they are declared');
+  assert.deepEqual(sized.tokens.map((t) => [t.value, t.extension, t.declaredBy, t.setBy]), [['96px', true, 'm3-like', 'm3-like'], ['136px', true, 'm3-like', 'm3-like'], ['3px', true, 'm3-like', 'm3-like'], ['16px', true, 'm3-like', 'm3-like']]);
+  assert.equal((await server.call('resolve', { token: 'tanrei.comp.button.container.height.xxlarge', system: 'cupertino' })).data.tokens[0].error.includes('not in system "cupertino"'), true, 'and exist only where they are declared');
 
   // A product's layer: the dial it set, and what follows from it.
   const acmeTokens = (await server.call('resolve', { tokens: ['tanrei.dial.type.base', 'tanrei.sys.typescale.body-large', 'tanrei.comp.button.container.padding-inline-start.medium'], layerFile: acmeFile })).data.tokens;

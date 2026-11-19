@@ -2925,7 +2925,7 @@ theme.paint(acmeTokens.comp.rating.star.color);                   // own colors 
   declaring module through the entry point's `export type *` (checked with TypeScript 5.4, 6.0 and 7.0
   against the built package). A system file of this repository augments `'../vocabulary'` instead; shipped
   presets that extend the vocabulary do so (`m3-like`: color roles and the Button sizes
-  `xsmall` and `xlarge`), and their keys are typed only in a program that imports that preset.
+  `xlarge` and `xxlarge`), and their keys are typed only in a program that imports that preset.
 - `vocabulary.ts` ends with a **merge anchor**: an empty `declare module './vocabulary'` that names every open
   interface. It adds nothing; it makes the merge independent of file order. Without it TypeScript (5.4 – 7.0)
   drops a product's augmentation when that file comes before the first preset file that augments the same

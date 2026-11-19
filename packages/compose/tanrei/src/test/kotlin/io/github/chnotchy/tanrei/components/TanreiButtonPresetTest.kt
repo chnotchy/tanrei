@@ -40,10 +40,8 @@ import io.github.chnotchy.tanrei.tokens.TanreiInteractionState
 import io.github.chnotchy.tanrei.tokens.TanreiPaint
 import io.github.chnotchy.tanrei.tokens.TanreiShadowLayer
 import io.github.chnotchy.tanrei.tokens.TanreiSystem
-import io.github.chnotchy.tanrei.tokens.Xlarge
-import io.github.chnotchy.tanrei.tokens.Xsmall
-import io.github.chnotchy.tanrei.tokens.xlarge
-import io.github.chnotchy.tanrei.tokens.xsmall
+import io.github.chnotchy.tanrei.tokens.Xxlarge
+import io.github.chnotchy.tanrei.tokens.xxlarge
 import kotlin.math.abs
 import kotlin.math.sqrt
 import org.junit.Assert.assertEquals
@@ -59,7 +57,7 @@ import org.robolectric.annotation.GraphicsMode
  * The shipped presets drive [TanreiButton] through values alone: the component has no preset-specific
  * code, so everything asserted here is read from the system instance and then found in the pixels.
  * Covers BTN-3 (a state is drawn from that state's tokens) under `m3-like` and `cupertino`, and the sizes
- * `m3-like` adds to the vocabulary (`xsmall`, `xlarge`) together with its per-size gap and outline width.
+ * `m3-like` adds to the vocabulary (`xlarge`, `xxlarge`) together with its per-size gap and outline width.
  */
 @OptIn(ExperimentalTestApi::class)
 @RunWith(AndroidJUnit4::class)
@@ -196,8 +194,8 @@ class TanreiButtonPresetTest {
     // ── m3-like's added sizes: two of them, gap and outline width per size ────
 
     @Test
-    fun `m3-like - xlarge outlined is 136 tall with a 3dp outline and a 16dp gap, read from the system`() {
-        val metrics = m3.button.sizes.xlarge
+    fun `m3-like - xxlarge outlined is 136 tall with a 3dp outline and a 16dp gap, read from the system`() {
+        val metrics = m3.button.sizes.xxlarge
         assertEquals(136.dp, metrics.containerHeight)
         assertEquals(3.dp, metrics.outlineWidth)
         assertEquals(16.dp, metrics.containerGap)
@@ -207,13 +205,13 @@ class TanreiButtonPresetTest {
         rule.setContent {
             TanreiTheme(system = m3, theme = TanreiThemeMode.Light, contrast = TanreiContrast.Standard) {
                 Column(Modifier.testTag(STAGE).background(TanreiColorRole.Surface.color).padding(TanreiTheme.tokens.space.space200)) {
-                    TanreiButton(text = LABEL, onClick = {}, modifier = Modifier.testTag(TAG), variant = TanreiButtonVariant.Outlined, size = TanreiButtonSize.Xlarge)
+                    TanreiButton(text = LABEL, onClick = {}, modifier = Modifier.testTag(TAG), variant = TanreiButtonVariant.Outlined, size = TanreiButtonSize.Xxlarge)
                     TanreiButton(
                         text = LABEL,
                         onClick = {},
                         modifier = Modifier.testTag(ICON_TAG),
                         variant = TanreiButtonVariant.Outlined,
-                        size = TanreiButtonSize.Xlarge,
+                        size = TanreiButtonSize.Xxlarge,
                         icon = { Box(Modifier.size(metrics.iconSize)) },
                     )
                 }
@@ -244,10 +242,10 @@ class TanreiButtonPresetTest {
     }
 
     @Test
-    fun `m3-like - xsmall is 32 tall inside the touch target`() {
-        val metrics = m3.button.sizes.xsmall
+    fun `m3-like - small is 32 tall inside the touch target, Material 3's extra small`() {
+        val metrics = m3.button.sizes.small
         assertEquals(32.dp, metrics.containerHeight)
-        setButton(m3, size = TanreiButtonSize.Xsmall)
+        setButton(m3, size = TanreiButtonSize.Small)
 
         val colors = m3.colors.light
         val container = m3.button.variants.filled.enabled.containerColor.resolve(colors)

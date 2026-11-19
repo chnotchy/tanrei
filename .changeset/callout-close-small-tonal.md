@@ -27,7 +27,7 @@ else.
   Button's tokens instead.
 - New token: `comp.callout.close-button.variant` (tonal). `m3-like` and `cupertino` set
   it to text, keeping the bare glyph they drew. The close button now takes each system's small Button size: 28 under
-  `cupertino` and 40 under `m3-like`, where it was 32, and its glyph the small Button's.
+  `cupertino`, and 32 under `m3-like` as it was, and its glyph the small Button's.
 - `cupertino` sets the hover and focus state-layer opacities to 0, as its rules already kept every container at rest;
   a Button on a colored surface and a carousel item over its image now draw no hover or focus layer there either. Its
   open menu bar title keeps its fill.
