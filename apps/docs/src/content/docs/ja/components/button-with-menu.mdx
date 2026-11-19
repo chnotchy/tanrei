@@ -2,7 +2,7 @@
 title: メニュー付きボタン
 description: 主なアクションを 1 回の押下で実行し、関連するアクションは、隣につながったもう 1 つのボタンから開くメニューで示します。
 translationOf: components/button-with-menu.mdx
-sourceHash: fc9fa1614058622bad95aa4f9dbc578e3c4dc196
+sourceHash: 47ec0e350aae6acb1cf1aa3da68162409befa062
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -283,6 +283,17 @@ Material 3 では、対応するコンポーネントを split button と呼び�
 </Example>
 
 細いメニュー側の半分は、見た目は最小ターゲットより狭くなりますが、ヒット領域は狭くなりません。ターゲットは外側へ、末尾側の端を越えて届きます。narrow のアイコンだけのボタンの横と同じように、そこに余裕を取ってください。
+
+### 全幅
+
+`full-width` を指定すると、メニュー付きボタンはコンテナと同じ幅になります。幅の狭いフォーム、カード、シートの末尾に置く 1 つだけのアクションなどに使います。増えた幅は主アクション側の半分が受け取り、全幅の[ボタン](/ja/components/button/#全幅)と同じように、アイコンとラベルをその中央に置きます。メニュー側の半分は、default でも narrow でも自分の幅のままです。どちらの半分も高さ、パディング、角はそのサイズのままで、収まらないラベルは切り詰められず、折り返します。[ツールバー](/ja/components/toolbar/)の中では幅はツールバーが決めるので、`full-width` は何もしません。
+
+<Example label="全幅">
+  <div style="inline-size: 20rem; display: grid; gap: 0.75rem">
+    <tanrei-button-with-menu full-width label="保存" menu-label="保存のその他のオプション"><span slot="icon">save</span></tanrei-button-with-menu>
+    <tanrei-button-with-menu variant="outlined" full-width trailing-width="narrow" label="マージ" menu-label="マージのその他のオプション"></tanrei-button-with-menu>
+  </div>
+</Example>
 
 ### 破壊的なアクション
 
