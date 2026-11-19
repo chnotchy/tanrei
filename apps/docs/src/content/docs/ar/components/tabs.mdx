@@ -2,7 +2,7 @@
 title: علامات التبويب
 description: تبدّل بين عروض الموضوع الواحد بصف من التبويبات المسمّاة على مسار. تبويب واحد محدَّد، يميّزه مؤشر ينزلق بين التبويبات ويتبع الإصبع المسحوب عبر الصف.
 translationOf: components/tabs.mdx
-sourceHash: 1d912893a46525ec8008c7406cbfb36d66a21d3c
+sourceHash: e850c193856826770af771cf4dd789cd8056abe1
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -30,13 +30,13 @@ import Playground from '../../../../components/visuals/Playground.astro';
     <tanrei-tab value="activity" label="النشاط" icon="history"></tanrei-tab>
     <tanrei-tab value="settings" label="الإعدادات" icon="settings"></tanrei-tab>
     <tanrei-tab-panel value="overview">
-      <p style="font: var(--tanrei-sys-typescale-body-font)">ثلاث خدمات، كلها تعمل.</p>
+      <p class="tanrei-text-body">ثلاث خدمات، كلها تعمل.</p>
     </tanrei-tab-panel>
     <tanrei-tab-panel value="activity">
-      <p style="font: var(--tanrei-sys-typescale-body-font)">نُشر قبل ساعتين.</p>
+      <p class="tanrei-text-body">نُشر قبل ساعتين.</p>
     </tanrei-tab-panel>
     <tanrei-tab-panel value="settings">
-      <p style="font: var(--tanrei-sys-typescale-body-font)">المنطقة والنطاقات وصلاحيات الوصول.</p>
+      <p class="tanrei-text-body">المنطقة والنطاقات وصلاحيات الوصول.</p>
     </tanrei-tab-panel>
   </tanrei-tabs>
 </Example>
@@ -339,16 +339,16 @@ import Playground from '../../../../components/visuals/Playground.astro';
   <tanrei-tabs variant="secondary" group="docs-demo-units" value="metric" label="وحدات المسافة">
     <tanrei-tab value="metric" label="متري"></tanrei-tab>
     <tanrei-tab value="imperial" label="إمبراطوري"></tanrei-tab>
-    <tanrei-tab-panel value="metric"><p style="font: var(--tanrei-sys-typescale-body-font)">طول الماراثون 42.195 كم.</p></tanrei-tab-panel>
-    <tanrei-tab-panel value="imperial"><p style="font: var(--tanrei-sys-typescale-body-font)">طول الماراثون 26.2 ميل.</p></tanrei-tab-panel>
+    <tanrei-tab-panel value="metric"><p class="tanrei-text-body">طول الماراثون 42.195 كم.</p></tanrei-tab-panel>
+    <tanrei-tab-panel value="imperial"><p class="tanrei-text-body">طول الماراثون 26.2 ميل.</p></tanrei-tab-panel>
   </tanrei-tabs>
   <tanrei-tabs variant="secondary" group="docs-demo-units" value="metric" label="وحدات السرعة">
     <tanrei-tab value="metric" label="متري"></tanrei-tab>
     <tanrei-tab value="imperial" label="إمبراطوري"></tanrei-tab>
     <tanrei-tab value="nautical" label="بحري"></tanrei-tab>
-    <tanrei-tab-panel value="metric"><p style="font: var(--tanrei-sys-typescale-body-font)">سرعة المشي السريع 6 كم/س.</p></tanrei-tab-panel>
-    <tanrei-tab-panel value="imperial"><p style="font: var(--tanrei-sys-typescale-body-font)">سرعة المشي السريع 3.7 ميل في الساعة.</p></tanrei-tab-panel>
-    <tanrei-tab-panel value="nautical"><p style="font: var(--tanrei-sys-typescale-body-font)">سرعة المشي السريع 3.2 عقدة.</p></tanrei-tab-panel>
+    <tanrei-tab-panel value="metric"><p class="tanrei-text-body">سرعة المشي السريع 6 كم/س.</p></tanrei-tab-panel>
+    <tanrei-tab-panel value="imperial"><p class="tanrei-text-body">سرعة المشي السريع 3.7 ميل في الساعة.</p></tanrei-tab-panel>
+    <tanrei-tab-panel value="nautical"><p class="tanrei-text-body">سرعة المشي السريع 3.2 عقدة.</p></tanrei-tab-panel>
   </tanrei-tabs>
 </Example>
 
@@ -365,9 +365,9 @@ import Playground from '../../../../components/visuals/Playground.astro';
     <tanrei-tab value="general" label="عام" icon="settings"></tanrei-tab>
     <tanrei-tab value="notifications" label="الإشعارات" icon="notifications"></tanrei-tab>
     <tanrei-tab value="privacy" label="الخصوصية" icon="lock"></tanrei-tab>
-    <tanrei-tab-panel value="general"><p style="font: var(--tanrei-sys-typescale-body-font); margin: 0; padding-inline: var(--tanrei-sys-space-space200)">اللغة والمنطقة وصفحة البداية.</p></tanrei-tab-panel>
-    <tanrei-tab-panel value="notifications"><p style="font: var(--tanrei-sys-typescale-body-font); margin: 0; padding-inline: var(--tanrei-sys-space-space200)">البريد والإشعارات الفورية وملخص أسبوعي.</p></tanrei-tab-panel>
-    <tanrei-tab-panel value="privacy"><p style="font: var(--tanrei-sys-typescale-body-font); margin: 0; padding-inline: var(--tanrei-sys-space-space200)">من يستطيع رؤية ملفك الشخصي.</p></tanrei-tab-panel>
+    <tanrei-tab-panel value="general"><p class="tanrei-text-body" style="margin: 0; padding-inline: var(--tanrei-sys-space-space200)">اللغة والمنطقة وصفحة البداية.</p></tanrei-tab-panel>
+    <tanrei-tab-panel value="notifications"><p class="tanrei-text-body" style="margin: 0; padding-inline: var(--tanrei-sys-space-space200)">البريد والإشعارات الفورية وملخص أسبوعي.</p></tanrei-tab-panel>
+    <tanrei-tab-panel value="privacy"><p class="tanrei-text-body" style="margin: 0; padding-inline: var(--tanrei-sys-space-space200)">من يستطيع رؤية ملفك الشخصي.</p></tanrei-tab-panel>
   </tanrei-tabs>
 </Example>
 

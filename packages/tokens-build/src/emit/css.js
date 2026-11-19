@@ -150,10 +150,13 @@ export function declarations(token, tokens) {
       return [[name, fontFamily(token.value)]];
     case 'shadow':
       return [[name, shadow(token)]];
+    // A role reaches CSS as its longhands only, with no `font` composite: a custom property is resolved where it is
+    // declared, so a composite declared on the root would be the root's whatever an element set below it, and a
+    // product that set it would change nothing that reads the longhands where the text is drawn.
     case 'typography': {
       if (token.alias) {
         const target = idToVar(token.alias);
-        return ['font-family', 'font-size', 'font-weight', 'font-weight-emphasized', 'letter-spacing', 'line-height', 'font'].map((p) => [
+        return ['font-family', 'font-size', 'font-weight', 'font-weight-emphasized', 'letter-spacing', 'line-height'].map((p) => [
           `${name}-${p}`,
           `var(${target}-${p})`,
         ]);
@@ -173,7 +176,6 @@ export function declarations(token, tokens) {
         ...(isRole ? [[`${name}-font-weight-emphasized`, `calc(var(${name}-font-weight) + var(${PREFIX}-sys-typescale-emphasis-${typeFamily(token.path[2])}))`]] : []),
         [`${name}-letter-spacing`, tracking],
         [`${name}-line-height`, String(v.lineHeight)],
-        [`${name}-font`, `${v.fontWeight} var(${name}-font-size)/${v.lineHeight} ${family}`],
       ];
     }
     default:

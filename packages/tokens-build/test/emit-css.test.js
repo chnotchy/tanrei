@@ -5,7 +5,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { test } from 'node:test';
 import { fileURLToPath } from 'node:url';
-import { emitCss } from '../src/emit/css.js';
+import { emitCss, idToVar } from '../src/emit/css.js';
 import { buildIR } from '../src/ir.js';
 import { resolveSystem } from '../src/resolve.js';
 
@@ -127,6 +127,20 @@ test('emphasis is a weight step: every role gets <role>-font-weight-emphasized =
     assert.match(css, /--tanrei-sys-typescale-emphasis-label: \d+;/);
     assert.ok(css.includes('--tanrei-comp-button-label-typescale-medium-font-weight-emphasized: var(--tanrei-sys-typescale-label-font-weight-emphasized);'), system);
     assert.ok(!/--tanrei-sys-typescale-emphasized-/.test(css), `${system}: no emphasized twin roles`);
+  }
+});
+
+test('a type role reaches CSS as its longhands only: no `font` composite, for a role or a component text that aliases one', async () => {
+  for (const system of ['tanrei', 'm3-like', 'cupertino']) {
+    const model = await (await resolveSystem({ system })).model();
+    const css = emitCss(model, system === 'tanrei' ? {} : { scope: system });
+    const typography = Object.values(model.tokens).filter((t) => t.type === 'typography');
+    assert.ok(typography.some((t) => t.alias) && typography.some((t) => !t.alias), system);
+    for (const token of typography) {
+      const name = idToVar(token.id);
+      for (const longhand of ['font-family', 'font-size', 'font-weight', 'line-height', 'letter-spacing']) assert.ok(css.includes(`${name}-${longhand}: `), `${system}: ${name}-${longhand}`);
+      assert.ok(!css.includes(`${name}-font: `), `${system}: ${name}-font is not written`);
+    }
   }
 });
 

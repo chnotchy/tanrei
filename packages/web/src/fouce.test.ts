@@ -388,7 +388,7 @@ test.describe('a page whose elements are defined late', () => {
       // The page before the fixtures' document's (empty) stages: that document's tokens and faces, and no fixture.
       const markup = await fixturesDocument(loadSpec('button'), { fixtures: [], icons: true, lead: `<div id="product">${PRODUCT_PAGE}</div>` });
       const { page: html, scripts } = withoutScripts(markup, cloak);
-      await page.setContent(html.replace('<body>', '<body style="font: var(--tanrei-sys-typescale-body-font); margin: 16px">'));
+      await page.setContent(html.replace('<body>', '<body style="font: var(--tanrei-sys-typescale-body-font-weight) var(--tanrei-sys-typescale-body-font-size)/var(--tanrei-sys-typescale-body-line-height) var(--tanrei-sys-typescale-body-font-family); margin: 16px">'));
       await page.evaluate(() => document.fonts.ready);
       await frames(page, 2);
       const before = await page.evaluate(productPage);

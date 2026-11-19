@@ -2,7 +2,7 @@
 title: Entrada de color
 description: La caja en la que se define un color (una muestra de él, el valor como texto que se puede leer, escribir y pegar, y un botón que pide un selector), sin fila de etiqueta, ayuda ni texto de error propios. Para una fila o una columna que ya da nombre al color, o dentro de un campo que el producto compone por su cuenta.
 translationOf: components/color-input.mdx
-sourceHash: 0999afc891925277301cd2b28ed9cdb4fb54d9d0
+sourceHash: 6772f35648fcde26199cef0472d7caf5c6ff72c3
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -16,7 +16,7 @@ import Example from '../../../../components/visuals/Example.astro';
 <ComponentAvailability name="color-input" />
 
 <Example label="Sin nada más: las filas de una lista de tonos, cada una con el nombre que le da su fila" column>
-  <div class="not-content" style="display: grid; grid-template-columns: auto 14rem; align-items: center; gap: 0.5rem 0.75rem; font: var(--tanrei-sys-typescale-body-font); color: var(--tanrei-sys-color-on-surface)">
+  <div class="not-content tanrei-text-body" style="display: grid; grid-template-columns: auto 14rem; align-items: center; gap: 0.5rem 0.75rem; color: var(--tanrei-sys-color-on-surface)">
     <span>Tono 40</span>
     <tanrei-color-input label="Primario, tono 40" value="#0f766e" picker picker-label="Elegir el color de Primario, tono 40"></tanrei-color-input>
     <span>Tono 80</span>

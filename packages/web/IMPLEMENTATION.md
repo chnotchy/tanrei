@@ -8937,11 +8937,11 @@ than the root while the page runs, and a glyph given as a bare text node in a sl
 ## Text styles (`text.css`, `prose.css`)
 
 `sys.typescale` has sixteen roles by level, each a whole style (`--tanrei-sys-typescale-<role>-{font-family,font-size,
-font-weight,letter-spacing,line-height,font}`; `-font` is the shorthand without the tracking). Every component, and
-`text.css` and `prose.css`, sets its text from the role's longhands, composed into `font` where the text is drawn
-(`src/styles/type.ts`) and never from `-font`: a custom property is resolved where it is declared, and the tokens are
-declared on the root, so `-font` is the root's whatever an element sets below it; and since no component reads it,
-setting `-font` (on the root or below) restyles none: a product sets the longhands. One longhand set on one instance or
+font-weight,letter-spacing,line-height}`, and `-font-weight-emphasized`), with no composite `-font`. Every component,
+and `text.css` and `prose.css`, sets its text from the role's longhands, composed into `font` where the text is drawn
+(`src/styles/type.ts`): a custom property is resolved where it is declared, and the tokens are declared on the root, so
+a composite would be the root's whatever an element set below it, and a product that set it would restyle nothing. A
+product sets the longhands, one at a time. One longhand set on one instance or
 on a section of the page (`--tanrei-comp-button-label-typescale-medium-font-size`) changes that part of the text and
 nothing else (`src/type-longhands.test.ts`); the emphasized weight is a longhand of its own
 (`-font-weight-emphasized`), set beside the weight where emphasized text should follow it:

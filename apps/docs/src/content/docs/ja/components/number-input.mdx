@@ -2,7 +2,7 @@
 title: 数値入力欄
 description: 数値のボックスです。ロケールの書き方で入力するか、キーやボタンで増減でき、範囲の中に保たれ、単位が横に付きます。ラベルの行、補足、エラーテキストは自分では持ちません。ラベルがほかの場所にある数値や、プロダクトが自分で組み立てるフィールドの中で使います。
 translationOf: components/number-input.mdx
-sourceHash: d2d6bd8ae89fdd1c543ff780c061b338242047c6
+sourceHash: ac57790fbda3e373f5cc3274c25acc7cbfd799fc
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -20,7 +20,7 @@ import Example from '../../../../components/visuals/Example.astro';
     <tanrei-slider label="倍率" min="0.25" max="4" step="0.05" value="1.5"></tanrei-slider>
     <tanrei-number-input label="倍率" min="0.25" max="4" step="0.05" value="1.5" suffix-text="×" value-text="1.5 倍" align="end" no-steppers></tanrei-number-input>
   </div>
-  <div class="not-content" style="display: grid; grid-template-columns: auto 10rem; align-items: center; gap: 0.75rem; font: var(--tanrei-sys-typescale-body-font); color: var(--tanrei-sys-color-on-surface)">
+  <div class="not-content tanrei-text-body" style="display: grid; grid-template-columns: auto 10rem; align-items: center; gap: 0.75rem; color: var(--tanrei-sys-color-on-surface)">
     <span>オーク材のデスク</span>
     <tanrei-number-input label="数量、オーク材のデスク" value="2" min="1" max="99" increment-label="増やす" decrement-label="減らす"></tanrei-number-input>
   </div>

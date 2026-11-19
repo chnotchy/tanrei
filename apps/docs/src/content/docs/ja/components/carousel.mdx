@@ -178,7 +178,7 @@ Web と React の例は現在の仕様に沿っています。SwiftUI、Compose�
 
 <Example label="列の並べ方：固定幅、縮小、ループ、ヒーロー寄りのコンテンツ" column>
   <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space100); max-inline-size: 100%">
-    <div style="font: var(--tanrei-sys-typescale-body-font)">固定幅で、スクロールが終わった位置に止まる：<code>fixed-width free-scroll</code></div>
+    <div class="tanrei-text-body">固定幅で、スクロールが終わった位置に止まる：<code>fixed-width free-scroll</code></div>
     <tanrei-carousel previous-label="前の散歩道" next-label="次の散歩道" fixed-width free-scroll label="近くの散歩道" style="inline-size: 25rem; max-inline-size: 100%">
       <tanrei-carousel-item label="海沿いの道、写真 12 枚"><span class="tanrei-icon">landscape</span></tanrei-carousel-item>
       <tanrei-carousel-item label="旧市街、写真 8 枚"><span class="tanrei-icon">location_city</span></tanrei-carousel-item>
@@ -188,7 +188,7 @@ Web と React の例は現在の仕様に沿っています。SwiftUI、Compose�
     </tanrei-carousel>
   </div>
   <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space100); max-inline-size: 100%">
-    <div style="font: var(--tanrei-sys-typescale-body-font)">ヒーロー以外を小さく描き、端のない列：<code>fixed-width scale-others loop</code></div>
+    <div class="tanrei-text-body">ヒーロー以外を小さく描き、端のない列：<code>fixed-width scale-others loop</code></div>
     <tanrei-carousel previous-label="前の散歩道" next-label="次の散歩道" fixed-width scale-others loop label="おすすめの散歩道" style="inline-size: 25rem; max-inline-size: 100%">
       <tanrei-carousel-item label="海沿いの道、写真 12 枚"><span class="tanrei-icon">landscape</span></tanrei-carousel-item>
       <tanrei-carousel-item label="旧市街、写真 8 枚"><span class="tanrei-icon">location_city</span></tanrei-carousel-item>
@@ -198,7 +198,7 @@ Web と React の例は現在の仕様に沿っています。SwiftUI、Compose�
     </tanrei-carousel>
   </div>
   <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space100); max-inline-size: 100%">
-    <div style="font: var(--tanrei-sys-typescale-body-font)">端のない列。両側がいつも埋まります：<code>loop</code></div>
+    <div class="tanrei-text-body">端のない列。両側がいつも埋まります：<code>loop</code></div>
     <tanrei-carousel previous-label="前の散歩道" next-label="次の散歩道" loop label="おすすめの散歩道" style="inline-size: 25rem; max-inline-size: 100%">
       <tanrei-carousel-item label="海沿いの道、写真 12 枚"><span class="tanrei-icon">landscape</span></tanrei-carousel-item>
       <tanrei-carousel-item label="旧市街、写真 8 枚"><span class="tanrei-icon">location_city</span></tanrei-carousel-item>
@@ -208,7 +208,7 @@ Web と React の例は現在の仕様に沿っています。SwiftUI、Compose�
     </tanrei-carousel>
   </div>
   <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space100); max-inline-size: 100%">
-    <div style="font: var(--tanrei-sys-typescale-body-font)">狭くなった項目はヒーローに近い側を見せる：<code>item-width="120" content-alignment="toward-hero" loop</code></div>
+    <div class="tanrei-text-body">狭くなった項目はヒーローに近い側を見せる：<code>item-width="120" content-alignment="toward-hero" loop</code></div>
     <tanrei-carousel previous-label="前の散歩道" next-label="次の散歩道" item-width="120" content-alignment="toward-hero" loop label="近くの散歩道" style="inline-size: 25rem; max-inline-size: 100%">
       <tanrei-carousel-item label="海沿いの道、写真 12 枚"><span class="tanrei-icon">landscape</span></tanrei-carousel-item>
       <tanrei-carousel-item label="旧市街、写真 8 枚"><span class="tanrei-icon">location_city</span></tanrei-carousel-item>
@@ -222,7 +222,7 @@ Web と React の例は現在の仕様に沿っています。SwiftUI、Compose�
 
 <Example label="ドット、自動再生、進み具合、一時停止、再生コントロールだけ" column>
   <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space100); max-inline-size: 100%">
-    <div style="font: var(--tanrei-sys-typescale-body-font)">ドット：<code>indicator</code></div>
+    <div class="tanrei-text-body">ドット：<code>indicator</code></div>
     <tanrei-carousel previous-label="前の散歩道" next-label="次の散歩道" indicator label="おすすめの散歩道" style="inline-size: 25rem; max-inline-size: 100%">
       <tanrei-carousel-item label="海沿いの道、写真 12 枚"><span class="tanrei-icon">landscape</span></tanrei-carousel-item>
       <tanrei-carousel-item label="旧市街、写真 8 枚"><span class="tanrei-icon">location_city</span></tanrei-carousel-item>
@@ -233,7 +233,7 @@ Web と React の例は現在の仕様に沿っています。SwiftUI、Compose�
     </tanrei-carousel>
   </div>
   <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space100); max-inline-size: 100%">
-    <div style="font: var(--tanrei-sys-typescale-body-font)">ドットと再生コントロール付きの自動再生：<code>indicator autoplay</code></div>
+    <div class="tanrei-text-body">ドットと再生コントロール付きの自動再生：<code>indicator autoplay</code></div>
     <tanrei-carousel previous-label="前の散歩道" next-label="次の散歩道" indicator autoplay play-label="スライドショーを再生" pause-label="スライドショーを一時停止" label="おすすめの散歩道" style="inline-size: 25rem; max-inline-size: 100%">
       <tanrei-carousel-item label="海沿いの道、写真 12 枚"><span class="tanrei-icon">landscape</span></tanrei-carousel-item>
       <tanrei-carousel-item label="旧市街、写真 8 枚"><span class="tanrei-icon">location_city</span></tanrei-carousel-item>
@@ -244,7 +244,7 @@ Web と React の例は現在の仕様に沿っています。SwiftUI、Compose�
     </tanrei-carousel>
   </div>
   <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space100); max-inline-size: 100%">
-    <div style="font: var(--tanrei-sys-typescale-body-font)">次の項目までの時間を現在のドットが示す：<code>autoplay-progress</code></div>
+    <div class="tanrei-text-body">次の項目までの時間を現在のドットが示す：<code>autoplay-progress</code></div>
     <tanrei-carousel previous-label="前の散歩道" next-label="次の散歩道" indicator autoplay autoplay-progress play-label="スライドショーを再生" pause-label="スライドショーを一時停止" label="おすすめの散歩道" style="inline-size: 25rem; max-inline-size: 100%">
       <tanrei-carousel-item label="海沿いの道、写真 12 枚"><span class="tanrei-icon">landscape</span></tanrei-carousel-item>
       <tanrei-carousel-item label="旧市街、写真 8 枚"><span class="tanrei-icon">location_city</span></tanrei-carousel-item>
@@ -255,7 +255,7 @@ Web と React の例は現在の仕様に沿っています。SwiftUI、Compose�
     </tanrei-carousel>
   </div>
   <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space100); max-inline-size: 100%">
-    <div style="font: var(--tanrei-sys-typescale-body-font)">利用者またはプロダクトが一時停止した状態：<code>paused</code></div>
+    <div class="tanrei-text-body">利用者またはプロダクトが一時停止した状態：<code>paused</code></div>
     <tanrei-carousel previous-label="前の散歩道" next-label="次の散歩道" indicator autoplay paused autoplay-progress play-label="スライドショーを再生" pause-label="スライドショーを一時停止" label="おすすめの散歩道" style="inline-size: 25rem; max-inline-size: 100%">
       <tanrei-carousel-item label="海沿いの道、写真 12 枚"><span class="tanrei-icon">landscape</span></tanrei-carousel-item>
       <tanrei-carousel-item label="旧市街、写真 8 枚"><span class="tanrei-icon">location_city</span></tanrei-carousel-item>
@@ -266,7 +266,7 @@ Web と React の例は現在の仕様に沿っています。SwiftUI、Compose�
     </tanrei-carousel>
   </div>
   <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space100); max-inline-size: 100%">
-    <div style="font: var(--tanrei-sys-typescale-body-font)">ドットのない自動再生：再生コントロールだけ</div>
+    <div class="tanrei-text-body">ドットのない自動再生：再生コントロールだけ</div>
     <tanrei-carousel previous-label="前の散歩道" next-label="次の散歩道" autoplay play-label="スライドショーを再生" pause-label="スライドショーを一時停止" label="おすすめの散歩道" style="inline-size: 25rem; max-inline-size: 100%">
       <tanrei-carousel-item label="海沿いの道、写真 12 枚"><span class="tanrei-icon">landscape</span></tanrei-carousel-item>
       <tanrei-carousel-item label="旧市街、写真 8 枚"><span class="tanrei-icon">location_city</span></tanrei-carousel-item>

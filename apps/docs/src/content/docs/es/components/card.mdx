@@ -17,16 +17,16 @@ import Example from '../../../../components/visuals/Example.astro';
 
 <Example label="Variantes">
   <tanrei-card style="width: 15rem">
-    <div style="font: var(--tanrei-sys-typescale-heading-5-font)">Outlined</div>
-    <div style="font: var(--tanrei-sys-typescale-body-font)">Los ingresos crecieron un 12% respecto al trimestre anterior.</div>
+    <div class="tanrei-text-heading-5">Outlined</div>
+    <div class="tanrei-text-body">Los ingresos crecieron un 12% respecto al trimestre anterior.</div>
   </tanrei-card>
   <tanrei-card variant="filled" style="width: 15rem">
-    <div style="font: var(--tanrei-sys-typescale-heading-5-font)">Filled</div>
-    <div style="font: var(--tanrei-sys-typescale-body-font)">Los ingresos crecieron un 12% respecto al trimestre anterior.</div>
+    <div class="tanrei-text-heading-5">Filled</div>
+    <div class="tanrei-text-body">Los ingresos crecieron un 12% respecto al trimestre anterior.</div>
   </tanrei-card>
   <tanrei-card variant="elevated" style="width: 15rem">
-    <div style="font: var(--tanrei-sys-typescale-heading-5-font)">Elevated</div>
-    <div style="font: var(--tanrei-sys-typescale-body-font)">Los ingresos crecieron un 12% respecto al trimestre anterior.</div>
+    <div class="tanrei-text-heading-5">Elevated</div>
+    <div class="tanrei-text-body">Los ingresos crecieron un 12% respecto al trimestre anterior.</div>
   </tanrei-card>
 </Example>
 
@@ -176,33 +176,33 @@ Los ejemplos de Web y React muestran la especificación actual. SwiftUI, Compose
 <Example label="A ras, interactiva y deshabilitada">
   <tanrei-card flush style="width: 15rem">
     <div style="height: 5rem; background: var(--tanrei-sys-color-primary-container)"></div>
-    <div style="padding: var(--tanrei-comp-card-container-padding); font: var(--tanrei-sys-typescale-body-font)">A ras: el contenido llega a los bordes.</div>
+    <div class="tanrei-text-body" style="padding: var(--tanrei-comp-card-container-padding)">A ras: el contenido llega a los bordes.</div>
   </tanrei-card>
   <tanrei-card interactive label="Informe trimestral" style="width: 15rem">
-    <div style="font: var(--tanrei-sys-typescale-heading-5-font)">Informe trimestral</div>
-    <div style="font: var(--tanrei-sys-typescale-body-font)">Interactiva: pasa el cursor por encima, llega a ella con Tab, púlsala.</div>
+    <div class="tanrei-text-heading-5">Informe trimestral</div>
+    <div class="tanrei-text-body">Interactiva: pasa el cursor por encima, llega a ella con Tab, púlsala.</div>
   </tanrei-card>
   <tanrei-card variant="elevated" interactive disabled label="Informe trimestral" style="width: 15rem">
-    <div style="font: var(--tanrei-sys-typescale-heading-5-font)">Informe trimestral</div>
-    <div style="font: var(--tanrei-sys-typescale-body-font)">Interactiva y deshabilitada.</div>
+    <div class="tanrei-text-heading-5">Informe trimestral</div>
+    <div class="tanrei-text-body">Interactiva y deshabilitada.</div>
   </tanrei-card>
 </Example>
 
 <Example label="Tarjetas de enlace">
   <tanrei-card href="/es/components/button/" label="Botón" style="width: 15rem">
-    <div style="font: var(--tanrei-sys-typescale-heading-5-font)">Botón</div>
-    <div style="font: var(--tanrei-sys-typescale-body-font)">Una tarjeta de enlace. Enter la sigue, y el menú de enlaces del navegador funciona en ella.</div>
+    <div class="tanrei-text-heading-5">Botón</div>
+    <div class="tanrei-text-body">Una tarjeta de enlace. Enter la sigue, y el menú de enlaces del navegador funciona en ella.</div>
   </tanrei-card>
   <tanrei-card variant="filled" href="/es/components/list/" target="new" target-label="se abre en una pestaña nueva" label="Lista" style="width: 15rem">
     <div style="display: flex; align-items: center; gap: var(--tanrei-sys-space-space200)">
-      <div style="flex: 1; font: var(--tanrei-sys-typescale-heading-5-font)">Lista</div>
+      <div class="tanrei-text-heading-5" style="flex: 1">Lista</div>
       <span class="tanrei-icon" aria-hidden="true">open_in_new</span>
     </div>
-    <div style="font: var(--tanrei-sys-typescale-body-font)">Se abre en una pestaña nueva. El glifo forma parte del contenido.</div>
+    <div class="tanrei-text-body">Se abre en una pestaña nueva. El glifo forma parte del contenido.</div>
   </tanrei-card>
   <tanrei-card href="/es/components/button/" disabled label="Botón" style="width: 15rem">
-    <div style="font: var(--tanrei-sys-typescale-heading-5-font)">Botón</div>
-    <div style="font: var(--tanrei-sys-typescale-body-font)">Una tarjeta de enlace deshabilitada: no hay nada que seguir.</div>
+    <div class="tanrei-text-heading-5">Botón</div>
+    <div class="tanrei-text-body">Una tarjeta de enlace deshabilitada: no hay nada que seguir.</div>
   </tanrei-card>
 </Example>
 

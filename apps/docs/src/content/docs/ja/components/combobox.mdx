@@ -2,7 +2,7 @@
 title: コンボボックス
 description: 入力して 1 つ、または複数の値を見つけるためのボックスと、そこから開くオプションのリストです。ラベルの行、補足、エラーテキストは自分では持ちません。ラベルがほかの場所にあるところや、プロダクトが自分で組み立てるフィールドの中で使います。
 translationOf: components/combobox.mdx
-sourceHash: a6ba669c6cd3732e0cd1bc8d18ea34fc57196da0
+sourceHash: ef2b39f71bc39c4c179f7a3c71a51d07b7b7c999
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -23,7 +23,7 @@ import Example from '../../../../components/visuals/Example.astro';
     <tanrei-option value="secondary" supporting-text="sys.color.secondary">secondary</tanrei-option>
     <tanrei-option value="surface" supporting-text="sys.color.surface">surface</tanrei-option>
   </tanrei-combobox>
-  <div class="not-content" style="display: grid; grid-template-columns: auto 12rem; align-items: center; gap: 0.75rem; font: var(--tanrei-sys-typescale-body-font); color: var(--tanrei-sys-color-on-surface)">
+  <div class="not-content tanrei-text-body" style="display: grid; grid-template-columns: auto 12rem; align-items: center; gap: 0.75rem; color: var(--tanrei-sys-color-on-surface)">
     <span>タイムゾーン</span>
     <tanrei-combobox label="タイムゾーン" value="Europe/Lisbon" empty-text="一致する項目はありません">
       <tanrei-option value="Asia/Tokyo">東京</tanrei-option>

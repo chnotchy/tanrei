@@ -2,7 +2,7 @@
 title: Tipografía
 description: Dieciséis estilos de texto nombrados por nivel (un display, seis títulos, tres tamaños de cuerpo, etiquetas, código y un antetítulo), compuestos en Inter, con el énfasis como un paso de peso y no como un rol.
 translationOf: foundations/typography.mdx
-sourceHash: b32cb8363dab91a1ec83737ccb7c1a5419aefdee
+sourceHash: def97902c53dacc5166adf0db642048d1f203458
 ---
 
 import TokenNotes from '../../../../components/tokens/TokenNotes.astro';
@@ -56,6 +56,8 @@ En la web, `@tanrei/web/text.css` da a cada rol una clase de utilidad, `.tanrei-
 <h2 class="tanrei-text-heading-2">Sección</h2>
 <p class="tanrei-text-body">Texto corrido con <strong class="tanrei-text-emphasized">énfasis</strong>.</p>
 ```
+
+Un rol son sus propiedades individuales (`-font-family`, `-font-size`, `-font-weight`, `-line-height`, `-letter-spacing` y `-font-weight-emphasized`) y no tiene una propiedad abreviada. Para cambiar un estilo, define una propiedad cada vez, en la raíz o en un elemento o una sección de la página: `--tanrei-sys-typescale-body-font-size: 1rem` cambia el tamaño del texto de cuerpo y nada más. La cursiva no es un token: ningún rol define un estilo de letra, así que la cursiva es del propio texto (`em`, o `font-style: italic` en el elemento).
 
 ### Prosa: el texto que no has maquetado tú
 
@@ -157,7 +159,7 @@ Un preajuste que imita otro sistema de diseño conserva los dieciséis nombres y
 - **`m3-like`** da nuevos valores a todos los roles a partir de la escala tipográfica de Material Design 3 (`heading-1` toma el *headline large* de Material, `body` su *body medium*, `label` su *label large*) y añade `display-large` (57px) y `display-small` (36px), porque Material tiene tres tamaños de display y un producto necesita uno. Sus pasos de énfasis son los de Material: 100 en display, títulos y cuerpo, y 200 en las etiquetas. El arnés de fidelidad mide todos los estilos de texto que publica Material, los treinta, incluidos los de énfasis, junto con los roles de color y Button: de 288 tokens medidos, 273 son iguales, 14 están cubiertos por otro token, 1 no tiene correspondencia y está amparado por una laguna de imitación registrada, y ninguno es distinto. En la [página de sistemas de diseño](/es/foundations/design-systems/) se muestra como 273 / 274, porque no cuenta los cubiertos. Las cifras se leen de `tokens/generated/m3-like/fidelity.json`, que la compilación reescribe.
 - **`cupertino`** da nuevos valores a todos los roles a partir de los once estilos de texto de iOS de Apple, de Large Title a Caption 2, y añade los tres que el núcleo no nombra: `body-callout`, `body-subhead` y `caption-small`. Large Title y Title 1 a 3 son Regular, como los de Apple. Sus pasos de énfasis son 300 en display y los títulos y 200 en el cuerpo y las etiquetas: los Large Title, Title 1 y Title 2 con énfasis de Apple son Bold, y sus estilos de cuerpo con énfasis, Semibold. Apple da a Title 3 y a Headline un paso menor (con énfasis, los dos son Semibold), que un solo paso por familia no puede dibujar.
 
-Un rol que añade un preajuste es un token corriente en todas las plataformas: el `display-large` de `m3-like` es `--tanrei-sys-typescale-display-large-font` en la web y un miembro de la escala tipográfica en cada paquete nativo. La vista previa de Theme Studio lo dibuja en la escala de tipos junto a los dieciséis.
+Un rol que añade un preajuste es un token corriente en todas las plataformas: el `display-large` de `m3-like` es `--tanrei-sys-typescale-display-large-font-size` y sus demás propiedades individuales en la web y un miembro de la escala tipográfica en cada paquete nativo. La vista previa de Theme Studio lo dibuja en la escala de tipos junto a los dieciséis.
 
 ## Carácter
 

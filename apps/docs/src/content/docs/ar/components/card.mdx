@@ -17,16 +17,16 @@ import Example from '../../../../components/visuals/Example.astro';
 
 <Example label="الطُرُز">
   <tanrei-card style="width: 15rem">
-    <div style="font: var(--tanrei-sys-typescale-heading-5-font)">Outlined</div>
-    <div style="font: var(--tanrei-sys-typescale-body-font)">نمت الإيرادات 12% عن الربع السابق.</div>
+    <div class="tanrei-text-heading-5">Outlined</div>
+    <div class="tanrei-text-body">نمت الإيرادات 12% عن الربع السابق.</div>
   </tanrei-card>
   <tanrei-card variant="filled" style="width: 15rem">
-    <div style="font: var(--tanrei-sys-typescale-heading-5-font)">Filled</div>
-    <div style="font: var(--tanrei-sys-typescale-body-font)">نمت الإيرادات 12% عن الربع السابق.</div>
+    <div class="tanrei-text-heading-5">Filled</div>
+    <div class="tanrei-text-body">نمت الإيرادات 12% عن الربع السابق.</div>
   </tanrei-card>
   <tanrei-card variant="elevated" style="width: 15rem">
-    <div style="font: var(--tanrei-sys-typescale-heading-5-font)">Elevated</div>
-    <div style="font: var(--tanrei-sys-typescale-body-font)">نمت الإيرادات 12% عن الربع السابق.</div>
+    <div class="tanrei-text-heading-5">Elevated</div>
+    <div class="tanrei-text-body">نمت الإيرادات 12% عن الربع السابق.</div>
   </tanrei-card>
 </Example>
 
@@ -176,33 +176,33 @@ import Example from '../../../../components/visuals/Example.astro';
 <Example label="بلا حشو، وتفاعلية، ومعطَّلة">
   <tanrei-card flush style="width: 15rem">
     <div style="height: 5rem; background: var(--tanrei-sys-color-primary-container)"></div>
-    <div style="padding: var(--tanrei-comp-card-container-padding); font: var(--tanrei-sys-typescale-body-font)">بلا حشو: المحتوى يبلغ الحواف.</div>
+    <div class="tanrei-text-body" style="padding: var(--tanrei-comp-card-container-padding)">بلا حشو: المحتوى يبلغ الحواف.</div>
   </tanrei-card>
   <tanrei-card interactive label="التقرير الفصلي" style="width: 15rem">
-    <div style="font: var(--tanrei-sys-typescale-heading-5-font)">التقرير الفصلي</div>
-    <div style="font: var(--tanrei-sys-typescale-body-font)">تفاعلية: حوِّم فوقها، وانتقل إليها بالمفتاح Tab، واضغطها.</div>
+    <div class="tanrei-text-heading-5">التقرير الفصلي</div>
+    <div class="tanrei-text-body">تفاعلية: حوِّم فوقها، وانتقل إليها بالمفتاح Tab، واضغطها.</div>
   </tanrei-card>
   <tanrei-card variant="elevated" interactive disabled label="التقرير الفصلي" style="width: 15rem">
-    <div style="font: var(--tanrei-sys-typescale-heading-5-font)">التقرير الفصلي</div>
-    <div style="font: var(--tanrei-sys-typescale-body-font)">تفاعلية ومعطَّلة.</div>
+    <div class="tanrei-text-heading-5">التقرير الفصلي</div>
+    <div class="tanrei-text-body">تفاعلية ومعطَّلة.</div>
   </tanrei-card>
 </Example>
 
 <Example label="بطاقات الرابط">
   <tanrei-card href="/ar/components/button/" label="الزر" style="width: 15rem">
-    <div style="font: var(--tanrei-sys-typescale-heading-5-font)">الزر</div>
-    <div style="font: var(--tanrei-sys-typescale-body-font)">بطاقة رابط. المفتاح Enter يتبعها، وقائمة الروابط في المتصفح تعمل عليها.</div>
+    <div class="tanrei-text-heading-5">الزر</div>
+    <div class="tanrei-text-body">بطاقة رابط. المفتاح Enter يتبعها، وقائمة الروابط في المتصفح تعمل عليها.</div>
   </tanrei-card>
   <tanrei-card variant="filled" href="/ar/components/list/" target="new" target-label="يُفتح في تبويب جديد" label="القائمة" style="width: 15rem">
     <div style="display: flex; align-items: center; gap: var(--tanrei-sys-space-space200)">
-      <div style="flex: 1; font: var(--tanrei-sys-typescale-heading-5-font)">القائمة</div>
+      <div class="tanrei-text-heading-5" style="flex: 1">القائمة</div>
       <span class="tanrei-icon" aria-hidden="true">open_in_new</span>
     </div>
-    <div style="font: var(--tanrei-sys-typescale-body-font)">تفتح تبويبًا جديدًا. الرسم جزء من المحتوى.</div>
+    <div class="tanrei-text-body">تفتح تبويبًا جديدًا. الرسم جزء من المحتوى.</div>
   </tanrei-card>
   <tanrei-card href="/ar/components/button/" disabled label="الزر" style="width: 15rem">
-    <div style="font: var(--tanrei-sys-typescale-heading-5-font)">الزر</div>
-    <div style="font: var(--tanrei-sys-typescale-body-font)">بطاقة رابط معطَّلة: لا شيء يُتبع.</div>
+    <div class="tanrei-text-heading-5">الزر</div>
+    <div class="tanrei-text-body">بطاقة رابط معطَّلة: لا شيء يُتبع.</div>
   </tanrei-card>
 </Example>
 

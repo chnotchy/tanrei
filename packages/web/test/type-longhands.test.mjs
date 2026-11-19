@@ -1,12 +1,13 @@
 // Text is set from a type role's longhands, read where it is drawn (src/styles/type.ts), read from the source.
 //
-// A custom property is resolved where it is declared, and the tokens are declared on the root: a role's composite
-// (`--…-<role>-font`) is the root's, so a component that set `font: var(<role>-font)` ignored a product's
-// `<role>-font-size` on one of its instances. src/type-longhands.test.ts overrides each longhand in a browser, for a
-// component of each way of reading them; this is the early word for every file:
+// A custom property is resolved where it is declared, and the tokens are declared on the root: a composite declared
+// there (`--…-<role>-font`) would be the root's, and would ignore a product's `<role>-font-size` on one instance. So a
+// role has no composite: the token pipeline writes its longhands only (packages/tokens-build, src/emit/css.js).
+// src/type-longhands.test.ts overrides each longhand in a browser, for a component of each way of reading them; this
+// is the early word for every file:
 //
-// - no source names a role's composite (a name ending in `-font`, a private `--_…font` that would hold one, or a
-//   token pattern built to end in `-font`);
+// - no source, and no test, names a role's composite (a name ending in `-font`, a private `--_…font` that would hold
+//   one, or a token pattern built to end in `-font`): there is none to read or to set;
 // - every `font` declaration is `inherit`, or the shorthand composed from a role's four longhands in the order the
 //   shorthand takes them: `font: <…font-weight> <…font-size>/<…line-height> <…font-family>`. A value outside them is
 //   listed in ALLOWED with its reason; the list only shrinks.
@@ -100,6 +101,14 @@ test('no test sets a type role’s composite', () => {
   for (const read of ["probe.style.font = 'var(--tanrei-sys-typescale-body-font)';", "lineOf(page, T('title-typescale-font'))", "[T('headline-typescale-font'), T('x')]", 'a == b-font === c']) {
     assert.equal(code(read).match(SETS_COMPOSITE), null, read);
   }
+});
+
+test('no test reads a type role’s composite: there is none', () => {
+  // `font: var(<role>-font)` is invalid at computed time, so a probe drawn with it takes its parent's font, and a test
+  // that compared a component's text with it would compare it with whatever surrounds the probe. Draw a role's text
+  // from its longhands: `roleFont()` in test/harness.ts.
+  const found = TESTS.flatMap(({ file, text }) => [...text.matchAll(COMPOSITE)].map((m) => `${file}: …${text.slice(Math.max(0, m.index - 40), m.index + m[0].length + 12).replace(/\s+/g, ' ')}`));
+  assert.deepEqual(found, [], 'read the role’s longhands (roleFont() in test/harness.ts), never `<role>-font`');
 });
 
 test('the checks see the declarations: the composed ones are found and counted', () => {

@@ -1,16 +1,16 @@
 // A type role's longhand token, overridden on one instance or on a section of the page, changes that property of the
 // component's text and nothing else (src/styles/type.ts).
 //
-// The tokens are declared on the root, and a custom property's var() is resolved where it is declared: the composite
-// `<role>-font` is the root's, whatever an element sets below it. A component that set its text with
-// `font: var(<role>-font)` therefore ignored a product's `<role>-font-size` on one button. Every component reads the
-// longhands where it draws its text instead. Here, for a component of each way of reading them — a size member held
+// The tokens are declared on the root, and a custom property's var() is resolved where it is declared: a composite
+// declared there would be the root's, whatever an element sets below it, and would ignore a product's
+// `<role>-font-size` on one button. So a role has no composite: every component reads the longhands where it draws
+// its text. Here, for a component of each way of reading them — a size member held
 // in private properties (Button, Chip, Text input), a token read directly (Tabs, Menu, Tooltip, Snackbar), a primitive
 // given the component's prefix (Checkbox, through the selection primitive), a density member a drawer hands its cells
 // (Navigation drawer) and a light-DOM stylesheet (Accordion) — each longhand is overridden on the element and then on
 // its fixture's stage, and the text is read before and after.
 import { type Page, expect, test } from '@playwright/test';
-import { loadSpec, mountFixtures } from '../test/harness.js';
+import { loadSpec, mountFixtures, roleFont } from '../test/harness.js';
 
 interface Case {
   /** The spec, and the fixture whose element is overridden. */
@@ -112,31 +112,30 @@ for (const c of CASES) {
   });
 }
 
-// What the longhands draw is what the role's composite drew, wherever nothing is overridden below the root: at the
-// reader's text size (the root's font size, which the size tokens are in rem of), with the type dial turned, and for a
-// size the active design system does not have — each longhand falls back to the default size's, as the composite fell
-// back to the default size's composite. A probe set with `font: var(<role>-font)` beside the text, under the same
-// parent, draws as the composite would.
+// The text is drawn as the role's longhands draw it: at the reader's text size (the root's font size, which the size
+// tokens are in rem of), with the type dial turned, and for a size the active design system does not have — each
+// longhand falls back to the default size's. A probe beside the text, under the same parent, set with the `font`
+// composed from the role's longhands (roleFont() in test/harness.ts), draws as the role does.
 interface Same {
   name: string;
   fixture: string;
   /** Props set over the fixture's: a size no design system has. */
   props?: Record<string, string>;
-  /** The role's composite: the default size's for an unknown size. */
-  composite: string;
+  /** The role's tokens, without the longhand: the default size's for an unknown size. */
+  role: string;
   text: string;
 }
 
 const UNKNOWN = { size: 'not-a-size' };
 const SAME: readonly Same[] = [
-  ...CASES.map(({ name, fixture, base, text }) => ({ name, fixture, composite: `${base}-font`, text })),
-  { name: 'badge', fixture: 'count-double', composite: '--tanrei-comp-badge-label-typescale-font', text: '.label' },
-  { name: 'pagination', fixture: 'default', composite: '--tanrei-comp-pagination-label-typescale-font', text: '.item.current' },
-  { name: 'list-row', fixture: 'three-line', composite: '--tanrei-comp-list-row-headline-typescale-font', text: '.headline' },
-  { name: 'swatch', fixture: 'default', composite: '--tanrei-comp-swatch-label-typescale-medium-font', text: '.label' },
-  { name: 'swatch', fixture: 'default', props: UNKNOWN, composite: '--tanrei-comp-swatch-label-typescale-medium-font', text: '.label' },
-  { name: 'button', fixture: 'filled-medium', props: UNKNOWN, composite: '--tanrei-comp-button-label-typescale-medium-font', text: '[part="container"]' },
-  { name: 'chip', fixture: 'action-outlined', props: UNKNOWN, composite: '--tanrei-comp-chip-label-typescale-medium-font', text: '[part="label"]' },
+  ...CASES.map(({ name, fixture, base, text }) => ({ name, fixture, role: base, text })),
+  { name: 'badge', fixture: 'count-double', role: '--tanrei-comp-badge-label-typescale', text: '.label' },
+  { name: 'pagination', fixture: 'default', role: '--tanrei-comp-pagination-label-typescale', text: '.item.current' },
+  { name: 'list-row', fixture: 'three-line', role: '--tanrei-comp-list-row-headline-typescale', text: '.headline' },
+  { name: 'swatch', fixture: 'default', role: '--tanrei-comp-swatch-label-typescale-medium', text: '.label' },
+  { name: 'swatch', fixture: 'default', props: UNKNOWN, role: '--tanrei-comp-swatch-label-typescale-medium', text: '.label' },
+  { name: 'button', fixture: 'filled-medium', props: UNKNOWN, role: '--tanrei-comp-button-label-typescale-medium', text: '[part="container"]' },
+  { name: 'chip', fixture: 'action-outlined', props: UNKNOWN, role: '--tanrei-comp-chip-label-typescale-medium', text: '[part="label"]' },
 ];
 
 /** The reader's settings that enlarge text, as the root's inline style. */
@@ -150,14 +149,14 @@ const SETTINGS = {
 const FONT = ['font-family', 'font-size', 'font-weight', 'line-height', 'font-style', 'font-stretch'] as const;
 
 for (const c of SAME) {
-  test(`${c.name}${c.props ? ' at a size no design system has' : ''}: its text is drawn as ${c.composite} draws it, at every text size`, async ({ page }) => {
+  test(`${c.name}${c.props ? ' at a size no design system has' : ''}: its text is drawn as the longhands of ${c.role} draw it beside it, at every text size`, async ({ page }) => {
     const spec = loadSpec(c.name);
     const fixture = spec.fixtures.find((f) => f.id === c.fixture)!;
     await mountFixtures(page, spec, { reducedMotion: true, fixtures: [{ ...fixture, props: { ...fixture.props, ...c.props } }] });
     let initial = 0;
     for (const [setting, root] of Object.entries(SETTINGS)) {
       const [text, probe] = await page.evaluate(
-        async ([id, tag, selector, composite, style, font]) => {
+        async ([id, tag, selector, role, style, font]) => {
           document.documentElement.style.cssText = style;
           for (let i = 0; i < 2; i++) await new Promise(requestAnimationFrame);
           const host = document.querySelector(`[data-fixture="${id}"] ${tag}`) as HTMLElement;
@@ -173,14 +172,14 @@ for (const c of SAME) {
           const el = (host.shadowRoot && find(host.shadowRoot)) || find(host);
           if (!el?.parentNode) throw new Error(`no ${selector} in ${tag}`);
           const probe = document.createElement('span');
-          probe.style.cssText = `font: var(${composite})`;
+          probe.style.cssText = `font: ${role}`;
           el.parentNode.insertBefore(probe, el);
           const read = (e: Element) => font.map((p) => getComputedStyle(e).getPropertyValue(p));
           const both = [read(el), read(probe)];
           probe.remove();
           return both;
         },
-        [c.fixture, `tanrei-${c.name}`, c.text, c.composite, root, FONT] as const,
+        [c.fixture, `tanrei-${c.name}`, c.text, roleFont(c.role), root, FONT] as const,
       );
       expect(text, setting).toEqual(probe);
       // And the setting reaches the text: larger than at the default text size.

@@ -10,7 +10,7 @@ const pkg = path.resolve(here, '..');
 const read = (file: string) => fs.readFileSync(path.join(pkg, file), 'utf8');
 
 /** The roles of the default system, from the generated stylesheet: the source text.css must cover, one class each. */
-const ROLES = [...new Set([...read('dist/tokens.css').matchAll(/--tanrei-sys-typescale-([a-z0-9-]+)-font:/g)].map((m) => m[1]))].sort();
+const ROLES = [...new Set([...read('dist/tokens.css').matchAll(/--tanrei-sys-typescale-([a-z0-9-]+)-font-family:/g)].map((m) => m[1]))].sort();
 const FIELDS = ['fontFamily', 'fontSize', 'fontWeight', 'lineHeight', 'letterSpacing'] as const;
 
 async function mount(page: Page, body: string, options: { system?: string } = {}) {
@@ -32,7 +32,7 @@ async function fields(page: Page, selector: string, role: string) {
     ([sel, r, keys]) => {
       const pick = (el: Element) => Object.fromEntries(keys.map((k) => [k, (getComputedStyle(el) as unknown as Record<string, string>)[k].replaceAll('"', '')]));
       const probe = document.createElement('span');
-      probe.style.cssText = `font: var(--tanrei-sys-typescale-${r}-font); letter-spacing: var(--tanrei-sys-typescale-${r}-letter-spacing)`;
+      probe.style.cssText = `font: var(--tanrei-sys-typescale-${r}-font-weight) var(--tanrei-sys-typescale-${r}-font-size)/var(--tanrei-sys-typescale-${r}-line-height) var(--tanrei-sys-typescale-${r}-font-family); letter-spacing: var(--tanrei-sys-typescale-${r}-letter-spacing)`;
       probe.textContent = 'probe';
       document.body.append(probe);
       const out = { element: pick(document.querySelector(sel)!), role: pick(probe) };

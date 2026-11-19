@@ -146,7 +146,7 @@ const served = async (page: P, body: string, { script = true, hold, files = {} }
         contentType: 'text/html',
         body: `<!doctype html><html lang="en" data-tanrei-theme="light"><head><meta charset="utf-8"><title>site</title><link rel="icon" href="data:,">
           <link rel="stylesheet" href="/tokens.css"><link rel="stylesheet" href="/icons.css"><link rel="stylesheet" href="/link-card.css"><link rel="stylesheet" href="/link.css">
-          <style>body { margin: 16px; inline-size: 720px; font: var(--tanrei-sys-typescale-body-font); color: var(--tanrei-sys-color-on-surface); background: var(--tanrei-sys-color-surface); } tanrei-link-card { margin-block-end: 16px; }</style>
+          <style>body { margin: 16px; inline-size: 720px; font: var(--tanrei-sys-typescale-body-font-weight) var(--tanrei-sys-typescale-body-font-size)/var(--tanrei-sys-typescale-body-line-height) var(--tanrei-sys-typescale-body-font-family); color: var(--tanrei-sys-color-on-surface); background: var(--tanrei-sys-color-surface); } tanrei-link-card { margin-block-end: 16px; }</style>
           ${script ? '<script type="module" src="/tanrei.bundle.js"></script>' : ''}</head><body>${body}</body></html>`,
       });
     }

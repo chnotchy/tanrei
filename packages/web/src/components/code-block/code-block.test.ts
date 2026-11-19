@@ -10,7 +10,7 @@ import { fileURLToPath } from 'node:url';
 import AxeBuilder from '@axe-core/playwright';
 import { atRest } from '../../../test/at-rest.js';
 import { type Locator, type Page, expect, test } from '@playwright/test';
-import { type Fixture, acmeSystemCss, fixturesDocument, loadSpec, mountFixtures, resolveColor, resolveToken, tab, tabTo, rootTokens } from '../../../test/harness.js';
+import { type Fixture, acmeSystemCss, fixturesDocument, loadSpec, mountFixtures, resolveColor, resolveToken, roleFont, tab, tabTo, rootTokens } from '../../../test/harness.js';
 import { expectBaseline } from '../../../test/baseline.js';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
@@ -47,16 +47,16 @@ const box = (target: Locator): Promise<Box> => target.evaluate((el) => { const r
 const css = (target: Locator, property: string, pseudo?: string): Promise<string> =>
   target.evaluate((el, [p, ps]) => getComputedStyle(el, ps ?? undefined).getPropertyValue(p as string), [property, pseudo ?? null] as const);
 const px = async (target: Locator, property: string, pseudo?: string) => Number.parseFloat(await css(target, property, pseudo));
-/** One line of a text style, in px: the line height its `font` shorthand token computes to. */
+/** One line of a text style, in px: the line height its role's longhands compute to (`font` the role's base). */
 const lineOf = (page: P, font: string) =>
   page.evaluate((name) => {
     const probe = document.createElement('div');
-    probe.style.cssText = `position:absolute;visibility:hidden;font:var(${name})`;
+    probe.style.cssText = `position:absolute;visibility:hidden;font:${name}`;
     document.body.appendChild(probe);
     const value = Number.parseFloat(getComputedStyle(probe).lineHeight);
     probe.remove();
     return Math.round(value * 100) / 100;
-  }, font);
+  }, roleFont(font));
 const near = (actual: number, expected: number, what: string, tolerance = 0.6) => expect(Math.abs(actual - expected), `${what}: ${actual} ≠ ${expected}`).toBeLessThanOrEqual(tolerance);
 const unquoted = (family: string) => family.replaceAll(/["']/g, '').replaceAll(/\s*,\s*/g, ', ').trim();
 const override = (page: P, vars: Record<string, string>) => rootTokens(page, vars);
@@ -262,14 +262,14 @@ test.describe('the container and the code', () => {
     for (const [id, size] of [['plain', 'medium'], ['small', 'small']] as const) {
       const code = pre(page, id);
       expect(await px(code, 'font-size'), id).toBe(await resolveToken(page, T(`code-typescale-${size}-font-size`)));
-      near(await px(code, 'line-height'), await lineOf(page, T(`code-typescale-${size}-font`)), `${id} line height`, 0.01);
+      near(await px(code, 'line-height'), await lineOf(page, T(`code-typescale-${size}`)), `${id} line height`, 0.01);
       expect(unquoted(await css(code, 'font-family')), id).toBe(unquoted(await css(code, T(`code-typescale-${size}-font-family`))));
       expect(await css(code, 'font-weight'), id).toBe((await css(code, T(`code-typescale-${size}-font-weight`))).trim());
       expect(await css(code, 'color'), id).toBe(await resolveColor(page, T('code-color')));
       expect(await css(host(page, id).locator('code'), 'font-size'), id).toBe(await css(code, 'font-size'));
     }
     // Every line of the code is one line of the style: seven lines, the empty one included.
-    const height = await lineOf(page, T('code-typescale-medium-font'));
+    const height = await lineOf(page, T('code-typescale-medium'));
     await expect(lines(page, 'titled')).toHaveCount(SIZES.split('\n').length);
     for (let n = 1; n <= 7; n++) expect((await box(line(page, 'titled', n))).height, `line ${n}`).toBe(height);
     expect(await codeText(page, 'titled')).toBe(SIZES);
@@ -316,7 +316,7 @@ test.describe('scrolling and wrapping', () => {
     for (const id of ['long-lines', 'framed']) {
       const b = body(page, id);
       // One row each: no line is broken.
-      const height = await lineOf(page, T('code-typescale-medium-font'));
+      const height = await lineOf(page, T('code-typescale-medium'));
       for (let n = 1; n <= 4; n++) expect((await box(line(page, id, n))).height, `${id} line ${n}`).toBe(height);
       expect(await b.evaluate((el) => el.scrollWidth > el.clientWidth), id).toBe(true);
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth), id).toBe(true);
@@ -388,7 +388,7 @@ test.describe('scrolling and wrapping', () => {
 
   test('COD-6: with maxLines and more lines than that, the body is maxLines lines of the code’s text style high plus its paddings and scrolls up and down inside the container, the header and the copy button staying; with no more lines than maxLines, or null, the block is as tall as its lines', async ({ page }) => {
     await mount(page, [...only('max-lines'), fx('enough', { code: SIZES, maxLines: 7 }), fx('none', { code: SIZES }), fx('capped', { code: SIZES, maxLines: 3 })]);
-    const height = await lineOf(page, T('code-typescale-medium-font'));
+    const height = await lineOf(page, T('code-typescale-medium'));
     const block = await resolveToken(page, T('container-padding-block-medium'));
     const b = body(page, 'max-lines');
     near((await box(b)).height, 5 * height + (await resolveToken(page, T('header-padding-block-end'))) + block, 'five lines and the paddings', 0.1);
@@ -488,7 +488,7 @@ test.describe('the header and the copy button', () => {
       // The row: from the inset, as tall as the copy button where there is one and as a line of the title otherwise.
       const row = { top: h.y - c.y + (await px(header(page, id), 'padding-top')), height: h.height - (await px(header(page, id), 'padding-top')) };
       near(row.top, inset, `${id}: the row begins at the inset`, 0.1);
-      near(row.height, id === 'titled-language-copy' ? await resolveToken(page, BUTTON) : await lineOf(page, T('title-typescale-font')), `${id}: the row's height`, 0.1);
+      near(row.height, id === 'titled-language-copy' ? await resolveToken(page, BUTTON) : await lineOf(page, T('title-typescale')), `${id}: the row's height`, 0.1);
       // The code begins header.padding-block-end below the row.
       near((await box(line(page, id, 1))).y - h.bottom, await resolveToken(page, T('header-padding-block-end')), `${id}: below the row`, 0.1);
     }
@@ -513,7 +513,7 @@ test.describe('the header and the copy button', () => {
     // in a right-to-left layout), the language and the copy button whole.
     const long = host(page, 'rtl-ltr-title').locator('.title');
     expect(await long.evaluate((el) => [el.scrollWidth > el.clientWidth, getComputedStyle(el).textOverflow, getComputedStyle(el).whiteSpace, getComputedStyle(el).direction, el.getAttribute('dir')])).toEqual([true, 'ellipsis', 'nowrap', 'ltr', 'auto']);
-    near((await box(long)).height, await lineOf(page, T('title-typescale-font')), 'one line', 0.1);
+    near((await box(long)).height, await lineOf(page, T('title-typescale')), 'one line', 0.1);
     expect(await host(page, 'rtl-ltr-title').evaluate((el) => (el as unknown as { headline: string }).headline)).toBe(String(fixture('rtl-ltr-title').props.title));
     expect((await box(copyButton(page, 'rtl-ltr-title'))).width).toBe(await resolveToken(page, BUTTON));
     // The title is the element's `headline`; the global `title` attribute is not written for it.
@@ -573,7 +573,7 @@ test.describe('the header and the copy button', () => {
     const c = await box(container(page, 'long-lines-copy'));
     expect([p.y, p.right]).toEqual([c.y, c.right]);
     expect(p.x).toBeLessThanOrEqual(button.x);
-    const [lineHeight, block] = [await lineOf(page, T('code-typescale-medium-font')), await resolveToken(page, T('container-padding-block-medium'))];
+    const [lineHeight, block] = [await lineOf(page, T('code-typescale-medium')), await resolveToken(page, T('container-padding-block-medium'))];
     expect((p.height - block) % lineHeight).toBeCloseTo(0, 1);
     expect(p.height).toBeGreaterThanOrEqual(size + inset);
     expect(await css(host(page, 'outlined-copy').locator('.corner'), 'background-color')).toBe(await resolveColor(page, '--tanrei-sys-color-surface'));
@@ -673,7 +673,7 @@ test.describe('lines', () => {
     for (const n of [1, 5]) near((await rows(lineCode(page, 'line-numbers-start', n)))[0].x, (await box(gutter(page, 'line-numbers-start', n))).right, `line ${n}: the code begins after the gutter`, 0.6);
     // A wrapped line carries its number once, on its first row.
     const wrapped = await box(gutter(page, 'long-lines-wrapped-numbered-copy', 1));
-    expect(wrapped.height).toBeGreaterThan(3 * (await lineOf(page, T('code-typescale-medium-font'))));
+    expect(wrapped.height).toBeGreaterThan(3 * (await lineOf(page, T('code-typescale-medium'))));
     await expect(line(page, 'long-lines-wrapped-numbered-copy', 1).locator('[data-line-gutter]')).toHaveCount(1);
     // It stays in view while the code scrolls sideways under it, on the container's color.
     for (const [id, ground] of [['scrolls', T('filled-container-color')], ['outlined', '--tanrei-sys-color-surface']] as const) {
@@ -1009,12 +1009,12 @@ test.describe('syntax', () => {
     await page.evaluate(async (fonts) => {
       const probe = document.body.appendChild(document.createElement('span'));
       for (const font of fonts) {
-        probe.style.font = `var(${font})`;
+        probe.style.font = font;
         await document.fonts.load(getComputedStyle(probe).font, 'Footer.tsx TSX');
       }
       probe.remove();
       await document.fonts.ready;
-    }, [T('title-typescale-font'), T('language-typescale-font')]);
+    }, [roleFont(T('title-typescale')), roleFont(T('language-typescale'))]);
     await page.evaluate(() => {
       const w = window as unknown as { __shifts: number; __mutations: number[] };
       w.__shifts = 0;

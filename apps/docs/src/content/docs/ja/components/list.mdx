@@ -2,7 +2,7 @@
 title: リスト
 description: 行、タイル、カード、ファイルなど、プロダクト自身の項目を 1 列、1 行、または折り返してグリッドになる行に並べて保持します。読む、1 つずつ開く、選ぶ、ドラッグして並べ替える、といった操作に使います。
 translationOf: components/list.mdx
-sourceHash: 49cb98ac1ef0c2751e9a2a944d48c0f8fb696349
+sourceHash: f92dc3e718026dd89b8bd7f139de684796f4eea4
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -21,37 +21,37 @@ import ListReorderProduct from '../../../../components/ListReorderProduct.astro'
 
 <Example label="タイルを別の場所へドラッグするか、ハンドルを押して移動のメニューを開きます">
   <tanrei-list reorderable orientation="horizontal" wrap gap="medium" data-demo-product label="Photos" drag-handle-label="Reorder {label}" drag-handle-hint="Space lifts, the arrow keys move, Space drops, Escape cancels; Enter opens the moves" move-to-start-label="Move to start" move-before-label="Move left" move-after-label="Move right" move-to-end-label="Move to end" lifted-text="{label} lifted: {position} of {count}" moved-text="{label}: {position} of {count}" cancelled-text="{label} returned to {position} of {count}" style="inline-size: 24rem">
-    <tanrei-list-item><span class="demo-tile">Photo 1</span></tanrei-list-item>
-    <tanrei-list-item><span class="demo-tile">Photo 2</span></tanrei-list-item>
-    <tanrei-list-item><span class="demo-tile">Photo 3</span></tanrei-list-item>
-    <tanrei-list-item><span class="demo-tile">Photo 4</span></tanrei-list-item>
-    <tanrei-list-item><span class="demo-tile">Photo 5</span></tanrei-list-item>
+    <tanrei-list-item><span class="demo-tile tanrei-text-body">Photo 1</span></tanrei-list-item>
+    <tanrei-list-item><span class="demo-tile tanrei-text-body">Photo 2</span></tanrei-list-item>
+    <tanrei-list-item><span class="demo-tile tanrei-text-body">Photo 3</span></tanrei-list-item>
+    <tanrei-list-item><span class="demo-tile tanrei-text-body">Photo 4</span></tanrei-list-item>
+    <tanrei-list-item><span class="demo-tile tanrei-text-body">Photo 5</span></tanrei-list-item>
   </tanrei-list>
 </Example>
 
 <style>{`
-  .demo-tile { display: block; padding: var(--tanrei-sys-space-space150) var(--tanrei-sys-space-space200); border-radius: var(--tanrei-sys-shape-corner-small); background: var(--tanrei-sys-color-surface-container-highest); color: var(--tanrei-sys-color-on-surface); font: var(--tanrei-sys-typescale-body-font); }
+  .demo-tile { display: block; padding: var(--tanrei-sys-space-space150) var(--tanrei-sys-space-space200); border-radius: var(--tanrei-sys-shape-corner-small); background: var(--tanrei-sys-color-surface-container-highest); color: var(--tanrei-sys-color-on-surface); }
 `}</style>
 
 リストは箱です。各項目に表示するのはプロダクト自身のコンテンツ（テキスト、画像、カード、[ファイル項目](/ja/components/file-item/)、または[リスト行](/ja/components/list-row/)）です。リスト行は、見出しと1〜2行の補足テキスト、その前後に置く要素からなる行で、多くのリストはこの行でできています。リストが担うのは項目のまわりのすべてです。項目の並べ方、項目間の余白と線、支援技術にとっての意味、項目間のキーボードフォーカスの移動、どれが選ばれているか、そして並べ替えです。
 
 <Example label="列、行、折り返すグリッド">
   <tanrei-list gap="small" style="inline-size: 16rem">
-    <tanrei-list-item><span class="demo-tile">Apples</span></tanrei-list-item>
-    <tanrei-list-item><span class="demo-tile">Bananas</span></tanrei-list-item>
-    <tanrei-list-item><span class="demo-tile">Cherries</span></tanrei-list-item>
+    <tanrei-list-item><span class="demo-tile tanrei-text-body">Apples</span></tanrei-list-item>
+    <tanrei-list-item><span class="demo-tile tanrei-text-body">Bananas</span></tanrei-list-item>
+    <tanrei-list-item><span class="demo-tile tanrei-text-body">Cherries</span></tanrei-list-item>
   </tanrei-list>
   <tanrei-list orientation="horizontal" gap="small">
-    <tanrei-list-item><span class="demo-tile">One</span></tanrei-list-item>
-    <tanrei-list-item><span class="demo-tile">Two</span></tanrei-list-item>
-    <tanrei-list-item><span class="demo-tile">Three</span></tanrei-list-item>
+    <tanrei-list-item><span class="demo-tile tanrei-text-body">One</span></tanrei-list-item>
+    <tanrei-list-item><span class="demo-tile tanrei-text-body">Two</span></tanrei-list-item>
+    <tanrei-list-item><span class="demo-tile tanrei-text-body">Three</span></tanrei-list-item>
   </tanrei-list>
   <tanrei-list orientation="horizontal" wrap gap="medium" style="inline-size: 16rem">
-    <tanrei-list-item><span class="demo-tile">Photo 1</span></tanrei-list-item>
-    <tanrei-list-item><span class="demo-tile">Photo 2</span></tanrei-list-item>
-    <tanrei-list-item><span class="demo-tile">Photo 3</span></tanrei-list-item>
-    <tanrei-list-item><span class="demo-tile">Photo 4</span></tanrei-list-item>
-    <tanrei-list-item><span class="demo-tile">Photo 5</span></tanrei-list-item>
+    <tanrei-list-item><span class="demo-tile tanrei-text-body">Photo 1</span></tanrei-list-item>
+    <tanrei-list-item><span class="demo-tile tanrei-text-body">Photo 2</span></tanrei-list-item>
+    <tanrei-list-item><span class="demo-tile tanrei-text-body">Photo 3</span></tanrei-list-item>
+    <tanrei-list-item><span class="demo-tile tanrei-text-body">Photo 4</span></tanrei-list-item>
+    <tanrei-list-item><span class="demo-tile tanrei-text-body">Photo 5</span></tanrei-list-item>
   </tanrei-list>
 </Example>
 
@@ -135,9 +135,9 @@ SwiftUI、Compose、Flutter、React Native は追随中です。見出し、補�
 
 <Example label="並べ替えられる列。各項目にページ側の削除ボタンがあります">
   <tanrei-list reorderable gap="small" data-demo-product label="Typefaces" drag-handle-label="Reorder {label}" drag-handle-hint="Space lifts, the arrow keys move, Space drops, Escape cancels; Enter opens the moves" move-to-start-label="Move to top" move-before-label="Move up" move-after-label="Move down" move-to-end-label="Move to bottom" lifted-text="{label} lifted: {position} of {count}" moved-text="{label}: {position} of {count}" cancelled-text="{label} returned to {position} of {count}" style="inline-size: 22rem">
-    <tanrei-list-item label="Inter"><span class="demo-tile" style="display: flex; align-items: center; justify-content: space-between">Inter <tanrei-button variant="text" label="Remove Inter" data-demo-remove><span slot="icon">close</span></tanrei-button></span></tanrei-list-item>
-    <tanrei-list-item label="Noto Sans JP"><span class="demo-tile" style="display: flex; align-items: center; justify-content: space-between">Noto Sans JP <tanrei-button variant="text" label="Remove Noto Sans JP" data-demo-remove><span slot="icon">close</span></tanrei-button></span></tanrei-list-item>
-    <tanrei-list-item label="Helvetica Neue"><span class="demo-tile" style="display: flex; align-items: center; justify-content: space-between">Helvetica Neue <tanrei-button variant="text" label="Remove Helvetica Neue" data-demo-remove><span slot="icon">close</span></tanrei-button></span></tanrei-list-item>
+    <tanrei-list-item label="Inter"><span class="demo-tile tanrei-text-body" style="display: flex; align-items: center; justify-content: space-between">Inter <tanrei-button variant="text" label="Remove Inter" data-demo-remove><span slot="icon">close</span></tanrei-button></span></tanrei-list-item>
+    <tanrei-list-item label="Noto Sans JP"><span class="demo-tile tanrei-text-body" style="display: flex; align-items: center; justify-content: space-between">Noto Sans JP <tanrei-button variant="text" label="Remove Noto Sans JP" data-demo-remove><span slot="icon">close</span></tanrei-button></span></tanrei-list-item>
+    <tanrei-list-item label="Helvetica Neue"><span class="demo-tile tanrei-text-body" style="display: flex; align-items: center; justify-content: space-between">Helvetica Neue <tanrei-button variant="text" label="Remove Helvetica Neue" data-demo-remove><span slot="icon">close</span></tanrei-button></span></tanrei-list-item>
   </tanrei-list>
 </Example>
 

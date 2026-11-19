@@ -178,7 +178,7 @@ import Example from '../../../../components/visuals/Example.astro';
 
 <Example label="ترتيب الصف: عروض ثابتة، تصغير، دوران، محتوى نحو العنصر البارز" column>
   <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space100); max-inline-size: 100%">
-    <div style="font: var(--tanrei-sys-typescale-body-font)">عروض ثابتة، والصف يقف حيث ينتهي التمرير: <code>fixed-width free-scroll</code></div>
+    <div class="tanrei-text-body">عروض ثابتة، والصف يقف حيث ينتهي التمرير: <code>fixed-width free-scroll</code></div>
     <tanrei-carousel previous-label="النزهة السابقة" next-label="النزهة التالية" fixed-width free-scroll label="نزهات بالقرب منك" style="inline-size: 25rem; max-inline-size: 100%">
       <tanrei-carousel-item label="مسار الساحل، 12 صورة"><span class="tanrei-icon">landscape</span></tanrei-carousel-item>
       <tanrei-carousel-item label="البلدة القديمة، 8 صور"><span class="tanrei-icon">location_city</span></tanrei-carousel-item>
@@ -188,7 +188,7 @@ import Example from '../../../../components/visuals/Example.astro';
     </tanrei-carousel>
   </div>
   <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space100); max-inline-size: 100%">
-    <div style="font: var(--tanrei-sys-typescale-body-font)">العناصر الأخرى مرسومة أصغر، بلا نهاية: <code>fixed-width scale-others loop</code></div>
+    <div class="tanrei-text-body">العناصر الأخرى مرسومة أصغر، بلا نهاية: <code>fixed-width scale-others loop</code></div>
     <tanrei-carousel previous-label="النزهة السابقة" next-label="النزهة التالية" fixed-width scale-others loop label="نزهات مميَّزة" style="inline-size: 25rem; max-inline-size: 100%">
       <tanrei-carousel-item label="مسار الساحل، 12 صورة"><span class="tanrei-icon">landscape</span></tanrei-carousel-item>
       <tanrei-carousel-item label="البلدة القديمة، 8 صور"><span class="tanrei-icon">location_city</span></tanrei-carousel-item>
@@ -198,7 +198,7 @@ import Example from '../../../../components/visuals/Example.astro';
     </tanrei-carousel>
   </div>
   <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space100); max-inline-size: 100%">
-    <div style="font: var(--tanrei-sys-typescale-body-font)">بلا نهاية، والجانبان ممتلئان دائمًا: <code>loop</code></div>
+    <div class="tanrei-text-body">بلا نهاية، والجانبان ممتلئان دائمًا: <code>loop</code></div>
     <tanrei-carousel previous-label="النزهة السابقة" next-label="النزهة التالية" loop label="نزهات مميَّزة" style="inline-size: 25rem; max-inline-size: 100%">
       <tanrei-carousel-item label="مسار الساحل، 12 صورة"><span class="tanrei-icon">landscape</span></tanrei-carousel-item>
       <tanrei-carousel-item label="البلدة القديمة، 8 صور"><span class="tanrei-icon">location_city</span></tanrei-carousel-item>
@@ -208,7 +208,7 @@ import Example from '../../../../components/visuals/Example.astro';
     </tanrei-carousel>
   </div>
   <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space100); max-inline-size: 100%">
-    <div style="font: var(--tanrei-sys-typescale-body-font)">العناصر المضيَّقة تعرض الجهة الأقرب إلى العنصر البارز: <code>item-width="120" content-alignment="toward-hero" loop</code></div>
+    <div class="tanrei-text-body">العناصر المضيَّقة تعرض الجهة الأقرب إلى العنصر البارز: <code>item-width="120" content-alignment="toward-hero" loop</code></div>
     <tanrei-carousel previous-label="النزهة السابقة" next-label="النزهة التالية" item-width="120" content-alignment="toward-hero" loop label="نزهات بالقرب منك" style="inline-size: 25rem; max-inline-size: 100%">
       <tanrei-carousel-item label="مسار الساحل، 12 صورة"><span class="tanrei-icon">landscape</span></tanrei-carousel-item>
       <tanrei-carousel-item label="البلدة القديمة، 8 صور"><span class="tanrei-icon">location_city</span></tanrei-carousel-item>
@@ -222,7 +222,7 @@ import Example from '../../../../components/visuals/Example.astro';
 
 <Example label="النقاط، والتشغيل التلقائي، والتقدم، والإيقاف المؤقت، وعنصر التحكم في التشغيل وحده" column>
   <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space100); max-inline-size: 100%">
-    <div style="font: var(--tanrei-sys-typescale-body-font)">النقاط: <code>indicator</code></div>
+    <div class="tanrei-text-body">النقاط: <code>indicator</code></div>
     <tanrei-carousel previous-label="النزهة السابقة" next-label="النزهة التالية" indicator label="نزهات مميَّزة" style="inline-size: 25rem; max-inline-size: 100%">
       <tanrei-carousel-item label="مسار الساحل، 12 صورة"><span class="tanrei-icon">landscape</span></tanrei-carousel-item>
       <tanrei-carousel-item label="البلدة القديمة، 8 صور"><span class="tanrei-icon">location_city</span></tanrei-carousel-item>
@@ -233,7 +233,7 @@ import Example from '../../../../components/visuals/Example.astro';
     </tanrei-carousel>
   </div>
   <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space100); max-inline-size: 100%">
-    <div style="font: var(--tanrei-sys-typescale-body-font)">تشغيل تلقائي مع النقاط وعنصر التحكم في التشغيل: <code>indicator autoplay</code></div>
+    <div class="tanrei-text-body">تشغيل تلقائي مع النقاط وعنصر التحكم في التشغيل: <code>indicator autoplay</code></div>
     <tanrei-carousel previous-label="النزهة السابقة" next-label="النزهة التالية" indicator autoplay play-label="تشغيل عرض الشرائح" pause-label="إيقاف عرض الشرائح مؤقتًا" label="نزهات مميَّزة" style="inline-size: 25rem; max-inline-size: 100%">
       <tanrei-carousel-item label="مسار الساحل، 12 صورة"><span class="tanrei-icon">landscape</span></tanrei-carousel-item>
       <tanrei-carousel-item label="البلدة القديمة، 8 صور"><span class="tanrei-icon">location_city</span></tanrei-carousel-item>
@@ -244,7 +244,7 @@ import Example from '../../../../components/visuals/Example.astro';
     </tanrei-carousel>
   </div>
   <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space100); max-inline-size: 100%">
-    <div style="font: var(--tanrei-sys-typescale-body-font)">النقطة الحالية تمتلئ حتى العنصر التالي: <code>autoplay-progress</code></div>
+    <div class="tanrei-text-body">النقطة الحالية تمتلئ حتى العنصر التالي: <code>autoplay-progress</code></div>
     <tanrei-carousel previous-label="النزهة السابقة" next-label="النزهة التالية" indicator autoplay autoplay-progress play-label="تشغيل عرض الشرائح" pause-label="إيقاف عرض الشرائح مؤقتًا" label="نزهات مميَّزة" style="inline-size: 25rem; max-inline-size: 100%">
       <tanrei-carousel-item label="مسار الساحل، 12 صورة"><span class="tanrei-icon">landscape</span></tanrei-carousel-item>
       <tanrei-carousel-item label="البلدة القديمة، 8 صور"><span class="tanrei-icon">location_city</span></tanrei-carousel-item>
@@ -255,7 +255,7 @@ import Example from '../../../../components/visuals/Example.astro';
     </tanrei-carousel>
   </div>
   <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space100); max-inline-size: 100%">
-    <div style="font: var(--tanrei-sys-typescale-body-font)">متوقف مؤقتًا، من الشخص أو من المنتج: <code>paused</code></div>
+    <div class="tanrei-text-body">متوقف مؤقتًا، من الشخص أو من المنتج: <code>paused</code></div>
     <tanrei-carousel previous-label="النزهة السابقة" next-label="النزهة التالية" indicator autoplay paused autoplay-progress play-label="تشغيل عرض الشرائح" pause-label="إيقاف عرض الشرائح مؤقتًا" label="نزهات مميَّزة" style="inline-size: 25rem; max-inline-size: 100%">
       <tanrei-carousel-item label="مسار الساحل، 12 صورة"><span class="tanrei-icon">landscape</span></tanrei-carousel-item>
       <tanrei-carousel-item label="البلدة القديمة، 8 صور"><span class="tanrei-icon">location_city</span></tanrei-carousel-item>
@@ -266,7 +266,7 @@ import Example from '../../../../components/visuals/Example.astro';
     </tanrei-carousel>
   </div>
   <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space100); max-inline-size: 100%">
-    <div style="font: var(--tanrei-sys-typescale-body-font)">تشغيل تلقائي بلا نقاط: عنصر التحكم في التشغيل وحده</div>
+    <div class="tanrei-text-body">تشغيل تلقائي بلا نقاط: عنصر التحكم في التشغيل وحده</div>
     <tanrei-carousel previous-label="النزهة السابقة" next-label="النزهة التالية" autoplay play-label="تشغيل عرض الشرائح" pause-label="إيقاف عرض الشرائح مؤقتًا" label="نزهات مميَّزة" style="inline-size: 25rem; max-inline-size: 100%">
       <tanrei-carousel-item label="مسار الساحل، 12 صورة"><span class="tanrei-icon">landscape</span></tanrei-carousel-item>
       <tanrei-carousel-item label="البلدة القديمة، 8 صور"><span class="tanrei-icon">location_city</span></tanrei-carousel-item>

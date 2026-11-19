@@ -2,7 +2,7 @@
 title: الطباعة
 description: ستة عشر نمط نص مسمّاة بحسب المستوى (عرض واحد، وستة عناوين، وثلاثة أحجام للمتن، وتسميات، وشيفرة، وعنوان علوي) مكتوبة بخط Inter، والتوكيد فيها درجة وزن لا دور.
 translationOf: foundations/typography.mdx
-sourceHash: b32cb8363dab91a1ec83737ccb7c1a5419aefdee
+sourceHash: def97902c53dacc5166adf0db642048d1f203458
 ---
 
 import TokenNotes from '../../../../components/tokens/TokenNotes.astro';
@@ -56,6 +56,8 @@ import SystemValues from '../../../../components/tokens/SystemValues.astro';
 <h2 class="tanrei-text-heading-2">قسم</h2>
 <p class="tanrei-text-body">نص متصل فيه <strong class="tanrei-text-emphasized">توكيد</strong>.</p>
 ```
+
+الدور هو خصائصه المفردة: `-font-family` و `-font-size` و `-font-weight` و `-line-height` و `-letter-spacing` و `-font-weight-emphasized`، ولا خاصية مختصرة له. لتغيير نمط اضبط خاصية واحدة في كل مرة، على الجذر أو على عنصر واحد أو قسم من الصفحة: `--tanrei-sys-typescale-body-font-size: 1rem` يغيّر حجم نص المتن ولا شيء غيره. والخط المائل ليس رمزًا: لا يضبط أي دور نمط الحرف، فالميل للنص نفسه (`em`، أو `font-style: italic` على العنصر).
 
 ### النص المتصل (prose): نص لم تنسّقه أنت
 
@@ -157,7 +159,7 @@ import SystemValues from '../../../../components/tokens/SystemValues.astro';
 - النظام **`m3-like`** يعطي كل دور قيمة جديدة من السلّم الطباعي في Material Design 3 (يأخذ `heading-1` النمط «headline large» من Material، و `body` النمط «body medium»، و `label` النمط «label large»)، ويضيف `display-large` بحجم 57px و `display-small` بحجم 36px، لأن في Material ثلاثة أحجام عرض والمنتج الواحد يحتاج إلى واحد. ودرجات التوكيد فيه هي درجات Material: 100 للعرض والعناوين والمتن، و 200 للتسميات. تقيس أداة المطابقة كل نمط نص ينشره Material، وهي ثلاثون بما فيها المؤكَّدة، مع أدوار الألوان والمكوّن Button: من 288 رمزًا مقيسًا، 273 مساوية، و 14 مغطاة برمز آخر، و 1 بلا مقابل تحت فجوة محاكاة مسجَّلة، ولا واحد مختلف. ويُعرض ذلك بالصيغة `273 / 274` في [صفحة أنظمة التصميم](/ar/foundations/design-systems/) التي تستثني المغطاة من العدّ. الأرقام مقروءة من `tokens/generated/m3-like/fidelity.json`، وهو ملف يعيد البناء كتابته.
 - النظام **`cupertino`** يعطي كل دور قيمة جديدة من أنماط النص الأحد عشر في iOS لدى Apple، من Large Title نزولًا إلى Caption 2، ويضيف الثلاثة التي لا يسمّيها الأساس: `body-callout` و `body-subhead` و `caption-small`. وأنماط Large Title و Title 1 إلى 3 فيه Regular كما هي لدى Apple. ودرجات التوكيد فيه 300 للعرض والعناوين و 200 للمتن والتسميات: فأنماط Large Title و Title 1 و Title 2 المؤكَّدة لدى Apple هي Bold، وأنماط المتن المؤكَّدة Semibold. أما Title 3 و Headline فدرجتهما لدى Apple أصغر (كلاهما Semibold حين يؤكَّد)، ولا تستطيع درجة واحدة لكل فئة أن ترسم ذلك.
 
-الدور الذي يضيفه إعداد جاهز رمز عادي على كل منصة: `display-large` في `m3-like` هو `--tanrei-sys-typescale-display-large-font` على الويب، وعضو في السلّم الطباعي في كل حزمة أصلية. وترسمه معاينة Theme Studio في سلّم الخطوط بجوار الستة عشر.
+الدور الذي يضيفه إعداد جاهز رمز عادي على كل منصة: `display-large` في `m3-like` هو `--tanrei-sys-typescale-display-large-font-size` وسائر خصائصه المفردة على الويب، وعضو في السلّم الطباعي في كل حزمة أصلية. وترسمه معاينة Theme Studio في سلّم الخطوط بجوار الستة عشر.
 
 ## الطابع
 
