@@ -58,7 +58,9 @@ export default defineConfig({
       defaultLocale: 'root',
       // English at the root; the translations and which of their pages must exist are in i18n/locales.mjs.
       locales: starlightLocales,
-      customCss: ['@tanrei/web/tokens.css', '@tanrei/web/icons.css', './src/styles/prose.css', './src/styles/frame.css', './src/styles/fonts.generated.css', './src/styles/tanrei-theme.css'],
+      // The default system's tokens are linked by the head, first of the page's stylesheets and before the appearance's
+      // script, which puts the look's stylesheet after them (components/frame/Head.astro).
+      customCss: ['@tanrei/web/icons.css', './src/styles/prose.css', './src/styles/frame.css', './src/styles/fonts.generated.css', './src/styles/tanrei-theme.css'],
       components: {
         Hero: './src/components/Hero.astro',
         // The content column is Tanrei's prose, not Starlight's Markdown styles.

@@ -26,7 +26,7 @@ import { watchNetwork } from './network-quiet.mjs';
 import { launch, settlePage } from './launch.mjs';
 
 register('../vite-shim.mjs', import.meta.url);
-const { APPEARANCE_KEY, CUSTOM_KEY, CUSTOM_STYLE_ID, LATE_ATTR, PENDING_ATTR, SHEET_STORE } = await import('../../src/lib/appearance.ts');
+const { APPEARANCE_KEY, CUSTOM_KEY, LOOK_SHEET_ID, LATE_ATTR, PENDING_ATTR, SHEET_STORE } = await import('../../src/lib/appearance.ts');
 
 // Each test's limit, the backstop for a wait with none of its own (launch.mjs): the slowest, the Button page at 390,
 // took 16 s in CI.
@@ -251,7 +251,7 @@ describe(`under the reader's own theme, the layout shifts by no more than ${BUDG
         // default system instead, once REVEAL_AFTER has passed without the sheet (a machine too slow to compute it in
         // time: CI's runners), and keep the sheet for the next load; the next load reads it before its first paint. The
         // first load's sheet is written to IndexedDB while the page goes on: the next load waits until it is kept.
-        const marks = { style: CUSTOM_STYLE_ID, pending: PENDING_ATTR, late: LATE_ATTR };
+        const marks = { style: LOOK_SHEET_ID, pending: PENDING_ATTR, late: LATE_ATTR };
         const shown = ({ style, pending, late }) => (Boolean(document.getElementById(style)) || document.documentElement.hasAttribute(late)) && !document.documentElement.hasAttribute(pending);
         for (const load of ['computed', 'kept']) {
           let late = false;

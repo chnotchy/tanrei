@@ -1,25 +1,28 @@
 // How the docs look to the reader, in one place: the color mode (the device's, light or dark), the contrast
-// (standard, medium, high) and the look — Tanrei's own design system, one of the showcase systems that imitate
+// (standard, medium, high) and the look — Tanrei's own design system, one of the theme gallery's examples that imitate
 // another design system, or the reader's own theme ("My theme"), made in Theme Studio and kept in this browser. One
 // type, one key of the origin's storage, one set of attributes on `<html>`, one event.
+//
+// Every look is drawn the same way: on the whole page, by one stylesheet over the default system's on the root — what
+// differs from it, Theme Studio's page sheet — at the end of the head (`LOOK_SHEET_ID`). The default system has none;
+// a gallery example's is a file the build computes (lib/look-sheets.mjs), linked; the reader's own theme's is computed
+// in this browser and kept in IndexedDB (lib/custom-theme.ts), written in a `<style>`. Nothing is drawn under a scope
+// of a system's own but the figures that compare systems or are pinned to one, which say so.
 //
 //   `<html>`            data-theme             the scheme drawn, light or dark (the framework's styles and
 //                                              styles/tanrei-theme.css, which turns it into `color-scheme`)
 //                       data-tanrei-theme      the same scheme, as Tanrei's tokens read it on any element
 //                       data-docs-mode         what the reader chose: system, light or dark
 //                       data-tanrei-contrast   medium or high; absent for standard (the tokens are resolved at :root)
-//                       data-docs-system       the look: a shipped system's id, which every frame draws its stage under
-//                                              (lib/example.ts) and the lists of components follow (lib/list-filter.ts),
-//                                              or `custom`: the reader's own theme, which the whole page is drawn in
+//                       data-docs-look         the look: a shipped system's id, or `custom`, the reader's own theme
 //                       data-docs-custom       present while this browser keeps a theme of the reader's own
-//                       data-docs-custom-base  while the look is the reader's theme: the shipped system it extends, whose
-//                                              components the lists show
-//                       data-docs-appearance-pending  while the look is the reader's theme and its stylesheet is not in
-//                                              yet: nothing of the page is drawn (styles/tanrei-theme.css)
+//                       data-docs-appearance-pending  while the look's stylesheet is not in yet and nothing else holds the
+//                                              first paint for it: nothing of the page is drawn (styles/tanrei-theme.css)
 //                       data-docs-custom-missing  while the look is the reader's theme and IndexedDB, asked by the
 //                                              head's script, held no stylesheet for it: the key it is computed under
-//                       data-docs-custom-late  on a page whose theme's stylesheet was not in after `REVEAL_AFTER`: the
-//                                              page is drawn in the default system, and the sheet is kept for the next
+//                       data-docs-look-late    on a page whose look's stylesheet was not in after `REVEAL_AFTER`, or could
+//                                              not be had: the page is drawn in the default system, and the sheet is
+//                                              kept for the next (the reader's theme's in IndexedDB, a file in the cache)
 //                       data-docs-appearance-shared   present while the page shows an appearance from its address
 //   storage             `tanrei-docs-appearance`: `{ mode, contrast, look }` as JSON. Nothing else is read: a choice
 //                       kept under an older key is not carried over.
@@ -40,12 +43,13 @@
 // The head's script (`appearanceBootstrap`, written by components/frame/ThemeProvider.astro in place of the framework's
 // own theme script) applies the stored or shared appearance before the first paint. It is made of the same functions
 // as the module below — each written as a function of its arguments alone, so that its text is the script — and never
-// a second copy of them. Under the reader's own theme it hides the page until the theme's stylesheet is in: read from
+// a second copy of them. Under a gallery example it links the example's stylesheet: where the engine blocks rendering
+// on a stylesheet a script asks it to (`blocking="render"`), the first paint waits for it; elsewhere the page is hidden
+// until it has loaded. Under the reader's own theme it hides the page until the theme's stylesheet is in: read from
 // IndexedDB at once, else computed by lib/custom-theme.ts, which the module right after the head's script asks for
 // (components/frame/ThemeProvider.astro) — where the head's script found no sheet kept, at once, before the document is
-// parsed, and in the worker the head's script starts then (`EARLY_WORKER`). After `REVEAL_AFTER` it shows the page
+// parsed, and in the worker the head's script starts then (`EARLY_WORKER`). After `REVEAL_AFTER` it shows a hidden page
 // whatever happens — without the sheet, in the default system, which that page keeps.
-import { SYSTEM_ATTR, SYSTEM_ONLY_ATTR, SYSTEM_RULE_ID } from './listing.mjs';
 
 export type Mode = 'system' | 'light' | 'dark';
 export type Contrast = 'standard' | 'medium' | 'high';
@@ -71,7 +75,7 @@ export const THEME_ATTR = 'data-theme';
 export const TANREI_THEME_ATTR = 'data-tanrei-theme';
 export const MODE_ATTR = 'data-docs-mode';
 export const CONTRAST_ATTR = 'data-tanrei-contrast';
-export const LOOK_ATTR = SYSTEM_ATTR;
+export const LOOK_ATTR = 'data-docs-look';
 export const SHARED_ATTR = 'data-docs-appearance-shared';
 /** The address's names. */
 export const PARAMS = { look: 'look', mode: 'mode', contrast: 'contrast' } as const;
@@ -81,10 +85,9 @@ export const CUSTOM_LOOK = 'custom';
 /** Where the reader's own theme is kept: `{ hash, layer }`. */
 export const CUSTOM_KEY = 'tanrei-docs-custom-theme';
 export const CUSTOM_ATTR = 'data-docs-custom';
-export const CUSTOM_BASE_ATTR = 'data-docs-custom-base';
 export const PENDING_ATTR = 'data-docs-appearance-pending';
-/** On a page whose theme's stylesheet was not in after `REVEAL_AFTER`: the page is drawn in the default system, and the sheet is kept for the next. */
-export const LATE_ATTR = 'data-docs-custom-late';
+/** On a page whose look's stylesheet was not in after `REVEAL_AFTER`, or could not be had: that look. The page is drawn in the default system, and the sheet is kept for the next. */
+export const LATE_ATTR = 'data-docs-look-late';
 /**
  * Set by the head's script when IndexedDB holds no stylesheet for the reader's theme: the key it is to be computed
  * under. lib/custom-theme.ts computes it without asking IndexedDB a second time, and takes the mark away.
@@ -97,8 +100,8 @@ export const MISSING_ATTR = 'data-docs-custom-missing';
  * page's body, it fetched it only once the document was parsed (1.4 to 2.2 s after navigation on a Mac).
  */
 export const EARLY_WORKER = 'tanreiDocsSheetWorker';
-/** The `<style>` that holds the reader's theme while it is the look. */
-export const CUSTOM_STYLE_ID = 'docs-custom-system';
+/** The look's stylesheet at the end of the head: a gallery example's `<link>`, or the reader's theme's `<style>`; none under the default system. */
+export const LOOK_SHEET_ID = 'docs-look-sheet';
 /** Where the theme's stylesheet is kept (IndexedDB). */
 export const SHEET_STORE = { db: 'tanrei-docs', store: 'sheets' } as const;
 /**
@@ -109,13 +112,13 @@ export const SHEET_STORE = { db: 'tanrei-docs', store: 'sheets' } as const;
  */
 export const SHEET_HELD_KEY = 'tanrei-docs-custom-sheet';
 /**
- * The longest the page stays hidden for the theme's stylesheet, in milliseconds. A sheet not in by then is not put in
+ * The longest the page stays hidden for the look's stylesheet, in milliseconds. A sheet not in by then is not put in
  * on that page — it would move everything drawn: the page is drawn in the default system, its look says so, and the
- * sheet, once computed, is kept for the next page (`LATE_ATTR`).
+ * sheet, once had, is kept for the next page (`LATE_ATTR`).
  */
 export const REVEAL_AFTER = 3000;
-/** Sent on `document` once the reader's theme's stylesheet is in, or another took its place. */
-export const CUSTOM_SHEET_EVENT = 'docs-custom-sheet';
+/** Sent on `document` once the look's stylesheet is in, another took its place, or it was taken away: the root's tokens changed. */
+export const LOOK_SHEET_EVENT = 'docs-look-sheet';
 
 /** What `docs-appearance` carries. */
 export interface AppearanceDetail {
@@ -139,16 +142,12 @@ export function normalize(value: unknown, looks: readonly string[], defaultLook:
   return { mode, contrast, look };
 }
 
-/**
- * The reader's own theme as storage keeps it (parsed JSON, or nothing): its hash, and the shipped system it extends —
- * the default where it extends another — or null where there is none, or none that can be read.
- */
-export function customOf(value: unknown, looks: readonly string[]): { hash: string; base: string } | null {
+/** The reader's own theme as storage keeps it (parsed JSON, or nothing): its hash, or null where there is none, or none that can be read. */
+export function customOf(value: unknown): { hash: string } | null {
   const given = (value && typeof value === 'object' ? value : {}) as Record<string, unknown>;
-  const layer = (given.layer && typeof given.layer === 'object' ? given.layer : null) as Record<string, unknown> | null;
+  const layer = given.layer && typeof given.layer === 'object' ? given.layer : null;
   if (typeof given.hash !== 'string' || !/^[0-9a-z]{1,32}$/.test(given.hash) || !layer) return null;
-  const base = typeof layer.extends === 'string' && looks.indexOf(layer.extends) >= 0 ? layer.extends : looks[0] || '';
-  return { hash: given.hash, base };
+  return { hash: given.hash };
 }
 
 /** The stylesheet IndexedDB keeps under `key`, given to `done` — or null where it keeps none, or fails. */
@@ -181,13 +180,15 @@ export function readSheet(db: string, store: string, key: string, done: (css: st
   }
 }
 
-/** The reader's theme's stylesheet put in place: one `<style>` at the end of the head, named by its key, in the place of any before it. */
+/** The reader's theme's stylesheet put in place: one `<style>` at the end of the head, named by its key, in the place of any look's sheet before it. */
 export function placeSheet(css: string, key: string, id: string): void {
-  let style = document.getElementById(id);
-  if (!style) {
-    style = document.createElement('style');
-    style.id = id;
-    document.head.appendChild(style);
+  var style = document.getElementById(id);
+  if (!style || style.localName !== 'style') {
+    var made = document.createElement('style');
+    made.id = id;
+    if (style) style.replaceWith(made);
+    else document.head.appendChild(made);
+    style = made;
   }
   if (style.getAttribute('data-key') !== key) {
     style.textContent = css;
@@ -228,11 +229,45 @@ export function attributesOf(appearance: Appearance, deviceDark: boolean, names:
 }
 
 /**
- * The rule that hides, from the first paint, what is said under another look only. What the look does not have stays in
- * the lists: the words that say so are said under it only (lib/list-filter.ts).
+ * A gallery example's stylesheet linked at the end of the head as the look's sheet (`id`). `done` is called once: with
+ * true at once where that link is the look's sheet already, else once it has loaded — the look's sheet before it taken
+ * away then, so that the page is never drawn in neither — and with false where it could not be loaded (the link is
+ * taken away). With `render`, the engine is asked to block rendering on it where it can (`blocking="render"`); the
+ * answer is whether it does: where it does, the first paint waits for the sheet.
  */
-export function listRuleOf(look: string, only: string): string {
-  return `[${only}]:not([${only}="${look}"]){display:none}`;
+export function linkSheet(href: string, id: string, render: boolean, done: (loaded: boolean) => void): boolean {
+  var before = document.getElementById(id);
+  if (before && before.localName === 'link' && before.getAttribute('href') === href) {
+    done(true);
+    return false;
+  }
+  var link = document.createElement('link') as HTMLLinkElement & { blocking?: DOMTokenList };
+  link.rel = 'stylesheet';
+  link.href = href;
+  // Every look's link is marked, the one still loading too: a look chosen meanwhile takes them all away.
+  link.setAttribute('data-docs-look-sheet', '');
+  var blocks = false;
+  if (render && link.blocking && typeof link.blocking.supports === 'function' && link.blocking.supports('render')) {
+    link.blocking.add('render');
+    blocks = true;
+  }
+  link.addEventListener('load', function () {
+    // A link taken away meanwhile (another look was chosen, or the page could not wait for it) is no look's sheet.
+    if (!link.isConnected) return;
+    var held = document.getElementById(id);
+    if (held && held !== link) held.remove();
+    link.id = id;
+    done(true);
+  });
+  link.addEventListener('error', function () {
+    if (!link.isConnected) return;
+    link.remove();
+    done(false);
+  });
+  // Named the look's sheet at once where it is the only one; beside another, once it has taken that one's place.
+  if (!before) link.id = id;
+  document.head.appendChild(link);
+  return blocks;
 }
 
 /** What the head's script and the module are told: the looks and the names. */
@@ -246,13 +281,14 @@ export interface BootConfig {
   defaultLook: string;
   names: { theme: string; tanreiTheme: string; mode: string; contrast: string; look: string };
   shared: string;
-  rule: { id: string; only: string };
+  /** The look's stylesheet: its element's id, the root's marks while it is awaited and where it came too late, and how long the page waits for it. */
+  sheet: { id: string; pending: string; late: string; wait: number };
   /**
-   * The reader's own theme: where it is kept, its marks on the root, where its stylesheet is kept, the build that
+   * The reader's own theme: where it is kept, its mark on the root, where its stylesheet is kept, the build that
    * computes it, and the worker that does (its script's address, null where the build does not name it; and where the
    * head's script leaves the worker it starts).
    */
-  custom: { key: string; look: string; available: string; base: string; pending: string; late: string; missing: string; style: string; db: string; store: string; build: string; wait: number; held: string; worker: string | null; early: string };
+  custom: { key: string; look: string; available: string; missing: string; db: string; store: string; build: string; held: string; worker: string | null; early: string };
 }
 
 /**
@@ -267,8 +303,8 @@ export const bootConfig = (looks: string[], build = '', worker: string | null = 
   defaultLook: looks[0] ?? '',
   names: { theme: THEME_ATTR, tanreiTheme: TANREI_THEME_ATTR, mode: MODE_ATTR, contrast: CONTRAST_ATTR, look: LOOK_ATTR },
   shared: SHARED_ATTR,
-  rule: { id: SYSTEM_RULE_ID, only: SYSTEM_ONLY_ATTR },
-  custom: { key: CUSTOM_KEY, look: CUSTOM_LOOK, available: CUSTOM_ATTR, base: CUSTOM_BASE_ATTR, pending: PENDING_ATTR, late: LATE_ATTR, missing: MISSING_ATTR, style: CUSTOM_STYLE_ID, db: SHEET_STORE.db, store: SHEET_STORE.store, build, wait: REVEAL_AFTER, held: SHEET_HELD_KEY, worker, early: EARLY_WORKER },
+  sheet: { id: LOOK_SHEET_ID, pending: PENDING_ATTR, late: LATE_ATTR, wait: REVEAL_AFTER },
+  custom: { key: CUSTOM_KEY, look: CUSTOM_LOOK, available: CUSTOM_ATTR, missing: MISSING_ATTR, db: SHEET_STORE.db, store: SHEET_STORE.store, build, held: SHEET_HELD_KEY, worker, early: EARLY_WORKER },
 });
 
 /** Where a theme's stylesheet is kept: under the build's key and the layer's hash. */
@@ -276,15 +312,17 @@ export const sheetKey = (build: string, hash: string) => `${build}:${hash}`;
 
 /**
  * The script of every page's head: before the first paint it shows the appearance the address shares, over the
- * stored one, else the stored one, else the default; and writes the rule that hides what the look does not have in
- * the lists of components. Storage that is blocked or throws is a reader who has chosen nothing. Under the reader's
- * own theme the lists are those of the system it extends, and the page is hidden until the theme's stylesheet is in,
- * and two frames more: what was measured under the default system's tokens is measured again before it is drawn.
- * Where IndexedDB holds no sheet for it, the script starts the worker that computes one (`EARLY_WORKER`, where the
- * build names its script) and runs at once the module after it, which takes the worker.
+ * stored one, else the stored one, else the default, and puts the look's stylesheet in. Storage that is blocked or
+ * throws is a reader who has chosen nothing. Under a gallery example it links the example's sheet, which the first
+ * paint waits for where the engine blocks rendering on it, and the page is hidden until it has loaded where it does
+ * not. Under the reader's own theme the page is hidden until the theme's stylesheet is in, and two frames more: what
+ * was measured under the default system's tokens is measured again before it is drawn. Where IndexedDB holds no sheet
+ * for it, the script starts the worker that computes one (`EARLY_WORKER`, where the build names its script) and runs
+ * at once the module after it, which takes the worker. A hidden page is shown after `REVEAL_AFTER` whatever happens: a
+ * sheet not in by then is not used on that page (a gallery example's is fetched for the next one, `prefetch`).
  */
 export function appearanceBootstrap(config: BootConfig): string {
-  return `(function(c){var me=document.currentScript,normalize=${normalize},sharedFrom=${sharedFrom},attributesOf=${attributesOf},listRuleOf=${listRuleOf},customOf=${customOf},readSheet=${readSheet},placeSheet=${placeSheet};var looks=Object.keys(c.looks),stored=null,custom=null;try{stored=JSON.parse(localStorage.getItem(c.key)||'null')}catch(e){}try{custom=customOf(JSON.parse(localStorage.getItem(c.custom.key)||'null'),looks)}catch(e){}var asked=sharedFrom(location.search),given=stored&&typeof stored==='object'?stored:{},merged={};for(var k in given)merged[k]=given[k];if(asked)for(var a in asked)merged[a]=asked[a];var shown=normalize(merged,looks,c.defaultLook,!!custom),root=document.documentElement,attrs=attributesOf(shown,matchMedia('(prefers-color-scheme: dark)').matches,c.names);for(var n in attrs){if(attrs[n]===null)root.removeAttribute(n);else root.setAttribute(n,attrs[n])}if(asked)root.setAttribute(c.shared,'');if(custom)root.setAttribute(c.custom.available,'');var listed=shown.look;if(custom&&shown.look===c.custom.look){listed=custom.base;root.setAttribute(c.custom.base,custom.base);root.setAttribute(c.custom.pending,'');var key=c.custom.build+':'+custom.hash;setTimeout(function(){if(!root.hasAttribute(c.custom.pending))return;if(!document.getElementById(c.custom.style)){root.setAttribute(c.names.look,c.defaultLook);root.removeAttribute(c.custom.base);root.setAttribute(c.custom.late,'')}root.removeAttribute(c.custom.pending)},c.custom.wait);var held=null;try{held=localStorage.getItem(c.custom.held)}catch(e){}var answer=function(css){if(root.getAttribute(c.names.look)!==c.custom.look)return;if(css===null){root.setAttribute(c.custom.missing,key);if(c.custom.worker&&typeof Worker==='function')try{window[c.custom.early]=new Worker(c.custom.worker,{type:'module'})}catch(e){}if(me&&me.parentNode&&typeof MutationObserver==='function'){var start=function(){var next=me.nextElementSibling;while(next&&next.localName!=='script')next=next.nextElementSibling;if(!next)return false;if(next.type==='module'&&next.src){var early=document.createElement('script');early.type='module';early.src=next.src;document.head.appendChild(early)}return true};if(!start()){var parsed=new MutationObserver(function(){if(start())parsed.disconnect()});parsed.observe(me.parentNode,{childList:true})}}return}placeSheet(css,key,c.custom.style);requestAnimationFrame(function(){requestAnimationFrame(function(){root.removeAttribute(c.custom.pending)})})};if(held===key)readSheet(c.custom.db,c.custom.store,key,answer);else answer(null)}var r=document.createElement('style');r.id=c.rule.id;r.textContent=listRuleOf(listed,c.rule.only);document.head.appendChild(r)})(${JSON.stringify(config)})`;
+  return `(function(c){var me=document.currentScript,normalize=${normalize},sharedFrom=${sharedFrom},attributesOf=${attributesOf},customOf=${customOf},readSheet=${readSheet},placeSheet=${placeSheet},linkSheet=${linkSheet};var looks=Object.keys(c.looks),stored=null,custom=null;try{stored=JSON.parse(localStorage.getItem(c.key)||'null')}catch(e){}try{custom=customOf(JSON.parse(localStorage.getItem(c.custom.key)||'null'))}catch(e){}var asked=sharedFrom(location.search),given=stored&&typeof stored==='object'?stored:{},merged={};for(var k in given)merged[k]=given[k];if(asked)for(var a in asked)merged[a]=asked[a];var shown=normalize(merged,looks,c.defaultLook,!!custom),root=document.documentElement,attrs=attributesOf(shown,matchMedia('(prefers-color-scheme: dark)').matches,c.names);for(var n in attrs){if(attrs[n]===null)root.removeAttribute(n);else root.setAttribute(n,attrs[n])}if(asked)root.setAttribute(c.shared,'');if(custom)root.setAttribute(c.custom.available,'');var late=function(){root.setAttribute(c.names.look,c.defaultLook);root.setAttribute(c.sheet.late,shown.look)},href=c.looks[shown.look];if(href){var settled=false,blocks=linkSheet(href,c.sheet.id,true,function(loaded){settled=true;if(!loaded)late();root.removeAttribute(c.sheet.pending)});if(!blocks&&!settled){root.setAttribute(c.sheet.pending,'');setTimeout(function(){if(settled)return;var link=document.getElementById(c.sheet.id);if(link)link.remove();var next=document.createElement('link');next.rel='prefetch';next.href=href;document.head.appendChild(next);late();root.removeAttribute(c.sheet.pending)},c.sheet.wait)}}if(custom&&shown.look===c.custom.look){root.setAttribute(c.sheet.pending,'');var key=c.custom.build+':'+custom.hash;setTimeout(function(){if(!root.hasAttribute(c.sheet.pending))return;if(!document.getElementById(c.sheet.id))late();root.removeAttribute(c.sheet.pending)},c.sheet.wait);var held=null;try{held=localStorage.getItem(c.custom.held)}catch(e){}var answer=function(css){if(root.getAttribute(c.names.look)!==c.custom.look)return;if(css===null){root.setAttribute(c.custom.missing,key);if(c.custom.worker&&typeof Worker==='function')try{window[c.custom.early]=new Worker(c.custom.worker,{type:'module'})}catch(e){}if(me&&me.parentNode&&typeof MutationObserver==='function'){var start=function(){var next=me.nextElementSibling;while(next&&next.localName!=='script')next=next.nextElementSibling;if(!next)return false;if(next.type==='module'&&next.src){var early=document.createElement('script');early.type='module';early.src=next.src;document.head.appendChild(early)}return true};if(!start()){var parsed=new MutationObserver(function(){if(start())parsed.disconnect()});parsed.observe(me.parentNode,{childList:true})}}return}placeSheet(css,key,c.sheet.id);requestAnimationFrame(function(){requestAnimationFrame(function(){root.removeAttribute(c.sheet.pending)})})};if(held===key)readSheet(c.custom.db,c.custom.store,key,answer);else answer(null)}})(${JSON.stringify(config)})`;
 }
 
 /**
@@ -312,18 +350,28 @@ export function withoutShared(href: string): string {
 
 // ── In the browser ───────────────────────────────────────────────────────────────────────────────────────────────────
 
-/** The looks the head's script was told of: the systems the root's lists know, read from the page (Header.astro). */
-const looksOnPage = (): string[] => {
-  const holder = typeof document !== 'undefined' ? document.querySelector<HTMLElement>('[data-docs-looks]') : null;
-  return holder?.dataset.docsLooks?.split(' ').filter(Boolean) ?? [];
+/** The holder of what the head's script was told of, on the page (the Appearance panel, components/frame/Appearance.astro). */
+const holder = () => (typeof document !== 'undefined' ? document.querySelector<HTMLElement>('[data-docs-looks]') : null);
+
+/** The looks that are shipped systems, the default first. */
+const looksOnPage = (): string[] => holder()?.dataset.docsLooks?.split(' ').filter(Boolean) ?? [];
+
+/** The address of each gallery example's stylesheet, by look (lib/look-sheets.mjs). */
+const sheetsOnPage = (): Record<string, string> => {
+  try {
+    const sheets = JSON.parse(holder()?.dataset.docsLookSheets ?? '{}');
+    return sheets && typeof sheets === 'object' ? sheets : {};
+  } catch {
+    return {};
+  }
 };
 
 const deviceDark = () => matchMedia('(prefers-color-scheme: dark)').matches;
 
 /** The reader's own theme this browser keeps, or null. */
-export function keptCustom(looks: string[] = looksOnPage()): { hash: string; base: string } | null {
+export function keptCustom(): { hash: string } | null {
   try {
-    return customOf(JSON.parse(localStorage.getItem(CUSTOM_KEY) ?? 'null'), looks);
+    return customOf(JSON.parse(localStorage.getItem(CUSTOM_KEY) ?? 'null'));
   } catch {
     return null;
   }
@@ -334,7 +382,7 @@ function readStored(looks: string[]): Appearance {
   try {
     stored = JSON.parse(localStorage.getItem(APPEARANCE_KEY) ?? 'null');
   } catch {}
-  return normalize(stored, looks, looks[0] ?? '', keptCustom(looks) !== null);
+  return normalize(stored, looks, looks[0] ?? '', keptCustom() !== null);
 }
 
 /** The appearance shown now, read from `<html>` (the head's script wrote it). */
@@ -367,25 +415,45 @@ export function placeCustomChoices(): void {
 /** The reader's theme's stylesheet, put in place once it is in (lib/custom-theme.ts, loaded when it is first needed). */
 const drawCustom = () => import('./custom-theme').then((module) => module.showCustomSheet());
 
+/** Says that the root's tokens changed: the look's sheet is in, another took its place, or it was taken away. */
+const announceSheet = () => document.dispatchEvent(new CustomEvent(LOOK_SHEET_EVENT));
+
 /**
- * The marks of the reader's own theme on the root, and its stylesheet: in place while it is the look, taken away
- * when it is not — the page is drawn in the default system's tokens again.
+ * The look's stylesheet in place, the one way for every look: a gallery example's linked — the one before it kept
+ * until it has loaded, so that the page is never drawn in neither — the reader's own theme's put in by
+ * lib/custom-theme.ts, and none for the default system, whose tokens are the root's.
  */
-function showCustom(look: string): void {
+function showLook(look: string): void {
   const root = document.documentElement;
   const custom = keptCustom();
   root.toggleAttribute(CUSTOM_ATTR, custom !== null);
+  root.removeAttribute(LATE_ATTR);
+  root.removeAttribute(PENDING_ATTR);
+  const href = sheetsOnPage()[look];
+  // A link still loading for another look is no longer asked for.
+  for (const link of document.querySelectorAll('link[data-docs-look-sheet]')) if (link.id !== LOOK_SHEET_ID && link.getAttribute('href') !== href) link.remove();
+  const current = document.getElementById(LOOK_SHEET_ID);
   if (custom && look === CUSTOM_LOOK) {
-    root.setAttribute(CUSTOM_BASE_ATTR, custom.base);
-    root.removeAttribute(LATE_ATTR);
     void drawCustom();
     return;
   }
-  root.removeAttribute(CUSTOM_BASE_ATTR);
-  root.removeAttribute(PENDING_ATTR);
-  if (document.getElementById(CUSTOM_STYLE_ID)) {
-    document.getElementById(CUSTOM_STYLE_ID)?.remove();
-    document.dispatchEvent(new CustomEvent(CUSTOM_SHEET_EVENT));
+  if (href) {
+    if (current?.localName === 'link' && current.getAttribute('href') === href) return;
+    linkSheet(href, LOOK_SHEET_ID, false, (loaded) => {
+      if (loaded) return announceSheet();
+      console.warn(`[docs] The stylesheet of ${look} could not be loaded: the page is drawn in the default system.`);
+      if (root.getAttribute(LOOK_ATTR) !== look) return;
+      document.getElementById(LOOK_SHEET_ID)?.remove();
+      root.setAttribute(LOOK_ATTR, looksOnPage()[0] ?? '');
+      root.setAttribute(LATE_ATTR, look);
+      announceSheet();
+    });
+    return;
+  }
+  for (const link of document.querySelectorAll('link[data-docs-look-sheet]')) link.remove();
+  if (current) {
+    current.remove();
+    announceSheet();
   }
 }
 
@@ -398,7 +466,7 @@ function show(appearance: Appearance, shared: boolean): void {
     else if (root.getAttribute(name) !== value) root.setAttribute(name, value);
   }
   root.toggleAttribute(SHARED_ATTR, shared);
-  showCustom(appearance.look);
+  showLook(appearance.look);
   const changed = before.mode !== appearance.mode || before.contrast !== appearance.contrast || before.look !== appearance.look || scheme !== root.getAttribute(THEME_ATTR);
   if (changed) document.dispatchEvent(new CustomEvent<AppearanceDetail>(APPEARANCE_EVENT, { detail: { appearance, shared } }));
 }
@@ -409,7 +477,7 @@ function show(appearance: Appearance, shared: boolean): void {
  */
 export function setAppearance(change: Partial<Appearance>): Appearance {
   const looks = looksOnPage();
-  const next = normalize({ ...shownAppearance(), ...change }, looks, looks[0] ?? '', keptCustom(looks) !== null);
+  const next = normalize({ ...shownAppearance(), ...change }, looks, looks[0] ?? '', keptCustom() !== null);
   try {
     localStorage.setItem(APPEARANCE_KEY, JSON.stringify(next));
   } catch {}
@@ -445,5 +513,5 @@ if (typeof document !== 'undefined' && typeof matchMedia === 'function') {
   // The reader's theme, where the head's script found it the look: its stylesheet, if IndexedDB did not hold it (and,
   // where the page could not wait for it, kept for the next page). The head's module (ThemeProvider.astro) has asked for
   // it already, before any module that defines an element runs: this asks for the same, and waits for that.
-  if (document.documentElement.getAttribute(LOOK_ATTR) === CUSTOM_LOOK || document.documentElement.hasAttribute(LATE_ATTR)) void drawCustom();
+  if (document.documentElement.getAttribute(LOOK_ATTR) === CUSTOM_LOOK || document.documentElement.getAttribute(LATE_ATTR) === CUSTOM_LOOK) void drawCustom();
 }

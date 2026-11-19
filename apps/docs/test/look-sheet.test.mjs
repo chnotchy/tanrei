@@ -12,7 +12,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import { test } from 'node:test';
 import { fileURLToPath } from 'node:url';
-import { sheetRules, shippedLayers } from '@tanrei/studio/sheet-node';
+import { scopedSheet, sheetRules, shippedLayers } from '@tanrei/studio/sheet-node';
 import { lookFileName, lookSheets, sheetLooks } from '../src/lib/look-sheets.mjs';
 
 const here = (file) => fileURLToPath(new URL(file, import.meta.url));
@@ -164,6 +164,18 @@ for (const [look, css] of Object.entries(sheets)) {
     assert.ok(css.length < scoped.length / 3, `the sheet (${css.length} characters) is under a third of the system's own (${scoped.length})`);
   });
 }
+
+test('a system’s scoped sheet, as a figure that compares systems draws the default system, is the build’s own: every preset’s declares what systems/<id>.css does', () => {
+  const flat = (css) => new Set(sheetRules(css).flatMap((rule) => rule.declarations.map(([property, value]) => `${rule.path.join(' › ')} ${property}: ${value}`)));
+  for (const look of Object.keys(sheets)) {
+    const want = flat(generated(`systems/${look}.css`));
+    const got = flat(scopedSheet(look));
+    assert.deepEqual([[...want].filter((each) => !got.has(each)).slice(0, 3), [...got].filter((each) => !want.has(each)).slice(0, 3)], [[], []], look);
+  }
+  const own = scopedSheet(NS);
+  assert.match(own, new RegExp(`\\[data-${NS}-system="${NS}"\\] \\{`), 'the default system under its own scope');
+  assert.ok(!/(^|\n)\s*:root\b/.test(own), 'and nowhere on the root');
+});
 
 test('a look’s file is named by its contents', () => {
   const [look, css] = Object.entries(sheets)[0];
