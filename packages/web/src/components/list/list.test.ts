@@ -10,7 +10,7 @@ import { heldTaskFrame, motionCount, motionEnded } from '../../../test/motions.j
 import { type Frame, type Frames, type Probe, expectAnchored, expectAnimated, expectFirstFrameAtRest, expectNoFlicker, sampleFrames } from '../../../test/frames.js';
 import { bezierOf, resolveEasing } from '../../../test/appear.js';
 import { holdClock, releaseClock } from '../../../test/page-clock.js';
-import { TYPEAHEAD_FOUND, TYPEAHEAD_LABELS, typeaheadAsFiltered } from '../../../test/typeahead.js';
+import { LANGUAGES, LANGUAGE_FOUND, LANGUAGE_LABELS, TYPEAHEAD_FOUND, TYPEAHEAD_LABELS, typeaheadAsFiltered, typeaheadByLanguage } from '../../../test/typeahead.js';
 import { MIRRORED, anchorOf, expectDisabledLink, expectLinkActivation, expectNewContext, expectRefusals, expectTargetLabel, markOf } from '../../../test/links.js';
 import { expectBaseline } from '../../../test/baseline.js';
 
@@ -474,6 +474,15 @@ test.describe('semantics and keyboard', () => {
     const seen = await typeaheadAsFiltered(page, () => focused(page));
     expect(seen).toEqual(TYPEAHEAD_FOUND);
     expect(await value(), 'moving focus never selects').toEqual(chosen);
+  });
+
+  test('LST-17: typeahead compares the typed characters with the names as the name’s language compares — in Turkish “i” is not the small letter of “I”, “ß” is “ss”, a marked letter is found by its base letter, a full-width one by its half-width form, and a kana sound mark is kept', async ({ page }) => {
+    const items = LANGUAGE_LABELS.map((label, n) => [label, { value: `l${n}` }] as [string, Props]);
+    await mountFixtures(page, spec, { fixtures: LANGUAGES.map((lang) => fixture(lang, { selection: 'single', label: 'Places', lang }, items)) });
+    for (const lang of LANGUAGES) {
+      await tabTo(page, item(page, lang, 0));
+      expect(await typeaheadByLanguage(page, () => focused(page)), lang).toEqual(LANGUAGE_FOUND[lang]);
+    }
   });
 
   test('LST-18: a list of list items with positions; an action is one button inside its item; a listbox named by label, multi-selectable, with its orientation; options with selected state; a reorderable list named by label', async ({ page }) => {

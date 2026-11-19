@@ -74,6 +74,7 @@ import { focusedAtFirst } from '../../primitives/autofocus.js';
 import { TanreiElement } from '../../primitives/element.js';
 import { PausedAnnouncement } from '../../primitives/paused-announcement.js';
 import { completionOf } from '../../primitives/filter.js';
+import { ambientLocale } from '../../primitives/locale-date.js';
 
 /**
  * The glyphs of the system's icon set the search draws — the spec's names, not values; it draws no mark of
@@ -1630,7 +1631,7 @@ export class TanreiSearch extends TanreiElement {
     let completion = '';
     if (can) {
       for (const suggestion of this.suggestions) {
-        const pieces = completionOf(suggestion.headline, this.value);
+        const pieces = completionOf(suggestion.headline, this.value, ambientLocale(suggestion));
         if (pieces && pieces[1]) {
           completion = pieces[1];
           break;
@@ -2722,7 +2723,7 @@ export class TanreiSearch extends TanreiElement {
                 >
                   ${listing.icons || s.leadingIcon ? html`<span class="option-icon ${s.leadingIcon ? '' : 'empty'}" aria-hidden="true" data-mirror=${mirrorWordOf(s)}>${s.leadingIcon}</span>` : nothing}
                   <span class="text">
-                    <span class="headline" id="${optionId(s)}-headline">${this.renderCompletion(s.headline, listing.value)}</span>
+                    <span class="headline" id="${optionId(s)}-headline">${this.renderCompletion(s, listing.value)}</span>
                     ${s.supportingText ? html`<span class="supporting" id="${optionId(s)}-supporting">${s.supportingText}</span>` : nothing}
                   </span>
                 </div>`;
@@ -2747,8 +2748,9 @@ export class TanreiSearch extends TanreiElement {
    * drawn heavier, in one text with the rest, so that it is read as the headline alone. A headline that does not begin
    * with the value is drawn as it is.
    */
-  private renderCompletion(headline: string, value: string) {
-    const pieces = completionOf(headline, value);
+  private renderCompletion(suggestion: TanreiSearchSuggestion, value: string) {
+    const { headline } = suggestion;
+    const pieces = completionOf(headline, value, ambientLocale(suggestion));
     if (!pieces || !pieces[1]) return headline;
     return html`${pieces[0]}<span part="completion" class="completion">${pieces[1]}</span>`;
   }
