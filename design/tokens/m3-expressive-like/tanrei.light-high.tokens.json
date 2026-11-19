@@ -37618,7 +37618,7 @@
               "value": 56,
               "unit": "px"
             },
-            "$description": "An item's minimum height."
+            "$description": "An item's minimum height: a menu item's, the control height, so that an item of the menu a FAB opens stands as tall as an item of any other menu."
           },
           "icon": {
             "size": {

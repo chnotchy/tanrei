@@ -26,6 +26,7 @@ import { expectBaseline } from '../../../test/baseline.js';
 import { mirroring, mirroringAfterDirection } from '../../../test/mirror-word.js';
 import { expectGoneWhileSkipped } from '../../../test/skipped-exit.js';
 import { controlledElements, controlledInTree } from '../../../test/controlled-list.js';
+import { CONTROL_HEIGHTS, atControlHeight } from '../../../test/control-height.js';
 
 const spec = loadSpec('menu');
 type P = Page;
@@ -1244,7 +1245,28 @@ test.describe('items', () => {
     expect((await bounds(row(page, 'actions', 0))).height).toBeCloseTo(await resolveToken(page, '--tanrei-sys-target-touch'), 1);
   });
 
-  test('MNU-13: a disabled item renders from the disabled tokens of its condition — the box, its check and the ring of a control look, and a glyph mark, included', async ({ page }) => {
+  test('MNU-70: at control height 32, 36 and 40, the minimum no higher, an item of a medium menu — inline and a context menu’s — is that tall under a fine pointer, its label whole inside it, and an item of a small menu is the small step held at the minimum', async ({ page }) => {
+    await mountFixtures(page, spec, { fixtures: [inline('medium', EDIT), inline('small', EDIT, { size: 'small' }), overlay('ctx', EDIT, { trigger: 'context' })] });
+    await page.evaluate(() => {
+      const m = document.querySelector<any>('[data-fixture="ctx"] tanrei-menu')!;
+      m.addEventListener('contextrequest', () => (m.open = true));
+    });
+    await anchor(page, 'ctx').click({ button: 'right' });
+    await expect.poll(() => isOpen(page, 'ctx')).toBe(true);
+    for (const height of CONTROL_HEIGHTS) {
+      const pointer = await atControlHeight(page, height);
+      const [small, minimum] = [await resolveToken(page, '--tanrei-sys-control-height-small'), await resolveToken(page, '--tanrei-sys-target-minimum')];
+      for (const id of ['medium', 'ctx']) {
+        await expect.poll(async () => (await bounds(row(page, id, 0))).height, `${id} at ${height}`).toBeCloseTo(height, 1);
+        const [r, label] = [await bounds(row(page, id, 0)), await bounds(row(page, id, 0).locator('.label').first())];
+        expect(label.y, `${id} at ${height}: the label inside the row`).toBeGreaterThanOrEqual(r.y - 0.5);
+        expect(label.y + label.height, `${id} at ${height}`).toBeLessThanOrEqual(r.y + r.height + 0.5);
+      }
+      await expect.poll(async () => (await bounds(row(page, 'small', 0))).height, `small at ${height}`).toBeCloseTo(Math.max(small, minimum, pointer), 1);
+    }
+  });
+
+  test('MNU-13:a disabled item renders from the disabled tokens of its condition — the box, its check and the ring of a control look, and a glyph mark, included', async ({ page }) => {
     await mountFixtures(page, spec, { icons: true, fixtures: [...spec.fixtures, inline('glyph', [cb('Grid', { checked: true, disabled: true, markIcon: 'check' })])] });
     await expect.poll(() => drawn(page, 'disabled', 0)).toEqual(await expected(page, 'unselected', 'disabled'));
     await expect.poll(() => drawn(page, 'checked-disabled', 0)).toEqual(await expected(page, 'selected', 'disabled'));
@@ -4775,7 +4797,8 @@ test.describe('context menu', () => {
     await page.mouse.click(400, 400, { button: 'right' });
     await expect.poll(() => ctxOpen(page)).toBe(true);
     await page.evaluate(() => ((window as any).log.length = 0));
-    await page.mouse.click(500, 500);
+    // In the area, beside the menu below the point it opened at, not on it.
+    await page.mouse.click(100, 500);
     await expect.poll(() => ctxOpen(page)).toBe(false);
     await page.mouse.click(400, 400, { button: 'right' });
     await expect.poll(() => ctxOpen(page)).toBe(true);

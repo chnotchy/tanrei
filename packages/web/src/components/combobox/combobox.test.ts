@@ -24,6 +24,7 @@ import { expectBaseline } from '../../../test/baseline.js';
 import { expectGoneWhileSkipped } from '../../../test/skipped-exit.js';
 import { expectBoxTakesContainerSize, expectOptionsTakeDrawnSize } from '../../../test/input-box-size.js';
 import { controlledInTree, controlledList } from '../../../test/controlled-list.js';
+import { CONTROL_HEIGHTS, atControlHeight } from '../../../test/control-height.js';
 
 const spec = loadSpec('combobox');
 type P = Page;
@@ -2530,7 +2531,21 @@ test.describe('behavior: the list', () => {
     await expect.poll(async () => (await drawn('size-small', 'Mail')).height).toBeCloseTo(await resolveToken(page, '--tanrei-sys-target-touch'), 0);
   });
 
-  test('CMB-45: the list appears as a popover\'s container does over motion.open-*, leaves the same way over motion.close-*, and only fades, over role.reduced, where motion is reduced; closing it takes no input; a change of the options shown changes its height at once; the value, the text and the open state change when it closes, not when its motion ends', async ({ page }) => {
+  test('CMB-84: at control height 32, 36 and 40, the minimum no higher, an option of a medium combobox’s open list is that tall under a fine pointer, its label whole inside it, and as tall as the combobox’s box', async ({ page }) => {
+    const smallFixture = spec.fixtures.find((f) => f.id === 'size-small')!;
+    await mount(page, [{ ...smallFixture, id: 'medium', props: { ...smallFixture.props, size: 'medium' } }]);
+    for (const height of CONTROL_HEIGHTS) {
+      await atControlHeight(page, height);
+      const r = row(page, 'medium', 'Mail');
+      await expect.poll(async () => (await box(r)).height, `at ${height}`).toBeCloseTo(height, 1);
+      const [b, label] = [await box(r), await box(r.locator('.option-label'))];
+      expect(label.y, `the label inside the row at ${height}`).toBeGreaterThanOrEqual(b.y - 0.5);
+      expect(label.y + label.height, `at ${height}`).toBeLessThanOrEqual(b.y + b.height + 0.5);
+      near((await box(container(page, 'medium'))).height, height, `the box at ${height}`);
+    }
+  });
+
+  test('CMB-45:the list appears as a popover\'s container does over motion.open-*, leaves the same way over motion.close-*, and only fades, over role.reduced, where motion is reduced; closing it takes no input; a change of the options shown changes its height at once; the value, the text and the open state change when it closes, not when its motion ends', async ({ page }) => {
     await mount(page, [fx('one', { value: 'lisbon' })], { reducedMotion: false });
     // The motions at 40 s, each ended by hand: what is read 'still fading' is read some round trips after the change that
     // begins the fade, and at 400 ms a runner that takes 150 ms an answer read a list that had arrived. The durations are

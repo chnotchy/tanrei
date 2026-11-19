@@ -5528,7 +5528,8 @@
                 "fn": "mul",
                 "of": "{tanrei.dial.size.unit}",
                 "by": 12
-              }
+              },
+              "reason": "Material 3's menu item is 48dp, taller than its 40dp button: this preset keeps it, where the default system draws a menu item at the control height."
             },
             "tanrei.comp.menu.container.shape": {
               "$value": "{tanrei.sys.shape.corner.none}"
@@ -6483,7 +6484,8 @@
                 "fn": "mul",
                 "of": "{tanrei.dial.size.unit}",
                 "by": 14
-              }
+              },
+              "reason": "Material 3's FAB menu item is 56dp, taller than its menu item: this preset keeps it, where the component's own value is a menu item's, the control height."
             },
             "tanrei.comp.fab-menu.item.shape": {
               "$value": "{tanrei.sys.shape.corner.full}"

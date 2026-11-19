@@ -3822,7 +3822,7 @@ const TanreiSystem cupertinoSystem = TanreiSystem(
   fabMenu: TanreiFabMenuTokens(
     containerShapeOpen: 9999.0,
     itemGap: 8.0,
-    itemHeight: 48.0,
+    itemHeight: 44.0,
     itemIconSize: 20.0,
     itemLabelTypescale: _typescaleLabel,
     itemPaddingInlineEnd: 20.0,

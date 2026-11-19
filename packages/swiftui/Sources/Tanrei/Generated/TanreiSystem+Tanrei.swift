@@ -3380,7 +3380,7 @@ private let tanreiComboboxTokens = TanreiComboboxTokens(
       groupTitlePaddingInline: 8
     ),
     medium: TanreiComboboxOptionSizeTokens(
-      optionHeight: 48,
+      optionHeight: 40,
       optionPaddingInline: 12,
       optionPaddingBlock: 8,
       optionGap: 12,
@@ -3714,7 +3714,7 @@ private let tanreiEmptyStateTokens = TanreiEmptyStateTokens(
 private let tanreiFabMenuTokens = TanreiFabMenuTokens(
   containerShapeOpen: 9999,
   itemGap: 8,
-  itemHeight: 48,
+  itemHeight: 40,
   itemIconSize: 20,
   itemLabelTypescale: tanreiTypescale.label,
   itemPaddingInlineEnd: 20,
@@ -5884,7 +5884,7 @@ private let tanreiMenuTokens = TanreiMenuTokens(
       groupTitlePaddingInline: 8
     ),
     medium: TanreiMenuSizeTokens(
-      containerHeight: 48,
+      containerHeight: 40,
       containerPaddingInline: 12,
       containerPaddingBlock: 8,
       containerGap: 12,
@@ -7509,7 +7509,7 @@ private let tanreiSearchTokens = TanreiSearchTokens(
       suggestionLeadingIconSize: 20
     ),
     medium: TanreiSearchSizeTokens(
-      suggestionContainerHeight: 48,
+      suggestionContainerHeight: 40,
       suggestionContainerPaddingInline: 12,
       suggestionContainerPaddingBlock: 8,
       suggestionContainerGap: 12,
@@ -7920,7 +7920,7 @@ private let tanreiSelectTokens = TanreiSelectTokens(
       groupTitlePaddingInline: 8
     ),
     medium: TanreiSelectOptionSizeTokens(
-      optionHeight: 48,
+      optionHeight: 40,
       optionPaddingInline: 12,
       optionPaddingBlock: 8,
       optionGap: 12,
