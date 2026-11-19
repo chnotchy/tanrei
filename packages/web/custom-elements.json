@@ -2570,7 +2570,7 @@
                 "text": "TanreiButtonWithMenuTrailingWidth"
               },
               "default": "'default'",
-              "description": "How wide the trailing half is: `default` holds the chevron in a square of the height (32 / 40 / 56) and adds the\npadding of the rounded outer end (36 / 44 / 60 in the default system); `narrow` is the chevron and\n`trailing.padding-inline-narrow` on each side of it, with no outer padding (28 / 32 / 32: the width of a narrow\nicon-only Button, SPB-32). The hit area meets the minimum target at both: a narrow half reaches it past its end\nedge and is not drawn wider. The `trailing-width` attribute. Anything else is `default` (reported in debug\nbuilds, SPB-8).",
+              "description": "How wide the trailing half is: `default` holds the chevron between `trailing.padding-inline` on each side (a\nsquare of the height in the default system); `narrow` makes the half a slim handle on the main action, the chevron\nbetween `trailing.padding-inline-narrow` on each side. At both widths the half adds `container.outer-inset` at its\nrounded outer end (SPB-32). The hit area meets the minimum target at both: a narrow half reaches it past its end\nedge and is not drawn wider. The `trailing-width` attribute. Anything else is `default` (reported in debug\nbuilds, SPB-8).",
               "attribute": "trailing-width",
               "reflects": true
             },
@@ -2746,7 +2746,7 @@
                 "text": "TanreiButtonWithMenuTrailingWidth"
               },
               "default": "'default'",
-              "description": "How wide the trailing half is: `default` holds the chevron in a square of the height (32 / 40 / 56) and adds the\npadding of the rounded outer end (36 / 44 / 60 in the default system); `narrow` is the chevron and\n`trailing.padding-inline-narrow` on each side of it, with no outer padding (28 / 32 / 32: the width of a narrow\nicon-only Button, SPB-32). The hit area meets the minimum target at both: a narrow half reaches it past its end\nedge and is not drawn wider. The `trailing-width` attribute. Anything else is `default` (reported in debug\nbuilds, SPB-8).",
+              "description": "How wide the trailing half is: `default` holds the chevron between `trailing.padding-inline` on each side (a\nsquare of the height in the default system); `narrow` makes the half a slim handle on the main action, the chevron\nbetween `trailing.padding-inline-narrow` on each side. At both widths the half adds `container.outer-inset` at its\nrounded outer end (SPB-32). The hit area meets the minimum target at both: a narrow half reaches it past its end\nedge and is not drawn wider. The `trailing-width` attribute. Anything else is `default` (reported in debug\nbuilds, SPB-8).",
               "fieldName": "trailingWidth"
             },
             {
