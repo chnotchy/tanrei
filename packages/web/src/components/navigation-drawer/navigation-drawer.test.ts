@@ -24,6 +24,7 @@ import { middlePressAimed } from '../../../test/middle-press.js';
 import { expectBaseline } from '../../../test/baseline.js';
 import { controlledElements, controlledInTree } from '../../../test/controlled-list.js';
 import { transitionsRun, watchTransitions } from '../../../test/transitions.js';
+import { expectGlyphsKeptWhileClosing } from '../../../test/closing-glyphs.js';
 import { STACKED_DIALOG, STACKED_LAYER, addStackedSurfaces, expectStackedInOrder, focusAmong, setOpenInOneTask } from '../../../test/stacked-surfaces.js';
 
 const spec = loadSpec('navigation-drawer');
@@ -2145,6 +2146,15 @@ test.describe('forms and focus', () => {
     expect(await activeValue(page)).toBe('inbox');
     await expectFromNextFrame(drawer(page, 'm'), '(el) => { el.open = false; }', ['tanrei-navigation-drawer dialog.drawer translate', 'tanrei-navigation-drawer-item span.indicator background-color', 'tanrei-button button background-color'], 'the modal drawer closed');
     expect(await page.evaluate(() => document.activeElement?.id)).toBe('menu');
+  });
+
+  test('NVD-22: a closing modal drawer with no collapsed form, outside an app shell (a dialog handed from modal to leaving), keeps every row’s glyph drawn — painted in its first frame as it was open, and in every frame visible, opaque, shaped and in its place in the panel until the panel carries it past the window’s start edge', async ({ page }) => {
+    await page.setViewportSize({ width: 768, height: 600 });
+    await mount(page, [fixture('m', MAIL, { variant: 'modal', open: false })]);
+    const set = (open: boolean) => () => drawer(page, 'm').evaluate((el, value) => ((el as unknown as { open: boolean }).open = value), open);
+    await set(true)();
+    await motionEnded(page);
+    await expectGlyphsKeptWhileClosing(page, page.locator('[data-fixture="m"]'), { open: set(true), close: set(false), what: 'a modal dialog' });
   });
 
   test('NVD-18, NVD-28: opened, and closed with focus inside, at the end of a task that outlasts its motions, a standard drawer slides in and out and what focus goes to takes its focused colors from the first frame drawn after that task', async ({ page }) => {
