@@ -9,6 +9,7 @@
 import { RESIZE_EVENT, resizeHandle } from './resize-handle';
 import { CONTRAST_ATTR, THEME_ATTR } from './appearance';
 import { whenNear } from './example';
+import { SUBJECT_ATTR } from './omitted-elements';
 import windowSheet from '../styles/fixture-window.css?url';
 
 /** The least width a stage is made narrower to by its handle, in CSS pixels. */
@@ -152,14 +153,15 @@ interface Look {
 /**
  * A window's document: the fixture's stage, alone, with the component's staging, the stylesheets every page of the site
  * draws a fixture with (styles/fixture-window.css), the preset's where it is drawn under one, and the module that
- * defines its elements. It holds no inline script: a document written into a frame (`srcdoc`) keeps the page's
+ * defines its elements. Its root names the component as its page's frame does (`data-docs-subject`), so that a
+ * component the default system does not have is defined in the window of its own fixtures (lib/omitted-elements.ts). It holds no inline script: a document written into a frame (`srcdoc`) keeps the page's
  * policy, which runs only the inline scripts the page itself holds.
  */
-function windowDocument(html: string, data: WindowData, look: Look, script: string): string {
+function windowDocument(html: string, data: WindowData, look: Look, script: string, subject: string | undefined): string {
   const holder = data.page ? 'div' : 'main';
   const preset = look.system ? presetSheetOf(look.system) : undefined;
   return (
-    `<!doctype html><html lang="en" ${HELD}${attribute('dir', look.dir)}${attribute('data-tanrei-theme', look.theme)}${attribute('data-tanrei-contrast', look.contrast)}${attribute('data-tanrei-system', look.system)}>` +
+    `<!doctype html><html lang="en" ${HELD}${attribute('dir', look.dir)}${attribute('data-tanrei-theme', look.theme)}${attribute('data-tanrei-contrast', look.contrast)}${attribute('data-tanrei-system', look.system)}${attribute(SUBJECT_ATTR, subject)}>` +
     `<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">` +
     `<link rel="stylesheet"${attribute('href', windowSheet)}>${preset ? `<link rel="stylesheet" data-preset${attribute('href', preset)}>` : ''}` +
     `<style>${data.staging.replaceAll('</style', '<\\/style')}</style></head>` +
@@ -241,7 +243,7 @@ function writeWindow(win: WindowStage, again = false) {
     win.busy = true;
     win.frame.setAttribute('inert', '');
     if (win.frame.hasAttribute('srcdoc')) win.frame.removeAttribute('srcdoc');
-    win.frame.srcdoc = windowDocument(html, data, lookOf(win), script);
+    win.frame.srcdoc = windowDocument(html, data, lookOf(win), script, gallery?.dataset.component);
   });
 }
 

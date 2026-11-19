@@ -61,7 +61,7 @@ const rows = [
           <header>
             <h3 data-part="title" id={`system-${layer.id}`}><code>{layer.id}</code> <span>{layer.name}</span></h3>
           </header>
-          <div data-part="stage" class="stages" data-tanrei-system={layer.id} data-pagefind-ignore>
+          <div data-part="stage" class="stages" data-tanrei-system={layer.id} data-docs-shows-system={layer.id} data-pagefind-ignore>
             {rows.map((row) => (
               <div class="row" data-tanrei-theme={row.theme} data-tanrei-contrast={row.contrast}>
                 <span class="docs-eyebrow">{row.label}</span>
