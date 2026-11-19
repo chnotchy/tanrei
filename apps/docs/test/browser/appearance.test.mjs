@@ -111,14 +111,14 @@ const PARTS = [
   { part: 'sidebar', what: 'the sidebar’s selected row', token: 'comp.navigation-drawer.selected.item.container.color' },
   { part: 'text', what: 'the content’s text', token: 'sys.color.on-surface' },
   { part: 'stage', what: 'a stage’s filled button', token: 'comp.button.filled.container.color' },
-  { part: 'playground', what: 'the playground’s selected segment', token: 'comp.segmented-button.selected.container.color' },
+  { part: 'playground', what: 'the label of the playground’s selected tab', token: 'comp.tabs.tonal.selected.covered-label.color' },
   { part: 'dialog', what: 'the search’s dialog, open in the top layer', token: 'comp.search.view.container.color' },
 ];
 
 /** The page's parts as drawn (`PARTS`), with the search's dialog open, and the font of the content's text. */
 async function drawnParts(page) {
   await page.locator('[data-example-controls]').first().scrollIntoViewIfNeeded();
-  await page.waitForFunction(() => [...document.querySelectorAll('[data-example-controls] tanrei-segment')].some((segment) => segment.shadowRoot?.querySelector('[part="container"][aria-checked="true"]')));
+  await page.waitForFunction(() => [...document.querySelectorAll('[data-example-controls] tanrei-tab')].some((tab) => tab.shadowRoot?.querySelector('.tab.selected .cover .label')));
   await page.evaluate(() => scrollTo(0, 0));
   // The search is defined on its first use (a pointer over it): pressed once it is, it opens its view.
   await page.locator('tanrei-search.docs-search').hover();
@@ -135,7 +135,7 @@ async function drawnParts(page) {
       sidebar: [inShadow(document.querySelector('#docs-sidebar tanrei-navigation-drawer-item[href$="/components/button/"]'), '[part="active-indicator"]'), 'backgroundColor'],
       text: [text, 'color'],
       stage: [inShadow(document.querySelector('[data-example]:not([data-pinned]) [data-example-stage] tanrei-button[variant="filled"]'), '[part="container"]'), 'backgroundColor'],
-      playground: [[...document.querySelectorAll('[data-example-controls] tanrei-segment')].map((segment) => inShadow(segment, '[part="container"][aria-checked="true"]')).find(Boolean), 'backgroundColor'],
+      playground: [[...document.querySelectorAll('[data-example-controls] tanrei-tab')].map((tab) => inShadow(tab, '.tab.selected .cover .label')).find(Boolean), 'color'],
       dialog: [inShadow(document.querySelector('tanrei-search.docs-search'), 'dialog[part="dialog"]'), 'backgroundColor'],
     };
     // What the page's own root gives each token: a probe in the body, which inherits it.
