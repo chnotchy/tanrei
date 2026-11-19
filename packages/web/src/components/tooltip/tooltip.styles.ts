@@ -108,10 +108,6 @@ export const styles = css`
   .surface:popover-open {
     display: block;
   }
-  /* TIP-29: closed or leaving, it takes no pointer: a press reaches what lies under it, and the pointer on it is not hover. */
-  .surface:not(.open) {
-    pointer-events: none;
-  }
 
   /* TIP-26: the look. On a surface of the scheme — the first value of the choice, and so what an unknown name is — and
      inverse by a style query on the host's choice, which follows the attribute, a layer and a system switched on any
@@ -193,6 +189,9 @@ export const styles = css`
   ${appearStyles({
     motion: '.motion',
     open: '.surface.open',
+    /* TIP-29, MOT-7: closed or leaving, the placed box takes no pointer either: a press reaches what lies under it, and
+       the pointer on it is not hover. */
+    box: '.surface',
     role: 'hint',
     origin: 'anchor',
     enter: { duration: `var(${PREFIX}-motion-enter-duration)`, easing: `var(${PREFIX}-motion-enter-easing)` },
