@@ -1037,7 +1037,7 @@ test.describe('the menu button', () => {
     const state = () => drawer(page).evaluate((el) => ({ open: (el as unknown as { open: boolean }).open, hidden: (el as unknown as { standardHidden: boolean }).standardHidden }));
     for (const [attributes, folded] of [['responsive collapsible', false], ['responsive collapsible expanded="false"', true], ['responsive', false]] as const) {
       await mount(page, real({ navigation: DRAWER(attributes), sections: 2 }), { width: 1280 });
-      const form = folded ? await resolveToken(page, '--tanrei-comp-navigation-drawer-collapsed-container-width-regular') : await resolveToken(page, '--tanrei-comp-navigation-drawer-container-width');
+      const form = folded ? await resolveToken(page, '--tanrei-comp-navigation-drawer-collapsed-container-width-medium') : await resolveToken(page, '--tanrei-comp-navigation-drawer-container-width');
       const told = await watch();
       expect(await expanded(), attributes).toBe('true');
       expect(await controls(), attributes).toEqual(['tanrei-navigation-drawer']);
