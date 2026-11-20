@@ -8148,7 +8148,7 @@ private let acmeSkeletonTokens = TanreiSkeletonTokens(
   motionDimDuration: 1000,
   motionDimEasing: TanreiCubicBezier(0.2, 0, 0, 1),
   motionShowDelay: 300,
-  placeholderColor: .role(.surfaceVariant),
+  placeholderColor: .alpha(of: .role(.onSurface), amount: 0.1),
   placeholderDimOpacity: 0.5,
   placeholderLastLineInlineSize: 0.6,
   placeholderShapeBlock: 8,

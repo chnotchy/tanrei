@@ -1163,6 +1163,14 @@
             "tanrei.comp.bottom-sheet.drag-handle.pressed.grip.color": {
               "$value": "{tanrei.comp.handle.standard.pressed.line.color}",
               "reason": "The sheet's drag handle is a Handle (BSH-12): its grip stays dark while a press or a drag holds it, as every handle's line does (HDL-4)."
+            },
+            "tanrei.comp.skeleton.placeholder.color": {
+              "derive": {
+                "fn": "alpha",
+                "of": "{tanrei.sys.color.on-surface}",
+                "amount": 0.1
+              },
+              "reason": "A skeleton stands wherever its content will: on the page, in a card, on the highest container step. Its fill is a layer of the content color at a tenth of its opacity, laid over whatever surface is beneath, so that it stands off every surface role by the same quiet step (1.22:1 on each in light, 1.18:1 to 1.32:1 in dark). A surface tone is chosen against one surface: surface-variant is the tone of surface-container-highest, and a placeholder of it was 1.00:1 there, in light and in dark. A tenth is the low-emphasis fill of a placeholder elsewhere: Material's placeholder for Compose draws on-surface at 10 % over its surface, and MUI, Atlassian, Radix and Fluent's translucent skeleton draw the text color at 6 % to 11 %."
             }
           },
           "rules": [

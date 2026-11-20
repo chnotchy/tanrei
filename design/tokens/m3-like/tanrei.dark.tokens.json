@@ -81195,14 +81195,14 @@
             "$value": {
               "colorSpace": "srgb",
               "components": [
-                0.2863,
-                0.2706,
-                0.3098
+                0.902,
+                0.8784,
+                0.9137
               ],
-              "hex": "#49454f",
-              "alpha": 1
+              "alpha": 0.1,
+              "hex": "#e6e0e9"
             },
-            "$description": "A placeholder's fill: the low-emphasis fill a track has, quiet enough that a view full of placeholders is not louder than the content that replaces them. Decorative: the wait is said by the skeleton's label, not by this color."
+            "$description": "A placeholder's fill: a low-emphasis fill, quiet enough that a view full of placeholders is not louder than the content that replaces them, and seen on whatever surface the skeleton stands on. The root layer values it as a layer of the content color laid over that surface (on-surface at a tenth of its opacity: tokens/systems/core.system.json), so that it stands off every surface role by the same step, the highest container step included; a layer that re-points it to one opaque tone gives up that step on the surface of that tone. Decorative: the wait is said by the skeleton's label, not by this color."
           },
           "dim-opacity": {
             "$type": "number",
