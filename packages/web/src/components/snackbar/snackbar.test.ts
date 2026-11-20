@@ -1649,6 +1649,23 @@ test.describe('the bar', () => {
     }
   });
 
+  test('SNK-15, SNK-34: the expand and close buttons take the size close-button.size names — small in the default system, medium under m3-like (Material’s standard icon button), where the action is as tall (controls.height), all centred on the first line', async ({ page }) => {
+    for (const [system, size] of [[undefined, 'small'], ['m3-like', 'medium']] as const) {
+      await mountFixtures(page, spec, { icons: true, system, fixtures: spec.fixtures.filter((x) => x.id === 'action-closable' || x.id === 'collapsed') });
+      const name = system ?? 'tanrei';
+      expect(await token(page, T('close-button-size')), name).toBe(size);
+      const height = await resolveToken(page, `--tanrei-comp-button-container-height-${size}`);
+      expect(await resolveToken(page, T('controls-height')), name).toBe(height);
+      for (const [id, control] of [['action-closable', 'close'], ['collapsed', 'close'], ['collapsed', 'expand']] as const) {
+        await expect(part(page, id, control), `${name} ${id} ${control}`).toHaveAttribute('size', size);
+        expect((await bounds(inner(page, id, control))).height, `${name} ${id} ${control}`).toBeCloseTo(height, 0);
+      }
+      const [action, close] = await Promise.all([bounds(part(page, 'action-closable', 'action')), bounds(inner(page, 'action-closable', 'close'))]);
+      expect(action.height, name).toBeCloseTo(height, 0);
+      expect(close.y + close.height / 2, name).toBeCloseTo(action.y + action.height / 2, 0);
+    }
+  });
+
   test('SNK-16: a title and a message that would need more than two lines put the action on its own row; the expand and close buttons stay on the first row', async ({ page }) => {
     await mountFixtures(page, spec, { icons: true });
     const gap = await resolveToken(page, T('container-gap'));
