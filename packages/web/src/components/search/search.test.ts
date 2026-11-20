@@ -27,6 +27,7 @@ import { expectWheelKeptFromPage } from '../../../test/contained-wheel.js';
 import { holdClock } from '../../../test/page-clock.js';
 import { type Probe, sampleFrames } from '../../../test/frames.js';
 import { expectBaseline } from '../../../test/baseline.js';
+import { expectScrimTakenAwayAtClose } from '../../../test/scrim-at-close.js';
 import { STACKED_DIALOG, STACKED_LAYER, addStackedSurfaces, expectStackedInOrder } from '../../../test/stacked-surfaces.js';
 import { CONTROL_HEIGHTS, atControlHeight } from '../../../test/control-height.js';
 
@@ -3391,14 +3392,22 @@ test.describe('dialog view', () => {
     await page.keyboard.press('Escape');
   });
 
-  test('SRC-41: the dialog view’s scrim and container fade in over open-duration with open-easing and out over close-duration; its height follows its content without a motion; at once where motion is reduced', async ({ page }) => {
+  test('SRC-41, MOT-8: closing the dialog view, its scrim is drawn at no opacity and takes no press from the first frame while the view still fades out, and opening fades it in from no opacity, in every engine; where motion is reduced it is gone from the first frame too', async ({ page }) => {
+    await mountSite(page, [site('s')], { reducedMotion: false });
+    const set = (value: boolean) => () => host(page, 's').evaluate((el, v) => ((el as unknown as { expanded: boolean }).expanded = v), value);
+    await set(true)();
+    await motionEnded(page);
+    await expectScrimTakenAwayAtClose(page, page.locator('[data-fixture="s"]'), { open: set(true), close: set(false), what: 'the search’s dialog view' });
+  });
+
+  test('SRC-41: the dialog view’s scrim and container fade in over open-duration with open-easing and the container out over close-duration; its height follows its content without a motion; at once where motion is reduced', async ({ page }) => {
     await mountSite(page, [site('s')], { reducedMotion: false });
     const d = dialog(page, 's');
     const [open, close] = await Promise.all(['motion-open-duration', 'motion-close-duration'].map((n) => resolveToken(page, T(n), 'duration')));
     const seconds = (value: string) => value.split(',').map((part) => Math.round(Number.parseFloat(part) * 1000));
-    // Closed: both wait to fade out over the close motion.
+    // Closed: the container waits to fade out over the close motion; its scrim fades out over none (MOT-8).
     expect(seconds(await css(d, 'transition-duration'))[0]).toBe(close);
-    expect(seconds(await d.evaluate((el) => getComputedStyle(el, '::backdrop').transitionDuration))[0]).toBe(close);
+    expect(seconds(await d.evaluate((el) => getComputedStyle(el, '::backdrop').transitionDuration))[0]).toBe(0);
     await trigger(page, 's').click();
     // Focus is already in the header's input while it fades (SRC-23).
     await expect(headerInput(page, 's')).toBeFocused();

@@ -13,6 +13,7 @@ import { appearProbe, bezierOf, expectAppearStart, expectExitEnd, expectSlideExi
 import { type Frames, expectAnimated, expectNoFlicker, freezeFirstFrame, sampleFrames } from '../../../test/frames.js';
 import { EVERY_ANIMATION, expectFromNextFrame, motionEnded } from '../../../test/motions.js';
 import { entrances, loadOpen } from '../../../test/mounted-open.js';
+import { expectScrimTakenAwayAtClose } from '../../../test/scrim-at-close.js';
 import { type DocumentOptions, type Fixture, type FixtureItem, type MountOptions, dialogWindow, fixturesDocument, innerStrokeAtEdges, loadSpec, mountFixtures, resolveColor, resolveToken, tab, tabTo, rootTokens } from '../../../test/harness.js';
 import { expectBaseline } from '../../../test/baseline.js';
 
@@ -356,7 +357,17 @@ test.describe('presentation and focus', () => {
     expect(closing.rest.probe).toMatchObject({ opacity: 0, sx: 1, sy: 1 });
   });
 
-  test('DLG-13 (MDL-7, MOT-6): where motion is reduced the scrim fades in and out with the container, over sys.motion.role.reduced — not over the dialog’s own motion', async ({ page }) => {
+  for (const [form, size] of [['centred', WIDE], ['a sheet in a compact window', COMPACT]] as const) {
+    test(`DLG-13, DLG-18, MOT-8: closing ${form}, the scrim is drawn at no opacity and takes no press from the first frame while the container still leaves by its own motion, and opening fades it in from no opacity, in every engine; where motion is reduced it is gone from the first frame too`, async ({ page }) => {
+      await mount(page, [f('d')], size);
+      await open(page, 'd');
+      await motionEnded(page);
+      const set = (value: boolean) => () => host(page, 'd').evaluate((el, v) => ((el as unknown as { open: boolean }).open = v), value);
+      await expectScrimTakenAwayAtClose(page, page.locator('[data-fixture="d"]'), { open: set(true), close: set(false), what: `the dialog, ${form}` });
+    });
+  }
+
+  test('DLG-13 (MDL-7, MOT-6, MOT-8): where motion is reduced the scrim fades in with the container, over sys.motion.role.reduced — not over the dialog’s own motion — and closing, only the container fades, the scrim gone at once', async ({ page }) => {
     await page.emulateMedia({ reducedMotion: 'reduce' });
     await mount(page, [f('d')]);
     const reduced = await resolveToken(page, '--tanrei-sys-motion-role-reduced', 'duration');
@@ -366,8 +377,9 @@ test.describe('presentation and focus', () => {
     const fades = (seen: Frames) => seen.motions.filter((motion) => motion.on.startsWith('dialog') && motion.name === 'opacity').map((motion) => `${motion.on} ${motion.duration}`);
     const opening = fades(await sampleFrames(dialog(page, 'd'), () => host(page, 'd').evaluate((el: any) => (el.open = true)), { probe: appearProbe }));
     const closing = fades(await sampleFrames(dialog(page, 'd'), () => close(page, 'd'), { probe: appearProbe }));
-    for (const [name, seen] of [['opening', opening], ['closing', closing]] as const) {
-      expect(seen.length, `${name}: ${seen.join(', ')}`).toBe(2);
+    // MOT-8: closing, only the container fades; the scrim is gone at once.
+    for (const [name, seen, count] of [['opening', opening, 2], ['closing', closing, 1]] as const) {
+      expect(seen.length, `${name}: ${seen.join(', ')}`).toBe(count);
       expect(seen.every((fade) => fade.endsWith(` ${reduced}`)), `${name}: ${seen.join(', ')}`).toBe(true);
     }
   });
