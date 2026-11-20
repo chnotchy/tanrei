@@ -1,6 +1,7 @@
 import type { ReactiveController, ReactiveControllerHost } from 'lit';
 import { FacesWatch } from './faces.js';
 import { DRAWN_WIDTH } from './glyph-drawn-width.js';
+import { adopt } from './sheets.js';
 
 // Whether a glyph of the icon set can be drawn yet is read from its ink's width: at most `DRAWN_WIDTH` of its box
 // (glyph-drawn-width.ts says why, and why it is a module of its own).
@@ -129,11 +130,84 @@ const faces = new FacesWatch((loaded) => {
 function watchAgain(glyphs: readonly HTMLElement[]) {
   if (!observer) return;
   for (const glyph of glyphs) {
-    const ink = glyph.firstElementChild;
+    const ink = boxes.get(glyph)?.watched(glyph);
     if (!ink || !owners.has(ink)) continue;
     observer.unobserve(ink);
     observer.observe(ink);
   }
+}
+
+/** The host that decides each glyph box. */
+const boxes = new WeakMap<HTMLElement, GlyphDrawnController>();
+
+/** The attribute of the box a glyph box that holds a slot is heard by (`probeOf`). */
+const PROBE = 'data-tanrei-glyph-probe';
+/**
+ * What that box holds: a glyph every icon set has — a checkbox draws it, so an icon font cut down to the glyphs the
+ * components draw keeps it — spelled out well over `DRAWN_WIDTH` while the set cannot draw it.
+ */
+const PROBE_GLYPH = 'check';
+
+/**
+ * The ink that hears a glyph box that holds a slot: the product sizes what it slots, or the component sizes it to the
+ * box, so its size need not change when the icon set can or cannot draw it any more (a face that arrives, or a system
+ * that switches to a family that has none yet). A name of the set in the box's font, set out of the layout in a box of
+ * no size that clips it and is not drawn, changes its width then; the observer reports it, and the slotted glyphs are
+ * read. Its width also says whether the box's family can draw at all: a short name spelled out (`add`) can be narrower
+ * than `DRAWN_WIDTH`, this one never is. Written into the glyph box once, after its slot.
+ */
+function probeOf(glyph: HTMLElement): HTMLElement {
+  const held = glyph.querySelector<HTMLElement>(`:scope > [${PROBE}]`);
+  if (held) return held.firstElementChild as HTMLElement;
+  adopt(glyph.getRootNode(), probeSheet());
+  const probe = document.createElement('span');
+  probe.setAttribute(PROBE, '');
+  probe.setAttribute('aria-hidden', 'true');
+  const ink = document.createElement('span');
+  probe.append(ink);
+  glyph.append(probe);
+  return ink;
+}
+
+/**
+ * The probe's rules, adopted by each root it stands in. The name is generated content, so it is in none of the
+ * component's text (`textContent`, what a test or a person copies).
+ */
+let sheet: CSSStyleSheet | null | undefined;
+function probeSheet(): CSSStyleSheet | null {
+  if (sheet !== undefined) return sheet;
+  if (typeof CSSStyleSheet === 'undefined') return (sheet = null);
+  sheet = new CSSStyleSheet();
+  sheet.replaceSync(`
+    [${PROBE}] {
+      position: absolute;
+      inline-size: 0;
+      block-size: 0;
+      overflow: hidden;
+      visibility: hidden;
+      pointer-events: none;
+    }
+    [${PROBE}] > span {
+      display: inline-block;
+      white-space: nowrap;
+    }
+    [${PROBE}] > span::before {
+      content: '${PROBE_GLYPH}';
+    }
+  `);
+  return sheet;
+}
+
+/**
+ * Whether a slotted glyph is drawn as a ligature. The component sizes the product's element to the glyph box, so that
+ * box alone cannot tell a ligature from a name spelled out that overflows it: its width is the widest of its box, what
+ * overflows it (`scrollWidth`) and, for an inline element, its text's run. It is drawn while that is at most
+ * `DRAWN_WIDTH` of the glyph box, or of its own box where the product made that larger (a `.tanrei-icon` of another
+ * size). An image, an SVG, or an element that is not laid out is never wider than its box.
+ */
+function slottedFits(ink: HTMLElement, box: number): boolean {
+  const own = ink.clientWidth;
+  return Math.max(own, ink.scrollWidth, ink.getBoundingClientRect().width) <= Math.max(box, own) * DRAWN_WIDTH;
 }
 
 /**
@@ -143,10 +217,17 @@ function watchAgain(glyphs: readonly HTMLElement[]) {
  * the font arrive (or a system switch to another icon set) in the frame it changes the layout, before it is painted.
  * When a glyph becomes drawable, no transition starts on it or in it, and one running on it ends: it appears without
  * motion (`appearAtOnce`).
+ *
+ * With `slotted`, each glyph box holds the slot the product places its glyph in (a Button's `icon` slot), and the inks
+ * are the elements assigned to it: a box is drawn while every one of them is (`slottedFits`), and not while it holds
+ * none. The observer hears the box through a name of the set it holds out of sight (`probeOf`); a change of what a
+ * slot holds is read at once.
  */
 export class GlyphDrawnController implements ReactiveController {
   private connected = false;
   private readonly observed = new Set<Element>();
+  /** With `slotted`: what a slot of the host's shadow root now holds is read, as after a render. */
+  private readonly slotChanged = () => this.hostUpdated();
 
   /**
    * `firstInFrame`: a glyph the host draws for the first time is decided by the observer — after the layout of the
@@ -154,23 +235,41 @@ export class GlyphDrawnController implements ReactiveController {
    * its render. For a host that a page draws many of at once (the copy button of every code block of a page): the
    * hosts are then decided in one pass, and none of them costs the page a layout of its own. The mark is in the
    * first frame painted either way; it is not there yet in the task of the render, nor in a frame callback before it.
+   *
+   * `slotted`: the glyph boxes hold the product's glyph in a slot (above).
    */
   constructor(
     private readonly host: ReactiveControllerHost & Element,
     private readonly glyphs: () => Iterable<HTMLElement>,
-    private readonly options: { firstInFrame?: boolean } = {},
+    private readonly options: { firstInFrame?: boolean; slotted?: boolean } = {},
   ) {
     host.addController(this);
+  }
+
+  /** The inks a glyph box is decided by: its one child, or with `slotted` the elements its slots hold. */
+  private inksOf(glyph: HTMLElement): HTMLElement[] {
+    if (this.options.slotted) return [...glyph.querySelectorAll('slot')].flatMap((slot) => slot.assignedElements({ flatten: true }) as HTMLElement[]);
+    return glyph.firstElementChild ? [glyph.firstElementChild as HTMLElement] : [];
+  }
+
+  /** The ink the observer is given for a glyph box: its one child, or with `slotted` the box's probe. */
+  watched(glyph: HTMLElement): HTMLElement | null {
+    return this.options.slotted ? probeOf(glyph) : (glyph.firstElementChild as HTMLElement | null);
   }
 
   hostConnected() {
     this.connected = true;
     connected.add(this);
     faces.connect();
+    if (this.options.slotted) this.host.shadowRoot?.addEventListener('slotchange', this.slotChanged);
   }
 
   hostDisconnected() {
     this.connected = false;
+    if (this.options.slotted) {
+      this.host.shadowRoot?.removeEventListener('slotchange', this.slotChanged);
+      for (const glyph of this.glyphs()) for (const ink of this.inksOf(glyph)) readUnder.delete(ink);
+    }
     for (const ink of this.observed) {
       observer?.unobserve(ink);
       owners.delete(ink);
@@ -191,7 +290,8 @@ export class GlyphDrawnController implements ReactiveController {
     const watching = !!observer && this.connected;
     let decide = !watching || !this.options.firstInFrame;
     for (const glyph of this.glyphs()) {
-      const ink = glyph.firstElementChild;
+      boxes.set(glyph, this);
+      const ink = this.watched(glyph);
       if (ink && watching && !this.observed.has(ink)) {
         this.observed.add(ink);
         owners.set(ink, this);
@@ -217,19 +317,27 @@ export class GlyphDrawnController implements ReactiveController {
   read(again = false): Reading[] {
     const readings: Reading[] = [];
     if (!this.connected) return readings;
+    const slotted = !!this.options.slotted;
     for (const glyph of this.glyphs()) {
-      const ink = glyph.firstElementChild as HTMLElement | null;
-      const watched = !!ink && this.observed.has(ink);
-      const known = watched ? readUnder.get(ink) : undefined;
-      if (!again && known !== undefined && known === underOf(ink!)) continue;
+      const inks = this.inksOf(glyph);
+      // The inks that were read, and are known again by their name and family: a slotted one, or one observed.
+      const kept = (ink: HTMLElement) => slotted || this.observed.has(ink);
+      const known = inks.length > 0 && inks.every((ink) => kept(ink) && readUnder.get(ink) !== undefined);
+      if (!again && known && inks.every((ink) => readUnder.get(ink) === underOf(ink))) continue;
       const box = glyph.clientWidth;
-      readings.push([glyph, !!ink && box > 0 && ink.offsetWidth <= box * DRAWN_WIDTH]);
-      if (!watched) continue;
-      if (box > 0) {
-        const under = underOf(ink!);
-        readUnder.set(ink!, under);
-        for (const name of under.slice(under.indexOf('\n') + 1).split(',')) iconFamilies.add(familyName(name));
-      } else readUnder.delete(ink!);
+      // With `slotted`, the probe's name decides whether the box's family can draw at all: a short name spelled out
+      // (`add`) can be narrower than DRAWN_WIDTH, and the probe's never is.
+      const probe = slotted ? glyph.querySelector<HTMLElement>(`:scope > [${PROBE}] > *`) : null;
+      const fits = (ink: HTMLElement) => (slotted ? slottedFits(ink, box) : ink.offsetWidth <= box * DRAWN_WIDTH);
+      readings.push([glyph, inks.length > 0 && box > 0 && (!probe || probe.offsetWidth <= box * DRAWN_WIDTH) && inks.every(fits)]);
+      for (const ink of inks) {
+        if (!kept(ink)) continue;
+        if (box > 0) {
+          const under = underOf(ink);
+          readUnder.set(ink, under);
+          for (const name of under.slice(under.indexOf('\n') + 1).split(',')) iconFamilies.add(familyName(name));
+        } else readUnder.delete(ink);
+      }
     }
     // After the layout the reads forced: the icon face a glyph first asked for in it is loading now.
     if (readings.length) faces.measured();
