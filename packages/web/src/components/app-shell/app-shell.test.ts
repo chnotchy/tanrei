@@ -17,6 +17,7 @@ import { expectFromNextFrame, motionCount, motionEnded } from '../../../test/mot
 import { type Frames, expectAnimated, expectFirstFrameAtRest, expectNoFlicker, sampleFrames } from '../../../test/frames.js';
 import { expectNeverSideways, sidewaysProbe } from '../../../test/sideways.js';
 import { controlledElements, controlledInTree } from '../../../test/controlled-list.js';
+import { expectGlyphsKeptWhileClosing } from '../../../test/closing-glyphs.js';
 
 const spec = loadSpec('app-shell');
 type P = Page;
@@ -1785,6 +1786,16 @@ test.describe('the menu button', () => {
       expect(reduced.frames[0]!.probe, `${what}: the first frame of a closing where motion is reduced`).toMatchObject({ scrim: 0, shown: 'hidden', takes: 'none' });
       await page.emulateMedia({ reducedMotion: 'no-preference' });
     }
+  });
+
+  test('NVD-22, APS-7: closing below the header, a drawer with no collapsed form keeps every row’s glyph drawn — painted in its first frame as it was open, and in every frame visible, opaque, shaped and in its place in the panel until the panel carries it past the window’s start edge', async ({ page }) => {
+    await mount(page, real({ navigation: DRAWER('responsive') }), { width: 768 });
+    const set = (open: boolean) => () => shell(page).evaluate((el, value) => ((el as unknown as { navigationOpen: boolean }).navigationOpen = value), open);
+    await set(true)();
+    await expect.poll(() => drawer(page).evaluate((el) => (el as unknown as { open: boolean }).open)).toBe(true);
+    await motionEnded(page);
+    expect(await drawer(page).getAttribute('data-held')).not.toBeNull();
+    await expectGlyphsKeptWhileClosing(page, page.locator('.stage'), { open: set(true), close: set(false), what: 'held below the header' });
   });
 
   test('APS-33: at 400 wide, a filterable drawer’s chord pressed anywhere opens the navigation as the menu button does (one navigationOpenChange with true) with focus in the drawer’s filter field; typed in a text field it is typed; where the drawer is shown the drawer answers it and the frame does not; where it is hidden beside the content the frame shows it and focuses its field', async ({ page }) => {
