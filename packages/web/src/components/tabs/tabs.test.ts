@@ -1406,7 +1406,7 @@ test.describe('concentric at every size', () => {
     }
   });
 
-  test('TAB-34, TAB-35: a row of circles narrower than their tabs (the two-icon row, a 32 circle in a 36 tab) is at its settled width once its observer has first placed it, and the frame reports every size it changed — the observer never finds the row it has just written moving again, which the browser reports as an error', async ({ page }) => {
+  test('TAB-34, TAB-35: a row of circles narrower than their tabs (the two-icon row, a 32 circle in a 36 tab) is at its settled width once it is first placed, and the frame reports every size it changed — the observer of the row never finds the row it has just written moving again, which the browser reports as an error', async ({ page }) => {
     await mountFixtures(page, spec, { fixtures: spec.fixtures.slice(0, 1), icons: true });
     const [inset, height] = await Promise.all([resolveToken(page, T('track-padding')), resolveToken(page, T('container-height-medium'))]);
     const target = await resolveToken(page, '--tanrei-sys-target-pointer');
@@ -1440,6 +1440,51 @@ test.describe('concentric at every size', () => {
       expect(seen.first, `${variant}: ${JSON.stringify(seen)}`).toBeCloseTo(seen.settled, 1);
       expect(seen.errors, variant).toEqual([]);
     }
+  });
+
+  test('TAB-35, TAB-41: a row first drawn where nothing else on the page changes size (a fixed box of 400 × 100, the page itself unchanged) is at its settled width in the frame it is first laid out in, and that frame reports every size its first placement changed — the track narrowing as its tabs become circles is never left undelivered, which the browser reports as an error', async ({ page }) => {
+    await mountFixtures(page, spec, { fixtures: spec.fixtures.slice(0, 1), icons: true });
+    const errors: string[] = [];
+    page.on('pageerror', (error) => errors.push(`pageerror: ${error.message}`));
+    for (const variant of ['secondary', 'primary']) {
+      const seen = await page.evaluate(async (variant) => {
+        const errors: string[] = [];
+        const onError = (event: ErrorEvent) => errors.push(event.message);
+        window.addEventListener('error', onError);
+        // Fixed: the row changes the size of nothing above it, so that no element shallower than its track is reported in
+        // the frame it is first laid out in (a page that observes its root element would hide the error).
+        const holder = document.createElement('div');
+        holder.style.cssText = 'position: fixed; inset-block-start: 0; inset-inline-start: 0; inline-size: 400px; block-size: 100px';
+        holder.innerHTML = `<tanrei-tabs variant="${variant}" label="Theme" value="light"><tanrei-tab value="light" label="Light" icon="light_mode" label-hidden></tanrei-tab><tanrei-tab value="dark" label="Dark" icon="dark_mode" label-hidden></tanrei-tab></tanrei-tabs>`;
+        document.body.append(holder);
+        const row = holder.firstElementChild as HTMLElement & { updateComplete: Promise<boolean> };
+        const width = () => row.shadowRoot!.querySelector('.scroller')!.getBoundingClientRect().width;
+        // Drawn in microtasks: no frame has passed.
+        await row.updateComplete;
+        // An observer made after every observer of the row is told after them, in the same frame: what the row's first
+        // placement left, before that frame is painted. It watches what lies inside the track, deeper than it: an element
+        // above the track (the row's host) reported in that frame would let the track's change through, as the page's
+        // own root element does.
+        const first = await new Promise<number>((resolve) => {
+          const observer = new ResizeObserver(() => {
+            observer.disconnect();
+            resolve(width());
+          });
+          observer.observe(row.shadowRoot!.querySelector('.tabs')!);
+        });
+        // The next frame's callbacks: the first frame has been painted, and the browser has said what it left undelivered.
+        const next = await new Promise<number>((resolve) => requestAnimationFrame(() => resolve(width())));
+        await new Promise((resolve) => setTimeout(resolve, 400));
+        const settled = width();
+        window.removeEventListener('error', onError);
+        holder.remove();
+        return { first, next, settled, errors };
+      }, variant);
+      expect(seen.first, `${variant}: ${JSON.stringify(seen)}`).toBeCloseTo(seen.settled, 1);
+      expect(seen.next, `${variant}: ${JSON.stringify(seen)}`).toBeCloseTo(seen.settled, 1);
+      expect(seen.errors, variant).toEqual([]);
+    }
+    expect(errors).toEqual([]);
   });
 
   test('TAB-14: a tab whose indicator is a circle is that circle and no wider — an icon-only tab and a one-character tab take no inline padding and are as wide as the minimum target, not their content plus the padding — while a capsule keeps its content plus the padding; the tabs are placed by the indicator, the first one’s starting track.padding from the track’s start and the last one’s ending the same distance before its end', async ({ page, browserName }) => {

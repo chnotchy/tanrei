@@ -32,6 +32,7 @@ import {
   nameHost,
   namedByProduct,
   notifyItemUpdate,
+  readInPhase,
   remember,
   remembered,
   report,
@@ -1080,7 +1081,8 @@ export class TanreiTabs extends TanreiElement {
           const rows = new Set<TanreiTabs>();
           for (const entry of entries) {
             const row = TanreiTabs.watched.get(entry.target);
-            if (row?.isConnected) rows.add(row);
+            // A row not placed yet is the read phase's (`placeInPhase`).
+            if (row?.isConnected && !row.awaitsPhase) rows.add(row);
           }
           TanreiTabs.placeTogether([...rows]);
         });
@@ -1089,8 +1091,10 @@ export class TanreiTabs extends TanreiElement {
    * the row leaves the document, and of a tab's parts when the tab leaves the row.
    */
   private readonly observed = new Map<Element, TanreiTab | null>();
-  /** The row's first placement is the observer's, and has not been reported yet (`sync`). */
-  private awaitsObserver = false;
+  /** The row's first placement is the read phase's, and has not been made yet (`sync`, `placeInPhase`). */
+  private awaitsPhase = false;
+  /** TAB-41: the rows whose first placement the next read phase makes, together. */
+  private static readonly unplaced = new Set<TanreiTabs>();
   /** The tab drawn selected at the last sync (TAB-17 slides the indicator from it). */
   private shownTab: TanreiTab | null = null;
   private scrolling: Animation | null = null;
@@ -1157,7 +1161,8 @@ export class TanreiTabs extends TanreiElement {
     this.children$.disconnect();
     TanreiTabs.listenBeside(this, false);
     this.unobserve(() => true);
-    this.awaitsObserver = false;
+    this.awaitsPhase = false;
+    TanreiTabs.unplaced.delete(this);
     // TAB-41: a row that leaves the document leaves its group, which keeps its choice.
     this.enroll();
     cancelAnimationFrame(this.scaleFrame);
@@ -1640,13 +1645,13 @@ export class TanreiTabs extends TanreiElement {
           this.stopSliding();
           this.stopScrolling();
         }
-        // The first placement of a row is the observer's: it reports the tabs it was just given after the layout of
-        // the frame they are first drawn in, and every row of the page is then measured and written together
-        // (`placeTogether`) — before that frame is painted, at once and without motion. Placed here, in the row's own
-        // turn, each row had the page styled and laid out for itself, five times over.
+        // The first placement of a row is the frame's read phase's (`placeInPhase`): after the layout of the frame its
+        // tabs are first drawn in, every row of the page is measured and written together (`placeTogether`) — before
+        // that frame is painted, at once and without motion. Placed here, in the row's own turn, each row had the page
+        // styled and laid out for itself, five times over.
         // Until it has, the row leaves every placement to it (a tab's own first update tells the row to look again).
-        if (TanreiTabs.resize$ && !this.mark && !this.sliding && (this.awaitsObserver || (!from && this.observed.size > watched))) {
-          this.awaitsObserver = true;
+        if (!this.mark && !this.sliding && (this.awaitsPhase || (!from && this.observed.size > watched))) {
+          this.placeInPhase();
           return;
         }
         // TAB-12, TAB-17: a new selection is drawn from one reading of the row — the indicator's slide and the scroll
@@ -1692,13 +1697,39 @@ export class TanreiTabs extends TanreiElement {
   }
 
   /**
+   * TAB-35, TAB-41: asks for the row's first placement in the next frame's read phase (src/primitives/read-phase.ts),
+   * with every other row's: after that frame's layout and before its paint, every row is placed as `placeTogether`
+   * places the rows of one report, and the first frame painted shows them placed.
+   *
+   * Not in the report of the row's own observer, though it comes at the same moment: the first placement changes what
+   * the observer watches (the tabs become circles, and the track narrows with them), and a frame reports a box that
+   * changed in an observer's callback only if it lies deeper in the tree than every box reported before it. Of a row
+   * that changes the size of nothing above it (a row in a box of fixed size), the track is the shallowest box reported,
+   * and its new width was left undelivered: the browser raises "ResizeObserver loop completed with undelivered
+   * notifications". The phase is reported with the page's root element, the shallowest of all, so that what the
+   * placement changes is reported later in the same frame, and the observer finds the row where it rests.
+   */
+  private placeInPhase() {
+    this.awaitsPhase = true;
+    TanreiTabs.unplaced.add(this);
+    readInPhase(TanreiTabs.unplaced, TanreiTabs.placeUnplaced);
+  }
+
+  /** The read phase's first placement of the rows that asked (`placeInPhase`): read and written after the phase's reads. */
+  private static readonly placeUnplaced = () => {
+    const rows = [...TanreiTabs.unplaced].filter((row) => row.isConnected);
+    TanreiTabs.unplaced.clear();
+    for (const row of rows) row.awaitsPhase = false;
+    if (rows.length) return () => TanreiTabs.placeTogether(rows);
+  };
+
+  /**
    * TAB-15, TAB-17, TAB-41: `rows` changed size or place in one frame. Each puts its indicator back on its selected tab
    * and that tab in view, at once — one row as `place()` and `reveal()` do, several as they do but all read first and
    * then all written, so that a page of rows costs one layout and not one for each row. A row that slides or follows a
    * drag keeps its own way.
    */
   private static placeTogether(rows: TanreiTabs[]) {
-    for (const row of rows) row.awaitsObserver = false;
     const own = (row: TanreiTabs) => rows.length === 1 || !!row.sliding || row.drag?.state === 'taken';
     for (const row of rows) {
       if (!own(row)) continue;
