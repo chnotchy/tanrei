@@ -939,10 +939,10 @@ export class TanreiTextInput extends TanreiElement {
   }
 
   /** TXI-8, TXI-43: focus given to the element goes to what takes the typing — the native element, or the segment a press would focus. */
-  override focus(options?: FocusOptions) {
+  protected override delegateFocus(options?: FocusOptions) {
     const target = this.inert_ ? null : this.entryTarget;
     if (target) target.focus(options);
-    else super.focus(options);
+    else super.delegateFocus(options);
   }
 
   /** Selects the whole value, as a native input's `select()` does. A date or time field has nothing to select: its first segment takes focus. */

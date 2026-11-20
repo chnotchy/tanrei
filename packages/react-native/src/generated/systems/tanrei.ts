@@ -3004,7 +3004,7 @@ export const tanrei = {
       navigationGap: 8,
       outlineWidth: 1,
       pressedOpacity: 1,
-      viewToggleContainerHeight: 36,
+      viewToggleContainerHeight: 40,
       viewToggleContainerPaddingInline: 12,
       viewToggleContainerShape: 9999,
       viewToggleGap: 4,
@@ -3012,7 +3012,7 @@ export const tanrei = {
       viewToggleLabelTypescale: "label",
       weekdayColor: { kind: "role", role: "onSurfaceVariant" },
       weekdayTypescale: "labelSmall",
-      yearContainerHeight: 36,
+      yearContainerHeight: 40,
       yearContainerShape: 9999,
       yearContainerWidth: 72,
       yearLabelTypescale: "body",
@@ -6103,7 +6103,7 @@ export const tanrei = {
       periodGap: 8,
       periodLabelTypescale: "heading5",
       pressedOpacity: 1,
-      rangeFieldContainerHeight: 48,
+      rangeFieldContainerHeight: 40,
       rangeFieldContainerPaddingInline: 16,
       rangeFieldGap: 8,
       rangeFieldLabelTypescale: "heading5",
@@ -7554,8 +7554,8 @@ export const tanrei = {
       selectionColor: { kind: "role", role: "primary" },
       selectionContentColor: { kind: "role", role: "onPrimary" },
       sizes: {
-        small: { containerHeight: 40, stackedContainerHeight: 36, containerPaddingInline: 12, containerPaddingInlineWithIcon: 8, containerPaddingBlock: 8, stackedContainerPaddingBlock: 6, containerPaddingBlockWithLabel: 2, containerGap: 8, labelTypescale: "label", labelFloatedTypescale: "labelSmall", inputTypescale: "body", iconSize: 20, motionStateDuration: 200 },
-        medium: { containerHeight: 48, stackedContainerHeight: 40, containerPaddingInline: 16, containerPaddingInlineWithIcon: 12, containerPaddingBlock: 10, stackedContainerPaddingBlock: 6, containerPaddingBlockWithLabel: 4, containerGap: 16, labelTypescale: "label", labelFloatedTypescale: "labelSmall", inputTypescale: "bodyLarge", iconSize: 24, motionStateDuration: 250 },
+        small: { containerHeight: 36, stackedContainerHeight: 36, containerPaddingInline: 12, containerPaddingInlineWithIcon: 8, containerPaddingBlock: 6, stackedContainerPaddingBlock: 6, containerPaddingBlockWithLabel: 2, containerGap: 8, labelTypescale: "label", labelFloatedTypescale: "labelSmall", inputTypescale: "body", iconSize: 20, motionStateDuration: 200 },
+        medium: { containerHeight: 40, stackedContainerHeight: 40, containerPaddingInline: 16, containerPaddingInlineWithIcon: 12, containerPaddingBlock: 6, stackedContainerPaddingBlock: 6, containerPaddingBlockWithLabel: 4, containerGap: 16, labelTypescale: "label", labelFloatedTypescale: "labelSmall", inputTypescale: "bodyLarge", iconSize: 24, motionStateDuration: 250 },
         large: { containerHeight: 56, stackedContainerHeight: 56, containerPaddingInline: 16, containerPaddingInlineWithIcon: 12, containerPaddingBlock: 14, stackedContainerPaddingBlock: 14, containerPaddingBlockWithLabel: 4, containerGap: 16, labelTypescale: "label", labelFloatedTypescale: "labelSmall", inputTypescale: "bodyLarge", iconSize: 24, motionStateDuration: 250 },
       },
       variants: {
@@ -10914,7 +10914,7 @@ export const tanrei = {
     oneTimeCodeInput: {
       caretWidth: 1,
       containerGap: 6,
-      containerHeight: 48,
+      containerHeight: 40,
       containerPaddingInline: 4,
       containerShape: 6,
       containerWidth: 40,
@@ -11817,7 +11817,7 @@ export const tanrei = {
     search: {
       containerButtonGap: 0,
       containerGap: 0,
-      containerHeight: 56,
+      containerHeight: 40,
       containerPaddingInline: 16,
       containerPaddingInlineWithButton: 8,
       containerShape: 9999,
@@ -12045,8 +12045,8 @@ export const tanrei = {
       setShape: 6,
       sizes: {
         small: { containerHeight: 36, containerPaddingInline: 12, containerPaddingBlock: 8, containerGap: 8, labelTypescale: "label", iconSize: 16, checkSize: 16, motionStateDuration: 200 },
-        medium: { containerHeight: 36, containerPaddingInline: 14, containerPaddingBlock: 6, containerGap: 8, labelTypescale: "label", iconSize: 16, checkSize: 16, motionStateDuration: 250 },
-        large: { containerHeight: 40, containerPaddingInline: 16, containerPaddingBlock: 6, containerGap: 8, labelTypescale: "label", iconSize: 16, checkSize: 16, motionStateDuration: 250 },
+        medium: { containerHeight: 40, containerPaddingInline: 14, containerPaddingBlock: 6, containerGap: 8, labelTypescale: "label", iconSize: 16, checkSize: 16, motionStateDuration: 250 },
+        large: { containerHeight: 56, containerPaddingInline: 16, containerPaddingBlock: 6, containerGap: 8, labelTypescale: "label", iconSize: 16, checkSize: 16, motionStateDuration: 250 },
       },
       conditions: {
         unselected: {
@@ -13413,7 +13413,11 @@ export const tanrei = {
       motionDimDuration: 1000,
       motionDimEasing: [0.2, 0, 0, 1],
       motionShowDelay: 300,
-      placeholderColor: { kind: "role", role: "surfaceVariant" },
+      placeholderColor: {
+        kind: "alpha",
+        of: { kind: "role", role: "onSurface" },
+        amount: 0.1,
+      },
       placeholderDimOpacity: 0.5,
       placeholderLastLineInlineSize: 0.6,
       placeholderShapeBlock: 8,

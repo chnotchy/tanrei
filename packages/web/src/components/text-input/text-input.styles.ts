@@ -224,7 +224,7 @@ export const styles = css`
     transition: opacity var(--_state-duration) var(${unsafeCSS(BOX)}-motion-state-easing);
   }
   /* TXI-16: a stacked field is as tall as a Button of the same size, with the block padding that leaves room for its line
-     in that height; a filled or an outlined field keeps the taller height, which holds the label floated in it. */
+     in that height; a filled or an outlined field reads the box's own height, and a filled one grows to hold its label. */
   ${unsafeCSS(STACKED)} {
     --_height: var(--_stacked-height);
     --_pad-block: var(--_stacked-pad-block);

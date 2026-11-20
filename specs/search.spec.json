@@ -252,7 +252,7 @@
         "medium"
       ],
       "default": "medium",
-      "description": "How much room a row of the view takes — a suggestion, a result, a result group's linked heading —: its least height, its paddings, the gap after its icon column and the size of its glyph, and never its text style. medium (a 48 row in the default system, a combobox option's) is for a product used by touch as well as by pointer; small (a 36 row with a 20 glyph, the tree view's small row, held at the minimum target) is for a tool used with a pointer, a command palette looked through with the keyboard. Its heights follow the system's height ladder at either size, and a row is never lower than the target at either (SRC-16). The bar, the trigger and the view's header are not changed. The search takes no size from a container around it (SRC-53). A design system may add values.",
+      "description": "How much room a row of the view takes — a suggestion, a result, a result group's linked heading —: its least height, its paddings, the gap after its icon column and the size of its glyph, and never its text style. medium (a row at the control height, 40 in the default system, a combobox option's) is for a product used by touch as well as by pointer; small (a 36 row with a 20 glyph, the tree view's small row, held at the minimum target) is for a tool used with a pointer, a command palette looked through with the keyboard. Its heights follow the system's height ladder at either size, and a row is never lower than the target at either (SRC-16). The bar, the trigger and the view's header are not changed. The search takes no size from a container around it (SRC-53). A design system may add values.",
       "axis": "tanrei.comp.search.size"
     }
   ],
@@ -688,6 +688,11 @@
       "id": "SRC-58",
       "text": "WHEN the control height (dial.control.height) is N THE search's default row SHALL be N tall: a suggestion and a result of a medium search SHALL be drawn at comp.search.suggestion.container.height.medium, a combobox option's and so sys.control.height.medium held at sys.target.minimum, and those of a small search at comp.search.suggestion.container.height.small, the small step, so that a list of suggestions stands as a list of options does; the row's block padding SHALL give up half of what its height loses below the control height's reference, so that its line still fits, and the pointer and touch targets SHALL still hold the row up where they are taller (SRC-16).",
       "verify": "With the control height at 32, 36 and 40 and the minimum target no higher, a suggestion of a medium search's view is 32, 36 and 40 tall under a fine pointer."
+    },
+    {
+      "id": "SRC-59",
+      "text": "WHEN the control height (dial.control.height) is N THE search's bar SHALL be N tall: the bar of SRC-1 SHALL be drawn at comp.search.container.height, which is sys.control.height.medium held at sys.target.minimum, as the button trigger is drawn at comp.search.trigger.container.height (SRC-35), so that a search bar stands as tall as the Buttons and fields beside it and the icon-only Buttons it holds are as tall as it. The header of the full-screen and the dialog view (comp.search.header.height, SRC-9, SRC-40) is the frame of a view, as an app bar is, and no control on a row: it SHALL keep its own height at every control height, and the input and the Buttons in it SHALL follow the control height as theirs do.",
+      "verify": "With the control height at 32, 36 and 40 and the minimum target no higher, the bar of the fixtures bar and bar-value-slots and the trigger of trigger are 32, 36 and 40 tall under a fine pointer, the input whole inside the bar; the header of full-screen stays 72."
     }
   ],
   "accessibility": {

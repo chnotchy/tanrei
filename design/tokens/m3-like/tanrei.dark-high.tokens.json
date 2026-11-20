@@ -17246,7 +17246,7 @@
               "value": 48,
               "unit": "px"
             },
-            "$description": "The side of the square each weekday name and each day occupies, and the height of a row of years. Never smaller than the minimum target: the cells are the days' hit areas and cannot extend over each other."
+            "$description": "The side of the square each weekday name and each day occupies, and the height of a row of years and of the navigation row. Never smaller than the minimum target: the cells are the days' hit areas and cannot extend over each other. It is the pitch of the grid, which holds a touch target for every day, and no control on a row: it does not follow the control height; the day's and the year's containers, the view toggle and the Buttons in it do."
           }
         },
         "day": {
@@ -18632,7 +18632,7 @@
                 "value": 36,
                 "unit": "px"
               },
-              "$description": "The least height of the month-and-year button; its hit area extends to the minimum target."
+              "$description": "The least height of the month-and-year button: the control height (40 in the default system), so that it stands as tall as the previous and next Buttons beside it in the navigation row. Never below the minimum target; its hit area extends to the pointer and touch targets."
             },
             "padding-inline": {
               "$type": "dimension",
@@ -18732,7 +18732,8 @@
               "$value": {
                 "value": 36,
                 "unit": "px"
-              }
+              },
+              "$description": "The height of a year's container: the control height (40 in the default system), as a day's container is, centred in its row of cell.size. Never below the minimum target."
             },
             "shape": {
               "$type": "dimension",
@@ -22717,7 +22718,7 @@
               "value": 40,
               "unit": "px"
             },
-            "$description": "The round state layer behind the box, 40. In the default system it holds the whole target (sys.target.touch, 36); a system whose target is larger reaches beyond it."
+            "$description": "The round state layer behind the box, and the height the checkbox takes in a row: the control height (40 in the default system), so that a checkbox stands as tall as the Buttons and fields beside it and a checkbox with a one-line label is a row of that height. The box (box.size) and its mark keep their own sizes inside it at every control height. In the default system it holds the whole target (sys.target.touch, 36); a system whose target is larger reaches beyond it."
           }
         },
         "disabled": {
@@ -33693,7 +33694,7 @@
                 "value": 48,
                 "unit": "px"
               },
-              "$description": "The least height of a range field, one end of a span of times in the range display. 48 in the default system, above the touch target, because a press on it chooses which end the wheels or the dial set."
+              "$description": "The least height of a range field, one end of a span of times in the range display: the control height (40 in the default system), so that the range display stands as tall as a field and the Buttons of the picker. Never below the minimum target, because a press on it chooses which end the wheels or the dial set."
             },
             "padding-inline": {
               "$type": "dimension",
@@ -34474,7 +34475,7 @@
                 "value": 48,
                 "unit": "px"
               },
-              "$description": "The height of one value on a wheel. At least the minimum target: a press on a row above or below the middle moves it to the middle."
+              "$description": "The height of one value on a wheel. At least the minimum target: a press on a row above or below the middle moves it to the middle. It is the pitch of one control, the wheel, which holds five of its rows in wheel.height beside the dial, and not a control on a row: it does not follow the control height."
             }
           },
           "selected-label": {
@@ -68453,7 +68454,7 @@
               "value": 56,
               "unit": "px"
             },
-            "$description": "Minimum height of a cell (48): the text field’s medium height, so that a code input and a text field in one form are equally tall."
+            "$description": "Minimum height of a cell: the control height (40 in the default system), a medium text field's, so that a code input and a text field in one form, and the Button that sends the code, are equally tall. Never below the minimum target: a finger aims at each cell."
           },
           "padding-inline": {
             "$type": "dimension",
@@ -72080,7 +72081,7 @@
               "value": 40,
               "unit": "px"
             },
-            "$description": "The round state layer behind the ring, 40. In the default system it holds the whole target (sys.target.touch, 36); a system whose target is larger reaches beyond it."
+            "$description": "The round state layer behind the ring, and the height the radio button takes in a row (never less than option.min-height): the control height (40 in the default system), so that a radio button stands as tall as the Buttons and fields beside it and an option with a one-line label is a row of that height. The ring (ring.size) keeps its own size inside it at every control height. In the default system it holds the whole target (sys.target.touch, 36); a system whose target is larger reaches beyond it."
           }
         },
         "disabled": {
@@ -74789,7 +74790,7 @@
               "value": 56,
               "unit": "px"
             },
-            "$description": "The bar's minimum height: Button's large and the large text field's, so a search bar shares a row with them."
+            "$description": "The bar's minimum height: the control height (40 in the default system), so that a search bar stands as tall as the Buttons, the fields and the button trigger beside it, never below the minimum target. The icon-only Buttons it holds are of that height and stand in it as they stand in a row."
           },
           "padding-inline": {
             "$type": "dimension",
@@ -74930,7 +74931,7 @@
               "value": 72,
               "unit": "px"
             },
-            "$description": "The full-screen view's top row (back button, input, clear button): the small app bar's height."
+            "$description": "The full-screen view's top row (back button, input, clear button): the small app bar's height. It is the frame of a view and no control on a row, so it does not follow the control height: the controls it holds do."
           },
           "padding-inline": {
             "$type": "dimension",
@@ -81195,14 +81196,14 @@
             "$value": {
               "colorSpace": "srgb",
               "components": [
-                0.2863,
-                0.2706,
-                0.3098
+                1,
+                1,
+                1
               ],
-              "hex": "#49454f",
-              "alpha": 1
+              "alpha": 0.1,
+              "hex": "#ffffff"
             },
-            "$description": "A placeholder's fill: the low-emphasis fill a track has, quiet enough that a view full of placeholders is not louder than the content that replaces them. Decorative: the wait is said by the skeleton's label, not by this color."
+            "$description": "A placeholder's fill: a low-emphasis fill, quiet enough that a view full of placeholders is not louder than the content that replaces them, and seen on whatever surface the skeleton stands on. The root layer values it as a layer of the content color laid over that surface (on-surface at a tenth of its opacity: tokens/systems/core.system.json), so that it stands off every surface role by the same step, the highest container step included; a layer that re-points it to one opaque tone gives up that step on the surface of that tone. Decorative: the wait is said by the skeleton's label, not by this color."
           },
           "dim-opacity": {
             "$type": "number",
@@ -81257,7 +81258,7 @@
               "value": 32,
               "unit": "px"
             },
-            "$description": "The diameter of the round state layer centered on each handle. It sets how far the track is inset from the slider's ends, so that a handle and its state layer stay inside the slider at min and max. 0 draws no state layer."
+            "$description": "The diameter of the round state layer centered on each handle: the control height (40 in the default system), so that a horizontal slider, as thick as the larger of it and the handle, stands as tall as the Buttons and fields beside it. It sets how far the track is inset from the slider's ends, so that a handle and its state layer stay inside the slider at min and max. The track and the handle keep their own sizes at every control height. 0 draws no state layer."
           }
         },
         "disabled": {
@@ -88623,7 +88624,7 @@
               "value": 40,
               "unit": "px"
             },
-            "$description": "The round state layer centered on the handle, 40; it moves with the handle and reaches 4 beyond the track's ends."
+            "$description": "The round state layer centered on the handle, and the least height the switch takes in a row: the control height (40 in the default system), so that a switch stands as tall as the Buttons, fields and checkboxes beside it and a switch with a one-line label is a row of that height, its track centered in it. It moves with the handle and reaches beyond the track's ends without taking room along the track. The track and the handle keep their own sizes at every control height."
           }
         },
         "disabled": {

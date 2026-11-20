@@ -134,7 +134,7 @@ const FLOATED = `.field:not([data-layout='stacked'])${FLOAT}`;
 /**
  * A stacked box is as tall as a Button of the same size, with the block padding that leaves room for its line in that
  * height (SEL-1, CMB-1, NMI-1, CLI-1): everything that reads `--_height` and `--_pad-block` inside a stacked field reads
- * the stacked box's own. A filled or an outlined box keeps the taller height, which holds the label floated in it.
+ * the stacked box's own. A filled or an outlined box reads the box's own height; a filled one grows to hold its label.
  */
 export const stackedBoxStyles = (): CSSResult =>
   unsafeCSS(`

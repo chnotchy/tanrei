@@ -438,12 +438,12 @@ export class TanreiCalendar extends TanreiElement {
   }
 
   /** Moves focus to the active day, or to the displayed year in the year view (CAL-10, CAL-12), with the ring or without as `focusVisible` asks (CAL-19). */
-  override focus(options?: FocusOptions & { focusVisible?: boolean }) {
+  protected override delegateFocus(options?: FocusOptions & { focusVisible?: boolean }) {
     const target =
       this.view === 'year'
         ? this.renderRoot?.querySelector<HTMLElement>(`.year[data-year="${this.activeYear}"]`)
         : this.renderRoot?.querySelector<HTMLElement>(`.page.current .day[data-date="${isoOf(this.active)}"]`);
-    if (!target) return super.focus(options);
+    if (!target) return super.delegateFocus(options);
     this.focusCell(target, options ?? {});
   }
 

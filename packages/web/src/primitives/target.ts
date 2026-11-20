@@ -3,7 +3,10 @@ import { type CSSResult, unsafeCSS } from 'lit';
 /**
  * The minimum target (BTN-5 and every control after it): the hit area meets `sys.target.pointer` for a fine pointer
  * and `sys.target.touch` for a coarse one, on both axes, centered, without changing the visual size. Drawn by the
- * `::before` of `on` (e.g. `button`), which must be a positioning container; RTL mirrors the centering.
+ * `::before` of `on` (e.g. `button`), which must be a positioning container; RTL mirrors the centering. The centering
+ * follows the direction of `on` itself, not of the host: an element laid out left to right inside a right-to-left
+ * component (a time picker's hour and minute, always in that order, DTM-21) is centred as left to right, or its hit
+ * area would lie a half target toward its inline end, over the gap to its neighbour (BTN-5).
  */
 export function minimumTarget(on: string): CSSResult {
   return unsafeCSS(`
@@ -22,7 +25,7 @@ export function minimumTarget(on: string): CSSResult {
       block-size: max(100%, var(--tanrei-sys-target-touch));
     }
   }
-  :host(:dir(rtl)) ${on}::before {
+  ${on}:dir(rtl)::before {
     transform: translate(50%, -50%);
   }
 `);

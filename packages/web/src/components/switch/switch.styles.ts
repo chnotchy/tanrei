@@ -71,6 +71,8 @@ const p = `var(${PROGRESS})`;
 const state = `var(--_state-duration) var(${PREFIX}-motion-state-easing)`;
 /** The selection motion: a drag sets its duration to zero (SWT-19), so the progress is then drawn in the frame it is written. */
 const travel = `var(--_travel-duration) var(${PREFIX}-motion-selection-easing)`;
+/** SWT-27: the switch's row — the larger of the track's height and the round container's, the control height. */
+const ROW = 'max(var(--tanrei-comp-switch-track-height), var(--tanrei-comp-switch-container-size))';
 const PRESSED = `.root:where(:has(.container[data-pressed]:not([data-pressed='none'])))`;
 /** While the progress is, or may be, between its two ends: a drag holds the handle, or a travel is under way (switch.ts marks it). */
 const BETWEEN = `.root:where([data-drag], [data-between])`;
@@ -106,8 +108,9 @@ export const styles = css`
   ${unsafeCSS(conditionBlock(PREFIX, 'unselected', OFF, '.root'))}
   ${unsafeCSS(conditionBlock(PREFIX, 'selected', ON, '.root'))}
 
-  /* SWT-15: the track, then the label at its inline end, comp.switch.label.gap away, wrapping. */
-  ${selectionLabel(PREFIX, 'var(--tanrei-comp-switch-track-height)')}
+  /* SWT-15: the track, then the label at its inline end, comp.switch.label.gap away, wrapping, its first line centered on
+     the switch's row (SWT-27). */
+  ${selectionLabel(PREFIX, ROW)}
   /* SWT-24: the label is text of its own direction — its first strong character's — isolated from what is around it; the
      layout direction still puts it at the track's inline end and aligns the lines it wraps to. */
   ${productText('.label', { align: 'start' })}
@@ -120,11 +123,12 @@ export const styles = css`
     --_travel-direction: -1;
   }
 
-  /* SWT-10: the layout box is the track, comp.switch.track.width by comp.switch.track.height. SWT-19: a drag along the
-     track is the switch's; one that goes up or down first stays the page's. */
+  /* SWT-10, SWT-27: the layout box is as long as the track, comp.switch.track.width, and across it as tall as the
+     larger of the track and the round container (the control height in the default system), the track centered in it.
+     SWT-19: a drag along the track is the switch's; one that goes up or down first stays the page's. */
   .control {
     inline-size: var(--tanrei-comp-switch-track-width);
-    block-size: var(--tanrei-comp-switch-track-height);
+    block-size: ${unsafeCSS(ROW)};
     touch-action: pan-y;
   }
 
@@ -132,7 +136,8 @@ export const styles = css`
      never under it — each layer in its own condition's colors. */
   .track {
     position: absolute;
-    inset: 0;
+    inset-inline: 0;
+    inset-block: calc((100% - var(--tanrei-comp-switch-track-height)) / 2);
     isolation: isolate;
     ${unsafeCSS(cornerRadius('--tanrei-comp-switch-track-shape'))}
     pointer-events: none;
@@ -169,7 +174,7 @@ export const styles = css`
   }
 
   /* SWT-10: the round container, comp.switch.container.size across, centered on the handle; it may reach beyond the
-     track and takes no room in the layout. Its color is its two layers (.tint), under the ripple. */
+     track's ends and takes no room along it (across it, the row is at least as tall as it, SWT-27). Its color is its two layers (.tint), under the ripple. */
   .container {
     position: absolute;
     inset-inline-start: calc(var(--tanrei-comp-switch-container-size) / -2);

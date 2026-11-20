@@ -470,8 +470,12 @@ test.describe('behavior: the box', () => {
       expect(await placeholder(id), `${id}: the placeholder shows once the label has floated`).toBe(await color(page, `${id}-focused-placeholder-color`));
       await expect(part(page, id, '.suffix'), `${id}: the suffix shows once the label has floated`).toBeVisible();
       near((await box(container(page, id))).height, height, `${id}: the height does not change`);
-      // Never over the input text.
-      expect(floated.y + floated.height, `${id}: above the input’s line`).toBeLessThanOrEqual((await box(input(page, id))).y + 0.6);
+      // Never over the input text: the letters, not the line boxes — in a box at the control height the half-leading of
+      // an outlined box's floated label, which stands on the edge, and of the input's line may meet; their em boxes never do.
+      const line = await box(input(page, id));
+      const valueTop = line.y + (line.height - (await px(input(page, id), 'font-size'))) / 2;
+      const labelBottom = floated.y + floated.height - (floated.height - (await px(label, 'font-size'))) / 2;
+      expect(labelBottom, `${id}: above the input’s line`).toBeLessThanOrEqual(valueTop + 0.6);
       await blurInput(page, id);
       // It stays floated while the input holds a text, focused or not.
       await set(page, id, { value: 12 });

@@ -329,6 +329,7 @@ export {
   type TanreiNavigationDrawerExpandedChangeDetail,
   type TanreiNavigationDrawerPresentation,
   type TanreiNavigationDrawerPresentationChangeDetail,
+  type TanreiNavigationDrawerStandardHiddenChangeDetail,
   type TanreiNavigationDrawerToggleDetail,
   type TanreiNavigationDrawerVariant,
 } from './components/navigation-drawer/navigation-drawer.js';

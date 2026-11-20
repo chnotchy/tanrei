@@ -50,13 +50,14 @@ const t = strings(Astro.props.lang);
     display: none;
   }
   /* The switch is Tanrei's Switch, and its look is the switch's. Until the element is defined: its room, from the
-     switch's own tokens — the track, the gap, then the label, which is the element's own attribute — so that nothing
-     beside it moves when it is drawn. */
+     switch's own tokens — the track, the gap, then the label, which is the element's own attribute, its first line
+     centered on the switch's row (the larger of the track and the round container, the control height) — so that
+     nothing beside it moves when it is drawn. */
   .docs-listing:not(:defined) {
     box-sizing: border-box;
     display: inline-flex;
     max-inline-size: 100%;
-    padding-block: max(0px, calc((var(--tanrei-comp-switch-track-height) - 1lh) / 2));
+    padding-block: max(0px, calc((max(var(--tanrei-comp-switch-track-height), var(--tanrei-comp-switch-container-size)) - 1lh) / 2));
     padding-inline-start: calc(var(--tanrei-comp-switch-track-width) + var(--tanrei-comp-switch-label-gap));
     font: var(--tanrei-comp-switch-label-typescale-font-weight) var(--tanrei-comp-switch-label-typescale-font-size)/var(--tanrei-comp-switch-label-typescale-line-height) var(--tanrei-comp-switch-label-typescale-font-family);
     letter-spacing: var(--tanrei-comp-switch-label-typescale-letter-spacing);

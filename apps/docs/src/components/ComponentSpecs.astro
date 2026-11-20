@@ -230,7 +230,7 @@ const noteHtml = (notes: string | undefined) => (notes ?? '').replace(/&/g, '&am
 </table></Table>
 
 <h3>{t.tokens}</h3>
-<Table label={t.tokens} size="small" class="tokens" style={`--docs-token-rows: ${tokenRows}`}><table>
+<div class="tokens" style={`--docs-token-rows: ${tokenRows}`}><Table label={t.tokens} size="small"><table>
   <thead><tr><th scope="col">{t.token}</th><th scope="col">{t.aliases}</th><th scope="col">{t.resolvedLight}</th></tr></thead>
   <tbody>
     {[...compTokens, ...typographyTokens].map((tk) => {
@@ -249,7 +249,7 @@ const noteHtml = (notes: string | undefined) => (notes ?? '').replace(/&/g, '&am
       );
     })}
   </tbody>
-</table></Table>
+</table></Table></div>
 
 <h3>{t.fixtures}</h3>
 <p class="docs-muted">{t.fixturesHelp}</p>
@@ -311,7 +311,12 @@ const noteHtml = (notes: string | undefined) => (notes ?? '').replace(/&/g, '&am
      wraps, a shadow); the room it remembers (`auto`) is the room it took once drawn. Its text is still found by the
      browser's find in page, which draws it. The Table reads its sizes again when it is drawn (a size observer), so it is
      a focus stop and a region where it scrolls once it is near. The other tables, whose rows are paragraphs of no
-     height known before they are laid out, are drawn with the page. */
+     height known before they are laid out, are drawn with the page.
+     The box that skips it is a block of its own around the Table, never the Table: the Table is a size container (its
+     caption is 100cqi wide), and WebKit lays out the content of a skipped box that is a size container all the same —
+     every layout of the page laid out its rows, and on a page that reads right to left took two and a half times as
+     long as one without them. (WebKit still restyles skipped content: that, the rows cost with every restyle of the
+     page.) */
   .tokens {
     content-visibility: auto;
     contain-intrinsic-block-size: auto
