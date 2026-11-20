@@ -267,12 +267,18 @@ test.describe('skeleton', () => {
         // Between the first bar and the second (14-high bars in 22-high line boxes) the stage shows through: its surface.
         const behind = drawn.at(20, 22);
         expect(behind, `${at}: the surface between two bars`).toBe(await paintedColor(page, `var(--tanrei-sys-color-${role})`));
-        const ratio = contrast(seen, behind);
-        expect(ratio, `${at}: ${seen} on ${behind} is ${ratio.toFixed(3)}:1`).toBeGreaterThanOrEqual(STANDS_OFF);
-        // Each bar is the fill laid over this surface — not over the page's, and not a tone of its own — and the three
-        // are one color: no point is covered twice.
-        expect([drawn.at(20, 11), drawn.at(20, 33), drawn.at(20, 55)], at).toEqual([seen, seen, seen]);
-        expect(drawn.column(20).length, `${at}: three bars, each seen`).toBe(3);
+        // Each bar is the fill laid over this surface — not over the page's, and not a tone of its own. (A bar is drawn
+        // through its rounded clip, and an engine may composite the translucent fill there one level of 255 from the
+        // same fill laid over an unclipped box, as in the clipped circle below. Laid over the page's surface instead, or twice,
+        // it is a tenth of the distance between two surface tones or of the content color away: many levels.)
+        const bar = drawn.at(20, 11);
+        expect(channelsApart(bar, seen), `${at}: the bar ${bar}, the fill over this surface ${seen}`).toBeLessThanOrEqual(1);
+        const ratio = contrast(bar, behind);
+        expect(ratio, `${at}: ${bar} on ${behind} is ${ratio.toFixed(3)}:1`).toBeGreaterThanOrEqual(STANDS_OFF);
+        // The three are one color: no point is covered twice.
+        const bars = await painted(placeholders(page, id).first(), bar);
+        expect([bars.at(20, 11), bars.at(20, 33), bars.at(20, 55)], at).toEqual([bar, bar, bar]);
+        expect(bars.column(20).length, `${at}: three bars, each seen`).toBe(3);
       }
     }
   });
