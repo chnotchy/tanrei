@@ -57,15 +57,14 @@ export const styles = css`
   }
 
   /* MDL-1, MDL-7: the scrim over the whole window behind the container, its color (alpha included) and its blur of what
-     lies behind, fading with the container. Opacity is all that moves, so reduced motion changes nothing here. */
+     lies behind, fading in with the container; MOT-8: taken away at once as it begins to close (modalExitStyles below),
+     while the container fades out. Opacity is all that moves, so reduced motion changes nothing here. */
   ${scrimFilter('dialog', T('scrim-blur'))}
   dialog::backdrop {
     background: ${t('scrim-color')};
     backdrop-filter: ${SCRIM_FILTER};
     opacity: 0;
     transition-property: opacity;
-    transition-duration: ${t('motion-exit-duration')};
-    transition-timing-function: ${t('motion-exit-easing')};
   }
   dialog[open]::backdrop {
     opacity: 1;
@@ -82,6 +81,6 @@ export const styles = css`
     background: transparent;
     backdrop-filter: none;
   }
-  /* MDL-7: closed, it stays drawn in the top layer until its exit and its scrim's have played (src/primitives/modal-exit.ts). */
+  /* MDL-7, MOT-8: closed, it stays drawn in the top layer until its exit has played, its scrim gone from the first frame (src/primitives/modal-exit.ts). */
   ${modalExitStyles('dialog')}
 `;

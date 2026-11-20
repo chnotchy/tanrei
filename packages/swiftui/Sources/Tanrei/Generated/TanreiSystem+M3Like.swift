@@ -5315,7 +5315,7 @@ private let m3LikeListRowTokens = TanreiListRowTokens(
       containerHeightOneLine: 40,
       containerHeightTwoLine: 56,
       containerHeightThreeLine: 72,
-      containerPaddingBlock: 4
+      containerPaddingBlock: 2
     ),
     medium: TanreiListRowSizeTokens(
       containerHeightOneLine: 56,
@@ -6439,9 +6439,9 @@ private let m3LikeNavigationBarTokens = TanreiNavigationBarTokens(
 private let m3LikeNavigationDrawerTokens = TanreiNavigationDrawerTokens(
   breakpointCollapsed: 600,
   breakpointExpanded: 1024,
-  collapsedItemContainerPaddingInline: 0,
   collapsedItemContainerShape: 9999,
   collapsedItemGap: 4,
+  collapsedItemLabelPaddingInline: 4,
   collapsedItemLabelTypescale: m3LikeTypescale.labelSmall,
   containerMaxWidth: 400,
   containerMinWidth: 200,
@@ -6709,8 +6709,8 @@ private let m3LikeNavigationDrawerTokens = TanreiNavigationDrawerTokens(
       )
     )
   ),
-  densitys: TanreiNavigationDrawerDensitys(
-    regular: TanreiNavigationDrawerDensityTokens(
+  sizes: TanreiNavigationDrawerSizes(
+    medium: TanreiNavigationDrawerSizeTokens(
       containerGap: 0,
       itemContainerHeight: 56,
       itemPaddingInline: 16,
@@ -6726,7 +6726,7 @@ private let m3LikeNavigationDrawerTokens = TanreiNavigationDrawerTokens(
       collapsedItemContainerPaddingBlock: 0,
       headingHeight: 36
     ),
-    compact: TanreiNavigationDrawerDensityTokens(
+    small: TanreiNavigationDrawerSizeTokens(
       containerGap: 2,
       itemContainerHeight: 32,
       itemPaddingInline: 8,
@@ -9177,13 +9177,15 @@ private let m3LikeTableTokens = TanreiTableTokens(
   ),
   sizes: TanreiTableSizes(
     small: TanreiTableSizeTokens(
+      rowHeight: 0,
       cellPaddingBlock: 6,
       cellPaddingInline: 12,
       cellTextTypescale: m3LikeTypescale.bodySmall,
       headerTextTypescale: m3LikeTypescale.labelSmall
     ),
     medium: TanreiTableSizeTokens(
-      cellPaddingBlock: 12,
+      rowHeight: 52,
+      cellPaddingBlock: 16,
       cellPaddingInline: 16,
       cellTextTypescale: m3LikeTypescale.body,
       headerTextTypescale: m3LikeTypescale.label

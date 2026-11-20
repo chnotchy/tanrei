@@ -5347,7 +5347,7 @@ const TanreiSystem m3LikeSystem = TanreiSystem(
         containerHeightOneLine: 40.0,
         containerHeightTwoLine: 56.0,
         containerHeightThreeLine: 72.0,
-        containerPaddingBlock: 4.0,
+        containerPaddingBlock: 2.0,
       ),
       medium: TanreiListRowSizeTokens(
         containerHeightOneLine: 56.0,
@@ -6461,9 +6461,9 @@ const TanreiSystem m3LikeSystem = TanreiSystem(
   navigationDrawer: TanreiNavigationDrawerTokens(
     breakpointCollapsed: 600.0,
     breakpointExpanded: 1024.0,
-    collapsedItemContainerPaddingInline: 0.0,
     collapsedItemContainerShape: 9999.0,
     collapsedItemGap: 4.0,
+    collapsedItemLabelPaddingInline: 4.0,
     collapsedItemLabelTypescale: _typescaleLabelSmall,
     containerMaxWidth: 400.0,
     containerMinWidth: 200.0,
@@ -6731,8 +6731,8 @@ const TanreiSystem m3LikeSystem = TanreiSystem(
         ),
       ),
     ),
-    densitys: TanreiNavigationDrawerDensitys(
-      regular: TanreiNavigationDrawerDensityTokens(
+    sizes: TanreiNavigationDrawerSizes(
+      medium: TanreiNavigationDrawerSizeTokens(
         containerGap: 0.0,
         itemContainerHeight: 56.0,
         itemPaddingInline: 16.0,
@@ -6748,7 +6748,7 @@ const TanreiSystem m3LikeSystem = TanreiSystem(
         collapsedItemContainerPaddingBlock: 0.0,
         headingHeight: 36.0,
       ),
-      compact: TanreiNavigationDrawerDensityTokens(
+      small: TanreiNavigationDrawerSizeTokens(
         containerGap: 2.0,
         itemContainerHeight: 32.0,
         itemPaddingInline: 8.0,
@@ -9170,13 +9170,15 @@ const TanreiSystem m3LikeSystem = TanreiSystem(
     ),
     sizes: TanreiTableSizes(
       small: TanreiTableSizeTokens(
+        rowHeight: 0.0,
         cellPaddingBlock: 6.0,
         cellPaddingInline: 12.0,
         cellTextTypescale: _typescaleBodySmall,
         headerTextTypescale: _typescaleLabelSmall,
       ),
       medium: TanreiTableSizeTokens(
-        cellPaddingBlock: 12.0,
+        rowHeight: 52.0,
+        cellPaddingBlock: 16.0,
         cellPaddingInline: 16.0,
         cellTextTypescale: _typescaleBody,
         headerTextTypescale: _typescaleLabel,

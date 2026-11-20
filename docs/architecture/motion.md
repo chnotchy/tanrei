@@ -15,7 +15,8 @@ cites them by id rather than restating them.
   end value — no flash of another color, no frame of another state, no jump at the start or the end of a motion — and a
   motion that is turned round SHALL go on from the value then shown. The last frame of a surface that leaves on an
   accelerating curve (`sys.motion.easing.exit`) is the one exception at the end: it may still hold a little of the
-  surface (about 7–9 % of its opacity at 250–350 ms under the default system) when the surface is taken away.
+  surface (about 7–9 % of its opacity at 250–350 ms under the default system) when the surface is taken away. A scrim
+  is not such a surface (MOT-8).
 - **MOT-3** — WHEN a component is first drawn THE component SHALL draw its first frame in the state its props,
   attributes, content and the components around it give it, and SHALL run no transition into that state. An overlay
   mounted open is the one exception and follows MOT-4.
@@ -35,6 +36,15 @@ cites them by id rather than restating them.
   input either, and what it made inert SHALL no longer be inert, so that the press reaches the page and focus goes back
   when the surface closes (MDL-5), not when its motion ends. A surface that is not taken away but becomes part of the
   page as it closes (a collapsible navigation drawer, which narrows back to its column) is none of these.
+- **MOT-8** — WHEN a surface that draws a scrim begins to close THE component SHALL draw its scrim at no opacity, and
+  without its blur, from the first frame of the closing, at once, whatever motion the surface leaves by and whether or
+  not motion is reduced; WHEN it opens THE component SHALL fade the scrim in over its enter motion (MOT-6 where motion is
+  reduced); WHEN a closing is turned round THE component SHALL fade the scrim in again from no opacity. WHEN a surface
+  that stays open stops being drawn over the content (a drawer whose presentation becomes standard) THE component SHALL
+  take its scrim away at once; WHEN it comes to be drawn over the content while open, THE component SHALL draw the scrim
+  at once. A scrim SHALL never be eased by the exit curve. (From the first frame of a closing the scrim takes no press
+  (MOT-7) and what it covered is no longer inert: a scrim still drawn would show a barrier that is gone. Faded on the
+  exit curve, which gathers speed, it stayed almost whole for most of the exit and then vanished.)
 
 Under MOT-2 a surface that appears and leaves runs one path both ways: it leaves the way it came, and a surface turned
 round in the middle of either goes back from where it is.

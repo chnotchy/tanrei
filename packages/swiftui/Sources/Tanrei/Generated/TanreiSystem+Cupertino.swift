@@ -3692,7 +3692,7 @@ private let cupertinoEmptyStateTokens = TanreiEmptyStateTokens(
 private let cupertinoFabMenuTokens = TanreiFabMenuTokens(
   containerShapeOpen: 9999,
   itemGap: 8,
-  itemHeight: 48,
+  itemHeight: 44,
   itemIconSize: 20,
   itemLabelTypescale: cupertinoTypescale.label,
   itemPaddingInlineEnd: 20,
@@ -5166,7 +5166,7 @@ private let cupertinoListRowTokens = TanreiListRowTokens(
       containerHeightOneLine: 40,
       containerHeightTwoLine: 56,
       containerHeightThreeLine: 72,
-      containerPaddingBlock: 4
+      containerPaddingBlock: 2
     ),
     medium: TanreiListRowSizeTokens(
       containerHeightOneLine: 44,
@@ -6290,9 +6290,9 @@ private let cupertinoNavigationBarTokens = TanreiNavigationBarTokens(
 private let cupertinoNavigationDrawerTokens = TanreiNavigationDrawerTokens(
   breakpointCollapsed: 600,
   breakpointExpanded: 1024,
-  collapsedItemContainerPaddingInline: 4,
   collapsedItemContainerShape: 10,
   collapsedItemGap: 4,
+  collapsedItemLabelPaddingInline: 4,
   collapsedItemLabelTypescale: cupertinoTypescale.labelSmall,
   containerMaxWidth: 400,
   containerMinWidth: 200,
@@ -6512,7 +6512,7 @@ private let cupertinoNavigationDrawerTokens = TanreiNavigationDrawerTokens(
         itemContainerColor: .role(.primary),
         itemIconIndicatorColor: .none,
         itemIconColor: .role(.onPrimary),
-        itemLabelColor: .role(.onPrimary),
+        itemLabelColor: .role(.onSurface),
         itemSupportingTextColor: .role(.onPrimary),
         itemTrailingTextColor: .role(.onPrimary),
         itemTrailingIconColor: .role(.onPrimary),
@@ -6522,7 +6522,7 @@ private let cupertinoNavigationDrawerTokens = TanreiNavigationDrawerTokens(
         itemContainerColor: .role(.primary),
         itemIconIndicatorColor: .none,
         itemIconColor: .role(.onPrimary),
-        itemLabelColor: .role(.onPrimary),
+        itemLabelColor: .role(.onSurface),
         itemSupportingTextColor: .role(.onPrimary),
         itemTrailingTextColor: .role(.onPrimary),
         itemTrailingIconColor: .role(.onPrimary),
@@ -6532,7 +6532,7 @@ private let cupertinoNavigationDrawerTokens = TanreiNavigationDrawerTokens(
         itemContainerColor: .role(.primary),
         itemIconIndicatorColor: .none,
         itemIconColor: .role(.onPrimary),
-        itemLabelColor: .role(.onPrimary),
+        itemLabelColor: .role(.onSurface),
         itemSupportingTextColor: .role(.onPrimary),
         itemTrailingTextColor: .role(.onPrimary),
         itemTrailingIconColor: .role(.onPrimary),
@@ -6542,7 +6542,7 @@ private let cupertinoNavigationDrawerTokens = TanreiNavigationDrawerTokens(
         itemContainerColor: .role(.primary),
         itemIconIndicatorColor: .none,
         itemIconColor: .role(.onPrimary),
-        itemLabelColor: .role(.onPrimary),
+        itemLabelColor: .role(.onSurface),
         itemSupportingTextColor: .role(.onPrimary),
         itemTrailingTextColor: .role(.onPrimary),
         itemTrailingIconColor: .role(.onPrimary),
@@ -6560,8 +6560,8 @@ private let cupertinoNavigationDrawerTokens = TanreiNavigationDrawerTokens(
       )
     )
   ),
-  densitys: TanreiNavigationDrawerDensitys(
-    regular: TanreiNavigationDrawerDensityTokens(
+  sizes: TanreiNavigationDrawerSizes(
+    medium: TanreiNavigationDrawerSizeTokens(
       containerGap: 4,
       itemContainerHeight: 48,
       itemPaddingInline: 12,
@@ -6577,7 +6577,7 @@ private let cupertinoNavigationDrawerTokens = TanreiNavigationDrawerTokens(
       collapsedItemContainerPaddingBlock: 12,
       headingHeight: 36
     ),
-    compact: TanreiNavigationDrawerDensityTokens(
+    small: TanreiNavigationDrawerSizeTokens(
       containerGap: 2,
       itemContainerHeight: 32,
       itemPaddingInline: 8,
@@ -9028,12 +9028,14 @@ private let cupertinoTableTokens = TanreiTableTokens(
   ),
   sizes: TanreiTableSizes(
     small: TanreiTableSizeTokens(
+      rowHeight: 0,
       cellPaddingBlock: 6,
       cellPaddingInline: 12,
       cellTextTypescale: cupertinoTypescale.bodySmall,
       headerTextTypescale: cupertinoTypescale.labelSmall
     ),
     medium: TanreiTableSizeTokens(
+      rowHeight: 44,
       cellPaddingBlock: 12,
       cellPaddingInline: 16,
       cellTextTypescale: cupertinoTypescale.body,

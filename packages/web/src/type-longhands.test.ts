@@ -6,7 +6,7 @@
 // `<role>-font-size` on one button. So a role has no composite: every component reads the longhands where it draws
 // its text. Here, for a component of each way of reading them — a size member held
 // in private properties (Button, Chip, Text input), a token read directly (Tabs, Menu, Tooltip, Snackbar), a primitive
-// given the component's prefix (Checkbox, through the selection primitive), a density member a drawer hands its cells
+// given the component's prefix (Checkbox, through the selection primitive), a size member a drawer hands its cells
 // (Navigation drawer) and a light-DOM stylesheet (Accordion) — each longhand is overridden on the element and then on
 // its fixture's stage, and the text is read before and after.
 import { type Page, expect, test } from '@playwright/test';
@@ -31,7 +31,7 @@ const CASES: readonly Case[] = [
   { name: 'tooltip', fixture: 'plain', base: '--tanrei-comp-tooltip-plain-supporting-text-typescale', text: '[part="supporting-text"]' },
   { name: 'snackbar', fixture: 'message', base: '--tanrei-comp-snackbar-supporting-text-typescale', text: '[part="supporting-text"]' },
   { name: 'checkbox', fixture: 'unselected', base: '--tanrei-comp-checkbox-label-typescale', text: '[part="label"]' },
-  { name: 'navigation-drawer', fixture: 'standard', base: '--tanrei-comp-navigation-drawer-item-label-typescale-regular', text: '[part="label"]' },
+  { name: 'navigation-drawer', fixture: 'standard', base: '--tanrei-comp-navigation-drawer-item-label-typescale-medium', text: '[part="label"]' },
   { name: 'accordion', fixture: 'plain', base: '--tanrei-comp-accordion-label-typescale-medium', text: 'summary' },
 ];
 

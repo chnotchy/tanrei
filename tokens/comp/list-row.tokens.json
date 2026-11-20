@@ -38,24 +38,9 @@
         "container": {
           "height": {
             "$type": "dimension",
-            "$description": "The least height of a row, per number of lines of its text and per size: one line (a headline), two lines (a headline with an overline or with one line of supporting text), three lines (a headline with an overline and supporting text, or with two lines of supporting text). A minimum: a row grows with enlarged text. Inside a list item that is an action, a link or an option, the item's own padding is part of it.",
+            "$description": "The least height of a row, per number of lines of its text and per size: one line (a headline), two lines (a headline with an overline or with one line of supporting text), three lines (a headline with an overline and supporting text, or with two lines of supporting text). One line is a step of the control height ladder: medium the control height (40 in the default system), so that a row of the default size stands as tall as every control of that size, and small the small step, never below the minimum target. Each further line adds what it needs, five size units (20 in the default system), the line of the supporting text (13 on 20): a row of two lines is 60 and a row of three 80 at medium, 56 and 76 at small. A minimum: a row grows with enlarged text. Inside a list item that is an action, a link or an option, the item's own padding is part of it.",
             "one-line": {
               "medium": {
-                "$value": {
-                  "value": 56,
-                  "unit": "px"
-                },
-                "$extensions": {
-                  "dev.tanrei.derive": {
-                    "fn": "mul",
-                    "of": "{tanrei.dial.size.unit}",
-                    "by": 14,
-                    "round": "{tanrei.dial.size.unit}",
-                    "min": "{tanrei.sys.target.minimum}"
-                  }
-                }
-              },
-              "small": {
                 "$value": {
                   "value": 40,
                   "unit": "px"
@@ -63,9 +48,23 @@
                 "$extensions": {
                   "dev.tanrei.derive": {
                     "fn": "mul",
-                    "of": "{tanrei.dial.size.unit}",
-                    "by": 10,
-                    "round": "{tanrei.dial.size.unit}",
+                    "of": "{tanrei.sys.control.height.medium}",
+                    "by": 1,
+                    "min": "{tanrei.sys.target.minimum}"
+                  },
+                  "dev.tanrei.aligned": "control"
+                }
+              },
+              "small": {
+                "$value": {
+                  "value": 36,
+                  "unit": "px"
+                },
+                "$extensions": {
+                  "dev.tanrei.derive": {
+                    "fn": "mul",
+                    "of": "{tanrei.sys.control.height.small}",
+                    "by": 1,
                     "min": "{tanrei.sys.target.minimum}"
                   }
                 }
@@ -74,16 +73,15 @@
             "two-line": {
               "medium": {
                 "$value": {
-                  "value": 72,
+                  "value": 60,
                   "unit": "px"
                 },
                 "$extensions": {
                   "dev.tanrei.derive": {
-                    "fn": "mul",
-                    "of": "{tanrei.dial.size.unit}",
-                    "by": 18,
-                    "round": "{tanrei.dial.size.unit}",
-                    "min": "{tanrei.sys.target.minimum}"
+                    "fn": "add",
+                    "of": "{tanrei.comp.list-row.container.height.one-line.medium}",
+                    "by": "{tanrei.dial.size.unit}",
+                    "times": 5
                   }
                 }
               },
@@ -94,11 +92,10 @@
                 },
                 "$extensions": {
                   "dev.tanrei.derive": {
-                    "fn": "mul",
-                    "of": "{tanrei.dial.size.unit}",
-                    "by": 14,
-                    "round": "{tanrei.dial.size.unit}",
-                    "min": "{tanrei.sys.target.minimum}"
+                    "fn": "add",
+                    "of": "{tanrei.comp.list-row.container.height.one-line.small}",
+                    "by": "{tanrei.dial.size.unit}",
+                    "times": 5
                   }
                 }
               }
@@ -106,31 +103,29 @@
             "three-line": {
               "medium": {
                 "$value": {
-                  "value": 88,
+                  "value": 80,
                   "unit": "px"
                 },
                 "$extensions": {
                   "dev.tanrei.derive": {
-                    "fn": "mul",
-                    "of": "{tanrei.dial.size.unit}",
-                    "by": 22,
-                    "round": "{tanrei.dial.size.unit}",
-                    "min": "{tanrei.sys.target.minimum}"
+                    "fn": "add",
+                    "of": "{tanrei.comp.list-row.container.height.one-line.medium}",
+                    "by": "{tanrei.dial.size.unit}",
+                    "times": 10
                   }
                 }
               },
               "small": {
                 "$value": {
-                  "value": 72,
+                  "value": 76,
                   "unit": "px"
                 },
                 "$extensions": {
                   "dev.tanrei.derive": {
-                    "fn": "mul",
-                    "of": "{tanrei.dial.size.unit}",
-                    "by": 18,
-                    "round": "{tanrei.dial.size.unit}",
-                    "min": "{tanrei.sys.target.minimum}"
+                    "fn": "add",
+                    "of": "{tanrei.comp.list-row.container.height.one-line.small}",
+                    "by": "{tanrei.dial.size.unit}",
+                    "times": 10
                   }
                 }
               }
@@ -138,7 +133,7 @@
           },
           "padding-block": {
             "$type": "dimension",
-            "$description": "Above the first line and below the last line of a row's text, per size, while the row draws its own paddings (standing alone, or in a static item). It holds the room when the text is enlarged.",
+            "$description": "Above the first line and below the last line of a row's text, per size, while the row draws its own paddings (standing alone, or in a static item): medium 8 and small 4 in the default system. Each gives up half of what its size's one-line row loses below its step at the control height's reference and takes half of what the target adds to it, so that one line fits at every control height and size unit. It holds the room when the text is enlarged.",
             "medium": {
               "$value": {
                 "value": 8,
@@ -160,7 +155,7 @@
               "$extensions": {
                 "dev.tanrei.derive": {
                   "fn": "pad",
-                  "of": "{tanrei.sys.space.space50}",
+                  "of": "{tanrei.sys.space.space25}",
                   "height": "{tanrei.comp.list-row.container.height.one-line.small}"
                 }
               }

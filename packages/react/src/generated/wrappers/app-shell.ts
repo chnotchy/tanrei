@@ -32,6 +32,6 @@ const AppShellAttributes = { scrolls: ['scroll', 'page'], headerPosition: ['head
  *
  * Events:
  * - `onWindowClassChange` (`windowclasschange`) — The frame decided the window's class for the first time, or the window's width changed it: `detail.windowClass` (and `windowClass`) is `compact`, `medium` or `expanded`.
- * - `onNavigationOpenChange` (`navigationopenchange`) — The navigation asks to be presented over the content, or to be put away: the menu button was activated (`detail.navigationOpen` true, and false while it was open), or the open navigation closed — by its scrim, Escape, the platform's back, a drag, a destination — or the window became wide enough for it to stand beside the content (false). `navigationOpen` already holds it.
+ * - `onNavigationOpenChange` (`navigationopenchange`) — The navigation asks to be presented over the content, or to be put away: the menu button was activated (`detail.navigationOpen` true, and false while it was open), or the open navigation closed — by its scrim, Escape, the platform's back, a drag, a destination (false). A change of the window's class emits none. `navigationOpen` already holds it.
  */
 export const AppShell = /* @__PURE__ */ withServerAttributes(AppShellElement, 'tanrei-app-shell', TanreiAppShellElement, AppShellAttributes);

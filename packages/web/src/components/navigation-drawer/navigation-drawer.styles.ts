@@ -48,15 +48,15 @@ const variantBlock = (variant: string, selector: string, fallback: string | null
   --_shape-pill: ${fallback ? `var(${PREFIX}-container-shape-${variant}-pill, var(${PREFIX}-container-shape-${fallback}-pill, 0))` : `var(${PREFIX}-container-shape-${variant}-pill, 0)`};
 }`;
 
-export const CORE_DENSITIES = ['regular', 'compact'] as const;
-export const DEFAULT_DENSITY = 'regular';
+export const CORE_SIZES = ['medium', 'small'] as const;
+export const DEFAULT_SIZE = 'medium';
 
 /**
- * NVD-65: the members of the density axis (`dev.tanrei.axes.density.members`), as the private custom properties the
- * drawer sets on its host for its density and its cells, groups and sections inherit (`*` is the density). Every
- * length, glyph size and text style below that a density changes is read through these, never from a token directly.
+ * NVD-65: the members of the size axis (`dev.tanrei.axes.size.members`), as the private custom properties the
+ * drawer sets on its host for its size and its cells, groups and sections inherit (`*` is the size). Every
+ * length, glyph size and text style below that a size changes is read through these, never from a token directly.
  */
-const DENSITY_MEMBERS: readonly (readonly [string, string])[] = [
+const SIZE_MEMBERS: readonly (readonly [string, string])[] = [
   ['--_nvd-gap', 'container-gap-*'],
   ['--_nvd-height', 'item-container-height-*'],
   ['--_nvd-pad', 'item-padding-inline-*'],
@@ -74,31 +74,39 @@ const DENSITY_MEMBERS: readonly (readonly [string, string])[] = [
   ['--_nvd-heading', 'heading-height-*'],
 ];
 
-/** One density's members under `selector`; a value the core does not have falls back to the default's tokens. */
-const densityBlock = (density: string, selector: string, fallback: string | null = null) => `${selector} {${DENSITY_MEMBERS.map(
-  ([name, token]) => `\n  ${name}: ${fallback ? `var(${PREFIX}-${token.replace('*', density)}, var(${PREFIX}-${token.replace('*', fallback)}))` : `var(${PREFIX}-${token.replace('*', density)})`};`,
-).join('')}
+/**
+ * NVD-6: the drawn cell is at least the target the size gives its hit area (`--_nvd-target`) less the gap, so that the
+ * cell and half the gap above and below it reach the target: cells laid out a gap apart cannot extend a hit area over
+ * each other (BTN-5), so where a system gives a lower cell than that, the cell is drawn higher instead.
+ */
+const drawnHeight = (value: string) => `max(${value}, calc(var(--_nvd-target, 0px) - var(--_nvd-gap)))`;
+
+/** One size's members under `selector`; a value the core does not have falls back to the default's tokens. */
+const sizeBlock = (size: string, selector: string, fallback: string | null = null) => `${selector} {${SIZE_MEMBERS.map(([name, token]) => {
+  const value = fallback ? `var(${PREFIX}-${token.replace('*', size)}, var(${PREFIX}-${token.replace('*', fallback)}))` : `var(${PREFIX}-${token.replace('*', size)})`;
+  return `\n  ${name}: ${name === '--_nvd-height' ? drawnHeight(value) : value};`;
+}).join('')}
 }`;
 
 /**
- * A member as a cell, a group or a section reads it: the drawer's value for its density, or the default density's
+ * A member as a cell, a group or a section reads it: the drawer's value for its size, or the default size's
  * token where the element stands outside a drawer.
  */
 const D = (name: string) => {
-  const member = DENSITY_MEMBERS.find(([n]) => n === name);
-  if (!member) throw new Error(`not a density member: ${name}`);
-  return `var(${name}, var(${PREFIX}-${member[1].replace('*', DEFAULT_DENSITY)}))`;
+  const member = SIZE_MEMBERS.find(([n]) => n === name);
+  if (!member) throw new Error(`not a size member: ${name}`);
+  return `var(${name}, var(${PREFIX}-${member[1].replace('*', DEFAULT_SIZE)}))`;
 };
 const d = (name: string) => unsafeCSS(D(name));
 
 /**
- * The open axes (NVD-26): a variant or a density a layer added gets its block on demand, built by the same function and
+ * The open axes (NVD-26): a variant or a size a layer added gets its block on demand, built by the same function and
  * falling back to the default's tokens (a variant is presented as a standard drawer); a value the active system lacks
  * is reported.
  */
 export const AXES: readonly OpenAxis[] = [
   { name: 'variant', core: CORE_VARIANTS, default: DEFAULT_VARIANT, rules: (value, selector) => variantBlock(value, selector, DEFAULT_VARIANT), probe: (value) => `${PREFIX}-container-color-${value}` },
-  { name: 'density', core: CORE_DENSITIES, default: DEFAULT_DENSITY, rules: (value, selector) => densityBlock(value, selector, DEFAULT_DENSITY), probe: (value) => `${PREFIX}-item-container-height-${value}` },
+  { name: 'size', core: CORE_SIZES, default: DEFAULT_SIZE, rules: (value, selector) => sizeBlock(value, selector, DEFAULT_SIZE), probe: (value) => `${PREFIX}-item-container-height-${value}` },
 ];
 
 /** The icon column's width (the collapsed drawer's) and the drawer's inner padding. */
@@ -211,9 +219,11 @@ export const drawerStyles = css`
   }
   ${unsafeCSS(variantBlock(DEFAULT_VARIANT, ':host'))}
   ${unsafeCSS(CORE_VARIANTS.filter((v) => v !== DEFAULT_VARIANT).map((v) => variantBlock(v, `:host([data-as='${v}'])`)).join('\n'))}
-  /* NVD-65: the density's members, set on the host and inherited by its cells, groups and sections (a density a
-     layer added: AXES). NVD-6: for a fine pointer a regular cell's hit area is at least the pointer target, a compact
-     one's the cell and half the gap around it; for touch a compact cell is drawn at least the touch target high. */
+  /* NVD-65: the size's members, set on the host and inherited by its cells, groups and sections (a size a
+     layer added: AXES). NVD-6: a medium cell's hit area is the cell and half the gap around it, and at least the
+     pointer target for a fine pointer and the touch target for touch: where the cell and the gap give less, the cell
+     is drawn higher (drawnHeight), never its hit area extended over a neighbour's (BTN-5). A small one's is the cell
+     and half the gap around it for a fine pointer; for touch a small cell is drawn at least the touch target high. */
   /* NVD-73: guides hover — the lines are drawn while the pointer is over the drawer or focus is in it (inherited by the
      groups, which fade them). NVD-77: the surface pinned rows stand on: a modal drawer's own container color. */
   :host {
@@ -226,17 +236,20 @@ export const drawerStyles = css`
   :host(:focus-within) {
     --_nvd-guides-on: 1;
   }
-  ${unsafeCSS(densityBlock(DEFAULT_DENSITY, ':host'))}
-  ${unsafeCSS(CORE_DENSITIES.filter((v) => v !== DEFAULT_DENSITY).map((v) => densityBlock(v, `:host([density='${v}'])`)).join('\n'))}
+  ${unsafeCSS(sizeBlock(DEFAULT_SIZE, ':host'))}
+  ${unsafeCSS(CORE_SIZES.filter((v) => v !== DEFAULT_SIZE).map((v) => sizeBlock(v, `:host([size='${v}'])`)).join('\n'))}
   :host {
     --_nvd-target: var(--tanrei-sys-target-pointer);
   }
-  :host([density='compact']) {
+  :host([size='small']) {
     --_nvd-target: 0px;
   }
   @media (pointer: coarse) {
-    :host([density='compact']) {
-      --_nvd-height: max(${t('item-container-height-compact')}, var(--tanrei-sys-target-touch));
+    :host {
+      --_nvd-target: var(--tanrei-sys-target-touch);
+    }
+    :host([size='small']) {
+      --_nvd-height: max(${t('item-container-height-small')}, var(--tanrei-sys-target-touch));
     }
   }
   /* NVD-40: a collapsible modal drawer's column, while it is closed, is drawn as a standard drawer's. */
@@ -542,7 +555,7 @@ export const drawerStyles = css`
 
   /* NVD-19, NVD-22: a modal drawer is a native modal <dialog> in the top layer at the window's start edge, its full height,
      over ::backdrop (the scrim); it slides in from its start edge over the enter motion and out over the exit motion.
-     Closed, it is no longer modal at once and stays drawn in the top layer, sliding out over its fading scrim, until
+     Closed, it is no longer modal at once and stays drawn in the top layer, sliding out, its scrim gone (MOT-8), until
      that motion has ended (MDL-7: closeModal, src/primitives/modal-exit.ts), in every engine. */
   dialog.drawer {
     position: fixed;
@@ -581,13 +594,13 @@ export const drawerStyles = css`
     }
   }
   ${scrimFilter('dialog.drawer', T('scrim-blur'))}
+  /* NVD-19, NVD-22: the scrim fades in with the drawer, and is taken away at once as it begins to close (MOT-8:
+     modalExitStyles below draws it at no opacity while the dialog leaves). */
   dialog.drawer::backdrop {
     background: ${t('scrim-color')};
     backdrop-filter: ${SCRIM_FILTER};
     opacity: 0;
     transition-property: opacity;
-    transition-duration: ${t('motion-exit-duration')};
-    transition-timing-function: ${t('motion-exit-easing')};
   }
   dialog.drawer[open]::backdrop {
     opacity: 1;
@@ -602,7 +615,8 @@ export const drawerStyles = css`
   }
 
   /* NVD-40: a collapsible modal drawer does not slide: it widens over the content from its column (placed over it: the
-     column's box, measured when it opens) and narrows back to it, and its scrim fades, over the change's motion. Its
+     column's box, measured when it opens) and narrows back to it over the change's motion, its scrim fading in as it
+     widens and gone as it begins to narrow (MOT-8). Its
      look — the container color, the elevation, the end corners and the end edge — moves between the column's (the
      standard drawer's) and the modal variant's over the same motion, in step with its width: it opens from the column's
      look (\`@starting-style\`) and closes to it (closed, still in the top layer: closeModal, no longer modal), so the
@@ -638,13 +652,12 @@ export const drawerStyles = css`
   dialog.drawer.widening.dragging {
     transition: none;
   }
-  dialog.drawer.widening::backdrop,
   dialog.drawer.widening[open]::backdrop {
     transition-duration: ${t('motion-expand-duration')};
     transition-timing-function: ${t('motion-expand-easing')};
   }
-  /* MDL-7: where a drawer changes hands as it closes (closeModal), its scrim starts no transition and stands at the
-     opacity it showed, and while it leaves its scrim takes no pointer. After the dialog's own rules. */
+  /* MDL-7, MOT-8: where a drawer changes hands as it closes (closeModal), its scrim starts no transition, and while it
+     leaves its scrim is drawn at no opacity and takes no pointer. After the dialog's own rules. */
   ${modalExitStyles('dialog.drawer')}
 
   /* NVD-19, NVD-22, NVD-40, NVD-53, NVD-54: held below an app shell's header (\`data-held\`), the drawer is one <nav> in
@@ -730,13 +743,10 @@ export const drawerStyles = css`
     translate: var(--_away) 0;
     visibility: hidden;
   }
-  /* The scrim: below the header only, faded in with the drawer and out with it (NVD-22: from the moment it closes it
-     takes no press), over the change of form's motion for a column (NVD-40). Hidden once it has faded. */
+  /* The scrim: below the header only, faded in with the drawer, over the change of form's motion for a column (NVD-40),
+     and taken away at once — no opacity, hidden, taking no press — as it begins to close (NVD-22, MOT-8). */
   ${scrimFilter(':host([data-held]) .scrim', T('scrim-blur'))}
   :host([data-held]) .scrim {
-    --_held-d: ${t('motion-exit-duration')};
-    --_held-e: ${t('motion-exit-easing')};
-    --_held-hide: ${t('motion-exit-duration')};
     display: block;
     position: fixed;
     inset-block-start: var(--_top);
@@ -747,26 +757,19 @@ export const drawerStyles = css`
     opacity: 0;
     visibility: hidden;
     pointer-events: none;
-    transition-property: opacity, visibility;
-    transition-duration: var(--_held-d), 0s;
-    transition-timing-function: var(--_held-e);
-    transition-delay: 0s, var(--_held-hide);
+    transition-property: none;
   }
   :host([data-held][data-as='modal'][data-open]) .scrim {
-    --_held-d: ${t('motion-enter-duration')};
-    --_held-e: ${t('motion-enter-easing')};
-    --_held-hide: 0s;
     opacity: 1;
     visibility: visible;
     pointer-events: auto;
+    transition-property: opacity;
+    transition-duration: ${t('motion-enter-duration')};
+    transition-timing-function: ${t('motion-enter-easing')};
   }
-  :host([data-held][data-as='modal'][data-collapsible]) .scrim,
   :host([data-held][data-as='modal'][data-collapsible][data-open]) .scrim {
-    --_held-d: ${t('motion-expand-duration')};
-    --_held-e: ${t('motion-expand-easing')};
-  }
-  :host([data-held][data-as='modal'][data-collapsible]:not([data-open])) .scrim {
-    --_held-hide: ${t('motion-expand-duration')};
+    transition-duration: ${t('motion-expand-duration')};
+    transition-timing-function: ${t('motion-expand-easing')};
   }
   /* MOT-4: mounted open after the document's first paint, it enters as one that opens does. */
   @starting-style {
@@ -782,17 +785,19 @@ export const drawerStyles = css`
       opacity: 0;
     }
   }
-  /* NVD-54: a change of presentation moves the one surface — its width, its place and its look — and fades the scrim over
-     motion.expand; the host's own place in the layout changes at once, and the rest of the frame with it (APS-23). */
+  /* NVD-54: a change of presentation moves the one surface — its width, its place and its look — over motion.expand,
+     and its scrim comes or goes at once (MOT-8: nothing opens or closes); the host's own place in the layout changes at
+     once, and the rest of the frame with it (APS-23). */
   :host([data-held][data-moving]) {
     transition: none;
   }
-  :host([data-held][data-moving]) .held,
-  :host([data-held][data-moving]) .scrim {
+  :host([data-held][data-moving]) .held {
     --_held-d: ${t('motion-expand-duration')};
     --_held-e: ${t('motion-expand-easing')};
   }
-  :host([data-held][data-moving]:not([data-open])) .scrim,
+  :host([data-held][data-moving][data-as='modal'][data-open]) .scrim {
+    transition-property: none;
+  }
   :host([data-held][data-moving]:not([data-as='modal']):not([data-open])) .held,
   :host([data-held][data-moving][data-as='modal']:not([data-collapsible]):not([data-open])) .held {
     --_held-hide: ${t('motion-expand-duration')};
@@ -869,9 +874,7 @@ export const drawerStyles = css`
     dialog.drawer.widening,
     dialog.drawer.widening[open],
     dialog.drawer.widening .edge,
-    dialog.drawer::backdrop,
     dialog.drawer[open]::backdrop,
-    dialog.drawer.widening::backdrop,
     dialog.drawer.widening[open]::backdrop {
       transition-duration: 0s;
       transition-delay: 0s;
@@ -1011,7 +1014,7 @@ export const cellStyles = css`
   :host {
     display: block;
     outline: none;
-    /* NVD-65: the glyph sizes of the drawer's density, as properties the icon helper reads. */
+    /* NVD-65: the glyph sizes of the drawer's size, as properties the icon helper reads. */
     --_nvd-cell-icon: ${d('--_nvd-icon')};
     --_nvd-cell-trailing-icon: ${d('--_nvd-trailing-icon')};
   }
@@ -1046,7 +1049,8 @@ export const cellStyles = css`
        color in place, over it), and the change of form's while the form changes (the drawer's). */
     --_recolor-duration: var(--_nvd-recolor-duration, ${t('motion-state-duration')});
     --_recolor-easing: var(--_nvd-recolor-easing, ${t('motion-state-easing')});
-    --_labels: calc(${t('collapsed-item-gap')} + ${unsafeCSS(SHORT_LINE)});
+    /* NVD-32: what a short label adds under the collapsed item container: its gap, its line and the padding-block below it. */
+    --_labels: calc(${t('collapsed-item-gap')} + ${unsafeCSS(SHORT_LINE)} + ${d('--_nvd-pill-pad')});
     transition: opacity ${t('motion-state-duration')} ${t('motion-state-easing')};
   }
   .cell.no-labels {
@@ -1054,11 +1058,12 @@ export const cellStyles = css`
   }
   /* NVD-31: while the drawer is collapsible, every cell has the same height and icon line in both forms: the icon line
      lies the larger of half the expanded row and collapsed padding-block plus half the icon indicator below the top, and
-     the cell reaches the larger of half the expanded row and half the icon indicator, the short label's gap and line
-     (unless collapsedLabels is never) and collapsed padding-block below it. The row is centred on that line. */
+     the cell reaches the larger of half the expanded row and half the icon indicator plus collapsed padding-block (the
+     item container's lower half), and, unless collapsedLabels is never, the short label's gap, its line and collapsed
+     padding-block again below it. The row is centred on that line. */
   .cell.collapsible {
     padding-block-start: max(0px, calc(${d('--_nvd-pill-pad')} + ${d('--_nvd-ind-h')} / 2 - ${d('--_nvd-height')} / 2));
-    padding-block-end: max(0px, calc(${d('--_nvd-ind-h')} / 2 + var(--_labels) + ${d('--_nvd-pill-pad')} - ${d('--_nvd-height')} / 2));
+    padding-block-end: max(0px, calc(${d('--_nvd-ind-h')} / 2 + ${d('--_nvd-pill-pad')} + var(--_labels) - ${d('--_nvd-height')} / 2));
   }
   /* Nothing inside the cell is hit-tested: a press anywhere in it lands on the native button or link itself. */
   .cell * {
@@ -1172,9 +1177,9 @@ export const cellStyles = css`
 
   /* NVD-13, NVD-32, NVD-35: the item container — the expanded row, as wide at every level of nesting (a nested
      destination's fill, state layer and focus indicator have a top-level row's width; its content alone starts
-     item.nest-indent further in per level), or the collapsed cell (collapsed.item.container.width, centred in the icon column, from collapsed
-     padding-block above the icon indicator to collapsed padding-block below the short label, or below the icon indicator
-     where the short label is not drawn) — one shape that changes size and corners around the same icon line over the
+     item.nest-indent further in per level), or the collapsed cell (collapsed.item.container.width, centred in the icon
+     column, from collapsed padding-block above the icon indicator to collapsed padding-block below it, behind the icon
+     alone: a short label is drawn under it, NVD-32) — one shape that changes size and corners around the same icon line over the
      change of form. Where the two forms give it the same height and corners, its end edge alone moves. */
   .container {
     box-sizing: border-box;
@@ -1202,16 +1207,8 @@ export const cellStyles = css`
     inset-block-start: calc(50% - ${d('--_nvd-ind-h')} / 2 - ${d('--_nvd-pill-pad')});
     inset-inline-start: ${unsafeCSS(PILL_X)};
     inline-size: ${d('--_nvd-pill')};
-    block-size: calc(2 * ${d('--_nvd-pill-pad')} + ${d('--_nvd-ind-h')} + var(--_labels));
-    ${unsafeCSS(cornerRadius(`${PREFIX}-collapsed-item-container-shape`))}
-  }
-  .cell.collapsed:not(.short-shown) .container {
     block-size: calc(2 * ${d('--_nvd-pill-pad')} + ${d('--_nvd-ind-h')});
-  }
-  /* NVD-41: a collapsed cell that gains or loses its short label (collapsedLabels selected) changes over the selection motion. */
-  .cell[data-condition-change] .container {
-    transition-duration: ${t('motion-selection-duration')};
-    transition-timing-function: ${t('motion-selection-easing')};
+    ${unsafeCSS(cornerRadius(`${PREFIX}-collapsed-item-container-shape`))}
   }
   /* The active indicator and the state layer: the item container's color in the current condition and state. NVD-41: a
      selection changes it in place, at its full size and shape, over the state motion — it never grows, shrinks or
@@ -1428,15 +1425,18 @@ export const cellStyles = css`
       opacity ${unsafeCSS(FIRST_HALF)};
   }
 
-  /* NVD-32, NVD-33, NVD-34: the short label, collapsed.item.gap under the icon indicator, centred on the icon column in
-     one line of collapsed.item.label.typescale, cut with an ellipsis inside the collapsed padding-inline. It fades in
-     over the second half of a collapse and out over the first half of an expansion (NVD-35), and with the selection
-     over the selection motion (NVD-41). */
+  /* NVD-32, NVD-33, NVD-34: the short label, collapsed.item.gap under the collapsed item container (outside it: the
+     item container stays behind the icon alone, as Material's rail keeps its indicator), centred on the icon column in
+     one line of collapsed.item.label.typescale, across nearly the column's width (the column less
+     collapsed.item.label.padding-inline on each side; the row starts container.padding-inline into the column), as
+     Material's rail lets its label span the item, not the item container's width, and cut with an ellipsis where it
+     is wider. It fades in over the second half of a collapse and out over the first half of an expansion (NVD-35), and
+     with the selection over the selection motion (NVD-41). */
   .short {
     position: absolute;
-    inset-block-start: calc(50% + ${d('--_nvd-ind-h')} / 2 + ${t('collapsed-item-gap')});
-    inset-inline-start: calc(${unsafeCSS(PILL_X)} + ${t('collapsed-item-container-padding-inline')});
-    inline-size: calc(${d('--_nvd-pill')} - 2 * ${t('collapsed-item-container-padding-inline')});
+    inset-block-start: calc(50% + ${d('--_nvd-ind-h')} / 2 + ${d('--_nvd-pill-pad')} + ${t('collapsed-item-gap')});
+    inset-inline-start: calc(${t('collapsed-item-label-padding-inline')} - ${unsafeCSS(PAD_INLINE)});
+    inline-size: calc(${unsafeCSS(COLUMN)} - 2 * ${t('collapsed-item-label-padding-inline')});
     overflow: hidden;
     text-align: center;
     white-space: nowrap;

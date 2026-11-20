@@ -14,6 +14,7 @@ import { holdClock, releaseClock } from '../../../test/page-clock.js';
 import { TYPEAHEAD_FOUND, TYPEAHEAD_LABELS, typeaheadAsFiltered } from '../../../test/typeahead.js';
 import { expectBaseline } from '../../../test/baseline.js';
 import { EVERY_ANIMATION, motionEnded } from '../../../test/motions.js';
+import { CONTROL_HEIGHTS, atControlHeight } from '../../../test/control-height.js';
 
 const spec = loadSpec('tree-view');
 type P = Page;
@@ -1239,6 +1240,22 @@ test.describe('states', () => {
     expect(await css(r, 'outline-style')).toBe('none');
     await row(page, 'basic', 'test').click();
     expect(await px(row(page, 'basic', 'test'), 'border-top-width', '::after')).toBe(0);
+  });
+
+  test('TRV-74: at control height 32, 36 and 40, the minimum no higher, a one-line row of a medium tree is that tall under a fine pointer, its label whole inside it', async ({ page }) => {
+    await mount(page, { fixtures: [raw('medium', { label: 'Medium', selection: 'single' }, SMALL)] });
+    await nameItems(page);
+    for (const height of CONTROL_HEIGHTS) {
+      await atControlHeight(page, height);
+      for (const label of ['Beta', 'Delta']) {
+        await expect.poll(async () => (await edges(row(page, 'medium', label))).height, `${label} at ${height}`).toBeCloseTo(height, 1);
+        const { container, text } = await drawn(row(page, 'medium', label));
+        expect(container.bottom - container.top, `${label} at ${height}: the drawn row`).toBeCloseTo(height, 1);
+        expect(text!.lines, `${label} at ${height}: one line`).toBe(1);
+        expect(text!.top, `${label} at ${height}: the label inside the row`).toBeGreaterThanOrEqual(container.top - 0.5);
+        expect(text!.bottom, `${label} at ${height}`).toBeLessThanOrEqual(container.bottom + 0.5);
+      }
+    }
   });
 
   test('TRV-26: a row’s hit area is the tree’s whole width, however far its container is set in, and its whole height; a row of either size is at least the pointer target high for a fine pointer — a small one too, under a layer whose pointer target is above its height — and the touch target high for touch; the chevron’s own hit area runs from the start edge to the middle of the gap after its box, and is at least the target wide', async ({ page, browserName }) => {
@@ -2824,7 +2841,7 @@ test.describe('before the element is defined, without script, in a shadow root',
         }),
       );
     // The look, with no script at all.
-    expect((await edges(row(page, 'all-parts', 'package.json'))).height).toBe(48);
+    expect((await edges(row(page, 'all-parts', 'package.json'))).height).toBe(40);
     const src = await drawn(row(page, 'all-parts', 'src'));
     expect(src.chevron.content).toContain('chevron_right');
     expect(src.chevron.rotate).toBe('90deg');
@@ -2890,7 +2907,7 @@ test.describe('before the element is defined, without script, in a shadow root',
     const inner = page.locator('#shadowed tanrei-tree-view');
     await expect.poll(() => css(inner.locator('li').first().locator('> span'), 'display')).toBe('grid');
     const first = inner.locator('li').first().locator('> span');
-    expect((await edges(first)).height).toBe(48);
+    expect((await edges(first)).height).toBe(40);
     await expect.poll(() => css(inner.locator('li[data-value="a1"] > span'), 'background-color', '::after')).toBe(await resolveColor(page, T('selected-container-color')));
     near(Number.parseFloat(await css(inner.locator('li[data-value="a1"] > span'), 'left', '::after')), (await resolveToken(page, T('chevron-size-medium'))) + (await resolveToken(page, T('container-gap-medium'))));
     // Read in the task of the click, after the element has answered it (as TRV-11's turn is): asked for afterwards, the

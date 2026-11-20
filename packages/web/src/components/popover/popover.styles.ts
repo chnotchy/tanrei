@@ -325,7 +325,7 @@ export const styles = css`
     color: ${t('content-color')};
   }
   ${sheetLookStyles({ sheet: ':host dialog.container.sheet', motion: 'dialog.container.sheet' })}
-  /* MDL-7: closed, it stays drawn in the top layer until its exit and its scrim's have played (src/primitives/modal-exit.ts). */
+  /* MDL-7, MOT-8: closed, it stays drawn in the top layer until its exit has played, its scrim gone from the first frame (src/primitives/modal-exit.ts). */
   ${modalExitStyles('dialog')}
   :host dialog.container.sheet:not([open]) {
     display: none;

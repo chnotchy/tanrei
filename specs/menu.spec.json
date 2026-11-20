@@ -774,6 +774,11 @@
     {
       "id": "MNU-69",
       "text": "THE menu SHALL break the lines of an item's label, supporting text and trailing text and of a group's title by the rules of the text's language: a line of Japanese or Chinese SHALL neither begin with closing punctuation, a small kana, the prolonged sound mark (ー) or an iteration mark nor end with opening punctuation (the strict rules of line breaking that JIS X 4051 and the W3C's requirements for Japanese text layout set out), whether or not the product marks the text's language; and WHERE the platform finds the phrases of Japanese text (on the web, word-break: auto-phrase, which reads the language the product marks), a line of Japanese SHALL break between two phrases rather than inside one. A phrase or a word longer than its line SHALL still break rather than overflow (MNU-20)."
+    },
+    {
+      "id": "MNU-70",
+      "text": "WHEN the control height (dial.control.height) is N THE menu's default row SHALL be N tall: an item of a medium menu — opened from an anchor, as a context menu, or by a menubar — SHALL be drawn at comp.menu.container.height.medium, which is sys.control.height.medium held at sys.target.minimum, and an item of a small menu at comp.menu.container.height.small, the small step, so that the rows of a menu stand as tall as the Buttons and fields of that height; the item's block padding SHALL give up half of what its height loses below the control height's reference, so that its line still fits, and the pointer and touch targets SHALL still hold the row up where they are taller (MNU-12).",
+      "verify": "With the control height at 32, 36 and 40 and the minimum target no higher, an item of a medium menu opened from an anchor, of a context menu and of a menubar's menu is 32, 36 and 40 tall under a fine pointer, and an item of a small menu is the small step held at the minimum."
     }
   ],
   "accessibility": {
