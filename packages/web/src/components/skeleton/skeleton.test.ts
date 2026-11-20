@@ -11,7 +11,7 @@ import { fileURLToPath } from 'node:url';
 import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
 import { type Fixture, loadSpec, missingWords, mountFixtures, resolveColor, resolveToken, setWords, tab } from '../../../test/harness.js';
-import { decodePng } from '../../../test/png.js';
+import { decodePng, paintedColor } from '../../../test/png.js';
 import { holdClock } from '../../../test/page-clock.js';
 import { expectBaseline } from '../../../test/baseline.js';
 
@@ -87,6 +87,35 @@ const animations = (target: Locator) =>
       };
     });
   });
+
+/**
+ * The fill as it is painted over a surface role (the page's surface unless named): the placeholder's color is a layer
+ * laid over what stands behind it (SKL-2), so a pixel is compared with the color the engine composites, not with the
+ * value the token writes.
+ */
+const seenFill = (page: P, surface = 'surface') => paintedColor(page, `var(${T('placeholder-color')})`, `var(--tanrei-sys-color-${surface})`);
+/** How far apart two painted pixels are, in levels of 255: the largest difference of a channel. */
+const channelsApart = (one: string, other: string) => {
+  const [a, b] = [one, other].map((pixel) => pixel.match(/\d+/g)!.map(Number));
+  return Math.max(...a.map((channel, i) => Math.abs(channel - b[i])));
+};
+/** WCAG's contrast ratio of two painted pixels (`rgb(r, g, b)`, as a screenshot reads them). */
+function contrast(one: string, other: string) {
+  const luminance = (pixel: string) => {
+    const [r, g, b] = pixel.match(/\d+/g)!.map((channel) => {
+      const c = Number(channel) / 255;
+      return c <= 0.04045 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4;
+    });
+    return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+  };
+  const [high, low] = [luminance(one), luminance(other)].sort((a, b) => b - a);
+  return (high + 0.05) / (low + 0.05);
+}
+// SKL-2's verify: the least step at which two quiet fills read as two. The same number holds a selected row apart
+// from a hovered one (packages/tokens-build/src/invariants.js, ROW_SELECTION), where a fill 1.00:1 to 1.03:1 from its
+// neighbour read as one grey. A placeholder of a surface tone on the surface of that tone was 1.00:1.
+const STANDS_OFF = 1.1;
+const SURFACE_ROLES = ['surface', 'surface-dim', 'surface-bright', 'surface-container-lowest', 'surface-container-low', 'surface-container', 'surface-container-high', 'surface-container-highest'];
 
 /** What is painted of `target`: the runs of the fill down a column and along a row, in CSS pixels (the page is drawn at 2×). */
 async function painted(target: Locator, fill: string) {
@@ -205,28 +234,53 @@ test.describe('skeleton', () => {
         }
       }
     }
-    // The corners as they are painted: a bar's corner pixel is the surface's and the pixel the radius in from it the fill's.
-    const bar = await painted(placeholders(page, 'text').first(), fill);
+    // The corners as they are painted: a bar's corner pixel is the surface's and the pixel the radius in from it the fill's
+    // (the fill as the engine lays it over the surface: a layer, not a tone).
+    const seen = await seenFill(page);
+    const bar = await painted(placeholders(page, 'text').first(), seen);
     const [top] = bar.column(20)[0];
-    expect([bar.at(0, top), bar.at(text, top + text)]).toEqual([surface, fill]);
+    expect([bar.at(0, top), bar.at(text, top + text)]).toEqual([surface, seen]);
     // A circle: round (the corners of its square are the surface's, the middles of its sides and its centre the fill's).
-    const circle = await painted(placeholders(page, 'circle').first(), fill);
+    const circle = await painted(placeholders(page, 'circle').first(), seen);
     expect([circle.at(1, 1), circle.at(38.5, 1), circle.at(1, 38.5), circle.at(38.5, 38.5)]).toEqual([surface, surface, surface, surface]);
-    expect([circle.at(20, 2), circle.at(2, 20), circle.at(20, 20), circle.at(37.5, 20)]).toEqual([fill, fill, fill, fill]);
+    expect([circle.at(20, 2), circle.at(2, 20), circle.at(20, 20), circle.at(37.5, 20)]).toEqual([seen, seen, seen, seen]);
     // Half the smaller side at most: a block 96 × 40 whose shape is the full step is drawn with ends of 20.
     await page.addStyleTag({ content: `[data-fixture="block-sized"] { ${T('placeholder-shape-block')}: 999px; }` });
-    const pill = await painted(placeholders(page, 'block-sized').first(), fill);
-    expect([pill.at(1, 1), pill.at(20, 2), pill.at(2, 20), pill.at(48, 20), pill.column(48).map(([top, bottom]) => bottom - top)]).toEqual([surface, fill, fill, fill, [40]]);
+    const pill = await painted(placeholders(page, 'block-sized').first(), seen);
+    expect([pill.at(1, 1), pill.at(20, 2), pill.at(2, 20), pill.at(48, 20), pill.column(48).map(([top, bottom]) => bottom - top)]).toEqual([surface, seen, seen, seen, [40]]);
     // Nothing else, and never the label.
     for (const f of of('text', 'person')) {
       expect(await host(page, f.id).evaluate((el: HTMLElement) => [el.innerText.trim(), el.shadowRoot === null, [...el.querySelectorAll('*')].every((child) => child.matches('.tanrei-skeleton-placeholder'))]), f.id).toEqual(['', true, true]);
     }
   });
 
+  test('SKL-2 the fill is laid over whatever stands behind the placeholder, once at each point: on the highest container step and on every other surface role, in light and in dark, each bar stands off its surface by at least 1.1:1 (the verify), and every bar of a text placeholder is the same color', async ({ page }) => {
+    // One stage on each surface role, each holding the three lines of text-lines-on-container-highest.
+    const lines = of('text-lines-on-container-highest')[0];
+    const onEvery = SURFACE_ROLES.filter((role) => role !== lines.surface).map((role) => fx(`on-${role}`, lines.props, ph('data-lines="3"'), { surface: role }));
+    for (const theme of ['light', 'dark'] as const) {
+      await mount(page, [lines, ...onEvery], { reducedMotion: true, theme });
+      for (const [id, role] of [[lines.id, lines.surface!], ...onEvery.map((f) => [f.id, f.surface!])] as const) {
+        const at = `${theme}, ${id} on ${role}`;
+        const seen = await seenFill(page, role);
+        const drawn = await painted(placeholders(page, id).first(), seen);
+        // Between the first bar and the second (14-high bars in 22-high line boxes) the stage shows through: its surface.
+        const behind = drawn.at(20, 22);
+        expect(behind, `${at}: the surface between two bars`).toBe(await paintedColor(page, `var(--tanrei-sys-color-${role})`));
+        const ratio = contrast(seen, behind);
+        expect(ratio, `${at}: ${seen} on ${behind} is ${ratio.toFixed(3)}:1`).toBeGreaterThanOrEqual(STANDS_OFF);
+        // Each bar is the fill laid over this surface — not over the page's, and not a tone of its own — and the three
+        // are one color: no point is covered twice.
+        expect([drawn.at(20, 11), drawn.at(20, 33), drawn.at(20, 55)], at).toEqual([seen, seen, seen]);
+        expect(drawn.column(20).length, `${at}: three bars, each seen`).toBe(3);
+      }
+    }
+  });
+
   test('SKL-3 a text placeholder is exactly its lines of the text style in effect high, each line a bar as tall as the font size centred in its line box and as long as the placeholder, the last of two or more the last-line share of it from the start edge; it does not read a block size', async ({ page }) => {
     const styled = `<h2 style="margin: 0; font: 600 24px/32px sans-serif">${ph('data-lines="2"')}</h2><p style="margin: 0; font: 12px/1.5 sans-serif">${ph('data-lines="4" style="inline-size: 200px"')}</p><p id="real" style="margin: 0; font: 12px/1.5 sans-serif">One<br>two<br>three<br>four</p>`;
     await mount(page, [...of('text', 'text-lines', 'text-short', 'long-text'), fx('styled', { label: 'Loading', showDelay: 0 }, styled), fx('sized', { label: 'Loading', showDelay: 0 }, ph('data-lines="2" style="block-size: 100px"'))], { reducedMotion: true });
-    const fill = await resolveColor(page, T('placeholder-color'));
+    const fill = await seenFill(page);
     const last = await number(page, 'placeholder-last-line-inline-size');
     const [size, lineHeight] = [await resolveToken(page, '--tanrei-sys-typescale-body-font-size'), await page.evaluate(() => Number(getComputedStyle(document.documentElement).getPropertyValue('--tanrei-sys-typescale-body-line-height')))];
     const line = size * lineHeight;
@@ -302,7 +356,7 @@ test.describe('skeleton', () => {
       <div style="display: grid; grid-template-columns: 56px 1fr">${ph('data-shape="circle" id="in-cell" style="inline-size: 100%"')}<div></div></div>
       <div style="inline-size: 30px">${ph('data-shape="circle" id="narrow-inline" style="inline-size: 40px"')}${ph('data-shape="circle" id="narrow-line" style="font-size: 40px; line-height: 1"')}${ph('data-shape="circle" id="narrow-block" style="block-size: 40px"')}</div>`;
     await mount(page, [...of('circle', 'circle-line'), fx('cases', { label: 'Loading', showDelay: 0 }, cases)], { reducedMotion: true });
-    const fill = await resolveColor(page, T('placeholder-color'));
+    const fill = await seenFill(page);
     const surface = await resolveColor(page, '--tanrei-sys-color-surface');
     const line = (await rect(placeholders(page, 'circle-line').first())).height;
     const square = async (locator: Locator, side: number, message: string) => {
@@ -326,7 +380,10 @@ test.describe('skeleton', () => {
     const kept = inside.locator('#narrow-block');
     expect([(await rect(kept)).width, (await rect(kept)).height]).toEqual([30, 40]);
     const drawn = await painted(kept, fill);
-    expect([drawn.at(15, 2), drawn.at(15, 38), drawn.at(1, 6), drawn.at(15, 20), drawn.at(1, 20), drawn.at(29, 20), drawn.at(15, 6), drawn.at(15, 34)]).toEqual([surface, surface, surface, fill, fill, fill, fill, fill]);
+    // (A point a pixel inside the clipped circle's edge: WebKit composites the translucent fill there through the
+    // clip's mask, one level of 255 from the fill elsewhere. It is the fill, not the surface.)
+    const named = (pixel: string) => (pixel === surface ? 'surface' : channelsApart(pixel, fill) <= 1 ? 'fill' : pixel);
+    expect([drawn.at(15, 2), drawn.at(15, 38), drawn.at(1, 6), drawn.at(15, 20), drawn.at(1, 20), drawn.at(29, 20), drawn.at(15, 6), drawn.at(15, 34)].map(named)).toEqual(['surface', 'surface', 'surface', 'fill', 'fill', 'fill', 'fill', 'fill']);
     for (const id of ['#by-inline', '#in-row', '#narrow-inline']) {
       const round = await painted(inside.locator(id), fill);
       expect([round.at(0.5, 0.5), round.at(round.width / 2, round.height / 2)], id).toEqual([surface, fill]);
@@ -748,7 +805,7 @@ test.describe('skeleton', () => {
         for (const item of await placeholders(page, id).all()) expect([(await animations(item)).length, await css(item, 'opacity'), (await css(item, 'mask-image')) || 'none'], `${manner} ${id}`).toEqual([0, '1', 'none']);
         expect(await host(page, id).evaluate((el) => [el.getAttribute('role'), el.getAttribute('aria-busy'), !!el.getAttribute('aria-label'), getComputedStyle(el).visibility]), manner).toEqual(['progressbar', 'true', true, 'visible']);
       }
-      const fill = await resolveColor(page, T('placeholder-color'));
+      const fill = await seenFill(page);
       expect((await painted(placeholders(page, 'text-lines').first(), fill)).column(20).length, manner).toBe(3);
     }
     await page.emulateMedia({ reducedMotion: 'no-preference' });
@@ -990,7 +1047,7 @@ test.describe('skeleton', () => {
     expect([large.boxes['block-sized'][0].width, large.boxes['block-sized'][0].height]).toEqual([96, 40]);
     near(large.boxes.person[1].width, 160, 'a line of a given length', 0.05);
     // The bars are the enlarged style's: as tall as its font size.
-    const fill = await resolveColor(page, T('placeholder-color'));
+    const fill = await seenFill(page);
     const bars = (await painted(placeholders(page, 'text-lines').first(), fill)).column(20);
     expect(bars.length).toBe(3);
     near(bars[0][1] - bars[0][0], large.body, 'a bar as tall as the enlarged font size');
@@ -1013,7 +1070,7 @@ test.describe('skeleton', () => {
 
   test('SKL-22 right to left the placeholders stand at the right edge, the short last bar and every placeholder narrower than its place begin at the right, and a wave runs from the right edge to the left; a block and a circle are otherwise drawn as left to right', async ({ page }) => {
     await mount(page, of('person', 'person-rtl', 'text-lines', 'text-lines-rtl'), { reducedMotion: true });
-    const fill = await resolveColor(page, T('placeholder-color'));
+    const fill = await seenFill(page);
     const outer = await rect(host(page, 'person-rtl'));
     const [ltr, rtl] = [await Promise.all((await placeholders(page, 'person').all()).map(rect)), await Promise.all((await placeholders(page, 'person-rtl').all()).map(rect))];
     for (const [i, box] of rtl.entries()) {
@@ -1063,7 +1120,7 @@ test.describe('skeleton', () => {
   test('SKL-23 the skeleton takes its direction from where it is used — an ancestor inside the page, not the root — and has no setting of its own; when that direction changes while it is shown it is drawn for the new one at once, keeping its place in its animation', async ({ page }) => {
     await mount(page, of('person', 'text-lines'), { reducedMotion: false });
     expect(await page.evaluate(() => [document.documentElement.dir, 'dir' in (customElements.get('tanrei-skeleton') as unknown as { properties: object }).properties, 'direction' in (customElements.get('tanrei-skeleton') as unknown as { properties: object }).properties])).toEqual(['', false, false]);
-    const fill = await resolveColor(page, T('placeholder-color'));
+    const fill = await seenFill(page);
     const outer = await rect(host(page, 'person'));
     const before = await Promise.all((await placeholders(page, 'person').all()).map(rect));
     for (const box of before) near(box.x, outer.x, 'left to right: at the left', 0.05);
@@ -1138,7 +1195,7 @@ test.describe('skeleton', () => {
       ${ph('id="narrow" data-shape="block" style="inline-size: -40px; block-size: 20px"')}${ph('id="tall" data-shape="block" style="block-size: tall"')}${ph('id="fine" data-lines="3" style="inline-size: 50%"')}`;
     await mount(page, [fx('odd', { label: 'Loading', showDelay: 0 }, odd)], { reducedMotion: true });
     const target = host(page, 'odd');
-    const fill = await resolveColor(page, T('placeholder-color'));
+    const fill = await seenFill(page);
     const line = (await rect(target.locator('#zero'))).height;
     const height = async (id: string) => (await rect(target.locator(id))).height;
     // An unknown shape: text, with its lines.
@@ -1191,7 +1248,7 @@ test.describe('skeleton', () => {
     const before = await written.evaluate((el) => el.outerHTML.length);
     if (browserName === 'chromium') expect((await progressbars(page)).map((node) => [node.name, node.busy])).toEqual([['Loading the page', true]]);
     // The class alone: the same box, the same bars.
-    const fill = await resolveColor(page, T('placeholder-color'));
+    const fill = await seenFill(page);
     expect((await rect(page.locator(`#alone > ${PH}`))).height).toBe((await rect(written.locator(PH))).height);
     expect((await painted(page.locator(`#alone > ${PH}`), fill)).column(20).length).toBe(2);
     await define(page);

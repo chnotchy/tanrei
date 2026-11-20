@@ -6510,7 +6510,7 @@
     --tanrei-comp-skeleton-motion-dim-duration: var(--tanrei-sys-motion-duration-extra-long4);
     --tanrei-comp-skeleton-motion-dim-easing: var(--tanrei-sys-motion-easing-standard);
     --tanrei-comp-skeleton-motion-show-delay: var(--tanrei-sys-motion-role-show-delay);
-    --tanrei-comp-skeleton-placeholder-color: var(--tanrei-sys-color-surface-variant);
+    --tanrei-comp-skeleton-placeholder-color: color-mix(in srgb, var(--tanrei-sys-color-on-surface) 10%, transparent);
     --tanrei-comp-skeleton-placeholder-dim-opacity: 0.5;
     --tanrei-comp-skeleton-placeholder-last-line-inline-size: 0.6;
     --tanrei-comp-skeleton-placeholder-shape-block: var(--tanrei-sys-shape-corner-medium);

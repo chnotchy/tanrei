@@ -7584,7 +7584,7 @@ private object M3LikeSystemSource {
             motionDimDuration = 1000,
             motionDimEasing = TanreiCubicBezier(x1 = 0.2f, y1 = 0f, x2 = 0f, y2 = 1f),
             motionShowDelay = 300,
-            placeholderColor = TanreiPaint.Role(TanreiColorRole.SurfaceVariant),
+            placeholderColor = TanreiPaint.Alpha(of = TanreiPaint.Role(TanreiColorRole.OnSurface), amount = 0.1f),
             placeholderDimOpacity = 0.5f,
             placeholderLastLineInlineSize = 0.6f,
             placeholderShapeBlock = 12.dp,

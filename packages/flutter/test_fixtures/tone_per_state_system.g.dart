@@ -7800,7 +7800,7 @@ const TanreiSystem tonePerStateSystem = TanreiSystem(
     motionDimDuration: 1000,
     motionDimEasing: TanreiCubicBezier(0.2, 0.0, 0.0, 1.0),
     motionShowDelay: 300,
-    placeholderColor: TanreiPaint.role(TanreiColorRole.surfaceVariant),
+    placeholderColor: TanreiPaint.alpha(TanreiPaint.role(TanreiColorRole.onSurface), 0.1),
     placeholderDimOpacity: 0.5,
     placeholderLastLineInlineSize: 0.6,
     placeholderShapeBlock: 8.0,
