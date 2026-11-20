@@ -1,5 +1,6 @@
 import { type CSSResult, type ReactiveController, type ReactiveControllerHost, type TemplateResult, html, nothing, unsafeCSS } from 'lit';
 import { labelLines } from './label-lines.js';
+import { cancelPhaseRead, readInPhase } from './read-phase.js';
 import { productText } from '../styles/product-text.js';
 import { TYPE_LONGHANDS, typefaceFrom } from '../styles/type.js';
 
@@ -396,6 +397,14 @@ type Host = ReactiveControllerHost & HTMLElement & { renderRoot: HTMLElement | D
  * wraps the field is marked (`data-label-wraps`) and the styles give the lines their room (`--_rest-lines`,
  * `--_float-lines`, `--_float-widest`), so the label is never cut and never over the value. Call `measure()` when a
  * property the label's lines follow changed.
+ *
+ * What the observer is told of is measured, and written, in the frame's read phase (src/primitives/read-phase.ts),
+ * never in its report: the lines change the container's height, and a box that changes size in a report is reported
+ * again in that frame only if it lies deeper than every box reported before it — a field that watches its container
+ * (the number input's wrapping) left it undelivered, and the browser raised "ResizeObserver loop completed with
+ * undelivered notifications". Copies first watched are measured in the read phase of the frame they are first laid
+ * out in, so the first frame painted gives the lines their room; a later change of their lines (a changed width) is
+ * drawn in the frame after it.
  */
 export class FloatingLabelController implements ReactiveController {
   private observer: ResizeObserver | undefined;
@@ -412,6 +421,7 @@ export class FloatingLabelController implements ReactiveController {
   hostDisconnected() {
     this.observer?.disconnect();
     this.copies = [];
+    cancelPhaseRead(this);
   }
 
   hostUpdated() {
@@ -422,28 +432,41 @@ export class FloatingLabelController implements ReactiveController {
     const copies = Array.from(this.host.renderRoot.querySelectorAll('.measure'));
     if (copies.length === this.copies.length && copies.every((copy, i) => copy === this.copies[i])) return;
     if (!copies.length && !this.observer) return;
-    this.observer ??= new ResizeObserver(() => this.measure());
+    this.observer ??= new ResizeObserver(this.ask);
     this.observer.disconnect();
     for (const copy of copies) this.observer.observe(copy);
     this.copies = copies;
     if (!copies.length) this.measure();
+    else this.ask();
   }
+
+  /** Measures in the next frame's read phase. */
+  private readonly ask = () => {
+    readInPhase(this, this.read);
+  };
 
   /** How many lines the label takes resting and floated, and the width of the widest floated line (src/primitives/label-lines.ts). */
   measure() {
+    this.read()?.();
+  }
+
+  /** Reads the lines now; what is returned writes them (nothing where the field already has them). */
+  private readonly read = (): (() => void) | undefined => {
     const root = this.host.renderRoot;
-    const field = root.querySelector<HTMLElement>('.field');
-    if (!field) return;
+    const field = root?.querySelector<HTMLElement>('.field');
+    if (!field) return undefined;
     const resting = labelLines(root.querySelector('.measure-resting'));
     const floated = labelLines(root.querySelector('.measure-floated'));
     const wraps = resting.count > 1 || floated.count > 1;
-    if (field.hasAttribute('data-label-wraps') !== wraps) field.toggleAttribute('data-label-wraps', wraps);
-    if (wraps) {
-      field.style.setProperty('--_rest-lines', String(resting.count));
-      field.style.setProperty('--_float-lines', String(floated.count));
-      field.style.setProperty('--_float-widest', `${floated.widest}px`);
-    } else if (field.style.getPropertyValue('--_rest-lines')) {
-      for (const name of ['--_rest-lines', '--_float-lines', '--_float-widest']) field.style.removeProperty(name);
-    }
-  }
+    return () => {
+      if (field.hasAttribute('data-label-wraps') !== wraps) field.toggleAttribute('data-label-wraps', wraps);
+      if (wraps) {
+        field.style.setProperty('--_rest-lines', String(resting.count));
+        field.style.setProperty('--_float-lines', String(floated.count));
+        field.style.setProperty('--_float-widest', `${floated.widest}px`);
+      } else if (field.style.getPropertyValue('--_rest-lines')) {
+        for (const name of ['--_rest-lines', '--_float-lines', '--_float-widest']) field.style.removeProperty(name);
+      }
+    };
+  };
 }

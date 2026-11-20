@@ -28,6 +28,7 @@ import {
 } from '../../primitives/index.js';
 import { missingValueMessage } from '../../primitives/missing-value.js';
 import { stillMoving } from '../../primitives/auto-height.js';
+import { cancelPhaseRead, readInPhase } from '../../primitives/read-phase.js';
 import type { TanreiInputBoxSizeRegistry, TanreiInputBoxVariantRegistry } from '../../registry.js';
 import {
   EMPTY_SEGMENTS,
@@ -1911,19 +1912,35 @@ export class TanreiTextInput extends TanreiElement {
   private labelObserver: ResizeObserver | undefined;
   private observedCopies: Element[] = [];
 
-  /** Returns whether copies are watched from now on that were not before: the observer reports each of them once, after the next layout. */
+  /**
+   * Returns whether copies are watched from now on that were not before: they are measured in the read phase of the
+   * frame they are first laid out in. What the observer is told of is measured, and written, in the next frame's read
+   * phase (src/primitives/read-phase.ts), never in its report: the lines change the container's height, and a box that
+   * changes size in a report is reported again in that frame only if it lies deeper than every box reported before it
+   * (the browser raises "ResizeObserver loop completed with undelivered notifications" for one left undelivered). A
+   * change of the label's lines that follows a changed width is drawn in the frame after it.
+   */
   private observeLabel(): boolean {
     const copies = Array.from(this.renderRoot.querySelectorAll('.measure'));
     if (copies.length === this.observedCopies.length && copies.every((copy, i) => copy === this.observedCopies[i])) return false;
-    this.labelObserver ??= new ResizeObserver(() => this.measureLabel());
+    this.labelObserver ??= new ResizeObserver(this.askLabel);
     this.labelObserver.disconnect();
     for (const copy of copies) this.labelObserver.observe(copy);
     const had = this.observedCopies.length > 0;
     this.observedCopies = copies;
     // No copy any more (the label left, or stands above the container now): what the last measure wrote is taken back.
     if (!copies.length && had) this.measureLabel();
+    if (copies.length) this.askLabel();
     return copies.length > 0;
   }
+
+  /** TXI-13: the label's lines are measured in the next frame's read phase. */
+  private readonly askLabel = () => {
+    readInPhase(this.labelRead, this.readLabel);
+  };
+
+  /** Who asks the read phase to measure the label's lines (`askLabel`). */
+  private readonly labelRead = {};
 
   /**
    * TXI-13: how many lines a floating label takes resting and floated, in the width it is given in each position, and
@@ -1934,20 +1951,27 @@ export class TanreiTextInput extends TanreiElement {
    * stands above the container in the flow and wraps there by itself (TXI-25).
    */
   private measureLabel() {
-    const field = this.renderRoot.querySelector<HTMLElement>('.field');
-    if (!field) return;
+    this.readLabel()?.();
+  }
+
+  /** What `measureLabel()` reads, returning what it then writes. */
+  private readonly readLabel = (): (() => void) | undefined => {
+    const field = this.renderRoot?.querySelector<HTMLElement>('.field');
+    if (!field) return undefined;
     const resting = labelLines(this.renderRoot.querySelector('.measure-resting'));
     const floated = labelLines(this.renderRoot.querySelector('.measure-floated'));
     const wraps = resting.count > 1 || floated.count > 1;
-    field.toggleAttribute('data-label-wraps', wraps);
-    if (wraps) {
-      field.style.setProperty('--_rest-lines', String(resting.count));
-      field.style.setProperty('--_float-lines', String(floated.count));
-      field.style.setProperty('--_float-widest', `${floated.widest}px`);
-    } else {
-      for (const name of ['--_rest-lines', '--_float-lines', '--_float-widest']) field.style.removeProperty(name);
-    }
-  }
+    return () => {
+      field.toggleAttribute('data-label-wraps', wraps);
+      if (wraps) {
+        field.style.setProperty('--_rest-lines', String(resting.count));
+        field.style.setProperty('--_float-lines', String(floated.count));
+        field.style.setProperty('--_float-widest', `${floated.widest}px`);
+      } else {
+        for (const name of ['--_rest-lines', '--_float-lines', '--_float-widest']) field.style.removeProperty(name);
+      }
+    };
+  };
 
   override connectedCallback() {
     super.connectedCallback();
@@ -1966,6 +1990,7 @@ export class TanreiTextInput extends TanreiElement {
     clearTimeout(this.countTimer);
     this.labelObserver?.disconnect();
     this.observedCopies = [];
+    cancelPhaseRead(this.labelRead);
     this.iconObserver?.disconnect();
     this.observedIcons = [];
     this.sizeObserver?.disconnect();
