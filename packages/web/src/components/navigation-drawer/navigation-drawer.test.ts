@@ -368,7 +368,7 @@ test.describe('states, press and focus', () => {
     }
   });
 
-  test('NVD-6: the hit area is the whole cell — the drawer’s width, with half of container.gap above and below, never below the minimum target — in both forms, without changing the drawn cell; hover over any of it answers on the item container', async ({ page }) => {
+  test('NVD-6: the hit area is the whole cell — the drawer’s width, with half of container.gap above and below, never below the minimum target — in both forms; where the cell and the gap give less, the cell is drawn higher, never its hit area over a neighbour’s; hover over any of it answers on the item container', async ({ page }) => {
     await mount(page, [fixture('r', MAIL), rail('c', MAIL)], { reducedMotion: true });
     const [gap, pointer] = await Promise.all([T('container-gap-medium'), '--tanrei-sys-target-pointer'].map((n) => px(page, n)));
     for (const id of ['r', 'c']) {
@@ -395,10 +395,20 @@ test.describe('states, press and focus', () => {
       expect(await drawer(page, id).evaluate((el: any) => el.value), id).toBe('drafts');
     }
     expect(await log(page)).toEqual(['change:drafts:drafts', 'change:drafts:drafts']);
-    // A system whose cells and gap give less still reaches the target.
-    await override(page, { [T('item-container-height-medium')]: '20px', [T('container-gap-medium')]: '0px' });
-    expect(await cell(page, 'r', 1).evaluate((el) => Number.parseFloat(getComputedStyle(el, '::before').height))).toBe(pointer);
-    expect((await bounds(cell(page, 'r', 1))).height).toBeLessThan(pointer);
+    // A system whose cells and gap give less still reaches the target: the cell is drawn higher, the target less the
+    // gap, and its hit area stays the cell and half the gap around it, never over a neighbour's cell (BTN-5).
+    for (const narrow of [0, 2]) {
+      await override(page, { [T('item-container-height-medium')]: '20px', [T('container-gap-medium')]: `${narrow}px` });
+      await drawer(page, 'r').scrollIntoViewIfNeeded();
+      const drawnCell = await bounds(cell(page, 'r', 1));
+      expect(drawnCell.height, `gap ${narrow}`).toBeCloseTo(pointer - narrow, 1);
+      expect(await cell(page, 'r', 1).evaluate((el) => Number.parseFloat(getComputedStyle(el, '::before').height)), `gap ${narrow}`).toBeCloseTo(pointer, 1);
+      const next = await bounds(cell(page, 'r', 2));
+      expect(next.y - (drawnCell.y + drawnCell.height), `gap ${narrow}`).toBeCloseTo(narrow, 1);
+      const at = (x: number, y: number) => page.evaluate(([xx, yy]) => document.elementFromPoint(xx, yy)?.closest('tanrei-navigation-drawer-item')?.getAttribute('value') ?? null, [x, y]);
+      expect(await at(drawnCell.x + 2, drawnCell.y + drawnCell.height - 1), `gap ${narrow}`).toBe('sent');
+      expect(await at(next.x + 2, next.y + 1), `gap ${narrow}`).toBe('drafts');
+    }
   });
 
   test('NVD-7: a disabled cell is drawn from the disabled tokens of its condition, its trailing content kept', async ({ page }) => {

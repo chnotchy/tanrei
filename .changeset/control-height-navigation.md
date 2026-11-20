@@ -33,4 +33,10 @@ presentation's) now read `sys.control.height.medium` in their default size, and 
 - **The presets keep their originals' heights**, pinned with the reason: m3-like and m3-expressive-like keep Material
   3's 48 tab (and their 56 drawer row and cell), and the 48 tree row and 44 and 48 table of contents rows they drew;
   cupertino keeps the 48 tab, tree, drawer and compact table of contents rows and the 44 table of contents row it drew.
+- **A drawer's row is drawn higher rather than reach over its neighbour (NVD-6).** Now that a medium row (40) is lower
+  than a target of 48, a layer whose targets are 48 and whose `comp.navigation-drawer.container.gap.medium` is 2 would
+  have given each row a hit area of 48 over its neighbours' rows. Where a system's row and gap give less than the
+  target, the row is now drawn at least the target less the gap high (46 there), its hit area the row and half the gap
+  around it, as a small row is for touch. No shipped system is affected: every one gives a row and a gap at least its
+  targets.
 - New behaviour: TAB-63, TBV-25, NVD-105, TRV-74 and TOC-43 say a default row is as tall as the control height.

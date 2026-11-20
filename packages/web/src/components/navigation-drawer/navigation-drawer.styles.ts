@@ -74,10 +74,18 @@ const SIZE_MEMBERS: readonly (readonly [string, string])[] = [
   ['--_nvd-heading', 'heading-height-*'],
 ];
 
+/**
+ * NVD-6: the drawn cell is at least the target the size gives its hit area (`--_nvd-target`) less the gap, so that the
+ * cell and half the gap above and below it reach the target: cells laid out a gap apart cannot extend a hit area over
+ * each other (BTN-5), so where a system gives a lower cell than that, the cell is drawn higher instead.
+ */
+const drawnHeight = (value: string) => `max(${value}, calc(var(--_nvd-target, 0px) - var(--_nvd-gap)))`;
+
 /** One size's members under `selector`; a value the core does not have falls back to the default's tokens. */
-const sizeBlock = (size: string, selector: string, fallback: string | null = null) => `${selector} {${SIZE_MEMBERS.map(
-  ([name, token]) => `\n  ${name}: ${fallback ? `var(${PREFIX}-${token.replace('*', size)}, var(${PREFIX}-${token.replace('*', fallback)}))` : `var(${PREFIX}-${token.replace('*', size)})`};`,
-).join('')}
+const sizeBlock = (size: string, selector: string, fallback: string | null = null) => `${selector} {${SIZE_MEMBERS.map(([name, token]) => {
+  const value = fallback ? `var(${PREFIX}-${token.replace('*', size)}, var(${PREFIX}-${token.replace('*', fallback)}))` : `var(${PREFIX}-${token.replace('*', size)})`;
+  return `\n  ${name}: ${name === '--_nvd-height' ? drawnHeight(value) : value};`;
+}).join('')}
 }`;
 
 /**
@@ -212,8 +220,10 @@ export const drawerStyles = css`
   ${unsafeCSS(variantBlock(DEFAULT_VARIANT, ':host'))}
   ${unsafeCSS(CORE_VARIANTS.filter((v) => v !== DEFAULT_VARIANT).map((v) => variantBlock(v, `:host([data-as='${v}'])`)).join('\n'))}
   /* NVD-65: the size's members, set on the host and inherited by its cells, groups and sections (a size a
-     layer added: AXES). NVD-6: for a fine pointer a medium cell's hit area is at least the pointer target, a small
-     one's the cell and half the gap around it; for touch a small cell is drawn at least the touch target high. */
+     layer added: AXES). NVD-6: a medium cell's hit area is the cell and half the gap around it, and at least the
+     pointer target for a fine pointer and the touch target for touch: where the cell and the gap give less, the cell
+     is drawn higher (drawnHeight), never its hit area extended over a neighbour's (BTN-5). A small one's is the cell
+     and half the gap around it for a fine pointer; for touch a small cell is drawn at least the touch target high. */
   /* NVD-73: guides hover — the lines are drawn while the pointer is over the drawer or focus is in it (inherited by the
      groups, which fade them). NVD-77: the surface pinned rows stand on: a modal drawer's own container color. */
   :host {
@@ -235,6 +245,9 @@ export const drawerStyles = css`
     --_nvd-target: 0px;
   }
   @media (pointer: coarse) {
+    :host {
+      --_nvd-target: var(--tanrei-sys-target-touch);
+    }
     :host([size='small']) {
       --_nvd-height: max(${t('item-container-height-small')}, var(--tanrei-sys-target-touch));
     }
