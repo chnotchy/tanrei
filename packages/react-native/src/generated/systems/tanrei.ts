@@ -13413,7 +13413,11 @@ export const tanrei = {
       motionDimDuration: 1000,
       motionDimEasing: [0.2, 0, 0, 1],
       motionShowDelay: 300,
-      placeholderColor: { kind: "role", role: "surfaceVariant" },
+      placeholderColor: {
+        kind: "alpha",
+        of: { kind: "role", role: "onSurface" },
+        amount: 0.1,
+      },
       placeholderDimOpacity: 0.5,
       placeholderLastLineInlineSize: 0.6,
       placeholderShapeBlock: 8,

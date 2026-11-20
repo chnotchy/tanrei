@@ -9,6 +9,8 @@ import {
   OpenAxesController,
   SizeConsumerController,
   ambientLocale,
+  cancelPhaseRead,
+  readInPhase,
   report,
   supportedLocale,
   syncFocusStyle,
@@ -899,6 +901,7 @@ export class TanreiNumberInput extends TanreiElement {
       wrapObserver.unobserve(element);
     }
     this.wrapWatched = [];
+    cancelPhaseRead(this.wrapRead);
     if (!on || !this.isConnected) return;
     for (const selector of ['.container', '.body']) {
       const element = this.renderRoot?.querySelector<HTMLElement>(selector);
@@ -907,7 +910,18 @@ export class TanreiNumberInput extends TanreiElement {
       wrapObserver.observe(element);
       this.wrapWatched.push(element);
     }
+    // The first reading is the frame's read phase's (src/primitives/read-phase.ts), after the layout of the frame the
+    // container is first drawn in and before its paint, not the observer's first report at the same moment: wrapping
+    // changes the height of the container the observer watches, and a frame reports a box that changed in an
+    // observer's callback only if it lies deeper than every box reported before it — of an input that changes the size
+    // of nothing above it (in a box of fixed size) the container is the shallowest, and the browser raised
+    // "ResizeObserver loop completed with undelivered notifications". The phase is reported with the page's root
+    // element, so the new height is reported in the same frame, and the observer's report then finds it as it is.
+    if (this.wrapWatched.length) readInPhase(this.wrapRead, this.readWrap);
   }
+
+  /** Who asks the read phase for the first reading of wrapping (`watchWrap`). */
+  private readonly wrapRead = {};
 
   override connectedCallback() {
     super.connectedCallback();
@@ -955,9 +969,9 @@ export class TanreiNumberInput extends TanreiElement {
     // NMI-8: the label's lines follow its text — the Field's, where it gives the name —, the asterisk and the size.
     if (this.frameChanged || changed.has('label') || changed.has('labelHidden') || changed.has('variant') || this.sizes.drawnChanged) this.floating.measure();
     this.frameChanged = false;
-    // NMI-37: the steppers stand on a row of their own where the row cannot hold them beside the input's line. The
-    // observer reports the first layout (and every later change of the container's or the line's size), so nothing is
-    // read here — but for steppers taken away, which may leave both sizes as they were.
+    // NMI-37: the steppers stand on a row of their own where the row cannot hold them beside the input's line. The read
+    // phase reads the first layout and the observer every later change of the container's or the line's size, so
+    // nothing is read here — but for steppers taken away, which may leave both sizes as they were.
     if (!this.hasWatchedWrap) {
       this.hasWatchedWrap = true;
       this.watchWrap(true);
