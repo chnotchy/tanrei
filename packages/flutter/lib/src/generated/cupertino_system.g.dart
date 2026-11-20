@@ -6396,9 +6396,9 @@ const TanreiSystem cupertinoSystem = TanreiSystem(
   navigationDrawer: TanreiNavigationDrawerTokens(
     breakpointCollapsed: 600.0,
     breakpointExpanded: 1024.0,
-    collapsedItemContainerPaddingInline: 4.0,
     collapsedItemContainerShape: 10.0,
     collapsedItemGap: 4.0,
+    collapsedItemLabelPaddingInline: 4.0,
     collapsedItemLabelTypescale: _typescaleLabelSmall,
     containerMaxWidth: 400.0,
     containerMinWidth: 200.0,
@@ -6618,7 +6618,7 @@ const TanreiSystem cupertinoSystem = TanreiSystem(
           itemContainerColor: TanreiPaint.role(TanreiColorRole.primary),
           itemIconIndicatorColor: TanreiPaint.none(),
           itemIconColor: TanreiPaint.role(TanreiColorRole.onPrimary),
-          itemLabelColor: TanreiPaint.role(TanreiColorRole.onPrimary),
+          itemLabelColor: TanreiPaint.role(TanreiColorRole.onSurface),
           itemSupportingTextColor: TanreiPaint.role(TanreiColorRole.onPrimary),
           itemTrailingTextColor: TanreiPaint.role(TanreiColorRole.onPrimary),
           itemTrailingIconColor: TanreiPaint.role(TanreiColorRole.onPrimary),
@@ -6628,7 +6628,7 @@ const TanreiSystem cupertinoSystem = TanreiSystem(
           itemContainerColor: TanreiPaint.role(TanreiColorRole.primary),
           itemIconIndicatorColor: TanreiPaint.none(),
           itemIconColor: TanreiPaint.role(TanreiColorRole.onPrimary),
-          itemLabelColor: TanreiPaint.role(TanreiColorRole.onPrimary),
+          itemLabelColor: TanreiPaint.role(TanreiColorRole.onSurface),
           itemSupportingTextColor: TanreiPaint.role(TanreiColorRole.onPrimary),
           itemTrailingTextColor: TanreiPaint.role(TanreiColorRole.onPrimary),
           itemTrailingIconColor: TanreiPaint.role(TanreiColorRole.onPrimary),
@@ -6638,7 +6638,7 @@ const TanreiSystem cupertinoSystem = TanreiSystem(
           itemContainerColor: TanreiPaint.role(TanreiColorRole.primary),
           itemIconIndicatorColor: TanreiPaint.none(),
           itemIconColor: TanreiPaint.role(TanreiColorRole.onPrimary),
-          itemLabelColor: TanreiPaint.role(TanreiColorRole.onPrimary),
+          itemLabelColor: TanreiPaint.role(TanreiColorRole.onSurface),
           itemSupportingTextColor: TanreiPaint.role(TanreiColorRole.onPrimary),
           itemTrailingTextColor: TanreiPaint.role(TanreiColorRole.onPrimary),
           itemTrailingIconColor: TanreiPaint.role(TanreiColorRole.onPrimary),
@@ -6648,7 +6648,7 @@ const TanreiSystem cupertinoSystem = TanreiSystem(
           itemContainerColor: TanreiPaint.role(TanreiColorRole.primary),
           itemIconIndicatorColor: TanreiPaint.none(),
           itemIconColor: TanreiPaint.role(TanreiColorRole.onPrimary),
-          itemLabelColor: TanreiPaint.role(TanreiColorRole.onPrimary),
+          itemLabelColor: TanreiPaint.role(TanreiColorRole.onSurface),
           itemSupportingTextColor: TanreiPaint.role(TanreiColorRole.onPrimary),
           itemTrailingTextColor: TanreiPaint.role(TanreiColorRole.onPrimary),
           itemTrailingIconColor: TanreiPaint.role(TanreiColorRole.onPrimary),
@@ -6666,8 +6666,8 @@ const TanreiSystem cupertinoSystem = TanreiSystem(
         ),
       ),
     ),
-    densitys: TanreiNavigationDrawerDensitys(
-      regular: TanreiNavigationDrawerDensityTokens(
+    sizes: TanreiNavigationDrawerSizes(
+      medium: TanreiNavigationDrawerSizeTokens(
         containerGap: 4.0,
         itemContainerHeight: 48.0,
         itemPaddingInline: 12.0,
@@ -6683,7 +6683,7 @@ const TanreiSystem cupertinoSystem = TanreiSystem(
         collapsedItemContainerPaddingBlock: 12.0,
         headingHeight: 36.0,
       ),
-      compact: TanreiNavigationDrawerDensityTokens(
+      small: TanreiNavigationDrawerSizeTokens(
         containerGap: 2.0,
         itemContainerHeight: 32.0,
         itemPaddingInline: 8.0,

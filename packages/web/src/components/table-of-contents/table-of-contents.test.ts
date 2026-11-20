@@ -13,6 +13,7 @@ import { type Locator, type Page, expect, test } from '@playwright/test';
 import { type Fixture, acmeSystemCss, fixturesDocument, iconFaceArrives, loadSpec, mountFixtures, resolveColor, resolveToken, tab, tabTo, withoutIconFont, rootTokens } from '../../../test/harness.js';
 import { expectBaseline } from '../../../test/baseline.js';
 import { controlledElements, controlledInTree } from '../../../test/controlled-list.js';
+import { CONTROL_HEIGHTS, atControlHeight } from '../../../test/control-height.js';
 
 const spec = loadSpec('table-of-contents');
 type P = Page;
@@ -164,6 +165,22 @@ const wheel = async (page: P, by: number) => {
   await frame(page);
 };
 
+test.describe('the control height', () => {
+  test('TOC-43: at control height 32, 36 and 40, the minimum no higher, a one-line row of a medium list and the compact presentation’s row are that tall under a fine pointer, the label whole inside the row', async ({ page }) => {
+    await mountFixtures(page, spec, { icons: true, fixtures: some('nested', 'compact-closed') });
+    for (const height of CONTROL_HEIGHTS) {
+      await atControlHeight(page, height);
+      const first = rows(page, 'nested').first();
+      await expect.poll(async () => (await edges(first)).height, `a row at ${height}`).toBeCloseTo(height, 1);
+      const [r, text] = [await edges(first), await textBox(first)];
+      expect(text.lines, `one line at ${height}`).toBe(1);
+      expect(text.top, `the label inside the row at ${height}`).toBeGreaterThanOrEqual(r.top - 0.5);
+      expect(text.bottom, `at ${height}`).toBeLessThanOrEqual(r.bottom + 0.5);
+      await expect.poll(async () => (await edges(button(page, 'compact-closed'))).height, `the compact row at ${height}`).toBeCloseTo(height, 1);
+    }
+  });
+});
+
 test.describe('the list', () => {
   test('TOC-1: the title and, container.gap below it, the items in one column in the order given, each item’s own items directly after it; as wide as a 240 and a 400 column; no fill, edge, padding, place or width of its own', async ({ page }) => {
     await mountFixtures(page, spec, { fixtures: [fixture('nested'), { ...fixture('nested'), id: 'wide' }] });
@@ -226,12 +243,12 @@ test.describe('the list', () => {
     await expect(nav(page, 'label-hidden')).toHaveAttribute('aria-label', 'On this page');
   });
 
-  test('TOC-3: a row runs from the rail to the list’s end edge at every level — 44 high with the labels of three levels 12, 24 and 36 from the rail at medium, 36 high with the labels at the same places at small — in label.typescale with corners row.shape and no space between rows; size changes the height and nothing else', async ({ page }) => {
+  test('TOC-3: a row runs from the rail to the list’s end edge at every level — 40 high (the control height) with the labels of three levels 12, 24 and 36 from the rail at medium, 36 high with the labels at the same places at small — in label.typescale with corners row.shape and no space between rows; size changes the height and nothing else', async ({ page }) => {
     await mountFixtures(page, spec, { fixtures: some('three-levels', 'size-small-three-levels') });
     const levels = ['#tokens', '#color', '#roles'];
     const starts: number[][] = [];
     for (const [id, height] of [
-      ['three-levels', 44],
+      ['three-levels', 40],
       // The small row: the small step of the control heights, held at the minimum target.
       ['size-small-three-levels', 36],
     ] as const) {
@@ -283,7 +300,7 @@ test.describe('the list', () => {
     const why = row(page, 'long-labels', '#why');
     expect((await textBox(why)).lines).toBeGreaterThanOrEqual(3);
     near((await edges(row(page, 'long-labels', '#derived'))).top, (await edges(why)).bottom);
-    expect((await edges(why)).height).toBeGreaterThan(44);
+    expect((await edges(why)).height).toBeGreaterThan(40);
     // An identifier with no place to break is broken inside the run, and stays inside the row.
     const identifier = row(page, 'long-labels', '#identifier');
     expect((await textBox(identifier)).lines).toBeGreaterThan(1);
@@ -971,14 +988,14 @@ test.describe('states', () => {
     expect(await css(button(page, 'compact-closed'), 'transition-duration')).toBe('0s');
   });
 
-  test('TOC-24: a row is its hit area across the list’s whole width with no gap between two — a press on the indent before a nested label follows that item; with a mouse a medium row is 44 high, above the pointer target (36), and a small one 36, the minimum target; under a 48 pointer target both are 48 with a mouse, and for touch under a 48 touch target both are 48; the disclosure row is 48 and never lower than the target', async ({ page, browserName }) => {
+  test('TOC-24: a row is its hit area across the list’s whole width with no gap between two — a press on the indent before a nested label follows that item; with a mouse a medium row is 40 high (the control height), above the pointer target (36), and a small one 36, the minimum target; under a 48 pointer target both are 48 with a mouse, and for touch under a 48 touch target both are 48; the disclosure row is 48 and never lower than the target', async ({ page, browserName }) => {
     await mountFixtures(page, spec, { icons: true, fixtures: some('nested', 'size-small-nested', 'compact-closed') });
     expect(await resolveToken(page, '--tanrei-sys-target-pointer')).toBe(36);
     expect(await resolveToken(page, T('row-height-medium'))).toBeGreaterThanOrEqual(await resolveToken(page, '--tanrei-sys-target-pointer'));
-    for (const anchor of await rows(page, 'nested').all()) expect((await edges(anchor)).height).toBe(44);
+    for (const anchor of await rows(page, 'nested').all()) expect((await edges(anchor)).height).toBe(40);
     for (const anchor of await rows(page, 'size-small-nested').all()) expect((await edges(anchor)).height).toBe(36);
-    expect((await edges(button(page, 'compact-closed'))).height).toBe(48);
-    expect(await resolveToken(page, T('compact-row-height'))).toBe(48);
+    expect((await edges(button(page, 'compact-closed'))).height).toBe(40);
+    expect(await resolveToken(page, T('compact-row-height'))).toBe(40);
     // A medium row is never lower than the pointer target, whatever its tokens say.
     await override(page, { [T('row-height-medium')]: '20px', [T('row-padding-block-medium')]: '0px' });
     expect((await edges(row(page, 'nested', '#anatomy'))).height).toBe(36);
@@ -1011,7 +1028,7 @@ test.describe('states', () => {
 });
 
 test.describe('the compact presentation', () => {
-  test('TOC-25: one block as wide as its layout, filled with compact.container.color with corners compact.container.shape, holding the row — 48 high, padded 16 at both ends, its parts 8 apart: the title in title.typescale and the disclosure label color, the current item’s label in the supporting text’s style on one line and cut with an ellipsis, the chevron in its box at the end, turned half a turn while open; with no current item the title and the chevron alone; the title is never cut before the name', async ({ page }) => {
+  test('TOC-25: one block as wide as its layout, filled with compact.container.color with corners compact.container.shape, holding the row — 40 high (the control height), padded 16 at both ends, its parts 8 apart: the title in title.typescale and the disclosure label color, the current item’s label in the supporting text’s style on one line and cut with an ellipsis, the chevron in its box at the end, turned half a turn while open; with no current item the title and the chevron alone; the title is never cut before the name', async ({ page }) => {
     await mountFixtures(page, spec, { icons: true, fixtures: some('compact-closed', 'compact-closed-no-current', 'compact-long-current', 'compact-open') });
     const id = 'compact-closed';
     const block = nav(page, id);
@@ -1047,7 +1064,7 @@ test.describe('the compact presentation', () => {
     await expect(button(page, 'compact-closed-no-current')).not.toHaveAttribute('aria-describedby');
     // A name too long for the row is cut, on one line; the title is whole.
     const long = button(page, 'compact-long-current');
-    expect((await edges(long)).height).toBe(48);
+    expect((await edges(long)).height).toBe(40);
     expect(await long.locator('.row-current').evaluate((el) => el.scrollWidth > el.clientWidth)).toBe(true);
     expect(await long.locator('.row-title').evaluate((el) => el.scrollWidth <= el.clientWidth)).toBe(true);
     expect((await textBox(long.locator('.row-title'))).lines).toBe(1);
@@ -1356,8 +1373,8 @@ test.describe('accessibility', () => {
     near(await px(row(page, 'three-levels', '#tokens'), 'padding-top'), await resolveToken(page, T('row-padding-block-medium')), 0.01);
     near(await px(list(page, 'three-levels'), 'border-left-width', '::before'), await resolveToken(page, T('rail-width')), 0.01);
     near(await px(row(page, 'current-third-level', '#schemes'), 'border-left-width', '::before'), await resolveToken(page, T('marker-width')), 0.01);
-    expect((await edges(row(page, 'three-levels', '#tokens'))).height).toBeGreaterThan(44);
-    expect((await edges(button(page, 'compact-long-current'))).height).toBeGreaterThanOrEqual(48);
+    expect((await edges(row(page, 'three-levels', '#tokens'))).height).toBeGreaterThan(40);
+    expect((await edges(button(page, 'compact-long-current'))).height).toBeGreaterThanOrEqual(40);
     await page.addStyleTag({ content: '* { line-height: 1.5 !important; letter-spacing: 0.12em !important; word-spacing: 0.16em !important; }' });
     await whole('text spacing');
   });
@@ -1537,7 +1554,7 @@ test.describe('missing, unknown, empty', () => {
     // Unknown values: the list presentation, auto tracking, the default size.
     await expect(title(page, 'unknown')).toHaveCount(1);
     await expect(button(page, 'unknown')).toHaveCount(0);
-    expect((await edges(row(page, 'unknown', '#one'))).height).toBe(44);
+    expect((await edges(row(page, 'unknown', '#one'))).height).toBe(40);
     expect(seen.some((text) => text.includes('TOC-39') && text.includes('presentation "sheet"'))).toBe(true);
     expect(seen.some((text) => text.includes('TOC-39') && text.includes('tracking "sometimes"'))).toBe(true);
     expect(seen.some((text) => text.includes('TOC-39') && text.includes('size "cosy"'))).toBe(true);
@@ -1553,7 +1570,7 @@ test.describe('missing, unknown, empty', () => {
     // A change of size: the new heights at once, with the current item, open and the focus kept.
     const open = host(page, 'compact-open');
     await row(page, 'compact-open', '#container').focus();
-    expect((await edges(row(page, 'compact-open', '#container'))).height).toBe(44);
+    expect((await edges(row(page, 'compact-open', '#container'))).height).toBe(40);
     await set(open, { size: 'small' });
     expect((await edges(row(page, 'compact-open', '#container'))).height).toBe(36);
     expect(await css(row(page, 'compact-open', '#container'), 'transition-property')).not.toContain('block-size');
@@ -1690,7 +1707,7 @@ test.describe('before the element is defined, and without script', () => {
     // The page holds a plain nested list of links, drawn.
     expect(await host(page, 'nested').evaluate((el) => [...el.querySelectorAll('ul a')].map((a) => a.getAttribute('href')))).toEqual(['#when-to-use', '#anatomy', '#container', '#label', '#behaviour', '#states', '#keyboard', '#accessibility']);
     await expect(host(page, 'nested').getByRole('link')).toHaveCount(8);
-    expect((await edges(row(page, 'nested', '#anatomy'))).height).toBe(44);
+    expect((await edges(row(page, 'nested', '#anatomy'))).height).toBe(40);
     expect((await edges(row(page, 'size-small-three-levels', '#roles'))).height).toBe(36);
     expect(Math.round((await textBox(row(page, 'size-small-three-levels', '#roles'))).left - (await edges(list(page, 'size-small-three-levels'))).left)).toBe(36);
     expect(await css(list(page, 'nested'), 'border-left-color', '::before')).toBe(await resolveColor(page, T('rail-color')));

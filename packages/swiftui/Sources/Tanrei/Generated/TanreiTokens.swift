@@ -11634,27 +11634,27 @@ public struct TanreiNavigationDrawerConditions: Sendable, Equatable {
   public var keys: [TanreiNavigationDrawerCondition] { TanreiNavigationDrawerCondition.core + extra.keys.sorted { $0.rawValue < $1.rawValue } }
 }
 
-/// A value of navigation-drawer's `density` axis.
+/// A value of navigation-drawer's `size` axis.
 ///
 /// The set is open: the constants are the values every design system has; a value one system
-/// adds is `TanreiNavigationDrawerDensity(rawValue: "…")`, or the typed constant generated with that system.
-public struct TanreiNavigationDrawerDensity: RawRepresentable, Hashable, Sendable, CustomStringConvertible {
+/// adds is `TanreiNavigationDrawerSize(rawValue: "…")`, or the typed constant generated with that system.
+public struct TanreiNavigationDrawerSize: RawRepresentable, Hashable, Sendable, CustomStringConvertible {
   /// The token key of the value, for example `"medium"`.
   public let rawValue: String
   public init(rawValue: String) { self.rawValue = rawValue }
   public var description: String { rawValue }
 
-  public static let regular = TanreiNavigationDrawerDensity(rawValue: "regular")
-  public static let compact = TanreiNavigationDrawerDensity(rawValue: "compact")
+  public static let medium = TanreiNavigationDrawerSize(rawValue: "medium")
+  public static let small = TanreiNavigationDrawerSize(rawValue: "small")
 
   /// The values every design system has, in the order the component declares them.
-  public static let core: [TanreiNavigationDrawerDensity] = [.regular, .compact]
+  public static let core: [TanreiNavigationDrawerSize] = [.medium, .small]
   /// The default: what a value the current design system does not have falls back to.
-  public static let fallback = TanreiNavigationDrawerDensity.regular
+  public static let fallback = TanreiNavigationDrawerSize.medium
 }
 
-/// Everything of navigation-drawer that depends on its density.
-public struct TanreiNavigationDrawerDensityTokens: Sendable, Equatable {
+/// Everything of navigation-drawer that depends on its size.
+public struct TanreiNavigationDrawerSizeTokens: Sendable, Equatable {
   public var containerGap: CGFloat
   public var itemContainerHeight: CGFloat
   public var itemPaddingInline: CGFloat
@@ -11703,43 +11703,43 @@ public struct TanreiNavigationDrawerDensityTokens: Sendable, Equatable {
   }
 }
 
-/// The densitys of navigation-drawer: named fields for the core values, `extra` for what a design system added.
-/// Read one with `densitys[key]`.
-public struct TanreiNavigationDrawerDensitys: Sendable, Equatable {
-  public var regular: TanreiNavigationDrawerDensityTokens
-  public var compact: TanreiNavigationDrawerDensityTokens
+/// The sizes of navigation-drawer: named fields for the core values, `extra` for what a design system added.
+/// Read one with `sizes[key]`.
+public struct TanreiNavigationDrawerSizes: Sendable, Equatable {
+  public var medium: TanreiNavigationDrawerSizeTokens
+  public var small: TanreiNavigationDrawerSizeTokens
   /// What a design system added, by key. Empty in a system that adds nothing.
-  public var extra: [TanreiNavigationDrawerDensity: TanreiNavigationDrawerDensityTokens]
+  public var extra: [TanreiNavigationDrawerSize: TanreiNavigationDrawerSizeTokens]
 
   public init(
-    regular: TanreiNavigationDrawerDensityTokens,
-    compact: TanreiNavigationDrawerDensityTokens,
-    extra: [TanreiNavigationDrawerDensity: TanreiNavigationDrawerDensityTokens] = [:]
+    medium: TanreiNavigationDrawerSizeTokens,
+    small: TanreiNavigationDrawerSizeTokens,
+    extra: [TanreiNavigationDrawerSize: TanreiNavigationDrawerSizeTokens] = [:]
   ) {
-    self.regular = regular
-    self.compact = compact
+    self.medium = medium
+    self.small = small
     self.extra = extra
   }
 
-  /// The tokens of one navigation-drawer density, core or added; `nil` when this design system does not have it.
-  public func value(for key: TanreiNavigationDrawerDensity) -> TanreiNavigationDrawerDensityTokens? {
+  /// The tokens of one navigation-drawer size, core or added; `nil` when this design system does not have it.
+  public func value(for key: TanreiNavigationDrawerSize) -> TanreiNavigationDrawerSizeTokens? {
     switch key {
-    case .regular: return regular
-    case .compact: return compact
+    case .medium: return medium
+    case .small: return small
     default: return extra[key]
     }
   }
 
-  /// Total lookup: a navigation-drawer density this design system does not have reads the tokens of `regular`, the
+  /// Total lookup: a navigation-drawer size this design system does not have reads the tokens of `medium`, the
   /// default, and is reported in debug builds only (`TanreiDiagnostics`).
-  public subscript(key: TanreiNavigationDrawerDensity) -> TanreiNavigationDrawerDensityTokens {
+  public subscript(key: TanreiNavigationDrawerSize) -> TanreiNavigationDrawerSizeTokens {
     if let value = value(for: key) { return value }
-    TanreiDiagnostics.report("Tanrei: the current design system has no navigation-drawer density \"\(key.rawValue)\"; using \"regular\"")
-    return regular
+    TanreiDiagnostics.report("Tanrei: the current design system has no navigation-drawer size \"\(key.rawValue)\"; using \"medium\"")
+    return medium
   }
 
-  /// Every navigation-drawer density of this design system: the core ones, then what it added.
-  public var keys: [TanreiNavigationDrawerDensity] { TanreiNavigationDrawerDensity.core + extra.keys.sorted { $0.rawValue < $1.rawValue } }
+  /// Every navigation-drawer size of this design system: the core ones, then what it added.
+  public var keys: [TanreiNavigationDrawerSize] { TanreiNavigationDrawerSize.core + extra.keys.sorted { $0.rawValue < $1.rawValue } }
 }
 
 /// Values of navigation-drawer that depend on the state but not on the variant.
@@ -11757,9 +11757,9 @@ public struct TanreiNavigationDrawerStateTokens: Sendable, Equatable {
 public struct TanreiNavigationDrawerTokens: Sendable, Equatable {
   public var breakpointCollapsed: CGFloat
   public var breakpointExpanded: CGFloat
-  public var collapsedItemContainerPaddingInline: CGFloat
   public var collapsedItemContainerShape: CGFloat
   public var collapsedItemGap: CGFloat
+  public var collapsedItemLabelPaddingInline: CGFloat
   public var collapsedItemLabelTypescale: TanreiTextStyle
   public var containerMaxWidth: CGFloat
   public var containerMinWidth: CGFloat
@@ -11805,7 +11805,7 @@ public struct TanreiNavigationDrawerTokens: Sendable, Equatable {
   public var stickyDividerWidth: CGFloat
   public var variants: TanreiNavigationDrawerVariants
   public var conditions: TanreiNavigationDrawerConditions
-  public var densitys: TanreiNavigationDrawerDensitys
+  public var sizes: TanreiNavigationDrawerSizes
   /// Values of the hovered state shared by every variant.
   public var hovered: TanreiNavigationDrawerStateTokens
   /// Values of the focused state shared by every variant.
@@ -11818,9 +11818,9 @@ public struct TanreiNavigationDrawerTokens: Sendable, Equatable {
   public init(
     breakpointCollapsed: CGFloat,
     breakpointExpanded: CGFloat,
-    collapsedItemContainerPaddingInline: CGFloat,
     collapsedItemContainerShape: CGFloat,
     collapsedItemGap: CGFloat,
+    collapsedItemLabelPaddingInline: CGFloat,
     collapsedItemLabelTypescale: TanreiTextStyle,
     containerMaxWidth: CGFloat,
     containerMinWidth: CGFloat,
@@ -11866,7 +11866,7 @@ public struct TanreiNavigationDrawerTokens: Sendable, Equatable {
     stickyDividerWidth: CGFloat,
     variants: TanreiNavigationDrawerVariants,
     conditions: TanreiNavigationDrawerConditions,
-    densitys: TanreiNavigationDrawerDensitys,
+    sizes: TanreiNavigationDrawerSizes,
     hovered: TanreiNavigationDrawerStateTokens,
     focused: TanreiNavigationDrawerStateTokens,
     pressed: TanreiNavigationDrawerStateTokens,
@@ -11874,9 +11874,9 @@ public struct TanreiNavigationDrawerTokens: Sendable, Equatable {
   ) {
     self.breakpointCollapsed = breakpointCollapsed
     self.breakpointExpanded = breakpointExpanded
-    self.collapsedItemContainerPaddingInline = collapsedItemContainerPaddingInline
     self.collapsedItemContainerShape = collapsedItemContainerShape
     self.collapsedItemGap = collapsedItemGap
+    self.collapsedItemLabelPaddingInline = collapsedItemLabelPaddingInline
     self.collapsedItemLabelTypescale = collapsedItemLabelTypescale
     self.containerMaxWidth = containerMaxWidth
     self.containerMinWidth = containerMinWidth
@@ -11922,7 +11922,7 @@ public struct TanreiNavigationDrawerTokens: Sendable, Equatable {
     self.stickyDividerWidth = stickyDividerWidth
     self.variants = variants
     self.conditions = conditions
-    self.densitys = densitys
+    self.sizes = sizes
     self.hovered = hovered
     self.focused = focused
     self.pressed = pressed

@@ -32,22 +32,21 @@ const ALIGNED_ON_THE_LADDER = comp([
   'input-box.stacked.container.height.medium',
   'menu.container.height.medium',
   'menubar.container.height',
+  'navigation-drawer.collapsed.item.container.width.medium',
+  'navigation-drawer.item.container.height.medium',
   'pagination.container.height.medium',
   'search.suggestion.container.height.medium',
   'search.trigger.container.height',
   'select.option.height.medium',
+  'table-of-contents.compact.row.height',
+  'table-of-contents.row.height.medium',
+  'tabs.container.height.medium',
   'toolbar.container.size.inline',
+  'tree-view.container.height.medium',
 ]);
 
 /** Not yet: each family's change rewires its heights to the medium step, marks them and moves them up. */
 const ALIGNED_NOT_YET = comp([
-  // tabs, navigation and trees
-  'tabs.container.height.medium',
-  'navigation-drawer.item.container.height.regular',
-  'navigation-drawer.collapsed.item.container.width.regular',
-  'tree-view.container.height.medium',
-  'table-of-contents.row.height.medium',
-  'table-of-contents.compact.row.height',
   // lists, rows, accordions and tables
   'list.container.height.medium',
   'list-row.container.height.one-line.medium',

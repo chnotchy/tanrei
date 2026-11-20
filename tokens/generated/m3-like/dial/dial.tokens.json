@@ -5965,6 +5965,46 @@
               "$value": "{tanrei.sys.shape.corner.extra-small}",
               "reason": "This preset keeps the corner it drew on a table of contents row, the extra-small corner, where the default system rounds it by the small one; whether its original rounds a row so is a fidelity decision for this preset."
             },
+            "tanrei.comp.tabs.container.height.medium": {
+              "derive": {
+                "fn": "mul",
+                "of": "{tanrei.dial.size.unit}",
+                "by": 12
+              },
+              "reason": "Material 3's primary and secondary tabs are 48dp tall without an icon: this preset keeps them, where the default system draws a tab at the control height."
+            },
+            "tanrei.comp.tree-view.container.height.medium": {
+              "derive": {
+                "fn": "mul",
+                "of": "{tanrei.dial.size.unit}",
+                "by": 12
+              },
+              "reason": "This preset keeps the tree row it drew, a menu item's 48, where the default system draws a tree row at the control height; Material 3 has no tree view to measure it by."
+            },
+            "tanrei.comp.tree-view.container.padding-block.medium": {
+              "$value": "{tanrei.sys.space.space150}",
+              "reason": "This preset keeps the padding of the tree row it drew, with the row's 48."
+            },
+            "tanrei.comp.table-of-contents.row.height.medium": {
+              "derive": {
+                "fn": "mul",
+                "of": "{tanrei.dial.size.unit}",
+                "by": 11
+              },
+              "reason": "This preset keeps the table of contents row it drew, where the default system draws one at the control height; Material 3 has no table of contents to measure it by."
+            },
+            "tanrei.comp.table-of-contents.row.padding-block.medium": {
+              "$value": "{tanrei.sys.space.space150}",
+              "reason": "This preset keeps the padding of the table of contents row it drew, with the row's 44."
+            },
+            "tanrei.comp.table-of-contents.compact.row.height": {
+              "derive": {
+                "fn": "mul",
+                "of": "{tanrei.dial.size.unit}",
+                "by": 12
+              },
+              "reason": "This preset keeps the compact table of contents row it drew, where the default system draws it at the control height; Material 3 has no table of contents to measure it by."
+            },
             "tanrei.comp.menu.leading-icon.size.medium": {
               "$value": "{tanrei.sys.icon.medium}"
             },
@@ -6462,7 +6502,7 @@
               "$value": "{tanrei.sys.elevation.level1}",
               "reason": "Material's modal drawer rests at level1, a real shadow here."
             },
-            "tanrei.comp.navigation-drawer.item.container.height.regular": {
+            "tanrei.comp.navigation-drawer.item.container.height.medium": {
               "derive": {
                 "fn": "mul",
                 "of": "{tanrei.dial.size.unit}",
@@ -6472,13 +6512,13 @@
             "tanrei.comp.navigation-drawer.item.container.shape": {
               "$value": "{tanrei.sys.shape.corner.full}"
             },
-            "tanrei.comp.navigation-drawer.container.gap.regular": {
+            "tanrei.comp.navigation-drawer.container.gap.medium": {
               "$value": "{tanrei.sys.space.space0}"
             },
-            "tanrei.comp.navigation-drawer.item.padding-inline.regular": {
+            "tanrei.comp.navigation-drawer.item.padding-inline.medium": {
               "$value": "{tanrei.sys.space.space200}"
             },
-            "tanrei.comp.navigation-drawer.item.icon.size.regular": {
+            "tanrei.comp.navigation-drawer.item.icon.size.medium": {
               "$value": "{tanrei.sys.icon.medium}"
             },
             "tanrei.comp.navigation-drawer.heading.typescale": {
@@ -6489,7 +6529,7 @@
               "$value": "{tanrei.sys.typescale.label}",
               "reason": "Material's drawer badge is label-large, which the fidelity map pairs with label."
             },
-            "tanrei.comp.navigation-drawer.item.icon-indicator.width.regular": {
+            "tanrei.comp.navigation-drawer.item.icon-indicator.width.medium": {
               "derive": {
                 "fn": "mul",
                 "of": "{tanrei.dial.size.unit}",
@@ -6497,7 +6537,7 @@
               },
               "reason": "Material 3's navigation rail, which a collapsed drawer reproduces: its active indicator is 56 wide."
             },
-            "tanrei.comp.navigation-drawer.item.icon-indicator.height.regular": {
+            "tanrei.comp.navigation-drawer.item.icon-indicator.height.medium": {
               "derive": {
                 "fn": "mul",
                 "of": "{tanrei.dial.size.unit}",
@@ -6505,11 +6545,7 @@
               },
               "reason": "Material 3's navigation rail, which a collapsed drawer reproduces: its active indicator is 32 high."
             },
-            "tanrei.comp.navigation-drawer.collapsed.item.container.padding-inline": {
-              "$value": "{tanrei.sys.space.space0}",
-              "reason": "Material 3's navigation rail, which a collapsed drawer reproduces: it draws no shape around the whole destination."
-            },
-            "tanrei.comp.navigation-drawer.collapsed.item.container.padding-block.regular": {
+            "tanrei.comp.navigation-drawer.collapsed.item.container.padding-block.medium": {
               "$value": "{tanrei.sys.space.space0}",
               "reason": "Material 3's navigation rail, which a collapsed drawer reproduces: it draws no shape around the whole destination."
             },
@@ -7093,7 +7129,7 @@
               "$value": "{tanrei.sys.space.space0}",
               "reason": "Material's bar draws no shape around a whole destination, so nothing is held in from its edges: its cells share the bar's whole width."
             },
-            "tanrei.comp.navigation-drawer.collapsed.container.width.regular": {
+            "tanrei.comp.navigation-drawer.collapsed.container.width.medium": {
               "derive": {
                 "fn": "mul",
                 "of": "{tanrei.dial.size.unit}",
@@ -7101,13 +7137,13 @@
               },
               "reason": "Material 3's collapsed column is 80 wide; the default's narrowed with its rows."
             },
-            "tanrei.comp.navigation-drawer.collapsed.item.container.width.regular": {
+            "tanrei.comp.navigation-drawer.collapsed.item.container.width.medium": {
               "derive": {
                 "fn": "mul",
                 "of": "{tanrei.dial.size.unit}",
                 "by": 14
               },
-              "reason": "Material 3's collapsed destination is 56 wide, as its indicator is; the default's is its row cut after the icon."
+              "reason": "Material 3's collapsed destination is 56 wide, as its indicator is; the default's is as wide as its row is tall."
             },
             "tanrei.comp.navigation-drawer.collapsed.item.container.shape": {
               "$value": "{tanrei.sys.shape.corner.full}",
