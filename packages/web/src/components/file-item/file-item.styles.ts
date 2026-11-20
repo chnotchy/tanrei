@@ -1,5 +1,5 @@
 import { css, unsafeCSS } from 'lit';
-import { focusRing, iconGlyph, minimumTarget, pressHold, rippleStyles, stateRules } from '../../primitives/index.js';
+import { drawnAsNoElement, focusRing, iconGlyph, minimumTarget, pressHold, rippleStyles, stateRules } from '../../primitives/index.js';
 import { hiddenHost } from '../../primitives/hidden.js';
 import { productText } from '../../styles/product-text.js';
 import { cornerRadius, shape } from '../../styles/shape.js';
@@ -394,6 +394,15 @@ export const styles = css`
     pointer-events: none;
     background-color: var(--_layer);
     transition: background-color ${t('motion-state-duration')} ${t('motion-state-easing')};
+  }
+  /* In a row the layer lies over the name and the second line: it holds its color (and runs its transition) and draws
+     it by its ::before, as no element, at the same place in the paint order, under the ripple — an element over a text
+     is what a contrast checker sees covering it, and it would leave that text unchecked. */
+  ${drawnAsNoElement('.layer', ['background-color'], { fill: true })}
+  /* The layer clips what it holds to its corners: the color fills it square and takes its corners from that one clip, as
+     the layer's own background did (rounded twice, by its own radius and by the clip, its corners would be paler). */
+  .layer::before {
+    border-radius: 0;
   }
   /* A row's pressable body IS those bounds: it is grown by the outset on every side and takes it back as a margin, so
      its content stands where it stood and the row is no larger — and the layer, the focus ring around it (FIT-14) and
