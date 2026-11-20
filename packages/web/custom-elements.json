@@ -8081,7 +8081,7 @@
               "name": "container"
             },
             {
-              "description": "The outlined variant's border (with the gap for the floated label); a stacked field's inner line.",
+              "description": "The outlined variant's border (with the gap for the floated label); a stacked field's inner line — a box that draws nothing: the `::before` of it (stacked) or of its pieces (outlined) draws the line.",
               "name": "outline"
             },
             {
@@ -10459,7 +10459,7 @@
               "name": "container"
             },
             {
-              "description": "A stacked color input's inner line, or an outlined one's border.",
+              "description": "A stacked color input's inner line, or an outlined one's border — a box that draws nothing: the `::before` of it (stacked) or of its pieces (outlined) draws the line.",
               "name": "outline"
             },
             {
@@ -11241,7 +11241,7 @@
               "name": "container"
             },
             {
-              "description": "A stacked color input's inner line, or an outlined one's border.",
+              "description": "A stacked color input's inner line, or an outlined one's border — a box that draws nothing: the `::before` of it (stacked) or of its pieces (outlined) draws the line.",
               "name": "outline"
             },
             {
@@ -11981,7 +11981,7 @@
               "name": "container"
             },
             {
-              "description": "A stacked combobox's inner line, or an outlined one's border.",
+              "description": "A stacked combobox's inner line, or an outlined one's border — a box that draws nothing: the `::before` of it (stacked) or of its pieces (outlined) draws the line.",
               "name": "outline"
             },
             {
@@ -13125,7 +13125,7 @@
               "name": "container"
             },
             {
-              "description": "A stacked combobox's inner line, or an outlined one's border.",
+              "description": "A stacked combobox's inner line, or an outlined one's border — a box that draws nothing: the `::before` of it (stacked) or of its pieces (outlined) draws the line.",
               "name": "outline"
             },
             {
@@ -30719,7 +30719,7 @@
               "name": "container"
             },
             {
-              "description": "A stacked number input's inner line, or an outlined one's border.",
+              "description": "A stacked number input's inner line, or an outlined one's border — a box that draws nothing: the `::before` of it (stacked) or of its pieces (outlined) draws the line.",
               "name": "outline"
             },
             {
@@ -31802,7 +31802,7 @@
               "name": "container"
             },
             {
-              "description": "A stacked number input's inner line, or an outlined one's border.",
+              "description": "A stacked number input's inner line, or an outlined one's border — a box that draws nothing: the `::before` of it (stacked) or of its pieces (outlined) draws the line.",
               "name": "outline"
             },
             {
@@ -40957,7 +40957,7 @@
               "name": "container"
             },
             {
-              "description": "A stacked select's inner line, or an outlined select's border.",
+              "description": "A stacked select's inner line, or an outlined select's border — a box that draws nothing: the `::before` of it (stacked) or of its pieces (outlined) draws the line.",
               "name": "outline"
             },
             {
@@ -41976,7 +41976,7 @@
               "name": "container"
             },
             {
-              "description": "A stacked select's inner line, or an outlined select's border.",
+              "description": "A stacked select's inner line, or an outlined select's border — a box that draws nothing: the `::before` of it (stacked) or of its pieces (outlined) draws the line.",
               "name": "outline"
             },
             {
@@ -49343,7 +49343,7 @@
               "name": "container"
             },
             {
-              "description": "The outlined variant's border (with the gap for the floated label); a stacked field's inner line.",
+              "description": "The outlined variant's border (with the gap for the floated label); a stacked field's inner line — a box that draws nothing: the `::before` of it (stacked) or of its pieces (outlined) draws the line.",
               "name": "outline"
             },
             {
@@ -51454,7 +51454,7 @@
               "name": "container"
             },
             {
-              "description": "The outlined variant's border (with the gap for the floated label); a stacked field's inner line.",
+              "description": "The outlined variant's border (with the gap for the floated label); a stacked field's inner line — a box that draws nothing: the `::before` of it (stacked) or of its pieces (outlined) draws the line.",
               "name": "outline"
             },
             {

@@ -173,7 +173,7 @@ function whenParsed(task: () => void) {
  * @slot - The options: `<tanrei-option>` elements, optionally in `<tanrei-option-group>` elements. They are read, not drawn in place. A `<slot>` element here stands for the elements assigned to it.
  * @slot leading-icon - A glyph at the start of the container that stands for the combobox whatever is chosen (a magnifier before a field that searches people). It takes the place of the chosen option's own glyph. A glyph the icon set flags is mirrored in right-to-left; `data-mirror="auto | always | never"` on the element decides for one use.
  * @csspart container - The combobox's box: the list's anchor.
- * @csspart outline - A stacked combobox's inner line, or an outlined one's border.
+ * @csspart outline - A stacked combobox's inner line, or an outlined one's border — a box that draws nothing: the `::before` of it (stacked) or of its pieces (outlined) draws the line.
  * @csspart active-indicator - The line along the bottom of a filled combobox.
  * @csspart label - The label floating in a filled or an outlined combobox.
  * @csspart requirement-label - The required asterisk after a floating label.

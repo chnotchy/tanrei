@@ -263,6 +263,11 @@ export function floatingLabelStyles(): CSSResult {
  * is the floated label's own, measured by a hidden copy of the label in the floated style, and opens over
  * motion.label-*. A filled field's active indicator is a line along the bottom, active-indicator.width wide.
  *
+ * The edges stand over the value, the placeholder and the label, and an element there is what a contrast checker
+ * (axe's color-contrast) takes for one covering the text: it left that text unchecked. So the edge part and the
+ * outline's pieces are boxes that draw nothing (`visibility: hidden`); the `::before` of each draws its line, at the
+ * same place in the paint order, as no element. Forced colors take the parts away, and their lines with them.
+ *
  * Reads `--_ow`, `--_iw`, `--_o`, `--_i`, `--_pad`, `--_end`, `--_float-widest` and the floated text style.
  */
 export function triggerEdgeStyles(): CSSResult {
@@ -274,11 +279,20 @@ export function triggerEdgeStyles(): CSSResult {
     position: absolute;
     z-index: 1;
     inset: 0;
+    border-radius: inherit;
+    corner-shape: inherit;
+    pointer-events: none;
+    visibility: hidden;
+  }
+  .edge::before {
+    content: '';
+    position: absolute;
+    inset: 0;
     box-sizing: border-box;
     border: var(--_ow) solid var(--_o);
     border-radius: inherit;
     corner-shape: inherit;
-    pointer-events: none;
+    visibility: visible;
     transition:
       border-color ${motion},
       border-width ${motion};
@@ -291,12 +305,23 @@ export function triggerEdgeStyles(): CSSResult {
     display: flex;
     pointer-events: none;
     corner-shape: inherit;
+    visibility: hidden;
   }
   .outline > span {
+    position: relative;
+    box-sizing: border-box;
+    corner-shape: inherit;
+  }
+  .outline > span::before {
+    content: '';
+    position: absolute;
+    inset: 0;
     box-sizing: border-box;
     border: 0 solid var(--_o);
     border-block-width: var(--_ow);
+    border-radius: inherit;
     corner-shape: inherit;
+    visibility: visible;
     transition:
       border-color ${motion},
       border-width ${motion};
@@ -304,22 +329,23 @@ export function triggerEdgeStyles(): CSSResult {
   .outline-start {
     flex: none;
     inline-size: max(calc(var(--tanrei-corner-radius) * var(--_corner-scale)), calc(var(--_pad) - var(${P}-outline-notch-padding)));
-    border-inline-start-width: var(--_ow) !important;
     border-start-start-radius: calc(var(--tanrei-corner-radius) * var(--_corner-scale));
     border-end-start-radius: calc(var(--tanrei-corner-radius) * var(--_corner-scale));
+  }
+  .outline > .outline-start::before {
+    border-inline-start-width: var(--_ow);
   }
   .outline-notch {
     flex: none;
     display: grid;
     grid-template-columns: minmax(0, 0fr);
     max-inline-size: calc(100% - var(--_pad) - var(--_end));
-    transition:
-      border-color ${motion},
-      border-width ${motion},
-      grid-template-columns var(${P}-motion-label-duration) var(${P}-motion-label-easing) !important;
+    transition: grid-template-columns var(${P}-motion-label-duration) var(${P}-motion-label-easing);
   }
   ${FLOATED} .outline-notch {
     grid-template-columns: minmax(0, 1fr);
+  }
+  ${FLOATED} .outline-notch::before {
     border-block-start-color: transparent;
   }
   .notch-label {
@@ -336,9 +362,11 @@ export function triggerEdgeStyles(): CSSResult {
   }
   .outline-end {
     flex: 1 1 auto;
-    border-inline-end-width: var(--_ow) !important;
     border-start-end-radius: calc(var(--tanrei-corner-radius) * var(--_corner-scale));
     border-end-end-radius: calc(var(--tanrei-corner-radius) * var(--_corner-scale));
+  }
+  .outline > .outline-end::before {
+    border-inline-end-width: var(--_ow);
   }
   .indicator {
     position: absolute;
