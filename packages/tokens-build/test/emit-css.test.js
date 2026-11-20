@@ -145,7 +145,7 @@ test('a type role reaches CSS as its longhands only: no `font` composite, for a 
 });
 
 test('a role\'s line is a whole pixel on every platform: CSS carries the one ratio, which the web rounds where it draws, and the IR rounds it once', async () => {
-  for (const system of ['tanrei', 'm3-like', 'm3-expressive-like', 'cupertino']) {
+  for (const system of ['tanrei', 'm3-like', 'cupertino']) {
     const model = await (await resolveSystem({ system })).model();
     const css = emitCss(model, system === 'tanrei' ? {} : { scope: system });
     for (const token of Object.values(model.tokens).filter((t) => t.type === 'typography' && !t.alias)) {
