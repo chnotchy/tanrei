@@ -1326,6 +1326,7 @@ public data class TanreiBottomSheetStateTokens(
 /** `comp.bottom-sheet`. Members are flat tokens, then per-state tokens, then one holder per axis (`controls[control]`). */
 @Immutable
 public data class TanreiBottomSheetTokens(
+    public val closeButtonSize: Float,
     public val closeButtonVariant: Float,
     public val containerColor: TanreiPaint,
     public val containerElevation: List<TanreiShadowLayer>,
@@ -2305,6 +2306,7 @@ public data class TanreiCalloutVariants(
 public data class TanreiCalloutTokens(
     public val actionsGap: Dp,
     public val actionsItemGap: Dp,
+    public val closeButtonSize: Float,
     public val closeButtonVariant: Float,
     public val containerGap: Dp,
     public val containerPaddingBlock: Dp,
@@ -2571,6 +2573,7 @@ public data class TanreiCarouselTokens(
     public val motionScrollEasing: TanreiCubicBezier,
     public val motionStateDuration: Int,
     public val motionStateEasing: TanreiCubicBezier,
+    public val navigationButtonSize: Float,
     public val navigationButtonVariant: Float,
     public val hovered: TanreiCarouselStateTokens,
     public val focused: TanreiCarouselStateTokens,
@@ -3707,6 +3710,7 @@ public data class TanreiDateTimePickerTokens(
     public val actionsArrangement: Float,
     public val actionsGap: Dp,
     public val actionsPaddingBlock: Dp,
+    public val actionsSize: Float,
     public val actionsVariant: Float,
     public val containerGap: Dp,
     public val containerPaddingBlock: Dp,
@@ -5220,6 +5224,7 @@ public data class TanreiHandleTokens(
 /** `comp.image-preview`. Members are flat tokens, then per-state tokens, then one holder per axis (). */
 @Immutable
 public data class TanreiImagePreviewTokens(
+    public val barButtonSize: Float,
     public val barButtonVariant: Float,
     public val barContainerColor: TanreiPaint,
     public val barGap: Dp,
@@ -5251,6 +5256,7 @@ public data class TanreiImagePreviewTokens(
     public val motionPageEasing: TanreiCubicBezier,
     public val motionZoomDuration: Int,
     public val motionZoomEasing: TanreiCubicBezier,
+    public val navigationButtonSize: Float,
     public val navigationButtonVariant: Float,
     public val navigationMarginInline: Dp,
 ) {
@@ -7894,6 +7900,7 @@ public data class TanreiPopoverTokens(
     public val arrowInset: Dp,
     public val arrowVisible: Float,
     public val arrowWidth: Dp,
+    public val closeButtonSize: Float,
     public val closeButtonVariant: Float,
     public val compactWindowWidth: Dp,
     public val containerColor: TanreiPaint,
@@ -9336,6 +9343,7 @@ public data class TanreiSideSheetTokens(
     public val actionsGap: Dp,
     public val actionsPaddingBlock: Dp,
     public val actionsVariant: Float,
+    public val closeButtonSize: Float,
     public val closeButtonVariant: Float,
     public val containerPaddingBlock: Dp,
     public val containerPaddingInline: Dp,
@@ -9734,6 +9742,7 @@ public data class TanreiSnackbarStateTokens(
 public data class TanreiSnackbarTokens(
     public val actionTonalLayerOpacity: Float,
     public val breakpointMedium: Dp,
+    public val closeButtonSize: Float,
     public val closeButtonVariant: Float,
     public val containerColor: TanreiPaint,
     public val containerElevation: List<TanreiShadowLayer>,

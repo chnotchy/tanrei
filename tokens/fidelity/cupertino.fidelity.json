@@ -118,6 +118,10 @@
   ],
   "unpublished": [
     {
+      "tanrei": "tanrei.comp.*.close-button.size, tanrei.comp.*.button.size, tanrei.comp.date-time-picker.actions.size",
+      "note": "The Human Interface Guidelines publish no size for the buttons a sheet, popover, banner, photo viewer or picker draws itself (Sheets, Popovers, Buttons: control sizes are given for visionOS only), so cupertino keeps the default system's choice: small close buttons and bar controls, medium previous and next controls and picker actions."
+    },
+    {
       "tanrei": "tanrei.sys.shape.corner.*",
       "note": "The Human Interface Guidelines publish no corner radius for an iOS, iPadOS or macOS control or container (the only figure is visionOS's: an alert's accessory view has a 16 pt corner radius)."
     },

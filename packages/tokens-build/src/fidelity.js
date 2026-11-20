@@ -191,6 +191,25 @@ export function measureFidelity(model, { map, reference }) {
     }
   }
 
+  // The Buttons a component draws itself, by the size the reference's own component gives them (`hosts.map`): each
+  // entry names a reference object of a `sizes` block. A token that names a Button size (a `dev.tanrei.enum` choice)
+  // must name the Tanrei size that block maps the object to; a dimension must equal the object's ContainerHeight.
+  if (map.hosts) {
+    const sizeOf = new Map([map.sizes ?? []].flat().flatMap((block) => Object.entries(block.objects)));
+    for (const rule of map.hosts.map) {
+      const id = `androidx.${rule.ref}.ContainerHeight`;
+      result.total += 1;
+      const token = model.tokens[rule.tanrei];
+      let expected, actual;
+      if (!(id in reference.tokens) || !sizeOf.has(rule.ref)) { result.unaccounted.push(`${rule.tanrei} (its reference object ${rule.ref} is not a size block's)`); continue; }
+      if (!token) { expected = sizeOf.get(rule.ref); actual = `no token ${rule.tanrei}`; }
+      else if (token.enum) { expected = sizeOf.get(rule.ref); actual = token.enum.values?.[token.value]; }
+      else { expected = parseFloat(reference.tokens[id]); actual = token.value?.value; }
+      if (expected !== actual) result.different.push({ ref: `${rule.ref} (${rule.tanrei})`, tanrei: rule.tanrei, problems: [{ scheme: 'all', expected, actual }] });
+      else result.equal += 1;
+    }
+  }
+
   for (const [component, variant] of Object.entries(map.components ?? {})) {
     const prefix = `md.comp.${component}.`;
     const keys = Object.keys(reference.tokens).filter((id) => id.startsWith(prefix)).map((id) => id.slice(prefix.length));

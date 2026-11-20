@@ -8,7 +8,9 @@ import { hiddenHost } from '../../primitives/hidden.js';
 import {
   AppearController,
   AvailabilityController,
+  BUTTON_SIZES,
   BUTTON_VARIANTS,
+  type ButtonSize,
   GlyphDrawnController,
   SHEET_FLING_VELOCITY,
   SHEET_TOUCH_SLOP,
@@ -19,6 +21,7 @@ import {
   compChoices,
   deepActive,
   focusOverlay,
+  giveSize,
   giveVariant,
   holdPageScroll,
   isLeaving,
@@ -367,6 +370,8 @@ export class TanreiImagePreview extends TanreiElement {
   private opener: Element | null = null;
   /** Presented: in the top layer. */
   private presented = false;
+  /** IMP-8, IMP-10: the controls' sizes, as the bar's and the navigation's tokens named them at the last read. */
+  private controlSizes: { bar: ButtonSize; navigation: ButtonSize } = { bar: 'small', navigation: 'medium' };
   /** It is to open with the reads of the turn (`present()`), and has not yet. */
   private presenting = false;
   /**
@@ -1302,18 +1307,32 @@ export class TanreiImagePreview extends TanreiElement {
 
   // ---- Presenting and focus (IMP-1, IMP-2, IMP-4, IMP-6, IMP-43) ----
 
-  /** IMP-8, IMP-10: each control is told the variant its token names, through the channel a Button reads from the component that places it (BTN-10). */
+  /**
+   * IMP-8, IMP-10: each control is told the size its token names, and the variant through the channel a Button reads
+   * from the component that places it (BTN-10).
+   */
   private giveVariants() {
     this.giveChosen(this.readVariants());
   }
 
-  /** IMP-8, IMP-10: the variants the tokens name, with one computed style. */
+  /** IMP-8, IMP-10: the sizes and variants the tokens name, with one computed style. */
   private readVariants() {
-    return compChoices(this, { bar: [`${PREFIX}-bar-button-variant`, BUTTON_VARIANTS], navigation: [`${PREFIX}-navigation-button-variant`, BUTTON_VARIANTS] });
+    return compChoices(this, {
+      bar: [`${PREFIX}-bar-button-variant`, BUTTON_VARIANTS],
+      barSize: [`${PREFIX}-bar-button-size`, BUTTON_SIZES],
+      navigation: [`${PREFIX}-navigation-button-variant`, BUTTON_VARIANTS],
+      navigationSize: [`${PREFIX}-navigation-button-size`, BUTTON_SIZES],
+    });
   }
 
-  private giveChosen({ bar, navigation }: ReturnType<TanreiImagePreview['readVariants']>) {
-    for (const control of CONTROLS) giveVariant(this.renderRoot?.querySelector(`tanrei-button.${control}`), control === 'previous' || control === 'next' ? navigation : bar);
+  private giveChosen({ bar, barSize, navigation, navigationSize }: ReturnType<TanreiImagePreview['readVariants']>) {
+    this.controlSizes = { bar: barSize, navigation: navigationSize };
+    for (const control of CONTROLS) {
+      const button = this.renderRoot?.querySelector(`tanrei-button.${control}`);
+      const side = control === 'previous' || control === 'next';
+      giveSize(button, side ? navigationSize : barSize);
+      giveVariant(button, side ? navigation : bar);
+    }
   }
 
   /**
@@ -1639,13 +1658,13 @@ export class TanreiImagePreview extends TanreiElement {
     </div>`;
   }
 
-  /** IMP-8: the bar's three controls are small, as every host's close button is; IMP-10: previous and next are medium. */
+  /** IMP-8: the bar's three controls at the size bar.button.size names; IMP-10: previous and next at navigation.button.size's. */
   private control(control: Control, glyph: string, label: string) {
     return html`<tanrei-button
       part=${control}
       exportparts=${BUTTON_PARTS[control].attribute}
       class=${control}
-      size=${control === 'previous' || control === 'next' ? 'medium' : 'small'}
+      size=${control === 'previous' || control === 'next' ? this.controlSizes.navigation : this.controlSizes.bar}
       label=${label}
       ?disabled=${this.disabledNow(control)}
       @click=${this.onControl(control)}

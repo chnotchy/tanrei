@@ -1989,8 +1989,11 @@ test.describe('ranges, actions, motion, overflow and semantics', () => {
     expect((await bounds(o)).y).toBeLessThan((await bounds(c)).y);
     // A fixture system: end (1) and text (4).
     await host(page, 'd').evaluate((el: any) => (el.cancelLabel = 'Cancel'));
-    await override(page, { [T('actions-arrangement')]: 'end', [T('actions-variant')]: 'text' });
+    expect(await c.getAttribute('size')).toBe('medium');
+    await override(page, { [T('actions-arrangement')]: 'end', [T('actions-variant')]: 'text', [T('actions-size')]: 'small' });
     await expect(c).toHaveAttribute('variant', 'text');
+    await expect(c).toHaveAttribute('size', 'small');
+    await expect(o).toHaveAttribute('size', 'small');
     await expect.poll(() => surface(page, 'd').getAttribute('data-arrangement')).toBe('end');
     const [c2, o2, s] = [await bounds(c), await bounds(o), await bounds(box)];
     expect(o2.x + o2.width).toBeCloseTo(s.x + s.width - (await px(box, 'padding-right')), 0);

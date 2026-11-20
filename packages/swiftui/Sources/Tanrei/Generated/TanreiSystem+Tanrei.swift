@@ -682,6 +682,7 @@ private let tanreiBadgeTokens = TanreiBadgeTokens(
 )
 
 private let tanreiBottomSheetTokens = TanreiBottomSheetTokens(
+  closeButtonSize: 0,
   closeButtonVariant: 1,
   containerColor: .role(.surfaceContainerLow),
   containerElevation: tanreiElevation.level2,
@@ -2079,6 +2080,7 @@ private let tanreiCalendarTokens = TanreiCalendarTokens(
 private let tanreiCalloutTokens = TanreiCalloutTokens(
   actionsGap: 12,
   actionsItemGap: 8,
+  closeButtonSize: 0,
   closeButtonVariant: 1,
   containerGap: 8,
   containerPaddingBlock: 12,
@@ -2311,6 +2313,7 @@ private let tanreiCarouselTokens = TanreiCarouselTokens(
   motionScrollEasing: TanreiCubicBezier(0.05, 0.7, 0.1, 1),
   motionStateDuration: 250,
   motionStateEasing: TanreiCubicBezier(0.2, 0, 0, 1),
+  navigationButtonSize: 1,
   navigationButtonVariant: 2,
   parts: TanreiCarouselParts(
     item: TanreiCarouselPartTokens(
@@ -3414,6 +3417,7 @@ private let tanreiDateTimePickerTokens = TanreiDateTimePickerTokens(
   actionsArrangement: 0,
   actionsGap: 16,
   actionsPaddingBlock: 12,
+  actionsSize: 1,
   actionsVariant: 1,
   containerGap: 16,
   containerPaddingBlock: 8,
@@ -4440,6 +4444,7 @@ private let tanreiHandleTokens = TanreiHandleTokens(
 )
 
 private let tanreiImagePreviewTokens = TanreiImagePreviewTokens(
+  barButtonSize: 0,
   barButtonVariant: 1,
   barContainerColor: .role(.surface),
   barGap: 12,
@@ -4471,6 +4476,7 @@ private let tanreiImagePreviewTokens = TanreiImagePreviewTokens(
   motionPageEasing: TanreiCubicBezier(0.05, 0.7, 0.1, 1),
   motionZoomDuration: 250,
   motionZoomEasing: TanreiCubicBezier(0.2, 0, 0, 1),
+  navigationButtonSize: 1,
   navigationButtonVariant: 1,
   navigationMarginInline: 8
 )
@@ -6891,6 +6897,7 @@ private let tanreiPopoverTokens = TanreiPopoverTokens(
   arrowInset: 8,
   arrowVisible: 0,
   arrowWidth: 12,
+  closeButtonSize: 0,
   closeButtonVariant: 1,
   compactWindowWidth: 600,
   containerColor: .role(.surfaceBright),
@@ -7949,6 +7956,7 @@ private let tanreiSideSheetTokens = TanreiSideSheetTokens(
   actionsGap: 16,
   actionsPaddingBlock: 16,
   actionsVariant: 1,
+  closeButtonSize: 0,
   closeButtonVariant: 1,
   containerPaddingBlock: 24,
   containerPaddingInline: 24,
@@ -8127,6 +8135,7 @@ private let tanreiSliderTokens = TanreiSliderTokens(
 private let tanreiSnackbarTokens = TanreiSnackbarTokens(
   actionTonalLayerOpacity: 0.12,
   breakpointMedium: 600,
+  closeButtonSize: 0,
   closeButtonVariant: 1,
   containerColor: .role(.surfaceBright),
   containerElevation: tanreiElevation.level3,

@@ -695,6 +695,7 @@ private let acmeBadgeTokens = TanreiBadgeTokens(
 )
 
 private let acmeBottomSheetTokens = TanreiBottomSheetTokens(
+  closeButtonSize: 0,
   closeButtonVariant: 1,
   containerColor: .role(.surfaceContainerLow),
   containerElevation: acmeElevation.level2,
@@ -2229,6 +2230,7 @@ private let acmeCalendarTokens = TanreiCalendarTokens(
 private let acmeCalloutTokens = TanreiCalloutTokens(
   actionsGap: 12,
   actionsItemGap: 8,
+  closeButtonSize: 0,
   closeButtonVariant: 1,
   containerGap: 8,
   containerPaddingBlock: 12,
@@ -2461,6 +2463,7 @@ private let acmeCarouselTokens = TanreiCarouselTokens(
   motionScrollEasing: TanreiCubicBezier(0.05, 0.7, 0.1, 1),
   motionStateDuration: 250,
   motionStateEasing: TanreiCubicBezier(0.2, 0, 0, 1),
+  navigationButtonSize: 1,
   navigationButtonVariant: 2,
   parts: TanreiCarouselParts(
     item: TanreiCarouselPartTokens(
@@ -3564,6 +3567,7 @@ private let acmeDateTimePickerTokens = TanreiDateTimePickerTokens(
   actionsArrangement: 0,
   actionsGap: 16,
   actionsPaddingBlock: 12,
+  actionsSize: 1,
   actionsVariant: 1,
   containerGap: 16,
   containerPaddingBlock: 8,
@@ -4590,6 +4594,7 @@ private let acmeHandleTokens = TanreiHandleTokens(
 )
 
 private let acmeImagePreviewTokens = TanreiImagePreviewTokens(
+  barButtonSize: 0,
   barButtonVariant: 1,
   barContainerColor: .role(.surface),
   barGap: 12,
@@ -4621,6 +4626,7 @@ private let acmeImagePreviewTokens = TanreiImagePreviewTokens(
   motionPageEasing: TanreiCubicBezier(0.05, 0.7, 0.1, 1),
   motionZoomDuration: 250,
   motionZoomEasing: TanreiCubicBezier(0.2, 0, 0, 1),
+  navigationButtonSize: 1,
   navigationButtonVariant: 1,
   navigationMarginInline: 8
 )
@@ -7041,6 +7047,7 @@ private let acmePopoverTokens = TanreiPopoverTokens(
   arrowInset: 8,
   arrowVisible: 0,
   arrowWidth: 12,
+  closeButtonSize: 0,
   closeButtonVariant: 1,
   compactWindowWidth: 600,
   containerColor: .role(.surfaceBright),
@@ -8099,6 +8106,7 @@ private let acmeSideSheetTokens = TanreiSideSheetTokens(
   actionsGap: 16,
   actionsPaddingBlock: 16,
   actionsVariant: 1,
+  closeButtonSize: 0,
   closeButtonVariant: 1,
   containerPaddingBlock: 24,
   containerPaddingInline: 24,
@@ -8277,6 +8285,7 @@ private let acmeSliderTokens = TanreiSliderTokens(
 private let acmeSnackbarTokens = TanreiSnackbarTokens(
   actionTonalLayerOpacity: 0.12,
   breakpointMedium: 600,
+  closeButtonSize: 0,
   closeButtonVariant: 1,
   containerColor: .role(.surfaceBright),
   containerElevation: acmeElevation.level3,

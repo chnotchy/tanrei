@@ -392,14 +392,21 @@ export const styles = css`
   /* The first control is container.gap after the text, the next ones controls.gap after the one before; each is
      centred on the text's first line, overlapping the padding rather than growing the row. The action is
      controls.height tall, or as tall as its label's line where enlarged text makes that taller; the expand and close
-     buttons are small Buttons (SNK-34), as tall as their size. */
+     buttons are Buttons of the size close-button.size names (SNK-34), as tall as that size. */
   :is(.control, .expand, .close) {
     align-self: start;
     margin-block: calc((var(--_line) - max(${t('controls-height')}, ${unsafeCSS(lineOf('controls-label'))})) / 2);
     margin-inline-start: ${t('container-gap')};
   }
   :is(.expand, .close) {
-    margin-block: calc((var(--_line) - var(--tanrei-comp-button-container-height-small)) / 2);
+    --_close-height: var(--tanrei-comp-button-container-height-small);
+    margin-block: calc((var(--_line) - var(--_close-height)) / 2);
+  }
+  :is(.expand, .close)[size='medium'] {
+    --_close-height: var(--tanrei-comp-button-container-height-medium);
+  }
+  :is(.expand, .close)[size='large'] {
+    --_close-height: var(--tanrei-comp-button-container-height-large);
   }
   :is(.control, .expand, .close) + :is(.expand, .close) {
     margin-inline-start: ${t('controls-gap')};

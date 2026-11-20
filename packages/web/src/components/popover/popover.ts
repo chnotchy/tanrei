@@ -8,7 +8,9 @@ import {
   type AnchoredPlacement,
   AnchoredSurfaceController,
   AvailabilityController,
+  BUTTON_SIZES,
   BUTTON_VARIANTS,
+  type ButtonSize,
   CompactWindow,
   DismissController,
   type DismissReason,
@@ -32,6 +34,7 @@ import {
   documentPainted,
   focusOverlay,
   focusWithin,
+  giveSize,
   giveVariant,
   holdPageScroll,
   hostAria,
@@ -326,6 +329,8 @@ export class TanreiPopover extends TanreiElement implements VariantHost, Placing
 
   /** POP-9: whether the popover has at least one action, and any content. */
   private hasActions = false;
+  /** POP-13: the close button's size, as `comp.popover.close-button.size` named it at the last arrangement. */
+  private closeSize: ButtonSize = BUTTON_SIZES[0];
   private hasContent = false;
 
   /** POP-14: the content children, assigned to the default slot. */
@@ -900,15 +905,19 @@ export class TanreiPopover extends TanreiElement implements VariantHost, Placing
   private readArrangement(): () => void {
     const container = this.container;
     if (!container) return () => {};
-    const { close, actions: variant, arrangement } = compChoices(this, {
+    const { close, closeSize, actions: variant, arrangement } = compChoices(this, {
       close: [`${PREFIX}-close-button-variant`, BUTTON_VARIANTS],
+      closeSize: [`${PREFIX}-close-button-size`, BUTTON_SIZES],
       actions: [`${PREFIX}-actions-variant`, BUTTON_VARIANTS],
       arrangement: [`${PREFIX}-actions-arrangement`, ARRANGEMENTS],
     });
-    return () => this.arrangeAs(container, close, variant, arrangement);
+    return () => this.arrangeAs(container, close, closeSize, variant, arrangement);
   }
 
-  private arrangeAs(container: HTMLElement, close: string, variant: string, arrangement: (typeof ARRANGEMENTS)[number]) {
+  private arrangeAs(container: HTMLElement, close: string, closeSize: ButtonSize, variant: string, arrangement: (typeof ARRANGEMENTS)[number]) {
+    // POP-13: the close button's size, as its token names it; kept for the next render, which writes the same.
+    this.closeSize = closeSize;
+    giveSize(this.find('tanrei-button.close'), closeSize);
     giveVariant(this.find('tanrei-button.close'), close);
     this.placement$.give(variant);
     if (container.dataset.arrangement !== arrangement) container.dataset.arrangement = arrangement;
@@ -1404,7 +1413,7 @@ export class TanreiPopover extends TanreiElement implements VariantHost, Placing
               ${headline ? html`<h2 part="headline" class="headline">${headline}</h2>` : nothing}
               ${this.closable
                 ? html`<span class="close-box"
-                    ><tanrei-button part="close-button" class="close" size="small" label=${this.words.get('closeLabel', this.closeLabel)} @click=${this.onCloseClick}><span slot="icon">close</span></tanrei-button></span
+                    ><tanrei-button part="close-button" class="close" size=${this.closeSize} label=${this.words.get('closeLabel', this.closeLabel)} @click=${this.onCloseClick}><span slot="icon">close</span></tanrei-button></span
                   >`
                 : nothing}
               <div part="divider" class="divider below-header" aria-hidden="true"></div>

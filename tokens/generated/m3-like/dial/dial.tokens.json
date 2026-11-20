@@ -6985,6 +6985,10 @@
               "$value": 4,
               "reason": "Material 3 closes a surface with a standard icon button, which is Tanrei's text Button with an icon only, as the side sheet's here; the change to a tonal close button is the default system's."
             },
+            "tanrei.comp.bottom-sheet.close-button.size": {
+              "$value": 1,
+              "reason": "Material 3 closes a surface with a standard icon button, whose container is 40dp (SmallIconButtonTokens): Tanrei's medium by role, not its small (Material's extra small, 32dp)."
+            },
             "tanrei.comp.bottom-sheet.container.elevation": {
               "$value": "{tanrei.sys.elevation.level1}",
               "reason": "Material's bottom sheet rests at level1, which here is a real shadow; the default system rests it at level2 only because its level1 is a ring."
@@ -7007,6 +7011,10 @@
               "$value": 4,
               "reason": "Material 3 draws the actions of a bar over content as standard icon buttons, which are Tanrei's text Button with an icon only. Keeps the preset's look; the change to tonal controls is the default system's."
             },
+            "tanrei.comp.image-preview.bar.button.size": {
+              "$value": 1,
+              "reason": "Material 3 draws the actions of a bar as standard icon buttons, whose container is 40dp (SmallIconButtonTokens): Tanrei's medium by role, not its small (Material's extra small, 32dp)."
+            },
             "tanrei.comp.side-sheet.actions.arrangement": {
               "$value": 1,
               "reason": "Material 3's side sheet starts its actions at the start edge, at their own widths."
@@ -7023,9 +7031,17 @@
               "$value": 4,
               "reason": "Material 3's side sheet closes with a standard icon button, which is Tanrei's text Button with an icon only."
             },
+            "tanrei.comp.side-sheet.close-button.size": {
+              "$value": 1,
+              "reason": "Material 3's side sheet closes with a standard icon button, whose container is 40dp (SmallIconButtonTokens): Tanrei's medium by role, not its small (Material's extra small, 32dp)."
+            },
             "tanrei.comp.popover.close-button.variant": {
               "$value": 4,
               "reason": "Material 3 closes a surface with a standard icon button, which is Tanrei's text Button with an icon only, as the side sheet's here. Keeps the preset's look; the change to a tonal close button is the default system's."
+            },
+            "tanrei.comp.popover.close-button.size": {
+              "$value": 1,
+              "reason": "Material 3 closes a surface with a standard icon button, whose container is 40dp (SmallIconButtonTokens): Tanrei's medium by role, not its small (Material's extra small, 32dp)."
             },
             "tanrei.comp.carousel.container.shape": {
               "$value": "{tanrei.sys.shape.corner.extra-large}",
@@ -7059,6 +7075,10 @@
             "tanrei.comp.callout.close-button.variant": {
               "$value": 4,
               "reason": "Material 3 closes a surface with a standard icon button, which is Tanrei's text Button with an icon only, as the side sheet's here."
+            },
+            "tanrei.comp.callout.close-button.size": {
+              "$value": 1,
+              "reason": "Material 3 closes a surface with a standard icon button, whose container is 40dp (SmallIconButtonTokens): Tanrei's medium by role, not its small (Material's extra small, 32dp)."
             },
             "tanrei.comp.date-time-picker.modal.container.color": {
               "$value": "{tanrei.sys.color.surface-container-high}"
@@ -7533,6 +7553,14 @@
             "tanrei.comp.snackbar.close-button.variant": {
               "$value": 4,
               "reason": "Fidelity: the reference's snackbar closes with a standard icon button, which is Tanrei's text Button with an icon only, as its side sheet does; the default system's is tonal."
+            },
+            "tanrei.comp.snackbar.close-button.size": {
+              "$value": 1,
+              "reason": "Material 3's snackbar closes with a standard icon button (androidx Snackbar.kt), whose container is the default icon button's, 40dp (SmallIconButtonTokens): Tanrei's medium by role. The expand button is drawn as the close button is."
+            },
+            "tanrei.comp.snackbar.controls.height": {
+              "$value": "{tanrei.comp.button.container.height.medium}",
+              "reason": "Material 3's snackbar action is a standard TextButton (androidx Snackbar.kt), 40dp tall (ButtonSmallTokens), as tall as its close button: the height of the size close-button.size names here."
             },
             "tanrei.comp.snackbar.action.tonal-layer.opacity": {
               "$value": 0,

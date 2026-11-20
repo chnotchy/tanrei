@@ -660,6 +660,7 @@ private let cupertinoBadgeTokens = TanreiBadgeTokens(
 )
 
 private let cupertinoBottomSheetTokens = TanreiBottomSheetTokens(
+  closeButtonSize: 0,
   closeButtonVariant: 1,
   containerColor: .role(.surfaceContainerLowest),
   containerElevation: cupertinoElevation.level2,
@@ -2057,6 +2058,7 @@ private let cupertinoCalendarTokens = TanreiCalendarTokens(
 private let cupertinoCalloutTokens = TanreiCalloutTokens(
   actionsGap: 12,
   actionsItemGap: 8,
+  closeButtonSize: 0,
   closeButtonVariant: 4,
   containerGap: 8,
   containerPaddingBlock: 12,
@@ -2289,6 +2291,7 @@ private let cupertinoCarouselTokens = TanreiCarouselTokens(
   motionScrollEasing: TanreiCubicBezier(0.05, 0.7, 0.1, 1),
   motionStateDuration: 250,
   motionStateEasing: TanreiCubicBezier(0.2, 0, 0, 1),
+  navigationButtonSize: 1,
   navigationButtonVariant: 2,
   parts: TanreiCarouselParts(
     item: TanreiCarouselPartTokens(
@@ -3392,6 +3395,7 @@ private let cupertinoDateTimePickerTokens = TanreiDateTimePickerTokens(
   actionsArrangement: 0,
   actionsGap: 16,
   actionsPaddingBlock: 12,
+  actionsSize: 1,
   actionsVariant: 1,
   containerGap: 16,
   containerPaddingBlock: 8,
@@ -4418,6 +4422,7 @@ private let cupertinoHandleTokens = TanreiHandleTokens(
 )
 
 private let cupertinoImagePreviewTokens = TanreiImagePreviewTokens(
+  barButtonSize: 0,
   barButtonVariant: 4,
   barContainerColor: .role(.surface),
   barGap: 12,
@@ -4449,6 +4454,7 @@ private let cupertinoImagePreviewTokens = TanreiImagePreviewTokens(
   motionPageEasing: TanreiCubicBezier(0.05, 0.7, 0.1, 1),
   motionZoomDuration: 250,
   motionZoomEasing: TanreiCubicBezier(0.2, 0, 0, 1),
+  navigationButtonSize: 1,
   navigationButtonVariant: 1,
   navigationMarginInline: 8
 )
@@ -6869,6 +6875,7 @@ private let cupertinoPopoverTokens = TanreiPopoverTokens(
   arrowInset: 8,
   arrowVisible: 0,
   arrowWidth: 12,
+  closeButtonSize: 0,
   closeButtonVariant: 4,
   compactWindowWidth: 600,
   containerColor: .role(.surfaceBright),
@@ -7927,6 +7934,7 @@ private let cupertinoSideSheetTokens = TanreiSideSheetTokens(
   actionsGap: 8,
   actionsPaddingBlock: 16,
   actionsVariant: 4,
+  closeButtonSize: 0,
   closeButtonVariant: 1,
   containerPaddingBlock: 24,
   containerPaddingInline: 24,
@@ -8105,6 +8113,7 @@ private let cupertinoSliderTokens = TanreiSliderTokens(
 private let cupertinoSnackbarTokens = TanreiSnackbarTokens(
   actionTonalLayerOpacity: 0,
   breakpointMedium: 600,
+  closeButtonSize: 0,
   closeButtonVariant: 4,
   containerColor: .role(.surfaceBright),
   containerElevation: cupertinoElevation.level3,
