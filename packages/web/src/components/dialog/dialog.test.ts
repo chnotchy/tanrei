@@ -16,6 +16,7 @@ import { entrances, loadOpen } from '../../../test/mounted-open.js';
 import { expectScrimTakenAwayAtClose } from '../../../test/scrim-at-close.js';
 import { type DocumentOptions, type Fixture, type FixtureItem, type MountOptions, dialogWindow, fixturesDocument, innerStrokeAtEdges, loadSpec, mountFixtures, resolveColor, resolveToken, tab, tabTo, rootTokens } from '../../../test/harness.js';
 import { expectBaseline } from '../../../test/baseline.js';
+import { contrastChecked } from '../../../test/contrast-checked.js';
 
 const spec = loadSpec('dialog');
 type P = Page;
@@ -1647,4 +1648,19 @@ test.describe('fixtures', () => {
       await expectBaseline(page, [spec.name, `${fixture.id}.png`]);
     });
   }
+});
+
+test.describe('accessibility: what is drawn over the content', () => {
+  test('DLG-11: the box that carries the content\'s focus indicator hides no text from a contrast check — faint text is reported, the dialog\'s own colors pass', async ({ page }) => {
+    // An element drawn over a text is, to axe's color-contrast, an element covering it, whatever its pointer-events: it
+    // left the text incomplete ("overlapped by another element") instead of checking it, so faint text passed unseen.
+    // The page is as tall as the window: a modal dialog holds the page's scroll with \`overflow: hidden\` on the root, and axe
+    // takes the root's own box for a clip, so a dialog below a page shorter than the window would not be looked at.
+    const lead = '<div style="block-size: 100vh"></div>';
+    await mountFixtures(page, spec, { lead, fixtures: [f('marked', { open: true }, { content: '<p data-text="faint" style="margin: 0; color: #bbb">Faint text</p><p data-text="normal" style="margin: 0">Readable text</p>' })] });
+    const checked = await contrastChecked(page, 'tanrei-dialog');
+    expect(checked.violations, 'the faint text is reported').toEqual(['faint']);
+    expect(checked.passes, 'the dialog\'s own colors pass').toEqual(expect.arrayContaining(['Discard draft?', 'The message you were writing will be deleted from this device.', 'normal']));
+    expect(checked.incomplete, 'nothing is left unchecked').toEqual([]);
+  });
 });
