@@ -1078,14 +1078,29 @@ export const cellStyles = css`
     content: '';
     position: absolute;
     inset-inline: 0;
-    inset-block-start: 50%;
-    block-size: max(calc(100% + ${d('--_nvd-gap')}), var(--_nvd-target, var(--tanrei-sys-target-pointer)));
-    transform: translateY(-50%);
+  }
+  /* NVD-6: the hit area of a cell, and of a group's chevron across the same row, reaches half of container.gap above
+     and below it, or what the target lacks where that is more. It is laid out by its insets, never centred by a
+     transform: an inset of 50% is rounded to the layout's 1/64 px and a translation of -50% is not, so the hit area of
+     a cell whose height is not a whole number of those (a collapsed cell with its short label) began a part of a pixel
+     past the middle of the gap, and a press a pixel short of the middle (the press is the pixel from its point) went to
+     the neighbour (BTN-5). NVD-77: the last pinned row reaches below itself no further than
+     half the room between it and the first row shown under it (--_pin-room, which the drawer measures as the rows
+     scroll), so that a press in that room goes to the nearer row, however far under it the rows have scrolled. */
+  .cell::before,
+  .toggle::before {
+    --_hit-inset: min(calc(${d('--_nvd-gap')} / -2), calc((100% - var(--_nvd-target, var(--tanrei-sys-target-pointer))) / 2));
+    inset-block: var(--_hit-inset) var(--_hit-inset-end, var(--_hit-inset));
   }
   @media (pointer: coarse) {
-    .cell::before {
-      block-size: max(calc(100% + ${d('--_nvd-gap')}), var(--tanrei-sys-target-touch));
+    .cell::before,
+    .toggle::before {
+      --_hit-inset: min(calc(${d('--_nvd-gap')} / -2), calc((100% - var(--tanrei-sys-target-touch)) / 2));
     }
+  }
+  .pinned-last::before,
+  .pinned-last :is(.cell, .toggle)::before {
+    --_hit-inset-end: max(var(--_hit-inset), calc(var(--_pin-room, 0px) / -2));
   }
 
   /* NVD-67: a group that is a destination — its row (the cell) is the destination, and its chevron a button of its own
@@ -1114,15 +1129,11 @@ export const cellStyles = css`
     content: '';
     position: absolute;
     inset-inline-end: calc(${t('container-padding-inline')} * -1);
-    inset-block-start: 50%;
     inline-size: max(calc(100% + ${t('container-padding-inline')}), var(--tanrei-sys-target-pointer));
-    block-size: max(calc(100% + ${d('--_nvd-gap')}), var(--_nvd-target, var(--tanrei-sys-target-pointer)));
-    transform: translateY(-50%);
   }
   @media (pointer: coarse) {
     .toggle::before {
       inline-size: max(calc(100% + ${t('container-padding-inline')}), var(--tanrei-sys-target-touch));
-      block-size: max(calc(100% + ${d('--_nvd-gap')}), var(--tanrei-sys-target-touch));
     }
   }
   /* NVD-68: over a start chevron, or over the icon of a group without a chevron: the box from the middle of the gap
@@ -1149,13 +1160,17 @@ export const cellStyles = css`
   }
   ${focusRing((focus) => `.toggle${focus}`)}
 
-  /* NVD-77: a pinned row: the row itself, held at the top of the space the items scroll in under the rows pinned above
-     it, over what scrolls under it on the drawer's surface; the last one draws the line where the scrolling rows begin. */
+  /* NVD-77: a pinned row: the row itself, held at the top of the space the items scroll in, container.gap under the row
+     pinned above it, over what scrolls under it on the drawer's surface, which it draws in the gap under it too (the
+     next pinned row lies over the rest); the last one draws the line where the scrolling rows begin. */
   .pinned {
     position: sticky;
     inset-block-start: var(--_pin-top, 0px);
     z-index: 3;
     background: var(--_nvd-sticky-bg);
+  }
+  .pinned:not(.pinned-last) {
+    box-shadow: 0 ${d('--_nvd-gap')} 0 0 var(--_nvd-sticky-bg);
   }
   .pinned.pinned-last {
     box-shadow: inset 0 calc(-1 * ${t('sticky-divider-width')}) 0 0 ${t('sticky-divider-color')};

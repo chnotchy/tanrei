@@ -1018,13 +1018,17 @@ export class TanreiNavigationDrawerGroup extends DrawerCell {
   /** The product is fetching the group's items: while open, a loading row is drawn under them and the list is busy (NVD-76). */
   loading = false;
 
-  /** NVD-77: where the row is pinned (its distance from the top of the space the items scroll in), and whether it is the last pinned row; null while it is not. */
-  private pin: { top: number; last: boolean } | null = null;
+  /**
+   * NVD-77: where the row is pinned (its distance from the top of the space the items scroll in), whether it is the last
+   * pinned row, and the room between it and the first row shown under it while it is (NVD-6: its hit area reaches half
+   * of it at most); null while it is not pinned.
+   */
+  private pin: { top: number; last: boolean; room: number } | null = null;
 
   /** @internal NVD-77: the drawer pins the row, or lets it go. */
-  setPinned(pin: { top: number; last: boolean } | null) {
+  setPinned(pin: { top: number; last: boolean; room: number } | null) {
     const now = this.pin;
-    if (now === pin || (now && pin && now.top === pin.top && now.last === pin.last)) return;
+    if (now === pin || (now && pin && now.top === pin.top && now.last === pin.last && now.room === pin.room)) return;
     this.pin = pin;
   }
 
@@ -1277,9 +1281,10 @@ export class TanreiNavigationDrawerGroup extends DrawerCell {
     return chevron;
   }
 
-  /** NVD-77: the pinned row's place and its edge. */
+  /** NVD-77: the pinned row's place, and for the last one the room under it. */
   private pinStyle(): StyleInfo {
-    return this.pin ? { '--_pin-top': `${this.pin.top}px` } : {};
+    if (!this.pin) return {};
+    return { '--_pin-top': `${this.pin.top}px`, ...(this.pin.last ? { '--_pin-room': `${this.pin.room}px` } : {}) };
   }
 
   private pinClasses(): ClassInfo {
@@ -2093,6 +2098,7 @@ export class TanreiNavigationDrawer extends TanreiElement {
     synced: (_, items) => {
       this.syncStructure(items);
       this.viewSelection();
+      this.watchPinnedRows(this.isConnected);
       this.schedulePins();
       // NVD-19: items that arrived after the drawer was shown take the focus it could not give.
       this.payOwedFocus();
@@ -2934,6 +2940,19 @@ export class TanreiNavigationDrawer extends TanreiElement {
     readInPhase(this.pinsRead, () => this.reckonPins());
   }
 
+  /**
+   * NVD-6, NVD-77: the pinned rows are reckoned again when a group's box changes size — a row's height, the gap, an item
+   * shown or hidden, a style the product changes — not only when the items scroll: where they stand, and the room under
+   * the last one, follow the layout.
+   */
+  private readonly pinsWatch = new ResizeObserver(() => this.schedulePins());
+
+  /** NVD-77: the groups whose size the pinned rows follow (every group of the drawer). */
+  private watchPinnedRows(on: boolean) {
+    this.pinsWatch.disconnect();
+    if (on) for (const group of this.groups) this.pinsWatch.observe(group);
+  }
+
   /** NVD-77: the pinned rows, reckoned and written now. */
   private updatePins() {
     this.reckonPins()();
@@ -2951,8 +2970,13 @@ export class TanreiNavigationDrawer extends TanreiElement {
     const groups = this.groups;
     const max = Number.isInteger(this.stickyMax) && this.stickyMax > 0 ? this.stickyMax : 2;
     const pinned: TanreiNavigationDrawerGroup[] = [];
+    // NVD-77: the pinned rows stand container.gap apart, as they do in the list, so that each keeps the half of the gap
+    // above and below it that NVD-6 makes part of its hit area (rows with no gap between them could not).
+    let gap = 0;
+    let top = 0;
     if (this.stickyParents && !this.collapsed && scroller && scroller.clientHeight && scroller.scrollTop > 0) {
-      const top = scroller.getBoundingClientRect().top + scroller.clientTop;
+      gap = Number.parseFloat(getComputedStyle(scroller).rowGap) || 0;
+      top = scroller.getBoundingClientRect().top + scroller.clientTop;
       // The open groups, outermost first, whose items run past the top of the space: each pins under those above it.
       let edge = top;
       const chain: TanreiNavigationDrawerGroup[] = [];
@@ -2962,7 +2986,7 @@ export class TanreiNavigationDrawer extends TanreiElement {
         const row = group.rowHeight;
         if (box.top < edge - 0.5 && box.bottom > edge + row) {
           chain.push(group);
-          edge += row;
+          edge += row + gap;
         }
       }
       pinned.push(...chain.slice(-max));
@@ -2971,11 +2995,31 @@ export class TanreiNavigationDrawer extends TanreiElement {
     // A sticky row is held inside the space's padding: the pinned rows begin at its very top, over the padding (read
     // only where a row is pinned).
     const inset = pinned.length && scroller ? Number.parseFloat(getComputedStyle(scroller).paddingBlockStart) || 0 : 0;
-    const pins = new Map<TanreiNavigationDrawerGroup, { top: number; last: boolean }>();
+    const pins = new Map<TanreiNavigationDrawerGroup, { top: number; last: boolean; room: number }>();
     pinned.forEach((group, index) => {
-      pins.set(group, { top: at - inset, last: index === pinned.length - 1 });
+      if (index) at += gap;
+      pins.set(group, { top: at - inset, last: index === pinned.length - 1, room: 0 });
       at += group.rowHeight;
     });
+    // NVD-6, NVD-77: the room between the last pinned row and the first row shown under it, which the rows scrolling
+    // under it make anything from nothing to more than the gap: the last pinned row's hit area reaches half of it at
+    // most, so that a press there goes to the nearer row. Rows pinned now or a frame ago are not under it, nor the rows
+    // of a closed group; with no row under it, the room is the gap.
+    const last = pinned[pinned.length - 1];
+    if (last) {
+      const below = top + at;
+      let first = Infinity;
+      const shown = (cell: Element) => groupsOf(cell).every((group) => this.drawsOpen(group));
+      const rows = [
+        ...this.items.filter(shown).map((item) => item.cell),
+        ...groups.filter((group) => !group.isPinned && !pins.has(group) && shown(group)).map((group) => group.rowBox),
+      ];
+      for (const row of rows) {
+        const box = row?.getBoundingClientRect();
+        if (box && box.height && box.bottom > below) first = Math.min(first, box.top);
+      }
+      pins.get(last)!.room = Number.isFinite(first) ? Math.max(0, first - below) : gap;
+    }
     return () => {
       for (const group of groups) group.setPinned(pins.get(group) ?? null);
       this.pinnedHeight = at;
@@ -3117,6 +3161,8 @@ export class TanreiNavigationDrawer extends TanreiElement {
     this.syncMainAction();
     super.connectedCallback();
     this.watchDir(true);
+    // NVD-77: a drawer put back watches its groups again (its items are told again only where they change).
+    if (this.hasUpdated) this.watchPinnedRows(true);
     // What the drawer opens after its first frame takes its motion (NVD-58).
     // NVD-62: until then it is drawn as it is given, without motion (the styles' `data-arriving`).
     // The first frame is the read phase's (src/primitives/read-phase.ts), after its layout and before its paint: the
@@ -3312,6 +3358,7 @@ export class TanreiNavigationDrawer extends TanreiElement {
     cancelPhaseRead(this.firstFrame);
     cancelAnimationFrame(this.instantFrame);
     cancelPhaseRead(this.pinsRead);
+    this.watchPinnedRows(false);
     // (A change of form's motion on its way is cancelled with it, and the wait for its end ends: endWithMotion.)
     this.removeAttribute('data-instant');
     if (this.shown) this.withdraw(false, false);

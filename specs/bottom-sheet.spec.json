@@ -235,7 +235,7 @@
     },
     {
       "id": "BSH-15",
-      "text": "THE bottom sheet SHALL give the drag handle the Handle's hit area (HDL-5): at least sys.target.touch wide and high for touch input and sys.target.pointer for fine pointers, centred on its box, without changing its drawn size, and the Handle's vertical resize cursor; a platform that cannot tell the input type SHALL use sys.target.touch. A press on the rest of the handle's row drags the sheet as BSH-9 says."
+      "text": "THE bottom sheet SHALL give the drag handle the Handle's hit area (HDL-5): at least sys.target.touch wide and high for touch input and sys.target.pointer for fine pointers, centred on its box, without changing its drawn size, and the Handle's vertical resize cursor; a platform that cannot tell the input type SHALL use sys.target.touch. Below its box the hit area SHALL reach no further than half of comp.bottom-sheet.handle.margin-block, the space between the box and what follows the row (HDL-5's cap), so that a press nearer the header or the content under the handle's row goes to them (BTN-5). A press on the rest of the handle's row drags the sheet as BSH-9 says."
     },
     {
       "id": "BSH-16",
