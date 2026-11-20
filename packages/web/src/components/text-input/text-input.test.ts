@@ -549,7 +549,7 @@ test.describe('behavior', () => {
     await cdp.send('Emulation.setTouchEmulationEnabled', { enabled: true, maxTouchPoints: 1 });
     await cdp.send('Emulation.setEmitTouchEventsForMouse', { enabled: true, configuration: 'mobile' });
     expect(await page.evaluate(() => matchMedia('(pointer: coarse)').matches)).toBe(true);
-    // In the default system the outlined box (48) is taller than the touch target (36): the hit area is the box.
+    // In the default system the outlined box (40) is taller than the touch target (36): the hit area is the box.
     const box = await bounds(part(page, 'outlined-empty', '.field > .container'));
     const height = () => part(page, 'outlined-empty', '.field > .container').evaluate((el) => Number.parseFloat(getComputedStyle(el, '::before').height));
     expect(await height()).toBe(Math.max(box.height, await resolveToken(page, '--tanrei-sys-target-touch')));

@@ -75,7 +75,7 @@
         "container": {
           "height": {
             "$type": "dimension",
-            "$description": "The bar's minimum height: Button's large and the large text field's, so a search bar shares a row with them.",
+            "$description": "The bar's minimum height: the control height (40 in the default system), so that a search bar stands as tall as the Buttons, the fields and the button trigger beside it, never below the minimum target. The icon-only Buttons it holds are of that height and stand in it as they stand in a row.",
             "$value": {
               "value": 56,
               "unit": "px"
@@ -85,7 +85,8 @@
                 "fn": "mul",
                 "of": "{tanrei.dial.size.unit}",
                 "by": 14
-              }
+              },
+              "dev.tanrei.aligned": "control"
             }
           },
           "shape": {
@@ -242,7 +243,7 @@
         "header": {
           "height": {
             "$type": "dimension",
-            "$description": "The full-screen view's top row (back button, input, clear button): the small app bar's height.",
+            "$description": "The full-screen view's top row (back button, input, clear button): the small app bar's height. It is the frame of a view and no control on a row, so it does not follow the control height: the controls it holds do.",
             "$value": {
               "value": 72,
               "unit": "px"

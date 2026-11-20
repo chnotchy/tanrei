@@ -29,7 +29,11 @@ const ALIGNED_ON_THE_LADDER = comp([
   'button-with-menu.container.height.medium',
   'button.container.height.medium',
   'calendar.day.container.size',
+  'calendar.view-toggle.container.height',
+  'calendar.year.container.height',
   'combobox.option.height.medium',
+  'date-time-picker.range-field.container.height',
+  'input-box.container.height.medium',
   'input-box.stacked.container.height.medium',
   'list-row.container.height.one-line.medium',
   'list.container.height.medium',
@@ -37,9 +41,12 @@ const ALIGNED_ON_THE_LADDER = comp([
   'menubar.container.height',
   'navigation-drawer.collapsed.item.container.width.medium',
   'navigation-drawer.item.container.height.medium',
+  'one-time-code-input.container.height',
   'pagination.container.height.medium',
+  'search.container.height',
   'search.suggestion.container.height.medium',
   'search.trigger.container.height',
+  'segmented-button.container.height.medium',
   'select.option.height.medium',
   'table-of-contents.compact.row.height',
   'table-of-contents.row.height.medium',
@@ -51,15 +58,6 @@ const ALIGNED_ON_THE_LADDER = comp([
 
 /** Not yet: each family's change rewires its heights to the medium step, marks them and moves them up. */
 const ALIGNED_NOT_YET = comp([
-  // fields and pickers
-  'search.container.height',
-  'input-box.container.height.medium',
-  'one-time-code-input.container.height',
-  'date-time-picker.range-field.container.height',
-  'date-time-picker.wheel.row.height',
-  'calendar.year.container.height',
-  'calendar.view-toggle.container.height',
-  'segmented-button.container.height.medium',
   // the state layers of selection controls, and the rating's targets
   'checkbox.container.size',
   'radio-button.container.size',

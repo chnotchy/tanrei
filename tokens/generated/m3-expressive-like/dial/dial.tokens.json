@@ -5113,14 +5113,32 @@
                 "fn": "mul",
                 "of": "{tanrei.dial.size.unit}",
                 "by": 14
-              }
+              },
+              "reason": "Material 3's filled and outlined text fields are 56dp: this preset keeps them, where the default system draws a medium box at the control height."
             },
             "tanrei.comp.input-box.container.height.large": {
               "derive": {
                 "fn": "mul",
                 "of": "{tanrei.dial.size.unit}",
                 "by": 14
-              }
+              },
+              "reason": "Material 3's filled and outlined text fields are 56dp, at every size this preset draws above small."
+            },
+            "tanrei.comp.input-box.container.height.small": {
+              "derive": {
+                "fn": "mul",
+                "of": "{tanrei.dial.size.unit}",
+                "by": 10
+              },
+              "reason": "This preset keeps the small field it drew (40), where the default system draws a small box at the small step; Material 3 has no small text field to measure it by."
+            },
+            "tanrei.comp.input-box.container.padding-block.small": {
+              "$value": "{tanrei.sys.space.space100}",
+              "reason": "This preset keeps the padding of the small field it drew, with the field's 40."
+            },
+            "tanrei.comp.input-box.container.padding-block-with-label.small": {
+              "$value": "{tanrei.sys.space.space25}",
+              "reason": "This preset keeps the padding of the small field it drew, with the field's 40."
             },
             "tanrei.comp.input-box.stacked.container.height.small": {
               "$value": "{tanrei.comp.input-box.container.height.small}",
@@ -6356,21 +6374,24 @@
                 "fn": "mul",
                 "of": "{tanrei.dial.size.unit}",
                 "by": 8
-              }
+              },
+              "reason": "This preset keeps the small set it drew (32, a step below Material 3's 40dp), where the default system draws it at the small step; Material 3's segmented button has one size."
             },
             "tanrei.comp.segmented-button.container.height.medium": {
               "derive": {
                 "fn": "mul",
                 "of": "{tanrei.dial.size.unit}",
                 "by": 10
-              }
+              },
+              "reason": "Material 3's segmented button is 40dp: this preset keeps it at every control height."
             },
             "tanrei.comp.segmented-button.container.height.large": {
               "derive": {
                 "fn": "mul",
                 "of": "{tanrei.dial.size.unit}",
                 "by": 12
-              }
+              },
+              "reason": "This preset keeps the large set it drew (48, a step above Material 3's 40dp), where the default system draws it at the large step; Material 3's segmented button has one size."
             },
             "tanrei.comp.segmented-button.container.padding-inline.small": {
               "$value": "{tanrei.sys.space.space150}"
@@ -7560,7 +7581,39 @@
                 "of": "{tanrei.dial.size.unit}",
                 "by": 14
               },
-              "reason": "This preset's fields are 56 high; a code input stands beside them."
+              "reason": "This preset's fields are 56 high, Material 3's text field; a code input stands beside them, where the default system draws a cell at the control height."
+            },
+            "tanrei.comp.search.container.height": {
+              "derive": {
+                "fn": "mul",
+                "of": "{tanrei.dial.size.unit}",
+                "by": 14
+              },
+              "reason": "Material 3's search bar is 56dp: this preset keeps it, where the default system draws the bar at the control height."
+            },
+            "tanrei.comp.calendar.view-toggle.container.height": {
+              "derive": {
+                "fn": "mul",
+                "of": "{tanrei.dial.size.unit}",
+                "by": 9
+              },
+              "reason": "This preset keeps the month-and-year button it drew (36), where the default system draws it at the control height; Material's is a text button, whose least height is 40dp, and whether to draw it so is a fidelity decision for this preset."
+            },
+            "tanrei.comp.calendar.year.container.height": {
+              "derive": {
+                "fn": "mul",
+                "of": "{tanrei.dial.size.unit}",
+                "by": 9
+              },
+              "reason": "Material 3 draws a year of the year grid 72 × 36dp: this preset keeps it, where the default system draws a year's container at the control height."
+            },
+            "tanrei.comp.date-time-picker.range-field.container.height": {
+              "derive": {
+                "fn": "mul",
+                "of": "{tanrei.dial.size.unit}",
+                "by": 12
+              },
+              "reason": "This preset keeps the range field it drew (48), where the default system draws it at the control height; Material 3 has no range of times to measure it by."
             },
             "tanrei.comp.one-time-code-input.caret.width": {
               "$value": "{tanrei.sys.border.thick}",

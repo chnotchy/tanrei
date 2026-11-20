@@ -778,6 +778,11 @@
       "id": "CMB-84",
       "text": "WHEN the control height (dial.control.height) is N THE combobox's default row SHALL be N tall: an option of a medium or large combobox SHALL be drawn at comp.combobox.option.height.medium, which is sys.control.height.medium held at sys.target.minimum, and an option of a small combobox at comp.combobox.option.height.small, a small menu item's, so that its options stand as tall as a menu's items and as the field that opens them; the option's block padding SHALL give up half of what its height loses below the control height's reference, so that its line still fits, and the pointer and touch targets SHALL still hold the row up where they are taller (CMB-34).",
       "verify": "With the control height at 32, 36 and 40 and the minimum target no higher, an option of a medium combobox's open list is 32, 36 and 40 tall under a fine pointer."
+    },
+    {
+      "id": "CMB-85",
+      "text": "WHEN the control height (dial.control.height) is N THE combobox's default box SHALL be N tall in every look: a medium combobox SHALL be drawn at comp.input-box.stacked.container.height.medium WHILE it is stacked and at comp.input-box.container.height.medium WHILE it is outlined or filled, each sys.control.height.medium held at sys.target.minimum, so that it stands as tall as the Buttons beside it; the box's block paddings SHALL give up half of what its height loses below the control height's reference, so that one line of its value still fits, and the pointer and touch targets SHALL still reach beyond a box that is lower than they are. WHILE a filled combobox draws its label it holds the floated label above the value's line and SHALL be as tall as CMB-1 gives where that is more than N.",
+      "verify": "With the control height at 32, 36 and 40 and the minimum target no higher, a medium combobox stacked and outlined is 32, 36 and 40 tall, and filled without a label as tall, its value's line whole inside it; a filled one that draws its label is twice comp.input-box.container.padding-block-with-label.medium and the lines of its floated label and its value tall where that is more."
     }
   ],
   "accessibility": {
