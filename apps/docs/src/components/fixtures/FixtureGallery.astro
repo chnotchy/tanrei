@@ -12,10 +12,11 @@
 // component's staging scoped to it, at its own size in the middle of the stage; one that is as wide as its layout (the
 // staging gives it a width) has a handle on its end edge that makes it narrower or wider. One whose surface stands
 // beside its anchor in the top layer (a tooltip) is drawn closed, and its stage has an action that opens it. A modal
-// fixture, and a whole page's frame, is drawn alone in a window of its own: an `iframe` whose document the gallery's
-// script writes (`srcdoc`) when it comes near the view and empties when it is far from it, in a box that holds the
-// window's size before anything is drawn (scaled down where the column is narrower). No address on the site is a
-// fixture's document.
+// fixture (a dialog) is drawn closed too, in the room of the window its baseline was taken in, with a button in the
+// middle that opens it over the page, as a product's trigger does. A whole page's frame is drawn alone in a window of
+// its own: an `iframe` whose document the gallery's script writes (`srcdoc`) when it comes near the view and empties
+// when it is far from it, in a box that holds the window's size before anything is drawn (scaled down where the column
+// is narrower). No address on the site is a fixture's document.
 //
 // The fixture ids and props are the page's words and are read by the search; what a stage draws, and its actions, are
 // not (`data-pagefind-ignore`, as every frame's stage).
@@ -24,6 +25,7 @@ import { fixtureDocument } from '../../lib/fixture-documents';
 import { STAGE_SCOPE, galleryOf, stagesScript, stagingStyle, stepScript, windowScript } from '../../lib/fixture-gallery';
 import { contentLang, strings } from '../../lib/i18n';
 import ResizeHandle from './ResizeHandle.astro';
+import StageAction from './StageAction.astro';
 import Example from '../visuals/Example.astro';
 
 interface Props {
@@ -74,22 +76,19 @@ if (system && !systemSheet) throw new Error(`FixtureGallery: no generated styles
                 code={stage.drawn}
                 source={stage.markup}
                 resize={false}
-                actions={stage.drawn ? (stage.kind === 'inline' ? 1 : 2) : 0}
+                actions={stage.drawn ? (stage.kind === 'inline' || stage.modal ? 1 : 2) : 0}
                 stageClass="docs-stage-box"
                 stageAttributes={{ id: stageId }}
                 data-stage={stage.kind}
+                data-stage-modal={stage.modal ? '' : undefined}
                 data-fixture-id={stage.id}
                 data-drawn={stage.drawn ? '' : undefined}
               >
                 {stage.drawn && (
                   <Fragment slot="actions">
-                    <tanrei-button class="docs-example-action" variant="text" size="small" toggle label={t.stages.dark} data-stage-theme><span slot="icon" data-pagefind-ignore>dark_mode</span></tanrei-button>
-                    {stage.kind === 'window' && (
-                      <tanrei-button class="docs-example-action" variant="text" size="small" label={named(t.stages.redraw, { id: stage.id })} data-stage-redraw><span slot="icon" data-pagefind-ignore>refresh</span></tanrei-button>
-                    )}
-                    {stage.kind === 'opener' && (
-                      <tanrei-button class="docs-example-action" variant="text" size="small" toggle label={named(t.stages.open, { id: stage.id })} data-stage-open={stage.presence}><span slot="icon" data-pagefind-ignore>touch_app</span></tanrei-button>
-                    )}
+                    <StageAction toggle label={t.stages.dark} icon="dark_mode" data-stage-theme="" />
+                    {stage.kind === 'window' && <StageAction label={named(t.stages.redraw, { id: stage.id })} icon="refresh" data-stage-redraw="" />}
+                    {stage.kind === 'opener' && !stage.modal && <StageAction toggle label={named(t.stages.open, { id: stage.id })} icon="touch_app" data-stage-open={stage.presence} />}
                   </Fragment>
                 )}
                 {!stage.drawn ? (
@@ -106,6 +105,18 @@ if (system && !systemSheet) throw new Error(`FixtureGallery: no generated styles
                       title={named(t.stages.frame, { id: stage.id })}
                     />
                     <ResizeHandle label={named(t.stages.width, { id: stage.id })} controls={stageId} />
+                  </div>
+                ) : stage.modal ? (
+                  /* A modal fixture: the picture of it open (its baseline, smaller, lib/fixture-gallery.ts), the button
+                     that opens it, and the canvas its closed stage is drawn in when the stage comes near the view
+                     (lib/fixture-stages.ts). It opens over the page, in the page's top layer; the stage stays as it was. */
+                  <div class="docs-stage-opener">
+                    {stage.picture && (
+                      <img class="docs-stage-picture" src={stage.picture.src} width={stage.picture.width} height={stage.picture.height} alt={named(t.stages.picture, { id: stage.id })} loading="lazy" decoding="async" />
+                    )}
+                    {/* Its words are short ("Open"); its name says which fixture it opens, and holds them (BTN-16). */}
+                    <tanrei-button variant="outlined" label={named(t.stages.open, { id: stage.id })} data-stage-trigger={stage.presence}>{t.stages.trigger}</tanrei-button>
+                    <div class="docs-stage-canvas" {...scope} data-pending />
                   </div>
                 ) : (
                   /* The document's stage is drawn in this canvas, from the gallery's data, when the stage comes near
@@ -127,6 +138,7 @@ if (system && !systemSheet) throw new Error(`FixtureGallery: no generated styles
                   {stage.holds.slots.length > 0 && <><code>slots: {stage.holds.slots.join(', ')}</code>{' '}</>}
                   {!stage.facts.length && !stage.holds.items && !stage.holds.slots.length && <><code>{'{}'}</code>{' '}</>}
                   {sized && <span class="docs-muted docs-stage-window">{named(t.stages.window, { width: sized.width, height: sized.height })}</span>}
+                  {stage.modal && stage.reserve && <span class="docs-muted docs-stage-window">{named(stage.picture ? t.stages.opens : t.stages.opensUnpictured, { width: stage.reserve.width, height: stage.reserve.height })}</span>}
                 </Fragment>
               </Example>{' '}
             </>
@@ -209,8 +221,9 @@ if (system && !systemSheet) throw new Error(`FixtureGallery: no generated styles
   }
   /* A fixture drawn in the page inherits what the web package's document gives its stages, and not the page's text:
      that document sets no text style of its own, so a stage stands in the initial one, as each baseline was taken —
-     a line of text the fixture does not style is as tall here as there. */
-  .docs-stage-canvas[data-fixture-scope] {
+     a line of text the fixture does not style is as tall here as there. Not a modal fixture's: it opens over the page
+     as a product's does, and what it holds that it does not style (a modal layer's content) is in the page's text. */
+  .docs-stage-canvas[data-fixture-scope]:not(.docs-stage-opener > *) {
     font: initial;
     letter-spacing: initial;
     word-spacing: initial;
@@ -233,6 +246,32 @@ if (system && !systemSheet) throw new Error(`FixtureGallery: no generated styles
   .docs-stage-canvas[data-pending] {
     min-inline-size: min(100%, var(--docs-stage-reserve-inline, 0px));
     min-block-size: var(--docs-stage-reserve-block, 0px);
+  }
+  /* A modal fixture's stage: the picture of it open, at its own size (its `width` and `height` hold its room before it
+     loads) and never wider than the column, and under it the button that opens it. Its canvas is no part of the
+     layout: the closed stage draws nothing (the staging's box of it is left out, its rules still reach what it holds),
+     and what opens stands in the page's top layer. */
+  .docs-stage-opener {
+    position: relative;
+    display: grid;
+    justify-items: center;
+    gap: var(--tanrei-sys-space-space200);
+    max-inline-size: 100%;
+    padding-block: var(--tanrei-sys-space-space200);
+  }
+  .docs-stage-picture {
+    display: block;
+    max-inline-size: 100%;
+    block-size: auto;
+    outline: var(--tanrei-sys-border-hairline) solid var(--tanrei-sys-color-outline-variant);
+  }
+  .docs-stage-opener > .docs-stage-canvas {
+    position: absolute;
+    inset-block-start: 0;
+    inset-inline-start: 0;
+  }
+  .docs-stage-opener > .docs-stage-canvas > :global(.stage) {
+    display: contents;
   }
   /* A window: as wide as the window it stands for and never wider than the column, as tall as that width keeps its
      proportions — held before the frame loads, so nothing moves when it does. The frame is drawn at the window's size

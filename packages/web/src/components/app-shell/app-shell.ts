@@ -223,7 +223,7 @@ let ids = 0;
  * @slot footer - The footer: a `<footer>` with the product's own layout.
  * @slot navigation-bar - A navigation bar for the bottom edge of a compact window.
  * @fires {CustomEvent<TanreiAppShellWindowClassChangeDetail>} windowclasschange - The frame decided the window's class for the first time, or the window's width changed it: `detail.windowClass` (and `windowClass`) is `compact`, `medium` or `expanded`.
- * @fires {CustomEvent<TanreiAppShellNavigationOpenChangeDetail>} navigationopenchange - The navigation asks to be presented over the content, or to be put away: the menu button was activated (`detail.navigationOpen` true, and false while it was open), or the open navigation closed — by its scrim, Escape, the platform's back, a drag, a destination — or the window became wide enough for it to stand beside the content (false). `navigationOpen` already holds it.
+ * @fires {CustomEvent<TanreiAppShellNavigationOpenChangeDetail>} navigationopenchange - The navigation asks to be presented over the content, or to be put away: the menu button was activated (`detail.navigationOpen` true, and false while it was open), or the open navigation closed — by its scrim, Escape, the platform's back, a drag, a destination (false). A change of the window's class emits none. `navigationOpen` already holds it.
  * @cssprop --tanrei-app-shell-scroll-offset - On the document's root: the height the frame keeps over the top of the page (a sticky header's), for the product's own sticky parts.
  * @cssprop --tanrei-app-shell-scroll-offset-end - On the document's root: the height the frame keeps over the bottom of the page (the navigation bar's).
  * @cssprop --tanrei-app-shell-window-inset-top - On the document's root, whatever scrolls: how far the frame reaches over the top of the window (to the bottom edge of a header it keeps in view), for what is drawn over the page.
@@ -276,8 +276,8 @@ export class TanreiAppShell extends TanreiLightElement {
   /**
    * Whether the navigation is presented over the content — below the header — while it has no place of its own in the
    * layout (or only its column). The menu button makes it true and, while it is true, false; closing the navigation makes
-   * it false, and so does the window becoming wide enough for the navigation to stand beside the content. A change
-   * between the two narrower classes keeps it.
+   * it false. A change of the window's class keeps it: while the navigation stands beside the content it is shown there
+   * whatever this says and nothing is inert, and it is over the content again, open, when the window narrows again.
    */
   navigationOpen = false;
 
@@ -469,8 +469,9 @@ export class TanreiAppShell extends TanreiLightElement {
   private readonly onWidth = () => this.decide();
 
   /**
-   * APS-3, APS-7, APS-23: the class of the window's current width. The first decision is only told. A change closes
-   * an open navigation at once and takes focus off what the new arrangement does not show.
+   * APS-3, APS-7, APS-23: the class of the window's current width. The first decision is only told. A change keeps
+   * `navigationOpen` (the drawer keeps its `open`, NVD-54: what is inert follows from both, `syncInert`) and takes focus
+   * off what the new arrangement does not show.
    */
   private decide() {
     const widths = this.widths;
@@ -482,10 +483,6 @@ export class TanreiAppShell extends TanreiLightElement {
     mark(this, 'data-window-class', next);
     this.announce = true;
     if (before !== null) {
-      // APS-7: only the navigation's coming to stand beside the content ends its presentation over the content; a
-      // change between the two narrower classes keeps it open (NVD-54). The drawer ends its own overlay at the same width;
-      // the frame's side is told once.
-      if (next === 'expanded') this.setOpen(false, true);
       // APS-23: focus on something the new arrangement does not show — the menu button, a destination of the
       // navigation bar — goes to the main region. (Where focus was in the navigation, the drawer has kept it: NVD-54.)
       // A browser takes focus from an element as soon as it is no longer drawn, before or after it tells of the new
@@ -933,8 +930,7 @@ export class TanreiAppShell extends TanreiLightElement {
     this.syncInert();
     this.stateMenu();
     this.syncChord();
-    // Ended by the navigation's coming to stand beside the content, focus stays where it is (NVD-54).
-    if (!told || !menu || this.presentation === 'standard') return;
+    if (!told || !menu) return;
     // The drawer gives focus back to where it was (NVD-22); a press that gave the button no focus (Safari does not
     // focus a button that is clicked) left it nowhere, and the menu button is where it belongs.
     void (this.drawer?.updateComplete ?? Promise.resolve()).then(() => {

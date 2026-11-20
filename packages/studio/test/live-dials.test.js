@@ -52,13 +52,14 @@ test('a text style whose tracking the emitter writes as a number follows the typ
   assert.ok(Object.keys(properties).some((name) => name.endsWith('-letter-spacing')), 'a letter spacing is among what moves');
 });
 
-test('Essentials: spacing moves the size unit with it — both are drawn', () => {
+test('Essentials: spacing moves the size unit and the control height with it — all three are drawn', () => {
   const start = { ...studio.blank('tanrei'), id: 'live-spacing' };
   const from = studio.preview(start);
   const moved = studio.setEssential(start, 'space.unit', 10);
   assert.ok(moved.tokens?.[`${DIAL}size.unit`], 'the size unit moved with it');
+  assert.equal(moved.tokens?.[`${DIAL}control.height`]?.$value?.value, 50, 'the control height moved with it, in proportion');
   const properties = sameSheet(from, moved, 'space.unit, linked');
-  assert.deepEqual(Object.keys(properties).sort(), [studio.cssVar(`${DIAL}size.unit`), studio.cssVar(`${DIAL}space.unit`)].sort());
+  assert.deepEqual(Object.keys(properties).sort(), [studio.cssVar(`${DIAL}control.height`), studio.cssVar(`${DIAL}size.unit`), studio.cssVar(`${DIAL}space.unit`)].sort());
 });
 
 test('from a layer that pins a dial: moved again, back to the base, and back to where the drag started', () => {

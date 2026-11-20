@@ -155,7 +155,6 @@
                   "fn": "mul",
                   "of": "{tanrei.dial.size.unit}",
                   "by": 12,
-                  "times": "{tanrei.dial.density}",
                   "round": "{tanrei.dial.size.unit}",
                   "min": "{tanrei.sys.target.minimum}"
                 }
@@ -421,7 +420,10 @@
                 "$value": "{tanrei.comp.button.container.height.small}"
               },
               "medium": {
-                "$value": "{tanrei.comp.button.container.height.medium}"
+                "$value": "{tanrei.comp.button.container.height.medium}",
+                "$extensions": {
+                  "dev.tanrei.aligned": "control"
+                }
               },
               "large": {
                 "$value": "{tanrei.comp.button.container.height.large}"

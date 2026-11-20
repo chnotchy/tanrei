@@ -17,7 +17,7 @@
 // started then (`EARLY_WORKER`), where it did.
 import build from 'virtual:tanrei-docs/sheet-key';
 import { adoptSheetWorker, pageSheetInWorker } from '@tanrei/studio/page-sheet';
-import { APPEARANCE_KEY, CUSTOM_KEY, CUSTOM_LOOK, CUSTOM_SHEET_EVENT, CUSTOM_STYLE_ID, EARLY_WORKER, LATE_ATTR, LOOK_ATTR, MISSING_ATTR, PENDING_ATTR, SHEET_HELD_KEY, SHEET_STORE, customOf, placeSheet, readSheet, sheetKey } from './appearance';
+import { APPEARANCE_KEY, CUSTOM_KEY, CUSTOM_LOOK, EARLY_WORKER, LATE_ATTR, LOOK_ATTR, LOOK_SHEET_EVENT, LOOK_SHEET_ID, MISSING_ATTR, PENDING_ATTR, SHEET_HELD_KEY, SHEET_STORE, customOf, placeSheet, readSheet, sheetKey } from './appearance';
 
 // The worker the head's script started, where it found no sheet kept: the one this page's sheets are computed in.
 {
@@ -51,7 +51,7 @@ export function hashOf(text: string): string {
 function kept(): Kept | null {
   try {
     const value = JSON.parse(localStorage.getItem(CUSTOM_KEY) ?? 'null');
-    return customOf(value, []) ? (value as Kept) : null;
+    return customOf(value) ? (value as Kept) : null;
   } catch {
     return null;
   }
@@ -135,7 +135,7 @@ function keptSheet(key: string): Promise<string | null> {
       resolve(css);
     };
     const heard = () => {
-      const style = document.getElementById(CUSTOM_STYLE_ID);
+      const style = document.getElementById(LOOK_SHEET_ID);
       if (style?.getAttribute('data-key') === key) answer(style.textContent);
       else if (root.getAttribute(MISSING_ATTR) === key) answer(null);
       else return false;
@@ -200,14 +200,17 @@ export function showCustomSheet(): Promise<void> {
 
 async function placeCustomSheet(theme: Kept | null, key: string): Promise<void> {
   const root = document.documentElement;
+  // Another look's sheet is not this module's: the page it hides is shown by the head's script.
+  if (!theme || (root.getAttribute(LOOK_ATTR) !== CUSTOM_LOOK && root.getAttribute(LATE_ATTR) !== CUSTOM_LOOK)) return;
   try {
-    if (!theme || (root.getAttribute(LOOK_ATTR) !== CUSTOM_LOOK && !root.hasAttribute(LATE_ATTR))) return;
-    if (document.getElementById(CUSTOM_STYLE_ID)?.getAttribute('data-key') === key) return;
+    if (document.getElementById(LOOK_SHEET_ID)?.getAttribute('data-key') === key) return;
     const css = await sheetOf(theme);
     // Still asked for: the look, or the theme, may have changed meanwhile.
     if (root.getAttribute(LOOK_ATTR) !== CUSTOM_LOOK || kept()?.hash !== theme.hash) return;
-    placeSheet(css, key, CUSTOM_STYLE_ID);
-    document.dispatchEvent(new CustomEvent(CUSTOM_SHEET_EVENT));
+    // In the place of the look's sheet before it (a gallery example's link, where one was chosen before).
+    for (const link of document.querySelectorAll(`link[data-docs-look-sheet]:not(#${LOOK_SHEET_ID})`)) link.remove();
+    placeSheet(css, key, LOOK_SHEET_ID);
+    document.dispatchEvent(new CustomEvent(LOOK_SHEET_EVENT));
     // A hidden page is shown in the theme at once, its motions at their end: the sheet's values are taken now (the
     // style and layout of the whole page, read here), and a motion that a value changed (a drawer's width) is taken to
     // its end before anything of the page is drawn. What its elements measure under the theme's tokens (the shell's

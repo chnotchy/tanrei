@@ -459,10 +459,10 @@
     }
     /* APS-24: the column of a drawer that is not defined yet keeps its place. */
     :where(tanrei-app-shell) > :where(tanrei-navigation-drawer[slot='navigation'][collapsible]:not(:defined)) {
-      inline-size: var(--tanrei-comp-navigation-drawer-collapsed-container-width-regular);
+      inline-size: var(--tanrei-comp-navigation-drawer-collapsed-container-width-medium);
     }
-    :where(tanrei-app-shell) > :where(tanrei-navigation-drawer[slot='navigation'][collapsible][density='compact']:not(:defined)) {
-      inline-size: var(--tanrei-comp-navigation-drawer-collapsed-container-width-compact);
+    :where(tanrei-app-shell) > :where(tanrei-navigation-drawer[slot='navigation'][collapsible][size='small']:not(:defined)) {
+      inline-size: var(--tanrei-comp-navigation-drawer-collapsed-container-width-small);
     }
     /* APS-13: not shown, kept from focus and from assistive technology, and given no space. */
     :where(tanrei-app-shell) > :where([slot='navigation-bar']) {
@@ -504,10 +504,10 @@
        folded in the layout, keeps its column's place instead, whatever its width; a responsive one that is not
        collapsible is hidden by `expanded="false"`, and takes no space. */
     :where(tanrei-app-shell) > :where(tanrei-navigation-drawer[slot='navigation'][collapsible]:is([expanded='false'], [variant='modal']):not(:defined)) {
-      inline-size: var(--tanrei-comp-navigation-drawer-collapsed-container-width-regular);
+      inline-size: var(--tanrei-comp-navigation-drawer-collapsed-container-width-medium);
     }
-    :where(tanrei-app-shell) > :where(tanrei-navigation-drawer[slot='navigation'][collapsible][density='compact']:is([expanded='false'], [variant='modal']):not(:defined)) {
-      inline-size: var(--tanrei-comp-navigation-drawer-collapsed-container-width-compact);
+    :where(tanrei-app-shell) > :where(tanrei-navigation-drawer[slot='navigation'][collapsible][size='small']:is([expanded='false'], [variant='modal']):not(:defined)) {
+      inline-size: var(--tanrei-comp-navigation-drawer-collapsed-container-width-small);
     }
     :where(tanrei-app-shell) > :where(tanrei-navigation-drawer[slot='navigation'][responsive][expanded='false']:not(:defined, [collapsible])) {
       display: none;

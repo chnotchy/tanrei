@@ -113,15 +113,15 @@ export const styles = css`
     exit: { duration: T('modal-motion-close-duration'), easing: T('modal-motion-close-easing') },
   })}
   /* DTM-1, DTM-35, MDL-1, MDL-7: the modal layer's scrim, over the whole window behind the picker (its color and blur),
-     fading with it — over sys.motion.role.reduced where motion is reduced, as the container then fades. */
+     fading in with it — over sys.motion.role.reduced where motion is reduced, as the container then fades — and taken
+     away at once as it begins to close (MOT-8, modalExitStyles below). */
   ${sheetScrimStyles({
     dialog: '.surface.modal',
     color: T('modal-scrim-color'),
     blur: T('modal-scrim-blur'),
     enter: { duration: T('modal-motion-open-duration'), easing: T('modal-motion-open-easing') },
-    exit: { duration: T('modal-motion-close-duration'), easing: T('modal-motion-close-easing') },
   })}
-  /* MDL-7: closed, it stays drawn in the top layer until its exit and its scrim's have played (src/primitives/modal-exit.ts). */
+  /* MDL-7, MOT-8: closed, it stays drawn in the top layer until its exit has played, its scrim gone from the first frame (src/primitives/modal-exit.ts). */
   ${modalExitStyles('.surface.modal')}
 
   /* DTM-2: a docked picker is a manual popover in the top layer, placed by script below its anchor; its color,
@@ -158,6 +158,12 @@ export const styles = css`
   }
   .surface.docked.leaving {
     animation: docked-close ${t('docked-motion-close-duration')} ${t('docked-motion-close-easing')} both;
+  }
+  /* MOT-7: leaving, it and everything in it take no pointer: a press reaches what lies under it, and the pointer on it
+     is not hover. (Its motion is its own, not appearStyles(), whose closed state says the same of every surface.) */
+  .surface.docked.leaving,
+  .surface.docked.leaving * {
+    pointer-events: none !important;
   }
   @keyframes docked-open {
     from {

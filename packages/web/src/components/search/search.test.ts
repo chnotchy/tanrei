@@ -27,7 +27,9 @@ import { expectWheelKeptFromPage } from '../../../test/contained-wheel.js';
 import { holdClock } from '../../../test/page-clock.js';
 import { type Probe, sampleFrames } from '../../../test/frames.js';
 import { expectBaseline } from '../../../test/baseline.js';
+import { expectScrimTakenAwayAtClose } from '../../../test/scrim-at-close.js';
 import { STACKED_DIALOG, STACKED_LAYER, addStackedSurfaces, expectStackedInOrder } from '../../../test/stacked-surfaces.js';
+import { CONTROL_HEIGHTS, atControlHeight } from '../../../test/control-height.js';
 
 const spec = loadSpec('search');
 type P = Page;
@@ -396,6 +398,19 @@ test.describe('layout', () => {
     expect(box.x + box.width - (icon.x + icon.width)).toBeCloseTo(padInline, 1);
   });
 
+  test('SRC-58: at control height 32, 36 and 40, the minimum no higher, a one-line suggestion of a medium search is that tall under a fine pointer, its headline whole inside it', async ({ page }) => {
+    await mount(page, spec.fixtures.filter((f) => f.id === 'docked'));
+    for (const height of CONTROL_HEIGHTS) {
+      await atControlHeight(page, height);
+      for (const n of [0, 1]) {
+        await expect.poll(async () => (await bounds(row(page, 'docked', n))).height, `row ${n} at ${height}`).toBeCloseTo(height, 1);
+        const [b, headline] = [await bounds(row(page, 'docked', n)), await bounds(row(page, 'docked', n).locator('.headline'))];
+        expect(headline.y, `the headline inside row ${n} at ${height}`).toBeGreaterThanOrEqual(b.y - 0.5);
+        expect(headline.y + headline.height, `row ${n} at ${height}`).toBeLessThanOrEqual(b.y + b.height + 0.5);
+      }
+    }
+  });
+
   test('SRC-16: with no leading icon on any suggestion no icon column is drawn; with one, every row keeps the column', async ({ page }) => {
     await mountFixtures(page, spec, {
       icons: true,
@@ -468,7 +483,7 @@ test.describe('layout', () => {
     await expect.poll(() => resultAt('mixed-never')).toBeCloseTo(kept, 0);
   });
 
-  test('SRC-53: a small search draws every row of its view — a suggestion and a result — from the small tokens, lower, set in less, a smaller glyph, the same text, never below the target, the bar unchanged; a search takes no size from a container around it; an unknown size is medium and reported, an added one is drawn from its tokens, a change is drawn at once, and the heights follow the density', async ({ page, browserName }) => {
+  test('SRC-53: a small search draws every row of its view — a suggestion and a result — from the small tokens, lower, set in less, a smaller glyph, the same text, never below the target, the bar unchanged; a search takes no size from a container around it; an unknown size is medium and reported, an added one is drawn from its tokens, a change is drawn at once, and the heights follow the control height', async ({ page, browserName }) => {
     const seen = warnings(page);
     const smallFixture = spec.fixtures.find((f) => f.id === 'size-small')!;
     const { size: _, ...unset } = smallFixture.props as Record<string, unknown>;
@@ -541,11 +556,11 @@ test.describe('layout', () => {
     // A change is drawn at once.
     await host(page, 'size-medium').evaluate((el: HTMLElement & { size: string }) => (el.size = 'small'));
     await expect.poll(async () => (await drawn(row(page, 'size-medium', 0))).height).toBeCloseTo(first.height, 0);
-    // The heights follow the system's density: a small row is the small token at each.
-    for (const density of ['0.75', '1.5', '']) {
-      await rootTokens(page, { '--tanrei-dial-density': density });
+    // The heights follow the system's control height: a small row is the small token at each.
+    for (const height of ['48px', '56px', '']) {
+      await rootTokens(page, { '--tanrei-dial-control-height': height });
       const step = await resolveToken(page, T('suggestion-container-height-small'));
-      await expect.poll(async () => (await drawn(row(page, 'size-small', 0))).height, `density ${density || 1}`).toBeCloseTo(Math.max(step, pointer), 0);
+      await expect.poll(async () => (await drawn(row(page, 'size-small', 0))).height, `control height ${height || "40px"}`).toBeCloseTo(Math.max(step, pointer), 0);
     }
     // SRC-16: no size is lower than the pointer target for a fine pointer — seen under a layer whose pointer target (48)
     // is taller than the small row, as the default system's (36) is not.
@@ -3377,14 +3392,22 @@ test.describe('dialog view', () => {
     await page.keyboard.press('Escape');
   });
 
-  test('SRC-41: the dialog view’s scrim and container fade in over open-duration with open-easing and out over close-duration; its height follows its content without a motion; at once where motion is reduced', async ({ page }) => {
+  test('SRC-41, MOT-8: closing the dialog view, its scrim is drawn at no opacity and takes no press from the first frame while the view still fades out, and opening fades it in from no opacity, in every engine; where motion is reduced it is gone from the first frame too', async ({ page }) => {
+    await mountSite(page, [site('s')], { reducedMotion: false });
+    const set = (value: boolean) => () => host(page, 's').evaluate((el, v) => ((el as unknown as { expanded: boolean }).expanded = v), value);
+    await set(true)();
+    await motionEnded(page);
+    await expectScrimTakenAwayAtClose(page, page.locator('[data-fixture="s"]'), { open: set(true), close: set(false), what: 'the search’s dialog view' });
+  });
+
+  test('SRC-41: the dialog view’s scrim and container fade in over open-duration with open-easing and the container out over close-duration; its height follows its content without a motion; at once where motion is reduced', async ({ page }) => {
     await mountSite(page, [site('s')], { reducedMotion: false });
     const d = dialog(page, 's');
     const [open, close] = await Promise.all(['motion-open-duration', 'motion-close-duration'].map((n) => resolveToken(page, T(n), 'duration')));
     const seconds = (value: string) => value.split(',').map((part) => Math.round(Number.parseFloat(part) * 1000));
-    // Closed: both wait to fade out over the close motion.
+    // Closed: the container waits to fade out over the close motion; its scrim fades out over none (MOT-8).
     expect(seconds(await css(d, 'transition-duration'))[0]).toBe(close);
-    expect(seconds(await d.evaluate((el) => getComputedStyle(el, '::backdrop').transitionDuration))[0]).toBe(close);
+    expect(seconds(await d.evaluate((el) => getComputedStyle(el, '::backdrop').transitionDuration))[0]).toBe(0);
     await trigger(page, 's').click();
     // Focus is already in the header's input while it fades (SRC-23).
     await expect(headerInput(page, 's')).toBeFocused();

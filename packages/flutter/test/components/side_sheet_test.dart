@@ -6,7 +6,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:tanrei/systems/cupertino.dart';
-import 'package:tanrei/systems/m3_expressive_like.dart';
 import 'package:tanrei/systems/m3_like.dart';
 import 'package:tanrei/tanrei.dart';
 
@@ -1162,11 +1161,7 @@ void main() {
     // One representative fixture per shipped preset: the modal sheet shows the
     // preset's scrim, container, corners, elevation, headline, close button and actions at once.
     const String recorded = 'modal';
-    for (final TanreiSystem preset in <TanreiSystem>[
-      m3LikeSystem,
-      m3ExpressiveLikeSystem,
-      cupertinoSystem,
-    ]) {
+    for (final TanreiSystem preset in <TanreiSystem>[m3LikeSystem, cupertinoSystem]) {
       testWidgets('golden: ${preset.id}/$recorded', (WidgetTester tester) async {
         await expectFixtureGolden(
           tester,

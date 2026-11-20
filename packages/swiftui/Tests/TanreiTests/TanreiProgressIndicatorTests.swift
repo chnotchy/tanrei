@@ -706,7 +706,7 @@ struct TanreiProgressIndicatorSnapshotTests {
 struct TanreiProgressIndicatorPresetSnapshotTests {
   /// A determinate bar: it shows the preset's colors, thickness, ends, gap and stop indicator.
   nonisolated static let fixtureId = "linear-determinate"
-  nonisolated static let presets: [ShippedSystem] = [.m3Like, .m3ExpressiveLike, .cupertino]
+  nonisolated static let presets: [ShippedSystem] = [.m3Like, .cupertino]
 
   @Test("every shipped preset has one, and it is one of the spec's fixtures")
   func fixtureList() {

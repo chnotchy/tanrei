@@ -4,7 +4,6 @@
 import { render, screen } from '@testing-library/react-native';
 import { Dimensions, Text, View } from 'react-native';
 import { cupertino } from '../../generated/systems/cupertino';
-import { m3ExpressiveLike } from '../../generated/systems/m3-expressive-like';
 import { m3Like } from '../../generated/systems/m3-like';
 import { tanrei } from '../../generated/systems/tanrei';
 import type { TanreiColorRole, TanreiSystem } from '../../generated/vocabulary';
@@ -57,12 +56,6 @@ describe('m3-like drives the Carousel', () => {
 
   test('CRL-6: m3-like answers a press with a ripple', () => {
     expect(system.behavior.pressedFeedback).toBe('ripple');
-  });
-});
-
-describe('m3-expressive-like drives the Carousel', () => {
-  test('it inherits m3-like\'s carousel', () => {
-    expect(m3ExpressiveLike.components.carousel).toEqual(m3Like.components.carousel);
   });
 });
 

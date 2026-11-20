@@ -2,7 +2,7 @@
 title: "树视图"
 description: "由可以展开和折叠的项组成的层级结构。每深一级，行就多缩进一些；凡是包含其他项的行，开头都有一个 V 形箭头。它可以只供阅读和展开，也可以在其中选择一项或多项；它在焦点顺序中只占一个停靠点。"
 translationOf: components/tree-view.mdx
-sourceHash: 009cdefef85fdf78f01e2291384238744f74271f
+sourceHash: 3e4df61992c9ebc0b99d659db724267c343660de
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -213,10 +213,10 @@ import Example from '../../../../components/visuals/Example.astro';
 
 | `size` | 单行文字的行 | 用于 |
 | --- | --- | --- |
-| `medium`（默认） | 48 | 既用触摸、也用指针操作的产品。 |
+| `medium`（默认） | 40（控件高度） | 既用触摸、也用指针操作的产品。 |
 | `small` | 36 | 用指针浏览的工具，以及文字页面里的一棵小树。 |
 
-`small` 的行保持在最小目标，在默认系统中为 36；无论哪种尺寸，行都不会低于目标。两种高度都随系统的[密度](/zh-cn/foundations/size-and-density/)变化。没有设置 `size` 的树按外围容器为其内容设置的尺寸绘制，没有容器设置时按 `medium` 绘制。
+`small` 的行保持在最小目标，在默认系统中为 36；无论哪种尺寸，行都不会低于目标。两种高度都随系统的[尺寸阶梯](/zh-cn/foundations/size-and-density/)变化。没有设置 `size` 的树按外围容器为其内容设置的尺寸绘制，没有容器设置时按 `medium` 绘制。
 
 ### 箭头
 

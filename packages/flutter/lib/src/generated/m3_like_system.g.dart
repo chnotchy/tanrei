@@ -1382,13 +1382,13 @@ const TanreiSystem m3LikeSystem = TanreiSystem(
         containerHeight: 32.0,
         containerPaddingInlineNarrow: 4.0,
         containerWidthWide: 40.0,
-        containerPaddingInlineStart: 12.0,
-        containerPaddingInlineEnd: 12.0,
-        containerPaddingInlineStartWithIcon: 12.0,
-        containerPaddingInlineEndWithIcon: 12.0,
+        containerPaddingInlineStart: 16.0,
+        containerPaddingInlineEnd: 16.0,
+        containerPaddingInlineStartWithIcon: 16.0,
+        containerPaddingInlineEndWithIcon: 16.0,
         containerPaddingBlock: 6.0,
         labelTypescale: _typescaleLabel,
-        iconSize: 18.0,
+        iconSize: 20.0,
         iconSizeWithoutLabel: 20.0,
         containerGap: 8.0,
         outlineWidth: 1.0,
@@ -1404,7 +1404,7 @@ const TanreiSystem m3LikeSystem = TanreiSystem(
         containerPaddingInlineEndWithIcon: 16.0,
         containerPaddingBlock: 6.0,
         labelTypescale: _typescaleLabel,
-        iconSize: 18.0,
+        iconSize: 20.0,
         iconSizeWithoutLabel: 24.0,
         containerGap: 8.0,
         outlineWidth: 1.0,
@@ -1419,13 +1419,47 @@ const TanreiSystem m3LikeSystem = TanreiSystem(
         containerPaddingInlineStartWithIcon: 24.0,
         containerPaddingInlineEndWithIcon: 24.0,
         containerPaddingBlock: 6.0,
-        labelTypescale: _typescaleLabel,
-        iconSize: 18.0,
+        labelTypescale: _typescaleHeading5,
+        iconSize: 24.0,
         iconSizeWithoutLabel: 24.0,
         containerGap: 8.0,
         outlineWidth: 1.0,
         motionStateDuration: 150,
       ),
+      extra: <TanreiButtonSize, TanreiButtonSizeTokens>{
+        M3LikeButtonSize.xlarge: TanreiButtonSizeTokens(
+          containerHeight: 96.0,
+          containerPaddingInlineNarrow: 16.0,
+          containerWidthWide: 128.0,
+          containerPaddingInlineStart: 48.0,
+          containerPaddingInlineEnd: 48.0,
+          containerPaddingInlineStartWithIcon: 48.0,
+          containerPaddingInlineEndWithIcon: 48.0,
+          containerPaddingBlock: 6.0,
+          labelTypescale: _typescaleHeading3,
+          iconSize: 32.0,
+          iconSizeWithoutLabel: 32.0,
+          containerGap: 12.0,
+          outlineWidth: 2.0,
+          motionStateDuration: 150,
+        ),
+        M3LikeButtonSize.xxlarge: TanreiButtonSizeTokens(
+          containerHeight: 136.0,
+          containerPaddingInlineNarrow: 32.0,
+          containerWidthWide: 184.0,
+          containerPaddingInlineStart: 64.0,
+          containerPaddingInlineEnd: 64.0,
+          containerPaddingInlineStartWithIcon: 64.0,
+          containerPaddingInlineEndWithIcon: 64.0,
+          containerPaddingBlock: 6.0,
+          labelTypescale: _typescaleHeading1,
+          iconSize: 40.0,
+          iconSizeWithoutLabel: 40.0,
+          containerGap: 16.0,
+          outlineWidth: 3.0,
+          motionStateDuration: 150,
+        ),
+      },
     ),
     variants: TanreiButtonVariants(
       filled: TanreiButtonVariantTokens(
@@ -5313,7 +5347,7 @@ const TanreiSystem m3LikeSystem = TanreiSystem(
         containerHeightOneLine: 40.0,
         containerHeightTwoLine: 56.0,
         containerHeightThreeLine: 72.0,
-        containerPaddingBlock: 4.0,
+        containerPaddingBlock: 2.0,
       ),
       medium: TanreiListRowSizeTokens(
         containerHeightOneLine: 56.0,
@@ -5439,9 +5473,9 @@ const TanreiSystem m3LikeSystem = TanreiSystem(
     ),
   ),
   loadingIndicator: TanreiLoadingIndicatorTokens(
-    containedContainerColor: TanreiPaint.role(TanreiColorRole.surfaceContainerLowest),
-    containedContainerElevation: _elevationLevel2,
-    containedIndicatorColor: TanreiPaint.role(TanreiColorRole.onSurfaceVariant),
+    containedContainerColor: TanreiPaint.role(TanreiColorRole.primaryContainer),
+    containedContainerElevation: _elevationLevel0,
+    containedIndicatorColor: TanreiPaint.role(TanreiColorRole.onPrimaryContainer),
     containerShape: 9999.0,
     indicatorColor: TanreiPaint.role(TanreiColorRole.primary),
     motionCycleDuration: 1000,
@@ -5456,7 +5490,7 @@ const TanreiSystem m3LikeSystem = TanreiSystem(
         containerSize: 32.0,
       ),
       medium: TanreiLoadingIndicatorSizeTokens(
-        indicatorSize: 40.0,
+        indicatorSize: 38.0,
         indicatorThickness: 4.0,
         containerSize: 48.0,
       ),
@@ -6427,9 +6461,9 @@ const TanreiSystem m3LikeSystem = TanreiSystem(
   navigationDrawer: TanreiNavigationDrawerTokens(
     breakpointCollapsed: 600.0,
     breakpointExpanded: 1024.0,
-    collapsedItemContainerPaddingInline: 0.0,
     collapsedItemContainerShape: 9999.0,
     collapsedItemGap: 4.0,
+    collapsedItemLabelPaddingInline: 4.0,
     collapsedItemLabelTypescale: _typescaleLabelSmall,
     containerMaxWidth: 400.0,
     containerMinWidth: 200.0,
@@ -6697,8 +6731,8 @@ const TanreiSystem m3LikeSystem = TanreiSystem(
         ),
       ),
     ),
-    densitys: TanreiNavigationDrawerDensitys(
-      regular: TanreiNavigationDrawerDensityTokens(
+    sizes: TanreiNavigationDrawerSizes(
+      medium: TanreiNavigationDrawerSizeTokens(
         containerGap: 0.0,
         itemContainerHeight: 56.0,
         itemPaddingInline: 16.0,
@@ -6714,7 +6748,7 @@ const TanreiSystem m3LikeSystem = TanreiSystem(
         collapsedItemContainerPaddingBlock: 0.0,
         headingHeight: 36.0,
       ),
-      compact: TanreiNavigationDrawerDensityTokens(
+      small: TanreiNavigationDrawerSizeTokens(
         containerGap: 2.0,
         itemContainerHeight: 32.0,
         itemPaddingInline: 8.0,
@@ -9136,13 +9170,15 @@ const TanreiSystem m3LikeSystem = TanreiSystem(
     ),
     sizes: TanreiTableSizes(
       small: TanreiTableSizeTokens(
+        rowHeight: 0.0,
         cellPaddingBlock: 6.0,
         cellPaddingInline: 12.0,
         cellTextTypescale: _typescaleBodySmall,
         headerTextTypescale: _typescaleLabelSmall,
       ),
       medium: TanreiTableSizeTokens(
-        cellPaddingBlock: 12.0,
+        rowHeight: 52.0,
+        cellPaddingBlock: 16.0,
         cellPaddingInline: 16.0,
         cellTextTypescale: _typescaleBody,
         headerTextTypescale: _typescaleLabel,
@@ -9994,6 +10030,21 @@ const TanreiSystem m3LikeSystem = TanreiSystem(
 // ── VOCABULARY EXTENSIONS ────────────────────────────────────
 // What "m3-like" adds to the Tanrei vocabulary, typed. The values are in `extra` above; a design system that
 // adds nothing has no such section.
+
+/// The sizes "m3-like" adds to button: `TanreiButton(size: M3LikeButtonSize.xlarge)`.
+abstract final class M3LikeButtonSize {
+  /// `comp.button` size `xlarge`
+  static const xlarge = TanreiButtonSize('xlarge');
+  /// `comp.button` size `xxlarge`
+  static const xxlarge = TanreiButtonSize('xxlarge');
+}
+
+extension M3LikeButtonSizes on TanreiButtonSizes {
+  /// The tokens of the size `xlarge`; in a design system without it, the default size's.
+  TanreiButtonSizeTokens get xlarge => this[M3LikeButtonSize.xlarge];
+  /// The tokens of the size `xxlarge`; in a design system without it, the default size's.
+  TanreiButtonSizeTokens get xxlarge => this[M3LikeButtonSize.xxlarge];
+}
 
 extension M3LikeTypescale on TanreiTypescale {
   /// `display-large`. In a design system without it: the value "m3-like" gives it (reported in debug builds).

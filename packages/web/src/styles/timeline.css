@@ -81,7 +81,7 @@
     --_timeline-time-line: round(nearest, var(--tanrei-comp-timeline-time-typescale-medium-font-size) * var(--tanrei-comp-timeline-time-typescale-medium-line-height), 1px);
     /* TML-1, TML-6: the marker's box, which is also the marker column. */
     --_timeline-marker: var(--tanrei-comp-timeline-marker-height-medium);
-    /* TML-2: the space between two events, which follows the system's density. */
+    /* TML-2: the space between two events, which follows the system's spacing. */
     --_timeline-gap: var(--tanrei-comp-timeline-item-gap);
     --tanrei-text-emphasized-weight: var(--_timeline-body-emphasized);
     display: block;

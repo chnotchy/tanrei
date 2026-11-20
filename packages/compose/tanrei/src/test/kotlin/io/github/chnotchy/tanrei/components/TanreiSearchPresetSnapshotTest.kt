@@ -8,7 +8,6 @@ import io.github.chnotchy.tanrei.theme.TanreiContrast
 import io.github.chnotchy.tanrei.theme.TanreiTheme
 import io.github.chnotchy.tanrei.theme.TanreiThemeMode
 import io.github.chnotchy.tanrei.tokens.Cupertino
-import io.github.chnotchy.tanrei.tokens.M3ExpressiveLike
 import io.github.chnotchy.tanrei.tokens.M3Like
 import io.github.chnotchy.tanrei.tokens.TanreiSystem
 import org.junit.Rule
@@ -18,11 +17,11 @@ import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
 
 /**
- * One representative fixture per shipped preset, at `src/test/snapshots/search/<system-id>/<fixture-id>.png`
- * — apart from the default system's baselines, which belong to [TanreiSearchSnapshotTest] and the parity checker. m3-like
- * and m3-expressive-like take none of the search's own values (they draw the default's search in their own colors): `docked` for m3-like (the bar, its clear button and the open view with its rows),
- * `bar-slots` for m3-expressive-like (its icon buttons in the slots). Cupertino re-values the bar (UISearchBar):
- * `bar-value` — a 36 high field at its medium corner with its clear button. Same harness as the default's.
+ * One representative fixture per shipped preset, at `src/test/snapshots/search/<system-id>/<fixture-id>.png` — apart
+ * from the default system's baselines, which belong to [TanreiSearchSnapshotTest] and the parity checker. m3-like takes
+ * none of the search's own values (it draws the default's search in its own colors): `docked` for m3-like (the bar, its
+ * clear button and the open view with its rows). Cupertino re-values the bar (UISearchBar): `bar-value` — a 36 high
+ * field at its medium corner with its clear button. Same harness as the default's.
  */
 @RunWith(AndroidJUnit4::class)
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
@@ -33,9 +32,6 @@ class TanreiSearchPresetSnapshotTest {
 
     @Test
     fun `m3-like - the representative fixture matches its baseline`() = verify(TanreiSystem.M3Like, "docked")
-
-    @Test
-    fun `m3-expressive-like - the representative fixture matches its baseline`() = verify(TanreiSystem.M3ExpressiveLike, "bar-slots")
 
     @Test
     fun `cupertino - the representative fixture matches its baseline`() = verify(TanreiSystem.Cupertino, "bar-value")

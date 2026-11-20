@@ -56,7 +56,7 @@ const MINIMUM_TARGET_36 = new Set([
   'comp.pagination.container.height.small', 'comp.segmented-button.container.height.small', 'comp.segmented-button.container.padding-block.small',
   'comp.tabs.container.height.small', 'comp.snackbar.controls.height',
   'comp.tree-view.container.height.small', 'comp.tree-view.container.padding-block.small',
-  'comp.navigation-drawer.item.container.height.compact', 'comp.navigation-drawer.item.padding-block.compact', 'comp.navigation-drawer.collapsed.item.container.width.compact',
+  'comp.navigation-drawer.item.container.height.small', 'comp.navigation-drawer.item.padding-block.small', 'comp.navigation-drawer.collapsed.item.container.width.small',
   'comp.table-of-contents.row.height.small', 'comp.table-of-contents.row.padding-block.small',
   'comp.menu.container.height.small', 'comp.menu.container.padding-block.small',
   'comp.select.option.height.small', 'comp.select.option.padding-block.small',
@@ -65,7 +65,7 @@ const MINIMUM_TARGET_36 = new Set([
   'comp.search.suggestion.container.height.small', 'comp.search.suggestion.container.padding-block.small',
   'comp.button-group.standard.gap', 'comp.toolbar.container.gap.docked', 'comp.search.container.gap',
   'comp.radio-button.option.min-height', 'comp.carousel.controls.height',
-  'comp.chip.container.padding-inline-with-avatar.medium', 'comp.navigation-drawer.collapsed.item.container.padding-block.compact',
+  'comp.chip.container.padding-inline-with-avatar.medium', 'comp.navigation-drawer.collapsed.item.container.padding-block.small',
   'comp.combobox.container.action-gap', 'comp.select.container.action-gap', 'comp.text-input.container.action-gap',
 ]);
 
@@ -99,7 +99,7 @@ test('resolved values still equal the oracle, except where they differ on purpos
       /\.comp\.button\.container\.shape$/.test(id) ||
       // The icon scale moved up (medium 24; extra-small 16, small 20, large 32), and a button's glyph with it.
       /\.sys\.icon\.(extra-small|small|medium|large)$/.test(id) || /\.comp\.button\.icon\.size$/.test(id) ||
-      // The default button sizes are Material 3 Expressive's three smallest, 32 / 40 / 56.
+      // The default button sizes are Material 3's three smallest, 32 / 40 / 56.
       /\.comp\.button\.container\.height\.(medium|large)$/.test(id) ||
       // The outlined button's edge is the hairline role.
       /\.comp\.button\.outlined\.outline\.color$/.test(id) ||

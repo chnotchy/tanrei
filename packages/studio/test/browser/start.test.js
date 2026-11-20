@@ -42,7 +42,7 @@ studioTest('the bar’s start point: the default system, the root listed and not
   ]]);
   assert.equal(rows[1][0], 'From the gallery');
   assert.equal(rows[1][1], null, 'no example is the start');
-  assert.deepEqual(rows[1][2].map(([id]) => id).sort(), ['cupertino', 'm3-expressive-like', 'm3-like']);
+  assert.deepEqual(rows[1][2].map(([id]) => id).sort(), ['cupertino', 'm3-like']);
   for (const [id, , note, disabled] of rows[1][2]) assert.ok(note.endsWith('An example, not an official design.') && !disabled, id);
   assert.equal(await menu(page).locator('[data-start-file]').getAttribute('label'), 'Import a file…');
   // The root is reachable from the keyboard, says it is disabled — its reason is its description — and pressing it does nothing.

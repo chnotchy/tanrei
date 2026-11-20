@@ -13,6 +13,7 @@ import { expectPressShownAndHeld, watchPress } from '../../../test/watched-press
 import { middlePressAimed } from '../../../test/middle-press.js';
 import { type Fixture, type FixtureItem, acmeSystemCss, fixturesDocument, iconFaceArrives, loadSpec, missingWords, mountFixtures, resolveColor, resolveToken, setWords, tab, tabTo, tableNameSuffix, withoutIconFont, rootTokens } from '../../../test/harness.js';
 import { expectBaseline } from '../../../test/baseline.js';
+import { CONTROL_HEIGHTS, atControlHeight } from '../../../test/control-height.js';
 
 const spec = loadSpec('table');
 type P = Page;
@@ -174,9 +175,9 @@ test.describe('the parts and their sizes', () => {
     for (const c of [cell(page, 'run', 'thead', 1, 2), cell(page, 'run', 'tbody', 1, 2)]) expect(await lines(c)).toBe(1);
   });
 
-  test('TBL-4: a cell’s paddings and text style by size, its color, figures of equal width, a row as tall as its tallest cell (46 and 32 for one line in the default system), cells aligned to the top', async ({ page }) => {
+  test('TBL-4: a cell’s paddings and text style by size, its color, figures of equal width, a row as tall as its tallest cell and at least its size’s row height (40, the control height, and 32, the small step, for one line in the default system), cells aligned to the top', async ({ page }) => {
     await mountFixtures(page, spec, { fixtures: some('basic', 'small', 'long-cells', 'totals') });
-    for (const [id, size, height] of [['basic', 'medium', 46], ['small', 'small', 32]] as const) {
+    for (const [id, size, height] of [['basic', 'medium', 40], ['small', 'small', 32]] as const) {
       const padBlock = await resolveToken(page, T(`cell-padding-block-${size}`));
       const padInline = await resolveToken(page, T(`cell-padding-inline-${size}`));
       const line = await resolveToken(page, T('divider-thickness'));
@@ -195,7 +196,9 @@ test.describe('the parts and their sizes', () => {
       }
       expect(line).toBeGreaterThan(0);
       near((await box(table(page, id).locator('> tbody > tr').first())).height, height, 0.1);
-      // No height of its own.
+      // A row of one-line cells is its size's row height exactly: the padding twice and one line fill it.
+      expect(await resolveToken(page, T(`row-height-${size}`))).toBe(height);
+      // No height written on a row or a cell: the least height is the stylesheet's (TBL-63).
       expect(await table(page, id).evaluate((el) => [...el.querySelectorAll('tr, th, td')].every((c) => (c as HTMLElement).style.height === ''))).toBe(true);
     }
     // As tall as its tallest cell and no taller; the first lines of a row share a baseline (one top, one style).
@@ -322,6 +325,27 @@ test.describe('the parts and their sizes', () => {
     // …and follows the header when it changes (TBL-25).
     await cell(page, 'header-only', 'thead', 1, 2).evaluate((el) => el.setAttribute('data-align', 'center'));
     await expect.poll(() => css(cell(page, 'header-only', 'tbody', 1, 2), 'text-align')).toBe('center');
+  });
+});
+
+test.describe('the control height', () => {
+  test('TBL-63: at control height 32, 36 and 40, the minimum no higher, every body row of one-line cells of a medium table is that tall under a fine pointer, the text of each cell whole inside it', async ({ page }) => {
+    await mountFixtures(page, spec, { fixtures: some('basic') });
+    const rows = table(page, 'basic').locator('> tbody > tr');
+    for (const height of CONTROL_HEIGHTS) {
+      await atControlHeight(page, height);
+      await expect.poll(async () => (await box(rows.first())).height, `a row at ${height}`).toBeCloseTo(height, 1);
+      for (const tr of await rows.all()) {
+        const r = await box(tr);
+        expect(r.height, `every row at ${height}`).toBeCloseTo(height, 1);
+        for (const td of await tr.locator('> th, > td').all()) {
+          if (!(await td.evaluate((el) => !!el.textContent?.trim()))) continue;
+          const text = await textBox(td);
+          expect(text.top, `a cell's text inside its row at ${height}`).toBeGreaterThanOrEqual(r.y - 0.5);
+          expect(text.bottom, `at ${height}`).toBeLessThanOrEqual(r.y + r.height + 0.5);
+        }
+      }
+    }
   });
 });
 
@@ -1446,7 +1470,7 @@ test.describe('changes, direction, text size, forced colors', () => {
     expect(seen.filter((m) => m.includes('"airy"')).length).toBe(0);
   });
 
-  test('TBL-62: without a size of its own a table is drawn at the size its nearest container sets — a set size, never a default — and its own size, medium included, wins; a size it lacks is its nearest; it passes none to what its cells hold; a change, a removal and a move are drawn before the next frame, keeping the chosen rows and focus; at density 0.75, 1 and 1.5 every cell is padded by its size’s tokens', async ({ page }) => {
+  test('TBL-62: without a size of its own a table is drawn at the size its nearest container sets — a set size, never a default — and its own size, medium included, wins; a size it lacks is its nearest; it passes none to what its cells hold; a change, a removal and a move are drawn before the next frame, keeping the chosen rows and focus; at space unit 6, 8 and 12 every cell is padded by its size’s tokens', async ({ page }) => {
     await mountFixtures(page, spec, { icons: true, fixtures: some('basic') });
     // The containers that pass a size are the button group and the toolbar; a button group stands in for any of them
     // here (it reports content that is not a Button, and still lays it out).
@@ -1480,12 +1504,12 @@ test.describe('changes, direction, text size, forced colors', () => {
     const sizes = async () => ({ small: await resolveToken(page, T('cell-padding-block-small')), medium: await resolveToken(page, T('cell-padding-block-medium')) });
     // A size it takes, or the default, is not its own: no size attribute is written on a table that sets none.
     expect(await page.evaluate((ids) => ids.map((id) => document.getElementById(id)!.getAttribute('size')), all)).toEqual([null, 'medium', null, null, null]);
-    for (const density of ['0.75', '1', '1.5']) {
-      await rootTokens(page, { '--tanrei-dial-density': density });
+    for (const space of ['6px', '8px', '12px']) {
+      await rootTokens(page, { '--tanrei-dial-space-unit': space });
       const size = await sizes();
-      await expect.poll(pads, `density ${density}`).toEqual({ taken: size.small, 'own-medium': size.medium, free: size.medium, nearest: size.medium, alone: size.medium });
+      await expect.poll(pads, `space unit ${space}`).toEqual({ taken: size.small, 'own-medium': size.medium, free: size.medium, nearest: size.medium, alone: size.medium });
     }
-    await rootTokens(page, { '--tanrei-dial-density': '' });
+    await rootTokens(page, { '--tanrei-dial-space-unit': '' });
     const size = await sizes();
     expect(size.medium).toBeGreaterThan(size.small);
     // Every member of the size: the cell's text style, its inline padding and the header's text style are small's.
@@ -3451,11 +3475,11 @@ test.describe('a loading body', () => {
     await page.addStyleTag({ content: fs.readFileSync(path.join(pkg, 'dist/skeleton.css'), 'utf8') });
     for (const id of ['loading-placeholders', 'held']) await settled(page, id);
     const id = 'loading-placeholders';
-    // The verify: five rows of empty cells, each as high as a row of one line (46 under the default system), no checkbox, the header checkbox disabled.
+    // The verify: five rows of empty cells, each as high as a row of one line (40 under the default system), no checkbox, the header checkbox disabled.
     const rows = await table(page, id).locator('> tbody > tr').all();
     expect(rows).toHaveLength(5);
     const line = (await box(table(page, 'selection').locator('> tbody > tr').first())).height;
-    near(line, 46, 0.1);
+    near(line, 40, 0.1);
     for (const tr of rows.slice(0, 4)) near((await box(tr)).height, line, 0.1);
     expect(await table(page, id).evaluate((el: HTMLTableElement) => [...el.tBodies[0].rows].every((tr) => [...tr.cells].every((c) => c.childNodes.length === 0)))).toBe(true);
     expect(await said(check(page, id, 'thead', 1))).toBe('unchecked disabled');

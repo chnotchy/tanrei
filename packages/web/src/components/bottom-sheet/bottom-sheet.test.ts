@@ -14,6 +14,7 @@ import { expectWheelKeptFromPage } from '../../../test/contained-wheel.js';
 import { EVERY_ANIMATION, expectFromNextFrame, motionEnded } from '../../../test/motions.js';
 import { transitionsRun, watchTransitions } from '../../../test/transitions.js';
 import { entrances, loadOpen, mountOpenAgain, runsAtRest } from '../../../test/mounted-open.js';
+import { expectScrimTakenAwayAtClose } from '../../../test/scrim-at-close.js';
 import { bezierOf, expectSlideExitEnd, expectSlidOnly, resolveEasing, sheetProbe, slidOut, turnHeld } from '../../../test/appear.js';
 import { type Frames, expectNoFlicker, freezeFirstFrame, sampleFrames } from '../../../test/frames.js';
 import { STOPPED_AFTER, flingThenHold, strokes } from '../../../test/stopped-release.js';
@@ -646,6 +647,12 @@ test.describe('forms, focus and dismissal', () => {
       return (el.shadowRoot.querySelector('.sheet') as HTMLElement).getAnimations().map((a) => (a as CSSTransition).transitionProperty);
     });
 
+  test('BSH-1, MOT-8: closing a modal sheet, its scrim is drawn at no opacity and takes no press from the first frame while the sheet still slides down, and opening fades it in from no opacity, in every engine; where motion is reduced it is gone from the first frame too', async ({ page }) => {
+    await mount(page, [fx('s')]);
+    const set = (value: boolean) => () => host(page, 's').evaluate((el, v) => ((el as unknown as { open: boolean }).open = v), value);
+    await expectScrimTakenAwayAtClose(page, page.locator('[data-fixture="s"]'), { open: set(true), close: set(false), what: 'the modal bottom sheet' });
+  });
+
   test('BSH-1: opening slides the sheet up over the enter motion, a modal one over a scrim fading in; closing slides it down over the exit motion; reduced motion fades in place', async ({ page }) => {
     await mount(page, [fx('s', { open: false }, LONG)]);
     const [enter, exit] = [await ms(page, T('motion-enter-duration')), await ms(page, T('motion-exit-duration'))];
@@ -699,7 +706,7 @@ test.describe('forms, focus and dismissal', () => {
   const dialogMotions = (seen: Frames) => seen.motions.filter((motion) => motion.on.startsWith('dialog'));
   const motionNames = (seen: Frames) => [...new Set(dialogMotions(seen).map((motion) => motion.name))].sort();
 
-  test('BSH-1: a modal sheet slides up from its own height below the bottom edge — its first frame held there, whole and unscaled — over the enter motion, and down the same way over the exit motion on the accelerating curve, its scrim fading in step over the same duration; nothing flickers, the last frame of the exit leaves no more than its curve does, and the exit is drawn in every engine, not dropped at once', async ({ page }) => {
+  test('BSH-1: a modal sheet slides up from its own height below the bottom edge — its first frame held there, whole and unscaled — over the enter motion, its scrim fading in in step over the same duration, and down the same way over the exit motion on the accelerating curve, its scrim gone from the first frame (MOT-8); nothing flickers, the last frame of the exit leaves no more than its curve does, and the exit is drawn in every engine, not dropped at once', async ({ page }) => {
     await mount(page, [fx('s', { open: false }, LONG)]);
     const dialog = host(page).locator('dialog');
     const [enter, exit] = [await ms(page, T('motion-enter-duration')), await ms(page, T('motion-exit-duration'))];
@@ -728,7 +735,8 @@ test.describe('forms, focus and dismissal', () => {
     expect(await dialog.evaluate((el) => (el as HTMLDialogElement).open)).toBe(false);
     expectSlidOnly(closing, 'bottom');
     expectNoFlicker(closing);
-    expect(motionNames(closing)).toEqual(['opacity', 'translate']);
+    // MOT-8: the scrim is taken away at once; only the slide moves.
+    expect(motionNames(closing)).toEqual(['translate']);
     for (const motion of dialogMotions(closing)) expect([motion.name, motion.duration, motion.easing]).toEqual([motion.name, exit, exitEasing]);
     expectSlideExitEnd(closing, 'bottom', { duration: exit, easing: bezierOf(exitEasing) });
     expect(await css(dialog, 'display')).toBe('none');
@@ -747,7 +755,7 @@ test.describe('forms, focus and dismissal', () => {
     expectNoFlicker(closing);
   });
 
-  test('BSH-1: where motion is reduced the modal sheet and its scrim only fade, in place, over sys.motion.role.reduced — no slide', async ({ page }) => {
+  test('BSH-1, MOT-8: where motion is reduced the modal sheet and its scrim only fade in, and the sheet out, in place, over sys.motion.role.reduced — no slide', async ({ page }) => {
     await page.emulateMedia({ reducedMotion: 'reduce' });
     await mount(page, [fx('s', { open: false }, LONG)]);
     const dialog = host(page).locator('dialog');
@@ -759,8 +767,9 @@ test.describe('forms, focus and dismissal', () => {
       for (const frame of [...seen.frames, seen.rest]) {
         const out = slidOut(frame, 'bottom');
         if (out !== undefined) expect(out, `open ${open}, frame ${frame.index}: in place`).toBeCloseTo(0, 2);
-        // The sheet and its scrim fade together.
-        if (out !== undefined) expect(Math.abs((frame.probe.opacity as number) - (frame.probe.scrim as number)), `open ${open}, frame ${frame.index}`).toBeLessThanOrEqual(0.02);
+        // The sheet and its scrim fade in together; closing, the scrim is gone at once (MOT-8).
+        if (out !== undefined && open) expect(Math.abs((frame.probe.opacity as number) - (frame.probe.scrim as number)), `open ${open}, frame ${frame.index}`).toBeLessThanOrEqual(0.02);
+        if (out !== undefined && !open) expect(frame.probe.scrim, `open ${open}, frame ${frame.index}`).toBe(0);
       }
       expectNoFlicker(seen);
       expect(seen.rest.probe.opacity).toBe(open ? 1 : 0);
@@ -1398,8 +1407,8 @@ test.describe('the header and the close button', () => {
     expect(await missingWords(page)).not.toContain('closeLabel');
   });
 
-  test('BSH-29: under m3-like and m3-expressive-like the close button is a bare glyph (text), under cupertino the tonal circle, each at the system’s own small Button size', async ({ page }) => {
-    for (const [system, variant] of [['m3-like', 'text'], ['m3-expressive-like', 'text'], ['cupertino', 'tonal']] as const) {
+  test('BSH-29: under m3-like the close button is a bare glyph (text), under cupertino the tonal circle, each at the system’s own small Button size', async ({ page }) => {
+    for (const [system, variant] of [['m3-like', 'text'], ['cupertino', 'tonal']] as const) {
       await mount(page, [fixtureOf('modal-header')], { system });
       const id = 'modal-header';
       await expect(close(page, id), system).toHaveAttribute('size', 'small');

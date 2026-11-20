@@ -526,7 +526,7 @@ describe('the playground', () => {
       for (const control of controls) {
         const prop = specs[name].props.find((entry) => entry.name === control.prop);
         const values = prop.type === 'enum' ? prop.values.filter((value) => prop.name !== 'variant' || !(lacking[name] ?? []).includes(value)) : [];
-        const expected = { enum: values.length <= SIDE_BY_SIDE ? 'segmented' : 'select', boolean: 'switch', number: 'number', string: 'text' }[prop.type];
+        const expected = { enum: values.length <= SIDE_BY_SIDE ? 'tabs' : 'select', boolean: 'switch', number: 'number', string: 'text' }[prop.type];
         assert.equal(control.kind, expected, `${name}.${control.prop}`);
         assert.deepEqual(control.values, values, `${name}.${control.prop}`);
         assert.equal(control.default, prop.default, `${name}.${control.prop}`);
@@ -536,7 +536,7 @@ describe('the playground', () => {
     assert.ok(counted > 1000, `${counted} controls in all: fewer than the specs' settable props`);
     const button = controlsOf('button');
     assert.equal(button.find((control) => control.prop === 'variant').kind, 'select', 'five variants open as a list');
-    assert.equal(button.find((control) => control.prop === 'size').kind, 'segmented', 'three sizes stand side by side');
+    assert.equal(button.find((control) => control.prop === 'size').kind, 'tabs', 'three sizes stand side by side');
   });
 
   test('every control writes only an attribute the web element reads, the attribute of the property it sets', () => {
@@ -764,15 +764,16 @@ describe('the one frame', () => {
     assert.match(css, /\.docs-example-overlay \{[^}]*position: absolute;[^}]*inset: 0;[^}]*\}/);
     assert.doesNotMatch(css, /content-visibility/, 'a stage is laid out: an element that measures its place once keeps what it chose');
   });
-  test('it follows the design system the reader chose for the page, unless a page pins it to a preset', () => {
-    // No switch of its own: the root's attribute, which the header's menu writes (lib/listing.mjs), and every change of it.
+  test('it is drawn in the page’s look, with no system of its own, unless a page pins it to a preset', () => {
+    // No switch of its own, and no scope: the stage takes the root's tokens, which the look's stylesheet draws
+    // (lib/appearance.ts); a change of the sheet is told to every frame not pinned.
     assert.doesNotMatch(template(frame), /<tanrei-tabs\b(?![^>]*data-example-flavors)/);
-    assert.match(script, /import \{ SYSTEM_ATTR \} from '\.\/listing\.mjs';/);
-    assert.match(script, /observe\(document\.documentElement, \{ attributes: true, attributeFilter: \[SYSTEM_ATTR\] \}\)/);
-    assert.match(script, /if \(frame\.dataset\.pinned\) return;/);
-    // A pinned preset's stylesheet is linked with the frame; the one the reader chose is loaded once, by the script.
+    assert.doesNotMatch(script, /data-tanrei-system|setAttribute\('data-tanrei|import\.meta\.glob/);
+    assert.match(script, /document\.addEventListener\(LOOK_SHEET_EVENT, \(\) => \{\s*for \(const frame of frames\(\)\) if \(!frame\.dataset\.pinned\) frame\.dispatchEvent\(new CustomEvent\(SYSTEM_EVENT/);
+    // A pinned preset's stylesheet is linked with the frame, and its stage is that system's scope.
     assert.match(template(frame), /\{stylesheet && <link rel="stylesheet" href=\{stylesheet\} \/>\}/);
     assert.match(frame, /const pinned = system && system !== ns \? system : undefined;/);
+    assert.match(template(frame), /data-tanrei-system=\{pinned\}/);
   });
   test('its code is what the stage held as the page was built: one inline script, the same in every frame', () => {
     assert.match(frame, /const SNAPSHOT = '\(window\.docsExampleSources \?\?= new WeakMap\(\)\)\.set\(document\.currentScript\.previousElementSibling, document\.currentScript\.previousElementSibling\.innerHTML\)';/);

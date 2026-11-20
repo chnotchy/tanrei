@@ -24,6 +24,7 @@ import { expectBaseline } from '../../../test/baseline.js';
 import { expectGoneWhileSkipped } from '../../../test/skipped-exit.js';
 import { expectBoxTakesContainerSize, expectOptionsTakeDrawnSize } from '../../../test/input-box-size.js';
 import { controlledInTree, controlledList } from '../../../test/controlled-list.js';
+import { CONTROL_HEIGHTS, atControlHeight } from '../../../test/control-height.js';
 
 const spec = loadSpec('combobox');
 type P = Page;
@@ -313,7 +314,7 @@ const inForm = (page: P, id: string) =>
       ((window as unknown as { __events?: string[] }).__events ??= []).push('submit');
     });
   });
-const SYSTEMS = [undefined, 'm3-like', 'm3-expressive-like', 'cupertino'] as const;
+const SYSTEMS = [undefined, 'm3-like', 'cupertino'] as const;
 const THEMES = ['light', 'dark'] as const;
 
 test.describe('behavior: the box, and what it takes from the Field that frames it', () => {
@@ -2460,7 +2461,7 @@ test.describe('behavior: the list', () => {
     await expect.poll(() => at('icon-space-auto', 'Print')).toBeCloseTo(kept, 0);
   });
 
-  test('CMB-68: a small combobox draws its options and group titles from the small tokens — lower, set in less, smaller glyphs, the same text — never below the target; a medium or a large combobox draws medium ones; an unknown size is medium and reported, one added to the options is drawn from their tokens, a change is drawn at once, and the heights follow the density', async ({ page, browserName }) => {
+  test('CMB-68: a small combobox draws its options and group titles from the small tokens — lower, set in less, smaller glyphs, the same text — never below the target; a medium or a large combobox draws medium ones; an unknown size is medium and reported, one added to the options is drawn from their tokens, a change is drawn at once, and the heights follow the control height', async ({ page, browserName }) => {
     const seen = warnings(page);
     const smallFixture = spec.fixtures.find((f) => f.id === 'size-small')!;
     const at = (id: string, size: string) => ({ ...smallFixture, id, props: { ...smallFixture.props, size } }) as Fixture;
@@ -2510,11 +2511,11 @@ test.describe('behavior: the list', () => {
     await expect.poll(async () => (await drawn('size-medium', 'Mail')).height).toBeCloseTo(mail.height, 0);
     await host(page, 'size-medium').evaluate((el: HTMLElement & { size: string }) => (el.size = 'large'));
     await expect.poll(async () => (await drawn('size-medium', 'Mail')).height).toBeCloseTo(mailMedium.height, 0);
-    // The heights follow the system's density: a small option is the small token at each.
-    for (const density of ['0.75', '1.5', '']) {
-      await rootTokens(page, { '--tanrei-dial-density': density });
+    // The heights follow the system's control height: a small option is the small token at each.
+    for (const height of ['48px', '56px', '']) {
+      await rootTokens(page, { '--tanrei-dial-control-height': height });
       const step = await token(page, 'option-height-small');
-      await expect.poll(async () => (await drawn('size-small', 'Mail')).height, `density ${density || 1}`).toBeCloseTo(Math.max(step, pointer), 0);
+      await expect.poll(async () => (await drawn('size-small', 'Mail')).height, `control height ${height || "40px"}`).toBeCloseTo(Math.max(step, pointer), 0);
     }
     // CMB-34: no size is lower than the pointer target for a fine pointer — seen under a layer whose pointer target (48)
     // is taller than the small row, as the default system's (36) is not.
@@ -2530,7 +2531,21 @@ test.describe('behavior: the list', () => {
     await expect.poll(async () => (await drawn('size-small', 'Mail')).height).toBeCloseTo(await resolveToken(page, '--tanrei-sys-target-touch'), 0);
   });
 
-  test('CMB-45: the list appears as a popover\'s container does over motion.open-*, leaves the same way over motion.close-*, and only fades, over role.reduced, where motion is reduced; closing it takes no input; a change of the options shown changes its height at once; the value, the text and the open state change when it closes, not when its motion ends', async ({ page }) => {
+  test('CMB-84: at control height 32, 36 and 40, the minimum no higher, an option of a medium combobox’s open list is that tall under a fine pointer, its label whole inside it, and as tall as the combobox’s box', async ({ page }) => {
+    const smallFixture = spec.fixtures.find((f) => f.id === 'size-small')!;
+    await mount(page, [{ ...smallFixture, id: 'medium', props: { ...smallFixture.props, size: 'medium' } }]);
+    for (const height of CONTROL_HEIGHTS) {
+      await atControlHeight(page, height);
+      const r = row(page, 'medium', 'Mail');
+      await expect.poll(async () => (await box(r)).height, `at ${height}`).toBeCloseTo(height, 1);
+      const [b, label] = [await box(r), await box(r.locator('.option-label'))];
+      expect(label.y, `the label inside the row at ${height}`).toBeGreaterThanOrEqual(b.y - 0.5);
+      expect(label.y + label.height, `at ${height}`).toBeLessThanOrEqual(b.y + b.height + 0.5);
+      near((await box(container(page, 'medium'))).height, height, `the box at ${height}`);
+    }
+  });
+
+  test('CMB-45:the list appears as a popover\'s container does over motion.open-*, leaves the same way over motion.close-*, and only fades, over role.reduced, where motion is reduced; closing it takes no input; a change of the options shown changes its height at once; the value, the text and the open state change when it closes, not when its motion ends', async ({ page }) => {
     await mount(page, [fx('one', { value: 'lisbon' })], { reducedMotion: false });
     // The motions at 40 s, each ended by hand: what is read 'still fading' is read some round trips after the change that
     // begins the fade, and at 400 ms a runner that takes 150 ms an answer read a list that had arrived. The durations are
@@ -3742,7 +3757,7 @@ test.describe('the rows: drawn while the list is shown, and in a long list those
 });
 
 test.describe('the size a container sets', () => {
-  test('CMB-83: without a size of its own a combobox draws its box at the size its nearest container sets — a toolbar’s (TBR-31), a set size and never a default —; its own size, medium included, wins; a size it lacks is its nearest; a change, a removal and a move are drawn at once; at density 0.75, 1 and 1.5 every height is its size’s token, the small one a small Button’s; no size attribute is written on one that takes its size; and axe finds nothing', async ({ page }) => {
+  test('CMB-83: without a size of its own a combobox draws its box at the size its nearest container sets — a toolbar’s (TBR-31), a set size and never a default —; its own size, medium included, wins; a size it lacks is its nearest; a change, a removal and a move are drawn at once; at control height 40, 48 and 56 every height is its size’s token, the small one a small Button’s; no size attribute is written on one that takes its size; and axe finds nothing', async ({ page }) => {
     await mountFixtures(page, spec, { fixtures: spec.fixtures.filter((f) => f.id === 'stacked-empty') });
     await expectBoxTakesContainerSize(page, 'tanrei-combobox', T);
   });

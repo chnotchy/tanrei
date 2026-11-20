@@ -2,7 +2,7 @@
 title: Línea de tiempo
 description: Eventos dispuestos en orden cronológico, cada uno con un marcador, su momento, un título y un cuerpo con tu contenido, unido al siguiente por una línea fina. Donde los eventos tienen un estado, la forma del marcador y tus palabras dicen cuáles están hechos, cuál está en curso y cuáles quedan por delante. Es una lista para leer, nunca un control.
 translationOf: components/timeline.mdx
-sourceHash: bdbd0290ca8c8a4a1ebe2c381483515fefddf6e1
+sourceHash: b8a2aaefcd79cf6236517d2e2505f52ea82c8315
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -144,7 +144,7 @@ El momento es tuyo. Escríbelo en el idioma, el calendario y el formato de quien
 - **Un estado** cambia la forma del marcador y nada más: un anillo con una marca de verificación para el evento hecho, un círculo relleno con un punto para el que está en curso y un anillo vacío para el que todavía queda por delante. El círculo relleno es el único color que aporta una línea de tiempo, aparte del color del momento.
 - **El conector** va de la caja de cada marcador a la siguiente y se detiene antes de tocar ninguna de las dos. El último evento no tiene, y es la misma línea entre eventos de cualquier estado.
 - **El momento** va primero en el evento, en un color discreto. **El título** lo sigue, con el tamaño del cuerpo y un peso de título. **El cuerpo** es tu contenido: dos bloques quedan a 8 uno de otro.
-- **El espacio entre dos eventos** es de 16 en el sistema predeterminado, en los dos tamaños. Sigue la [densidad](/es/foundations/size-and-density/) del sistema: un sistema cuya densidad es inferior a 1 dibuja sus eventos más juntos. Una línea de tiempo no tiene densidad propia.
+- **El espacio entre dos eventos** es de 16 en el sistema predeterminado, en los dos tamaños. Sigue el espaciado del sistema, `dial.space.unit`: un sistema que espacia sus bloques más juntos dibuja sus eventos más juntos. Una línea de tiempo no tiene densidad propia.
 - **Los tamaños** son los dos de la prosa: medium entre controles, large en una página cuya finalidad es el texto. El marcador y el conector coinciden con los de los pasos, así que en una misma página los dos se leen como una sola familia.
 
 <ComponentSpecs name="timeline" />

@@ -21,6 +21,9 @@
 // The quick switch between light and dark is the bar's own toggle (Header.astro); the device's mode is chosen here.
 //
 // A button and its panel are two parts, written apart: the bar draws only its slots, so the panel stands outside it.
+// The panel also holds what the page's script needs to draw a look chosen here: the looks, and the address of each
+// gallery example's stylesheet (lib/look-sheets.mjs), the one the head's script links for it.
+import sheets from 'virtual:tanrei-docs/looks';
 import { CUSTOM_LOOK } from '../../lib/appearance';
 import { manifests } from '../../lib/repo';
 import { localeBase, strings } from '../../lib/i18n';
@@ -64,7 +67,7 @@ const ids = { mode: `${id}-mode`, contrast: `${id}-contrast`, look: `${id}-look`
       <span class="docs-look-name">{look}</span>
     </tanrei-button>
   ) : (
-    <tanrei-popover class="docs-appearance-panel" data-define-on-use anchor={id} placement="bottom-start" headline={words.appearance} closable close-label={words.close} data-docs-looks={looks.map((each) => each.id).join(' ')} data-copied={words.linkCopied} data-copy-failed={words.copyFailed}>
+    <tanrei-popover class="docs-appearance-panel" data-define-on-use anchor={id} placement="bottom-start" headline={words.appearance} closable close-label={words.close} data-docs-looks={looks.map((each) => each.id).join(' ')} data-docs-look-sheets={JSON.stringify(sheets)} data-copied={words.linkCopied} data-copy-failed={words.copyFailed}>
       <div class="docs-appearance-body">
         <p class="docs-appearance-heading" id={ids.mode}>{words.mode}</p>
         <tanrei-tabs class="docs-appearance-mode" label={words.mode} value="system" size="small" full-width>

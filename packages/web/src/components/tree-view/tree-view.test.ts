@@ -14,6 +14,7 @@ import { holdClock, releaseClock } from '../../../test/page-clock.js';
 import { TYPEAHEAD_FOUND, TYPEAHEAD_LABELS, typeaheadAsFiltered } from '../../../test/typeahead.js';
 import { expectBaseline } from '../../../test/baseline.js';
 import { EVERY_ANIMATION, motionEnded } from '../../../test/motions.js';
+import { CONTROL_HEIGHTS, atControlHeight } from '../../../test/control-height.js';
 
 const spec = loadSpec('tree-view');
 type P = Page;
@@ -1241,6 +1242,22 @@ test.describe('states', () => {
     expect(await px(row(page, 'basic', 'test'), 'border-top-width', '::after')).toBe(0);
   });
 
+  test('TRV-74: at control height 32, 36 and 40, the minimum no higher, a one-line row of a medium tree is that tall under a fine pointer, its label whole inside it', async ({ page }) => {
+    await mount(page, { fixtures: [raw('medium', { label: 'Medium', selection: 'single' }, SMALL)] });
+    await nameItems(page);
+    for (const height of CONTROL_HEIGHTS) {
+      await atControlHeight(page, height);
+      for (const label of ['Beta', 'Delta']) {
+        await expect.poll(async () => (await edges(row(page, 'medium', label))).height, `${label} at ${height}`).toBeCloseTo(height, 1);
+        const { container, text } = await drawn(row(page, 'medium', label));
+        expect(container.bottom - container.top, `${label} at ${height}: the drawn row`).toBeCloseTo(height, 1);
+        expect(text!.lines, `${label} at ${height}: one line`).toBe(1);
+        expect(text!.top, `${label} at ${height}: the label inside the row`).toBeGreaterThanOrEqual(container.top - 0.5);
+        expect(text!.bottom, `${label} at ${height}`).toBeLessThanOrEqual(container.bottom + 0.5);
+      }
+    }
+  });
+
   test('TRV-26: a row’s hit area is the tree’s whole width, however far its container is set in, and its whole height; a row of either size is at least the pointer target high for a fine pointer — a small one too, under a layer whose pointer target is above its height — and the touch target high for touch; the chevron’s own hit area runs from the start edge to the middle of the gap after its box, and is at least the target wide', async ({ page, browserName }) => {
     await mount(page, { fixtures: [raw('small', { label: 'Small', selection: 'single' }, SMALL), raw('tight', { label: 'Tight', selection: 'single', size: 'small' }, SMALL)] });
     await nameItems(page);
@@ -2183,7 +2200,7 @@ test.describe('missing, unknown, empty, changed', () => {
     expect(await events(page)).toEqual([]);
   });
 
-  test('TRV-73: without a size of its own a tree draws every row at the size its nearest container sets — a set size, never a default — and its own size, medium included, wins; a size it lacks is its nearest; a change, a removal and a move are drawn before the next frame, keeping every parent’s open and the focus; at density 0.75, 1 and 1.5 every row is its size’s height', async ({ page }) => {
+  test('TRV-73: without a size of its own a tree draws every row at the size its nearest container sets — a set size, never a default — and its own size, medium included, wins; a size it lacks is its nearest; a change, a removal and a move are drawn before the next frame, keeping every parent’s open and the focus; at control height 40, 48 and 56 every row is its size’s height', async ({ page }) => {
     await mount(page, { fixtures: [raw('anchor', { label: 'Anchor' }, SMALL)] });
     // The containers that pass a size are the button group and the toolbar; a button group stands in for any of them
     // here (it reports content that is not a Button, BGR-10, and still lays it out).
@@ -2217,14 +2234,14 @@ test.describe('missing, unknown, empty, changed', () => {
     };
     // A size it takes, or the default, is not its own: no size attribute is written on a tree that sets none.
     expect(await page.evaluate((ids) => ids.map((id) => document.getElementById(id)!.getAttribute('size')), all)).toEqual([null, 'medium', null, null, null]);
-    for (const density of ['0.75', '1', '1.5']) {
-      await rootTokens(page, { '--tanrei-dial-density': density });
+    for (const height of ['40px', '48px', '56px']) {
+      await rootTokens(page, { '--tanrei-dial-control-height': height });
       const size = await rows();
-      await expect.poll(heights, `density ${density}`).toEqual({ taken: size.small, 'own-medium': size.medium, free: size.medium, nearest: size.medium, alone: size.medium });
+      await expect.poll(heights, `control height ${height}`).toEqual({ taken: size.small, 'own-medium': size.medium, free: size.medium, nearest: size.medium, alone: size.medium });
     }
-    await rootTokens(page, { '--tanrei-dial-density': '1.5' });
+    await rootTokens(page, { '--tanrei-dial-control-height': '56px' });
     const roomy = (await rows()).small;
-    await rootTokens(page, { '--tanrei-dial-density': '' });
+    await rootTokens(page, { '--tanrei-dial-control-height': '' });
     const size = await rows();
     expect(roomy).toBeGreaterThan(size.small);
     // The tree's own rules for the size it draws: the label's text style and the glyphs' boxes are the small ones.
@@ -2824,7 +2841,7 @@ test.describe('before the element is defined, without script, in a shadow root',
         }),
       );
     // The look, with no script at all.
-    expect((await edges(row(page, 'all-parts', 'package.json'))).height).toBe(48);
+    expect((await edges(row(page, 'all-parts', 'package.json'))).height).toBe(40);
     const src = await drawn(row(page, 'all-parts', 'src'));
     expect(src.chevron.content).toContain('chevron_right');
     expect(src.chevron.rotate).toBe('90deg');
@@ -2890,7 +2907,7 @@ test.describe('before the element is defined, without script, in a shadow root',
     const inner = page.locator('#shadowed tanrei-tree-view');
     await expect.poll(() => css(inner.locator('li').first().locator('> span'), 'display')).toBe('grid');
     const first = inner.locator('li').first().locator('> span');
-    expect((await edges(first)).height).toBe(48);
+    expect((await edges(first)).height).toBe(40);
     await expect.poll(() => css(inner.locator('li[data-value="a1"] > span'), 'background-color', '::after')).toBe(await resolveColor(page, T('selected-container-color')));
     near(Number.parseFloat(await css(inner.locator('li[data-value="a1"] > span'), 'left', '::after')), (await resolveToken(page, T('chevron-size-medium'))) + (await resolveToken(page, T('container-gap-medium'))));
     // Read in the task of the click, after the element has answered it (as TRV-11's turn is): asked for afterwards, the

@@ -74,6 +74,8 @@ function assertDrawsTheLayer(layer, what) {
   const view = studio.preview(layer);
   assert.ok(view.model, `${what}: the layer computes (${view.problems})`);
   const page = studio.pageSheet(view);
+  // A property the layer has no value for is left to the default sheet, never declared with none.
+  assert.deepEqual(page.split('\n').filter((line) => /:\s*(undefined|null)?;$/.test(line)).slice(0, 3), [], `${what}: every declaration has a value`);
   // The layer's whole sheet, unscoped, as `tanrei build` writes it for a product whose system this is.
   const whole = view.css(view.layer.id).replaceAll(`[data-${NS}-system="${view.layer.id}"]`, ':root');
   for (const state of STATES) {

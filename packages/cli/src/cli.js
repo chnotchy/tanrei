@@ -153,7 +153,7 @@ async function validate(flags) {
   const fonts = fontReport(buildIR(await resolved.model()));
   for (const warning of fonts.warnings) console.warn(`⚠ ${warning}`);
   // Valid is not the same as free of findings: what `tanrei build` would warn about is said here already, and what it
-  // refuses in a product layer too (a density of zero or less, a hit area under the drawn minimum) is a problem.
+  // refuses in a product layer too (a hit area under the drawn minimum) is a problem.
   const warnings = await resolved.warnings();
   const refused = warnings.filter(isRefusedEverywhere);
   if (refused.length) {
@@ -224,9 +224,9 @@ export function initGuide(parent) {
   };
   walk(JSON.parse(fs.readFileSync(path.join(REPO_ROOT, 'tokens/dial/dial.tokens.json'), 'utf8'))[ns].dial, []);
   const rows = [
-    [`${ns}.dial.size.unit`, 'the grid control heights and icon sizes sit on'],
-    [`${ns}.dial.density`, 'a plain number above 0, 1 in the core: below 1 draws controls and rows closer, above 1'],
-    ['', 'gives them more room (heights, block paddings, the gaps between rows; never text or corners)'],
+    [`${ns}.dial.control.height`, 'the height controls and rows are drawn at in their default size (40 in the core);'],
+    ['', 'small and large are whole size units below and above it. Never under the minimum'],
+    [`${ns}.dial.size.unit`, 'the distance between the control sizes, and the scale of icons'],
     [`${ns}.sys.target.minimum`, 'the least height anything a person presses is drawn at; no dial scales it.'],
     ['', `${ns}.sys.target.pointer and .touch, the least areas a press is taken from, alias it`],
     ['', 'in the core; a layer may set them higher, never lower'],
@@ -236,8 +236,8 @@ export function initGuide(parent) {
 Start with the dials: ${dials.length} numbers every token is derived from (${ns}.dial.${dials.join(', ')}).
 Set one under "tokens" with { "$value": …, "reason": "…" }. How big things are is three values:
 ${rows.map(([name, text]) => `  ${name.padEnd(width)}${text}`).join('\n')}
-A target under ${TARGET_THRESHOLDS.minimum}px (WCAG 2.5.8) or a pressable height under the minimum is a warning; a density of 0 or
-less, or pointer or touch under the minimum, is refused. \`tanrei explain <token-id>\` shows what "${parent}" sets each to.`;
+A target under ${TARGET_THRESHOLDS.minimum}px (WCAG 2.5.8) or a pressable height under the minimum is a warning; pointer or touch
+under the minimum, or a minimum above the control height, is refused. \`tanrei explain <token-id>\` shows what "${parent}" sets each to.`;
 }
 
 function init([id], flags) {

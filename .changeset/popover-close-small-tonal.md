@@ -17,7 +17,7 @@ reads as a control on any content. Its hover, focus and press are the Button's, 
 
 - Changed token: `comp.popover.close-button.variant` = tonal (was text). A layer that wants the bare glyph sets it to
   text.
-- `m3-like` (and so `m3-expressive-like`) and `cupertino` set it to text, the look they had: Material 3 closes a surface
+- `m3-like` and `cupertino` set it to text, the look they had: Material 3 closes a surface
   with a standard icon button, Apple's popovers with a bare glyph.
 
 SwiftUI, Compose, Flutter and React Native have no popover yet; their generated tokens carry the new value. Baselines: the default

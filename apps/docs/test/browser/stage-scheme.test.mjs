@@ -7,7 +7,7 @@
 //   pnpm --filter @tanrei/docs build && pnpm --filter @tanrei/docs test:browser
 //
 // It reads `dist/` and serves it on a free port. The stages in the page are the floating action button menu's: it lives
-// in the m3-like layer, so its stages are that preset's scope. The windows are the dialog's.
+// in the m3-like layer, so its stages are that preset's scope. The windows are the app shell's.
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import http from 'node:http';
@@ -50,8 +50,8 @@ after(async () => {
 
 const PAGE = '/components/fab-menu/';
 const INLINE = 'filled-closed';
-const WINDOWS = '/components/dialog/';
-const WINDOW = 'basic';
+const WINDOWS = '/components/app-shell/';
+const WINDOW = 'compact';
 const stage = (id) => `.docs-stage[data-fixture-id="${id}"]`;
 
 /** The reader's choice of color mode in the header's Appearance panel, as its tabs hand it on (their `change`). */

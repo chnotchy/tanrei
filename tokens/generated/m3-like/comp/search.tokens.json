@@ -283,11 +283,11 @@
                   "unit": "px"
                 },
                 "$extensions": {
+                  "dev.tanrei.aligned": "control",
                   "dev.tanrei.derive": {
                     "fn": "mul",
                     "of": "{tanrei.dial.size.unit}",
                     "by": 14,
-                    "times": "{tanrei.dial.density}",
                     "round": "{tanrei.dial.size.unit}",
                     "min": "{tanrei.sys.target.minimum}"
                   }
@@ -581,7 +581,8 @@
                   "of": "{tanrei.sys.control.height.medium}",
                   "by": 1,
                   "min": "{tanrei.sys.target.minimum}"
-                }
+                },
+                "dev.tanrei.aligned": "control"
               }
             },
             "padding-inline": {

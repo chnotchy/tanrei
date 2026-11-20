@@ -114,7 +114,7 @@ La estructura da a la ventana una de tres clases, solo por su ancho.
 
 Pon en la cabecera un Button de solo icono y márcalo con `data-app-shell-menu`. La estructura lo muestra solo mientras la navegación no tiene sitio en el diseño. Al pulsarlo, el panel se abre sobre el contenido y el foco pasa a él. Al cerrar el panel, el foco vuelve al botón. El botón dice si la navegación está expandida.
 
-`navigationOpen` (`navigation-open`) guarda ese estado, y `navigationopenchange` te avisa cuando una persona lo ha cambiado. Un cambio de la clase de la ventana cierra la navegación.
+`navigationOpen` (`navigation-open`) guarda ese estado, y `navigationopenchange` te avisa cuando una persona lo ha cambiado. Un cambio de la clase de la ventana lo conserva: la navegación abierta se coloca junto al contenido en una ventana ancha y vuelve a estar sobre el contenido, todavía abierta, cuando la ventana se estrecha.
 
 ### Qué se desplaza
 

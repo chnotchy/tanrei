@@ -143,6 +143,7 @@
   :where(tanrei-table) {
     /* TBL-4, TBL-5, TBL-62: the size's paddings and text styles — medium here, small below, set on the table or taken
        from its container by the element (the custom state size-small); TBL-31: any other size is the default's. */
+    --_table-row-height: var(--tanrei-comp-table-row-height-medium);
     --_table-pad-block: var(--tanrei-comp-table-cell-padding-block-medium);
     --_table-pad-inline: var(--tanrei-comp-table-cell-padding-inline-medium);
     --_table-cell-font-family: var(--tanrei-comp-table-cell-text-typescale-medium-font-family);
@@ -195,6 +196,7 @@
     --_table-end: left;
   }
   :where(tanrei-table[size='small'], tanrei-table:state(size-small)) {
+    --_table-row-height: var(--tanrei-comp-table-row-height-small);
     --_table-pad-block: var(--tanrei-comp-table-cell-padding-block-small);
     --_table-pad-inline: var(--tanrei-comp-table-cell-padding-inline-small);
     --_table-cell-font-family: var(--tanrei-comp-table-cell-text-typescale-small-font-family);
@@ -356,6 +358,12 @@
       vertical-align: top;
       /* TBL-3: text wraps inside its column and a run with no break opportunity is never broken. */
       white-space: normal;
+    }
+    /* TBL-4, TBL-63: a row is at least the row height of its size — the header row, a body row, a placeholder row and a
+       footer row alike — and the space of separation: gap under it. A cell's padding gives up what the row loses, so
+       that a row of one-line cells is exactly that tall; a row whose content needs more grows with it. */
+    & > :where(thead, tbody, tfoot) > :where(tr) {
+      block-size: calc(var(--_table-row-height) + var(--_table-row-gap));
     }
     & > :where(thead, tbody, tfoot) > :where(tr) > :where([data-align='center'], [align='center']) {
       text-align: center;

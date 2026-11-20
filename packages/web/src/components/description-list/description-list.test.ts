@@ -961,7 +961,7 @@ test.describe('direction, text size, forced colors, unknown values', () => {
     expect(await px(term(page, 'added', 1), 'font-size')).toBe(await px(term(page, 'inline', 1), 'font-size'));
   });
 
-  test('DSL-25: without a size of its own a description list is drawn at the size its nearest container sets — a set size, never a default — and its own size, medium included, wins; a size it lacks is its nearest; it passes none to what its values hold; a change, a removal and a move are drawn before the next frame; at density 0.75, 1 and 1.5 the space between facts is its size’s', async ({ page }) => {
+  test('DSL-25: without a size of its own a description list is drawn at the size its nearest container sets — a set size, never a default — and its own size, medium included, wins; a size it lacks is its nearest; it passes none to what its values hold; a change, a removal and a move are drawn before the next frame; at space unit 6, 8 and 12 the space between facts is its size’s', async ({ page }) => {
     await mountFixtures(page, spec, { fixtures: some('inline') });
     // The containers that pass a size are the button group and the toolbar; a button group stands in for any of them
     // here (it reports content that is not a Button, BGR-10, and still lays it out).
@@ -1000,12 +1000,12 @@ test.describe('direction, text size, forced colors, unknown values', () => {
     });
     // A size it takes, or the default, is not its own: no size attribute is written on a list that sets none.
     expect(await page.evaluate((ids) => ids.map((id) => document.getElementById(id)!.getAttribute('size')), all)).toEqual([null, 'medium', null, null, null]);
-    for (const density of ['0.75', '1', '1.5']) {
-      await rootTokens(page, { '--tanrei-dial-density': density });
+    for (const space of ['6px', '8px', '12px']) {
+      await rootTokens(page, { '--tanrei-dial-space-unit': space });
       const size = await sizes();
-      await expect.poll(drawnAt, `density ${density}`).toEqual({ taken: size.small, 'own-medium': size.medium, free: size.medium, nearest: size.medium, alone: size.medium });
+      await expect.poll(drawnAt, `space unit ${space}`).toEqual({ taken: size.small, 'own-medium': size.medium, free: size.medium, nearest: size.medium, alone: size.medium });
     }
-    await rootTokens(page, { '--tanrei-dial-density': '' });
+    await rootTokens(page, { '--tanrei-dial-space-unit': '' });
     const size = await sizes();
     expect(size.medium[0]).toBeGreaterThan(size.small[0]);
     // Every member of the size: the term column's gap and the value's text style are small's too.

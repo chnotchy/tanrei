@@ -337,11 +337,11 @@ struct TanreiLoadingIndicatorTokenBindingTests {
 @MainActor
 @Suite("TanreiLoadingIndicator under the shipped presets")
 struct TanreiLoadingIndicatorPresetTests {
-  /// The presets' values (m3-like's contained circles are 32 / 48 / 56 around marks of 24 / 40 / 48).
+  /// The presets' values (m3-like's contained circles are 32 / 48 / 56 around marks of 24 / 38 / 48).
   @Test("LDG-1 LDG-3 the presets' own values reach the loading indicator")
   func presetValues() throws {
     let m3 = TanreiSystem.m3Like.loadingIndicator
-    #expect([m3.sizes.small, m3.sizes.medium, m3.sizes.large].map(\.indicatorSize) == [24, 40, 48])
+    #expect([m3.sizes.small, m3.sizes.medium, m3.sizes.large].map(\.indicatorSize) == [24, 38, 48])
     #expect([m3.sizes.small, m3.sizes.medium, m3.sizes.large].map(\.containerSize) == [32, 48, 56])
     #expect(m3.sizes.medium.indicatorThickness == 4 && m3.indicatorColor == .role(.primary))
     // Every shipped system's mark fits its container.
@@ -351,8 +351,8 @@ struct TanreiLoadingIndicatorPresetTests {
         #expect(metrics.indicatorSize <= metrics.containerSize, "\(shipped.rawValue) \(size.rawValue)")
       }
     }
-    let expressive = TanreiSystem.m3ExpressiveLike.loadingIndicator
-    #expect(expressive.containedContainerColor == .role(.primaryContainer) && expressive.containedIndicatorColor == .role(.onPrimaryContainer))
+    #expect(m3.containedContainerColor == .role(.primaryContainer) && m3.containedIndicatorColor == .role(.onPrimaryContainer))
+    #expect(m3.containedContainerElevation == TanreiSystem.m3Like.elevation.level0)
     let cupertino = TanreiSystem.cupertino.loadingIndicator
     #expect(cupertino.sizes.medium.indicatorSize == 20 && cupertino.sizes.large.indicatorSize == 36)
     // Rendered: m3-like's contained medium is its 48-point container.
@@ -412,7 +412,7 @@ struct TanreiLoadingIndicatorSnapshotTests {
 struct TanreiLoadingIndicatorPresetSnapshotTests {
   /// The contained medium indicator: it shows the preset's mark size and stroke, container size, color and elevation.
   nonisolated static let fixtureId = "contained-medium"
-  nonisolated static let presets: [ShippedSystem] = [.m3Like, .m3ExpressiveLike, .cupertino]
+  nonisolated static let presets: [ShippedSystem] = [.m3Like, .cupertino]
 
   @Test("every shipped preset has one, and it is one of the spec's fixtures")
   func fixtureList() {

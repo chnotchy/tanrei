@@ -15,6 +15,7 @@ import { type Frames, type Probe, expectNoFlicker, sampleFrames } from '../../..
 import { holdClock, releaseClock } from '../../../test/page-clock.js';
 import { TYPEAHEAD_FOUND, TYPEAHEAD_LABELS, typeaheadAsFiltered } from '../../../test/typeahead.js';
 import { expectBaseline } from '../../../test/baseline.js';
+import { CONTROL_HEIGHTS, atControlHeight } from '../../../test/control-height.js';
 
 const spec = loadSpec('menubar');
 type P = Page;
@@ -190,7 +191,7 @@ test.describe('the row and a title', () => {
     }
     // The label's style is the token's: another role changes it.
     const before = await px(container(page, 'default', 'File').locator('.label'), 'font-size');
-    await override(page, typeRoleOf(T('label-typescale'), '--tanrei-sys-typescale-headline'));
+    await override(page, typeRoleOf(T('label-typescale'), '--tanrei-sys-typescale-heading-2'));
     expect(await px(container(page, 'default', 'File').locator('.label'), 'font-size')).toBeGreaterThan(before);
   });
 
@@ -593,6 +594,21 @@ test.describe('opening and closing', () => {
     // Touch has no hover: a pointer of a finger entering a title opens nothing.
     await title(page, 'editor', 'View').dispatchEvent('pointerenter', { pointerType: 'touch' });
     expect(await open(page, 'editor')).toEqual(['Help']);
+  });
+});
+
+test.describe('the control height', () => {
+  test('MNU-70, MBR-9: at control height 32, 36 and 40, the minimum no higher, an item of a bar’s open menu is that tall under a fine pointer, as tall as the bar’s titles', async ({ page }) => {
+    await mountFixtures(page, spec, { fixtures: [editor()], reducedMotion: true });
+    await focusTitle(page, 'editor', 'File');
+    await page.keyboard.press('ArrowDown');
+    await expect.poll(() => focus(page, 'editor')).toBe('item:New');
+    const first = menu(page, 'editor', 'File').locator('tanrei-menu-item[label="New"] .row');
+    for (const height of CONTROL_HEIGHTS) {
+      await atControlHeight(page, height);
+      await expect.poll(async () => (await box(first)).height, `at ${height}`).toBeCloseTo(height, 1);
+      expect((await box(container(page, 'editor', 'Edit'))).height, `a title at ${height}`).toBeCloseTo(height, 1);
+    }
   });
 });
 

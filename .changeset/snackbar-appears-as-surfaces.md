@@ -10,7 +10,7 @@ its enter and exit durations.
 
 - Shown by `<tanrei-snackbar-host>`, the bar starts from `sys.motion.appear.*` and grows from the middle of the window's
   edge it stands at: the bottom edge, or the top edge at `placement="top-end"`. Under the default system and cupertino
-  (fade-scale) that is opacity 0 and scale 0.96. Under m3-like and m3-expressive-like (unfold) it unfolds from that
+  (fade-scale) that is opacity 0 and scale 0.96. Under m3-like (unfold) it unfolds from that
   edge at its full width, scaled from 0 along its height. Where an appearance gives a distance (fade-slide, blur-slide)
   it travels that far up into place at the bottom and down at the top end.
 - The timing is the snackbar's own, as before: `comp.snackbar.motion.enter-duration` and `-easing` in,

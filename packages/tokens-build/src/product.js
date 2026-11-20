@@ -89,7 +89,7 @@ export async function buildProductSystem({ layerFile, layers, dir, targets = TAR
   const model = await resolved.model();
   const { failures: warnings, checked } = await resolved.audit();
   // A product layer is warned of a violation, not failed — except where the system would draw nothing that works: a hit
-  // area under what is drawn, or a density of zero or less.
+  // area under what is drawn.
   const refused = warnings.filter(isRefusedEverywhere);
   if (refused.length) throw new Error(`system "${id}" cannot be built:\n${refused.map((finding) => `  - ${finding}`).join('\n')}`);
   const sourceName = layerFile ? path.basename(layerFile) : `${id}${LAYER_SUFFIX}`;

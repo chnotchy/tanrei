@@ -17,6 +17,7 @@ import { bezierOf, expectAppearStart, expectExitEnd, expectTurnedAlone, turnHeld
 import { type Flicker, type Frame, type Frames, type Probe, expectAnimated, expectNoFlicker, sampleFrames } from '../../../test/frames.js';
 import { expectBaseline } from '../../../test/baseline.js';
 import { controlledElements, controlledInTree } from '../../../test/controlled-list.js';
+import { CONTROL_HEIGHTS, atControlHeight } from '../../../test/control-height.js';
 
 const spec = loadSpec('fab-menu');
 type P = Page;
@@ -373,6 +374,22 @@ test.describe('behavior', () => {
     expect((await bounds(box(page, 'filled-open', 'Folder'))).height).toBeGreaterThanOrEqual(Math.max(touch, await resolveToken(page, T('item-height'))));
   });
 
+  test('FBM-29: at control height 32, 36 and 40, the minimum no higher, an open item of a product on the default system that includes the FAB menu is that tall under a fine pointer, as tall as a menu item; under m3-like, whose item height is its own, an item keeps it at each', async ({ page }) => {
+    await mountFixtures(page, spec, { icons: true, ...(await includingSystem('tanrei', 'fab-menu', 'm3-like')) });
+    for (const height of CONTROL_HEIGHTS) {
+      await atControlHeight(page, height);
+      expect(await resolveToken(page, T('item-height')), `the menu item's height at ${height}`).toBe(await resolveToken(page, '--tanrei-comp-menu-container-height-medium'));
+      await expect.poll(async () => (await bounds(box(page, 'filled-open', 'Folder'))).height, `at ${height}`).toBeCloseTo(height, 1);
+    }
+    await mountFixtures(page, spec, { icons: true });
+    const [own, pointer] = [await resolveToken(page, T('item-height')), await resolveToken(page, '--tanrei-sys-target-pointer')];
+    for (const height of CONTROL_HEIGHTS) {
+      await atControlHeight(page, height);
+      expect(await resolveToken(page, T('item-height')), `m3-like at ${height}`).toBe(own);
+      await expect.poll(async () => (await bounds(box(page, 'filled-open', 'Folder'))).height, `m3-like at ${height}`).toBeCloseTo(Math.max(own, pointer), 1);
+    }
+  });
+
   test('FBM-6: disabled renders the toggle’s container, icon, elevation and opacity from the disabled tokens of its variant’s closed parts', async ({ page }) => {
     await mountFixtures(page, spec, { icons: true });
     const drawn = await toggle(page, 'filled-disabled').evaluate((el) => {
@@ -560,7 +577,8 @@ test.describe('behavior', () => {
     expect(stage.x + stage.width - (square.x + square.width)).toBe(16);
     expect(stage.y + stage.height - (square.y + square.height)).toBe(16);
     const first = await bounds(box(page, 'filled-open', 'Document'));
-    expect(first.y - stage.y).toBeCloseTo(320 - 232, 0);
+    // Three items of 40 — a menu item's height at the default control height (FBM-29) — above the toggle.
+    expect(first.y - stage.y).toBeCloseTo(320 - 208, 0);
     expect(await list(page, 'filled-open').evaluate((el) => el.matches(':popover-open'))).toBe(false);
     // Closed fixtures present nothing.
     expect(await list(page, 'filled-closed').evaluate((el) => getComputedStyle(el).display)).toBe('none');
@@ -629,6 +647,37 @@ test.describe('behavior', () => {
     await page.keyboard.press('Escape');
     await page.mouse.click(700, 300); // the page's own background
     expect(await log(page)).toEqual(['close:escape']);
+  });
+
+  test('FBM-19, MOT-7: while the items leave, neither they nor the list round them take the pointer — a press where an item is still drawn, or between two items, reaches what lies under it, and the pointer on an item is not hover', async ({ page }) => {
+    await mountFixtures(page, spec, { icons: true, fixtures: [fixture('menu')] });
+    await wire(page);
+    // The exit is held open for the whole test: it cannot end while the presses are made, however slow the machine.
+    await override(page, { [T('motion-close-duration')]: '600s' });
+    await toggle(page, 'menu').click();
+    await expect.poll(() => focused(page)).toBe('item[Document]');
+    await motionEnded(host(page, 'menu'));
+    // What lies under them: an element of the page over the whole window, which the top layer stands above.
+    await page.evaluate(() => {
+      document.body.insertAdjacentHTML('beforeend', '<div id="under" style="position: fixed; inset: 0"></div>');
+      const under = document.getElementById('under')!;
+      under.addEventListener('click', () => (under.dataset.pressed = String(Number(under.dataset.pressed ?? 0) + 1)));
+    });
+    const [upper, lower] = (await Promise.all(['Document', 'Folder'].map((label) => bounds(box(page, 'menu', label))))).sort((a, b) => a.y - b.y);
+    const end = Math.min(upper!.x + upper!.width, lower!.x + lower!.width) - 4;
+    const points = [{ x: upper!.x + upper!.width / 2, y: upper!.y + upper!.height / 2 }];
+    // Between the two, where the list is and no item is (the list's gap), where there is one.
+    if (lower!.y - (upper!.y + upper!.height) >= 2) points.push({ x: end, y: (upper!.y + upper!.height + lower!.y) / 2 });
+    const hits = () => page.evaluate((at) => at.map(({ x, y }) => document.elementFromPoint(x, y)?.id || document.elementFromPoint(x, y)?.localName || null), points);
+    expect((await hits()).includes('under'), 'open, the items and the list stand over the page').toBe(false);
+    await page.keyboard.press('Escape');
+    expect(await log(page)).toEqual(['toggle:true', 'close:escape']);
+    expect(await shown(page, 'menu'), 'still in the top layer while they leave').toBe(true);
+    expect(Number(await cssOf(item(page, 'menu', 'Document').locator('.appear'), 'opacity')), 'still drawn while it leaves').toBeGreaterThan(0.05);
+    expect(await hits(), 'leaving, what lies under them is the page').toEqual(points.map(() => 'under'));
+    for (const point of points) await page.mouse.click(point.x, point.y);
+    expect(await page.locator('#under').getAttribute('data-pressed'), 'each press reaches the page').toBe(String(points.length));
+    expect(await box(page, 'menu', 'Document').evaluate((el) => el.matches(':hover')), 'the pointer on an item is not hover').toBe(false);
   });
 
   test('FBM-16: activating an item by pointer, Enter or Space emits its click once and then close with the reason item, and focus returns to the toggle', async ({ page }) => {

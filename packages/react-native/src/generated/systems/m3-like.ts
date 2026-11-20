@@ -42,11 +42,15 @@ declare module '../vocabulary' {
     readonly displayLarge?: TanreiTypography;
     readonly displaySmall?: TanreiTypography;
   }
+  interface TanreiButtonSizeRegistry {
+    xlarge: true;
+    xxlarge: true;
+  }
 }
 
 export const m3Like = {
   id: "m3-like",
-  dials: { density: 1, motionUnit: 50, shapeUnit: 4, sizeUnit: 4, spaceUnit: 8, strokeUnit: 1, typeBase: 16, typeContrast: 1 },
+  dials: { controlHeight: 40, motionUnit: 50, shapeUnit: 4, sizeUnit: 4, spaceUnit: 8, strokeUnit: 1, typeBase: 16, typeContrast: 1 },
   intents: ["error", "info", "primary", "secondary", "success", "tertiary", "warning"],
   colors: {
     light: {
@@ -1975,9 +1979,11 @@ export const m3Like = {
       pressedOpacity: 1,
       toneContainerOpacity: 0.16,
       sizes: {
-        small: { containerHeight: 32, containerPaddingInlineNarrow: 4, containerWidthWide: 40, containerPaddingInlineStart: 12, containerPaddingInlineEnd: 12, containerPaddingInlineStartWithIcon: 12, containerPaddingInlineEndWithIcon: 12, containerPaddingBlock: 6, labelTypescale: "label", iconSize: 18, iconSizeWithoutLabel: 20, containerGap: 8, outlineWidth: 1, motionStateDuration: 150 },
-        medium: { containerHeight: 40, containerPaddingInlineNarrow: 4, containerWidthWide: 52, containerPaddingInlineStart: 16, containerPaddingInlineEnd: 16, containerPaddingInlineStartWithIcon: 16, containerPaddingInlineEndWithIcon: 16, containerPaddingBlock: 6, labelTypescale: "label", iconSize: 18, iconSizeWithoutLabel: 24, containerGap: 8, outlineWidth: 1, motionStateDuration: 150 },
-        large: { containerHeight: 56, containerPaddingInlineNarrow: 12, containerWidthWide: 72, containerPaddingInlineStart: 24, containerPaddingInlineEnd: 24, containerPaddingInlineStartWithIcon: 24, containerPaddingInlineEndWithIcon: 24, containerPaddingBlock: 6, labelTypescale: "label", iconSize: 18, iconSizeWithoutLabel: 24, containerGap: 8, outlineWidth: 1, motionStateDuration: 150 },
+        small: { containerHeight: 32, containerPaddingInlineNarrow: 4, containerWidthWide: 40, containerPaddingInlineStart: 16, containerPaddingInlineEnd: 16, containerPaddingInlineStartWithIcon: 16, containerPaddingInlineEndWithIcon: 16, containerPaddingBlock: 6, labelTypescale: "label", iconSize: 20, iconSizeWithoutLabel: 20, containerGap: 8, outlineWidth: 1, motionStateDuration: 150 },
+        medium: { containerHeight: 40, containerPaddingInlineNarrow: 4, containerWidthWide: 52, containerPaddingInlineStart: 16, containerPaddingInlineEnd: 16, containerPaddingInlineStartWithIcon: 16, containerPaddingInlineEndWithIcon: 16, containerPaddingBlock: 6, labelTypescale: "label", iconSize: 20, iconSizeWithoutLabel: 24, containerGap: 8, outlineWidth: 1, motionStateDuration: 150 },
+        large: { containerHeight: 56, containerPaddingInlineNarrow: 12, containerWidthWide: 72, containerPaddingInlineStart: 24, containerPaddingInlineEnd: 24, containerPaddingInlineStartWithIcon: 24, containerPaddingInlineEndWithIcon: 24, containerPaddingBlock: 6, labelTypescale: "heading5", iconSize: 24, iconSizeWithoutLabel: 24, containerGap: 8, outlineWidth: 1, motionStateDuration: 150 },
+        xlarge: { containerHeight: 96, containerPaddingInlineNarrow: 16, containerWidthWide: 128, containerPaddingInlineStart: 48, containerPaddingInlineEnd: 48, containerPaddingInlineStartWithIcon: 48, containerPaddingInlineEndWithIcon: 48, containerPaddingBlock: 6, labelTypescale: "heading3", iconSize: 32, iconSizeWithoutLabel: 32, containerGap: 12, outlineWidth: 2, motionStateDuration: 150 },
+        xxlarge: { containerHeight: 136, containerPaddingInlineNarrow: 32, containerWidthWide: 184, containerPaddingInlineStart: 64, containerPaddingInlineEnd: 64, containerPaddingInlineStartWithIcon: 64, containerPaddingInlineEndWithIcon: 64, containerPaddingBlock: 6, labelTypescale: "heading1", iconSize: 40, iconSizeWithoutLabel: 40, containerGap: 16, outlineWidth: 3, motionStateDuration: 150 },
       },
       variants: {
         filled: {
@@ -8029,7 +8035,7 @@ export const m3Like = {
       trailingTextColor: { kind: "role", role: "onSurfaceVariant" },
       trailingTextTypescale: "bodySmall",
       sizes: {
-        small: { containerHeightOneLine: 40, containerHeightTwoLine: 56, containerHeightThreeLine: 72, containerPaddingBlock: 4 },
+        small: { containerHeightOneLine: 40, containerHeightTwoLine: 56, containerHeightThreeLine: 72, containerPaddingBlock: 2 },
         medium: { containerHeightOneLine: 56, containerHeightTwoLine: 72, containerHeightThreeLine: 88, containerPaddingBlock: 8 },
       },
     },
@@ -8165,9 +8171,9 @@ export const m3Like = {
       },
     },
     loadingIndicator: {
-      containedContainerColor: { kind: "role", role: "surfaceContainerLowest" },
-      containedContainerElevation: "level2",
-      containedIndicatorColor: { kind: "role", role: "onSurfaceVariant" },
+      containedContainerColor: { kind: "role", role: "primaryContainer" },
+      containedContainerElevation: "level0",
+      containedIndicatorColor: { kind: "role", role: "onPrimaryContainer" },
       containerShape: 9999,
       indicatorColor: { kind: "role", role: "primary" },
       motionCycleDuration: 1000,
@@ -8177,7 +8183,7 @@ export const m3Like = {
       motionShowDelay: 300,
       sizes: {
         small: { indicatorSize: 24, indicatorThickness: 4, containerSize: 32 },
-        medium: { indicatorSize: 40, indicatorThickness: 4, containerSize: 48 },
+        medium: { indicatorSize: 38, indicatorThickness: 4, containerSize: 48 },
         large: { indicatorSize: 48, indicatorThickness: 4, containerSize: 56 },
       },
     },
@@ -9697,9 +9703,9 @@ export const m3Like = {
     navigationDrawer: {
       breakpointCollapsed: 600,
       breakpointExpanded: 1024,
-      collapsedItemContainerPaddingInline: 0,
       collapsedItemContainerShape: 9999,
       collapsedItemGap: 4,
+      collapsedItemLabelPaddingInline: 4,
       collapsedItemLabelTypescale: "labelSmall",
       containerMaxWidth: 400,
       containerMinWidth: 200,
@@ -10157,9 +10163,9 @@ export const m3Like = {
           },
         },
       },
-      densitys: {
-        regular: { containerGap: 0, itemContainerHeight: 56, itemPaddingInline: 16, itemPaddingBlock: 4, itemNestIndent: 36, itemIconSize: 24, itemIconIndicatorWidth: 56, itemIconIndicatorHeight: 32, itemLabelTypescale: "label", itemTrailingIconSize: 20, collapsedContainerWidth: 80, collapsedItemContainerWidth: 56, collapsedItemContainerPaddingBlock: 0, headingHeight: 36 },
-        compact: { containerGap: 2, itemContainerHeight: 32, itemPaddingInline: 8, itemPaddingBlock: 2, itemNestIndent: 24, itemIconSize: 16, itemIconIndicatorWidth: 16, itemIconIndicatorHeight: 16, itemLabelTypescale: "label", itemTrailingIconSize: 16, collapsedContainerWidth: 56, collapsedItemContainerWidth: 32, collapsedItemContainerPaddingBlock: 8, headingHeight: 28 },
+      sizes: {
+        medium: { containerGap: 0, itemContainerHeight: 56, itemPaddingInline: 16, itemPaddingBlock: 4, itemNestIndent: 36, itemIconSize: 24, itemIconIndicatorWidth: 56, itemIconIndicatorHeight: 32, itemLabelTypescale: "label", itemTrailingIconSize: 20, collapsedContainerWidth: 80, collapsedItemContainerWidth: 56, collapsedItemContainerPaddingBlock: 0, headingHeight: 36 },
+        small: { containerGap: 2, itemContainerHeight: 32, itemPaddingInline: 8, itemPaddingBlock: 2, itemNestIndent: 24, itemIconSize: 16, itemIconIndicatorWidth: 16, itemIconIndicatorHeight: 16, itemLabelTypescale: "label", itemTrailingIconSize: 16, collapsedContainerWidth: 56, collapsedItemContainerWidth: 32, collapsedItemContainerPaddingBlock: 8, headingHeight: 28 },
       },
     },
     numberInput: { motionRepeatDelay: 500, motionRepeatInterval: 100, motionRepeatIntervalFast: 50, stepperGap: 0, stepperInset: 4 },
@@ -13391,8 +13397,8 @@ export const m3Like = {
         },
       },
       sizes: {
-        small: { cellPaddingBlock: 6, cellPaddingInline: 12, cellTextTypescale: "bodySmall", headerTextTypescale: "labelSmall" },
-        medium: { cellPaddingBlock: 12, cellPaddingInline: 16, cellTextTypescale: "body", headerTextTypescale: "label" },
+        small: { rowHeight: 0, cellPaddingBlock: 6, cellPaddingInline: 12, cellTextTypescale: "bodySmall", headerTextTypescale: "labelSmall" },
+        medium: { rowHeight: 52, cellPaddingBlock: 16, cellPaddingInline: 16, cellTextTypescale: "body", headerTextTypescale: "label" },
       },
     },
     tabs: {

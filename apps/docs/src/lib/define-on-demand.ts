@@ -19,7 +19,13 @@
 // stage comes near, what it holds is defined as what is added later is, so a page of many examples asks, as it loads,
 // only for what the reader is near. An element of a tag defined meanwhile for another part of the page is upgraded with
 // it, as the browser does.
-import { loaders, modules } from 'virtual:tanrei-element-modules';
+//
+// The table holds every module of the package, but the site defines only what `@tanrei/web` registers, the default
+// system's components: one the default system does not have is defined only where the site shows a system that has
+// it on purpose — its own page and a frame pinned to such a system (lib/omitted-elements.ts). Anywhere else it stays
+// undefined, as in a product on `@tanrei/web`, and the development server says so in the console.
+import { loaders, modules, outside, system } from 'virtual:tanrei-element-modules';
+import { leftUndefined, mayDefine, placeOf } from './omitted-elements';
 
 type Load = () => Promise<unknown>;
 
@@ -44,11 +50,19 @@ const observer = new MutationObserver((records) => {
   }
 });
 
-/** Asks for the module of a tag no one has defined yet; a tag of no Tanrei module is left alone. */
+/** The elements left undefined because the default system does not have their component, each reported once. */
+const refused = new WeakSet<Element>();
+
+/** Asks for the module of a tag no one has defined yet; a tag of no Tanrei module is left alone, and so is one of a component the default system does not have, where the page does not show a system that has it. */
 function want(element: Element) {
   const tag = element.localName;
   const load = loaders[tag];
   if (!load) return;
+  if (!mayDefine(outside[tag], placeOf(element))) {
+    if (import.meta.env.DEV && !refused.has(element)) console.warn(leftUndefined(tag, outside[tag], system), element);
+    refused.add(element);
+    return;
+  }
   (waiting.get(tag) ?? waiting.set(tag, []).get(tag)!).push(element);
   if (asked.has(load)) return;
   asked.add(load);

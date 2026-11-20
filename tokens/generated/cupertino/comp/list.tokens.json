@@ -68,7 +68,7 @@
           },
           "height": {
             "$type": "dimension",
-            "$description": "The minimum height of an item that is an action, a link or an option. A minimum: the item grows with its content and with enlarged text.",
+            "$description": "The minimum height of an item that is an action, a link or an option, per size. Medium is the control height (40 in the default system), so that an item of the default size stands as tall as the Buttons and fields beside it; small is the small step, never below the minimum target. A minimum: the item grows with its content and with enlarged text.",
             "medium": {
               "$value": {
                 "value": 44,
@@ -79,7 +79,8 @@
                   "fn": "mul",
                   "of": "{tanrei.dial.size.unit}",
                   "by": 11
-                }
+                },
+                "dev.tanrei.aligned": "control"
               }
             },
             "small": {
@@ -110,7 +111,7 @@
           },
           "padding-block": {
             "$type": "dimension",
-            "$description": "Space above and below the content of such an item; it shows once the content is taller than the minimum height.",
+            "$description": "Space above and below the content of such an item; it shows once the content is taller than the minimum height. Medium is 8 at the control height's reference (40) and gives up half of what the item loses below it, so that one line of the content still fits.",
             "medium": {
               "$value": {
                 "value": 8,

@@ -39,6 +39,7 @@
                 "medium"
               ],
               "members": [
+                "row.height",
                 "cell.padding-block",
                 "cell.padding-inline",
                 "cell.text.typescale",
@@ -114,6 +115,33 @@
                 "container.color": "color",
                 "text.color": "color"
               }
+            }
+          },
+          "height": {
+            "$type": "dimension",
+            "$description": "A row's least height, per size: the header row, a body row, a placeholder row and a footer row are each at least this tall, and taller where a cell's content needs more. Medium is the control height (40 in the default system), so that a row of the default size stands as tall as the Buttons, fields and list items beside the table; a cell's block padding gives up what the row loses, so that one line of a cell fills it exactly. Small is the small step (32 in the default system), for a table a person scans; it is not held at the target, because nobody presses a row that holds no control, and a row that holds one is held there (TBL-40, TBL-47).",
+            "$extensions": {
+              "dev.tanrei.vocabulary": {
+                "rationale": "One product sets its tables beside its controls and its lists, in a panel or under a toolbar, and wants a row of the default size as tall as the controls of that size, so that a table moves with the product's control height as everything around it does; and it packs a table a person scans as close as its small controls.",
+                "since": "0.1.0"
+              }
+            },
+            "medium": {
+              "$value": {
+                "value": 40,
+                "unit": "px"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fn": "mul",
+                  "of": "{tanrei.sys.control.height.medium}",
+                  "by": 1
+                },
+                "dev.tanrei.aligned": "control"
+              }
+            },
+            "small": {
+              "$value": "{tanrei.sys.control.height.small}"
             }
           },
           "gap": {
@@ -193,19 +221,18 @@
         "cell": {
           "padding-block": {
             "$type": "dimension",
-            "$description": "Space above and below a cell's content, per size. A row is as tall as its tallest cell: this padding twice and the lines of that cell's text, and a row that holds a control at least the target (TBL-40, TBL-47). The table has no row height of its own.",
+            "$description": "Space above and below a cell's content, per size. Each is half of what one line of a cell's text leaves of its size's row height at the control height's reference (9 at medium and 6 at small in the default system), and gives up half of what the row loses below it, so that a row of one-line cells is exactly row.height tall at every control height. A row is as tall as its tallest cell — this padding twice and the lines of that cell's text — and at least row.height, and a row that holds a control at least the target (TBL-40, TBL-47).",
             "medium": {
               "$value": {
-                "value": 12,
+                "value": 9,
                 "unit": "px"
               },
               "$extensions": {
                 "dev.tanrei.derive": {
-                  "fn": "mul",
-                  "of": "{tanrei.sys.space.space150}",
-                  "by": 1,
-                  "times": "{tanrei.dial.density}",
-                  "round": "{tanrei.sys.space.space25}"
+                  "fn": "pad",
+                  "of": "{tanrei.sys.space.space100}",
+                  "by": 1.125,
+                  "height": "{tanrei.comp.table.row.height.medium}"
                 }
               }
             },
@@ -216,11 +243,9 @@
               },
               "$extensions": {
                 "dev.tanrei.derive": {
-                  "fn": "mul",
+                  "fn": "pad",
                   "of": "{tanrei.sys.space.space75}",
-                  "by": 1,
-                  "times": "{tanrei.dial.density}",
-                  "round": "{tanrei.sys.space.space25}"
+                  "height": "{tanrei.comp.table.row.height.small}"
                 }
               }
             }

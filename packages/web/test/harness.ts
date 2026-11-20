@@ -172,7 +172,7 @@ export const drawerWindow = (id: string) => ({ width: DRAWER_WINDOW_WIDTHS[id] ?
  * The frame two of the navigation drawer's fixtures are drawn in: 800 high (NVD-57's verify), where the others' is 560.
  * A fixture cannot state the size of its stage either, so the two ids are named here.
  */
-export const DRAWER_STAGE_HEIGHTS: Record<string, number> = { 'site-sidebar-long': 800, 'site-sidebar-restored': 800 };
+export const DRAWER_STAGE_HEIGHTS: Record<string, number> = { 'site-sidebar-long': 800, 'site-sidebar-restored': 800, sticky: 400 };
 
 /**
  * The window an app shell fixture is drawn alone in (APS-2's verify): 1280 × 800 for a fixture whose id begins with
@@ -367,7 +367,7 @@ export async function iconFamilies(defaultCss: string, systemCss: string): Promi
 
 /**
  * The @font-face rules for the text families a PRESET names first (`--tanrei-ref-typeface-brand` / `-plain` / `-mono`
- * in its sheet) that this repository can register — Roboto and Roboto Mono for m3-like and m3-expressive-like. Without
+ * in its sheet) that this repository can register — Roboto and Roboto Mono for m3-like. Without
  * them a preset's text is drawn in whatever the machine has: a Mac with Roboto installed drew m3-like's labels in Roboto
  * 500, the Linux CI image (which has no Roboto) in a fallback of another width and weight. Inter is `fontFace()`'s, and
  * a family this repository cannot ship (cupertino's -apple-system) is left to fall back, as on a machine without it.
@@ -1488,7 +1488,8 @@ const STAGING: Record<string, Staging> = {
   // `main-action` slot, its glyph in its `icon` slot; a destination's content is a glyph in its `trailing` slot,
   // decorative (the spec's web mapping). A responsive fixture's stage stands for the window it is drawn alone in
   // (`drawerWindow`: 1280, 800 or 400 wide): as wide as the window, the drawer at its start edge. The two long site
-  // sidebars are drawn in a stage 800 high (`DRAWER_STAGE_HEIGHTS`).
+  // sidebars are drawn in a stage 800 high, and `sticky` in one 400 high, short enough that its rows scroll under its
+  // pinned parents (`DRAWER_STAGE_HEIGHTS`).
   'navigation-drawer': {
     css: () => `.stage:has(> tanrei-navigation-drawer) { box-sizing: border-box; block-size: 560px; padding-block: 0; padding-inline-start: 0; }
       .stage:has(> tanrei-navigation-drawer[responsive]) { inline-size: 100vw; }
@@ -2604,6 +2605,12 @@ export function stageMarkup(spec: Spec, f: Fixture, mark: string): string {
  * The document of a spec's fixtures: every fixture (or `options.fixtures`) in its own padded, surface-colored stage,
  * with the tokens, the preset, the faces and the component bundle the stages need. A fixture that names a `direction`
  * has it as its stage's `dir`, whatever the document's is.
+ *
+ * The document is a product's page as Getting started sets one up: the page's base (`@tanrei/web/base.css`), then the
+ * tokens, in the order `tanrei.css` holds them. So the text a fixture slots without a style of its own (a modal
+ * layer's) is in the body face and the surface's text color, as on a product's page, and never in the browser's serif black.
+ * It is embedded whole even where the other sheets are fetched (`assets`): it is small, and a reader of the document
+ * (the site's fixture documents) finds it as the package's stylesheet it is.
  */
 export async function fixturesDocument(spec: Spec, given: DocumentOptions = {}): Promise<string> {
   const options = drawnUnder(spec, given);
@@ -2637,10 +2644,10 @@ export async function fixturesDocument(spec: Spec, given: DocumentOptions = {}):
     <title>${spec.name} fixtures</title>
     ${assets ? sheet(assets.font, fontFace) : embeddedFaceMarkup(`${fontFace()}\n${text}`)}
     ${icons}
+    <style>${read('dist/base.css').replace(/\/\*[\s\S]*?\*\//g, '')}</style>
     ${sheet(assets?.tokens, () => read('dist/tokens.css'))}
     ${options.system ? sheet(assets?.system(options.system), () => systemStyles(options)) : ''}
     <style>
-      body { margin: 0; background: var(--tanrei-sys-color-surface); }
       ${staging.page ? '' : 'main { display: flex; flex-direction: column; align-items: flex-start; }'}
       .stage { padding: 16px; background: var(--tanrei-sys-color-surface); }
       /* A picture of a stage is clipped to whole CSS pixels around it, so it takes in up to a pixel of the stages beside
@@ -2998,7 +3005,7 @@ export function typeRole(base: string, font: string): Record<string, string> {
   };
 }
 
-/** A type role's tokens that read another role's longhands: `typeRoleOf(T('label-typescale'), '--tanrei-sys-typescale-headline')`. */
+/** A type role's tokens that read another role's longhands: `typeRoleOf(T('label-typescale'), '--tanrei-sys-typescale-heading-2')`. */
 export const typeRoleOf = (base: string, from: string): Record<string, string> => Object.fromEntries(ROLE_LONGHANDS.map((longhand) => [`${base}-${longhand}`, `var(${from}-${longhand})`]));
 
 /**

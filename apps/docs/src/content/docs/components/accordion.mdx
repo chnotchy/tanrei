@@ -166,10 +166,10 @@ Neither look fills anything at rest, and a header keeps its colors while its ite
 
 | `size` | A header of one line | Label | Use for |
 | --- | --- | --- | --- |
-| `medium` (default) | 56 | 16 on a line height of 24, medium | A page a person reads: questions, the sections of a long form. |
-| `small` | 48 | 14 on 20, medium | A panel among controls: settings, an inspector, a card. |
+| `medium` (default) | 40, the control height | 16 on a line height of 24, medium | A page a person reads: questions, the sections of a long form. |
+| `small` | 36 | 14 on 20, medium | A panel among controls: settings, an inspector, a card. |
 
-A header grows with its text. A small header is a navigation drawer's row: the same height, text style and chevron. Both heights follow the system's [density](/foundations/size-and-density/). An accordion that sets no `size` is drawn at the size a container around it sets for what it holds, and at medium where none does. It passes no size to what its items hold: an accordion in an item's content has its own.
+A header grows with its text. A small header is a navigation drawer's row: the same height, text style and chevron. Both heights follow the system's [size ladder](/foundations/size-and-density/). An accordion that sets no `size` is drawn at the size a container around it sets for what it holds, and at medium where none does. It passes no size to what its items hold: an accordion in an item's content has its own.
 
 ### Telling items apart
 

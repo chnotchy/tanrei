@@ -18,9 +18,10 @@
   color-scheme: dark;
 }
 
-/* The reader's own theme, until its stylesheet is in (src/lib/appearance.ts): nothing of the page is drawn, so that it
- * is never drawn in the default system first. The page keeps its room; the head's script takes the mark away once the
- * sheet is in, and after three seconds whatever happens. */
+/* The look's stylesheet, until it is in where nothing else holds the first paint for it (src/lib/appearance.ts: the
+ * reader's own theme, and a gallery example's sheet in an engine that does not block rendering on it): nothing of the
+ * page is drawn, so that it is never drawn in the default system first. The page keeps its room; the head's script
+ * takes the mark away once the sheet is in, and after three seconds whatever happens. */
 :root[data-docs-appearance-pending] body,
 :root[data-docs-appearance-pending] body * {
   visibility: hidden !important;

@@ -19,6 +19,7 @@ import { transitionsRun, watchTransitions } from '../../../test/transitions.js';
 import { ANCHORED_PLACEMENTS, type AnchoredInput, type AnchoredPlacement, placeAnchored } from '../../primitives/placement.js';
 import { expectBaseline } from '../../../test/baseline.js';
 import { expectGoneWhileSkipped } from '../../../test/skipped-exit.js';
+import { expectScrimTakenAwayAtClose } from '../../../test/scrim-at-close.js';
 import { controlledElements, controlledInTree } from '../../../test/controlled-list.js';
 import { STACKED_DIALOG, STACKED_LAYER, addStackedSurfaces, expectStackedInOrder } from '../../../test/stacked-surfaces.js';
 
@@ -1159,8 +1160,8 @@ test.describe('size and layout', () => {
     expect(await missingWords(page)).not.toContain('closeLabel');
   });
 
-  test('POP-13: the presets keep the bare close glyph they inherited — m3-like, m3-expressive-like and cupertino give the close button the text variant, at their own small Button size', async ({ page }) => {
-    for (const system of ['m3-like', 'm3-expressive-like', 'cupertino'] as const) {
+  test('POP-13: the presets keep the bare close glyph they inherited — m3-like and cupertino give the close button the text variant, at their own small Button size', async ({ page }) => {
+    for (const system of ['m3-like', 'cupertino'] as const) {
       await mountFixtures(page, spec, { icons: true, system, fixtures: spec.fixtures.filter((f) => f.id === 'closable') });
       const button = fixtureHost(page, 'closable').locator('tanrei-button.close');
       await expect(button, system).toHaveCount(1);
@@ -2386,6 +2387,14 @@ test.describe('compact window', () => {
     await host(page).locator('tanrei-button[slot="actions"]', { hasText: 'Empty' }).click();
     expect(await isSheet(page)).toBe(true);
     expect(await log(page)).toEqual(['p:escape', 'p:outside', 'p:close']);
+  });
+
+  test('POP-41, MOT-8: closing as a sheet, its scrim is drawn at no opacity and takes no press from the first frame while the sheet still slides down, and opening fades it in from no opacity, in every engine; where motion is reduced it is gone from the first frame too', async ({ page }) => {
+    await mount(page, page320(), { ...COMPACT, reducedMotion: false });
+    await set(page, { open: true });
+    await expect.poll(() => isSheet(page)).toBe(true);
+    await motionEnded(page);
+    await expectScrimTakenAwayAtClose(page, page.locator('main'), { open: () => set(page, { open: true }), close: () => set(page, { open: false }), what: 'the popover as a sheet' });
   });
 
   test('POP-41: as a sheet it slides up from below the bottom edge over the bottom sheet’s enter motion and down over its exit motion, the scrim fading with it; it only fades where motion is reduced', async ({ page }) => {

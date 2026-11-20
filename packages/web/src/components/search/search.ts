@@ -2373,7 +2373,7 @@ export class TanreiSearch extends TanreiElement {
   }
 
   /**
-   * SRC-9, SRC-23, SRC-41: out of the top layer (fading, with its scrim), the page given back, focus back to the bar's
+   * SRC-9, SRC-23, SRC-41: out of the top layer (fading, its scrim gone at once), the page given back, focus back to the bar's
    * input — which does not reopen it. `instant`: gone at once (drawn in place from now).
    */
   private withdrawFull(restoreFocus = true, instant = false) {
@@ -2387,7 +2387,7 @@ export class TanreiSearch extends TanreiElement {
     const fallback = this.fullOpener as HTMLElement | null;
     this.fullOpener = null;
     // SRC-23, SRC-41: no longer modal at once — the page is given back and focus moves now, not when the motion ends —
-    // and drawn in the top layer, with its scrim, until their fade has played (closeModal), in every engine. What it
+    // and drawn in the top layer until its fade has played, its scrim gone at once (closeModal, MOT-8), in every engine. What it
     // listed is drawn until then (`letGo`); opened again first, it lists what it holds now.
     if (dialog) void closeModal(dialog, { instant }).then((left) => left && this.letGo());
     // SRC-9, SRC-40: focus back to the bar's input — which does not reopen it — or to the trigger; where a modal surface

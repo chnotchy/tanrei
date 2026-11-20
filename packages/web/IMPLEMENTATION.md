@@ -10,7 +10,7 @@ import '@tanrei/web/tanrei.css';   // every stylesheet below in one file, with t
 import '@tanrei/web/tokens.css';   // the default system, on :root
 import '@tanrei/web/base.css';     // optional: the page on the surface, its text on-surface in the body face, no margin on <body>
 import '@tanrei/web';              // the elements the default system ships; or one at a time: '@tanrei/web/components/button'
-// on a preset, its entry instead: '@tanrei/web/<id>' (m3-like, m3-expressive-like, cupertino);
+// on a preset, its entry instead: '@tanrei/web/<id>' (m3-like, cupertino);
 // every element of the package: '@tanrei/web/all'
 import '@tanrei/web/icons.css';    // optional: .tanrei-icon
 import '@tanrei/web/text.css';     // optional: .tanrei-text-<role>
@@ -1508,7 +1508,7 @@ A box that scrolls the product's content and marks, at each edge it watches, tha
 
 | Property / attribute | Type | Default | |
 |---|---|---|---|
-| `scrollEdge` / `scroll-edge` | `auto` \| `shadow` \| `fade` \| `line` \| `blur` \| `none` | `auto` | how an edge with content beyond it is marked; `auto` takes `comp.scroll-area.scroll-edge`, which follows `sys.behavior.scroll-edge` (shadow in the default system, line in m3-like and m3-expressive-like, blur in cupertino). Anything else is `auto`, reported (SCA-15); reflected |
+| `scrollEdge` / `scroll-edge` | `auto` \| `shadow` \| `fade` \| `line` \| `blur` \| `none` | `auto` | how an edge with content beyond it is marked; `auto` takes `comp.scroll-area.scroll-edge`, which follows `sys.behavior.scroll-edge` (shadow in the default system, line in m3-like, blur in cupertino). Anything else is `auto`, reported (SCA-15); reflected |
 | `edges` | `('top' \| 'bottom' \| 'start' \| 'end')[]` | `['top', 'bottom']` | the edges watched; the attribute is space-separated. `start` is the left in left-to-right and the right in right-to-left. An unknown name is ignored, reported |
 | `label` | string | `""` | the name of the box while it is a focus stop of its own (SCA-10); never drawn |
 
@@ -4398,7 +4398,7 @@ the web). Forced colors: a `ButtonText` edge, since the shadow is dropped.
 
 A floating action button that opens a short list of related actions, and turns into the list's close button while they
 show (`specs/fab-menu.spec.json`). It lives in the m3-like layer: `import '@tanrei/web/m3-like'` registers it,
-and its tokens are in the m3-like systems' sheets (`@tanrei/web/systems/m3-like.css`, `m3-expressive-like.css`) and in
+and its tokens are in m3-like's sheet (`@tanrei/web/systems/m3-like.css`) and in
 the sheet of a product that includes it.
 
 ```html
@@ -4940,7 +4940,7 @@ breaks (`overflow-wrap: break-word`). Firefox and WebKit do not know the value a
 the chords separated by spaces, `shortcut="mod+c"`). The item draws it in its trailing column with
 `<tanrei-keyboard-shortcut>` (the `shortcut` part), hosted (KBS-13): size `small`, the form
 `--tanrei-comp-menu-shortcut-variant` names (read from the cascade each time the menu opens or changes — `keycap` in the
-default system, `plain` in m3-like, m3-expressive-like and cupertino; an empty value is `keycap`), convention `auto` (set
+default system, `plain` in m3-like and cupertino; an empty value is `keycap`), convention `auto` (set
 `data-tanrei-keyboard-convention` on the menu or any ancestor to choose it), disabled with its item; its legends and
 separators in `comp.menu.trailing-text.typescale` and the trailing-text color of the item's condition and state (painted
 and moved with the state motion like the trailing text), its caps the keyboard shortcut's own tokens. An item with both a
@@ -5457,8 +5457,8 @@ surface in the top layer that the row is not inside, and to a row that is covere
 What this leaves out: the band shows no hover and no press feedback, a drag cannot start in it, and the tab is not
 focused by the press.
 
-**Presets.** A tonal row is left out of m3-like and m3-expressive-like (its `components.variants`, reported in debug builds); drawn
-there it has the default's layer on the preset's trackless, square row. m3-like and m3-expressive-like draw what they drew before this revision, by value, with one recorded
+**Presets.** A tonal row is left out of m3-like (its `components.variants`, reported in debug builds); drawn
+there it has the default's layer on the preset's trackless, square row. m3-like draws what it drew before this revision, by value, with one recorded
 difference (mimicry gap `tabs-state-layer-follows-indicator`): in a row that hugs, a tab whose content is not wider than
 it is tall (an icon alone, a one-letter label) draws its state layer and focus ring as wide as the row is tall, and is
 itself never narrower than that (a one-letter tab is 48 wide where it was 44). cupertino inherits the default's track
@@ -6808,10 +6808,11 @@ topmost dialog; a close request without a key (Android's back) arrives as the na
 its own. A dialog opened from another stacks above it with its own scrim; the first becomes inert. The `<dialog>` appears
 as every modal surface does (`appearStyles()` and `AppearController`, src/primitives/motion.ts: role modal, from its
 centre): from `sys.motion.appear.*` to whole over `motion.enter-*`, and back the same way over `motion.exit-*`. It is
-closed at once — focus and the page are given back — and kept drawn in the top layer, inert, until its exit and its
-scrim's have played, in every engine (`closeModal()`, src/primitives/modal-exit.ts, MDL-7); opened again while it leaves,
-it is taken back with `openModal()`, so that it goes on from what it shows. Mounted open before the first paint, it is
-there at once. Where motion is reduced it only fades, and its scrim with it, over `sys.motion.role.reduced`
+closed at once — focus and the page are given back — and kept drawn in the top layer, inert, until its exit has
+played, its scrim drawn at no opacity from the first frame of the closing (MOT-8: `modalExitStyles()`), in every engine
+(`closeModal()`, src/primitives/modal-exit.ts, MDL-7); opened again while it leaves, it is taken back with `openModal()`,
+so that it goes on from what it shows and its scrim fades in again from no opacity. Mounted open before the first paint,
+it is there at once. Where motion is reduced it only fades, and its scrim fades in with it, over `sys.motion.role.reduced`
 (`sheetScrimStyles()`, src/primitives/scrim.ts). Focus moves when it opens and
 closes, not when the motion ends. A snackbar shown while it is open is shown inside it (SNK-38, `modalLayer` in
 `src/primitives/modal.ts`).
@@ -6916,9 +6917,10 @@ sheet asks and shows itself again unless you close it. It appears as every sheet
 `sheet` from the block end, `AppearController`, as the dialog appears): it slides up from its own height below the
 bottom edge over `motion.enter-*`, whole and unscaled under every appearance, and down the same way over `motion.exit-*`
 from wherever it is drawn (a drag's offset is the appearance's `offset`), kept drawn in the top layer until it has, in
-every engine (`closeModal()`); turned round, it goes on from where it is. The scrim fades in step, over the same
-duration and curve (`sheetScrimStyles()`). Where motion is reduced it and the scrim only fade, in place, over
-`sys.motion.role.reduced` (a standard sheet too). Mounted open, it appears in place without motion.
+every engine (`closeModal()`); turned round, it goes on from where it is. The scrim fades in in step, over the same
+duration and curve (`sheetScrimStyles()`), and is drawn at no opacity from the first frame of the closing (MOT-8). Where
+motion is reduced the sheet and the scrim's entrance only fade, in place, over `sys.motion.role.reduced` (a standard
+sheet too). Mounted open, it appears in place without motion.
 
 **Standard (BSH-3, BSH-4).** A `<section>` named by `label` (a region landmark). The host fills its nearest
 positioned ancestor (`position: absolute; inset: 0`, letting every press through), so give the parent that holds the
@@ -7235,8 +7237,9 @@ as every sheet does (`appearStyles()` with role `sheet` from the inline end, `Ap
 it slides in from its own width beyond the end edge over `motion.enter-*`, whole and unscaled under every appearance,
 and out the same way over `motion.exit-*` from wherever it is drawn (a drag's offset is the appearance's `offset`),
 kept drawn in the top layer until it has, in every engine (`closeModal()`); turned round, it goes on from where it is.
-The scrim fades in step, over the same duration and curve (`sheetScrimStyles()`); where motion is reduced both only
-fade, in place, over `sys.motion.role.reduced`. A drag (pointer events, followed
+The scrim fades in in step, over the same duration and curve (`sheetScrimStyles()`), and is drawn at no opacity from the
+first frame of the closing (MOT-8); where motion is reduced the sheet and the scrim's entrance only fade, in place, over
+`sys.motion.role.reduced`. A drag (pointer events, followed
 through the window) starts past an 8 px slop along the horizontal axis (a vertical move first is the content's scroll)
 and follows the pointer toward the end edge, never past where the sheet rests; released past half its width, or flung
 that way (0.5 px/ms), it asks to close, holds for a frame and then slides out from there if you closed it, or slides back
@@ -7603,7 +7606,7 @@ the site's hand (`specs/navigation-drawer.spec.json`).
 | Event | When |
 |---|---|
 | `change` / `reselect` (drawer) | a button destination: as the bar's (`value` is already set). A link: `CustomEvent<{ value, href }>`, **cancelable**, fired from the anchor's click before the browser follows it, and only for a plain activation — the primary button, no modifier key, a click not already cancelled, `target` `same`, no `download`; `value` is not written; `preventDefault()` stops the navigation (a router then goes to `detail.href`). A modal drawer closes after either (NVD-21); a link opened somewhere else fires nothing and leaves it open (NVD-60) |
-| `close` (drawer) | a modal drawer closed: the scrim, Escape, back (the native `cancel`), a drag toward its start edge past half its width or a fling (0.5 px/ms, after an 8 px slop), its menu button or an app shell's, a destination, or a responsive drawer's coming to stand beside the content. `open` is already false. A standard drawer never fires it |
+| `close` (drawer) | a modal drawer closed: the scrim, Escape, back (the native `cancel`), a drag toward its start edge past half its width or a fling (0.5 px/ms, after an 8 px slop), its menu button or an app shell's, or a destination; a change of a responsive drawer's presentation fires none. `open` is already false. A standard drawer never fires it |
 | `expandedchange` (drawer) | `CustomEvent<{ expanded }>`, bubbling: the user asked a collapsible drawer for its other form — its menu button, or a group's cell while collapsed (`true`). The drawer has already set `expanded` (a modal one: `open`) |
 | `presentationchange` (drawer) | `CustomEvent<{ presentation }>`, bubbling: a responsive drawer decided its presentation for the first time, or the window's width changed it. A product shows its own menu button while it is `modal` |
 | `toggle` (group) | `CustomEvent<{ open }>`, bubbling: the user opened or closed the group — its row, the arrow keys, or its cell while collapsed — or the drawer opened it to show the selection (`reveal-selected`). `open` is already set |
@@ -7615,8 +7618,9 @@ header with a scrim of its own (a sibling element under it, from the header's bo
 navigation landmark named by `label`, keeps no focus inside it and makes nothing inert — the frame does. A change of
 presentation moves the same panel over `motion.expand` (`data-moving`); while it is open over the content, closing, or
 moving, the host carries `data-over`, which the frame's stylesheet reads to draw it over the main region and under the
-header. Nothing is replaced or removed when a closing ends: the scrim has faded and the panel has left the window or is
-its column at rest. Outside such a frame a change of presentation is still drawn at once (NVD-54 asks that it move).
+header. Its scrim is taken away at once as it begins to close, or to stand beside the content (MOT-8: its closed rule
+starts no transition). Nothing is replaced or removed when a closing ends: the panel has left the window or is its column
+at rest. Outside such a frame a change of presentation is still drawn at once (NVD-54 asks that it move).
 The platform's back (NVD-20, MDL-6), which reaches a modal drawer as its `<dialog>`'s native `cancel`, reaches the held
 panel — no dialog — through a `CloseWatcher` the drawer makes while it is open over the content and destroys as it
 closes, stacked with the page's other close watchers (a dialog or a popover opened above it hears back first). An Escape
@@ -7755,7 +7759,8 @@ decided as the element connects, before its first render, so the first frame is 
 without `close`; before the element is upgraded (markup from a server, the React wrapper included) there is no shadow
 root, so no dialog is open and nothing is inert. When the width changes the presentation it is drawn at once (the host
 carries `data-instant` for two frames: the open, close and form motions take no time, and what was on its way stops), it
-is entered closed (an open overlay comes down, `open` is false and `close` fires once), `expanded`, `value` and every
+keeps `open` and fires no `close` (an open overlay comes down while the drawer stands beside the content, and is over the
+content again, open, its scrim drawn at once, when the width takes it back there), `expanded`, `value` and every
 group's `open` are kept, and `presentationchange` fires once. Focus that was in the drawer stays on what the new
 presentation still shows, moves to the menu button from what it does not, and is left to the platform where the drawer
 shows nothing. In the `modal` presentation the drawer's own menu button closes the open overlay and otherwise does
@@ -7773,10 +7778,10 @@ Shift+Tab leave it without closing it. No scrim, no trap, no `close`.
 `::backdrop` as the scrim (`scrim.color`), everything else inert, the page's scroll held (`holdPageScroll()`), a snackbar
 shown inside it (`modalLayer`, SNK-38). It slides in from its start edge (`translate`, `@starting-style`) over the enter motion and out over
 the exit motion. It opens and closes with `openModal()` and `closeModal()` (src/primitives/modal-exit.ts, MDL-7): closed,
-it is no longer modal at once — the page is given back — and stays drawn in the top layer, inert, sliding out over its
-fading scrim until their transitions have finished (no timer, and no `overlay` transition, which Firefox and WebKit do not
-run); opened again while it leaves, it goes back from where it is. Its slide and its scrim's fade begin in the first frame
-drawn after the task that opens or closes it. Focus goes to the selected destination (or the group row that shows it),
+it is no longer modal at once — the page is given back — and stays drawn in the top layer, inert, sliding out, its scrim
+drawn at no opacity from the first frame (MOT-8), until its transitions have finished (no timer, and no `overlay`
+transition, which Firefox and WebKit do not run); opened again while it leaves, it goes back from where it is. Its slide
+(and, opening, its scrim's fade) begins in the first frame drawn after the task that opens or closes it. Focus goes to the selected destination (or the group row that shows it),
 Tab wraps inside (`trapFocus()`), and returns as it closes, not when its motion ends (MDL-5) — opened in the same task
 above a surface that has not given focus in yet, to where that one would have given it (`modalLayer.opener()`); while
 the focus it gives waits for its items to draw, a surface opened above it takes where it goes as the place to give focus
@@ -7784,12 +7789,12 @@ back to (`modalLayer.owesFocus`). A drag follows the pointer toward the
 start edge once past the slop; a release past half the width, or a fling, closes it. A collapsible modal drawer keeps its
 column in the host's layout box — a `<nav>` in the standard variant's look, collapsed — and, while open, replaces it with
 the dialog placed over the column's box (measured when it opens), which widens from the column's width over
-`motion.expand-*`, its scrim fading over the same time; its container color, elevation, end corners and end edge move from
+`motion.expand-*`, its scrim fading in over the same time; its container color, elevation, end corners and end edge move from
 the column's look to the modal variant's over the same motion (`@starting-style` gives the column's look to its first
 frame). It closes with `closeModal()` too, `interactive` and with what it moves besides its place named (`moves`: its
 width, container color, elevation and corners, held as shown where it changes hands): no longer modal at once — the page
 is given back, and focus returns as it closes (MDL-5) — it narrows back in the top layer, closed, its look moving back to
-the column's over its fading scrim. While it narrows it takes focus and the pointer (only its scrim takes none), since
+the column's, its scrim gone from the first frame (MOT-8). While it narrows it takes focus and the pointer (only its scrim takes none), since
 it is becoming the column and the element focus returns to — its menu button, usually — is slotted in it. Focus leaves
 the panel before anything else of the closing update is styled and once the change of form's motion is in force
 (`data-form-change`): a part the change of form recolors — the focused destination's container — then moves over that
@@ -8287,7 +8292,8 @@ on-screen keyboard. Opening focuses the header's input with the caret at the end
 input, which does not reopen it. A press on the view that would take focus nowhere keeps it inside. It fades in and out
 over the open and close motion, at once where motion is reduced: both views open and close with `openModal()` and
 `closeModal()` (src/primitives/modal-exit.ts, MDL-7), so a closing view is no longer modal at once — focus and the page
-are given back — and stays drawn in the top layer, with its scrim, until their fade has played, in every engine. The
+are given back — and stays drawn in the top layer until its fade has played, its scrim gone from the first frame
+(MOT-8), in every engine. The
 slots are not drawn in the header.
 
 **What a view holds appears in its first state (SRC-23, MOT-3).** Every view (docked, full-screen, dialog) is the first
@@ -8824,7 +8830,7 @@ own selectors and its own `--tanrei-comp-<name>-*` tokens — nothing in them kn
 | `DismissController`, `registerOverlay()`, `logicalAncestors()`, `overlayDepth()` (`dismiss.ts`) | Escape (the topmost surface alone, at the surface's edge, after everything inside heard the key), a press outside and focus leaving ask the host to close, once for one act; an overlay knows what opened it, so that "inside" follows the opener and not the document (POP-21, POP-23, POP-24) | the anchor and opener (`related`), `request(reason)`, `tab(event)`; each overlay's `openers`, `open`, `close` |
 | `focusOverlay()`, `tabThroughOverlay()`, `returnOverlayFocus()`, `keepOverlayFocusAfterPress()`, `quietFocus()`, `watchInput()` (`overlay-focus.ts`) | focus into an operated overlay that is not modal, through it as if it stood directly after its opener, and back to the opener when it closes — or, where the opener cannot take it, to a modal overlay's `fallback`: where focus was as it opened (a popover's sheet above a modal surface that holds the opener inert, POP-40); no indicator of its own when it was opened by a press (POP-19, POP-20, POP-22) | the focusable box, the host, the opener; the fallback |
 | `FollowController` (`follow.ts`) | an overlay placed by script follows what it is placed against without asking in every frame: it checks on a scroll (captured, any scroller), a resize of the window or the visual viewport, a size (`ResizeObserver` on what is followed, what is sized and the root), a place that changed with no event (an `IntersectionObserver` cut down to the followed element's box, set again after each move), a transition or animation beginning on an ancestor, an attribute changed on an ancestor (`dir`, a theme), the colour scheme, and the host's own render — and then in every frame for as long as a check finds a change (and three frames more). At rest it asks for no frame and runs no check (`src/primitives/follow.test.ts`): a size is compared only with one the `ResizeObserver` reported — never with `getBoundingClientRect()`, which gives the box after its transform and, in Firefox, at another precision — and a followed element that did not move keeps its place observer. Given `anchor()` and `undrawn()`, it tells the overlay once each time its anchor is no longer drawn (`anchorUndrawn()`: out of the page — the one last found, when its id finds nothing — no box, `visibility: hidden`, skipped by `content-visibility`), and places nothing against it meanwhile (MNU-65, DTM-51, TIP-9). Not seen until the next of those: a move of less than a pixel with no event, a move while wholly outside the viewport or without area, an inherited value changed by a replaced style sheet alone, the anchor moved to another parent | `followed()` (the anchor; a submenu's item), `sized()` (the surface, what scrolls in it), and `check()`: read what the placement depends on, place again if it differs, return whether it did; `start()` when shown and placed, `stop()` when hidden, `request()` after a change of its own it cannot see |
-| `appearStyles({ motion, open, role, origin })`, `AppearController` (`motion.ts`) | the one appearance of a surface (`docs/architecture/motion.md`): closed, the motion element stands at `sys.motion.appear.*` (opacity, scale toward its origin, distance toward its anchor's or edge's side, blur), open it is whole, between the two it moves on the role's enter or exit duration and curve and, turned round, goes on from the value shown (MOT-2); its first frame is the start (`@starting-style`); neither `display` nor `overlay` is transitioned (a popover is always manual and leaves the top layer after its exit, a modal dialog with `closeModal()`); under `unfold` it scales along the one axis that leaves the anchor (a style query; a browser without them scales both), a sheet slides by its own size, and reduced motion is a cross-fade over `role.reduced` (MOT-6). The controller skips the entrance before the document's first paint (`documentPainted()`: the second frame after `DOMContentLoaded`, MOT-4) — until then the motion element starts no transition at all, from the update that renders it — marks the motion element `data-tanrei-appear` (settling leaves it alone), and `exit()` resolves true when the exit's transitions have finished — waiting for those that replace them — or false as soon as it is opened again; no timer. A motion element that is not drawn (out of the page, or in a subtree `content-visibility` skips, `auto` off screen included) leaves at once: an exit begun in a skipped subtree is never played (Firefox leaves its transitions pending until the subtree is drawn again) | the motion element's selector and the open condition (keep it apart from `:popover-open`: leave the top layer after `exit()` resolves); the role and the origin (`anchor` reads the placed box's `data-side` and `data-held`; `center`; an edge); optionally the component's own timing tokens, its `appear` prefix, `unfold: false` (both axes under `unfold` too, for a surface that grows beside what opened it: a FAB menu's item) and `offset` (a translate the open surface stands at in place of none, where a gesture moves it: a sheet's drag; a sheet's scrim fades in step with `sheetScrimStyles()`, `scrim.ts`). `enter()` / `exit()` in the update that writes the open state; `enter(true)` / `exit(true)` at once (a surface drawn in place, one taken away with its host); `drawAtOnce()` for a surface placed by script before it opens (it starts from the side it was placed on); `keep(during)` for one taken out of the top layer and put back while it leaves (it goes on from the value shown). It owns the motion element's `opacity`, `scale`, `translate`, `filter`, `transform-origin` and transition |
+| `appearStyles({ motion, open, box, role, origin })`, `AppearController` (`motion.ts`) | the one appearance of a surface (`docs/architecture/motion.md`): closed, the motion element stands at `sys.motion.appear.*` (opacity, scale toward its origin, distance toward its anchor's or edge's side, blur), open it is whole, between the two it moves on the role's enter or exit duration and curve and, turned round, goes on from the value shown (MOT-2); its first frame is the start (`@starting-style`); neither `display` nor `overlay` is transitioned (a popover is always manual and leaves the top layer after its exit, a modal dialog with `closeModal()`); under `unfold` it scales along the one axis that leaves the anchor (a style query; a browser without them scales both), a sheet slides by its own size, and reduced motion is a cross-fade over `role.reduced` (MOT-6). Closed or leaving — wherever the open condition does not match — the motion element, the `box` round it and everything inside them take no pointer, `!important` (MOT-7). The controller skips the entrance before the document's first paint (`documentPainted()`: the second frame after `DOMContentLoaded`, MOT-4) — until then the motion element starts no transition at all, from the update that renders it — marks the motion element `data-tanrei-appear` (settling leaves it alone), and `exit()` resolves true when the exit's transitions have finished — waiting for those that replace them — or false as soon as it is opened again; no timer. A motion element that is not drawn (out of the page, or in a subtree `content-visibility` skips, `auto` off screen included) leaves at once: an exit begun in a skipped subtree is never played (Firefox leaves its transitions pending until the subtree is drawn again) | the motion element's selector and the open condition (keep it apart from `:popover-open`: leave the top layer after `exit()` resolves); `box`, where the open condition is on a box round the motion element in the same shadow root (a placed box, a dialog round what moves in it) — a box outside it (the host shown as a popover, another component's list) is closed for the pointer by the component's own rule; the role and the origin (`anchor` reads the placed box's `data-side` and `data-held`; `center`; an edge); optionally the component's own timing tokens, its `appear` prefix, `unfold: false` (both axes under `unfold` too, for a surface that grows beside what opened it: a FAB menu's item) and `offset` (a translate the open surface stands at in place of none, where a gesture moves it: a sheet's drag; a sheet's scrim fades in step with `sheetScrimStyles()`, `scrim.ts`). `enter()` / `exit()` in the update that writes the open state; `enter(true)` / `exit(true)` at once (a surface drawn in place, one taken away with its host); `drawAtOnce()` for a surface placed by script before it opens (it starts from the side it was placed on); `keep(during)` for one taken out of the top layer and put back while it leaves (it goes on from the value shown). It owns the motion element's `opacity`, `scale`, `translate`, `filter`, `transform-origin` and transition |
 | `AnimatedSize` (`motion.ts`) | MOT-5: a box whose size follows its content as one motion, in its layout, clipped with `overflow: clip` (never `hidden`: a box that is a scroll container is scrolled by a caret), its content fixed to the start, the end or — `auto` — the edge that stays; it moves from the size the last frame drew (a resize observer of the box: by the time it is told, a box at rest already stands at its new size), and a change mid-motion goes on from the size shown; the end of a motion is its own transitions' `finished`, matched to its run, so a replaced transition's late `transitioncancel` ends nothing; at once for `fit(false)`, `still()`, reduced motion, a role of zero. The successor of the text inputs' `AutoHeight` box, whose users have not moved to it | the box, the content element (for the end anchor and the inline axis), the axis, the anchor, the role's duration and curve as CSS values (by default `role.resize.default` and `easing.spatial`); `fit(true)` after the content changed. It writes the box's inline size, `overflow`, transition and `data-resizing` only while it moves |
 | `startFromNextFrame(motions)`, `statesFromNextFrame(roots)` (`motion.ts`) | the motions a change began in its task start in the first frame drawn after it, in every engine: WebKit dates a transition or an animation begun in a task from the frame drawn before that task, so where the task outlasted the motion (a surface opened with its items rendered and placed on a loaded machine) the end state was drawn at once, with no frame of it. `startFromNextFrame` holds the motions given at their start, once, and plays them in the next frame by giving them that frame's time as their start (`play()` there left a motion Chromium was already waiting to start pending for good) (`leaving`: also where a page clock holds frame callbacks, for an exit something waits for); `AppearController`, `openModal()` and `closeModal()` use it for an appearance. `statesFromNextFrame` does it for every motion of a state under the roots, through their shadow roots: those standing at their start when it is called and again once the updates the task queued under them have rendered, never one under way and never an appearance's (its controller decides: an exit that turns an entrance round is left as it is), always unheld by a page clock | the motions (`startFromNextFrame`) or the roots (`statesFromNextFrame`: usually the host); call it at the end of the task that opens or closes, after focus has moved. `test/motions.ts` `expectFromNextFrame()` holds a task past its motions and reads them in the next frame |
 | `playFromThisFrame(animation)` (`motion.ts`) | plays a held motion on from where it is held, dated from the frame being drawn (in a task, the frame drawn last), with nothing left pending. Every motion a component holds (`pause()`) and plays on goes through it, never `play()`: played with `play()` from a frame's rendering steps — a frame callback, a resize observer's report, or the pointer events Chromium sends there (a mouse's moves, entering and leaving) — Chromium never gave a start time to a motion it had been waiting to start since before it was held (begun or played in an earlier task or frame, held in a later task, no frame drawn between) where it was held at the time that wait began, and the motion stood there for good. `startFromNextFrame`, the marquee's passes (MRQ-9) and the carousel's fill (CRL-36) use it | the animation, held (or running); where the timeline has no time it is played as usual |
@@ -9761,7 +9767,7 @@ shown, and a debug build reports it.
 | Event | `detail` | |
 |---|---|---|
 | `windowclasschange` | `{ windowClass }` | the class was decided for the first time, or the window's width changed it: `compact`, `medium`, `expanded`. The read-only `windowClass` property and `data-window-class` hold it |
-| `navigationopenchange` | `{ navigationOpen }` | the menu button asked for the navigation (true); it closed — a second press of the menu button, Escape, the scrim, a drag, a destination — or the window became expanded while it was open (false) |
+| `navigationopenchange` | `{ navigationOpen }` | the menu button asked for the navigation (true); it closed — a second press of the menu button, Escape, the scrim, a drag, a destination (false); a change of the window's class emits none |
 
 **The window's class** is three media conditions, in rem, so a reader's zoom (and, in Chromium, a larger default text
 size) moves the frame to a narrower class before its columns are too narrow to read:

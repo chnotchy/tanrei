@@ -867,7 +867,7 @@ struct TanreiCarouselSnapshotTests {
 struct TanreiCarouselPresetSnapshotTests {
   /// Multi-browse: the preset's item corners (m3-like's extra-large, cupertino's continuous large), fill and content color.
   nonisolated static let fixtureId = "multi-browse"
-  nonisolated static let presets: [ShippedSystem] = [.m3Like, .m3ExpressiveLike, .cupertino]
+  nonisolated static let presets: [ShippedSystem] = [.m3Like, .cupertino]
 
   @Test("every shipped preset has one, and it is one of the spec's fixtures")
   func fixtureList() {

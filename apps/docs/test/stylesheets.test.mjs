@@ -26,17 +26,22 @@ const shipped = Object.keys(web.exports)
   .filter((key) => /^\.\/[a-z-]+\.css$/.test(key))
   .map((key) => key.slice(2));
 
-// The two the framework's `customCss` loads (astro.config.mjs): the tokens are custom properties in `tanrei.tokens`, and
-// the icon set's class sets the glyph's face, which no rule of Starlight's sets. And the two whose rules prose.css
-// carries word for word (packages/web/src/styles/steps.test.ts and timeline.test.ts hold that they are the same). And
-// three the site does not load: the page's base, because the site's page is Starlight's, which sets its own background,
-// color and face; tanrei.css, which is the base, the tokens and every other one of them in one file; and the cloak,
-// which a page opts into and which would hide every example of the site from a reader whose script does not arrive.
+// The tokens, custom properties in `tanrei.tokens`, which the head links first of the page's stylesheets, before the
+// appearance's script puts the look's stylesheet after them (components/frame/Head.astro). The icon set, which the
+// framework's `customCss` loads (astro.config.mjs): its class sets the glyph's face, which no rule of Starlight's sets. And the two whose rules prose.css
+// carries word for word (packages/web/src/styles/steps.test.ts and timeline.test.ts hold that they are the same). The
+// page's base, which prose.css loads into a layer of the docs' own named before Starlight's (`docs-base`), as a
+// product's page loads it before its own rules: it fills only what Starlight's, the docs' and the theme's rules leave
+// unset â€” in `docs.*` it would win over the reset's face and line height on the body. And two the site does not load:
+// tanrei.css, which is the base, the tokens and every other one of them in one file; and the cloak, which a page opts
+// into and which would hide every example of the site from a reader whose script does not arrive.
+const BASE_LAYERS = '@layer docs-base, starlight, docs, docs.focus;';
+const BASE_IMPORT = "@import '@tanrei/web/base.css' layer(docs-base);";
 const ELSEWHERE = {
-  'base.css': 'not loaded',
+  'base.css': 'before Starlight',
   'tanrei.css': 'not loaded',
   'cloak.css': 'not loaded',
-  'tokens.css': 'customCss',
+  'tokens.css': 'Head.astro',
   'icons.css': 'customCss',
   'steps.css': 'prose.css',
   'timeline.css': 'prose.css',
@@ -56,6 +61,14 @@ test('every stylesheet the web package ships is loaded into a layer of the docsâ
   const missing = shipped.filter((name) => {
     if (ELSEWHERE[name] === 'not loaded') return false;
     if (ELSEWHERE[name] === 'customCss') return !config.includes(`'@tanrei/web/${name}'`);
+    if (ELSEWHERE[name] === 'Head.astro') {
+      const head = read(path.join(src, 'components/frame/Head.astro'));
+      return !(head.includes(`import tokens from '@tanrei/web/${name}?url';`) && /<link rel="stylesheet" href=\{tokens\} \/>\s*<Default \/>/.test(head));
+    }
+    if (ELSEWHERE[name] === 'before Starlight') {
+      const prose = read(path.join(src, 'styles/prose.css'));
+      return !(prose.includes(BASE_LAYERS) && prose.includes(BASE_IMPORT) && prose.indexOf(BASE_LAYERS) < prose.indexOf('@import'));
+    }
     if (ELSEWHERE[name] === 'prose.css') return !new RegExp(`@import '@tanrei/web/prose\\.css' layer\\(docs\\.`).test(styles);
     return !new RegExp(`@import '@tanrei/web/${name.replace('.', '\\.')}' layer\\(docs\\.[a-z-]+\\);`).test(styles);
   });
@@ -66,8 +79,10 @@ test('no source of the site loads one of them any other way', () => {
   const found = [];
   for (const file of sources) {
     for (const [line, text] of read(file).split('\n').entries()) {
-      // An `@import` outside a docs layer, or an import from a script (which Vite puts in the page as written).
-      if (/@import\s+['"]@tanrei\/web\/[^'"]+\.css['"]/.test(text) && !/layer\(docs\.[a-z-]+\)/.test(text)) found.push(`${rel(file)}:${line + 1}: ${text.trim()}`);
+      // An `@import` outside a docs layer (the base's in prose.css aside), or an import from a script (which Vite puts
+      // in the page as written).
+      const base = file === path.join(src, 'styles/prose.css') && text.trim() === BASE_IMPORT;
+      if (/@import\s+['"]@tanrei\/web\/[^'"]+\.css['"]/.test(text) && !/layer\(docs\.[a-z-]+\)/.test(text) && !base) found.push(`${rel(file)}:${line + 1}: ${text.trim()}`);
       if (/^\s*import\s+['"]@tanrei\/web\/[^'"]+\.css['"]/.test(text)) found.push(`${rel(file)}:${line + 1}: ${text.trim()}`);
       // Loaded by a component, it reaches only the pages that use that component.
       if (!file.startsWith(path.join(src, 'styles')) && /@import\s+['"]@tanrei\/web\/[^'"]+\.css['"]/.test(text)) found.push(`${rel(file)}:${line + 1}: loaded by one component, not by styles/: ${text.trim()}`);

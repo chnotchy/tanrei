@@ -20,7 +20,7 @@ import { bounded, engines, launch, settlePage } from './launch.mjs';
 
 register('../vite-shim.mjs', import.meta.url);
 const { strings } = await import('../../src/lib/i18n.ts');
-const { APPEARANCE_KEY, CUSTOM_ATTR, CUSTOM_KEY, CUSTOM_LOOK, CUSTOM_STYLE_ID, LATE_ATTR, MISSING_ATTR, PENDING_ATTR, REVEAL_AFTER, SHEET_STORE } = await import('../../src/lib/appearance.ts');
+const { APPEARANCE_KEY, CUSTOM_ATTR, CUSTOM_KEY, CUSTOM_LOOK, LOOK_SHEET_ID, LATE_ATTR, MISSING_ATTR, PENDING_ATTR, REVEAL_AFTER, SHEET_STORE } = await import('../../src/lib/appearance.ts');
 
 const docs = fileURLToPath(new URL('../../', import.meta.url));
 const dist = path.join(docs, 'dist');
@@ -73,14 +73,14 @@ after(async () => host?.close());
 const state = (page) =>
   page.evaluate(
     ({ appearance, custom, style, pending, available }) => ({
-      look: document.documentElement.dataset.docsSystem,
+      look: document.documentElement.dataset.docsLook,
       kept: document.documentElement.hasAttribute(available),
       pending: document.documentElement.hasAttribute(pending),
       sheet: Boolean(document.getElementById(style)),
       stored: JSON.parse(localStorage.getItem(appearance) ?? 'null'),
       theme: JSON.parse(localStorage.getItem(custom) ?? 'null'),
     }),
-    { appearance: APPEARANCE_KEY, custom: CUSTOM_KEY, style: CUSTOM_STYLE_ID, pending: PENDING_ATTR, available: CUSTOM_ATTR },
+    { appearance: APPEARANCE_KEY, custom: CUSTOM_KEY, style: LOOK_SHEET_ID, pending: PENDING_ATTR, available: CUSTOM_ATTR },
   );
 
 /**
@@ -104,13 +104,13 @@ const primary = (page) =>
       scoped: stage?.getAttribute('data-tanrei-system') ?? null,
       declared: Boolean(document.getElementById(style)?.textContent?.includes(`${name}:`)),
     };
-  }, CUSTOM_STYLE_ID);
+  }, LOOK_SHEET_ID);
 
 /** Waits for the theme's sheet to be in and the page shown. */
 const drawn = (page) =>
   bounded(
     `${page.url()}: the theme's stylesheet in and the page shown`,
-    page.waitForFunction(({ style, pending }) => document.getElementById(style) && !document.documentElement.hasAttribute(pending), { style: CUSTOM_STYLE_ID, pending: PENDING_ATTR }, { timeout: 60_000 }),
+    page.waitForFunction(({ style, pending }) => document.getElementById(style) && !document.documentElement.hasAttribute(pending), { style: LOOK_SHEET_ID, pending: PENDING_ATTR }, { timeout: 60_000 }),
     () => state(page).then((now) => JSON.stringify({ ...now, theme: Boolean(now.theme) })),
   );
 
@@ -188,7 +188,7 @@ for (const engine of ENGINES) {
       assert.deepEqual(kept.theme.layer, LAYER, 'the layer the Studio keeps, in this browser');
 
       // The open tab follows: the whole page in the theme, the examples with it.
-      await reader.waitForFunction((look) => document.documentElement.dataset.docsSystem === look, CUSTOM_LOOK);
+      await reader.waitForFunction((look) => document.documentElement.dataset.docsLook === look, CUSTOM_LOOK);
       await drawn(reader);
       const colors = await primary(reader);
       assert.ok(colors.declared, 'the theme’s sheet declares the brand role');
@@ -210,7 +210,7 @@ for (const engine of ENGINES) {
           if (on && window.cloak.hidden === null) window.cloak.hidden = performance.now();
           if (!on && window.cloak.hidden !== null && window.cloak.shown === null) Object.assign(window.cloak, { shown: performance.now(), sheetThen: Boolean(document.getElementById(style)) });
         }).observe(document, { subtree: true, attributes: true, attributeFilter: [pending] });
-      }, { style: CUSTOM_STYLE_ID, pending: PENDING_ATTR });
+      }, { style: LOOK_SHEET_ID, pending: PENDING_ATTR });
       const before = requests.length;
       await next.goto(`${origin}/foundations/accessibility/`);
       await drawn(next);
@@ -222,7 +222,7 @@ for (const engine of ENGINES) {
 
       // Off: the documentation keeps nothing, and the open tabs are drawn in the default system again.
       await toggle.click();
-      await reader.waitForFunction((look) => document.documentElement.dataset.docsSystem === look, DEFAULT);
+      await reader.waitForFunction((look) => document.documentElement.dataset.docsLook === look, DEFAULT);
       const off = await state(reader);
       assert.deepEqual({ ...off, stored: off.stored?.look ?? null }, { look: DEFAULT, kept: false, pending: false, sheet: false, stored: null, theme: null });
       assert.equal(await reader.locator('#docs-appearance .docs-look-name').textContent(), DEFAULT);
@@ -268,7 +268,7 @@ for (const engine of ENGINES) {
 
       // One choice back.
       await panel.getByRole('option', { name: DEFAULT, exact: true }).click();
-      await page.waitForFunction((look) => document.documentElement.dataset.docsSystem === look, DEFAULT);
+      await page.waitForFunction((look) => document.documentElement.dataset.docsLook === look, DEFAULT);
       const back = await state(page);
       assert.equal(back.sheet, false, 'the theme’s sheet is taken away');
       assert.equal(back.kept, true, 'and still kept, to be chosen again');
@@ -327,7 +327,7 @@ for (const engine of ENGINES) {
             }
           }
         }).observe(document, { subtree: true, childList: true, attributes: true, attributeFilter: [pending, missing] });
-      }, { pending: PENDING_ATTR, style: CUSTOM_STYLE_ID, missing: MISSING_ATTR });
+      }, { pending: PENDING_ATTR, style: LOOK_SHEET_ID, missing: MISSING_ATTR });
       await page.goto(`${origin}${PAGE}`);
       await page.waitForFunction(() => window.cloak.shown !== null, undefined, { timeout: 60_000 });
       const cloak = await page.evaluate(() => window.cloak);
@@ -362,8 +362,8 @@ for (const engine of ENGINES) {
         // A sheet the page could not wait for: shown after REVEAL_AFTER, in the default system, which it keeps; the sheet
         // is computed all the same and kept, and the next page is drawn in the theme.
         assert.ok(cloak.shown - cloak.hidden >= REVEAL_AFTER - 50, `shown without the sheet only once the page had been hidden for ${REVEAL_AFTER} ms (${JSON.stringify(cloak)})`);
-        assert.deepEqual(await page.evaluate((late) => [document.documentElement.dataset.docsSystem, document.documentElement.hasAttribute(late)], LATE_ATTR), [DEFAULT, true]);
-        assert.equal(await page.evaluate((style) => Boolean(document.getElementById(style)), CUSTOM_STYLE_ID), false, 'the late sheet is not put in on that page');
+        assert.deepEqual(await page.evaluate((late) => [document.documentElement.dataset.docsLook, document.documentElement.hasAttribute(late)], LATE_ATTR), [DEFAULT, true]);
+        assert.equal(await page.evaluate((style) => Boolean(document.getElementById(style)), LOOK_SHEET_ID), false, 'the late sheet is not put in on that page');
         // The next page: the sheet kept by then is read before the page is shown.
         await until(page, 'the late sheet kept', sheetKept, { ...SHEET_STORE, hash: 'fresh1' });
         await page.reload();

@@ -672,8 +672,8 @@ const TanreiSystem tanreiSystem = TanreiSystem(
     ),
     sizes: TanreiAccordionSizes(
       small: TanreiAccordionSizeTokens(
-        containerHeight: 48.0,
-        containerPaddingBlock: 12.0,
+        containerHeight: 36.0,
+        containerPaddingBlock: 6.0,
         containerPaddingInline: 12.0,
         labelTypescale: _typescaleLabel,
         supportingTextTypescale: _typescaleBodySmall,
@@ -683,8 +683,8 @@ const TanreiSystem tanreiSystem = TanreiSystem(
         contentPaddingBlockEnd: 12.0,
       ),
       medium: TanreiAccordionSizeTokens(
-        containerHeight: 56.0,
-        containerPaddingBlock: 16.0,
+        containerHeight: 40.0,
+        containerPaddingBlock: 8.0,
         containerPaddingInline: 16.0,
         labelTypescale: _typescaleHeading5,
         supportingTextTypescale: _typescaleBody,
@@ -3512,7 +3512,7 @@ const TanreiSystem tanreiSystem = TanreiSystem(
         groupTitlePaddingInline: 8.0,
       ),
       medium: TanreiComboboxOptionSizeTokens(
-        optionHeight: 48.0,
+        optionHeight: 40.0,
         optionPaddingInline: 12.0,
         optionPaddingBlock: 8.0,
         optionGap: 12.0,
@@ -3837,7 +3837,7 @@ const TanreiSystem tanreiSystem = TanreiSystem(
   fabMenu: TanreiFabMenuTokens(
     containerShapeOpen: 9999.0,
     itemGap: 8.0,
-    itemHeight: 48.0,
+    itemHeight: 40.0,
     itemIconSize: 20.0,
     itemLabelTypescale: _typescaleLabel,
     itemPaddingInlineEnd: 20.0,
@@ -5294,15 +5294,15 @@ const TanreiSystem tanreiSystem = TanreiSystem(
     trailingTextTypescale: _typescaleBodySmall,
     sizes: TanreiListRowSizes(
       small: TanreiListRowSizeTokens(
-        containerHeightOneLine: 40.0,
+        containerHeightOneLine: 36.0,
         containerHeightTwoLine: 56.0,
-        containerHeightThreeLine: 72.0,
+        containerHeightThreeLine: 76.0,
         containerPaddingBlock: 4.0,
       ),
       medium: TanreiListRowSizeTokens(
-        containerHeightOneLine: 56.0,
-        containerHeightTwoLine: 72.0,
-        containerHeightThreeLine: 88.0,
+        containerHeightOneLine: 40.0,
+        containerHeightTwoLine: 60.0,
+        containerHeightThreeLine: 80.0,
         containerPaddingBlock: 8.0,
       ),
     ),
@@ -5401,7 +5401,7 @@ const TanreiSystem tanreiSystem = TanreiSystem(
         containerPaddingBlock: 6.0,
       ),
       medium: TanreiListSizeTokens(
-        containerHeight: 48.0,
+        containerHeight: 40.0,
         containerPaddingBlock: 8.0,
       ),
     ),
@@ -5988,7 +5988,7 @@ const TanreiSystem tanreiSystem = TanreiSystem(
         groupTitlePaddingInline: 8.0,
       ),
       medium: TanreiMenuSizeTokens(
-        containerHeight: 48.0,
+        containerHeight: 40.0,
         containerPaddingInline: 12.0,
         containerPaddingBlock: 8.0,
         containerGap: 12.0,
@@ -6411,9 +6411,9 @@ const TanreiSystem tanreiSystem = TanreiSystem(
   navigationDrawer: TanreiNavigationDrawerTokens(
     breakpointCollapsed: 600.0,
     breakpointExpanded: 1024.0,
-    collapsedItemContainerPaddingInline: 4.0,
     collapsedItemContainerShape: 6.0,
     collapsedItemGap: 4.0,
+    collapsedItemLabelPaddingInline: 4.0,
     collapsedItemLabelTypescale: _typescaleLabelSmall,
     containerMaxWidth: 400.0,
     containerMinWidth: 200.0,
@@ -6633,7 +6633,7 @@ const TanreiSystem tanreiSystem = TanreiSystem(
           itemContainerColor: TanreiPaint.alpha(TanreiPaint.role(TanreiColorRole.onSecondaryContainer), 0.16),
           itemIconIndicatorColor: TanreiPaint.none(),
           itemIconColor: TanreiPaint.role(TanreiColorRole.onSecondaryContainer),
-          itemLabelColor: TanreiPaint.role(TanreiColorRole.onSecondaryContainer),
+          itemLabelColor: TanreiPaint.role(TanreiColorRole.onSurface),
           itemSupportingTextColor: TanreiPaint.role(TanreiColorRole.onSecondaryContainer),
           itemTrailingTextColor: TanreiPaint.role(TanreiColorRole.onSecondaryContainer),
           itemTrailingIconColor: TanreiPaint.role(TanreiColorRole.onSecondaryContainer),
@@ -6643,7 +6643,7 @@ const TanreiSystem tanreiSystem = TanreiSystem(
           itemContainerColor: TanreiPaint.mix(TanreiPaint.alpha(TanreiPaint.role(TanreiColorRole.onSecondaryContainer), 0.16), TanreiPaint.role(TanreiColorRole.onSecondaryContainer), 0.08),
           itemIconIndicatorColor: TanreiPaint.none(),
           itemIconColor: TanreiPaint.role(TanreiColorRole.onSecondaryContainer),
-          itemLabelColor: TanreiPaint.role(TanreiColorRole.onSecondaryContainer),
+          itemLabelColor: TanreiPaint.role(TanreiColorRole.onSurface),
           itemSupportingTextColor: TanreiPaint.role(TanreiColorRole.onSecondaryContainer),
           itemTrailingTextColor: TanreiPaint.role(TanreiColorRole.onSecondaryContainer),
           itemTrailingIconColor: TanreiPaint.role(TanreiColorRole.onSecondaryContainer),
@@ -6653,7 +6653,7 @@ const TanreiSystem tanreiSystem = TanreiSystem(
           itemContainerColor: TanreiPaint.mix(TanreiPaint.alpha(TanreiPaint.role(TanreiColorRole.onSecondaryContainer), 0.16), TanreiPaint.role(TanreiColorRole.onSecondaryContainer), 0.1),
           itemIconIndicatorColor: TanreiPaint.none(),
           itemIconColor: TanreiPaint.role(TanreiColorRole.onSecondaryContainer),
-          itemLabelColor: TanreiPaint.role(TanreiColorRole.onSecondaryContainer),
+          itemLabelColor: TanreiPaint.role(TanreiColorRole.onSurface),
           itemSupportingTextColor: TanreiPaint.role(TanreiColorRole.onSecondaryContainer),
           itemTrailingTextColor: TanreiPaint.role(TanreiColorRole.onSecondaryContainer),
           itemTrailingIconColor: TanreiPaint.role(TanreiColorRole.onSecondaryContainer),
@@ -6663,7 +6663,7 @@ const TanreiSystem tanreiSystem = TanreiSystem(
           itemContainerColor: TanreiPaint.mix(TanreiPaint.alpha(TanreiPaint.role(TanreiColorRole.onSecondaryContainer), 0.16), TanreiPaint.role(TanreiColorRole.onSecondaryContainer), 0.1),
           itemIconIndicatorColor: TanreiPaint.none(),
           itemIconColor: TanreiPaint.role(TanreiColorRole.onSecondaryContainer),
-          itemLabelColor: TanreiPaint.role(TanreiColorRole.onSecondaryContainer),
+          itemLabelColor: TanreiPaint.role(TanreiColorRole.onSurface),
           itemSupportingTextColor: TanreiPaint.role(TanreiColorRole.onSecondaryContainer),
           itemTrailingTextColor: TanreiPaint.role(TanreiColorRole.onSecondaryContainer),
           itemTrailingIconColor: TanreiPaint.role(TanreiColorRole.onSecondaryContainer),
@@ -6681,10 +6681,10 @@ const TanreiSystem tanreiSystem = TanreiSystem(
         ),
       ),
     ),
-    densitys: TanreiNavigationDrawerDensitys(
-      regular: TanreiNavigationDrawerDensityTokens(
+    sizes: TanreiNavigationDrawerSizes(
+      medium: TanreiNavigationDrawerSizeTokens(
         containerGap: 4.0,
-        itemContainerHeight: 48.0,
+        itemContainerHeight: 40.0,
         itemPaddingInline: 12.0,
         itemPaddingBlock: 4.0,
         itemNestIndent: 36.0,
@@ -6694,11 +6694,11 @@ const TanreiSystem tanreiSystem = TanreiSystem(
         itemLabelTypescale: _typescaleLabel,
         itemTrailingIconSize: 20.0,
         collapsedContainerWidth: 72.0,
-        collapsedItemContainerWidth: 48.0,
-        collapsedItemContainerPaddingBlock: 12.0,
+        collapsedItemContainerWidth: 40.0,
+        collapsedItemContainerPaddingBlock: 8.0,
         headingHeight: 36.0,
       ),
-      compact: TanreiNavigationDrawerDensityTokens(
+      small: TanreiNavigationDrawerSizeTokens(
         containerGap: 2.0,
         itemContainerHeight: 36.0,
         itemPaddingInline: 8.0,
@@ -7594,7 +7594,7 @@ const TanreiSystem tanreiSystem = TanreiSystem(
         suggestionLeadingIconSize: 20.0,
       ),
       medium: TanreiSearchSizeTokens(
-        suggestionContainerHeight: 48.0,
+        suggestionContainerHeight: 40.0,
         suggestionContainerPaddingInline: 12.0,
         suggestionContainerPaddingBlock: 8.0,
         suggestionContainerGap: 12.0,
@@ -8003,7 +8003,7 @@ const TanreiSystem tanreiSystem = TanreiSystem(
         groupTitlePaddingInline: 8.0,
       ),
       medium: TanreiSelectOptionSizeTokens(
-        optionHeight: 48.0,
+        optionHeight: 40.0,
         optionPaddingInline: 12.0,
         optionPaddingBlock: 8.0,
         optionGap: 12.0,
@@ -8918,7 +8918,7 @@ const TanreiSystem tanreiSystem = TanreiSystem(
     compactListPaddingBlock: 8.0,
     compactListPaddingInline: 16.0,
     compactRowGap: 8.0,
-    compactRowHeight: 48.0,
+    compactRowHeight: 40.0,
     compactRowPaddingInline: 16.0,
     compactSupportingTextColor: TanreiPaint.role(TanreiColorRole.onSurfaceVariant),
     compactSupportingTextTypescale: _typescaleBodySmall,
@@ -9012,8 +9012,8 @@ const TanreiSystem tanreiSystem = TanreiSystem(
         rowPaddingBlock: 8.0,
       ),
       medium: TanreiTableOfContentsSizeTokens(
-        rowHeight: 44.0,
-        rowPaddingBlock: 12.0,
+        rowHeight: 40.0,
+        rowPaddingBlock: 10.0,
       ),
     ),
     hovered: TanreiTableOfContentsStateTokens(
@@ -9120,13 +9120,15 @@ const TanreiSystem tanreiSystem = TanreiSystem(
     ),
     sizes: TanreiTableSizes(
       small: TanreiTableSizeTokens(
+        rowHeight: 32.0,
         cellPaddingBlock: 6.0,
         cellPaddingInline: 12.0,
         cellTextTypescale: _typescaleBodySmall,
         headerTextTypescale: _typescaleLabelSmall,
       ),
       medium: TanreiTableSizeTokens(
-        cellPaddingBlock: 12.0,
+        rowHeight: 40.0,
+        cellPaddingBlock: 9.0,
         cellPaddingInline: 16.0,
         cellTextTypescale: _typescaleBody,
         headerTextTypescale: _typescaleLabel,
@@ -9525,7 +9527,7 @@ const TanreiSystem tanreiSystem = TanreiSystem(
         iconPlacement: 1.0,
       ),
       medium: TanreiTabsSizeTokens(
-        containerHeight: 48.0,
+        containerHeight: 40.0,
         containerPaddingInline: 16.0,
         activeIndicatorPaddingInline: 16.0,
         activeIndicatorPaddingBlock: 4.0,
@@ -9950,8 +9952,8 @@ const TanreiSystem tanreiSystem = TanreiSystem(
         chevronSize: 16.0,
       ),
       medium: TanreiTreeViewSizeTokens(
-        containerHeight: 48.0,
-        containerPaddingBlock: 12.0,
+        containerHeight: 40.0,
+        containerPaddingBlock: 8.0,
         containerPaddingInline: 12.0,
         containerGap: 12.0,
         levelIndent: 32.0,

@@ -286,6 +286,7 @@
                   "unit": "px"
                 },
                 "$extensions": {
+                  "dev.tanrei.aligned": "control",
                   "dev.tanrei.derive": {
                     "fn": "mul",
                     "of": "{tanrei.dial.size.unit}",
@@ -578,7 +579,8 @@
                   "of": "{tanrei.sys.control.height.medium}",
                   "by": 1,
                   "min": "{tanrei.sys.target.minimum}"
-                }
+                },
+                "dev.tanrei.aligned": "control"
               }
             },
             "padding-inline": {

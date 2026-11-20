@@ -1227,6 +1227,29 @@
   font-size: var(--ts-text-2xs);
   color: var(--tanrei-sys-color-on-surface-variant);
 }
+/* Under the control height: a Button, a field, a menu row and a tab of the preview's system, side by side, so that
+   what lines up at the chosen height is seen lining up. */
+.ts-size-after {
+  display: grid;
+  gap: 0.5rem;
+}
+.ts-size-sample {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--tanrei-sys-space-space100);
+}
+.ts-size-sample-row {
+  display: inline-flex;
+  align-items: center;
+  box-sizing: border-box;
+  block-size: var(--tanrei-comp-menu-container-height-medium);
+  padding-inline: var(--tanrei-sys-space-space150);
+  border-radius: var(--tanrei-sys-shape-corner-small);
+  background: var(--tanrei-sys-color-surface-container-high);
+  color: var(--tanrei-sys-color-on-surface);
+  font: var(--tanrei-sys-typescale-label-font-weight) var(--tanrei-sys-typescale-label-font-size) / var(--tanrei-sys-typescale-label-line-height) var(--tanrei-sys-typescale-label-font-family);
+}
 .ts-more {
   margin: 0;
   font-size: var(--ts-text-xs);

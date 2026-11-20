@@ -4,7 +4,6 @@
 import { render, screen } from '@testing-library/react-native';
 import { Dimensions, View } from 'react-native';
 import { cupertino } from '../../generated/systems/cupertino';
-import { m3ExpressiveLike } from '../../generated/systems/m3-expressive-like';
 import { m3Like } from '../../generated/systems/m3-like';
 import type { TanreiColorRole, TanreiSystem } from '../../generated/vocabulary';
 import { describeFixtureBaselines, describeSharedVocabulary, settleMotion, textStyle, viewStyle } from '../../testing/harness';
@@ -49,12 +48,6 @@ describe('m3-like drives the Dialog', () => {
     expect(viewStyle(part(''))).toMatchObject({ backgroundColor: role(system, 'surfaceContainerHigh'), borderRadius: 28 });
     expect(textStyle(part('headline')).fontSize).toBe(createTanreiTheme(system, 'light').text('heading3').fontSize);
     expect(viewStyle(part('scrim')).backgroundColor).toBe(role(system, 'scrim'));
-  });
-});
-
-describe('m3-expressive-like drives the Dialog', () => {
-  test('it inherits m3-like\'s dialog', () => {
-    expect(m3ExpressiveLike.components.dialog).toEqual(m3Like.components.dialog);
   });
 });
 

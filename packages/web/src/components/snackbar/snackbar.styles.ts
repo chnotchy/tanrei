@@ -149,6 +149,14 @@ export const styles = css`
   :host([popover]:not(:popover-open)) {
     display: none;
   }
+  /* MOT-7: shown, the host is a box round the bar that draws nothing, and would take a press where the bar takes none
+     (appearStyles(), while the bar is closed or leaving): it takes no pointer itself, and the bar takes it while open. */
+  :host([popover]) {
+    pointer-events: none;
+  }
+  :host([popover]) .bar.open {
+    pointer-events: auto;
+  }
   /* SNK-35: at the top end — the margin below the top edge and from the end edge, inside the safe area and below what
      the frame keeps over the top of the window (the header of <tanrei-app-shell>, APS-17, or a product's own frame
      that sets the same property), so it never covers a top app bar. The end side is the direction's, and so is the

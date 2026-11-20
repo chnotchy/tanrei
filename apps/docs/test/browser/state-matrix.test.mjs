@@ -4,7 +4,8 @@
 // - each cell is drawn with its state's tokens: the container and the label of every variant, at rest and selected, in
 //   every state a column shows, computed in the cell equal to what the default system resolves the state's tokens to —
 //   so a component whose state rules the figure fails to hold fails here;
-// - under a preset chosen in the figure's header, the cells are held again and drawn with that system's tokens;
+// - under a preset chosen in the header, the cells are held again and drawn with that system's tokens, which the
+//   page's look gives the root;
 // - the table takes the same room before its elements are defined (its scripts held back) as once they are, at a
 //   phone's width and a desktop's, so nothing under it moves when they arrive;
 // - nothing in a cell is reached by Tab or by assistive technology, and each cell says in words what it shows.
@@ -140,7 +141,7 @@ describe('the state matrix on the button’s page', () => {
     const preset = presets.find((id) => resolvedIn(id, token) && rgb(resolvedIn(id, token)) !== rgb(resolvedIn(NS, token)));
     assert.ok(preset, 'a preset draws the hovered filled button in another color than the default system');
     await chooseLook(page, preset);
-    await page.waitForFunction((selector) => document.querySelector(selector).closest('[data-example]').querySelector('[data-example-stage]').getAttribute('data-tanrei-system'), TABLE);
+    await page.waitForFunction((preset) => document.getElementById('docs-look-sheet')?.sheet && document.getElementById('docs-look-sheet').getAttribute('href').includes(`/look-${preset}.`), preset);
     await settled(page);
     const drawn = await cells(page);
     await context.close();

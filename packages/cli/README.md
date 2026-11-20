@@ -10,7 +10,7 @@ Build your own design system on [Tanrei](https://github.com/chnotchy/tanrei): **
 
 ```bash
 npm install --save-dev @tanrei/cli
-npx tanrei init acme --extends tanrei   # or m3-like, m3-expressive-like, cupertino
+npx tanrei init acme --extends tanrei   # or m3-like, cupertino
 npx tanrei build
 ```
 
@@ -33,15 +33,15 @@ npx tanrei build
 }
 ```
 
-A layer sets values in this order of preference: a dial first. The dials are eight numbers every token is derived from — `type.base`, `type.contrast`, `space.unit`, `size.unit`, `density`, `shape.unit`, `stroke.unit`, `motion.unit`, each `tanrei.dial.<name>`. Three values decide how big things are:
+A layer sets values in this order of preference: a dial first. The dials are eight numbers every token is derived from — `type.base`, `type.contrast`, `space.unit`, `size.unit`, `control.height`, `shape.unit`, `stroke.unit`, `motion.unit`, each `tanrei.dial.<name>`. Three values decide how big things are:
 
 | | |
 |---|---|
-| `tanrei.dial.size.unit` | 4px: the grid control heights and icon sizes sit on |
-| `tanrei.dial.density` | a plain number above 0, 1 by default: below 1 controls and rows are drawn closer, above 1 they get more room. It moves heights, block paddings and the gaps between rows, never text, glyphs or corners; a height is `size.unit` × its step × `density`, rounded to `size.unit` |
-| `tanrei.sys.target.minimum` | 36px: the least height anything a person presses is drawn at. No dial scales it, and no density or size step draws a pressable height below it. `tanrei.sys.target.pointer` and `.touch`, the least areas a press is taken from, alias it; a layer that follows a platform guideline sets them higher |
+| `tanrei.dial.control.height` | 40px: the height controls and rows are drawn at in their default size; small and large are whole size units below and above it (32 and 56) |
+| `tanrei.dial.size.unit` | 4px: the distance between the control sizes, and the scale of icons |
+| `tanrei.sys.target.minimum` | 36px: the least height anything a person presses is drawn at. No dial scales it, and no size step draws a pressable height below it. `tanrei.sys.target.pointer` and `.touch`, the least areas a press is taken from, alias it; a layer that follows a platform guideline sets them higher |
 
-`tanrei validate` and `tanrei build` refuse a density of 0 or below, and a pointer or touch target under the minimum, in every layer. A target under 24px (WCAG 2.5.8) or a pressable height under the minimum is a warning in your layer. `init` prints the same summary.
+`tanrei validate` and `tanrei build` refuse a pointer or touch target under the minimum, and a minimum above the control height, in every layer. A target under 24px (WCAG 2.5.8) or a pressable height under the minimum is a warning in your layer. `init` prints the same summary.
 
 `tanrei.json` says where each output goes. List only what you ship.
 
@@ -81,7 +81,7 @@ The vocabulary *types* always come from the library; a build only writes your sy
 |---|---|
 | `tanrei init <id> [--extends <system>]` | starter layer + `tanrei.json`, and a summary of the dials and the minimum target |
 | `tanrei build [--check]` | generate; `--check` writes nothing and fails when a committed output is stale (CI). Prints the font families the system names (text: brand, plain, mono; icons: unselected, selected) — fonts are referenced by name and never bundled, so the product installs or registers them |
-| `tanrei validate` | schema and vocabulary rules, then a trial build in memory (nothing is written), failing on what `tanrei build` refuses in every layer (a density of 0 or below, a pointer or touch target under `sys.target.minimum`); prints the accessibility/structure warnings `tanrei build` would print (what concerns the whole system first — e.g. `pressed-feedback: dim` while every pressed opacity is 1), and warns when a font stack has no system or generic fallback |
+| `tanrei validate` | schema and vocabulary rules, then a trial build in memory (nothing is written), failing on what `tanrei build` refuses in every layer (a pointer or touch target under `sys.target.minimum`); prints the accessibility/structure warnings `tanrei build` would print (what concerns the whole system first — e.g. `pressed-feedback: dim` while every pressed opacity is 1), and warns when a font stack has no system or generic fallback |
 | `tanrei explain <token-id>` | the value (a choice of kind by its name), which layer or pattern rule gives it — every matching rule, with the one that wins and why — and what a layer may write for it |
 | `tanrei studio [--config tanrei.json] [--port <n>] [--no-open]` | serve [Theme Studio](../studio/README.md) on `127.0.0.1` (a random free port unless `--port` is given) and open it in the browser (`--no-open` prints the link only). It edits the layer file `tanrei.json` names in place — saves are atomic, conditional and refused when the engine would refuse the layer — and its build writes the configured outputs. Local only; the link carries a one-time key. Ctrl+C stops it |
 | `tanrei systems` | the systems that ship with this version, with the font families each one names |
@@ -91,4 +91,4 @@ The vocabulary *types* always come from the library; a build only writes your sy
 
 Contrast thresholds and structural checks are constants. In your layer a violation is a **warning**, never silent: it is printed, written to `a11y-report.json`, and stamped at the top of every generated file. The report also records how many contrast pairs were checked in each scheme (`checked`): the pairs of color roles, and the pairs of a component's own colors.
 
-The shipped imitation presets (`m3-like`, `m3-expressive-like`, `cupertino`) are held to fidelity to the systems they imitate, not to Tanrei's accessibility criteria, in every contrast scheme: what the fixed ruler measures in a preset is recorded as information, not as a warning. Your layer is a product layer, whatever it extends, so a layer built on a preset is warned about what it inherits from it too.
+The shipped imitation presets (`m3-like`, `cupertino`) are held to fidelity to the systems they imitate, not to Tanrei's accessibility criteria, in every contrast scheme: what the fixed ruler measures in a preset is recorded as information, not as a warning. Your layer is a product layer, whatever it extends, so a layer built on a preset is warned about what it inherits from it too.

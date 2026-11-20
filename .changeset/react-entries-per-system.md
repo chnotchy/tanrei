@@ -10,17 +10,16 @@ product can import is what its system has, so an editor offers, and a type check
 | Entry | What it exports |
 |---|---|
 | `@tanrei/react` | the default system's components (Tanrei) |
-| `@tanrei/react/m3-like`, `@tanrei/react/m3-expressive-like`, `@tanrei/react/cupertino` | that preset's components |
+| `@tanrei/react/m3-like`, `@tanrei/react/cupertino` | that preset's components |
 | `@tanrei/react/advanced` | the components listed as advanced, the building blocks of others, in every system |
 | `@tanrei/react/all` | every wrapper, whichever system has its component: for a product's own system and for building one |
 
 What breaks:
 
 - `FabMenu` and `FabMenuItem` are no longer exported by `@tanrei/react`: the FAB menu lives in the m3-like layer, and
-  the default system does not descend from it. Import them from `@tanrei/react/m3-like` or
-  `@tanrei/react/m3-expressive-like` (or `/all`).
+  the default system does not descend from it. Import them from `@tanrei/react/m3-like` (or `/all`).
 - `SegmentedButton` and `Segment` are no longer exported by `@tanrei/react`: the default system leaves the segmented
-  button out. Import them from `@tanrei/react/m3-like`, `/m3-expressive-like` or `/cupertino` (or `/all`).
+  button out. Import them from `@tanrei/react/m3-like` or `/cupertino` (or `/all`).
 - `TextInput`, `NumberInput`, `ColorInput`, `OneTimeCodeInput`, `EmbeddedTextInput`, `Combobox`, `FilePicker` and
   `ModalLayer` — the advanced components — are no longer exported by `@tanrei/react`: import them from
   `@tanrei/react/advanced`. A product usually writes the component built from one instead (`TextField`, `NumberField`,

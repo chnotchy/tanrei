@@ -17,6 +17,7 @@ import { expectFromNextFrame, motionCount, motionEnded } from '../../../test/mot
 import { type Frames, expectAnimated, expectFirstFrameAtRest, expectNoFlicker, sampleFrames } from '../../../test/frames.js';
 import { expectNeverSideways, sidewaysProbe } from '../../../test/sideways.js';
 import { controlledElements, controlledInTree } from '../../../test/controlled-list.js';
+import { expectGlyphsKeptWhileClosing } from '../../../test/closing-glyphs.js';
 
 const spec = loadSpec('app-shell');
 type P = Page;
@@ -80,6 +81,13 @@ const active = (page: P) =>
     return path.join(' » ');
   });
 
+/** NVD-54: the drawer's presentation and open, the opacity of its scrim and how many of the frame's regions are inert. */
+const navigationState = (page: P) =>
+  page.evaluate(() => {
+    const host = document.querySelector('tanrei-app-shell > tanrei-navigation-drawer') as (HTMLElement & { presentation: string; open: boolean }) | null;
+    const scrim = host?.shadowRoot?.querySelector('.scrim');
+    return { presentation: host?.presentation ?? null, open: host?.open ?? null, scrim: scrim ? Number(getComputedStyle(scrim).opacity) : 0, inert: document.querySelectorAll('tanrei-app-shell > [inert]').length };
+  });
 /** One fixture alone, in the window its id names (or the one given). */
 async function mount(page: P, f: Fixture | string, { width, height, ...options }: DocumentOptions & { width?: number; height?: number; reducedMotion?: boolean } = {}) {
   const one = typeof f === 'string' ? fixture(f) : f;
@@ -364,7 +372,7 @@ test.describe('the navigation', () => {
     await expect.poll(presentation).toBe('column');
     const column = await edges(drawer(page));
     expect([column.left, column.width]).toEqual([0, 72]);
-    expect(column.width).toBe(await resolveToken(page, '--tanrei-comp-navigation-drawer-collapsed-container-width-regular'));
+    expect(column.width).toBe(await resolveToken(page, '--tanrei-comp-navigation-drawer-collapsed-container-width-medium'));
     expect((await edges(main(page))).left).toBe(72);
 
     await resize(page, 400);
@@ -1441,7 +1449,7 @@ test.describe('the menu button', () => {
       // 1280 − (36 + 1160 + 32) = 52, less than its column, 72.
       await mount(page, real({ direction, navigation: DRAWER('collapsible open'), aside: '' }), { width: 1280 });
       await override(page, { '--tanrei-sys-target-touch': '1160px' });
-      const column = await resolveToken(page, '--tanrei-comp-navigation-drawer-collapsed-container-width-regular');
+      const column = await resolveToken(page, '--tanrei-comp-navigation-drawer-collapsed-container-width-medium');
       await drawer(page).evaluate(async (el) => {
         const d = el as unknown as { expanded: boolean; updateComplete: Promise<unknown> };
         d.expanded = false;
@@ -1475,7 +1483,7 @@ test.describe('the menu button', () => {
     });
   }
 
-  test('APS-7, NVD-19, NVD-20, NVD-22: opened over the content, and closed by Escape, at the end of a task that outlasts its motions, the navigation slides in and out over its fading scrim and what focus goes to takes its focused colors from the first frame drawn after that task', async ({ page }) => {
+  test('APS-7, NVD-19, NVD-20, NVD-22, MOT-8: opened over the content, and closed by Escape, at the end of a task that outlasts its motions, the navigation slides in over its fading scrim and out with its scrim gone, and what focus goes to takes its focused colors from the first frame drawn after that task', async ({ page }) => {
     // WebKit dates a transition begun in a task from the frame drawn before it: where the task took longer than the
     // motions last, the drawer and its scrim were drawn in place or gone, and what focus went to drawn focused, at once.
     await mount(page, real(), { width: 400 });
@@ -1490,7 +1498,8 @@ test.describe('the menu button', () => {
     await expectFromNextFrame(
       drawer(page),
       "(el, active) => { active.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true, composed: true, cancelable: true })); }",
-      motions,
+      // MOT-8: the scrim begins no motion as it closes.
+      motions.filter((motion) => !motion.includes('scrim')),
       'closed by Escape',
     );
     expect(await active(page)).toMatch(/^menu/);
@@ -1546,7 +1555,7 @@ test.describe('the menu button', () => {
     });
   }
 
-  test('APS-7, APS-23, NVD-54, NVD-55: opened 400 wide and widened to 800, the navigation stays open — no close, no navigationOpenChange, its scrim and focus where they are, the same panel — while its column comes into the layout at once; widened to 1280 its presentation over the content ends: one close, one navigationOpenChange with false, nothing inert, focus kept, the scrim fading out as the panel takes its place beside the content; narrowed to 400 again nothing opens', async ({ page }) => {
+  test('APS-7, APS-23, NVD-54, NVD-55: opened 400 wide and widened to 800, the navigation stays open — no close, no navigationOpenChange, its scrim and focus where they are, the same panel — while its column comes into the layout at once; widened to 1280 it stands beside the content still open — no close, no navigationOpenChange, nothing inert, focus kept, its scrim gone; narrowed to 400 again it is over the content again, open, the regions under its scrim inert', async ({ page }) => {
     await mount(page, real({ sections: 2 }), { width: 400 });
     const log = await record(page);
     await drawer(page).evaluate((el) => el.addEventListener('close', () => (window as unknown as { __log: [string, unknown][] }).__log.push(['close', null])));
@@ -1566,22 +1575,112 @@ test.describe('the menu button', () => {
     await motionEnded(page);
     expect(await state()).toEqual({ presentation: 'column', open: true, same: true, scrim: 1, inert: 4 });
     expect(await active(page)).toBe(focused);
-    expect((await edges(main(page))).left).toBe(await resolveToken(page, '--tanrei-comp-navigation-drawer-collapsed-container-width-regular'));
+    expect((await edges(main(page))).left).toBe(await resolveToken(page, '--tanrei-comp-navigation-drawer-collapsed-container-width-medium'));
     expect((await log()).filter(([name]) => name !== 'windowclasschange')).toEqual([['navigationopenchange', true]]);
-    // 1280: the overlay ends, told once, the panel beside the content.
+    // 1280: beside the content, still open, nothing told.
     await resize(page, 1280);
     await motionEnded(page);
-    expect(await state()).toEqual({ presentation: 'standard', open: false, same: true, scrim: 0, inert: 0 });
+    expect(await state()).toEqual({ presentation: 'standard', open: true, same: true, scrim: 0, inert: 0 });
     expect(await active(page)).toBe(focused);
-    // (The drawer and the frame hear the same width: which of the two speaks first is the browser's.)
-    expect((await log()).filter(([name]) => name !== 'windowclasschange').map((entry) => entry.join(':')).sort()).toEqual(['close:', 'navigationopenchange:false', 'navigationopenchange:true']);
-    expect(await shell(page).evaluate((el) => (el as unknown as { navigationOpen: boolean }).navigationOpen)).toBe(false);
+    expect((await log()).filter(([name]) => name !== 'windowclasschange')).toEqual([['navigationopenchange', true]]);
+    expect(await shell(page).evaluate((el) => (el as unknown as { navigationOpen: boolean }).navigationOpen)).toBe(true);
     expect(await page.evaluate(() => getComputedStyle(document.documentElement).overflow)).not.toBe('hidden');
-    // 400 again: no overlay the person did not ask for.
+    // 400 again: over the content again, as the person left it.
     await resize(page, 400);
     await motionEnded(page);
-    expect(await state()).toMatchObject({ presentation: 'modal', open: false, same: true, inert: 0 });
-    expect((await log()).filter(([name]) => name !== 'windowclasschange')).toHaveLength(3);
+    expect(await state()).toEqual({ presentation: 'modal', open: true, same: true, scrim: 1, inert: 4 });
+    expect(await active(page)).toBe(focused);
+    expect(await page.evaluate(() => getComputedStyle(document.documentElement).overflow)).toBe('hidden');
+    expect((await log()).filter(([name]) => name !== 'windowclasschange')).toEqual([['navigationopenchange', true]]);
+  });
+
+  test('APS-4, APS-7, NVD-53, NVD-54, NVD-55, MOT-8: a drawer with no collapsed form at 375, 768, 1023, 1024 and 1440 wide — over the content below 1024, beside it from 1024 — keeps open across every resize: open at 375 and widened to 1440 its scrim is gone in the first frame and nothing is inert, nothing told; narrowed to 375 its scrim is there in the first frame, the regions under it inert and focus left in the main region on the menu button; the same across 1023 ↔ 1024; closed, it stays closed', async ({ page }) => {
+    const probe = (root: Element) => {
+      const host = root.querySelector('tanrei-navigation-drawer')!;
+      const scrim = getComputedStyle(host.shadowRoot!.querySelector('.scrim')!);
+      const panel = host.shadowRoot!.querySelector('.drawer')!;
+      return { scrim: Number(scrim.opacity), shown: scrim.visibility, inert: root.querySelectorAll('tanrei-app-shell > [inert]').length, seen: panel.hasAttribute('data-seen') };
+    };
+    const told = async (log: () => Promise<[string, unknown][]>) => (await log()).filter(([name]) => name !== 'windowclasschange').map((entry) => entry.join(':'));
+    const drawerState = () => drawer(page).evaluate((el) => ({ presentation: (el as unknown as { presentation: string }).presentation, open: (el as unknown as { open: boolean }).open }));
+    const navigationOpen = () => shell(page).evaluate((el) => (el as unknown as { navigationOpen: boolean }).navigationOpen);
+
+    // Each width alone: the presentation, the main region's start and the menu button.
+    for (const at of [375, 768, 1023, 1024, 1440]) {
+      await mount(page, real({ navigation: DRAWER('responsive') }), { width: at });
+      const beside = at >= 1024;
+      expect(await drawerState(), String(at)).toEqual({ presentation: beside ? 'standard' : 'modal', open: false });
+      // Beside the content the main region starts past the drawer; below 1024 the drawer takes no room in the layout.
+      const [content, navigation] = [await edges(main(page)), await edges(drawer(page))];
+      if (beside) expect(content.left, `${at}: where the main region starts`).toBeGreaterThanOrEqual(navigation.right - 0.5);
+      else expect([content.left, navigation.width], `${at}: the main region from the start edge, the drawer without room`).toEqual([0, 0]);
+      expect(await shown(menu(page)), `${at}: the menu button`).toBe(true);
+      expect(await menu(page).locator('button').getAttribute('aria-expanded'), String(at)).toBe(beside ? 'true' : 'false');
+    }
+
+    // 375, opened, then 1440 and back.
+    await mount(page, real({ navigation: DRAWER('responsive') }), { width: 375 });
+    const log = await record(page);
+    await drawer(page).evaluate((el) => el.addEventListener('close', () => (window as unknown as { __log: [string, unknown][] }).__log.push(['close', null])));
+    await menu(page).click();
+    await expect.poll(() => active(page)).toContain('tanrei-navigation-drawer');
+    await motionEnded(page);
+    await drawer(page).evaluate((el) => el.shadowRoot!.querySelector('.drawer')!.setAttribute('data-seen', ''));
+    const wide = await sampleFrames(page.locator('.stage'), () => page.setViewportSize({ width: 1440, height: 800 }), { probe, elements: false });
+    expect(wide.complete).toBe(true);
+    expect(wide.frames[0]!.probe, 'the first frame beside the content').toMatchObject({ scrim: 0, shown: 'hidden', inert: 0, seen: true });
+    expect(wide.frames.every((frame) => frame.probe.scrim === 0 && frame.probe.seen)).toBe(true);
+    expect(await drawerState()).toEqual({ presentation: 'standard', open: true });
+    expect(await navigationOpen()).toBe(true);
+    expect(await told(log)).toEqual(['navigationopenchange:true']);
+    expect(await active(page), 'focus stays in the drawer, which still shows it').toContain('tanrei-navigation-drawer');
+    // Focus moved into the main region, which becomes inert under the scrim when the window narrows.
+    await page.locator('#first').focus();
+    const narrow = await sampleFrames(page.locator('.stage'), () => page.setViewportSize({ width: 375, height: 800 }), { probe, elements: false });
+    expect(narrow.complete).toBe(true);
+    expect(narrow.frames[0]!.probe, 'the first frame over the content').toMatchObject({ scrim: 1, shown: 'visible', inert: 4, seen: true });
+    expect(narrow.frames.every((frame) => frame.probe.scrim === 1)).toBe(true);
+    expect(await drawerState()).toEqual({ presentation: 'modal', open: true });
+    await expect.poll(() => active(page)).toMatch(/^menu/);
+    expect(await told(log)).toEqual(['navigationopenchange:true']);
+    // 1023 ↔ 1024: the same at the breakpoint itself.
+    await resize(page, 1023);
+    expect(await drawerState()).toEqual({ presentation: 'modal', open: true });
+    await resize(page, 1024);
+    await motionEnded(page);
+    expect([await drawerState(), (await navigationState(page)).scrim, (await navigationState(page)).inert]).toEqual([{ presentation: 'standard', open: true }, 0, 0]);
+    await resize(page, 1023);
+    await motionEnded(page);
+    expect([await drawerState(), (await navigationState(page)).scrim, (await navigationState(page)).inert]).toEqual([{ presentation: 'modal', open: true }, 1, 4]);
+    expect(await told(log)).toEqual(['navigationopenchange:true']);
+    // Closed (Escape on the menu button), it stays closed across the same resizes.
+    await menu(page).focus();
+    await page.keyboard.press('Escape');
+    await expect.poll(navigationOpen).toBe(false);
+    for (const at of [1440, 375, 1024, 1023]) {
+      await resize(page, at);
+      await motionEnded(page);
+      expect([await drawerState(), (await navigationState(page)).scrim, (await navigationState(page)).inert], String(at)).toEqual([{ presentation: at >= 1024 ? 'standard' : 'modal', open: false }, 0, 0]);
+    }
+    // Escape on the menu button is the frame's: it tells first, then asks the drawer to close (APS-7, NVD-20).
+    expect(await told(log)).toEqual(['navigationopenchange:true', 'navigationopenchange:false', 'close:']);
+  });
+
+  test('APS-7, NVD-40, NVD-54, MOT-8: the rail — a collapsible drawer — open over the content at 768 stays open through 1024 and back: beside the content in its full form with its scrim gone and nothing inert, then widened over the content again from its column with its scrim there at once', async ({ page }) => {
+    await mount(page, real({ navigation: DRAWER('responsive collapsible') }), { width: 768 });
+    const log = await record(page);
+    await menu(page).click();
+    await expect.poll(() => drawer(page).evaluate((el) => (el as unknown as { open: boolean }).open)).toBe(true);
+    await motionEnded(page);
+    expect(await navigationState(page)).toMatchObject({ scrim: 1, inert: 4 });
+    await resize(page, 1024);
+    await motionEnded(page);
+    expect(await navigationState(page)).toMatchObject({ presentation: 'standard', open: true, scrim: 0, inert: 0 });
+    const back = await sampleFrames(page.locator('.stage'), () => page.setViewportSize({ width: 768, height: 800 }), { probe: (root) => ({ scrim: Number(getComputedStyle(root.querySelector('tanrei-navigation-drawer')!.shadowRoot!.querySelector('.scrim')!).opacity) }), elements: false });
+    expect(back.frames[0]!.probe.scrim, 'the scrim in the first frame over the content').toBe(1);
+    await motionEnded(page);
+    expect(await navigationState(page)).toMatchObject({ presentation: 'column', open: true, scrim: 1, inert: 4 });
+    expect((await log()).filter(([name]) => name !== 'windowclasschange')).toEqual([['navigationopenchange', true]]);
   });
 
   test('NVD-54, APS-23: a change of the window’s class moves the one panel — never replaced, nothing flickering — to its new place and form over motion.expand while the rest of the frame is drawn at once; where motion is reduced it takes its new place at once', async ({ page }) => {
@@ -1628,7 +1727,7 @@ test.describe('the menu button', () => {
     expect(atOnce.frames[0]!.probe).toMatchObject({ width: 72, main: 72 });
   });
 
-  test('NVD-22, APS-7: closing below the header, nothing happens at the end — the last frame of the motion is the first frame of the closed drawer: the scrim faded to nothing and the panel out of the window (400) or its column at rest (800), nothing taken away, replaced or recolored — and focus is back on the menu button and nothing is inert from the first frame', async ({ page }) => {
+  test('NVD-22, APS-7: closing below the header, nothing happens at the end — the last frame of the motion is the first frame of the closed drawer: the scrim gone from the first frame (MOT-8) and the panel out of the window (400) or its column at rest (800), nothing taken away, replaced or recolored — and focus is back on the menu button and nothing is inert from the first frame', async ({ page }) => {
     for (const width of [400, 800] as const) {
       await mount(page, real({ sections: 2 }), { width });
       // Opened from the keyboard: the destination that takes focus is drawn focused from the start (a key pressed after
@@ -1654,6 +1753,49 @@ test.describe('the menu button', () => {
       expect(await shell(page).evaluate((el) => [...el.children].filter((child) => (child as HTMLElement).inert).length)).toBe(0);
       await expect.poll(() => active(page)).toContain('menu');
     }
+  });
+
+  test('APS-7, NVD-22, NVD-40, MOT-8: closing below the header — a drawer with no collapsed form at 768 sliding out, a collapsible one at 800 narrowing to its column — its scrim is drawn at no opacity, hidden and taking no press from the first frame while the panel still moves, and opening fades it in from no opacity, in every engine; where motion is reduced it is gone from the first frame too', async ({ page }) => {
+    const probe = (root: Element) => {
+      const host = root.querySelector('tanrei-navigation-drawer')!;
+      const scrim = getComputedStyle(host.shadowRoot!.querySelector('.scrim')!);
+      const panel = host.shadowRoot!.querySelector('.drawer')!.getBoundingClientRect();
+      return { scrim: Math.round(Number(scrim.opacity) * 1000) / 1000, shown: scrim.visibility, takes: scrim.pointerEvents, x: Math.round(panel.left * 10) / 10, width: Math.round(panel.width * 10) / 10 };
+    };
+    for (const [attributes, width] of [['responsive', 768], ['responsive collapsible', 800]] as const) {
+      const what = `${attributes} at ${width}`;
+      await mount(page, real({ navigation: DRAWER(attributes) }), { width });
+      const set = (value: boolean) => () => shell(page).evaluate((el, v) => ((el as unknown as { navigationOpen: boolean }).navigationOpen = v), value);
+      await set(true)();
+      await motionEnded(page);
+      const closing = await sampleFrames(page.locator('.stage'), set(false), { probe, elements: false });
+      expect(closing.complete, what).toBe(true);
+      expect(closing.before.probe.scrim, what).toBe(1);
+      expect(closing.frames[0]!.probe, `${what}: the first frame of the closing`).toMatchObject({ scrim: 0, shown: 'hidden', takes: 'none' });
+      for (const frame of closing.frames) expect(frame.probe.scrim, `${what}: frame ${frame.index}`).toBe(0);
+      expectAnimated(closing, attributes === 'responsive' ? 'x' : 'width');
+      await motionEnded(page);
+      const opening = await sampleFrames(page.locator('.stage'), set(true), { probe, elements: false });
+      const values = opening.frames.map((frame) => Number(frame.probe.scrim));
+      expect(values[0], `${what}: the first frame of the opening`).toBe(0);
+      for (let n = 1; n < values.length; n++) expect(values[n]!, `${what}: the scrim's fade in, frame ${n}`).toBeGreaterThanOrEqual(values[n - 1]!);
+      expect(new Set(values).size, `${what}: the scrim fades in over frames (${values.join(', ')})`).toBeGreaterThan(3);
+      await motionEnded(page);
+      await page.emulateMedia({ reducedMotion: 'reduce' });
+      const reduced = await sampleFrames(page.locator('.stage'), set(false), { probe, elements: false });
+      expect(reduced.frames[0]!.probe, `${what}: the first frame of a closing where motion is reduced`).toMatchObject({ scrim: 0, shown: 'hidden', takes: 'none' });
+      await page.emulateMedia({ reducedMotion: 'no-preference' });
+    }
+  });
+
+  test('NVD-22, APS-7: closing below the header, a drawer with no collapsed form keeps every row’s glyph drawn — painted in its first frame as it was open, and in every frame visible, opaque, shaped and in its place in the panel until the panel carries it past the window’s start edge', async ({ page }) => {
+    await mount(page, real({ navigation: DRAWER('responsive') }), { width: 768 });
+    const set = (open: boolean) => () => shell(page).evaluate((el, value) => ((el as unknown as { navigationOpen: boolean }).navigationOpen = value), open);
+    await set(true)();
+    await expect.poll(() => drawer(page).evaluate((el) => (el as unknown as { open: boolean }).open)).toBe(true);
+    await motionEnded(page);
+    expect(await drawer(page).getAttribute('data-held')).not.toBeNull();
+    await expectGlyphsKeptWhileClosing(page, page.locator('.stage'), { open: set(true), close: set(false), what: 'held below the header' });
   });
 
   test('APS-33: at 400 wide, a filterable drawer’s chord pressed anywhere opens the navigation as the menu button does (one navigationOpenChange with true) with focus in the drawer’s filter field; typed in a text field it is typed; where the drawer is shown the drawer answers it and the frame does not; where it is hidden beside the content the frame shows it and focuses its field', async ({ page }) => {
@@ -2619,7 +2761,7 @@ test.describe('before its code runs, text size, forced colors, insets, direction
   });
 
   test('APS-24: before the element is defined a drawer in the navigation region keeps its place — its width beside the content in an expanded window, its column’s in a medium one while it is collapsible, none in a compact one — and the menu button is shown by the stylesheet alone — in every class for a drawer, in the compact one only with menuButtonPlacement drawer; no event is emitted until the class is decided', async ({ page: first }) => {
-    const places = { 1280: '--tanrei-comp-navigation-drawer-container-width', 800: '--tanrei-comp-navigation-drawer-collapsed-container-width-regular' } as const;
+    const places = { 1280: '--tanrei-comp-navigation-drawer-container-width', 800: '--tanrei-comp-navigation-drawer-collapsed-container-width-medium' } as const;
     for (const width of [1280, 800, 400] as const) {
       const page = await withoutScript(first, real(), width);
       const expected = width === 400 ? 0 : await resolveToken(page, places[width]);
@@ -2656,16 +2798,16 @@ test.describe('before its code runs, text size, forced colors, insets, direction
   // runner's WebKit about four seconds — nine of them in one test ran past its time.
   const widthOf = (px: number) => `width="${px}" style="--tanrei-navigation-drawer-width: ${px}px"`;
   const givenBack: { name: string; attributes: string; window: number; expected: (page: P) => Promise<number> }[] = [
-    { name: 'folded', attributes: 'responsive collapsible expanded="false"', window: 1280, expected: (page) => resolveToken(page, '--tanrei-comp-navigation-drawer-collapsed-container-width-regular') },
-    { name: 'folded, compact', attributes: 'responsive collapsible density="compact" expanded="false"', window: 1280, expected: (page) => resolveToken(page, '--tanrei-comp-navigation-drawer-collapsed-container-width-compact') },
-    { name: 'folded, with a width', attributes: `responsive collapsible expanded="false" ${widthOf(320)}`, window: 1280, expected: (page) => resolveToken(page, '--tanrei-comp-navigation-drawer-collapsed-container-width-regular') },
-    { name: 'modal, collapsible', attributes: 'variant="modal" collapsible', window: 1280, expected: (page) => resolveToken(page, '--tanrei-comp-navigation-drawer-collapsed-container-width-regular') },
+    { name: 'folded', attributes: 'responsive collapsible expanded="false"', window: 1280, expected: (page) => resolveToken(page, '--tanrei-comp-navigation-drawer-collapsed-container-width-medium') },
+    { name: 'folded, small', attributes: 'responsive collapsible size="small" expanded="false"', window: 1280, expected: (page) => resolveToken(page, '--tanrei-comp-navigation-drawer-collapsed-container-width-small') },
+    { name: 'folded, with a width', attributes: `responsive collapsible expanded="false" ${widthOf(320)}`, window: 1280, expected: (page) => resolveToken(page, '--tanrei-comp-navigation-drawer-collapsed-container-width-medium') },
+    { name: 'modal, collapsible', attributes: 'variant="modal" collapsible', window: 1280, expected: (page) => resolveToken(page, '--tanrei-comp-navigation-drawer-collapsed-container-width-medium') },
     { name: 'hidden', attributes: 'responsive expanded="false"', window: 1280, expected: async () => 0 },
     { name: 'a width', attributes: `responsive collapsible ${widthOf(320)}`, window: 1280, expected: async () => 320 },
     { name: 'a width above the greatest', attributes: `responsive collapsible ${widthOf(2000)}`, window: 1280, expected: (page) => resolveToken(page, '--tanrei-comp-navigation-drawer-container-max-width') },
     { name: 'a width below the least', attributes: `responsive collapsible ${widthOf(40)}`, window: 1280, expected: (page) => resolveToken(page, '--tanrei-comp-navigation-drawer-container-min-width') },
     // In a medium window the column keeps its own width, whatever the width and the fold say.
-    { name: 'medium, folded with a width', attributes: `responsive collapsible expanded="false" ${widthOf(320)}`, window: 800, expected: (page) => resolveToken(page, '--tanrei-comp-navigation-drawer-collapsed-container-width-regular') },
+    { name: 'medium, folded with a width', attributes: `responsive collapsible expanded="false" ${widthOf(320)}`, window: 800, expected: (page) => resolveToken(page, '--tanrei-comp-navigation-drawer-collapsed-container-width-medium') },
   ];
   for (const c of givenBack) {
     test(`APS-24: before the element is defined a drawer the product gives back folded or at a width keeps the place it will have — a collapsible drawer written expanded false its column in an expanded window, a responsive one that is not collapsible none, a drawer with a width that width held between its least and greatest — and defining the drawer then moves nothing and records no layout shift: ${c.name}`, async ({ page: first, browserName }) => {

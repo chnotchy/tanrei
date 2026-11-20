@@ -18,6 +18,7 @@ import { STOPPED_AFTER, flingThenHold, strokes } from '../../../test/stopped-rel
 import { expectOneThumb, readThumb } from '../../../test/thumb.js';
 import { expectBaseline } from '../../../test/baseline.js';
 import { expectGoneWhileSkipped } from '../../../test/skipped-exit.js';
+import { expectScrimTakenAwayAtClose } from '../../../test/scrim-at-close.js';
 import { controlledElements, controlledInTree } from '../../../test/controlled-list.js';
 import { STACKED_DIALOG, STACKED_LAYER, addStackedSurfaces, expectStackedInOrder } from '../../../test/stacked-surfaces.js';
 
@@ -203,6 +204,14 @@ test.describe('presentation, focus and closing', () => {
     });
     await motionEnded(page);
     await expectFromNextFrame(host(page, 'm'), '(el) => { el.open = false; }', ['tanrei-calendar span.box background-color'], 'closed');
+  });
+
+  test('DTM-35, MOT-8: closing a modal picker, its scrim is drawn at no opacity and takes no press from the first frame while the container still leaves by its own motion, and opening fades it in from no opacity, in every engine; where motion is reduced it is gone from the first frame too', async ({ page }) => {
+    await mount(page, [modal('m', { value: '2026-09-17' })]);
+    const set = (value: boolean) => () => host(page, 'm').evaluate((el, v) => ((el as unknown as { open: boolean }).open = v), value);
+    await set(true)();
+    await motionEnded(page);
+    await expectScrimTakenAwayAtClose(page, page.locator('[data-fixture="m"]'), { open: set(true), close: set(false), what: 'the modal date-time picker' });
   });
 
   test('DTM-1: a modal picker opens as a modal dialog over the scrim, centred at least the margin from the edges, in its color, elevation and corners; everything else inert, the page held, focus kept inside', async ({ page }) => {
@@ -2085,6 +2094,34 @@ test.describe('ranges, actions, motion, overflow and semantics', () => {
     expect(await surface(page, 'd').evaluate((el) => getComputedStyle(el).animationName)).toBe('none');
   });
 
+  test('DTM-35, MOT-7: while a docked picker leaves it takes no pointer — a press where it is still drawn reaches what lies under it, and the pointer on it is not hover', async ({ page }) => {
+    await mount(page, [docked('d', { value: '2026-09-17' })]);
+    // The exit is held open for the whole test: it cannot end while the press is made, however slow the machine.
+    await override(page, { [T('docked-motion-close-duration')]: '600s' });
+    await open(page, 'd');
+    // What lies under it: an element of the page over the whole window, which the top layer stands above.
+    await page.evaluate(() => {
+      document.body.insertAdjacentHTML('beforeend', '<div id="under" style="position: fixed; inset: 0"></div>');
+      const under = document.getElementById('under')!;
+      under.addEventListener('click', () => (under.dataset.pressed = String(Number(under.dataset.pressed ?? 0) + 1)));
+    });
+    const b = await bounds(surface(page, 'd'));
+    const at = { x: b.x + b.width / 2, y: b.y + b.height / 2 };
+    const hit = () =>
+      page.evaluate(({ x, y }) => {
+        const at = document.elementFromPoint(x, y);
+        return at?.localName === 'tanrei-date-time-picker' ? 'picker' : (at?.id ?? null);
+      }, at);
+    expect(await hit(), 'open, the picker takes the press').toBe('picker');
+    await page.keyboard.press('Escape');
+    await expect(surface(page, 'd')).toHaveClass(/\bleaving\b/);
+    expect(await surface(page, 'd').evaluate((el) => el.matches(':popover-open')), 'still in the top layer while it leaves').toBe(true);
+    expect(await hit(), 'leaving, what lies under it is at its centre').toBe('under');
+    await page.mouse.click(at.x, at.y);
+    expect(await page.locator('#under').getAttribute('data-pressed'), 'the press reaches what lies under it').toBe('1');
+    expect(await surface(page, 'd').evaluate((el) => el.matches(':hover')), 'the pointer on it is not hover').toBe(false);
+  });
+
   test('DTM-35: a modal picker appears from where the appearance starts it — opacity 0 and scale 0.96 under the default system — about its centre over the open motion, and leaves the same way back over the close motion, its last frame leaving no more than the accelerating curve does; where reduced it only fades over sys.motion.role.reduced', async ({ page }) => {
     await mount(page, [modal('m', { value: '2026-09-17' })]);
     const s = surface(page, 'm');
@@ -2122,7 +2159,7 @@ test.describe('ranges, actions, motion, overflow and semantics', () => {
     expect(own(fading).filter(([name]) => name !== 'opacity')).toEqual([]);
   });
 
-  test('DTM-35 (MDL-7, MOT-6): where motion is reduced a modal picker’s scrim fades in and out with its container, over sys.motion.role.reduced — not over the modal open and close motions', async ({ page }) => {
+  test('DTM-35 (MDL-7, MOT-6, MOT-8): where motion is reduced a modal picker’s scrim fades in with its container, over sys.motion.role.reduced — not over the modal open motion — and closing, only the container fades, the scrim gone at once', async ({ page }) => {
     await page.emulateMedia({ reducedMotion: 'reduce' });
     await mount(page, [modal('m', { value: '2026-09-17' })]);
     const reduced = await resolveToken(page, '--tanrei-sys-motion-role-reduced', 'duration');
@@ -2132,8 +2169,8 @@ test.describe('ranges, actions, motion, overflow and semantics', () => {
     const fades = (seen: Frames) => seen.motions.filter((motion) => motion.on.startsWith('dialog') && motion.name === 'opacity').map((motion) => `${motion.on} ${motion.duration}`);
     const opening = fades(await sampleFrames(surface(page, 'm'), () => host(page, 'm').evaluate((el: any) => (el.open = true)), { probe: appearProbe, elements: false }));
     const closing = fades(await sampleFrames(surface(page, 'm'), () => host(page, 'm').evaluate((el: any) => (el.open = false)), { probe: appearProbe, elements: false }));
-    for (const [name, seen] of [['opening', opening], ['closing', closing]] as const) {
-      expect(seen.length, `${name}: ${seen.join(', ')}`).toBe(2);
+    for (const [name, seen, count] of [['opening', opening, 2], ['closing', closing, 1]] as const) {
+      expect(seen.length, `${name}: ${seen.join(', ')}`).toBe(count);
       expect(seen.every((fade) => fade.endsWith(` ${reduced}`)), `${name}: ${seen.join(', ')}`).toBe(true);
     }
   });
