@@ -421,8 +421,7 @@ export abstract class TanreiSearchRow extends TanreiElement {
   }
 
   /** `element.focus()` focuses the row's control. */
-  override focus(options?: FocusOptions) {
-    if (this.keepFocusUntilRendered(options)) return;
+  protected override delegateFocus(options?: FocusOptions) {
     this.control?.focus(options);
   }
 
@@ -1223,10 +1222,10 @@ export class TanreiSearch extends TanreiElement {
    * removes the element that held it, as the search's own clear button does (SRC-10): behind an open modal view the
    * platform's delegation alone would land on the dialog, where nothing can be typed.
    */
-  override focus(options?: FocusOptions) {
+  protected override delegateFocus(options?: FocusOptions) {
     const input = this.inert_ ? null : this.currentInput;
     if (input) input.focus(options);
-    else super.focus(options);
+    else super.delegateFocus(options);
   }
 
   /** The form it belongs to, if any. */

@@ -191,8 +191,9 @@
 //                 stillPointerStyles, which an element that draws nothing under a pointer leaves out)
 //   element     — TanreiElement and TanreiLightElement (element.ts): the base every element extends, which settles it
 //                 (MOT-3) — settleStyles composed last in a shadow root; the build writes settleRule() into a light-DOM sheet;
-//                 TanreiElement keeps a focus() called before its first update until it has drawn (keepFocusUntilRendered(),
-//                 forgetKeptFocus() for an element's own focus() and blur(); focusKept() for a script that tries elements in turn)
+//                 TanreiElement keeps a focus() that lands nowhere while it, or what holds it, has an update to draw, until
+//                 it has drawn (delegateFocus(): where an element's focus goes; forgetKeptFocus() for its own blur();
+//                 focusKept() for a script that tries elements in turn)
 //   dismiss     — DismissController: Escape (the topmost surface alone, after everything inside heard the key), a press
 //                 outside and focus leaving ask the host to close (POP-21, POP-23); registerOverlay() and
 //                 logicalAncestors(): an overlay opened from inside a surface is that surface's own (POP-24)

@@ -561,12 +561,11 @@ export class TanreiListItem extends TanreiElement {
   }
 
   /** `element.focus()` focuses an action's box, or an option; a static item focuses its handle where it has one. */
-  override focus(options?: FocusOptions) {
+  protected override delegateFocus(options?: FocusOptions) {
     const target = this.focusTarget;
-    if (target === this) super.focus(options);
+    if (target === this) super.delegateFocus(options);
     else if (target) target.focus(options);
-    else if (this.handle) this.handle.focus(options);
-    else this.keepFocusUntilRendered(options);
+    else this.handle?.focus(options);
   }
 
   /** `element.click()` activates an action or an option as a person would, and follows a link item; a static or disabled item does nothing (LST-7, LST-15). */

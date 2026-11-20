@@ -54475,7 +54475,7 @@
       "declarations": [
         {
           "kind": "class",
-          "description": "An element of this package with a shadow root: MOT-3's settling, its rule composed last in the element's styles, and\na `focus()` called before its first update kept until it has drawn.",
+          "description": "An element of this package with a shadow root: MOT-3's settling, its rule composed last in the element's styles, and\na `focus()` called before it (or what holds it) has drawn kept until it has.",
           "name": "TanreiElement",
           "members": [],
           "superclass": {
