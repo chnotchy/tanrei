@@ -47,7 +47,7 @@ const sizeBlock = (size: string, selector: string, fallback: string | null = nul
   `${selector} {\n${(['title', 'body'] as const)
     .flatMap((part) => {
       const role = (member: string) => ref((v) => `${PREFIX}-${part}-typescale-${v}-${member}`, size, fallback);
-      return [...TYPE_LONGHANDS.map((longhand) => `  --_${part}-${longhand}: ${role(longhand)};`), `  --_${part}-tracking: ${role('letter-spacing')};`, `  --_${part}-line: calc(${role('line-height')} * ${role('font-size')});`];
+      return [...TYPE_LONGHANDS.map((longhand) => `  --_${part}-${longhand}: ${role(longhand)};`), `  --_${part}-tracking: ${role('letter-spacing')};`, `  --_${part}-line: round(nearest, ${role('line-height')} * ${role('font-size')}, 1px);`];
     })
     .join('\n')}\n}`;
 

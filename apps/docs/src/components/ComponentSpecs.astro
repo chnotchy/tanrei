@@ -317,7 +317,7 @@ const noteHtml = (notes: string | undefined) => (notes ?? '').replace(/&/g, '&am
     contain-intrinsic-block-size: auto
       calc(
         (var(--docs-token-rows) + 1) *
-          (2 * var(--tanrei-comp-table-cell-padding-block-small) + var(--tanrei-comp-table-cell-text-typescale-small-line-height) * var(--tanrei-comp-table-cell-text-typescale-small-font-size))
+          (2 * var(--tanrei-comp-table-cell-padding-block-small) + round(nearest, var(--tanrei-comp-table-cell-text-typescale-small-line-height) * var(--tanrei-comp-table-cell-text-typescale-small-font-size), 1px))
       );
   }
 </style>

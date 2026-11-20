@@ -226,7 +226,7 @@ const buttonStyles = css`
     --_min-height: 0px;
     ${unsafeCSS(cornerRadius('--tanrei-comp-button-container-shape'))}
     ${unsafeCSS(paint(''))}
-    font: var(--_font-weight) var(--_font-size)/var(--_line-height) var(--_font-family);
+    font: var(--_font-weight) var(--_font-size)/round(nearest, var(--_line-height) * 1em, 1px) var(--_font-family);
     letter-spacing: var(--_tracking);
     white-space: nowrap;
     -webkit-user-select: none;

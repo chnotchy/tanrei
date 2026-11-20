@@ -419,7 +419,7 @@
     /* TRV-6: the label's text style and color; it wraps, breaks where it must and is never cut. TRV-39: text of its
        own direction, its lines on the layout's side. */
     font:
-      var(--_trv-label-font-weight) var(--_trv-label-font-size)/var(--_trv-label-line-height)
+      var(--_trv-label-font-weight) var(--_trv-label-font-size)/round(nearest, var(--_trv-label-line-height) * 1em, 1px)
       var(--_trv-label-font-family);
     letter-spacing: var(--_trv-label-tracking);
     color: var(--_trv-now-label);
@@ -613,7 +613,7 @@
     white-space: nowrap;
     text-overflow: ellipsis;
     font:
-      var(--tanrei-comp-tree-view-supporting-text-typescale-font-weight) var(--tanrei-comp-tree-view-supporting-text-typescale-font-size)/var(--tanrei-comp-tree-view-supporting-text-typescale-line-height)
+      var(--tanrei-comp-tree-view-supporting-text-typescale-font-weight) var(--tanrei-comp-tree-view-supporting-text-typescale-font-size)/round(nearest, var(--tanrei-comp-tree-view-supporting-text-typescale-line-height) * 1em, 1px)
       var(--tanrei-comp-tree-view-supporting-text-typescale-font-family);
     letter-spacing: var(--tanrei-comp-tree-view-supporting-text-typescale-letter-spacing);
     color: var(--_trv-now-supporting);
@@ -670,7 +670,7 @@
     margin-right: var(--_trv-after-left);
     overflow: hidden;
     font:
-      var(--tanrei-comp-tree-view-trailing-text-typescale-font-weight) var(--tanrei-comp-tree-view-trailing-text-typescale-font-size)/var(--tanrei-comp-tree-view-trailing-text-typescale-line-height)
+      var(--tanrei-comp-tree-view-trailing-text-typescale-font-weight) var(--tanrei-comp-tree-view-trailing-text-typescale-font-size)/round(nearest, var(--tanrei-comp-tree-view-trailing-text-typescale-line-height) * 1em, 1px)
       var(--tanrei-comp-tree-view-trailing-text-typescale-font-family);
     /* One line, as tall as the label's (the row's `1lh`, which the unit means here): its text stands in the middle
        of the label's first line, as a line of its own height moved down by half the difference did. */
@@ -792,7 +792,7 @@
     margin: 0;
     padding: 0 var(--_trv-pad-inline);
     font:
-      var(--tanrei-comp-tree-view-filter-status-typescale-font-weight) var(--tanrei-comp-tree-view-filter-status-typescale-font-size)/var(--tanrei-comp-tree-view-filter-status-typescale-line-height)
+      var(--tanrei-comp-tree-view-filter-status-typescale-font-weight) var(--tanrei-comp-tree-view-filter-status-typescale-font-size)/round(nearest, var(--tanrei-comp-tree-view-filter-status-typescale-line-height) * 1em, 1px)
       var(--tanrei-comp-tree-view-filter-status-typescale-font-family);
     letter-spacing: var(--tanrei-comp-tree-view-filter-status-typescale-letter-spacing);
     color: var(--tanrei-comp-tree-view-filter-status-color);
@@ -829,7 +829,7 @@
   }
   :where(tanrei-tree-view) :where(li[data-tanrei-loading]) > :where(:first-child) > :where([data-tanrei-loading-label]) {
     font:
-      var(--tanrei-comp-tree-view-supporting-text-typescale-font-weight) var(--tanrei-comp-tree-view-supporting-text-typescale-font-size)/var(--tanrei-comp-tree-view-supporting-text-typescale-line-height)
+      var(--tanrei-comp-tree-view-supporting-text-typescale-font-weight) var(--tanrei-comp-tree-view-supporting-text-typescale-font-size)/round(nearest, var(--tanrei-comp-tree-view-supporting-text-typescale-line-height) * 1em, 1px)
       var(--tanrei-comp-tree-view-supporting-text-typescale-font-family);
     letter-spacing: var(--tanrei-comp-tree-view-supporting-text-typescale-letter-spacing);
     color: var(--tanrei-comp-tree-view-unselected-supporting-text-color);

@@ -244,7 +244,7 @@
     -webkit-line-clamp: var(--tanrei-comp-link-card-title-max-lines);
     line-clamp: var(--tanrei-comp-link-card-title-max-lines);
     font:
-      var(--tanrei-comp-link-card-title-typescale-font-weight) var(--tanrei-comp-link-card-title-typescale-font-size)/var(--tanrei-comp-link-card-title-typescale-line-height)
+      var(--tanrei-comp-link-card-title-typescale-font-weight) var(--tanrei-comp-link-card-title-typescale-font-size)/round(nearest, var(--tanrei-comp-link-card-title-typescale-line-height) * 1em, 1px)
       var(--tanrei-comp-link-card-title-typescale-font-family);
     letter-spacing: var(--tanrei-comp-link-card-title-typescale-letter-spacing);
     color: var(--_lc-now-title);
@@ -260,7 +260,7 @@
     line-clamp: var(--tanrei-comp-link-card-description-max-lines);
     margin-block-start: var(--tanrei-comp-link-card-title-gap);
     font:
-      var(--tanrei-comp-link-card-description-typescale-font-weight) var(--tanrei-comp-link-card-description-typescale-font-size)/var(--tanrei-comp-link-card-description-typescale-line-height)
+      var(--tanrei-comp-link-card-description-typescale-font-weight) var(--tanrei-comp-link-card-description-typescale-font-size)/round(nearest, var(--tanrei-comp-link-card-description-typescale-line-height) * 1em, 1px)
       var(--tanrei-comp-link-card-description-typescale-font-family);
     letter-spacing: var(--tanrei-comp-link-card-description-typescale-letter-spacing);
     color: var(--_lc-now-description);
@@ -292,7 +292,7 @@
     margin-block-start: var(--tanrei-comp-link-card-site-gap);
     padding: 0;
     font:
-      var(--tanrei-comp-link-card-site-typescale-font-weight) var(--tanrei-comp-link-card-site-typescale-font-size)/var(--tanrei-comp-link-card-site-typescale-line-height)
+      var(--tanrei-comp-link-card-site-typescale-font-weight) var(--tanrei-comp-link-card-site-typescale-font-size)/round(nearest, var(--tanrei-comp-link-card-site-typescale-line-height) * 1em, 1px)
       var(--tanrei-comp-link-card-site-typescale-font-family);
     letter-spacing: var(--tanrei-comp-link-card-site-typescale-letter-spacing);
     color: var(--_lc-now-site);

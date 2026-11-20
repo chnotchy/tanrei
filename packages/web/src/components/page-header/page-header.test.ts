@@ -8,7 +8,7 @@ import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
 // The build's own step (scripts/build.js), read here so a width that drifts from its token fails a test.
 import { declarations, resolved, tokensIn, writeConditions } from '../../../scripts/conditions.js';
-import { type Fixture, fixturesDocument, loadSpec, mountFixtures, resolveColor, resolveToken, tab, rootTokens } from '../../../test/harness.js';
+import { type Fixture, fixturesDocument, loadSpec, mountFixtures, resolveColor, resolveToken, tab, rootTokens, withoutLineStep } from '../../../test/harness.js';
 import { expectBaseline } from '../../../test/baseline.js';
 
 const spec = loadSpec('page-header');
@@ -162,7 +162,7 @@ test.describe('the parts and their order', () => {
         await resolveToken(page, T(`title-typescale-${name}-font-size`)),
         await page.evaluate((t) => getComputedStyle(document.documentElement).getPropertyValue(t).trim(), T(`title-typescale-${name}-font-weight`)),
       ]);
-      near(await px(heading, 'line-height'), (await resolveToken(page, T(`title-typescale-${name}-font-size`))) * Number(await page.evaluate((t) => getComputedStyle(document.documentElement).getPropertyValue(t), T(`title-typescale-${name}-line-height`))), 0.01);
+      near(await px(heading, 'line-height'), Math.round((await resolveToken(page, T(`title-typescale-${name}-font-size`))) * Number(await page.evaluate((t) => getComputedStyle(document.documentElement).getPropertyValue(t), T(`title-typescale-${name}-line-height`)))), 0.01);
       expect(await px(heading, 'font-size')).toBe(await resolveToken(page, `--tanrei-sys-typescale-${roles[name]}-font-size`));
       expect(await css(heading, 'color')).toBe(await resolveColor(page, T('title-color')));
     }
@@ -251,7 +251,7 @@ test.describe('the parts and their order', () => {
     expect(await px(eyebrow(page, 'japanese'), 'letter-spacing'), 'japanese eyebrow').toBe(await px(eyebrow(page, 'eyebrow'), 'letter-spacing'));
     const tracking = await page.evaluate(() => {
       const probe = document.createElement('div');
-      probe.style.cssText = 'font: var(--tanrei-sys-typescale-heading-1-font-weight) var(--tanrei-sys-typescale-heading-1-font-size)/var(--tanrei-sys-typescale-heading-1-line-height) var(--tanrei-sys-typescale-heading-1-font-family); letter-spacing: var(--tanrei-sys-typescale-heading-1-letter-spacing)';
+      probe.style.cssText = 'font: var(--tanrei-sys-typescale-heading-1-font-weight) var(--tanrei-sys-typescale-heading-1-font-size)/round(nearest, var(--tanrei-sys-typescale-heading-1-line-height) * 1em, 1px) var(--tanrei-sys-typescale-heading-1-font-family); letter-spacing: var(--tanrei-sys-typescale-heading-1-letter-spacing)';
       document.body.append(probe);
       const value = Number.parseFloat(getComputedStyle(probe).letterSpacing);
       probe.remove();
@@ -1148,7 +1148,7 @@ test.describe('the element and its stylesheet', () => {
   });
 
   test('no design value is written in the stylesheet or the element: every length, color, radius, duration and opacity is a token, and the zero letter-spacing of PGH-4 is the shared rule, written at its mark (PGH-1, PGH-4)', async () => {
-    const strip = (text: string) => text.replace(/\/\*[\s\S]*?\*\//g, '').replace(/^\s*\/\/.*$/gm, '');
+    const strip = (text: string) => withoutLineStep(text.replace(/\/\*[\s\S]*?\*\//g, '').replace(/^\s*\/\/.*$/gm, ''));
     const sheet = strip(fs.readFileSync(path.join(pkg, 'src/styles/page-header.css'), 'utf8'));
     const lengths = [...sheet.matchAll(/(?<![\w.-])(\d*\.?\d+)(px|rem|em|pt|ms|s)\b/g)].map((match) => match[0]).filter((value) => !/^0(px|s|ms)?$/.test(value));
     // `1em` is the description's own font size, which its measure is a count of (PGH-7).

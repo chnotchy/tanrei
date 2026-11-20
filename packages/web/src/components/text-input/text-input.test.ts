@@ -90,9 +90,9 @@ const listen = (locator: Locator) =>
     }
   });
 const events = (page: P) => page.evaluate(() => ((window as any).events as [string, string, boolean?][]).map(([t, v]) => `${t}:${v}`));
-/** A length token in px, or a typescale's line as a length (its line height is a ratio of its size). */
+/** A typescale's line as a length: its size times its line height (a ratio), on a whole pixel. */
 const line = async (page: P, typescale: string) =>
-  Number(await token(page, `${typescale}-line-height`)) * (await resolveToken(page, `${typescale}-font-size`));
+  Math.round(Number(await token(page, `${typescale}-line-height`)) * (await resolveToken(page, `${typescale}-font-size`)));
 /**
  * Everything a look paints in a state, as drawn: the parts that are always there. A stacked field has no active
  * indicator and no label, and its edge is the inner line (TXI-26); a filled or outlined field's edge is the outline.

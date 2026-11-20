@@ -258,7 +258,7 @@ test.describe('items', () => {
     expect(await css(item(page, 'interactive', 0).locator('.content').first(), 'color')).toBe(await resolveColor(page, T('unselected-content-color')));
     const font = await page.evaluate(() => {
       const probe = document.createElement('span');
-      probe.style.font = 'var(--tanrei-comp-list-content-typescale-font-weight) var(--tanrei-comp-list-content-typescale-font-size)/var(--tanrei-comp-list-content-typescale-line-height) var(--tanrei-comp-list-content-typescale-font-family)';
+      probe.style.font = 'var(--tanrei-comp-list-content-typescale-font-weight) var(--tanrei-comp-list-content-typescale-font-size)/round(nearest, var(--tanrei-comp-list-content-typescale-line-height) * 1em, 1px) var(--tanrei-comp-list-content-typescale-font-family)';
       document.body.append(probe);
       const size = getComputedStyle(probe).fontSize;
       probe.remove();

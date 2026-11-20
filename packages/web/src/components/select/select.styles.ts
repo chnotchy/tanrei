@@ -132,9 +132,9 @@ export const styles = css`
     /* Where the value ends: before the chevron and its gap, or at the text padding (a read-only select draws none). */
     --_text-end: var(--_end);
     /* One line of a text style, as a length (a typescale's line height is a ratio of its size). */
-    --_floated-line: calc(var(--_floated-line-height) * var(--_floated-font-size));
-    --_label-line: calc(var(--_label-line-height) * var(--_label-font-size));
-    --_input-line: calc(var(--_input-line-height) * var(--_input-font-size));
+    --_floated-line: round(nearest, var(--_floated-line-height) * var(--_floated-font-size), 1px);
+    --_label-line: round(nearest, var(--_label-line-height) * var(--_label-font-size), 1px);
+    --_input-line: round(nearest, var(--_input-line-height) * var(--_input-font-size), 1px);
     /* SEL-72: the clear button stands over the container's end; it is laid out against the field. */
     position: relative;
     display: flex;
@@ -214,7 +214,7 @@ export const styles = css`
     padding-block: var(--_pad-block);
     ${typefaceFrom('--_input')}
     letter-spacing: var(--_input-letter-spacing);
-    line-height: var(--_input-line-height);
+    line-height: round(nearest, var(--_input-line-height) * 1em, 1px);
   }
   /* SEL-15: a filled select that draws its label keeps room for the floated label above the value, from the start. */
   ${unsafeCSS(FILLED)}[data-labelled] .body {

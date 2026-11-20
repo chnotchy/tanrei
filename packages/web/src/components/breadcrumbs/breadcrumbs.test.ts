@@ -8,7 +8,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
-import { type Fixture, acmeSystemCss, fixturesDocument, loadSpec, missingWords, mountFixtures, resolveColor, resolveToken, setWords, tab, tabTo, rootTokens } from '../../../test/harness.js';
+import { type Fixture, acmeSystemCss, fixturesDocument, loadSpec, missingWords, mountFixtures, resolveColor, resolveToken, setWords, tab, tabTo, rootTokens, withoutLineStep } from '../../../test/harness.js';
 import { drawnOpticalSize, opticalSize } from '../../../test/icons.js';
 import { holdClock, releaseClock } from '../../../test/page-clock.js';
 import { expectPressHeldAtEveryMoment } from '../../../test/held-press.js';
@@ -1603,7 +1603,7 @@ test.describe('the element and its stylesheet', () => {
   test('no design value is written in the stylesheet or the element’s styles: every length, color, radius, duration and opacity is a token (BRC-2, BRC-6, BRC-16)', async () => {
     const sheet = fs.readFileSync(path.join(pkg, 'src/styles/breadcrumbs.css'), 'utf8').replace(/\/\*[\s\S]*?\*\//g, '');
     const element = fs.readFileSync(path.join(pkg, 'src/components/breadcrumbs/breadcrumbs.styles.ts'), 'utf8').replace(/\/\*[\s\S]*?\*\//g, '').replace(/^\s*\/\/.*$/gm, '');
-    for (const text of [sheet, element]) {
+    for (const text of [sheet, element].map(withoutLineStep)) {
       expect(text).not.toMatch(/#[0-9a-f]{3,8}\b|rgba?\(|hsl|oklch/i);
       // Lengths and times: only zero, a percentage, and the factors of a calculation.
       const literals = [...text.matchAll(/(?<![\w-])(\d*\.?\d+)(px|rem|em|ms|s)\b/g)].filter((match) => Number(match[1]) !== 0);

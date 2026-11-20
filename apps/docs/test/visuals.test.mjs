@@ -227,9 +227,11 @@ describe('the parts of the anatomy and measure figures', () => {
       assert.match(text, /data-fixture-scope\s+role="img"\s+aria-label=\{/, `${file}: an image with a text alternative`);
       assert.match(text, /<div class="docs-blueprint-stage" inert aria-hidden="true" set:html=\{stage\.html\} \/>/, `${file}: the component is a picture`);
     }
-    // Every length and color of what is laid over the stage is a token, and forced colors draw it in the system's.
+    // Every length and color of what is laid over the stage is a token, and forced colors draw it in the system's. The one
+    // length written is no design value: the whole pixel a role's line is rounded to where it is drawn.
     const css = read('src/components/visuals/blueprint.css');
-    assert.doesNotMatch(css.replace(/\/\*[\s\S]*?\*\//g, ''), /#[0-9a-f]{3,8}\b|rgb\(|hsl\(|\b\d+(\.\d+)?px\b/i);
+    const own = css.replace(/\/\*[\s\S]*?\*\//g, '').replace(/round\(nearest, (var\(--[\w-]+-line-height\)) \* 1em, 1px\)/g, '$1');
+    assert.doesNotMatch(own, /#[0-9a-f]{3,8}\b|rgb\(|hsl\(|\b\d+(\.\d+)?px\b/i);
     assert.match(css, /@media \(forced-colors: active\) \{[\s\S]*stroke: CanvasText;/);
   });
 });

@@ -133,7 +133,7 @@ const tokenColor = (page: P, name: string) => colorOf(page, `var(${T(name)})`);
 const role = (page: P, name: string) =>
   page.evaluate((n) => {
     const probe = document.createElement('div');
-    probe.style.cssText = `position:absolute;visibility:hidden;font:var(${n}-font-weight) var(${n}-font-size)/var(${n}-line-height) var(${n}-font-family);letter-spacing:var(${n}-letter-spacing)`;
+    probe.style.cssText = `position:absolute;visibility:hidden;font:var(${n}-font-weight) var(${n}-font-size)/round(nearest, var(${n}-line-height) * 1em, 1px) var(${n}-font-family);letter-spacing:var(${n}-letter-spacing)`;
     document.body.append(probe);
     const s = getComputedStyle(probe);
     const out = { fontSize: s.fontSize, lineHeight: s.lineHeight, fontWeight: s.fontWeight, letterSpacing: s.letterSpacing, fontFamily: s.fontFamily.replaceAll('"', '') };
@@ -243,7 +243,7 @@ test.describe('behavior', () => {
 
     // Inline with text, as one box; in a row narrower than its content it keeps its side, and is not stretched by one that is taller.
     await mountHtml(page, {
-      line: '<p id="line" style="margin:0;font:var(--tanrei-sys-typescale-body-font-weight) var(--tanrei-sys-typescale-body-font-size)/var(--tanrei-sys-typescale-body-line-height) var(--tanrei-sys-typescale-body-font-family)"><span id="lead">Written by</span> <tanrei-avatar decorative size="small" initials="AL"></tanrei-avatar> <span id="trail">Ada Lovelace</span></p>',
+      line: '<p id="line" style="margin:0;font:var(--tanrei-sys-typescale-body-font-weight) var(--tanrei-sys-typescale-body-font-size)/round(nearest, var(--tanrei-sys-typescale-body-line-height) * 1em, 1px) var(--tanrei-sys-typescale-body-font-family)"><span id="lead">Written by</span> <tanrei-avatar decorative size="small" initials="AL"></tanrei-avatar> <span id="trail">Ada Lovelace</span></p>',
       row: '<div style="display:flex;inline-size:60px;block-size:80px"><tanrei-avatar id="a" label="Ada Lovelace" initials="AL"></tanrei-avatar><span style="flex:1 0 200px">A long neighbour that does not fit</span></div>',
       column: '<div style="display:flex;flex-direction:column;inline-size:200px"><tanrei-avatar id="b" label="Ada Lovelace" initials="AL"></tanrei-avatar></div>',
       grid: '<div style="display:grid;grid-template-columns:200px;block-size:120px"><tanrei-avatar id="c" label="Ada Lovelace" initials="AL"></tanrei-avatar></div>',
@@ -377,7 +377,7 @@ test.describe('behavior', () => {
       return route.fulfill({ contentType: 'image/png', body: PICTURE });
     });
     await mountHtml(page, {
-      slow: `<p id="byline" style="margin:0;font:var(--tanrei-sys-typescale-body-font-weight) var(--tanrei-sys-typescale-body-font-size)/var(--tanrei-sys-typescale-body-line-height) var(--tanrei-sys-typescale-body-font-family)">By <tanrei-avatar decorative size="small" initials="AL" src="${PICTURES}/slow.png"></tanrei-avatar> <span id="name">Ada Lovelace</span></p><p id="next" style="margin:0">The next line.</p>`,
+      slow: `<p id="byline" style="margin:0;font:var(--tanrei-sys-typescale-body-font-weight) var(--tanrei-sys-typescale-body-font-size)/round(nearest, var(--tanrei-sys-typescale-body-line-height) * 1em, 1px) var(--tanrei-sys-typescale-body-font-family)">By <tanrei-avatar decorative size="small" initials="AL" src="${PICTURES}/slow.png"></tanrei-avatar> <span id="name">Ada Lovelace</span></p><p id="next" style="margin:0">The next line.</p>`,
       glyph: `<tanrei-avatar label="Someone" src="${PICTURES}/slow.png"></tanrei-avatar>`,
       gone: `<tanrei-avatar label="Ada Lovelace" initials="AL" src="${PICTURES}/gone.png"></tanrei-avatar><span id="after">after</span>`,
       none: '<tanrei-avatar label="Ada Lovelace" initials="AL"></tanrei-avatar>',
@@ -778,15 +778,21 @@ test.describe('behavior', () => {
   test('AVT-11: with the text enlarged the avatar keeps its box and its glyph at their sizes, and its initials are held to the glyph’s box of the size, so they still stand inside the avatar (the initials’ text role itself follows the text dial)', async ({ page }) => {
     await mountSpec(page, 'initials', 'initials-small', 'initials-large', 'glyph', 'glyph-small', 'glyph-large', 'square', 'group-max');
     const ids = ['initials', 'initials-small', 'initials-large', 'glyph', 'glyph-small', 'glyph-large', 'square'];
-    const measure = async () => Object.fromEntries(await Promise.all(ids.map(async (id) => [id, [await box(avatar(page, id)).then((b) => [b.width, b.height]), id.startsWith('glyph') ? await box(avatar(page, id).locator('.icon')).then((b) => [b.width, b.height]) : null]] as const)));
+    // A size to a hundredth of a pixel: Firefox reports a box that begins part of a pixel down (the stages above it are
+    // lines of the page's body text) 0.00002 px taller than the same box on a whole pixel.
+    const size = (b: { width: number; height: number }) => [b.width, b.height].map((n) => Math.round(n * 100) / 100);
+    const measure = async () => Object.fromEntries(await Promise.all(ids.map(async (id) => [id, [await box(avatar(page, id)).then(size), id.startsWith('glyph') ? await box(avatar(page, id).locator('.icon')).then(size) : null]] as const)));
     const before = await measure();
-    const groupBefore = await box(group(page, 'group-max'));
+    // The group's size, not its place: the page's body text is enlarged too, so the lines of the stages above it are
+    // taller and the group stands further down.
+    const groupSize = async () => box(group(page, 'group-max')).then(size);
+    const groupBefore = await groupSize();
     const sizeBefore = Number.parseFloat(await css(avatar(page, 'initials').locator('.label'), 'font-size'));
     // 200 % text.
     await override(page, { '--tanrei-dial-type-base': '32px' });
     await frames(page);
     expect(await measure()).toEqual(before);
-    expect(await box(group(page, 'group-max'))).toEqual(groupBefore);
+    expect(await groupSize()).toEqual(groupBefore);
     const sizes = { 'initials-small': 'small', initials: 'medium', 'initials-large': 'large', square: 'medium' } as const;
     for (const [id, size] of Object.entries(sizes)) {
       const label = avatar(page, id).locator('.label');
@@ -805,7 +811,7 @@ test.describe('behavior', () => {
   test('AVT-11: a byline and a group at 200 % text in a stage 320 wide keep their boxes and need no horizontal scrolling', async ({ page }) => {
     await page.setViewportSize({ width: 320, height: 640 });
     await mountHtml(page, {
-      byline: '<p style="margin:0;font:var(--tanrei-sys-typescale-body-font-weight) var(--tanrei-sys-typescale-body-font-size)/var(--tanrei-sys-typescale-body-line-height) var(--tanrei-sys-typescale-body-font-family)"><tanrei-avatar decorative size="small" initials="AL"></tanrei-avatar> Ada Lovelace, 7 October 2026</p>',
+      byline: '<p style="margin:0;font:var(--tanrei-sys-typescale-body-font-weight) var(--tanrei-sys-typescale-body-font-size)/round(nearest, var(--tanrei-sys-typescale-body-line-height) * 1em, 1px) var(--tanrei-sys-typescale-body-font-family)"><tanrei-avatar decorative size="small" initials="AL"></tanrei-avatar> Ada Lovelace, 7 October 2026</p>',
       group: `<tanrei-avatar-group label="Reviewers" max="4">${['AL', 'GH', 'KJ', 'HL', 'AE', 'MJ'].map((i) => `<tanrei-avatar label="Person ${i}" initials="${i}"></tanrei-avatar>`).join('')}</tanrei-avatar-group>`,
     });
     await override(page, { '--tanrei-dial-type-base': '32px' });
@@ -1455,7 +1461,7 @@ test.describe('behavior', () => {
     // The page as a server sends it: the tokens, the stylesheet, the content — and no script yet.
     await page.setContent(`<!doctype html><html lang="en" data-tanrei-theme="light"><head><meta charset="utf-8"><title>before definition</title>
       <style>${dist('tokens.css')}</style><style>${dist('avatar.css')}</style>
-      <style>body { margin: 16px; inline-size: 480px; font: var(--tanrei-sys-typescale-body-font-weight) var(--tanrei-sys-typescale-body-font-size)/var(--tanrei-sys-typescale-body-line-height) var(--tanrei-sys-typescale-body-font-family); } p.line { margin: 8px 0; }</style></head><body>${body}</body></html>`);
+      <style>body { margin: 16px; inline-size: 480px; font: var(--tanrei-sys-typescale-body-font-weight) var(--tanrei-sys-typescale-body-font-size)/round(nearest, var(--tanrei-sys-typescale-body-line-height) * 1em, 1px) var(--tanrei-sys-typescale-body-font-family); } p.line { margin: 8px 0; }</style></head><body>${body}</body></html>`);
     expect(await page.evaluate(() => !!customElements.get('tanrei-avatar') || !!customElements.get('tanrei-avatar-group'))).toBe(false);
     const measure = () =>
       page.evaluate(() => {
@@ -1521,7 +1527,7 @@ test.describe('behavior', () => {
         await page.setContent(`<!doctype html><html lang="en" dir="${dir}" data-tanrei-theme="light"><head><meta charset="utf-8"><title>before definition</title>
           ${reset ? '<style>* { margin: 0; padding: 0 }</style>' : ''}
           <style>${dist('tokens.css')}</style><style>${dist('avatar.css')}</style>
-          <style>body { margin: 16px; inline-size: 480px; font: var(--tanrei-sys-typescale-body-font-weight) var(--tanrei-sys-typescale-body-font-size)/var(--tanrei-sys-typescale-body-line-height) var(--tanrei-sys-typescale-body-font-family); } p.line { margin: 8px 0; }</style></head><body>${body}</body></html>`);
+          <style>body { margin: 16px; inline-size: 480px; font: var(--tanrei-sys-typescale-body-font-weight) var(--tanrei-sys-typescale-body-font-size)/round(nearest, var(--tanrei-sys-typescale-body-line-height) * 1em, 1px) var(--tanrei-sys-typescale-body-font-family); } p.line { margin: 8px 0; }</style></head><body>${body}</body></html>`);
         expect(await page.evaluate(() => !!customElements.get('tanrei-avatar-group'))).toBe(false);
         const measure = () =>
           page.evaluate(() => {
@@ -1577,7 +1583,7 @@ test.describe('accessibility', () => {
           link: '<a href="#ada"><tanrei-avatar label="Ada Lovelace" initials="AL"></tanrei-avatar></a>',
           button: '<button type="button"><tanrei-avatar label="Grace Hopper" initials="GH" size="small"></tanrei-avatar></button>',
           badge: '<tanrei-badge count="3" label="3 unread"><tanrei-avatar label="Katherine Johnson" initials="KJ"></tanrei-avatar></tanrei-badge>',
-          byline: '<p style="margin:0;font:var(--tanrei-sys-typescale-body-font-weight) var(--tanrei-sys-typescale-body-font-size)/var(--tanrei-sys-typescale-body-line-height) var(--tanrei-sys-typescale-body-font-family);color:var(--tanrei-sys-color-on-surface)"><tanrei-avatar decorative size="small" initials="HL"></tanrei-avatar> Hedy Lamarr</p>',
+          byline: '<p style="margin:0;font:var(--tanrei-sys-typescale-body-font-weight) var(--tanrei-sys-typescale-body-font-size)/round(nearest, var(--tanrei-sys-typescale-body-line-height) * 1em, 1px) var(--tanrei-sys-typescale-body-font-family);color:var(--tanrei-sys-color-on-surface)"><tanrei-avatar decorative size="small" initials="HL"></tanrei-avatar> Hedy Lamarr</p>',
         },
         { theme },
       );

@@ -480,7 +480,7 @@ test.describe('behavior: the box', () => {
     }
     // Filled: at least twice padding-block-with-label plus one line of each text style.
     const ratio = async (name: string) => Number(await css(page.locator('html'), T(`${name}-line-height`)));
-    const lines = (await token(page, 'label-floated-typescale-medium-font-size')) * (await ratio('label-floated-typescale-medium')) + (await token(page, 'input-typescale-medium-font-size')) * (await ratio('input-typescale-medium'));
+    const lines = Math.round((await token(page, 'label-floated-typescale-medium-font-size')) * (await ratio('label-floated-typescale-medium'))) + Math.round((await token(page, 'input-typescale-medium-font-size')) * (await ratio('input-typescale-medium')));
     expect((await box(container(page, 'filled'))).height).toBeGreaterThanOrEqual(2 * (await token(page, 'container-padding-block-with-label-medium')) + lines - 0.6);
     // Outlined: the outline opens a gap of notch-padding on each side of the floated label.
     const notch = await box(part(page, 'outlined', '.outline-notch'));
@@ -1816,7 +1816,7 @@ test.describe('behavior: exposure, forms, size and direction', () => {
     const native = await page.evaluate(() => {
       const probe = document.createElement('input');
       probe.type = 'text';
-      probe.style.cssText = 'all: unset; display: inline-block; font: var(--tanrei-comp-input-box-input-typescale-medium-font-weight) var(--tanrei-comp-input-box-input-typescale-medium-font-size)/var(--tanrei-comp-input-box-input-typescale-medium-line-height) var(--tanrei-comp-input-box-input-typescale-medium-font-family); letter-spacing: var(--tanrei-comp-input-box-input-typescale-medium-letter-spacing);';
+      probe.style.cssText = 'all: unset; display: inline-block; font: var(--tanrei-comp-input-box-input-typescale-medium-font-weight) var(--tanrei-comp-input-box-input-typescale-medium-font-size)/round(nearest, var(--tanrei-comp-input-box-input-typescale-medium-line-height) * 1em, 1px) var(--tanrei-comp-input-box-input-typescale-medium-font-family); letter-spacing: var(--tanrei-comp-input-box-input-typescale-medium-letter-spacing);';
       document.body.append(probe);
       const width = probe.getBoundingClientRect().width;
       probe.remove();
@@ -1893,7 +1893,7 @@ test.describe('behavior: exposure, forms, size and direction', () => {
       const c = await box(container(page, id));
       expect(c.height, `${id}: the container grew with the input’s line`).toBeGreaterThan(before.container);
       expect(c.height, id).toBeGreaterThanOrEqual((await token(page, 'container-height-medium')) - 0.6);
-      near((await box(input(page, id))).height, (await px(input(page, id), 'font-size')) * Number(await css(page.locator('html'), T('input-typescale-medium-line-height'))), `${id}: the number stays on one line`, 1);
+      near((await box(input(page, id))).height, Math.round((await px(input(page, id), 'font-size')) * Number(await css(page.locator('html'), T('input-typescale-medium-line-height')))), `${id}: the number stays on one line`, 1);
       near((await box(host(page, id))).height, c.height, `${id}: exactly as tall as its container`);
       expect(c.x + c.width, `${id}: inside the window`).toBeLessThanOrEqual(320 + 0.6);
       // The row inside keeps its order, and nothing lies over another part.

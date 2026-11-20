@@ -33,7 +33,7 @@ const drawn = (page: Page) =>
 const expected = (page: Page) =>
   page.evaluate(() => {
     const probe = document.createElement('span');
-    probe.style.cssText = 'font: var(--tanrei-sys-typescale-body-font-weight) var(--tanrei-sys-typescale-body-font-size)/var(--tanrei-sys-typescale-body-line-height) var(--tanrei-sys-typescale-body-font-family)';
+    probe.style.cssText = 'font: var(--tanrei-sys-typescale-body-font-weight) var(--tanrei-sys-typescale-body-font-size)/round(nearest, var(--tanrei-sys-typescale-body-line-height) * 1em, 1px) var(--tanrei-sys-typescale-body-font-family)';
     document.body.append(probe);
     const style = getComputedStyle(probe);
     const result = { family: style.fontFamily.split(',')[0].trim().replace(/^["']|["']$/g, ''), size: style.fontSize, lineHeight: style.lineHeight };
@@ -88,7 +88,7 @@ test('tanrei.css also draws the light-DOM stylesheets: a heading with the text c
   await mount(page, ['tanrei.css']);
   const [size, role] = await page.evaluate(() => {
     const probe = document.createElement('span');
-    probe.style.cssText = 'font: var(--tanrei-sys-typescale-heading-2-font-weight) var(--tanrei-sys-typescale-heading-2-font-size)/var(--tanrei-sys-typescale-heading-2-line-height) var(--tanrei-sys-typescale-heading-2-font-family)';
+    probe.style.cssText = 'font: var(--tanrei-sys-typescale-heading-2-font-weight) var(--tanrei-sys-typescale-heading-2-font-size)/round(nearest, var(--tanrei-sys-typescale-heading-2-line-height) * 1em, 1px) var(--tanrei-sys-typescale-heading-2-font-family)';
     document.body.append(probe);
     return [getComputedStyle(document.querySelector('h2')!).fontSize, getComputedStyle(probe).fontSize];
   });

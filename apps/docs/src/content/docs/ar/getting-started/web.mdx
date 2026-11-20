@@ -192,7 +192,7 @@ import { themeScript } from '@tanrei/web/theme-script';
   background: var(--tanrei-sys-color-surface-container-low);
   border-radius: var(--tanrei-sys-shape-corner-medium);
   box-shadow: var(--tanrei-sys-elevation-level1);
-  font: var(--tanrei-sys-typescale-body-font-weight) var(--tanrei-sys-typescale-body-font-size)/var(--tanrei-sys-typescale-body-line-height) var(--tanrei-sys-typescale-body-font-family);
+  font: var(--tanrei-sys-typescale-body-font-weight) var(--tanrei-sys-typescale-body-font-size)/round(nearest, var(--tanrei-sys-typescale-body-line-height) * 1em, 1px) var(--tanrei-sys-typescale-body-font-family);
   letter-spacing: var(--tanrei-sys-typescale-body-letter-spacing);
 }
 ```
@@ -201,7 +201,7 @@ import { themeScript } from '@tanrei/web/theme-script';
 
 ## أنماط النص
 
-تُسمّى أنماط النص بحسب المستوى (`heading-2` هو `h2`، و `body` هو `p`، و `label` هو النص على عنصر التحكم)، وكل نمط منها مجموعة من الخصائص المخصصة المفردة: `--tanrei-sys-typescale-<role>-font-family` و `-font-size` و `-font-weight` و `-line-height` و `-letter-spacing` و `-font-weight-emphasized`. ولا خاصية مختصرة: ركّب `font` منها حيث يُرسم النص، كما في المثال أعلاه، وغيّر النمط خاصيةً واحدة في كل مرة. فضبط `--tanrei-sys-typescale-body-font-size: 1rem` على الجذر، أو على عنصر واحد أو قسم من الصفحة، يغيّر حجم ذلك النص ولا شيء غيره. وتوجد ورقتا أنماط اختياريتان تطبّقانها على العناصر عنك:
+تُسمّى أنماط النص بحسب المستوى (`heading-2` هو `h2`، و `body` هو `p`، و `label` هو النص على عنصر التحكم)، وكل نمط منها مجموعة من الخصائص المخصصة المفردة: `--tanrei-sys-typescale-<role>-font-family` و `-font-size` و `-font-weight` و `-line-height` و `-letter-spacing` و `-font-weight-emphasized`. ولا خاصية مختصرة: ركّب `font` منها حيث يُرسم النص، كما في المثال أعلاه، وغيّر النمط خاصيةً واحدة في كل مرة. فضبط `--tanrei-sys-typescale-body-font-size: 1rem` على الجذر، أو على عنصر واحد أو قسم من الصفحة، يغيّر حجم ذلك النص ولا شيء غيره. و`-line-height` نسبةٌ من الحجم، فيُستعمل مقرّبًا كما في المثال أعلاه: `round(nearest, var(…-line-height) * 1em, 1px)` يضع السطر على بكسل كامل بالحجم الذي يُرسم به (وإلا كان سطر تسمية بحجم 12 px ونسبة 1.3333 بارتفاع 15.9996 px، بين بكسلين)، و`round(nearest, var(…-line-height) * var(…-font-size), 1px)` هو سطر واحد من الدور حيث لا يُرسم نصه. ومكوّنات Tanrei تقرؤه بالطريقة نفسها، فضبط `-line-height` واحد على الجذر أو على عنصر يغيّر النص وكل صندوق يحمل أسطره معًا. وتوجد ورقتا أنماط اختياريتان تطبّقانها على العناصر عنك:
 
 ```js
 import '@tanrei/web/text.css';   // .tanrei-text-<role>, .tanrei-text-emphasized

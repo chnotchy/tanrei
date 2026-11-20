@@ -71,7 +71,7 @@ const SIZE_MEMBERS: readonly (readonly [string, string])[] = [
 ];
 /** The height of a line of a header's label at a size a design system added: its two tokens, multiplied (table.css). */
 const SIZE_LEADING = (size: string) =>
-  `--_table-header-leading: calc(var(${PREFIX}-header-text-typescale-${size}-line-height, var(${PREFIX}-header-text-typescale-${DEFAULT_SIZE}-line-height)) * var(${PREFIX}-header-text-typescale-${size}-font-size, var(${PREFIX}-header-text-typescale-${DEFAULT_SIZE}-font-size)));`;
+  `--_table-header-leading: round(nearest, var(${PREFIX}-header-text-typescale-${size}-line-height, var(${PREFIX}-header-text-typescale-${DEFAULT_SIZE}-line-height)) * var(${PREFIX}-header-text-typescale-${size}-font-size, var(${PREFIX}-header-text-typescale-${DEFAULT_SIZE}-font-size)), 1px);`;
 /** The control of a sortable column's header, from anything inside it (TBL-32): the product's button, or its anchor. */
 const SORT_CONTROL = 'th[aria-sort] > button, th[aria-sort] > a[href]';
 /** The same, from its header cell. */

@@ -28,7 +28,7 @@
   gap: var(--tanrei-sys-space-space100);
   min-block-size: var(--tanrei-sys-target-minimum);
   color: inherit;
-  font: var(--tanrei-sys-typescale-label-font-weight) var(--tanrei-sys-typescale-label-font-size)/var(--tanrei-sys-typescale-label-line-height) var(--tanrei-sys-typescale-label-font-family);
+  font: var(--tanrei-sys-typescale-label-font-weight) var(--tanrei-sys-typescale-label-font-size)/round(nearest, var(--tanrei-sys-typescale-label-line-height) * 1em, 1px) var(--tanrei-sys-typescale-label-font-family);
   text-decoration: none;
   white-space: nowrap;
 }
@@ -42,7 +42,7 @@
 /* The page's heading: the tool's name, beside the brand, as quiet as the bar. */
 .docs-studio-title {
   margin: 0;
-  font: var(--tanrei-sys-typescale-label-font-weight) var(--tanrei-sys-typescale-label-font-size)/var(--tanrei-sys-typescale-label-line-height) var(--tanrei-sys-typescale-label-font-family);
+  font: var(--tanrei-sys-typescale-label-font-weight) var(--tanrei-sys-typescale-label-font-size)/round(nearest, var(--tanrei-sys-typescale-label-line-height) * 1em, 1px) var(--tanrei-sys-typescale-label-font-family);
   color: var(--tanrei-sys-color-on-surface-variant);
   white-space: nowrap;
 }
@@ -51,7 +51,7 @@
   align-items: center;
   min-block-size: var(--tanrei-sys-target-minimum);
   color: inherit;
-  font: var(--tanrei-sys-typescale-label-font-weight) var(--tanrei-sys-typescale-label-font-size)/var(--tanrei-sys-typescale-label-line-height) var(--tanrei-sys-typescale-label-font-family);
+  font: var(--tanrei-sys-typescale-label-font-weight) var(--tanrei-sys-typescale-label-font-size)/round(nearest, var(--tanrei-sys-typescale-label-line-height) * 1em, 1px) var(--tanrei-sys-typescale-label-font-family);
 }
 .docs-studio-brand:focus-visible,
 .docs-studio-about:focus-visible {

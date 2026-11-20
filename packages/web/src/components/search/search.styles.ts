@@ -156,7 +156,7 @@ const inputStyles = `
     background: none;
     ${typefaceOf(T, 'input-typescale')}
     letter-spacing: ${T('input-typescale-letter-spacing')};
-    line-height: ${T('input-typescale-line-height')};
+    line-height: round(nearest, ${T('input-typescale-line-height')} * 1em, 1px);
     color: var(--_n);
     caret-color: var(--_r);
     -webkit-text-fill-color: currentcolor;

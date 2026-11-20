@@ -45,7 +45,7 @@ const mount = async (page: P, html: string, { direction, ...options }: MountOpti
 const bare = (page: P, body: string) =>
   page.setContent(`<!doctype html><html lang="en" data-tanrei-theme="light"><head><meta charset="utf-8"><title>link</title>
     <style>${read('dist/tokens.css')}</style><style>${read('dist/icons.css')}</style><style>${read('dist/link.css')}</style>
-    <style>body { margin: 16px; inline-size: 320px; font: var(--tanrei-sys-typescale-body-font-weight) var(--tanrei-sys-typescale-body-font-size)/var(--tanrei-sys-typescale-body-line-height) var(--tanrei-sys-typescale-body-font-family); color: var(--tanrei-sys-color-on-surface); background: var(--tanrei-sys-color-surface); }</style>
+    <style>body { margin: 16px; inline-size: 320px; font: var(--tanrei-sys-typescale-body-font-weight) var(--tanrei-sys-typescale-body-font-size)/round(nearest, var(--tanrei-sys-typescale-body-line-height) * 1em, 1px) var(--tanrei-sys-typescale-body-font-family); color: var(--tanrei-sys-color-on-surface); background: var(--tanrei-sys-color-surface); }</style>
     </head><body>${body}</body></html>`);
 
 const css = (target: Locator, property: string, pseudo?: string): Promise<string> =>
@@ -194,8 +194,8 @@ test.describe('the platform’s own link', () => {
 
 test.describe('the look', () => {
   const TEXTS = `<p id="p">Read <a class="tanrei-link" href="#a">the guide</a> first.</p><p id="p0">Read the guide first.</p>
-    <h2 id="h" style="font: var(--tanrei-sys-typescale-heading-2-font-weight) var(--tanrei-sys-typescale-heading-2-font-size)/var(--tanrei-sys-typescale-heading-2-line-height) var(--tanrei-sys-typescale-heading-2-font-family); margin: 0">About <a class="tanrei-link" href="#a">the guide</a></h2><h2 id="h0" style="font: var(--tanrei-sys-typescale-heading-2-font-weight) var(--tanrei-sys-typescale-heading-2-font-size)/var(--tanrei-sys-typescale-heading-2-line-height) var(--tanrei-sys-typescale-heading-2-font-family); margin: 0">About the guide</h2>
-    <p id="c" style="font: var(--tanrei-sys-typescale-caption-font-weight) var(--tanrei-sys-typescale-caption-font-size)/var(--tanrei-sys-typescale-caption-line-height) var(--tanrei-sys-typescale-caption-font-family)">See <a class="tanrei-link" href="#a">the guide</a>.</p><p id="c0" style="font: var(--tanrei-sys-typescale-caption-font-weight) var(--tanrei-sys-typescale-caption-font-size)/var(--tanrei-sys-typescale-caption-line-height) var(--tanrei-sys-typescale-caption-font-family)">See the guide.</p>`;
+    <h2 id="h" style="font: var(--tanrei-sys-typescale-heading-2-font-weight) var(--tanrei-sys-typescale-heading-2-font-size)/round(nearest, var(--tanrei-sys-typescale-heading-2-line-height) * 1em, 1px) var(--tanrei-sys-typescale-heading-2-font-family); margin: 0">About <a class="tanrei-link" href="#a">the guide</a></h2><h2 id="h0" style="font: var(--tanrei-sys-typescale-heading-2-font-weight) var(--tanrei-sys-typescale-heading-2-font-size)/round(nearest, var(--tanrei-sys-typescale-heading-2-line-height) * 1em, 1px) var(--tanrei-sys-typescale-heading-2-font-family); margin: 0">About the guide</h2>
+    <p id="c" style="font: var(--tanrei-sys-typescale-caption-font-weight) var(--tanrei-sys-typescale-caption-font-size)/round(nearest, var(--tanrei-sys-typescale-caption-line-height) * 1em, 1px) var(--tanrei-sys-typescale-caption-font-family)">See <a class="tanrei-link" href="#a">the guide</a>.</p><p id="c0" style="font: var(--tanrei-sys-typescale-caption-font-weight) var(--tanrei-sys-typescale-caption-font-size)/round(nearest, var(--tanrei-sys-typescale-caption-line-height) * 1em, 1px) var(--tanrei-sys-typescale-caption-font-family)">See the guide.</p>`;
 
   test('LNK-2 the label is drawn in the text style of the text it sits in — body, heading, caption — in the label color of its variant, without making the line taller', async ({ page }) => {
     await mount(page, TEXTS);
@@ -966,8 +966,8 @@ test.describe('glyphs and names', () => {
     expect(await css(link(page, 'icon-only-new'), 'content', '::after')).toBe('none');
     await mount(
       page,
-      `<h2 id="with" style="font: var(--tanrei-sys-typescale-heading-2-font-weight) var(--tanrei-sys-typescale-heading-2-font-size)/var(--tanrei-sys-typescale-heading-2-line-height) var(--tanrei-sys-typescale-heading-2-font-family); margin: 0">Installation <a class="tanrei-link" href="#with" aria-label="Link to Installation"><span class="tanrei-icon" aria-hidden="true">link</span></a></h2>
-       <h2 id="without" style="font: var(--tanrei-sys-typescale-heading-2-font-weight) var(--tanrei-sys-typescale-heading-2-font-size)/var(--tanrei-sys-typescale-heading-2-line-height) var(--tanrei-sys-typescale-heading-2-font-family); margin: 0">Installation</h2>`,
+      `<h2 id="with" style="font: var(--tanrei-sys-typescale-heading-2-font-weight) var(--tanrei-sys-typescale-heading-2-font-size)/round(nearest, var(--tanrei-sys-typescale-heading-2-line-height) * 1em, 1px) var(--tanrei-sys-typescale-heading-2-font-family); margin: 0">Installation <a class="tanrei-link" href="#with" aria-label="Link to Installation"><span class="tanrei-icon" aria-hidden="true">link</span></a></h2>
+       <h2 id="without" style="font: var(--tanrei-sys-typescale-heading-2-font-weight) var(--tanrei-sys-typescale-heading-2-font-size)/round(nearest, var(--tanrei-sys-typescale-heading-2-line-height) * 1em, 1px) var(--tanrei-sys-typescale-heading-2-font-family); margin: 0">Installation</h2>`,
     );
     near((await box(page.locator('#with'))).height, (await box(page.locator('#without'))).height, 'the heading’s line', 0.01);
     near((await box(page.locator('#with a'))).height, await px(page.locator('#with'), 'line-height'), 'a line of the heading', 0.05);
@@ -1042,7 +1042,7 @@ test.describe('current, disabled, not a link', () => {
     expect(await drawn(anchor, 'background-color')).toEqual(await color(page, T('standard-focused-current-container-color')));
     await expect(stage(page, 'current').getByRole('link', { name: 'Components', exact: true })).toHaveAttribute('aria-current', 'page');
     // In a heading: that style's emphasized weight (prose and text.css name it for the text they set).
-    await mount(page, '<h2 style="font: var(--tanrei-sys-typescale-heading-2-font-weight) var(--tanrei-sys-typescale-heading-2-font-size)/var(--tanrei-sys-typescale-heading-2-line-height) var(--tanrei-sys-typescale-heading-2-font-family); --tanrei-text-emphasized-weight: var(--tanrei-sys-typescale-heading-2-font-weight-emphasized)"><a class="tanrei-link" href="#a" aria-current="location" id="here">Here</a> <a class="tanrei-link" href="#b" id="there">There</a></h2>');
+    await mount(page, '<h2 style="font: var(--tanrei-sys-typescale-heading-2-font-weight) var(--tanrei-sys-typescale-heading-2-font-size)/round(nearest, var(--tanrei-sys-typescale-heading-2-line-height) * 1em, 1px) var(--tanrei-sys-typescale-heading-2-font-family); --tanrei-text-emphasized-weight: var(--tanrei-sys-typescale-heading-2-font-weight-emphasized)"><a class="tanrei-link" href="#a" aria-current="location" id="here">Here</a> <a class="tanrei-link" href="#b" id="there">There</a></h2>');
     expect(Number(await css(page.locator('#here'), 'font-weight'))).toBe(Number(await css(page.locator('#there'), 'font-weight')) + Number(await css(page.locator('html'), '--tanrei-sys-typescale-emphasis-heading')));
     expect(await css(page.locator('#here'), 'text-decoration-line')).toBe('none');
     // aria-current="false" is not current.
@@ -1499,7 +1499,7 @@ const served = async (page: P, body: string, { script = true }: { script?: boole
         contentType: 'text/html',
         body: `<!doctype html><html lang="en" data-tanrei-theme="light"><head><meta charset="utf-8"><title>site</title><link rel="icon" href="data:,">
           <link rel="stylesheet" href="/tokens.css"><link rel="stylesheet" href="/icons.css"><link rel="stylesheet" href="/link.css"><link rel="stylesheet" href="/prose.css">
-          <style>body { margin: 16px; inline-size: 480px; font: var(--tanrei-sys-typescale-body-font-weight) var(--tanrei-sys-typescale-body-font-size)/var(--tanrei-sys-typescale-body-line-height) var(--tanrei-sys-typescale-body-font-family); color: var(--tanrei-sys-color-on-surface); background: var(--tanrei-sys-color-surface); }</style>
+          <style>body { margin: 16px; inline-size: 480px; font: var(--tanrei-sys-typescale-body-font-weight) var(--tanrei-sys-typescale-body-font-size)/round(nearest, var(--tanrei-sys-typescale-body-line-height) * 1em, 1px) var(--tanrei-sys-typescale-body-font-family); color: var(--tanrei-sys-color-on-surface); background: var(--tanrei-sys-color-surface); }</style>
           ${script ? '<script type="module" src="/tanrei.bundle.js"></script>' : ''}</head><body>${body}</body></html>`,
       });
     }

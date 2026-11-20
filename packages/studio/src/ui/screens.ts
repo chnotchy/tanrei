@@ -27,7 +27,7 @@ const cap = (s: string) => s[0].toUpperCase() + s.slice(1);
  * A text style, whole, from the custom properties of its role (`base`): the `font` shorthand composed from the role's
  * longhands, read where the text is drawn, and its tracking beside it. A role has no composite custom property.
  */
-const roleFont = (base: string) => `font: var(${base}-font-weight) var(${base}-font-size)/var(${base}-line-height) var(${base}-font-family); letter-spacing: var(${base}-letter-spacing);`;
+const roleFont = (base: string) => `font: var(${base}-font-weight) var(${base}-font-size)/round(nearest, var(${base}-line-height) * 1em, 1px) var(${base}-font-family); letter-spacing: var(${base}-letter-spacing);`;
 
 /**
  * The values a component's variant axis declares, as the model holds them: the `variant` axis, or — for a component

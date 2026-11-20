@@ -1,7 +1,7 @@
 // Accessibility and structure invariants, checked for every scheme on every build.
 // A failure here is a design bug, never a threshold to loosen.
 import { CONFIG } from './config.js';
-import { rgba } from './pure.js';
+import { lineBox, rgba } from './pure.js';
 
 const lin = (c) => (c <= 0.04045 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4);
 const luminance = ({ r, g, b }) => 0.2126 * lin(r / 255) + 0.7152 * lin(g / 255) + 0.0722 * lin(b / 255);
@@ -434,7 +434,7 @@ export function auditInvariants(model) {
     const padding = at('container', 'padding-block', size)?.value?.value;
     const label = at('label', 'typescale', size)?.value;
     if (padding === undefined || !label?.fontSize) continue;
-    const needed = 2 * padding + Math.round(label.fontSize.value * label.lineHeight * 100) / 100;
+    const needed = 2 * padding + lineBox(label.fontSize.value, label.lineHeight);
     if (token.value.value < needed) failures.push(`${token.id}: ${token.value.value}px cannot hold its content — 2 × padding-block (${padding}px) + one label line = ${needed}px`);
   }
 

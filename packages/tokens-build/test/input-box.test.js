@@ -85,7 +85,7 @@ test('a stacked box is as tall as a Button of the same size; a box that floats i
   // A line of the size's input text fits in the stacked height, with the stacked padding above and below it.
   for (const size of ['small', 'medium', 'large']) {
     const type = model.tokens[`${CONFIG.namespace}.comp.${BOX}.input.typescale.${size}`].value;
-    const line = type.lineHeight * type.fontSize.value;
+    const line = Math.round(type.lineHeight * type.fontSize.value);
     assert.ok(2 * px(`${BOX}.stacked.container.padding-block.${size}`) + line <= px(`${BOX}.stacked.container.height.${size}`), `${size}: the padding and a line overflow the height`);
   }
 });

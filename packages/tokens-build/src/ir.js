@@ -2,7 +2,7 @@
 // (TypeScript/React Native, Swift, Kotlin, Dart). Lengths are density-independent
 // units (px = dp = pt = logical px), durations are milliseconds.
 import { CONFIG, REPO_ROOT, rgba } from './model.js';
-import { typeFamily } from './pure.js';
+import { lineBox, typeFamily } from './pure.js';
 import { colorVocabulary } from './scheme.js';
 
 const NS = CONFIG.namespace;
@@ -58,7 +58,7 @@ function typography(v, role) {
     size: v.fontSize.value,
     weight: v.fontWeight,
     tracking: v.letterSpacing.value,
-    lineHeight: Math.round(v.fontSize.value * v.lineHeight * 100) / 100,
+    lineHeight: lineBox(v.fontSize.value, v.lineHeight),
   };
 }
 

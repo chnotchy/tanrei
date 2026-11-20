@@ -89,7 +89,7 @@ function heldContent(tokens) {
     const padding = tokens[`${NS}.comp.${component}.container.padding-block.${size}`]?.$value?.value;
     const label = tokens[`${NS}.comp.${component}.label.typescale.${size}`]?.$value;
     if (padding === undefined || !label?.fontSize) continue;
-    const needed = 2 * padding + Math.round(label.fontSize.value * label.lineHeight * 100) / 100;
+    const needed = 2 * padding + Math.round(label.fontSize.value * label.lineHeight);
     if (token.$value.value < needed) problems.push(`${id}: ${token.$value.value} < ${needed}`);
   }
   return problems;

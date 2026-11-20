@@ -111,7 +111,7 @@ export const styles = css`
     /* MAB-17: the elevation is a box-shadow on the container, cast outside it; nothing on the way to the page clips it. */
     ${unsafeCSS(paint(''))}
     /* MAB-12: the label's text role, whole; 1lh on the icon's box is this line's height. */
-    font: var(--_font-weight) var(--_font-size)/var(--_line-height) var(--_font-family);
+    font: var(--_font-weight) var(--_font-size)/round(nearest, var(--_line-height) * 1em, 1px) var(--_font-family);
     letter-spacing: var(--_tracking);
     /* WebKit keeps the text selectable until its own name says so: a selection of the page swept over the button took
        its label (and the icon's name) with it, and a press held on that selection became the engine's drag of the

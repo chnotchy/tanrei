@@ -183,6 +183,10 @@ export function declarations(token, tokens) {
         [`${name}-font-weight`, String(v.fontWeight)],
         ...(isRole ? [[`${name}-font-weight-emphasized`, `calc(var(${name}-font-weight) + var(${PREFIX}-sys-typescale-emphasis-${typeFamily(token.path[2])}))`]] : []),
         [`${name}-letter-spacing`, tracking],
+        // The ratio, as DTCG writes it: the one entry a product overrides, on the root or on one element. It is a
+        // rounded fraction (16 / 12 is 1.3333), so whatever reads it rounds the line where it is drawn —
+        // `round(nearest, var(<role>-line-height) * 1em, 1px)` for the text, `* var(<role>-font-size)` for a box that
+        // holds its lines — and the line is a whole pixel at every size, as the native platforms' is (pure.js lineBox).
         [`${name}-line-height`, String(v.lineHeight)],
       ];
     }

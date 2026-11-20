@@ -98,7 +98,7 @@
   /* ── A level (BRC-3): its label in the trail's text style; text until it has a destination ──────────────────── */
   :where(tanrei-breadcrumbs) > :where(a, span) {
     /* One line of the trail's text, as a length that a glyph — whose own font is the icon set's — can read. */
-    --_brc-line: calc(var(--tanrei-comp-breadcrumbs-label-typescale-font-size) * var(--tanrei-comp-breadcrumbs-label-typescale-line-height));
+    --_brc-line: round(nearest, var(--tanrei-comp-breadcrumbs-label-typescale-font-size) * var(--tanrei-comp-breadcrumbs-label-typescale-line-height), 1px);
     position: relative;
     isolation: isolate;
     display: block;
@@ -108,7 +108,7 @@
     margin: 0;
     padding: 0;
     font:
-      var(--tanrei-comp-breadcrumbs-label-typescale-font-weight) var(--tanrei-comp-breadcrumbs-label-typescale-font-size)/var(--tanrei-comp-breadcrumbs-label-typescale-line-height)
+      var(--tanrei-comp-breadcrumbs-label-typescale-font-weight) var(--tanrei-comp-breadcrumbs-label-typescale-font-size)/round(nearest, var(--tanrei-comp-breadcrumbs-label-typescale-line-height) * 1em, 1px)
       var(--tanrei-comp-breadcrumbs-label-typescale-font-family);
     letter-spacing: var(--tanrei-comp-breadcrumbs-label-typescale-letter-spacing);
     color: var(--tanrei-comp-breadcrumbs-label-color);

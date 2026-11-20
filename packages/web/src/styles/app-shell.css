@@ -417,7 +417,7 @@
     clip-path: none;
     white-space: normal;
     font:
-      var(--tanrei-comp-app-shell-skip-link-label-typescale-font-weight) var(--tanrei-comp-app-shell-skip-link-label-typescale-font-size)/var(--tanrei-comp-app-shell-skip-link-label-typescale-line-height)
+      var(--tanrei-comp-app-shell-skip-link-label-typescale-font-weight) var(--tanrei-comp-app-shell-skip-link-label-typescale-font-size)/round(nearest, var(--tanrei-comp-app-shell-skip-link-label-typescale-line-height) * 1em, 1px)
       var(--tanrei-comp-app-shell-skip-link-label-typescale-font-family);
     letter-spacing: var(--tanrei-comp-app-shell-skip-link-label-typescale-letter-spacing);
   }

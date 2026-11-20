@@ -125,9 +125,9 @@ export const styles = css`
     /* Where the text ends: before the clear button, the chevron and their gap, or at the text padding. */
     --_text-end: var(--_end);
     /* One line of a text style, as a length (a typescale's line height is a ratio of its size). */
-    --_floated-line: calc(var(--_floated-line-height) * var(--_floated-font-size));
-    --_label-line: calc(var(--_label-line-height) * var(--_label-font-size));
-    --_input-line: calc(var(--_input-line-height) * var(--_input-font-size));
+    --_floated-line: round(nearest, var(--_floated-line-height) * var(--_floated-font-size), 1px);
+    --_label-line: round(nearest, var(--_label-line-height) * var(--_label-font-size), 1px);
+    --_input-line: round(nearest, var(--_input-line-height) * var(--_input-font-size), 1px);
     display: flex;
     flex-direction: column;
     min-inline-size: 0;
@@ -196,7 +196,7 @@ export const styles = css`
     padding-block: var(--_pad-block);
     ${typefaceFrom('--_input')}
     letter-spacing: var(--_input-letter-spacing);
-    line-height: var(--_input-line-height);
+    line-height: round(nearest, var(--_input-line-height) * 1em, 1px);
   }
   /* CMB-8: a filled combobox that draws its label keeps room for the floated label above the input, from the start. */
   ${unsafeCSS(FILLED)}[data-labelled] .body {
@@ -221,7 +221,7 @@ export const styles = css`
     background: none;
     font: inherit;
     letter-spacing: inherit;
-    line-height: var(--_input-line-height);
+    line-height: round(nearest, var(--_input-line-height) * 1em, 1px);
     color: var(--_n);
     caret-color: var(--_r);
     -webkit-text-fill-color: currentcolor;

@@ -49,7 +49,8 @@ const LONGHANDS = {
   'font-family': { value: 'serif', expect: (t: Text) => expect(t.family).toBe('serif') },
   'font-size': { value: '41px', expect: (t: Text) => expect(t.size).toBe(41) },
   'font-weight': { value: '777', expect: (t: Text) => expect(t.weight).toBe('777') },
-  'line-height': { value: '2.5', expect: (t: Text) => expect(t.line / t.size).toBeCloseTo(2.5, 2) },
+  // The ratio, drawn rounded to a whole pixel at the text's size.
+  'line-height': { value: '2.5', expect: (t: Text) => expect(t.line).toBe(Math.round(t.size * 2.5)) },
   'letter-spacing': { value: '0.25em', expect: (t: Text) => expect(t.tracking / t.size).toBeCloseTo(0.25, 2) },
 } as const;
 type Longhand = keyof typeof LONGHANDS;
@@ -98,11 +99,15 @@ for (const c of CASES) {
         const where = `${c.base}-${longhand}: ${value} on the ${on}`;
         await test.step(where, () => {
           changed(now);
-          // Nothing else moves: the size alone also scales the line height and the tracking, which are its ratios.
+          // Nothing else moves: the size alone also scales the line height and the tracking, which are its ratios — the
+          // line rounded to a whole pixel, as the role's line box always is.
           if (longhand !== 'font-family') expect(now.family, where).toBe(rest.family);
           if (longhand !== 'font-weight') expect(now.weight, where).toBe(rest.weight);
           if (longhand !== 'font-size') expect(now.size, where).toBe(rest.size);
-          if (longhand !== 'line-height') expect(now.line / now.size, where).toBeCloseTo(rest.line / rest.size, 2);
+          if (longhand !== 'line-height') {
+            expect(Number.isInteger(now.line), `${where}: the line, ${now.line}px, is a whole pixel`).toBe(true);
+            expect(Math.abs(now.line - now.size * (rest.line / rest.size)), where).toBeLessThanOrEqual(0.5 + now.size / 100);
+          }
           if (longhand !== 'letter-spacing') expect(now.tracking / now.size, where).toBeCloseTo(rest.tracking / rest.size, 2);
         });
       }

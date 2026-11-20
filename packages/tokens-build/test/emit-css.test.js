@@ -144,6 +144,27 @@ test('a type role reaches CSS as its longhands only: no `font` composite, for a 
   }
 });
 
+test('a role\'s line is a whole pixel on every platform: CSS carries the one ratio, which the web rounds where it draws, and the IR rounds it once', async () => {
+  for (const system of ['tanrei', 'm3-like', 'cupertino']) {
+    const model = await (await resolveSystem({ system })).model();
+    const css = emitCss(model, system === 'tanrei' ? {} : { scope: system });
+    for (const token of Object.values(model.tokens).filter((t) => t.type === 'typography' && !t.alias)) {
+      // The ratio, the one entry a product overrides: the text and every box that holds its lines read it where they
+      // are (src/styles/type.ts in the web package), so nothing is resolved on the root in its place.
+      assert.ok(css.includes(`${idToVar(token.id)}-line-height: ${token.value.lineHeight};`), `${system}: ${idToVar(token.id)}-line-height`);
+    }
+    for (const [role, style] of Object.entries(buildIR(model).typescale)) {
+      assert.ok(Number.isInteger(style.lineHeight), `${system}: ${role} draws a ${style.lineHeight}px line`);
+      // The rounding only takes off what writing the ratio to four places put on: 12 × 1.3333 = 15.9996 is a 16px line.
+      assert.ok(Math.abs(style.lineHeight - style.size * model.tokens[`tanrei.sys.typescale.${role}`].value.lineHeight) < 0.01, `${system}: ${role} is ${style.size}px on a ${style.lineHeight}px line`);
+    }
+  }
+  // The case that drew a 12px label 15.984px tall in Chromium (its layout unit floors 15.9996).
+  const model = await (await resolveSystem({ system: 'tanrei' })).model();
+  assert.equal(model.tokens['tanrei.sys.typescale.label-small'].value.lineHeight, 1.3333);
+  assert.equal(buildIR(model).typescale['label-small'].lineHeight, 16);
+});
+
 test('every shadow gets an -inset-ring companion (SPB-26): the ring layer inset, the blurred layers as they are; aliases forward it', async () => {
   const model = await (await resolveSystem({ system: 'tanrei' })).model();
   const rules = blocks(emitCss(model));

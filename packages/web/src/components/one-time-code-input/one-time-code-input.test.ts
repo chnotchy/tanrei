@@ -330,7 +330,7 @@ test.describe('behavior', () => {
     });
     near(style.size, await resolveToken(page, T('input-typescale-font-size')), 'text size');
     expect(style.numeric).toBe('tabular-nums');
-    near(glyph.height, style.size * Number(await page.evaluate((n) => getComputedStyle(document.documentElement).getPropertyValue(n), T('input-typescale-line-height'))), 'one line', 1);
+    near(glyph.height, Math.round(style.size * Number(await page.evaluate((n) => getComputedStyle(document.documentElement).getPropertyValue(n), T('input-typescale-line-height')))), 'one line', 1);
   });
 
   test('OTC-4: the value holds only what its type permits, read leniently — digits of any script and full-width digits and letters as ASCII, lower case as upper case; a character that is not permitted is dropped without entering a cell, moving the active cell or firing an event', async ({ page }) => {
@@ -493,7 +493,7 @@ test.describe('behavior', () => {
     const [cell, mark] = [await box(cells(page, 'code').nth(2)), await box(caret)];
     near(mark.x + mark.width / 2, cell.x + cell.width / 2, 'caret centred across');
     near(mark.y + mark.height / 2, cell.y + cell.height / 2, 'caret centred down');
-    const line = (await resolveToken(page, T('input-typescale-font-size'))) * Number(await page.evaluate((n) => getComputedStyle(document.documentElement).getPropertyValue(n), T('input-typescale-line-height')));
+    const line = Math.round((await resolveToken(page, T('input-typescale-font-size'))) * Number(await page.evaluate((n) => getComputedStyle(document.documentElement).getPropertyValue(n), T('input-typescale-line-height'))));
     near(mark.height, line, 'one line high');
     near(mark.width, await token(page, 'caret-width'), 'caret.width wide');
     await rootTokens(page, { [T('caret-width')]: '3px' });

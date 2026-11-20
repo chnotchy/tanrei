@@ -7,7 +7,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
-import { acmeSystemCss, fixtureHost, fixturesDocument, loadSpec, mountFixtures, resolveColor, resolveToken, tab, tabTo, rootTokens } from '../../test/harness.js';
+import { acmeSystemCss, fixtureHost, fixturesDocument, loadSpec, mountFixtures, resolveColor, resolveToken, tab, tabTo, rootTokens, withoutLineStep } from '../../test/harness.js';
 import { drawnOpticalSize, opticalSize } from '../../test/icons.js';
 import { motionEnded } from '../../test/motions.js';
 import { expectPressHeldAtEveryMoment } from '../../test/held-press.js';
@@ -103,7 +103,7 @@ const keepHere = (target: Locator) => target.evaluate((el) => el.addEventListene
 
 test.describe('the stylesheet', () => {
   test('every value is a token: no literal color, length, duration or opacity', () => {
-    const body = read('src/styles/previous-next-links.css').replace(/\/\*[\s\S]*?\*\//g, '');
+    const body = withoutLineStep(read('src/styles/previous-next-links.css').replace(/\/\*[\s\S]*?\*\//g, ''));
     const literals = [...body.matchAll(/:\s*([^;{}]+);/g)]
       .map((m) => m[1].replace(/var\([^()]*(\([^()]*\))*[^()]*\)/g, '').replace(/calc\(|\)/g, ''))
       .flatMap((value) => value.match(/#[0-9a-f]{3,8}\b|\brgba?\(|\bhsl|\b\d*\.?\d+(px|rem|em|ms|s)\b/gi) ?? []);

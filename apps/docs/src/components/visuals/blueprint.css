@@ -69,7 +69,7 @@
   font-family: var(--tanrei-comp-badge-label-typescale-font-family);
   font-size: var(--tanrei-comp-badge-label-typescale-font-size);
   font-weight: var(--tanrei-comp-badge-label-typescale-font-weight);
-  line-height: var(--tanrei-comp-badge-label-typescale-line-height);
+  line-height: round(nearest, var(--tanrei-comp-badge-label-typescale-line-height) * 1em, 1px);
   letter-spacing: var(--tanrei-comp-badge-label-typescale-letter-spacing);
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
@@ -83,7 +83,7 @@
   font-family: var(--tanrei-sys-typescale-label-small-font-family);
   font-size: var(--tanrei-sys-typescale-label-small-font-size);
   font-weight: var(--tanrei-sys-typescale-label-small-font-weight);
-  line-height: var(--tanrei-sys-typescale-label-small-line-height);
+  line-height: round(nearest, var(--tanrei-sys-typescale-label-small-line-height) * 1em, 1px);
   letter-spacing: var(--tanrei-sys-typescale-label-small-letter-spacing);
   font-variant-numeric: tabular-nums;
   white-space: nowrap;

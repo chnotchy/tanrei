@@ -151,7 +151,7 @@ test.describe('the parts and their text', () => {
       const [t, v] = [term(page, id, 2), value(page, id, 2)];
       for (const [part, name] of [[t, 'term'], [v, 'value']] as const) {
         expect(await px(part, 'font-size'), `${id} ${name}`).toBe(await resolveToken(page, T(`${name}-typescale-${ofSize}-font-size`)));
-        near(await px(part, 'line-height'), (await resolveToken(page, T(`${name}-typescale-${ofSize}-font-size`))) * Number(await css(page.locator('html'), T(`${name}-typescale-${ofSize}-line-height`))), 0.05);
+        near(await px(part, 'line-height'), Math.round((await resolveToken(page, T(`${name}-typescale-${ofSize}-font-size`))) * Number(await css(page.locator('html'), T(`${name}-typescale-${ofSize}-line-height`)))), 0.05);
         expect(await css(part, 'font-weight')).toBe((await css(page.locator('html'), T(`${name}-typescale-${ofSize}-font-weight`))).trim());
         expect(await css(part, 'color')).toBe(await resolveColor(page, T(`${name}-color`)));
         expect(await css(part, 'text-transform')).toBe('none');

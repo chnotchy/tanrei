@@ -198,7 +198,7 @@ export const styles = css`
        the page clips them. */
     ${unsafeCSS(paint(''))}
     /* SPB-14: the label's text role, whole. */
-    font: var(--_font-weight) var(--_font-size)/var(--_line-height) var(--_font-family);
+    font: var(--_font-weight) var(--_font-size)/round(nearest, var(--_line-height) * 1em, 1px) var(--_font-family);
     letter-spacing: var(--_tracking);
     -webkit-user-select: none;
     user-select: none;
