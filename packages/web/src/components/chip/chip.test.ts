@@ -15,6 +15,7 @@ import { motionCount, motionEnded } from '../../../test/motions.js';
 import { holdClock, releaseClock } from '../../../test/page-clock.js';
 import { simulateMacClickFocus } from '../../../test/click-focus.js';
 import { expectBaseline } from '../../../test/baseline.js';
+import { type HeldGlyph, expectGlyphsHeldBack } from '../../../test/held-glyphs.js';
 
 const spec = loadSpec('chip');
 type P = Page;
@@ -1861,5 +1862,21 @@ test.describe('link form', () => {
     await listen(host(page, 'input'));
     await removeOf(page, 'input').click();
     expect(await events(page)).toMatchObject({ click: 0, remove: 1 });
+  });
+});
+
+test.describe('a glyph the icon set cannot draw yet', () => {
+  test('CHP-41: while the icon set cannot draw them, the icon slot’s glyph, the check, the remove glyph and the new-context mark draw nothing — never their names — and keep their boxes; the chip, its label, its name and its state stay; once it can, the glyphs are drawn where they were', async ({ page }) => {
+    await mountFixtures(page, spec);
+    const glyphs: HeldGlyph[] = [
+      { name: 'the icon', host: host(page, 'action-outlined'), box: '.glyph.icon' },
+      { name: 'the check', host: host(page, 'filter-selected'), box: '.glyph.check' },
+      { name: 'the remove glyph', host: host(page, 'input'), box: '.remove .glyph' },
+      { name: 'the new-context mark', host: host(page, 'action-link-new'), box: '.glyph.mark' },
+    ];
+    await expectGlyphsHeldBack(page, glyphs, async () => {
+      await expect(host(page, 'filter-selected').getByRole('button', { name: 'Vegetarian', pressed: true })).toHaveCount(1);
+      await expect(host(page, 'input').getByRole('button', { name: 'Remove Ada Lovelace' })).toHaveCount(1);
+    });
   });
 });

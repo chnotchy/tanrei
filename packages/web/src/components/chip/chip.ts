@@ -4,6 +4,7 @@ import { html, literal } from 'lit/static-html.js';
 import { hiddenHost } from '../../primitives/hidden.js';
 import {
   AvailabilityController,
+  GlyphDrawnController,
   GlyphMirrorController,
   LINK_MARK,
   LinkController,
@@ -204,6 +205,14 @@ export class TanreiChip extends TanreiElement {
    * opens a new context is named — the icon set mirrors `open_in_new`.
    */
   private readonly mirror = new GlyphMirrorController(this, { slots: 'slot[name="icon"]', drawn: '.mark' });
+
+  /**
+   * CHP-41: each glyph box carries `data-drawn` while the icon set can draw its glyph — the icon slot's, the check, the
+   * new-context mark, the remove glyph; until then it draws nothing (src/primitives/glyph.ts). Decided in the frame a chip
+   * is first drawn, with every other on the page (`firstInFrame`): a page draws many.
+   */
+  private readonly iconDrawn = new GlyphDrawnController(this, () => this.renderRoot.querySelectorAll<HTMLElement>('.glyph.icon'), { firstInFrame: true, slotted: true });
+  private readonly glyphsDrawn = new GlyphDrawnController(this, () => this.renderRoot.querySelectorAll<HTMLElement>('.glyph:not(.icon)'), { firstInFrame: true });
 
   /**
    * CHP-33 … CHP-37: the link an action chip is while it has a destination, what its anchor carries, and what a debug
@@ -448,13 +457,13 @@ export class TanreiChip extends TanreiElement {
                 <span part="avatar" class="avatar" data-tanrei-shape><slot name="avatar" @slotchange=${this.#onAvatarSlotChange}></slot></span>
                 <span class="glyphs">
                   <span part="icon" class="glyph icon"><slot name="icon" @slotchange=${this.#onIconSlotChange}></slot></span>
-                  <span part="check" class="glyph check">${CHECK_GLYPH}</span>
+                  <span part="check" class="glyph check"><span class="ink">${CHECK_GLYPH}</span></span>
                 </span>
               </span>
             </span>
           </span>
           <span part="label" class="label" dir=${ownDirection(this.label)}>${this.label}</span>
-          <span class="trail" aria-hidden="true">${link?.opensNew ? html`<span class="glyph mark">${LINK_MARK}</span>` : nothing}</span>
+          <span class="trail" aria-hidden="true">${link?.opensNew ? html`<span class="glyph mark"><span class="ink">${LINK_MARK}</span></span>` : nothing}</span>
         </${tag}>
         <button
           part="remove"
@@ -475,7 +484,7 @@ export class TanreiChip extends TanreiElement {
           @blur=${this.removePress.onBlur}
           @focus=${this.#onFocus}
         >
-          <span class="glyph" aria-hidden="true">${REMOVE_GLYPH}</span><span class="hold"></span>
+          <span class="glyph" aria-hidden="true"><span class="ink">${REMOVE_GLYPH}</span></span><span class="hold"></span>
         </button>
       </span>
     `;

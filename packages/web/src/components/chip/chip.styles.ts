@@ -461,6 +461,20 @@ export const styles = css`
     align-items: center;
     justify-content: center;
   }
+  /* The ligature's own width, which GlyphDrawnController compares with the glyph box: a box of its own (the check's box is
+     an inline block, the others flex boxes, where it is never shrunk). */
+  .ink {
+    display: inline-block;
+    flex: none;
+    vertical-align: top;
+  }
+  /* CHP-41: nothing in a glyph's place until the icon set can draw it (GlyphDrawnController sets data-drawn) — never its
+     name spelled in a text face. What is hidden is the glyph inside the box (the slotted glyph inherits the slot's
+     visibility), so the box keeps its size and its own opacity (the check's selection motion) is left alone. */
+  .glyph:not([data-drawn]) > .ink,
+  .glyph.icon:not([data-drawn]) slot {
+    visibility: hidden;
+  }
   ::slotted(svg),
   ::slotted(img:not([slot='avatar'])) {
     display: block;
