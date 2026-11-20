@@ -139,7 +139,7 @@ function whenParsed(task: () => void) {
  *
  * @tag tanrei-number-input
  * @csspart container - The input's box.
- * @csspart outline - A stacked number input's inner line, or an outlined one's border.
+ * @csspart outline - A stacked number input's inner line, or an outlined one's border — a box that draws nothing: the `::before` of it (stacked) or of its pieces (outlined) draws the line.
  * @csspart active-indicator - The line along the bottom of a filled number input.
  * @csspart label - The label floating in a filled or an outlined number input.
  * @csspart requirement-label - The required asterisk after a floating label.

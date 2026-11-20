@@ -310,7 +310,7 @@ function labelLines(copy: HTMLElement | null): { count: number; widest: number }
  * @slot trailing-icon - An icon at the end of the field, or the product's own icon-only Button. The clear button and a date or time field's picker button come after it. A glyph is mirrored in right-to-left as in `leading-icon`.
  * @slot entries - What was entered already — the product's own elements, or the chips of a component that holds the input (a chip field): laid out inside the box before the typing part, in lines that wrap (TXI-64). The text input gives them no role, no focus order and no key (TXI-66).
  * @csspart container - The box around the input: its fill, corners and hover state layer.
- * @csspart outline - The outlined variant's border (with the gap for the floated label); a stacked field's inner line.
+ * @csspart outline - The outlined variant's border (with the gap for the floated label); a stacked field's inner line — a box that draws nothing: the `::before` of it (stacked) or of its pieces (outlined) draws the line.
  * @csspart active-indicator - The filled variant's bottom line.
  * @csspart label - The label that floats in a filled or an outlined box.
  * @csspart requirement-label - The required asterisk, or the optional word, after a floating label.

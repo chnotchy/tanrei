@@ -1967,8 +1967,9 @@ minimum target extends the container vertically (a 48 container already is the t
 
 **Stacked (TXI-26).** The label above a stacked input is its Field's row (FLD-2); the input draws none. The
 container has no edge at rest (`stacked.outline.color` is transparent); focused, a line of the focused outline color
-and width is drawn **inside** the container's edge — an absolutely placed box with a border, following the corners
-(`corner-shape: inherit`), so nothing inside moves as it appears; in error the same line is drawn at rest in
+and width is drawn **inside** the container's edge — the border of an absolutely placed box (the `::before` of the
+hidden `outline` part: see "The edges draw as no element" below), following the corners (`corner-shape: inherit`), so
+nothing inside moves as it appears; in error the same line is drawn at rest in
 `stacked.error.outline.color` at `outline.width`. Hover is the state layer on the container. The placeholder and the
 affixes show whenever the value is empty, because the label is never in the input line.
 
@@ -2875,6 +2876,28 @@ and `<state>-opacity`); the number input where its steppers stand and how a hold
 shape and hairline (its size is the box's `icon-size-*`). `size` and `variant` of the five are the box's
 (`TanreiInputBoxSizeRegistry`, `TanreiInputBoxVariantRegistry` in `@tanrei/web/registry`): a layer that adds a look or
 a size adds it to the box and all five take it; the select offers `small`, the four others do not.
+
+**The edges draw as no element.** The edges stand over the box's text: a stacked box's inner line (`::part(outline)`,
+`.edge`) and an outlined box's outline (`::part(outline)`, `.outline`, its three pieces `.outline-start`,
+`.outline-notch` and `.outline-end`) are boxes over the container, above the value, the placeholder and the floating
+label in the paint order. An element there is, to a contrast checker (axe's `color-contrast`, which builds its own
+paint order of every visible element with a size and ignores `pointer-events`), an element covering the text: it left
+every text of every input box incomplete ("overlapped by another element") instead of checking it, so faint text in a
+field was never reported. So the edge part and the pieces are `visibility: hidden` and draw nothing, and the `::before`
+of each draws its line — the border, its widths, its colors and their transition (`border-color`, `border-width` over
+`motion.state-*`) — at the same place in the paint order, a box of the same size. A pseudo-element is not seen as an
+element. Read an edge's drawn color or width from its `::before` (`getComputedStyle(edge, '::before')`); WebKit reports
+a pseudo-element's `transition-duration` from before a change of reduced motion, though the transition it runs has the
+new one, so a test reads the duration of the transition the line runs. In forced colors the parts are not displayed and
+the container draws its system-color edge. A filled box's active indicator, a line along the bottom, covers no text and
+stays an element. The shared rules are `triggerEdgeStyles()` (`src/primitives/field-trigger.ts`) for the select, the
+combobox, the number input and the color input, and the text input's own (`src/primitives/input-box-contrast.test.ts`
+checks every control and field of the box). What is drawn is the same, at rest and hovered, in every engine; in
+Chromium, an outlined box whose input has focus draws a few pixels of its outline's corners with a different
+antialiasing (a channel off by 1 in most, by up to 49 at a corner): the outline that drew itself was composited as a
+layer of its own over the focused input, and an outline that draws nothing is not. A select's placeholder under its
+resting label is hidden as well as transparent (SEL-16), so that no text drawn in no color is left for a checker to find
+under the label.
 
 ## `<tanrei-combobox>`
 
