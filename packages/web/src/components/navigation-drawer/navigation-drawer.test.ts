@@ -4437,9 +4437,41 @@ test.describe('the row model shared with the tree view', () => {
     await expect.poll(pinned).toEqual(['2026', 'February']);
     const top = (await bounds(scroller)).y;
     const rows = await Promise.all([0, 1].map(async (n) => bounds(groupRow(page, id, n))));
+    const gap = await px(page, T('container-gap-medium'));
     expect(rows[0].y).toBeCloseTo(top, 0);
-    expect(rows[1].y).toBeCloseTo(rows[0].y + rows[0].height, 0);
+    // The gap between two cells (NVD-12) under the one above, as in the list, so that each keeps the half of it in its
+    // hit area (NVD-6): a press on the outer row's lower edge is the outer row's, and the gap is split at its middle.
+    expect(rows[1].y).toBeCloseTo(rows[0].y + rows[0].height + gap, 0);
     expect(await group(page, id, 1).locator('.pinned-last').count()).toBe(1);
+    // What a press at a point goes to, through the shadow roots: the label of the row whose cell takes it.
+    const pressed = (y: number) =>
+      page.evaluate(
+        ([x, py]) => {
+          let at: Element | null = document.elementFromPoint(x, py);
+          while (at?.shadowRoot) {
+            const inner = at.shadowRoot.elementFromPoint(x, py);
+            if (!inner || inner === at) break;
+            at = inner;
+          }
+          const root = at?.getRootNode();
+          // A cell's host is its destination or group, whose label names it.
+          return root instanceof ShadowRoot ? ((root.host as unknown as { label?: string }).label ?? null) : null;
+        },
+        [rows[0].x + rows[0].width / 2, y],
+      );
+    const outerEnd = rows[0].y + rows[0].height;
+    expect(await pressed(outerEnd - 1.5)).toBe('2026');
+    expect(await pressed(outerEnd + gap / 2 - 1.5)).toBe('2026');
+    expect(await pressed(outerEnd + gap / 2 + 0.5)).toBe('February');
+    // Under the last pinned row the rows scroll by: 4 further, the first row shown under it (Week 4) begins 2 below it,
+    // less than the gap. A press in that room goes to the nearer row (BTN-5): the pinned row reaches half of it, not half
+    // the gap, which would take the row's own upper edge.
+    await scroller.evaluate((el) => (el.scrollTop = 190));
+    const band = rows[1].y + rows[1].height;
+    await expect.poll(async () => (await bounds(cell(page, id, 4))).y - band).toBeCloseTo(2, 0);
+    await expect.poll(() => pressed(band + 0.25)).toBe('February');
+    expect(await pressed(band + 1.5)).toBe('Week 4');
+    await scroller.evaluate((el) => (el.scrollTop = 186));
     // A focused row under the pinned rows is brought in below them.
     await page.mouse.click(790, 5);
     const target = cell(page, id, 3);

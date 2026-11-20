@@ -2358,7 +2358,24 @@ test.describe('ranges, actions, motion, overflow and semantics', () => {
     expect((await bounds(host(page, 'h').locator('.dial'))).x).toBeLessThan((await bounds(shownRow(page, 'h', 'display'))).x);
   });
 
-  test('DTM-40: unknown values of the closed props behave as the default and are reported; malformed values, value with a range, a date-time end before its start and min after max are ignored and reported', async ({ page }) => {
+  test('DTM-39, BTN-5: right to left, the hour and the minute, still left to right, each keep their hit area centred on them — a press in the gap nearer the minute never goes to the hour', async ({ page }) => {
+    await mount(page, [{ ...opened('t', { mode: 'time', value: '07:30', entryMode: 'dial' }), direction: 'rtl' }]);
+    const [hour, minute] = [selector(page, 't', 'hour'), selector(page, 't', 'minute')];
+    const [h, m] = [await bounds(hour), await bounds(minute)];
+    expect(h.x + h.width).toBeLessThan(m.x);
+    await minute.click();
+    await expect(minute).toHaveClass(/selected/);
+    // A selector is at least the target in the default system, so its hit area is its box: the hour's stops at its own
+    // inline end, and nothing of it lies in the gap to the minute (it lay a half selector toward the minute when its
+    // centring followed the picker's direction rather than its own).
+    await page.mouse.click(m.x - 2, m.y + m.height / 2);
+    await expect(minute).toHaveClass(/selected/);
+    await expect(hour).not.toHaveClass(/selected/);
+    await page.mouse.click(h.x + h.width - 2, h.y + h.height / 2);
+    await expect(hour).toHaveClass(/selected/);
+  });
+
+  test('DTM-40:unknown values of the closed props behave as the default and are reported; malformed values, value with a range, a date-time end before its start and min after max are ignored and reported', async ({ page }) => {
     const seen = warnings(page);
     await mount(page, [
       opened('a', { presentation: 'sheet', mode: 'week', hourCycle: 'h24', entryMode: 'text', unit: 'second', layout: 'grid', startView: 'decade', firstDayOfWeek: 'someday', value: '17/09/2026' }),
