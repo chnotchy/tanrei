@@ -3619,7 +3619,7 @@ private object CupertinoSystemSource {
         TanreiFabMenuTokens(
             containerShapeOpen = 9999.dp,
             itemGap = 8.dp,
-            itemHeight = 48.dp,
+            itemHeight = 44.dp,
             itemIconSize = 20.dp,
             itemLabelTypescale = typescale.label,
             itemPaddingInlineEnd = 20.dp,

@@ -30596,7 +30596,7 @@
             "medium": {
               "$type": "dimension",
               "$value": {
-                "value": 48,
+                "value": 40,
                 "unit": "px"
               }
             },
@@ -52342,7 +52342,7 @@
             "medium": {
               "$type": "dimension",
               "$value": {
-                "value": 48,
+                "value": 40,
                 "unit": "px"
               }
             },
@@ -72088,7 +72088,7 @@
               "medium": {
                 "$type": "dimension",
                 "$value": {
-                  "value": 48,
+                  "value": 40,
                   "unit": "px"
                 }
               },
@@ -74730,7 +74730,7 @@
             "medium": {
               "$type": "dimension",
               "$value": {
-                "value": 48,
+                "value": 40,
                 "unit": "px"
               }
             },
