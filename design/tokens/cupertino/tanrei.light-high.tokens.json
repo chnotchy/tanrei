@@ -16544,7 +16544,7 @@
               "value": 48,
               "unit": "px"
             },
-            "$description": "The side of the square each weekday name and each day occupies, and the height of a row of years. Never smaller than the minimum target: the cells are the days' hit areas and cannot extend over each other."
+            "$description": "The side of the square each weekday name and each day occupies, and the height of a row of years and of the navigation row. Never smaller than the minimum target: the cells are the days' hit areas and cannot extend over each other. It is the pitch of the grid, which holds a touch target for every day, and no control on a row: it does not follow the control height; the day's and the year's containers, the view toggle and the Buttons in it do."
           }
         },
         "day": {
@@ -17932,7 +17932,7 @@
                 "value": 36,
                 "unit": "px"
               },
-              "$description": "The least height of the month-and-year button; its hit area extends to the minimum target."
+              "$description": "The least height of the month-and-year button: the control height (40 in the default system), so that it stands as tall as the previous and next Buttons beside it in the navigation row. Never below the minimum target; its hit area extends to the pointer and touch targets."
             },
             "padding-inline": {
               "$type": "dimension",
@@ -18036,7 +18036,8 @@
               "$value": {
                 "value": 36,
                 "unit": "px"
-              }
+              },
+              "$description": "The height of a year's container: the control height (40 in the default system), as a day's container is, centred in its row of cell.size. Never below the minimum target."
             },
             "shape": {
               "$type": "dimension",
@@ -32457,7 +32458,7 @@
                 "value": 48,
                 "unit": "px"
               },
-              "$description": "The least height of a range field, one end of a span of times in the range display. 48 in the default system, above the touch target, because a press on it chooses which end the wheels or the dial set."
+              "$description": "The least height of a range field, one end of a span of times in the range display: the control height (40 in the default system), so that the range display stands as tall as a field and the Buttons of the picker. Never below the minimum target, because a press on it chooses which end the wheels or the dial set."
             },
             "padding-inline": {
               "$type": "dimension",
@@ -33246,7 +33247,7 @@
                 "value": 48,
                 "unit": "px"
               },
-              "$description": "The height of one value on a wheel. At least the minimum target: a press on a row above or below the middle moves it to the middle."
+              "$description": "The height of one value on a wheel. At least the minimum target: a press on a row above or below the middle moves it to the middle. It is the pitch of one control, the wheel, which holds five of its rows in wheel.height beside the dial, and not a control on a row: it does not follow the control height."
             }
           },
           "selected-label": {
@@ -61961,7 +61962,7 @@
               "value": 44,
               "unit": "px"
             },
-            "$description": "Minimum height of a cell (48): the text field’s medium height, so that a code input and a text field in one form are equally tall."
+            "$description": "Minimum height of a cell: the control height (40 in the default system), a medium text field's, so that a code input and a text field in one form, and the Button that sends the code, are equally tall. Never below the minimum target: a finger aims at each cell."
           },
           "padding-inline": {
             "$type": "dimension",
@@ -68309,7 +68310,7 @@
               "value": 36,
               "unit": "px"
             },
-            "$description": "The bar's minimum height: Button's large and the large text field's, so a search bar shares a row with them."
+            "$description": "The bar's minimum height: the control height (40 in the default system), so that a search bar stands as tall as the Buttons, the fields and the button trigger beside it, never below the minimum target. The icon-only Buttons it holds are of that height and stand in it as they stand in a row."
           },
           "padding-inline": {
             "$type": "dimension",
@@ -68452,7 +68453,7 @@
               "value": 56,
               "unit": "px"
             },
-            "$description": "The full-screen view's top row (back button, input, clear button): the small app bar's height."
+            "$description": "The full-screen view's top row (back button, input, clear button): the small app bar's height. It is the frame of a view and no control on a row, so it does not follow the control height: the controls it holds do."
           },
           "padding-inline": {
             "$type": "dimension",

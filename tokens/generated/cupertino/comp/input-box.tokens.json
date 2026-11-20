@@ -81,7 +81,7 @@
               "label.color and required-asterisk.color are the floating label's. A stacked box draws no label, so those two of the stacked look are read by nothing that ships; they stand for the uniform shape of a look. The label above a box, the requirement tag, the help and the error are the Field's (comp.field.*).",
               "input is the line that shows the value, whether it was typed or chosen; leading-icon and trailing-icon are whatever glyph a control draws at that end (a select's chevron is a trailing icon, a color input's swatch stands where a leading icon stands and has icon.size); affix is a prefix or a suffix beside the value.",
               "Heights are minimums: a box grows with enlarged text, with several lines, and to hold a floated label above the value's line.",
-              "A stacked box is as tall as a Button of the same size name (stacked.container.height aliases comp.button.container.height), so that an input and a Button set side by side in one row stand as tall as each other; a filled or an outlined box keeps the taller container.height, because the label floats inside it above the value's line. Where a box is shorter than the minimum target, its hit area reaches beyond the drawn box.",
+              "A stacked box is as tall as a Button of the same size name (stacked.container.height aliases comp.button.container.height), so that an input and a Button set side by side in one row stand as tall as each other; a filled or an outlined box reads container.height, the step of the same size of the control height ladder, so a medium box of every look is the control height. A filled box that draws its label holds the floated label above the value's line and is taller where the two lines need it. Where a box is shorter than the minimum target, its hit area reaches beyond the drawn box.",
               "The focused look (the inner line, indicator or outline color and width, the floating label's color) is valued by the focused state tokens; no separate focus ring is drawn on a box.",
               "Each look's state-layer.color (and its error. twin) is the color the hover state layer mixes into the container; it aliases the input color. An outlined box and a focused box draw no state layer.",
               "Restyle through these tokens in a layer; never fork a component."
@@ -132,7 +132,7 @@
           },
           "height": {
             "$type": "dimension",
-            "$description": "Minimum height of the container of a box of one line that floats its label inside it — a filled or an outlined box — per size (40 / 48 / 56): the room for the floated label above the value's line; small is for a bar or a toolbar, where the target reaches beyond the drawn box. A stacked box reads stacked.container.height instead. This is the one literal of the set: stacked.container.height aliases the Button's heights, and no other group holds a height of the box.",
+            "$description": "Minimum height of the container of a box of one line that floats its label inside it — a filled or an outlined box — per size: the step of the control height ladder of its size (36 / 40 / 56 in the default system, the small one held at the minimum target), so that a medium box stands as tall as the Buttons and the stacked boxes beside it. An outlined box floats its label onto its edge and is that tall; a filled box that draws its label holds it above the value's line and is as tall as the two lines and padding-block-with-label need where that is more. Small is for a bar or a toolbar, where the target reaches beyond the drawn box. A stacked box reads stacked.container.height instead. This is the one literal of the set: stacked.container.height aliases the Button's heights, and no other group holds a height of the box.",
             "small": {
               "$value": {
                 "value": 34,
@@ -156,7 +156,8 @@
                   "fn": "mul",
                   "of": "{tanrei.dial.size.unit}",
                   "by": 8.5
-                }
+                },
+                "dev.tanrei.aligned": "control"
               }
             },
             "large": {
@@ -203,7 +204,7 @@
           },
           "padding-block": {
             "$type": "dimension",
-            "$description": "Vertical padding around the value's line of a filled or an outlined box whose label is not drawn; a stacked box reads stacked.container.padding-block. Heights are minimums, so this shows only for several lines or enlarged text.",
+            "$description": "Vertical padding around the value's line of a filled or an outlined box whose label is not drawn, a stacked box's at each size (6 / 6 / 14 in the default system); a stacked box reads stacked.container.padding-block. Each gives up half of what its height loses below its step at the control height's reference, so that one line of the value fits at every control height. Heights are minimums, so this shows only for several lines or enlarged text.",
             "small": {
               "$value": "{tanrei.sys.space.space75}",
               "$extensions": {}
@@ -219,19 +220,10 @@
           },
           "padding-block-with-label": {
             "$type": "dimension",
-            "$description": "Vertical padding of a filled box whose label is shown: the floated label and the value's line stack inside it.",
+            "$description": "Vertical padding of a filled box whose label is shown: the floated label and the value's line stack inside it, so that box is twice this, the floated label's line and the value's line tall where that is more than its height (2 / 4 / 4 in the default system). Each gives up half of what its height loses below its step at the control height's reference.",
             "small": {
-              "$value": {
-                "value": 2,
-                "unit": "px"
-              },
-              "$extensions": {
-                "dev.tanrei.derive": {
-                  "fn": "pad",
-                  "of": "{tanrei.sys.space.space25}",
-                  "height": "{tanrei.comp.input-box.container.height.small}"
-                }
-              }
+              "$value": "{tanrei.sys.space.space25}",
+              "$extensions": {}
             },
             "medium": {
               "$value": {

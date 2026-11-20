@@ -652,11 +652,11 @@ test.describe('behavior', () => {
     const [rowGap, line] = [await token(page, 'supporting-text-gap'), Math.round((await box(control(page, 'grow'))).height)];
     const appearing = await sampleFrames(stage(page, 'grow'), () => setNow(page, 'grow', { error: true }), { probe: rowProbe });
     const [before, rest] = [appearing.before.probe, appearing.rest.probe];
-    // About 48 to 68: the control alone, then the control, the row's gap and one line of error text.
+    // About 40 to 60: the control alone, then the control, the row's gap and one line of error text.
     expect([Math.round(Number(before.height)), Math.round(Number(rest.height))]).toEqual([line, line + rowGap + 16]);
-    expect(line, 'an outlined text input of the default size').toBe(48);
+    expect(line, 'an outlined text input of the default size, the control height').toBe(40);
     expectAnimated(appearing, 'height', { minSteps: 4 });
-    // One motion: the height never turns back, and never leaves the path from 48 to 68 (MOT-2).
+    // One motion: the height never turns back, and never leaves the path from 40 to 60 (MOT-2).
     const heights = [before, ...appearing.frames.map((frame) => frame.probe), rest].map((probe) => Number(probe.height));
     for (let i = 1; i < heights.length; i++) expect(heights[i]!, `frame ${i - 1} does not shrink`).toBeGreaterThanOrEqual(heights[i - 1]! - 0.01);
     // Anchored at its top: the field and its control stay, the error text keeps its offset from the control, and the
