@@ -53191,7 +53191,7 @@
             "small": {
               "$type": "dimension",
               "$value": {
-                "value": 4,
+                "value": 2,
                 "unit": "px"
               }
             }
@@ -91083,7 +91083,7 @@
             "medium": {
               "$type": "dimension",
               "$value": {
-                "value": 12,
+                "value": 16,
                 "unit": "px"
               }
             },
@@ -91356,6 +91356,22 @@
               "unit": "px"
             },
             "$description": "The empty space between two rows while separation is gap, in place of the line. Added to the cells' own block padding."
+          },
+          "height": {
+            "medium": {
+              "$type": "dimension",
+              "$value": {
+                "value": 52,
+                "unit": "px"
+              }
+            },
+            "small": {
+              "$type": "dimension",
+              "$value": {
+                "value": 0,
+                "unit": "px"
+              }
+            }
           },
           "selected": {
             "container": {

@@ -5780,7 +5780,8 @@
                 "fn": "mul",
                 "of": "{tanrei.dial.size.unit}",
                 "by": 14
-              }
+              },
+              "reason": "Material 3's one-line list item is 56dp: this preset keeps it, where the default system draws a list item at the control height."
             },
             "tanrei.comp.list.container.padding-inline-end": {
               "$value": "{tanrei.sys.space.space300}"
@@ -5798,6 +5799,94 @@
             "tanrei.comp.list-row.container.padding-inline-end": {
               "$value": "{tanrei.sys.space.space300}",
               "reason": "Material's list item keeps 24 after its last part, as this preset's list items do."
+            },
+            "tanrei.comp.list-row.container.height.one-line.medium": {
+              "derive": {
+                "fn": "mul",
+                "of": "{tanrei.dial.size.unit}",
+                "by": 14
+              },
+              "reason": "Material 3's list item is 56dp with one line: this preset keeps it, where the default system draws a one-line row at the control height."
+            },
+            "tanrei.comp.list-row.container.height.two-line.medium": {
+              "derive": {
+                "fn": "mul",
+                "of": "{tanrei.dial.size.unit}",
+                "by": 18
+              },
+              "reason": "Material 3's two-line list item is 72dp: this preset keeps it, where the default system adds the line of the supporting text to a one-line row."
+            },
+            "tanrei.comp.list-row.container.height.three-line.medium": {
+              "derive": {
+                "fn": "mul",
+                "of": "{tanrei.dial.size.unit}",
+                "by": 22
+              },
+              "reason": "Material 3's three-line list item is 88dp: this preset keeps it, where the default system adds two lines of the supporting text to a one-line row."
+            },
+            "tanrei.comp.list-row.container.height.one-line.small": {
+              "derive": {
+                "fn": "mul",
+                "of": "{tanrei.dial.size.unit}",
+                "by": 10
+              },
+              "reason": "This preset keeps the small rows it drew (40, 56 and 72 for one, two and three lines), where the default system draws them from the small step; Material 3 has no small list item to measure them by."
+            },
+            "tanrei.comp.list-row.container.height.two-line.small": {
+              "derive": {
+                "fn": "mul",
+                "of": "{tanrei.dial.size.unit}",
+                "by": 14
+              },
+              "reason": "This preset keeps the small rows it drew (40, 56 and 72 for one, two and three lines), where the default system draws them from the small step; Material 3 has no small list item to measure them by."
+            },
+            "tanrei.comp.list-row.container.height.three-line.small": {
+              "derive": {
+                "fn": "mul",
+                "of": "{tanrei.dial.size.unit}",
+                "by": 18
+              },
+              "reason": "This preset keeps the small rows it drew (40, 56 and 72 for one, two and three lines), where the default system draws them from the small step; Material 3 has no small list item to measure them by."
+            },
+            "tanrei.comp.accordion.container.height.medium": {
+              "derive": {
+                "fn": "mul",
+                "of": "{tanrei.dial.size.unit}",
+                "by": 14
+              },
+              "reason": "This preset keeps the header it drew (56 at medium, 48 at small), where the default system draws a header at a step of the control height; Material 3 has no accordion to measure it by."
+            },
+            "tanrei.comp.accordion.container.height.small": {
+              "derive": {
+                "fn": "mul",
+                "of": "{tanrei.dial.size.unit}",
+                "by": 12
+              },
+              "reason": "This preset keeps the header it drew (56 at medium, 48 at small), where the default system draws a header at a step of the control height; Material 3 has no accordion to measure it by."
+            },
+            "tanrei.comp.accordion.container.padding-block.medium": {
+              "$value": "{tanrei.sys.space.space200}",
+              "reason": "This preset keeps the padding of the header it drew, with the header's 56."
+            },
+            "tanrei.comp.accordion.container.padding-block.small": {
+              "$value": "{tanrei.sys.space.space150}",
+              "reason": "This preset keeps the padding of the header it drew, with the header's 48."
+            },
+            "tanrei.comp.table.row.height.medium": {
+              "derive": {
+                "fn": "mul",
+                "of": "{tanrei.dial.size.unit}",
+                "by": 13
+              },
+              "reason": "Material's data table row is 52dp: this preset keeps it, where the default system draws a row at the control height."
+            },
+            "tanrei.comp.table.cell.padding-block.medium": {
+              "$value": "{tanrei.sys.space.space200}",
+              "reason": "Material's data table centres one line of a cell (body-medium, 20dp) in its 52dp row: 16 above and below."
+            },
+            "tanrei.comp.table.row.height.small": {
+              "$value": "{tanrei.sys.space.space0}",
+              "reason": "This preset keeps the small rows it drew, as tall as their cells (28), where the default system holds them at the small step; Material has no small data table row to measure them by."
             },
             "tanrei.comp.code-block.line.added.container.color": {
               "derive": {

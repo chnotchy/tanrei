@@ -24974,12 +24974,15 @@ extension type const TanreiTableSize(String name) {
 @immutable
 class TanreiTableSizeTokens {
   const TanreiTableSizeTokens({
+    required this.rowHeight,
     required this.cellPaddingBlock,
     required this.cellPaddingInline,
     required this.cellTextTypescale,
     required this.headerTextTypescale,
   });
 
+  /// `comp.table.row-height.<size>`
+  final double rowHeight;
   /// `comp.table.cell-padding-block.<size>`
   final double cellPaddingBlock;
   /// `comp.table.cell-padding-inline.<size>`
@@ -24991,11 +24994,13 @@ class TanreiTableSizeTokens {
 
   /// A copy with the given tokens replaced.
   TanreiTableSizeTokens copyWith({
+    double? rowHeight,
     double? cellPaddingBlock,
     double? cellPaddingInline,
     TanreiTextStyle? cellTextTypescale,
     TanreiTextStyle? headerTextTypescale,
   }) => TanreiTableSizeTokens(
+        rowHeight: rowHeight ?? this.rowHeight,
         cellPaddingBlock: cellPaddingBlock ?? this.cellPaddingBlock,
         cellPaddingInline: cellPaddingInline ?? this.cellPaddingInline,
         cellTextTypescale: cellTextTypescale ?? this.cellTextTypescale,

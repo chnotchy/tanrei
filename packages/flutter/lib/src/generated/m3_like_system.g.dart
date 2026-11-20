@@ -5347,7 +5347,7 @@ const TanreiSystem m3LikeSystem = TanreiSystem(
         containerHeightOneLine: 40.0,
         containerHeightTwoLine: 56.0,
         containerHeightThreeLine: 72.0,
-        containerPaddingBlock: 4.0,
+        containerPaddingBlock: 2.0,
       ),
       medium: TanreiListRowSizeTokens(
         containerHeightOneLine: 56.0,
@@ -9170,13 +9170,15 @@ const TanreiSystem m3LikeSystem = TanreiSystem(
     ),
     sizes: TanreiTableSizes(
       small: TanreiTableSizeTokens(
+        rowHeight: 0.0,
         cellPaddingBlock: 6.0,
         cellPaddingInline: 12.0,
         cellTextTypescale: _typescaleBodySmall,
         headerTextTypescale: _typescaleLabelSmall,
       ),
       medium: TanreiTableSizeTokens(
-        cellPaddingBlock: 12.0,
+        rowHeight: 52.0,
+        cellPaddingBlock: 16.0,
         cellPaddingInline: 16.0,
         cellTextTypescale: _typescaleBody,
         headerTextTypescale: _typescaleLabel,

@@ -5354,6 +5354,7 @@ export type TanreiCoreTableSize = "small" | "medium";
 
 /** The tokens of one `size` of `comp.table`. */
 export interface TanreiTableSizeTokens {
+  readonly rowHeight: number;
   readonly cellPaddingBlock: number;
   readonly cellPaddingInline: number;
   readonly cellTextTypescale: TanreiTypescaleRole;

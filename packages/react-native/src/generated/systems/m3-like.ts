@@ -8035,7 +8035,7 @@ export const m3Like = {
       trailingTextColor: { kind: "role", role: "onSurfaceVariant" },
       trailingTextTypescale: "bodySmall",
       sizes: {
-        small: { containerHeightOneLine: 40, containerHeightTwoLine: 56, containerHeightThreeLine: 72, containerPaddingBlock: 4 },
+        small: { containerHeightOneLine: 40, containerHeightTwoLine: 56, containerHeightThreeLine: 72, containerPaddingBlock: 2 },
         medium: { containerHeightOneLine: 56, containerHeightTwoLine: 72, containerHeightThreeLine: 88, containerPaddingBlock: 8 },
       },
     },
@@ -13397,8 +13397,8 @@ export const m3Like = {
         },
       },
       sizes: {
-        small: { cellPaddingBlock: 6, cellPaddingInline: 12, cellTextTypescale: "bodySmall", headerTextTypescale: "labelSmall" },
-        medium: { cellPaddingBlock: 12, cellPaddingInline: 16, cellTextTypescale: "body", headerTextTypescale: "label" },
+        small: { rowHeight: 0, cellPaddingBlock: 6, cellPaddingInline: 12, cellTextTypescale: "bodySmall", headerTextTypescale: "labelSmall" },
+        medium: { rowHeight: 52, cellPaddingBlock: 16, cellPaddingInline: 16, cellTextTypescale: "body", headerTextTypescale: "label" },
       },
     },
     tabs: {

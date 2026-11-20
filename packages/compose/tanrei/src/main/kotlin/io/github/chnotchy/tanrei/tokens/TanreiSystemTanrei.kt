@@ -794,8 +794,8 @@ private object TanreiSystemSource {
                 ),
             ),
             sizes = TanreiAccordionSizes(
-                small = TanreiAccordionSizeTokens(containerHeight = 48.dp, containerPaddingBlock = 12.dp, containerPaddingInline = 12.dp, labelTypescale = typescale.label, supportingTextTypescale = typescale.bodySmall, trailingTextTypescale = typescale.bodySmall, iconSize = 20.dp, chevronSize = 20.dp, contentPaddingBlockEnd = 12.dp),
-                medium = TanreiAccordionSizeTokens(containerHeight = 56.dp, containerPaddingBlock = 16.dp, containerPaddingInline = 16.dp, labelTypescale = typescale.heading5, supportingTextTypescale = typescale.body, trailingTextTypescale = typescale.body, iconSize = 24.dp, chevronSize = 24.dp, contentPaddingBlockEnd = 16.dp),
+                small = TanreiAccordionSizeTokens(containerHeight = 36.dp, containerPaddingBlock = 6.dp, containerPaddingInline = 12.dp, labelTypescale = typescale.label, supportingTextTypescale = typescale.bodySmall, trailingTextTypescale = typescale.bodySmall, iconSize = 20.dp, chevronSize = 20.dp, contentPaddingBlockEnd = 12.dp),
+                medium = TanreiAccordionSizeTokens(containerHeight = 40.dp, containerPaddingBlock = 8.dp, containerPaddingInline = 16.dp, labelTypescale = typescale.heading5, supportingTextTypescale = typescale.body, trailingTextTypescale = typescale.body, iconSize = 24.dp, chevronSize = 24.dp, contentPaddingBlockEnd = 16.dp),
             ),
         )
 
@@ -4980,8 +4980,8 @@ private object TanreiSystemSource {
             trailingTextColor = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant),
             trailingTextTypescale = typescale.bodySmall,
             sizes = TanreiListRowSizes(
-                small = TanreiListRowSizeTokens(containerHeightOneLine = 40.dp, containerHeightTwoLine = 56.dp, containerHeightThreeLine = 72.dp, containerPaddingBlock = 4.dp),
-                medium = TanreiListRowSizeTokens(containerHeightOneLine = 56.dp, containerHeightTwoLine = 72.dp, containerHeightThreeLine = 88.dp, containerPaddingBlock = 8.dp),
+                small = TanreiListRowSizeTokens(containerHeightOneLine = 36.dp, containerHeightTwoLine = 56.dp, containerHeightThreeLine = 76.dp, containerPaddingBlock = 4.dp),
+                medium = TanreiListRowSizeTokens(containerHeightOneLine = 40.dp, containerHeightTwoLine = 60.dp, containerHeightThreeLine = 80.dp, containerPaddingBlock = 8.dp),
             ),
         )
 
@@ -5081,7 +5081,7 @@ private object TanreiSystemSource {
             ),
             sizes = TanreiListSizes(
                 small = TanreiListSizeTokens(containerHeight = 36.dp, containerPaddingBlock = 6.dp),
-                medium = TanreiListSizeTokens(containerHeight = 48.dp, containerPaddingBlock = 8.dp),
+                medium = TanreiListSizeTokens(containerHeight = 40.dp, containerPaddingBlock = 8.dp),
             ),
         )
 
@@ -8444,8 +8444,8 @@ private object TanreiSystemSource {
                 ),
             ),
             sizes = TanreiTableSizes(
-                small = TanreiTableSizeTokens(cellPaddingBlock = 6.dp, cellPaddingInline = 12.dp, cellTextTypescale = typescale.bodySmall, headerTextTypescale = typescale.labelSmall),
-                medium = TanreiTableSizeTokens(cellPaddingBlock = 12.dp, cellPaddingInline = 16.dp, cellTextTypescale = typescale.body, headerTextTypescale = typescale.label),
+                small = TanreiTableSizeTokens(rowHeight = 32.dp, cellPaddingBlock = 6.dp, cellPaddingInline = 12.dp, cellTextTypescale = typescale.bodySmall, headerTextTypescale = typescale.labelSmall),
+                medium = TanreiTableSizeTokens(rowHeight = 40.dp, cellPaddingBlock = 9.dp, cellPaddingInline = 16.dp, cellTextTypescale = typescale.body, headerTextTypescale = typescale.label),
             ),
         )
 

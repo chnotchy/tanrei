@@ -5282,7 +5282,7 @@ const TanreiSystem cupertinoSystem = TanreiSystem(
         containerHeightOneLine: 40.0,
         containerHeightTwoLine: 56.0,
         containerHeightThreeLine: 72.0,
-        containerPaddingBlock: 4.0,
+        containerPaddingBlock: 2.0,
       ),
       medium: TanreiListRowSizeTokens(
         containerHeightOneLine: 44.0,
@@ -9105,12 +9105,14 @@ const TanreiSystem cupertinoSystem = TanreiSystem(
     ),
     sizes: TanreiTableSizes(
       small: TanreiTableSizeTokens(
+        rowHeight: 0.0,
         cellPaddingBlock: 6.0,
         cellPaddingInline: 12.0,
         cellTextTypescale: _typescaleBodySmall,
         headerTextTypescale: _typescaleLabelSmall,
       ),
       medium: TanreiTableSizeTokens(
+        rowHeight: 44.0,
         cellPaddingBlock: 12.0,
         cellPaddingInline: 16.0,
         cellTextTypescale: _typescaleBody,

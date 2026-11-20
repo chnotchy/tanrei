@@ -153,21 +153,12 @@ export function alignedTokens(documents) {
  * neither a step nor listed, and for a listed one that has become a step. Empty, every pressable height is a step.
  */
 export const HEIGHTS_NOT_YET_ON_THE_LADDER = Object.freeze([
-  'accordion.container.height.medium',
-  'accordion.container.height.small',
   'calendar.cell.size',
   'calendar.view-toggle.container.height',
   'calendar.year.container.height',
   'date-time-picker.range-field.container.height',
   'date-time-picker.wheel.row.height',
   'input-box.container.height.medium',
-  'list-row.container.height.one-line.medium',
-  'list-row.container.height.one-line.small',
-  'list-row.container.height.three-line.medium',
-  'list-row.container.height.three-line.small',
-  'list-row.container.height.two-line.medium',
-  'list-row.container.height.two-line.small',
-  'list.container.height.medium',
   'main-action-button.container.height.large',
   'one-time-code-input.container.height',
   'segmented-button.container.height.medium',

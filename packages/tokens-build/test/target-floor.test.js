@@ -32,12 +32,14 @@ test('the floored heights: every pressable height and row the core derives with 
     'comp.tree-view.container.height.small', // the small step of the ladder, with the minimum
     'comp.menu.container.height.small',
     'comp.select.option.height.small', // an alias of the menu's
-    'comp.list-row.container.height.three-line.medium',
+    'comp.list-row.container.height.one-line.medium',
     'comp.navigation-drawer.collapsed.item.container.width.small',
     'comp.snackbar.controls.height',
   ]) assert.ok(floors.includes(`${NS}.${id}`), id);
   for (const id of ['comp.tag.container.height.small', 'comp.chip.container.height.small', 'comp.checkbox.container.size', 'comp.app-bar.container.height.small']) assert.ok(!floors.includes(`${NS}.${id}`), `${id} is not floored: nobody presses it, a mark reaches, or a frame`);
-  assert.ok(floors.length >= 60, `${floors.length} floored heights`);
+  // A row of more lines adds its lines to the one-line row, which is floored: held up by it, it carries no floor of its own.
+  for (const id of ['comp.list-row.container.height.two-line.medium', 'comp.list-row.container.height.three-line.small']) assert.ok(!floors.includes(`${NS}.${id}`), `${id} adds to a floored height`);
+  assert.ok(floors.length >= 55, `${floors.length} floored heights`);
   // The pure form, over documents a caller holds (Theme Studio's sources).
   const doc = { tanrei: { comp: { x: { a: { $value: px(36), $extensions: { 'dev.tanrei.derive': { fn: 'mul', of: '{u}', by: 9, min: `{${NS}.sys.target.minimum}` } } }, b: { $value: `{${NS}.comp.x.a}` }, c: { $value: `{${NS}.comp.x.b}` }, d: { $value: px(4) } } } } };
   assert.deepEqual(targetFloors([doc]), [`${NS}.comp.x.a`, `${NS}.comp.x.b`, `${NS}.comp.x.c`]);
@@ -128,17 +130,18 @@ test('the sweep: at every control height and minimum no floored height is under 
         const expected = Math.max(minimum, tokens[`${NS}.sys.control.height.${step}`].$value.value);
         assert.deepEqual(ids.filter((id) => tokens[id].$value.value !== expected), [], `${at}: controls of the ${step} step`);
       }
-      if (minimum === 32) table[height] = ['button.container.height.small', 'button.container.height.medium', 'button.container.height.large', 'tree-view.container.height.medium', 'tree-view.container.height.small', 'list-row.container.height.one-line.medium'].map((id) => tokens[`${NS}.comp.${id}`].$value.value);
+      if (minimum === 32) table[height] = ['button.container.height.small', 'button.container.height.medium', 'button.container.height.large', 'tree-view.container.height.medium', 'tree-view.container.height.small', 'list-row.container.height.one-line.medium', 'list-row.container.height.two-line.medium', 'list-row.container.height.three-line.medium'].map((id) => tokens[`${NS}.comp.${id}`].$value.value);
     }
   }
   // Heights by control height at a minimum of 32: Button small, medium and large, a tree's row, a tree's small row, a
-  // one-line list row. The Button and the tree's rows follow the ladder, the medium row at the control height; the list
-  // row is not on it yet (HEIGHTS_NOT_YET_ON_THE_LADDER), and keeps its own.
+  // one-line, a two-line and a three-line list row. The Button, the tree's rows and the one-line list row follow the
+  // ladder, the medium rows at the control height; a row of more lines adds the line of its supporting text, five size
+  // units, for each line past the first.
   assert.deepEqual(table, {
-    32: [32, 32, 48, 32, 32, 56],
-    36: [32, 36, 52, 36, 32, 56],
-    40: [32, 40, 56, 40, 32, 56],
-    48: [40, 48, 64, 48, 40, 56],
-    56: [48, 56, 72, 56, 48, 56],
+    32: [32, 32, 48, 32, 32, 32, 52, 72],
+    36: [32, 36, 52, 36, 32, 36, 56, 76],
+    40: [32, 40, 56, 40, 32, 40, 60, 80],
+    48: [40, 48, 64, 48, 40, 48, 68, 88],
+    56: [48, 56, 72, 56, 48, 56, 76, 96],
   });
 });

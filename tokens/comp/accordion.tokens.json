@@ -64,7 +64,7 @@
               "The header is one button. Put no link, button or field in it; a static word such as a tag or a count is the trailing text or part of the label.",
               "The label is plain text. Where the page's outline needs the row as a heading, give a heading of the right level as the label's content; the accordion draws it as any label.",
               "Open is shown by the chevron alone. The header keeps its colors and weight when open: a primary fill means \"the one chosen now\", and an open item is not a choice.",
-              "A header and a navigation drawer's group row behave alike: the same chevron at the end, turned half a turn, the same motion tokens' values, the same keys. The small size is the drawer row's height and text style. Set the size on the accordion: an accordion that sets none takes the one its container sets.",
+              "A header and a navigation drawer's group row behave alike: the same chevron at the end, turned half a turn, the same motion tokens' values, the same keys. A medium header is as tall as a drawer's row, the control height; a small one is a small drawer row's height and text style. Set the size on the accordion: an accordion that sets none takes the one its container sets.",
               "plain draws rows on the surface it stands on; outlined bounds them with the one hairline. Separation decides whether the items of a set are ruled by a line or stand apart; in the outlined look a line keeps them in one box and a gap gives each its own.",
               "The content is the product's: the accordion gives it an inset and the space under it, and no text style or color.",
               "Each look's state-layer.color is the color hover, focus and press mix into the header; it aliases the look's label color.",
@@ -92,33 +92,32 @@
         "container": {
           "height": {
             "$type": "dimension",
-            "$description": "A header's least height, per size: the row that opens and closes an item, which carries hover, focus and press. Medium holds one line of a title with room around it, for a page a person reads; small is a navigation drawer's row and a menu item's height, for a panel among controls. Both are at least the touch target, because rows that touch cannot extend a hit area over each other. A minimum: a header grows with a wrapped label, a supporting text and enlarged text.",
+            "$description": "A header's least height, per size: the row that opens and closes an item, which carries hover, focus and press. Medium is the control height (40 in the default system), so that a header of the default size stands as tall as the Buttons and fields beside it, and as a navigation drawer's row; it holds one line of a title, for a page a person reads. Small is the small step (36 in the default system, held at the minimum target), a small navigation drawer row's height, for a panel among controls. Neither is ever lower than the target, because rows that touch cannot extend a hit area over each other. A minimum: a header grows with a wrapped label, a supporting text and enlarged text.",
             "medium": {
               "$value": {
-                "value": 56,
+                "value": 40,
                 "unit": "px"
               },
               "$extensions": {
                 "dev.tanrei.derive": {
                   "fn": "mul",
-                  "of": "{tanrei.dial.size.unit}",
-                  "by": 14,
-                  "round": "{tanrei.dial.size.unit}",
+                  "of": "{tanrei.sys.control.height.medium}",
+                  "by": 1,
                   "min": "{tanrei.sys.target.minimum}"
-                }
+                },
+                "dev.tanrei.aligned": "control"
               }
             },
             "small": {
               "$value": {
-                "value": 48,
+                "value": 36,
                 "unit": "px"
               },
               "$extensions": {
                 "dev.tanrei.derive": {
                   "fn": "mul",
-                  "of": "{tanrei.dial.size.unit}",
-                  "by": 12,
-                  "round": "{tanrei.dial.size.unit}",
+                  "of": "{tanrei.sys.control.height.small}",
+                  "by": 1,
                   "min": "{tanrei.sys.target.minimum}"
                 }
               }
@@ -126,29 +125,29 @@
           },
           "padding-block": {
             "$type": "dimension",
-            "$description": "Above the first line and below the last line of a header's text, per size. With one line of the label it gives the height exactly or leaves room; it holds the room when the text is enlarged or wraps.",
+            "$description": "Above the first line and below the last line of a header's text, per size: 8 at medium, which with one line of the label gives the height exactly, and 6 at small in the default system, the small header's 36 sharing what is left above and below the label. Each gives up half of what its header loses below its step at the control height's reference and takes half of what the target adds to it, so that one line of the label fits at every control height and size unit; it holds the room when the text is enlarged or wraps.",
             "medium": {
               "$value": {
-                "value": 16,
+                "value": 8,
                 "unit": "px"
               },
               "$extensions": {
                 "dev.tanrei.derive": {
                   "fn": "pad",
-                  "of": "{tanrei.sys.space.space200}",
+                  "of": "{tanrei.sys.space.space100}",
                   "height": "{tanrei.comp.accordion.container.height.medium}"
                 }
               }
             },
             "small": {
               "$value": {
-                "value": 12,
+                "value": 6,
                 "unit": "px"
               },
               "$extensions": {
                 "dev.tanrei.derive": {
                   "fn": "pad",
-                  "of": "{tanrei.sys.space.space150}",
+                  "of": "{tanrei.sys.space.space50}",
                   "height": "{tanrei.comp.accordion.container.height.small}"
                 }
               }
