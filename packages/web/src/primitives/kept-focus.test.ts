@@ -2,8 +2,11 @@
 // a script that inserts a control and focuses it at once — is kept, with its options, and given once the control has
 // drawn (`TanreiElement`, src/primitives/element.ts): unless something else took focus meanwhile, `blur()` was called,
 // or the control left the page. Before its first update a control's shadow root holds nothing to delegate to and the
-// part its own `focus()` goes to is not there, so without this the call lands nowhere. That every `focus()` and
-// `blur()` the package writes takes part is read by test/kept-focus.test.mjs.
+// part its own focus goes to is not there, so without this the call lands nowhere. The same holds where what holds
+// the control has not drawn yet: a dialog or a sheet told to open in the same task (`dialog.open = true;
+// field.focus()`), an app bar that shows a slot once it has seen what is in it — and the surface's own focus as it
+// opens does not take the place of the one the page asked for. That `focus()` is written once, in the base, and every
+// `blur()` the package writes takes part, is read by test/kept-focus.test.mjs.
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -37,6 +40,10 @@ const SUBJECTS: Record<string, string> = {
   'tanrei-text-field': '<tanrei-text-field id="subject" label="Email"></tanrei-text-field>',
   'tanrei-number-field': '<tanrei-number-field id="subject" label="Amount" increment-label="More" decrement-label="Less"></tanrei-number-field>',
   'tanrei-select-field': '<tanrei-select-field id="subject" label="Country"><tanrei-option value="ca">Canada</tanrei-option></tanrei-select-field>',
+  'tanrei-rating': '<tanrei-rating id="subject" label="Your rating"></tanrei-rating>',
+  'tanrei-handle': '<tanrei-handle id="subject" label="Resize sheet"></tanrei-handle>',
+  'tanrei-fab-menu': '<tanrei-fab-menu id="subject" label="Create" inline><tanrei-fab-menu-item label="Document" icon="description"></tanrei-fab-menu-item><span slot="icon">add</span></tanrei-fab-menu>',
+  'tanrei-file-item': '<tanrei-file-item id="subject" value="a" name="brief.pdf" size-text="820 KB" remove-label="Remove {name}" retry-label="Retry {name}"></tanrei-file-item>',
 };
 
 const document_ = () => `<!doctype html>
@@ -151,4 +158,163 @@ test('focus() called on two controls in turn before either has drawn is given to
     return document.activeElement?.id;
   });
   expect(focused).toBe('second');
+});
+
+/**
+ * Runs in the page: waits until every element under `#stage` has drawn — each one's update, twice over (a surface opens
+ * in its update; what it holds draws after), then the frames in which a kept focus is tried again.
+ */
+async function stageDrawn() {
+  type Updating = Element & { updateComplete?: Promise<unknown> };
+  const frames = () => new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+  for (let pass = 0; pass < 2; pass++) {
+    for (const element of document.querySelectorAll<Updating>('#stage *')) await Promise.race([element.updateComplete, frames()]);
+    await frames();
+  }
+  await frames();
+}
+
+/** Runs in the page: where focus is (the ids on its way down through the shadow roots), and whether it is in each of `ids`. */
+function focusReport(ids: string[]) {
+  let focused: Element | null = document.activeElement;
+  const path: string[] = [];
+  while (focused) {
+    path.push(focused.id || focused.localName);
+    if (!focused.shadowRoot?.activeElement) break;
+    focused = focused.shadowRoot.activeElement;
+  }
+  const within = (id: string) => {
+    const element = document.getElementById(id);
+    for (let node: Node | null = focused; node; node = node.parentNode ?? (node as ShadowRoot).host ?? null) if (node === element) return true;
+    return false;
+  };
+  return { path: path.join(' > '), in: Object.fromEntries(ids.map((id) => [id, within(id)])) as Record<string, boolean> };
+}
+
+/** Surfaces that draw what they hold only once they are open, each holding two fields: `#first` and `#second`. */
+const HOLDERS: Record<string, string> = {
+  'tanrei-dialog':
+    '<tanrei-dialog id="holder" headline="Rename"><tanrei-text-field id="first" label="Name"></tanrei-text-field><tanrei-text-field id="second" label="Note"></tanrei-text-field><tanrei-button slot="actions" dismissive>Cancel</tanrei-button><tanrei-button slot="actions" confirming>Save</tanrei-button></tanrei-dialog>',
+  'tanrei-side-sheet': '<tanrei-side-sheet id="holder" variant="modal" headline="Rename"><tanrei-text-field id="first" label="Name"></tanrei-text-field><tanrei-text-field id="second" label="Note"></tanrei-text-field></tanrei-side-sheet>',
+  'tanrei-bottom-sheet': '<tanrei-bottom-sheet id="holder" variant="modal" label="Rename"><tanrei-text-field id="first" label="Name"></tanrei-text-field><tanrei-text-field id="second" label="Note"></tanrei-text-field></tanrei-bottom-sheet>',
+};
+
+/** How the surface comes to be open, and what the script does right after it focuses `#first`, before anything has drawn. */
+type Opened = 'drawn closed, then opened' | 'written open';
+type AfterFocus = 'nothing' | 'the second' | 'blur' | 'the other input';
+
+async function openAndFocus(page: Page, markup: string, opened: Opened, after: AfterFocus) {
+  await page.evaluate(
+    async ({ markup, opened, after }) => {
+      type Opens = HTMLElement & { updateComplete: Promise<unknown>; open: boolean };
+      const stage = document.querySelector<HTMLElement>('#stage')!;
+      if (opened === 'drawn closed, then opened') {
+        stage.innerHTML = markup;
+        for (const element of stage.querySelectorAll<Opens>('*')) await element.updateComplete;
+        await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+        stage.querySelector<Opens>('#holder')!.open = true;
+      } else stage.innerHTML = markup.replace('id="holder"', 'id="holder" open');
+      const first = stage.querySelector<HTMLElement>('#first')!;
+      first.focus();
+      if (after === 'the second') stage.querySelector<HTMLElement>('#second')!.focus();
+      if (after === 'blur') first.blur();
+      if (after === 'the other input') document.querySelector<HTMLElement>('#other')!.focus();
+    },
+    { markup, opened, after },
+  );
+  await page.evaluate(stageDrawn);
+  return page.evaluate(focusReport, ['first', 'second', 'holder']);
+}
+
+for (const [tag, markup] of Object.entries(HOLDERS)) {
+  for (const opened of ['drawn closed, then opened', 'written open'] as const) {
+    test(`${tag} (${opened}): focus() on a control it holds, called before it has opened, is given once it has, in place of its own focus as it opens`, async ({ page }) => {
+      await load(page, tag);
+      const given = await openAndFocus(page, markup, opened, 'nothing');
+      expect(given.in.first, `focus is in the control once the surface has opened (it is on ${given.path})`).toBe(true);
+
+      await load(page, tag);
+      const second = await openAndFocus(page, markup, opened, 'the second');
+      expect([second.in.first, second.in.second], `the control asked for last takes it (focus is on ${second.path})`).toEqual([false, true]);
+
+      // What the surface does when the page asks nothing of it: its own focus as it opens (DLG-2, SSH-3, BSH-3).
+      await load(page, tag);
+      const blurred = await openAndFocus(page, markup, opened, 'blur');
+      expect([blurred.in.first, blurred.in.holder], `blur() gives the kept focus up, and the surface keeps its own (focus is on ${blurred.path})`).toEqual([false, true]);
+
+      // Focus the page moved elsewhere before the surface opened is not taken back to the control, whatever the surface
+      // then does with focus as it opens.
+      await load(page, tag);
+      const moved = await openAndFocus(page, markup, opened, 'the other input');
+      expect(moved.in.first, `focus the page moved meanwhile is not taken to the control (it is on ${moved.path})`).toBe(false);
+    });
+  }
+}
+
+test('focus() on a control an app bar holds, written with the bar in the same task, is given once the bar shows the slot it is in', async ({ page }) => {
+  // As the spec's fixtures write it, watching no scroll: the bar's first update then shows no slot, and the one after
+  // it (once it has seen what each slot holds) does — after the control's own first update has ended.
+  const markup =
+    '<tanrei-app-bar scroll-target="none" headline="Inbox"><tanrei-button id="first" variant="text" label="Back" slot="navigation"><span slot="icon">arrow_back</span></tanrei-button><tanrei-button id="second" variant="text" label="Search" slot="actions"><span slot="icon">search</span></tanrei-button></tanrei-app-bar>';
+  for (const id of ['first', 'second']) {
+    await load(page, 'tanrei-app-bar');
+    await page.evaluate(
+      ({ markup, id }) => {
+        document.querySelector<HTMLElement>('#stage')!.innerHTML = markup;
+        document.getElementById(id)!.focus();
+      },
+      { markup, id },
+    );
+    await page.evaluate(stageDrawn);
+    const report = await page.evaluate(focusReport, [id]);
+    expect(report.in[id], `focus is in #${id} once the bar has drawn (it is on ${report.path})`).toBe(true);
+  }
+});
+
+test('focus() kept until a control has drawn is given with its focusVisible, as the drawn control is focused with it', async ({ page }) => {
+  // The ring each call draws, read on what took focus: a Button's own button, and a dialog's action, held by a dialog
+  // told to open in the same task. An engine that does not read the option draws for the kept call what it draws for
+  // the drawn one.
+  const cases = {
+    button: '<tanrei-button id="first">Send</tanrei-button>',
+    'held by a dialog': '<tanrei-dialog id="holder" headline="Discard draft?"><tanrei-button id="first" slot="actions" dismissive>Cancel</tanrei-button></tanrei-dialog>',
+  };
+  for (const [name, markup] of Object.entries(cases)) {
+    for (const focusVisible of [true, false]) {
+      const ring = async (kept: boolean) => {
+        await load(page, 'tanrei-dialog');
+        return page.evaluate(
+          async ({ markup, kept, focusVisible }) => {
+            type Opens = HTMLElement & { updateComplete: Promise<unknown>; open?: boolean };
+            const stage = document.querySelector<HTMLElement>('#stage')!;
+            stage.innerHTML = markup;
+            const holder = stage.querySelector<Opens>('#holder');
+            const first = stage.querySelector<Opens>('#first')!;
+            if (!kept) {
+              for (const element of stage.querySelectorAll<Opens>('*')) await element.updateComplete;
+              if (holder) {
+                holder.open = true;
+                await holder.updateComplete;
+              }
+              await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+            } else if (holder) holder.open = true;
+            first.focus({ focusVisible } as FocusOptions);
+            const frames = () => new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+            for (let pass = 0; pass < 2; pass++) {
+              for (const element of stage.querySelectorAll<Opens>('*')) await element.updateComplete;
+              await frames();
+            }
+            let focused: Element | null = document.activeElement;
+            while (focused?.shadowRoot?.activeElement) focused = focused.shadowRoot.activeElement;
+            return { on: focused?.localName ?? null, visible: !!focused?.matches(':focus-visible') };
+          },
+          { markup, kept, focusVisible },
+        );
+      };
+      const drawn = await ring(false);
+      const kept = await ring(true);
+      expect(drawn.on, `${name}: the drawn control takes focus`).toBe('button');
+      expect(kept, `${name}, focusVisible ${focusVisible}: the kept call draws the ring the drawn one does`).toEqual(drawn);
+    }
+  }
 });
