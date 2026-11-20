@@ -151,17 +151,13 @@ export function alignedTokens(documents) {
  * rows, accordions and tables; fields, pickers and the segmented button; the frames and marks that are no control),
  * and takes its tokens off this list in that change: the check below fails both for a pressable height that is
  * neither a step nor listed, and for a listed one that has become a step. Empty, every pressable height is a step.
+ * The calendar's cell and a wheel's row are the pitch of a grid and of a drum that hold a touch target for each of
+ * their days or values, and no control on a row: their change is the frames' and marks', not the fields'.
  */
 export const HEIGHTS_NOT_YET_ON_THE_LADDER = Object.freeze([
   'calendar.cell.size',
-  'calendar.view-toggle.container.height',
-  'calendar.year.container.height',
-  'date-time-picker.range-field.container.height',
   'date-time-picker.wheel.row.height',
-  'input-box.container.height.medium',
   'main-action-button.container.height.large',
-  'one-time-code-input.container.height',
-  'segmented-button.container.height.medium',
   'tabs.container.height-with-icon',
 ].map((id) => `${CONFIG.namespace}.comp.${id}`));
 

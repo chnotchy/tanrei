@@ -115,7 +115,7 @@
     {
       "id": "OTC-1",
       "text": "THE one-time-code input SHALL draw one row of length cells, in the order of the code's characters, each a box at least comp.one-time-code-input.container.height high and comp.one-time-code-input.container.width wide (OTC-23), with corners of comp.one-time-code-input.container.shape (never more than half its height) eased by sys.shape.corner-smoothing, comp.one-time-code-input.container.gap from the next, filled with comp.one-time-code-input.standard.container.color. The row SHALL start at the start edge of the width its layout gives it and SHALL be as wide as its cells, gaps and group marks need; the field SHALL be as tall as its rows. THE one-time-code input SHALL draw no label, no help, no error text, no placeholder and no container around the row: a Field frames it (OTC-22).",
-      "verify": "Under the default system six cells in one group are 6 × 40 and 5 × 6: 270 wide and 48 high."
+      "verify": "Under the default system six cells in one group are 6 × 40 and 5 × 6: 270 wide and 40 high, the control height."
     },
     {
       "id": "OTC-2",
@@ -220,7 +220,7 @@
     {
       "id": "OTC-24",
       "text": "WHILE the text size is enlarged THE one-time-code input SHALL grow with its characters: each cell grows in height with the character's line, keeping comp.one-time-code-input.container.height as a minimum, becomes as wide as the character and its paddings need where that is more than comp.one-time-code-input.container.width, and all cells keep one size; the row then narrows and wraps by OTC-23. At 200% in a layout 288 wide no character SHALL be lost, cut or laid over another part, and nothing SHALL need scrolling in two directions.",
-      "verify": "Unit, default system, text enlarged at the root to 200% (32 px digits) — the house way, which enlarges the paddings and the gaps with the text, as their lengths are in rem — 288 wide: six cells in two groups stand in two rows of three, each at least 48 high and all of one width, every digit whole, nothing scrolling sideways; in a layout 150 wide, two rows of three too. With the text style alone set to 32 px (paddings and gaps unchanged), 288 wide: the six cells stand in one row."
+      "verify": "Unit, default system, text enlarged at the root to 200% (32 px digits) — the house way, which enlarges the paddings and the gaps with the text, as their lengths are in rem — 288 wide: six cells in two groups stand in two rows of three, each at least 40 high and all of one width, every digit whole, nothing scrolling sideways; in a layout 150 wide, two rows of three too. With the text style alone set to 32 px (paddings and gaps unchanged), 288 wide: the six cells stand in one row."
     },
     {
       "id": "OTC-25",
@@ -253,6 +253,11 @@
     {
       "id": "OTC-31",
       "text": "WHERE the platform has ARIA attributes (the web), WHEN the product sets an aria- attribute on the host, by the attribute or by the ARIA property that reflects it, THE one-time-code input SHALL move it to the data-aria- attribute of the same name, so that the host is no second node with its name, description or state, and SHALL expose it on the element that carries its role — an id reference by the elements it names in the host's tree or a tree around it, an error message as part of the description while the one-time-code input is invalid — except those the one-time-code input owns (aria-disabled), which it SHALL move and not expose. WHEN the product removes the aria- attribute or its data-aria- twin, or sets the ARIA property that reflects it (ariaLabel, ariaDescribedByElements…) to null, THE one-time-code input SHALL take it off that element. WHEN the product sets an aria- attribute the one-time-code input owns THE one-time-code input SHALL report it in debug builds."
+    },
+    {
+      "id": "OTC-32",
+      "text": "WHEN the control height (dial.control.height) is N THE one-time-code input's cells SHALL be N tall: each cell SHALL be drawn at comp.one-time-code-input.container.height, which is sys.control.height.medium held at sys.target.minimum, the height of a medium text input, so that a code input, the fields of its form and the Button that sends the code stand as tall as each other; a cell's character SHALL still fit whole, and a cell grows with enlarged text as OTC-24 says.",
+      "verify": "With the control height at 32, 36 and 40 and the minimum target no higher, every cell of the fixture empty and of complete is 32, 36 and 40 tall, its character whole inside it."
     }
   ],
   "accessibility": {

@@ -2863,7 +2863,7 @@ test.describe('a drawer that follows the window', () => {
     });
   const log = (page: P) => page.evaluate(() => (window as any).log as string[]);
 
-  test('NVD-53: the three responsive fixtures in their windows — 1280 wide the drawer is beside the content, expanded, shown whatever open says; 800 wide its column, in the layout; 400 wide, open, over the content with its scrim — and the two widths are 1024 and 600', async ({ page }) => {
+  test('NVD-53: the three responsive fixtures in their windows — 1280 wide the drawer is beside the content, expanded, shown whether open or not while no one hid it there; 800 wide its column, in the layout; 400 wide, open, over the content with its scrim — and the two widths are 1024 and 600', async ({ page }) => {
     const only1 = (id: string) => spec.fixtures.filter((f) => f.id === id);
     const [width, column] = [240, 72];
     // responsive-wide: 1280.
@@ -3086,17 +3086,41 @@ test.describe('a drawer that follows the window', () => {
     expect(await log(page)).toEqual(['presentation:column', 'presentation:modal', 'close']);
   });
 
-  test('NVD-53: beside the content a responsive drawer with no collapsed form is shown while expanded is true and hidden while it is false — no width in the layout, nothing to focus, no landmark — and comes back when it is true again', async ({ page }) => {
+  test('NVD-53, NVD-106: beside the content a responsive drawer — collapsible or not, in either form — is hidden while standardHidden is true and open is false — no width in the layout, nothing to focus, no landmark — and shown while open is true or standardHidden is false; expanded false no longer hides a drawer that is not collapsible; the product’s writes emit nothing; across a change of width standardHidden is kept and the narrower presentations follow open', async ({ page }) => {
+    for (const props of [{ collapsible: false }, { collapsible: true }, { collapsible: true, expanded: false }] as Fixture['props'][]) {
+      const what = JSON.stringify(props);
+      await inWindow(page, 1280, props, { reducedMotion: true });
+      await wire(page);
+      await drawer(page, 'r').evaluate((el: any) => el.addEventListener('standardhiddenchange', (e: CustomEvent) => (window as any).log.push(`hidden:${e.detail.standardHidden}`)));
+      const form = (await bounds(drawer(page, 'r'))).width;
+      expect(form, what).toBe(props!.expanded === false ? 72 : 240);
+      await setProps(page, 'r', { standardHidden: true });
+      await expect.poll(async () => (await bounds(drawer(page, 'r'))).width, what).toBe(0);
+      expect(await panel(page, 'r').evaluate((el) => el.hasAttribute('inert')), what).toBe(true);
+      await expect(page.getByRole('navigation', { name: 'Mail' }), what).toHaveCount(0);
+      await expect(drawer(page, 'r'), what).toHaveAttribute('standard-hidden', '');
+      expect(await state(page), what).toMatchObject({ presentation: 'standard', open: false });
+      // open shows it, in its form, whatever standardHidden says.
+      await setProps(page, 'r', { open: true });
+      await expect.poll(async () => (await bounds(drawer(page, 'r'))).width, what).toBe(form);
+      await expect(page.getByRole('navigation', { name: 'Mail' }), what).toHaveCount(1);
+      await setProps(page, 'r', { open: false });
+      await expect.poll(async () => (await bounds(drawer(page, 'r'))).width, what).toBe(0);
+      // Kept across the width: closed over the content (or as its column), hidden again when wide.
+      await resize(page, 400);
+      expect(await state(page), what).toMatchObject({ presentation: 'modal', open: false });
+      await expect(drawer(page, 'r').locator('dialog[open]'), what).toHaveCount(0);
+      await resize(page, 1280);
+      expect((await bounds(drawer(page, 'r'))).width, what).toBe(0);
+      await setProps(page, 'r', { standardHidden: false });
+      await expect.poll(async () => (await bounds(drawer(page, 'r'))).width, what).toBe(form);
+      expect(await log(page), what).toEqual(['presentation:modal', 'presentation:standard']);
+    }
+    // A drawer that is not collapsible ignores expanded: false does not hide it.
     await inWindow(page, 1280, { collapsible: false }, { reducedMotion: true });
-    expect((await bounds(drawer(page, 'r'))).width).toBe(240);
     await setProps(page, 'r', { expanded: false });
-    await expect.poll(async () => (await bounds(drawer(page, 'r'))).width).toBe(0);
-    expect(await panel(page, 'r').evaluate((el) => el.hasAttribute('inert'))).toBe(true);
-    await expect(page.getByRole('navigation', { name: 'Mail' })).toHaveCount(0);
-    expect(await state(page)).toMatchObject({ presentation: 'standard', open: false, expanded: false, collapsed: false });
-    await setProps(page, 'r', { expanded: true });
-    await expect.poll(async () => (await bounds(drawer(page, 'r'))).width).toBe(240);
-    await expect(page.getByRole('navigation', { name: 'Mail' })).toHaveCount(1);
+    await page.evaluate(() => new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve))));
+    expect((await bounds(drawer(page, 'r'))).width).toBe(240);
   });
 
   test('NVD-54: presentationChange fires once when the presentation is first decided, without a close; focus on something the new presentation does not show moves to the menu button, and where it shows nothing is left to the platform', async ({ page }) => {

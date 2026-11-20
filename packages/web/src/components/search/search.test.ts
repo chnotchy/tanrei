@@ -646,7 +646,7 @@ test.describe('layout', () => {
     const rowBefore = (await bounds(row(page, 'docked', 2))).height;
     const headerBefore = (await bounds(host(page, 'full-screen').locator('.header'))).height;
     // 300% text: every text role three times its size, as the platform's text size setting does. (At 200% the default
-    // system's bar, container.height 56, already holds the input's line: its height is a minimum.)
+    // system's bar, container.height 40, already holds the input's line: its height is a minimum.)
     for (const role of ['body-large', 'body', 'body-small']) {
       const size = await resolveToken(page, `--tanrei-sys-typescale-${role}-font-size`);
       await override(page, { [`--tanrei-sys-typescale-${role}-font-size`]: `${size * 3}px` });

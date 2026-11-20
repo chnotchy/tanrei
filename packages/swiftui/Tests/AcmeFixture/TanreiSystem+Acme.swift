@@ -2037,7 +2037,7 @@ private let acmeCalendarTokens = TanreiCalendarTokens(
   navigationAxis: 0,
   navigationGap: 8,
   outlineWidth: 1,
-  viewToggleContainerHeight: 36,
+  viewToggleContainerHeight: 40,
   viewToggleContainerPaddingInline: 12,
   viewToggleContainerShape: 9999,
   viewToggleGap: 4,
@@ -2045,7 +2045,7 @@ private let acmeCalendarTokens = TanreiCalendarTokens(
   viewToggleLabelTypescale: acmeTypescale.label,
   weekdayColor: .role(.onSurfaceVariant),
   weekdayTypescale: acmeTypescale.labelSmall,
-  yearContainerHeight: 36,
+  yearContainerHeight: 40,
   yearContainerShape: 9999,
   yearContainerWidth: 72,
   yearLabelTypescale: acmeTypescale.body,
@@ -3620,7 +3620,7 @@ private let acmeDateTimePickerTokens = TanreiDateTimePickerTokens(
   periodContainerWidth: 56,
   periodGap: 8,
   periodLabelTypescale: acmeTypescale.heading5,
-  rangeFieldContainerHeight: 48,
+  rangeFieldContainerHeight: 40,
   rangeFieldContainerPaddingInline: 16,
   rangeFieldGap: 8,
   rangeFieldLabelTypescale: acmeTypescale.heading5,
@@ -4650,11 +4650,11 @@ private let acmeInputBoxTokens = TanreiInputBoxTokens(
   selectionContentColor: .role(.onPrimary),
   sizes: TanreiInputBoxSizes(
     small: TanreiInputBoxSizeTokens(
-      containerHeight: 40,
+      containerHeight: 36,
       stackedContainerHeight: 36,
       containerPaddingInline: 12,
       containerPaddingInlineWithIcon: 8,
-      containerPaddingBlock: 8,
+      containerPaddingBlock: 6,
       stackedContainerPaddingBlock: 6,
       containerPaddingBlockWithLabel: 2,
       containerGap: 8,
@@ -4665,11 +4665,11 @@ private let acmeInputBoxTokens = TanreiInputBoxTokens(
       motionStateDuration: 200
     ),
     medium: TanreiInputBoxSizeTokens(
-      containerHeight: 48,
+      containerHeight: 40,
       stackedContainerHeight: 40,
       containerPaddingInline: 16,
       containerPaddingInlineWithIcon: 12,
-      containerPaddingBlock: 10,
+      containerPaddingBlock: 6,
       stackedContainerPaddingBlock: 6,
       containerPaddingBlockWithLabel: 4,
       containerGap: 16,
@@ -6801,7 +6801,7 @@ private let acmeNumberTickerTokens = TanreiNumberTickerTokens(
 private let acmeOneTimeCodeInputTokens = TanreiOneTimeCodeInputTokens(
   caretWidth: 1,
   containerGap: 6,
-  containerHeight: 48,
+  containerHeight: 40,
   containerPaddingInline: 4,
   containerShape: 6,
   containerWidth: 40,
@@ -7520,7 +7520,7 @@ private let acmeScrollAreaTokens = TanreiScrollAreaTokens(
 private let acmeSearchTokens = TanreiSearchTokens(
   containerButtonGap: 0,
   containerGap: 0,
-  containerHeight: 56,
+  containerHeight: 40,
   containerPaddingInline: 16,
   containerPaddingInlineWithButton: 8,
   containerShape: 9999,
@@ -7710,7 +7710,7 @@ private let acmeSegmentedButtonTokens = TanreiSegmentedButtonTokens(
       motionStateDuration: 200
     ),
     medium: TanreiSegmentedButtonSizeTokens(
-      containerHeight: 36,
+      containerHeight: 40,
       containerPaddingInline: 14,
       containerPaddingBlock: 6,
       containerGap: 8,
@@ -7720,7 +7720,7 @@ private let acmeSegmentedButtonTokens = TanreiSegmentedButtonTokens(
       motionStateDuration: 250
     ),
     large: TanreiSegmentedButtonSizeTokens(
-      containerHeight: 40,
+      containerHeight: 56,
       containerPaddingInline: 16,
       containerPaddingBlock: 6,
       containerGap: 8,

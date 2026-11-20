@@ -1887,7 +1887,7 @@ private let tanreiCalendarTokens = TanreiCalendarTokens(
   navigationAxis: 0,
   navigationGap: 8,
   outlineWidth: 1,
-  viewToggleContainerHeight: 36,
+  viewToggleContainerHeight: 40,
   viewToggleContainerPaddingInline: 12,
   viewToggleContainerShape: 9999,
   viewToggleGap: 4,
@@ -1895,7 +1895,7 @@ private let tanreiCalendarTokens = TanreiCalendarTokens(
   viewToggleLabelTypescale: tanreiTypescale.label,
   weekdayColor: .role(.onSurfaceVariant),
   weekdayTypescale: tanreiTypescale.labelSmall,
-  yearContainerHeight: 36,
+  yearContainerHeight: 40,
   yearContainerShape: 9999,
   yearContainerWidth: 72,
   yearLabelTypescale: tanreiTypescale.body,
@@ -3470,7 +3470,7 @@ private let tanreiDateTimePickerTokens = TanreiDateTimePickerTokens(
   periodContainerWidth: 56,
   periodGap: 8,
   periodLabelTypescale: tanreiTypescale.heading5,
-  rangeFieldContainerHeight: 48,
+  rangeFieldContainerHeight: 40,
   rangeFieldContainerPaddingInline: 16,
   rangeFieldGap: 8,
   rangeFieldLabelTypescale: tanreiTypescale.heading5,
@@ -4500,11 +4500,11 @@ private let tanreiInputBoxTokens = TanreiInputBoxTokens(
   selectionContentColor: .role(.onPrimary),
   sizes: TanreiInputBoxSizes(
     small: TanreiInputBoxSizeTokens(
-      containerHeight: 40,
+      containerHeight: 36,
       stackedContainerHeight: 36,
       containerPaddingInline: 12,
       containerPaddingInlineWithIcon: 8,
-      containerPaddingBlock: 8,
+      containerPaddingBlock: 6,
       stackedContainerPaddingBlock: 6,
       containerPaddingBlockWithLabel: 2,
       containerGap: 8,
@@ -4515,11 +4515,11 @@ private let tanreiInputBoxTokens = TanreiInputBoxTokens(
       motionStateDuration: 200
     ),
     medium: TanreiInputBoxSizeTokens(
-      containerHeight: 48,
+      containerHeight: 40,
       stackedContainerHeight: 40,
       containerPaddingInline: 16,
       containerPaddingInlineWithIcon: 12,
-      containerPaddingBlock: 10,
+      containerPaddingBlock: 6,
       stackedContainerPaddingBlock: 6,
       containerPaddingBlockWithLabel: 4,
       containerGap: 16,
@@ -6651,7 +6651,7 @@ private let tanreiNumberTickerTokens = TanreiNumberTickerTokens(
 private let tanreiOneTimeCodeInputTokens = TanreiOneTimeCodeInputTokens(
   caretWidth: 1,
   containerGap: 6,
-  containerHeight: 48,
+  containerHeight: 40,
   containerPaddingInline: 4,
   containerShape: 6,
   containerWidth: 40,
@@ -7370,7 +7370,7 @@ private let tanreiScrollAreaTokens = TanreiScrollAreaTokens(
 private let tanreiSearchTokens = TanreiSearchTokens(
   containerButtonGap: 0,
   containerGap: 0,
-  containerHeight: 56,
+  containerHeight: 40,
   containerPaddingInline: 16,
   containerPaddingInlineWithButton: 8,
   containerShape: 9999,
@@ -7560,7 +7560,7 @@ private let tanreiSegmentedButtonTokens = TanreiSegmentedButtonTokens(
       motionStateDuration: 200
     ),
     medium: TanreiSegmentedButtonSizeTokens(
-      containerHeight: 36,
+      containerHeight: 40,
       containerPaddingInline: 14,
       containerPaddingBlock: 6,
       containerGap: 8,
@@ -7570,7 +7570,7 @@ private let tanreiSegmentedButtonTokens = TanreiSegmentedButtonTokens(
       motionStateDuration: 250
     ),
     large: TanreiSegmentedButtonSizeTokens(
-      containerHeight: 40,
+      containerHeight: 56,
       containerPaddingInline: 16,
       containerPaddingBlock: 6,
       containerGap: 8,

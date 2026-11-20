@@ -652,8 +652,13 @@ test.describe('behavior: the box, its name and its Field', () => {
       expect(floated.y, `${id}: it moved up`).toBeLessThan(resting.y);
       near((await box(container(page, id))).height, height, `${id}: the height does not change`);
       // Never over the value or the swatch.
-      expect(floated.y + floated.height, `${id}: above the input’s line`).toBeLessThanOrEqual((await box(input(page, id))).y + 0.6);
-      if (id === 'outlined') expect(floated.y + floated.height, 'outlined: above the swatch').toBeLessThanOrEqual(s.y + 0.6);
+      // The letters, not the line boxes: in a box at the control height the half-leading of an outlined box's floated
+      // label, which stands on the edge, and of the value's line may meet; their em boxes never do.
+      const line = await box(input(page, id));
+      const valueTop = line.y + (line.height - (await px(input(page, id), 'font-size'))) / 2;
+      const labelBottom = floated.y + floated.height - (floated.height - (await px(label, 'font-size'))) / 2;
+      expect(labelBottom, `${id}: above the input’s line`).toBeLessThanOrEqual(valueTop + 0.6);
+      if (id === 'outlined') expect(labelBottom, 'outlined: above the swatch').toBeLessThanOrEqual(s.y + 0.6);
       else expect(floated.x, 'filled: beside the swatch').toBeGreaterThanOrEqual(s.x + s.width - 0.6);
       await blurInput(page, id);
       // It stays floated while the input holds a text, focused or not — a text that is not a color too.
