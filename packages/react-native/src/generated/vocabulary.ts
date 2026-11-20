@@ -728,6 +728,7 @@ export type TanreiBottomSheetControls = { readonly [Key in TanreiCoreBottomSheet
  * `<state><Part>`), then one holder per axis (`controls`), keyed by the axis value.
  */
 export interface TanreiBottomSheetTokens {
+  readonly closeButtonSize: number;
   readonly closeButtonVariant: number;
   readonly containerColor: TanreiPaint;
   readonly containerElevation: TanreiElevationLevel;
@@ -737,6 +738,7 @@ export interface TanreiBottomSheetTokens {
   readonly containerPartialFraction: number;
   readonly containerShape: number;
   readonly contentColor: TanreiPaint;
+  readonly contentPaddingBlockStart: number;
   readonly dividerColor: TanreiPaint;
   readonly dividerVisibility: number;
   readonly dividerWidth: number;
@@ -1189,6 +1191,7 @@ export type TanreiCalloutVariants = { readonly [Key in TanreiCoreCalloutVariant]
 export interface TanreiCalloutTokens {
   readonly actionsGap: number;
   readonly actionsItemGap: number;
+  readonly closeButtonSize: number;
   readonly closeButtonVariant: number;
   readonly containerGap: number;
   readonly containerPaddingBlock: number;
@@ -1320,6 +1323,7 @@ export interface TanreiCarouselTokens {
   readonly motionScrollEasing: TanreiCubicBezier;
   readonly motionStateDuration: number;
   readonly motionStateEasing: TanreiCubicBezier;
+  readonly navigationButtonSize: number;
   readonly navigationButtonVariant: number;
   readonly pressedContainerShape: number;
   readonly pressedOpacity: number;
@@ -1831,6 +1835,7 @@ export interface TanreiDateTimePickerTokens {
   readonly actionsArrangement: number;
   readonly actionsGap: number;
   readonly actionsPaddingBlock: number;
+  readonly actionsSize: number;
   readonly actionsVariant: number;
   readonly containerGap: number;
   readonly containerPaddingBlock: number;
@@ -2621,6 +2626,7 @@ export interface TanreiHandleTokens {
  * `<state><Part>`), then one holder per axis, keyed by the axis value.
  */
 export interface TanreiImagePreviewTokens {
+  readonly barButtonSize: number;
   readonly barButtonVariant: number;
   readonly barContainerColor: TanreiPaint;
   readonly barGap: number;
@@ -2652,6 +2658,7 @@ export interface TanreiImagePreviewTokens {
   readonly motionPageEasing: TanreiCubicBezier;
   readonly motionZoomDuration: number;
   readonly motionZoomEasing: TanreiCubicBezier;
+  readonly navigationButtonSize: number;
   readonly navigationButtonVariant: number;
   readonly navigationMarginInline: number;
 }
@@ -3927,6 +3934,7 @@ export interface TanreiPopoverTokens {
   readonly arrowInset: number;
   readonly arrowVisible: number;
   readonly arrowWidth: number;
+  readonly closeButtonSize: number;
   readonly closeButtonVariant: number;
   readonly compactWindowWidth: number;
   readonly containerColor: TanreiPaint;
@@ -4645,11 +4653,13 @@ export interface TanreiSideSheetTokens {
   readonly actionsGap: number;
   readonly actionsPaddingBlock: number;
   readonly actionsVariant: number;
+  readonly closeButtonSize: number;
   readonly closeButtonVariant: number;
   readonly containerPaddingBlock: number;
   readonly containerPaddingInline: number;
   readonly containerWidth: number;
   readonly contentColor: TanreiPaint;
+  readonly contentPaddingBlockStart: number;
   readonly dividerColor: TanreiPaint;
   readonly dividerVisibility: number;
   readonly dividerWidth: number;
@@ -4847,6 +4857,7 @@ export type TanreiSnackbarControls = { readonly [Key in TanreiCoreSnackbarContro
 export interface TanreiSnackbarTokens {
   readonly actionTonalLayerOpacity: number;
   readonly breakpointMedium: number;
+  readonly closeButtonSize: number;
   readonly closeButtonVariant: number;
   readonly containerColor: TanreiPaint;
   readonly containerElevation: TanreiElevationLevel;

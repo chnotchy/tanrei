@@ -955,6 +955,7 @@ private object AcmeSystemSource {
     @Suppress("UNUSED_PARAMETER")
     fun bottomSheet(typescale: TanreiTypescale, elevation: TanreiElevation): TanreiBottomSheetTokens =
         TanreiBottomSheetTokens(
+            closeButtonSize = 0f,
             closeButtonVariant = 1f,
             containerColor = TanreiPaint.Role(TanreiColorRole.SurfaceContainerLow),
             containerElevation = elevation.level2,
@@ -964,6 +965,7 @@ private object AcmeSystemSource {
             containerPartialFraction = 0.5f,
             containerShape = 12.dp,
             contentColor = TanreiPaint.Role(TanreiColorRole.OnSurface),
+            contentPaddingBlockStart = 8.dp,
             dividerColor = TanreiPaint.Role(TanreiColorRole.OutlineVariant),
             dividerVisibility = 0f,
             dividerWidth = 1.dp,
@@ -2357,6 +2359,7 @@ private object AcmeSystemSource {
         TanreiCalloutTokens(
             actionsGap = 12.dp,
             actionsItemGap = 8.dp,
+            closeButtonSize = 0f,
             closeButtonVariant = 1f,
             containerGap = 8.dp,
             containerPaddingBlock = 12.dp,
@@ -2537,6 +2540,7 @@ private object AcmeSystemSource {
             motionScrollEasing = TanreiCubicBezier(x1 = 0.05f, y1 = 0.7f, x2 = 0.1f, y2 = 1f),
             motionStateDuration = 250,
             motionStateEasing = TanreiCubicBezier(x1 = 0.2f, y1 = 0f, x2 = 0f, y2 = 1f),
+            navigationButtonSize = 1f,
             navigationButtonVariant = 2f,
             hovered = TanreiCarouselStateTokens(containerShape = 12.dp, opacity = 1f),
             focused = TanreiCarouselStateTokens(containerShape = 12.dp, opacity = 1f),
@@ -3529,6 +3533,7 @@ private object AcmeSystemSource {
             actionsArrangement = 0f,
             actionsGap = 16.dp,
             actionsPaddingBlock = 12.dp,
+            actionsSize = 1f,
             actionsVariant = 1f,
             containerGap = 16.dp,
             containerPaddingBlock = 8.dp,
@@ -4487,6 +4492,7 @@ private object AcmeSystemSource {
     @Suppress("UNUSED_PARAMETER")
     fun imagePreview(typescale: TanreiTypescale, elevation: TanreiElevation): TanreiImagePreviewTokens =
         TanreiImagePreviewTokens(
+            barButtonSize = 0f,
             barButtonVariant = 1f,
             barContainerColor = TanreiPaint.Role(TanreiColorRole.Surface),
             barGap = 12.dp,
@@ -4518,6 +4524,7 @@ private object AcmeSystemSource {
             motionPageEasing = TanreiCubicBezier(x1 = 0.05f, y1 = 0.7f, x2 = 0.1f, y2 = 1f),
             motionZoomDuration = 250,
             motionZoomEasing = TanreiCubicBezier(x1 = 0.2f, y1 = 0f, x2 = 0f, y2 = 1f),
+            navigationButtonSize = 1f,
             navigationButtonVariant = 1f,
             navigationMarginInline = 8.dp,
         )
@@ -6665,6 +6672,7 @@ private object AcmeSystemSource {
             arrowInset = 8.dp,
             arrowVisible = 0f,
             arrowWidth = 12.dp,
+            closeButtonSize = 0f,
             closeButtonVariant = 1f,
             compactWindowWidth = 600.dp,
             containerColor = TanreiPaint.Role(TanreiColorRole.SurfaceBright),
@@ -7598,11 +7606,13 @@ private object AcmeSystemSource {
             actionsGap = 16.dp,
             actionsPaddingBlock = 16.dp,
             actionsVariant = 1f,
+            closeButtonSize = 0f,
             closeButtonVariant = 1f,
             containerPaddingBlock = 24.dp,
             containerPaddingInline = 24.dp,
             containerWidth = 320.dp,
             contentColor = TanreiPaint.Role(TanreiColorRole.OnSurface),
+            contentPaddingBlockStart = 8.dp,
             dividerColor = TanreiPaint.Role(TanreiColorRole.OutlineVariant),
             dividerVisibility = 0f,
             dividerWidth = 1.dp,
@@ -7750,6 +7760,7 @@ private object AcmeSystemSource {
         TanreiSnackbarTokens(
             actionTonalLayerOpacity = 0.12f,
             breakpointMedium = 600.dp,
+            closeButtonSize = 0f,
             closeButtonVariant = 1f,
             containerColor = TanreiPaint.Role(TanreiColorRole.SurfaceBright),
             containerElevation = elevation.level3,

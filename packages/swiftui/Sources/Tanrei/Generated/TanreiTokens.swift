@@ -2048,6 +2048,7 @@ public struct TanreiBottomSheetStateTokens: Sendable, Equatable {
 
 /// Component tokens of bottom-sheet (comp.bottom-sheet).
 public struct TanreiBottomSheetTokens: Sendable, Equatable {
+  public var closeButtonSize: Double
   public var closeButtonVariant: Double
   public var containerColor: TanreiPaint
   public var containerElevation: [TanreiShadowLayer]
@@ -2057,6 +2058,7 @@ public struct TanreiBottomSheetTokens: Sendable, Equatable {
   public var containerPartialFraction: Double
   public var containerShape: CGFloat
   public var contentColor: TanreiPaint
+  public var contentPaddingBlockStart: CGFloat
   public var dividerColor: TanreiPaint
   public var dividerVisibility: Double
   public var dividerWidth: CGFloat
@@ -2089,6 +2091,7 @@ public struct TanreiBottomSheetTokens: Sendable, Equatable {
   public var pressed: TanreiBottomSheetStateTokens
 
   public init(
+    closeButtonSize: Double,
     closeButtonVariant: Double,
     containerColor: TanreiPaint,
     containerElevation: [TanreiShadowLayer],
@@ -2098,6 +2101,7 @@ public struct TanreiBottomSheetTokens: Sendable, Equatable {
     containerPartialFraction: Double,
     containerShape: CGFloat,
     contentColor: TanreiPaint,
+    contentPaddingBlockStart: CGFloat,
     dividerColor: TanreiPaint,
     dividerVisibility: Double,
     dividerWidth: CGFloat,
@@ -2126,6 +2130,7 @@ public struct TanreiBottomSheetTokens: Sendable, Equatable {
     focused: TanreiBottomSheetStateTokens,
     pressed: TanreiBottomSheetStateTokens
   ) {
+    self.closeButtonSize = closeButtonSize
     self.closeButtonVariant = closeButtonVariant
     self.containerColor = containerColor
     self.containerElevation = containerElevation
@@ -2135,6 +2140,7 @@ public struct TanreiBottomSheetTokens: Sendable, Equatable {
     self.containerPartialFraction = containerPartialFraction
     self.containerShape = containerShape
     self.contentColor = contentColor
+    self.contentPaddingBlockStart = contentPaddingBlockStart
     self.dividerColor = dividerColor
     self.dividerVisibility = dividerVisibility
     self.dividerWidth = dividerWidth
@@ -3610,6 +3616,7 @@ public struct TanreiCalloutVariants: Sendable, Equatable {
 public struct TanreiCalloutTokens: Sendable, Equatable {
   public var actionsGap: CGFloat
   public var actionsItemGap: CGFloat
+  public var closeButtonSize: Double
   public var closeButtonVariant: Double
   public var containerGap: CGFloat
   public var containerPaddingBlock: CGFloat
@@ -3630,6 +3637,7 @@ public struct TanreiCalloutTokens: Sendable, Equatable {
   public init(
     actionsGap: CGFloat,
     actionsItemGap: CGFloat,
+    closeButtonSize: Double,
     closeButtonVariant: Double,
     containerGap: CGFloat,
     containerPaddingBlock: CGFloat,
@@ -3649,6 +3657,7 @@ public struct TanreiCalloutTokens: Sendable, Equatable {
   ) {
     self.actionsGap = actionsGap
     self.actionsItemGap = actionsItemGap
+    self.closeButtonSize = closeButtonSize
     self.closeButtonVariant = closeButtonVariant
     self.containerGap = containerGap
     self.containerPaddingBlock = containerPaddingBlock
@@ -4011,6 +4020,7 @@ public struct TanreiCarouselTokens: Sendable, Equatable {
   public var motionScrollEasing: TanreiCubicBezier
   public var motionStateDuration: Double
   public var motionStateEasing: TanreiCubicBezier
+  public var navigationButtonSize: Double
   public var navigationButtonVariant: Double
   public var parts: TanreiCarouselParts
   /// Values of the hovered state shared by every variant.
@@ -4046,6 +4056,7 @@ public struct TanreiCarouselTokens: Sendable, Equatable {
     motionScrollEasing: TanreiCubicBezier,
     motionStateDuration: Double,
     motionStateEasing: TanreiCubicBezier,
+    navigationButtonSize: Double,
     navigationButtonVariant: Double,
     parts: TanreiCarouselParts,
     hovered: TanreiCarouselStateTokens,
@@ -4077,6 +4088,7 @@ public struct TanreiCarouselTokens: Sendable, Equatable {
     self.motionScrollEasing = motionScrollEasing
     self.motionStateDuration = motionStateDuration
     self.motionStateEasing = motionStateEasing
+    self.navigationButtonSize = navigationButtonSize
     self.navigationButtonVariant = navigationButtonVariant
     self.parts = parts
     self.hovered = hovered
@@ -5806,6 +5818,7 @@ public struct TanreiDateTimePickerTokens: Sendable, Equatable {
   public var actionsArrangement: Double
   public var actionsGap: CGFloat
   public var actionsPaddingBlock: CGFloat
+  public var actionsSize: Double
   public var actionsVariant: Double
   public var containerGap: CGFloat
   public var containerPaddingBlock: CGFloat
@@ -5898,6 +5911,7 @@ public struct TanreiDateTimePickerTokens: Sendable, Equatable {
     actionsArrangement: Double,
     actionsGap: CGFloat,
     actionsPaddingBlock: CGFloat,
+    actionsSize: Double,
     actionsVariant: Double,
     containerGap: CGFloat,
     containerPaddingBlock: CGFloat,
@@ -5986,6 +6000,7 @@ public struct TanreiDateTimePickerTokens: Sendable, Equatable {
     self.actionsArrangement = actionsArrangement
     self.actionsGap = actionsGap
     self.actionsPaddingBlock = actionsPaddingBlock
+    self.actionsSize = actionsSize
     self.actionsVariant = actionsVariant
     self.containerGap = containerGap
     self.containerPaddingBlock = containerPaddingBlock
@@ -8342,6 +8357,7 @@ public struct TanreiHandleTokens: Sendable, Equatable {
 
 /// Component tokens of image-preview (comp.image-preview).
 public struct TanreiImagePreviewTokens: Sendable, Equatable {
+  public var barButtonSize: Double
   public var barButtonVariant: Double
   public var barContainerColor: TanreiPaint
   public var barGap: CGFloat
@@ -8373,10 +8389,12 @@ public struct TanreiImagePreviewTokens: Sendable, Equatable {
   public var motionPageEasing: TanreiCubicBezier
   public var motionZoomDuration: Double
   public var motionZoomEasing: TanreiCubicBezier
+  public var navigationButtonSize: Double
   public var navigationButtonVariant: Double
   public var navigationMarginInline: CGFloat
 
   public init(
+    barButtonSize: Double,
     barButtonVariant: Double,
     barContainerColor: TanreiPaint,
     barGap: CGFloat,
@@ -8408,9 +8426,11 @@ public struct TanreiImagePreviewTokens: Sendable, Equatable {
     motionPageEasing: TanreiCubicBezier,
     motionZoomDuration: Double,
     motionZoomEasing: TanreiCubicBezier,
+    navigationButtonSize: Double,
     navigationButtonVariant: Double,
     navigationMarginInline: CGFloat
   ) {
+    self.barButtonSize = barButtonSize
     self.barButtonVariant = barButtonVariant
     self.barContainerColor = barContainerColor
     self.barGap = barGap
@@ -8442,6 +8462,7 @@ public struct TanreiImagePreviewTokens: Sendable, Equatable {
     self.motionPageEasing = motionPageEasing
     self.motionZoomDuration = motionZoomDuration
     self.motionZoomEasing = motionZoomEasing
+    self.navigationButtonSize = navigationButtonSize
     self.navigationButtonVariant = navigationButtonVariant
     self.navigationMarginInline = navigationMarginInline
   }
@@ -12647,6 +12668,7 @@ public struct TanreiPopoverTokens: Sendable, Equatable {
   public var arrowInset: CGFloat
   public var arrowVisible: Double
   public var arrowWidth: CGFloat
+  public var closeButtonSize: Double
   public var closeButtonVariant: Double
   public var compactWindowWidth: CGFloat
   public var containerColor: TanreiPaint
@@ -12683,6 +12705,7 @@ public struct TanreiPopoverTokens: Sendable, Equatable {
     arrowInset: CGFloat,
     arrowVisible: Double,
     arrowWidth: CGFloat,
+    closeButtonSize: Double,
     closeButtonVariant: Double,
     compactWindowWidth: CGFloat,
     containerColor: TanreiPaint,
@@ -12718,6 +12741,7 @@ public struct TanreiPopoverTokens: Sendable, Equatable {
     self.arrowInset = arrowInset
     self.arrowVisible = arrowVisible
     self.arrowWidth = arrowWidth
+    self.closeButtonSize = closeButtonSize
     self.closeButtonVariant = closeButtonVariant
     self.compactWindowWidth = compactWindowWidth
     self.containerColor = containerColor
@@ -15016,11 +15040,13 @@ public struct TanreiSideSheetTokens: Sendable, Equatable {
   public var actionsGap: CGFloat
   public var actionsPaddingBlock: CGFloat
   public var actionsVariant: Double
+  public var closeButtonSize: Double
   public var closeButtonVariant: Double
   public var containerPaddingBlock: CGFloat
   public var containerPaddingInline: CGFloat
   public var containerWidth: CGFloat
   public var contentColor: TanreiPaint
+  public var contentPaddingBlockStart: CGFloat
   public var dividerColor: TanreiPaint
   public var dividerVisibility: Double
   public var dividerWidth: CGFloat
@@ -15043,11 +15069,13 @@ public struct TanreiSideSheetTokens: Sendable, Equatable {
     actionsGap: CGFloat,
     actionsPaddingBlock: CGFloat,
     actionsVariant: Double,
+    closeButtonSize: Double,
     closeButtonVariant: Double,
     containerPaddingBlock: CGFloat,
     containerPaddingInline: CGFloat,
     containerWidth: CGFloat,
     contentColor: TanreiPaint,
+    contentPaddingBlockStart: CGFloat,
     dividerColor: TanreiPaint,
     dividerVisibility: Double,
     dividerWidth: CGFloat,
@@ -15069,11 +15097,13 @@ public struct TanreiSideSheetTokens: Sendable, Equatable {
     self.actionsGap = actionsGap
     self.actionsPaddingBlock = actionsPaddingBlock
     self.actionsVariant = actionsVariant
+    self.closeButtonSize = closeButtonSize
     self.closeButtonVariant = closeButtonVariant
     self.containerPaddingBlock = containerPaddingBlock
     self.containerPaddingInline = containerPaddingInline
     self.containerWidth = containerWidth
     self.contentColor = contentColor
+    self.contentPaddingBlockStart = contentPaddingBlockStart
     self.dividerColor = dividerColor
     self.dividerVisibility = dividerVisibility
     self.dividerWidth = dividerWidth
@@ -15669,6 +15699,7 @@ public struct TanreiSnackbarStateTokens: Sendable, Equatable {
 public struct TanreiSnackbarTokens: Sendable, Equatable {
   public var actionTonalLayerOpacity: Double
   public var breakpointMedium: CGFloat
+  public var closeButtonSize: Double
   public var closeButtonVariant: Double
   public var containerColor: TanreiPaint
   public var containerElevation: [TanreiShadowLayer]
@@ -15776,6 +15807,7 @@ public struct TanreiSnackbarTokens: Sendable, Equatable {
   public init(
     actionTonalLayerOpacity: Double,
     breakpointMedium: CGFloat,
+    closeButtonSize: Double,
     closeButtonVariant: Double,
     containerColor: TanreiPaint,
     containerElevation: [TanreiShadowLayer],
@@ -15879,6 +15911,7 @@ public struct TanreiSnackbarTokens: Sendable, Equatable {
   ) {
     self.actionTonalLayerOpacity = actionTonalLayerOpacity
     self.breakpointMedium = breakpointMedium
+    self.closeButtonSize = closeButtonSize
     self.closeButtonVariant = closeButtonVariant
     self.containerColor = containerColor
     self.containerElevation = containerElevation
