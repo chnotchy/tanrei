@@ -94,6 +94,11 @@ const animations = (target: Locator) =>
  * value the token writes.
  */
 const seenFill = (page: P, surface = 'surface') => paintedColor(page, `var(${T('placeholder-color')})`, `var(--tanrei-sys-color-${surface})`);
+/** How far apart two painted pixels are, in levels of 255: the largest difference of a channel. */
+const channelsApart = (one: string, other: string) => {
+  const [a, b] = [one, other].map((pixel) => pixel.match(/\d+/g)!.map(Number));
+  return Math.max(...a.map((channel, i) => Math.abs(channel - b[i])));
+};
 /** WCAG's contrast ratio of two painted pixels (`rgb(r, g, b)`, as a screenshot reads them). */
 function contrast(one: string, other: string) {
   const luminance = (pixel: string) => {
@@ -262,12 +267,12 @@ test.describe('skeleton', () => {
         // Between the first bar and the second (14-high bars in 22-high line boxes) the stage shows through: its surface.
         const behind = drawn.at(20, 22);
         expect(behind, `${at}: the surface between two bars`).toBe(await paintedColor(page, `var(--tanrei-sys-color-${role})`));
+        const ratio = contrast(seen, behind);
+        expect(ratio, `${at}: ${seen} on ${behind} is ${ratio.toFixed(3)}:1`).toBeGreaterThanOrEqual(STANDS_OFF);
         // Each bar is the fill laid over this surface — not over the page's, and not a tone of its own — and the three
         // are one color: no point is covered twice.
         expect([drawn.at(20, 11), drawn.at(20, 33), drawn.at(20, 55)], at).toEqual([seen, seen, seen]);
         expect(drawn.column(20).length, `${at}: three bars, each seen`).toBe(3);
-        const ratio = contrast(seen, behind);
-        expect(ratio, `${at}: ${seen} on ${behind} is ${ratio.toFixed(3)}:1`).toBeGreaterThanOrEqual(STANDS_OFF);
       }
     }
   });
@@ -375,7 +380,10 @@ test.describe('skeleton', () => {
     const kept = inside.locator('#narrow-block');
     expect([(await rect(kept)).width, (await rect(kept)).height]).toEqual([30, 40]);
     const drawn = await painted(kept, fill);
-    expect([drawn.at(15, 2), drawn.at(15, 38), drawn.at(1, 6), drawn.at(15, 20), drawn.at(1, 20), drawn.at(29, 20), drawn.at(15, 6), drawn.at(15, 34)]).toEqual([surface, surface, surface, fill, fill, fill, fill, fill]);
+    // (A point a pixel inside the clipped circle's edge: WebKit composites the translucent fill there through the
+    // clip's mask, one level of 255 from the fill elsewhere. It is the fill, not the surface.)
+    const named = (pixel: string) => (pixel === surface ? 'surface' : channelsApart(pixel, fill) <= 1 ? 'fill' : pixel);
+    expect([drawn.at(15, 2), drawn.at(15, 38), drawn.at(1, 6), drawn.at(15, 20), drawn.at(1, 20), drawn.at(29, 20), drawn.at(15, 6), drawn.at(15, 34)].map(named)).toEqual(['surface', 'surface', 'surface', 'fill', 'fill', 'fill', 'fill', 'fill']);
     for (const id of ['#by-inline', '#in-row', '#narrow-inline']) {
       const round = await painted(inside.locator(id), fill);
       expect([round.at(0.5, 0.5), round.at(round.width / 2, round.height / 2)], id).toEqual([surface, fill]);
