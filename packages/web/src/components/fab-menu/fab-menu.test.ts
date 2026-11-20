@@ -17,6 +17,7 @@ import { bezierOf, expectAppearStart, expectExitEnd, expectTurnedAlone, turnHeld
 import { type Flicker, type Frame, type Frames, type Probe, expectAnimated, expectNoFlicker, sampleFrames } from '../../../test/frames.js';
 import { expectBaseline } from '../../../test/baseline.js';
 import { controlledElements, controlledInTree } from '../../../test/controlled-list.js';
+import { CONTROL_HEIGHTS, atControlHeight } from '../../../test/control-height.js';
 
 const spec = loadSpec('fab-menu');
 type P = Page;
@@ -373,6 +374,22 @@ test.describe('behavior', () => {
     expect((await bounds(box(page, 'filled-open', 'Folder'))).height).toBeGreaterThanOrEqual(Math.max(touch, await resolveToken(page, T('item-height'))));
   });
 
+  test('FBM-29: at control height 32, 36 and 40, the minimum no higher, an open item of a product on the default system that includes the FAB menu is that tall under a fine pointer, as tall as a menu item; under m3-like, whose item height is its own, an item keeps it at each', async ({ page }) => {
+    await mountFixtures(page, spec, { icons: true, ...(await includingSystem('tanrei', 'fab-menu', 'm3-like')) });
+    for (const height of CONTROL_HEIGHTS) {
+      await atControlHeight(page, height);
+      expect(await resolveToken(page, T('item-height')), `the menu item's height at ${height}`).toBe(await resolveToken(page, '--tanrei-comp-menu-container-height-medium'));
+      await expect.poll(async () => (await bounds(box(page, 'filled-open', 'Folder'))).height, `at ${height}`).toBeCloseTo(height, 1);
+    }
+    await mountFixtures(page, spec, { icons: true });
+    const [own, pointer] = [await resolveToken(page, T('item-height')), await resolveToken(page, '--tanrei-sys-target-pointer')];
+    for (const height of CONTROL_HEIGHTS) {
+      await atControlHeight(page, height);
+      expect(await resolveToken(page, T('item-height')), `m3-like at ${height}`).toBe(own);
+      await expect.poll(async () => (await bounds(box(page, 'filled-open', 'Folder'))).height, `m3-like at ${height}`).toBeCloseTo(Math.max(own, pointer), 1);
+    }
+  });
+
   test('FBM-6: disabled renders the toggle’s container, icon, elevation and opacity from the disabled tokens of its variant’s closed parts', async ({ page }) => {
     await mountFixtures(page, spec, { icons: true });
     const drawn = await toggle(page, 'filled-disabled').evaluate((el) => {
@@ -560,7 +577,8 @@ test.describe('behavior', () => {
     expect(stage.x + stage.width - (square.x + square.width)).toBe(16);
     expect(stage.y + stage.height - (square.y + square.height)).toBe(16);
     const first = await bounds(box(page, 'filled-open', 'Document'));
-    expect(first.y - stage.y).toBeCloseTo(320 - 232, 0);
+    // Three items of 40 — a menu item's height at the default control height (FBM-29) — above the toggle.
+    expect(first.y - stage.y).toBeCloseTo(320 - 208, 0);
     expect(await list(page, 'filled-open').evaluate((el) => el.matches(':popover-open'))).toBe(false);
     // Closed fixtures present nothing.
     expect(await list(page, 'filled-closed').evaluate((el) => getComputedStyle(el).display)).toBe('none');

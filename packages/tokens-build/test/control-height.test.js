@@ -28,20 +28,19 @@ const ALIGNED_ON_THE_LADDER = comp([
   'button-with-menu.container.height.medium',
   'button.container.height.medium',
   'calendar.day.container.size',
+  'combobox.option.height.medium',
   'input-box.stacked.container.height.medium',
+  'menu.container.height.medium',
   'menubar.container.height',
   'pagination.container.height.medium',
+  'search.suggestion.container.height.medium',
   'search.trigger.container.height',
+  'select.option.height.medium',
   'toolbar.container.size.inline',
 ]);
 
 /** Not yet: each family's change rewires its heights to the medium step, marks them and moves them up. */
 const ALIGNED_NOT_YET = comp([
-  // menus and the options of a list
-  'menu.container.height.medium',
-  'select.option.height.medium',
-  'combobox.option.height.medium',
-  'search.suggestion.container.height.medium',
   // tabs, navigation and trees
   'tabs.container.height.medium',
   'navigation-drawer.item.container.height.regular',
@@ -139,6 +138,6 @@ test('the invariants hold the marks and the ladder: an aligned height off the me
   const ladder = { ...model.ladder };
   delete ladder[`${NS}.comp.button.container.height.small`];
   assert.deepEqual(fails({ ladder }), [`comp.button.container.height.small: a pressable height that reads no step of the control height ladder — read the step of its size, { "fn": "mul", "of": "{${NS}.sys.control.height.<step>}", "by": 1, "min": "{${NS}.sys.target.minimum}" }`]);
-  // (Read as a step, the menu's 48 is also told it is not the step's 40.)
-  assert.ok(fails({ ladder: { ...model.ladder, [`${NS}.comp.menu.container.height.medium`]: 'medium' } }).includes('comp.menu.container.height.medium: listed in HEIGHTS_NOT_YET_ON_THE_LADDER, but it reads a step of the ladder now — take it off the list'));
+  // (Read as a step, the list's 48 is also told it is not the step's 40.)
+  assert.ok(fails({ ladder: { ...model.ladder, [`${NS}.comp.list.container.height.medium`]: 'medium' } }).includes('comp.list.container.height.medium: listed in HEIGHTS_NOT_YET_ON_THE_LADDER, but it reads a step of the ladder now — take it off the list'));
 });

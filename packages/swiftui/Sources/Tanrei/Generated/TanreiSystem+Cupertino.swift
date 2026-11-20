@@ -3692,7 +3692,7 @@ private let cupertinoEmptyStateTokens = TanreiEmptyStateTokens(
 private let cupertinoFabMenuTokens = TanreiFabMenuTokens(
   containerShapeOpen: 9999,
   itemGap: 8,
-  itemHeight: 48,
+  itemHeight: 44,
   itemIconSize: 20,
   itemLabelTypescale: cupertinoTypescale.label,
   itemPaddingInlineEnd: 20,

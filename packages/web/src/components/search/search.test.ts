@@ -28,6 +28,7 @@ import { holdClock } from '../../../test/page-clock.js';
 import { type Probe, sampleFrames } from '../../../test/frames.js';
 import { expectBaseline } from '../../../test/baseline.js';
 import { STACKED_DIALOG, STACKED_LAYER, addStackedSurfaces, expectStackedInOrder } from '../../../test/stacked-surfaces.js';
+import { CONTROL_HEIGHTS, atControlHeight } from '../../../test/control-height.js';
 
 const spec = loadSpec('search');
 type P = Page;
@@ -394,6 +395,19 @@ test.describe('layout', () => {
     const box = await bounds(row(page, 'docked', 1));
     const icon = await bounds(row(page, 'docked', 1).locator('.option-icon'));
     expect(box.x + box.width - (icon.x + icon.width)).toBeCloseTo(padInline, 1);
+  });
+
+  test('SRC-58: at control height 32, 36 and 40, the minimum no higher, a one-line suggestion of a medium search is that tall under a fine pointer, its headline whole inside it', async ({ page }) => {
+    await mount(page, spec.fixtures.filter((f) => f.id === 'docked'));
+    for (const height of CONTROL_HEIGHTS) {
+      await atControlHeight(page, height);
+      for (const n of [0, 1]) {
+        await expect.poll(async () => (await bounds(row(page, 'docked', n))).height, `row ${n} at ${height}`).toBeCloseTo(height, 1);
+        const [b, headline] = [await bounds(row(page, 'docked', n)), await bounds(row(page, 'docked', n).locator('.headline'))];
+        expect(headline.y, `the headline inside row ${n} at ${height}`).toBeGreaterThanOrEqual(b.y - 0.5);
+        expect(headline.y + headline.height, `row ${n} at ${height}`).toBeLessThanOrEqual(b.y + b.height + 0.5);
+      }
+    }
   });
 
   test('SRC-16: with no leading icon on any suggestion no icon column is drawn; with one, every row keeps the column', async ({ page }) => {

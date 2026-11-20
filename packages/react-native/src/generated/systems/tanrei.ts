@@ -6031,7 +6031,7 @@ export const tanrei = {
       },
       optionSizes: {
         small: { optionHeight: 36, optionPaddingInline: 8, optionPaddingBlock: 8, optionGap: 8, optionLeadingIconSize: 20, optionMarkSize: 20, groupTitlePaddingInline: 8 },
-        medium: { optionHeight: 48, optionPaddingInline: 12, optionPaddingBlock: 8, optionGap: 12, optionLeadingIconSize: 24, optionMarkSize: 24, groupTitlePaddingInline: 12 },
+        medium: { optionHeight: 40, optionPaddingInline: 12, optionPaddingBlock: 8, optionGap: 12, optionLeadingIconSize: 24, optionMarkSize: 24, groupTitlePaddingInline: 12 },
       },
     },
     copyButton: {
@@ -6354,7 +6354,7 @@ export const tanrei = {
       focusedOpacity: 1,
       hoveredOpacity: 1,
       itemGap: 8,
-      itemHeight: 48,
+      itemHeight: 40,
       itemIconSize: 20,
       itemLabelTypescale: "label",
       itemPaddingInlineEnd: 20,
@@ -9805,7 +9805,7 @@ export const tanrei = {
       },
       sizes: {
         small: { containerHeight: 36, containerPaddingInline: 8, containerPaddingBlock: 8, containerGap: 8, leadingIconSize: 20, trailingIconSize: 20, markSize: 20, groupTitlePaddingInline: 8 },
-        medium: { containerHeight: 48, containerPaddingInline: 12, containerPaddingBlock: 8, containerGap: 12, leadingIconSize: 24, trailingIconSize: 24, markSize: 24, groupTitlePaddingInline: 12 },
+        medium: { containerHeight: 40, containerPaddingInline: 12, containerPaddingBlock: 8, containerGap: 12, leadingIconSize: 24, trailingIconSize: 24, markSize: 24, groupTitlePaddingInline: 12 },
       },
     },
     menubar: {
@@ -12018,7 +12018,7 @@ export const tanrei = {
       },
       sizes: {
         small: { suggestionContainerHeight: 36, suggestionContainerPaddingInline: 8, suggestionContainerPaddingBlock: 8, suggestionContainerGap: 8, suggestionLeadingIconSize: 20 },
-        medium: { suggestionContainerHeight: 48, suggestionContainerPaddingInline: 12, suggestionContainerPaddingBlock: 8, suggestionContainerGap: 12, suggestionLeadingIconSize: 24 },
+        medium: { suggestionContainerHeight: 40, suggestionContainerPaddingInline: 12, suggestionContainerPaddingBlock: 8, suggestionContainerGap: 12, suggestionLeadingIconSize: 24 },
       },
     },
     segmentedButton: {
@@ -13357,7 +13357,7 @@ export const tanrei = {
       },
       optionSizes: {
         small: { optionHeight: 36, optionPaddingInline: 8, optionPaddingBlock: 8, optionGap: 8, optionLeadingIconSize: 20, optionMarkSize: 20, groupTitlePaddingInline: 8 },
-        medium: { optionHeight: 48, optionPaddingInline: 12, optionPaddingBlock: 8, optionGap: 12, optionLeadingIconSize: 24, optionMarkSize: 24, groupTitlePaddingInline: 12 },
+        medium: { optionHeight: 40, optionPaddingInline: 12, optionPaddingBlock: 8, optionGap: 12, optionLeadingIconSize: 24, optionMarkSize: 24, groupTitlePaddingInline: 12 },
       },
     },
     sideSheet: {

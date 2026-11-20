@@ -286,7 +286,10 @@
               "$type": "dimension",
               "$description": "A suggestion row's minimum height: a combobox option's, so that a list of suggestions and a list of options are drawn alike.",
               "medium": {
-                "$value": "{tanrei.comp.combobox.option.height.medium}"
+                "$value": "{tanrei.comp.combobox.option.height.medium}",
+                "$extensions": {
+                  "dev.tanrei.aligned": "control"
+                }
               },
               "small": {
                 "$value": "{tanrei.comp.combobox.option.height.small}"

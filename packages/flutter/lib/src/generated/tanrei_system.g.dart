@@ -3512,7 +3512,7 @@ const TanreiSystem tanreiSystem = TanreiSystem(
         groupTitlePaddingInline: 8.0,
       ),
       medium: TanreiComboboxOptionSizeTokens(
-        optionHeight: 48.0,
+        optionHeight: 40.0,
         optionPaddingInline: 12.0,
         optionPaddingBlock: 8.0,
         optionGap: 12.0,
@@ -3837,7 +3837,7 @@ const TanreiSystem tanreiSystem = TanreiSystem(
   fabMenu: TanreiFabMenuTokens(
     containerShapeOpen: 9999.0,
     itemGap: 8.0,
-    itemHeight: 48.0,
+    itemHeight: 40.0,
     itemIconSize: 20.0,
     itemLabelTypescale: _typescaleLabel,
     itemPaddingInlineEnd: 20.0,
@@ -5988,7 +5988,7 @@ const TanreiSystem tanreiSystem = TanreiSystem(
         groupTitlePaddingInline: 8.0,
       ),
       medium: TanreiMenuSizeTokens(
-        containerHeight: 48.0,
+        containerHeight: 40.0,
         containerPaddingInline: 12.0,
         containerPaddingBlock: 8.0,
         containerGap: 12.0,
@@ -7594,7 +7594,7 @@ const TanreiSystem tanreiSystem = TanreiSystem(
         suggestionLeadingIconSize: 20.0,
       ),
       medium: TanreiSearchSizeTokens(
-        suggestionContainerHeight: 48.0,
+        suggestionContainerHeight: 40.0,
         suggestionContainerPaddingInline: 12.0,
         suggestionContainerPaddingBlock: 8.0,
         suggestionContainerGap: 12.0,
@@ -8003,7 +8003,7 @@ const TanreiSystem tanreiSystem = TanreiSystem(
         groupTitlePaddingInline: 8.0,
       ),
       medium: TanreiSelectOptionSizeTokens(
-        optionHeight: 48.0,
+        optionHeight: 40.0,
         optionPaddingInline: 12.0,
         optionPaddingBlock: 8.0,
         optionGap: 12.0,

@@ -3530,7 +3530,7 @@ private let acmeComboboxTokens = TanreiComboboxTokens(
       groupTitlePaddingInline: 8
     ),
     medium: TanreiComboboxOptionSizeTokens(
-      optionHeight: 48,
+      optionHeight: 40,
       optionPaddingInline: 12,
       optionPaddingBlock: 8,
       optionGap: 12,
@@ -3864,7 +3864,7 @@ private let acmeEmptyStateTokens = TanreiEmptyStateTokens(
 private let acmeFabMenuTokens = TanreiFabMenuTokens(
   containerShapeOpen: 9999,
   itemGap: 8,
-  itemHeight: 48,
+  itemHeight: 40,
   itemIconSize: 20,
   itemLabelTypescale: acmeTypescale.label,
   itemPaddingInlineEnd: 20,
@@ -6034,7 +6034,7 @@ private let acmeMenuTokens = TanreiMenuTokens(
       groupTitlePaddingInline: 8
     ),
     medium: TanreiMenuSizeTokens(
-      containerHeight: 48,
+      containerHeight: 40,
       containerPaddingInline: 12,
       containerPaddingBlock: 8,
       containerGap: 12,
@@ -7659,7 +7659,7 @@ private let acmeSearchTokens = TanreiSearchTokens(
       suggestionLeadingIconSize: 20
     ),
     medium: TanreiSearchSizeTokens(
-      suggestionContainerHeight: 48,
+      suggestionContainerHeight: 40,
       suggestionContainerPaddingInline: 12,
       suggestionContainerPaddingBlock: 8,
       suggestionContainerGap: 12,
@@ -8070,7 +8070,7 @@ private let acmeSelectTokens = TanreiSelectTokens(
       groupTitlePaddingInline: 8
     ),
     medium: TanreiSelectOptionSizeTokens(
-      optionHeight: 48,
+      optionHeight: 40,
       optionPaddingInline: 12,
       optionPaddingBlock: 8,
       optionGap: 12,

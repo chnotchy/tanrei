@@ -4657,7 +4657,7 @@ export const cupertino = {
       focusedOpacity: 1,
       hoveredOpacity: 1,
       itemGap: 8,
-      itemHeight: 48,
+      itemHeight: 44,
       itemIconSize: 20,
       itemLabelTypescale: "label",
       itemPaddingInlineEnd: 20,
