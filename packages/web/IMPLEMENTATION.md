@@ -9863,6 +9863,14 @@ Good to know:
   element's content width (`--_aps-window`, which the element measures with the resize observer it already runs) —
   less the main region's least width (its start inset, a touch target, its end inset) and, in an expanded window, the
   aside's width (`aside.width`, or a side sheet's as the element measures it in every frame it slides, `--_aps-aside`).
+  Both are written on the navigation region, the one box that reads them, so that a window resized or a sheet that
+  slides restyles that region and not the page; the window's width only where it differs from `100vw`, so that a
+  window without a scrollbar that takes room is written nothing. Every write the frame makes — these, the footer's
+  height on itself and the four lengths on the root (APS-17) — goes through `setTokens()`, which changes the number of
+  the element's custom properties with it: an element below the root or the frame holds the whole token set, and a
+  write that left the number as it was had WebKit compare it value by value for every element (see "A single token
+  set on the root from script is slow in WebKit": the window's top inset written alone on a documentation page held
+  WebKit for 30 s, its bottom inset 110 s).
   A navigation drawer reads it as the room its parent gives it (NVD-97). Not `100vw`: that counts a scrollbar that
   takes room in the window (a classic one, or the gutter `scrollbar-gutter: stable` keeps) as the row's, and the main
   region got that much less than its least width. The root, not the frame itself: in a box as wide as its content

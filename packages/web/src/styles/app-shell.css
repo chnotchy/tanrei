@@ -50,10 +50,15 @@
  *                                            window, whatever scrolls: for what is drawn over the page (APS-17)
  *   --tanrei-app-shell-window-inset-bottom   (on the document's root) the same over the bottom of the window
  *   --_aps-footer (on the element)           the footer's measured height: where the navigation and the aside stop staying in view (APS-11)
- *   --_aps-aside (on the element)            a side sheet's measured width, as it slides: what an aside beside the main region
+ *   --_aps-aside (on the navigation region)  a side sheet's measured width, as it slides: what an aside beside the main region
  *                                            takes of the window, which the navigation leaves it (APS-5, APS-10)
- *   --_aps-window (on the element)           the window's width as the page has it: the root's measured content width, less
- *                                            a scrollbar that takes room in the window — the row's whole room (APS-5)
+ *   --_aps-window (on the navigation region) the window's width as the page has it: the root's measured content width, less
+ *                                            a scrollbar that takes room in the window — the row's whole room (APS-5);
+ *                                            only where it differs from 100vw
+ *
+ * Each on the one box that reads it, and every write of them and of the four on the root changes the number of the
+ * element's custom properties (`setTokens()`): WebKit otherwise compares the whole token set, value by value, for every
+ * element below the one written
  *
  * and this stylesheet gives everything the frame holds
  *
@@ -531,7 +536,8 @@
     :where(tanrei-app-shell):where(:has(> [slot='aside']:not(tanrei-side-sheet, [hidden]))) {
       --_aps-aside-beside: var(--tanrei-comp-app-shell-aside-width);
     }
-    :where(tanrei-app-shell):where(:has(> tanrei-side-sheet[slot='aside']:not([hidden]))) {
+    /* The sheet's width is written on the navigation region, the one box that reads it: here, where it is read. */
+    :where(tanrei-app-shell):where(:has(> tanrei-side-sheet[slot='aside']:not([hidden]))) > :where([slot='navigation']) {
       --_aps-aside-beside: var(--_aps-aside, 0px);
     }
     /* APS-9: the aside beside the main region at the end edge, aside.width wide, its first line level with the main
