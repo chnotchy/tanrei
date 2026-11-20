@@ -172,7 +172,7 @@ export const drawerWindow = (id: string) => ({ width: DRAWER_WINDOW_WIDTHS[id] ?
  * The frame two of the navigation drawer's fixtures are drawn in: 800 high (NVD-57's verify), where the others' is 560.
  * A fixture cannot state the size of its stage either, so the two ids are named here.
  */
-export const DRAWER_STAGE_HEIGHTS: Record<string, number> = { 'site-sidebar-long': 800, 'site-sidebar-restored': 800 };
+export const DRAWER_STAGE_HEIGHTS: Record<string, number> = { 'site-sidebar-long': 800, 'site-sidebar-restored': 800, sticky: 400 };
 
 /**
  * The window an app shell fixture is drawn alone in (APS-2's verify): 1280 × 800 for a fixture whose id begins with
@@ -1488,7 +1488,8 @@ const STAGING: Record<string, Staging> = {
   // `main-action` slot, its glyph in its `icon` slot; a destination's content is a glyph in its `trailing` slot,
   // decorative (the spec's web mapping). A responsive fixture's stage stands for the window it is drawn alone in
   // (`drawerWindow`: 1280, 800 or 400 wide): as wide as the window, the drawer at its start edge. The two long site
-  // sidebars are drawn in a stage 800 high (`DRAWER_STAGE_HEIGHTS`).
+  // sidebars are drawn in a stage 800 high, and `sticky` in one 400 high, short enough that its rows scroll under its
+  // pinned parents (`DRAWER_STAGE_HEIGHTS`).
   'navigation-drawer': {
     css: () => `.stage:has(> tanrei-navigation-drawer) { box-sizing: border-box; block-size: 560px; padding-block: 0; padding-inline-start: 0; }
       .stage:has(> tanrei-navigation-drawer[responsive]) { inline-size: 100vw; }

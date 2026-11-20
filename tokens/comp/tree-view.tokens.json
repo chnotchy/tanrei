@@ -74,20 +74,20 @@
         "container": {
           "height": {
             "$type": "dimension",
-            "$description": "A row's least height, per size: the box that carries hover, focus, press and the selected fill. Medium is a navigation drawer's row, 48 in the default system. Small is the small step of the control heights, never below the minimum target (36 in the default system), for a tool used with a pointer and for a small tree inside text; a row is never lower than the target, whatever this says (TRV-26). A minimum: a row grows with a label that wraps and with enlarged text.",
+            "$description": "A row's least height, per size: the box that carries hover, focus, press and the selected fill. Medium is a navigation drawer's row, drawn at the control height (40 in the default system). Small is the small step of the control heights, never below the minimum target (36 in the default system), for a tool used with a pointer and for a small tree inside text; a row is never lower than the target, whatever this says (TRV-26). A minimum: a row grows with a label that wraps and with enlarged text.",
             "medium": {
               "$value": {
-                "value": 48,
+                "value": 40,
                 "unit": "px"
               },
               "$extensions": {
                 "dev.tanrei.derive": {
                   "fn": "mul",
-                  "of": "{tanrei.dial.size.unit}",
-                  "by": 12,
-                  "round": "{tanrei.dial.size.unit}",
+                  "of": "{tanrei.sys.control.height.medium}",
+                  "by": 1,
                   "min": "{tanrei.sys.target.minimum}"
-                }
+                },
+                "dev.tanrei.aligned": "control"
               }
             },
             "small": {
@@ -110,13 +110,13 @@
             "$description": "Above the first line and below the last line of a row's text, per size. With one line of the label it gives the height or leaves room; it holds the room when the label wraps or the text is enlarged.",
             "medium": {
               "$value": {
-                "value": 12,
+                "value": 8,
                 "unit": "px"
               },
               "$extensions": {
                 "dev.tanrei.derive": {
                   "fn": "pad",
-                  "of": "{tanrei.sys.space.space150}",
+                  "of": "{tanrei.sys.space.space100}",
                   "height": "{tanrei.comp.tree-view.container.height.medium}"
                 }
               }
@@ -223,10 +223,10 @@
             "$type": "dimension",
             "$description": "The box of the glyph before the label, per size: a navigation drawer's destination glyph, medium its regular row's and small its compact row's, so that a tree beside a drawer draws its glyphs at the drawer's size. The glyph is centred on the label's first line.",
             "medium": {
-              "$value": "{tanrei.comp.navigation-drawer.item.icon.size.regular}"
+              "$value": "{tanrei.comp.navigation-drawer.item.icon.size.medium}"
             },
             "small": {
-              "$value": "{tanrei.comp.navigation-drawer.item.icon.size.compact}"
+              "$value": "{tanrei.comp.navigation-drawer.item.icon.size.small}"
             }
           },
           "gap": {

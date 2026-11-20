@@ -24,7 +24,10 @@ import { middlePressAimed } from '../../../test/middle-press.js';
 import { expectBaseline } from '../../../test/baseline.js';
 import { controlledElements, controlledInTree } from '../../../test/controlled-list.js';
 import { transitionsRun, watchTransitions } from '../../../test/transitions.js';
+import { expectScrimTakenAwayAtClose } from '../../../test/scrim-at-close.js';
+import { expectGlyphsKeptWhileClosing } from '../../../test/closing-glyphs.js';
 import { STACKED_DIALOG, STACKED_LAYER, addStackedSurfaces, expectStackedInOrder, focusAmong, setOpenInOneTask } from '../../../test/stacked-surfaces.js';
+import { CONTROL_HEIGHTS, atControlHeight } from '../../../test/control-height.js';
 
 const spec = loadSpec('navigation-drawer');
 type P = Page;
@@ -367,9 +370,9 @@ test.describe('states, press and focus', () => {
     }
   });
 
-  test('NVD-6: the hit area is the whole cell — the drawer’s width, with half of container.gap above and below, never below the minimum target — in both forms, without changing the drawn cell; hover over any of it answers on the item container', async ({ page }) => {
+  test('NVD-6: the hit area is the whole cell — the drawer’s width, with half of container.gap above and below, never below the minimum target — in both forms; where the cell and the gap give less, the cell is drawn higher, never its hit area over a neighbour’s; hover over any of it answers on the item container', async ({ page }) => {
     await mount(page, [fixture('r', MAIL), rail('c', MAIL)], { reducedMotion: true });
-    const [gap, pointer] = await Promise.all([T('container-gap-regular'), '--tanrei-sys-target-pointer'].map((n) => px(page, n)));
+    const [gap, pointer] = await Promise.all([T('container-gap-medium'), '--tanrei-sys-target-pointer'].map((n) => px(page, n)));
     for (const id of ['r', 'c']) {
       await drawer(page, id).scrollIntoViewIfNeeded();
       const box = await bounds(cell(page, id, 1));
@@ -394,10 +397,20 @@ test.describe('states, press and focus', () => {
       expect(await drawer(page, id).evaluate((el: any) => el.value), id).toBe('drafts');
     }
     expect(await log(page)).toEqual(['change:drafts:drafts', 'change:drafts:drafts']);
-    // A system whose cells and gap give less still reaches the target.
-    await override(page, { [T('item-container-height-regular')]: '20px', [T('container-gap-regular')]: '0px' });
-    expect(await cell(page, 'r', 1).evaluate((el) => Number.parseFloat(getComputedStyle(el, '::before').height))).toBe(pointer);
-    expect((await bounds(cell(page, 'r', 1))).height).toBeLessThan(pointer);
+    // A system whose cells and gap give less still reaches the target: the cell is drawn higher, the target less the
+    // gap, and its hit area stays the cell and half the gap around it, never over a neighbour's cell (BTN-5).
+    for (const narrow of [0, 2]) {
+      await override(page, { [T('item-container-height-medium')]: '20px', [T('container-gap-medium')]: `${narrow}px` });
+      await drawer(page, 'r').scrollIntoViewIfNeeded();
+      const drawnCell = await bounds(cell(page, 'r', 1));
+      expect(drawnCell.height, `gap ${narrow}`).toBeCloseTo(pointer - narrow, 1);
+      expect(await cell(page, 'r', 1).evaluate((el) => Number.parseFloat(getComputedStyle(el, '::before').height)), `gap ${narrow}`).toBeCloseTo(pointer, 1);
+      const next = await bounds(cell(page, 'r', 2));
+      expect(next.y - (drawnCell.y + drawnCell.height), `gap ${narrow}`).toBeCloseTo(narrow, 1);
+      const at = (x: number, y: number) => page.evaluate(([xx, yy]) => document.elementFromPoint(xx, yy)?.closest('tanrei-navigation-drawer-item')?.getAttribute('value') ?? null, [x, y]);
+      expect(await at(drawnCell.x + 2, drawnCell.y + drawnCell.height - 1), `gap ${narrow}`).toBe('sent');
+      expect(await at(next.x + 2, next.y + 1), `gap ${narrow}`).toBe('drafts');
+    }
   });
 
   test('NVD-7: a disabled cell is drawn from the disabled tokens of its condition, its trailing content kept', async ({ page }) => {
@@ -536,7 +549,7 @@ test.describe('states, press and focus', () => {
 test.describe('drawing', () => {
   test('NVD-11: container.width expanded and collapsed.container.width collapsed, beside the start inset, the parent’s full height, its variant’s color, elevation and end corners (start corners square) and end edge; mirrored in right-to-left', async ({ page }) => {
     await mount(page, [fixture('s', MAIL), fixture('m', MAIL, { variant: 'modal' }), rail('c', MAIL)], { reducedMotion: true });
-    const [width, column, edge] = await Promise.all([T('container-width'), T('collapsed-container-width-regular'), T('outline-width')].map((n) => px(page, n)));
+    const [width, column, edge] = await Promise.all([T('container-width'), T('collapsed-container-width-medium'), T('outline-width')].map((n) => px(page, n)));
     for (const [id, variant, w] of [
       ['s', 'standard', width],
       ['m', 'modal', width],
@@ -568,7 +581,7 @@ test.describe('drawing', () => {
 
   test('NVD-12: the header and then, header.gap below, the items; padding-block measured to the first cell; container.gap between cells; the items scroll and the header stays', async ({ page }) => {
     await mount(page, [fixture('r', [MENU, ...MAIL, ...Array.from({ length: 12 }, (_, i) => d(`x${i}`, `More ${i}`, 'label'))], { collapsible: true }), fixture('bare', MAIL)], { reducedMotion: true });
-    const [pb, gap, headerGap] = await Promise.all([T('container-padding-block'), T('container-gap-regular'), T('header-gap')].map((n) => px(page, n)));
+    const [pb, gap, headerGap] = await Promise.all([T('container-padding-block'), T('container-gap-medium'), T('header-gap')].map((n) => px(page, n)));
     const p = await bounds(panel(page, 'r'));
     const button = await bounds(menu(page, 'r'));
     expect(button.y - p.y).toBeCloseTo(pb, 0);
@@ -586,7 +599,7 @@ test.describe('drawing', () => {
 
   test('NVD-13: an expanded row across the inner width, at least item.container.height, its corners; the icon on the icon column, the wrapping label item.gap after it, the trailing content item.padding-inline from its end; mirrored in right-to-left', async ({ page }) => {
     await mount(page, [fixture('r', [d('inbox', 'Inbox', 'inbox', { trailingText: '24' }), d('long', 'A destination with a name long enough to wrap onto a second line', 'label', { trailingText: 'New' }), d('plain', 'Plain')], { labelWrap: true })]);
-    const [height, radius, ipi, gap, column, pi] = await Promise.all([T('item-container-height-regular'), T('item-container-shape'), T('item-padding-inline-regular'), T('item-gap'), T('collapsed-container-width-regular'), T('container-padding-inline')].map((n) => px(page, n)));
+    const [height, radius, ipi, gap, column, pi] = await Promise.all([T('item-container-height-medium'), T('item-container-shape'), T('item-padding-inline-medium'), T('item-gap'), T('collapsed-container-width-medium'), T('container-padding-inline')].map((n) => px(page, n)));
     const p = await bounds(panel(page, 'r'));
     const [row, icon, label, trailing] = await Promise.all(['.container', '.icon', '.label', '.trailing-text'].map((s) => bounds(item(page, 'r', 0).locator(s))));
     expect(row.height).toBe(height);
@@ -612,7 +625,7 @@ test.describe('drawing', () => {
   test('NVD-13, NVD-69, NVD-70: a nested row’s content begins one step of indent further per level — in auto, what its group’s row draws before its label, so its icon stands where its group’s label begins — and its item container begins there under highlight indented, or at the drawer’s padding under full', async ({ page }) => {
     const end = (id: string, props: Fixture['props'] = {}) => ({ ...spec.fixtures.find((f) => f.id === id)!, id: `${id}-${props.highlight ?? 'indented'}`, props: { ...spec.fixtures.find((f) => f.id === id)!.props, chevron: 'end', ...props } });
     await mount(page, [end('groups-nested', { highlight: 'full' }), end('groups-nested'), end('nested-icons')], { reducedMotion: true });
-    const [pi, ipi, column] = await Promise.all([T('container-padding-inline'), T('item-padding-inline-regular'), T('collapsed-container-width-regular')].map((n) => px(page, n)));
+    const [pi, ipi, column] = await Promise.all([T('container-padding-inline'), T('item-padding-inline-medium'), T('collapsed-container-width-medium')].map((n) => px(page, n)));
     // The verify, under the default system.
     expect([pi, ipi, column]).toEqual([12, 12, 72]);
     const full = 'groups-nested-full';
@@ -621,10 +634,11 @@ test.describe('drawing', () => {
     // groups-nested: Foundations (group, an icon) › Color, Design tokens (group, no icon) › Overview, Tiers.
     const top = await bounds(group(page, full, 0).locator('.row > .container').first());
     expect(top.x - p.x).toBe(12);
-    expect(top.height).toBe(48);
-    // The top-level icon has 12 on its start side inside its item container, as above and below it.
+    expect(top.height).toBe(40);
+    // The top-level icon has 12 on its start side inside its item container, and 8 above and below it in a row at the
+    // control height (40).
     const topIcon = await bounds(group(page, full, 0).locator('.icon').first());
-    expect([topIcon.x - top.x, topIcon.y - top.y, top.y + top.height - (topIcon.y + topIcon.height)]).toEqual([12, 12, 12]);
+    expect([topIcon.x - top.x, topIcon.y - top.y, top.y + top.height - (topIcon.y + topIcon.height)]).toEqual([12, 8, 8]);
     expect(topIcon.x + topIcon.width / 2 - p.x).toBe(36);
     // One level deep (auto): one icon and gap further, so the label is under its group's label, 60.
     expect(await startOf(item(page, full, 0).locator('.label'))).toBe(60);
@@ -664,7 +678,7 @@ test.describe('drawing', () => {
     expect(icon.x).toBe(groupLabel.x);
     const [row, trailing] = [await bounds(box(page, n, 2)), await bounds(item(page, n, 2).locator('.trailing-text'))];
     expect(row.x - r.x).toBe(48);
-    const chevron = await px(page, T('item-trailing-icon-size-regular'));
+    const chevron = await px(page, T('item-trailing-icon-size-medium'));
     const gap = await px(page, T('item-gap'));
     expect(row.x + row.width - (trailing.x + trailing.width)).toBeCloseTo(ipi + chevron + gap, 1);
     // NVD-68: a destination with nothing at its end keeps no room for a chevron it does not have: its text's box ends
@@ -698,7 +712,7 @@ test.describe('drawing', () => {
     await mount(page, [fixture('r', MAIL)]);
     const sys = (name: string) => page.evaluate((n) => getComputedStyle(document.documentElement).getPropertyValue(n).trim(), name);
     const unquote = (family: string) => family.replace(/["']/g, '');
-    const size = await px(page, T('item-icon-size-regular'));
+    const size = await px(page, T('item-icon-size-medium'));
     for (const [n, condition] of [
       [0, 'selected'],
       [1, 'unselected'],
@@ -733,7 +747,7 @@ test.describe('drawing', () => {
 
   test('NVD-16: a section heading in heading.typescale and heading.color, at least heading.height, centred, starting where labels without an icon start; a heading, not focusable; collapsed, its row keeps its height, draws no text and is hidden; empty draws none', async ({ page }) => {
     await mount(page, [fixture('r', [section('Mail', MAIL.slice(0, 2)), section('', [d('x', 'X', 'label')])]), rail('c', [section('Mail', MAIL.slice(0, 2))])], { reducedMotion: true });
-    const [height, pi, ipi] = await Promise.all([T('heading-height-regular'), T('container-padding-inline'), T('item-padding-inline-regular')].map((n) => px(page, n)));
+    const [height, pi, ipi] = await Promise.all([T('heading-height-medium'), T('container-padding-inline'), T('item-padding-inline-medium')].map((n) => px(page, n)));
     const heading = drawer(page, 'r').locator('tanrei-navigation-drawer-section').first().locator('.heading');
     const h = await bounds(heading);
     expect(h.height).toBeGreaterThanOrEqual(height);
@@ -956,7 +970,7 @@ test.describe('drawing', () => {
         id,
       ).toEqual([null, true, []]);
     }
-    const column = await px(page, T('collapsed-container-width-regular'));
+    const column = await px(page, T('collapsed-container-width-medium'));
     /** Where each drawer stands in its stage, and how the tree's open and closed groups' start chevrons are turned. */
     const probe = (root: Element) => {
       const at = (id: string) => {
@@ -1058,7 +1072,7 @@ test.describe('drawing', () => {
 test.describe('the collapsed form', () => {
   test('NVD-30: not collapsible, always expanded whatever expanded says; collapsible standard, as expanded says; collapsible modal, collapsed while closed and expanded while open; the collapsed attribute reflects it', async ({ page }) => {
     await mount(page, [fixture('plain', MAIL, { expanded: false }), rail('std', MAIL), rail('mod', MAIL, { variant: 'modal', open: false, expanded: true })], { reducedMotion: true });
-    const [width, column] = await Promise.all([T('container-width'), T('collapsed-container-width-regular')].map((n) => px(page, n)));
+    const [width, column] = await Promise.all([T('container-width'), T('collapsed-container-width-medium')].map((n) => px(page, n)));
     await expect(drawer(page, 'plain')).not.toHaveAttribute('collapsed');
     expect((await bounds(panel(page, 'plain'))).width).toBeCloseTo(width, 1);
     await expect(drawer(page, 'std')).toHaveAttribute('collapsed', '');
@@ -1075,10 +1089,10 @@ test.describe('the collapsed form', () => {
     await expect.poll(async () => (await bounds(panel(page, 'mod'))).width).toBeCloseTo(width, 1);
   });
 
-  test('NVD-31: every cell, icon, header button and main action glyph is at the same place in both forms; under the default system a cell is 48 high in both with its icon line 24 below its top; collapsedLabels always grows the cells in both forms alike; a heading keeps its row', async ({ page }) => {
+  test('NVD-31: every cell, icon, header button and main action glyph is at the same place in both forms; under the default system a cell is 40 high in both with its icon line 20 below its top; collapsedLabels always grows the cells in both forms alike; a heading keeps its row', async ({ page }) => {
     const items = [MAIN, section('Mail', MAIL)];
     await mount(page, [fixture('e', [MENU, ...items], { collapsible: true }), rail('c', items), fixture('ea', [MENU, ...items], { collapsible: true, collapsedLabels: 'always' }), rail('ca', items, { collapsedLabels: 'always' })], { reducedMotion: true });
-    const [row, pad, ind, gap] = await Promise.all([T('item-container-height-regular'), T('collapsed-item-container-padding-block-regular'), T('item-icon-indicator-height-regular'), T('collapsed-item-gap')].map((n) => px(page, n)));
+    const [row, pad, ind, gap] = await Promise.all([T('item-container-height-medium'), T('collapsed-item-container-padding-block-medium'), T('item-icon-indicator-height-medium'), T('collapsed-item-gap')].map((n) => px(page, n)));
     const line = (await bounds(item(page, 'ca', 0).locator('.short'))).height;
     const above = Math.max(row / 2, pad + ind / 2);
     const at = async (id: string) => {
@@ -1103,32 +1117,34 @@ test.describe('the collapsed form', () => {
     expect(c.icons).toEqual(e.icons);
     expect(c.menu).toEqual(e.menu);
     expect(c.heading).toBeCloseTo(e.heading, 0);
-    // The verify: 48 high in both forms, the icon line 24 below the top.
-    expect(c.cells[0].height).toBe(48);
-    expect(c.icons[0].y - c.cells[0].y).toBe(24);
+    // The verify: 40 high in both forms (the control height), the icon line 20 below the top.
+    expect(c.cells[0].height).toBe(40);
+    expect(c.icons[0].y - c.cells[0].y).toBe(20);
     expect(c.cells[0].height).toBeCloseTo(above + Math.max(row / 2, ind / 2 + pad), 0);
-    // With labels: a cell grows to hold the short label, in both forms alike.
+    // With labels: a cell grows to hold the short label under its item container (the item container's lower half, the
+    // gap, the line and collapsed padding-block again), in both forms alike; the verify: 68 high.
     expect(ca.cells).toEqual(ea.cells);
     expect(ca.icons).toEqual(ea.icons);
     expect(ca.cells[0].height).toBeGreaterThan(c.cells[0].height);
-    expect(ca.cells[0].height).toBeCloseTo(above + Math.max(row / 2, ind / 2 + gap + line + pad), 0);
+    expect(ca.cells[0].height).toBeCloseTo(above + Math.max(row / 2, ind / 2 + pad + gap + line + pad), 0);
+    expect(ca.cells[0].height).toBe(68);
     // The main action's glyph does not move WHERE its padding before the glyph is half the difference of its height and
     // its glyph (NVD-39): measured here, and reported by the test when the system's button does not have that padding.
     expect(Math.abs(c.main.y - e.main.y)).toBeLessThanOrEqual(0.5);
     expect(Math.abs(c.main.x - e.main.x)).toBeLessThanOrEqual(0.5);
   });
 
-  test('NVD-32: collapsed, a top-level cell is its row cut after its icon — under the default system 48 by 48 with the expanded row’s corners, its icon at the point it has expanded, no label, filled exactly as the expanded row is and never a capsule — with no trailing content and none of a group’s items', async ({ page }) => {
+  test('NVD-32: collapsed, a top-level cell is a square as tall as its row — under the default system 40 by 40 with the expanded row’s corners, its icon at the point it has expanded, no label, filled exactly as the expanded row is and never a capsule — with no trailing content and none of a group’s items', async ({ page }) => {
     await mount(page, only('collapsed', 'collapsible-expanded', 'collapsed-groups'), { reducedMotion: true });
     const [column, cw, pad, iw, ih, shape, rowShape] = await Promise.all(
-      [T('collapsed-container-width-regular'), T('collapsed-item-container-width-regular'), T('collapsed-item-container-padding-block-regular'), T('item-icon-indicator-width-regular'), T('item-icon-indicator-height-regular'), T('collapsed-item-container-shape'), T('item-container-shape')].map((n) => px(page, n)),
+      [T('collapsed-container-width-medium'), T('collapsed-item-container-width-medium'), T('collapsed-item-container-padding-block-medium'), T('item-icon-indicator-width-medium'), T('item-icon-indicator-height-medium'), T('collapsed-item-container-shape'), T('item-container-shape')].map((n) => px(page, n)),
     );
     const p = await bounds(panel(page, 'collapsed'));
     const e = await bounds(panel(page, 'collapsible-expanded'));
     for (const n of [0, 1, 2, 3]) {
       const [c, indicator, icon] = await Promise.all(['.row > .container', '.icon-indicator', '.icon'].map((s) => bounds(item(page, 'collapsed', n).locator(s))));
-      // The verify: 48 by 48, centred in the icon column.
-      expect([c.width, c.height], `${n}`).toEqual([48, 48]);
+      // The verify: 40 by 40 (the control height), centred in the icon column.
+      expect([c.width, c.height], `${n}`).toEqual([40, 40]);
       expect([c.width, column]).toEqual([cw, 72]);
       expect(centre(c).x - p.x).toBeCloseTo(column / 2, 1);
       expect([indicator.width, indicator.height]).toEqual([iw, ih]);
@@ -1143,8 +1159,8 @@ test.describe('the collapsed form', () => {
       // The icon is at the point it has in the expanded drawer.
       const [expandedIcon, expandedRow] = [await bounds(item(page, 'collapsible-expanded', n).locator('.icon')), await bounds(box(page, 'collapsible-expanded', n))];
       expect([icon.x - p.x, icon.y - p.y]).toEqual([expandedIcon.x - e.x, expandedIcon.y - e.y]);
-      // And the cell is the expanded row cut after its icon: the same start, top and height.
-      expect([c.x - p.x, c.y - p.y, c.height]).toEqual([expandedRow.x - e.x, expandedRow.y - e.y, expandedRow.height]);
+      // And the cell is a square as tall as the expanded row, at its top: the same top and height, centred in the column.
+      expect([c.y - p.y, c.height, c.width]).toEqual([expandedRow.y - e.y, expandedRow.height, expandedRow.height]);
       // No label: neither the expanded one nor a short one under the icon.
       await expect(item(page, 'collapsed', n).locator('.short')).toHaveCSS('opacity', '0');
       await expect(item(page, 'collapsed', n).locator('.row > .text')).toHaveCSS('opacity', '0');
@@ -1159,21 +1175,53 @@ test.describe('the collapsed form', () => {
     await expect(item(page, 'collapsed-groups', 1)).toBeHidden();
   });
 
-  test('NVD-32: where a short label is drawn it is collapsed.item.gap under the icon indicator, centred on one line, cut with an ellipsis, collapsed padding-block below it; under m3-like, in collapsed-labels-always, the cell is Material’s — a 56 by 32 indicator behind the glyph and the short label under it', async ({ page }) => {
-    await mount(page, only('collapsed-labels-always'), { reducedMotion: true });
-    const [pad, gap, cw] = await Promise.all([T('collapsed-item-container-padding-block-regular'), T('collapsed-item-gap'), T('collapsed-item-container-width-regular')].map((n) => px(page, n)));
-    const [c, indicator, short] = await Promise.all(['.row > .container', '.icon-indicator', '.short'].map((s) => bounds(item(page, 'collapsed-labels-always', 0).locator(s))));
-    expect(c.width).toBeCloseTo(cw, 1);
-    expect(indicator.y - c.y).toBeCloseTo(pad, 1);
-    expect(short.y - (indicator.y + indicator.height)).toBeCloseTo(gap, 1);
-    expect(c.y + c.height - (short.y + short.height)).toBeCloseTo(pad, 0);
-    await expect(item(page, 'collapsed-labels-always', 0).locator('.short')).toHaveCSS('opacity', '1');
+  test('NVD-32: where a short label is drawn the item container stays the square behind the icon and the label is collapsed.item.gap under it, outside it, centred on one line across the column less its margins, cut with an ellipsis, collapsed padding-block below it, the hit area over both; under m3-like, in collapsed-labels-always, the cell is Material’s — a 56 by 32 indicator behind the glyph and the short label under it', async ({ page }) => {
+    await mount(page, only('collapsed-labels-always', 'collapsed-short-labels'), { reducedMotion: true });
+    const [pad, gap, cw, column, margin] = await Promise.all(
+      [T('collapsed-item-container-padding-block-medium'), T('collapsed-item-gap'), T('collapsed-item-container-width-medium'), T('collapsed-container-width-medium'), T('collapsed-item-label-padding-inline')].map((n) => px(page, n)),
+    );
+    const p = await bounds(panel(page, 'collapsed-labels-always'));
+    for (const n of [0, 1, 2, 3]) {
+      const [c, indicator, short, hit] = await Promise.all(['.row > .container', '.icon-indicator', '.short', '.cell'].map((s) => bounds(item(page, 'collapsed-labels-always', n).locator(s))));
+      // The verify: the item container is the same 40 by 40 square with a label as without one, behind the icon alone.
+      expect([c.width, c.height], `${n}`).toEqual([cw, cw]);
+      expect([c.width, c.height]).toEqual([40, 40]);
+      expect(indicator.y - c.y).toBeCloseTo(pad, 1);
+      expect(c.y + c.height - (indicator.y + indicator.height)).toBeCloseTo(pad, 1);
+      // The short label: the gap under the item container, collapsed padding-block below it inside the cell.
+      expect(short.y - (c.y + c.height)).toBeCloseTo(gap, 1);
+      expect(hit.y + hit.height - (short.y + short.height)).toBeCloseTo(pad, 0);
+      // Across nearly the column (64 = 72 - 2 × 4), centred on the icon column, not the item container's width.
+      expect(short.width).toBeCloseTo(column - 2 * margin, 1);
+      expect(short.width).toBe(64);
+      expect(short.x - p.x).toBeCloseTo(margin, 1);
+      expect(centre(short).x).toBeCloseTo(centre(c).x, 1);
+      // The hit area (the cell) covers the icon and the short label.
+      expect(hit.y).toBeLessThanOrEqual(c.y);
+      expect(hit.y + hit.height).toBeGreaterThanOrEqual(short.y + short.height);
+      expect(hit.x).toBeLessThanOrEqual(short.x);
+      expect(hit.x + hit.width).toBeGreaterThanOrEqual(short.x + short.width);
+      await expect(item(page, 'collapsed-labels-always', n).locator('.short')).toHaveCSS('opacity', '1');
+    }
     expect(await css(item(page, 'collapsed-labels-always', 0).locator('.short'), 'text-align')).toBe('center');
+    // The verify: every label but Notifications is drawn whole, Settings among them; a label wider than the column's
+    // room (Notifications) is still cut. The text's own width is compared, since scrollWidth is rounded.
+    const cut = (id: string, n: number) =>
+      item(page, id, n)
+        .locator('.short-text')
+        .evaluate((el) => {
+          const range = document.createRange();
+          range.selectNodeContents(el);
+          return range.getBoundingClientRect().width > el.getBoundingClientRect().width + 0.01;
+        });
+    expect(await Promise.all([0, 1, 2, 3].map((n) => cut('collapsed-labels-always', n)))).toEqual([false, false, false, false]);
+    expect(await Promise.all([0, 1, 2, 3].map((n) => cut('collapsed-short-labels', n)))).toEqual([false, false, false, true]);
     await mount(page, only('collapsed-labels-always'), { reducedMotion: true, system: 'm3-like' });
     const m3 = await Promise.all(['.icon-indicator', '.short', '.icon'].map((s) => bounds(item(page, 'collapsed-labels-always', 0).locator(s))));
     expect([m3[0].width, m3[0].height]).toEqual([56, 32]);
     expect(centre(m3[2]).x).toBeCloseTo(centre(m3[0]).x, 0);
     expect(m3[1].y).toBeGreaterThanOrEqual(m3[0].y + m3[0].height);
+    expect(centre(m3[1]).x).toBeCloseTo(centre(m3[0]).x, 0);
     await expect(item(page, 'collapsed-labels-always', 0).locator('.short')).toHaveCSS('opacity', '1');
     await page.mouse.move(700, 5);
     await expect.poll(() => css(item(page, 'collapsed-labels-always', 0).locator('.icon-indicator'), 'background-color')).toBe(await resolveColor(page, T('collapsed-selected-item-icon-indicator-color')));
@@ -1430,7 +1478,7 @@ test.describe('the collapsed form', () => {
     // line it stands in, which is the row's centre.)
     await drawer(page, 'h').evaluate((el) => el.insertAdjacentHTML('beforeend', '<span slot="header" id="title" style="display: block">Mail</span>'));
     await drawer(page, 't').evaluate((el) => el.insertAdjacentHTML('beforeend', '<span slot="header" id="t-title">Mail</span>'));
-    const [column, itemGap, gap, pi] = await Promise.all([T('collapsed-container-width-regular'), T('header-item-gap'), T('item-gap'), T('container-padding-inline')].map((n) => px(page, n)));
+    const [column, itemGap, gap, pi] = await Promise.all([T('collapsed-container-width-medium'), T('header-item-gap'), T('item-gap'), T('container-padding-inline')].map((n) => px(page, n)));
     const p = await bounds(panel(page, 'h'));
     const buttons = drawer(page, 'h').locator('tanrei-button[slot="header-button"]');
     const [first, second] = [await bounds(buttons.nth(0)), await bounds(buttons.nth(1))];
@@ -1477,7 +1525,7 @@ test.describe('the collapsed form', () => {
   test('NVD-39: the main action is the Main Action Button — collapsed to its icon while the drawer is collapsed, extended while expanded, centred in the icon column and started at the same place; its label its name; a second one is not drawn and is reported', async ({ page }) => {
     const seen = warnings(page);
     await mount(page, [fixture('d', [MENU, MAIN, { ...MAIN, props: { label: 'Other' } }, ...MAIL], { collapsible: true })], { reducedMotion: true });
-    const column = await px(page, T('collapsed-container-width-regular'));
+    const column = await px(page, T('collapsed-container-width-medium'));
     const main = drawer(page, 'd').locator('tanrei-main-action-button').first();
     expect(await main.evaluate((el: any) => el.collapsed)).toBe(false);
     const expanded = await bounds(main);
@@ -1495,18 +1543,18 @@ test.describe('the collapsed form', () => {
     await expect.poll(() => seen.filter((w) => w.includes('NVD-39')).length).toBe(1);
   });
 
-  test('NVD-39: the main action’s glyph is centred on the destinations’ icon line — small, medium and large, regular and compact, expanded and collapsed, left to right and right to left, under the default system, m3-like and cupertino; a square wider than the column and a trailing glyph are reported', async ({ page }) => {
+  test('NVD-39: the main action’s glyph is centred on the destinations’ icon line — small, medium and large, in a medium and a small drawer, expanded and collapsed, left to right and right to left, under the default system, m3-like and cupertino; a square wider than the column and a trailing glyph are reported', async ({ page }) => {
     test.setTimeout(120_000);
     const SIZES = ['small', 'medium', 'large'] as const;
-    const DENSITIES = ['regular', 'compact'] as const;
+    const ROWS = ['medium', 'small'] as const;
     const glyph = async (id: string) => centre(await bounds(drawer(page, id).locator('tanrei-main-action-button').locator('.icon-box'))).x;
     const icon = async (id: string) => centre(await bounds(item(page, id, 0).locator('.icon'))).x;
     const measured: string[] = [];
     for (const system of [undefined, 'm3-like', 'cupertino'] as const) {
       for (const direction of ['ltr', 'rtl'] as const) {
         const seen = warnings(page);
-        const fixtures = DENSITIES.flatMap((density) =>
-          SIZES.map((size) => ({ ...fixture(`${density}-${size}`, [MENU, { ...MAIN, props: { label: 'Compose', size } }, ...MAIL], { collapsible: true, density }), direction })),
+        const fixtures = ROWS.flatMap((rows) =>
+          SIZES.map((size) => ({ ...fixture(`${rows}-${size}`, [MENU, { ...MAIN, props: { label: 'Compose', size } }, ...MAIL], { collapsible: true, size: rows }), direction })),
         );
         await mount(page, fixtures, { reducedMotion: true, ...(system ? { system } : {}) });
         for (const form of ['expanded', 'collapsed'] as const) {
@@ -1520,11 +1568,11 @@ test.describe('the collapsed form', () => {
             expect(Math.abs(g - i), where).toBeLessThanOrEqual(0.5);
           }
         }
-        // Under the default system the line is 36 from the start edge in the regular column and 28 in the compact one.
+        // Under the default system the line is 36 from the start edge in the medium column and 28 in the small one.
         if (!system && direction === 'ltr') {
-          for (const density of DENSITIES) {
-            const p = await bounds(panel(page, `${density}-medium`));
-            expect((await icon(`${density}-medium`)) - p.x).toBe(density === 'regular' ? 36 : 28);
+          for (const rows of ROWS) {
+            const p = await bounds(panel(page, `${rows}-medium`));
+            expect((await icon(`${rows}-medium`)) - p.x).toBe(rows === 'medium' ? 36 : 28);
           }
         }
         // Reported: a collapsed square wider than the column — the large one in the default system's columns.
@@ -1544,7 +1592,7 @@ test.describe('the collapsed form', () => {
 
   test('NVD-40: a modal collapsible drawer keeps its column in the layout in the standard look while closed, and widens over the content from it in the modal look with the scrim, over motion.expand, without resizing the content', async ({ page }) => {
     await mount(page, only('modal-collapsible-closed'));
-    const [column, width] = await Promise.all([T('collapsed-container-width-regular'), T('container-width')].map((n) => px(page, n)));
+    const [column, width] = await Promise.all([T('collapsed-container-width-medium'), T('container-width')].map((n) => px(page, n)));
     const id = 'modal-collapsible-closed';
     const host = await bounds(drawer(page, id));
     expect(host.width).toBeCloseTo(column, 1);
@@ -1582,7 +1630,7 @@ test.describe('the collapsed form', () => {
     expectAnimated(seen, 'width');
   });
 
-  test('NVD-40: closing, the drawer is never swapped for another look — 800 wide the dialog narrows to its column and its color, elevation, corners and edge move to the column’s with it, in every engine, the column then drawn as its last frame was, and the selected destination’s color moves with its width, focused or not (NVD-35); 390 wide the modal drawer slides all the way out over its fading scrim before it leaves; 1280 wide the standard drawer keeps its look while it collapses — and the column’s last look is the docked column’s', async ({ page }) => {
+  test('NVD-40: closing, the drawer is never swapped for another look — 800 wide the dialog narrows to its column and its color, elevation, corners and edge move to the column’s with it, in every engine, the column then drawn as its last frame was, and the selected destination’s color moves with its width, focused or not (NVD-35); 390 wide the modal drawer slides all the way out before it leaves, its scrim gone from the first frame (MOT-8); 1280 wide the standard drawer keeps its look while it collapses — and the column’s last look is the docked column’s', async ({ page }) => {
     const docs = (open: boolean) => [rail('r', MAIL, { responsive: true, open, expanded: true })];
     // 1280: the docked drawer collapses to its column (NVD-35); its look is the standard drawer's throughout.
     await page.setViewportSize({ width: 1280, height: 720 });
@@ -1613,7 +1661,8 @@ test.describe('the collapsed form', () => {
     // ended; then the column, in the last frame's look.
     expect(closing.frames.filter((frame) => frame.probe.modal).map((frame) => frame.index)).toEqual([]);
     expect(closing.frames.filter((frame) => frame.probe.top).length).toBeGreaterThan(4);
-    expectNoJump(closing, [...LOOK, ...SELECTED, 'width', 'scrim']);
+    expectNoJump(closing, [...LOOK, ...SELECTED, 'width']);
+    expectScrimGone(closing);
     const last = [closing.before, ...closing.frames].filter((frame) => frame.probe.top).at(-1)!;
     expect(lookOf(last.probe), 'the last frame in the top layer').toEqual(lookOf(docked));
     expect(closing.rest.probe).toMatchObject({ tag: 'nav', modal: false, width: 72, x: column.x, y: column.y });
@@ -1657,8 +1706,9 @@ test.describe('the collapsed form', () => {
     const shown = [sliding.before, ...sliding.frames].filter((frame) => frame.probe.shown);
     expect(shown.length).toBeGreaterThan(4);
     expectSteady({ ...sliding, frames: shown.slice(1), rest: shown.at(-1)! }, LOOK);
-    // What of it is on screen goes to nothing, and its scrim to 0, without a frame that cuts either short.
-    expectNoJump(sliding, ['reach', 'scrim']);
+    // What of it is on screen goes to nothing without a frame that cuts it short; its scrim is gone from the first frame (MOT-8).
+    expectNoJump(sliding, ['reach']);
+    expectScrimGone(sliding);
     expect(sliding.rest.probe).toMatchObject({ shown: false, modal: false, reach: 0, scrim: 0 });
   });
 
@@ -1762,7 +1812,8 @@ test.describe('the collapsed form', () => {
     const closing = await sampleFrames(stage, () => page.mouse.up(), { probe: panelLook, elements: false });
     expect(closing.complete).toBe(true);
     expect(closing.rest.probe).toMatchObject({ tag: 'nav', modal: false, width: 72 });
-    expectNoJump(closing, [...LOOK, ...SELECTED, 'width', 'scrim']);
+    expectNoJump(closing, [...LOOK, ...SELECTED, 'width']);
+    expectScrimGone(closing);
     expectInStep(closing, 'selA');
     expect(selectedOf(closing.rest.probe), 'the selected destination after closing').toEqual(selectedOf(column));
     // NVD-22: focus back where it was when the drawer opened, once the change of form is under way — and given as the
@@ -1840,7 +1891,8 @@ test.describe('the collapsed form', () => {
     );
     expect(closing.complete).toBe(true);
     expect(closing.rest.probe).toMatchObject({ tag: 'nav', modal: false, width: 72 });
-    expectNoJump(closing, [...LOOK, 'width', 'scrim']);
+    expectNoJump(closing, [...LOOK, 'width']);
+    expectScrimGone(closing);
     // NVD-22: focus back on the destination that had it when the drawer opened — it never left it — drawn focused as it was.
     await expect.poll(() => activeValue(page)).toBe('inbox');
     expect(await focusMoves(page), 'NVD-22: focus stays on the destination').toEqual([]);
@@ -1895,7 +1947,7 @@ test.describe('the collapsed form', () => {
         expect(each.box, `${id} ${index}`).toEqual([expect.closeTo(rest[index].x, 2), expect.closeTo(rest[index].width, 2), expect.closeTo(rest[index].height, 2)]);
       }
       // The icon indicator — transparent in the default system — grows in width from its centre, at full height.
-      expect(change.grow, id).toEqual({ duration: Math.round(selection), from: '0px', to: `${await px(page, T('item-icon-indicator-width-regular'))}px` });
+      expect(change.grow, id).toEqual({ duration: Math.round(selection), from: '0px', to: `${await px(page, T('item-icon-indicator-width-medium'))}px` });
       expect(await Promise.all([0, 1, 2, 3].map((k) => bounds(cell(page, id, k))))).toEqual(before);
     }
     await expect.poll(() => css(item(page, 'collapsed-labels-selected', 1).locator('.short'), 'opacity')).toBe('1');
@@ -1948,7 +2000,7 @@ test.describe('the collapsed form', () => {
     const seen = warnings(page);
     await mount(page, [...only('trailing'), fixture('both', [{ ...d('a', 'A', 'inbox', { trailingText: '9' }), content: 'open_in_new' }], { value: 'a' }), fixture('focusable', [d('a', 'A', 'inbox'), d('b', 'B', 'send')], { value: 'a' })], { reducedMotion: true });
     await page.mouse.move(700, 5);
-    const size = await px(page, T('item-trailing-icon-size-regular'));
+    const size = await px(page, T('item-trailing-icon-size-medium'));
     const glyph = item(page, 'trailing', 3).locator('.trailing-slot');
     expect((await bounds(glyph)).width).toBe(size);
     expect(await css(glyph, 'color')).toBe(await resolveColor(page, T('unselected-item-trailing-icon-color')));
@@ -1969,7 +2021,7 @@ test.describe('the collapsed form', () => {
   test('NVD-44, NVD-68: a group’s row is drawn as a destination’s with its chevron — at the end expand_more at trailing-icon.size, turned half a turn while open; at the start chevron_right, turned a quarter turn; open and close move the cells below over motion.disclosure', async ({ page }) => {
     const groups = spec.fixtures.find((f) => f.id === 'groups')!;
     await mount(page, [{ ...groups, id: 'end', props: { ...groups.props, chevron: 'end' } }, { ...groups, id: 'start' }], { reducedMotion: false });
-    const [trailing, height] = await Promise.all([T('item-trailing-icon-size-regular'), T('item-container-height-regular')].map((n) => px(page, n)));
+    const [trailing, height] = await Promise.all([T('item-trailing-icon-size-medium'), T('item-container-height-medium')].map((n) => px(page, n)));
     const chevron = group(page, 'end', 0).locator('.chevron').first();
     await expect(chevron).toHaveText('expand_more');
     expect((await bounds(chevron)).width).toBe(trailing);
@@ -2087,7 +2139,7 @@ test.describe('the collapsed form', () => {
     await expect(item(page, 'c', 1).locator('.short')).toHaveText('Beta');
     await expect(item(page, 'c', 1).locator('.short')).toHaveCSS('opacity', '1');
     await expect(item(page, 'c', 1).locator('.icon-indicator')).toHaveCount(1);
-    const column = await px(page, T('collapsed-container-width-regular'));
+    const column = await px(page, T('collapsed-container-width-medium'));
     expect(centre(await bounds(item(page, 'c', 1).locator('.icon-indicator'))).x - (await bounds(panel(page, 'c'))).x).toBeCloseTo(column / 2, 1);
     await expect.poll(() => seen.filter((w) => w.includes('NVD-49')).length).toBe(1);
   });
@@ -2147,6 +2199,29 @@ test.describe('forms and focus', () => {
     expect(await page.evaluate(() => document.activeElement?.id)).toBe('menu');
   });
 
+  test('NVD-22, NVD-40, MOT-8: closing a modal drawer — sliding out, or narrowing back to its column — its scrim is drawn at no opacity and takes no press from the first frame while the drawer still moves, and opening fades it in from no opacity, in every engine; where motion is reduced it is gone from the first frame too', async ({ page }) => {
+    const closedFixture = (id: string) => {
+      const given = spec.fixtures.find((f) => f.id === id)!;
+      return { ...given, props: { ...given.props, open: false } };
+    };
+    for (const [id, what] of [['modal', 'sliding out'], ['modal-collapsible-closed', 'narrowing to its column']] as const) {
+      await mountFixtures(page, spec, { icons: true, fixtures: [closedFixture(id)] });
+      const set = (value: boolean) => () => drawer(page, id).evaluate((el, v) => ((el as unknown as { open: boolean }).open = v), value);
+      await set(true)();
+      await motionEnded(page);
+      await expectScrimTakenAwayAtClose(page, page.locator(`[data-fixture="${id}"]`), { open: set(true), close: set(false), what: `a modal drawer ${what}` });
+    }
+  });
+
+  test('NVD-22: a closing modal drawer with no collapsed form, outside an app shell (a dialog handed from modal to leaving), keeps every row’s glyph drawn — painted in its first frame as it was open, and in every frame visible, opaque, shaped and in its place in the panel until the panel carries it past the window’s start edge', async ({ page }) => {
+    await page.setViewportSize({ width: 768, height: 600 });
+    await mount(page, [fixture('m', MAIL, { variant: 'modal', open: false })]);
+    const set = (open: boolean) => () => drawer(page, 'm').evaluate((el, value) => ((el as unknown as { open: boolean }).open = value), open);
+    await set(true)();
+    await motionEnded(page);
+    await expectGlyphsKeptWhileClosing(page, page.locator('[data-fixture="m"]'), { open: set(true), close: set(false), what: 'a modal dialog' });
+  });
+
   test('NVD-18, NVD-28: opened, and closed with focus inside, at the end of a task that outlasts its motions, a standard drawer slides in and out and what focus goes to takes its focused colors from the first frame drawn after that task', async ({ page }) => {
     // WebKit dates a transition begun in a task from the frame drawn before it: where the task took longer than the
     // motions last, the drawer was drawn in place or gone, and what focus went to drawn focused, at once.
@@ -2168,7 +2243,7 @@ test.describe('forms and focus', () => {
   test('NVD-18: a standard drawer takes its form’s width while open and none while closed — hidden from assistive technology and focus — sliding over the enter and exit motion, at once where motion is reduced; no scrim, no close, no trap', async ({ page }) => {
     await mount(page, [fixture('s', MAIL), rail('c', MAIL)]);
     await wire(page);
-    const [width, column, enter, exit] = [await px(page, T('container-width')), await px(page, T('collapsed-container-width-regular')), await resolveToken(page, T('motion-enter-duration'), 'duration'), await resolveToken(page, T('motion-exit-duration'), 'duration')];
+    const [width, column, enter, exit] = [await px(page, T('container-width')), await px(page, T('collapsed-container-width-medium')), await resolveToken(page, T('motion-enter-duration'), 'duration'), await resolveToken(page, T('motion-exit-duration'), 'duration')];
     expect((await bounds(drawer(page, 's'))).width).toBe(width);
     expect((await bounds(drawer(page, 'c'))).width).toBe(column);
     // Mid-slide is sampled on the transition's own timeline, not the wall clock.
@@ -2877,7 +2952,7 @@ test.describe('a drawer that follows the window', () => {
     await expect(drawer(page, 'r').locator('nav.standard')).toHaveCount(1);
   });
 
-  test('NVD-54: open over the content at 800 wide and resized to 1280, the drawer is standard and expanded, has ended its presentation over the content — one close and one presentationChange — and Tab leaves it', async ({ page }) => {
+  test('NVD-54, NVD-55: open over the content at 800 wide and resized to 1280, the drawer is standard and expanded and still open — one presentationChange, no close — the page behind free and Tab leaving it; resized back to 800 it is over the content again, open, its scrim drawn at once, and focus left outside it moves to its menu button', async ({ page }) => {
     await inWindow(page, 800, {}, { reducedMotion: false });
     await page.evaluate(() => document.body.insertAdjacentHTML('beforeend', '<button id="after">After</button>'));
     await wire(page);
@@ -2889,16 +2964,34 @@ test.describe('a drawer that follows the window', () => {
     await resize(page, 1280);
     const drawn = await page.evaluate(() => (window as any).drawn);
     expect(drawn).toMatchObject({ tag: 'nav', host: 240 });
-    expect(await state(page)).toMatchObject({ presentation: 'standard', open: false, expanded: true, collapsed: false });
-    expect(await log(page)).toEqual(['expanded:true', 'close', 'presentation:standard']);
+    expect(await state(page)).toMatchObject({ presentation: 'standard', open: true, expanded: true, collapsed: false });
+    expect(await log(page)).toEqual(['expanded:true', 'presentation:standard']);
     await expect(drawer(page, 'r').locator('dialog')).toHaveCount(0);
+    expect(await page.evaluate(() => document.querySelectorAll(':modal').length)).toBe(0);
     // The page behind is free again, and focus that the overlay kept inside is free to leave: Tab goes on to the content.
     await motionEnded(drawer(page, 'r'));
     await page.locator('#after').focus();
     expect(await page.evaluate(() => document.activeElement?.id)).toBe('after');
     await tabTo(page, cell(page, 'r', 0));
     await tabTo(page, page.locator('#after'));
-    expect(await state(page)).toMatchObject({ presentation: 'standard', open: false });
+    // 800 again: over the content, open, as the person left it — its scrim there in the first frame (MOT-8), and focus,
+    // left on the page that is now inert, on the drawer's menu button.
+    const back = await sampleFrames(page.locator('body'), () => page.setViewportSize({ width: 800, height: 640 }), {
+      elements: false,
+      probe: (root) => {
+        const host = root.querySelector('[data-fixture="r"] tanrei-navigation-drawer')!;
+        const dialog = host.shadowRoot!.querySelector('dialog');
+        const shown = !!dialog && (dialog.matches(':modal') || dialog.matches(':popover-open'));
+        return { modal: !!dialog && dialog.matches(':modal'), scrim: shown ? Number(getComputedStyle(dialog!, '::backdrop').opacity) : -1 };
+      },
+    });
+    const first = back.frames.find((frame) => frame.probe.modal);
+    expect(first?.probe.scrim, 'the scrim in the first frame it is over the content').toBe(1);
+    expect(back.frames.filter((frame) => frame.probe.modal).map((frame) => frame.probe.scrim)).not.toContain(0);
+    expect(await state(page)).toMatchObject({ presentation: 'column', open: true });
+    await expect(drawer(page, 'r').locator('dialog[open]')).toHaveCount(1);
+    await expect.poll(() => activeValue(page)).toBe('header-button:Menu');
+    expect(await log(page)).toEqual(['expanded:true', 'presentation:standard', 'presentation:column']);
   });
 
   test('NVD-54: collapsed by its menu button at 1280, resized to 800 and back, the drawer is collapsed again and no resize emitted expandedChange; resized from 1280 to 400 it draws nothing, in one frame, and an open group is still open when it is next shown; value is kept', async ({ page }) => {
@@ -2938,6 +3031,36 @@ test.describe('a drawer that follows the window', () => {
     await expect(cell(page, 'r', 1)).toHaveAttribute('aria-current', 'page');
     expect((await log(page)).filter((entry) => entry.startsWith('expanded'))).toEqual(['expanded:false', 'expanded:true']);
     expect((await log(page)).at(-1)).toBe('presentation:modal');
+  });
+
+  test('NVD-54, NVD-55: a drawer with no collapsed form open at 400 wide stays open through 1280 and back — no close, focus kept on the destination that had it, the modal dialog again at 400 — and closed then gives focus back to where it was before it opened', async ({ page }) => {
+    await inWindow(page, 400, { collapsible: false }, { reducedMotion: true });
+    await page.evaluate(() => document.body.insertAdjacentHTML('afterbegin', '<button id="before">Before</button>'));
+    await wire(page);
+    await page.locator('#before').focus();
+    await setProps(page, 'r', { open: true });
+    await expect(drawer(page, 'r').locator('dialog[open]')).toHaveCount(1);
+    await expect.poll(() => activeValue(page)).toBe('inbox');
+    await resize(page, 1280);
+    expect(await state(page)).toMatchObject({ presentation: 'standard', open: true, expanded: true });
+    await expect(drawer(page, 'r').locator('dialog')).toHaveCount(0);
+    await expect.poll(() => activeValue(page)).toBe('inbox');
+    await tabTo(page, cell(page, 'r', 1));
+    await resize(page, 400);
+    expect(await state(page)).toMatchObject({ presentation: 'modal', open: true });
+    expect(await drawer(page, 'r').locator('dialog').evaluate((el) => el.matches(':modal'))).toBe(true);
+    await expect.poll(() => activeValue(page)).toBe('sent');
+    expect(await log(page)).toEqual(['presentation:standard', 'presentation:modal']);
+    await page.keyboard.press('Escape');
+    await expect.poll(async () => (await state(page)).open).toBe(false);
+    await expect.poll(() => page.evaluate(() => document.activeElement?.id)).toBe('before');
+    expect(await log(page)).toEqual(['presentation:standard', 'presentation:modal', 'close']);
+    // Closed by the product while it stands beside the content, it is not over the content when the window narrows.
+    await setProps(page, 'r', { open: true });
+    await resize(page, 1280);
+    await setProps(page, 'r', { open: false });
+    await resize(page, 400);
+    await expect(drawer(page, 'r').locator('dialog[open]')).toHaveCount(0);
   });
 
   test('NVD-54: open over the content at 400 wide and resized to 800 and back, the drawer stays open — no close, the modal dialog still, focus where it was — and closed then gives focus back to where it was before it opened', async ({ page }) => {
@@ -3007,7 +3130,7 @@ test.describe('a drawer that follows the window', () => {
     expect((await log(page)).filter((entry) => entry.startsWith('close'))).toEqual([]);
   });
 
-  test('NVD-55: the presentation is derived from the width alone and written into no prop; open is false again after every close and whenever the presentation becomes standard, and kept by a change between the column and the modal presentations; expanded is the user’s, written by no change of presentation and stored nowhere, and neither follows the other; a drawer created in a window 400 wide with open false shows nothing in its first frame and animates nothing', async ({ page }) => {
+  test('NVD-55: the presentation is derived from the width alone and written into no prop; open is false again after every close and kept by every change of presentation; expanded is the user’s, written by no change of presentation and stored nowhere, and neither follows the other; a drawer created in a window 400 wide with open false shows nothing in its first frame and animates nothing', async ({ page }) => {
     // The first frame: decided before the element first renders, so nothing moves into place.
     await page.setViewportSize({ width: 400, height: 640 });
     const html = await fixturesDocument(spec, { fixtures: [{ ...RESPONSIVE, id: 'r' }], icons: true });
@@ -3044,8 +3167,7 @@ test.describe('a drawer that follows the window', () => {
       }
       return [el.presentation, el.variant, el.getAttribute('variant'), el.open, el.expanded, el.hasAttribute('collapsible')];
     })).toEqual(['modal', 'standard', 'standard', false, true, true]);
-    // open is transient: false again after a close, and once the presentation is standard; a change between the column
-    // and the modal presentations keeps it (NVD-54).
+    // open is transient: false again after a close, and kept by every change of presentation (NVD-54).
     await setProps(page, 'r', { open: true });
     await page.keyboard.press('Escape');
     await expect.poll(async () => (await state(page)).open).toBe(false);
@@ -3053,10 +3175,13 @@ test.describe('a drawer that follows the window', () => {
     await resize(page, 800);
     expect(await state(page)).toMatchObject({ open: true, presentation: 'column' });
     await resize(page, 1280);
-    expect(await state(page)).toMatchObject({ open: false, presentation: 'standard' });
+    expect(await state(page)).toMatchObject({ open: true, presentation: 'standard' });
     await resize(page, 400);
-    expect(await state(page)).toMatchObject({ open: false, presentation: 'modal' });
+    expect(await state(page)).toMatchObject({ open: true, presentation: 'modal' });
+    await page.keyboard.press('Escape');
+    await expect.poll(async () => (await state(page)).open).toBe(false);
     await resize(page, 1280);
+    expect(await state(page)).toMatchObject({ open: false, presentation: 'standard' });
     // expanded is the user's choice, kept for the element's lifetime and written to no storage.
     await menu(page, 'r').click();
     await resize(page, 400);
@@ -3198,10 +3323,10 @@ test.describe('a site’s sidebar', () => {
       }
     });
 
-  test('NVD-57: in site-sidebar-long, a frame 800 high, the items are scrolled by 3120 in the first frame and the selected row is centred; site-sidebar-restored stays at its 2900 because the row is in view there; no frame shows the items at 0 and focus does not move', async ({ page }) => {
+  test('NVD-57: in site-sidebar-long, a frame 800 high, the items are scrolled by 2580 in the first frame and the selected row is centred; site-sidebar-restored stays at its 2364 because the row is in view there; no frame shows the items at 0 and focus does not move', async ({ page }) => {
     for (const [f, top, row] of [
-      [LONG, 3120, 376],
-      [RESTORED, 2900, 596],
+      [LONG, 2580, 380],
+      [RESTORED, 2364, 596],
     ] as const) {
       await watched(page, [f]);
       const { frames, events } = await seen(page);
@@ -3209,9 +3334,9 @@ test.describe('a site’s sidebar', () => {
       expect(frames.every((each) => each.focus)).toBe(true);
       expect(events).toEqual([]);
       const at = await scrolled(page, f.id);
-      // 77 cells, 4024 tall, in a frame 800 high; the selected row 3496 from the start of the items.
-      expect(at).toMatchObject({ offset: top, top, height: 4024, space: 800, range: 3224, row });
-      expect(at.row! + top).toBe(3496);
+      // 77 cells of 40 a gap of 4 apart, 3408 tall, in a frame 800 high; the selected row 2960 from the start of the items.
+      expect(at).toMatchObject({ offset: top, top, height: 3408, space: 800, range: 2608, row });
+      expect(at.row! + top).toBe(2960);
     }
     expect((await scrolled(page, RESTORED.id)).centre).not.toBe(0);
     await watched(page, [LONG]);
@@ -3235,26 +3360,27 @@ test.describe('a site’s sidebar', () => {
     expect(await set('/foundations/principles/')).toEqual({ top: 100, body: true });
     // Half out of view counts as out of view.
     const half = await rowOf(longItem(page, '/getting-started/web/'));
-    await drawer(page, LONG.id).evaluate((el: any, to) => (el.scrollOffset = to), half.fromStart + 24);
+    await drawer(page, LONG.id).evaluate((el: any, to) => (el.scrollOffset = to), half.fromStart + 20);
     expect((await set('/getting-started/web/')).top).toBe(0);
     // Out of view below: centred exactly.
     const far = await rowOf(longItem(page, '/components/button/'));
-    expect(await set('/components/button/')).toEqual({ top: far.fromStart + 24 - 400, body: true });
+    expect(await set('/components/button/')).toEqual({ top: far.fromStart + 20 - 400, body: true });
     expect((await scrolled(page, LONG.id)).centre).toBe(0);
     // The last page: centred as far as the end of the range allows.
-    expect((await set('/roadmap/')).top).toBe(3224);
+    expect((await set('/roadmap/')).top).toBe(2608);
     // NVD-47's row: Components closed, its row shows the selection and is what is brought into view.
     await mount(page, [long({}, (label) => (label === 'Components' ? false : undefined))]);
     const closed = await scrolled(page, LONG.id);
     await expect(longGroup(page, 'Components').locator('.cell').first()).toHaveClass(/\bselected\b/);
     expect(closed.row).not.toBeNull();
-    expect(closed.row! >= 0 && closed.row! + 48 <= closed.space).toBe(true);
-    expect(closed.centre).toBe(0);
+    expect(closed.row! >= 0 && closed.row! + 40 <= closed.space).toBe(true);
+    // Centred, as far as the range allows: with Components closed the items end before the row reaches the middle.
+    expect(closed.centre === 0 || closed.top === closed.range, JSON.stringify(closed)).toBe(true);
     // A standard drawer that was closed takes its place only now: the offset it was given, then its selection.
-    await mount(page, [long({ open: false, scrollOffset: 2900 }), { ...long({ open: false }), id: RESTORED.id }], { reducedMotion: true });
+    await mount(page, [long({ open: false, scrollOffset: 2364 }), { ...long({ open: false }), id: RESTORED.id }], { reducedMotion: true });
     for (const id of [LONG.id, RESTORED.id]) await setProps(page, id, { open: true });
-    expect(await scrolled(page, LONG.id)).toMatchObject({ top: 2900, row: 596 });
-    expect(await scrolled(page, RESTORED.id)).toMatchObject({ top: 3120, centre: 0 });
+    expect(await scrolled(page, LONG.id)).toMatchObject({ top: 2364, row: 596 });
+    expect(await scrolled(page, RESTORED.id)).toMatchObject({ top: 2580, centre: 0 });
   });
 
   test('NVD-58: in site-sidebar every group’s open is false and revealSelected draws Components open in the first frame, without the disclosure motion, with one toggle and no change, reselect or close; closed again by its row it shows the selection and stays closed until value changes; without revealSelected group-closed-selected is as before', async ({ page }) => {
@@ -3267,7 +3393,7 @@ test.describe('a site’s sidebar', () => {
     expect(new Set(heights).size).toBe(1);
     expect(frames[0].groups[0]).toBe(0);
     expect(frames[0].groups[1]).toBe(0);
-    expect(frames[0].groups[2]).toBe(4 * 52);
+    expect(frames[0].groups[2]).toBe(4 * 44);
     expect(frames[0].groups[3]).toBe(0);
     expect(frames.flatMap((each) => each.moving)).toEqual([]);
     expect(events).toEqual(['toggle:Components:true']);
@@ -3446,13 +3572,13 @@ test.describe('a site’s sidebar', () => {
     expect(await said()).toEqual(['click:drawer:prevented']);
   });
 
-  test('NVD-61: scrollOffset reads the present distance and writes it at once, held inside the range (5000 gives 3224 in site-sidebar-long); the attribute is read for the first frame only; a wheel turned past the end of the items leaves the page where it was; closing and opening Foundations with its row 200 from the top leaves the row at 200; keyboard focus on a cell that is not wholly in view scrolls it by the least distance', async ({ page }) => {
+  test('NVD-61: scrollOffset reads the present distance and writes it at once, held inside the range (5000 gives 2608 in site-sidebar-long); the attribute is read for the first frame only; a wheel turned past the end of the items leaves the page where it was; closing and opening Foundations with its row 200 from the top leaves the row at 200; keyboard focus on a cell that is not wholly in view scrolls it by the least distance', async ({ page }) => {
     await page.setViewportSize({ width: 1280, height: 720 });
     await mount(page, [LONG], { reducedMotion: true });
     const long = drawer(page, LONG.id);
     const offset = (to?: number) => long.evaluate((el: any, to) => (to === undefined ? el.scrollOffset : ((el.scrollOffset = to), el.scrollOffset)), to);
-    expect(await offset()).toBe(3120);
-    expect(await offset(5000)).toBe(3224);
+    expect(await offset()).toBe(2580);
+    expect(await offset(5000)).toBe(2608);
     expect(await offset(-40)).toBe(0);
     expect(await offset(1234)).toBe(1234);
     expect((await scrolled(page, LONG.id)).top).toBe(1234);
@@ -3475,17 +3601,17 @@ test.describe('a site’s sidebar', () => {
     // The same wheel beside the drawer does scroll the page.
     await page.evaluate(() => (document.body.style.minBlockSize = '3000px'));
     expect(await long.evaluate((el) => getComputedStyle(el.shadowRoot!.querySelector('.items')!).overscrollBehaviorY)).toBe('contain');
-    await offset(3224 - 200);
+    await offset(2608 - 200);
     for (let turn = 0; turn < 4; turn++) await page.mouse.wheel(0, 400);
     await atRest(page);
-    await expect.poll(() => offset()).toBe(3224);
+    await expect.poll(() => offset()).toBe(2608);
     expect(await page.evaluate(() => window.scrollY)).toBe(0);
     // Longer than Gecko keeps the gesture, on the browser's own clock, which no page clock holds: the next turn is a new one.
     await page.waitForTimeout(1600);
     for (let turn = 0; turn < 4; turn++) await page.mouse.wheel(0, 400);
     await atRest(page);
     expect(await page.evaluate(() => window.scrollY)).toBe(0);
-    expect(await offset()).toBe(3224);
+    expect(await offset()).toBe(2608);
     // What the drawer cancels is only a wheel its items cannot take and nothing else would: one toward the end they are
     // at. Not one back up, not one with Ctrl (the page's zoom, and how a trackpad's pinch arrives), not one sideways,
     // and not one that a scroller inside the items can still take.
@@ -3502,7 +3628,7 @@ test.describe('a site’s sidebar', () => {
     await long.evaluate((el) => el.querySelector('.inner')!.remove());
     await offset(0);
     expect([await cancelled({ deltaY: -100 }), await cancelled({ deltaY: 100 })]).toEqual([true, false]);
-    await offset(3224);
+    await offset(2608);
     await page.mouse.move(900, 300);
     await page.mouse.wheel(0, 400);
     await expect.poll(() => page.evaluate(() => window.scrollY)).toBeGreaterThan(0);
@@ -3520,7 +3646,7 @@ test.describe('a site’s sidebar', () => {
     await row.click();
     await expect(row).toHaveAttribute('aria-expanded', 'false');
     expect((await rowOf(foundations)).inView).toBe(200);
-    expect((await rowOf(below)).inView).toBe(before - 14 * 52);
+    expect((await rowOf(below)).inView).toBe(before - 14 * 44);
     await row.click();
     await expect(row).toHaveAttribute('aria-expanded', 'true');
     expect((await rowOf(foundations)).inView).toBe(200);
@@ -3530,15 +3656,15 @@ test.describe('a site’s sidebar', () => {
     const cells = long.locator('tanrei-navigation-drawer-item');
     await tabTo(page, cells.nth(40).locator('.cell'));
     const next = await rowOf(cells.nth(41));
-    await offset(next.fromStart - 800 + 24);
+    await offset(next.fromStart - 800 + 20);
     await tab(page);
     await expect(cells.nth(41)).toBeFocused();
-    expect(await offset()).toBe(next.fromStart + 48 - 800);
+    expect(await offset()).toBe(next.fromStart + 40 - 800);
     await tab(page);
     await expect(cells.nth(42)).toBeFocused();
-    expect(await offset()).toBe(next.fromStart + 48 - 800 + 52);
+    expect(await offset()).toBe(next.fromStart + 40 - 800 + 44);
     const previous = await rowOf(cells.nth(41));
-    await offset(previous.fromStart + 24);
+    await offset(previous.fromStart + 20);
     await tab(page, { back: true });
     await expect(cells.nth(41)).toBeFocused();
     expect(await offset()).toBe(previous.fromStart);
@@ -3556,7 +3682,7 @@ test.describe('a site’s sidebar', () => {
     await watched(page, [SITE], `document.querySelectorAll('tanrei-navigation-drawer-group').forEach((group) => { if (customElements.get('tanrei-navigation-drawer-group')) throw new Error('upgraded already'); group.open = false; });`);
     let { frames, events } = await seen(page);
     expect(new Set(frames.map((each) => each.groups.join(','))).size, 'the same in every frame').toBe(1);
-    expect(frames[0].groups).toEqual([0, 0, 4 * 52, 0]);
+    expect(frames[0].groups).toEqual([0, 0, 4 * 44, 0]);
     expect(frames.flatMap((each) => each.moving)).toEqual([]);
     expect(events).toEqual(['toggle:Components:true']);
     expect(await opens()).toEqual([false, false, true, false]);
@@ -3575,7 +3701,7 @@ test.describe('a site’s sidebar', () => {
     // script that gave the state back late, above, was that case.)
     await watched(page, [SITE], `document.addEventListener('toggle', (event) => { if (!window.seen.frames.length) queueMicrotask(() => (event.target.open = false)); });`);
     ({ frames, events } = await seen(page));
-    expect(frames[0].groups).toEqual([0, 0, 4 * 52, 0]);
+    expect(frames[0].groups).toEqual([0, 0, 4 * 44, 0]);
     expect(new Set(frames.map((each) => each.groups.join(','))).size).toBe(1);
     expect(frames.flatMap((each) => each.moving)).toEqual([]);
     expect(events).toEqual(['toggle:Components:true']);
@@ -3602,7 +3728,7 @@ test.describe('a site’s sidebar', () => {
       const { frames, events } = await seen(page);
       expect(frames.flatMap((each) => each.moving), value).toEqual([]);
       expect(events, value).toEqual([]);
-      const column = await px(page, T('collapsed-item-container-width-regular'));
+      const column = await px(page, T('collapsed-item-container-width-medium'));
       for (const n of [0, 1, 2, 3]) expect((await bounds(box(page, 'c', n))).width, `${value} ${n}`).toBe(column);
     }
   });
@@ -3672,14 +3798,14 @@ test.describe('a site’s sidebar', () => {
     const mark = source.locator('.link-mark');
     await expect(mark).toHaveText('open_in_new');
     await expect(site.locator('.link-mark')).toHaveCount(1);
-    const size = await px(page, T('item-trailing-icon-size-regular'));
+    const size = await px(page, T('item-trailing-icon-size-medium'));
     expect(await bounds(mark)).toMatchObject({ width: size, height: size });
     expect(await css(mark, 'color')).toBe(await resolveColor(page, T('unselected-item-trailing-icon-color')));
     expect(await css(mark, 'font-size')).toBe(`${size}px`);
     // Where trailing content is: item.padding-inline from the row's end.
     const row = await bounds(source.locator('.row > .container'));
     const at = await bounds(mark);
-    expect(row.x + row.width - (at.x + at.width)).toBeCloseTo(await px(page, T('item-padding-inline-regular')), 1);
+    expect(row.x + row.width - (at.x + at.width)).toBeCloseTo(await px(page, T('item-padding-inline-medium')), 1);
     // Decorative, and not interactive: inside the row's inert, hidden trailing box.
     expect(await mark.evaluate((el) => [el.closest('[aria-hidden="true"]') !== null, el.closest('[inert]') !== null])).toEqual([true, true]);
     // The icon set marks the name, so the helper mirrors it in a right-to-left layout.
@@ -3760,17 +3886,31 @@ test.describe('a site’s sidebar', () => {
   });
 });
 
-test.describe('density', () => {
+test.describe('size', () => {
   const COMPACT = spec.fixtures.find((f) => f.id === 'compact')!;
   const COMPACT_COLLAPSED = spec.fixtures.find((f) => f.id === 'compact-collapsed')!;
 
-  test('NVD-65: compact draws every row, glyph, gap, indent and heading from the compact tokens, and a nested icon stands where its group’s label starts (NVD-13’s verify)', async ({ page }) => {
+  test('NVD-105: at control height 32, 36 and 40, the minimum no higher, a destination’s row of a medium drawer is that tall under a fine pointer, and a collapsed medium drawer’s cell is a square of that side with its icon where it stands expanded', async ({ page }) => {
+    await mount(page, [fixture('r', MAIL), fixture('c', MAIL, { collapsible: true, expanded: false })], { reducedMotion: true });
+    for (const height of CONTROL_HEIGHTS) {
+      await atControlHeight(page, height);
+      await expect.poll(async () => (await bounds(box(page, 'r', 0))).height, `a row at ${height}`).toBeCloseTo(height, 1);
+      const pill = await bounds(box(page, 'c', 0));
+      expect([pill.width, pill.height], `a collapsed cell at ${height}`).toEqual([height, height]);
+      const [p, icon] = [await bounds(panel(page, 'c')), centre(await bounds(item(page, 'c', 0).locator('.icon')))];
+      const expandedIcon = centre(await bounds(item(page, 'r', 0).locator('.icon'))).x - (await bounds(panel(page, 'r'))).x;
+      expect(icon.x - p.x, `the icon at ${height}`).toBeCloseTo(expandedIcon, 0);
+      expect(icon.y, `the icon centred in the cell at ${height}`).toBeCloseTo(pill.y + pill.height / 2, 0);
+    }
+  });
+
+  test('NVD-65: a small drawer draws every row, glyph, gap, indent and heading from the small tokens, and a nested icon stands where its group’s label starts (NVD-13’s verify)', async ({ page }) => {
     await mount(page, [COMPACT, fixture('r', MAIL)], { reducedMotion: true });
     const [height, icon, gap, heading, nest, itemGap] = await Promise.all(
-      ['item-container-height-compact', 'item-icon-size-compact', 'container-gap-compact', 'heading-height-compact', 'item-nest-indent-compact', 'item-gap'].map((n) => px(page, T(n))),
+      ['item-container-height-small', 'item-icon-size-small', 'container-gap-small', 'heading-height-small', 'item-nest-indent-small', 'item-gap'].map((n) => px(page, T(n))),
     );
     // The verify, under the default system.
-    // The compact row is the small step of the control heights, held at the minimum target (36).
+    // The small row is the small step of the control heights, held at the minimum target (36).
     expect([height, icon, gap, heading, nest, itemGap]).toEqual([36, 16, 2, 28, 24, 12]);
     const p = await bounds(panel(page, 'compact'));
     const x = (b: { x: number }) => b.x - p.x;
@@ -3804,18 +3944,18 @@ test.describe('density', () => {
     const [first, second] = [await bounds(cell(page, 'compact', 2)), await bounds(cell(page, 'compact', 3))];
     expect(second.y - (first.y + first.height)).toBeCloseTo(gap, 1);
     expect((await bounds(drawer(page, 'compact').locator('tanrei-navigation-drawer-section').locator('.heading'))).height).toBe(heading);
-    // The group's chevron and a trailing glyph are the compact trailing size; the label is the compact text style.
-    expect((await bounds(tanrei.locator('.chevron').first())).width).toBe(await px(page, T('item-trailing-icon-size-compact')));
+    // The group's chevron and a trailing glyph are the small trailing size; the label is the small text style.
+    expect((await bounds(tanrei.locator('.chevron').first())).width).toBe(await px(page, T('item-trailing-icon-size-small')));
     expect(await css(home.locator('.label'), 'font-size')).toBe(await css(item(page, 'r', 0).locator('.label'), 'font-size'));
-    // A regular drawer beside it is unchanged.
-    expect((await bounds(box(page, 'r', 0))).height).toBe(await px(page, T('item-container-height-regular')));
-    expect((await bounds(item(page, 'r', 0).locator('.icon'))).width).toBe(await px(page, T('item-icon-size-regular')));
+    // A medium drawer beside it is unchanged.
+    expect((await bounds(box(page, 'r', 0))).height).toBe(await px(page, T('item-container-height-medium')));
+    expect((await bounds(item(page, 'r', 0).locator('.icon'))).width).toBe(await px(page, T('item-icon-size-medium')));
   });
 
-  test('NVD-65: compact-collapsed is a 56 column of 36 by 36 cells, every icon, the menu button and the selection at the point it has in the same drawer expanded (NVD-31 in each density)', async ({ page }) => {
+  test('NVD-65: compact-collapsed is a 56 column of 36 by 36 cells, every icon, the menu button and the selection at the point it has in the same drawer expanded (NVD-31 at each size)', async ({ page }) => {
     await mount(page, [COMPACT_COLLAPSED], { reducedMotion: true });
     const p = await bounds(panel(page, 'compact-collapsed'));
-    expect(p.width).toBe(await px(page, T('collapsed-container-width-compact')));
+    expect(p.width).toBe(await px(page, T('collapsed-container-width-small')));
     expect(p.width).toBe(56);
     const pill = await bounds(box(page, 'compact-collapsed', 0));
     expect([pill.width, pill.height]).toEqual([36, 36]);
@@ -3834,16 +3974,16 @@ test.describe('density', () => {
     expect(await at()).toEqual(collapsed);
   });
 
-  test('NVD-65: a change of density on a shown drawer is drawn at once and emits nothing; the form, the selection, every group’s open and focus stay', async ({ page }) => {
-    await mount(page, [{ ...COMPACT, props: { ...COMPACT.props, density: 'regular' } }]);
+  test('NVD-65: a change of size on a shown drawer is drawn at once and emits nothing; the form, the selection, every group’s open and focus stay', async ({ page }) => {
+    await mount(page, [{ ...COMPACT, props: { ...COMPACT.props, size: 'medium' } }]);
     await wire(page);
     await tabTo(page, cell(page, 'compact', 2));
     const before = await page.evaluate(() => [...document.querySelectorAll<any>('tanrei-navigation-drawer-group')].map((g) => g.open));
-    for (const density of ['compact', 'regular', 'compact']) {
-      await setProps(page, 'compact', { density });
-      // No motion: the row is the new density's height in the frame after the change.
-      expect((await bounds(box(page, 'compact', 2))).height, density).toBe(await px(page, T(`item-container-height-${density}`)));
-      expect(await drawer(page, 'compact').getAttribute('density')).toBe(density);
+    for (const size of ['small', 'medium', 'small']) {
+      await setProps(page, 'compact', { size });
+      // No motion: the row is the new size's height in the frame after the change.
+      expect((await bounds(box(page, 'compact', 2))).height, size).toBe(await px(page, T(`item-container-height-${size}`)));
+      expect(await drawer(page, 'compact').getAttribute('size')).toBe(size);
     }
     expect(await log(page)).toEqual([]);
     expect(await page.evaluate(() => [...document.querySelectorAll<any>('tanrei-navigation-drawer-group')].map((g) => g.open))).toEqual(before);
@@ -3851,34 +3991,34 @@ test.describe('density', () => {
     await expect(cell(page, 'compact', 2)).toBeFocused();
   });
 
-  test('NVD-26: a density the active system does not have is drawn as regular and reported; a density a layer added is drawn from its own tokens', async ({ page }) => {
+  test('NVD-26: a size the active system does not have is drawn as medium and reported; a size a layer added is drawn from its own tokens', async ({ page }) => {
     const seen: string[] = [];
     page.on('console', (message) => seen.push(message.text()));
-    await mount(page, [fixture('r', MAIL, { density: 'roomy' })], { reducedMotion: true });
-    expect((await bounds(box(page, 'r', 0))).height).toBe(await px(page, T('item-container-height-regular')));
-    await expect.poll(() => seen.some((line) => line.includes('NVD-26') && line.includes('density "roomy"'))).toBe(true);
-    // A layer that adds the value: its tokens draw it, regular's stand in for any it leaves out.
+    await mount(page, [fixture('r', MAIL, { size: 'roomy' })], { reducedMotion: true });
+    expect((await bounds(box(page, 'r', 0))).height).toBe(await px(page, T('item-container-height-medium')));
+    await expect.poll(() => seen.some((line) => line.includes('NVD-26') && line.includes('size "roomy"'))).toBe(true);
+    // A layer that adds the value: its tokens draw it, medium's stand in for any it leaves out.
     await override(page, { [T('item-container-height-roomy')]: '56px' });
-    await setProps(page, 'r', { density: 'regular' });
-    await setProps(page, 'r', { density: 'roomy' });
+    await setProps(page, 'r', { size: 'medium' });
+    await setProps(page, 'r', { size: 'roomy' });
     expect((await bounds(box(page, 'r', 0))).height).toBe(56);
-    expect((await bounds(item(page, 'r', 0).locator('.icon'))).width).toBe(await px(page, T('item-icon-size-regular')));
+    expect((await bounds(item(page, 'r', 0).locator('.icon'))).width).toBe(await px(page, T('item-icon-size-medium')));
   });
 
-  test('NVD-6: a compact cell’s hit area is the cell and half the gap around it for a fine pointer; for touch a compact cell is drawn at least the touch target high', async ({ page, browser, browserName }) => {
+  test('NVD-6: a small cell’s hit area is the cell and half the gap around it for a fine pointer; for touch a small cell is drawn at least the touch target high', async ({ page, browser, browserName }) => {
     await mount(page, [COMPACT], { reducedMotion: true });
-    const gap = await px(page, T('container-gap-compact'));
+    const gap = await px(page, T('container-gap-small'));
     const c = cell(page, 'compact', 0);
     const hit = await c.evaluate((el) => Number.parseFloat(getComputedStyle(el, '::before').height));
     expect(hit).toBeCloseTo((await bounds(c)).height + gap, 1);
-    // In the default system a compact cell is held at the minimum target, which the pointer target aliases.
+    // In the default system a small cell is held at the minimum target, which the pointer target aliases.
     expect((await bounds(c)).height).toBeCloseTo(await px(page, '--tanrei-sys-target-pointer'), 1);
     test.skip(browserName !== 'chromium', 'only Chromium emulates a device whose pointer is coarse');
     const context = await browser.newContext({ hasTouch: true, isMobile: true, viewport: { width: 600, height: 900 }, deviceScaleFactor: 2 });
     const touch = await context.newPage();
     await mount(touch, [COMPACT], { reducedMotion: true });
     expect(await touch.evaluate(() => matchMedia('(pointer: coarse)').matches)).toBe(true);
-    // Under a system whose touch target (48) is taller than the compact cell, as the default system's (36) is not.
+    // Under a system whose touch target (48) is taller than the small cell, as the default system's (36) is not.
     await rootTokens(touch, { '--tanrei-sys-target-touch': '48px' });
     const target = await px(touch, '--tanrei-sys-target-touch');
     expect(target).toBe(48);
@@ -4100,7 +4240,7 @@ test.describe('the row model shared with the tree view', () => {
     const label = (id: string, n: number) => x(item(page, id, n).locator('.label'));
     expect(await label('icon-space', 1)).toBeCloseTo(await label('icon-space', 0), 1);
     // Work and Family: no row of their level has an icon.
-    const ipi = await px(page, T('item-padding-inline-regular'));
+    const ipi = await px(page, T('item-padding-inline-medium'));
     expect((await label('icon-space', 3)) - (await x(box(page, 'icon-space', 3)))).toBeCloseTo(ipi, 1);
     expect((await label('never', 1)) - (await x(box(page, 'never', 1)))).toBeCloseTo(ipi, 1);
     expect((await label('always', 3)) - (await x(box(page, 'always', 3)))).toBeGreaterThan(ipi + 1);
@@ -4162,11 +4302,11 @@ test.describe('the row model shared with the tree view', () => {
   test('NVD-74: supporting text below the label grows the row; inline it stands after the label on its line; it is read as the row’s description', async ({ page }) => {
     await mount(page, [F('supporting')], { reducedMotion: true });
     const id = 'supporting';
-    const height = await px(page, T('item-container-height-regular'));
+    const height = await px(page, T('item-container-height-medium'));
     const [label, note] = [await bounds(item(page, id, 0).locator('.label')), await bounds(item(page, id, 0).locator('.supporting'))];
     expect(note.y).toBeGreaterThanOrEqual(label.y + label.height - 0.5);
     const row = await bounds(box(page, id, 0));
-    const padBlock = await px(page, T('item-padding-block-regular'));
+    const padBlock = await px(page, T('item-padding-block-medium'));
     expect(row.height).toBeGreaterThanOrEqual(height);
     expect(row.y + row.height - (note.y + note.height)).toBeGreaterThanOrEqual(padBlock - 0.5);
     const [l2, n2] = [await bounds(item(page, id, 1).locator('.label')), await bounds(item(page, id, 1).locator('.supporting'))];
@@ -4269,7 +4409,7 @@ test.describe('the row model shared with the tree view', () => {
     const scroller = drawer(page, id).locator('[part="content"]');
     const pinned = () => drawer(page, id).evaluate((el) => [...el.querySelectorAll<any>('tanrei-navigation-drawer-group')].filter((g) => g.isPinned).map((g) => g.label));
     expect(await pinned()).toEqual([]);
-    await scroller.evaluate((el) => (el.scrollTop = 220));
+    await scroller.evaluate((el) => (el.scrollTop = 186));
     await expect.poll(pinned).toEqual(['2026', 'February']);
     const top = (await bounds(scroller)).y;
     const rows = await Promise.all([0, 1].map(async (n) => bounds(groupRow(page, id, n))));
@@ -4280,7 +4420,7 @@ test.describe('the row model shared with the tree view', () => {
     await page.mouse.click(790, 5);
     const target = cell(page, id, 3);
     await target.evaluate((el: any) => el.scrollIntoView({ block: 'start' }));
-    await scroller.evaluate((el) => (el.scrollTop = 220));
+    await scroller.evaluate((el) => (el.scrollTop = 186));
     await tabTo(page, target);
     const b = await bounds(target);
     expect(b.y).toBeGreaterThanOrEqual(rows[1].y + rows[1].height - 1);
@@ -4312,7 +4452,7 @@ test.describe('the row model shared with the tree view', () => {
     const icon = centre(await bounds(item(page, 's', 0).locator('.icon'))).x;
     expect(Math.abs(glyph - icon)).toBeLessThanOrEqual(0.5);
     const p = await bounds(panel(page, 's'));
-    const [chevron, gap] = await Promise.all([T('item-trailing-icon-size-regular'), T('item-gap')].map((n) => px(page, n)));
+    const [chevron, gap] = await Promise.all([T('item-trailing-icon-size-medium'), T('item-gap')].map((n) => px(page, n)));
     expect(icon - p.x).toBeCloseTo(36 + chevron + gap, 1);
   });
 });
@@ -4437,6 +4577,11 @@ function expectInStep(seen: Frames, name: string) {
 }
 /** The frames of a change, from before it to where it rests. */
 const course = (seen: Frames) => [seen.before, ...seen.frames, ...(seen.complete ? [seen.rest] : [])];
+/** MOT-8: a closing draws its scrim at no opacity from its first frame (a frame without one reads no scrim). */
+function expectScrimGone(seen: Frames) {
+  const drawn = seen.frames.filter((frame) => frame.probe.scrim !== undefined && Number(frame.probe.scrim) !== 0).map((frame) => `frame ${frame.index}: ${frame.probe.scrim}`);
+  expect(drawn, 'the scrim from the first frame of the closing').toEqual([]);
+}
 /**
  * No frame changes what `names` read at once: each one either stays where it was or goes from where it started to where
  * it rests on its way (never past either end, beyond rounding) and in no step of more than a third of the whole way —
@@ -4539,7 +4684,7 @@ const focusedAt = (page: P) =>
 const SIDEBAR = fx('filter-empty-field').items!;
 
 test.describe('filter', () => {
-  test('NVD-79: the field stands after the header, filter.gap above what it narrows, inside the padding; a medium text input while regular, small while compact; a collapsed drawer draws none and keeps the text', async ({ page }) => {
+  test('NVD-79: the field stands after the header, filter.gap above what it narrows, inside the padding; a medium text input in a medium drawer, a small one in a small drawer; a collapsed drawer draws none and keeps the text', async ({ page }) => {
     await mount(page, [fx('filter'), fx('filter-compact'), { id: 'col', props: { ...fx('filter').props, collapsible: true, expanded: false }, items: [MENU, ...SIDEBAR.map((x) => ({ ...x, props: { ...x.props, icon: 'folder' } }))] }]);
     const [pad, padBlock, gap] = await Promise.all([T('container-padding-inline'), T('container-padding-block'), T('filter-gap')].map((n) => px(page, n)));
     const [medium, small] = await Promise.all(['--tanrei-comp-input-box-stacked-container-height-medium', '--tanrei-comp-input-box-stacked-container-height-small'].map((n) => px(page, n)));
@@ -4779,7 +4924,7 @@ test.describe('filter', () => {
     await mount(page, [fx('filter'), fx('filter-count-hidden'), fx('filter-none')]);
     await expect(statusLine(page, 'filter')).toHaveText('Matches: 1');
     await expect(statusLine(page, 'filter')).toHaveAttribute('aria-hidden', 'true');
-    const [pad, itemPad] = await Promise.all([T('container-padding-inline'), T('item-padding-inline-regular')].map((n) => px(page, n)));
+    const [pad, itemPad] = await Promise.all([T('container-padding-inline'), T('item-padding-inline-medium')].map((n) => px(page, n)));
     const look = await statusLine(page, 'filter').evaluate((el) => {
       const style = getComputedStyle(el);
       return { start: parseFloat(style.paddingInlineStart), color: style.color, size: style.fontSize };
@@ -5055,7 +5200,7 @@ test.describe('resizable', () => {
     expect(await drawnWidth(page, 'w120')).toBe(least);
     expect(await drawnWidth(page, 'w900')).toBe(most);
     expect(await drawnWidth(page, 'w900-600')).toBe(600);
-    expect(await drawnWidth(page, 'folded')).toBe(await px(page, T('collapsed-container-width-regular')));
+    expect(await drawnWidth(page, 'folded')).toBe(await px(page, T('collapsed-container-width-medium')));
     // The rows are laid out at the width.
     expect((await bounds(box(page, 'w320', 0))).width).toBe(320 - 2 * (await tok('container-padding-inline')));
     // A parent narrower than the width holds it there, and gives it back when it is wide again; nothing is emitted.
@@ -5161,7 +5306,7 @@ test.describe('resizable', () => {
   test('NVD-97, NVD-99, NVD-102: a collapsible drawer in a parent narrower than its least width is as wide as the room; its handle’s least is its column and its greatest the room, and a key’s step changes nothing', async ({ page }) => {
     await wide(page);
     await mount(page, [rail('c', SIDE, { expanded: true })]);
-    const column = await px(page, T('collapsed-container-width-regular'));
+    const column = await px(page, T('collapsed-container-width-medium'));
     const room = 160;
     await listenResize(page);
     await page.locator('[data-fixture="c"]').evaluate((el: HTMLElement, w) => (el.style.inlineSize = `${w}px`), room + 16);
@@ -5303,7 +5448,7 @@ test.describe('resizable', () => {
     await wide(page);
     await mount(page, [rail('c', SIDE, { expanded: true, width: 300 }), fixture('n', SIDE, { width: 300 })], { reducedMotion: true });
     await listenResize(page);
-    const column = await px(page, T('collapsed-container-width-regular'));
+    const column = await px(page, T('collapsed-container-width-medium'));
     // 300 → 200 (stops), → 150 (still 200: above the fold point, 136), → 130 (folds).
     const widths = await dragEdge(page, 'c', [-100, -150, -170]);
     expect(widths.slice(0, 2)).toEqual([200, 200]);
@@ -5428,7 +5573,7 @@ test.describe('resizable', () => {
     await wide(page);
     const seen = warnings(page);
     await mount(page, [rail('c', SIDE, { expanded: true, width: 300 }), fixture('n', SIDE, { resizeLabel: 'Resize navigation' }), fixture('none', SIDE, { label: '' })], { lead: '<button id="before">Before</button>' });
-    const column = await px(page, T('collapsed-container-width-regular'));
+    const column = await px(page, T('collapsed-container-width-medium'));
     await expect(separator(page, 'c')).toHaveAttribute('aria-valuenow', '300');
     await expect(separator(page, 'c')).toHaveAttribute('aria-valuemin', String(column));
     await expect(separator(page, 'c')).toHaveAttribute('aria-valuemax', '400');
@@ -5586,7 +5731,7 @@ test.describe('the room over the content and a column’s room', () => {
     test(`NVD-97, NVD-40, NVD-31: a collapsed drawer in a parent narrower than its column (${dir}) — standard, and a collapsible modal drawer’s column — is the room’s width, laid out from its start edge with every icon in its place and cut at its end edge, where its edge is drawn, nothing past its parent; the column opened there widens from the width it is drawn at to the window less sys.target.touch, and narrows back to it`, async ({ page }) => {
       await page.setViewportSize({ width: 280, height: 640 });
       await mount(page, [rail('c', MAIL), rail('mc', MAIL, { variant: 'modal', open: false })], { dir });
-      const column = await px(page, T('collapsed-container-width-regular'));
+      const column = await px(page, T('collapsed-container-width-medium'));
       expect(column).toBe(72);
       // The stage's padding at its end is 16: its content box is 56 wide, narrower than the column.
       const room = 56;
@@ -5654,7 +5799,7 @@ test.describe('the room over the content and a column’s room', () => {
     test(`NVD-97, NVD-35, NVD-18: in a parent narrower than its column (${dir}) a standard drawer unfolds from the room it is drawn at and folds back to it — in every frame of the change of form its panel is no wider than the room, laid out from its start edge and nothing past its parent, never the column’s own width for a frame — and sliding in, it starts no motion of its panel when the slide ends`, async ({ page }) => {
       await page.setViewportSize({ width: 280, height: 640 });
       await mount(page, [rail('c', MAIL)], { dir });
-      expect(await px(page, T('collapsed-container-width-regular'))).toBe(72);
+      expect(await px(page, T('collapsed-container-width-medium'))).toBe(72);
       // The stage's padding at its end is 16: its content box is 56 wide, narrower than the column.
       const room = 56;
       const stage = page.locator('[data-fixture="c"]');

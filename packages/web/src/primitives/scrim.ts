@@ -38,9 +38,8 @@ export interface SheetScrimOptions {
   /** The scrim's color and blur, each one custom property as `var(--name)`. */
   color: string;
   blur: string;
-  /** The surface's entrance and exit: the scrim fades in step with them, over the same durations and curves. */
+  /** The surface's entrance: the scrim fades in in step with it, over the same duration and curve. */
   enter: { duration: string; easing: string };
-  exit: { duration: string; easing: string };
   /** The cross-fade under reduced motion, which the surface's own fade takes too: by default `sys.motion.role.reduced`. */
   reduced?: string;
 }
@@ -48,13 +47,13 @@ export interface SheetScrimOptions {
 /**
  * The scrim of a sheet that slides from its edge (a modal bottom or side sheet, a surface presented as a bottom sheet),
  * or of a dialog centred in the window: its `::backdrop`, in its color and blur, fading in from transparent in step with
- * the surface's entrance and out in step with its exit — the same duration and curve (MDL-7) — and, where motion is
- * reduced, over the cross-fade that replaces the motion (`sys.motion.role.reduced`, MOT-6), as `appearStyles()` fades
- * the surface there. Compose it
- * before `modalExitStyles()`, which holds the scrim where the dialog changes hands. A rule that turns the scrim's
+ * the surface's entrance — the same duration and curve (MDL-7) — and, where motion is reduced, over the cross-fade that
+ * replaces the motion (`sys.motion.role.reduced`, MOT-6), as `appearStyles()` fades the surface there. It does not fade
+ * out with the surface's exit: `modalExitStyles()`, composed after it, takes it away at once as the dialog begins to
+ * close (MOT-8), and holds it where the dialog changes hands. A rule that turns the scrim's
  * transition off names `transition-property` (the open rule here leaves it alone).
  */
-export function sheetScrimStyles({ dialog, color, blur, enter, exit, reduced = 'var(--tanrei-sys-motion-role-reduced)' }: SheetScrimOptions): CSSResult {
+export function sheetScrimStyles({ dialog, color, blur, enter, reduced = 'var(--tanrei-sys-motion-role-reduced)' }: SheetScrimOptions): CSSResult {
   return unsafeCSS(`
   ${scrimFilter(dialog, blur).cssText}
   ${dialog}::backdrop {
@@ -62,8 +61,6 @@ export function sheetScrimStyles({ dialog, color, blur, enter, exit, reduced = '
     backdrop-filter: ${SCRIM_FILTER.cssText};
     opacity: 0;
     transition-property: opacity;
-    transition-duration: ${exit.duration};
-    transition-timing-function: ${exit.easing};
   }
   ${dialog}[open]::backdrop {
     opacity: 1;
@@ -76,7 +73,6 @@ export function sheetScrimStyles({ dialog, color, blur, enter, exit, reduced = '
     }
   }
   ${reducedMotion(`
-    ${dialog}::backdrop,
     ${dialog}[open]::backdrop {
       transition-duration: ${reduced};
     }

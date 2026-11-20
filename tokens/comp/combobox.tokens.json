@@ -488,17 +488,17 @@
             "$description": "Minimum height of an option's row; the row grows with its text.",
             "medium": {
               "$value": {
-                "value": 48,
+                "value": 40,
                 "unit": "px"
               },
               "$extensions": {
                 "dev.tanrei.derive": {
                   "fn": "mul",
-                  "of": "{tanrei.dial.size.unit}",
-                  "by": 12,
-                  "round": "{tanrei.dial.size.unit}",
+                  "of": "{tanrei.sys.control.height.medium}",
+                  "by": 1,
                   "min": "{tanrei.sys.target.minimum}"
-                }
+                },
+                "dev.tanrei.aligned": "control"
               }
             },
             "small": {

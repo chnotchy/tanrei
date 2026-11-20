@@ -8035,7 +8035,7 @@ export const m3Like = {
       trailingTextColor: { kind: "role", role: "onSurfaceVariant" },
       trailingTextTypescale: "bodySmall",
       sizes: {
-        small: { containerHeightOneLine: 40, containerHeightTwoLine: 56, containerHeightThreeLine: 72, containerPaddingBlock: 4 },
+        small: { containerHeightOneLine: 40, containerHeightTwoLine: 56, containerHeightThreeLine: 72, containerPaddingBlock: 2 },
         medium: { containerHeightOneLine: 56, containerHeightTwoLine: 72, containerHeightThreeLine: 88, containerPaddingBlock: 8 },
       },
     },
@@ -9703,9 +9703,9 @@ export const m3Like = {
     navigationDrawer: {
       breakpointCollapsed: 600,
       breakpointExpanded: 1024,
-      collapsedItemContainerPaddingInline: 0,
       collapsedItemContainerShape: 9999,
       collapsedItemGap: 4,
+      collapsedItemLabelPaddingInline: 4,
       collapsedItemLabelTypescale: "labelSmall",
       containerMaxWidth: 400,
       containerMinWidth: 200,
@@ -10163,9 +10163,9 @@ export const m3Like = {
           },
         },
       },
-      densitys: {
-        regular: { containerGap: 0, itemContainerHeight: 56, itemPaddingInline: 16, itemPaddingBlock: 4, itemNestIndent: 36, itemIconSize: 24, itemIconIndicatorWidth: 56, itemIconIndicatorHeight: 32, itemLabelTypescale: "label", itemTrailingIconSize: 20, collapsedContainerWidth: 80, collapsedItemContainerWidth: 56, collapsedItemContainerPaddingBlock: 0, headingHeight: 36 },
-        compact: { containerGap: 2, itemContainerHeight: 32, itemPaddingInline: 8, itemPaddingBlock: 2, itemNestIndent: 24, itemIconSize: 16, itemIconIndicatorWidth: 16, itemIconIndicatorHeight: 16, itemLabelTypescale: "label", itemTrailingIconSize: 16, collapsedContainerWidth: 56, collapsedItemContainerWidth: 32, collapsedItemContainerPaddingBlock: 8, headingHeight: 28 },
+      sizes: {
+        medium: { containerGap: 0, itemContainerHeight: 56, itemPaddingInline: 16, itemPaddingBlock: 4, itemNestIndent: 36, itemIconSize: 24, itemIconIndicatorWidth: 56, itemIconIndicatorHeight: 32, itemLabelTypescale: "label", itemTrailingIconSize: 20, collapsedContainerWidth: 80, collapsedItemContainerWidth: 56, collapsedItemContainerPaddingBlock: 0, headingHeight: 36 },
+        small: { containerGap: 2, itemContainerHeight: 32, itemPaddingInline: 8, itemPaddingBlock: 2, itemNestIndent: 24, itemIconSize: 16, itemIconIndicatorWidth: 16, itemIconIndicatorHeight: 16, itemLabelTypescale: "label", itemTrailingIconSize: 16, collapsedContainerWidth: 56, collapsedItemContainerWidth: 32, collapsedItemContainerPaddingBlock: 8, headingHeight: 28 },
       },
     },
     numberInput: { motionRepeatDelay: 500, motionRepeatInterval: 100, motionRepeatIntervalFast: 50, stepperGap: 0, stepperInset: 4 },
@@ -13397,8 +13397,8 @@ export const m3Like = {
         },
       },
       sizes: {
-        small: { cellPaddingBlock: 6, cellPaddingInline: 12, cellTextTypescale: "bodySmall", headerTextTypescale: "labelSmall" },
-        medium: { cellPaddingBlock: 12, cellPaddingInline: 16, cellTextTypescale: "body", headerTextTypescale: "label" },
+        small: { rowHeight: 0, cellPaddingBlock: 6, cellPaddingInline: 12, cellTextTypescale: "bodySmall", headerTextTypescale: "labelSmall" },
+        medium: { rowHeight: 52, cellPaddingBlock: 16, cellPaddingInline: 16, cellTextTypescale: "body", headerTextTypescale: "label" },
       },
     },
     tabs: {

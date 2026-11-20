@@ -169,17 +169,17 @@
             "$description": "Minimum height of an item. It grows to the minimum target for touch, with its content and with enlarged text.",
             "medium": {
               "$value": {
-                "value": 48,
+                "value": 40,
                 "unit": "px"
               },
               "$extensions": {
                 "dev.tanrei.derive": {
                   "fn": "mul",
-                  "of": "{tanrei.dial.size.unit}",
-                  "by": 12,
-                  "round": "{tanrei.dial.size.unit}",
+                  "of": "{tanrei.sys.control.height.medium}",
+                  "by": 1,
                   "min": "{tanrei.sys.target.minimum}"
-                }
+                },
+                "dev.tanrei.aligned": "control"
               }
             },
             "small": {

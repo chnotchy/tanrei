@@ -3619,7 +3619,7 @@ private object CupertinoSystemSource {
         TanreiFabMenuTokens(
             containerShapeOpen = 9999.dp,
             itemGap = 8.dp,
-            itemHeight = 48.dp,
+            itemHeight = 44.dp,
             itemIconSize = 20.dp,
             itemLabelTypescale = typescale.label,
             itemPaddingInlineEnd = 20.dp,
@@ -4961,7 +4961,7 @@ private object CupertinoSystemSource {
             trailingTextColor = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant),
             trailingTextTypescale = typescale.bodySmall,
             sizes = TanreiListRowSizes(
-                small = TanreiListRowSizeTokens(containerHeightOneLine = 40.dp, containerHeightTwoLine = 56.dp, containerHeightThreeLine = 72.dp, containerPaddingBlock = 4.dp),
+                small = TanreiListRowSizeTokens(containerHeightOneLine = 40.dp, containerHeightTwoLine = 56.dp, containerHeightThreeLine = 72.dp, containerPaddingBlock = 2.dp),
                 medium = TanreiListRowSizeTokens(containerHeightOneLine = 44.dp, containerHeightTwoLine = 72.dp, containerHeightThreeLine = 88.dp, containerPaddingBlock = 8.dp),
             ),
         )
@@ -5963,9 +5963,9 @@ private object CupertinoSystemSource {
         TanreiNavigationDrawerTokens(
             breakpointCollapsed = 600.dp,
             breakpointExpanded = 1024.dp,
-            collapsedItemContainerPaddingInline = 4.dp,
             collapsedItemContainerShape = 10.dp,
             collapsedItemGap = 4.dp,
+            collapsedItemLabelPaddingInline = 4.dp,
             collapsedItemLabelTypescale = typescale.labelSmall,
             containerMaxWidth = 400.dp,
             containerMinWidth = 200.dp,
@@ -6179,7 +6179,7 @@ private object CupertinoSystemSource {
                         itemContainerColor = TanreiPaint.Role(TanreiColorRole.Primary),
                         itemIconIndicatorColor = TanreiPaint.None,
                         itemIconColor = TanreiPaint.Role(TanreiColorRole.OnPrimary),
-                        itemLabelColor = TanreiPaint.Role(TanreiColorRole.OnPrimary),
+                        itemLabelColor = TanreiPaint.Role(TanreiColorRole.OnSurface),
                         itemSupportingTextColor = TanreiPaint.Role(TanreiColorRole.OnPrimary),
                         itemTrailingTextColor = TanreiPaint.Role(TanreiColorRole.OnPrimary),
                         itemTrailingIconColor = TanreiPaint.Role(TanreiColorRole.OnPrimary),
@@ -6189,7 +6189,7 @@ private object CupertinoSystemSource {
                         itemContainerColor = TanreiPaint.Role(TanreiColorRole.Primary),
                         itemIconIndicatorColor = TanreiPaint.None,
                         itemIconColor = TanreiPaint.Role(TanreiColorRole.OnPrimary),
-                        itemLabelColor = TanreiPaint.Role(TanreiColorRole.OnPrimary),
+                        itemLabelColor = TanreiPaint.Role(TanreiColorRole.OnSurface),
                         itemSupportingTextColor = TanreiPaint.Role(TanreiColorRole.OnPrimary),
                         itemTrailingTextColor = TanreiPaint.Role(TanreiColorRole.OnPrimary),
                         itemTrailingIconColor = TanreiPaint.Role(TanreiColorRole.OnPrimary),
@@ -6199,7 +6199,7 @@ private object CupertinoSystemSource {
                         itemContainerColor = TanreiPaint.Role(TanreiColorRole.Primary),
                         itemIconIndicatorColor = TanreiPaint.None,
                         itemIconColor = TanreiPaint.Role(TanreiColorRole.OnPrimary),
-                        itemLabelColor = TanreiPaint.Role(TanreiColorRole.OnPrimary),
+                        itemLabelColor = TanreiPaint.Role(TanreiColorRole.OnSurface),
                         itemSupportingTextColor = TanreiPaint.Role(TanreiColorRole.OnPrimary),
                         itemTrailingTextColor = TanreiPaint.Role(TanreiColorRole.OnPrimary),
                         itemTrailingIconColor = TanreiPaint.Role(TanreiColorRole.OnPrimary),
@@ -6209,7 +6209,7 @@ private object CupertinoSystemSource {
                         itemContainerColor = TanreiPaint.Role(TanreiColorRole.Primary),
                         itemIconIndicatorColor = TanreiPaint.None,
                         itemIconColor = TanreiPaint.Role(TanreiColorRole.OnPrimary),
-                        itemLabelColor = TanreiPaint.Role(TanreiColorRole.OnPrimary),
+                        itemLabelColor = TanreiPaint.Role(TanreiColorRole.OnSurface),
                         itemSupportingTextColor = TanreiPaint.Role(TanreiColorRole.OnPrimary),
                         itemTrailingTextColor = TanreiPaint.Role(TanreiColorRole.OnPrimary),
                         itemTrailingIconColor = TanreiPaint.Role(TanreiColorRole.OnPrimary),
@@ -6227,9 +6227,9 @@ private object CupertinoSystemSource {
                     ),
                 ),
             ),
-            densitys = TanreiNavigationDrawerDensitys(
-                regular = TanreiNavigationDrawerDensityTokens(containerGap = 4.dp, itemContainerHeight = 48.dp, itemPaddingInline = 12.dp, itemPaddingBlock = 4.dp, itemNestIndent = 36.dp, itemIconSize = 20.dp, itemIconIndicatorWidth = 20.dp, itemIconIndicatorHeight = 20.dp, itemLabelTypescale = typescale.bodyLarge, itemTrailingIconSize = 20.dp, collapsedContainerWidth = 72.dp, collapsedItemContainerWidth = 48.dp, collapsedItemContainerPaddingBlock = 12.dp, headingHeight = 36.dp),
-                compact = TanreiNavigationDrawerDensityTokens(containerGap = 2.dp, itemContainerHeight = 32.dp, itemPaddingInline = 8.dp, itemPaddingBlock = 2.dp, itemNestIndent = 24.dp, itemIconSize = 16.dp, itemIconIndicatorWidth = 16.dp, itemIconIndicatorHeight = 16.dp, itemLabelTypescale = typescale.label, itemTrailingIconSize = 16.dp, collapsedContainerWidth = 56.dp, collapsedItemContainerWidth = 32.dp, collapsedItemContainerPaddingBlock = 8.dp, headingHeight = 28.dp),
+            sizes = TanreiNavigationDrawerSizes(
+                medium = TanreiNavigationDrawerSizeTokens(containerGap = 4.dp, itemContainerHeight = 48.dp, itemPaddingInline = 12.dp, itemPaddingBlock = 4.dp, itemNestIndent = 36.dp, itemIconSize = 20.dp, itemIconIndicatorWidth = 20.dp, itemIconIndicatorHeight = 20.dp, itemLabelTypescale = typescale.bodyLarge, itemTrailingIconSize = 20.dp, collapsedContainerWidth = 72.dp, collapsedItemContainerWidth = 48.dp, collapsedItemContainerPaddingBlock = 12.dp, headingHeight = 36.dp),
+                small = TanreiNavigationDrawerSizeTokens(containerGap = 2.dp, itemContainerHeight = 32.dp, itemPaddingInline = 8.dp, itemPaddingBlock = 2.dp, itemNestIndent = 24.dp, itemIconSize = 16.dp, itemIconIndicatorWidth = 16.dp, itemIconIndicatorHeight = 16.dp, itemLabelTypescale = typescale.label, itemTrailingIconSize = 16.dp, collapsedContainerWidth = 56.dp, collapsedItemContainerWidth = 32.dp, collapsedItemContainerPaddingBlock = 8.dp, headingHeight = 28.dp),
             ),
         )
 
@@ -8425,8 +8425,8 @@ private object CupertinoSystemSource {
                 ),
             ),
             sizes = TanreiTableSizes(
-                small = TanreiTableSizeTokens(cellPaddingBlock = 6.dp, cellPaddingInline = 12.dp, cellTextTypescale = typescale.bodySmall, headerTextTypescale = typescale.labelSmall),
-                medium = TanreiTableSizeTokens(cellPaddingBlock = 12.dp, cellPaddingInline = 16.dp, cellTextTypescale = typescale.body, headerTextTypescale = typescale.label),
+                small = TanreiTableSizeTokens(rowHeight = 0.dp, cellPaddingBlock = 6.dp, cellPaddingInline = 12.dp, cellTextTypescale = typescale.bodySmall, headerTextTypescale = typescale.labelSmall),
+                medium = TanreiTableSizeTokens(rowHeight = 44.dp, cellPaddingBlock = 12.dp, cellPaddingInline = 16.dp, cellTextTypescale = typescale.body, headerTextTypescale = typescale.label),
             ),
         )
 

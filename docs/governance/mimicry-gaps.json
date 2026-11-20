@@ -505,7 +505,7 @@
       "trait": "Material 3's navigation rail is 96 wide collapsed and 220 to 360 wide expanded, and its expanded active indicator hugs its content rather than filling the row.",
       "kind": "appearance",
       "status": "open",
-      "proposal": "m3-like values the navigation drawer 80 wide collapsed and 360 expanded, with a full-width pill. Setting comp.navigation-drawer.collapsed.container.width.regular to 96 and container.width to 220 in m3-like, once its fidelity map covers the rail, would close the widths; a hugging expanded indicator would need a token for the indicator's width in the expanded form."
+      "proposal": "m3-like values the navigation drawer 80 wide collapsed and 360 expanded, with a full-width pill. Setting comp.navigation-drawer.collapsed.container.width.medium to 96 and container.width to 220 in m3-like, once its fidelity map covers the rail, would close the widths; a hugging expanded indicator would need a token for the indicator's width in the expanded form."
     },
     {
       "id": "side-sheet-action-emphasis",
@@ -596,8 +596,8 @@
       ],
       "kind": "appearance",
       "status": "open",
-      "trait": "Material 3's navigation drawer has one row size, and so has the iPadOS sidebar; macOS sizes its sidebar's rows by the person's Sidebar icon size setting, not by the app. Tanrei's drawer has a compact density (NVD-65), and m3-like and cupertino give it Tanrei's own compact values, which neither original publishes.",
-      "proposal": "Material has no compact drawer to follow, so m3-like's compact stays Tanrei's. cupertino could value compact from the macOS sidebar's small size once its fidelity map covers the macOS sidebar; until then a product on cupertino that wants Apple's own rows keeps the regular density."
+      "trait": "Material 3's navigation drawer has one row size, and so has the iPadOS sidebar; macOS sizes its sidebar's rows by the person's Sidebar icon size setting, not by the app. Tanrei's drawer has a small size (NVD-65), and m3-like and cupertino give it Tanrei's own small values, which neither original publishes.",
+      "proposal": "Material has no small drawer to follow, so m3-like's small stays Tanrei's. cupertino could value small from the macOS sidebar's small size once its fidelity map covers the macOS sidebar; until then a product on cupertino that wants Apple's own rows keeps the medium size."
     },
     {
       "id": "date-time-picker-period-place",
