@@ -85,8 +85,8 @@ export type { TanreiNavigationChangeDetail } from '../../primitives/index.js';
 /** The core variants (standard, modal), plus any a design system adds: only `modal` is presented as a modal overlay. */
 export type TanreiNavigationDrawerVariant = 'standard' | 'modal' | (string & {});
 
-/** The core densities (regular, compact), plus any a design system adds (NVD-65). */
-export type TanreiNavigationDrawerDensity = 'regular' | 'compact' | (string & {});
+/** The core sizes (medium, small), plus any a design system adds (NVD-65). */
+export type TanreiNavigationDrawerSize = 'medium' | 'small' | (string & {});
 
 /** Which cells draw their short label while the drawer is collapsed: all of them, only the selected one's, or none. */
 export type TanreiNavigationDrawerCollapsedLabels = 'always' | 'selected' | 'never';
@@ -122,7 +122,7 @@ interface ResizeMetrics {
   least: number;
   /** The greatest: maxWidth or container.max-width, and the room the parent gives, never below the least. */
   most: number;
-  /** The collapsed column's width, for the drawer's density. */
+  /** The collapsed column's width, for the drawer's size. */
   column: number;
   /** container.width, held between the least and the greatest: the width while `width` is null. */
   fallback: number;
@@ -1521,7 +1521,7 @@ interface Place {
   guideAt: string;
 }
 
-/** The lengths the row model is reckoned in, as the cells read them (the drawer's density, NVD-65). */
+/** The lengths the row model is reckoned in, as the cells read them (the drawer's size, NVD-65). */
 const LEN = {
   pad: 'var(--tanrei-comp-navigation-drawer-container-padding-inline)',
   itemPad: 'var(--_nvd-pad)',
@@ -1692,7 +1692,7 @@ export class TanreiNavigationDrawer extends TanreiElement {
       converter: { fromAttribute: (value: string | null) => value !== 'false', toAttribute: (value: boolean) => (value ? '' : 'false') },
     },
     collapsedLabels: { type: String, attribute: 'collapsed-labels', reflect: true },
-    density: { type: String, reflect: true },
+    size: { type: String, reflect: true },
     chevron: { type: String, reflect: true },
     guides: { type: String, reflect: true },
     indent: {
@@ -1770,13 +1770,13 @@ export class TanreiNavigationDrawer extends TanreiElement {
   collapsedLabels: TanreiNavigationDrawerCollapsedLabels = 'never';
 
   /**
-   * How much room a row takes (NVD-65): `regular`, a menu item's row, for a product used by touch as well as by pointer;
-   * `compact`, a tree view's compact row, for a tool used with a pointer whose drawer lists many places. The rows, the
-   * headings, the gaps, the nesting indent and the collapsed column follow it; for touch a row is never lower than the
+   * How much room a row takes (NVD-65): `medium`, a menu item's row at the control height, for a product used by touch
+   * as well as by pointer; `small`, a tree view's small row, for a tool used with a pointer whose drawer lists many
+   * places. The rows, the headings, the gaps, the nesting indent and the collapsed column follow it; for touch a row is never lower than the
    * touch target. A value a design system added is drawn from its own tokens; one the active system lacks is drawn as
-   * `regular` and reported (NVD-26). Reflected.
+   * `medium` and reported (NVD-26). Reflected.
    */
-  density: TanreiNavigationDrawerDensity = 'regular';
+  size: TanreiNavigationDrawerSize = 'medium';
 
   /** Where a group's chevron is drawn (NVD-68): `start` (the default), `end` or `none`. A collapsible drawer draws start as end. Reflected. */
   chevron: 'start' | 'end' | 'none' = 'start';
@@ -2759,7 +2759,7 @@ export class TanreiNavigationDrawer extends TanreiElement {
         class="filter"
         type="search"
         variant="stacked"
-        size=${this.density === 'compact' ? 'small' : 'medium'}
+        size=${this.size === 'small' ? 'small' : 'medium'}
         label=${this.filterLabel}
         placeholder=${this.words.get('filterPlaceholder', this.filterPlaceholder)}
         .value=${value}
@@ -4652,8 +4652,8 @@ export class TanreiNavigationDrawer extends TanreiElement {
       if (changed.has('responsive')) this.watchWidths();
       else this.decide();
     } else if (this.responsive && !this.widths) this.watchWidths(); // its system's widths had not arrived yet
-    // NVD-65: a change of density is drawn at once, without the motions of a change of form, a selection or a group.
-    if (changed.has('density') && this.hasUpdated) this.drawAtOnce();
+    // NVD-65: a change of size is drawn at once, without the motions of a change of form, a selection or a group.
+    if (changed.has('size') && this.hasUpdated) this.drawAtOnce();
     const instant = this.hasAttribute('data-instant');
     const collapsed = this.collapsed;
     // NVD-35: a change of form takes the change's motion, for as long as it lasts; the collapsed attribute reflects it.
@@ -4795,8 +4795,8 @@ export class TanreiNavigationDrawer extends TanreiElement {
     const form = changed.has('collapsible') || changed.has('open') || changed.has('expanded') || changed.has('variant') || presentationChanged;
     if (form || has(changed, 'hasButtons') || has(changed, 'held')) this.syncMenuButton();
     if (form) this.syncMainAction();
-    // NVD-39: the column the main action is placed on changed width (the form, the density): told again where it does not fit.
-    if (form || changed.has('density')) {
+    // NVD-39: the column the main action is placed on changed width (the form, the size): told again where it does not fit.
+    if (form || changed.has('size')) {
       const [main] = this.mainActions;
       if (main) this.reportMainAction(main);
     }

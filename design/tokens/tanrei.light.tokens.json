@@ -34,14 +34,14 @@
             "medium": {
               "$type": "dimension",
               "$value": {
-                "value": 56,
+                "value": 40,
                 "unit": "px"
               }
             },
             "small": {
               "$type": "dimension",
               "$value": {
-                "value": 48,
+                "value": 36,
                 "unit": "px"
               }
             }
@@ -50,14 +50,14 @@
             "medium": {
               "$type": "dimension",
               "$value": {
-                "value": 16,
+                "value": 8,
                 "unit": "px"
               }
             },
             "small": {
               "$type": "dimension",
               "$value": {
-                "value": 12,
+                "value": 6,
                 "unit": "px"
               }
             }
@@ -48133,14 +48133,14 @@
               "medium": {
                 "$type": "dimension",
                 "$value": {
-                  "value": 56,
+                  "value": 40,
                   "unit": "px"
                 }
               },
               "small": {
                 "$type": "dimension",
                 "$value": {
-                  "value": 40,
+                  "value": 36,
                   "unit": "px"
                 }
               }
@@ -48149,14 +48149,14 @@
               "medium": {
                 "$type": "dimension",
                 "$value": {
-                  "value": 88,
+                  "value": 80,
                   "unit": "px"
                 }
               },
               "small": {
                 "$type": "dimension",
                 "$value": {
-                  "value": 72,
+                  "value": 76,
                   "unit": "px"
                 }
               }
@@ -48165,7 +48165,7 @@
               "medium": {
                 "$type": "dimension",
                 "$value": {
-                  "value": 72,
+                  "value": 60,
                   "unit": "px"
                 }
               },
@@ -48424,7 +48424,7 @@
             "medium": {
               "$type": "dimension",
               "$value": {
-                "value": 48,
+                "value": 40,
                 "unit": "px"
               }
             },
@@ -60865,11 +60865,11 @@
                   "$value": {
                     "colorSpace": "srgb",
                     "components": [
-                      0.149,
-                      0.149,
-                      0.149
+                      0.1059,
+                      0.1059,
+                      0.1059
                     ],
-                    "hex": "#262626",
+                    "hex": "#1b1b1b",
                     "alpha": 1
                   }
                 }
@@ -60989,11 +60989,11 @@
                   "$value": {
                     "colorSpace": "srgb",
                     "components": [
-                      0.149,
-                      0.149,
-                      0.149
+                      0.1059,
+                      0.1059,
+                      0.1059
                     ],
-                    "hex": "#262626",
+                    "hex": "#1b1b1b",
                     "alpha": 1
                   }
                 }
@@ -61113,14 +61113,14 @@
                 "$value": {
                   "colorSpace": "srgb",
                   "components": [
-                    0.149,
-                    0.149,
-                    0.149
+                    0.1059,
+                    0.1059,
+                    0.1059
                   ],
-                  "hex": "#262626",
+                  "hex": "#1b1b1b",
                   "alpha": 1
                 },
-                "$description": "The short label on the collapsed active indicator, where collapsedLabels draws one."
+                "$description": "The short label under the collapsed active indicator, where collapsedLabels draws one. It is drawn outside the item container, on the drawer's surface, so it takes a color for that surface (stronger than an unselected label's), not the selected row's content color."
               }
             },
             "state-layer": {
@@ -61240,11 +61240,11 @@
                   "$value": {
                     "colorSpace": "srgb",
                     "components": [
-                      0.149,
-                      0.149,
-                      0.149
+                      0.1059,
+                      0.1059,
+                      0.1059
                     ],
-                    "hex": "#262626",
+                    "hex": "#1b1b1b",
                     "alpha": 1
                   }
                 }
@@ -61745,7 +61745,7 @@
                   "hex": "#4b4b4b",
                   "alpha": 1
                 },
-                "$description": "The short label under the icon, where collapsedLabels draws one."
+                "$description": "The short label under the icon, where collapsedLabels draws one: outside the item container, on the drawer's surface."
               }
             },
             "state-layer": {
@@ -61940,17 +61940,17 @@
         "collapsed": {
           "container": {
             "width": {
-              "compact": {
-                "$type": "dimension",
-                "$value": {
-                  "value": 56,
-                  "unit": "px"
-                }
-              },
-              "regular": {
+              "medium": {
                 "$type": "dimension",
                 "$value": {
                   "value": 72,
+                  "unit": "px"
+                }
+              },
+              "small": {
+                "$type": "dimension",
+                "$value": {
+                  "value": 56,
                   "unit": "px"
                 }
               }
@@ -61959,28 +61959,20 @@
           "item": {
             "container": {
               "padding-block": {
-                "compact": {
+                "medium": {
+                  "$type": "dimension",
+                  "$value": {
+                    "value": 8,
+                    "unit": "px"
+                  }
+                },
+                "small": {
                   "$type": "dimension",
                   "$value": {
                     "value": 10,
                     "unit": "px"
                   }
-                },
-                "regular": {
-                  "$type": "dimension",
-                  "$value": {
-                    "value": 12,
-                    "unit": "px"
-                  }
                 }
-              },
-              "padding-inline": {
-                "$type": "dimension",
-                "$value": {
-                  "value": 4,
-                  "unit": "px"
-                },
-                "$description": "Inside the collapsed item container, on each side of a short label, which is truncated inside it. Read only where collapsedLabels draws a label."
               },
               "shape": {
                 "$type": "dimension",
@@ -61991,17 +61983,17 @@
                 "$description": "The collapsed item container's corners, at most half its height. The expanded row's own corners: collapsing a drawer removes its labels and changes no shape."
               },
               "width": {
-                "compact": {
+                "medium": {
                   "$type": "dimension",
                   "$value": {
-                    "value": 36,
+                    "value": 40,
                     "unit": "px"
                   }
                 },
-                "regular": {
+                "small": {
                   "$type": "dimension",
                   "$value": {
-                    "value": 48,
+                    "value": 36,
                     "unit": "px"
                   }
                 }
@@ -62013,9 +62005,17 @@
                 "value": 4,
                 "unit": "px"
               },
-              "$description": "From the icon indicator to the short label below it, where collapsedLabels draws one."
+              "$description": "From the collapsed item container to the short label below it, where collapsedLabels draws one."
             },
             "label": {
+              "padding-inline": {
+                "$type": "dimension",
+                "$value": {
+                  "value": 4,
+                  "unit": "px"
+                },
+                "$description": "On each side of a short label, inside the icon column: the label is the column's width less this on each side (72 - 8 = 64 at medium in the default system), centred in the column, as Material's rail lets its label span the item. Read only where collapsedLabels draws a label."
+              },
               "typescale": {
                 "$type": "typography",
                 "$value": {
@@ -62037,7 +62037,7 @@
                   },
                   "lineHeight": 1.3333
                 },
-                "$description": "The short label under the icon, on one line, where collapsedLabels draws one."
+                "$description": "The short label under the icon, on one line, where collapsedLabels draws one: across the icon column less collapsed.item.label.padding-inline on each side, not held to the collapsed item container's width, and cut with an ellipsis where it is wider."
               }
             }
           }
@@ -62141,17 +62141,17 @@
             }
           },
           "gap": {
-            "compact": {
-              "$type": "dimension",
-              "$value": {
-                "value": 2,
-                "unit": "px"
-              }
-            },
-            "regular": {
+            "medium": {
               "$type": "dimension",
               "$value": {
                 "value": 4,
+                "unit": "px"
+              }
+            },
+            "small": {
+              "$type": "dimension",
+              "$value": {
+                "value": 2,
                 "unit": "px"
               }
             }
@@ -62170,7 +62170,7 @@
               "value": 200,
               "unit": "px"
             },
-            "$description": "The least width a person can give the expanded drawer beside the content (minWidth null). Above the collapsed column's width in every density; halfway between the two is where a drag folds a collapsible drawer to its column."
+            "$description": "The least width a person can give the expanded drawer beside the content (minWidth null). Above the collapsed column's width at every size; halfway between the two is where a drag folds a collapsible drawer to its column."
           },
           "padding-block": {
             "$type": "dimension",
@@ -62334,7 +62334,7 @@
               "value": 1,
               "unit": "px"
             },
-            "$description": "The guide line's width: a hairline, in every density."
+            "$description": "The guide line's width: a hairline, at every size."
           }
         },
         "header": {
@@ -62407,17 +62407,17 @@
             }
           },
           "height": {
-            "compact": {
-              "$type": "dimension",
-              "$value": {
-                "value": 28,
-                "unit": "px"
-              }
-            },
-            "regular": {
+            "medium": {
               "$type": "dimension",
               "$value": {
                 "value": 36,
+                "unit": "px"
+              }
+            },
+            "small": {
+              "$type": "dimension",
+              "$value": {
+                "value": 28,
                 "unit": "px"
               }
             }
@@ -62455,17 +62455,17 @@
         "item": {
           "container": {
             "height": {
-              "compact": {
+              "medium": {
                 "$type": "dimension",
                 "$value": {
-                  "value": 36,
+                  "value": 40,
                   "unit": "px"
                 }
               },
-              "regular": {
+              "small": {
                 "$type": "dimension",
                 "$value": {
-                  "value": 48,
+                  "value": 36,
                   "unit": "px"
                 }
               }
@@ -62485,21 +62485,21 @@
               "value": 12,
               "unit": "px"
             },
-            "$description": "Between the icon (or the icon's kept room), the label and the trailing content of an expanded row, the same in every density: a compact drawer draws its rows lower and its glyphs smaller and keeps a name as far from its glyph as a regular one does (the tree view's icon.gap)."
+            "$description": "Between the icon (or the icon's kept room), the label and the trailing content of an expanded row, the same at every size: a small drawer draws its rows lower and its glyphs smaller and keeps a name as far from its glyph as a medium one does (the tree view's icon.gap)."
           },
           "icon-indicator": {
             "height": {
-              "compact": {
-                "$type": "dimension",
-                "$value": {
-                  "value": 16,
-                  "unit": "px"
-                }
-              },
-              "regular": {
+              "medium": {
                 "$type": "dimension",
                 "$value": {
                   "value": 24,
+                  "unit": "px"
+                }
+              },
+              "small": {
+                "$type": "dimension",
+                "$value": {
+                  "value": 16,
                   "unit": "px"
                 }
               }
@@ -62513,17 +62513,17 @@
               "$description": "The radius of the icon indicator's four corners, at most half its height."
             },
             "width": {
-              "compact": {
-                "$type": "dimension",
-                "$value": {
-                  "value": 16,
-                  "unit": "px"
-                }
-              },
-              "regular": {
+              "medium": {
                 "$type": "dimension",
                 "$value": {
                   "value": 24,
+                  "unit": "px"
+                }
+              },
+              "small": {
+                "$type": "dimension",
+                "$value": {
+                  "value": 16,
                   "unit": "px"
                 }
               }
@@ -62531,17 +62531,17 @@
           },
           "icon": {
             "size": {
-              "compact": {
-                "$type": "dimension",
-                "$value": {
-                  "value": 16,
-                  "unit": "px"
-                }
-              },
-              "regular": {
+              "medium": {
                 "$type": "dimension",
                 "$value": {
                   "value": 24,
+                  "unit": "px"
+                }
+              },
+              "small": {
+                "$type": "dimension",
+                "$value": {
+                  "value": 16,
                   "unit": "px"
                 }
               }
@@ -62549,7 +62549,7 @@
           },
           "label": {
             "typescale": {
-              "compact": {
+              "medium": {
                 "$type": "typography",
                 "$value": {
                   "fontFamily": [
@@ -62571,7 +62571,7 @@
                   "lineHeight": 1.4286
                 }
               },
-              "regular": {
+              "small": {
                 "$type": "typography",
                 "$value": {
                   "fontFamily": [
@@ -62596,30 +62596,30 @@
             }
           },
           "nest-indent": {
-            "compact": {
-              "$type": "dimension",
-              "$value": {
-                "value": 24,
-                "unit": "px"
-              }
-            },
-            "regular": {
+            "medium": {
               "$type": "dimension",
               "$value": {
                 "value": 36,
                 "unit": "px"
               }
+            },
+            "small": {
+              "$type": "dimension",
+              "$value": {
+                "value": 24,
+                "unit": "px"
+              }
             }
           },
           "padding-block": {
-            "compact": {
+            "medium": {
               "$type": "dimension",
               "$value": {
                 "value": 4,
                 "unit": "px"
               }
             },
-            "regular": {
+            "small": {
               "$type": "dimension",
               "$value": {
                 "value": 4,
@@ -62628,17 +62628,17 @@
             }
           },
           "padding-inline": {
-            "compact": {
-              "$type": "dimension",
-              "$value": {
-                "value": 8,
-                "unit": "px"
-              }
-            },
-            "regular": {
+            "medium": {
               "$type": "dimension",
               "$value": {
                 "value": 12,
+                "unit": "px"
+              }
+            },
+            "small": {
+              "$type": "dimension",
+              "$value": {
+                "value": 8,
                 "unit": "px"
               }
             }
@@ -62670,17 +62670,17 @@
           },
           "trailing-icon": {
             "size": {
-              "compact": {
-                "$type": "dimension",
-                "$value": {
-                  "value": 16,
-                  "unit": "px"
-                }
-              },
-              "regular": {
+              "medium": {
                 "$type": "dimension",
                 "$value": {
                   "value": 20,
+                  "unit": "px"
+                }
+              },
+              "small": {
+                "$type": "dimension",
+                "$value": {
+                  "value": 16,
                   "unit": "px"
                 }
               }
@@ -86194,10 +86194,10 @@
             "height": {
               "$type": "dimension",
               "$value": {
-                "value": 48,
+                "value": 40,
                 "unit": "px"
               },
-              "$description": "The least height of the compact form's row: 48 in the default system, above the touch target, because the compact form is the form of narrow windows. A minimum: it grows with enlarged text."
+              "$description": "The least height of the compact form's row: the control height (40 in the default system), as tall as the Buttons and fields beside it. The compact form is the form of narrow windows, so for touch the row is never lower than the touch target, whatever this says (TOC-24). A minimum: it grows with enlarged text."
             },
             "padding-inline": {
               "$type": "dimension",
@@ -86971,7 +86971,7 @@
             "medium": {
               "$type": "dimension",
               "$value": {
-                "value": 44,
+                "value": 40,
                 "unit": "px"
               }
             },
@@ -86995,7 +86995,7 @@
             "medium": {
               "$type": "dimension",
               "$value": {
-                "value": 12,
+                "value": 10,
                 "unit": "px"
               }
             },
@@ -87119,7 +87119,7 @@
             "medium": {
               "$type": "dimension",
               "$value": {
-                "value": 12,
+                "value": 9,
                 "unit": "px"
               }
             },
@@ -87400,6 +87400,22 @@
               "unit": "px"
             },
             "$description": "The empty space between two rows while separation is gap, in place of the line. Added to the cells' own block padding."
+          },
+          "height": {
+            "medium": {
+              "$type": "dimension",
+              "$value": {
+                "value": 40,
+                "unit": "px"
+              }
+            },
+            "small": {
+              "$type": "dimension",
+              "$value": {
+                "value": 32,
+                "unit": "px"
+              }
+            }
           },
           "selected": {
             "container": {
@@ -88297,7 +88313,7 @@
             "medium": {
               "$type": "dimension",
               "$value": {
-                "value": 48,
+                "value": 40,
                 "unit": "px"
               }
             },
@@ -96014,7 +96030,7 @@
             "medium": {
               "$type": "dimension",
               "$value": {
-                "value": 48,
+                "value": 40,
                 "unit": "px"
               }
             },
@@ -96030,7 +96046,7 @@
             "medium": {
               "$type": "dimension",
               "$value": {
-                "value": 12,
+                "value": 8,
                 "unit": "px"
               }
             },

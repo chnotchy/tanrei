@@ -589,8 +589,8 @@ test('validate_layer: the philosophy is enforced, with the way out', async () =>
     'tree-view.container.height.small',
   ].map((rest) => `tanrei.comp.${rest}`);
   assert.equal(valid.warnings.total, HEIGHTS_WITHOUT_ROOM_AT_18.length);
-  assert.deepEqual(valid.warnings.first.map((w) => w.split(':')[0]), HEIGHTS_WITHOUT_ROOM_AT_18, 'type base 18px: the button with menu, the small button and the segmented button no longer hold a label, and neither does the tag at either size (16 + 2 × 2 = 20 and 20 + 2 × 2 = 24 at a 16px base) nor the medium header of the accordion (24 + 2 × 16 = 56), nor a row of the tree view at either size (20 + 2 × 8 = 36 with nothing to spare, and 22 + 2 × 12 = 46 in 48, which a line of 24.75 passes)');
-  assert.match(valid.warnings.first[0], /accordion\.container\.height\.medium: 56px cannot hold its content — 2 × padding-block \(16px\) \+ one label line = 59px/);
+  assert.deepEqual(valid.warnings.first.map((w) => w.split(':')[0]), HEIGHTS_WITHOUT_ROOM_AT_18, 'type base 18px: the button with menu, the small button and the segmented button no longer hold a label, and neither does the tag at either size (16 + 2 × 2 = 20 and 20 + 2 × 2 = 24 at a 16px base) nor the medium header of the accordion (24 + 2 × 8 = 40, at the control height), nor a row of the tree view at either size (20 + 2 × 8 = 36 with nothing to spare, and 22 + 2 × 12 = 46 in 48, which a line of 24.75 passes)');
+  assert.match(valid.warnings.first[0], /accordion\.container\.height\.medium: 40px cannot hold its content — 2 × padding-block \(8px\) \+ one label line = 43px/);
   assert.match(valid.warnings.first[1], /container\.height\.small: 36px cannot hold its content — 2 × padding-block \(8px\) \+ one label line = 38\.5px/);
   assert.match(valid.warnings.first[4], /tag\.container\.height\.medium: 24px cannot hold its content — 2 × padding-block \(2px\) \+ one label line = 26\.5px/);
   assert.match(valid.warnings.first[5], /tag\.container\.height\.small: 20px cannot hold its content — 2 × padding-block \(2px\) \+ one label line = 22px/);

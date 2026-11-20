@@ -97,7 +97,7 @@
           },
           "height": {
             "$type": "dimension",
-            "$description": "Minimum height of a tab, per size; the row, and with it the track, is as tall as its tabs. Medium is the row of a screen's views, 48 in the default system. Small is the row in a header or a toolbar, as tall as a small Button, so that the two share a line; where a system's target is taller than it, its hit area reaches above and below it to the target.",
+            "$description": "Minimum height of a tab, per size; the row, and with it the track, is as tall as its tabs. Medium is the row of a screen's views, drawn at the control height (40 in the default system), as tall as the Buttons and fields beside it. Small is the row in a header or a toolbar, as tall as a small Button, so that the two share a line; where a system's target is taller than it, its hit area reaches above and below it to the target.",
             "$extensions": {
               "dev.tanrei.vocabulary": {
                 "rationale": "One product puts a row of tabs at the top of a screen's content, where it is as tall as a finger needs, and another in the header of a card, a figure or a toolbar beside a title and small buttons, where a row that tall would make the header taller than what it heads.",
@@ -127,10 +127,9 @@
                 "dev.tanrei.derive": {
                   "fn": "mul",
                   "of": "{tanrei.dial.size.unit}",
-                  "by": 12,
-                  "round": "{tanrei.dial.size.unit}",
-                  "min": "{tanrei.sys.target.minimum}"
-                }
+                  "by": 12
+                },
+                "dev.tanrei.aligned": "control"
               }
             }
           },
@@ -296,12 +295,22 @@
           },
           "padding-block": {
             "$type": "dimension",
-            "$description": "The least space between the active indicator's top and bottom edges and the tallest content it holds, per size. The row grows to keep it (a stacked icon, enlarged text). Small's is the smaller step, so that one line of the label fits a small row's indicator without making the row taller.",
+            "$description": "The least space between the active indicator's top and bottom edges and the tallest content it holds, per size. The row grows to keep it (a stacked icon, enlarged text). Small's is the smaller step, so that one line of the label fits a small row's indicator without making the row taller. Medium's gives up half of what the row loses below the control height's reference, so that one line of the label still fits a row at a lower control height.",
             "small": {
               "$value": "{tanrei.sys.space.space25}"
             },
             "medium": {
-              "$value": "{tanrei.sys.space.space50}"
+              "$value": {
+                "value": 4,
+                "unit": "px"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fn": "pad",
+                  "of": "{tanrei.sys.space.space50}",
+                  "height": "{tanrei.comp.tabs.container.height.medium}"
+                }
+              }
             }
           }
         },

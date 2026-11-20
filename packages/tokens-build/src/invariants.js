@@ -153,31 +153,16 @@ export function alignedTokens(documents) {
  * neither a step nor listed, and for a listed one that has become a step. Empty, every pressable height is a step.
  */
 export const HEIGHTS_NOT_YET_ON_THE_LADDER = Object.freeze([
-  'accordion.container.height.medium',
-  'accordion.container.height.small',
   'calendar.cell.size',
   'calendar.view-toggle.container.height',
   'calendar.year.container.height',
   'date-time-picker.range-field.container.height',
   'date-time-picker.wheel.row.height',
   'input-box.container.height.medium',
-  'list-row.container.height.one-line.medium',
-  'list-row.container.height.one-line.small',
-  'list-row.container.height.three-line.medium',
-  'list-row.container.height.three-line.small',
-  'list-row.container.height.two-line.medium',
-  'list-row.container.height.two-line.small',
-  'list.container.height.medium',
   'main-action-button.container.height.large',
-  'navigation-drawer.collapsed.item.container.width.regular',
-  'navigation-drawer.item.container.height.regular',
   'one-time-code-input.container.height',
   'segmented-button.container.height.medium',
-  'table-of-contents.compact.row.height',
-  'table-of-contents.row.height.medium',
   'tabs.container.height-with-icon',
-  'tabs.container.height.medium',
-  'tree-view.container.height.medium',
 ].map((id) => `${CONFIG.namespace}.comp.${id}`));
 
 /** Why an imitation preset's measurements are information and not warnings — the words its report and headers use. */
@@ -866,7 +851,7 @@ export function auditInvariants(model) {
 
   // The navigation drawer's widths. A person narrows the drawer to its least width and no further; a collapsible one
   // folds to its column halfway between the column and the least width. So the column is narrower than the least width
-  // in every density (else the fold point falls inside the column and no drag folds the drawer), and the width it opens
+  // at every size (else the fold point falls inside the column and no drag folds the drawer), and the width it opens
   // at lies between its least and its greatest width.
   const drawer = (rest) => model.tokens[`${CONFIG.namespace}.comp.navigation-drawer.${rest}`];
   const [least, opens, greatest] = ['min-width', 'width', 'max-width'].map((name) => drawer(`container.${name}`)?.value?.value);
@@ -875,7 +860,7 @@ export function auditInvariants(model) {
     for (const token of Object.values(model.tokens)) {
       if (!token.id.startsWith(`${CONFIG.namespace}.comp.navigation-drawer.collapsed.container.width.`)) continue;
       const column = token.value?.value;
-      if (typeof column === 'number' && !(column < least)) failures.push(`navigation drawer widths: ${short(token.id)} ${column}px is not below container.min-width ${least}px — a drag folds a collapsible drawer halfway between its column and its least width, so the column is the narrower of the two in every density`);
+      if (typeof column === 'number' && !(column < least)) failures.push(`navigation drawer widths: ${short(token.id)} ${column}px is not below container.min-width ${least}px — a drag folds a collapsible drawer halfway between its column and its least width, so the column is the narrower of the two at every size`);
     }
   }
   return { failures, checked };

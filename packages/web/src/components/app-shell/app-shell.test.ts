@@ -364,7 +364,7 @@ test.describe('the navigation', () => {
     await expect.poll(presentation).toBe('column');
     const column = await edges(drawer(page));
     expect([column.left, column.width]).toEqual([0, 72]);
-    expect(column.width).toBe(await resolveToken(page, '--tanrei-comp-navigation-drawer-collapsed-container-width-regular'));
+    expect(column.width).toBe(await resolveToken(page, '--tanrei-comp-navigation-drawer-collapsed-container-width-medium'));
     expect((await edges(main(page))).left).toBe(72);
 
     await resize(page, 400);
@@ -1441,7 +1441,7 @@ test.describe('the menu button', () => {
       // 1280 − (36 + 1160 + 32) = 52, less than its column, 72.
       await mount(page, real({ direction, navigation: DRAWER('collapsible open'), aside: '' }), { width: 1280 });
       await override(page, { '--tanrei-sys-target-touch': '1160px' });
-      const column = await resolveToken(page, '--tanrei-comp-navigation-drawer-collapsed-container-width-regular');
+      const column = await resolveToken(page, '--tanrei-comp-navigation-drawer-collapsed-container-width-medium');
       await drawer(page).evaluate(async (el) => {
         const d = el as unknown as { expanded: boolean; updateComplete: Promise<unknown> };
         d.expanded = false;
@@ -1566,7 +1566,7 @@ test.describe('the menu button', () => {
     await motionEnded(page);
     expect(await state()).toEqual({ presentation: 'column', open: true, same: true, scrim: 1, inert: 4 });
     expect(await active(page)).toBe(focused);
-    expect((await edges(main(page))).left).toBe(await resolveToken(page, '--tanrei-comp-navigation-drawer-collapsed-container-width-regular'));
+    expect((await edges(main(page))).left).toBe(await resolveToken(page, '--tanrei-comp-navigation-drawer-collapsed-container-width-medium'));
     expect((await log()).filter(([name]) => name !== 'windowclasschange')).toEqual([['navigationopenchange', true]]);
     // 1280: the overlay ends, told once, the panel beside the content.
     await resize(page, 1280);
@@ -2619,7 +2619,7 @@ test.describe('before its code runs, text size, forced colors, insets, direction
   });
 
   test('APS-24: before the element is defined a drawer in the navigation region keeps its place — its width beside the content in an expanded window, its column’s in a medium one while it is collapsible, none in a compact one — and the menu button is shown by the stylesheet alone — in every class for a drawer, in the compact one only with menuButtonPlacement drawer; no event is emitted until the class is decided', async ({ page: first }) => {
-    const places = { 1280: '--tanrei-comp-navigation-drawer-container-width', 800: '--tanrei-comp-navigation-drawer-collapsed-container-width-regular' } as const;
+    const places = { 1280: '--tanrei-comp-navigation-drawer-container-width', 800: '--tanrei-comp-navigation-drawer-collapsed-container-width-medium' } as const;
     for (const width of [1280, 800, 400] as const) {
       const page = await withoutScript(first, real(), width);
       const expected = width === 400 ? 0 : await resolveToken(page, places[width]);
@@ -2656,16 +2656,16 @@ test.describe('before its code runs, text size, forced colors, insets, direction
   // runner's WebKit about four seconds — nine of them in one test ran past its time.
   const widthOf = (px: number) => `width="${px}" style="--tanrei-navigation-drawer-width: ${px}px"`;
   const givenBack: { name: string; attributes: string; window: number; expected: (page: P) => Promise<number> }[] = [
-    { name: 'folded', attributes: 'responsive collapsible expanded="false"', window: 1280, expected: (page) => resolveToken(page, '--tanrei-comp-navigation-drawer-collapsed-container-width-regular') },
-    { name: 'folded, compact', attributes: 'responsive collapsible density="compact" expanded="false"', window: 1280, expected: (page) => resolveToken(page, '--tanrei-comp-navigation-drawer-collapsed-container-width-compact') },
-    { name: 'folded, with a width', attributes: `responsive collapsible expanded="false" ${widthOf(320)}`, window: 1280, expected: (page) => resolveToken(page, '--tanrei-comp-navigation-drawer-collapsed-container-width-regular') },
-    { name: 'modal, collapsible', attributes: 'variant="modal" collapsible', window: 1280, expected: (page) => resolveToken(page, '--tanrei-comp-navigation-drawer-collapsed-container-width-regular') },
+    { name: 'folded', attributes: 'responsive collapsible expanded="false"', window: 1280, expected: (page) => resolveToken(page, '--tanrei-comp-navigation-drawer-collapsed-container-width-medium') },
+    { name: 'folded, small', attributes: 'responsive collapsible size="small" expanded="false"', window: 1280, expected: (page) => resolveToken(page, '--tanrei-comp-navigation-drawer-collapsed-container-width-small') },
+    { name: 'folded, with a width', attributes: `responsive collapsible expanded="false" ${widthOf(320)}`, window: 1280, expected: (page) => resolveToken(page, '--tanrei-comp-navigation-drawer-collapsed-container-width-medium') },
+    { name: 'modal, collapsible', attributes: 'variant="modal" collapsible', window: 1280, expected: (page) => resolveToken(page, '--tanrei-comp-navigation-drawer-collapsed-container-width-medium') },
     { name: 'hidden', attributes: 'responsive expanded="false"', window: 1280, expected: async () => 0 },
     { name: 'a width', attributes: `responsive collapsible ${widthOf(320)}`, window: 1280, expected: async () => 320 },
     { name: 'a width above the greatest', attributes: `responsive collapsible ${widthOf(2000)}`, window: 1280, expected: (page) => resolveToken(page, '--tanrei-comp-navigation-drawer-container-max-width') },
     { name: 'a width below the least', attributes: `responsive collapsible ${widthOf(40)}`, window: 1280, expected: (page) => resolveToken(page, '--tanrei-comp-navigation-drawer-container-min-width') },
     // In a medium window the column keeps its own width, whatever the width and the fold say.
-    { name: 'medium, folded with a width', attributes: `responsive collapsible expanded="false" ${widthOf(320)}`, window: 800, expected: (page) => resolveToken(page, '--tanrei-comp-navigation-drawer-collapsed-container-width-regular') },
+    { name: 'medium, folded with a width', attributes: `responsive collapsible expanded="false" ${widthOf(320)}`, window: 800, expected: (page) => resolveToken(page, '--tanrei-comp-navigation-drawer-collapsed-container-width-medium') },
   ];
   for (const c of givenBack) {
     test(`APS-24: before the element is defined a drawer the product gives back folded or at a width keeps the place it will have — a collapsible drawer written expanded false its column in an expanded window, a responsive one that is not collapsible none, a drawer with a width that width held between its least and greatest — and defining the drawer then moves nothing and records no layout shift: ${c.name}`, async ({ page: first, browserName }) => {
