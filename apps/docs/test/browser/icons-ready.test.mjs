@@ -149,6 +149,25 @@ for (const engine of ENGINES) {
       }
     });
 
+    test('the families are first asked from the head, before the body is read: the switch, an inherited value on the root, can come off while the page is still read, not only once the whole page is styled', LIMIT, async () => {
+      const context = await browser.newContext({ viewport: { width: 1440, height: 1000 } });
+      try {
+        // Whether the body had been read when each probe was put in the page.
+        await context.addInitScript(() => {
+          window.__docsProbes = [];
+          new MutationObserver((records) => {
+            for (const record of records) for (const node of record.addedNodes) if (node.nodeType === 1 && node.hasAttribute('data-docs-icon-probe')) window.__docsProbes.push(!!document.body);
+          }).observe(document, { childList: true, subtree: true });
+        });
+        const page = await context.newPage();
+        await page.goto(`${host.origin}${PAGE}`, { waitUntil: 'domcontentloaded' });
+        const found = await page.evaluate(() => window.__docsProbes);
+        assert.deepEqual(found.slice(0, 2), [false, false], 'the first two probes, one for each family, are put in before the body');
+      } finally {
+        await context.close();
+      }
+    });
+
     test('a page whose script does not run never hides them', LIMIT, async () => {
       const { context, page } = await open((route) => route.continue(), { javaScriptEnabled: false });
       try {
