@@ -1354,9 +1354,13 @@ test.describe('a shared choice', () => {
     expect(await page.evaluate(() => ((window as any).opened as string[]).sort())).toEqual(['f:react', 'k:react', 'r:swiftui']);
     expect([await switches(page, 'r'), await switches(page, 'f'), await switches(page, 'k')]).toEqual([0, 0, 0]);
     // A person's choice on the view is stored under the view's key by the row it draws (TBV-16, TAB-39).
-    await tabAt(page, 'r', 3).click();
+    // The view below is chosen on first: a view's switch keeps its container as tall as the taller panel and takes the
+    // new one's height when it ends (TBV-11), so everything below r — f's row among it — moves a line up at that
+    // moment, and a click on f made while r switches can be pressed on the tab and released beside it. f's own
+    // switch moves only what is below f.
     await tabAt(page, 'f', 0).click();
-    expect(await page.evaluate(() => (window as any).writes)).toEqual([['view-key', 'flutter'], ['group-key', 'web']]);
+    await tabAt(page, 'r', 3).click();
+    expect(await page.evaluate(() => (window as any).writes)).toEqual([['group-key', 'web'], ['view-key', 'flutter']]);
   });
 
   test('TBV-16: the row a view draws itself takes the view’s group and rememberAs, at first and when they change, and is the member of the group', async ({ page }) => {
