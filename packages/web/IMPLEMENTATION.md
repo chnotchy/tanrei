@@ -1373,12 +1373,15 @@ A setting that takes effect at once, with a handle that follows a finger dragged
 |---|---|
 | `input`, `change` | the user switched it — by a tap, Space, or the release of a drag; `change` is `CustomEvent<{ checked: boolean }>` |
 
-A native checkbox with `role="switch"` — announced on / off, never as a checkbox. The layout box is the track
-(`track.width` × `track.height`, `track.shape`, an inset outline and the fill inside it). The handle's center runs on the
+A native checkbox with `role="switch"` — announced on / off, never as a checkbox. The layout box is as long as the track
+and, across it, as tall as the larger of `track.height` and `container.size` — the control height in the default system
+(SWT-27) — with the track (`track.width` × `track.height`, `track.shape`, an inset outline and the fill inside it)
+centered in it. The handle's center runs on the
 track's midline, half the track height from the inline-start end when off and from the inline-end end when on — the
 left in RTL (`:dir(rtl)`). The handle is a circle with its condition's color, size and elevation in each state (the
 default and m3-like grow it under a press, at once; cupertino raises it), at least `handle.size-with-icon` while it
-shows a glyph; the round container (`container.size`) is centered on the handle, moves with it, and takes no room. A
+shows a glyph; the round container (`container.size`) is centered on the handle, moves with it, and takes no room along
+the track. A
 glyph is drawn with `iconGlyph()` at `icon.size` in the family and fill of its own condition, both glyphs at
 `icon.weight` (`--tanrei-comp-switch-icon-weight`, the weight of a control's own mark: 500 in the default system, where
 the icons are 300, so the mark holds up beside its track; the glyph box stays `icon.size`, SWT-12, and the weight is the same through a drag's

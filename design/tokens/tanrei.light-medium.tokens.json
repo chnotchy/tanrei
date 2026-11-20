@@ -22293,7 +22293,7 @@
               "value": 40,
               "unit": "px"
             },
-            "$description": "The round state layer behind the box, 40. In the default system it holds the whole target (sys.target.touch, 36); a system whose target is larger reaches beyond it."
+            "$description": "The round state layer behind the box, and the height the checkbox takes in a row: the control height (40 in the default system), so that a checkbox stands as tall as the Buttons and fields beside it and a checkbox with a one-line label is a row of that height. The box (box.size) and its mark keep their own sizes inside it at every control height. In the default system it holds the whole target (sys.target.touch, 36); a system whose target is larger reaches beyond it."
           }
         },
         "disabled": {
@@ -67976,7 +67976,7 @@
               "value": 40,
               "unit": "px"
             },
-            "$description": "The round state layer behind the ring, 40. In the default system it holds the whole target (sys.target.touch, 36); a system whose target is larger reaches beyond it."
+            "$description": "The round state layer behind the ring, and the height the radio button takes in a row (never less than option.min-height): the control height (40 in the default system), so that a radio button stands as tall as the Buttons and fields beside it and an option with a one-line label is a row of that height. The ring (ring.size) keeps its own size inside it at every control height. In the default system it holds the whole target (sys.target.touch, 36); a system whose target is larger reaches beyond it."
           }
         },
         "disabled": {
@@ -77186,7 +77186,7 @@
               "value": 40,
               "unit": "px"
             },
-            "$description": "The diameter of the round state layer centered on each handle. It sets how far the track is inset from the slider's ends, so that a handle and its state layer stay inside the slider at min and max. 0 draws no state layer."
+            "$description": "The diameter of the round state layer centered on each handle: the control height (40 in the default system), so that a horizontal slider, as thick as the larger of it and the handle, stands as tall as the Buttons and fields beside it. It sets how far the track is inset from the slider's ends, so that a handle and its state layer stay inside the slider at min and max. The track and the handle keep their own sizes at every control height. 0 draws no state layer."
           }
         },
         "disabled": {
@@ -84650,7 +84650,7 @@
               "value": 40,
               "unit": "px"
             },
-            "$description": "The round state layer centered on the handle, 40; it moves with the handle and reaches 4 beyond the track's ends."
+            "$description": "The round state layer centered on the handle, and the least height the switch takes in a row: the control height (40 in the default system), so that a switch stands as tall as the Buttons, fields and checkboxes beside it and a switch with a one-line label is a row of that height, its track centered in it. It moves with the handle and reaches beyond the track's ends without taking room along the track. The track and the handle keep their own sizes at every control height."
           }
         },
         "disabled": {

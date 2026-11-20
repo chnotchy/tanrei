@@ -4964,7 +4964,8 @@
                 "fn": "mul",
                 "of": "{tanrei.dial.size.unit}",
                 "by": 10
-              }
+              },
+              "reason": "Material 3's checkbox state layer is 40dp: this preset keeps it at every control height, where the default system draws it at the control height."
             },
             "tanrei.comp.checkbox.box.size": {
               "derive": {
@@ -4988,6 +4989,14 @@
             },
             "tanrei.comp.checkbox.unselected.state-layer.color": {
               "$value": "{tanrei.sys.color.on-surface}"
+            },
+            "tanrei.comp.radio-button.container.size": {
+              "derive": {
+                "fn": "mul",
+                "of": "{tanrei.dial.size.unit}",
+                "by": 10
+              },
+              "reason": "Material 3's radio button state layer is 40dp: this preset keeps it at every control height, where the default system draws it at the control height."
             },
             "tanrei.comp.radio-button.ring.selected-width-share": {
               "$value": 0.2,
@@ -5016,7 +5025,8 @@
                 "fn": "mul",
                 "of": "{tanrei.dial.size.unit}",
                 "by": 10
-              }
+              },
+              "reason": "Material 3's switch state layer is 40dp: this preset keeps it at every control height, where the default system draws it at the control height."
             },
             "tanrei.comp.switch.track.width": {
               "derive": {

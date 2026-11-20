@@ -415,6 +415,9 @@ test.describe('behavior', () => {
     const cdp = await page.context().newCDPSession(page);
     await cdp.send('Emulation.setTouchEmulationEnabled', { enabled: true, maxTouchPoints: 1 });
     await cdp.send('Emulation.setEmitTouchEventsForMouse', { enabled: true, configuration: 'mobile' });
+    // The default system's touch target (36) lies inside the switch's row (the control height, 40, SWT-27); a platform
+    // guideline's 48 reaches past it.
+    await rootTokens(page, { '--tanrei-sys-target-touch': '48px' });
     const touch = await resolveToken(page, '--tanrei-sys-target-touch');
     const hit = await host(page, 'unselected').locator('.control').evaluate((el) => Number.parseFloat(getComputedStyle(el, '::before').height));
     expect(hit).toBe(touch);
@@ -621,7 +624,7 @@ test.describe('press, feedback, corners, focus style, geometry and motion', () =
     expect(await input(page, 'selected').getAttribute('data-focus-style')).toBe('glow');
   });
 
-  test('SWT-10: the track is track.width × track.height, its outline inside its edge and its fill inside the outline; the handle sits half the track height from the start (off) or the end (on); the container is centered on it outside the layout', async ({ page }) => {
+  test('SWT-10: the track is track.width × track.height, its outline inside its edge and its fill inside the outline; the handle sits half the track height from the start (off) or the end (on); the container is centered on it, outside the layout along the track', async ({ page }) => {
     const [w, h, ow, cs] = [T('track-width'), T('track-height'), T('outline-width'), T('container-size')];
     const [width, height, outline, side] = [await resolveToken(page, w), await resolveToken(page, h), await resolveToken(page, ow), await resolveToken(page, cs)];
     for (const [id, end] of [['unselected', false], ['selected', true]] as const) {
@@ -648,9 +651,13 @@ test.describe('press, feedback, corners, focus style, geometry and motion', () =
       expect(c.x + c.width / 2, id).toBeCloseTo(handle.x, 5);
       expect(c.y + c.height / 2, id).toBeCloseTo(handle.y, 5);
     }
-    // The container reaches beyond the track without moving anything: the element is as tall as the track.
-    expect((await bounds(host(page, 'label-hidden'))).height).toBe(height);
-    expect((await bounds(host(page, 'label-hidden'))).width).toBe(width);
+    // The container reaches beyond the track's ends without moving anything: the element is as long as the track, and
+    // across it as tall as the larger of the track and the container (SWT-27), the track centered in it.
+    const element = await bounds(host(page, 'label-hidden'));
+    expect(element.height).toBe(Math.max(height, side));
+    expect(element.width).toBe(width);
+    const t = await bounds(trackOf(page, 'label-hidden'));
+    expect(t.y + t.height / 2).toBeCloseTo(element.y + element.height / 2, 5);
   });
 
   test('SWT-11: in RTL the handle sits at the right when off and the left when on, travels leftwards, and the label is mirrored', async ({ page }) => {

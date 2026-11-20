@@ -175,8 +175,8 @@
     min-block-size: var(--tanrei-comp-keyboard-shortcut-container-height-small);
   }
 
-  /* Selection controls and indicators: their container size (a switch: its track; a loading indicator that is not
-     contained: its indicator). */
+  /* Selection controls and indicators: their container size (a switch: the larger of its track and its container, SWT-27;
+     a loading indicator that is not contained: its indicator). */
   :where(tanrei-checkbox:not(:defined)) {
     min-block-size: var(--tanrei-comp-checkbox-container-size);
   }
@@ -184,7 +184,7 @@
     min-block-size: var(--tanrei-comp-radio-button-container-size);
   }
   :where(tanrei-switch:not(:defined)) {
-    min-block-size: var(--tanrei-comp-switch-track-height);
+    min-block-size: max(var(--tanrei-comp-switch-track-height), var(--tanrei-comp-switch-container-size));
   }
   /* A horizontal slider: as thick as the larger of its container's size and its handle's height, by its size (SLD-7) —
      a system's handle may be taller than the container. */
