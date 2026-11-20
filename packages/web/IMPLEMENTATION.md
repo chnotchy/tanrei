@@ -6808,10 +6808,11 @@ topmost dialog; a close request without a key (Android's back) arrives as the na
 its own. A dialog opened from another stacks above it with its own scrim; the first becomes inert. The `<dialog>` appears
 as every modal surface does (`appearStyles()` and `AppearController`, src/primitives/motion.ts: role modal, from its
 centre): from `sys.motion.appear.*` to whole over `motion.enter-*`, and back the same way over `motion.exit-*`. It is
-closed at once — focus and the page are given back — and kept drawn in the top layer, inert, until its exit and its
-scrim's have played, in every engine (`closeModal()`, src/primitives/modal-exit.ts, MDL-7); opened again while it leaves,
-it is taken back with `openModal()`, so that it goes on from what it shows. Mounted open before the first paint, it is
-there at once. Where motion is reduced it only fades, and its scrim with it, over `sys.motion.role.reduced`
+closed at once — focus and the page are given back — and kept drawn in the top layer, inert, until its exit has
+played, its scrim drawn at no opacity from the first frame of the closing (MOT-8: `modalExitStyles()`), in every engine
+(`closeModal()`, src/primitives/modal-exit.ts, MDL-7); opened again while it leaves, it is taken back with `openModal()`,
+so that it goes on from what it shows and its scrim fades in again from no opacity. Mounted open before the first paint,
+it is there at once. Where motion is reduced it only fades, and its scrim fades in with it, over `sys.motion.role.reduced`
 (`sheetScrimStyles()`, src/primitives/scrim.ts). Focus moves when it opens and
 closes, not when the motion ends. A snackbar shown while it is open is shown inside it (SNK-38, `modalLayer` in
 `src/primitives/modal.ts`).
@@ -6916,9 +6917,10 @@ sheet asks and shows itself again unless you close it. It appears as every sheet
 `sheet` from the block end, `AppearController`, as the dialog appears): it slides up from its own height below the
 bottom edge over `motion.enter-*`, whole and unscaled under every appearance, and down the same way over `motion.exit-*`
 from wherever it is drawn (a drag's offset is the appearance's `offset`), kept drawn in the top layer until it has, in
-every engine (`closeModal()`); turned round, it goes on from where it is. The scrim fades in step, over the same
-duration and curve (`sheetScrimStyles()`). Where motion is reduced it and the scrim only fade, in place, over
-`sys.motion.role.reduced` (a standard sheet too). Mounted open, it appears in place without motion.
+every engine (`closeModal()`); turned round, it goes on from where it is. The scrim fades in in step, over the same
+duration and curve (`sheetScrimStyles()`), and is drawn at no opacity from the first frame of the closing (MOT-8). Where
+motion is reduced the sheet and the scrim's entrance only fade, in place, over `sys.motion.role.reduced` (a standard
+sheet too). Mounted open, it appears in place without motion.
 
 **Standard (BSH-3, BSH-4).** A `<section>` named by `label` (a region landmark). The host fills its nearest
 positioned ancestor (`position: absolute; inset: 0`, letting every press through), so give the parent that holds the
@@ -7235,8 +7237,9 @@ as every sheet does (`appearStyles()` with role `sheet` from the inline end, `Ap
 it slides in from its own width beyond the end edge over `motion.enter-*`, whole and unscaled under every appearance,
 and out the same way over `motion.exit-*` from wherever it is drawn (a drag's offset is the appearance's `offset`),
 kept drawn in the top layer until it has, in every engine (`closeModal()`); turned round, it goes on from where it is.
-The scrim fades in step, over the same duration and curve (`sheetScrimStyles()`); where motion is reduced both only
-fade, in place, over `sys.motion.role.reduced`. A drag (pointer events, followed
+The scrim fades in in step, over the same duration and curve (`sheetScrimStyles()`), and is drawn at no opacity from the
+first frame of the closing (MOT-8); where motion is reduced the sheet and the scrim's entrance only fade, in place, over
+`sys.motion.role.reduced`. A drag (pointer events, followed
 through the window) starts past an 8 px slop along the horizontal axis (a vertical move first is the content's scroll)
 and follows the pointer toward the end edge, never past where the sheet rests; released past half its width, or flung
 that way (0.5 px/ms), it asks to close, holds for a frame and then slides out from there if you closed it, or slides back
@@ -7615,8 +7618,9 @@ header with a scrim of its own (a sibling element under it, from the header's bo
 navigation landmark named by `label`, keeps no focus inside it and makes nothing inert — the frame does. A change of
 presentation moves the same panel over `motion.expand` (`data-moving`); while it is open over the content, closing, or
 moving, the host carries `data-over`, which the frame's stylesheet reads to draw it over the main region and under the
-header. Nothing is replaced or removed when a closing ends: the scrim has faded and the panel has left the window or is
-its column at rest. Outside such a frame a change of presentation is still drawn at once (NVD-54 asks that it move).
+header. Its scrim is taken away at once as it begins to close, or to stand beside the content (MOT-8: its closed rule
+starts no transition). Nothing is replaced or removed when a closing ends: the panel has left the window or is its column
+at rest. Outside such a frame a change of presentation is still drawn at once (NVD-54 asks that it move).
 The platform's back (NVD-20, MDL-6), which reaches a modal drawer as its `<dialog>`'s native `cancel`, reaches the held
 panel — no dialog — through a `CloseWatcher` the drawer makes while it is open over the content and destroys as it
 closes, stacked with the page's other close watchers (a dialog or a popover opened above it hears back first). An Escape
@@ -7773,10 +7777,10 @@ Shift+Tab leave it without closing it. No scrim, no trap, no `close`.
 `::backdrop` as the scrim (`scrim.color`), everything else inert, the page's scroll held (`holdPageScroll()`), a snackbar
 shown inside it (`modalLayer`, SNK-38). It slides in from its start edge (`translate`, `@starting-style`) over the enter motion and out over
 the exit motion. It opens and closes with `openModal()` and `closeModal()` (src/primitives/modal-exit.ts, MDL-7): closed,
-it is no longer modal at once — the page is given back — and stays drawn in the top layer, inert, sliding out over its
-fading scrim until their transitions have finished (no timer, and no `overlay` transition, which Firefox and WebKit do not
-run); opened again while it leaves, it goes back from where it is. Its slide and its scrim's fade begin in the first frame
-drawn after the task that opens or closes it. Focus goes to the selected destination (or the group row that shows it),
+it is no longer modal at once — the page is given back — and stays drawn in the top layer, inert, sliding out, its scrim
+drawn at no opacity from the first frame (MOT-8), until its transitions have finished (no timer, and no `overlay`
+transition, which Firefox and WebKit do not run); opened again while it leaves, it goes back from where it is. Its slide
+(and, opening, its scrim's fade) begins in the first frame drawn after the task that opens or closes it. Focus goes to the selected destination (or the group row that shows it),
 Tab wraps inside (`trapFocus()`), and returns as it closes, not when its motion ends (MDL-5) — opened in the same task
 above a surface that has not given focus in yet, to where that one would have given it (`modalLayer.opener()`); while
 the focus it gives waits for its items to draw, a surface opened above it takes where it goes as the place to give focus
@@ -7784,12 +7788,12 @@ back to (`modalLayer.owesFocus`). A drag follows the pointer toward the
 start edge once past the slop; a release past half the width, or a fling, closes it. A collapsible modal drawer keeps its
 column in the host's layout box — a `<nav>` in the standard variant's look, collapsed — and, while open, replaces it with
 the dialog placed over the column's box (measured when it opens), which widens from the column's width over
-`motion.expand-*`, its scrim fading over the same time; its container color, elevation, end corners and end edge move from
+`motion.expand-*`, its scrim fading in over the same time; its container color, elevation, end corners and end edge move from
 the column's look to the modal variant's over the same motion (`@starting-style` gives the column's look to its first
 frame). It closes with `closeModal()` too, `interactive` and with what it moves besides its place named (`moves`: its
 width, container color, elevation and corners, held as shown where it changes hands): no longer modal at once — the page
 is given back, and focus returns as it closes (MDL-5) — it narrows back in the top layer, closed, its look moving back to
-the column's over its fading scrim. While it narrows it takes focus and the pointer (only its scrim takes none), since
+the column's, its scrim gone from the first frame (MOT-8). While it narrows it takes focus and the pointer (only its scrim takes none), since
 it is becoming the column and the element focus returns to — its menu button, usually — is slotted in it. Focus leaves
 the panel before anything else of the closing update is styled and once the change of form's motion is in force
 (`data-form-change`): a part the change of form recolors — the focused destination's container — then moves over that
@@ -8287,7 +8291,8 @@ on-screen keyboard. Opening focuses the header's input with the caret at the end
 input, which does not reopen it. A press on the view that would take focus nowhere keeps it inside. It fades in and out
 over the open and close motion, at once where motion is reduced: both views open and close with `openModal()` and
 `closeModal()` (src/primitives/modal-exit.ts, MDL-7), so a closing view is no longer modal at once — focus and the page
-are given back — and stays drawn in the top layer, with its scrim, until their fade has played, in every engine. The
+are given back — and stays drawn in the top layer until its fade has played, its scrim gone from the first frame
+(MOT-8), in every engine. The
 slots are not drawn in the header.
 
 **What a view holds appears in its first state (SRC-23, MOT-3).** Every view (docked, full-screen, dialog) is the first

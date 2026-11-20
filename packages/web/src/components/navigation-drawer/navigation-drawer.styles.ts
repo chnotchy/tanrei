@@ -555,7 +555,7 @@ export const drawerStyles = css`
 
   /* NVD-19, NVD-22: a modal drawer is a native modal <dialog> in the top layer at the window's start edge, its full height,
      over ::backdrop (the scrim); it slides in from its start edge over the enter motion and out over the exit motion.
-     Closed, it is no longer modal at once and stays drawn in the top layer, sliding out over its fading scrim, until
+     Closed, it is no longer modal at once and stays drawn in the top layer, sliding out, its scrim gone (MOT-8), until
      that motion has ended (MDL-7: closeModal, src/primitives/modal-exit.ts), in every engine. */
   dialog.drawer {
     position: fixed;
@@ -594,13 +594,13 @@ export const drawerStyles = css`
     }
   }
   ${scrimFilter('dialog.drawer', T('scrim-blur'))}
+  /* NVD-19, NVD-22: the scrim fades in with the drawer, and is taken away at once as it begins to close (MOT-8:
+     modalExitStyles below draws it at no opacity while the dialog leaves). */
   dialog.drawer::backdrop {
     background: ${t('scrim-color')};
     backdrop-filter: ${SCRIM_FILTER};
     opacity: 0;
     transition-property: opacity;
-    transition-duration: ${t('motion-exit-duration')};
-    transition-timing-function: ${t('motion-exit-easing')};
   }
   dialog.drawer[open]::backdrop {
     opacity: 1;
@@ -615,7 +615,8 @@ export const drawerStyles = css`
   }
 
   /* NVD-40: a collapsible modal drawer does not slide: it widens over the content from its column (placed over it: the
-     column's box, measured when it opens) and narrows back to it, and its scrim fades, over the change's motion. Its
+     column's box, measured when it opens) and narrows back to it over the change's motion, its scrim fading in as it
+     widens and gone as it begins to narrow (MOT-8). Its
      look — the container color, the elevation, the end corners and the end edge — moves between the column's (the
      standard drawer's) and the modal variant's over the same motion, in step with its width: it opens from the column's
      look (\`@starting-style\`) and closes to it (closed, still in the top layer: closeModal, no longer modal), so the
@@ -651,13 +652,12 @@ export const drawerStyles = css`
   dialog.drawer.widening.dragging {
     transition: none;
   }
-  dialog.drawer.widening::backdrop,
   dialog.drawer.widening[open]::backdrop {
     transition-duration: ${t('motion-expand-duration')};
     transition-timing-function: ${t('motion-expand-easing')};
   }
-  /* MDL-7: where a drawer changes hands as it closes (closeModal), its scrim starts no transition and stands at the
-     opacity it showed, and while it leaves its scrim takes no pointer. After the dialog's own rules. */
+  /* MDL-7, MOT-8: where a drawer changes hands as it closes (closeModal), its scrim starts no transition, and while it
+     leaves its scrim is drawn at no opacity and takes no pointer. After the dialog's own rules. */
   ${modalExitStyles('dialog.drawer')}
 
   /* NVD-19, NVD-22, NVD-40, NVD-53, NVD-54: held below an app shell's header (\`data-held\`), the drawer is one <nav> in
@@ -743,13 +743,10 @@ export const drawerStyles = css`
     translate: var(--_away) 0;
     visibility: hidden;
   }
-  /* The scrim: below the header only, faded in with the drawer and out with it (NVD-22: from the moment it closes it
-     takes no press), over the change of form's motion for a column (NVD-40). Hidden once it has faded. */
+  /* The scrim: below the header only, faded in with the drawer, over the change of form's motion for a column (NVD-40),
+     and taken away at once — no opacity, hidden, taking no press — as it begins to close (NVD-22, MOT-8). */
   ${scrimFilter(':host([data-held]) .scrim', T('scrim-blur'))}
   :host([data-held]) .scrim {
-    --_held-d: ${t('motion-exit-duration')};
-    --_held-e: ${t('motion-exit-easing')};
-    --_held-hide: ${t('motion-exit-duration')};
     display: block;
     position: fixed;
     inset-block-start: var(--_top);
@@ -760,26 +757,19 @@ export const drawerStyles = css`
     opacity: 0;
     visibility: hidden;
     pointer-events: none;
-    transition-property: opacity, visibility;
-    transition-duration: var(--_held-d), 0s;
-    transition-timing-function: var(--_held-e);
-    transition-delay: 0s, var(--_held-hide);
+    transition-property: none;
   }
   :host([data-held][data-as='modal'][data-open]) .scrim {
-    --_held-d: ${t('motion-enter-duration')};
-    --_held-e: ${t('motion-enter-easing')};
-    --_held-hide: 0s;
     opacity: 1;
     visibility: visible;
     pointer-events: auto;
+    transition-property: opacity;
+    transition-duration: ${t('motion-enter-duration')};
+    transition-timing-function: ${t('motion-enter-easing')};
   }
-  :host([data-held][data-as='modal'][data-collapsible]) .scrim,
   :host([data-held][data-as='modal'][data-collapsible][data-open]) .scrim {
-    --_held-d: ${t('motion-expand-duration')};
-    --_held-e: ${t('motion-expand-easing')};
-  }
-  :host([data-held][data-as='modal'][data-collapsible]:not([data-open])) .scrim {
-    --_held-hide: ${t('motion-expand-duration')};
+    transition-duration: ${t('motion-expand-duration')};
+    transition-timing-function: ${t('motion-expand-easing')};
   }
   /* MOT-4: mounted open after the document's first paint, it enters as one that opens does. */
   @starting-style {
@@ -795,17 +785,19 @@ export const drawerStyles = css`
       opacity: 0;
     }
   }
-  /* NVD-54: a change of presentation moves the one surface — its width, its place and its look — and fades the scrim over
-     motion.expand; the host's own place in the layout changes at once, and the rest of the frame with it (APS-23). */
+  /* NVD-54: a change of presentation moves the one surface — its width, its place and its look — over motion.expand,
+     and its scrim comes or goes at once (MOT-8: nothing opens or closes); the host's own place in the layout changes at
+     once, and the rest of the frame with it (APS-23). */
   :host([data-held][data-moving]) {
     transition: none;
   }
-  :host([data-held][data-moving]) .held,
-  :host([data-held][data-moving]) .scrim {
+  :host([data-held][data-moving]) .held {
     --_held-d: ${t('motion-expand-duration')};
     --_held-e: ${t('motion-expand-easing')};
   }
-  :host([data-held][data-moving]:not([data-open])) .scrim,
+  :host([data-held][data-moving][data-as='modal'][data-open]) .scrim {
+    transition-property: none;
+  }
   :host([data-held][data-moving]:not([data-as='modal']):not([data-open])) .held,
   :host([data-held][data-moving][data-as='modal']:not([data-collapsible]):not([data-open])) .held {
     --_held-hide: ${t('motion-expand-duration')};
@@ -882,9 +874,7 @@ export const drawerStyles = css`
     dialog.drawer.widening,
     dialog.drawer.widening[open],
     dialog.drawer.widening .edge,
-    dialog.drawer::backdrop,
     dialog.drawer[open]::backdrop,
-    dialog.drawer.widening::backdrop,
     dialog.drawer.widening[open]::backdrop {
       transition-duration: 0s;
       transition-delay: 0s;

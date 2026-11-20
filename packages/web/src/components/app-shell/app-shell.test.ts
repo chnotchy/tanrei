@@ -1475,7 +1475,7 @@ test.describe('the menu button', () => {
     });
   }
 
-  test('APS-7, NVD-19, NVD-20, NVD-22: opened over the content, and closed by Escape, at the end of a task that outlasts its motions, the navigation slides in and out over its fading scrim and what focus goes to takes its focused colors from the first frame drawn after that task', async ({ page }) => {
+  test('APS-7, NVD-19, NVD-20, NVD-22, MOT-8: opened over the content, and closed by Escape, at the end of a task that outlasts its motions, the navigation slides in over its fading scrim and out with its scrim gone, and what focus goes to takes its focused colors from the first frame drawn after that task', async ({ page }) => {
     // WebKit dates a transition begun in a task from the frame drawn before it: where the task took longer than the
     // motions last, the drawer and its scrim were drawn in place or gone, and what focus went to drawn focused, at once.
     await mount(page, real(), { width: 400 });
@@ -1490,7 +1490,8 @@ test.describe('the menu button', () => {
     await expectFromNextFrame(
       drawer(page),
       "(el, active) => { active.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true, composed: true, cancelable: true })); }",
-      motions,
+      // MOT-8: the scrim begins no motion as it closes.
+      motions.filter((motion) => !motion.includes('scrim')),
       'closed by Escape',
     );
     expect(await active(page)).toMatch(/^menu/);
@@ -1628,7 +1629,7 @@ test.describe('the menu button', () => {
     expect(atOnce.frames[0]!.probe).toMatchObject({ width: 72, main: 72 });
   });
 
-  test('NVD-22, APS-7: closing below the header, nothing happens at the end — the last frame of the motion is the first frame of the closed drawer: the scrim faded to nothing and the panel out of the window (400) or its column at rest (800), nothing taken away, replaced or recolored — and focus is back on the menu button and nothing is inert from the first frame', async ({ page }) => {
+  test('NVD-22, APS-7: closing below the header, nothing happens at the end — the last frame of the motion is the first frame of the closed drawer: the scrim gone from the first frame (MOT-8) and the panel out of the window (400) or its column at rest (800), nothing taken away, replaced or recolored — and focus is back on the menu button and nothing is inert from the first frame', async ({ page }) => {
     for (const width of [400, 800] as const) {
       await mount(page, real({ sections: 2 }), { width });
       // Opened from the keyboard: the destination that takes focus is drawn focused from the start (a key pressed after
@@ -1653,6 +1654,39 @@ test.describe('the menu button', () => {
       expect(closing.frames.filter((frame) => drawerKeys(frame) !== drawerKeys(closing.rest)).map((frame) => frame.index), `${width}: an element of the drawer comes or goes`).toEqual([]);
       expect(await shell(page).evaluate((el) => [...el.children].filter((child) => (child as HTMLElement).inert).length)).toBe(0);
       await expect.poll(() => active(page)).toContain('menu');
+    }
+  });
+
+  test('APS-7, NVD-22, NVD-40, MOT-8: closing below the header — a drawer with no collapsed form at 768 sliding out, a collapsible one at 800 narrowing to its column — its scrim is drawn at no opacity, hidden and taking no press from the first frame while the panel still moves, and opening fades it in from no opacity, in every engine; where motion is reduced it is gone from the first frame too', async ({ page }) => {
+    const probe = (root: Element) => {
+      const host = root.querySelector('tanrei-navigation-drawer')!;
+      const scrim = getComputedStyle(host.shadowRoot!.querySelector('.scrim')!);
+      const panel = host.shadowRoot!.querySelector('.drawer')!.getBoundingClientRect();
+      return { scrim: Math.round(Number(scrim.opacity) * 1000) / 1000, shown: scrim.visibility, takes: scrim.pointerEvents, x: Math.round(panel.left * 10) / 10, width: Math.round(panel.width * 10) / 10 };
+    };
+    for (const [attributes, width] of [['responsive', 768], ['responsive collapsible', 800]] as const) {
+      const what = `${attributes} at ${width}`;
+      await mount(page, real({ navigation: DRAWER(attributes) }), { width });
+      const set = (value: boolean) => () => shell(page).evaluate((el, v) => ((el as unknown as { navigationOpen: boolean }).navigationOpen = v), value);
+      await set(true)();
+      await motionEnded(page);
+      const closing = await sampleFrames(page.locator('.stage'), set(false), { probe, elements: false });
+      expect(closing.complete, what).toBe(true);
+      expect(closing.before.probe.scrim, what).toBe(1);
+      expect(closing.frames[0]!.probe, `${what}: the first frame of the closing`).toMatchObject({ scrim: 0, shown: 'hidden', takes: 'none' });
+      for (const frame of closing.frames) expect(frame.probe.scrim, `${what}: frame ${frame.index}`).toBe(0);
+      expectAnimated(closing, attributes === 'responsive' ? 'x' : 'width');
+      await motionEnded(page);
+      const opening = await sampleFrames(page.locator('.stage'), set(true), { probe, elements: false });
+      const values = opening.frames.map((frame) => Number(frame.probe.scrim));
+      expect(values[0], `${what}: the first frame of the opening`).toBe(0);
+      for (let n = 1; n < values.length; n++) expect(values[n]!, `${what}: the scrim's fade in, frame ${n}`).toBeGreaterThanOrEqual(values[n - 1]!);
+      expect(new Set(values).size, `${what}: the scrim fades in over frames (${values.join(', ')})`).toBeGreaterThan(3);
+      await motionEnded(page);
+      await page.emulateMedia({ reducedMotion: 'reduce' });
+      const reduced = await sampleFrames(page.locator('.stage'), set(false), { probe, elements: false });
+      expect(reduced.frames[0]!.probe, `${what}: the first frame of a closing where motion is reduced`).toMatchObject({ scrim: 0, shown: 'hidden', takes: 'none' });
+      await page.emulateMedia({ reducedMotion: 'no-preference' });
     }
   });
 

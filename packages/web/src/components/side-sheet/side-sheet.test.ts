@@ -11,6 +11,7 @@ import { expectWheelKeptFromPage } from '../../../test/contained-wheel.js';
 import { EVERY_ANIMATION, expectFromNextFrame, motionEnded } from '../../../test/motions.js';
 import { transitionsRun, watchTransitions } from '../../../test/transitions.js';
 import { entrances, loadOpen, mountOpenAgain, runsAtRest } from '../../../test/mounted-open.js';
+import { expectScrimTakenAwayAtClose } from '../../../test/scrim-at-close.js';
 import { bezierOf, expectSlideExitEnd, expectSlidOnly, resolveEasing, sheetProbe, slidOut, turnHeld } from '../../../test/appear.js';
 import { type Frames, expectNoFlicker, freezeFirstFrame, sampleFrames } from '../../../test/frames.js';
 import { expectNeverSideways, sidewaysProbe } from '../../../test/sideways.js';
@@ -827,6 +828,12 @@ test.describe('forms, focus and dismissal', () => {
     await page.emulateMedia({ reducedMotion: 'no-preference' });
   });
 
+  test('SSH-2, MOT-8: closing a modal sheet, its scrim is drawn at no opacity and takes no press from the first frame while the sheet still slides out, and opening fades it in from no opacity, in every engine; where motion is reduced it is gone from the first frame too', async ({ page }) => {
+    await mount(page, [fx('s', { variant: 'modal' })]);
+    const set = (value: boolean) => () => host(page, 's').evaluate((el, v) => ((el as unknown as { open: boolean }).open = v), value);
+    await expectScrimTakenAwayAtClose(page, page.locator('[data-fixture="s"]'), { open: set(true), close: set(false), what: 'the modal side sheet' });
+  });
+
   test('SSH-2: a modal sheet slides in from the end edge over a fading scrim (enter motion) and out to it (exit motion), fades in place where motion is reduced; while open everything behind it is inert, the page’s scroll is held and focus stays inside (Tab wraps both ways)', async ({ page }) => {
     await mount(page, [fx('s', { variant: 'modal', open: false }, '<button id="a">A</button> <button id="b">B</button>', ACTIONS)]);
     const [enter, exit] = [await ms(page, T('motion-enter-duration')), await ms(page, T('motion-exit-duration'))];
@@ -883,7 +890,7 @@ test.describe('forms, focus and dismissal', () => {
    */
   const sliding = () => fx('s', { variant: 'modal', open: false }, TEXT, ACTIONS);
 
-  test('SSH-2: a modal sheet slides in from its own width beyond the end edge — its first frame held there, whole and unscaled — over the enter motion, and out the same way over the exit motion on the accelerating curve, its scrim fading in step over the same duration; nothing flickers, the last frame of the exit leaves no more than its curve does, and the exit is drawn in every engine, not dropped at once', async ({ page }) => {
+  test('SSH-2: a modal sheet slides in from its own width beyond the end edge — its first frame held there, whole and unscaled — over the enter motion, its scrim fading in in step over the same duration, and out the same way over the exit motion on the accelerating curve, its scrim gone from the first frame (MOT-8); nothing flickers, the last frame of the exit leaves no more than its curve does, and the exit is drawn in every engine, not dropped at once', async ({ page }) => {
     await mount(page, [sliding()]);
     const dialog = host(page).locator('dialog');
     const [enter, exit] = [await ms(page, T('motion-enter-duration')), await ms(page, T('motion-exit-duration'))];
@@ -912,7 +919,8 @@ test.describe('forms, focus and dismissal', () => {
     expect(await dialog.evaluate((el) => (el as HTMLDialogElement).open)).toBe(false);
     expectSlidOnly(closing, 'right');
     expectNoFlicker(closing);
-    expect(motionNames(closing)).toEqual(['opacity', 'translate']);
+    // MOT-8: the scrim is taken away at once; only the slide moves.
+    expect(motionNames(closing)).toEqual(['translate']);
     for (const motion of dialogMotions(closing)) expect([motion.name, motion.duration, motion.easing]).toEqual([motion.name, exit, exitEasing]);
     expectSlideExitEnd(closing, 'right', { duration: exit, easing: bezierOf(exitEasing) });
     expect(await css(dialog, 'display')).toBe('none');
@@ -970,7 +978,7 @@ test.describe('forms, focus and dismissal', () => {
     expectNoFlicker(closing);
   });
 
-  test('SSH-2: where motion is reduced the modal sheet and its scrim only fade, in place, over sys.motion.role.reduced — no slide', async ({ page }) => {
+  test('SSH-2, MOT-8: where motion is reduced the modal sheet and its scrim only fade in, and the sheet out, in place, over sys.motion.role.reduced — no slide', async ({ page }) => {
     await page.emulateMedia({ reducedMotion: 'reduce' });
     await mount(page, [sliding()]);
     const dialog = host(page).locator('dialog');
@@ -982,8 +990,9 @@ test.describe('forms, focus and dismissal', () => {
       for (const frame of [...seen.frames, seen.rest]) {
         const out = slidOut(frame, 'right');
         if (out !== undefined) expect(out, `open ${open}, frame ${frame.index}: in place`).toBeCloseTo(0, 2);
-        // The sheet and its scrim fade together.
-        if (out !== undefined) expect(Math.abs((frame.probe.opacity as number) - (frame.probe.scrim as number)), `open ${open}, frame ${frame.index}`).toBeLessThanOrEqual(0.02);
+        // The sheet and its scrim fade in together; closing, the scrim is gone at once (MOT-8).
+        if (out !== undefined && open) expect(Math.abs((frame.probe.opacity as number) - (frame.probe.scrim as number)), `open ${open}, frame ${frame.index}`).toBeLessThanOrEqual(0.02);
+        if (out !== undefined && !open) expect(frame.probe.scrim, `open ${open}, frame ${frame.index}`).toBe(0);
       }
       expectNoFlicker(seen);
       expect(seen.rest.probe.opacity).toBe(open ? 1 : 0);
