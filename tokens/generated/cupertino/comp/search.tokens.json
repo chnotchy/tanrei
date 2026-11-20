@@ -286,6 +286,7 @@
                   "unit": "px"
                 },
                 "$extensions": {
+                  "dev.tanrei.aligned": "control",
                   "dev.tanrei.derive": {
                     "fn": "mul",
                     "of": "{tanrei.dial.size.unit}",

@@ -25,35 +25,32 @@ const comp = (ids) => ids.map((id) => `${NS}.comp.${id}`);
 
 /** Marked, and drawn at the control height in every system that does not pin them. */
 const ALIGNED_ON_THE_LADDER = comp([
+  'accordion.container.height.medium',
   'button-with-menu.container.height.medium',
   'button.container.height.medium',
   'calendar.day.container.size',
+  'combobox.option.height.medium',
   'input-box.stacked.container.height.medium',
+  'list-row.container.height.one-line.medium',
+  'list.container.height.medium',
+  'menu.container.height.medium',
   'menubar.container.height',
+  'navigation-drawer.collapsed.item.container.width.medium',
+  'navigation-drawer.item.container.height.medium',
   'pagination.container.height.medium',
+  'search.suggestion.container.height.medium',
   'search.trigger.container.height',
+  'select.option.height.medium',
+  'table-of-contents.compact.row.height',
+  'table-of-contents.row.height.medium',
+  'table.row.height.medium',
+  'tabs.container.height.medium',
   'toolbar.container.size.inline',
+  'tree-view.container.height.medium',
 ]);
 
 /** Not yet: each family's change rewires its heights to the medium step, marks them and moves them up. */
 const ALIGNED_NOT_YET = comp([
-  // menus and the options of a list
-  'menu.container.height.medium',
-  'select.option.height.medium',
-  'combobox.option.height.medium',
-  'search.suggestion.container.height.medium',
-  // tabs, navigation and trees
-  'tabs.container.height.medium',
-  'navigation-drawer.item.container.height.regular',
-  'navigation-drawer.collapsed.item.container.width.regular',
-  'tree-view.container.height.medium',
-  'table-of-contents.row.height.medium',
-  'table-of-contents.compact.row.height',
-  // lists, rows, accordions and tables
-  'list.container.height.medium',
-  'list-row.container.height.one-line.medium',
-  'accordion.container.height.medium',
-  'table.row.height.medium',
   // fields and pickers
   'search.container.height',
   'input-box.container.height.medium',
@@ -70,8 +67,6 @@ const ALIGNED_NOT_YET = comp([
   'slider.container.size',
   'rating.container.size.medium',
 ]);
-/** The one height of the set the vocabulary does not have yet: the table's row, which its family's change adds. */
-const NEW_WITH_ITS_FAMILY = comp(['table.row.height.medium']);
 
 const vocabulary = JSON.parse(fs.readFileSync(path.join(REPO_ROOT, 'tokens/vocabulary.lock.json'), 'utf8')).tokens;
 const systems = listSystems(REPO_ROOT);
@@ -83,7 +78,7 @@ test('the aligned set: the marked heights are the ones on the ladder, and the re
   assert.deepEqual(coreAlignedTokens(), [...ALIGNED_ON_THE_LADDER].sort(), 'the marks in tokens/comp/ are the heights on the ladder');
   const all = [...ALIGNED_ON_THE_LADDER, ...ALIGNED_NOT_YET];
   assert.equal(new Set(all).size, all.length, 'no height is in both lists');
-  assert.deepEqual(ALIGNED_NOT_YET.filter((id) => !vocabulary[id]), NEW_WITH_ITS_FAMILY, 'every height not yet on the ladder exists, but the one its family adds');
+  assert.deepEqual(ALIGNED_NOT_YET.filter((id) => !vocabulary[id]), [], 'every height not yet on the ladder exists');
   for (const id of ALIGNED_ON_THE_LADDER) assert.equal(coreLadderReaders()[id], 'medium', `${id} reads the medium step`);
   for (const id of ALIGNED_NOT_YET.filter((id) => vocabulary[id])) assert.notEqual(coreLadderReaders()[id], 'medium', `${id} reads the medium step now: mark it and move it to ALIGNED_ON_THE_LADDER`);
   // The pressable heights that read no step yet are those the invariant lists, and none of them is marked.
@@ -139,6 +134,6 @@ test('the invariants hold the marks and the ladder: an aligned height off the me
   const ladder = { ...model.ladder };
   delete ladder[`${NS}.comp.button.container.height.small`];
   assert.deepEqual(fails({ ladder }), [`comp.button.container.height.small: a pressable height that reads no step of the control height ladder — read the step of its size, { "fn": "mul", "of": "{${NS}.sys.control.height.<step>}", "by": 1, "min": "{${NS}.sys.target.minimum}" }`]);
-  // (Read as a step, the menu's 48 is also told it is not the step's 40.)
-  assert.ok(fails({ ladder: { ...model.ladder, [`${NS}.comp.menu.container.height.medium`]: 'medium' } }).includes('comp.menu.container.height.medium: listed in HEIGHTS_NOT_YET_ON_THE_LADDER, but it reads a step of the ladder now — take it off the list'));
+  // (Read as a step, a tab's 64 with its icon is also told it is not the step's 40.)
+  assert.ok(fails({ ladder: { ...model.ladder, [`${NS}.comp.tabs.container.height-with-icon`]: 'medium' } }).includes('comp.tabs.container.height-with-icon: listed in HEIGHTS_NOT_YET_ON_THE_LADDER, but it reads a step of the ladder now — take it off the list'));
 });

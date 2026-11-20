@@ -7573,7 +7573,7 @@ the site's hand (`specs/navigation-drawer.spec.json`).
 | `expanded` | boolean | `true` | the form of a collapsible standard drawer (`expanded="false"` collapses it; absence is true); ignored while not collapsible, and by a modal drawer, whose form follows `open`; reflected. Its own menu button (or an app shell's, where the drawer is a column) and its resize handle set it |
 | `collapsedLabels` / `collapsed-labels` | `never` \| `selected` \| `always` | `never` | which cells draw their short label under the icon while collapsed (anything else is `never`). The default draws none: a collapsed cell shows its name in a tooltip instead (NVD-56). `always` is for a product or a system whose column is labelled — a product on m3-like sets it; reflected |
 | `responsive` | boolean | `false` | lets the window's width choose the presentation (NVD-53): `variant` is then ignored; reflected |
-| `standardHidden` / `standard-hidden` | boolean | `false` | while `responsive`: a person put the drawer away beside the content — an app shell's menu button hid it there (NVD-105). With `open` false the standard presentation then takes no width and nothing of it is exposed; the narrower presentations follow `open`. No change of width writes it; reflected |
+| `standardHidden` / `standard-hidden` | boolean | `false` | while `responsive`: a person put the drawer away beside the content — an app shell's menu button hid it there (NVD-106). With `open` false the standard presentation then takes no width and nothing of it is exposed; the narrower presentations follow `open`. No change of width writes it; reflected |
 | `presentation` | `standard` \| `column` \| `modal` \| `null`, read-only | | what a responsive drawer is at the window's width (`null` while not responsive), reflected as the `presentation` attribute for styling. Derived from the width alone; never written to `variant`, `open` or `expanded` |
 | `collapsed` | boolean, read-only | | the form it is in (NVD-30), reflected as the `collapsed` attribute for styling |
 | `value` | string | `""` | the selected destination's value, in a section, in a group or neither (the first in reading order, NVD-29; one naming none is reported, NVD-3). The selected destination is the place being shown: the one `aria-current="page"`. The drawer sets it when a button destination is activated and never for a link — a page sets it to its own destination (NVD-23, NVD-60) |
@@ -7609,7 +7609,7 @@ the site's hand (`specs/navigation-drawer.spec.json`).
 | `change` / `reselect` (drawer) | a button destination: as the bar's (`value` is already set). A link: `CustomEvent<{ value, href }>`, **cancelable**, fired from the anchor's click before the browser follows it, and only for a plain activation — the primary button, no modifier key, a click not already cancelled, `target` `same`, no `download`; `value` is not written; `preventDefault()` stops the navigation (a router then goes to `detail.href`). A modal drawer closes after either (NVD-21); a link opened somewhere else fires nothing and leaves it open (NVD-60) |
 | `close` (drawer) | a modal drawer closed: the scrim, Escape, back (the native `cancel`), a drag toward its start edge past half its width or a fling (0.5 px/ms, after an 8 px slop), its menu button or an app shell's, or a destination; a change of a responsive drawer's presentation fires none. `open` is already false. A standard drawer never fires it |
 | `expandedchange` (drawer) | `CustomEvent<{ expanded }>`, bubbling: the user asked a collapsible drawer for its other form — its menu button, or a group's cell while collapsed (`true`). The drawer has already set `expanded` (a modal one: `open`) |
-| `standardhiddenchange` (drawer) | `CustomEvent<{ standardHidden }>`, bubbling: an app shell's menu button hid a responsive drawer's standard presentation (`true`, `open` false) or showed it again (`false`, `open` true), NVD-105. Not fired when the product sets `standardHidden`, nor by a change of width |
+| `standardhiddenchange` (drawer) | `CustomEvent<{ standardHidden }>`, bubbling: an app shell's menu button hid a responsive drawer's standard presentation (`true`, `open` false) or showed it again (`false`, `open` true), NVD-106. Not fired when the product sets `standardHidden`, nor by a change of width |
 | `presentationchange` (drawer) | `CustomEvent<{ presentation }>`, bubbling: a responsive drawer decided its presentation for the first time, or the window's width changed it. A product shows its own menu button while it is `modal` |
 | `toggle` (group) | `CustomEvent<{ open }>`, bubbling: the user opened or closed the group — its row, the arrow keys, or its cell while collapsed — or the drawer opened it to show the selection (`reveal-selected`). `open` is already set |
 
@@ -7768,7 +7768,7 @@ beside the content is closed in a narrower presentation and hidden again when th
 presentation still shows, moves to the menu button from what it does not, and is left to the platform where the drawer
 shows nothing. In the `modal` presentation the drawer's own menu button closes the open overlay and otherwise does
 nothing: the product opens it from a menu button of its own. An app shell's menu button hides the standard
-presentation and shows it again (`menuFromShell`, NVD-105): hidden, `standardHidden` is true and `open` false, and the
+presentation and shows it again (`menuFromShell`, NVD-106): hidden, `standardHidden` is true and `open` false, and the
 drawer closes as a standard drawer does — sliding out over `motion.exit-*` while the content beside it takes its room,
 in either form; shown, `standardHidden` is false and `open` true, and it slides in over `motion.enter-*`
 (`data-sliding`). `standardhiddenchange` fires where `standardHidden` changed; focus that was in the drawer goes to the
@@ -9807,7 +9807,7 @@ stylesheet and tokens disagree. `<tanrei-page-header>`'s wide width is written t
   place (or only its column) its press opens it (`navigationOpen` and the drawer's `open` become true, the drawer takes
   focus) and a second press, or Escape on the button, closes it; where the navigation stands beside the content it
   hides the drawer, in whichever form it has, and shows it again (the drawer's `standardHidden` and `open`, with
-  `standardhiddenchange`; `navigationOpen` follows `open`, NVD-105), keeping focus — focus that was in the drawer
+  `standardhiddenchange`; `navigationOpen` follows `open`, NVD-106), keeping focus — focus that was in the drawer
   comes to it. With `menu-button-placement="drawer"` a responsive drawer that is not collapsible has no menu button
   of its own, and a hidden one shows none, so the header's is shown beside the content for them too. It follows the
   drawer's `close` (false again, focus back on the button) and writes `aria-expanded` — open over the content, or not

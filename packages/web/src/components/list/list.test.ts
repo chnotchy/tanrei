@@ -13,6 +13,7 @@ import { holdClock, releaseClock } from '../../../test/page-clock.js';
 import { LANGUAGES, LANGUAGE_FOUND, LANGUAGE_LABELS, TYPEAHEAD_FOUND, TYPEAHEAD_LABELS, typeaheadAsFiltered, typeaheadByLanguage } from '../../../test/typeahead.js';
 import { MIRRORED, anchorOf, expectDisabledLink, expectLinkActivation, expectNewContext, expectRefusals, expectTargetLabel, markOf } from '../../../test/links.js';
 import { expectBaseline } from '../../../test/baseline.js';
+import { CONTROL_HEIGHTS, atControlHeight } from '../../../test/control-height.js';
 
 const spec = loadSpec('list');
 type P = Page;
@@ -346,6 +347,21 @@ test.describe('items', () => {
     expect(await css(row(page, 'interactive', 0), 'transition-property')).toContain('background-color');
     await page.emulateMedia({ reducedMotion: 'reduce' });
     expect(await css(row(page, 'interactive', 0), 'transition-duration')).toBe('0s');
+  });
+});
+
+test.describe('the control height', () => {
+  test('LST-53: at control height 32, 36 and 40, the minimum no higher, an interactive item and an option of plain text in a medium list are that tall under a fine pointer, their content whole inside them', async ({ page }) => {
+    await mountFixtures(page, spec, { icons: true, fixtures: [byId('interactive'), byId('single-selected')] });
+    for (const height of CONTROL_HEIGHTS) {
+      await atControlHeight(page, height);
+      for (const id of ['interactive', 'single-selected']) {
+        await expect.poll(async () => (await bounds(row(page, id, 0))).height, `${id} at ${height}`).toBeCloseTo(height, 1);
+        const [box, content] = [await bounds(row(page, id, 0)), await bounds(item(page, id, 0).locator('.content').first())];
+        expect(content.y, `${id} at ${height}: its content inside the item`).toBeGreaterThanOrEqual(box.y - 0.5);
+        expect(content.y + content.height, `${id} at ${height}`).toBeLessThanOrEqual(box.y + box.height + 0.5);
+      }
+    }
   });
 });
 

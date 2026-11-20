@@ -86,7 +86,7 @@ type Root = Document | ShadowRoot;
 /** A navigation drawer in the navigation region, as much of it as the frame uses. */
 type Drawer = HTMLElement & {
   open: boolean;
-  /** NVD-105: a person hid its standard presentation. */
+  /** NVD-106: a person hid its standard presentation. */
   standardHidden?: boolean;
   responsive?: boolean;
   collapsible?: boolean;
@@ -190,7 +190,7 @@ let ids = 0;
  *   no place in the layout). It asks the drawer for what the drawer's own menu button asks: where the navigation has no
  *   place (or only its column) `navigationOpen` and the drawer's `open` become true, and a second press, Escape or the
  *   drawer's `close` makes them false again; where it stands beside the content it hides the drawer there and shows it
- *   again, in whichever form it has (the drawer's `standardHidden`, NVD-105), the main region taking its room while it
+ *   again, in whichever form it has (the drawer's `standardHidden`, NVD-106), the main region taking its room while it
  *   is hidden — `navigationOpen` follows the drawer's `open`, false as it hides and true as it shows. The button says
  *   `aria-expanded` and what it controls, and keeps focus. A frame without a header takes it from its `menu-button`
  *   slot instead, and shows it only where the navigation has no place in the layout, alone in the header's place and
@@ -279,7 +279,7 @@ export class TanreiAppShell extends TanreiLightElement {
    * Whether the navigation is open: presented over the content — below the header — while it has no place of its own in
    * the layout (or only its column), and shown beside the content while it stands there, even where a person hid it.
    * The menu button makes it true and, while it is true, false; beside the content it makes it false as it hides the
-   * navigation and true as it shows it again (NVD-105); closing the navigation makes it false. A change of the window's
+   * navigation and true as it shows it again (NVD-106); closing the navigation makes it false. A change of the window's
    * class keeps it: open beside the content, nothing is inert, and the navigation is over the content again, open, when
    * the window narrows.
    */
@@ -806,7 +806,7 @@ export class TanreiAppShell extends TanreiLightElement {
   }
 
   /**
-   * APS-6, NVD-105: the drawer is in its standard presentation, responsive, and either has no collapsed form — so no
+   * APS-6, NVD-106: the drawer is in its standard presentation, responsive, and either has no collapsed form — so no
    * menu button of its own stands for the frame's — or is hidden there.
    */
   private get shownOrHiddenBeside(): boolean {
@@ -825,7 +825,7 @@ export class TanreiAppShell extends TanreiLightElement {
     return !((presentation === 'modal' && !this.navigationOpen) || this.hiddenBeside);
   }
 
-  /** APS-7, APS-33, NVD-105: a responsive drawer in its standard presentation that a person hid there and that is not open. */
+  /** APS-7, APS-33, NVD-106: a responsive drawer in its standard presentation that a person hid there and that is not open. */
   private get hiddenBeside(): boolean {
     const drawer = this.drawer;
     return this.presentation === 'standard' && !!drawer?.responsive && !!drawer.standardHidden && !drawer.open;
@@ -862,7 +862,7 @@ export class TanreiAppShell extends TanreiLightElement {
 
   /**
    * APS-7: a drawer that opened or closed by itself (its column's menu button, the product, the frame's menu button that
-   * hid or showed it beside the content, NVD-105) is followed, and told once.
+   * hid or showed it beside the content, NVD-106) is followed, and told once.
    */
   private pullOpen() {
     const drawer = this.drawer;
@@ -888,7 +888,7 @@ export class TanreiAppShell extends TanreiLightElement {
   }
 
   /**
-   * APS-7: the menu button asks the drawer to hide or show itself where it stands beside the content (NVD-105), to open
+   * APS-7: the menu button asks the drawer to hide or show itself where it stands beside the content (NVD-106), to open
    * where it is a column or not shown, and to close where it is open (NVD-37) — and the frame follows.
    * What the navigation region holds when it is not a drawer is opened over the content where it has no place.
    */
@@ -901,7 +901,7 @@ export class TanreiAppShell extends TanreiLightElement {
       this.pullOpen();
       this.stateMenu();
       this.syncChord();
-      // APS-6, NVD-105: a collapsible drawer shown again beside the content under `menu-button-placement="drawer"` (or
+      // APS-6, NVD-106: a collapsible drawer shown again beside the content under `menu-button-placement="drawer"` (or
       // in a frame without a header) takes the frame's button away — its own menu button stands for it there — and
       // focus that was on the frame's button goes to the drawer's own.
       if (beside && focused && !this.menuShown) {
@@ -968,7 +968,7 @@ export class TanreiAppShell extends TanreiLightElement {
 
   /**
    * APS-7: whether `navigationOpen` and the drawer's `open` are one: where the drawer is over the content or a column, and
-   * beside it where it is responsive (NVD-105). A standard drawer that is not responsive keeps its own `open`.
+   * beside it where it is responsive (NVD-106). A standard drawer that is not responsive keeps its own `open`.
    */
   private get follows(): boolean {
     const presentation = this.presentation;
@@ -986,7 +986,7 @@ export class TanreiAppShell extends TanreiLightElement {
 
   /**
    * APS-7: the drawer is open while `navigationOpen` is, in every presentation: over the content it is presented, and
-   * beside it it is shown even where a person hid it there (NVD-105).
+   * beside it it is shown even where a person hid it there (NVD-106).
    */
   private syncNavigation() {
     const drawer = this.drawer;
@@ -1019,7 +1019,7 @@ export class TanreiAppShell extends TanreiLightElement {
         .then(() => this.isConnected && this.read());
     }
     if (!target) return;
-    // Beside the content the button says whether the navigation is shown there, in either form (NVD-105); elsewhere
+    // Beside the content the button says whether the navigation is shown there, in either form (NVD-106); elsewhere
     // whether it is open over the content.
     const expanded = this.presentation === 'standard' ? !this.hiddenBeside : this.navigationOpen;
     mark(target, 'aria-expanded', String(expanded));
@@ -1047,7 +1047,7 @@ export class TanreiAppShell extends TanreiLightElement {
 
   /**
    * APS-33: the frame answers a filterable drawer's chord only while the drawer is not shown — its presentation modal and
-   * the navigation closed, or standard with the drawer hidden there (NVD-105) — and listens for
+   * the navigation closed, or standard with the drawer hidden there (NVD-106) — and listens for
    * nothing then (NVD-87). Where the drawer is shown it answers it itself. No other key is bound.
    */
   private get chordIsFrames(): boolean {

@@ -85,8 +85,8 @@ export type { TanreiNavigationChangeDetail } from '../../primitives/index.js';
 /** The core variants (standard, modal), plus any a design system adds: only `modal` is presented as a modal overlay. */
 export type TanreiNavigationDrawerVariant = 'standard' | 'modal' | (string & {});
 
-/** The core densities (regular, compact), plus any a design system adds (NVD-65). */
-export type TanreiNavigationDrawerDensity = 'regular' | 'compact' | (string & {});
+/** The core sizes (medium, small), plus any a design system adds (NVD-65). */
+export type TanreiNavigationDrawerSize = 'medium' | 'small' | (string & {});
 
 /** Which cells draw their short label while the drawer is collapsed: all of them, only the selected one's, or none. */
 export type TanreiNavigationDrawerCollapsedLabels = 'always' | 'selected' | 'never';
@@ -127,7 +127,7 @@ interface ResizeMetrics {
   least: number;
   /** The greatest: maxWidth or container.max-width, and the room the parent gives, never below the least. */
   most: number;
-  /** The collapsed column's width, for the drawer's density. */
+  /** The collapsed column's width, for the drawer's size. */
   column: number;
   /** container.width, held between the least and the greatest: the width while `width` is null. */
   fallback: number;
@@ -1526,7 +1526,7 @@ interface Place {
   guideAt: string;
 }
 
-/** The lengths the row model is reckoned in, as the cells read them (the drawer's density, NVD-65). */
+/** The lengths the row model is reckoned in, as the cells read them (the drawer's size, NVD-65). */
 const LEN = {
   pad: 'var(--tanrei-comp-navigation-drawer-container-padding-inline)',
   itemPad: 'var(--_nvd-pad)',
@@ -1621,7 +1621,7 @@ interface Snapshot {
  * `value` and every group's `open`, and fires no `close`: a drawer open over the content stands beside it, open, in a
  * wide window and is over the content again when the window narrows. An app shell's menu button hides the standard
  * presentation (`standardHidden` true, `open` false) and shows it again (`standardHidden` false, `open` true), sliding
- * while the content beside it resizes, and the drawer fires `standardhiddenchange` (NVD-105). The presentation is
+ * while the content beside it resizes, and the drawer fires `standardhiddenchange` (NVD-106). The presentation is
  * derived from the width alone: it is never written to `variant`, `open`, `standardHidden` or `expanded`, and the
  * element stores nothing — a product that wants the user's choices remembered keeps what `expandedchange` and
  * `standardhiddenchange` carry and sets `expanded` and `standardHidden` from them. Outside an app shell a change of
@@ -1666,7 +1666,7 @@ interface Snapshot {
  * @fires {CustomEvent<TanreiNavigationChangeDetail>} reselect - The user activated the selected destination again; for a link, as `change`.
  * @fires close - A modal drawer closed: the scrim, Escape, back, a drag, the menu button, or after a destination was activated. `open` is already false.
  * @fires {CustomEvent<TanreiNavigationDrawerExpandedChangeDetail>} expandedchange - The user asked a collapsible drawer for its other form — its menu button (or, where it is a column, an app shell's), its resize handle, or a group's cell while collapsed: `detail.expanded`. `expanded` (or, for a modal drawer, `open`) already holds it.
- * @fires {CustomEvent<TanreiNavigationDrawerStandardHiddenChangeDetail>} standardhiddenchange - A person hid a responsive drawer's standard presentation, or showed it again, with an app shell's menu button (NVD-105): `detail.standardHidden` (and `standardHidden`) is true where it was hidden. Not fired when the product sets `standardHidden`, nor by a change of the window's width.
+ * @fires {CustomEvent<TanreiNavigationDrawerStandardHiddenChangeDetail>} standardhiddenchange - A person hid a responsive drawer's standard presentation, or showed it again, with an app shell's menu button (NVD-106): `detail.standardHidden` (and `standardHidden`) is true where it was hidden. Not fired when the product sets `standardHidden`, nor by a change of the window's width.
  * @fires {CustomEvent<TanreiNavigationDrawerFilterChangeDetail>} filterchange - The person changed the filter text (typing, deleting, pasting, an input method, the clear button, Escape): `detail.value` (and `filterValue`) is the new text. Not fired when the product sets `filterValue`.
  * @fires {CustomEvent<TanreiNavigationDrawerWidthChangeDetail>} widthchange - A person changed the width of the drawer beside the content — a drag that ended at a new width, a key, a press on the edge: `detail.width` (and `width`) in CSS pixels. Not fired when the product sets `width`, nor for a drag that only folds or unfolds the drawer.
  * @fires {CustomEvent<TanreiNavigationDrawerPresentationChangeDetail>} presentationchange - A responsive drawer decided its presentation for the first time, or the window's width changed it: `detail.presentation` (and `presentation`) is `standard`, `column` or `modal`. A product shows its own menu button while it is `modal`.
@@ -1701,7 +1701,7 @@ export class TanreiNavigationDrawer extends TanreiElement {
       converter: { fromAttribute: (value: string | null) => value !== 'false', toAttribute: (value: boolean) => (value ? '' : 'false') },
     },
     collapsedLabels: { type: String, attribute: 'collapsed-labels', reflect: true },
-    density: { type: String, reflect: true },
+    size: { type: String, reflect: true },
     chevron: { type: String, reflect: true },
     guides: { type: String, reflect: true },
     indent: {
@@ -1767,7 +1767,7 @@ export class TanreiNavigationDrawer extends TanreiElement {
   /** Standard sits beside the content; modal lays itself over it with a scrim and holds focus until it closes. Ignored while `responsive`. Reflected. */
   variant: TanreiNavigationDrawerVariant = 'standard';
 
-  /** Whether the drawer is shown: a standard one takes its place in the layout, a modal one is presented. While `responsive`, every change of presentation keeps it: open, the drawer is over the content in a narrow window and beside it in a wide one; closed, it is not over the content, and beside it unless `standardHidden` (NVD-53, NVD-105). Reflected. */
+  /** Whether the drawer is shown: a standard one takes its place in the layout, a modal one is presented. While `responsive`, every change of presentation keeps it: open, the drawer is over the content in a narrow window and beside it in a wide one; closed, it is not over the content, and beside it unless `standardHidden` (NVD-53, NVD-106). Reflected. */
   open = false;
 
   /** Gives the drawer its collapsed form, the icon column. Reflected. */
@@ -1780,13 +1780,13 @@ export class TanreiNavigationDrawer extends TanreiElement {
   collapsedLabels: TanreiNavigationDrawerCollapsedLabels = 'never';
 
   /**
-   * How much room a row takes (NVD-65): `regular`, a menu item's row, for a product used by touch as well as by pointer;
-   * `compact`, a tree view's compact row, for a tool used with a pointer whose drawer lists many places. The rows, the
-   * headings, the gaps, the nesting indent and the collapsed column follow it; for touch a row is never lower than the
+   * How much room a row takes (NVD-65): `medium`, a menu item's row at the control height, for a product used by touch
+   * as well as by pointer; `small`, a tree view's small row, for a tool used with a pointer whose drawer lists many
+   * places. The rows, the headings, the gaps, the nesting indent and the collapsed column follow it; for touch a row is never lower than the
    * touch target. A value a design system added is drawn from its own tokens; one the active system lacks is drawn as
-   * `regular` and reported (NVD-26). Reflected.
+   * `medium` and reported (NVD-26). Reflected.
    */
-  density: TanreiNavigationDrawerDensity = 'regular';
+  size: TanreiNavigationDrawerSize = 'medium';
 
   /** Where a group's chevron is drawn (NVD-68): `start` (the default), `end` or `none`. A collapsible drawer draws start as end. Reflected. */
   chevron: 'start' | 'end' | 'none' = 'start';
@@ -1886,7 +1886,7 @@ export class TanreiNavigationDrawer extends TanreiElement {
   responsive = false;
 
   /**
-   * NVD-53, NVD-105: while `responsive`, whether a person put the drawer away where it stands beside the content — an
+   * NVD-53, NVD-106: while `responsive`, whether a person put the drawer away where it stands beside the content — an
    * app shell's menu button hid it there. While it is true and `open` is false the standard presentation takes no width
    * and has no presence to focus or assistive technology; a narrower presentation is closed as `open` says. A change of
    * the window's width never writes it. Reflected as `standard-hidden`.
@@ -2267,7 +2267,7 @@ export class TanreiNavigationDrawer extends TanreiElement {
   }
 
   /**
-   * Whether the drawer is shown: `open`; while a responsive drawer is beside the content (NVD-53, NVD-105), unless a
+   * Whether the drawer is shown: `open`; while a responsive drawer is beside the content (NVD-53, NVD-106), unless a
    * person hid it there and it is not open (`standardHidden`).
    */
   private get isOpen(): boolean {
@@ -2318,7 +2318,7 @@ export class TanreiNavigationDrawer extends TanreiElement {
   }
 
   /**
-   * @internal APS-7, NVD-37, NVD-105: the app shell's menu button was activated: closes the drawer where it is open over
+   * @internal APS-7, NVD-37, NVD-106: the app shell's menu button was activated: closes the drawer where it is open over
    * the content, opens it where it is a column or not shown, and where a responsive drawer stands beside the content
    * hides it there or shows it again (`standardHidden`, and `open`, which the shell follows). A standard drawer that is
    * not responsive asks for its other form, as its own menu button does. `button`: the menu button pressed, where focus
@@ -2345,7 +2345,7 @@ export class TanreiNavigationDrawer extends TanreiElement {
   }
 
   /**
-   * NVD-105: the standard presentation of a responsive drawer, hidden where it is shown — `standardHidden` true and
+   * NVD-106: the standard presentation of a responsive drawer, hidden where it is shown — `standardHidden` true and
    * `open` false — and shown again where it is hidden — `standardHidden` false and `open` true, so that the drawer a
    * person brought out is open over the content when the window narrows (NVD-54). It slides while the content beside it
    * resizes (NVD-18). Focus that was in the drawer goes to the menu button that hid it; focus elsewhere stays.
@@ -2798,7 +2798,7 @@ export class TanreiNavigationDrawer extends TanreiElement {
         class="filter"
         type="search"
         variant="stacked"
-        size=${this.density === 'compact' ? 'small' : 'medium'}
+        size=${this.size === 'small' ? 'small' : 'medium'}
         label=${this.filterLabel}
         placeholder=${this.words.get('filterPlaceholder', this.filterPlaceholder)}
         .value=${value}
@@ -4709,8 +4709,8 @@ export class TanreiNavigationDrawer extends TanreiElement {
       if (changed.has('responsive')) this.watchWidths();
       else this.decide();
     } else if (this.responsive && !this.widths) this.watchWidths(); // its system's widths had not arrived yet
-    // NVD-65: a change of density is drawn at once, without the motions of a change of form, a selection or a group.
-    if (changed.has('density') && this.hasUpdated) this.drawAtOnce();
+    // NVD-65: a change of size is drawn at once, without the motions of a change of form, a selection or a group.
+    if (changed.has('size') && this.hasUpdated) this.drawAtOnce();
     const instant = this.hasAttribute('data-instant');
     const collapsed = this.collapsed;
     // NVD-35: a change of form takes the change's motion, for as long as it lasts; the collapsed attribute reflects it.
@@ -4743,7 +4743,7 @@ export class TanreiNavigationDrawer extends TanreiElement {
       this.setAttribute('data-sliding', '');
       this.endSlide();
     }
-    // NVD-105: …and so does the standard presentation of a responsive drawer, shown again where it was hidden.
+    // NVD-106: …and so does the standard presentation of a responsive drawer, shown again where it was hidden.
     if (this.responsive && this.decided === 'standard' && !has(changed, 'decided') && (changed.has('open') || changed.has('standardHidden')) && !instant && !this.moving) {
       const open = changed.has('open') ? changed.get('open') === true : this.open;
       const hidden = changed.has('standardHidden') ? changed.get('standardHidden') === true : this.standardHidden;
@@ -4863,8 +4863,8 @@ export class TanreiNavigationDrawer extends TanreiElement {
     const form = changed.has('collapsible') || changed.has('open') || changed.has('expanded') || changed.has('variant') || presentationChanged;
     if (form || has(changed, 'hasButtons') || has(changed, 'held')) this.syncMenuButton();
     if (form) this.syncMainAction();
-    // NVD-39: the column the main action is placed on changed width (the form, the density): told again where it does not fit.
-    if (form || changed.has('density')) {
+    // NVD-39: the column the main action is placed on changed width (the form, the size): told again where it does not fit.
+    if (form || changed.has('size')) {
       const [main] = this.mainActions;
       if (main) this.reportMainAction(main);
     }

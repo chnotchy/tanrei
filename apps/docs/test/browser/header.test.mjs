@@ -1,5 +1,5 @@
 // The site's header as it is drawn (components/frame/Header.astro), in each engine: the bar holds one menu button —
-// the shell's, at every width, which hides the drawer beside the content and shows it again (NVD-105), the content
+// the shell's, at every width, which hides the drawer beside the content and shows it again (NVD-106), the content
 // taking its room, and opens its column and a compact window's drawer below the header with the regions under the
 // scrim inert (APS-6, APS-7); what it chose beside the content is kept across the window's width — the brand, the appearance's button in its context (not drawn in a compact
 // window, where the drawer holds it), and four actions: the repository's link, which the bar hides where its row has no

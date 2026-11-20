@@ -26,6 +26,7 @@ import { expectBaseline } from '../../../test/baseline.js';
 import { expectGoneWhileSkipped } from '../../../test/skipped-exit.js';
 import { expectBoxTakesContainerSize, expectOptionsTakeDrawnSize } from '../../../test/input-box-size.js';
 import { controlledInTree, controlledList } from '../../../test/controlled-list.js';
+import { CONTROL_HEIGHTS, atControlHeight } from '../../../test/control-height.js';
 
 const spec = loadSpec('select');
 type P = Page;
@@ -2144,6 +2145,20 @@ test.describe('behavior: the list', () => {
     await cdp.send('Emulation.setTouchEmulationEnabled', { enabled: true, maxTouchPoints: 1 });
     await cdp.send('Emulation.setEmitTouchEventsForMouse', { enabled: true, configuration: 'mobile' });
     await expect.poll(async () => (await drawn('size-small', 'Mail')).height).toBeCloseTo(await resolveToken(page, '--tanrei-sys-target-touch'), 0);
+  });
+
+  test('SEL-74: at control height 32, 36 and 40, the minimum no higher, an option of a medium select’s open list is that tall under a fine pointer, its label whole inside it, and as tall as the select’s box', async ({ page }) => {
+    const smallFixture = spec.fixtures.find((f) => f.id === 'size-small')!;
+    await mount(page, [{ ...smallFixture, id: 'medium', props: { ...smallFixture.props, size: 'medium' } }]);
+    for (const height of CONTROL_HEIGHTS) {
+      await atControlHeight(page, height);
+      const r = row(page, 'medium', 'Mail');
+      await expect.poll(async () => (await box(r)).height, `at ${height}`).toBeCloseTo(height, 1);
+      const [b, label] = [await box(r), await box(r.locator('.option-label'))];
+      expect(label.y, `the label inside the row at ${height}`).toBeGreaterThanOrEqual(b.y - 0.5);
+      expect(label.y + label.height, `at ${height}`).toBeLessThanOrEqual(b.y + b.height + 0.5);
+      near((await box(container(page, 'medium'))).height, height, `the box at ${height}`);
+    }
   });
 
   test('SEL-68, SEL-26, SEL-31, SEL-51, SEL-59: with a status the list draws a status row after the last option, outside the list box and the box that scrolls, inset and padded as an option, taking no input and never active — statusText, wrapping as text of its own direction, in status.typescale and status.color, in status.error.color while the source failed, and while loading one small loading indicator named by statusText in the text’s place, the row one line tall; the options left in the list stay choosable; a select with no option draws its empty text in the row’s place, its list without an active option; with no status the row takes no room', async ({ page }) => {

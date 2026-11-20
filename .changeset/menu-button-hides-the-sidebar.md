@@ -4,7 +4,7 @@
 ---
 
 In a wide window an app shell's menu button hides the navigation drawer beside the content and shows it again, in the
-same place, whatever the drawer's form (NVD-105, APS-7). Hidden, the drawer slides out over its exit motion while the
+same place, whatever the drawer's form (NVD-106, APS-7). Hidden, the drawer slides out over its exit motion while the
 main region takes its width, takes no width and is exposed to nothing, and the button says collapsed and names
 nothing; shown, it slides back in over its enter motion. Focus stays on the button, and focus that was in the drawer
 moves to it. The choice is the drawer's new `standardHidden` (`standard-hidden`, reflected), and the drawer fires
