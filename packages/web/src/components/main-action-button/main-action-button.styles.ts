@@ -282,6 +282,11 @@ export const styles = css`
     align-items: center;
     justify-content: center;
   }
+  /* MAB-26: nothing in the glyph's place until the icon set can draw it (GlyphDrawnController sets data-drawn) — never its
+     name spelled in a text face; the slotted glyph inherits the slot's visibility, and the box keeps its size. */
+  .icon:not([data-drawn]) slot {
+    visibility: hidden;
+  }
   /* An image or an SVG given as the icon fills the icon box. */
   ::slotted(svg),
   ::slotted(img) {

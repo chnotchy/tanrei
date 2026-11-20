@@ -15,6 +15,7 @@ import { holdClock, releaseClock } from '../../../test/page-clock.js';
 import { holdTransitions, stepTransitions } from '../../../test/stepped-transitions.js';
 import { motionCount, motionEnded } from '../../../test/motions.js';
 import { expectBaseline } from '../../../test/baseline.js';
+import { type HeldGlyph, expectGlyphsHeldBack } from '../../../test/held-glyphs.js';
 
 const spec = loadSpec('main-action-button');
 type P = Page;
@@ -1281,4 +1282,15 @@ test.describe('fixtures', () => {
       await expectBaseline(page.locator(`[data-fixture="${f.id}"]`), [spec.name, `${f.id}.png`]);
     });
   }
+});
+
+test.describe('a glyph the icon set cannot draw yet', () => {
+  test('MAB-26: while the icon set cannot draw the icon slot’s glyph it draws nothing in its place — never its name — and keeps its box, extended or collapsed; the container, the label and the name stay; once it can, the glyph is drawn where it was', async ({ page }) => {
+    await mountFixtures(page, spec);
+    const glyphs: HeldGlyph[] = ['filled-extended', 'filled-collapsed', 'filled-icon-trailing', 'filled-large-collapsed'].map((id) => ({ name: id, host: host(page, id), box: '.icon' }));
+    await expectGlyphsHeldBack(page, glyphs, async () => {
+      await expect(host(page, 'filled-collapsed').getByRole('button', { name: 'Compose' })).toHaveCount(1);
+      expect(await style(labelOf(page, 'filled-extended'), 'visibility')).toBe('visible');
+    });
+  });
 });

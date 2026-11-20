@@ -1,7 +1,7 @@
 import { LitElement, type PropertyDeclarations, type PropertyValues, html, nothing } from 'lit';
 import { classMap } from 'lit/directives/class-map.js';
 import { hiddenHost } from '../../primitives/hidden.js';
-import { AvailabilityController, GlyphMirrorController, OpenAxesController, PressController, report, delegatedAria, namedByProduct, delegatesAria, syncFocusStyle } from '../../primitives/index.js';
+import { AvailabilityController, GlyphDrawnController, GlyphMirrorController, OpenAxesController, PressController, report, delegatedAria, namedByProduct, delegatesAria, syncFocusStyle } from '../../primitives/index.js';
 import type { TanreiMainActionButtonSizeRegistry, TanreiMainActionButtonVariantRegistry } from '../../registry.js';
 import { AXES, styles } from './main-action-button.styles.js';
 import { focusedAtFirst } from '../../primitives/autofocus.js';
@@ -109,6 +109,9 @@ export class TanreiMainActionButton extends TanreiElement {
    * `data-mirror` says so (src/primitives/glyph-mirror.ts); `iconGlyph()` draws the mark.
    */
   private readonly mirror = new GlyphMirrorController(this, { slots: 'slot[name="icon"]' });
+
+  /** MAB-26: the icon box carries `data-drawn` while the icon set can draw what its slot holds; until then it draws nothing (src/primitives/glyph.ts). */
+  private readonly glyphs = new GlyphDrawnController(this, () => this.renderRoot.querySelectorAll<HTMLElement>('.icon'), { slotted: true });
 
   /** MAB-8 / MAB-9: the pressed state, press-hold and the answer the system chooses (src/primitives/press.ts). */
   private readonly press = new PressController(this, {
