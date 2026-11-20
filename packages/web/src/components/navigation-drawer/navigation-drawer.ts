@@ -1757,7 +1757,7 @@ export class TanreiNavigationDrawer extends TanreiElement {
   /** Standard sits beside the content; modal lays itself over it with a scrim and holds focus until it closes. Ignored while `responsive`. Reflected. */
   variant: TanreiNavigationDrawerVariant = 'standard';
 
-  /** Whether the drawer is shown: a standard one takes its place in the layout, a modal one is presented. While `responsive` it only opens the presentations that lie over the content: a change between those presentations keeps it, and the drawer's coming to stand beside the content sets it back to false. Reflected. */
+  /** Whether the drawer is shown: a standard one takes its place in the layout, a modal one is presented. While `responsive` it only opens the presentations that lie over the content, and every change of presentation keeps it: standing beside the content the drawer is shown there whatever it says, and is over the content again, open, when the window narrows. Reflected. */
   open = false;
 
   /** Gives the drawer its collapsed form, the icon column. Reflected. */
@@ -2135,6 +2135,11 @@ export class TanreiNavigationDrawer extends TanreiElement {
   private announce = false;
   /** NVD-54: the element that had focus when the width changed the presentation, if it was in the drawer. */
   private focusBefore: HTMLElement | null = null;
+  /**
+   * NVD-54: a drawer kept open beside the content is over the content again (the width took it back from the standard
+   * presentation): nobody opened it. `from` is where focus was as the width changed, outside the drawer, or null.
+   */
+  private resumed: { from: Element | null } | null = null;
   private instantFrame = 0;
   private readonly sizes = new ResizeObserver(() => this.measure());
   /**
@@ -3181,11 +3186,12 @@ export class TanreiNavigationDrawer extends TanreiElement {
 
   /**
    * NVD-53, NVD-54: the presentation of the window's current width. The first decision is only drawn. A change keeps
-   * `open` between the column and the modal presentations — the drawer open over the content stays open, its scrim and
-   * focus where they are — and the standard presentation ends the presentation over the content: `open` is false again
-   * and `close` fires once, focus kept where the drawer still shows it. `expanded`, `value` and every group's `open`
-   * are not touched. Held below an app shell's header, the drawer moves to its new place and form as one surface over
-   * motion.expand (`moveHeld`).
+   * `open` across every presentation and emits no `close`: the drawer open over the content stays open, its scrim and
+   * focus where they are; the standard presentation shows it beside the content whatever `open` says, its scrim gone at
+   * once, nothing inert, focus kept where the drawer still shows it; and a drawer kept open so is over the content again,
+   * open, when the width takes it back there (`resumed`). `expanded`, `value` and every group's `open` are not touched.
+   * Held below an app shell's header, the drawer moves to its new place and form as one surface over motion.expand
+   * (`moveHeld`).
    */
   private decide() {
     const widths = this.widths;
@@ -3199,17 +3205,17 @@ export class TanreiNavigationDrawer extends TanreiElement {
       const active = deepActive();
       this.focusBefore = active instanceof HTMLElement && this.hasFocus() ? active : null;
       const wasOpen = this.open;
-      const ends = wasOpen && next === 'standard';
+      // Open, it comes to stand beside the content (`besides`), or is over the content again after standing beside it
+      // (`resumed`).
+      const besides = wasOpen && next === 'standard';
+      this.resumed = wasOpen && before === 'standard' ? { from: this.focusBefore ? null : active } : null;
       this.removeAttribute('data-sliding');
       if (this.held) {
         this.moveHeld();
-        if (ends) {
-          // Its scrim is taken away at once (MOT-8), nothing is left inert (the app shell hears `close` first), and
-          // focus stays where it is.
-          this.open = false;
-          if (this.shown) this.withdraw(false, true);
-          else this.dispatchEvent(new Event('close'));
-        }
+        // Its presentation over the content ends without a `close`: its scrim is taken away at once (MOT-8), nothing is
+        // left inert (the app shell reads that it stands beside the content), focus stays where it is, and where focus
+        // goes back to when it closes later is kept.
+        if (besides && this.shown) this.withdraw(false, false, true);
       } else {
         // TODO: outside an app shell with a header the drawer still redraws a change of presentation at once: its
         // column and modal presentations are a top-layer <dialog> and its standard one a <nav>, so moving as one surface
@@ -3217,15 +3223,12 @@ export class TanreiNavigationDrawer extends TanreiElement {
         // <nav> does. What it keeps and what it emits already follow NVD-54.
         this.drawAtOnce();
         const opener = this.opener;
-        // The overlay comes down at once without a `close`; one that stays open is shown again at once in the new
-        // presentation, focus put back where it was (`updated`), and still goes back where it was when it closes.
+        // The overlay comes down at once without a `close`; one that stays open is shown again at once in the
+        // presentation over the content (now, or when the width takes it back there), and still gives focus back where
+        // it was when it closes.
         if (this.shown) this.withdraw(false, false);
         this.presented = false;
-        this.reopener = wasOpen && !ends ? opener : null;
-        if (ends) {
-          this.open = false;
-          this.dispatchEvent(new Event('close'));
-        }
+        this.reopener = wasOpen ? (this.reopener ?? opener) : null;
       }
     }
     this.decided = next;
@@ -4102,6 +4105,10 @@ export class TanreiNavigationDrawer extends TanreiElement {
     // surface's slide does (statesFromNextFrame).
     if (!reopening) this.focusAsShown(shower, this.opener);
     else statesFromNextFrame([this, this.opener]);
+    // NVD-54: kept open beside the content and over it again now, focus left in what its modal dialog makes inert moves.
+    const resumed = this.resumed;
+    this.resumed = null;
+    if (reopening && resumed) this.focusOutOfInert(resumed.from);
   }
 
   /**
@@ -4118,10 +4125,10 @@ export class TanreiNavigationDrawer extends TanreiElement {
    * (its own transitions' `finished`, the clock that draws it — no timer) its column takes the dialog's place, drawn as
    * the dialog's last frame was, focus kept where it is.
    */
-  private withdraw(restore = true, notify = true) {
+  private withdraw(restore = true, notify = true, keepOpener = false) {
     if (!this.shown) return;
     if (this.held) {
-      this.withdrawHeld(restore, notify);
+      this.withdrawHeld(restore, notify, keepOpener);
       return;
     }
     this.shown = false;
@@ -4255,6 +4262,20 @@ export class TanreiNavigationDrawer extends TanreiElement {
     const panel = this.panel;
     if (!panel || this.shown || !this.isConnected) return;
     this.placeHeld();
+    // NVD-54: kept open beside the content and over it again now, it was opened by nobody: where focus goes back to when
+    // it closes is the one it kept, its scrim is drawn at once (the styles' `data-moving`), and focus moves only out of
+    // what becomes inert.
+    const resumed = this.resumed;
+    this.resumed = null;
+    if (resumed) {
+      this.shown = true;
+      this.leavingHeld = false;
+      this.overRun++;
+      this.syncOver();
+      this.watchBack(true);
+      this.focusOutOfInert(resumed.from);
+      return;
+    }
     // Opened by a press on a menu button that gave it no focus (Safari on macOS), focus goes back to that button.
     const active = deepActive();
     this.opener = (!active || active === document.body) && this.pressedMenu?.isConnected ? this.pressedMenu : active;
@@ -4292,9 +4313,10 @@ export class TanreiNavigationDrawer extends TanreiElement {
    * inert away first, then focus back where it was — and the panel slides out (a collapsible one narrows back to its
    * column), its scrim gone at once (MOT-8). Nothing happens when that motion ends: the scrim was taken away as it began
    * and the panel has left the window or become its column at rest, which is the same element. Without `notify` (the
-   * frame's header gone) nothing is emitted and focus stays.
+   * frame's header gone) nothing is emitted and focus stays. `keepOpener`: it is not closing but coming to stand beside
+   * the content, open (NVD-54), and keeps where focus goes back to when it closes later.
    */
-  private withdrawHeld(restore: boolean, notify: boolean) {
+  private withdrawHeld(restore: boolean, notify: boolean, keepOpener = false) {
     this.shown = false;
     this.watchBack(false);
     this.drag = null;
@@ -4307,7 +4329,7 @@ export class TanreiNavigationDrawer extends TanreiElement {
     if (notify) this.dispatchEvent(new Event('close'));
     const opener = restore ? this.opener : null;
     if (restore) this.restoreFocus();
-    else this.opener = null;
+    else if (!keepOpener) this.opener = null;
     // NVD-20, NVD-22: its slide and the colors of what focus left and went back to (the app shell's
     // menu button, outside it) begin in the first frame drawn after this task.
     this.heldFromNextFrame(true);
@@ -4766,6 +4788,14 @@ export class TanreiNavigationDrawer extends TanreiElement {
     // NVD-54: a held drawer open over the content stays shown across a change between the column and the modal
     // presentations: the one surface moves (`moveHeld`).
     const keptOver = this.held && presentationChanged && !changed.has('variant') && !changed.has('collapsible') && this.modal;
+    // NVD-54, NVD-55: closed while it stood beside the content (by the product), it is no longer kept open: nothing to
+    // give focus back to, and nothing over the content when the width takes it back there.
+    // (A drawer that is not responsive, or not beside the content, keeps its opener for its own close: NVD-22, NVD-28.)
+    if (changed.has('open') && changed.get('open') === true && !this.open && !this.shown && this.responsive && this.decided === 'standard') {
+      this.reopener = null;
+      this.resumed = null;
+      this.opener = null;
+    }
     if (variantChanged && this.shown && !keptOver) this.withdraw(false, false);
     if (changed.has('open') || variantChanged || has(changed, 'presented')) {
       const was = changed.has('open') ? changed.get('open') === true : this.open;
@@ -4842,6 +4872,33 @@ export class TanreiNavigationDrawer extends TanreiElement {
       }
       const first = this.controllingMenu() ?? tabbables(panel)[0];
       first?.focus();
+    });
+  }
+
+  /**
+   * NVD-54: a drawer kept open is over the content again, and what lies behind it is inert — below an app shell's header
+   * the regions under its scrim (the header and the announcement stay usable, APS-7), elsewhere everything outside its
+   * modal dialog. Focus that was there (`from`, read as the width changed) goes to the menu button that controls the
+   * drawer, or else to its selected destination or first focusable element; focus anywhere else stays.
+   */
+  private focusOutOfInert(from: Element | null) {
+    if (!from || !from.isConnected || from === document.body || from === document.documentElement) return;
+    if (this.held) {
+      const shell = this.parentElement;
+      let region: Element | null = from;
+      while (region && region.parentElement !== shell) {
+        const root = region.getRootNode();
+        region = region.parentElement ?? (root instanceof ShadowRoot ? root.host : null);
+      }
+      if (!region || region === this) return;
+      const slot = region.getAttribute('slot');
+      if (slot === 'header' || slot === 'announcement') return;
+    }
+    void this.updateComplete.then(() => {
+      if (!this.shown) return;
+      const menu = this.controllingMenu();
+      if (menu && menu.getClientRects().length && !menu.closest('[inert]')) menu.focus();
+      else this.focusInside();
     });
   }
 

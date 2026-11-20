@@ -112,7 +112,7 @@ The shell gives the window one of three classes by its width alone.
 
 Put one icon-only Button in the header and mark it with `data-app-shell-menu`. The shell shows it only while the navigation has no place in the layout. Pressing it opens the drawer over the content and moves focus into it. Closing the drawer puts focus back on the button. The button says whether the navigation is expanded.
 
-`navigationOpen` (`navigation-open`) holds that state, and `navigationopenchange` tells you when a person changed it. A change of the window's class closes the navigation.
+`navigationOpen` (`navigation-open`) holds that state, and `navigationopenchange` tells you when a person changed it. A change of the window's class keeps it: open navigation stands beside the content in a wide window and is over the content again, still open, when the window narrows.
 
 ### What scrolls
 
