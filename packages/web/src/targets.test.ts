@@ -341,14 +341,6 @@ const CHEVRON = {
     'CMB-19 gives the chevron the whole gap to the input’s end and at least the minimum target’s width, which reaches over the end of the input where the room is less, and in the same way over the end of a chip that ends a line of entries there, or the nearer half of the gap to it (CMB-74). The neighbour clause for a chevron with a hit part of its own is a change to CMB-19: stop at the middle of container.gap toward the input and the entries.',
 };
 const KNOWN: Record<string, { settings: Setting[]; line: RegExp; reason: string }[]> = {
-  'bottom-sheet': [
-    {
-      settings: ['m3-like', '2px apart', '8px apart'],
-      line: /^modal-partial: a press in the gap at the top of tanrei-bottom-sheet › div, nearer it, goes to tanrei-handle › button/,
-      reason:
-        'Under targets of 48 the drag handle’s target (HDL-5: the whole target, centred on its 24-high container) fills its 48-high row, so it takes the whole gap below the handle down to the content, a scrolling region that takes focus. Stopping it at the middle of that gap is a change to HDL-5 and BSH-11: a Handle that stands beside another pressable takes the neighbour caps (draw its target with neighbourTarget() in place of minimumTarget()), and the bottom sheet caps its handle’s bottom at half the space between the handle and the content.',
-    },
-  ],
   combobox: [CHEVRON],
   'combobox-field': [CHEVRON],
   field: [CHEVRON],
@@ -357,7 +349,7 @@ const KNOWN: Record<string, { settings: Setting[]; line: RegExp; reason: string 
       settings: ALL,
       line: /: a press in the gap at the right of tanrei-navigation-drawer-(item|group) › (button|a) ".*", nearer it, goes to tanrei-handle › div /,
       reason:
-        'NVD-96 lays the resize handle’s target from the drawer’s end edge outward, so that a row keeps the drawer’s full width (NVD-6), with the handle’s container at the target’s middle: the target takes the whole gap between a row’s end (the drawer’s edge) and the container, the half nearer the row too. Keeping that half from the handle is a change to NVD-96: start the target (target − container breadth) / 2 beyond the end edge, so that the half of the gap nearer the row is no one’s, and move what the app shell reads from data-resize (where its content starts) with it.',
+        'NVD-96 lays the resize handle’s target from the drawer’s end edge outward, so that a row keeps the drawer’s full width (NVD-6), with the handle’s container at the target’s middle: the target takes the whole gap between a row’s end (the drawer’s edge) and the container, the half nearer the row too. Keeping that half from the handle is a change to NVD-96: start the target (target − container breadth) / 2 beyond the end edge, so that the half of the gap nearer the row is no one’s, and move what the app shell reads from data-resize (where its content starts) with it. That moves the main content of an app shell beside a resizable drawer that much further from the drawer (6 px under the default system, 12 under targets of 48), which changes APS-5, APS-8 and APS-24 and every picture of such a shell: a change of the layout, not of a hit area alone, so it waits for the maintainers.',
     },
   ],
   menubar: [
