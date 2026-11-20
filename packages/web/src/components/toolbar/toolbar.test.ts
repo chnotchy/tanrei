@@ -1478,6 +1478,53 @@ test.describe('inline, groups, separators and the overflow menu', () => {
     expect((await page.evaluate(() => (window as any).log as string[])).filter((entry) => entry.startsWith('leak:'))).toEqual([]);
   });
 
+  test('TBR-20, MNU-1: the overflow menu, every row of it in a group and its groups made as it opens, opened by a press, Enter or Space on the overflow button, takes focus on its first enabled row, past the disabled one before it', async ({ page }) => {
+    await mountFixtures(page, spec, {
+      icons: true,
+      fixtures: [
+        {
+          id: 'grouped',
+          props: { label: 'Clipboard', overflowLabel: 'More actions' },
+          content: [`<tanrei-toolbar-group>${B('Cut', 'content_cut', 'disabled')}${B('Copy', 'content_copy')}</tanrei-toolbar-group>`, `<tanrei-toolbar-group>${B('Paste', 'content_paste')}${B('Delete', 'delete')}</tanrei-toolbar-group>`].join(''),
+        },
+      ],
+    });
+    // Narrower than its first item: every item is in the overflow menu, the disabled Cut its first row.
+    await page.addStyleTag({ content: `.stage[data-fixture='grouped'] { inline-size: 56px; margin-inline-start: 400px; }` });
+    const id = 'grouped';
+    const button = overflowButton(page, id);
+    const menu = overflowMenu(page, id);
+    await expect(button).toBeVisible();
+    await expect.poll(() => bar(page, id).evaluate((el) => [...el.querySelectorAll('tanrei-button')].filter((item) => item.getBoundingClientRect().width === 0).map((item) => item.getAttribute('label')))).toEqual(['Cut', 'Copy', 'Paste', 'Delete']);
+    /** The label of the element that has focus, through the shadow roots it is in. */
+    const focusedRow = () =>
+      page.evaluate(() => {
+        let active = document.activeElement;
+        while (active?.shadowRoot?.activeElement) active = active.shadowRoot.activeElement;
+        return active?.closest('[label]')?.getAttribute('label') ?? active?.localName ?? null;
+      });
+    const open = async (how: string) => {
+      if (how === 'a press') await button.click();
+      else {
+        await button.locator('button').focus();
+        await page.keyboard.press(how);
+      }
+      await expect(menu, how).toHaveAttribute('open', '');
+    };
+    for (const how of ['a press', 'Enter', 'Space']) {
+      await open(how);
+      // Each run of the toolbar is a group of the menu, and no row stands outside one.
+      expect(await menu.evaluate((el) => [...el.children].map((child) => child.localName)), how).toEqual(['tanrei-menu-group', 'tanrei-menu-group']);
+      await expect.poll(focusedRow, how).toBe('Copy');
+      // The arrow keys move on from there, through the groups.
+      await page.keyboard.press('ArrowDown');
+      expect(await focusedRow(), how).toBe('Paste');
+      await page.keyboard.press('Escape');
+      await expect(menu, how).not.toHaveAttribute('open');
+      await expect(button, how).toBeFocused();
+    }
+  });
+
   test('TBR-20, TBR-9, BTN-40: a destructive action draws its own destructive in the bar, and hidden is a destructive row of the overflow menu; a toggle (BTN-41) and a link (BTN-43) given destructive are not', async ({ page }) => {
     await mountFixtures(page, spec, {
       icons: true,
