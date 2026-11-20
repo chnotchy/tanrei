@@ -1958,6 +1958,48 @@ test.describe('behavior: exposure, forms, size and direction', () => {
     expect(down.x, 'the steppers after the line').toBeGreaterThanOrEqual(line.x + line.width - 0.6);
   });
 
+  test('NMI-37: an input first drawn too narrow for its steppers beside its line, where nothing else on the page changes size (a fixed box 120 wide), stands its steppers on a row of their own in the frame it is first laid out in, and that frame reports the height the wrapping changed — never left undelivered, which the browser reports as an error', async ({ page }) => {
+    await mountFixtures(page, spec, { fixtures: [] });
+    const errors: string[] = [];
+    page.on('pageerror', (error) => errors.push(`pageerror: ${error.message}`));
+    const seen = await page.evaluate(async () => {
+      const errors: string[] = [];
+      const onError = (event: ErrorEvent) => errors.push(event.message);
+      window.addEventListener('error', onError);
+      // Fixed: the input changes the size of nothing above it, so that no element shallower than its container is
+      // reported in the frame it is first laid out in (a page that observes its root element would hide the error).
+      const holder = document.createElement('div');
+      holder.style.cssText = 'position: fixed; inset-block-start: 0; inset-inline-start: 0; inline-size: 120px; block-size: 300px';
+      const input = Object.assign(document.createElement('tanrei-number-input'), { variant: 'stacked', label: 'Quantity', value: 12, incrementLabel: 'Increase', decrementLabel: 'Decrease' });
+      holder.append(input);
+      document.body.append(holder);
+      // Drawn in microtasks: no frame has passed.
+      await input.updateComplete;
+      const root = input.shadowRoot!;
+      const wrapped = () => root.querySelector('.field')!.hasAttribute('data-wrapped');
+      // An observer made after every observer of the input is told after them, in the same frame: what its first
+      // reading left, before that frame is painted. It watches what lies inside the container, deeper than it.
+      const first = await new Promise<boolean>((resolve) => {
+        const observer = new ResizeObserver(() => {
+          observer.disconnect();
+          resolve(wrapped());
+        });
+        observer.observe(root.querySelector('.input')!);
+      });
+      // The next frame's callbacks: the first frame has been painted, and the browser has said what it left undelivered.
+      await new Promise((resolve) => requestAnimationFrame(resolve));
+      await new Promise((resolve) => setTimeout(resolve, 400));
+      const settled = wrapped();
+      window.removeEventListener('error', onError);
+      holder.remove();
+      return { first, settled, errors };
+    });
+    expect(seen.settled, JSON.stringify(seen)).toBe(true);
+    expect(seen.first, JSON.stringify(seen)).toBe(true);
+    expect(seen.errors).toEqual([]);
+    expect(errors).toEqual([]);
+  });
+
   test('NMI-37: the container and the input’s line are watched for wrapping while the input is on the page and given back when it leaves — after it was drawn, after it came back, and when it left before its first update ended', async ({ page }) => {
     await mountFixtures(page, spec, { fixtures: [] });
     const watched = await page.evaluate(async () => {
