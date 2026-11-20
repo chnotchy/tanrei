@@ -6,6 +6,7 @@ import { hiddenHost } from '../../primitives/hidden.js';
 import {
   AvailabilityController,
   GROUP_ITEM,
+  GlyphDrawnController,
   GlyphMirrorController,
   GroupItemController,
   LINK_MARK,
@@ -337,6 +338,14 @@ export class TanreiButton extends TanreiElement {
    * `data-mirror` says so (src/primitives/glyph-mirror.ts); `iconGlyph()` draws the mark.
    */
   private readonly mirror = new GlyphMirrorController(this, { slots: 'slot[name="icon"]', drawn: '.mark' });
+
+  /**
+   * BTN-49: the icon box and the new-context mark carry `data-drawn` while the icon set can draw their glyph; until then
+   * they draw nothing (src/primitives/glyph.ts). The icon box's inks are what its slot holds. Decided in the frame a
+   * button is first drawn, with every other on the page (`firstInFrame`): a page draws many.
+   */
+  private readonly iconDrawn = new GlyphDrawnController(this, () => this.renderRoot.querySelectorAll<HTMLElement>('.icon'), { firstInFrame: true, slotted: true });
+  private readonly markDrawn = new GlyphDrawnController(this, () => this.renderRoot.querySelectorAll<HTMLElement>('.mark'), { firstInFrame: true });
 
   /** BTN-37: the product's words, read where the instance gives no `busyLabel` (src/primitives/words.ts). */
   private readonly words = new WordsController(this);
@@ -777,7 +786,7 @@ export class TanreiButton extends TanreiElement {
       >
         <span part="icon" class="icon" aria-hidden="true"><slot name="icon" @slotchange=${this.#onIconSlotChange}></slot></span>
         <span part="label" class="label"><slot @slotchange=${this.#onLabelSlotChange}></slot></span>
-        ${mark ? html`<span part="icon" class="mark" aria-hidden="true">${LINK_MARK}</span>` : nothing}
+        ${mark ? html`<span part="icon" class="mark" aria-hidden="true"><span class="ink">${LINK_MARK}</span></span>` : nothing}
         ${busy ? busyArc() : nothing}
       </${tag}>
       ${busy ? busyStatus() : nothing}
