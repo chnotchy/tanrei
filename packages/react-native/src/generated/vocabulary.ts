@@ -737,6 +737,7 @@ export interface TanreiBottomSheetTokens {
   readonly containerPartialFraction: number;
   readonly containerShape: number;
   readonly contentColor: TanreiPaint;
+  readonly contentPaddingBlockStart: number;
   readonly dividerColor: TanreiPaint;
   readonly dividerVisibility: number;
   readonly dividerWidth: number;
@@ -4650,6 +4651,7 @@ export interface TanreiSideSheetTokens {
   readonly containerPaddingInline: number;
   readonly containerWidth: number;
   readonly contentColor: TanreiPaint;
+  readonly contentPaddingBlockStart: number;
   readonly dividerColor: TanreiPaint;
   readonly dividerVisibility: number;
   readonly dividerWidth: number;

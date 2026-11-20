@@ -2602,6 +2602,14 @@
               "alpha": 1
             },
             "$description": "The foreground the sheet hands to its content, as the platform's inherited color."
+          },
+          "padding-block-start": {
+            "$type": "dimension",
+            "$value": {
+              "value": 8,
+              "unit": "px"
+            },
+            "$description": "From the bottom of the header (where its divider is drawn) to the content's first line while inset is true, so that the text keeps clear of the header and its divider. Eight, as Material 3 starts a dialog's content 8 below the divider under its headline (material-web's scrollable dialog); Fluent's drawer puts 8 between its headline and the divider that rules the header off."
           }
         },
         "divider": {
@@ -74491,6 +74499,14 @@
               "alpha": 1
             },
             "$description": "The foreground the sheet hands to its content, as the platform's inherited color."
+          },
+          "padding-block-start": {
+            "$type": "dimension",
+            "$value": {
+              "value": 8,
+              "unit": "px"
+            },
+            "$description": "From the bottom of the header (where its divider is drawn) to the content's first line, so that the text keeps clear of the header and its divider. Eight, as Material 3 starts a dialog's content 8 below the divider under its headline (material-web's scrollable dialog); Fluent's drawer puts 8 between its headline and the divider that rules the header off."
           }
         },
         "divider": {

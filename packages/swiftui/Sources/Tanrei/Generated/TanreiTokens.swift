@@ -2057,6 +2057,7 @@ public struct TanreiBottomSheetTokens: Sendable, Equatable {
   public var containerPartialFraction: Double
   public var containerShape: CGFloat
   public var contentColor: TanreiPaint
+  public var contentPaddingBlockStart: CGFloat
   public var dividerColor: TanreiPaint
   public var dividerVisibility: Double
   public var dividerWidth: CGFloat
@@ -2098,6 +2099,7 @@ public struct TanreiBottomSheetTokens: Sendable, Equatable {
     containerPartialFraction: Double,
     containerShape: CGFloat,
     contentColor: TanreiPaint,
+    contentPaddingBlockStart: CGFloat,
     dividerColor: TanreiPaint,
     dividerVisibility: Double,
     dividerWidth: CGFloat,
@@ -2135,6 +2137,7 @@ public struct TanreiBottomSheetTokens: Sendable, Equatable {
     self.containerPartialFraction = containerPartialFraction
     self.containerShape = containerShape
     self.contentColor = contentColor
+    self.contentPaddingBlockStart = contentPaddingBlockStart
     self.dividerColor = dividerColor
     self.dividerVisibility = dividerVisibility
     self.dividerWidth = dividerWidth
@@ -15021,6 +15024,7 @@ public struct TanreiSideSheetTokens: Sendable, Equatable {
   public var containerPaddingInline: CGFloat
   public var containerWidth: CGFloat
   public var contentColor: TanreiPaint
+  public var contentPaddingBlockStart: CGFloat
   public var dividerColor: TanreiPaint
   public var dividerVisibility: Double
   public var dividerWidth: CGFloat
@@ -15048,6 +15052,7 @@ public struct TanreiSideSheetTokens: Sendable, Equatable {
     containerPaddingInline: CGFloat,
     containerWidth: CGFloat,
     contentColor: TanreiPaint,
+    contentPaddingBlockStart: CGFloat,
     dividerColor: TanreiPaint,
     dividerVisibility: Double,
     dividerWidth: CGFloat,
@@ -15074,6 +15079,7 @@ public struct TanreiSideSheetTokens: Sendable, Equatable {
     self.containerPaddingInline = containerPaddingInline
     self.containerWidth = containerWidth
     self.contentColor = contentColor
+    self.contentPaddingBlockStart = contentPaddingBlockStart
     self.dividerColor = dividerColor
     self.dividerVisibility = dividerVisibility
     self.dividerWidth = dividerWidth

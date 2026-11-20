@@ -142,8 +142,8 @@ export const styles = css`
     margin-inline-start: auto;
   }
 
-  /* SSH-8, SSH-10: the content — inset by container.padding-inline from the start and end edges, directly below the
-     header (or container.padding-block below the top without one), container.padding-block above the bottom without
+  /* SSH-8, SSH-10: the content — inset by container.padding-inline from the start and end edges, starting
+     content.padding-block-start below the header (or container.padding-block below the top without one), container.padding-block above the bottom without
      actions; in the body role; scrolling between the header and the actions. */
   .middle {
     position: relative;
@@ -165,6 +165,9 @@ export const styles = css`
     letter-spacing: var(--tanrei-sys-typescale-body-letter-spacing);
     overflow-wrap: break-word;
     ${unsafeCSS(cornerRadius('--tanrei-sys-shape-corner-none'))}
+  }
+  .content:not(.top) {
+    padding-block-start: ${t('content-padding-block-start')};
   }
   .content.top {
     padding-block-start: ${t('container-padding-block')};
