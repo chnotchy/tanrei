@@ -117,10 +117,13 @@ function contrast(one: string, other: string) {
 const STANDS_OFF = 1.1;
 const SURFACE_ROLES = ['surface', 'surface-dim', 'surface-bright', 'surface-container-lowest', 'surface-container-low', 'surface-container', 'surface-container-high', 'surface-container-highest'];
 
-/** What is painted of `target`: the runs of the fill down a column and along a row, in CSS pixels (the page is drawn at 2×). */
-async function painted(target: Locator, fill: string) {
+/**
+ * What is painted of `target`: the runs of the fill down a column and along a row, in CSS pixels (the page is drawn at
+ * 2×). A pixel is the fill's when it is no more than `apart` levels of 255 from it in any channel.
+ */
+async function painted(target: Locator, fill: string, apart = 0) {
   const shot = decodePng(await target.screenshot({ animations: 'disabled' }));
-  const is = (x: number, y: number) => shot.at(Math.round(x), Math.round(y)) === fill;
+  const is = (x: number, y: number) => channelsApart(shot.at(Math.round(x), Math.round(y)), fill) <= apart;
   return {
     width: shot.width / 2,
     height: shot.height / 2,
@@ -267,12 +270,19 @@ test.describe('skeleton', () => {
         // Between the first bar and the second (14-high bars in 22-high line boxes) the stage shows through: its surface.
         const behind = drawn.at(20, 22);
         expect(behind, `${at}: the surface between two bars`).toBe(await paintedColor(page, `var(--tanrei-sys-color-${role})`));
-        const ratio = contrast(seen, behind);
-        expect(ratio, `${at}: ${seen} on ${behind} is ${ratio.toFixed(3)}:1`).toBeGreaterThanOrEqual(STANDS_OFF);
-        // Each bar is the fill laid over this surface — not over the page's, and not a tone of its own — and the three
-        // are one color: no point is covered twice.
-        expect([drawn.at(20, 11), drawn.at(20, 33), drawn.at(20, 55)], at).toEqual([seen, seen, seen]);
-        expect(drawn.column(20).length, `${at}: three bars, each seen`).toBe(3);
+        // Each bar is the fill laid over this surface once — not over the page's, not twice, and not a tone of its own.
+        // A bar is drawn through its rounded clip, and an engine composites the translucent fill there one level of 255
+        // from the same fill laid over an unclipped box, and not always the same way in each bar (WebKit and Chromium on
+        // Linux: 216 and 217 on the highest container step in light), as in the clipped circle below. Laid over the
+        // page's surface instead, or twice, a bar is a tenth of the distance between two surface tones, or of the content
+        // color, away: many levels.
+        const bars = [drawn.at(20, 11), drawn.at(20, 33), drawn.at(20, 55)];
+        for (const bar of bars) {
+          expect(channelsApart(bar, seen), `${at}: the bar ${bar}, the fill over this surface ${seen}`).toBeLessThanOrEqual(1);
+          const ratio = contrast(bar, behind);
+          expect(ratio, `${at}: ${bar} on ${behind} is ${ratio.toFixed(3)}:1`).toBeGreaterThanOrEqual(STANDS_OFF);
+        }
+        expect((await painted(placeholders(page, id).first(), seen, 1)).column(20).length, `${at}: three bars, each seen`).toBe(3);
       }
     }
   });
