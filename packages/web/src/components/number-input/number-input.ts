@@ -529,8 +529,7 @@ export class TanreiNumberInput extends TanreiElement {
   }
 
   /** Moves focus to the input: the number input's one stop in the focus order. */
-  override focus(options?: FocusOptions) {
-    if (this.keepFocusUntilRendered(options)) return;
+  protected override delegateFocus(options?: FocusOptions) {
     this.input?.focus(options);
   }
 

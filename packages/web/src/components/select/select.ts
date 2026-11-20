@@ -577,8 +577,7 @@ export class TanreiSelect extends TanreiElement {
   }
 
   /** Moves focus to the container: the select's one stop in the focus order. */
-  override focus(options?: FocusOptions) {
-    if (this.keepFocusUntilRendered(options)) return;
+  protected override delegateFocus(options?: FocusOptions) {
     this.container?.focus(options);
   }
 
