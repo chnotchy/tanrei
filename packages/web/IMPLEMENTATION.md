@@ -7606,7 +7606,7 @@ the site's hand (`specs/navigation-drawer.spec.json`).
 | Event | When |
 |---|---|
 | `change` / `reselect` (drawer) | a button destination: as the bar's (`value` is already set). A link: `CustomEvent<{ value, href }>`, **cancelable**, fired from the anchor's click before the browser follows it, and only for a plain activation — the primary button, no modifier key, a click not already cancelled, `target` `same`, no `download`; `value` is not written; `preventDefault()` stops the navigation (a router then goes to `detail.href`). A modal drawer closes after either (NVD-21); a link opened somewhere else fires nothing and leaves it open (NVD-60) |
-| `close` (drawer) | a modal drawer closed: the scrim, Escape, back (the native `cancel`), a drag toward its start edge past half its width or a fling (0.5 px/ms, after an 8 px slop), its menu button or an app shell's, a destination, or a responsive drawer's coming to stand beside the content. `open` is already false. A standard drawer never fires it |
+| `close` (drawer) | a modal drawer closed: the scrim, Escape, back (the native `cancel`), a drag toward its start edge past half its width or a fling (0.5 px/ms, after an 8 px slop), its menu button or an app shell's, or a destination; a change of a responsive drawer's presentation fires none. `open` is already false. A standard drawer never fires it |
 | `expandedchange` (drawer) | `CustomEvent<{ expanded }>`, bubbling: the user asked a collapsible drawer for its other form — its menu button, or a group's cell while collapsed (`true`). The drawer has already set `expanded` (a modal one: `open`) |
 | `presentationchange` (drawer) | `CustomEvent<{ presentation }>`, bubbling: a responsive drawer decided its presentation for the first time, or the window's width changed it. A product shows its own menu button while it is `modal` |
 | `toggle` (group) | `CustomEvent<{ open }>`, bubbling: the user opened or closed the group — its row, the arrow keys, or its cell while collapsed — or the drawer opened it to show the selection (`reveal-selected`). `open` is already set |
@@ -7759,7 +7759,8 @@ decided as the element connects, before its first render, so the first frame is 
 without `close`; before the element is upgraded (markup from a server, the React wrapper included) there is no shadow
 root, so no dialog is open and nothing is inert. When the width changes the presentation it is drawn at once (the host
 carries `data-instant` for two frames: the open, close and form motions take no time, and what was on its way stops), it
-is entered closed (an open overlay comes down, `open` is false and `close` fires once), `expanded`, `value` and every
+keeps `open` and fires no `close` (an open overlay comes down while the drawer stands beside the content, and is over the
+content again, open, its scrim drawn at once, when the width takes it back there), `expanded`, `value` and every
 group's `open` are kept, and `presentationchange` fires once. Focus that was in the drawer stays on what the new
 presentation still shows, moves to the menu button from what it does not, and is left to the platform where the drawer
 shows nothing. In the `modal` presentation the drawer's own menu button closes the open overlay and otherwise does
@@ -9766,7 +9767,7 @@ shown, and a debug build reports it.
 | Event | `detail` | |
 |---|---|---|
 | `windowclasschange` | `{ windowClass }` | the class was decided for the first time, or the window's width changed it: `compact`, `medium`, `expanded`. The read-only `windowClass` property and `data-window-class` hold it |
-| `navigationopenchange` | `{ navigationOpen }` | the menu button asked for the navigation (true); it closed — a second press of the menu button, Escape, the scrim, a drag, a destination — or the window became expanded while it was open (false) |
+| `navigationopenchange` | `{ navigationOpen }` | the menu button asked for the navigation (true); it closed — a second press of the menu button, Escape, the scrim, a drag, a destination (false); a change of the window's class emits none |
 
 **The window's class** is three media conditions, in rem, so a reader's zoom (and, in Chromium, a larger default text
 size) moves the frame to a narrower class before its columns are too narrow to read:

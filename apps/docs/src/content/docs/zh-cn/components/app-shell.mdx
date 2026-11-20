@@ -114,7 +114,7 @@ import ComponentAccessibility from '../../../../components/ComponentAccessibilit
 
 在页眉里放一个纯图标的 Button，并用 `data-app-shell-menu` 标记它。只有当导航在布局中没有位置时，外壳才显示它。按下它，抽屉会在内容之上打开，焦点移入抽屉。关闭抽屉时，焦点回到这个按钮。按钮会说明导航是否已展开。
 
-`navigationOpen`（`navigation-open`）保存这个状态，`navigationopenchange` 在用户改变它时告诉你。窗口类别一变，导航就会关闭。
+`navigationOpen`（`navigation-open`）保存这个状态，`navigationopenchange` 在用户改变它时告诉你。窗口类别改变时，这个状态保持不变：打开的导航在宽窗口中站到内容旁边，窗口变窄时仍然打开着，再次出现在内容之上。
 
 ### 滚动的是什么
 
