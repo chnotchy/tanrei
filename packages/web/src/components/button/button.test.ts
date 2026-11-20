@@ -3461,4 +3461,27 @@ test.describe('a glyph the icon set cannot draw yet', () => {
     await expect.poll(() => target.locator('.icon').getAttribute('data-drawn')).not.toBeNull();
     expect(await late.evaluate((el) => getComputedStyle(el).visibility)).toBe('visible');
   });
+
+  test('BTN-49: a glyph named by its data-icon is held back as its text form is; an SVG in the icon slot, no glyph of the icon set, is drawn while the set cannot draw', async ({ page }) => {
+    const target = host(page, 'filled-leading-icon');
+    const family = await withoutIconFont(page);
+    await target.evaluate((el) => {
+      el.querySelector('[slot="icon"]')!.remove();
+      const glyph = document.createElement('span');
+      glyph.slot = 'icon';
+      glyph.className = 'tanrei-icon named';
+      glyph.dataset.icon = 'favorite';
+      el.append(glyph);
+    });
+    await expect.poll(() => target.locator('.icon').getAttribute('data-drawn')).toBeNull();
+    expect(await target.locator('.named').evaluate((el) => getComputedStyle(el).visibility)).toBe('hidden');
+    await target.evaluate((el) => {
+      el.querySelector('[slot="icon"]')!.remove();
+      el.insertAdjacentHTML('beforeend', '<svg slot="icon" class="drawing" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8"/></svg>');
+    });
+    await expect.poll(() => target.locator('.icon').getAttribute('data-drawn')).not.toBeNull();
+    expect(await target.locator('.drawing').evaluate((el) => getComputedStyle(el).visibility)).toBe('visible');
+    await iconFaceArrives(page, family);
+    await expect(target.locator('.icon')).toHaveAttribute('data-drawn', '');
+  });
 });

@@ -341,10 +341,11 @@ export class TanreiButton extends TanreiElement {
 
   /**
    * BTN-49: the icon box and the new-context mark carry `data-drawn` while the icon set can draw their glyph; until then
-   * they draw nothing (src/primitives/glyph.ts). The icon box's inks are what its slot holds. Decided in the frame a
-   * button is first drawn, with every other on the page (`firstInFrame`): a page draws many.
+   * they draw nothing (src/primitives/glyph.ts). The icon box's inks are what its slot holds, decided from what the
+   * observer reports with no read of the layout (`slotted`); the mark is decided in the frame a button is first drawn,
+   * with every other on the page (`firstInFrame`): a page draws many.
    */
-  private readonly iconDrawn = new GlyphDrawnController(this, () => this.renderRoot.querySelectorAll<HTMLElement>('.icon'), { firstInFrame: true, slotted: true });
+  private readonly iconDrawn = new GlyphDrawnController(this, () => this.renderRoot.querySelectorAll<HTMLElement>('.icon'), { slotted: true });
   private readonly markDrawn = new GlyphDrawnController(this, () => this.renderRoot.querySelectorAll<HTMLElement>('.mark'), { firstInFrame: true });
 
   /** BTN-37: the product's words, read where the instance gives no `busyLabel` (src/primitives/words.ts). */

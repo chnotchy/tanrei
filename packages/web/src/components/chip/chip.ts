@@ -208,10 +208,11 @@ export class TanreiChip extends TanreiElement {
 
   /**
    * CHP-41: each glyph box carries `data-drawn` while the icon set can draw its glyph — the icon slot's, the check, the
-   * new-context mark, the remove glyph; until then it draws nothing (src/primitives/glyph.ts). Decided in the frame a chip
-   * is first drawn, with every other on the page (`firstInFrame`): a page draws many.
+   * new-context mark, the remove glyph; until then it draws nothing (src/primitives/glyph.ts). The icon is decided from
+   * what the observer reports, with no read of the layout (`slotted`); the others in the frame a chip is first drawn,
+   * with every other on the page (`firstInFrame`): a page draws many.
    */
-  private readonly iconDrawn = new GlyphDrawnController(this, () => this.renderRoot.querySelectorAll<HTMLElement>('.glyph.icon'), { firstInFrame: true, slotted: true });
+  private readonly iconDrawn = new GlyphDrawnController(this, () => this.renderRoot.querySelectorAll<HTMLElement>('.glyph.icon'), { slotted: true });
   private readonly glyphsDrawn = new GlyphDrawnController(this, () => this.renderRoot.querySelectorAll<HTMLElement>('.glyph:not(.icon)'), { firstInFrame: true });
 
   /**

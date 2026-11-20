@@ -100,9 +100,9 @@ export class TanreiTag extends TanreiElement {
 
   /**
    * TAG-22: the icon box carries `data-drawn` while the icon set can draw what its slot holds; until then it draws nothing
-   * (src/primitives/glyph.ts). Decided in the frame a tag is first drawn, with every other on the page (`firstInFrame`).
+   * (src/primitives/glyph.ts), decided from what the observer reports, with no read of the layout (`slotted`).
    */
-  private readonly glyphs = new GlyphDrawnController(this, () => this.renderRoot.querySelectorAll<HTMLElement>('.icon'), { firstInFrame: true, slotted: true });
+  private readonly glyphs = new GlyphDrawnController(this, () => this.renderRoot.querySelectorAll<HTMLElement>('.icon'), { slotted: true });
 
   /** TAG-20: the custom state the styles read to take an empty tag out of the layout. */
   private readonly internals: ElementInternals | null = typeof this.attachInternals === 'function' ? this.attachInternals() : null;
