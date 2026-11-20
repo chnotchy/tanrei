@@ -182,6 +182,11 @@
       "id": "RAT-19",
       "text": "WHERE the layout direction is right-to-left THE rating SHALL draw the glyph of its marks mirrored left to right exactly when the system's icon set marks that glyph's name as mirrored or — for the glyph icon names — the product forces mirroring for that use, and unmirrored when the product forbids it: the icon helper mirrors the glyph inside each mark's box, about the box's vertical centre line, changing neither the marks' places, sizes and colors nor the halves RAT-2 draws. The star the rating draws while icon is empty is its own glyph and takes no word of the product's. THE rating SHALL NOT mirror a mark itself.",
       "verify": "arrow_forward, chevron_right, reply and send are marked by the default icon set; check, close, search and play_arrow are not. Test one marked and one unmarked name in right-to-left, the marked one again with mirroring forbidden and the unmarked one with it forced, the marked one in left-to-right (never mirrored there), and the star with mirroring forced (not mirrored)."
+    },
+    {
+      "id": "RAT-20",
+      "text": "WHEN the control height (dial.control.height) changes THE rating SHALL keep its own size: a mark's container (comp.rating.container.size.medium, and so on for each size) is the pitch of a row of glyphs, which follows the size of its mark (comp.rating.mark.size.medium, and so on), and no control of a row's height, so THE rating SHALL draw its containers and marks at their own sizes at every control height; a person's reach is the hit area's, which SHALL still meet the minimum target around each mark (RAT-8), not a wider pitch between the marks.",
+      "verify": "With the control height at 32, 36 and 40 and the minimum target no higher, every mark's container of the fixtures value, small and large stays 32, 28 and 40 across, and its glyph 24, 20 and 32."
     }
   ],
   "accessibility": {

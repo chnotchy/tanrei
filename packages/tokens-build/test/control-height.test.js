@@ -31,6 +31,7 @@ const ALIGNED_ON_THE_LADDER = comp([
   'calendar.day.container.size',
   'calendar.view-toggle.container.height',
   'calendar.year.container.height',
+  'checkbox.container.size',
   'combobox.option.height.medium',
   'date-time-picker.range-field.container.height',
   'input-box.container.height.medium',
@@ -43,11 +44,14 @@ const ALIGNED_ON_THE_LADDER = comp([
   'navigation-drawer.item.container.height.medium',
   'one-time-code-input.container.height',
   'pagination.container.height.medium',
+  'radio-button.container.size',
   'search.container.height',
   'search.suggestion.container.height.medium',
   'search.trigger.container.height',
   'segmented-button.container.height.medium',
   'select.option.height.medium',
+  'slider.container.size',
+  'switch.container.size',
   'table-of-contents.compact.row.height',
   'table-of-contents.row.height.medium',
   'table.row.height.medium',
@@ -56,15 +60,12 @@ const ALIGNED_ON_THE_LADDER = comp([
   'tree-view.container.height.medium',
 ]);
 
-/** Not yet: each family's change rewires its heights to the medium step, marks them and moves them up. */
-const ALIGNED_NOT_YET = comp([
-  // the state layers of selection controls, and the rating's targets
-  'checkbox.container.size',
-  'radio-button.container.size',
-  'switch.container.size',
-  'slider.container.size',
-  'rating.container.size.medium',
-]);
+/**
+ * Not yet: each family's change rewires its heights to the medium step, marks them and moves them up. Empty: every
+ * control and row of the set is drawn at the control height. A rating's containers are not in the set: they are the
+ * pitch of a row of glyphs, which follows the mark's size, and its targets reach the minimum beyond them (RAT-20).
+ */
+const ALIGNED_NOT_YET = comp([]);
 
 const vocabulary = JSON.parse(fs.readFileSync(path.join(REPO_ROOT, 'tokens/vocabulary.lock.json'), 'utf8')).tokens;
 const systems = listSystems(REPO_ROOT);

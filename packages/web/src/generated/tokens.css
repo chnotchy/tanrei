@@ -1857,7 +1857,7 @@
     --tanrei-comp-checkbox-box-size: round(nearest, calc(var(--tanrei-dial-size-unit) * 4.5), 0.25px);
     --tanrei-comp-checkbox-container-shape: var(--tanrei-sys-shape-corner-full);
     --tanrei-comp-checkbox-container-shape-pill: 1;
-    --tanrei-comp-checkbox-container-size: round(nearest, calc(var(--tanrei-dial-size-unit) * 10), 0.25px);
+    --tanrei-comp-checkbox-container-size: var(--tanrei-sys-control-height-medium);
     --tanrei-comp-checkbox-disabled-container-shape: var(--tanrei-comp-checkbox-container-shape);
     --tanrei-comp-checkbox-disabled-container-shape-pill: 1;
     --tanrei-comp-checkbox-disabled-opacity: 1;
@@ -5691,7 +5691,7 @@
     --tanrei-comp-prose-text-typescale-medium-line-height: var(--tanrei-sys-typescale-body-line-height);
     --tanrei-comp-radio-button-container-shape: var(--tanrei-sys-shape-corner-full);
     --tanrei-comp-radio-button-container-shape-pill: 1;
-    --tanrei-comp-radio-button-container-size: round(nearest, calc(var(--tanrei-dial-size-unit) * 10), 0.25px);
+    --tanrei-comp-radio-button-container-size: var(--tanrei-sys-control-height-medium);
     --tanrei-comp-radio-button-disabled-container-shape: var(--tanrei-comp-radio-button-container-shape);
     --tanrei-comp-radio-button-disabled-container-shape-pill: 1;
     --tanrei-comp-radio-button-disabled-opacity: 1;
@@ -6520,7 +6520,7 @@
     --tanrei-comp-skeleton-placeholder-shape-text-pill: 0;
     --tanrei-comp-slider-container-shape: var(--tanrei-sys-shape-corner-full);
     --tanrei-comp-slider-container-shape-pill: 1;
-    --tanrei-comp-slider-container-size: round(nearest, calc(var(--tanrei-dial-size-unit) * 10), 0.25px);
+    --tanrei-comp-slider-container-size: var(--tanrei-sys-control-height-medium);
     --tanrei-comp-slider-disabled-opacity: 1;
     --tanrei-comp-slider-focused-opacity: 1;
     --tanrei-comp-slider-handle-outline-width: round(nearest, calc(var(--tanrei-dial-stroke-unit) * 3), 0.25px);
@@ -7169,7 +7169,7 @@
     --tanrei-comp-swatch-supporting-text-typescale-small-line-height: var(--tanrei-sys-typescale-caption-line-height);
     --tanrei-comp-switch-container-shape: var(--tanrei-sys-shape-corner-full);
     --tanrei-comp-switch-container-shape-pill: 1;
-    --tanrei-comp-switch-container-size: round(nearest, calc(var(--tanrei-dial-size-unit) * 10), 0.25px);
+    --tanrei-comp-switch-container-size: var(--tanrei-sys-control-height-medium);
     --tanrei-comp-switch-disabled-container-shape: var(--tanrei-comp-switch-container-shape);
     --tanrei-comp-switch-disabled-container-shape-pill: 1;
     --tanrei-comp-switch-disabled-opacity: 1;
