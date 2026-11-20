@@ -381,6 +381,11 @@
       "id": "SPB-40",
       "text": "WHILE busy is true and disabled is false THE button with menu SHALL keep the leading half's focus and its place in the focus order, SHALL NOT emit click by any means (a press, a key, assistive technology or a script's click), SHALL expose on the leading half that it cannot be activated now (on the web aria-disabled) and busyLabel as its description, read after its name, and WHEN busy becomes true SHALL have busyLabel announced once, politely, without moving focus; nothing SHALL be announced when it ends, because what the action did is the product's to say. THE trailing half SHALL keep its name, role, state, focus and keys, and SHALL emit toggle and present its menu as it does without busy (SPB-2, SPB-15, SPB-22), so that the related actions stay one press away. WHILE disabled is true busy SHALL change nothing (SPB-3, SPB-7). WHILE busy is true and busyLabel is empty THE button with menu SHALL still render and in debug builds report that its busy leading half does not say so.",
       "verify": "Made busy while its leading half holds focus, the focus stays; Enter, Space, a press and element.click() emit no click; the leading half has aria-disabled and busyLabel as its description, busyLabel is heard once and nothing when busy ends. The trailing half still emits toggle on a press and on Down Arrow, and its menu opens and its items work. An empty busyLabel is reported once."
+    },
+    {
+      "id": "SPB-41",
+      "text": "IF the icon set cannot draw a glyph the button with menu shows yet — the glyph of its icon slot, expand_more, or the glyph of its chevron or chevron-open slot; its font is still loading or failed to load — THE button with menu SHALL draw nothing in that glyph's place, never the glyph's name as text, SHALL keep the glyph's box at its size so that nothing else moves, SHALL still draw both halves and the label and expose their names and states, and SHALL show the glyph once the icon set can draw it, without a motion.",
+      "verify": "Name a family no machine has as the icon set's, then register the default icon face under that name: before, the glyph's box is drawn empty at its size; after, the glyph is drawn in it."
     }
   ],
   "accessibility": {

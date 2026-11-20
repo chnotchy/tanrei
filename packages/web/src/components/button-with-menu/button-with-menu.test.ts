@@ -15,6 +15,7 @@ import { readSeam } from '../../../test/seam.js';
 import { motionEnded } from '../../../test/motions.js';
 import { expectBaseline } from '../../../test/baseline.js';
 import { controlledElements } from '../../../test/controlled-list.js';
+import { type HeldGlyph, expectGlyphsHeldBack } from '../../../test/held-glyphs.js';
 
 const spec = loadSpec('button-with-menu');
 type P = Page;
@@ -2572,4 +2573,20 @@ test.describe('fixtures', () => {
       await expectBaseline(page.locator(`[data-fixture="${f.id}"]`), [spec.name, `${f.id}.png`]);
     });
   }
+});
+
+test.describe('a glyph the icon set cannot draw yet', () => {
+  test('SPB-41: while the icon set cannot draw them, the icon, expand_more and the product’s chevrons draw nothing — never their names — and keep their boxes; both halves, the label and the names stay; once it can, the glyphs are drawn where they were', async ({ page }) => {
+    const glyphs: HeldGlyph[] = [
+      { name: 'the icon', host: host(page, 'filled-icon'), box: '.icon' },
+      { name: 'expand_more', host: host(page, 'filled-icon'), box: '.turn .chevron' },
+      { name: 'expand_more, open', host: host(page, 'filled-open'), box: '.turn .chevron' },
+      { name: 'the product’s chevron', host: host(page, 'filled-chevron-custom'), box: '.turn .chevron' },
+      { name: 'the product’s open chevron', host: host(page, 'filled-chevron-custom-open'), box: '.glyph-open .chevron' },
+    ];
+    await expectGlyphsHeldBack(page, glyphs, async () => {
+      await expect(host(page, 'filled-icon').getByRole('button', { name: 'Save', exact: true })).toHaveCount(1);
+      await expect(host(page, 'filled-icon').getByRole('button', { name: 'More save options', exact: true })).toHaveCount(1);
+    });
+  });
 });
