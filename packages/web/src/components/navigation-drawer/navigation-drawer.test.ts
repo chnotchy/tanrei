@@ -5122,6 +5122,32 @@ test.describe('resizable', () => {
     await expect(drawer(page, 'off')).toHaveAttribute('data-resize', '');
   });
 
+  test('NVD-96, APS-8: a drawer that is connected writes the attributes an app shell reads (its handle’s `data-resize`) before it first reads the cascade, so the page is styled once with them, not with the shell’s band taken away first', async ({ page }) => {
+    await wide(page);
+    await mount(page, [fixture('open', SIDE)]);
+    // A drawer made and connected now, as a page's module upgrades one: what each of its reads of the cascade found on it.
+    const found = await page.evaluate(() => {
+      const made = document.createElement('tanrei-navigation-drawer');
+      made.setAttribute('responsive', '');
+      made.setAttribute('label', 'Mail');
+      const seen: (string | null)[] = [];
+      const read = window.getComputedStyle;
+      window.getComputedStyle = function (element: Element, pseudo?: string | null) {
+        if (element === made) seen.push(made.getAttribute('data-resize'));
+        return read.call(window, element, pseudo);
+      };
+      try {
+        document.body.append(made);
+      } finally {
+        window.getComputedStyle = read;
+      }
+      made.remove();
+      return seen;
+    });
+    expect(found.length, 'the drawer reads its widths from the cascade as it connects (NVD-53)').toBeGreaterThan(0);
+    expect(found[0], 'its handle is written before its first read').toBe('');
+  });
+
   test('NVD-96: a press is taken along the edge’s whole height — 10 from its top and its bottom — wholly over the content, from the end edge; the drawer’s last pixel is its row’s; the line is out of sight at rest and comes into sight with the resize cursor; a drag from the band’s far side resizes', async ({ page }) => {
     await wide(page);
     await mount(page, [fixture('open', SIDE)]);

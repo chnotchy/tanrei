@@ -3077,7 +3077,12 @@ export class TanreiNavigationDrawer extends TanreiElement {
     this.held = this.readHeld();
     // The form is drawn from the first style the host is given (a controller reads the cascade as it connects): a drawer
     // that starts collapsed does not narrow into place, and its main action does not collapse into place.
-    // NVD-55: so is a responsive drawer's presentation — decided from the window's width before the first frame.
+    // NVD-55: so is a responsive drawer's presentation — decided from the window's width before the first frame. The
+    // state is written before its widths are read, and again once they are (`decide`): the read styles the page, and an
+    // app shell's stylesheet asks the drawer's attributes (`data-resize`, APS-8) what it hands the whole page — read
+    // between the drawer's definition and its attributes, the page was styled with the frame's band taken away, and
+    // styled again with it given back.
+    this.reflectState();
     this.watchWidths();
     this.reflectState();
     this.syncMainAction();
