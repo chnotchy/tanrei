@@ -2643,7 +2643,7 @@ export async function fixturesDocument(spec: Spec, given: DocumentOptions = {}):
     <title>${spec.name} fixtures</title>
     ${assets ? sheet(assets.font, fontFace) : embeddedFaceMarkup(`${fontFace()}\n${text}`)}
     ${icons}
-    <style>${read('dist/base.css')}</style>
+    <style>${read('dist/base.css').replace(/\/\*[\s\S]*?\*\//g, '')}</style>
     ${sheet(assets?.tokens, () => read('dist/tokens.css'))}
     ${options.system ? sheet(assets?.system(options.system), () => systemStyles(options)) : ''}
     <style>
@@ -2993,7 +2993,7 @@ export function typeRole(base: string, font: string): Record<string, string> {
   };
 }
 
-/** A type role's tokens that read another role's longhands: `typeRoleOf(T('label-typescale'), '--tanrei-sys-typescale-headline')`. */
+/** A type role's tokens that read another role's longhands: `typeRoleOf(T('label-typescale'), '--tanrei-sys-typescale-heading-2')`. */
 export const typeRoleOf = (base: string, from: string): Record<string, string> => Object.fromEntries(ROLE_LONGHANDS.map((longhand) => [`${base}-${longhand}`, `var(${from}-${longhand})`]));
 
 /**
