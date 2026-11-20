@@ -1600,7 +1600,7 @@ test.describe('the element and its stylesheet', () => {
     expect(await inner.evaluate((el) => (el.getRootNode() as ShadowRoot).adoptedStyleSheets.length)).toBeGreaterThan(0);
   });
 
-  test('the rules the element writes are in no cascade layer: on a page that loads table.css into a later layer of its own, a column aligned and kept on one line by its header alone is so in every cell, surplus cells are not drawn, and a size a system added is drawn (TBL-3, TBL-7, TBL-14, TBL-31)', async ({ page }) => {
+  test('the rules by position come with table.css, last in its layer, and the rules the element writes are in no cascade layer: on a page that loads table.css into a later layer of its own, a column aligned and kept on one line by its header alone is so in every cell, surplus cells are not drawn, and a size a system added is drawn (TBL-3, TBL-7, TBL-14, TBL-31)', async ({ page }) => {
     // A column's alignment and wrapping named on its header cell alone, as the spec's columns are; a row with a cell too many.
     const markup =
       '<table><caption>Visits</caption><thead><tr><th scope="col">Region</th><th scope="col" data-align="end" data-wrap="false">Visits in January</th><th scope="col" data-align="center">State</th></tr></thead>' +
@@ -1641,6 +1641,31 @@ test.describe('the element and its stylesheet', () => {
     await page.addStyleTag({ content: '.mine { text-align: left; }' });
     await cell(page, 'layered', 'tbody', 1, 2).evaluate((el) => el.classList.add('mine'));
     expect(await css(cell(page, 'layered', 'tbody', 1, 2), 'text-align')).toBe('left');
+  });
+
+  test('TBL-3, TBL-7, TBL-14: the rules by position of the first twelve columns are table.css’s own, so tables that need no later one give their page no sheet as they upgrade (a sheet added to the document restyles every element of it); a table of fourteen columns aligns and keeps on one line its thirteenth and fourteenth by its header, and draws no cell past the last', async ({ page }) => {
+    const head = (n: number, named: Record<number, string> = {}) => `<thead><tr>${Array.from({ length: n }, (_, i) => `<th scope="col"${named[i + 1] ?? ''}>H${i + 1}</th>`).join('')}</tr></thead>`;
+    const row = (n: number, extra = '') => `<tr>${Array.from({ length: n }, (_, i) => `<td>c${i + 1}</td>`).join('')}${extra}</tr>`;
+    const twelve = `<table>${head(12, { 12: ' data-align="end" data-wrap="false"', 11: ' data-align="center"' })}<tbody>${row(12, '<td id="past-twelve">one too many</td>')}</tbody></table>`;
+    const fourteen = `<table>${head(14, { 13: ' data-align="end" data-wrap="false"', 14: ' data-align="center"' })}<tbody>${row(14, '<td id="past-fourteen">one too many</td>')}</tbody></table>`;
+    /** The sheets of rules by position the page was given: sheets of style rules, every one of them by position. */
+    const given = () => page.evaluate(() => document.adoptedStyleSheets.filter((sheet) => sheet.cssRules.length > 0 && [...sheet.cssRules].every((rule) => rule instanceof CSSStyleRule && /data-columns/.test(rule.selectorText))).map((sheet) => sheet.cssRules.length));
+    await mountFixtures(page, spec, { fixtures: [raw('twelve', { label: 'Twelve' }, twelve)] });
+    await expect(host(page, 'twelve')).toHaveAttribute('data-columns', '12');
+    expect(await css(cell(page, 'twelve', 'tbody', 1, 12), 'text-align')).toBe('right');
+    expect(await css(cell(page, 'twelve', 'tbody', 1, 12), 'white-space')).toBe('nowrap');
+    expect(await css(cell(page, 'twelve', 'tbody', 1, 11), 'text-align')).toBe('center');
+    expect(await css(cell(page, 'twelve', 'tbody', 1, 10), 'text-align')).toBe('left');
+    expect(await css(page.locator('#past-twelve'), 'display')).toBe('none');
+    expect(await given(), 'twelve columns: no sheet').toEqual([]);
+    await mountFixtures(page, spec, { fixtures: [raw('fourteen', { label: 'Fourteen' }, fourteen)] });
+    await expect(host(page, 'fourteen')).toHaveAttribute('data-columns', '14');
+    expect(await css(cell(page, 'fourteen', 'tbody', 1, 13), 'text-align')).toBe('right');
+    expect(await css(cell(page, 'fourteen', 'tbody', 1, 13), 'white-space')).toBe('nowrap');
+    expect(await css(cell(page, 'fourteen', 'tbody', 1, 14), 'text-align')).toBe('center');
+    expect(await css(cell(page, 'fourteen', 'tbody', 1, 12), 'text-align')).toBe('left');
+    expect(await css(page.locator('#past-fourteen'), 'display')).toBe('none');
+    expect((await given()).length, 'fourteen columns: one sheet, of the positions past twelve').toBe(1);
   });
 
   test('a table inside a cell is the product’s: the table draws none of it (TBL-15)', async ({ page }) => {

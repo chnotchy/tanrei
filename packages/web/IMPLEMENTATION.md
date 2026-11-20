@@ -9112,7 +9112,9 @@ a moment later; load the stylesheet where the table should be drawn in the first
 
 A **column** is a `<th scope="col">` in the one `<thead>` row: `data-align="start | center | end"` and
 `data-wrap="false"` on it are the column's. The element writes the positions of such columns on itself
-(`data-columns-end="2 3"`, `-center`, `-nowrap`) and one rule per position, in a sheet it adds, places their cells —
+(`data-columns-end="2 3"`, `-center`, `-nowrap`) and one rule per position places their cells — table.css has the
+rules of the first twelve positions, and the element adds a sheet for a later one (a sheet added to the document
+restyles every element of the page, so a page of ordinary tables is given none) —
 **no cell is written to**, so a table of several hundred rows costs what its header row costs. Without script (or to
 have the first frame right), write the same two attributes on each cell; a cell's own attribute always wins. A
 Markdown renderer's `align="left | center | right"` is read too, left and right as start and end. A **row** is a
