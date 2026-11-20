@@ -138,7 +138,7 @@
       "name": "open",
       "type": "boolean",
       "default": false,
-      "description": "Whether the drawer is shown: for a standard drawer, whether it takes its place in the layout (in the form collapsible and expanded choose); for a modal one, whether it is presented over the content (while collapsible, its collapsed column stays in the layout when it is not). While responsive is true it only says whether the drawer is shown over the content in the presentations that are modal: a change between those presentations keeps it, and the drawer's coming to stand beside the content sets it back to false."
+      "description": "Whether the drawer is shown: for a standard drawer, whether it takes its place in the layout (in the form collapsible and expanded choose); for a modal one, whether it is presented over the content (while collapsible, its collapsed column stays in the layout when it is not). While responsive is true every change of presentation keeps it: open, the drawer is over the content where the window is narrow and beside it where it is wide; closed, it is not over the content, and stands beside it unless standardHidden is true (NVD-53, NVD-105)."
     },
     {
       "name": "collapsible",
@@ -150,7 +150,7 @@
       "name": "expanded",
       "type": "boolean",
       "default": true,
-      "description": "The form of a collapsible standard drawer: true for the full drawer, false for the icon column. For a responsive drawer that is not collapsible, whether its standard presentation is shown (true) or hidden (false), so that one menu button shows and hides the navigation in a wide window. Otherwise ignored while collapsible is false, and ignored by a modal drawer, whose form follows open. It is the user's choice: a change of the window's width never writes it, so a responsive drawer returns to it when the window is wide again."
+      "description": "The form of a collapsible standard drawer: true for the full drawer, false for the icon column. Ignored while collapsible is false, and ignored by a modal drawer, whose form follows open. It is the user's choice: a change of the window's width never writes it, so a responsive drawer returns to it when the window is wide again."
     },
     {
       "name": "collapsedLabels",
@@ -245,7 +245,13 @@
       "name": "responsive",
       "type": "boolean",
       "default": false,
-      "description": "Lets the window's width choose the drawer's presentation (NVD-53): beside the content where the window is wide, its collapsed column beside the content where it is narrower (while collapsible), and over the content alone where it is narrow. While true the drawer ignores variant, shows itself in a wide window in the form expanded gives, keeps open across a change between its two narrower presentations, and moves into each new presentation by its motion (NVD-54)."
+      "description": "Lets the window's width choose the drawer's presentation (NVD-53): beside the content where the window is wide, its collapsed column beside the content where it is narrower (while collapsible), and over the content alone where it is narrow. While true the drawer ignores variant, shows itself in a wide window in the form expanded gives unless a person hid it there (standardHidden), keeps open and standardHidden across every change of presentation, and moves into each new presentation by its motion (NVD-54)."
+    },
+    {
+      "name": "standardHidden",
+      "type": "boolean",
+      "default": false,
+      "description": "While responsive is true: whether a person put the drawer away where it stands beside the content — an app shell's menu button hides the standard presentation and shows it again (NVD-105). While it is true and open is false the standard presentation takes no width and has no presence to focus or assistive technology; the narrower presentations are open or closed as open says. A change of the window's width never writes it. Ignored while responsive is false."
     },
     {
       "name": "resizable",
@@ -690,6 +696,10 @@
       "description": "The user asked a collapsible drawer for its other form — with its menu button, with its resize handle (a press, or a drag past its fold point, NVD-99 and NVD-101) or with a group's cell in the collapsed drawer; carries true to expand and false to collapse. For a collapsible modal drawer, true asks it to open."
     },
     {
+      "name": "standardHiddenChange",
+      "description": "A person hid a responsive drawer's standard presentation with an app shell's menu button, or showed it again (NVD-105); carries true where it was hidden. Not emitted when the product sets standardHidden, nor by a change of the window's width."
+    },
+    {
       "name": "presentationChange",
       "description": "A responsive drawer decided its presentation for the first time, or the window's width changed it; carries standard (beside the content), column (its collapsed column beside the content, widening over it) or modal (over the content alone). A product shows its own menu button while the presentation is modal."
     },
@@ -864,7 +874,7 @@
     },
     {
       "id": "NVD-37",
-      "text": "WHILE collapsible is true THE navigation drawer SHALL treat its first header button as its menu button and expose it as expanded or collapsed, controlling the drawer (aria-expanded and aria-controls on the web; the expanded state elsewhere) — except WHILE the drawer is open as its own modal dialog, which keeps the drawer's host out of the accessibility tree: THE navigation drawer SHALL then name nothing as what the menu button controls (no aria-controls on the web), so that the button never names an element that is not exposed; WHEN the user activates it, after the button's own click, THE navigation drawer SHALL emit expandedChange exactly once with the form asked for (true to expand, false to collapse) WHILE variant is standard or the drawer is not open, and on the web apply it itself (expanded for a standard drawer, open for a modal one); WHILE a modal drawer is open it SHALL close as NVD-20 says instead. WHEN an app shell's menu button that controls the drawer is activated (APS-7) THE navigation drawer SHALL do exactly what it does for its own menu button, whether or not collapsible is true and whether or not it has a header button; WHILE its presentation is standard and collapsible is false, the form asked for is the standard presentation shown (expanded true) or hidden (expanded false, NVD-53). WHILE collapsible is true and the drawer has no header button and no app shell's menu button controls it, it SHALL report in debug builds that its user cannot change its form."
+      "text": "WHILE collapsible is true THE navigation drawer SHALL treat its first header button as its menu button and expose it as expanded or collapsed, controlling the drawer (aria-expanded and aria-controls on the web; the expanded state elsewhere) — except WHILE the drawer is open as its own modal dialog, which keeps the drawer's host out of the accessibility tree: THE navigation drawer SHALL then name nothing as what the menu button controls (no aria-controls on the web), so that the button never names an element that is not exposed; WHEN the user activates it, after the button's own click, THE navigation drawer SHALL emit expandedChange exactly once with the form asked for (true to expand, false to collapse) WHILE variant is standard or the drawer is not open, and on the web apply it itself (expanded for a standard drawer, open for a modal one); WHILE a modal drawer is open it SHALL close as NVD-20 says instead. WHEN an app shell's menu button that controls the drawer is activated (APS-7) THE navigation drawer SHALL do exactly what it does for its own menu button, whether or not collapsible is true and whether or not it has a header button, except WHILE a responsive drawer's presentation is standard: it SHALL then hide or show that presentation as NVD-105 says, whatever collapsible and expanded are, and leave its form to its own menu button and its resize handle. WHILE collapsible is true and the drawer has no header button and no app shell's menu button controls it, it SHALL report in debug builds that its user cannot change its form."
     },
     {
       "id": "NVD-38",
@@ -932,17 +942,17 @@
     },
     {
       "id": "NVD-53",
-      "text": "WHILE responsive is true THE navigation drawer SHALL choose its presentation from the width of the window it is in, and SHALL ignore variant: WHILE the window is at least comp.navigation-drawer.breakpoint.expanded wide it SHALL be a standard drawer that is shown whatever open says, in the form expanded gives it (the standard presentation: NVD-18's place in the layout — WHILE expanded is true its full form; WHILE expanded is false its column (NVD-30) WHILE collapsible is true, and WHILE collapsible is false nothing, no width in the layout and no presence to focus or assistive technology, as a standard drawer whose open is false); WHILE the window is narrower than that, at least comp.navigation-drawer.breakpoint.collapsed wide, and collapsible is true, it SHALL be a collapsible modal drawer (the column presentation: its column in the layout, widening over the content WHILE open is true, NVD-40); and otherwise it SHALL be a modal drawer that is not collapsible (the modal presentation: nothing in the layout, shown over the content WHILE open is true, NVD-19 to NVD-22). In each presentation THE navigation drawer SHALL draw and behave exactly as the drawer whose variant and collapsible it stands for, from that variant's tokens. WHILE responsive is false THE navigation drawer SHALL NOT read the window's width.",
-      "verify": "Fixtures: `responsive-wide` is drawn in a window 1280 wide, `responsive-medium` in one 800 wide and `responsive-narrow` in one 400 wide; under the default system the two widths are 1024 and 600. Test a window exactly 1024 wide (standard) and 1023 (column), 600 (column) and 599 (modal), and a drawer that is not collapsible at 800 (modal)."
+      "text": "WHILE responsive is true THE navigation drawer SHALL choose its presentation from the width of the window it is in, and SHALL ignore variant: WHILE the window is at least comp.navigation-drawer.breakpoint.expanded wide it SHALL be a standard drawer (the standard presentation: NVD-18's place in the layout), shown WHILE open is true or standardHidden is false — in its full form WHILE expanded is true or collapsible is false, and as its column (NVD-30) WHILE expanded is false and collapsible is true — and hidden WHILE standardHidden is true and open is false: no width in the layout and no presence to focus or assistive technology, as a standard drawer whose open is false (NVD-105); WHILE the window is narrower than that, at least comp.navigation-drawer.breakpoint.collapsed wide, and collapsible is true, it SHALL be a collapsible modal drawer (the column presentation: its column in the layout, widening over the content WHILE open is true, NVD-40); and otherwise it SHALL be a modal drawer that is not collapsible (the modal presentation: nothing in the layout, shown over the content WHILE open is true, NVD-19 to NVD-22). In each presentation THE navigation drawer SHALL draw and behave exactly as the drawer whose variant and collapsible it stands for, from that variant's tokens. WHILE responsive is false THE navigation drawer SHALL NOT read the window's width.",
+      "verify": "Fixtures: `responsive-wide` is drawn in a window 1280 wide, `responsive-medium` in one 800 wide and `responsive-narrow` in one 400 wide; under the default system the two widths are 1024 and 600. Test a window exactly 1024 wide (standard) and 1023 (column), 600 (column) and 599 (modal), and a drawer that is not collapsible at 800 (modal). At 1280 a drawer with standardHidden true and open false takes no width, collapsible or not, and with open true as well it is shown."
     },
     {
       "id": "NVD-54",
-      "text": "WHEN the window's width takes a responsive drawer from one presentation to another THE navigation drawer SHALL move from its place and form in the old presentation to those of the new one over comp.navigation-drawer.motion.expand-duration with comp.navigation-drawer.motion.expand-easing — its width and its position, and its container color, elevation, end corners and outline as NVD-40 changes them — as one surface that is never replaced by another element or redrawn at once, as MOT-6 says where motion is reduced; SHALL keep open, value and every group's open across every change of presentation and SHALL emit no close for it: WHILE open is true a presentation over the content shows the drawer open, and the standard presentation shows it beside the content in the form expanded gives it, whatever open says (NVD-53), so that a drawer the person opened in a narrow window is open again, over the content, WHEN the window becomes narrow again. WHEN the new presentation is standard WHILE open is true THE navigation drawer SHALL take its scrim away at once (MOT-8), leave nothing inert and keep focus where it is WHILE the drawer still shows it. WHEN the new presentation is one over the content WHILE open is true THE navigation drawer SHALL draw its scrim at once, without its fade (MOT-8: nothing is opening), make what lies behind it inert as an opening does (NVD-19), and IF keyboard focus is in what becomes inert SHALL move it to the menu button that controls the drawer — the app shell's (APS-7), which stays usable — or, where none is shown, to the selected destination or else the first focusable element of the drawer. It SHALL keep expanded, which only the user's request (NVD-37) and the product change, so that the standard presentation returns in the form it was left in; and SHALL emit presentationChange exactly once with the new presentation (standard, column or modal). It SHALL also emit presentationChange exactly once WHEN the presentation is first decided. IF keyboard focus is on something the new presentation does not show THE navigation drawer SHALL move it to the menu button that controls the drawer — its own (NVD-37) or the app shell's (APS-7) — or else to the first focusable element it still shows, and WHERE it shows nothing SHALL leave focus to the platform; focus that an open presentation over the content kept inside the drawer SHALL be free to leave once the drawer is standard.",
-      "verify": "Test: a responsive drawer open over the content at 800 wide, resized to 1280, is standard and expanded, has emitted one close and one presentationChange, and Tab leaves it; collapsed by its menu button at 1280, resized to 800 and back, it is collapsed again and no expandedChange was emitted by the resizes; resized from 1280 to 400 it draws nothing, in one frame, and an open group is still open when it is next shown."
+      "text": "WHEN the window's width takes a responsive drawer from one presentation to another THE navigation drawer SHALL move from its place and form in the old presentation to those of the new one over comp.navigation-drawer.motion.expand-duration with comp.navigation-drawer.motion.expand-easing — its width and its position, and its container color, elevation, end corners and outline as NVD-40 changes them — as one surface that is never replaced by another element or redrawn at once, as MOT-6 says where motion is reduced; SHALL keep open, standardHidden, value and every group's open across every change of presentation and SHALL emit no close for it: WHILE open is true a presentation over the content shows the drawer open, and the standard presentation shows it beside the content in the form expanded gives it; WHILE open is false a presentation over the content shows it closed, and the standard presentation shows it unless standardHidden is true (NVD-53, NVD-105) — so that a drawer the person opened in a narrow window, or brought out beside the content, is open over the content WHEN the window becomes narrow, and one the person hid beside the content is closed in a narrow window and hidden again WHEN the window becomes wide again. WHEN the new presentation is standard WHILE open is true THE navigation drawer SHALL take its scrim away at once (MOT-8), leave nothing inert and keep focus where it is WHILE the drawer still shows it. WHEN the new presentation is one over the content WHILE open is true THE navigation drawer SHALL draw its scrim at once, without its fade (MOT-8: nothing is opening), make what lies behind it inert as an opening does (NVD-19), and IF keyboard focus is in what becomes inert SHALL move it to the menu button that controls the drawer — the app shell's (APS-7), which stays usable — or, where none is shown, to the selected destination or else the first focusable element of the drawer. It SHALL keep expanded and standardHidden, which only the user's request (NVD-37, NVD-105) and the product change, so that the standard presentation returns in the form it was left in; and SHALL emit presentationChange exactly once with the new presentation (standard, column or modal). It SHALL also emit presentationChange exactly once WHEN the presentation is first decided. IF keyboard focus is on something the new presentation does not show THE navigation drawer SHALL move it to the menu button that controls the drawer — its own (NVD-37) or the app shell's (APS-7) — or else to the first focusable element it still shows, and WHERE it shows nothing SHALL leave focus to the platform; focus that an open presentation over the content kept inside the drawer SHALL be free to leave once the drawer is standard.",
+      "verify": "Test: a responsive drawer open over the content at 800 wide, resized to 1280, is standard, expanded and still open, has emitted one presentationChange and no close, and Tab leaves it; hidden beside the content at 1280 by an app shell's menu button, resized to 400 it is closed and resized back to 1280 it is hidden again, the resizes emitting no standardHiddenChange; collapsed by its menu button at 1280, resized to 800 and back, it is collapsed again and no expandedChange was emitted by the resizes; resized from 1280 to 400 it draws nothing, in one frame, and an open group is still open when it is next shown."
     },
     {
       "id": "NVD-55",
-      "text": "THE navigation drawer SHALL hold three things apart WHILE responsive is true: the presentation, which it derives from the window's width alone, never stores, never writes into variant, open or expanded, and exposes read-only; open, which is transient — false until the product or a menu button opens the drawer, false again after every close (NVD-20, NVD-21), and kept by every change of presentation (NVD-54); and expanded, the user's choice of form for the standard presentation, which no change of presentation writes and which THE navigation drawer SHALL NOT persist beyond its own lifetime — a product that wants the choice remembered stores what expandedChange carries and sets expanded from it. Neither follows the other: hiding or collapsing the standard presentation does not close the drawer in a narrower window, and opening it there does not change expanded. WHEN a responsive drawer first appears THE navigation drawer SHALL draw the presentation of the current width in its first frame, without motion and without emitting close (MOT-3); WHERE it first appears with open true in a presentation over the content it SHALL appear as MOT-4 says — open in its first frame, without its enter motion, WHILE the document has not yet been first painted, and by its enter motion (NVD-19, NVD-40) WHEN it is added after that; WHERE it is rendered before the width is known (a page rendered on a server) it SHALL render no modal presentation open, SHALL make nothing inert, and SHALL decide both only once the width is known.",
+      "text": "THE navigation drawer SHALL hold four things apart WHILE responsive is true: the presentation, which it derives from the window's width alone, never stores, never writes into variant, open, standardHidden or expanded, and exposes read-only; open, which is transient — false until the product or a menu button opens the drawer (an app shell's that shows it beside the content included, NVD-105), false again after every close (NVD-20, NVD-21) and when a person hides the standard presentation (NVD-105), and kept by every change of presentation (NVD-54); standardHidden, the user's choice to put the standard presentation away, which only an app shell's menu button (NVD-105) and the product write; and expanded, the user's choice of form for the standard presentation. No change of presentation writes standardHidden or expanded, and THE navigation drawer SHALL NOT persist either beyond its own lifetime — a product that wants a choice remembered stores what standardHiddenChange and expandedChange carry and sets standardHidden and expanded from them. expanded follows neither of the others: collapsing the standard presentation does not close the drawer in a narrower window, and opening it there does not change expanded; and a drawer the person closed over the content is not hidden by that beside the content. WHEN a responsive drawer first appears THE navigation drawer SHALL draw the presentation of the current width in its first frame, without motion and without emitting close (MOT-3); WHERE it first appears with open true in a presentation over the content it SHALL appear as MOT-4 says — open in its first frame, without its enter motion, WHILE the document has not yet been first painted, and by its enter motion (NVD-19, NVD-40) WHEN it is added after that; WHERE it is rendered before the width is known (a page rendered on a server) it SHALL render no modal presentation open, SHALL make nothing inert, and SHALL decide both only once the width is known.",
       "verify": "Test: a responsive drawer created in a window 400 wide with open false shows nothing in its first frame and animates nothing; the same markup rendered without a window (the React wrapper on a server) contains no open dialog and no inert attribute."
     },
     {
@@ -1094,7 +1104,7 @@
     },
     {
       "id": "NVD-87",
-      "text": "WHILE filterable is true and filterShortcut holds exactly one chord THE navigation drawer SHALL draw that chord at the end of the filter field with the keyboard shortcut component, hosted as KBS-13 says — in its plain form, at size small, with convention auto, its legends and separators in comp.navigation-drawer.filter.shortcut.typescale and comp.navigation-drawer.filter.shortcut.color, and no cap, fill or edge (KBS-7) — only while the field is empty and does not have focus, SHALL expose it as the field's keyboard shortcut (KBS-12: aria-keyshortcuts on the web) with the drawn keys hidden from assistive technology, and SHALL give the hint no press of its own. WHEN the person presses that chord anywhere in the window, read as SRC-38 reads a chord and with its exceptions (a press something else has taken, a key repeating while held, an input-method composition and, for a chord without mod, ctrl or alt, focus in an element that takes text), THE navigation drawer SHALL keep the press from doing anything else and SHALL: WHILE it is expanded and shown, move focus to the field with its text selected; WHILE it is collapsed (a collapsible standard drawer, or the column of a collapsible modal drawer), emit expandedChange with true, apply it itself on the web as NVD-37 does, and move focus to the field once it is expanded. WHILE it is not shown (a standard drawer whose open is false, or a modal drawer that is closed and not collapsible) it SHALL NOT take the press: what opens it is the product's, or the app shell's (APS-33). THE navigation drawer SHALL listen only while it is part of what is shown and filterable is true, and SHALL stop when it is removed. IF another shown navigation drawer, tree view or search binds the same chord, the one shown first SHALL keep it and the others SHALL bind nothing and report it in debug builds, as SRC-39 says. WHILE filterShortcut is empty or holds more than one chord THE navigation drawer SHALL draw no hint and bind nothing, reporting more than one chord in debug builds.",
+      "text": "WHILE filterable is true and filterShortcut holds exactly one chord THE navigation drawer SHALL draw that chord at the end of the filter field with the keyboard shortcut component, hosted as KBS-13 says — in its plain form, at size small, with convention auto, its legends and separators in comp.navigation-drawer.filter.shortcut.typescale and comp.navigation-drawer.filter.shortcut.color, and no cap, fill or edge (KBS-7) — only while the field is empty and does not have focus, SHALL expose it as the field's keyboard shortcut (KBS-12: aria-keyshortcuts on the web) with the drawn keys hidden from assistive technology, and SHALL give the hint no press of its own. WHEN the person presses that chord anywhere in the window, read as SRC-38 reads a chord and with its exceptions (a press something else has taken, a key repeating while held, an input-method composition and, for a chord without mod, ctrl or alt, focus in an element that takes text), THE navigation drawer SHALL keep the press from doing anything else and SHALL: WHILE it is expanded and shown, move focus to the field with its text selected; WHILE it is collapsed (a collapsible standard drawer, or the column of a collapsible modal drawer), emit expandedChange with true, apply it itself on the web as NVD-37 does, and move focus to the field once it is expanded. WHILE it is not shown (a standard drawer whose open is false, the standard presentation a person hid (NVD-105), or a modal drawer that is closed and not collapsible) it SHALL NOT take the press: what opens it is the product's, or the app shell's (APS-33). THE navigation drawer SHALL listen only while it is part of what is shown and filterable is true, and SHALL stop when it is removed. IF another shown navigation drawer, tree view or search binds the same chord, the one shown first SHALL keep it and the others SHALL bind nothing and report it in debug builds, as SRC-39 says. WHILE filterShortcut is empty or holds more than one chord THE navigation drawer SHALL draw no hint and bind nothing, reporting more than one chord in debug builds.",
       "verify": "Fixture filter-empty-field (filterable, no filterValue): the field ends with the \"/\" hint, and its input has aria-keyshortcuts=\"/\". Pressing \"/\" with focus on the page's body focuses the field; pressing it in a text field of the page types \"/\". Fixture collapsed with filterable true: \"/\" emits expandedChange with true and focus lands in the field once expanded."
     },
     {
@@ -1168,6 +1178,11 @@
     {
       "id": "NVD-104",
       "text": "WHERE the layout direction is right-to-left THE navigation drawer SHALL stand its Handle on its left edge, which is its end edge (NVD-11), and SHALL widen for a press that moves to the left and for Left Arrow, as the Handle counts the end edge (HDL-17), so that a press or an arrow key that points away from the drawer always widens it; it SHALL take the direction from where it is used and have no direction setting of its own for this."
+    },
+    {
+      "id": "NVD-105",
+      "text": "WHEN an app shell's menu button that controls a responsive drawer (APS-7) is activated WHILE the drawer's presentation is standard THE navigation drawer SHALL, WHILE it is shown there, hide it — standardHidden becoming true and open false — and, WHILE it is hidden there, show it again — standardHidden becoming false and open true, so that the drawer a person brought out is open over the content WHEN the window becomes narrow (NVD-54); in either case it SHALL emit standardHiddenChange exactly once WHEN standardHidden changes, apply both itself on the web, and emit no close and no expandedChange. It SHALL hide and show in the form expanded gives it, collapsible or not, as a standard drawer closes and opens (NVD-18): sliding out of the layout toward its start edge over comp.navigation-drawer.motion.exit-duration with comp.navigation-drawer.motion.exit-easing, and into it over comp.navigation-drawer.motion.enter-duration with comp.navigation-drawer.motion.enter-easing, while the content beside it resizes to take the room it leaves or gives back, and at once where motion is reduced (MOT-6). Hidden, it SHALL take no width in the layout and have no presence to focus or assistive technology (NVD-53). IF keyboard focus is in the drawer as it begins to hide THE navigation drawer SHALL move focus to that menu button; otherwise neither hiding nor showing SHALL move focus, which stays on the menu button (APS-6). WHEN the product sets standardHidden the drawer SHALL hide or show the same way and emit nothing.",
+      "verify": "Test in an app shell at 1280 wide, with a responsive drawer that is collapsible and with one that is not: the menu button hides the drawer — no width, the main region starting at the frame's start edge, one standardHiddenChange with true, open false, no close and no expandedChange, focus on the button — sliding out over motion.exit-duration while the main region widens; activated again it shows the drawer in its form with one standardHiddenChange with false and open true. Hidden and resized to 400 it is closed, and back at 1280 it is hidden; shown again and resized to 400 it is open over the content."
     }
   ],
   "accessibility": {
@@ -6536,6 +6551,7 @@
         "labelWrap": "labelWrap",
         "supportingWrap": "supportingWrap",
         "responsive": "responsive",
+        "standardHidden": "standardHidden",
         "value": "value",
         "label": "label",
         "revealSelected": "revealSelected",
@@ -6564,6 +6580,7 @@
         "reselect": "reselect",
         "close": "close",
         "expandedChange": "expandedchange",
+        "standardHiddenChange": "standardhiddenchange",
         "presentationChange": "presentationchange",
         "filterChange": "filterchange",
         "widthChange": "widthchange"
@@ -6684,6 +6701,7 @@
         "labelWrap": "labelWrap",
         "supportingWrap": "supportingWrap",
         "responsive": "isResponsive",
+        "standardHidden": "isStandardHidden",
         "value": "selection",
         "label": "accessibilityLabel",
         "revealSelected": "revealsSelection",
@@ -6712,6 +6730,7 @@
         "reselect": "onReselect",
         "close": "isPresented",
         "expandedChange": "isExpanded",
+        "standardHiddenChange": "isStandardHidden",
         "presentationChange": "onPresentationChange",
         "filterChange": "filterText",
         "widthChange": "width"
@@ -6808,6 +6827,7 @@
         "labelWrap": "labelWrap",
         "supportingWrap": "supportingWrap",
         "responsive": "responsive",
+        "standardHidden": "standardHidden",
         "value": "selected",
         "label": "contentDescription",
         "revealSelected": "revealSelected",
@@ -6836,6 +6856,7 @@
         "reselect": "onClick",
         "close": "drawerState",
         "expandedChange": "onExpandedChange",
+        "standardHiddenChange": "onStandardHiddenChange",
         "presentationChange": "onPresentationChange",
         "filterChange": "onFilterValueChange",
         "widthChange": "onWidthChange"
@@ -6932,6 +6953,7 @@
         "labelWrap": "labelWrap",
         "supportingWrap": "supportingWrap",
         "responsive": "responsive",
+        "standardHidden": "standardHidden",
         "value": "selectedIndex",
         "label": "semanticLabel",
         "revealSelected": "revealSelected",
@@ -6960,6 +6982,7 @@
         "reselect": "onDestinationSelected",
         "close": "onClose",
         "expandedChange": "onExtendedChanged",
+        "standardHiddenChange": "onStandardHiddenChanged",
         "presentationChange": "onPresentationChanged",
         "filterChange": "onFilterChanged",
         "widthChange": "onWidthChanged"
@@ -7056,6 +7079,7 @@
         "labelWrap": "labelWrap",
         "supportingWrap": "supportingWrap",
         "responsive": "responsive",
+        "standardHidden": "standardHidden",
         "value": "value",
         "label": "accessibilityLabel",
         "revealSelected": "revealSelected",
@@ -7084,6 +7108,7 @@
         "reselect": "onReselect",
         "close": "onClose",
         "expandedChange": "onExpandedChange",
+        "standardHiddenChange": "onStandardHiddenChange",
         "presentationChange": "onPresentationChange",
         "filterChange": "onFilterChange",
         "widthChange": "onWidthChange"

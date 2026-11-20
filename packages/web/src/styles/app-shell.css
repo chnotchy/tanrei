@@ -484,11 +484,12 @@
     :where(tanrei-app-shell):where(:has(> [slot='navigation']:not(tanrei-navigation-drawer))) {
       --_aps-menu: hidden;
     }
-    /* APS-6, APS-34: …but a responsive drawer with no collapsed form, which expanded shows and hides beside the content
-       (NVD-53), has no menu button of its own: the frame's is shown, whether the drawer is shown or hidden, so that the
-       button that shows it stays in its place to hide it again — the header's, or the menu-button slot's in the header's
-       place, which the navigation then begins below as the main region does — whatever the placement says. */
-    :where(tanrei-app-shell):where(:has(> tanrei-navigation-drawer[slot='navigation'][responsive]:not([collapsible]))) {
+    /* APS-6, APS-34: …but a responsive drawer with no collapsed form has no menu button of its own, and one a person hid
+       beside the content (NVD-105: standard-hidden, not open) shows nothing that has one: the frame's is shown, whether
+       the drawer is shown or hidden, so that the button that shows it stays in its place to hide it again, and the one
+       that hid it to show it — the header's, or the menu-button slot's in the header's place, which the navigation then
+       begins below as the main region does — whatever the placement says. */
+    :where(tanrei-app-shell):where(:has(> tanrei-navigation-drawer[slot='navigation'][responsive]:is(:not([collapsible]), [standard-hidden]:not([open])))) {
       --_aps-menu: shown;
     }
     /* APS-24: a drawer that is not defined yet keeps its place — at the width a product gives back as
@@ -501,25 +502,25 @@
       );
     }
     /* APS-24, NVD-30: a collapsible one the product gives back folded (`expanded="false"`), or a modal one, which stands
-       folded in the layout, keeps its column's place instead, whatever its width; a responsive one that is not
-       collapsible is hidden by `expanded="false"`, and takes no space. */
+       folded in the layout, keeps its column's place instead, whatever its width; a responsive one the product gives
+       back hidden (NVD-105: `standard-hidden`, not `open`) takes no space. */
     :where(tanrei-app-shell) > :where(tanrei-navigation-drawer[slot='navigation'][collapsible]:is([expanded='false'], [variant='modal']):not(:defined)) {
       inline-size: var(--tanrei-comp-navigation-drawer-collapsed-container-width-regular);
     }
     :where(tanrei-app-shell) > :where(tanrei-navigation-drawer[slot='navigation'][collapsible][density='compact']:is([expanded='false'], [variant='modal']):not(:defined)) {
       inline-size: var(--tanrei-comp-navigation-drawer-collapsed-container-width-compact);
     }
-    :where(tanrei-app-shell) > :where(tanrei-navigation-drawer[slot='navigation'][responsive][expanded='false']:not(:defined, [collapsible])) {
+    :where(tanrei-app-shell) > :where(tanrei-navigation-drawer[slot='navigation'][responsive][standard-hidden]:not(:defined, [open])) {
       display: none;
     }
     /* APS-8, APS-24: …and a drawer that will draw its resize handle beside the content (NVD-96: resizable unless written
-       "false", shown as responsive or open, not modal, and not hidden by expanded false) has the main content start past
-       the handle's target already, as it will once defined. */
-    :where(tanrei-app-shell):where(:has(> tanrei-navigation-drawer[slot='navigation']:not(:defined):is([responsive], [open]):not([resizable='false'], [variant='modal'], [responsive][expanded='false']:not([collapsible])))) {
+       "false", shown as responsive or open, not modal, and not hidden there) has the main content start past the
+       handle's target already, as it will once defined. */
+    :where(tanrei-app-shell):where(:has(> tanrei-navigation-drawer[slot='navigation']:not(:defined):is([responsive], [open]):not([resizable='false'], [variant='modal'], [responsive][standard-hidden]:not([open])))) {
       --_aps-band: var(--tanrei-sys-target-pointer);
     }
     @media (pointer: coarse) {
-      :where(tanrei-app-shell):where(:has(> tanrei-navigation-drawer[slot='navigation']:not(:defined):is([responsive], [open]):not([resizable='false'], [variant='modal'], [responsive][expanded='false']:not([collapsible])))) {
+      :where(tanrei-app-shell):where(:has(> tanrei-navigation-drawer[slot='navigation']:not(:defined):is([responsive], [open]):not([resizable='false'], [variant='modal'], [responsive][standard-hidden]:not([open])))) {
         --_aps-band: var(--tanrei-sys-target-touch);
       }
     }

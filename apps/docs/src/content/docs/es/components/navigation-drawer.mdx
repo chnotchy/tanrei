@@ -533,14 +533,15 @@ Un sistema de diseño puede añadir variantes. Una variante que añada se compor
 
 | Ventana | Presentación | Qué es el panel |
 | --- | --- | --- |
-| Como mínimo, el punto de ruptura más ancho | `standard` | Un panel estándar junto al contenido, que se muestra diga lo que diga `open` y que se puede contraer en la forma que elija `expanded` |
+| Como mínimo, el punto de ruptura más ancho | `standard` | Un panel estándar junto al contenido, que se muestra salvo que el botón de menú de la estructura de la aplicación lo haya ocultado (`standardHidden`), y que se puede contraer en la forma que elija `expanded` |
 | Como mínimo, el más estrecho, mientras sea `collapsible` | `column` | Un panel modal que se puede contraer: su columna de iconos en el diseño, que se ensancha sobre el contenido mientras `open` está activado |
 | Más estrecha que eso | `modal` | Un panel modal que no se puede contraer |
 
-- **La presentación se deriva, nunca se guarda.** Depende únicamente del ancho: el panel no la escribe en `variant`, `open` ni `expanded`. `presentationChange` dice cuál es, la primera vez y cada vez que el ancho la cambia.
+- **La presentación se deriva, nunca se guarda.** Depende únicamente del ancho: el panel no la escribe en `variant`, `open`, `standardHidden` ni `expanded`. `presentationChange` dice cuál es, la primera vez y cada vez que el ancho la cambia.
 - **`open` se conserva entre presentaciones.** Un cambio de ancho no emite `close`. Un panel abierto sobre el contenido se coloca a su lado cuando la ventana se ensancha, con el velo retirado al instante y nada inerte, y vuelve a estar sobre el contenido, todavía abierto, cuando la ventana se estrecha; el foco que estaba en lo que entonces queda detrás pasa al botón de menú. `expanded`, `value` y el `open` de cada grupo también se conservan, de modo que la presentación `standard` vuelve en la forma en que se dejó.
+- **El botón de menú de la estructura de la aplicación oculta la presentación estándar.** Si lo pulsas mientras el panel está junto al contenido, el panel se oculta, tenga la forma que tenga, y el contenido ocupa su ancho: `standardHidden` pasa a true y `open` a false. Si lo pulsas otra vez, el panel vuelve a mostrarse: `standardHidden` pasa a false y `open` a true, de modo que el panel queda sobre el contenido si la ventana se estrecha. El panel sale y entra deslizándose, emite `standardHiddenChange` y deja el foco en el botón. Un panel ocultado así está cerrado en una ventana más estrecha y vuelve a estar oculto cuando la ventana se ensancha.
 - **En la presentación `modal`, el botón de menú es cosa tuya.** Muestra un botón de menú propio, por ejemplo en la barra de la aplicación, mientras la presentación sea `modal`, y define `open` desde él. Ahí, el botón de menú del propio panel solo lo cierra.
-- **El panel no recuerda nada entre visitas.** Para conservar la forma que eligió una persona, guarda lo que lleva `expandedChange` y define `expanded` a partir de ello.
+- **El panel no recuerda nada entre visitas.** Para conservar lo que eligió una persona, guarda lo que llevan `expandedChange` y `standardHiddenChange` y define `expanded` y `standardHidden` a partir de ello.
 
 ### Como barra lateral de un sitio
 

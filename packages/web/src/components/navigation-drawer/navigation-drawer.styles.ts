@@ -685,9 +685,9 @@ export const drawerStyles = css`
   .held.dragging {
     transition: none;
   }
-  /* The standard presentation shown is the standard drawer's panel at its start edge; hidden (no collapsed form,
-     expanded false, NVD-53) it slides out of the window while its place in the layout closes, as a standard drawer that
-     closes does (NVD-18). */
+  /* The standard presentation shown is the standard drawer's panel at its start edge, in either form; hidden (a person
+     hid it there and it is not open, NVD-105) it slides out of the window while its place in the layout closes, as a
+     standard drawer that closes does (NVD-18). */
   :host([data-held]:not([data-as='modal'])) .held {
     --_held-d: ${t('motion-enter-duration')};
     --_held-e: ${t('motion-enter-easing')};
