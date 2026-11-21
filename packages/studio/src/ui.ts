@@ -290,9 +290,9 @@ export function mountStudio(root: HTMLElement, { lang = 'en', adapter, links = {
   narrow.addEventListener('change', placeRail);
   /** On a narrow screen: the panel closed, the preview alone above the rail; the focus back on the rail's current row. */
   function closeSheet() {
-    delete root.dataset.sheet;
+    delete root.dataset.panelOpen;
     if (inspect) show({ section });
-    delete root.dataset.sheet;
+    delete root.dataset.panelOpen;
     (rail.querySelector('[aria-current="true"]') as HTMLElement | null)?.focus();
   }
 
@@ -448,7 +448,7 @@ export function mountStudio(root: HTMLElement, { lang = 'en', adapter, links = {
   function show(to: Place) {
     place = to;
     // (On a narrow screen the panel opens as a sheet under the preview.)
-    root.dataset.sheet = '';
+    root.dataset.panelOpen = '';
     if (to.inspect) {
       inspect = lastInspect = to.inspect;
       if (to.token && to.inspect === 'tokens') Object.assign(tree, { selected: to.token, query: '', filter: 'all' });

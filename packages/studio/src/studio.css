@@ -161,7 +161,7 @@
     border-start-end-radius: var(--tanrei-sys-shape-corner-large);
     box-shadow: var(--tanrei-sys-elevation-level2);
   }
-  .ts:not([data-sheet]) .ts-inspector {
+  .ts:not([data-panel-open]) .ts-inspector {
     display: none;
   }
   .ts-rail {
