@@ -16,3 +16,12 @@ written on the navigation region, the one box that reads it, instead of on the f
 it differs from `100vw`: a window resized restyles the navigation and not the page (0.1 to 0.5 s where it was 0.8 to
 1.4 s on the same page), and a page loaded in a window with no scrollbar that takes room is given no write at all.
 What the frame draws is unchanged.
+
+`setTokens()` now leaves alone a name that already holds the value it is given, and a call that changes nothing adds
+none of its own names (it changed the number of the element's custom properties, and so restyled what it holds, all
+the same). The app shell writes through the same code.
+
+The text of its stylesheet that an element drawn in the light DOM carries, to add to a root that does not load the
+stylesheet (the app shell, the table, the description list and the others of that form), is now printed without the
+whitespace that changes nothing, by esbuild's CSS printer: what each draws is unchanged, and their bundles are smaller
+(the app shell's 18.1 to 18.0 kB gzipped before its own change; 18.2 kB with it, within its budget).

@@ -57,7 +57,7 @@
  *                                            only where it differs from 100vw
  *
  * Each on the one box that reads it, and every write of them and of the four on the root changes the number of the
- * element's custom properties (`setTokens()`): WebKit otherwise compares the whole token set, value by value, for every
+ * element's custom properties (`writeCounted()`, as `setTokens()` writes): WebKit otherwise compares the whole token set, value by value, for every
  * element below the one written
  *
  * and this stylesheet gives everything the frame holds

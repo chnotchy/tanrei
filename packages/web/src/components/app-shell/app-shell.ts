@@ -19,7 +19,7 @@ import {
 } from '../../primitives/index.js';
 import { debugBuild } from '../../primitives/report.js';
 import { adoptUnlessDrawn } from '../../primitives/sheets.js';
-import { setTokens } from '../../set-tokens.js';
+import { writeCounted } from '../../set-tokens.js';
 import { TanreiLightElement } from '../../primitives/element.js';
 
 /** What scrolls (APS-14, APS-15): the whole page in the window, or the main region alone inside a frame as tall as the window. */
@@ -137,19 +137,15 @@ const drawn = (element: Element) => element.getClientRects().length > 0;
 /** A measured length as the frame writes it: in px, to a hundredth. */
 const px = (size: number) => `${Math.round(size * 100) / 100}px`;
 
-/**
- * Writes the custom properties of `values` on `element`'s own style that differ from what it holds there (`''` takes
- * one off), all in one write. Through `setTokens()`, which changes the number of the element's custom properties with
- * every write: WebKit compares an element's set of custom properties with the one before, value by value, for every
- * element that inherits them, when the two are the same size — and the root and the frame hold the whole token set,
- * ten thousand names. A header's height written alone on the root of a documentation page stood WebKit still for 30 to
- * 110 s; with the size changed, the comparison stops at the size (README, "A single token set on the root from script is
- * slow in WebKit").
- */
-function write(element: HTMLElement, values: Record<string, string>) {
-  const changed = Object.fromEntries(Object.entries(values).filter(([name, value]) => element.style.getPropertyValue(name) !== value));
-  if (Object.keys(changed).length) setTokens(changed, { on: element });
-}
+// Every custom property the frame writes — on the root, on itself, on the navigation region — is written with
+// `writeCounted()`, as `setTokens()` writes: in one write that changes the number of the element's custom properties.
+// WebKit compares an element's set of custom properties with the one before, value by value, for every element that
+// inherits them, when the two are the same size — and each of them holds the whole token set, ten thousand names. A
+// header's height written alone on the root of a documentation page stood WebKit still for 30 to 110 s; with the size
+// changed, the comparison stops at the size (README, "A single token set on the root from script is slow in WebKit").
+
+/** APS-5: no room written on the navigation region. */
+const NO_ROOM = { [WINDOW]: '', [ASIDE]: '' };
 
 /** The frames that have measured something over the top or the bottom of the page: the last one to measure wins, and the last to leave takes the value back. */
 const measured = new Map<string, Set<Element>>();
@@ -165,7 +161,7 @@ function publish(owner: Element, sizes: Record<string, number | null>) {
       values[name] = px(size);
     }
   }
-  write(document.documentElement, values);
+  writeCounted(document.documentElement.style, values);
 }
 
 let ids = 0;
@@ -412,8 +408,8 @@ export class TanreiAppShell extends TanreiLightElement {
     this.holdWheel([]);
     this.syncInert(false);
     this.focused = null;
-    write(this, { [FOOTER]: '' });
-    this.room(null);
+    writeCounted(this.style, { [FOOTER]: '' });
+    this.room(NO_ROOM);
     this.unwatch();
     this.listen(null);
     // APS-33: removed, it listens for no chord.
@@ -652,14 +648,14 @@ export class TanreiAppShell extends TanreiLightElement {
       for (const observed of [document.documentElement, top, announcement, bar, footer, sheet]) if (observed) this.sizes?.observe(observed);
       if (!top) this.measure();
       if (!bar) this.measureBar();
-      if (!footer) write(this, { [FOOTER]: '' });
-      if (!sheet) this.asideWidth = null;
+      if (!footer) writeCounted(this.style, { [FOOTER]: '' });
+      if (!sheet) this.rooms[ASIDE] = '';
     }
 
     // APS-4, APS-7: the navigation, and the drawer whose opening and closing the frame follows.
     if (navigation !== this.navigation) {
       this.navigationMutations?.disconnect();
-      this.room(null);
+      this.room(NO_ROOM);
       this.navigation = navigation;
       if (navigation) this.navigationMutations?.observe(navigation, { attributes: true, attributeFilter: ['collapsible', 'filterable', 'filter-shortcut', 'open', 'expanded'] });
       this.listen(navigation?.localName === 'tanrei-navigation-drawer' ? (navigation as Drawer) : null);
@@ -703,12 +699,13 @@ export class TanreiAppShell extends TanreiLightElement {
       // follow what it holds, where a frame in a box as wide as its content would follow the room it gives and shrink
       // by it in every frame.
       if (entry.target === document.documentElement) {
-        this.windowWidth = entry.contentRect.width;
+        const width = px(entry.contentRect.width);
+        this.rooms[WINDOW] = width === px(innerWidth) ? '' : width;
         this.room();
       }
       // APS-5: the sheet's width in every frame it slides, so that the navigation leaves it room as it comes.
       else if (entry.target === this.sheet) {
-        this.asideWidth = entry.borderBoxSize?.[0]?.inlineSize ?? entry.contentRect.width;
+        this.rooms[ASIDE] = px(entry.borderBoxSize?.[0]?.inlineSize ?? entry.contentRect.width);
         this.room();
       }
       else if (entry.target === this.top) this.measure(size);
@@ -716,29 +713,21 @@ export class TanreiAppShell extends TanreiLightElement {
       else if (entry.target === this.bar) this.measureBar(size);
       // APS-11: where the navigation and the aside stop staying in view (a browser keeps a sticky part inside the
       // frame, not inside its row: the stylesheet takes this much off the end of what it may reach).
-      else if (entry.target === this.footer) write(this, { [FOOTER]: px(size) });
+      else if (entry.target === this.footer) writeCounted(this.style, { [FOOTER]: px(size) });
     }
   }
 
-  /** APS-5: the window's width as the page has it, and a side sheet's in the aside, as last measured. */
-  private windowWidth: number | null = null;
-  private asideWidth: number | null = null;
-  /** The navigation region that holds the two, written by `room()`. */
-  private roomOn: HTMLElement | null = null;
-
   /**
-   * APS-5: the room the row leaves the navigation, on the navigation region, which alone reads it — or, with `null`,
-   * taken off the region that held it. The window's width only where it is not the window's own (`100vw`).
+   * APS-5: the room the row leaves the navigation, as last measured: the window's width as the page has it (nothing
+   * where it is the window's own, `100vw`), and a side sheet's in the aside (nothing without one).
    */
-  private room(to: HTMLElement | null = this.navigation instanceof HTMLElement ? this.navigation : null) {
-    if (this.roomOn && this.roomOn !== to) write(this.roomOn, { [WINDOW]: '', [ASIDE]: '' });
-    this.roomOn = to;
-    if (!to) return;
-    const width = this.windowWidth;
-    write(to, {
-      [WINDOW]: width === null || Math.abs(width - window.innerWidth) < 0.005 ? '' : px(width),
-      [ASIDE]: this.sheet && this.asideWidth !== null ? px(this.asideWidth) : '',
-    });
+  private readonly rooms: Record<string, string> = { [WINDOW]: '', [ASIDE]: '' };
+
+  /** APS-5: the room written on the navigation region, which alone reads it — or, `NO_ROOM`, taken off it. */
+  private room(values = this.rooms) {
+    // An element without a style of its own holds nothing.
+    const style = (this.navigation as HTMLElement | null)?.style;
+    if (style) writeCounted(style, values);
   }
 
   /**
@@ -977,7 +966,7 @@ export class TanreiAppShell extends TanreiLightElement {
     if (!told || !menu) return;
     // The drawer gives focus back to where it was (NVD-22); a press that gave the button no focus (Safari does not
     // focus a button that is clicked) left it nowhere, and the menu button is where it belongs.
-    void (this.drawer?.updateComplete ?? Promise.resolve()).then(() => {
+    void Promise.resolve(this.drawer?.updateComplete).then(() => {
       const active = document.activeElement;
       if (this.menuShown && (!active || active === document.body || active === this.drawer)) menu.focus();
     });
@@ -1093,7 +1082,7 @@ export class TanreiAppShell extends TanreiLightElement {
     const beside = this.hiddenBeside;
     this.activateMenu(null, false);
     // A drawer shown beside the content is drawn before its field can take focus; a closed one is owed it (NVD-88).
-    if (beside) void (drawer.updateComplete ?? Promise.resolve()).then(() => drawer.focusFilter?.());
+    if (beside) void Promise.resolve(drawer.updateComplete).then(() => drawer.focusFilter?.());
     else drawer.focusFilter?.();
   };
 
