@@ -1294,10 +1294,18 @@ export class TanreiList extends TanreiElement {
       this.holding = false;
       this.release(true);
     }
-    if (pending.focused) {
+    // Only a focus that was lost on the way (on nothing) comes back to the handle: one the person or the product has
+    // put elsewhere since the move was emitted is theirs, as it is when the move is given (LST-43).
+    if (pending.focused && !this.focusTakenElsewhere()) {
       const at = this.items[pending.from];
       if (at && !focusWithin(this)) void at.focusHandle();
     }
+  }
+
+  /** LST-43: whether focus is on an element outside the list — one the person or the product gave it. */
+  private focusTakenElsewhere(): boolean {
+    const active = deepActive();
+    return !!active && active !== document.body && active !== document.documentElement && active.isConnected && !focusWithin(this);
   }
 
   /** LST-43: whether the product has given the order that was asked for — and, if so, the announcement and the focus. */
@@ -1319,8 +1327,7 @@ export class TanreiList extends TanreiElement {
     this.say('movedText', this.movedText, at.name, pending.to + 1, items.length);
     if (!pending.focused) return;
     // The product may have taken focus for itself in its handler: then it is the product's.
-    const active = deepActive();
-    if (active && active !== document.body && active !== document.documentElement && !focusWithin(this) && active.isConnected) return;
+    if (this.focusTakenElsewhere()) return;
     this.heldFocus = { item: at, index: pending.to };
     void at.focusHandle();
   }
