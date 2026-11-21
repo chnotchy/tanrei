@@ -18,8 +18,9 @@ studioTest('the rail lists the nine rows, then the rest; each shows its panel, a
   assert.equal(await page.locator('[data-rail]').evaluate((el) => el.localName), 'nav', 'a navigation region');
   assert.deepEqual(await current(page), ['color'], 'the brand color first');
   assert.deepEqual(await panels(page), ['brand']);
-  // Every row says what it holds, and draws a sample.
-  assert.deepEqual(await Promise.all(ROWS.map((row) => value(page, row))), ['none (monochrome)', 'neutral', 'Inter', '40px · minimum 36px', '2px', 'none', 'Material Symbols Rounded · 300', 'overlay', 'ring']);
+  // Every row says what it holds — whole, never cut (an icon set by the name of its style) — and draws a sample.
+  assert.deepEqual(await Promise.all(ROWS.map((row) => value(page, row))), ['none (monochrome)', 'neutral', 'Inter', '40px · minimum 36px', '2px', 'none', 'Rounded · 300', 'overlay', 'ring']);
+  assert.deepEqual(await page.locator('[data-rail] .ts-rail-value').evaluateAll((els) => els.filter((el) => el.scrollWidth > el.clientWidth).map((el) => el.textContent)), [], 'no value is cut');
   assert.equal(await page.locator('[data-rail] .ts-sample').count(), ROWS.length);
   // Each row, and each item after them, ends in a chevron: it opens its controls.
   assert.equal(await page.locator('[data-rail] .ts-rail-chevron').count(), ROWS.length + MORE.length);

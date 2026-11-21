@@ -1098,10 +1098,13 @@
   gap: var(--tanrei-sys-space-space75);
   min-inline-size: 0;
 }
+/* A value is shown whole: a long one wraps under the row's name rather than being cut. */
+.ts-rail-line {
+  flex-wrap: wrap;
+}
 .ts-rail-value {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  min-inline-size: 0;
+  overflow-wrap: anywhere;
   font-weight: 500;
 }
 /* The chevron: a row, or an item, opens its controls. It points toward the end edge. */

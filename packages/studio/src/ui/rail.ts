@@ -16,6 +16,8 @@ const glyph = (ctx: Ctx, name: string, attrs: Json = {}) => h('span', { class: `
 const SAMPLE_GLYPHS = { size: 'height', icons: 'star', press: 'touch_app', focus: 'center_focus_strong' };
 const LOCK_GLYPHS = { held: 'lock', open: 'lock_open' };
 const CHEVRON_GLYPH = 'chevron_right';
+/** An icon family named as its set calls its styles: "Material Symbols Rounded" is Rounded, beside its weight. */
+const ICON_SET = /^Material Symbols\s+/;
 const MORE_GLYPHS: Record<(typeof MORE)[number], string> = { base: 'layers', dials: 'tune', palettes: 'palette', components: 'widgets', behavior: 'touch_app', vocabulary: 'add_box', about: 'description', a11y: 'accessibility_new' };
 
 /** A row's state, read from the layer each time it is drawn. */
@@ -71,8 +73,8 @@ export function rowState(ctx: Ctx, layer: Layer, row: Row): RowState {
     }
     case 'icons': {
       const icons = studio.iconSet(layer) as Json;
-      const family = (icons.mode === 'variable' ? icons.family : icons.selected)?.[0] ?? '—';
-      return { value: t.listed(family, String(icons.weight)), changed: icons.anyChanged };
+      const family: string = (icons.mode === 'variable' ? icons.family : icons.selected)?.[0] ?? '—';
+      return { value: t.listed(family.replace(ICON_SET, ''), String(icons.weight)), changed: icons.anyChanged };
     }
     case 'press':
     case 'focus': {

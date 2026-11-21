@@ -15,3 +15,5 @@
   the height glyph, Press feedback and Focus a glyph of their own whatever they hold, and what a row holds is said in
   the Studio's language: the press feedback and the focus style by their words for the vocabulary's choices (オーバーレイ,
   リング…), while the panel where one is chosen lists the vocabulary's names.
+- **A rail row's value is shown whole**: a long one wraps under the row's name instead of being cut, an icon set is
+  named by its style beside its weight ("Rounded · 300"), and the brand color's "none" is shorter in Japanese.
