@@ -28,6 +28,7 @@ import {
 } from '../../primitives/index.js';
 import { missingValueMessage } from '../../primitives/missing-value.js';
 import { stillMoving } from '../../primitives/auto-height.js';
+import { cancelPhaseRead, readInPhase } from '../../primitives/read-phase.js';
 import type { TanreiInputBoxSizeRegistry, TanreiInputBoxVariantRegistry } from '../../registry.js';
 import {
   EMPTY_SEGMENTS,
@@ -195,6 +196,13 @@ function fit(before: string, after: string, max: number): { value: string; caret
  */
 /** A scroll height is a whole number of pixels and a line may not be: within a twentieth of a line it is that many lines. */
 const wholeLines = (lines: number) => (Math.abs(lines - Math.round(lines)) < 0.05 ? Math.max(1, Math.round(lines)) : Math.max(1, lines));
+
+/**
+ * TXI-37: the browser makes this text area as tall as its text by itself (`field-sizing: content`, which the styles
+ * give a field whose lines wrap where the browser has it): its height is read, never written. Read from the cascade,
+ * as the styles decide it.
+ */
+const sizedByContent = (input: HTMLTextAreaElement) => getComputedStyle(input).getPropertyValue('field-sizing') === 'content';
 
 /**
  * TXI-17, TXI-38: the fields whose height is fitted without motion in this turn — the first height of each, one that
@@ -1604,6 +1612,20 @@ export class TanreiTextInput extends TanreiElement {
   *fitting(animate: boolean): Generator<void, void, void> {
     const input = this.textarea;
     if (!input) return;
+    if (this.resizeMode === 'auto' && sizedByContent(input)) {
+      // The browser has made the box as tall as its text (the styles: `field-sizing`): it is read, and what is written
+      // is only the motion from the room shown before — the lines last fitted or read (`sizeChanged`), and what the
+      // bottom margin of a running motion still adds or takes back — and the lines it shows.
+      const style = getComputedStyle(input);
+      const line = this.lineOf(input);
+      const shown = this.lines + (Number.parseFloat(style.marginBottom) || 0) / line;
+      const target = this.clampLines(wholeLines(Number.parseFloat(style.height) / line));
+      this.lastBox = { width: input.clientWidth, line };
+      yield; // ── written from here
+      input.removeAttribute('data-overflows');
+      this.showLines(input, shown, target, animate);
+      return;
+    }
     const shown = this.shownLines(input);
     yield; // ── written from here
     input.removeAttribute('data-resizing');
@@ -1816,6 +1838,16 @@ export class TanreiTextInput extends TanreiElement {
   /**
    * TXI-37, TXI-38: the height follows a changed width and enlarged text too — at once, without the motion. The
    * textarea's own box says both: its width, and (its height being a number of lines) the line of its text style.
+   *
+   * Nothing is written in the observer's report. A box written there changes size after the frame has reported it, and
+   * a frame reports a box again only if it lies deeper than every box reported before it: the text area, the deepest
+   * box this field watches, was left undelivered, and the browser raised "ResizeObserver loop completed with
+   * undelivered notifications" at every change of width of a field that changes the size of nothing above it. Where
+   * the browser sizes a text area by its content (`field-sizing`, the styles) the browser itself makes the height
+   * follow, in the frame of the change, and the report is only read: the lines the box now shows, which the next
+   * motion starts from. Elsewhere — a browser without it, and a field whose lines do not wrap (TXI-58: a width changes
+   * its height only by a sideways scrollbar's room) — the field is fitted in the next frame's read phase
+   * (src/primitives/read-phase.ts), where writing is safe: the frame after the change still draws the height before it.
    */
   private observeSize() {
     const input = this.textarea;
@@ -1829,10 +1861,26 @@ export class TanreiTextInput extends TanreiElement {
   private sizeChanged() {
     const input = this.textarea;
     if (!input || this.drag) return;
-    const [width, line] = [input.clientWidth, this.lineOf(input)];
-    if (width === this.lastBox.width && line === this.lastBox.line) return;
-    this.fitHeight(false);
+    if (this.resizeMode === 'auto' && sizedByContent(input)) {
+      const line = this.lineOf(input);
+      this.lines = this.clampLines(wholeLines(Number.parseFloat(getComputedStyle(input).height) / line));
+      this.lastBox = { width: input.clientWidth, line };
+      return;
+    }
+    readInPhase(this.sizeRead, this.readSize);
   }
+
+  /** Who asks the read phase to fit the height after a change of the text area's box (`sizeChanged`). */
+  private readonly sizeRead = {};
+
+  /** Read in the read phase: a box whose width or line changed is fitted, together with the page's other fields. */
+  private readonly readSize = (): (() => void) | undefined => {
+    const input = this.textarea;
+    if (!input || this.drag || !this.isConnected) return undefined;
+    const [width, line] = [input.clientWidth, this.lineOf(input)];
+    if (width === this.lastBox.width && line === this.lastBox.line) return undefined;
+    return () => fitTogether(this);
+  };
 
   /**
    * The form's view of the input: a missing value while its Field says it is required; a date or time field's entry error as badInput
@@ -1911,19 +1959,35 @@ export class TanreiTextInput extends TanreiElement {
   private labelObserver: ResizeObserver | undefined;
   private observedCopies: Element[] = [];
 
-  /** Returns whether copies are watched from now on that were not before: the observer reports each of them once, after the next layout. */
+  /**
+   * Returns whether copies are watched from now on that were not before: they are measured in the read phase of the
+   * frame they are first laid out in. What the observer is told of is measured, and written, in the next frame's read
+   * phase (src/primitives/read-phase.ts), never in its report: the lines change the container's height, and a box that
+   * changes size in a report is reported again in that frame only if it lies deeper than every box reported before it
+   * (the browser raises "ResizeObserver loop completed with undelivered notifications" for one left undelivered). A
+   * change of the label's lines that follows a changed width is drawn in the frame after it.
+   */
   private observeLabel(): boolean {
     const copies = Array.from(this.renderRoot.querySelectorAll('.measure'));
     if (copies.length === this.observedCopies.length && copies.every((copy, i) => copy === this.observedCopies[i])) return false;
-    this.labelObserver ??= new ResizeObserver(() => this.measureLabel());
+    this.labelObserver ??= new ResizeObserver(this.askLabel);
     this.labelObserver.disconnect();
     for (const copy of copies) this.labelObserver.observe(copy);
     const had = this.observedCopies.length > 0;
     this.observedCopies = copies;
     // No copy any more (the label left, or stands above the container now): what the last measure wrote is taken back.
     if (!copies.length && had) this.measureLabel();
+    if (copies.length) this.askLabel();
     return copies.length > 0;
   }
+
+  /** TXI-13: the label's lines are measured in the next frame's read phase. */
+  private readonly askLabel = () => {
+    readInPhase(this.labelRead, this.readLabel);
+  };
+
+  /** Who asks the read phase to measure the label's lines (`askLabel`). */
+  private readonly labelRead = {};
 
   /**
    * TXI-13: how many lines a floating label takes resting and floated, in the width it is given in each position, and
@@ -1934,20 +1998,27 @@ export class TanreiTextInput extends TanreiElement {
    * stands above the container in the flow and wraps there by itself (TXI-25).
    */
   private measureLabel() {
-    const field = this.renderRoot.querySelector<HTMLElement>('.field');
-    if (!field) return;
+    this.readLabel()?.();
+  }
+
+  /** What `measureLabel()` reads, returning what it then writes. */
+  private readonly readLabel = (): (() => void) | undefined => {
+    const field = this.renderRoot?.querySelector<HTMLElement>('.field');
+    if (!field) return undefined;
     const resting = labelLines(this.renderRoot.querySelector('.measure-resting'));
     const floated = labelLines(this.renderRoot.querySelector('.measure-floated'));
     const wraps = resting.count > 1 || floated.count > 1;
-    field.toggleAttribute('data-label-wraps', wraps);
-    if (wraps) {
-      field.style.setProperty('--_rest-lines', String(resting.count));
-      field.style.setProperty('--_float-lines', String(floated.count));
-      field.style.setProperty('--_float-widest', `${floated.widest}px`);
-    } else {
-      for (const name of ['--_rest-lines', '--_float-lines', '--_float-widest']) field.style.removeProperty(name);
-    }
-  }
+    return () => {
+      field.toggleAttribute('data-label-wraps', wraps);
+      if (wraps) {
+        field.style.setProperty('--_rest-lines', String(resting.count));
+        field.style.setProperty('--_float-lines', String(floated.count));
+        field.style.setProperty('--_float-widest', `${floated.widest}px`);
+      } else {
+        for (const name of ['--_rest-lines', '--_float-lines', '--_float-widest']) field.style.removeProperty(name);
+      }
+    };
+  };
 
   override connectedCallback() {
     super.connectedCallback();
@@ -1966,10 +2037,12 @@ export class TanreiTextInput extends TanreiElement {
     clearTimeout(this.countTimer);
     this.labelObserver?.disconnect();
     this.observedCopies = [];
+    cancelPhaseRead(this.labelRead);
     this.iconObserver?.disconnect();
     this.observedIcons = [];
     this.sizeObserver?.disconnect();
     this.observedInput = null;
+    cancelPhaseRead(this.sizeRead);
     this.drag = null;
   }
 

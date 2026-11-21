@@ -1895,15 +1895,17 @@ test.describe('behavior', () => {
     });
     const lineOf = await line(page, T('input-typescale-medium'));
     const lines = (id: string) => bounds(input(page, id)).then((b) => b.height / lineOf);
-    const scrolls = (id: string) => input(page, id).evaluate((el) => [el.scrollHeight > el.clientHeight + 1, getComputedStyle(el).overflowY]);
+    // Whether its text is taller than its box, whether it can scroll, and the room a scrollbar takes of its width. A box
+    // as tall as its text has nothing to scroll and draws no scrollbar, whether it scrolls what does not fit (where the
+    // browser sizes it by its text) or hides it (where the element writes its height).
+    const scrolls = (id: string) => input(page, id).evaluate((el: HTMLTextAreaElement) => ({ overflows: el.scrollHeight > el.clientHeight + 1, scrolls: getComputedStyle(el).overflowY !== 'hidden', room: el.offsetWidth - el.clientWidth }));
     // The fixtures: minRows (three lines of room for two of text), grown (five lines, no limit), and maxRows 3 (scrolled).
     expect(await lines('stacked-multiline')).toBeCloseTo(3, 1);
     expect(await lines('stacked-multiline-auto-grown')).toBeCloseTo(5, 1);
     expect(await lines('stacked-multiline-auto-max')).toBeCloseTo(3, 1);
     for (const id of ['stacked-multiline', 'stacked-multiline-auto-grown', 'stacked-multiline-auto-max']) await expect(part(page, id, GRIP), id).toHaveCount(0);
-    expect(await scrolls('stacked-multiline-auto-grown')).toEqual([false, 'hidden']);
-    expect(await scrolls('stacked-multiline')).toEqual([false, 'hidden']);
-    expect(await scrolls('stacked-multiline-auto-max')).toEqual([true, 'auto']);
+    for (const id of ['stacked-multiline-auto-grown', 'stacked-multiline']) expect(await scrolls(id).then(({ overflows, room }) => ({ overflows, room })), id).toEqual({ overflows: false, room: 0 });
+    expect(await scrolls('stacked-multiline-auto-max').then(({ overflows, scrolls }) => ({ overflows, scrolls }))).toEqual({ overflows: true, scrolls: true });
     // maxRows smaller than minRows: exactly minRows lines.
     expect(await lines('upside')).toBeCloseTo(3, 1);
     // A line the text wraps onto counts as a line.
@@ -1939,6 +1941,77 @@ test.describe('behavior', () => {
     await expect.poll(async () => (await bounds(input(page, 'stacked-multiline'))).height / large).toBeCloseTo(4, 1);
     await expect.poll(async () => (await bounds(input(page, 'stacked-multiline-fixed'))).height / large).toBeCloseTo(3, 1);
     for (const grown of ['stacked-multiline', id]) await expect.poll(() => input(page, grown).evaluate((el) => el.scrollHeight <= el.clientHeight + 1), grown).toBe(true);
+  });
+
+  test('TXI-37: an auto-resized field in a box of fixed size whose width and text change is as tall as its lines after each change, and no frame leaves a change of size undelivered — the browser reports no "ResizeObserver loop" error — where the browser sizes a text area by its content and where it does not', async ({ page }) => {
+    await mountFixtures(page, spec, { fixtures: [] });
+    const errors: string[] = [];
+    page.on('pageerror', (error) => errors.push(`pageerror: ${error.message}`));
+    const words = 'one two three four five six seven eight nine ten eleven twelve thirteen fourteen fifteen sixteen seventeen eighteen nineteen twenty';
+    for (const byContent of [true, false]) {
+      const seen = await page.evaluate(
+        async ([byContent, words]) => {
+          const errors: string[] = [];
+          const onError = (event: ErrorEvent) => errors.push(event.message);
+          window.addEventListener('error', onError);
+          const frame = () => new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
+          // Fixed: the field changes the size of nothing above it, so that its own boxes are the shallowest a frame
+          // reports (a page that observes its root element would hide the error).
+          const holder = document.createElement('div');
+          holder.style.cssText = 'position: fixed; inset-block-start: 0; inset-inline-start: 0; inline-size: 400px; block-size: 600px';
+          const field = Object.assign(document.createElement('tanrei-text-input'), { variant: 'stacked', label: 'Notes', multiline: true, value: words }) as HTMLElement & { value: string; updateComplete: Promise<unknown> };
+          // And one whose floating label rests in its first line and wraps onto more lines as the box narrows (TXI-13).
+          const floating = Object.assign(document.createElement('tanrei-text-input'), { variant: 'outlined', label: 'What the reviewers should know about this change before they begin', multiline: true }) as HTMLElement & { updateComplete: Promise<unknown> };
+          holder.append(field, floating);
+          document.body.append(holder);
+          await Promise.all([field.updateComplete, floating.updateComplete]);
+          const textarea = field.shadowRoot!.querySelector('textarea')!;
+          // A browser that does not size a text area by its content, as far as the field can tell: the box is the
+          // lines the element writes, as the styles give it where the browser has no `field-sizing`.
+          if (!byContent) {
+            const sheet = new CSSStyleSheet();
+            // (The block size is not important: the element measures the text with a block size of its own.)
+            sheet.replaceSync('textarea.input { field-sizing: fixed !important; } .field[data-resize] textarea.input.input.input { block-size: calc(var(--_rows, var(--_rows-min, 2)) * var(--_input-line)); }');
+            field.shadowRoot!.adoptedStyleSheets = [...field.shadowRoot!.adoptedStyleSheets, sheet];
+            (field as unknown as { value: string }).value = `${words} `;
+            await field.updateComplete;
+          }
+          for (let i = 0; i < 4; i++) await frame();
+          const line = () => Number.parseFloat(getComputedStyle(textarea).lineHeight);
+          const states: { width: number; lines: number; fits: boolean; sizing: string }[] = [];
+          // Each change is made in a frame callback of its own, before that frame's layout; the frame callbacks of the
+          // second frame after it find the height that follows it — in the frame of the change where the browser
+          // sizes the box, in the next frame's read phase where the element does.
+          for (const [width, text] of [[160, null], [400, null], [160, 'a\nb\nc\nd\ne\nf'], [300, words], [120, null], [400, ''], [140, words]] as const) {
+            await frame();
+            holder.style.inlineSize = `${width}px`;
+            if (text !== null) field.value = text;
+            await frame();
+            await frame();
+            states.push({ width, lines: textarea.getBoundingClientRect().height / line(), fits: textarea.scrollHeight <= textarea.clientHeight + 1, sizing: getComputedStyle(textarea).getPropertyValue('field-sizing') });
+          }
+          // The browser says what a frame left undelivered after that frame: one more task.
+          await new Promise((resolve) => setTimeout(resolve, 100));
+          window.removeEventListener('error', onError);
+          holder.remove();
+          return { states, errors };
+        },
+        [byContent, words] as const,
+      );
+      const label = byContent ? 'sized by its content' : 'sized by the element';
+      expect(seen.errors, label).toEqual([]);
+      for (const state of seen.states) {
+        expect(state.sizing, label).toBe(byContent ? 'content' : 'fixed');
+        expect(state.fits, `${label}, ${state.width} wide: every line fits`).toBe(true);
+        expect(Math.abs(state.lines - Math.round(state.lines)), `${label}, ${state.width} wide: whole lines (${state.lines})`).toBeLessThan(0.05);
+        expect(state.lines, `${label}, ${state.width} wide: minRows at least`).toBeGreaterThanOrEqual(2 - 0.05);
+      }
+      const [narrow, wide] = seen.states;
+      expect(narrow.lines, `${label}: narrower wraps onto more lines`).toBeGreaterThan(wide.lines + 0.9);
+      expect(seen.states[2].lines, `${label}: six lines`).toBeCloseTo(6, 1);
+      expect(seen.states[5].lines, `${label}: empty, minRows`).toBeCloseTo(2, 1);
+    }
+    expect(errors).toEqual([]);
   });
 
   test('TXI-38: a change of height that follows the value moves over motion.resize-* from the height then shown; the first drawing, a changed width, minRows or maxRows, and reduced motion change it at once', async ({ page }) => {
