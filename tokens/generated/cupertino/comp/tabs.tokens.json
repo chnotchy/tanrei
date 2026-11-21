@@ -146,9 +146,10 @@
                 "by": 16,
                 "round": "{tanrei.dial.size.unit}",
                 "min": "{tanrei.sys.target.minimum}"
-              }
+              },
+              "dev.tanrei.aligned": "own"
             },
-            "$description": "Minimum height of a primary tab with its icon above its label. Only a medium row stacks: at small the icon stands before the label in every variant, and this is not read."
+            "$description": "Minimum height of a primary tab with its icon above its label. Only a medium row stacks: at small the icon stands before the label in every variant, and this is not read. It holds two lines, the icon's and the label's, and keeps its own size at every control height."
           },
           "padding-inline": {
             "$type": "dimension",

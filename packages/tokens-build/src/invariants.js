@@ -120,22 +120,27 @@ export function ladderReaders(documents) {
   return Object.fromEntries([...steps].sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0)));
 }
 
-/** The mark of a height a control or a row is drawn at in its default size: `"dev.tanrei.aligned": "control"`. */
+/**
+ * What a height of the core is drawn at, marked on the token: `"dev.tanrei.aligned": "control"` for a height a control
+ * or a row is drawn at in its default size (it reads the medium step of the ladder), `"own"` for a pressable height
+ * that keeps a size of its own at every control height (it reads no step, and its spec says why).
+ */
 export const ALIGNED = 'dev.tanrei.aligned';
 
 /**
- * The heights the core vocabulary marks as drawn at the control height in their default size (`ALIGNED`): every token
- * of `documents` that carries the mark. Each reads `sys.control.height.medium`, directly or through an alias, with
- * nothing but a `min` (checked against `ladderReaders`).
+ * The heights the core vocabulary marks `mark` (`ALIGNED`): every token of `documents` that carries it. Marked
+ * `control` (the default), each reads `sys.control.height.medium`, directly or through an alias, with nothing but a
+ * `min` (checked against `ladderReaders`).
  * @param {object[]} documents DTCG documents of the core vocabulary (as `targetFloors` reads them)
+ * @param {'control' | 'own'} [mark]
  * @returns {string[]}
  */
-export function alignedTokens(documents) {
+export function alignedTokens(documents, mark = 'control') {
   const marked = [];
   const walk = (node, path) => {
     if (!node || typeof node !== 'object') return;
     if ('$value' in node) {
-      if (node.$extensions?.[ALIGNED] === 'control') marked.push(path.join('.'));
+      if (node.$extensions?.[ALIGNED] === mark) marked.push(path.join('.'));
       return;
     }
     for (const [key, child] of Object.entries(node)) if (!key.startsWith('$')) walk(child, [...path, key]);
@@ -145,19 +150,24 @@ export function alignedTokens(documents) {
 }
 
 /**
- * The pressable heights the core still derives from the size unit by a coefficient of its own rather than from a step
- * of the control height ladder. Every other height the core floors at `sys.target.minimum` reads a step. Each family
- * of components is rewired to the ladder in a change of its own (menus and options; tabs, navigation and trees; lists,
- * rows, accordions and tables; fields, pickers and the segmented button; the frames and marks that are no control),
- * and takes its tokens off this list in that change: the check below fails both for a pressable height that is
- * neither a step nor listed, and for a listed one that has become a step. Empty, every pressable height is a step.
- * The calendar's cell and a wheel's row are the pitch of a grid and of a drum that hold a touch target for each of
- * their days or values, and no control on a row: their change is the frames' and marks', not the fields'.
+ * The pressable heights that keep a size of their own at every control height (`"dev.tanrei.aligned": "own"`): no
+ * control on a row, each is held at the minimum target and reads no step of the ladder, and its spec says why — a
+ * primary tab that stacks its icon above its label, which holds two lines. Every other height the core floors at
+ * `sys.target.minimum` reads a step.
+ * @param {object[]} documents DTCG documents of the core vocabulary (as `targetFloors` reads them)
+ * @returns {string[]}
+ */
+export const ownHeights = (documents) => alignedTokens(documents, 'own');
+
+/**
+ * The pressable heights the core still derives from the size unit by a coefficient of its own, neither a step of the
+ * control height ladder nor marked as keeping a size of their own. The check below fails both for a pressable height
+ * that is neither a step, marked nor listed, and for a listed one that has become either. The calendar's cell and a
+ * wheel's row are the pitch of a grid and of a drum that hold a touch target for each of their days or values.
  */
 export const HEIGHTS_NOT_YET_ON_THE_LADDER = Object.freeze([
   'calendar.cell.size',
   'date-time-picker.wheel.row.height',
-  'tabs.container.height-with-icon',
 ].map((id) => `${CONFIG.namespace}.comp.${id}`));
 
 /** Why an imitation preset's measurements are information and not warnings — the words its report and headers use. */
@@ -821,19 +831,24 @@ export function auditInvariants(model) {
   if (typeof minimum === 'number' && typeof controlHeight === 'number' && minimum > controlHeight) failures.push(`target floor: sys.target.minimum: ${minimum}px is above dial.control.height (${controlHeight}px) — a control of the default size is drawn at the control height; lower the minimum or raise the control height`);
 
   // One control height. In the core and the default system every height marked as drawn at it (`model.aligned`) reads
-  // the medium step of the ladder, and every height the core floors at the minimum (`model.floored`) reads a step —
-  // save those still listed in HEIGHTS_NOT_YET_ON_THE_LADDER, which is held to what is true.
+  // the medium step of the ladder, and every height the core floors at the minimum (`model.floored`) reads a step or is
+  // marked as keeping a size of its own (`model.own`) — save those still listed in HEIGHTS_NOT_YET_ON_THE_LADDER, which
+  // is held to what is true. A height marked as its own is a floored one that reads no step.
   if ((model.system === CONFIG.namespace || model.system === 'core') && model.ladder) {
     for (const id of model.aligned ?? []) {
       if (model.ladder[id] !== 'medium') failures.push(`${short(id)}: marked ${ALIGNED}, but it does not read sys.control.height.medium — derive it with { "fn": "mul", "of": "{${CONFIG.namespace}.sys.control.height.medium}", "by": 1, "min": "{${CONFIG.namespace}.sys.target.minimum}" }, or alias a token that does`);
     }
     const pending = new Set(HEIGHTS_NOT_YET_ON_THE_LADDER);
+    const own = new Set(model.own ?? []);
     for (const id of model.floored ?? []) {
-      if (!(id in model.ladder) && !pending.has(id)) failures.push(`${short(id)}: a pressable height that reads no step of the control height ladder — read the step of its size, { "fn": "mul", "of": "{${CONFIG.namespace}.sys.control.height.<step>}", "by": 1, "min": "{${CONFIG.namespace}.sys.target.minimum}" }`);
+      if (!(id in model.ladder) && !own.has(id) && !pending.has(id)) failures.push(`${short(id)}: a pressable height that reads no step of the control height ladder — read the step of its size, { "fn": "mul", "of": "{${CONFIG.namespace}.sys.control.height.<step>}", "by": 1, "min": "{${CONFIG.namespace}.sys.target.minimum}" }, or, where its spec says it keeps a size of its own at every control height, mark it "${ALIGNED}": "own"`);
     }
     const floored = new Set(model.floored ?? []);
+    for (const id of own) {
+      if (id in model.ladder || !floored.has(id)) failures.push(`${short(id)}: marked ${ALIGNED} "own", but it ${id in model.ladder ? 'reads a step of the ladder' : 'is no pressable height the core floors'} — take the mark off`);
+    }
     for (const id of pending) {
-      if (id in model.ladder || !floored.has(id)) failures.push(`${short(id)}: listed in HEIGHTS_NOT_YET_ON_THE_LADDER, but it ${id in model.ladder ? 'reads a step of the ladder now' : 'is no pressable height the core floors'} — take it off the list`);
+      if (id in model.ladder || own.has(id) || !floored.has(id)) failures.push(`${short(id)}: listed in HEIGHTS_NOT_YET_ON_THE_LADDER, but it ${id in model.ladder ? 'reads a step of the ladder now' : own.has(id) ? 'is marked as keeping a size of its own' : 'is no pressable height the core floors'} — take it off the list`);
     }
   }
 
