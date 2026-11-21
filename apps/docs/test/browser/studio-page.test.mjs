@@ -126,16 +126,25 @@ for (const engine of ENGINES) {
       }
     });
 
-    test('390 wide: one column under the bar — the rail, the preview, the panel — and nothing scrolls sideways', LIMIT, async () => {
+    test('390 wide: the preview takes the window, the rail is one line at its foot, and a row opens the panel between them; nothing scrolls sideways', LIMIT, async () => {
       const { page, problems, close } = await open(browser, { viewport: NARROW });
       try {
-        const [rail, preview, panel] = await Promise.all(['[data-rail]', '.ts-preview', '[data-inspector]'].map((selector) => box(page, selector)));
-        assert.ok(rail.bottom <= preview.top && preview.bottom <= panel.top, `one above the other: ${JSON.stringify({ rail, preview, panel })}`);
-        assert.deepEqual(await page.locator('[data-rail] .ts-rail-rows').evaluate((el) => [getComputedStyle(el).display, getComputedStyle(el).overflowX, el.getBoundingClientRect().right <= innerWidth + 1]), ['flex', 'auto', true], 'the rows stand in one line that scrolls by itself, inside the page');
+        const [bar, preview, rail] = await Promise.all(['[data-bar]', '.ts-preview', '[data-rail]'].map((selector) => box(page, selector)));
+        assert.ok(Math.abs(preview.top - bar.bottom) <= 1 && preview.bottom <= rail.top && rail.bottom === NARROW.height, `the preview under the bar, the rail at the window’s foot: ${JSON.stringify({ bar, preview, rail })}`);
+        assert.equal((await box(page, '[data-inspector]')).width, 0, 'the panel is closed until a row is chosen');
+        assert.deepEqual(await page.locator('[data-rail] .ts-rail-lists').evaluate((el) => [getComputedStyle(el).display, getComputedStyle(el).overflowX, el.getBoundingClientRect().right <= innerWidth + 1]), ['flex', 'auto', true], 'the rail stands in one line that scrolls by itself, inside the page');
         assert.equal(await page.locator('[data-panel-handle]').evaluate((el) => el.getBoundingClientRect().width), 0, 'no handle: nothing to resize');
-        // (What stands inside a list of the rail is in a box that scrolls by itself.)
-        const wide = await page.evaluate(() => [...document.querySelectorAll('[data-bar] *, [data-rail] *, [data-inspector] [data-panel] > header *')].filter((el) => !el.closest('.ts-rail-rows, .ts-rail-more') && el.getBoundingClientRect().right > innerWidth + 1).map((el) => el.localName));
+        // A row opens the panel: under the preview, over the rail, with the row's name and a way to close it.
+        await page.locator('[data-rail] [data-row="radius"]').click();
+        const [open, panel, under] = await Promise.all(['.ts-preview', '[data-inspector]', '[data-rail]'].map((selector) => box(page, selector)));
+        assert.ok(open.bottom <= panel.top && panel.bottom <= under.top && under.bottom === NARROW.height, `preview, panel, rail: ${JSON.stringify({ open, panel, under })}`);
+        assert.equal(await page.locator('[data-sheet-title]').textContent(), 'Corners');
+        // (What stands inside the rail's line is in a box that scrolls by itself.)
+        const wide = await page.evaluate(() => [...document.querySelectorAll('[data-bar] *, [data-rail] *, [data-inspector] [data-panel] > header *')].filter((el) => !el.closest('.ts-rail-lists') && el.getBoundingClientRect().right > innerWidth + 1).map((el) => el.localName));
         assert.deepEqual({ page: await page.evaluate(() => document.scrollingElement.scrollWidth), wide }, { page: NARROW.width, wide: [] });
+        await page.locator('[data-sheet-close]').click();
+        assert.equal((await box(page, '[data-inspector]')).width, 0, 'closed again');
+        assert.equal(await page.evaluate(() => document.activeElement?.closest('[data-row]')?.dataset.row), 'radius', 'the focus back on the row');
         assert.deepEqual(problems, []);
       } finally {
         await close();

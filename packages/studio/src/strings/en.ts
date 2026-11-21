@@ -383,7 +383,7 @@ const en = {
     names: open({ overview: 'Overview', dashboard: 'Dashboard', settings: 'Settings form', list: 'List and detail', docs: 'Docs page' }),
     mode: 'Light or dark',
     modes: open({ light: 'Light', dark: 'Dark', both: 'Side by side' }),
-    conditions: 'How the preview is shown. None of this is saved in the file.',
+    conditions: 'View options (not saved in the file)',
     locale: 'en-US',
     currency: 'USD',
     common: {
@@ -676,6 +676,7 @@ const en = {
     panel: 'Properties',
     resize: 'Width of the properties panel',
     width: (px: number) => `${px} pixels`,
+    close: 'Close the properties',
   },
   // The rail (ui/rail.ts): the nine rows of the look, the rest of what a layer holds, the lock and the shuffle.
   rail: {

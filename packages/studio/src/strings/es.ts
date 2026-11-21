@@ -368,7 +368,7 @@ const es: Dictionary = {
     names: { overview: 'Resumen', dashboard: 'Panel', settings: 'Formulario de ajustes', list: 'Lista y detalle', docs: 'Página de documentación' },
     mode: 'Claro u oscuro',
     modes: { light: 'Claro', dark: 'Oscuro', both: 'Uno al lado del otro' },
-    conditions: 'Cómo se muestra la vista previa. Nada de esto se guarda en el archivo.',
+    conditions: 'Opciones de vista (no se guardan en el archivo)',
     locale: 'es-ES',
     currency: 'EUR',
     common: {
@@ -649,6 +649,7 @@ const es: Dictionary = {
     panel: 'Propiedades',
     resize: 'Ancho del panel de propiedades',
     width: (px: number) => `${px} píxeles`,
+    close: 'Cerrar las propiedades',
   },
   rail: {
     theme: 'El aspecto',

@@ -23,8 +23,8 @@
   --ts-preview-min: 22.5rem;
   --ts-panel-min: 20rem;
   --ts-panel-default: clamp(var(--ts-panel-min), 30vw, 30rem);
-  /* What stays at the top while the page scrolls under it: nothing in the wide frame, whose columns scroll by
-     themselves; the bar on a narrow screen. */
+  /* What stays at the top of a column while it scrolls under it: nothing, at every width — each part of the frame
+     scrolls by itself. A host that sticks something there says how tall it is. */
   --ts-sticky-top: 0rem;
   margin: 0;
   font-size: var(--ts-text-sm);
@@ -70,13 +70,21 @@
   gap: var(--tanrei-sys-space-space50);
   min-inline-size: 0;
 }
-/* The file's state, and what follows it — Inspect, the host's end items — stand at the end edge. */
-.ts-bar > .ts-file {
-  flex: 1;
+/* What goes out of the Studio — the checks' count, Share, Export — and the host's end items stand at the end edge. */
+.ts-bar-out {
+  margin-inline-start: auto;
 }
 .ts-bar-end {
   flex: none;
-  margin-inline-start: auto;
+}
+/* Read by whoever reads the page by its regions and headings; not drawn. */
+.ts-hidden {
+  position: absolute;
+  inline-size: 1px;
+  block-size: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
 }
 /* A phone, with the host's items at both ends: they keep the first line (the brand, a language, a theme), and undo,
    redo and the file's state take the second. */
@@ -103,18 +111,63 @@
 }
 
 /* ── The frame ──────────────────────────────────────────────────────── */
-/* A narrow screen: one column — the rail (its rows in a line that scrolls by itself), the preview (it stays under the
-   bar while the panel scrolls), the panel. The handle has nothing to resize there. */
+/* The page is the Studio, at every width: the bar, the notices, then the frame, which takes the rest of the window and
+   whose parts each scroll by themselves. */
+.ts {
+  display: grid;
+  grid-template-rows: auto auto minmax(0, 1fr);
+  block-size: 100dvh;
+  overflow: hidden;
+}
+/* A narrow screen: the preview takes the window; under it the panel, while a row of the rail is open in it (a sheet
+   with its title and a way to close it); and at the foot the rail, its rows in one line that scrolls by itself (ui.ts
+   moves the rail after the panel there, so that the keyboard meets the parts in the order they are drawn). The handle
+   has nothing to resize there. */
 .ts-frame {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
-  gap: var(--ts-gap);
-  align-items: start;
-  padding: var(--ts-gap);
+  grid-template-rows: minmax(0, 1fr) auto auto;
+  min-block-size: 0;
 }
 .ts-rail,
 .ts-inspector {
   min-inline-size: 0;
+  background: var(--tanrei-sys-color-surface-container-lowest);
+}
+.ts-frame > .ts-preview {
+  min-block-size: 0;
+  background: var(--tanrei-sys-color-surface-container);
+}
+/* The panel's head on a narrow screen: what it shows, and the way back to the preview alone. */
+.ts-sheet-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--tanrei-sys-space-space100);
+}
+.ts h2.ts-sheet-title {
+  margin: 0;
+  font: var(--tanrei-sys-typescale-title-small-font-weight) var(--tanrei-sys-typescale-title-small-font-size)/var(--tanrei-sys-typescale-title-small-line-height) var(--tanrei-sys-typescale-title-small-font-family);
+  letter-spacing: var(--tanrei-sys-typescale-title-small-letter-spacing);
+}
+@media (max-width: 63.999rem) {
+  .ts-inspector {
+    max-block-size: 60dvh;
+    overflow: auto;
+    overscroll-behavior: contain;
+    padding: var(--tanrei-sys-space-space150) var(--tanrei-sys-space-space200) var(--tanrei-sys-space-space200);
+    border-block-start: var(--ts-hairline);
+    border-start-start-radius: var(--tanrei-sys-shape-corner-large);
+    border-start-end-radius: var(--tanrei-sys-shape-corner-large);
+    box-shadow: var(--tanrei-sys-elevation-level2);
+  }
+  .ts:not([data-sheet]) .ts-inspector {
+    display: none;
+  }
+  .ts-rail {
+    padding: var(--tanrei-sys-space-space100) var(--tanrei-sys-space-space100) var(--tanrei-sys-space-space150);
+    border-block-start: var(--ts-hairline);
+  }
 }
 .ts-inspector {
   display: grid;
@@ -132,15 +185,9 @@
   gap: var(--ts-gap);
   min-inline-size: 0;
 }
-/* A wide screen: the page is the Studio — the bar, then three columns that each scroll by themselves: the rail, the
-   preview (it takes what the others leave) and the panel, with the handle between the preview and the panel. */
+/* A wide screen: three columns that each scroll by themselves — the rail, the preview (it takes what the others leave)
+   and the panel, with the handle between the preview and the panel. */
 @media (min-width: 64rem) {
-  .ts {
-    display: grid;
-    grid-template-rows: auto auto minmax(0, 1fr);
-    block-size: 100dvh;
-    overflow: hidden;
-  }
   /* Inspect's tokens hold two panes side by side, the tree and the chosen token's editor, and its Source the file:
      the column starts wider for them. A width the person gives the column is kept for what it holds then (ui.ts
      `panelWidths`): a section's controls and each tab of Inspect keep theirs. */
@@ -152,17 +199,14 @@
   }
   .ts-frame {
     grid-template-columns: var(--ts-rail-width) minmax(var(--ts-preview-min), 1fr) auto minmax(var(--ts-panel-min), var(--ts-panel-width, var(--ts-panel-default)));
+    grid-template-rows: minmax(0, 1fr);
     align-items: stretch;
-    gap: 0;
-    padding: 0;
-    min-block-size: 0;
   }
   .ts-rail,
   .ts-inspector {
     overflow: auto;
     overscroll-behavior: contain;
     padding: var(--ts-gap);
-    background: var(--tanrei-sys-color-surface-container-lowest);
   }
   .ts-rail {
     border-inline-end: var(--ts-hairline);
@@ -174,12 +218,8 @@
     display: block;
     align-self: center;
   }
-  .ts-frame > .ts-preview {
-    position: static;
-    max-block-size: none;
-    border: 0;
-    border-radius: 0;
-    box-shadow: none;
+  .ts-sheet-head {
+    display: none;
   }
 }
 
@@ -410,16 +450,8 @@
   /* The panes lay themselves out by the room THE PREVIEW has — next to the rail and the panel, on a phone — never by
      the viewport. */
   container: ts-preview / inline-size;
-  position: sticky;
-  inset-block-start: calc(var(--ts-sticky-top) + 0.5rem);
-  z-index: 1;
   display: grid;
   grid-template-rows: auto auto minmax(0, 1fr);
-  max-block-size: min(46vh, 30rem);
-  border: var(--ts-hairline);
-  border-radius: var(--ts-radius-container);
-  background: var(--tanrei-sys-color-surface-container-lowest);
-  box-shadow: var(--tanrei-sys-elevation-level2);
   overflow: hidden;
   min-inline-size: 0;
   /* The outline that says which parts a setting reaches is the Studio's, drawn in the default system: these are
@@ -429,19 +461,17 @@
   --ts-lit-hold: var(--tanrei-sys-motion-duration-medium4);
   --ts-lit-fade: var(--tanrei-sys-motion-duration-medium2);
 }
-/* The bar: the title and the screens on the first line; how the screen is seen (the scheme, the contrast), the checks'
-   count and the emphasis on the next, with the line that says none of it is saved. */
+/* The bar: the screens at its start, and at its end how they are seen — the note that none of it is saved, the scheme,
+   the contrast, the emphasis — on one line where the preview has the room, on two where it has not. */
 .ts-preview-bar {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   gap: var(--tanrei-sys-space-space50) var(--tanrei-sys-space-space150);
-  min-block-size: 2.75rem;
-  padding: 0.375rem 0.5rem 0.375rem 0.875rem;
-  border-block-end: var(--ts-hairline-dashed);
+  padding: var(--tanrei-sys-space-space100) var(--tanrei-sys-space-space200);
 }
 .ts-preview-bar > [data-screens] {
-  flex: 1 1 auto;
+  flex: 0 1 auto;
   min-inline-size: 0;
   max-inline-size: 100%;
 }
@@ -449,7 +479,9 @@
   display: flex;
   flex-wrap: wrap;
   align-items: center;
+  justify-content: flex-end;
   gap: var(--tanrei-sys-space-space50) var(--tanrei-sys-space-space100);
+  margin-inline-start: auto;
   min-inline-size: 0;
   max-inline-size: 100%;
 }
@@ -457,25 +489,19 @@
   min-inline-size: 0;
   max-inline-size: 100%;
 }
-.ts-preview-conditions > .ts-row-actions {
-  margin-inline-start: auto;
-}
-.ts-preview-word {
-  font: var(--tanrei-comp-tabs-label-typescale-font-weight) var(--tanrei-comp-tabs-label-typescale-font-size)/var(--tanrei-comp-tabs-label-typescale-line-height) var(--tanrei-comp-tabs-label-typescale-font-family);
-  letter-spacing: var(--tanrei-comp-tabs-label-typescale-letter-spacing);
-  color: var(--tanrei-sys-color-on-surface-variant);
-  white-space: nowrap;
-}
 .ts-preview-note {
-  flex: 1 0 100%;
-  margin: 0;
-  font-size: var(--ts-text-xs);
+  font: var(--tanrei-sys-typescale-label-small-font-weight) var(--tanrei-sys-typescale-label-small-font-size)/var(--tanrei-sys-typescale-label-small-line-height) var(--tanrei-sys-typescale-label-small-font-family);
+  letter-spacing: var(--tanrei-sys-typescale-label-small-letter-spacing);
   color: var(--tanrei-sys-color-on-surface-variant);
 }
 @media (max-width: 63.999rem) {
-  /* The sticky preview is short on a phone: the note is the bar's longest line, and the first to go. */
+  /* The preview is short on a phone: the note is the bar's longest words, and the first to go (the group keeps its name). */
   .ts-preview-note {
     display: none;
+  }
+  .ts-preview-conditions {
+    justify-content: flex-start;
+    margin-inline-start: 0;
   }
 }
 .ts-stale {
@@ -485,11 +511,15 @@
   font-size: var(--ts-text-xs);
   color: var(--tanrei-sys-color-error);
 }
+/* The stage: the screens stand on the Studio's own ground, each a page of its own with its edge — the product's, not
+   the Studio's — and the stage scrolls by itself. */
 .ts-scope {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
   /* A pane shorter than the preview still fills it: the screen's surface, not the Studio's, down to the foot. */
   align-content: stretch;
+  gap: var(--tanrei-sys-space-space200);
+  padding: 0 var(--tanrei-sys-space-space200) var(--tanrei-sys-space-space200);
   overflow: auto;
   overscroll-behavior: contain;
 }
@@ -515,15 +545,9 @@
   color: var(--tanrei-sys-color-on-surface);
   font: var(--tanrei-sys-typescale-body-font-weight) var(--tanrei-sys-typescale-body-font-size)/var(--tanrei-sys-typescale-body-line-height) var(--tanrei-sys-typescale-body-font-family);
   letter-spacing: var(--tanrei-sys-typescale-body-letter-spacing);
-}
-.ts-scope[data-mode='both'] .ts-pane + .ts-pane {
-  border-block-start: var(--tanrei-sys-border-hairline) solid var(--tanrei-sys-color-outline-variant);
-}
-@container ts-preview (min-width: 56rem) {
-  .ts-scope[data-mode='both'] .ts-pane + .ts-pane {
-    border-block-start: 0;
-    border-inline-start: var(--tanrei-sys-border-hairline) solid var(--tanrei-sys-color-outline-variant);
-  }
+  border: var(--tanrei-sys-border-hairline) solid var(--tanrei-sys-color-outline-variant);
+  border-radius: var(--tanrei-sys-shape-corner-large);
+  overflow: clip;
 }
 .ts-pane-label {
   display: none;
@@ -1111,15 +1135,29 @@
     corner-shape: superellipse(log(calc(2 + var(--tanrei-sys-shape-corner-smoothing, 0)), 2));
   }
 }
-/* A narrow screen: each list is one line of compact rows that scrolls by itself, so the preview stays near the top. */
+/* A narrow screen: the rail is one line at the foot of the window, the nine rows and then the rest, that scrolls by
+   itself; its two headings are read, not drawn. */
 @media (max-width: 63.999rem) {
+  .ts-rail-lists {
+    display: flex;
+    align-items: stretch;
+    gap: var(--tanrei-sys-space-space50);
+    overflow-x: auto;
+    overscroll-behavior-inline: contain;
+  }
+  .ts-rail-lists > h2.ts-rail-heading {
+    position: absolute;
+    inline-size: 1px;
+    block-size: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
   .ts-rail-rows,
   .ts-rail-more {
     display: flex;
-    gap: 0.25rem;
-    overflow-x: auto;
-    overscroll-behavior-inline: contain;
-    padding-block-end: 0.25rem;
+    flex: none;
+    gap: var(--tanrei-sys-space-space50);
   }
   .ts-rail-rows > li,
   .ts-rail-more > li {
@@ -1157,6 +1195,7 @@
   align-items: center;
   justify-content: flex-end;
   gap: 0.5rem 0.75rem;
+    block-size: 100%;
   min-inline-size: 0;
 }
 .ts-file:empty {
@@ -1767,13 +1806,7 @@
   display: none;
 }
 
-/* A panel scrolled to (a link to a panel, the draft badge, "Go to Color") lands BELOW what is stuck to the top: the site's
-   bar, and on a phone the sticky preview as well. */
+/* A panel scrolled to (a link to a panel, the draft badge, "Go to Color") lands a little below the top of its column. */
 .ts-panel {
   scroll-margin-block-start: calc(var(--ts-sticky-top) + 0.75rem);
-}
-@media (max-width: 63.999rem) {
-  .ts-frame .ts-panel {
-    scroll-margin-block-start: calc(var(--ts-sticky-top) + min(46vh, 30rem) + 1.25rem);
-  }
 }

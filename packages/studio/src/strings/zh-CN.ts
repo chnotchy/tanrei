@@ -366,7 +366,7 @@ const zhCN: Dictionary = {
     names: { overview: '概览', dashboard: '仪表盘', settings: '设置表单', list: '列表与详情', docs: '文档页面' },
     mode: '浅色或深色',
     modes: { light: '浅色', dark: '深色', both: '并排显示' },
-    conditions: '这里只决定预览的显示方式，不会保存到文件中。',
+    conditions: '显示选项（不会保存到文件中）',
     locale: 'zh-CN',
     currency: 'CNY',
     common: {
@@ -643,6 +643,7 @@ const zhCN: Dictionary = {
     panel: '属性',
     resize: '属性面板的宽度',
     width: (px: number) => `${px} 像素`,
+    close: '关闭属性面板',
   },
   rail: {
     theme: '外观',

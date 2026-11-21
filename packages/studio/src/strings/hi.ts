@@ -375,7 +375,7 @@ const hi: Dictionary = {
     names: { overview: 'झलक', dashboard: 'डैशबोर्ड', settings: 'सेटिंग फ़ॉर्म', list: 'सूची और विवरण', docs: 'दस्तावेज़ पेज' },
     mode: 'लाइट या डार्क',
     modes: { light: 'लाइट', dark: 'डार्क', both: 'साथ-साथ' },
-    conditions: 'प्रीव्यू कैसे दिखे, बस यह तय होता है। यहाँ चुनी गई कोई चीज़ फ़ाइल में सेव नहीं होती।',
+    conditions: 'देखने के विकल्प (फ़ाइल में सेव नहीं होते)',
     locale: 'hi-IN',
     currency: 'INR',
     common: {
@@ -653,6 +653,7 @@ const hi: Dictionary = {
     panel: 'प्रॉपर्टी',
     resize: 'प्रॉपर्टी पैनल की चौड़ाई',
     width: (px: number) => `${px} पिक्सेल`,
+    close: 'प्रॉपर्टी बंद करें',
   },
   rail: {
     theme: 'रूप-रंग',

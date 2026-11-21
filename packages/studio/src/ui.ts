@@ -244,8 +244,10 @@ export function mountStudio(root: HTMLElement, { lang = 'en', adapter, links = {
     startPoint.el,
     h('div', { class: 'ts-bar-history', role: 'group', 'aria-label': t.frame.history }, undoButton, redoButton),
     h('div', { class: 'ts-bar-tools' }, shuffleButton),
+    h('div', { class: 'ts-bar-tools ts-bar-inspect', 'data-bar-inspect': true }, inspectButton),
     file,
-    h('div', { class: 'ts-bar-tools ts-bar-inspect', 'data-bar-inspect': true }, inspectButton, share?.el ?? null, exportButton),
+    // At the end edge, what goes out of the Studio: what the build's checks say of the layer, Share and Export.
+    h('div', { class: 'ts-bar-tools ts-bar-out', 'data-bar-out': true }, preview.badge, share?.el ?? null, exportButton),
     hosted.end?.length ? h('div', { class: 'ts-bar-host ts-bar-end' }, hosted.end) : null,
   );
   const rail = h('nav', { class: 'ts-rail', 'aria-label': t.frame.rail, 'data-rail': true }, railView.el);
@@ -256,12 +258,30 @@ export function mountStudio(root: HTMLElement, { lang = 'en', adapter, links = {
   // What loading a file found, at the top of the panel: why it was not loaded, or the problems of the layer it holds.
   const importReport = h('tanrei-callout', { class: 'ts-banner ts-import-report', live: true, open: 'false', closable: true, 'close-label': t.shared.close, 'data-import-report': true }) as HTMLElement & { open: boolean };
   importReport.addEventListener('dismiss', (event) => event.target === importReport && (importReport.open = false));
+  // On a narrow screen the panel is a sheet under the preview, open while a row of the rail is: its head says which,
+  // and closes it, back to the row (studio.css hides the head where the panel is a column of its own).
+  const sheetTitle = h('h2', { class: 'ts-sheet-title', 'data-sheet-title': true });
+  const sheetClose = h('tanrei-button', { variant: 'text', size: 'small', label: t.frame.close, title: t.frame.close, onclick: () => closeSheet(), 'data-sheet-close': true }, glyph(CLOSE_GLYPH));
+  const sheetHead = h('div', { class: 'ts-sheet-head', 'data-sheet-head': true }, sheetTitle, sheetClose);
   // The panel scrolls by itself beside the preview; it takes the focus when what had it is drawn again (an undo).
-  const inspector = h('section', { class: 'ts-inspector', 'aria-label': t.frame.panel, tabindex: '-1', 'data-inspector': true }, importReport, inspectHead, controls, a11y, exportHost);
+  const inspector = h('section', { class: 'ts-inspector', 'aria-label': t.frame.panel, tabindex: '-1', 'data-inspector': true }, sheetHead, importReport, inspectHead, controls, a11y, exportHost);
   const handle = h('tanrei-handle', { class: 'ts-handle', axis: 'horizontal', label: t.frame.resize, 'data-panel-handle': true }) as HTMLElement & { value: number | null; min: number; max: number; valueText: string };
   // The frame is the page's main region; what is announced is said from inside it.
   const layout = h('main', { class: 'ts-frame', 'data-frame': true }, rail, preview.el, handle, inspector, status);
   root.replaceChildren(bar, h('div', { class: 'ts-notices' }, banner, sharedBanner), layout, exportSheet.el);
+  // Where the rail stands among the parts: first in a wide window, at the foot in a narrow one (studio.css), so that
+  // the keyboard meets the parts in the order they are drawn.
+  const narrow = window.matchMedia('(max-width: 63.999rem)');
+  const placeRail = () => (narrow.matches ? layout.insertBefore(rail, status) : layout.prepend(rail));
+  placeRail();
+  narrow.addEventListener('change', placeRail);
+  /** On a narrow screen: the panel closed, the preview alone above the rail; the focus back on the rail's current row. */
+  function closeSheet() {
+    delete root.dataset.sheet;
+    if (inspect) show({ section });
+    delete root.dataset.sheet;
+    (rail.querySelector('[aria-current="true"]') as HTMLElement | null)?.focus();
+  }
 
   // ── the panel's width ─────────────────────────────────────────────────────────────────────────
   // The handle reports how far it was moved and the keys pressed on it (the Handle's window splitter); the Studio
@@ -373,6 +393,8 @@ export function mountStudio(root: HTMLElement, { lang = 'en', adapter, links = {
     railView.select(section);
     inspectButton.selected = Boolean(inspect);
     inspectHead.hidden = !inspect;
+    sheetHead.hidden = Boolean(inspect);
+    sheetTitle.textContent = (ROWS as readonly string[]).includes(section) ? t.rail.rows[section as Row] : t.rail.more[section as Exclude<Section, Row>];
     inspectTabs.value = inspect ?? lastInspect;
     inspector.setAttribute('aria-label', inspect ? t.inspect.title : t.frame.panel);
     // (It keeps focus while it stays: it is taken out only when the draft is gone.)
@@ -383,6 +405,8 @@ export function mountStudio(root: HTMLElement, { lang = 'en', adapter, links = {
   /** Show a section in the panel, or open Inspect at a tab — at a token, or scrolled to a panel. */
   function show(to: Place) {
     place = to;
+    // (On a narrow screen the panel opens as a sheet under the preview.)
+    root.dataset.sheet = '';
     if (to.inspect) {
       inspect = lastInspect = to.inspect;
       if (to.token && to.inspect === 'tokens') Object.assign(tree, { selected: to.token, query: '', filter: 'all' });
@@ -896,6 +920,7 @@ export function mountStudio(root: HTMLElement, { lang = 'en', adapter, links = {
       live = false;
       document.removeEventListener('keydown', onKey);
       removeEventListener('hashchange', onHash);
+      narrow.removeEventListener('change', placeRail);
       resized.disconnect();
     },
   };

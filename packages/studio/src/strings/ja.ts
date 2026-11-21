@@ -360,7 +360,7 @@ const ja: Dictionary = {
     names: { overview: '概要', dashboard: 'ダッシュボード', settings: '設定フォーム', list: '一覧と詳細', docs: 'ドキュメント' },
     mode: 'ライトとダーク',
     modes: { light: 'ライト', dark: 'ダーク', both: '並べて表示' },
-    conditions: 'プレビューの見え方です。ここで選んだものはファイルに保存されません。',
+    conditions: '表示条件（ファイルには保存されません）',
     locale: 'ja-JP',
     currency: 'JPY',
     common: {
@@ -637,6 +637,7 @@ const ja: Dictionary = {
     panel: 'プロパティ',
     resize: 'プロパティのパネルの幅',
     width: (px: number) => `${px} ピクセル`,
+    close: 'プロパティを閉じる',
   },
   rail: {
     theme: '見た目',

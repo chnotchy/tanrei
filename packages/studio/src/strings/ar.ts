@@ -406,7 +406,7 @@ const ar: Dictionary = {
     names: { overview: 'نظرة عامة', dashboard: 'لوحة المعلومات', settings: 'نموذج الإعدادات', list: 'قائمة وتفاصيل', docs: 'صفحة توثيق' },
     mode: 'فاتح أو داكن',
     modes: { light: 'فاتح', dark: 'داكن', both: 'جنبًا إلى جنب' },
-    conditions: 'طريقة عرض المعاينة فقط، ولا يُحفظ شيء من هذا في الملف.',
+    conditions: 'خيارات العرض (لا تُحفظ في الملف)',
     locale: 'ar-SA',
     currency: 'SAR',
     common: {
@@ -736,6 +736,7 @@ const ar: Dictionary = {
     panel: 'الخصائص',
     resize: 'عرض لوحة الخصائص',
     width: (px: number) => `${px} بكسل`,
+    close: 'إغلاق الخصائص',
   },
   rail: {
     theme: 'المظهر',
