@@ -31,7 +31,10 @@ function palette(ctx: Ctx, layer: Layer, name: string) {
   return (ctx.studio.paletteRows(layer) as Json[]).find((row) => row.name === name);
 }
 
-/** What each row holds now, in words: values and names as the file has them, never translated. */
+/**
+ * What each row holds now, in words: a number, a color, a family and a behaviour's name as the file has them (a name
+ * is the vocabulary's, as its panel lists it); a gray with no chroma and no smoothing in the Studio's language.
+ */
 export function rowState(ctx: Ctx, layer: Layer, row: Row): RowState {
   const { t, studio } = ctx;
   switch (row) {
@@ -43,16 +46,17 @@ export function rowState(ctx: Ctx, layer: Layer, row: Row): RowState {
     case 'neutral': {
       const neutral = palette(ctx, layer, 'neutral');
       const source = neutral?.source;
-      return { value: source?.seed ? source.seed.toUpperCase() : source ? t.rail.hueChroma(trim(source.hue), trim(source.chroma)) : '—', changed: Boolean(neutral?.changed) };
+      return { value: source?.seed ? source.seed.toUpperCase() : source ? (Number(source.chroma) === 0 ? t.rail.neutral : t.rail.hueChroma(trim(source.hue), trim(source.chroma))) : '—', changed: Boolean(neutral?.changed) };
     }
     case 'typeface': {
       const brand = (studio.typefaces(layer) as Json[]).find((face) => face.key === 'brand');
       return { value: brand?.stack?.[0] ?? '—', changed: Boolean(brand?.changed) };
     }
     case 'size': {
+      // The control height and the minimum target: the size unit, the third value the panel writes, is said there.
       const [height, size] = [dial(ctx, layer, 'control.height'), dial(ctx, layer, 'size.unit')];
       const minimum = studio.targetMinimum(layer) as Json | null;
-      return { value: t.rail.size(`${trim(height.value)}${height.unit}`, `${trim(size.value)}${size.unit}`, minimum ? `${trim(minimum.value)}${minimum.unit}` : '—'), changed: height.changed || size.changed || Boolean(minimum?.changed) };
+      return { value: t.rail.size(`${trim(height.value)}${height.unit}`, minimum ? `${trim(minimum.value)}${minimum.unit}` : '—'), changed: height.changed || size.changed || Boolean(minimum?.changed) };
     }
     case 'radius': {
       const shape = dial(ctx, layer, 'shape.unit');
@@ -60,7 +64,7 @@ export function rowState(ctx: Ctx, layer: Layer, row: Row): RowState {
     }
     case 'smoothing': {
       const smoothing = studio.cornerSmoothing(layer) as Json;
-      return { value: trim(smoothing.value), changed: smoothing.changed };
+      return { value: Number(smoothing.value) === 0 ? t.rail.none : trim(smoothing.value), changed: smoothing.changed };
     }
     case 'icons': {
       const icons = studio.iconSet(layer) as Json;
@@ -238,9 +242,10 @@ export function createRail(ctx: Ctx, { locked, onshow, onlock }: { locked: Set<R
     { class: 'ts-rail-rows', 'aria-labelledby': rowsId, 'data-rail-rows': true },
     ROWS.map((row) => {
       const value = h('span', { class: 'ts-rail-value', dir: 'auto' });
-      const mark = h('span', { class: 'ts-mark', title: t.changed, 'aria-label': t.changed, role: 'img', hidden: true });
+      // A row the layer leaves as its start gives it says so, after its value: what is left is what was changed.
+      const unchanged = h('span', { class: 'ts-rail-default', 'data-unchanged': true, text: t.rail.unchanged });
       const drawn = sample(ctx, row);
-      const show = h('button', { type: 'button', class: 'ts-rail-row', 'aria-current': 'false', 'data-row': row, onclick: () => onshow(row) }, h('span', { class: 'ts-rail-label' }, t.rail.rows[row], mark), value, drawn.el) as HTMLButtonElement;
+      const show = h('button', { type: 'button', class: 'ts-rail-row', 'aria-current': 'false', 'data-row': row, onclick: () => onshow(row) }, h('span', { class: 'ts-rail-label' }, t.rail.rows[row]), h('span', { class: 'ts-rail-line' }, value, unchanged), drawn.el) as HTMLButtonElement;
       buttons.set(row, show);
       // Pointed at or focused, the row marks in the preview what it changes; leaving it takes the marks away.
       const marking = ctx as Ctx & Marking;
@@ -260,7 +265,7 @@ export function createRail(ctx: Ctx, { locked, onshow, onlock }: { locked: Set<R
         const layer = ctx.layer();
         const state = rowState(ctx, layer, row);
         value.textContent = state.value;
-        mark.hidden = !state.changed;
+        unchanged.hidden = state.changed;
         show.toggleAttribute('data-changed', state.changed);
         drawn.draw(layer);
       });
@@ -273,7 +278,9 @@ export function createRail(ctx: Ctx, { locked, onshow, onlock }: { locked: Set<R
     'ul',
     { class: 'ts-rail-more', 'aria-labelledby': moreId, 'data-rail-more': true },
     MORE.map((section) => {
-      const show = h('button', { type: 'button', class: 'ts-rail-link', 'aria-current': 'false', 'data-row': section, onclick: () => onshow(section) }, glyph(ctx, MORE_GLYPHS[section]), h('span', { class: 'ts-rail-label', text: t.rail.more[section] })) as HTMLButtonElement;
+      // Each says in a line what it holds: the name is the button's, the line describes it.
+      const help = h('span', { id: ctx.uid('ts-more'), class: 'ts-rail-help', 'aria-hidden': 'true', text: t.rail.moreHelp[section] });
+      const show = h('button', { type: 'button', class: 'ts-rail-link', 'aria-current': 'false', 'aria-describedby': help.id, 'data-row': section, onclick: () => onshow(section) }, glyph(ctx, MORE_GLYPHS[section]), h('span', { class: 'ts-rail-link-text' }, h('span', { class: 'ts-rail-label', text: t.rail.more[section] }), help)) as HTMLButtonElement;
       buttons.set(section, show);
       return h('li', {}, show);
     }),

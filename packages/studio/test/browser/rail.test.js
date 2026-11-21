@@ -19,7 +19,7 @@ studioTest('the rail lists the nine rows, then the rest; each shows its panel, a
   assert.deepEqual(await current(page), ['color'], 'the brand color first');
   assert.deepEqual(await panels(page), ['brand', 'export']);
   // Every row says what it holds, and draws a sample.
-  assert.deepEqual(await Promise.all(ROWS.map((row) => value(page, row))), ['none (monochrome)', 'hue 0 · chroma 0', 'Inter', '40px · 4px · target 36px', '2px', '0', 'Material Symbols Rounded · 300', 'overlay', 'ring']);
+  assert.deepEqual(await Promise.all(ROWS.map((row) => value(page, row))), ['none (monochrome)', 'neutral', 'Inter', '40px · minimum 36px', '2px', 'none', 'Material Symbols Rounded · 300', 'overlay', 'ring']);
   assert.equal(await page.locator('[data-rail] .ts-sample').count(), ROWS.length);
   for (const name of [...ROWS, ...MORE]) {
     await section(name);
@@ -37,6 +37,8 @@ studioTest('a row says what the layer holds, its sample is drawn in the layer, a
   await saved((file) => file.palettes?.primary?.source?.seed === '#0f766e', 'the seed');
   assert.equal(await value(page, 'color'), '#0F766E');
   assert.equal(await page.locator('[data-row="color"]').evaluate((el) => el.hasAttribute('data-changed')), true, 'marked as changed');
+  assert.deepEqual(await page.locator('[data-rail-rows] [data-unchanged]').evaluateAll((els) => els.filter((el) => !el.hidden).map((el) => el.closest('[data-row]').dataset.row)), ROWS.filter((row) => row !== 'color'), 'every other row says it holds what the start gives');
+  assert.equal(await page.locator('[data-row="neutral"] [data-unchanged]').textContent(), 'default');
   // The sample's color is the preview's primary, whatever the Studio's own chrome is drawn in.
   const sample = await page.locator('[data-sample-of="color"] i').evaluate((el) => getComputedStyle(el).backgroundColor);
   const primary = await scope.locator('.ts-pane').first().evaluate((el) => getComputedStyle(el).getPropertyValue('--tanrei-sys-color-primary') && getComputedStyle(el.querySelector('.ts-intent span')).backgroundColor);

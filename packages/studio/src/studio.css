@@ -1086,15 +1086,46 @@
   color: inherit;
 }
 .ts-rail-link .ts-rail-label {
-  font-size: var(--ts-text-xs);
+  font-size: var(--ts-text-sm);
+  font-weight: var(--tanrei-sys-typescale-label-font-weight);
+  color: var(--tanrei-sys-color-on-surface);
+}
+.ts-rail-link[aria-current='true'] .ts-rail-label {
   color: inherit;
 }
-.ts-rail-value {
+/* What the row holds, and after it whether that is what the start gives. */
+.ts-rail-line {
   grid-column: 1;
+  display: flex;
+  align-items: baseline;
+  gap: var(--tanrei-sys-space-space75);
+  min-inline-size: 0;
+}
+.ts-rail-value {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
   font-weight: 500;
+}
+.ts-rail-default {
+  flex: none;
+  font-size: var(--ts-text-2xs);
+  color: var(--tanrei-sys-color-on-surface-variant);
+}
+.ts-rail-row[aria-current='true'] .ts-rail-default {
+  color: inherit;
+}
+/* The rest of what a layer holds: a name, and a line under it that says what is there. */
+.ts-rail-link-text {
+  display: grid;
+  min-inline-size: 0;
+}
+.ts-rail-help {
+  font-size: var(--ts-text-2xs);
+  color: var(--tanrei-sys-color-on-surface-variant);
+}
+.ts-rail-link[aria-current='true'] .ts-rail-help {
+  color: inherit;
 }
 /* The sample: drawn by the preview's sheet (it carries the preview's system id), a box of its own beside the words. */
 .ts-sample {
@@ -1168,7 +1199,12 @@
     border: var(--ts-hairline);
   }
   .ts-rail-link {
+    block-size: 100%;
     border: var(--ts-hairline);
+    white-space: nowrap;
+  }
+  .ts-rail-help {
+    display: none;
   }
 }
 
@@ -1195,7 +1231,6 @@
   align-items: center;
   justify-content: flex-end;
   gap: 0.5rem 0.75rem;
-    block-size: 100%;
   min-inline-size: 0;
 }
 .ts-file:empty {

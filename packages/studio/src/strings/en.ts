@@ -680,19 +680,23 @@ const en = {
   },
   // The rail (ui/rail.ts): the nine rows of the look, the rest of what a layer holds, the lock and the shuffle.
   rail: {
-    theme: 'The look',
+    theme: 'Theme',
     moreTitle: 'More',
     rows: { color: 'Brand color', neutral: 'Gray', typeface: 'Typeface', size: 'Size', radius: 'Corners', smoothing: 'Corner smoothing', icons: 'Icons', press: 'Press feedback', focus: 'Focus' },
     more: { base: 'Base system', dials: 'Dials', palettes: 'Palettes', components: 'Components', behavior: 'Behaviour', vocabulary: 'Your vocabulary', about: 'About this layer', a11y: 'Accessibility' },
+    moreHelp: { base: 'The system your layer is built on', dials: 'Text size, spacing, corners, strokes, motion…', palettes: 'Error, success, warning, info and accent colors', components: 'Each component’s sizes and variants', behavior: 'Link underlines, required marks, separators…', vocabulary: 'The steps, variants and tokens your layer adds', about: 'Its description, and what it is inspired by', a11y: 'Contrast pairs and the build’s warnings' },
     help: {
       neutral: 'The gray that surfaces, text and outlines take their tones from: a hue with a chroma near zero, or a seed.',
       size: 'The control height is how tall a Button, a field, a menu row, a tab or a list row is at its default size; small and large are a few size units below and above it. Nothing pressable is drawn smaller than the minimum target, which is never above the control height: it is your own value, and no dial moves it.',
       radius: 'Every corner follows this unit: each step of the corner scale is a multiple of it.',
     },
     monochrome: 'none (monochrome)',
+    unchanged: 'default',
+    neutral: 'neutral',
+    none: 'none',
     // A palette given as hue and chroma, and the size row's value: the numbers as the file has them.
     hueChroma: (hue: string, chroma: string) => `hue ${hue} · chroma ${chroma}`,
-    size: (height: string, unit: string, target: string) => `${height} · ${unit} · target ${target}`,
+    size: (height: string, target: string) => `${height} · minimum ${target}`,
     target: 'the least size of anything pressed',
     minimum: 'Minimum target',
     heights: 'Heights at this control height',

@@ -29,7 +29,7 @@ studioTest('the brand color and the size reach the file and the preview; another
   await page.keyboard.press('ArrowRight');
   await saved((layer) => layer.tokens?.['tanrei.dial.control.height']?.$value?.value === 41, 'the control height');
   await until(async () => (await css(scope, '--tanrei-dial-control-height')).trim() !== heightBefore, 'the preview’s control height follows');
-  assert.equal(await page.locator('[data-rail] [data-row="size"] .ts-rail-value').textContent(), '41px · 4px · target 36px');
+  assert.equal(await page.locator('[data-rail] [data-row="size"] .ts-rail-value').textContent(), '41px · minimum 36px');
   await until(async () => (await buttonHeight()) === 41, 'the sample Button follows the control height');
   // Under the control height, the heights it gives: the ladder's small, medium and large, read through the minimum target.
   const heights = page.locator('[data-panel="size"] [data-heights]');
@@ -46,7 +46,7 @@ studioTest('the brand color and the size reach the file and the preview; another
   await page.keyboard.press('ArrowRight');
   await saved((layer) => layer.tokens?.['tanrei.sys.target.minimum']?.$value?.value === 37, 'the minimum target');
   await until(async () => (await css(scope, '--tanrei-sys-target-minimum')).trim() !== targetBefore, 'the preview’s minimum target follows');
-  assert.equal(await page.locator('[data-rail] [data-row="size"] .ts-rail-value').textContent(), '40px · 4px · target 37px');
+  assert.equal(await page.locator('[data-rail] [data-row="size"] .ts-rail-value').textContent(), '40px · minimum 37px');
   await until(async () => (await heights.textContent()) === 'Heights at this control height: small 37px (32px, raised to the minimum target) · medium 40px · large 56px', 'the heights follow the minimum');
   // A number past the control's ends is brought within them: the file never holds a minimum the build refuses.
   for (const [typed, written] of [['60', 40], ['12', 24]]) {
