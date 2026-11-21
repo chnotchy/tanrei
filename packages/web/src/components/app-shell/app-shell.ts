@@ -57,6 +57,7 @@ const SHELL_CSS: string = (() => {
   }
 })();
 
+/** The values of each, the default first (APS-29). */
 const SCROLLS: readonly string[] = ['page', 'main'];
 const HEADER_POSITIONS: readonly string[] = ['sticky', 'static'];
 const MAIN_WIDTHS: readonly string[] = ['contained', 'full'];
@@ -871,7 +872,7 @@ export class TanreiAppShell extends TanreiLightElement {
    * this to the drawer, which is then a modal dialog over the whole window (NVD-19).
    */
   private syncInert(over = this.isConnected && !!this.header && this.over) {
-    const regions = over ? ([...this.querySelectorAll<HTMLElement>(':scope > [slot="skip-link"], :scope > main, :scope > [role="main"], :scope > [slot="aside"], :scope > [slot="footer"], :scope > [slot="navigation-bar"]')] as HTMLElement[]) : [];
+    const regions = over ? ([...this.querySelectorAll<HTMLElement>(':scope > :is([slot="skip-link"], main, [role="main"], [slot="aside"], [slot="footer"], [slot="navigation-bar"])')] as HTMLElement[]) : [];
     for (const region of [...this.inerted]) {
       if (regions.includes(region)) continue;
       region.inert = false;
@@ -907,7 +908,7 @@ export class TanreiAppShell extends TanreiLightElement {
   /** APS-6, APS-34: the menu button — the header's marked one, or the menu-button slot's in a frame without a header. */
   private get menu(): HTMLElement | null {
     if (this.header) return this.header.querySelector<HTMLElement>(MENU);
-    return this.querySelector<HTMLElement>(':scope > [slot="menu-button"]');
+    return this.region('menu-button') as HTMLElement | null;
   }
 
   /** The drawer whose `close` and `expandedchange` the frame follows: one at a time. */
@@ -938,7 +939,7 @@ export class TanreiAppShell extends TanreiLightElement {
       // in a frame without a header) takes the frame's button away — its own menu button stands for it there — and
       // focus that was on the frame's button goes to the drawer's own.
       if (beside && focused && !this.menuShown) {
-        void (drawer.updateComplete ?? Promise.resolve()).then(() => {
+        void Promise.resolve(drawer.updateComplete).then(() => {
           const own = drawer.querySelector<HTMLElement>(':scope > [slot="header-button"]');
           if (own && drawn(own)) own.focus();
           else this.main()?.focus({ preventScroll: true });
@@ -1143,7 +1144,8 @@ export class TanreiAppShell extends TanreiLightElement {
     target.focus({ preventScroll: true });
     // While the main region is the scrolling view (APS-15) its top is its own scroll position.
     if (this.scrolls === 'main' && target.parentNode === this) target.scrollTo({ top: 0, behavior: 'instant' });
-    else target.scrollIntoView({ block: 'start', inline: 'nearest', behavior: 'instant' });
+    // Its start at the top of the view, and across only as far as it must (`scrollIntoView()`'s own defaults).
+    else target.scrollIntoView({ behavior: 'instant' });
     return document.activeElement === target || target.contains(document.activeElement);
   }
 
@@ -1156,15 +1158,15 @@ export class TanreiAppShell extends TanreiLightElement {
 
   protected override updated(changed: PropertyValues) {
     // APS-29: a value the frame does not define renders with the default (no rule matches it); a debug build says so.
-    const known: [string, readonly string[], string][] = [
-      ['scrolls', SCROLLS, 'page'],
-      ['headerPosition', HEADER_POSITIONS, 'sticky'],
-      ['mainWidth', MAIN_WIDTHS, 'contained'],
-      ['asideOrder', ASIDE_ORDERS, 'after'],
+    const known: [string, readonly string[]][] = [
+      ['scrolls', SCROLLS],
+      ['headerPosition', HEADER_POSITIONS],
+      ['mainWidth', MAIN_WIDTHS],
+      ['asideOrder', ASIDE_ORDERS],
     ];
-    for (const [name, values, fallback] of known) {
+    for (const [name, values] of known) {
       const value = String((this as unknown as Record<string, unknown>)[name]);
-      if (changed.has(name) && !values.includes(value)) report(this, 'APS-29', `${name === 'scrolls' ? 'scroll' : name} "${value}" is not a value the app shell defines; it is rendered as "${fallback}"`);
+      if (changed.has(name) && !values.includes(value)) report(this, 'APS-29', `${name === 'scrolls' ? 'scroll' : name} "${value}" is not a value the app shell defines; it is rendered as "${values[0]}"`);
     }
     // APS-18: a separation the frame does not define is auto.
     if (changed.has('separation') && !(SEPARATION_VALUES as readonly string[]).includes(this.separation)) {
