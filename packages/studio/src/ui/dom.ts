@@ -36,6 +36,11 @@ export interface Ctx {
   /** Called after every update while the controls stay: refresh what you show. */
   onUpdate(refresh: () => void): void;
   announce(message: string): void;
+  /**
+   * Say that a step replaced the layer (a new start, a reset), in a snackbar with the way to undo it there — what the
+   * Studio does instead of asking first. The step is undone only while nothing was committed after it.
+   */
+  offerUndo(message: string): void;
   /** Show a section in the panel, or open Inspect (`../sections.ts`). */
   show(place: Place): void;
   /** The system id of the preview's scope: an element that carries it is drawn in the layer being edited (the rail's samples). */
@@ -80,7 +85,16 @@ export function rich(say: (at: (node: Node) => string) => string): (Node | strin
   const nodes: Node[] = [];
   // One private-use character for each element: no dictionary holds one, and no value the Studio shows does.
   const text = say((node) => String.fromCharCode(0xe000 + nodes.push(node) - 1));
-  return text.split(/([\uE000-\uF8FF])/).filter(Boolean).map((part) => nodes[part.charCodeAt(0) - 0xe000] ?? part);
+  // A sentence may name one element twice (\u201Cdepends on M3-like \u2026 when M3-like changes\u201D): a node stands in one place, so
+  // each place after the first gets a copy of it.
+  const placed = new Set<Node>();
+  return text.split(/([\uE000-\uF8FF])/).filter(Boolean).map((part) => {
+    const node = nodes[part.charCodeAt(0) - 0xe000];
+    if (!node) return part;
+    if (placed.has(node)) return node.cloneNode(true);
+    placed.add(node);
+    return node;
+  });
 }
 /** A string with one `{place}`, and the element that stands there. */
 export function placed(text: string, place: string, node: Node): (Node | string)[] {
