@@ -17,6 +17,7 @@ import { releaseClock } from '../../../test/page-clock.js';
 import { STOPPED_AFTER, flingThenHold, strokes } from '../../../test/stopped-release.js';
 import { expectOneThumb, readThumb } from '../../../test/thumb.js';
 import { expectBaseline } from '../../../test/baseline.js';
+import { contrastChecked } from '../../../test/contrast-checked.js';
 import { expectGoneWhileSkipped } from '../../../test/skipped-exit.js';
 import { expectScrimTakenAwayAtClose } from '../../../test/scrim-at-close.js';
 import { controlledElements, controlledInTree } from '../../../test/controlled-list.js';
@@ -3408,4 +3409,26 @@ test.describe('fixtures', () => {
       await expectBaseline(page, [spec.name, `${fixture.id}.png`]);
     });
   }
+});
+
+test.describe('accessibility: what is drawn over a value', () => {
+  test('DTM-20, DTM-23, DTM-24: the wheels\' controls over their middle rows and the dial\'s arm and copy over its numbers hide no value from a contrast check — a faint value is reported, nothing else is left unchecked', async ({ page }) => {
+    // An element drawn over a text is, to axe's color-contrast, an element covering it, whatever its pointer-events: it
+    // left the text incomplete ("overlapped by another element") instead of checking it, so faint text passed unseen.
+    // A modal picker locks the page's scroll (overflow: hidden on the root), and axe takes a text below the root's box
+    // for one the root hides: the page is as tall as the window here, as a page under a picker is.
+    const tall = '<style>html { min-block-size: 100vh; }</style>';
+    // Every value has two characters: axe leaves a faint text of one character unchecked on its own ("too short").
+    // The wheels: the selected values faint, each under its wheel's control (a spin button on the middle row).
+    await mountFixtures(page, spec, { lead: `${tall}<style>tanrei-date-time-picker { ${T('wheel-selected-label-color')}: #bbb; }</style>`, fixtures: [inline('w', { mode: 'time', value: '10:30', hourCycle: 'h12' })] });
+    const wheels = await contrastChecked(page);
+    expect(wheels.violations, 'the faint selected values are reported').toEqual(['10', '30', 'AM']);
+    expect(wheels.incomplete, 'nothing is left unchecked').toEqual([]);
+    // The dial of minutes: its numbers faint, under the arm (a box as large as the dial) and the copy inside the handle.
+    await mountFixtures(page, spec, { lead: `${tall}<style>tanrei-date-time-picker { ${T('dial-label-color')}: #bbb; }</style>`, fixtures: [opened('d', { mode: 'time', entryMode: 'dial', unit: 'minute', value: '10:30', hourCycle: 'h12' })] });
+    const dial = await contrastChecked(page);
+    expect(dial.violations, 'the faint numbers are reported').toEqual(['00', '05', '10', '15', '20', '25', '35', '40', '45', '50', '55']);
+    // The number under the handle is drawn over by the handle; its copy, in the handle's colors, is what is checked.
+    expect(dial.incomplete, 'nothing else is left unchecked').toEqual(['30']);
+  });
 });
