@@ -1,5 +1,6 @@
 import { type CSSResult, unsafeCSS } from 'lit';
 import { BEHAVIOR, choice } from './behavior.js';
+import { drawnAsNoElement } from './no-element.js';
 
 /**
  * Names the element that draws the indicator, given a focus condition: `(focus) => \`button${focus}\`` for a control
@@ -147,6 +148,15 @@ const heldGlow = (selector: string, within: string, color = SYSTEM_COLOR) => `
       0 0 var(--tanrei-sys-focus-inner-width) var(--tanrei-sys-focus-inner-width) var(--tanrei-sys-color-focus-ring-inner),
       0 0 var(--tanrei-sys-focus-outer-width) calc(var(--tanrei-sys-focus-inner-width) + var(--tanrei-sys-focus-outer-width)) ${color};
   }`;
+
+/**
+ * A box the component adds only to carry the indicator over its content — over a text that scrolls
+ * (`(focus) => \`.scroll${focus} ~ .focus\``), or above what a tab draws (its `.ring`): drawn as no element
+ * (`drawnAsNoElement()`), so that the text it lies over is still checked for contrast. `focusRing()` gives the box the
+ * outline, which its `::before` draws, and the `::after` (the inner stroke, the glow), which stays drawn. Write it
+ * beside `focusRing()` for the same box, with the box's plain selector; the box leaves its `::before` to it too.
+ */
+export const focusRingBox = (selector: string): CSSResult => drawnAsNoElement(selector, ['outline', 'outline-offset']);
 
 // The ring held within `within` of room: `--_focus-pull` is what the ring's reach (the offset and both strokes) lacks
 // of the room, and every edge is drawn that much further in.
