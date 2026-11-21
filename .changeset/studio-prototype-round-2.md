@@ -18,3 +18,9 @@
   named by its style beside its weight ("Rounded · 300"), and the brand color's "none" is shorter in Japanese.
 - **The Size and Corners panels name each number by what it does**: the token ids under the names (`dial.control.height`,
   `sys.target.minimum`…) are gone from the panels the rail's rows open, and stay in Dials, Inspect and Export.
+- **On a phone the bar is one line**: undo and redo, Inspect, Share and Export show their glyphs alone, named by
+  their labels, and the start point the start's name; reset, the shuffle and the checks' count are left out there (the
+  checks are Export's first line, and the rail's Accessibility). Every control of the bar that shows a glyph alone has
+  a tooltip. The documentation's Studio page puts its link to the page about the tool beside the tool's name, as a
+  glyph, and on a phone shows its brand as the mark. The preview no longer grows wider than a phone's window when the
+  screens' tabs do not fit it.

@@ -76,6 +76,28 @@ export function h<K extends keyof HTMLElementTagNameMap>(tag: K, attrs: Json = {
 }
 
 /**
+ * A Tanrei tooltip over a control of the bar. `named`: it shows the control's own name — a control that draws a glyph
+ * alone, or whose word a phone hides (`barWord`) — and adds nothing for a screen reader, which reads the name already;
+ * otherwise it says what the control does, as its description. (Its `text` is the tooltip's property: `h` would write
+ * it as the element's content.)
+ */
+export const tip = (anchor: HTMLElement, text: string, named = false, attrs: Json = {}) => Object.assign(h('tanrei-tooltip', { 'no-describe': named, ...attrs }, anchor), { text });
+/** A control's word in the bar, beside its glyph: drawn in a wider window than a phone's (`wordBesideGlyph`). */
+export const barWord = (text: string) => h('span', { class: 'ts-bar-word', text });
+/**
+ * On a phone the bar is one line: a control of it that says a word beside its glyph shows its glyph alone there, as
+ * an icon button does — named by its label, which holds the word, and shown its name by its tooltip — and the word
+ * again in a wider window. Returns how to stop following the window.
+ */
+export function wordBesideGlyph(button: HTMLElement, word: HTMLElement) {
+  const phone = window.matchMedia('(max-width: 40rem)');
+  const fit = () => (phone.matches ? word.remove() : word.parentNode !== button && button.append(word));
+  fit();
+  phone.addEventListener('change', fit);
+  return () => phone.removeEventListener('change', fit);
+}
+
+/**
  * A sentence of the dictionary with elements standing in it. The dictionary's sentences are functions of strings, so
  * that each language orders its own words; `say` is given `at`, which takes an element and hands back a mark to
  * pass as that string, and the sentence comes back as the text and the elements in the order the language put them:

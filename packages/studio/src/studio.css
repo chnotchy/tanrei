@@ -86,13 +86,40 @@
   clip-path: inset(50%);
   white-space: nowrap;
 }
-/* A phone, with the host's items at both ends: they keep the first line (the brand, a language, a theme), and undo,
-   redo and the file's state take the second. */
+/* What a control of the bar says on a phone in place of its words (the start point: the start's name alone). */
+.ts-bar-short {
+  display: none;
+}
+/* A phone: the bar is one line. Each control shows its glyph alone (Inspect, Share and Export: ui/dom.ts
+   `wordBesideGlyph`), named by its label and shown its name by its tooltip, and the start point the start's name — the
+   whole is read. What a phone has no room for is left out of the bar, as the approved design leaves it: reset and the
+   shuffle (undo and redo stay), and the checks' count (Export's first line says what the checks say, and the rail's
+   Accessibility lists it). */
 @media (max-width: 40rem) {
   .ts-bar {
-    column-gap: var(--tanrei-sys-space-space100);
+    column-gap: var(--tanrei-sys-space-space50);
     padding-inline: var(--tanrei-sys-space-space100);
   }
+  .ts-bar-long {
+    position: absolute;
+    inline-size: 1px;
+    block-size: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+  .ts-bar-short {
+    display: inline;
+  }
+  .ts-bar [data-bar-reset],
+  .ts-bar [data-bar-shuffle],
+  .ts-bar [data-a11y-count] {
+    display: none;
+  }
+}
+/* A phone, with more of the host's items than one line holds (the standalone app's brand, file, language and theme):
+   they keep the first line, and the Studio's controls take the second. */
+@media (max-width: 40rem) {
   .ts-bar-hosted::after {
     content: '';
     flex-basis: 100%;
@@ -451,6 +478,8 @@
      the viewport. */
   container: ts-preview / inline-size;
   display: grid;
+  /* One column as wide as the preview: what is wider inside (the screens' tabs on a phone) scrolls in its own box. */
+  grid-template-columns: minmax(0, 1fr);
   grid-template-rows: auto auto minmax(0, 1fr);
   overflow: hidden;
   min-inline-size: 0;

@@ -130,6 +130,15 @@ for (const engine of ENGINES) {
         const [bar, preview, rail] = await Promise.all(['[data-bar]', '.ts-preview', '[data-rail]'].map((selector) => box(page, selector)));
         assert.ok(Math.abs(preview.top - bar.bottom) <= 1 && preview.bottom <= rail.top && rail.bottom === NARROW.height, `the preview under the bar, the rail at the window’s foot: ${JSON.stringify({ bar, preview, rail })}`);
         assert.equal((await box(page, '[data-inspector]')).width, 0, 'the panel is closed until a row is chosen');
+        // The bar is one line: what it shows stands on one line, a control with a glyph alone is named and has a tooltip.
+        const bar1 = await page.evaluate(() => {
+          const shown = [...document.querySelectorAll('[data-bar] tanrei-button, [data-bar] a, [data-bar] tanrei-chip')].filter((el) => el.getClientRects().length && getComputedStyle(el).visibility !== 'hidden');
+          const middles = shown.map((el) => { const r = el.getBoundingClientRect(); return Math.round(r.top + r.height / 2); });
+          const glyphsAlone = shown.filter((el) => el.localName === 'tanrei-button' && !el.textContent.replace(/\s/g, '').replace(el.querySelector('[slot="icon"]')?.textContent ?? '', ''));
+          return { spread: Math.max(...middles) - Math.min(...middles), unnamed: glyphsAlone.filter((el) => !el.label).map((el) => el.outerHTML.slice(0, 80)), untipped: glyphsAlone.filter((el) => el.parentElement?.localName !== 'tanrei-tooltip').map((el) => el.outerHTML.slice(0, 80)), count: shown.length };
+        });
+        assert.ok(bar1.spread <= 2 && bar1.count >= 6, `the bar is one line: ${JSON.stringify(bar1)}`);
+        assert.deepEqual([bar1.unnamed, bar1.untipped], [[], []], 'a control that shows its glyph alone is named, and has a tooltip');
         assert.deepEqual(await page.locator('[data-rail] .ts-rail-lists').evaluate((el) => [getComputedStyle(el).display, getComputedStyle(el).overflowX, el.getBoundingClientRect().right <= innerWidth + 1]), ['flex', 'auto', true], 'the rail stands in one line that scrolls by itself, inside the page');
         assert.equal(await page.locator('[data-panel-handle]').evaluate((el) => el.getBoundingClientRect().width), 0, 'no handle: nothing to resize');
         // A row opens the panel: under the preview, over the rail, with the row's name and a way to close it.

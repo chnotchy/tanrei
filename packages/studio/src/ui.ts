@@ -8,7 +8,7 @@ import { createSourceDraft } from './draft.js';
 import { createHistory } from './history.js';
 import { studio } from './data';
 import { type StudioStrings, studioDirection, studioLanguage, studioStrings } from './strings';
-import { type Contrast, type Ctx, type Json, type Layer, type Place, button, fold, folds, h, isolated, ltr, panel, rename, rich, scrollingList, stateChip, views } from './ui/dom';
+import { type Contrast, type Ctx, type Json, type Layer, type Place, barWord, button, fold, folds, h, isolated, ltr, panel, rename, rich, scrollingList, stateChip, tip, views, wordBesideGlyph } from './ui/dom';
 import { sectionPanels } from './ui/panels';
 import { createExportSheet } from './ui/export';
 import { createShareMenu, type DocsTheme } from './ui/share';
@@ -223,11 +223,12 @@ export function mountStudio(root: HTMLElement, { lang = 'en', adapter, links = {
   const a11y = h('div');
   const glyph = (name: string) => h('span', { class: `${studio.tagPrefix}-icon`, slot: 'icon', 'aria-hidden': 'true', translate: 'no' }, name);
   // The shuffle: every row that is not locked, another of its values, in one step to undo.
-  const shuffleButton = h('tanrei-button', { variant: 'text', size: 'small', label: t.rail.shuffle, title: t.rail.shuffleHelp, onclick: () => shuffleRows(), 'data-shuffle': true }, glyph(SHUFFLE_GLYPH));
+  const shuffleButton = h('tanrei-button', { variant: 'text', size: 'small', label: t.rail.shuffle, onclick: () => shuffleRows(), 'data-shuffle': true }, glyph(SHUFFLE_GLYPH));
   // Inspect: over the panel, every token in its tree and the file itself. A toggle that bears the file's name — the
   // theme is that one file — and is named Inspect with it; it says whether it is open (`drawFileName`).
   const fileName = h('span', { class: 'ts-file-name', translate: 'no', 'data-file-name': true });
-  const inspectButton = h('tanrei-button', { variant: 'outlined', size: 'small', toggle: true, title: t.inspect.help, 'data-inspect': true }, glyph(INSPECT_GLYPH), fileName) as HTMLElement & { selected: boolean; label: string };
+  const inspectButton = h('tanrei-button', { variant: 'outlined', size: 'small', toggle: true, 'data-inspect': true }, glyph(INSPECT_GLYPH), fileName) as HTMLElement & { selected: boolean; label: string };
+  const inspectTip = tip(inspectButton, t.inspect.help);
   inspectButton.addEventListener('change', (event) => event.target === inspectButton && show(inspectButton.selected ? { inspect: lastInspect } : { section }));
   function drawFileName() {
     const name = adapter?.label ?? `${layer.id}.system.json`;
@@ -237,15 +238,18 @@ export function mountStudio(root: HTMLElement, { lang = 'en', adapter, links = {
   }
   // Export: the side sheet of the file, its stylesheet and what to do next (./ui/export.ts).
   const exportSheet = createExportSheet(ctx, { file: adapter?.label, linked, links, onshow: (to) => show({ section: to }) });
-  const exportButton = h('tanrei-button', { variant: 'filled', size: 'small', title: t.exporting.help, onclick: () => exportSheet.open(), 'data-export-open': true }, glyph(EXPORT_GLYPH), t.exporting.open);
+  const exportWord = barWord(t.exporting.open);
+  const exportButton = h('tanrei-button', { variant: 'filled', size: 'small', label: t.exporting.open, onclick: () => exportSheet.open(), 'data-export-open': true }, glyph(EXPORT_GLYPH), exportWord);
   // Share: the link to the Studio with this layer, and the documentation shown in it (./ui/share.ts).
   share = createShareMenu(ctx, { linked, docs: adapter ? undefined : docs, glyph });
+  // On a phone, Inspect, Share and Export show their glyphs alone (the bar is one line there).
+  const unfit = [wordBesideGlyph(inspectButton, fileName), wordBesideGlyph(exportButton, exportWord), ...(share ? [wordBesideGlyph(share.opener, share.word)] : [])];
   // Undo and redo: icon buttons that keep their place in the keyboard's order while there is nothing to do (BTN-38).
-  const historyButton = (name: string, label: string, keys: string, act: () => void, attrs: Json) => h('tanrei-button', { variant: 'text', size: 'small', label, title: label, 'aria-keyshortcuts': keys, 'focusable-when-disabled': true, disabled: true, onclick: act, ...attrs }, glyph(name));
+  const historyButton = (name: string, label: string, keys: string, act: () => void, attrs: Json) => h('tanrei-button', { variant: 'text', size: 'small', label, 'aria-keyshortcuts': keys, 'focusable-when-disabled': true, disabled: true, onclick: act, ...attrs }, glyph(name));
   const undoButton = historyButton(HISTORY_GLYPHS.undo, t.frame.undo, 'Meta+Z Control+Z', () => undo(), { 'data-undo': true });
   const redoButton = historyButton(HISTORY_GLYPHS.redo, t.frame.redo, 'Meta+Shift+Z Control+Shift+Z Control+Y', () => redo(), { 'data-redo': true });
   // Reset: the layer back to what its start gives, keeping its id; one step to undo, offered at once (`offerUndo`).
-  const resetButton = h('tanrei-button', { variant: 'text', size: 'small', label: t.frame.reset, title: t.frame.reset, 'focusable-when-disabled': true, disabled: true, onclick: () => resetLayer(), 'data-reset': true }, glyph(HISTORY_GLYPHS.reset));
+  const resetButton = h('tanrei-button', { variant: 'text', size: 'small', label: t.frame.reset, 'focusable-when-disabled': true, disabled: true, onclick: () => resetLayer(), 'data-reset': true }, glyph(HISTORY_GLYPHS.reset));
   // The start point: what the layer starts from, or a file to load in its place (./ui/start.ts).
   const startPoint = createStartPoint(ctx, { onstart: (id) => startFrom(id), onfile: (chosen) => importFile(chosen) });
   const bar = h(
@@ -253,12 +257,13 @@ export function mountStudio(root: HTMLElement, { lang = 'en', adapter, links = {
     { class: `ts-bar${hosted.end?.length ? ' ts-bar-hosted' : ''}`, 'data-bar': true },
     hosted.start?.length ? h('div', { class: 'ts-bar-host' }, hosted.start) : null,
     startPoint.el,
-    h('div', { class: 'ts-bar-history', role: 'group', 'aria-label': t.frame.history }, undoButton, redoButton, resetButton),
-    h('div', { class: 'ts-bar-tools' }, shuffleButton),
-    h('div', { class: 'ts-bar-tools ts-bar-inspect', 'data-bar-inspect': true }, inspectButton),
+    // Each control that shows a glyph alone — everywhere, or on a phone — has a tooltip: its name, or what it does.
+    h('div', { class: 'ts-bar-history', role: 'group', 'aria-label': t.frame.history }, tip(undoButton, t.frame.undo, true), tip(redoButton, t.frame.redo, true), tip(resetButton, t.frame.reset, true, { 'data-bar-reset': true })),
+    h('div', { class: 'ts-bar-tools', 'data-bar-shuffle': true }, tip(shuffleButton, t.rail.shuffleHelp)),
+    h('div', { class: 'ts-bar-tools ts-bar-inspect', 'data-bar-inspect': true }, inspectTip),
     file,
     // At the end edge, what goes out of the Studio: what the build's checks say of the layer, Share and Export.
-    h('div', { class: 'ts-bar-tools ts-bar-out', 'data-bar-out': true }, preview.badge, share?.el ?? null, exportButton),
+    h('div', { class: 'ts-bar-tools ts-bar-out', 'data-bar-out': true }, preview.badge, share?.el ?? null, tip(exportButton, t.exporting.help)),
     hosted.end?.length ? h('div', { class: 'ts-bar-host ts-bar-end' }, hosted.end) : null,
   );
   const rail = h('nav', { class: 'ts-rail', 'aria-label': t.frame.rail, 'data-rail': true }, railView.el);
@@ -440,7 +445,7 @@ export function mountStudio(root: HTMLElement, { lang = 'en', adapter, links = {
     inspectTabs.value = inspect ?? lastInspect;
     inspector.setAttribute('aria-label', inspect ? t.inspect.title : t.frame.panel);
     // (It keeps focus while it stays: it is taken out only when the draft is gone.)
-    if (draft.pending && !draftBadge.isConnected) inspectButton.before(draftBadge);
+    if (draft.pending && !draftBadge.isConnected) inspectTip.before(draftBadge);
     else if (!draft.pending) draftBadge.remove();
   }
 
@@ -929,6 +934,7 @@ export function mountStudio(root: HTMLElement, { lang = 'en', adapter, links = {
       document.removeEventListener('keydown', onKey);
       removeEventListener('hashchange', onHash);
       narrow.removeEventListener('change', placeRail);
+      for (const stop of unfit) stop();
       resized.disconnect();
     },
   };
