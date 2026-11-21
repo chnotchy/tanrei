@@ -35,7 +35,7 @@
             }
           },
           "dev.tanrei.llm": {
-            "usage": "Everything a date-time picker reads besides the Calendar, Tabs and Buttons it shows: the modal surface and its scrim, and the docked surface with its offset from the anchor; the padding and the gap between its sections; the header (the picker's label and the chosen value in large type) and its divider; which time entry modes a product offers; the time wheels (size, rows, text, the selection containers and whether they are one band); the range fields that show the two ends of a span of times; the dial mode's hour and minute selectors and separator; the period of a 12-hour time (its width, its text and its distance from the hour and the minute); the clock dial (size, face, numbers, the handle, the track and the centre); the range error line; the actions (their default Button variant, arrangement and spacing); the motion of each presentation, of the dial, of a wheel settling and of a state change; and, for each condition of a selector (unselected, selected), its container, label, outline and state-layer colors in each state.",
+            "usage": "Everything a date-time picker reads besides the Calendar, Tabs and Buttons it shows: the modal surface and its scrim, and the docked surface with its offset from the anchor; the padding and the gap between its sections; the header (the picker's label and the chosen value in large type) and its divider; which time entry modes a product offers; the time wheels (size, rows, text, the selection containers and whether they are one band); the range fields that show the two ends of a span of times; the dial mode's hour and minute selectors and separator; the period of a 12-hour time (its width, its text and its distance from the hour and the minute); the clock dial (size, face, numbers, the handle, the track and the centre); the range error line; the actions (their Button size, their default Button variant, arrangement and spacing); the motion of each presentation, of the dial, of a wheel settling and of a state change; and, for each condition of a selector (unselected, selected), its container, label, outline and state-layer colors in each state.",
             "rules": [
               "The calendar is a Tanrei Calendar, the entry-mode tabs are Tanrei Tabs of the secondary variant, Cancel and OK are Tanrei Buttons: restyle them through their own tokens. The entry-mode tabs draw glyphs alone (keyboard for the wheels, schedule for the dial).",
               "The two ends of a range are never tabs and never carry the words start and end: they are two range fields joined by an en dash, and the one being set is selected.",
@@ -651,6 +651,26 @@
                   "elevated",
                   "outlined",
                   "text"
+                ]
+              },
+              "dev.tanrei.derive": {
+                "fixed": "A choice of kind; no dial scales it."
+              }
+            }
+          },
+          "size": {
+            "$type": "number",
+            "$value": 1,
+            "$description": "The Button size of Cancel and OK (DTM-34): medium in the default system, the size a Button takes by default. The value is an index into dev.tanrei.enum.values, the core Button sizes; platforms receive the name.",
+            "$extensions": {
+              "dev.tanrei.vocabulary": {
+                "rationale": "One product chooses once how large its pickers' answers are: the size its other actions take, or a smaller one where its pickers stand in a dense view."
+              },
+              "dev.tanrei.enum": {
+                "values": [
+                  "small",
+                  "medium",
+                  "large"
                 ]
               },
               "dev.tanrei.derive": {

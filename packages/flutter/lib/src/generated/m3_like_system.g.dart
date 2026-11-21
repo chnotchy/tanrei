@@ -844,6 +844,7 @@ const TanreiSystem m3LikeSystem = TanreiSystem(
     outlineWidth: 2.0,
   ),
   bottomSheet: TanreiBottomSheetTokens(
+    closeButtonSize: 1.0,
     closeButtonVariant: 4.0,
     containerColor: TanreiPaint.role(TanreiColorRole.surfaceContainerLow),
     containerElevation: _elevationLevel1,
@@ -2268,6 +2269,7 @@ const TanreiSystem m3LikeSystem = TanreiSystem(
   callout: TanreiCalloutTokens(
     actionsGap: 12.0,
     actionsItemGap: 8.0,
+    closeButtonSize: 1.0,
     closeButtonVariant: 4.0,
     containerGap: 8.0,
     containerPaddingBlock: 12.0,
@@ -2498,6 +2500,7 @@ const TanreiSystem m3LikeSystem = TanreiSystem(
     motionScrollEasing: TanreiCubicBezier(0.05, 0.7, 0.1, 1.0),
     motionStateDuration: 150,
     motionStateEasing: TanreiCubicBezier(0.2, 0.0, 0.0, 1.0),
+    navigationButtonSize: 1.0,
     navigationButtonVariant: 2.0,
     parts: TanreiCarouselParts(
       item: TanreiCarouselPartTokens(
@@ -3593,6 +3596,7 @@ const TanreiSystem m3LikeSystem = TanreiSystem(
     actionsArrangement: 1.0,
     actionsGap: 8.0,
     actionsPaddingBlock: 12.0,
+    actionsSize: 1.0,
     actionsVariant: 4.0,
     containerGap: 16.0,
     containerPaddingBlock: 8.0,
@@ -4604,6 +4608,7 @@ const TanreiSystem m3LikeSystem = TanreiSystem(
     ),
   ),
   imagePreview: TanreiImagePreviewTokens(
+    barButtonSize: 1.0,
     barButtonVariant: 4.0,
     barContainerColor: TanreiPaint.role(TanreiColorRole.surface),
     barGap: 12.0,
@@ -4635,6 +4640,7 @@ const TanreiSystem m3LikeSystem = TanreiSystem(
     motionPageEasing: TanreiCubicBezier(0.05, 0.7, 0.1, 1.0),
     motionZoomDuration: 250,
     motionZoomEasing: TanreiCubicBezier(0.2, 0.0, 0.0, 1.0),
+    navigationButtonSize: 1.0,
     navigationButtonVariant: 1.0,
     navigationMarginInline: 8.0,
   ),
@@ -7033,6 +7039,7 @@ const TanreiSystem m3LikeSystem = TanreiSystem(
     arrowInset: 8.0,
     arrowVisible: 0.0,
     arrowWidth: 12.0,
+    closeButtonSize: 1.0,
     closeButtonVariant: 4.0,
     compactWindowWidth: 600.0,
     containerColor: TanreiPaint.role(TanreiColorRole.surfaceBright),
@@ -8080,6 +8087,7 @@ const TanreiSystem m3LikeSystem = TanreiSystem(
     actionsGap: 8.0,
     actionsPaddingBlock: 16.0,
     actionsVariant: 0.0,
+    closeButtonSize: 1.0,
     closeButtonVariant: 4.0,
     containerPaddingBlock: 24.0,
     containerPaddingInline: 24.0,
@@ -8253,6 +8261,7 @@ const TanreiSystem m3LikeSystem = TanreiSystem(
   snackbar: TanreiSnackbarTokens(
     actionTonalLayerOpacity: 0.0,
     breakpointMedium: 600.0,
+    closeButtonSize: 1.0,
     closeButtonVariant: 4.0,
     containerColor: TanreiPaint.role(TanreiColorRole.surfaceBright),
     containerElevation: _elevationLevel3,
@@ -8268,7 +8277,7 @@ const TanreiSystem m3LikeSystem = TanreiSystem(
     containerPaddingInlineStart: 16.0,
     containerShape: 4.0,
     controlsGap: 4.0,
-    controlsHeight: 32.0,
+    controlsHeight: 40.0,
     controlsLabelTypescale: _typescaleLabel,
     controlsPaddingInline: 14.0,
     controlsShape: 9999.0,

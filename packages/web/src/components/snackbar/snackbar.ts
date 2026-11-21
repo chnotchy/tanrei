@@ -4,14 +4,18 @@ import { hiddenHost } from '../../primitives/hidden.js';
 import {
   AppearController,
   AvailabilityController,
+  BUTTON_SIZES,
   BUTTON_VARIANTS,
+  type ButtonSize,
   GlyphDrawnController,
   PressController,
   SystemWatchController,
   compChoice,
+  compChoices,
   containedWheel,
   deepActive,
   focusWithin,
+  giveSize,
   giveTone,
   giveVariant,
   modalLayer,
@@ -199,6 +203,8 @@ export class TanreiSnackbar extends TanreiElement {
 
   /** SNK-16: the action on its own row. */
   private stacked = false;
+  /** SNK-34: the expand and close Buttons' size, as `comp.snackbar.close-button.size` named it at the last read. */
+  private buttonSize: ButtonSize = BUTTON_SIZES[0];
   /** SNK-23: the title or the message is longer than its collapsed limit, so the expand button is drawn. */
   private expandable = false;
   /** SNK-25: the expanded text scrolls inside the bar, so it is a focus stop. */
@@ -514,8 +520,8 @@ export class TanreiSnackbar extends TanreiElement {
   }
 
   /**
-   * SNK-34: the expand and close Buttons, given through the Button's internal channel the variant the snackbar's token
-   * names — read at each render and layout, so a system switch is seen at the next one — and the tone of the form, which
+   * SNK-34: the expand and close Buttons, given the size and, through the Button's internal channel, the variant the
+   * snackbar's tokens name — read at each render and layout, so a system switch is seen at the next one — and the tone of the form, which
    * is the same two custom properties in every form: each form's block sets them on the bar (snackbar.styles.ts), so a
    * change of form recolors the Buttons with no word to them. Read with every other host's of the turn, after the render
    * (src/primitives/read-phase.ts); asked before it (`willUpdate`), so a Button the render makes is given both before
@@ -524,9 +530,11 @@ export class TanreiSnackbar extends TanreiElement {
   private giveButtons() {
     readTogether(() => {
       if (!this.isConnected) return;
-      const variant = compChoice(this, '--tanrei-comp-snackbar-close-button-variant', BUTTON_VARIANTS);
+      const { size, variant } = compChoices(this, { size: ['--tanrei-comp-snackbar-close-button-size', BUTTON_SIZES], variant: ['--tanrei-comp-snackbar-close-button-variant', BUTTON_VARIANTS] });
       return () => {
+        this.buttonSize = size;
         for (const button of this.renderRoot?.querySelectorAll('tanrei-button.expand, tanrei-button.close') ?? []) {
+          giveSize(button, size);
           giveVariant(button, variant);
           giveTone(button, BUTTON_TONE);
         }
@@ -607,9 +615,9 @@ export class TanreiSnackbar extends TanreiElement {
     const headline = this.headline.trim();
     const form = this.form;
     const expanded = this.showsExpanded;
-    /** SNK-34: an icon-only Button of the small size, its glyph given in a box GlyphDrawnController watches (SNK-26). */
+    /** SNK-34: an icon-only Button of the size its token names, its glyph given in a box GlyphDrawnController watches (SNK-26). */
     const button = (name: 'expand' | 'close', glyph: string, label: string, onClick: () => void) =>
-      html`<tanrei-button part=${name} class=${name} size="small" label=${label} @click=${onClick}><span slot="icon" class="glyph"><span class="ink">${glyph}</span></span></tanrei-button>`;
+      html`<tanrei-button part=${name} class=${name} size=${this.buttonSize} label=${label} @click=${onClick}><span slot="icon" class="glyph"><span class="ink">${glyph}</span></span></tanrei-button>`;
     return html`
       <div
         part="container"
