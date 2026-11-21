@@ -75,7 +75,7 @@
       ],
       "axis": "tanrei.comp.segmented-button.size",
       "default": "medium",
-      "description": "Visual height (36 / 36 / 40 in the core, never drawn below sys.target.minimum), matching Button's heights so that the set can share a row with buttons. The hit area always meets the minimum target. A design system may add values."
+      "description": "Visual height (36 / 40 / 56 in the core: the steps of the control height ladder, medium at the control height, never drawn below sys.target.minimum), matching Button's heights so that the set can share a row with buttons. The hit area always meets the minimum target. A design system may add values."
     },
     {
       "name": "fullWidth",
@@ -282,6 +282,11 @@
       "id": "SEG-31",
       "text": "WHILE disabled is true THE segmented button SHALL make every segment disabled as a segment's own disabled does (SEG-3, SEG-7): it SHALL NOT select or clear any segment or emit change for any input, SHALL keep no segment in the focus order, so that Tab passes over the set, SHALL render every segment from the disabled component tokens of its condition, the selected one still shown selected, and SHALL keep the colors of the set's outline and dividers; it SHALL keep value and values, which the product may still set; and it SHALL expose the set itself (its radio group or group, SEG-20) as disabled to assistive technology, and every segment as disabled with its name, its checked or pressed state and its position. A segment SHALL be disabled WHILE the set's disabled or its own is true; WHILE the set's disabled is false THE segmented button SHALL NOT enable a segment the product disabled itself. WHEN disabled becomes false THE segmented button SHALL give the set its Tab stop again as SEG-18 and SEG-19 say, without moving focus; WHEN it becomes true while a segment has focus THE segmented button SHALL NOT move focus anywhere itself, leaving it where the platform leaves focus on a control that becomes disabled.",
       "verify": "The fixture set-disabled (single, Week selected, disabled) draws every segment from the disabled tokens of its condition, Week still selected, the outline and the dividers in their own colors. Unit, single and multiple: no pointer press, click() or dispatched click selects or clears a segment or emits change; Tab passes over the set; the radio group (single) or the group (multiple) is exposed as disabled and each segment as disabled, its checked or pressed state kept; the product's value still selects. A segment disabled by itself stays disabled when the set's disabled becomes false, and the Tab stop is then the selected segment again."
+    },
+    {
+      "id": "SEG-32",
+      "text": "WHEN the control height (dial.control.height) is N THE segmented button's default set SHALL be N tall: the set and every segment of a medium segmented button SHALL be drawn at comp.segmented-button.container.height.medium, which is sys.control.height.medium held at sys.target.minimum, a medium Button's height, and those of a small and a large one at the small and the large step, so that a set stands as tall as the Buttons of its size beside it; a segment's block padding SHALL give up half of what its height loses below the control height's reference, so that one line of its label still fits, and the hit area SHALL still meet the minimum target.",
+      "verify": "With the control height at 32, 36 and 40 and the minimum target no higher, the set of the fixture single and every segment in it are 32, 36 and 40 tall under a fine pointer, every label whole inside its segment; large is 56 at 40."
     }
   ],
   "accessibility": {

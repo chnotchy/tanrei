@@ -780,7 +780,11 @@ test.describe('states, press, target, corners and focus style', () => {
 
   test('SEG-6: each segment’s hit area reaches the minimum target above and below the set without changing its size, and each segment is at least the target wide — pointer, and touch for a coarse pointer', async ({ page, browserName }) => {
     await mountFixtures(page, spec, { icons: true });
+    // The default system's medium set is the control height (40), above its targets (36): the set is made shorter than
+    // the targets by a layer that sets them to 48, a platform guideline's.
+    await override(page, { '--tanrei-sys-target-pointer': '48px', '--tanrei-sys-target-touch': '48px' });
     const pointer = await resolveToken(page, '--tanrei-sys-target-pointer');
+    expect(pointer).toBe(48);
     const b = await bounds(btn(page, 'icon-only', 1));
     expect(b.height).toBeCloseTo(await resolveToken(page, T('container-height-medium')), 1);
     expect(b.width).toBeGreaterThanOrEqual(pointer - 0.5);

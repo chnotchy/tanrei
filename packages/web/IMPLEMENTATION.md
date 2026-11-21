@@ -346,6 +346,12 @@ container, its state layer, its ripple and its outline are a capsule of that wid
 a design system that wants its narrow buttons to differ more by size gives a size a larger inset (the presets keep the
 28 / 32 / 48 they drew).
 
+**While the icon font cannot draw (BTN-49).** Until the icon set can draw the slotted glyph, or the `open_in_new` mark of
+a link to a new context, nothing is drawn in its box — never its name, which a 1 em box would cut to `ad` or `fav` — and
+the box keeps its size (`GlyphDrawnController`: the slot's elements for the icon, the mark's own text for the mark). What
+is hidden is the slot (the slotted glyph inherits its visibility) and the mark's text, not the box, so the busy fade of
+the box (BTN-36) is left alone. Every component that draws a Button with a glyph slotted into it gets the same.
+
 **Padding (BTN-11).** Beside a label, the padding on the icon's side is its own token —
 `container.padding-inline-start-with-icon` for a leading icon, `-end-with-icon` for a trailing one — a step tighter than
 the plain padding in the default system (12 / 12 / 16 against 16 / 16 / 24); the label's side keeps the plain padding.
@@ -815,6 +821,10 @@ the icon helper; `data-mirror="never"` forbids it. The label is text of its own 
 it has a letter, so the box that cuts it has the label's direction and the ellipsis is at the label's own end in every
 engine (`unicode-bidi: plaintext` alone orders the text, but WebKit then cuts it at the layout's end and Firefox draws
 no ellipsis). A label with no letter (a number, a date) carries no `dir` and takes the layout's.
+
+**While the icon font cannot draw (TAG-22).** Until the icon set can draw the slotted glyph, nothing is drawn in its
+box — never its name — and the box keeps its size (`GlyphDrawnController` with `slotted`; the slot is hidden and the
+glyph inherits it).
 
 **Forced colors (TAG-14).** Every look gains a `CanvasText` border of `outline.width`, which the paddings give room for
 so nothing moves; the label and the glyph take `CanvasText` (the glyph without the mode's backplate, which would cover
@@ -1373,12 +1383,15 @@ A setting that takes effect at once, with a handle that follows a finger dragged
 |---|---|
 | `input`, `change` | the user switched it — by a tap, Space, or the release of a drag; `change` is `CustomEvent<{ checked: boolean }>` |
 
-A native checkbox with `role="switch"` — announced on / off, never as a checkbox. The layout box is the track
-(`track.width` × `track.height`, `track.shape`, an inset outline and the fill inside it). The handle's center runs on the
+A native checkbox with `role="switch"` — announced on / off, never as a checkbox. The layout box is as long as the track
+and, across it, as tall as the larger of `track.height` and `container.size` — the control height in the default system
+(SWT-27) — with the track (`track.width` × `track.height`, `track.shape`, an inset outline and the fill inside it)
+centered in it. The handle's center runs on the
 track's midline, half the track height from the inline-start end when off and from the inline-end end when on — the
 left in RTL (`:dir(rtl)`). The handle is a circle with its condition's color, size and elevation in each state (the
 default and m3-like grow it under a press, at once; cupertino raises it), at least `handle.size-with-icon` while it
-shows a glyph; the round container (`container.size`) is centered on the handle, moves with it, and takes no room. A
+shows a glyph; the round container (`container.size`) is centered on the handle, moves with it, and takes no room along
+the track. A
 glyph is drawn with `iconGlyph()` at `icon.size` in the family and fill of its own condition, both glyphs at
 `icon.weight` (`--tanrei-comp-switch-icon-weight`, the weight of a control's own mark: 500 in the default system, where
 the icons are 300, so the mark holds up beside its track; the glyph box stays `icon.size`, SWT-12, and the weight is the same through a drag's
@@ -1471,7 +1484,11 @@ text in a card takes the page's, so set it with the text utilities (`.tanrei-tex
 for a title — CRD-13's "plain text takes `sys.typescale.body`" is for platforms that must style a bare string; the
 web's baselines stage their text in `.tanrei-text-body`). The outline of the outlined variant is a layer above the
 content (`::part(outline)`), so media that bleeds to the edges, even one that stacks itself with `z-index`, never covers
-it. The card has no height of its own.
+it. The part holds the edge's values and runs its transition but is `visibility: hidden`; its `::before` inherits them
+and draws the edge, at the same place in the paint order. An element painted over the content is, to a contrast checker
+(axe's `color-contrast`), an element covering the text: it left every text in a card incomplete ("overlapped by another
+element") instead of checking it, so faint text in a card was never reported. A pseudo-element is not seen as one. In
+forced colors the part draws its system-color border itself. The card has no height of its own.
 
 **Semantics.** Not interactive: no role and no focus handling at all — the content keeps its own semantics and its own
 tab stops — or `role="group"` named by `label`. Interactive: a shadow `<div role="button" tabindex="0">` around the slot
@@ -4385,6 +4402,10 @@ rests at level3, rises to level4 under hover, keeps level3 under focus and press
 the elevation and the opacity change over `comp.main-action-button.motion.state-duration.<size>` with `motion.state-easing`, at
 once under reduced motion.
 
+**While the icon font cannot draw (MAB-26).** Until the icon set can draw the slotted glyph, nothing is drawn in its
+box — never its name — and the box keeps its size, extended or collapsed (`GlyphDrawnController` with `slotted`; the
+slot is hidden and the glyph inherits it).
+
 **Everything else is Button's**: a native `<button>` named by its content, the state precedence, the minimum target (the
 small one is below `sys.target.pointer`; also in RTL), press-hold, the four `pressed-feedback` answers (under ripple and
 dim the label, icon, elevation and opacity take their pressed tokens, the container keeps the state under the press),
@@ -4569,6 +4590,11 @@ fill of the chip's selection (selected only on a filter chip that is on); the re
 that wants other marks chooses another icon set. The avatar (`avatar` slot, input chips only — elsewhere ignored and
 reported, CHP-15) is clipped to `avatar.shape` at `avatar.size.<size>`, hidden from assistive technology, and drawn at
 `sys.state.disabled-content-opacity` when disabled.
+
+**While the icon font cannot draw (CHP-41).** Until the icon set can draw a glyph — the slotted icon, the check, the
+remove glyph, the new-tab mark — nothing is drawn in its box, never its name, and the box keeps its size
+(`GlyphDrawnController`: the slot's elements for the icon, each glyph's own text, an inline block, for the others).
+What is hidden is the slot or the text, not the box, so the check's selection fade is left alone.
 
 **The remove action (CHP-18, CHP-20, CHP-21, CHP-27, CHP-28).** The `cancel` glyph centered on a round container of
 `remove.container.size` at the inline end; not a Tab stop (above). The container is larger than the glyph (the state layer shows as a ring
@@ -6095,7 +6121,7 @@ are announced. It never takes or moves focus, except to give
 it back: closed while focus is inside it, focus returns to the element that had it before it entered the callout, or
 the focused element is blurred where that one is gone (CLO-12).
 
-**The close button (CLO-10, CLO-11)** is a `<tanrei-button size="small">` with the `close` glyph in its `icon` slot,
+**The close button (CLO-10, CLO-11)** is a `<tanrei-button>` of the size `--tanrei-comp-callout-close-button-size` names (small in the default system; written as its `size` attribute at each update, `giveSize()`) with the `close` glyph in its `icon` slot,
 in the shadow root (part `close-button`). After each update the callout gives it, through the Button's internal channel,
 the variant `--tanrei-comp-callout-close-button-variant` names (`giveVariant()`) and, in every look but `outlined`, the
 tone of its form (`giveTone()`, BTN-45): `var(--tanrei-comp-callout-[<status>-]body-color-<variant>)`, so that the Button
@@ -6371,13 +6397,13 @@ the controls and an action on its own row. While it scrolls, the text is a tab s
 the browser scrolls it by the arrow keys, Page Up and Page Down), a `role="group"` named by the title when there is one.
 
 **The action (SNK-2…7).** A native `<button>` in the shadow root: its label (`controls.label.typescale`,
-`controls.padding-inline`, at least `controls.height` — a small Button's height, so that it is as tall as the Buttons beside
+`controls.padding-inline`, at least `controls.height` — the height of the Buttons beside it (`close-button.size`), so that it is as tall as the Buttons beside
 it — a tonal pill on `action.container.color`), on `controls.shape` corners and from its own tokens per state (`action-*`).
 Everything else is Button's: the state precedence, press-hold, the four `pressed-feedback` answers, ring or glow around the
 control, corner smoothing (the action is a pill, which no smoothing eases), the minimum target as `::before`. It is centred
 on the text's first line by its height or, under enlarged text, its label's line, whichever is taller.
 
-**The expand and close buttons (SNK-34).** `<tanrei-button size="small">` elements in the shadow root, each holding its glyph
+**The expand and close buttons (SNK-34).** `<tanrei-button>` elements in the shadow root, of the size `--tanrei-comp-snackbar-close-button-size` names (written as their `size` attribute, `giveSize()`, with the variant read), each holding its glyph
 in a `.glyph` box in the icon slot. The snackbar gives them, through the Button's internal channel, the variant
 `--tanrei-comp-snackbar-close-button-variant` names (read with `compChoice()` at each layout, so a system switch is seen at
 the next one) and one tone, `{ color: 'var(--_button-tone)', focus: 'var(--_button-tone-focus)' }`: each form's block sets
@@ -6678,8 +6704,9 @@ does not change the picker's width. With `layout="horizontal"` and mode `time` t
 time display is the start column and the dial the end column, each centred on the other; the wheels mode has one row
 below the range display and is drawn as the vertical layout is, in the width the dial mode's two columns take. The
 picker's only tabs are the entry-mode tabs, `<tanrei-tabs variant="secondary">`: two icon-only tabs that hug
-(`icon="keyboard"` named `wheels-label` first, `icon="schedule"` named `dial-label`; `label-hidden`). Cancel and OK are `<tanrei-button
-size="medium">`s in the variant `comp.date-time-picker.actions.variant` names, placed as a full-width Button group
+(`icon="keyboard"` named `wheels-label` first, `icon="schedule"` named `dial-label`; `label-hidden`). Cancel and OK are `<tanrei-button>`s
+of the size `comp.date-time-picker.actions.size` names (medium in the default system), in the variant
+`comp.date-time-picker.actions.variant` names, placed as a full-width Button group
 places a dismissive and a confirming item (`ActionPlacement`): a row they share (`fill`) or at their own widths at the
 end (`end`), a column with OK on top when a label does not fit. On a short window the body scrolls between the header and
 the actions, and everything scrolls when they would leave it less than a wheel row. Right to left mirrors the title row,
@@ -6846,6 +6873,11 @@ root's overflow has changed, Chromium's root `clientWidth` still leaves out a ba
 `--enable-features=OverlayScrollbar` for the branch where the window widens; Firefox headed on Linux under `Xvfb` with
 GTK's overlay bars off (headless Firefox draws none); a window resized while the scroll is held, both ways, in each.
 
+**While the icon font cannot draw (DLG-30).** Until the icon set can draw the slotted glyph, nothing is drawn in its
+box — never its name — and the box keeps its size, so the headline does not move (`GlyphDrawnController` with
+`slotted`; the slot is hidden and the glyph inherits it). A dialog opened while the font is missing is read as it
+opens.
+
 **Layout (DLG-7…12, DLG-16).** Centred in the window (above the on-screen keyboard, measured from `visualViewport`), at
 least `container.margin` from every edge and the safe area, as wide as its content between `container.min-width` and
 `container.max-width`, on `container.color` with its elevation and corners (eased by the smoothing). Its parts are inset
@@ -6932,7 +6964,7 @@ inert (then `visibility: hidden`); a drag below its lowest height asks to close.
 
 **The header (BSH-28…30).** While `headline` is not empty or `closable`, a row at least `header.height` high below the
 handle's row (or at the top without one): the headline (`headline.typescale`, `headline.color`, an `<h2>`, wrapping) from
-`container.padding`, and the close button — an icon-only `<tanrei-button>` of the small size showing the `close` glyph,
+`container.padding`, and the close button — an icon-only `<tanrei-button>` of the size `close-button.size` names (`giveSize()`) showing the `close` glyph,
 given `close-button.variant` through the Button's channel (`giveVariant()`, at every update) and otherwise never
 restyled — `header.gap` after it and `header.padding-inline-end` from the end edge; then a `divider.width` hairline in
 `divider.color` across the full width, always or only while the content is scrolled from its top (`divider-visibility`,
@@ -7250,8 +7282,8 @@ start corners `container.shape` (eased by the smoothing) and its end corners squ
 `outline.width` of its variant's `outline.color` (following the corners); its color reaches under
 `env(safe-area-inset-*)` at the end, top and bottom, and its parts stay inside them. The header is a row at least
 `header.height` high: the headline (`headline.typescale`, `headline.color`, an `<h2>`, wrapping and growing the row)
-from `container.padding-inline`, and the close button — an icon-only `<tanrei-button>` of the small size showing the
-`close` glyph, placed and otherwise never restyled, drawn unless `closable` is false (the `not-closable` attribute) —
+from `container.padding-inline`, and the close button — an icon-only `<tanrei-button>` of the size `close-button.size`
+names (small in the default system, medium under m3-like) showing the `close` glyph, placed and otherwise never restyled, drawn unless `closable` is false (the `not-closable` attribute) —
 `header.gap` after it and `header.padding-inline-end` from the end
 edge. The close button carries no `variant` attribute: the sheet gives it the variant `close-button.variant` names (tonal
 in the default system, text under m3-like) through the Button's internal group-item channel (`GROUP_ITEM`, BTN-10), and
@@ -7570,9 +7602,10 @@ the site's hand (`specs/navigation-drawer.spec.json`).
 | `variant` | `standard` \| `modal` (or a value the system adds) | `standard` | standard: beside the content, in the layout; modal: over it, with a scrim. Unknown: drawn from standard's tokens and presented as standard, reported (NVD-26); reflected |
 | `open` | boolean | `false` | standard: whether it takes its place; modal: whether it is presented (a collapsible modal drawer: whether it is widened over the content). A modal drawer sets it to false itself when it closes; reflected |
 | `collapsible` | boolean | `false` | gives it the collapsed form; reflected |
-| `expanded` | boolean | `true` | the form of a collapsible standard drawer (`expanded="false"` collapses it; absence is true); for a responsive drawer that is not collapsible, whether its standard presentation is shown or hidden (NVD-53); otherwise ignored while not collapsible, and by a modal drawer, whose form follows `open`; reflected. The menu button (its own, or an app shell's) sets it |
+| `expanded` | boolean | `true` | the form of a collapsible standard drawer (`expanded="false"` collapses it; absence is true); ignored while not collapsible, and by a modal drawer, whose form follows `open`; reflected. Its own menu button (or an app shell's, where the drawer is a column) and its resize handle set it |
 | `collapsedLabels` / `collapsed-labels` | `never` \| `selected` \| `always` | `never` | which cells draw their short label under the icon while collapsed (anything else is `never`). The default draws none: a collapsed cell shows its name in a tooltip instead (NVD-56). `always` is for a product or a system whose column is labelled — a product on m3-like sets it; reflected |
 | `responsive` | boolean | `false` | lets the window's width choose the presentation (NVD-53): `variant` is then ignored; reflected |
+| `standardHidden` / `standard-hidden` | boolean | `false` | while `responsive`: a person put the drawer away beside the content — an app shell's menu button hid it there (NVD-106). With `open` false the standard presentation then takes no width and nothing of it is exposed; the narrower presentations follow `open`. No change of width writes it; reflected |
 | `presentation` | `standard` \| `column` \| `modal` \| `null`, read-only | | what a responsive drawer is at the window's width (`null` while not responsive), reflected as the `presentation` attribute for styling. Derived from the width alone; never written to `variant`, `open` or `expanded` |
 | `collapsed` | boolean, read-only | | the form it is in (NVD-30), reflected as the `collapsed` attribute for styling |
 | `value` | string | `""` | the selected destination's value, in a section, in a group or neither (the first in reading order, NVD-29; one naming none is reported, NVD-3). The selected destination is the place being shown: the one `aria-current="page"`. The drawer sets it when a button destination is activated and never for a link — a page sets it to its own destination (NVD-23, NVD-60) |
@@ -7608,6 +7641,7 @@ the site's hand (`specs/navigation-drawer.spec.json`).
 | `change` / `reselect` (drawer) | a button destination: as the bar's (`value` is already set). A link: `CustomEvent<{ value, href }>`, **cancelable**, fired from the anchor's click before the browser follows it, and only for a plain activation — the primary button, no modifier key, a click not already cancelled, `target` `same`, no `download`; `value` is not written; `preventDefault()` stops the navigation (a router then goes to `detail.href`). A modal drawer closes after either (NVD-21); a link opened somewhere else fires nothing and leaves it open (NVD-60) |
 | `close` (drawer) | a modal drawer closed: the scrim, Escape, back (the native `cancel`), a drag toward its start edge past half its width or a fling (0.5 px/ms, after an 8 px slop), its menu button or an app shell's, or a destination; a change of a responsive drawer's presentation fires none. `open` is already false. A standard drawer never fires it |
 | `expandedchange` (drawer) | `CustomEvent<{ expanded }>`, bubbling: the user asked a collapsible drawer for its other form — its menu button, or a group's cell while collapsed (`true`). The drawer has already set `expanded` (a modal one: `open`) |
+| `standardhiddenchange` (drawer) | `CustomEvent<{ standardHidden }>`, bubbling: an app shell's menu button hid a responsive drawer's standard presentation (`true`, `open` false) or showed it again (`false`, `open` true), NVD-106. Not fired when the product sets `standardHidden`, nor by a change of width |
 | `presentationchange` (drawer) | `CustomEvent<{ presentation }>`, bubbling: a responsive drawer decided its presentation for the first time, or the window's width changed it. A product shows its own menu button while it is `modal` |
 | `toggle` (group) | `CustomEvent<{ open }>`, bubbling: the user opened or closed the group — its row, the arrow keys, or its cell while collapsed — or the drawer opened it to show the selection (`reveal-selected`). `open` is already set |
 
@@ -7750,7 +7784,7 @@ it is; focus on what the collapsed form does not draw (the header slot, an item 
 **Responsive (NVD-53…55).** With `responsive` the element reads its system's `breakpoint.expanded` and
 `breakpoint.collapsed` from its computed style (the generated CSS carries them in rem: 1024 and 600 px at the default
 text size) and listens to both with `matchMedia`; without it it reads no width. At least the first: `standard` — a
-standard drawer, shown whatever `open` says, collapsible in the form `expanded` chooses. At least the second, while
+standard drawer, collapsible in the form `expanded` chooses, shown while `open` is true or `standardHidden` is false. At least the second, while
 `collapsible`: `column` — a collapsible modal drawer, its column in the layout, widening over the content while `open`.
 Otherwise: `modal` — a modal drawer that is not collapsible. `variant` is ignored; each presentation draws and behaves as
 the drawer it stands for. The styles read what the drawer is drawn as from state attributes the element writes
@@ -7759,13 +7793,19 @@ decided as the element connects, before its first render, so the first frame is 
 without `close`; before the element is upgraded (markup from a server, the React wrapper included) there is no shadow
 root, so no dialog is open and nothing is inert. When the width changes the presentation it is drawn at once (the host
 carries `data-instant` for two frames: the open, close and form motions take no time, and what was on its way stops), it
-keeps `open` and fires no `close` (an open overlay comes down while the drawer stands beside the content, and is over the
-content again, open, its scrim drawn at once, when the width takes it back there), `expanded`, `value` and every
-group's `open` are kept, and `presentationchange` fires once. Focus that was in the drawer stays on what the new
+keeps `open` and `standardHidden` and fires no `close` (an open overlay comes down while the drawer stands beside the
+content, and is over the content again, open, its scrim drawn at once, when the width takes it back there; one hidden
+beside the content is closed in a narrower presentation and hidden again when the width brings it back), `expanded`,
+`value` and every group's `open` are kept, and `presentationchange` fires once. Focus that was in the drawer stays on what the new
 presentation still shows, moves to the menu button from what it does not, and is left to the platform where the drawer
 shows nothing. In the `modal` presentation the drawer's own menu button closes the open overlay and otherwise does
-nothing: the product opens it from a menu button of its own. The element stores nothing: a product that wants the
-user's choice of form remembered keeps what `expandedchange` carries and sets `expanded` from it.
+nothing: the product opens it from a menu button of its own. An app shell's menu button hides the standard
+presentation and shows it again (`menuFromShell`, NVD-106): hidden, `standardHidden` is true and `open` false, and the
+drawer closes as a standard drawer does — sliding out over `motion.exit-*` while the content beside it takes its room,
+in either form; shown, `standardHidden` is false and `open` true, and it slides in over `motion.enter-*`
+(`data-sliding`). `standardhiddenchange` fires where `standardHidden` changed; focus that was in the drawer goes to the
+menu button, and focus elsewhere stays. The element stores nothing: a product that wants the user's choices remembered
+keeps what `expandedchange` and `standardhiddenchange` carry and sets `expanded` and `standardHidden` from them.
 
 **Standard (NVD-18, NVD-28).** A `<nav>` named by `label` in the shadow root. While `open` the host is its form's width
 (plus the start inset) and the full height of its parent; closed, it is 0 wide and `visibility: hidden`. Opening slides
@@ -8690,6 +8730,11 @@ its dividers between groups as it does anywhere. With no item in the menu slot t
 draws its open form while `open`, no menu is presented (`aria-expanded` stays false), and a debug build reports the empty
 slot once the children have settled, and again each time it becomes empty (never on every render).
 
+**While the icon font cannot draw (SPB-41).** Until the icon set can draw a glyph — the slotted icon, `expand_more`,
+a chevron slot's glyph — nothing is drawn in its box, never its name, and the box keeps its size
+(`GlyphDrawnController` with `slotted`: `expand_more` is the chevron slot's fallback element, read as a slotted glyph
+is; the slot is hidden and the glyph inherits it).
+
 **Semantics (SPB-17).** Two buttons in reading order, two Tab stops, and no element of their own around them: the host
 and the row have no role. The icon and the chevron are `aria-hidden`. `element.focus()` focuses the leading half
 (`delegatesFocus`). In a toolbar each half is a stop of the toolbar's arrow keys (TBR-25): the toolbar tells the button
@@ -8797,6 +8842,18 @@ element's first style must already follow (the drawer's presentation, NVD-55). `
 counts the passes forced by mounting one and ten of each such element. `src/primitives/passes.test.ts` counts the style passes and layouts of fifty instances appended
 at once, with the engine's own counters: the count is a small constant, and a component that measures gets a line there.
 
+**Write nothing in a resize observer's report.** A frame reports a box that changed size in an observer's callback
+only if it lies deeper than every box reported before it in that frame. A write that changes the size of a box
+already reported, or of one above it, leaves that box undelivered. The browser then raises "ResizeObserver loop
+completed with undelivered notifications" wherever nothing above the element changes size, as in a box of fixed size.
+Prefer a layout the browser keeps by itself: a text area sized by its text (`field-sizing: content`, the text input's
+auto height), a row that wraps by itself (`flex-wrap`, the number input's steppers). Where something must still be
+written, the report only asks the read phase (`readInPhase()`), whose observer watches the root element, so its writes
+are reported in the same frame. The frame after the change then draws what was there before: say which part in the
+code. Ask the read phase as well when the element first observes, so the first frame painted is already right (the
+number input's wrapping, `FloatingLabelController`, the text input's label). The tests put the element in a box of
+fixed size, change its width and expect no error (NMI-36, TXI-37).
+
 Every interactive component composes the same pieces from `src/primitives/` (and `src/styles/shape.ts`), each with its
 own selectors and its own `--tanrei-comp-<name>-*` tokens — nothing in them knows which component uses them:
 
@@ -8808,7 +8865,7 @@ own selectors and its own `--tanrei-comp-<name>-*` tokens — nothing in them kn
 | `focusRing(on)` + `syncFocusStyle()` | the ring (`outline` + `::after`), or the glow under `focus-style: glow`, never animated | `on(focus)` → the indicator's selector |
 | `focusGlow(on)` | the glow alone, for a control whose own edge is its focus indicator (a text field): no ring, the halo under `focus-style: glow` | `on(focus)` → the indicator's selector under the control's own focus condition |
 | `hiddenHost` (`hidden.ts`) | the host with the `hidden` attribute has no box: a host that names its `display` beats the browser's own rule for the attribute, so every element composes this one rule, last — `static override styles = [styles, hiddenHost]` (`src/hidden.test.ts` asks every tag of the manifest) | nothing |
-| `minimumTarget(selector)` | the centered `::before` hit area (`sys.target.pointer` / `touch`), mirrored in RTL | the selector |
+| `minimumTarget(selector)` | the centered `::before` hit area (`sys.target.pointer` / `touch`), laid out by its insets — each `(100% - size) / 2`, never an inset of 50% and a translation, which the layout does not round to its unit as it does an inset, so a control an odd number of units high had its hit area a unit off centre — and so the same in either direction | the selector; a component that sizes its hit area otherwise sets `--_hit-inline-size` / `--_hit-block-size` on the same `::before` (reading the target as `--_target`), never `inline-size` / `block-size` |
 | `neighbourTarget(selector)` (`target.ts`) | in place of `minimumTarget()`: an element that may stand beside others (a Button, a button with menu's half, pagination's item, a snackbar's action) whose hit area reaches the target on both axes except toward a neighbour, where it stops at the cap | `TARGET_CAPS` (`--tanrei-target-cap-start` / `-end` / `-top` / `-bottom`), inherited: set by the element's own component for its own row (`inherit` where it has no neighbour), else by whatever lays it out, else by the product on its own container of the row — public under these names (BTN-5), so renaming one is a change to the Button spec |
 | `rowTargets(items, gap)` (`target.ts`) | the caps of a row's items: half the gap toward each neighbour, on both sides of every item (at the row's ends less than the room there) | the items' selector (`::slotted(…)` for the product's) and the row's gap token |
 | `shape`, `cornerRadius(token)` | the one corner rule and a pill's round caps | `data-tanrei-shape` on the box, `cornerRadius()` per state shape token |
@@ -8821,7 +8878,7 @@ own selectors and its own `--tanrei-comp-<name>-*` tokens — nothing in them kn
 | `hostAria(host, attributes)` | semantics a non-interactive component carries on its host (divider, progress, loading), written only when they change | the attributes, `null` to remove |
 | `GlyphMirrorController` (`glyph-mirror.ts`) | `data-tanrei-mirrored` on each glyph whose name the active icon set mirrors in right-to-left, or whose `data-mirror` says `always` (never with `never`): after each render, on `slotchange`, when a slotted glyph's text or `data-mirror` changes, when the root switches the system. `iconGlyph()` draws the mark under `:dir(rtl)`; the component mirrors nothing itself (BTN-19) | `drawn`: a selector for the `iconGlyph()` boxes whose name the component writes; `slots`: a selector for the slots that take the product's glyph (each inside an `iconGlyph()` box) |
 | `MirrorWordController` (`glyph-mirror.ts`) | the product's `data-mirror` on the element that names a glyph the component draws from a name (a tab's `icon`): `word` is what the component writes as `data-mirror` on each box that draws such a glyph, and the host renders again when the word changes, so the mark and `iconGlyph()` decide as for any glyph and a change of direction is drawn by CSS at once. The class of the element that names the glyph hears the attribute (`hearsMirrorWord(Class)`, before it is defined): an observed attribute, not an observer per element | the host; `namedBy`, the element that names the glyph where it is not the host (a menu item's group) |
-| `GlyphDrawnController` (`glyph.ts`) | `data-drawn` on each glyph box while the icon set can draw its ligature (its text is at most `DRAWN_WIDTH` × the box), re-read when the text's width changes (the font arrives, a system switch) and after each render; running transitions end when a glyph becomes drawable (CHK-19) | the glyph boxes (styled by `iconGlyph()`, each holding one inline-block text element); hide a glyph box without `data-drawn` |
+| `GlyphDrawnController` (`glyph.ts`) | `data-drawn` on each glyph box while the icon set can draw its ligature (its text is at most `DRAWN_WIDTH` × the box), re-read when the text's width changes (the font arrives, a system switch) and after each render; running transitions end when a glyph becomes drawable (CHK-19). With `slotted`, a box holds the slot the product's glyph goes in (BTN-49): not drawn while the slot holds nothing, drawn while it holds only images, SVGs or elements with no text, and, while it holds a name, drawn while `check`, set out of sight in the box's font, is one glyph (at most `DRAWN_WIDTH` × the box; a short name spelled out, `add`, can be narrower). Nothing of the layout is read for it: the observer reports the widths of the box and of that hidden name after the frame's own layout (when the font arrives, a system switches, a face's load ends), and a render or a `slotchange` is decided from the widths last reported, so a page of a hundred Buttons reads none of their layout | the glyph boxes (styled by `iconGlyph()`, each holding one inline-block text element, or with `slotted` a slot); hide a glyph box without `data-drawn`, or with `slotted` its slot (the slotted glyph inherits the slot's visibility) |
 | `VisibilityController` | `visible`: false while the host is scrolled out of view or hidden, so a running animation pauses | render `animation-play-state: paused` while it is false |
 | `FacesWatch` (`faces.ts`) | what measures text measures it again when a face's load ends (`loadingdone`, `loadingerror`) and, after a measurement taken while `document.fonts.status` was `loading`, when `document.fonts.ready` resolves — WebKit on Linux fires no `loadingdone` for a face already loading when the listener was added, so an event alone left a fallback face's width in place. One subscription to the page's fonts for every watcher, none once no watcher is connected; `src/primitives/faces.test.ts` plays the race in every engine | `connect()` / `disconnect()` with the host, the function that measures again, and `measured()` after each read of the text's layout (the layout that read forced is the one a face starts loading in) |
 | `placeAnchored()`, `anchorGone()`, `numericAttribute` / `crossOffsetAttribute` / `choiceAttribute`, `visibleViewport()` / `viewportKey()`, `surfaceCap()`, `placeMenu()` / `placeAtPoint()` / `placeSubmenu()` (`placement.ts`) | where a surface that opens beside a control goes, as numbers: the thirteen placements, the offsets, flipping, shifting, holding, the side kept, the arrow's point, `fits` and `room` for a surface that can be limited (TIP-9, TIP-22…25, POP-2…5); whether an anchor is removed, hidden or out of sight; the attributes of `offset`, `cross-offset` and a true / false / unset choice; the visible part of the window, above the on-screen keyboard (the visual viewport within the layout one); a product's `max-block-size` on a placed surface, in pixels; where a menu's kind of surface goes — below or above its anchor, at a point, beside its parent surface (MNU-2, MNU-46, MNU-47, MNU-61, DTM-2, SRC-7) | the boxes, the placement, what an unknown one falls back to, `auto`'s order and alignment |
@@ -9743,9 +9800,9 @@ A region you leave out takes no space and adds no landmark.
 `<tanrei-button slot="menu-button" variant="text" label="Menu"><span slot="icon">menu</span></tanrei-button>`. It is
 shown only where the navigation has no place in the layout — as `menu-button-placement="drawer"` shows the header's,
 whatever that attribute says: in the column and beside the content the drawer runs from the top of the frame and its
-own first header button stands for it. A responsive drawer with no collapsed form, which `expanded` shows and hides
-beside the content, has no menu button of its own, so the frame's is shown there too, whether the drawer is shown or
-hidden: the button that shows it stays in its place, with focus, to hide it again, and the drawer stands below it.
+own first header button stands for it. A responsive drawer with no collapsed form has no menu button of its own, and
+one hidden beside the content (`standard-hidden`) shows none, so the frame's is shown there too: the button that shows
+it stays in its place, with focus, to hide it again, and the drawer stands below it.
 Shown, it stands alone at the top start corner, the class's gutter from the top (inside the top inset) and from the
 start edge, with no band, fill or edge around it, and the navigation, the main region and the aside begin below it
 (the rows after the header's); it is `position: sticky` at the same distance, so it stays there while the page scrolls
@@ -9762,14 +9819,14 @@ shown, and a debug build reports it.
 | `main-width` | `contained` \| `full` | `contained` | the main region's content no wider than `comp.app-shell.main.max-width` and centred, or all the room inside the gutters. Reflected |
 | `aside-order` | `after` \| `before` | `after` | the side of the main content a stacked aside is drawn on: write the `<aside>` on that side of the `<main>` too. Reflected |
 | `separation` | `auto` \| `divider` \| `gap` | `auto` | the hairline above the footer, at the aside's start edge and between the main content and a stacked aside; `auto` is `comp.app-shell.separation`. Reflected |
-| `navigation-open` | boolean | off | the navigation is presented over the content — below the header — while it has no place in the layout (or only its column). A change between compact and medium keeps it; the window becoming expanded makes it false. Reflected |
+| `navigation-open` | boolean | off | the navigation is open: presented over the content — below the header — while it has no place in the layout (or only its column), and shown beside the content in an expanded window even where a person hid it there. The menu button makes it false as it hides the navigation beside the content and true as it shows it again. A change of class keeps it. Reflected |
 | `menu-button-placement` | `header` \| `drawer` | `header` | where the one control that shows and hides the navigation lives: the header's menu button in every class, or (`drawer`) the drawer's own first header button where the navigation has a place, the header's only where it has none. Anything else is `header`. Reflected |
 | `aside-label` | text | | the aside's accessible name, where its element has none |
 
 | Event | `detail` | |
 |---|---|---|
 | `windowclasschange` | `{ windowClass }` | the class was decided for the first time, or the window's width changed it: `compact`, `medium`, `expanded`. The read-only `windowClass` property and `data-window-class` hold it |
-| `navigationopenchange` | `{ navigationOpen }` | the menu button asked for the navigation (true); it closed — a second press of the menu button, Escape, the scrim, a drag, a destination (false); a change of the window's class emits none |
+| `navigationopenchange` | `{ navigationOpen }` | the menu button asked for the navigation (true); it closed — a second press of the menu button, Escape, the scrim, a drag, a destination (false); beside the content, the menu button hid a navigation that was open (false) or showed it again (true); a change of the window's class emits none |
 
 **The window's class** is three media conditions, in rem, so a reader's zoom (and, in Chromium, a larger default text
 size) moves the frame to a narrower class before its columns are too narrow to read:
@@ -9778,7 +9835,7 @@ size) moves the frame to a narrower class before its columns are too narrow to r
 |---|---|---|---|---|---|---|
 | `compact` | under 600 | over the content below the header, when opened | above or below `<main>` | shown | shown | 16 |
 | `medium` | 600 to 1023 | its column where the drawer is `collapsible`; else as compact | above or below | shown for a drawer (`menu-button-placement="drawer"`: unless the column is) | not shown | 24 |
-| `expanded` | 1024 and wider | beside the content, in the form the drawer's `expanded` gives it | beside it, at the end edge | shown for a drawer; with `menu-button-placement="drawer"` or no header, only for a responsive drawer with no collapsed form, shown or hidden (`expanded`) | not shown | 32 |
+| `expanded` | 1024 and wider | beside the content, in the form the drawer's `expanded` gives it, or hidden by the menu button (`standard-hidden`) | beside it, at the end edge | shown for a drawer; with `menu-button-placement="drawer"` or no header, only for a responsive drawer with no collapsed form, shown or hidden, or one that is hidden | not shown | 32 |
 
 What the frame holds follows the class without script: it inherits `--tanrei-app-shell-window-class`
 (`@container style(--tanrei-app-shell-window-class: compact) { … }`).
@@ -9800,11 +9857,12 @@ stylesheet and tokens disagree. `<tanrei-page-header>`'s wide width is written t
   the layout). The element asks the drawer for what the drawer's own menu button asks: where the navigation has no
   place (or only its column) its press opens it (`navigationOpen` and the drawer's `open` become true, the drawer takes
   focus) and a second press, or Escape on the button, closes it; where the navigation stands beside the content it
-  collapses and expands a collapsible drawer and hides and shows one that is not (its `expanded`, with
-  `expandedchange`). With `menu-button-placement="drawer"` a responsive drawer that is not collapsible has no menu
-  button of its own to be shown and hidden by, so the header's is shown beside the content too, whether the drawer is
-  shown or hidden, and keeps focus as it shows and hides it. It follows the drawer's `close` (false again, focus back on the button) and writes `aria-expanded`
-  — open over the content, or expanded beside it — and the drawer as what it controls on the button it draws. Its
+  hides the drawer, in whichever form it has, and shows it again (the drawer's `standardHidden` and `open`, with
+  `standardhiddenchange`; `navigationOpen` follows `open`, NVD-106), keeping focus — focus that was in the drawer
+  comes to it. With `menu-button-placement="drawer"` a responsive drawer that is not collapsible has no menu button
+  of its own, and a hidden one shows none, so the header's is shown beside the content for them too. It follows the
+  drawer's `close` (false again, focus back on the button) and writes `aria-expanded` — open over the content, or not
+  hidden beside it — and the drawer as what it controls, while it is shown, on the button it draws. Its
   glyph is the product's and does not change;
 - **the navigation open over the content is drawn below the header**: the drawer and its scrim cover the frame from
   the header's bottom edge to the window's, the header and the announcement stay usable and are never inert, and the

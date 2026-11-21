@@ -8,6 +8,7 @@ import { expectBaseline } from '../../../test/baseline.js';
 import { motionCount, motionEnded, settledCss } from '../../../test/motions.js';
 import { mirroring, mirroringAfterDirection } from '../../../test/mirror-word.js';
 import { clickCentre, heldPress } from '../../../test/watched-press.js';
+import { CONTROL_HEIGHTS, atControlHeight } from '../../../test/control-height.js';
 
 const spec = loadSpec('rating');
 type P = Page;
@@ -277,6 +278,29 @@ test.describe('behavior', () => {
     expect(await value(page, 'small')).toBe(1);
     await page.mouse.click(r.x + container + 1, r.y + r.height / 2);
     expect(await value(page, 'small')).toBe(2);
+  });
+
+  test('RAT-20: the containers and marks keep their own sizes at the control heights 32, 36 and 40, the pitch of a row of glyphs and no control of a row’s height', async ({ page }) => {
+    // The minimum target is set no higher than the control height (src/control-height-selection.test.ts measures the
+    // selection controls so); the hit area still reaches it around each mark (RAT-8).
+    await mountFixtures(page, spec, { icons: true, fixtures: spec.fixtures.filter((f) => ['value', 'small', 'large'].includes(f.id)) });
+    const SIZES = { value: 'medium', small: 'small', large: 'large' } as const;
+    const own: Record<string, [number, number]> = {};
+    for (const [id, size] of Object.entries(SIZES)) own[id] = [await resolveToken(page, T(`container-size-${size}`)), await resolveToken(page, T(`mark-size-${size}`))];
+    expect(Object.values(own), "the default system's containers and marks").toEqual([[32, 24], [28, 20], [40, 32]]);
+    for (const h of CONTROL_HEIGHTS) {
+      await atControlHeight(page, h);
+      for (const id of Object.keys(SIZES)) {
+        const [container, mark] = own[id];
+        const count = await items(page, id).count();
+        expect(count, id).toBeGreaterThan(0);
+        for (let n = 0; n < count; n++) {
+          const b = await box(item(page, id, n));
+          expect([b.width, b.height], `${id}: mark ${n}'s container at ${h}`).toEqual([container, container]);
+        }
+        expect((await box(item(page, id, 0).locator('.mark'))).height, `${id}: a mark at ${h}`).toBeCloseTo(mark, 1);
+      }
+    }
   });
 
   test('RAT-9: a press that ends within a frame — Space, a click — is shown at once and for at least press-hold', async ({ page }) => {

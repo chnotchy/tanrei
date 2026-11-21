@@ -264,8 +264,7 @@ export class TanreiFilePicker extends TanreiElement implements PlacingGroup {
   // ─── The picker (FPK-5, FPK-6, FPK-12) ────────────────────────────────────────────────────────────────────────
 
   /** FPK-21: moves focus to the trigger — the file picker's one stop — and opens nothing. */
-  override focus(options?: FocusOptions) {
-    if (this.keepFocusUntilRendered(options)) return;
+  protected override delegateFocus(options?: FocusOptions) {
     this.trigger?.focus(options);
   }
 

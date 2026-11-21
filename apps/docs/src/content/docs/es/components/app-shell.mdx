@@ -102,8 +102,8 @@ La estructura da a la ventana una de tres clases, solo por su ancho.
 | Clase | Ancho | Navegación | Contenido complementario | Botón de menú | Barra de navegación | Margen lateral |
 | --- | --- | --- | --- | --- | --- | --- |
 | `compact` | Menos de 600 | Sobre el contenido, cuando se abre | Encima o debajo del contenido principal | Se muestra | Se muestra | 16 |
-| `medium` | De 600 a 1023 | La columna de iconos del panel donde es `collapsible`. Si no, como en la compacta | Encima o debajo | Se muestra, salvo que se muestre la columna | No se muestra | 24 |
-| `expanded` | 1024 o más | Junto al contenido | Junto al contenido, en el borde de fin | No se muestra | No se muestra | 32 |
+| `medium` | De 600 a 1023 | La columna de iconos del panel donde es `collapsible`. Si no, como en la compacta | Encima o debajo | Se muestra | No se muestra | 24 |
+| `expanded` | 1024 o más | Junto al contenido, salvo que el botón de menú la haya ocultado | Junto al contenido, en el borde de fin | Se muestra | No se muestra | 32 |
 
 - Los anchos son los tokens `sys.breakpoint.medium` y `sys.breakpoint.expanded`. Un panel de navegación con `responsive` lee esos mismos dos, de modo que el marco y el panel cambian a la vez.
 - En la web, los anchos se comparan en `rem`. Quien amplía la página recibe la disposición más estrecha antes de que las columnas se vuelvan demasiado estrechas para leer.
@@ -112,9 +112,11 @@ La estructura da a la ventana una de tres clases, solo por su ancho.
 
 ### El botón de menú
 
-Pon en la cabecera un Button de solo icono y márcalo con `data-app-shell-menu`. La estructura lo muestra solo mientras la navegación no tiene sitio en el diseño. Al pulsarlo, el panel se abre sobre el contenido y el foco pasa a él. Al cerrar el panel, el foco vuelve al botón. El botón dice si la navegación está expandida.
+Pon en la cabecera un Button de solo icono y márcalo con `data-app-shell-menu`. La estructura lo muestra en todas las clases de ventana, siempre en el mismo sitio. Mientras la navegación no tiene sitio en el diseño, o solo su columna de iconos, al pulsarlo el panel se abre sobre el contenido y el foco pasa a él; al cerrar el panel, el foco vuelve al botón. Mientras la navegación está junto al contenido, al pulsarlo el panel se oculta y el contenido principal ocupa su ancho; al pulsarlo otra vez, el panel vuelve a mostrarse. El foco se queda en el botón. El botón dice si la navegación se muestra.
 
 `navigationOpen` (`navigation-open`) guarda ese estado, y `navigationopenchange` te avisa cuando una persona lo ha cambiado. Un cambio de la clase de la ventana lo conserva: la navegación abierta se coloca junto al contenido en una ventana ancha y vuelve a estar sobre el contenido, todavía abierta, cuando la ventana se estrecha.
+
+Lo que el botón eligió en una ventana ancha también se conserva. Un panel que mostraste con él está abierto, así que queda sobre el contenido cuando la ventana se estrecha. Un panel que ocultaste está cerrado en una ventana estrecha y vuelve a estar oculto cuando la ventana se ensancha. El panel guarda esa elección en `standardHidden`, y `standardhiddenchange` te avisa cuando una persona la ha cambiado, para que puedas conservarla entre visitas.
 
 ### Qué se desplaza
 

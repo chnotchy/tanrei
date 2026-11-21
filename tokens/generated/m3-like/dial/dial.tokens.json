@@ -1282,6 +1282,14 @@
             "tanrei.comp.bottom-sheet.drag-handle.pressed.grip.color": {
               "$value": "{tanrei.comp.handle.standard.pressed.line.color}",
               "reason": "The sheet's drag handle is a Handle (BSH-12): its grip stays dark while a press or a drag holds it, as every handle's line does (HDL-4)."
+            },
+            "tanrei.comp.skeleton.placeholder.color": {
+              "derive": {
+                "fn": "alpha",
+                "of": "{tanrei.sys.color.on-surface}",
+                "amount": 0.1
+              },
+              "reason": "A skeleton stands wherever its content will: on the page, in a card, on the highest container step. Its fill is a layer of the content color at a tenth of its opacity, laid over whatever surface is beneath, so that it stands off every surface role by the same quiet step (1.22:1 on each in light, 1.18:1 to 1.32:1 in dark). A surface tone is chosen against one surface: surface-variant is the tone of surface-container-highest, and a placeholder of it was 1.00:1 there, in light and in dark. A tenth is the low-emphasis fill of a placeholder elsewhere: Material's placeholder for Compose draws on-surface at 10 % over its surface, and MUI, Atlassian, Radix and Fluent's translucent skeleton draw the text color at 6 % to 11 %."
             }
           },
           "rules": [
@@ -5301,7 +5309,8 @@
                 "fn": "mul",
                 "of": "{tanrei.dial.size.unit}",
                 "by": 10
-              }
+              },
+              "reason": "Material 3's checkbox state layer is 40dp: this preset keeps it at every control height, where the default system draws it at the control height."
             },
             "tanrei.comp.checkbox.box.size": {
               "derive": {
@@ -5325,6 +5334,14 @@
             },
             "tanrei.comp.checkbox.unselected.state-layer.color": {
               "$value": "{tanrei.sys.color.on-surface}"
+            },
+            "tanrei.comp.radio-button.container.size": {
+              "derive": {
+                "fn": "mul",
+                "of": "{tanrei.dial.size.unit}",
+                "by": 10
+              },
+              "reason": "Material 3's radio button state layer is 40dp: this preset keeps it at every control height, where the default system draws it at the control height."
             },
             "tanrei.comp.radio-button.ring.selected-width-share": {
               "$value": 0.2,
@@ -5353,7 +5370,8 @@
                 "fn": "mul",
                 "of": "{tanrei.dial.size.unit}",
                 "by": 10
-              }
+              },
+              "reason": "Material 3's switch state layer is 40dp: this preset keeps it at every control height, where the default system draws it at the control height."
             },
             "tanrei.comp.switch.track.width": {
               "derive": {
@@ -5450,14 +5468,32 @@
                 "fn": "mul",
                 "of": "{tanrei.dial.size.unit}",
                 "by": 14
-              }
+              },
+              "reason": "Material 3's filled and outlined text fields are 56dp: this preset keeps them, where the default system draws a medium box at the control height."
             },
             "tanrei.comp.input-box.container.height.large": {
               "derive": {
                 "fn": "mul",
                 "of": "{tanrei.dial.size.unit}",
                 "by": 14
-              }
+              },
+              "reason": "Material 3's filled and outlined text fields are 56dp, at every size this preset draws above small."
+            },
+            "tanrei.comp.input-box.container.height.small": {
+              "derive": {
+                "fn": "mul",
+                "of": "{tanrei.dial.size.unit}",
+                "by": 10
+              },
+              "reason": "This preset keeps the small field it drew (40), where the default system draws a small box at the small step; Material 3 has no small text field to measure it by."
+            },
+            "tanrei.comp.input-box.container.padding-block.small": {
+              "$value": "{tanrei.sys.space.space100}",
+              "reason": "This preset keeps the padding of the small field it drew, with the field's 40."
+            },
+            "tanrei.comp.input-box.container.padding-block-with-label.small": {
+              "$value": "{tanrei.sys.space.space25}",
+              "reason": "This preset keeps the padding of the small field it drew, with the field's 40."
             },
             "tanrei.comp.input-box.stacked.container.height.small": {
               "$value": "{tanrei.comp.input-box.container.height.small}",
@@ -6693,21 +6729,24 @@
                 "fn": "mul",
                 "of": "{tanrei.dial.size.unit}",
                 "by": 8
-              }
+              },
+              "reason": "This preset keeps the small set it drew (32, a step below Material 3's 40dp), where the default system draws it at the small step; Material 3's segmented button has one size."
             },
             "tanrei.comp.segmented-button.container.height.medium": {
               "derive": {
                 "fn": "mul",
                 "of": "{tanrei.dial.size.unit}",
                 "by": 10
-              }
+              },
+              "reason": "Material 3's segmented button is 40dp: this preset keeps it at every control height."
             },
             "tanrei.comp.segmented-button.container.height.large": {
               "derive": {
                 "fn": "mul",
                 "of": "{tanrei.dial.size.unit}",
                 "by": 12
-              }
+              },
+              "reason": "This preset keeps the large set it drew (48, a step above Material 3's 40dp), where the default system draws it at the large step; Material 3's segmented button has one size."
             },
             "tanrei.comp.segmented-button.container.padding-inline.small": {
               "$value": "{tanrei.sys.space.space150}"
@@ -6985,6 +7024,10 @@
               "$value": 4,
               "reason": "Material 3 closes a surface with a standard icon button, which is Tanrei's text Button with an icon only, as the side sheet's here; the change to a tonal close button is the default system's."
             },
+            "tanrei.comp.bottom-sheet.close-button.size": {
+              "$value": 1,
+              "reason": "Material 3 closes a surface with a standard icon button, whose container is 40dp (SmallIconButtonTokens): Tanrei's medium by role, not its small (Material's extra small, 32dp)."
+            },
             "tanrei.comp.bottom-sheet.container.elevation": {
               "$value": "{tanrei.sys.elevation.level1}",
               "reason": "Material's bottom sheet rests at level1, which here is a real shadow; the default system rests it at level2 only because its level1 is a ring."
@@ -7007,6 +7050,10 @@
               "$value": 4,
               "reason": "Material 3 draws the actions of a bar over content as standard icon buttons, which are Tanrei's text Button with an icon only. Keeps the preset's look; the change to tonal controls is the default system's."
             },
+            "tanrei.comp.image-preview.bar.button.size": {
+              "$value": 1,
+              "reason": "Material 3 draws the actions of a bar as standard icon buttons, whose container is 40dp (SmallIconButtonTokens): Tanrei's medium by role, not its small (Material's extra small, 32dp)."
+            },
             "tanrei.comp.side-sheet.actions.arrangement": {
               "$value": 1,
               "reason": "Material 3's side sheet starts its actions at the start edge, at their own widths."
@@ -7023,9 +7070,17 @@
               "$value": 4,
               "reason": "Material 3's side sheet closes with a standard icon button, which is Tanrei's text Button with an icon only."
             },
+            "tanrei.comp.side-sheet.close-button.size": {
+              "$value": 1,
+              "reason": "Material 3's side sheet closes with a standard icon button, whose container is 40dp (SmallIconButtonTokens): Tanrei's medium by role, not its small (Material's extra small, 32dp)."
+            },
             "tanrei.comp.popover.close-button.variant": {
               "$value": 4,
               "reason": "Material 3 closes a surface with a standard icon button, which is Tanrei's text Button with an icon only, as the side sheet's here. Keeps the preset's look; the change to a tonal close button is the default system's."
+            },
+            "tanrei.comp.popover.close-button.size": {
+              "$value": 1,
+              "reason": "Material 3 closes a surface with a standard icon button, whose container is 40dp (SmallIconButtonTokens): Tanrei's medium by role, not its small (Material's extra small, 32dp)."
             },
             "tanrei.comp.carousel.container.shape": {
               "$value": "{tanrei.sys.shape.corner.extra-large}",
@@ -7059,6 +7114,10 @@
             "tanrei.comp.callout.close-button.variant": {
               "$value": 4,
               "reason": "Material 3 closes a surface with a standard icon button, which is Tanrei's text Button with an icon only, as the side sheet's here."
+            },
+            "tanrei.comp.callout.close-button.size": {
+              "$value": 1,
+              "reason": "Material 3 closes a surface with a standard icon button, whose container is 40dp (SmallIconButtonTokens): Tanrei's medium by role, not its small (Material's extra small, 32dp)."
             },
             "tanrei.comp.date-time-picker.modal.container.color": {
               "$value": "{tanrei.sys.color.surface-container-high}"
@@ -7534,6 +7593,14 @@
               "$value": 4,
               "reason": "Fidelity: the reference's snackbar closes with a standard icon button, which is Tanrei's text Button with an icon only, as its side sheet does; the default system's is tonal."
             },
+            "tanrei.comp.snackbar.close-button.size": {
+              "$value": 1,
+              "reason": "Material 3's snackbar closes with a standard icon button (androidx Snackbar.kt), whose container is the default icon button's, 40dp (SmallIconButtonTokens): Tanrei's medium by role. The expand button is drawn as the close button is."
+            },
+            "tanrei.comp.snackbar.controls.height": {
+              "$value": "{tanrei.comp.button.container.height.medium}",
+              "reason": "Material 3's snackbar action is a standard TextButton (androidx Snackbar.kt), 40dp tall (ButtonSmallTokens), as tall as its close button: the height of the size close-button.size names here."
+            },
             "tanrei.comp.snackbar.action.tonal-layer.opacity": {
               "$value": 0,
               "reason": "No tonal layer. This preset's action keeps the container its own tokens give it."
@@ -7893,7 +7960,39 @@
                 "of": "{tanrei.dial.size.unit}",
                 "by": 14
               },
-              "reason": "This preset's fields are 56 high; a code input stands beside them."
+              "reason": "This preset's fields are 56 high, Material 3's text field; a code input stands beside them, where the default system draws a cell at the control height."
+            },
+            "tanrei.comp.search.container.height": {
+              "derive": {
+                "fn": "mul",
+                "of": "{tanrei.dial.size.unit}",
+                "by": 14
+              },
+              "reason": "Material 3's search bar is 56dp: this preset keeps it, where the default system draws the bar at the control height."
+            },
+            "tanrei.comp.calendar.view-toggle.container.height": {
+              "derive": {
+                "fn": "mul",
+                "of": "{tanrei.dial.size.unit}",
+                "by": 9
+              },
+              "reason": "This preset keeps the month-and-year button it drew (36), where the default system draws it at the control height; Material's is a text button, whose least height is 40dp, and whether to draw it so is a fidelity decision for this preset."
+            },
+            "tanrei.comp.calendar.year.container.height": {
+              "derive": {
+                "fn": "mul",
+                "of": "{tanrei.dial.size.unit}",
+                "by": 9
+              },
+              "reason": "Material 3 draws a year of the year grid 72 × 36dp: this preset keeps it, where the default system draws a year's container at the control height."
+            },
+            "tanrei.comp.date-time-picker.range-field.container.height": {
+              "derive": {
+                "fn": "mul",
+                "of": "{tanrei.dial.size.unit}",
+                "by": 12
+              },
+              "reason": "This preset keeps the range field it drew (48), where the default system draws it at the control height; Material 3 has no range of times to measure it by."
             },
             "tanrei.comp.one-time-code-input.caret.width": {
               "$value": "{tanrei.sys.border.thick}",

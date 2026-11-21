@@ -751,14 +751,25 @@ test.describe('the close button', () => {
     await expect.poll(() => seen.filter((w) => w.includes('SSH-5')).length).toBe(1);
   });
 
-  test('SSH-5: under m3-like the close button is a bare glyph (text) at m3-like’s small Button size; cupertino keeps the tonal circle at its own small size', async ({ page }) => {
-    for (const [system, variant] of [['m3-like', 'text'], ['cupertino', 'tonal']] as const) {
+  test('SSH-5: under m3-like the close button is a bare glyph (text) at m3-like’s medium Button size, Material’s standard icon button; cupertino keeps the tonal circle at its own small size', async ({ page }) => {
+    for (const [system, variant, size] of [['m3-like', 'text', 'medium'], ['cupertino', 'tonal', 'small']] as const) {
       await mountFixtures(page, spec, { icons: true, system, fixtures: spec.fixtures.filter((f) => f.id === 'modal') });
       const button = page.locator('[data-fixture="modal"] tanrei-side-sheet').locator('tanrei-button.close');
-      await expect(button, system).toHaveAttribute('size', 'small');
+      await expect(button, system).toHaveAttribute('size', size);
       await expect.poll(() => paint(button), system).toBe(await resolveColor(page, `--tanrei-comp-button-${variant}-container-color`));
-      expect((await bounds(button.locator('button'))).height, system).toBeCloseTo(await px(page, '--tanrei-comp-button-container-height-small'), 1);
+      expect((await bounds(button.locator('button'))).height, system).toBeCloseTo(await px(page, `--tanrei-comp-button-container-height-${size}`), 1);
     }
+  });
+
+  test('SSH-5: the close button takes the size comp.side-sheet.close-button.size names: small in the default system, and the size a system names instead', async ({ page }) => {
+    await mount(page, [fx('s', { variant: 'standard' })]);
+    await expect(close(page)).toHaveAttribute('size', 'small');
+    // A system's choice, read when the sheet opens.
+    await mount(page, [fx('s', { variant: 'standard', open: false })]);
+    await override(page, { [T('close-button-size')]: 'large' });
+    await setOpen(page, true);
+    await expect(close(page)).toHaveAttribute('size', 'large');
+    await expect.poll(async () => (await bounds(close(page).locator('button'))).height).toBeCloseTo(await px(page, '--tanrei-comp-button-container-height-large'), 1);
   });
 });
 

@@ -21,7 +21,7 @@
     },
     {
       "id": "container",
-      "description": "The round state layer centered on the handle (Material Design 3's 40), moving with it. It carries hover, focus and press and is invisible at rest."
+      "description": "The round state layer centered on the handle, moving with it: the control height across (40 in the default system, Material Design 3's 40), and the height the switch takes in a row (SWT-27). It carries hover, focus and press and is invisible at rest."
     },
     {
       "id": "icon",
@@ -138,7 +138,7 @@
     },
     {
       "id": "SWT-10",
-      "text": "THE switch SHALL draw a track of comp.switch.track.width by comp.switch.track.height with corners comp.switch.track.shape, its outline of width comp.switch.outline.width inside the track's edge and its fill inside the outline, never under it; THE switch SHALL draw the handle as a circle whose diameter is its size, with or without an icon, its center on the track's midline, half the track height from the inline-start end while unselected and from the inline-end end while selected, and the round container of diameter comp.switch.container.size SHALL be centered on the handle and may extend beyond the track without affecting layout."
+      "text": "THE switch SHALL draw a track of comp.switch.track.width by comp.switch.track.height with corners comp.switch.track.shape, its outline of width comp.switch.outline.width inside the track's edge and its fill inside the outline, never under it; THE switch SHALL draw the handle as a circle whose diameter is its size, with or without an icon, its center on the track's midline, half the track height from the inline-start end while unselected and from the inline-end end while selected, and the round container of diameter comp.switch.container.size SHALL be centered on the handle and may extend beyond the track's ends without affecting layout; across the track THE switch SHALL take the larger of the container's diameter and the track's height, the track centered in it (SWT-27)."
     },
     {
       "id": "SWT-11",
@@ -211,6 +211,11 @@
     {
       "id": "SWT-26",
       "text": "WHERE the platform has ARIA attributes (the web), WHEN the product sets an aria- attribute on the host, by the attribute or by the ARIA property that reflects it, THE switch SHALL move it to the data-aria- attribute of the same name, so that the host is no second node with its name, description or state, and SHALL expose it on the element that carries its role — an id reference by the elements it names in the host's tree or a tree around it, an error message as part of the description while the switch is invalid — except those the switch owns (aria-checked, aria-pressed, aria-disabled), which it SHALL move and not expose. WHEN the product removes the aria- attribute or its data-aria- twin, or sets the ARIA property that reflects it (ariaLabel, ariaDescribedByElements…) to null, THE switch SHALL take it off that element. WHEN the product sets an aria- attribute the switch owns THE switch SHALL report it in debug builds."
+    },
+    {
+      "id": "SWT-27",
+      "text": "WHEN the control height (dial.control.height) is N THE switch SHALL be N tall in a row: its round container SHALL be drawn at comp.switch.container.size, which is sys.control.height.medium, and THE switch SHALL take across its track the larger of comp.switch.container.size and comp.switch.track.height in layout, the track centered in it (SWT-10), so that a switch stands as tall as the Buttons, fields and checkboxes beside it and a switch with a label of one line is a row N tall, the label's line centered on it (SWT-15). The track (comp.switch.track.width by comp.switch.track.height) and the handle are the body of the switch and the sign of its condition, sized for the travel of the thumb and no control on a row: they SHALL keep their own sizes at every control height, and the container SHALL still take no room along the track. The hit area SHALL still meet the minimum target (SWT-5).",
+      "verify": "With the control height at 32, 36 and 40 and the minimum target no higher, the switch of the fixtures unselected and label-hidden and its container are 32, 36 and 40 tall under a fine pointer, the track 52 by 32 at each and centered in the switch, and the label of unselected whole inside the row."
     }
   ],
   "accessibility": {

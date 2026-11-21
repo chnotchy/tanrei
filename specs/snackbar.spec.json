@@ -35,17 +35,17 @@
     },
     {
       "id": "action",
-      "description": "One control that undoes or follows up on what happened, drawn as a tonal button with the snackbar's own tokens, as tall as the small Buttons beside it: the color of its own bar with a tonal layer of its label's color over it, so that it stands one quiet step off the bar, the same step in every form.",
+      "description": "One control that undoes or follows up on what happened, drawn as a tonal button with the snackbar's own tokens, as tall as the expand and close buttons beside it: the color of its own bar with a tonal layer of its label's color over it, so that it stands one quiet step off the bar, the same step in every form.",
       "optional": true
     },
     {
       "id": "expand",
-      "description": "An icon-only Button of the small size that shows the whole title and message, and hides them again: the glyph expand_more while collapsed and expand_less while expanded. Drawn only while the text is longer than its collapsed limit, and drawn as the close button is (SNK-34).",
+      "description": "An icon-only Button of the size comp.snackbar.close-button.size names (small in the default system) that shows the whole title and message, and hides them again: the glyph expand_more while collapsed and expand_less while expanded. Drawn only while the text is longer than its collapsed limit, and drawn as the close button is (SNK-34).",
       "optional": true
     },
     {
       "id": "close",
-      "description": "An icon-only Button of the small size showing the icon set's close glyph, which closes the snackbar. The snackbar places it, chooses its variant (comp.snackbar.close-button.variant: tonal in the default system) and gives it its form's tone (BTN-45): the glyph in the bar's message color and, where the variant draws a container, a circle of that color made translucent. Everything else it reads from Button's own tokens.",
+      "description": "An icon-only Button of the size comp.snackbar.close-button.size names (small in the default system) showing the icon set's close glyph, which closes the snackbar. The snackbar places it, chooses its size and its variant (comp.snackbar.close-button.variant: tonal in the default system) and gives it its form's tone (BTN-45): the glyph in the bar's message color and, where the variant draws a container, a circle of that color made translucent. Everything else it reads from Button's own tokens.",
       "optional": true
     },
     {
@@ -230,7 +230,7 @@
     },
     {
       "id": "SNK-15",
-      "text": "THE snackbar SHALL draw the message in comp.snackbar.supporting-text.typescale and comp.snackbar.supporting-text.color, or its form's message color (SNK-21, SNK-30), at the opacity SNK-32 gives a message under a title, followed comp.snackbar.container.gap after the text (the title and the message) by the action, the expand button and the close button, in that order, comp.snackbar.controls.gap apart and centred on the text's first line (SNK-29). The action SHALL be drawn as a tonal button, in its form's action colors: a container of comp.snackbar.action.container.color at least comp.snackbar.controls.height tall (the height of a small Button, so that the action stands as tall as the expand and close buttons in its row), the tonal layer over it (SNK-33), and comp.snackbar.controls.padding-inline around its label in comp.snackbar.controls.label.typescale and comp.snackbar.action.content.color, on comp.snackbar.controls.shape corners. The expand and close buttons SHALL be drawn as SNK-34 says."
+      "text": "THE snackbar SHALL draw the message in comp.snackbar.supporting-text.typescale and comp.snackbar.supporting-text.color, or its form's message color (SNK-21, SNK-30), at the opacity SNK-32 gives a message under a title, followed comp.snackbar.container.gap after the text (the title and the message) by the action, the expand button and the close button, in that order, comp.snackbar.controls.gap apart and centred on the text's first line (SNK-29). The action SHALL be drawn as a tonal button, in its form's action colors: a container of comp.snackbar.action.container.color at least comp.snackbar.controls.height tall (the height of the Button size comp.snackbar.close-button.size names, so that the action stands as tall as the expand and close buttons in its row), the tonal layer over it (SNK-33), and comp.snackbar.controls.padding-inline around its label in comp.snackbar.controls.label.typescale and comp.snackbar.action.content.color, on comp.snackbar.controls.shape corners. The expand and close buttons SHALL be drawn as SNK-34 says."
     },
     {
       "id": "SNK-16",
@@ -314,7 +314,7 @@
     },
     {
       "id": "SNK-34",
-      "text": "WHILE closable is true, and WHILE the expand button is drawn (SNK-23), THE snackbar SHALL draw that button, in the place SNK-15, SNK-16 and SNK-29 give it, as an icon-only Button of the small size showing a glyph of the system's icon set (close; expand_more or expand_less, SNK-23) and named by closeLabel or expandLabel, in the variant comp.snackbar.close-button.variant names and in the tone of the snackbar's form (BTN-45): the form's message color — comp.snackbar.supporting-text.color in the default form, and the token of that name under the form's prefix in every other (SNK-21, SNK-30) — with the form's focus-ring color (SNK-3) for its focus indicator, both given through the channel a Button reads from the component that places it, and otherwise unrestyled: it reads Button's own tokens for its size, glyph size, corners and state opacities, answers hover, focus and press as any Button does, and keeps its own minimum target (BTN-5). WHEN the snackbar's form changes while it is shown THE snackbar SHALL give the buttons the new form's tone with the new form's colors (SNK-30). THE snackbar SHALL draw no close or expand mark of its own (no path, shape or character of its own), and the expand button SHALL expose to assistive technology whether the text is expanded and which text it shows and hides (SNK-24)."
+      "text": "WHILE closable is true, and WHILE the expand button is drawn (SNK-23), THE snackbar SHALL draw that button, in the place SNK-15, SNK-16 and SNK-29 give it, as an icon-only Button of the size comp.snackbar.close-button.size names showing a glyph of the system's icon set (close; expand_more or expand_less, SNK-23) and named by closeLabel or expandLabel, in the variant comp.snackbar.close-button.variant names and in the tone of the snackbar's form (BTN-45): the form's message color — comp.snackbar.supporting-text.color in the default form, and the token of that name under the form's prefix in every other (SNK-21, SNK-30) — with the form's focus-ring color (SNK-3) for its focus indicator, both given through the channel a Button reads from the component that places it, and otherwise unrestyled: it reads Button's own tokens for its size, glyph size, corners and state opacities, answers hover, focus and press as any Button does, and keeps its own minimum target (BTN-5). WHEN the snackbar's form changes while it is shown THE snackbar SHALL give the buttons the new form's tone with the new form's colors (SNK-30). THE snackbar SHALL draw no close or expand mark of its own (no path, shape or character of its own), and the expand button SHALL expose to assistive technology whether the text is expanded and which text it shows and hides (SNK-24)."
     },
     {
       "id": "SNK-35",

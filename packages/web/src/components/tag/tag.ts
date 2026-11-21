@@ -1,6 +1,6 @@
 import { type PropertyDeclarations, type PropertyValues, html, nothing } from 'lit';
 import { classMap } from 'lit/directives/class-map.js';
-import { AvailabilityController, GlyphMirrorController, OpenAxesController, report } from '../../primitives/index.js';
+import { AvailabilityController, GlyphDrawnController, GlyphMirrorController, OpenAxesController, report } from '../../primitives/index.js';
 import type { TanreiTagSizeRegistry, TanreiTagVariantRegistry } from '../../registry.js';
 import { AXES, STATUSES, styles } from './tag.styles.js';
 import { ownDirection } from '../../styles/product-text.js';
@@ -97,6 +97,12 @@ export class TanreiTag extends TanreiElement {
    * `data-mirror` says so (src/primitives/glyph-mirror.ts); `iconGlyph()` draws the mark. The tag mirrors nothing itself.
    */
   private readonly mirror = new GlyphMirrorController(this, { slots: 'slot[name="icon"]' });
+
+  /**
+   * TAG-22: the icon box carries `data-drawn` while the icon set can draw what its slot holds; until then it draws nothing
+   * (src/primitives/glyph.ts), decided from what the observer reports, with no read of the layout (`slotted`).
+   */
+  private readonly glyphs = new GlyphDrawnController(this, () => this.renderRoot.querySelectorAll<HTMLElement>('.icon'), { slotted: true });
 
   /** TAG-20: the custom state the styles read to take an empty tag out of the layout. */
   private readonly internals: ElementInternals | null = typeof this.attachInternals === 'function' ? this.attachInternals() : null;

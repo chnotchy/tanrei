@@ -309,6 +309,11 @@ export const styles = css`
   .icon {
     color: ${t('icon-color')};
   }
+  /* DLG-30: nothing in the glyph's place until the icon set can draw it (GlyphDrawnController sets data-drawn) — never its
+     name spelled in a text face; the slotted glyph inherits the slot's visibility, and the box keeps its size. */
+  .icon:not([data-drawn]) slot {
+    visibility: hidden;
+  }
   .icon-line {
     display: flex;
     flex: none;

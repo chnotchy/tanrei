@@ -830,8 +830,7 @@ export class TanreiCombobox extends TanreiElement {
   }
 
   /** Moves focus to the input: the combobox's one stop in the focus order (the clear button, while shown, is the next). */
-  override focus(options?: FocusOptions) {
-    if (this.keepFocusUntilRendered(options)) return;
+  protected override delegateFocus(options?: FocusOptions) {
     this.input?.focus(options);
   }
 

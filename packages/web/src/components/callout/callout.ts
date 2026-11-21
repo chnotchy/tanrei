@@ -3,7 +3,9 @@ import { classMap } from 'lit/directives/class-map.js';
 import {
   AnimatedSize,
   AvailabilityController,
+  BUTTON_SIZES,
   BUTTON_VARIANTS,
+  type ButtonSize,
   GROUP_ITEM,
   GROUP_PLACE,
   GlyphDrawnController,
@@ -13,9 +15,10 @@ import {
   OpenAxesController,
   type PlacingGroup,
   type Tone,
-  compChoice,
+  compChoices,
   focusWithin,
   giveTone,
+  giveSize,
   giveVariant,
   hostAria,
   motionReduced,
@@ -102,7 +105,7 @@ let titles = 0;
  * the title is the `headline` attribute or the `title` slot, a glyph of the icon set goes in the `icon` slot, and the
  * product's Buttons or links in the `actions` slot. Every visual value is a `--tanrei-comp-callout-*` token, one set per
  * variant and status; how far its corners ease is the system's amount (`--tanrei-sys-shape-corner-smoothing`). Its close
- * button is a small icon-only `<tanrei-button>` in the variant `--tanrei-comp-callout-close-button-variant` names, drawn
+ * button is an icon-only `<tanrei-button>` of the size `--tanrei-comp-callout-close-button-size` names, in the variant `--tanrei-comp-callout-close-button-variant` names, drawn
  * on a filled look in the body color of the callout's form (a tone): its container that color made translucent, its
  * glyph that color, its states the Button's own.
  *
@@ -221,6 +224,8 @@ export class TanreiCallout extends TanreiElement implements PlacingGroup {
   private announceFirst = false;
   /** Whether it has been drawn once: what changes after that is a change. */
   private presented = false;
+  /** CLO-10: the close button's size, as `comp.callout.close-button.size` named it at the last update. */
+  private closeSize: ButtonSize = BUTTON_SIZES[0];
   private pending = 0;
   /** CLO-21: hears the title and the body change while it is live. */
   private content$: MutationObserver | null = null;
@@ -589,11 +594,15 @@ export class TanreiCallout extends TanreiElement implements PlacingGroup {
     if (has('open') && !this.open) this.announce();
     this.presented = true;
 
-    // CLO-10: the close button's variant, as the system names it now (a system switch is seen at the next update), and on
-    // a filled look the tone of the form — given through the Button's channel; everything else is the Button's own.
+    // CLO-10: the close button's size and variant, as the system names them now (a system switch is seen at the next
+    // update), and on a filled look the tone of the form — the variant and the tone given through the Button's channel;
+    // everything else is the Button's own.
     const button = this.renderRoot.querySelector('tanrei-button.close');
     if (button) {
-      giveVariant(button, compChoice(this, `${PREFIX}-close-button-variant`, BUTTON_VARIANTS));
+      const { size, variant } = compChoices(this, { size: [`${PREFIX}-close-button-size`, BUTTON_SIZES], variant: [`${PREFIX}-close-button-variant`, BUTTON_VARIANTS] });
+      this.closeSize = size;
+      giveSize(button, size);
+      giveVariant(button, variant);
       giveTone(button, toneOf(this.variant, this.form));
     }
 
@@ -647,7 +656,7 @@ export class TanreiCallout extends TanreiElement implements PlacingGroup {
         </div>
         ${this.closable
           ? html`<span class="end"
-              ><tanrei-button part="close-button" class="close" size="small" label=${this.words.get('closeLabel', this.closeLabel).trim()} @click=${this.onClose}
+              ><tanrei-button part="close-button" class="close" size=${this.closeSize} label=${this.words.get('closeLabel', this.closeLabel).trim()} @click=${this.onClose}
                 ><span slot="icon">close</span></tanrei-button
               ></span
             >`

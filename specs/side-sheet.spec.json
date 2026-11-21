@@ -38,7 +38,7 @@
     },
     {
       "id": "close-button",
-      "description": "An icon-only Button of the small size showing the close glyph at the end of the header, in the variant comp.side-sheet.close-button.variant names (tonal in the default system), as every host's close button is. The sheet places it and chooses its variant; everything else it reads from Button's own tokens.",
+      "description": "An icon-only Button of the size comp.side-sheet.close-button.size names (small in the default system) showing the close glyph at the end of the header, in the variant comp.side-sheet.close-button.variant names (tonal in the default system), as every host's close button is. The sheet places it and chooses its variant; everything else it reads from Button's own tokens.",
       "optional": true
     },
     {
@@ -194,8 +194,8 @@
     },
     {
       "id": "SSH-5",
-      "text": "WHILE closable is true THE side sheet SHALL draw at the end of its header an icon-only Button of the small size showing the close glyph and named by closeLabel, in the variant comp.side-sheet.close-button.variant names, given through the channel a Button reads from the component that places it, and otherwise unrestyled: it reads Button's own tokens, answers hover, focus and press as any Button does and keeps its own minimum target (BTN-5); WHEN the user activates it THE side sheet SHALL emit close exactly once with the reason close, in either variant. WHILE closable is true and closeLabel is empty it SHALL still draw the button, and in debug builds report that the button has no accessible name.",
-      "verify": "Under the default system the close button of standard, modal and the other closable fixtures is a tonal circle, 36 × 36 (the small Button); under m3-like it is a bare glyph (text) at m3-like's small Button size. A sheet whose closable is not set draws it."
+      "text": "WHILE closable is true THE side sheet SHALL draw at the end of its header an icon-only Button of the size comp.side-sheet.close-button.size names showing the close glyph and named by closeLabel, in the variant comp.side-sheet.close-button.variant names, given through the channel a Button reads from the component that places it, and otherwise unrestyled: it reads Button's own tokens, answers hover, focus and press as any Button does and keeps its own minimum target (BTN-5); WHEN the user activates it THE side sheet SHALL emit close exactly once with the reason close, in either variant. WHILE closable is true and closeLabel is empty it SHALL still draw the button, and in debug builds report that the button has no accessible name.",
+      "verify": "Under the default system the close button of standard, modal and the other closable fixtures is a tonal circle, 36 × 36 (the small Button); under m3-like it is a bare glyph (text) at m3-like's medium Button size, 40 × 40, Material's standard icon button. A sheet whose closable is not set draws it."
     },
     {
       "id": "SSH-6",

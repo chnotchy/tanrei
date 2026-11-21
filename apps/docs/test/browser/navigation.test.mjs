@@ -1,8 +1,8 @@
 // From one built page to the next, in Chromium: the page asks for the site's own pages before a link is followed
-// (src/lib/speculation-rules.mjs, written by components/frame/Head.astro) — and the browser reads the rules, and their
-// patterns name the pages and leave out the rest — and the next page is revealed with a view transition, the frame
-// kept where it is, unless motion is reduced (styles/frame.css). How the rules are written is
-// test/speculation-rules.test.mjs's.
+// (src/lib/speculation-rules.mjs, written by components/frame/PageFrame.astro and given to the browser once the page has
+// loaded) — and the browser reads the rules, and their patterns name the pages and leave out the rest — and the next
+// page is revealed with a view transition, the frame kept where it is, unless motion is reduced (styles/frame.css). How
+// the rules are written is test/speculation-rules.test.mjs's.
 //
 //   pnpm --filter @tanrei/docs build && node --test test/browser/navigation.test.mjs
 //
@@ -88,11 +88,18 @@ describe('the next page, in Chromium', () => {
 });
 
 describe('the speculation rules, in Chromium', () => {
-  test('are read, and name the site’s pages and none of its other files, nor another site', LIMIT, async () => {
+  test('are read once the page has loaded, and name the site’s pages and none of its other files, nor another site', LIMIT, async () => {
     const context = await browser.newContext({ viewport: { width: 1440, height: 800 } });
     try {
+      // While the page loads the document holds no rules: an engine would weigh every link a component draws against
+      // them (lib/speculation-rules-after-load.ts).
+      await context.addInitScript(() => {
+        const count = () => document.querySelectorAll('script[type="speculationrules"]').length;
+        document.addEventListener('DOMContentLoaded', () => (window.__docsRulesWhileLoading = count()));
+      });
       const page = await context.newPage();
       await page.goto(`${origin}${FROM}`);
+      assert.equal(await page.evaluate(() => window.__docsRulesWhileLoading), 0, 'no rules in the document while it loads');
       const found = await page.evaluate(
         () => {
           const base = location.href;

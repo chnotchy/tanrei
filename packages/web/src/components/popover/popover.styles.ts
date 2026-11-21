@@ -4,6 +4,7 @@ import {
   anchoredSurfaceStyles,
   arrowOutlineStyles,
   arrowStyles,
+  closeHeights,
   compactProbeStyles,
   cornerRadius,
   dividerVisibilityHost,
@@ -156,8 +157,9 @@ export const styles = css`
   ${unsafeCSS(scriptTracking('.headline', String(t('headline-typescale-letter-spacing')), { shadow: true }))}
   /* POP-11: beside a close button taller than its line, the headline's first line is centred on the button. */
   .header.closable .headline {
-    padding-block: max(0px, calc((var(--tanrei-comp-button-container-height-small) - 1lh) / 2));
+    padding-block: max(0px, calc((var(--_close-height) - 1lh) / 2));
   }
+  ${unsafeCSS(closeHeights('.header.closable'))}
   /* POP-35: the headline is its own run, in the direction of its first strong character, so a left-to-right name keeps
      its order in a right-to-left popover; its lines are still aligned to the layout's start edge
      (src/styles/product-text.ts). */
