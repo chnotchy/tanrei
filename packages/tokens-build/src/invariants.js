@@ -208,10 +208,10 @@ const SELECTED_ROWS = [
  * The components whose colors `checkInvariants` compares in every scheme, and not by role alone: the radio's mark
  * (the radio button, and the menu's radio item) is drawn over a state layer that a rule derives, and a selected row
  * and a hovered one are layers over the surface the row stands on, and the snackbar's expand and close glyph is held
- * against a circle blended from its form's colors. A model read one scheme at a time (`invariantModel`) carries their
+ * against a circle blended from its form's colors, as an input chip's remove glyph is against its round container. A model read one scheme at a time (`invariantModel`) carries their
  * colors in every scheme, so that it reports what a whole model does.
  */
-export const COMPONENTS_HELD_IN_EVERY_SCHEME = ['radio-button', 'menu', 'snackbar', ...new Set(SELECTED_ROWS.map(([selected]) => selected.split('.')[0]))];
+export const COMPONENTS_HELD_IN_EVERY_SCHEME = ['radio-button', 'menu', 'snackbar', 'chip', ...new Set(SELECTED_ROWS.map(([selected]) => selected.split('.')[0]))];
 
 /** WCAG 2.x contrast ratio; a translucent foreground is composited over the background first. */
 export function contrast(fgColor, bgColor) {
@@ -697,6 +697,45 @@ export function auditInvariants(model) {
             ? `the dot of a radio against the gap its fill.inset leaves, which shows ${short(worst.groundId)} through the state layer — WCAG 1.4.11`
             : `the fill of a radio against the ring it meets, at ${short(at(mark.opacity))} ${opacity} over ${short(worst.groundId)} and the state layer — WCAG 1.4.11`;
           failures.push(`[${scheme}] ${short(fillId)} on ${besideId}: ${worst.ratio.toFixed(2)}:1 < ${NON_TEXT}:1 (${why})`);
+        }
+      }
+    }
+  }
+
+  // The glyph of an input chip's remove action against its round container (WCAG 1.4.11), in both looks — the plain
+  // remove parts and the destructive-remove parts, whose glyph takes the error color while the action is hovered,
+  // focused or pressed (CHP-20, CHP-27). Measured as drawn: the round container of the state (a state layer of the
+  // look's state-layer color) over the chip's own container at rest — the chip is not hovered or pressed while the
+  // pointer or the press is on its remove action — over every surface role where that container is clear (the
+  // outlined chip), at rest, hovered, focused and pressed (a disabled chip is exempt, as WCAG exempts an inactive
+  // control). No role pair holds it: the round container is a blend of the glyph's look over the chip. Compared from
+  // the component colors of the schemes the model carries.
+  const chip = `${CONFIG.namespace}.comp.chip`;
+  for (const variant of ['outlined', 'elevated']) {
+    const at = (rest) => `${chip}.${variant}.${rest}`;
+    if (!model.tokens[at('container.color')]) continue;
+    for (const look of ['remove', 'destructive-remove']) {
+      if (!model.tokens[at(`${look}.icon.color`)]) continue;
+      for (const scheme of model.schemes) {
+        for (const state of STATES) {
+          const part = (name) => colorOf(scheme, at(`${state}${look}.${name}.color`)) ?? colorOf(scheme, at(`${look}.${name}.color`));
+          const [glyph, layer, container] = [part('icon'), part('container'), colorOf(scheme, at('container.color'))];
+          if (!glyph || !container) continue;
+          let worst;
+          for (const surface of SURFACES) {
+            const ground = colorOf(scheme, `${CONFIG.namespace}.sys.color.${surface}`);
+            if (!ground || rgba(ground).a < 1) continue;
+            const chipGround = flat(container, ground);
+            const ratio = contrast(glyph, layer ? flat(layer, chipGround) : chipGround);
+            if (!worst || ratio < worst.ratio) worst = { ratio, surface };
+            // An opaque container hides the surface: one ground is all there is.
+            if (rgba(container).a >= 1) break;
+          }
+          // One pair, the glyph against its round container, judged on the surface where it is weakest: counted once.
+          if (worst) checked[scheme].componentPairs += 1;
+          if (!worst || worst.ratio >= NON_TEXT) continue;
+          const beneath = rgba(container).a >= 1 ? short(at('container.color')) : `sys.color.${worst.surface}`;
+          failures.push(`[${scheme}] ${short(at(`${state}${look}.icon.color`))} on ${short(at(`${state}${look}.container.color`))}: ${worst.ratio.toFixed(2)}:1 < ${NON_TEXT}:1 (the remove glyph of an input chip against its round container over ${beneath} — WCAG 1.4.11)`);
         }
       }
     }
