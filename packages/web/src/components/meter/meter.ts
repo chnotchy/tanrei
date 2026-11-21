@@ -19,6 +19,7 @@ import type { TanreiMeterSizeRegistry } from '../../registry.js';
 import { AXES, STATUSES, VARIANTS, styles } from './meter.styles.js';
 import { TanreiElement } from '../../primitives/element.js';
 import { holdsProductName, nameHost, namedByProduct } from '../../primitives/delegated-aria.js';
+import { DEBUG } from '../../primitives/debug.js';
 
 /** `linear` is a bar that fills its layout's width; `circular` is a ring of a fixed size. Drawn by the component: a design system cannot add a form. */
 export type TanreiMeterVariant = 'linear' | 'circular';
@@ -123,24 +124,24 @@ export class TanreiMeter extends TanreiElement {
 
   protected override willUpdate(changed: PropertyValues<this>) {
     // MTR-11: a variant, a separation or a status the meter does not define is drawn as the default.
-    if (changed.has('variant') && !(VARIANTS as readonly string[]).includes(this.variant)) {
+    if (DEBUG && changed.has('variant') && !(VARIANTS as readonly string[]).includes(this.variant)) {
       report(this, 'MTR-11', `variant "${this.variant}" is not a value of the meter; it is drawn as "linear"`);
     }
-    if (changed.has('separation') && !(SEPARATION_VALUES as readonly string[]).includes(this.separation)) {
+    if (DEBUG && changed.has('separation') && !(SEPARATION_VALUES as readonly string[]).includes(this.separation)) {
       report(this, 'MTR-11', `separation "${this.separation}" is not a value of the meter; it is drawn as "auto"`);
     }
-    if (changed.has('status') && !(STATUSES as readonly string[]).includes(this.status)) {
+    if (DEBUG && changed.has('status') && !(STATUSES as readonly string[]).includes(this.status)) {
       report(this, 'MTR-11', `status "${this.status}" is not a value of the meter; it is drawn as "default"`);
     }
     // MTR-10: what the value is drawn as, named in debug builds.
     if (changed.has('value') || changed.has('min') || changed.has('max')) {
       const [min, max, value] = [Number(this.min ?? 0), Number(this.max ?? 1), Number(this.value)];
-      if (!(max > min)) report(this, 'MTR-10', `max ${max} is not greater than min ${min}; the track is drawn with no indicator, and 0 of 0…1 is exposed`);
-      else if (!Number.isFinite(value)) report(this, 'MTR-10', `value ${this.value} is not a finite number; it is drawn and exposed as min, ${min}`);
-      else if (value < min || value > max) report(this, 'MTR-10', `value ${value} is outside ${min}…${max}; it is drawn and exposed as ${Math.min(max, Math.max(min, value))}`);
+      if (!(max > min)) DEBUG && report(this, 'MTR-10', `max ${max} is not greater than min ${min}; the track is drawn with no indicator, and 0 of 0…1 is exposed`);
+      else if (!Number.isFinite(value)) DEBUG && report(this, 'MTR-10', `value ${this.value} is not a finite number; it is drawn and exposed as min, ${min}`);
+      else if (DEBUG && (value < min || value > max)) report(this, 'MTR-10', `value ${value} is outside ${min}…${max}; it is drawn and exposed as ${Math.min(max, Math.max(min, value))}`);
     }
     // MTR-14: a bar alone is not a name.
-    if (changed.has('label') && !this.label && !namedByProduct(this)) report(this, 'MTR-14', 'label is empty, so the meter has no accessible name; give it a label');
+    if (DEBUG && changed.has('label') && !this.label && !namedByProduct(this)) report(this, 'MTR-14', 'label is empty, so the meter has no accessible name; give it a label');
 
     // MTR-7 / MTR-8: the host is the meter — never a progressbar, never busy, never focusable, never a live region.
     // MTR-9: nothing of status is exposed.

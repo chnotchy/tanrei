@@ -32,6 +32,7 @@ import type { TanreiList, TanreiListMoveDetail } from '../list/list.js';
 import '../list/list.js';
 import { styles } from './file-upload.styles.js';
 import { disabledWaitsWhileFocused } from '../../primitives/disabled-while-focused.js';
+import { DEBUG } from '../../primitives/debug.js';
 
 // The members' own types are the file upload's where a prop or an event detail is the member's.
 export type { TanreiFileItemDetail, TanreiFileItemFit, TanreiFileItemForm, TanreiFileItemStatus, TanreiFilePickerLayout };
@@ -724,7 +725,7 @@ export class TanreiFileUpload extends ComposedElement implements PlacingGroup {
    */
   add(files: Iterable<File>): TanreiFileUploadRefused[] {
     if (!this.keeps) {
-      report(this, 'FUP-42', 'add() was called while rows is "given": the file upload keeps no file there, and nothing was added; give the product\'s rows their files, or leave rows as "own"');
+      if (DEBUG) report(this, 'FUP-42', 'add() was called while rows is "given": the file upload keeps no file there, and nothing was added; give the product\'s rows their files, or leave rows as "own"');
       return [];
     }
     const given = typeof File === 'undefined' ? [] : [...(files ?? [])].filter((file): file is File => file instanceof File);
@@ -810,7 +811,7 @@ export class TanreiFileUpload extends ComposedElement implements PlacingGroup {
       const text: unknown = this.formatSize(file.size);
       return typeof text === 'string' ? text : text === null || text === undefined ? '' : String(text);
     } catch (error) {
-      report(this, 'FUP-44', `formatSize threw for a size of ${file.size} bytes, so no size is drawn: ${String(error)}`);
+      if (DEBUG) report(this, 'FUP-44', `formatSize threw for a size of ${file.size} bytes, so no size is drawn: ${String(error)}`);
       return '';
     }
   }
@@ -1391,14 +1392,14 @@ export class TanreiFileUpload extends ComposedElement implements PlacingGroup {
   private check(first: boolean) {
     // FUP-41: a child that is neither the trigger, the glyph nor a file item is not drawn.
     const strays = [...this.childNodes].filter((node) => (node instanceof Element ? !node.slot && node.localName !== ITEM : node.nodeType === Node.TEXT_NODE && !!node.textContent?.trim()));
-    if (strays.length) report(this, 'FUP-41', 'the file upload holds content that is neither its trigger, its glyph nor a file item; it is not drawn');
+    if (DEBUG && strays.length) report(this, 'FUP-41', 'the file upload holds content that is neither its trigger, its glyph nor a file item; it is not drawn');
     // FUP-42: a row the product gives while the file upload keeps its own files is not drawn.
-    if (this.keeps && this.itemChildren.length) report(this, 'FUP-42', 'the file upload holds tanrei-file-item children while rows is "own": it keeps the chosen files and makes their rows itself, so these are not drawn; say rows="given" to give the rows');
+    if (DEBUG && this.keeps && this.itemChildren.length) report(this, 'FUP-42', 'the file upload holds tanrei-file-item children while rows is "own": it keeps the chosen files and makes their rows itself, so these are not drawn; say rows="given" to give the rows');
     const rows = this.givenRows;
     // FUP-38: two rows with one value are both drawn.
     const values = rows.map((row) => rowText(row, 'value', 'value'));
     const twice = values.find((value, index) => values.indexOf(value) !== index);
-    if (twice !== undefined) report(this, 'FUP-38', `two rows have the value "${twice}"; both are drawn, and click, remove and retry cannot tell them apart`);
+    if (DEBUG && twice !== undefined) report(this, 'FUP-38', `two rows have the value "${twice}"; both are drawn, and click, remove and retry cannot tell them apart`);
     // FUP-58: a product's file item that says otherwise what the file upload gives every row is drawn as the file upload says.
     for (const [prop, attribute, unsaid] of SHARED) {
       const mine = this[prop];
@@ -1408,26 +1409,26 @@ export class TanreiFileUpload extends ComposedElement implements PlacingGroup {
         if (said === unsaid) return false;
         return typeof mine === 'boolean' ? !mine : typeof mine === 'number' || mine === null ? Number(said) !== mine : said !== mine;
       });
-      if (theirs) report(this, 'FUP-58', `a file item says ${attribute}="${theirs.getAttribute(attribute)}" and the file upload gives every row its own ${prop}; the row is drawn as the file upload says — set it on the file upload`);
+      if (DEBUG && theirs) report(this, 'FUP-58', `a file item says ${attribute}="${theirs.getAttribute(attribute)}" and the file upload gives every row its own ${prop}; the row is drawn as the file upload says — set it on the file upload`);
     }
     if (first) this.reports(new Map() as PropertyValues<this>, true);
   }
 
   private reports(changed: PropertyValues<this>, all = false) {
     const has = (name: keyof TanreiFileUpload) => all || changed.has(name);
-    if (has('rows') && !ROWS.includes(this.rows)) report(this, 'FUP-42', `rows "${String(this.rows)}" is not a way of holding the rows; the file upload keeps its own files, as with "own"`);
-    if (has('itemForm') && !ITEM_FORMS.includes(this.itemForm)) report(this, 'FUP-17', `item-form "${String(this.itemForm)}" is not a form of a file item; the rows are arranged as a column`);
-    if (has('maxFiles') && this.maxFiles !== null && limit(this.maxFiles) === null) report(this, 'FUP-38', `max-files "${String(this.maxFiles)}" is not a number above zero; no limit of files is set`);
+    if (DEBUG && has('rows') && !ROWS.includes(this.rows)) report(this, 'FUP-42', `rows "${String(this.rows)}" is not a way of holding the rows; the file upload keeps its own files, as with "own"`);
+    if (DEBUG && has('itemForm') && !ITEM_FORMS.includes(this.itemForm)) report(this, 'FUP-17', `item-form "${String(this.itemForm)}" is not a form of a file item; the rows are arranged as a column`);
+    if (DEBUG && has('maxFiles') && this.maxFiles !== null && limit(this.maxFiles) === null) report(this, 'FUP-38', `max-files "${String(this.maxFiles)}" is not a number above zero; no limit of files is set`);
     // FUP-24: a group without a name.
-    if (!this.groupName.trim()) report(this, 'FUP-24', 'label is empty and no field names the file upload, so the group has no accessible name; give it a label, or put it in a tanrei-field');
+    if (DEBUG && !this.groupName.trim()) report(this, 'FUP-24', 'label is empty and no field names the file upload, so the group has no accessible name; give it a label, or put it in a tanrei-field');
     // FUP-27: a limit of its own that is enforced and not said; the file picker says the same of accept and max-size (FPK-18).
-    if (!this.constraintsText.trim() && this.multiple && limit(this.maxFiles) !== null) {
+    if (DEBUG && !this.constraintsText.trim() && this.multiple && limit(this.maxFiles) !== null) {
       report(this, 'FUP-27', 'max-files sets a limit and constraints-text is empty, so the limit is enforced and not said; say it in constraints-text');
     }
     // FUP-45, FUP-53: a refused file's row without the product's sentence for its reason is drawn with its mark and its name.
     for (const [reason, key, attribute] of REASONS) {
       if (this.keeps && this.refused.some((row) => row.reason === reason) && !this.sentence(reason)) {
-        this.words.missing(key, { id: 'FUP-45', effect: `a file refused for its ${reason} is drawn as a failed row without a sentence that says why (${attribute})` });
+        this.words.missing(key, DEBUG && { id: 'FUP-45', effect: `a file refused for its ${reason} is drawn as a failed row without a sentence that says why (${attribute})` });
       }
     }
   }

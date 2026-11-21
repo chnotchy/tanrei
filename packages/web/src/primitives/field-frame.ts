@@ -9,6 +9,7 @@ import { report } from './report.js';
 import type { WordsController } from './words.js';
 import { reducedMotion } from '../styles/motion.js';
 import { typeface, typefaceOf, type TypeLonghand } from '../styles/type.js';
+import { DEBUG } from './debug.js';
 
 // The field frame: what a form gives every control — a label above it that can say the control is
 // required or optional, a line of help, the reason a value was refused — drawn once, here, for every component that
@@ -119,10 +120,10 @@ export function reportFrame(
   { prefix, always = false, row = true, tag = 'tag' }: { prefix: string; always?: boolean; row?: boolean; tag?: string },
 ) {
   const has = (name: keyof FrameProps) => changed.has(name as never);
-  if ((has('required') || has('optional')) && props.required && props.optional) {
+  if (DEBUG && (has('required') || has('optional')) && props.required && props.optional) {
     report(host, ids.both, 'required and optional are both true; it is required, and optional is ignored');
   }
-  if (has('requiredMark') && !(REQUIRED_MARKS as readonly string[]).includes(props.requiredMark)) {
+  if (DEBUG && has('requiredMark') && !(REQUIRED_MARKS as readonly string[]).includes(props.requiredMark)) {
     report(host, ids.unknown, `requiredMark "${props.requiredMark}" is not auto, tag, asterisk or none; it behaves as "auto"`);
   }
   const mark = frameMark(props);
@@ -130,14 +131,14 @@ export function reportFrame(
   // The design system's answer is read from the cascade only where a word is missing.
   const tagged = () => row && (mark === 'tag' || (mark === 'auto' && compChoice(host, `${prefix}-requirement-mark`, SYSTEM_MARKS) === 'tag'));
   if (!props.requiredText && ((always && asked === 'required') || tagged())) {
-    words.missing('requiredText', {
+    words.missing('requiredText', DEBUG && {
       id: ids.words,
       effect: always
         ? `no required ${tag} is drawn, and nothing says the requirement to assistive technology, because a group has no required state`
         : `the asterisk is drawn where the required ${tag} would be, and the required state is kept`,
     });
   }
-  if (asked === 'optional' && !props.optionalText) words.missing('optionalText', { id: ids.words, effect: `no optional ${tag} is drawn and nothing is added to the description` });
+  if (asked === 'optional' && !props.optionalText) words.missing('optionalText', DEBUG && { id: ids.words, effect: `no optional ${tag} is drawn and nothing is added to the description` });
 }
 
 export interface FrameLabelRow extends Asked, Pick<FrameProps, 'label' | 'labelHidden' | 'requiredMark' | 'requiredText' | 'optionalText'> {

@@ -2,6 +2,7 @@ import { type PropertyDeclarations, type PropertyValues, html } from 'lit';
 import { AnimatedSize, numericAttribute, report, usableLength } from '../../primitives/index.js';
 import { TanreiElement } from '../../primitives/element.js';
 import { ANCHORS, AXES, styles } from './size-transition.styles.js';
+import { DEBUG } from '../../primitives/debug.js';
 
 /** Which of its sizes follows the content: its height (`block`), its width (`inline`) or both. */
 export type TanreiSizeTransitionAxis = (typeof AXES)[number];
@@ -161,13 +162,13 @@ export class TanreiSizeTransition extends TanreiElement {
 
   protected override willUpdate(changed: PropertyValues<this>) {
     // SZT-13: a name it does not define is the default, and reported; so is a duration that is no length of time.
-    if (changed.has('axis') && !(AXES as readonly string[]).includes(this.axis)) {
+    if (DEBUG && changed.has('axis') && !(AXES as readonly string[]).includes(this.axis)) {
       report(this, 'SZT-13', `axis "${String(this.axis)}" is not a value of the size transition; it follows the block axis`);
     }
-    if (changed.has('anchor') && !(ANCHORS as readonly string[]).includes(this.anchor)) {
+    if (DEBUG && changed.has('anchor') && !(ANCHORS as readonly string[]).includes(this.anchor)) {
       report(this, 'SZT-13', `anchor "${String(this.anchor)}" is not a value of the size transition; it is anchored at the start`);
     }
-    if (changed.has('duration') && this.duration !== null && this.duration !== undefined && !usableLength(this.duration)) {
+    if (DEBUG && changed.has('duration') && this.duration !== null && this.duration !== undefined && !usableLength(this.duration)) {
       report(this, 'SZT-13', `duration ${JSON.stringify(String(this.duration))} is not a number of milliseconds of 0 or more; the system's duration is used in its place`);
     }
   }

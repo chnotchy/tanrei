@@ -10,6 +10,7 @@ import { conditionBlock } from './selection.js';
 import { stateRules } from './states.js';
 import { reducedMotion } from '../styles/motion.js';
 import { typefaceOf } from '../styles/type.js';
+import { DEBUG } from './debug.js';
 
 /**
  * The destinations of a navigation region (a navigation bar, NVB-*; a navigation drawer, NVD-*): places a person goes
@@ -237,7 +238,7 @@ export class DestinationsController<T extends Destination> implements ReactiveCo
     seen.add(message);
     if (this.reported.has(message)) return;
     this.reported.add(message);
-    report(this.host, id, message);
+    if (DEBUG) report(this.host, id, message);
   }
 
   /** Tells every destination what it is now, and reports what a debug build should (NVB-3, NVB-17, NVB-20, NVB-22). */

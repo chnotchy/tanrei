@@ -35,6 +35,7 @@ import { TanreiFileItem, type TanreiFileItemDetail, type TanreiFileItemForm, typ
 import { TanreiFilePicker, type TanreiFilePickerRefused, type TanreiFilePickerRejectDetail, type TanreiFilePickerRejectReason, type TanreiFilePickerSelectDetail } from '../file-picker/file-picker.js';
 import { measuredSheet, styles } from './chat-composer.styles.js';
 import { disabledWaitsWhileFocused } from '../../primitives/disabled-while-focused.js';
+import { DEBUG } from '../../primitives/debug.js';
 
 // The members' own types are the chat composer's where an item's prop or an event's detail is the member's.
 export type { TanreiFileItemDetail, TanreiFileItemForm, TanreiFileItemStatus };
@@ -978,7 +979,7 @@ export class TanreiChatComposer extends ComposedElement implements PlacingGroup 
    */
   addFiles(files: Iterable<File>): TanreiChatComposerRefused[] {
     if (this.attaches !== 'own') {
-      report(this, 'CCM-22', `addFiles() was called while attachments is "${String(this.attachments)}": the chat composer keeps files only while it is "own", and nothing was added`);
+      if (DEBUG) report(this, 'CCM-22', `addFiles() was called while attachments is "${String(this.attachments)}": the chat composer keeps files only while it is "own", and nothing was added`);
       return [];
     }
     const given = typeof File === 'undefined' ? [] : [...(files ?? [])].filter((file): file is File => file instanceof File);
@@ -1828,26 +1829,26 @@ export class TanreiChatComposer extends ComposedElement implements PlacingGroup 
 
   private reports(changed: PropertyValues<this>, all = false) {
     const has = (name: keyof TanreiChatComposer) => all || changed.has(name);
-    if (has('layout') && !LAYOUTS.includes(this.layout)) report(this, 'CCM-4', `layout "${String(this.layout)}" is not a layout of the chat composer; it is laid out as "inline"`);
-    if (has('sendKey') && !SEND_KEYS.includes(this.sendKey)) report(this, 'CCM-12', `send-key "${String(this.sendKey)}" is not a value of sendKey; Enter sends, as with "enter"`);
-    if (has('attachments') && !ATTACHMENTS.includes(this.attachments)) report(this, 'CCM-38', `attachments "${String(this.attachments)}" is not a way of holding attachments; none can be attached, as with "none"`);
-    if (has('attachmentForm') && !FORMS.includes(this.attachmentForm)) report(this, 'CCM-44', `attachment-form "${String(this.attachmentForm)}" is not a form of the attachments; each file's form is chosen, as with "auto"`);
+    if (DEBUG && has('layout') && !LAYOUTS.includes(this.layout)) report(this, 'CCM-4', `layout "${String(this.layout)}" is not a layout of the chat composer; it is laid out as "inline"`);
+    if (DEBUG && has('sendKey') && !SEND_KEYS.includes(this.sendKey)) report(this, 'CCM-12', `send-key "${String(this.sendKey)}" is not a value of sendKey; Enter sends, as with "enter"`);
+    if (DEBUG && has('attachments') && !ATTACHMENTS.includes(this.attachments)) report(this, 'CCM-38', `attachments "${String(this.attachments)}" is not a way of holding attachments; none can be attached, as with "none"`);
+    if (DEBUG && has('attachmentForm') && !FORMS.includes(this.attachmentForm)) report(this, 'CCM-44', `attachment-form "${String(this.attachmentForm)}" is not a form of the attachments; each file's form is chosen, as with "auto"`);
     // CCM-7: an element in the attach slot while nothing can be attached is not drawn.
-    if (this.attaches === 'none' && this.slotted('attach').length) report(this, 'CCM-7', 'the attach slot holds an element while attachments is "none"; it is not drawn — say attachments="own" or "given"');
+    if (DEBUG && this.attaches === 'none' && this.slotted('attach').length) report(this, 'CCM-7', 'the attach slot holds an element while attachments is "none"; it is not drawn — say attachments="own" or "given"');
     // CCM-8: what a slot holds is laid out as it is; one that is not a Button is said.
     for (const name of ['leading', 'trailing'] as const) {
       const other = this.slotted(name).find((element) => element.localName !== BUTTON);
-      if (other) report(this, 'CCM-8', `<${other.localName}> in the ${name} slot is not a tanrei-button; it is laid out in its place as it is`);
+      if (DEBUG && other) report(this, 'CCM-8', `<${other.localName}> in the ${name} slot is not a tanrei-button; it is laid out in its place as it is`);
     }
     // CCM-31: a control that assistive technology cannot name is a functional failure.
-    if (!this.groupName) report(this, 'CCM-31', 'label is empty and no field names the chat composer, so the group and its typing area have no accessible name; give it a label, or put it in a tanrei-field', { level: 'error' });
+    if (DEBUG && !this.groupName) report(this, 'CCM-31', 'label is empty and no field names the chat composer, so the group and its typing area have no accessible name; give it a label, or put it in a tanrei-field', { level: 'error' });
     const stop = this.sending && this.stoppable;
-    if (!stop && !this.slotted('send').length && !this.words.get('sendLabel', this.sendLabel)) this.words.missing('sendLabel', { id: 'CCM-31', effect: 'the send button is drawn and works, and has no accessible name' });
-    if (stop && !this.slotted('stop').length && !this.words.get('stopLabel', this.stopLabel)) this.words.missing('stopLabel', { id: 'CCM-31', effect: 'the stop button is drawn and works, and has no accessible name' });
-    if (this.attachShown && !this.slotted('attach').length && !this.words.get('attachLabel', this.attachLabel)) this.words.missing('attachLabel', { id: 'CCM-31', effect: 'the attach button is drawn and works, and has no accessible name' });
+    if (!stop && !this.slotted('send').length && !this.words.get('sendLabel', this.sendLabel)) this.words.missing('sendLabel', DEBUG && { id: 'CCM-31', effect: 'the send button is drawn and works, and has no accessible name' });
+    if (stop && !this.slotted('stop').length && !this.words.get('stopLabel', this.stopLabel)) this.words.missing('stopLabel', DEBUG && { id: 'CCM-31', effect: 'the stop button is drawn and works, and has no accessible name' });
+    if (this.attachShown && !this.slotted('attach').length && !this.words.get('attachLabel', this.attachLabel)) this.words.missing('attachLabel', DEBUG && { id: 'CCM-31', effect: 'the attach button is drawn and works, and has no accessible name' });
     // CCM-22, CCM-31: a refused file's File item without the product's sentence for its reason is drawn with its mark and its name.
     for (const reason of ['type', 'size', 'count'] as const) {
-      if (this.refused.some((own) => own.reason === reason) && !this.sentence(reason)) this.words.missing(REASON_WORDS[reason], { id: 'CCM-22', effect: `a file refused for its ${reason} is drawn as a failed row without a sentence that says why` });
+      if (this.refused.some((own) => own.reason === reason) && !this.sentence(reason)) this.words.missing(REASON_WORDS[reason], DEBUG && { id: 'CCM-22', effect: `a file refused for its ${reason} is drawn as a failed row without a sentence that says why` });
     }
   }
 

@@ -3,13 +3,13 @@ import { delegatedAria, delegatesAria, namedByProduct } from '../../primitives/d
 import { classMap } from 'lit/directives/class-map.js';
 import { AvailabilityController, GlyphDrawnController, PressController, SizeConsumerController, containedWheel, motionReduced, report, styleQueries, syncFocusStyle } from '../../primitives/index.js';
 import { LINK_KEYS } from '../../primitives/link.js';
-import { debugBuild } from '../../primitives/report.js';
 import type { TanreiTableOfContentsSizeRegistry } from '../../registry.js';
 import { ownDirection } from '../../styles/product-text.js';
 import { styles } from './table-of-contents.styles.js';
 import { adopt, adoptUnlessDrawn } from '../../primitives/sheets.js';
 import { TanreiElement } from '../../primitives/element.js';
 import { flatParent } from '../../primitives/flat-tree.js';
+import { DEBUG } from '../../primitives/debug.js';
 
 /** How the table of contents stands (TOC-1, TOC-25): the title and the whole list, or one row that opens the list. */
 export type TanreiTableOfContentsPresentation = 'list' | 'compact';
@@ -400,7 +400,7 @@ export class TanreiTableOfContents extends TanreiElement {
       }
       if (!label) {
         empty.push(li);
-        report(this, 'TOC-40', `the item for "${a.getAttribute('href') ?? ''}" has no label; it is not drawn, and neither are its items`);
+        if (DEBUG) report(this, 'TOC-40', `the item for "${a.getAttribute('href') ?? ''}" has no label; it is not drawn, and neither are its items`);
         continue;
       }
       let depth = 1;
@@ -417,21 +417,21 @@ export class TanreiTableOfContents extends TanreiElement {
     // TOC-39: of two items with one href, the first is the one that can be current.
     const seen = new Set<string>();
     this.trackable = items.filter((item) => !seen.has(item.href) && !!seen.add(item.href));
-    if (debugBuild()) this.check();
+    if (DEBUG) this.check();
   }
 
   /** What a debug build says about a table of contents it still draws (TOC-39, TOC-40). */
   private check() {
     // A list that is still being parsed is read again when it is whole.
     if (document.readyState === 'loading') return;
-    if (this.items.length && !this.label.trim() && !namedByProduct(this)) report(this, 'TOC-40', 'label is empty: the navigation landmark and the compact row have no name; give it the words ("On this page")');
+    if (DEBUG && this.items.length && !this.label.trim() && !namedByProduct(this)) report(this, 'TOC-40', 'label is empty: the navigation landmark and the compact row have no name; give it the words ("On this page")');
     const seen = new Set<string>();
     for (const item of this.items) {
-      if (seen.has(item.href)) report(this, 'TOC-39', `two items have the href "${item.href}"; both are drawn, and the first is the one that can be current`);
+      if (DEBUG && seen.has(item.href)) report(this, 'TOC-39', `two items have the href "${item.href}"; both are drawn, and the first is the one that can be current`);
       seen.add(item.href);
     }
     const depth = Math.max(0, ...this.items.map((item) => item.depth));
-    if (depth > MAX_DEPTH) report(this, 'TOC-39', `the items are nested ${depth} levels deep; more than ${MAX_DEPTH} is hard to follow in a narrow column`);
+    if (DEBUG && depth > MAX_DEPTH) report(this, 'TOC-39', `the items are nested ${depth} levels deep; more than ${MAX_DEPTH} is hard to follow in a narrow column`);
   }
 
   /** The item that is drawn as current: `current`'s, or — while the product decides and names none — the anchor it marked itself. */
@@ -479,7 +479,7 @@ export class TanreiTableOfContents extends TanreiElement {
       const target = targetOf(fragmentOf(item.a));
       if (!target) {
         // TOC-16: an item whose href leads to no place is still a link, and is never current by the rule.
-        if (loaded) report(this, 'TOC-16', `the href "${item.href}" leads to no place on this page; the item is still a link, and is never current`);
+        if (DEBUG && loaded) report(this, 'TOC-16', `the href "${item.href}" leads to no place on this page; the item is still a link, and is never current`);
         continue;
       }
       if (target === 'top') return item.href;
@@ -931,13 +931,13 @@ export class TanreiTableOfContents extends TanreiElement {
 
     // TOC-39, TOC-42: the size it draws — its own or its container's — when that changed.
     if (this.sizes.drawn !== this.sizeRead) this.readSize((this.sizeRead = this.sizes.drawn));
-    if (changed.has('presentation') && !PRESENTATIONS.includes(this.presentation)) {
+    if (DEBUG && changed.has('presentation') && !PRESENTATIONS.includes(this.presentation)) {
       report(this, 'TOC-39', `presentation "${this.presentation}" is not a value it defines ("list" or "compact"); it is drawn as "list"`);
     }
-    if (changed.has('tracking') && !TRACKINGS.includes(this.tracking)) {
+    if (DEBUG && changed.has('tracking') && !TRACKINGS.includes(this.tracking)) {
       report(this, 'TOC-39', `tracking "${this.tracking}" is not a value it defines ("auto" or "manual"); it behaves as "auto"`);
     }
-    if (!this.auto && this.current && !item && document.readyState !== 'loading') {
+    if (DEBUG && !this.auto && this.current && !item && document.readyState !== 'loading') {
       report(this, 'TOC-39', `current "${this.current}" is no item's href; no item is drawn as current`);
     }
 
@@ -983,7 +983,7 @@ export class TanreiTableOfContents extends TanreiElement {
     if (CORE_SIZES.includes(size)) return;
     const known = KEY.test(size);
     if (known) adopt(this.getRootNode() as Root, sheet(`table-of-contents:size:${size}`, () => sizeRules(size)));
-    if (!known || getComputedStyle(this).getPropertyValue(`${PREFIX}-row-height-${size}`).trim() === '') {
+    if (DEBUG && (!known || getComputedStyle(this).getPropertyValue(`${PREFIX}-row-height-${size}`).trim() === '')) {
       report(this, 'TOC-39', `size "${size}" is not a value of the active design system; it is drawn as "${DEFAULT_SIZE}"`);
     }
   }
