@@ -120,6 +120,9 @@
        expanded window) — so that neither is pushed past the window's end and the page never scrolls sideways. */
     --_aps-main-least: calc(var(--_aps-main-start) + var(--tanrei-sys-target-touch) + var(--_aps-inline-end));
     --_aps-aside-beside: 0px;
+    /* APS-5: 1 where a side sheet stands beside the main region: the navigation then leaves it the width the element
+       measures and writes on the navigation region (`--_aps-aside`), which only that region can read. */
+    --_aps-sheet-beside: 0;
     /* APS-18: the separation this frame draws — its attribute's, else comp.app-shell.separation's — and its line. */
     --_aps-separation: var(--tanrei-comp-app-shell-separation);
     --_aps-line: var(--tanrei-comp-app-shell-outline-width);
@@ -240,7 +243,7 @@
        script. A navigation drawer reads this as the room its parent gives it (NVD-97), so a drag, a key and a width the
        product gives all stop there, and a change of the room is followed in the frame it is drawn — with a side sheet's
        slide, as it slides. */
-    max-inline-size: calc(var(--_aps-window, 100vw) - var(--_aps-main-least) - var(--_aps-aside-beside));
+    max-inline-size: calc(var(--_aps-window, 100vw) - var(--_aps-main-least) - var(--_aps-aside-beside) - var(--_aps-aside, 0px) * var(--_aps-sheet-beside));
     /* APS-5: in view while the page scrolls, from below what is kept over the top to the window's bottom edge, and
        never past the row: it adds nothing to the row's height (see HOW IT IS WRITTEN). */
     position: sticky;
@@ -537,9 +540,11 @@
     :where(tanrei-app-shell):where(:has(> [slot='aside']:not(tanrei-side-sheet, [hidden]))) {
       --_aps-aside-beside: var(--tanrei-comp-app-shell-aside-width);
     }
-    /* The sheet's width is written on the navigation region, the one box that reads it: here, where it is read. */
-    :where(tanrei-app-shell):where(:has(> tanrei-side-sheet[slot='aside']:not([hidden]))) > :where([slot='navigation']) {
-      --_aps-aside-beside: var(--_aps-aside, 0px);
+    /* The sheet's width is written on the navigation region, the one box that reads it; the frame, asked of itself,
+       says only that it counts (a rule that asked :has() of the frame for the region's sake would have every change in
+       the frame restyle all it holds). */
+    :where(tanrei-app-shell):where(:has(> tanrei-side-sheet[slot='aside']:not([hidden]))) {
+      --_aps-sheet-beside: 1;
     }
     /* APS-9: the aside beside the main region at the end edge, aside.width wide, its first line level with the main
        content's, in view while the page scrolls and scrolling inside that height by itself. APS-18: its line is at

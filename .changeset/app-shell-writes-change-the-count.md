@@ -24,4 +24,4 @@ the same). The app shell writes through the same code.
 The text of its stylesheet that an element drawn in the light DOM carries, to add to a root that does not load the
 stylesheet (the app shell, the table, the description list and the others of that form), is now printed without the
 whitespace that changes nothing, by esbuild's CSS printer: what each draws is unchanged, and their bundles are smaller
-(the app shell's 18.1 to 18.0 kB gzipped before its own change; 18.2 kB with it, within its budget).
+(the app shell's by 77 bytes gzipped).
