@@ -82,6 +82,9 @@ studioTest('the shuffle gives every row that is not locked another value, in one
 
 studioTest('Inspect opens over the panel at the token tree or Source, says it is open, and closes back to the row', {}, async ({ page, section, axe }) => {
   const button = page.locator('[data-inspect]');
+  // It bears the file's name, and is named Inspect with it.
+  assert.equal(await button.locator('[data-file-name]').textContent(), 'acme.system.json');
+  assert.equal(await button.evaluate((el) => el.label), 'Inspect: acme.system.json');
   await section('icons');
   assert.equal(await page.locator('[data-inspect-head]').isHidden(), true);
   await button.click();

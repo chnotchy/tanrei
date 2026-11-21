@@ -1213,6 +1213,15 @@
 .ts-inspect-head > tanrei-tabs {
   flex: 1;
 }
+/* What Inspect is, under its head: the file, and the tokens it settles. */
+.ts-inspect-head > .ts-inspect-lead {
+  flex: 1 0 100%;
+  margin: 0;
+}
+/* The bar's Inspect bears the file's name, as the file names itself. */
+.ts-file-name {
+  font-family: var(--ts-font-mono);
+}
 
 /* A row of tabs is as wide as its tabs and stands at the start edge (the component scrolls them where they do not fit). */
 .ts-tree-bar > tanrei-tabs,

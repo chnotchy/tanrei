@@ -36,7 +36,7 @@ The rail lists what a layer holds. First the nine rows of the look, in the order
 
 The **shuffle** gives every row that is not locked another of its usual values (a seed among twelve, another control height, another set of icons…), written as each row's own controls write them, in one step to undo. The locks are kept in this browser.
 
-**Inspect** opens over the panel, wider, with two tabs:
+**Inspect** — the bar's button that bears the file's name (`<id>.system.json`, or the file behind the Studio), named Inspect with it — opens over the panel, wider, under a line that says it is the file and the tokens it settles, with two tabs:
 
 | Tab | What it shows |
 |---|---|

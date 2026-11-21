@@ -326,7 +326,7 @@ const zhCN: Dictionary = {
   source: {
     title: '源码',
     label: '层文件（JSON）',
-    help: '输入时依次校验：JSON、system.schema.json，然后是令牌引擎，引擎的消息会一字不差地显示出来。有效的编辑就是其他各个层次所显示的层。',
+    help: '输入时依次校验：JSON、system.schema.json，然后是令牌引擎，引擎的消息会一字不差地显示出来。有效的编辑会立即反映到 Studio 的其他部分。',
     keys: 'Tab 用于缩进。先按 Esc，再按 Tab，即可用键盘离开编辑器。',
     valid: 'JSON 有效，符合 schema，引擎已接受。',
     notObject: '层是一个 JSON 对象',
@@ -671,6 +671,7 @@ const zhCN: Dictionary = {
     help: '系统的全部令牌，以及层文件本身',
     tokens: '令牌',
     source: '源码',
+    lead: '这个主题的文件，以及由它决定的令牌。其他所有操作都只是在改写这个文件。',
     close: '关闭检查',
   },
   shared: {

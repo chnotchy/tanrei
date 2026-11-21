@@ -22,6 +22,9 @@
 - **The panel holds the row alone.** The file's card at its foot is gone: the file's id (with `.system.json` after it)
   and its name are in **Export**, under its first line, and the checks are that line. The brand color's and the gray's
   panels no longer name the file's keys in their heads.
+- **Inspect's button bears the file's name** (`<id>.system.json`, or the file behind `tanrei studio`, whose save
+  state no longer repeats it), and is named Inspect with it; Inspect opens under a line that says it is the file and
+  the tokens it settles.
 - A sentence that names one thing twice (Export's "depends on M3-like … when M3-like changes") shows it in both places.
 - **A narrow window** gives the preview the window: the rail is one line at its foot that scrolls by itself, and a row
   opens its panel between them as a sheet, with the row's name and a button that closes it. The rail then stands after

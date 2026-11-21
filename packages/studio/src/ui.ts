@@ -68,7 +68,7 @@ const STORE = `${studio.namespace}-theme-studio`;
 /** The bar's glyphs: declared, so that the docs site's cut-down icon file has them (packages/tools/src/glyphs.js). */
 const EXPORT_GLYPH = 'ios_share';
 const SHUFFLE_GLYPH = 'shuffle';
-const INSPECT_GLYPH = 'data_object';
+const INSPECT_GLYPH = 'description';
 const HISTORY_GLYPHS = { undo: 'undo', redo: 'redo', reset: 'restart_alt' };
 const CLOSE_GLYPH = 'close';
 const NS = studio.namespace;
@@ -224,9 +224,17 @@ export function mountStudio(root: HTMLElement, { lang = 'en', adapter, links = {
   const glyph = (name: string) => h('span', { class: `${studio.tagPrefix}-icon`, slot: 'icon', 'aria-hidden': 'true', translate: 'no' }, name);
   // The shuffle: every row that is not locked, another of its values, in one step to undo.
   const shuffleButton = h('tanrei-button', { variant: 'text', size: 'small', label: t.rail.shuffle, title: t.rail.shuffleHelp, onclick: () => shuffleRows(), 'data-shuffle': true }, glyph(SHUFFLE_GLYPH));
-  // Inspect: over the panel, every token in its tree and the file itself. A toggle: it says whether it is open.
-  const inspectButton = h('tanrei-button', { variant: 'outlined', size: 'small', toggle: true, title: t.inspect.help, 'data-inspect': true }, glyph(INSPECT_GLYPH), t.inspect.title) as HTMLElement & { selected: boolean };
+  // Inspect: over the panel, every token in its tree and the file itself. A toggle that bears the file's name — the
+  // theme is that one file — and is named Inspect with it; it says whether it is open (`drawFileName`).
+  const fileName = h('span', { class: 'ts-file-name', translate: 'no', 'data-file-name': true });
+  const inspectButton = h('tanrei-button', { variant: 'outlined', size: 'small', toggle: true, title: t.inspect.help, 'data-inspect': true }, glyph(INSPECT_GLYPH), fileName) as HTMLElement & { selected: boolean; label: string };
   inspectButton.addEventListener('change', (event) => event.target === inspectButton && show(inspectButton.selected ? { inspect: lastInspect } : { section }));
+  function drawFileName() {
+    const name = adapter?.label ?? `${layer.id}.system.json`;
+    if (fileName.textContent === name) return;
+    fileName.textContent = name;
+    inspectButton.label = t.labelled(t.inspect.title, name);
+  }
   // Export: the side sheet of the file, its stylesheet and what to do next (./ui/export.ts).
   const exportSheet = createExportSheet(ctx, { file: adapter?.label, linked, links, onshow: (to) => show({ section: to }) });
   const exportButton = h('tanrei-button', { variant: 'filled', size: 'small', title: t.exporting.help, onclick: () => exportSheet.open(), 'data-export-open': true }, glyph(EXPORT_GLYPH), t.exporting.open);
@@ -257,7 +265,7 @@ export function mountStudio(root: HTMLElement, { lang = 'en', adapter, links = {
   // Inspect's head, over its two tabs: what it is, which tab, and the way back to the panel.
   const inspectTabs = views<Inspect>({ label: t.inspect.title, attrs: { 'data-inspect-tabs': true }, options: INSPECT.map((value) => ({ value, label: t.inspect[value] })), value: lastInspect, onchange: (value) => show({ inspect: value }) });
   const inspectClose = h('tanrei-button', { variant: 'text', size: 'small', label: t.inspect.close, title: t.inspect.close, onclick: () => (show({ section }), inspectButton.focus()), 'data-inspect-close': true }, glyph(CLOSE_GLYPH));
-  const inspectHead = h('div', { class: 'ts-inspect-head', hidden: true, 'data-inspect-head': true }, h('h2', { class: 'ts-eyebrow', text: t.inspect.title }), inspectTabs, inspectClose);
+  const inspectHead = h('div', { class: 'ts-inspect-head', hidden: true, 'data-inspect-head': true }, h('h2', { class: 'ts-eyebrow', text: t.inspect.title }), inspectTabs, inspectClose, h('p', { class: 'ts-help ts-inspect-lead', text: t.inspect.lead }));
   // What loading a file found, at the top of the panel: why it was not loaded, or the problems of the layer it holds.
   const importReport = h('tanrei-callout', { class: 'ts-banner ts-import-report', live: true, open: 'false', closable: true, 'close-label': t.shared.close, 'data-import-report': true }) as HTMLElement & { open: boolean };
   importReport.addEventListener('dismiss', (event) => event.target === importReport && (importReport.open = false));
@@ -573,7 +581,7 @@ export function mountStudio(root: HTMLElement, { lang = 'en', adapter, links = {
           run!.disabled = false;
         }, { 'data-build': true })
       : null;
-    const parts = [h('span', { class: 'ts-save', 'data-save-state': saveState, title: saveProblem }, h('i'), t.file.states[saveState], adapter.label ? h('code', { text: adapter.label }) : null), run, saveProblem ? h('p', { class: 'ts-error', text: saveProblem }) : null, buildResult];
+    const parts = [h('span', { class: 'ts-save', 'data-save-state': saveState, title: saveProblem }, h('i'), t.file.states[saveState]), run, saveProblem ? h('p', { class: 'ts-error', text: saveProblem }) : null, buildResult];
     file.replaceChildren(...(parts.filter(Boolean) as HTMLElement[]));
   }
   const setSave = (next: SaveState, problem = '') => ((saveState = next), (saveProblem = problem), drawFile());
@@ -702,6 +710,7 @@ export function mountStudio(root: HTMLElement, { lang = 'en', adapter, links = {
     preview.stale.hidden = Boolean(latest.model);
     railView.refresh();
     startPoint.refresh();
+    drawFileName();
     for (const refresh of refreshers) refresh();
     exportSheet.refresh();
     remember();

@@ -28,7 +28,8 @@ studioTest('the token leaves the address bar, the event stream opens with a tick
   await until(() => requests.some((url) => url.includes('/api/events?ticket=')), 'the event stream');
   await page.reload();
   await page.waitForSelector('[data-save-state="saved"]');
-  assert.match(await page.locator('[data-file]').textContent(), /Saved.*acme\.system\.json/);
+  assert.match(await page.locator('[data-file]').textContent(), /Saved/);
+  assert.equal(await page.locator('[data-bar] [data-file-name]').textContent(), 'acme.system.json', 'the file’s name is on Inspect’s button');
   await toExport(page);
   assert.equal(await page.locator('[data-id] input').isDisabled(), true, 'the id is the file name: locked');
   await page.keyboard.press('Escape');

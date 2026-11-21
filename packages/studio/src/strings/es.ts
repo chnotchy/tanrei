@@ -328,7 +328,7 @@ const es: Dictionary = {
   source: {
     title: 'Código fuente',
     label: 'El archivo de capa, en JSON',
-    help: 'Se comprueba mientras escribes: el JSON, después system.schema.json y después el motor de tokens, cuyo mensaje se muestra palabra por palabra. Una edición válida es la capa que muestran todos los demás niveles.',
+    help: 'Se comprueba mientras escribes: el JSON, después system.schema.json y después el motor de tokens, cuyo mensaje se muestra palabra por palabra. Una edición válida es la capa que muestra el resto del Studio.',
     keys: 'Tab aplica sangría. Pulsa Esc y después Tab para salir del editor con el teclado.',
     valid: 'JSON válido, válido según el esquema y aceptado por el motor.',
     notObject: 'una capa es un objeto JSON',
@@ -677,6 +677,7 @@ const es: Dictionary = {
     help: 'Todos los tokens del sistema y el propio archivo de la capa',
     tokens: 'Tokens',
     source: 'Código fuente',
+    lead: 'El archivo del tema y los tokens que determina. Todos los demás controles solo reescriben este archivo.',
     close: 'Cerrar Inspeccionar',
   },
   shared: {

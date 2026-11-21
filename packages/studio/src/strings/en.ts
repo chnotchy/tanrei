@@ -340,7 +340,7 @@ const en = {
   source: {
     title: 'Source',
     label: 'The layer file, as JSON',
-    help: 'Checked as you type: JSON, then system.schema.json, then the token engine — its message is shown word for word. A valid edit is the layer every other level shows.',
+    help: 'Checked as you type: JSON, then system.schema.json, then the token engine — its message is shown word for word. A valid edit is the layer the rest of the Studio shows.',
     keys: 'Tab indents. Press Esc, then Tab, to leave the editor with the keyboard.',
     valid: 'Valid JSON, valid against the schema, accepted by the engine.',
     notObject: 'a layer is a JSON object',
@@ -709,6 +709,7 @@ const en = {
     help: 'Every token of the system, and the layer file itself',
     tokens: 'Tokens',
     source: 'Source',
+    lead: 'The theme’s file, and the tokens it settles. Every other control only writes this file.',
     close: 'Close Inspect',
   },
   // The layer of a link, shown in the place of the one this browser kept (ui.ts `showShared`).
