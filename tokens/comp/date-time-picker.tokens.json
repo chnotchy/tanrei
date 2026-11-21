@@ -300,7 +300,8 @@
                   "by": 12,
                   "round": "{tanrei.dial.size.unit}",
                   "min": "{tanrei.sys.target.minimum}"
-                }
+                },
+                "dev.tanrei.aligned": "own"
               }
             }
           },

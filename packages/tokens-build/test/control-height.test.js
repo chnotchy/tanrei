@@ -11,7 +11,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { test } from 'node:test';
 import { layerChain, listSystems } from '../src/bundle.js';
-import { HEIGHTS_NOT_YET_ON_THE_LADDER, auditInvariants, isRefusedEverywhere } from '../src/invariants.js';
+import { auditInvariants, isRefusedEverywhere } from '../src/invariants.js';
 import { REPO_ROOT, coreAlignedTokens, coreLadderReaders, coreOwnHeights, coreTargetFloors } from '../src/model.js';
 import { buildProductSystem } from '../src/product.js';
 import { resolveChain } from '../src/resolve.js';
@@ -62,10 +62,12 @@ const ALIGNED_ON_THE_LADDER = comp([
 
 /**
  * Pressable heights that keep a size of their own at every control height, marked `"dev.tanrei.aligned": "own"`: no
- * control on a row, and their specs say why (TAB-63). A rating's containers are in neither list: they are the pitch of a
+ * control on a row, and their specs say why (CAL-37, DTM-53, TAB-63). A rating's containers are in neither list: they are the pitch of a
  * row of glyphs, which follows the mark's size, and its targets reach the minimum beyond them (RAT-20).
  */
 const OWN = comp([
+  'calendar.cell.size',
+  'date-time-picker.wheel.row.height',
   'tabs.container.height-with-icon',
 ]);
 
@@ -75,12 +77,12 @@ const chainOf = (id, tokens) => [...layerChain(id, (x) => loadSystem(REPO_ROOT, 
 /** What a system's own layers pin, past the core and the default system: a preset keeps its original's heights. */
 const pinnedBy = (id) => new Set(layerChain(id, (x) => loadSystem(REPO_ROOT, x)).filter((layer) => layer.id !== 'core' && layer.id !== NS).flatMap((layer) => Object.keys(layer.tokens ?? {})));
 
-test('the aligned set: the marked heights are the ones on the ladder, the heights of their own are marked, and the rest are listed', () => {
+test('the aligned set: the marked heights are the ones on the ladder, and every other pressable height is marked as its own', () => {
   assert.deepEqual(coreAlignedTokens(), [...ALIGNED_ON_THE_LADDER].sort(), 'the marks in tokens/comp/ are the heights on the ladder');
   assert.deepEqual(coreOwnHeights(), [...OWN].sort(), 'the heights marked as their own');
   for (const id of ALIGNED_ON_THE_LADDER) assert.equal(coreLadderReaders()[id], 'medium', `${id} reads the medium step`);
-  // The pressable heights that read no step are those marked as their own and those the invariant still lists.
-  assert.deepEqual(coreTargetFloors().filter((id) => !(id in coreLadderReaders())), [...OWN, ...HEIGHTS_NOT_YET_ON_THE_LADDER].sort());
+  // The pressable heights that read no step are those marked as their own.
+  assert.deepEqual(coreTargetFloors().filter((id) => !(id in coreLadderReaders())), [...OWN].sort());
 });
 
 test('the ladder is whole size units from the control height: 24, 32, 40, 56, 72 at 40', async () => {

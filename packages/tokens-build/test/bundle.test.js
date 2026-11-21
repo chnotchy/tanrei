@@ -16,7 +16,7 @@ const preset = { id: 'roomy', name: 'Roomy', extends: 'tanrei', tokens: {
   'tanrei.dial.space.unit': { $value: { value: 10, unit: 'px' }, reason: 'A preset with more air.' },
   'tanrei.dial.shape.unit': { $value: { value: 4, unit: 'px' }, reason: 'Rounder everywhere.' },
   // More air inside a control needs a taller control: the height invariant reports a system that forgets this.
-  // The control height is the default size's; the heights not yet on the ladder still follow the size unit.
+  // The control height is the default size's; the heights that keep a size of their own follow the size unit.
   'tanrei.dial.control.height': { $value: { value: 50, unit: 'px' }, reason: 'Controls grow with the spacing.' },
   'tanrei.dial.size.unit': { $value: { value: 5, unit: 'px' }, reason: 'Controls grow with the spacing.' },
 } };
