@@ -8842,6 +8842,18 @@ element's first style must already follow (the drawer's presentation, NVD-55). `
 counts the passes forced by mounting one and ten of each such element. `src/primitives/passes.test.ts` counts the style passes and layouts of fifty instances appended
 at once, with the engine's own counters: the count is a small constant, and a component that measures gets a line there.
 
+**Write nothing in a resize observer's report.** A frame reports a box that changed size in an observer's callback
+only if it lies deeper than every box reported before it in that frame. A write that changes the size of a box
+already reported, or of one above it, leaves that box undelivered. The browser then raises "ResizeObserver loop
+completed with undelivered notifications" wherever nothing above the element changes size, as in a box of fixed size.
+Prefer a layout the browser keeps by itself: a text area sized by its text (`field-sizing: content`, the text input's
+auto height), a row that wraps by itself (`flex-wrap`, the number input's steppers). Where something must still be
+written, the report only asks the read phase (`readInPhase()`), whose observer watches the root element, so its writes
+are reported in the same frame. The frame after the change then draws what was there before: say which part in the
+code. Ask the read phase as well when the element first observes, so the first frame painted is already right (the
+number input's wrapping, `FloatingLabelController`, the text input's label). The tests put the element in a box of
+fixed size, change its width and expect no error (NMI-36, TXI-37).
+
 Every interactive component composes the same pieces from `src/primitives/` (and `src/styles/shape.ts`), each with its
 own selectors and its own `--tanrei-comp-<name>-*` tokens — nothing in them knows which component uses them:
 

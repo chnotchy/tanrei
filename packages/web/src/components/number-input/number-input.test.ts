@@ -2004,6 +2004,49 @@ test.describe('behavior: exposure, forms, size and direction', () => {
     expect(errors).toEqual([]);
   });
 
+  test('NMI-36, NMI-37: an input in a box of fixed size whose width changes back and forth across the width its line and its steppers need puts its steppers on a row of their own and back each time, and no frame leaves a change of size undelivered — the browser reports no "ResizeObserver loop" error', async ({ page }) => {
+    await mountFixtures(page, spec, { fixtures: [] });
+    const errors: string[] = [];
+    page.on('pageerror', (error) => errors.push(`pageerror: ${error.message}`));
+    const seen = await page.evaluate(async () => {
+      const errors: string[] = [];
+      const onError = (event: ErrorEvent) => errors.push(event.message);
+      window.addEventListener('error', onError);
+      const frame = () => new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
+      // Fixed: the input changes the size of nothing above it, so that its own boxes are the shallowest a frame reports
+      // (a page that observes its root element would hide the error).
+      const holder = document.createElement('div');
+      holder.style.cssText = 'position: fixed; inset-block-start: 0; inset-inline-start: 0; inline-size: 400px; block-size: 300px';
+      const input = Object.assign(document.createElement('tanrei-number-input'), { variant: 'stacked', label: 'Quantity', value: 12, prefixText: '$', suffixText: 'USD', incrementLabel: 'Increase', decrementLabel: 'Decrease' });
+      // And one whose floating label rests in its line and wraps onto more lines as the box narrows (NMI-8).
+      const floating = Object.assign(document.createElement('tanrei-number-input'), { variant: 'outlined', label: 'How many of each item to order for the next delivery', prefixText: '$', suffixText: 'USD', incrementLabel: 'Increase', decrementLabel: 'Decrease' });
+      holder.append(input, floating);
+      document.body.append(holder);
+      await Promise.all([input.updateComplete, floating.updateComplete]);
+      for (let i = 0; i < 4; i++) await frame();
+      const wrapped = () => input.shadowRoot!.querySelector('.field')!.hasAttribute('data-wrapped');
+      const states: { width: number; wrapped: boolean }[] = [];
+      // Each width is set in a frame callback of its own, before that frame's layout: the frame lays the input out at
+      // it and reports what changed, and the next frame's read phase writes where the steppers stand — so the frame
+      // callbacks of the frame after that find it written.
+      for (const width of [120, 400, 130, 380, 120, 400, 140, 400]) {
+        await frame();
+        holder.style.inlineSize = `${width}px`;
+        await frame();
+        await frame();
+        states.push({ width, wrapped: wrapped() });
+      }
+      // The browser says what a frame left undelivered after that frame: one more task.
+      await new Promise((resolve) => setTimeout(resolve, 100));
+      window.removeEventListener('error', onError);
+      holder.remove();
+      return { states, errors };
+    });
+    expect(seen.errors).toEqual([]);
+    for (const { width, wrapped } of seen.states) expect(wrapped, `${width} wide: ${wrapped ? 'wrapped' : 'one row'}`).toBe(width < 200);
+    expect(errors).toEqual([]);
+  });
+
   test('NMI-37: the container and the input’s line are watched for wrapping while the input is on the page and given back when it leaves — after it was drawn, after it came back, and when it left before its first update ended', async ({ page }) => {
     await mountFixtures(page, spec, { fixtures: [] });
     const watched = await page.evaluate(async () => {

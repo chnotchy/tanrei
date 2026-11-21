@@ -447,6 +447,25 @@ export const styles = css`
   .field:not([data-resize='auto']) textarea.input {
     overflow-y: auto;
   }
+  /* TXI-37: where the browser sizes a text area by its content, an auto-resized field whose lines wrap is as tall as its
+     lines by the browser's own layout — a changed width or text size included, in the frame of the change — and the
+     element only reads it (it writes nothing in a resize observer's report). Between minRows and maxRows as above; it
+     scrolls exactly while its text is taller than maxRows lets it be, and so shows no scrollbar while every line fits.
+     Empty, it is minRows lines: a placeholder is no line of text (the browser would size the box by it). TXI-63: the
+     text it holds is no width of the field's — the box is as wide as its place, whatever it holds. A field whose lines
+     do not wrap keeps the element's height (TXI-58: the room a sideways scrollbar takes, which a box sized by its
+     content does not hold). */
+  @supports (field-sizing: content) {
+    .field[data-resize='auto']:not([data-nowrap]) textarea.input {
+      field-sizing: content;
+      block-size: auto;
+      overflow-y: auto;
+      contain: inline-size;
+    }
+    .field[data-resize='auto']:not([data-nowrap]) textarea.input:placeholder-shown {
+      block-size: calc(var(--_rows-min, 2) * var(--_input-line));
+    }
+  }
   /* TXI-38: a change of height that follows the value (or the handle's keys, TXI-41) moves over motion.resize-*; the
      element sets data-resizing for that change only, so a changed width or text size changes the height at once.
      TXI-51: the text never moves with it. The box is already as tall as it will be — so nothing scrolls inside it to
