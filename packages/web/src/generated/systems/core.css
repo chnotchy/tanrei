@@ -1710,7 +1710,7 @@
     --tanrei-comp-carousel-container-shape-pill: 0;
     --tanrei-comp-carousel-container-small-max-width: round(nearest, calc(var(--tanrei-dial-size-unit) * 14), 0.25px);
     --tanrei-comp-carousel-container-small-min-width: round(nearest, calc(var(--tanrei-dial-size-unit) * 10), 0.25px);
-    --tanrei-comp-carousel-controls-button-size: round(nearest, calc(var(--tanrei-dial-size-unit) * 10), 0.25px);
+    --tanrei-comp-carousel-controls-button-size: max(var(--tanrei-sys-target-minimum), var(--tanrei-sys-control-height-medium));
     --tanrei-comp-carousel-controls-height: max(var(--tanrei-sys-target-touch), var(--tanrei-comp-carousel-controls-button-size));
     --tanrei-comp-carousel-controls-icon-size: var(--tanrei-sys-icon-medium);
     --tanrei-comp-carousel-controls-indicator-padding-inline: var(--tanrei-sys-space-space150);

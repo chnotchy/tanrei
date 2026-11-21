@@ -31,6 +31,7 @@ const ALIGNED_ON_THE_LADDER = comp([
   'calendar.day.container.size',
   'calendar.view-toggle.container.height',
   'calendar.year.container.height',
+  'carousel.controls.button-size',
   'checkbox.container.size',
   'combobox.option.height.medium',
   'date-time-picker.range-field.container.height',

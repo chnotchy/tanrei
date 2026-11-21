@@ -422,6 +422,11 @@
       "id": "CRL-43",
       "text": "WHEN the person activates the previous or the next control THE carousel SHALL move the row to the resting position before or after the one it is at — while it is moving, the one it is moving to; between two resting positions, the nearest one before or after where it is — over comp.carousel.motion.scroll-duration with comp.carousel.motion.scroll-easing (at once where motion is reduced), from the first to the last and from the last to the first WHILE loop is in effect. Focus SHALL stay on the control, and the items' Tab stop (CRL-17) SHALL become the resting item the move brings. WHILE loop is not in effect THE carousel SHALL disable the previous control while the row is at, or moving to, the first resting position, and the next control at the last: drawn and exposed as disabled and refusing activation, but kept in the Tab order and keeping focus, so that the stops do not change as the row moves and focus is never lost when a control reaches its end.",
       "verify": "Hold the page clock as the autoplay tests do: a press of next while autoplay runs starts the time from zero once the row is at rest (CRL-33)."
+    },
+    {
+      "id": "CRL-44",
+      "text": "WHEN the control height (dial.control.height) is N THE carousel's playback control (CRL-35) SHALL be a square of comp.carousel.controls.button-size, which is sys.control.height.medium held at sys.target.minimum, and the dots' container (CRL-29) that tall, so that the controls row stands as tall as an icon-only Button of the default size; the controls row (comp.carousel.controls.height) SHALL stay at least as tall as the touch target.",
+      "verify": "With the control height at 32, 36 and 40 and the minimum target no higher, under a fine pointer the playback control of playback-control is a square of 32, 36 and 40, and the dots' container of indicator as tall."
     }
   ],
   "accessibility": {
