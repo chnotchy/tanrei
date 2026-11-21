@@ -135,11 +135,11 @@ const carry = async (page: P, id: string, type: 'dragenter' | 'dragover' | 'drag
   await settle(page);
   return taken;
 };
-/** What the capsule draws: its fill, its lift, its opacity, its corner, and its edge. */
+/** What the capsule draws: its fill, its lift, its opacity, its corner, and its edge (the edge box's ::before draws it). */
 const drawn = (page: P, id: string) =>
   capsule(page, id).evaluate((el) => {
     const s = getComputedStyle(el);
-    const o = getComputedStyle(el.querySelector('.outline')!);
+    const o = getComputedStyle(el.querySelector('.outline')!, '::before');
     return { fill: s.backgroundColor, shadow: s.boxShadow, opacity: s.opacity, radius: Number.parseFloat(s.borderTopLeftRadius), edge: o.borderTopColor, width: Number.parseFloat(o.borderTopWidth), cursor: s.cursor };
   });
 /** The boxes of the capsule's parts, relative to the capsule: each present part's left, top, right and bottom. */
@@ -1165,11 +1165,12 @@ test.describe('behavior', () => {
     await mount(page, [fx('a', { attachments: 'own', ...FILES, counter: true, value: 'One' })], { reducedMotion: false });
     const duration = await resolveToken(page, T('motion-state-duration'), 'duration');
     const moves = await host(page, 'a').evaluate((el) => {
-      const read = (selector: string) => {
-        const s = getComputedStyle(el.shadowRoot!.querySelector(selector)!);
+      // The edge is drawn by its box's ::before.
+      const read = (selector: string, pseudo?: string) => {
+        const s = getComputedStyle(el.shadowRoot!.querySelector(selector)!, pseudo);
         return Object.fromEntries(s.transitionProperty.split(', ').map((name, index) => [name, Number.parseFloat(s.transitionDuration.split(', ')[index] ?? s.transitionDuration) * 1000]));
       };
-      return { capsule: read('.capsule'), outline: read('.outline'), counter: read('.counter') };
+      return { capsule: read('.capsule'), outline: read('.outline', '::before'), counter: read('.counter') };
     });
     expect(Object.keys(moves.capsule).sort()).toEqual(['background-color', 'box-shadow', 'opacity']);
     expect(Object.keys(moves.outline).sort()).toEqual(['border-color', 'border-width']);
@@ -1213,7 +1214,7 @@ test.describe('behavior', () => {
     expect(sampled.samples[2]!.capsule).toBeGreaterThan(sampled.before.capsule + 2);
     expect(sampled.samples[2]!.capsule).toBeLessThan(sampled.after.capsule - 2);
     await page.emulateMedia({ reducedMotion: 'reduce' });
-    expect(await host(page, 'a').evaluate((el) => ['.capsule', '.outline', '.counter'].map((selector) => getComputedStyle(el.shadowRoot!.querySelector(selector)!).transitionDuration))).toEqual(['0s', '0s', '0s']);
+    expect(await host(page, 'a').evaluate((el) => (['.capsule', '.outline', '.counter'] as const).map((selector) => getComputedStyle(el.shadowRoot!.querySelector(selector)!, selector === '.outline' ? '::before' : undefined).transitionDuration))).toEqual(['0s', '0s', '0s']);
   });
 
   /** CCM-35: hands files to the composer and waits for the update that draws them, and no more: a sampling of frames sees the motion it starts. */
@@ -2097,7 +2098,7 @@ test.describe('the members compared (the twin of a feature with parts of its own
         // The capsule's own drawing is not a member's: its edge is not drawn and its corners are square for the
         // comparison, so that the box of a member that stands in a corner is all fill.
         await host(page, f.id).evaluate((el) => {
-          el.shadowRoot!.querySelector<HTMLElement>('.outline')!.style.visibility = 'hidden';
+          el.shadowRoot!.querySelector<HTMLElement>('.outline')!.style.display = 'none';
           el.shadowRoot!.querySelector<HTMLElement>('.capsule')!.style.borderRadius = '0';
         });
         const where = await page.evaluate(([i]) => {
@@ -2137,6 +2138,22 @@ test.describe('accessibility', () => {
       expect(focusedNow.violations, `${theme}, focused`).toEqual([]);
     });
   }
+
+  test('CCM-19, CCM-41: the edge drawn over what the capsule holds hides no text from a contrast check — a faint counter is a violation, the counter color passes, and nothing is left unchecked', async ({ page }) => {
+    // An element over a text is, to axe, an element covering it ("overlapped by another element"): while the edge's box
+    // drew the edge itself, the counter was left incomplete instead of checked.
+    const props = { counter: true, maxLength: 280, value: 'Could you send the floor plan before Friday?' };
+    await mount(page, [fx('faint', props), fx('normal', props)]);
+    await settle(page);
+    await host(page, 'faint').evaluate((el: HTMLElement, [ink, ground]) => (el.style.setProperty(ink, '#bbb'), el.style.setProperty(ground, '#fff')), [T('counter-color'), T('standard-container-color')] as const);
+    for (const id of ['faint', 'normal']) {
+      const results = await new AxeBuilder({ page }).include(`[data-fixture="${id}"]`).withRules(['color-contrast']).analyze();
+      const texts = (list: typeof results.violations) => list.flatMap((rule) => rule.nodes.map((node) => (node.html.includes('class="counter"') ? 'counter' : node.html)));
+      expect(texts(results.incomplete), `${id}: left unchecked`).toEqual([]);
+      expect(texts(results.violations), `${id}: reported`).toEqual(id === 'faint' ? ['counter'] : []);
+      expect(texts(results.passes).includes('counter'), `${id}: the counter passes`).toBe(id === 'normal');
+    }
+  });
 
   test('the fixture drawn without its words draws every part, works, and says what it lacks', async ({ page }) => {
     const seen = warnings(page);
