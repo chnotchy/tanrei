@@ -12,17 +12,17 @@ La altura de un control o de una fila sale de tres valores. La **altura de contr
 
 ## La escala de tamaños
 
-La escala son cinco alturas, `tanrei.sys.control.height.*`, que leen los tamaños de los controles: `medium` es la altura de control, `tanrei.dial.control.height` (40 de forma predeterminada), y las demás quedan un número entero de unidades de tamaño (`dial.size.unit`, 4px de forma predeterminada) por debajo y por encima: `small` dos y `extra-small` cuatro por debajo, `large` cuatro y `extra-large` ocho por encima. Estas son las alturas con algunas alturas de control, calculadas a partir de las reglas de los propios tokens:
+La escala son cinco alturas, `tanrei.sys.control.height.*`, que leen los tamaños de los controles: `medium` es la altura de control, `tanrei.dial.control.height` (36 de forma predeterminada; los preajustes m3-like y cupertino conservan 40), y las demás quedan un número entero de unidades de tamaño (`dial.size.unit`, 4px de forma predeterminada) por debajo y por encima: `small` dos y `extra-small` cuatro por debajo, `large` cuatro y `extra-large` ocho por encima. Estas son las alturas con algunas alturas de control, calculadas a partir de las reglas de los propios tokens:
 
 <DialHeights group="sys.control.height" dial="control.height" values={[36, 40, 44, 48, 56]} source="tokens/sys/measure.tokens.json" />
 
-Muchos componentes toman sus alturas de estos escalones, y los que leen el mismo escalón miden lo mismo con cualquier altura de control: los tamaños `small`, `medium` y `large` del Button leen los escalones small, medium y large. La escala en sí no tiene suelo, porque `extra-small` es para lo que nadie pulsa, como un tag o un atajo de teclado.
+Muchos componentes toman sus alturas de estos escalones, y los que leen el mismo escalón miden lo mismo con cualquier altura de control: los tamaños `small`, `medium` y `large` del Button leen los escalones small, medium y large. La escala en sí no tiene suelo, porque `extra-small` es para lo que nadie pulsa. Un tag y un atajo de teclado, cuyo tamaño lo da su texto, conservan alturas propias y no siguen la altura de control.
 
 ## El objetivo mínimo
 
 `tanrei.sys.target.minimum` es la altura mínima a la que se dibuja todo lo que una persona pulsa, y el ancho mínimo de un control que solo tiene icono. Toda altura de una caja o de una fila que se pulsa se deriva con él como suelo, así que ningún tamaño la dibuja más baja. Es el valor del desarrollador: ningún dial lo escala, porque un suelo que encogiera con lo que limita no sería un suelo.
 
-En el sistema predeterminado, el mínimo es 36, igual para un puntero que para un dedo. Las alturas del Button muestran cómo actúa: un valor entre paréntesis es lo que dan el tamaño y la altura de control, y la altura que lo precede es la que el mínimo mantiene en el botón.
+En el sistema predeterminado, el mínimo es 36, igual para un puntero que para un dedo: la propia altura de control, de modo que un control pequeño se mantiene tan alto como uno mediano y se distingue de él por el texto y el relleno. Las alturas del Button muestran cómo actúa: un valor entre paréntesis es lo que dan el tamaño y la altura de control, y la altura que lo precede es la que el mínimo mantiene en el botón.
 
 <DialHeights group="comp.button.container.height" dial="control.height" values={[36, 40, 44, 48, 56]} source="tokens/comp/button.tokens.json" />
 
