@@ -617,6 +617,14 @@ export class TanreiTab extends TanreiElement {
     return plate ? Number.parseFloat(getComputedStyle(plate).borderTopLeftRadius) || 0 : 0;
   }
 
+  /**
+   * @internal TAB-24: what the plain content draws (`TabFrame.ink`) as the row last measured it, with the content's box
+   * on the page and the scale it was measured at. It moves only with the content: the row measures it again where the
+   * content's box is another size or drawn at another scale, or the tab has drawn other content since (`updated()`),
+   * and never for a selection alone, which moves no content — so a key press reads no tab's icon or label.
+   */
+  inkMeasured: { width: number; height: number; scale: Scale; ink: Box } | null = null;
+
   /** TAB-41: the row measures this tab's label with every other row's (`measureLabel()`), so its next draw does not. */
   private labelDeferred = false;
 
@@ -713,6 +721,8 @@ export class TanreiTab extends TanreiElement {
       this.observedLabel = label;
       reported = !!label && !!this.labelSize$;
     }
+    // TAB-24: other content is laid out differently within its box, whatever the box's size: measured again when drawn.
+    if (['label', 'icon', 'labelHidden', 'truncated'].some((key) => changed.has(key as keyof TanreiTab))) this.inkMeasured = null;
     if (!label) this.truncated = false;
     else if (reported) {
       // Measured in the coming frame.
@@ -1968,12 +1978,7 @@ export class TanreiTabs extends TanreiElement {
       const parts = tab.indicatorParts;
       if (!parts) return [];
       const [box, content] = [this.rect(parts.tab), this.rect(parts.content)];
-      // What the plain content draws: its icon and label (the plate draws nothing), or its box while it holds neither.
-      const drawn = [...parts.content.children].filter((child) => child !== parts.plate).map((child) => this.rect(child));
-      const around = drawn.length ? drawn : [content];
-      const [left, top] = [Math.min(...around.map((r) => r.left)), Math.min(...around.map((r) => r.top))];
-      const [right, bottom] = [Math.max(...around.map((r) => r.right)), Math.max(...around.map((r) => r.bottom))];
-      const ink = { x: (left - content.left) / scale.x, y: (top - content.top) / scale.y, w: (right - left) / scale.x, h: (bottom - top) / scale.y };
+      const ink = this.inkOf(tab, parts, content, scale);
       return [
         {
           tab,
@@ -1986,6 +1991,23 @@ export class TanreiTabs extends TanreiElement {
       ];
     });
     return { read, radius };
+  }
+
+  /**
+   * TAB-24: what `tab`'s plain content draws — its icon and label (the plate draws nothing), or its box while it holds
+   * neither — in the content's own coordinates and the row's own pixels. Kept on the tab while its content's box keeps
+   * its size and scale (`inkMeasured`): read again only where the content changed, not on every drawing of the row.
+   */
+  private inkOf(tab: TanreiTab, parts: TabParts, content: DOMRect, scale: Scale): Box {
+    const kept = tab.inkMeasured;
+    if (kept && kept.width === content.width && kept.height === content.height && kept.scale.x === scale.x && kept.scale.y === scale.y) return kept.ink;
+    const drawn = [...parts.content.children].filter((child) => child !== parts.plate).map((child) => this.rect(child));
+    const around = drawn.length ? drawn : [content];
+    const [left, top] = [Math.min(...around.map((r) => r.left)), Math.min(...around.map((r) => r.top))];
+    const [right, bottom] = [Math.max(...around.map((r) => r.right)), Math.max(...around.map((r) => r.bottom))];
+    const ink = { x: (left - content.left) / scale.x, y: (top - content.top) / scale.y, w: (right - left) / scale.x, h: (bottom - top) / scale.y };
+    tab.inkMeasured = { width: content.width, height: content.height, scale: { ...scale }, ink };
+    return ink;
   }
 
   /** The selected tab's indicator corner (TAB-16), once for each reading. */

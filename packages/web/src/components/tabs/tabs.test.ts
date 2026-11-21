@@ -4664,5 +4664,14 @@ test.describe('accessibility: what is drawn over a label', () => {
     // checked, and the content the copy covers whole is not drawn.
     expect(checked.passes, 'the row\'s own colors pass, the selected tabs\' covered copies among them').toEqual(['Normal', 'Notification settings', 'Profile', 'Selected']);
     expect(checked.incomplete, 'nothing is left unchecked').toEqual([]);
+    // Another tab selected: its content is hidden under its copy as the first one's was, which is drawn again, from what
+    // the row measured of each tab's content before (a selection reads no tab's icon or label).
+    await tabAt(page, 'marked', 2).click();
+    await page.mouse.move(0, 0);
+    await motionEnded(row(page, 'marked'));
+    const after = await contrastChecked(page);
+    expect(after.violations, 'the faint labels are reported, once another tab is selected').toEqual(['Faint', 'Recent activity']);
+    expect(after.passes, 'the row\'s own colors pass, once another tab is selected').toEqual(['Normal', 'Notification settings', 'Profile', 'Selected']);
+    expect(after.incomplete, 'nothing is left unchecked, once another tab is selected').toEqual([]);
   });
 });
