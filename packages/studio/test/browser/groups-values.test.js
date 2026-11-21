@@ -35,7 +35,8 @@ studioTest('the brand color and the size reach the file and the preview; another
   const heights = page.locator('[data-panel="size"] [data-heights]');
   await until(async () => (await heights.textContent()) === 'Heights at this control height: small 36px (33px, raised to the minimum target) · medium 41px · large 57px', 'the heights at 41');
   await height.locator('tanrei-button', { hasText: 'Reset' }).click();
-  await saved((layer) => !layer.tokens['tanrei.dial.control.height'], 'reset');
+  // The brand color writes a palette alone: with the height reset, the layer may hold no token at all.
+  await saved((layer) => !layer.tokens?.['tanrei.dial.control.height'], 'reset');
   await until(async () => (await heights.textContent()) === 'Heights at this control height: small 36px (32px, raised to the minimum target) · medium 40px · large 56px', 'the heights at 40');
   const unit = page.locator('[data-dial="tanrei.dial.size.unit"]');
 
@@ -65,7 +66,11 @@ studioTest('the brand color and the size reach the file and the preview; another
   // The row's reset takes back both.
   await page.locator('[data-reset-dials="size"]').click();
   await saved((layer) => !layer.tokens?.['tanrei.sys.target.minimum'] && !layer.tokens?.['tanrei.dial.size.unit'], 'reset all');
-  assert.ok(onDisk().tokens['tanrei.sys.color.primary'], 'the default system is monochrome: a brand color comes with the roles that use it');
+  // The default system's primary is monochrome: the brand color is a palette alone in the file, and the engine draws
+  // the preview's primary from it — not the default system's near-black the page's own root holds.
+  assert.deepEqual(onDisk(), { id: 'acme', extends: 'tanrei', palettes: { primary: { source: { seed: '#0f766e' } } } });
+  const primary = (await css(scope, '--tanrei-sys-color-primary')).trim();
+  assert.notEqual(primary, (await css(page.locator('html'), '--tanrei-sys-color-primary')).trim(), 'the preview’s primary is the brand’s');
 
   // Another base: operations are relative to what they inherit, so the layer starts from that base's defaults — one
   // step, said with the way to undo it, as a new start from the bar is.
