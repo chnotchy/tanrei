@@ -91,7 +91,7 @@ The root is grey: a neutral palette without chroma for surfaces, text, the prima
 | Layer key | Does |
 |---|---|
 | `extends` | names the parent; values, palettes, rules and extensions are inherited down the chain |
-| `palettes` | declares palettes (from a seed or a hue and chroma, with single tones fixed where a reference publishes them); each yields a four-role intent set with its contrast checks; `null` drops an inherited declared palette |
+| `palettes` | declares palettes (from a seed or a hue and chroma, with single tones fixed where a reference publishes them); each yields a four-role intent set with its contrast checks; a palette named after a core intent gives that intent's roles their values, so a product's `primary` palette (its brand color) draws the primary roles even where the system it extends drew them from `neutral` — a rule the layer itself, or a later one, writes for a role still wins; `null` drops an inherited declared palette |
 | `tokens` | per token id: set `$value` (fixed or alias, with a `reason`), replace `derive`, or `scale` the inherited definition |
 | `rules` | pattern rules, chiefly how per-state component tokens are valued (state-layer mix, explicit color, dim, nothing) |
 | `vocabulary` | **extends the vocabulary**: a step in a series, a value on a component axis, tokens in the layer's own namespace, or the whole vocabulary of a component that lives in the layer — additive only, each with a `rationale` |
