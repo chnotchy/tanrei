@@ -691,6 +691,9 @@ test.describe('layout', () => {
         fixture('small-mixed', [b('Taken'), b('Own', { size: 'large' })], { variant: 'standard', size: 'small' }),
       ],
     });
+    // At the default control height (36) a small Button is held at the minimum target, as tall as a medium one: the
+    // sizes are told apart by their heights at a control height of 40.
+    await rootTokens(page, { '--tanrei-dial-control-height': '40px' });
     const height = (size: string) => resolveToken(page, B(`container-height-${size}`));
     const [small, medium, large] = [await height('small'), await height('medium'), await height('large')];
     expect(small).toBeLessThan(medium);

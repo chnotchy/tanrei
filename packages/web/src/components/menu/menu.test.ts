@@ -2551,6 +2551,9 @@ test.describe('submenus', () => {
     await page.setViewportSize({ width: 1000, height: 700 });
     await mount(page, [...many, sub('Last', [it('One'), it('Two'), it('Three'), it('Four')])]);
     await page.addStyleTag({ content: `#a-file { top: 150px; }` });
+    // Rows at a control height of 40, so that the last row stands low enough for its submenu to be shifted (at the
+    // default 36 the submenu fits below it).
+    await rootTokens(page, { '--tanrei-dial-control-height': '40px' });
     await openMenu(page, 'file', 'Item 1');
     await page.keyboard.press('End');
     await page.keyboard.press('ArrowRight');
@@ -4939,6 +4942,9 @@ test.describe('where the list stands, and how Japanese lines break', () => {
     await mountFixtures(page, spec, { fixtures: [overlay('actions', ACTIONS)] });
     await menu(page, 'actions').evaluate((el) => el.setAttribute('lang', 'ja'));
     await page.addStyleTag({ content: `#a-actions { position: fixed; top: 380px; left: 16px; }` });
+    // Rows at a control height of 40, so that the list is taller than its room in this window (at the default 36 it
+    // fits within a few pixels).
+    await rootTokens(page, { '--tanrei-dial-control-height': '40px' });
     await wire(page);
     await watchScrolls(page);
   };

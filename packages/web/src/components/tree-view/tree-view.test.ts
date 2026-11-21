@@ -710,6 +710,9 @@ test.describe('open and closed', () => {
     await mount(page, { fixtures: [raw('small', { label: 'Small' }, SMALL)], reducedMotion: true });
     await nameItems(page);
     await page.addStyleTag({ content: `[data-fixture="small"] { block-size: 150px; overflow: auto; padding: 0 !important; }` });
+    // Rows at a control height of 40, which the distances below are written for (at the default 36 the tree scrolls
+    // less than 200).
+    await rootTokens(page, { '--tanrei-dial-control-height': '40px' });
     const box = stage(page, 'small');
     // Its row stays; what follows moves.
     await box.evaluate((el) => (el.scrollTop = 200));
@@ -2841,7 +2844,7 @@ test.describe('before the element is defined, without script, in a shadow root',
         }),
       );
     // The look, with no script at all.
-    expect((await edges(row(page, 'all-parts', 'package.json'))).height).toBe(40);
+    expect((await edges(row(page, 'all-parts', 'package.json'))).height).toBe(36);
     const src = await drawn(row(page, 'all-parts', 'src'));
     expect(src.chevron.content).toContain('chevron_right');
     expect(src.chevron.rotate).toBe('90deg');
@@ -2907,7 +2910,7 @@ test.describe('before the element is defined, without script, in a shadow root',
     const inner = page.locator('#shadowed tanrei-tree-view');
     await expect.poll(() => css(inner.locator('li').first().locator('> span'), 'display')).toBe('grid');
     const first = inner.locator('li').first().locator('> span');
-    expect((await edges(first)).height).toBe(40);
+    expect((await edges(first)).height).toBe(36);
     await expect.poll(() => css(inner.locator('li[data-value="a1"] > span'), 'background-color', '::after')).toBe(await resolveColor(page, T('selected-container-color')));
     near(Number.parseFloat(await css(inner.locator('li[data-value="a1"] > span'), 'left', '::after')), (await resolveToken(page, T('chevron-size-medium'))) + (await resolveToken(page, T('container-gap-medium'))));
     // Read in the task of the click, after the element has answered it (as TRV-11's turn is): asked for afterwards, the

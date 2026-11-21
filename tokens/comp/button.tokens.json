@@ -121,7 +121,7 @@
             },
             "medium": {
               "$value": {
-                "value": 40,
+                "value": 36,
                 "unit": "px"
               },
               "$extensions": {
@@ -136,7 +136,7 @@
             },
             "large": {
               "$value": {
-                "value": 56,
+                "value": 52,
                 "unit": "px"
               },
               "$extensions": {
@@ -305,7 +305,7 @@
             },
             "medium": {
               "$value": {
-                "value": 6,
+                "value": 4,
                 "unit": "px"
               },
               "$extensions": {
@@ -318,7 +318,7 @@
             },
             "large": {
               "$value": {
-                "value": 6,
+                "value": 4,
                 "unit": "px"
               },
               "$extensions": {

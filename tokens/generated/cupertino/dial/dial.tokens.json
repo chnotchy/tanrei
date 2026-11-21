@@ -3848,6 +3848,13 @@
               "$value": "{tanrei.sys.typescale.body-subhead}",
               "reason": "A small Apple button carries Subheadline (15pt); the medium and large sizes carry Body (17pt)."
             },
+            "tanrei.dial.control.height": {
+              "$value": {
+                "value": 40,
+                "unit": "px"
+              },
+              "reason": "This preset keeps the heights it drew on a ladder from 40 (24, 32, 40, 56, 72), where the default system draws its controls from 36; Apple publishes no iOS, iPadOS or macOS control height, so moving it is a fidelity decision for this preset."
+            },
             "tanrei.sys.target.minimum": {
               "$value": {
                 "value": 28,
@@ -6480,6 +6487,9 @@
             "dev.tanrei.reference": {
               "value": 40,
               "unit": "px"
+            },
+            "dev.tanrei.derive": {
+              "fixed": "This preset keeps the heights it drew on a ladder from 40 (24, 32, 40, 56, 72), where the default system draws its controls from 36; Apple publishes no iOS, iPadOS or macOS control height, so moving it is a fidelity decision for this preset."
             }
           }
         }

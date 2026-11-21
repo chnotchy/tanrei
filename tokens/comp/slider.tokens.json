@@ -70,9 +70,9 @@
         "container": {
           "size": {
             "$type": "dimension",
-            "$description": "The diameter of the round state layer centered on each handle: the control height (40 in the default system), so that a horizontal slider, as thick as the larger of it and the handle, stands as tall as the Buttons and fields beside it. It sets how far the track is inset from the slider's ends, so that a handle and its state layer stay inside the slider at min and max. The track and the handle keep their own sizes at every control height. 0 draws no state layer.",
+            "$description": "The diameter of the round state layer centered on each handle: the control height (36 in the default system), so that a horizontal slider, as thick as the larger of it and the handle, stands as tall as the Buttons and fields beside it. It sets how far the track is inset from the slider's ends, so that a handle and its state layer stay inside the slider at min and max. The track and the handle keep their own sizes at every control height. 0 draws no state layer.",
             "$value": {
-              "value": 40,
+              "value": 36,
               "unit": "px"
             },
             "$extensions": {

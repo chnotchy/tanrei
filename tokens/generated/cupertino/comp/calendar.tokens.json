@@ -60,7 +60,7 @@
                 "value": 36,
                 "unit": "px"
               },
-              "$description": "The least height of the month-and-year button: the control height (40 in the default system), so that it stands as tall as the previous and next Buttons beside it in the navigation row. Never below the minimum target; its hit area extends to the pointer and touch targets.",
+              "$description": "The least height of the month-and-year button: the control height (36 in the default system), so that it stands as tall as the previous and next Buttons beside it in the navigation row. Never below the minimum target; its hit area extends to the pointer and touch targets.",
               "$extensions": {
                 "dev.tanrei.derive": {
                   "fn": "mul",
@@ -205,7 +205,7 @@
             },
             "height": {
               "$type": "dimension",
-              "$description": "The height of a year's container: the control height (40 in the default system), as a day's container is, centred in its row of cell.size. Never below the minimum target.",
+              "$description": "The height of a year's container: the control height (36 in the default system), as a day's container is, centred in its row of cell.size. Never below the minimum target.",
               "$value": {
                 "value": 36,
                 "unit": "px"

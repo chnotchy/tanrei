@@ -172,9 +172,9 @@
             "since": "0.1.0"
           },
           "dev.tanrei.llm": {
-            "usage": "The control height ladder: steps a number of size units from dial.control.height — extra-small H − 4u, small H − 2u, medium H, large H + 4u, extra-large H + 8u (24, 32, 40, 56, 72 at H 40 and u 4). A component height of one of these sizes aliases its step, with min: sys.target.minimum where a person presses it.",
+            "usage": "The control height ladder: steps a number of size units from dial.control.height — extra-small H − 4u, small H − 2u, medium H, large H + 4u, extra-large H + 8u (20, 28, 36, 52, 68 at the default H 36 and u 4; 24, 32, 40, 56, 72 at H 40). A component height of one of these sizes aliases its step, with min: sys.target.minimum where a person presses it.",
             "rules": [
-              "The ladder itself has no minimum: extra-small is for things nobody presses (a tag, a keyboard shortcut). A pressable height reads a step through { \"fn\": \"mul\", \"of\": \"{step}\", \"by\": 1, \"min\": \"{tanrei.sys.target.minimum}\" }."
+              "The ladder itself has no minimum: extra-small is for things nobody presses (a tag and a key cap, which are sized by their text, keep heights of their own). A pressable height reads a step through { \"fn\": \"mul\", \"of\": \"{step}\", \"by\": 1, \"min\": \"{tanrei.sys.target.minimum}\" }."
             ]
           }
         },

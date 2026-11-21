@@ -50,8 +50,11 @@ export async function expectBoxTakesContainerSize(
     const [small, medium, large] = [await height('small'), await height('medium'), await height('large')];
     expect(await boxes(all), `control height ${control}`).toEqual({ taken: small, own: large, 'own-medium': medium, free: medium, alone: medium });
   }
-  await rootTokens(page, { '--tanrei-dial-control-height': '' });
+  // The rest is read at a control height of 40, where the three sizes are three heights: at the default system's 36 a
+  // small box is held at the minimum target, as tall as a medium one, and a change between the two would not show.
+  await rootTokens(page, { '--tanrei-dial-control-height': '40px' });
   const [small, medium, large] = [await height('small'), await height('medium'), await height('large')];
+  expect(small, 'the premise: three heights').toBeLessThan(medium);
   // A small box is as tall as the small Buttons beside it (TXI-16): the toolbar's items stand in one line.
   expect(small).toBe(await resolveToken(page, '--tanrei-comp-button-container-height-small'));
   expect(await page.evaluate(() => ['taken', 'free', 'alone'].map((id) => document.getElementById(id)!.getAttribute('size')))).toEqual([null, null, null]);
@@ -117,6 +120,9 @@ export async function expectOptionsTakeDrawnSize(page: Page, tag: string): Promi
     box.open = false;
     await box.updateComplete;
   }, id);
+  // At a control height of 40, where a small row is lower than a medium one: at the default system's 36 both are held
+  // at the minimum target.
+  await rootTokens(page, { '--tanrei-dial-control-height': '40px' });
   const heights: Record<string, number> = {};
   for (const id of ['options-small-alone', 'options-medium-alone', 'options-taken', 'options-own']) {
     heights[id] = await rowHeight(id);

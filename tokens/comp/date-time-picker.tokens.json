@@ -418,10 +418,10 @@
             "height": {
               "$type": "dimension",
               "$value": {
-                "value": 40,
+                "value": 36,
                 "unit": "px"
               },
-              "$description": "The least height of a range field, one end of a span of times in the range display: the control height (40 in the default system), so that the range display stands as tall as a field and the Buttons of the picker. Never below the minimum target, because a press on it chooses which end the wheels or the dial set.",
+              "$description": "The least height of a range field, one end of a span of times in the range display: the control height (36 in the default system), so that the range display stands as tall as a field and the Buttons of the picker. Never below the minimum target, because a press on it chooses which end the wheels or the dial set.",
               "$extensions": {
                 "dev.tanrei.derive": {
                   "fn": "mul",

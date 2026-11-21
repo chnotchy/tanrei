@@ -50,8 +50,8 @@ test('all three kinds of extension become ordinary tokens, read back through a s
   assert.notEqual(model.colors.light['brand-glow'].value.hex, model.colors.dark['brand-glow'].value.hex);
 
   // 2a. a size: one line values every member of the axis, from `large` × 1.5, still following the dials
-  //    (large is 56 high with 24 padding: 56 × 1.5 = 84, 24 × 1.5 = 36)
-  assert.deepEqual(value('tanrei.comp.button.container.height.3x'), { value: 84, unit: 'px' });
+  //    (large is 52 high at the default control height of 36, with 24 padding: 52 × 1.5 = 78, 24 × 1.5 = 36)
+  assert.deepEqual(value('tanrei.comp.button.container.height.3x'), { value: 78, unit: 'px' });
   assert.deepEqual(value('tanrei.comp.button.container.padding-inline-start.3x'), { value: 36, unit: 'px' });
   assert.equal(model.tokens['tanrei.comp.button.container.padding-inline-start.3x'].derive.of, '{tanrei.sys.space.space300}');
   assert.deepEqual(value('tanrei.comp.button.container.padding-block.3x'), { value: 16, unit: 'px' }, 'a single member overridden under "tokens"');
@@ -73,7 +73,7 @@ test('all three kinds of extension become ordinary tokens, read back through a s
   assert.ok(extensions.every((e) => e.declaredBy === 'acme' && e.rationale.length >= 8));
 
   // Nothing else moved, the invariants hold, and the web output carries the new names with live dials.
-  assert.deepEqual(value('tanrei.comp.button.container.height.large'), { value: 56, unit: 'px' });
+  assert.deepEqual(value('tanrei.comp.button.container.height.large'), { value: 52, unit: 'px' });
   assert.deepEqual(checkInvariants(model), []);
   const css = emitCss(model, { scope: 'acme' });
   // The large Button reads the ladder's large step with the minimum target as its floor; the size cloned from it

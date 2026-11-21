@@ -340,7 +340,7 @@ export class TanreiSegmentedButton extends TanreiElement {
   /** The values of the selected segments while `selection` is multiple. Assign a new array to change it; the set assigns one when a segment is switched. */
   values: string[] = [];
 
-  /** Visual height (32 / 36 / 40 in the default system, Button's heights). The hit area always meets the minimum target. */
+  /** Visual height (36 / 36 / 52 in the default system, the small one held at the minimum target: Button's heights). The hit area always meets the minimum target. */
   size: TanreiSegmentedButtonSize = 'medium';
 
   /**

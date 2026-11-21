@@ -127,7 +127,7 @@
           },
           "height": {
             "$type": "dimension",
-            "$description": "Minimum height of the set and of every segment, per size: the step of the control height ladder of its size, a Button's of the same size (36 / 40 / 56 in the default system, the small one held at the minimum target), so that a medium set stands as tall as the Buttons and fields beside it, the control height.",
+            "$description": "Minimum height of the set and of every segment, per size: the step of the control height ladder of its size, a Button's of the same size (36 / 36 / 52 in the default system, the small one held at the minimum target), so that a medium set stands as tall as the Buttons and fields beside it, the control height.",
             "small": {
               "$value": {
                 "value": 36,
@@ -144,7 +144,7 @@
             },
             "medium": {
               "$value": {
-                "value": 40,
+                "value": 36,
                 "unit": "px"
               },
               "$extensions": {
@@ -159,7 +159,7 @@
             },
             "large": {
               "$value": {
-                "value": 56,
+                "value": 52,
                 "unit": "px"
               },
               "$extensions": {
@@ -203,7 +203,7 @@
             },
             "medium": {
               "$value": {
-                "value": 6,
+                "value": 4,
                 "unit": "px"
               },
               "$extensions": {
@@ -216,7 +216,7 @@
             },
             "large": {
               "$value": {
-                "value": 6,
+                "value": 4,
                 "unit": "px"
               },
               "$extensions": {

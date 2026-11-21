@@ -75,7 +75,7 @@
         "container": {
           "height": {
             "$type": "dimension",
-            "$description": "The bar's minimum height: the control height (40 in the default system), so that a search bar stands as tall as the Buttons, the fields and the button trigger beside it, never below the minimum target. The icon-only Buttons it holds are of that height and stand in it as they stand in a row.",
+            "$description": "The bar's minimum height: the control height (36 in the default system), so that a search bar stands as tall as the Buttons, the fields and the button trigger beside it, never below the minimum target. The icon-only Buttons it holds are of that height and stand in it as they stand in a row.",
             "$value": {
               "value": 56,
               "unit": "px"
@@ -112,7 +112,7 @@
           },
           "button-gap": {
             "$type": "dimension",
-            "$description": "Between two neighbouring action buttons of the bar: the clear button and the icon-only Buttons of the trailing slot. 0 in the default system: the buttons stand as close as their targets allow, each keeping sys.target.touch along the row (SRC-34): in the default system every Button is at least that wide, so they touch; under a 48 target two medium buttons (40) would stand 8 apart.",
+            "$description": "Between two neighbouring action buttons of the bar: the clear button and the icon-only Buttons of the trailing slot. 0 in the default system: the buttons stand as close as their targets allow, each keeping sys.target.touch along the row (SRC-34): in the default system every Button is at least that wide, so they touch; under a 48 target two medium buttons (36) would stand 12 apart.",
             "$extensions": {
               "dev.tanrei.vocabulary": {
                 "rationale": "One product sets the actions at the end of its search bar as one tight cluster while the input keeps its distance from them: the space between two actions and the space between the text and an action are two decisions, and a system that draws its bar's icons evenly spaced gives both the same value.",

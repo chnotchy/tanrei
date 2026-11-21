@@ -634,11 +634,11 @@ test.describe('drawing', () => {
     // groups-nested: Foundations (group, an icon) › Color, Design tokens (group, no icon) › Overview, Tiers.
     const top = await bounds(group(page, full, 0).locator('.row > .container').first());
     expect(top.x - p.x).toBe(12);
-    expect(top.height).toBe(40);
-    // The top-level icon has 12 on its start side inside its item container, and 8 above and below it in a row at the
-    // control height (40).
+    expect(top.height).toBe(36);
+    // The top-level icon has 12 on its start side inside its item container, and 6 above and below it in a row at the
+    // control height (36).
     const topIcon = await bounds(group(page, full, 0).locator('.icon').first());
-    expect([topIcon.x - top.x, topIcon.y - top.y, top.y + top.height - (topIcon.y + topIcon.height)]).toEqual([12, 8, 8]);
+    expect([topIcon.x - top.x, topIcon.y - top.y, top.y + top.height - (topIcon.y + topIcon.height)]).toEqual([12, 6, 6]);
     expect(topIcon.x + topIcon.width / 2 - p.x).toBe(36);
     // One level deep (auto): one icon and gap further, so the label is under its group's label, 60.
     expect(await startOf(item(page, full, 0).locator('.label'))).toBe(60);
@@ -1117,24 +1117,24 @@ test.describe('the collapsed form', () => {
     expect(c.icons).toEqual(e.icons);
     expect(c.menu).toEqual(e.menu);
     expect(c.heading).toBeCloseTo(e.heading, 0);
-    // The verify: 40 high in both forms (the control height), the icon line 20 below the top.
-    expect(c.cells[0].height).toBe(40);
-    expect(c.icons[0].y - c.cells[0].y).toBe(20);
+    // The verify: 36 high in both forms (the control height), the icon line 18 below the top.
+    expect(c.cells[0].height).toBe(36);
+    expect(c.icons[0].y - c.cells[0].y).toBe(18);
     expect(c.cells[0].height).toBeCloseTo(above + Math.max(row / 2, ind / 2 + pad), 0);
     // With labels: a cell grows to hold the short label under its item container (the item container's lower half, the
-    // gap, the line and collapsed padding-block again), in both forms alike; the verify: 68 high.
+    // gap, the line and collapsed padding-block again), in both forms alike; the verify: 62 high.
     expect(ca.cells).toEqual(ea.cells);
     expect(ca.icons).toEqual(ea.icons);
     expect(ca.cells[0].height).toBeGreaterThan(c.cells[0].height);
     expect(ca.cells[0].height).toBeCloseTo(above + Math.max(row / 2, ind / 2 + pad + gap + line + pad), 0);
-    expect(ca.cells[0].height).toBe(68);
+    expect(ca.cells[0].height).toBe(62);
     // The main action's glyph does not move WHERE its padding before the glyph is half the difference of its height and
     // its glyph (NVD-39): measured here, and reported by the test when the system's button does not have that padding.
     expect(Math.abs(c.main.y - e.main.y)).toBeLessThanOrEqual(0.5);
     expect(Math.abs(c.main.x - e.main.x)).toBeLessThanOrEqual(0.5);
   });
 
-  test('NVD-32: collapsed, a top-level cell is a square as tall as its row — under the default system 40 by 40 with the expanded row’s corners, its icon at the point it has expanded, no label, filled exactly as the expanded row is and never a capsule — with no trailing content and none of a group’s items', async ({ page }) => {
+  test('NVD-32: collapsed, a top-level cell is a square as tall as its row — under the default system 36 by 36 with the expanded row’s corners, its icon at the point it has expanded, no label, filled exactly as the expanded row is and never a capsule — with no trailing content and none of a group’s items', async ({ page }) => {
     await mount(page, only('collapsed', 'collapsible-expanded', 'collapsed-groups'), { reducedMotion: true });
     const [column, cw, pad, iw, ih, shape, rowShape] = await Promise.all(
       [T('collapsed-container-width-medium'), T('collapsed-item-container-width-medium'), T('collapsed-item-container-padding-block-medium'), T('item-icon-indicator-width-medium'), T('item-icon-indicator-height-medium'), T('collapsed-item-container-shape'), T('item-container-shape')].map((n) => px(page, n)),
@@ -1143,8 +1143,8 @@ test.describe('the collapsed form', () => {
     const e = await bounds(panel(page, 'collapsible-expanded'));
     for (const n of [0, 1, 2, 3]) {
       const [c, indicator, icon] = await Promise.all(['.row > .container', '.icon-indicator', '.icon'].map((s) => bounds(item(page, 'collapsed', n).locator(s))));
-      // The verify: 40 by 40 (the control height), centred in the icon column.
-      expect([c.width, c.height], `${n}`).toEqual([40, 40]);
+      // The verify: 36 by 36 (the control height), centred in the icon column.
+      expect([c.width, c.height], `${n}`).toEqual([36, 36]);
       expect([c.width, column]).toEqual([cw, 72]);
       expect(centre(c).x - p.x).toBeCloseTo(column / 2, 1);
       expect([indicator.width, indicator.height]).toEqual([iw, ih]);
@@ -1183,9 +1183,9 @@ test.describe('the collapsed form', () => {
     const p = await bounds(panel(page, 'collapsed-labels-always'));
     for (const n of [0, 1, 2, 3]) {
       const [c, indicator, short, hit] = await Promise.all(['.row > .container', '.icon-indicator', '.short', '.cell'].map((s) => bounds(item(page, 'collapsed-labels-always', n).locator(s))));
-      // The verify: the item container is the same 40 by 40 square with a label as without one, behind the icon alone.
+      // The verify: the item container is the same 36 by 36 square with a label as without one, behind the icon alone.
       expect([c.width, c.height], `${n}`).toEqual([cw, cw]);
-      expect([c.width, c.height]).toEqual([40, 40]);
+      expect([c.width, c.height]).toEqual([36, 36]);
       expect(indicator.y - c.y).toBeCloseTo(pad, 1);
       expect(c.y + c.height - (indicator.y + indicator.height)).toBeCloseTo(pad, 1);
       // The short label: the gap under the item container, collapsed padding-block below it inside the cell.
@@ -1578,7 +1578,8 @@ test.describe('the collapsed form', () => {
         // Reported: a collapsed square wider than the column — the large one in the default system's columns.
         if (!system) {
           await expect.poll(() => seen.filter((w) => w.includes('NVD-39') && w.includes('collapsed square')).length).toBe(2);
-          expect(seen.filter((w) => w.includes('NVD-39') && w.includes('collapsed square') && !w.includes('is 96 wide'))).toEqual([]);
+          const large = await resolveToken(page, '--tanrei-comp-main-action-button-container-height-large');
+          expect(seen.filter((w) => w.includes('NVD-39') && w.includes('collapsed square') && !w.includes(`is ${large} wide`))).toEqual([]);
         }
       }
     }
@@ -3238,6 +3239,10 @@ test.describe('a drawer that follows the window', () => {
 });
 
 test.describe('a site’s sidebar', () => {
+  // The distances below are written for rows at a control height of 40, the presets': at the default system's 36 the
+  // long drawer's selected row lies within half a frame of the end of its range, and is held there rather than centred.
+  const AT_40 = '<style>:root { --tanrei-dial-control-height: 40px; }</style>';
+  const mount = (page: P, fixtures: Fixture[], options: Parameters<typeof mountFixtures>[2] = {}) => mountFixtures(page, spec, { icons: true, fixtures, lead: AT_40, ...options });
   const LONG = spec.fixtures.find((f) => f.id === 'site-sidebar-long')!;
   const RESTORED = spec.fixtures.find((f) => f.id === 'site-sidebar-restored')!;
   /** The long tree with other props, and each group's `open` as `open(label)` says (as the fixture has it where it says nothing). */
@@ -3298,7 +3303,7 @@ test.describe('a site’s sidebar', () => {
   /** Mounts `fixtures` in a page that has watched them since before they were upgraded, and waits for twenty drawn frames. */
   const watched = async (page: P, fixtures: Fixture[], inline = '') => {
     await page.emulateMedia({ reducedMotion: 'no-preference' });
-    const html = await fixturesDocument(spec, { icons: true, fixtures });
+    const html = await fixturesDocument(spec, { icons: true, fixtures, lead: AT_40 });
     // `inline`: a script of the page's own right after the drawer's markup, as a site's would stand.
     await page.setContent(html.replace('<head>', `<head><script>${WATCH}</script>`).replace('</main>', () => `</main><script>${inline}</script>`));
     await page.waitForFunction(() => (window as any).seen.frames.length >= 20);
@@ -4429,6 +4434,8 @@ test.describe('the row model shared with the tree view', () => {
 
   test('NVD-77: with stickyParents the rows of the open groups the top rows belong to are pinned, the innermost stickyMax of them, each under the one above, the last with its line; Tab to a row under them scrolls it below them; none while collapsed or off', async ({ page }) => {
     await mount(page, [{ ...F('sticky'), props: { ...F('sticky').props, scrollOffset: 0 } }], { reducedMotion: true });
+    // Rows at a control height of 40, which the scroll distances below are written for.
+    await rootTokens(page, { '--tanrei-dial-control-height': '40px' });
     const id = 'sticky';
     const scroller = drawer(page, id).locator('[part="content"]');
     const pinned = () => drawer(page, id).evaluate((el) => [...el.querySelectorAll<any>('tanrei-navigation-drawer-group')].filter((g) => g.isPinned).map((g) => g.label));

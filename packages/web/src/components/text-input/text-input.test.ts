@@ -472,11 +472,16 @@ test.describe('behavior', () => {
       const hit = await part(page, id, '.field > .container').evaluate((el) => Number.parseFloat(getComputedStyle(el, '::before').height));
       expect(hit, id).toBe(Math.max(box.height, pointer));
       // The label, the padding, the prefix, a decorative icon, and just outside the visual bounds inside the target.
+      // (Where the target is no taller than the box, as in the default system, nothing reaches outside it to press.)
       const spots = [
         [box.x + 4, box.y + box.height / 2],
         [box.x + box.width - 4, box.y + box.height / 2],
-        [box.x + box.width / 2, box.y - (pointer - box.height) / 4],
-        [box.x + box.width / 2, box.y + box.height + (pointer - box.height) / 4],
+        ...(pointer > box.height
+          ? [
+              [box.x + box.width / 2, box.y - (pointer - box.height) / 4],
+              [box.x + box.width / 2, box.y + box.height + (pointer - box.height) / 4],
+            ]
+          : []),
       ];
       const blur = () => page.evaluate(() => (document.activeElement as HTMLElement | null)?.blur());
       for (const [x, y] of spots) {

@@ -75,7 +75,7 @@
         "container": {
           "height": {
             "$type": "dimension",
-            "$description": "The height, per size; collapsed, the container is a square of this side (a circle under full corners). Small is the medium step of the control height ladder and medium its large step, each held at the minimum target; large is ten size units above the large step, so it is never under the minimum either. Collapsed, small, medium and large are squares of 40, 56 and 96 at the control height of 40; extended, the button keeps the height of its size.",
+            "$description": "The height, per size; collapsed, the container is a square of this side (a circle under full corners). Small is the medium step of the control height ladder and medium its large step, each held at the minimum target; large is a third above the extra-large step, on the size unit's grid, so it is never under the minimum either and scales as a size a layer adds from it does. Collapsed, small, medium and large are squares of 36, 52 and 92 in the default system (40, 56 and 96 at a control height of 40); extended, the button keeps the height of its size.",
             "small": {
               "$value": {
                 "value": 40,
@@ -160,15 +160,45 @@
           },
           "padding-inline-start-with-icon": {
             "$type": "dimension",
-            "$description": "Start padding when the icon is leading; tighter, so the glyph aligns optically.",
+            "$description": "Start padding when the icon is leading; tighter, so the glyph aligns optically. It follows the height of its size as the block padding does, giving up half of what the height loses below the control height's reference of 40, so that a medium button's glyph stands where its collapsed square centres it at every control height.",
             "small": {
-              "$value": "{tanrei.sys.space.space150}"
+              "$value": {
+                "value": 12,
+                "unit": "px"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fn": "pad",
+                  "of": "{tanrei.sys.space.space150}",
+                  "height": "{tanrei.comp.main-action-button.container.height.small}"
+                }
+              }
             },
             "medium": {
-              "$value": "{tanrei.sys.space.space200}"
+              "$value": {
+                "value": 16,
+                "unit": "px"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fn": "pad",
+                  "of": "{tanrei.sys.space.space200}",
+                  "height": "{tanrei.comp.main-action-button.container.height.medium}"
+                }
+              }
             },
             "large": {
-              "$value": "{tanrei.sys.space.space300}"
+              "$value": {
+                "value": 24,
+                "unit": "px"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fn": "pad",
+                  "of": "{tanrei.sys.space.space300}",
+                  "height": "{tanrei.comp.main-action-button.container.height.large}"
+                }
+              }
             }
           },
           "padding-inline-end-with-icon": {

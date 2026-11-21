@@ -170,7 +170,7 @@
               "value": 40,
               "unit": "px"
             },
-            "$description": "The playback control's square, and the height of the dots' container, around a 24 glyph: the control height (40 in the default system), held at the minimum target, so that the controls row stands as tall as an icon-only Button of the default size.",
+            "$description": "The playback control's square, and the height of the dots' container, around a 24 glyph: the control height (36 in the default system), held at the minimum target, so that the controls row stands as tall as an icon-only Button of the default size.",
             "$extensions": {
               "dev.tanrei.derive": {
                 "fn": "mul",

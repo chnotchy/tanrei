@@ -181,7 +181,7 @@ export class TanreiButtonWithMenu extends TanreiElement {
 
   /**
    * Visual height: `comp.button-with-menu.container.height.<size>`, Button's heights, never below `sys.target.minimum`
-   * (36 / 40 / 56 in the default system, the small one held at the minimum). The hit areas always meet the minimum
+   * (36 / 36 / 52 in the default system, the small one held at the minimum). The hit areas always meet the minimum
    * target. While it is not set the button with menu draws the size its nearest container sets — a toolbar's `size`
    * (SPB-37) — and `medium` where none does; reading it then gives `medium`. Setting it (to any value, `medium`
    * included) makes it its own, whatever a container sets; removing the attribute gives that back.

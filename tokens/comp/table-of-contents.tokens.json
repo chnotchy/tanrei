@@ -89,10 +89,10 @@
         "row": {
           "height": {
             "$type": "dimension",
-            "$description": "An item's least height, per size: one line of its label and its size's padding-block twice in the default system. Medium is the control height (40 in the default system), so that a row of the default size stands as tall as every other control of that size. Small is the small step of the control heights, never below the minimum target (36 in the default system): the size a product asks for by name, for a long list beside the text. A minimum at both: a row grows with a label that wraps and with enlarged text, and it is never lower than the touch target for touch nor the pointer target for a fine pointer, whatever this says (TOC-24).",
+            "$description": "An item's least height, per size: one line of its label and its size's padding-block twice in the default system. Medium is the control height (36 in the default system), so that a row of the default size stands as tall as every other control of that size. Small is the small step of the control heights, never below the minimum target (36 in the default system): the size a product asks for by name, for a long list beside the text. A minimum at both: a row grows with a label that wraps and with enlarged text, and it is never lower than the touch target for touch nor the pointer target for a fine pointer, whatever this says (TOC-24).",
             "medium": {
               "$value": {
-                "value": 40,
+                "value": 36,
                 "unit": "px"
               },
               "$extensions": {
@@ -130,7 +130,7 @@
             "$description": "Above and below a row's label, per size. With one line of the label it gives the size's height exactly in the default system; it holds the room when the label wraps or the text is enlarged.",
             "medium": {
               "$value": {
-                "value": 10,
+                "value": 8,
                 "unit": "px"
               },
               "$extensions": {
@@ -219,7 +219,7 @@
             "height": {
               "$type": "dimension",
               "$value": {
-                "value": 40,
+                "value": 36,
                 "unit": "px"
               },
               "$extensions": {
@@ -231,7 +231,7 @@
                 },
                 "dev.tanrei.aligned": "control"
               },
-              "$description": "The least height of the compact form's row: the control height (40 in the default system), as tall as the Buttons and fields beside it. The compact form is the form of narrow windows, so for touch the row is never lower than the touch target, whatever this says (TOC-24). A minimum: it grows with enlarged text."
+              "$description": "The least height of the compact form's row: the control height (36 in the default system), as tall as the Buttons and fields beside it. The compact form is the form of narrow windows, so for touch the row is never lower than the touch target, whatever this says (TOC-24). A minimum: it grows with enlarged text."
             },
             "padding-inline": {
               "$type": "dimension",

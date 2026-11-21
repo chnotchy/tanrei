@@ -156,9 +156,9 @@
             "since": "0.1.0"
           },
           "dev.tanrei.llm": {
-            "usage": "The control height ladder: steps a number of size units from dial.control.height — extra-small H − 4u, small H − 2u, medium H, large H + 4u, extra-large H + 8u (24, 32, 40, 56, 72 at H 40 and u 4). A component height of one of these sizes aliases its step, with min: sys.target.minimum where a person presses it.",
+            "usage": "The control height ladder: steps a number of size units from dial.control.height — extra-small H − 4u, small H − 2u, medium H, large H + 4u, extra-large H + 8u (20, 28, 36, 52, 68 at the default H 36 and u 4; 24, 32, 40, 56, 72 at H 40). A component height of one of these sizes aliases its step, with min: sys.target.minimum where a person presses it.",
             "rules": [
-              "The ladder itself has no minimum: extra-small is for things nobody presses (a tag, a keyboard shortcut). A pressable height reads a step through { \"fn\": \"mul\", \"of\": \"{step}\", \"by\": 1, \"min\": \"{tanrei.sys.target.minimum}\" }."
+              "The ladder itself has no minimum: extra-small is for things nobody presses (a tag and a key cap, which are sized by their text, keep heights of their own). A pressable height reads a step through { \"fn\": \"mul\", \"of\": \"{step}\", \"by\": 1, \"min\": \"{tanrei.sys.target.minimum}\" }."
             ]
           }
         },
@@ -166,7 +166,7 @@
           "$description": "The heights a control is drawn at, one per size name: medium is the control height, and the others are whole size units from it.",
           "extra-small": {
             "$value": {
-              "value": 24,
+              "value": 20,
               "unit": "px"
             },
             "$extensions": {
@@ -180,7 +180,7 @@
           },
           "small": {
             "$value": {
-              "value": 32,
+              "value": 28,
               "unit": "px"
             },
             "$extensions": {
@@ -194,7 +194,7 @@
           },
           "medium": {
             "$value": {
-              "value": 40,
+              "value": 36,
               "unit": "px"
             },
             "$extensions": {
@@ -208,7 +208,7 @@
           },
           "large": {
             "$value": {
-              "value": 56,
+              "value": 52,
               "unit": "px"
             },
             "$extensions": {
@@ -222,7 +222,7 @@
           },
           "extra-large": {
             "$value": {
-              "value": 72,
+              "value": 68,
               "unit": "px"
             },
             "$extensions": {

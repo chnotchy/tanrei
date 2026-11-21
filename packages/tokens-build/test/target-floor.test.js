@@ -121,10 +121,8 @@ test('the sweep: at every control height and minimum no floored height is under 
       const at = `control height ${height}, minimum ${minimum}`;
       const under = floors.filter((id) => tokens[id]?.$value?.value < minimum).map((id) => `${id} ${tokens[id].$value.value}`);
       assert.deepEqual(under, [], `${at}: floored heights under the minimum`);
-      // A tag is sized by its text, but reads the extra-small step today: below a control height of 40 that step is
-      // lower than its line. The change that gives tags, keyboard shortcuts and badges heights of their own, apart from
-      // the ladder, takes it off this list; until then it is the one height allowed to fall short, and only below 40.
-      const short = heldContent(tokens).filter((problem) => !(height < 40 && problem.startsWith(`${NS}.comp.tag.container.height.medium:`)));
+      // A tag and a key cap are sized by their text and keep heights of their own: every height holds its content.
+      const short = heldContent(tokens);
       assert.deepEqual(short, [], `${at}: heights that cannot hold their content`);
       for (const [step, ids] of Object.entries(ladder)) {
         const expected = Math.max(minimum, tokens[`${NS}.sys.control.height.${step}`].$value.value);

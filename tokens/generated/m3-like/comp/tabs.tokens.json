@@ -98,7 +98,7 @@
           },
           "height": {
             "$type": "dimension",
-            "$description": "Minimum height of a tab, per size; the row, and with it the track, is as tall as its tabs. Medium is the row of a screen's views, drawn at the control height (40 in the default system), as tall as the Buttons and fields beside it. Small is the row in a header or a toolbar, as tall as a small Button, so that the two share a line; where a system's target is taller than it, its hit area reaches above and below it to the target.",
+            "$description": "Minimum height of a tab, per size; the row, and with it the track, is as tall as its tabs. Medium is the row of a screen's views, drawn at the control height (36 in the default system), as tall as the Buttons and fields beside it. Small is the row in a header or a toolbar, as tall as a small Button, so that the two share a line; where a system's target is taller than it, its hit area reaches above and below it to the target.",
             "$extensions": {
               "dev.tanrei.vocabulary": {
                 "rationale": "One product puts a row of tabs at the top of a screen's content, where it is as tall as a finger needs, and another in the header of a card, a figure or a toolbar beside a title and small buttons, where a row that tall would make the header taller than what it heads.",

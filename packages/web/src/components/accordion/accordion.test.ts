@@ -161,10 +161,10 @@ test.describe('the column, the header and its parts', () => {
     expect(await css(header(page, 'single', 1), 'font')).toBe(await css(header(page, 'all-closed', 1), 'font'));
   });
 
-  test('ACC-2: a header is one row across the item — 40 high (the control height) with the label 16 from the start and the chevron’s box 16 from the end at medium, 36 with 12 and 12 at small (a small navigation drawer row’s) — its parts container.gap apart, the icon, trailing text and chevron on the label’s first line, and any height beyond its text shared above and below', async ({ page }) => {
+  test('ACC-2: a header is one row across the item — 36 high (the control height) with the label 16 from the start and the chevron’s box 16 from the end at medium, 36 with 12 and 12 at small (a small navigation drawer row’s) — its parts container.gap apart, the icon, trailing text and chevron on the label’s first line, and any height beyond its text shared above and below', async ({ page }) => {
     await mountFixtures(page, spec, { icons: true, fixtures: some('plain', 'small', 'all-parts', 'long-label') });
     for (const [id, height, inset, size] of [
-      ['plain', 40, 16, 'medium'],
+      ['plain', 36, 16, 'medium'],
       ['small', 36, 12, 'small'],
     ] as const) {
       const row = await edges(header(page, id, 2));
@@ -250,7 +250,7 @@ test.describe('the column, the header and its parts', () => {
       expect(await css(heading, 'margin')).toBe('0px');
       await expect(stage(page, 'headings').getByRole('heading', { level, name: level === 2 ? 'Level two' : 'Level four' })).toHaveCount(1);
       expect(await heading.getAttribute('role')).toBeNull();
-      expect((await edges(header(page, 'headings', n))).height).toBe(40);
+      expect((await edges(header(page, 'headings', n))).height).toBe(36);
     }
     // Inline content in one span is one label.
     expect((await labelBox(header(page, 'headings', 3))).lines).toBe(1);
@@ -386,8 +386,8 @@ test.describe('open and closed, the looks, the separation', () => {
     expect(await toggles(page)).toEqual([]);
     // The fixture: the first open, the others closed and taking no space.
     expect(await item(page, 'plain', 1).evaluate((el: HTMLDetailsElement) => el.open)).toBe(true);
-    expect((await edges(item(page, 'plain', 2))).height).toBe(40);
-    expect((await edges(item(page, 'plain', 1))).height).toBeGreaterThan(40);
+    expect((await edges(item(page, 'plain', 2))).height).toBe(36);
+    expect((await edges(item(page, 'plain', 1))).height).toBeGreaterThan(36);
     await expect(item(page, 'plain', 2)).toContainText('Web Components, SwiftUI');
     expect(await item(page, 'plain', 2).evaluate((el) => (el as HTMLElement).innerText.includes('SwiftUI'))).toBe(false);
     // A field keeps what was typed while its item is closed, and is sent with its form.
@@ -504,7 +504,7 @@ test.describe('open and closed, the looks, the separation', () => {
         expect(await between(id, n)).toBe(0);
       }
       // The line is over the item's first pixels: no item is taller for it.
-      expect((await edges(item(page, id, 2))).height).toBe(40);
+      expect((await edges(item(page, id, 2))).height).toBe(36);
       const [row, mark] = [await edges(item(page, id, 2)), await item(page, id, 2).evaluate((el) => getComputedStyle(el, '::before').width)];
       near(Number.parseFloat(mark), row.width);
     };
@@ -1329,7 +1329,7 @@ test.describe('states', () => {
     expect(await css(glyph, 'color')).toBe(await resolveColor(page, T('outlined-disabled-icon-color')));
     expect(await css(header(page, 'disabled-outlined', 2).locator('> [data-trailing-text]'), 'color')).toBe(await resolveColor(page, T('outlined-disabled-trailing-text-color')));
     // The third item of the fixture is open and disabled: its content is shown.
-    expect((await edges(item(page, 'disabled', 3))).height).toBeGreaterThan(40);
+    expect((await edges(item(page, 'disabled', 3))).height).toBeGreaterThan(36);
     // The element takes a disabled header out of the focus order where the markup did not.
     await expect(page.locator('#d2 > summary')).toHaveAttribute('tabindex', '-1');
     await watchToggles(page);
@@ -1841,7 +1841,7 @@ test.describe('nested, missing, unknown, empty', () => {
     // The boxes are kept.
     expect(await px(summary, 'width', '::after')).toBe(await resolveToken(page, T('chevron-size-medium')));
     expect((await edges(summary.locator('> .tanrei-icon'))).width).toBe(await resolveToken(page, T('icon-size-medium')));
-    expect((await edges(summary)).height).toBe(40);
+    expect((await edges(summary)).height).toBe(36);
     await summary.click();
     expect(await item(page, 'icon', 2).evaluate((el: HTMLDetailsElement) => el.open)).toBe(true);
     await iconFaceArrives(page, family);
@@ -1911,7 +1911,10 @@ test.describe('nested, missing, unknown, empty', () => {
     }
     await rootTokens(page, { '--tanrei-dial-control-height': '' });
     const size = await headers();
-    expect(size.medium).toBeGreaterThan(size.small);
+    // At the default control height the two sizes stand equally tall, small held at the minimum target (36): the members
+    // below tell them apart.
+    expect(size.medium).toBe(size.small);
+    expect(await resolveToken(page, T('container-padding-inline-medium'))).toBeGreaterThan(await resolveToken(page, T('container-padding-inline-small')));
     // Every member of the size: the label's text style, the chevron's box and the space under the content are small's.
     const taken = page.locator('#taken-1 > summary');
     expect(await px(taken, 'font-size')).toBe(await resolveToken(page, T('label-typescale-small-font-size')));
@@ -1945,10 +1948,10 @@ test.describe('nested, missing, unknown, empty', () => {
     expect(await css(host(page, 'none'), 'display')).toBe('none');
     expect((await edges(stage(page, 'none'))).height).toBe(32);
     const hollow = page.locator('#hollow');
-    expect((await edges(hollow.locator('> summary'))).height).toBe(40);
+    expect((await edges(hollow.locator('> summary'))).height).toBe(36);
     await hollow.locator('> summary').click();
     await settled(page);
-    near((await edges(hollow)).height, 40 + (await resolveToken(page, T('content-padding-block-end-medium'))));
+    near((await edges(hollow)).height, 36 + (await resolveToken(page, T('content-padding-block-end-medium'))));
     expect(seen.filter((text) => text.includes('ACC-35'))).toHaveLength(1);
     // Items given later are drawn.
     await host(page, 'none').evaluate((el) => (el.innerHTML = '<details><summary>Now</summary>here</details>'));
@@ -1977,7 +1980,7 @@ test.describe('before the element is defined, and without script', () => {
         }),
       );
     // The look, with no script at all.
-    expect((await edges(header(page, 'plain', 2))).height).toBe(40);
+    expect((await edges(header(page, 'plain', 2))).height).toBe(36);
     expect(await css(header(page, 'plain', 1), 'content', '::after')).toContain('expand_more');
     expect(await css(header(page, 'plain', 1), 'rotate', '::after')).toBe('180deg');
     expect(await css(item(page, 'outlined-gap', 1), 'content', '::after')).not.toBe('none');
@@ -2032,7 +2035,7 @@ test.describe('before the element is defined, and without script', () => {
     const inner = page.locator('#shadowed tanrei-accordion');
     await expect.poll(() => css(inner, 'display')).toBe('grid');
     expect(await px(inner.locator('details').first(), 'border-top-width', '::after')).toBe(await resolveToken(page, T('outline-width')));
-    expect((await edges(inner.locator('summary').nth(1))).height).toBe(40);
+    expect((await edges(inner.locator('summary').nth(1))).height).toBe(36);
     // The item's clock, kept as the engine announces it: asked for after the click, it may be over before a slow
     // runner's answer.
     const second = inner.locator('details').nth(1);

@@ -464,6 +464,7 @@
     "tanrei.sys.color.elevation-shadow-2": {"derive": {"fn": "alpha", "of": "black", "amount": {"light": [15], "dark": [15]}}},
     "tanrei.sys.color.elevation-shadow-3": {"derive": {"fn": "alpha", "of": "black", "amount": {"light": [30], "dark": [30]}}},
     "tanrei.dial.shape.unit": {"$value": {"value": 4, "unit": "px"}, "reason": "Material 3's corner scale steps in 4dp."},
+    "tanrei.dial.control.height": {"$value": {"value": 40, "unit": "px"}, "reason": "Material 3's default button and icon button are 40dp (ButtonSmallTokens.ContainerHeight), Tanrei's medium: this preset keeps its controls and rows on a ladder from 40 (24, 32, 40, 56, 72), where the default system draws them from 36."},
     "tanrei.sys.target.minimum": {"$value": {"value": 32, "unit": "px"}, "reason": "The least height Material 3 draws a pressable at, its extra-small button (androidx.compose.material3 ButtonXSmallTokens.ContainerHeight, 32dp) and its chips (32dp). Heights m3-like takes from the core are 32 or more, so this floor holds none of them up."},
     "tanrei.sys.target.touch": {"$value": {"value": 48, "unit": "px"}, "reason": "Material 3's touch target: 'consider making touch targets at least 48 x 48dp' (Accessibility designing, Touch and pointer target sizes)."},
     "tanrei.sys.target.pointer": {"$value": {"value": 44, "unit": "px"}, "reason": "Material 3's pointer target, apart from its touch target: 'consider making pointer targets minimums 44 x 44dp' for a mouse or stylus (Accessibility designing, Touch and pointer target sizes)."},

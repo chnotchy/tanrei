@@ -34,7 +34,7 @@
             "medium": {
               "$type": "dimension",
               "$value": {
-                "value": 40,
+                "value": 36,
                 "unit": "px"
               }
             },
@@ -50,7 +50,7 @@
             "medium": {
               "$type": "dimension",
               "$value": {
-                "value": 8,
+                "value": 6,
                 "unit": "px"
               }
             },
@@ -4102,14 +4102,14 @@
             "large": {
               "$type": "dimension",
               "$value": {
-                "value": 56,
+                "value": 52,
                 "unit": "px"
               }
             },
             "medium": {
               "$type": "dimension",
               "$value": {
-                "value": 40,
+                "value": 36,
                 "unit": "px"
               }
             },
@@ -4157,14 +4157,14 @@
             "large": {
               "$type": "dimension",
               "$value": {
-                "value": 6,
+                "value": 4,
                 "unit": "px"
               }
             },
             "medium": {
               "$type": "dimension",
               "$value": {
-                "value": 6,
+                "value": 4,
                 "unit": "px"
               }
             },
@@ -7988,14 +7988,14 @@
             "large": {
               "$type": "dimension",
               "$value": {
-                "value": 16,
+                "value": 14,
                 "unit": "px"
               }
             },
             "medium": {
               "$type": "dimension",
               "$value": {
-                "value": 8,
+                "value": 6,
                 "unit": "px"
               }
             },
@@ -8050,14 +8050,14 @@
             "large": {
               "$type": "dimension",
               "$value": {
-                "value": 56,
+                "value": 52,
                 "unit": "px"
               }
             },
             "medium": {
               "$type": "dimension",
               "$value": {
-                "value": 40,
+                "value": 36,
                 "unit": "px"
               }
             },
@@ -8073,14 +8073,14 @@
             "large": {
               "$type": "dimension",
               "$value": {
-                "value": 6,
+                "value": 4,
                 "unit": "px"
               }
             },
             "medium": {
               "$type": "dimension",
               "$value": {
-                "value": 6,
+                "value": 4,
                 "unit": "px"
               }
             },
@@ -16913,7 +16913,7 @@
             "size": {
               "$type": "dimension",
               "$value": {
-                "value": 40,
+                "value": 36,
                 "unit": "px"
               },
               "$description": "The side of a day's container, and the height of the band that joins a range, 40."
@@ -18282,10 +18282,10 @@
             "height": {
               "$type": "dimension",
               "$value": {
-                "value": 40,
+                "value": 36,
                 "unit": "px"
               },
-              "$description": "The least height of the month-and-year button: the control height (40 in the default system), so that it stands as tall as the previous and next Buttons beside it in the navigation row. Never below the minimum target; its hit area extends to the pointer and touch targets."
+              "$description": "The least height of the month-and-year button: the control height (36 in the default system), so that it stands as tall as the previous and next Buttons beside it in the navigation row. Never below the minimum target; its hit area extends to the pointer and touch targets."
             },
             "padding-inline": {
               "$type": "dimension",
@@ -18387,10 +18387,10 @@
             "height": {
               "$type": "dimension",
               "$value": {
-                "value": 40,
+                "value": 36,
                 "unit": "px"
               },
-              "$description": "The height of a year's container: the control height (40 in the default system), as a day's container is, centred in its row of cell.size. Never below the minimum target."
+              "$description": "The height of a year's container: the control height (36 in the default system), as a day's container is, centred in its row of cell.size. Never below the minimum target."
             },
             "shape": {
               "$type": "dimension",
@@ -20742,15 +20742,15 @@
           "button-size": {
             "$type": "dimension",
             "$value": {
-              "value": 40,
+              "value": 36,
               "unit": "px"
             },
-            "$description": "The playback control's square, and the height of the dots' container, around a 24 glyph: the control height (40 in the default system), held at the minimum target, so that the controls row stands as tall as an icon-only Button of the default size."
+            "$description": "The playback control's square, and the height of the dots' container, around a 24 glyph: the control height (36 in the default system), held at the minimum target, so that the controls row stands as tall as an icon-only Button of the default size."
           },
           "height": {
             "$type": "dimension",
             "$value": {
-              "value": 40,
+              "value": 36,
               "unit": "px"
             },
             "$description": "The controls row below the items, drawn while the dots or the playback control are. As tall as a touch target, and never lower than the controls it holds (controls.button-size), so both controls keep their whole target inside it: the control height in the default system."
@@ -22305,10 +22305,10 @@
           "size": {
             "$type": "dimension",
             "$value": {
-              "value": 40,
+              "value": 36,
               "unit": "px"
             },
-            "$description": "The round state layer behind the box, and the height the checkbox takes in a row: the control height (40 in the default system), so that a checkbox stands as tall as the Buttons and fields beside it and a checkbox with a one-line label is a row of that height. The box (box.size) and its mark keep their own sizes inside it at every control height. In the default system it holds the whole target (sys.target.touch, 36); a system whose target is larger reaches beyond it."
+            "$description": "The round state layer behind the box, and the height the checkbox takes in a row: the control height (36 in the default system), so that a checkbox stands as tall as the Buttons and fields beside it and a checkbox with a one-line label is a row of that height. The box (box.size) and its mark keep their own sizes inside it at every control height. In the default system it holds the whole target (sys.target.touch, 36); a system whose target is larger reaches beyond it."
           }
         },
         "disabled": {
@@ -29405,7 +29405,7 @@
               "value": 6,
               "unit": "px"
             },
-            "$description": "Between the clear button and the chevron at the end of the container. The clear button is a small Button centred on its glyph, so the gap gives half of what that Button gains above the small step's 32 (a pad of the small Button's height): its box meets the chevron's and never overlaps it. 6 in the default system, where the small Button is held at 36."
+            "$description": "Between the clear button and the chevron at the end of the container. The clear button is a small Button centred on its glyph, so the gap gives half of what that Button gains above the small step's 32 at the control height's reference of 40 (a pad of the small Button's height): its box meets the chevron's and never overlaps it. 6 in the default system, where the small Button is held at 36."
           }
         },
         "disabled": {
@@ -30612,7 +30612,7 @@
             "medium": {
               "$type": "dimension",
               "$value": {
-                "value": 40,
+                "value": 36,
                 "unit": "px"
               }
             },
@@ -30758,7 +30758,7 @@
             "medium": {
               "$type": "dimension",
               "$value": {
-                "value": 8,
+                "value": 6,
                 "unit": "px"
               }
             },
@@ -33490,10 +33490,10 @@
             "height": {
               "$type": "dimension",
               "$value": {
-                "value": 40,
+                "value": 36,
                 "unit": "px"
               },
-              "$description": "The least height of a range field, one end of a span of times in the range display: the control height (40 in the default system), so that the range display stands as tall as a field and the Buttons of the picker. Never below the minimum target, because a press on it chooses which end the wheels or the dial set."
+              "$description": "The least height of a range field, one end of a span of times in the range display: the control height (36 in the default system), so that the range display stands as tall as a field and the Buttons of the picker. Never below the minimum target, because a press on it chooses which end the wheels or the dial set."
             },
             "padding-inline": {
               "$type": "dimension",
@@ -40511,14 +40511,14 @@
             "large": {
               "$type": "dimension",
               "$value": {
-                "value": 56,
+                "value": 52,
                 "unit": "px"
               }
             },
             "medium": {
               "$type": "dimension",
               "$value": {
-                "value": 40,
+                "value": 36,
                 "unit": "px"
               }
             },
@@ -40534,14 +40534,14 @@
             "large": {
               "$type": "dimension",
               "$value": {
-                "value": 4,
+                "value": 2,
                 "unit": "px"
               }
             },
             "medium": {
               "$type": "dimension",
               "$value": {
-                "value": 4,
+                "value": 2,
                 "unit": "px"
               }
             },
@@ -40557,14 +40557,14 @@
             "large": {
               "$type": "dimension",
               "$value": {
-                "value": 14,
+                "value": 12,
                 "unit": "px"
               }
             },
             "medium": {
               "$type": "dimension",
               "$value": {
-                "value": 6,
+                "value": 4,
                 "unit": "px"
               }
             },
@@ -44033,14 +44033,14 @@
               "large": {
                 "$type": "dimension",
                 "$value": {
-                  "value": 56,
+                  "value": 52,
                   "unit": "px"
                 }
               },
               "medium": {
                 "$type": "dimension",
                 "$value": {
-                  "value": 40,
+                  "value": 36,
                   "unit": "px"
                 }
               },
@@ -44056,14 +44056,14 @@
               "large": {
                 "$type": "dimension",
                 "$value": {
-                  "value": 14,
+                  "value": 12,
                   "unit": "px"
                 }
               },
               "medium": {
                 "$type": "dimension",
                 "$value": {
-                  "value": 6,
+                  "value": 4,
                   "unit": "px"
                 }
               },
@@ -48164,7 +48164,7 @@
               "medium": {
                 "$type": "dimension",
                 "$value": {
-                  "value": 40,
+                  "value": 36,
                   "unit": "px"
                 }
               },
@@ -48180,7 +48180,7 @@
               "medium": {
                 "$type": "dimension",
                 "$value": {
-                  "value": 80,
+                  "value": 76,
                   "unit": "px"
                 }
               },
@@ -48196,7 +48196,7 @@
               "medium": {
                 "$type": "dimension",
                 "$value": {
-                  "value": 60,
+                  "value": 56,
                   "unit": "px"
                 }
               },
@@ -48213,7 +48213,7 @@
             "medium": {
               "$type": "dimension",
               "$value": {
-                "value": 8,
+                "value": 6,
                 "unit": "px"
               }
             },
@@ -48455,7 +48455,7 @@
             "medium": {
               "$type": "dimension",
               "$value": {
-                "value": 40,
+                "value": 36,
                 "unit": "px"
               }
             },
@@ -48471,7 +48471,7 @@
             "medium": {
               "$type": "dimension",
               "$value": {
-                "value": 8,
+                "value": 6,
                 "unit": "px"
               }
             },
@@ -48481,7 +48481,7 @@
                 "value": 6,
                 "unit": "px"
               },
-              "$description": "4 above and below a small row's line at the small step's height (32), and half of what the row gains above that: the text keeps the list's one text style, whose line is taller than the tree view's small label, so the tree's 6 would make a 32 row 36. 6 in the default system's 36 row."
+              "$description": "4 above and below a small row's line at the small step's height at the control height's reference (32), and half of what the row gains above that: the text keeps the list's one text style, whose line is taller than the tree view's small label, so the tree's 6 would make a 32 row 36. 6 in the default system's 36 row."
             }
           },
           "padding-inline-end": {
@@ -49744,21 +49744,21 @@
             "large": {
               "$type": "dimension",
               "$value": {
-                "value": 96,
+                "value": 92,
                 "unit": "px"
               }
             },
             "medium": {
               "$type": "dimension",
               "$value": {
-                "value": 56,
+                "value": 52,
                 "unit": "px"
               }
             },
             "small": {
               "$type": "dimension",
               "$value": {
-                "value": 40,
+                "value": 36,
                 "unit": "px"
               }
             }
@@ -49767,21 +49767,21 @@
             "large": {
               "$type": "dimension",
               "$value": {
-                "value": 6,
+                "value": 4,
                 "unit": "px"
               }
             },
             "medium": {
               "$type": "dimension",
               "$value": {
-                "value": 6,
+                "value": 4,
                 "unit": "px"
               }
             },
             "small": {
               "$type": "dimension",
               "$value": {
-                "value": 6,
+                "value": 4,
                 "unit": "px"
               }
             }
@@ -49836,21 +49836,21 @@
             "large": {
               "$type": "dimension",
               "$value": {
-                "value": 24,
+                "value": 22,
                 "unit": "px"
               }
             },
             "medium": {
               "$type": "dimension",
               "$value": {
-                "value": 16,
+                "value": 14,
                 "unit": "px"
               }
             },
             "small": {
               "$type": "dimension",
               "$value": {
-                "value": 12,
+                "value": 10,
                 "unit": "px"
               }
             }
@@ -52373,7 +52373,7 @@
             "medium": {
               "$type": "dimension",
               "$value": {
-                "value": 40,
+                "value": 36,
                 "unit": "px"
               }
             },
@@ -52389,7 +52389,7 @@
             "medium": {
               "$type": "dimension",
               "$value": {
-                "value": 8,
+                "value": 6,
                 "unit": "px"
               }
             },
@@ -54917,7 +54917,7 @@
               "value": 16,
               "unit": "px"
             },
-            "$description": "Under gap: the empty space between a group and what is next to it, in place of the divider and its two spaces. Sixteen, so that the step between two groups is plainly larger than the step between two rows of one group (at the default height about 28 of clear space lies between two labels of one group, and 44 across the gap). Not read under divider."
+            "$description": "Under gap: the empty space between a group and what is next to it, in place of the divider and its two spaces. Sixteen, so that the step between two groups is plainly larger than the step between two rows of one group (at the default height about 24 of clear space lies between two labels of one group, and 40 across the gap). Not read under divider."
           }
         },
         "hovered": {
@@ -56871,7 +56871,7 @@
               "value": 4,
               "unit": "px"
             },
-            "$description": "Space above and below the titles. With container.height it gives the bar's height: 4 + 40 + 4 = 48 in the default system, at least sys.target.touch, so that a title's touch target lies inside the bar."
+            "$description": "Space above and below the titles. With container.height it gives the bar's height: 4 + 36 + 4 = 44 in the default system, at least sys.target.touch, so that a title's touch target lies inside the bar."
           },
           "padding-inline": {
             "$type": "dimension",
@@ -56894,7 +56894,7 @@
           "height": {
             "$type": "dimension",
             "$value": {
-              "value": 40,
+              "value": 36,
               "unit": "px"
             },
             "$description": "Minimum height of a title's container: the medium Button's 40, because a title is pressed as a button is. It grows with enlarged text; the hit area extends to the minimum target."
@@ -61993,7 +61993,7 @@
                 "medium": {
                   "$type": "dimension",
                   "$value": {
-                    "value": 8,
+                    "value": 6,
                     "unit": "px"
                   }
                 },
@@ -62017,7 +62017,7 @@
                 "medium": {
                   "$type": "dimension",
                   "$value": {
-                    "value": 40,
+                    "value": 36,
                     "unit": "px"
                   }
                 },
@@ -62489,7 +62489,7 @@
               "medium": {
                 "$type": "dimension",
                 "$value": {
-                  "value": 40,
+                  "value": 36,
                   "unit": "px"
                 }
               },
@@ -62646,7 +62646,7 @@
             "medium": {
               "$type": "dimension",
               "$value": {
-                "value": 4,
+                "value": 2,
                 "unit": "px"
               }
             },
@@ -64240,7 +64240,7 @@
               "value": 0,
               "unit": "px"
             },
-            "$description": "Between the two steppers. 0 in the default system: they stand as close as their targets allow, each keeping sys.target.touch along the row: in the default system a 40 button is wider than the target, so the two touch; under a 48 target they would stand 8 apart."
+            "$description": "Between the two steppers. 0 in the default system: they stand as close as their targets allow, each keeping sys.target.touch along the row: in the default system a 36 button is as wide as the target, so the two touch; under a 48 target they would stand 12 apart."
           },
           "inset": {
             "$type": "dimension",
@@ -64248,7 +64248,7 @@
               "value": 4,
               "unit": "px"
             },
-            "$description": "From the container's end edge to the stepper nearest it. In the default system a medium stacked box is as tall as its 40 steppers, so they fill its height and stand this far from its end."
+            "$description": "From the container's end edge to the stepper nearest it. In the default system a medium stacked box is as tall as its 36 steppers, so they fill its height and stand this far from its end."
           }
         }
       },
@@ -64338,10 +64338,10 @@
           "height": {
             "$type": "dimension",
             "$value": {
-              "value": 40,
+              "value": 36,
               "unit": "px"
             },
-            "$description": "Minimum height of a cell: the control height (40 in the default system), a medium text field's, so that a code input and a text field in one form, and the Button that sends the code, are equally tall. Never below the minimum target: a finger aims at each cell."
+            "$description": "Minimum height of a cell: the control height (36 in the default system), a medium text field's, so that a code input and a text field in one form, and the Button that sends the code, are equally tall. Never below the minimum target: a finger aims at each cell."
           },
           "padding-inline": {
             "$type": "dimension",
@@ -65660,7 +65660,7 @@
             "medium": {
               "$type": "dimension",
               "$value": {
-                "value": 40,
+                "value": 36,
                 "unit": "px"
               }
             },
@@ -68008,10 +68008,10 @@
           "size": {
             "$type": "dimension",
             "$value": {
-              "value": 40,
+              "value": 36,
               "unit": "px"
             },
-            "$description": "The round state layer behind the ring, and the height the radio button takes in a row (never less than option.min-height): the control height (40 in the default system), so that a radio button stands as tall as the Buttons and fields beside it and an option with a one-line label is a row of that height. The ring (ring.size) keeps its own size inside it at every control height. In the default system it holds the whole target (sys.target.touch, 36); a system whose target is larger reaches beyond it."
+            "$description": "The round state layer behind the ring, and the height the radio button takes in a row (never less than option.min-height): the control height (36 in the default system), so that a radio button stands as tall as the Buttons and fields beside it and an option with a one-line label is a row of that height. The ring (ring.size) keeps its own size inside it at every control height. In the default system it holds the whole target (sys.target.touch, 36); a system whose target is larger reaches beyond it."
           }
         },
         "disabled": {
@@ -70707,7 +70707,7 @@
               "value": 0,
               "unit": "px"
             },
-            "$description": "Between two neighbouring action buttons of the bar: the clear button and the icon-only Buttons of the trailing slot. 0 in the default system: the buttons stand as close as their targets allow, each keeping sys.target.touch along the row (SRC-34): in the default system every Button is at least that wide, so they touch; under a 48 target two medium buttons (40) would stand 8 apart."
+            "$description": "Between two neighbouring action buttons of the bar: the clear button and the icon-only Buttons of the trailing slot. 0 in the default system: the buttons stand as close as their targets allow, each keeping sys.target.touch along the row (SRC-34): in the default system every Button is at least that wide, so they touch; under a 48 target two medium buttons (36) would stand 12 apart."
           },
           "gap": {
             "$type": "dimension",
@@ -70720,10 +70720,10 @@
           "height": {
             "$type": "dimension",
             "$value": {
-              "value": 40,
+              "value": 36,
               "unit": "px"
             },
-            "$description": "The bar's minimum height: the control height (40 in the default system), so that a search bar stands as tall as the Buttons, the fields and the button trigger beside it, never below the minimum target. The icon-only Buttons it holds are of that height and stand in it as they stand in a row."
+            "$description": "The bar's minimum height: the control height (36 in the default system), so that a search bar stands as tall as the Buttons, the fields and the button trigger beside it, never below the minimum target. The icon-only Buttons it holds are of that height and stand in it as they stand in a row."
           },
           "padding-inline": {
             "$type": "dimension",
@@ -72124,7 +72124,7 @@
               "medium": {
                 "$type": "dimension",
                 "$value": {
-                  "value": 40,
+                  "value": 36,
                   "unit": "px"
                 }
               },
@@ -72140,7 +72140,7 @@
               "medium": {
                 "$type": "dimension",
                 "$value": {
-                  "value": 8,
+                  "value": 6,
                   "unit": "px"
                 }
               },
@@ -72258,7 +72258,7 @@
             "height": {
               "$type": "dimension",
               "$value": {
-                "value": 40,
+                "value": 36,
                 "unit": "px"
               },
               "$description": "The button trigger's minimum height: Button's medium, so that it shares an app bar's row with the icon-only Buttons beside it. Its hit area is extended to the minimum target (SRC-36)."
@@ -72530,14 +72530,14 @@
             "large": {
               "$type": "dimension",
               "$value": {
-                "value": 56,
+                "value": 52,
                 "unit": "px"
               }
             },
             "medium": {
               "$type": "dimension",
               "$value": {
-                "value": 40,
+                "value": 36,
                 "unit": "px"
               }
             },
@@ -72553,14 +72553,14 @@
             "large": {
               "$type": "dimension",
               "$value": {
-                "value": 6,
+                "value": 4,
                 "unit": "px"
               }
             },
             "medium": {
               "$type": "dimension",
               "$value": {
-                "value": 6,
+                "value": 4,
                 "unit": "px"
               }
             },
@@ -74766,7 +74766,7 @@
             "medium": {
               "$type": "dimension",
               "$value": {
-                "value": 40,
+                "value": 36,
                 "unit": "px"
               }
             },
@@ -74843,7 +74843,7 @@
             "medium": {
               "$type": "dimension",
               "$value": {
-                "value": 8,
+                "value": 6,
                 "unit": "px"
               }
             },
@@ -77223,10 +77223,10 @@
           "size": {
             "$type": "dimension",
             "$value": {
-              "value": 40,
+              "value": 36,
               "unit": "px"
             },
-            "$description": "The diameter of the round state layer centered on each handle: the control height (40 in the default system), so that a horizontal slider, as thick as the larger of it and the handle, stands as tall as the Buttons and fields beside it. It sets how far the track is inset from the slider's ends, so that a handle and its state layer stay inside the slider at min and max. The track and the handle keep their own sizes at every control height. 0 draws no state layer."
+            "$description": "The diameter of the round state layer centered on each handle: the control height (36 in the default system), so that a horizontal slider, as thick as the larger of it and the handle, stands as tall as the Buttons and fields beside it. It sets how far the track is inset from the slider's ends, so that a handle and its state layer stay inside the slider at min and max. The track and the handle keep their own sizes at every control height. 0 draws no state layer."
           }
         },
         "disabled": {
@@ -84692,10 +84692,10 @@
           "size": {
             "$type": "dimension",
             "$value": {
-              "value": 40,
+              "value": 36,
               "unit": "px"
             },
-            "$description": "The round state layer centered on the handle, and the least height the switch takes in a row: the control height (40 in the default system), so that a switch stands as tall as the Buttons, fields and checkboxes beside it and a switch with a one-line label is a row of that height, its track centered in it. It moves with the handle and reaches beyond the track's ends without taking room along the track. The track and the handle keep their own sizes at every control height."
+            "$description": "The round state layer centered on the handle, and the least height the switch takes in a row: the control height (36 in the default system), so that a switch stands as tall as the Buttons, fields and checkboxes beside it and a switch with a one-line label is a row of that height, its track centered in it. It moves with the handle and reaches beyond the track's ends without taking room along the track. The track and the handle keep their own sizes at every control height."
           }
         },
         "disabled": {
@@ -86240,10 +86240,10 @@
             "height": {
               "$type": "dimension",
               "$value": {
-                "value": 40,
+                "value": 36,
                 "unit": "px"
               },
-              "$description": "The least height of the compact form's row: the control height (40 in the default system), as tall as the Buttons and fields beside it. The compact form is the form of narrow windows, so for touch the row is never lower than the touch target, whatever this says (TOC-24). A minimum: it grows with enlarged text."
+              "$description": "The least height of the compact form's row: the control height (36 in the default system), as tall as the Buttons and fields beside it. The compact form is the form of narrow windows, so for touch the row is never lower than the touch target, whatever this says (TOC-24). A minimum: it grows with enlarged text."
             },
             "padding-inline": {
               "$type": "dimension",
@@ -87017,7 +87017,7 @@
             "medium": {
               "$type": "dimension",
               "$value": {
-                "value": 40,
+                "value": 36,
                 "unit": "px"
               }
             },
@@ -87041,7 +87041,7 @@
             "medium": {
               "$type": "dimension",
               "$value": {
-                "value": 10,
+                "value": 8,
                 "unit": "px"
               }
             },
@@ -87165,14 +87165,14 @@
             "medium": {
               "$type": "dimension",
               "$value": {
-                "value": 9,
+                "value": 7,
                 "unit": "px"
               }
             },
             "small": {
               "$type": "dimension",
               "$value": {
-                "value": 6,
+                "value": 4,
                 "unit": "px"
               }
             }
@@ -87451,14 +87451,14 @@
             "medium": {
               "$type": "dimension",
               "$value": {
-                "value": 40,
+                "value": 36,
                 "unit": "px"
               }
             },
             "small": {
               "$type": "dimension",
               "$value": {
-                "value": 32,
+                "value": 28,
                 "unit": "px"
               }
             }
@@ -88309,7 +88309,7 @@
             "medium": {
               "$type": "dimension",
               "$value": {
-                "value": 4,
+                "value": 2,
                 "unit": "px"
               }
             },
@@ -88359,7 +88359,7 @@
             "medium": {
               "$type": "dimension",
               "$value": {
-                "value": 40,
+                "value": 36,
                 "unit": "px"
               }
             },
@@ -95326,7 +95326,7 @@
             "inline": {
               "$type": "dimension",
               "$value": {
-                "value": 40,
+                "value": 36,
                 "unit": "px"
               },
               "$description": "A medium Button's height: the items' targets reach beyond it themselves (BTN-5)."
@@ -96076,7 +96076,7 @@
             "medium": {
               "$type": "dimension",
               "$value": {
-                "value": 40,
+                "value": 36,
                 "unit": "px"
               }
             },
@@ -96092,7 +96092,7 @@
             "medium": {
               "$type": "dimension",
               "$value": {
-                "value": 8,
+                "value": 6,
                 "unit": "px"
               }
             },
@@ -97535,7 +97535,7 @@
         "height": {
           "$type": "dimension",
           "$value": {
-            "value": 40,
+            "value": 36,
             "unit": "px"
           }
         }
@@ -102583,35 +102583,35 @@
           "extra-large": {
             "$type": "dimension",
             "$value": {
-              "value": 72,
+              "value": 68,
               "unit": "px"
             }
           },
           "extra-small": {
             "$type": "dimension",
             "$value": {
-              "value": 24,
+              "value": 20,
               "unit": "px"
             }
           },
           "large": {
             "$type": "dimension",
             "$value": {
-              "value": 56,
+              "value": 52,
               "unit": "px"
             }
           },
           "medium": {
             "$type": "dimension",
             "$value": {
-              "value": 40,
+              "value": 36,
               "unit": "px"
             }
           },
           "small": {
             "$type": "dimension",
             "$value": {
-              "value": 32,
+              "value": 28,
               "unit": "px"
             }
           }

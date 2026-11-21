@@ -405,12 +405,12 @@ test.describe('behavior', () => {
     }
   });
 
-  test('MAB-27: the three sizes take their heights from the control height ladder — small the medium step, medium the large step, large ten size units above it — at 32, 36 and 40', async ({ page }) => {
+  test('MAB-27: the three sizes take their heights from the control height ladder — small the medium step, medium the large step, large a third above the extra-large step on the size unit’s grid — at 32, 36 and 40', async ({ page }) => {
     if (!(await page.evaluate(() => matchMedia('(pointer: fine)').matches))) test.skip(true, 'measured under a fine pointer');
     const unit = await resolveToken(page, '--tanrei-dial-size-unit');
     for (const h of CONTROL_HEIGHTS) {
       await atControlHeight(page, h);
-      for (const [id, side] of [['filled-small-collapsed', h], ['filled-collapsed', h + 4 * unit], ['filled-large-collapsed', h + 14 * unit]] as const) {
+      for (const [id, side] of [['filled-small-collapsed', h], ['filled-collapsed', h + 4 * unit], ['filled-large-collapsed', Math.round(((h + 8 * unit) * 4) / 3 / unit) * unit]] as const) {
         await expect.poll(async () => { const box = await bounds(inner(page, id)); return [box.width, box.height]; }, `${id} at ${h}`).toEqual([side, side]);
       }
     }

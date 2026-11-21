@@ -625,6 +625,18 @@ export const styles = css`
   .header .back {
     ${unsafeCSS(TARGET_CAPS.end)}: ${unsafeCSS(FIRST_ACTION_CAP)};
   }
+  /* SRC-1: the back button's glyph stands at least the larger of container.gap and leading-icon.gap from the query's
+     text, as the bar's search glyph does: the medium icon-only Button holds its glyph half of what its height leaves
+     of it from its edge (8 at a control height of 40, 6 at 36), and the header adds what that and the gap lack. */
+  .header .back {
+    margin-inline-end: max(
+      0px,
+      calc(
+        ${t('leading-icon-gap')} - ${t('container-gap')} -
+          (var(--tanrei-comp-button-container-height-medium) - var(--tanrei-comp-button-icon-size-without-label-medium)) / 2
+      )
+    );
+  }
   /* SRC-11: the back arrow points to the start edge in right-to-left by the icon helper's own mirroring — arrow_back is
      flagged by the icon set, and the back Button marks and mirrors its glyph (BTN-19, SRC-32). Nothing here mirrors it. */
   /* SRC-9: a line of divider.thickness across the window under the header. */

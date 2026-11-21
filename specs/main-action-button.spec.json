@@ -48,7 +48,7 @@
         "large"
       ],
       "default": "medium",
-      "description": "Visual height (40 / 56 / 96), which is also the side of the collapsed form, so one button keeps its height while it collapses and extends. Small sits beside a medium one for a related action; large marks the action on a wide or empty screen. The hit area always meets the minimum target. A design system may add values.",
+      "description": "Visual height (36 / 52 / 92 in the default system; 40 / 56 / 96 at a control height of 40), which is also the side of the collapsed form, so one button keeps its height while it collapses and extends. Small sits beside a medium one for a related action; large marks the action on a wide or empty screen. The hit area always meets the minimum target. A design system may add values.",
       "axis": "tanrei.comp.main-action-button.size"
     },
     {
@@ -207,7 +207,7 @@
     {
       "id": "MAB-24",
       "text": "WHILE fullWidth is true THE main action button SHALL take the whole inline size its container gives it and SHALL draw its extended form whatever extended says — the height, corners, paddings, elevation and states of MAB-11 and MAB-17 — with its icon and label centred in that width as one row, in the order MAB-19 gives them; WHERE that width is narrower than the label THE main action button SHALL wrap the label, its lines centred (MAB-12). WHEN extended changes while fullWidth is true THE main action button SHALL NOT change its form, and in debug builds SHALL report that a full-width button does not collapse. MAB-16 holds over this rule: a button with no label draws its collapsed form, at its own size, and is reported.",
-      "verify": "The fixture filled-full-width is as wide as its 360-wide stage, 56 high, its icon and label centred; filled-full-width-collapsed, whose extended is false, is drawn exactly as filled-full-width."
+      "verify": "The fixture filled-full-width is as wide as its 360-wide stage, 52 high, its icon and label centred; filled-full-width-collapsed, whose extended is false, is drawn exactly as filled-full-width."
     },
     {
       "id": "MAB-25",
@@ -220,8 +220,8 @@
     },
     {
       "id": "MAB-27",
-      "text": "WHEN the control height (dial.control.height) is N THE main action button SHALL take its heights from the control height ladder: a small one SHALL be drawn at comp.main-action-button.container.height.small, the medium step (N), and a medium one at comp.main-action-button.container.height.medium, the large step (N + 4 size units), each held at sys.target.minimum, and a large one at comp.main-action-button.container.height.large, ten size units above the large step, so that a small one stands as tall as the Buttons beside it and the three sizes keep their distances whatever the control height. Collapsed, each SHALL be a square of its height (MAB-13).",
-      "verify": "With the control height at 32, 36 and 40 and the minimum target no higher, under a fine pointer filled-small-collapsed, filled-collapsed and filled-large-collapsed are squares of 32, 48 and 88; 36, 52 and 92; and 40, 56 and 96."
+      "text": "WHEN the control height (dial.control.height) is N THE main action button SHALL take its heights from the control height ladder: a small one SHALL be drawn at comp.main-action-button.container.height.small, the medium step (N), and a medium one at comp.main-action-button.container.height.medium, the large step (N + 4 size units), each held at sys.target.minimum, and a large one at comp.main-action-button.container.height.large, a third above the extra-large step (N + 8 size units) on the size unit's grid, so that a small one stands as tall as the Buttons beside it and the three sizes move together with the control height. Collapsed, each SHALL be a square of its height (MAB-13).",
+      "verify": "With the control height at 32, 36 and 40 and the minimum target no higher, under a fine pointer filled-small-collapsed, filled-collapsed and filled-large-collapsed are squares of 32, 48 and 84; 36, 52 and 92; and 40, 56 and 96."
     }
   ],
   "accessibility": {

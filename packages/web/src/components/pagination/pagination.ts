@@ -151,7 +151,7 @@ export class TanreiPagination extends TanreiElement {
   /** `numbered` draws the page numbers, and the compact form where they do not fit its width; `compact` draws the controls and the sentence that says which page of how many. */
   variant: TanreiPaginationVariant = 'numbered';
 
-  /** An item's height, `comp.pagination.container.height` of its size (36 / 40 in the default system, never below `sys.target.minimum`). The hit area always meets the minimum target. */
+  /** An item's height, `comp.pagination.container.height` of its size (36 / 36 in the default system, never below `sys.target.minimum`). The hit area always meets the minimum target. */
   size: TanreiPaginationSize = 'medium';
 
   /** Draws first and last on either side of previous and next. */

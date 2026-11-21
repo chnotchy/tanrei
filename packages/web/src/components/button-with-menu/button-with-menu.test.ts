@@ -1735,7 +1735,7 @@ test.describe('separation', () => {
     // SPB-32's verify, filled-medium: the label 20 from the start edge and 16 from the leading half's end edge; the
     // trailing half 44 wide, its chevron's centre 20 from the seam and 24 from the end edge.
     const wide = { labelFromStart: start + outer, labelFromSeam: end, trailing: icon + 2 * pad + outer, chevronFromSeam: pad + icon / 2, chevronFromEnd: pad + icon / 2 + outer };
-    expect(wide).toEqual({ labelFromStart: 20, labelFromSeam: 16, trailing: 44, chevronFromSeam: 20, chevronFromEnd: 24 });
+    expect(wide).toEqual({ labelFromStart: 20, labelFromSeam: 16, trailing: 40, chevronFromSeam: 18, chevronFromEnd: 22 });
     // filled-narrow, outlined-narrow, filled-gap-narrow and outlined-gap-narrow: the trailing half is 36 wide — the
     // outer padding included — and its chevron's centre 16 from the seam (or from the gap) and 20 from the end edge; the
     // leading half is as in filled-medium.

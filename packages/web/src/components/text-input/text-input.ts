@@ -442,7 +442,7 @@ export class TanreiTextInput extends TanreiElement {
   variant: TanreiTextInputVariant = 'stacked';
 
   /**
-   * Minimum height of a single-line field's container: stacked 36 / 40 / 56, as tall as a Button of the same size, and
+   * Minimum height of a single-line field's container: stacked 36 / 36 / 52, as tall as a Button of the same size, and
    * filled and outlined 40 / 48 / 56 in the default system. The hit area always meets the minimum target. While it is
    * not set the field draws the size its nearest container sets — a toolbar's `size` (TXI-73) — and `medium` where none
    * does; reading it then gives `medium`. Setting it (to any value, `medium` included) makes it the field's own, whatever
