@@ -18,11 +18,12 @@
   --ts-text-2xs: var(--sl-text-2xs, 0.75rem);
   --ts-font-mono: var(--sl-font-mono, var(--tanrei-ref-typeface-mono));
   /* The frame's columns: the rail's width, the least the preview and the panel are given, and the panel's width until
-     the person moves the handle (ui.ts writes --ts-panel-width then). */
+     the person moves the handle (ui.ts writes --ts-panel-width then) — at its least in a window up to about 1450px, so
+     that the preview holds three columns of the overview there. */
   --ts-rail-width: 18.5rem;
   --ts-preview-min: 22.5rem;
   --ts-panel-min: 20rem;
-  --ts-panel-default: clamp(var(--ts-panel-min), 30vw, 30rem);
+  --ts-panel-default: clamp(var(--ts-panel-min), 22vw, 30rem);
   /* What stays at the top of a column while it scrolls under it: nothing, at every width — each part of the frame
      scrolls by itself. A host that sticks something there says how tall it is. */
   --ts-sticky-top: 0rem;
@@ -639,11 +640,12 @@
   background: var(--tanrei-sys-color-surface-container-low);
 }
 
-/* Overview: a panel for each kind of component, as many columns as fit. */
+/* Overview: a compact panel for each kind of component, as many columns as fit — three in a wide window — the panels
+   of a row as tall as each other; what the system is made of under them, across. */
 .ts-s-overview {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(min(100%, 18rem), 1fr));
-  align-items: start;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 13.5rem), 1fr));
+  align-items: stretch;
   gap: var(--tanrei-sys-space-space200);
   padding: var(--tanrei-sys-space-space250);
 }

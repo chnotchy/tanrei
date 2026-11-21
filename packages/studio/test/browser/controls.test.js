@@ -155,10 +155,11 @@ studioTest('the platform switch is a Switch named with the keyword it writes, th
   await page.keyboard.press('Space');
   assert.equal(await page.locator('[data-scope]').getAttribute('data-emphasized'), '', 'Space checks it, and the samples are drawn emphasized');
 
+  // The overview's toggle is a product's: an icon-only Favorite, on — its name is its label, and it says whether it is on.
   const toggle = lightPane.locator('[data-sample-toggle]').first();
-  assert.deepEqual(await toggle.evaluate((el) => [el.localName, el.toggle, el.selected, el.shadowRoot.querySelector('button').getAttribute('aria-pressed'), el.textContent.trim().replace(/^favorite\s*/, '')]), ['tanrei-button', true, false, 'false', 'Unselected']);
+  assert.deepEqual(await toggle.evaluate((el) => [el.localName, el.toggle, el.selected, el.shadowRoot.querySelector('button').getAttribute('aria-pressed'), el.label]), ['tanrei-button', true, true, 'true', 'Favorite']);
   await toggle.click();
-  assert.deepEqual(await toggle.evaluate((el) => [el.selected, el.shadowRoot.querySelector('button').getAttribute('aria-pressed'), el.textContent.trim().replace(/^favorite\s*/, '')]), [true, 'true', 'Selected'], 'pressed, it is on and says so');
+  assert.deepEqual(await toggle.evaluate((el) => [el.selected, el.shadowRoot.querySelector('button').getAttribute('aria-pressed')]), [false, 'false'], 'pressed, it is off and says so');
 });
 
 studioTest('a rule’s pattern is a text input in the code face, read from the left; its operation and any JSON are a text field that holds code and says itself what does not parse', { layer }, async ({ page, inspect, saved }) => {
