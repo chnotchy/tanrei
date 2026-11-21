@@ -1,5 +1,5 @@
 import { css, unsafeCSS } from 'lit';
-import { directionProbeStyles, focusRing, whenChosen } from '../../primitives/index.js';
+import { directionProbeStyles, focusRing, focusRingBox, whenChosen } from '../../primitives/index.js';
 import { hiddenHost } from '../../primitives/hidden.js';
 import { reducedMotion } from '../../styles/motion.js';
 
@@ -142,6 +142,13 @@ export const styles = [
     .edge {
       position: absolute;
       pointer-events: none;
+      /* The mark's box draws nothing itself — its band and its layers draw the mark, each faded by its own opacity — so
+         it is no box over the content: an element over a text, whatever its pointer-events, is what a contrast checker
+         sees covering it, and it would leave the text at the edge unchecked while no mark is drawn there. */
+      visibility: hidden;
+    }
+    .edge > * {
+      visibility: visible;
     }
     .edge.top,
     .edge.bottom {
@@ -233,6 +240,9 @@ export const styles = [
     `)}
   `,
   focusRing((focus) => `.scroll${focus} ~ .ring`, { inside: true }),
+  // The ring's box lies over the content: it draws the indicator by its ::before, as no element, so that a contrast
+  // checker still sees the text under it.
+  focusRingBox('.ring'),
 
   // SCA-5, line: a line line.width thick in line.color along the edge, inside the box.
   when('line', (frame) => `${frame} {

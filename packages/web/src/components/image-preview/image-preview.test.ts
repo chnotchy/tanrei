@@ -21,6 +21,7 @@ import { holdClock, releaseClock } from '../../../test/page-clock.js';
 import { releaseAtRest } from '../../../test/release-at-rest.js';
 import { STOPPED_AFTER, flingThenHold, strokes } from '../../../test/stopped-release.js';
 import { expectBaseline } from '../../../test/baseline.js';
+import { contrastChecked } from '../../../test/contrast-checked.js';
 import { STACKED_DIALOG, STACKED_LAYER, addStackedSurfaces, expectStackedInOrder } from '../../../test/stacked-surfaces.js';
 
 const spec = loadSpec('image-preview');
@@ -2670,7 +2671,8 @@ test.describe('direction, colors, text size and the window', () => {
         return { own: read(), before: read('::before'), after: read('::after'), children: el.childElementCount, pressed: el.hasAttribute('data-pressed') };
       });
     const rest_ = await drawn();
-    expect(rest_.own.slice(0, 5)).toEqual(['rgba(0, 0, 0, 0)', 'none', 'none', '1', 'none']);
+    // Transparent too: it draws nothing either way, and so it is no element over the error text to a contrast checker.
+    expect(rest_.own.slice(0, 5)).toEqual(['rgba(0, 0, 0, 0)', 'none', 'none', '0', 'none']);
     expect(rest_.children).toBe(0);
     const image_ = (await look(page)).image;
     await page.mouse.move(300, 340);
@@ -2876,4 +2878,23 @@ test.describe('fixtures', () => {
       await expectBaseline(page, [spec.name, `compact-${id}.png`]);
     });
   }
+});
+
+test.describe('accessibility: what is drawn over a text', () => {
+  test('IMP-27, IMP-31, IMP-42: the stage and the boxes that carry its and the caption\'s focus indicators hide no text from a contrast check — a faint error text and a faint caption are reported', async ({ page }) => {
+    // An element drawn over a text is, to axe's color-contrast, an element covering it, whatever its pointer-events: it
+    // left the text incomplete ("overlapped by another element") instead of checking it, so faint text passed unseen.
+    // The preview locks the page's scroll (overflow: hidden on the root), and axe takes a text below the root's box for
+    // one the root hides: the page is as tall as the window here, as a page under a preview is.
+    const faint = (token: string) => `<style>html { min-block-size: 100vh; } tanrei-image-preview { --tanrei-comp-image-preview-${token}: #bbb; }</style>`;
+    await mountFixtures(page, spec, { lead: faint('error-text-color'), fixtures: [fixtureOf('error')] });
+    await expect(page.locator('tanrei-image-preview .error-text')).toBeVisible();
+    const error = await contrastChecked(page);
+    expect(error.violations, 'the faint error text is reported').toEqual(['This image could not be loaded']);
+    expect(error.incomplete, 'nothing is left unchecked').toEqual([]);
+    await mountFixtures(page, spec, { lead: faint('caption-color'), fixtures: [fixtureOf('caption')] });
+    const caption = await contrastChecked(page);
+    expect(caption.violations, 'the faint caption is reported').toEqual([fixtureOf('caption').items![0].props.caption]);
+    expect(caption.incomplete, 'nothing is left unchecked').toEqual([]);
+  });
 });

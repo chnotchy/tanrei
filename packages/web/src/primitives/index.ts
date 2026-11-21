@@ -4,7 +4,10 @@
 //   states      — the state rules and their precedence (pressed > focused > hovered, disabled over all)
 //   press       — PressController (data-pressed, press-hold, the ripple's lifecycle) and pressHold()
 //   ripple      — the ripple layer's styles, and its origin from a pointer or a key
-//   focus-ring  — the keyboard focus indicator (ring or glow), the glow alone (focusGlow) and syncFocusStyle()
+//   focus-ring  — the keyboard focus indicator (ring or glow), the glow alone (focusGlow) and syncFocusStyle();
+//                 focusRingBox(): a box added only to carry the indicator over content, drawn as no element
+//   no-element  — drawnAsNoElement(): a box of the component's own over its content (an edge, a state layer) drawn by
+//                 its ::before, so the text under it is still checked for contrast
 //   target      — the minimum target (::before); neighbourTarget(): it stops toward a neighbour, on both axes, at a cap of
 //                 its own or of the row it stands in (TARGET_CAPS; rowTargets(): half the gap between the two)
 //   cut-text    — isCut() and CutTextTip: a one-line text cut with an ellipsis, shown whole in a tooltip while it is cut (TRV-50)
@@ -234,7 +237,8 @@ export { BEHAVIOR, PRESSED_FEEDBACK, type PressedFeedback, choice, pressedFeedba
 export { FormDisabledController, type FormDisabledHost, isDisabledControl, takeFormDisabled } from './form-disabled.js';
 export { type DisabledHost, FocusedStop, disabledWaitsWhileFocused, endsWaiting, waitsWhileFocused } from './disabled-while-focused.js';
 export { focusedAtFirst, wantsAutofocus } from './autofocus.js';
-export { type FocusRingOptions, type FocusSelector, focusGlow, focusGlowEnds, focusRing, syncFocusStyle } from './focus-ring.js';
+export { type FocusRingOptions, type FocusSelector, focusGlow, focusGlowEnds, focusRing, focusRingBox, syncFocusStyle } from './focus-ring.js';
+export { drawnAsNoElement } from './no-element.js';
 export { PressController, type PressOptions, type PressedBy, pressHold } from './press.js';
 export { type Point, type RippleTokens, fadeRipple, rippleStyles, startRipple } from './ripple.js';
 export { type StatePaints, type StateSelector, stateRules } from './states.js';
