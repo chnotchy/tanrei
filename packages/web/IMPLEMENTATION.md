@@ -1484,7 +1484,11 @@ text in a card takes the page's, so set it with the text utilities (`.tanrei-tex
 for a title — CRD-13's "plain text takes `sys.typescale.body`" is for platforms that must style a bare string; the
 web's baselines stage their text in `.tanrei-text-body`). The outline of the outlined variant is a layer above the
 content (`::part(outline)`), so media that bleeds to the edges, even one that stacks itself with `z-index`, never covers
-it. The card has no height of its own.
+it. The part holds the edge's values and runs its transition but is `visibility: hidden`; its `::before` inherits them
+and draws the edge, at the same place in the paint order. An element painted over the content is, to a contrast checker
+(axe's `color-contrast`), an element covering the text: it left every text in a card incomplete ("overlapped by another
+element") instead of checking it, so faint text in a card was never reported. A pseudo-element is not seen as one. In
+forced colors the part draws its system-color border itself. The card has no height of its own.
 
 **Semantics.** Not interactive: no role and no focus handling at all — the content keeps its own semantics and its own
 tab stops — or `role="group"` named by `label`. Interactive: a shadow `<div role="button" tabindex="0">` around the slot
