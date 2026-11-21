@@ -3,6 +3,7 @@ import { classMap } from 'lit/directives/class-map.js';
 import { hiddenHost } from '../../primitives/hidden.js';
 import {
   AvailabilityController,
+  GlyphDrawnController,
   GlyphMirrorController,
   GroupItemController,
   type GroupPlace,
@@ -44,6 +45,9 @@ export interface TanreiButtonWithMenuToggleDetail {
 export interface TanreiButtonWithMenuCloseDetail {
   reason: TanreiMenuCloseReason;
 }
+
+/** SPB-13: the chevron the button with menu draws itself, the chevron slot's fallback content. */
+const CHEVRON_GLYPH = 'expand_more';
 
 /** The menu's item kinds, as the menu spec defines them: what the menu slot presents. */
 const MENU_CONTENT = 'tanrei-menu-item, tanrei-menu-checkbox-item, tanrei-menu-radio-item, tanrei-submenu';
@@ -317,6 +321,12 @@ export class TanreiButtonWithMenu extends TanreiElement {
    * slot's fallback text: no element of the product's, and not a name the icon set mirrors.
    */
   private readonly mirror = new GlyphMirrorController(this, { slots: 'slot.icon-slot, slot.chevron-slot, slot.chevron-open-slot' });
+
+  /**
+   * SPB-41: the icon's box and each chevron's carry `data-drawn` while the icon set can draw what their slot holds — the
+   * product's glyph, or expand_more; until then they draw nothing (src/primitives/glyph.ts).
+   */
+  private readonly glyphs = new GlyphDrawnController(this, () => this.renderRoot.querySelectorAll<HTMLElement>('.icon, .chevron'), { slotted: true });
 
   // SPB-39: a busy leading half shows no pressed state.
   private readonly leadingPress = new PressController(this, {
@@ -803,7 +813,7 @@ export class TanreiButtonWithMenu extends TanreiElement {
           @focus=${this.onFocus}
         >
           <span class="chevrons" aria-hidden="true">
-            <span class="turn"><span part="chevron" class="chevron"><slot class="chevron-slot" name="chevron">expand_more</slot></span></span>
+            <span class="turn"><span part="chevron" class="chevron"><slot class="chevron-slot" name="chevron"><span>${CHEVRON_GLYPH}</span></slot></span></span>
             <span class="glyph-open"><span part="chevron" class="chevron"><slot class="chevron-open-slot" name="chevron-open"></slot></span></span>
           </span>
         </button>

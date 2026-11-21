@@ -14,8 +14,9 @@ import { type Frames, expectAnimated, expectNoFlicker, freezeFirstFrame, sampleF
 import { EVERY_ANIMATION, expectFromNextFrame, motionEnded } from '../../../test/motions.js';
 import { entrances, loadOpen } from '../../../test/mounted-open.js';
 import { expectScrimTakenAwayAtClose } from '../../../test/scrim-at-close.js';
-import { type DocumentOptions, type Fixture, type FixtureItem, type MountOptions, dialogWindow, fixturesDocument, innerStrokeAtEdges, loadSpec, mountFixtures, resolveColor, resolveToken, tab, tabTo, rootTokens } from '../../../test/harness.js';
+import { type DocumentOptions, type Fixture, type FixtureItem, type MountOptions, dialogWindow, fixturesDocument, iconFaceArrives, innerStrokeAtEdges, loadSpec, mountFixtures, resolveColor, resolveToken, tab, tabTo, rootTokens, withoutIconFont } from '../../../test/harness.js';
 import { expectBaseline } from '../../../test/baseline.js';
+import { expectGlyphsHeldBack } from '../../../test/held-glyphs.js';
 
 const spec = loadSpec('dialog');
 type P = Page;
@@ -1647,4 +1648,30 @@ test.describe('fixtures', () => {
       await expectBaseline(page, [spec.name, `${fixture.id}.png`]);
     });
   }
+});
+
+test.describe('a glyph the icon set cannot draw yet', () => {
+  test('DLG-30: while the icon set cannot draw the icon slot’s glyph the open dialog draws nothing in its place — never its name — and keeps its box; the headline, the text, the actions and the name stay; once it can, the glyph is drawn where it was', async ({ page }) => {
+    await page.setViewportSize(dialogWindow('icon'));
+    await mountFixtures(page, spec, { icons: true, fixtures: [spec.fixtures.find((fx) => fx.id === 'icon')!] });
+    await expect.poll(() => isOpen(page, 'icon')).toBe(true);
+    await motionEnded(page);
+    await expectGlyphsHeldBack(page, [{ name: 'the icon', host: host(page, 'icon'), box: '.icon-line .icon' }], async () => {
+      await expect(page.getByRole('dialog', { name: 'Delete project?' })).toHaveCount(1);
+      expect(await css(dialog(page, 'icon').locator('.headline'), 'visibility')).toBe('visible');
+    });
+  });
+
+  test('DLG-30: a dialog opened while the icon set cannot draw its glyph draws none of the glyph’s name, and draws the glyph once the set can', async ({ page }) => {
+    await mount(page, [closed('icon')]);
+    const family = await withoutIconFont(page);
+    await open(page, 'icon');
+    const icon = host(page, 'icon').locator('.icon-line .icon');
+    const glyph = host(page, 'icon').locator('> [slot="icon"]');
+    await expect.poll(() => icon.getAttribute('data-drawn')).toBeNull();
+    expect(await css(glyph, 'visibility')).toBe('hidden');
+    await iconFaceArrives(page, family);
+    await expect.poll(() => icon.getAttribute('data-drawn')).not.toBeNull();
+    expect(await css(glyph, 'visibility')).toBe('visible');
+  });
 });
