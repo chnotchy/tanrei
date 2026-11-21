@@ -227,7 +227,10 @@ export async function openStudio({ layer = { id: 'acme', extends: 'tanrei' }, pa
         // (Up the tree as it is drawn: a row of tabs scrolls its tabs in a box inside its shadow root.)
         const above = (el) => el.assignedSlot ?? el.parentElement ?? el.getRootNode().host;
         // Of a component — its host and what is inside its shadow root — only a box that SCROLLS counts: one that cuts (a card's corners) would hide the fault.
-        const holds = (up) => (up.getRootNode() instanceof ShadowRoot || up.localName.includes('-') ? ['auto', 'scroll'].includes(getComputedStyle(up).overflowX) : getComputedStyle(up).overflowX !== 'visible');
+        // The Studio is the window (its root clips what would spill out of it), and its panel is a column that scrolls
+        // by itself (on a phone, a sheet as wide as the window): what they hold must fit, neither cut off nor scrolled
+        // sideways, so it is measured against the window as the page is.
+        const holds = (up) => !up.matches('[data-inspector], [data-studio]') && (up.getRootNode() instanceof ShadowRoot || up.localName.includes('-') ? ['auto', 'scroll'].includes(getComputedStyle(up).overflowX) : getComputedStyle(up).overflowX !== 'visible');
         const clipped = (el) => { for (let up = above(el); up; up = above(up)) if (up instanceof Element && holds(up) && up.getBoundingClientRect().right <= innerWidth + 1) return true; return false; };
         const hidden = (el) => el.closest('[hidden], details:not([open]) > :not(summary)') || getComputedStyle(el).position === 'absolute' || clipped(el);
         return { page: document.scrollingElement.scrollWidth, width: innerWidth, wide: [...host.querySelectorAll('*')].filter((el) => !hidden(el) && el.getBoundingClientRect().width > 0 && el.getBoundingClientRect().right > innerWidth + 1).map((el) => `<${el.tagName.toLowerCase()} class="${el.className}"> “${(el.textContent ?? '').trim().slice(0, 40)}” in ${el.closest('[data-panel]')?.getAttribute('data-panel') ?? el.parentElement?.className} (right edge ${Math.round(el.getBoundingClientRect().right)})`).slice(0, 5) };
