@@ -11002,13 +11002,12 @@ Events: `copied` (`detail.text`) and `copyfailed` (`detail.reason`). Parts: `con
   the container that does not scroll.
 - **The gutter** is `position: sticky; left: 0`, filled with the block's ground so code scrolls under it. **The
   outlined look has no ground of its own** (its fill is transparent, and a stylesheet cannot know what it is placed
-  on): the gutter and the copy button's patch use `--tanrei-code-block-ground` where you set it and
-  `sys.color.surface` otherwise.
-- **The copy button's patch** covers whole lines at the top end corner, so no line is half hidden; where the
-  browser has no `round()` it is as tall as the button. Wrapped, no code passes under the button and there is no patch.
-- **Right to left**: the frame mirrors by `:dir()`; without a header the copy button is at the top left and the
-  padding before the lines is widened there. With a gutter as well, the gutter's numbers move right with it and the
-  bars of the first lines are under the button's patch.
+  on): the gutter uses `--tanrei-code-block-ground` where you set it and `sys.color.surface` otherwise.
+- **The copy button is in the header** (COD-10): with `copy` the block always draws the header's row, the button alone
+  in it where there is no title and no language label, and the code begins below it — so no line, however long, and
+  nothing scrolled passes under the button, at any width, wrapped or not, in either direction.
+- **Right to left**: the frame mirrors by `:dir()`: the title at the right, the language and the copy button at the
+  left. The lines keep the plain inline paddings on both sides.
 - **A band and a bar** are the line's and the gutter's backgrounds; in forced colors the gutter is drawn in system
   colors by name (`forced-color-adjust: none`), because the mode removes a gradient.
 - **It highlights by itself** (COD-19, COD-27 to COD-33). Three sources of color, in order: runs the

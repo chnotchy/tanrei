@@ -476,7 +476,7 @@ test.describe('scrolling and wrapping', () => {
 test.describe('the header and the copy button', () => {
   test('COD-8: with a title or a language label the header is the top of the same container, with no fill and no line: the title at the start in its text style, one line, cut at the end of its own direction; the language label at the end before the copy button, never cut; the row begins copy-button.inset from the top and is as tall as the copy button, or as one line of the title; the code begins header.padding-block-end below it', async ({ page }) => {
     await mount(page, only('titled', 'titled-language-copy', 'language-only', 'plain', 'rtl-ltr-title', 'auto-html'));
-    // language itself is not drawn: a block that has one, and neither a title nor a language label, has no header.
+    // language itself is not drawn: a block that has one, and neither a title, a language label nor copy, has no header.
     await expect(header(page, 'auto-html')).toHaveCount(0);
     await expect(header(page, 'plain')).toHaveCount(0);
     const inset = await resolveToken(page, T('copy-button-inset'));
@@ -520,7 +520,7 @@ test.describe('the header and the copy button', () => {
     expect(await host(page, 'titled').getAttribute('title')).toBeNull();
   });
 
-  test('COD-9: with copy the block places a Copy button — icon-only, the text variant, the small size, named by copyLabel, with the two announcements — copy-button.inset from the top and the end edge, in the header or over the top end corner; it is drawn whenever the block is, comes before the body in the focus and reading order, keeps its place in every form, and the container is at least as tall as the button and twice the inset', async ({ page }) => {
+  test('COD-9: with copy the block places a Copy button — icon-only, the text variant, the small size, named by copyLabel, with the two announcements — copy-button.inset from the top and the end edge, at the end of the header; it is drawn whenever the block is, comes before the body in the focus and reading order, keeps its place in every form, and the container is at least as tall as the button and twice the inset', async ({ page }) => {
     await mount(page, only('copy', 'titled-language-copy', 'one-line-copy', 'plain'));
     await double(page);
     await expect(copyButton(page, 'plain')).toHaveCount(0);
@@ -545,42 +545,62 @@ test.describe('the header and the copy button', () => {
       expect(await box(button), id).toEqual(b);
       expect((await box(container(page, id))).height, id).toBeGreaterThanOrEqual(size + 2 * inset);
     }
-    // A block of one line is exactly the button and twice the inset in the default system; with smaller paddings it
-    // is still that tall.
-    expect((await box(container(page, 'one-line-copy'))).height).toBe(size + 2 * inset);
+    // With smaller paddings the block is still at least that tall.
     await override(page, { [T('container-padding-block-medium')]: '2px' });
-    expect((await box(container(page, 'one-line-copy'))).height).toBe(size + 2 * inset);
+    expect((await box(container(page, 'one-line-copy'))).height).toBeGreaterThanOrEqual(size + 2 * inset);
   });
 
-  test('COD-10: without a header the copy button never covers code that cannot be moved clear of it — not wrapped, the padding after the longest line is widened by the button and its inset; wrapped, every row ends before the button’s column — and it stands on a patch of the container’s own color where code can pass under it', async ({ page }) => {
-    await mount(page, [...only('long-lines-copy', 'long-lines-wrapped-numbered-copy', 'long-lines'), fx('outlined-copy', { code: LONG, variant: 'outlined', ...COPY })]);
-    const [size, inset, inline] = [await resolveToken(page, BUTTON), await resolveToken(page, T('copy-button-inset')), await resolveToken(page, T('container-padding-inline-medium'))];
-    // The widened padding: what scrolls is wider by the button and its inset than without the button.
+  test('COD-10: with copy the button stands in the header’s row — alone there without a title or a language label — and the code begins below it: no line, row or part scrolled sideways or up and down passes under the button, at any width, wrapped or not, in either direction, and the lines keep the plain inline paddings on both sides', async ({ page }) => {
+    await mount(page, [
+      ...only('long-lines-copy', 'long-lines-wrapped-numbered-copy', 'long-lines', 'long-lines-wrapped', 'one-line-copy', 'terminal-one-line', 'copy', 'rtl-copy-without-header'),
+      fx('outlined-copy', { code: LONG, variant: 'outlined', ...COPY }),
+      fx('capped-copy', { code: [LONG, ...Array.from({ length: 12 }, (_, i) => `line ${i + 2}`)].join('\n'), maxLines: 4, ...COPY }),
+    ]);
+    const [inset, inline, below] = [await resolveToken(page, T('copy-button-inset')), await resolveToken(page, T('container-padding-inline-medium')), await resolveToken(page, T('header-padding-block-end'))];
+    const ids = ['long-lines-copy', 'long-lines-wrapped-numbered-copy', 'one-line-copy', 'terminal-one-line', 'copy', 'rtl-copy-without-header', 'outlined-copy', 'capped-copy'];
+    /** Every row of every line that stands beside the button's box, vertically, inside the container. */
+    const under = (id: string) =>
+      host(page, id).evaluate((el) => {
+        const button = el.shadowRoot!.querySelector('tanrei-copy-button')!.getBoundingClientRect();
+        const clip = el.shadowRoot!.querySelector('.body')!.getBoundingClientRect();
+        const out: string[] = [];
+        for (const code of el.querySelectorAll('[data-line-code]')) {
+          for (const rect of code.getClientRects()) {
+            const [top, bottom, left, right] = [Math.max(rect.top, clip.top), Math.min(rect.bottom, clip.bottom), Math.max(rect.left, clip.left), Math.min(rect.right, clip.right)];
+            if (bottom - top > 0.5 && right - left > 0.5 && top < button.bottom - 0.5 && bottom > button.top + 0.5 && left < button.right - 0.5 && right > button.left + 0.5) out.push(code.textContent!.slice(0, 20));
+          }
+        }
+        return out;
+      });
+    for (const width of [320, 390, 768, 1440]) {
+      await page.setViewportSize({ width, height: 900 });
+      for (const id of ids) {
+        // The header's row holds the button, and only the button where there are no words.
+        await expect(header(page, id), `${id} at ${width}`).toHaveCount(1);
+        await expect(header(page, id).locator('tanrei-copy-button'), `${id} at ${width}`).toHaveCount(1);
+        await expect(header(page, id).locator('.title, .language'), `${id} at ${width}`).toHaveCount(0);
+        const [h, b] = [await box(header(page, id)), await box(copyButton(page, id))];
+        // The code begins header.padding-block-end below the row.
+        near((await box(line(page, id, 1))).y - h.bottom, below, `${id} at ${width}: the code begins below the row`, 0.1);
+        expect((await box(line(page, id, 1))).y, `${id} at ${width}`).toBeGreaterThanOrEqual(b.bottom);
+        // Nothing passes under the button: at rest, scrolled to the end sideways, and scrolled down and back.
+        expect(await under(id), `${id} at ${width}, at rest`).toEqual([]);
+        await body(page, id).evaluate((el) => { el.scrollLeft = el.scrollWidth; el.scrollTop = el.scrollHeight; });
+        expect(await under(id), `${id} at ${width}, scrolled`).toEqual([]);
+        await body(page, id).evaluate((el) => { el.scrollLeft = 0; el.scrollTop = 0; });
+      }
+    }
+    // The paddings are the plain ones: what scrolls is as wide with the button as without it, and a wrapped row ends
+    // at the inline padding, not before the button's column.
     const width = (id: string) => body(page, id).evaluate((el) => el.scrollWidth);
-    expect((await width('long-lines-copy')) - (await width('long-lines'))).toBeCloseTo(size + inset, 0);
+    expect(await width('long-lines-copy')).toBe(await width('long-lines'));
     await body(page, 'long-lines-copy').evaluate((el) => (el.scrollLeft = el.scrollWidth));
-    const button = await box(copyButton(page, 'long-lines-copy'));
-    const end = (await rows(lineCode(page, 'long-lines-copy', 1)))[0].right;
-    expect(end).toBeLessThanOrEqual(button.x + 0.5);
-    near(button.x - end, inline, 'the line’s end stands its padding before the button');
-    // Wrapped: every row of every line ends before the button's column.
-    const column = (await box(copyButton(page, 'long-lines-wrapped-numbered-copy'))).x;
-    for (let n = 1; n <= 4; n++) for (const row of await rows(lineCode(page, 'long-lines-wrapped-numbered-copy', n))) expect(row.right, `line ${n}`).toBeLessThanOrEqual(column + 0.5);
-    // The patch: the container's own color — the ground, for an outlined block — over whole lines, no taller than the block.
-    const patch = host(page, 'long-lines-copy').locator('.corner');
-    expect(await css(patch, 'background-color')).toBe(await resolveColor(page, T('filled-container-color')));
-    const p = await box(patch);
-    const c = await box(container(page, 'long-lines-copy'));
-    expect([p.y, p.right]).toEqual([c.y, c.right]);
-    expect(p.x).toBeLessThanOrEqual(button.x);
-    const [lineHeight, block] = [await lineOf(page, T('code-typescale-medium')), await resolveToken(page, T('container-padding-block-medium'))];
-    expect((p.height - block) % lineHeight).toBeCloseTo(0, 1);
-    expect(p.height).toBeGreaterThanOrEqual(size + inset);
-    expect(await css(host(page, 'outlined-copy').locator('.corner'), 'background-color')).toBe(await resolveColor(page, '--tanrei-sys-color-surface'));
-    await override(page, { '--tanrei-code-block-ground': 'rgb(1, 2, 3)' });
-    expect(await css(host(page, 'outlined-copy').locator('.corner'), 'background-color')).toBe('rgb(1, 2, 3)');
-    // Wrapped, no code passes under it: no patch.
-    expect(await css(host(page, 'long-lines-wrapped-numbered-copy').locator('.corner'), 'background-color')).toBe('rgba(0, 0, 0, 0)');
+    near((await box(container(page, 'long-lines-copy'))).right - (await rows(lineCode(page, 'long-lines-copy', 1)))[0].right, inline, 'the line’s end stands the plain padding before the edge');
+    for (const id of ['long-lines-copy', 'long-lines-wrapped-numbered-copy']) expect(await px(line(page, id, 1), 'padding-right'), id).toBe(inline);
+    // Right to left: the button at the top left, and the lines begin at the plain padding.
+    const [rc, rb] = [await box(container(page, 'rtl-copy-without-header')), await box(copyButton(page, 'rtl-copy-without-header'))];
+    near(rb.x - rc.x, inset, 'the button at the left', 0.1);
+    near((await rows(lineCode(page, 'rtl-copy-without-header', 1)))[0].x - rc.x, inline, 'the plain padding before the lines', 0.6);
   });
 
   test('COD-11: the copy button copies the code as plain text — its lines in order, joined by line breaks, without line numbers, prompts, signs or labels, without the removed lines, with no break that wrapping added — and the block emits copied with the text, or copyfailed, when its copy button does', async ({ page }) => {
@@ -1418,7 +1438,7 @@ test.describe('syntax', () => {
 });
 
 test.describe('direction', () => {
-  test('COD-20: the body is laid out left to right in every layout direction — lines, the gutter, the bars and the start of scrolling at the left — and a right-to-left layout mirrors the frame alone: the title at the right, the language and the copy button at the left, the copy button of a block without a header at the top left, with COD-10’s padding at its side', async ({ page }) => {
+  test('COD-20: the body is laid out left to right in every layout direction — lines, the gutter, the bars and the start of scrolling at the left — and a right-to-left layout mirrors the frame alone: the title at the right, the language and the copy button at the left, in the header of a block that has only the button, and the lines with the plain paddings', async ({ page }) => {
     await mount(page, only('rtl', 'rtl-copy-without-header', 'titled-language-copy', 'long-lines-copy'));
     const c = await box(container(page, 'rtl'));
     const inline = await resolveToken(page, T('container-padding-inline-medium'));
@@ -1438,13 +1458,13 @@ test.describe('direction', () => {
     expect((await css(gutter(page, 'rtl', 3), 'background-position')).split(',')[0]).toMatch(/^(0%|left) (0%|top)$|^0px 0px$/);
     // Scrolling starts at the left.
     expect(await body(page, 'rtl-copy-without-header').evaluate((el) => [el.scrollLeft, el.scrollWidth > el.clientWidth])).toEqual([0, true]);
-    // Without a header: the button at the top left, and the padding before the lines widened there instead of after them.
+    // Without words: the button at the top left of its header's row, and the lines with the plain padding on both sides.
     const [rc, rb] = [await box(container(page, 'rtl-copy-without-header')), await box(copyButton(page, 'rtl-copy-without-header'))];
     near(rb.x - rc.x, inset, 'the button at the left', 0.1);
     near(rb.y - rc.y, inset, 'at the top', 0.1);
-    const first = (await rows(lineCode(page, 'rtl-copy-without-header', 1)))[0].x;
-    near(first - rc.x, inline + rb.width + inset, 'the padding at the button’s side', 0.6);
-    expect(first).toBeGreaterThanOrEqual(rb.right);
+    const first = (await rows(lineCode(page, 'rtl-copy-without-header', 1)))[0];
+    near(first.x - rc.x, inline, 'the plain padding before the lines', 0.6);
+    expect(first.y).toBeGreaterThanOrEqual(rb.bottom);
     await body(page, 'rtl-copy-without-header').evaluate((el) => (el.scrollLeft = el.scrollWidth));
     near(rc.right - (await rows(lineCode(page, 'rtl-copy-without-header', 1)))[0].right, inline, 'the other side has the plain padding', 0.6);
     // A comment in a right-to-left script is laid out by the bidirectional algorithm inside its left-to-right line.
@@ -1454,31 +1474,21 @@ test.describe('direction', () => {
     expect(await css(pre(page, 'arabic'), 'unicode-bidi')).toBe('isolate');
   });
 
-  test('COD-20: in a right-to-left layout the copy button of a block without a header stands over the gutter where there is one, and has no patch there — the gutter stays in view under it, so no code passes under the button and a marked line’s bar and band are drawn from the container’s left edge (COD-10, COD-15); without a gutter it keeps its patch', async ({ page }) => {
+  test('COD-20: in a right-to-left layout a block with copy and a gutter draws the button in its header’s row at the left, above the lines — the gutter, a marked line’s bar and its band are drawn from the container’s left edge, and stay there when the code is scrolled (COD-10, COD-15)', async ({ page }) => {
     const code = 'const a = 1;\nconst b = 2;\nconst c = a + b; // a line that is long enough to be scrolled sideways under whatever stands over the body of this block\nexport { c };';
     await mount(page, [
       fx('gutter-rtl', { code, lineNumbers: true, highlightedLines: '1-2', highlightedLabel: 'Highlighted', ...COPY }, { direction: 'rtl' }),
       fx('marks-rtl', { code, addedLines: '1', addedLabel: 'Added', ...COPY }, { direction: 'rtl' }),
-      fx('bare-rtl', { code, ...COPY }, { direction: 'rtl' }),
-      fx('gutter-ltr', { code, lineNumbers: true, highlightedLines: '1-2', highlightedLabel: 'Highlighted', ...COPY }),
     ]);
     await page.addStyleTag({ content: '.stage:has(> tanrei-code-block) { inline-size: 360px; }' });
-    const patch = (id: string) => css(host(page, id).locator('.corner'), 'background-color');
     for (const id of ['gutter-rtl', 'marks-rtl']) {
-      expect(await patch(id), id).toBe('rgba(0, 0, 0, 0)');
-      // The gutter of the first line: from the container's left edge to past the button, its bar at its left edge,
-      // and still there when the code is scrolled to its end.
       const [c, g, b] = [await box(container(page, id)), await box(gutter(page, id, 1)), await box(copyButton(page, id))];
       expect(g.x, id).toBe(c.x);
-      expect(g.right, id).toBeGreaterThanOrEqual(b.right);
+      expect(g.y, id).toBeGreaterThanOrEqual(b.bottom);
       expect((await css(gutter(page, id, 1), 'background-image')).startsWith('linear-gradient'), id).toBe(true);
       await body(page, id).evaluate((el) => (el.scrollLeft = el.scrollWidth));
       expect((await box(gutter(page, id, 1))).x, id).toBe(c.x);
     }
-    // Where code can pass under the button it stands on its patch: no gutter at the left, or the button at the right.
-    const ground = await resolveColor(page, T('filled-container-color'));
-    expect(await patch('bare-rtl')).toBe(ground);
-    expect(await patch('gutter-ltr')).toBe(ground);
   });
 
   test('COD-21: the direction comes from the nearest ancestor that sets one — not from the root — and a change after the first render is drawn at once, without a motion, keeping the body’s scroll offsets, its selection and its focus', async ({ page }) => {
@@ -1971,7 +1981,7 @@ test.describe('fixtures', () => {
       await expect(lines(page, f.id), f.id).toHaveCount(text.replace(/\n$/, '').split('\n').length);
       expect(await css(container(page, f.id), 'background-color'), f.id).toBe(await resolveColor(page, T(`${String(f.props.variant ?? 'filled')}-container-color`)));
       expect(await px(pre(page, f.id), 'font-size'), f.id).toBe(await resolveToken(page, T(`code-typescale-${String(f.props.size ?? 'medium')}-font-size`)));
-      await expect(header(page, f.id), f.id).toHaveCount(f.props.title || f.props.languageLabel ? 1 : 0);
+      await expect(header(page, f.id), f.id).toHaveCount(f.props.title || f.props.languageLabel || f.props.copy ? 1 : 0);
       await expect(copyButton(page, f.id), f.id).toHaveCount(f.props.copy ? 1 : 0);
       await expect(host(page, f.id).locator('[data-number]'), f.id).toHaveCount(f.props.lineNumbers ? await lines(page, f.id).count() : 0);
       // No fixture scrolls its stage, and each is named.

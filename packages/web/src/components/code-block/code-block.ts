@@ -229,18 +229,18 @@ function pieces(node: Node): Node[] {
  *
  * The body is one focus stop, with the block's name, only while it can scroll; it is left to right in every layout,
  * and the frame mirrors. The outlined look is read on whatever it is placed on: where that is not the surface color,
- * name it in `--tanrei-code-block-ground`, which the gutter and the copy button's patch stand on while code scrolls
- * under them.
+ * name it in `--tanrei-code-block-ground`, which the gutter stands on while code scrolls under it. The copy button
+ * stands in the header's row, alone where there is no title and no language label, and never over the code.
  *
  * @tag tanrei-code-block
  * @slot - The code: one `<pre><code>`. Runs are `<span data-syntax="…">` inside the `<code>`.
  * @csspart container - The block: its fill, its corners, and the edge of the outlined look.
- * @csspart header - The row that holds the title, the language and the copy button.
+ * @csspart header - The row that holds the title, the language and the copy button (alone where there is no title and no language label).
  * @csspart title - The title.
  * @csspart language - The language label (`language-label`).
  * @csspart copy-button - The copy button (a `<tanrei-copy-button>`).
  * @csspart body - The part that holds the lines and scrolls.
- * @cssprop --tanrei-code-block-ground - The color the outlined look is placed on, where it is not `sys.color.surface`: what the gutter and the copy button's patch are filled with.
+ * @cssprop --tanrei-code-block-ground - The color the outlined look is placed on, where it is not `sys.color.surface`: what the gutter is filled with.
  * @fires {CustomEvent<TanreiCodeBlockCopiedDetail>} copied - The code was copied by the block's copy button; `detail.text` is the text that was copied.
  * @fires {CustomEvent<TanreiCodeBlockCopyFailedDetail>} copyfailed - The platform refused the copy asked for by the block's copy button; `detail.reason` is its reason, where it gave one.
  */
@@ -281,7 +281,6 @@ export class TanreiCodeBlock extends TanreiElement {
     scrollable: { state: true },
     copyText: { state: true },
     lineCount: { state: true },
-    gutter: { state: true },
   };
 
   /**
@@ -374,9 +373,6 @@ export class TanreiCodeBlock extends TanreiElement {
 
   /** How many lines the code has (COD-6). */
   protected lineCount = 0;
-
-  /** Whether the lines have a gutter (COD-13): it stays in view at the left, over the room of a corner button there (COD-20). */
-  protected gutter = false;
 
   /** COD-25: sizes and variants a design system adds, and a value the active system does not have (src/primitives/axes.ts). */
   private readonly axes = new OpenAxesController(this, { component: 'code-block', behavior: 'COD-25', axes: AXES });
@@ -887,7 +883,6 @@ export class TanreiCodeBlock extends TanreiElement {
     }
     if (code) this.color(code, codes, readings);
     this.lineCount = boxes.length;
-    this.gutter = boxes.some((line) => [...line.children].some((child) => child.hasAttribute(GUTTER)));
     this.empty = boxes.length === 0;
     // What was written here is not a change of the code.
     this.mutations?.takeRecords();
@@ -994,8 +989,9 @@ export class TanreiCodeBlock extends TanreiElement {
   protected override render() {
     // COD-25: nothing is drawn and nothing is exposed.
     if (this.empty) return nothing;
-    // COD-8: the header's words are the title and the language label; `language` itself is not drawn.
-    const header = !!this.headline || !!this.languageLabel;
+    // COD-8, COD-10: the header holds the title, the language label and the copy button — the button alone where there
+    // are no words — so the button never stands over the code; `language` itself is not drawn.
+    const header = !!this.headline || !!this.languageLabel || this.copy;
     // COD-22: a group named by the title, and by the label where there is none.
     const name = this.headline || this.label;
     const cap = this.cap;
@@ -1015,7 +1011,7 @@ export class TanreiCodeBlock extends TanreiElement {
         ></tanrei-copy-button>`
       : nothing;
     return html`
-      <div part="container" class="container ${classMap({ copy: this.copy, 'has-header': header, gutter: this.gutter })}" data-tanrei-shape>
+      <div part="container" class="container ${classMap({ copy: this.copy, 'has-header': header })}" data-tanrei-shape>
         ${header
           ? html`<div part="header" class="header">
               ${this.headline ? html`<span part="title" class="title" dir=${ownDirection(this.headline)}>${this.headline}</span>` : nothing}
@@ -1023,9 +1019,7 @@ export class TanreiCodeBlock extends TanreiElement {
               ${this.languageLabel ? html`<span part="language" class="language">${this.languageLabel}</span>` : nothing}
               ${button}
             </div>`
-          : this.copy
-            ? html`<div class="corner">${button}</div>`
-            : nothing}
+          : nothing}
         <div
           part="body"
           class="body ${classMap({ capped })}"

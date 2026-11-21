@@ -17,10 +17,8 @@ const FALLBACK = `${HOST}:not(:defined)`;
 const BUTTON = 'var(--tanrei-comp-button-container-height-small)';
 /** Attribute selectors for what the element reads as "there is one": a string that is not empty. */
 const has = (attribute: string) => `[${attribute}]:not([${attribute}=''])`;
-/** COD-8: the block has a header — a title or a language label. */
-const HEADED = `:is(${has('headline')}, ${has('language-label')})`;
-/** COD-10: the padding at the copy button's side, without a header. */
-const BESIDE_BUTTON = `calc(var(--_code-block-pad-inline) + ${BUTTON} + ${T('copy-button-inset')})`;
+/** COD-8, COD-10: the block has a header — a title, a language label or a copy button, which stands nowhere else. */
+const HEADED = `:is(${has('headline')}, ${has('language-label')}, [copy])`;
 /** Code that is not in the element's lines: text, or lines without a box for their code (see below). */
 const LOOSE = `:not(:has([data-line-code]))`;
 
@@ -32,8 +30,8 @@ const BEFORE = `
 /* ── A block that is not upgraded (no script yet, or none at all) is drawn where the element will draw it, so that
    NOTHING MOVES WHEN THE ELEMENT IS DEFINED: the fill, the corners, the paddings and the face (COD-1 to COD-4); the
    header's row, with the title and the language label drawn from their attributes (COD-8); the room of the copy
-   button, at the end of the header or beside the lines, on the side the layout direction puts it (COD-9, COD-10,
-   COD-20); and the lines. The copy button itself, and the focus stop of a body that scrolls, need the element.
+   button, at the end of the header, on the side the layout direction puts it (COD-9, COD-10, COD-20); and the
+   lines. The copy button itself, and the focus stop of a body that scrolls, need the element.
 
    What stands beside a line — its number, its sign, its prompt, its mark — is drawn by the rules of "Lines" below,
    which do not ask whether the element is defined: lines written where the page was made (highlightToHtml or
@@ -64,20 +62,12 @@ ${FALLBACK}[variant='outlined'] {
 ${FALLBACK}[copy] {
   min-block-size: calc(${BUTTON} + ${T('copy-button-inset')} * 2);
 }
-/* COD-10: without a header the padding at the copy button's side is widened by the button and its inset. COD-20: in a
-   right-to-left layout that side is the left, where the lines begin. */
-${FALLBACK}[copy]:not(${HEADED}) {
-  --_code-block-pad-end: ${BESIDE_BUTTON};
-}
-${FALLBACK}[copy]:not(${HEADED}):dir(rtl) {
-  --_code-block-pad-start: ${BESIDE_BUTTON};
-  --_code-block-pad-end: var(--_code-block-pad-inline);
-}
 /* COD-8: the header's row, kept and drawn — the title at the start, cut with an ellipsis in its own direction, and
    the language label at the end, each in its text style and centred in a row that begins copy-button.inset from the
    top and is as tall as the tallest of them and of the copy button; the code begins header.padding-block-end below
    it. Two columns: the title's, which takes what is left, and the end's — the gap after the title's space, the
-   label, and the room of the copy button copy-button.inset from the end edge. */
+   label, and the room of the copy button copy-button.inset from the end edge. A block with copy and no words has the
+   row too, with the button's room alone in it (COD-10). */
 ${FALLBACK}${HEADED} {
   --_code-block-pad-top: ${T('header-padding-block-end')};
   display: grid;
