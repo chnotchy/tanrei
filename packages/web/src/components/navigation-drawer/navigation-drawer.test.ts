@@ -28,6 +28,7 @@ import { expectScrimTakenAwayAtClose } from '../../../test/scrim-at-close.js';
 import { expectGlyphsKeptWhileClosing } from '../../../test/closing-glyphs.js';
 import { STACKED_DIALOG, STACKED_LAYER, addStackedSurfaces, expectStackedInOrder, focusAmong, setOpenInOneTask } from '../../../test/stacked-surfaces.js';
 import { CONTROL_HEIGHTS, atControlHeight } from '../../../test/control-height.js';
+import { contrastChecked } from '../../../test/contrast-checked.js';
 
 const spec = loadSpec('navigation-drawer');
 type P = Page;
@@ -5878,4 +5879,19 @@ test('web: a section’s title is the headline attribute and property, drawn as 
     await (el as HTMLElement & { updateComplete: Promise<unknown> }).updateComplete;
   });
   await expect(element.locator('[role="heading"]')).toHaveCount(0);
+});
+
+test.describe('accessibility: what is drawn under a row\'s text', () => {
+  test('NVD-13, NVD-74: the item container hides no label or supporting text from a contrast check — a faint label is reported, the drawer\'s own colors pass, in a destination and a group\'s row', async ({ page }) => {
+    // The item container lies under the row at a negative level, which axe's color-contrast takes for an element over a
+    // text that is not positioned beside it: it left every label incomplete ("overlapped by another element") instead of
+    // checking it, so a faint one passed unseen.
+    const lead = '<style>tanrei-navigation-drawer-item[value="sent"]::part(label), tanrei-navigation-drawer-group::part(label) { color: #bbb; }</style>';
+    const items = [d('inbox', 'Inbox', '', { supportingText: 'All mail' }), d('sent', 'Sent'), grp('Projects', [d('alpha', 'Alpha'), d('beta', 'Beta')], { open: true })];
+    await mount(page, [fixture('faint', items, { value: 'alpha' })], { lead });
+    const checked = await contrastChecked(page);
+    expect(checked.violations, 'the faint labels are reported').toEqual(['Projects', 'Sent']);
+    expect(checked.passes, 'the drawer\'s own colors pass, selected and not').toEqual(['All mail', 'Alpha', 'Beta', 'Inbox']);
+    expect(checked.incomplete, 'nothing is left unchecked').toEqual([]);
+  });
 });

@@ -1291,6 +1291,11 @@ export const cellStyles = css`
      without one — wrapping rather than truncating; the row grows with it. NVD-35: it fades out over the first half of a
      collapse and in over the second half of an expansion, clipped at the moving edge. */
   .text {
+    /* Positioned, at no level of its own: it is drawn where it was — after the item container, which lies under the row
+       at a negative level, and after the icon before it. A contrast checker that orders elements by their levels alone
+       takes a box at a negative level for one over a text that is not positioned beside it (axe-core does), and leaves
+       the label and the supporting text unchecked; positioned, they are above the item container there too. */
+    position: relative;
     display: flex;
     flex: 1 1 auto;
     flex-direction: column;
