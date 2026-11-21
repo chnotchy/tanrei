@@ -1,4 +1,4 @@
-// 226 contrast measurement(s) below Tanrei's thresholds in system "cupertino", which do not apply to an imitation preset. See tokens/generated/cupertino/a11y-report.json
+// 232 contrast measurement(s) below Tanrei's thresholds in system "cupertino", which do not apply to an imitation preset. See tokens/generated/cupertino/a11y-report.json
 // GENERATED FILE — DO NOT EDIT.
 // Source: tokens/ (DTCG 2025.10). Regenerate with `pnpm generate`.
 // The "cupertino" design system as values. Types: ../vocabulary.ts.
@@ -1020,6 +1020,7 @@ export const cupertino = {
       outlineWidth: 2,
     },
     bottomSheet: {
+      closeButtonSize: 0,
       closeButtonVariant: 1,
       containerColor: { kind: "role", role: "surfaceContainerLowest" },
       containerElevation: "level2",
@@ -2769,6 +2770,7 @@ export const cupertino = {
     callout: {
       actionsGap: 12,
       actionsItemGap: 8,
+      closeButtonSize: 0,
       closeButtonVariant: 4,
       containerGap: 8,
       containerPaddingBlock: 12,
@@ -3001,6 +3003,7 @@ export const cupertino = {
       motionScrollEasing: [0.05, 0.7, 0.1, 1],
       motionStateDuration: 250,
       motionStateEasing: [0.2, 0, 0, 1],
+      navigationButtonSize: 1,
       navigationButtonVariant: 2,
       pressedContainerShape: 14,
       pressedOpacity: 0.7,
@@ -4376,6 +4379,7 @@ export const cupertino = {
       actionsArrangement: 0,
       actionsGap: 16,
       actionsPaddingBlock: 12,
+      actionsSize: 1,
       actionsVariant: 1,
       containerGap: 16,
       containerPaddingBlock: 8,
@@ -5565,6 +5569,7 @@ export const cupertino = {
       },
     },
     imagePreview: {
+      barButtonSize: 0,
       barButtonVariant: 4,
       barContainerColor: { kind: "role", role: "surface" },
       barGap: 12,
@@ -5596,6 +5601,7 @@ export const cupertino = {
       motionPageEasing: [0.05, 0.7, 0.1, 1],
       motionZoomDuration: 250,
       motionZoomEasing: [0.2, 0, 0, 1],
+      navigationButtonSize: 1,
       navigationButtonVariant: 1,
       navigationMarginInline: 8,
     },
@@ -8523,6 +8529,7 @@ export const cupertino = {
       arrowInset: 8,
       arrowVisible: 0,
       arrowWidth: 12,
+      closeButtonSize: 0,
       closeButtonVariant: 4,
       compactWindowWidth: 600,
       containerColor: { kind: "role", role: "surfaceBright" },
@@ -9682,6 +9689,7 @@ export const cupertino = {
       actionsGap: 8,
       actionsPaddingBlock: 16,
       actionsVariant: 4,
+      closeButtonSize: 0,
       closeButtonVariant: 1,
       containerPaddingBlock: 24,
       containerPaddingInline: 24,
@@ -9730,7 +9738,11 @@ export const cupertino = {
       motionDimDuration: 1000,
       motionDimEasing: [0.2, 0, 0, 1],
       motionShowDelay: 300,
-      placeholderColor: { kind: "role", role: "surfaceVariant" },
+      placeholderColor: {
+        kind: "alpha",
+        of: { kind: "role", role: "onSurface" },
+        amount: 0.1,
+      },
       placeholderDimOpacity: 0.5,
       placeholderLastLineInlineSize: 0.6,
       placeholderShapeBlock: 10,
@@ -9852,6 +9864,7 @@ export const cupertino = {
     snackbar: {
       actionTonalLayerOpacity: 0,
       breakpointMedium: 600,
+      closeButtonSize: 0,
       closeButtonVariant: 4,
       containerColor: { kind: "role", role: "surfaceBright" },
       containerElevation: "level3",

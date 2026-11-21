@@ -5,7 +5,7 @@
     "reference/material-web.json",
     "reference/androidx-material3.json"
   ],
-  "scope": "Every color role and every text style material-web publishes, and Button (five variants) at its single size (40px, Material's default, = Tanrei's medium); from androidx, the five button sizes, the five icon button sizes (height, spaces, icon size, outline width, shape) and the loading indicator.",
+  "scope": "Every color role and every text style material-web publishes, and Button (five variants) at its single size (40px, Material's default, = Tanrei's medium); from androidx, the five button sizes, the five icon button sizes (height, spaces, icon size, outline width, shape) and the loading indicator; and the size of the Buttons a host draws itself (close buttons, bar controls, a snackbar's and a picker's actions), by the size the reference's own component gives them.",
   "colors": {
     "$comment": "md.sys.color.<role> is compared with tanrei.sys.color.<role> in light and dark. `rename` lists roles whose Tanrei name differs.",
     "rename": {},
@@ -366,6 +366,20 @@
     }
   ],
   "unmapped": [],
+  "hosts": {
+    "$comment": "The Buttons a component draws itself (a close button, a bar's controls, a snackbar's action), by the size the reference's own component gives them. Each Tanrei token names a Button size, which must be the one the `sizes` blocks map the reference object to (Material's default button and default icon button, 40dp, are Tanrei's medium); a plain dimension `tanrei` is compared with the object's ContainerHeight. Each entry is one measurement.",
+    "map": [
+      { "tanrei": "tanrei.comp.popover.close-button.size", "ref": "SmallIconButtonTokens", "source": "Material 3 closes a surface with a standard icon button (androidx: IconButtonDefaults.smallContainerSize())." },
+      { "tanrei": "tanrei.comp.side-sheet.close-button.size", "ref": "SmallIconButtonTokens", "source": "Material 3 side sheet: the close affordance is a standard icon button (m3.material.io/components/side-sheets/specs); androidx: IconButtonDefaults.smallContainerSize()." },
+      { "tanrei": "tanrei.comp.callout.close-button.size", "ref": "SmallIconButtonTokens", "source": "Material 3 closes a surface with a standard icon button (androidx: IconButtonDefaults.smallContainerSize())." },
+      { "tanrei": "tanrei.comp.bottom-sheet.close-button.size", "ref": "SmallIconButtonTokens", "source": "Material 3 closes a surface with a standard icon button (androidx: IconButtonDefaults.smallContainerSize())." },
+      { "tanrei": "tanrei.comp.snackbar.close-button.size", "ref": "SmallIconButtonTokens", "source": "androidx Snackbar.kt: the dismiss action is the standard icon button, with no size of its own." },
+      { "tanrei": "tanrei.comp.snackbar.controls.height", "ref": "ButtonSmallTokens", "source": "androidx Snackbar.kt: the action is a TextButton with no size of its own (ButtonDefaults.MinHeight, ButtonSmallTokens.ContainerHeight)." },
+      { "tanrei": "tanrei.comp.image-preview.bar.button.size", "ref": "SmallIconButtonTokens", "source": "Material 3 top app bar: its actions are standard icon buttons (AppBar.kt: an actions slot of standard icon buttons)." },
+      { "tanrei": "tanrei.comp.image-preview.navigation.button.size", "ref": "SmallIconButtonTokens", "source": "Material 3 has no image viewer; its standard icon button (IconButtonDefaults.smallContainerSize()) is the size of every icon action over content." },
+      { "tanrei": "tanrei.comp.date-time-picker.actions.size", "ref": "ButtonSmallTokens", "source": "androidx DatePickerDialog and the time picker dialog samples: the confirm and dismiss actions are TextButtons with no size of their own (ButtonDefaults.MinHeight)." }
+    ]
+  },
   "evidence": {
     "tanrei.comp.button.size.xlarge": "androidx.ButtonLargeTokens",
     "tanrei.comp.button.size.xxlarge": "androidx.ButtonXLargeTokens",

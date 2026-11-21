@@ -775,6 +775,7 @@ private let m3LikeBadgeTokens = TanreiBadgeTokens(
 )
 
 private let m3LikeBottomSheetTokens = TanreiBottomSheetTokens(
+  closeButtonSize: 1,
   closeButtonVariant: 4,
   containerColor: .role(.surfaceContainerLow),
   containerElevation: m3LikeElevation.level1,
@@ -2205,6 +2206,7 @@ private let m3LikeCalendarTokens = TanreiCalendarTokens(
 private let m3LikeCalloutTokens = TanreiCalloutTokens(
   actionsGap: 12,
   actionsItemGap: 8,
+  closeButtonSize: 1,
   closeButtonVariant: 4,
   containerGap: 8,
   containerPaddingBlock: 12,
@@ -2437,6 +2439,7 @@ private let m3LikeCarouselTokens = TanreiCarouselTokens(
   motionScrollEasing: TanreiCubicBezier(0.05, 0.7, 0.1, 1),
   motionStateDuration: 150,
   motionStateEasing: TanreiCubicBezier(0.2, 0, 0, 1),
+  navigationButtonSize: 1,
   navigationButtonVariant: 2,
   parts: TanreiCarouselParts(
     item: TanreiCarouselPartTokens(
@@ -3540,6 +3543,7 @@ private let m3LikeDateTimePickerTokens = TanreiDateTimePickerTokens(
   actionsArrangement: 1,
   actionsGap: 8,
   actionsPaddingBlock: 12,
+  actionsSize: 1,
   actionsVariant: 4,
   containerGap: 16,
   containerPaddingBlock: 8,
@@ -4566,6 +4570,7 @@ private let m3LikeHandleTokens = TanreiHandleTokens(
 )
 
 private let m3LikeImagePreviewTokens = TanreiImagePreviewTokens(
+  barButtonSize: 1,
   barButtonVariant: 4,
   barContainerColor: .role(.surface),
   barGap: 12,
@@ -4597,6 +4602,7 @@ private let m3LikeImagePreviewTokens = TanreiImagePreviewTokens(
   motionPageEasing: TanreiCubicBezier(0.05, 0.7, 0.1, 1),
   motionZoomDuration: 250,
   motionZoomEasing: TanreiCubicBezier(0.2, 0, 0, 1),
+  navigationButtonSize: 1,
   navigationButtonVariant: 1,
   navigationMarginInline: 8
 )
@@ -7017,6 +7023,7 @@ private let m3LikePopoverTokens = TanreiPopoverTokens(
   arrowInset: 8,
   arrowVisible: 0,
   arrowWidth: 12,
+  closeButtonSize: 1,
   closeButtonVariant: 4,
   compactWindowWidth: 600,
   containerColor: .role(.surfaceBright),
@@ -8075,6 +8082,7 @@ private let m3LikeSideSheetTokens = TanreiSideSheetTokens(
   actionsGap: 8,
   actionsPaddingBlock: 16,
   actionsVariant: 0,
+  closeButtonSize: 1,
   closeButtonVariant: 4,
   containerPaddingBlock: 24,
   containerPaddingInline: 24,
@@ -8125,7 +8133,7 @@ private let m3LikeSkeletonTokens = TanreiSkeletonTokens(
   motionDimDuration: 1000,
   motionDimEasing: TanreiCubicBezier(0.2, 0, 0, 1),
   motionShowDelay: 300,
-  placeholderColor: .role(.surfaceVariant),
+  placeholderColor: .alpha(of: .role(.onSurface), amount: 0.1),
   placeholderDimOpacity: 0.5,
   placeholderLastLineInlineSize: 0.6,
   placeholderShapeBlock: 12,
@@ -8252,6 +8260,7 @@ private let m3LikeSliderTokens = TanreiSliderTokens(
 private let m3LikeSnackbarTokens = TanreiSnackbarTokens(
   actionTonalLayerOpacity: 0,
   breakpointMedium: 600,
+  closeButtonSize: 1,
   closeButtonVariant: 4,
   containerColor: .role(.surfaceBright),
   containerElevation: m3LikeElevation.level3,
@@ -8267,7 +8276,7 @@ private let m3LikeSnackbarTokens = TanreiSnackbarTokens(
   containerPaddingInlineStart: 16,
   containerShape: 4,
   controlsGap: 4,
-  controlsHeight: 32,
+  controlsHeight: 40,
   controlsLabelTypescale: m3LikeTypescale.label,
   controlsPaddingInline: 14,
   controlsShape: 9999,

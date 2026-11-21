@@ -111,6 +111,20 @@ export const styles = css`
     box-shadow: inset 0 0 0 var(--tanrei-comp-card-outline-width) var(--_outline);
     pointer-events: none;
     transition: box-shadow var(--tanrei-comp-card-motion-state-duration) var(--tanrei-comp-card-motion-state-easing);
+    /* The part holds the edge's values (and runs its transition) but draws nothing itself: an element over the content
+       is what a contrast checker sees covering the text, so it leaves that text unchecked. Its ::before draws the same
+       edge, at the same place in the paint order, as no element. */
+    visibility: hidden;
+  }
+  .outline::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    visibility: visible;
+    border-radius: inherit;
+    corner-shape: inherit;
+    box-shadow: inherit;
+    pointer-events: none;
   }
 
   /* CRD-5: the hit area meets the minimum target without changing the visual size. */
@@ -165,8 +179,13 @@ export const styles = css`
     }
   `)}
   @media (forced-colors: active) {
+    /* The system-color edge is a border, which an inset ::before would draw inside the part's own: the part draws it. */
     .outline {
+      visibility: visible;
       border: var(--tanrei-comp-card-outline-width) solid CanvasText;
+    }
+    .outline::before {
+      content: none;
     }
     ${unsafeCSS(ACTION)} .outline {
       border-color: ButtonText;

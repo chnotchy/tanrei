@@ -416,8 +416,7 @@ export class TanreiColorInput extends TanreiElement {
   }
 
   /** Moves focus to the input — never to the picker button. */
-  override focus(options?: FocusOptions) {
-    if (this.keepFocusUntilRendered(options)) return;
+  protected override delegateFocus(options?: FocusOptions) {
     this.input?.focus(options);
   }
 

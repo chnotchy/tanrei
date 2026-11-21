@@ -77,7 +77,7 @@
         "container": {
           "size": {
             "$type": "dimension",
-            "$description": "The round container behind each mark, per size (28 / 32 / 40): the containers touch, so this is also the distance from one mark's centre to the next. The hit area reaches the minimum target beyond it, divided between neighbours at the middle.",
+            "$description": "The round container behind each mark, per size (28 / 32 / 40): the containers touch, so this is also the distance from one mark's centre to the next. The hit area reaches the minimum target beyond it, divided between neighbours at the middle. It is the pitch of a row of glyphs, which follows its mark's size, and does not follow the control height: a rating is no control of a row's height, and a taller target is the hit area's, not a wider pitch.",
             "$extensions": {
               "dev.tanrei.vocabulary": {
                 "rationale": "One product draws small marks in large round areas for touch, another packs them close in a dense list: the container is set apart from the mark.",

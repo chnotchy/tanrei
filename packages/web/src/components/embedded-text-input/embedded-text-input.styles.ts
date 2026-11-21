@@ -24,19 +24,20 @@ export const styles = css`
   /* ETI-12: a press in an area at least a touch target high (a pointer target for a fine pointer) — the lines, and
      equally above the first and below the last where they are shorter — is a press on the text. The area is the
      host's own, takes no room and is as wide as the input: beside the text the room is its holder's. A disabled
-     input takes no press. */
+     input takes no press. The area is laid out by its insets, the same on both sides, never centred by a translation,
+     which the layout does not round to its unit as it does an inset: lines of a text style are often an odd number of
+     units high (src/primitives/target.ts). */
   :host::before {
+    --_target: var(--tanrei-sys-target-pointer);
     content: '';
     position: absolute;
     inset-inline: 0;
-    inset-block-start: 50%;
-    block-size: max(100%, var(--tanrei-sys-target-pointer));
-    transform: translateY(-50%);
+    inset-block: min(0px, calc((100% - var(--_target)) / 2));
     cursor: text;
   }
   @media (pointer: coarse) {
     :host::before {
-      block-size: max(100%, var(--tanrei-sys-target-touch));
+      --_target: var(--tanrei-sys-target-touch);
     }
   }
   :host([disabled])::before {

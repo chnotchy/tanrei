@@ -4,16 +4,19 @@ import { classMap } from 'lit/directives/class-map.js';
 import {
   AppearController,
   AvailabilityController,
+  BUTTON_SIZES,
   BUTTON_VARIANTS,
+  type ButtonSize,
   type DividerVisibilityProp,
   SHEET_FLING_VELOCITY,
   SheetDrag,
   closeModal,
   closeRequestReason,
-  compChoice,
+  compChoices,
   containedWheel,
   deepActive,
   focusWithin,
+  giveSize,
   giveVariant,
   holdPageScroll,
   isDividerVisibility,
@@ -120,7 +123,7 @@ interface Drawn {
  * two heights; the element sets `detent` and fires `detentchange`.
  *
  * A header below the handle's row holds `headline` (a heading, which names the sheet where `label` is empty) and, while
- * `closable`, an icon-only `<tanrei-button>` of the small size showing the close glyph, named by `close-label`, in the
+ * `closable`, an icon-only `<tanrei-button>` of the size `comp.bottom-sheet.close-button.size` names showing the close glyph, named by `close-label`, in the
  * variant `comp.bottom-sheet.close-button.variant` names (tonal in the default system), as every host's close button
  * is; a divider below it as `divider-visibility` says (BSH-28, BSH-29). The header stays while the content scrolls.
  *
@@ -234,6 +237,8 @@ export class TanreiBottomSheet extends TanreiElement {
   private opener: Element | null = null;
   /** A modal sheet is presented (in the top layer). */
   private shown = false;
+  /** BSH-29: the close button's size, as `comp.bottom-sheet.close-button.size` named it at the last update. */
+  private closeSize: ButtonSize = BUTTON_SIZES[0];
   /** It is to open with the reads of the turn (`present()`), and has not yet. */
   private presenting = false;
   private pressedScrim = false;
@@ -827,12 +832,17 @@ export class TanreiBottomSheet extends TanreiElement {
   }
 
   protected override willUpdate(changed: PropertyValues<this>) {
-    // BSH-29: the variant its token names, read at each update (a system switch is seen at the next one) with every
-    // other host's reads of the turn (src/primitives/read-phase.ts), and given to the close button the render makes
-    // before that button draws: asked before the render, the read comes before the button's first update.
+    // BSH-29: the size and the variant its tokens name, read at each update (a system switch is seen at the next one)
+    // with every other host's reads of the turn (src/primitives/read-phase.ts), and given to the close button the render
+    // makes before that button draws: asked before the render, the read comes before the button's first update.
     readTogether(() => {
-      const variant = compChoice(this, `${PREFIX}-close-button-variant`, BUTTON_VARIANTS);
-      return () => giveVariant(this.renderRoot?.querySelector('tanrei-button.close'), variant);
+      const { size, variant } = compChoices(this, { size: [`${PREFIX}-close-button-size`, BUTTON_SIZES], variant: [`${PREFIX}-close-button-variant`, BUTTON_VARIANTS] });
+      return () => {
+        this.closeSize = size;
+        const button = this.renderRoot?.querySelector('tanrei-button.close');
+        giveSize(button, size);
+        giveVariant(button, variant);
+      };
     });
     if (changed.has('open') && changed.get('open') === true && !this.open && !this.modal) this.closingWithFocus = this.hasFocus();
     // BSH-21: a product's change of detent moves the sheet from where it is drawn.
@@ -941,7 +951,7 @@ export class TanreiBottomSheet extends TanreiElement {
     return html`<div part="header" class=${classMap({ header: true, closable: this.closable })} @click=${this.onClickCapture}>
       ${headline ? html`<h2 part="headline" class="headline">${headline}</h2>` : nothing}
       ${this.closable
-        ? html`<tanrei-button part="close-button" class="close" size="small" label=${this.words.get('closeLabel', this.closeLabel)} @click=${this.onCloseClick}><span slot="icon">close</span></tanrei-button>`
+        ? html`<tanrei-button part="close-button" class="close" size=${this.closeSize} label=${this.words.get('closeLabel', this.closeLabel)} @click=${this.onCloseClick}><span slot="icon">close</span></tanrei-button>`
         : nothing}
       <div part="divider" class="divider" aria-hidden="true"></div>
     </div>`;

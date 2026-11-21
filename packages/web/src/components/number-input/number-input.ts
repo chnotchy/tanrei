@@ -9,6 +9,8 @@ import {
   OpenAxesController,
   SizeConsumerController,
   ambientLocale,
+  cancelPhaseRead,
+  readInPhase,
   report,
   supportedLocale,
   syncFocusStyle,
@@ -50,21 +52,22 @@ type Layout = 'stacked' | 'filled' | 'outlined';
 const ALIGNS: readonly string[] = ['start', 'end'];
 /**
  * NMI-37: whether a number input's steppers stand on a row of their own, below its input's line. One observer for every
- * number input of the page, told when a container or an input's line changes size: every host reads, then every host
- * writes, so the inputs of a page cost one layout between them.
+ * number input of the page, told when a container or an input's line changes size. It writes nothing: what it is told
+ * is read, and written, in the next frame's read phase (src/primitives/read-phase.ts), where every input of the page
+ * reads before any writes, so the inputs of a page cost one layout between them. Wrapping changes the height of the
+ * container it watches, and a box that changes size in an observer's report is reported again in that frame only if
+ * it lies deeper than every box reported before it: written here, an input that changes the size of nothing above it
+ * (in a box of fixed size) left its container undelivered, and the browser raised "ResizeObserver loop completed with
+ * undelivered notifications" at every change of its width. The container wraps by itself (flex-wrap); what the frame
+ * after the change draws late is only what the attribute adds to a row of the steppers alone — their bottom inset, and
+ * where a resting floating label stands and ends.
  */
-const wrapReaders = new WeakMap<Element, () => (() => void) | undefined>();
+const wrapAsks = new WeakMap<Element, () => void>();
 const wrapObserver =
   typeof ResizeObserver === 'undefined'
     ? null
     : new ResizeObserver((entries) => {
-        const readers = new Set<() => (() => void) | undefined>();
-        for (const entry of entries) {
-          const reader = wrapReaders.get(entry.target);
-          if (reader) readers.add(reader);
-        }
-        const writes = [...readers].map((reader) => reader());
-        for (const write of writes) write?.();
+        for (const entry of entries) wrapAsks.get(entry.target)?.();
       });
 
 /** NMI-23: Page Up and Page Down step ten steps: ten times the step, on the step's own grid. */
@@ -529,8 +532,7 @@ export class TanreiNumberInput extends TanreiElement {
   }
 
   /** Moves focus to the input: the number input's one stop in the focus order. */
-  override focus(options?: FocusOptions) {
-    if (this.keepFocusUntilRendered(options)) return;
+  protected override delegateFocus(options?: FocusOptions) {
     this.input?.focus(options);
   }
 
@@ -896,19 +898,32 @@ export class TanreiNumberInput extends TanreiElement {
   private watchWrap(on: boolean) {
     if (!wrapObserver) return;
     for (const element of this.wrapWatched) {
-      wrapReaders.delete(element);
+      wrapAsks.delete(element);
       wrapObserver.unobserve(element);
     }
     this.wrapWatched = [];
+    cancelPhaseRead(this.wrapRead);
     if (!on || !this.isConnected) return;
     for (const selector of ['.container', '.body']) {
       const element = this.renderRoot?.querySelector<HTMLElement>(selector);
       if (!element) continue;
-      wrapReaders.set(element, this.readWrap);
+      wrapAsks.set(element, this.askWrap);
       wrapObserver.observe(element);
       this.wrapWatched.push(element);
     }
+    // The first reading is the read phase of the frame the container is first drawn in, after its layout and before
+    // its paint: the first frame painted shows the steppers where they stand. The phase is reported with the page's
+    // root element, so the height the wrapping changes is reported in the same frame.
+    if (this.wrapWatched.length) this.askWrap();
   }
+
+  /** NMI-37: wrapping is read, and written, in the next frame's read phase — never in the observer's report. */
+  private readonly askWrap = () => {
+    readInPhase(this.wrapRead, this.readWrap);
+  };
+
+  /** Who asks the read phase for a reading of wrapping (`askWrap`). */
+  private readonly wrapRead = {};
 
   override connectedCallback() {
     super.connectedCallback();
@@ -956,9 +971,9 @@ export class TanreiNumberInput extends TanreiElement {
     // NMI-8: the label's lines follow its text — the Field's, where it gives the name —, the asterisk and the size.
     if (this.frameChanged || changed.has('label') || changed.has('labelHidden') || changed.has('variant') || this.sizes.drawnChanged) this.floating.measure();
     this.frameChanged = false;
-    // NMI-37: the steppers stand on a row of their own where the row cannot hold them beside the input's line. The
-    // observer reports the first layout (and every later change of the container's or the line's size), so nothing is
-    // read here — but for steppers taken away, which may leave both sizes as they were.
+    // NMI-37: the steppers stand on a row of their own where the row cannot hold them beside the input's line. The read
+    // phase reads the first layout, and every later change of the container's or the line's size the observer is told
+    // of, so nothing is read here — but for steppers taken away, which may leave both sizes as they were.
     if (!this.hasWatchedWrap) {
       this.hasWatchedWrap = true;
       this.watchWrap(true);

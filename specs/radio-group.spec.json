@@ -230,6 +230,11 @@
     {
       "id": "RGP-21",
       "text": "WHERE the platform has ARIA attributes (the web), WHEN the product sets an aria- attribute on the host, by the attribute or by the ARIA property that reflects it, THE radio group SHALL move it to the data-aria- attribute of the same name, so that the host is no second node with its name, description or state, and SHALL expose it on the radio group of the field group it is (RGP-10) — an id reference by the elements it names in the host's tree or a tree around it, a description after its own — except those the radio group owns (aria-label, aria-labelledby, aria-disabled, aria-required, aria-invalid, aria-errormessage, aria-readonly), which it SHALL move and not expose: its name is label and its states are its props (RGP-10, RGP-20). WHEN the product removes the aria- attribute or its data-aria- twin, or sets the ARIA property that reflects it (ariaLabel, ariaDescribedByElements…) to null, THE radio group SHALL take it off that element. WHEN the product sets an aria- attribute the radio group owns THE radio group SHALL report it in debug builds."
+    },
+    {
+      "id": "RGP-22",
+      "text": "WHEN the control height (dial.control.height) is N THE radio group SHALL lay its radio buttons out as rows N tall (RAD-30): WHILE orientation is vertical each option of one line SHALL be N tall and the next SHALL start the field group's gap between controls after it (RGP-2), so that a column of options keeps one pitch with the rows of the form around it; the label, the description and the error text above and below the options are text and SHALL keep their own line heights.",
+      "verify": "With the control height at 32, 36 and 40 and the minimum target no higher, every radio button of the fixture default is 32, 36 and 40 tall under a fine pointer, and the tops of two neighbouring options are that height and comp.field-group.gap.controls apart."
     }
   ],
   "accessibility": {

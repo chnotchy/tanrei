@@ -409,9 +409,9 @@ export abstract class TanreiMenuRowBase extends TanreiElement {
   }
 
   /** Focus goes to the element that is the item: the host, or the anchor of a link item (MNU-53). */
-  override focus(options?: FocusOptions) {
+  protected override delegateFocus(options?: FocusOptions) {
     const target = this.focusTarget;
-    if (target === this) super.focus(options);
+    if (target === this) super.delegateFocus(options);
     else target.focus(options);
   }
 

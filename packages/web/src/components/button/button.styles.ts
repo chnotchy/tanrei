@@ -422,6 +422,19 @@ const buttonStyles = css`
     easing: '--tanrei-comp-button-motion-state-easing',
     fade: '--tanrei-comp-button-motion-busy-fade-duration',
   })}
+  /* The ligature's own width, which GlyphDrawnController compares with the mark's box. */
+  .ink {
+    display: inline-block;
+    vertical-align: top;
+  }
+
+  /* BTN-49: nothing in a glyph's place until the icon set can draw it (GlyphDrawnController sets data-drawn) — never its
+     name spelled in a text face. What is hidden is the glyph inside the box, so the box keeps its size and its own fade
+     (BTN-36) is left alone; a slotted glyph inherits the slot's visibility. */
+  .icon:not([data-drawn]) slot,
+  .mark:not([data-drawn]) .ink {
+    visibility: hidden;
+  }
 
   /* BTN-36: busy — the label and the icon keep their place and are not drawn, and the loading indicator's arc turns at
      the centre of the container, in the icon's box (beside a label, or alone), in the color its label (or its glyph)

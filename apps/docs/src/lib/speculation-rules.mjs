@@ -2,8 +2,9 @@
 // https://developer.chrome.com/docs/web-platform/prerender-pages): the site's own pages, prerendered once the reader
 // shows they are about to follow a link (`moderate`: a pointer resting on it, or pressing it), and fetched by an engine
 // that prefetches but does not prerender. PageFrame.astro writes it at the end of the body of every page of the frame,
-// as `<script type="speculationrules">`, after the page's links (it says why), and StudioPage.astro at the end of Theme
-// Studio's, which is a page of its own.
+// as a `<script type="speculationrules">` held in a template, after the page's links (it says why), and StudioPage.astro
+// at the end of Theme Studio's, which is a page of its own; the inline script after the template gives the rules to the
+// browser once the page has loaded (`speculateOnceLoadedText`, below).
 //
 // Only the site's own documents. A pattern without an origin is read against the page's address, so `/*` names this
 // site alone: a link to another site is never loaded. Left out are the search's files (`/pagefind/`), the built assets
@@ -45,3 +46,30 @@ export const speculationRules = {
 
 /** The script's text. */
 export const speculationRulesText = JSON.stringify(speculationRules);
+
+/** The template that holds the rules in the page, where the browser does not read them. */
+export const SPECULATION_RULES = 'template[data-docs-speculation-rules]';
+
+/**
+ * The inline script written after the template: it adds the rules to the document once the page has loaded (at once if
+ * it has). A rule that leaves links out by a selector has an engine weigh the links against it again whenever a link is
+ * made or changed, and WebKit styles the page before it does: while the page loaded, the links the components drew in
+ * their shadow roots (a button that is a link, the sidebar's rows) had WebKit style the whole page again and again —
+ * 1.5 to 3 s of a component's page's load (Linux WebKit, two cores), against none without the rules. The rules act on a
+ * pointer resting on a link or pressing it (`moderate`), which a reader does once the page has loaded; read then, the
+ * links are weighed on a page already styled. The new script's text is the rules' own, so the page's policy names it by
+ * the hash of the script inside the template, which the policy step reads as it reads every inline script (lib/csp.mjs).
+ * Inline, not a module the frame's script imports: a module of its own was one more file the page's scripts waited for.
+ */
+export const speculateOnceLoadedText = `{
+  const add = () => {
+    const held = document.querySelector(${JSON.stringify(SPECULATION_RULES)})?.content.querySelector('script');
+    if (!held) return;
+    const rules = document.createElement('script');
+    rules.type = 'speculationrules';
+    rules.textContent = held.textContent;
+    document.body.append(rules);
+  };
+  if (document.readyState === 'complete') add();
+  else addEventListener('load', add, { once: true });
+}`;
