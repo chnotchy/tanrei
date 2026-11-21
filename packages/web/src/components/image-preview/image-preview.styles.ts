@@ -1,5 +1,5 @@
 import { css, unsafeCSS } from 'lit';
-import { appearStyles, focusRing, iconGlyph, modalExitStyles, rowTargets } from '../../primitives/index.js';
+import { appearStyles, focusRing, focusRingBox, iconGlyph, modalExitStyles, rowTargets } from '../../primitives/index.js';
 import { productText } from '../../styles/product-text.js';
 import { cornerRadius, shape } from '../../styles/shape.js';
 import { reducedMotion } from '../../styles/motion.js';
@@ -187,9 +187,13 @@ export const styles = css`
 
   /* IMP-11, IMP-27: the stage is the whole container: it takes the gestures and the keys and is the one focus stop
      that is not a Button. It draws nothing (IMP-42), and the browser's own pinch and scroll do not take its gestures. */
+  /* It lies over the image and the error text (IMP-31), and is transparent: it draws nothing either way, and so it is
+     no element over the text, where a contrast checker would take it for one covering the text and check none. It
+     still takes focus, the gestures and the keys. */
   .stage {
     position: absolute;
     inset: 0;
+    opacity: 0;
     outline: none;
     touch-action: none;
     user-select: none;
@@ -220,6 +224,9 @@ export const styles = css`
   .stage[data-focus-quiet]:focus-visible ~ .fit::after {
     display: none;
   }
+  /* The fit area's edge lies over the error text (IMP-31): it draws the indicator by its ::before, as no element, so that
+     a contrast checker still sees the text under it (focusRingBox). */
+  ${focusRingBox('.fit')}
 
   /* IMP-8: the bar across the top, inside the safe area, at least bar.height tall, on its own fill: the count at its
      start, the three controls at its end, bar.gap apart, centred on its height. A zoomed image passes under it.
@@ -332,6 +339,8 @@ export const styles = css`
     ${unsafeCSS(cornerRadius('--tanrei-sys-shape-corner-none'))}
   }
   ${focusRing((focus) => `.caption${focus} + .caption-focus`, { inside: true })}
+  /* It lies over the caption's text: drawn the same way, as no element (focusRingBox). */
+  ${focusRingBox('.caption-focus')}
 
   /* IMP-38: the count, the caption and the error text are each text of their own direction, isolated; the count and
      the caption are still placed, and their lines aligned, by the layout. */
