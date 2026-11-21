@@ -130,7 +130,7 @@ const LEFT_ATTRIBUTES = ['supporting-text', 'error-text', 'required', 'optional'
  * @slot - The options: `<tanrei-option>` elements, optionally in `<tanrei-option-group>` elements. They are read, not drawn in place.
  * @slot leading-icon - A glyph at the start of the container that stands for the field whatever is chosen (a globe before a language). It takes the place of the chosen option's own glyph. A glyph the icon set flags is mirrored in right-to-left; `data-mirror="auto | always | never"` on the element decides for one use.
  * @csspart container - The trigger's box: the combobox.
- * @csspart outline - A stacked select's inner line, or an outlined select's border.
+ * @csspart outline - A stacked select's inner line, or an outlined select's border — a box that draws nothing: the `::before` of it (stacked) or of its pieces (outlined) draws the line.
  * @csspart active-indicator - The line along the bottom of a filled select.
  * @csspart label - The label that floats in a filled or an outlined select's box.
  * @csspart requirement-label - The required asterisk after a floating label.
