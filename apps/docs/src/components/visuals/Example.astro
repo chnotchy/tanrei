@@ -32,6 +32,7 @@
 //   element a page names (`describedBy`). The stage and the actions are not text of the page (`data-pagefind-ignore`):
 //   «Save» in a sample button is not what the page says. The title, the legend and the caption are.
 import ResizeHandle from '../fixtures/ResizeHandle.astro';
+import { EXAMPLE_CODE_SYNC, tabsKey } from '../tabs/keys.mjs';
 import { contentLang, strings } from '../../lib/i18n';
 import { figureId, firstOnPage } from '../../lib/figure-id';
 import { cssVar, ns, shippedSystems, tokensIn } from '../../lib/tokens';
@@ -168,7 +169,7 @@ const SNAPSHOT = '(window.docsExampleSources ??= new WeakMap()).set(document.cur
       </template>
       <template data-example-panel data-label={t.example.codeOf}>
         <div data-part="attachment" class="docs-example-code" data-example-code-panel>
-          <tanrei-tabs class="docs-example-flavors" variant="secondary" size="small" label={t.example.flavor} value="html" data-example-flavors>
+          <tanrei-tabs class="docs-example-flavors" variant="secondary" size="small" label={t.example.flavor} value="html" group={EXAMPLE_CODE_SYNC} remember-as={tabsKey(EXAMPLE_CODE_SYNC)} data-example-flavors>
             <tanrei-tab value="html" label="HTML" />
             <tanrei-tab value="react" label="React" />
           </tanrei-tabs>
