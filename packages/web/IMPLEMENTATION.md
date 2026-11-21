@@ -6098,7 +6098,7 @@ are announced. It never takes or moves focus, except to give
 it back: closed while focus is inside it, focus returns to the element that had it before it entered the callout, or
 the focused element is blurred where that one is gone (CLO-12).
 
-**The close button (CLO-10, CLO-11)** is a `<tanrei-button size="small">` with the `close` glyph in its `icon` slot,
+**The close button (CLO-10, CLO-11)** is a `<tanrei-button>` of the size `--tanrei-comp-callout-close-button-size` names (small in the default system; written as its `size` attribute at each update, `giveSize()`) with the `close` glyph in its `icon` slot,
 in the shadow root (part `close-button`). After each update the callout gives it, through the Button's internal channel,
 the variant `--tanrei-comp-callout-close-button-variant` names (`giveVariant()`) and, in every look but `outlined`, the
 tone of its form (`giveTone()`, BTN-45): `var(--tanrei-comp-callout-[<status>-]body-color-<variant>)`, so that the Button
@@ -6374,13 +6374,13 @@ the controls and an action on its own row. While it scrolls, the text is a tab s
 the browser scrolls it by the arrow keys, Page Up and Page Down), a `role="group"` named by the title when there is one.
 
 **The action (SNK-2…7).** A native `<button>` in the shadow root: its label (`controls.label.typescale`,
-`controls.padding-inline`, at least `controls.height` — a small Button's height, so that it is as tall as the Buttons beside
+`controls.padding-inline`, at least `controls.height` — the height of the Buttons beside it (`close-button.size`), so that it is as tall as the Buttons beside
 it — a tonal pill on `action.container.color`), on `controls.shape` corners and from its own tokens per state (`action-*`).
 Everything else is Button's: the state precedence, press-hold, the four `pressed-feedback` answers, ring or glow around the
 control, corner smoothing (the action is a pill, which no smoothing eases), the minimum target as `::before`. It is centred
 on the text's first line by its height or, under enlarged text, its label's line, whichever is taller.
 
-**The expand and close buttons (SNK-34).** `<tanrei-button size="small">` elements in the shadow root, each holding its glyph
+**The expand and close buttons (SNK-34).** `<tanrei-button>` elements in the shadow root, of the size `--tanrei-comp-snackbar-close-button-size` names (written as their `size` attribute, `giveSize()`, with the variant read), each holding its glyph
 in a `.glyph` box in the icon slot. The snackbar gives them, through the Button's internal channel, the variant
 `--tanrei-comp-snackbar-close-button-variant` names (read with `compChoice()` at each layout, so a system switch is seen at
 the next one) and one tone, `{ color: 'var(--_button-tone)', focus: 'var(--_button-tone-focus)' }`: each form's block sets
@@ -6681,8 +6681,9 @@ does not change the picker's width. With `layout="horizontal"` and mode `time` t
 time display is the start column and the dial the end column, each centred on the other; the wheels mode has one row
 below the range display and is drawn as the vertical layout is, in the width the dial mode's two columns take. The
 picker's only tabs are the entry-mode tabs, `<tanrei-tabs variant="secondary">`: two icon-only tabs that hug
-(`icon="keyboard"` named `wheels-label` first, `icon="schedule"` named `dial-label`; `label-hidden`). Cancel and OK are `<tanrei-button
-size="medium">`s in the variant `comp.date-time-picker.actions.variant` names, placed as a full-width Button group
+(`icon="keyboard"` named `wheels-label` first, `icon="schedule"` named `dial-label`; `label-hidden`). Cancel and OK are `<tanrei-button>`s
+of the size `comp.date-time-picker.actions.size` names (medium in the default system), in the variant
+`comp.date-time-picker.actions.variant` names, placed as a full-width Button group
 places a dismissive and a confirming item (`ActionPlacement`): a row they share (`fill`) or at their own widths at the
 end (`end`), a column with OK on top when a label does not fit. On a short window the body scrolls between the header and
 the actions, and everything scrolls when they would leave it less than a wheel row. Right to left mirrors the title row,
@@ -6935,7 +6936,7 @@ inert (then `visibility: hidden`); a drag below its lowest height asks to close.
 
 **The header (BSH-28…30).** While `headline` is not empty or `closable`, a row at least `header.height` high below the
 handle's row (or at the top without one): the headline (`headline.typescale`, `headline.color`, an `<h2>`, wrapping) from
-`container.padding`, and the close button — an icon-only `<tanrei-button>` of the small size showing the `close` glyph,
+`container.padding`, and the close button — an icon-only `<tanrei-button>` of the size `close-button.size` names (`giveSize()`) showing the `close` glyph,
 given `close-button.variant` through the Button's channel (`giveVariant()`, at every update) and otherwise never
 restyled — `header.gap` after it and `header.padding-inline-end` from the end edge; then a `divider.width` hairline in
 `divider.color` across the full width, always or only while the content is scrolled from its top (`divider-visibility`,
@@ -7253,8 +7254,8 @@ start corners `container.shape` (eased by the smoothing) and its end corners squ
 `outline.width` of its variant's `outline.color` (following the corners); its color reaches under
 `env(safe-area-inset-*)` at the end, top and bottom, and its parts stay inside them. The header is a row at least
 `header.height` high: the headline (`headline.typescale`, `headline.color`, an `<h2>`, wrapping and growing the row)
-from `container.padding-inline`, and the close button — an icon-only `<tanrei-button>` of the small size showing the
-`close` glyph, placed and otherwise never restyled, drawn unless `closable` is false (the `not-closable` attribute) —
+from `container.padding-inline`, and the close button — an icon-only `<tanrei-button>` of the size `close-button.size`
+names (small in the default system, medium under m3-like) showing the `close` glyph, placed and otherwise never restyled, drawn unless `closable` is false (the `not-closable` attribute) —
 `header.gap` after it and `header.padding-inline-end` from the end
 edge. The close button carries no `variant` attribute: the sheet gives it the variant `close-button.variant` names (tonal
 in the default system, text under m3-like) through the Button's internal group-item channel (`GROUP_ITEM`, BTN-10), and

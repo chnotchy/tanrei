@@ -2494,10 +2494,15 @@
       },
       "bottom-sheet": {
         "close-button": {
+          "size": {
+            "$type": "number",
+            "$value": 1,
+            "$description": "The Button size of the close button, an icon-only Button (BSH-29): small in the default system, as every host's close button is. The value is an index into dev.tanrei.enum.values, the core Button sizes; platforms receive the name."
+          },
           "variant": {
             "$type": "number",
             "$value": 4,
-            "$description": "The Button variant of the close button, an icon-only small Button (BSH-29): tonal in the default system, as every host's close button is. The value is an index into dev.tanrei.enum.values, the core Button variants; platforms receive the name."
+            "$description": "The Button variant of the close button, an icon-only Button of the size close-button.size names (BSH-29): tonal in the default system, as every host's close button is. The value is an index into dev.tanrei.enum.values, the core Button variants; platforms receive the name."
           }
         },
         "container": {
@@ -18867,10 +18872,15 @@
           }
         },
         "close-button": {
+          "size": {
+            "$type": "number",
+            "$value": 1,
+            "$description": "The Button size of the close button, an icon-only Button (CLO-10): small in the default system, as every host's close button is. The value is an index into dev.tanrei.enum.values, the core Button sizes; platforms receive the name."
+          },
           "variant": {
             "$type": "number",
             "$value": 4,
-            "$description": "The Button variant of the close button, an icon-only small Button (CLO-10). The value is an index into dev.tanrei.enum.values, the core Button variants; platforms receive the name. On a filled look the Button draws it in the tone of the callout's form (BTN-45)."
+            "$description": "The Button variant of the close button, an icon-only Button of the size close-button.size names (CLO-10). The value is an index into dev.tanrei.enum.values, the core Button variants; platforms receive the name. On a filled look the Button draws it in the tone of the callout's form (BTN-45)."
           }
         },
         "container": {
@@ -21737,10 +21747,15 @@
         },
         "navigation": {
           "button": {
+            "size": {
+              "$type": "number",
+              "$value": 1,
+              "$description": "The Button size of the previous and next controls, icon-only Buttons that stand over the ends of the row (CRL-41): medium in the default system. The value is an index into dev.tanrei.enum.values, the core Button sizes; platforms receive the name."
+            },
             "variant": {
               "$type": "number",
               "$value": 2,
-              "$description": "The Button variant of the previous and next controls, icon-only medium Buttons that stand over the ends of the row (CRL-41): elevated by default, a light fill with a shadow, so that the control stands apart from whatever the item under it shows. The value is an index into dev.tanrei.enum.values, the core Button variants; platforms receive the name."
+              "$description": "The Button variant of the previous and next controls, icon-only Buttons of the size navigation.button.size names that stand over the ends of the row (CRL-41): elevated by default, a light fill with a shadow, so that the control stands apart from whatever the item under it shows. The value is an index into dev.tanrei.enum.values, the core Button variants; platforms receive the name."
             }
           }
         },
@@ -32924,6 +32939,11 @@
               "unit": "px"
             },
             "$description": "Above and below the actions."
+          },
+          "size": {
+            "$type": "number",
+            "$value": 1,
+            "$description": "The Button size of Cancel and OK (DTM-34): medium in the default system, the size a Button takes by default. The value is an index into dev.tanrei.enum.values, the core Button sizes; platforms receive the name."
           },
           "variant": {
             "$type": "number",
@@ -44993,10 +45013,15 @@
       "image-preview": {
         "bar": {
           "button": {
+            "size": {
+              "$type": "number",
+              "$value": 1,
+              "$description": "The Button size of the bar's controls — zoom out, zoom in and close — icon-only Buttons (IMP-8): small in the default system, as every host's close button is. The value is an index into dev.tanrei.enum.values, the core Button sizes; platforms receive the name."
+            },
             "variant": {
               "$type": "number",
               "$value": 4,
-              "$description": "The Button variant of the bar's controls — zoom out, zoom in and close — icon-only small Buttons (IMP-8): tonal in the default system, as every host's close button is, and the zoom controls beside it drawn the same way. The value is an index into dev.tanrei.enum.values, the core Button variants; platforms receive the name."
+              "$description": "The Button variant of the bar's controls — zoom out, zoom in and close — icon-only Buttons of the size bar.button.size names (IMP-8): tonal in the default system, as every host's close button is, and the zoom controls beside it drawn the same way. The value is an index into dev.tanrei.enum.values, the core Button variants; platforms receive the name."
             }
           },
           "container": {
@@ -45021,7 +45046,7 @@
               "value": 12,
               "unit": "px"
             },
-            "$description": "Between two controls of the bar. With the small Buttons' own targets (BTN-5) it keeps each whole pointer target apart from the next: 36 and 12 make 48 in the default system, more than sys.target.pointer."
+            "$description": "Between two controls of the bar. With the bar's Buttons' own targets (BTN-5) it keeps each whole pointer target apart from the next: 36 and 12 make 48 in the default system, more than sys.target.pointer."
           },
           "height": {
             "$type": "dimension",
@@ -45346,10 +45371,15 @@
         },
         "navigation": {
           "button": {
+            "size": {
+              "$type": "number",
+              "$value": 1,
+              "$description": "The Button size of the previous and next controls, icon-only Buttons that stand over the picture's sides (IMP-10): medium in the default system. The value is an index into dev.tanrei.enum.values, the core Button sizes; platforms receive the name."
+            },
             "variant": {
               "$type": "number",
               "$value": 1,
-              "$description": "The Button variant of the previous and next controls, icon-only medium Buttons that stand over the picture's sides (IMP-10). The value is an index into dev.tanrei.enum.values, the core Button variants; platforms receive the name."
+              "$description": "The Button variant of the previous and next controls, icon-only Buttons of the size navigation.button.size names that stand over the picture's sides (IMP-10). The value is an index into dev.tanrei.enum.values, the core Button variants; platforms receive the name."
             }
           },
           "margin-inline": {
@@ -70662,10 +70692,15 @@
           }
         },
         "close-button": {
+          "size": {
+            "$type": "number",
+            "$value": 1,
+            "$description": "The Button size of the close button, an icon-only Button (POP-13): small in the default system, as every host's close button is. The value is an index into dev.tanrei.enum.values, the core Button sizes; platforms receive the name."
+          },
           "variant": {
             "$type": "number",
             "$value": 4,
-            "$description": "The Button variant of the close button, an icon-only small Button (POP-13): tonal in the default system, as every host's close button is. The value is an index into dev.tanrei.enum.values, the core Button variants; platforms receive the name."
+            "$description": "The Button variant of the close button, an icon-only Button of the size close-button.size names (POP-13): tonal in the default system, as every host's close button is. The value is an index into dev.tanrei.enum.values, the core Button variants; platforms receive the name."
           }
         },
         "compact": {
@@ -80751,10 +80786,15 @@
           }
         },
         "close-button": {
+          "size": {
+            "$type": "number",
+            "$value": 1,
+            "$description": "The Button size of the close button, an icon-only Button (SSH-5): small in the default system, as every host's close button is. The value is an index into dev.tanrei.enum.values, the core Button sizes; platforms receive the name."
+          },
           "variant": {
             "$type": "number",
             "$value": 4,
-            "$description": "The Button variant of the close button, an icon-only small Button (SSH-5): tonal in the default system, as every host's close button is. The value is an index into dev.tanrei.enum.values, the core Button variants; platforms receive the name."
+            "$description": "The Button variant of the close button, an icon-only Button of the size close-button.size names (SSH-5): tonal in the default system, as every host's close button is. The value is an index into dev.tanrei.enum.values, the core Button variants; platforms receive the name."
           }
         },
         "container": {
@@ -84118,10 +84158,15 @@
           }
         },
         "close-button": {
+          "size": {
+            "$type": "number",
+            "$value": 1,
+            "$description": "The Button size of the close button and of the expand button, icon-only Buttons on the bar (SNK-34): small in the default system. The action stands as tall as controls.height, which a system that changes this size changes with it. The value is an index into dev.tanrei.enum.values, the core Button sizes; platforms receive the name."
+          },
           "variant": {
             "$type": "number",
             "$value": 4,
-            "$description": "The Button variant of the close button and of the expand button, icon-only Buttons of the small size on the bar (SNK-34), which the snackbar gives its form's message color as their tone (BTN-45). The value is an index into dev.tanrei.enum.values, the core Button variants; platforms receive the name."
+            "$description": "The Button variant of the close button and of the expand button, icon-only Buttons of the size close-button.size names on the bar (SNK-34), which the snackbar gives its form's message color as their tone (BTN-45). The value is an index into dev.tanrei.enum.values, the core Button variants; platforms receive the name."
           }
         },
         "container": {
@@ -84300,10 +84345,10 @@
           "height": {
             "$type": "dimension",
             "$value": {
-              "value": 32,
+              "value": 40,
               "unit": "px"
             },
-            "$description": "The action's height: a small Button's, so that the action stands as tall as the expand and close buttons, which are small Buttons, in the same row. A minimum, which grows with enlarged text. Every hit area meets the minimum target."
+            "$description": "The action's height: the height of the Button size close-button.size names (a small Button's in the default system), so that the action stands as tall as the expand and close buttons in the same row; a system that changes that size points this at the same size's height. A minimum, which grows with enlarged text. Every hit area meets the minimum target."
           },
           "label": {
             "typescale": {

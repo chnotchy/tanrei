@@ -9,7 +9,9 @@ import {
   ActionPlacement,
   AppearController,
   AvailabilityController,
+  BUTTON_SIZES,
   BUTTON_VARIANTS,
+  type ButtonSize,
   type CalendarDate,
   type ClockTime,
   FALLBACK_LOCALE,
@@ -27,7 +29,9 @@ import {
   closeModal,
   closeRequestReason,
   compChoice,
+  compChoices,
   compareDates,
+  giveSize,
   containedWheel,
   deepActive,
   deviceTime,
@@ -580,6 +584,8 @@ export class TanreiDateTimePicker extends TanreiElement {
   private presenting = false;
   /** DTM-34: the actions' variant as last read (`giveActionsVariant()`); read again in every update that draws them. */
   private actionsVariant: (typeof BUTTON_VARIANTS)[number] = BUTTON_VARIANTS[0];
+  /** DTM-34: the actions' size, as `comp.date-time-picker.actions.size` named it at the last read. */
+  private actionsSize: ButtonSize = 'medium';
   /**
    * DTM-35: a modal picker's appearance, opened and closed (src/primitives/motion.ts): made at once before the first
    * paint (MOT-4), turned round from what it shows (MOT-2). Its `<dialog>` is the surface that appears; a docked or an
@@ -2637,13 +2643,13 @@ export class TanreiDateTimePicker extends TanreiElement {
       else if (changed.has('min') || changed.has('max') || changed.has('minuteStep')) this.keepWithin();
     }
     if (this.session) this.syncWheels();
-    // DTM-34: the actions' variant, read with every other host's reads of the turn (src/primitives/read-phase.ts) and
-    // given to the Buttons this render makes before they draw: asked before the render, the read comes before their
+    // DTM-34: the actions' size and variant, read with every other host's reads of the turn (src/primitives/read-phase.ts)
+    // and given to the Buttons this render makes before they draw: asked before the render, the read comes before their
     // updates. Read in the render itself, after the picker before it had written, it styled the page once per picker.
     if (this.pendingUntilOk) {
       readTogether(() => {
-        const variant = compChoice(this, `${PREFIX}-actions-variant`, BUTTON_VARIANTS);
-        return () => this.giveActionsVariant(variant);
+        const { size, variant } = compChoices(this, { size: [`${PREFIX}-actions-size`, BUTTON_SIZES], variant: [`${PREFIX}-actions-variant`, BUTTON_VARIANTS] });
+        return () => this.giveActionsVariant(variant, size);
       });
     }
     // DTM-26: the handle turns along the shorter arc to the value it shows.
@@ -3159,28 +3165,31 @@ export class TanreiDateTimePicker extends TanreiElement {
 
   /** DTM-34: Cancel and OK, placed as a full-width Button group places a dismissive and a confirming item. */
   /**
-   * DTM-34: the variant read for the actions (`willUpdate`), on the Buttons drawn now and on those the next render
-   * draws. The render draws the one read last; the read of its own turn follows it there, before the Buttons draw.
+   * DTM-34: the size and variant read for the actions (`willUpdate`), on the Buttons drawn now and on those the next
+   * render draws. The render draws the ones read last; the read of its own turn follows it there, before the Buttons draw.
    */
-  private giveActionsVariant(variant: (typeof BUTTON_VARIANTS)[number]) {
+  private giveActionsVariant(variant: (typeof BUTTON_VARIANTS)[number], size: ButtonSize) {
     this.actionsVariant = variant;
+    this.actionsSize = size;
     for (const button of this.renderRoot?.querySelectorAll('.actions > tanrei-button') ?? []) {
       if (button.getAttribute('variant') !== variant) button.setAttribute('variant', variant);
+      giveSize(button, size);
     }
   }
 
   private renderActions(): TemplateResult | typeof nothing {
     if (!this.pendingUntilOk) return nothing;
     const variant = this.actionsVariant;
+    const size = this.actionsSize;
     const { cancelLabel, confirmLabel } = this.say;
     // DTM-48: without its word a Button draws the glyph that says the same — close, check — alone: the same variant,
     // size and place, and no name.
     const words = (label: string, glyph: string) => (label ? label : html`<span slot="icon">${glyph}</span>`);
     const actions = [
-      { key: 'cancel', template: html`<tanrei-button class="cancel" dismissive variant=${variant} size="medium" @click=${this.onCancel}>${words(cancelLabel, ACTION_GLYPHS.cancel)}</tanrei-button>` },
+      { key: 'cancel', template: html`<tanrei-button class="cancel" dismissive variant=${variant} size=${size} @click=${this.onCancel}>${words(cancelLabel, ACTION_GLYPHS.cancel)}</tanrei-button>` },
       {
         key: 'confirm',
-        template: html`<tanrei-button class="confirm" confirming variant=${variant} size="medium" ?disabled=${!this.confirmable} @click=${this.onConfirm}>${words(confirmLabel, ACTION_GLYPHS.confirm)}</tanrei-button>`,
+        template: html`<tanrei-button class="confirm" confirming variant=${variant} size=${size} ?disabled=${!this.confirmable} @click=${this.onConfirm}>${words(confirmLabel, ACTION_GLYPHS.confirm)}</tanrei-button>`,
       },
     ];
     const ordered = this.stacked ? [actions[1], actions[0]] : actions;

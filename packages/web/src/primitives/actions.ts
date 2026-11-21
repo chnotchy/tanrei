@@ -18,6 +18,26 @@ export const ACTION_ROW: readonly ActionRun[] = ['dismissive', 'neutral', 'confi
 export const ACTION_COLUMN: readonly ActionRun[] = ['confirming', 'neutral', 'dismissive'];
 /** The core Button variants, in the order of a `dev.tanrei.enum` choice of them: the first is the fallback. */
 export const BUTTON_VARIANTS = ['filled', 'tonal', 'elevated', 'outlined', 'text'] as const;
+/** The core Button sizes, in the order of a `dev.tanrei.enum` choice of them: the first is the fallback. */
+export const BUTTON_SIZES = ['small', 'medium', 'large'] as const;
+export type ButtonSize = (typeof BUTTON_SIZES)[number];
+
+/**
+ * Gives a Button the host draws itself the size its host's token names: its `size` attribute, as a product would write
+ * it, so it is read before the element is upgraded as well as after. Written only when it changes.
+ */
+export function giveSize(element: Element | null | undefined, size: ButtonSize) {
+  if (element && element.getAttribute('size') !== size) element.setAttribute('size', size);
+}
+
+/**
+ * CSS that sets `--_close-height` on `scope` to the height of the Button its `button` selector (inside it) is drawn at:
+ * the size it was given, else small. What lays out around a host's own Button (a headline centred on it) reads it.
+ */
+export function closeHeights(scope: string, button = 'tanrei-button.close'): string {
+  const height = (size: string) => `var(--tanrei-comp-button-container-height-${size})`;
+  return [`${scope} { --_close-height: ${height('small')}; }`, ...BUTTON_SIZES.filter((size) => size !== 'small').map((size) => `${scope}:has(${button}[size='${size}']) { --_close-height: ${height(size)}; }`)].join('\n');
+}
 
 const sameNodes = (a: readonly Node[], b: readonly Node[]) => a.length === b.length && a.every((node, i) => node === b[i]);
 

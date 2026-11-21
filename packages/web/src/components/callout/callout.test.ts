@@ -584,6 +584,13 @@ test.describe('behavior', () => {
     await host(page, 'tonal-error').evaluate((el: HTMLElement & { headline: string }) => (el.headline = 'Another title'));
     await expect.poll(() => closeBox(page, 'tonal-error').evaluate((el) => getComputedStyle(el).backgroundColor)).toBe(await resolveColor(page, '--tanrei-comp-button-text-container-color'));
     expect(await closeBox(page, 'tonal-error').evaluate((el) => getComputedStyle(el.querySelector('.icon')!).color)).toBe(await computed(page, `var(${T('error-body-color-tonal')})`));
+    // And its choice of size (close-button.size; small in the default system), at the next update.
+    expect(await close(page, 'tonal-error').getAttribute('size')).toBe('small');
+    await override(page, { [T('close-button-size')]: 'medium' });
+    await host(page, 'tonal-error').evaluate((el: HTMLElement & { headline: string }) => (el.headline = 'Yet another title'));
+    await expect(close(page, 'tonal-error')).toHaveAttribute('size', 'medium');
+    await expect.poll(async () => (await box(closeBox(page, 'tonal-error'))).height).toBeCloseTo(await resolveToken(page, '--tanrei-comp-button-container-height-medium'), 0);
+    await override(page, { [T('close-button-size')]: '' });
     // A status changed while shown: the tone follows.
     await override(page, { [T('close-button-variant')]: '' });
     await host(page, 'tonal-error').evaluate((el: HTMLElement & { status: string }) => (el.status = 'success'));
