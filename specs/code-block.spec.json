@@ -21,7 +21,7 @@
     },
     {
       "id": "header",
-      "description": "A row above the code that holds the title, the language and, where there is one, the copy button — the button alone where there is no title and no language. It has no fill and no line of its own: it is the top of the same container.",
+      "description": "A row above the code that holds the title, the language and, where there is one, the copy button — the button alone where there is no title and no language and the code has more than one line. It has no fill and no line of its own: it is the top of the same container.",
       "optional": true
     },
     {
@@ -36,7 +36,7 @@
     },
     {
       "id": "copy-button",
-      "description": "A Copy button (its own component) that copies the code: at the end of the header, never over the code.",
+      "description": "A Copy button (its own component) that copies the code: at the end of the header, or at the end of the line's row where the code is one line and there is no title and no language — never over the code.",
       "optional": true
     },
     {
@@ -303,15 +303,15 @@
     },
     {
       "id": "COD-8",
-      "text": "WHILE title or languageLabel is not empty, or copy is true, THE code block SHALL draw a header above the code, in the same container, with no fill and no line of its own: the title at the start, in comp.code-block.title.typescale and comp.code-block.title.color, on one line, laid out as text of its own direction and cut with an ellipsis at the end of that direction when it does not fit; the language label (languageLabel) at the end, before the copy button where there is one, in comp.code-block.language.typescale and comp.code-block.language.color, never cut; its items comp.code-block.header.gap apart. The header's row SHALL begin comp.code-block.copy-button.inset from the container's top edge, be as tall as the copy button where there is one and as one line of the title's text style otherwise, with its items centred on it; the title SHALL begin at the inline padding of COD-3; and the code SHALL begin comp.code-block.header.padding-block-end below the row in place of the block padding of COD-3."
+      "text": "WHILE title or languageLabel is not empty, or copy is true and the code has more than one line (COD-10), THE code block SHALL draw a header above the code, in the same container, with no fill and no line of its own: the title at the start, in comp.code-block.title.typescale and comp.code-block.title.color, on one line, laid out as text of its own direction and cut with an ellipsis at the end of that direction when it does not fit; the language label (languageLabel) at the end, before the copy button where there is one, in comp.code-block.language.typescale and comp.code-block.language.color, never cut; its items comp.code-block.header.gap apart. The header's row SHALL begin comp.code-block.copy-button.inset from the container's top edge, be as tall as the copy button where there is one and as one line of the title's text style otherwise, with its items centred on it; the title SHALL begin at the inline padding of COD-3; and the code SHALL begin comp.code-block.header.padding-block-end below the row in place of the block padding of COD-3."
     },
     {
       "id": "COD-9",
-      "text": "WHILE copy is true THE code block SHALL place a Copy button (CPY) — icon-only, of the text variant and the small size, named by copyLabel, with copiedLabel and copyFailedLabel as its two announcements — comp.code-block.copy-button.inset from the container's top edge and from its end edge, at the end of the header (COD-8). THE copy button SHALL be drawn whenever the block is, never only under a pointer or on focus; SHALL come before the body in the focus order and in reading order; and SHALL keep its place and size in every form it takes (CPY-7). THE container SHALL be at least as tall as the copy button plus twice that inset."
+      "text": "WHILE copy is true THE code block SHALL place a Copy button (CPY) — icon-only, of the text variant and the small size, named by copyLabel, with copiedLabel and copyFailedLabel as its two announcements — comp.code-block.copy-button.inset from the container's end edge: at the end of the header, that inset from the container's top edge (COD-8), and at the end of the line's row where the block has one line and no header (COD-10). THE copy button SHALL be drawn whenever the block is, never only under a pointer or on focus; SHALL come before the body in the focus order and in reading order; and SHALL keep its place and size in every form it takes (CPY-7). THE container SHALL be at least as tall as the copy button plus twice that inset."
     },
     {
       "id": "COD-10",
-      "text": "WHILE copy is true THE code block SHALL keep the copy button clear of the code: the button SHALL stand in the header's row (COD-8), drawn with the button alone where title and languageLabel are empty, and the code SHALL begin below that row; no line, row or part of a line scrolled sideways or up and down SHALL pass under the button, whatever the block's width, the length of its first lines, wrap and the layout direction, and the lines SHALL keep the inline paddings of COD-3 on both sides."
+      "text": "WHILE copy is true THE code block SHALL keep the copy button clear of the code: no line, row or part of a line scrolled sideways or up and down SHALL pass under the button, whatever the block's width, the length of its lines, wrap and the layout direction, and the lines SHALL keep the inline paddings of COD-3 on both sides. WHERE the code has more than one line, or title or languageLabel is not empty, THE button SHALL stand in the header's row (COD-8), drawn with the button alone where title and languageLabel are empty, and the code SHALL begin below that row. WHERE the code has one line and title and languageLabel are empty THE code block SHALL draw no header: the button SHALL stand at the end of the line's row, centred on it, comp.code-block.header.gap after the body, and the body — the line and its scroll area — SHALL end before that gap, so that the line scrolls sideways beside the button and wrapped rows end before it. The number of lines SHALL be the code's own (its source lines, as COD-13 numbers them), never one measured from the layout, so that a block drawn before its element is defined stands in the same form."
     },
     {
       "id": "COD-11",
@@ -355,7 +355,7 @@
     },
     {
       "id": "COD-20",
-      "text": "THE code block SHALL lay out the body left to right in every layout direction (PRS-26): lines begin at the left, the gutter, the bars and the bands' start are at the left, the prompt is at the left of its line, and sideways scrolling starts at the left. WHERE the layout direction is right-to-left THE code block SHALL mirror the frame alone: the title at the right of the header, the language and the copy button at the left. A comment written in a right-to-left script SHALL be laid out by the bidirectional algorithm inside its left-to-right line.",
+      "text": "THE code block SHALL lay out the body left to right in every layout direction (PRS-26): lines begin at the left, the gutter, the bars and the bands' start are at the left, the prompt is at the left of its line, and sideways scrolling starts at the left. WHERE the layout direction is right-to-left THE code block SHALL mirror the frame alone: the title at the right of the header, the language and the copy button at the left, and the copy button of a one-line block without a header at the left of its line (COD-10). A comment written in a right-to-left script SHALL be laid out by the bidirectional algorithm inside its left-to-right line.",
       "verify": "The fixture rtl draws a titled, numbered block in a right-to-left stage: the title is at the right, the copy button at the left, and the numbers and the first column of code at the left."
     },
     {
@@ -2368,6 +2368,17 @@
       }
     },
     {
+      "id": "one-line-long-copy",
+      "props": {
+        "code": "export const footer = html`<footer class=\"form-footer\"><tanrei-button variant=\"text\" @click=${cancel}>Cancel</tanrei-button><tanrei-button variant=\"filled\" ?disabled=${busy} @click=${save}>Save changes</tanrei-button></footer>`;",
+        "label": "Example",
+        "copy": true,
+        "copyLabel": "Copy",
+        "copiedLabel": "Copied",
+        "copyFailedLabel": "Could not copy"
+      }
+    },
+    {
       "id": "terminal-one-line",
       "props": {
         "prompt": "$",
@@ -2467,6 +2478,19 @@
       "props": {
         "code": "export const footer = html`<footer class=\"form-footer\"><tanrei-button variant=\"text\" @click=${cancel}>Cancel</tanrei-button><tanrei-button variant=\"filled\" ?disabled=${busy} @click=${save}>Save changes</tanrei-button></footer>`;\n\n// The line above is one line: it does not fit and is never cut.\nrender(footer, document.querySelector('#form-footer-outlet-for-the-settings-page-of-the-account-section'));",
         "label": "مثال",
+        "copy": true,
+        "copyLabel": "نسخ",
+        "copiedLabel": "تم النسخ",
+        "copyFailedLabel": "تعذر النسخ"
+      },
+      "direction": "rtl"
+    },
+    {
+      "id": "rtl-one-line-copy",
+      "props": {
+        "prompt": "$",
+        "code": "npm install @tanrei/web",
+        "label": "تثبيت",
         "copy": true,
         "copyLabel": "نسخ",
         "copiedLabel": "تم النسخ",

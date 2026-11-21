@@ -230,12 +230,13 @@ function pieces(node: Node): Node[] {
  * The body is one focus stop, with the block's name, only while it can scroll; it is left to right in every layout,
  * and the frame mirrors. The outlined look is read on whatever it is placed on: where that is not the surface color,
  * name it in `--tanrei-code-block-ground`, which the gutter stands on while code scrolls under it. The copy button
- * stands in the header's row, alone where there is no title and no language label, and never over the code.
+ * stands in the header's row, alone where there is no title and no language label, and never over the code; code of
+ * one line with no title and no language label has no header, and the button stands at the end of its line's row.
  *
  * @tag tanrei-code-block
  * @slot - The code: one `<pre><code>`. Runs are `<span data-syntax="…">` inside the `<code>`.
  * @csspart container - The block: its fill, its corners, and the edge of the outlined look.
- * @csspart header - The row that holds the title, the language and the copy button (alone where there is no title and no language label).
+ * @csspart header - The row that holds the title, the language and the copy button (alone where there is no title and no language label and the code has more than one line).
  * @csspart title - The title.
  * @csspart language - The language label (`language-label`).
  * @csspart copy-button - The copy button (a `<tanrei-copy-button>`).
@@ -990,8 +991,12 @@ export class TanreiCodeBlock extends TanreiElement {
     // COD-25: nothing is drawn and nothing is exposed.
     if (this.empty) return nothing;
     // COD-8, COD-10: the header holds the title, the language label and the copy button — the button alone where there
-    // are no words — so the button never stands over the code; `language` itself is not drawn.
-    const header = !!this.headline || !!this.languageLabel || this.copy;
+    // are no words and more than one line — so the button never stands over the code; `language` itself is not drawn.
+    // Code of one line with no words has no header: the button stands at the end of the line's row. One line is the
+    // code's own count (sync()), never a measured one, so code.css draws the same form before the element is defined.
+    const words = !!this.headline || !!this.languageLabel;
+    const oneLine = this.copy && !words && this.lineCount === 1;
+    const header = words || (this.copy && !oneLine);
     // COD-22: a group named by the title, and by the label where there is none.
     const name = this.headline || this.label;
     const cap = this.cap;
@@ -1011,7 +1016,8 @@ export class TanreiCodeBlock extends TanreiElement {
         ></tanrei-copy-button>`
       : nothing;
     return html`
-      <div part="container" class="container ${classMap({ copy: this.copy, 'has-header': header })}" data-tanrei-shape>
+      <div part="container" class="container ${classMap({ copy: this.copy, 'has-header': header, 'one-line': oneLine })}" data-tanrei-shape>
+        ${oneLine ? button : nothing}
         ${header
           ? html`<div part="header" class="header">
               ${this.headline ? html`<span part="title" class="title" dir=${ownDirection(this.headline)}>${this.headline}</span>` : nothing}

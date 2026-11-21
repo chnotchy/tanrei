@@ -144,6 +144,33 @@ export const styles = css`
     border-start-start-radius: 0;
     border-start-end-radius: 0;
   }
+  /* COD-10: code of one line with no title and no language label has no header. The line and the copy button share
+     one row, centred on each other: the body takes what is left and ends header.gap before the button, which stands
+     copy-button.inset from the end edge — so the line scrolls sideways, or wraps, beside the button and never under
+     it. The button comes first in the shadow root (COD-9's focus and reading order) and is drawn at the end. The
+     body's corners at the button's side are square: it ends inside the container there. The body is left to right in
+     every layout (COD-20), so that side is its right, or its left where the frame mirrors. */
+  .container.one-line {
+    flex-direction: row;
+    align-items: center;
+    gap: ${T('header-gap')};
+  }
+  .container.one-line > tanrei-copy-button {
+    flex: none;
+    order: 1;
+    margin-inline-end: ${T('copy-button-inset')};
+  }
+  .container.one-line .body {
+    flex: 1 1 0;
+  }
+  :host(:dir(ltr)) .container.one-line .body {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+  }
+  :host(:dir(rtl)) .container.one-line .body {
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+  }
   /* COD-6: no more than maxLines lines of the code's text style and the paddings; more scroll up and down. */
   .body.capped {
     max-block-size: calc(var(--_max-lines) * 1lh + var(--_code-block-pad-top) + var(--_code-block-pad-block));

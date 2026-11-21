@@ -125,7 +125,7 @@ SwiftUI, Compose, Flutter y React Native están planificados: los nombres que fi
 
 **El cuerpo.** De forma predeterminada, una línea nunca se parte. Una línea que no cabe se desplaza dentro del bloque, y la página nunca se desplaza hacia los lados. `wrap`, en cambio, parte las líneas, y una fila de continuación empieza bajo el código, no bajo los números. `max-lines` limita la altura en líneas, y el resto se desplaza dentro del bloque.
 
-**El botón de copiar** se dibuja siempre, nunca solo al pasar el cursor. Está al final de la cabecera —solo, cuando el bloque no tiene título ni etiqueta de lenguaje—, así que nunca tapa el código, por larga que sea la primera línea. Copia el código como texto sin formato, sin los números de línea, el prompt, los signos ni las líneas eliminadas. Una selección hecha a mano copia exactamente los caracteres seleccionados.
+**El botón de copiar** se dibuja siempre, nunca solo al pasar el cursor. Está al final de la cabecera —solo, cuando el bloque no tiene título ni etiqueta de lenguaje y tiene más de una línea—, así que nunca tapa el código, por larga que sea la primera línea. Un bloque de una sola línea sin título ni etiqueta de lenguaje, como un comando de instalación, no tiene cabecera: el botón está al final de esa línea, que se desplaza a su lado y nunca por debajo. Copia el código como texto sin formato, sin los números de línea, el prompt, los signos ni las líneas eliminadas. Una selección hecha a mano copia exactamente los caracteres seleccionados.
 
 **Las líneas marcadas** nunca se marcan solo con el color.
 

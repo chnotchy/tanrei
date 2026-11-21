@@ -123,7 +123,7 @@ SwiftUI, Compose, Flutter and React Native are planned: the names beside each pl
 
 **The body.** A line is never broken by default. A line that does not fit scrolls inside the block, and the page never scrolls sideways. `wrap` breaks lines instead, and a continued row starts under the code, not under the numbers. `max-lines` caps the height in lines, and the rest scrolls inside the block.
 
-**The copy button** is always drawn, never only on hover. It stands at the end of the header — alone there when the block has no title and no language label — so it never covers the code, however long the first line is. It copies the code as plain text, without line numbers, the prompt, the signs or the removed lines. A selection made by hand copies exactly the characters selected.
+**The copy button** is always drawn, never only on hover. It stands at the end of the header — alone there when the block has no title, no language label and more than one line — so it never covers the code, however long the first line is. A block of one line with no title and no language label, such as an install command, has no header: the button stands at the end of that line, which scrolls beside it, never under it. It copies the code as plain text, without line numbers, the prompt, the signs or the removed lines. A selection made by hand copies exactly the characters selected.
 
 **Marked lines** are never marked by color alone.
 
