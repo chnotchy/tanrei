@@ -157,7 +157,6 @@ export function alignedTokens(documents) {
 export const HEIGHTS_NOT_YET_ON_THE_LADDER = Object.freeze([
   'calendar.cell.size',
   'date-time-picker.wheel.row.height',
-  'main-action-button.container.height.large',
   'tabs.container.height-with-icon',
 ].map((id) => `${CONFIG.namespace}.comp.${id}`));
 

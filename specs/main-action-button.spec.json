@@ -217,6 +217,11 @@
       "id": "MAB-26",
       "text": "IF the icon set cannot draw the glyph of its icon slot yet (its font is still loading or failed to load) THE main action button SHALL draw nothing in the glyph's place, never the glyph's name as text, SHALL keep the glyph's box at its size so that nothing else moves, SHALL still draw its container and label and expose its name and state, and SHALL show the glyph once the icon set can draw it, without a motion.",
       "verify": "Name a family no machine has as the icon set's, then register the default icon face under that name: before, the glyph's box is drawn empty at its size; after, the glyph is drawn in it."
+    },
+    {
+      "id": "MAB-27",
+      "text": "WHEN the control height (dial.control.height) is N THE main action button SHALL take its heights from the control height ladder: a small one SHALL be drawn at comp.main-action-button.container.height.small, the medium step (N), and a medium one at comp.main-action-button.container.height.medium, the large step (N + 4 size units), each held at sys.target.minimum, and a large one at comp.main-action-button.container.height.large, ten size units above the large step, so that a small one stands as tall as the Buttons beside it and the three sizes keep their distances whatever the control height. Collapsed, each SHALL be a square of its height (MAB-13).",
+      "verify": "With the control height at 32, 36 and 40 and the minimum target no higher, under a fine pointer filled-small-collapsed, filled-collapsed and filled-large-collapsed are squares of 32, 48 and 88; 36, 52 and 92; and 40, 56 and 96."
     }
   ],
   "accessibility": {

@@ -75,7 +75,7 @@
         "container": {
           "height": {
             "$type": "dimension",
-            "$description": "The height, per size; collapsed, the container is a square of this side (a circle under full corners). Collapsed, small, medium and large are squares of 40, 56 and 96; extended, the button keeps the height of its size.",
+            "$description": "The height, per size; collapsed, the container is a square of this side (a circle under full corners). Small is the medium step of the control height ladder and medium its large step, each held at the minimum target; large is ten size units above the large step, so it is never under the minimum either. Collapsed, small, medium and large are squares of 40, 56 and 96 at the control height of 40; extended, the button keeps the height of its size.",
             "small": {
               "$value": {
                 "value": 40,
@@ -111,11 +111,10 @@
               },
               "$extensions": {
                 "dev.tanrei.derive": {
-                  "fn": "mul",
-                  "of": "{tanrei.dial.size.unit}",
-                  "by": 24,
-                  "round": "{tanrei.dial.size.unit}",
-                  "min": "{tanrei.sys.target.minimum}"
+                  "fn": "add",
+                  "of": "{tanrei.sys.control.height.large}",
+                  "by": "{tanrei.dial.size.unit}",
+                  "times": 10
                 }
               }
             }
