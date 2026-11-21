@@ -18,6 +18,7 @@ import { motionCount, motionEnded } from '../../../test/motions.js';
 import { transitionsRun, watchTransitions } from '../../../test/transitions.js';
 import { CarouselGeometry, type CarouselMetrics } from './carousel-geometry.js';
 import { expectBaseline } from '../../../test/baseline.js';
+import { contrastChecked } from '../../../test/contrast-checked.js';
 import { type Frame, type Frames, expectAnimated, sampleFrames } from '../../../test/frames.js';
 import { bezierOf, cubicBezier, resolveEasing } from '../../../test/appear.js';
 
@@ -3534,4 +3535,37 @@ test.describe('fixtures', () => {
       await expectBaseline(page.locator(`[data-fixture="${f.id}"]`), [spec.name, `${f.id}.png`]);
     });
   }
+});
+
+test.describe('accessibility: what is drawn over the content', () => {
+  test('CRL-16: the state layer over an item\'s content hides no text from a contrast check — at rest, hovered and focused, a faint text is reported and the content color passes', async ({ page }) => {
+    // An element drawn over a text is, to axe's color-contrast, an element covering it, whatever its pointer-events: while
+    // the item was hovered, focused or pressed the layer left the text incomplete ("overlapped by another element").
+    // The hero item alone holds a text, which is wholly in view; the motion is reduced, so a state is drawn at once.
+    const text = (mark: string, style = '') => `<span data-text="${mark}" style="align-self:center;justify-self:center;${style}">${mark} caption</span>`;
+    const row = (id: string, content: string): Fixture => ({
+      id,
+      props: { label: id, previousLabel: 'Previous', nextLabel: 'Next' },
+      items: [{ kind: 'item', props: { label: 'First' }, content }, { kind: 'item', props: { label: 'Second' }, content: '' }, { kind: 'item', props: { label: 'Third' }, content: '' }],
+    }) as Fixture;
+    await mountFixtures(page, spec, { reducedMotion: true, fixtures: [row('faint', text('Faint', 'color:#bbb')), row('normal', text('Readable'))] });
+    const expectChecked = async (state: string) => {
+      const checked = await contrastChecked(page);
+      expect(checked.violations, `${state}: the faint text is reported`).toEqual(['Faint']);
+      expect(checked.passes, `${state}: the content color passes`).toEqual(['Readable']);
+      expect(checked.incomplete, `${state}: nothing is left unchecked`).toEqual([]);
+    };
+    await expectChecked('at rest');
+    for (const id of ['faint', 'normal']) {
+      await item(page, id, 0).hover();
+      await expect(layer(page, id, 0)).not.toHaveCSS('opacity', '0');
+      await expectChecked(`${id} hovered`);
+    }
+    await page.mouse.move(0, 0);
+    for (const id of ['faint', 'normal']) {
+      await tabTo(page, item(page, id, 0));
+      await expect(layer(page, id, 0)).not.toHaveCSS('opacity', '0');
+      await expectChecked(`${id} focused`);
+    }
+  });
 });
