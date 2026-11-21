@@ -45,7 +45,10 @@ test('there are elements that draw in the light DOM to look at', () => {
 
 const built = fs.existsSync(path.join(pkg, 'dist/tanrei.bundle.js'));
 const quiet = (name) => `:where(tanrei-${name}):is([data-tanrei-settling], [data-tanrei-still-pointer]:hover)`;
-const settles = (text, name) => text.includes(`${quiet(name)}:not([data-tanrei-appear])`) && text.includes(`${quiet(name)} :not([data-tanrei-appear])`);
+// The element's own copy is printed without the whitespace that changes nothing (scripts/build.js, `carried()`): a
+// selector list's `, ` is `,` there. Both are read the same way.
+const tight = (text) => text.replace(/,\s+/g, ',');
+const settles = (text, name) => [`${quiet(name)}:not([data-tanrei-appear])`, `${quiet(name)} :not([data-tanrei-appear])`].every((rule) => tight(text).includes(tight(rule)));
 
 test('the stylesheet of each element that draws in the light DOM settles it: the page\'s copy, a system\'s copy and the element\'s own', { skip: !built && 'run the build first' }, () => {
   const missing = [];

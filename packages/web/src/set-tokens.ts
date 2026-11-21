@@ -16,7 +16,8 @@
 //   than it gives a value makes it shrink;
 // - it takes them off when the element holds enough, and adds them otherwise, so an element holds at most a few.
 //
-// Nothing is read from the page's style, so the write itself forces no style work.
+// A name that already holds its value is not written, and a write that changes nothing adds no marker. Only the
+// element's own style is read, so the write itself forces no style work.
 import { debugBuild } from './primitives/report.js';
 
 /** The names of the markers: `--tanrei-tokens-written-0`, `-1`, … */
@@ -33,30 +34,40 @@ export interface SetTokensOptions {
  * rule of higher precedence still wins. A name that is not a custom property (`--…`) is ignored, and reported in a debug build.
  */
 export function setTokens(tokens: Readonly<Record<string, string | null | undefined>>, { on = document.documentElement }: SetTokensOptions = {}): void {
-  const style = on.style;
+  const values: Record<string, string> = {};
+  for (const [name, value] of Object.entries(tokens)) {
+    if (name.startsWith('--')) values[name] = value ?? '';
+    else if (debugBuild()) console.warn(`[tanrei] setTokens(): "${name}" is not a custom property; it is ignored`);
+  }
+  writeCounted(on.style, values);
+}
+
+/**
+ * The write of `setTokens()`, for the package's own elements, whose names are their own: each custom property of
+ * `values` set on `style` (`''` takes it off), those that already hold that value left alone, and the number of
+ * custom properties changed with the write when it changed anything.
+ */
+export function writeCounted(style: CSSStyleDeclaration, values: Readonly<Record<string, string>>): void {
   let given = 0;
   let taken = 0;
-  for (const [name, value] of Object.entries(tokens)) {
-    if (!name.startsWith('--')) {
-      if (debugBuild()) console.warn(`[tanrei] setTokens(): "${name}" is not a custom property; it is ignored`);
-      continue;
-    }
-    if (value === '' || value === null || value === undefined) {
-      style.removeProperty(name);
-      taken++;
-    } else {
+  for (const [name, value] of Object.entries(values)) {
+    if (style.getPropertyValue(name) === value) continue;
+    if (value) {
       style.setProperty(name, value);
       given++;
+    } else {
+      style.removeProperty(name);
+      taken++;
     }
   }
   if (given + taken === 0) return;
   let held = 0;
-  while (style.getPropertyValue(`${MARKER}${held}`)) held++;
-  if (held > given) {
-    // Taking off one more than the write can have added: the set is smaller, whatever the write did.
-    for (let n = 0; n <= given; n++) style.removeProperty(`${MARKER}${held - 1 - n}`);
-  } else {
-    // Adding one more than the write can have taken off: the set is larger.
-    for (let n = 0; n <= taken; n++) style.setProperty(`${MARKER}${held + n}`, '1');
+  while (style.getPropertyValue(MARKER + held)) held++;
+  // Taking off one more than the write can have added, where the element holds that many: the set is smaller, whatever
+  // the write did. Otherwise adding one more than the write can have taken off: the set is larger.
+  const shrink = held > given;
+  for (let n = 0; n <= (shrink ? given : taken); n++) {
+    if (shrink) style.removeProperty(MARKER + (held - 1 - n));
+    else style.setProperty(MARKER + (held + n), '1');
   }
 }

@@ -9,7 +9,7 @@
 // clear an earlier build's files first.
 import fs from 'node:fs';
 import path from 'node:path';
-import { build } from 'esbuild';
+import { build, transformSync } from 'esbuild';
 import { allStylesheets } from './stylesheets.js';
 import { writeThirdPartyLicenses } from '../../tools/src/third-party.js';
 import { declarations, resolved, tokensIn, writeConditions } from './conditions.js';
@@ -173,6 +173,14 @@ const PREVIOUS_NEXT_SHAPE = '/* previous-next-links:shape */';
 const previousNextSource = writeGlyphAxes(sheet('src/styles/previous-next-links.css'));
 if (!previousNextSource.includes(PREVIOUS_NEXT_SHAPE)) throw new Error('previous-next-links.css: nowhere to write the corner rule');
 fs.writeFileSync('dist/previous-next-links.css', previousNextSource.replace(PREVIOUS_NEXT_SHAPE, shapeFor(':where(.tanrei-previous-next-links-item)')));
+// The text of a stylesheet as an element carries it, to add it to the root it is connected to, as a JavaScript string:
+// without its comments and its whitespace, by esbuild's CSS printer, which changes nothing else (no rule, selector or
+// value is rewritten: `minifyWhitespace` alone). The stylesheet in dist/ is the source as it is. A warning fails the build.
+function carried(source) {
+  const { code, warnings } = transformSync(source, { loader: 'css', minifyWhitespace: true, logLevel: 'silent' });
+  if (warnings.length) throw new Error(`a stylesheet an element carries: ${warnings.map((warning) => warning.text).join('; ')}`);
+  return JSON.stringify(code.trim());
+}
 // The table (specs/table.spec.json) is an element with no shadow root and one stylesheet that draws everything:
 // dist/table.css is the source as it is, for a page that draws its tables before any script runs, and the same text
 // (without its comments) is written into the element, which adds it to the root it is connected to — the compiled
@@ -180,14 +188,7 @@ fs.writeFileSync('dist/previous-next-links.css', previousNextSource.replace(PREV
 const TABLE_CSS_NAME = 'TANREI_TABLE_CSS';
 const tableSource = settled('tanrei-table', sheet('src/styles/table.css'));
 fs.writeFileSync('dist/table.css', tableSource);
-const tableText = JSON.stringify(
-  tableSource
-    .replace(/\/\*[\s\S]*?\*\//g, '')
-    .split('\n')
-    .map((line) => line.trim())
-    .filter(Boolean)
-    .join('\n'),
-);
+const tableText = carried(tableSource);
 const tableModule = fs.readFileSync('dist/components/table/table.js', 'utf8');
 // Once in the source (a `declare const`, which is not emitted, and one read of it); a module the build already wrote
 // into holds the text instead, and is written again from the compiler's output only when that changes.
@@ -266,14 +267,7 @@ const LIGHT_SHEETS = [
   },
 ].map((light) => {
   fs.writeFileSync(`dist/${light.file}.css`, light.source);
-  const text = JSON.stringify(
-    light.source
-      .replace(/\/\*[\s\S]*?\*\//g, '')
-      .split('\n')
-      .map((line) => line.trim())
-      .filter(Boolean)
-      .join('\n'),
-  );
+  const text = carried(light.source);
   const compiled = fs.readFileSync(light.module, 'utf8');
   // Once in the source; a module the build already wrote into holds the text instead (see the table's, above).
   if (compiled.split(light.name).length === 2) fs.writeFileSync(light.module, compiled.replace(light.name, () => text));
@@ -289,14 +283,7 @@ const accordionSource = writeGlyphAxes(sheet('src/styles/accordion.css'));
 if (!accordionSource.includes(ACCORDION_SHAPE)) throw new Error('accordion.css: nowhere to write the corner rule');
 const accordionCss = settled('tanrei-accordion', accordionSource.replace(ACCORDION_SHAPE, SHAPE_CSS.replaceAll(':where([data-tanrei-shape])', '&').replaceAll('[data-tanrei-shape]', '&').replace(/^/gm, '    ').trimStart()));
 fs.writeFileSync('dist/accordion.css', accordionCss);
-const accordionText = JSON.stringify(
-  accordionCss
-    .replace(/\/\*[\s\S]*?\*\//g, '')
-    .split('\n')
-    .map((line) => line.trim())
-    .filter(Boolean)
-    .join('\n'),
-);
+const accordionText = carried(accordionCss);
 const accordionModule = fs.readFileSync('dist/components/accordion/accordion.js', 'utf8');
 if (accordionModule.split(ACCORDION_CSS_NAME).length === 2) fs.writeFileSync('dist/components/accordion/accordion.js', accordionModule.replace(ACCORDION_CSS_NAME, () => accordionText));
 else if (!accordionModule.includes(':where(tanrei-accordion)')) throw new Error(`accordion.js: expected one ${ACCORDION_CSS_NAME} to write accordion.css into`);
@@ -310,14 +297,7 @@ const tableOfContentsSource = sheet('src/styles/table-of-contents.css');
 if (!tableOfContentsSource.includes(TABLE_OF_CONTENTS_SHAPE)) throw new Error('table-of-contents.css: nowhere to write the corner rule');
 const tableOfContentsCss = settled('tanrei-table-of-contents', tableOfContentsSource.replace(TABLE_OF_CONTENTS_SHAPE, SHAPE_CSS.replaceAll(':where([data-tanrei-shape])', '&').replaceAll('[data-tanrei-shape]', '&').replace(/^/gm, '    ').trimStart()));
 fs.writeFileSync('dist/table-of-contents.css', tableOfContentsCss);
-const tableOfContentsText = JSON.stringify(
-  tableOfContentsCss
-    .replace(/\/\*[\s\S]*?\*\//g, '')
-    .split('\n')
-    .map((line) => line.trim())
-    .filter(Boolean)
-    .join('\n'),
-);
+const tableOfContentsText = carried(tableOfContentsCss);
 const tableOfContentsFile = 'dist/components/table-of-contents/table-of-contents.js';
 const tableOfContentsModule = fs.readFileSync(tableOfContentsFile, 'utf8');
 if (tableOfContentsModule.split(TABLE_OF_CONTENTS_CSS_NAME).length === 2) fs.writeFileSync(tableOfContentsFile, tableOfContentsModule.replace(TABLE_OF_CONTENTS_CSS_NAME, () => tableOfContentsText));

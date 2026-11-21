@@ -19,6 +19,7 @@ import {
 } from '../../primitives/index.js';
 import { debugBuild } from '../../primitives/report.js';
 import { adoptUnlessDrawn } from '../../primitives/sheets.js';
+import { writeCounted } from '../../set-tokens.js';
 import { TanreiLightElement } from '../../primitives/element.js';
 
 /** What scrolls (APS-14, APS-15): the whole page in the window, or the main region alone inside a frame as tall as the window. */
@@ -56,6 +57,7 @@ const SHELL_CSS: string = (() => {
   }
 })();
 
+/** The values of each, the default first (APS-29). */
 const SCROLLS: readonly string[] = ['page', 'main'];
 const HEADER_POSITIONS: readonly string[] = ['sticky', 'static'];
 const MAIN_WIDTHS: readonly string[] = ['contained', 'full'];
@@ -74,11 +76,17 @@ const INSET_TOP = '--tanrei-app-shell-window-inset-top';
 const INSET_BOTTOM = '--tanrei-app-shell-window-inset-bottom';
 /** The footer's measured height, for the stylesheet (APS-11). */
 const FOOTER = '--_aps-footer';
-/** A side sheet's measured width in the aside, for the stylesheet: what the navigation leaves it (APS-5, APS-10). */
+/**
+ * A side sheet's measured width in the aside, for the stylesheet: what the navigation leaves it (APS-5, APS-10). On the
+ * navigation region, the one box that reads it, so that a sheet's slide restyles that region alone.
+ */
 const ASIDE = '--_aps-aside';
 /**
  * The window's width as the page has it — the root's content width, less a scrollbar that takes room in the window — for
- * the stylesheet: the row's whole room, which the navigation's is taken from (APS-5).
+ * the stylesheet: the row's whole room, which the navigation's is taken from (APS-5). On the navigation region, the one
+ * box that reads it, and only where it is not the window's own width (`100vw`, the stylesheet's value without it): a
+ * window resized restyles that region alone, and a page loaded in a window with no scrollbar that takes room is
+ * written nothing.
  */
 const WINDOW = '--_aps-window';
 
@@ -128,20 +136,34 @@ function mark(element: Element, name: string, value: string | null) {
 /** Whether `element` is drawn: it, and everything it stands in, has a box. */
 const drawn = (element: Element) => element.getClientRects().length > 0;
 
+/** A measured length as the frame writes it: in px, to a hundredth. */
+const px = (size: number) => `${Math.round(size * 100) / 100}px`;
+
+// Every custom property the frame writes — on the root, on itself, on the navigation region — is written with
+// `writeCounted()`, as `setTokens()` writes: in one write that changes the number of the element's custom properties.
+// WebKit compares an element's set of custom properties with the one before, value by value, for every element that
+// inherits them, when the two are the same size — and each of them holds the whole token set, ten thousand names. A
+// header's height written alone on the root of a documentation page stood WebKit still for 30 to 110 s; with the size
+// changed, the comparison stops at the size (README, "A single token set on the root from script is slow in WebKit").
+
+/** APS-5: no room written on the navigation region. */
+const NO_ROOM = { [WINDOW]: '', [ASIDE]: '' };
+
 /** The frames that have measured something over the top or the bottom of the page: the last one to measure wins, and the last to leave takes the value back. */
 const measured = new Map<string, Set<Element>>();
-function publish(owner: Element, name: string, size: number | null) {
-  const owners = measured.get(name) ?? new Set<Element>();
-  measured.set(name, owners);
-  const root = document.documentElement;
-  if (size === null) {
-    if (!owners.delete(owner)) return;
-    if (!owners.size) root.style.removeProperty(name);
-    return;
+function publish(owner: Element, sizes: Record<string, number | null>) {
+  const values: Record<string, string> = {};
+  for (const [name, size] of Object.entries(sizes)) {
+    const owners = measured.get(name) ?? new Set<Element>();
+    measured.set(name, owners);
+    if (size === null) {
+      if (owners.delete(owner) && !owners.size) values[name] = '';
+    } else {
+      owners.add(owner);
+      values[name] = px(size);
+    }
   }
-  owners.add(owner);
-  const value = `${Math.round(size * 100) / 100}px`;
-  if (root.style.getPropertyValue(name) !== value) root.style.setProperty(name, value);
+  writeCounted(document.documentElement.style, values);
 }
 
 let ids = 0;
@@ -391,16 +413,15 @@ export class TanreiAppShell extends TanreiLightElement {
     this.holdWheel([]);
     this.syncInert(false);
     this.focused = null;
-    this.style.removeProperty(FOOTER);
-    this.style.removeProperty(ASIDE);
-    this.style.removeProperty(WINDOW);
+    writeCounted(this.style, { [FOOTER]: '' });
+    this.room(NO_ROOM);
     this.unwatch();
     this.listen(null);
     // APS-33: removed, it listens for no chord.
     this.syncChord();
     this.header = this.bar = this.footer = this.sheet = this.navigation = null;
     this.announcement = null;
-    for (const name of [OFFSET, OFFSET_END, INSET_TOP, INSET_BOTTOM]) publish(this, name, null);
+    publish(this, { [OFFSET]: null, [OFFSET_END]: null, [INSET_TOP]: null, [INSET_BOTTOM]: null });
     for (const [element, names] of this.given) for (const name of names) element.removeAttribute(name);
     this.given.clear();
   }
@@ -632,17 +653,19 @@ export class TanreiAppShell extends TanreiLightElement {
       for (const observed of [document.documentElement, top, announcement, bar, footer, sheet]) if (observed) this.sizes?.observe(observed);
       if (!top) this.measure();
       if (!bar) this.measureBar();
-      if (!footer) this.style.removeProperty(FOOTER);
-      if (!sheet) this.style.removeProperty(ASIDE);
+      if (!footer) writeCounted(this.style, { [FOOTER]: '' });
+      if (!sheet) this.rooms[ASIDE] = '';
     }
 
     // APS-4, APS-7: the navigation, and the drawer whose opening and closing the frame follows.
     if (navigation !== this.navigation) {
       this.navigationMutations?.disconnect();
+      this.room(NO_ROOM);
       this.navigation = navigation;
       if (navigation) this.navigationMutations?.observe(navigation, { attributes: true, attributeFilter: ['collapsible', 'filterable', 'filter-shortcut', 'open', 'expanded', 'standard-hidden'] });
       this.listen(navigation?.localName === 'tanrei-navigation-drawer' ? (navigation as Drawer) : null);
     }
+    this.room();
     const presentation = this.presentation;
     if (navigation && !this.drawer && presentation && presentation !== 'standard') {
       report(this, 'APS-4', 'the navigation of a narrow window needs a navigation drawer: what the navigation region holds cannot present itself over the content, and is not shown');
@@ -680,22 +703,36 @@ export class TanreiAppShell extends TanreiLightElement {
       // gutter scrollbar-gutter keeps) is no room of the row's. The root, never the frame: the root's width does not
       // follow what it holds, where a frame in a box as wide as its content would follow the room it gives and shrink
       // by it in every frame.
-      if (entry.target === document.documentElement) this.length(WINDOW, entry.contentRect.width);
+      if (entry.target === document.documentElement) {
+        const width = px(entry.contentRect.width);
+        this.rooms[WINDOW] = width === px(innerWidth) ? '' : width;
+        this.room();
+      }
       // APS-5: the sheet's width in every frame it slides, so that the navigation leaves it room as it comes.
-      else if (entry.target === this.sheet) this.length(ASIDE, entry.borderBoxSize?.[0]?.inlineSize ?? entry.contentRect.width);
+      else if (entry.target === this.sheet) {
+        this.rooms[ASIDE] = px(entry.borderBoxSize?.[0]?.inlineSize ?? entry.contentRect.width);
+        this.room();
+      }
       else if (entry.target === this.top) this.measure(size);
       else if (entry.target === this.announcement) this.measure();
       else if (entry.target === this.bar) this.measureBar(size);
       // APS-11: where the navigation and the aside stop staying in view (a browser keeps a sticky part inside the
       // frame, not inside its row: the stylesheet takes this much off the end of what it may reach).
-      else if (entry.target === this.footer) this.length(FOOTER, size);
+      else if (entry.target === this.footer) writeCounted(this.style, { [FOOTER]: px(size) });
     }
   }
 
-  /** A measured length on the element, for the stylesheet: written only when it changes. */
-  private length(name: string, size: number) {
-    const value = `${Math.round(size * 100) / 100}px`;
-    if (this.style.getPropertyValue(name) !== value) this.style.setProperty(name, value);
+  /**
+   * APS-5: the room the row leaves the navigation, as last measured: the window's width as the page has it (nothing
+   * where it is the window's own, `100vw`), and a side sheet's in the aside (nothing without one).
+   */
+  private readonly rooms: Record<string, string> = { [WINDOW]: '', [ASIDE]: '' };
+
+  /** APS-5: the room written on the navigation region, which alone reads it — or, `NO_ROOM`, taken off it. */
+  private room(values = this.rooms) {
+    // An element without a style of its own holds nothing.
+    const style = (this.navigation as HTMLElement | null)?.style;
+    if (style) writeCounted(style, values);
   }
 
   /**
@@ -708,23 +745,20 @@ export class TanreiAppShell extends TanreiLightElement {
   private measure(size: number | undefined = this.top?.getBoundingClientRect().height) {
     const top = this.top;
     if (!top || size === undefined || size <= 0) {
-      publish(this, OFFSET, null);
-      publish(this, INSET_TOP, null);
+      publish(this, { [OFFSET]: null, [INSET_TOP]: null });
       return;
     }
     // A static header scrolls away with the page; the menu button of a frame without a header is kept its gutter (its
     // block-start margin) from the top of the window.
     const kept = top !== this.header ? size + (parseFloat(getComputedStyle(top).marginBlockStart) || 0) : this.headerPosition !== 'static' ? size : null;
     const page = this.scrolls !== 'main';
-    publish(this, OFFSET, page ? kept : null);
-    publish(this, INSET_TOP, page ? kept : top.getBoundingClientRect().bottom - this.getBoundingClientRect().top);
+    publish(this, { [OFFSET]: page ? kept : null, [INSET_TOP]: page ? kept : top.getBoundingClientRect().bottom - this.getBoundingClientRect().top });
   }
 
   /** APS-17: the navigation bar's height while it is shown: over the bottom of the window, and of the scrolling view while the page scrolls. */
   private measureBar(size: number | undefined = this.bar?.getBoundingClientRect().height) {
     const shown = size !== undefined && size > 0 ? size : null;
-    publish(this, OFFSET_END, this.scrolls !== 'main' ? shown : null);
-    publish(this, INSET_BOTTOM, shown);
+    publish(this, { [OFFSET_END]: this.scrolls !== 'main' ? shown : null, [INSET_BOTTOM]: shown });
   }
 
   // ---- APS-5: the place being read while a person changes the navigation's width ----
@@ -838,7 +872,7 @@ export class TanreiAppShell extends TanreiLightElement {
    * this to the drawer, which is then a modal dialog over the whole window (NVD-19).
    */
   private syncInert(over = this.isConnected && !!this.header && this.over) {
-    const regions = over ? ([...this.querySelectorAll<HTMLElement>(':scope > [slot="skip-link"], :scope > main, :scope > [role="main"], :scope > [slot="aside"], :scope > [slot="footer"], :scope > [slot="navigation-bar"]')] as HTMLElement[]) : [];
+    const regions = over ? ([...this.querySelectorAll<HTMLElement>(':scope > :is([slot="skip-link"], main, [role="main"], [slot="aside"], [slot="footer"], [slot="navigation-bar"])')] as HTMLElement[]) : [];
     for (const region of [...this.inerted]) {
       if (regions.includes(region)) continue;
       region.inert = false;
@@ -874,7 +908,7 @@ export class TanreiAppShell extends TanreiLightElement {
   /** APS-6, APS-34: the menu button — the header's marked one, or the menu-button slot's in a frame without a header. */
   private get menu(): HTMLElement | null {
     if (this.header) return this.header.querySelector<HTMLElement>(MENU);
-    return this.querySelector<HTMLElement>(':scope > [slot="menu-button"]');
+    return this.region('menu-button') as HTMLElement | null;
   }
 
   /** The drawer whose `close` and `expandedchange` the frame follows: one at a time. */
@@ -905,7 +939,7 @@ export class TanreiAppShell extends TanreiLightElement {
       // in a frame without a header) takes the frame's button away — its own menu button stands for it there — and
       // focus that was on the frame's button goes to the drawer's own.
       if (beside && focused && !this.menuShown) {
-        void (drawer.updateComplete ?? Promise.resolve()).then(() => {
+        void Promise.resolve(drawer.updateComplete).then(() => {
           const own = drawer.querySelector<HTMLElement>(':scope > [slot="header-button"]');
           if (own && drawn(own)) own.focus();
           else this.main()?.focus({ preventScroll: true });
@@ -953,7 +987,7 @@ export class TanreiAppShell extends TanreiLightElement {
     if (!told || !menu) return;
     // The drawer gives focus back to where it was (NVD-22); a press that gave the button no focus (Safari does not
     // focus a button that is clicked) left it nowhere, and the menu button is where it belongs.
-    void (this.drawer?.updateComplete ?? Promise.resolve()).then(() => {
+    void Promise.resolve(this.drawer?.updateComplete).then(() => {
       const active = document.activeElement;
       if (this.menuShown && (!active || active === document.body || active === this.drawer)) menu.focus();
     });
@@ -1082,7 +1116,7 @@ export class TanreiAppShell extends TanreiLightElement {
     const beside = this.hiddenBeside;
     this.activateMenu(null, false);
     // A drawer shown beside the content is drawn before its field can take focus; a closed one is owed it (NVD-88).
-    if (beside) void (drawer.updateComplete ?? Promise.resolve()).then(() => drawer.focusFilter?.());
+    if (beside) void Promise.resolve(drawer.updateComplete).then(() => drawer.focusFilter?.());
     else drawer.focusFilter?.();
   };
 
@@ -1110,7 +1144,8 @@ export class TanreiAppShell extends TanreiLightElement {
     target.focus({ preventScroll: true });
     // While the main region is the scrolling view (APS-15) its top is its own scroll position.
     if (this.scrolls === 'main' && target.parentNode === this) target.scrollTo({ top: 0, behavior: 'instant' });
-    else target.scrollIntoView({ block: 'start', inline: 'nearest', behavior: 'instant' });
+    // Its start at the top of the view, and across only as far as it must (`scrollIntoView()`'s own defaults).
+    else target.scrollIntoView({ behavior: 'instant' });
     return document.activeElement === target || target.contains(document.activeElement);
   }
 
@@ -1123,15 +1158,15 @@ export class TanreiAppShell extends TanreiLightElement {
 
   protected override updated(changed: PropertyValues) {
     // APS-29: a value the frame does not define renders with the default (no rule matches it); a debug build says so.
-    const known: [string, readonly string[], string][] = [
-      ['scrolls', SCROLLS, 'page'],
-      ['headerPosition', HEADER_POSITIONS, 'sticky'],
-      ['mainWidth', MAIN_WIDTHS, 'contained'],
-      ['asideOrder', ASIDE_ORDERS, 'after'],
+    const known: [string, readonly string[]][] = [
+      ['scrolls', SCROLLS],
+      ['headerPosition', HEADER_POSITIONS],
+      ['mainWidth', MAIN_WIDTHS],
+      ['asideOrder', ASIDE_ORDERS],
     ];
-    for (const [name, values, fallback] of known) {
+    for (const [name, values] of known) {
       const value = String((this as unknown as Record<string, unknown>)[name]);
-      if (changed.has(name) && !values.includes(value)) report(this, 'APS-29', `${name === 'scrolls' ? 'scroll' : name} "${value}" is not a value the app shell defines; it is rendered as "${fallback}"`);
+      if (changed.has(name) && !values.includes(value)) report(this, 'APS-29', `${name === 'scrolls' ? 'scroll' : name} "${value}" is not a value the app shell defines; it is rendered as "${values[0]}"`);
     }
     // APS-18: a separation the frame does not define is auto.
     if (changed.has('separation') && !(SEPARATION_VALUES as readonly string[]).includes(this.separation)) {

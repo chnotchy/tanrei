@@ -160,14 +160,21 @@ const columnRules = (position: number) => [
 /** TBL-14: a row draws only as many cells as the table has columns. */
 const surplusRule = (columns: number) => `${ROWS.replace(TAG, `${TAG}[data-columns='${columns}']`)} > :where(th, td):where(:nth-child(n + ${columns + 1})) { display: none; }`;
 
-/** The sheet of the rules by position: one per page, grown as tables need a position it does not have yet. */
-const positions = { columns: 0, surplus: new Set<number>() };
+/**
+ * The positions whose rules table.css has (the same rules as `columnRules()` and `surplusRule()`): a table that needs
+ * none past them adds no sheet to its page, which would restyle every element of it.
+ */
+const POSITIONS_IN_SHEET = 12;
+
+/** The sheet of the rules by position past those: one per page, grown as tables need a position it does not have yet. */
+const positions = { columns: POSITIONS_IN_SHEET, surplus: new Set<number>() };
 function positionSheet(columns: number, count: number): CSSStyleSheet | null {
+  if (columns <= POSITIONS_IN_SHEET && count <= POSITIONS_IN_SHEET) return null;
   const made = sheet('positions', () => '');
   if (!made) return null;
   try {
     for (; positions.columns < columns; positions.columns++) for (const rule of columnRules(positions.columns + 1)) made.insertRule(rule, made.cssRules.length);
-    if (count > 0 && !positions.surplus.has(count)) {
+    if (count > POSITIONS_IN_SHEET && !positions.surplus.has(count)) {
       made.insertRule(surplusRule(count), made.cssRules.length);
       positions.surplus.add(count);
     }

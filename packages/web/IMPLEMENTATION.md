@@ -9169,7 +9169,9 @@ a moment later; load the stylesheet where the table should be drawn in the first
 
 A **column** is a `<th scope="col">` in the one `<thead>` row: `data-align="start | center | end"` and
 `data-wrap="false"` on it are the column's. The element writes the positions of such columns on itself
-(`data-columns-end="2 3"`, `-center`, `-nowrap`) and one rule per position, in a sheet it adds, places their cells —
+(`data-columns-end="2 3"`, `-center`, `-nowrap`) and one rule per position places their cells — table.css has the
+rules of the first twelve positions, and the element adds a sheet for a later one (a sheet added to the document
+restyles every element of the page, so a page of ordinary tables is given none) —
 **no cell is written to**, so a table of several hundred rows costs what its header row costs. Without script (or to
 have the first frame right), write the same two attributes on each cell; a cell's own attribute always wins. A
 Markdown renderer's `align="left | center | right"` is read too, left and right as start and end. A **row** is a
@@ -9921,6 +9923,14 @@ Good to know:
   element's content width (`--_aps-window`, which the element measures with the resize observer it already runs) —
   less the main region's least width (its start inset, a touch target, its end inset) and, in an expanded window, the
   aside's width (`aside.width`, or a side sheet's as the element measures it in every frame it slides, `--_aps-aside`).
+  Both are written on the navigation region, the one box that reads them, so that a window resized or a sheet that
+  slides restyles that region and not the page; the window's width only where it differs from `100vw`, so that a
+  window without a scrollbar that takes room is written nothing. Every write the frame makes — these, the footer's
+  height on itself and the four lengths on the root (APS-17) — goes through `setTokens()`'s write (`writeCounted()`),
+  which changes the number of the element's custom properties with it: an element below the root or the frame holds
+  the whole token set, and a write that left the number as it was had WebKit compare it value by value for every
+  element (see "A single token set on the root from script is slow in WebKit": the window's top inset written alone on
+  a documentation page held WebKit for 30 s, its bottom inset 110 s).
   A navigation drawer reads it as the room its parent gives it (NVD-97). Not `100vw`: that counts a scrollbar that
   takes room in the window (a classic one, or the gutter `scrollbar-gutter: stable` keeps) as the row's, and the main
   region got that much less than its least width. The root, not the frame itself: in a box as wide as its content

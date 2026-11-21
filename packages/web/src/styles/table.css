@@ -70,8 +70,10 @@
  *   data-more-above                  rows have scrolled under the header row (TBL-19)
  *   data-first-column-released       the first column is wider than half of the box, so it is not kept (TBL-20)
  *   data-columns-end, -center, -nowrap   the columns whose header cell names an alignment or `data-wrap="false"`, by
- *                                    position ("2 3 4"); one rule per position, in a sheet the element adds, aligns
- *                                    their cells — no cell is written to
+ *                                    position ("2 3 4"); one rule per position aligns their cells — no cell is written
+ *                                    to. The rules of the first 12 positions are below; the element adds a sheet with
+ *                                    those of a later one, for a table that needs it
+ *   data-columns                     the number of columns, which a row cannot exceed (TBL-14): the same, for 1 to 12
  *   data-separation (on the table)   the separation the tokens name, where the browser has no style queries (TBL-9)
  *   data-more-below                  rows lie under the status line (TBL-51)
  *   data-selection-kept, and `--_table-selection-size` in the wrapper's style
@@ -1070,4 +1072,59 @@
       background-clip: border-box;
     }
   }
+
+  /* ── TBL-3, TBL-7, TBL-14: a column's alignment and wrapping by position, and the cells past the last column ─────
+     The element writes on the box the positions whose header cell names an alignment or `data-wrap="false"`, and the
+     number of columns; one rule per position reaches the column's cells, unless a cell names its own. The first 12 are
+     here, so that a page of tables is not given a sheet as they upgrade — a sheet added to the document restyles every
+     element of the page — and the element adds one only for a position past them. Last in the layer: they come after
+     the cell's own start alignment and wrapping, which they replace. */
+  :where(tanrei-table[data-columns-center~='1']) > :where(table) > :where(thead, tbody, tfoot) > :where(tr) > :where(th, td):where(:nth-child(1):not([data-align], [align])) { text-align: center; }
+  :where(tanrei-table[data-columns-end~='1']) > :where(table) > :where(thead, tbody, tfoot) > :where(tr) > :where(th, td):where(:nth-child(1):not([data-align], [align])) { text-align: var(--_table-end); }
+  :where(tanrei-table[data-columns-nowrap~='1']) > :where(table) > :where(thead, tbody, tfoot) > :where(tr) > :where(th, td):where(:nth-child(1):not([data-wrap])) { white-space: nowrap; }
+  :where(tanrei-table[data-columns-center~='2']) > :where(table) > :where(thead, tbody, tfoot) > :where(tr) > :where(th, td):where(:nth-child(2):not([data-align], [align])) { text-align: center; }
+  :where(tanrei-table[data-columns-end~='2']) > :where(table) > :where(thead, tbody, tfoot) > :where(tr) > :where(th, td):where(:nth-child(2):not([data-align], [align])) { text-align: var(--_table-end); }
+  :where(tanrei-table[data-columns-nowrap~='2']) > :where(table) > :where(thead, tbody, tfoot) > :where(tr) > :where(th, td):where(:nth-child(2):not([data-wrap])) { white-space: nowrap; }
+  :where(tanrei-table[data-columns-center~='3']) > :where(table) > :where(thead, tbody, tfoot) > :where(tr) > :where(th, td):where(:nth-child(3):not([data-align], [align])) { text-align: center; }
+  :where(tanrei-table[data-columns-end~='3']) > :where(table) > :where(thead, tbody, tfoot) > :where(tr) > :where(th, td):where(:nth-child(3):not([data-align], [align])) { text-align: var(--_table-end); }
+  :where(tanrei-table[data-columns-nowrap~='3']) > :where(table) > :where(thead, tbody, tfoot) > :where(tr) > :where(th, td):where(:nth-child(3):not([data-wrap])) { white-space: nowrap; }
+  :where(tanrei-table[data-columns-center~='4']) > :where(table) > :where(thead, tbody, tfoot) > :where(tr) > :where(th, td):where(:nth-child(4):not([data-align], [align])) { text-align: center; }
+  :where(tanrei-table[data-columns-end~='4']) > :where(table) > :where(thead, tbody, tfoot) > :where(tr) > :where(th, td):where(:nth-child(4):not([data-align], [align])) { text-align: var(--_table-end); }
+  :where(tanrei-table[data-columns-nowrap~='4']) > :where(table) > :where(thead, tbody, tfoot) > :where(tr) > :where(th, td):where(:nth-child(4):not([data-wrap])) { white-space: nowrap; }
+  :where(tanrei-table[data-columns-center~='5']) > :where(table) > :where(thead, tbody, tfoot) > :where(tr) > :where(th, td):where(:nth-child(5):not([data-align], [align])) { text-align: center; }
+  :where(tanrei-table[data-columns-end~='5']) > :where(table) > :where(thead, tbody, tfoot) > :where(tr) > :where(th, td):where(:nth-child(5):not([data-align], [align])) { text-align: var(--_table-end); }
+  :where(tanrei-table[data-columns-nowrap~='5']) > :where(table) > :where(thead, tbody, tfoot) > :where(tr) > :where(th, td):where(:nth-child(5):not([data-wrap])) { white-space: nowrap; }
+  :where(tanrei-table[data-columns-center~='6']) > :where(table) > :where(thead, tbody, tfoot) > :where(tr) > :where(th, td):where(:nth-child(6):not([data-align], [align])) { text-align: center; }
+  :where(tanrei-table[data-columns-end~='6']) > :where(table) > :where(thead, tbody, tfoot) > :where(tr) > :where(th, td):where(:nth-child(6):not([data-align], [align])) { text-align: var(--_table-end); }
+  :where(tanrei-table[data-columns-nowrap~='6']) > :where(table) > :where(thead, tbody, tfoot) > :where(tr) > :where(th, td):where(:nth-child(6):not([data-wrap])) { white-space: nowrap; }
+  :where(tanrei-table[data-columns-center~='7']) > :where(table) > :where(thead, tbody, tfoot) > :where(tr) > :where(th, td):where(:nth-child(7):not([data-align], [align])) { text-align: center; }
+  :where(tanrei-table[data-columns-end~='7']) > :where(table) > :where(thead, tbody, tfoot) > :where(tr) > :where(th, td):where(:nth-child(7):not([data-align], [align])) { text-align: var(--_table-end); }
+  :where(tanrei-table[data-columns-nowrap~='7']) > :where(table) > :where(thead, tbody, tfoot) > :where(tr) > :where(th, td):where(:nth-child(7):not([data-wrap])) { white-space: nowrap; }
+  :where(tanrei-table[data-columns-center~='8']) > :where(table) > :where(thead, tbody, tfoot) > :where(tr) > :where(th, td):where(:nth-child(8):not([data-align], [align])) { text-align: center; }
+  :where(tanrei-table[data-columns-end~='8']) > :where(table) > :where(thead, tbody, tfoot) > :where(tr) > :where(th, td):where(:nth-child(8):not([data-align], [align])) { text-align: var(--_table-end); }
+  :where(tanrei-table[data-columns-nowrap~='8']) > :where(table) > :where(thead, tbody, tfoot) > :where(tr) > :where(th, td):where(:nth-child(8):not([data-wrap])) { white-space: nowrap; }
+  :where(tanrei-table[data-columns-center~='9']) > :where(table) > :where(thead, tbody, tfoot) > :where(tr) > :where(th, td):where(:nth-child(9):not([data-align], [align])) { text-align: center; }
+  :where(tanrei-table[data-columns-end~='9']) > :where(table) > :where(thead, tbody, tfoot) > :where(tr) > :where(th, td):where(:nth-child(9):not([data-align], [align])) { text-align: var(--_table-end); }
+  :where(tanrei-table[data-columns-nowrap~='9']) > :where(table) > :where(thead, tbody, tfoot) > :where(tr) > :where(th, td):where(:nth-child(9):not([data-wrap])) { white-space: nowrap; }
+  :where(tanrei-table[data-columns-center~='10']) > :where(table) > :where(thead, tbody, tfoot) > :where(tr) > :where(th, td):where(:nth-child(10):not([data-align], [align])) { text-align: center; }
+  :where(tanrei-table[data-columns-end~='10']) > :where(table) > :where(thead, tbody, tfoot) > :where(tr) > :where(th, td):where(:nth-child(10):not([data-align], [align])) { text-align: var(--_table-end); }
+  :where(tanrei-table[data-columns-nowrap~='10']) > :where(table) > :where(thead, tbody, tfoot) > :where(tr) > :where(th, td):where(:nth-child(10):not([data-wrap])) { white-space: nowrap; }
+  :where(tanrei-table[data-columns-center~='11']) > :where(table) > :where(thead, tbody, tfoot) > :where(tr) > :where(th, td):where(:nth-child(11):not([data-align], [align])) { text-align: center; }
+  :where(tanrei-table[data-columns-end~='11']) > :where(table) > :where(thead, tbody, tfoot) > :where(tr) > :where(th, td):where(:nth-child(11):not([data-align], [align])) { text-align: var(--_table-end); }
+  :where(tanrei-table[data-columns-nowrap~='11']) > :where(table) > :where(thead, tbody, tfoot) > :where(tr) > :where(th, td):where(:nth-child(11):not([data-wrap])) { white-space: nowrap; }
+  :where(tanrei-table[data-columns-center~='12']) > :where(table) > :where(thead, tbody, tfoot) > :where(tr) > :where(th, td):where(:nth-child(12):not([data-align], [align])) { text-align: center; }
+  :where(tanrei-table[data-columns-end~='12']) > :where(table) > :where(thead, tbody, tfoot) > :where(tr) > :where(th, td):where(:nth-child(12):not([data-align], [align])) { text-align: var(--_table-end); }
+  :where(tanrei-table[data-columns-nowrap~='12']) > :where(table) > :where(thead, tbody, tfoot) > :where(tr) > :where(th, td):where(:nth-child(12):not([data-wrap])) { white-space: nowrap; }
+  :where(tanrei-table[data-columns='1']) > :where(table) > :where(thead, tbody, tfoot) > :where(tr) > :where(th, td):where(:nth-child(n + 2)) { display: none; }
+  :where(tanrei-table[data-columns='2']) > :where(table) > :where(thead, tbody, tfoot) > :where(tr) > :where(th, td):where(:nth-child(n + 3)) { display: none; }
+  :where(tanrei-table[data-columns='3']) > :where(table) > :where(thead, tbody, tfoot) > :where(tr) > :where(th, td):where(:nth-child(n + 4)) { display: none; }
+  :where(tanrei-table[data-columns='4']) > :where(table) > :where(thead, tbody, tfoot) > :where(tr) > :where(th, td):where(:nth-child(n + 5)) { display: none; }
+  :where(tanrei-table[data-columns='5']) > :where(table) > :where(thead, tbody, tfoot) > :where(tr) > :where(th, td):where(:nth-child(n + 6)) { display: none; }
+  :where(tanrei-table[data-columns='6']) > :where(table) > :where(thead, tbody, tfoot) > :where(tr) > :where(th, td):where(:nth-child(n + 7)) { display: none; }
+  :where(tanrei-table[data-columns='7']) > :where(table) > :where(thead, tbody, tfoot) > :where(tr) > :where(th, td):where(:nth-child(n + 8)) { display: none; }
+  :where(tanrei-table[data-columns='8']) > :where(table) > :where(thead, tbody, tfoot) > :where(tr) > :where(th, td):where(:nth-child(n + 9)) { display: none; }
+  :where(tanrei-table[data-columns='9']) > :where(table) > :where(thead, tbody, tfoot) > :where(tr) > :where(th, td):where(:nth-child(n + 10)) { display: none; }
+  :where(tanrei-table[data-columns='10']) > :where(table) > :where(thead, tbody, tfoot) > :where(tr) > :where(th, td):where(:nth-child(n + 11)) { display: none; }
+  :where(tanrei-table[data-columns='11']) > :where(table) > :where(thead, tbody, tfoot) > :where(tr) > :where(th, td):where(:nth-child(n + 12)) { display: none; }
+  :where(tanrei-table[data-columns='12']) > :where(table) > :where(thead, tbody, tfoot) > :where(tr) > :where(th, td):where(:nth-child(n + 13)) { display: none; }
 }
