@@ -196,6 +196,11 @@
       "id": "TAG-21",
       "text": "WHILE disabled is true — the tag stands inside something disabled, and the component that holds it, or the product, says so — THE tag SHALL draw its fill, its label, its glyph and its dot from its look's disabled tokens (comp.tag.<variant>.disabled.container.color, comp.tag.<variant>.disabled.label.color and comp.tag.<variant>.disabled.icon.color, and their parts of each status), whatever its status, so that it fades with what it stands in and does not read as the one live part of a disabled whole; an outlined tag SHALL keep its edge and draw no fill. disabled SHALL change nothing else: the tag SHALL keep its size, its label and its place, take no input and no focus (TAG-9), and keep its text readable by assistive technology, which hears the disabled state from the element the tag stands in, never from the tag. WHERE the platform draws with a person's own forced colors THE tag SHALL draw its edge, its label, its glyph and its dot in the platform's color for disabled text (GrayText on the web) in place of its text color (TAG-14).",
       "verify": "Fixtures small-filled-disabled, small-tonal-disabled, outlined-disabled and tonal-error-disabled. Unit: under the default system a disabled tag's fill is on-surface at sys.state.disabled-container-opacity and its label on-surface at sys.state.disabled-content-opacity, in every look and every status; an outlined one has no fill and keeps its edge; the tag is as large as it is enabled, is not focusable and exposes no disabled state."
+    },
+    {
+      "id": "TAG-22",
+      "text": "IF the icon set cannot draw the glyph of its icon slot yet (its font is still loading or failed to load) THE tag SHALL draw nothing in the glyph's place, never the glyph's name as text, SHALL keep the glyph's box at its size so that nothing else moves, SHALL still draw its container and label and expose its status, and SHALL show the glyph once the icon set can draw it, without a motion.",
+      "verify": "Name a family no machine has as the icon set's, then register the default icon face under that name: before, the glyph's box is drawn empty at its size; after, the glyph is drawn in it."
     }
   ],
   "accessibility": {

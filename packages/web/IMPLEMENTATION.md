@@ -346,6 +346,12 @@ container, its state layer, its ripple and its outline are a capsule of that wid
 a design system that wants its narrow buttons to differ more by size gives a size a larger inset (the presets keep the
 28 / 32 / 48 they drew).
 
+**While the icon font cannot draw (BTN-49).** Until the icon set can draw the slotted glyph, or the `open_in_new` mark of
+a link to a new context, nothing is drawn in its box — never its name, which a 1 em box would cut to `ad` or `fav` — and
+the box keeps its size (`GlyphDrawnController`: the slot's elements for the icon, the mark's own text for the mark). What
+is hidden is the slot (the slotted glyph inherits its visibility) and the mark's text, not the box, so the busy fade of
+the box (BTN-36) is left alone. Every component that draws a Button with a glyph slotted into it gets the same.
+
 **Padding (BTN-11).** Beside a label, the padding on the icon's side is its own token —
 `container.padding-inline-start-with-icon` for a leading icon, `-end-with-icon` for a trailing one — a step tighter than
 the plain padding in the default system (12 / 12 / 16 against 16 / 16 / 24); the label's side keeps the plain padding.
@@ -815,6 +821,10 @@ the icon helper; `data-mirror="never"` forbids it. The label is text of its own 
 it has a letter, so the box that cuts it has the label's direction and the ellipsis is at the label's own end in every
 engine (`unicode-bidi: plaintext` alone orders the text, but WebKit then cuts it at the layout's end and Firefox draws
 no ellipsis). A label with no letter (a number, a date) carries no `dir` and takes the layout's.
+
+**While the icon font cannot draw (TAG-22).** Until the icon set can draw the slotted glyph, nothing is drawn in its
+box — never its name — and the box keeps its size (`GlyphDrawnController` with `slotted`; the slot is hidden and the
+glyph inherits it).
 
 **Forced colors (TAG-14).** Every look gains a `CanvasText` border of `outline.width`, which the paddings give room for
 so nothing moves; the label and the glyph take `CanvasText` (the glyph without the mode's backplate, which would cover
@@ -4388,6 +4398,10 @@ rests at level3, rises to level4 under hover, keeps level3 under focus and press
 the elevation and the opacity change over `comp.main-action-button.motion.state-duration.<size>` with `motion.state-easing`, at
 once under reduced motion.
 
+**While the icon font cannot draw (MAB-26).** Until the icon set can draw the slotted glyph, nothing is drawn in its
+box — never its name — and the box keeps its size, extended or collapsed (`GlyphDrawnController` with `slotted`; the
+slot is hidden and the glyph inherits it).
+
 **Everything else is Button's**: a native `<button>` named by its content, the state precedence, the minimum target (the
 small one is below `sys.target.pointer`; also in RTL), press-hold, the four `pressed-feedback` answers (under ripple and
 dim the label, icon, elevation and opacity take their pressed tokens, the container keeps the state under the press),
@@ -4572,6 +4586,11 @@ fill of the chip's selection (selected only on a filter chip that is on); the re
 that wants other marks chooses another icon set. The avatar (`avatar` slot, input chips only — elsewhere ignored and
 reported, CHP-15) is clipped to `avatar.shape` at `avatar.size.<size>`, hidden from assistive technology, and drawn at
 `sys.state.disabled-content-opacity` when disabled.
+
+**While the icon font cannot draw (CHP-41).** Until the icon set can draw a glyph — the slotted icon, the check, the
+remove glyph, the new-tab mark — nothing is drawn in its box, never its name, and the box keeps its size
+(`GlyphDrawnController`: the slot's elements for the icon, each glyph's own text, an inline block, for the others).
+What is hidden is the slot or the text, not the box, so the check's selection fade is left alone.
 
 **The remove action (CHP-18, CHP-20, CHP-21, CHP-27, CHP-28).** The `cancel` glyph centered on a round container of
 `remove.container.size` at the inline end; not a Tab stop (above). The container is larger than the glyph (the state layer shows as a ring
@@ -6850,6 +6869,11 @@ root's overflow has changed, Chromium's root `clientWidth` still leaves out a ba
 `--enable-features=OverlayScrollbar` for the branch where the window widens; Firefox headed on Linux under `Xvfb` with
 GTK's overlay bars off (headless Firefox draws none); a window resized while the scroll is held, both ways, in each.
 
+**While the icon font cannot draw (DLG-30).** Until the icon set can draw the slotted glyph, nothing is drawn in its
+box — never its name — and the box keeps its size, so the headline does not move (`GlyphDrawnController` with
+`slotted`; the slot is hidden and the glyph inherits it). A dialog opened while the font is missing is read as it
+opens.
+
 **Layout (DLG-7…12, DLG-16).** Centred in the window (above the on-screen keyboard, measured from `visualViewport`), at
 least `container.margin` from every edge and the safe area, as wide as its content between `container.min-width` and
 `container.max-width`, on `container.color` with its elevation and corners (eased by the smoothing). Its parts are inset
@@ -8702,6 +8726,11 @@ its dividers between groups as it does anywhere. With no item in the menu slot t
 draws its open form while `open`, no menu is presented (`aria-expanded` stays false), and a debug build reports the empty
 slot once the children have settled, and again each time it becomes empty (never on every render).
 
+**While the icon font cannot draw (SPB-41).** Until the icon set can draw a glyph — the slotted icon, `expand_more`,
+a chevron slot's glyph — nothing is drawn in its box, never its name, and the box keeps its size
+(`GlyphDrawnController` with `slotted`: `expand_more` is the chevron slot's fallback element, read as a slotted glyph
+is; the slot is hidden and the glyph inherits it).
+
 **Semantics (SPB-17).** Two buttons in reading order, two Tab stops, and no element of their own around them: the host
 and the row have no role. The icon and the chevron are `aria-hidden`. `element.focus()` focuses the leading half
 (`delegatesFocus`). In a toolbar each half is a stop of the toolbar's arrow keys (TBR-25): the toolbar tells the button
@@ -8833,7 +8862,7 @@ own selectors and its own `--tanrei-comp-<name>-*` tokens — nothing in them kn
 | `hostAria(host, attributes)` | semantics a non-interactive component carries on its host (divider, progress, loading), written only when they change | the attributes, `null` to remove |
 | `GlyphMirrorController` (`glyph-mirror.ts`) | `data-tanrei-mirrored` on each glyph whose name the active icon set mirrors in right-to-left, or whose `data-mirror` says `always` (never with `never`): after each render, on `slotchange`, when a slotted glyph's text or `data-mirror` changes, when the root switches the system. `iconGlyph()` draws the mark under `:dir(rtl)`; the component mirrors nothing itself (BTN-19) | `drawn`: a selector for the `iconGlyph()` boxes whose name the component writes; `slots`: a selector for the slots that take the product's glyph (each inside an `iconGlyph()` box) |
 | `MirrorWordController` (`glyph-mirror.ts`) | the product's `data-mirror` on the element that names a glyph the component draws from a name (a tab's `icon`): `word` is what the component writes as `data-mirror` on each box that draws such a glyph, and the host renders again when the word changes, so the mark and `iconGlyph()` decide as for any glyph and a change of direction is drawn by CSS at once. The class of the element that names the glyph hears the attribute (`hearsMirrorWord(Class)`, before it is defined): an observed attribute, not an observer per element | the host; `namedBy`, the element that names the glyph where it is not the host (a menu item's group) |
-| `GlyphDrawnController` (`glyph.ts`) | `data-drawn` on each glyph box while the icon set can draw its ligature (its text is at most `DRAWN_WIDTH` × the box), re-read when the text's width changes (the font arrives, a system switch) and after each render; running transitions end when a glyph becomes drawable (CHK-19) | the glyph boxes (styled by `iconGlyph()`, each holding one inline-block text element); hide a glyph box without `data-drawn` |
+| `GlyphDrawnController` (`glyph.ts`) | `data-drawn` on each glyph box while the icon set can draw its ligature (its text is at most `DRAWN_WIDTH` × the box), re-read when the text's width changes (the font arrives, a system switch) and after each render; running transitions end when a glyph becomes drawable (CHK-19). With `slotted`, a box holds the slot the product's glyph goes in (BTN-49): not drawn while the slot holds nothing, drawn while it holds only images, SVGs or elements with no text, and, while it holds a name, drawn while `check`, set out of sight in the box's font, is one glyph (at most `DRAWN_WIDTH` × the box; a short name spelled out, `add`, can be narrower). Nothing of the layout is read for it: the observer reports the widths of the box and of that hidden name after the frame's own layout (when the font arrives, a system switches, a face's load ends), and a render or a `slotchange` is decided from the widths last reported, so a page of a hundred Buttons reads none of their layout | the glyph boxes (styled by `iconGlyph()`, each holding one inline-block text element, or with `slotted` a slot); hide a glyph box without `data-drawn`, or with `slotted` its slot (the slotted glyph inherits the slot's visibility) |
 | `VisibilityController` | `visible`: false while the host is scrolled out of view or hidden, so a running animation pauses | render `animation-play-state: paused` while it is false |
 | `FacesWatch` (`faces.ts`) | what measures text measures it again when a face's load ends (`loadingdone`, `loadingerror`) and, after a measurement taken while `document.fonts.status` was `loading`, when `document.fonts.ready` resolves — WebKit on Linux fires no `loadingdone` for a face already loading when the listener was added, so an event alone left a fallback face's width in place. One subscription to the page's fonts for every watcher, none once no watcher is connected; `src/primitives/faces.test.ts` plays the race in every engine | `connect()` / `disconnect()` with the host, the function that measures again, and `measured()` after each read of the text's layout (the layout that read forced is the one a face starts loading in) |
 | `placeAnchored()`, `anchorGone()`, `numericAttribute` / `crossOffsetAttribute` / `choiceAttribute`, `visibleViewport()` / `viewportKey()`, `surfaceCap()`, `placeMenu()` / `placeAtPoint()` / `placeSubmenu()` (`placement.ts`) | where a surface that opens beside a control goes, as numbers: the thirteen placements, the offsets, flipping, shifting, holding, the side kept, the arrow's point, `fits` and `room` for a surface that can be limited (TIP-9, TIP-22…25, POP-2…5); whether an anchor is removed, hidden or out of sight; the attributes of `offset`, `cross-offset` and a true / false / unset choice; the visible part of the window, above the on-screen keyboard (the visual viewport within the layout one); a product's `max-block-size` on a placed surface, in pixels; where a menu's kind of surface goes — below or above its anchor, at a point, beside its parent surface (MNU-2, MNU-46, MNU-47, MNU-61, DTM-2, SRC-7) | the boxes, the placement, what an unknown one falls back to, `auto`'s order and alignment |
