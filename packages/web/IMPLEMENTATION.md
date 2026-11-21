@@ -8467,9 +8467,14 @@ is reduced.
 
 **Results (SRC-42…46, SRC-49, SRC-50).** `<tanrei-search-result>` draws a suggestion's row from the suggestion tokens in
 its own shadow root. Its link is its own `<a href>` (a `<button>` without `href`, or with a `javascript:` one), which the
-element keeps as its **first child in the light DOM**, slotted over the whole row and drawn as nothing — `all: unset` and
-an absolute inset of 0, set through the CSSOM as important, so a page's rules for anchors and buttons neither move nor
-paint it; the row draws the focus the link shows (`:focus-visible`), and the row's own text is hidden from assistive
+element keeps as its **first child in the light DOM**, slotted across the whole row and drawn as nothing — `all: unset`,
+an absolute inset of 0 and `z-index: -1`, set through the CSSOM as important, so a page's rules for anchors and buttons
+neither move nor paint it. It lies under the row's icon and text, which take no pointer (`pointer-events: none`), so
+every press still reaches it, and which are positioned at no level of their own (axe puts an element of any level, a
+negative one too, above a text that has none): an element over a text is, to a contrast checker (axe's `color-contrast`, which builds its
+own paint order and ignores `pointer-events`), an element covering it, and the headline and the excerpt were left
+incomplete instead of checked. The row is its own stacking context (`isolation: isolate`), so the link's level orders it
+inside the row alone, above the row's fill; the row draws the focus the link shows (`:focus-visible`), and the row's own text is hidden from assistive
 technology, so the link is the one node said. It is a child of the document, not of the result's shadow root, so that the
 search's input can name it as its active descendant by element reflection (`ariaActiveDescendantElement`): an id cannot
 cross a shadow root, and reflection reaches out into the document, never into another shadow root. Content that replaces
