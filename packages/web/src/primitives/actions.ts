@@ -1,5 +1,5 @@
 import { type CSSResult, unsafeCSS } from 'lit';
-import { cssZoom } from './layout-scale.js';
+import { cssZoom, layoutScale } from './layout-scale.js';
 import { GROUP_ITEM, type GroupItem } from './group-item.js';
 import { report } from './report.js';
 import { TARGET_CAPS } from './target.js';
@@ -162,11 +162,15 @@ export class ActionPlacement {
   /** What `measure()` reads, once the box is set to measure (`startMeasure()`); it writes nothing. */
   readMeasure(box: HTMLElement, arrangement: ActionArrangement): ActionMeasure & { fits: boolean } {
     const drawn = this.actions.filter((action) => action.getClientRects().length > 0);
-    // In the box's own pixels, as its gap and its inner width are: under an ancestor's zoom a drawn width is that much
-    // larger (`cssZoom()`).
-    const zoom = cssZoom(box);
-    const widths = drawn.map((action) => action.getBoundingClientRect().width / zoom);
     const style = getComputedStyle(box);
+    // In the box's own pixels, as its gap and its inner width are: a drawn width is larger by an ancestor's zoom and by
+    // the scale of a motion under way (a dialog's or a popover's entrance grows it from 0.96, and a root token written
+    // while it is open has WebKit play it again), which a laid-out width is not (`layoutScale()`). Measured through the
+    // scale, the actions would be found narrower than they rest, and the row would be decided, and the container sized,
+    // anew in every frame of the motion. Drawn flat (an axis scaled to nothing), only the zoom is known.
+    const scale = layoutScale(box, box.getBoundingClientRect(), style).x;
+    const drawnPerOwn = scale > 0 ? scale : cssZoom(box);
+    const widths = drawn.map((action) => action.getBoundingClientRect().width / drawnPerOwn);
     const gap = Number.parseFloat(style.columnGap) || 0;
     const gaps = gap * Math.max(0, widths.length - 1);
     const packed = arrangement === 'packed';
