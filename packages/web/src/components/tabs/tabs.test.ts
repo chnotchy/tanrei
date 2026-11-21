@@ -4649,15 +4649,20 @@ test.describe('fixtures', () => {
 });
 
 test.describe('accessibility: what is drawn over a label', () => {
-  test('TAB-4, TAB-18: the ring over every tab and the container over the selected one hide no label from a contrast check — a faint label is reported, the row\'s own colors pass', async ({ page }) => {
+  test('TAB-4, TAB-18, TAB-24, TAB-25: the ring over every tab, the container and the covered copy over the selected one and the tooltip over a truncated one hide no label from a contrast check — a faint label is reported, the row\'s own colors pass, nothing is left unchecked', async ({ page }) => {
     // An element drawn over a text is, to axe's color-contrast, an element covering it, whatever its pointer-events: it
     // left the text incomplete ("overlapped by another element") instead of checking it, so faint text passed unseen.
-    const lead = '<style>tanrei-tab[value="faint"]::part(label) { color: #bbb; }</style>';
-    await mountFixtures(page, spec, { icons: true, lead, fixtures: [fixture('marked', [t('selected', 'Selected'), t('faint', 'Faint'), t('normal', 'Normal')], { value: 'selected' })] });
+    const lead = '<style>tanrei-tab:is([value="faint"], [value="cut"])::part(label) { color: #bbb; }</style>';
+    const marked = fixture('marked', [t('selected', 'Selected'), t('faint', 'Faint'), t('normal', 'Normal')], { value: 'selected' });
+    // A row that fills, whose two longer labels are truncated and shown whole by a tooltip laid over the whole tab.
+    const cut = fixture('cut', [t('fits', 'Profile'), t('cut', 'Recent activity'), t('kept', 'Notification settings')], { value: 'kept', fullWidth: true });
+    await mountFixtures(page, spec, { icons: true, lead, fixtures: [marked, cut] });
+    for (const n of [1, 2]) await expect(tabAt(page, 'cut', n).locator('.tip'), `tab ${n}'s tooltip`).toHaveCount(1);
     const checked = await contrastChecked(page);
-    expect(checked.violations, 'the faint label is reported').toEqual(['Faint']);
-    expect(checked.passes, 'the row\'s own colors pass, the selected tab\'s covered copy among them').toEqual(['Normal', 'Selected']);
-    // The selected tab's own label lies under its covered copy (TAB-17), which is what is drawn there and is checked.
-    expect(checked.incomplete, 'nothing else is left unchecked').toEqual(['Selected']);
+    expect(checked.violations, 'the faint labels are reported').toEqual(['Faint', 'Recent activity']);
+    // The selected tab's own content lies under its covered copy (TAB-24), which is what is drawn there: the copy is
+    // checked, and the content the copy covers whole is not drawn.
+    expect(checked.passes, 'the row\'s own colors pass, the selected tabs\' covered copies among them').toEqual(['Normal', 'Notification settings', 'Profile', 'Selected']);
+    expect(checked.incomplete, 'nothing is left unchecked').toEqual([]);
   });
 });

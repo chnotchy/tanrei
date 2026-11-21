@@ -632,11 +632,16 @@ export const tabStyles = css`
     touch-action: auto;
   }
   /* TAB-25: the plain tooltip of a truncated label lies over the whole tab, drawing nothing, so the pointer over the tab
-     is over it. */
+     is over it. It lies under the label in the paint order (before it in the tab), where a contrast checker does not
+     take it for an element covering the label, and the label takes no pointer, so that the pointer over the label is
+     still over the tooltip; the whole tab answers it. */
   .tip {
     position: absolute;
     inset: 0;
     display: block;
+  }
+  .tab > .content {
+    pointer-events: none;
   }
 
   /* TAB-3, TAB-6, TAB-8, TAB-9: each state paints from that state's tokens of the tab's look; pressed > focused > hovered,
