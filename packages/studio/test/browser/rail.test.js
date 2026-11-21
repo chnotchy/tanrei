@@ -6,7 +6,7 @@ import { studioTest } from './harness.js';
 
 const ROWS = ['color', 'neutral', 'typeface', 'size', 'radius', 'smoothing', 'icons', 'press', 'focus'];
 const MORE = ['base', 'dials', 'palettes', 'components', 'behavior', 'vocabulary', 'about', 'a11y'];
-/** What the panel holds for each section, panel by panel; Export stands at the foot of every one. */
+/** What the panel holds for each section, panel by panel: the section's own, and nothing more (the file is Export's). */
 const PANELS = { color: ['brand'], neutral: ['neutral'], typeface: ['typefaces'], size: ['size'], radius: ['radius'], smoothing: ['shape'], icons: ['icons'], press: ['press'], focus: ['focus'], base: ['base'], dials: ['dials'], palettes: ['color'], components: ['components'], behavior: ['behavior'], vocabulary: ['add'], about: ['about'], a11y: ['a11y'] };
 const panels = (page) => page.locator('[data-inspector] [data-panel]').evaluateAll((els) => els.map((el) => el.dataset.panel));
 const current = (page) => page.locator('[data-rail] [data-row][aria-current="true"]').evaluateAll((els) => els.map((el) => el.dataset.row));
@@ -17,14 +17,14 @@ studioTest('the rail lists the nine rows, then the rest; each shows its panel, a
   assert.deepEqual(await page.locator('[data-rail-more] [data-row]').evaluateAll((els) => els.map((el) => el.dataset.row)), MORE);
   assert.equal(await page.locator('[data-rail]').evaluate((el) => el.localName), 'nav', 'a navigation region');
   assert.deepEqual(await current(page), ['color'], 'the brand color first');
-  assert.deepEqual(await panels(page), ['brand', 'export']);
+  assert.deepEqual(await panels(page), ['brand']);
   // Every row says what it holds, and draws a sample.
   assert.deepEqual(await Promise.all(ROWS.map((row) => value(page, row))), ['none (monochrome)', 'neutral', 'Inter', '40px · minimum 36px', '2px', 'none', 'Material Symbols Rounded · 300', 'overlay', 'ring']);
   assert.equal(await page.locator('[data-rail] .ts-sample').count(), ROWS.length);
   for (const name of [...ROWS, ...MORE]) {
     await section(name);
     assert.deepEqual(await current(page), [name], `${name} is current`);
-    assert.deepEqual(await panels(page), [...PANELS[name], 'export'], `${name}: its panels`);
+    assert.deepEqual(await panels(page), PANELS[name], `${name}: its panels`);
   }
   await section('color');
   await axe('[data-studio]', 'the rail and the panel');
@@ -87,14 +87,14 @@ studioTest('Inspect opens over the panel at the token tree or Source, says it is
   await button.click();
   assert.equal(await button.evaluate((el) => el.selected), true, 'the toggle says Inspect is open');
   assert.equal(await page.locator('[data-studio]').getAttribute('data-pane'), 'tokens');
-  assert.deepEqual(await panels(page), ['tree', 'rules', 'export']);
+  assert.deepEqual(await panels(page), ['tree', 'rules']);
   assert.equal(await page.locator('[data-inspector]').getAttribute('aria-label'), 'Inspect');
   await page.locator('[data-inspect-tabs] tanrei-tab[data-value="source"]').click();
-  assert.deepEqual(await panels(page), ['source', 'export']);
+  assert.deepEqual(await panels(page), ['source']);
   await axe('[data-studio]', 'Inspect at Source');
   await page.locator('[data-inspect-close]').click();
   assert.equal(await page.locator('[data-studio]').getAttribute('data-pane'), 'edit');
-  assert.deepEqual(await panels(page), ['icons', 'export'], 'back to the row it was opened from');
+  assert.deepEqual(await panels(page), ['icons'], 'back to the row it was opened from');
   assert.equal(await page.evaluate(() => document.activeElement?.closest('[data-inspect]') !== null), true, 'the focus goes back to Inspect’s button');
   // It opens at the tab it was last at.
   await button.click();

@@ -67,14 +67,10 @@ studioTest('the brand color and the size reach the file and the preview; another
   await saved((layer) => !layer.tokens?.['tanrei.sys.target.minimum'] && !layer.tokens?.['tanrei.dial.size.unit'], 'reset all');
   assert.ok(onDisk().tokens['tanrei.sys.color.primary'], 'the default system is monochrome: a brand color comes with the roles that use it');
 
-  // Another base: operations are relative to what they inherit, so the person is asked first — and may say no.
+  // Another base: operations are relative to what they inherit, so the layer starts from that base's defaults — one
+  // step, said with the way to undo it, as a new start from the bar is.
   await section('base');
   assert.match(await page.locator('[data-base-description]').textContent(), /\w/);
-  page.once('dialog', (dialog) => dialog.dismiss());
-  await choose(page.locator('[data-base]'), 'm3-like');
-  await until(async () => (await page.locator('[data-base]').evaluate((el) => el.value)) === 'tanrei', 'declined: the base stays, and the control says so');
-  assert.equal(onDisk().extends, 'tanrei');
-  page.once('dialog', (dialog) => dialog.accept());
   await choose(page.locator('[data-base]'), 'm3-like');
   await saved((layer) => layer.extends === 'm3-like', 'the base');
   assert.deepEqual(Object.keys(onDisk()), ['id', 'extends'], 'it starts from that base’s defaults');
@@ -89,8 +85,7 @@ studioTest('a layer with every value written out extends the root: the Base syst
   assert.equal(await base.evaluate((el) => el.value), 'core');
   assert.deepEqual(await base.locator('tanrei-radio-button').evaluateAll((els) => els.filter((el) => el.checked).map((el) => el.value)), ['core'], 'one choice is checked: the base the layer has');
   assert.match(await page.locator('[data-base-description]').textContent(), /root layer/);
-  // Another base is chosen as from any other (the layer holds a color: the person is asked).
-  page.once('dialog', (dialog) => dialog.accept());
+  // Another base is chosen as from any other.
   await choose(base, 'm3-like');
   await saved((layer) => layer.extends === 'm3-like', 'the base');
 });

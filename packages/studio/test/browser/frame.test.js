@@ -77,7 +77,6 @@ studioTest('undo and redo step through what was committed, and the file follows;
   const undo = page.locator('[data-undo]');
   const redo = page.locator('[data-redo]');
   assert.equal(await undo.evaluate((el) => el.disabled), true);
-  page.on('dialog', (dialog) => dialog.accept());
   await section('base');
   await page.locator('[data-panel="base"] tanrei-radio-button[data-value="cupertino"]').click();
   await saved((file) => file.extends === 'cupertino', 'the base');

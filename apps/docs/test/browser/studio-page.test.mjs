@@ -47,8 +47,6 @@ async function open(browser, { viewport = WIDE, url = '/studio/', locale = 'en-U
   const problems = [];
   page.on('console', (message) => message.type() === 'error' && problems.push(message.text()));
   page.on('pageerror', (error) => problems.push(error.message));
-  // The base system is switched after a confirmation: the person says yes.
-  page.on('dialog', (dialog) => dialog.accept());
   await page.goto(origin + url);
   await page.waitForSelector('[data-studio][data-pane] [data-rail] [data-row]');
   // Every element of the page defined, the fonts in, and two frames since (each wait bounded: launch.mjs).
@@ -263,6 +261,8 @@ for (const engine of ENGINES) {
         assert.equal((await layer(page)).extends, 'cupertino', '⇧⌘Z redoes');
         assert.equal(await page.locator('[data-status]').textContent(), 'Redone.', 'and says so');
         // In a field that holds text, the keys are the field's.
+        await page.locator('[data-export-open]').click();
+        await page.waitForFunction(() => document.querySelector('[data-export-sheet]').open);
         await page.locator('[data-id] input').focus();
         await page.keyboard.press('ControlOrMeta+z');
         assert.equal((await layer(page)).extends, 'cupertino', 'not taken from a text field');

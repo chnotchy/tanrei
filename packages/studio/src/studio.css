@@ -468,7 +468,7 @@
   flex-wrap: wrap;
   align-items: center;
   gap: var(--tanrei-sys-space-space50) var(--tanrei-sys-space-space150);
-  padding: var(--tanrei-sys-space-space100) var(--tanrei-sys-space-space200);
+  padding: var(--tanrei-sys-space-space100) var(--tanrei-sys-space-space150);
 }
 .ts-preview-bar > [data-screens] {
   flex: 0 1 auto;
@@ -518,8 +518,8 @@
   grid-template-columns: minmax(0, 1fr);
   /* A pane shorter than the preview still fills it: the screen's surface, not the Studio's, down to the foot. */
   align-content: stretch;
-  gap: var(--tanrei-sys-space-space200);
-  padding: 0 var(--tanrei-sys-space-space200) var(--tanrei-sys-space-space200);
+  gap: var(--tanrei-sys-space-space150);
+  padding: 0 var(--tanrei-sys-space-space150) var(--tanrei-sys-space-space150);
   overflow: auto;
   overscroll-behavior: contain;
 }
@@ -931,11 +931,6 @@
 
 /* ── The file, and Export ───────────────────────────────────────────── */
 /* One column: the panel it stands at the foot of is as narrow as the person makes it. */
-.ts-export-side {
-  display: grid;
-  gap: 0.75rem;
-  min-inline-size: 0;
-}
 .ts-actions {
   display: flex;
   flex-wrap: wrap;

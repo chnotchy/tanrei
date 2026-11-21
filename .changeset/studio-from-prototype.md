@@ -15,6 +15,14 @@
   says the control height and the minimum target (the size unit stays in its panel); a gray with no chroma says
   *neutral*, and no corner smoothing *none*. Each of the rest — the base system, the dials, the palettes and the others
   — has a line under its name that says what it holds. The words are in the six languages.
+- **Nothing is asked before a step that replaces the layer.** A new start (from the bar or the Base system panel) and
+  a file loaded are each one step, said in a snackbar whose **Undo** takes it back until the next commit. **Reset**,
+  beside undo and redo, takes the layer back to what its start gives, its id kept, the same way. The start point's
+  menu lists the examples under **Theme gallery**.
+- **The panel holds the row alone.** The file's card at its foot is gone: the file's id (with `.system.json` after it)
+  and its name are in **Export**, under its first line, and the checks are that line. The brand color's and the gray's
+  panels no longer name the file's keys in their heads.
+- A sentence that names one thing twice (Export's "depends on M3-like … when M3-like changes") shows it in both places.
 - **A narrow window** gives the preview the window: the rail is one line at its foot that scrolls by itself, and a row
   opens its panel between them as a sheet, with the row's name and a button that closes it. The rail then stands after
   the panel in the page, so that the keyboard meets the parts in the order they are drawn.

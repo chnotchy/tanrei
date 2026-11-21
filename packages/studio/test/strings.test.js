@@ -76,8 +76,6 @@ const ASKED = {
   'exporting.depend': [['M3-like (Material 3-inspired)']],
   'start.open': [['Tanrei'], ['m3-like']],
   'start.exampleNote': [['M3-like (Material 3-inspired)']],
-  'start.confirm': [['cupertino']],
-  'start.confirmLoad': [['acme.system.json']],
   'start.started': [['m3-like']],
   'start.imported': [['acme.system.json'], [undefined]],
   'start.importedProblems': [['acme.system.json', 0], ['acme.system.json', 1], ['acme.system.json', 2], ['acme.system.json', 12], [undefined, 1], [undefined, 12]],
@@ -193,8 +191,6 @@ test('English and Japanese counted and named sentences say what a plain concaten
     assert.equal(en.tokens.count(count), `${count} tokens`);
     assert.equal(ja.tokens.count(count), `${count} 件のトークン`);
     assert.equal(ja.a11y.warnings(count), `${count} 件の警告`);
-    assert.equal(en.export.size(count), `${count} entries written`);
-    assert.equal(ja.export.size(count), `${count} 件を書き込み`);
   }
   // The standalone app's bar reads these from the dictionary.
   assert.equal(en.app.noFile, 'No file attached — changes stay in this browser');
@@ -292,8 +288,6 @@ test('Spanish counts in the singular and the plural, and puts the name after its
   assert.equal(es.tokens.count(417), '417 tokens');
   assert.equal(es.a11y.warnings(1), '1 advertencia');
   assert.equal(es.a11y.warnings(0), '0 advertencias');
-  assert.equal(es.export.size(1), '1 entrada escrita');
-  assert.equal(es.export.size(12), '12 entradas escritas');
   assert.equal(es.color.fixedTones(1), '1 tono fijado');
   assert.equal(es.color.fixedTones(4), '4 tonos fijados');
   assert.match(es.color.fixedTonesHelp(1), /^Esta paleta fija 1 tono a un color exacto /);

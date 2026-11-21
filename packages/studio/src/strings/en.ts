@@ -41,7 +41,6 @@ const en = {
   },
   base: {
     title: 'Base system',
-    confirm: 'Operations are relative to the base they inherit from. Switch the base and start from its defaults?',
   },
   essentials: {
     brand: 'Brand color',
@@ -357,7 +356,7 @@ const en = {
     title: 'Live preview',
     contrast: 'Preview contrast',
     levels: open({ standard: 'Standard', medium: 'Medium', high: 'High' }),
-    stale: 'The layer has a problem: the checks at the foot of the panel say what. The preview shows the last valid state.',
+    stale: 'The layer has a problem: Export says what. The preview shows the last valid state.',
     emphasized: 'Emphasized',
     emphasizedHelp: 'Text styles drawn with their family’s emphasis step added to the weight (sys.typescale.emphasis.*).',
   },
@@ -562,13 +561,12 @@ const en = {
     nonText: (threshold: string) => `${threshold} non-text`,
   },
   export: {
-    title: 'Export',
     id: 'id — also the file name',
     name: 'Name (optional)',
+    canonical: 'This file is the theme: every platform’s output is built from it alone.',
     ownNamespace: 'This layer owns tokens under "{id}.…"; their namespace is renamed with the id, so the new id must be a valid one (lowercase words joined by hyphens, not "tanrei").',
     copy: 'Copy JSON',
     download: 'Download',
-    reset: 'Start over',
     copied: 'Copied to the clipboard.',
     downloaded: (file: string) => `Downloaded ${file}`,
     next: 'What next',
@@ -576,11 +574,6 @@ const en = {
     authoritative: 'Commit the layer. tanrei build validates it again, checks every contrast pair and writes tokens and code for each platform you ship. With the CLI, tanrei studio opens this Studio on the file itself.',
     layersLink: 'How layers work',
     jsonLabel: 'The layer file',
-    schemaOk: 'Valid against system.schema.json (Ajv, in your browser)',
-    engineOk: 'Accepted by the token engine: no unknown tokens, no cycles',
-    empty: 'Nothing differs from the base yet.',
-    size: (count: number) => `${count} entries written`,
-    confirmReset: 'Discard every change and start over?',
   },
   // Export, the side sheet the bar opens (ui/export.ts): the file, its stylesheet, and what to do with them.
   exporting: {
@@ -628,7 +621,6 @@ const en = {
     linkCopied: 'Link copied.',
   },
   file: {
-    title: 'File',
     idLocked: 'id — equals the file name; rename the file to rename the system',
     states: open({ loading: 'Loading…', saved: 'Saved', unsaved: 'Unsaved changes', saving: 'Saving…', invalid: 'Not saved — fix the problems first', conflict: 'The file changed on disk', error: 'Could not save' }),
     build: 'Build',
@@ -652,15 +644,14 @@ const en = {
     notInInit: 'Not yet: Tanrei’s root layer is neutral now — grey, with no accent — but the command line cannot start a layer from it yet (tanrei init --extends core). It can be chosen here once it can.',
     // The examples of the gallery, under their own title: each a showcase of what a layer can imitate, not the official
     // design it follows. The title reads as the first group's, «Start from»: a start, said as what it is made from.
-    gallery: 'From the gallery',
+    gallery: 'Theme gallery',
     exampleNote: (name: string) => `${name}. An example, not an official design.`,
     file: 'Import a file…',
     fileNote: 'A layer file, <id>.system.json',
-    confirm: (name: string) => `Start from ${name}? Your changes to this layer are replaced; Undo brings them back.`,
-    // What loading a layer says: `file`, the name of the file; none, the layer was handed to the page's API, which never asks.
-    confirmLoad: (file: string) => `Load ${file}? Your changes to this layer are replaced; Undo brings them back.`,
-    started: (name: string) => `Started from ${name}. Undo takes it back.`,
-    // What importing a file found, said in the panel.
+    // A new start and a file loaded are said in a snackbar that offers Undo; nothing is asked before either.
+    started: (name: string) => `Started from ${name}`,
+    // What loading a layer says (in the panel too, with what it found): `file`, the name of the file; none, the layer
+    // was handed to the page's API.
     imported: (file?: string) => `Loaded ${file ?? 'the layer'}.`,
     importedProblems: (file: string | undefined, count: number) => (count === 1 ? `Loaded ${file ?? 'the layer'}, with 1 problem. tanrei build would refuse it until it is fixed:` : `Loaded ${file ?? 'the layer'}, with ${count} problems. tanrei build would refuse it until they are fixed:`),
     refused: (file?: string) => `${file ?? 'The layer'} was not loaded. The Studio holds a layer that the schema accepts and that extends a system it has:`,
@@ -670,6 +661,8 @@ const en = {
     history: 'History',
     undo: 'Undo',
     redo: 'Redo',
+    reset: 'Reset to the start',
+    resetDone: 'Reset to the start’s values',
     undone: 'Undone.',
     redone: 'Redone.',
     rail: 'The theme',

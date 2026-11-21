@@ -3,12 +3,12 @@
 // file that layer lives in.
 import { missingWords, setWords } from '@tanrei/web';
 import { layerParam, packLayer, unpackLayer, withLayer } from './address.js';
-import { ID_PATTERN, stringifyLayer } from './core.js';
+import { stringifyLayer } from './core.js';
 import { createSourceDraft } from './draft.js';
 import { createHistory } from './history.js';
 import { studio } from './data';
 import { type StudioStrings, studioDirection, studioLanguage, studioStrings } from './strings';
-import { type Contrast, type Ctx, type Json, type Layer, type Place, button, fold, folds, h, isolated, ltr, panel, rename, rich, scrollingList, stateChip, textField, views } from './ui/dom';
+import { type Contrast, type Ctx, type Json, type Layer, type Place, button, fold, folds, h, isolated, ltr, panel, rename, rich, scrollingList, stateChip, views } from './ui/dom';
 import { sectionPanels } from './ui/panels';
 import { createExportSheet } from './ui/export';
 import { createShareMenu, type DocsTheme } from './ui/share';
@@ -69,7 +69,7 @@ const STORE = `${studio.namespace}-theme-studio`;
 const EXPORT_GLYPH = 'ios_share';
 const SHUFFLE_GLYPH = 'shuffle';
 const INSPECT_GLYPH = 'data_object';
-const HISTORY_GLYPHS = { undo: 'undo', redo: 'redo' };
+const HISTORY_GLYPHS = { undo: 'undo', redo: 'redo', reset: 'restart_alt' };
 const CLOSE_GLYPH = 'close';
 const NS = studio.namespace;
 
@@ -161,6 +161,7 @@ export function mountStudio(root: HTMLElement, { lang = 'en', adapter, links = {
         // A step to undo: what was committed before, unless nothing changed.
         if (stringifyLayer(next) !== stringifyLayer(committed)) history.record(committed, { alone: options?.alone });
         committed = next;
+        withdrawOffer();
         drawHistory();
       }
       if (options?.rebuild) build();
@@ -171,6 +172,7 @@ export function mountStudio(root: HTMLElement, { lang = 'en', adapter, links = {
     rebuild: () => build(),
     onUpdate: (refresh) => refreshers.push(refresh),
     announce: (message) => (status.textContent = message),
+    offerUndo,
     show,
     scope: '',
     locked: { id: Boolean(adapter) },
@@ -219,7 +221,6 @@ export function mountStudio(root: HTMLElement, { lang = 'en', adapter, links = {
   const sharedBanner = h('tanrei-callout', { class: 'ts-banner ts-shared', status: 'info', 'status-label': t.shared.status, live: true, open: 'false', 'close-label': t.shared.close, 'data-shared-banner': true }) as HTMLElement & { open: boolean; closable: boolean };
   sharedBanner.addEventListener('dismiss', (event) => event.target === sharedBanner && (sharedBanner.open = false));
   const a11y = h('div');
-  const exportHost = h('div');
   const glyph = (name: string) => h('span', { class: `${studio.tagPrefix}-icon`, slot: 'icon', 'aria-hidden': 'true', translate: 'no' }, name);
   // The shuffle: every row that is not locked, another of its values, in one step to undo.
   const shuffleButton = h('tanrei-button', { variant: 'text', size: 'small', label: t.rail.shuffle, title: t.rail.shuffleHelp, onclick: () => shuffleRows(), 'data-shuffle': true }, glyph(SHUFFLE_GLYPH));
@@ -235,6 +236,8 @@ export function mountStudio(root: HTMLElement, { lang = 'en', adapter, links = {
   const historyButton = (name: string, label: string, keys: string, act: () => void, attrs: Json) => h('tanrei-button', { variant: 'text', size: 'small', label, title: label, 'aria-keyshortcuts': keys, 'focusable-when-disabled': true, disabled: true, onclick: act, ...attrs }, glyph(name));
   const undoButton = historyButton(HISTORY_GLYPHS.undo, t.frame.undo, 'Meta+Z Control+Z', () => undo(), { 'data-undo': true });
   const redoButton = historyButton(HISTORY_GLYPHS.redo, t.frame.redo, 'Meta+Shift+Z Control+Shift+Z Control+Y', () => redo(), { 'data-redo': true });
+  // Reset: the layer back to what its start gives, keeping its id; one step to undo, offered at once (`offerUndo`).
+  const resetButton = h('tanrei-button', { variant: 'text', size: 'small', label: t.frame.reset, title: t.frame.reset, 'focusable-when-disabled': true, disabled: true, onclick: () => resetLayer(), 'data-reset': true }, glyph(HISTORY_GLYPHS.reset));
   // The start point: what the layer starts from, or a file to load in its place (./ui/start.ts).
   const startPoint = createStartPoint(ctx, { onstart: (id) => startFrom(id), onfile: (chosen) => importFile(chosen) });
   const bar = h(
@@ -242,7 +245,7 @@ export function mountStudio(root: HTMLElement, { lang = 'en', adapter, links = {
     { class: `ts-bar${hosted.end?.length ? ' ts-bar-hosted' : ''}`, 'data-bar': true },
     hosted.start?.length ? h('div', { class: 'ts-bar-host' }, hosted.start) : null,
     startPoint.el,
-    h('div', { class: 'ts-bar-history', role: 'group', 'aria-label': t.frame.history }, undoButton, redoButton),
+    h('div', { class: 'ts-bar-history', role: 'group', 'aria-label': t.frame.history }, undoButton, redoButton, resetButton),
     h('div', { class: 'ts-bar-tools' }, shuffleButton),
     h('div', { class: 'ts-bar-tools ts-bar-inspect', 'data-bar-inspect': true }, inspectButton),
     file,
@@ -264,11 +267,13 @@ export function mountStudio(root: HTMLElement, { lang = 'en', adapter, links = {
   const sheetClose = h('tanrei-button', { variant: 'text', size: 'small', label: t.frame.close, title: t.frame.close, onclick: () => closeSheet(), 'data-sheet-close': true }, glyph(CLOSE_GLYPH));
   const sheetHead = h('div', { class: 'ts-sheet-head', 'data-sheet-head': true }, sheetTitle, sheetClose);
   // The panel scrolls by itself beside the preview; it takes the focus when what had it is drawn again (an undo).
-  const inspector = h('section', { class: 'ts-inspector', 'aria-label': t.frame.panel, tabindex: '-1', 'data-inspector': true }, sheetHead, importReport, inspectHead, controls, a11y, exportHost);
+  const inspector = h('section', { class: 'ts-inspector', 'aria-label': t.frame.panel, tabindex: '-1', 'data-inspector': true }, sheetHead, importReport, inspectHead, controls, a11y);
   const handle = h('tanrei-handle', { class: 'ts-handle', axis: 'horizontal', label: t.frame.resize, 'data-panel-handle': true }) as HTMLElement & { value: number | null; min: number; max: number; valueText: string };
   // The frame is the page's main region; what is announced is said from inside it.
   const layout = h('main', { class: 'ts-frame', 'data-frame': true }, rail, preview.el, handle, inspector, status);
-  root.replaceChildren(bar, h('div', { class: 'ts-notices' }, banner, sharedBanner), layout, exportSheet.el);
+  // What a step that replaced the layer says, with the way to undo it (`offerUndo`).
+  const snackbars = h('tanrei-snackbar-host', { 'data-snackbars': true }) as HTMLElement & { show(options: { message: string; action?: string; closable?: boolean; closeLabel?: string }): Promise<{ result: string }>; clear(): void };
+  root.replaceChildren(bar, h('div', { class: 'ts-notices' }, banner, sharedBanner), layout, exportSheet.el, snackbars);
   // Where the rail stands among the parts: first in a wide window, at the foot in a narrow one (studio.css), so that
   // the keyboard meets the parts in the order they are drawn.
   const narrow = window.matchMedia('(max-width: 63.999rem)');
@@ -354,12 +359,41 @@ export function mountStudio(root: HTMLElement, { lang = 'en', adapter, links = {
   function drawHistory() {
     undoButton.toggleAttribute('disabled', !history.canUndo);
     redoButton.toggleAttribute('disabled', !history.canRedo);
+    resetButton.toggleAttribute('disabled', !studio.holdsChanges(committed));
+  }
+  /**
+   * A step that replaced the layer — a new start, a file loaded, a reset — is said in a snackbar with the way to undo it
+   * there, instead of a question asked before it (the step is one to undo, joined to no other). It stays until it is
+   * used or closed, or the next commit — after which Undo in the bar is the way back.
+   */
+  let offered: Layer | null = null;
+  function offerUndo(message: string) {
+    const step = (offered = committed);
+    snackbars.clear();
+    void customElements
+      .whenDefined(snackbars.localName)
+      .then(() => snackbars.show({ message, action: t.frame.undo, closable: true, closeLabel: t.shared.close }))
+      .then((answer) => answer.result === 'action' && committed === step && undo());
+  }
+  /** A commit after the step the snackbar offers to undo: the offer goes. */
+  function withdrawOffer() {
+    if (!offered || committed === offered) return;
+    offered = null;
+    snackbars.clear();
+  }
+  /** The layer back to what its start gives: its id kept, everything else its base's. One step to undo. */
+  function resetLayer() {
+    if (!studio.holdsChanges(committed)) return;
+    importReport.open = false;
+    ctx.commit({ ...studio.blank(committed.extends ?? studio.defaultId), id: committed.id }, { rebuild: true, alone: true });
+    offerUndo(t.frame.resetDone);
   }
   /** The layer `step` hands back, drawn whole and saved; the focus stays where it was, or goes to the panel. */
   function travel(step: Layer | null, said: string) {
     if (!step) return;
     const inside = root.contains(document.activeElement) && !bar.contains(document.activeElement);
     layer = committed = step as Layer;
+    withdrawOffer();
     build();
     drawHistory();
     scheduleSave();
@@ -425,15 +459,15 @@ export function mountStudio(root: HTMLElement, { lang = 'en', adapter, links = {
   // ── the start point ───────────────────────────────────────────────────────────────────────────
   /**
    * Start the layer from another point: its own id, name and description on that system's defaults (operations are
-   * relative to what they inherit). A layer that holds changes asks first; either way it is one step to undo.
+   * relative to what they inherit). Nothing is asked first: it is one step, and the snackbar that says so undoes it.
    */
   function startFrom(id: string) {
     const name = startPoint.nameOf(id);
     const offered = (studio.startPoints() as Json[]).some((point) => point.id === id && point.offered);
-    if (!offered || id === committed.extends || (studio.holdsChanges(committed) && !window.confirm(t.start.confirm(name)))) return startPoint.refresh();
+    if (!offered || id === committed.extends) return startPoint.refresh();
     importReport.open = false;
     ctx.commit(studio.setBase(committed, id), { rebuild: true, alone: true });
-    ctx.announce(t.start.started(name));
+    offerUndo(t.start.started(name));
   }
   /** What loading a layer found, said at the top of the panel: `error` (it was not loaded) or `warning` (it was, with problems). */
   function report(status: 'error' | 'warning', said: string, problems: string[]) {
@@ -447,9 +481,9 @@ export function mountStudio(root: HTMLElement, { lang = 'en', adapter, links = {
    * Load a layer in the place of the layer — a file chosen from the start point's menu, or a layer handed to the page's
    * API: one path for both. What the schema refuses, or a layer on a system the Studio does not have, is not loaded,
    * and the panel says why; a layer the schema accepts is loaded, and what the token engine and the build's checks say
-   * of it is said in the panel. Over a layer that holds changes, a file asks first (the API never asks); the load is one
-   * step to undo. `file`: the file's name; none, the layer came through the API. Returns the problems that kept
-   * it out (empty: loaded, or the person kept their layer).
+   * of it is said in the panel. Nothing is asked first: the load is one step to undo, and a file's is said in a snackbar
+   * that undoes it. `file`: the file's name; none, the layer came through the API. Returns the problems that kept it
+   * out (empty: loaded).
    */
   function loadLayer(text: string, file?: string): string[] {
     const refused = (problems: string[]) => (report('error', t.start.refused(file), problems), ctx.announce(t.start.refused(file)), problems);
@@ -466,12 +500,13 @@ export function mountStudio(root: HTMLElement, { lang = 'en', adapter, links = {
     } catch (error) {
       return refused((error as Error).message.split('\n'));
     }
-    if (file !== undefined && studio.holdsChanges(committed) && !window.confirm(t.start.confirmLoad(file))) return [];
     importReport.open = false;
     ctx.commit(next, { rebuild: true, alone: true });
     const problems: string[] = latest.problems ?? [];
-    if (problems.length) report('warning', t.start.importedProblems(file, problems.length), problems);
-    ctx.announce(problems.length ? t.start.importedProblems(file, problems.length) : t.start.imported(file));
+    const said = problems.length ? t.start.importedProblems(file, problems.length) : t.start.imported(file);
+    if (problems.length) report('warning', said, problems);
+    if (file === undefined) ctx.announce(said);
+    else offerUndo(said);
     return [];
   }
   const importFile = async (chosen: File) => loadLayer(await chosen.text(), chosen.name);
@@ -515,41 +550,6 @@ export function mountStudio(root: HTMLElement, { lang = 'en', adapter, links = {
     const all = fold({ label: t.a11y.all, trailing: total, attrs: { 'data-warnings-wrap': true } });
     all.addEventListener('toggle', () => all.open && !warnings && (all.append((warnings = scrollingList(t.a11y.all, { 'data-warnings': true }))), listWarnings()));
     return panel(ctx, { title: t.a11y.title, help: t.a11y.help, key: 'a11y' }, pairs, folds({}, all));
-  }
-
-  // ── the file, under every panel ──────────────────────────────────────────────────────────────
-  /** The file: its id and name, the checks, and the way to Export (./ui/export.ts). Under every panel; the file itself is Source. */
-  function exportPanel() {
-    const id = textField({ label: ctx.locked.id ? t.file.idLocked : t.export.id, attrs: { disabled: ctx.locked.id, 'data-id': true }, oninput: (value) => {
-      const result = studio.setMeta(layer, { id: value.trim() }) as Json;
-      // What is wrong with the id is the field's own error, said under it.
-      id.errorText = result.problem ? t.export.ownNamespace.replace('{id}', layer.id) : '';
-      if (!result.problem) ctx.commit(result.layer);
-      else id.error = true;
-    } });
-    const name = textField({ label: t.export.name, attrs: { 'data-name': true }, oninput: (value) => ctx.commit(studio.setMeta(layer, { name: value }).layer) });
-    const filename = h('code', { 'data-filename': true });
-    const checks = h('ul', { class: 'ts-checks', 'aria-live': 'polite', 'data-checks': true });
-    const open = button(t.exporting.open, () => exportSheet.open(), { primary: !adapter, title: t.exporting.help, 'data-export-panel-open': true });
-    const reset = button(t.export.reset, () => window.confirm(t.export.confirmReset) && ctx.commit({ ...studio.blank(layer.extends ?? studio.defaultId), id: layer.id }, { rebuild: true }), { 'data-reset': true });
-
-    const refresh = () => {
-      if (document.activeElement !== id) id.value = layer.id ?? '';
-      if (document.activeElement !== name) name.value = layer.name ?? '';
-      id.error = Boolean(id.errorText) || !ID_PATTERN.test(layer.id ?? '') || studio.systems.some((s: Json) => s.id === layer.id);
-      filename.textContent = adapter?.label ?? `${layer.id}.system.json`;
-      const changed = ['tokens', 'palettes', 'vocabulary'].reduce((sum, key) => sum + Object.keys(layer[key] ?? {}).length, 0) + (layer.rules?.length ?? 0);
-      checks.replaceChildren(
-        ...(latest.problems.length ? latest.problems.map((problem: string) => h('li', { 'data-state': 'problem' }, isolated(problem))) : [h('li', { text: t.export.schemaOk }), h('li', { text: t.export.engineOk }), h('li', { text: changed ? t.export.size(changed) : t.export.empty })]),
-      );
-    };
-    refresh();
-    ctx.onUpdate(refresh);
-    return panel(
-      ctx,
-      { title: adapter ? t.file.title : t.export.title, key: 'export', actions: [filename] },
-      h('div', { class: 'ts-export-side' }, h('div', { class: 'ts-stack' }, id, name), checks, h('div', { class: 'ts-actions' }, open, reset)),
-    );
   }
 
   // ── the file (adapter) ────────────────────────────────────────────────────────────────────────
@@ -723,7 +723,6 @@ export function mountStudio(root: HTMLElement, { lang = 'en', adapter, links = {
     drawFrame();
     controls.replaceChildren(...((inspect === 'tokens' ? tokensInspect(ctx, tree) : inspect === 'source' ? sourceLevel(ctx) : sectionPanels(ctx, section, place)).filter(Boolean) as HTMLElement[]));
     a11y.replaceChildren(!inspect && section === 'a11y' ? accessibilityPanel() : '');
-    exportHost.replaceChildren(exportPanel());
     drawFile();
     update();
   }
