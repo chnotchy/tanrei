@@ -840,6 +840,26 @@ test.describe('accessibility', () => {
     }
   });
 
+  test('CRD-12: the outline drawn above the content hides no text from a contrast check — faint text is a violation and the content color passes, in every variant and form', async ({ page }) => {
+    // A layer over the content that is an element is, to axe, an element covering the text: it leaves that text
+    // incomplete ("overlapped by another element") instead of checking it, so a page of cards passed by not being looked at.
+    const forms = { plain: {}, interactive: { interactive: true, label: 'Report' }, link: { href: '#report', label: 'Report' } };
+    const fixtures = ['elevated', 'filled', 'outlined'].flatMap((variant) =>
+      Object.entries(forms).flatMap(([form, props]) => [
+        fixture(`${variant}-${form}-faint`, { variant, ...props }, '<p data-text="faint" style="margin:0;color:#bbb;background:#fff">Faint text</p>'),
+        fixture(`${variant}-${form}-normal`, { variant, ...props }, '<p data-text="normal" style="margin:0">Readable text</p>'),
+      ]),
+    );
+    await mountFixtures(page, spec, { fixtures });
+    const results = await new AxeBuilder({ page }).include('.stage').withRules(['color-contrast']).analyze();
+    // Each checked node, as the text it is (the markup axe reports carries the `data-text` mark).
+    const texts = (list: typeof results.violations) => list.flatMap((rule) => rule.nodes.map((node) => /data-text="(\w+)"/.exec(node.html)?.[1] ?? node.html));
+    const count = fixtures.length / 2;
+    expect(texts(results.incomplete), 'left unchecked').toEqual([]);
+    expect(texts(results.violations), 'faint text is reported').toEqual(Array(count).fill('faint'));
+    expect(texts(results.passes), 'the content color passes').toEqual(Array(count).fill('normal'));
+  });
+
   test('roles: a button only while interactive, a link only with a destination, disabled where it is; a plain card leaves its content alone', async ({ page }) => {
     await mountFixtures(page, spec);
     await expect(page.getByRole('button', { name: 'Quarterly report' })).toHaveCount(3);

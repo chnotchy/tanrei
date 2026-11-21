@@ -2863,7 +2863,7 @@ test.describe('a drawer that follows the window', () => {
     });
   const log = (page: P) => page.evaluate(() => (window as any).log as string[]);
 
-  test('NVD-53: the three responsive fixtures in their windows — 1280 wide the drawer is beside the content, expanded, shown whatever open says; 800 wide its column, in the layout; 400 wide, open, over the content with its scrim — and the two widths are 1024 and 600', async ({ page }) => {
+  test('NVD-53: the three responsive fixtures in their windows — 1280 wide the drawer is beside the content, expanded, shown whether open or not while no one hid it there; 800 wide its column, in the layout; 400 wide, open, over the content with its scrim — and the two widths are 1024 and 600', async ({ page }) => {
     const only1 = (id: string) => spec.fixtures.filter((f) => f.id === id);
     const [width, column] = [240, 72];
     // responsive-wide: 1280.
@@ -3086,17 +3086,41 @@ test.describe('a drawer that follows the window', () => {
     expect(await log(page)).toEqual(['presentation:column', 'presentation:modal', 'close']);
   });
 
-  test('NVD-53: beside the content a responsive drawer with no collapsed form is shown while expanded is true and hidden while it is false — no width in the layout, nothing to focus, no landmark — and comes back when it is true again', async ({ page }) => {
+  test('NVD-53, NVD-106: beside the content a responsive drawer — collapsible or not, in either form — is hidden while standardHidden is true and open is false — no width in the layout, nothing to focus, no landmark — and shown while open is true or standardHidden is false; expanded false no longer hides a drawer that is not collapsible; the product’s writes emit nothing; across a change of width standardHidden is kept and the narrower presentations follow open', async ({ page }) => {
+    for (const props of [{ collapsible: false }, { collapsible: true }, { collapsible: true, expanded: false }] as Fixture['props'][]) {
+      const what = JSON.stringify(props);
+      await inWindow(page, 1280, props, { reducedMotion: true });
+      await wire(page);
+      await drawer(page, 'r').evaluate((el: any) => el.addEventListener('standardhiddenchange', (e: CustomEvent) => (window as any).log.push(`hidden:${e.detail.standardHidden}`)));
+      const form = (await bounds(drawer(page, 'r'))).width;
+      expect(form, what).toBe(props!.expanded === false ? 72 : 240);
+      await setProps(page, 'r', { standardHidden: true });
+      await expect.poll(async () => (await bounds(drawer(page, 'r'))).width, what).toBe(0);
+      expect(await panel(page, 'r').evaluate((el) => el.hasAttribute('inert')), what).toBe(true);
+      await expect(page.getByRole('navigation', { name: 'Mail' }), what).toHaveCount(0);
+      await expect(drawer(page, 'r'), what).toHaveAttribute('standard-hidden', '');
+      expect(await state(page), what).toMatchObject({ presentation: 'standard', open: false });
+      // open shows it, in its form, whatever standardHidden says.
+      await setProps(page, 'r', { open: true });
+      await expect.poll(async () => (await bounds(drawer(page, 'r'))).width, what).toBe(form);
+      await expect(page.getByRole('navigation', { name: 'Mail' }), what).toHaveCount(1);
+      await setProps(page, 'r', { open: false });
+      await expect.poll(async () => (await bounds(drawer(page, 'r'))).width, what).toBe(0);
+      // Kept across the width: closed over the content (or as its column), hidden again when wide.
+      await resize(page, 400);
+      expect(await state(page), what).toMatchObject({ presentation: 'modal', open: false });
+      await expect(drawer(page, 'r').locator('dialog[open]'), what).toHaveCount(0);
+      await resize(page, 1280);
+      expect((await bounds(drawer(page, 'r'))).width, what).toBe(0);
+      await setProps(page, 'r', { standardHidden: false });
+      await expect.poll(async () => (await bounds(drawer(page, 'r'))).width, what).toBe(form);
+      expect(await log(page), what).toEqual(['presentation:modal', 'presentation:standard']);
+    }
+    // A drawer that is not collapsible ignores expanded: false does not hide it.
     await inWindow(page, 1280, { collapsible: false }, { reducedMotion: true });
-    expect((await bounds(drawer(page, 'r'))).width).toBe(240);
     await setProps(page, 'r', { expanded: false });
-    await expect.poll(async () => (await bounds(drawer(page, 'r'))).width).toBe(0);
-    expect(await panel(page, 'r').evaluate((el) => el.hasAttribute('inert'))).toBe(true);
-    await expect(page.getByRole('navigation', { name: 'Mail' })).toHaveCount(0);
-    expect(await state(page)).toMatchObject({ presentation: 'standard', open: false, expanded: false, collapsed: false });
-    await setProps(page, 'r', { expanded: true });
-    await expect.poll(async () => (await bounds(drawer(page, 'r'))).width).toBe(240);
-    await expect(page.getByRole('navigation', { name: 'Mail' })).toHaveCount(1);
+    await page.evaluate(() => new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve))));
+    expect((await bounds(drawer(page, 'r'))).width).toBe(240);
   });
 
   test('NVD-54: presentationChange fires once when the presentation is first decided, without a close; focus on something the new presentation does not show moves to the menu button, and where it shows nothing is left to the platform', async ({ page }) => {
@@ -4413,9 +4437,41 @@ test.describe('the row model shared with the tree view', () => {
     await expect.poll(pinned).toEqual(['2026', 'February']);
     const top = (await bounds(scroller)).y;
     const rows = await Promise.all([0, 1].map(async (n) => bounds(groupRow(page, id, n))));
+    const gap = await px(page, T('container-gap-medium'));
     expect(rows[0].y).toBeCloseTo(top, 0);
-    expect(rows[1].y).toBeCloseTo(rows[0].y + rows[0].height, 0);
+    // The gap between two cells (NVD-12) under the one above, as in the list, so that each keeps the half of it in its
+    // hit area (NVD-6): a press on the outer row's lower edge is the outer row's, and the gap is split at its middle.
+    expect(rows[1].y).toBeCloseTo(rows[0].y + rows[0].height + gap, 0);
     expect(await group(page, id, 1).locator('.pinned-last').count()).toBe(1);
+    // What a press at a point goes to, through the shadow roots: the label of the row whose cell takes it.
+    const pressed = (y: number) =>
+      page.evaluate(
+        ([x, py]) => {
+          let at: Element | null = document.elementFromPoint(x, py);
+          while (at?.shadowRoot) {
+            const inner = at.shadowRoot.elementFromPoint(x, py);
+            if (!inner || inner === at) break;
+            at = inner;
+          }
+          const root = at?.getRootNode();
+          // A cell's host is its destination or group, whose label names it.
+          return root instanceof ShadowRoot ? ((root.host as unknown as { label?: string }).label ?? null) : null;
+        },
+        [rows[0].x + rows[0].width / 2, y],
+      );
+    const outerEnd = rows[0].y + rows[0].height;
+    expect(await pressed(outerEnd - 1.5)).toBe('2026');
+    expect(await pressed(outerEnd + gap / 2 - 1.5)).toBe('2026');
+    expect(await pressed(outerEnd + gap / 2 + 0.5)).toBe('February');
+    // Under the last pinned row the rows scroll by: 4 further, the first row shown under it (Week 4) begins 2 below it,
+    // less than the gap. A press in that room goes to the nearer row (BTN-5): the pinned row reaches half of it, not half
+    // the gap, which would take the row's own upper edge.
+    await scroller.evaluate((el) => (el.scrollTop = 190));
+    const band = rows[1].y + rows[1].height;
+    await expect.poll(async () => (await bounds(cell(page, id, 4))).y - band).toBeCloseTo(2, 0);
+    await expect.poll(() => pressed(band + 0.25)).toBe('February');
+    expect(await pressed(band + 1.5)).toBe('Week 4');
+    await scroller.evaluate((el) => (el.scrollTop = 186));
     // A focused row under the pinned rows is brought in below them.
     await page.mouse.click(790, 5);
     const target = cell(page, id, 3);

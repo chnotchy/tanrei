@@ -4,6 +4,7 @@ import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
 import { type Fixture, loadSpec, mountFixtures, resolveColor, resolveToken, tab, rootTokens } from '../../../test/harness.js';
 import { expectBaseline } from '../../../test/baseline.js';
+import { type HeldGlyph, expectGlyphsHeldBack } from '../../../test/held-glyphs.js';
 
 const spec = loadSpec('tag');
 type P = Page;
@@ -1056,4 +1057,15 @@ test.describe('fixtures', () => {
       await expectBaseline(stage(page, f.id), [spec.name, `${f.id}.png`]);
     });
   }
+});
+
+test.describe('a glyph the icon set cannot draw yet', () => {
+  test('TAG-22: while the icon set cannot draw the icon slot’s glyph it draws nothing in its place — never its name — and keeps its box; the container and the label stay; once it can, the glyph is drawn where it was', async ({ page }) => {
+    await mountFixtures(page, spec, { icons: true });
+    const glyphs: HeldGlyph[] = ['icon', 'icon-success', 'icon-small', 'icon-rtl'].map((id) => ({ name: id, host: host(page, id), box: '.icon' }));
+    await expectGlyphsHeldBack(page, glyphs, async () => {
+      await expect(host(page, 'icon').locator('.label')).toHaveText('Design');
+      expect(await host(page, 'icon').locator('.label').evaluate((el) => getComputedStyle(el).visibility)).toBe('visible');
+    });
+  });
 });

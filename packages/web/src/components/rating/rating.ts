@@ -288,8 +288,8 @@ export class TanreiRating extends TanreiElement {
   }
 
   /** `element.focus()` focuses the rating's stop: the checked mark, or the first, or the slider. */
-  override focus(options?: FocusOptions) {
-    if (!this.hasUpdated) return super.focus(options);
+  protected override delegateFocus(options?: FocusOptions) {
+    if (!this.hasUpdated) return super.delegateFocus(options);
     this.stopElement?.focus(options);
   }
 

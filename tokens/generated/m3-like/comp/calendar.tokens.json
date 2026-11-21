@@ -60,15 +60,14 @@
                 "value": 36,
                 "unit": "px"
               },
-              "$description": "The least height of the month-and-year button; its hit area extends to the minimum target.",
+              "$description": "The least height of the month-and-year button: the control height (40 in the default system), so that it stands as tall as the previous and next Buttons beside it in the navigation row. Never below the minimum target; its hit area extends to the pointer and touch targets.",
               "$extensions": {
                 "dev.tanrei.derive": {
                   "fn": "mul",
                   "of": "{tanrei.dial.size.unit}",
-                  "by": 9,
-                  "round": "{tanrei.dial.size.unit}",
-                  "min": "{tanrei.sys.target.minimum}"
-                }
+                  "by": 9
+                },
+                "dev.tanrei.aligned": "control"
               }
             },
             "shape": {
@@ -144,7 +143,7 @@
               "value": 48,
               "unit": "px"
             },
-            "$description": "The side of the square each weekday name and each day occupies, and the height of a row of years. Never smaller than the minimum target: the cells are the days' hit areas and cannot extend over each other.",
+            "$description": "The side of the square each weekday name and each day occupies, and the height of a row of years and of the navigation row. Never smaller than the minimum target: the cells are the days' hit areas and cannot extend over each other. It is the pitch of the grid, which holds a touch target for every day, and no control on a row: it does not follow the control height; the day's and the year's containers, the view toggle and the Buttons in it do.",
             "$extensions": {
               "dev.tanrei.derive": {
                 "fn": "mul",
@@ -207,6 +206,7 @@
             },
             "height": {
               "$type": "dimension",
+              "$description": "The height of a year's container: the control height (40 in the default system), as a day's container is, centred in its row of cell.size. Never below the minimum target.",
               "$value": {
                 "value": 36,
                 "unit": "px"
@@ -215,10 +215,9 @@
                 "dev.tanrei.derive": {
                   "fn": "mul",
                   "of": "{tanrei.dial.size.unit}",
-                  "by": 9,
-                  "round": "{tanrei.dial.size.unit}",
-                  "min": "{tanrei.sys.target.minimum}"
-                }
+                  "by": 9
+                },
+                "dev.tanrei.aligned": "control"
               }
             },
             "shape": {

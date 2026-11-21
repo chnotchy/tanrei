@@ -1,8 +1,9 @@
 // One height per size name. An input and a Button set side by side in one row stand as tall as each other at one size
 // name: a stacked input box — the box that draws no label inside it, the only look the default system ships — is
 // comp.input-box.stacked.container.height tall, which the default system aliases to comp.button.container.height
-// (TXI-16, SEL-1, CMB-1, NMI-1, CLI-1). A filled or an outlined box keeps the taller comp.input-box.container.height,
-// which holds the label floated inside it. A preset keeps its own fields.
+// (TXI-16, SEL-1, CMB-1, NMI-1, CLI-1). A filled or an outlined box reads comp.input-box.container.height, the step of
+// the same size (src/control-height-fields.test.ts draws the medium one at the control height); a filled box that draws
+// its label grows to hold it. A preset keeps its own fields.
 import { type Page, expect, test } from '@playwright/test';
 import { type Fixture, loadSpec, mountFixtures, resolveToken } from '../test/harness.js';
 
@@ -37,8 +38,8 @@ for (const name of BOXES) {
       const [stacked, buttonHeight, own] = [await container(page, `stacked-${size}`, tag), await button(page, size), await resolveToken(page, `--tanrei-comp-input-box-container-height-${size}`)];
       expect(stacked, `${name} stacked ${size}`).toBeCloseTo(buttonHeight, 1);
       expect(stacked, `${name} stacked ${size}: its token`).toBeCloseTo(await resolveToken(page, `--tanrei-comp-input-box-stacked-container-height-${size}`), 1);
-      // The floating-label looks hold a label above the value's line, and keep their height (at least it: a filled box
-      // that draws its label may grow to hold it).
+      // The floating-label looks are at least their own height (a filled box that draws its label grows to hold it above
+      // the value's line).
       for (const variant of ['filled', 'outlined']) expect(await container(page, `${variant}-${size}`, tag), `${name} ${variant} ${size}`).toBeGreaterThanOrEqual(own - 0.01);
     }
     // The small one is held at the default system's minimum target (36).

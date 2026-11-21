@@ -1,7 +1,7 @@
 import { LitElement, type PropertyDeclarations, type PropertyValues, html, nothing } from 'lit';
 import { hiddenHost } from '../../primitives/hidden.js';
 import { exported } from '../../primitives/composed.js';
-import { AvailabilityController, BUTTON_VARIANTS, compChoice, containWheel, DIRECTION_PROBE, DirectionController, giveVariant, PressController, RovingKeys, hostAria, motionReduced, readTogether, report, slottedInteractive, stoppedBefore, SystemWatchController, syncFocusStyle, watchMotionReduced, WordsController } from '../../primitives/index.js';
+import { AvailabilityController, BUTTON_SIZES, BUTTON_VARIANTS, type ButtonSize, compChoices, containWheel, DIRECTION_PROBE, DirectionController, giveSize, giveVariant, PressController, RovingKeys, hostAria, motionReduced, readTogether, report, slottedInteractive, stoppedBefore, SystemWatchController, syncFocusStyle, watchMotionReduced, WordsController } from '../../primitives/index.js';
 import { TanreiButton } from '../button/button.js';
 import { CarouselGeometry, type TanreiCarouselHeroAlignment } from './carousel-geometry.js';
 import { carouselStyles, itemStyles } from './carousel.styles.js';
@@ -1339,19 +1339,30 @@ export class TanreiCarousel extends TanreiElement {
   private readonly onNext = () => this.navigate(1);
 
   /**
-   * CRL-41: each control is told the variant its token names, through the channel a Button reads from the component that
-   * places it (BTN-10). Asked before the render and read after it, with every other host's of the turn
-   * (src/primitives/read-phase.ts): a control the render makes is drawn with its variant from its first update.
+   * CRL-41: each control is told the size its token names, and the variant through the channel a Button reads from the
+   * component that places it (BTN-10). Asked before the render and read after it, with every other host's of the turn
+   * (src/primitives/read-phase.ts): a control the render makes is drawn with its size and variant from its first update.
    */
   private giveVariants() {
     readTogether(() => {
       if (!this.isConnected) return;
-      const variant = compChoice(this, '--tanrei-comp-carousel-navigation-button-variant', BUTTON_VARIANTS);
+      const { size, variant } = compChoices(this, {
+        size: ['--tanrei-comp-carousel-navigation-button-size', BUTTON_SIZES],
+        variant: ['--tanrei-comp-carousel-navigation-button-variant', BUTTON_VARIANTS],
+      });
       return () => {
-        for (const control of NAV_CONTROLS) giveVariant(this.renderRoot?.querySelector(`tanrei-button.${control}`), variant);
+        this.navigationSize = size;
+        for (const control of NAV_CONTROLS) {
+          const button = this.renderRoot?.querySelector(`tanrei-button.${control}`);
+          giveSize(button, size);
+          giveVariant(button, variant);
+        }
       };
     });
   }
+
+  /** CRL-41: the controls' size, as `comp.carousel.navigation.button.size` named it at the last read. */
+  private navigationSize: ButtonSize = 'medium';
 
   private navControl(control: NavControl) {
     const label = control === 'previous' ? this.words.get('previousItemLabel', this.previousLabel) : this.words.get('nextItemLabel', this.nextLabel);
@@ -1359,7 +1370,7 @@ export class TanreiCarousel extends TanreiElement {
       part=${control}
       exportparts=${NAV_PARTS[control].attribute}
       class="navigation ${control} ${this.drawnNavigation}"
-      size="medium"
+      size=${this.navigationSize}
       label=${label}
       .focusableWhenDisabled=${true}
       .disabled=${control === 'previous' ? this.firstDisabled : this.lastDisabled}

@@ -1,5 +1,6 @@
 // What the sidebar keeps (components/frame/Sidebar.astro), in each engine: the width the reader gives the navigation
-// drawer and whether they fold it to its column are kept across visits, in the origin's localStorage, and given back
+// drawer, whether they fold it to its column and whether they hide it beside the content with the header's menu button
+// are kept across visits, in the origin's localStorage, and given back
 // before the drawer is first drawn; which groups are open is kept for the tab only (sessionStorage), so a new tab has
 // the reader's width but the groups as the page writes them. A width kept that is out of the drawer's range is held in
 // it, and one that does not parse is not given back. Where storage throws (a private window), nothing is kept and the
@@ -159,6 +160,41 @@ for (const engine of ENGINES) {
         await page.waitForFunction((key) => JSON.parse(localStorage.getItem(key) ?? '{}').expanded === true, KEY);
         await ready(page);
         assert.equal((await seen(page)).drawn, before.drawn, 'unfolded, it is drawn at its width again');
+        assert.deepEqual(errors, []);
+      } finally {
+        await context.close();
+      }
+    });
+
+    test('hidden beside the content by the menu button, then reloaded: still hidden, with no width and the main region from the start edge before and after the drawer is defined; shown again, then reloaded: shown', LIMIT, async () => {
+      const context = await browser.newContext({ viewport: WIDE, reducedMotion: 'reduce' });
+      try {
+        const { page, errors } = await open(context);
+        const before = await seen(page);
+        const menu = page.locator('tanrei-app-bar [data-app-shell-menu]');
+        const mainStart = () => page.evaluate(() => Math.round(document.querySelector('tanrei-app-shell > main').getBoundingClientRect().left));
+        await menu.click();
+        await page.waitForFunction((key) => JSON.parse(localStorage.getItem(key) ?? '{}').hidden === true, KEY);
+        await ready(page);
+        assert.equal((await seen(page)).drawn, 0, 'hidden, the drawer takes no width');
+        assert.equal(await mainStart(), 0);
+
+        // Reloaded: hidden from the first frame — the stand-in before the drawer is defined takes no width either.
+        await page.reload({ waitUntil: 'commit' });
+        await page.waitForFunction((selector) => !!document.querySelector(selector), DRAWER);
+        const first = await page.evaluate((selector) => ({ defined: !!customElements.get('tanrei-navigation-drawer'), width: Math.round(document.querySelector(selector).getBoundingClientRect().width), hidden: document.querySelector(selector).hasAttribute('standard-hidden') }), DRAWER);
+        assert.equal(first.hidden, true, 'given back hidden before the drawer is defined');
+        assert.equal(first.width, 0, `no width ${first.defined ? 'once defined' : 'before the drawer is defined'}`);
+        await ready(page);
+        assert.equal((await seen(page)).drawn, 0, 'still hidden');
+        assert.equal(await mainStart(), 0);
+
+        // Shown again by the button: kept so, and drawn at its width after a reload.
+        await menu.click();
+        await page.waitForFunction((key) => JSON.parse(localStorage.getItem(key) ?? '{}').hidden === false, KEY);
+        await page.reload();
+        await ready(page);
+        assert.equal((await seen(page)).drawn, before.drawn, 'shown at the width it had');
         assert.deepEqual(errors, []);
       } finally {
         await context.close();

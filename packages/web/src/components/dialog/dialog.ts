@@ -9,6 +9,7 @@ import {
   BUTTON_VARIANTS,
   CompactWindow,
   type DividerVisibilityProp,
+  GlyphDrawnController,
   GlyphMirrorController,
   assignSlot,
   closeModal,
@@ -139,6 +140,8 @@ export class TanreiDialog extends TanreiElement {
    * `data-mirror` says so (src/primitives/glyph-mirror.ts); `iconGlyph()` draws the mark.
    */
   private readonly mirror = new GlyphMirrorController(this, { slots: 'slot[name="icon"]' });
+  /** DLG-30: the icon box carries `data-drawn` while the icon set can draw what its slot holds; until then it draws nothing (src/primitives/glyph.ts). */
+  private readonly glyphs = new GlyphDrawnController(this, () => this.renderRoot.querySelectorAll<HTMLElement>('.icon'), { slotted: true });
   static override styles = [styles, hiddenHost];
 
   // The children are assigned by hand: the actions to three slots in the order the orientation places them (BGR-15),

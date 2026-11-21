@@ -389,6 +389,11 @@
     {
       "id": "CAL-36",
       "text": "WHERE the platform has ARIA attributes (the web), WHEN the product sets an aria- attribute on the host, by the attribute or by the ARIA property that reflects it, THE calendar SHALL move it to the data-aria- attribute of the same name, so that the host is no second node with its name, description or state, and SHALL expose it on its group, which it SHALL be WHILE it has a name: its label, or one given so — an id reference by the elements it names in the host's tree or a tree around it, a description after its own. WHILE label is not empty it is the group's name, over a name given so. WHEN the product removes the aria- attribute or its data-aria- twin, or sets the ARIA property that reflects it (ariaLabel, ariaDescribedByElements…) to null, THE calendar SHALL take it off that element."
+    },
+    {
+      "id": "CAL-37",
+      "text": "WHEN the control height (dial.control.height) is N THE calendar's view toggle and a year's container SHALL be N tall: the view toggle of CAL-6 SHALL be drawn at comp.calendar.view-toggle.container.height and a year's container of CAL-7 at comp.calendar.year.container.height, each sys.control.height.medium held at sys.target.minimum, as a day's container is drawn at comp.calendar.day.container.size (CAL-3), so that the navigation row's controls stand as tall as its previous and next Buttons, which follow the control height as theirs do. The cell (comp.calendar.cell.size) is the pitch of the grid and no control on a row: it holds a touch target for every day and every row of years, because cells cannot extend a hit area over each other (CAL-1), as Material draws a 40 day in a 48 cell; it SHALL keep its own size at every control height, and the navigation row SHALL stay one cell tall.",
+      "verify": "With the control height at 32, 36 and 40 and the minimum target no higher, under a fine pointer the view toggle and a day's container of single, and a year's container of year, are 32, 36 and 40 tall, the previous and next Buttons as tall; a cell stays 48."
     }
   ],
   "accessibility": {

@@ -1,6 +1,7 @@
 // The site's header as it is drawn (components/frame/Header.astro), in each engine: the bar holds one menu button —
-// the shell's, at every width, which collapses and expands the drawer beside the content, and opens its column and a
-// compact window's drawer below the header with the regions under the scrim inert (APS-6, APS-7) — the brand, the appearance's button in its context (not drawn in a compact
+// the shell's, at every width, which hides the drawer beside the content and shows it again (NVD-106), the content
+// taking its room, and opens its column and a compact window's drawer below the header with the regions under the
+// scrim inert (APS-6, APS-7); what it chose beside the content is kept across the window's width — the brand, the appearance's button in its context (not drawn in a compact
 // window, where the drawer holds it), and four actions: the repository's link, which the bar hides where its row has no
 // room for it (APB-26, APB-30), and the search, the mode's toggle and the language, which it never hides. What the
 // appearance's panel does is test/browser/appearance.test.mjs's; the language's menu links the page in the six languages;
@@ -149,7 +150,7 @@ for (const engine of ENGINES) {
       await context.close();
     });
 
-    test('the shell’s menu button collapses and expands the drawer beside the content; it opens the column, and a compact window’s drawer, below the header, the regions under the scrim inert until it closes', LIMIT, async () => {
+    test('the shell’s menu button hides the drawer beside the content and shows it again, the content taking its room, the button staying in its place with focus; what it chose is kept across the window’s width; it opens the column, and a compact window’s drawer, below the header, the regions under the scrim inert until it closes', LIMIT, async () => {
       const { context, page } = await open(WIDE);
       const menu = page.locator('tanrei-app-bar [data-app-shell-menu]');
       const drawer = page.locator('#docs-sidebar');
@@ -167,17 +168,57 @@ for (const engine of ENGINES) {
       const NONE = { regions: [], header: false };
       /** The shell and the drawer agree that the navigation is open over the content, or not. */
       const shown = (open) => page.waitForFunction((open) => document.querySelector('tanrei-app-shell').navigationOpen === open && document.getElementById('docs-sidebar').open === open, open);
+      const controls = () => native.evaluate((button) => (button.ariaControlsElements !== undefined ? (button.ariaControlsElements ?? []).map((controlled) => controlled.id) : [button.getAttribute('aria-controls')].filter(Boolean)));
+      /** Where the drawer and the main region stand, and whether the drawer is hidden there. */
+      const beside = () =>
+        page.evaluate(() => {
+          const sidebar = document.getElementById('docs-sidebar');
+          return { width: Math.round(sidebar.getBoundingClientRect().width), main: Math.round(document.querySelector('tanrei-app-shell > main').getBoundingClientRect().left), hidden: sidebar.standardHidden, open: sidebar.open };
+        });
+      const menuBox = () => menu.evaluate((element) => element.getBoundingClientRect().toJSON());
       assert.equal(await expanded(), 'true');
-      assert.deepEqual(await native.evaluate((button) => ('ariaControlsElements' in button ? (button.ariaControlsElements ?? []).map((controlled) => controlled.id) : [button.getAttribute('aria-controls')])), ['docs-sidebar']);
-      await menu.click();
-      await page.waitForFunction(() => document.getElementById('docs-sidebar').hasAttribute('collapsed'));
+      assert.deepEqual(await controls(), ['docs-sidebar']);
+      const shownAt = await beside();
+      assert.ok(shownAt.width > 0 && shownAt.main >= shownAt.width, `the drawer beside the content: ${JSON.stringify(shownAt)}`);
+      const place = await menuBox();
+      // Hidden, from the keyboard: no width, the main region from the start edge, the button where it was, with focus.
+      await native.focus();
+      await page.keyboard.press('Enter');
+      await page.waitForFunction(() => document.getElementById('docs-sidebar').getBoundingClientRect().width === 0);
+      assert.deepEqual(await beside(), { width: 0, main: 0, hidden: true, open: false });
       assert.equal(await expanded(), 'false');
-      assert.equal(await drawer.locator('.docs-listing-row').isVisible(), false, 'a collapsed drawer draws no switch');
-      assert.deepEqual(await inert(), NONE, 'a drawer beside the content makes nothing inert');
-      await menu.click();
-      await page.waitForFunction(() => !document.getElementById('docs-sidebar').hasAttribute('collapsed'));
+      assert.deepEqual(await controls(), [], 'a hidden drawer is named by nothing');
+      assert.deepEqual(await menuBox(), place, 'the button stays where it is');
+      assert.equal(await page.evaluate(() => document.activeElement?.hasAttribute('data-app-shell-menu')), true, 'focus stays on the menu button');
+      assert.equal(await page.getByRole('navigation', { name: (await drawer.getAttribute('label')) ?? '' }).count(), 0, 'no landmark while hidden');
+      assert.deepEqual(await inert(), NONE, 'a drawer hidden beside the content makes nothing inert');
+      // Narrowed and widened again: closed over the content, then hidden again.
+      await page.setViewportSize(MEDIUM);
+      await windowClass(page, 'medium');
+      assert.equal(await drawer.evaluate((sidebar) => sidebar.open), false);
+      await page.setViewportSize(WIDE);
+      await windowClass(page, 'expanded');
+      await page.waitForFunction(() => document.getElementById('docs-sidebar').getBoundingClientRect().width === 0);
+      // Shown again: in its place, the switch first, the button saying so and keeping focus.
+      await native.focus();
+      await page.keyboard.press('Enter');
+      await page.waitForFunction((width) => document.getElementById('docs-sidebar').getBoundingClientRect().width === width, shownAt.width);
+      assert.deepEqual(await beside(), { ...shownAt, hidden: false, open: true });
       assert.equal(await expanded(), 'true');
-      assert.ok(await drawer.locator('.docs-listing').isVisible(), 'the switch stands first in the expanded drawer');
+      assert.deepEqual(await controls(), ['docs-sidebar']);
+      assert.ok(await drawer.locator('.docs-listing').isVisible(), 'the switch stands first in the drawer');
+      assert.deepEqual(await inert(), NONE, 'a drawer beside the content makes nothing inert');
+      // Shown by the button it is open: narrowed to a compact window it is open over the content, and closed there it is
+      // shown beside the content again when the window widens.
+      await page.setViewportSize(COMPACT);
+      await windowClass(page, 'compact');
+      await shown(true);
+      await native.focus();
+      await page.keyboard.press('Escape');
+      await shown(false);
+      await page.setViewportSize(WIDE);
+      await windowClass(page, 'expanded');
+      await page.waitForFunction((width) => document.getElementById('docs-sidebar').getBoundingClientRect().width === width, shownAt.width);
 
       for (const [viewport, name, presentation] of [[MEDIUM, 'medium', 'column'], [COMPACT, 'compact', 'modal']]) {
         await page.setViewportSize(viewport);

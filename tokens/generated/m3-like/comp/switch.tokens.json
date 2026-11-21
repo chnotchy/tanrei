@@ -61,7 +61,7 @@
           },
           "size": {
             "$type": "dimension",
-            "$description": "The round state layer centered on the handle, 40; it moves with the handle and reaches 4 beyond the track's ends.",
+            "$description": "The round state layer centered on the handle, and the least height the switch takes in a row: the control height (40 in the default system), so that a switch stands as tall as the Buttons, fields and checkboxes beside it and a switch with a one-line label is a row of that height, its track centered in it. It moves with the handle and reaches beyond the track's ends without taking room along the track. The track and the handle keep their own sizes at every control height.",
             "$value": {
               "value": 40,
               "unit": "px"
@@ -71,7 +71,8 @@
                 "fn": "mul",
                 "of": "{tanrei.dial.size.unit}",
                 "by": 10
-              }
+              },
+              "dev.tanrei.aligned": "control"
             }
           }
         },

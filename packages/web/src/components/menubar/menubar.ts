@@ -592,9 +592,9 @@ export class TanreiMenubarItem extends TanreiElement {
   }
 
   /** Focus goes to the element that is the entry: the host, or the anchor of a link item (MBR-35). */
-  override focus(options?: FocusOptions) {
+  protected override delegateFocus(options?: FocusOptions) {
     const entry = this.entryElement;
-    if (entry === this) super.focus(options);
+    if (entry === this) super.delegateFocus(options);
     else entry.focus(options);
   }
 

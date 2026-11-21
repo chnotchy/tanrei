@@ -126,12 +126,7 @@ export const itemStyles = css`
      takes the floor away (--_hit-floor), so its hit area never covers its neighbour's. */
   ${minimumTarget('.container')}
   .container::before {
-    inline-size: max(calc(100% + ${t('layout-gap')}), var(--_hit-floor, var(--tanrei-sys-target-pointer)));
-  }
-  @media (pointer: coarse) {
-    .container::before {
-      inline-size: max(calc(100% + ${t('layout-gap')}), var(--_hit-floor, var(--tanrei-sys-target-touch)));
-    }
+    --_hit-inline-size: max(calc(100% + ${t('layout-gap')}), var(--_hit-floor, var(--_target)));
   }
 
   /* CRL-2, CRL-5, CRL-6: each state paints from that state's tokens; pressed > focused > hovered. Pressed is

@@ -247,7 +247,7 @@ const composing = async (page: P, id: string, steps: string[]) => {
 };
 
 test.describe('behavior', () => {
-  test('OTC-1: one row of length cells in the order of the code, each container.height high and container.width wide with the container’s corners and fill, container.gap apart; the row starts at the start edge and is as wide as its cells need, the field as tall as its row; it draws no label, help, error text, placeholder or container — six cells are 270 by 48 under the default system', async ({ page }) => {
+  test('OTC-1: one row of length cells in the order of the code, each container.height high and container.width wide with the container’s corners and fill, container.gap apart; the row starts at the start edge and is as wide as its cells need, the field as tall as its row; it draws no label, help, error text, placeholder or container — six cells are 270 by 40 under the default system', async ({ page }) => {
     await mountFixtures(page, spec);
     const [height, width, gap, radius] = [await token(page, 'container-height'), await token(page, 'container-width'), await token(page, 'container-gap'), await token(page, 'container-shape')];
     const fill = await color(page, 'standard-container-color');
@@ -268,7 +268,7 @@ test.describe('behavior', () => {
       near((await box(native(page, id))).width, count * width + (count - 1) * gap, `${id} row width`);
     }
     // The default system's numbers (the spec's verify).
-    expect([width, gap, height]).toEqual([40, 6, 48]);
+    expect([width, gap, height]).toEqual([40, 6, 40]);
     near((await box(native(page, 'empty'))).width, 270, 'six cells');
     // Where nothing gives it a width it is as wide as its row.
     await mount(page, [fx('free')]);
@@ -1256,7 +1256,7 @@ test.describe('behavior', () => {
     await page.addStyleTag({ content: '.stage { inline-size: 288px !important; }' });
     const enlarged = await check('six', 'text alone at 288');
     expect(rowsOf(enlarged)).toEqual([6]);
-    enlarged.forEach((cell) => expect(cell.height).toBeGreaterThanOrEqual(48));
+    enlarged.forEach((cell) => expect(cell.height).toBeGreaterThanOrEqual(40));
     await page.addStyleTag({ content: '.stage { inline-size: 150px !important; }' });
     expect(rowsOf(await check('six', 'text alone at 150'))).toEqual([3, 3]);
   });
