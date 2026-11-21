@@ -32,9 +32,10 @@ import { isExternal } from './links/index.js';
 import { syncFocusStyle } from './primitives/focus-ring.js';
 import { LINK_KEYS, linkRel, readDestination } from './primitives/link.js';
 import { PressController } from './primitives/press.js';
-import { debugBuild, report } from './primitives/report.js';
+import { report } from './primitives/report.js';
 import { styleQueries } from './primitives/separation.js';
 import { setWords, watchWords, wordFor, wordLacking } from './primitives/words.js';
+import { DEBUG } from './primitives/debug.js';
 
 const LINK = 'tanrei-link';
 const PROSE = 'tanrei-prose';
@@ -143,13 +144,13 @@ function read(anchor: HTMLAnchorElement) {
   const given = anchor.getAttribute('href');
   if (given === null) {
     // In prose an anchor without an address is the content's own (a named place in the text), not a broken link.
-    if (own && !disabled(anchor) && !refused.has(anchor)) report(anchor, 'LNK-21', 'it has no href, so it is not a link and is drawn as text; a press that does something on the page is a button’s');
+    if (DEBUG && own && !disabled(anchor) && !refused.has(anchor)) report(anchor, 'LNK-21', 'it has no href, so it is not a link and is drawn as text; a press that does something on the page is a button’s');
   } else {
     const { href, refusal } = readDestination(given);
     if (href === null) {
       refused.add(anchor);
       anchor.removeAttribute('href');
-      report(
+      if (DEBUG) report(
         anchor,
         'LNK-21',
         refusal === 'script'
@@ -162,24 +163,24 @@ function read(anchor: HTMLAnchorElement) {
   }
   // LNK-19: a disabled link is the anchor without an address, with the link role.
   if (disabled(anchor)) {
-    if (anchor.hasAttribute('href')) report(anchor, 'LNK-19', 'it is disabled and still carries href: a disabled link has no destination (write the anchor without href); the address is not opened');
-    if (anchor.getAttribute('role') !== 'link') report(anchor, 'LNK-19', 'it is disabled and has no role: an anchor without href is not a link to assistive technology; give it role="link"');
+    if (DEBUG && anchor.hasAttribute('href')) report(anchor, 'LNK-19', 'it is disabled and still carries href: a disabled link has no destination (write the anchor without href); the address is not opened');
+    if (DEBUG && anchor.getAttribute('role') !== 'link') report(anchor, 'LNK-19', 'it is disabled and has no role: an anchor without href is not a link to assistive technology; give it role="link"');
   }
   // LNK-13, LNK-21: where it opens, in HTML's spelling.
   const target = (anchor.getAttribute('target') ?? '').trim().toLowerCase();
   if (target === '_blank') {
     const rel = linkRel(anchor.getAttribute('rel'), 'new');
     if (rel !== null && rel !== anchor.getAttribute('rel')) anchor.setAttribute('rel', rel);
-    if (live(anchor) && !(anchor.getAttribute('aria-description') ?? '').trim() && !anchor.hasAttribute('aria-describedby')) {
+    if (DEBUG && live(anchor) && !(anchor.getAttribute('aria-description') ?? '').trim() && !anchor.hasAttribute('aria-describedby')) {
       report(anchor, 'LNK-13', 'it opens a new context and aria-description is empty, so nothing says so to people who cannot see the mark; give it the words ("opens in a new tab")');
     }
   } else if (target !== '' && target !== '_self') {
-    report(anchor, 'LNK-21', `target "${anchor.getAttribute('target')}" is not a value it defines ("_blank" for a new context, or none); it is taken off and the link opens where the person is`);
+    if (DEBUG) report(anchor, 'LNK-21', `target "${anchor.getAttribute('target')}" is not a value it defines ("_blank" for a new context, or none); it is taken off and the link opens where the person is`);
     anchor.removeAttribute('target');
   }
   // LNK-21: a variant neither the spec nor the active design system has is drawn as the default one.
   const variant = anchor.getAttribute('data-variant');
-  if (variant !== null && !VARIANTS.includes(variant) && !getComputedStyle(anchor).getPropertyValue(`--tanrei-comp-link-${variant}-label-color`).trim()) {
+  if (DEBUG && variant !== null && !VARIANTS.includes(variant) && !getComputedStyle(anchor).getPropertyValue(`--tanrei-comp-link-${variant}-label-color`).trim()) {
     report(anchor, 'LNK-21', `data-variant "${variant}" is not a variant it or the active design system defines; it is drawn as "standard"`);
   }
   // LNK-15: a glyph alone is named by aria-label; a link with a label of text is named by that text.
@@ -187,12 +188,12 @@ function read(anchor: HTMLAnchorElement) {
   if (glyph) {
     const text = [...anchor.childNodes].some((node) => node.nodeType === Node.TEXT_NODE && !!node.textContent?.trim());
     const named = !!(anchor.getAttribute('aria-label') ?? '').trim() || anchor.hasAttribute('aria-labelledby');
-    if (!text && !named) report(anchor, 'LNK-15', 'it is a glyph alone and has no accessible name; give it aria-label, which also draws it as the glyph-alone form');
-    if (text && anchor.hasAttribute('aria-label')) report(anchor, 'LNK-15', 'it has a label of text and aria-label: the text names a link, and aria-label is for a glyph alone (it replaces the name and draws the link as a glyph alone); take it off');
+    if (DEBUG && !text && !named) report(anchor, 'LNK-15', 'it is a glyph alone and has no accessible name; give it aria-label, which also draws it as the glyph-alone form');
+    if (DEBUG && text && anchor.hasAttribute('aria-label')) report(anchor, 'LNK-15', 'it has a label of text and aria-label: the text names a link, and aria-label is for a glyph alone (it replaces the name and draws the link as a glyph alone); take it off');
   }
   // LNK-21, LNK-27: an underline that is none of the three is auto — no rule of the stylesheet names it.
   const underline = anchor.getAttribute('data-underline');
-  if (underline !== null && underline !== 'auto' && !UNDERLINES.includes(underline)) {
+  if (DEBUG && underline !== null && underline !== 'auto' && !UNDERLINES.includes(underline)) {
     report(anchor, 'LNK-21', `data-underline "${underline}" is not a value it defines ("always", "hover" or "never", or none for the design system’s choice); it is underlined as the design system chooses`);
   }
   readExternal(anchor);
@@ -251,7 +252,7 @@ function readExternal(anchor: HTMLAnchorElement) {
   if (given !== null && !EXTERNALS.includes(given)) {
     // LNK-21: a value it does not define is auto. The stylesheet draws the marks for anything but "false", so the
     // value is taken off, as an unknown target is.
-    report(anchor, 'LNK-21', `data-external "${given}" is not a value it defines ("true" or "false", or none for the address to decide); it is taken off and the address decides`);
+    if (DEBUG) report(anchor, 'LNK-21', `data-external "${given}" is not a value it defines ("true" or "false", or none for the address to decide); it is taken off and the address decides`);
     anchor.removeAttribute('data-external');
     given = null;
   }
@@ -287,16 +288,16 @@ function readSiteIcon(anchor: HTMLAnchorElement) {
   if (!(picture instanceof HTMLImageElement)) return;
   let before = picture.previousSibling;
   while (before && before.nodeType !== Node.ELEMENT_NODE && !before.textContent?.trim()) before = before.previousSibling;
-  if (before) report(anchor, 'LNK-32', 'its site icon is not its first child: the picture stands before the label, so write the <img class="tanrei-link-site-icon"> first, against the label’s text');
+  if (DEBUG && before) report(anchor, 'LNK-32', 'its site icon is not its first child: the picture stands before the label, so write the <img class="tanrei-link-site-icon"> first, against the label’s text');
   if (picture.getAttribute('alt') !== '') {
-    report(anchor, 'LNK-32', 'its site icon has no empty alt: the picture is decoration and the label names the link (LNK-15); alt="" is written for it — write it in the markup');
+    if (DEBUG) report(anchor, 'LNK-32', 'its site icon has no empty alt: the picture is decoration and the label names the link (LNK-15); alt="" is written for it — write it in the markup');
     picture.setAttribute('alt', '');
   }
   const policy = picture.getAttribute('referrerpolicy');
   if (policy === null) {
-    report(anchor, 'LNK-35', 'its site icon has no referrerpolicy: a picture is loaded without the page’s address; referrerpolicy="no-referrer" is written for it, but the first request may already have carried the address — write it in the markup');
+    if (DEBUG) report(anchor, 'LNK-35', 'its site icon has no referrerpolicy: a picture is loaded without the page’s address; referrerpolicy="no-referrer" is written for it, but the first request may already have carried the address — write it in the markup');
     picture.setAttribute('referrerpolicy', 'no-referrer');
-  } else if (policy.trim().toLowerCase() !== 'no-referrer') {
+  } else if (DEBUG && policy.trim().toLowerCase() !== 'no-referrer') {
     report(anchor, 'LNK-35', `its site icon has referrerpolicy="${policy}": a picture is loaded without the page’s address — write referrerpolicy="no-referrer"`);
   }
   const given = picture.getAttribute('src');
@@ -304,7 +305,7 @@ function readSiteIcon(anchor: HTMLAnchorElement) {
   try {
     const src = new URL(picture.currentSrc || picture.src, anchor.baseURI);
     const page = anchor.ownerDocument.location;
-    if (['http:', 'https:'].includes(src.protocol) && page && src.origin !== page.origin) {
+    if (DEBUG && ['http:', 'https:'].includes(src.protocol) && page && src.origin !== page.origin) {
       report(anchor, 'LNK-35', `its site icon is loaded from ${src.origin}, not from this site: every reader’s browser then tells that party which page is being read. Give a picture the product serves itself (resolveSiteIcons() of @tanrei/web/links makes one when the site is built), or a data: URL`);
     }
   } catch {
@@ -318,7 +319,7 @@ function readSiteIcon(anchor: HTMLAnchorElement) {
 function failed(anchor: HTMLAnchorElement, picture: HTMLImageElement) {
   if (!picture.hasAttribute('data-failed')) picture.setAttribute('data-failed', '');
   const src = picture.getAttribute('src') ?? '';
-  report(anchor, 'LNK-32', `its site icon "${src.length > 96 ? `${src.slice(0, 96)}…` : src}" cannot be loaded or decoded: its room is kept and nothing is drawn in it`);
+  if (DEBUG) report(anchor, 'LNK-32', `its site icon "${src.length > 96 ? `${src.slice(0, 96)}…` : src}" cannot be loaded or decoded: its room is kept and nothing is drawn in it`);
 }
 
 /** What the cascade says to a link, read for every link of a batch together and before anything more is written. */
@@ -337,7 +338,7 @@ function look(anchor: HTMLAnchorElement): Looked {
   // The two choices are read where the stylesheet reads them: from the link's parent by a style query, and from the
   // document's root where the browser has none (`syncSystem`) — so what is said agrees with what is drawn.
   const chooser = styleQueries() ? parent : anchor.ownerDocument.documentElement;
-  const debug = debugBuild();
+  const debug = DEBUG;
   let marks: string | null = null;
   // Read only where something follows from it: words to write or to take back, or a report to make.
   if (describedAsExternal(anchor) && (debug || externalWords(anchor) || written.has(anchor))) {
@@ -362,7 +363,7 @@ const written = new WeakMap<HTMLAnchorElement, string>();
 
 /** LNK-29, LNK-34: what follows from what the cascade said. */
 function say(anchor: HTMLAnchorElement, { marks, contrast }: Looked) {
-  if (contrast !== null && contrast < 3) {
+  if (DEBUG && contrast !== null && contrast < 3) {
     report(anchor, 'LNK-29', `it is not underlined at rest and its color stands ${contrast.toFixed(2)}:1 from the text it sits in, under 3:1: people who do not see that difference cannot tell it is a link (WCAG 1.4.1). Underline it (data-underline="always"), or keep unlined links to those that stand by themselves`);
   }
   // LNK-34: one description. The product's own stands; the words set for the page are written where there is none.
@@ -385,7 +386,7 @@ function say(anchor: HTMLAnchorElement, { marks, contrast }: Looked) {
   if (wanted && !(anchor.getAttribute('aria-description') ?? '').trim()) {
     // Once for the page, not once for each link; the key is recorded for `missingWords()`.
     wordLacking(anchor, 'externalLabel');
-    report(
+    if (DEBUG) report(
       anchor.ownerDocument.documentElement,
       'LNK-34',
       'a link of this page leaves the site and nothing says so to people who cannot see the arrow: give each external link aria-description, or set the words once for the page — setWords({ externalLabel }) of @tanrei/web, or externalLabel of markExternalLinks() where the page is made ("external link", in the product’s language; Tanrei ships no words)',

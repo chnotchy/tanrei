@@ -8873,7 +8873,7 @@ own selectors and its own `--tanrei-comp-<name>-*` tokens — nothing in them kn
 | `busyStyles(parts)`, `busyReducedStyles(parts)`, `busyArc()`, `busyStatus()`, `announceBusy(root, words, still)` (`busy.ts`) | a control that keeps its place and its focus while its action is under way (a busy Button, BTN-36, BTN-37; a busy button with menu's leading half, SPB-39, SPB-40): the label laid out and transparent, the glyph boxes hidden once faded, the loading indicator's arc turning at the container's centre (LDG-4's pulse under reduced motion), and the polite region its words are announced through once, a frame after it appears | the busy container's selector, the label's and the glyph boxes' selectors, the property of the arc's box (its icon size) and the NAMES of its own thickness, cycle, fade and easing tokens; the arc inside the container and the region beside it while busy, `iconGlyph()`'s `fade` for its glyph boxes, and the refusal of the activation |
 | `adoptUnlessDrawn(element, sheet, mark)`, `adopt(root, sheet)` (`sheets.ts`) | the stylesheet of an element that is drawn in the document, added to the root the element stands in — once, and only where that root does not draw the element already: a page that loaded `@tanrei/web/<name>.css` is handed no second copy (a sheet added to the document has the browser style the page again), a page that did not and a product's shadow root are handed one for all their instances. The cascade is asked once for a root, while the root's own stylesheets stay as many as they were — not once for each element, nor once for each turn, nor once for each kind (the first question asks it for every kind of `DRAWN_MARKS` that stands in the root, in one style pass), since the question is a read of computed style inside the script that connected the element — and an element inside one of its own kind is answered by the outermost of them | the sheet (one constructed sheet for the page) and `mark`: a private custom property the sheet sets on every element of the kind and no shadow style of the element sets (`test/light-dom.ts` lists each element with its sheet and its mark, for `src/primitives/sheets.test.ts`, which counts the writes, and `src/primitives/passes.test.ts`, which counts the questions and the style passes: add yours) |
 | `OpenAxesController` | sizes and variants a layer adds (one sheet per value for the page, adopted on demand, falling back to the default's tokens) and the debug report of a value the active system lacks | per axis: its core values, default, the block builder and the probe token; the behaviour id |
-| `report(host, id, message)` | a debug-build `console.warn`, once per element and problem | the behaviour id and the message |
+| `report(host, id, message)` | a debug-build `console.warn`, once per element and problem | the behaviour id and the message, the call guarded by `DEBUG` where it starts (`if (DEBUG && …) report(…)`; "Debug builds" below) |
 | `AvailabilityController` (`availability.ts`) | the debug report and the record of a component, or a value of its `variant`, the active system does not have, read from `--tanrei-unavailable`, `--tanrei-unavailable-layer` and `--tanrei-unavailable-replacement` on connect and when `variant` changes, and made under the element the product wrote (AVL-1 to AVL-3) | its spec name (`new AvailabilityController(this, 'fab-menu')`), in every component with a spec |
 | `hostAria(host, attributes)` | semantics a non-interactive component carries on its host (divider, progress, loading), written only when they change | the attributes, `null` to remove |
 | `GlyphMirrorController` (`glyph-mirror.ts`) | `data-tanrei-mirrored` on each glyph whose name the active icon set mirrors in right-to-left, or whose `data-mirror` says `always` (never with `never`): after each render, on `slotchange`, when a slotted glyph's text or `data-mirror` changes, when the root switches the system. `iconGlyph()` draws the mark under `:dir(rtl)`; the component mirrors nothing itself (BTN-19) | `drawn`: a selector for the `iconGlyph()` boxes whose name the component writes; `slots`: a selector for the slots that take the product's glyph (each inside an `iconGlyph()` box) |
@@ -8938,6 +8938,35 @@ own selectors and its own `--tanrei-comp-<name>-*` tokens — nothing in them kn
 The box that draws the ring and holds the ripple is a positioning container with `isolation: isolate`; its `::before` is
 the target and its `::after` the ring. `button.styles.ts` and `button.ts` are the reference: a condition on top of the variant axis
 (a toggle's looks) and its own icon.
+
+### Debug builds: `DEBUG`
+
+The web has no debug build of its own: the product's bundler decides, by `process.env.NODE_ENV` — Vite, webpack,
+Parcel and esbuild define it for the browser by themselves, `"production"` in a production build. Everything a debug
+build tells the developer is guarded by the constant `DEBUG` (`src/primitives/debug.ts`) where it starts, never by a
+call, so that a production bundle leaves out the message with the code that makes it:
+
+- `if (DEBUG && <condition>) report(…)`, `if (DEBUG) report(…)`, `DEBUG ? <read> : ''` — `DEBUG` first. esbuild (the
+  bundler the budgets measure with) puts the constant of another module in place only after it has merged nested `if`s
+  into one `&&` chain and decided what code is used, so a guard in the middle of a chain (`if (a) { if (DEBUG && b) … }`
+  is `a && false && b`) keeps what follows it: write the guard into the outermost condition.
+- A missing word's report is `this.words.missing(key, DEBUG && { id, effect })`: the key is recorded for
+  `missingWords()` in every build, the words of the report only in a debug one. A condition that records something
+  (`this.words.lacks(…)`) is evaluated in every build, before the guard: `const lacks = … && this.words.lacks(…); if
+  (DEBUG && lacks) report(…)`.
+- `report()` and `wordMissing()` check `DEBUG` again, for a call written without the guard; such a call still ships
+  its message.
+
+How the constant reaches each build: `debug.ts` reads `process` in a try (the module a page loads without a bundler,
+and Node's), so there it is a value at run time — true where there is no `process`, so reports stay on, and
+`dist/tanrei.bundle.js` is built as a development bundle. The package's `browser` field maps it onto
+`debug.bundled.ts`, whose constant is the bare `process.env.NODE_ENV !== 'production'`: a bundler that builds for the
+browser takes that module and replaces it (a tool that reads the `browser` field and defines nothing would leave
+`process` unguarded there; esbuild, webpack, Vite and Parcel all define it). A bundler that does not read the `browser` field (Rollup without `@rollup/plugin-node-resolve`'s
+`browser: true`) keeps `debug.ts`: every report stays in the bundle, and in production makes none. What a production bundle still carries: a function or method that only reports (a `check()`, a message
+builder such as `unavailableMessage()`) — a bundler decides that it is used before it replaces the constant, so it stays
+though nothing calls it — and the code before a guard that only makes its message. `test/debug-code.test.mjs` bundles
+`@tanrei/web/all` both ways and looks for a sample of reports in each.
 
 ## Icons
 

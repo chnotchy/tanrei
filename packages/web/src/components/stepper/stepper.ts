@@ -20,6 +20,7 @@ import { type StepCondition, stepStyles, stepperStyles } from './stepper.styles.
 import { TanreiElement } from '../../primitives/element.js';
 import { SETTLING } from '../../styles/motion.js';
 import { holdsProductName, nameHost, namedByProduct } from '../../primitives/delegated-aria.js';
+import { DEBUG } from '../../primitives/debug.js';
 
 /** How the steps are laid out (SPR-4, SPR-5, SPR-6). A closed set: anything else is horizontal. */
 export type TanreiStepperLayout = 'horizontal' | 'vertical' | 'compact';
@@ -426,19 +427,19 @@ export class TanreiStepper extends TanreiElement {
     seen.add(message);
     if (this.reported.has(message)) return;
     this.reported.add(message);
-    report(this, id, message);
+    if (DEBUG) report(this, id, message);
   }
 
   /** SPR-20: the product's word for a condition, recorded as missing where a drawn step needs it and nobody gave it. */
   private statusWord(condition: StepCondition): string {
     if (condition === 'complete') {
       const word = this.words.get('stepCompletedText', this.completedText);
-      if (!word) this.words.missing('stepCompletedText', { prop: 'completedText', id: 'SPR-20', effect: 'a complete step is read as its label alone' });
+      if (!word) this.words.missing('stepCompletedText', DEBUG && { prop: 'completedText', id: 'SPR-20', effect: 'a complete step is read as its label alone' });
       return word;
     }
     if (condition === 'error') {
       const word = this.words.get('stepErrorText', this.errorText);
-      if (!word) this.words.missing('stepErrorText', { prop: 'errorText', id: 'SPR-20', effect: 'a step with an error is read as its label alone' });
+      if (!word) this.words.missing('stepErrorText', DEBUG && { prop: 'errorText', id: 'SPR-20', effect: 'a step with an error is read as its label alone' });
       return word;
     }
     return '';
@@ -448,11 +449,11 @@ export class TanreiStepper extends TanreiElement {
   private position(at: number, count: number): string {
     const sentence = this.words.get('stepPositionText', this.positionText).trim();
     if (!sentence) {
-      this.words.missing('stepPositionText', { prop: 'positionText', id: 'SPR-20', effect: 'the compact form draws no position' });
+      this.words.missing('stepPositionText', DEBUG && { prop: 'positionText', id: 'SPR-20', effect: 'the compact form draws no position' });
       return '';
     }
     const declared = wordPlaces.stepPositionText ?? [];
-    reportPlaces(this, 'SPR-7', 'positionText', sentence, declared, 'it is drawn as it is written');
+    if (DEBUG) reportPlaces(this, 'SPR-7', 'positionText', sentence, declared, 'it is drawn as it is written');
     const seen = new Set<string>();
     for (const name of placeFaults(sentence, declared).absent) {
       this.reportOnce(seen, 'SPR-7', `position-text has no place {${name}}, so it does not say where the person is; write it as "Step {position} of {count}"`);
