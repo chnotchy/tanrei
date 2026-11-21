@@ -3320,6 +3320,10 @@ test.describe('behavior', () => {
     expect(await css(navButton(page, id, 'next'), 'background-color')).toBe(await resolveColor(page, '--tanrei-comp-button-elevated-container-color'));
     await override(page, { [T('navigation-button-variant')]: 'outlined' });
     await expect.poll(() => css(navButton(page, id, 'next'), 'background-color')).toBe(await resolveColor(page, '--tanrei-comp-button-outlined-container-color'));
+    // The size the token names (navigation.button.size, medium by default), read with the variant.
+    await override(page, { [T('navigation-button-size')]: 'small' });
+    await expect(nav(page, id, 'next')).toHaveAttribute('size', 'small');
+    await override(page, { [T('navigation-button-size')]: '' });
     // Outside the list, and not among its items.
     expect(await carousel(page, id).locator('[role="list"] tanrei-button').count()).toBe(0);
     // Fewer than two resting positions, or none asked for: neither is drawn.

@@ -5,7 +5,9 @@ import {
   ActionPlacement,
   AppearController,
   AvailabilityController,
+  BUTTON_SIZES,
   BUTTON_VARIANTS,
+  type ButtonSize,
   type DividerVisibilityProp,
   OpenAxesController,
   assignSlot,
@@ -13,6 +15,7 @@ import {
   compChoice,
   compChoices,
   containedWheel,
+  giveSize,
   giveVariant,
   SHEET_FLING_VELOCITY,
   SheetDrag,
@@ -83,7 +86,7 @@ interface Parts {
  *
  * Contract: specs/side-sheet.spec.json. The content is the default slot. The header holds `headline` (the sheet's
  * accessible name, a heading) and, unless `notClosable` (the attribute `not-closable`), an
- * icon-only `<tanrei-button>` of the small size showing the close glyph, named by `close-label`, in the variant
+ * icon-only `<tanrei-button>` of the size `comp.side-sheet.close-button.size` names showing the close glyph, named by `close-label`, in the variant
  * `comp.side-sheet.close-button.variant` names (tonal in the default system), as every host's close button is.
  *
  * The actions are `<tanrei-button slot="actions">` children, each marked `confirming` or `dismissive`, placed below a
@@ -180,6 +183,8 @@ export class TanreiSideSheet extends TanreiElement {
 
   /** SSH-11, SSH-16: whether the sheet has at least one action. */
   private hasActions = false;
+  /** SSH-5: the close button's size, as `comp.side-sheet.close-button.size` named it at the last layout. */
+  private closeSize: ButtonSize = BUTTON_SIZES[0];
 
   /** SSH-10: the content children, assigned to the default slot. */
   private content: Node[] = [];
@@ -471,12 +476,16 @@ export class TanreiSideSheet extends TanreiElement {
       this.laying = false;
       const sheet = this.sheet;
       if (!sheet || !this.isConnected) return this.laidOut();
-      const { close, actions: variant, arrangement } = compChoices(this, {
+      const { close, closeSize, actions: variant, arrangement } = compChoices(this, {
         close: [`${PREFIX}-close-button-variant`, BUTTON_VARIANTS],
+        closeSize: [`${PREFIX}-close-button-size`, BUTTON_SIZES],
         actions: [`${PREFIX}-actions-variant`, BUTTON_VARIANTS],
         arrangement: [`${PREFIX}-actions-arrangement`, ARRANGEMENTS],
       });
       return () => {
+        // SSH-5: the close button's size and variant, as the sheet's tokens name them.
+        this.closeSize = closeSize;
+        giveSize(this.renderRoot.querySelector('tanrei-button.close'), closeSize);
         giveVariant(this.renderRoot.querySelector('tanrei-button.close'), close);
         this.placement.give(variant);
         sheet.dataset.arrangement = arrangement;
@@ -785,7 +794,7 @@ export class TanreiSideSheet extends TanreiElement {
         ? html`<div part="header" class=${classMap({ header: true, closable: !this.notClosable })}>
             ${headline ? html`<h2 part="headline" class="headline">${headline}</h2>` : nothing}
             ${!this.notClosable
-              ? html`<tanrei-button part="close-button" class="close" size="small" label=${this.words.get('closeLabel', this.closeLabel)} @click=${this.onCloseClick}><span slot="icon">close</span></tanrei-button>`
+              ? html`<tanrei-button part="close-button" class="close" size=${this.closeSize} label=${this.words.get('closeLabel', this.closeLabel)} @click=${this.onCloseClick}><span slot="icon">close</span></tanrei-button>`
               : nothing}
             <div part="divider" class="divider below-header" aria-hidden="true"></div>
           </div>`

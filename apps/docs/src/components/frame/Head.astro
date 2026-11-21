@@ -53,6 +53,14 @@ const files = firstFamilies(stacks).map((family) => {
 // em. Once the page has loaded, `document.fonts.load` waits for each family's face to arrive or fail: a family that
 // cannot draw then never will.
 //
+// The probes are first laid out from the head, under the root element, not once the body has been read: the switch is
+// an inherited value on the root, and taking it off has the browser style every element of the page again. Taken off
+// while the page is still being read, that is a few elements; taken off at DOMContentLoaded, it was the whole page,
+// components and all — in WebKit, on a long page, 0.8 s just before the load event (the Arabic button page in a
+// two-core Linux container), which a test that waits for the load waited for. The look the reader chose may name other
+// icon families, in a stylesheet that arrives after this script: once the page has been read the families are asked
+// again, and a family that cannot draw yet has the switch set again until it can.
+//
 // A page whose font fails to load, or names a family no face is registered for, keeps its icons hidden — a ligature's
 // name is no picture of the icon, and the components' own marks draw nothing in that case either (CHK-19) — and says
 // so in the console once the page has loaded. A page whose script does not run never sets the switch, and has the
@@ -66,13 +74,14 @@ const iconsReady = `(() => {
   const EM = 24;
   root.style.setProperty(SWITCH, 'hidden');
   let probes = [];
+  let waiting = false;
   const drawn = () => probes.every((probe) => { const width = probe.getBoundingClientRect().width; return width > 0 && width <= EM * 1.5; });
   const sizes = new ResizeObserver(() => drawn() && ready());
   const ready = () => {
     sizes.disconnect();
     for (const probe of probes) probe.remove();
     probes = [];
-    root.style.removeProperty(SWITCH);
+    if (root.style.getPropertyValue(SWITCH)) root.style.removeProperty(SWITCH);
   };
   const measure = () => {
     probes = FAMILIES.map((family) => {
@@ -81,10 +90,13 @@ const iconsReady = `(() => {
       probe.setAttribute('data-docs-icon-probe', '');
       probe.textContent = GLYPH;
       probe.style.cssText = 'position: absolute; inset-block-start: 0; inset-inline-start: 0; visibility: hidden; pointer-events: none; white-space: nowrap; font: normal ' + EM + 'px/1 var(' + family + '); letter-spacing: normal; font-feature-settings: \\'liga\\'; text-transform: none';
-      return document.body.appendChild(probe);
+      return root.appendChild(probe);
     });
     if (drawn()) return ready();
+    if (!root.style.getPropertyValue(SWITCH)) root.style.setProperty(SWITCH, 'hidden');
     for (const probe of probes) sizes.observe(probe);
+    if (waiting) return;
+    waiting = true;
     // Once the page has loaded, every stylesheet has registered its faces: each family is asked for, and the loads
     // settle once its face has arrived or failed. A family still not drawn then will not be.
     const loaded = new Promise((resolve) => (document.readyState === 'complete' ? resolve() : addEventListener('load', resolve, { once: true })));
@@ -98,8 +110,10 @@ const iconsReady = `(() => {
       });
     });
   };
-  if (document.body) measure();
-  else addEventListener('DOMContentLoaded', measure, { once: true });
+  measure();
+  // Probes still waiting follow the families the page ends up with by themselves; once the switch is off, the families
+  // of the page as it was read are asked again.
+  document.addEventListener('DOMContentLoaded', () => probes.length || measure(), { once: true });
 })();`;
 const route = Astro.locals.starlightRoute;
 const markdown = route.entry.data.pagefind === false ? undefined : markdownPathOf(Astro.url.pathname, translations.map(({ dir }) => dir));

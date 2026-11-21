@@ -1161,15 +1161,33 @@ test.describe('size and layout', () => {
     expect(await missingWords(page)).not.toContain('closeLabel');
   });
 
-  test('POP-13: the presets keep the bare close glyph they inherited — m3-like and cupertino give the close button the text variant, at their own small Button size', async ({ page }) => {
-    for (const system of ['m3-like', 'cupertino'] as const) {
+  test('POP-13: the presets keep the bare close glyph they inherited — m3-like and cupertino give the close button the text variant, at the size close-button.size names (m3-like medium, Material’s standard icon button; cupertino small)', async ({ page }) => {
+    for (const [system, size] of [['m3-like', 'medium'], ['cupertino', 'small']] as const) {
       await mountFixtures(page, spec, { icons: true, system, fixtures: spec.fixtures.filter((f) => f.id === 'closable') });
       const button = fixtureHost(page, 'closable').locator('tanrei-button.close');
       await expect(button, system).toHaveCount(1);
       expect(await token(page, T('close-button-variant')), system).toBe('text');
+      expect(await token(page, T('close-button-size')), system).toBe(size);
+      await expect(button, system).toHaveAttribute('size', size);
       await expect.poll(() => button.locator('button').evaluate((el) => getComputedStyle(el).backgroundColor), system).toBe(await resolveColor(page, '--tanrei-comp-button-text-container-color'));
-      expect((await rect(button.locator('button'))).height, system).toBeCloseTo(await resolveToken(page, '--tanrei-comp-button-container-height-small'), 1);
+      expect((await rect(button.locator('button'))).height, system).toBeCloseTo(await resolveToken(page, `--tanrei-comp-button-container-height-${size}`), 1);
     }
+  });
+
+  test('POP-13: the close button takes the size close-button.size names — small in the default system — and a system that names another size draws it at that size, the headline still centred on it', async ({ page }) => {
+    await mount(page, `${anchorAt(200, 60)}${popover('headline="Storage" closable close-label="Close storage" data-keep')}`);
+    await open(page);
+    const button = part(page, 'tanrei-button.close');
+    expect(await token(page, T('close-button-size'))).toBe('small');
+    await expect(button).toHaveAttribute('size', 'small');
+    await override(page, { [T('close-button-size')]: 'medium' });
+    await set(page, { headline: 'Storage used' });
+    await expect(button).toHaveAttribute('size', 'medium');
+    const medium = await resolveToken(page, '--tanrei-comp-button-container-height-medium');
+    await expect.poll(async () => (await rect(button.locator('button'))).height).toBeCloseTo(medium, 1);
+    const headline = await rect(part(page, '.headline'));
+    const close = await rect(button.locator('button'));
+    expect(headline.y + headline.height / 2).toBeCloseTo(close.y + close.height / 2, 0);
   });
 
   test('POP-14: the content inherits comp.popover.content.color and plain text takes the body role; the popover does not lay out or restyle what it holds, which may be anything that takes input', async ({ page }) => {

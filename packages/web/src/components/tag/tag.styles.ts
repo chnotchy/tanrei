@@ -168,6 +168,11 @@ export const styles = css`
   .container.has-icon .icon {
     display: inline-flex;
   }
+  /* TAG-22: nothing in the glyph's place until the icon set can draw it (GlyphDrawnController sets data-drawn) — never its
+     name spelled in a text face; the slotted glyph inherits the slot's visibility, and the box keeps its size. */
+  .icon:not([data-drawn]) slot {
+    visibility: hidden;
+  }
   ::slotted(svg),
   ::slotted(img) {
     display: block;

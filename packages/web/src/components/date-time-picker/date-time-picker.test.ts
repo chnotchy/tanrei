@@ -1990,8 +1990,11 @@ test.describe('ranges, actions, motion, overflow and semantics', () => {
     expect((await bounds(o)).y).toBeLessThan((await bounds(c)).y);
     // A fixture system: end (1) and text (4).
     await host(page, 'd').evaluate((el: any) => (el.cancelLabel = 'Cancel'));
-    await override(page, { [T('actions-arrangement')]: 'end', [T('actions-variant')]: 'text' });
+    expect(await c.getAttribute('size')).toBe('medium');
+    await override(page, { [T('actions-arrangement')]: 'end', [T('actions-variant')]: 'text', [T('actions-size')]: 'small' });
     await expect(c).toHaveAttribute('variant', 'text');
+    await expect(c).toHaveAttribute('size', 'small');
+    await expect(o).toHaveAttribute('size', 'small');
     await expect.poll(() => surface(page, 'd').getAttribute('data-arrangement')).toBe('end');
     const [c2, o2, s] = [await bounds(c), await bounds(o), await bounds(box)];
     expect(o2.x + o2.width).toBeCloseTo(s.x + s.width - (await px(box, 'padding-right')), 0);
@@ -2359,7 +2362,24 @@ test.describe('ranges, actions, motion, overflow and semantics', () => {
     expect((await bounds(host(page, 'h').locator('.dial'))).x).toBeLessThan((await bounds(shownRow(page, 'h', 'display'))).x);
   });
 
-  test('DTM-40: unknown values of the closed props behave as the default and are reported; malformed values, value with a range, a date-time end before its start and min after max are ignored and reported', async ({ page }) => {
+  test('DTM-39, BTN-5: right to left, the hour and the minute, still left to right, each keep their hit area centred on them — a press in the gap nearer the minute never goes to the hour', async ({ page }) => {
+    await mount(page, [{ ...opened('t', { mode: 'time', value: '07:30', entryMode: 'dial' }), direction: 'rtl' }]);
+    const [hour, minute] = [selector(page, 't', 'hour'), selector(page, 't', 'minute')];
+    const [h, m] = [await bounds(hour), await bounds(minute)];
+    expect(h.x + h.width).toBeLessThan(m.x);
+    await minute.click();
+    await expect(minute).toHaveClass(/selected/);
+    // A selector is at least the target in the default system, so its hit area is its box: the hour's stops at its own
+    // inline end, and nothing of it lies in the gap to the minute (it lay a half selector toward the minute when its
+    // centring followed the picker's direction rather than its own).
+    await page.mouse.click(m.x - 2, m.y + m.height / 2);
+    await expect(minute).toHaveClass(/selected/);
+    await expect(hour).not.toHaveClass(/selected/);
+    await page.mouse.click(h.x + h.width - 2, h.y + h.height / 2);
+    await expect(hour).toHaveClass(/selected/);
+  });
+
+  test('DTM-40:unknown values of the closed props behave as the default and are reported; malformed values, value with a range, a date-time end before its start and min after max are ignored and reported', async ({ page }) => {
     const seen = warnings(page);
     await mount(page, [
       opened('a', { presentation: 'sheet', mode: 'week', hourCycle: 'h24', entryMode: 'text', unit: 'second', layout: 'grid', startView: 'decade', firstDayOfWeek: 'someday', value: '17/09/2026' }),

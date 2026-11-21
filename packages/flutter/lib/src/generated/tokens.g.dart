@@ -3265,6 +3265,7 @@ class TanreiBottomSheetStateTokens {
 @immutable
 class TanreiBottomSheetTokens {
   const TanreiBottomSheetTokens({
+    required this.closeButtonSize,
     required this.closeButtonVariant,
     required this.containerColor,
     required this.containerElevation,
@@ -3303,6 +3304,8 @@ class TanreiBottomSheetTokens {
     required this.pressed,
   });
 
+  /// `comp.bottom-sheet.close-button-size`
+  final double closeButtonSize;
   /// `comp.bottom-sheet.close-button-variant`
   final double closeButtonVariant;
   /// `comp.bottom-sheet.container-color`
@@ -3378,6 +3381,7 @@ class TanreiBottomSheetTokens {
 
   /// A copy with the given tokens replaced.
   TanreiBottomSheetTokens copyWith({
+    double? closeButtonSize,
     double? closeButtonVariant,
     TanreiPaint? containerColor,
     List<TanreiShadowLayer>? containerElevation,
@@ -3415,6 +3419,7 @@ class TanreiBottomSheetTokens {
     TanreiBottomSheetStateTokens? focused,
     TanreiBottomSheetStateTokens? pressed,
   }) => TanreiBottomSheetTokens(
+        closeButtonSize: closeButtonSize ?? this.closeButtonSize,
         closeButtonVariant: closeButtonVariant ?? this.closeButtonVariant,
         containerColor: containerColor ?? this.containerColor,
         containerElevation: containerElevation ?? this.containerElevation,
@@ -5475,6 +5480,7 @@ class TanreiCalloutTokens {
   const TanreiCalloutTokens({
     required this.actionsGap,
     required this.actionsItemGap,
+    required this.closeButtonSize,
     required this.closeButtonVariant,
     required this.containerGap,
     required this.containerPaddingBlock,
@@ -5497,6 +5503,8 @@ class TanreiCalloutTokens {
   final double actionsGap;
   /// `comp.callout.actions-item-gap`
   final double actionsItemGap;
+  /// `comp.callout.close-button-size`
+  final double closeButtonSize;
   /// `comp.callout.close-button-variant`
   final double closeButtonVariant;
   /// `comp.callout.container-gap`
@@ -5534,6 +5542,7 @@ class TanreiCalloutTokens {
   TanreiCalloutTokens copyWith({
     double? actionsGap,
     double? actionsItemGap,
+    double? closeButtonSize,
     double? closeButtonVariant,
     double? containerGap,
     double? containerPaddingBlock,
@@ -5553,6 +5562,7 @@ class TanreiCalloutTokens {
   }) => TanreiCalloutTokens(
         actionsGap: actionsGap ?? this.actionsGap,
         actionsItemGap: actionsItemGap ?? this.actionsItemGap,
+        closeButtonSize: closeButtonSize ?? this.closeButtonSize,
         closeButtonVariant: closeButtonVariant ?? this.closeButtonVariant,
         containerGap: containerGap ?? this.containerGap,
         containerPaddingBlock: containerPaddingBlock ?? this.containerPaddingBlock,
@@ -6018,6 +6028,7 @@ class TanreiCarouselTokens {
     required this.motionScrollEasing,
     required this.motionStateDuration,
     required this.motionStateEasing,
+    required this.navigationButtonSize,
     required this.navigationButtonVariant,
     required this.parts,
     required this.hovered,
@@ -6075,6 +6086,8 @@ class TanreiCarouselTokens {
   final int motionStateDuration;
   /// `comp.carousel.motion-state-easing`
   final TanreiCubicBezier motionStateEasing;
+  /// `comp.carousel.navigation-button-size`
+  final double navigationButtonSize;
   /// `comp.carousel.navigation-button-variant`
   final double navigationButtonVariant;
   /// The `part` axis: `parts[part]`.
@@ -6113,6 +6126,7 @@ class TanreiCarouselTokens {
     TanreiCubicBezier? motionScrollEasing,
     int? motionStateDuration,
     TanreiCubicBezier? motionStateEasing,
+    double? navigationButtonSize,
     double? navigationButtonVariant,
     TanreiCarouselParts? parts,
     TanreiCarouselStateTokens? hovered,
@@ -6144,6 +6158,7 @@ class TanreiCarouselTokens {
         motionScrollEasing: motionScrollEasing ?? this.motionScrollEasing,
         motionStateDuration: motionStateDuration ?? this.motionStateDuration,
         motionStateEasing: motionStateEasing ?? this.motionStateEasing,
+        navigationButtonSize: navigationButtonSize ?? this.navigationButtonSize,
         navigationButtonVariant: navigationButtonVariant ?? this.navigationButtonVariant,
         parts: parts ?? this.parts,
         hovered: hovered ?? this.hovered,
@@ -8556,6 +8571,7 @@ class TanreiDateTimePickerTokens {
     required this.actionsArrangement,
     required this.actionsGap,
     required this.actionsPaddingBlock,
+    required this.actionsSize,
     required this.actionsVariant,
     required this.containerGap,
     required this.containerPaddingBlock,
@@ -8648,6 +8664,8 @@ class TanreiDateTimePickerTokens {
   final double actionsGap;
   /// `comp.date-time-picker.actions-padding-block`
   final double actionsPaddingBlock;
+  /// `comp.date-time-picker.actions-size`
+  final double actionsSize;
   /// `comp.date-time-picker.actions-variant`
   final double actionsVariant;
   /// `comp.date-time-picker.container-gap`
@@ -8822,6 +8840,7 @@ class TanreiDateTimePickerTokens {
     double? actionsArrangement,
     double? actionsGap,
     double? actionsPaddingBlock,
+    double? actionsSize,
     double? actionsVariant,
     double? containerGap,
     double? containerPaddingBlock,
@@ -8910,6 +8929,7 @@ class TanreiDateTimePickerTokens {
         actionsArrangement: actionsArrangement ?? this.actionsArrangement,
         actionsGap: actionsGap ?? this.actionsGap,
         actionsPaddingBlock: actionsPaddingBlock ?? this.actionsPaddingBlock,
+        actionsSize: actionsSize ?? this.actionsSize,
         actionsVariant: actionsVariant ?? this.actionsVariant,
         containerGap: containerGap ?? this.containerGap,
         containerPaddingBlock: containerPaddingBlock ?? this.containerPaddingBlock,
@@ -12218,6 +12238,7 @@ class TanreiHandleTokens {
 @immutable
 class TanreiImagePreviewTokens {
   const TanreiImagePreviewTokens({
+    required this.barButtonSize,
     required this.barButtonVariant,
     required this.barContainerColor,
     required this.barGap,
@@ -12249,10 +12270,13 @@ class TanreiImagePreviewTokens {
     required this.motionPageEasing,
     required this.motionZoomDuration,
     required this.motionZoomEasing,
+    required this.navigationButtonSize,
     required this.navigationButtonVariant,
     required this.navigationMarginInline,
   });
 
+  /// `comp.image-preview.bar-button-size`
+  final double barButtonSize;
   /// `comp.image-preview.bar-button-variant`
   final double barButtonVariant;
   /// `comp.image-preview.bar-container-color`
@@ -12315,6 +12339,8 @@ class TanreiImagePreviewTokens {
   final int motionZoomDuration;
   /// `comp.image-preview.motion-zoom-easing`
   final TanreiCubicBezier motionZoomEasing;
+  /// `comp.image-preview.navigation-button-size`
+  final double navigationButtonSize;
   /// `comp.image-preview.navigation-button-variant`
   final double navigationButtonVariant;
   /// `comp.image-preview.navigation-margin-inline`
@@ -12322,6 +12348,7 @@ class TanreiImagePreviewTokens {
 
   /// A copy with the given tokens replaced.
   TanreiImagePreviewTokens copyWith({
+    double? barButtonSize,
     double? barButtonVariant,
     TanreiPaint? barContainerColor,
     double? barGap,
@@ -12353,9 +12380,11 @@ class TanreiImagePreviewTokens {
     TanreiCubicBezier? motionPageEasing,
     int? motionZoomDuration,
     TanreiCubicBezier? motionZoomEasing,
+    double? navigationButtonSize,
     double? navigationButtonVariant,
     double? navigationMarginInline,
   }) => TanreiImagePreviewTokens(
+        barButtonSize: barButtonSize ?? this.barButtonSize,
         barButtonVariant: barButtonVariant ?? this.barButtonVariant,
         barContainerColor: barContainerColor ?? this.barContainerColor,
         barGap: barGap ?? this.barGap,
@@ -12387,6 +12416,7 @@ class TanreiImagePreviewTokens {
         motionPageEasing: motionPageEasing ?? this.motionPageEasing,
         motionZoomDuration: motionZoomDuration ?? this.motionZoomDuration,
         motionZoomEasing: motionZoomEasing ?? this.motionZoomEasing,
+        navigationButtonSize: navigationButtonSize ?? this.navigationButtonSize,
         navigationButtonVariant: navigationButtonVariant ?? this.navigationButtonVariant,
         navigationMarginInline: navigationMarginInline ?? this.navigationMarginInline,
       );
@@ -18299,6 +18329,7 @@ class TanreiPopoverTokens {
     required this.arrowInset,
     required this.arrowVisible,
     required this.arrowWidth,
+    required this.closeButtonSize,
     required this.closeButtonVariant,
     required this.compactWindowWidth,
     required this.containerColor,
@@ -18343,6 +18374,8 @@ class TanreiPopoverTokens {
   final double arrowVisible;
   /// `comp.popover.arrow-width`
   final double arrowWidth;
+  /// `comp.popover.close-button-size`
+  final double closeButtonSize;
   /// `comp.popover.close-button-variant`
   final double closeButtonVariant;
   /// `comp.popover.compact-window-width`
@@ -18406,6 +18439,7 @@ class TanreiPopoverTokens {
     double? arrowInset,
     double? arrowVisible,
     double? arrowWidth,
+    double? closeButtonSize,
     double? closeButtonVariant,
     double? compactWindowWidth,
     TanreiPaint? containerColor,
@@ -18441,6 +18475,7 @@ class TanreiPopoverTokens {
         arrowInset: arrowInset ?? this.arrowInset,
         arrowVisible: arrowVisible ?? this.arrowVisible,
         arrowWidth: arrowWidth ?? this.arrowWidth,
+        closeButtonSize: closeButtonSize ?? this.closeButtonSize,
         closeButtonVariant: closeButtonVariant ?? this.closeButtonVariant,
         compactWindowWidth: compactWindowWidth ?? this.compactWindowWidth,
         containerColor: containerColor ?? this.containerColor,
@@ -21671,6 +21706,7 @@ class TanreiSideSheetTokens {
     required this.actionsGap,
     required this.actionsPaddingBlock,
     required this.actionsVariant,
+    required this.closeButtonSize,
     required this.closeButtonVariant,
     required this.containerPaddingBlock,
     required this.containerPaddingInline,
@@ -21702,6 +21738,8 @@ class TanreiSideSheetTokens {
   final double actionsPaddingBlock;
   /// `comp.side-sheet.actions-variant`
   final double actionsVariant;
+  /// `comp.side-sheet.close-button-size`
+  final double closeButtonSize;
   /// `comp.side-sheet.close-button-variant`
   final double closeButtonVariant;
   /// `comp.side-sheet.container-padding-block`
@@ -21751,6 +21789,7 @@ class TanreiSideSheetTokens {
     double? actionsGap,
     double? actionsPaddingBlock,
     double? actionsVariant,
+    double? closeButtonSize,
     double? closeButtonVariant,
     double? containerPaddingBlock,
     double? containerPaddingInline,
@@ -21777,6 +21816,7 @@ class TanreiSideSheetTokens {
         actionsGap: actionsGap ?? this.actionsGap,
         actionsPaddingBlock: actionsPaddingBlock ?? this.actionsPaddingBlock,
         actionsVariant: actionsVariant ?? this.actionsVariant,
+        closeButtonSize: closeButtonSize ?? this.closeButtonSize,
         closeButtonVariant: closeButtonVariant ?? this.closeButtonVariant,
         containerPaddingBlock: containerPaddingBlock ?? this.containerPaddingBlock,
         containerPaddingInline: containerPaddingInline ?? this.containerPaddingInline,
@@ -22625,6 +22665,7 @@ class TanreiSnackbarTokens {
   const TanreiSnackbarTokens({
     required this.actionTonalLayerOpacity,
     required this.breakpointMedium,
+    required this.closeButtonSize,
     required this.closeButtonVariant,
     required this.containerColor,
     required this.containerElevation,
@@ -22731,6 +22772,8 @@ class TanreiSnackbarTokens {
   final double actionTonalLayerOpacity;
   /// `comp.snackbar.breakpoint-medium`
   final double breakpointMedium;
+  /// `comp.snackbar.close-button-size`
+  final double closeButtonSize;
   /// `comp.snackbar.close-button-variant`
   final double closeButtonVariant;
   /// `comp.snackbar.container-color`
@@ -22936,6 +22979,7 @@ class TanreiSnackbarTokens {
   TanreiSnackbarTokens copyWith({
     double? actionTonalLayerOpacity,
     double? breakpointMedium,
+    double? closeButtonSize,
     double? closeButtonVariant,
     TanreiPaint? containerColor,
     List<TanreiShadowLayer>? containerElevation,
@@ -23039,6 +23083,7 @@ class TanreiSnackbarTokens {
   }) => TanreiSnackbarTokens(
         actionTonalLayerOpacity: actionTonalLayerOpacity ?? this.actionTonalLayerOpacity,
         breakpointMedium: breakpointMedium ?? this.breakpointMedium,
+        closeButtonSize: closeButtonSize ?? this.closeButtonSize,
         closeButtonVariant: closeButtonVariant ?? this.closeButtonVariant,
         containerColor: containerColor ?? this.containerColor,
         containerElevation: containerElevation ?? this.containerElevation,

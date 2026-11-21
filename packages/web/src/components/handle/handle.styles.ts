@@ -1,5 +1,5 @@
 import { css, unsafeCSS } from 'lit';
-import { type OpenAxis, focusRing, minimumTarget, pressHold, rippleStyles, stateRules } from '../../primitives/index.js';
+import { type OpenAxis, TARGET_CAPS, focusRing, neighbourTarget, pressHold, rippleStyles, stateRules } from '../../primitives/index.js';
 import { cornerRadius, shape } from '../../styles/shape.js';
 import { reducedMotion } from '../../styles/motion.js';
 
@@ -213,15 +213,20 @@ export const styles = css`
   }
 
   /* HDL-5: the target reaches sys.target.pointer for a fine pointer and sys.target.touch for a coarse one, centred on the
-     box, without changing what is drawn. */
-  ${minimumTarget('.container')}
+     box, without changing what is drawn; toward a pressable its owner lays beside it, no further than the cap the owner
+     sets on the handle (BTN-5). Only the owner's: a cap that what lays the owner out sets for its own row is not
+     inherited (a rule on the host from outside its shadow root wins over this one). */
+  :host {
+    ${unsafeCSS(Object.values(TARGET_CAPS).map((cap) => `${cap}: initial;`).join(' '))}
+  }
+  ${neighbourTarget('.container')}
   /* HDL-27: reach edge — the target is the host's whole length along the line, and HDL-5's across it; the cursor and the
      line's coming into sight answer anywhere on it, as they answer on the target. */
   :host([data-edge][axis='horizontal']) .container::before {
-    block-size: 100cqb;
+    inset-block: calc((100% - 100cqb) / 2);
   }
   :host([data-edge]:not([axis='horizontal'])) .container::before {
-    inline-size: 100cqi;
+    inset-inline: calc((100% - 100cqi) / 2);
   }
 
   /* HDL-4, HDL-12: each state paints the box, the line and the opacity from that state's tokens, pressed over focused

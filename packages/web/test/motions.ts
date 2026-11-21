@@ -126,11 +126,15 @@ export const EVERY_PRESSED = `(function every(root) {
  * read as `el` has it (`--tanrei-sys-motion-duration-press-hold`, an expression), computed through a real property of
  * an element of its own, as the press itself reads it.
  *
- * A held page clock holds both timers: the state is taken as held once the page's time has stood still through
- * `HELD_FRAMES` drawn frames (a resize observer's first report of the root, which no page clock holds), as a motion is
- * (`OUT_OF_MOTION`). In a hidden document no frame is drawn: there the state is held at once where a clock of the
- * page's own stands in for its timers. Each evaluation makes one function. For a script the test writes into the page
- * itself, as `EVERY_ANIMATION`.
+ * A held page clock holds both timers: where a page clock stands in for the page's timers, the state is taken as held
+ * once the page's time has stood still through `HELD_FRAMES` drawn frames (a resize observer's first report of the
+ * root, which no page clock holds), as a motion is (`OUT_OF_MOTION`). In a hidden document no frame is drawn: there it
+ * is held at once. Where the timers are the browser's own, no clock can hold the page's time, and this function's timer
+ * alone ends the wait: time standing still through frames says nothing there. Firefox's `performance.now()` counts
+ * whole milliseconds, and after a task that kept the page busy past a frame it reports the resize observations of the
+ * frames it owes one right after another, in the same millisecond — so a press let go, on a loaded machine, was taken
+ * as held by a clock and the wait returned with its state still shown. Each evaluation makes one function. For a
+ * script the test writes into the page itself, as `EVERY_ANIMATION`.
  */
 export const PRESS_LET_GO = `(() => {
   const shown = (el) => el.matches('[data-pressed]:not([data-pressed="none"])');
@@ -175,10 +179,8 @@ export const PRESS_LET_GO = `(() => {
         else finish();
       };
       tick();
-      if (document.visibilityState === 'hidden') {
-        if (!ownTimers) finish();
-        return;
-      }
+      if (ownTimers) return;
+      if (document.visibilityState === 'hidden') return finish();
       (async () => {
         const start = performance.now();
         for (let still = 0; !done; ) {

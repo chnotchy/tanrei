@@ -298,9 +298,19 @@ test.describe('drawing', () => {
     const at = (x: number, y: number) => handleHost(page).evaluate((el, [xx, yy]) => !!el.shadowRoot!.elementFromPoint(xx, yy)?.closest('.container'), [x, y]);
     expect(await at(box.x + box.width / 2, box.y + box.height / 2 - pointer / 2 + 1)).toBe(true);
     expect(await at(box.x + box.width / 2, box.y + box.height / 2 + pointer / 2 - 1)).toBe(true);
-    // A system whose row is shorter than the target (cupertino's) still reaches it, the box drawn at its size.
+    // Below the box it stops at half of handle.margin-block, the space to the content under the row (HDL-5's cap,
+    // BTN-5): under targets of 48 it would reach the whole margin, and a press nearer the content goes to the content.
+    const margin = await px(page, T('handle-margin-block'));
+    await override(page, { '--tanrei-sys-target-pointer': '48px', '--tanrei-sys-target-touch': '48px' });
+    const capped = await bounds(handle(page));
+    expect(await before('height')).toBe(Math.max(bh, 48) - (Math.max(bh, 48) - bh) / 2 + Math.min((Math.max(bh, 48) - bh) / 2, margin / 2));
+    expect(await at(capped.x + capped.width / 2, capped.y + capped.height + margin / 2 - 1)).toBe(true);
+    expect(await at(capped.x + capped.width / 2, capped.y + capped.height + margin / 2 + 1)).toBe(false);
+    await override(page, { '--tanrei-sys-target-pointer': '', '--tanrei-sys-target-touch': '' });
+    // A system whose row is shorter than the target (a margin of 0) still reaches it above the box, the box drawn at its
+    // size, and not over the content that begins at the box's lower edge.
     await override(page, { [T('handle-margin-block')]: '0px' });
-    expect(await before('height')).toBe(Math.max(bh, pointer));
+    expect(await before('height')).toBe(bh + (Math.max(bh, pointer) - bh) / 2);
     expect((await bounds(handle(page))).height).toBe(bh);
   });
 
@@ -1389,6 +1399,13 @@ test.describe('the header and the close button', () => {
     });
     await page.mouse.move(0, 0);
     await expect.poll(() => paint(page)).toBe(await resolveColor(page, '--tanrei-comp-button-text-container-color'));
+    // And its choice of size (close-button.size), at the next update.
+    await override(page, { [T('close-button-size')]: 'medium' });
+    await host(page).evaluate((el) => {
+      (el as HTMLElement & { headline: string }).headline = 'Share the photos';
+    });
+    await expect(close(page)).toHaveAttribute('size', 'medium');
+    await expect.poll(async () => (await bounds(close(page).locator('button'))).height).toBeCloseTo(await px(page, '--tanrei-comp-button-container-height-medium'), 1);
     expect(seen.filter((w) => w.includes('BSH-29'))).toEqual([]);
     await mount(page, [fx('s', { headline: 'Share photo', closable: true, closeLabel: '' })]);
     await expect(close(page)).toBeVisible();
@@ -1408,13 +1425,14 @@ test.describe('the header and the close button', () => {
     expect(await missingWords(page)).not.toContain('closeLabel');
   });
 
-  test('BSH-29: under m3-like the close button is a bare glyph (text), under cupertino the tonal circle, each at the system’s own small Button size', async ({ page }) => {
-    for (const [system, variant] of [['m3-like', 'text'], ['cupertino', 'tonal']] as const) {
+  test('BSH-29: under m3-like the close button is a bare glyph (text) at the medium size, Material’s standard icon button; under cupertino the tonal circle at its small size — the size close-button.size names', async ({ page }) => {
+    for (const [system, variant, size] of [['m3-like', 'text', 'medium'], ['cupertino', 'tonal', 'small']] as const) {
       await mount(page, [fixtureOf('modal-header')], { system });
       const id = 'modal-header';
-      await expect(close(page, id), system).toHaveAttribute('size', 'small');
+      expect(await page.evaluate((n) => getComputedStyle(document.documentElement).getPropertyValue(n).trim(), T('close-button-size')), system).toBe(size);
+      await expect(close(page, id), system).toHaveAttribute('size', size);
       await expect.poll(() => paint(page, id), system).toBe(await resolveColor(page, `--tanrei-comp-button-${variant}-container-color`));
-      expect((await bounds(close(page, id).locator('button'))).height, system).toBeCloseTo(await px(page, '--tanrei-comp-button-container-height-small'), 1);
+      expect((await bounds(close(page, id).locator('button'))).height, system).toBeCloseTo(await px(page, `--tanrei-comp-button-container-height-${size}`), 1);
     }
   });
 

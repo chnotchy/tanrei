@@ -225,4 +225,4 @@ Donde nunca se ejecuta ningún script, un esqueleto no termina nunca salvo que e
 - Define `decorative` donde otra cosa ya dice la espera.
 - Di que el contenido ha llegado donde eso sea una novedad.
 - Nunca dejes un esqueleto para siempre. Sustitúyelo por el contenido, por un estado vacío o por un error.
-- El relleno es decoración y no está sujeto a ninguna relación de contraste. Sobre una superficie con el tono de contenedor más alto cuesta verlo. No dependas solo de él para decir que un lugar está esperando. Donde esté sobre una, apunta `comp.skeleton.placeholder.color` a un rol más fuerte en una capa.
+- El relleno es decoración y no está sujeto a ninguna relación de contraste. Es una capa del color del contenido sobre la superficie que hay debajo, así que se distingue de cada superficie por el mismo paso discreto, incluida la del contenedor más alto. No dependas solo de él para decir que un lugar está esperando. Una capa que apunta `comp.skeleton.placeholder.color` a un tono opaco pierde ese paso sobre la superficie de ese tono.

@@ -2301,6 +2301,46 @@ test.describe('submenus', () => {
     await expect.poll(() => shown(labelled(page, 'file', 'Some'))).toBe(false);
   });
 
+  test('MNU-43, MNU-7: a submenu whose every item is in a group, and one that mixes groups with loose items, opened by the arrow to the inline end, Enter, Space or a press, takes focus on its first enabled item inside a group, past the disabled ones before it', async ({ page }) => {
+    await mount(page, [
+      it('New'),
+      // Every row is in a group, and the first row is disabled: the first enabled row is in the second group.
+      sub('Sort', [group({}, [it('Undo sort', { disabled: true })]), group({ value: 'date' }, [radio('By name', 'name'), radio('By date', 'date')]), group({}, [it('Reset')])]),
+      // The first row is loose and disabled; the first row of the group after it is disabled too.
+      sub('Edit', [it('Undo', { disabled: true }), group({}, [it('Cut', { disabled: true }), it('Copy')]), it('Paste'), group({}, [it('Delete')])]),
+    ]);
+    await openMenu(page, 'file');
+    for (const [label, first] of [
+      ['Sort', 'By name'],
+      ['Edit', 'Copy'],
+    ] as const) {
+      const host = labelled(page, 'file', label);
+      for (const key of ['ArrowRight', 'Enter', 'Space']) {
+        await pressTo(page, label);
+        await page.keyboard.press(key);
+        await expect.poll(() => shown(host), `${label}: ${key}`).toBe(true);
+        await expect.poll(() => focused(page), `${label}: ${key}`).toBe(first);
+        expect(await ring(labelled(page, 'file', first)), `${label}: ${key}`).toBe('solid');
+        // MNU-7: the arrow keys move on from there, within the submenu's surface.
+        await page.keyboard.press('ArrowUp');
+        expect(await focused(page), `${label}: ${key}`).toBe(label === 'Sort' ? 'Undo sort' : 'Cut');
+        await page.keyboard.press('ArrowLeft');
+        expect(await focused(page), `${label}: ${key}`).toBe(label);
+        await expect.poll(() => shown(host), `${label}: ${key}`).toBe(false);
+      }
+      // A press: the same item, without the ring.
+      await rowOf(host).click();
+      await expect.poll(() => shown(host), `${label}: a press`).toBe(true);
+      await expect.poll(() => focused(page), `${label}: a press`).toBe(first);
+      expect(await ring(labelled(page, 'file', first)), `${label}: a press`).toBe('none');
+      await page.keyboard.press('ArrowLeft');
+      await expect.poll(() => shown(host), label).toBe(false);
+      // Out of the surface, the pointer moves no focus (MNU-8) and opens nothing.
+      await page.mouse.move(0, 0);
+    }
+    expect((await log(page)).filter((entry) => !entry.startsWith('toggle:'))).toEqual([]);
+  });
+
   test('MNU-44: a pointer that rests on a submenu item for submenu-delay opens it, focus staying on the item; one that leaves sooner opens nothing; the delay applies where motion is reduced', async ({ page }) => {
     for (const reducedMotion of [false, true]) {
       await page.emulateMedia({ reducedMotion: reducedMotion ? 'reduce' : 'no-preference' });

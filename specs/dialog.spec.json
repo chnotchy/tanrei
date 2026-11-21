@@ -322,6 +322,11 @@
     {
       "id": "DLG-29",
       "text": "WHERE the platform has ARIA attributes (the web), WHEN the product sets an aria- attribute on the host, by the attribute or by the ARIA property that reflects it, THE dialog SHALL move it to the data-aria- attribute of the same name, so that the host is no second node with its name, description or state, and SHALL expose it on its dialog (DLG-14) — an id reference by the elements it names in the host's tree or a tree around it, a description after its own. WHILE headline is not empty it is the dialog's name, over a name given so; WHILE headline is empty, a name given so is the dialog's name and SHALL NOT be reported as having none in debug builds. WHEN the product removes the aria- attribute or its data-aria- twin, or sets the ARIA property that reflects it (ariaLabel, ariaDescribedByElements…) to null, THE dialog SHALL take it off that element."
+    },
+    {
+      "id": "DLG-30",
+      "text": "IF the icon set cannot draw the glyph of its icon slot yet (its font is still loading or failed to load) THE dialog SHALL draw nothing in the glyph's place, never the glyph's name as text, SHALL keep the glyph's box at its size so that the headline and nothing else moves, SHALL still draw its container, headline, supporting text and actions and expose its name, and SHALL show the glyph once the icon set can draw it, without a motion.",
+      "verify": "Name a family no machine has as the icon set's, then register the default icon face under that name: before, the glyph's box is drawn empty at its size; after, the glyph is drawn in it."
     }
   ],
   "accessibility": {

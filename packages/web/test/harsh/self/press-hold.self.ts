@@ -7,6 +7,7 @@ import { fileURLToPath } from 'node:url';
 import { expect, test, type Page } from '@playwright/test';
 import { harsh, pressHoldAsRun } from '../../harsh.js';
 import { checkHarsh } from '../playwright-test.js';
+import { CLOCK } from '../../watched-press.js';
 import { late } from './late.js';
 
 /** The default system's token sheet, as the package generates it: press-hold is 100 ms in it. */
@@ -15,8 +16,8 @@ const TOKENS = fs.readFileSync(path.join(path.dirname(fileURLToPath(import.meta.
 /**
  * A button that holds a press as the package's press controller does (src/primitives/press.ts): pressed on pointer
  * down, and on release kept pressed until press-hold — read from its carrier's `transition-delay`, which holds the
- * token — has passed since the press began. The page notes, in its own clock, when the pointer was released, how long
- * the hold was, and when it ended.
+ * token — has passed since the press began. The page notes, in its own clock, when the pointer was pressed and when it
+ * was released, how long the hold was, and when it ended.
  */
 const BUTTON = `<style>${TOKENS}</style>
 <button id="button" style="position: absolute; left: 10px; top: 10px; width: 100px; height: 40px"><span id="carrier" style="transition-property: none; transition-delay: var(--tanrei-sys-motion-duration-press-hold)">press</span></button>
@@ -24,14 +25,14 @@ const BUTTON = `<style>${TOKENS}</style>
 {
   // In a block, and the notes cleared: a document written again into the same window (\`setContent()\`) keeps the
   // window's names, and a race that runs again must not read the last run's.
-  window.releasedAt = window.heldUntil = window.hold = undefined;
+  window.pressedAt = window.releasedAt = window.heldUntil = window.hold = undefined;
   const button = document.getElementById('button');
   const carrier = document.getElementById('carrier');
   let pressedAt = 0;
   let timer;
   button.addEventListener('pointerdown', () => {
     clearTimeout(timer);
-    pressedAt = performance.now();
+    pressedAt = window.pressedAt = performance.now();
     button.toggleAttribute('data-pressed', true);
   });
   button.addEventListener('pointerup', () => {
@@ -102,12 +103,13 @@ test('sound: a test reads press-hold as the run makes it', async ({ page }) => {
   await page.locator('#button').click();
   await expect(page.locator('#button')).not.toHaveAttribute('data-pressed');
   const { hold, since } = await page.evaluate(() => {
-    const noted = window as unknown as { releasedAt: number; heldUntil: number; hold: number };
-    return { hold: noted.hold, since: noted.heldUntil - noted.releasedAt };
+    const noted = window as unknown as { pressedAt: number; heldUntil: number; hold: number };
+    return { hold: noted.hold, since: noted.heldUntil - noted.pressedAt };
   });
   expect(hold).toBe(pressHoldAsRun(100));
-  // Held for the hold from the press, so from the release for nearly as long: a click releases within a frame.
-  expect(since).toBeGreaterThanOrEqual(hold - 50);
+  // Held for the hold from the press. Not from the release: how long a click's release comes after its press is the
+  // machine's doing (in Firefox 9 ms on an idle page, 75 ms on one kept busy for 70 ms after the press).
+  expect(since).toBeGreaterThanOrEqual(hold - CLOCK);
 });
 
 test('check: the self-check refuses a press-hold longer than the run makes it', async ({ browser }) => {
