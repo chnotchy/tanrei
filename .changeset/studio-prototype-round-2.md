@@ -24,3 +24,9 @@
   a tooltip. The documentation's Studio page puts its link to the page about the tool beside the tool's name, as a
   glyph, and on a phone shows its brand as the mark. The preview no longer grows wider than a phone's window when the
   screens' tabs do not fit it.
+- **Inspect opens as a modal side sheet over the Studio**, as Export does, as the approved design draws it: under its
+  head, the line that says it is the file and the tokens it settles, its two tabs — **Tokens** and **JSON** (was
+  *Source*) — and at its foot a way on to Export. It is wide enough for the token tree and the editor side by side; the
+  panel keeps its row (and its width) under it, and closing it goes back there. The draft's badge says "The JSON has
+  invalid edits", and its help no longer speaks of "levels", in the six languages; the hint of a pin's reason is
+  shorter, so that it fits the sheet on a phone.

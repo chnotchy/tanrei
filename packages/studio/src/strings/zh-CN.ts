@@ -324,7 +324,7 @@ const zhCN: Dictionary = {
     inherited: '继承的规则',
   },
   source: {
-    title: '源码',
+    title: 'JSON',
     label: '层文件（JSON）',
     help: '输入时依次校验：JSON、system.schema.json，然后是令牌引擎，引擎的消息会一字不差地显示出来。有效的编辑会立即反映到 Studio 的其他部分。',
     keys: 'Tab 用于缩进。先按 Esc，再按 Tab，即可用键盘离开编辑器。',
@@ -333,9 +333,9 @@ const zhCN: Dictionary = {
     invalidJson: '这不是有效的 JSON',
     line: (line) => `第 ${line} 行`,
     format: '格式化',
-    draftBadge: '源码中有无效的编辑',
+    draftBadge: 'JSON 中有无效的编辑',
     draftTitle: '这段文本还不是有效的 JSON，所以它是一份草稿。',
-    draftHelp: '它会原样保留，你去看其他层次时也一样，但它不是层：在它能够解析之前，预览、其他层次和保存的文件都停留在最后一份能解析的文本上。',
+    draftHelp: '它会原样保留，你查看 Studio 的其他部分时也一样，但它不是层：在它能够解析之前，预览、其他控件和保存的文件都停留在最后一份能解析的文本上。',
     draftDiscard: '放弃草稿',
   },
   preview: {
@@ -673,9 +673,10 @@ const zhCN: Dictionary = {
     title: '检查',
     help: '系统的全部令牌，以及层文件本身',
     tokens: '令牌',
-    source: '源码',
+    source: 'JSON',
     lead: '这个主题的文件，以及由它决定的令牌。其他所有操作都只是在改写这个文件。',
     close: '关闭检查',
+    toExport: '前往导出',
   },
   shared: {
     status: '提示',

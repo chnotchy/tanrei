@@ -323,18 +323,20 @@ for (const locale of ['en-US', 'ja', 'zh-CN', 'hi', 'es', 'ar']) {
       for (const name of VIEWS) {
         await view(name);
         await unfold(page, name);
-        const found = await targets(`${name} at ${width} (${locale})`);
+        // (Inspect is a modal sheet: what is under it is not operable while it is open.)
+        const within = name === 'tokens' || name === 'source' ? '[data-inspect-sheet]' : undefined;
+        const found = await targets(`${name} at ${width} (${locale})`, within);
         // (Its own controls only: a field, a slider, a radio group, a tag — and now every button, the switch and the
         // checkbox — are Tanrei's and keep their own minimum. What is left is the rail's rows, a fold's row, a text
-        // area, a list that scrolls, a link, the tree's rows.)
-        assert.ok(found.length > 4, `the measure saw the panel's controls: ${found.length}`);
+        // area, a list that scrolls, a link, the tree's rows. Inspect's JSON holds its two tabs and the text area.)
+        assert.ok(found.length >= (within ? 3 : 5), `the measure saw the panel's controls: ${found.length}`);
         await hints(`${name} at ${width} (${locale})`);
         if (name === 'tokens') {
           // A role color too: its editor has the tone table, the operation tabs and the list of the other operations.
           await page.locator('[data-search] input').fill('sys.color.primary');
           await page.locator('[data-token="tanrei.sys.color.primary"] > span').click();
           await page.waitForSelector('[data-token-pane] .ts-pointers');
-          await targets(`a role color's editor at ${width} (${locale})`);
+          await targets(`a role color's editor at ${width} (${locale})`, within);
           // The hint is drawn only while the field is empty; a text field cuts it where the field ends, without a mark.
           await page.locator('[data-search] input').fill('');
           const search = await page.locator('[data-search] input').evaluate((input) => {

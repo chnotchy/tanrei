@@ -124,7 +124,7 @@ studioTest('a state that is pressed is a small chip with its glyph: the count of
   await page.locator('[data-source]').fill('{ "draft": ');
   await section('color');
   const draft = page.locator('[data-draft-badge]');
-  assert.deepEqual(await draft.evaluate((el) => [el.localName, el.label, el.querySelector('[slot="icon"]').textContent]), ['tanrei-chip', 'Source has invalid edits', 'warning']);
+  assert.deepEqual(await draft.evaluate((el) => [el.localName, el.label, el.querySelector('[slot="icon"]').textContent]), ['tanrei-chip', 'The JSON has invalid edits', 'warning']);
   await draft.focus();
   await page.keyboard.press('Enter');
   await page.waitForSelector('[data-studio][data-pane="source"]');

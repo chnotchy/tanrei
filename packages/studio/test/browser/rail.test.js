@@ -1,6 +1,6 @@
 // The rail: the nine rows of the look — each with what it holds now and a sample drawn in the layer, and a lock — and
 // the rest of what a layer holds. A row shows its controls in the panel; the shuffle gives every row that is not locked
-// another value, in one step to undo; Inspect opens over the panel with the token tree and the file.
+// another value, in one step to undo; Inspect opens as a side sheet over the Studio with the token tree and the file.
 import assert from 'node:assert/strict';
 import { studioTest } from './harness.js';
 
@@ -84,33 +84,44 @@ studioTest('the shuffle gives every row that is not locked another value, in one
   assert.deepEqual(await page.locator('[data-lock]').evaluateAll((els) => els.filter((el) => el.selected).map((el) => el.dataset.lock)), ['color', 'typeface'], 'the locks are kept');
 });
 
-studioTest('Inspect opens over the panel at the token tree or Source, says it is open, and closes back to the row', {}, async ({ page, section, axe }) => {
+studioTest('Inspect opens as a side sheet over the Studio at the token tree or the JSON, says it is open, and closes back to the row', {}, async ({ page, section, axe }) => {
   const button = page.locator('[data-inspect]');
+  const sheet = page.locator('[data-inspect-sheet]');
   // It bears the file's name, and is named Inspect with it.
   assert.equal(await button.locator('[data-file-name]').textContent(), 'acme.system.json');
   assert.equal(await button.evaluate((el) => el.label), 'Inspect: acme.system.json');
   await section('icons');
-  assert.equal(await page.locator('[data-inspect-head]').isHidden(), true);
+  assert.deepEqual(await sheet.evaluate((el) => [el.localName, el.variant, el.open]), ['tanrei-side-sheet', 'modal', false]);
   await button.click();
   assert.equal(await button.evaluate((el) => el.selected), true, 'the toggle says Inspect is open');
+  assert.deepEqual(await sheet.evaluate((el) => [el.open, el.headline]), [true, 'Inspect'], 'a modal side sheet, headed Inspect');
   assert.equal(await page.locator('[data-studio]').getAttribute('data-pane'), 'tokens');
-  assert.deepEqual(await panels(page), ['tree', 'rules']);
-  assert.equal(await page.locator('[data-inspector]').getAttribute('aria-label'), 'Inspect');
+  assert.deepEqual(await sheet.locator('[data-panel]').evaluateAll((els) => els.map((el) => el.dataset.panel)), ['tree', 'rules']);
+  assert.deepEqual(await panels(page), ['icons'], 'the panel keeps the row under the sheet');
+  // Its two tabs: the tokens, and the file as JSON.
+  assert.deepEqual(await page.locator('[data-inspect-tabs] tanrei-tab').evaluateAll((els) => els.map((el) => el.label)), ['Tokens', 'JSON']);
   await page.locator('[data-inspect-tabs] tanrei-tab[data-value="source"]').click();
-  assert.deepEqual(await panels(page), ['source']);
-  await axe('[data-studio]', 'Inspect at Source');
-  await page.locator('[data-inspect-close]').click();
+  assert.deepEqual(await sheet.locator('[data-panel]').evaluateAll((els) => els.map((el) => el.dataset.panel)), ['source']);
+  await axe('[data-inspect-sheet]', 'Inspect at the JSON');
+  // Closed with its own button: back to the row it was opened from, the focus on Inspect's button.
+  await sheet.getByRole('button', { name: 'Close Inspect', exact: true }).click();
   assert.equal(await page.locator('[data-studio]').getAttribute('data-pane'), 'edit');
+  assert.equal(await sheet.evaluate((el) => el.open), false);
   assert.deepEqual(await panels(page), ['icons'], 'back to the row it was opened from');
-  assert.equal(await page.evaluate(() => document.activeElement?.closest('[data-inspect]') !== null), true, 'the focus goes back to Inspect’s button');
-  // It opens at the tab it was last at.
+  await page.waitForFunction(() => document.activeElement?.closest('[data-inspect]') !== null);
+  // It opens at the tab it was last at; Escape closes it too.
   await button.click();
   assert.equal(await page.locator('[data-studio]').getAttribute('data-pane'), 'source');
+  await page.keyboard.press('Escape');
+  await page.waitForSelector('[data-studio][data-pane="edit"]');
+  // Its foot leads on to Export.
   await button.click();
-  assert.equal(await page.locator('[data-studio]').getAttribute('data-pane'), 'edit', 'and the button closes it');
+  await sheet.locator('[data-inspect-export]').click();
+  assert.equal(await page.locator('[data-studio]').getAttribute('data-pane'), 'edit');
+  assert.equal(await page.locator('[data-export-sheet]').evaluate((el) => el.open), true, 'Export is open in its place');
 });
 
-studioTest('a link to a token opens Inspect at it; the warnings count opens Accessibility', {}, async ({ page, section }) => {
+studioTest('a link to a token opens Inspect at it; the warnings count opens Accessibility', {}, async ({ page, section, closeInspect }) => {
   await section('components');
   const button = page.locator('[data-component="button"]');
   await button.locator('summary').first().click();
@@ -118,6 +129,7 @@ studioTest('a link to a token opens Inspect at it; the warnings count opens Acce
   assert.equal(await page.locator('[data-studio]').getAttribute('data-pane'), 'tokens');
   await page.waitForSelector('[data-detail="tanrei.comp.button.container.shape"]');
   assert.equal(await page.locator('[data-token-name]').textContent(), 'comp.button.container.shape', 'the token is chosen');
+  await closeInspect();
   await page.locator('[data-a11y-count]').click();
   assert.deepEqual(await current(page), ['a11y']);
   assert.equal(await page.locator('[data-studio]').getAttribute('data-pane'), 'edit');

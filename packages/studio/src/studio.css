@@ -215,15 +215,6 @@
 /* A wide screen: three columns that each scroll by themselves — the rail, the preview (it takes what the others leave)
    and the panel, with the handle between the preview and the panel. */
 @media (min-width: 64rem) {
-  /* Inspect's tokens hold two panes side by side, the tree and the chosen token's editor, and its Source the file:
-     the column starts wider for them. A width the person gives the column is kept for what it holds then (ui.ts
-     `panelWidths`): a section's controls and each tab of Inspect keep theirs. */
-  .ts[data-pane='tokens'] {
-    --ts-panel-default: clamp(var(--ts-panel-min), 55vw, 52rem);
-  }
-  .ts[data-pane='source'] {
-    --ts-panel-default: clamp(var(--ts-panel-min), 45vw, 44rem);
-  }
   .ts-frame {
     grid-template-columns: var(--ts-rail-width) minmax(var(--ts-preview-min), 1fr) auto minmax(var(--ts-panel-min), var(--ts-panel-width, var(--ts-panel-default)));
     grid-template-rows: minmax(0, 1fr);
@@ -1245,19 +1236,22 @@
   }
 }
 
-/* ── Inspect: over the panel, the token tree and Source ─────────────── */
+/* ── Inspect: a side sheet, the token tree and the file as JSON ─────── */
+/* Inspect: a modal side sheet, wide enough for the token tree and the chosen token's editor side by side (the panes
+   stack where it is narrower: a phone). Under its head, what it is — the file, and the tokens it settles — then its
+   two tabs. */
+.ts-inspect-sheet {
+  --tanrei-comp-side-sheet-container-width: clamp(20rem, 55vw, 52rem);
+}
+.ts-inspect {
+  min-inline-size: 0;
+}
 .ts-inspect-head {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.5rem 0.75rem;
+  display: grid;
+  justify-items: start;
+  gap: 0.75rem;
 }
-.ts-inspect-head > tanrei-tabs {
-  flex: 1;
-}
-/* What Inspect is, under its head: the file, and the tokens it settles. */
 .ts-inspect-head > .ts-inspect-lead {
-  flex: 1 0 100%;
   margin: 0;
 }
 /* The bar's Inspect bears the file's name, as the file names itself. */
