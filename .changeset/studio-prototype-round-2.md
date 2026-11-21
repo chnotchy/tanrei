@@ -17,3 +17,5 @@
   リング…), while the panel where one is chosen lists the vocabulary's names.
 - **A rail row's value is shown whole**: a long one wraps under the row's name instead of being cut, an icon set is
   named by its style beside its weight ("Rounded · 300"), and the brand color's "none" is shorter in Japanese.
+- **The Size and Corners panels name each number by what it does**: the token ids under the names (`dial.control.height`,
+  `sys.target.minimum`…) are gone from the panels the rail's rows open, and stay in Dials, Inspect and Export.
