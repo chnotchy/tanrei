@@ -519,7 +519,7 @@
   /* A pane shorter than the preview still fills it: the screen's surface, not the Studio's, down to the foot. */
   align-content: stretch;
   gap: var(--tanrei-sys-space-space150);
-  padding: 0 var(--tanrei-sys-space-space150) var(--tanrei-sys-space-space150);
+  padding: 0 var(--tanrei-sys-space-space100) var(--tanrei-sys-space-space150);
   overflow: auto;
   overscroll-behavior: contain;
 }
