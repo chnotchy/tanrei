@@ -647,6 +647,7 @@ const ja: Dictionary = {
     unchanged: '既定',
     neutral: 'ニュートラル',
     none: 'なし',
+    choices: { overlay: 'オーバーレイ', ripple: 'リップル', dim: '減光', none: 'なし', ring: 'リング', glow: 'グロー' },
     hueChroma: (hue, chroma) => `色相 ${hue} · 彩度 ${chroma}`,
     size: (height, target) => `${height} · 最小 ${target}`,
     target: '押せるものの最小の大きさ',

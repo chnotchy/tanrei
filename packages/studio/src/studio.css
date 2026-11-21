@@ -1030,7 +1030,7 @@
 }
 .ts-rail-item {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-columns: minmax(0, 1fr) auto auto;
   align-items: center;
   gap: 0.125rem;
   min-inline-size: 0;
@@ -1057,7 +1057,7 @@
   grid-template-rows: auto auto;
 }
 .ts-rail-link {
-  grid-template-columns: auto minmax(0, 1fr);
+  grid-template-columns: auto minmax(0, 1fr) auto;
   inline-size: 100%;
   color: var(--tanrei-sys-color-on-surface-variant);
 }
@@ -1104,6 +1104,17 @@
   white-space: nowrap;
   font-weight: 500;
 }
+/* The chevron: a row, or an item, opens its controls. It points toward the end edge. */
+.ts-rail-chevron {
+  display: grid;
+  place-items: center;
+  color: var(--tanrei-sys-color-on-surface-variant);
+  font-size: 1.25rem;
+  cursor: pointer;
+}
+.ts-rail-chevron:dir(rtl) {
+  transform: scaleX(-1);
+}
 .ts-rail-default {
   flex: none;
   font-size: var(--ts-text-2xs);
@@ -1145,11 +1156,6 @@
   font-style: normal;
   font-size: 1.125rem;
   line-height: 1;
-}
-.ts-sample-size {
-  inline-size: 1.5rem;
-  border-radius: var(--tanrei-sys-shape-corner-small);
-  background: var(--tanrei-sys-color-primary);
 }
 .ts-sample-corner {
   inline-size: 1.25rem;

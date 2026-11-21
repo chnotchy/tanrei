@@ -21,6 +21,8 @@ studioTest('the rail lists the nine rows, then the rest; each shows its panel, a
   // Every row says what it holds, and draws a sample.
   assert.deepEqual(await Promise.all(ROWS.map((row) => value(page, row))), ['none (monochrome)', 'neutral', 'Inter', '40px · minimum 36px', '2px', 'none', 'Material Symbols Rounded · 300', 'overlay', 'ring']);
   assert.equal(await page.locator('[data-rail] .ts-sample').count(), ROWS.length);
+  // Each row, and each item after them, ends in a chevron: it opens its controls.
+  assert.equal(await page.locator('[data-rail] .ts-rail-chevron').count(), ROWS.length + MORE.length);
   for (const name of [...ROWS, ...MORE]) {
     await section(name);
     assert.deepEqual(await current(page), [name], `${name} is current`);
@@ -55,7 +57,8 @@ studioTest('a row says what the layer holds, its sample is drawn in the layer, a
   await page.locator('[data-panel="press"] [data-behavior="pressed-feedback"] tanrei-radio-button[data-value="ripple"]').click();
   await saved((file) => file.tokens?.['tanrei.sys.behavior.pressed-feedback'], 'the press feedback');
   assert.equal(await value(page, 'press'), 'ripple');
-  assert.equal(await page.locator('[data-sample-of="press"]').textContent(), 'water_drop', 'and its glyph');
+  // The row's glyph says what the row is, whatever it holds; what it holds is said in words.
+  assert.equal(await page.locator('[data-sample-of="press"]').textContent(), 'touch_app', 'its glyph is the row’s');
   await inspect('tokens');
   assert.deepEqual(await current(page), ['press'], 'Inspect leaves the row current: closing it goes back there');
 });

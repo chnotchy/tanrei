@@ -95,7 +95,7 @@ for (const scheme of ['light', 'dark']) {
   });
 }
 
-studioTest('the theme and language switches: dark is a click away; ja translates the chrome, never the vocabulary; the session survives the reload', { layer }, async ({ page, section }) => {
+studioTest('the theme and language switches: dark is a click away; ja translates the chrome, and says a choice in its words on the rail while the panel lists the vocabulary’s names; the session survives the reload', { layer }, async ({ page, section }) => {
   await page.locator('#theme').click();
   assert.equal(await page.locator('html').getAttribute('data-tanrei-theme'), 'dark');
   await section('typeface');
@@ -112,9 +112,11 @@ studioTest('the theme and language switches: dark is a click away; ja translates
   assert.equal(await page.locator('[data-studio]').getAttribute('data-section'), 'typeface', 'so is the section');
   assert.match(await page.locator('[data-panel="typefaces"] h2').textContent(), /書体/);
   assert.equal(await page.locator('[data-rail] [data-row="press"] .ts-rail-label').textContent(), '押したときの表現');
+  // The rail says what a row holds in the person's language: a choice of the vocabulary by its Japanese word.
+  assert.deepEqual(await Promise.all(['press', 'focus'].map((row) => page.locator(`[data-rail] [data-row="${row}"] .ts-rail-value`).textContent())), ['オーバーレイ', 'リング']);
   await section('behavior');
   assert.match(await page.locator('[data-panel="behavior"] h2').textContent(), /ふるまい/);
-  assert.deepEqual(await page.locator('[data-behavior="pressed-feedback"] tanrei-radio-button').evaluateAll((els) => els.map((el) => el.label)), ['overlay', 'ripple', 'dim', 'none'], 'names are vocabulary: not translated');
+  assert.deepEqual(await page.locator('[data-behavior="pressed-feedback"] tanrei-radio-button').evaluateAll((els) => els.map((el) => el.label)), ['overlay', 'ripple', 'dim', 'none'], 'the panel, where the choice is made, lists the vocabulary’s names, as Inspect and the documentation call them');
   assert.match(await page.locator('[data-save-state]').textContent(), /保存済み/);
 });
 

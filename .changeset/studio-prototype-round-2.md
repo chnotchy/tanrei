@@ -11,3 +11,7 @@
   Button's sizes, one at each size the system declares, stand with what the system is made of under the panels. The
   panel beside the preview starts at its least (320px) up to a window about 1450px wide, so that the preview has the
   room. The overview no longer draws every variant of every component.
+- **Each row of the rail, and each item after them, ends in a chevron**: it opens its controls. The Size row draws
+  the height glyph, Press feedback and Focus a glyph of their own whatever they hold, and what a row holds is said in
+  the Studio's language: the press feedback and the focus style by their words for the vocabulary's choices (オーバーレイ,
+  リング…), while the panel where one is chosen lists the vocabulary's names.

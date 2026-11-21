@@ -659,6 +659,7 @@ const es: Dictionary = {
     unchanged: 'predeterminado',
     neutral: 'neutro',
     none: 'ninguno',
+    choices: { overlay: 'superposición', ripple: 'onda', dim: 'atenuación', none: 'ninguno', ring: 'anillo', glow: 'resplandor' },
     hueChroma: (hue, chroma) => `matiz ${hue} · croma ${chroma}`,
     size: (height, target) => `${height} · mínimo ${target}`,
     target: 'el tamaño mínimo de todo lo que se pulsa',

@@ -738,6 +738,7 @@ const ar: Dictionary = {
     unchanged: 'افتراضي',
     neutral: 'محايد',
     none: 'بلا',
+    choices: { overlay: 'تراكب', ripple: 'تموّج', dim: 'تعتيم', none: 'بلا', ring: 'حلقة', glow: 'توهّج' },
     hueChroma: (hue, chroma) => `الصبغة ${hue} · التشبّع ${chroma}`,
     size: (height, target) => `${height} · الأدنى ${target}`,
     target: 'أصغر حجم لأي عنصر يُضغط',

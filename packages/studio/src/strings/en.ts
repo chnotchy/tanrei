@@ -688,6 +688,8 @@ const en = {
     unchanged: 'default',
     neutral: 'neutral',
     none: 'none',
+    // The choices of the press feedback and the focus style, as the rail says them; the panel lists the vocabulary's names.
+    choices: open({ overlay: 'overlay', ripple: 'ripple', dim: 'dim', none: 'none', ring: 'ring', glow: 'glow' }),
     // A palette given as hue and chroma, and the size row's value: the numbers as the file has them.
     hueChroma: (hue: string, chroma: string) => `hue ${hue} · chroma ${chroma}`,
     size: (height: string, target: string) => `${height} · minimum ${target}`,

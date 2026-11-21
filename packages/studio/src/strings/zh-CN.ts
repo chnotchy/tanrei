@@ -653,6 +653,7 @@ const zhCN: Dictionary = {
     unchanged: '默认',
     neutral: '中性',
     none: '无',
+    choices: { overlay: '叠加', ripple: '涟漪', dim: '变暗', none: '无', ring: '环形', glow: '光晕' },
     hueChroma: (hue, chroma) => `色相 ${hue} · 色度 ${chroma}`,
     size: (height, target) => `${height} · 最小 ${target}`,
     target: '能按的东西的最小尺寸',

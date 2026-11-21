@@ -663,6 +663,7 @@ const hi: Dictionary = {
     unchanged: 'डिफ़ॉल्ट',
     neutral: 'न्यूट्रल',
     none: 'कोई नहीं',
+    choices: { overlay: 'ओवरले', ripple: 'रिपल', dim: 'मंद', none: 'कोई नहीं', ring: 'रिंग', glow: 'चमक' },
     hueChroma: (hue, chroma) => `ह्यू ${hue} · क्रोमा ${chroma}`,
     size: (height, target) => `${height} · न्यूनतम ${target}`,
     target: 'दबाई जा सकने वाली किसी भी चीज़ का न्यूनतम साइज़',

@@ -8,11 +8,14 @@ import { type Ctx, type Json, type Layer, h, trim } from './dom';
 import { MORE, ROWS, type Row, type Section } from './sections';
 
 const glyph = (ctx: Ctx, name: string, attrs: Json = {}) => h('span', { class: `${ctx.studio.tagPrefix}-icon`, 'aria-hidden': 'true', translate: 'no', ...attrs }, name);
-const PRESS_GLYPHS: Record<string, string> = { overlay: 'layers', ripple: 'water_drop', dim: 'brightness_6', none: 'block' };
-const FOCUS_GLYPHS: Record<string, string> = { ring: 'radio_button_unchecked', glow: 'blur_on' };
-/** A row's sample when its value names no glyph of its own; the lock, held and open. Declared, so that the docs site's cut-down icon file has them (packages/tools/src/glyphs.js). */
-const SAMPLE_GLYPHS = { icons: 'star', press: 'touch_app', focus: 'center_focus_strong' };
+/**
+ * The glyph a row draws for what it is (its value is said in words beside it); the lock, held and open; and the
+ * chevron that says a row opens its controls. Declared, so that the docs site's cut-down icon file has them
+ * (packages/tools/src/glyphs.js).
+ */
+const SAMPLE_GLYPHS = { size: 'height', icons: 'star', press: 'touch_app', focus: 'center_focus_strong' };
 const LOCK_GLYPHS = { held: 'lock', open: 'lock_open' };
+const CHEVRON_GLYPH = 'chevron_right';
 const MORE_GLYPHS: Record<(typeof MORE)[number], string> = { base: 'layers', dials: 'tune', palettes: 'palette', components: 'widgets', behavior: 'touch_app', vocabulary: 'add_box', about: 'description', a11y: 'accessibility_new' };
 
 /** A row's state, read from the layer each time it is drawn. */
@@ -73,8 +76,9 @@ export function rowState(ctx: Ctx, layer: Layer, row: Row): RowState {
     }
     case 'press':
     case 'focus': {
+      // A choice by its name in the person's language; the panel lists the vocabulary's names.
       const entry = behavior(ctx, layer, row === 'press' ? 'pressed-feedback' : 'focus-style');
-      return { value: entry.value, changed: entry.changed };
+      return { value: t.rail.choices[entry.value] ?? entry.value, changed: entry.changed };
     }
   }
 }
@@ -88,9 +92,9 @@ function sample(ctx: Ctx, row: Row) {
   const { studio } = ctx;
   const v = (id: string) => `var(${studio.cssVar(`${studio.namespace}.${id}`)})`;
   const el = h('span', { class: 'ts-sample', 'aria-hidden': 'true', 'data-sample-of': row, [`data-${studio.namespace}-system`]: ctx.scope });
-  const draw = (layer: Layer) => {
-    // A sample drawn from the sheet alone is drawn once: the sheet keeps it up to date.
-    if (el.childElementCount && row !== 'press' && row !== 'focus') return;
+  const draw = () => {
+    // A sample is drawn once: the sheet keeps what it draws of the layer up to date, and a glyph says what the row is.
+    if (el.childElementCount) return;
     switch (row) {
       case 'color':
         return el.replaceChildren(h('i', { class: 'ts-sample-swatch', style: `background: ${v('sys.color.primary')};` }));
@@ -99,7 +103,7 @@ function sample(ctx: Ctx, row: Row) {
       case 'typeface':
         return el.replaceChildren(h('i', { class: 'ts-sample-type', style: `font-family: ${v('ref.typeface.brand')};`, text: 'Ag' }));
       case 'size':
-        return el.replaceChildren(h('i', { class: 'ts-sample-size', style: `block-size: min(1.5rem, calc(${v('dial.control.height')} * 0.6));` }));
+        return el.replaceChildren(glyph(ctx, SAMPLE_GLYPHS.size));
       case 'radius':
         return el.replaceChildren(h('i', { class: 'ts-sample-corner', style: `border-start-end-radius: ${v('sys.shape.corner.large')};` }));
       case 'smoothing':
@@ -107,9 +111,9 @@ function sample(ctx: Ctx, row: Row) {
       case 'icons':
         return el.replaceChildren(glyph(ctx, SAMPLE_GLYPHS.icons));
       case 'press':
-        return el.replaceChildren(glyph(ctx, PRESS_GLYPHS[behavior(ctx, layer, 'pressed-feedback').value] ?? SAMPLE_GLYPHS.press));
+        return el.replaceChildren(glyph(ctx, SAMPLE_GLYPHS.press));
       case 'focus':
-        return el.replaceChildren(glyph(ctx, FOCUS_GLYPHS[behavior(ctx, layer, 'focus-style').value] ?? SAMPLE_GLYPHS.focus));
+        return el.replaceChildren(glyph(ctx, SAMPLE_GLYPHS.focus));
     }
   };
   return { el, draw };
@@ -267,9 +271,11 @@ export function createRail(ctx: Ctx, { locked, onshow, onlock }: { locked: Set<R
         value.textContent = state.value;
         unchanged.hidden = state.changed;
         show.toggleAttribute('data-changed', state.changed);
-        drawn.draw(layer);
+        drawn.draw();
       });
-      return h('li', { class: 'ts-rail-item', 'data-rail-row': row }, show, lock);
+      // The chevron says the row opens its controls; pressing it is pressing the row.
+      const chevron = h('span', { class: 'ts-rail-chevron', 'aria-hidden': 'true', onclick: () => show.click() }, glyph(ctx, CHEVRON_GLYPH));
+      return h('li', { class: 'ts-rail-item', 'data-rail-row': row }, show, lock, chevron);
     }),
   );
 
@@ -280,7 +286,7 @@ export function createRail(ctx: Ctx, { locked, onshow, onlock }: { locked: Set<R
     MORE.map((section) => {
       // Each says in a line what it holds: the name is the button's, the line describes it.
       const help = h('span', { id: ctx.uid('ts-more'), class: 'ts-rail-help', 'aria-hidden': 'true', text: t.rail.moreHelp[section] });
-      const show = h('button', { type: 'button', class: 'ts-rail-link', 'aria-current': 'false', 'aria-describedby': help.id, 'data-row': section, onclick: () => onshow(section) }, glyph(ctx, MORE_GLYPHS[section]), h('span', { class: 'ts-rail-link-text' }, h('span', { class: 'ts-rail-label', text: t.rail.more[section] }), help)) as HTMLButtonElement;
+      const show = h('button', { type: 'button', class: 'ts-rail-link', 'aria-current': 'false', 'aria-describedby': help.id, 'data-row': section, onclick: () => onshow(section) }, glyph(ctx, MORE_GLYPHS[section]), h('span', { class: 'ts-rail-link-text' }, h('span', { class: 'ts-rail-label', text: t.rail.more[section] }), help), glyph(ctx, CHEVRON_GLYPH, { class: `${ctx.studio.tagPrefix}-icon ts-rail-chevron` })) as HTMLButtonElement;
       buttons.set(section, show);
       return h('li', {}, show);
     }),
