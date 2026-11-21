@@ -390,6 +390,7 @@ const ja: Dictionary = {
       delete: '削除',
       email: 'メールアドレス',
       emailHint: 'ログインに使うアドレスです。',
+      emailExample: 'me@example.com',
       plan: 'プラン',
       plans: { free: 'フリー', pro: 'プロ', team: 'チーム' },
       notify: '通知を受け取る',

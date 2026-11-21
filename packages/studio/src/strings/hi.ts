@@ -405,6 +405,7 @@ const hi: Dictionary = {
       delete: 'मिटाएँ',
       email: 'ईमेल',
       emailHint: 'इसी पते से आप साइन इन करते हैं।',
+      emailExample: 'me@example.com',
       plan: 'प्लान',
       plans: { free: 'मुफ़्त', pro: 'प्रो', team: 'टीम' },
       notify: 'सूचनाएँ पाएँ',

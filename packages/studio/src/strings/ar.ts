@@ -436,6 +436,7 @@ const ar: Dictionary = {
       delete: 'حذف',
       email: 'البريد الإلكتروني',
       emailHint: 'تسجّل الدخول بهذا العنوان.',
+      emailExample: 'me@example.com',
       plan: 'الخطة',
       plans: { free: 'مجانية', pro: 'احترافية', team: 'للفرق' },
       notify: 'تلقي الإشعارات',

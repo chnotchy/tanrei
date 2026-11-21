@@ -398,6 +398,7 @@ const es: Dictionary = {
       delete: 'Eliminar',
       email: 'Correo electrónico',
       emailHint: 'Es la dirección con la que inicias sesión.',
+      emailExample: 'me@example.com',
       plan: 'Plan',
       plans: { free: 'Gratis', pro: 'Pro', team: 'Equipo' },
       notify: 'Recibir notificaciones',

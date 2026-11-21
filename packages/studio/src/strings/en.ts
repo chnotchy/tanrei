@@ -415,6 +415,8 @@ const en = {
       delete: 'Delete',
       email: 'Email',
       emailHint: 'You sign in with this address.',
+      // The address a field shows as its example, short enough for the field in a narrow column.
+      emailExample: 'me@example.com',
       plan: 'Plan',
       plans: { free: 'Free', pro: 'Pro', team: 'Team' },
       notify: 'Get notifications',

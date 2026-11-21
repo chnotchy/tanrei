@@ -137,7 +137,7 @@ function overview(drawing: Drawing) {
   const inputs = section(
     k,
     o.inputs,
-    el('text-field', { label: o.email, type: 'email', placeholder: s.person.email, 'supporting-text': o.emailHint }),
+    el('text-field', { label: o.email, type: 'email', placeholder: o.emailExample, 'supporting-text': o.emailHint }),
     el('select-field', { label: o.plan, value: 'pro' }, ...(['free', 'pro', 'team'] as const).map((plan) => el('option', { value: plan, label: o.plans[plan] }))),
   );
   const selection = section(

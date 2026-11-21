@@ -396,6 +396,7 @@ const zhCN: Dictionary = {
       delete: '删除',
       email: '邮箱',
       emailHint: '登录时使用这个邮箱。',
+      emailExample: 'me@example.com',
       plan: '套餐',
       plans: { free: '免费版', pro: '专业版', team: '团队版' },
       notify: '接收通知',
