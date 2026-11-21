@@ -619,6 +619,12 @@ export const styles = css`
   .header .clear {
     flex: none;
   }
+  /* SRC-25, BTN-5: the back button reaches its target toward the input no further than the middle of container.gap, as
+     the clear button does from the other side, so that a press on the query is never a step back: a back button
+     narrower than the target (36 under a target of 48) would otherwise reach past the middle of the gap. */
+  .header .back {
+    ${unsafeCSS(TARGET_CAPS.end)}: ${unsafeCSS(FIRST_ACTION_CAP)};
+  }
   /* SRC-11: the back arrow points to the start edge in right-to-left by the icon helper's own mirroring — arrow_back is
      flagged by the icon set, and the back Button marks and mirrors its glyph (BTN-19, SRC-32). Nothing here mirrors it. */
   /* SRC-9: a line of divider.thickness across the window under the header. */
