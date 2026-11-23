@@ -2300,8 +2300,10 @@ export class TanreiDateTimePicker extends TanreiElement {
       // For auto, horizontal only when the vertical layout overflows the window's height…
       this.step(run, () => (body.scrollHeight > body.clientHeight + 0.5 ? true : null), () => {
         surface.dataset.layout = 'horizontal';
-        // …and the horizontal one fits its width.
-        this.step(run, () => surface.scrollWidth <= surface.clientWidth + 0.5, (fits) => {
+        // …and the horizontal one fits its width. The body scrolls, so what overflows it is its own overflow, never
+        // the surface's: read on the surface alone, a 320 or 360 px window short enough for this step took the
+        // horizontal layout and cut the calendar and the time section at its two edges.
+        this.step(run, () => body.scrollWidth <= body.clientWidth + 0.5 && surface.scrollWidth <= surface.clientWidth + 0.5, (fits) => {
           if (!fits) surface.dataset.layout = 'vertical';
           this.arrangeActions(run, surface, body, arrangement);
         });
