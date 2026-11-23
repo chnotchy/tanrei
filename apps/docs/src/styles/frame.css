@@ -233,6 +233,9 @@
         var(--tanrei-comp-navigation-drawer-container-max-width)
       ) - 2 * var(--tanrei-comp-navigation-drawer-container-padding-inline)
     );
+    /* Each row as tall as its content, as the defined drawer's list draws it: not cut down to its least height where
+       the list is longer than its room. */
+    grid-auto-rows: max-content;
     align-content: start;
     overflow: hidden auto;
     overscroll-behavior: contain;
@@ -276,7 +279,14 @@
     }
   }
   /* The rows of the appearance's button (compact windows only, above) and of the switch: the first of the list, at
-     a row's inset, a row's height at least; a collapsed drawer, whose column holds the groups' glyphs, draws neither. */
+     a row's inset, a row's height at least; a collapsed drawer, whose column holds the groups' glyphs, draws neither.
+     A row is as tall as what it holds, however long the list: a row's height is only its least (a label of two lines
+     makes the switch taller), and the list that is longer than its room scrolls instead. Without that, the defined
+     drawer's list (a column of flex items) shrank the row below its switch, and the stand-in's grid gave it a track of
+     its least height, each by how much the list overflowed — two different amounts. */
+  :is(.docs-look-row, .docs-listing-row) {
+    flex-shrink: 0;
+  }
   .docs-look-row {
     box-sizing: border-box;
     align-items: center;
