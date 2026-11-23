@@ -206,6 +206,9 @@ for (const locale of ['ja', 'es', 'zh-CN', 'hi']) {
       await unfold(page, name);
       await fits('body', `${name} (${locale})`);
     }
+    // How the screens are seen stands on one line under their tabs; what a phone has no room for scrolls in its box.
+    const conditions = await page.evaluate(() => [...document.querySelector('.ts-preview-conditions').children].filter((el) => el.getClientRects().length).map((el) => { const box = el.getBoundingClientRect(); return Math.round(box.top + box.height / 2); }));
+    assert.ok(conditions.length >= 3 && Math.max(...conditions) - Math.min(...conditions) <= 2, `the scheme, the contrast and the emphasis share a line: ${conditions}`);
     const bar = await page.evaluate(() => ['.app-brand', '#lang', '#theme'].map((selector) => { const box = document.querySelector(selector).getBoundingClientRect(); return Math.round(box.top + box.height / 2); }));
     assert.ok(Math.max(...bar) - Math.min(...bar) <= 2, `the brand, the language and the theme share a line: ${bar}`);
     assert.ok((await page.locator('#theme').evaluate((button) => button.getBoundingClientRect().height)) <= 38, 'the theme button says its word on one line (a small Button is 36 high)');
