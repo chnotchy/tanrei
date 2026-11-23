@@ -655,7 +655,6 @@ const ja: Dictionary = {
     minimum: '最小ターゲット',
     heights: 'このコントロールの高さでのサイズ',
     sample: { label: 'このコントロールの高さで描いたもの', button: 'ボタン', field: '入力欄', menuRow: 'メニューの行', tabs: 'タブ', tab: 'タブ' },
-    held: (drawn, step) => `${drawn}（${step} を最小ターゲットまで引き上げ）`,
     lock: (row) => `${row}をロック`,
     lockHelp: 'ロックした行は、シャッフルしても値が変わりません。',
     shuffle: 'シャッフル',

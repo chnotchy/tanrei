@@ -667,7 +667,6 @@ const es: Dictionary = {
     minimum: 'Objetivo mínimo',
     heights: 'Alturas con esta altura de control',
     sample: { label: 'Dibujados con esta altura de control', button: 'Botón', field: 'Campo', menuRow: 'Fila de menú', tabs: 'Pestañas', tab: 'Pestaña' },
-    held: (drawn, step) => `${drawn} (${step}, elevada al objetivo mínimo)`,
     lock: (row) => `Bloquear ${row}`,
     lockHelp: 'Una fila bloqueada conserva su valor al mezclar.',
     shuffle: 'Mezclar',

@@ -671,7 +671,6 @@ const hi: Dictionary = {
     minimum: 'न्यूनतम टार्गेट',
     heights: 'इस कंट्रोल ऊँचाई पर ऊँचाइयाँ',
     sample: { label: 'इस कंट्रोल ऊँचाई पर बने', button: 'बटन', field: 'फ़ील्ड', menuRow: 'मेन्यू की पंक्ति', tabs: 'टैब', tab: 'टैब' },
-    held: (drawn, step) => `${drawn} (${step}, न्यूनतम टार्गेट तक बढ़ाई गई)`,
     lock: (row) => `${row} लॉक करें`,
     lockHelp: 'लॉक की गई पंक्ति शफ़ल करने पर अपनी वैल्यू नहीं बदलती।',
     shuffle: 'शफ़ल करें',

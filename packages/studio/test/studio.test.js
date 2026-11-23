@@ -101,10 +101,11 @@ test('Essentials: four controls and a color write the minimal layer', async () =
   assert.deepEqual(Object.fromEntries(Object.entries(layer.tokens).filter(([id]) => !roles.includes(id))), {
     'tanrei.dial.type.base': { $value: { value: 17, unit: 'px' }, reason },
     'tanrei.dial.space.unit': { $value: { value: 10, unit: 'px' }, reason },
-    // Spacing takes the size unit and the control height with it (8 → 10 is 4 → 5 and 36 → 45): a control's height
-    // must hold its padding.
+    // Spacing takes the size unit and the control height with it (8 → 10 is 4 → 5 and 36 → 45), and the control height
+    // goes on up to where every height holds its padding and its line at this type (47: at 45 a small Button, a small
+    // set and the accordion's header are a fraction of a pixel short).
     'tanrei.dial.size.unit': { $value: { value: 5, unit: 'px' }, reason },
-    'tanrei.dial.control.height': { $value: { value: 45, unit: 'px' }, reason },
+    'tanrei.dial.control.height': { $value: { value: 47, unit: 'px' }, reason },
     'tanrei.dial.shape.unit': { $value: { value: 4, unit: 'px' }, reason },
     'tanrei.dial.type.contrast': { $value: 1.2, reason },
   });
@@ -155,13 +156,14 @@ test('the Size row: the control height and the heights it gives, and the minimum
     assert.equal(studio.setTargetMinimum(layer, under + 1).tokens, undefined, `${base}: ${under + 1} is above its touch or pointer target`);
   }
 
-  // The heights the control height gives, by the engine: the ladder's small, medium and large, read through the minimum.
-  const heights = (view, at) => studio.heights(view, at).map(({ size, step, drawn, held }) => [size, step, drawn, held]);
+  // The heights the control height gives, by the engine: the ladder's small, medium and large, what a control of each
+  // size that stands alone is drawn at (its hit area reaches the minimum target past it).
+  const heights = (view, at) => studio.heights(view, at).map(({ size, step }) => [size, step]);
   const view = studio.preview(blank);
-  assert.deepEqual(heights(view), [['small', 28, 36, true], ['medium', 36, 36, false], ['large', 52, 52, false]]);
+  assert.deepEqual(heights(view), [['small', 28], ['medium', 36], ['large', 52]]);
   // At a value being dragged, before the layer is computed with it — and what computing it gives is the same.
   // A control height under the minimum takes the minimum down with it: the build refuses a minimum above it.
-  for (const [height, minimum, expected] of [[32, 32, [['small', 24, 32, true], ['medium', 32, 32, false], ['large', 48, 48, false]]], [36, 36, [['small', 28, 36, true], ['medium', 36, 36, false], ['large', 52, 52, false]]], [48, 36, [['small', 40, 40, false], ['medium', 48, 48, false], ['large', 64, 64, false]]]]) {
+  for (const [height, minimum, expected] of [[32, 32, [['small', 24], ['medium', 32], ['large', 48]]], [36, 36, [['small', 28], ['medium', 36], ['large', 52]]], [48, 36, [['small', 40], ['medium', 48], ['large', 64]]]]) {
     assert.deepEqual(heights(view, { height, minimum }), expected, `control height ${height}`);
     const layer = studio.setDial(blank, 'tanrei.dial.control.height', height);
     assert.equal(studio.targetMinimum(layer).value, minimum, `control height ${height}: the minimum`);
@@ -170,8 +172,9 @@ test('the Size row: the control height and the heights it gives, and the minimum
     assert.deepEqual(heights(computed), expected, `control height ${height}, computed`);
     assert.deepEqual(heights(computed).map(([size]) => computed.model.tokens[`tanrei.sys.control.height.${size}`].value.value), expected.map(([, step]) => step));
   }
-  assert.deepEqual(heights(view, { minimum: 34 }), [['small', 28, 34, true], ['medium', 36, 36, false], ['large', 52, 52, false]]);
-  assert.deepEqual(heights(studio.preview(studio.setTargetMinimum(blank, 34))), heights(view, { minimum: 34 }));
+  // The minimum target moves the hit areas, not what a control is drawn at.
+  assert.deepEqual(heights(view, { minimum: 34 }), heights(view));
+  assert.deepEqual(heights(studio.preview(studio.setTargetMinimum(blank, 34))), heights(view));
 
   // Both ends of the minimum, at both ends of the control height, build with nothing said of a target: the layer the
   // Studio writes passes the build's checks.
