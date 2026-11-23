@@ -4919,6 +4919,7 @@ test.describe('where the list stands, and how Japanese lines break', () => {
   ];
   const FIRST = 'Markdown で表示';
   const LAST = 'Claude Code のコマンドをコピー';
+  const ALL = [FIRST, 'ChatGPT で開く', 'Claude で開く', 'Cursor に追加', 'VS Code に追加', 'Zed に追加', LAST];
   const list = (page: P, id = 'actions') => menu(page, id).locator('.scroll').first();
   /** Every scroll of the menu's list from now on, by the offset it left (`scrolled()`). */
   const watchScrolls = (page: P, id = 'actions') =>
@@ -4939,9 +4940,31 @@ test.describe('where the list stands, and how Japanese lines break', () => {
     await page.setViewportSize({ width: 390, height: 800 });
     await mountFixtures(page, spec, { fixtures: [overlay('actions', ACTIONS)] });
     await menu(page, 'actions').evaluate((el) => el.setAttribute('lang', 'ja'));
-    // Where the list's room ends inside a row, some way into it (the tests below press the visible part of a row cut there).
+    // Half way down the window: the list is taller than the room below the anchor.
     await page.addStyleTag({ content: `#a-actions { position: fixed; top: 370px; left: 16px; }` });
     await wire(page);
+    await watchScrolls(page);
+  };
+  /**
+   * Moves the anchor so that the list's room ends half way into a row, wherever the control height and the faces put
+   * the rows: the room ends where the window does, so the anchor one pixel lower takes one pixel off it. (At a fixed
+   * place, whether a row was cut hung on the anchor's height and on the faces: with the anchor 36 high the room ended
+   * on a row's edge in WebKit on Linux, whose faces wrap the first row's supporting text to two lines.)
+   */
+  const endRoomInsideARow = async (page: P) => {
+    await menu(page, 'actions').evaluate((el: any) => (el.open = true));
+    await motionEnded(page);
+    const view = await bounds(list(page));
+    const edge = view.y + view.height;
+    let shift = 0;
+    for (const label of ALL) {
+      const r = await bounds(rowOf(labelled(page, 'actions', label)));
+      if (r.y < edge && r.y + r.height >= edge) shift = edge - (r.y + r.height / 2);
+    }
+    await menu(page, 'actions').evaluate((el: any) => (el.open = false));
+    await motionEnded(page);
+    const top = await anchor(page, 'actions').evaluate((el) => el.getBoundingClientRect().top);
+    await anchor(page, 'actions').evaluate((el, at) => (el.style.top = `${at}px`), top + shift);
     await watchScrolls(page);
   };
 
@@ -4984,6 +5007,8 @@ test.describe('where the list stands, and how Japanese lines break', () => {
 
   test('MNU-68: a key pressed while the opening motion runs moves focus and leaves the list where it is; at rest the list scrolls just far enough to bring the item into view, not at all for an item in view, back to its start with the first item, and not for focus that follows the pointer', async ({ page }) => {
     await mountActions(page);
+    // The pointer below presses the visible part of a row the bottom edge cuts.
+    await endRoomInsideARow(page);
     // An opening motion that outlasts the test's keys: the test ends it, not the clock.
     await override(page, { [T('motion-open-duration')]: '600s' });
     await anchor(page, 'actions').focus();
