@@ -4,9 +4,11 @@
 
 **Theme Studio, closer to its approved design.**
 
-- **The overview draws each kind of component as a product uses it**, in compact panels, three columns in a wide
-  window: a form's actions (Save, Save draft, Cancel, Details) and a row of icon buttons; a field and a select; the
-  selection controls; the period tabs, chips and status tags; a notice with a progress bar and two people; a card; a
+- **The overview draws each kind of component as a product uses it**, in compact panels, in reading order across
+  as many columns as the preview's own width gives each a readable one — the form's actions on one row, the notice's
+  headline and sentence each on one line — up to three, else two, else one: beside the rail and the editing panel in a
+  window 1440px wide that is one column, and three where the preview is about 1200px wide. A form's actions (Save,
+  Save draft, Cancel, Details) and a row of icon buttons; a field and a select; the selection controls; the period tabs, chips and status tags; a notice with a progress bar and two people; a card; a
   menu. A variant the layer, or the system it starts from, adds is drawn in its component's panel beside them; the
   Button's sizes, one at each size the system declares, stand with what the system is made of under the panels. The
   overview no longer draws every variant of every component.
@@ -18,6 +20,10 @@
   named by its style beside its weight ("Rounded · 300"), and the brand color's "none" is shorter in Japanese.
 - **The Size and Corners panels name each number by what it does**: the token ids under the names (`dial.control.height`,
   `sys.target.minimum`…) are gone from the panels the rail's rows open, and stay in Dials, Inspect and Export.
+- **The dashboard's four figures** stand in one row where each has room for its largest amount, else in two rows of
+  two (never three and one left alone), else one under another; the three figures under a list's selection in one
+  row or in a column. They follow the width of the content they stand in, not the window's. The dashboard's table of
+  orders no longer breaks a customer's name one character to a line in a narrow pane: it scrolls sideways in its box.
 - **On a phone the bar is one line**: undo and redo, Inspect, Share and Export show their glyphs alone, named by
   their labels, and the start point the start's name; reset, the shuffle and the checks' count are left out there (the
   checks are Export's first line, and the rail's Accessibility). Every control of the bar that shows a glyph alone has

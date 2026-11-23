@@ -332,7 +332,9 @@ function dashboard(drawing: Drawing) {
             'table',
             {},
             h('caption', {}, d.recent),
-            h('thead', {}, h('tr', {}, h('th', { scope: 'col' }, d.order), h('th', { scope: 'col' }, d.customer), h('th', { scope: 'col' }, d.status), h('th', { scope: 'col', 'data-align': 'end' }, d.amount))),
+            // No cell breaks its words: a table too wide for a narrow pane scrolls sideways in its own box, as a
+            // product's does, instead of standing a customer's name one character to a line.
+            h('thead', {}, h('tr', {}, h('th', { scope: 'col', 'data-wrap': 'false' }, d.order), h('th', { scope: 'col', 'data-wrap': 'false' }, d.customer), h('th', { scope: 'col', 'data-wrap': 'false' }, d.status), h('th', { scope: 'col', 'data-align': 'end', 'data-wrap': 'false' }, d.amount))),
             h(
               'tbody',
               {},
@@ -422,7 +424,7 @@ function list(drawing: Drawing) {
         el('tabs', { value: 'overview', label: l.tabs }, el('tab', { value: 'overview', label: l.overview }), el('tab', { value: 'orders', label: l.orders }), el('tab', { value: 'notes', label: l.notes })),
         h(
           'div',
-          { class: 'ts-s-grid ts-s-kpis' },
+          { class: 'ts-s-grid ts-s-stats' },
           ...(
             [
               [l.spent, amount(4820)],

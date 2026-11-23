@@ -659,13 +659,21 @@
   background: var(--tanrei-sys-color-surface-container-low);
 }
 
-/* Overview: a compact panel for each kind of component, as many columns as fit — three beside the rail and the panel
-   in a window 1440px wide — the panels of a row as tall as each other; what the system is made of under them, across. */
+/* Overview: a compact panel for each kind of component, in reading order across the rows; the panels of a row as tall
+   as each other; what the system is made of under them, across.
+   How many columns is decided by the width the overview itself has — the pane's, inside the preview, beside the rail
+   and the panel — never by the window's: three where each panel is still --ts-s-overview-min wide, else two, else
+   one. That least width is the content's: a form's four actions (Save, Save draft, Cancel, Details) on one row, the
+   notice's headline and its sentence each on one line, the card's sentence in at most two — in Japanese and in
+   English. A narrower panel breaks those into a column of short lines. Three is the most: the prototype's grid, and
+   seven panels read as three rows of it. */
 .ts-s-overview {
+  --ts-s-overview-min: 24rem;
+  --ts-s-overview-gap: var(--tanrei-sys-space-space150);
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(min(100%, 12.5rem), 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(max(min(100%, var(--ts-s-overview-min)), calc((100% - 2 * var(--ts-s-overview-gap)) / 3)), 1fr));
   align-items: stretch;
-  gap: var(--tanrei-sys-space-space150);
+  gap: var(--ts-s-overview-gap);
   padding: var(--tanrei-sys-space-space150);
 }
 .ts-s-overview > .ts-s-panel {
@@ -695,8 +703,33 @@
   min-inline-size: 0;
   padding: var(--tanrei-sys-space-space300);
 }
-.ts-s-kpis {
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 10rem), 1fr));
+/* The figures of a dashboard, and of what a list selects, are laid out by the width of the content they stand in
+   (ts-s-block): all in one row where each figure has room for its largest number, else the four in two rows of two —
+   never three and one left alone under them — else one under another. */
+.ts-s-content,
+.ts-s-detail {
+  container: ts-s-block / inline-size;
+}
+.ts-s-kpis,
+.ts-s-stats {
+  grid-template-columns: minmax(0, 1fr);
+}
+/* Four figures: a heading-3 amount (¥3,426,600) and its padding want about 12.5rem each. */
+@container ts-s-block (min-width: 26rem) {
+  .ts-s-kpis {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@container ts-s-block (min-width: 53rem) {
+  .ts-s-kpis {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+/* Three figures: a heading-4 amount (¥723,000) and its padding want about 10rem each. */
+@container ts-s-block (min-width: 32rem) {
+  .ts-s-stats {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
 }
 .ts-s-kpi {
   display: flex;
