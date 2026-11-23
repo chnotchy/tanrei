@@ -188,7 +188,7 @@ for (const engine of ENGINES) {
         const roots = [menu, ...menu.querySelectorAll('*')].flatMap((element) => (element.shadowRoot ? [element.shadowRoot] : []));
         return roots.flatMap((root) => root.getAnimations()).every((animation) => animation.playState === 'finished' || !Number.isFinite(animation.effect?.getComputedTiming().endTime));
       });
-      const axe =await new AxeBuilder({ page: studio }).include('[data-share]').analyze();
+      const axe = await new AxeBuilder({ page: studio }).include('[data-share]').analyze();
       assert.deepEqual(axe.violations.map((violation) => `${violation.id}: ${violation.nodes[0]?.target}`), [], 'axe: the Share menu');
 
       const took = await pressed(studio, toggle);
