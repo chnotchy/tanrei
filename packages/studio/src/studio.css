@@ -1110,6 +1110,17 @@
 .ts-export-values tanrei-radio-group {
   max-inline-size: 100%;
 }
+/* The id and «.system.json» after it are one file name: a left-to-right run in every layout. A text field lays its
+   value out by the value's own direction and stands its suffix at its end edge, which in a right-to-left page read
+   «.system.json acme» at the field's left. There the suffix stands at the start edge, the right, and the id against
+   it — «acme.system.json», starting from the field's start. (The id is ASCII by the schema: always left-to-right.) */
+.ts-export-naming [data-id]:dir(rtl)::part(suffix) {
+  order: -1;
+  margin-inline: 0 var(--tanrei-comp-input-box-affix-gap);
+}
+.ts-export-naming [data-id]:dir(rtl)::part(input) {
+  text-align: right;
+}
 .ts-next-steps {
   display: grid;
   gap: 0.75rem;

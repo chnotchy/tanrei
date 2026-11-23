@@ -529,6 +529,28 @@ for (const engine of ENGINES) {
       }
     });
 
+    test('Export, left to right and right to left: the id field reads «acme.system.json», one run from the field’s start edge', LIMIT, async () => {
+      for (const [url, dir] of [['/studio/', 'ltr'], ['/ar/studio/', 'rtl']]) {
+        const { page, problems, close } = await open(browser, { url });
+        try {
+          await page.locator('[data-export-open]').click();
+          await page.waitForFunction(() => document.querySelector('[data-export-sheet]').open);
+          const field = await page.locator('[data-export-naming] [data-id]').evaluate((el, dir) => {
+            const inner = el.shadowRoot.querySelector('[part~="text-input"]').shadowRoot;
+            const [input, suffix, container] = ['[part~="input"]', '[part~="suffix"]', '[part~="container"]'].map((part) => inner.querySelector(part));
+            const [i, s, c] = [input, suffix, container].map((node) => node.getBoundingClientRect());
+            return { value: input.value, suffix: suffix.textContent, align: getComputedStyle(input).textAlign, suffixAfterValue: s.left >= i.right - 1, suffixToStart: dir === 'rtl' ? c.right - s.right < 24 : true, dir: getComputedStyle(el).direction };
+          }, dir);
+          // The value against the suffix, at the field's start (the right), in a right-to-left page; as a text field lays it
+          // out in a left-to-right one.
+          assert.deepEqual(field, { value: 'acme', suffix: '.system.json', align: dir === 'rtl' ? 'right' : 'start', suffixAfterValue: true, suffixToStart: true, dir }, url);
+          assert.deepEqual(problems, []);
+        } finally {
+          await close();
+        }
+      }
+    });
+
     for (const [name, viewport] of [['1440', WIDE], ['390', NARROW]]) {
       test(`${name} wide, Export open: axe finds nothing`, LIMIT, async () => {
         const { page, close } = await open(browser, { viewport });
