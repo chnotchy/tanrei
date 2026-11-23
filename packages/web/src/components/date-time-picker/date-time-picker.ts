@@ -2851,7 +2851,7 @@ export class TanreiDateTimePicker extends TanreiElement {
           (name, at) =>
             html`<span
               class=${classMap({ row: true, on: Math.abs(at - position) < 0.5 })}
-              ?data-unavailable=${!this.offersPeriod(at ? 1 : 0)}
+              aria-disabled=${ifDefined(this.offersPeriod(at ? 1 : 0) ? undefined : 'true')}
               style=${styleMap({ '--_at': String(at - position) })}
               >${name}</span
             >`,
@@ -2961,7 +2961,7 @@ export class TanreiDateTimePicker extends TanreiElement {
           (at) =>
             html`<span
               class=${classMap({ row: true, on: Math.abs(at - position) < 0.5 })}
-              ?data-unavailable=${!this.offers(unit, this.withIndex(unit, at))}
+              aria-disabled=${ifDefined(this.offers(unit, this.withIndex(unit, at)) ? undefined : 'true')}
               style=${styleMap({ '--_at': String(at - position) })}
               >${text(at)}</span
             >`,
@@ -3101,7 +3101,7 @@ export class TanreiDateTimePicker extends TanreiElement {
           (number) =>
             html`<span
               class=${classMap({ number: true, inner: number.inner, outer: !number.inner })}
-              ?data-unavailable=${!number.available}
+              aria-disabled=${ifDefined(number.available ? undefined : 'true')}
               style=${styleMap({ '--_x': String(number.x), '--_y': String(number.y) })}
               >${number.text}</span
             >`,

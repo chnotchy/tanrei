@@ -489,8 +489,9 @@ export const styles = css`
   .row.on {
     color: ${t('wheel-selected-label-color')};
   }
-  /* DTM-50: an hour, a minute or a period outside min and max keeps its place on the wheel, faded. */
-  .row[data-unavailable] {
+  /* DTM-50: an hour, a minute or a period outside min and max keeps its place on the wheel, faded: an inactive part of
+     the control, marked disabled, which WCAG 1.4.3 holds to no contrast. */
+  .row[aria-disabled='true'] {
     opacity: ${t('time-unavailable-opacity')};
   }
   .wheel.typing .row.on {
@@ -687,8 +688,8 @@ export const styles = css`
   .number.inner {
     --_r: var(--_inner);
   }
-  /* DTM-50: a number outside min and max keeps its place on the dial, faded. */
-  .number[data-unavailable] {
+  /* DTM-50: a number outside min and max keeps its place on the dial, faded and marked disabled, as a wheel's row is. */
+  .number[aria-disabled='true'] {
     opacity: ${t('time-unavailable-opacity')};
   }
   .center {

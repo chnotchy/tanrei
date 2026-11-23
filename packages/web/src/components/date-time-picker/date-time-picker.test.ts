@@ -3333,9 +3333,9 @@ test.describe('bounds of the time', () => {
     expect(faded).toBeLessThan(1);
     // The hour wheel keeps 18 in its place below 17, faded; 16 is not.
     const row = (id: string, unit: 'hour' | 'minute', text: string) => wheelBox(page, id, unit).locator('.row').filter({ hasText: new RegExp(`^${text}$`) }).first();
-    await expect(row('t', 'hour', '18')).toHaveAttribute('data-unavailable', '');
+    await expect(row('t', 'hour', '18')).toHaveAttribute('aria-disabled', 'true');
     expect(Number(await css(row('t', 'hour', '18'), 'opacity'))).toBeCloseTo(faded, 2);
-    await expect(row('t', 'hour', '16')).not.toHaveAttribute('data-unavailable');
+    await expect(row('t', 'hour', '16')).not.toHaveAttribute('aria-disabled');
     // The spin buttons' reach.
     await expect(wheel(page, 't', 'hour')).toHaveAttribute('aria-valuemin', '9');
     await expect(wheel(page, 't', 'hour')).toHaveAttribute('aria-valuemax', '17');
@@ -3377,14 +3377,14 @@ test.describe('bounds of the time', () => {
     await expect.poll(() => now(wheel(page, 't', 'hour'))).toBe(10);
     // The period: PM has no time before 11:30 — faded, and the keys, the letter and a press on it change nothing.
     const pm = periodBox(page, 'p').locator('.row').nth(1);
-    await expect(pm).toHaveAttribute('data-unavailable', '');
+    await expect(pm).toHaveAttribute('aria-disabled', 'true');
     await expect(period(page, 'p')).toHaveAttribute('aria-valuemax', '0');
     await period(page, 'p').focus();
     for (const key of ['ArrowDown', 'End', 'p']) await page.keyboard.press(key);
     await expect(period(page, 'p')).toHaveAttribute('aria-valuetext', 'AM');
     // The dial: 3 (AM) is faded; a press on it takes the nearest available hour, 11.
     const three = host(page, 'd').locator('.face .numbers.hours .number').filter({ hasText: /^3$/ });
-    await expect(three).toHaveAttribute('data-unavailable', '');
+    await expect(three).toHaveAttribute('aria-disabled', 'true');
     expect(Number(await css(three, 'opacity'))).toBeCloseTo(faded, 2);
     const at = await bounds(three);
     await page.mouse.click(at.x + at.width / 2, at.y + at.height / 2);
