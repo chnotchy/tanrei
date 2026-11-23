@@ -5,9 +5,9 @@
 **Theme Studio, closer to its approved design.**
 
 - **The overview draws each kind of component as a product uses it**, in compact panels, in reading order across
-  as many columns as the preview's own width gives each a readable one — the form's actions on one row, the notice's
-  headline and sentence each on one line — up to three, else two, else one: beside the rail and the editing panel in a
-  window 1440px wide that is one column, and three where the preview is about 1200px wide. A form's actions (Save,
+  as many columns as the preview's own width gives each a readable one — the notice's headline on one line, the card's
+  sentence in at most two; a form's actions may take a second row — up to three: two beside the rail and the editing
+  panel in a window 1440px wide, three from about 1700px, one on a phone. A form's actions (Save,
   Save draft, Cancel, Details) and a row of icon buttons; a field and a select; the selection controls; the period tabs, chips and status tags; a notice with a progress bar and two people; a card; a
   menu. A variant the layer, or the system it starts from, adds is drawn in its component's panel beside them; the
   Button's sizes, one at each size the system declares, stand with what the system is made of under the panels. The
@@ -20,6 +20,12 @@
   named by its style beside its weight ("Rounded · 300"), and the brand color's "none" is shorter in Japanese.
 - **The Size and Corners panels name each number by what it does**: the token ids under the names (`dial.control.height`,
   `sys.target.minimum`…) are gone from the panels the rail's rows open, and stay in Dials, Inspect and Export.
+- **The editing panel is as wide as a design tool's property panel**: 20rem at every window (it was 30% of the window,
+  up to 30rem), so that a wider window gives its room to the preview; the handle still widens it. At that width a
+  number stands under its row's name, token id and note instead of beside them; a palette's choice, reset and
+  removal go under its name, a fixed tone's color takes a row of its own, and the button that declares a palette
+  goes under its reason. Two hints are shorter so that they fit their fields there: the family field's ("e.g. IBM
+  Plex Sans") and the reason a vocabulary addition asks for ("Why this product needs it").
 - **The dashboard's four figures** stand in one row where each has room for its largest amount, else in two rows of
   two (never three and one left alone), else one under another; the three figures under a list's selection in one
   row or in a column. They follow the width of the content they stand in, not the window's. The dashboard's table of

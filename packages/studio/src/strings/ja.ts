@@ -294,7 +294,7 @@ const ja: Dictionary = {
     kinds: { derive: 'ルール', alias: 'エイリアス', literal: 'リテラル' },
     onRole: 'onRole — この上に描かれるロール（コントラスト検査にペアとして登録されます）',
     rationale: '根拠（必須）',
-    rationalePlaceholder: 'なぜこのプロダクトに必要ですか',
+    rationalePlaceholder: 'このプロダクトに必要な理由',
     rationaleShort: '追加には8文字以上の根拠が必要です。入力されるまで書き込まれません。',
     declares: '宣言',
     members: 'これによって作られる全トークンと、その解決値',

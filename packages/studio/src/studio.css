@@ -18,11 +18,13 @@
   --ts-text-2xs: var(--sl-text-2xs, 0.75rem);
   --ts-font-mono: var(--sl-font-mono, var(--tanrei-ref-typeface-mono));
   /* The frame's columns: the rail's width, the least the preview and the panel are given, and the panel's width until
-     the person moves the handle (ui.ts writes --ts-panel-width then). */
+     the person moves the handle (ui.ts writes --ts-panel-width then). The panel is a design tool's property panel: a
+     fixed width at every window, as narrow as its fields allow, so that a wider window gives its room to the preview;
+     the handle widens it. */
   --ts-rail-width: 18.5rem;
   --ts-preview-min: 22.5rem;
   --ts-panel-min: 20rem;
-  --ts-panel-default: clamp(var(--ts-panel-min), 30vw, 30rem);
+  --ts-panel-default: var(--ts-panel-min);
   /* What stays at the top of a column while it scrolls under it: nothing, at every width — each part of the frame
      scrolls by itself. A host that sticks something there says how tall it is. */
   --ts-sticky-top: 0rem;
@@ -197,6 +199,8 @@
   }
 }
 .ts-inspector {
+  /* The panel's rows lay themselves out by the panel's width — the person can widen it with the handle. */
+  container: ts-panel / inline-size;
   display: grid;
   align-content: start;
   gap: var(--ts-gap);
@@ -335,7 +339,8 @@
   min-inline-size: 0;
 }
 .ts-row-title {
-  flex: 1;
+  /* Its least before a head that wraps (a number's, below) puts what follows it on a line of its own. */
+  flex: 1 1 12rem;
   min-inline-size: 0;
   font-weight: 500;
 }
@@ -349,6 +354,11 @@
 .ts-row-title small code {
   display: inline-block;
   margin-inline-end: 0.25rem;
+}
+/* A number in a row's head: beside the row's name where both have room, else under it, so that the name, its token
+   id and its note keep the panel's whole width instead of a column of short lines beside the field. */
+.ts-row-head:has(> .ts-num) {
+  flex-wrap: wrap;
 }
 .ts-row-note {
   margin: 0;
@@ -430,6 +440,18 @@
 .ts-palette > tanrei-text-field {
   grid-column: 1 / -1;
 }
+/* A panel of its usual width: how the palette is chosen, and its reset and removal, go under its name, which keeps
+   the room it needs for its note. */
+@container ts-panel (max-width: 26rem) {
+  .ts-palette {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+  .ts-palette > .ts-row-actions {
+    grid-column: 2 / -1;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+  }
+}
 .ts-row-actions {
   display: flex;
   gap: 0.25rem;
@@ -449,10 +471,19 @@
   grid-column: 1;
 }
 /* The name and the seed take a row each: a color field is as wide as its row, and beside it the name had no room
-   left. The reason shares the last row with the button. */
+   left. The reason shares the last row with the button — in a panel of its usual width the button goes under it, so
+   that the reason's hint has the row. */
 .ts-add-grid > tanrei-text-field:not(.ts-field-wide),
 .ts-add-grid > tanrei-color-field {
   grid-column: 1 / -1;
+}
+@container ts-panel (max-width: 26rem) {
+  .ts-add-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .ts-add-grid > tanrei-button {
+    justify-self: start;
+  }
 }
 
 /* ── Per-token rows ─────────────────────────────────────────────────── */
@@ -663,17 +694,22 @@
    as each other; what the system is made of under them, across.
    How many columns is decided by the width the overview itself has — the pane's, inside the preview, beside the rail
    and the panel — never by the window's: three where each panel is still --ts-s-overview-min wide, else two, else
-   one. That least width is the content's: a form's four actions (Save, Save draft, Cancel, Details) on one row, the
-   notice's headline and its sentence each on one line, the card's sentence in at most two — in Japanese and in
-   English. A narrower panel breaks those into a column of short lines. Three is the most: the prototype's grid, and
-   seven panels read as three rows of it. */
+   one. That least width is the content's: the notice's headline on one line, the card's sentence in at most two, in
+   each of the Studio's languages; a form's actions may take a second row. It gives two columns beside the rail and
+   the panel in a window 1440px wide, three from about 1700px, one on a phone. Three is the most: the prototype's
+   grid, and seven panels read as three rows of it. */
 .ts-s-overview {
-  --ts-s-overview-min: 24rem;
+  --ts-s-overview-min: 20.5rem;
   --ts-s-overview-gap: var(--tanrei-sys-space-space150);
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(max(min(100%, var(--ts-s-overview-min)), calc((100% - 2 * var(--ts-s-overview-gap)) / 3)), 1fr));
   align-items: stretch;
   gap: var(--ts-s-overview-gap);
+  /* A sentence that takes two lines in a panel shares them evenly, instead of leaving a word or two alone on the
+     second (the notice's text in a panel of two columns at 1440px) — and in Japanese breaks between phrases, not
+     inside a word, where the engine can tell them apart. */
+  text-wrap: balance;
+  word-break: auto-phrase;
   padding: var(--tanrei-sys-space-space150);
 }
 .ts-s-overview > .ts-s-panel {
@@ -1788,6 +1824,24 @@
   grid-template-columns: 4.5rem minmax(0, 1fr) auto;
   align-items: center;
   gap: 0.5rem;
+}
+/* A panel of its usual width: a fixed tone's color takes a row of its own under the tone and its removal, so that its
+   hex is read whole beside the swatch and the picker. */
+@container ts-panel (max-width: 26rem) {
+  .ts-tone-row {
+    grid-template-columns: 4.5rem minmax(0, 1fr);
+    grid-template-areas: 'tone remove' 'color color';
+  }
+  .ts-tone-row > tanrei-number-field {
+    grid-area: tone;
+  }
+  .ts-tone-row > tanrei-color-field {
+    grid-area: color;
+  }
+  .ts-tone-row > .ts-link {
+    grid-area: remove;
+    justify-self: end;
+  }
 }
 .ts-tone-add {
   grid-template-columns: 4.5rem auto;
