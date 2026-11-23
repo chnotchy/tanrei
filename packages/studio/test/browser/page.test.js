@@ -240,6 +240,29 @@ for (const locale of ['ja', 'es', 'zh-CN', 'hi']) {
   });
 }
 
+// The bar at 360px, on a long start, while Source holds an edit that does not parse: one line, as the documentation's
+// Studio page is — the draft's button, its glyph alone, in Inspect's place. The app's bar has Build and its menu
+// besides: on a phone it leaves out redo (undo stays).
+for (const locale of ['es', 'ja']) {
+  studioTest(`${locale}: at 360px on cupertino, with an invalid edit at Source, the bar is still one line`, { layer: { id: 'acme', extends: 'cupertino' }, locale, viewport: { width: 360, height: 800 } }, async ({ page, inspect, closeInspect }) => {
+    await inspect('source');
+    await page.locator('[data-source]').fill('{ "draft": ');
+    await closeInspect();
+    const draft = page.locator('[data-bar] [data-draft-button]');
+    await until(() => draft.isVisible(), 'the draft’s button is in the bar');
+    assert.equal(await page.locator('[data-bar] [data-inspect]').isVisible(), false, 'Inspect gives the draft its place');
+    assert.equal(await page.locator('[data-bar] [data-draft-badge]').isVisible(), false, 'the chip of a wider window is not drawn');
+    assert.deepEqual([await page.locator('[data-bar] [data-undo]').isVisible(), await page.locator('[data-bar] [data-redo]').isVisible(), await page.locator('[data-bar] [data-build]').isVisible()], [true, false, true], 'undo and Build stay, redo is left out');
+    const bar = await page.evaluate(() => {
+      const shown = [...document.querySelectorAll('[data-bar] tanrei-button, [data-bar] tanrei-chip, [data-bar] a, [data-bar] .ts-save')].filter((el) => el.getClientRects().length && getComputedStyle(el).visibility !== 'hidden');
+      const middles = shown.map((el) => { const box = el.getBoundingClientRect(); return Math.round(box.top + box.height / 2); });
+      return { spread: Math.max(...middles) - Math.min(...middles), right: Math.max(...shown.map((el) => Math.round(el.getBoundingClientRect().right))), menu: shown.some((el) => el.id === 'app-menu-open'), shown: shown.map((el, i) => `${el.localName}${el.id ? `#${el.id}` : ''}@${middles[i]}`) };
+    });
+    assert.ok(bar.spread <= 2 && bar.right <= 360 && bar.menu, `the bar is one line, inside the window: ${JSON.stringify(bar)}`);
+    assert.equal(await page.evaluate(() => document.scrollingElement.scrollWidth), 360, 'nothing scrolls sideways');
+  });
+}
+
 studioTest('ar: right-to-left — axe passes and nothing scrolls sideways at 390px in any section or tab of Inspect; ids, values, ratios, code and JSON stay left-to-right runs', { layer, locale: 'ar', viewport: { width: 390, height: 844 } }, async ({ page, view, section, inspect, fits, axe }) => {
   assert.deepEqual(await page.locator('html').evaluate((html) => [html.lang, html.dir]), ['ar', 'rtl']);
   // The Size row says its two lengths in an Arabic sentence: the sentence is read from the right, and each length is a
