@@ -2641,6 +2641,12 @@ export async function fixturesDocument(spec: Spec, given: DocumentOptions = {}):
     ${sheet(assets?.tokens, () => read('dist/tokens.css'))}
     ${options.system ? sheet(assets?.system(options.system), () => systemStyles(options)) : ''}
     <style>
+      /* The root is at least the window's height. A modal overlay holds the page's scroll with \`overflow: hidden\` on the
+         root, and axe clips every element to its overflow-hidden ancestors, the root included, without regard to the top
+         layer: in a document shorter than the window (a single fixture's, 32px tall) a dialog or a sheet open in the top
+         layer lay outside the root's box, and axe found no text in it to check — its \`color-contrast\` was inapplicable,
+         not passed. Nothing is drawn differently: the root paints no background of its own (the body's is the canvas's). */
+      html { min-block-size: 100%; }
       body { margin: 0; background: var(--tanrei-sys-color-surface); }
       ${staging.page ? '' : 'main { display: flex; flex-direction: column; align-items: flex-start; }'}
       .stage { padding: 16px; background: var(--tanrei-sys-color-surface); }

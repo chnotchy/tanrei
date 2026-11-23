@@ -1632,6 +1632,11 @@ test.describe('accessibility', () => {
         await motionEnded(page);
         const results = await new AxeBuilder({ page }).analyze();
         expect(results.violations, `${theme} ${id}: ${results.violations.map((v) => `${v.id} ${v.nodes.map((n) => n.target).join(' ')}`).join(', ')}`).toEqual([]);
+        // The dialog's text is checked: the document is the window's height while the page's scroll is held (the
+        // harness), and the box that draws the content's focus ring hides at rest (`overRing()`), so it covers no text.
+        const contrast = (kind: 'passes' | 'incomplete') => results[kind].filter((rule) => rule.id === 'color-contrast').flatMap((rule) => rule.nodes);
+        expect(contrast('passes').length, `${theme} ${id}: axe checks the contrast of the dialog's text`).toBeGreaterThan(0);
+        expect(contrast('incomplete').filter((node) => node.any.some((check) => (check.data as { messageKey?: string } | null)?.messageKey === 'bgOverlap')).map((node) => node.target), `${theme} ${id}: no text left unchecked as covered`).toEqual([]);
       }
     }
   });
