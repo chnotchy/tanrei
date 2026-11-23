@@ -12,7 +12,9 @@
 //   type and default after their columns' names on the next, and its description under them at the box's whole width,
 //   the table still a table to assistive technology — before, a property's row was as tall as its description at its
 //   least measure, its name, type and default in an empty band and the description scrolled off the box; at 1440 the
-//   same tables keep their columns.
+//   same tables keep their columns;
+// - a Japanese heading breaks between phrases where the engine can segment them: the home page's title no longer
+//   leaves 「へ。」 alone on its last line.
 //
 //   pnpm --filter @tanrei/docs build && DOCS_ENGINES=chromium node --test test/browser/phone-tables.test.mjs
 //
@@ -181,6 +183,34 @@ for (const engine of ENGINES) {
       );
       assert.ok(rows.length > 0, 'the Select has properties');
       assert.deepEqual([...new Set(rows)], [1], 'each property is one row of four cells side by side');
+      await context.close();
+    });
+
+    test("/ja/: the home page's title breaks between phrases where the engine segments them", LIMIT, async () => {
+      const context = await browser.newContext({ viewport: { width: 390, height: 844 } });
+      const page = await context.newPage();
+      await page.goto(`${origin}/ja/`);
+      await settlePage(page);
+      const { phrases, lines } = await page.evaluate(() => {
+        const title = document.querySelector('.hero h1');
+        const lines = new Map();
+        const walker = document.createTreeWalker(title, NodeFilter.SHOW_TEXT);
+        const range = document.createRange();
+        for (let node = walker.nextNode(); node; node = walker.nextNode()) {
+          for (let i = 0; i < node.length; i++) {
+            range.setStart(node, i);
+            range.setEnd(node, i + 1);
+            const rect = range.getBoundingClientRect();
+            if (rect.width === 0) continue;
+            const top = Math.round(rect.top);
+            lines.set(top, (lines.get(top) ?? '') + node.data[i]);
+          }
+        }
+        return { phrases: CSS.supports('word-break', 'auto-phrase'), lines: [...lines.values()].map((line) => line.trim()) };
+      });
+      assert.ok(lines.length >= 2, `the title is drawn: ${lines.join(' / ')}`);
+      // Where the engine does not segment phrases the title wraps as before, and nothing is asked of it.
+      if (phrases) for (const line of lines) assert.ok(!/^[\p{Script=Hiragana}、。]{1,3}$/u.test(line), `no line is a particle and its stop alone: ${lines.join(' / ')}`);
       await context.close();
     });
 
