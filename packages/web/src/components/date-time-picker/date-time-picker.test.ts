@@ -2308,6 +2308,62 @@ test.describe('ranges, actions, motion, overflow and semantics', () => {
     }
   });
 
+  /**
+   * DTM-9: a horizontal layout narrower than its columns keeps them reachable — at the start of the body's sideways
+   * scroll the start column's start edge is inside the body, and at its end the end column's end edge is.
+   */
+  async function expectColumnsReachable(page: P, id: string, what: string) {
+    const found = await host(page, id).evaluate((el) => {
+      const root = el.shadowRoot!;
+      const body = root.querySelector('.body') as HTMLElement;
+      const rtl = getComputedStyle(body).direction === 'rtl';
+      // The body's content box: its padding is the inset of the columns (DTM-9).
+      const inner = () => {
+        const b = body.getBoundingClientRect();
+        const s = getComputedStyle(body);
+        return { left: b.left + Number.parseFloat(s.paddingLeft), right: b.right - Number.parseFloat(s.paddingRight) };
+      };
+      const columns = [...body.children].filter((child) => child.getBoundingClientRect().width > 0 && getComputedStyle(child).visibility !== 'hidden');
+      const [first, last] = [columns[0]!, columns.at(-1)!];
+      // The start edge of the start column, as far towards the start as the body scrolls (scrollLeft 0 is the start in both directions).
+      body.scrollLeft = 0;
+      const atStart = { box: inner(), column: first.getBoundingClientRect() };
+      body.scrollLeft = rtl ? -body.scrollWidth : body.scrollWidth;
+      const atEnd = { box: inner(), column: last.getBoundingClientRect() };
+      body.scrollLeft = 0;
+      const lost = {
+        start: rtl ? atStart.column.right - atStart.box.right : atStart.box.left - atStart.column.left,
+        end: rtl ? atEnd.box.left - atEnd.column.left : atEnd.column.right - atEnd.box.right,
+      };
+      return { overflows: body.scrollWidth > body.clientWidth + 1, start: Math.max(0, lost.start), end: Math.max(0, lost.end), first: first.localName === 'tanrei-calendar' || first.classList.contains('time') };
+    });
+    expect(found.overflows, `${what}: the columns are wider than the body`).toBe(true);
+    expect(found.first, `${what}: the start column is a column`).toBe(true);
+    expect(found.start, `${what}: nothing of the start column lies before the reach of the body's scroll`).toBeLessThanOrEqual(0.5);
+    expect(found.end, `${what}: nothing of the end column lies past it`).toBeLessThanOrEqual(0.5);
+  }
+
+  test('DTM-9: a horizontal layout the product chose, in a window 320 or 390 wide and narrower than its columns, stays horizontal and its body scrolls sideways from the start of the start column to the end of the end column — nothing of the calendar or the time section lies where no scroll reaches — in en-US, ja-JP and ar (right to left)', async ({ page }) => {
+    for (const width of [320, 390]) {
+      for (const [locale, direction] of [['en-US'], ['ja-JP'], ['ar-EG', 'rtl']] as const) {
+        const fixtures = [opened('h', { mode: 'date-time', layout: 'horizontal', value: '2026-09-17T19:30', hourCycle: 'h12', locale })];
+        await mount(page, fixtures.map((fixture) => (direction ? { ...fixture, direction } : fixture)), { window: { width, height: 640 } });
+        await expect.poll(() => surface(page, 'h').getAttribute('data-layout')).toBe('horizontal');
+        await expectColumnsReachable(page, 'h', `${width} ${locale}`);
+      }
+    }
+  });
+
+  test('DTM-9, DTM-2: a docked horizontal picker in a window 320 wide reaches the start of its calendar and the end of its time section by its body’s sideways scroll, in en-US and ar (right to left)', async ({ page }) => {
+    for (const [locale, direction] of [['en-US'], ['ar-EG', 'rtl']] as const) {
+      const fixture = docked('d', { mode: 'date-time', layout: 'horizontal', value: '2026-09-17T19:30', hourCycle: 'h12', locale });
+      await mount(page, [direction ? { ...fixture, direction } : fixture], { window: { width: 320, height: 640 } });
+      await opener(page, 'd').evaluate((el) => ((el as HTMLElement).style.cssText = 'position: fixed; top: 8px; inset-inline-start: 16px;'));
+      await open(page, 'd');
+      await expectColumnsReachable(page, 'd', `docked ${locale}`);
+    }
+  });
+
   test('DTM-36: a wheel turned on past the end of a docked picker’s body that scrolls, and turned again after a pause, leaves the page behind where it was and the picker open', async ({ page }) => {
     await mount(page, [docked('d', { mode: 'date-time', value: '2026-09-17T19:30', layout: 'vertical' })], { window: { width: 480, height: 420 } });
     await opener(page, 'd').evaluate((el) => ((el as HTMLElement).style.cssText = 'position: fixed; top: 8px; left: 8px;'));
