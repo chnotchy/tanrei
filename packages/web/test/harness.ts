@@ -2641,6 +2641,12 @@ export async function fixturesDocument(spec: Spec, given: DocumentOptions = {}):
     ${sheet(assets?.tokens, () => read('dist/tokens.css'))}
     ${options.system ? sheet(assets?.system(options.system), () => systemStyles(options)) : ''}
     <style>
+      /* A page is at least the window's height, as a product's page is. An open modal puts overflow: hidden on the root
+         to hold the page's scroll, and axe takes what lies outside a box of hidden overflow for hidden: on a root only as
+         tall as its stages (32 px for a modal fixture's stage), every line of a top-layer surface below it went
+         unchecked, its contrast included. A percentage of the initial containing block, not 100vh: it leaves out a
+         scroll bar's room, so a page that scrolls sideways is not made to scroll down by a bar's height. */
+      html { min-block-size: 100%; }
       body { margin: 0; background: var(--tanrei-sys-color-surface); }
       ${staging.page ? '' : 'main { display: flex; flex-direction: column; align-items: flex-start; }'}
       .stage { padding: 16px; background: var(--tanrei-sys-color-surface); }
