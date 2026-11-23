@@ -4,7 +4,7 @@
 // where each thing is stays where it was.
 import { CORNER_SMOOTHING } from '../core.js';
 import { SUGGESTED_FAMILIES } from '../fonts.js';
-import { type Ctx, type Json, type Layer, h, trim } from './dom';
+import { type Ctx, type Json, type Layer, h, ltr, rich, trim } from './dom';
 import { MORE, ROWS, type Row, type Section } from './sections';
 
 const glyph = (ctx: Ctx, name: string, attrs: Json = {}) => h('span', { class: `${ctx.studio.tagPrefix}-icon`, 'aria-hidden': 'true', translate: 'no', ...attrs }, name);
@@ -22,7 +22,8 @@ const MORE_GLYPHS: Record<(typeof MORE)[number], string> = { base: 'layers', dia
 
 /** A row's state, read from the layer each time it is drawn. */
 interface RowState {
-  value: string;
+  /** Words, or words with runs of their own direction in them (a length with its unit, inside a sentence). */
+  value: string | (Node | string)[];
   changed: boolean;
 }
 
@@ -59,9 +60,11 @@ export function rowState(ctx: Ctx, layer: Layer, row: Row): RowState {
     }
     case 'size': {
       // The control height and the minimum target: the size unit, the third value the panel writes, is said there.
+      // Each length is a left-to-right run of its own: after a word written right to left, its digits would otherwise
+      // join that word's run and leave the unit behind them ("36 الأدنىpx").
       const [height, size] = [dial(ctx, layer, 'control.height'), dial(ctx, layer, 'size.unit')];
       const minimum = studio.targetMinimum(layer) as Json | null;
-      return { value: t.rail.size(`${trim(height.value)}${height.unit}`, minimum ? `${trim(minimum.value)}${minimum.unit}` : '—'), changed: height.changed || size.changed || Boolean(minimum?.changed) };
+      return { value: rich((at) => t.rail.size(at(ltr(`${trim(height.value)}${height.unit}`)), minimum ? at(ltr(`${trim(minimum.value)}${minimum.unit}`)) : '—')), changed: height.changed || size.changed || Boolean(minimum?.changed) };
     }
     case 'radius': {
       const shape = dial(ctx, layer, 'shape.unit');
@@ -270,7 +273,8 @@ export function createRail(ctx: Ctx, { locked, onshow, onlock }: { locked: Set<R
       refreshers.push(() => {
         const layer = ctx.layer();
         const state = rowState(ctx, layer, row);
-        value.textContent = state.value;
+        if (typeof state.value === 'string') value.textContent = state.value;
+        else value.replaceChildren(...state.value);
         unchanged.hidden = state.changed;
         show.toggleAttribute('data-changed', state.changed);
         drawn.draw();

@@ -214,6 +214,11 @@ for (const locale of ['ja', 'es', 'zh-CN', 'hi']) {
 
 studioTest('ar: right-to-left — axe passes and nothing scrolls sideways at 390px in any section or tab of Inspect; ids, values, ratios, code and JSON stay left-to-right runs', { layer, locale: 'ar', viewport: { width: 390, height: 844 } }, async ({ page, view, section, inspect, fits, axe }) => {
   assert.deepEqual(await page.locator('html').evaluate((html) => [html.lang, html.dir]), ['ar', 'rtl']);
+  // The Size row says its two lengths in an Arabic sentence: the sentence is read from the right, and each length is a
+  // run of its own, its unit kept beside its digits.
+  const size = page.locator('[data-rail] [data-row="size"] .ts-rail-value');
+  assert.equal(await size.evaluate((el) => getComputedStyle(el).direction), 'rtl');
+  assert.deepEqual(await size.locator('bdi[dir="ltr"]').allTextContents(), ['40px', '36px']);
   // The product's name is one left-to-right run: the mark, then «Tanrei Theme Studio» as it is written.
   const name = await page.locator('.app-brand').evaluate((brand) => { const [first, second] = [brand.querySelector('.app-name').firstChild, brand.querySelector('.app-name span')].map((node) => { const range = document.createRange(); range.selectNodeContents(node); return range.getBoundingClientRect().left; }); return { first, second, mark: brand.querySelector('.app-mark').getBoundingClientRect().left }; });
   assert.ok(name.first < name.second && name.second < name.mark, `«Tanrei» stands left of «Theme Studio», and the mark at the start, on the right: ${JSON.stringify(name)}`);
