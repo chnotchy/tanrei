@@ -55,11 +55,11 @@ studioTest('no control is hand-made: in every section and tab of Inspect, with t
   assert.deepEqual(sorted(held.source), [], 'Source: none but its own editor');
   // (The Studio's own tree: a text field's own Field is in its shadow root, and is the text field's.)
   assert.equal(await page.evaluate(() => document.querySelectorAll('tanrei-field tanrei-text-field, tanrei-field tanrei-text-input, tanrei-field textarea').length), 0, 'the Studio frames no text field and no text input with a Field of its own');
-  // The standalone app's items of the Studio's bar: its theme button and its language select are Tanrei's too.
+  // The standalone app's items of the Studio's bar: its menu of language and theme is Tanrei's too.
   // (But the start point's hidden file input, the browser's own picker its menu item opens.)
   assert.deepEqual(await page.evaluate(() => [...document.querySelectorAll('.ts-bar button, .ts-bar input:not([data-start-input]), .ts-bar select')].length), 0);
   assert.equal(await page.locator('.ts-bar [data-start-input]').isHidden(), true);
-  assert.equal(await page.locator('.ts-bar #theme').evaluate((el) => el.localName), 'tanrei-button');
+  assert.deepEqual(await page.evaluate(() => ['#app-menu-open', '#app-menu', '#lang', '#theme'].map((selector) => document.querySelector(`.ts-bar ${selector}`)?.localName)), ['tanrei-button', 'tanrei-menu', 'tanrei-menu-group', 'tanrei-menu-group']);
 });
 
 studioTest('an action is a Tanrei button: its drawn word, its whole name where rows share the word, and Enter and Space press it', { layer }, async ({ page, section, inspect, saved }) => {
@@ -76,12 +76,16 @@ studioTest('an action is a Tanrei button: its drawn word, its whole name where r
   await page.keyboard.press('Enter');
   await saved((file) => !file.tokens, 'Enter resets the dial');
 
-  // The theme button of the app's bar says what its word is about.
-  assert.equal(await page.getByRole('button', { name: 'Theme: Dark', exact: true }).count(), 1);
-  await page.locator('#theme').focus();
+  // The app's menu of language and theme is a glyph named by its label; it opens from the keyboard, and the theme is
+  // chosen in it there (its last item, Dark).
+  assert.equal(await page.getByRole('button', { name: 'Language and theme', exact: true }).count(), 1);
+  await page.locator('#app-menu-open').focus();
   await page.keyboard.press('Space');
-  assert.equal(await page.locator('html').getAttribute('data-tanrei-theme'), 'dark');
-  assert.equal(await page.getByRole('button', { name: 'Theme: Light', exact: true }).count(), 1);
+  await until(async () => (await page.locator('#app-menu').evaluate((menu) => menu.open)) === true, 'the menu opens');
+  await page.keyboard.press('End');
+  await page.keyboard.press('Enter');
+  await until(async () => (await page.locator('html').getAttribute('data-tanrei-theme')) === 'dark', 'Enter chooses Dark');
+  assert.equal(await page.locator('#theme').evaluate((group) => group.value), 'dark');
 
   // A palette is declared by the button, and by Enter in its name: the form is still a form.
   await section('palettes');

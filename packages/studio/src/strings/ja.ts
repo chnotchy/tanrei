@@ -696,6 +696,7 @@ const ja: Dictionary = {
   app: {
     language: '言語',
     theme: 'テーマ',
+    menu: '言語とテーマ',
     noFile: 'ファイル未接続 — ブラウザー内に保存します',
   },
 };

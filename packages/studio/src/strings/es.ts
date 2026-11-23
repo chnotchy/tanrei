@@ -708,6 +708,7 @@ const es: Dictionary = {
   app: {
     language: 'Idioma',
     theme: 'Tema',
+    menu: 'Idioma y tema',
     noFile: 'Sin archivo asociado: los cambios se quedan en este navegador',
   },
 };

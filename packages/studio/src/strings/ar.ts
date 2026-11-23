@@ -795,6 +795,7 @@ const ar: Dictionary = {
   app: {
     language: 'اللغة',
     theme: 'السمة',
+    menu: 'اللغة والسمة',
     noFile: 'لا ملف مرتبط: تبقى التغييرات في هذا المتصفح',
   },
 };

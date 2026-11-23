@@ -702,6 +702,7 @@ const zhCN: Dictionary = {
   app: {
     language: '语言',
     theme: '主题',
+    menu: '语言和主题',
     noFile: '未关联文件：更改只保留在这个浏览器中',
   },
 };

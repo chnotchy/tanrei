@@ -748,6 +748,8 @@ const en = {
   app: {
     language: 'Language',
     theme: 'Theme',
+    // The menu at the end of the app's bar that holds the two: its name, and its tooltip.
+    menu: 'Language and theme',
     noFile: 'No file attached — changes stay in this browser',
   },
 };

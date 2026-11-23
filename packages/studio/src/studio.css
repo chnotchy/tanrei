@@ -118,24 +118,17 @@
   .ts-bar [data-a11y-count] {
     display: none;
   }
-}
-/* A phone, with more of the host's items than one line holds (the standalone app's brand, file, language and theme):
-   they keep the first line, and the Studio's controls take the second. */
-@media (max-width: 40rem) {
-  .ts-bar-hosted::after {
-    content: '';
-    flex-basis: 100%;
-    order: 1;
+  /* The file's state is its dot there, its word read; Build shows its glyph alone. */
+  .ts-bar .ts-file {
+    column-gap: var(--tanrei-sys-space-space50);
   }
-  .ts-bar-hosted > .ts-bar-history,
-  .ts-bar-hosted > .ts-bar-tools {
-    order: 2;
-  }
-  .ts-bar-hosted > .ts-file {
-    order: 3;
-  }
-  .ts-bar-hosted > .ts-bar-inspect {
-    order: 4;
+  .ts-save-word {
+    position: absolute;
+    inline-size: 1px;
+    block-size: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
   }
 }
 

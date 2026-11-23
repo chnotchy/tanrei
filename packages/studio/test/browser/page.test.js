@@ -95,16 +95,24 @@ for (const scheme of ['light', 'dark']) {
   });
 }
 
-studioTest('the theme and language switches: dark is a click away; ja translates the chrome, and says a choice in its words on the rail while the panel lists the vocabulary’s names; the session survives the reload', { layer }, async ({ page, section }) => {
-  await page.locator('#theme').click();
+studioTest('the menu of language and theme: dark is two clicks away; ja translates the chrome, and says a choice in its words on the rail while the panel lists the vocabulary’s names; the session survives the reload', { layer }, async ({ page, section }) => {
+  // One glyph at the end of the bar, named by its label and shown its name by its tooltip, opens a menu of the two.
+  const opener = page.locator('#app-menu-open');
+  assert.deepEqual(await opener.evaluate((el) => [el.label, el.parentElement.localName, el.parentElement.text]), ['Language and theme', 'tanrei-tooltip', 'Language and theme']);
+  const openMenu = async () => {
+    if (!(await page.locator('#app-menu').evaluate((menu) => menu.open))) await opener.click();
+    await until(async () => (await page.locator('#app-menu').evaluate((menu) => menu.open)) === true, 'the menu opens');
+  };
+  await openMenu();
+  assert.equal(await page.locator('#theme').evaluate((group) => group.value), 'light', 'the theme drawn is the one checked');
+  await page.locator('#theme tanrei-menu-radio-item[value="dark"]').click();
   assert.equal(await page.locator('html').getAttribute('data-tanrei-theme'), 'dark');
   await section('typeface');
-  // The language switch is a select of the offered languages, each under its own name; choosing one reloads the page.
-  assert.deepEqual(await page.locator('#lang tanrei-option').evaluateAll((options) => options.map((option) => [option.getAttribute('value'), option.getAttribute('label'), option.lang])), [['en', 'English', 'en'], ['ja', '日本語', 'ja'], ['zh-CN', '简体中文', 'zh-CN'], ['hi', 'हिन्दी', 'hi'], ['es', 'Español', 'es'], ['ar', 'العربية', 'ar']]);
-  await page.locator('#lang').evaluate((select) => {
-    select.value = 'ja';
-    select.dispatchEvent(new Event('change', { bubbles: true, composed: true }));
-  });
+  // The languages are radio items, each under its own name and marked as its language; choosing one reloads the page.
+  assert.deepEqual(await page.locator('#lang tanrei-menu-radio-item').evaluateAll((items) => items.map((item) => [item.getAttribute('value'), item.getAttribute('label'), item.lang])), [['en', 'English', 'en'], ['ja', '日本語', 'ja'], ['zh-CN', '简体中文', 'zh-CN'], ['hi', 'हिन्दी', 'hi'], ['es', 'Español', 'es'], ['ar', 'العربية', 'ar']]);
+  assert.equal(await page.locator('#lang').evaluate((group) => group.value), 'en');
+  await openMenu();
+  await page.locator('#lang tanrei-menu-radio-item[value="ja"]').click();
   await page.waitForSelector('[data-panel="typefaces"]');
   await until(async () => (await page.locator('#session').textContent())?.includes('acme.system.json'), 'the session after the language switch');
   assert.equal(await page.locator('html').getAttribute('lang'), 'ja');
@@ -198,9 +206,19 @@ for (const locale of ['en-US', 'ar']) {
 // the six languages found can break without a word changing: a label that no longer fits a phone, and — in a language
 // written right-to-left — the runs that must stay left-to-right, and the page that must not scroll to the left.
 for (const locale of ['ja', 'es', 'zh-CN', 'hi']) {
-  studioTest(`${locale}: at 390px nothing scrolls sideways in any section or tab of Inspect, and the bar's three parts stand on one line`, { layer, locale, viewport: { width: 390, height: 844 } }, async ({ page, view, fits }) => {
+  studioTest(`${locale}: at 390px nothing scrolls sideways in any section or tab of Inspect, and the bar is one line`, { layer, locale, viewport: { width: 390, height: 844 } }, async ({ page, view, fits }) => {
     assert.equal(await page.locator('html').getAttribute('lang'), locale);
-    assert.equal(await page.locator('#lang').evaluate((select) => select.value), locale);
+    assert.equal(await page.locator('#lang').evaluate((group) => group.value), locale);
+    // The bar is one line, the app's menu of language and theme at its end: what it draws shares a line, and the
+    // brand — a link to this same page — is left out there. (Measured before Source leaves a draft: its badge says so
+    // in words beside Inspect.)
+    const bar = await page.evaluate(() => {
+      const shown = [...document.querySelectorAll('[data-bar] tanrei-button, [data-bar] tanrei-chip, [data-bar] a, [data-bar] .ts-save')].filter((el) => el.getClientRects().length && getComputedStyle(el).visibility !== 'hidden');
+      const middles = shown.map((el) => { const box = el.getBoundingClientRect(); return Math.round(box.top + box.height / 2); });
+      return { spread: Math.max(...middles) - Math.min(...middles), count: shown.length, menu: shown.some((el) => el.id === 'app-menu-open'), shown: shown.map((el, i) => `${el.localName}${el.id ? `#${el.id}` : ''}${el.className ? `.${String(el.className).split(' ')[0]}` : ''}@${middles[i]}`) };
+    });
+    assert.ok(bar.spread <= 2 && bar.count >= 7 && bar.menu, `the bar is one line: ${JSON.stringify(bar)}`);
+    assert.equal(await page.locator('.app-brand').isVisible(), false);
     for (const name of VIEWS) {
       await view(name);
       await unfold(page, name);
@@ -209,9 +227,6 @@ for (const locale of ['ja', 'es', 'zh-CN', 'hi']) {
     // How the screens are seen stands on one line under their tabs; what a phone has no room for scrolls in its box.
     const conditions = await page.evaluate(() => [...document.querySelector('.ts-preview-conditions').children].filter((el) => el.getClientRects().length).map((el) => { const box = el.getBoundingClientRect(); return Math.round(box.top + box.height / 2); }));
     assert.ok(conditions.length >= 3 && Math.max(...conditions) - Math.min(...conditions) <= 2, `the scheme, the contrast and the emphasis share a line: ${conditions}`);
-    const bar = await page.evaluate(() => ['.app-brand', '#lang', '#theme'].map((selector) => { const box = document.querySelector(selector).getBoundingClientRect(); return Math.round(box.top + box.height / 2); }));
-    assert.ok(Math.max(...bar) - Math.min(...bar) <= 2, `the brand, the language and the theme share a line: ${bar}`);
-    assert.ok((await page.locator('#theme').evaluate((button) => button.getBoundingClientRect().height)) <= 38, 'the theme button says its word on one line (a small Button is 36 high)');
   });
 }
 
@@ -222,9 +237,12 @@ studioTest('ar: right-to-left — axe passes and nothing scrolls sideways at 390
   const size = page.locator('[data-rail] [data-row="size"] .ts-rail-value');
   assert.equal(await size.evaluate((el) => getComputedStyle(el).direction), 'rtl');
   assert.deepEqual(await size.locator('bdi[dir="ltr"]').allTextContents(), ['40px', '36px']);
-  // The product's name is one left-to-right run: the mark, then «Tanrei Theme Studio» as it is written.
+  // The product's name is one left-to-right run: the mark, then «Tanrei Theme Studio» as it is written (wider than a
+  // phone, where the brand is drawn).
+  await page.setViewportSize({ width: 1280, height: 844 });
   const name = await page.locator('.app-brand').evaluate((brand) => { const [first, second] = [brand.querySelector('.app-name').firstChild, brand.querySelector('.app-name span')].map((node) => { const range = document.createRange(); range.selectNodeContents(node); return range.getBoundingClientRect().left; }); return { first, second, mark: brand.querySelector('.app-mark').getBoundingClientRect().left }; });
   assert.ok(name.first < name.second && name.second < name.mark, `«Tanrei» stands left of «Theme Studio», and the mark at the start, on the right: ${JSON.stringify(name)}`);
+  await page.setViewportSize({ width: 390, height: 844 });
   for (const name of VIEWS) {
     await view(name);
     await unfold(page, name);
