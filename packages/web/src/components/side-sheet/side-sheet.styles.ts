@@ -1,5 +1,5 @@
 import { css, unsafeCSS } from 'lit';
-import { type OpenAxis, actionBoxStyles, appearStyles, cornerRadius, dividerVisibilityHost, focusRing, modalExitStyles, shape, sheetScrimStyles, whenChosen, whenScroll } from '../../primitives/index.js';
+import { type OpenAxis, actionBoxStyles, appearStyles, cornerRadius, dividerVisibilityHost, modalExitStyles, overRing, shape, sheetScrimStyles, whenChosen, whenScroll } from '../../primitives/index.js';
 import { productText } from '../../styles/product-text.js';
 import { scriptTracking } from '../../styles/script-tracking.js';
 import { reducedMotion } from '../../styles/motion.js';
@@ -186,7 +186,7 @@ export const styles = css`
     ${unsafeCSS(cornerRadius('--tanrei-sys-shape-corner-none'))}
     pointer-events: none;
   }
-  ${focusRing((focus) => `.content${focus} ~ .focus`, { inside: true })}
+  ${overRing('.focus', (focus) => `.content${focus} ~ .focus`)}
 
   /* SSH-11, SSH-19: the dividers, divider.width hairlines in divider.color across the sheet's full width. */
   .divider {

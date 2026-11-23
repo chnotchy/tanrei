@@ -1,5 +1,5 @@
 import { css, unsafeCSS } from 'lit';
-import { directionProbeStyles, focusRing, whenChosen } from '../../primitives/index.js';
+import { directionProbeStyles, overRing, whenChosen } from '../../primitives/index.js';
 import { hiddenHost } from '../../primitives/hidden.js';
 import { reducedMotion } from '../../styles/motion.js';
 
@@ -232,7 +232,7 @@ export const styles = [
       }
     `)}
   `,
-  focusRing((focus) => `.scroll${focus} ~ .ring`, { inside: true }),
+  overRing('.ring', (focus) => `.scroll${focus} ~ .ring`),
 
   // SCA-5, line: a line line.width thick in line.color along the edge, inside the box.
   when('line', (frame) => `${frame} {

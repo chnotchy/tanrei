@@ -1,5 +1,5 @@
 import { css, unsafeCSS } from 'lit';
-import { actionBoxStyles, appearStyles, compactProbeStyles, dividerVisibilityHost, focusRing, iconGlyph, modalExitStyles, sheetLookStyles, sheetScrimStyles, whenScroll, whenChosen as chosen } from '../../primitives/index.js';
+import { actionBoxStyles, appearStyles, compactProbeStyles, dividerVisibilityHost, iconGlyph, modalExitStyles, overRing, sheetLookStyles, sheetScrimStyles, whenScroll, whenChosen as chosen } from '../../primitives/index.js';
 import { productText } from '../../styles/product-text.js';
 import { cornerRadius, shape } from '../../styles/shape.js';
 import { scriptTracking } from '../../styles/script-tracking.js';
@@ -354,7 +354,7 @@ export const styles = css`
     ${unsafeCSS(cornerRadius('--tanrei-sys-shape-corner-none'))}
     pointer-events: none;
   }
-  ${focusRing((focus) => `.scroll${focus} ~ .focus`, { inside: true })}
+  ${overRing('.focus', (focus) => `.scroll${focus} ~ .focus`)}
 
   /* DLG-7: corner smoothing on the container (data-tanrei-shape). */
   ${shape}

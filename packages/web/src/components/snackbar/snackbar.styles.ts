@@ -1,5 +1,5 @@
 import { css, unsafeCSS } from 'lit';
-import { TARGET_CAPS, appearStyles, focusRing, iconGlyph, neighbourTarget, pressHold, rippleStyles, SCROLL_HOLD_INSET, stateRules, type Tone, whenChosen } from '../../primitives/index.js';
+import { TARGET_CAPS, appearStyles, focusRing, iconGlyph, neighbourTarget, overRing, pressHold, rippleStyles, SCROLL_HOLD_INSET, stateRules, type Tone, whenChosen } from '../../primitives/index.js';
 import { productText } from '../../styles/product-text.js';
 import { cornerRadius, shape } from '../../styles/shape.js';
 import { scriptTracking } from '../../styles/script-tracking.js';
@@ -387,7 +387,7 @@ export const styles = css`
   .status + .text + .focus {
     margin-inline-start: ${t('icon-gap')};
   }
-  ${focusRing((focus) => `.text${focus} ~ .focus`, { inside: true, color: 'var(--_focus)' })}
+  ${overRing('.focus', (focus) => `.text${focus} ~ .focus`,{ color: 'var(--_focus)' })}
 
   /* The first control is container.gap after the text, the next ones controls.gap after the one before; each is
      centred on the text's first line, overlapping the padding rather than growing the row. The action is

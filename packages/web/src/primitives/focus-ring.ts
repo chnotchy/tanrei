@@ -53,8 +53,8 @@ const glow = (selector: string, color = SYSTEM_COLOR) => `
  * list, a menu item in its surface: LST-10, MNU-11). It is the ring drawn around the element shrunk by the ring's
  * extent, so its corners stay concentric; the glow likewise starts that far inside and spreads out to the edge.
  * Never name an element that scrolls: the inner stroke and the glow are its `::after`, which would move away with what
- * it scrolls. Name a box over it that does not scroll — `(focus) => \`.scroll${focus} ~ .focus\`` — as the code block,
- * the dialog and the snackbar do.
+ * it scrolls. Name a box over it that does not scroll — `(focus) => \`.scroll${focus} ~ .focus\`` — with `overRing()`,
+ * as the code block, the dialog and the snackbar do.
  *
  * `within` is for an element with a known amount of room around it before something clips (a tab's container in its
  * track, TAB-4): a length expression. The indicator is drawn around the element where the room holds all of it, and
@@ -93,6 +93,19 @@ export function focusRing(on: FocusSelector, { inside = false, within, color = S
   ${glow(on("[data-focus-style='glow']:focus-visible"), color)}
 `);
 }
+
+/**
+ * The `inside` ring drawn by `box`, a box laid over the element that takes focus (`on`:
+ * `(focus) => \`.scroll${focus} ~ .focus\``, the box not scrolling with what it covers): the box is hidden but while
+ * that element shows the ring. A box over text that paints nothing is still, to a contrast checker (axe's
+ * `color-contrast`), an element covering the text: it left every text under it unchecked ("overlapped by another
+ * element") — a dialog's, a sheet's, a snackbar's whole body. A hidden box covers nothing. It is hidden at no
+ * specificity, so that a ring's rule shows it whatever else hides it: a box two rings share (a popover's content and
+ * its crowded clip) is shown by either. Its own function, not an option of `focusRing()`, so that a module that draws no
+ * such box does not carry it.
+ */
+export const overRing = (box: string, on: FocusSelector, options: Omit<FocusRingOptions, 'inside' | 'within'> = {}): CSSResult =>
+  unsafeCSS(`:where(${box}){visibility:hidden}${on(':focus-visible')}{visibility:visible}${focusRing(on, { ...options, inside: true })}`);
 
 // focus-style: glow, inside the element: the halo's box is the element shrunk by the glow's reach (the offset, twice
 // each width: the spreads and the outer blur), so the halo spreads out to the element's edge and no further.

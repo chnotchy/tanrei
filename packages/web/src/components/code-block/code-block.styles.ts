@@ -1,5 +1,5 @@
 import { css, unsafeCSS } from 'lit';
-import { type OpenAxis, focusRing } from '../../primitives/index.js';
+import { type OpenAxis, overRing } from '../../primitives/index.js';
 import { productText } from '../../styles/product-text.js';
 import { cornerRadius, shape } from '../../styles/shape.js';
 import { CORE_SIZES, CORE_VARIANTS, DEFAULT_SIZE, DEFAULT_VARIANT, layoutBlock, sizeBlock, variantBlock } from './code-block.light.js';
@@ -195,7 +195,7 @@ export const styles = css`
     ${unsafeCSS(cornerRadius(`${PREFIX}-container-shape`))}
     pointer-events: none;
   }
-  ${focusRing((focus) => `.body${focus} ~ .focus`, { inside: true })}
+  ${overRing('.focus', (focus) => `.body${focus} ~ .focus`)}
 
   /* COD-23: forced colors remove every fill, so every look gains the edge, in the platform's text color; the patch is
      the page's own ground there. */

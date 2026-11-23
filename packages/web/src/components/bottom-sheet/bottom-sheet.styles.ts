@@ -1,5 +1,5 @@
 import { css, unsafeCSS } from 'lit';
-import { TARGET_CAPS, appearStyles, dividerVisibilityHost, focusRing, modalExitStyles, sheetScrimStyles, whenScroll } from '../../primitives/index.js';
+import { TARGET_CAPS, appearStyles, dividerVisibilityHost, modalExitStyles, overRing, sheetScrimStyles, whenScroll } from '../../primitives/index.js';
 import { productText } from '../../styles/product-text.js';
 import { scriptTracking } from '../../styles/script-tracking.js';
 import { cornerRadius, shape } from '../../styles/shape.js';
@@ -379,7 +379,7 @@ export const styles = css`
     inset: 0;
     pointer-events: none;
   }
-  ${focusRing((focus) => `.content${focus} ~ .focus`, { inside: true })}
+  ${overRing('.focus', (focus) => `.content${focus} ~ .focus`)}
 
   /* BSH-18: corner smoothing on the container and the handle's box (data-tanrei-shape). */
   ${shape}
