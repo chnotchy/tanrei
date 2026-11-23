@@ -60,6 +60,10 @@ function awaitReady(fonts: FontFaceSet) {
   awaited = ready;
   void ready.then(() => {
     if (awaited === ready) awaited = null;
+    // The faces are ready, so the load `connect` found is over too. Cleared only by that load's own `ready`, `unheard`
+    // stayed set where WebKit had not settled it yet: a watcher told here measured again, waited on this settled
+    // `ready`, and was told again in the next microtask — for ever, and the page never finished loading.
+    unheard = false;
     // A watcher that measures again while another face is loading waits again, on the `ready` of that load.
     const told = [...waiting];
     waiting.clear();
