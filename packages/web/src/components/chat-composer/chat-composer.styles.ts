@@ -319,6 +319,27 @@ export const styles = css`
     inline-size: ${t('layout-inline-min-width')};
     block-size: 0;
   }
+  /* CCM-4: and what the inline layout needs beside the parts it puts on the typing area's line — the typing area's
+     least width with the end padding and the gap before what follows it; the start padding and the gap after the
+     group before it, or the start padding where no group is there; and the gap between two parts of a group. The
+     counter is measured as wide as it is with maxLength characters (.widest), so that no count changes the layout. */
+  .probe[data-of='input'] {
+    inline-size: calc(${t('layout-input-min-width')} + ${t('container-padding-inline-with-button')} + ${t('container-gap')});
+  }
+  .probe[data-of='start'] {
+    inline-size: calc(${t('container-padding-inline-with-button')} + ${t('container-gap')});
+  }
+  .probe[data-of='padding'] {
+    inline-size: ${t('container-padding-inline')};
+  }
+  .probe[data-of='gap'] {
+    inline-size: ${t('actions-gap')};
+  }
+  .measures > .counter {
+    position: absolute;
+    inset-block-start: 0;
+    inset-inline-start: 0;
+  }
   /* CCM-35: the times and the curves of the motions the element runs itself — the items' fades and moves, then the
      glyph's cross-fade — as the cascade computes them (a duration token is an expression: it is computed through a
      real property, here one that moves nothing). */

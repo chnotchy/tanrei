@@ -338,6 +338,31 @@ test.describe('behavior', () => {
     expect(seen.filter((text) => text.includes('CCM-4'))).toHaveLength(1);
   });
 
+  for (const system of ['tanrei', 'm3-like', 'cupertino'] as const) {
+    test(`CCM-4, CCM-2, CCM-3 (${system}): the typing area keeps the width its layout gives it — inline, never less than layout.input-min-width beside the actions; where they would leave it less, stacked, the capsule's width but for the send button — at every width, with and without attachments, in either direction`, async ({ page }) => {
+      await mount(page, one('long-text', 'inline-actions', 'inline-rtl', 'inline-typed', 'inline-uploading', 'stacked-actions'), system === 'tanrei' ? {} : { system });
+      const [pi, pib, gap, least, floor] = await Promise.all(['container-padding-inline', 'container-padding-inline-with-button', 'container-gap', 'layout-inline-min-width', 'layout-input-min-width'].map((name) => token(page, name)));
+      const ids = ['long-text', 'inline-actions', 'inline-rtl', 'inline-typed', 'inline-uploading', 'stacked-actions'];
+      for (const width of [320, 390, 480]) {
+        for (const id of ids) await stage(page, id).evaluate((el, w) => ((el as HTMLElement).style.inlineSize = `${w}px`), width);
+        await settle(page);
+        for (const id of ids) {
+          const [c, t, s] = [await box(capsule(page, id)), await box(typing(page, id)), await box(send(page, id))];
+          const layout = await capsule(page, id).getAttribute('data-layout');
+          const at = `${id} at ${width}`;
+          if (layout === 'stacked') near(t.width, c.width - pi - gap - s.width - pib, `${at}: stacked, the capsule's width but for the send button`, 1);
+          else expect(t.width, `${at}: inline, at least layout.input-min-width`).toBeGreaterThanOrEqual(floor - 0.5);
+        }
+        // Eight actions and a counter beside it would leave the text a column a few letters wide.
+        expect(await capsule(page, 'long-text').getAttribute('data-layout'), `long-text at ${width}`).toBe('stacked');
+      }
+      // Three actions at 480 leave it its room: inline, as the fixture says.
+      expect(await capsule(page, 'inline-actions').getAttribute('data-layout')).toBe('inline');
+      expect(floor, 'layout.input-min-width is a length').toBeGreaterThan(0);
+      expect(floor, 'and less than layout.inline-min-width').toBeLessThan(least);
+    });
+  }
+
   test('CCM-5: it holds exactly one embedded text input, multi-line, left as it is — no container, edge or padding of its own — given value and placeholder and named by label; a press on the capsule’s own ground gives it focus with the caret at the nearest point of the text and shows no pressed state, and a press on a Button, a File item or the counter does not; minRows below 1 is 1 and a maxRows that is neither 0 nor at least minRows is minRows', async ({ page }) => {
     await mount(page, [...one('inline-typed', 'inline-uploading'), fx('rows', { minRows: 0, maxRows: -3, value: NOTES }), fx('low', { minRows: 3, maxRows: 2, value: NOTES }), fx('free', { maxRows: 0, value: NOTES }), fx('count', { counter: true, value: 'Hello there' })]);
     expect(await host(page, 'inline-typed').evaluate((el) => el.shadowRoot!.querySelectorAll('tanrei-embedded-text-input').length)).toBe(1);

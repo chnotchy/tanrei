@@ -227,7 +227,8 @@ const DEFAULT_TRUE = { fromAttribute: (value: string | null) => value !== 'false
  *
  * `layout="inline"` (the default) puts every action on the line being written; `layout="stacked"` keeps the send
  * button on that line and puts everything else in a row beneath it, inside the capsule. A capsule narrower than
- * `comp.chat-composer.layout.inline-min-width` is laid out stacked whatever `layout` says; a stacked composer with
+ * `comp.chat-composer.layout.inline-min-width`, or whose actions would leave the typing area less than
+ * `comp.chat-composer.layout.input-min-width`, is laid out stacked whatever `layout` says; a stacked composer with
  * nothing for the row beneath is drawn as an inline one. Tab moves through it in the order it is drawn.
  *
  * Enter sends and Shift+Enter begins a new line; with `send-key="modifier"` Enter begins a new line. Control+Enter and
@@ -473,7 +474,7 @@ export class TanreiChatComposer extends ComposedElement implements PlacingGroup 
   protected typing = false;
   /** CCM-23: files are dragged over the capsule. */
   protected receiving = false;
-  /** CCM-4: the capsule is narrower than `layout.inline-min-width`. */
+  /** CCM-4: the capsule is narrower than `layout.inline-min-width`, or than the inline layout needs beside the typing area. */
   protected narrow = false;
   /** CCM-43: how many File items the product gave. */
   protected count = 0;
@@ -661,6 +662,12 @@ export class TanreiChatComposer extends ComposedElement implements PlacingGroup 
   private get counterText(): string {
     const most = this.lengthLimit;
     return `${graphemes(this.value)}${most ? `/${most}` : ''}`;
+  }
+
+  /** CCM-4: the counter as wide as it is drawn with `maxLength` characters, or as it is now where no limit is set. */
+  private get widestCount(): string {
+    const most = this.lengthLimit;
+    return most ? `${most}/${most}` : this.counterText;
   }
 
   /** The elements the product placed in a named slot. */
@@ -1610,7 +1617,8 @@ export class TanreiChatComposer extends ComposedElement implements PlacingGroup 
    * CCM-41: one line of the typing area's text — the member's computed line height, never its token — from which the
    * capsule's corners and the least height of its groups are drawn, by the stylesheet of that line, which every
    * instance that measured it shares (`measuredSheet()`), adopted after the element's stylesheet and in no cascade
-   * layer. CCM-4: whether the capsule is narrower than `layout.inline-min-width`, by its own width.
+   * layer. CCM-4: whether the capsule is narrower than `layout.inline-min-width`, by its own width, or than the inline
+   * layout needs to leave the typing area `layout.input-min-width` (`inlineNeeds()`).
    *
    * Read with every other host's of the turn (src/primitives/read-phase.ts), after the renders, before any of them
    * writes: a chat composer that measured in its own turn had the browser style and lay the page out for it, once per
@@ -1633,6 +1641,7 @@ export class TanreiChatComposer extends ComposedElement implements PlacingGroup 
     const line = typed ? getComputedStyle(typed).lineHeight : '';
     const probe = capsule.querySelector('.probe');
     const [width, least] = [capsule.getBoundingClientRect().width, probe?.getBoundingClientRect().width ?? 0];
+    const needs = this.inlineNeeds(capsule);
     return () => {
       if (/^[\d.]+px$/.test(line) && line !== this.line) {
         this.line = line;
@@ -1643,13 +1652,32 @@ export class TanreiChatComposer extends ComposedElement implements PlacingGroup 
           this.lineSheet = sheet;
         }
       }
-      const narrow = width > 0 && least > 0 && width < least - 0.01;
+      const narrow = width > 0 && least > 0 && (width < least - 0.01 || width < needs - 0.01);
       if (narrow !== this.narrow) this.narrow = narrow;
     };
   }
 
   /**
-   * CCM-4, CCM-41: one observer watches the capsule and the typing area of every chat composer, so that a frame reports
+   * CCM-4: the inline size the inline layout needs to leave the typing area `layout.input-min-width` — the parts it puts
+   * on that line (CCM-2) at their own widths, which are the same in either layout, with the paddings and the gaps
+   * between them; the counter as wide as it is with `maxLength` characters. 0 while a length is not yet read.
+   */
+  private inlineNeeds(capsule: HTMLElement): number {
+    const length = (of: string) => capsule.querySelector(`.probe[data-of="${of}"]`)?.getBoundingClientRect().width ?? 0;
+    const input = length('input');
+    if (!input) return 0;
+    const gap = length('gap');
+    const widths = (elements: (Element | null | undefined)[]) => elements.map((element) => element?.getBoundingClientRect().width ?? 0).filter((each) => each > 0);
+    // Each part of a group stands one gap from the next; the last of the group after the typing area, from the send button.
+    const parts = (each: number[]) => each.reduce((sum, w) => sum + w + gap, 0);
+    const start = widths([this.attachShown ? this.renderRoot.querySelector('tanrei-file-picker') : null, ...this.slotted('leading')]);
+    const end = widths([this.counts ? this.renderRoot.querySelector('.measures > .counter') : null, ...this.slotted('trailing')]);
+    const [send] = widths([this.renderRoot.querySelector('.group.send')]);
+    return input + (send ?? 0) + parts(end) + (start.length ? length('start') + parts(start) - gap : length('padding'));
+  }
+
+  /**
+   * CCM-4, CCM-41: one observer watches the capsule, the typing area and the parts beside it of every chat composer, so that a frame reports
    * all that were resized in one callback, all of them read before any writes (`measure()`).
    */
   private static sizeWatch: ResizeObserver | null = null;
@@ -1657,7 +1685,10 @@ export class TanreiChatComposer extends ComposedElement implements PlacingGroup 
   private static readonly owners = new WeakMap<Element, TanreiChatComposer>();
 
   private watch() {
-    const next = [this.capsule, this.input].filter((element): element is HTMLElement => !!element);
+    // CCM-4: and the parts the inline layout puts beside the typing area, whose widths say whether it is laid out stacked.
+    const root = this.renderRoot;
+    const parts = [root?.querySelector('tanrei-file-picker'), ...this.slotted('leading'), ...this.slotted('trailing'), root?.querySelector('.measures > .counter'), root?.querySelector('.group.send')];
+    const next = [this.capsule, this.input, ...parts].filter((element): element is HTMLElement => !!element);
     if (next.length === this.watched.length && next.every((element, index) => element === this.watched[index])) return;
     this.unwatch();
     if (typeof ResizeObserver === 'undefined') return;
@@ -1985,7 +2016,10 @@ export class TanreiChatComposer extends ComposedElement implements PlacingGroup 
           <div class="group send">${this.sendPart(disabled, sendable)}</div>
         </div>
         ${stacked ? html`<div class="row">${start}${end}</div>` : nothing}
-        <div class="measures" aria-hidden="true"><span class="probe"></span><span class="timing"></span></div>
+        <div class="measures" aria-hidden="true">
+          <span class="probe" data-of="inline"></span><span class="probe" data-of="input"></span><span class="probe" data-of="start"></span
+          ><span class="probe" data-of="padding"></span><span class="probe" data-of="gap"></span>${this.counts ? html`<span class="counter">${this.widestCount}</span>` : nothing}<span class="timing"></span>
+        </div>
         <div class="announce" aria-live="polite" aria-atomic="true"></div>
       </div>
     `;
