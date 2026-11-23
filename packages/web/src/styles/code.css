@@ -96,6 +96,15 @@
     :where(a, .tanrei-link) & {
       color: inherit;
     }
+    /* ICD-6, TBL-3: in a Table's cell the line is the cell's, which the Table widens for a run it does not break; a
+       part with no space breaks nowhere there (the cell's own wrapping, which the Table sets to break at spaces only),
+       so a name is not drawn a few characters to a line in a column as narrow as one character; and in a column the
+       Table keeps on one line (`data-wrap="false"`) the run does not wrap at all. Its spaces are still kept (ICD-7):
+       only the wrapping is the cell's. */
+    :where(tanrei-table) :where(td, th) & {
+      overflow-wrap: inherit;
+      text-wrap-mode: inherit;
+    }
     :where(strong, b) & {
       font-weight: calc(var(--tanrei-comp-inline-code-label-typescale-font-weight) + var(--tanrei-sys-typescale-emphasis-body));
     }
