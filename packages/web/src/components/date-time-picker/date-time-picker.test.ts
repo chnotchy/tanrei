@@ -2364,6 +2364,32 @@ test.describe('ranges, actions, motion, overflow and semantics', () => {
     }
   });
 
+  // DTM-36's verify: a docked picker below an anchor at the window's start edge, in a window 320 × 640.
+  const DOCKED_AT_320: [string, Fixture['props']][] = [
+    ['date', { mode: 'date', value: '2026-09-17' }],
+    ['date range', { mode: 'date', range: true, start: '2026-09-10', end: '2026-09-16' }],
+    ['time, the wheels', { mode: 'time', value: '07:30', hourCycle: 'h12' }],
+    ['time, the 12-hour dial', { mode: 'time', value: '19:30', hourCycle: 'h12', entryMode: 'dial' }],
+    ['time, the 24-hour dial', { mode: 'time', value: '19:30', hourCycle: 'h23', entryMode: 'dial' }],
+    ['date and time', { mode: 'date-time', value: '2026-09-17T19:30', hourCycle: 'h12', layout: 'vertical' }],
+  ];
+  for (const [what, props] of DOCKED_AT_320) {
+    test(`DTM-2, DTM-36: a docked picker (${what}) in a window 320 × 640 stands at least the viewport margin inside each side of the window, and nothing of it is cut, in en-US, ja-JP and ar (right to left)`, async ({ page }) => {
+      for (const [locale, direction] of [['en-US'], ['ja-JP'], ['ar-EG', 'rtl']] as const) {
+        const fixture = docked('d', { ...props, locale });
+        await mount(page, [direction ? { ...fixture, direction } : fixture], { window: { width: 320, height: 640 } });
+        await opener(page, 'd').evaluate((el) => ((el as HTMLElement).style.cssText = 'position: fixed; top: 8px; inset-inline-start: 8px;'));
+        await open(page, 'd');
+        const margin = await resolveToken(page, T('docked-viewport-margin'));
+        const s = await bounds(surface(page, 'd'));
+        const width = await page.evaluate(() => document.documentElement.clientWidth);
+        expect(s.x, `${locale}: the start of the window`).toBeGreaterThanOrEqual(margin - 0.5);
+        expect(s.x + s.width, `${locale}: the end of the window`).toBeLessThanOrEqual(width - margin + 0.5);
+        await expectNothingCut(page, 'd');
+      }
+    });
+  }
+
   test('DTM-36: a wheel turned on past the end of a docked picker’s body that scrolls, and turned again after a pause, leaves the page behind where it was and the picker open', async ({ page }) => {
     await mount(page, [docked('d', { mode: 'date-time', value: '2026-09-17T19:30', layout: 'vertical' })], { window: { width: 480, height: 420 } });
     await opener(page, 'd').evaluate((el) => ((el as HTMLElement).style.cssText = 'position: fixed; top: 8px; left: 8px;'));

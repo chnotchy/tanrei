@@ -126,11 +126,14 @@ export const styles = css`
 
   /* DTM-2: a docked picker is a manual popover in the top layer, placed by script below its anchor; its color,
      elevation and corners. Its placement reads its two lengths through real properties. */
+  /* DTM-2, DTM-36: never wider than the window less docked.viewport-margin on each side (100% is the window's width,
+     the containing block of a fixed box in the top layer, without its scroll bar): capped at the whole window, a docked
+     date picker in a window 320 px wide was 320 px wide and stood against both of its edges. */
   .surface.docked {
     position: fixed;
     inset: auto;
     inline-size: fit-content;
-    max-inline-size: 100vw;
+    max-inline-size: calc(100% - 2 * ${t('docked-viewport-margin')});
     background: ${t('docked-container-color')};
     box-shadow: ${t('docked-container-elevation')};
     ${unsafeCSS(cornerRadius(`${PREFIX}-docked-container-shape`))}
