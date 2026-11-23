@@ -240,7 +240,7 @@ export function mountStudio(root: HTMLElement, { lang = 'en', adapter, links = {
     inspectButton.label = t.labelled(t.inspect.title, name);
   }
   // Export: the side sheet of the file, its stylesheet and what to do next (./ui/export.ts).
-  const exportSheet = createExportSheet(ctx, { file: adapter?.label, linked, links, onshow: (to) => show({ section: to }) });
+  const exportSheet = createExportSheet(ctx, { file: adapter?.label, linked, links, onshow: (to) => show({ section: to }), notify: (message) => notify(message) });
   const exportWord = barWord(t.exporting.open);
   const exportButton = h('tanrei-button', { variant: 'filled', size: 'small', label: t.exporting.open, onclick: () => exportSheet.open(), 'data-export-open': true }, glyph(EXPORT_GLYPH), exportWord);
   // Share: the link to the Studio with this layer, and the documentation shown in it (./ui/share.ts).
@@ -402,6 +402,12 @@ export function mountStudio(root: HTMLElement, { lang = 'en', adapter, links = {
       .whenDefined(snackbars.localName)
       .then(() => snackbars.show({ message, action: t.frame.undo, closable: true, closeLabel: t.shared.close }))
       .then((answer) => answer.result === 'action' && committed === step && undo());
+  }
+  /** What an action did (Export's download, its link copied), in a snackbar of its own: an offer to undo goes (Undo in the bar stays). */
+  function notify(message: string) {
+    offered = null;
+    snackbars.clear();
+    void snackbars.show({ message });
   }
   /** A commit after the step the snackbar offers to undo: the offer goes. */
   function withdrawOffer() {

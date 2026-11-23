@@ -1,10 +1,10 @@
 // Export: the side sheet the bar opens. Its line of checks, the file as the Studio would save it — a layer on an example
 // of the theme gallery either depending on it or with every value written out — what the stylesheet changes, and the
-// next steps; each file downloads under the name the CLI gives it. The sheet passes axe, keeps every target at 24 by
-// 24 and fits a phone, in every language.
+// next steps; at its foot, whichever tab is shown, the file's download, under the name the CLI gives it. The sheet
+// passes axe, keeps every target at 24 by 24 and fits a phone, in every language.
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
-import { studioTest } from './harness.js';
+import { studioTest, until } from './harness.js';
 
 const sheet = (page) => page.locator('[data-export-sheet]');
 const open = async (page) => {
@@ -21,21 +21,42 @@ const download = async (page, locator) => {
   const [file] = await Promise.all([page.waitForEvent('download'), locator.click()]);
   return { name: file.suggestedFilename(), text: fs.readFileSync(await file.path(), 'utf8') };
 };
+/** What the snackbar over the sheet says (empty: none is shown). */
+const said = (page) => page.locator('tanrei-snackbar').last().evaluate((el) => el.message).catch(() => '');
 
-studioTest('Export opens from the bar over the Studio: the checks, the file as it is saved, its download, what next; it closes back to its button', {}, async ({ page, onDisk, axe, targets }) => {
+studioTest('Export opens from the bar over the Studio: the line of the checks, the file as it is saved, its download at the foot, what next; it closes back to its button', {}, async ({ page, onDisk, axe, targets }) => {
   await open(page);
-  assert.equal(await page.locator('[data-export-status]').getAttribute('data-state'), 'success');
-  assert.match(await page.locator('[data-export-status]').textContent(), /Valid: the schema, the token engine and the build’s checks accept this file\./);
+  // One line: the glyph of the state (not read) and the sentence that says it, in a live region; no callout.
+  const status = page.locator('[data-export-status]');
+  assert.equal(await status.getAttribute('data-state'), 'success');
+  assert.equal(await status.getAttribute('role'), 'status');
+  assert.deepEqual(await status.evaluate((el) => [el.localName, el.querySelector('[aria-hidden="true"]').textContent, el.querySelectorAll('p').length]), ['div', 'verified', 1]);
+  assert.match(await status.textContent(), /Valid: the schema, the token engine and the build’s checks accept this file\./);
   assert.equal(await page.locator('[data-export-values]').isHidden(), true, 'a layer on the default system depends on nothing it could hold itself');
   assert.deepEqual(await shownJson(page), onDisk(), 'the file as the Studio saves it');
   assert.equal(await page.locator('[data-export-json]').getAttribute('headline'), 'acme.system.json');
+  // The sheet's actions: Download alone here (the app's address holds no layer: there is no link to copy), named with
+  // the file it saves.
+  assert.deepEqual(await sheet(page).evaluate((el) => [...el.querySelectorAll(':scope > [slot="actions"]')].map((action) => [action.localName, action.hasAttribute('data-export-download'), action.label, action.hasAttribute('confirming')])), [['tanrei-button', true, 'Download acme.system.json', true]]);
+  assert.equal(await page.locator('[data-export-tabs] [data-export-download]').count(), 0, 'no download inside a tab');
   const file = await download(page, page.locator('[data-export-download]'));
   assert.deepEqual([file.name, JSON.parse(file.text)], ['acme.system.json', onDisk()]);
+  await until(async () => (await said(page)) === 'Downloaded acme.system.json', 'the snackbar says what was saved');
   await axe('[data-export-sheet]', 'Export, at the file');
   await tab(page, 'next');
   // The Studio edits a file here: it is saved as it changes, and built with the command.
   assert.match(await page.locator('[data-export-next]').textContent(), /saves every change to acme\.system\.json/);
   assert.deepEqual(await page.locator('[data-export-command]').evaluateAll((els) => els.map((el) => el.code)), ['npx tanrei build']);
+  // The foot stays whichever tab is shown, and the keyboard reaches it: Tab from the tab row ends there.
+  await page.locator('[data-export-tabs] > tanrei-tab[data-tab="next"]').focus();
+  let reached = false;
+  for (let step = 0; step < 20 && !reached; step += 1) {
+    await page.keyboard.press('Tab');
+    reached = await page.evaluate(() => document.activeElement?.matches('[data-export-download]'));
+  }
+  assert.ok(reached, 'Tab reaches Download');
+  const again = await Promise.all([page.waitForEvent('download'), page.keyboard.press('Enter')]);
+  assert.equal(again[0].suggestedFilename(), 'acme.system.json', 'Enter on it downloads the file');
   await axe('[data-export-sheet]', 'Export, at what next');
   await targets('Export', '[data-export-sheet]');
   await page.keyboard.press('Escape');
@@ -91,6 +112,8 @@ studioTest('a file that would not build: the line says so and nothing downloads'
   await open(page);
   assert.equal(await page.locator('[data-export-status]').getAttribute('data-state'), 'error');
   assert.match(await page.locator('[data-export-status]').textContent(), /Not valid/);
+  assert.equal(await page.locator('[data-export-status] [aria-hidden="true"]').textContent(), 'error');
+  assert.ok((await page.locator('[data-export-status] .ts-checks li').count()) > 0, 'the problems, under the line');
   assert.equal(await page.locator('[data-export-download]').evaluate((el) => el.disabled), true);
 });
 

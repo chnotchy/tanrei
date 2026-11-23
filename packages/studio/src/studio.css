@@ -1070,6 +1070,30 @@
 .ts-export {
   gap: var(--ts-gap);
 }
+/* The line of the checks: the glyph of what they say, in its status color, then the sentence, in the label's type. */
+.ts-export-status-line {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--tanrei-sys-space-space50) var(--tanrei-sys-space-space100);
+  margin: 0;
+  font: var(--tanrei-sys-typescale-label-font);
+}
+.ts-export-status-text {
+  flex: 1 1 12rem;
+  min-inline-size: 0;
+}
+.ts-export-status-glyph {
+  flex: none;
+  align-self: flex-start;
+  color: var(--tanrei-sys-color-success);
+}
+.ts-export-status[data-state='warning'] .ts-export-status-glyph {
+  color: var(--tanrei-sys-color-warning);
+}
+.ts-export-status[data-state='error'] .ts-export-status-glyph {
+  color: var(--tanrei-sys-color-error);
+}
 .ts-export-status .ts-checks {
   margin-block-start: 0.5rem;
 }
@@ -1089,10 +1113,6 @@
 }
 .ts-next-steps p {
   margin: 0;
-}
-.ts-export-share {
-  padding-block-start: 0.75rem;
-  border-block-start: var(--ts-hairline);
 }
 .ts-status {
   position: absolute;

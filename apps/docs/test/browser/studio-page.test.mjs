@@ -414,12 +414,18 @@ for (const engine of ENGINES) {
         // Written out, the file extends the root, which `init --extends` does not take: the step starts from the default.
         await page.locator('[data-export-every] tanrei-radio-button[data-value="every"]').click();
         await page.waitForFunction(() => document.querySelector('[data-export-command="npx tanrei init"]')?.code === 'npx tanrei init acme');
-        // The link: the address of this layer.
+        // At the sheet's foot, whichever tab is shown: Download, and the link — the address of this layer — said in a snackbar.
+        assert.deepEqual(await page.locator('[data-export-sheet]').evaluate((el) => [...el.querySelectorAll(':scope > [slot="actions"]')].map((action) => action.dataset.exportCopyLink === '' ? 'copy link' : action.dataset.exportDownload === '' ? 'download' : action.localName)), ['copy link', 'download']);
         if (engine === 'chromium') await page.context().grantPermissions(['clipboard-read', 'clipboard-write']);
         await page.locator('[data-export-copy-link]').click();
-        await page.waitForFunction(() => document.querySelector('[data-export-link-state]').textContent);
+        const snackbar = () => page.locator('tanrei-snackbar').last().evaluate((el) => el.message).catch(() => '');
+        // (Copied, or — where the engine refuses the clipboard — the way to copy it by hand.)
+        const answers = ['Link copied.', 'Could not copy — select the text and copy it by hand.'];
+        const deadline = Date.now() + 5000;
+        while (!answers.includes(await snackbar()) && Date.now() < deadline) await page.waitForTimeout(50);
+        assert.ok(answers.includes(await snackbar()), 'the snackbar says what was done');
         if (engine === 'chromium') {
-          assert.equal(await page.locator('[data-export-link-state]').textContent(), 'Link copied.');
+          assert.equal(await snackbar(), 'Link copied.');
           assert.equal(await page.evaluate(() => navigator.clipboard.readText()), page.url(), 'the address the layer is in');
         }
         const report = await new AxeBuilder({ page }).include('[data-export-sheet]').analyze();
