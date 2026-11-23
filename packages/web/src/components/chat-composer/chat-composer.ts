@@ -1671,7 +1671,7 @@ export class TanreiChatComposer extends ComposedElement implements PlacingGroup 
     // Each part of a group stands one gap from the next; the last of the group after the typing area, from the send button.
     const parts = (each: number[]) => each.reduce((sum, w) => sum + w + gap, 0);
     const start = widths([this.attachShown ? this.renderRoot.querySelector('tanrei-file-picker') : null, ...this.slotted('leading')]);
-    const end = widths([this.counts ? this.renderRoot.querySelector('.measures > .counter') : null, ...this.slotted('trailing')]);
+    const end = widths([this.counts ? this.renderRoot.querySelector('.measures > .widest') : null, ...this.slotted('trailing')]);
     const [send] = widths([this.renderRoot.querySelector('.group.send')]);
     return input + (send ?? 0) + parts(end) + (start.length ? length('start') + parts(start) - gap : length('padding'));
   }
@@ -1687,7 +1687,7 @@ export class TanreiChatComposer extends ComposedElement implements PlacingGroup 
   private watch() {
     // CCM-4: and the parts the inline layout puts beside the typing area, whose widths say whether it is laid out stacked.
     const root = this.renderRoot;
-    const parts = [root?.querySelector('tanrei-file-picker'), ...this.slotted('leading'), ...this.slotted('trailing'), root?.querySelector('.measures > .counter'), root?.querySelector('.group.send')];
+    const parts = [root?.querySelector('tanrei-file-picker'), ...this.slotted('leading'), ...this.slotted('trailing'), root?.querySelector('.measures > .widest'), root?.querySelector('.group.send')];
     const next = [this.capsule, this.input, ...parts].filter((element): element is HTMLElement => !!element);
     if (next.length === this.watched.length && next.every((element, index) => element === this.watched[index])) return;
     this.unwatch();
@@ -2018,7 +2018,7 @@ export class TanreiChatComposer extends ComposedElement implements PlacingGroup 
         ${stacked ? html`<div class="row">${start}${end}</div>` : nothing}
         <div class="measures" aria-hidden="true">
           <span class="probe" data-of="inline"></span><span class="probe" data-of="input"></span><span class="probe" data-of="start"></span
-          ><span class="probe" data-of="padding"></span><span class="probe" data-of="gap"></span>${this.counts ? html`<span class="counter">${this.widestCount}</span>` : nothing}<span class="timing"></span>
+          ><span class="probe" data-of="padding"></span><span class="probe" data-of="gap"></span>${this.counts ? html`<span class="widest">${this.widestCount}</span>` : nothing}<span class="timing"></span>
         </div>
         <div class="announce" aria-live="polite" aria-atomic="true"></div>
       </div>

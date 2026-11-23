@@ -288,8 +288,10 @@ export const styles = css`
     pointer-events: none;
   }
 
-  /* ── The counter (CCM-19) ── on one line, as text of its own direction, in digits of equal width. */
-  .counter {
+  /* ── The counter (CCM-19) ── on one line, as text of its own direction, in digits of equal width; and, measured and
+     never drawn, the counter as wide as it is with maxLength characters (CCM-4). */
+  .counter,
+  .widest {
     flex: none;
     ${typefaceOf(t, 'counter-typescale')}
     letter-spacing: ${t('counter-typescale-letter-spacing')};
@@ -322,7 +324,7 @@ export const styles = css`
   /* CCM-4: and what the inline layout needs beside the parts it puts on the typing area's line — the typing area's
      least width with the end padding and the gap before what follows it; the start padding and the gap after the
      group before it, or the start padding where no group is there; and the gap between two parts of a group. The
-     counter is measured as wide as it is with maxLength characters (.widest), so that no count changes the layout. */
+     counter is measured as wide as it is with maxLength characters (.widest, with the counter's text), so that no count changes the layout. */
   .probe[data-of='input'] {
     inline-size: calc(${t('layout-input-min-width')} + ${t('container-padding-inline-with-button')} + ${t('container-gap')});
   }
@@ -335,7 +337,7 @@ export const styles = css`
   .probe[data-of='gap'] {
     inline-size: ${t('actions-gap')};
   }
-  .measures > .counter {
+  .widest {
     position: absolute;
     inset-block-start: 0;
     inset-inline-start: 0;

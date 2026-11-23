@@ -2194,7 +2194,9 @@ test.describe('fixtures', () => {
       const items = (f.items ?? []).length;
       expect(await host(page, f.id).evaluate((el) => el.querySelectorAll('tanrei-file-item').length + el.shadowRoot!.querySelectorAll('tanrei-file-item').length), f.id).toBe(items);
       const rowHolds = (f.props.attachments ?? 'none') !== 'none' || !!f.slots?.leading || !!f.slots?.trailing || (!!f.props.counter && !f.props.disabled);
-      expect(await capsule(page, f.id).getAttribute('data-layout'), f.id).toBe(f.props.layout === 'stacked' && rowHolds ? 'stacked' : 'inline');
+      // CCM-4: long-text's eight parts would leave its typing area less than layout.input-min-width, whatever layout says.
+      const crowded = f.id === 'long-text';
+      expect(await capsule(page, f.id).getAttribute('data-layout'), f.id).toBe((f.props.layout === 'stacked' || crowded) && rowHolds ? 'stacked' : 'inline');
     }
   });
 
