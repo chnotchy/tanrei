@@ -290,7 +290,7 @@
         "trailing": {
           "padding-inline": {
             "$type": "dimension",
-            "$description": "Padding on each side of the chevron at the default trailing width. With the default icon size it holds the chevron in a square of the height (36, 36 and 52 in the default system), before the outer padding is added; each follows the height of its size as the block padding does, giving up half of what the height loses below the control height's reference of 40, so that the half stays a square at every control height.",
+            "$description": "Padding on each side of the chevron at the default trailing width. With the default icon size it holds the chevron in a square of the height (28, 36 and 52 in the default system), before the outer padding is added; each follows the height of its size as the block padding does, giving up half of what the height loses below the control height's reference of 40, so that the half stays a square at every control height.",
             "small": {
               "$value": {
                 "value": 6,

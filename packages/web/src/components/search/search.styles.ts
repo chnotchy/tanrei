@@ -314,7 +314,7 @@ export const styles = css`
       font-variation-settings ${unsafeCSS(MOTION)};
   }
   /* SRC-1: the input stands the larger of container.gap and leading-icon.gap after the bar's search glyph: the gap is
-     derived from the buttons' targets (0 in the default system), and the glyph is no button, so its text must not touch
+     derived from the buttons' targets (8 in the default system), and the glyph is no button, so its text must not touch
      it. The glyph is the search's own element, so the space it adds is its own margin, on the side that faces the input:
      a physical side read from the host's direction, since the glyph box sets its own direction (ltr) for its ligature. */
   .bar > .glyph {

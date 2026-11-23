@@ -121,7 +121,7 @@
         "large"
       ],
       "default": "medium",
-      "description": "Minimum height of a single-line input's container: stacked 36 / 36 / 52, as tall as a Button of the same size, so that an input and a Button side by side in one row stand as tall as each other; filled and outlined 40 / 48 / 56, which hold the label that floats inside them; all under the default system, and never drawn below sys.target.minimum. Medium and large are for forms; small is for an input in an app bar, a toolbar or a dense row of controls, beside a small select or button. The hit area always meets the minimum target. While it is not set the text input draws the size its nearest container sets — a toolbar's size — and medium where none does (TXI-73); setting it, to medium too, makes it the text input's own.",
+      "description": "Minimum height of a single-line input's container: stacked 28 / 36 / 52, as tall as a Button of the same size, so that an input and a Button side by side in one row stand as tall as each other; filled and outlined 40 / 48 / 56, which hold the label that floats inside them; all under the default system, and never drawn below sys.target.minimum. Medium and large are for forms; small is for an input in an app bar, a toolbar or a dense row of controls, beside a small select or button. The hit area always meets the minimum target. While it is not set the text input draws the size its nearest container sets — a toolbar's size — and medium where none does (TXI-73); setting it, to medium too, makes it the text input's own.",
       "axis": "tanrei.comp.input-box.size"
     },
     {

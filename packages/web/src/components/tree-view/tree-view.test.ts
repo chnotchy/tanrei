@@ -710,12 +710,9 @@ test.describe('open and closed', () => {
     await mount(page, { fixtures: [raw('small', { label: 'Small' }, SMALL)], reducedMotion: true });
     await nameItems(page);
     await page.addStyleTag({ content: `[data-fixture="small"] { block-size: 150px; overflow: auto; padding: 0 !important; }` });
-    // Rows at a control height of 40, which the distances below are written for (at the default 36 the tree scrolls
-    // less than 200).
-    await rootTokens(page, { '--tanrei-dial-control-height': '40px' });
     const box = stage(page, 'small');
     // Its row stays; what follows moves.
-    await box.evaluate((el) => (el.scrollTop = 200));
+    await box.evaluate((el) => (el.scrollTop = 170));
     const scrolled = await edges(row(page, 'small', 'Beta'));
     const next = (await edges(row(page, 'small', 'Gamma'))).top;
     const view = await edges(box);
@@ -723,7 +720,7 @@ test.describe('open and closed', () => {
     expect(scrolled.bottom).toBeLessThanOrEqual(view.bottom);
     await page.mouse.click(scrolled.right - 30, scrolled.top + 10);
     expect((await edges(row(page, 'small', 'Beta'))).top).toBe(scrolled.top);
-    expect(await box.evaluate((el) => el.scrollTop)).toBe(200);
+    expect(await box.evaluate((el) => el.scrollTop)).toBe(170);
     near((await edges(row(page, 'small', 'Gamma'))).top, next + scrolled.height);
     await page.mouse.click(scrolled.right - 30, scrolled.top + 10);
     expect((await edges(row(page, 'small', 'Beta'))).top).toBe(scrolled.top);

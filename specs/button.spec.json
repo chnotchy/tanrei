@@ -62,7 +62,7 @@
         "large"
       ],
       "default": "medium",
-      "description": "Visual height: comp.button.container.height.<size>, never drawn below sys.target.minimum (36 / 36 / 52 under the default system, the small one held at the minimum), which is also an icon-only button's width at its default width. The hit area always meets the minimum target. While it is not set the button is drawn at the size its nearest container sets — a button group's or a toolbar's size (BTN-48) — and at medium where none does. A design system may add values.",
+      "description": "Visual height: comp.button.container.height.<size>, its hit area never below sys.target.minimum (28 / 36 / 52 under the default system, the small one drawn at its step), which is also an icon-only button's width at its default width. The hit area always meets the minimum target. While it is not set the button is drawn at the size its nearest container sets — a button group's or a toolbar's size (BTN-48) — and at medium where none does. A design system may add values.",
       "axis": "tanrei.comp.button.size"
     },
     {
@@ -74,7 +74,7 @@
         "wide"
       ],
       "default": "default",
-      "description": "How wide an icon-only button is. default: as wide as it is high (36 / 36 / 52 under the default system). narrow: its glyph with a small inset on each side (28 / 32 / 32), for a tight row of icon actions. wide: 40 / 52 / 72, for the one action of a row that should weigh more. Ignored when the button has a label, and while fullWidth is true. The hit area meets the minimum target at every width."
+      "description": "How wide an icon-only button is. default: as wide as it is high (28 / 36 / 52 under the default system). narrow: its glyph with a small inset on each side (28 / 32 / 32), for a tight row of icon actions. wide: 40 / 52 / 72, for the one action of a row that should weigh more. Ignored when the button has a label, and while fullWidth is true. The hit area meets the minimum target at every width."
     },
     {
       "name": "fullWidth",

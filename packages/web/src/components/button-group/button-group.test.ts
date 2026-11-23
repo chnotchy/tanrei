@@ -109,9 +109,9 @@ test.describe('layout', () => {
     });
     const standardGap = await resolveToken(page, T('standard-gap'));
     const connectedGap = await resolveToken(page, T('connected-gap'));
-    // The default system draws every Button at least as large as its target, so a standard group needs no room
-    // between its items for their targets: they touch (BGR-4).
-    expect(standardGap).toBe(0);
+    // The default system draws a small Button at its step (28), below its target (36): a standard group keeps the room
+    // the narrowest item's target needs between its items, 36 − 28 (BGR-4).
+    expect(standardGap).toBe(8);
     expect(connectedGap).toBeGreaterThan(0);
     // The default system's separation is divider: a connected fixture that leaves it auto touches (BGR-21).
     const rows = [['standard', standardGap], ['standard-icon-only', standardGap], ['mixed-standard', standardGap], ['connected-gap', connectedGap], ['connected-gap-toggles', connectedGap], ['connected', 0], ['connected-divider', 0], ['connected-large', 0], ['mixed-connected', 0]] as const;
@@ -691,9 +691,6 @@ test.describe('layout', () => {
         fixture('small-mixed', [b('Taken'), b('Own', { size: 'large' })], { variant: 'standard', size: 'small' }),
       ],
     });
-    // At the default control height (36) a small Button is held at the minimum target, as tall as a medium one: the
-    // sizes are told apart by their heights at a control height of 40.
-    await rootTokens(page, { '--tanrei-dial-control-height': '40px' });
     const height = (size: string) => resolveToken(page, B(`container-height-${size}`));
     const [small, medium, large] = [await height('small'), await height('medium'), await height('large')];
     expect(small).toBeLessThan(medium);

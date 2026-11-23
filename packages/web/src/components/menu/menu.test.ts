@@ -2549,11 +2549,9 @@ test.describe('submenus', () => {
     expect(await focused(page)).toBe('Open recent');
     // Shifted along the block axis: a short submenu opened from the last row of a tall window stays inside it.
     await page.setViewportSize({ width: 1000, height: 700 });
-    await mount(page, [...many, sub('Last', [it('One'), it('Two'), it('Three'), it('Four')])]);
-    await page.addStyleTag({ content: `#a-file { top: 150px; }` });
-    // Rows at a control height of 40, so that the last row stands low enough for its submenu to be shifted (at the
-    // default 36 the submenu fits below it).
-    await rootTokens(page, { '--tanrei-dial-control-height': '40px' });
+    await mount(page, [...many, it('Item 11'), sub('Last', [it('One'), it('Two'), it('Three'), it('Four')])]);
+    // The last row low enough that its submenu would pass the window's bottom.
+    await page.addStyleTag({ content: `#a-file { top: 190px; }` });
     await openMenu(page, 'file', 'Item 1');
     await page.keyboard.press('End');
     await page.keyboard.press('ArrowRight');
@@ -4917,7 +4915,7 @@ test.describe('where the list stands, and how Japanese lines break', () => {
   const ADD = { leadingIcon: 'extension', supportingText: 'Tanrei の MCP サーバーを追加します' };
   const ACTIONS = [
     group({}, [it('Markdown で表示', { leadingIcon: 'article', supportingText: 'このページを Markdown のまま新しいタブで開きます' }), it('ChatGPT で開く', ASK), it('Claude で開く', ASK)]),
-    group({ title: 'MCP サーバー' }, [it('Cursor に追加', ADD), it('VS Code に追加', ADD), it('Claude Code のコマンドをコピー', { leadingIcon: 'terminal', supportingText: 'プロジェクトに追加するコマンドです' })]),
+    group({ title: 'MCP サーバー' }, [it('Cursor に追加', ADD), it('VS Code に追加', ADD), it('Zed に追加', ADD), it('Claude Code のコマンドをコピー', { leadingIcon: 'terminal', supportingText: 'プロジェクトに追加するコマンドです' })]),
   ];
   const FIRST = 'Markdown で表示';
   const LAST = 'Claude Code のコマンドをコピー';
@@ -4941,10 +4939,8 @@ test.describe('where the list stands, and how Japanese lines break', () => {
     await page.setViewportSize({ width: 390, height: 800 });
     await mountFixtures(page, spec, { fixtures: [overlay('actions', ACTIONS)] });
     await menu(page, 'actions').evaluate((el) => el.setAttribute('lang', 'ja'));
-    await page.addStyleTag({ content: `#a-actions { position: fixed; top: 380px; left: 16px; }` });
-    // Rows at a control height of 40, so that the list is taller than its room in this window (at the default 36 it
-    // fits within a few pixels).
-    await rootTokens(page, { '--tanrei-dial-control-height': '40px' });
+    // Where the list's room ends inside a row, some way into it (the tests below press the visible part of a row cut there).
+    await page.addStyleTag({ content: `#a-actions { position: fixed; top: 370px; left: 16px; }` });
     await wire(page);
     await watchScrolls(page);
   };
@@ -5004,19 +5000,19 @@ test.describe('where the list stands, and how Japanese lines break', () => {
     // Up to an item whole in view: nothing scrolls.
     const atEnd = await offset(page);
     await page.keyboard.press('ArrowUp');
-    await expect.poll(() => focused(page)).toBe('VS Code に追加');
+    await expect.poll(() => focused(page)).toBe('Zed に追加');
     expect(await offset(page)).toBe(atEnd);
     // Home: the first item, and the list's start with it (its padding above the first row).
     await page.keyboard.press('Home');
     await expect.poll(() => focused(page)).toBe(FIRST);
     await expect.poll(() => offset(page)).toBe(0);
     // Down to the last row but one: where it was cut by the bottom edge, just far enough — its bottom on that edge.
-    const cutBefore = (await standing(page, 'VS Code に追加')).bottom < -0.5;
-    for (const label of ['ChatGPT で開く', 'Claude で開く', 'Cursor に追加', 'VS Code に追加']) {
+    const cutBefore = (await standing(page, 'Zed に追加')).bottom < -0.5;
+    for (const label of ['ChatGPT で開く', 'Claude で開く', 'Cursor に追加', 'VS Code に追加', 'Zed に追加']) {
       await page.keyboard.press('ArrowDown');
       await expect.poll(() => focused(page)).toBe(label);
     }
-    const vs = await standing(page, 'VS Code に追加');
+    const vs = await standing(page, 'Zed に追加');
     expect(vs.top).toBeGreaterThanOrEqual(-0.5);
     expect(vs.bottom).toBeGreaterThanOrEqual(-0.5);
     if (cutBefore) expect(vs.bottom, 'scrolled no further than the row').toBeLessThan(1);
@@ -5026,7 +5022,7 @@ test.describe('where the list stands, and how Japanese lines break', () => {
     await expect.poll(() => offset(page)).toBe(0);
     const view = await bounds(list(page));
     let cut: string | undefined;
-    for (const label of ['Claude で開く', 'Cursor に追加', 'VS Code に追加', LAST]) {
+    for (const label of ['Claude で開く', 'Cursor に追加', 'VS Code に追加', 'Zed に追加', LAST]) {
       const r = await bounds(rowOf(labelled(page, 'actions', label)));
       if (r.y < view.y + view.height - 4 && r.y + r.height > view.y + view.height + 1) cut = label;
     }

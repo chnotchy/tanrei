@@ -93,7 +93,7 @@
         "large"
       ],
       "default": "medium",
-      "description": "The Button size it is drawn at (36 / 36 / 52 under the default system, never below sys.target.minimum). The values are Button's. While it is not set the copy button is drawn at the size its nearest container sets, as a Button is (CPY-21), and at medium where none does."
+      "description": "The Button size it is drawn at (28 / 36 / 52 under the default system, its hit area never below sys.target.minimum). The values are Button's. While it is not set the copy button is drawn at the size its nearest container sets, as a Button is (CPY-21), and at medium where none does."
     },
     {
       "name": "disabled",

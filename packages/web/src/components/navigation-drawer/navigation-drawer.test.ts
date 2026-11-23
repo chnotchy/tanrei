@@ -3239,10 +3239,6 @@ test.describe('a drawer that follows the window', () => {
 });
 
 test.describe('a site’s sidebar', () => {
-  // The distances below are written for rows at a control height of 40, the presets': at the default system's 36 the
-  // long drawer's selected row lies within half a frame of the end of its range, and is held there rather than centred.
-  const AT_40 = '<style>:root { --tanrei-dial-control-height: 40px; }</style>';
-  const mount = (page: P, fixtures: Fixture[], options: Parameters<typeof mountFixtures>[2] = {}) => mountFixtures(page, spec, { icons: true, fixtures, lead: AT_40, ...options });
   const LONG = spec.fixtures.find((f) => f.id === 'site-sidebar-long')!;
   const RESTORED = spec.fixtures.find((f) => f.id === 'site-sidebar-restored')!;
   /** The long tree with other props, and each group's `open` as `open(label)` says (as the fixture has it where it says nothing). */
@@ -3303,7 +3299,7 @@ test.describe('a site’s sidebar', () => {
   /** Mounts `fixtures` in a page that has watched them since before they were upgraded, and waits for twenty drawn frames. */
   const watched = async (page: P, fixtures: Fixture[], inline = '') => {
     await page.emulateMedia({ reducedMotion: 'no-preference' });
-    const html = await fixturesDocument(spec, { icons: true, fixtures, lead: AT_40 });
+    const html = await fixturesDocument(spec, { icons: true, fixtures });
     // `inline`: a script of the page's own right after the drawer's markup, as a site's would stand.
     await page.setContent(html.replace('<head>', `<head><script>${WATCH}</script>`).replace('</main>', () => `</main><script>${inline}</script>`));
     await page.waitForFunction(() => (window as any).seen.frames.length >= 20);
@@ -3352,10 +3348,10 @@ test.describe('a site’s sidebar', () => {
       }
     });
 
-  test('NVD-57: in site-sidebar-long, a frame 800 high, the items are scrolled by 2580 in the first frame and the selected row is centred; site-sidebar-restored stays at its 2364 because the row is in view there; no frame shows the items at 0 and focus does not move', async ({ page }) => {
+  test('NVD-57: in site-sidebar-long, a frame 800 high, the items are scrolled by 2310 in the first frame and the selected row is centred; site-sidebar-restored stays at its 2096 because the row is in view there; no frame shows the items at 0 and focus does not move', async ({ page }) => {
     for (const [f, top, row] of [
-      [LONG, 2580, 380],
-      [RESTORED, 2364, 596],
+      [LONG, 2310, 382],
+      [RESTORED, 2096, 596],
     ] as const) {
       await watched(page, [f]);
       const { frames, events } = await seen(page);
@@ -3363,9 +3359,9 @@ test.describe('a site’s sidebar', () => {
       expect(frames.every((each) => each.focus)).toBe(true);
       expect(events).toEqual([]);
       const at = await scrolled(page, f.id);
-      // 77 cells of 40 a gap of 4 apart, 3408 tall, in a frame 800 high; the selected row 2960 from the start of the items.
-      expect(at).toMatchObject({ offset: top, top, height: 3408, space: 800, range: 2608, row });
-      expect(at.row! + top).toBe(2960);
+      // 78 cells of 36 a gap of 4 apart, 3140 tall, in a frame 800 high; the selected row 2692 from the start of the items.
+      expect(at).toMatchObject({ offset: top, top, height: 3140, space: 800, range: 2340, row });
+      expect(at.row! + top).toBe(2692);
     }
     expect((await scrolled(page, RESTORED.id)).centre).not.toBe(0);
     await watched(page, [LONG]);
@@ -3389,27 +3385,27 @@ test.describe('a site’s sidebar', () => {
     expect(await set('/foundations/principles/')).toEqual({ top: 100, body: true });
     // Half out of view counts as out of view.
     const half = await rowOf(longItem(page, '/getting-started/web/'));
-    await drawer(page, LONG.id).evaluate((el: any, to) => (el.scrollOffset = to), half.fromStart + 20);
+    await drawer(page, LONG.id).evaluate((el: any, to) => (el.scrollOffset = to), half.fromStart + 18);
     expect((await set('/getting-started/web/')).top).toBe(0);
     // Out of view below: centred exactly.
     const far = await rowOf(longItem(page, '/components/button/'));
-    expect(await set('/components/button/')).toEqual({ top: far.fromStart + 20 - 400, body: true });
+    expect(await set('/components/button/')).toEqual({ top: far.fromStart + 18 - 400, body: true });
     expect((await scrolled(page, LONG.id)).centre).toBe(0);
     // The last page: centred as far as the end of the range allows.
-    expect((await set('/roadmap/')).top).toBe(2608);
+    expect((await set('/roadmap/')).top).toBe(2340);
     // NVD-47's row: Components closed, its row shows the selection and is what is brought into view.
     await mount(page, [long({}, (label) => (label === 'Components' ? false : undefined))]);
     const closed = await scrolled(page, LONG.id);
     await expect(longGroup(page, 'Components').locator('.cell').first()).toHaveClass(/\bselected\b/);
     expect(closed.row).not.toBeNull();
-    expect(closed.row! >= 0 && closed.row! + 40 <= closed.space).toBe(true);
+    expect(closed.row! >= 0 && closed.row! + 36 <= closed.space).toBe(true);
     // Centred, as far as the range allows: with Components closed the items end before the row reaches the middle.
     expect(closed.centre === 0 || closed.top === closed.range, JSON.stringify(closed)).toBe(true);
     // A standard drawer that was closed takes its place only now: the offset it was given, then its selection.
-    await mount(page, [long({ open: false, scrollOffset: 2364 }), { ...long({ open: false }), id: RESTORED.id }], { reducedMotion: true });
+    await mount(page, [long({ open: false, scrollOffset: 2096 }), { ...long({ open: false }), id: RESTORED.id }], { reducedMotion: true });
     for (const id of [LONG.id, RESTORED.id]) await setProps(page, id, { open: true });
-    expect(await scrolled(page, LONG.id)).toMatchObject({ top: 2364, row: 596 });
-    expect(await scrolled(page, RESTORED.id)).toMatchObject({ top: 2580, centre: 0 });
+    expect(await scrolled(page, LONG.id)).toMatchObject({ top: 2096, row: 596 });
+    expect(await scrolled(page, RESTORED.id)).toMatchObject({ top: 2310, centre: 0 });
   });
 
   test('NVD-58: in site-sidebar every group’s open is false and revealSelected draws Components open in the first frame, without the disclosure motion, with one toggle and no change, reselect or close; closed again by its row it shows the selection and stays closed until value changes; without revealSelected group-closed-selected is as before', async ({ page }) => {
@@ -3422,7 +3418,7 @@ test.describe('a site’s sidebar', () => {
     expect(new Set(heights).size).toBe(1);
     expect(frames[0].groups[0]).toBe(0);
     expect(frames[0].groups[1]).toBe(0);
-    expect(frames[0].groups[2]).toBe(4 * 44);
+    expect(frames[0].groups[2]).toBe(4 * 40);
     expect(frames[0].groups[3]).toBe(0);
     expect(frames.flatMap((each) => each.moving)).toEqual([]);
     expect(events).toEqual(['toggle:Components:true']);
@@ -3601,13 +3597,13 @@ test.describe('a site’s sidebar', () => {
     expect(await said()).toEqual(['click:drawer:prevented']);
   });
 
-  test('NVD-61: scrollOffset reads the present distance and writes it at once, held inside the range (5000 gives 2608 in site-sidebar-long); the attribute is read for the first frame only; a wheel turned past the end of the items leaves the page where it was; closing and opening Foundations with its row 200 from the top leaves the row at 200; keyboard focus on a cell that is not wholly in view scrolls it by the least distance', async ({ page }) => {
+  test('NVD-61: scrollOffset reads the present distance and writes it at once, held inside the range (5000 gives 2340 in site-sidebar-long); the attribute is read for the first frame only; a wheel turned past the end of the items leaves the page where it was; closing and opening Foundations with its row 200 from the top leaves the row at 200; keyboard focus on a cell that is not wholly in view scrolls it by the least distance', async ({ page }) => {
     await page.setViewportSize({ width: 1280, height: 720 });
     await mount(page, [LONG], { reducedMotion: true });
     const long = drawer(page, LONG.id);
     const offset = (to?: number) => long.evaluate((el: any, to) => (to === undefined ? el.scrollOffset : ((el.scrollOffset = to), el.scrollOffset)), to);
-    expect(await offset()).toBe(2580);
-    expect(await offset(5000)).toBe(2608);
+    expect(await offset()).toBe(2310);
+    expect(await offset(5000)).toBe(2340);
     expect(await offset(-40)).toBe(0);
     expect(await offset(1234)).toBe(1234);
     expect((await scrolled(page, LONG.id)).top).toBe(1234);
@@ -3630,17 +3626,17 @@ test.describe('a site’s sidebar', () => {
     // The same wheel beside the drawer does scroll the page.
     await page.evaluate(() => (document.body.style.minBlockSize = '3000px'));
     expect(await long.evaluate((el) => getComputedStyle(el.shadowRoot!.querySelector('.items')!).overscrollBehaviorY)).toBe('contain');
-    await offset(2608 - 200);
+    await offset(2340 - 200);
     for (let turn = 0; turn < 4; turn++) await page.mouse.wheel(0, 400);
     await atRest(page);
-    await expect.poll(() => offset()).toBe(2608);
+    await expect.poll(() => offset()).toBe(2340);
     expect(await page.evaluate(() => window.scrollY)).toBe(0);
     // Longer than Gecko keeps the gesture, on the browser's own clock, which no page clock holds: the next turn is a new one.
     await page.waitForTimeout(1600);
     for (let turn = 0; turn < 4; turn++) await page.mouse.wheel(0, 400);
     await atRest(page);
     expect(await page.evaluate(() => window.scrollY)).toBe(0);
-    expect(await offset()).toBe(2608);
+    expect(await offset()).toBe(2340);
     // What the drawer cancels is only a wheel its items cannot take and nothing else would: one toward the end they are
     // at. Not one back up, not one with Ctrl (the page's zoom, and how a trackpad's pinch arrives), not one sideways,
     // and not one that a scroller inside the items can still take.
@@ -3657,7 +3653,7 @@ test.describe('a site’s sidebar', () => {
     await long.evaluate((el) => el.querySelector('.inner')!.remove());
     await offset(0);
     expect([await cancelled({ deltaY: -100 }), await cancelled({ deltaY: 100 })]).toEqual([true, false]);
-    await offset(2608);
+    await offset(2340);
     await page.mouse.move(900, 300);
     await page.mouse.wheel(0, 400);
     await expect.poll(() => page.evaluate(() => window.scrollY)).toBeGreaterThan(0);
@@ -3675,7 +3671,7 @@ test.describe('a site’s sidebar', () => {
     await row.click();
     await expect(row).toHaveAttribute('aria-expanded', 'false');
     expect((await rowOf(foundations)).inView).toBe(200);
-    expect((await rowOf(below)).inView).toBe(before - 14 * 44);
+    expect((await rowOf(below)).inView).toBe(before - 14 * 40);
     await row.click();
     await expect(row).toHaveAttribute('aria-expanded', 'true');
     expect((await rowOf(foundations)).inView).toBe(200);
@@ -3688,10 +3684,10 @@ test.describe('a site’s sidebar', () => {
     await offset(next.fromStart - 800 + 20);
     await tab(page);
     await expect(cells.nth(41)).toBeFocused();
-    expect(await offset()).toBe(next.fromStart + 40 - 800);
+    expect(await offset()).toBe(next.fromStart + 36 - 800);
     await tab(page);
     await expect(cells.nth(42)).toBeFocused();
-    expect(await offset()).toBe(next.fromStart + 40 - 800 + 44);
+    expect(await offset()).toBe(next.fromStart + 36 - 800 + 40);
     const previous = await rowOf(cells.nth(41));
     await offset(previous.fromStart + 20);
     await tab(page, { back: true });
@@ -3711,7 +3707,7 @@ test.describe('a site’s sidebar', () => {
     await watched(page, [SITE], `document.querySelectorAll('tanrei-navigation-drawer-group').forEach((group) => { if (customElements.get('tanrei-navigation-drawer-group')) throw new Error('upgraded already'); group.open = false; });`);
     let { frames, events } = await seen(page);
     expect(new Set(frames.map((each) => each.groups.join(','))).size, 'the same in every frame').toBe(1);
-    expect(frames[0].groups).toEqual([0, 0, 4 * 44, 0]);
+    expect(frames[0].groups).toEqual([0, 0, 4 * 40, 0]);
     expect(frames.flatMap((each) => each.moving)).toEqual([]);
     expect(events).toEqual(['toggle:Components:true']);
     expect(await opens()).toEqual([false, false, true, false]);
@@ -3730,7 +3726,7 @@ test.describe('a site’s sidebar', () => {
     // script that gave the state back late, above, was that case.)
     await watched(page, [SITE], `document.addEventListener('toggle', (event) => { if (!window.seen.frames.length) queueMicrotask(() => (event.target.open = false)); });`);
     ({ frames, events } = await seen(page));
-    expect(frames[0].groups).toEqual([0, 0, 4 * 44, 0]);
+    expect(frames[0].groups).toEqual([0, 0, 4 * 40, 0]);
     expect(new Set(frames.map((each) => each.groups.join(','))).size).toBe(1);
     expect(frames.flatMap((each) => each.moving)).toEqual([]);
     expect(events).toEqual(['toggle:Components:true']);
@@ -4434,13 +4430,34 @@ test.describe('the row model shared with the tree view', () => {
 
   test('NVD-77: with stickyParents the rows of the open groups the top rows belong to are pinned, the innermost stickyMax of them, each under the one above, the last with its line; Tab to a row under them scrolls it below them; none while collapsed or off', async ({ page }) => {
     await mount(page, [{ ...F('sticky'), props: { ...F('sticky').props, scrollOffset: 0 } }], { reducedMotion: true });
-    // Rows at a control height of 40, which the scroll distances below are written for.
-    await rootTokens(page, { '--tanrei-dial-control-height': '40px' });
     const id = 'sticky';
     const scroller = drawer(page, id).locator('[part="content"]');
     const pinned = () => drawer(page, id).evaluate((el) => [...el.querySelectorAll<any>('tanrei-navigation-drawer-group')].filter((g) => g.isPinned).map((g) => g.label));
     expect(await pinned()).toEqual([]);
-    await scroller.evaluate((el) => (el.scrollTop = 186));
+    // The scroll distance at which the first row shown under the pinned rows begins 2 below their band (\`under\`), found
+    // by scrolling a pixel at a time, and 4 higher up (\`over\`): the distances follow the rows' heights.
+    const under = await page.evaluate(
+      async ([fixture]) => {
+        const drawerEl = document.querySelector(`[data-fixture="${fixture}"] tanrei-navigation-drawer`)!;
+        const box = drawerEl.shadowRoot!.querySelector('[part="content"]') as HTMLElement;
+        const groups = [...drawerEl.querySelectorAll<any>('tanrei-navigation-drawer-group')];
+        const items = [...drawerEl.querySelectorAll<any>('tanrei-navigation-drawer-item')];
+        const row = (host: any) => host.shadowRoot.querySelector('.cell').getBoundingClientRect();
+        // From where the inner group's row has reached the top under the outer one's.
+        for (let to = 0; to <= box.scrollHeight - box.clientHeight; to++) {
+          box.scrollTop = to;
+          await new Promise((resolve) => requestAnimationFrame(resolve));
+          const [outer, inner, week] = [row(groups[0]), row(groups[1]), row(items[4])];
+          if (inner.top > outer.bottom + 8) continue;
+          if (Math.round(week.top - inner.bottom) === 2) return to;
+        }
+        return -1;
+      },
+      [id] as const,
+    );
+    expect(under, 'a scroll distance with the row 2 under the band').toBeGreaterThan(0);
+    const over = under - 4;
+    await scroller.evaluate((el, to) => (el.scrollTop = to), over);
     await expect.poll(pinned).toEqual(['2026', 'February']);
     const top = (await bounds(scroller)).y;
     const rows = await Promise.all([0, 1].map(async (n) => bounds(groupRow(page, id, n))));
@@ -4473,27 +4490,27 @@ test.describe('the row model shared with the tree view', () => {
     // Under the last pinned row the rows scroll by: 4 further, the first row shown under it (Week 4) begins 2 below it,
     // less than the gap. A press in that room goes to the nearer row (BTN-5): the pinned row reaches half of it, not half
     // the gap, which would take the row's own upper edge.
-    await scroller.evaluate((el) => (el.scrollTop = 190));
+    await scroller.evaluate((el, to) => (el.scrollTop = to), under);
     const band = rows[1].y + rows[1].height;
     await expect.poll(async () => (await bounds(cell(page, id, 4))).y - band).toBeCloseTo(2, 0);
     await expect.poll(() => pressed(band + 0.25)).toBe('February');
     expect(await pressed(band + 1.5)).toBe('Week 4');
-    await scroller.evaluate((el) => (el.scrollTop = 186));
+    await scroller.evaluate((el, to) => (el.scrollTop = to), over);
     // A focused row under the pinned rows is brought in below them.
     await page.mouse.click(790, 5);
     const target = cell(page, id, 3);
     await target.evaluate((el: any) => el.scrollIntoView({ block: 'start' }));
-    await scroller.evaluate((el) => (el.scrollTop = 186));
+    await scroller.evaluate((el, to) => (el.scrollTop = to), over);
     await tabTo(page, target);
     const b = await bounds(target);
     expect(b.y).toBeGreaterThanOrEqual(rows[1].y + rows[1].height - 1);
     // stickyMax 1: the innermost alone.
     await setProps(page, id, { stickyMax: 1 });
-    await scroller.evaluate((el) => (el.scrollTop = 221));
+    await scroller.evaluate((el, to) => (el.scrollTop = to), over + 32);
     await expect.poll(pinned).toEqual(['February']);
     // Off: none.
     await setProps(page, id, { stickyParents: false });
-    await scroller.evaluate((el) => (el.scrollTop = 222));
+    await scroller.evaluate((el, to) => (el.scrollTop = to), over + 33);
     await expect.poll(pinned).toEqual([]);
   });
 

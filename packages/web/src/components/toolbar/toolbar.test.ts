@@ -611,7 +611,7 @@ test.describe('items', () => {
     for (const id of ['docked', 'docked-button']) for (const n of [0, 1, 2, 3]) { const h = await hit(id, n); expect(h.right - h.left, `${id} ${n}`).toBeGreaterThanOrEqual(touch - 0.5); }
   });
 
-  test('TBR-16: in the default system, whose touch target (36) no Button is shorter than, a floating toolbar’s items touch — four medium icon-only Buttons 168 long, small and large ones touching too, in a row and in a column', async ({ page }) => {
+  test('TBR-16: in the default system, whose touch target (36) no medium or large Button is shorter than, a floating toolbar’s items touch — four medium icon-only Buttons 168 long, large ones touching too, small ones (28) 8 apart, in a row and in a column', async ({ page }) => {
     const row = (size: string, count = 3) => GLYPHS.slice(0, count).map((g) => a(g, { size }));
     await mountFixtures(page, spec, { icons: true, fixtures: [...spec.fixtures, fixture('large', row('large'), { variant: 'floating' }), fixture('small', row('small'), { variant: 'floating' }), fixture('small-vertical', row('small'), { variant: 'floating', orientation: 'vertical' })] as Fixture[] });
     const [gap, touch, pad] = [await resolveToken(page, T('container-gap-floating')), await resolveToken(page, '--tanrei-sys-target-touch'), await resolveToken(page, T('container-padding-inline-floating'))];
@@ -624,8 +624,10 @@ test.describe('items', () => {
     await apart('floating', 4).toEqual([0, 0, 0]);
     expect((await bounds(bar(page, 'floating'))).width).toBe(4 * 36 + 2 * pad);
     await apart('floating-vertical', 3, true).toEqual([0, 0]);
-    for (const id of ['large', 'small']) await apart(id, 3).toEqual([0, 0]);
-    await apart('small-vertical', 3, true).toEqual([0, 0]);
+    await apart('large', 3).toEqual([0, 0]);
+    // A small Button (28) lacks 8 of the target: two stand 4 + 4 apart.
+    await apart('small', 3).toEqual([8, 8]);
+    await apart('small-vertical', 3, true).toEqual([8, 8]);
   });
 
   test('TBR-16: a floating toolbar lays its items container.gap.floating apart and moves two neighbours further only as far as each needs to keep sys.target.touch of length along the axis — under a 48 touch target medium items 12 apart and the toolbar 204 long, large ones touching, small ones 12 apart, every size touching where the target is 0 — along the column when vertical, the same for every pointer, with nothing of an item changed; a docked toolbar is unchanged', async ({ page }) => {
@@ -663,14 +665,14 @@ test.describe('items', () => {
     // The same along the column.
     await settled('floating-vertical', 3, [12, 12], true);
     expect((await bounds(bar(page, 'floating-vertical'))).height).toBe(3 * 36 + 2 * 12 + 2 * pad);
-    // Large (52) Buttons touch; small (36) ones stand 12 apart, in a row and in a column.
+    // Large (52) Buttons touch; small (28) ones stand 20 apart, in a row and in a column.
     await settled('large', 3, [0, 0, ]);
     expect((await along('large', 3)).lengths).toEqual([52, 52, 52]);
-    await settled('small', 3, [12, 12]);
-    await settled('small-vertical', 3, [12, 12], true);
-    // Neighbours of two sizes: each stands half of what it lacks away — small · medium 6 + 6, medium · large 6 + 0,
-    // large · small 0 + 6.
-    await settled('mixed', 4, [12, 6, 6]);
+    await settled('small', 3, [20, 20]);
+    await settled('small-vertical', 3, [20, 20], true);
+    // Neighbours of two sizes: each stands half of what it lacks away — small · medium 10 + 6, medium · large 6 + 0,
+    // large · small 0 + 10.
+    await settled('mixed', 4, [16, 6, 10]);
     // A labelled Button is measured as it is: one longer than the target lacks nothing, so the medium icon-only Button
     // between two of them stands its own 6 from each.
     const text = await along('text', 3);
@@ -708,8 +710,8 @@ test.describe('items', () => {
     await expect.poll(async () => {
       const boxes = await Promise.all([0, 1, 2, 3].map((n) => bounds(inner(page, 'mixed', n))));
       return boxes.slice(1).map((box, n) => Math.round((boxes[n].x - (box.x + box.width)) * 100) / 100);
-    }).toEqual([12, 6, 6]);
-    // An item that comes or goes is followed: the fourth medium item removed, the three stand as they did; one added small, 12 from the last.
+    }).toEqual([16, 6, 10]);
+    // An item that comes or goes is followed: the fourth medium item removed, the three stand as they did; one added small, 16 from the last.
     await bar(page, 'floating').evaluate((el) => {
       const next = document.createElement('tanrei-button');
       next.setAttribute('variant', 'text');
@@ -718,17 +720,17 @@ test.describe('items', () => {
       next.innerHTML = '<span slot="icon" class="tanrei-icon">more_vert</span>';
       el.append(next);
     });
-    await settled('floating', 5, [12, 12, 12, 12]);
+    await settled('floating', 5, [12, 12, 12, 16]);
     await bar(page, 'floating').evaluate((el) => el.firstElementChild!.remove());
-    await settled('floating', 4, [12, 12, 12]);
+    await settled('floating', 4, [12, 12, 16]);
     // The spaces are the container's own elements, one between two items; nothing is written on the items.
     expect(await container(page, 'floating').evaluate((el) => el.querySelectorAll(':scope > .space:not([data-off])').length), 'one space between two items').toBe(3);
     expect(await bar(page, 'floating').evaluate((el) => [...el.children].map((child) => (child as HTMLElement).style.cssText)), 'nothing on the items').toEqual(['', '', '', '']);
     // Docked: unchanged — the items spread across the width with container.gap.docked as the least space, and no item
     // is given a margin.
     const dockedGap = await resolveToken(page, T('container-gap-docked'));
-    // sys.target.touch less a small Button: 48 − 36 under this test's target (0 in the default system).
-    expect(dockedGap).toBe(12);
+    // sys.target.touch less a small Button: 48 − 28 under this test's target (8 in the default system).
+    expect(dockedGap).toBe(20);
     for (const id of ['docked', 'docked-small']) {
       const own = await bounds(container(page, id));
       const boxes = await Promise.all([0, 1, 2, 3].map((n) => bounds(inner(page, id, n))));
@@ -1066,8 +1068,8 @@ test.describe('inline, groups, separators and the overflow menu', () => {
     const size = await resolveToken(page, T('container-size-inline'));
     const gap = await resolveToken(page, T('container-gap-inline'));
     const touch = await resolveToken(page, '--tanrei-sys-target-touch');
-    // Under the default system: small 36 (held at the minimum), the inline toolbar 36, its gap 4.
-    expect([small, medium, large, halves, size, gap]).toEqual([36, 36, 52, 36, 36, 4]);
+    // Under the default system: small 28 (its step), the inline toolbar 36, its gap 4.
+    expect([small, medium, large, halves, size, gap]).toEqual([28, 36, 52, 28, 36, 4]);
     /** The heights of the first `count` items' boxes, a Button with menu's by its two halves. */
     const heights = (id: string, count: number) =>
       bar(page, id).evaluate(
@@ -1087,7 +1089,8 @@ test.describe('inline, groups, separators and the overflow menu', () => {
     const [undo, redo] = [await bounds(inner(page, 'inline-small', 0)), await bounds(inner(page, 'inline-small', 1))];
     expect([undo.width, redo.width]).toEqual([small, small]);
     expect(redo.x - (undo.x + undo.width)).toBeCloseTo(kept(gap, touch, small, small), 1);
-    expect(redo.x - (undo.x + undo.width)).toBeCloseTo(4, 1);
+    // Each lacks 8 of the 36 target: 4 + 4.
+    expect(redo.x - (undo.x + undo.width)).toBeCloseTo(8, 1);
     // Its own size across the axis, around smaller items; as large as a larger one.
     expect((await bounds(bar(page, 'inline-small'))).height).toBeCloseTo(size, 1);
     expect(await heights('small-own-large', 2)).toEqual([small, large]);
@@ -1121,7 +1124,7 @@ test.describe('inline, groups, separators and the overflow menu', () => {
     await bar(page, 'small-overflow').evaluate((el) => el.removeAttribute('size'));
     await expect.poll(async () => (await bounds(overflowButton(page, 'small-overflow').locator('button'))).height).toBe(medium);
 
-    // Under a 48 touch target the gaps follow the lengths the items are drawn at: small ones (36) stand 12 apart, as
+    // Under a 48 touch target the gaps follow the lengths the items are drawn at: small ones (28) stand 20 apart, as
     // TBR-16 says of small items that set their own size.
     await mountFixtures(page, spec, {
       icons: true,
@@ -1133,7 +1136,7 @@ test.describe('inline, groups, separators and the overflow menu', () => {
         const boxes = await Promise.all([0, 1, 2].map((n) => bounds(inner(page, 'floating-small', n))));
         return boxes.slice(1).map((box, n) => Math.round((box.x - (boxes[n].x + boxes[n].width)) * 100) / 100);
       })
-      .toEqual([12, 12]);
+      .toEqual([20, 20]);
     expect((await bounds(inner(page, 'floating-small', 0))).height).toBe(small);
   });
 

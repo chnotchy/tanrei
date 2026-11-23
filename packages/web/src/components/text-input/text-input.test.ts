@@ -896,12 +896,12 @@ test.describe('behavior', () => {
     for (const [id, size] of [['stacked-filled', 'medium'], ['stacked-large', 'large'], ['stacked-small', 'small']] as const) {
       expect((await bounds(part(page, id, '.field > .container'))).height, id).toBe(await resolveToken(page, T(`stacked-container-height-${size}`)));
     }
-    // Small: the box's small step — as tall as a small Button (36 high in the default system, held at the minimum
-    // target; 12 of padding, the body text style) — for a bar or a toolbar; its hit area still meets the minimum target.
+    // Small: the box's small step — as tall as a small Button (28 high in the default system, its hit area reaching
+    // the minimum target; 12 of padding, the body text style) — for a bar or a toolbar; its hit area still meets the minimum target.
     {
       const small = await bounds(part(page, 'stacked-small', '.field > .container'));
       expect([small.height, (await bounds(input(page, 'stacked-small'))).x - small.x]).toEqual([await resolveToken(page, T('stacked-container-height-small')), await resolveToken(page, T('container-padding-inline-small'))]);
-      expect([await resolveToken(page, T('stacked-container-height-small')), await resolveToken(page, T('container-padding-inline-small'))]).toEqual([36, 12]);
+      expect([await resolveToken(page, T('stacked-container-height-small')), await resolveToken(page, T('container-padding-inline-small'))]).toEqual([28, 12]);
       expect(Number.parseFloat(await css(input(page, 'stacked-small'), 'font-size'))).toBe(await resolveToken(page, T('input-typescale-small-font-size')));
       const target = await part(page, 'stacked-small', '.field > .container').evaluate((el) => Number.parseFloat(getComputedStyle(el, '::before').height));
       expect(target).toBe(Math.max(small.height, await resolveToken(page, '--tanrei-sys-target-pointer')));

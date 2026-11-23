@@ -113,8 +113,7 @@
                 "dev.tanrei.derive": {
                   "fn": "mul",
                   "of": "{tanrei.sys.control.height.small}",
-                  "by": 1,
-                  "min": "{tanrei.sys.target.minimum}"
+                  "by": 1
                 }
               }
             },
@@ -296,9 +295,19 @@
           },
           "padding-block": {
             "$type": "dimension",
-            "$description": "The least space between the active indicator's top and bottom edges and the tallest content it holds, per size. The row grows to keep it (a stacked icon, enlarged text). Small's is the smaller step, so that one line of the label fits a small row's indicator without making the row taller. Medium's gives up half of what the row loses below the control height's reference, so that one line of the label still fits a row at a lower control height.",
+            "$description": "The least space between the active indicator's top and bottom edges and the tallest content it holds, per size. The row grows to keep it (a stacked icon, enlarged text). Small's is the smaller step, so that one line of the label fits a small row's indicator without making the row taller. Each gives up half of what its row loses below the control height's reference, so that one line of the label still fits a row at a lower control height (0 at both sizes in the default system).",
             "small": {
-              "$value": "{tanrei.sys.space.space25}"
+              "$value": {
+                "value": 2,
+                "unit": "px"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fn": "pad",
+                  "of": "{tanrei.sys.space.space25}",
+                  "height": "{tanrei.comp.tabs.container.height.small}"
+                }
+              }
             },
             "medium": {
               "$value": {

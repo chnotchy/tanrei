@@ -4104,6 +4104,10 @@
               },
               "reason": "Material 3's corner scale steps in 4dp."
             },
+            "tanrei.comp.snackbar.controls.gap": {
+              "$value": "{tanrei.sys.space.space50}",
+              "reason": "This preset keeps the gap it drew between the snackbar's controls (4), where the default system keeps each small Button's target whole by the gap."
+            },
             "tanrei.dial.control.height": {
               "$value": {
                 "value": 40,

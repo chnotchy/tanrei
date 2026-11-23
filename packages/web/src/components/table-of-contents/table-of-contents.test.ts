@@ -1628,8 +1628,8 @@ test.describe('missing, unknown, empty', () => {
       const size = await rowsAt();
       await expect.poll(heights, `control height ${height}`).toEqual({ taken: size.small, 'own-medium': size.medium, folded: size.small, free: size.medium, nearest: size.medium, alone: size.medium });
     }
-    // The rest at a control height of 40, where the two sizes are two heights (at the default 36 a small row is held at
-    // the minimum target, as tall as a medium one).
+    // The rest at a control height of 40, the first of TOC-42's three, where the two sizes are two heights (at the
+    // default 36 a small row, which touches its neighbours, is held at the minimum target, as tall as a medium one).
     await rootTokens(page, { '--tanrei-dial-control-height': '40px' });
     const size = await rowsAt();
     expect(size.medium).toBeGreaterThan(size.small);

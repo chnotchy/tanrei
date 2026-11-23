@@ -1005,7 +1005,7 @@ const TanreiSystem tanreiSystem = TanreiSystem(
     connectedVerticalOuterShape: 12.0,
     motionStateDuration: 250,
     motionStateEasing: TanreiCubicBezier(0.2, 0.0, 0.0, 1.0),
-    standardGap: 0.0,
+    standardGap: 8.0,
   ),
   buttonWithMenu: TanreiButtonWithMenuTokens(
     busyIndicatorThickness: 2.0,
@@ -1028,13 +1028,13 @@ const TanreiSystem tanreiSystem = TanreiSystem(
     motionStateEasing: TanreiCubicBezier(0.2, 0.0, 0.0, 1.0),
     sizes: TanreiButtonWithMenuSizes(
       small: TanreiButtonWithMenuSizeTokens(
-        containerHeight: 36.0,
-        containerPaddingBlock: 8.0,
+        containerHeight: 28.0,
+        containerPaddingBlock: 4.0,
         containerGap: 8.0,
         leadingPaddingInlineStart: 16.0,
         leadingPaddingInlineStartWithIcon: 12.0,
         leadingPaddingInlineEnd: 16.0,
-        trailingPaddingInline: 8.0,
+        trailingPaddingInline: 4.0,
         trailingPaddingInlineNarrow: 4.0,
         labelTypescale: _typescaleLabel,
         iconSize: 20.0,
@@ -1364,14 +1364,14 @@ const TanreiSystem tanreiSystem = TanreiSystem(
     toneContainerOpacity: 0.16,
     sizes: TanreiButtonSizes(
       small: TanreiButtonSizeTokens(
-        containerHeight: 36.0,
+        containerHeight: 28.0,
         containerPaddingInlineNarrow: 4.0,
         containerWidthWide: 40.0,
         containerPaddingInlineStart: 16.0,
         containerPaddingInlineEnd: 16.0,
         containerPaddingInlineStartWithIcon: 12.0,
         containerPaddingInlineEndWithIcon: 12.0,
-        containerPaddingBlock: 8.0,
+        containerPaddingBlock: 4.0,
         labelTypescale: _typescaleLabel,
         iconSize: 20.0,
         iconSizeWithoutLabel: 20.0,
@@ -3264,7 +3264,7 @@ const TanreiSystem tanreiSystem = TanreiSystem(
     swatchShape: 3.0,
   ),
   combobox: TanreiComboboxTokens(
-    containerActionGap: 6.0,
+    containerActionGap: 2.0,
     dividerColor: TanreiPaint.role(TanreiColorRole.outlineVariant),
     dividerSpace: 4.0,
     dividerThickness: 1.0,
@@ -4619,13 +4619,13 @@ const TanreiSystem tanreiSystem = TanreiSystem(
     selectionContentColor: TanreiPaint.role(TanreiColorRole.onPrimary),
     sizes: TanreiInputBoxSizes(
       small: TanreiInputBoxSizeTokens(
-        containerHeight: 36.0,
-        stackedContainerHeight: 36.0,
+        containerHeight: 28.0,
+        stackedContainerHeight: 28.0,
         containerPaddingInline: 12.0,
         containerPaddingInlineWithIcon: 8.0,
-        containerPaddingBlock: 6.0,
-        stackedContainerPaddingBlock: 6.0,
-        containerPaddingBlockWithLabel: 2.0,
+        containerPaddingBlock: 2.0,
+        stackedContainerPaddingBlock: 2.0,
+        containerPaddingBlockWithLabel: 0.0,
         containerGap: 8.0,
         labelTypescale: _typescaleLabel,
         labelFloatedTypescale: _typescaleLabelSmall,
@@ -6891,7 +6891,7 @@ const TanreiSystem tanreiSystem = TanreiSystem(
     motionStateEasing: TanreiCubicBezier(0.2, 0.0, 0.0, 1.0),
     sizes: TanreiPaginationSizes(
       small: TanreiPaginationSizeTokens(
-        containerHeight: 36.0,
+        containerHeight: 28.0,
       ),
       medium: TanreiPaginationSizeTokens(
         containerHeight: 36.0,
@@ -7461,7 +7461,7 @@ const TanreiSystem tanreiSystem = TanreiSystem(
   ),
   search: TanreiSearchTokens(
     containerButtonGap: 0.0,
-    containerGap: 0.0,
+    containerGap: 8.0,
     containerHeight: 36.0,
     containerPaddingInline: 16.0,
     containerPaddingInlineWithButton: 8.0,
@@ -7641,9 +7641,9 @@ const TanreiSystem tanreiSystem = TanreiSystem(
     setShape: 6.0,
     sizes: TanreiSegmentedButtonSizes(
       small: TanreiSegmentedButtonSizeTokens(
-        containerHeight: 36.0,
+        containerHeight: 28.0,
         containerPaddingInline: 12.0,
-        containerPaddingBlock: 8.0,
+        containerPaddingBlock: 4.0,
         containerGap: 8.0,
         labelTypescale: _typescaleLabel,
         iconSize: 16.0,
@@ -7765,7 +7765,7 @@ const TanreiSystem tanreiSystem = TanreiSystem(
     ),
   ),
   select: TanreiSelectTokens(
-    containerActionGap: 6.0,
+    containerActionGap: 2.0,
     dividerColor: TanreiPaint.role(TanreiColorRole.outlineVariant),
     dividerSpace: 4.0,
     dividerThickness: 1.0,
@@ -8226,8 +8226,8 @@ const TanreiSystem tanreiSystem = TanreiSystem(
     containerPaddingInlineEndWithControls: 8.0,
     containerPaddingInlineStart: 16.0,
     containerShape: 8.0,
-    controlsGap: 4.0,
-    controlsHeight: 36.0,
+    controlsGap: 8.0,
+    controlsHeight: 28.0,
     controlsLabelTypescale: _typescaleLabel,
     controlsPaddingInline: 14.0,
     controlsShape: 9999.0,
@@ -9528,10 +9528,10 @@ const TanreiSystem tanreiSystem = TanreiSystem(
     ),
     sizes: TanreiTabsSizes(
       small: TanreiTabsSizeTokens(
-        containerHeight: 36.0,
+        containerHeight: 28.0,
         containerPaddingInline: 12.0,
         activeIndicatorPaddingInline: 12.0,
-        activeIndicatorPaddingBlock: 2.0,
+        activeIndicatorPaddingBlock: 0.0,
         iconSize: 20.0,
         iconPlacement: 1.0,
       ),
@@ -9708,7 +9708,7 @@ const TanreiSystem tanreiSystem = TanreiSystem(
   textInput: TanreiTextInputTokens(
     codeTabSize: 2.0,
     codeTypescale: _typescaleCode,
-    containerActionGap: 6.0,
+    containerActionGap: 2.0,
     entriesGap: 8.0,
     entriesRowGap: 8.0,
     entriesTypingMinWidth: 72.0,
@@ -9773,7 +9773,7 @@ const TanreiSystem tanreiSystem = TanreiSystem(
         containerShape: 0.0,
         containerSize: 64.0,
         containerPaddingInline: 16.0,
-        containerGap: 0.0,
+        containerGap: 8.0,
         outlineColor: TanreiPaint.role(TanreiColorRole.outlineVariant),
       ),
       floating: TanreiToolbarVariantTokens(

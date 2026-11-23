@@ -146,9 +146,9 @@ test('the invariants hold the marks and the ladder: an aligned height off the me
   const fails = (changed) => auditInvariants({ ...model, ...changed }).failures.filter((f) => !auditInvariants(model).failures.includes(f));
   assert.deepEqual(fails({ aligned: [...model.aligned, `${NS}.comp.button.container.height.small`] }), [`comp.button.container.height.small: marked dev.tanrei.aligned, but it does not read sys.control.height.medium — derive it with { "fn": "mul", "of": "{${NS}.sys.control.height.medium}", "by": 1, "min": "{${NS}.sys.target.minimum}" }, or alias a token that does`]);
   const ladder = { ...model.ladder };
-  delete ladder[`${NS}.comp.button.container.height.small`];
+  delete ladder[`${NS}.comp.tree-view.container.height.small`];
   const offTheLadder = (id) => `${id}: a pressable height that reads no step of the control height ladder — read the step of its size, { "fn": "mul", "of": "{${NS}.sys.control.height.<step>}", "by": 1, "min": "{${NS}.sys.target.minimum}" }, or, where its spec says it keeps a size of its own at every control height, mark it "dev.tanrei.aligned": "own"`;
-  assert.deepEqual(fails({ ladder }), [offTheLadder('comp.button.container.height.small')]);
+  assert.deepEqual(fails({ ladder }), [offTheLadder('comp.tree-view.container.height.small')]);
   // A height of its own that reads a step, or is not marked, is told. (Read as a step, a tab's 64 with its icon is also
   // told it is not the step's 40.)
   const withIcon = `${NS}.comp.tabs.container.height-with-icon`;

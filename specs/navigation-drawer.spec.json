@@ -963,7 +963,7 @@
     {
       "id": "NVD-57",
       "text": "WHEN the navigation drawer first appears in the layout with a selected destination, and WHEN value changes while it is shown, THE navigation drawer SHALL bring the row that shows the selection (the selected destination, or the group's row NVD-47 names) into view: IF that row is not wholly inside the space its items scroll in THE navigation drawer SHALL scroll them so that the row is centered in that space, as far as the scroll range allows, and otherwise it SHALL NOT scroll at all, so that a drawer whose selection is already in view stays where it is from one page to the next. It SHALL do so at once, without motion, WHEN the drawer first appears in its first frame (in the order NVD-62 gives), and SHALL NOT move keyboard focus. A modal presentation is brought there WHEN it opens, by the focus NVD-19 gives.",
-      "verify": "Under the default system with the control height at 40, in a frame 800 high: `site-sidebar-long` (77 cells, 3408 tall, the selected row 2960 from the start of the items) is drawn with its items scrolled by 2580 and the selected row centered; `site-sidebar-restored`, the same drawer given scrollOffset 2364, is drawn at 2364, because the row is in view there. Test that no frame before either shows the items at 0, and that focus is where it was."
+      "verify": "Under the default system, in a frame 800 high: `site-sidebar-long` (78 cells, 3140 tall, the selected row 2692 from the start of the items) is drawn with its items scrolled by 2310 and the selected row centered; `site-sidebar-restored`, the same drawer given scrollOffset 2096, is drawn at 2096, because the row is in view there. Test that no frame before either shows the items at 0, and that focus is where it was."
     },
     {
       "id": "NVD-58",
@@ -983,7 +983,7 @@
     {
       "id": "NVD-61",
       "text": "THE navigation drawer SHALL hold how far its items are scrolled from their start as scrollOffset, in the units of its layout: it SHALL give the present distance whenever the product reads it, and WHEN the product sets it, before the drawer first appears included, SHALL scroll there at once and without motion, held inside the scroll range, the header staying in place (NVD-12). Scrolling by the user SHALL emit no event. WHILE the items can scroll, a scroll that reaches either end of them SHALL NOT go on to scroll what is beside or behind the drawer. WHEN a group opens or closes (NVD-44) THE navigation drawer SHALL keep that group's row where it is in view and move only the cells after it; WHEN keyboard focus moves to a cell that is not wholly in view it SHALL scroll that cell into view by the least distance that shows it whole.",
-      "verify": "Test in `site-sidebar-long`, with the control height at 40: setting scrollOffset to 5000 gives 2608, the end of the range in a frame 800 high; a wheel turned past the end of the items leaves the page behind where it was; closing Foundations with its row at 200 from the top leaves the row at 200."
+      "verify": "Test in `site-sidebar-long`: setting scrollOffset to 5000 gives 2340, the end of the range in a frame 800 high; a wheel turned past the end of the items leaves the page behind where it was; closing Foundations with its row at 200 from the top leaves the row at 200."
     },
     {
       "id": "NVD-62",
@@ -3175,6 +3175,14 @@
                 "label": "March",
                 "icon": "event"
               }
+            },
+            {
+              "kind": "destination",
+              "props": {
+                "value": "a-5",
+                "label": "April",
+                "icon": "event"
+              }
             }
           ]
         },
@@ -4411,6 +4419,13 @@
                 "href": "/project/license/",
                 "label": "License"
               }
+            },
+            {
+              "kind": "destination",
+              "props": {
+                "href": "/project/changelog/",
+                "label": "Changelog"
+              }
             }
           ]
         }
@@ -4422,7 +4437,7 @@
         "open": true,
         "value": "/components/navigation-drawer/",
         "label": "Documentation",
-        "scrollOffset": 2364
+        "scrollOffset": 2096
       },
       "items": [
         {
@@ -4970,6 +4985,13 @@
               "props": {
                 "href": "/project/license/",
                 "label": "License"
+              }
+            },
+            {
+              "kind": "destination",
+              "props": {
+                "href": "/project/changelog/",
+                "label": "Changelog"
               }
             }
           ]

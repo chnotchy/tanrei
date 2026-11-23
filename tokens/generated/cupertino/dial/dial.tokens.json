@@ -3848,6 +3848,10 @@
               "$value": "{tanrei.sys.typescale.body-subhead}",
               "reason": "A small Apple button carries Subheadline (15pt); the medium and large sizes carry Body (17pt)."
             },
+            "tanrei.comp.snackbar.controls.gap": {
+              "$value": "{tanrei.sys.space.space50}",
+              "reason": "This preset keeps the gap it drew between the snackbar's controls (4), where the default system keeps each small Button's target whole by the gap."
+            },
             "tanrei.dial.control.height": {
               "$value": {
                 "value": 40,

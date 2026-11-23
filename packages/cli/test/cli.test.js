@@ -95,7 +95,7 @@ test('build: one layer in, every platform out, and the philosophy’s three edit
   assert.equal(report.checked.componentPairs, schemes.reduce((sum, n) => sum + n.componentPairs, 0));
   for (const warning of report.warnings) assert.match(warning, /^tanrei\.comp\.[a-z0-9-]+\.container\.height\.[a-z0-9-]+: [\d.]+px cannot hold its content/, 'the larger type is all this layer is warned about');
   for (const component of ['button', 'button-with-menu', 'segmented-button']) {
-    assert.ok(report.warnings.some((w) => w.startsWith(`tanrei.comp.${component}.container.height.small: 36px cannot hold its content`)), component);
+    assert.ok(report.warnings.some((w) => w.startsWith(`tanrei.comp.${component}.container.height.small: 28px cannot hold its content`)), component);
   }
   assert.ok(!report.warnings.some((w) => w.startsWith('tanrei.comp.chip.')), 'the chip’s label is the pinned 11px label-small, which still fits');
   assert.match(result.stderr, /cannot hold its content/);

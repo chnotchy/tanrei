@@ -241,8 +241,8 @@ test.describe('behavior: the trigger', () => {
       near(await px(container(page, id), 'border-top-left-radius'), await token(page, 'container-shape'), `${id} corner`);
       near(await px(container(page, id), 'border-bottom-right-radius'), await token(page, 'container-shape'), `${id} bottom corner`);
     }
-    // The default system's numbers (the spec's verify): a stacked select 36 and 52, as tall as a Button of its size, with 16 and 12 and a 24 chevron; 36 (held at the minimum target) with 12 and 8 and a 20 one.
-    expect([await token(page, 'stacked-container-height-medium'), await token(page, 'stacked-container-height-large'), await token(page, 'stacked-container-height-small')]).toEqual([36, 52, 36]);
+    // The default system's numbers (the spec's verify): a stacked select 36 and 52, as tall as a Button of its size, with 16 and 12 and a 24 chevron; 28 (its step, its hit area reaching the minimum target) with 12 and 8 and a 20 one.
+    expect([await token(page, 'stacked-container-height-medium'), await token(page, 'stacked-container-height-large'), await token(page, 'stacked-container-height-small')]).toEqual([36, 52, 28]);
     expect([await token(page, 'container-padding-inline-medium'), await token(page, 'container-padding-inline-with-icon-medium'), await token(page, 'icon-size-medium')]).toEqual([16, 12, 24]);
     expect([await token(page, 'container-padding-inline-small'), await token(page, 'container-padding-inline-with-icon-small'), await token(page, 'icon-size-small')]).toEqual([12, 8, 20]);
     // With a leading icon: the glyph padding before it, the gap after it, then the value.
@@ -1141,11 +1141,9 @@ test.describe('behavior: the list', () => {
   });
 
   test('SEL-25: a wheel turned on past the end of a list that scrolls, and turned again after a pause, leaves the page behind where it was and the list open', async ({ page }) => {
-    await page.setViewportSize({ width: 800, height: 260 });
+    // A window low enough that the list is taller than its room.
+    await page.setViewportSize({ width: 800, height: 230 });
     await mount(page, [fx('one', {})]);
-    // Rows at a control height of 40, so that the list is taller than its room in this window (at the default 36 its
-    // rows fit it).
-    await rootTokens(page, { '--tanrei-dial-control-height': '40px' });
     await container(page, 'one').click();
     await shownList(page, 'one').toBe(true);
     await grownIn(page, 'one');

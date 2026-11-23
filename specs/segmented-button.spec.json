@@ -75,7 +75,7 @@
       ],
       "axis": "tanrei.comp.segmented-button.size",
       "default": "medium",
-      "description": "Visual height (36 / 36 / 52 in the core: the steps of the control height ladder, medium at the control height, never drawn below sys.target.minimum), matching Button's heights so that the set can share a row with buttons. The hit area always meets the minimum target. A design system may add values."
+      "description": "Visual height (28 / 36 / 52 in the core: the steps of the control height ladder, medium at the control height, the hit area never below sys.target.minimum), matching Button's heights so that the set can share a row with buttons. The hit area always meets the minimum target. A design system may add values."
     },
     {
       "name": "fullWidth",

@@ -191,6 +191,17 @@ export const styles = css`
   .swatch[data-filled] {
     background-color: var(--_value);
   }
+  /* CLI-15, CLI-25: an outlined box floats its label onto its top edge, centred on the edge's line, over where the swatch
+     stands: the swatch is drawn no taller than what that label leaves of the container — its height less the floated
+     text's size and the focused edge's width — centred in the box of the icon's size it stands in, as a glyph's ink
+     stands inside its box, so that the value still starts where a text input's beside a leading icon starts (CLI-2).
+     At the control height of 40 nothing changes (a 24 swatch in a 40 box); at 36 it is 22. */
+  .field[data-layout='outlined'] .swatch {
+    --_drawn: min(var(--_swatch), calc(var(--_height) - var(--_floated-font-size) - var(${B}-focused-outline-width)));
+    inline-size: var(--_drawn);
+    block-size: var(--_drawn);
+    margin-inline: calc((var(--_swatch) - var(--_drawn)) / 2);
+  }
   /* CLI-25: while the picker button is shown, a press on the swatch is the picker button's: the swatch takes the press
      itself, and still draws no answer to it (the element passes it on). */
   .field[data-picker]:not([data-disabled]) .swatch {

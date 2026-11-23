@@ -643,7 +643,9 @@ test.describe('behavior: the box, its name and its Field', () => {
       const s = await box(swatch(page, id));
       near(await px(label, 'font-size'), await token(page, 'label-typescale-medium-font-size'), `${id}: resting in label.typescale`);
       near(resting.y + resting.height / 2, c.y + c.height / 2, `${id}: resting in the input line`);
-      near(resting.x - (s.x + s.width), await token(page, 'container-gap-medium'), `${id}: after the swatch`);
+      // After the box of the icon's size the swatch stands in (an outlined swatch is drawn smaller inside it, CLI-25).
+      const side = await token(page, 'icon-size-medium');
+      near(resting.x - (s.x + s.width) - (side - s.width) / 2, await token(page, 'container-gap-medium'), `${id}: after the swatch`);
       const height = c.height;
       await focusInput(page, id);
       await frames(page);

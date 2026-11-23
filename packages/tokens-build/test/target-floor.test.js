@@ -26,20 +26,20 @@ const targetFindings = (failures) => failures.filter((f) => f.startsWith('target
 test('the floored heights: every pressable height and row the core derives with min: sys.target.minimum, and their aliases', () => {
   const floors = coreTargetFloors();
   for (const id of [
-    'comp.button.container.height.small',
     'comp.button.container.height.large',
-    'comp.input-box.stacked.container.height.small', // an alias of the small Button
-    'comp.tree-view.container.height.small', // the small step of the ladder, with the minimum
+    'comp.tree-view.container.height.small', // the small step of the ladder, with the minimum: a row that touches its neighbours
     'comp.menu.container.height.small',
     'comp.select.option.height.small', // an alias of the menu's
     'comp.list-row.container.height.one-line.medium',
     'comp.navigation-drawer.collapsed.item.container.width.small',
-    'comp.snackbar.controls.height',
   ]) assert.ok(floors.includes(`${NS}.${id}`), id);
+  // A control of the small size that stands alone is drawn at its step, and its hit area reaches the minimum past it.
+  for (const id of ['comp.button.container.height.small', 'comp.input-box.stacked.container.height.small', 'comp.segmented-button.container.height.small', 'comp.button-with-menu.container.height.small', 'comp.pagination.container.height.small', 'comp.tabs.container.height.small', 'comp.snackbar.controls.height']) assert.ok(!floors.includes(`${NS}.${id}`), `${id} stands alone: drawn at its step, its hit area reaching the target`);
   for (const id of ['comp.tag.container.height.small', 'comp.chip.container.height.small', 'comp.checkbox.container.size', 'comp.app-bar.container.height.small']) assert.ok(!floors.includes(`${NS}.${id}`), `${id} is not floored: nobody presses it, a mark reaches, or a frame`);
   // A row of more lines adds its lines to the one-line row, which is floored: held up by it, it carries no floor of its own.
   for (const id of ['comp.list-row.container.height.two-line.medium', 'comp.list-row.container.height.three-line.small']) assert.ok(!floors.includes(`${NS}.${id}`), `${id} adds to a floored height`);
-  assert.ok(floors.length >= 55, `${floors.length} floored heights`);
+  // (52 since the small size of a control that stands alone reads its step without the floor.)
+  assert.ok(floors.length >= 50, `${floors.length} floored heights`);
   // The pure form, over documents a caller holds (Theme Studio's sources).
   const doc = { tanrei: { comp: { x: { a: { $value: px(36), $extensions: { 'dev.tanrei.derive': { fn: 'mul', of: '{u}', by: 9, min: `{${NS}.sys.target.minimum}` } } }, b: { $value: `{${NS}.comp.x.a}` }, c: { $value: `{${NS}.comp.x.b}` }, d: { $value: px(4) } } } } };
   assert.deepEqual(targetFloors([doc]), [`${NS}.comp.x.a`, `${NS}.comp.x.b`, `${NS}.comp.x.c`]);
@@ -63,10 +63,10 @@ test('a target under 24px, or a floored height pinned under the minimum: a crite
   assert.deepEqual(low, ['minimum', 'pointer', 'touch'].map((name) => `target size: sys.target.${name}: 20px < 24px (WCAG 2.5.8: the least target a person presses)`));
   assert.ok(low.every(isCriterionFinding) && !low.some(isRefusedEverywhere));
 
-  const pinned = targetFindings((await (await resolveChain(chainOf({ [`${NS}.comp.button.container.height.small`]: { $value: px(28), reason: REASON } }))).audit()).failures);
-  // The small Button, and what is as tall as it by an alias: the stacked input box, the snackbar's controls.
-  assert.deepEqual(pinned.map((f) => f.split(':')[1].trim()), ['comp.button.container.height.small', 'comp.input-box.stacked.container.height.small', 'comp.snackbar.controls.height']);
-  assert.match(pinned[0], /^target size: comp\.button\.container\.height\.small: 28px < sys\.target\.minimum 36px \(/);
+  const pinned = targetFindings((await (await resolveChain(chainOf({ [`${NS}.comp.tree-view.container.height.small`]: { $value: px(28), reason: REASON } }))).audit()).failures);
+  // A tree's small row, a row that touches its neighbours, and what is as tall as it by an alias.
+  assert.ok(pinned.map((f) => f.split(':')[1].trim()).includes('comp.tree-view.container.height.small'), pinned.join('\n'));
+  assert.match(pinned.find((f) => f.includes('comp.tree-view.container.height.small:')), /^target size: comp\.tree-view\.container\.height\.small: 28px < sys\.target\.minimum 36px \(/);
   assert.ok(pinned.every(isCriterionFinding));
 });
 
@@ -125,8 +125,9 @@ test('the sweep: at every control height and minimum no floored height is under 
       const short = heldContent(tokens);
       assert.deepEqual(short, [], `${at}: heights that cannot hold their content`);
       for (const [step, ids] of Object.entries(ladder)) {
-        const expected = Math.max(minimum, tokens[`${NS}.sys.control.height.${step}`].$value.value);
-        assert.deepEqual(ids.filter((id) => tokens[id].$value.value !== expected), [], `${at}: controls of the ${step} step`);
+        // A row that touches its neighbours is held at the minimum; a control that stands alone is drawn at its step.
+        const value = tokens[`${NS}.sys.control.height.${step}`].$value.value;
+        assert.deepEqual(ids.filter((id) => tokens[id].$value.value !== (floors.includes(id) ? Math.max(minimum, value) : value)), [], `${at}: controls of the ${step} step`);
       }
       if (minimum === 32) table[height] = ['button.container.height.small', 'button.container.height.medium', 'button.container.height.large', 'tree-view.container.height.medium', 'tree-view.container.height.small', 'list-row.container.height.one-line.medium', 'list-row.container.height.two-line.medium', 'list-row.container.height.three-line.medium'].map((id) => tokens[`${NS}.comp.${id}`].$value.value);
     }
@@ -136,8 +137,8 @@ test('the sweep: at every control height and minimum no floored height is under 
   // ladder, the medium rows at the control height; a row of more lines adds the line of its supporting text, five size
   // units, for each line past the first.
   assert.deepEqual(table, {
-    32: [32, 32, 48, 32, 32, 32, 52, 72],
-    36: [32, 36, 52, 36, 32, 36, 56, 76],
+    32: [24, 32, 48, 32, 32, 32, 52, 72],
+    36: [28, 36, 52, 36, 32, 36, 56, 76],
     40: [32, 40, 56, 40, 32, 40, 60, 80],
     48: [40, 48, 64, 48, 40, 48, 68, 88],
     56: [48, 56, 72, 56, 48, 56, 76, 96],

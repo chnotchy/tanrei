@@ -137,15 +137,14 @@
             "$description": "Minimum height of both halves, per size.",
             "small": {
               "$value": {
-                "value": 36,
+                "value": 28,
                 "unit": "px"
               },
               "$extensions": {
                 "dev.tanrei.derive": {
                   "fn": "mul",
                   "of": "{tanrei.sys.control.height.small}",
-                  "by": 1,
-                  "min": "{tanrei.sys.target.minimum}"
+                  "by": 1
                 }
               }
             },
@@ -184,7 +183,7 @@
             "$description": "Vertical padding. Heights are minimums, so this shows only when the label wraps or text is enlarged.",
             "small": {
               "$value": {
-                "value": 8,
+                "value": 4,
                 "unit": "px"
               },
               "$extensions": {
@@ -292,10 +291,10 @@
         "trailing": {
           "padding-inline": {
             "$type": "dimension",
-            "$description": "Padding on each side of the chevron at the default trailing width. With the default icon size it holds the chevron in a square of the height (36, 36 and 52 in the default system), before the outer padding is added; each follows the height of its size as the block padding does, giving up half of what the height loses below the control height's reference of 40, so that the half stays a square at every control height.",
+            "$description": "Padding on each side of the chevron at the default trailing width. With the default icon size it holds the chevron in a square of the height (28, 36 and 52 in the default system), before the outer padding is added; each follows the height of its size as the block padding does, giving up half of what the height loses below the control height's reference of 40, so that the half stays a square at every control height.",
             "small": {
               "$value": {
-                "value": 8,
+                "value": 4,
                 "unit": "px"
               },
               "$extensions": {

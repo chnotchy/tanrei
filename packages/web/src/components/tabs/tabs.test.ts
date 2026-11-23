@@ -1625,8 +1625,7 @@ test.describe('concentric at every size', () => {
         for (const part of [c, r]) expect([part.x, part.y, part.width, part.height], where).toEqual([expect.closeTo(thumb.x, 1), expect.closeTo(thumb.y, 1), expect.closeTo(thumb.width, 1), expect.closeTo(thumb.height, 1)]);
       }
     }
-    // The row heights were measured: 36 small and medium (the small one held at the minimum target), and 64 where a
-    // primary tab stacks its icon above its label.
+    // The row heights were measured: 28 small, 36 medium, and 64 where a primary tab stacks its icon above its label.
     expect([...heights].sort((a, b) => a - b)).toEqual([...new Set([await resolveToken(page, T('container-height-small')), await resolveToken(page, T('container-height-medium')), await resolveToken(page, T('container-height-with-icon'))])].sort((a, b) => a - b));
     // The circles: 18 from the end and 18 from the top — the centre of the track's half circle.
     for (const id of ['primary-icon-only', 'primary-single-characters', 'primary-two-icons']) {
@@ -3891,7 +3890,7 @@ test.describe('variants, the track, sizes and the transition', () => {
     }
   });
 
-  test('TAB-44, TAB-14, TAB-18, TAB-34, TAB-35: a small row is 36 tall (the minimum target) with a 28 indicator, its size’s paddings and glyph, the icon before the label in every variant; a medium one 36 and 28 too, the control height; nothing else differs, and an unknown size is the default’s (TAB-7)', async ({ page }) => {
+  test('TAB-44, TAB-14, TAB-18, TAB-34, TAB-35: a small row is 28 tall (its step) with a 20 indicator, its size’s paddings and glyph, the icon before the label in every variant; a medium one 36 and 28, the control height; nothing else differs, and an unknown size is the default’s (TAB-7)', async ({ page }) => {
     const seen = warnings(page);
     await mountFixtures(page, spec, {
       icons: true,
@@ -3906,8 +3905,8 @@ test.describe('variants, the track, sizes and the transition', () => {
       glyph: await resolveToken(page, T(`icon-size-${size}`)),
     });
     const [small, medium] = [await of('small'), await of('medium')];
-    // The small row is held at the default system's minimum target (36); the medium one is the control height (36).
-    expect([small.height, medium.height]).toEqual([36, 36]);
+    // The small row is the small step (28), its hit area reaching the minimum target; the medium one is the control height (36).
+    expect([small.height, medium.height]).toEqual([28, 36]);
     for (const [id, size] of [['primary', medium], ['tonal-no-track', medium], ['primary-small', small], ['tonal-small-no-track', small]] as const) {
       const [r, p, tabBox, text] = [await bounds(track(page, id)), await pill(page, id, 0), await bounds(tabAt(page, id, 0)), await bounds(label(page, id, 0))];
       expect([r.height, tabBox.height, p.height], id).toEqual([expect.closeTo(size.height, 1), expect.closeTo(size.height, 1), expect.closeTo(size.height - 2 * inset, 1)]);
@@ -3923,7 +3922,7 @@ test.describe('variants, the track, sizes and the transition', () => {
     // The same label style, gap and track at both sizes.
     for (const property of ['font-size', 'line-height', 'font-weight', 'letter-spacing']) expect(await css(label(page, 'primary-small', 0), property), property).toBe(await css(label(page, 'primary', 0), property));
     expect(await css(track(page, 'primary-small'), 'background-color')).toBe(await css(track(page, 'primary'), 'background-color'));
-    // TAB-18: at small no variant stacks — the icon stands before the label, and the row stays 36.
+    // TAB-18: at small no variant stacks — the icon stands before the label, and the row stays 28.
     for (const id of ['primary-small-icons', 'secondary-small-icons']) {
       const [i, l] = [await bounds(icon(page, id, 0)), await bounds(label(page, id, 0))];
       expect(i.x + i.width, id).toBeLessThanOrEqual(l.x + 0.5);
@@ -3974,8 +3973,8 @@ test.describe('variants, the track, sizes and the transition', () => {
   test('TAB-5: a small row answers a press just above and just below it, in line with a tab, without being taller; a control under the row keeps its own press, and so does a press that selects text', async ({ page }) => {
     await mountFixtures(page, spec, { fixtures: only('primary-small', 'tonal-small-no-track', 'primary') });
     await wire(page);
-    // The default system's small row is the minimum target (36) tall and reaches nothing; a system whose pointer target
-    // is taller (a platform guideline's 48) is where its hit area reaches above and below it.
+    // The default system's small row is its step (28) tall and reaches 4 above and below it to the target (36); a system
+    // whose pointer target is taller (a platform guideline's 48) reaches further, which this reads.
     await rootTokens(page, { '--tanrei-sys-target-pointer': '48px' });
     const pointer = await resolveToken(page, '--tanrei-sys-target-pointer');
     for (const id of ['primary-small', 'tonal-small-no-track']) {
@@ -3987,7 +3986,7 @@ test.describe('variants, the track, sizes and the transition', () => {
         (el.querySelector('#under') as HTMLElement).addEventListener('click', () => ((window as any).pressedUnder = ((window as any).pressedUnder ?? 0) + 1));
       });
       const r = await bounds(track(page, id));
-      expect(r.height).toBeCloseTo(36, 1);
+      expect(r.height).toBeCloseTo(28, 1);
       const reach = (pointer - r.height) / 2;
       expect(reach).toBeGreaterThanOrEqual(5);
       const x = (n: number) => centreX(page, id, n);

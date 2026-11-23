@@ -662,7 +662,7 @@ test.describe('drawing', () => {
 });
 
 test.describe('the close button', () => {
-  test('SSH-5: while closable, an icon-only small Button (36 × 36 in the default system) with the close glyph named by close-label, in close-button.variant (tonal) given through the Button’s channel; a click, Enter or Space asks to close once with the reason close, in either variant; an empty close-label still draws it and is reported', async ({ page }) => {
+  test('SSH-5: while closable, an icon-only small Button (28 × 28 in the default system) with the close glyph named by close-label, in close-button.variant (tonal) given through the Button’s channel; a click, Enter or Space asks to close once with the reason close, in either variant; an empty close-label still draws it and is reported', async ({ page }) => {
     const seen = warnings(page);
     for (const variant of ['standard', 'modal']) {
       await mount(page, [fx('s', { variant }, TEXT, ACTIONS)]);
@@ -676,7 +676,7 @@ test.describe('the close button', () => {
       await expect(close(page)).toHaveAttribute('size', 'small');
       expect(await close(page).evaluate((el) => el.textContent?.trim())).toBe('close');
       const size = await px(page, '--tanrei-comp-button-container-height-small');
-      expect(size).toBe(36); // the small Button, held at the minimum target
+      expect(size).toBe(28); // the small Button, at its step
       const box = await bounds(close(page).locator('button'));
       expect([box.width, box.height]).toEqual([size, size]);
       await expect(host(page).getByRole('button', { name: 'Close filters' })).toHaveCount(1);

@@ -545,9 +545,9 @@ test.describe('the header and the copy button', () => {
       expect(await box(button), id).toEqual(b);
       expect((await box(container(page, id))).height, id).toBeGreaterThanOrEqual(size + 2 * inset);
     }
-    // A block of one line is exactly the button and twice the inset in the default system; with smaller paddings it
-    // is still that tall.
-    expect((await box(container(page, 'one-line-copy'))).height).toBe(size + 2 * inset);
+    // A block of one line is at least the button and twice the inset (in the default system its line and paddings are
+    // taller than the small Button's 28 and its inset); with paddings small enough it is exactly that tall.
+    expect((await box(container(page, 'one-line-copy'))).height).toBeGreaterThanOrEqual(size + 2 * inset);
     await override(page, { [T('container-padding-block-medium')]: '2px' });
     expect((await box(container(page, 'one-line-copy'))).height).toBe(size + 2 * inset);
   });
