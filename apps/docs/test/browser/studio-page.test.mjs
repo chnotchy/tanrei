@@ -508,8 +508,8 @@ for (const engine of ENGINES) {
         if (engine === 'chromium') await page.context().grantPermissions(['clipboard-read', 'clipboard-write']);
         await page.locator('[data-export-copy-link]').click();
         const snackbar = () => page.locator('tanrei-snackbar').last().evaluate((el) => el.message).catch(() => '');
-        // (Copied, or — where the engine refuses the clipboard — the way to copy it by hand.)
-        const answers = ['Link copied.', 'Could not copy — select the text and copy it by hand.'];
+        // (Copied, or — where the engine refuses the clipboard — where the link is.)
+        const answers = ['Link copied.', 'Couldn’t copy the link. It’s this page’s address — copy it from your browser’s address bar.'];
         const deadline = Date.now() + 5000;
         while (!answers.includes(await snackbar()) && Date.now() < deadline) await page.waitForTimeout(50);
         assert.ok(answers.includes(await snackbar()), 'the snackbar says what was done');
@@ -526,6 +526,44 @@ for (const engine of ENGINES) {
         assert.deepEqual(problems, []);
       } finally {
         await close();
+      }
+    });
+
+    test('Copy link, where the browser refuses the clipboard: Export and Share say the link is the page’s address, which holds the layer', LIMIT, async () => {
+      for (const [url, said] of [
+        ['/studio/', 'Couldn’t copy the link. It’s this page’s address — copy it from your browser’s address bar.'],
+        ['/ja/studio/', 'リンクをコピーできませんでした。このページのアドレスがリンクです。ブラウザーのアドレスバーからコピーしてください。'],
+      ]) {
+        const { page, problems, close } = await open(browser, { url });
+        try {
+          await chooseBase(page, 'cupertino');
+          await page.waitForFunction(() => new URLSearchParams(location.hash.slice(1)).get('layer'));
+          await page.evaluate(() => Object.defineProperty(navigator, 'clipboard', { configurable: true, value: { writeText: () => Promise.reject(new DOMException('Refused', 'NotAllowedError')) } }));
+          await page.locator('[data-export-open]').click();
+          await page.waitForFunction(() => document.querySelector('[data-export-sheet]').open);
+          await page.locator('[data-export-copy-link]').click();
+          // (The snackbar stands in a shadow root: Playwright's locator reaches it.)
+          const messages = () => page.locator('tanrei-snackbar').evaluateAll((els) => els.map((el) => el.message));
+          const deadline = Date.now() + 5000;
+          while (!(await messages()).includes(said) && Date.now() < deadline) await page.waitForTimeout(50);
+          assert.ok((await messages()).includes(said), `the snackbar says where the link is: ${JSON.stringify(await messages())}`);
+          await page.keyboard.press('Escape');
+          await page.waitForFunction(() => !document.querySelector('[data-export-sheet]').open);
+          await page.locator('[data-share-open]').click();
+          await page.locator('[data-share-copy-link]').click();
+          await page.waitForFunction((text) => document.querySelector('[data-share-link-state]')?.textContent === text, said);
+          // What the words say is so: the address holds this layer.
+          // (The parameter unpacked as the Studio packs it: raw DEFLATE in base64url, packages/studio/src/address.js.)
+          const address = await page.evaluate(async () => {
+            const code = new URLSearchParams(location.hash.slice(1)).get('layer').replace(/-/g, '+').replace(/_/g, '/');
+            const bytes = Uint8Array.from(atob(code + '='.repeat((4 - (code.length % 4)) % 4)), (char) => char.charCodeAt(0));
+            return JSON.parse(await new Response(new Blob([bytes]).stream().pipeThrough(new DecompressionStream('deflate-raw'))).text());
+          });
+          assert.deepEqual(address, await layer(page));
+          assert.deepEqual(problems, []);
+        } finally {
+          await close();
+        }
       }
     });
 

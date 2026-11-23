@@ -598,6 +598,7 @@ const es: Dictionary = {
     shareHelp: 'Un enlace al Studio con esta capa. Quien lo abra verá tu capa y conservará la suya hasta que decida.',
     copyLink: 'Copiar enlace',
     linkCopied: 'Enlace copiado.',
+    linkCopyFailed: 'No se pudo copiar el enlace. Es la dirección de esta página: cópiala desde la barra de direcciones del navegador.',
   },
   file: {
     idLocked: 'id: es igual al nombre del archivo; cambia el nombre del archivo para cambiar el del sistema',

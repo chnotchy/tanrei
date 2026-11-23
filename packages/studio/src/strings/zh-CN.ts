@@ -596,6 +596,7 @@ const zhCN: Dictionary = {
     shareHelp: '指向包含这个层的 Studio 的链接。打开它的人会看到你的层，而他们自己的层会一直保留，直到他们自己做出选择。',
     copyLink: '复制链接',
     linkCopied: '已复制链接。',
+    linkCopyFailed: '无法复制链接。链接就是本页的地址，请从浏览器的地址栏复制。',
   },
   file: {
     idLocked: 'id（与文件名相同；要重命名系统，请重命名文件）',
