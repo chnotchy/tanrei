@@ -2852,6 +2852,7 @@ export class TanreiDateTimePicker extends TanreiElement {
             html`<span
               class=${classMap({ row: true, on: Math.abs(at - position) < 0.5 })}
               ?data-unavailable=${!this.offersPeriod(at ? 1 : 0)}
+              aria-disabled=${ifDefined(this.offersPeriod(at ? 1 : 0) ? undefined : 'true')}
               style=${styleMap({ '--_at': String(at - position) })}
               >${name}</span
             >`,
@@ -2962,6 +2963,7 @@ export class TanreiDateTimePicker extends TanreiElement {
             html`<span
               class=${classMap({ row: true, on: Math.abs(at - position) < 0.5 })}
               ?data-unavailable=${!this.offers(unit, this.withIndex(unit, at))}
+              aria-disabled=${ifDefined(this.offers(unit, this.withIndex(unit, at)) ? undefined : 'true')}
               style=${styleMap({ '--_at': String(at - position) })}
               >${text(at)}</span
             >`,
@@ -3094,6 +3096,10 @@ export class TanreiDateTimePicker extends TanreiElement {
     return [...ring(false, (index) => index, (value) => value, 2), ...ring(true, (index) => index + 12, (value) => value, 2)];
   }
 
+  // DTM-50: an unavailable number, like an unavailable wheel row, is marked inactive (`aria-disabled`) as well as faded.
+  // It sits in a subtree hidden from assistive technology, so nothing is announced; it tells a contrast checker (axe's
+  // `color-contrast`) what WCAG 1.4.3 exempts — the text of an inactive control — instead of judging its faded color as
+  // text a person must read to choose it.
   private numbers() {
     const layer = (unit: Unit) =>
       html`<div class=${classMap({ numbers: true, [`${unit}s`]: true, faded: this.shownUnit !== unit })}>
@@ -3102,6 +3108,7 @@ export class TanreiDateTimePicker extends TanreiElement {
             html`<span
               class=${classMap({ number: true, inner: number.inner, outer: !number.inner })}
               ?data-unavailable=${!number.available}
+              aria-disabled=${ifDefined(number.available ? undefined : 'true')}
               style=${styleMap({ '--_x': String(number.x), '--_y': String(number.y) })}
               >${number.text}</span
             >`,
