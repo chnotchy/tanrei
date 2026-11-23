@@ -339,6 +339,15 @@
     color: var(--tanrei-sys-color-on-surface-variant);
     text-decoration: none;
   }
+  /* A group's label on one line, cut with an ellipsis, as the drawer draws a row's label: a label that wrapped made
+     its row taller than the drawer's. Centered in the row's least height by the padding around its line. */
+  .docs-sidebar:not(:defined) tanrei-navigation-drawer-group::before {
+    display: block;
+    padding-block: max(0px, calc((var(--tanrei-comp-navigation-drawer-item-container-height-medium) - 1lh) / 2));
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
   /* A nested row's text starts one nest-indent further in per level; its row keeps the full width (NVD-13). */
   .docs-sidebar:not(:defined) tanrei-navigation-drawer-group > tanrei-navigation-drawer-item > a {
     padding-inline-start: calc(var(--tanrei-comp-navigation-drawer-item-padding-inline-medium) + var(--tanrei-comp-navigation-drawer-item-nest-indent-medium));
