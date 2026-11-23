@@ -391,7 +391,7 @@ const es: Dictionary = {
       card: 'Tarjeta',
       menu: 'Menú',
       system: 'Este sistema',
-      draft: 'Guardar borrador',
+      draft: 'Borrador',
       details: 'Detalles',
       add: 'Añadir',
       favorite: 'Favorito',

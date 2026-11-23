@@ -383,7 +383,7 @@ const ja: Dictionary = {
       card: 'カード',
       menu: 'メニュー',
       system: 'このシステム',
-      draft: '下書き保存',
+      draft: '下書き',
       details: '詳細',
       add: '追加',
       favorite: 'お気に入り',
