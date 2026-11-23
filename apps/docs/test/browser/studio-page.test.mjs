@@ -130,6 +130,28 @@ for (const engine of ENGINES) {
       }
     });
 
+    test('1280 wide, in each of the six languages: the overview is two columns beside the rail and the panel, and nothing in it is wider than its panel', LIMIT, async () => {
+      for (const prefix of ['', '/ja', '/es', '/ar', '/hi', '/zh-cn']) {
+        const { page, problems, close } = await open(browser, { url: `${prefix}/studio/`, viewport: { width: 1280, height: 900 } });
+        try {
+          const overview = await page.evaluate(() => {
+            const grid = document.querySelector('[data-scope] .ts-s-overview');
+            const columns = getComputedStyle(grid).gridTemplateColumns.split(' ').length;
+            const wide = [...grid.querySelectorAll('.ts-s-panel *')].filter((el) => {
+              if (!el.getClientRects().length) return false;
+              const [box, panel] = [el.getBoundingClientRect(), el.closest('.ts-s-panel').getBoundingClientRect()];
+              return box.right > panel.right + 1 || box.left < panel.left - 1;
+            }).map((el) => el.localName);
+            return { columns, wide };
+          });
+          assert.deepEqual(overview, { columns: 2, wide: [] }, `${prefix || '/en'}: ${JSON.stringify(overview)}`);
+          assert.deepEqual(problems, []);
+        } finally {
+          await close();
+        }
+      }
+    });
+
     test('a device in dark: the page follows it, and the preview opens in dark too, until the person chooses', LIMIT, async () => {
       const { page, close } = await open(browser, { colorScheme: 'dark' });
       try {

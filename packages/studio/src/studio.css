@@ -711,12 +711,13 @@
    as each other; what the system is made of under them, across.
    How many columns is decided by the width the overview itself has — the pane's, inside the preview, beside the rail
    and the panel — never by the window's: three where each panel is still --ts-s-overview-min wide, else two, else
-   one. That least width is the content's: the notice's headline on one line, the card's sentence in at most two, in
-   each of the Studio's languages; a form's actions may take a second row. It gives two columns beside the rail and
-   the panel in a window 1440px wide, three from about 1700px, one on a phone. Three is the most: the prototype's
-   grid, and seven panels read as three rows of it. */
+   one. That least width keeps the approved design's columns beside the rail and the panel: two in a window 1280px
+   wide — with room for a scroll bar that takes its width beside the stage — and 1440px wide, three from about 1550px,
+   one on a phone. The notice's headline stays on one line in each of the Studio's languages; a form's actions may
+   take a second row, and the card's sentence a third in Spanish. Three is the most: the prototype's grid, and seven
+   panels read as three rows of it. */
 .ts-s-overview {
-  --ts-s-overview-min: 20.5rem;
+  --ts-s-overview-min: 17.5rem;
   --ts-s-overview-gap: var(--tanrei-sys-space-space150);
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(max(min(100%, var(--ts-s-overview-min)), calc((100% - 2 * var(--ts-s-overview-gap)) / 3)), 1fr));
