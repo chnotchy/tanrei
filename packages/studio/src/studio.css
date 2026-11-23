@@ -64,7 +64,7 @@
   align-items: center;
   gap: var(--tanrei-sys-space-space25);
 }
-/* (Inspect and the draft's badge beside it may take two lines on a phone, in a language of long words.) */
+/* (Inspect and the draft's button beside it: on a phone both show their glyphs alone, and the bar stays one line.) */
 .ts-bar-tools {
   display: flex;
   flex-wrap: wrap;
@@ -92,15 +92,19 @@
 .ts-bar-short {
   display: none;
 }
-/* A phone: the bar is one line. Each control shows its glyph alone (Inspect, Share and Export: ui/dom.ts
-   `wordBesideGlyph`), named by its label and shown its name by its tooltip, and the start point the start's name — the
-   whole is read. What a phone has no room for is left out of the bar, as the approved design leaves it: reset and the
-   shuffle (undo and redo stay), and the checks' count (Export's first line says what the checks say, and the rail's
-   Accessibility lists it). */
+/* A phone: the bar is one line. Each control shows its glyph alone (Inspect, the draft's button, Share and Export:
+   ui/dom.ts `wordBesideGlyph`), named by its label and shown its name by its tooltip, and the start point the start's
+   name — the whole is read. What a phone has no room for is left out of the bar, as the approved design leaves it:
+   reset and the shuffle (undo and redo stay), and the checks' count (Export's first line says what the checks say, and
+   the rail's Accessibility lists it). While the JSON holds an edit that does not parse, the draft's button stands in
+   Inspect's place: it opens Inspect, at Source, and the bar keeps its length. */
 @media (max-width: 40rem) {
   .ts-bar {
-    column-gap: var(--tanrei-sys-space-space50);
+    column-gap: var(--tanrei-sys-space-space25);
     padding-inline: var(--tanrei-sys-space-space100);
+  }
+  .ts-bar-inspect > .ts-draft-badge + tanrei-tooltip {
+    display: none;
   }
   .ts-bar-long {
     position: absolute;
@@ -1809,8 +1813,23 @@
 }
 
 /* ── Source: a draft that does not parse ────────────────────────────── */
+/* In the bar beside Inspect: the chip that says it in words, or — on a phone — the icon button (the media query of
+   the bar, above). */
 .ts-bar .ts-draft-badge {
+  display: inline-flex;
   flex: none;
+  align-items: center;
+}
+.ts-draft-phone {
+  display: none;
+}
+@media (max-width: 40rem) {
+  .ts-draft-badge > [data-draft-badge] {
+    display: none;
+  }
+  .ts-draft-phone {
+    display: inline-block;
+  }
 }
 .ts-draft-note {
   display: flex;

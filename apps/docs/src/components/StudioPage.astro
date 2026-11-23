@@ -53,8 +53,8 @@ const languages = [source, ...translations];
   <body>
     <a class="docs-studio-brand" href={`${base}/`} title={t.studioPage.back} data-studio-bar="start"><img src="/favicon.svg" alt="" /><span class="docs-studio-name">Tanrei</span></a>
     <h1 class="docs-studio-title" data-studio-bar="start">Theme Studio</h1>
-    {/* The page about the tool: a glyph beside the tool's name, its words in its tooltip and read with it. */}
-    <tanrei-tooltip text={t.studioPage.about} no-describe data-studio-bar="start"><a class="docs-studio-about" href={`${base}/foundations/theme-studio/`}><span class="tanrei-icon" aria-hidden="true" translate="no" data-pagefind-ignore>info</span><span class="docs-studio-word">{t.studioPage.about}</span></a></tanrei-tooltip>
+    {/* The page about the tool: a glyph beside the tool's name, its words in its tooltip and read with it (on a phone, left out: the bar is one line, and the brand leads to the documentation). */}
+    <tanrei-tooltip class="docs-studio-about-tip" text={t.studioPage.about} no-describe data-studio-bar="start"><a class="docs-studio-about" href={`${base}/foundations/theme-studio/`}><span class="tanrei-icon" aria-hidden="true" translate="no" data-pagefind-ignore>info</span><span class="docs-studio-word">{t.studioPage.about}</span></a></tanrei-tooltip>
     <div data-theme-studio data-lang={lang} data-layers={`${base}/foundations/design-systems/`} data-start={`${base}/getting-started/your-design-system/`}></div>
     <script>
       import '../lib/register-web';
