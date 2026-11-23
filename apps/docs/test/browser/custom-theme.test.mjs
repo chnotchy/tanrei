@@ -170,7 +170,17 @@ for (const engine of ENGINES) {
       const toggle = studio.locator('[data-share-docs]');
       await toggle.waitFor();
       assert.equal(await toggle.evaluate((element) => element.checked), false, 'off by default');
-      const axe = await new AxeBuilder({ page: studio }).include('[data-share]').analyze();
+      // Grown in: a menu still fading in is no color to measure (WebKit, its fade 0.6 of the way in when the switch
+      // was found: axe read the Copy link button's label at 2.8 to 1). The entrance is held paused at its start until
+      // the next frame, so the wait is for every motion that has an end to have ended, in the menu's shadow root and in
+      // each of its elements'.
+      await studio.waitForFunction(() => {
+        const menu = document.querySelector('[data-share]');
+        if (menu?.open !== true) return false;
+        const roots = [menu, ...menu.querySelectorAll('*')].flatMap((element) => (element.shadowRoot ? [element.shadowRoot] : []));
+        return roots.flatMap((root) => root.getAnimations()).every((animation) => animation.playState === 'finished' || !Number.isFinite(animation.effect?.getComputedTiming().endTime));
+      });
+      const axe =await new AxeBuilder({ page: studio }).include('[data-share]').analyze();
       assert.deepEqual(axe.violations.map((violation) => `${violation.id}: ${violation.nodes[0]?.target}`), [], 'axe: the Share menu');
 
       const took = await pressed(studio, toggle);
