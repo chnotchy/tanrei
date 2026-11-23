@@ -75,7 +75,6 @@ const ASKED = {
   'rail.lock': [['Brand color'], ['Gray']],
   'exporting.depend': [['M3-like (Material 3-inspired)']],
   'start.open': [['Tanrei'], ['m3-like']],
-  'start.exampleNote': [['M3-like (Material 3-inspired)']],
   'start.started': [['m3-like']],
   'start.imported': [['acme.system.json'], [undefined]],
   'start.importedProblems': [['acme.system.json', 0], ['acme.system.json', 1], ['acme.system.json', 2], ['acme.system.json', 12], [undefined, 1], [undefined, 12]],

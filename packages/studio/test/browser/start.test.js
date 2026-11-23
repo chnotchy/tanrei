@@ -45,8 +45,11 @@ studioTest('the bar’s start point: the default system, the root listed and not
   ]]);
   assert.equal(rows[1][0], 'Theme gallery');
   assert.equal(rows[1][1], null, 'no example is the start');
-  assert.deepEqual(rows[1][2].map(([id]) => id).sort(), ['cupertino', 'm3-like']);
-  for (const [id, , note, disabled] of rows[1][2]) assert.ok(note.endsWith('An example, not an official design.') && !disabled, id);
+  // As the approved design lists them, each on one line: what it imitates, said as an example made after it.
+  assert.deepEqual(rows[1][2], [
+    ['m3-like', 'm3-like', 'A Material 3–style example', false],
+    ['cupertino', 'cupertino', 'An Apple-style example', false],
+  ]);
   assert.equal(await menu(page).locator('[data-start-file]').getAttribute('label'), 'Import a file…');
   // The root is reachable from the keyboard, says it is disabled — that it is coming is its description — and pressing it does nothing.
   const core = menu(page).locator('[data-start="core"]');
