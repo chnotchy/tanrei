@@ -1,5 +1,5 @@
 import { css, unsafeCSS } from 'lit';
-import { type OpenAxis, focusRing } from '../../primitives/index.js';
+import { type OpenAxis, TARGET_CAPS, focusRing } from '../../primitives/index.js';
 import { productText } from '../../styles/product-text.js';
 import { cornerRadius, shape } from '../../styles/shape.js';
 import { CORE_SIZES, CORE_VARIANTS, DEFAULT_SIZE, DEFAULT_VARIANT, layoutBlock, sizeBlock, variantBlock } from './code-block.light.js';
@@ -159,6 +159,13 @@ export const styles = css`
     flex: none;
     order: 1;
     margin-inline-end: ${T('copy-button-inset')};
+  }
+  /* BTN-5: a body that scrolls is a focus stop beside the button, header.gap before it. The button's hit area meets the
+     minimum target (CPY-1) but reaches toward the body no further than the middle of that gap, so that a press on the
+     body's end, or in the half of the gap nearer it, goes to the body. Its other sides keep the whole target: the
+     container's edge is no neighbour. The cap is inherited into the Button that draws the copy button. */
+  .container.one-line > tanrei-copy-button {
+    ${unsafeCSS(TARGET_CAPS.start)}: calc(${T('header-gap')} / 2);
   }
   .container.one-line .body {
     flex: 1 1 0;

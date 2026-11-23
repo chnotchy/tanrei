@@ -84,10 +84,7 @@ ${FALLBACK}${HEADED} {
   align-content: start;
   align-items: center;
   column-gap: ${T('header-gap')};
-}
-${FALLBACK}${HEADED} > pre {
-  grid-area: 2 / 1 / auto / -1;
-  min-inline-size: 0;
+  --_code-block-code-area: 2 / 1 / auto / -1;
 }
 ${FALLBACK}${has('headline')}::before {
   content: attr(headline);
@@ -136,10 +133,7 @@ ${FALLBACK}${BESIDE_LINE} {
   grid-template-columns: minmax(0, 1fr) auto;
   align-items: center;
   column-gap: ${T('header-gap')};
-}
-${FALLBACK}${BESIDE_LINE} > pre {
-  grid-area: 1 / 1;
-  min-inline-size: 0;
+  --_code-block-code-area: 1 / 1;
 }
 ${FALLBACK}${BESIDE_LINE}::after {
   content: '';
@@ -149,8 +143,12 @@ ${FALLBACK}${BESIDE_LINE}::after {
   margin-inline-end: ${T('copy-button-inset')};
 }
 /* COD-4: a line that does not fit scrolls inside the block; what scrolls is as wide as its longest line, so a line's
-   band reaches the end of it. COD-5: wrapped, as wide as the block. */
+   band reaches the end of it. COD-5: wrapped, as wide as the block. The code's cell of the header's grid (COD-8) or of
+   the one line's row (COD-10) is set on the block, where :has() asks, and inherited: a rule of the document asks :has()
+   of the element it styles (has.test.ts). */
 ${FALLBACK} > pre {
+  grid-area: var(--_code-block-code-area, auto);
+  min-inline-size: 0;
   overflow-x: auto;
 }
 ${FALLBACK}:not([wrap]) > pre > code {
