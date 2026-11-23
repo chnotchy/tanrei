@@ -617,7 +617,7 @@ const es: Dictionary = {
     menu: 'Punto de partida',
     starts: 'Empezar desde',
     defaultNote: 'El sistema predeterminado',
-    notInInit: 'Todavía no: la capa raíz de Tanrei ya es neutra —gris, sin color de acento—, pero la línea de comandos aún no puede empezar una capa desde ella (tanrei init --extends core). Se podrá elegir aquí cuando pueda.',
+    notInInit: 'Desde cero (próximamente)',
     gallery: 'Galería de temas',
     exampleNote: (name) => `${name}. Un ejemplo, no un diseño oficial.`,
     file: 'Importar un archivo…',

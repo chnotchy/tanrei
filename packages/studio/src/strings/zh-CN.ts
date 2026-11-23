@@ -615,7 +615,7 @@ const zhCN: Dictionary = {
     menu: '起点',
     starts: '从这里开始',
     defaultNote: '默认系统',
-    notInInit: '暂不可选：Tanrei 的根层现在已是中性的——灰色，没有强调色——但命令行还不能从它开始一个层（tanrei init --extends core）。等命令行可以了，这里也就能选了。',
+    notInInit: '从空白开始（即将推出）',
     gallery: '主题库',
     exampleNote: (name) => `${name}。这是示例，不是官方设计。`,
     file: '导入文件…',

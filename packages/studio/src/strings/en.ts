@@ -643,8 +643,10 @@ const en = {
     menu: 'Start point',
     starts: 'Start from',
     defaultNote: 'The default system',
-    // The root, listed but not offered: why it cannot be chosen yet.
-    notInInit: 'Not yet: Tanrei’s root layer is neutral now — grey, with no accent — but the command line cannot start a layer from it yet (tanrei init --extends core). It can be chosen here once it can.',
+    // The root, listed but not offered: what it will be, and that it is not offered yet — in a few words, as a menu
+    // item's line says it (why it is not yet is the documentation's: its values are neutral, and the command line
+    // cannot start a layer from it yet).
+    notInInit: 'A blank start (coming soon)',
     // The examples of the gallery, under their own title: each a showcase of what a layer can imitate, not the official
     // design it follows. The title reads as the first group's, «Start from»: a start, said as what it is made from.
     gallery: 'Theme gallery',

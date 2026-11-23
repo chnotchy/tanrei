@@ -609,7 +609,7 @@ const ja: Dictionary = {
     menu: '開始点',
     starts: 'ここから始める',
     defaultNote: '既定のシステム',
-    notInInit: 'まだ選べません。Tanrei のルートレイヤーはもう中立です（グレーで、アクセントはありません）。ただ、コマンドラインからはまだこのレイヤーを起点にできません（tanrei init --extends core）。できるようになると、ここでも選べます。',
+    notInInit: '白紙から（準備中）',
     gallery: 'テーマギャラリー',
     exampleNote: (name) => `${name}。例であり、公式のデザインではありません。`,
     file: 'ファイルを読み込む…',

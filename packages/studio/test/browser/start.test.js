@@ -30,7 +30,7 @@ const report = (page) => page.locator('[data-import-report]');
 /** The snackbar the Studio shows after a step that replaced the layer. */
 const snackbar = (page) => page.locator('[data-snackbars] tanrei-snackbar');
 
-studioTest('the bar’s start point: the default system, the root listed and not offered with its reason, the examples of the gallery, and a file', {}, async ({ page, axe, targets }) => {
+studioTest('the bar’s start point: the default system, the root listed and not offered, said to be coming, the examples of the gallery, and a file', {}, async ({ page, axe, targets }) => {
   assert.equal(await label(page), 'Start: Tanrei');
   // The button says it opens a menu, and whether it is open (on the native button its shadow root holds).
   const aria = (name) => page.locator('[data-start-open]').evaluate((el, attribute) => el.shadowRoot.querySelector('button').getAttribute(attribute), name);
@@ -41,7 +41,7 @@ studioTest('the bar’s start point: the default system, the root listed and not
   const rows = await menu(page).locator('tanrei-menu-group').evaluateAll((groups) => groups.map((group) => [group.getAttribute('label'), group.value, [...group.querySelectorAll('tanrei-menu-radio-item')].map((item) => [item.value, item.label, item.supportingText, item.disabled])]));
   assert.deepEqual(rows[0], ['Start from', 'tanrei', [
     ['tanrei', 'Tanrei', 'The default system', false],
-    ['core', 'Core', 'Not yet: Tanrei’s root layer is neutral now — grey, with no accent — but the command line cannot start a layer from it yet (tanrei init --extends core). It can be chosen here once it can.', true],
+    ['core', 'Core', 'A blank start (coming soon)', true],
   ]]);
   assert.equal(rows[1][0], 'Theme gallery');
   assert.equal(rows[1][1], null, 'no example is the start');
