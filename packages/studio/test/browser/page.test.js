@@ -163,12 +163,16 @@ studioTest('the measure of the targets can fail: a control drawn 20 pixels high,
   await assert.rejects(targets('a covered button'), /button\.ts-own «low» .* a neighbour answers inside it/);
 });
 
-studioTest('the preview’s contrast switch changes what the real components draw: standard, medium, high', {}, async ({ page, scope, lightPane, choose, css, axe }) => {
+studioTest('the preview’s contrast switch changes what the real components draw: standard, medium, high', {}, async ({ page, scope, lightPane, css, axe }) => {
   const button = lightPane.locator('tanrei-button').first();
   const inner = button.locator('button');
   const seen = {};
+  // The contrast is in the menu at the end of the preview's bar: a group of three levels.
+  const menu = page.locator('[data-view-menu]');
   for (const contrast of ['standard', 'medium', 'high']) {
-    await choose(page.locator('[data-contrast]'), contrast);
+    if (!(await menu.evaluate((el) => el.open))) await page.locator('[data-view-more]').click();
+    await until(async () => menu.evaluate((el) => el.open), 'the menu is open');
+    await page.locator(`[data-contrast] tanrei-menu-radio-item[data-value="${contrast}"]`).click();
     await until(async () => (await scope.getAttribute('data-tanrei-contrast')) === contrast, `the preview scope is at ${contrast}`);
     // Colors transition; read the settled value.
     await until(async () => {
@@ -232,7 +236,7 @@ for (const locale of ['ja', 'es', 'zh-CN', 'hi']) {
     }
     // How the screens are seen stands on one line under their tabs; what a phone has no room for scrolls in its box.
     const conditions = await page.evaluate(() => [...document.querySelector('.ts-preview-conditions').children].filter((el) => el.getClientRects().length).map((el) => { const box = el.getBoundingClientRect(); return Math.round(box.top + box.height / 2); }));
-    assert.ok(conditions.length >= 3 && Math.max(...conditions) - Math.min(...conditions) <= 2, `the scheme, the contrast and the emphasis share a line: ${conditions}`);
+    assert.ok(conditions.length >= 2 && Math.max(...conditions) - Math.min(...conditions) <= 2, `the scheme, and the button of the contrast and the emphasis, share a line: ${conditions}`);
   });
 }
 

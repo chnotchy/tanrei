@@ -101,6 +101,35 @@ for (const engine of ENGINES) {
       }
     });
 
+    test('1440 wide, in each of the six languages, light and dark: the preview’s bar is one line — the screens, the scheme, and the button of the contrast and the emphasis — each label whole', LIMIT, async () => {
+      for (const prefix of ['', '/ja', '/es', '/ar', '/hi', '/zh-cn']) {
+        for (const colorScheme of ['light', 'dark']) {
+          const { page, problems, close } = await open(browser, { url: `${prefix}/studio/`, colorScheme });
+          try {
+            const bar = await page.evaluate(() => {
+              const shown = [...document.querySelectorAll('.ts-preview-bar > tanrei-tabs, .ts-preview-conditions > *')].filter((el) => el.getClientRects().length);
+              const middles = shown.map((el) => { const r = el.getBoundingClientRect(); return Math.round(r.top + r.height / 2); });
+              const box = document.querySelector('.ts-preview-bar').getBoundingClientRect();
+              // A tab's label cut short: wider than the room its tab gives it. A row of tabs that scrolls: a tab out of sight.
+              const cut = [...document.querySelectorAll('.ts-preview-bar tanrei-tab')].map((tab) => tab.shadowRoot.querySelector('[part~="label"]')).filter((label) => label && label.scrollWidth > label.clientWidth + 1).map((label) => label.textContent);
+              for (const tabs of document.querySelectorAll('.ts-preview-bar tanrei-tabs')) {
+                const scroller = tabs.shadowRoot.querySelector('[part~="scroller"]');
+                if (scroller.scrollWidth > scroller.clientWidth + 1) cut.push(`${tabs.getAttribute('label')} scrolls`);
+              }
+              return { spread: Math.max(...middles) - Math.min(...middles), count: shown.length, inside: shown.every((el) => { const r = el.getBoundingClientRect(); return r.left >= box.left - 1 && r.right <= box.right + 1; }), cut };
+            });
+            assert.ok(bar.spread <= 2 && bar.count >= 3 && bar.inside, `${prefix || '/en'} ${colorScheme}: the bar is one line, inside the preview: ${JSON.stringify(bar)}`);
+            assert.deepEqual(bar.cut, [], `${prefix || '/en'} ${colorScheme}: no label is cut`);
+            const [label, tip] = await page.locator('[data-view-more]').evaluate((el) => [el.label, el.parentElement.localName === 'tanrei-tooltip' && el.parentElement.text]);
+            assert.ok(label && label === tip, `the button that shows its glyph alone is named, and its tooltip says its name: ${label} / ${tip}`);
+            assert.deepEqual(problems, []);
+          } finally {
+            await close();
+          }
+        }
+      }
+    });
+
     test('a device in dark: the page follows it, and the preview opens in dark too, until the person chooses', LIMIT, async () => {
       const { page, close } = await open(browser, { colorScheme: 'dark' });
       try {

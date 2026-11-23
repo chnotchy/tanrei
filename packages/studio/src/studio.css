@@ -510,7 +510,8 @@
   --ts-lit-fade: var(--tanrei-sys-motion-duration-medium2);
 }
 /* The bar: the screens at its start, and at its end how they are seen — the note that none of it is saved, the scheme,
-   the contrast, the emphasis — on one line where the preview has the room, on two where it has not. */
+   and the button of the contrast and the emphasis — on one line beside the rail and the panel of a window 1440px wide,
+   in each of the Studio's languages; on two only where the person has widened the panel past that. */
 .ts-preview-bar {
   display: flex;
   flex-wrap: wrap;
@@ -537,16 +538,20 @@
   min-inline-size: 0;
   max-inline-size: 100%;
 }
+/* The note is the bar's longest words: drawn where the preview has room for it beside the screens in every language
+   (the Spanish ones are the longest), else read as the group's name and not drawn. */
 .ts-preview-note {
+  display: none;
   font: var(--tanrei-sys-typescale-label-small-font-weight) var(--tanrei-sys-typescale-label-small-font-size)/var(--tanrei-sys-typescale-label-small-line-height) var(--tanrei-sys-typescale-label-small-font-family);
   letter-spacing: var(--tanrei-sys-typescale-label-small-letter-spacing);
   color: var(--tanrei-sys-color-on-surface-variant);
 }
-@media (max-width: 63.999rem) {
-  /* The preview is short on a phone: the note is the bar's longest words, and the first to go (the group keeps its name). */
+@container ts-preview (min-width: 68rem) {
   .ts-preview-note {
-    display: none;
+    display: inline;
   }
+}
+@media (max-width: 63.999rem) {
   /* How the screens are seen is one line under their tabs, in every language: what a phone has no room for scrolls
      sideways in the line's own box (the bar is not three lines in Spanish), its controls kept whole. */
   .ts-preview-conditions {

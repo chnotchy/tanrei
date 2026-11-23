@@ -345,6 +345,7 @@ const zhCN: Dictionary = {
     stale: '层有问题，具体是什么问题，见“导出”。预览显示的是最后一个有效的状态。',
     emphasized: '强调',
     emphasizedHelp: '绘制文本样式时，在字重上加上其字体族的强调级差（sys.typescale.emphasis.*）。',
+    more: '对比度与强调',
   },
   sample: {
     headline: '默认就恰到好处',

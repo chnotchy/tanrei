@@ -137,7 +137,7 @@ studioTest('a state that is pressed is a small chip with its glyph: the count of
   assert.equal(await page.locator('[data-source]').inputValue(), '{ "draft": ');
 });
 
-studioTest('the platform switch is a Switch named with the keyword it writes, the «Emphasized» box a Checkbox, the preview’s toggle a real toggle Button', { layer }, async ({ page, section, saved, lightPane }) => {
+studioTest('the platform switch is a Switch named with the keyword it writes, «Emphasized» a checkbox item of the preview’s menu, the preview’s toggle a real toggle Button', { layer }, async ({ page, section, saved, lightPane }) => {
   await section('typeface');
   const brand = page.locator('[data-typeface="brand"]');
   const platform = brand.locator('[data-stack-system]');
@@ -154,12 +154,21 @@ studioTest('the platform switch is a Switch named with the keyword it writes, th
   await platform.locator('[part="label"]').click();
   await saved((file) => !file.tokens?.['tanrei.ref.typeface.brand'] || file.tokens['tanrei.ref.typeface.brand'].$value[0] !== 'system-ui', 'a press on the label switches it off');
 
-  const emphasized = page.locator('[data-emphasized-toggle]');
-  assert.equal(await emphasized.evaluate((el) => el.localName), 'tanrei-checkbox');
-  assert.equal(await page.getByRole('checkbox', { name: 'Emphasized', exact: true }).count(), 1);
-  await emphasized.focus();
-  await page.keyboard.press('Space');
-  assert.equal(await page.locator('[data-scope]').getAttribute('data-emphasized'), '', 'Space checks it, and the samples are drawn emphasized');
+  // «Emphasized» is a checkbox item of the menu at the end of the preview's bar, which a button with a glyph opens: the
+  // button is named, and opened from the keyboard its menu takes the focus.
+  const more = page.locator('[data-view-more]');
+  assert.deepEqual(await more.evaluate((el) => [el.label, el.parentElement.localName, el.parentElement.text]), ['Contrast and emphasis', 'tanrei-tooltip', 'Contrast and emphasis']);
+  await more.focus();
+  await page.keyboard.press('Enter');
+  await page.waitForFunction(() => document.querySelector('[data-view-menu]')?.open === true);
+  const emphasized = page.getByRole('menuitemcheckbox', { name: 'Emphasized', exact: true });
+  assert.equal(await emphasized.count(), 1);
+  assert.equal(await page.locator('[data-emphasized-toggle]').evaluate((el) => el.localName), 'tanrei-menu-checkbox-item');
+  await emphasized.click();
+  assert.equal(await page.locator('[data-scope]').getAttribute('data-emphasized'), '', 'checked, the samples are drawn emphasized');
+  assert.equal(await page.locator('[data-emphasized-toggle]').evaluate((el) => el.checked), true);
+  if (await page.locator('[data-view-menu]').evaluate((menu) => menu.open)) await page.keyboard.press('Escape');
+  await page.waitForFunction(() => document.querySelector('[data-view-menu]')?.open === false);
 
   // The overview's toggle is a product's: an icon-only Favorite, on — its name is its label, and it says whether it is on.
   const toggle = lightPane.locator('[data-sample-toggle]').first();

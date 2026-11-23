@@ -339,6 +339,7 @@ const ja: Dictionary = {
     stale: 'レイヤーに問題があります。何が問題かはエクスポートに出ています。プレビューは最後に有効だった状態を表示しています。',
     emphasized: '強調',
     emphasizedHelp: '各テキストスタイルを、その系統の強調ステップ（sys.typescale.emphasis.*）を太さに加えて描きます。',
+    more: 'コントラストと強調',
   },
   sample: {
     headline: 'デフォルトのままで自然',
