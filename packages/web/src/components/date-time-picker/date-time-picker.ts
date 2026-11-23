@@ -3072,7 +3072,7 @@ export class TanreiDateTimePicker extends TanreiElement {
   }
 
   /** DTM-23: the numbers of a unit around the dial, clockwise from the top (two rings for the 24-hour hours). */
-  /** DTM-23, DTM-50: … each with whether the value it names is available. */
+  /** DTM-23, DTM-50: … each with whether the value it names is available. DTM-24: … and whether it is the pending value, the number the handle covers. */
   private dialNumbers(unit: Unit) {
     const { locale, cycle, step } = this.cfg;
     const time = this.time;
@@ -3082,6 +3082,7 @@ export class TanreiDateTimePicker extends TanreiElement {
         text: numberText(locale, minute, 2),
         inner: false,
         available: this.offers('minute', { ...time, minute }),
+        covered: minute === time.minute,
         ...direction(minute * 6),
       }));
     }
@@ -3090,12 +3091,18 @@ export class TanreiDateTimePicker extends TanreiElement {
         text: numberText(locale, value(index), digits),
         inner,
         available: this.offers('hour', { ...time, hour: hour(value(index)) }),
+        covered: hour(value(index)) === time.hour,
         ...direction(index * 30),
       }));
     if (cycle === 'h12') return ring(false, (index) => (index === 0 ? 12 : index), (value) => hourOf12(value, periodOf(time.hour)), 1);
     return [...ring(false, (index) => index, (value) => value, 2), ...ring(true, (index) => index + 12, (value) => value, 2)];
   }
 
+  /**
+   * The numbers of both units, as the face draws them and as the copy inside the handle does. DTM-24: the shown unit's
+   * pending value is marked `data-covered` in both: the handle lies wholly over it, the face does not draw it, and the
+   * copy draws it there in selected-label.color.
+   */
   private numbers() {
     const layer = (unit: Unit) =>
       html`<div class=${classMap({ numbers: true, [`${unit}s`]: true, faded: this.shownUnit !== unit })}>
@@ -3104,6 +3111,7 @@ export class TanreiDateTimePicker extends TanreiElement {
             html`<span
               class=${classMap({ number: true, inner: number.inner, outer: !number.inner })}
               ?data-unavailable=${!number.available}
+              ?data-covered=${number.covered && this.shownUnit === unit}
               style=${styleMap({ '--_x': String(number.x), '--_y': String(number.y) })}
               >${number.text}</span
             >`,

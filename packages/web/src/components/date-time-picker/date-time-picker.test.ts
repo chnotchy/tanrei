@@ -1681,6 +1681,72 @@ test.describe('the time', () => {
     expect(await host(page, 'a').locator('.dial').evaluate((el) => el.style.getPropertyValue('--_angle'))).toBe('192deg');
   });
 
+  test('DTM-23, DTM-24: on the 24-hour dial the inner ring stands where its neighbouring numbers are as far apart as the two rings, so the handle on any of the 24 hours leaves every other number’s centre at least half the handle and half the label’s size away; the one number it covers lies wholly under it and is drawn only by the copy inside it, in en-US, ja-JP and ar', async ({ page }) => {
+    for (const locale of ['en-US', 'ja-JP', 'ar-EG']) {
+      // Reduced motion: the handle is where the value is as soon as it changes (DTM-26).
+      await mount(page, [opened('b', { mode: 'time', value: '00:30', hourCycle: 'h23', entryMode: 'dial', locale })], { reducedMotion: true });
+      const [handleSize, fontSize] = [await resolveToken(page, T('dial-handle-size')), await resolveToken(page, T('dial-label-typescale-font-size'))];
+      const rings = await host(page, 'b').evaluate((el) => {
+        const root = el.shadowRoot!;
+        const d = root.querySelector('.dial')!.getBoundingClientRect();
+        const radius = (n: Element) => {
+          const r = n.getBoundingClientRect();
+          return Math.hypot(r.left + r.width / 2 - (d.left + d.width / 2), r.top + r.height / 2 - (d.top + d.height / 2));
+        };
+        return { outer: radius(root.querySelector('.face .hours .outer')!), inner: radius(root.querySelector('.face .hours .inner')!) };
+      });
+      expect(rings.inner, `${locale}: the inner ring's radius`).toBeCloseTo(rings.outer / (1 + 2 * Math.sin(Math.PI / 12)), 0);
+      await selector(page, 'b', 'hour').focus();
+      for (let hour = 0; hour < 24; hour++) {
+        if (hour) await page.keyboard.press('ArrowUp');
+        await expect(selector(page, 'b', 'hour')).toHaveAttribute('aria-valuenow', String(hour));
+        const found = await host(page, 'b').evaluate((el) => {
+          const root = el.shadowRoot!;
+          const h = root.querySelector('.handle')!.getBoundingClientRect();
+          const centre = { x: h.left + h.width / 2, y: h.top + h.height / 2 };
+          const covered = [...root.querySelectorAll<HTMLElement>('.face .hours .number[data-covered]')];
+          const others = [...root.querySelectorAll<HTMLElement>('.face .hours .number:not([data-covered])')].map((n) => {
+            const r = n.getBoundingClientRect();
+            return { text: n.textContent!, distance: Math.hypot(r.left + r.width / 2 - centre.x, r.top + r.height / 2 - centre.y), visibility: getComputedStyle(n).visibility };
+          });
+          const corners = covered.flatMap((n) => {
+            const r = n.getBoundingClientRect();
+            return [[r.left, r.top], [r.right, r.top], [r.left, r.bottom], [r.right, r.bottom]].map(([x, y]) => Math.hypot(x! - centre.x, y! - centre.y));
+          });
+          return { covered: covered.map((n) => ({ text: n.textContent!, visibility: getComputedStyle(n).visibility })), others, farthestCorner: Math.max(...corners) };
+        });
+        const what = `${locale} ${hour}`;
+        expect(found.covered.length, `${what}: one number is covered`).toBe(1);
+        expect(found.covered[0]!.visibility, `${what}: the face does not draw the covered number`).toBe('hidden');
+        expect(found.farthestCorner, `${what}: the covered number lies wholly under the handle`).toBeLessThanOrEqual(handleSize / 2);
+        for (const other of found.others) {
+          expect(other.distance, `${what}: ${other.text} stands clear of the handle`).toBeGreaterThanOrEqual(handleSize / 2 + fontSize / 2 - 0.5);
+          expect(other.visibility, `${what}: ${other.text} is drawn`).toBe('visible');
+        }
+      }
+    }
+  });
+
+  test('DTM-24: the number under the handle is drawn by the copy inside it in dial.selected-label.color, and axe checks its contrast on the handle — the face’s covered number is not drawn and not checked — in light and dark', async ({ page }) => {
+    for (const theme of ['light', 'dark'] as const) {
+      await mount(page, [opened('b', { mode: 'time', value: '19:30', hourCycle: 'h23', entryMode: 'dial' })], { theme });
+      const results = await (await pickerAxe(page)).withRules(['color-contrast']).analyze();
+      const nodes = (kind: 'passes' | 'violations' | 'incomplete') => results[kind].flatMap((rule) => rule.nodes).map((node) => ({ target: JSON.stringify(node.target), html: node.html.replace(/<!--[^>]*-->/g, '') }));
+      expect(nodes('violations'), theme).toEqual([]);
+      const number = /^<span class="[^"]*number[^"]*"[^>]*>(\d\d)<\/span>$/;
+      const copy = nodes('passes').filter((node) => node.target.includes('.copy') && node.html.includes('data-covered'));
+      expect(copy.map((node) => number.exec(node.html)?.[1]), `${theme}: the copy's 19 on the handle is checked, and passes`).toEqual(['19']);
+      expect(nodes('passes').filter((node) => node.target.includes('.face') && node.html.includes('data-covered')), `${theme}: the face's 19, which the handle covers, is not drawn and not checked`).toEqual([]);
+      // The face's other 23 numbers are checked on the dial, but for the four whose centres lie inside the box of the
+      // turned handle (axe reads a turned element as the box around it, not as the circle it draws), which it leaves
+      // undecided, never failed: 18 and 20 beside the handle, 06 and 07 beyond it.
+      const face = new Set(nodes('passes').filter((node) => node.target.includes('.face')).map((node) => number.exec(node.html)?.[1]));
+      const all = Array.from({ length: 24 }, (_, hour) => String(hour).padStart(2, '0')).filter((hour) => hour !== '19');
+      expect(all.filter((hour) => !face.has(hour)), `${theme}: the face's numbers axe leaves undecided`).toEqual(['06', '07', '18', '20']);
+      expect(await css(host(page, 'b').locator('.copy .hours .number').filter({ hasText: /^19$/ }), 'color')).toBe(await resolveColor(page, T('dial-selected-label-color')));
+    }
+  });
+
   test('DTM-25: a press or drag on the dial moves the handle at once to the nearest value (the nearer ring for 24 hours, a minute of the step); a press on the hour dial ends on the minute dial, focus moved there from the hour selector; the dial is hidden', async ({ page }) => {
     await mount(page, [inline('a', { mode: 'time', value: '07:30', hourCycle: 'h12', entryMode: 'dial' }), inline('b', { mode: 'time', value: '07:30', hourCycle: 'h23', entryMode: 'dial' })], { window: { width: 480, height: 1600 } });
     const dial = host(page, 'a').locator('.dial');
@@ -3566,6 +3632,30 @@ test.describe('bounds of the time', () => {
   });
 });
 
+/**
+ * axe over the stage, as the picker stands in a product's page.
+ * - axe checks the contrast of text only within the boxes of its ancestors whose overflow is hidden. An open modal
+ *   picker holds the page (`overflow: hidden` on the root, DTM-1), and the stage's document is as tall as its stage
+ *   alone (32 px), so axe took the whole top-layer surface for clipped away by the root and checked the contrast of none
+ *   of its text (color-contrast inapplicable in every modal fixture). The root is made as tall as the window, as a page's
+ *   root is wherever it is held, so axe reads every word and number of the surface.
+ * - A value outside min and max (DTM-50) is one the picker does not offer — a wheel's row, a dial's number, a period —
+ *   drawn faded inside a part hidden from assistive technology, whose spin button offers only the others: an inactive
+ *   value, whose text WCAG 1.4.3 exempts from contrast. Nothing in the hidden part says so to axe, so the stage says it,
+ *   as a disabled control would (`aria-disabled`). Every value the picker offers is held to 4.5:1.
+ * - The copy inside the dial's handle (DTM-24) holds every number, clipped to the handle: of a number other than the
+ *   pending one only a sliver of its edge ever lies under the handle, drawn in the copy's color on the handle, the pair of
+ *   the pending number, which is checked. axe reads a number's whole box, and would pair the copy's color with the dial
+ *   beside the handle, where the copy draws nothing, so those clipped copies are left out.
+ */
+async function pickerAxe(page: P): Promise<AxeBuilder> {
+  await page.addStyleTag({ content: 'html { min-block-size: 100%; }' });
+  await page.evaluate(() => {
+    for (const picker of document.querySelectorAll('tanrei-date-time-picker')) for (const value of picker.shadowRoot!.querySelectorAll('[data-unavailable]')) value.setAttribute('aria-disabled', 'true');
+  });
+  return new AxeBuilder({ page }).include('.stage').exclude({ fromShadowDom: ['tanrei-date-time-picker', '.copy .number:not([data-covered])'] });
+}
+
 test.describe('accessibility', () => {
   // A test per fixture — each alone in its window, a docked one open from its anchor — and so a page per fixture, of
   // two mounts (light, dark). One page that mounted all 31 fixtures in both themes (62 mounts, each document carrying
@@ -3581,7 +3671,11 @@ test.describe('accessibility', () => {
         // its entrance (MOT-4): axe reads it at rest — its contrast is that of the surface at full opacity — once every
         // motion in the page has ended, not after a fixed wait, which a loaded machine's entrance outlasts.
         await motionEnded(page);
-        const results = await new AxeBuilder({ page }).include('.stage').analyze();
+        const results = await (await pickerAxe(page)).analyze();
+        if (fixture.props.presentation !== 'docked') {
+          const contrast = [...results.passes, ...results.violations, ...results.incomplete].filter((rule) => rule.id === 'color-contrast').flatMap((rule) => rule.nodes);
+          expect(contrast.length, `${fixture.id} ${theme}: axe checks the contrast of the modal surface's text`).toBeGreaterThan(0);
+        }
         expect(results.violations, `${fixture.id} ${theme}: ${results.violations.map((v) => `${v.id} ${v.nodes.map((n) => n.target).join(' ')}`).join(', ')}`).toEqual([]);
       }
     });
