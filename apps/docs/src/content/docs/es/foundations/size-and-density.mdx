@@ -20,9 +20,9 @@ Muchos componentes toman sus alturas de estos escalones, y los que leen el mismo
 
 ## El objetivo mínimo
 
-`tanrei.sys.target.minimum` es la altura mínima a la que se dibuja todo lo que una persona pulsa, y el ancho mínimo de un control que solo tiene icono. Toda altura de una caja o de una fila que se pulsa se deriva con él como suelo, así que ningún tamaño la dibuja más baja. Es el valor del desarrollador: ningún dial lo escala, porque un suelo que encogiera con lo que limita no sería un suelo.
+`tanrei.sys.target.minimum` es la altura mínima del área de la que se toma una pulsación, y el ancho mínimo de la de un control que solo tiene icono. Un control que está solo, como un Button, la caja de una entrada o un botón segmentado, se dibuja en el escalón de su tamaño y toma la pulsación del objetivo que lo rodea. Una fila que toca a sus vecinas, como la de un menú, una lista o un árbol, no puede extenderse sobre ellas, así que su altura se deriva con el mínimo como suelo y ningún tamaño la dibuja más baja. Es el valor del desarrollador: ningún dial lo escala, porque un suelo que encogiera con lo que limita no sería un suelo.
 
-En el sistema predeterminado, el mínimo es 36, igual para un puntero que para un dedo: la propia altura de control, de modo que un control pequeño se mantiene tan alto como uno mediano y se distingue de él por el texto y el relleno. Las alturas del Button muestran cómo actúa: un valor entre paréntesis es lo que dan el tamaño y la altura de control, y la altura que lo precede es la que el mínimo mantiene en el botón.
+En el sistema predeterminado, el mínimo es 36, igual para un puntero que para un dedo: la propia altura de control. Un Button pequeño se dibuja con 28 de alto y toma la pulsación de los 36 que lo rodean; una fila de menú pequeña se dibuja con 36 de alto. Las alturas del Button siguen la escala con cualquier altura de control:
 
 <DialHeights group="comp.button.container.height" dial="control.height" values={[36, 40, 44, 48, 56]} source="tokens/comp/button.tokens.json" />
 
