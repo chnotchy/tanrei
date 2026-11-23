@@ -18,9 +18,33 @@ studioTest('the rail lists the nine rows, then the rest; each shows its panel, a
   assert.equal(await page.locator('[data-rail]').evaluate((el) => el.localName), 'nav', 'a navigation region');
   assert.deepEqual(await current(page), ['color'], 'the brand color first');
   assert.deepEqual(await panels(page), ['brand']);
-  // Every row says what it holds — whole, never cut (an icon set by the name of its style) — and draws a sample.
+  // Every row says what it holds (an icon set by the name of its style) and draws a sample.
   assert.deepEqual(await Promise.all(ROWS.map((row) => value(page, row))), ['none (monochrome)', 'neutral', 'Inter', '40px · minimum 36px', '2px', 'none', 'Rounded · 300', 'overlay', 'ring']);
-  assert.deepEqual(await page.locator('[data-rail] .ts-rail-value').evaluateAll((els) => els.filter((el) => el.scrollWidth > el.clientWidth).map((el) => el.textContent)), [], 'no value is cut');
+  // As the approved design draws it, what a row holds is one line: where it is too long for the rail it is cut at its
+  // end with an ellipsis — the word «default» after the value first, then the value — and the whole value is still the
+  // row's: in its accessible name, and the line's tooltip.
+  const lines = () =>
+    page.locator('[data-rail-rows] .ts-rail-line').evaluateAll((els) =>
+      els.map((line) => {
+        const value = line.querySelector('.ts-rail-value');
+        const end = value.getBoundingClientRect();
+        const room = line.getBoundingClientRect();
+        return { row: line.closest('[data-row]').dataset.row, lines: Math.round(room.height / parseFloat(getComputedStyle(line).lineHeight)), cut: line.scrollWidth > line.clientWidth, valueCut: end.right > room.right + 1, title: line.title, text: value.textContent, ellipsis: getComputedStyle(line).textOverflow };
+      }),
+    );
+  const now = await lines();
+  for (const line of now) {
+    assert.deepEqual([line.lines, line.title, line.ellipsis], [1, line.text, 'ellipsis'], `${line.row}: one line, cut with an ellipsis, its tooltip the whole value`);
+  }
+  assert.deepEqual(now.filter((line) => line.valueCut).map((line) => line.row), [], 'every value of the start is whole beside the rail’s samples');
+  assert.deepEqual(now.filter((line) => line.cut).map((line) => line.row), ['color', 'size'], '«default» gives way after «none (monochrome)» and «40px · minimum 36px»');
+  // A family whose name is longer than the rail: cut, and whole in the row's name and its tooltip.
+  const family = 'Noto Sans Display Extra Condensed SemiBold';
+  assert.equal(await page.evaluate((name) => window.tanreiStudio.applyOperation('tanrei.ref.typeface.brand', { $value: [name, 'sans-serif'], reason: 'Our brand face.' }), family), null);
+  await page.waitForFunction((name) => document.querySelector('[data-rail] [data-row="typeface"] .ts-rail-value')?.textContent === name, family);
+  const typeface = (await lines()).find((line) => line.row === 'typeface');
+  assert.deepEqual([typeface.lines, typeface.cut, typeface.valueCut, typeface.title], [1, true, true, family]);
+  assert.equal(await page.getByRole('button', { name: `Typeface ${family}`, exact: true }).count(), 1, 'the cut value is whole in the row’s name');
   assert.equal(await page.locator('[data-rail] .ts-sample').count(), ROWS.length);
   // Each row, and each item after them, ends in a chevron: it opens its controls.
   assert.equal(await page.locator('[data-rail] .ts-rail-chevron').count(), ROWS.length + MORE.length);

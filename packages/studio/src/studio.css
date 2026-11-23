@@ -1219,21 +1219,18 @@
 .ts-rail-link[aria-current='true'] .ts-rail-label {
   color: inherit;
 }
-/* What the row holds, and after it whether that is what the start gives. */
+/* What the row holds, and after it whether that is what the start gives: one line of text, as the approved design
+   draws a row — its name, then that line. Where the line is too long for the rail it is cut at its end with an
+   ellipsis: the word after the value goes first, then the value. The whole value is the row's name for assistive
+   technology (its text) and the line's tooltip (rail.ts). */
 .ts-rail-line {
   grid-column: 1;
-  display: flex;
-  align-items: baseline;
-  gap: var(--tanrei-sys-space-space75);
   min-inline-size: 0;
-}
-/* A value is shown whole: a long one wraps under the row's name rather than being cut. */
-.ts-rail-line {
-  flex-wrap: wrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 .ts-rail-value {
-  min-inline-size: 0;
-  overflow-wrap: anywhere;
   font-weight: 500;
 }
 /* The chevron: a row, or an item, opens its controls. It points toward the end edge. */
@@ -1248,7 +1245,7 @@
   transform: scaleX(-1);
 }
 .ts-rail-default {
-  flex: none;
+  margin-inline-start: var(--tanrei-sys-space-space75);
   font-size: var(--ts-text-2xs);
   color: var(--tanrei-sys-color-on-surface-variant);
 }
