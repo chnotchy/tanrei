@@ -102,6 +102,22 @@ export const styles = css`
     border-radius: inherit;
     corner-shape: inherit;
     pointer-events: none;
+    /* The part holds the edge's values but draws nothing itself: an element over the content is what a contrast
+       checker sees covering the text, so it left the sheet's text unchecked. Its ::before draws the same edge, at the
+       same place in the paint order, as no element. */
+    visibility: hidden;
+  }
+  /* The part's border box: a positioned child is placed in the part's padding box, which starts after the edge. */
+  .edge::before {
+    content: '';
+    position: absolute;
+    inset-block: 0;
+    inset-inline: calc(${t('outline-width')} * -1) 0;
+    visibility: visible;
+    border-inline-start: inherit;
+    border-radius: inherit;
+    corner-shape: inherit;
+    pointer-events: none;
   }
 
   /* SSH-8, SSH-9, SSH-14: the header — a row at least header.height high, the headline from container.padding-inline
