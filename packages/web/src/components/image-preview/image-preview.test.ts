@@ -2671,8 +2671,7 @@ test.describe('direction, colors, text size and the window', () => {
         return { own: read(), before: read('::before'), after: read('::after'), children: el.childElementCount, pressed: el.hasAttribute('data-pressed') };
       });
     const rest_ = await drawn();
-    // Transparent too: it draws nothing either way, and so it is no element over the error text to a contrast checker.
-    expect(rest_.own.slice(0, 5)).toEqual(['rgba(0, 0, 0, 0)', 'none', 'none', '0', 'none']);
+    expect(rest_.own.slice(0, 5)).toEqual(['rgba(0, 0, 0, 0)', 'none', 'none', '1', 'none']);
     expect(rest_.children).toBe(0);
     const image_ = (await look(page)).image;
     await page.mouse.move(300, 340);

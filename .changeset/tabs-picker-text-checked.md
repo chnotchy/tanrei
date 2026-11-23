@@ -11,6 +11,7 @@ which takes no pointer of its own, so the pointer over the label is still over t
 `<tanrei-date-time-picker>`, each wheel's control (the spin button on its middle row) is transparent until something
 is typed into it, when it draws what was typed as before, and the dial's arm and the copy of its numbers inside the
 handle, boxes as large as the dial that draw nothing themselves, are hidden with what they hold still drawn. In
-`<tanrei-image-preview>`, the stage, which draws nothing, is transparent, and the boxes that carry the stage's and the
-caption's focus indicators draw them by their `::before`. Each still takes focus, the pointer and the keys as it did.
+`<tanrei-image-preview>`, the stage, which draws nothing, lies under the images and the error text, which take no
+pointer, so a press on them still reaches it, and the boxes that carry the stage's and the caption's focus indicators
+draw them by their `::before`. Each still takes focus, the pointer and the keys as it did.
 Nothing a component draws changes, in any fixture, theme, hover or focus, in Chromium, Firefox or WebKit.
