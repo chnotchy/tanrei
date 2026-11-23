@@ -48,10 +48,10 @@ studioTest('the bar’s start point: the default system, the root listed and not
   assert.deepEqual(rows[1][2].map(([id]) => id).sort(), ['cupertino', 'm3-like']);
   for (const [id, , note, disabled] of rows[1][2]) assert.ok(note.endsWith('An example, not an official design.') && !disabled, id);
   assert.equal(await menu(page).locator('[data-start-file]').getAttribute('label'), 'Import a file…');
-  // The root is reachable from the keyboard, says it is disabled — its reason is its description — and pressing it does nothing.
+  // The root is reachable from the keyboard, says it is disabled — that it is coming is its description — and pressing it does nothing.
   const core = menu(page).locator('[data-start="core"]');
   assert.equal(await core.getAttribute('aria-disabled'), 'true');
-  assert.match(await core.getAttribute('aria-description'), /^Not yet: /);
+  assert.equal(await core.getAttribute('aria-description'), 'A blank start (coming soon)');
   const focused = () => core.evaluate((el) => el === document.activeElement);
   for (let step = 0; step < 6 && !(await focused()); step += 1) await page.keyboard.press('ArrowDown');
   assert.equal(await focused(), true, 'the arrow keys reach the root');
