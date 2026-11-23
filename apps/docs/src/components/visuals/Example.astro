@@ -337,7 +337,9 @@ const SNAPSHOT = '(window.docsExampleSources ??= new WeakMap()).set(document.cur
   /* A stage away from the view keeps the room it had as the page's script started (lib/example.ts, `hold`) for as long
      as it holds its elements back: a tag defined meanwhile for another part of the page upgrades its elements too,
      and they would otherwise grow it in that frame and move everything below it. It takes the room they take once its
-     mark is taken away. (The stage clips what overflows it, `overflow-y: hidden` in `@tanrei/web/figure.css`.) */
+     mark is taken away: as it comes near, or as soon as they are all defined while it is below the view (lib/example.ts
+     defines them once the page is idle after its load). (The stage clips what overflows it, `overflow-y: hidden` in
+     `@tanrei/web/figure.css`.) */
   .docs-example-stage[data-example-pending][data-example-held] {
     block-size: var(--docs-example-held);
   }
