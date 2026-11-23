@@ -537,7 +537,7 @@ const es: Dictionary = {
   a11y: {
     title: 'Accesibilidad',
     help: 'Contraste y estructura según WCAG, calculados en vivo por las mismas comprobaciones de la compilación. Los umbrales son constantes: 4.5:1 para el texto, 3:1 para lo que no es texto y 7:1 para el texto en contraste alto. En la capa de un producto, un incumplimiento es una advertencia, nunca un bloqueo.',
-    pass: 'Todas las comprobaciones se superan',
+    pass: 'Todo correcto',
     warnings: (count) => (count === 1 ? '1 advertencia' : `${count} advertencias`),
     all: 'Todo lo que notificaría tanrei build',
     none: 'Nada que notificar en ninguno de los seis esquemas.',
