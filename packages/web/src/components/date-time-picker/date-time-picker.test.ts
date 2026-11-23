@@ -2374,59 +2374,52 @@ test.describe('ranges, actions, motion, overflow and semantics', () => {
     }
   });
 
-  /**
-   * DTM-9: a horizontal layout narrower than its columns keeps them reachable — at the start of the body's sideways
-   * scroll the start column's start edge is inside the body, and at its end the end column's end edge is.
-   */
-  async function expectColumnsReachable(page: P, id: string, what: string) {
-    const found = await host(page, id).evaluate((el) => {
-      const root = el.shadowRoot!;
-      const body = root.querySelector('.body') as HTMLElement;
-      const rtl = getComputedStyle(body).direction === 'rtl';
-      // The body's content box: its padding is the inset of the columns (DTM-9).
-      const inner = () => {
-        const b = body.getBoundingClientRect();
-        const s = getComputedStyle(body);
-        return { left: b.left + Number.parseFloat(s.paddingLeft), right: b.right - Number.parseFloat(s.paddingRight) };
-      };
-      const columns = [...body.children].filter((child) => child.getBoundingClientRect().width > 0 && getComputedStyle(child).visibility !== 'hidden');
-      const [first, last] = [columns[0]!, columns.at(-1)!];
-      // The start edge of the start column, as far towards the start as the body scrolls (scrollLeft 0 is the start in both directions).
-      body.scrollLeft = 0;
-      const atStart = { box: inner(), column: first.getBoundingClientRect() };
-      body.scrollLeft = rtl ? -body.scrollWidth : body.scrollWidth;
-      const atEnd = { box: inner(), column: last.getBoundingClientRect() };
-      body.scrollLeft = 0;
-      const lost = {
-        start: rtl ? atStart.column.right - atStart.box.right : atStart.box.left - atStart.column.left,
-        end: rtl ? atEnd.box.left - atEnd.column.left : atEnd.column.right - atEnd.box.right,
-      };
-      return { overflows: body.scrollWidth > body.clientWidth + 1, start: Math.max(0, lost.start), end: Math.max(0, lost.end), first: first.localName === 'tanrei-calendar' || first.classList.contains('time') };
-    });
-    expect(found.overflows, `${what}: the columns are wider than the body`).toBe(true);
-    expect(found.first, `${what}: the start column is a column`).toBe(true);
-    expect(found.start, `${what}: nothing of the start column lies before the reach of the body's scroll`).toBeLessThanOrEqual(0.5);
-    expect(found.end, `${what}: nothing of the end column lies past it`).toBeLessThanOrEqual(0.5);
+  /** DTM-9, DTM-36: the picker stands inside the window on both axes, and nothing of it is cut or scrolls sideways. */
+  async function expectReflowed(page: P, id: string, what: string) {
+    const [s, window] = [await bounds(surface(page, id)), await page.evaluate(() => ({ width: document.documentElement.clientWidth, height: document.documentElement.clientHeight }))];
+    expect(s.x, `${what}: inside the window's start`).toBeGreaterThanOrEqual(-0.5);
+    expect(s.x + s.width, `${what}: inside the window's end`).toBeLessThanOrEqual(window.width + 0.5);
+    expect(s.y, `${what}: inside the window's top`).toBeGreaterThanOrEqual(-0.5);
+    expect(s.y + s.height, `${what}: inside the window's bottom`).toBeLessThanOrEqual(window.height + 0.5);
+    await expectNothingCut(page, id);
   }
 
-  test('DTM-9: a horizontal layout the product chose, in a window 320 or 390 wide and narrower than its columns, stays horizontal and its body scrolls sideways from the start of the start column to the end of the end column — nothing of the calendar or the time section lies where no scroll reaches — in en-US, ja-JP and ar (right to left)', async ({ page }) => {
+  test('DTM-9, DTM-36: layout horizontal in a window 320 or 390 wide, where its columns do not fit the surface, draws the vertical layout — nothing overflows the window on either axis, nothing is cut and nothing scrolls sideways (WCAG 1.4.10) — for a date and time and for a time on the dial, in en-US, ja-JP and ar (right to left)', async ({ page }) => {
     for (const width of [320, 390]) {
       for (const [locale, direction] of [['en-US'], ['ja-JP'], ['ar-EG', 'rtl']] as const) {
-        const fixtures = [opened('h', { mode: 'date-time', layout: 'horizontal', value: '2026-09-17T19:30', hourCycle: 'h12', locale })];
+        const fixtures = [
+          opened('h', { mode: 'date-time', layout: 'horizontal', value: '2026-09-17T19:30', hourCycle: 'h12', locale }),
+          opened('t', { mode: 'time', layout: 'horizontal', entryMode: 'dial', value: '19:30', hourCycle: 'h12', locale }),
+        ];
         await mount(page, fixtures.map((fixture) => (direction ? { ...fixture, direction } : fixture)), { window: { width, height: 640 } });
-        await expect.poll(() => surface(page, 'h').getAttribute('data-layout')).toBe('horizontal');
-        await expectColumnsReachable(page, 'h', `${width} ${locale}`);
+        for (const id of ['h', 't']) {
+          await expect.poll(() => surface(page, id).getAttribute('data-layout'), `${width} ${locale} ${id}`).toBe('vertical');
+          await expectReflowed(page, id, `${width} ${locale} ${id}`);
+        }
       }
     }
   });
 
-  test('DTM-9, DTM-2: a docked horizontal picker in a window 320 wide reaches the start of its calendar and the end of its time section by its body’s sideways scroll, in en-US and ar (right to left)', async ({ page }) => {
+  test('DTM-9: layout horizontal is kept where its columns fit the surface, and decided again as the surface’s room changes: horizontal at 800 wide, vertical at 320, horizontal again at 800', async ({ page }) => {
+    await mount(page, [opened('h', { mode: 'date-time', layout: 'horizontal', value: '2026-09-17T19:30', hourCycle: 'h12' })], { window: { width: 800, height: 640 } });
+    await expect.poll(() => surface(page, 'h').getAttribute('data-layout')).toBe('horizontal');
+    await expectReflowed(page, 'h', '800');
+    await page.setViewportSize({ width: 320, height: 640 });
+    await expect.poll(() => surface(page, 'h').getAttribute('data-layout')).toBe('vertical');
+    await expectReflowed(page, 'h', '320');
+    await page.setViewportSize({ width: 800, height: 640 });
+    await expect.poll(() => surface(page, 'h').getAttribute('data-layout')).toBe('horizontal');
+    await expectReflowed(page, 'h', '800 again');
+  });
+
+  test('DTM-9, DTM-2: a docked picker with layout horizontal in a window 320 wide draws the vertical layout, inside the window on both axes, nothing cut and nothing scrolling sideways, in en-US and ar (right to left)', async ({ page }) => {
     for (const [locale, direction] of [['en-US'], ['ar-EG', 'rtl']] as const) {
       const fixture = docked('d', { mode: 'date-time', layout: 'horizontal', value: '2026-09-17T19:30', hourCycle: 'h12', locale });
       await mount(page, [direction ? { ...fixture, direction } : fixture], { window: { width: 320, height: 640 } });
       await opener(page, 'd').evaluate((el) => ((el as HTMLElement).style.cssText = 'position: fixed; top: 8px; inset-inline-start: 16px;'));
       await open(page, 'd');
-      await expectColumnsReachable(page, 'd', `docked ${locale}`);
+      await expect.poll(() => surface(page, 'd').getAttribute('data-layout'), locale).toBe('vertical');
+      await expectReflowed(page, 'd', `docked ${locale}`);
     }
   });
 

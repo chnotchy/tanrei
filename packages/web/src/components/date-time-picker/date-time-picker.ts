@@ -2259,7 +2259,8 @@ export class TanreiDateTimePicker extends TanreiElement {
   }
 
   /**
-   * DTM-9, DTM-34, DTM-36: the layout — vertical or horizontal as `layout` says; for auto, horizontal only when the
+   * DTM-9, DTM-34, DTM-36: the layout — vertical or horizontal as `layout` says, horizontal only where its columns fit
+   * the surface's width; for auto, horizontal only when the
    * vertical one does not fit the window's height and the horizontal one fits its width — the actions in a row or a
    * column, and the whole surface scrolling as one when the header and the actions leave no room between them.
    *
@@ -2293,6 +2294,12 @@ export class TanreiDateTimePicker extends TanreiElement {
       surface.dataset.arrangement = arrangement;
       surface.classList.remove('whole');
       surface.dataset.layout = auto || layout !== 'horizontal' ? 'vertical' : 'horizontal';
+      if (layout === 'horizontal') {
+        // DTM-9: the horizontal layout the product chose, where its columns fit the width the surface may take, and the
+        // vertical one where they do not (WCAG 1.4.10: no scrolling in two directions at 320 CSS px).
+        this.horizontalIfFits(run, surface, body, arrangement);
+        return;
+      }
       if (!auto) {
         this.arrangeActions(run, surface, body, arrangement);
         return;
@@ -2300,15 +2307,24 @@ export class TanreiDateTimePicker extends TanreiElement {
       // For auto, horizontal only when the vertical layout overflows the window's height…
       this.step(run, () => (body.scrollHeight > body.clientHeight + 0.5 ? true : null), () => {
         surface.dataset.layout = 'horizontal';
-        // …and the horizontal one fits its width. The body scrolls, so what overflows it is its own overflow, never
-        // the surface's: read on the surface alone, a 320 or 360 px window short enough for this step took the
-        // horizontal layout and cut the calendar and the time section at its two edges.
-        this.step(run, () => body.scrollWidth <= body.clientWidth + 0.5 && surface.scrollWidth <= surface.clientWidth + 0.5, (fits) => {
-          if (!fits) surface.dataset.layout = 'vertical';
-          this.arrangeActions(run, surface, body, arrangement);
-        });
+        // …and the horizontal one fits its width.
+        this.horizontalIfFits(run, surface, body, arrangement);
       }, () => this.arrangeActions(run, surface, body, arrangement));
     };
+  }
+
+  /**
+   * DTM-9: with the horizontal layout set, keeps it where its columns fit the surface's width and takes the vertical one
+   * where they do not. The body scrolls, so what overflows it is its own overflow, never the surface's: read on the
+   * surface alone, a 320 or 360 px window took the horizontal layout and cut the calendar and the time section at its two
+   * edges. The surface's width is the room it may take (the window less the margins, a docked picker's room, the box an
+   * in-place one stands in), and its size is watched, so the layout is decided again when that room changes.
+   */
+  private horizontalIfFits(run: object, surface: HTMLElement, body: HTMLElement, arrangement: string) {
+    this.step(run, () => body.scrollWidth <= body.clientWidth + 0.5 && surface.scrollWidth <= surface.clientWidth + 0.5, (fits) => {
+      if (!fits) surface.dataset.layout = 'vertical';
+      this.arrangeActions(run, surface, body, arrangement);
+    });
   }
 
   /**

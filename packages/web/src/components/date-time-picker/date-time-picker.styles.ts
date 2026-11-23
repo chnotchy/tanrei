@@ -252,14 +252,12 @@ export const styles = css`
     overflow-y: auto;
     overscroll-behavior: contain;
   }
-  /* DTM-9: the columns are centred where they fit, and start at the body's start edge where they do not (safe), so the
-     body's sideways scroll reaches all of both: centred alone, a horizontal layout the product chose in a 320 px window
-     put half its overflow before the start edge (128 px of the calendar), where no scroll reaches. An engine without the
-     keyword drops the declaration and starts the columns at the start edge. */
+  /* DTM-9: the horizontal layout is drawn only where its columns fit the surface (the script takes the vertical one
+     where they do not), so the columns are centred in a body they never overflow. */
   .surface[data-layout='horizontal'] .body {
     flex-direction: row;
     align-items: flex-start;
-    justify-content: safe center;
+    justify-content: center;
   }
   .surface.whole {
     overflow-y: auto;

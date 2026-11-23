@@ -2,9 +2,10 @@
 '@tanrei/web': patch
 ---
 
-Date and time picker: with `layout="horizontal"` in a window narrower than its two columns, every part of the picker
-can be scrolled to. The body centred its columns, which splits their overflow between its two sides, and a scroll
-reaches only the end side: at 320 px wide, 140 px of the calendar's start lay where no scroll reached (146 px in a
-docked picker). The columns are now centred only where they fit and otherwise start at the body's start edge, and
-the body scrolls sideways to the end of the time section. The layout stays horizontal, as the product chose it; a
-picker that should change its layout to fit the window uses `layout="auto"` (DTM-9).
+Date and time picker: `layout="horizontal"` draws the horizontal layout where its columns fit the surface, and the
+vertical one where they do not, deciding again as the surface's room changes (DTM-9). It used to keep the horizontal
+layout in any window: at 320 px wide, a date-time picker's body scrolled sideways by 140 px on top of scrolling up
+and down, and its columns were centred so that 140 px of the calendar's start (146 px in a docked picker) lay where no
+scroll reached. WCAG 1.4.10 (Reflow) asks that content at 320 CSS px need no scrolling in two directions, and a
+calendar beside a time section is not a layout whose meaning needs two dimensions. Where the columns fit, the layout
+stays as the product chose it.
