@@ -17,6 +17,7 @@ import { expectScrimTakenAwayAtClose } from '../../../test/scrim-at-close.js';
 import { type DocumentOptions, type Fixture, type FixtureItem, type MountOptions, dialogWindow, fixturesDocument, iconFaceArrives, innerStrokeAtEdges, loadSpec, mountFixtures, resolveColor, resolveToken, tab, tabTo, rootTokens, withoutIconFont } from '../../../test/harness.js';
 import { expectBaseline } from '../../../test/baseline.js';
 import { expectGlyphsHeldBack } from '../../../test/held-glyphs.js';
+import { contrastChecked } from '../../../test/contrast-checked.js';
 
 const spec = loadSpec('dialog');
 type P = Page;
@@ -1633,7 +1634,7 @@ test.describe('accessibility', () => {
         const results = await new AxeBuilder({ page }).analyze();
         expect(results.violations, `${theme} ${id}: ${results.violations.map((v) => `${v.id} ${v.nodes.map((n) => n.target).join(' ')}`).join(', ')}`).toEqual([]);
         // The dialog's text is checked: the document is the window's height while the page's scroll is held (the
-        // harness), and the box that draws the content's focus ring hides at rest (`overRing()`), so it covers no text.
+        // harness), and the box that draws the content's focus ring is drawn as no element (`focusRingBox()`), so it covers no text.
         const contrast = (kind: 'passes' | 'incomplete') => results[kind].filter((rule) => rule.id === 'color-contrast').flatMap((rule) => rule.nodes);
         expect(contrast('passes').length, `${theme} ${id}: axe checks the contrast of the dialog's text`).toBeGreaterThan(0);
         expect(contrast('incomplete').filter((node) => node.any.some((check) => (check.data as { messageKey?: string } | null)?.messageKey === 'bgOverlap')).map((node) => node.target), `${theme} ${id}: no text left unchecked as covered`).toEqual([]);
@@ -1653,6 +1654,21 @@ test.describe('fixtures', () => {
       await expectBaseline(page, [spec.name, `${fixture.id}.png`]);
     });
   }
+});
+
+test.describe('accessibility: what is drawn over the content', () => {
+  test('DLG-11: the box that carries the content\'s focus indicator hides no text from a contrast check — faint text is reported, the dialog\'s own colors pass', async ({ page }) => {
+    // An element drawn over a text is, to axe's color-contrast, an element covering it, whatever its pointer-events: it
+    // left the text incomplete ("overlapped by another element") instead of checking it, so faint text passed unseen.
+    // The page is as tall as the window: a modal dialog holds the page's scroll with \`overflow: hidden\` on the root, and axe
+    // takes the root's own box for a clip, so a dialog below a page shorter than the window would not be looked at.
+    const lead = '<div style="block-size: 100vh"></div>';
+    await mountFixtures(page, spec, { lead, fixtures: [f('marked', { open: true }, { content: '<p data-text="faint" style="margin: 0; color: #bbb">Faint text</p><p data-text="normal" style="margin: 0">Readable text</p>' })] });
+    const checked = await contrastChecked(page, 'tanrei-dialog');
+    expect(checked.violations, 'the faint text is reported').toEqual(['faint']);
+    expect(checked.passes, 'the dialog\'s own colors pass').toEqual(expect.arrayContaining(['Discard draft?', 'The message you were writing will be deleted from this device.', 'normal']));
+    expect(checked.incomplete, 'nothing is left unchecked').toEqual([]);
+  });
 });
 
 test.describe('a glyph the icon set cannot draw yet', () => {

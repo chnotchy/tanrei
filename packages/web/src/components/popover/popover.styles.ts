@@ -9,8 +9,8 @@ import {
   cornerRadius,
   dividerVisibilityHost,
   focusRing,
+  focusRingBox,
   modalExitStyles,
-  overRing,
   quietFocus,
   shape,
   sheetLookStyles,
@@ -234,8 +234,11 @@ export const styles = css`
   .focus.whole {
     ${unsafeCSS(cornerRadius('--tanrei-comp-popover-container-shape'))}
   }
-  ${overRing('.focus', (focus) => `.content${focus} ~ .focus`)}
-  ${overRing('.focus', (focus) => `.clip.crowded${focus} ~ .focus`)}
+  ${focusRing((focus) => `.content${focus} ~ .focus`, { inside: true })}
+  ${focusRing((focus) => `.clip.crowded${focus} ~ .focus`, { inside: true })}
+  /* The box lies over the text: it draws the indicator by its ::before, as no element, so that a contrast checker still
+     sees the text under it (focusRingBox). */
+  ${focusRingBox('.focus')}
 
   /* POP-8: the dividers, divider.width hairlines in divider.color across the container, below the header and above the
      actions while the content scrolls. They take no room, so they show and hide at once and move nothing. POP-38, always:

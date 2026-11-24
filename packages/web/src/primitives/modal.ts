@@ -103,6 +103,16 @@ export function deepActive(): Element | null {
   return active;
 }
 
+/**
+ * Whether focus is lost: on nothing, on the page itself (its body or its root), or on an element no longer on the page.
+ * Only then may a script that answers something after a while (a timer, a product's answer) give focus a place of its
+ * own: focus anywhere else is where the person or the product put it meanwhile, and is left there.
+ */
+export function focusLost(): boolean {
+  const active = deepActive();
+  return !active || active === document.body || active === document.documentElement || !active.isConnected;
+}
+
 /** Whether focus is inside `host`: in its light DOM, its shadow root, or a shadow root nested in either. */
 export function focusWithin(host: Element): boolean {
   const active = deepActive();

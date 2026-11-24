@@ -527,9 +527,7 @@ export const styles = css`
     .floating,
     .floating .asterisk,
     .icon,
-    .edge,
     .edge::before,
-    .outline > span,
     .outline > span::before,
     .outline-notch,
     .indicator {

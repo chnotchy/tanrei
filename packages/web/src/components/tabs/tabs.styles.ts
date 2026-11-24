@@ -1,5 +1,5 @@
 import { css, unsafeCSS } from 'lit';
-import { type OpenAxis, directionProbeStyles, focusRing, iconGlyph, overRing, pressHold, rippleStyles, stateRules, whenChosen } from '../../primitives/index.js';
+import { type OpenAxis, directionProbeStyles, drawnAsNoElement, focusRing, focusRingBox, iconGlyph, pressHold, rippleStyles, stateRules, whenChosen } from '../../primitives/index.js';
 import { productText } from '../../styles/product-text.js';
 import { cornerRadius, shape } from '../../styles/shape.js';
 import { reducedMotion } from '../../styles/motion.js';
@@ -462,25 +462,12 @@ export const tabStyles = css`
     isolation: isolate;
     background: var(--_c);
     transition: background-color ${unsafeCSS(STATE_MOTION)};
-    /* The part holds the container's color but draws nothing itself: on the selected tab it lies over the label, and a
-       box over text is what a contrast checker sees covering it — the selected label went unchecked. Its ::before
-       draws the same color, under the ripple as the part's own background was; the ripple shows as before. */
-    visibility: hidden;
   }
-  .box::before {
-    content: '';
-    position: absolute;
-    z-index: -2;
-    inset: 0;
-    border-radius: inherit;
-    corner-shape: inherit;
-    background: inherit;
-    visibility: visible;
-    pointer-events: none;
-  }
-  .box > .ripple {
-    visibility: visible;
-  }
+  /* The container and the ring lie over the label of the selected tab (TAB-18, TAB-4): each holds its values and draws
+     them by its ::before, as no element, at the same place in the paint order — an element over a text is what a
+     contrast checker sees covering it, and it would leave that text unchecked. The ripple in the container stays drawn. */
+  ${drawnAsNoElement('.box', ['background'], { fill: true })}
+  ${focusRingBox('.ring')}
   /* TAB-18: on the selected tab the container — hover, focus, press and the ripple, in the selected parts, whose state
      layer is the covered content's color — lies over the active indicator, so the states show there too; the ring and
      the underline stay above it, in the order they are written. */
@@ -690,9 +677,8 @@ export const tabStyles = css`
 
   /* TAB-4, TAB-10: the ring (or the glow) around the container, concentric and in its shape, sys.focus.offset outside
      it, and held inside the track: where track.padding is less than the ring reaches it is drawn further in by the
-     difference. For keyboard focus only, never animated; drawn over the covered layer and the neighbouring tabs. Its box
-     is hidden while it draws no ring: a box over the label is what a contrast checker sees covering the text. */
-  ${overRing('.ring', (focus) => `:host(${focus}) .ring`, { within: T('track-padding') })}
+     difference. For keyboard focus only, never animated; drawn over the covered layer and the neighbouring tabs. */
+  ${focusRing((focus) => `:host(${focus}) .ring`, { within: T('track-padding') })}
 
   /* TAB-10: corner smoothing on the container and the ring (data-tanrei-shape). */
   ${shape}

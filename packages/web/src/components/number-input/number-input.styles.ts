@@ -407,9 +407,7 @@ export const styles = css`
     .suffix,
     .floating,
     .floating .asterisk,
-    .edge,
     .edge::before,
-    .outline > span,
     .outline > span::before,
     .outline-notch,
     .indicator {

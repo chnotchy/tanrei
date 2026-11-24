@@ -245,9 +245,13 @@ export const styles = css`
     color: var(--_h);
   }
   ${productText(':is(.value, .placeholder)')}
-  /* SEL-16: the placeholder shows only while the label is not in the line — above, floated or not drawn. */
+  /* SEL-16: the placeholder shows only while the label is not in the line — above, floated or not drawn. Hidden as
+     well as transparent: a text drawn in no color under the resting label is still a text to a contrast checker, which
+     found the label over it and left it unchecked. It keeps its place in the line; shown again, it draws at once and
+     its color comes in as before. */
   .field[data-labelled]:not([data-layout='stacked']):not([data-focused]) .placeholder {
     color: transparent;
+    visibility: hidden;
     transition: none;
   }
   .sizer {
@@ -436,9 +440,7 @@ export const styles = css`
     .floating,
     .floating .asterisk,
     .icon,
-    .edge,
     .edge::before,
-    .outline > span,
     .outline > span::before,
     .outline-notch,
     .indicator {

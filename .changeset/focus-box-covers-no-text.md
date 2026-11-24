@@ -2,9 +2,9 @@
 '@tanrei/web': patch
 ---
 
-**The text under a focus ring drawn by a box of its own is checked for contrast.** A dialog, a bottom sheet, a side
-sheet, a popover, a snackbar, a code block, a scroll area and an image preview draw the focus ring of their scrolling
-body (or caption) with a box laid over it, which painted nothing at rest but was still, to axe's `color-contrast` rule, an
-element covering the text: the whole body was left incomplete ("overlapped by another element") instead of checked. The
-box is now hidden but while the ring shows, by a new primitive, `overRing(box, on)`, which draws the `inside` ring as
-`focusRing()` does; nothing any of these components draws changes, at rest or focused.
+**`<tanrei-image-preview>`: the text under its focus boxes is checked for contrast.** The preview draws the stage's
+focus ring with a box over the fit area and the caption's with a box over the caption, and a box that paints nothing is
+still, to axe's `color-contrast` rule, an element covering the text under it: the error text and the caption were left
+incomplete ("overlapped by another element") instead of checked. Both boxes are now drawn as no element, as the focus
+boxes of the dialog, the sheets, the popover, the snackbar, the code block and the scroll area are: each holds the ring's
+values and draws them by its `::before`. Nothing the preview draws changes, at rest or focused.

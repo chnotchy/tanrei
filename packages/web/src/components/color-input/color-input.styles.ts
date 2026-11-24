@@ -359,9 +359,7 @@ export const styles = css`
     .input,
     .floating,
     .floating .asterisk,
-    .edge,
     .edge::before,
-    .outline > span,
     .outline > span::before,
     .outline-notch,
     .indicator {

@@ -1021,17 +1021,20 @@ export const rowStyles = css`
   .icon.empty {
     visibility: hidden;
   }
-  /* The control — the element's own <a> or <button>, slotted over the whole row as its hit area — lies under the text,
-     and a press on the text is still the control's. Drawn over the control, the text is what a contrast checker (axe's
-     color-contrast) finds at its place: the control covered it, and the headline and the excerpt went unchecked. */
+  /* SRC-45: the icon and the text are drawn over the row's control (an <a> or a <button> at level -1 under them) and
+     take no pointer, so that every press, hover and drag over them goes to it. They are positioned, at no level of
+     their own, so that a contrast checker that orders the page itself (axe) puts them above the control too: it puts
+     an element of a level, even a negative one, above every text that has none. */
+  .icon,
   .text {
     position: relative;
-    z-index: 1;
+    pointer-events: none;
+  }
+  .text {
     display: flex;
     flex: 1 1 auto;
     flex-direction: column;
     min-inline-size: 0;
-    pointer-events: none;
   }
   .headline {
     ${typefaceOf(t, 'suggestion-headline-typescale')}

@@ -23,6 +23,7 @@ import { expectGoneWhileSkipped } from '../../../test/skipped-exit.js';
 import { expectScrimTakenAwayAtClose } from '../../../test/scrim-at-close.js';
 import { controlledElements, controlledInTree } from '../../../test/controlled-list.js';
 import { STACKED_DIALOG, STACKED_LAYER, addStackedSurfaces, expectStackedInOrder } from '../../../test/stacked-surfaces.js';
+import { contrastChecked } from '../../../test/contrast-checked.js';
 
 const spec = loadSpec('popover');
 /** The fixtures drawn in place on their stages; the `compact-` ones are the real overlay, each alone in its window (POP-39). */
@@ -2965,4 +2966,17 @@ test.describe('compact fixtures', () => {
       await expectBaseline(page, [spec.name, `${f.id}.png`]);
     });
   }
+});
+
+test.describe('accessibility: what is drawn over the content', () => {
+  test('POP-8: the box that carries the content\'s focus indicator hides no text from a contrast check — faint text is reported, the popover\'s own colors pass', async ({ page }) => {
+    // An element drawn over a text is, to axe's color-contrast, an element covering it, whatever its pointer-events: it
+    // left the text incomplete ("overlapped by another element") instead of checking it, so faint text passed unseen.
+    const basic = spec.fixtures.find((x) => x.id === 'basic')!;
+    await mountFixtures(page, spec, { fixtures: [{ ...basic, content: '<p data-text="faint" style="margin: 0; color: #bbb">Faint text</p><p data-text="normal" style="margin: 0">Readable text</p>' }] });
+    const checked = await contrastChecked(page);
+    expect(checked.violations, 'the faint text is reported').toEqual(['faint']);
+    expect(checked.passes, 'the popover\'s own colors pass').toEqual(expect.arrayContaining(['normal']));
+    expect(checked.incomplete, 'nothing is left unchecked').toEqual([]);
+  });
 });

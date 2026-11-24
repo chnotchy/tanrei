@@ -264,29 +264,39 @@ export function floatingLabelStyles(): CSSResult {
  * is the floated label's own, measured by a hidden copy of the label in the floated style, and opens over
  * motion.label-*. A filled field's active indicator is a line along the bottom, active-indicator.width wide.
  *
+ * The edges stand over the value, the placeholder and the label, and an element there is what a contrast checker
+ * (axe's color-contrast) takes for one covering the text: it left that text unchecked. So the edge part and the
+ * outline's pieces are boxes that draw nothing (`visibility: hidden`); the `::before` of each draws its line, at the
+ * same place in the paint order, as no element. Forced colors take the parts away, and their lines with them.
+ *
  * Reads `--_ow`, `--_iw`, `--_o`, `--_i`, `--_pad`, `--_end`, `--_float-widest` and the floated text style.
  */
 export function triggerEdgeStyles(): CSSResult {
   const motion = `var(--_state-duration) var(${P}-motion-state-easing)`;
   // What each rule is for is said here, not in the CSS: a comment inside the string would ship in every bundle.
   // - `.field[data-label-wraps] .notch-label`: A wrapped floated label opens the gap by the width of its widest line.
-  // - `.edge`, `.outline`: the parts hold the edge's values but draw nothing themselves — a box over the value is what a
-  //   contrast checker sees covering the text, and it left the field's text unchecked. Each line is drawn by the
-  //   `::before` of the element that holds it, as no element, over that element's border box (a positioned child is
-  //   placed in the padding box, which starts after the border): its color changes with the element's, its width over
-  //   motion.state-* there.
   return unsafeCSS(`
   .edge {
     position: absolute;
     z-index: 1;
     inset: 0;
-    box-sizing: border-box;
-    border: var(--_ow) solid var(--_o);
     border-radius: inherit;
     corner-shape: inherit;
     pointer-events: none;
     visibility: hidden;
-    transition: border-color ${motion};
+  }
+  .edge::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    box-sizing: border-box;
+    border: var(--_ow) solid var(--_o);
+    border-radius: inherit;
+    corner-shape: inherit;
+    visibility: visible;
+    transition:
+      border-color ${motion},
+      border-width ${motion};
   }
 
   .outline {
@@ -301,50 +311,42 @@ export function triggerEdgeStyles(): CSSResult {
   .outline > span {
     position: relative;
     box-sizing: border-box;
-    border: 0 solid var(--_o);
-    border-block-width: var(--_ow);
     corner-shape: inherit;
-    transition: border-color ${motion};
-  }
-  :is(.edge, .outline > span)::before {
-    content: '';
-    position: absolute;
-    inset: calc(var(--_ow) * -1);
-    box-sizing: border-box;
-    visibility: visible;
-    border: inherit;
-    border-radius: inherit;
-    corner-shape: inherit;
-    pointer-events: none;
-    transition: border-width ${motion};
   }
   .outline > span::before {
-    inset-inline: 0;
-  }
-  .outline > .outline-start::before {
-    inset-inline-start: calc(var(--_ow) * -1);
-  }
-  .outline > .outline-end::before {
-    inset-inline-end: calc(var(--_ow) * -1);
+    content: '';
+    position: absolute;
+    inset: 0;
+    box-sizing: border-box;
+    border: 0 solid var(--_o);
+    border-block-width: var(--_ow);
+    border-radius: inherit;
+    corner-shape: inherit;
+    visibility: visible;
+    transition:
+      border-color ${motion},
+      border-width ${motion};
   }
   .outline-start {
     flex: none;
     inline-size: max(calc(var(--tanrei-corner-radius) * var(--_corner-scale)), calc(var(--_pad) - var(${P}-outline-notch-padding)));
-    border-inline-start-width: var(--_ow) !important;
     border-start-start-radius: calc(var(--tanrei-corner-radius) * var(--_corner-scale));
     border-end-start-radius: calc(var(--tanrei-corner-radius) * var(--_corner-scale));
+  }
+  .outline > .outline-start::before {
+    border-inline-start-width: var(--_ow);
   }
   .outline-notch {
     flex: none;
     display: grid;
     grid-template-columns: minmax(0, 0fr);
     max-inline-size: calc(100% - var(--_pad) - var(--_end));
-    transition:
-      border-color ${motion},
-      grid-template-columns var(${P}-motion-label-duration) var(${P}-motion-label-easing) !important;
+    transition: grid-template-columns var(${P}-motion-label-duration) var(${P}-motion-label-easing);
   }
   ${FLOATED} .outline-notch {
     grid-template-columns: minmax(0, 1fr);
+  }
+  ${FLOATED} .outline-notch::before {
     border-block-start-color: transparent;
   }
   .notch-label {
@@ -361,9 +363,11 @@ export function triggerEdgeStyles(): CSSResult {
   }
   .outline-end {
     flex: 1 1 auto;
-    border-inline-end-width: var(--_ow) !important;
     border-start-end-radius: calc(var(--tanrei-corner-radius) * var(--_corner-scale));
     border-end-end-radius: calc(var(--tanrei-corner-radius) * var(--_corner-scale));
+  }
+  .outline > .outline-end::before {
+    border-inline-end-width: var(--_ow);
   }
   .indicator {
     position: absolute;

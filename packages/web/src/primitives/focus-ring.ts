@@ -1,5 +1,7 @@
 import { type CSSResult, unsafeCSS } from 'lit';
 import { BEHAVIOR, choice } from './behavior.js';
+import { focusedIn } from './flat-tree.js';
+import { drawnAsNoElement } from './no-element.js';
 
 /**
  * Names the element that draws the indicator, given a focus condition: `(focus) => \`button${focus}\`` for a control
@@ -53,8 +55,8 @@ const glow = (selector: string, color = SYSTEM_COLOR) => `
  * list, a menu item in its surface: LST-10, MNU-11). It is the ring drawn around the element shrunk by the ring's
  * extent, so its corners stay concentric; the glow likewise starts that far inside and spreads out to the edge.
  * Never name an element that scrolls: the inner stroke and the glow are its `::after`, which would move away with what
- * it scrolls. Name a box over it that does not scroll — `(focus) => \`.scroll${focus} ~ .focus\`` — with `overRing()`,
- * as the code block, the dialog and the snackbar do.
+ * it scrolls. Name a box over it that does not scroll — `(focus) => \`.scroll${focus} ~ .focus\`` — with `focusRingBox()`
+ * for the box, as the code block, the dialog and the snackbar do.
  *
  * `within` is for an element with a known amount of room around it before something clips (a tab's container in its
  * track, TAB-4): a length expression. The indicator is drawn around the element where the room holds all of it, and
@@ -93,22 +95,6 @@ export function focusRing(on: FocusSelector, { inside = false, within, color = S
   ${glow(on("[data-focus-style='glow']:focus-visible"), color)}
 `);
 }
-
-/**
- * The `inside` ring drawn by `box`, a box laid over the element that takes focus (`on`:
- * `(focus) => \`.scroll${focus} ~ .focus\``, the box not scrolling with what it covers): the box is hidden but while
- * that element shows the ring. A box over text that paints nothing is still, to a contrast checker (axe's
- * `color-contrast`), an element covering the text: it left every text under it unchecked ("overlapped by another
- * element") — a dialog's, a sheet's, a snackbar's whole body. A hidden box covers nothing. It is hidden at no
- * specificity, so that a ring's rule shows it whatever else hides it: a box two rings share (a popover's content and
- * its crowded clip) is shown by either. Its own function, not an option of `focusRing()`, so that a module that draws no
- * such box does not carry it.
- *
- * `within` draws the ring held inside known room instead (`focusRing()`'s option), for a box that exists only to carry
- * the ring around a shape the control draws elsewhere — a tab's ring around its container (TAB-4).
- */
-export const overRing = (box: string, on: FocusSelector, options: Omit<FocusRingOptions, 'inside'> = {}): CSSResult =>
-  unsafeCSS(`:where(${box}){visibility:hidden}${on(':focus-visible')}{visibility:visible}${focusRing(on, { ...options, inside: true })}`);
 
 // focus-style: glow, inside the element: the halo's box is the element shrunk by the glow's reach (the offset, twice
 // each width: the spreads and the outer blur), so the halo spreads out to the element's edge and no further.
@@ -163,6 +149,15 @@ const heldGlow = (selector: string, within: string, color = SYSTEM_COLOR) => `
       0 0 var(--tanrei-sys-focus-inner-width) var(--tanrei-sys-focus-inner-width) var(--tanrei-sys-color-focus-ring-inner),
       0 0 var(--tanrei-sys-focus-outer-width) calc(var(--tanrei-sys-focus-inner-width) + var(--tanrei-sys-focus-outer-width)) ${color};
   }`;
+
+/**
+ * A box the component adds only to carry the indicator over its content — over a text that scrolls
+ * (`(focus) => \`.scroll${focus} ~ .focus\``), or above what a tab draws (its `.ring`): drawn as no element
+ * (`drawnAsNoElement()`), so that the text it lies over is still checked for contrast. `focusRing()` gives the box the
+ * outline, which its `::before` draws, and the `::after` (the inner stroke, the glow), which stays drawn. Write it
+ * beside `focusRing()` for the same box, with the box's plain selector; the box leaves its `::before` to it too.
+ */
+export const focusRingBox = (selector: string): CSSResult => drawnAsNoElement(selector, ['outline', 'outline-offset']);
 
 // The ring held within `within` of room: `--_focus-pull` is what the ring's reach (the offset and both strokes) lacks
 // of the room, and every edge is drawn that much further in.
@@ -266,8 +261,20 @@ export function heldFocusGlow(on: FocusSelector, radius: { plain: string; eased:
 
 /**
  * BTN-10: where style queries are missing, the focus style is read when focus arrives. Call it from the focused
- * element's `focus` listener; it writes `data-focus-style` on `target` (the element `on()` names the condition of).
+ * element's `focus` listener; it writes `data-focus-style` on `target` (the element `on()` names the condition of) — at
+ * once for keyboard focus (`:focus-visible` on the element focused), in the next frame callback for focus that draws no
+ * indicator.
  */
 export function syncFocusStyle(host: Element, target: HTMLElement | null) {
-  if (target) target.dataset.focusStyle = choice(host, 'focus-style');
+  if (!target) return;
+  const read = () => (target.dataset.focusStyle = choice(host, 'focus-style'));
+  // Keyboard focus draws its indicator in the next frame: its style is read now. Focus that came with a press draws
+  // none, and the read is a read of the page's style (WebKit styles the whole document to answer it): in the press's
+  // task it styled the page once more, after the press and the focus had changed it, before the frame that styles it
+  // anyway. It is made in the next frame callback instead, with that frame's style.
+  // Which focus it is, is asked of the element that holds it, not of `target`: the target is often a box around it
+  // (a field's frame, a container), which never matches `:focus-visible` itself — keyboard focus read late there left
+  // `data-focus-style` unwritten until the frame (SEL-21).
+  if (focusedIn(document)?.matches(':focus:not(:focus-visible)')) requestAnimationFrame(read);
+  else read();
 }
