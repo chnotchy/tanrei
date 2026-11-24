@@ -141,11 +141,15 @@ export const styles = css`
   .surface.inline {
     display: flex;
   }
-  /* In place (the inline test attribute): at its natural size where it stands, without the overlay. */
+  /* In place (the inline test attribute): at its natural size where it stands, without the overlay. The room it may
+     take is the box it stands in, not a window less the modal margins (DTM-1's room is the window's): measured against
+     the box it stands in, those margins took 32 px from a stage that already had its own padding, and at a phone's
+     width cut the dial's period selector off at the surface's edge. */
   .surface.inline {
     position: relative;
     inset: auto;
     opacity: 1;
+    max-inline-size: 100%;
     max-block-size: none;
   }
   /* DTM-35: a docked picker fades in and grows from the edge that faces the anchor; it fades out. At once where motion is reduced. */

@@ -13,6 +13,9 @@
 // when the load has fired, nothing has been in flight for 500 ms (network-quiet.mjs), the faces are ready, and two
 // frames have been drawn since.
 //
+// Then, at a phone's width, the page does not move under the reader as they read it through: paged down from its top to
+// its end, the shifts add up to no more than SCROLL_BUDGET (below).
+//
 // It reads `dist/` and serves it on a free port the way a static host does.
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
@@ -23,7 +26,7 @@ import { fileURLToPath } from 'node:url';
 import { register } from 'node:module';
 import { sheetKept, until } from './kept-sheet.mjs';
 import { watchNetwork } from './network-quiet.mjs';
-import { launch, settlePage } from './launch.mjs';
+import { launch, settle, settlePage } from './launch.mjs';
 
 register('../vite-shim.mjs', import.meta.url);
 const { APPEARANCE_KEY, CUSTOM_KEY, LOOK_SHEET_ID, LATE_ATTR, PENDING_ATTR, SHEET_STORE } = await import('../../src/lib/appearance.ts');
@@ -104,7 +107,7 @@ function observeShifts() {
   new PerformanceObserver((list) => {
     for (const entry of list.getEntries()) {
       if (entry.hadRecentInput) continue;
-      shifts.push({ value: entry.value, sources: entry.sources.map((source) => `${describe(source.node)}: ${rect(source.previousRect)} → ${rect(source.currentRect)}`) });
+      shifts.push({ value: entry.value, scrolled: scrollY, sources: entry.sources.map((source) => `${describe(source.node)}: ${rect(source.previousRect)} → ${rect(source.currentRect)}`) });
     }
   }).observe({ type: 'layout-shift', buffered: true });
 }
@@ -182,6 +185,71 @@ describe(`the layout shifts by no more than ${BUDGET} while a page loads`, { con
         }
       });
     }
+  }
+});
+
+// ── Read through ─────────────────────────────────────────────────────────────────────────────────────────────────
+
+/**
+ * The most the layout may shift, all told, while a reader pages through a whole page at a phone's width: a quarter of
+ * the 0.1 that Core Web Vitals calls good. It is a sum over the whole read, every entry of it, where the page's CLS is
+ * only its largest burst (a window of five seconds at most), so the sum is the stricter of the two. It is not the tenth
+ * the load is held to: a long page holds tables that are not laid out until they come near the view, each holding the
+ * room of rows one line tall (ComponentSpecs.astro, the tokens' table), which wrap at this width — the Japanese Select's
+ * page moved by 0.013 so as it was read through. Before a figure took its drawn room while it was still below the view
+ * (lib/example.ts, `releaseSoon`), each of these pages moved by more than twice this: the Date and time picker's by 0.074, the
+ * Text field's by 0.075 (0.236 in Arabic) and the Japanese Select's by 0.078.
+ */
+const SCROLL_BUDGET = 0.025;
+
+/**
+ * Pages of figures defined late, as a reader pages through them: four open date and time pickers under the Date and
+ * time picker's head, each about 1000 px tall drawn; the Text field's examples and playground, in English and in Arabic
+ * (right to left); the Select's in Japanese (its own faces).
+ */
+const READ = ['/components/date-time-picker/', '/components/text-field/', '/ar/components/text-field/', '/ja/components/select/'];
+const PHONE = { width: 390, height: 844 };
+/** How far a page down moves: the window, less the lines it keeps in view so that the reader keeps their place. */
+const KEPT = 120;
+
+describe(`the layout shifts by no more than ${SCROLL_BUDGET} while a reader pages through a page at ${PHONE.width}`, { concurrency: 2 }, () => {
+  for (const url of READ) {
+    test(url, { timeout: 300_000 }, async (t) => {
+      const context = await browser.newContext({ viewport: PHONE, isMobile: true, hasTouch: true });
+      try {
+        const page = await context.newPage();
+        await page.addInitScript(observeShifts);
+        // The page loaded and quiet — what its first view asked for, and what it asks for right after its load — as it
+        // is by the time a reader has read that view.
+        const network = await watchNetwork(page);
+        await page.goto(origin + url, { waitUntil: 'load' });
+        await network.quiet({ worker: /\/sheet-worker-[^/]*\.js$/ });
+        await settlePage(page);
+        // A page down at a time — farther than a frame is drawn ahead of the view (half a window, lib/example.ts) — to
+        // the page's end, each time once every frame in the view has been drawn, its elements defined and two frames
+        // drawn since: what is drawn late moves the page then, as it does under a reader.
+        for (let top = PHONE.height - KEPT; ; top += PHONE.height - KEPT) {
+          const { end, inView } = await page.evaluate((y) => {
+            window.scrollTo(0, y);
+            const stages = [...document.querySelectorAll('[data-example-stage][id]')].filter((stage) => {
+              const box = stage.getBoundingClientRect();
+              return box.height > 0 && box.bottom > 0 && box.top < innerHeight;
+            });
+            return { end: scrollY + innerHeight >= document.documentElement.scrollHeight - 1, inView: stages.map((stage) => stage.id) };
+          }, top);
+          for (const id of inView) await settle(page, `[data-example]:has(> figure > [data-part="frame"] > #${id})`, { pending: '[data-example-pending], [data-pending]' });
+          await settlePage(page, { fonts: false });
+          if (end) break;
+        }
+        const shifts = await page.evaluate(() => window.__docsLayoutShifts);
+        const total = shifts.reduce((sum, { value }) => sum + value, 0);
+        t.diagnostic(`layout shift ${total.toFixed(4)} in ${shifts.length} entr${shifts.length === 1 ? 'y' : 'ies'}`);
+        const moved = shifts.filter(({ value }) => value > 0).map(({ value, scrolled, sources }) => `${value.toFixed(4)}, scrolled ${Math.round(scrolled)} px:\n      ${sources.join('\n      ') || '(no source named)'}`);
+        assert.ok(total <= SCROLL_BUDGET, `${url} at ${PHONE.width} × ${PHONE.height} shifts by ${total.toFixed(4)} as it is paged through (at most ${SCROLL_BUDGET}):\n  ${moved.join('\n  ')}`);
+      } finally {
+        await context.close();
+      }
+    });
   }
 });
 
