@@ -25728,7 +25728,6 @@ class TanreiTabsStateTokens {
 @immutable
 class TanreiTabsTokens {
   const TanreiTabsTokens({
-    required this.activeIndicatorHeight,
     required this.containerGap,
     required this.containerHeightWithIcon,
     required this.containerShape,
@@ -25755,8 +25754,6 @@ class TanreiTabsTokens {
     required this.disabled,
   });
 
-  /// `comp.tabs.active-indicator-height`
-  final double activeIndicatorHeight;
   /// `comp.tabs.container-gap`
   final double containerGap;
   /// `comp.tabs.container-height-with-icon`
@@ -25808,7 +25805,6 @@ class TanreiTabsTokens {
 
   /// A copy with the given tokens replaced.
   TanreiTabsTokens copyWith({
-    double? activeIndicatorHeight,
     double? containerGap,
     double? containerHeightWithIcon,
     double? containerShape,
@@ -25834,7 +25830,6 @@ class TanreiTabsTokens {
     TanreiTabsStateTokens? pressed,
     TanreiTabsStateTokens? disabled,
   }) => TanreiTabsTokens(
-        activeIndicatorHeight: activeIndicatorHeight ?? this.activeIndicatorHeight,
         containerGap: containerGap ?? this.containerGap,
         containerHeightWithIcon: containerHeightWithIcon ?? this.containerHeightWithIcon,
         containerShape: containerShape ?? this.containerShape,

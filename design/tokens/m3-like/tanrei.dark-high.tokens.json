@@ -92251,14 +92251,6 @@
       },
       "tabs": {
         "active-indicator": {
-          "height": {
-            "$type": "dimension",
-            "$value": {
-              "value": 32,
-              "unit": "px"
-            },
-            "$description": "Read by no behaviour of this revision: the active indicator is as tall as the row less track.padding above and below, so it has no height of its own. It stays so that the platforms still drawing the previous revision keep building; remove it in the commit that brings the last of them up to date."
-          },
           "padding-block": {
             "medium": {
               "$type": "dimension",

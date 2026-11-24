@@ -5498,7 +5498,6 @@ export type TanreiTabsSizes = { readonly [Key in TanreiCoreTabsSize]: TanreiTabs
  * `<state><Part>`), then one holder per axis (`variants`, `sizes`), keyed by the axis value.
  */
 export interface TanreiTabsTokens {
-  readonly activeIndicatorHeight: number;
   readonly containerGap: number;
   readonly containerHeightWithIcon: number;
   readonly containerShape: number;

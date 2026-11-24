@@ -6263,7 +6263,6 @@
     "tanrei.comp.table.status.text.typescale": "typography",
     "tanrei.comp.table.sticky.container.color": "color",
     "tanrei.comp.table.stripe.container.color": "color",
-    "tanrei.comp.tabs.active-indicator.height": "dimension",
     "tanrei.comp.tabs.active-indicator.padding-block.medium": "dimension",
     "tanrei.comp.tabs.active-indicator.padding-block.small": "dimension",
     "tanrei.comp.tabs.active-indicator.padding-inline.medium": "dimension",

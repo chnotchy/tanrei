@@ -9204,7 +9204,6 @@ const TanreiSystem m3LikeSystem = TanreiSystem(
     ),
   ),
   tabs: TanreiTabsTokens(
-    activeIndicatorHeight: 32.0,
     containerGap: 4.0,
     containerHeightWithIcon: 64.0,
     containerShape: 0.0,

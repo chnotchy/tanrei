@@ -8486,7 +8486,6 @@ private object TonePerStateSystemSource {
     @Suppress("UNUSED_PARAMETER")
     fun tabs(typescale: TanreiTypescale, elevation: TanreiElevation): TanreiTabsTokens =
         TanreiTabsTokens(
-            activeIndicatorHeight = 32.dp,
             containerGap = 4.dp,
             containerHeightWithIcon = 64.dp,
             containerShape = 9999.dp,

@@ -11048,7 +11048,6 @@ public data class TanreiTabsStateTokens(
 /** `comp.tabs`. Members are flat tokens, then per-state tokens, then one holder per axis (`variants[variant]`, `sizes[size]`). */
 @Immutable
 public data class TanreiTabsTokens(
-    public val activeIndicatorHeight: Dp,
     public val containerGap: Dp,
     public val containerHeightWithIcon: Dp,
     public val containerShape: Dp,
