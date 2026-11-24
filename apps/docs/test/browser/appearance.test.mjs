@@ -27,7 +27,7 @@ import { bounded, engines, launch, settlePage } from './launch.mjs';
 
 register('../vite-shim.mjs', import.meta.url);
 const { strings } = await import('../../src/lib/i18n.ts');
-const { APPEARANCE_KEY, CUSTOM_KEY, CUSTOM_LOOK, LOOK_SHEET_ID, PENDING_ATTR, SHEET_STORE } = await import('../../src/lib/appearance.ts');
+const { APPEARANCE_KEY, CUSTOM_KEY, CUSTOM_LOOK, LATE_ATTR, LOOK_SHEET_ID, PENDING_ATTR, REVEAL_AFTER, SHEET_STORE } = await import('../../src/lib/appearance.ts');
 
 const docs = fileURLToPath(new URL('../../', import.meta.url));
 const dist = path.join(docs, 'dist');
@@ -262,23 +262,37 @@ for (const engine of ENGINES) {
           await until(page, `${engine}: the theme's stylesheet in IndexedDB`, sheetKept, { ...SHEET_STORE, hash: 'look1acme' });
           await page.reload();
         }
+        // What the reader sees is the page once it is shown. A page hidden for its look's stylesheet still names the
+        // look it waits for, and gives it up when the sheet is not in after the reveal limit (`REVEAL_AFTER`): it is
+        // then drawn in the default system and says so (`LATE_ATTR`), and the sheet is not put in on that page — it
+        // would move everything drawn — but kept for the next one. Where the first paint is not held for a gallery
+        // example's link (Firefox, WebKit), or the reader's theme's sheet is read from IndexedDB, a loaded machine can
+        // pass that limit with the sheet already kept (Firefox's IndexedDB read in CI): no wait of the test's keeps the
+        // page's own limit from passing. A late page is drawn so by design, and is asserted as drawn, whole, in the
+        // default system.
+        await bounded(`${engine}: the page shown`, page.waitForFunction((pending) => !document.documentElement.hasAttribute(pending), PENDING_ATTR, { timeout: 60_000 }));
         await settled(page);
-        assert.equal((await root(page)).look, look);
+        const late = await page.evaluate((attr) => document.documentElement.getAttribute(attr), LATE_ATTR);
+        assert.ok(late === null || (late === look && look !== DEFAULT), `late only for the look asked for, never for the default system (late: ${late})`);
+        const shown = late ? DEFAULT : look;
+        if (late) t.diagnostic(`${engine}: ${look}'s stylesheet not in after ${REVEAL_AFTER} ms; the page is drawn in ${DEFAULT}, as a late page is`);
+        assert.equal((await root(page)).look, shown);
         const sheet = await lookSheet(page);
-        if (look === DEFAULT) assert.equal(sheet, null);
+        if (late) assert.equal(sheet, null, 'the late sheet is not put in on that page');
+        else if (look === DEFAULT) assert.equal(sheet, null);
         else if (look === CUSTOM_LOOK) assert.equal(sheet?.as, 'style', 'the reader’s theme’s sheet, in a style of its own');
         else assert.match(sheet?.href ?? '', new RegExp(`/look-${look}\\.[0-9a-f]{8}\\.css$`), 'the gallery example’s sheet, linked');
         const { parts, given, font } = await drawnParts(page);
         for (const { part, what, token } of PARTS) {
           // A shipped system's value is on disk; the reader's theme's is what its sheet gives the root.
-          const want = look === CUSTOM_LOOK ? computedRgb(given[part]) : computedRgb(rgbOf(resolvedIn(look, token)));
-          assert.equal(computedRgb(parts[part] ?? 'none'), want, `${look}: ${what} (${token})`);
+          const want = shown === CUSTOM_LOOK ? computedRgb(given[part]) : computedRgb(rgbOf(resolvedIn(shown, token)));
+          assert.equal(computedRgb(parts[part] ?? 'none'), want, `${look}, drawn in ${shown}: ${what} (${token})`);
         }
-        if (look === CUSTOM_LOOK) assert.notEqual(computedRgb(given.stage), computedRgb(rgbOf(resolvedIn(DEFAULT, 'comp.button.filled.container.color'))), 'the theme’s own brand color, not the default system’s');
+        if (shown === CUSTOM_LOOK) assert.notEqual(computedRgb(given.stage), computedRgb(rgbOf(resolvedIn(DEFAULT, 'comp.button.filled.container.color'))), 'the theme’s own brand color, not the default system’s');
         // The content's face: the look's own stack, first. (A gallery example's face is set by the faces the site
         // registers, which do not follow the look yet: styles/fonts.generated.css writes the default system's stacks on
         // the root for every look.)
-        const stack = resolvedIn(look === CUSTOM_LOOK ? DEFAULT : look, 'sys.typescale.body')?.fontFamily;
+        const stack = resolvedIn(shown === CUSTOM_LOOK ? DEFAULT : shown, 'sys.typescale.body')?.fontFamily;
         await t.test(`${look}: the content's text is set in the look's own face`, { todo: firstFamily(stack) !== firstFamily(resolvedIn(DEFAULT, 'sys.typescale.body').fontFamily) ? 'the faces the site registers set the default system’s stacks on the root, whatever the look' : false }, () => {
           assert.equal(firstFamily(font.split(',')[0].trim()), firstFamily(stack));
         });
