@@ -1728,8 +1728,13 @@ test.describe('the time', () => {
   });
 
   test('DTM-24: the number under the handle is drawn by the copy inside it in dial.selected-label.color, and axe checks its contrast on the handle — the face’s covered number is not drawn and not checked — in light and dark', async ({ page }) => {
+    // The picker alone in the stage, as the accessibility tests mount it: `mount` would put the product's opener button
+    // before it, drawn in the browser's own button colors, which are the engine's and not the picker's (on Linux
+    // WebKit's dark scheme, below 4.5:1), and axe would check that button too.
+    await page.setViewportSize({ width: 480, height: 720 });
     for (const theme of ['light', 'dark'] as const) {
-      await mount(page, [opened('b', { mode: 'time', value: '19:30', hourCycle: 'h23', entryMode: 'dial' })], { theme });
+      await mountFixtures(page, spec, { theme, icons: true, fixtures: [opened('b', { mode: 'time', value: '19:30', hourCycle: 'h23', entryMode: 'dial' })] });
+      await motionEnded(page);
       const results = await (await pickerAxe(page)).withRules(['color-contrast']).analyze();
       const nodes = (kind: 'passes' | 'violations' | 'incomplete') => results[kind].flatMap((rule) => rule.nodes).map((node) => ({ target: JSON.stringify(node.target), html: node.html.replace(/<!--[^>]*-->/g, '') }));
       expect(nodes('violations'), theme).toEqual([]);
