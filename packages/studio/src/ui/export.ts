@@ -168,7 +168,8 @@ export function createExportSheet(ctx: Ctx, options: ExportOptions) {
     const lines = commands(name).join('\n');
     return [
       h('p', { class: 'ts-help' }, rich((at) => words.commandHelp(at(h('code', { text: name })), at(h('code', { text: `design/${name}` }))))),
-      code({ language: 'sh', label: words.commandLabel, ...copyLabels(words.copyCommand), 'data-export-commands': true }, lines),
+      // Wrapped: each command is read whole in the sheet's width, and nothing scrolls sideways.
+      code({ language: 'sh', label: words.commandLabel, wrap: true, ...copyLabels(words.copyCommand), 'data-export-commands': true }, lines),
       h('p', { class: 'ts-help' }, rich((at) => words.commandExisting(at(h('code', { text: build }))))),
     ];
   }
