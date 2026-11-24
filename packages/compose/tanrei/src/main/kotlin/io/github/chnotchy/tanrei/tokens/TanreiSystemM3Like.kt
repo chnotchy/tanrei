@@ -2572,6 +2572,7 @@ private object M3LikeSystemSource {
             counterTypescale = typescale.labelSmall,
             inputPaddingBlock = 8.dp,
             layoutInlineMinWidth = 360.dp,
+            layoutInputMinWidth = 160.dp,
             motionGlyphFadeDuration = 150,
             motionResizeDuration = 500,
             motionResizeEasing = TanreiCubicBezier(x1 = 0.27f, y1 = 1.06f, x2 = 0.18f, y2 = 1f),

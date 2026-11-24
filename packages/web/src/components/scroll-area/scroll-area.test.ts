@@ -11,6 +11,7 @@ import { motionEnded } from '../../../test/motions.js';
 import { allSettled } from '../../../test/settled.js';
 import { transitionsRun, watchTransitions } from '../../../test/transitions.js';
 import { expectBaseline } from '../../../test/baseline.js';
+import { contrastChecked } from '../../../test/contrast-checked.js';
 
 const spec = loadSpec('scroll-area');
 type P = Page;
@@ -674,4 +675,16 @@ test.describe('fixtures', () => {
       await expectBaseline(stage(page, f.id), [spec.name, `${f.id}.png`]);
     });
   }
+});
+
+test.describe('accessibility: what is drawn over the content', () => {
+  test('SCA-11, SCA-12: the boxes of the edges\' marks and the box that carries the focus indicator hide no text from a contrast check — faint text is reported, the content\'s own colors pass', async ({ page }) => {
+    // An element drawn over a text is, to axe's color-contrast, an element covering it, whatever its pointer-events: it
+    // left the text incomplete ("overlapped by another element") instead of checking it, so faint text passed unseen.
+    await mountFixtures(page, spec, { fixtures: [{ id: 'marked', props: { label: 'Messages' }, content: '<p data-text="faint" style="margin: 0; color: #bbb">Faint text</p><p data-text="normal" style="margin: 0">Readable text</p>' }] });
+    const checked = await contrastChecked(page);
+    expect(checked.violations, 'the faint text is reported').toEqual(['faint']);
+    expect(checked.passes, 'the content\'s own colors pass').toEqual(['normal']);
+    expect(checked.incomplete, 'nothing is left unchecked').toEqual([]);
+  });
 });

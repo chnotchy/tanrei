@@ -1,6 +1,6 @@
 import { type CSSResultGroup, type CSSResultOrNative, LitElement, ReactiveElement } from 'lit';
 import { settleStyles, stillPointerStyles } from '../styles/motion.js';
-import { flatParent } from './flat-tree.js';
+import { flatParent, focusedIn } from './flat-tree.js';
 import { Settle } from './motion.js';
 
 // The base every element of this package extends, so that what each of them owes from its first frame is written once.
@@ -42,13 +42,6 @@ import { Settle } from './motion.js';
 // focusable itself) unless the element overrides it to focus a part it draws. `focus()` itself is written here only
 // (test/kept-focus.test.mjs refuses an override of it elsewhere); an override of `blur()` calls `super.blur()` or
 // `forgetKeptFocus()`.
-
-/** What has focus in `document`, inside every shadow root it is in. */
-function focusedIn(document: Document): Element | null {
-  let active = document.activeElement;
-  while (active?.shadowRoot?.activeElement) active = active.shadowRoot.activeElement;
-  return active;
-}
 
 /** Whether `inner` is `outer`, or is drawn inside it: in its shadow root, or slotted into it. */
 function within(inner: Element | null, outer: Element): boolean {

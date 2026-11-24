@@ -5,6 +5,7 @@ import type { TanreiTagSizeRegistry, TanreiTagVariantRegistry } from '../../regi
 import { AXES, STATUSES, styles } from './tag.styles.js';
 import { ownDirection } from '../../styles/product-text.js';
 import { TanreiElement } from '../../primitives/element.js';
+import { DEBUG } from '../../primitives/debug.js';
 
 /** The core variants (tonal, outlined, filled), plus any a design system's generated `.d.ts` registers. */
 export type TanreiTagVariant = keyof TanreiTagVariantRegistry;
@@ -136,12 +137,12 @@ export class TanreiTag extends TanreiElement {
 
   protected override updated(changed: PropertyValues) {
     // TAG-19: a status this spec does not have is drawn as default. (An unknown size or variant is the axes' to report.)
-    if (changed.has('status') && this.status !== 'default' && !isStatus(this.status)) {
+    if (DEBUG && changed.has('status') && this.status !== 'default' && !isStatus(this.status)) {
       report(this, 'TAG-19', `status "${this.status}" is not a status of a tag; it is drawn as "default"`);
     }
     // TAG-20: it still renders nothing; a debug build says what is missing.
-    if (changed.has('label') && this.empty) report(this, 'TAG-20', 'label is empty, so the tag draws nothing; a glyph or a dot alone is not a tag');
-    if ((changed.has('statusLabel') || changed.has('status')) && this.statusLabel && this.effectiveStatus === 'default') {
+    if (DEBUG && changed.has('label') && this.empty) report(this, 'TAG-20', 'label is empty, so the tag draws nothing; a glyph or a dot alone is not a tag');
+    if (DEBUG && (changed.has('statusLabel') || changed.has('status')) && this.statusLabel && this.effectiveStatus === 'default') {
       report(this, 'TAG-20', `statusLabel "${this.statusLabel}" is ignored while status is default; give the tag a status, or put the words in its label`);
     }
   }

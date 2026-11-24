@@ -10,6 +10,7 @@ import { disabledWaitsWhileFocused } from '../../primitives/disabled-while-focus
 import { focusedAtFirst } from '../../primitives/autofocus.js';
 import { COMPOSITION_INPUT_TYPES, CompositionEnd } from '../../primitives/composition-end.js';
 import { TanreiElement } from '../../primitives/element.js';
+import { DEBUG } from '../../primitives/debug.js';
 
 /** What a cell takes: the digits 0 to 9, or those and the letters A to Z, held in upper case. */
 export type TanreiOneTimeCodeInputType = CodeType;
@@ -279,13 +280,13 @@ export class TanreiOneTimeCodeInput extends TanreiElement {
   }
 
   protected override willUpdate(changed: PropertyValues<this>) {
-    if (changed.has('length') && this.cells !== Number(this.length)) {
+    if (DEBUG && changed.has('length') && this.cells !== Number(this.length)) {
       report(this, 'OTC-19', `length ${String(this.length)} is not a whole number of 1 or more; ${DEFAULT_LENGTH} cells are drawn`);
     }
-    if (changed.has('type') && !TYPES.includes(this.type)) report(this, 'OTC-19', `type "${String(this.type)}" is not a value of the one-time-code input; it behaves as "numeric"`);
+    if (DEBUG && changed.has('type') && !TYPES.includes(this.type)) report(this, 'OTC-19', `type "${String(this.type)}" is not a value of the one-time-code input; it behaves as "numeric"`);
     if (changed.has('groupSize') || changed.has('length')) {
       const size = Number(this.groupSize);
-      if (!(Number.isInteger(size) && size >= 0 && size <= this.cells - 1)) {
+      if (DEBUG && !(Number.isInteger(size) && size >= 0 && size <= this.cells - 1)) {
         report(this, 'OTC-19', `groupSize ${String(this.groupSize)} is not a whole number from 0 to length minus 1 (${this.cells - 1}); one group is drawn`);
       }
     }
@@ -295,7 +296,7 @@ export class TanreiOneTimeCodeInput extends TanreiElement {
       const given = String(this.value ?? '');
       const fromProduct = given !== this.held;
       const { value, dropped } = readValue(given, this.cells, this.kind);
-      if (fromProduct && dropped) report(this, 'OTC-18', `value "${given}" holds characters a ${this.kind} code of ${this.cells} cannot; "${value}" is shown`, { once: false });
+      if (DEBUG && fromProduct && dropped) report(this, 'OTC-18', `value "${given}" holds characters a ${this.kind} code of ${this.cells} cannot; "${value}" is shown`, { once: false });
       this.value = value;
       this.held = value;
       if (fromProduct) {
@@ -306,7 +307,7 @@ export class TanreiOneTimeCodeInput extends TanreiElement {
       } else this.state = settle({ ...this.state, value }, this.cells);
     }
     // OTC-22: a field without a name still renders; a debug build says what is missing.
-    if ((changed.has('label') || !this.hasUpdated) && !this.label.trim() && !this.field.label && !namedByProduct(this)) {
+    if (DEBUG && (changed.has('label') || !this.hasUpdated) && !this.label.trim() && !this.field.label && !namedByProduct(this)) {
       report(this, 'OTC-22', 'label is empty and no field frames it, so the one-time-code input has no accessible name; put it in a field with a label, or give it a label');
     }
     // OTC-20: a disabled field has no focus and no active cell (a native element that is disabled while it has focus

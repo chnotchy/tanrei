@@ -4,10 +4,10 @@ import { acceptConverter, acceptList } from '../../primitives/file-format.js';
 import { type FileJudgement, type FileRefused, type FileRejectReason, countLimit, dragAnswer, droppedFiles, givenFiles, holdsFiles, judgeFiles, readAccept, sizeLimit } from '../../primitives/file-judge.js';
 import { ambientLocale } from '../../primitives/locale-date.js';
 import { fillPlaces, reportPlaces } from '../../primitives/places.js';
-import { debugBuild } from '../../primitives/report.js';
 import { type WordKey, wordPlaces } from '../../generated/words.js';
 import { styles } from './drop-zone.styles.js';
 import { TanreiElement } from '../../primitives/element.js';
+import { DEBUG } from '../../primitives/debug.js';
 
 /** Why a file was refused — the File picker's reasons: its kind, its size, or how many there were. */
 export type TanreiDropZoneRejectReason = FileRejectReason;
@@ -292,10 +292,10 @@ export class TanreiDropZone extends TanreiElement {
       if (!n) return;
       const sentence = this.words.get(key, own);
       if (!sentence) {
-        this.words.missing(key, { prop: WORD_PROPS[key], id: 'DRZ-11', effect });
+        this.words.missing(key, DEBUG && { prop: WORD_PROPS[key], id: 'DRZ-11', effect });
         return;
       }
-      reportPlaces(this, 'DRZ-11', WORD_PROPS[key], sentence, wordPlaces[key] ?? [], 'it is said as it is written');
+      if (DEBUG) reportPlaces(this, 'DRZ-11', WORD_PROPS[key], sentence, wordPlaces[key] ?? [], 'it is said as it is written');
       said.push(fillPlaces(sentence, { count: count(n) }).runs.map((run) => run.text).join(''));
     };
     say('filesDroppedText', this.droppedText, passed, 'nothing is said for the files that passed');
@@ -305,7 +305,7 @@ export class TanreiDropZone extends TanreiElement {
 
   /** DRZ-13: the first drag over the zone, on a page with no way to choose a file without a pointer, is reported. */
   private checkPicker() {
-    if (this.pickerChecked || !debugBuild()) return;
+    if (this.pickerChecked || !DEBUG) return;
     this.pickerChecked = true;
     if (!pickerOnPage()) report(this, 'DRZ-13', 'the page has no file picker, so files can be added only by dragging them, which a keyboard, a screen reader and most touch screens cannot do; add a tanrei-file-picker or a tanrei-file-upload to the screen');
   }
@@ -340,11 +340,11 @@ export class TanreiDropZone extends TanreiElement {
   /** DRZ-20: a value that sets no limit, and an entry of accept that says no kind, are reported. */
   private reports(changed: PropertyValues<this>) {
     const has = (name: keyof TanreiDropZone) => changed.has(name);
-    if (has('maxSize') && this.maxSize !== null && sizeLimit(this.maxSize) === null) report(this, 'DRZ-20', `max-size "${String(this.maxSize)}" is not a number above zero; no size limit is set`);
-    if (has('maxFiles') && this.maxFiles !== null && countLimit(this.maxFiles) === null) report(this, 'DRZ-20', `max-files "${String(this.maxFiles)}" is not a whole number of zero or more; no limit of files is set`);
+    if (DEBUG && has('maxSize') && this.maxSize !== null && sizeLimit(this.maxSize) === null) report(this, 'DRZ-20', `max-size "${String(this.maxSize)}" is not a number above zero; no size limit is set`);
+    if (DEBUG && has('maxFiles') && this.maxFiles !== null && countLimit(this.maxFiles) === null) report(this, 'DRZ-20', `max-files "${String(this.maxFiles)}" is not a whole number of zero or more; no limit of files is set`);
     if (has('accept')) {
       const { ignored } = readAccept(acceptList(this.accept));
-      if (ignored.length) report(this, 'DRZ-20', `accept holds ${ignored.map((entry) => `"${entry}"`).join(', ')}, which is neither an extension with its dot nor a media type; it is ignored`);
+      if (DEBUG && ignored.length) report(this, 'DRZ-20', `accept holds ${ignored.map((entry) => `"${entry}"`).join(', ')}, which is neither an extension with its dot nor a media type; it is ignored`);
     }
   }
 
@@ -354,7 +354,7 @@ export class TanreiDropZone extends TanreiElement {
     const key = refusing ? 'dropZoneRefusingText' : 'dropZoneText';
     const text = this.words.get(key, refusing ? this.refusingText : this.dropText);
     // DRZ-12: a word is needed only where its panel is drawn.
-    if (drag && !text) this.words.missing(key, { prop: WORD_PROPS[key], id: 'DRZ-12', effect: 'the panel is drawn with its glyph alone' });
+    if (drag && !text) this.words.missing(key, DEBUG && { prop: WORD_PROPS[key], id: 'DRZ-12', effect: 'the panel is drawn with its glyph alone' });
     return html`<slot></slot
       ><div part="overlay" class="overlay" data-drag=${drag || nothing} aria-hidden="true">
         <div class="edge"></div>

@@ -113,7 +113,7 @@ The members bring the typing with its growing height, the keys, each file item a
 | Several lines | Every button stays at the bottom edge | The send button stays at the bottom edge of the typing line |
 | For | Short messages, a narrow panel | Many actions, messages written in paragraphs |
 
-A capsule narrower than `comp.chat-composer.layout.inline-min-width` is laid out stacked whatever `layout` says. A stacked composer with nothing for the row beneath is drawn as an inline one. The number of lines never changes the layout.
+A capsule narrower than `comp.chat-composer.layout.inline-min-width` is laid out stacked whatever `layout` says, and so is one whose actions, counter and send button would leave the typing area narrower than `comp.chat-composer.layout.input-min-width`: a composer with many actions stacks sooner, so the text never wraps in a column a few letters wide. The counter is counted as wide as it is at `maxLength`, so typing never changes the layout. A stacked composer with nothing for the row beneath is drawn as an inline one. The number of lines never changes the layout.
 
 ### What can be sent
 

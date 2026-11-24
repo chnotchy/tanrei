@@ -68,6 +68,8 @@ export class PressController implements ReactiveController {
     return (typeof keys === 'function' ? keys() : keys) ?? DEFAULT_KEYS;
   }
   private pressedAt = 0;
+  /** Press-hold as the press found it, in ms. */
+  private hold = 0;
   /**
    * What is holding the press down: a pointer, a key, or both at once. A pointer's press ends with the pointer, a key's
    * with the key or with focus, and the press ends when nothing holds it any more.
@@ -96,6 +98,12 @@ export class PressController implements ReactiveController {
     clearTimeout(this.holdTimer);
     const named = pressedFeedback(this.host);
     const feedback = this.options.feedback ? this.options.feedback(named) : named;
+    // Press-hold is read with the feedback, from the style that read brought up to date, before the press writes
+    // anything: read at the release instead, it had the page styled once more in the pointerup's task, after the
+    // press's own changes and the focus it moved (WebKit styles the whole document to answer either read).
+    // The carrier holds press-hold as a transition-delay, which computes to seconds (see pressHold()).
+    const carrier = this.options.holdCarrier();
+    this.hold = carrier ? Number.parseFloat(getComputedStyle(carrier).transitionDelay) * 1000 : 0;
     this.pressedAt = performance.now();
     container.dataset.pressed = feedback;
     this.removeRipple();
@@ -118,9 +126,7 @@ export class PressController implements ReactiveController {
     else this.heldBy.clear();
     if (this.heldBy.size > 0) return;
     clearTimeout(this.holdTimer);
-    // The carrier holds press-hold as a transition-delay, which computes to seconds (see pressHold()).
-    const carrier = this.options.holdCarrier();
-    const hold = carrier ? Number.parseFloat(getComputedStyle(carrier).transitionDelay) * 1000 : 0;
+    const hold = this.hold;
     // A timer may fire a little early, so the clock decides, not the timer.
     const wait = () => {
       const remaining = (Number.isFinite(hold) ? hold : 0) - (performance.now() - this.pressedAt);

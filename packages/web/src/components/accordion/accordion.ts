@@ -16,11 +16,11 @@ import {
   syncFocusStyle,
 } from '../../primitives/index.js';
 import { PendingGlyphs, isGlyphProbe } from '../../primitives/glyph-pending.js';
-import { debugBuild } from '../../primitives/report.js';
 import type { TanreiAccordionSizeRegistry, TanreiAccordionVariantRegistry } from '../../registry.js';
 import { adopt, adoptUnlessDrawn } from '../../primitives/sheets.js';
 import { TanreiLightElement } from '../../primitives/element.js';
 import { TYPE_LONGHANDS } from '../../styles/type.js';
+import { DEBUG } from '../../primitives/debug.js';
 
 /** The core looks (plain, outlined), plus any a design system's generated `.d.ts` registers. */
 export type TanreiAccordionVariant = keyof TanreiAccordionVariantRegistry;
@@ -343,7 +343,7 @@ export class TanreiAccordion extends TanreiLightElement {
 
   protected override updated(changed: PropertyValues) {
     // ACC-10: a separation the accordion does not define is auto (no rule matches the attribute); a debug build says so.
-    if (changed.has('separation') && !(SEPARATION_VALUES as readonly string[]).includes(this.separation)) {
+    if (DEBUG && changed.has('separation') && !(SEPARATION_VALUES as readonly string[]).includes(this.separation)) {
       report(this, 'ACC-10', `separation "${this.separation}" is not a value the accordion defines; it is drawn as "auto"`);
     }
     if (changed.has('variant')) this.readAxis('variant', String(this.variant ?? ''), CORE_VARIANTS, DEFAULT_VARIANT, variantRules, (value) => `${PREFIX}-${value}-label-color`);
@@ -421,7 +421,7 @@ export class TanreiAccordion extends TanreiLightElement {
     if (core.includes(value)) return;
     const known = KEY.test(value);
     if (known) adopt(this.getRootNode() as Root, sheet(`${axis}:${value}`, () => rules(value)));
-    if (!known || getComputedStyle(this).getPropertyValue(probe(value)).trim() === '') {
+    if (DEBUG && (!known || getComputedStyle(this).getPropertyValue(probe(value)).trim() === '')) {
       report(this, 'ACC-34', `${axis} "${value}" is not a value of the active design system; it is drawn as "${fallback}"`);
     }
   }
@@ -453,7 +453,7 @@ export class TanreiAccordion extends TanreiLightElement {
     // ACC-10: where the browser answers style queries the stylesheet reads the choice itself, and nothing is written.
     mark(this, 'data-separation', styleQueries() ? null : compChoice(this, '--_acc-separation', SEPARATIONS));
     this.glyphs.read();
-    if (debugBuild()) {
+    if (DEBUG) {
       // An accordion that is still being parsed is read again when it is whole: an item may not have its content yet.
       if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', () => this.read(), { once: true });
       else this.check(items);
@@ -469,7 +469,7 @@ export class TanreiAccordion extends TanreiLightElement {
     if (this.exclusive) {
       const open = items.filter((details) => details.open);
       if (open.length > 1) {
-        report(this, 'ACC-12', `an exclusive accordion was given ${open.length} open items; the first is drawn open and the others closed`, { once: false });
+        if (DEBUG) report(this, 'ACC-12', `an exclusive accordion was given ${open.length} open items; the first is drawn open and the others closed`, { once: false });
         for (const details of open.slice(1)) this.closeAtOnce(details);
       }
       for (const details of items) {
@@ -534,25 +534,25 @@ export class TanreiAccordion extends TanreiLightElement {
   private check(items: HTMLDetailsElement[]) {
     let depth = 1;
     for (let outer = this.parentElement?.closest(TAG); outer; outer = outer.parentElement?.closest(TAG)) depth++;
-    if (depth > MAX_DEPTH) report(this, 'ACC-32', `accordions are nested ${depth} levels deep; more than ${MAX_DEPTH} is hard to follow`);
+    if (DEBUG && depth > MAX_DEPTH) report(this, 'ACC-32', `accordions are nested ${depth} levels deep; more than ${MAX_DEPTH} is hard to follow`);
     for (const details of items) {
       const summary = summaryOf(details);
       if (!summary) {
-        report(details, 'ACC-24', 'the item has no <summary>: its header has no accessible name, and the browser draws one of its own');
+        if (DEBUG) report(details, 'ACC-24', 'the item has no <summary>: its header has no accessible name, and the browser draws one of its own');
         continue;
       }
       const label = [...summary.childNodes].filter(
         (node) => !(node instanceof Element && node.matches('.tanrei-icon, [data-supporting-text], [data-trailing-text], .ripple')) && (node instanceof Element || !!node.textContent?.trim()),
       );
       const named = label.some((node) => !!node.textContent?.trim()) || !!summary.getAttribute('aria-label')?.trim() || summary.hasAttribute('aria-labelledby');
-      if (!named) report(details, 'ACC-24', 'the header has no accessible name; give the summary its label');
+      if (DEBUG && !named) report(details, 'ACC-24', 'the header has no accessible name; give the summary its label');
       // ACC-3: a header is one button and holds no other control.
       const control = label.map((node) => (node instanceof Element ? findInteractive(node) : null)).find(Boolean);
-      if (control) report(details, 'ACC-3', `the label holds a control (<${control.localName}>): a header is one button and holds no other; put the action in the item's content`);
-      if (label.length > 1) report(details, 'ACC-3', 'the label is several nodes, and each is laid out as a part of the header; put text with inline content in one <span>');
+      if (DEBUG && control) report(details, 'ACC-3', `the label holds a control (<${control.localName}>): a header is one button and holds no other; put the action in the item's content`);
+      if (DEBUG && label.length > 1) report(details, 'ACC-3', 'the label is several nodes, and each is laid out as a part of the header; put text with inline content in one <span>');
       // ACC-35: a header that opens onto nothing.
       const content = [...details.childNodes].some((node) => node !== summary && (node instanceof Element || !!node.textContent?.trim()));
-      if (!content) report(details, 'ACC-35', 'the item has no content: its header shows and hides nothing');
+      if (DEBUG && !content) report(details, 'ACC-35', 'the item has no content: its header shows and hides nothing');
     }
   }
 
