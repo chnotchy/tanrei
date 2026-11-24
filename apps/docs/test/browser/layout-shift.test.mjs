@@ -219,8 +219,8 @@ describe(`the layout shifts by no more than ${SCROLL_BUDGET} while a reader page
       try {
         const page = await context.newPage();
         await page.addInitScript(observeShifts);
-        // The page loaded and quiet — what its first view asked for, and what it asks for once idle — as it is by the
-        // time a reader has read that view.
+        // The page loaded and quiet — what its first view asked for, and what it asks for right after its load — as it
+        // is by the time a reader has read that view.
         const network = await watchNetwork(page);
         await page.goto(origin + url, { waitUntil: 'load' });
         await network.quiet({ worker: /\/sheet-worker-[^/]*\.js$/ });
