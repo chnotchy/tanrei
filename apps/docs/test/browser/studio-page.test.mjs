@@ -484,6 +484,29 @@ for (const engine of ENGINES) {
       }
     });
 
+    test('390 wide, in each of the six languages: Export’s Command tab fits the window, its commands wrapped and whole, and axe finds nothing', LIMIT, async () => {
+      for (const prefix of ['', '/ja', '/es', '/ar', '/hi', '/zh-cn']) {
+        const { page, problems, close } = await open(browser, { url: `${prefix}/studio/`, viewport: NARROW });
+        try {
+          await page.locator('[data-export-open]').click();
+          await page.waitForFunction(() => document.querySelector('[data-export-sheet]').open);
+          await page.locator('[data-export-tabs] > tanrei-tab[data-tab="command"]').click();
+          const commands = page.locator('[data-export-commands]');
+          await commands.waitFor();
+          assert.match(await commands.evaluate((el) => el.code), /\nnpx tanrei init --from acme\.system\.json\n/, prefix);
+          const sheet = await box(page, '[data-export-sheet] [data-export]');
+          const block = await box(page, '[data-export-commands]');
+          assert.ok(block.left >= sheet.left && block.right <= sheet.right, `${prefix || '/'}: the block within the sheet ${JSON.stringify({ sheet, block })}`);
+          assert.equal(await page.evaluate(() => document.scrollingElement.scrollWidth), NARROW.width, `${prefix || '/'}: nothing wider than the window`);
+          const report = await new AxeBuilder({ page }).include('[data-export-sheet]').analyze();
+          assert.deepEqual(report.violations.map((violation) => `${violation.id}: ${violation.nodes.length} — ${violation.nodes[0]?.target}`), [], `${prefix || '/'}: axe`);
+          assert.deepEqual(problems, []);
+        } finally {
+          await close();
+        }
+      }
+    });
+
     test('Export: the file, the next steps as the CLI takes them, and a link to the layer', LIMIT, async () => {
       const { page, problems, close } = await open(browser);
       try {
@@ -503,7 +526,7 @@ for (const engine of ENGINES) {
         const commands = page.locator('[data-export-commands]');
         await commands.waitFor();
         assert.equal(await commands.evaluate((el) => el.code), 'npm install --save-dev @tanrei/cli\nnpx tanrei init --from acme.system.json\nnpx tanrei build');
-        assert.deepEqual(await commands.evaluate((el) => [el.getAttribute('label'), el.hasAttribute('copy'), el.getAttribute('copy-label')]), ['Commands to run in your product', true, 'Copy the command']);
+        assert.deepEqual(await commands.evaluate((el) => [el.getAttribute('label'), el.hasAttribute('copy'), el.getAttribute('copy-label'), el.hasAttribute('wrap')]), ['Commands to run in your product', true, 'Copy the command', true], 'named, copied whole, and wrapped: nothing scrolls sideways');
         assert.doesNotMatch(await commands.evaluate((el) => el.code), /https?:|#/, 'no link in the command');
         // The keyboard reaches its copy button: Tab from the tab row lands in the block.
         await page.locator('[data-export-tabs] > tanrei-tab[data-tab="command"]').focus();
