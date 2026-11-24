@@ -394,6 +394,23 @@ export const styles = css`
     pointer-events: none;
     background-color: var(--_layer);
     transition: background-color ${t('motion-state-duration')} ${t('motion-state-easing')};
+    /* The layer holds its color but draws nothing itself: it lies over the texts, and a box over text is what a
+       contrast checker sees covering it — the name and the second line went unchecked. Its ::before draws the same
+       color, under the ripple as the layer's own background was. */
+    visibility: hidden;
+  }
+  .layer::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    corner-shape: inherit;
+    background-color: inherit;
+    visibility: visible;
+    pointer-events: none;
+  }
+  .layer > .ripple {
+    visibility: visible;
   }
   /* A row's pressable body IS those bounds: it is grown by the outset on every side and takes it back as a margin, so
      its content stands where it stood and the row is no larger — and the layer, the focus ring around it (FIT-14) and
