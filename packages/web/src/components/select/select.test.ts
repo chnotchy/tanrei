@@ -781,6 +781,16 @@ test.describe('behavior: the trigger', () => {
     expect((await css(page.locator('html'), '--tanrei-sys-behavior-focus-style')).trim()).toBe('glow');
     await tabTo(page, container(page, 'one'));
     expect(await part(page, 'one', '.field').getAttribute('data-focus-style')).toBe('glow');
+    // Read in the task the focus arrives in, not a frame later: the field it is written on is not what holds the focus,
+    // and a check of that frame raced the read (BTN-10's fallback).
+    const sameTask = await container(page, 'one').evaluate((el: HTMLElement) => {
+      const field = el.closest<HTMLElement>('.field')!;
+      delete field.dataset.focusStyle;
+      el.blur();
+      el.focus();
+      return field.dataset.focusStyle ?? null;
+    });
+    expect(sameTask, 'written in the task the keyboard focus arrives in').toBe('glow');
     expect(await container(page, 'one').evaluate((el) => getComputedStyle(el, '::after').boxShadow)).not.toBe('none');
     expect(await css(container(page, 'one'), 'outline-style'), 'still no ring').toBe('none');
   });
