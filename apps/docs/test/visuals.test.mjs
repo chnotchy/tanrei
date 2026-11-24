@@ -14,7 +14,7 @@ import { fileURLToPath } from 'node:url';
 
 register('./vite-shim.mjs', import.meta.url);
 const { anatomyOf, anatomyAlt, blueprintStageOf, webPartsOf } = await import('../src/lib/visuals/anatomy.ts');
-const { lengthsNotDrawnOf, measureLinesOf, measuresOf } = await import('../src/lib/visuals/measure.ts');
+const { lengthsNotDrawnOf, measureLinesOf, measuresOf, partsNotDrawnOf } = await import('../src/lib/visuals/measure.ts');
 const { motionDemoOf, motionRoleOf, motionsOf, numbered } = await import('../src/lib/visuals/motion.ts');
 const { roleMapOf, rolesOf } = await import('../src/lib/visuals/roles.ts');
 const { drawnMatrixOf, drawsStateMatrix, matrixOf, PSEUDO_STATES } = await import('../src/lib/visuals/states.ts');
@@ -187,6 +187,24 @@ describe('the parts of the anatomy and measure figures', () => {
     const trailing = fixtureDocument('button').stages.find((stage) => stage.id === 'filled-trailing-icon').html;
     assert.ok(measureLinesOf('button', 'filled-trailing-icon', trailing).some(({ token }) => token === `${comp}.container.padding-inline-end-with-icon.medium`));
   });
+  test('a part drawn in the place of another holds that part’s padding, and the padding of both ends is measured at the other', () => {
+    // A color input's swatch stands where a text input's leading icon stands: the box's padding with an icon at the
+    // start, and its plain padding at the end, where the input ends without a picker button.
+    const { fixture, html } = blueprintStageOf('color-input');
+    const box = `${NS}.comp.input-box.container`;
+    const paddings = measureLinesOf('color-input', fixture, html).filter(({ kind }) => kind.startsWith('padding-inline'));
+    assert.deepEqual(
+      paddings.map(({ token, axis }) => [token, axis]),
+      [
+        [`${box}.padding-inline-with-icon.medium`, 'padding-start'],
+        [`${box}.padding-inline.medium`, 'padding-end'],
+      ],
+    );
+    // A text input with no icon: the plain padding, at the start.
+    const plain = blueprintStageOf('text-input');
+    const textPaddings = measureLinesOf('text-input', plain.fixture, plain.html).filter(({ kind }) => kind.startsWith('padding-inline'));
+    assert.deepEqual(textPaddings.map(({ token, axis }) => [token, axis]), [[`${box}.padding-inline.medium`, 'padding-start']]);
+  });
   test('every line is a length of a part the web draws as a box, the same in every state, for the fixture’s size and variant', () => {
     for (const name of withParts.filter(inDefault)) {
       const stage = blueprintStageOf(name);
@@ -207,13 +225,21 @@ describe('the parts of the anatomy and measure figures', () => {
   test('each length recorded as not drawn is a length of its component’s figure, over the fixture the figure is drawn over', () => {
     const record = JSON.parse(fs.readFileSync(new URL('../src/lib/visuals/lengths-not-drawn.json', import.meta.url), 'utf8'));
     assert.ok(Object.keys(record).length > 0);
-    for (const [name, { lengths }] of Object.entries(record)) {
+    for (const [name, { lengths = {}, parts = [] }] of Object.entries(record)) {
       const stage = blueprintStageOf(name);
       assert.ok(stage, `${name}: a figure`);
-      // Throws where the record names another fixture or a length the figure has not.
-      const notDrawn = lengthsNotDrawnOf(name, stage.fixture, measureLinesOf(name, stage.fixture, stage.html));
+      // Throws where the record names another fixture, a part the component has not, or a length the figure has not.
+      const lines = measureLinesOf(name, stage.fixture, stage.html);
+      const notDrawn = lengthsNotDrawnOf(name, stage.fixture, lines);
       assert.deepEqual([...notDrawn.keys()], Object.keys(lengths), name);
       for (const value of notDrawn.values()) assert.ok(value === null || (typeof value === 'number' && value >= 0), `${name}: ${value}`);
+      // A part recorded as not drawn has no line, and the figure still has lines to draw (its browser test reads the record there).
+      assert.ok(lines.length > 0, `${name}: the figure has a length besides the parts the fixture does not draw`);
+      for (const part of parts) {
+        assert.ok(!lines.some((line) => line.part === part), `${name}: no length of ${part}, which the fixture does not draw`);
+        assert.ok(measuresOf(name).some((measure) => measure.part === part), `${name}: ${part} has a length to leave out`);
+      }
+      assert.deepEqual([...partsNotDrawnOf(name, stage.fixture)], parts, name);
     }
     assert.deepEqual([...lengthsNotDrawnOf('button', blueprintStageOf('button').fixture, []).keys()], [], 'a component the record does not name draws every length');
   });
