@@ -108,6 +108,15 @@ export const styles = css`
   .surface:popover-open {
     display: block;
   }
+  /* In place (the inline attribute, for tests and documentation): no popover; drawn while presented, inside the
+     positioned ancestor that stands for the window. */
+  :host([inline]) .surface {
+    display: none;
+    position: absolute;
+  }
+  :host([inline]) .surface.in-place {
+    display: block;
+  }
 
   /* TIP-26: the look. On a surface of the scheme — the first value of the choice, and so what an unknown name is — and
      inverse by a style query on the host's choice, which follows the attribute, a layer and a system switched on any

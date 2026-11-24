@@ -53373,6 +53373,18 @@
               "default": "null",
               "description": "How long, in ms, a tooltip opened by a long-press stays after the finger lifts; 0 closes it as the finger lifts. Null\ntakes `timeout.touch`.",
               "attribute": "touch-timeout"
+            },
+            {
+              "kind": "field",
+              "name": "inline",
+              "privacy": "public",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "For tests and documentation: draws the open container in place — inside its positioned ancestor, which stands for\nthe window — not in the top layer. It then answers no Escape and no press elsewhere, closes only when its anchor is\nremoved or hidden, and, in a window of its own, neither closes another tooltip nor is closed by one (TIP-8): a page\ncan show several open as pictures.",
+              "attribute": "inline",
+              "reflects": true
             }
           ],
           "events": [
@@ -53510,6 +53522,15 @@
               "default": "null",
               "description": "How long, in ms, a tooltip opened by a long-press stays after the finger lifts; 0 closes it as the finger lifts. Null\ntakes `timeout.touch`.",
               "fieldName": "touchTimeout"
+            },
+            {
+              "name": "inline",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "For tests and documentation: draws the open container in place — inside its positioned ancestor, which stands for\nthe window — not in the top layer. It then answers no Escape and no press elsewhere, closes only when its anchor is\nremoved or hidden, and, in a window of its own, neither closes another tooltip nor is closed by one (TIP-8): a page\ncan show several open as pictures.",
+              "fieldName": "inline"
             }
           ],
           "superclass": {
