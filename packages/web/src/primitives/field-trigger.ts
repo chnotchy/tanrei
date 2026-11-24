@@ -270,6 +270,11 @@ export function triggerEdgeStyles(): CSSResult {
   const motion = `var(--_state-duration) var(${P}-motion-state-easing)`;
   // What each rule is for is said here, not in the CSS: a comment inside the string would ship in every bundle.
   // - `.field[data-label-wraps] .notch-label`: A wrapped floated label opens the gap by the width of its widest line.
+  // - `.edge`, `.outline`: the parts hold the edge's values but draw nothing themselves — a box over the value is what a
+  //   contrast checker sees covering the text, and it left the field's text unchecked. Each line is drawn by the
+  //   `::before` of the element that holds it, as no element, over that element's border box (a positioned child is
+  //   placed in the padding box, which starts after the border): its color changes with the element's, its width over
+  //   motion.state-* there.
   return unsafeCSS(`
   .edge {
     position: absolute;
@@ -280,9 +285,8 @@ export function triggerEdgeStyles(): CSSResult {
     border-radius: inherit;
     corner-shape: inherit;
     pointer-events: none;
-    transition:
-      border-color ${motion},
-      border-width ${motion};
+    visibility: hidden;
+    transition: border-color ${motion};
   }
 
   .outline {
@@ -292,15 +296,36 @@ export function triggerEdgeStyles(): CSSResult {
     display: flex;
     pointer-events: none;
     corner-shape: inherit;
+    visibility: hidden;
   }
   .outline > span {
+    position: relative;
     box-sizing: border-box;
     border: 0 solid var(--_o);
     border-block-width: var(--_ow);
     corner-shape: inherit;
-    transition:
-      border-color ${motion},
-      border-width ${motion};
+    transition: border-color ${motion};
+  }
+  :is(.edge, .outline > span)::before {
+    content: '';
+    position: absolute;
+    inset: calc(var(--_ow) * -1);
+    box-sizing: border-box;
+    visibility: visible;
+    border: inherit;
+    border-radius: inherit;
+    corner-shape: inherit;
+    pointer-events: none;
+    transition: border-width ${motion};
+  }
+  .outline > span::before {
+    inset-inline: 0;
+  }
+  .outline > .outline-start::before {
+    inset-inline-start: calc(var(--_ow) * -1);
+  }
+  .outline > .outline-end::before {
+    inset-inline-end: calc(var(--_ow) * -1);
   }
   .outline-start {
     flex: none;
@@ -316,7 +341,6 @@ export function triggerEdgeStyles(): CSSResult {
     max-inline-size: calc(100% - var(--_pad) - var(--_end));
     transition:
       border-color ${motion},
-      border-width ${motion},
       grid-template-columns var(${P}-motion-label-duration) var(${P}-motion-label-easing) !important;
   }
   ${FLOATED} .outline-notch {

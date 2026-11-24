@@ -20,6 +20,7 @@ import { expectWheelKeptFromPage } from '../../../test/contained-wheel.js';
 import { holdClock } from '../../../test/page-clock.js';
 import { expectPressShownAndHeld, watchPress } from '../../../test/watched-press.js';
 import { type Fixture, type FixtureItem, acmeSystemCss, loadSpec, missingWords, mountFixtures, resolveColor, resolveToken, setWords, tab, tabTo, iconFaceArrives, withoutIconFont, inputBoxCopies, inputBoxOwn, inputBoxSetApart, inputBoxToken, rootTokens, mountFixtureAsInAll } from '../../../test/harness.js';
+import { coveredText } from '../../../test/covered-text.js';
 import { expectBaseline } from '../../../test/baseline.js';
 import { expectGoneWhileSkipped } from '../../../test/skipped-exit.js';
 import { expectBoxTakesContainerSize, expectOptionsTakeDrawnSize } from '../../../test/input-box-size.js';
@@ -3778,6 +3779,7 @@ test.describe('accessibility', () => {
       await mountFixtures(page, spec, { icons: true, theme });
       const results = await new AxeBuilder({ page }).include('.stage').analyze();
       expect(results.violations.map((v) => `${v.id}: ${v.nodes.map((n) => n.target.join(' ')).slice(0, 3).join(' | ')}`), theme).toEqual([]);
+      expect(await coveredText(page, results), `${theme}: no text left unchecked as covered`).toEqual([]);
     });
 
     test(`axe: the list in the top layer — filtered by typing, an option active, one disabled, groups, a status — has no violations in ${theme}`, async ({ page }) => {

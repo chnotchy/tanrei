@@ -972,9 +972,10 @@ export const styles = css`
     border-radius: inherit;
     corner-shape: inherit;
     pointer-events: none;
-    transition:
-      border-color var(--_state-duration) var(${unsafeCSS(BOX)}-motion-state-easing),
-      border-width var(--_state-duration) var(${unsafeCSS(BOX)}-motion-state-easing);
+    /* The part holds the edge's values but draws nothing itself: a box over the value is what a contrast checker sees
+       covering the text, and it left the field's text unchecked. Its ::before draws the same line (below). */
+    visibility: hidden;
+    transition: border-color var(--_state-duration) var(${unsafeCSS(BOX)}-motion-state-easing);
   }
 
   /* The outlined variant's edge (TXI-13, TXI-16): three pieces, so that the floated label opens a gap of
@@ -987,6 +988,8 @@ export const styles = css`
     display: flex;
     pointer-events: none;
     corner-shape: inherit;
+    /* Like the stacked edge, the outline and its pieces hold the values and draw nothing: each piece's ::before draws. */
+    visibility: hidden;
     /* TXI-34: the pieces are laid out left to right in either direction, and the whole edge is mirrored in right-to-left.
        Laid out in the layout's direction, a piece's start and end edges are its left and right ones in one direction and
        the other way round in the other, so a change of direction while the field is shown swaps the physical widths of
@@ -997,13 +1000,36 @@ export const styles = css`
     scale: -1 1;
   }
   .outline > span {
+    position: relative;
     box-sizing: border-box;
     border: 0 solid var(--_o);
     border-block-width: var(--_ow);
     corner-shape: inherit;
-    transition:
-      border-color var(--_state-duration) var(${unsafeCSS(BOX)}-motion-state-easing),
-      border-width var(--_state-duration) var(${unsafeCSS(BOX)}-motion-state-easing);
+    transition: border-color var(--_state-duration) var(${unsafeCSS(BOX)}-motion-state-easing);
+  }
+  /* The lines the edge's elements hold, drawn as no element, over each element's border box (a positioned child is
+     placed in its padding box, which starts after its border): the border as it is, its color changing with the
+     element's, its width over motion.state-* here. */
+  :is(.edge, .outline > span)::before {
+    content: '';
+    position: absolute;
+    inset: calc(var(--_ow) * -1);
+    box-sizing: border-box;
+    visibility: visible;
+    border: inherit;
+    border-radius: inherit;
+    corner-shape: inherit;
+    pointer-events: none;
+    transition: border-width var(--_state-duration) var(${unsafeCSS(BOX)}-motion-state-easing);
+  }
+  .outline > span::before {
+    inset-inline: 0;
+  }
+  .outline > .outline-start::before {
+    inset-inline-start: calc(var(--_ow) * -1);
+  }
+  .outline > .outline-end::before {
+    inset-inline-end: calc(var(--_ow) * -1);
   }
   .outline-start {
     flex: none;
@@ -1019,7 +1045,6 @@ export const styles = css`
     max-inline-size: calc(100% - var(--_pad) - var(--_end));
     transition:
       border-color var(--_state-duration) var(${unsafeCSS(BOX)}-motion-state-easing),
-      border-width var(--_state-duration) var(${unsafeCSS(BOX)}-motion-state-easing),
       grid-template-columns var(${unsafeCSS(BOX)}-motion-label-duration) var(${unsafeCSS(BOX)}-motion-label-easing) !important;
   }
   ${unsafeCSS(FLOATED)} .outline-notch {
@@ -1116,10 +1141,12 @@ export const styles = css`
     .literal,
     .segment::before,
     .edge,
+    .edge::before,
     .prefix,
     .suffix,
     .icon,
     .outline > span,
+    .outline > span::before,
     .outline-notch,
     .indicator {
       transition: none !important;

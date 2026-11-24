@@ -360,7 +360,9 @@ export const styles = css`
     .floating,
     .floating .asterisk,
     .edge,
+    .edge::before,
     .outline > span,
+    .outline > span::before,
     .outline-notch,
     .indicator {
       transition: none !important;

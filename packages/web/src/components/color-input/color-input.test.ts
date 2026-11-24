@@ -10,6 +10,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import AxeBuilder from '@axe-core/playwright';
+import { coveredText } from '../../../test/covered-text.js';
 import { type Locator, type Page, expect, test } from '@playwright/test';
 import { type Fixture, acmeSystemCss, loadSpec, missingWords, mountFixtures, resolveColor, resolveToken, setWords, tab, tabTo, inputBoxCopies, inputBoxSetApart, inputBoxToken, rootTokens } from '../../../test/harness.js';
 import { PICKER_START, channels, fromChannels, given, isValue, picked, read as readText, readCommitted, sameColor, valueOf } from './color-text.js';
@@ -2101,6 +2102,7 @@ test.describe('accessibility', () => {
     test(`axe: every fixture has no violations in ${theme}`, async ({ page }) => {
       await mountFixtures(page, spec, { icons: true, theme });
       const results = await new AxeBuilder({ page }).include('.stage').analyze();
+      expect(await coveredText(page, results), `${theme}: no text left unchecked as covered`).toEqual([]);
       expect(results.violations.map((v) => `${v.id}: ${v.nodes.map((n) => n.target.join(' ')).slice(0, 3).join(' | ')}`), theme).toEqual([]);
     });
 

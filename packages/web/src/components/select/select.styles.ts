@@ -437,7 +437,9 @@ export const styles = css`
     .floating .asterisk,
     .icon,
     .edge,
+    .edge::before,
     .outline > span,
+    .outline > span::before,
     .outline-notch,
     .indicator {
       transition: none !important;
