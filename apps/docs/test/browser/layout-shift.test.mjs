@@ -195,8 +195,10 @@ describe(`the layout shifts by no more than ${BUDGET} while a page loads`, { con
  * the 0.1 that Core Web Vitals calls good. It is a sum over the whole read, every entry of it, where the page's CLS is
  * only its largest burst (a window of five seconds at most), so the sum is the stricter of the two. It is not the tenth
  * the load is held to: a long page holds tables that are not laid out until they come near the view, each holding the
- * room of rows one line tall (ComponentSpecs.astro, the tokens' table), which wrap at this width — the Japanese Select's
- * page moved by 0.013 so as it was read through. Before a figure took its drawn room while it was still below the view
+ * room of rows one line tall (ComponentSpecs.astro, the tokens' table), which wrap at this width. (The Japanese Select's
+ * page moved by 0.013 so as it was read through until its measure figure's table said from the first frame which
+ * length the component does not draw (lib/visuals/measure.ts, `lengthsNotDrawnOf`): a note written in once the figure
+ * was drawn pushed that table's first column wide.) Before a figure took its drawn room while it was still below the view
  * (lib/example.ts, `releaseSoon`), each of these pages moved by more than twice this: the Date and time picker's by 0.074, the
  * Text field's by 0.075 (0.236 in Arabic) and the Japanese Select's by 0.078.
  */
@@ -256,9 +258,9 @@ describe(`the layout shifts by no more than ${SCROLL_BUDGET} while a reader page
 // ── Read through before the figures' elements arrive ─────────────────────────────────────────────────────────────
 
 /**
- * Runs in the page before any of its scripts: keeps each change of a figure's stage's height made while the stage is
- * in the view, with what it was and what it became. A stage that grows or shrinks in the view moves what is below it
- * under the reader's eyes, wherever its elements' modules come from and whenever they arrive.
+ * Runs in the page before any of its scripts: keeps each change of a figure's stage's height, or of a table's, made
+ * while it is in the view, with what it was and what it became. A stage or a table that grows or shrinks in the view
+ * moves what is below it under the reader's eyes, wherever its elements' modules come from and whenever they arrive.
  */
 function watchStages() {
   const changed = [];
@@ -275,11 +277,12 @@ function watchStages() {
       // it is now: a stage above it that changed first has moved it already, and is counted on its own.)
       const was = { top: box.top, bottom: box.top + before.height, height: before.height };
       if (!inView(was) && !inView(box)) continue;
-      changed.push({ id: target.id, gallery: Boolean(target.closest('[data-fixture-gallery]')), from: before.height, to: box.height, top: box.top, scrolled: scrollY });
+      const table = target.localName === 'tanrei-table';
+      changed.push({ id: table ? `table "${target.getAttribute('label')}"` : `#${target.id}`, table, gallery: !table && Boolean(target.closest('[data-fixture-gallery]')), from: before.height, to: box.height, top: box.top, scrolled: scrollY });
     }
   });
   document.addEventListener('DOMContentLoaded', () => {
-    for (const stage of document.querySelectorAll('[data-example-stage]')) watcher.observe(stage);
+    for (const watched of document.querySelectorAll('[data-example-stage], tanrei-table')) watcher.observe(watched);
   });
 }
 
@@ -295,11 +298,17 @@ const elementChunks = new Set(
  * Pages read through while every element's module arrives late — `late` ms after it is asked for, as on a slow line or
  * a busy machine — so that the reader reaches figures before their elements are defined: the Text field's, whose first
  * example is a column of fields 236 px tall drawn (80 px before they are defined, without the cloak), in English and in
- * Arabic (right to left), at a phone's width and a desktop's.
+ * Arabic (right to left); the Select's, in English and in Japanese (its own faces), whose measure figure's table names a
+ * length the component does not draw; and the Button's, whose tokens' table is the longest of the site; each at a
+ * phone's width and a desktop's.
  *
  * - A page's own figure does not change its height while it is in the view: what its stage holds takes its drawn room
  *   before any script runs (lib/stage-cloak.mjs), and a stage below the view takes it before the reader reaches it
  *   (lib/example.ts).
+ * - No table changes its height while it is in the view: a table is drawn before its element is defined
+ *   (components/Table.astro), and what a figure finds once it is drawn is in its table from the first frame (the measure
+ *   figure's lengths not drawn, lib/visuals/measure.ts). With the note written in only once the figure was drawn, the
+ *   Japanese Select's measure table grew from 260 px to 1020 px in the view at 390, and that page moved by 0.67.
  * - A stage of the Specs tab's gallery holds the room of its fixture's baseline until the fixture is defined, and then
  *   takes its drawn room, once (lib/example.ts, `letGoWhenDefined`): never the room of the fixture before it is
  *   defined in between. The baseline is the web package's picture of the fixture, not the page's, and may differ from
@@ -311,6 +320,12 @@ const LATE_READS = [
   { url: '/components/text-field/', viewport: PHONE, late: 3_000 },
   { url: '/ar/components/text-field/', viewport: { width: 1440, height: 900 }, late: 3_000 },
   { url: '/components/text-field/', viewport: { width: 1440, height: 900 }, late: 1_000 },
+  { url: '/ja/components/select/', viewport: PHONE, late: 1_000 },
+  { url: '/components/select/', viewport: PHONE, late: 3_000 },
+  { url: '/ja/components/select/', viewport: { width: 1440, height: 900 }, late: 3_000 },
+  { url: '/components/select/', viewport: { width: 1440, height: 900 }, late: 1_000 },
+  { url: '/components/button/', viewport: PHONE, late: 2_000 },
+  { url: '/components/button/', viewport: { width: 1440, height: 900 }, late: 2_000 },
 ];
 
 /**
@@ -361,14 +376,16 @@ describe('no figure changes its height in the view while a reader pages through 
         const changed = await page.evaluate(() => window.__docsStagesChanged);
         const shifts = await page.evaluate(() => window.__docsLayoutShifts);
         const total = shifts.reduce((sum, { value }) => sum + value, 0);
-        const said = ({ id, from, to, top, scrolled }) => `#${id} ${Math.round(from)} → ${Math.round(to)} px, its top ${Math.round(top)} px down the view, scrolled ${Math.round(scrolled)} px`;
-        const own = changed.filter((change) => !change.gallery);
+        const said = ({ id, from, to, top, scrolled }) => `${id} ${Math.round(from)} → ${Math.round(to)} px, its top ${Math.round(top)} px down the view, scrolled ${Math.round(scrolled)} px`;
+        const own = changed.filter((change) => !change.gallery && !change.table);
         const gallery = changed.filter((change) => change.gallery);
+        const tables = changed.filter((change) => change.table);
         const largest = Math.max(0, ...gallery.map(({ from, to }) => Math.abs(to - from)));
-        t.diagnostic(`${held} module requests held ${late} ms; layout shift ${total.toFixed(4)} in ${shifts.length} entr${shifts.length === 1 ? 'y' : 'ies'}; ${own.length} of the page's own figures and ${gallery.length} of the gallery's stages changed in the view (the largest by ${largest.toFixed(1)} px)`);
+        t.diagnostic(`${held} module requests held ${late} ms; layout shift ${total.toFixed(4)} in ${shifts.length} entr${shifts.length === 1 ? 'y' : 'ies'}; ${own.length} of the page's own figures and ${gallery.length} of the gallery's stages and ${tables.length} tables changed in the view (the largest stage by ${largest.toFixed(1)} px)`);
         assert.deepEqual(own.map(said), [], `figures of ${name} changed their height in the view as it was paged through`);
+        assert.deepEqual(tables.map(said), [], `tables of ${name} changed their height in the view as it was paged through`);
         const twice = Object.entries(Object.groupBy(gallery, ({ id }) => id)).filter(([, each]) => each.length > 1);
-        assert.deepEqual(twice.map(([id, each]) => `#${id}: ${each.map(said).join('; ')}`), [], `stages of ${name}'s gallery changed their height more than once in the view: from their baseline's room to their fixture's before it is defined, then to the drawn room`);
+        assert.deepEqual(twice.map(([id, each]) => `${id}: ${each.map(said).join('; ')}`), [], `stages of ${name}'s gallery changed their height more than once in the view: from their baseline's room to their fixture's before it is defined, then to the drawn room`);
         const moved = shifts.filter(({ value }) => value > 0).map(({ value, scrolled, sources }) => `${value.toFixed(4)}, scrolled ${Math.round(scrolled)} px:\n      ${sources.join('\n      ') || '(no source named)'}`);
         if (KNOWN_LATE[name] && total <= SCROLL_BUDGET) t.diagnostic(`within the budget now: take "${name}" off the pages known to shift`);
         if (KNOWN_LATE[name] && total > SCROLL_BUDGET) return t.todo(KNOWN_LATE[name]);
