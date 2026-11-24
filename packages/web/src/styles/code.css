@@ -37,6 +37,9 @@
  *   without the rule — no fill, no padding, no edge, and the color of the text around it (ICD-4). An ancestor sets
  *   the switch for the runs inside it and the nearest one wins, as inheritance does; the run's own `data-variant`
  *   sets it last. No style query and no script.
+ * - The Table hands its cells' wrapping down by a second inherited switch, `--_code-wrap`, in the same way: not set the
+ *   run wraps as ICD-6 says; set to an empty value on the Table's cells (table.css) it wraps as the element it sits
+ *   in does.
  * - Names that begin `--_code-` are private.
  */
 @layer tanrei.components {
@@ -77,7 +80,16 @@
        the browser knows `preserve-spaces`. */
     white-space: pre-wrap;
     white-space-collapse: preserve-spaces;
-    overflow-wrap: anywhere;
+    /* ICD-6, TBL-3: in a Table's cell the line is the cell's, which the Table widens for a run it does not break, so
+       there the run wraps as the cell does: a part with no space breaks nowhere (the Table breaks its cells' text at
+       spaces only), so a name is not drawn a few characters to a line in a column as narrow as one character; and in
+       a column the Table keeps on one line (`data-wrap="false"`) the run does not wrap at all. The Table says so by a
+       value, `--_code-wrap`, set empty on its cells (table.css), never by a selector that looks for a Table among the
+       run's ancestors (PRS-16): an empty value makes both declarations invalid, and both properties are inherited, so
+       the run takes them from the element it sits in. Its spaces are still kept (ICD-7): only the wrapping is the
+       cell's. */
+    overflow-wrap: var(--_code-wrap, anywhere);
+    text-wrap-mode: var(--_code-wrap, wrap);
     hyphens: none;
     text-transform: none;
     /* ICD-8: a left-to-right run of its own, isolated from the text around it, in every layout direction. */
