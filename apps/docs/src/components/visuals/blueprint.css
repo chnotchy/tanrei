@@ -96,6 +96,16 @@
   visibility: hidden;
 }
 
+/* A length the component does not draw as its token says: its row says what it draws instead, on lines of its own
+   under the length's name, as wide as the column is without it. The name stays on one line (`data-wrap="false"`), and
+   the note, a sentence, does not: a note on that line pushed the column as wide as the sentence and broke the tokens'
+   column a few letters to a line (the Japanese Select's row at a phone's width was 392 px tall). */
+.docs-blueprint-note:not([hidden]) {
+  display: block;
+  contain: inline-size;
+  white-space: normal;
+}
+
 @media (forced-colors: active) {
   .docs-blueprint-lines line[class],
   .docs-blueprint-lines rect[class] {
