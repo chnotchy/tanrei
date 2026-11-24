@@ -1,5 +1,5 @@
 import { css, unsafeCSS } from 'lit';
-import { type OpenAxis, focusRing, focusRingBox } from '../../primitives/index.js';
+import { type OpenAxis, TARGET_CAPS, focusRing, focusRingBox } from '../../primitives/index.js';
 import { productText } from '../../styles/product-text.js';
 import { cornerRadius, shape } from '../../styles/shape.js';
 import { CORE_SIZES, CORE_VARIANTS, DEFAULT_SIZE, DEFAULT_VARIANT, layoutBlock, sizeBlock, variantBlock } from './code-block.light.js';
@@ -13,7 +13,7 @@ const PREFIX = '--tanrei-comp-code-block';
 const T = (name: string) => unsafeCSS(`var(${PREFIX}-${name})`);
 /**
  * The copy button is a small Button (COD-9): its height — which is its width, icon-only — is the Button's
- * own token, read here to keep its place clear (COD-9's minimum height, COD-10's padding).
+ * own token, read here for COD-9's minimum height.
  */
 const BUTTON = unsafeCSS('var(--tanrei-comp-button-container-height-small)');
 
@@ -53,7 +53,7 @@ export const styles = css`
 
   /* COD-1: the container — the look's fill, container.shape corners through the shared corner rule, no elevation. It
      clips nothing: the body rounds its own corners, so the copy button's hit area can reach past the edge (CPY-1). The
-     code's text style is set here so that a line of it (1lh) is a length the body and the copy button's patch can use. */
+     code's text style is set here so that a line of it (1lh) is a length the body can use. */
   .container {
     position: relative;
     display: flex;
@@ -69,7 +69,7 @@ export const styles = css`
     min-block-size: calc(${BUTTON} + ${T('copy-button-inset')} * 2);
   }
   /* COD-1: the outlined look's edge, inside the container's size and following its corners — drawn over what the block
-     holds, so a band, the gutter and the copy button's patch never cover it, and nothing moves for it. */
+     holds, so a band and the gutter never cover it, and nothing moves for it. */
   :host([variant='outlined']) .container::after {
     content: '';
     position: absolute;
@@ -83,7 +83,8 @@ export const styles = css`
   /* COD-8: the header — the top of the same container, with no fill and no line: a row that begins copy-button.inset
      from the top edge, as tall as the copy button where there is one and as one line of the title's text style
      otherwise, its items centred and header.gap apart; the title begins at the inline padding of COD-3, and the copy
-     button stands copy-button.inset from the end edge (COD-9). */
+     button stands copy-button.inset from the end edge (COD-9). With copy the block always has it, the button alone
+     where there are no words, so the button never stands over the code (COD-10). */
   .header {
     display: flex;
     flex: none;
@@ -125,35 +126,6 @@ export const styles = css`
     flex: none;
   }
 
-  /* COD-9, COD-10: without a header the copy button stands over the top end corner of the body, copy-button.inset from
-     the top and the end edge, on a patch of the block's ground: whole lines high (a line is never half covered), no
-     taller than the block, with the container's corners at that end. It does not scroll with the code. */
-  .corner {
-    position: absolute;
-    inset-block-start: 0;
-    inset-inline-end: 0;
-    z-index: 1;
-    box-sizing: border-box;
-    block-size: calc(var(--_code-block-pad-block) + round(up, ${BUTTON} + ${T('copy-button-inset')} - var(--_code-block-pad-block), 1lh));
-    max-block-size: 100%;
-    padding-block-start: ${T('copy-button-inset')};
-    padding-inline-end: ${T('copy-button-inset')};
-    border-start-end-radius: calc(var(--tanrei-corner-radius) * var(--_corner-scale));
-    border-end-end-radius: calc(var(--tanrei-corner-radius) * var(--_corner-scale));
-    corner-shape: inherit;
-    background: var(--_code-block-ground);
-  }
-  /* Wrapped, every row ends before the button's column (COD-10): no code passes under it, and it needs no patch. */
-  :host([wrap]) .corner {
-    background: none;
-  }
-  /* COD-20: in a right-to-left layout the button is at the left, over the gutter where the lines have one. The gutter
-     stays in view there, on the block's ground (COD-13), so no code passes under the button and it needs no patch —
-     which would cover the bar and the start of the band of the lines beside it (COD-15). */
-  :host(:dir(rtl)) .container.gutter .corner {
-    background: none;
-  }
-
   /* COD-4, COD-6: the body holds the lines and scrolls inside the container — sideways when a line does not fit,
      up and down past maxLines lines — and never scrolls the page sideways. Left to right in every layout (COD-20): the
      element writes dir="ltr" on it. Its corners are the container's, so what scrolls is cut where the container ends. */
@@ -172,15 +144,39 @@ export const styles = css`
     border-start-start-radius: 0;
     border-start-end-radius: 0;
   }
-  /* COD-10: without a header the padding at the copy button's side is widened by the button and its inset, so a line's
-     end can be scrolled clear of it and a wrapped row ends before its column. COD-20: in a right-to-left layout the
-     button is at the left, where the lines begin, and the padding is widened there. */
-  .container.copy:not(.has-header) .body {
-    --_code-block-pad-end: calc(var(--_code-block-pad-inline) + ${BUTTON} + ${T('copy-button-inset')});
+  /* COD-10: code of one line with no title and no language label has no header. The line and the copy button share
+     one row, centred on each other: the body takes what is left and ends header.gap before the button, which stands
+     copy-button.inset from the end edge — so the line scrolls sideways, or wraps, beside the button and never under
+     it. The button comes first in the shadow root (COD-9's focus and reading order) and is drawn at the end. The
+     body's corners at the button's side are square: it ends inside the container there. The body is left to right in
+     every layout (COD-20), so that side is its right, or its left where the frame mirrors. */
+  .container.one-line {
+    flex-direction: row;
+    align-items: center;
+    gap: ${T('header-gap')};
   }
-  :host(:dir(rtl)) .container.copy:not(.has-header) .body {
-    --_code-block-pad-start: calc(var(--_code-block-pad-inline) + ${BUTTON} + ${T('copy-button-inset')});
-    --_code-block-pad-end: var(--_code-block-pad-inline);
+  .container.one-line > tanrei-copy-button {
+    flex: none;
+    order: 1;
+    margin-inline-end: ${T('copy-button-inset')};
+  }
+  /* BTN-5: a body that scrolls is a focus stop beside the button, header.gap before it. The button's hit area meets the
+     minimum target (CPY-1) but reaches toward the body no further than the middle of that gap, so that a press on the
+     body's end, or in the half of the gap nearer it, goes to the body. Its other sides keep the whole target: the
+     container's edge is no neighbour. The cap is inherited into the Button that draws the copy button. */
+  .container.one-line > tanrei-copy-button {
+    ${unsafeCSS(TARGET_CAPS.start)}: calc(${T('header-gap')} / 2);
+  }
+  .container.one-line .body {
+    flex: 1 1 0;
+  }
+  :host(:dir(ltr)) .container.one-line .body {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+  }
+  :host(:dir(rtl)) .container.one-line .body {
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
   }
   /* COD-6: no more than maxLines lines of the code's text style and the paddings; more scroll up and down. */
   .body.capped {
@@ -200,8 +196,7 @@ export const styles = css`
      sees the text under it (focusRingBox). */
   ${focusRingBox('.focus')}
 
-  /* COD-23: forced colors remove every fill, so every look gains the edge, in the platform's text color; the patch is
-     the page's own ground there. */
+  /* COD-23: forced colors remove every fill, so every look gains the edge, in the platform's text color. */
   @media (forced-colors: active) {
     .container::after {
       content: '';
@@ -213,9 +208,6 @@ export const styles = css`
     }
     :host([variant='outlined']) .container::after {
       border-color: CanvasText;
-    }
-    .corner {
-      background: Canvas;
     }
   }
 `;
