@@ -21,6 +21,7 @@ import {
   countWork,
   deepActive,
   fillPlaces,
+  focusLost,
   focusWithin,
   hostAria,
   linkAttributes,
@@ -1294,9 +1295,11 @@ export class TanreiList extends TanreiElement {
       this.holding = false;
       this.release(true);
     }
+    // LST-43: focus that was lost (the menu it was in is gone) is given to the handle; focus the person has moved
+    // elsewhere since the move was emitted — another list's menu, a field — is not taken from there.
     if (pending.focused) {
       const at = this.items[pending.from];
-      if (at && !focusWithin(this)) void at.focusHandle();
+      if (at && focusLost()) void at.focusHandle();
     }
   }
 
@@ -1318,9 +1321,8 @@ export class TanreiList extends TanreiElement {
     this.pending = null;
     this.say('movedText', this.movedText, at.name, pending.to + 1, items.length);
     if (!pending.focused) return;
-    // The product may have taken focus for itself in its handler: then it is the product's.
-    const active = deepActive();
-    if (active && active !== document.body && active !== document.documentElement && !focusWithin(this) && active.isConnected) return;
+    // The product may have taken focus for itself in its handler, or the person moved it elsewhere: then it stays there.
+    if (!focusLost() && !focusWithin(this)) return;
     this.heldFocus = { item: at, index: pending.to };
     void at.focusHandle();
   }
@@ -2239,8 +2241,7 @@ export class TanreiList extends TanreiElement {
       held.index = items.indexOf(held.item);
       return;
     }
-    const active = deepActive();
-    if (active && active !== document.body && active !== document.documentElement && active.isConnected) return;
+    if (!focusLost()) return;
     if (!items.length) {
       this.heldFocus = null;
       return;
