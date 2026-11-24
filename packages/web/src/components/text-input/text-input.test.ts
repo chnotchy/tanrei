@@ -4565,9 +4565,46 @@ test.describe('a field that holds code', () => {
       if (each === id) await page.keyboard.press(LINE_END);
       else for (let presses = 0; presses < 4; presses++) await page.keyboard.press(readOnlyKey);
       await expect.poll(() => boxOf(input(page, each)).then((box) => box.scrollLeft), each).toBeGreaterThan(0);
-      // The input's padding after the longest line scrolls with it: the last character can be brought to the end.
-      const box = await boxOf(input(page, each));
-      if (each === id) expect(box.scrollLeft, each).toBeCloseTo(box.scrollWidth - box.clientWidth, 0);
+      // The input's padding after the longest line scrolls with it: the last character can be brought clear of the edge.
+      // What is measured is that character's ink against the input's view, not the scroll position against its range:
+      // a line of a face whose advance is not a whole pixel is a fraction wider than the whole-pixel scroll range the
+      // engine rounds it to, and WebKit's End stops a pixel short of that range with the last character in full view.
+      // The ink is read from the character's pixels (drawn alone, four times over), the same way in every engine:
+      // WebKit's measureText() gives the advance for a glyph's ink edge.
+      if (each === id) {
+        const { right, view, advance } = await input(page, each).evaluate((el) => {
+          const field = el as HTMLTextAreaElement;
+          const style = getComputedStyle(field);
+          const line = field.value.slice(0, field.selectionStart).split('\n').pop()!;
+          const canvas = document.createElement('canvas');
+          const ctx = canvas.getContext('2d', { willReadFrequently: true })!;
+          const font = (scale: number) => `${style.fontStyle} ${style.fontWeight} ${Number.parseFloat(style.fontSize) * scale}px ${style.fontFamily}`;
+          ctx.font = font(1);
+          if (style.letterSpacing !== 'normal' && Number.parseFloat(style.letterSpacing) !== 0) throw new Error('the ink is measured without letter spacing; the code face has none');
+          const last = line.slice(-1);
+          const advance = ctx.measureText(last).width;
+          // The last character's ink: its rightmost painted column, drawn at four times the size.
+          const scale = 4;
+          canvas.width = Math.ceil(advance * scale * 2) + 8;
+          canvas.height = Math.ceil(Number.parseFloat(style.fontSize) * scale * 2);
+          ctx.font = font(scale);
+          ctx.textBaseline = 'middle';
+          ctx.fillText(last, 0, canvas.height / 2);
+          const { data } = ctx.getImageData(0, 0, canvas.width, canvas.height);
+          let column = -1;
+          for (let x = canvas.width - 1; x >= 0 && column < 0; x--) for (let y = 0; y < canvas.height; y++) if (data[(y * canvas.width + x) * 4 + 3]) { column = x; break; }
+          if (column < 0) throw new Error(`the last character ${JSON.stringify(last)} paints nothing`);
+          ctx.font = font(1);
+          return {
+            // The right edge of the ink of the caret's line, in the input's view.
+            right: Number.parseFloat(style.paddingLeft) + ctx.measureText(line.slice(0, -1)).width + (column + 1) / scale - field.scrollLeft,
+            view: field.clientWidth - Number.parseFloat(style.paddingRight),
+            advance,
+          };
+        });
+        expect(right, `${each}: the last character is in view`).toBeLessThanOrEqual(view);
+        expect(view - right, `${each}: and stands at the end of the view`).toBeLessThan(advance);
+      }
       expect(await places(each), each).toEqual(before);
       expect(await valueOf(page, each), each).toBe(value);
       // Focus is shown on the container, which does not scroll (TXI-7): the stacked field's inner line, in the focused color.
