@@ -227,8 +227,11 @@
     overscroll-behavior: contain;
     padding: var(--ts-gap);
   }
+  /* The rail is inset by half the gap at its sides, as the approved design's: its rows carry their own padding, and
+     their lines keep the room — the rail's column stays its width, so the preview keeps its columns. */
   .ts-rail {
     border-inline-end: var(--ts-hairline);
+    padding-inline: var(--tanrei-sys-space-space100);
   }
   .ts-inspector {
     border-inline-start: var(--ts-hairline);
@@ -1200,6 +1203,7 @@
 .ts-rail-row {
   grid-template-columns: minmax(0, 1fr) auto;
   grid-template-rows: auto auto;
+  column-gap: var(--tanrei-sys-space-space100);
 }
 .ts-rail-link {
   grid-template-columns: auto minmax(0, 1fr) auto;
