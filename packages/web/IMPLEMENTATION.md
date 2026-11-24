@@ -1572,7 +1572,7 @@ the focus order with `role="region"` and `aria-label` from `label` (no label: st
 neither. What is inside is read when the fit changes, when the slotted content changes and when focus arrives inside — a
 focusable element added deep in the content without any of these is seen at the next. The focus indicator is the system's
 (`focusRing(…, { inside: true })`) on a box over the scroll box and every mark, never masked by the fade and never
-animated, for keyboard focus only. The keys that scroll a focused box are the browser's: Page Up, Page Down, Home, End,
+animated, for keyboard focus only; the box is drawn as no element (`focusRingBox()`), so it covers no text for a contrast check. The keys that scroll a focused box are the browser's: Page Up, Page Down, Home, End,
 Space everywhere, and the arrow keys where the browser gives them to a focused box (WebKit gives them to the page).
 
 **Direction** (SCA-13, SCA-14). The direction is the one the host inherits. Every browser puts a scroll box back at its

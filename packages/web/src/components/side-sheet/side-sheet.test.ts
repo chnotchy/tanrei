@@ -1639,6 +1639,11 @@ test.describe('accessibility', () => {
         await motionEnded(page);
         const results = await new AxeBuilder({ page }).include('.stage').analyze();
         expect(results.violations, `${theme} ${f.id}: ${results.violations.map((v) => `${v.id} ${v.nodes.map((n) => n.target).join(' ')}`).join(', ')}`).toEqual([]);
+        // SSH-7: the sheet's text is checked — neither the start edge, drawn above the content by the outline part's
+        // ::before, nor the box that draws the content's focus ring (`focusRingBox()`) is an element covering it.
+        const contrast = (kind: 'passes' | 'incomplete') => results[kind].filter((rule) => rule.id === 'color-contrast').flatMap((rule) => rule.nodes);
+        expect(contrast('passes').length, `${theme} ${f.id}: axe checks the contrast of the sheet's text`).toBeGreaterThan(0);
+        expect(contrast('incomplete').map((node) => node.target), `${theme} ${f.id}: no text left unchecked`).toEqual([]);
       }
     });
   }
