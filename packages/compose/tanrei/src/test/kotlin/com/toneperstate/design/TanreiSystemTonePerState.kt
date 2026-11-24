@@ -2477,6 +2477,7 @@ private object TonePerStateSystemSource {
             counterTypescale = typescale.labelSmall,
             inputPaddingBlock = 8.dp,
             layoutInlineMinWidth = 360.dp,
+            layoutInputMinWidth = 160.dp,
             motionGlyphFadeDuration = 200,
             motionResizeDuration = 400,
             motionResizeEasing = TanreiCubicBezier(x1 = 0.2f, y1 = 0f, x2 = 0f, y2 = 1f),

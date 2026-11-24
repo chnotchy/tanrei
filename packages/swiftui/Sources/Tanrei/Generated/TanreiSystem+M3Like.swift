@@ -2537,6 +2537,7 @@ private let m3LikeChatComposerTokens = TanreiChatComposerTokens(
   counterTypescale: m3LikeTypescale.labelSmall,
   inputPaddingBlock: 8,
   layoutInlineMinWidth: 360,
+  layoutInputMinWidth: 160,
   motionGlyphFadeDuration: 150,
   motionResizeDuration: 500,
   motionResizeEasing: TanreiCubicBezier(0.27, 1.06, 0.18, 1),
