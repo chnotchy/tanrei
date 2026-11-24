@@ -253,6 +253,133 @@ describe(`the layout shifts by no more than ${SCROLL_BUDGET} while a reader page
   }
 });
 
+// ── Read through before the figures' elements arrive ─────────────────────────────────────────────────────────────
+
+/**
+ * Runs in the page before any of its scripts: keeps each change of a figure's stage's height made while the stage is
+ * in the view, with what it was and what it became. A stage that grows or shrinks in the view moves what is below it
+ * under the reader's eyes, wherever its elements' modules come from and whenever they arrive.
+ */
+function watchStages() {
+  const changed = [];
+  Object.defineProperty(window, '__docsStagesChanged', { value: changed });
+  const heights = new WeakMap();
+  const inView = (box) => box.height > 0 && box.bottom > 0 && box.top < innerHeight;
+  const watcher = new ResizeObserver((entries) => {
+    for (const { target } of entries) {
+      const box = target.getBoundingClientRect();
+      const before = heights.get(target);
+      heights.set(target, box);
+      if (!before || Math.abs(before.height - box.height) < 0.5) continue;
+      // In the view before it changed, or after: either way the reader saw it move what is below it. (Its top is where
+      // it is now: a stage above it that changed first has moved it already, and is counted on its own.)
+      const was = { top: box.top, bottom: box.top + before.height, height: before.height };
+      if (!inView(was) && !inView(box)) continue;
+      changed.push({ id: target.id, gallery: Boolean(target.closest('[data-fixture-gallery]')), from: before.height, to: box.height, top: box.top, scrolled: scrollY });
+    }
+  });
+  document.addEventListener('DOMContentLoaded', () => {
+    for (const stage of document.querySelectorAll('[data-example-stage]')) watcher.observe(stage);
+  });
+}
+
+/**
+ * The modules that define the elements, as the site's build writes them: each component's module is a chunk of its
+ * own (lib/define-on-demand.ts), the one that calls `customElements.define`.
+ */
+const elementChunks = new Set(
+  fs.readdirSync(path.join(dist, '_astro')).filter((file) => file.endsWith('.js') && fs.readFileSync(path.join(dist, '_astro', file), 'utf8').includes('customElements.define(')),
+);
+
+/**
+ * Pages read through while every element's module arrives late — `late` ms after it is asked for, as on a slow line or
+ * a busy machine — so that the reader reaches figures before their elements are defined: the Text field's, whose first
+ * example is a column of fields 236 px tall drawn (80 px before they are defined, without the cloak), in English and in
+ * Arabic (right to left), at a phone's width and a desktop's.
+ *
+ * - A page's own figure does not change its height while it is in the view: what its stage holds takes its drawn room
+ *   before any script runs (lib/stage-cloak.mjs), and a stage below the view takes it before the reader reaches it
+ *   (lib/example.ts).
+ * - A stage of the Specs tab's gallery holds the room of its fixture's baseline until the fixture is defined, and then
+ *   takes its drawn room, once (lib/example.ts, `letGoWhenDefined`): never the room of the fixture before it is
+ *   defined in between. The baseline is the web package's picture of the fixture, not the page's, and may differ from
+ *   what the page draws (KNOWN_LATE).
+ * - The layout's shifts, all told, are held to SCROLL_BUDGET, as when the modules come at once.
+ */
+const LATE_READS = [
+  { url: '/ar/components/text-field/', viewport: PHONE, late: 1_000 },
+  { url: '/components/text-field/', viewport: PHONE, late: 3_000 },
+  { url: '/ar/components/text-field/', viewport: { width: 1440, height: 900 }, late: 3_000 },
+  { url: '/components/text-field/', viewport: { width: 1440, height: 900 }, late: 1_000 },
+];
+
+/**
+ * Pages whose shifts, read so, add up to more than SCROLL_BUDGET, and why: each is still measured and reported, as a
+ * TODO rather than a failure, once every other assertion of its test holds. Take one off once it is within the budget.
+ */
+const KNOWN_LATE = {
+  '/ar/components/text-field/ at 390':
+    "the gallery's stacked-code-multiline-wrap is drawn 51 px taller on the page (at 390 and at 1440) than its baseline, whose room its stage holds until the fixture is drawn; the web package's harness embeds Inter alone, so its baselines draw a fixture's code in whatever monospace face the machine has, where the page draws it in Roboto Mono",
+};
+
+describe('no figure changes its height in the view while a reader pages through a page whose elements arrive late', { concurrency: 2 }, () => {
+  for (const { url, viewport, late } of LATE_READS) {
+    const name = `${url} at ${viewport.width}`;
+    test(`${name}, each element's module ${late / 1000} s late`, { timeout: 300_000 }, async (t) => {
+      const phone = viewport.width < 800;
+      const context = await browser.newContext({ viewport, isMobile: phone, hasTouch: phone });
+      try {
+        const page = await context.newPage();
+        await page.addInitScript(observeShifts);
+        await page.addInitScript(watchStages);
+        let held = 0;
+        await page.route(/\/_astro\/[^/]+\.js(\?|$)/, async (route) => {
+          if (elementChunks.has(new URL(route.request().url()).pathname.split('/').pop())) {
+            held++;
+            await new Promise((resolve) => setTimeout(resolve, late));
+          }
+          await route.continue();
+        });
+        await page.goto(origin + url, { waitUntil: 'load' });
+        // Two pages down at a time from the load on — a fling, farther than a frame is drawn ahead of the view (half a
+        // window, lib/example.ts), so that the reader lands on frames whose elements have not been asked for yet — each
+        // time once every frame in the view has been drawn, its elements defined and two frames drawn since.
+        for (let top = 2 * (viewport.height - KEPT); ; top += 2 * (viewport.height - KEPT)) {
+          const { end, inView } = await page.evaluate((y) => {
+            window.scrollTo(0, y);
+            const stages = [...document.querySelectorAll('[data-example-stage][id]')].filter((stage) => {
+              const box = stage.getBoundingClientRect();
+              return box.height > 0 && box.bottom > 0 && box.top < innerHeight;
+            });
+            return { end: scrollY + innerHeight >= document.documentElement.scrollHeight - 1, inView: stages.map((stage) => stage.id) };
+          }, top);
+          for (const id of inView) await settle(page, `[data-example]:has(> figure > [data-part="frame"] > #${id})`, { pending: '[data-example-pending], [data-pending]' });
+          await settlePage(page, { fonts: false });
+          if (end) break;
+        }
+        assert.ok(held > 0, 'no element module was asked for: the build names its chunks otherwise, and this test held nothing late');
+        const changed = await page.evaluate(() => window.__docsStagesChanged);
+        const shifts = await page.evaluate(() => window.__docsLayoutShifts);
+        const total = shifts.reduce((sum, { value }) => sum + value, 0);
+        const said = ({ id, from, to, top, scrolled }) => `#${id} ${Math.round(from)} → ${Math.round(to)} px, its top ${Math.round(top)} px down the view, scrolled ${Math.round(scrolled)} px`;
+        const own = changed.filter((change) => !change.gallery);
+        const gallery = changed.filter((change) => change.gallery);
+        const largest = Math.max(0, ...gallery.map(({ from, to }) => Math.abs(to - from)));
+        t.diagnostic(`${held} module requests held ${late} ms; layout shift ${total.toFixed(4)} in ${shifts.length} entr${shifts.length === 1 ? 'y' : 'ies'}; ${own.length} of the page's own figures and ${gallery.length} of the gallery's stages changed in the view (the largest by ${largest.toFixed(1)} px)`);
+        assert.deepEqual(own.map(said), [], `figures of ${name} changed their height in the view as it was paged through`);
+        const twice = Object.entries(Object.groupBy(gallery, ({ id }) => id)).filter(([, each]) => each.length > 1);
+        assert.deepEqual(twice.map(([id, each]) => `#${id}: ${each.map(said).join('; ')}`), [], `stages of ${name}'s gallery changed their height more than once in the view: from their baseline's room to their fixture's before it is defined, then to the drawn room`);
+        const moved = shifts.filter(({ value }) => value > 0).map(({ value, scrolled, sources }) => `${value.toFixed(4)}, scrolled ${Math.round(scrolled)} px:\n      ${sources.join('\n      ') || '(no source named)'}`);
+        if (KNOWN_LATE[name] && total <= SCROLL_BUDGET) t.diagnostic(`within the budget now: take "${name}" off the pages known to shift`);
+        if (KNOWN_LATE[name] && total > SCROLL_BUDGET) return t.todo(KNOWN_LATE[name]);
+        assert.ok(total <= SCROLL_BUDGET, `${name} × ${viewport.height} shifts by ${total.toFixed(4)} as it is paged through, its modules ${late} ms late (at most ${SCROLL_BUDGET}):\n  ${moved.join('\n  ')}`);
+      } finally {
+        await context.close();
+      }
+    });
+  }
+});
+
 // The sidebar as the reader left it on an earlier visit (components/frame/Sidebar.astro): a width they gave it, or
 // folded to its column, given back before the first frame. Neither may move the page by more than the same budget,
 // and the folded one not at all: the column, the header's menu button (shown from the first frame on a page with a
