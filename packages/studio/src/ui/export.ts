@@ -1,9 +1,10 @@
 // Export: a side sheet over the Studio, opened from its bar. At its top, one line — a glyph and a sentence — says what
 // the schema, the token engine and the build's checks say of the file; under it, for a layer on an example of the theme
-// gallery, whether the file depends on the example or holds every value itself (core.writeOut); then three tabs — the
-// file, what its stylesheet changes (core.sheetChanges), and what to do next. At the sheet's foot, whichever tab is
-// shown, the file's download and the link to share. Everything shown is the engine's and the build's own output for
-// this layer, never a sketch of it; a command is shown only as the CLI takes it.
+// gallery, whether the file depends on the example or holds every value itself (core.writeOut); then four tabs — the
+// file, the commands that take it into a product, what its stylesheet changes (core.sheetChanges), and what to do next,
+// step by step. At the sheet's foot, whichever tab is shown, the file's download and the link to share. Everything
+// shown is the engine's and the build's own output for this layer, never a sketch of it; a command is shown only as
+// the CLI takes it — which is a file (`tanrei init --from`), never the link.
 import { ID_PATTERN, stringifyLayer } from '../core.js';
 import { type Ctx, type Json, type Layer, button, choice, h, isolated, linkButton, rich, tabbed, textField } from './dom';
 import { copyLayerLink } from './share';
@@ -13,8 +14,8 @@ const STATUS_GLYPHS = { success: 'verified', warning: 'warning', error: 'error' 
 const DOWNLOAD_GLYPH = 'download';
 const LINK_GLYPH = 'link';
 
-type Tab = 'file' | 'css' | 'next';
-const TABS: Tab[] = ['file', 'css', 'next'];
+type Tab = 'file' | 'command' | 'css' | 'next';
+const TABS: Tab[] = ['file', 'command', 'css', 'next'];
 
 export interface ExportOptions {
   /** The file the layer lives in, when the host edits one (`adapter.label`): the Studio saves it, and nothing is downloaded to put it there. */
@@ -153,6 +154,25 @@ export function createExportSheet(ctx: Ctx, options: ExportOptions) {
     return [code({ language: 'json', headline: name, label: t.export.jsonLabel, 'max-lines': 24, ...copyLabels(t.export.copy), 'data-export-json': true }, stringifyLayer(file.layer))];
   }
 
+  /** The CLI's commands as one block to copy, in the product's folder: the tool, the file taken in, the build. */
+  const commands = (file: string) => {
+    const cli = studio.namespace as string;
+    return [`npm install --save-dev ${studio.npmScope as string}/cli`, `npx ${cli} init --from ${file}`, `npx ${cli} build`];
+  };
+
+  function commandTab(file: { layer: Layer }) {
+    const build = `npx ${studio.namespace as string} build`;
+    // The Studio edits a file here: it is in place already, and one command builds it.
+    if (options.file) return [h('p', { class: 'ts-help' }, rich((at) => words.saved(at(h('code', { text: options.file! }))))), h('p', { class: 'ts-help', text: words.builds }), command(build)];
+    const name = fileName(file.layer);
+    const lines = commands(name).join('\n');
+    return [
+      h('p', { class: 'ts-help' }, rich((at) => words.commandHelp(at(h('code', { text: name })), at(h('code', { text: `design/${name}` }))))),
+      code({ language: 'sh', label: words.commandLabel, ...copyLabels(words.copyCommand), 'data-export-commands': true }, lines),
+      h('p', { class: 'ts-help' }, rich((at) => words.commandExisting(at(h('code', { text: build }))))),
+    ];
+  }
+
   function cssTab() {
     const latest = ctx.latest();
     if (!latest.model) return [h('p', { class: 'ts-help' }, rich((at) => words.cssNone(at(isolated(nameOf(ctx.layer().extends))))))];
@@ -171,24 +191,21 @@ export function createExportSheet(ctx: Ctx, options: ExportOptions) {
 
   function nextTab(file: { layer: Layer }) {
     const { layer } = file;
-    const scope = studio.npmScope as string;
     const cli = studio.namespace as string;
     const path = `design/${fileName(layer)}`;
     if (options.file) {
       return [h('ol', { class: 'ts-next-steps', 'data-export-next': true }, h('li', {}, h('p', {}, rich((at) => words.saved(at(h('code', { text: options.file! })))))), h('li', {}, h('p', { text: words.builds }), command(`npx ${cli} build`)))];
     }
-    // `init --extends` takes the systems Tanrei ships (packages/cli: `shippedSystems`); a file that extends the root
-    // is started from the default and written over by this one.
-    const extendsFlag = studio.systems.some((system: Json) => system.id === layer.extends && !system.local) && layer.extends !== studio.defaultId ? ` --extends ${layer.extends}` : '';
+    // `init --from` takes the file as it is downloaded, whatever it extends: the steps are the Command tab's, one by one.
+    const [install, init, build] = commands(fileName(layer));
     const guide = options.links.start ? h('a', { href: options.links.start, text: words.guide }) : null;
     return [
       h(
         'ol',
         { class: 'ts-next-steps', 'data-export-next': true },
-        h('li', {}, h('p', { text: words.install }), command(`npm install --save-dev ${scope}/cli`)),
-        h('li', {}, h('p', {}, rich((at) => words.init(at(h('code', { text: path }))))), command(`npx ${cli} init ${layer.id}${extendsFlag}`)),
-        h('li', {}, h('p', {}, rich((at) => t.export.put(at(h('code', { text: path })))))),
-        h('li', {}, h('p', { text: words.build }), command(`npx ${cli} build`)),
+        h('li', {}, h('p', { text: words.install }), command(install)),
+        h('li', {}, h('p', {}, rich((at) => words.init(at(h('code', { text: fileName(layer) })), at(h('code', { text: path }))))), command(init)),
+        h('li', {}, h('p', { text: words.build }), command(build)),
         h('li', {}, h('p', { text: words.studio }), command(`npx ${cli} studio`)),
       ),
       h('p', { class: 'ts-help' }, options.links.layers ? rich((at) => t.sentences(t.export.authoritative, at(h('a', { href: options.links.layers!, text: t.export.layersLink })))) : t.export.authoritative),
@@ -198,7 +215,7 @@ export function createExportSheet(ctx: Ctx, options: ExportOptions) {
 
   function drawTab() {
     const file = exported();
-    tabs.show(tab, tab === 'file' ? fileTab(file) : tab === 'css' ? cssTab() : nextTab(file));
+    tabs.show(tab, tab === 'file' ? fileTab(file) : tab === 'command' ? commandTab(file) : tab === 'css' ? cssTab() : nextTab(file));
   }
 
   // ── the sheet's foot: the file to download, and the link to share ───────────────────────────────

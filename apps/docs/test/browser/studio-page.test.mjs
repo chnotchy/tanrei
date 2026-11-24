@@ -497,12 +497,28 @@ for (const engine of ENGINES) {
         assert.deepEqual(await page.locator('[data-export-json]').evaluate((el) => JSON.parse(el.code)), await layer(page));
         // The example the layer is on: depend on it (the default), or write every value.
         assert.equal(await page.locator('[data-export-every]').evaluate((el) => el.value), 'depend');
+        // Command: the CLI's commands as one block to copy — the tool, the downloaded file taken in, the build. The CLI
+        // takes the file, never the link, so the block names the file.
+        await page.locator('[data-export-tabs] > tanrei-tab[data-tab="command"]').click();
+        const commands = page.locator('[data-export-commands]');
+        await commands.waitFor();
+        assert.equal(await commands.evaluate((el) => el.code), 'npm install --save-dev @tanrei/cli\nnpx tanrei init --from acme.system.json\nnpx tanrei build');
+        assert.deepEqual(await commands.evaluate((el) => [el.getAttribute('label'), el.hasAttribute('copy'), el.getAttribute('copy-label')]), ['Commands to run in your product', true, 'Copy the command']);
+        assert.doesNotMatch(await commands.evaluate((el) => el.code), /https?:|#/, 'no link in the command');
+        // The keyboard reaches its copy button: Tab from the tab row lands in the block.
+        await page.locator('[data-export-tabs] > tanrei-tab[data-tab="command"]').focus();
+        let inBlock = false;
+        for (let step = 0; step < 6 && !inBlock; step += 1) {
+          await page.keyboard.press(engine === 'webkit' ? 'Alt+Tab' : 'Tab');
+          inBlock = await page.evaluate(() => Boolean(document.activeElement?.closest('[data-export-commands]')));
+        }
+        assert.ok(inBlock, 'Tab reaches the copy button of the commands');
         await page.locator('[data-export-tabs] > tanrei-tab[data-tab="next"]').click();
-        assert.deepEqual(await page.locator('[data-export-command]').evaluateAll((els) => els.map((el) => el.code)), ['npm install --save-dev @tanrei/cli', 'npx tanrei init acme --extends cupertino', 'npx tanrei build', 'npx tanrei studio']);
+        assert.deepEqual(await page.locator('[data-export-command]').evaluateAll((els) => els.map((el) => el.code)), ['npm install --save-dev @tanrei/cli', 'npx tanrei init --from acme.system.json', 'npx tanrei build', 'npx tanrei studio']);
         assert.equal(await page.locator('[data-export-next] ~ p a').last().getAttribute('href'), '/getting-started/your-design-system/');
-        // Written out, the file extends the root, which `init --extends` does not take: the step starts from the default.
+        // Written out, the file extends the root: init --from takes it as it is, whatever it extends.
         await page.locator('[data-export-every] tanrei-radio-button[data-value="every"]').click();
-        await page.waitForFunction(() => document.querySelector('[data-export-command="npx tanrei init"]')?.code === 'npx tanrei init acme');
+        await page.waitForFunction(() => document.querySelector('[data-export-command="npx tanrei init"]')?.code === 'npx tanrei init --from acme.system.json');
         // At the sheet's foot, whichever tab is shown: Download, and the link — the address of this layer — said in a snackbar.
         assert.deepEqual(await page.locator('[data-export-sheet]').evaluate((el) => [...el.querySelectorAll(':scope > [slot="actions"]')].map((action) => action.dataset.exportCopyLink === '' ? 'copy link' : action.dataset.exportDownload === '' ? 'download' : action.localName)), ['copy link', 'download']);
         if (engine === 'chromium') await page.context().grantPermissions(['clipboard-read', 'clipboard-write']);

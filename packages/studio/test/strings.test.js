@@ -68,7 +68,6 @@ const ASKED = {
   'a11y.text': [['≥ 4.5:1'], ['≥ 7:1']],
   'a11y.nonText': [['≥ 3:1']],
   'export.downloaded': [['acme.system.json']],
-  'export.put': [['design/acme.system.json']],
   'rail.hueChroma': [['0', '0'], ['265', '16']],
   'rail.size': [['40px', '36px'], ['36px', '32px']],
   'rail.held': [['36px', '32px'], ['48px', '40px']],
@@ -85,7 +84,8 @@ const ASKED = {
   'exporting.downloadFile': [['acme.system.json'], ['acme.css']],
   'exporting.cssHelp': [['Tanrei'], ['M3-like (Material 3-inspired)']],
   'exporting.cssNone': [['Tanrei']],
-  'exporting.init': [['design/acme.system.json']],
+  'exporting.init': [['acme.system.json', 'design/acme.system.json']],
+  'exporting.commandHelp': [['acme.system.json', 'design/acme.system.json']],
   'exporting.saved': [['acme.system.json']],
   'shared.title': [['Acme', 'Cupertino (Apple HIG-inspired)'], ['acme', 'Tanrei']],
   'shared.body': [['Acme'], ['acme-app']],
@@ -244,7 +244,6 @@ test('English says what plain concatenation would, Japanese writes its own sente
     [en.a11y.text('≥ 4.5:1'), '≥ 4.5:1 text'],
     [en.a11y.nonText('≥ 3:1'), '≥ 3:1 non-text'],
     [en.export.downloaded('acme.system.json'), 'Downloaded acme.system.json'],
-    [en.export.put('design/acme.system.json'), 'Save the file as design/acme.system.json'],
     [en.rules.help('$1', '$2'), 'How interaction states look, for every component at once. * matches one id segment and is available as $1, $2… An explicit entry under "tokens" beats a pattern; fewer wildcards beat more; the later layer wins a tie.'],
 
     [ja.labelled(ja.reset, '文字の大きさ'), 'リセット：文字の大きさ'],
@@ -270,7 +269,6 @@ test('English says what plain concatenation would, Japanese writes its own sente
     [ja.a11y.text('≥ 4.5:1'), '≥ 4.5:1 テキスト'],
     [ja.a11y.nonText('≥ 3:1'), '≥ 3:1 非テキスト'],
     [ja.export.downloaded('acme.system.json'), 'acme.system.json をダウンロードしました'],
-    [ja.export.put('design/acme.system.json'), 'ファイルの保存先：design/acme.system.json'],
     [ja.rules.help('$1', '$2'), 'インタラクション状態の見え方を、全コンポーネントまとめて決めます。* は id の1セグメントに一致し、$1、$2… として使えます。"tokens" の明示的な指定はパターンに勝ち、ワイルドカードが少ない方が勝ち、同点なら後のレイヤーが勝ちます。'],
   ];
   for (const [now, before] of same) assert.equal(now, before);
@@ -346,7 +344,7 @@ test('Hindi counts in the singular and the plural, puts the verb last and never 
   assert.equal(hi.a11y.warnings(2), '2 चेतावनियाँ');
   assert.equal(hi.a11y.warnings(0), '0 चेतावनियाँ');
   assert.equal(hi.export.downloaded('acme.system.json'), 'acme.system.json डाउनलोड हो गई');
-  assert.equal(hi.export.put('design/acme.system.json'), 'फ़ाइल को design/acme.system.json नाम से सेव करें');
+  assert.equal(hi.exporting.commandExisting('npx tanrei build'), 'अगर आपके प्रोडक्ट में tanrei.json पहले से है, तो फ़ाइल को वहाँ सेव करें जहाँ उसका "system" बताता है, और सिर्फ़ npx tanrei build चलाएँ।');
   assert.equal(hi.add.fromSource('large × 1.5'), 'large × 1.5 से क्लोन किया गया');
   assert.equal((hi.labelled(hi.editor.writes, hi.editor.nothing).match(/:/g) ?? []).length, 1, hi.labelled(hi.editor.writes, hi.editor.nothing));
 });
@@ -360,7 +358,7 @@ test('Arabic counts in its six forms and opens a sentence with an Arabic word, t
   assert.equal(ar.tokens.count(11), '11 رمزًا');
   assert.equal(ar.tokens.count(100), '100 رمز');
   const arabicFirst = /^[\u0600-\u06FF]/;
-  for (const said of [ar.fonts.missing('Inter'), ar.fonts.added('Inter'), ar.add.added('acme.comp.rating.star.size'), ar.color.addedPalette('correct'), ar.tones.added('primary', 40), ar.tones.toneOf('primary', 40), ar.add.fromSource('large × 1.5'), ar.export.downloaded('acme.system.json'), ar.export.put('design/acme.system.json'), ar.source.line(3)]) assert.match(said, arabicFirst, said);
+  for (const said of [ar.fonts.missing('Inter'), ar.fonts.added('Inter'), ar.add.added('acme.comp.rating.star.size'), ar.color.addedPalette('correct'), ar.tones.added('primary', 40), ar.tones.toneOf('primary', 40), ar.add.fromSource('large × 1.5'), ar.export.downloaded('acme.system.json'), ar.exporting.commandHelp('acme.system.json', 'design/acme.system.json'), ar.source.line(3)]) assert.match(said, arabicFirst, said);
   assert.equal(ar.fonts.missing('Inter'), 'الخط Inter غير مثبَّت هنا: تعرض المعاينة الخط البديل، وعلى منتجك أن يحمّله.');
   assert.equal(ar.add.fromSource('large × 1.5'), 'نسخًا من large × 1.5');
   // The two names of `rules.help` are drawn as isolated left-to-right runs (ui/tokens.ts), so the sentence carries no
@@ -381,8 +379,8 @@ test('an element put into a sentence stands where the language puts it', async (
   const [name, link, other] = [{ element: 'name' }, { element: 'link' }, { element: 'other' }];
   assert.deepEqual(rich((at) => en.fonts.missing(at(name))), [name, ' is not installed here — the preview shows the fallback; your product must load it.']);
   assert.deepEqual(rich((at) => ar.fonts.missing(at(name))), ['الخط ', name, ' غير مثبَّت هنا: تعرض المعاينة الخط البديل، وعلى منتجك أن يحمّله.']);
-  assert.deepEqual(rich((at) => en.export.put(at(name))), ['Save the file as ', name]);
-  assert.deepEqual(rich((at) => hi.export.put(at(name))), ['फ़ाइल को ', name, ' नाम से सेव करें']);
+  assert.deepEqual(rich((at) => en.exporting.commandHelp(at(name), at(link))).slice(0, 4), ['Save ', name, ' in your product’s folder and run these there. init --from checks the file, copies it to ', link]);
+  assert.deepEqual(rich((at) => hi.exporting.commandHelp(at(name), at(link))).slice(0, 3), [name, ' को अपने प्रोडक्ट के फ़ोल्डर में सेव करें और वहीं ये कमांड चलाएँ। init --from फ़ाइल को जाँचता है, उसे ', link]);
   assert.deepEqual(rich((at) => en.labelled(en.editor.writes, at(name))), ['writes: ', name]);
   assert.deepEqual(rich((at) => zh.labelled(zh.editor.writes, at(name))), ['写入：', name]);
   assert.deepEqual(rich((at) => en.sentences('Need more?', en.listed(en.listed(at(name), at(link)), at(other)))), ['Need more? ', name, ' · ', link, ' · ', other]);

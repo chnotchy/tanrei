@@ -932,7 +932,7 @@ export function mountStudio(root: HTMLElement, { lang = 'en', adapter, links = {
     /** Every row that is not locked, another of its values. */
     shuffle: () => shuffleRows(),
     /** Open Export, at one of its tabs; close it. */
-    openExport: (tab?: 'file' | 'css' | 'next') => exportSheet.open(tab),
+    openExport: (tab?: 'file' | 'command' | 'css' | 'next') => exportSheet.open(tab),
     closeExport: () => exportSheet.close(),
     setContrast: (next: Contrast) => ((contrast = next), build()),
     undo: () => undo(),
