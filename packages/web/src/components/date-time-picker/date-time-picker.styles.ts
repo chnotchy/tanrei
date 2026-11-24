@@ -467,7 +467,13 @@ export const styles = css`
      names transition-property, never the transition shorthand, which resets the delay to 0s. */
   .rows {
     position: absolute;
+    /* Above the wheel's control (.entry), which lies over the middle row: drawn as before — the control draws no fill,
+       and only the digits typed, while the middle row hides — and now the rows' text is what a contrast checker (axe's
+       color-contrast) finds at its place: the control covered the value and it went unchecked. A press passes through
+       the rows to what lies under them, as it did. */
+    z-index: 1;
     inset: 0;
+    pointer-events: none;
     transition-property: none;
     transition-delay: ${t('motion-wheel-duration')};
   }
