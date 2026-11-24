@@ -640,6 +640,7 @@ export class TanreiToolbar extends TanreiElement implements PlacingGroup {
       // TBR-8: what does not fit scrolls — with overflow scroll, or what remains of a menu's (items that are never hidden).
       this.scrolls = over;
       container.classList.toggle('scrolls', over);
+      this.edgeTrack();
       const before = this.folded;
       this.folded = hidden;
       this.watch([
@@ -954,7 +955,24 @@ export class TanreiToolbar extends TanreiElement implements PlacingGroup {
     return towardEnd ? end < input.value.length : start > 0;
   }
 
-  /** TBR-8: an item that takes focus is brought fully into view, inside the container's padding, at once (no motion). */
+  /**
+   * TBR-30: how far the items lie beyond each end of the box that scrolls them, for its fade — lengths only, so that the
+   * fade's depth is the token's, read by the cascade. Less than a pixel is none: a scroll position is a fraction of one.
+   */
+  private readonly edgeTrack = () => {
+    const track = this.track;
+    if (!track) return;
+    const block = this.axis === 'block';
+    const lead = Math.abs(block ? track.scrollTop : track.scrollLeft);
+    const trail = (block ? track.scrollHeight - track.clientHeight : track.scrollWidth - track.clientWidth) - lead;
+    track.style.setProperty('--_lead', `${lead < 1 ? 0 : lead}px`);
+    track.style.setProperty('--_trail', `${trail < 1 ? 0 : trail}px`);
+  };
+
+  /**
+   * TBR-8: an item that takes focus is brought fully into view, inside the container's padding, at once (no motion).
+   * TBR-30: in the box that scrolls the items before the run kept at the end, clear of the fade too (its scroll padding).
+   */
   private reveal(item: Element) {
     // TBR-30: while a run of items is kept at the end, the box before it is what scrolls, and an item kept is in view.
     const track = this.track;
@@ -966,13 +984,13 @@ export class TanreiToolbar extends TanreiElement implements PlacingGroup {
     const port = container.getBoundingClientRect();
     const style = getComputedStyle(container);
     if (this.axis === 'block') {
-      const start = port.top + container.clientTop + Number.parseFloat(style.paddingTop);
-      const end = port.top + container.clientTop + container.clientHeight - Number.parseFloat(style.paddingBottom);
+      const start = port.top + container.clientTop + Number.parseFloat(style.paddingTop) + (track ? Number.parseFloat(style.scrollPaddingTop) || 0 : 0);
+      const end = port.top + container.clientTop + container.clientHeight - Number.parseFloat(style.paddingBottom) - (track ? Number.parseFloat(style.scrollPaddingBottom) || 0 : 0);
       const delta = box.top < start ? box.top - start : box.bottom > end ? box.bottom - end : 0;
       if (delta) container.scrollBy({ top: delta, behavior: 'instant' });
     } else {
-      const start = port.left + container.clientLeft + Number.parseFloat(style.paddingLeft);
-      const end = port.left + container.clientLeft + container.clientWidth - Number.parseFloat(style.paddingRight);
+      const start = port.left + container.clientLeft + Number.parseFloat(style.paddingLeft) + (track ? Number.parseFloat(style.scrollPaddingLeft) || 0 : 0);
+      const end = port.left + container.clientLeft + container.clientWidth - Number.parseFloat(style.paddingRight) - (track ? Number.parseFloat(style.scrollPaddingRight) || 0 : 0);
       const delta = box.left < start ? box.left - start : box.right > end ? box.right - end : 0;
       if (delta) container.scrollBy({ left: delta, behavior: 'instant' });
     }
@@ -1150,7 +1168,7 @@ export class TanreiToolbar extends TanreiElement implements PlacingGroup {
     const tail = this.tail ? parts.pop() : nothing;
     // TBR-30: while the items scroll, the run kept at the end stands after the box that scrolls the items before it.
     const from = this.pinnedFrom();
-    const line$ = from === null ? parts : html`<div class="track" @wheel=${containedWheel}>${parts.slice(0, from)}</div>${parts.slice(from)}`;
+    const line$ = from === null ? parts : html`<div class="track" @wheel=${containedWheel} @scroll=${this.edgeTrack}>${parts.slice(0, from)}</div>${parts.slice(from)}`;
     const name = this.words.get('toolbarOverflowLabel', this.overflowLabel);
     // TBR-18: the overflow button, and the menu it opens (TBR-20), from the first time an item had to be hidden.
     const overflow = this.overflowWanted
