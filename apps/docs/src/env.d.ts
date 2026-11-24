@@ -77,3 +77,5 @@ declare module '@tanrei/token-engine' {
     ctx: { type: string },
   ): { value: number; unit?: string };
 }
+// The web package's cloak, scoped to the docs' stages (src/lib/stage-cloak.mjs): a stylesheet, imported for its rules.
+declare module 'virtual:tanrei-docs/stage-cloak.css';

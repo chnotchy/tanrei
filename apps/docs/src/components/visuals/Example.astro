@@ -16,7 +16,10 @@
 //   and the elements it holds are left to it (lib/define-on-demand.ts) — a page of many examples does not fetch and
 //   define, as it loads, what the reader may never scroll to. A tag defined meanwhile for another part of the page
 //   upgrades what a pending stage holds too, so the stage keeps the room it had as the script started until then
-//   (`data-example-held`): what it upgrades moves nothing below it while it is away from the view.
+//   (`data-example-held`): what it upgrades moves nothing below it while it is away from the view. What it holds takes
+//   its drawn room before it is defined, from the tokens it is drawn with (the web package's cloak, scoped to the
+//   stages: lib/stage-cloak.mjs), so a reader who reaches the stage before its elements' modules arrive sees nothing
+//   grow.
 // - **Its actions** (lib/example.ts), written in a template and drawn when the frame comes near the view: the code,
 //   shown under the stage when the button is pressed and closed until then — in HTML, or in React with the React
 //   package's wrappers — and its copy; the stage drawn right to left (or left to right on a page that reads right to
@@ -36,6 +39,8 @@ import { contentLang, strings } from '../../lib/i18n';
 import { figureId, firstOnPage } from '../../lib/figure-id';
 import { cssVar, ns, shippedSystems, tokensIn } from '../../lib/tokens';
 import type { Hydrate } from '../../lib/visuals/frame';
+// What the stage holds takes the room it is drawn in before its elements are defined (lib/stage-cloak.mjs).
+import 'virtual:tanrei-docs/stage-cloak.css';
 
 /** A length: a token below the namespace (`comp.button.container.height.medium`) or a CSS length (`3rem`); a list is their sum. */
 type Length = string | string[];
@@ -337,13 +342,15 @@ const SNAPSHOT = '(window.docsExampleSources ??= new WeakMap()).set(document.cur
   /* A stage away from the view keeps the room it had as the page's script started (lib/example.ts, `hold`) for as long
      as it holds its elements back: a tag defined meanwhile for another part of the page upgrades its elements too,
      and they would otherwise grow it in that frame and move everything below it. It takes the room they take once its
-     mark is taken away: as it comes near, or as soon as they are all defined while it is below the view (lib/example.ts
-     defines them right after the page's load). (The stage clips what overflows it, `overflow-y: hidden` in
+     mark is taken away: once they are all defined, whether it has come near (lib/example.ts, `letGoWhenDefined`) or is
+     still below the view (lib/example.ts defines them right after the page's load). (The stage clips what overflows it, `overflow-y: hidden` in
      `@tanrei/web/figure.css`.) */
-  .docs-example-stage[data-example-pending][data-example-held] {
+  .docs-example-stage[data-example-held] {
     block-size: var(--docs-example-held);
   }
-  /* Custom elements have no meaningful rendering until they upgrade: they are hidden in the room they take. */
+  /* Custom elements have no meaningful rendering until they upgrade: they are hidden in the room they take, which the
+     web package's cloak, scoped to the stages, makes the room they are drawn in where their tokens give it
+     (lib/stage-cloak.mjs). */
   .docs-example-stage :global(:not(:defined)) {
     visibility: hidden;
   }
