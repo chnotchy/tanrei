@@ -103,8 +103,11 @@ export function focusRing(on: FocusSelector, { inside = false, within, color = S
  * specificity, so that a ring's rule shows it whatever else hides it: a box two rings share (a popover's content and
  * its crowded clip) is shown by either. Its own function, not an option of `focusRing()`, so that a module that draws no
  * such box does not carry it.
+ *
+ * `within` draws the ring held inside known room instead (`focusRing()`'s option), for a box that exists only to carry
+ * the ring around a shape the control draws elsewhere — a tab's ring around its container (TAB-4).
  */
-export const overRing = (box: string, on: FocusSelector, options: Omit<FocusRingOptions, 'inside' | 'within'> = {}): CSSResult =>
+export const overRing = (box: string, on: FocusSelector, options: Omit<FocusRingOptions, 'inside'> = {}): CSSResult =>
   unsafeCSS(`:where(${box}){visibility:hidden}${on(':focus-visible')}{visibility:visible}${focusRing(on, { ...options, inside: true })}`);
 
 // focus-style: glow, inside the element: the halo's box is the element shrunk by the glow's reach (the offset, twice
