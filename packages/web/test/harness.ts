@@ -1133,12 +1133,25 @@ function breadcrumbsMarkup(_spec: Spec, fixture: Fixture): string {
  * item, the element around the product's own anchor — the label its text, `href` (none while the item is disabled),
  * `target="_blank"` for a new context and `aria-current="page"` on the anchor, `target-label` and `disabled` on the
  * element. The form whose links work without script (MBR-45).
+ *
+ * A fixture cannot fill a bar's menu (its items are the menu's kinds, and a spec's fixtures name only its own), so an
+ * open menu holds what a product's open menu holds: the items of the menu spec's `actions` fixture, written as the
+ * menu's own fixtures write them (MBR-9: the open menu is a Tanrei Menu holding the menu's item kinds). An open menu
+ * left empty is MBR-20's edge, not what an open fixture shows. A closed menu builds nothing (MBR-49) and is left empty.
  */
+export function menubarOpenMenuItems(): FixtureItem[] {
+  const actions = loadSpec('menu').fixtures.find((f) => f.id === 'actions')?.items;
+  if (!actions?.length) throw new Error('menubar: the menu spec has no `actions` fixture with items to fill an open menu');
+  return actions;
+}
+
 function menubarMarkup(spec: Spec, fixture: Fixture): string {
   const escape = (v: unknown) => String(v).replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('"', '&quot;');
+  const menuSpec = loadSpec('menu');
   return (fixture.items ?? [])
     .map((item) => {
       const { label, href, target, targetLabel, current, disabled, ...rest } = item.props;
+      if (item.kind === 'menu' && item.props.open === true) return itemsMarkup(spec, [item], { itemContent: () => itemsMarkup(menuSpec, menubarOpenMenuItems(), {}) });
       if (item.kind !== 'item' || !href) return itemsMarkup(spec, [item], {});
       const tag = spec.platforms.web.items!.item.name;
       const host = attributes(undefined, undefined, { ...rest, ...(disabled ? { disabled } : {}), ...(targetLabel ? { targetLabel } : {}) });
@@ -2437,12 +2450,13 @@ const STAGING: Record<string, Staging> = {
   // A fixture with an open submenu (MNU-19's verify) is drawn on a stage wide and tall enough for every open level: each
   // open submenu is drawn beside its item, outside the menu's own box, so it gives the stage no size of its own.
   // A menubar spans a 560-wide stage (W 528): the seven titles of `default` fit, and the twelve of `many`, the Arabic
-  // twelve and the four long labels fold (MBR-21's verify). A fixture cannot fill a bar's menu (the item kinds are the
-  // menu's, and a spec names only its own), so a fixture with a menu open draws the open title over an
-  // empty surface, in place (`inline`, as a menu's fixtures are) with room below the bar for it.
+  // twelve and the four long labels fold (MBR-21's verify). A fixture with a menu open draws the open title over its menu,
+  // holding the menu spec's `actions` items (`menubarMarkup`), in place (`inline`, as a menu's fixtures are) with room
+  // below the bar for it: the menu stands out of the bar's flow (it is placed against its title), so the stage keeps
+  // its offset, its surface's block padding and a row per item below its own padding, read from the menu's tokens.
   menubar: {
     css: () => `.stage:has(> tanrei-menubar) { box-sizing: border-box; inline-size: 560px; }
-      .stage:has(> tanrei-menubar[inline]) { padding-block-end: 48px; }`,
+      .stage:has(> tanrei-menubar[inline]) { padding-block-end: calc(16px + var(--tanrei-comp-menu-surface-offset) + 2 * var(--tanrei-comp-menu-surface-padding-block) + ${menubarOpenMenuItems().length} * var(--tanrei-comp-menu-container-height-medium)); }`,
     props: (props, f) => (f.items?.some((item) => item.props.open === true) ? { ...props, inline: true } : props),
     // A link item is the element around the product's own anchor, not one element with its props as attributes.
     items: menubarMarkup,
