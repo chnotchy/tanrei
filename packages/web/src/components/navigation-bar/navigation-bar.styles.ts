@@ -179,6 +179,15 @@ const boxStyles = css`
   .covered {
     clip-path: inset(50%);
   }
+  /* Both columns are positioned, at no level of their own: each is drawn where it was — after the item container's fill,
+     which lies under them at a negative level, the plain one first and the covered copy over it. A contrast checker that
+     orders elements by their levels alone takes a fill at a negative level for one over a text that is not positioned
+     beside it, and an element that is positioned for one over a text that is not (axe-core does both), and leaves the
+     label unchecked; positioned, each label is above its fill there too, and the covered copy above the plain one. */
+  .content,
+  .covered {
+    position: relative;
+  }
   /* At rest the selected destination's covered copy is the whole of it — its icon and label wholly in their covered
      colors, whatever the item container's corners would cut off a long label — and the plain glyph and label under it
      are not drawn, so no edge of theirs shows around the covered colors. While the indicator moves both are drawn
