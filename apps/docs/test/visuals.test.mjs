@@ -155,13 +155,23 @@ describe('the parts of the anatomy and measure figures', () => {
       if (!stage) continue;
       const document = fixtureDocument(name);
       assert.equal(stage.fixture, specs[name].anatomyFixture ?? specs[name].fixtures[0].id, name);
-      assert.equal(stage.html, document.stages.find((candidate) => candidate.id === stage.fixture).html, name);
+      const own = document.stages.find((candidate) => candidate.id === stage.fixture).html;
+      // A surface the page's top layer would draw beside its anchor is drawn in place: the same stage, its element `inline`.
+      if (stage.html !== own) assert.equal(stage.html, own.replace(`<${stage.tag}`, `<${stage.tag} inline`), name);
       assert.deepEqual(stage.room, document.sizes[stage.fixture], name);
       assert.equal(stage.tag, specs[name].platforms.web.name);
       assert.ok(!document.windowed.includes(stage.fixture), `${name}: a fixture drawn in a window has no figure in the page`);
     }
     assert.equal(blueprintStageOf('button').fixture, 'filled-leading-icon', 'the button’s figure shows its icon');
     assert.match(blueprintStageOf('button').html, /^<div class="stage" data-fixture="filled-leading-icon"><tanrei-button\b/);
+    assert.equal(blueprintStageOf('button').staging, fixtureDocument('button').staging, 'a figure drawn in the page takes the staging as it is');
+  });
+  test('an open tooltip is drawn in place in a figure, in a stage that stands for its window', () => {
+    // In the page's window it would close: another figure's opening closes it (TIP-8), and so does its anchor being out
+    // of the window's view as the page loads (TIP-9). In place, each figure's is open in a window of its own.
+    const stage = blueprintStageOf('tooltip');
+    assert.match(stage.html, /<tanrei-tooltip inline\b[^>]*\sopen[\s>]/, stage.html);
+    assert.match(stage.staging, /\.stage:has\(> tanrei-tooltip\[inline\]\) \{ position: relative; \}/);
   });
   test('the button’s lines, with its icon: the padding on the icon’s side, the gap, the other padding, the heights', () => {
     const { fixture, html } = blueprintStageOf('button');

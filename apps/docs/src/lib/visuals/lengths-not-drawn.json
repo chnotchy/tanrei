@@ -3,6 +3,5 @@
   "combobox": { "fixture": "stacked-empty", "parts": ["option"] },
   "fab-menu": { "fixture": "filled-closed", "parts": ["item"] },
   "select": { "fixture": "stacked-empty", "parts": ["option"] },
-  "tabs": { "fixture": "primary", "lengths": { "tanrei.comp.tabs.container.height.medium": 32, "tanrei.comp.tabs.active-indicator.height": 40 } },
-  "tooltip": { "fixture": "plain", "lengths": { "tanrei.comp.tooltip.plain.container.padding-inline": null } }
+  "tabs": { "fixture": "primary", "lengths": { "tanrei.comp.tabs.container.height.medium": 32, "tanrei.comp.tabs.active-indicator.height": 40 } }
 }
