@@ -67,7 +67,8 @@ export interface Stage {
   /** The fixture as a product writes it, for the copy action: what the document's stage holds. */
   markup?: string;
   /**
-   * For a stage drawn in the page: the room it holds before it is drawn — the size of its baseline, where it has one.
+   * For a stage drawn in the page: the room it holds before it is drawn, and its least height once it is — the size of
+   * its baseline, where it has one (components/fixtures/FixtureGallery.astro).
    * For a modal opener, the window its baseline was taken in (else the one the web harness draws it in), which its
    * caption names.
    */
