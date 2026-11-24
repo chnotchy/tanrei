@@ -24,6 +24,7 @@ import type { TanreiProgressIndicatorSizeRegistry } from '../../registry.js';
 import { AXES, VARIANTS, styles } from './progress-indicator.styles.js';
 import { TanreiElement } from '../../primitives/element.js';
 import { holdsProductName, nameHost, namedByProduct } from '../../primitives/delegated-aria.js';
+import { DEBUG } from '../../primitives/debug.js';
 
 /** `linear` is a bar that fills its layout's width; `circular` is a ring of a fixed size. Drawn by the component: a design system cannot add a form. */
 export type TanreiProgressIndicatorVariant = 'linear' | 'circular';
@@ -166,24 +167,24 @@ export class TanreiProgressIndicator extends TanreiElement {
 
   protected override willUpdate(changed: PropertyValues<this>) {
     // PRG-12: a variant the component does not define is drawn as linear (only `circular` has rules of its own).
-    if (changed.has('variant') && !(VARIANTS as readonly string[]).includes(this.variant)) {
+    if (DEBUG && changed.has('variant') && !(VARIANTS as readonly string[]).includes(this.variant)) {
       report(this, 'PRG-12', `variant "${this.variant}" is not a value of the progress indicator; it is drawn as "linear"`);
     }
     // PRG-12: a separation the component does not define is drawn as auto (no rule matches it).
-    if (changed.has('separation') && !(SEPARATION_VALUES as readonly string[]).includes(this.separation)) {
+    if (DEBUG && changed.has('separation') && !(SEPARATION_VALUES as readonly string[]).includes(this.separation)) {
       report(this, 'PRG-12', `separation "${this.separation}" is not a value of the progress indicator; it is drawn as "auto"`);
     }
     // PRG-11: what the value is drawn as, named in debug builds.
     if ((changed.has('value') || changed.has('min') || changed.has('max')) && this.determinate) {
       const [min, max, value] = [Number(this.min ?? 0), Number(this.max ?? 1), this.value as number];
-      if (!(max > min)) report(this, 'PRG-11', `max ${max} is not greater than min ${min}; the track is drawn with no indicator, and 0 of 0…1 is exposed`);
-      else if (value < min || value > max) report(this, 'PRG-11', `value ${value} is outside ${min}…${max}; it is drawn and exposed as ${Math.min(max, Math.max(min, value))}`);
+      if (!(max > min)) DEBUG && report(this, 'PRG-11', `max ${max} is not greater than min ${min}; the track is drawn with no indicator, and 0 of 0…1 is exposed`);
+      else if (DEBUG && (value < min || value > max)) report(this, 'PRG-11', `value ${value} is outside ${min}…${max}; it is drawn and exposed as ${Math.min(max, Math.max(min, value))}`);
     }
     // PRG-15: a bar alone is not a name.
-    if (changed.has('label') && !this.label && !namedByProduct(this)) report(this, 'PRG-15', 'label is empty, so the progress indicator has no accessible name; give it a label');
+    if (DEBUG && changed.has('label') && !this.label && !namedByProduct(this)) report(this, 'PRG-15', 'label is empty, so the progress indicator has no accessible name; give it a label');
     // PRG-21: a delay it cannot use takes the token, and is reported.
     const ignored = changed.has('showDelay') ? unusableMilliseconds(this, this.showDelay, 'show-delay') : null;
-    if (ignored !== null) report(this, 'PRG-21', `showDelay ${ignored} is not a finite, non-negative number of milliseconds; it takes comp.progress-indicator.motion.show-delay`);
+    if (DEBUG && ignored !== null) report(this, 'PRG-21', `showDelay ${ignored} is not a finite, non-negative number of milliseconds; it takes comp.progress-indicator.motion.show-delay`);
     if (this.isConnected) this.expose();
   }
 

@@ -49,6 +49,7 @@ import { AXES, CORE_SIZES, INSET, PREFIX, styles } from './select.styles.js';
 import { FocusedStop, disabledWaitsWhileFocused } from '../../primitives/disabled-while-focused.js';
 import { focusedAtFirst } from '../../primitives/autofocus.js';
 import { TanreiElement } from '../../primitives/element.js';
+import { DEBUG } from '../../primitives/debug.js';
 
 /** The three looks of the input box (`comp.input-box`): a filled box whose label is the row of the Field that frames it (`stacked`), or the label floating inside a `filled` or `outlined` box. A design system may leave some out or add values. */
 export type TanreiSelectVariant = keyof TanreiInputBoxVariantRegistry;
@@ -753,7 +754,7 @@ export class TanreiSelect extends TanreiElement {
     this.hasLeading = slot.assignedNodes({ flatten: true }).some((node) => node.nodeType === Node.ELEMENT_NODE || !!node.textContent?.trim());
     // SEL-18: the slot's content is a glyph only.
     void slottedInteractive(slot).then((found) => {
-      if (found) report(this, 'SEL-18', `the leading-icon slot holds an interactive element (<${found.localName}>); it takes a glyph only, and the whole container is one target`);
+      if (DEBUG && found) report(this, 'SEL-18', `the leading-icon slot holds an interactive element (<${found.localName}>); it takes a glyph only, and the whole container is one target`);
     });
   }
 
@@ -833,45 +834,45 @@ export class TanreiSelect extends TanreiElement {
       const left = [...LEFT_ATTRIBUTES.filter((name) => this.hasAttribute(name)), ...(this.querySelector(':scope > [slot="label-icon"]') ? ['a child for the label-icon slot'] : [])];
       if (left.length) {
         this.reportedLeft = true;
-        report(this, 'SEL-64', `${left.join(', ')}: the select is the bare control and draws no label row, requirement mark, help or error text, so ${left.length > 1 ? 'these do' : 'this does'} nothing here; use <tanrei-select-field>, or put the select in a <tanrei-field>`);
+        if (DEBUG) report(this, 'SEL-64', `${left.join(', ')}: the select is the bare control and draws no label row, requirement mark, help or error text, so ${left.length > 1 ? 'these do' : 'this does'} nothing here; use <tanrei-select-field>, or put the select in a <tanrei-field>`);
       }
     }
     // SEL-11: a select with neither name — no label of its own, and no Field that gives it one — still renders.
-    if (!this.name_ && !namedByProduct(this)) report(this, 'SEL-11', 'label is empty and no Field names the select, so it has no accessible name; give it a label, or put it in a <tanrei-field> that has one');
-    if (changed.has('separation') && !(SEPARATION_VALUES as readonly string[]).includes(this.separation)) {
+    if (DEBUG && !this.name_ && !namedByProduct(this)) report(this, 'SEL-11', 'label is empty and no Field names the select, so it has no accessible name; give it a label, or put it in a <tanrei-field> that has one');
+    if (DEBUG && changed.has('separation') && !(SEPARATION_VALUES as readonly string[]).includes(this.separation)) {
       report(this, 'SEL-45', `separation "${this.separation}" is not auto, divider or gap; it behaves as "auto"`);
     }
     // SEL-66: an iconSpace the select does not define is auto; a debug build says so.
-    if (changed.has('iconSpace') && !OPTION_ICON_SPACES.includes(this.iconSpace)) {
+    if (DEBUG && changed.has('iconSpace') && !OPTION_ICON_SPACES.includes(this.iconSpace)) {
       report(this, 'SEL-66', `iconSpace "${this.iconSpace}" is not auto, always or never; it behaves as "auto"`);
     }
     // SEL-60: a status the select does not define is idle.
-    if (changed.has('status') && !STATUSES.includes(this.status)) report(this, 'SEL-60', `status "${this.status}" is not idle, loading or error; it behaves as "idle"`);
+    if (DEBUG && changed.has('status') && !STATUSES.includes(this.status)) report(this, 'SEL-60', `status "${this.status}" is not idle, loading or error; it behaves as "idle"`);
     // SEL-62: the person, or the product's open, asked a select with nothing to show to open, and nobody gave the
     // words that would say why. (Without them the list has nothing to show and is not open.)
     if ((this.triedEmpty || (this.open && changed.has('open'))) && this.emptyAsked && !this.emptyWords && !this.inert_ && !this.readOnly) {
-      this.words.missing('noOptionsText', { prop: 'emptyText', id: 'SEL-62', effect: 'a select without options does not open and says nothing' });
+      this.words.missing('noOptionsText', DEBUG && { prop: 'emptyText', id: 'SEL-62', effect: 'a select without options does not open and says nothing' });
     }
     this.triedEmpty = false;
     // SEL-72: the clear button is drawn and works without a name; a debug build says which words are missing.
-    if (this.clearShown && !this.words.get('clearLabel', this.clearLabel).trim()) this.words.missing('clearLabel', { id: 'SEL-72', effect: 'the clear button is drawn and works, and has no accessible name' });
+    if (this.clearShown && !this.words.get('clearLabel', this.clearLabel).trim()) this.words.missing('clearLabel', DEBUG && { id: 'SEL-72', effect: 'the clear button is drawn and works, and has no accessible name' });
     const { options, nested } = this.options$.model;
     // The options are reported when they, or the value, change — not on every render.
     const signature = `${this.value}\u0000${options.map((option) => `${option.value}\u0001${option.label}`).join('\u0000')}\u0000${nested.length}`;
     if (signature === this.reportedOptions) return;
     this.reportedOptions = signature;
     if (options.length === 0) {
-      if (!this.showable) report(this, 'SEL-61', `the select holds no option and nothing to say, so it does not open; give it <${OPTION_TAG}> children, a status while they load, or an emptyText`);
+      if (DEBUG && !this.showable) report(this, 'SEL-61', `the select holds no option and nothing to say, so it does not open; give it <${OPTION_TAG}> children, a status while they load, or an emptyText`);
       return;
     }
-    if (options.some((option) => !option.label)) report(this, 'SEL-11', `an option has an empty label, so it has no accessible name; give each <${OPTION_TAG}> a label or a text`);
-    if (this.value !== '' && !this.chosen) report(this, 'SEL-17', `value "${this.value}" names no option; the select is drawn with nothing chosen and keeps the value`, { once: false });
+    if (DEBUG && options.some((option) => !option.label)) report(this, 'SEL-11', `an option has an empty label, so it has no accessible name; give each <${OPTION_TAG}> a label or a text`);
+    if (DEBUG && this.value !== '' && !this.chosen) report(this, 'SEL-17', `value "${this.value}" names no option; the select is drawn with nothing chosen and keeps the value`, { once: false });
     const seen = new Set<string>();
     for (const option of options) {
-      if (seen.has(option.value)) report(this, 'SEL-17', `two options share the value "${option.value}"; the first is the one both stand for`);
+      if (DEBUG && seen.has(option.value)) report(this, 'SEL-17', `two options share the value "${option.value}"; the first is the one both stand for`);
       seen.add(option.value);
     }
-    if (nested.length) report(this, 'SEL-44', `a <${OPTION_GROUP_TAG}> stands inside another; its options are drawn as the outer group's, with no title or separation of its own`);
+    if (DEBUG && nested.length) report(this, 'SEL-44', `a <${OPTION_GROUP_TAG}> stands inside another; its options are drawn as the outer group's, with no title or separation of its own`);
   }
 
   /**

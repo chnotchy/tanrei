@@ -1,8 +1,8 @@
 import type { PropertyDeclarations, PropertyValues } from 'lit';
 import { AvailabilityController, SystemWatchController, VisibilityController, WordsController, report, styleQueries } from '../../primitives/index.js';
-import { debugBuild } from '../../primitives/report.js';
 import { adopt, adoptUnlessDrawn } from '../../primitives/sheets.js';
 import { TanreiLightElement } from '../../primitives/element.js';
+import { DEBUG } from '../../primitives/debug.js';
 
 // The text of src/styles/skeleton.css — the stylesheet that draws the skeleton — written in by the build
 // (scripts/build.js), so the element can add it to whichever root it is connected to. A build that wrote nothing
@@ -371,7 +371,7 @@ export class TanreiSkeleton extends TanreiLightElement {
     this.give('aria-hidden', this.shown && silent ? 'true' : null);
     // SKL-18: still drawn and still exposed, without a name. (A page that named it itself has named it.)
     if (said && !name && !this.authored?.has('aria-label') && this.isConnected) {
-      this.words.missing('loadingLabel', { prop: 'label', id: 'SKL-18', effect: 'the skeleton is exposed as a progressbar without a name' });
+      this.words.missing('loadingLabel', DEBUG && { prop: 'label', id: 'SKL-18', effect: 'the skeleton is exposed as a progressbar without a name' });
     }
   }
 
@@ -391,7 +391,7 @@ export class TanreiSkeleton extends TanreiLightElement {
     if (changed.has('showDelay') && value !== null && value !== undefined && !usable(value)) {
       const attribute = this.getAttribute('show-delay');
       const given = Number.isNaN(value) && attribute !== null ? `"${attribute}"` : String(value);
-      report(this, 'SKL-9', `showDelay ${given} is not a finite, non-negative number of milliseconds; it takes comp.skeleton.motion.show-delay`);
+      if (DEBUG) report(this, 'SKL-9', `showDelay ${given} is not a finite, non-negative number of milliseconds; it takes comp.skeleton.motion.show-delay`);
     }
   }
 
@@ -407,7 +407,7 @@ export class TanreiSkeleton extends TanreiLightElement {
   private manner(style = getComputedStyle(this)): Manner {
     const named = style.getPropertyValue(`${PREFIX}-motion-animation`).trim();
     if ((MANNERS as readonly string[]).includes(named)) return named as Manner;
-    if (named !== '') report(this, 'SKL-25', `comp.skeleton.motion.animation "${named}" is not pulse, wave or none; the skeleton pulses`);
+    if (DEBUG && named !== '') report(this, 'SKL-25', `comp.skeleton.motion.animation "${named}" is not pulse, wave or none; the skeleton pulses`);
     return MANNERS[0];
   }
 
@@ -510,7 +510,7 @@ export class TanreiSkeleton extends TanreiLightElement {
       const inSheet = String(drawn) === lines && drawn <= LINES_IN_SHEET;
       if (!inSheet) adopt(this.getRootNode() as Root, writtenSheet(`lines:${lines}`, () => linesRules(lines, drawn)));
     }
-    if (!debugBuild()) return;
+    if (!DEBUG) return;
     // A skeleton that is still being parsed is read again when it is whole.
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', () => this.read(), { once: true });
     else this.check(placeholders);
@@ -519,19 +519,19 @@ export class TanreiSkeleton extends TanreiLightElement {
   /** What a debug build says about a skeleton it still draws (SKL-25, SKL-26). */
   private check(placeholders: HTMLElement[]) {
     if (placeholders.length === 0) {
-      report(this, 'SKL-26', `the skeleton holds no placeholder (an element with class="${PLACEHOLDER}"), so it draws nothing and exposes nothing; a wait whose shape is not known is a loading indicator's`);
+      if (DEBUG) report(this, 'SKL-26', `the skeleton holds no placeholder (an element with class="${PLACEHOLDER}"), so it draws nothing and exposes nothing; a wait whose shape is not known is a loading indicator's`);
       return;
     }
     for (const placeholder of placeholders) {
       const shape = placeholder.getAttribute('data-shape');
-      if (shape !== null && !SHAPES.includes(shape)) report(this, 'SKL-25', `data-shape "${shape}" is not text, block or circle; the placeholder is drawn as text`);
+      if (DEBUG && shape !== null && !SHAPES.includes(shape)) report(this, 'SKL-25', `data-shape "${shape}" is not text, block or circle; the placeholder is drawn as text`);
       const lines = placeholder.getAttribute('data-lines');
-      if (lines !== null && String(linesOf(lines)) !== lines.trim()) report(this, 'SKL-25', `data-lines "${lines}" is not a whole number of at least 1; the placeholder is drawn with ${linesOf(lines)}`);
+      if (DEBUG && lines !== null && String(linesOf(lines)) !== lines.trim()) report(this, 'SKL-25', `data-lines "${lines}" is not a whole number of at least 1; the placeholder is drawn with ${linesOf(lines)}`);
       // A size the browser does not take (a negative length, a word that is no size) is left out by its parser: the
       // placeholder is drawn as if none was given.
       const style = placeholder.getAttribute('style') ?? '';
       for (const [, property, given] of style.matchAll(/(?:^|;)\s*(inline-size|block-size)\s*:\s*([^;]+)/g)) {
-        if (!CSS.supports(property, given.replace(/!\s*important\s*$/, '').trim())) report(this, 'SKL-25', `${property} "${given.trim()}" is not a size; the placeholder is drawn as if none was given`);
+        if (DEBUG && !CSS.supports(property, given.replace(/!\s*important\s*$/, '').trim())) report(this, 'SKL-25', `${property} "${given.trim()}" is not a size; the placeholder is drawn as if none was given`);
       }
     }
   }
