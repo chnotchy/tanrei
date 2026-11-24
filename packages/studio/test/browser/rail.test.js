@@ -50,11 +50,12 @@ studioTest('the rail lists the nine rows, then the rest; each shows its panel, a
   await page.locator('[data-rail] [data-row="typeface"]').hover();
   await page.waitForFunction(() => document.querySelector('[data-rail-row="typeface"] > tanrei-tooltip')?.open === true);
   assert.equal(await tipOf('typeface').evaluate((el) => el.shadowRoot.querySelector('[role="tooltip"]').textContent.trim()), family);
-  // (When the pointer has rested long enough, the radius row's tooltip asks to open — its `toggle` — and is shut at once.)
-  await tipOf('radius').evaluate((el) => el.addEventListener('toggle', (event) => (el.dataset.asked = String(event.detail.open)), { once: true }));
-  await page.locator('[data-rail] [data-row="radius"]').hover();
-  await page.waitForFunction(() => document.querySelector('[data-rail-row="radius"] > tanrei-tooltip')?.dataset.asked === 'true');
-  assert.deepEqual(await tipOf('radius').evaluate((el) => [el.open, el.shadowRoot.querySelector('[role="tooltip"]').matches(':popover-open')]), [false, false], 'a whole value opens no tooltip');
+  // (When the pointer has rested long enough, the color row's tooltip asks to open — its `toggle` — and is shut at once:
+  // its line is cut, but only in the word «default» after the value, which is whole.)
+  await tipOf('color').evaluate((el) => el.addEventListener('toggle', (event) => (el.dataset.asked = String(event.detail.open)), { once: true }));
+  await page.locator('[data-rail] [data-row="color"]').hover();
+  await page.waitForFunction(() => document.querySelector('[data-rail-row="color"] > tanrei-tooltip')?.dataset.asked === 'true');
+  assert.deepEqual(await tipOf('color').evaluate((el) => [el.open, el.shadowRoot.querySelector('[role="tooltip"]').matches(':popover-open')]), [false, false], 'a whole value opens no tooltip, though the word after it is cut');
   assert.equal(await tipOf('typeface').evaluate((el) => el.open), false);
   assert.equal(await page.locator('[data-rail] .ts-sample').count(), ROWS.length);
   // Each row, and each item after them, ends in a chevron: it opens its controls.

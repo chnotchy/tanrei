@@ -284,12 +284,12 @@ export function createRail(ctx: Ctx, { locked, onshow, onlock }: { locked: Set<R
       // The chevron says the row opens its controls; pressing it is pressing the row.
       const chevron = h('span', { class: 'ts-rail-chevron', 'aria-hidden': 'true', onclick: () => show.click() }, glyph(ctx, CHEVRON_GLYPH));
       // A line too long for the rail is cut with an ellipsis (studio.css): pointed at or focused, the row shows the
-      // whole value in a Tanrei tooltip, as the bar's controls show theirs. Only a cut line opens it: a whole one says it
-      // already. The row is named by its text, which holds the whole value, so the tooltip adds nothing to that name.
+      // whole value in a Tanrei tooltip, as the bar's controls show theirs. Only a cut value opens it: a line cut after
+      // the value, in the word that says it is the start's, shows the value whole already. The row is named by its text, which holds the whole value, so the tooltip adds nothing to that name.
       // (Its text is the row's name until the rail is first drawn: a tooltip is never left without text.)
       const whole = tip(show, t.rail.rows[row], true, { class: 'ts-rail-tip', placement: 'top-start' }) as HTMLElement & { text: string; open: boolean };
       whole.addEventListener('toggle', (event) => {
-        if (event.target === whole && whole.open && line.scrollWidth <= line.clientWidth) whole.open = false;
+        if (event.target === whole && whole.open && value.getBoundingClientRect().width <= line.clientWidth + 1) whole.open = false;
       });
       return h('li', { class: 'ts-rail-item', 'data-rail-row': row }, whole, lock, chevron);
     }),
