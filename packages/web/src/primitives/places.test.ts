@@ -104,7 +104,7 @@ test.describe('a word with places', () => {
     expect(placeFaults('Remove {entri}', remove)).toEqual({ written: ['holds {entri}, which is not a place of it ({entry})'], absent: ['entry'] });
   });
 
-  test('an unknown place and a stray brace are reported in a debug build, once per prop, fault and page, naming the element, the prop and the sentence’s id; a sentence that fits and a production build report nothing', () => {
+  test('an unknown place and a stray brace are reported in a debug build, once per prop, fault and page, naming the element, the prop and the sentence’s id; a sentence that fits reports nothing', () => {
     const moved = wordPlaces.movedText!;
     const list = element('tanrei-places-test-list');
     expect(warned(() => reportPlaces(list, 'LST-44', 'movedText', '{label}: {position} of {count}', moved, 'it is announced as it is written'))).toEqual([]);
@@ -121,15 +121,7 @@ test.describe('a word with places', () => {
     expect(warned(() => reportPlaces(list, 'LST-44', 'movedText', '{labe}', moved, 'it is announced as it is written'))).toHaveLength(1);
     // A needed place that is absent is its caller's to report, with what it breaks.
     expect(warned(() => reportPlaces(element('tanrei-places-test-field'), 'CHF-23', 'removeLabel', 'Remove', wordPlaces.entryRemoveLabel!, 'x'))).toEqual([]);
-    // A release build reports nothing.
-    const mode = process.env.NODE_ENV;
-    process.env.NODE_ENV = 'production';
-    try {
-      expect(warned(() => reportPlaces(list, 'LST-44', 'movedText', '{another}', moved, 'it is announced as it is written'))).toEqual([]);
-    } finally {
-      if (mode === undefined) delete process.env.NODE_ENV;
-      else process.env.NODE_ENV = mode;
-    }
+    // A production build leaves the report out with the call (`DEBUG`, test/debug-code.test.mjs).
   });
 
   test('the keys of the product’s words that have places are the specs’, and every place is a number or a text', () => {

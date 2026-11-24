@@ -8,6 +8,7 @@ import { parseValues } from '../../primitives/values.js';
 import '../handle/handle.js';
 import type { TanreiHandle, TanreiHandleResizeDetail, TanreiHandleStepDetail } from '../handle/handle.js';
 import { HANDLES, SIZE_INDICATORS, VARIANTS, styles } from './resizable-frame.styles.js';
+import { DEBUG } from '../../primitives/debug.js';
 
 /** The two looks: `outlined`, a box a preview is checked in; `plain`, the edge of a pane (a navigation drawer, a side bar). */
 export type TanreiResizableFrameVariant = 'outlined' | 'plain';
@@ -476,16 +477,16 @@ export class TanreiResizableFrame extends TanreiElement {
       this.moveNext = false;
       this.motion.fit(true);
     }
-    if (changed.has('variant') && this.variant !== this.shownVariant) report(this, 'RSF-16', `variant "${this.variant}" is not a value of the resizable frame; it is drawn as "outlined"`);
-    if (changed.has('sizeIndicator') && this.sizeIndicator !== this.shownIndicator) report(this, 'RSF-16', `size-indicator "${this.sizeIndicator}" is not a value of the resizable frame; it is treated as "active"`);
+    if (DEBUG && changed.has('variant') && this.variant !== this.shownVariant) report(this, 'RSF-16', `variant "${this.variant}" is not a value of the resizable frame; it is drawn as "outlined"`);
+    if (DEBUG && changed.has('sizeIndicator') && this.sizeIndicator !== this.shownIndicator) report(this, 'RSF-16', `size-indicator "${this.sizeIndicator}" is not a value of the resizable frame; it is treated as "active"`);
     if (changed.has('handles')) {
       for (const name of Array.isArray(this.handles) ? this.handles : []) {
-        if (!(HANDLES as readonly string[]).includes(name)) report(this, 'RSF-16', `handles names "${name}", which is not a handle of the resizable frame (start, end, bottom, bottom-end); it is not drawn`);
+        if (DEBUG && !(HANDLES as readonly string[]).includes(name)) report(this, 'RSF-16', `handles names "${name}", which is not a handle of the resizable frame (start, end, bottom, bottom-end); it is not drawn`);
       }
     }
     if (changed.has('snapWidths')) {
       for (const width of Array.isArray(this.snapWidths) ? this.snapWidths : []) {
-        if (!(Number.isInteger(width) && width > 0)) report(this, 'RSF-16', `snap-widths has "${width}", which is not a whole number of pixels above zero; it is ignored`);
+        if (DEBUG && !(Number.isInteger(width) && width > 0)) report(this, 'RSF-16', `snap-widths has "${width}", which is not a whole number of pixels above zero; it is ignored`);
       }
     }
     if (changed.has('handles') || changed.has('widthLabel') || changed.has('heightLabel') || changed.has('cornerLabel')) {
@@ -495,7 +496,7 @@ export class TanreiResizableFrame extends TanreiElement {
         ...(shown.includes('bottom') && !this.heightLabel.trim() ? ['height-label'] : []),
         ...(shown.includes('bottom-end') && !this.cornerLabel.trim() ? ['corner-label'] : []),
       ];
-      for (const name of missing) report(this, 'RSF-9', `${name} is empty, so a handle it names has no accessible name; give it one that says what it resizes`);
+      for (const name of missing) DEBUG && report(this, 'RSF-9', `${name} is empty, so a handle it names has no accessible name; give it one that says what it resizes`);
     }
   }
 
