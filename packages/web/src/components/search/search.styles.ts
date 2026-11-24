@@ -1021,11 +1021,17 @@ export const rowStyles = css`
   .icon.empty {
     visibility: hidden;
   }
+  /* The control — the element's own <a> or <button>, slotted over the whole row as its hit area — lies under the text,
+     and a press on the text is still the control's. Drawn over the control, the text is what a contrast checker (axe's
+     color-contrast) finds at its place: the control covered it, and the headline and the excerpt went unchecked. */
   .text {
+    position: relative;
+    z-index: 1;
     display: flex;
     flex: 1 1 auto;
     flex-direction: column;
     min-inline-size: 0;
+    pointer-events: none;
   }
   .headline {
     ${typefaceOf(t, 'suggestion-headline-typescale')}
