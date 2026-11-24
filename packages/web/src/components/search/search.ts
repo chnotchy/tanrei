@@ -246,14 +246,18 @@ const contentNodes = (host: Element): (Element | Text)[] =>
 
 /**
  * SRC-45, SRC-50: how a row's own control — the `<a>` or `<button>` the element keeps as its child — is laid: an empty
- * box over the whole row that draws nothing, so that what the person presses, focuses and opens is the browser's own
+ * box across the whole row that draws nothing, so that what the person presses, focuses and opens is the browser's own
  * link while the row in the shadow root draws everything (SRC-42). Set through the CSSOM, which a content security
  * policy that refuses style attributes allows, and important, so that a page's rules for anchors and buttons (a reset,
- * a link color, a focus outline) neither move it nor paint it.
+ * a link color, a focus outline) neither move it nor paint it. It lies under the row's icon and text (`z-index: -1` in
+ * the row, its own stacking context), which take no pointer, so every press still reaches it: an element over a text
+ * is, to a contrast checker (axe's color-contrast, which builds its own paint order and ignores pointer-events), an
+ * element covering it, and the headline and the excerpt were left unchecked.
  */
 const CONTROL_STYLE: readonly (readonly [string, string])[] = [
   ['all', 'unset'],
   ['position', 'absolute'],
+  ['z-index', '-1'],
   ['inset', '0'],
   ['display', 'block'],
   ['box-sizing', 'border-box'],
@@ -263,7 +267,7 @@ const CONTROL_STYLE: readonly (readonly [string, string])[] = [
 /**
  * What a result and a linked group heading share (SRC-42 … SRC-45): the destination props of a link, the row — a
  * suggestion's row, drawn by the element in its shadow root — its control, and the excerpt with its marks. The control
- * is the element's own `<a>` (a `<button>` without a destination) in its light DOM, slotted over the row, so that the
+ * is the element's own `<a>` (a `<button>` without a destination) in its light DOM, slotted across the row, so that the
  * search's input can name it as its active descendant (SRC-50): an element in a shadow root of its own is out of reach
  * of the input's `aria-activedescendant`, and of the element reflection that crosses into the document. It holds no
  * listener of its own: the search it is in answers its press, its keys and its activation.

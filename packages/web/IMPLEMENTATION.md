@@ -4348,6 +4348,7 @@ product's `<tanrei-file-item>`s while `attachments="given"`, or the file items i
 | The layouts (CCM-2 to CCM-4) | The typing area and the send button never move in the DOM. The attach button with the leading slot, and the counter with the trailing slot, are drawn before and after the typing area (`inline`) or in `.row` beneath (`stacked`), so that the Tab order is the drawn order (CCM-29). Which it is — `layout`, or a capsule narrower than `layout.inline-min-width` — is read by a `ResizeObserver` of the capsule against a probe of that length: a CSS container query could not move the focus order |
 | No custom property | The capsule holds its members, and a custom property on it would be inherited by each. The one property written for the members is the cap of their hit areas (`TARGET_CAPS`, `rowTargets()`, BTN-5), on each Button, File picker and slotted control and on the line and the row that hold them, never on the capsule: no member's token, the channel by which a row tells what it lays out how far to reach. Every state is written out from its own tokens; the corner and the glow come from `heldShape()` and `heldFocusGlow()` (`src/styles/shape.ts`, `src/primitives/focus-ring.ts`); and the one length the stylesheet cannot know — a line of the typing area's text, read from the member's `input` part — is written as rules (`measured()`) in a constructed stylesheet of that line, which every instance that measured the same line shares (`measuredSheet()`), adopted after its static sheet and in no cascade layer |
 | Focus on the capsule (CCM-42) | `data-focused`, set from the typing area's `focusin` and `focusout` — not `:focus-within`, which also holds while a Button or a File item's action has focus |
+| The edge (CCM-41) | Drawn inside the capsule's box by `.outline`, a box over everything the capsule holds that draws nothing itself (`visibility: hidden`): its `::before` draws the border, its widths, colors and their transition, at the same place in the paint order. An element over a text is, to a contrast checker (axe's `color-contrast`, which builds its own paint order and ignores `pointer-events`), an element covering it: the counter was left incomplete instead of checked. A pseudo-element is not seen as one |
 | What can be sent (CCM-9) | `reasons()`, read on demand; `sendablechange` after each update in which the answer or the reasons changed. The element's own `disabled` is read with the platform's present answer (`:disabled`), so that unsetting it says one change and not two |
 | Files (CCM-21 to CCM-24) | The file picker's `select` and `reject` are stopped and answered once, at its arrival event; a drop on the host and a paste into the typing area are judged with `judge()`. `own`: `kept` and `refused`, drawn with `repeat()`; each file item is given `file`, `form`, `preview` and `nameHidden` as properties and the rest through the file-item channel |
 | Stopped at the shadow root | The embedded text input's `action`, `change` and `rowschange`; the file picker's `select` and `reject`; `remove`, `retry` and `click` of a file item it drew. The typing area's `input` leaves as it is |
@@ -8519,9 +8520,14 @@ is reduced.
 
 **Results (SRC-42…46, SRC-49, SRC-50).** `<tanrei-search-result>` draws a suggestion's row from the suggestion tokens in
 its own shadow root. Its link is its own `<a href>` (a `<button>` without `href`, or with a `javascript:` one), which the
-element keeps as its **first child in the light DOM**, slotted over the whole row and drawn as nothing — `all: unset` and
-an absolute inset of 0, set through the CSSOM as important, so a page's rules for anchors and buttons neither move nor
-paint it; the row draws the focus the link shows (`:focus-visible`), and the row's own text is hidden from assistive
+element keeps as its **first child in the light DOM**, slotted across the whole row and drawn as nothing — `all: unset`,
+an absolute inset of 0 and `z-index: -1`, set through the CSSOM as important, so a page's rules for anchors and buttons
+neither move nor paint it. It lies under the row's icon and text, which take no pointer (`pointer-events: none`), so
+every press still reaches it, and which are positioned at no level of their own (axe puts an element of any level, a
+negative one too, above a text that has none): an element over a text is, to a contrast checker (axe's `color-contrast`, which builds its
+own paint order and ignores `pointer-events`), an element covering it, and the headline and the excerpt were left
+incomplete instead of checked. The row is its own stacking context (`isolation: isolate`), so the link's level orders it
+inside the row alone, above the row's fill; the row draws the focus the link shows (`:focus-visible`), and the row's own text is hidden from assistive
 technology, so the link is the one node said. It is a child of the document, not of the result's shadow root, so that the
 search's input can name it as its active descendant by element reflection (`ariaActiveDescendantElement`): an id cannot
 cross a shadow root, and reflection reaches out into the document, never into another shadow root. Content that replaces
