@@ -1306,6 +1306,10 @@ export const cellStyles = css`
      without one — wrapping rather than truncating; the row grows with it. NVD-35: it fades out over the first half of a
      collapse and in over the second half of an expansion, clipped at the moving edge. */
   .text {
+    /* Positioned, like the item container behind it: still drawn above the container, whose z-index is negative, and
+       now seen there by a contrast checker (axe's color-contrast), which takes a positioned box — even one of negative
+       z-index — for one above text that is not positioned, and left the label and the supporting text unchecked. */
+    position: relative;
     display: flex;
     flex: 1 1 auto;
     flex-direction: column;
