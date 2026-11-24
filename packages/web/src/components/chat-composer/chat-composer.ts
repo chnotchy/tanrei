@@ -540,8 +540,13 @@ export class TanreiChatComposer extends ComposedElement implements PlacingGroup 
   private lineSheet: CSSStyleSheet | null = null;
   /** The measures have been asked for and not read yet: a second request of the turn is the same one. */
   private measureAsked = false;
-  /** What the shared resize watch observes of this element: its capsule and its typing area. */
+  /** What the shared resize watch observes of this element: its capsule, its typing area, the parts beside it and the probes. */
   private watched: Element[] = [];
+  /**
+   * CCM-4: the inline size of each watched element, as the resize watch last reported it — read from its report, never
+   * from the layout: the decision costs no read of its own, however many parts share the typing area's line.
+   */
+  private readonly sizes = new WeakMap<Element, number>();
   /** What the product's own Buttons in the slots were given, to take back (CCM-10, CCM-26). */
   private readonly lent = new Set<Element>();
 
@@ -1639,8 +1644,8 @@ export class TanreiChatComposer extends ComposedElement implements PlacingGroup 
     if (!capsule || !this.isConnected) return;
     const typed = this.input?.shadowRoot?.querySelector('[part~="input"]');
     const line = typed ? getComputedStyle(typed).lineHeight : '';
-    const probe = capsule.querySelector('.probe');
-    const [width, least] = [capsule.getBoundingClientRect().width, probe?.getBoundingClientRect().width ?? 0];
+    const width = this.sizes.get(capsule);
+    const least = this.sizeOf(capsule.querySelector('.probe[data-of="inline"]'));
     const needs = this.inlineNeeds(capsule);
     return () => {
       if (/^[\d.]+px$/.test(line) && line !== this.line) {
@@ -1652,6 +1657,8 @@ export class TanreiChatComposer extends ComposedElement implements PlacingGroup 
           this.lineSheet = sheet;
         }
       }
+      // Not yet reported, the capsule keeps the layout it has.
+      if (width === undefined) return;
       const narrow = width > 0 && least > 0 && (width < least - 0.01 || width < needs - 0.01);
       if (narrow !== this.narrow) this.narrow = narrow;
     };
@@ -1660,20 +1667,26 @@ export class TanreiChatComposer extends ComposedElement implements PlacingGroup 
   /**
    * CCM-4: the inline size the inline layout needs to leave the typing area `layout.input-min-width` — the parts it puts
    * on that line (CCM-2) at their own widths, which are the same in either layout, with the paddings and the gaps
-   * between them; the counter as wide as it is with `maxLength` characters. 0 while a length is not yet read.
+   * between them; the counter as wide as it is with `maxLength` characters. 0 while a length is not yet reported. Every
+   * width is the resize watch's report (`sizes`): nothing here reads the layout.
    */
   private inlineNeeds(capsule: HTMLElement): number {
-    const length = (of: string) => capsule.querySelector(`.probe[data-of="${of}"]`)?.getBoundingClientRect().width ?? 0;
+    const length = (of: string) => this.sizeOf(capsule.querySelector(`.probe[data-of="${of}"]`));
     const input = length('input');
     if (!input) return 0;
     const gap = length('gap');
-    const widths = (elements: (Element | null | undefined)[]) => elements.map((element) => element?.getBoundingClientRect().width ?? 0).filter((each) => each > 0);
+    const widths = (elements: (Element | null | undefined)[]) => elements.map((element) => this.sizeOf(element)).filter((each) => each > 0);
     // Each part of a group stands one gap from the next; the last of the group after the typing area, from the send button.
     const parts = (each: number[]) => each.reduce((sum, w) => sum + w + gap, 0);
     const start = widths([this.attachShown ? this.renderRoot.querySelector('tanrei-file-picker') : null, ...this.slotted('leading')]);
     const end = widths([this.counts ? this.renderRoot.querySelector('.measures > .widest') : null, ...this.slotted('trailing')]);
     const [send] = widths([this.renderRoot.querySelector('.group.send')]);
     return input + (send ?? 0) + parts(end) + (start.length ? length('start') + parts(start) - gap : length('padding'));
+  }
+
+  /** CCM-4: a watched element's inline size as the resize watch last reported it; 0 for one not reported. */
+  private sizeOf(element: Element | null | undefined): number {
+    return (element && this.sizes.get(element)) || 0;
   }
 
   /**
@@ -1688,12 +1701,21 @@ export class TanreiChatComposer extends ComposedElement implements PlacingGroup 
     // CCM-4: and the parts the inline layout puts beside the typing area, whose widths say whether it is laid out stacked.
     const root = this.renderRoot;
     const parts = [root?.querySelector('tanrei-file-picker'), ...this.slotted('leading'), ...this.slotted('trailing'), root?.querySelector('.measures > .widest'), root?.querySelector('.group.send')];
-    const next = [this.capsule, this.input, ...parts].filter((element): element is HTMLElement => !!element);
+    // And the probes, whose widths are the tokens' lengths: a system or a scale changed is reported as a resize.
+    const probes = [...(this.capsule?.querySelectorAll('.measures > .probe') ?? [])];
+    const next = [this.capsule, this.input, ...parts, ...probes].filter((element): element is HTMLElement => !!element);
     if (next.length === this.watched.length && next.every((element, index) => element === this.watched[index])) return;
     this.unwatch();
     if (typeof ResizeObserver === 'undefined') return;
     const watch = (TanreiChatComposer.sizeWatch ??= new ResizeObserver((entries) => {
-      for (const entry of entries) TanreiChatComposer.owners.get(entry.target)?.measure();
+      for (const entry of entries) {
+        const owner = TanreiChatComposer.owners.get(entry.target);
+        if (!owner) continue;
+        // The report's own size: the border box's inline size, which reading it again from the layout would only repeat.
+        const box = entry.borderBoxSize?.[0];
+        owner.sizes.set(entry.target, box ? box.inlineSize : entry.target.getBoundingClientRect().width);
+        owner.measure();
+      }
     }));
     for (const element of next) {
       TanreiChatComposer.owners.set(element, this);
