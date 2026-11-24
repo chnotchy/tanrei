@@ -17,7 +17,7 @@
 // components/frame/Appearance.astro). So is what an example's stage holds while it is away from the
 // view (`data-example-pending`, components/visuals/Example.astro): once lib/example.ts takes the mark away, as the
 // stage comes near, what it holds is defined as what is added later is, so a page of many examples asks, as it loads,
-// only for what the reader is near; once the page is idle after its load, lib/example.ts asks for the rest of what the
+// only for what the reader is near; right after the page's load, lib/example.ts asks for the rest of what the
 // stages hold (`defineAhead`), so that each takes its drawn room before the reader reaches it. An element of a tag
 // defined meanwhile for another part of the page is upgraded with it, as the browser does.
 //
@@ -92,8 +92,8 @@ function scan(node: Element | Document | ShadowRoot) {
 
 /**
  * Defines the elements a part holds while it still holds them back (`data-example-pending`): what lib/example.ts asks
- * for, once the page is idle, so that a stage away from the view can take the room its elements take drawn before the
- * reader reaches it. An element defined on its first use is still left to its owner.
+ * for, right after the page's load, so that a stage away from the view can take the room its elements take drawn
+ * before the reader reaches it. An element defined on its first use is still left to its owner.
  */
 export function defineAhead(part: Element) {
   for (const element of part.querySelectorAll('*')) {

@@ -213,7 +213,7 @@ function hold(frame: HTMLElement, stage: HTMLElement, height: number) {
  * The room a stage holds is the room of its elements before they are defined — a few lines of their text, or nothing —
  * not the room they take drawn (an open date picker's 141 px held for its 941), and it is held until the stage comes
  * near the view. A reader who moves farther than that in a frame (a page at a time, a fling) reaches the stage while
- * it holds the wrong room and sees everything below it pushed down as it is drawn. So once the page is idle after its
+ * it holds the wrong room and sees everything below it pushed down as it is drawn. So right after the page's
  * load, the elements the held stages hold are defined (`defineAhead`: their modules fetched, as a stage near the view
  * asks for them, after what the page needed to load), and a held stage whose elements have all been defined — so, or
  * for a stage near the view — takes the room they take at once, while it is still below the view, where its growing
@@ -296,15 +296,18 @@ for (const { frame, stage, isNear, height } of measured) {
     draw(frame);
   } else if (stage && height !== null && stage.hasAttribute('data-example-pending')) hold(frame, stage, height);
 }
-// The held stages' elements are defined once the page has loaded and is idle (WebKit has no idle callback: a task
-// after the load), so that their stages take their drawn room before the reader reaches them (`releaseSoon`).
+// The held stages' elements are asked for in the task after the page's load, in every engine, so that their stages
+// take their drawn room before the reader reaches them (`releaseSoon`). Not when the browser is next idle: on a long
+// page on a busy machine that came as late as its time limit allowed, a second or two after the load, and a reader
+// who paged down meanwhile drew the stage near the view in the room of its elements before they are defined and saw
+// it grow in the view as its module arrived (the Arabic Text field's first example, 80 px held for its 236, moved the
+// page by 0.06 so at 390 px).
 if (held.size) {
   const ahead = () => {
     for (const [frame, { stage }] of held) if (!reached.has(frame)) defineAhead(stage);
   };
-  const idle = () => ('requestIdleCallback' in window ? requestIdleCallback(ahead, { timeout: 2_000 }) : setTimeout(ahead));
-  if (document.readyState === 'complete') idle();
-  else addEventListener('load', idle, { once: true });
+  if (document.readyState === 'complete') setTimeout(ahead);
+  else addEventListener('load', () => setTimeout(ahead), { once: true });
 }
 
 /** Whether a frame is near the view now, as the observer reckons it (`NEAR`): a box, within half a window of the view. */
