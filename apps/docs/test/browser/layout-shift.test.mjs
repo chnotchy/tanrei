@@ -256,9 +256,12 @@ describe(`the layout shifts by no more than ${SCROLL_BUDGET} while a reader page
 // ── Read through before the figures' elements arrive ─────────────────────────────────────────────────────────────
 
 /**
- * Runs in the page before any of its scripts: keeps each change of a figure's stage's height made while the stage is
- * in the view, with what it was and what it became. A stage that grows or shrinks in the view moves what is below it
- * under the reader's eyes, wherever its elements' modules come from and whenever they arrive.
+ * Runs in the page before any of its scripts: keeps each change of a figure's stage's height, with what it was and
+ * what it became. A page's own figure is kept where it changed while it was in the view: one that grows or shrinks in
+ * the view moves what is below it under the reader's eyes, wherever its elements' modules come from and whenever they
+ * arrive, and one below the view takes its drawn room there by design. A stage of the gallery is kept wherever it
+ * changed, by half a pixel or more from the height it had as the page was parsed: it holds its baseline's room from
+ * then on, before its fixture is drawn and after, and is never meant to change.
  */
 function watchStages() {
   const changed = [];
@@ -268,14 +271,19 @@ function watchStages() {
   const watcher = new ResizeObserver((entries) => {
     for (const { target } of entries) {
       const box = target.getBoundingClientRect();
+      const gallery = Boolean(target.closest('[data-fixture-gallery]'));
       const before = heights.get(target);
-      heights.set(target, box);
+      // A gallery's stage is measured against the height it last kept, so that changes of less than half a pixel
+      // that add up to more are kept too.
+      if (!before || !gallery) heights.set(target, box);
       if (!before || Math.abs(before.height - box.height) < 0.5) continue;
+      if (gallery) heights.set(target, box);
       // In the view before it changed, or after: either way the reader saw it move what is below it. (Its top is where
       // it is now: a stage above it that changed first has moved it already, and is counted on its own.)
       const was = { top: box.top, bottom: box.top + before.height, height: before.height };
-      if (!inView(was) && !inView(box)) continue;
-      changed.push({ id: target.id, gallery: Boolean(target.closest('[data-fixture-gallery]')), from: before.height, to: box.height, top: box.top, scrolled: scrollY });
+      const seen = inView(was) || inView(box);
+      if (!seen && !gallery) continue;
+      changed.push({ id: target.id, gallery, seen, from: before.height, to: box.height, top: box.top, scrolled: scrollY });
     }
   });
   document.addEventListener('DOMContentLoaded', () => {
@@ -300,10 +308,10 @@ const elementChunks = new Set(
  * - A page's own figure does not change its height while it is in the view: what its stage holds takes its drawn room
  *   before any script runs (lib/stage-cloak.mjs), and a stage below the view takes it before the reader reaches it
  *   (lib/example.ts).
- * - A stage of the Specs tab's gallery holds the room of its fixture's baseline until the fixture is defined, and then
- *   takes its drawn room, once (lib/example.ts, `letGoWhenDefined`): never the room of the fixture before it is
- *   defined in between. The baseline is the web package's picture of the fixture, not the page's, and may differ from
- *   what the page draws (KNOWN_LATE).
+ * - A stage of the Specs tab's gallery does not change its height at all, in the view or out of it, before its fixture
+ *   is drawn or after: its canvas is the box of its fixture's baseline from the first paint on, and the fixture it
+ *   draws fills it (components/fixtures/FixtureGallery.astro). The baseline is the web package's picture of the
+ *   fixture, not the page's, and a stage the page draws taller than its baseline grows (KNOWN_STAGES).
  * - The layout's shifts, all told, are held to SCROLL_BUDGET, as when the modules come at once.
  */
 const LATE_READS = [
@@ -314,15 +322,16 @@ const LATE_READS = [
 ];
 
 /**
- * Pages whose shifts, read so, add up to more than SCROLL_BUDGET, and why: each is still measured and reported, as a
- * TODO rather than a failure, once every other assertion of its test holds. Take one off once it is within the budget.
+ * Stages of the gallery (by their stage's id) that the page draws taller than their baseline, and why: each is still
+ * measured and reported, as a TODO rather than a failure, once every other assertion of its test holds. Take one off
+ * once its stage keeps its height.
  */
-const KNOWN_LATE = {
-  '/ar/components/text-field/ at 390':
-    "the gallery's stacked-code-multiline-wrap is drawn 51 px taller on the page (at 390 and at 1440) than its baseline, whose room its stage holds until the fixture is drawn; the web package's harness embeds Inter alone, so its baselines draw a fixture's code in whatever monospace face the machine has, where the page draws it in Roboto Mono",
+const KNOWN_STAGES = {
+  'docs-stage-text-field-stacked-code-multiline-wrap':
+    "the page draws it 51 px taller (at 390 and at 1440) than its baseline, whose room its stage holds: the web package's harness embeds Inter alone, so its baselines draw a fixture's code in whatever monospace face the machine has, where the page draws it in Roboto Mono, the default system's code face, which is wider and breaks the value into more lines",
 };
 
-describe('no figure changes its height in the view while a reader pages through a page whose elements arrive late', { concurrency: 2 }, () => {
+describe('no figure changes its height in the view, and no stage of the gallery at all, while a reader pages through a page whose elements arrive late',{ concurrency: 2 }, () => {
   for (const { url, viewport, late } of LATE_READS) {
     const name = `${url} at ${viewport.width}`;
     test(`${name}, each element's module ${late / 1000} s late`, { timeout: 300_000 }, async (t) => {
@@ -361,18 +370,19 @@ describe('no figure changes its height in the view while a reader pages through 
         const changed = await page.evaluate(() => window.__docsStagesChanged);
         const shifts = await page.evaluate(() => window.__docsLayoutShifts);
         const total = shifts.reduce((sum, { value }) => sum + value, 0);
-        const said = ({ id, from, to, top, scrolled }) => `#${id} ${Math.round(from)} → ${Math.round(to)} px, its top ${Math.round(top)} px down the view, scrolled ${Math.round(scrolled)} px`;
+        const said = ({ id, from, to, top, scrolled, seen }) => `#${id} ${from.toFixed(2)} → ${to.toFixed(2)} px, its top ${Math.round(top)} px down the view${seen ? '' : ' (out of the view)'}, scrolled ${Math.round(scrolled)} px`;
         const own = changed.filter((change) => !change.gallery);
         const gallery = changed.filter((change) => change.gallery);
+        const known = gallery.filter(({ id }) => KNOWN_STAGES[id]);
+        const stages = await page.evaluate(() => document.querySelectorAll('[data-fixture-gallery] [data-example-stage]').length);
         const largest = Math.max(0, ...gallery.map(({ from, to }) => Math.abs(to - from)));
-        t.diagnostic(`${held} module requests held ${late} ms; layout shift ${total.toFixed(4)} in ${shifts.length} entr${shifts.length === 1 ? 'y' : 'ies'}; ${own.length} of the page's own figures and ${gallery.length} of the gallery's stages changed in the view (the largest by ${largest.toFixed(1)} px)`);
+        t.diagnostic(`${held} module requests held ${late} ms; layout shift ${total.toFixed(4)} in ${shifts.length} entr${shifts.length === 1 ? 'y' : 'ies'}; ${own.length} of the page's own figures changed in the view; of the gallery's ${stages} stages, ${new Set(gallery.map(({ id }) => id)).size} changed (${known.length} changes known; the largest by ${largest.toFixed(1)} px)`);
+        assert.ok(stages > 0, `${name} has no gallery of fixtures to watch`);
         assert.deepEqual(own.map(said), [], `figures of ${name} changed their height in the view as it was paged through`);
-        const twice = Object.entries(Object.groupBy(gallery, ({ id }) => id)).filter(([, each]) => each.length > 1);
-        assert.deepEqual(twice.map(([id, each]) => `#${id}: ${each.map(said).join('; ')}`), [], `stages of ${name}'s gallery changed their height more than once in the view: from their baseline's room to their fixture's before it is defined, then to the drawn room`);
+        assert.deepEqual(gallery.filter(({ id }) => !KNOWN_STAGES[id]).map(said), [], `stages of ${name}'s gallery changed their height: each holds its baseline's room from the first paint, and its fixture is drawn in that room`);
         const moved = shifts.filter(({ value }) => value > 0).map(({ value, scrolled, sources }) => `${value.toFixed(4)}, scrolled ${Math.round(scrolled)} px:\n      ${sources.join('\n      ') || '(no source named)'}`);
-        if (KNOWN_LATE[name] && total <= SCROLL_BUDGET) t.diagnostic(`within the budget now: take "${name}" off the pages known to shift`);
-        if (KNOWN_LATE[name] && total > SCROLL_BUDGET) return t.todo(KNOWN_LATE[name]);
         assert.ok(total <= SCROLL_BUDGET, `${name} × ${viewport.height} shifts by ${total.toFixed(4)} as it is paged through, its modules ${late} ms late (at most ${SCROLL_BUDGET}):\n  ${moved.join('\n  ')}`);
+        if (known.length) return t.todo(known.map((change) => `${said(change)}: ${KNOWN_STAGES[change.id]}`).join('\n'));
       } finally {
         await context.close();
       }
