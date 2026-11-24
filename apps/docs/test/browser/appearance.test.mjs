@@ -22,12 +22,12 @@ import { register } from 'node:module';
 import { after, before, describe, test } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import { serveDist } from './host.mjs';
-import { sheetKept, until } from './kept-sheet.mjs';
+import { sheetKept, slowIndexedDB, until } from './kept-sheet.mjs';
 import { bounded, engines, launch, settlePage } from './launch.mjs';
 
 register('../vite-shim.mjs', import.meta.url);
 const { strings } = await import('../../src/lib/i18n.ts');
-const { APPEARANCE_KEY, CUSTOM_KEY, CUSTOM_LOOK, LOOK_SHEET_ID, PENDING_ATTR, SHEET_STORE } = await import('../../src/lib/appearance.ts');
+const { APPEARANCE_KEY, CUSTOM_KEY, CUSTOM_LOOK, LATE_ATTR, LOOK_SHEET_ID, PENDING_ATTR, REVEAL_AFTER, SHEET_STORE } = await import('../../src/lib/appearance.ts');
 
 const docs = fileURLToPath(new URL('../../', import.meta.url));
 const dist = path.join(docs, 'dist');
@@ -298,6 +298,65 @@ for (const engine of ENGINES) {
       );
       assert.deepEqual(Object.keys(filled).sort(), [DEFAULT, ...GALLERY].sort(), 'a figure for every shipped system');
       for (const [system, drawn] of Object.entries(filled)) assert.equal(computedRgb(drawn ?? 'none'), computedRgb(rgbOf(resolvedIn(system, 'comp.button.filled.container.color'))), `${system}, on a page drawn in ${SHOWCASE}`);
+      await context.close();
+    });
+
+    test('a page whose look came too late says what it draws: the button, the panel and an announcement say the default system, which look came too late, and that it applies from the next page; “Apply now” applies it', LIMIT, async () => {
+      const context = await browser.newContext({ viewport: WIDE, reducedMotion: 'reduce', colorScheme: 'light' });
+      await context.addInitScript(({ appearance, custom, layer }) => {
+        if (localStorage.getItem(custom)) return;
+        localStorage.setItem(custom, JSON.stringify({ hash: 'late1acme', layer }));
+        localStorage.setItem(appearance, JSON.stringify({ look: 'custom' }));
+      }, { appearance: APPEARANCE_KEY, custom: CUSTOM_KEY, layer: LAYER });
+      // The theme's sheet computed and kept in IndexedDB by a first page.
+      const first = await context.newPage();
+      await first.goto(`${origin}${PAGE}`);
+      await until(first, `${engine}: the theme's stylesheet in IndexedDB`, sheetKept, { ...SHEET_STORE, hash: 'late1acme' });
+      await first.close();
+      // The next page reads it there, and IndexedDB answers after the reveal limit: the page is late, whatever the machine.
+      const page = await context.newPage();
+      await page.addInitScript(slowIndexedDB, REVEAL_AFTER + 500);
+      await page.goto(`${origin}${PAGE}`);
+      await bounded(`${engine}: the page shown`, page.waitForFunction((pending) => !document.documentElement.hasAttribute(pending), PENDING_ATTR, { timeout: 60_000 }));
+      await settled(page);
+      assert.deepEqual(await page.evaluate((late) => [document.documentElement.dataset.docsLook, document.documentElement.getAttribute(late)], LATE_ATTR), [DEFAULT, CUSTOM_LOOK], 'the premise: a late page, drawn in the default system');
+      assert.equal(await lookSheet(page), null, 'the late sheet is not put in on that page');
+      assert.equal((await root(page)).stored.look, CUSTOM_LOOK, 'the reader’s choice is kept');
+
+      // The button says what is drawn.
+      const said = en.frame.lateLook.replace('{look}', en.frame.myTheme).replace('{default}', DEFAULT);
+      assert.equal(await page.locator('#docs-appearance').getAttribute('label'), en.frame.appearanceOf.replace('{look}', DEFAULT), 'the button names the system drawn');
+      assert.equal(await page.locator('#docs-appearance .docs-look-name').textContent(), DEFAULT);
+      // An announcement: which look came too late, what is drawn, what happens next, and an action that applies it now.
+      const status = () => page.evaluate(() => document.querySelector('tanrei-snackbar-host.docs-appearance-snackbars')?.shadowRoot?.querySelector('.announce[role="status"]')?.textContent ?? '');
+      await bounded(`${engine}: the announcement`, page.waitForFunction((text) => document.querySelector('tanrei-snackbar-host.docs-appearance-snackbars')?.shadowRoot?.querySelector('.announce[role="status"]')?.textContent?.includes(text), said, { timeout: 30_000 }), status);
+      const apply = page.locator('tanrei-snackbar', { hasText: said }).getByRole('button', { name: en.frame.applyNow, exact: true });
+      await apply.waitFor();
+      // The panel: the system drawn chosen, the reader's theme still offered, and the same words above the list.
+      const panel = await openPanel(page);
+      assert.equal(await panel.locator('tanrei-list.docs-appearance-look').evaluate((list) => list.value), DEFAULT, 'the panel chooses the system drawn');
+      assert.equal(await panel.getByRole('option', { name: en.frame.myTheme }).getAttribute('aria-selected'), 'false', 'and offers the reader’s theme, not chosen');
+      const note = panel.locator('.docs-appearance-late');
+      assert.equal(await note.isVisible(), true, 'the panel says why');
+      assert.equal(await note.textContent(), said);
+      await page.keyboard.press('Escape');
+      await page.waitForFunction(() => document.querySelector('tanrei-popover[anchor="docs-appearance"]')?.open === false);
+
+      // A change of mode on that page keeps the reader's look, and the page late.
+      const again = await openPanel(page);
+      await again.getByRole('radio', { name: en.dark, exact: true }).click();
+      await page.waitForFunction(() => document.documentElement.dataset.theme === 'dark');
+      assert.deepEqual((await root(page)).stored, { mode: 'dark', contrast: 'standard', look: CUSTOM_LOOK }, 'the look kept is still the reader’s theme');
+      assert.deepEqual(await page.evaluate((late) => [document.documentElement.dataset.docsLook, document.documentElement.getAttribute(late)], LATE_ATTR), [DEFAULT, CUSTOM_LOOK], 'and the page is still drawn in the default system');
+      await page.keyboard.press('Escape');
+      await page.waitForFunction(() => document.querySelector('tanrei-popover[anchor="docs-appearance"]')?.open === false);
+
+      // “Apply now”: the theme's sheet in on this page, as a choice of it in the panel puts it, and every word follows.
+      await apply.click();
+      await bounded(`${engine}: the theme applied`, page.waitForFunction(({ id, late }) => document.getElementById(id)?.localName === 'style' && !document.documentElement.hasAttribute(late), { id: LOOK_SHEET_ID, late: LATE_ATTR }, { timeout: 60_000 }));
+      assert.equal((await root(page)).look, CUSTOM_LOOK);
+      assert.equal(await page.locator('#docs-appearance').getAttribute('label'), en.frame.appearanceOf.replace('{look}', en.frame.myTheme));
+      assert.equal(await page.locator('.docs-appearance-late').first().isHidden(), true, 'the panel’s words go');
       await context.close();
     });
 
