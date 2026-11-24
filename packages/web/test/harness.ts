@@ -337,9 +337,9 @@ function embeddedFaceMarkup(rules: string): string {
 
 const registered = new Map<string, Promise<string>>();
 /**
- * @font-face rules for families a PRESET names (m3-like: Roboto, Material Symbols Outlined), embedded, from the
- * development-only @fontsource packages — the same registration our sites use (packages/tools/src/font-faces.js).
- * The default fixtures do not use it: their baselines are drawn with `fontFace()` above and must not move.
+ * @font-face rules for families a system names (Roboto Mono for the default's code, Roboto and Material Symbols Outlined
+ * for m3-like), embedded, from the development-only @fontsource packages — the same registration our sites use
+ * (packages/tools/src/font-faces.js).
  */
 export function presetFontFaces(families: string[]): Promise<string> {
   const key = families.join('|');
@@ -366,16 +366,20 @@ export async function iconFamilies(defaultCss: string, systemCss: string): Promi
 }
 
 /**
- * The @font-face rules for the text families a PRESET names first (`--tanrei-ref-typeface-brand` / `-plain` / `-mono`
- * in its sheet) that this repository can register — Roboto and Roboto Mono for m3-like. Without
- * them a preset's text is drawn in whatever the machine has: a Mac with Roboto installed drew m3-like's labels in Roboto
- * 500, the Linux CI image (which has no Roboto) in a fallback of another width and weight. Inter is `fontFace()`'s, and
- * a family this repository cannot ship (cupertino's -apple-system) is left to fall back, as on a machine without it.
+ * The @font-face rules for the text families the drawn system names first (`--tanrei-ref-typeface-brand` / `-plain` /
+ * `-mono`) that this repository can register: Roboto Mono for the default's code, Roboto and Roboto Mono for m3-like.
+ * Each stack is the system's sheet's where it sets one, else the default's (`defaultCss`), as the cascade draws it.
+ * Without them that text is drawn in whatever the machine has: a Mac with Roboto installed drew m3-like's labels in
+ * Roboto 500, the Linux CI image (which has neither Roboto nor Roboto Mono) in a fallback of another width and weight,
+ * and the default's code in a monospace narrower than Roboto Mono, which wrapped a multiline code field onto fewer
+ * lines than the docs site (which loads Roboto Mono) draws. Inter is `fontFace()`'s, and a family this repository
+ * cannot ship (cupertino's -apple-system, ui-monospace) is left to fall back, as on a machine without it.
  */
-async function presetTextFontFaces(systemCss: string): Promise<string> {
+async function textFontFaces(defaultCss: string, systemCss: string): Promise<string> {
   const { FONT_PACKAGES } = await import('../../tools/src/font-faces.js');
-  const first = [...systemCss.matchAll(/--tanrei-ref-typeface-(?:brand|plain|mono):\s*([^;]+);/g)].map((m) => m[1].split(',')[0].trim().replace(/^["']|["']$/g, ''));
-  const families = [...new Set(first)].filter((family) => family in FONT_PACKAGES && family !== 'Inter').sort();
+  const firsts = (css: string) => new Map([...css.matchAll(/--tanrei-ref-typeface-(brand|plain|mono):\s*([^;]+);/g)].map((m) => [m[1], m[2].split(',')[0].trim().replace(/^["']|["']$/g, '')]));
+  const stacks = new Map([...firsts(defaultCss), ...firsts(systemCss)]);
+  const families = [...new Set(stacks.values())].filter((family) => family in FONT_PACKAGES && family !== 'Inter').sort();
   return families.length ? presetFontFaces(families) : '';
 }
 
@@ -2626,9 +2630,10 @@ export async function fixturesDocument(spec: Spec, given: DocumentOptions = {}):
   const iconFaces = families.length && !assets ? await presetFontFaces(families) : '';
   const sheet = (href: string | undefined, embed: () => string) => (href ? `<link rel="stylesheet" href="${href}" />` : `<style>${embed()}</style>`);
   const icons = families.length ? sheet(assets?.icons(families), () => iconFaces) : '';
-  // A preset's own text faces (Roboto for the m3 presets), registered from their bytes before the body with Inter
-  // (`embeddedFaceMarkup`); a page given asset URLs has them in its shared font sheet.
-  const text = options.system && !assets ? await presetTextFontFaces(systemStyles(options)) : '';
+  // The system's own text faces besides Inter (Roboto Mono for the default's code, Roboto for the m3 presets),
+  // registered from their bytes before the body with Inter (`embeddedFaceMarkup`); a page given asset URLs has them in
+  // its shared font sheet.
+  const text = assets ? '' : await textFontFaces(read('dist/tokens.css'), systemStyles(options));
   // A page's frame holds the page's own main region: its stages stand in a `div` (see `Staging.page`).
   const holder = staging.page ? 'div' : 'main';
   return `<!doctype html>
