@@ -49,8 +49,22 @@ const token = (page: P, name: string) => resolveToken(page, T(name));
 const duration = (page: P, name: string) => resolveToken(page, T(name), 'duration');
 const color = (page: P, name: string) => resolveColor(page, T(name));
 const box = async (locator: Locator) => (await locator.boundingBox())!;
-const css = (locator: Locator, property: string) => locator.evaluate((el, p) => getComputedStyle(el).getPropertyValue(p), property);
-const px = async (locator: Locator, property: string) => Number.parseFloat(await css(locator, property));
+// An edge part draws nothing itself: its ::before draws the line (EDGE_LINE).
+const css = (locator: Locator, property: string, pseudo?: string) =>
+  locator.evaluate((el, [p, ps]) => getComputedStyle(el, ps ?? undefined).getPropertyValue(p as string), [property, pseudo ?? null] as const);
+const EDGE_LINE = '::before';
+/**
+ * The duration of the transition the edge's line runs when its color changes. WebKit reports a pseudo-element's
+ * transition-duration from before a change of reduced motion, though the transition it then runs has the new one.
+ */
+const edgeMotion = (edge: Locator) =>
+  edge.evaluate((el: HTMLElement) => {
+    el.style.setProperty('--_o', 'rgb(1, 2, 3)');
+    const durations = el.getAnimations({ subtree: true }).map((a) => Number(a.effect!.getTiming().duration));
+    el.style.removeProperty('--_o');
+    return Math.max(0, ...durations);
+  });
+const px = async (locator: Locator, property: string, pseudo?: string) => Number.parseFloat(await css(locator, property, pseudo));
 const near = (actual: number, expected: number, message = '', tolerance = 0.6) => expect(Math.abs(actual - expected), `${message}: ${actual} ≈ ${expected}`).toBeLessThanOrEqual(tolerance);
 const override = (page: P, vars: Record<string, string>) => rootTokens(page, vars);
 function warnings(page: P) {
@@ -505,7 +519,7 @@ test.describe('behavior: the box, and what it takes from the Field that frames i
     const notch = await box(part(page, 'outlined', '.outline-notch'));
     const floatedLabel = await box(part(page, 'outlined', '.floating'));
     near(notch.width, floatedLabel.width + 2 * (await token(page, 'outline-notch-padding')), 'the gap in the outline', 1.5);
-    expect(await css(part(page, 'outlined', '.outline-notch'), 'border-top-color')).toBe('rgba(0, 0, 0, 0)');
+    expect(await css(part(page, 'outlined', '.outline-notch'), 'border-top-color', EDGE_LINE)).toBe('rgba(0, 0, 0, 0)');
     // Stacked: the placeholder shows, in the placeholder color.
     expect(await placeholder('stacked')).toBe(await color(page, 'stacked-placeholder-color'));
     // A label that does not fit wraps and is never cut.
@@ -544,8 +558,8 @@ test.describe('behavior: the box, and what it takes from the Field that frames i
     for (const id of ['stacked-error-value', 'framed']) {
       expect(await input(page, id).getAttribute('aria-invalid'), id).toBe('true');
       const edge = part(page, id, '.edge');
-      expect(await css(edge, 'border-top-color'), id).toBe(await color(page, 'stacked-error-outline-color'));
-      near(await px(edge, 'border-top-width'), await token(page, 'outline-width'), `${id} outline.width`);
+      expect(await css(edge, 'border-top-color', EDGE_LINE), id).toBe(await color(page, 'stacked-error-outline-color'));
+      near(await px(edge, 'border-top-width', EDGE_LINE), await token(page, 'outline-width'), `${id} outline.width`);
       expect(await css(container(page, id), 'background-color'), id).toBe(await color(page, 'stacked-error-container-color'));
       expect(await css(input(page, id), 'color'), id).toBe(await color(page, 'stacked-error-input-color'));
       expect(await css(part(page, id, '.chevron-glyph'), 'color'), id).toBe(await color(page, 'stacked-error-trailing-icon-color'));
@@ -666,12 +680,12 @@ test.describe('behavior: the box, and what it takes from the Field that frames i
     const c = await box(container(page, 'one'));
     await page.mouse.move(c.x + c.width / 2, c.y + c.height / 2);
     await expect.poll(() => css(container(page, 'one'), 'background-color')).toBe(await color(page, 'stacked-hovered-container-color'));
-    expect(await css(edge, 'border-top-color')).toBe(await color(page, 'stacked-hovered-outline-color'));
+    expect(await css(edge, 'border-top-color', EDGE_LINE)).toBe(await color(page, 'stacked-hovered-outline-color'));
     // Focused by the keyboard, the pointer still over it: focused wins.
     await tabTo(page, input(page, 'one'));
     expect(await css(container(page, 'one'), 'background-color')).toBe(await color(page, 'stacked-focused-container-color'));
-    expect(await css(edge, 'border-top-color')).toBe(await color(page, 'stacked-focused-outline-color'));
-    near(await px(edge, 'border-top-width'), await token(page, 'focused-outline-width'), 'the focused width');
+    expect(await css(edge, 'border-top-color', EDGE_LINE)).toBe(await color(page, 'stacked-focused-outline-color'));
+    near(await px(edge, 'border-top-width', EDGE_LINE), await token(page, 'focused-outline-width'), 'the focused width');
     expect(await css(input(page, 'one'), 'caret-color')).toBe(await color(page, 'stacked-focused-caret-color'));
     expect(await css(part(page, 'one', '.chevron-glyph'), 'color')).toBe(await color(page, 'stacked-focused-trailing-icon-color'));
     near((await box(container(page, 'one'))).height, height, 'the line takes no layout space');
@@ -680,14 +694,14 @@ test.describe('behavior: the box, and what it takes from the Field that frames i
     // By pointer: a press in the input selects the focused state too.
     await page.mouse.move(5, 5);
     await focusInput(page, 'other');
-    expect(await css(edge, 'border-top-color')).toBe(await color(page, 'stacked-outline-color'));
+    expect(await css(edge, 'border-top-color', EDGE_LINE)).toBe(await color(page, 'stacked-outline-color'));
     await input(page, 'one').click();
-    expect(await css(edge, 'border-top-color')).toBe(await color(page, 'stacked-focused-outline-color'));
+    expect(await css(edge, 'border-top-color', EDGE_LINE)).toBe(await color(page, 'stacked-focused-outline-color'));
     // Open, with focus elsewhere: the list keeps the box in the focused state.
     await focusInput(page, 'other');
     await set(page, 'one', { open: true });
     expect((await read(page, 'one')).shown).toBe(true);
-    expect(await css(edge, 'border-top-color'), 'open: still focused').toBe(await color(page, 'stacked-focused-outline-color'));
+    expect(await css(edge, 'border-top-color', EDGE_LINE), 'open: still focused').toBe(await color(page, 'stacked-focused-outline-color'));
     await set(page, 'one', { open: false });
     // A floating label is a part of the box: its focused color, and its error part in error.
     const floating = part(page, 'floating', '.floating');
@@ -710,14 +724,14 @@ test.describe('behavior: the box, and what it takes from the Field that frames i
     await expect.poll(() => css(label, 'color')).toBe(rest);
     // In error the edge keeps its error color while focused.
     await focusInput(page, 'error');
-    expect(await css(part(page, 'error', '.edge'), 'border-top-color')).toBe(await color(page, 'stacked-focused-error-outline-color'));
+    expect(await css(part(page, 'error', '.edge'), 'border-top-color', EDGE_LINE)).toBe(await color(page, 'stacked-focused-error-outline-color'));
     // Selected text: selection.color under selection.content.color.
     expect(await input(page, 'one').evaluate((el) => [getComputedStyle(el, '::selection').backgroundColor, getComputedStyle(el, '::selection').color])).toEqual([await color(page, 'selection-color'), await color(page, 'selection-content-color')]);
     // The motion: the state duration, and none where motion is reduced.
     expect(await px(container(page, 'one'), 'transition-duration'), 'reduced: at once').toBe(0);
     await page.emulateMedia({ reducedMotion: 'no-preference' });
     near((await px(container(page, 'one'), 'transition-duration')) * 1000, await duration(page, 'motion-state-duration-medium'), 'the container', 1);
-    near((await px(edge, 'transition-duration')) * 1000, await duration(page, 'motion-state-duration-medium'), 'the edge', 1);
+    near(await edgeMotion(edge), await duration(page, 'motion-state-duration-medium'), 'the edge', 1);
     // Glow: the halo around the container while focused, and still no ring.
     await mount(page, [fx('one', { value: 'tokyo' })], { system: 'acme', systemCss: await acmeSystemCss() });
     await tabTo(page, input(page, 'one'));
@@ -2635,7 +2649,7 @@ test.describe('behavior: conditions, exposure, size and direction', () => {
     await expect(part(page, 'clear', '.clear')).toHaveCount(0);
     // A floating label, and the error parts while in error.
     expect(await css(part(page, 'floating', '.floating'), 'color')).toBe(await color(page, 'outlined-disabled-label-color'));
-    expect(await css(part(page, 'error', '.edge'), 'border-top-color')).toBe(await color(page, 'stacked-disabled-error-outline-color'));
+    expect(await css(part(page, 'error', '.edge'), 'border-top-color', EDGE_LINE)).toBe(await color(page, 'stacked-disabled-error-outline-color'));
     // The Field enables it again.
     await setFrame(page, 'framed', { disabled: false });
     expect(await input(page, 'framed').evaluate((el) => (el as HTMLInputElement).disabled)).toBe(false);
@@ -2661,7 +2675,7 @@ test.describe('behavior: conditions, exposure, size and direction', () => {
     await expect(part(page, 'one', '.chevron, .clear')).toHaveCount(0);
     expect(await page.evaluate(() => [...new FormData(document.querySelector('form')!).entries()].map(([k, v]) => `${k}=${String(v)}`))).toEqual(['city=tokyo']);
     // Drawn as an enabled one: the focused state now, the resting and hovered ones as a plain combobox's.
-    expect(await css(part(page, 'one', '.edge'), 'border-top-color')).toBe(await color(page, 'stacked-focused-outline-color'));
+    expect(await css(part(page, 'one', '.edge'), 'border-top-color', EDGE_LINE)).toBe(await color(page, 'stacked-focused-outline-color'));
     await blurInput(page, 'one');
     await page.mouse.move(700, 600);
     await expect.poll(() => css(container(page, 'one'), 'background-color')).toBe(await css(container(page, 'plain'), 'background-color'));

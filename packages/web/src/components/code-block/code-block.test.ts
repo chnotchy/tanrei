@@ -12,6 +12,7 @@ import { atRest } from '../../../test/at-rest.js';
 import { type Locator, type Page, expect, test } from '@playwright/test';
 import { type Fixture, acmeSystemCss, fixturesDocument, loadSpec, mountFixtures, resolveColor, resolveToken, roleFont, tab, tabTo, rootTokens } from '../../../test/harness.js';
 import { expectBaseline } from '../../../test/baseline.js';
+import { contrastChecked } from '../../../test/contrast-checked.js';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const pkg = path.resolve(here, '../../..');
@@ -2014,4 +2015,18 @@ test('web: the title is the headline attribute and property, drawn in the header
   await expect(host(page, 'old')).toHaveAttribute('title', 'sizes.js');
   await expect(host(page, 'old').locator('.title')).toHaveCount(0);
   expect(await host(page, 'old').evaluate((el) => (el as HTMLElement & { headline: string }).headline)).toBe('');
+});
+
+test.describe('accessibility: what is drawn over the block', () => {
+  test('COD-7: the box that carries the body\'s focus indicator, over the whole block, hides no text from a contrast check — a faint title is reported, the block\'s own colors pass', async ({ page }) => {
+    // An element drawn over a text is, to axe's color-contrast, an element covering it, whatever its pointer-events: it
+    // left the header's texts incomplete ("overlapped by another element") instead of checking them.
+    const lead = '<style>[data-fixture="faint"] tanrei-code-block::part(title) { color: #bbb; }</style>';
+    const block = (id: string, title: string): Fixture => ({ id, props: { title, code: 'code', label: 'Example' } });
+    await mountFixtures(page, spec, { lead, fixtures: [block('faint', 'Faint title'), block('normal', 'Readable title')] });
+    const checked = await contrastChecked(page);
+    expect(checked.violations, 'the faint title is reported').toEqual(['Faint title']);
+    expect(checked.passes, 'the block\'s own colors pass').toEqual(['Readable title', 'code', 'code']);
+    expect(checked.incomplete, 'nothing is left unchecked').toEqual([]);
+  });
 });

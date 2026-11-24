@@ -17,6 +17,7 @@ import { mirroringAfterDirection } from '../../../test/mirror-word.js';
 import { boxAtRest } from '../../../test/at-rest.js';
 import { CONTROL_HEIGHTS, atControlHeight } from '../../../test/control-height.js';
 import { expectBaseline } from '../../../test/baseline.js';
+import { contrastChecked } from '../../../test/contrast-checked.js';
 
 const spec = loadSpec('tabs');
 /** The fixtures whose tabs run in a row: what the horizontal rules of layout (TAB-14, TAB-16, TAB-34) are held to. */
@@ -4690,4 +4691,18 @@ test.describe('fixtures', () => {
       await expectBaseline(page.locator(`[data-fixture="${f.id}"]`), [spec.name, `${f.id}.png`]);
     });
   }
+});
+
+test.describe('accessibility: what is drawn over a label', () => {
+  test('TAB-4, TAB-18: the ring over every tab and the container over the selected one hide no label from a contrast check — a faint label is reported, the row\'s own colors pass', async ({ page }) => {
+    // An element drawn over a text is, to axe's color-contrast, an element covering it, whatever its pointer-events: it
+    // left the text incomplete ("overlapped by another element") instead of checking it, so faint text passed unseen.
+    const lead = '<style>tanrei-tab[value="faint"]::part(label) { color: #bbb; }</style>';
+    await mountFixtures(page, spec, { icons: true, lead, fixtures: [fixture('marked', [t('selected', 'Selected'), t('faint', 'Faint'), t('normal', 'Normal')], { value: 'selected' })] });
+    const checked = await contrastChecked(page);
+    expect(checked.violations, 'the faint label is reported').toEqual(['Faint']);
+    expect(checked.passes, 'the row\'s own colors pass, the selected tab\'s covered copy among them').toEqual(['Normal', 'Selected']);
+    // The selected tab's own label lies under its covered copy (TAB-17), which is what is drawn there and is checked.
+    expect(checked.incomplete, 'nothing else is left unchecked').toEqual(['Selected']);
+  });
 });

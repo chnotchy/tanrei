@@ -111,7 +111,7 @@ function deepActiveElement(): Element | null {
  *
  * @tag tanrei-color-input
  * @csspart container - The input's box.
- * @csspart outline - A stacked color input's inner line, or an outlined one's border.
+ * @csspart outline - A stacked color input's inner line, or an outlined one's border — a box that draws nothing: the `::before` of it (stacked) or of its pieces (outlined) draws the line.
  * @csspart active-indicator - The line along the bottom of a filled color input.
  * @csspart label - The label that floats in a filled or an outlined color input.
  * @csspart requirement-label - The required asterisk after a floating label.

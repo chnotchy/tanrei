@@ -358,6 +358,11 @@
       vertical-align: top;
       /* TBL-3: text wraps inside its column and a run with no break opportunity is never broken. */
       white-space: normal;
+      /* ICD-6, TBL-3: inline code in a cell wraps as the cell does — never inside a name, and not at all in a column
+         kept on one line — instead of breaking anywhere as it does in running text (code.css reads this switch). It
+         is inherited by everything in the cell, which is right: the run then takes the wrapping of whatever it sits
+         in, the cell's or that of an element in between that sets its own. */
+      --_code-wrap: ;
     }
     /* TBL-4, TBL-63: a row is at least the row height of its size — the header row, a body row, a placeholder row and a
        footer row alike — and the space of separation: gap under it. A cell's padding gives up what the row loses, so
