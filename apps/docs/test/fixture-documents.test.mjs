@@ -29,7 +29,7 @@ describe('the fixture documents', () => {
     for (const name of documentedComponents()) {
       for (const [id, size] of Object.entries(fixtureDocument(name).sizes)) {
         const header = fs.readFileSync(`${snapshots}${name}/${id}.png`).subarray(16, 24);
-        assert.deepEqual(size, { width: Math.round(header.readUInt32BE(0) / 2), height: Math.round(header.readUInt32BE(4) / 2) }, `${name}/${id}`);
+        assert.deepEqual(size, { width: header.readUInt32BE(0) / 2, height: header.readUInt32BE(4) / 2 }, `${name}/${id}`);
         read++;
       }
     }

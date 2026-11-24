@@ -261,11 +261,14 @@ export function stageOf(spec: Spec, fixture: Fixture): Stage {
   const stage = document?.stages.find((each) => each.id === fixture.id);
   if (!document || !stage) return { ...base, drawn: false, kind: 'inline' };
   const markup = stageMarkup(stage.html);
+  // The stage's size in half pixels, as its baseline gives it (scripts/fixture-documents.mjs): the room an inline stage
+  // holds. A window and a modal fixture's window are a whole number of pixels, as the frame's size and the caption say.
   const size = document.sizes[fixture.id];
+  const whole = size && { width: Math.round(size.width), height: Math.round(size.height) };
   const kind = kindOf(spec, fixture, stage.html, document);
   if (kind === 'window') {
     if (document.step) throw new Error(`fixture gallery: ${spec.name}/${fixture.id} is drawn in a window, and its document takes a step in script, which no window takes`);
-    return { ...base, drawn: true, kind, html: stage.html, window: size ?? windowOf(spec, fixture), presented: presented(spec, fixture), markup };
+    return { ...base, drawn: true, kind, html: stage.html, window: whole ?? windowOf(spec, fixture), presented: presented(spec, fixture), markup };
   }
   if (kind === 'opener' || kind === 'modal') {
     const presence = presenceOf(spec)!.name;
@@ -274,7 +277,7 @@ export function stageOf(spec: Spec, fixture: Fixture): Stage {
     const opener = { ...base, facts, drawn: true, kind: 'opener' as const, html: closed(spec, stage.html, presence), presence, markup };
     if (kind !== 'modal') return { ...opener, reserve: size };
     const picture = size && { src: picturePath(spec.name, fixture.id), width: Math.round(size.width * PICTURE_SCALE), height: Math.round(size.height * PICTURE_SCALE) };
-    return { ...opener, modal: true, reserve: size ?? windowOf(spec, fixture), ...(picture ? { picture } : {}) };
+    return { ...opener, modal: true, reserve: whole ?? windowOf(spec, fixture), ...(picture ? { picture } : {}) };
   }
   return { ...base, drawn: true, kind, html: stage.html, markup, reserve: size };
 }
