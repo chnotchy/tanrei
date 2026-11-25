@@ -132,6 +132,29 @@ studioTest('a row’s lock says what it does in a Tanrei tooltip, its descriptio
   assert.equal(await page.locator('[data-rail-row="color"] > .ts-rail-lock-tip').evaluate((el) => el.shadowRoot.querySelector('[role="tooltip"]').textContent.trim()), 'A locked row keeps its value when you shuffle.');
 });
 
+studioTest('in the rail’s column a row of the look is one band: the current row, and a row pointed at, are marked across its words, its lock and its chevron', {}, async ({ page }) => {
+  const band = (row) =>
+    page.locator(`[data-rail-row="${row}"]`).evaluate((item) => {
+      const show = item.querySelector('[data-row]');
+      const [box, lock, chevron] = [item, item.querySelector('[data-lock]'), item.querySelector('.ts-rail-chevron')].map((el) => el.getBoundingClientRect());
+      return { item: getComputedStyle(item).backgroundColor, row: getComputedStyle(show).backgroundColor, holds: lock.left >= box.left && chevron.right <= box.right + 1 };
+    });
+  const tokens = await page.evaluate(() => {
+    const probe = document.createElement('span');
+    document.querySelector('[data-rail]').append(probe);
+    const color = (name) => ((probe.style.backgroundColor = `var(${name})`), getComputedStyle(probe).backgroundColor);
+    const out = { current: color('--tanrei-sys-color-secondary-container'), pointed: color('--tanrei-sys-color-surface-container') };
+    probe.remove();
+    return out;
+  });
+  const clear = 'rgba(0, 0, 0, 0)';
+  assert.deepEqual(await band('color'), { item: tokens.current, row: clear, holds: true }, 'the current row: the whole band');
+  assert.deepEqual(await band('neutral'), { item: clear, row: clear, holds: true }, 'a row neither current nor pointed at');
+  // Pointed at its lock, the row is marked as a whole too.
+  await page.locator('[data-lock="neutral"]').hover();
+  assert.deepEqual(await band('neutral'), { item: tokens.pointed, row: clear, holds: true }, 'a row pointed at, at its lock');
+});
+
 studioTest('Inspect opens as a side sheet over the Studio at the token tree or the JSON, says it is open, and closes back to the row', {}, async ({ page, section, axe }) => {
   const button = page.locator('[data-inspect]');
   const sheet = page.locator('[data-inspect-sheet]');
