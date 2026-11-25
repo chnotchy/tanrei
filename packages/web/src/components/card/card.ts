@@ -6,6 +6,7 @@ import type { TanreiCardVariantRegistry } from '../../registry.js';
 import { AXES, styles } from './card.styles.js';
 import { focusedAtFirst } from '../../primitives/autofocus.js';
 import { TanreiElement } from '../../primitives/element.js';
+import { DEBUG } from '../../primitives/debug.js';
 
 /** The core variants (elevated, filled, outlined), plus any a design system's generated `.d.ts` registers. */
 export type TanreiCardVariant = keyof TanreiCardVariantRegistry;
@@ -200,16 +201,16 @@ export class TanreiCard extends TanreiElement {
     const found = await slottedInteractive(this.renderRoot.querySelector('slot'));
     if (!found) return;
     if (this.link.form) {
-      report(this, 'CRD-15', `a link card holds an interactive element (<${found.localName}>), which assistive technology cannot reach and whose press would also follow the card's link; give the card no href and let that element be its link`);
+      if (DEBUG) report(this, 'CRD-15', `a link card holds an interactive element (<${found.localName}>), which assistive technology cannot reach and whose press would also follow the card's link; give the card no href and let that element be its link`);
     } else {
-      report(this, 'CRD-15', `an interactive card holds an interactive element (<${found.localName}>), which assistive technology cannot reach and whose press would also activate the card; make the card non-interactive and let that element be its action`);
+      if (DEBUG) report(this, 'CRD-15', `an interactive card holds an interactive element (<${found.localName}>), which assistive technology cannot reach and whose press would also activate the card; make the card non-interactive and let that element be its action`);
     }
   }
 
   protected override updated(changed: PropertyValues<this>) {
     // CRD-14: an interactive card or a link card without a label, nor a name of the product's, is named by its whole
     // content; a debug build says so.
-    if ((changed.has('label') || changed.has('interactive') || changed.has('href')) && this.pressable && !this.label && !namedByProduct(this)) {
+    if (DEBUG && (changed.has('label') || changed.has('interactive') || changed.has('href')) && this.pressable && !this.label && !namedByProduct(this)) {
       report(this, 'CRD-14', `${this.link.form ? 'a link' : 'an interactive'} card has no label, so its whole content is its accessible name; give it a label (normally its heading’s text)`);
     }
     if ((changed.has('interactive') || changed.has('href')) && this.hasUpdated) void this.inspectContent();

@@ -4,6 +4,7 @@ import { html, literal } from 'lit/static-html.js';
 import { hiddenHost } from '../../primitives/hidden.js';
 import {
   AvailabilityController,
+  GlyphDrawnController,
   GlyphMirrorController,
   LINK_MARK,
   LinkController,
@@ -24,6 +25,7 @@ import { AXES, styles } from './chip.styles.js';
 import { ownDirection } from '../../styles/product-text.js';
 import { focusedAtFirst } from '../../primitives/autofocus.js';
 import { TanreiElement } from '../../primitives/element.js';
+import { DEBUG } from '../../primitives/debug.js';
 
 /** What the chip does: a button (action), an on / off toggle (filter) or an item the user entered and can remove (input). A closed set. */
 export type TanreiChipKind = 'action' | 'filter' | 'input';
@@ -206,6 +208,15 @@ export class TanreiChip extends TanreiElement {
   private readonly mirror = new GlyphMirrorController(this, { slots: 'slot[name="icon"]', drawn: '.mark' });
 
   /**
+   * CHP-41: each glyph box carries `data-drawn` while the icon set can draw its glyph — the icon slot's, the check, the
+   * new-context mark, the remove glyph; until then it draws nothing (src/primitives/glyph.ts). The icon is decided from
+   * what the observer reports, with no read of the layout (`slotted`); the others in the frame a chip is first drawn,
+   * with every other on the page (`firstInFrame`): a page draws many.
+   */
+  private readonly iconDrawn = new GlyphDrawnController(this, () => this.renderRoot.querySelectorAll<HTMLElement>('.glyph.icon'), { slotted: true });
+  private readonly glyphsDrawn = new GlyphDrawnController(this, () => this.renderRoot.querySelectorAll<HTMLElement>('.glyph:not(.icon)'), { firstInFrame: true });
+
+  /**
    * CHP-33 … CHP-37: the link an action chip is while it has a destination, what its anchor carries, and what a debug
    * build is told (src/primitives/link.ts). A filter chip holds a state and an input chip a second action:
    * neither takes one (CHP-37).
@@ -381,16 +392,16 @@ export class TanreiChip extends TanreiElement {
 
   protected override updated(changed: PropertyValues) {
     // CHP-7: a kind this spec does not have is an action chip.
-    if (changed.has('kind') && !KINDS.includes(this.kind)) {
+    if (DEBUG && changed.has('kind') && !KINDS.includes(this.kind)) {
       report(this, 'CHP-7', `kind "${this.kind}" is not a kind of chip; it is drawn and behaves as "action"`);
     }
     // CHP-26: the label is the name, and an input chip's remove action is named by removeLabel. It still renders; a debug build says what is missing.
-    if (changed.has('label') && !this.label && !namedByProduct(this)) report(this, 'CHP-26', 'label is empty, so the chip has no accessible name; give it a label');
-    if ((changed.has('removeLabel') || changed.has('kind') || changed.has('notRemovable')) && this.removes && !this.removeLabel) {
+    if (DEBUG && changed.has('label') && !this.label && !namedByProduct(this)) report(this, 'CHP-26', 'label is empty, so the chip has no accessible name; give it a label');
+    if (DEBUG && (changed.has('removeLabel') || changed.has('kind') || changed.has('notRemovable')) && this.removes && !this.removeLabel) {
       report(this, 'CHP-26', 'removeLabel is empty, so the remove action has no accessible name; give it one that names the item');
     }
     // CHP-15: only an input chip draws an avatar.
-    if ((changed.has('hasAvatar') || changed.has('kind')) && this.hasAvatar && this.effectiveKind !== 'input') {
+    if (DEBUG && (changed.has('hasAvatar') || changed.has('kind')) && this.hasAvatar && this.effectiveKind !== 'input') {
       report(this, 'CHP-15', `an avatar is given to a ${this.effectiveKind} chip, which ignores it; only an input chip draws one`);
     }
   }
@@ -448,13 +459,13 @@ export class TanreiChip extends TanreiElement {
                 <span part="avatar" class="avatar" data-tanrei-shape><slot name="avatar" @slotchange=${this.#onAvatarSlotChange}></slot></span>
                 <span class="glyphs">
                   <span part="icon" class="glyph icon"><slot name="icon" @slotchange=${this.#onIconSlotChange}></slot></span>
-                  <span part="check" class="glyph check">${CHECK_GLYPH}</span>
+                  <span part="check" class="glyph check"><span class="ink">${CHECK_GLYPH}</span></span>
                 </span>
               </span>
             </span>
           </span>
           <span part="label" class="label" dir=${ownDirection(this.label)}>${this.label}</span>
-          <span class="trail" aria-hidden="true">${link?.opensNew ? html`<span class="glyph mark">${LINK_MARK}</span>` : nothing}</span>
+          <span class="trail" aria-hidden="true">${link?.opensNew ? html`<span class="glyph mark"><span class="ink">${LINK_MARK}</span></span>` : nothing}</span>
         </${tag}>
         <button
           part="remove"
@@ -475,7 +486,7 @@ export class TanreiChip extends TanreiElement {
           @blur=${this.removePress.onBlur}
           @focus=${this.#onFocus}
         >
-          <span class="glyph" aria-hidden="true">${REMOVE_GLYPH}</span><span class="hold"></span>
+          <span class="glyph" aria-hidden="true"><span class="ink">${REMOVE_GLYPH}</span></span><span class="hold"></span>
         </button>
       </span>
     `;

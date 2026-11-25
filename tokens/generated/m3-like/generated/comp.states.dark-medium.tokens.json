@@ -64250,6 +64250,33 @@
           }
         }
       },
+      "skeleton": {
+        "placeholder": {
+          "color": {
+            "$type": "color",
+            "$value": {
+              "colorSpace": "srgb",
+              "components": [
+                0.9608,
+                0.9373,
+                0.9686
+              ],
+              "alpha": 0.1,
+              "hex": "#f5eff7"
+            },
+            "$extensions": {
+              "dev.tanrei.vocabulary": {
+                "rationale": "One product has views whose content arrives after the view does — a list fetched after its page opened, a person's details, an article — and already knows the shape of what is coming. It holds that shape in the place while it waits, in one quiet manner everywhere, so that nothing moves when the content arrives; it decides once how quiet the shapes are, how they are rounded, whether and how they stir, and how long a wait lasts before they are shown at all."
+              },
+              "dev.tanrei.derive": {
+                "fn": "alpha",
+                "of": "{tanrei.sys.color.on-surface}",
+                "amount": 0.1
+              }
+            }
+          }
+        }
+      },
       "code-block": {
         "syntax": {
           "color": {

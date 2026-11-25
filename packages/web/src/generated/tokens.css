@@ -1493,7 +1493,7 @@
     --tanrei-comp-calendar-unselected-pressed-outline-color: var(--tanrei-comp-calendar-unselected-outline-color);
     --tanrei-comp-calendar-unselected-pressed-state-layer-color: var(--tanrei-comp-calendar-unselected-state-layer-color);
     --tanrei-comp-calendar-unselected-state-layer-color: var(--tanrei-comp-calendar-unselected-label-color);
-    --tanrei-comp-calendar-view-toggle-container-height: max(var(--tanrei-sys-target-minimum), round(nearest, calc(var(--tanrei-dial-size-unit) * 9), var(--tanrei-dial-size-unit)));
+    --tanrei-comp-calendar-view-toggle-container-height: max(var(--tanrei-sys-target-minimum), var(--tanrei-sys-control-height-medium));
     --tanrei-comp-calendar-view-toggle-container-padding-inline: var(--tanrei-sys-space-space150);
     --tanrei-comp-calendar-view-toggle-container-shape: var(--tanrei-sys-shape-corner-full);
     --tanrei-comp-calendar-view-toggle-container-shape-pill: 1;
@@ -1512,7 +1512,7 @@
     --tanrei-comp-calendar-weekday-typescale-font-weight-emphasized: var(--tanrei-sys-typescale-label-small-font-weight-emphasized);
     --tanrei-comp-calendar-weekday-typescale-letter-spacing: var(--tanrei-sys-typescale-label-small-letter-spacing);
     --tanrei-comp-calendar-weekday-typescale-line-height: var(--tanrei-sys-typescale-label-small-line-height);
-    --tanrei-comp-calendar-year-container-height: max(var(--tanrei-sys-target-minimum), round(nearest, calc(var(--tanrei-dial-size-unit) * 9), var(--tanrei-dial-size-unit)));
+    --tanrei-comp-calendar-year-container-height: max(var(--tanrei-sys-target-minimum), var(--tanrei-sys-control-height-medium));
     --tanrei-comp-calendar-year-container-shape: var(--tanrei-sys-shape-corner-full);
     --tanrei-comp-calendar-year-container-shape-pill: 1;
     --tanrei-comp-calendar-year-container-width: round(nearest, calc(var(--tanrei-dial-size-unit) * 18), 0.25px);
@@ -1824,6 +1824,7 @@
     --tanrei-comp-chat-composer-hovered-outline-width: var(--tanrei-comp-chat-composer-outline-width);
     --tanrei-comp-chat-composer-input-padding-block: var(--tanrei-sys-space-space100);
     --tanrei-comp-chat-composer-layout-inline-min-width: round(nearest, calc(var(--tanrei-dial-size-unit) * 90), 0.25px);
+    --tanrei-comp-chat-composer-layout-input-min-width: round(nearest, calc(var(--tanrei-dial-size-unit) * 40), 0.25px);
     --tanrei-comp-chat-composer-motion-glyph-fade-duration: var(--tanrei-sys-motion-role-state-compact);
     --tanrei-comp-chat-composer-motion-resize-duration: var(--tanrei-sys-motion-role-resize-large);
     --tanrei-comp-chat-composer-motion-resize-easing: var(--tanrei-sys-motion-easing-spatial);
@@ -1861,7 +1862,7 @@
     --tanrei-comp-checkbox-box-size: round(nearest, calc(var(--tanrei-dial-size-unit) * 4.5), 0.25px);
     --tanrei-comp-checkbox-container-shape: var(--tanrei-sys-shape-corner-full);
     --tanrei-comp-checkbox-container-shape-pill: 1;
-    --tanrei-comp-checkbox-container-size: round(nearest, calc(var(--tanrei-dial-size-unit) * 10), 0.25px);
+    --tanrei-comp-checkbox-container-size: var(--tanrei-sys-control-height-medium);
     --tanrei-comp-checkbox-disabled-container-shape: var(--tanrei-comp-checkbox-container-shape);
     --tanrei-comp-checkbox-disabled-container-shape-pill: 1;
     --tanrei-comp-checkbox-disabled-opacity: 1;
@@ -2735,7 +2736,7 @@
     --tanrei-comp-date-time-picker-period-label-typescale-letter-spacing: var(--tanrei-sys-typescale-heading-5-letter-spacing);
     --tanrei-comp-date-time-picker-period-label-typescale-line-height: var(--tanrei-sys-typescale-heading-5-line-height);
     --tanrei-comp-date-time-picker-pressed-opacity: 1;
-    --tanrei-comp-date-time-picker-range-field-container-height: max(var(--tanrei-sys-target-minimum), round(nearest, calc(var(--tanrei-dial-size-unit) * 12), var(--tanrei-dial-size-unit)));
+    --tanrei-comp-date-time-picker-range-field-container-height: max(var(--tanrei-sys-target-minimum), var(--tanrei-sys-control-height-medium));
     --tanrei-comp-date-time-picker-range-field-container-padding-inline: var(--tanrei-sys-space-space200);
     --tanrei-comp-date-time-picker-range-field-gap: var(--tanrei-sys-space-space100);
     --tanrei-comp-date-time-picker-range-field-label-typescale-font-family: var(--tanrei-sys-typescale-heading-5-font-family);
@@ -3446,14 +3447,14 @@
     --tanrei-comp-input-box-container-gap-medium: var(--tanrei-sys-space-space200);
     --tanrei-comp-input-box-container-gap-small: var(--tanrei-sys-space-space100);
     --tanrei-comp-input-box-container-height-large: max(var(--tanrei-sys-target-minimum), var(--tanrei-sys-control-height-large));
-    --tanrei-comp-input-box-container-height-medium: max(var(--tanrei-sys-target-minimum), round(nearest, calc(var(--tanrei-dial-size-unit) * 12), var(--tanrei-dial-size-unit)));
-    --tanrei-comp-input-box-container-height-small: max(var(--tanrei-sys-target-minimum), var(--tanrei-sys-control-height-medium));
+    --tanrei-comp-input-box-container-height-medium: max(var(--tanrei-sys-target-minimum), var(--tanrei-sys-control-height-medium));
+    --tanrei-comp-input-box-container-height-small: max(var(--tanrei-sys-target-minimum), var(--tanrei-sys-control-height-small));
     --tanrei-comp-input-box-container-padding-block-with-label-large: max(0px, round(nearest, calc(var(--tanrei-sys-space-space50) + (var(--tanrei-comp-input-box-container-height-large) - calc(max(var(--tanrei-dial-control-height), 2.5rem) + var(--tanrei-dial-size-unit) * 4)) / 2), 0.25px));
-    --tanrei-comp-input-box-container-padding-block-with-label-medium: max(0px, round(nearest, calc(var(--tanrei-sys-space-space50) + (var(--tanrei-comp-input-box-container-height-medium) - round(nearest, calc(var(--tanrei-dial-size-unit) * 12), var(--tanrei-dial-size-unit))) / 2), 0.25px));
-    --tanrei-comp-input-box-container-padding-block-with-label-small: max(0px, round(nearest, calc(var(--tanrei-sys-space-space25) + (var(--tanrei-comp-input-box-container-height-small) - calc(max(var(--tanrei-dial-control-height), 2.5rem) + var(--tanrei-dial-size-unit) * 0)) / 2), 0.25px));
+    --tanrei-comp-input-box-container-padding-block-with-label-medium: max(0px, round(nearest, calc(var(--tanrei-sys-space-space50) + (var(--tanrei-comp-input-box-container-height-medium) - calc(max(var(--tanrei-dial-control-height), 2.5rem) + var(--tanrei-dial-size-unit) * 0)) / 2), 0.25px));
+    --tanrei-comp-input-box-container-padding-block-with-label-small: max(0px, round(nearest, calc(var(--tanrei-sys-space-space0) + (var(--tanrei-comp-input-box-container-height-small) - calc(max(var(--tanrei-dial-control-height), 2.5rem) + var(--tanrei-dial-size-unit) * -2)) / 2), 0.25px));
     --tanrei-comp-input-box-container-padding-block-large: max(0px, round(nearest, calc(var(--tanrei-sys-space-space175) + (var(--tanrei-comp-input-box-container-height-large) - calc(max(var(--tanrei-dial-control-height), 2.5rem) + var(--tanrei-dial-size-unit) * 4)) / 2), 0.25px));
-    --tanrei-comp-input-box-container-padding-block-medium: max(0px, round(nearest, calc(var(--tanrei-sys-space-space125) + (var(--tanrei-comp-input-box-container-height-medium) - round(nearest, calc(var(--tanrei-dial-size-unit) * 12), var(--tanrei-dial-size-unit))) / 2), 0.25px));
-    --tanrei-comp-input-box-container-padding-block-small: max(0px, round(nearest, calc(var(--tanrei-sys-space-space100) + (var(--tanrei-comp-input-box-container-height-small) - calc(max(var(--tanrei-dial-control-height), 2.5rem) + var(--tanrei-dial-size-unit) * 0)) / 2), 0.25px));
+    --tanrei-comp-input-box-container-padding-block-medium: max(0px, round(nearest, calc(var(--tanrei-sys-space-space75) + (var(--tanrei-comp-input-box-container-height-medium) - calc(max(var(--tanrei-dial-control-height), 2.5rem) + var(--tanrei-dial-size-unit) * 0)) / 2), 0.25px));
+    --tanrei-comp-input-box-container-padding-block-small: max(0px, round(nearest, calc(var(--tanrei-sys-space-space50) + (var(--tanrei-comp-input-box-container-height-small) - calc(max(var(--tanrei-dial-control-height), 2.5rem) + var(--tanrei-dial-size-unit) * -2)) / 2), 0.25px));
     --tanrei-comp-input-box-container-padding-inline-with-icon-large: var(--tanrei-sys-space-space150);
     --tanrei-comp-input-box-container-padding-inline-with-icon-medium: var(--tanrei-sys-space-space150);
     --tanrei-comp-input-box-container-padding-inline-with-icon-small: var(--tanrei-sys-space-space100);
@@ -5306,7 +5307,7 @@
     --tanrei-comp-number-ticker-motion-stagger: var(--tanrei-sys-motion-duration-short1);
     --tanrei-comp-one-time-code-input-caret-width: var(--tanrei-sys-border-hairline);
     --tanrei-comp-one-time-code-input-container-gap: var(--tanrei-sys-space-space75);
-    --tanrei-comp-one-time-code-input-container-height: max(var(--tanrei-sys-target-minimum), round(nearest, calc(var(--tanrei-dial-size-unit) * 12), var(--tanrei-dial-size-unit)));
+    --tanrei-comp-one-time-code-input-container-height: max(var(--tanrei-sys-target-minimum), var(--tanrei-sys-control-height-medium));
     --tanrei-comp-one-time-code-input-container-padding-inline: var(--tanrei-sys-space-space50);
     --tanrei-comp-one-time-code-input-container-shape: var(--tanrei-sys-shape-corner-small);
     --tanrei-comp-one-time-code-input-container-shape-pill: 0;
@@ -5699,7 +5700,7 @@
     --tanrei-comp-prose-text-typescale-medium-line-height: var(--tanrei-sys-typescale-body-line-height);
     --tanrei-comp-radio-button-container-shape: var(--tanrei-sys-shape-corner-full);
     --tanrei-comp-radio-button-container-shape-pill: 1;
-    --tanrei-comp-radio-button-container-size: round(nearest, calc(var(--tanrei-dial-size-unit) * 10), 0.25px);
+    --tanrei-comp-radio-button-container-size: var(--tanrei-sys-control-height-medium);
     --tanrei-comp-radio-button-disabled-container-shape: var(--tanrei-comp-radio-button-container-shape);
     --tanrei-comp-radio-button-disabled-container-shape-pill: 1;
     --tanrei-comp-radio-button-disabled-opacity: 1;
@@ -5925,7 +5926,7 @@
     --tanrei-comp-scroll-area-shadow-extent: var(--tanrei-sys-scroll-edge-extent);
     --tanrei-comp-search-container-button-gap: var(--tanrei-sys-space-space0);
     --tanrei-comp-search-container-gap: max(0px, calc(var(--tanrei-sys-target-touch) - var(--tanrei-comp-button-container-height-small)));
-    --tanrei-comp-search-container-height: round(nearest, calc(var(--tanrei-dial-size-unit) * 14), 0.25px);
+    --tanrei-comp-search-container-height: max(var(--tanrei-sys-target-minimum), var(--tanrei-sys-control-height-medium));
     --tanrei-comp-search-container-padding-inline: var(--tanrei-sys-space-space200);
     --tanrei-comp-search-container-padding-inline-with-button: var(--tanrei-sys-space-space100);
     --tanrei-comp-search-container-shape: var(--tanrei-sys-shape-corner-full);
@@ -6110,11 +6111,11 @@
     --tanrei-comp-segmented-button-container-gap-large: var(--tanrei-sys-space-space100);
     --tanrei-comp-segmented-button-container-gap-medium: var(--tanrei-sys-space-space100);
     --tanrei-comp-segmented-button-container-gap-small: var(--tanrei-sys-space-space100);
-    --tanrei-comp-segmented-button-container-height-large: max(var(--tanrei-sys-target-minimum), var(--tanrei-sys-control-height-medium));
-    --tanrei-comp-segmented-button-container-height-medium: max(var(--tanrei-sys-target-minimum), round(nearest, calc(var(--tanrei-dial-size-unit) * 9), var(--tanrei-dial-size-unit)));
+    --tanrei-comp-segmented-button-container-height-large: max(var(--tanrei-sys-target-minimum), var(--tanrei-sys-control-height-large));
+    --tanrei-comp-segmented-button-container-height-medium: max(var(--tanrei-sys-target-minimum), var(--tanrei-sys-control-height-medium));
     --tanrei-comp-segmented-button-container-height-small: max(var(--tanrei-sys-target-minimum), var(--tanrei-sys-control-height-small));
-    --tanrei-comp-segmented-button-container-padding-block-large: max(0px, round(nearest, calc(var(--tanrei-sys-space-space75) + (var(--tanrei-comp-segmented-button-container-height-large) - calc(max(var(--tanrei-dial-control-height), 2.5rem) + var(--tanrei-dial-size-unit) * 0)) / 2), 0.25px));
-    --tanrei-comp-segmented-button-container-padding-block-medium: max(0px, round(nearest, calc(var(--tanrei-sys-space-space75) + (var(--tanrei-comp-segmented-button-container-height-medium) - round(nearest, calc(var(--tanrei-dial-size-unit) * 9), var(--tanrei-dial-size-unit))) / 2), 0.25px));
+    --tanrei-comp-segmented-button-container-padding-block-large: max(0px, round(nearest, calc(var(--tanrei-sys-space-space75) + (var(--tanrei-comp-segmented-button-container-height-large) - calc(max(var(--tanrei-dial-control-height), 2.5rem) + var(--tanrei-dial-size-unit) * 4)) / 2), 0.25px));
+    --tanrei-comp-segmented-button-container-padding-block-medium: max(0px, round(nearest, calc(var(--tanrei-sys-space-space75) + (var(--tanrei-comp-segmented-button-container-height-medium) - calc(max(var(--tanrei-dial-control-height), 2.5rem) + var(--tanrei-dial-size-unit) * 0)) / 2), 0.25px));
     --tanrei-comp-segmented-button-container-padding-block-small: max(0px, round(nearest, calc(var(--tanrei-sys-space-space75) + (var(--tanrei-comp-segmented-button-container-height-small) - calc(max(var(--tanrei-dial-control-height), 2.5rem) + var(--tanrei-dial-size-unit) * -2)) / 2), 0.25px));
     --tanrei-comp-segmented-button-container-padding-inline-large: var(--tanrei-sys-space-space200);
     --tanrei-comp-segmented-button-container-padding-inline-medium: var(--tanrei-sys-space-space175);
@@ -6519,7 +6520,7 @@
     --tanrei-comp-skeleton-motion-dim-duration: var(--tanrei-sys-motion-duration-extra-long4);
     --tanrei-comp-skeleton-motion-dim-easing: var(--tanrei-sys-motion-easing-standard);
     --tanrei-comp-skeleton-motion-show-delay: var(--tanrei-sys-motion-role-show-delay);
-    --tanrei-comp-skeleton-placeholder-color: var(--tanrei-sys-color-surface-variant);
+    --tanrei-comp-skeleton-placeholder-color: color-mix(in srgb, var(--tanrei-sys-color-on-surface) 10%, transparent);
     --tanrei-comp-skeleton-placeholder-dim-opacity: 0.5;
     --tanrei-comp-skeleton-placeholder-last-line-inline-size: 0.6;
     --tanrei-comp-skeleton-placeholder-shape-block: var(--tanrei-sys-shape-corner-medium);
@@ -6530,7 +6531,7 @@
     --tanrei-comp-skeleton-placeholder-shape-text-pill: 0;
     --tanrei-comp-slider-container-shape: var(--tanrei-sys-shape-corner-full);
     --tanrei-comp-slider-container-shape-pill: 1;
-    --tanrei-comp-slider-container-size: round(nearest, calc(var(--tanrei-dial-size-unit) * 10), 0.25px);
+    --tanrei-comp-slider-container-size: var(--tanrei-sys-control-height-medium);
     --tanrei-comp-slider-disabled-opacity: 1;
     --tanrei-comp-slider-focused-opacity: 1;
     --tanrei-comp-slider-handle-outline-width: round(nearest, calc(var(--tanrei-dial-stroke-unit) * 3), 0.25px);
@@ -7180,7 +7181,7 @@
     --tanrei-comp-swatch-supporting-text-typescale-small-line-height: var(--tanrei-sys-typescale-caption-line-height);
     --tanrei-comp-switch-container-shape: var(--tanrei-sys-shape-corner-full);
     --tanrei-comp-switch-container-shape-pill: 1;
-    --tanrei-comp-switch-container-size: round(nearest, calc(var(--tanrei-dial-size-unit) * 10), 0.25px);
+    --tanrei-comp-switch-container-size: var(--tanrei-sys-control-height-medium);
     --tanrei-comp-switch-disabled-container-shape: var(--tanrei-comp-switch-container-shape);
     --tanrei-comp-switch-disabled-container-shape-pill: 1;
     --tanrei-comp-switch-disabled-opacity: 1;

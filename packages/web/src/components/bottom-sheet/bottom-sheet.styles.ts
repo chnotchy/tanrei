@@ -1,5 +1,5 @@
 import { css, unsafeCSS } from 'lit';
-import { appearStyles, dividerVisibilityHost, focusRing, modalExitStyles, sheetScrimStyles, whenScroll } from '../../primitives/index.js';
+import { TARGET_CAPS, appearStyles, dividerVisibilityHost, focusRing, focusRingBox, modalExitStyles, sheetScrimStyles, whenScroll } from '../../primitives/index.js';
 import { productText } from '../../styles/product-text.js';
 import { scriptTracking } from '../../styles/script-tracking.js';
 import { cornerRadius, shape } from '../../styles/shape.js';
@@ -247,9 +247,12 @@ export const styles = css`
     --_row: calc(${t('handle-container-height')} + 2 * ${t('handle-margin-block')});
   }
   /* BSH-12 to BSH-19: the drag handle is a Handle — its box, grip, states, hit area (HDL-5), focus ring, press hold and
-     pressed answer are the Handle's, drawn from the sheet's tokens. */
+     pressed answer are the Handle's, drawn from the sheet's tokens. BSH-15: below its box the hit area stops at half of
+     handle.margin-block, the space between the box and what follows the row (the header or the content), so that a
+     press nearer them goes to them (BTN-5). */
   .handle {
     ${unsafeCSS(handleTokens)}
+    ${unsafeCSS(TARGET_CAPS.bottom)}: calc(${t('handle-margin-block')} / 2);
   }
 
   /* BSH-28: the header — below the handle's row (or at the top without one), a row at least header.height high: the
@@ -382,6 +385,9 @@ export const styles = css`
     pointer-events: none;
   }
   ${focusRing((focus) => `.content${focus} ~ .focus`, { inside: true })}
+  /* The box lies over the text: it draws the indicator by its ::before, as no element, so that a contrast checker still
+     sees the text under it (focusRingBox). */
+  ${focusRingBox('.focus')}
 
   /* BSH-18: corner smoothing on the container and the handle's box (data-tanrei-shape). */
   ${shape}

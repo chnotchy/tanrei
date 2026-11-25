@@ -5,7 +5,12 @@
 //   one line of the Table's small cell for each of its rows and its header row: drawn, a row of one line is that
 //   tall, and only a value of several parts (a shadow) is broken onto more lines;
 // - its words are found by the browser's find in page while it is away from the view;
-// - once it is near, the Table has read its sizes: where it scrolls it is a focus stop and a region.
+// - once it is near, the Table has read its sizes: where it scrolls it is a focus stop and a region;
+// - while it is away, a layout of the page does not lay out its rows, on a page that reads right to left too: the box
+//   that skips it is a block of its own around the Table, which is a size container — WebKit lays out the content of a
+//   skipped box that is a size container all the same, and with the skipping on the Table itself a layout of the
+//   Arabic button's page took two and a half times as long as one without the table (in CI's container image, 457 ms
+//   against 175).
 //
 //   pnpm --filter @tanrei/docs build && pnpm --filter @tanrei/docs test:browser
 //
@@ -32,8 +37,9 @@ const VIEWPORTS = [
   { width: 390, height: 844 },
   { width: 1440, height: 900 },
 ];
-/** The tokens table: the small Table of the Specs tab that holds the room of its rows. */
-const TABLE = 'tanrei-table[size="small"][style*="--docs-token-rows"]';
+/** The box that holds the room of the tokens table's rows, and the tokens table: the small Table of the Specs tab in it. */
+const BOX = '[style*="--docs-token-rows"]';
+const TABLE = `${BOX} > tanrei-table[size="small"]`;
 
 let host;
 let origin;
@@ -64,9 +70,9 @@ for (const engine of ENGINES) {
         await page.goto(`${origin}${PAGE}`);
         await page.waitForLoadState('load');
 
-        const away = await page.evaluate((selector) => {
+        const away = await page.evaluate(({ selector, box }) => {
           const table = document.querySelector(selector);
-          const style = getComputedStyle(table);
+          const style = getComputedStyle(document.querySelector(box));
           const last = table.querySelector(':scope > table > tbody > tr:last-child > td code')?.textContent ?? '';
           getSelection().removeAllRanges();
           const found = window.find(last, true);
@@ -80,7 +86,7 @@ for (const engine of ENGINES) {
             last,
             found,
           };
-        }, TABLE);
+        }, { selector: TABLE, box: BOX });
         assert.equal(away.visibility, 'auto', 'it is not laid out until it comes near the view');
         assert.ok(away.below, 'it stands below the first view of the page');
         assert.ok(away.rows > 100, `it is the page's long table (${away.rows} rows)`);
@@ -89,7 +95,7 @@ for (const engine of ENGINES) {
         assert.ok(held > 0, `it holds a room before it is drawn (${away.held})`);
 
         // Drawn: near the view, its elements defined, the fonts in, four frames since (each wait bounded: launch.mjs).
-        await page.evaluate((selector) => document.querySelector(selector).scrollIntoView({ block: 'start' }), TABLE);
+        await page.evaluate((selector) => document.querySelector(selector).scrollIntoView({ block: 'start' }), BOX);
         await settlePage(page, { tags: ['tanrei-table', 'tanrei-swatch'], frames: 4 });
         const drawn = await page.evaluate((selector) => {
           const table = document.querySelector(selector);
@@ -110,5 +116,40 @@ for (const engine of ENGINES) {
         await context.close();
       });
     }
+
+    test('while it is away from the view, a layout of a page that reads right to left does not lay out its rows', LIMIT, async () => {
+      const context = await browser.newContext({ viewport: VIEWPORTS[1], reducedMotion: 'reduce', colorScheme: 'light' });
+      const page = await context.newPage();
+      await page.goto(`${origin}/ar${PAGE}`);
+      await settlePage(page, { frames: 4 });
+      // Engine work against engine work, in the same page and moment: a layout of the whole page (the body narrowed to a
+      // width that narrows the content's column, and widened back, each read back) with the table where it is, and
+      // with its box taken out of the layout, in turn, the median of each.
+      // Skipped, the table adds nothing; laid out, its 580 rows are most of the page's layout.
+      const { kept, without, below } = await page.evaluate((box) => {
+        const held = document.querySelector(box);
+        const body = document.body;
+        const layout = () => {
+          const start = performance.now();
+          body.style.width = body.style.width ? '' : '1000px';
+          void body.offsetHeight;
+          return performance.now() - start;
+        };
+        const median = (all) => all.sort((a, b) => a - b)[all.length >> 1];
+        const times = { kept: [], without: [] };
+        for (let i = 0; i < 9; i++) {
+          times.kept.push(layout(), layout());
+          held.style.display = 'none';
+          void body.offsetHeight;
+          times.without.push(layout(), layout());
+          held.style.display = '';
+          void body.offsetHeight;
+        }
+        return { kept: median(times.kept), without: median(times.without), below: held.getBoundingClientRect().top > innerHeight };
+      }, BOX);
+      assert.ok(below, 'the table is away from the view');
+      assert.ok(kept < without * 1.5 + 5, `a layout of the page takes ${kept.toFixed(1)} ms with the table away from the view and ${without.toFixed(1)} ms without it: its rows are laid out`);
+      await context.close();
+    });
   });
 }

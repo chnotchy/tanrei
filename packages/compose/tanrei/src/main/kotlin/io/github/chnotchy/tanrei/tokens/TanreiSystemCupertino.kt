@@ -1,4 +1,4 @@
-// 226 contrast measurement(s) below Tanrei's thresholds in system "cupertino", which do not apply to an imitation preset. See tokens/generated/cupertino/a11y-report.json
+// 232 contrast measurement(s) below Tanrei's thresholds in system "cupertino", which do not apply to an imitation preset. See tokens/generated/cupertino/a11y-report.json
 // GENERATED FILE — DO NOT EDIT.
 // Source: tokens/ (DTCG 2025.10). Regenerate with `pnpm generate`.
 @file:Suppress("unused", "MagicNumber", "MaxLineLength", "LongParameterList", "LargeClass", "LongMethod")
@@ -2434,6 +2434,7 @@ private object CupertinoSystemSource {
             counterTypescale = typescale.labelSmall,
             inputPaddingBlock = 8.dp,
             layoutInlineMinWidth = 360.dp,
+            layoutInputMinWidth = 160.dp,
             motionGlyphFadeDuration = 200,
             motionResizeDuration = 400,
             motionResizeEasing = TanreiCubicBezier(x1 = 0.2f, y1 = 0f, x2 = 0f, y2 = 1f),
@@ -7455,7 +7456,7 @@ private object CupertinoSystemSource {
             motionDimDuration = 1000,
             motionDimEasing = TanreiCubicBezier(x1 = 0.2f, y1 = 0f, x2 = 0f, y2 = 1f),
             motionShowDelay = 300,
-            placeholderColor = TanreiPaint.Role(TanreiColorRole.SurfaceVariant),
+            placeholderColor = TanreiPaint.Alpha(of = TanreiPaint.Role(TanreiColorRole.OnSurface), amount = 0.1f),
             placeholderDimOpacity = 0.5f,
             placeholderLastLineInlineSize = 0.6f,
             placeholderShapeBlock = 10.dp,

@@ -7,6 +7,7 @@ import { OPTION_GROUP_TAG, OPTION_TAG } from '../../primitives/option-list.js';
 import { report } from '../../primitives/report.js';
 import { TanreiField, type TanreiFieldRequiredMark } from '../field/field.js';
 import { TanreiSelect, type TanreiSelectIconSpace, type TanreiSelectSeparation, type TanreiSelectSize, type TanreiSelectStatus, type TanreiSelectToggleDetail, type TanreiSelectToggleReason, type TanreiSelectVariant } from '../select/select.js';
+import { DEBUG } from '../../primitives/debug.js';
 
 // The members' own types are the select field's: it has no detail type and no type for a prop of its own.
 export type { TanreiFieldRequiredMark, TanreiSelectIconSpace, TanreiSelectSeparation, TanreiSelectSize, TanreiSelectStatus, TanreiSelectToggleDetail, TanreiSelectToggleReason, TanreiSelectVariant };
@@ -288,7 +289,7 @@ export class TanreiSelectField extends ComposedControl<string> {
       const stray = [...this.children].find((child) => child.localName !== OPTION_TAG && child.localName !== OPTION_GROUP_TAG && !PASSED_SLOTS.includes(child.slot));
       if (stray) {
         this.strayReported = true;
-        report(
+        if (DEBUG) report(
           this,
           'SEF-1',
           `<${stray.localName}${stray.slot ? ` slot="${stray.slot}"` : ''}> is not drawn: a select field's children are its options (<${OPTION_TAG}>, <${OPTION_GROUP_TAG}>) and a glyph for the label-icon or the leading-icon slot`,

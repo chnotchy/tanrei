@@ -13,6 +13,9 @@
 // when the load has fired, nothing has been in flight for 500 ms (network-quiet.mjs), the faces are ready, and two
 // frames have been drawn since.
 //
+// Then, at a phone's width, the page does not move under the reader as they read it through: paged down from its top to
+// its end, the shifts add up to no more than SCROLL_BUDGET (below).
+//
 // It reads `dist/` and serves it on a free port the way a static host does.
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
@@ -23,7 +26,7 @@ import { fileURLToPath } from 'node:url';
 import { register } from 'node:module';
 import { sheetKept, until } from './kept-sheet.mjs';
 import { watchNetwork } from './network-quiet.mjs';
-import { launch, settlePage } from './launch.mjs';
+import { launch, settle, settlePage } from './launch.mjs';
 
 register('../vite-shim.mjs', import.meta.url);
 const { APPEARANCE_KEY, CUSTOM_KEY, LOOK_SHEET_ID, LATE_ATTR, PENDING_ATTR, SHEET_STORE } = await import('../../src/lib/appearance.ts');
@@ -104,7 +107,7 @@ function observeShifts() {
   new PerformanceObserver((list) => {
     for (const entry of list.getEntries()) {
       if (entry.hadRecentInput) continue;
-      shifts.push({ value: entry.value, sources: entry.sources.map((source) => `${describe(source.node)}: ${rect(source.previousRect)} → ${rect(source.currentRect)}`) });
+      shifts.push({ value: entry.value, scrolled: scrollY, sources: entry.sources.map((source) => `${describe(source.node)}: ${rect(source.previousRect)} → ${rect(source.currentRect)}`) });
     }
   }).observe({ type: 'layout-shift', buffered: true });
 }
@@ -182,6 +185,208 @@ describe(`the layout shifts by no more than ${BUDGET} while a page loads`, { con
         }
       });
     }
+  }
+});
+
+// ── Read through ─────────────────────────────────────────────────────────────────────────────────────────────────
+
+/**
+ * The most the layout may shift, all told, while a reader pages through a whole page at a phone's width: a quarter of
+ * the 0.1 that Core Web Vitals calls good. It is a sum over the whole read, every entry of it, where the page's CLS is
+ * only its largest burst (a window of five seconds at most), so the sum is the stricter of the two. It is not the tenth
+ * the load is held to: a long page holds tables that are not laid out until they come near the view, each holding the
+ * room of rows one line tall (ComponentSpecs.astro, the tokens' table), which wrap at this width — the Japanese Select's
+ * page moved by 0.013 so as it was read through. Before a figure took its drawn room while it was still below the view
+ * (lib/example.ts, `releaseSoon`), each of these pages moved by more than twice this: the Date and time picker's by 0.074, the
+ * Text field's by 0.075 (0.236 in Arabic) and the Japanese Select's by 0.078.
+ */
+const SCROLL_BUDGET = 0.025;
+
+/**
+ * Pages of figures defined late, as a reader pages through them: four open date and time pickers under the Date and
+ * time picker's head, each about 1000 px tall drawn; the Text field's examples and playground, in English and in Arabic
+ * (right to left); the Select's in Japanese (its own faces).
+ */
+const READ = ['/components/date-time-picker/', '/components/text-field/', '/ar/components/text-field/', '/ja/components/select/'];
+const PHONE = { width: 390, height: 844 };
+/** How far a page down moves: the window, less the lines it keeps in view so that the reader keeps their place. */
+const KEPT = 120;
+
+describe(`the layout shifts by no more than ${SCROLL_BUDGET} while a reader pages through a page at ${PHONE.width}`, { concurrency: 2 }, () => {
+  for (const url of READ) {
+    test(url, { timeout: 300_000 }, async (t) => {
+      const context = await browser.newContext({ viewport: PHONE, isMobile: true, hasTouch: true });
+      try {
+        const page = await context.newPage();
+        await page.addInitScript(observeShifts);
+        // The page loaded and quiet — what its first view asked for, and what it asks for right after its load — as it
+        // is by the time a reader has read that view.
+        const network = await watchNetwork(page);
+        await page.goto(origin + url, { waitUntil: 'load' });
+        await network.quiet({ worker: /\/sheet-worker-[^/]*\.js$/ });
+        await settlePage(page);
+        // A page down at a time — farther than a frame is drawn ahead of the view (half a window, lib/example.ts) — to
+        // the page's end, each time once every frame in the view has been drawn, its elements defined and two frames
+        // drawn since: what is drawn late moves the page then, as it does under a reader.
+        for (let top = PHONE.height - KEPT; ; top += PHONE.height - KEPT) {
+          const { end, inView } = await page.evaluate((y) => {
+            window.scrollTo(0, y);
+            const stages = [...document.querySelectorAll('[data-example-stage][id]')].filter((stage) => {
+              const box = stage.getBoundingClientRect();
+              return box.height > 0 && box.bottom > 0 && box.top < innerHeight;
+            });
+            return { end: scrollY + innerHeight >= document.documentElement.scrollHeight - 1, inView: stages.map((stage) => stage.id) };
+          }, top);
+          for (const id of inView) await settle(page, `[data-example]:has(> figure > [data-part="frame"] > #${id})`, { pending: '[data-example-pending], [data-pending]' });
+          await settlePage(page, { fonts: false });
+          if (end) break;
+        }
+        const shifts = await page.evaluate(() => window.__docsLayoutShifts);
+        const total = shifts.reduce((sum, { value }) => sum + value, 0);
+        t.diagnostic(`layout shift ${total.toFixed(4)} in ${shifts.length} entr${shifts.length === 1 ? 'y' : 'ies'}`);
+        const moved = shifts.filter(({ value }) => value > 0).map(({ value, scrolled, sources }) => `${value.toFixed(4)}, scrolled ${Math.round(scrolled)} px:\n      ${sources.join('\n      ') || '(no source named)'}`);
+        assert.ok(total <= SCROLL_BUDGET, `${url} at ${PHONE.width} × ${PHONE.height} shifts by ${total.toFixed(4)} as it is paged through (at most ${SCROLL_BUDGET}):\n  ${moved.join('\n  ')}`);
+      } finally {
+        await context.close();
+      }
+    });
+  }
+});
+
+// ── Read through before the figures' elements arrive ─────────────────────────────────────────────────────────────
+
+/**
+ * Runs in the page before any of its scripts: keeps each change of a figure's stage's height, with what it was and
+ * what it became. A page's own figure is kept where it changed while it was in the view: one that grows or shrinks in
+ * the view moves what is below it under the reader's eyes, wherever its elements' modules come from and whenever they
+ * arrive, and one below the view takes its drawn room there by design. A stage of the gallery is kept wherever it
+ * changed, by half a pixel or more from the height it had as the page was parsed: it holds its baseline's room from
+ * then on, before its fixture is drawn and after, and is never meant to change.
+ */
+function watchStages() {
+  const changed = [];
+  Object.defineProperty(window, '__docsStagesChanged', { value: changed });
+  const heights = new WeakMap();
+  const inView = (box) => box.height > 0 && box.bottom > 0 && box.top < innerHeight;
+  const watcher = new ResizeObserver((entries) => {
+    for (const { target } of entries) {
+      const box = target.getBoundingClientRect();
+      const gallery = Boolean(target.closest('[data-fixture-gallery]'));
+      const before = heights.get(target);
+      // A gallery's stage is measured against the height it last kept, so that changes of less than half a pixel
+      // that add up to more are kept too.
+      if (!before || !gallery) heights.set(target, box);
+      if (!before || Math.abs(before.height - box.height) < 0.5) continue;
+      if (gallery) heights.set(target, box);
+      // In the view before it changed, or after: either way the reader saw it move what is below it. (Its top is where
+      // it is now: a stage above it that changed first has moved it already, and is counted on its own.)
+      const was = { top: box.top, bottom: box.top + before.height, height: before.height };
+      const seen = inView(was) || inView(box);
+      if (!seen && !gallery) continue;
+      changed.push({ id: target.id, gallery, seen, from: before.height, to: box.height, top: box.top, scrolled: scrollY });
+    }
+  });
+  document.addEventListener('DOMContentLoaded', () => {
+    for (const stage of document.querySelectorAll('[data-example-stage]')) watcher.observe(stage);
+  });
+}
+
+/**
+ * The modules that define the elements, as the site's build writes them: each component's module is a chunk of its
+ * own (lib/define-on-demand.ts), the one that calls `customElements.define`.
+ */
+const elementChunks = new Set(
+  fs.readdirSync(path.join(dist, '_astro')).filter((file) => file.endsWith('.js') && fs.readFileSync(path.join(dist, '_astro', file), 'utf8').includes('customElements.define(')),
+);
+
+/**
+ * Pages read through while every element's module arrives late — `late` ms after it is asked for, as on a slow line or
+ * a busy machine — so that the reader reaches figures before their elements are defined: the Text field's, whose first
+ * example is a column of fields 236 px tall drawn (80 px before they are defined, without the cloak), in English and in
+ * Arabic (right to left), at a phone's width and a desktop's.
+ *
+ * - A page's own figure does not change its height while it is in the view: what its stage holds takes its drawn room
+ *   before any script runs (lib/stage-cloak.mjs), and a stage below the view takes it before the reader reaches it
+ *   (lib/example.ts).
+ * - A stage of the Specs tab's gallery does not change its height at all, in the view or out of it, before its fixture
+ *   is drawn or after: its canvas is the box of its fixture's baseline from the first paint on, and the fixture it
+ *   draws fills it (components/fixtures/FixtureGallery.astro). The baseline is the web package's picture of the
+ *   fixture, not the page's, and a stage the page draws taller than its baseline grows (KNOWN_STAGES).
+ * - The layout's shifts, all told, are held to SCROLL_BUDGET, as when the modules come at once.
+ */
+const LATE_READS = [
+  { url: '/ar/components/text-field/', viewport: PHONE, late: 1_000 },
+  { url: '/components/text-field/', viewport: PHONE, late: 3_000 },
+  { url: '/ar/components/text-field/', viewport: { width: 1440, height: 900 }, late: 3_000 },
+  { url: '/components/text-field/', viewport: { width: 1440, height: 900 }, late: 1_000 },
+];
+
+/**
+ * Stages of the gallery (by their stage's id) that the page draws taller than their baseline, and why: each is still
+ * measured and reported, as a TODO rather than a failure, once every other assertion of its test holds. Take one off
+ * once its stage keeps its height.
+ */
+const KNOWN_STAGES = {
+  'docs-stage-text-field-stacked-code-multiline-wrap':
+    "the page draws it 51 px taller (at 390 and at 1440) than its baseline, whose room its stage holds: the web package's harness embeds Inter alone, so its baselines draw a fixture's code in whatever monospace face the machine has, where the page draws it in Roboto Mono, the default system's code face, which is wider and breaks the value into more lines",
+};
+
+describe('no figure changes its height in the view, and no stage of the gallery at all, while a reader pages through a page whose elements arrive late',{ concurrency: 2 }, () => {
+  for (const { url, viewport, late } of LATE_READS) {
+    const name = `${url} at ${viewport.width}`;
+    test(`${name}, each element's module ${late / 1000} s late`, { timeout: 300_000 }, async (t) => {
+      const phone = viewport.width < 800;
+      const context = await browser.newContext({ viewport, isMobile: phone, hasTouch: phone });
+      try {
+        const page = await context.newPage();
+        await page.addInitScript(observeShifts);
+        await page.addInitScript(watchStages);
+        let held = 0;
+        await page.route(/\/_astro\/[^/]+\.js(\?|$)/, async (route) => {
+          if (elementChunks.has(new URL(route.request().url()).pathname.split('/').pop())) {
+            held++;
+            await new Promise((resolve) => setTimeout(resolve, late));
+          }
+          await route.continue();
+        });
+        await page.goto(origin + url, { waitUntil: 'load' });
+        // Two pages down at a time from the load on — a fling, farther than a frame is drawn ahead of the view (half a
+        // window, lib/example.ts), so that the reader lands on frames whose elements have not been asked for yet — each
+        // time once every frame in the view has been drawn, its elements defined and two frames drawn since.
+        for (let top = 2 * (viewport.height - KEPT); ; top += 2 * (viewport.height - KEPT)) {
+          const { end, inView } = await page.evaluate((y) => {
+            window.scrollTo(0, y);
+            const stages = [...document.querySelectorAll('[data-example-stage][id]')].filter((stage) => {
+              const box = stage.getBoundingClientRect();
+              return box.height > 0 && box.bottom > 0 && box.top < innerHeight;
+            });
+            return { end: scrollY + innerHeight >= document.documentElement.scrollHeight - 1, inView: stages.map((stage) => stage.id) };
+          }, top);
+          for (const id of inView) await settle(page, `[data-example]:has(> figure > [data-part="frame"] > #${id})`, { pending: '[data-example-pending], [data-pending]' });
+          await settlePage(page, { fonts: false });
+          if (end) break;
+        }
+        assert.ok(held > 0, 'no element module was asked for: the build names its chunks otherwise, and this test held nothing late');
+        const changed = await page.evaluate(() => window.__docsStagesChanged);
+        const shifts = await page.evaluate(() => window.__docsLayoutShifts);
+        const total = shifts.reduce((sum, { value }) => sum + value, 0);
+        const said = ({ id, from, to, top, scrolled, seen }) => `#${id} ${from.toFixed(2)} → ${to.toFixed(2)} px, its top ${Math.round(top)} px down the view${seen ? '' : ' (out of the view)'}, scrolled ${Math.round(scrolled)} px`;
+        const own = changed.filter((change) => !change.gallery);
+        const gallery = changed.filter((change) => change.gallery);
+        const known = gallery.filter(({ id }) => KNOWN_STAGES[id]);
+        const stages = await page.evaluate(() => document.querySelectorAll('[data-fixture-gallery] [data-example-stage]').length);
+        const largest = Math.max(0, ...gallery.map(({ from, to }) => Math.abs(to - from)));
+        t.diagnostic(`${held} module requests held ${late} ms; layout shift ${total.toFixed(4)} in ${shifts.length} entr${shifts.length === 1 ? 'y' : 'ies'}; ${own.length} of the page's own figures changed in the view; of the gallery's ${stages} stages, ${new Set(gallery.map(({ id }) => id)).size} changed (${known.length} changes known; the largest by ${largest.toFixed(1)} px)`);
+        assert.ok(stages > 0, `${name} has no gallery of fixtures to watch`);
+        assert.deepEqual(own.map(said), [], `figures of ${name} changed their height in the view as it was paged through`);
+        assert.deepEqual(gallery.filter(({ id }) => !KNOWN_STAGES[id]).map(said), [], `stages of ${name}'s gallery changed their height: each holds its baseline's room from the first paint, and its fixture is drawn in that room`);
+        const moved = shifts.filter(({ value }) => value > 0).map(({ value, scrolled, sources }) => `${value.toFixed(4)}, scrolled ${Math.round(scrolled)} px:\n      ${sources.join('\n      ') || '(no source named)'}`);
+        assert.ok(total <= SCROLL_BUDGET, `${name} × ${viewport.height} shifts by ${total.toFixed(4)} as it is paged through, its modules ${late} ms late (at most ${SCROLL_BUDGET}):\n  ${moved.join('\n  ')}`);
+        if (known.length) return t.todo(known.map((change) => `${said(change)}: ${KNOWN_STAGES[change.id]}`).join('\n'));
+      } finally {
+        await context.close();
+      }
+    });
   }
 });
 

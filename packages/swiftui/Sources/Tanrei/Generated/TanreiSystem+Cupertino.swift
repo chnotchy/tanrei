@@ -1,4 +1,4 @@
-// 226 contrast measurement(s) below Tanrei's thresholds in system "cupertino", which do not apply to an imitation preset. See tokens/generated/cupertino/a11y-report.json
+// 232 contrast measurement(s) below Tanrei's thresholds in system "cupertino", which do not apply to an imitation preset. See tokens/generated/cupertino/a11y-report.json
 // GENERATED FILE — DO NOT EDIT.
 // Source: tokens/ (DTCG 2025.10). Regenerate with `pnpm generate`.
 // System values of "cupertino". Generated the same way for every system; the types are in TanreiTokens.swift.
@@ -2389,6 +2389,7 @@ private let cupertinoChatComposerTokens = TanreiChatComposerTokens(
   counterTypescale: cupertinoTypescale.labelSmall,
   inputPaddingBlock: 8,
   layoutInlineMinWidth: 360,
+  layoutInputMinWidth: 160,
   motionGlyphFadeDuration: 200,
   motionResizeDuration: 400,
   motionResizeEasing: TanreiCubicBezier(0.2, 0, 0, 1),
@@ -7986,7 +7987,7 @@ private let cupertinoSkeletonTokens = TanreiSkeletonTokens(
   motionDimDuration: 1000,
   motionDimEasing: TanreiCubicBezier(0.2, 0, 0, 1),
   motionShowDelay: 300,
-  placeholderColor: .role(.surfaceVariant),
+  placeholderColor: .alpha(of: .role(.onSurface), amount: 0.1),
   placeholderDimOpacity: 0.5,
   placeholderLastLineInlineSize: 0.6,
   placeholderShapeBlock: 10,

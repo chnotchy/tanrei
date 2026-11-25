@@ -8,6 +8,7 @@ import { axTree } from '../../../test/ax-tree.js';
 import { type Locator, type Page, expect, test } from '@playwright/test';
 import { bounds, css, override, warnings } from '../../../test/destinations.js';
 import { type Fixture, type FixtureItem, acmeSystemCss, drawerWindow, fixturesDocument, loadSpec, mountFixtures, resolveColor, resolveToken, tab, tabTo, rootTokens } from '../../../test/harness.js';
+import { coveredText } from '../../../test/covered-text.js';
 import { pressHoldAsRun } from '../../../test/harsh.js';
 import { appearingFixture, mountForAppearing } from '../../../test/first-frame.js';
 import { type Frames, expectAnimated, expectFirstFrameAtRest, sampleFrames } from '../../../test/frames.js';
@@ -28,6 +29,7 @@ import { expectScrimTakenAwayAtClose } from '../../../test/scrim-at-close.js';
 import { expectGlyphsKeptWhileClosing } from '../../../test/closing-glyphs.js';
 import { STACKED_DIALOG, STACKED_LAYER, addStackedSurfaces, expectStackedInOrder, focusAmong, setOpenInOneTask } from '../../../test/stacked-surfaces.js';
 import { CONTROL_HEIGHTS, atControlHeight } from '../../../test/control-height.js';
+import { contrastChecked } from '../../../test/contrast-checked.js';
 
 const spec = loadSpec('navigation-drawer');
 type P = Page;
@@ -850,6 +852,42 @@ test.describe('drawing', () => {
     const short = item(page, 'c', 0).locator('.short');
     expect(await css(short, 'white-space')).toBe('nowrap');
     expect(await short.evaluate((el) => el.scrollHeight <= el.clientHeight + 1)).toBe(true);
+  });
+
+  test('NVD-23: a destination taken away or added is counted again in the same turn; words changed inside the drawer alone have it tell no destination anything again', async ({ page }) => {
+    await mount(page, only('standard'), { reducedMotion: true });
+    const told = await drawer(page, 'standard').evaluate(async (nav: HTMLElement) => {
+      const turn = () => new Promise((done) => setTimeout(done, 0));
+      const first = nav.querySelector('tanrei-navigation-drawer-item')!;
+      const proto = Object.getPrototypeOf(first) as { setDestinationContext(this: Element, ...rest: unknown[]): void };
+      const own = proto.setDestinationContext;
+      let count = 0;
+      proto.setDestinationContext = function (...rest) {
+        count += 1;
+        return own.apply(this, rest);
+      };
+      const words = document.createElement('span');
+      first.append(words);
+      await turn();
+      const added = count;
+      count = 0;
+      words.textContent = 'New mail';
+      await turn();
+      words.textContent = 'No new mail';
+      await turn();
+      const rewritten = count;
+      words.remove();
+      const last = nav.querySelectorAll('tanrei-navigation-drawer-item')[5]!;
+      last.remove();
+      await turn();
+      const taken = count - rewritten;
+      proto.setDestinationContext = own;
+      return { added, rewritten, taken, size: first.getAttribute('aria-setsize') };
+    });
+    expect(told.added, 'an element added: every destination is told again').toBeGreaterThan(0);
+    expect(told.rewritten, 'words rewritten: no destination is told again').toBe(0);
+    expect(told.taken, 'a destination taken away: the others are told again').toBeGreaterThan(0);
+    expect(told.size, 'and counted without it').toBe('5');
   });
 
   test('NVD-23: a navigation landmark named by the label; each destination a button (a link with href) named by its label in both forms, the selected one aria-current, its position among the items of its level, its icon hidden; modal, also a dialog named by the label; the selected destination is the current page — exactly one, or none, and no second state', async ({ page }) => {
@@ -2863,7 +2901,7 @@ test.describe('a drawer that follows the window', () => {
     });
   const log = (page: P) => page.evaluate(() => (window as any).log as string[]);
 
-  test('NVD-53: the three responsive fixtures in their windows — 1280 wide the drawer is beside the content, expanded, shown whatever open says; 800 wide its column, in the layout; 400 wide, open, over the content with its scrim — and the two widths are 1024 and 600', async ({ page }) => {
+  test('NVD-53: the three responsive fixtures in their windows — 1280 wide the drawer is beside the content, expanded, shown whether open or not while no one hid it there; 800 wide its column, in the layout; 400 wide, open, over the content with its scrim — and the two widths are 1024 and 600', async ({ page }) => {
     const only1 = (id: string) => spec.fixtures.filter((f) => f.id === id);
     const [width, column] = [240, 72];
     // responsive-wide: 1280.
@@ -3086,17 +3124,41 @@ test.describe('a drawer that follows the window', () => {
     expect(await log(page)).toEqual(['presentation:column', 'presentation:modal', 'close']);
   });
 
-  test('NVD-53: beside the content a responsive drawer with no collapsed form is shown while expanded is true and hidden while it is false — no width in the layout, nothing to focus, no landmark — and comes back when it is true again', async ({ page }) => {
+  test('NVD-53, NVD-106: beside the content a responsive drawer — collapsible or not, in either form — is hidden while standardHidden is true and open is false — no width in the layout, nothing to focus, no landmark — and shown while open is true or standardHidden is false; expanded false no longer hides a drawer that is not collapsible; the product’s writes emit nothing; across a change of width standardHidden is kept and the narrower presentations follow open', async ({ page }) => {
+    for (const props of [{ collapsible: false }, { collapsible: true }, { collapsible: true, expanded: false }] as Fixture['props'][]) {
+      const what = JSON.stringify(props);
+      await inWindow(page, 1280, props, { reducedMotion: true });
+      await wire(page);
+      await drawer(page, 'r').evaluate((el: any) => el.addEventListener('standardhiddenchange', (e: CustomEvent) => (window as any).log.push(`hidden:${e.detail.standardHidden}`)));
+      const form = (await bounds(drawer(page, 'r'))).width;
+      expect(form, what).toBe(props!.expanded === false ? 72 : 240);
+      await setProps(page, 'r', { standardHidden: true });
+      await expect.poll(async () => (await bounds(drawer(page, 'r'))).width, what).toBe(0);
+      expect(await panel(page, 'r').evaluate((el) => el.hasAttribute('inert')), what).toBe(true);
+      await expect(page.getByRole('navigation', { name: 'Mail' }), what).toHaveCount(0);
+      await expect(drawer(page, 'r'), what).toHaveAttribute('standard-hidden', '');
+      expect(await state(page), what).toMatchObject({ presentation: 'standard', open: false });
+      // open shows it, in its form, whatever standardHidden says.
+      await setProps(page, 'r', { open: true });
+      await expect.poll(async () => (await bounds(drawer(page, 'r'))).width, what).toBe(form);
+      await expect(page.getByRole('navigation', { name: 'Mail' }), what).toHaveCount(1);
+      await setProps(page, 'r', { open: false });
+      await expect.poll(async () => (await bounds(drawer(page, 'r'))).width, what).toBe(0);
+      // Kept across the width: closed over the content (or as its column), hidden again when wide.
+      await resize(page, 400);
+      expect(await state(page), what).toMatchObject({ presentation: 'modal', open: false });
+      await expect(drawer(page, 'r').locator('dialog[open]'), what).toHaveCount(0);
+      await resize(page, 1280);
+      expect((await bounds(drawer(page, 'r'))).width, what).toBe(0);
+      await setProps(page, 'r', { standardHidden: false });
+      await expect.poll(async () => (await bounds(drawer(page, 'r'))).width, what).toBe(form);
+      expect(await log(page), what).toEqual(['presentation:modal', 'presentation:standard']);
+    }
+    // A drawer that is not collapsible ignores expanded: false does not hide it.
     await inWindow(page, 1280, { collapsible: false }, { reducedMotion: true });
-    expect((await bounds(drawer(page, 'r'))).width).toBe(240);
     await setProps(page, 'r', { expanded: false });
-    await expect.poll(async () => (await bounds(drawer(page, 'r'))).width).toBe(0);
-    expect(await panel(page, 'r').evaluate((el) => el.hasAttribute('inert'))).toBe(true);
-    await expect(page.getByRole('navigation', { name: 'Mail' })).toHaveCount(0);
-    expect(await state(page)).toMatchObject({ presentation: 'standard', open: false, expanded: false, collapsed: false });
-    await setProps(page, 'r', { expanded: true });
-    await expect.poll(async () => (await bounds(drawer(page, 'r'))).width).toBe(240);
-    await expect(page.getByRole('navigation', { name: 'Mail' })).toHaveCount(1);
+    await page.evaluate(() => new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve))));
+    expect((await bounds(drawer(page, 'r'))).width).toBe(240);
   });
 
   test('NVD-54: presentationChange fires once when the presentation is first decided, without a close; focus on something the new presentation does not show moves to the menu button, and where it shows nothing is left to the platform', async ({ page }) => {
@@ -4413,9 +4475,41 @@ test.describe('the row model shared with the tree view', () => {
     await expect.poll(pinned).toEqual(['2026', 'February']);
     const top = (await bounds(scroller)).y;
     const rows = await Promise.all([0, 1].map(async (n) => bounds(groupRow(page, id, n))));
+    const gap = await px(page, T('container-gap-medium'));
     expect(rows[0].y).toBeCloseTo(top, 0);
-    expect(rows[1].y).toBeCloseTo(rows[0].y + rows[0].height, 0);
+    // The gap between two cells (NVD-12) under the one above, as in the list, so that each keeps the half of it in its
+    // hit area (NVD-6): a press on the outer row's lower edge is the outer row's, and the gap is split at its middle.
+    expect(rows[1].y).toBeCloseTo(rows[0].y + rows[0].height + gap, 0);
     expect(await group(page, id, 1).locator('.pinned-last').count()).toBe(1);
+    // What a press at a point goes to, through the shadow roots: the label of the row whose cell takes it.
+    const pressed = (y: number) =>
+      page.evaluate(
+        ([x, py]) => {
+          let at: Element | null = document.elementFromPoint(x, py);
+          while (at?.shadowRoot) {
+            const inner = at.shadowRoot.elementFromPoint(x, py);
+            if (!inner || inner === at) break;
+            at = inner;
+          }
+          const root = at?.getRootNode();
+          // A cell's host is its destination or group, whose label names it.
+          return root instanceof ShadowRoot ? ((root.host as unknown as { label?: string }).label ?? null) : null;
+        },
+        [rows[0].x + rows[0].width / 2, y],
+      );
+    const outerEnd = rows[0].y + rows[0].height;
+    expect(await pressed(outerEnd - 1.5)).toBe('2026');
+    expect(await pressed(outerEnd + gap / 2 - 1.5)).toBe('2026');
+    expect(await pressed(outerEnd + gap / 2 + 0.5)).toBe('February');
+    // Under the last pinned row the rows scroll by: 4 further, the first row shown under it (Week 4) begins 2 below it,
+    // less than the gap. A press in that room goes to the nearer row (BTN-5): the pinned row reaches half of it, not half
+    // the gap, which would take the row's own upper edge.
+    await scroller.evaluate((el) => (el.scrollTop = 190));
+    const band = rows[1].y + rows[1].height;
+    await expect.poll(async () => (await bounds(cell(page, id, 4))).y - band).toBeCloseTo(2, 0);
+    await expect.poll(() => pressed(band + 0.25)).toBe('February');
+    expect(await pressed(band + 1.5)).toBe('Week 4');
+    await scroller.evaluate((el) => (el.scrollTop = 186));
     // A focused row under the pinned rows is brought in below them.
     await page.mouse.click(790, 5);
     const target = cell(page, id, 3);
@@ -4483,6 +4577,7 @@ test.describe('accessibility', () => {
         await motionEnded(page);
         const results = await new AxeBuilder({ page }).include('.stage').analyze();
         expect(results.violations, `${label} ${theme}: ${results.violations.map((v) => `${v.id} ${v.nodes.map((n) => n.target).join(' ')}`).join(', ')}`).toEqual([]);
+        expect(await coveredText(page, results), `${label} ${theme}: no text left unchecked as covered`).toEqual([]);
       }
     });
   }
@@ -5120,6 +5215,32 @@ test.describe('resizable', () => {
     await drawer(page, 'off').evaluate((el: any) => (el.resizable = true));
     await expect(resizer(page, 'off')).toHaveCount(1);
     await expect(drawer(page, 'off')).toHaveAttribute('data-resize', '');
+  });
+
+  test('NVD-96, APS-8: a drawer that is connected writes the attributes an app shell reads (its handle’s `data-resize`) before it first reads the cascade, so the page is styled once with them, not with the shell’s band taken away first', async ({ page }) => {
+    await wide(page);
+    await mount(page, [fixture('open', SIDE)]);
+    // A drawer made and connected now, as a page's module upgrades one: what each of its reads of the cascade found on it.
+    const found = await page.evaluate(() => {
+      const made = document.createElement('tanrei-navigation-drawer');
+      made.setAttribute('responsive', '');
+      made.setAttribute('label', 'Mail');
+      const seen: (string | null)[] = [];
+      const read = window.getComputedStyle;
+      window.getComputedStyle = function (element: Element, pseudo?: string | null) {
+        if (element === made) seen.push(made.getAttribute('data-resize'));
+        return read.call(window, element, pseudo);
+      };
+      try {
+        document.body.append(made);
+      } finally {
+        window.getComputedStyle = read;
+      }
+      made.remove();
+      return seen;
+    });
+    expect(found.length, 'the drawer reads its widths from the cascade as it connects (NVD-53)').toBeGreaterThan(0);
+    expect(found[0], 'its handle is written before its first read').toBe('');
   });
 
   test('NVD-96: a press is taken along the edge’s whole height — 10 from its top and its bottom — wholly over the content, from the end edge; the drawer’s last pixel is its row’s; the line is out of sight at rest and comes into sight with the resize cursor; a drag from the band’s far side resizes', async ({ page }) => {
@@ -5878,4 +5999,19 @@ test('web: a section’s title is the headline attribute and property, drawn as 
     await (el as HTMLElement & { updateComplete: Promise<unknown> }).updateComplete;
   });
   await expect(element.locator('[role="heading"]')).toHaveCount(0);
+});
+
+test.describe('accessibility: what is drawn under a row\'s text', () => {
+  test('NVD-13, NVD-74: the item container hides no label or supporting text from a contrast check — a faint label is reported, the drawer\'s own colors pass, in a destination and a group\'s row', async ({ page }) => {
+    // The item container lies under the row at a negative level, which axe's color-contrast takes for an element over a
+    // text that is not positioned beside it: it left every label incomplete ("overlapped by another element") instead of
+    // checking it, so a faint one passed unseen.
+    const lead = '<style>tanrei-navigation-drawer-item[value="sent"]::part(label), tanrei-navigation-drawer-group::part(label) { color: #bbb; }</style>';
+    const items = [d('inbox', 'Inbox', '', { supportingText: 'All mail' }), d('sent', 'Sent'), grp('Projects', [d('alpha', 'Alpha'), d('beta', 'Beta')], { open: true })];
+    await mount(page, [fixture('faint', items, { value: 'alpha' })], { lead });
+    const checked = await contrastChecked(page);
+    expect(checked.violations, 'the faint labels are reported').toEqual(['Projects', 'Sent']);
+    expect(checked.passes, 'the drawer\'s own colors pass, selected and not').toEqual(['All mail', 'Alpha', 'Beta', 'Inbox']);
+    expect(checked.incomplete, 'nothing is left unchecked').toEqual([]);
+  });
 });

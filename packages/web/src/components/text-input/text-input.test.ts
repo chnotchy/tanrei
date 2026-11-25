@@ -9,6 +9,7 @@ import fs from 'node:fs';
 import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
 import { type Fixture, acmeSystemCss, loadSpec, missingWords, mountFixtures, requirementDrawn, resolveColor, resolveToken, setWords, tab, tabTo, inputBoxCopies, inputBoxSetApart, inputBoxToken, rootTokens, mountFixtureAsInAll } from '../../../test/harness.js';
+import { coveredText } from '../../../test/covered-text.js';
 import { appearingFixture } from '../../../test/first-frame.js';
 import { expectFirstFrameAtRest } from '../../../test/frames.js';
 import { opticalSize } from '../../../test/icons.js';
@@ -29,6 +30,8 @@ const part = (page: P, id: string, selector: string) => host(page, id).locator(s
 const GRIP = '.resize-handle .container';
 const css = (locator: Locator, property: string, pseudo?: string) =>
   locator.evaluate((el, [p, ps]) => getComputedStyle(el, ps ?? undefined).getPropertyValue(p as string), [property, pseudo ?? null] as const);
+// An edge part draws nothing itself: its ::before draws the line.
+const EDGE_LINE = '::before';
 const token = (page: P, name: string) => page.evaluate((n) => getComputedStyle(document.documentElement).getPropertyValue(n).trim(), name);
 // The box is drawn from the one set of tokens every input box is drawn from (TXI-68); a segment, the
 // code face, the entries place and the motion of a height from the text input's own.
@@ -105,7 +108,7 @@ const drawn = (page: P, id: string) =>
     return {
       container: s('.field > .container').backgroundColor,
       indicator: stacked ? null : s('.indicator').backgroundColor,
-      outline: stacked ? s('.edge').borderTopColor : s('.outline-end').borderTopColor,
+      outline: stacked ? s('.edge', '::before').borderTopColor : s('.outline-end', '::before').borderTopColor,
       label: root.querySelector('.label') ? s('.label').color : null,
       input: s('.input').color,
       caret: s('.input').caretColor,
@@ -396,8 +399,8 @@ test.describe('behavior', () => {
       const width = (await resolveToken(page, T('focused-outline-width')));
       expect(width).toBeGreaterThan(await resolveToken(page, T('outline-width')));
       // The edge widens over the state transition: read it once it has arrived, as for stacked.
-      if (variant === 'outlined') await expect.poll(() => css(part(page, id, '.outline-end'), 'border-top-width').then(Number.parseFloat)).toBe(width);
-      else if (variant === 'stacked') await expect.poll(() => css(part(page, id, '.edge'), 'border-top-width').then(Number.parseFloat)).toBe(width);
+      if (variant === 'outlined') await expect.poll(() => css(part(page, id, '.outline-end'), 'border-top-width', EDGE_LINE).then(Number.parseFloat)).toBe(width);
+      else if (variant === 'stacked') await expect.poll(() => css(part(page, id, '.edge'), 'border-top-width', EDGE_LINE).then(Number.parseFloat)).toBe(width);
       else expect((await bounds(part(page, id, '.indicator'))).height).toBe(await resolveToken(page, T('focused-active-indicator-width')));
       await page.locator('body').click({ position: { x: 1, y: 1 } });
     }
@@ -446,7 +449,7 @@ test.describe('behavior', () => {
     expect(await css(part(page, id, '.field > .container'), 'content', '::after')).toBe('none');
     // A stacked field: its inner line is the focus indicator (TXI-26), and no ring is drawn either.
     await tabTo(page, host(page, 'stacked-empty'));
-    await expect.poll(() => css(part(page, 'stacked-empty', '.edge'), 'border-top-color')).toBe(await resolveColor(page, T('stacked-focused-outline-color')));
+    await expect.poll(() => css(part(page, 'stacked-empty', '.edge'), 'border-top-color', EDGE_LINE)).toBe(await resolveColor(page, T('stacked-focused-outline-color')));
     for (const target of [input(page, 'stacked-empty'), part(page, 'stacked-empty', '.field > .container')]) expect(await css(target, 'outline-style')).toBe('none');
     expect(await css(part(page, 'stacked-empty', '.field > .container'), 'content', '::after')).toBe('none');
     expect(await token(page, '--tanrei-sys-behavior-focus-style')).toBe('ring');
@@ -549,7 +552,7 @@ test.describe('behavior', () => {
     await cdp.send('Emulation.setTouchEmulationEnabled', { enabled: true, maxTouchPoints: 1 });
     await cdp.send('Emulation.setEmitTouchEventsForMouse', { enabled: true, configuration: 'mobile' });
     expect(await page.evaluate(() => matchMedia('(pointer: coarse)').matches)).toBe(true);
-    // In the default system the outlined box (48) is taller than the touch target (36): the hit area is the box.
+    // In the default system the outlined box (40) is taller than the touch target (36): the hit area is the box.
     const box = await bounds(part(page, 'outlined-empty', '.field > .container'));
     const height = () => part(page, 'outlined-empty', '.field > .container').evaluate((el) => Number.parseFloat(getComputedStyle(el, '::before').height));
     expect(await height()).toBe(Math.max(box.height, await resolveToken(page, '--tanrei-sys-target-touch')));
@@ -646,7 +649,7 @@ test.describe('behavior', () => {
     const notch = await bounds(part(page, 'outlined-filled', '.outline-notch'));
     expect(notch.x).toBeCloseTo(ol.x - pad, 0);
     expect(notch.width).toBeCloseTo(ol.width + 2 * pad, 0);
-    expect(await css(part(page, 'outlined-filled', '.outline-notch'), 'border-top-color')).toBe('rgba(0, 0, 0, 0)');
+    expect(await css(part(page, 'outlined-filled', '.outline-notch'), 'border-top-color', EDGE_LINE)).toBe('rgba(0, 0, 0, 0)');
     // No gap while the label rests.
     await page.locator('body').click({ position: { x: 1, y: 1 } });
     expect((await bounds(part(page, 'outlined-empty', '.outline-notch'))).width).toBe(0);
@@ -799,10 +802,10 @@ test.describe('behavior', () => {
         root.querySelector<HTMLElement>('.input')!.focus();
         const read = (selector: string) =>
           // Whole milliseconds, as the token is: Firefox reports a token of 200 ms as 200.000015 (a float of seconds).
-          root.querySelector(selector)!.getAnimations().map((a) => [(a as CSSTransition).transitionProperty, Math.round(Number(a.effect!.getTiming().duration))] as const);
+          root.querySelector(selector)!.getAnimations({ subtree: true }).map((a) => [(a as CSSTransition).transitionProperty, Math.round(Number(a.effect!.getTiming().duration))] as const);
         return { label: read('.label'), notch: read('.outline-notch'), end: read('.outline-end') };
       });
-    const idle = () => host(page, id).evaluate((el) => ['.label', '.outline-notch', '.outline-end'].every((s) => el.shadowRoot!.querySelector(s)!.getAnimations().length === 0));
+    const idle = () => host(page, id).evaluate((el) => ['.label', '.outline-notch', '.outline-end'].every((s) => el.shadowRoot!.querySelector(s)!.getAnimations({ subtree: true }).length === 0));
     await expect.poll(idle).toBe(true);
     const focused = await focusAndRead();
     // (Chromium names a logical property's transition by its physical side.)
@@ -1375,13 +1378,13 @@ test.describe('behavior', () => {
     const [focusedColor, focusedWidth] = [await resolveColor(page, T('stacked-focused-outline-color')), await resolveToken(page, T('focused-outline-width'))];
     for (const id of ['stacked-icons', 'stacked-date-picker']) {
       const edge = part(page, id, '.edge');
-      expect(await css(edge, 'border-top-color'), `${id} at rest`).toBe('rgba(0, 0, 0, 0)');
+      expect(await css(edge, 'border-top-color', EDGE_LINE), `${id} at rest`).toBe('rgba(0, 0, 0, 0)');
       const before = await layout(id);
       // The line is drawn over the container, not around it: its box is the container's.
       expect(before.find((b) => b?.[0] === '.edge')!.slice(1)).toEqual(before.find((b) => b?.[0] === '.field > .container')!.slice(1));
       await entry(page, id).focus();
-      await expect.poll(() => css(edge, 'border-top-color'), `${id} focused`).toBe(focusedColor);
-      await expect.poll(() => css(edge, 'border-top-width').then(Number.parseFloat)).toBe(focusedWidth);
+      await expect.poll(() => css(edge, 'border-top-color', EDGE_LINE), `${id} focused`).toBe(focusedColor);
+      await expect.poll(() => css(edge, 'border-top-width', EDGE_LINE).then(Number.parseFloat)).toBe(focusedWidth);
       expect(await layout(id), `${id}: nothing moved`).toEqual(before);
       await blurAll(page);
     }
@@ -1390,19 +1393,19 @@ test.describe('behavior', () => {
     const running = await host(page, 'stacked-empty').evaluate((el) => {
       const root = el.shadowRoot!;
       root.querySelector<HTMLElement>('.input')!.focus();
-      return root.querySelector('.edge')!.getAnimations().map((a) => [(a as CSSTransition).transitionProperty, Math.round(Number(a.effect!.getTiming().duration))]);
+      return root.querySelector('.edge')!.getAnimations({ subtree: true }).map((a) => [(a as CSSTransition).transitionProperty, Math.round(Number(a.effect!.getTiming().duration))]);
     });
     expect(running).toContainEqual(['border-top-color', duration]);
     await blurAll(page);
     // In error: the error line at rest, at outline.width.
     const error = part(page, 'stacked-error', '.edge');
-    expect(await css(error, 'border-top-color')).toBe(await resolveColor(page, T('stacked-error-outline-color')));
+    expect(await css(error, 'border-top-color', EDGE_LINE)).toBe(await resolveColor(page, T('stacked-error-outline-color')));
     expect(await resolveColor(page, T('stacked-error-outline-color'))).toBe(await resolveColor(page, '--tanrei-sys-color-error'));
-    expect(Number.parseFloat(await css(error, 'border-top-width'))).toBe(await resolveToken(page, T('outline-width')));
+    expect(Number.parseFloat(await css(error, 'border-top-width', EDGE_LINE))).toBe(await resolveToken(page, T('outline-width')));
     // Hovered: the state layer on the container, and no edge.
     await part(page, 'stacked-empty', '.field > .container').hover();
     await expect.poll(() => css(part(page, 'stacked-empty', '.field > .container'), 'background-color')).toBe(await resolveColor(page, T('stacked-hovered-container-color')));
-    expect(await css(part(page, 'stacked-empty', '.edge'), 'border-top-color')).toBe('rgba(0, 0, 0, 0)');
+    expect(await css(part(page, 'stacked-empty', '.edge'), 'border-top-color', EDGE_LINE)).toBe('rgba(0, 0, 0, 0)');
   });
 
   test('TXI-28: a date, time or date-time value is the ISO 8601 form of what its segments give, drawn as a row in the locale’s numeric form; placeholder, maxLength, prefixText and suffixText are ignored and reported', async ({ page }) => {
@@ -1586,7 +1589,7 @@ test.describe('behavior', () => {
     await expect(row(page, id, '.error-text')).toHaveText('Finish the date.');
     await expect(row(page, id, '.supporting-text'), 'the error text stands in the help’s place (FLD-7)').toHaveCount(0);
     await expect(host(page, id).getByRole('spinbutton', { name: 'year, Due' })).toHaveAccessibleDescription('Finish the date.');
-    await expect.poll(() => host(page, id).evaluate((el) => getComputedStyle(el.shadowRoot!.querySelector('.edge')!).borderTopColor)).toBe(await resolveColor(page, T('stacked-error-outline-color')));
+    await expect.poll(() => host(page, id).evaluate((el) => getComputedStyle(el.shadowRoot!.querySelector('.edge')!, '::before').borderTopColor)).toBe(await resolveColor(page, T('stacked-error-outline-color')));
     expect(await part(page, id, '.field').getAttribute('data-error')).not.toBeNull();
     expect(await host(page, id).evaluate((el) => [(el as any).validity.badInput, (el as any).validity.valid])).toEqual([true, false]);
     // Committing the same row again begins no second entry error.
@@ -1850,7 +1853,7 @@ test.describe('behavior', () => {
     const id = 'stacked-date-picker';
     await expect.poll(() => css(part(page, id, '.row'), 'color')).toBe(await resolveColor(page, T('stacked-input-color')));
     await seg(page, id, 'day').click();
-    await expect.poll(() => css(part(page, id, '.edge'), 'border-top-color')).toBe(await resolveColor(page, T('stacked-focused-outline-color')));
+    await expect.poll(() => css(part(page, id, '.edge'), 'border-top-color', EDGE_LINE)).toBe(await resolveColor(page, T('stacked-focused-outline-color')));
     await expect.poll(() => css(part(page, id, '.row'), 'color')).toBe(await resolveColor(page, T('stacked-focused-input-color')));
     expect(await css(seg(page, id, 'day'), 'background-color')).toBe(await resolveColor(page, T('selection-color')));
     expect(await css(seg(page, id, 'day'), 'color')).toBe(await resolveColor(page, T('selection-content-color')));
@@ -1895,15 +1898,17 @@ test.describe('behavior', () => {
     });
     const lineOf = await line(page, T('input-typescale-medium'));
     const lines = (id: string) => bounds(input(page, id)).then((b) => b.height / lineOf);
-    const scrolls = (id: string) => input(page, id).evaluate((el) => [el.scrollHeight > el.clientHeight + 1, getComputedStyle(el).overflowY]);
+    // Whether its text is taller than its box, whether it can scroll, and the room a scrollbar takes of its width. A box
+    // as tall as its text has nothing to scroll and draws no scrollbar, whether it scrolls what does not fit (where the
+    // browser sizes it by its text) or hides it (where the element writes its height).
+    const scrolls = (id: string) => input(page, id).evaluate((el: HTMLTextAreaElement) => ({ overflows: el.scrollHeight > el.clientHeight + 1, scrolls: getComputedStyle(el).overflowY !== 'hidden', room: el.offsetWidth - el.clientWidth }));
     // The fixtures: minRows (three lines of room for two of text), grown (five lines, no limit), and maxRows 3 (scrolled).
     expect(await lines('stacked-multiline')).toBeCloseTo(3, 1);
     expect(await lines('stacked-multiline-auto-grown')).toBeCloseTo(5, 1);
     expect(await lines('stacked-multiline-auto-max')).toBeCloseTo(3, 1);
     for (const id of ['stacked-multiline', 'stacked-multiline-auto-grown', 'stacked-multiline-auto-max']) await expect(part(page, id, GRIP), id).toHaveCount(0);
-    expect(await scrolls('stacked-multiline-auto-grown')).toEqual([false, 'hidden']);
-    expect(await scrolls('stacked-multiline')).toEqual([false, 'hidden']);
-    expect(await scrolls('stacked-multiline-auto-max')).toEqual([true, 'auto']);
+    for (const id of ['stacked-multiline-auto-grown', 'stacked-multiline']) expect(await scrolls(id).then(({ overflows, room }) => ({ overflows, room })), id).toEqual({ overflows: false, room: 0 });
+    expect(await scrolls('stacked-multiline-auto-max').then(({ overflows, scrolls }) => ({ overflows, scrolls }))).toEqual({ overflows: true, scrolls: true });
     // maxRows smaller than minRows: exactly minRows lines.
     expect(await lines('upside')).toBeCloseTo(3, 1);
     // A line the text wraps onto counts as a line.
@@ -1939,6 +1944,77 @@ test.describe('behavior', () => {
     await expect.poll(async () => (await bounds(input(page, 'stacked-multiline'))).height / large).toBeCloseTo(4, 1);
     await expect.poll(async () => (await bounds(input(page, 'stacked-multiline-fixed'))).height / large).toBeCloseTo(3, 1);
     for (const grown of ['stacked-multiline', id]) await expect.poll(() => input(page, grown).evaluate((el) => el.scrollHeight <= el.clientHeight + 1), grown).toBe(true);
+  });
+
+  test('TXI-37: an auto-resized field in a box of fixed size whose width and text change is as tall as its lines after each change, and no frame leaves a change of size undelivered — the browser reports no "ResizeObserver loop" error — where the browser sizes a text area by its content and where it does not', async ({ page }) => {
+    await mountFixtures(page, spec, { fixtures: [] });
+    const errors: string[] = [];
+    page.on('pageerror', (error) => errors.push(`pageerror: ${error.message}`));
+    const words = 'one two three four five six seven eight nine ten eleven twelve thirteen fourteen fifteen sixteen seventeen eighteen nineteen twenty';
+    for (const byContent of [true, false]) {
+      const seen = await page.evaluate(
+        async ([byContent, words]) => {
+          const errors: string[] = [];
+          const onError = (event: ErrorEvent) => errors.push(event.message);
+          window.addEventListener('error', onError);
+          const frame = () => new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
+          // Fixed: the field changes the size of nothing above it, so that its own boxes are the shallowest a frame
+          // reports (a page that observes its root element would hide the error).
+          const holder = document.createElement('div');
+          holder.style.cssText = 'position: fixed; inset-block-start: 0; inset-inline-start: 0; inline-size: 400px; block-size: 600px';
+          const field = Object.assign(document.createElement('tanrei-text-input'), { variant: 'stacked', label: 'Notes', multiline: true, value: words }) as HTMLElement & { value: string; updateComplete: Promise<unknown> };
+          // And one whose floating label rests in its first line and wraps onto more lines as the box narrows (TXI-13).
+          const floating = Object.assign(document.createElement('tanrei-text-input'), { variant: 'outlined', label: 'What the reviewers should know about this change before they begin', multiline: true }) as HTMLElement & { updateComplete: Promise<unknown> };
+          holder.append(field, floating);
+          document.body.append(holder);
+          await Promise.all([field.updateComplete, floating.updateComplete]);
+          const textarea = field.shadowRoot!.querySelector('textarea')!;
+          // A browser that does not size a text area by its content, as far as the field can tell: the box is the
+          // lines the element writes, as the styles give it where the browser has no `field-sizing`.
+          if (!byContent) {
+            const sheet = new CSSStyleSheet();
+            // (The block size is not important: the element measures the text with a block size of its own.)
+            sheet.replaceSync('textarea.input { field-sizing: fixed !important; } .field[data-resize] textarea.input.input.input { block-size: calc(var(--_rows, var(--_rows-min, 2)) * var(--_input-line)); }');
+            field.shadowRoot!.adoptedStyleSheets = [...field.shadowRoot!.adoptedStyleSheets, sheet];
+            (field as unknown as { value: string }).value = `${words} `;
+            await field.updateComplete;
+          }
+          for (let i = 0; i < 4; i++) await frame();
+          const line = () => Number.parseFloat(getComputedStyle(textarea).lineHeight);
+          const states: { width: number; lines: number; fits: boolean; sizing: string }[] = [];
+          // Each change is made in a frame callback of its own, before that frame's layout; the frame callbacks of the
+          // second frame after it find the height that follows it — in the frame of the change where the browser
+          // sizes the box, in the next frame's read phase where the element does.
+          for (const [width, text] of [[160, null], [400, null], [160, 'a\nb\nc\nd\ne\nf'], [300, words], [120, null], [400, ''], [140, words]] as const) {
+            await frame();
+            holder.style.inlineSize = `${width}px`;
+            if (text !== null) field.value = text;
+            await frame();
+            await frame();
+            states.push({ width, lines: textarea.getBoundingClientRect().height / line(), fits: textarea.scrollHeight <= textarea.clientHeight + 1, sizing: getComputedStyle(textarea).getPropertyValue('field-sizing') });
+          }
+          // The browser says what a frame left undelivered after that frame: one more task.
+          await new Promise((resolve) => setTimeout(resolve, 100));
+          window.removeEventListener('error', onError);
+          holder.remove();
+          return { states, errors };
+        },
+        [byContent, words] as const,
+      );
+      const label = byContent ? 'sized by its content' : 'sized by the element';
+      expect(seen.errors, label).toEqual([]);
+      for (const state of seen.states) {
+        expect(state.sizing, label).toBe(byContent ? 'content' : 'fixed');
+        expect(state.fits, `${label}, ${state.width} wide: every line fits`).toBe(true);
+        expect(Math.abs(state.lines - Math.round(state.lines)), `${label}, ${state.width} wide: whole lines (${state.lines})`).toBeLessThan(0.05);
+        expect(state.lines, `${label}, ${state.width} wide: minRows at least`).toBeGreaterThanOrEqual(2 - 0.05);
+      }
+      const [narrow, wide] = seen.states;
+      expect(narrow.lines, `${label}: narrower wraps onto more lines`).toBeGreaterThan(wide.lines + 0.9);
+      expect(seen.states[2].lines, `${label}: six lines`).toBeCloseTo(6, 1);
+      expect(seen.states[5].lines, `${label}: empty, minRows`).toBeCloseTo(2, 1);
+    }
+    expect(errors).toEqual([]);
   });
 
   test('TXI-38: a change of height that follows the value moves over motion.resize-* from the height then shown; the first drawing, a changed width, minRows or maxRows, and reduced motion change it at once', async ({ page }) => {
@@ -2652,7 +2728,7 @@ test.describe('behavior', () => {
     // The field counts as focused while any segment has focus, and draws the focused one as selected text, with no caret.
     await seg(page, id, 'day').click();
     expect(await focusedUnit(page, id)).toBe('day');
-    await expect.poll(() => css(part(page, id, '.edge'), 'border-top-color')).toBe(await resolveColor(page, T('stacked-focused-outline-color')));
+    await expect.poll(() => css(part(page, id, '.edge'), 'border-top-color', EDGE_LINE)).toBe(await resolveColor(page, T('stacked-focused-outline-color')));
     expect(await css(seg(page, id, 'day'), 'background-color')).toBe(await resolveColor(page, T('selection-color')));
     expect(await css(seg(page, id, 'day'), 'outline-style')).toBe('none');
     const [cell, text] = await seg(page, id, 'day').evaluate((el) => {
@@ -2663,7 +2739,7 @@ test.describe('behavior', () => {
     expect(cell, 'the highlight spans the segment’s width').toBeGreaterThanOrEqual(text);
     // The picker button's focus is not the field's.
     await part(page, id, '.picker-button').locator('button').focus();
-    await expect.poll(() => css(part(page, id, '.edge'), 'border-top-color')).toBe('rgba(0, 0, 0, 0)');
+    await expect.poll(() => css(part(page, id, '.edge'), 'border-top-color', EDGE_LINE)).toBe('rgba(0, 0, 0, 0)');
     // A press on the field anywhere else: the first empty segment — or the last while none is empty.
     const press = async (of: string, where: 'padding' | 'separator') => {
       await blurAll(page);
@@ -5179,6 +5255,7 @@ test.describe('accessibility', () => {
       await mountFixtures(page, spec, { theme, icons: true });
       const results = await new AxeBuilder({ page }).include('.stage').analyze();
       expect(results.violations, `${theme}: ${results.violations.map((v) => v.id).join(', ')}`).toEqual([]);
+      expect(await coveredText(page, results), `${theme}: no text left unchecked as covered`).toEqual([]);
     }
   });
 

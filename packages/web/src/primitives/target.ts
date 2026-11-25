@@ -3,27 +3,36 @@ import { type CSSResult, unsafeCSS } from 'lit';
 /**
  * The minimum target (BTN-5 and every control after it): the hit area meets `sys.target.pointer` for a fine pointer
  * and `sys.target.touch` for a coarse one, on both axes, centered, without changing the visual size. Drawn by the
- * `::before` of `on` (e.g. `button`), which must be a positioning container; RTL mirrors the centering.
+ * `::before` of `on` (e.g. `button`), which must be a positioning container.
+ *
+ * The hit area is laid out by its insets, each `(100% - size) / 2`, never centred by an inset of 50% and a translation
+ * of -50%: the layout rounds an inset to its unit (1/64 px; 1/60 in Firefox) and leaves a translation as it is, and an
+ * engine may hit-test a translated box at a whole pixel (Firefox does), so on a control whose size is an odd number of
+ * units (a line height or a size token gives one), or that stands at a fraction of a pixel, a hit area centred that way
+ * stands a unit, and up to half a pixel, toward one side, and a press a pixel short of the middle of the gap to a
+ * neighbour goes to the neighbour (`target.test.ts`). Two insets of one value are the same length on both sides, and they need no direction: the same in RTL,
+ * and for an element laid out left to right inside a right-to-left component (a time picker's hour and minute, DTM-21).
+ *
+ * A component that gives its hit area another size sets it on the same `::before`, after this rule, as
+ * `--_hit-inline-size` and `--_hit-block-size` (lengths it resolves there: `100%` is the element's width in the one,
+ * its height in the other), and reads the target as `--_target`, which this rule sets on the `::before` for the
+ * pointer it has. It never sets `inline-size` or `block-size` there: the insets lay the box out.
  */
 export function minimumTarget(on: string): CSSResult {
   return unsafeCSS(`
   ${on}::before {
     content: '';
     position: absolute;
-    inset-block-start: 50%;
-    inset-inline-start: 50%;
-    inline-size: max(100%, var(--tanrei-sys-target-pointer));
-    block-size: max(100%, var(--tanrei-sys-target-pointer));
-    transform: translate(-50%, -50%);
+    --_target: var(--tanrei-sys-target-pointer);
+    --_hit-inline-size: max(100%, var(--_target));
+    --_hit-block-size: max(100%, var(--_target));
+    inset-inline: min(0px, calc((100% - var(--_hit-inline-size)) / 2));
+    inset-block: min(0px, calc((100% - var(--_hit-block-size)) / 2));
   }
   @media (pointer: coarse) {
     ${on}::before {
-      inline-size: max(100%, var(--tanrei-sys-target-touch));
-      block-size: max(100%, var(--tanrei-sys-target-touch));
+      --_target: var(--tanrei-sys-target-touch);
     }
-  }
-  :host(:dir(rtl)) ${on}::before {
-    transform: translate(50%, -50%);
   }
 `);
 }

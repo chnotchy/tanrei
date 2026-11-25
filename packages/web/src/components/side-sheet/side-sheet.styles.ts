@@ -1,5 +1,5 @@
 import { css, unsafeCSS } from 'lit';
-import { type OpenAxis, actionBoxStyles, appearStyles, cornerRadius, dividerVisibilityHost, focusRing, modalExitStyles, shape, sheetScrimStyles, whenChosen, whenScroll } from '../../primitives/index.js';
+import { type OpenAxis, actionBoxStyles, appearStyles, cornerRadius, dividerVisibilityHost, drawnAsNoElement, focusRing, focusRingBox, modalExitStyles, shape, sheetScrimStyles, whenChosen, whenScroll } from '../../primitives/index.js';
 import { productText } from '../../styles/product-text.js';
 import { scriptTracking } from '../../styles/script-tracking.js';
 import { reducedMotion } from '../../styles/motion.js';
@@ -93,15 +93,23 @@ export const styles = css`
     border-start-end-radius: 0;
     border-end-end-radius: 0;
   }
-  /* SSH-7: the start edge, outline.width of the variant's outline color, following the start corners. */
+  /* SSH-7: the start edge, outline.width of the variant's outline color, following the start corners. It lies over the
+     content, so it is drawn as no element: the part holds the edge's color and its ::before draws the edge at the same
+     place in the paint order — an element over the text is what a contrast checker sees covering it, and it would leave
+     that text unchecked. (The part draws no border of its own, which would move its ::before in by its width.) */
   .edge {
     position: absolute;
     z-index: 1;
     inset: 0;
-    border-inline-start: ${t('outline-width')} solid var(--_edge);
+    border-inline-start-color: var(--_edge);
     border-radius: inherit;
     corner-shape: inherit;
     pointer-events: none;
+  }
+  ${drawnAsNoElement('.edge', ['border-inline-start-color'])}
+  .edge::before {
+    border-inline-start-width: ${t('outline-width')};
+    border-inline-start-style: solid;
   }
 
   /* SSH-8, SSH-9, SSH-14: the header — a row at least header.height high, the headline from container.padding-inline
@@ -190,6 +198,9 @@ export const styles = css`
     pointer-events: none;
   }
   ${focusRing((focus) => `.content${focus} ~ .focus`, { inside: true })}
+  /* The box lies over the text: it draws the indicator by its ::before, as no element, so that a contrast checker still
+     sees the text under it (focusRingBox). */
+  ${focusRingBox('.focus')}
 
   /* SSH-11, SSH-19: the dividers, divider.width hairlines in divider.color across the sheet's full width. */
   .divider {

@@ -9,6 +9,7 @@ import {
   BUTTON_VARIANTS,
   CompactWindow,
   type DividerVisibilityProp,
+  GlyphDrawnController,
   GlyphMirrorController,
   assignSlot,
   closeModal,
@@ -33,6 +34,7 @@ import { styles } from './dialog.styles.js';
 import { TanreiElement } from '../../primitives/element.js';
 import { ResizeWatch } from '../../primitives/resize-watch.js';
 import { statesFromNextFrame } from '../../primitives/motion.js';
+import { DEBUG } from '../../primitives/debug.js';
 
 /** HTML's `closedby` values: `any` (Escape, back and a press on the scrim dismiss) or `none` (nothing does). */
 export type TanreiDialogClosedBy = 'any' | 'none' | 'closerequest';
@@ -139,6 +141,8 @@ export class TanreiDialog extends TanreiElement {
    * `data-mirror` says so (src/primitives/glyph-mirror.ts); `iconGlyph()` draws the mark.
    */
   private readonly mirror = new GlyphMirrorController(this, { slots: 'slot[name="icon"]' });
+  /** DLG-30: the icon box carries `data-drawn` while the icon set can draw what its slot holds; until then it draws nothing (src/primitives/glyph.ts). */
+  private readonly glyphs = new GlyphDrawnController(this, () => this.renderRoot.querySelectorAll<HTMLElement>('.icon'), { slotted: true });
   static override styles = [styles, hiddenHost];
 
   // The children are assigned by hand: the actions to three slots in the order the orientation places them (BGR-15),
@@ -430,7 +434,7 @@ export class TanreiDialog extends TanreiElement {
    */
   private checkCloseButton() {
     const asked = ['closable', 'close-label'].some((name) => this.hasAttribute(name)) || ['closable', 'closeLabel'].some((name) => Object.hasOwn(this, name));
-    if (asked) {
+    if (DEBUG && asked) {
       report(this, 'DLG-28', 'a dialog has no close button, so closable and close-label draw nothing; give it a dismissive action (Cancel, or Close where there is nothing to cancel), or show the content in a side sheet or a bottom sheet');
     }
   }
@@ -439,8 +443,8 @@ export class TanreiDialog extends TanreiElement {
   private checkActions() {
     const actions = this.placement.actions;
     if (!actions.length) {
-      report(this, 'DLG-19', 'it opened with no action; a dialog must offer at least one: add a <tanrei-button slot="actions">', { once: false, level: 'error' });
-    } else if (!this.dismissible && actions.every((action) => isDisabledControl(action))) {
+      if (DEBUG) report(this, 'DLG-19', 'it opened with no action; a dialog must offer at least one: add a <tanrei-button slot="actions">', { once: false, level: 'error' });
+    } else if (DEBUG && !this.dismissible && actions.every((action) => isDisabledControl(action))) {
       report(this, 'DLG-19', 'every action is disabled and closedby is none, which leaves the person no way out; enable a dismissive action', { once: false, level: 'error' });
     }
   }
@@ -708,18 +712,18 @@ export class TanreiDialog extends TanreiElement {
     this.assign();
     for (const part of this.renderRoot.querySelectorAll('.scroll, .actions')) this.observe(part);
     // DLG-14: a dialog without a headline still opens; a debug build says it has no name.
-    if (changed.has('headline') && !this.headline.trim() && !namedByProduct(this)) report(this, 'DLG-14', 'headline is empty, so the dialog has no accessible name; give it a headline');
+    if (DEBUG && changed.has('headline') && !this.headline.trim() && !namedByProduct(this)) report(this, 'DLG-14', 'headline is empty, so the dialog has no accessible name; give it a headline');
     // DLG-24: a divider visibility the dialog does not define is drawn as auto (no rule matches it).
-    if (changed.has('dividerVisibility') && !isDividerVisibility(this.dividerVisibility)) {
+    if (DEBUG && changed.has('dividerVisibility') && !isDividerVisibility(this.dividerVisibility)) {
       report(this, 'DLG-24', `divider-visibility "${this.dividerVisibility}" is not a value of the dialog; it is drawn as "auto"`);
     }
     if (changed.has('dividerVisibility') && this.dialog) syncDividerVisibility(this, this.dialog);
     // DLG-17: a compact presentation the dialog does not define is a sheet.
-    if (changed.has('compactPresentation') && !COMPACT_PRESENTATIONS.includes(this.compactPresentation)) {
+    if (DEBUG && changed.has('compactPresentation') && !COMPACT_PRESENTATIONS.includes(this.compactPresentation)) {
       report(this, 'DLG-17', `compact-presentation "${this.compactPresentation}" is not one of ${COMPACT_PRESENTATIONS.join(', ')}; the dialog is a sheet in a compact window`);
     }
     // DLG-27: a width the dialog does not define is drawn as content.
-    if (changed.has('width') && !WIDTHS.includes(this.width)) {
+    if (DEBUG && changed.has('width') && !WIDTHS.includes(this.width)) {
       report(this, 'DLG-27', `width "${this.width}" is not a value of the dialog; it is drawn as "content"`);
     }
     if (changed.has('open')) {

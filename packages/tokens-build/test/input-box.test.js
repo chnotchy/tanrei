@@ -73,7 +73,7 @@ test('a size is a measure of the box: the box alone declares the size axis, with
   for (const size of box.$extensions[extension('axes')].size.values) assert.ok(box.container.height[size], `the box has no height at ${size}`);
 });
 
-test('a stacked box is as tall as a Button of the same size; a box that floats its label keeps the taller height', async () => {
+test('a stacked box is as tall as a Button of the same size, and a box that floats its label as tall as the step of its size', async () => {
   const model = await buildModel();
   const px = (id) => model.tokens[`${CONFIG.namespace}.comp.${id}`].value.value;
   // The small one is held at the default system's minimum target (36), as the small Button is.
@@ -81,12 +81,15 @@ test('a stacked box is as tall as a Button of the same size; a box that floats i
     assert.equal(px(`${BOX}.stacked.container.height.${size}`), height, size);
     assert.equal(px(`button.container.height.${size}`), height, size);
   }
-  assert.deepEqual(['small', 'medium', 'large'].map((size) => px(`${BOX}.container.height.${size}`)), [40, 48, 56]);
-  // A line of the size's input text fits in the stacked height, with the stacked padding above and below it.
+  // A filled or an outlined box reads the same steps (the medium one the control height): a filled box that draws its
+  // label grows to hold it above the value's line.
+  assert.deepEqual(['small', 'medium', 'large'].map((size) => px(`${BOX}.container.height.${size}`)), [36, 40, 56]);
+  // A line of the size's input text fits in the height, with the padding above and below it, in every look.
   for (const size of ['small', 'medium', 'large']) {
     const type = model.tokens[`${CONFIG.namespace}.comp.${BOX}.input.typescale.${size}`].value;
     const line = type.lineHeight * type.fontSize.value;
     assert.ok(2 * px(`${BOX}.stacked.container.padding-block.${size}`) + line <= px(`${BOX}.stacked.container.height.${size}`), `${size}: the padding and a line overflow the height`);
+    assert.ok(2 * px(`${BOX}.container.padding-block.${size}`) + line <= px(`${BOX}.container.height.${size}`), `${size}: the padding and a line overflow the floating-label box's height`);
   }
 });
 

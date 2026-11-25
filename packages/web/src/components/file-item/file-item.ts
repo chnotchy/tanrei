@@ -25,6 +25,7 @@ import { wordPlaces } from '../../generated/words.js';
 import '../progress-indicator/progress-indicator.js';
 import { styles } from './file-item.styles.js';
 import { TanreiElement } from '../../primitives/element.js';
+import { DEBUG } from '../../primitives/debug.js';
 
 /** How the file is shown: one line across the width its layout gives (`row`), or a box of a width and a height with the texts beneath it (`tile`). */
 export type TanreiFileItemForm = 'row' | 'tile';
@@ -354,8 +355,7 @@ export class TanreiFileItem extends TanreiElement {
   // ─── Focus ────────────────────────────────────────────────────────────────────────────────────────────────────
 
   /** Moves focus to the file item's first stop: its body where that is pressable, else its retry action, else its remove action. */
-  override focus(options?: FocusOptions) {
-    if (this.keepFocusUntilRendered(options)) return;
+  protected override delegateFocus(options?: FocusOptions) {
     this.renderRoot?.querySelector<HTMLElement>('.body.pressable:not(:disabled):not([aria-disabled="true"]), .action:not(:disabled)')?.focus(options);
   }
 
@@ -406,7 +406,7 @@ export class TanreiFileItem extends TanreiElement {
     // FIT-6: it cannot be drawn — the glyph stands in its place, with no sign of the failure, no event and no status.
     this.pictured = '';
     this.failed = this.source;
-    if (this.previewSrc.trim()) report(this, 'FIT-6', 'the picture at preview-src could not be drawn, so the glyph of the file\'s format is drawn in its place; give an address the browser can load, or leave preview out');
+    if (DEBUG && this.previewSrc.trim()) report(this, 'FIT-6', 'the picture at preview-src could not be drawn, so the glyph of the file\'s format is drawn in its place; give an address the browser can load, or leave preview out');
   };
 
   // ─── Events (FIT-11 to FIT-13) ────────────────────────────────────────────────────────────────────────────────
@@ -590,35 +590,35 @@ export class TanreiFileItem extends TanreiElement {
   private reports(changed: PropertyValues<this>) {
     const given = this.given;
     const tile = this.shownForm === 'tile';
-    if (changed.has('form') && !FORMS.includes(this.form)) report(this, 'FIT-29', `form "${this.form}" is not a form of the file item; it is drawn as "row"`);
-    if (changed.has('status') && !STATUSES.includes(this.status)) report(this, 'FIT-29', `status "${this.status}" is not a status of the file item; it is drawn as "pending"`);
-    if (changed.has('fit') && !FITS.includes(this.fit)) report(this, 'FIT-29', `fit "${this.fit}" is not a fit of the file item; the picture is drawn as "cover"`);
+    if (DEBUG && changed.has('form') && !FORMS.includes(this.form)) report(this, 'FIT-29', `form "${this.form}" is not a form of the file item; it is drawn as "row"`);
+    if (DEBUG && changed.has('status') && !STATUSES.includes(this.status)) report(this, 'FIT-29', `status "${this.status}" is not a status of the file item; it is drawn as "pending"`);
+    if (DEBUG && changed.has('fit') && !FITS.includes(this.fit)) report(this, 'FIT-29', `fit "${this.fit}" is not a fit of the file item; the picture is drawn as "cover"`);
     for (const side of ['width', 'height'] as const) {
       const value = this[side];
-      if (changed.has(side) && value !== null && size(value) === null) report(this, 'FIT-29', `${side} "${String(value)}" is not a number above zero; the tile is drawn as if it were not given`);
+      if (DEBUG && changed.has(side) && value !== null && size(value) === null) report(this, 'FIT-29', `${side} "${String(value)}" is not a number above zero; the tile is drawn as if it were not given`);
     }
     // FIT-2: a row without a name would be a glyph and a number.
-    if (!tile && !('nameHidden' in given) && this.nameHidden) report(this, 'FIT-2', 'name-hidden is set on a file item whose form is "row": a row always draws its name; it is read in a tile alone');
+    if (DEBUG && !tile && !('nameHidden' in given) && this.nameHidden) report(this, 'FIT-2', 'name-hidden is set on a file item whose form is "row": a row always draws its name; it is read in a tile alone');
     // FIT-8: a file without a name.
-    if (!this.shownName.trim()) report(this, 'FIT-8', 'name is empty, so the file item has no name for a person or for assistive technology; give it the file\'s name');
+    if (DEBUG && !this.shownName.trim()) report(this, 'FIT-8', 'name is empty, so the file item has no name for a person or for assistive technology; give it the file\'s name');
     // FIT-4: a status is never told by the mark or its color alone.
     const status = this.shown;
-    if (status === 'done' && !this.statusText.trim()) report(this, 'FIT-4', 'status is "done" and status-text is empty, so only the mark says the file is done; give the file item a status-text');
-    if (status === 'error' && !this.errorText.trim() && !given.made) report(this, 'FIT-4', 'status is "error" and error-text is empty, so only the mark says the file failed; give the file item an error-text');
+    if (DEBUG && status === 'done' && !this.statusText.trim()) report(this, 'FIT-4', 'status is "done" and status-text is empty, so only the mark says the file is done; give the file item a status-text');
+    if (DEBUG && status === 'error' && !this.errorText.trim() && !given.made) report(this, 'FIT-4', 'status is "error" and error-text is empty, so only the mark says the file failed; give the file item an error-text');
     // FIT-20: an action nobody named is still drawn; a name without the file's place names every file's action alike.
     if (!this.readOnly) {
       const remove = this.words.get('removeLabel', given.removeLabel ?? this.removeLabel);
-      if (!remove) this.words.missing('removeLabel', { id: 'FIT-20', effect: 'the remove action is drawn and works, and has no accessible name' });
+      if (!remove) this.words.missing('removeLabel', DEBUG && { id: 'FIT-20', effect: 'the remove action is drawn and works, and has no accessible name' });
       else this.reportName('removeLabel', remove);
       if (status === 'error' && this.retryable) {
         const retry = this.words.get('retryLabel', given.retryLabel ?? this.retryLabel);
-        if (!retry) this.words.missing('retryLabel', { id: 'FIT-20', effect: 'the retry action is drawn and works, and has no accessible name' });
+        if (!retry) this.words.missing('retryLabel', DEBUG && { id: 'FIT-20', effect: 'the retry action is drawn and works, and has no accessible name' });
         else this.reportName('retryLabel', retry);
       }
     }
     // FIT-32: the file item has no place for content of the product's.
     const strays = [...this.childNodes].filter((node) => (node instanceof Element ? node.slot !== 'icon' : node.nodeType === Node.TEXT_NODE && !!node.textContent?.trim()));
-    if (strays.length) report(this, 'FIT-32', 'the file item holds content that is not the glyph of its icon slot; it is not drawn — put it beside the file item');
+    if (DEBUG && strays.length) report(this, 'FIT-32', 'the file item holds content that is not the glyph of its icon slot; it is not drawn — put it beside the file item');
     // FIT-3: a box given less than its actions need is drawn at the least size.
     const least = this.lengths;
     if (tile && least) {
@@ -626,7 +626,7 @@ export class TanreiFileItem extends TanreiElement {
       for (const side of ['width', 'height'] as const) {
         const value = side === 'width' ? width : height;
         // A whole pixel of tolerance: the least size is a length of the tokens, rounded by the browser.
-        if (value !== null && value < least[side] - 1) report(this, 'FIT-3', `${side} ${value} is less than a tile's actions need; the box is drawn ${Math.round(least[side])} ${side === 'width' ? 'wide' : 'high'}`);
+        if (DEBUG && value !== null && value < least[side] - 1) report(this, 'FIT-3', `${side} ${value} is less than a tile's actions need; the box is drawn ${Math.round(least[side])} ${side === 'width' ? 'wide' : 'high'}`);
       }
     }
     // FIT-29: a glyph the icon set does not have draws nothing, and its box is kept.
@@ -637,8 +637,8 @@ export class TanreiFileItem extends TanreiElement {
   /** FIT-20: what of an action's sentence is not its place, and a sentence without the file's name. */
   private reportName(key: 'removeLabel' | 'retryLabel', sentence: string) {
     const declared = wordPlaces[key] ?? [];
-    reportPlaces(this, 'FIT-20', key, sentence, declared, 'the action is named with it as it is written');
-    for (const name of placeFaults(sentence, declared).absent) report(this, 'FIT-20', `${key} has no place {${name}}, so every file's action has the same name; write it as "${key === 'removeLabel' ? 'Remove' : 'Retry'} {${name}}"`);
+    if (DEBUG) reportPlaces(this, 'FIT-20', key, sentence, declared, 'the action is named with it as it is written');
+    for (const name of placeFaults(sentence, declared).absent) DEBUG && report(this, 'FIT-20', `${key} has no place {${name}}, so every file's action has the same name; write it as "${key === 'removeLabel' ? 'Remove' : 'Retry'} {${name}}"`);
   }
 
   /** The first update's reports were made. */
@@ -658,7 +658,7 @@ export class TanreiFileItem extends TanreiElement {
       const icon = this.renderRoot.querySelector('.icon');
       const others = [...this.renderRoot.querySelectorAll('.glyph, .mark')];
       if (!icon || !others.some((other) => other.hasAttribute('data-drawn'))) return false;
-      if (!icon.hasAttribute('data-drawn')) report(this, 'FIT-29', `glyph "${named}" is not a glyph the icon set draws; nothing is drawn in its box`);
+      if (DEBUG && !icon.hasAttribute('data-drawn')) report(this, 'FIT-29', `glyph "${named}" is not a glyph the icon set draws; nothing is drawn in its box`);
       return true;
     };
     // After the marks of this turn; and, where the face was not there yet, once more when the page's faces have arrived.

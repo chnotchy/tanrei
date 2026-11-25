@@ -292,7 +292,7 @@
                 "value": 48,
                 "unit": "px"
               },
-              "$description": "The height of one value on a wheel. At least the minimum target: a press on a row above or below the middle moves it to the middle.",
+              "$description": "The height of one value on a wheel. At least the minimum target: a press on a row above or below the middle moves it to the middle. It is the pitch of one control, the wheel, which holds five of its rows in wheel.height beside the dial, and not a control on a row: it does not follow the control height.",
               "$extensions": {
                 "dev.tanrei.derive": {
                   "fn": "mul",
@@ -421,15 +421,14 @@
                 "value": 48,
                 "unit": "px"
               },
-              "$description": "The least height of a range field, one end of a span of times in the range display. 48 in the default system, above the touch target, because a press on it chooses which end the wheels or the dial set.",
+              "$description": "The least height of a range field, one end of a span of times in the range display: the control height (40 in the default system), so that the range display stands as tall as a field and the Buttons of the picker. Never below the minimum target, because a press on it chooses which end the wheels or the dial set.",
               "$extensions": {
                 "dev.tanrei.derive": {
                   "fn": "mul",
                   "of": "{tanrei.dial.size.unit}",
-                  "by": 12,
-                  "round": "{tanrei.dial.size.unit}",
-                  "min": "{tanrei.sys.target.minimum}"
-                }
+                  "by": 12
+                },
+                "dev.tanrei.aligned": "control"
               }
             },
             "padding-inline": {

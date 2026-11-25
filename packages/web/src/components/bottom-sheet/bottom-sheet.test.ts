@@ -20,6 +20,7 @@ import { type Frames, expectNoFlicker, freezeFirstFrame, sampleFrames } from '..
 import { STOPPED_AFTER, flingThenHold, strokes } from '../../../test/stopped-release.js';
 import { expectBaseline } from '../../../test/baseline.js';
 import { STACKED_DIALOG, STACKED_LAYER, addStackedSurfaces, expectStackedInOrder, focusAmong, setOpenInOneTask } from '../../../test/stacked-surfaces.js';
+import { contrastChecked } from '../../../test/contrast-checked.js';
 
 const spec = loadSpec('bottom-sheet');
 type P = Page;
@@ -313,9 +314,19 @@ test.describe('drawing', () => {
     const at = (x: number, y: number) => handleHost(page).evaluate((el, [xx, yy]) => !!el.shadowRoot!.elementFromPoint(xx, yy)?.closest('.container'), [x, y]);
     expect(await at(box.x + box.width / 2, box.y + box.height / 2 - pointer / 2 + 1)).toBe(true);
     expect(await at(box.x + box.width / 2, box.y + box.height / 2 + pointer / 2 - 1)).toBe(true);
-    // A system whose row is shorter than the target (cupertino's) still reaches it, the box drawn at its size.
+    // Below the box it stops at half of handle.margin-block, the space to the content under the row (HDL-5's cap,
+    // BTN-5): under targets of 48 it would reach the whole margin, and a press nearer the content goes to the content.
+    const margin = await px(page, T('handle-margin-block'));
+    await override(page, { '--tanrei-sys-target-pointer': '48px', '--tanrei-sys-target-touch': '48px' });
+    const capped = await bounds(handle(page));
+    expect(await before('height')).toBe(Math.max(bh, 48) - (Math.max(bh, 48) - bh) / 2 + Math.min((Math.max(bh, 48) - bh) / 2, margin / 2));
+    expect(await at(capped.x + capped.width / 2, capped.y + capped.height + margin / 2 - 1)).toBe(true);
+    expect(await at(capped.x + capped.width / 2, capped.y + capped.height + margin / 2 + 1)).toBe(false);
+    await override(page, { '--tanrei-sys-target-pointer': '', '--tanrei-sys-target-touch': '' });
+    // A system whose row is shorter than the target (a margin of 0) still reaches it above the box, the box drawn at its
+    // size, and not over the content that begins at the box's lower edge.
     await override(page, { [T('handle-margin-block')]: '0px' });
-    expect(await before('height')).toBe(Math.max(bh, pointer));
+    expect(await before('height')).toBe(bh + (Math.max(bh, pointer) - bh) / 2);
     expect((await bounds(handle(page))).height).toBe(bh);
   });
 
@@ -1479,6 +1490,11 @@ test.describe('accessibility', () => {
         await motionEnded(page);
         const results = await new AxeBuilder({ page }).include('.stage').analyze();
         expect(results.violations, `${theme} ${f.id}: ${results.violations.map((v) => `${v.id} ${v.nodes.map((n) => n.target).join(' ')}`).join(', ')}`).toEqual([]);
+        // The sheet's text is checked: the box that draws the content's focus ring is drawn as no element
+        // (`focusRingBox()`), so it covers no text.
+        const contrast = (kind: 'passes' | 'incomplete') => results[kind].filter((rule) => rule.id === 'color-contrast').flatMap((rule) => rule.nodes);
+        expect(contrast('passes').length, `${theme} ${f.id}: axe checks the contrast of the sheet's text`).toBeGreaterThan(0);
+        expect(contrast('incomplete').map((node) => node.target), `${theme} ${f.id}: no text left unchecked`).toEqual([]);
       }
     });
   }
@@ -1493,4 +1509,16 @@ test.describe('fixtures', () => {
       await expectBaseline(page, [spec.name, `${f.id}.png`]);
     });
   }
+});
+
+test.describe('accessibility: what is drawn over the content', () => {
+  test('BSH-10: the box that carries the content\'s focus indicator hides no text from a contrast check — faint text is reported, the sheet\'s own colors pass', async ({ page }) => {
+    // An element drawn over a text is, to axe's color-contrast, an element covering it, whatever its pointer-events: it
+    // left the text incomplete ("overlapped by another element") instead of checking it, so faint text passed unseen.
+    await mountFixtures(page, spec, { fixtures: [{ ...fixtureOf('standard'), content: '<p data-text="faint" style="margin: 0; color: #bbb">Faint text</p><p data-text="normal" style="margin: 0">Readable text</p>' }] });
+    const checked = await contrastChecked(page);
+    expect(checked.violations, 'the faint text is reported').toEqual(['faint']);
+    expect(checked.passes, 'the sheet\'s own colors pass').toEqual(['normal']);
+    expect(checked.incomplete, 'nothing is left unchecked').toEqual([]);
+  });
 });

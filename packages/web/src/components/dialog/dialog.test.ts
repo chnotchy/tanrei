@@ -14,8 +14,10 @@ import { type Frames, expectAnimated, expectNoFlicker, freezeFirstFrame, sampleF
 import { EVERY_ANIMATION, expectFromNextFrame, motionEnded } from '../../../test/motions.js';
 import { entrances, loadOpen } from '../../../test/mounted-open.js';
 import { expectScrimTakenAwayAtClose } from '../../../test/scrim-at-close.js';
-import { type DocumentOptions, type Fixture, type FixtureItem, type MountOptions, dialogWindow, fixturesDocument, innerStrokeAtEdges, loadSpec, mountFixtures, resolveColor, resolveToken, tab, tabTo, rootTokens } from '../../../test/harness.js';
+import { type DocumentOptions, type Fixture, type FixtureItem, type MountOptions, dialogWindow, fixturesDocument, iconFaceArrives, innerStrokeAtEdges, loadSpec, mountFixtures, resolveColor, resolveToken, tab, tabTo, rootTokens, withoutIconFont } from '../../../test/harness.js';
 import { expectBaseline } from '../../../test/baseline.js';
+import { expectGlyphsHeldBack } from '../../../test/held-glyphs.js';
+import { contrastChecked } from '../../../test/contrast-checked.js';
 
 const spec = loadSpec('dialog');
 type P = Page;
@@ -1631,6 +1633,11 @@ test.describe('accessibility', () => {
         await motionEnded(page);
         const results = await new AxeBuilder({ page }).analyze();
         expect(results.violations, `${theme} ${id}: ${results.violations.map((v) => `${v.id} ${v.nodes.map((n) => n.target).join(' ')}`).join(', ')}`).toEqual([]);
+        // The dialog's text is checked: the document is the window's height while the page's scroll is held (the
+        // harness), and the box that draws the content's focus ring is drawn as no element (`focusRingBox()`), so it covers no text.
+        const contrast = (kind: 'passes' | 'incomplete') => results[kind].filter((rule) => rule.id === 'color-contrast').flatMap((rule) => rule.nodes);
+        expect(contrast('passes').length, `${theme} ${id}: axe checks the contrast of the dialog's text`).toBeGreaterThan(0);
+        expect(contrast('incomplete').filter((node) => node.any.some((check) => (check.data as { messageKey?: string } | null)?.messageKey === 'bgOverlap')).map((node) => node.target), `${theme} ${id}: no text left unchecked as covered`).toEqual([]);
       }
     }
   });
@@ -1647,4 +1654,45 @@ test.describe('fixtures', () => {
       await expectBaseline(page, [spec.name, `${fixture.id}.png`]);
     });
   }
+});
+
+test.describe('accessibility: what is drawn over the content', () => {
+  test('DLG-11: the box that carries the content\'s focus indicator hides no text from a contrast check — faint text is reported, the dialog\'s own colors pass', async ({ page }) => {
+    // An element drawn over a text is, to axe's color-contrast, an element covering it, whatever its pointer-events: it
+    // left the text incomplete ("overlapped by another element") instead of checking it, so faint text passed unseen.
+    // The page is as tall as the window: a modal dialog holds the page's scroll with \`overflow: hidden\` on the root, and axe
+    // takes the root's own box for a clip, so a dialog below a page shorter than the window would not be looked at.
+    const lead = '<div style="block-size: 100vh"></div>';
+    await mountFixtures(page, spec, { lead, fixtures: [f('marked', { open: true }, { content: '<p data-text="faint" style="margin: 0; color: #bbb">Faint text</p><p data-text="normal" style="margin: 0">Readable text</p>' })] });
+    const checked = await contrastChecked(page, 'tanrei-dialog');
+    expect(checked.violations, 'the faint text is reported').toEqual(['faint']);
+    expect(checked.passes, 'the dialog\'s own colors pass').toEqual(expect.arrayContaining(['Discard draft?', 'The message you were writing will be deleted from this device.', 'normal']));
+    expect(checked.incomplete, 'nothing is left unchecked').toEqual([]);
+  });
+});
+
+test.describe('a glyph the icon set cannot draw yet', () => {
+  test('DLG-30: while the icon set cannot draw the icon slot’s glyph the open dialog draws nothing in its place — never its name — and keeps its box; the headline, the text, the actions and the name stay; once it can, the glyph is drawn where it was', async ({ page }) => {
+    await page.setViewportSize(dialogWindow('icon'));
+    await mountFixtures(page, spec, { icons: true, fixtures: [spec.fixtures.find((fx) => fx.id === 'icon')!] });
+    await expect.poll(() => isOpen(page, 'icon')).toBe(true);
+    await motionEnded(page);
+    await expectGlyphsHeldBack(page, [{ name: 'the icon', host: host(page, 'icon'), box: '.icon-line .icon' }], async () => {
+      await expect(page.getByRole('dialog', { name: 'Delete project?' })).toHaveCount(1);
+      expect(await css(dialog(page, 'icon').locator('.headline'), 'visibility')).toBe('visible');
+    });
+  });
+
+  test('DLG-30: a dialog opened while the icon set cannot draw its glyph draws none of the glyph’s name, and draws the glyph once the set can', async ({ page }) => {
+    await mount(page, [closed('icon')]);
+    const family = await withoutIconFont(page);
+    await open(page, 'icon');
+    const icon = host(page, 'icon').locator('.icon-line .icon');
+    const glyph = host(page, 'icon').locator('> [slot="icon"]');
+    await expect.poll(() => icon.getAttribute('data-drawn')).toBeNull();
+    expect(await css(glyph, 'visibility')).toBe('hidden');
+    await iconFaceArrives(page, family);
+    await expect.poll(() => icon.getAttribute('data-drawn')).not.toBeNull();
+    expect(await css(glyph, 'visibility')).toBe('visible');
+  });
 });

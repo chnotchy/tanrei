@@ -1,6 +1,7 @@
 import type { ReactiveController, ReactiveControllerHost } from 'lit';
 import { FacesWatch } from './faces.js';
 import { DRAWN_WIDTH } from './glyph-drawn-width.js';
+import { adopt } from './sheets.js';
 
 // Whether a glyph of the icon set can be drawn yet is read from its ink's width: at most `DRAWN_WIDTH` of its box
 // (glyph-drawn-width.ts says why, and why it is a module of its own).
@@ -57,6 +58,7 @@ function appearAtOnce(glyphs: readonly HTMLElement[]) {
 /**
  * One observer for every glyph of the page: it is told of them all after a layout, every host reads its glyphs, and
  * only then are the marks written — so the glyphs of a page are decided in one pass, not one layout for each host.
+ * A `slotted` host reads nothing of the layout: it is given the sizes the observer reports (`sizes`).
  */
 const owners = new WeakMap<Element, GlyphDrawnController>();
 const observer =
@@ -64,12 +66,24 @@ const observer =
     ? null
     : new ResizeObserver((entries) => {
         const hosts = new Set<GlyphDrawnController>();
+        const heard = new Set<GlyphDrawnController>();
         for (const entry of entries) {
           const owner = owners.get(entry.target);
-          if (owner) hosts.add(owner);
+          if (!owner) continue;
+          if (owner.slotted) {
+            sizes.set(entry.target, entry.borderBoxSize?.[0]?.inlineSize ?? entry.contentRect.width);
+            heard.add(owner);
+          } else hosts.add(owner);
         }
-        mark([...hosts].flatMap((host) => host.read(true)));
+        mark([...[...hosts].flatMap((host) => host.read(true)), ...[...heard].flatMap((host) => host.decided())]);
       });
+
+/**
+ * The inline size the observer last reported of each element a `slotted` host gives it — a glyph box, and the ink of
+ * the probe it holds (`probeOf`). Taken from the observer's report, after the frame's own layout: no element is asked
+ * for its size, so a page that builds a hundred Buttons reads nothing of its layout for them.
+ */
+const sizes = new WeakMap<Element, number>();
 
 /**
  * The hosts that decide at once, in the turn of their render — collected, and read together. Each host renders in a
@@ -111,11 +125,12 @@ const familyName = (family: string) => family.trim().replace(/^["']|["']$/g, '')
  * every host read all its glyphs again — once, together — unless it is of none of the families the glyphs were read
  * in: a text face's arrival leaves every ligature as wide as it was. Without an observer to report what this skips,
  * every load is read; so is the moment the faces are ready after a glyph was read while one loaded, which names no face.
+ * A `slotted` host reads nothing: every load has the observer report its boxes anew (`facesChanged`).
  */
 const connected = new Set<GlyphDrawnController>();
 const faces = new FacesWatch((loaded) => {
-  if (observer && loaded && !loaded.some((face) => iconFamilies.has(familyName(face.family)))) return;
-  for (const host of connected) decideTogether(host, true);
+  const iconFace = !(observer && loaded && !loaded.some((face) => iconFamilies.has(familyName(face.family))));
+  for (const host of connected) host.facesChanged(iconFace);
 });
 
 /**
@@ -136,6 +151,75 @@ function watchAgain(glyphs: readonly HTMLElement[]) {
   }
 }
 
+/** The attribute of the box a glyph box that holds a slot is heard by (`probeOf`). */
+const PROBE = 'data-tanrei-glyph-probe';
+/**
+ * What that box holds: a glyph every icon set has — a checkbox draws it, so an icon font cut down to the glyphs the
+ * components draw keeps it — spelled out well over `DRAWN_WIDTH` while the set cannot draw it.
+ */
+const PROBE_GLYPH = 'check';
+
+/**
+ * The ink that says whether a glyph box that holds a slot can draw: the product sizes what it slots, or the component
+ * sizes it to the box, so its size need not change when the icon set can or cannot draw it any more (a face that
+ * arrives, or a system that switches to a family that has none yet). A name of the set in the box's font, set out of
+ * the layout in a box of no size that clips it and is not drawn, is one glyph while the box's family can draw and is
+ * spelled out while it cannot; the observer reports its width, and its changes, with no read of the layout. A short
+ * name spelled out (`add`) can be narrower than `DRAWN_WIDTH`, this one never is. Written into the glyph box once,
+ * after its slot, while the slot holds a glyph that is a name.
+ */
+function probeOf(glyph: HTMLElement): HTMLElement {
+  const held = glyph.querySelector<HTMLElement>(`:scope > [${PROBE}]`);
+  if (held) return held.firstElementChild as HTMLElement;
+  adopt(glyph.getRootNode(), probeSheet());
+  const probe = document.createElement('span');
+  probe.setAttribute(PROBE, '');
+  probe.setAttribute('aria-hidden', 'true');
+  const ink = document.createElement('span');
+  probe.append(ink);
+  glyph.append(probe);
+  return ink;
+}
+
+/**
+ * The probe's rules, adopted by each root it stands in. The name is generated content, so it is in none of the
+ * component's text (`textContent`, what a test or a person copies).
+ */
+let sheet: CSSStyleSheet | null | undefined;
+function probeSheet(): CSSStyleSheet | null {
+  if (sheet !== undefined) return sheet;
+  if (typeof CSSStyleSheet === 'undefined') return (sheet = null);
+  sheet = new CSSStyleSheet();
+  sheet.replaceSync(`
+    [${PROBE}] {
+      position: absolute;
+      inline-size: 0;
+      block-size: 0;
+      overflow: hidden;
+      visibility: hidden;
+      pointer-events: none;
+    }
+    [${PROBE}] > span {
+      display: inline-block;
+      white-space: nowrap;
+    }
+    [${PROBE}] > span::before {
+      content: '${PROBE_GLYPH}';
+    }
+  `);
+  return sheet;
+}
+
+/** A glyph named by its `data-icon` (icons.css draws the name as generated content). */
+const NAMED_BY_ATTRIBUTE = '[data-icon]:not([data-icon=""])';
+/**
+ * Whether a slotted element is a glyph of the icon set — a name the set's font draws as a ligature, in its text or in
+ * its `data-icon` — rather than an image, an SVG or another element with no name in it, which draws whether or not the
+ * font is there.
+ */
+const isNamed = (ink: Element) =>
+  ink.localName !== 'svg' && ink.localName !== 'img' && (!!ink.textContent?.trim() || ink.matches(NAMED_BY_ATTRIBUTE) || !!ink.querySelector(NAMED_BY_ATTRIBUTE));
+
 /**
  * Marks each glyph the host draws with `data-drawn` while the icon set can draw it, and removes the mark while it cannot,
  * so the component's styles draw nothing in its place until then. Each glyph is a box styled by `iconGlyph()` holding
@@ -143,10 +227,20 @@ function watchAgain(glyphs: readonly HTMLElement[]) {
  * the font arrive (or a system switch to another icon set) in the frame it changes the layout, before it is painted.
  * When a glyph becomes drawable, no transition starts on it or in it, and one running on it ends: it appears without
  * motion (`appearAtOnce`).
+ *
+ * With `slotted`, each glyph box holds the slot the product places its glyph in (a Button's `icon` slot), and the inks
+ * are the elements assigned to it. A box that holds none is not drawn; one that holds only images, SVGs or elements
+ * with no text is drawn; one that holds a name (`isNamed`) is drawn while the box's family can draw a glyph of the set,
+ * which the name it holds out of sight says (`probeOf`). Nothing of the layout is read for it, in the task of the render
+ * or after: the observer reports the widths of the box and of that name after the frame's own layout, before its paint,
+ * and again when either changes (`sizes`); a render or a change of what a slot holds is decided from the widths last
+ * reported, at once. A page that builds a hundred Buttons, with a glyph or without, reads nothing of its layout for them.
  */
 export class GlyphDrawnController implements ReactiveController {
   private connected = false;
   private readonly observed = new Set<Element>();
+  /** With `slotted`: what a slot of the host's shadow root now holds is decided, as after a render. */
+  private readonly slotChanged = () => this.hostUpdated();
 
   /**
    * `firstInFrame`: a glyph the host draws for the first time is decided by the observer — after the layout of the
@@ -154,27 +248,47 @@ export class GlyphDrawnController implements ReactiveController {
    * its render. For a host that a page draws many of at once (the copy button of every code block of a page): the
    * hosts are then decided in one pass, and none of them costs the page a layout of its own. The mark is in the
    * first frame painted either way; it is not there yet in the task of the render, nor in a frame callback before it.
+   *
+   * `slotted`: the glyph boxes hold the product's glyph in a slot (above); it is always decided by the observer's
+   * reports, so `firstInFrame` changes nothing for it.
    */
   constructor(
     private readonly host: ReactiveControllerHost & Element,
     private readonly glyphs: () => Iterable<HTMLElement>,
-    private readonly options: { firstInFrame?: boolean } = {},
+    private readonly options: { firstInFrame?: boolean; slotted?: boolean } = {},
   ) {
     host.addController(this);
+  }
+
+  /** Whether the glyph boxes hold a slot. */
+  get slotted(): boolean {
+    return !!this.options.slotted;
+  }
+
+  /** With `slotted`: the elements a glyph box's slots hold (a slot's own content where nothing is assigned to it). */
+  private slottedIn(glyph: HTMLElement): Element[] {
+    return [...glyph.querySelectorAll('slot')].flatMap((slot) => slot.assignedElements({ flatten: true }));
   }
 
   hostConnected() {
     this.connected = true;
     connected.add(this);
     faces.connect();
+    if (!this.options.slotted) return;
+    this.host.shadowRoot?.addEventListener('slotchange', this.slotChanged);
+    // A host connected again keeps what it rendered, and renders it again only when it changes: its boxes are given to
+    // the observer again now.
+    this.hostUpdated();
   }
 
   hostDisconnected() {
     this.connected = false;
-    for (const ink of this.observed) {
-      observer?.unobserve(ink);
-      owners.delete(ink);
-      readUnder.delete(ink);
+    if (this.options.slotted) this.host.shadowRoot?.removeEventListener('slotchange', this.slotChanged);
+    for (const element of this.observed) {
+      observer?.unobserve(element);
+      owners.delete(element);
+      readUnder.delete(element);
+      sizes.delete(element);
     }
     this.observed.clear();
     connected.delete(this);
@@ -186,8 +300,17 @@ export class GlyphDrawnController implements ReactiveController {
    * every other host that rendered in it (`decideTogether`). With
    * `firstInFrame`, a render that draws only glyphs the observer is newly given leaves the decision to it; a render
    * that draws a glyph the observer already has is decided at once, as its size may not change.
+   *
+   * With `slotted`: the boxes that hold a name are given to the observer, with their probe, and every box is decided
+   * from the widths last reported — a box the observer has not reported yet is not drawn until it does.
    */
   hostUpdated() {
+    if (this.options.slotted) {
+      if (!this.connected) return;
+      if (observer) for (const glyph of this.glyphs()) if (this.slottedIn(glyph).some(isNamed)) this.watch(glyph, probeOf(glyph));
+      mark(this.decided());
+      return;
+    }
     const watching = !!observer && this.connected;
     let decide = !watching || !this.options.firstInFrame;
     for (const glyph of this.glyphs()) {
@@ -203,10 +326,65 @@ export class GlyphDrawnController implements ReactiveController {
     if (decide) decideTogether(this);
   }
 
+  /** With `slotted`: gives the observer what it does not have yet of these elements. */
+  private watch(...elements: Element[]) {
+    for (const element of elements) {
+      if (this.observed.has(element)) continue;
+      this.observed.add(element);
+      owners.set(element, this);
+      observer!.observe(element);
+    }
+  }
+
   /**
-   * Each glyph, and whether its ink is the ligature: a reading of the layout. None for a host that is not connected.
-   * `again`: read every glyph (a face arrived, the observer reported a size); otherwise only the glyphs whose name or
-   * family changed since they were read (`readUnder`) — the others are left out, and keep their mark.
+   * A face's load ended (`faces`). `iconFace`: it may be of a family a glyph was read in. A host without `slotted`
+   * reads its glyphs again; a `slotted` one has the observer report its boxes and probes anew after the next layout,
+   * whatever their width is then — a face that arrived and is gone again by the next frame leaves the width the
+   * observer last reported, which it would not report again — and reads nothing itself.
+   */
+  facesChanged(iconFace: boolean) {
+    if (!this.options.slotted) {
+      if (iconFace) decideTogether(this, true);
+      return;
+    }
+    if (!observer) return;
+    for (const element of this.observed) {
+      observer.unobserve(element);
+      observer.observe(element);
+    }
+  }
+
+  /**
+   * With `slotted`: each glyph box, and whether it is drawn, from what its slots hold and the widths the observer last
+   * reported (`sizes`) — no read of the layout. A box that holds a name is drawn while its probe's name is one glyph:
+   * at most `DRAWN_WIDTH` of the box. Without an observer nothing could say when the font arrives, and every box that
+   * holds a glyph is drawn.
+   */
+  decided(): Reading[] {
+    const readings: Reading[] = [];
+    if (!this.connected) return readings;
+    let named = false;
+    for (const glyph of this.glyphs()) {
+      const inks = this.slottedIn(glyph);
+      if (!inks.length || !observer || !inks.some(isNamed)) {
+        readings.push([glyph, inks.length > 0]);
+        continue;
+      }
+      named = true;
+      const box = sizes.get(glyph);
+      const probe = sizes.get(probeOf(glyph));
+      readings.push([glyph, box !== undefined && probe !== undefined && box > 0 && probe <= box * DRAWN_WIDTH]);
+    }
+    // A face the probe first asked for in the layout just made is loading now: the boxes are reported again once it is.
+    if (named) faces.measured();
+    return readings;
+  }
+
+  /**
+   * Each glyph, and whether its ink is the ligature: a reading of the layout. None for a host that is not connected,
+   * nor for a `slotted` one (`decided`). `again`: read every glyph (a face arrived, the observer reported a size);
+   * otherwise only the glyphs whose name or family changed since they were read (`readUnder`) — the others are left
+   * out, and keep their mark.
    *
    * The family is read only of an ink that is laid out: one read in a box last time (and compared before any layout),
    * or one whose box was just read and is not empty. An ink in a part that is not drawn (the buttons of a search's
@@ -216,7 +394,7 @@ export class GlyphDrawnController implements ReactiveController {
    */
   read(again = false): Reading[] {
     const readings: Reading[] = [];
-    if (!this.connected) return readings;
+    if (!this.connected || this.options.slotted) return readings;
     for (const glyph of this.glyphs()) {
       const ink = glyph.firstElementChild as HTMLElement | null;
       const watched = !!ink && this.observed.has(ink);

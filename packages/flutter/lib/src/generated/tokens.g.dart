@@ -6362,6 +6362,7 @@ class TanreiChatComposerTokens {
     required this.counterTypescale,
     required this.inputPaddingBlock,
     required this.layoutInlineMinWidth,
+    required this.layoutInputMinWidth,
     required this.motionGlyphFadeDuration,
     required this.motionResizeDuration,
     required this.motionResizeEasing,
@@ -6407,6 +6408,8 @@ class TanreiChatComposerTokens {
   final double inputPaddingBlock;
   /// `comp.chat-composer.layout-inline-min-width`
   final double layoutInlineMinWidth;
+  /// `comp.chat-composer.layout-input-min-width`
+  final double layoutInputMinWidth;
   /// `comp.chat-composer.motion-glyph-fade-duration`
   final int motionGlyphFadeDuration;
   /// `comp.chat-composer.motion-resize-duration`
@@ -6457,6 +6460,7 @@ class TanreiChatComposerTokens {
     TanreiTextStyle? counterTypescale,
     double? inputPaddingBlock,
     double? layoutInlineMinWidth,
+    double? layoutInputMinWidth,
     int? motionGlyphFadeDuration,
     int? motionResizeDuration,
     TanreiCubicBezier? motionResizeEasing,
@@ -6488,6 +6492,7 @@ class TanreiChatComposerTokens {
         counterTypescale: counterTypescale ?? this.counterTypescale,
         inputPaddingBlock: inputPaddingBlock ?? this.inputPaddingBlock,
         layoutInlineMinWidth: layoutInlineMinWidth ?? this.layoutInlineMinWidth,
+        layoutInputMinWidth: layoutInputMinWidth ?? this.layoutInputMinWidth,
         motionGlyphFadeDuration: motionGlyphFadeDuration ?? this.motionGlyphFadeDuration,
         motionResizeDuration: motionResizeDuration ?? this.motionResizeDuration,
         motionResizeEasing: motionResizeEasing ?? this.motionResizeEasing,

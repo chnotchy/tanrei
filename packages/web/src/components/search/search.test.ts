@@ -19,6 +19,7 @@ import {
   withoutIconFont,
   rootTokens,
 } from '../../../test/harness.js';
+import { coveredText } from '../../../test/covered-text.js';
 import { opticalSize } from '../../../test/icons.js';
 import { motionCount, motionEnded } from '../../../test/motions.js';
 import { mirroring, mirroringAfterDirection } from '../../../test/mirror-word.js';
@@ -646,7 +647,7 @@ test.describe('layout', () => {
     const rowBefore = (await bounds(row(page, 'docked', 2))).height;
     const headerBefore = (await bounds(host(page, 'full-screen').locator('.header'))).height;
     // 300% text: every text role three times its size, as the platform's text size setting does. (At 200% the default
-    // system's bar, container.height 56, already holds the input's line: its height is a minimum.)
+    // system's bar, container.height 40, already holds the input's line: its height is a minimum.)
     for (const role of ['body-large', 'body', 'body-small']) {
       const size = await resolveToken(page, `--tanrei-sys-typescale-${role}-font-size`);
       await override(page, { [`--tanrei-sys-typescale-${role}-font-size`]: `${size * 3}px` });
@@ -2743,6 +2744,7 @@ test.describe('accessibility', () => {
       await motionEnded(page);
       const results = await new AxeBuilder({ page }).include('.stage').analyze();
       expect(results.violations, `${theme}: ${results.violations.map((v) => `${v.id} ${v.nodes.map((n) => n.target).join(' ')}`).join(', ')}`).toEqual([]);
+      expect(await coveredText(page, results), `${theme}: no text left unchecked as covered`).toEqual([]);
     }
     // The live docked view, open with an active suggestion.
     await mount(page, [live('s', { value: 'inv' })]);
@@ -2752,6 +2754,36 @@ test.describe('accessibility', () => {
     await expect.poll(() => popoverOpen(view(page, 's'))).toBe(true);
     const results = await new AxeBuilder({ page }).include('.stage').analyze();
     expect(results.violations.map((v) => v.id)).toEqual([]);
+  });
+
+  test('SRC-42, SRC-43, SRC-45: a result’s link, laid across its row, hides none of the row’s text from a contrast check — a faint excerpt is a violation, the supporting text color passes, and nothing is left unchecked', async ({ page }) => {
+    // An element over a text is, to axe, an element covering it ("overlapped by another element"): while the link lay
+    // over the row, the icon, the headline, the excerpt and its marks were left incomplete instead of checked.
+    await mountFixtures(page, spec, { icons: true, fixtures: spec.fixtures.filter((f) => f.id === 'docked-results') });
+    await motionEnded(page);
+    const results = host(page, 'docked-results').locator('tanrei-search-result');
+    await expect(results).toHaveCount(2);
+    const check = async () => {
+      const run = await new AxeBuilder({ page }).include('.stage').withRules(['color-contrast']).analyze();
+      // Each checked node of a result, as the part it is and the result it is in (by its headline).
+      const parts = (list: typeof run.violations) =>
+        list.flatMap((rule) =>
+          rule.nodes
+            .filter((node) => node.target.flat().some((step) => /tanrei-search-result(?!-group)/.test(String(step))))
+            .map((node) => `${/class="(\w+)/.exec(node.html)?.[1] ?? node.html.slice(1, 5)}: ${node.html.replace(/<[^>]*>/g, '').trim().slice(0, 12)}`),
+        );
+      return { incomplete: run.incomplete.flatMap((rule) => rule.nodes.map((node) => node.html)), violations: parts(run.violations), passes: parts(run.passes) };
+    };
+    const rest = await check();
+    expect(rest.incomplete, 'left unchecked').toEqual([]);
+    expect(rest.violations).toEqual([]);
+    expect(rest.passes.sort(), 'the headline, the excerpt and its mark of both rows pass (the glyph, a ligature of the icon face, is no text to axe)').toEqual(['excerpt: Please send ', 'excerpt: The invoice ', 'headline: Re: payment', 'headline: Your October', 'mark: invoice', 'mark: invoice']);
+    await results.first().evaluate((el: HTMLElement, [ink, ground]) => (el.style.setProperty(ink, '#bbb'), el.style.setProperty(ground, '#fff')), [S('suggestion-supporting-text-color'), S('suggestion-container-color')] as const);
+    await motionEnded(page);
+    const faint = await check();
+    expect(faint.incomplete, 'left unchecked').toEqual([]);
+    expect(faint.violations, 'the faint excerpt is reported').toEqual(['excerpt: The invoice ']);
+    expect(faint.passes.length, 'the rest still passes').toBe(5);
   });
 
   test('keyboard: Tab visits the leading button, the input, the clear button and the trailing buttons; Down opens, Enter chooses or submits, Escape closes and then clears', async ({ page }) => {

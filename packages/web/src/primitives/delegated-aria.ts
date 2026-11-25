@@ -79,6 +79,7 @@ import { noChange } from 'lit';
 import { AsyncDirective } from 'lit/async-directive.js';
 import { type ElementPart, type PartInfo, PartType, directive } from 'lit/directive.js';
 import { report } from './report.js';
+import { DEBUG } from './debug.js';
 
 /** The states and properties that move, by attribute. (`aria-hidden` is not one: it hides the whole component.) */
 export const DELEGATED_STATES = [
@@ -381,7 +382,7 @@ export function delegatesAria(
     // What the component says itself, set on it: moved like the rest, and not exposed — which the developer is told.
     if (owned.has(name) && !componentWriting) {
       const hint = instead[name];
-      report(host, sentence, `${name} on the element ${unexposed}, so it is moved to data-${name} and not exposed${hint ? `; ${hint}` : ''}`);
+      if (DEBUG) report(host, sentence, `${name} on the element ${unexposed}, so it is moved to data-${name} and not exposed${hint ? `; ${hint}` : ''}`);
     }
     if (isRelation(name)) {
       // Set by the property (`ariaDescribedByElements = […]`), the attribute is empty: the elements are those its setter

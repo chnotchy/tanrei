@@ -1,4 +1,4 @@
-// 226 contrast measurement(s) below Tanrei's thresholds in system "cupertino", which do not apply to an imitation preset. See tokens/generated/cupertino/a11y-report.json
+// 232 contrast measurement(s) below Tanrei's thresholds in system "cupertino", which do not apply to an imitation preset. See tokens/generated/cupertino/a11y-report.json
 // GENERATED FILE — DO NOT EDIT.
 // Source: tokens/ (DTCG 2025.10). Regenerate with `pnpm generate`.
 // The "cupertino" design system as values. Types: ../vocabulary.ts.
@@ -3097,6 +3097,7 @@ export const cupertino = {
       hoveredOutlineWidth: 1,
       inputPaddingBlock: 8,
       layoutInlineMinWidth: 360,
+      layoutInputMinWidth: 160,
       motionGlyphFadeDuration: 200,
       motionResizeDuration: 400,
       motionResizeEasing: [0.2, 0, 0, 1],
@@ -9740,7 +9741,11 @@ export const cupertino = {
       motionDimDuration: 1000,
       motionDimEasing: [0.2, 0, 0, 1],
       motionShowDelay: 300,
-      placeholderColor: { kind: "role", role: "surfaceVariant" },
+      placeholderColor: {
+        kind: "alpha",
+        of: { kind: "role", role: "onSurface" },
+        amount: 0.1,
+      },
       placeholderDimOpacity: 0.5,
       placeholderLastLineInlineSize: 0.6,
       placeholderShapeBlock: 10,
