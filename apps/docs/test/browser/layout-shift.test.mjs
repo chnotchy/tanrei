@@ -423,7 +423,6 @@ describe(`with the sidebar as the reader left it, the layout shifts by no more t
 // unit Theme Studio offers (its size row, packages/studio/src/core.js), so that its sheet changes sizes as well as colors.
 const NS = JSON.parse(fs.readFileSync(path.join(docs, '../../tanrei.config.json'), 'utf8')).namespace;
 const dial = (value) => ({ $value: { value, unit: 'px' }, reason: 'Chosen in Theme Studio.' });
-const tone = (light, dark) => ({ derive: { fn: 'tone', palette: 'primary', tone: { light, dark } } });
 const THEME = {
   key: CUSTOM_KEY,
   appearance: APPEARANCE_KEY,
@@ -432,11 +431,6 @@ const THEME = {
     extends: NS,
     palettes: { primary: { source: { seed: '#0b6e4f' } } },
     tokens: {
-      [`${NS}.sys.color.primary`]: tone([45, 38, 30], [72, 80, 87]),
-      [`${NS}.sys.color.on-primary`]: tone([100], [10]),
-      [`${NS}.sys.color.primary-container`]: tone([93, 91, 89], [22]),
-      [`${NS}.sys.color.on-primary-container`]: tone([20, 15, 10], [88, 92, 96]),
-      [`${NS}.sys.color.inverse-primary`]: tone([80], [40]),
       [`${NS}.dial.space.unit`]: dial(6),
       [`${NS}.dial.size.unit`]: dial(3),
     },
