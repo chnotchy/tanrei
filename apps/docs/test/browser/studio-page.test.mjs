@@ -101,6 +101,57 @@ for (const engine of ENGINES) {
       }
     });
 
+    test('1440 wide, in each of the six languages, light and dark: the preview’s bar is one line — the screens, the scheme, and the button of the contrast and the emphasis — each label whole', LIMIT, async () => {
+      for (const prefix of ['', '/ja', '/es', '/ar', '/hi', '/zh-cn']) {
+        for (const colorScheme of ['light', 'dark']) {
+          const { page, problems, close } = await open(browser, { url: `${prefix}/studio/`, colorScheme });
+          try {
+            const bar = await page.evaluate(() => {
+              const shown = [...document.querySelectorAll('.ts-preview-bar > tanrei-tabs, .ts-preview-conditions > *')].filter((el) => el.getClientRects().length);
+              const middles = shown.map((el) => { const r = el.getBoundingClientRect(); return Math.round(r.top + r.height / 2); });
+              const box = document.querySelector('.ts-preview-bar').getBoundingClientRect();
+              // A tab's label cut short: wider than the room its tab gives it. A row of tabs that scrolls: a tab out of sight.
+              const cut = [...document.querySelectorAll('.ts-preview-bar tanrei-tab')].map((tab) => tab.shadowRoot.querySelector('[part~="label"]')).filter((label) => label && label.scrollWidth > label.clientWidth + 1).map((label) => label.textContent);
+              for (const tabs of document.querySelectorAll('.ts-preview-bar tanrei-tabs')) {
+                const scroller = tabs.shadowRoot.querySelector('[part~="scroller"]');
+                if (scroller.scrollWidth > scroller.clientWidth + 1) cut.push(`${tabs.getAttribute('label')} scrolls`);
+              }
+              return { spread: Math.max(...middles) - Math.min(...middles), count: shown.length, inside: shown.every((el) => { const r = el.getBoundingClientRect(); return r.left >= box.left - 1 && r.right <= box.right + 1; }), cut };
+            });
+            assert.ok(bar.spread <= 2 && bar.count >= 3 && bar.inside, `${prefix || '/en'} ${colorScheme}: the bar is one line, inside the preview: ${JSON.stringify(bar)}`);
+            assert.deepEqual(bar.cut, [], `${prefix || '/en'} ${colorScheme}: no label is cut`);
+            const [label, tip] = await page.locator('[data-view-more]').evaluate((el) => [el.label, el.parentElement.localName === 'tanrei-tooltip' && el.parentElement.text]);
+            assert.ok(label && label === tip, `the button that shows its glyph alone is named, and its tooltip says its name: ${label} / ${tip}`);
+            assert.deepEqual(problems, []);
+          } finally {
+            await close();
+          }
+        }
+      }
+    });
+
+    test('1280 wide, in each of the six languages: the overview is two columns beside the rail and the panel, and nothing in it is wider than its panel', LIMIT, async () => {
+      for (const prefix of ['', '/ja', '/es', '/ar', '/hi', '/zh-cn']) {
+        const { page, problems, close } = await open(browser, { url: `${prefix}/studio/`, viewport: { width: 1280, height: 900 } });
+        try {
+          const overview = await page.evaluate(() => {
+            const grid = document.querySelector('[data-scope] .ts-s-overview');
+            const columns = getComputedStyle(grid).gridTemplateColumns.split(' ').length;
+            const wide = [...grid.querySelectorAll('.ts-s-panel *')].filter((el) => {
+              if (!el.getClientRects().length) return false;
+              const [box, panel] = [el.getBoundingClientRect(), el.closest('.ts-s-panel').getBoundingClientRect()];
+              return box.right > panel.right + 1 || box.left < panel.left - 1;
+            }).map((el) => el.localName);
+            return { columns, wide };
+          });
+          assert.deepEqual(overview, { columns: 2, wide: [] }, `${prefix || '/en'}: ${JSON.stringify(overview)}`);
+          assert.deepEqual(problems, []);
+        } finally {
+          await close();
+        }
+      }
+    });
+
     test('a device in dark: the page follows it, and the preview opens in dark too, until the person chooses', LIMIT, async () => {
       const { page, close } = await open(browser, { colorScheme: 'dark' });
       try {
@@ -457,8 +508,8 @@ for (const engine of ENGINES) {
         if (engine === 'chromium') await page.context().grantPermissions(['clipboard-read', 'clipboard-write']);
         await page.locator('[data-export-copy-link]').click();
         const snackbar = () => page.locator('tanrei-snackbar').last().evaluate((el) => el.message).catch(() => '');
-        // (Copied, or — where the engine refuses the clipboard — the way to copy it by hand.)
-        const answers = ['Link copied.', 'Could not copy — select the text and copy it by hand.'];
+        // (Copied, or — where the engine refuses the clipboard — where the link is.)
+        const answers = ['Link copied.', 'Couldn’t copy the link. It’s this page’s address — copy it from your browser’s address bar.'];
         const deadline = Date.now() + 5000;
         while (!answers.includes(await snackbar()) && Date.now() < deadline) await page.waitForTimeout(50);
         assert.ok(answers.includes(await snackbar()), 'the snackbar says what was done');
@@ -475,6 +526,66 @@ for (const engine of ENGINES) {
         assert.deepEqual(problems, []);
       } finally {
         await close();
+      }
+    });
+
+    test('Copy link, where the browser refuses the clipboard: Export and Share say the link is the page’s address, which holds the layer', LIMIT, async () => {
+      for (const [url, said] of [
+        ['/studio/', 'Couldn’t copy the link. It’s this page’s address — copy it from your browser’s address bar.'],
+        ['/ja/studio/', 'リンクをコピーできませんでした。このページのアドレスがリンクです。ブラウザーのアドレスバーからコピーしてください。'],
+      ]) {
+        const { page, problems, close } = await open(browser, { url });
+        try {
+          await chooseBase(page, 'cupertino');
+          await page.waitForFunction(() => new URLSearchParams(location.hash.slice(1)).get('layer'));
+          await page.evaluate(() => Object.defineProperty(navigator, 'clipboard', { configurable: true, value: { writeText: () => Promise.reject(new DOMException('Refused', 'NotAllowedError')) } }));
+          await page.locator('[data-export-open]').click();
+          await page.waitForFunction(() => document.querySelector('[data-export-sheet]').open);
+          await page.locator('[data-export-copy-link]').click();
+          // (The snackbar stands in a shadow root: Playwright's locator reaches it.)
+          const messages = () => page.locator('tanrei-snackbar').evaluateAll((els) => els.map((el) => el.message));
+          const deadline = Date.now() + 5000;
+          while (!(await messages()).includes(said) && Date.now() < deadline) await page.waitForTimeout(50);
+          assert.ok((await messages()).includes(said), `the snackbar says where the link is: ${JSON.stringify(await messages())}`);
+          await page.keyboard.press('Escape');
+          await page.waitForFunction(() => !document.querySelector('[data-export-sheet]').open);
+          await page.locator('[data-share-open]').click();
+          await page.locator('[data-share-copy-link]').click();
+          await page.waitForFunction((text) => document.querySelector('[data-share-link-state]')?.textContent === text, said);
+          // What the words say is so: the address holds this layer.
+          // (The parameter unpacked as the Studio packs it: raw DEFLATE in base64url, packages/studio/src/address.js.)
+          const address = await page.evaluate(async () => {
+            const code = new URLSearchParams(location.hash.slice(1)).get('layer').replace(/-/g, '+').replace(/_/g, '/');
+            const bytes = Uint8Array.from(atob(code + '='.repeat((4 - (code.length % 4)) % 4)), (char) => char.charCodeAt(0));
+            return JSON.parse(await new Response(new Blob([bytes]).stream().pipeThrough(new DecompressionStream('deflate-raw'))).text());
+          });
+          assert.deepEqual(address, await layer(page));
+          assert.deepEqual(problems, []);
+        } finally {
+          await close();
+        }
+      }
+    });
+
+    test('Export, left to right and right to left: the id field reads «acme.system.json», one run from the field’s start edge', LIMIT, async () => {
+      for (const [url, dir] of [['/studio/', 'ltr'], ['/ar/studio/', 'rtl']]) {
+        const { page, problems, close } = await open(browser, { url });
+        try {
+          await page.locator('[data-export-open]').click();
+          await page.waitForFunction(() => document.querySelector('[data-export-sheet]').open);
+          const field = await page.locator('[data-export-naming] [data-id]').evaluate((el, dir) => {
+            const inner = el.shadowRoot.querySelector('[part~="text-input"]').shadowRoot;
+            const [input, suffix, container] = ['[part~="input"]', '[part~="suffix"]', '[part~="container"]'].map((part) => inner.querySelector(part));
+            const [i, s, c] = [input, suffix, container].map((node) => node.getBoundingClientRect());
+            return { value: input.value, suffix: suffix.textContent, align: getComputedStyle(input).textAlign, suffixAfterValue: s.left >= i.right - 1, suffixToStart: dir === 'rtl' ? c.right - s.right < 24 : true, dir: getComputedStyle(el).direction };
+          }, dir);
+          // The value against the suffix, at the field's start (the right), in a right-to-left page; as a text field lays it
+          // out in a left-to-right one.
+          assert.deepEqual(field, { value: 'acme', suffix: '.system.json', align: dir === 'rtl' ? 'right' : 'start', suffixAfterValue: true, suffixToStart: true, dir }, url);
+          assert.deepEqual(problems, []);
+        } finally {
+          await close();
+        }
       }
     });
 

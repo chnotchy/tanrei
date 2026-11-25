@@ -254,7 +254,8 @@ export function createRail(ctx: Ctx, { locked, onshow, onlock }: { locked: Set<R
       // A row the layer leaves as its start gives it says so, after its value: what is left is what was changed.
       const unchanged = h('span', { class: 'ts-rail-default', 'data-unchanged': true, text: t.rail.unchanged });
       const drawn = sample(ctx, row);
-      const show = h('button', { type: 'button', class: 'ts-rail-row', 'aria-current': 'false', 'data-row': row, onclick: () => onshow(row) }, h('span', { class: 'ts-rail-label' }, t.rail.rows[row]), h('span', { class: 'ts-rail-line' }, value, unchanged), drawn.el) as HTMLButtonElement;
+      const line = h('span', { class: 'ts-rail-line' }, value, unchanged);
+      const show = h('button', { type: 'button', class: 'ts-rail-row', 'aria-current': 'false', 'data-row': row, onclick: () => onshow(row) }, h('span', { class: 'ts-rail-label' }, t.rail.rows[row]), line, drawn.el) as HTMLButtonElement;
       buttons.set(row, show);
       // Pointed at or focused, the row marks in the preview what it changes; leaving it takes the marks away.
       const marking = ctx as Ctx & Marking;
@@ -275,6 +276,9 @@ export function createRail(ctx: Ctx, { locked, onshow, onlock }: { locked: Set<R
         const state = rowState(ctx, layer, row);
         if (typeof state.value === 'string') value.textContent = state.value;
         else value.replaceChildren(...state.value);
+        // A line too long for the rail is cut with an ellipsis (studio.css): pointed at, it shows the whole value. (The
+        // row is named by its text, which holds the whole value.)
+        line.title = value.textContent ?? '';
         unchanged.hidden = state.changed;
         show.toggleAttribute('data-changed', state.changed);
         drawn.draw();

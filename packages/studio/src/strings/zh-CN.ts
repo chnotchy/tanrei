@@ -345,6 +345,7 @@ const zhCN: Dictionary = {
     stale: '层有问题，具体是什么问题，见“导出”。预览显示的是最后一个有效的状态。',
     emphasized: '强调',
     emphasizedHelp: '绘制文本样式时，在字重上加上其字体族的强调级差（sys.typescale.emphasis.*）。',
+    more: '对比度与强调',
   },
   sample: {
     headline: '默认就恰到好处',
@@ -595,6 +596,7 @@ const zhCN: Dictionary = {
     shareHelp: '指向包含这个层的 Studio 的链接。打开它的人会看到你的层，而他们自己的层会一直保留，直到他们自己做出选择。',
     copyLink: '复制链接',
     linkCopied: '已复制链接。',
+    linkCopyFailed: '无法复制链接。链接就是本页的地址，请从浏览器的地址栏复制。',
   },
   file: {
     idLocked: 'id（与文件名相同；要重命名系统，请重命名文件）',
