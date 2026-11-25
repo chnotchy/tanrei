@@ -354,6 +354,24 @@ describe('color roles', () => {
     assert.equal(field.rows.find((row) => row.part === 'field.label').token, `${NS}.comp.field.standard.label.color`);
     assert.throws(() => roleMapOf('button', { variant: 'plaid' }), /not one of its variants/);
   });
+  test('a part the spec says is drawn with another part’s tokens (drawnWith) takes those, and no token takes it by its name', () => {
+    // A tab's state layer is drawn at rest with its look's container.color; its state-layer.color is what hover, focus
+    // and press mix in, which no part is drawn in at rest.
+    const tabs = roleMapOf('tabs', { variant: 'primary', selected: true });
+    const layer = tabs.rows.filter((row) => row.part === 'state-layer');
+    assert.deepEqual(layer.map((row) => [row.token, row.paint]), [[`${NS}.comp.tabs.primary.selected.container.color`, 'fill']]);
+    assert.ok(!tabs.rows.some((row) => row.token.endsWith('.state-layer.color')), 'no row is a state-layer.color');
+    assert.ok(tabs.rows.some((row) => row.part === 'label' && row.token === `${NS}.comp.tabs.primary.selected.label.color`), 'the label keeps its own token');
+    const roles = rolesOf('tabs', ['primary']);
+    assert.equal(roles.find((role) => role.token === `${NS}.comp.tabs.primary.container.color`).part, 'state-layer');
+    assert.equal(roles.find((role) => role.token === `${NS}.comp.tabs.primary.state-layer.color`).part, null);
+    // Every part that says what it is drawn with is drawn with tokens that exist: each end names a token of its group.
+    for (const name of names) {
+      for (const part of specs[name].anatomy.filter((each) => each.drawnWith)) {
+        for (const end of part.drawnWith) assert.ok(rolesOf(name).some((role) => role.token.endsWith(`.${end}`)), `${name} ${part.id}: ${end}`);
+      }
+    }
+  });
   test('every role map a page places has rows, and every language’s page places the same', () => {
     const placedIn = (base) => {
       const dir = here(`../src/content/docs/${base}components`);

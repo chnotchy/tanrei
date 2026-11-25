@@ -20,7 +20,10 @@
     },
     {
       "id": "state-layer",
-      "description": "One tab's state layer, the area that draws hover, focus and press: the box the active indicator has on this tab while it is selected, or would have if it were. In the default system that is a capsule, or a circle where the tab's content is not wider than it is tall, and in a row that fills it is as wide as the tab; it is never the tab's rectangle. The area that answers hover and a tap is still the whole tab."
+      "description": "One tab's state layer, the area that draws hover, focus and press: the box the active indicator has on this tab while it is selected, or would have if it were. In the default system that is a capsule, or a circle where the tab's content is not wider than it is tall, and in a row that fills it is as wide as the tab; it is never the tab's rectangle. The area that answers hover and a tap is still the whole tab. It is drawn with each look's container.color, transparent at rest in the default system, into which hover, focus and press mix that look's state-layer.color (TAB-3), and its corners are container.shape.",
+      "drawnWith": [
+        "container.color"
+      ]
     },
     {
       "id": "icon",

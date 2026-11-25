@@ -46,7 +46,8 @@ export interface Spec {
   layer?: string;
   /** The components it is built from, by name. Left out where it is built from none. */
   builtFrom?: string[];
-  anatomy: { id: string; description: string; optional?: boolean }[];
+  /** `drawnWith`: the ends of the token paths a part is drawn with, where they name another part than its id. */
+  anatomy: { id: string; description: string; optional?: boolean; drawnWith?: string[] }[];
   /** The fixture an anatomy diagram draws, where the first fixture does not show every optional part. */
   anatomyFixture?: string;
   props: SpecProp[];

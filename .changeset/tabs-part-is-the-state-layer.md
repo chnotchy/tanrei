@@ -13,3 +13,8 @@ name.
 The tokens keep their names: `comp.tabs.container.*` is the tab's, as `container` is elsewhere (its height,
 padding-inline and gap), and the tab draws its state layer with `container.shape` and its looks' `container.color`.
 Nothing a tab draws changes.
+
+A spec now says which tokens a part is drawn with where their path names another part than its id (`drawnWith` on an
+anatomy part, held by `pnpm validate` to the end of a token of the component): the tab's `state-layer` is drawn with
+`container.color`. The docs' color role figure reads it, so the Tabs page's row for the state layer is its
+`container.color` (transparent at rest), not the `state-layer.color` that hover, focus and press mix in.
