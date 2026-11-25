@@ -148,6 +148,10 @@
     {
       "tanrei": "tanrei.sys.target.spacing",
       "note": "Accessibility asks for \"about 12 points of padding around elements that include a bezel\" and about 24 without: an approximate padding around one element, not a spacing between targets. cupertino does not set it."
+    },
+    {
+      "tanrei": "tanrei.comp.side-sheet.content.padding-block-start, tanrei.comp.bottom-sheet.content.padding-block-start",
+      "note": "Sheets publishes no distance between a sheet's title and its content: an iOS sheet is titled by a navigation bar, and its content scrolls under it. cupertino does not set it, and draws the default 8."
     }
   ]
 }
