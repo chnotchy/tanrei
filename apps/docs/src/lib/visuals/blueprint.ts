@@ -231,20 +231,28 @@ const isDrawn = (element: Element) => {
   return rect.width > NEAR && rect.height > NEAR && isShown(element);
 };
 
-/** The box of what a part's target is, as drawn, in the viewport's coordinates; null where nothing of it is drawn. */
-export function targetBox(host: Element, target: PartTarget): { box: Box; element: Element | null } | null {
+/**
+ * The box of what a part's target is, as drawn, in the viewport's coordinates; null where nothing of it is drawn.
+ *
+ * A part of a child is found on the first child the words name, in the document's order, that draws it: the anatomy
+ * and the measure figures number and measure the part wherever the fixture draws it — on the first tab whose own label
+ * is shown, where the selected tab hides its label under the indicator and draws its covered copy instead. Where a
+ * word names several kinds of element (`tanrei-menu-item|tanrei-submenu`: a submenu's row draws a trailing text a
+ * plain item may not), it is the first of any of them; where none draws it, the first element named.
+ *
+ * `firstOfOne` keeps a word that names one kind of element to the first of it: a color role figure shows one element
+ * in one state (the first tab, selected), and a part another child draws is drawn in another state's color.
+ */
+export function targetBox(host: Element, target: PartTarget, { firstOfOne = false } = {}): { box: Box; element: Element | null } | null {
   let elements: Element[] = [];
   let range: Range | null = null;
   if ('host' in target) elements = [host];
   else if ('part' in target && !('child' in target)) elements = partOf(host, target.part);
   else if ('child' in target) {
-    // A word that names one element is the first of it; a word that names several kinds of element, any of which may
-    // draw the part (`tanrei-menu-item|tanrei-submenu`: a submenu's row draws a trailing text a plain item may not),
-    // is the first of them, in the document's order, that draws it.
     let candidates: Element[] = [host];
     for (const word of target.child) {
       const tags = word.split('|');
-      candidates = candidates.flatMap((at) => deepQueryAll(at, tags.join(', ')).slice(0, tags.length > 1 ? undefined : 1));
+      candidates = candidates.flatMap((at) => deepQueryAll(at, tags.join(', ')).slice(0, firstOfOne && tags.length === 1 ? 1 : undefined));
     }
     const of = (at: Element) => (target.part ? partOf(at, target.part) : [at]);
     const chosen = candidates.find((at) => of(at).some(isDrawn)) ?? candidates[0];

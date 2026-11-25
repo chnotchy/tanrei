@@ -149,7 +149,7 @@ function drawFigure(frame: HTMLElement, overlay: HTMLElement, subject: HTMLEleme
     if (name) name.textContent = role?.role ? role.role.split('.').slice(1).join('.') : value[3] === 0 ? words.transparent : words.fixed;
     const derived = tr.querySelector<HTMLElement>('[data-role-derived]');
     if (derived) derived.hidden = !(role?.role && role.derived);
-    const found = targetBox(host, row.target);
+    const found = targetBox(host, row.target, { firstOfOne: true });
     const element = found?.element ?? (row.target && 'host' in row.target ? host : null);
     const cell = tr.querySelector<HTMLElement>('[data-role-contrast]');
     Object.assign(tr.dataset, { value: hex(value), role: role?.role ?? '' });
