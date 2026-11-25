@@ -269,7 +269,7 @@ struct TanreiProgressIndicatorChrome: View {
         TanreiIndeterminateBar(
           appearance: appearance, track: track, indicator: indicator,
           segment: reduceMotion ? 0...1 : TanreiProgressMotion.segment(phase: phase, easing: tokens.motionCycleEasing),
-          opacity: reduceMotion ? TanreiCycleClock.pulseOpacity(phase: phase, easing: tokens.motionCycleEasing) : TanreiIdentity.opacity)
+          opacity: reduceMotion ? TanreiCycleClock.pulseOpacity(phase: phase, easing: tokens.motionCycleEasing, floor: tokens.motionPulseFloorOpacity) : TanreiIdentity.opacity)
       }
     case (.circular, let fraction?):
       TanreiDeterminateRing(fraction: fraction, appearance: appearance, track: track, indicator: indicator)
@@ -279,7 +279,7 @@ struct TanreiProgressIndicatorChrome: View {
         TanreiRing(
           appearance: appearance, track: track, trackArc: 0...1, indicator: indicator,
           indicatorArc: reduceMotion ? 0...1 : TanreiProgressMotion.arc(phase: phase, easing: system.motion.easing.linear),
-          opacity: reduceMotion ? TanreiCycleClock.pulseOpacity(phase: phase, easing: tokens.motionCycleEasing) : TanreiIdentity.opacity)
+          opacity: reduceMotion ? TanreiCycleClock.pulseOpacity(phase: phase, easing: tokens.motionCycleEasing, floor: tokens.motionPulseFloorOpacity) : TanreiIdentity.opacity)
       }
     }
   }

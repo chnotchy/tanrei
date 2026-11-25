@@ -116,13 +116,13 @@ struct TanreiLoadingIndicatorChrome: View {
     let color = colors[appearance.indicator]
     TanreiCycle(durationMs: tokens.motionCycleDuration) { phase in
       // LDG-1: a quarter arc with round caps, its outer edge on the square, no track. LDG-4: under Reduce Motion, the
-      // whole circle, still, its opacity pulsing with `sys.motion.easing.standard`.
+      // whole circle, still, its opacity pulsing down to the pulse's floor and back with `sys.motion.easing.standard`.
       TanreiArc(
         range: reduceMotion ? 0...1 : TanreiLoadingMotion.arc(phase: phase, easing: system.motion.easing.linear),
         inset: appearance.thickness / 2
       )
       .stroke(color, style: StrokeStyle(lineWidth: appearance.thickness, lineCap: .round))
-      .opacity(reduceMotion ? TanreiCycleClock.pulseOpacity(phase: phase, easing: system.motion.easing.standard) : TanreiIdentity.opacity)
+      .opacity(reduceMotion ? TanreiCycleClock.pulseOpacity(phase: phase, easing: system.motion.easing.standard, floor: tokens.motionPulseFloorOpacity) : TanreiIdentity.opacity)
     }
     .frame(width: appearance.indicatorSize, height: appearance.indicatorSize)
     // LDG-8: never mirrored — SwiftUI mirrors a shape in a right-to-left layout; the arc turns clockwise in every

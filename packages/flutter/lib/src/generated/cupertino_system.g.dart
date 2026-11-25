@@ -1005,6 +1005,7 @@ const TanreiSystem cupertinoSystem = TanreiSystem(
     dividerThickness: 1.0,
     motionBusyCycleDuration: 1000,
     motionBusyFadeDuration: 200,
+    motionBusyPulseFloorOpacity: 0.7,
     motionFeedbackDuration: 450,
     motionHoverCloseDelay: 300,
     motionHoverOpenDelay: 300,
@@ -1345,6 +1346,7 @@ const TanreiSystem cupertinoSystem = TanreiSystem(
     containerShape: 9999.0,
     motionBusyCycleDuration: 1000,
     motionBusyFadeDuration: 200,
+    motionBusyPulseFloorOpacity: 0.7,
     motionFeedbackDuration: 450,
     motionStateEasing: TanreiCubicBezier(0.2, 0.0, 0.0, 1.0),
     toneContainerOpacity: 0.16,
@@ -5425,6 +5427,7 @@ const TanreiSystem cupertinoSystem = TanreiSystem(
     motionEnterDuration: 250,
     motionEnterEasing: TanreiCubicBezier(0.2, 0.0, 0.0, 1.0),
     motionEntrance: 0.0,
+    motionPulseFloorOpacity: 0.7,
     motionShowDelay: 300,
     sizes: TanreiLoadingIndicatorSizes(
       small: TanreiLoadingIndicatorSizeTokens(
@@ -7071,6 +7074,7 @@ const TanreiSystem cupertinoSystem = TanreiSystem(
     indicatorColor: TanreiPaint.role(TanreiColorRole.primary),
     motionCycleDuration: 1000,
     motionCycleEasing: TanreiCubicBezier(0.2, 0.0, 0.0, 1.0),
+    motionPulseFloorOpacity: 0.7,
     motionShowDelay: 300,
     motionValueDuration: 300,
     motionValueEasing: TanreiCubicBezier(0.2, 0.0, 0.0, 1.0),
