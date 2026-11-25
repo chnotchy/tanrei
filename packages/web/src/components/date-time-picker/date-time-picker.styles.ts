@@ -542,6 +542,16 @@ export const styles = css`
   .entry::selection {
     background: transparent;
   }
+  /* Until something is typed the control draws nothing, over the middle row's value: it is transparent then, which
+     draws the same and is no element over the value, where a contrast checker would take it for one covering the value
+     and check none. It still takes focus, the press and the keys. While a typed entry is shown it is drawn, over the
+     value it hides (DTM-44). The period's control never draws anything. */
+  .entry {
+    opacity: 0;
+  }
+  .wheel.typed .entry {
+    opacity: 1;
+  }
   /* DTM-20: the keyboard focus is drawn around the wheel's selection container (its part of a joined one). */
   .wheel .ring {
     position: absolute;
@@ -751,8 +761,8 @@ export const styles = css`
   /* DTM-26: the arm turns to the value's angle (along the shorter arc: the element keeps the angle continuous) and the
      handle moves between the rings over the dial motion; the copy inside the handle turns back by as much.
      DTM-24: the arm and the copy are points (the dial's centre, no size) that their parts stand around, never boxes as
-     large as the dial: a box over the numbers, though it draws nothing, is what a contrast check takes for something
-     drawn over them, and it could check none of them. */
+     large as the dial — and so are the copy's layers of numbers, which fill the copy: a box over the numbers, though it
+     draws nothing, is what a contrast check takes for something drawn over them, and it could check none of them. */
   .arm {
     position: absolute;
     left: 50%;
