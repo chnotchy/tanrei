@@ -561,9 +561,11 @@ export const styles = css`
     gap: ${t('period-gap')};
     max-inline-size: 100%;
   }
+  /* DTM-36: the digits are what narrows where the time section is narrower than the display needs (a 320 px window
+     leaves the section 264 px of the about 276 px the 12-hour display needs); the period keeps its width. */
   .display > .digits {
     display: flex;
-    flex: none;
+    flex: 0 1 auto;
     align-items: center;
     gap: ${t('selector-gap')};
   }
@@ -604,6 +606,21 @@ export const styles = css`
     user-select: none;
     -webkit-tap-highlight-color: transparent;
     outline: none;
+  }
+  /* DTM-21, DTM-36: the hour and the minute selector are selector.container.width (and the target) wide where the row
+     has the room, and narrow equally where it has not — each never narrower than its value as drawn, nor than the target.
+     One column: its widest is the width (or the value, where enlarged text needs more); its narrowest is the value, which
+     is at least the target. The selector's own minimum is that column's, so it never cuts its value. */
+  .selector:not(.period) {
+    display: grid;
+    flex: 0 1 auto;
+    grid-template-columns: minmax(min-content, max(${t('selector-container-width')}, var(--_target)));
+    place-items: center;
+    min-inline-size: auto;
+  }
+  .selector:not(.period) > .value {
+    min-inline-size: var(--_target);
+    text-align: center;
   }
   /* DTM-14: the period selector — at least period.container.width (and the target) wide, as tall as the selectors, its
      name in period.label.typescale. It is a selector of the unselected condition in every state: nothing here colors it. */
