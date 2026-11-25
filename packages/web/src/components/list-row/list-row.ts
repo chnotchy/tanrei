@@ -9,6 +9,7 @@ import '../tooltip/tooltip.js';
 import type { TanreiTooltip } from '../tooltip/tooltip.js';
 import { AXES, CORE_SIZES, styles } from './list-row.styles.js';
 import { TanreiElement } from '../../primitives/element.js';
+import { DEBUG } from '../../primitives/debug.js';
 
 /** The core sizes (small, medium), plus any a design system's generated `.d.ts` registers. */
 export type TanreiListRowSize = keyof TanreiListRowSizeRegistry;
@@ -310,7 +311,7 @@ export class TanreiListRow extends TanreiElement {
     // LRW-17: the size it draws, as a custom state the size blocks match (a name that is no token name is drawn as the
     // default by the row's own rules, LRW-14).
     this.sizes.syncState(this.internals);
-    if (changed.has('supportingLines') && !readLines(this.supportingLines).exact) {
+    if (DEBUG && changed.has('supportingLines') && !readLines(this.supportingLines).exact) {
       report(this, 'LRW-2', `supportingLines ${String(this.supportingLines)} is neither 1 nor 2; it is read as ${readLines(this.supportingLines).lines}`, { once: false });
     }
   }
@@ -320,10 +321,10 @@ export class TanreiListRow extends TanreiElement {
       // LRW-7: the keyboard focus of the item this row is in shows the tooltip.
       this.listen(this.listItemFrame && this.parentElement ? this.parentElement : null);
     }
-    if (changed.has('headline') && this.hasUpdated && spoken(this.headline) === '') {
+    if (DEBUG && changed.has('headline') && this.hasUpdated && spoken(this.headline) === '') {
       report(this, 'LRW-10', 'the row has no headline, so the list item it is in has no name; give it a headline');
     }
-    if ((changed.has('leadingIcon') || (changed as Map<PropertyKey, unknown>).has('leadingFilled')) && this.leadingFilled && spoken(this.leadingIcon)) {
+    if (DEBUG && (changed.has('leadingIcon') || (changed as Map<PropertyKey, unknown>).has('leadingFilled')) && this.leadingFilled && spoken(this.leadingIcon)) {
       report(this, 'LRW-4', `leadingIcon "${this.leadingIcon}" is not drawn: the leading slot holds content, which is drawn in its place`);
     }
     // LST-49, LRW-14: the item this row is in takes its new name and description. LST-50: the list hears whether the
@@ -332,7 +333,7 @@ export class TanreiListRow extends TanreiElement {
   }
 
   protected override firstUpdated() {
-    if (spoken(this.headline) === '') report(this, 'LRW-10', 'the row has no headline, so the list item it is in has no name; give it a headline');
+    if (DEBUG && spoken(this.headline) === '') report(this, 'LRW-10', 'the row has no headline, so the list item it is in has no name; give it a headline');
   }
 
   protected override render() {

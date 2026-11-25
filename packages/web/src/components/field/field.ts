@@ -23,6 +23,7 @@ import { ownDirection } from '../../styles/product-text.js';
 import { PREFIX, styles } from './field.styles.js';
 import { TanreiElement } from '../../primitives/element.js';
 import { DELEGATED_RELATIONS, DELEGATED_STATES, type DelegatedName, delegatesAria } from '../../primitives/delegated-aria.js';
+import { DEBUG } from '../../primitives/debug.js';
 
 /** FLD-21: a run of the value text that is isolated already (a first-strong isolate: one of a range's two values) has its own direction and gives the whole text none. */
 const ISOLATED = /\u2068[^\u2069]*\u2069/g;
@@ -414,21 +415,21 @@ export class TanreiField extends TanreiElement {
     reportFrame(this, this.framed, changed, { unknown: 'FLD-22', words: 'FLD-24', both: 'FLD-32' }, this.words, { prefix: PREFIX, row: !floats });
     const labelled = frameLabelled(this) && !floats;
     // FLD-3: the glyph is not drawn while the label is not — hidden, empty, or drawn by the control itself (FLD-25).
-    if (!labelled && this.querySelector(':scope > [slot="label-icon"]')) {
+    if (DEBUG && !labelled && this.querySelector(':scope > [slot="label-icon"]')) {
       report(this, 'FLD-3', floats ? 'the label-icon slot is not drawn where the control draws the label itself, floating in its own box; remove the glyph' : 'the label-icon slot is not drawn while the label is not drawn; give the field a label, or remove the glyph');
     }
     // FLD-28: a refusal neither the control nor the field has words for is still marked, and reported.
-    if (said.refusal && !said.refusal.text && !this.errorText) {
+    if (DEBUG && said.refusal && !said.refusal.text && !this.errorText) {
       report(this, 'FLD-28', 'the control refused what was entered and neither it nor the field has words for it; give the control the words of its refusal, or the field an errorText');
     }
     const controls = this.controls;
     const first = controls[0];
     // FLD-15: exactly one control.
     if (!first) {
-      report(this, 'FLD-15', 'the field has no control; put the one control it frames in its default slot');
+      if (DEBUG) report(this, 'FLD-15', 'the field has no control; put the one control it frames in its default slot');
       return;
     }
-    if (controls.length > 1) report(this, 'FLD-15', `the field holds ${controls.length} controls and names, describes and marks only the first; a set of controls is a field group`);
+    if (DEBUG && controls.length > 1) report(this, 'FLD-15', `the field holds ${controls.length} controls and names, describes and marks only the first; a set of controls is a field group`);
     // An element that is not defined yet says nothing about itself.
     if (first.localName.includes('-') && !customElements.get(first.localName)) return;
     const connection = this.provider.connectionIn(first);
@@ -442,7 +443,7 @@ export class TanreiField extends TanreiElement {
     if (connection?.framed || (!connection && 'supportingText' in first)) {
       // A composed field is a Field and its one control: the frame that answered is inside it, around the bare control.
       const bare = connection && connection.control !== first ? [...connection.control.children].find((child) => !child.slot)?.localName : undefined;
-      report(
+      if (DEBUG) report(
         this,
         'FLD-15',
         bare
@@ -453,8 +454,8 @@ export class TanreiField extends TanreiElement {
     }
     // FLD-10: one name, and only one.
     const named = connection ? connection.named() : namesItself(first);
-    if (labelled && named) report(this, 'FLD-10', `<${first.localName}> names itself and stands under the field's label, so the control has two labels; leave the field's label empty, or the control's`);
-    if (!this.label && !named) report(this, 'FLD-10', 'label is empty and the control has no name of its own, so the control has no accessible name; give the field a label (labelHidden hides it and keeps the name)');
+    if (DEBUG && labelled && named) report(this, 'FLD-10', `<${first.localName}> names itself and stands under the field's label, so the control has two labels; leave the field's label empty, or the control's`);
+    if (DEBUG && !this.label && !named) report(this, 'FLD-10', 'label is empty and the control has no name of its own, so the control has no accessible name; give the field a label (labelHidden hides it and keeps the name)');
   }
 
   protected override render() {

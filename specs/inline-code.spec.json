@@ -69,8 +69,8 @@
     },
     {
       "id": "ICD-6",
-      "text": "THE inline code SHALL wrap with the line it sits in: it breaks first at the spaces inside it; a part with no space that is longer than the line SHALL break between any two characters rather than run past the edge of its container; and no hyphen or any other character SHALL be drawn at a break. Each piece of a run that breaks SHALL keep the fill, the corners and both paddings of ICD-3. THE inline code SHALL NOT cut its text and SHALL NOT scroll.",
-      "verify": "The fixture long holds one name wider than any harness's stage; a test places a 60-character name in a box 160 wide, reads no horizontal overflow, and copies the text back unchanged."
+      "text": "THE inline code SHALL wrap with the line it sits in: it breaks first at the spaces inside it; a part with no space that is longer than the line SHALL break between any two characters rather than run past the edge of its container; and no hyphen or any other character SHALL be drawn at a break. Each piece of a run that breaks SHALL keep the fill, the corners and both paddings of ICD-3. THE inline code SHALL NOT cut its text and SHALL NOT scroll. WHERE the inline code stands in a cell of a Table, the line it sits in is the cell's, which the Table widens for a run it does not break (TBL-3): there it SHALL break at its spaces only, so that a name is never broken inside and widens its column instead, and in a column the Table keeps on one line it SHALL NOT break at all.",
+      "verify": "The fixture long holds one name wider than any harness's stage; a test places a 60-character name in a box 160 wide, reads no horizontal overflow, and copies the text back unchanged. A test places a short name and a long name, each with no space, in the first cells of a Table whose second column holds a sentence, in a box narrower than the two columns, and reads each name on one line and its column at least as wide as the name; a run with spaces in a cell marked to keep its column on one line stands on one line."
     },
     {
       "id": "ICD-7",

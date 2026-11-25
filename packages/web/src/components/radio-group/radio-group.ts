@@ -10,6 +10,7 @@ import { WordsController } from '../../primitives/words.js';
 import { TanreiFieldGroup, type TanreiFieldGroupOrientation, type TanreiFieldGroupRequiredMark } from '../field-group/field-group.js';
 import { TanreiRadioButton, type TanreiRadioButtonOwner } from '../radio-button/radio-button.js';
 import { disabledWaitsWhileFocused } from '../../primitives/disabled-while-focused.js';
+import { DEBUG } from '../../primitives/debug.js';
 
 // The field group's own types are the radio group's, under the names it had before it was built from that element.
 /** What the form asks of the set: nothing, an answer, or that it may be left out. */
@@ -425,19 +426,19 @@ export class TanreiRadioGroup extends ComposedElement implements TanreiRadioButt
    */
   private reports(options: TanreiRadioButton[]) {
     // RGP-12: a set without a radio button still draws its rows.
-    if (!options.length) report(this, 'RGP-12', 'the radio group holds no radio button; put tanrei-radio-button elements in its default slot');
+    if (DEBUG && !options.length) report(this, 'RGP-12', 'the radio group holds no radio button; put tanrei-radio-button elements in its default slot');
     // RGP-12: radio buttons and nothing else that can be operated.
     const others = [...this.querySelectorAll('*')].some((element) => !(element instanceof TanreiRadioButton) && element.closest(this.localName) === this && (FIELD_CONTROL in element || element.matches(OTHER_CONTROLS)));
-    if (others) report(this, 'RGP-12', 'the radio group holds a control that is not a radio button; it holds radio buttons and nothing else that can be operated');
-    if (options.some((option) => option.name)) report(this, 'RGP-12', 'a radio button of the radio group has a name of its own, which is ignored: the group is its group (RAD-25)');
+    if (DEBUG && others) report(this, 'RGP-12', 'the radio group holds a control that is not a radio button; it holds radio buttons and nothing else that can be operated');
+    if (DEBUG && options.some((option) => option.name)) report(this, 'RGP-12', 'a radio button of the radio group has a name of its own, which is ignored: the group is its group (RAD-25)');
     // RGP-3: values the group cannot select by.
-    if (options.some((option) => option.value === '')) report(this, 'RGP-3', 'a radio button of the radio group has no value, so it cannot be selected: give each a value that is unique in the group');
+    if (DEBUG && options.some((option) => option.value === '')) report(this, 'RGP-3', 'a radio button of the radio group has no value, so it cannot be selected: give each a value that is unique in the group');
     const seen = new Set<string>();
     for (const option of options) {
-      if (option.value !== '' && seen.has(option.value)) report(this, 'RGP-3', `two radio buttons share the value "${option.value}"; the first is the one it selects`);
+      if (DEBUG && option.value !== '' && seen.has(option.value)) report(this, 'RGP-3', `two radio buttons share the value "${option.value}"; the first is the one it selects`);
       seen.add(option.value);
     }
-    if (this.value !== '' && options.length && !seen.has(this.value)) report(this, 'RGP-3', `value "${this.value}" is the value of no radio button, so none is selected; the value is kept`);
+    if (DEBUG && this.value !== '' && options.length && !seen.has(this.value)) report(this, 'RGP-3', `value "${this.value}" is the value of no radio button, so none is selected; the value is kept`);
   }
 
   // RGP-1: the field group's own element, in its radio-group kind, around the slot the product's radio buttons pass

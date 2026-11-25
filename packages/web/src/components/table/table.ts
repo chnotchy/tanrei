@@ -15,7 +15,6 @@ import {
   styleQueries,
   syncFocusStyle,
 } from '../../primitives/index.js';
-import { debugBuild } from '../../primitives/report.js';
 import { WordsController } from '../../primitives/words.js';
 import type { TanreiTableSizeRegistry } from '../../registry.js';
 import { adopt, adoptUnlessDrawn } from '../../primitives/sheets.js';
@@ -23,6 +22,7 @@ import { TanreiLightElement } from '../../primitives/element.js';
 import { readInPhase } from '../../primitives/read-phase.js';
 import { DirAttributeWatch } from '../../primitives/direction.js';
 import { TYPE_LONGHANDS } from '../../styles/type.js';
+import { DEBUG } from '../../primitives/debug.js';
 
 /** The core sizes (small, medium), plus any a design system's generated `.d.ts` registers. */
 export type TanreiTableSize = keyof TanreiTableSizeRegistry;
@@ -548,13 +548,13 @@ export class TanreiTable extends TanreiLightElement {
 
   protected override updated(changed: PropertyValues) {
     // TBL-9: a separation the table does not define is auto (no rule matches the attribute); a debug build says so.
-    if (changed.has('separation') && !(SEPARATION_VALUES as readonly string[]).includes(this.separation)) {
+    if (DEBUG && changed.has('separation') && !(SEPARATION_VALUES as readonly string[]).includes(this.separation)) {
       report(this, 'TBL-9', `separation "${this.separation}" is not a value the table defines; it is drawn as "auto"`);
     }
     // TBL-31, TBL-62: the size it draws — its own or its container's — when that changed.
     if (this.sizeCascade.drawn !== this.sizeRead) this.readSize((this.sizeRead = this.sizeCascade.drawn));
     // TBL-42: a selection the table does not define is none (no rule matches the attribute); a debug build says so.
-    if (changed.has('selection') && this.selection !== 'none' && this.selection !== 'single' && this.selection !== 'multiple') {
+    if (DEBUG && changed.has('selection') && this.selection !== 'none' && this.selection !== 'single' && this.selection !== 'multiple') {
       report(this, 'TBL-42', `selection "${String(this.selection)}" is not a value the table defines; it is drawn as "none"`);
     }
     this.read();
@@ -574,7 +574,7 @@ export class TanreiTable extends TanreiLightElement {
     if (CORE_SIZES.includes(size)) return;
     const known = KEY.test(size);
     if (known) adopt(this.getRootNode() as Root, sheet(`size:${size}`, () => sizeRules(size)));
-    if (!known || getComputedStyle(this).getPropertyValue(`${PREFIX}-cell-padding-block-${size}`).trim() === '') {
+    if (DEBUG && (!known || getComputedStyle(this).getPropertyValue(`${PREFIX}-cell-padding-block-${size}`).trim() === '')) {
       report(this, 'TBL-31', `size "${size}" is not a value of the active design system; it is drawn as "${DEFAULT_SIZE}"`);
     }
   }
@@ -610,7 +610,7 @@ export class TanreiTable extends TanreiLightElement {
     this.readSelection(table);
     // TBL-9: where the browser answers style queries the stylesheet reads the choice itself, and nothing is written.
     mark(table, 'data-separation', styleQueries() ? null : compChoice(this, '--_table-separation', SEPARATIONS));
-    if (debugBuild()) {
+    if (DEBUG) {
       // A table that is still being parsed is read again when it is whole: it may not have its caption yet.
       if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', () => this.read(), { once: true });
       else this.check(table);
@@ -948,7 +948,7 @@ export class TanreiTable extends TanreiLightElement {
       this.nameRow(row, box);
       if (now) picked++;
     }
-    if (debugBuild()) this.checkKinds(table);
+    if (DEBUG) this.checkKinds(table);
     const all = mode === 'multiple' ? this.boxIn(table.tHead?.rows[0]) : null;
     if (all) {
       pending ||= !isNative(all) && !all.matches(':defined');
@@ -983,7 +983,7 @@ export class TanreiTable extends TanreiLightElement {
     const written = chosen.filter((each) => each.written);
     const kept = written[0] ?? chosen[0];
     for (const each of chosen) if (each !== kept) each.now = false;
-    if (written.length > 1) report(this, 'TBL-60', `${written.length} rows are marked as chosen while selection is single; the first of them is drawn chosen`);
+    if (DEBUG && written.length > 1) report(this, 'TBL-60', `${written.length} rows are marked as chosen while selection is single; the first of them is drawn chosen`);
   }
 
   /**
@@ -1016,12 +1016,12 @@ export class TanreiTable extends TanreiLightElement {
     if (mode === 'none') return;
     const other = mode === 'single' ? CHECKBOX : RADIO;
     const head = table.tHead?.rows[0]?.cells[0];
-    if (mode === 'single' && head?.matches(SELECTION_CELL) && head.children.length) report(this, 'TBL-60', 'the header row holds a control while selection is single; no control stands for every row, and it is not drawn');
+    if (DEBUG && mode === 'single' && head?.matches(SELECTION_CELL) && head.children.length) report(this, 'TBL-60', 'the header row holds a control while selection is single; no control stands for every row, and it is not drawn');
     for (const body of table.tBodies) {
       for (const row of body.rows) {
         const cell = row.cells[0];
         if (cell?.matches(SELECTION_CELL) && cell.querySelector(other)) {
-          report(this, 'TBL-60', `a row holds a ${mode === 'single' ? 'checkbox' : 'radio button'} while selection is ${mode}; it is not drawn, and the row cannot be chosen`);
+          if (DEBUG) report(this, 'TBL-60', `a row holds a ${mode === 'single' ? 'checkbox' : 'radio button'} while selection is ${mode}; it is not drawn, and the row cannot be chosen`);
           return;
         }
       }
@@ -1073,7 +1073,7 @@ export class TanreiTable extends TanreiLightElement {
     const lead = row.cells[1];
     const header = lead && (lead.localName === 'th' || this.rowHeaders) ? (lead.textContent ?? '').trim().replace(/\s+/g, ' ') : '';
     this.rename(box, header);
-    if (!header) report(this, 'TBL-46', 'a row that can be chosen has a checkbox without a name; give the checkbox a label, or the row a header cell');
+    if (DEBUG && !header) report(this, 'TBL-46', 'a row that can be chosen has a checkbox without a name; give the checkbox a label, or the row a header cell');
   }
 
   /**
@@ -1088,7 +1088,7 @@ export class TanreiTable extends TanreiLightElement {
       return;
     }
     this.rename(box, '');
-    if (!this.nameOf(box) && !this.namedElsewhere(box)) this.words.missing('selectAllLabel', { id: 'TBL-46', effect: 'the checkbox that chooses every row has no name' });
+    if (!this.nameOf(box) && !this.namedElsewhere(box)) this.words.missing('selectAllLabel', DEBUG && { id: 'TBL-46', effect: 'the checkbox that chooses every row has no name' });
   }
 
   private listenChoices(chooses: boolean) {
@@ -1444,21 +1444,21 @@ export class TanreiTable extends TanreiLightElement {
 
   /** What a debug build says about a table it still draws (TBL-13, TBL-14, TBL-23). */
   private check(table: HTMLTableElement) {
-    if (!this.regionName(table)) report(this, 'TBL-23', 'the table has no name; give it a caption, or a label where a heading above it already says what it is');
+    if (DEBUG && !this.regionName(table)) report(this, 'TBL-23', 'the table has no name; give it a caption, or a label where a heading above it already says what it is');
     const foot = table.tFoot;
-    if (foot && [...table.tBodies].some((body) => foot.compareDocumentPosition(body) & Node.DOCUMENT_POSITION_FOLLOWING)) {
+    if (DEBUG && foot && [...table.tBodies].some((body) => foot.compareDocumentPosition(body) & Node.DOCUMENT_POSITION_FOLLOWING)) {
       report(this, 'TBL-13', 'a body row is given after a footer row; every body row is still drawn before every footer row');
     }
     // TBL-32, TBL-33: a sort button without a label is not drawn; the rows have one order.
     const header = [...(table.tHead?.rows[0]?.cells ?? [])];
     const controls = header.filter((cell) => cell.hasAttribute('aria-sort')).map((cell) => cell.querySelector(OWN_CONTROL));
-    if (controls.some((control) => control && !control.textContent?.trim())) {
+    if (DEBUG && controls.some((control) => control && !control.textContent?.trim())) {
       report(this, 'TBL-32', 'a sortable column has no header; it is drawn as a column that is not sortable');
     }
     const sorted = header.filter((cell) => ['ascending', 'descending'].includes(cell.getAttribute('aria-sort') ?? '') && cell.querySelector(OWN_CONTROL));
-    if (sorted.length > 1) report(this, 'TBL-33', `${sorted.length} columns say that the rows are in their order; the rows have one order, and each header is drawn as it is given`);
+    if (DEBUG && sorted.length > 1) report(this, 'TBL-33', `${sorted.length} columns say that the rows are in their order; the rows have one order, and each header is drawn as it is given`);
     // TBL-50: a placeholder row in a table that is not loading is drawn all the same.
-    if (!this.loading && table.getAttribute('aria-busy') !== 'true' && table.querySelector(':scope > tbody > tr[data-placeholder]')) {
+    if (DEBUG && !this.loading && table.getAttribute('aria-busy') !== 'true' && table.querySelector(':scope > tbody > tr[data-placeholder]')) {
       report(this, 'TBL-50', 'a row is a placeholder while the table is not loading; it is drawn all the same, and hidden from assistive technology');
     }
     const columns = Number(this.getAttribute('data-columns') ?? 0);
@@ -1474,10 +1474,10 @@ export class TanreiTable extends TanreiLightElement {
       }
       if (!more && row.cells.length > columns) {
         more = true;
-        report(this, 'TBL-14', `a row holds ${row.cells.length} cells and the table has ${columns} columns; the cells after the last column are not drawn`);
+        if (DEBUG) report(this, 'TBL-14', `a row holds ${row.cells.length} cells and the table has ${columns} columns; the cells after the last column are not drawn`);
       } else if (!fewer && !spans && held < columns) {
         fewer = true;
-        report(this, 'TBL-14', `a row holds ${held} cells and the table has ${columns} columns; the places of the missing cells are left empty at the row's end`);
+        if (DEBUG) report(this, 'TBL-14', `a row holds ${held} cells and the table has ${columns} columns; the places of the missing cells are left empty at the row's end`);
       }
       if (more && (fewer || spans)) return;
     }

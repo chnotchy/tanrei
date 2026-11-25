@@ -407,8 +407,8 @@ export const styles = css`
     .suffix,
     .floating,
     .floating .asterisk,
-    .edge,
-    .outline > span,
+    .edge::before,
+    .outline > span::before,
     .outline-notch,
     .indicator {
       transition: none !important;

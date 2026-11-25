@@ -135,11 +135,11 @@ const carry = async (page: P, id: string, type: 'dragenter' | 'dragover' | 'drag
   await settle(page);
   return taken;
 };
-/** What the capsule draws: its fill, its lift, its opacity, its corner, and its edge. */
+/** What the capsule draws: its fill, its lift, its opacity, its corner, and its edge (the edge box's ::before draws it). */
 const drawn = (page: P, id: string) =>
   capsule(page, id).evaluate((el) => {
     const s = getComputedStyle(el);
-    const o = getComputedStyle(el.querySelector('.outline')!);
+    const o = getComputedStyle(el.querySelector('.outline')!, '::before');
     return { fill: s.backgroundColor, shadow: s.boxShadow, opacity: s.opacity, radius: Number.parseFloat(s.borderTopLeftRadius), edge: o.borderTopColor, width: Number.parseFloat(o.borderTopWidth), cursor: s.cursor };
   });
 /** The boxes of the capsule's parts, relative to the capsule: each present part's left, top, right and bottom. */
@@ -337,6 +337,31 @@ test.describe('behavior', () => {
     expect(await layout('odd')).toBe('inline');
     expect(seen.filter((text) => text.includes('CCM-4'))).toHaveLength(1);
   });
+
+  for (const system of ['tanrei', 'm3-like', 'cupertino'] as const) {
+    test(`CCM-4, CCM-2, CCM-3 (${system}): the typing area keeps the width its layout gives it — inline, never less than layout.input-min-width beside the actions; where they would leave it less, stacked, the capsule's width but for the send button — at every width, with and without attachments, in either direction`, async ({ page }) => {
+      await mount(page, one('long-text', 'inline-actions', 'inline-rtl', 'inline-typed', 'inline-uploading', 'stacked-actions'), system === 'tanrei' ? {} : { system });
+      const [pi, pib, gap, least, floor] = await Promise.all(['container-padding-inline', 'container-padding-inline-with-button', 'container-gap', 'layout-inline-min-width', 'layout-input-min-width'].map((name) => token(page, name)));
+      const ids = ['long-text', 'inline-actions', 'inline-rtl', 'inline-typed', 'inline-uploading', 'stacked-actions'];
+      for (const width of [320, 390, 480]) {
+        for (const id of ids) await stage(page, id).evaluate((el, w) => ((el as HTMLElement).style.inlineSize = `${w}px`), width);
+        await settle(page);
+        for (const id of ids) {
+          const [c, t, s] = [await box(capsule(page, id)), await box(typing(page, id)), await box(send(page, id))];
+          const layout = await capsule(page, id).getAttribute('data-layout');
+          const at = `${id} at ${width}`;
+          if (layout === 'stacked') near(t.width, c.width - pi - gap - s.width - pib, `${at}: stacked, the capsule's width but for the send button`, 1);
+          else expect(t.width, `${at}: inline, at least layout.input-min-width`).toBeGreaterThanOrEqual(floor - 0.5);
+        }
+        // Eight actions and a counter beside it would leave the text a column a few letters wide.
+        expect(await capsule(page, 'long-text').getAttribute('data-layout'), `long-text at ${width}`).toBe('stacked');
+      }
+      // Three actions at 480 leave it its room: inline, as the fixture says.
+      expect(await capsule(page, 'inline-actions').getAttribute('data-layout')).toBe('inline');
+      expect(floor, 'layout.input-min-width is a length').toBeGreaterThan(0);
+      expect(floor, 'and less than layout.inline-min-width').toBeLessThan(least);
+    });
+  }
 
   test('CCM-5: it holds exactly one embedded text input, multi-line, left as it is — no container, edge or padding of its own — given value and placeholder and named by label; a press on the capsule’s own ground gives it focus with the caret at the nearest point of the text and shows no pressed state, and a press on a Button, a File item or the counter does not; minRows below 1 is 1 and a maxRows that is neither 0 nor at least minRows is minRows', async ({ page }) => {
     await mount(page, [...one('inline-typed', 'inline-uploading'), fx('rows', { minRows: 0, maxRows: -3, value: NOTES }), fx('low', { minRows: 3, maxRows: 2, value: NOTES }), fx('free', { maxRows: 0, value: NOTES }), fx('count', { counter: true, value: 'Hello there' })]);
@@ -1165,11 +1190,12 @@ test.describe('behavior', () => {
     await mount(page, [fx('a', { attachments: 'own', ...FILES, counter: true, value: 'One' })], { reducedMotion: false });
     const duration = await resolveToken(page, T('motion-state-duration'), 'duration');
     const moves = await host(page, 'a').evaluate((el) => {
-      const read = (selector: string) => {
-        const s = getComputedStyle(el.shadowRoot!.querySelector(selector)!);
+      // The edge is drawn by its box's ::before.
+      const read = (selector: string, pseudo?: string) => {
+        const s = getComputedStyle(el.shadowRoot!.querySelector(selector)!, pseudo);
         return Object.fromEntries(s.transitionProperty.split(', ').map((name, index) => [name, Number.parseFloat(s.transitionDuration.split(', ')[index] ?? s.transitionDuration) * 1000]));
       };
-      return { capsule: read('.capsule'), outline: read('.outline'), counter: read('.counter') };
+      return { capsule: read('.capsule'), outline: read('.outline', '::before'), counter: read('.counter') };
     });
     expect(Object.keys(moves.capsule).sort()).toEqual(['background-color', 'box-shadow', 'opacity']);
     expect(Object.keys(moves.outline).sort()).toEqual(['border-color', 'border-width']);
@@ -1213,7 +1239,7 @@ test.describe('behavior', () => {
     expect(sampled.samples[2]!.capsule).toBeGreaterThan(sampled.before.capsule + 2);
     expect(sampled.samples[2]!.capsule).toBeLessThan(sampled.after.capsule - 2);
     await page.emulateMedia({ reducedMotion: 'reduce' });
-    expect(await host(page, 'a').evaluate((el) => ['.capsule', '.outline', '.counter'].map((selector) => getComputedStyle(el.shadowRoot!.querySelector(selector)!).transitionDuration))).toEqual(['0s', '0s', '0s']);
+    expect(await host(page, 'a').evaluate((el) => (['.capsule', '.outline', '.counter'] as const).map((selector) => getComputedStyle(el.shadowRoot!.querySelector(selector)!, selector === '.outline' ? '::before' : undefined).transitionDuration))).toEqual(['0s', '0s', '0s']);
   });
 
   /** CCM-35: hands files to the composer and waits for the update that draws them, and no more: a sampling of frames sees the motion it starts. */
@@ -2097,7 +2123,7 @@ test.describe('the members compared (the twin of a feature with parts of its own
         // The capsule's own drawing is not a member's: its edge is not drawn and its corners are square for the
         // comparison, so that the box of a member that stands in a corner is all fill.
         await host(page, f.id).evaluate((el) => {
-          el.shadowRoot!.querySelector<HTMLElement>('.outline')!.style.visibility = 'hidden';
+          el.shadowRoot!.querySelector<HTMLElement>('.outline')!.style.display = 'none';
           el.shadowRoot!.querySelector<HTMLElement>('.capsule')!.style.borderRadius = '0';
         });
         const where = await page.evaluate(([i]) => {
@@ -2138,6 +2164,22 @@ test.describe('accessibility', () => {
     });
   }
 
+  test('CCM-19, CCM-41: the edge drawn over what the capsule holds hides no text from a contrast check — a faint counter is a violation, the counter color passes, and nothing is left unchecked', async ({ page }) => {
+    // An element over a text is, to axe, an element covering it ("overlapped by another element"): while the edge's box
+    // drew the edge itself, the counter was left incomplete instead of checked.
+    const props = { counter: true, maxLength: 280, value: 'Could you send the floor plan before Friday?' };
+    await mount(page, [fx('faint', props), fx('normal', props)]);
+    await settle(page);
+    await host(page, 'faint').evaluate((el: HTMLElement, [ink, ground]) => (el.style.setProperty(ink, '#bbb'), el.style.setProperty(ground, '#fff')), [T('counter-color'), T('standard-container-color')] as const);
+    for (const id of ['faint', 'normal']) {
+      const results = await new AxeBuilder({ page }).include(`[data-fixture="${id}"]`).withRules(['color-contrast']).analyze();
+      const texts = (list: typeof results.violations) => list.flatMap((rule) => rule.nodes.map((node) => (node.html.includes('class="counter"') ? 'counter' : node.html)));
+      expect(texts(results.incomplete), `${id}: left unchecked`).toEqual([]);
+      expect(texts(results.violations), `${id}: reported`).toEqual(id === 'faint' ? ['counter'] : []);
+      expect(texts(results.passes).includes('counter'), `${id}: the counter passes`).toBe(id === 'normal');
+    }
+  });
+
   test('the fixture drawn without its words draws every part, works, and says what it lacks', async ({ page }) => {
     const seen = warnings(page);
     await mount(page, one('without-words'));
@@ -2169,7 +2211,9 @@ test.describe('fixtures', () => {
       const items = (f.items ?? []).length;
       expect(await host(page, f.id).evaluate((el) => el.querySelectorAll('tanrei-file-item').length + el.shadowRoot!.querySelectorAll('tanrei-file-item').length), f.id).toBe(items);
       const rowHolds = (f.props.attachments ?? 'none') !== 'none' || !!f.slots?.leading || !!f.slots?.trailing || (!!f.props.counter && !f.props.disabled);
-      expect(await capsule(page, f.id).getAttribute('data-layout'), f.id).toBe(f.props.layout === 'stacked' && rowHolds ? 'stacked' : 'inline');
+      // CCM-4: long-text's eight parts would leave its typing area less than layout.input-min-width, whatever layout says.
+      const crowded = f.id === 'long-text';
+      expect(await capsule(page, f.id).getAttribute('data-layout'), f.id).toBe((f.props.layout === 'stacked' || crowded) && rowHolds ? 'stacked' : 'inline');
     }
   });
 

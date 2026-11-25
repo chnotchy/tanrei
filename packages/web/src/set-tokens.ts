@@ -17,7 +17,7 @@
 // - it takes them off when the element holds enough, and adds them otherwise, so an element holds at most a few.
 //
 // Nothing is read from the page's style, so the write itself forces no style work.
-import { debugBuild } from './primitives/report.js';
+import { DEBUG } from './primitives/debug.js';
 
 /** The names of the markers: `--tanrei-tokens-written-0`, `-1`, … */
 const MARKER = '--tanrei-tokens-written-';
@@ -38,7 +38,7 @@ export function setTokens(tokens: Readonly<Record<string, string | null | undefi
   let taken = 0;
   for (const [name, value] of Object.entries(tokens)) {
     if (!name.startsWith('--')) {
-      if (debugBuild()) console.warn(`[tanrei] setTokens(): "${name}" is not a custom property; it is ignored`);
+      if (DEBUG) console.warn(`[tanrei] setTokens(): "${name}" is not a custom property; it is ignored`);
       continue;
     }
     if (value === '' || value === null || value === undefined) {

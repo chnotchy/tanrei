@@ -2,6 +2,7 @@ import { type PropertyDeclarations, type PropertyValues, html } from 'lit';
 import { AvailabilityController, hostAria, report } from '../../primitives/index.js';
 import { INSETS, LINE_CAPS, LINE_STYLES, ORIENTATIONS, styles } from './divider.styles.js';
 import { TanreiElement } from '../../primitives/element.js';
+import { DEBUG } from '../../primitives/debug.js';
 
 /** `horizontal` separates stacked content; `vertical` separates content in a row. */
 export type TanreiDividerOrientation = 'horizontal' | 'vertical';
@@ -180,16 +181,16 @@ export class TanreiDivider extends TanreiElement {
   protected override willUpdate(changed: PropertyValues<this>) {
     // DIV-7: a value the divider does not define is drawn as the default (the styles only select the other values) and
     // reported in debug builds.
-    if (changed.has('orientation') && !(ORIENTATIONS as readonly string[]).includes(this.orientation)) {
+    if (DEBUG && changed.has('orientation') && !(ORIENTATIONS as readonly string[]).includes(this.orientation)) {
       report(this, 'DIV-7', `orientation "${this.orientation}" is not a value of the divider; it is drawn as "horizontal"`);
     }
-    if (changed.has('inset') && !(INSETS as readonly string[]).includes(this.inset)) {
+    if (DEBUG && changed.has('inset') && !(INSETS as readonly string[]).includes(this.inset)) {
       report(this, 'DIV-7', `inset "${this.inset}" is not a value of the divider; it is drawn as "none"`);
     }
-    if (changed.has('lineStyle') && !(LINE_STYLES as readonly string[]).includes(this.lineStyle)) {
+    if (DEBUG && changed.has('lineStyle') && !(LINE_STYLES as readonly string[]).includes(this.lineStyle)) {
       report(this, 'DIV-7', `lineStyle "${this.lineStyle}" is not a value of the divider; it is drawn as "solid"`);
     }
-    if (changed.has('lineCap') && !(LINE_CAPS as readonly string[]).includes(this.lineCap)) {
+    if (DEBUG && changed.has('lineCap') && !(LINE_CAPS as readonly string[]).includes(this.lineCap)) {
       report(this, 'DIV-7', `lineCap "${this.lineCap}" is not a value of the divider; it is drawn as "butt"`);
     }
     // DIV-14: a length is used as given, in CSS px, not scaled by any dial; null, or a value that is not a finite
@@ -203,7 +204,7 @@ export class TanreiDivider extends TanreiElement {
       if (typeof value === 'number' && Number.isFinite(value) && value >= 0 && (zero || value > 0)) {
         declarations.push(`${given}: ${value}px;`);
         if (prop === 'thickness') this.givenThickness = value;
-      } else if (this.draws(prop)) {
+      } else if (DEBUG && this.draws(prop)) {
         report(this, 'DIV-14', `${prop} ${typeof value === 'number' ? String(value) : JSON.stringify(value)} is not a length the divider can draw; it takes ${token}`);
       }
     }
