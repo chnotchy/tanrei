@@ -125,6 +125,67 @@ function drawnAsNoElement(element: Element): boolean {
   return generatesVisibly(element) || [...element.children].some(generatesVisibly);
 }
 
+/** A length of a computed `clip-path` in pixels: `px`, or `%` of `whole`. */
+const lengthIn = (text: string, whole: number) => (text.endsWith('%') ? (parseFloat(text) / 100) * whole : parseFloat(text) || 0);
+
+let clipPen: CanvasRenderingContext2D | null = null;
+/**
+ * Whether a point is inside a computed `clip-path`, the point given from the top left of the clipped element's
+ * border box, the shape's reference box (`inset()`, `polygon()`, `path()`); null for a shape this does not read, which
+ * is taken to keep the point. An `inset()`'s rounded corners are taken square.
+ */
+function clipKeeps(clip: string, width: number, height: number): ((x: number, y: number) => boolean) | null {
+  const shape = clip.match(/^(inset|polygon|path)\((.*)\)(?:\s+border-box)?$/s);
+  if (!shape) return null;
+  const [, kind, body] = shape;
+  if (kind === 'inset') {
+    const values = body.split(/\s+round\s+/)[0].trim().split(/\s+/);
+    const [top, right = top, bottom = top, left = right] = values;
+    const [t, r, b, l] = [lengthIn(top, height), lengthIn(right, width), lengthIn(bottom, height), lengthIn(left, width)];
+    return (x, y) => x >= l && x <= width - r && y >= t && y <= height - b;
+  }
+  clipPen ??= document.createElement('canvas').getContext('2d');
+  const pen = clipPen;
+  if (!pen) return null;
+  const [, rule = 'nonzero', rest] = body.match(/^\s*(?:(nonzero|evenodd)\s*,\s*)?(.*)$/s) ?? [];
+  let path: Path2D;
+  if (kind === 'path') {
+    const data = rest?.match(/^"(.*)"$/s)?.[1];
+    if (data === undefined) return null;
+    path = new Path2D(data);
+  } else {
+    path = new Path2D();
+    (rest ?? '').split(',').forEach((pair, index) => {
+      const [x, y] = pair.trim().split(/\s+/);
+      if (index === 0) path.moveTo(lengthIn(x, width), lengthIn(y, height));
+      else path.lineTo(lengthIn(x, width), lengthIn(y, height));
+    });
+    path.closePath();
+  }
+  return (x, y) => pen.isPointInPath(path, x, y, rule as CanvasFillRule);
+}
+
+/**
+ * Whether the clip paths of an element and of the boxes it is drawn in leave none of its box drawn — a tab's label
+ * where the active indicator's shape is cut out of it whole, drawn by the covered copy instead. Read at points of a
+ * grid across its box, an element's visibility (`checkVisibility()`) does not see a clip.
+ */
+function clippedWhole(element: Element): boolean {
+  const rect = element.getBoundingClientRect();
+  if (rect.width <= NEAR || rect.height <= NEAR) return false;
+  const steps = 6;
+  let points: [number, number][] = [];
+  for (let i = 0; i <= steps; i++) for (let j = 0; j <= steps; j++) points.push([rect.left + 0.5 + ((rect.width - 1) * i) / steps, rect.top + 0.5 + ((rect.height - 1) * j) / steps]);
+  for (let at: Element | null = element; at && points.length; at = at.assignedSlot ?? at.parentElement ?? ((at.getRootNode() as ShadowRoot).host || null)) {
+    const clip = getComputedStyle(at).clipPath;
+    if (!clip || clip === 'none') continue;
+    const box = at.getBoundingClientRect();
+    const keeps = clipKeeps(clip, box.width, box.height);
+    if (keeps) points = points.filter(([x, y]) => keeps(x - box.left, y - box.top));
+  }
+  return points.length === 0;
+}
+
 /** The box of what a part's target is, as drawn, in the viewport's coordinates; null where nothing of it is drawn. */
 export function targetBox(host: Element, target: PartTarget): { box: Box; element: Element | null } | null {
   let elements: Element[] = [];
@@ -147,9 +208,9 @@ export function targetBox(host: Element, target: PartTarget): { box: Box; elemen
       }
     }
   } else if ('className' in target) elements = [host.closest('.stage')?.querySelector(`.${target.className}`) ?? host.querySelector(`.${target.className}`)].filter((element): element is Element => element !== null);
-  // What is drawn invisibly (a checkbox's mark while it is unchecked, faded out) is not drawn for the figure; a box
-  // drawn as no element is.
-  elements = elements.filter((element) => (element.checkVisibility?.({ opacityProperty: true, visibilityProperty: true }) ?? true) || drawnAsNoElement(element));
+  // What is drawn invisibly (a checkbox's mark while it is unchecked, faded out) or clipped away whole is not drawn for
+  // the figure; a box drawn as no element is.
+  elements = elements.filter((element) => ((element.checkVisibility?.({ opacityProperty: true, visibilityProperty: true }) ?? true) || drawnAsNoElement(element)) && !clippedWhole(element));
   const rects = range ? [range.getBoundingClientRect()] : elements.map((element) => element.getBoundingClientRect());
   const drawn = rects.filter((rect) => rect.width > NEAR && rect.height > NEAR);
   if (!drawn.length) return null;
