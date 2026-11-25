@@ -17,8 +17,6 @@ import {
   giveAttributes,
   giveVariant,
   motionReduced,
-  cancelPhaseRead,
-  readInPhase,
   readTogether,
   report,
   SETTLING,
@@ -617,6 +615,11 @@ export class TanreiChatComposer extends ComposedElement implements PlacingGroup 
   /** CCM-7: its one file picker, while `attachments` is not none. */
   private get picker(): TanreiFilePicker | null {
     return this.renderRoot?.querySelector<TanreiFilePicker>('tanrei-file-picker') ?? null;
+  }
+
+  /** CCM-4: the capsule's width, watched (`sizeWatch`). */
+  private get widthProbe(): HTMLElement | null {
+    return this.renderRoot?.querySelector<HTMLElement>('.capsule > .width') ?? null;
   }
 
   private get capsule(): HTMLElement | null {
@@ -1647,7 +1650,8 @@ export class TanreiChatComposer extends ComposedElement implements PlacingGroup 
     if (!capsule || !this.isConnected) return;
     const typed = this.input?.shadowRoot?.querySelector('[part~="input"]');
     const line = typed ? getComputedStyle(typed).lineHeight : '';
-    const width = this.sizes.get(capsule);
+    const probe = this.widthProbe;
+    const width = probe ? this.sizes.get(probe) : undefined;
     const least = this.sizeOf(capsule.querySelector('.probe[data-of="inline"]'));
     const needs = this.inlineNeeds(capsule);
     return () => {
@@ -1693,22 +1697,17 @@ export class TanreiChatComposer extends ComposedElement implements PlacingGroup 
   }
 
   /**
-   * CCM-4, CCM-41: one observer watches the capsule, the typing area and the parts beside it of every chat composer, so that a frame reports
+   * CCM-4, CCM-41: one observer watches the capsule's width, the typing area and the parts beside it of every chat composer, so that a frame reports
    * all that were resized in one callback, all of them read before any writes (`measure()`).
    *
-   * A report after the first is laid out in the next frame's read phase (src/primitives/read-phase.ts), never in the
-   * report: whether the capsule is laid out stacked changes its height, and a box that changes size in a report is
-   * reported again in that frame only if it lies deeper than every box reported before it — a chat composer whose
-   * width changed in a box that changes the size of nothing above it left its capsule undelivered, and the browser
-   * raised "ResizeObserver loop completed with undelivered notifications". The read phase is reported with the page's
-   * root element, so what it writes is reported in the same frame. What the frame after a change of width draws late
-   * is the layout: for one frame the capsule stays inline (or stacked) as it was.
-   *
-   * The capsule's first report is laid out in the report, so that the first frame painted is already in its layout:
-   * the read phase was asked for when its parts were first watched (`watch()`), so the page's root element was
-   * reported first in that frame, and what the layout changes is reported in it again. (Watched in the frame callbacks
-   * of the frame it is first drawn in, the read phase comes a frame later, and that first report is left undelivered
-   * as any other.)
+   * The layout is decided in the report, so that the frame of the change draws it, and what it watches makes that
+   * write one the browser delivers in the same frame. A box that changes size in a report is reported again in that
+   * frame only if it lies deeper than every box reported before it; else the browser raises "ResizeObserver loop
+   * completed with undelivered notifications". So the capsule's width is watched on `.width`, a child of the capsule
+   * that takes no room and is as wide as the capsule and never taller: the layout changes the capsule's height, not its
+   * width, so `.width` keeps its size, and it lies above every other box watched here — the typing area, the parts and
+   * the probes, whose change is delivered again in the same frame. (Watched itself, the capsule was left undelivered
+   * whenever its layout changed in a box that changes the size of nothing above it.)
    */
   private static sizeWatch: ResizeObserver | null = null;
   /** The chat composer each watched element belongs to. */
@@ -1720,45 +1719,36 @@ export class TanreiChatComposer extends ComposedElement implements PlacingGroup 
     const parts = [root?.querySelector('tanrei-file-picker'), ...this.slotted('leading'), ...this.slotted('trailing'), root?.querySelector('.measures > .widest'), root?.querySelector('.group.send')];
     // And the probes, whose widths are the tokens' lengths: a system or a scale changed is reported as a resize.
     const probes = [...(this.capsule?.querySelectorAll('.measures > .probe') ?? [])];
-    const next = [this.capsule, this.input, ...parts, ...probes].filter((element): element is HTMLElement => !!element);
+    const next = [this.widthProbe, this.input, ...parts, ...probes].filter((element): element is HTMLElement => !!element);
     if (next.length === this.watched.length && next.every((element, index) => element === this.watched[index])) return;
-    this.unwatch();
     if (typeof ResizeObserver === 'undefined') return;
     const watch = (TanreiChatComposer.sizeWatch ??= new ResizeObserver((entries) => {
-      const reported = new Set<TanreiChatComposer>();
-      const first = new Set<TanreiChatComposer>();
       for (const entry of entries) {
         const owner = TanreiChatComposer.owners.get(entry.target);
         if (!owner) continue;
-        if (entry.target === owner.capsule && !owner.sizes.has(entry.target)) first.add(owner);
         // The report's own size: the border box's inline size, which reading it again from the layout would only repeat.
         const box = entry.borderBoxSize?.[0];
         owner.sizes.set(entry.target, box ? box.inlineSize : entry.target.getBoundingClientRect().width);
-        reported.add(owner);
-      }
-      for (const owner of reported) {
-        if (first.has(owner)) owner.measure();
-        else readInPhase(owner.measureRead, owner.phaseMeasure);
+        owner.measure();
       }
     }));
+    // Only what is new is observed, and only what left is let go: an element observed again is reported again, and
+    // the layout's own render (a stacked row draws the attach button anew) runs inside a report, where `.width`
+    // observed again would be left undelivered as any box no deeper than the last one reported.
+    const kept = new Set<Element>(next);
+    for (const element of this.watched) {
+      if (kept.has(element)) continue;
+      watch.unobserve(element);
+      if (TanreiChatComposer.owners.get(element) === this) TanreiChatComposer.owners.delete(element);
+    }
+    const was = new Set<Element>(this.watched);
     for (const element of next) {
+      if (was.has(element) && TanreiChatComposer.owners.get(element) === this) continue;
       TanreiChatComposer.owners.set(element, this);
       watch.observe(element);
     }
     this.watched = next;
-    // The capsule's first report is laid out in the report (`sizeWatch`): the read phase is asked for so that it runs in
-    // the frame of that report, and reports the page's root element first. It reads nothing then (`phaseMeasure`).
-    if (this.capsule && !this.sizes.has(this.capsule)) readInPhase(this.measureRead, this.phaseMeasure);
   }
-
-  /** Who asks the read phase to lay the capsule out after the resize watch reported a change (`sizeWatch`). */
-  private readonly measureRead = {};
-
-  /**
-   * `measure()` in the read phase, once the capsule has been reported: before that there is nothing to decide, and the
-   * line is read with the render's reads (`updated()`).
-   */
-  private readonly phaseMeasure = () => (this.capsule && this.sizes.has(this.capsule) ? this.readMeasures() : undefined);
 
   private unwatch() {
     for (const element of this.watched) {
@@ -1786,9 +1776,6 @@ export class TanreiChatComposer extends ComposedElement implements PlacingGroup 
     super.disconnectedCallback();
     this.children$?.disconnect();
     this.unwatch();
-    cancelPhaseRead(this.measureRead);
-    // Connected again, its capsule's next report is a first one, laid out in the frame it is drawn in (`sizeWatch`).
-    if (this.capsule) this.sizes.delete(this.capsule);
     clearTimeout(this.turn);
     this.turn = undefined;
     this.held = null;
@@ -2077,6 +2064,7 @@ export class TanreiChatComposer extends ComposedElement implements PlacingGroup 
           <div class="group send">${this.sendPart(disabled, sendable)}</div>
         </div>
         ${stacked ? html`<div class="row">${start}${end}</div>` : nothing}
+        <span class="width" aria-hidden="true"></span>
         <div class="measures" aria-hidden="true">
           <span class="probe" data-of="inline"></span><span class="probe" data-of="input"></span><span class="probe" data-of="start"></span
           ><span class="probe" data-of="padding"></span><span class="probe" data-of="gap"></span>${this.counts ? html`<span class="widest">${this.widestCount}</span>` : nothing}<span class="timing"></span>

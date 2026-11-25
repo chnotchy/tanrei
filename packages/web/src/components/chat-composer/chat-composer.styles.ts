@@ -319,6 +319,16 @@ export const styles = css`
     color: ${t('counter-error-color')};
   }
 
+  /* CCM-4: the capsule's width as the element watches it — as wide as the capsule, no height whatever the layout, drawn
+     nowhere and taking no room. */
+  .capsule > .width {
+    position: absolute;
+    inset-block-start: 0;
+    inset-inline: 0;
+    block-size: 0;
+    visibility: hidden;
+    pointer-events: none;
+  }
   /* CCM-4: the width under which it is laid out stacked, as a length the element reads; it is drawn nowhere, takes
      no room and — inside a box that clips — widens nothing. */
   .measures {
