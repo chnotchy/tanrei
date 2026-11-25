@@ -14,7 +14,7 @@ const TagGroupElement = /* @__PURE__ */ createComponent({
     onChange: 'change' as EventName<TanreiEvent<TanreiTagGroupElement, CustomEvent<TanreiTagGroupChangeDetail>>>,
   },
 });
-const TagGroupAttributes = { spacing: ['spacing'], label: ['label', ''], selection: ['selection', 'none'], value: ['value', null], values: ['values'] } as const;
+const TagGroupAttributes = { spacing: ['spacing'], label: ['label', ''], selection: ['selection', 'none'], value: ['value', null], values: ['values', []] } as const;
 /**
  * Lays out a set of tags or chips in lines that wrap, spaced for what it holds, and exposes the set as one named list.
  *

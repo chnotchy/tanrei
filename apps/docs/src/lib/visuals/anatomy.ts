@@ -145,5 +145,21 @@ export function blueprintStageOf(name: string, fixture = anatomyFixtureOf(name))
   const room = document.sizes[fixture];
   if (!stage || !room || !new RegExp(`<${tag}[\\s/>]`).test(stage.html)) return null;
   const system = spec.layer && spec.layer !== 'core' ? spec.layer : undefined;
-  return { fixture, html: stage.html, staging: document.staging, room, tag, system };
+  if (shown.kind !== 'opener') return { fixture, html: stage.html, staging: document.staging, room, tag, system };
+  // A surface the page's own top layer would draw beside its anchor (a tooltip, a popover) is drawn in place in a
+  // figure: its element's `inline`, in the stage, which is positioned and stands for its window. In the page's window
+  // it could not stay open as a picture: at most one tooltip is open in a window, so the next figure's would close it
+  // (TIP-8), and one whose anchor is out of the window's view closes (TIP-9) — a figure below the fold, as it loads.
+  const html = inPlace(stage.html, tag);
+  const staging = `${document.staging}\n.stage:has(> ${tag}[inline]) { position: relative; }`;
+  return { fixture, html, staging, room, tag, system };
+}
+
+/** A stage's markup with its element drawn in place: `inline` added to its first `tag`, where it is not there already. */
+function inPlace(html: string, tag: string): string {
+  const opening = new RegExp(`<${tag}(?=[\\s/>])((?:\\s+[^\\s=>]+(?:="[^"]*")?)*)`).exec(html);
+  if (!opening) return html;
+  if (/\sinline(?:=""|(?=\s|$))/.test(opening[1])) return html;
+  const at = opening.index + tag.length + 1;
+  return `${html.slice(0, at)} inline${html.slice(at)}`;
 }

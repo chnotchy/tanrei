@@ -199,6 +199,23 @@ import { themeScript } from '@tanrei/web/theme-script';
 
 スクリプトからトークンを設定するには、`@tanrei/web` の `setTokens()` を使います。ルートなら `setTokens({ '--tanrei-sys-color-primary': '#0b57d0' })`、ページの一部なら `{ on: element }` を付けます。ルートにトークンを 1 つだけ `style.setProperty()` で設定すると、Safari はページ全体のスタイルを数秒かけて計算し直します。`setTokens()` は、そうならないように書き込みます。
 
+## 自分のフォーカスリング
+
+どの要素も、キーボードフォーカスの表示をシステムのフォーカストークン（`--tanrei-sys-focus-offset`, `--tanrei-sys-focus-inner-width`, `--tanrei-sys-focus-outer-width`, `--tanrei-sys-color-focus-ring`, `--tanrei-sys-color-focus-ring-inner`）から自分で描きます。見た目を変えるときはこれらのトークンを変えてください。フォーカスされた要素すべてに効くページ側のルール（`:focus-visible { outline: … }` や、リセット CSS のもの）はそのままで構いません。タブ、タブパネル、リストの項目のようにホスト自身がフォーカスを受け取る要素は、リングを内側に描き、ホストには `outline: none !important` を指定しています。ページのルールはシャドウルートのルールより優先されますが、`!important` のルールには勝てないため、ページのアウトラインがその周りに重ねて描かれることはありません。
+
+自分のマークアップ用のスタイルシート（`table.css`、`link.css`、`prose.css` など）は `@layer tanrei.components` に入っています。レイヤーの外にあるルールはレイヤー内のどのルールよりも優先されるため、レイヤーに入れていないフォーカスのルールは、これらのリングを自分のリングで置き換えてしまいます。ページが最初に読み込むスタイルシートで Tanrei より前に自分のレイヤーを宣言し、ルールをそこに入れれば、これらのリングはそのまま描かれます。
+
+```css
+@layer base, tanrei;
+
+@layer base {
+  :focus-visible {
+    outline: var(--tanrei-sys-focus-outer-width) solid var(--tanrei-sys-color-focus-ring);
+    outline-offset: var(--tanrei-sys-focus-offset);
+  }
+}
+```
+
 ## テキストスタイル
 
 テキストスタイルは階層で名付けられています（`heading-2` は `h2`、`body` は `p`、`label` はコントロール上のテキスト）。それぞれが、ひとまとまりの個別のカスタムプロパティです。`--tanrei-sys-typescale-<role>-font-family`、`-font-size`、`-font-weight`、`-line-height`、`-letter-spacing`、`-font-weight-emphasized` があります。ショートハンドのプロパティはありません。上の例のように、テキストを描くところで個別のプロパティから `font` を組み立ててください。スタイルを変えるときも、個別のプロパティを 1 つずつ変えます。`--tanrei-sys-typescale-body-font-size: 1rem` をルートか、ページの 1 つの要素や区画に設定すると、そのテキストの文字サイズだけが変わり、ほかは変わりません。次の 2 つの任意のスタイルシートを使うと、これらを要素に適用できます。

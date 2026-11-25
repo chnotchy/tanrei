@@ -740,7 +740,7 @@ Every other `View` prop is passed through.
   Indeterminate, a bar moves a segment two fifths long from −40 % to 100 % once per `motionCycleDuration` with
   `motionCycleEasing` (JavaScript-driven: a layout position, clipped by the track); a ring turns a quarter arc at constant
   speed (native driver). Under reduced motion values change at once and the indeterminate form stands still: the whole
-  track in the indicator color, its opacity 1 → 0 → 1 once per cycle (native driver). The loop does not start until
+  track in the indicator color, its opacity 1 → `motion.pulse-floor-opacity` → 1 once per cycle, never below that floor (native driver). The loop does not start until
   `AccessibilityInfo.isReduceMotionEnabled()` has answered, so a person who asked for less motion never sees it begin.
 - **Off screen** (PRG-14) — the loop stops while the app is in the background (`AppState`) and restarts at the start of
   a cycle when it comes back. **What React Native cannot do:** it has no API that says a view is scrolled out of view or
@@ -781,7 +781,7 @@ Every other `View` prop is passed through.
   `boxShadow` + outside ring as Button's elevation; `level0` draws neither), the mark centered in
   `containedIndicatorColor`.
 - **Reduced motion** (LDG-4) — the arc stops turning: the whole circle at the mark's size and stroke, its opacity
-  1 → 0 → 1 once per cycle with `sys.motion.easing.standard`; the container stays still and opaque. The loop waits for
+  1 → `motion.pulse-floor-opacity` → 1 once per cycle, never below that floor, with `sys.motion.easing.standard`; the container stays still and opaque. The loop waits for
   `AccessibilityInfo.isReduceMotionEnabled()` to answer before it starts.
 - **Off screen** (LDG-7) — as the progress indicator: stopped while the app is in the background; React Native cannot
   tell that a view is scrolled out of view.

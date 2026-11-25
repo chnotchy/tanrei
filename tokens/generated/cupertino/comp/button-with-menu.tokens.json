@@ -769,6 +769,11 @@
             "$value": "{tanrei.comp.button.motion.busy-cycle-duration}",
             "$description": "One turn of the busy leading half's arc (SPB-39): a busy Button's, so that the two components agree. Under reduced motion it does not turn, and its opacity eases once per this time instead."
           },
+          "busy-pulse-floor-opacity": {
+            "$type": "number",
+            "$value": "{tanrei.comp.button.motion.busy-pulse-floor-opacity}",
+            "$description": "The opacity the busy leading half's circle eases down to at the low point of each pulse under reduced motion (SPB-39): a busy Button's, so that the two components agree."
+          },
           "busy-fade-duration": {
             "$type": "duration",
             "$value": "{tanrei.comp.button.motion.busy-fade-duration}",

@@ -68,6 +68,7 @@ A design system is a small JSON file that *extends* another. Mostly it changes v
 | This token to use a different step | re-point the alias |
 | This one value to stay put whatever the dials do | pin `$value` with a `reason` |
 | A brand or domain color with its own `on-` and `-container` roles, contrast-checked | declare a palette with `"roles": "intent"` |
+| Your brand color on the main action and the selected controls | declare a palette named `primary`: the primary roles are drawn from it in every scheme, contrast-checked, wherever the system you extend drew them from before |
 
 Because every platform's code is generated from the same resolved system, one pull request changes the web, SwiftUI, Compose, Flutter and React Native together.
 

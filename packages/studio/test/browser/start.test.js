@@ -1,7 +1,8 @@
 // The start point, first in the bar: a menu of what the layer starts from — the default system, the root (listed, not
 // offered until the command line can start a layer from it, with the reason), the examples of the gallery — and a file to load in the
-// layer's place. A layer that holds changes asks first; a new start and a loaded file are each one step to undo. A file
-// the schema refuses is not loaded, and the panel says why; one it accepts is loaded, with what the engine says of it.
+// layer's place. Nothing is asked first: a new start, a loaded file and the bar's reset are each one step, said in a
+// snackbar whose Undo takes it back. A file the schema refuses is not loaded, and the panel says why; one it accepts is
+// loaded, with what the engine says of it.
 import assert from 'node:assert/strict';
 import { motionsEnded, studioTest, until } from './harness.js';
 
@@ -26,8 +27,10 @@ const loadFile = async (page, name, text) => {
   await chooser.setFiles({ name, mimeType: 'application/json', buffer: Buffer.from(text) });
 };
 const report = (page) => page.locator('[data-import-report]');
+/** The snackbar the Studio shows after a step that replaced the layer. */
+const snackbar = (page) => page.locator('[data-snackbars] tanrei-snackbar');
 
-studioTest('the bar’s start point: the default system, the root listed and not offered with its reason, the examples of the gallery, and a file', {}, async ({ page, axe, targets }) => {
+studioTest('the bar’s start point: the default system, the root listed and not offered, said to be coming, the examples of the gallery, and a file', {}, async ({ page, axe, targets }) => {
   assert.equal(await label(page), 'Start: Tanrei');
   // The button says it opens a menu, and whether it is open (on the native button its shadow root holds).
   const aria = (name) => page.locator('[data-start-open]').evaluate((el, attribute) => el.shadowRoot.querySelector('button').getAttribute(attribute), name);
@@ -38,17 +41,20 @@ studioTest('the bar’s start point: the default system, the root listed and not
   const rows = await menu(page).locator('tanrei-menu-group').evaluateAll((groups) => groups.map((group) => [group.getAttribute('label'), group.value, [...group.querySelectorAll('tanrei-menu-radio-item')].map((item) => [item.value, item.label, item.supportingText, item.disabled])]));
   assert.deepEqual(rows[0], ['Start from', 'tanrei', [
     ['tanrei', 'Tanrei', 'The default system', false],
-    ['core', 'Core', 'Not yet: Tanrei’s root layer is neutral now — grey, with no accent — but the command line cannot start a layer from it yet (tanrei init --extends core). It can be chosen here once it can.', true],
+    ['core', 'Core', 'A blank start (coming soon)', true],
   ]]);
-  assert.equal(rows[1][0], 'From the gallery');
+  assert.equal(rows[1][0], 'Theme gallery');
   assert.equal(rows[1][1], null, 'no example is the start');
-  assert.deepEqual(rows[1][2].map(([id]) => id).sort(), ['cupertino', 'm3-like']);
-  for (const [id, , note, disabled] of rows[1][2]) assert.ok(note.endsWith('An example, not an official design.') && !disabled, id);
+  // As the approved design lists them, each on one line: what it imitates, said as an example made after it.
+  assert.deepEqual(rows[1][2], [
+    ['m3-like', 'm3-like', 'A Material 3–style example', false],
+    ['cupertino', 'cupertino', 'An Apple-style example', false],
+  ]);
   assert.equal(await menu(page).locator('[data-start-file]').getAttribute('label'), 'Import a file…');
-  // The root is reachable from the keyboard, says it is disabled — its reason is its description — and pressing it does nothing.
+  // The root is reachable from the keyboard, says it is disabled — that it is coming is its description — and pressing it does nothing.
   const core = menu(page).locator('[data-start="core"]');
   assert.equal(await core.getAttribute('aria-disabled'), 'true');
-  assert.match(await core.getAttribute('aria-description'), /^Not yet: /);
+  assert.equal(await core.getAttribute('aria-description'), 'A blank start (coming soon)');
   const focused = () => core.evaluate((el) => el === document.activeElement);
   for (let step = 0; step < 6 && !(await focused()); step += 1) await page.keyboard.press('ArrowDown');
   assert.equal(await focused(), true, 'the arrow keys reach the root');
@@ -63,45 +69,53 @@ studioTest('the bar’s start point: the default system, the root listed and not
   await page.waitForFunction(() => document.activeElement?.matches('[data-start-open]'), null, { timeout: 5000 });
 });
 
-studioTest('another start: an untouched layer starts from it without asking; one with changes asks, may stay, and Undo brings the changes back', {}, async ({ page, saved, section }) => {
+studioTest('another start: nothing is asked, a snackbar says it, and its Undo — or the bar’s — brings the changes back', {}, async ({ page, saved, section, axe }) => {
   const asked = dialogs(page);
   await openMenu(page);
   await menu(page).locator('[data-start="m3-like"]').click();
   await saved((layer) => layer.extends === 'm3-like', 'the start');
-  assert.deepEqual(asked, [], 'nothing to replace: no question');
   assert.equal(await label(page), 'Start: m3-like');
-  assert.match(await page.locator('[data-status]').textContent(), /Started from m3-like\. Undo takes it back\./);
+  await until(async () => (await snackbar(page).evaluate((el) => el.message).catch(() => '')) === 'Started from m3-like', 'the snackbar');
+  assert.equal(await snackbar(page).evaluate((el) => el.action), 'Undo');
+  await axe('[data-snackbars]', 'the snackbar');
   await openMenu(page);
   assert.deepEqual(await menu(page).locator('tanrei-menu-group').evaluateAll((groups) => groups.map((group) => group.value)), [null, 'm3-like']);
   await page.keyboard.press('Escape');
 
-  // A change, then another start: asked, declined — the layer stays as it is.
+  // A change, then another start: nothing is asked; the snackbar's Undo brings the change back, on m3-like.
   await page.evaluate(() => window.tanreiStudio.setLayer({ id: 'acme', extends: 'm3-like', palettes: { primary: { source: { seed: '#0b6e4f' } } } }));
   await saved((layer) => layer.palettes?.primary, 'the change');
-  page.removeAllListeners('dialog');
-  const declined = dialogs(page, 'dismiss');
-  await openMenu(page);
-  await menu(page).locator('[data-start="cupertino"]').click();
-  await until(async () => declined.length === 1, 'asked');
-  assert.equal(declined[0], 'Start from cupertino? Your changes to this layer are replaced; Undo brings them back.');
-  await until(async () => (await label(page)) === 'Start: m3-like', 'the start stays');
-  assert.equal((await page.evaluate(() => window.tanreiStudio.getLayer())).extends, 'm3-like');
-  await openMenu(page);
-  assert.deepEqual(await menu(page).locator('tanrei-menu-group').evaluateAll((groups) => groups.map((group) => group.value)), [null, 'm3-like'], 'the menu says the start the layer still has');
-  await page.keyboard.press('Escape');
-
-  // Accepted: a fresh layer on cupertino; Undo brings the change back, on m3-like.
-  page.removeAllListeners('dialog');
-  dialogs(page);
+  assert.equal(await snackbar(page).count(), 0, 'an edit after the start: the snackbar goes (Undo in the bar is the way back)');
   await openMenu(page);
   await menu(page).locator('[data-start="cupertino"]').click();
   await saved((layer) => layer.extends === 'cupertino' && !layer.palettes, 'the new start');
-  await page.locator('[data-undo]').click();
-  await saved((layer) => layer.extends === 'm3-like' && layer.palettes?.primary?.source?.seed === '#0b6e4f', 'undone');
+  await until(async () => (await snackbar(page).evaluate((el) => el.message).catch(() => '')) === 'Started from cupertino', 'the snackbar');
+  await snackbar(page).getByRole('button', { name: 'Undo', exact: true }).click();
+  await saved((layer) => layer.extends === 'm3-like' && layer.palettes?.primary?.source?.seed === '#0b6e4f', 'undone from the snackbar');
   assert.equal(await label(page), 'Start: m3-like');
+  // Again, and undone from the bar.
+  await openMenu(page);
+  await menu(page).locator('[data-start="cupertino"]').click();
+  await saved((layer) => layer.extends === 'cupertino', 'the new start');
+  await page.locator('[data-undo]').click();
+  await saved((layer) => layer.extends === 'm3-like' && layer.palettes?.primary, 'undone from the bar');
+  assert.deepEqual(asked, [], 'nothing was asked');
   // The Base system panel says the same base.
   await section('base');
   assert.equal(await page.locator('[data-base]').evaluate((el) => el.value), 'm3-like');
+});
+
+studioTest('the bar’s reset: the layer back to what its start gives, without asking, one step that its snackbar undoes', { layer: { id: 'acme', name: 'Acme', extends: 'cupertino', palettes: { primary: { source: { seed: '#0b6e4f' } } } } }, async ({ page, saved }) => {
+  const asked = dialogs(page);
+  const reset = page.locator('[data-reset]');
+  assert.equal(await reset.evaluate((el) => el.disabled), false, 'the layer holds changes: there is something to reset');
+  await reset.click();
+  await saved((layer) => Object.keys(layer).sort().join() === 'extends,id' && layer.id === 'acme' && layer.extends === 'cupertino', 'reset: the id and the start kept, nothing else');
+  assert.equal(await reset.evaluate((el) => el.disabled), true, 'nothing left to reset');
+  await until(async () => (await snackbar(page).evaluate((el) => el.message).catch(() => '')) === 'Reset to the start’s values', 'the snackbar');
+  await snackbar(page).getByRole('button', { name: 'Undo', exact: true }).click();
+  await saved((layer) => layer.name === 'Acme' && layer.palettes?.primary, 'undone');
+  assert.deepEqual(asked, []);
 });
 
 studioTest('a layer with every value written out starts from the root: the bar names Core, checked and not offered', { layer: { id: 'acme', extends: 'core' } }, async ({ page }) => {
@@ -119,7 +133,7 @@ studioTest('a file: a layer the schema accepts is loaded, one step to undo; what
   await saved((layer) => layer.extends === 'cupertino' && layer.palettes?.primary, 'the file’s layer');
   assert.equal(await label(page), 'Start: cupertino');
   assert.equal(await report(page).evaluate((el) => el.open), false);
-  assert.match(await page.locator('[data-status]').textContent(), /Loaded acme\.system\.json\./);
+  await until(async () => (await snackbar(page).evaluate((el) => el.message).catch(() => '')) === 'Loaded acme.system.json.', 'the snackbar');
   await page.locator('[data-undo]').click();
   await saved((layer) => layer.extends === 'tanrei' && !layer.palettes, 'undone');
 
@@ -157,23 +171,21 @@ studioTest('a file: a layer the schema accepts is loaded, one step to undo; what
   await saved((layer) => !layer.tokens, 'undone');
 });
 
-studioTest('a file over a layer with changes asks first', { layer: { id: 'acme', extends: 'tanrei', palettes: { primary: { source: { seed: '#0b6e4f' } } } } }, async ({ page, saved }) => {
-  const asked = dialogs(page, 'dismiss');
-  await loadFile(page, 'acme.system.json', JSON.stringify({ id: 'acme', extends: 'm3-like' }));
-  await until(async () => asked.length === 1, 'asked');
-  assert.equal(asked[0], 'Load acme.system.json? Your changes to this layer are replaced; Undo brings them back.');
-  assert.equal((await page.evaluate(() => window.tanreiStudio.getLayer())).extends, 'tanrei');
-  page.removeAllListeners('dialog');
-  dialogs(page);
+studioTest('a file over a layer with changes is loaded without asking, and its snackbar’s Undo brings the changes back', { layer: { id: 'acme', extends: 'tanrei', palettes: { primary: { source: { seed: '#0b6e4f' } } } } }, async ({ page, saved }) => {
+  const asked = dialogs(page);
   await loadFile(page, 'acme.system.json', JSON.stringify({ id: 'acme', extends: 'm3-like' }));
   await saved((layer) => layer.extends === 'm3-like' && !layer.palettes, 'loaded');
+  await until(async () => (await snackbar(page).evaluate((el) => el.message).catch(() => '')) === 'Loaded acme.system.json.', 'the snackbar');
+  await snackbar(page).getByRole('button', { name: 'Undo', exact: true }).click();
+  await saved((layer) => layer.extends === 'tanrei' && layer.palettes?.primary, 'undone');
+  assert.deepEqual(asked, []);
 });
 
 studioTest('390 wide, in Japanese: the start point fits the bar, and its menu speaks the language', { viewport: { width: 390, height: 844 }, locale: 'ja' }, async ({ page, fits, axe }) => {
   assert.equal(await label(page), '開始点: Tanrei');
   await fits('[data-bar]', 'the bar, with the start point');
   await openMenu(page);
-  assert.deepEqual(await menu(page).locator('tanrei-menu-group').evaluateAll((groups) => groups.map((group) => group.getAttribute('label'))), ['ここから始める', 'ギャラリーから始める']);
+  assert.deepEqual(await menu(page).locator('tanrei-menu-group').evaluateAll((groups) => groups.map((group) => group.getAttribute('label'))), ['ここから始める', 'テーマギャラリー']);
   assert.equal(await menu(page).locator('[data-start-file]').getAttribute('label'), 'ファイルを読み込む…');
   await axe('[data-start-menu]', 'the start point’s menu, narrow, in Japanese');
 });
