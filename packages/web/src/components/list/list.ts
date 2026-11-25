@@ -1304,12 +1304,6 @@ export class TanreiList extends TanreiElement {
     }
   }
 
-  /** LST-43: whether focus is on an element outside the list — one the person or the product gave it. */
-  private focusTakenElsewhere(): boolean {
-    const active = deepActive();
-    return !!active && active !== document.body && active !== document.documentElement && active.isConnected && !focusWithin(this);
-  }
-
   /** LST-43: whether the product has given the order that was asked for — and, if so, the announcement and the focus. */
   private settle(items: TanreiListItem[]) {
     const pending = this.pending;

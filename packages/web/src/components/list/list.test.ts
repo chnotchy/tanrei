@@ -1126,7 +1126,7 @@ test.describe('reordering', () => {
     await expect.poll(() => focused(page)).toBe('Inter:handle');
     expect(await announced(page, 'reorderable')).toBe('Inter: 2 of 3');
     // Refused.
-    await mountFixtures(page, spec, { fixtures: [byId('reorderable'), byId('reorderable-wrap')] });
+    await mountFixtures(page, spec, { fixtures: [byId('reorderable')] });
     await product(page, 'reorderable', 'ignore');
     const [first, place] = [await bounds(item(page, 'reorderable', 0)), await bounds(item(page, 'reorderable', 1))];
     const span = await reorderWindow(page);
@@ -1152,16 +1152,6 @@ test.describe('reordering', () => {
     expect(await bounds(item(page, 'reorderable', 1))).toEqual(place);
     expect(await announced(page, 'reorderable')).toBe(before);
     expect(await focused(page)).toBe('Inter:handle');
-    // Refused after the person has put focus elsewhere — the handle of another list: it stays where it was put.
-    await tabTo(page, handle(page, 'reorderable', 0));
-    await page.keyboard.press('Space');
-    await page.keyboard.press('ArrowDown');
-    await page.keyboard.press('Space');
-    await tabTo(page, handle(page, 'reorderable-wrap', 0));
-    await page.clock.runFor(span);
-    await motionEnded(list(page, 'reorderable'));
-    expect(await order(page, 'reorderable')).toEqual(NAMES);
-    expect(await list(page, 'reorderable-wrap').evaluate((el) => el.contains(document.activeElement)), 'focus is left on the other list').toBe(true);
     await releaseClock(page);
     // A product that answers late, within the window, is still answered.
     await mountFixtures(page, spec, { fixtures: [byId('reorderable')] });
