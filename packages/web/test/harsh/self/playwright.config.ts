@@ -16,6 +16,9 @@ export default defineConfig({
   fullyParallel: true,
   retries: 0,
   reporter: 'list',
+  // No commit or diff in the report's metadata: nothing here reads them, and on a pull_request run in GitHub Actions
+  // capturing the diff fetches the base commit first, up to 3 s for each of the four runs.
+  captureGitInfo: { commit: false, diff: false },
   use: { deviceScaleFactor: 1, colorScheme: 'light' },
   projects: [
     { name: 'chromium', use: { ...devices['Desktop Chrome'] } },
