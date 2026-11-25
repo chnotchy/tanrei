@@ -5,6 +5,7 @@
 // TBR-26: the product's ARIA on the host is tested with every other host's, in every engine, in
 // src/primitives/delegated-aria.test.ts.
 import AxeBuilder from '@axe-core/playwright';
+import { coveredText } from '../../../test/covered-text.js';
 import { type Locator, type Page, expect, test } from '@playwright/test';
 import { expectWheelKeptFromPage } from '../../../test/contained-wheel.js';
 import { motionEnded } from '../../../test/motions.js';
@@ -2123,6 +2124,7 @@ test.describe('accessibility', () => {
     for (const theme of ['light', 'dark'] as const) {
       await mountFixtures(page, spec, { theme, icons: true });
       const results = await new AxeBuilder({ page }).include('.stage').analyze();
+      expect(await coveredText(page, results), `${theme}: no text left unchecked as covered`).toEqual([]);
       expect(results.violations, `${theme}: ${results.violations.map((v) => `${v.id} ${v.nodes.map((n) => n.target).join(' ')}`).join(', ')}`).toEqual([]);
     }
   });

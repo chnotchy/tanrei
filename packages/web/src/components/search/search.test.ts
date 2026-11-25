@@ -19,6 +19,7 @@ import {
   withoutIconFont,
   rootTokens,
 } from '../../../test/harness.js';
+import { coveredText } from '../../../test/covered-text.js';
 import { opticalSize } from '../../../test/icons.js';
 import { motionCount, motionEnded } from '../../../test/motions.js';
 import { mirroring, mirroringAfterDirection } from '../../../test/mirror-word.js';
@@ -2743,6 +2744,7 @@ test.describe('accessibility', () => {
       await motionEnded(page);
       const results = await new AxeBuilder({ page }).include('.stage').analyze();
       expect(results.violations, `${theme}: ${results.violations.map((v) => `${v.id} ${v.nodes.map((n) => n.target).join(' ')}`).join(', ')}`).toEqual([]);
+      expect(await coveredText(page, results), `${theme}: no text left unchecked as covered`).toEqual([]);
     }
     // The live docked view, open with an active suggestion.
     await mount(page, [live('s', { value: 'inv' })]);

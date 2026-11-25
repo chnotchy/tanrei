@@ -9,6 +9,7 @@ import fs from 'node:fs';
 import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
 import { type Fixture, acmeSystemCss, loadSpec, missingWords, mountFixtures, requirementDrawn, resolveColor, resolveToken, setWords, tab, tabTo, inputBoxCopies, inputBoxSetApart, inputBoxToken, rootTokens, mountFixtureAsInAll } from '../../../test/harness.js';
+import { coveredText } from '../../../test/covered-text.js';
 import { appearingFixture } from '../../../test/first-frame.js';
 import { expectFirstFrameAtRest } from '../../../test/frames.js';
 import { opticalSize } from '../../../test/icons.js';
@@ -5254,6 +5255,7 @@ test.describe('accessibility', () => {
       await mountFixtures(page, spec, { theme, icons: true });
       const results = await new AxeBuilder({ page }).include('.stage').analyze();
       expect(results.violations, `${theme}: ${results.violations.map((v) => v.id).join(', ')}`).toEqual([]);
+      expect(await coveredText(page, results), `${theme}: no text left unchecked as covered`).toEqual([]);
     }
   });
 
