@@ -1,12 +1,7 @@
 {
-  "app-bar": { "fixture": "small", "lengths": { "tanrei.comp.app-bar.container.padding-inline": 0 } },
   "checkbox": { "fixture": "unselected", "parts": ["mark"] },
-  "color-input": { "fixture": "stacked-empty", "lengths": { "tanrei.comp.input-box.container.padding-inline.medium": 12 } },
   "combobox": { "fixture": "stacked-empty", "parts": ["option"] },
   "fab-menu": { "fixture": "filled-closed", "parts": ["item"] },
-  "navigation-drawer": { "fixture": "standard", "lengths": { "tanrei.comp.navigation-drawer.container.padding-inline": 0 } },
   "select": { "fixture": "stacked-empty", "parts": ["option"] },
-  "side-sheet": { "fixture": "standard", "lengths": { "tanrei.comp.side-sheet.container.padding-inline": 0 } },
-  "tabs": { "fixture": "primary", "lengths": { "tanrei.comp.tabs.container.height.medium": 32 } },
-  "tooltip": { "fixture": "plain", "lengths": { "tanrei.comp.tooltip.plain.container.padding-inline": null } }
+  "tabs": { "fixture": "primary", "lengths": { "tanrei.comp.tabs.container.height.medium": 32, "tanrei.comp.tabs.container.padding-inline.medium": 0 } }
 }
