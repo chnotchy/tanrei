@@ -755,8 +755,8 @@ export const styles = css`
   /* DTM-26: the arm turns to the value's angle (along the shorter arc: the element keeps the angle continuous) and the
      handle moves between the rings over the dial motion; the copy inside the handle turns back by as much.
      DTM-24: the arm and the copy are points (the dial's centre, no size) that their parts stand around, never boxes as
-     large as the dial: a box over the numbers, though it draws nothing, is what a contrast check takes for something
-     drawn over them, and it could check none of them. */
+     large as the dial — and so are the copy's layers of numbers, which fill the copy: a box over the numbers, though it
+     draws nothing, is what a contrast check takes for something drawn over them, and it could check none of them. */
   .arm {
     position: absolute;
     left: 50%;
@@ -802,18 +802,6 @@ export const styles = css`
   }
   .copy .number {
     color: ${t('dial-selected-label-color')};
-  }
-  /* The arm, the copy and the copy's layers of numbers are boxes as large as the dial that draw nothing themselves: they
-     only turn and place what they hold. Hidden, with what they draw shown, they are no element over the dial's numbers,
-     where a contrast checker would take them for elements covering every number and check none. */
-  .arm,
-  .copy,
-  .copy .numbers {
-    visibility: hidden;
-  }
-  .arm > *,
-  .copy .number {
-    visibility: visible;
   }
   .between {
     position: absolute;
