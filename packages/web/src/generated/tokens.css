@@ -7524,7 +7524,6 @@
     --tanrei-comp-table-status-text-typescale-line-height: var(--tanrei-sys-typescale-body-small-line-height);
     --tanrei-comp-table-sticky-container-color: var(--tanrei-sys-color-surface);
     --tanrei-comp-table-stripe-container-color: var(--tanrei-sys-color-surface-container-low);
-    --tanrei-comp-tabs-active-indicator-height: round(nearest, calc(var(--tanrei-dial-size-unit) * 8), 0.25px);
     --tanrei-comp-tabs-active-indicator-padding-block-medium: max(0px, round(nearest, calc(var(--tanrei-sys-space-space50) + (var(--tanrei-comp-tabs-container-height-medium) - calc(max(var(--tanrei-dial-control-height), 2.5rem) + var(--tanrei-dial-size-unit) * 0)) / 2), 0.25px));
     --tanrei-comp-tabs-active-indicator-padding-block-small: var(--tanrei-sys-space-space25);
     --tanrei-comp-tabs-active-indicator-padding-inline-medium: var(--tanrei-comp-tabs-container-padding-inline-medium);

@@ -17831,7 +17831,6 @@ public struct TanreiTabsStateTokens: Sendable, Equatable {
 
 /// Component tokens of tabs (comp.tabs).
 public struct TanreiTabsTokens: Sendable, Equatable {
-  public var activeIndicatorHeight: CGFloat
   public var containerGap: CGFloat
   public var containerHeightWithIcon: CGFloat
   public var containerShape: CGFloat
@@ -17862,7 +17861,6 @@ public struct TanreiTabsTokens: Sendable, Equatable {
   public var disabled: TanreiTabsStateTokens
 
   public init(
-    activeIndicatorHeight: CGFloat,
     containerGap: CGFloat,
     containerHeightWithIcon: CGFloat,
     containerShape: CGFloat,
@@ -17888,7 +17886,6 @@ public struct TanreiTabsTokens: Sendable, Equatable {
     pressed: TanreiTabsStateTokens,
     disabled: TanreiTabsStateTokens
   ) {
-    self.activeIndicatorHeight = activeIndicatorHeight
     self.containerGap = containerGap
     self.containerHeightWithIcon = containerHeightWithIcon
     self.containerShape = containerShape

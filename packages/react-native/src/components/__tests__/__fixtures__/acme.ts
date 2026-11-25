@@ -16197,7 +16197,6 @@ export const acme = {
       },
     },
     tabs: {
-      activeIndicatorHeight: 32,
       containerGap: 4,
       containerHeightWithIcon: 64,
       containerShape: 9999,

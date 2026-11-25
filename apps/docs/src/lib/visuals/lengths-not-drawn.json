@@ -7,6 +7,6 @@
   "navigation-drawer": { "fixture": "standard", "lengths": { "tanrei.comp.navigation-drawer.container.padding-inline": 0 } },
   "select": { "fixture": "stacked-empty", "lengths": { "tanrei.comp.select.option.height.medium": null } },
   "side-sheet": { "fixture": "standard", "lengths": { "tanrei.comp.side-sheet.container.padding-inline": 0 } },
-  "tabs": { "fixture": "primary", "lengths": { "tanrei.comp.tabs.container.height.medium": 32, "tanrei.comp.tabs.active-indicator.height": 40 } },
+  "tabs": { "fixture": "primary", "lengths": { "tanrei.comp.tabs.container.height.medium": 32 } },
   "tooltip": { "fixture": "plain", "lengths": { "tanrei.comp.tooltip.plain.container.padding-inline": null } }
 }

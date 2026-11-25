@@ -9215,7 +9215,6 @@ private let m3LikeTableTokens = TanreiTableTokens(
 )
 
 private let m3LikeTabsTokens = TanreiTabsTokens(
-  activeIndicatorHeight: 32,
   containerGap: 4,
   containerHeightWithIcon: 64,
   containerShape: 0,
