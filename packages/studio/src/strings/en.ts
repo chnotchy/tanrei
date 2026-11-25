@@ -266,7 +266,7 @@ const en = {
     target: 'Points at',
     pick: 'Pick a token…',
     reason: 'Reason (required)',
-    reasonPlaceholder: 'Why must this never move?',
+    reasonPlaceholder: 'Why is it fixed?',
     reasonShort: 'A pin needs a reason of at least 8 characters. Until then it is not written.',
     of: 'of',
     by: '× coefficient',
@@ -338,7 +338,7 @@ const en = {
     inherited: 'Inherited rules',
   },
   source: {
-    title: 'Source',
+    title: 'JSON',
     label: 'The layer file, as JSON',
     help: 'Checked as you type: JSON, then system.schema.json, then the token engine — its message is shown word for word. A valid edit is the layer the rest of the Studio shows.',
     keys: 'Tab indents. Press Esc, then Tab, to leave the editor with the keyboard.',
@@ -347,9 +347,9 @@ const en = {
     invalidJson: 'That is not valid JSON',
     line: (line: number) => `Line ${line}`,
     format: 'Format',
-    draftBadge: 'Source has invalid edits',
+    draftBadge: 'The JSON has invalid edits',
     draftTitle: 'This text is not valid JSON yet, so it is a draft.',
-    draftHelp: 'It is kept exactly as typed — also while you visit the other levels — but it is not the layer: the preview, the other levels and the saved file stay at the last text that parsed, until this one does.',
+    draftHelp: 'It is kept exactly as typed — also while you look at the rest of the Studio — but it is not the layer: the preview, the other controls and the saved file stay at the last text that parsed, until this one does.',
     draftDiscard: 'Discard the draft',
   },
   preview: {
@@ -405,7 +405,8 @@ const en = {
       selection: 'Selection',
       choosing: 'Tabs, chips and tags',
       feedback: 'Feedback',
-      surfaces: 'Cards and menus',
+      card: 'Card',
+      menu: 'Menu',
       system: 'This system',
       draft: 'Save draft',
       details: 'Details',
@@ -414,6 +415,8 @@ const en = {
       delete: 'Delete',
       email: 'Email',
       emailHint: 'You sign in with this address.',
+      // The address a field shows as its example, short enough for the field in a narrow column.
+      emailExample: 'me@example.com',
       plan: 'Plan',
       plans: { free: 'Free', pro: 'Pro', team: 'Team' },
       notify: 'Get notifications',
@@ -687,6 +690,8 @@ const en = {
     unchanged: 'default',
     neutral: 'neutral',
     none: 'none',
+    // The choices of the press feedback and the focus style, as the rail says them; the panel lists the vocabulary's names.
+    choices: open({ overlay: 'overlay', ripple: 'ripple', dim: 'dim', none: 'none', ring: 'ring', glow: 'glow' }),
     // A palette given as hue and chroma, and the size row's value: the numbers as the file has them.
     hueChroma: (hue: string, chroma: string) => `hue ${hue} · chroma ${chroma}`,
     size: (height: string, target: string) => `${height} · minimum ${target}`,
@@ -703,14 +708,15 @@ const en = {
     shuffled: 'Every row was shuffled.',
     shuffledKept: (count: number) => (count === 1 ? 'Shuffled. 1 locked row kept its value.' : `Shuffled. ${count} locked rows kept their values.`),
   },
-  // Inspect: over the panel, every token in its tree and the layer file itself.
+  // Inspect: a side sheet over the Studio, every token in its tree and the layer file itself, as JSON.
   inspect: {
     title: 'Inspect',
     help: 'Every token of the system, and the layer file itself',
     tokens: 'Tokens',
-    source: 'Source',
+    source: 'JSON',
     lead: 'The theme’s file, and the tokens it settles. Every other control only writes this file.',
     close: 'Close Inspect',
+    toExport: 'Go to Export',
   },
   // The layer of a link, shown in the place of the one this browser kept (ui.ts `showShared`).
   shared: {

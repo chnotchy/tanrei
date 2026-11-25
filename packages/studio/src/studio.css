@@ -86,13 +86,40 @@
   clip-path: inset(50%);
   white-space: nowrap;
 }
-/* A phone, with the host's items at both ends: they keep the first line (the brand, a language, a theme), and undo,
-   redo and the file's state take the second. */
+/* What a control of the bar says on a phone in place of its words (the start point: the start's name alone). */
+.ts-bar-short {
+  display: none;
+}
+/* A phone: the bar is one line. Each control shows its glyph alone (Inspect, Share and Export: ui/dom.ts
+   `wordBesideGlyph`), named by its label and shown its name by its tooltip, and the start point the start's name — the
+   whole is read. What a phone has no room for is left out of the bar, as the approved design leaves it: reset and the
+   shuffle (undo and redo stay), and the checks' count (Export's first line says what the checks say, and the rail's
+   Accessibility lists it). */
 @media (max-width: 40rem) {
   .ts-bar {
-    column-gap: var(--tanrei-sys-space-space100);
+    column-gap: var(--tanrei-sys-space-space50);
     padding-inline: var(--tanrei-sys-space-space100);
   }
+  .ts-bar-long {
+    position: absolute;
+    inline-size: 1px;
+    block-size: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+  .ts-bar-short {
+    display: inline;
+  }
+  .ts-bar [data-bar-reset],
+  .ts-bar [data-bar-shuffle],
+  .ts-bar [data-a11y-count] {
+    display: none;
+  }
+}
+/* A phone, with more of the host's items than one line holds (the standalone app's brand, file, language and theme):
+   they keep the first line, and the Studio's controls take the second. */
+@media (max-width: 40rem) {
   .ts-bar-hosted::after {
     content: '';
     flex-basis: 100%;
@@ -188,15 +215,6 @@
 /* A wide screen: three columns that each scroll by themselves — the rail, the preview (it takes what the others leave)
    and the panel, with the handle between the preview and the panel. */
 @media (min-width: 64rem) {
-  /* Inspect's tokens hold two panes side by side, the tree and the chosen token's editor, and its Source the file:
-     the column starts wider for them. A width the person gives the column is kept for what it holds then (ui.ts
-     `panelWidths`): a section's controls and each tab of Inspect keep theirs. */
-  .ts[data-pane='tokens'] {
-    --ts-panel-default: clamp(var(--ts-panel-min), 55vw, 52rem);
-  }
-  .ts[data-pane='source'] {
-    --ts-panel-default: clamp(var(--ts-panel-min), 45vw, 44rem);
-  }
   .ts-frame {
     grid-template-columns: var(--ts-rail-width) minmax(var(--ts-preview-min), 1fr) auto minmax(var(--ts-panel-min), var(--ts-panel-width, var(--ts-panel-default)));
     grid-template-rows: minmax(0, 1fr);
@@ -451,6 +469,8 @@
      the viewport. */
   container: ts-preview / inline-size;
   display: grid;
+  /* One column as wide as the preview: what is wider inside (the screens' tabs on a phone) scrolls in its own box. */
+  grid-template-columns: minmax(0, 1fr);
   grid-template-rows: auto auto minmax(0, 1fr);
   overflow: hidden;
   min-inline-size: 0;
@@ -639,13 +659,17 @@
   background: var(--tanrei-sys-color-surface-container-low);
 }
 
-/* Overview: a panel for each kind of component, as many columns as fit. */
+/* Overview: a compact panel for each kind of component, as many columns as fit — three beside the rail and the panel
+   in a window 1440px wide — the panels of a row as tall as each other; what the system is made of under them, across. */
 .ts-s-overview {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(min(100%, 18rem), 1fr));
-  align-items: start;
-  gap: var(--tanrei-sys-space-space200);
-  padding: var(--tanrei-sys-space-space250);
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 12.5rem), 1fr));
+  align-items: stretch;
+  gap: var(--tanrei-sys-space-space150);
+  padding: var(--tanrei-sys-space-space150);
+}
+.ts-s-overview > .ts-s-panel {
+  padding: var(--tanrei-sys-space-space200);
 }
 .ts-s-system {
   grid-column: 1 / -1;
@@ -1028,7 +1052,7 @@
 }
 .ts-rail-item {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-columns: minmax(0, 1fr) auto auto;
   align-items: center;
   gap: 0.125rem;
   min-inline-size: 0;
@@ -1055,7 +1079,7 @@
   grid-template-rows: auto auto;
 }
 .ts-rail-link {
-  grid-template-columns: auto minmax(0, 1fr);
+  grid-template-columns: auto minmax(0, 1fr) auto;
   inline-size: 100%;
   color: var(--tanrei-sys-color-on-surface-variant);
 }
@@ -1096,11 +1120,25 @@
   gap: var(--tanrei-sys-space-space75);
   min-inline-size: 0;
 }
+/* A value is shown whole: a long one wraps under the row's name rather than being cut. */
+.ts-rail-line {
+  flex-wrap: wrap;
+}
 .ts-rail-value {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  min-inline-size: 0;
+  overflow-wrap: anywhere;
   font-weight: 500;
+}
+/* The chevron: a row, or an item, opens its controls. It points toward the end edge. */
+.ts-rail-chevron {
+  display: grid;
+  place-items: center;
+  color: var(--tanrei-sys-color-on-surface-variant);
+  font-size: 1.25rem;
+  cursor: pointer;
+}
+.ts-rail-chevron:dir(rtl) {
+  transform: scaleX(-1);
 }
 .ts-rail-default {
   flex: none;
@@ -1143,11 +1181,6 @@
   font-style: normal;
   font-size: 1.125rem;
   line-height: 1;
-}
-.ts-sample-size {
-  inline-size: 1.5rem;
-  border-radius: var(--tanrei-sys-shape-corner-small);
-  background: var(--tanrei-sys-color-primary);
 }
 .ts-sample-corner {
   inline-size: 1.25rem;
@@ -1203,19 +1236,22 @@
   }
 }
 
-/* ── Inspect: over the panel, the token tree and Source ─────────────── */
+/* ── Inspect: a side sheet, the token tree and the file as JSON ─────── */
+/* Inspect: a modal side sheet, wide enough for the token tree and the chosen token's editor side by side (the panes
+   stack where it is narrower: a phone). Under its head, what it is — the file, and the tokens it settles — then its
+   two tabs. */
+.ts-inspect-sheet {
+  --tanrei-comp-side-sheet-container-width: clamp(20rem, 55vw, 52rem);
+}
+.ts-inspect {
+  min-inline-size: 0;
+}
 .ts-inspect-head {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.5rem 0.75rem;
+  display: grid;
+  justify-items: start;
+  gap: 0.75rem;
 }
-.ts-inspect-head > tanrei-tabs {
-  flex: 1;
-}
-/* What Inspect is, under its head: the file, and the tokens it settles. */
 .ts-inspect-head > .ts-inspect-lead {
-  flex: 1 0 100%;
   margin: 0;
 }
 /* The bar's Inspect bears the file's name, as the file names itself. */

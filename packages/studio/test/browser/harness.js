@@ -153,7 +153,17 @@ export async function openStudio({ layer = { id: 'acme', extends: 'tanrei' }, pa
   const onDisk = () => JSON.parse(fs.readFileSync(file, 'utf8'));
   const scope = page.locator('[data-scope]');
   const choose = (group, value) => group.locator(`> tanrei-radio-button[data-value="${value}"], > tanrei-tab[data-value="${value}"]`).click();
+  /** Close Inspect, as a person does: its sheet's close button. (Inspect is a modal sheet: the rest waits until it is closed.) */
+  const closeInspect = async () => {
+    const sheet = page.locator('[data-inspect-sheet]');
+    if (!(await sheet.evaluate((el) => el.open))) return;
+    await sheet.getByRole('button', { name: await sheet.getAttribute('close-label'), exact: true }).click();
+    await page.waitForSelector('[data-studio][data-pane="edit"]');
+    // (Until it has slid out, what it holds stands past the window's edge.)
+    await sheet.evaluate((el) => Promise.all(el.shadowRoot.getAnimations().map((animation) => animation.finished.catch(() => {}))));
+  };
   const section = async (name) => {
+    await closeInspect();
     await page.locator(`[data-rail] [data-row="${name}"]`).click();
     await page.waitForSelector(`[data-studio][data-section="${name}"][data-pane="edit"]`);
   };
@@ -182,6 +192,7 @@ export async function openStudio({ layer = { id: 'acme', extends: 'tanrei' }, pa
     section,
     /** Open Inspect at one of its tabs (`tokens`, `source`), as a person does: the bar's Inspect, then the tab. */
     inspect,
+    closeInspect,
     /** A section, or a tab of Inspect: what the panel's column can hold. */
     view: (name) => (VIEWS.slice(-2).includes(name) ? inspect(name) : section(name)),
     /** Choose an option of a `<tanrei-select>`, a `<tanrei-combobox>` or a `<tanrei-combobox-field>` as a person does: open it, type towards the option, press it. */

@@ -8,7 +8,7 @@ import { createSourceDraft } from './draft.js';
 import { createHistory } from './history.js';
 import { studio } from './data';
 import { type StudioStrings, studioDirection, studioLanguage, studioStrings } from './strings';
-import { type Contrast, type Ctx, type Json, type Layer, type Place, button, fold, folds, h, isolated, ltr, panel, rename, rich, scrollingList, stateChip, views } from './ui/dom';
+import { type Contrast, type Ctx, type Json, type Layer, type Place, barWord, button, fold, folds, h, isolated, ltr, panel, rename, rich, scrollingList, stateChip, tip, views, wordBesideGlyph } from './ui/dom';
 import { sectionPanels } from './ui/panels';
 import { createExportSheet } from './ui/export';
 import { createShareMenu, type DocsTheme } from './ui/share';
@@ -96,10 +96,12 @@ export function mountStudio(root: HTMLElement, { lang = 'en', adapter, links = {
   let place: Place | undefined;
   const tree: TreeState = { query: '', filter: 'all', open: new Set() };
   /**
-   * The width the person gave the panel's column for what it holds — a section's controls, or Inspect at one of its
-   * tabs — in CSS pixels; one given none has the frame's own (studio.css), which is wider for Inspect's two tabs.
+   * The width the person gave the panel's column, in CSS pixels; none given, the frame's own (studio.css). The column
+   * holds a section's controls (`edit`): Inspect is a sheet of its own, over the Studio. (A width kept for Inspect's tabs
+   * by an earlier Studio, when it stood in this column, is read and left unused.)
    */
   const panelWidths: Partial<Record<Pane, number>> = {};
+  /** What the person looks at: a section's controls, or Inspect at one of its tabs (the root's `data-pane`). */
   const pane = (): Pane => inspect ?? 'edit';
   const history = createHistory();
   const linked = address && !adapter;
@@ -223,12 +225,13 @@ export function mountStudio(root: HTMLElement, { lang = 'en', adapter, links = {
   const a11y = h('div');
   const glyph = (name: string) => h('span', { class: `${studio.tagPrefix}-icon`, slot: 'icon', 'aria-hidden': 'true', translate: 'no' }, name);
   // The shuffle: every row that is not locked, another of its values, in one step to undo.
-  const shuffleButton = h('tanrei-button', { variant: 'text', size: 'small', label: t.rail.shuffle, title: t.rail.shuffleHelp, onclick: () => shuffleRows(), 'data-shuffle': true }, glyph(SHUFFLE_GLYPH));
-  // Inspect: over the panel, every token in its tree and the file itself. A toggle that bears the file's name — the
-  // theme is that one file — and is named Inspect with it; it says whether it is open (`drawFileName`).
+  const shuffleButton = h('tanrei-button', { variant: 'text', size: 'small', label: t.rail.shuffle, onclick: () => shuffleRows(), 'data-shuffle': true }, glyph(SHUFFLE_GLYPH));
+  // Inspect: a side sheet over the Studio, every token in its tree and the file itself. A toggle that bears the file's
+  // name — the theme is that one file — and is named Inspect with it; it says whether it is open (`drawFileName`).
   const fileName = h('span', { class: 'ts-file-name', translate: 'no', 'data-file-name': true });
-  const inspectButton = h('tanrei-button', { variant: 'outlined', size: 'small', toggle: true, title: t.inspect.help, 'data-inspect': true }, glyph(INSPECT_GLYPH), fileName) as HTMLElement & { selected: boolean; label: string };
-  inspectButton.addEventListener('change', (event) => event.target === inspectButton && show(inspectButton.selected ? { inspect: lastInspect } : { section }));
+  const inspectButton = h('tanrei-button', { variant: 'outlined', size: 'small', toggle: true, 'data-inspect': true }, glyph(INSPECT_GLYPH), fileName) as HTMLElement & { selected: boolean; label: string };
+  const inspectTip = tip(inspectButton, t.inspect.help);
+  inspectButton.addEventListener('change', (event) => event.target === inspectButton && (inspectButton.selected ? show({ inspect: lastInspect }) : closeInspect()));
   function drawFileName() {
     const name = adapter?.label ?? `${layer.id}.system.json`;
     if (fileName.textContent === name) return;
@@ -237,15 +240,18 @@ export function mountStudio(root: HTMLElement, { lang = 'en', adapter, links = {
   }
   // Export: the side sheet of the file, its stylesheet and what to do next (./ui/export.ts).
   const exportSheet = createExportSheet(ctx, { file: adapter?.label, linked, links, onshow: (to) => show({ section: to }) });
-  const exportButton = h('tanrei-button', { variant: 'filled', size: 'small', title: t.exporting.help, onclick: () => exportSheet.open(), 'data-export-open': true }, glyph(EXPORT_GLYPH), t.exporting.open);
+  const exportWord = barWord(t.exporting.open);
+  const exportButton = h('tanrei-button', { variant: 'filled', size: 'small', label: t.exporting.open, onclick: () => exportSheet.open(), 'data-export-open': true }, glyph(EXPORT_GLYPH), exportWord);
   // Share: the link to the Studio with this layer, and the documentation shown in it (./ui/share.ts).
   share = createShareMenu(ctx, { linked, docs: adapter ? undefined : docs, glyph });
+  // On a phone, Inspect, Share and Export show their glyphs alone (the bar is one line there).
+  const unfit = [wordBesideGlyph(inspectButton, fileName), wordBesideGlyph(exportButton, exportWord), ...(share ? [wordBesideGlyph(share.opener, share.word)] : [])];
   // Undo and redo: icon buttons that keep their place in the keyboard's order while there is nothing to do (BTN-38).
-  const historyButton = (name: string, label: string, keys: string, act: () => void, attrs: Json) => h('tanrei-button', { variant: 'text', size: 'small', label, title: label, 'aria-keyshortcuts': keys, 'focusable-when-disabled': true, disabled: true, onclick: act, ...attrs }, glyph(name));
+  const historyButton = (name: string, label: string, keys: string, act: () => void, attrs: Json) => h('tanrei-button', { variant: 'text', size: 'small', label, 'aria-keyshortcuts': keys, 'focusable-when-disabled': true, disabled: true, onclick: act, ...attrs }, glyph(name));
   const undoButton = historyButton(HISTORY_GLYPHS.undo, t.frame.undo, 'Meta+Z Control+Z', () => undo(), { 'data-undo': true });
   const redoButton = historyButton(HISTORY_GLYPHS.redo, t.frame.redo, 'Meta+Shift+Z Control+Shift+Z Control+Y', () => redo(), { 'data-redo': true });
   // Reset: the layer back to what its start gives, keeping its id; one step to undo, offered at once (`offerUndo`).
-  const resetButton = h('tanrei-button', { variant: 'text', size: 'small', label: t.frame.reset, title: t.frame.reset, 'focusable-when-disabled': true, disabled: true, onclick: () => resetLayer(), 'data-reset': true }, glyph(HISTORY_GLYPHS.reset));
+  const resetButton = h('tanrei-button', { variant: 'text', size: 'small', label: t.frame.reset, 'focusable-when-disabled': true, disabled: true, onclick: () => resetLayer(), 'data-reset': true }, glyph(HISTORY_GLYPHS.reset));
   // The start point: what the layer starts from, or a file to load in its place (./ui/start.ts).
   const startPoint = createStartPoint(ctx, { onstart: (id) => startFrom(id), onfile: (chosen) => importFile(chosen) });
   const bar = h(
@@ -253,19 +259,25 @@ export function mountStudio(root: HTMLElement, { lang = 'en', adapter, links = {
     { class: `ts-bar${hosted.end?.length ? ' ts-bar-hosted' : ''}`, 'data-bar': true },
     hosted.start?.length ? h('div', { class: 'ts-bar-host' }, hosted.start) : null,
     startPoint.el,
-    h('div', { class: 'ts-bar-history', role: 'group', 'aria-label': t.frame.history }, undoButton, redoButton, resetButton),
-    h('div', { class: 'ts-bar-tools' }, shuffleButton),
-    h('div', { class: 'ts-bar-tools ts-bar-inspect', 'data-bar-inspect': true }, inspectButton),
+    // Each control that shows a glyph alone — everywhere, or on a phone — has a tooltip: its name, or what it does.
+    h('div', { class: 'ts-bar-history', role: 'group', 'aria-label': t.frame.history }, tip(undoButton, t.frame.undo, true), tip(redoButton, t.frame.redo, true), tip(resetButton, t.frame.reset, true, { 'data-bar-reset': true })),
+    h('div', { class: 'ts-bar-tools', 'data-bar-shuffle': true }, tip(shuffleButton, t.rail.shuffleHelp)),
+    h('div', { class: 'ts-bar-tools ts-bar-inspect', 'data-bar-inspect': true }, inspectTip),
     file,
     // At the end edge, what goes out of the Studio: what the build's checks say of the layer, Share and Export.
-    h('div', { class: 'ts-bar-tools ts-bar-out', 'data-bar-out': true }, preview.badge, share?.el ?? null, exportButton),
+    h('div', { class: 'ts-bar-tools ts-bar-out', 'data-bar-out': true }, preview.badge, share?.el ?? null, tip(exportButton, t.exporting.help)),
     hosted.end?.length ? h('div', { class: 'ts-bar-host ts-bar-end' }, hosted.end) : null,
   );
   const rail = h('nav', { class: 'ts-rail', 'aria-label': t.frame.rail, 'data-rail': true }, railView.el);
-  // Inspect's head, over its two tabs: what it is, which tab, and the way back to the panel.
+  // Inspect: a modal side sheet over the Studio, as Export is — under its head, a line that says it is the file and the
+  // tokens it settles, its two tabs (the tokens, the file as JSON) and what the tab shows; at its foot, the way on to
+  // Export. The panel keeps the row it showed: closing Inspect is back there, and the focus back on its button.
   const inspectTabs = views<Inspect>({ label: t.inspect.title, attrs: { 'data-inspect-tabs': true }, options: INSPECT.map((value) => ({ value, label: t.inspect[value] })), value: lastInspect, onchange: (value) => show({ inspect: value }) });
-  const inspectClose = h('tanrei-button', { variant: 'text', size: 'small', label: t.inspect.close, title: t.inspect.close, onclick: () => (show({ section }), inspectButton.focus()), 'data-inspect-close': true }, glyph(CLOSE_GLYPH));
-  const inspectHead = h('div', { class: 'ts-inspect-head', hidden: true, 'data-inspect-head': true }, h('h2', { class: 'ts-eyebrow', text: t.inspect.title }), inspectTabs, inspectClose, h('p', { class: 'ts-help ts-inspect-lead', text: t.inspect.lead }));
+  const inspectHead = h('div', { class: 'ts-inspect-head', 'data-inspect-head': true }, h('p', { class: 'ts-help ts-inspect-lead', text: t.inspect.lead }), inspectTabs);
+  const inspectControls = h('div', { class: 'ts-controls', 'data-inspect-controls': true });
+  const toExport = h('tanrei-button', { slot: 'actions', confirming: true, onclick: () => (closeInspect(false), exportSheet.open()), 'data-inspect-export': true }, t.inspect.toExport);
+  const inspectSheet = h('tanrei-side-sheet', { variant: 'modal', headline: t.inspect.title, 'close-label': t.inspect.close, class: 'ts-inspect-sheet', 'data-inspect-sheet': true }, h('div', { class: 'ts-inspect ts-stack' }, inspectHead, inspectControls), toExport) as HTMLElement & { open: boolean };
+  inspectSheet.addEventListener('close', (event) => event.target === inspectSheet && closeInspect());
   // What loading a file found, at the top of the panel: why it was not loaded, or the problems of the layer it holds.
   const importReport = h('tanrei-callout', { class: 'ts-banner ts-import-report', live: true, open: 'false', closable: true, 'close-label': t.shared.close, 'data-import-report': true }) as HTMLElement & { open: boolean };
   importReport.addEventListener('dismiss', (event) => event.target === importReport && (importReport.open = false));
@@ -275,13 +287,13 @@ export function mountStudio(root: HTMLElement, { lang = 'en', adapter, links = {
   const sheetClose = h('tanrei-button', { variant: 'text', size: 'small', label: t.frame.close, title: t.frame.close, onclick: () => closeSheet(), 'data-sheet-close': true }, glyph(CLOSE_GLYPH));
   const sheetHead = h('div', { class: 'ts-sheet-head', 'data-sheet-head': true }, sheetTitle, sheetClose);
   // The panel scrolls by itself beside the preview; it takes the focus when what had it is drawn again (an undo).
-  const inspector = h('section', { class: 'ts-inspector', 'aria-label': t.frame.panel, tabindex: '-1', 'data-inspector': true }, sheetHead, importReport, inspectHead, controls, a11y);
+  const inspector = h('section', { class: 'ts-inspector', 'aria-label': t.frame.panel, tabindex: '-1', 'data-inspector': true }, sheetHead, importReport, controls, a11y);
   const handle = h('tanrei-handle', { class: 'ts-handle', axis: 'horizontal', label: t.frame.resize, 'data-panel-handle': true }) as HTMLElement & { value: number | null; min: number; max: number; valueText: string };
   // The frame is the page's main region; what is announced is said from inside it.
   const layout = h('main', { class: 'ts-frame', 'data-frame': true }, rail, preview.el, handle, inspector, status);
   // What a step that replaced the layer says, with the way to undo it (`offerUndo`).
   const snackbars = h('tanrei-snackbar-host', { 'data-snackbars': true }) as HTMLElement & { show(options: { message: string; action?: string; closable?: boolean; closeLabel?: string }): Promise<{ result: string }>; clear(): void };
-  root.replaceChildren(bar, h('div', { class: 'ts-notices' }, banner, sharedBanner), layout, exportSheet.el, snackbars);
+  root.replaceChildren(bar, h('div', { class: 'ts-notices' }, banner, sharedBanner), layout, inspectSheet, exportSheet.el, snackbars);
   // Where the rail stands among the parts: first in a wide window, at the foot in a narrow one (studio.css), so that
   // the keyboard meets the parts in the order they are drawn.
   const narrow = window.matchMedia('(max-width: 63.999rem)');
@@ -291,9 +303,16 @@ export function mountStudio(root: HTMLElement, { lang = 'en', adapter, links = {
   /** On a narrow screen: the panel closed, the preview alone above the rail; the focus back on the rail's current row. */
   function closeSheet() {
     delete root.dataset.panelOpen;
-    if (inspect) show({ section });
-    delete root.dataset.panelOpen;
     (rail.querySelector('[aria-current="true"]') as HTMLElement | null)?.focus();
+  }
+  /** Inspect closed: the sheet goes, and the focus goes back to its button unless something else takes it (`focus`). */
+  function closeInspect(focus = true) {
+    if (!inspect) return;
+    inspect = null;
+    inspectSheet.open = false;
+    build();
+    remember();
+    if (focus) inspectButton.focus();
   }
 
   // ── the panel's width ─────────────────────────────────────────────────────────────────────────
@@ -321,14 +340,14 @@ export function mountStudio(root: HTMLElement, { lang = 'en', adapter, links = {
   };
   function setPanel(px: number, keep = true) {
     const [least, most] = range();
-    panelWidths[pane()] = Math.round(Math.min(most, Math.max(least, px)));
+    panelWidths.edit = Math.round(Math.min(most, Math.max(least, px)));
     drawPanelWidth();
     drawHandle();
     if (keep) remember();
   }
   /** The width given to what the column holds now, or none: the frame's own for it. */
   function drawPanelWidth() {
-    const px = panelWidths[pane()];
+    const px = panelWidths.edit;
     if (px) root.style.setProperty('--ts-panel-width', `${px}px`);
     else root.style.removeProperty('--ts-panel-width');
   }
@@ -357,7 +376,7 @@ export function mountStudio(root: HTMLElement, { lang = 'en', adapter, links = {
     } else setPanel(restoreTo || length('--ts-panel-default'));
   });
   const resized = new ResizeObserver(() => {
-    const px = panelWidths[pane()];
+    const px = panelWidths.edit;
     if (px && px > range()[1]) setPanel(px, false);
     else drawHandle();
   });
@@ -434,33 +453,34 @@ export function mountStudio(root: HTMLElement, { lang = 'en', adapter, links = {
   function drawFrame() {
     railView.select(section);
     inspectButton.selected = Boolean(inspect);
-    inspectHead.hidden = !inspect;
-    sheetHead.hidden = Boolean(inspect);
+    if (inspectSheet.open !== Boolean(inspect)) inspectSheet.open = Boolean(inspect);
     sheetTitle.textContent = (ROWS as readonly string[]).includes(section) ? t.rail.rows[section as Row] : t.rail.more[section as Exclude<Section, Row>];
     inspectTabs.value = inspect ?? lastInspect;
-    inspector.setAttribute('aria-label', inspect ? t.inspect.title : t.frame.panel);
     // (It keeps focus while it stays: it is taken out only when the draft is gone.)
-    if (draft.pending && !draftBadge.isConnected) inspectButton.before(draftBadge);
+    if (draft.pending && !draftBadge.isConnected) inspectTip.before(draftBadge);
     else if (!draft.pending) draftBadge.remove();
   }
 
-  /** Show a section in the panel, or open Inspect at a tab — at a token, or scrolled to a panel. */
+  /**
+   * Show a section in the panel — Inspect, when it is open, closes — or open Inspect at a tab, over the panel, which
+   * keeps its section: at a token, or scrolled to a panel.
+   */
   function show(to: Place) {
     place = to;
-    // (On a narrow screen the panel opens as a sheet under the preview.)
-    root.dataset.panelOpen = '';
     if (to.inspect) {
       inspect = lastInspect = to.inspect;
       if (to.token && to.inspect === 'tokens') Object.assign(tree, { selected: to.token, query: '', filter: 'all' });
     } else {
       inspect = null;
       if (to.section) section = to.section;
+      // (On a narrow screen the panel opens as a sheet under the preview.)
+      root.dataset.panelOpen = '';
     }
     build();
     remember();
     const panelKey = to.panel ?? (to.token && to.inspect === 'tokens' ? 'tree' : undefined);
     if (panelKey) queueMicrotask(() => root.querySelector(`[data-panel="${panelKey}"]`)?.scrollIntoView({ block: 'start', behavior: 'smooth' }));
-    else inspector.scrollTo({ top: 0 });
+    else if (!to.inspect) inspector.scrollTo({ top: 0 });
     place = undefined;
   }
 
@@ -730,8 +750,10 @@ export function mountStudio(root: HTMLElement, { lang = 'en', adapter, links = {
       drawHandle();
     }
     drawFrame();
-    controls.replaceChildren(...((inspect === 'tokens' ? tokensInspect(ctx, tree) : inspect === 'source' ? sourceLevel(ctx) : sectionPanels(ctx, section, place)).filter(Boolean) as HTMLElement[]));
-    a11y.replaceChildren(!inspect && section === 'a11y' ? accessibilityPanel() : '');
+    // The panel holds the section; Inspect's sheet, while it is open, its tab.
+    controls.replaceChildren(...(sectionPanels(ctx, section, inspect ? undefined : place).filter(Boolean) as HTMLElement[]));
+    inspectControls.replaceChildren(...((inspect === 'tokens' ? tokensInspect(ctx, tree) : inspect === 'source' ? sourceLevel(ctx) : []).filter(Boolean) as HTMLElement[]));
+    a11y.replaceChildren(section === 'a11y' ? accessibilityPanel() : '');
     drawFile();
     update();
   }
@@ -929,6 +951,7 @@ export function mountStudio(root: HTMLElement, { lang = 'en', adapter, links = {
       document.removeEventListener('keydown', onKey);
       removeEventListener('hashchange', onHash);
       narrow.removeEventListener('change', placeRail);
+      for (const stop of unfit) stop();
       resized.disconnect();
     },
   };
