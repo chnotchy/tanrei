@@ -133,7 +133,8 @@ export function targetBox(host: Element, target: PartTarget): { box: Box; elemen
   else if ('part' in target && !('child' in target)) elements = partOf(host, target.part);
   else if ('child' in target) {
     let at: Element | null = host;
-    for (const tag of target.child) at = at && deepQuery(at, tag);
+    // A word that names several elements (`tanrei-menu-item|tanrei-menu-checkbox-item`) is the first of them drawn.
+    for (const word of target.child) at = at && deepQuery(at, word.split('|').join(', '));
     elements = at && target.part ? partOf(at, target.part) : at ? [at] : [];
   } else if ('slot' in target) {
     if (target.slot) elements = [...host.querySelectorAll(`:scope > [slot="${target.slot}"]`)];

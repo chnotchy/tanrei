@@ -66,8 +66,9 @@ export const PARTS_PENDING = {
  * One value of `parts`, read: `{ noBox }` for a part with no box of its own, otherwise the target and its aspect.
  * A target is `{ host }`, `{ part }`, `{ slot }` (the default slot is ''), `{ child, part? }` or `{ className }`, where
  * `child` is the path of child elements, each inside the one before it, and `part` one of the last one's parts. A word that
- * is a tag of `tags` is a child element; any other is a CSS part, and only the last word may be one. `problem` says
- * what cannot be read.
+ * is a tag of `tags` is a child element; any other is a CSS part, and only the last word may be one. A child word may
+ * name several tags joined by `|`, the first of them found standing for it: a part every kind of a component's items
+ * draws (a menu's plain, checkbox and radio items). `problem` says what cannot be read.
  */
 export function readPart(value, tags) {
   if (value && typeof value === 'object') return { noBox: value.noBox };
@@ -80,15 +81,19 @@ export function readPart(value, tags) {
     if (target.startsWith('slot:')) return NAME.test(target.slice(5)) ? { slot: target.slice(5) } : null;
     if (target.startsWith('.')) return NAME.test(target.slice(1)) ? { className: target.slice(1) } : null;
     const words = target.split(' ');
-    if (!words.every((word) => NAME.test(word))) return null;
+    // A child word may name several elements, any of which draws the part (`tanrei-menu-item|tanrei-menu-radio-item`).
+    const alternatives = (word) => word.split('|');
+    const isChild = (word) => alternatives(word).every((tag) => tags.has(tag));
+    if (!words.every((word) => alternatives(word).every((each) => NAME.test(each)))) return null;
     const last = words.at(-1);
-    const path = tags.has(last) ? words : words.slice(0, -1);
-    if (!path.every((word) => tags.has(word))) return null;
+    const path = isChild(last) ? words : words.slice(0, -1);
+    // A CSS part is one name.
+    if (!path.every(isChild) || (path.length < words.length && !NAME.test(last))) return null;
     if (!path.length) return { part: last };
     return path.length === words.length ? { child: path } : { child: path, part: last };
     return null;
   })();
-  if (!read) return { problem: `is not a target (host, <css part>, slot, slot:<name>, <child tag>…, <child tag>… <css part>, .<class>)` };
+  if (!read) return { problem: `is not a target (host, <css part>, slot, slot:<name>, <child tag>…, <child tag>… <css part>, .<class>; a child tag may be <tag>|<tag>…)` };
   return { ...read, aspect };
 }
 
@@ -155,8 +160,9 @@ export function partsProblems(specs, manifest, stylesheetOf = () => '', pendingN
         continue;
       }
       if (read.child) {
-        const last = read.child.at(-1);
-        if (read.part !== undefined && !tags.get(last).parts.has(read.part)) problems.push(`${at}: ${last} exports no part "${read.part}"`);
+        for (const last of read.child.at(-1).split('|')) {
+          if (read.part !== undefined && !tags.get(last).parts.has(read.part)) problems.push(`${at}: ${last} exports no part "${read.part}"`);
+        }
         continue;
       }
       if (!element) { problems.push(`${at}: ${web.name} is not an element of packages/web/custom-elements.json`); continue; }
