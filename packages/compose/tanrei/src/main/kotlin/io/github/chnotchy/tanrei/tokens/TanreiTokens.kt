@@ -2708,6 +2708,7 @@ public data class TanreiChatComposerTokens(
     public val counterTypescale: TanreiTextStyle,
     public val inputPaddingBlock: Dp,
     public val layoutInlineMinWidth: Dp,
+    public val layoutInputMinWidth: Dp,
     public val motionGlyphFadeDuration: Int,
     public val motionResizeDuration: Int,
     public val motionResizeEasing: TanreiCubicBezier,

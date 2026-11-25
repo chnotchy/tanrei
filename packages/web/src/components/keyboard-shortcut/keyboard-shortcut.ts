@@ -18,6 +18,7 @@ import {
 import type { TanreiKeyboardShortcutSizeRegistry, TanreiKeyboardShortcutVariantRegistry } from '../../registry.js';
 import { AXES, styles } from './keyboard-shortcut.styles.js';
 import { TanreiElement } from '../../primitives/element.js';
+import { DEBUG } from '../../primitives/debug.js';
 
 /** How the keys are drawn: in caps, or as a line of text. A design system may add values. */
 export type TanreiKeyboardShortcutVariant = keyof TanreiKeyboardShortcutVariantRegistry;
@@ -291,14 +292,14 @@ export class TanreiKeyboardShortcut extends TanreiElement implements ConventionR
   }
 
   protected override willUpdate(changed: PropertyValues) {
-    if (changed.has('convention') && !CONVENTIONS.includes(this.convention)) {
+    if (DEBUG && changed.has('convention') && !CONVENTIONS.includes(this.convention)) {
       report(this, 'KBS-2', `convention "${this.convention}" is not auto, apple or standard; it is read as auto`);
     }
     if (changed.has('convention') && this.isConnected) this.resolved = this.resolveConvention();
     // KBS-18: what is drawn as it can be is reported in debug builds, chord by chord.
     if (changed.has('keys') || changed.has('resolved')) {
       for (const { chord, problems } of this.write(this.resolved)) {
-        for (const problem of problems) report(this, 'KBS-18', `the chord "${chord}": ${problem}`);
+        for (const problem of problems) DEBUG && report(this, 'KBS-18', `the chord "${chord}": ${problem}`);
       }
     }
   }
@@ -306,7 +307,7 @@ export class TanreiKeyboardShortcut extends TanreiElement implements ConventionR
   protected override updated(changed: PropertyValues) {
     // KBS-11: a shortcut that is read where it sits, and has no words of the product's, reads the notation; the
     // developer is told once. (A hosted one is said by its host, which has no label to give it.)
-    if (!this.hosted && !this.label.trim() && this.ariaKeyShortcuts) {
+    if (DEBUG && !this.hosted && !this.label.trim() && this.ariaKeyShortcuts) {
       report(this, 'KBS-11', 'label is empty, so the shortcut is read in the notation of aria-keyshortcuts; give it the shortcut in the product\'s own words ("Shift Command K"): Tanrei has no names for keys');
     }
     // KBS-13: a hosted shortcut exposes nothing (the host exposes it); KBS-10: otherwise the one hidden text is read.

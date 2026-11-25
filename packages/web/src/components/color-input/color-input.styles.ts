@@ -359,8 +359,8 @@ export const styles = css`
     .input,
     .floating,
     .floating .asterisk,
-    .edge,
-    .outline > span,
+    .edge::before,
+    .outline > span::before,
     .outline-notch,
     .indicator {
       transition: none !important;

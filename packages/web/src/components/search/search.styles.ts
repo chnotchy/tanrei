@@ -1021,6 +1021,15 @@ export const rowStyles = css`
   .icon.empty {
     visibility: hidden;
   }
+  /* SRC-45: the icon and the text are drawn over the row's control (an <a> or a <button> at level -1 under them) and
+     take no pointer, so that every press, hover and drag over them goes to it. They are positioned, at no level of
+     their own, so that a contrast checker that orders the page itself (axe) puts them above the control too: it puts
+     an element of a level, even a negative one, above every text that has none. */
+  .icon,
+  .text {
+    position: relative;
+    pointer-events: none;
+  }
   .text {
     display: flex;
     flex: 1 1 auto;
