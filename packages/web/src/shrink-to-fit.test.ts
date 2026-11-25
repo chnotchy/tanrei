@@ -82,11 +82,7 @@ test.describe('in a box as wide as its content', () => {
           for (const stage of stages) stage.style.cssText += `;${css}`;
           // The stage, and everything it holds directly: the fixture's element, or what the harness stands it in.
           const widths = () => stages.map((stage) => [stage.dataset.fixture, ...[stage, ...stage.children].map((element) => Math.round(element.getBoundingClientRect().width * 100) / 100)]);
-          // Read at the start of the third frame: what the second frame drew. A component that measures in its resize
-          // observer's report writes what follows in the next frame's read phase (IMPLEMENTATION.md "Write nothing in a
-          // resize observer's report"), so the first frame drawn in the box may still be laid out as before, and the
-          // second has the width.
-          await frames(3);
+          await frames(2);
           const first = widths();
           (window as any).loops = 0;
           await frames(30);
