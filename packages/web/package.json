@@ -85,6 +85,10 @@
       "types": "./dist/theme-script.d.ts",
       "default": "./dist/theme-script.js"
     },
+    "./keyboard-convention": {
+      "types": "./dist/keyboard-convention.d.ts",
+      "default": "./dist/keyboard-convention.js"
+    },
     "./words": {
       "types": "./dist/words.d.ts",
       "default": "./dist/words.js"

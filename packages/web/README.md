@@ -198,6 +198,13 @@ controls that stand side by side in a row of their own (a flex row with a gap) r
 held at one line: a label or a help that wraps moves what is below it by the lines it adds. The stylesheet's comment
 lists what it does not hold.
 
+A keyboard shortcut in a line of text is not held by the cloak: its width is its keys, and the keys are the reader's
+(⇧⌘K on Apple's platforms, Ctrl+Shift+K elsewhere). A page written on a server can draw them itself, between the tags,
+as the element will: `keyboardPlatformScript()` from `@tanrei/web/keyboard-convention`, inline in `<head>`, puts the
+platform's convention on `<html>` (`data-tanrei-keyboard-platform="apple|standard"`) by the element's own test, and
+`shortcutLegends(keys, convention)` gives the legends of each chord in each convention, for the page to draw both and
+show the reader's — the standard convention with a + between two keys of a chord.
+
 ## Browser support
 
 Chrome and Edge 125, Firefox 126, Safari 17.5 (macOS and iOS), and later. Each is the newest of the features Tanrei

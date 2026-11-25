@@ -59,7 +59,9 @@ const WIDE = { width: 1440, height: 900 };
  *   cloak held one line, the first of them, 384 px tall before, was 510 px drawn);
  * - the Date and time picker's, whose specs draw open pickers in place (when the cloak took them out of the page, a
  *   stage of two was 64 px tall before and 1033 px drawn);
- * - the Select's in Japanese, whose tables wrap their rows at a phone's width.
+ * - the Select's in Japanese, whose tables wrap their rows at a phone's width (its keyboard table drawn in words before
+ *   its keys were defined, 1248 px tall at a phone's width, was 1126 to 1148 px once the keys were drawn in the reader's
+ *   convention: components/visuals/KeyboardMap.astro now draws the reader's keys before).
  */
 const CASES = [
   { url: '/components/text-field/', viewport: PHONE, look: '#docs-figure-7-stage' },
@@ -80,12 +82,8 @@ const KNOWN = [
     box: '#docs-figure-4-stage',
     why: "a range field's time wraps where the surface is narrower than its words (\"6:00 AM next day\" on two lines at a phone's width), and the cloak holds a range field at one line: how many lines it takes is a matter of the words, the width and the face, which no token says",
   },
-  {
-    box: /^keyboard table /,
-    why: "a key is drawn as its words in a cap's box before the Keyboard shortcut is defined (KeyboardMap.astro), and in the reader's own convention once it is — Apple's symbols on Apple's platforms, one cap per key — so its row wraps otherwise; to hold it, the page would draw each chord's caps in both conventions before it is defined and show the reader's, as the element resolves `auto`",
-  },
 ];
-const knownFor = (url, width, key) => KNOWN.find((known) => (!known.url || known.url === url) && (!known.width || known.width === width) && (typeof known.box === 'string' ? known.box === key : known.box.test(key)));
+const knownFor = (url, width, key) => KNOWN.find((known) => (!known.url || known.url === url) && (!known.width || known.width === width) && known.box === key);
 
 /** Runs in the page before any of its scripts: keeps every layout shift not caused by input, with what moved. */
 function observeShifts() {
