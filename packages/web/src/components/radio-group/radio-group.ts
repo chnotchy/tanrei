@@ -4,6 +4,7 @@ import { ComposedElement, exported, fieldDelegatesAria, forward } from '../../pr
 import { delegatedAria } from '../../primitives/delegated-aria.js';
 import { FIELD_CONNECT, FIELD_CONTROL, FieldControlController, type FieldConnection } from '../../primitives/field.js';
 import { FormDisabledController } from '../../primitives/form-disabled.js';
+import { FormDefault } from '../../primitives/form-default.js';
 import { missingValueMessage } from '../../primitives/missing-value.js';
 import { report } from '../../primitives/report.js';
 import { WordsController } from '../../primitives/words.js';
@@ -68,7 +69,7 @@ const OTHER_CONTROLS = 'input, button, select, textarea, a[href], [tabindex]:not
  * radio button, or the first enabled one.
  *
  * Form-associated: it submits `value` under `name` — also while the radio button of that value is one the product
- * disabled by itself — returns to its `value` attribute when the form is reset, is restored on navigation, follows
+ * disabled by itself — returns to the value it was first given when the form is reset, is restored on navigation, follows
  * `<fieldset disabled>`, and reports `valueMissing` while `required` and `value` is empty, in the
  * browser's own words for an unanswered set of radio buttons. It never sets `error` itself.
  *
@@ -119,7 +120,7 @@ export class TanreiRadioGroup extends ComposedElement implements TanreiRadioButt
     orientation: { type: String, reflect: true },
   };
 
-  /** The value of the selected radio button; the empty string while none is selected. The `value` attribute is the first value and what a form reset returns to. */
+  /** The value of the selected radio button; the empty string while none is selected. The value it is first given — by the `value` attribute or as the property — is what a form reset returns to. */
   value = '';
 
   /** The name the value is submitted under. A web attribute, not a prop of the spec. */
@@ -168,6 +169,8 @@ export class TanreiRadioGroup extends ComposedElement implements TanreiRadioButt
   orientation: TanreiFieldGroupOrientation = 'vertical';
 
   private readonly fieldset = new FormDisabledController(this);
+  /** What a form's reset returns `value` to: what it was first given, as a native control's `defaultValue`. */
+  private readonly valueDefault = new FormDefault(this, () => this.value, 'value', (text) => text ?? '');
   /** A disabled `<fieldset>` around the element, as the platform says it (src/primitives/form-disabled.ts). */
   protected get formDisabled(): boolean {
     return this.fieldset.byFieldset;
@@ -297,7 +300,7 @@ export class TanreiRadioGroup extends ComposedElement implements TanreiRadioButt
 
   formResetCallback() {
     // RGP-9: back to the value it was first given, without a change.
-    this.value = this.getAttribute('value') ?? '';
+    this.value = this.valueDefault.value;
   }
 
   formStateRestoreCallback(restored: string | File | FormData | null) {

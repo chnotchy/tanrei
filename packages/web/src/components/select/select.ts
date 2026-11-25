@@ -45,6 +45,7 @@ import '../option/option.js';
 import '../loading-indicator/loading-indicator.js';
 import '../button/button.js';
 import { FormDisabledController } from '../../primitives/form-disabled.js';
+import { FormDefault } from '../../primitives/form-default.js';
 import { AXES, CORE_SIZES, INSET, PREFIX, styles } from './select.styles.js';
 import { FocusedStop, disabledWaitsWhileFocused } from '../../primitives/disabled-while-focused.js';
 import { focusedAtFirst } from '../../primitives/autofocus.js';
@@ -112,7 +113,7 @@ const LEFT_ATTRIBUTES = ['supporting-text', 'error-text', 'required', 'optional'
  * Bare and given no width it is an inline box as wide as its widest option; in a Field it is a block that fills the
  * Field's width.
  *
- * It is a form-associated element: it takes `name`, submits `value`, resets to the `value` attribute, is restored on
+ * It is a form-associated element: it takes `name`, submits `value`, resets to the value it was first given, is restored on
  * navigation, follows `<fieldset disabled>` and reports `valueMissing` while the Field that frames it says it is
  * required and `value` is empty. It never validates beyond that: `error` is the product's to set.
  *
@@ -249,7 +250,7 @@ export class TanreiSelect extends TanreiElement {
     return this.sizes.drawn;
   }
 
-  /** The value of the chosen option. The select shows that option's label; while `value` names no option it shows the placeholder. An option whose value is the empty string is a choice like any other. The `value` attribute is the value a form reset returns to. */
+  /** The value of the chosen option. The select shows that option's label; while `value` names no option it shows the placeholder. An option whose value is the empty string is a choice like any other. The value it is first given — by the `value` attribute or as the property — is what a form reset returns to. */
   value = '';
 
   /** The name the value is submitted under in a form. Reflected. */
@@ -313,6 +314,8 @@ export class TanreiSelect extends TanreiElement {
   /** SEL-20: the container has focus, however it was gained. */
   protected focused = false;
   private readonly fieldset = new FormDisabledController(this);
+  /** What a form's reset returns `value` to: what it was first given, as a native control's `defaultValue`. */
+  private readonly valueDefault = new FormDefault(this, () => this.value, 'value', (text) => text ?? '');
   /** A disabled `<fieldset>` around the element, as the platform says it (src/primitives/form-disabled.ts). */
   protected get formDisabled(): boolean {
     return this.fieldset.byFieldset;
@@ -588,7 +591,7 @@ export class TanreiSelect extends TanreiElement {
   }
 
   formResetCallback() {
-    this.value = this.getAttribute('value') ?? '';
+    this.value = this.valueDefault.value;
   }
 
   formStateRestoreCallback(state: string | File | FormData | null) {
