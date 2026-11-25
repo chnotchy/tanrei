@@ -1,5 +1,7 @@
 import { type CSSResult, unsafeCSS } from 'lit';
 import { BEHAVIOR, choice } from './behavior.js';
+import { focusedIn } from './flat-tree.js';
+import { drawnAsNoElement } from './no-element.js';
 
 /**
  * Names the element that draws the indicator, given a focus condition: `(focus) => \`button${focus}\`` for a control
@@ -148,6 +150,15 @@ const heldGlow = (selector: string, within: string, color = SYSTEM_COLOR) => `
       0 0 var(--tanrei-sys-focus-outer-width) calc(var(--tanrei-sys-focus-inner-width) + var(--tanrei-sys-focus-outer-width)) ${color};
   }`;
 
+/**
+ * A box the component adds only to carry the indicator over its content — over a text that scrolls
+ * (`(focus) => \`.scroll${focus} ~ .focus\``), or above what a tab draws (its `.ring`): drawn as no element
+ * (`drawnAsNoElement()`), so that the text it lies over is still checked for contrast. `focusRing()` gives the box the
+ * outline, which its `::before` draws, and the `::after` (the inner stroke, the glow), which stays drawn. Write it
+ * beside `focusRing()` for the same box, with the box's plain selector; the box leaves its `::before` to it too.
+ */
+export const focusRingBox = (selector: string): CSSResult => drawnAsNoElement(selector, ['outline', 'outline-offset']);
+
 // The ring held within `within` of room: `--_focus-pull` is what the ring's reach (the offset and both strokes) lacks
 // of the room, and every edge is drawn that much further in.
 function heldRing(on: FocusSelector, within: string, color: string): CSSResult {
@@ -250,8 +261,20 @@ export function heldFocusGlow(on: FocusSelector, radius: { plain: string; eased:
 
 /**
  * BTN-10: where style queries are missing, the focus style is read when focus arrives. Call it from the focused
- * element's `focus` listener; it writes `data-focus-style` on `target` (the element `on()` names the condition of).
+ * element's `focus` listener; it writes `data-focus-style` on `target` (the element `on()` names the condition of) — at
+ * once for keyboard focus (`:focus-visible` on the element focused), in the next frame callback for focus that draws no
+ * indicator.
  */
 export function syncFocusStyle(host: Element, target: HTMLElement | null) {
-  if (target) target.dataset.focusStyle = choice(host, 'focus-style');
+  if (!target) return;
+  const read = () => (target.dataset.focusStyle = choice(host, 'focus-style'));
+  // Keyboard focus draws its indicator in the next frame: its style is read now. Focus that came with a press draws
+  // none, and the read is a read of the page's style (WebKit styles the whole document to answer it): in the press's
+  // task it styled the page once more, after the press and the focus had changed it, before the frame that styles it
+  // anyway. It is made in the next frame callback instead, with that frame's style.
+  // Which focus it is, is asked of the element that holds it, not of `target`: the target is often a box around it
+  // (a field's frame, a container), which never matches `:focus-visible` itself — keyboard focus read late there left
+  // `data-focus-style` unwritten until the frame (SEL-21).
+  if (focusedIn(document)?.matches(':focus:not(:focus-visible)')) requestAnimationFrame(read);
+  else read();
 }

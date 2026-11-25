@@ -2,6 +2,7 @@ import { type CSSResult, type ReactiveController, type ReactiveControllerHost, n
 import { Directive, type ElementPart, type PartInfo, PartType, directive } from 'lit/directive.js';
 import { report } from './report.js';
 import { WordsController } from './words.js';
+import { DEBUG } from './debug.js';
 
 // A control with a destination is a link: the one place the web decides what a destination is,
 // what the anchor carries, which keys a link takes and what a debug build says. A component with a link form (Button,
@@ -252,17 +253,17 @@ export class LinkController implements ReactiveController {
     const { href, refusal } = readDestination(host.href);
     if (held) {
       // D10: said once per control and kind, and only where a destination was actually given.
-      if (href !== null || refusal) report(host, refused, `${held} cannot be a link: a control that holds a state, or a second action, is not a destination; href, target and targetLabel are ignored`);
+      if (DEBUG && (href !== null || refusal)) report(host, refused, `${held} cannot be a link: a control that holds a state, or a second action, is not a destination; href, target and targetLabel are ignored`);
       return;
     }
-    if (refusal === 'script') report(host, refused, 'href names a script to run, not a place to go; it is ignored and the control has no destination');
-    if (refusal === 'unreadable') report(host, refused, `href "${host.href}" cannot be read as an address; it is ignored and the control has no destination`);
-    if (!readTarget(host.target).known) report(host, refused, `target "${host.target}" is not a value it defines ("same" or "new"); it opens as "same"`);
+    if (DEBUG && refusal === 'script') report(host, refused, 'href names a script to run, not a place to go; it is ignored and the control has no destination');
+    if (DEBUG && refusal === 'unreadable') report(host, refused, `href "${host.href}" cannot be read as an address; it is ignored and the control has no destination`);
+    if (DEBUG && !readTarget(host.target).known) report(host, refused, `target "${host.target}" is not a value it defines ("same" or "new"); it opens as "same"`);
     const form = this.form;
     if (form?.opensNew && !form.targetLabel) {
       // Neither the control nor the product's words gave it: recorded for `missingWords()`, and said for this control.
       this.words.lacks('targetLabel', host.targetLabel);
-      report(host, newContext, 'it opens a new context and targetLabel is empty, so nothing says so to people who cannot see the mark; give it the words ("opens in a new tab")');
+      if (DEBUG) report(host, newContext, 'it opens a new context and targetLabel is empty, so nothing says so to people who cannot see the mark; give it the words ("opens in a new tab")');
     }
   }
 }

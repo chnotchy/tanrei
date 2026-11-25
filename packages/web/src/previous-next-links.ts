@@ -22,6 +22,7 @@ import { generatedGlyphMirrors, watchIconSet } from './primitives/glyph-mirror.j
 import { LINK_KEYS, readDestination } from './primitives/link.js';
 import { PressController } from './primitives/press.js';
 import { report } from './primitives/report.js';
+import { DEBUG } from './primitives/debug.js';
 
 const ROOT = 'tanrei-previous-next-links';
 const ITEM = 'tanrei-previous-next-links-item';
@@ -62,20 +63,20 @@ function readItem(item: HTMLAnchorElement) {
       item.removeAttribute('href');
       if (refusal) {
         refused.add(item);
-        report(item, 'PNL-3', refusal === 'script' ? 'href names a script to run, not a place to go; it is taken off and the item is not drawn' : `href "${given}" cannot be read as an address; it is taken off and the item is not drawn`);
+        if (DEBUG) report(item, 'PNL-3', refusal === 'script' ? 'href names a script to run, not a place to go; it is taken off and the item is not drawn' : `href "${given}" cannot be read as an address; it is taken off and the item is not drawn`);
       }
     }
   }
   const direction = directionOf(item);
   if (!direction) {
-    report(item, 'PNL-3', `data-direction "${item.getAttribute('data-direction')}" is not a direction it has ("previous" or "next"); the item is not drawn`);
+    if (DEBUG) report(item, 'PNL-3', `data-direction "${item.getAttribute('data-direction')}" is not a direction it has ("previous" or "next"); the item is not drawn`);
     return;
   }
   if (!live(item)) return;
   // PNL-2: how the destination relates to the page.
   if (!item.hasAttribute('rel')) item.setAttribute('rel', REL[direction]);
   // PNL-7: the direction is said in words by the label.
-  if (!(item.querySelector(`:scope > .${LABEL}`)?.textContent ?? '').trim()) {
+  if (DEBUG && !(item.querySelector(`:scope > .${LABEL}`)?.textContent ?? '').trim()) {
     report(item, 'PNL-7', 'its label is empty, so it does not say its direction in words: the arrow is hidden from assistive technology; give it a span with class "tanrei-previous-next-links-label"');
   }
   // PNL-21: the icon set says whether the arrow is mirrored in a right-to-left layout; the stylesheet mirrors it
@@ -91,13 +92,13 @@ function readRoot(root: Element) {
   for (const item of items) {
     const direction = directionOf(item);
     if (!direction) continue;
-    if (seen.has(direction)) report(item, 'PNL-3', `it is a second "${direction}" item; a pair of previous and next links holds at most one of each, and this one is not drawn`);
+    if (seen.has(direction)) DEBUG && report(item, 'PNL-3', `it is a second "${direction}" item; a pair of previous and next links holds at most one of each, and this one is not drawn`);
     else seen.set(direction, item);
   }
   // PNL-1: previous, then next, in the document and so in the focus order, whatever order the product gave them in.
   const [previous, next] = [seen.get('previous'), seen.get('next')];
   if (previous && next && next.compareDocumentPosition(previous) & Node.DOCUMENT_POSITION_FOLLOWING) next.before(previous);
-  if (items.some(live) && !(root.getAttribute('aria-label') ?? '').trim() && !root.hasAttribute('aria-labelledby')) {
+  if (DEBUG && items.some(live) && !(root.getAttribute('aria-label') ?? '').trim() && !root.hasAttribute('aria-labelledby')) {
     report(root, 'PNL-1', 'the landmark has no accessible name; give it aria-label ("Pages"), which tells it from the page’s other navigation');
   }
 }

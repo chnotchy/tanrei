@@ -7,6 +7,7 @@ import { TanreiElement } from '../../primitives/element.js';
 import '../handle/handle.js';
 import type { TanreiHandleResizeDetail, TanreiHandleStepDetail } from '../handle/handle.js';
 import { AXES, PRIMARIES, styles } from './split-view.styles.js';
+import { DEBUG } from '../../primitives/debug.js';
 
 /** Which size the split divides: the width (`horizontal`, the panes side by side) or the height (`vertical`, one above the other). */
 export type TanreiSplitViewAxis = 'horizontal' | 'vertical';
@@ -443,19 +444,19 @@ export class TanreiSplitView extends TanreiElement {
     // box for its motions would style the page in this host's own update.
     if (this.pending && (this.pending !== 'still' || this.motion.resizing)) this.motion.fit(this.pending !== 'still');
     this.pending = null;
-    if (changed.has('axis') && this.axis !== this.shownAxis) report(this, 'SPV-15', `axis "${this.axis}" is not a value of the split view; it is laid out as "horizontal"`);
-    if (changed.has('primary') && this.primary !== this.shownPrimary) report(this, 'SPV-15', `primary "${this.primary}" is not a value of the split view; it is taken as "start"`);
+    if (DEBUG && changed.has('axis') && this.axis !== this.shownAxis) report(this, 'SPV-15', `axis "${this.axis}" is not a value of the split view; it is laid out as "horizontal"`);
+    if (DEBUG && changed.has('primary') && this.primary !== this.shownPrimary) report(this, 'SPV-15', `primary "${this.primary}" is not a value of the split view; it is taken as "start"`);
     if (changed.has('min') || changed.has('max')) {
       const { min, max } = this.percentBounds;
-      if (min !== this.min || max !== this.max) report(this, 'SPV-15', `min ${this.min} and max ${this.max} are not a range within 0 and 100; ${min} and ${max} are used`);
+      if (DEBUG && (min !== this.min || max !== this.max)) report(this, 'SPV-15', `min ${this.min} and max ${this.max} are not a range within 0 and 100; ${min} and ${max} are used`);
     }
     for (const name of ['value', 'step', 'largeStep', 'resetValue'] as const) {
       if (!changed.has(name)) continue;
       const value = this[name];
-      if (!usable(value) || (name !== 'value' && name !== 'resetValue' && value <= 0)) report(this, 'SPV-15', `${name} ${String(value)} is not a number it can use; ${DEFAULTS[name]} is used`);
+      if (DEBUG && (!usable(value) || (name !== 'value' && name !== 'resetValue' && value <= 0))) report(this, 'SPV-15', `${name} ${String(value)} is not a number it can use; ${DEFAULTS[name]} is used`);
     }
     for (const name of ['minSize', 'maxSize'] as const) {
-      if (changed.has(name) && this[name] !== null && this[name] !== undefined && this.usableSize(this[name]) === null) report(this, 'SPV-15', `${name} ${String(this[name])} is not a size in pixels of 0 or more; it is ignored`);
+      if (DEBUG && changed.has(name) && this[name] !== null && this[name] !== undefined && this.usableSize(this[name]) === null) report(this, 'SPV-15', `${name} ${String(this[name])} is not a size in pixels of 0 or more; it is ignored`);
     }
   }
 

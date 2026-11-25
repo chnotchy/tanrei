@@ -4,6 +4,7 @@ import { AvailabilityController, LINK_KEYS, PressController, SETTLING, linkRel, 
 import type { TanreiLinkCardVariantRegistry } from '../../registry.js';
 import { adopt, adoptUnlessDrawn } from '../../primitives/sheets.js';
 import { TanreiLightElement } from '../../primitives/element.js';
+import { DEBUG } from '../../primitives/debug.js';
 
 /** The core looks (outlined, filled), plus any a design system's generated `.d.ts` registers. */
 export type TanreiLinkCardVariant = keyof TanreiLinkCardVariantRegistry;
@@ -301,10 +302,10 @@ export class TanreiLinkCard extends TanreiLightElement {
   protected override updated(changed: PropertyValues) {
     if (changed.has('variant')) this.readVariant();
     // LKC-27: an external the card does not define is auto.
-    if (changed.has('external') && !EXTERNALS.includes(String(this.external ?? 'auto'))) {
+    if (DEBUG && changed.has('external') && !EXTERNALS.includes(String(this.external ?? 'auto'))) {
       report(this, 'LKC-27', `external "${this.external}" is not a value the link card defines ("auto", "on" or "off"); the address decides`);
     }
-    if (changed.has('target') && !readTarget(this.target).known) {
+    if (DEBUG && changed.has('target') && !readTarget(this.target).known) {
       report(this, 'LKC-27', `target "${this.target}" is not a value the link card defines ("same" or "new"); it opens where the person is`);
     }
     // LKC-13: a picture whose address changed is a new picture — its box is drawn until it has loaded.
@@ -336,7 +337,7 @@ export class TanreiLinkCard extends TanreiLightElement {
     if (CORE_VARIANTS.includes(variant)) return;
     const known = KEY.test(variant);
     if (known) adopt(this.getRootNode() as Root, sheet(`variant:${variant}`, () => variantRules(variant)));
-    if (!known || getComputedStyle(this).getPropertyValue(`${PREFIX}-${variant}-container-color`).trim() === '') {
+    if (DEBUG && (!known || getComputedStyle(this).getPropertyValue(`${PREFIX}-${variant}-container-color`).trim() === '')) {
       report(this, 'LKC-27', `variant "${variant}" is not a value of the active design system; it is drawn as "${DEFAULT_VARIANT}"`);
     }
   }
@@ -412,7 +413,7 @@ export class TanreiLinkCard extends TanreiLightElement {
     if (this.speaks(this.href)) {
       const { href, refusal } = readDestination(this.href);
       mark(anchor, 'href', href);
-      if (href === null && this.href.trim()) {
+      if (DEBUG && href === null && this.href.trim()) {
         report(this, 'LKC-27', refusal === 'script' ? 'href names a script to run, not a place to go: the card is not a link, and its title is drawn as text' : `href "${this.href}" cannot be read as an address: the card is not a link, and its title is drawn as text`);
       }
     }
@@ -472,7 +473,7 @@ export class TanreiLinkCard extends TanreiLightElement {
    */
   private picture(parent: Element | null, id: string, order: readonly string[], given: string, renew: boolean, prop: string, behavior: string) {
     const src = pictureAddress(given);
-    if (!src && given.trim()) report(this, behavior, `${prop} "${given.length > 96 ? `${given.slice(0, 96)}…` : given}" is not the address of a picture (a script, or an address that cannot be read): it is treated as empty and nothing is asked for`);
+    if (DEBUG && !src && given.trim()) report(this, behavior, `${prop} "${given.length > 96 ? `${given.slice(0, 96)}…` : given}" is not the address of a picture (a script, or an address that cannot be read): it is treated as empty and nothing is asked for`);
     if (!parent) return;
     let picture = parent.querySelector<HTMLImageElement>(`:scope > img[data-part="${id}"]`);
     if (!src) {
@@ -514,7 +515,7 @@ export class TanreiLinkCard extends TanreiLightElement {
     const given = anchor.getAttribute('href');
     if (given !== null && readDestination(given).href === null) {
       anchor.removeAttribute('href');
-      if (given.trim()) report(this, 'LKC-27', readDestination(given).refusal === 'script' ? 'href names a script to run, not a place to go; it is taken off and the card is not a link' : `href "${given}" cannot be read as an address; it is taken off and the card is not a link`);
+      if (DEBUG && given.trim()) report(this, 'LKC-27', readDestination(given).refusal === 'script' ? 'href names a script to run, not a place to go; it is taken off and the card is not a link' : `href "${given}" cannot be read as an address; it is taken off and the card is not a link`);
     }
     const body = anchor.querySelector<HTMLElement>(':scope > [data-part="body"]');
     const href = anchor.getAttribute('href');
@@ -527,7 +528,7 @@ export class TanreiLinkCard extends TanreiLightElement {
       if (this.wroteExternal !== null) mark(anchor, 'data-external', null);
       this.wroteExternal = null;
       if (this.built && body) for (const part of [...body.children]) if (part.getAttribute('data-part') !== 'title') part.remove();
-      if (document.readyState !== 'loading') report(this, 'LKC-27', 'it has no destination, so it is not a link and is not drawn as a card: its title, where it has one, is drawn as text');
+      if (DEBUG && document.readyState !== 'loading') report(this, 'LKC-27', 'it has no destination, so it is not a link and is not drawn as a card: its title, where it has one, is drawn as text');
       return;
     }
 
@@ -538,7 +539,7 @@ export class TanreiLinkCard extends TanreiLightElement {
       const rel = linkRel(anchor.getAttribute('rel'), 'new');
       if (rel !== null && rel !== anchor.getAttribute('rel')) anchor.setAttribute('rel', rel);
     } else if (target !== '' && target !== '_self') {
-      report(this, 'LKC-27', `target "${anchor.getAttribute('target')}" is not a value the link card defines ("_blank" for a new context, or none); it is taken off and the card opens where the person is`);
+      if (DEBUG) report(this, 'LKC-27', `target "${anchor.getAttribute('target')}" is not a value the link card defines ("_blank" for a new context, or none); it is taken off and the card opens where the person is`);
       anchor.removeAttribute('target');
     }
 
@@ -557,7 +558,7 @@ export class TanreiLinkCard extends TanreiLightElement {
       say(title, href.trim());
       mark(title, 'dir', 'ltr');
       mark(title, 'data-address', '');
-      report(this, 'LKC-5', 'the link card has no title: the address is drawn in its place and names it. Give it the destination’s title');
+      if (DEBUG) report(this, 'LKC-5', 'the link card has no title: the address is drawn in its place and names it. Give it the destination’s title');
     }
 
     // LKC-8, LKC-9: the host, from href and from nothing else.
@@ -566,7 +567,7 @@ export class TanreiLinkCard extends TanreiLightElement {
     let address = site?.querySelector<HTMLElement>(':scope > [data-part="address"]') ?? null;
     let hostPart = address?.querySelector<HTMLElement>(':scope > [data-part="host"]') ?? null;
     const written = hostPart?.textContent ?? '';
-    if (hostPart && written !== host && written.trim() && written !== this.ownHost) {
+    if (DEBUG && hostPart && written !== host && written.trim() && written !== this.ownHost) {
       report(this, 'LKC-8', `the host written in the document, "${written.trim().slice(0, 96)}", is not the host of href, "${host}": it is replaced. The host is computed from href and nothing can set it`);
     }
     // LKC-7: a site name that says only what the host says is not drawn.
@@ -638,8 +639,8 @@ export class TanreiLinkCard extends TanreiLightElement {
       words = null;
       this.ownWords = null;
     }
-    if (opensNew && !said) report(this, 'LKC-23', 'it opens a new context and targetLabel is empty, so nothing says so to people who cannot see the mark; give it the words ("opens in a new tab", in the product’s language)');
-    if (external && !opensNew && !said) {
+    if (DEBUG && opensNew && !said) report(this, 'LKC-23', 'it opens a new context and targetLabel is empty, so nothing says so to people who cannot see the mark; give it the words ("opens in a new tab", in the product’s language)');
+    if (DEBUG && external && !opensNew && !said) {
       report(this, 'LKC-24', 'it leaves the site and nothing says so to people who cannot see the arrow: give it externalLabel, or set the words once for the page with setExternalLabel() of @tanrei/web/link ("external link", in the product’s language; Tanrei ships no words)');
     }
 
@@ -667,7 +668,7 @@ export class TanreiLinkCard extends TanreiLightElement {
     // LKC-35: nothing inside a link card is pressed by itself.
     for (const inner of this.querySelectorAll<HTMLElement>(INTERACTIVE)) {
       if (inner === anchor || inner.hasAttribute('inert')) continue;
-      report(this, 'LKC-35', `it holds an interactive element (<${inner.localName}>): a link card is one link and nothing inside it is pressed by itself. The element is made inert; a preview with its own controls is a Card that holds a Link and those controls`);
+      if (DEBUG) report(this, 'LKC-35', `it holds an interactive element (<${inner.localName}>): a link card is one link and nothing inside it is pressed by itself. The element is made inert; a preview with its own controls is a Card that holds a Link and those controls`);
       inner.setAttribute('inert', '');
     }
   }
@@ -693,13 +694,13 @@ export class TanreiLinkCard extends TanreiLightElement {
     if (!picture) return null;
     const given = picture.getAttribute('src') ?? '';
     if (!pictureAddress(given)) {
-      if (given.trim()) report(this, 'LKC-14', `${prop} "${given.length > 96 ? `${given.slice(0, 96)}…` : given}" is not the address of a picture (a script, or an address that cannot be read): it is treated as empty and nothing is asked for`);
+      if (DEBUG && given.trim()) report(this, 'LKC-14', `${prop} "${given.length > 96 ? `${given.slice(0, 96)}…` : given}" is not the address of a picture (a script, or an address that cannot be read): it is treated as empty and nothing is asked for`);
       picture.remove();
       return null;
     }
     if (picture.getAttribute('alt') !== '') picture.setAttribute('alt', '');
     if (!picture.hasAttribute('referrerpolicy')) {
-      report(this, 'LKC-14', `its ${prop} has no referrerpolicy: a picture is asked for without the page’s address; referrerpolicy="no-referrer" is written for it, but the first request may already have carried the address — write it in the markup (linkCardToNodes() does)`);
+      if (DEBUG) report(this, 'LKC-14', `its ${prop} has no referrerpolicy: a picture is asked for without the page’s address; referrerpolicy="no-referrer" is written for it, but the first request may already have carried the address — write it in the markup (linkCardToNodes() does)`);
       picture.setAttribute('referrerpolicy', 'no-referrer');
     }
     if (!picture.hasAttribute('loading')) picture.setAttribute('loading', 'lazy');
@@ -707,7 +708,7 @@ export class TanreiLinkCard extends TanreiLightElement {
     try {
       const src = new URL(given, this.baseURI);
       const page = this.ownerDocument.location;
-      if (['http:', 'https:'].includes(src.protocol) && page && src.origin !== page.origin) {
+      if (DEBUG && ['http:', 'https:'].includes(src.protocol) && page && src.origin !== page.origin) {
         report(this, 'LKC-14', `its ${prop} is asked of ${src.origin}, not of this site: every reader’s browser then tells that party which page is being read. Give a picture the product serves itself (the build-time helper, @tanrei/web/links/node, keeps one among the site’s own files when the site is built)`);
       }
     } catch {
@@ -739,7 +740,7 @@ export class TanreiLinkCard extends TanreiLightElement {
     if (prop === 'image') this.endArrival();
     picture.remove();
     if (anchor && drawn) this.resize(anchor, drawn, null);
-    report(this, behavior, `its ${prop} "${src.length > 96 ? `${src.slice(0, 96)}…` : src}" cannot be loaded or decoded: the card is drawn without it`);
+    if (DEBUG) report(this, behavior, `its ${prop} "${src.length > 96 ? `${src.slice(0, 96)}…` : src}" cannot be loaded or decoded: the card is drawn without it`);
   }
 
   /** LKC-13: whether a picture's arrival or its box's size moves now — not while the card settles (MOT-3), nor under reduced motion (MOT-6). */

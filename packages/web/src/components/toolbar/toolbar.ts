@@ -33,6 +33,7 @@ import { TOOLBAR_CHILDREN, TOOLBAR_GROUP, type ToolbarGroupChannel } from './too
 export { TanreiToolbarGroup } from './toolbar-group.js';
 export type { TanreiToolbarGroupChangeDetail, TanreiToolbarGroupSelection } from './toolbar-group.js';
 import { AXES, styles } from './toolbar.styles.js';
+import { DEBUG } from '../../primitives/debug.js';
 
 /**
  * Where the toolbar stands: in place in the content (`inline`, the default), across the bottom edge (`docked`) or over
@@ -432,14 +433,14 @@ export class TanreiToolbar extends TanreiElement implements PlacingGroup {
     // TBR-26: its label is its whole name over the product's, which names it while the label is empty.
     nameHost(this, this.label);
     hostAria(this, { role: 'toolbar', 'aria-orientation': this.axis === 'block' ? 'vertical' : 'horizontal' });
-    if (changed.has('label') && !this.label && !namedByProduct(this)) report(this, 'TBR-12', 'label is empty, so the toolbar has no accessible name; give it a label ("Formatting", "Message actions")');
+    if (DEBUG && changed.has('label') && !this.label && !namedByProduct(this)) report(this, 'TBR-12', 'label is empty, so the toolbar has no accessible name; give it a label ("Formatting", "Message actions")');
     if (changed.has('orientation') || changed.has('variant')) {
       // TBR-13: an orientation the component does not define is horizontal. TBR-6: a docked toolbar is horizontal.
-      if (!ORIENTATIONS.includes(this.orientation)) report(this, 'TBR-13', `orientation "${this.orientation}" is not a value of the toolbar; it is drawn as "horizontal"`);
-      else if (this.orientation === 'vertical' && this.docked) report(this, 'TBR-6', 'a docked toolbar is horizontal; orientation "vertical" is for an inline or a floating toolbar');
+      if (!ORIENTATIONS.includes(this.orientation)) DEBUG && report(this, 'TBR-13', `orientation "${this.orientation}" is not a value of the toolbar; it is drawn as "horizontal"`);
+      else if (DEBUG && this.orientation === 'vertical' && this.docked) report(this, 'TBR-6', 'a docked toolbar is horizontal; orientation "vertical" is for an inline or a floating toolbar');
     }
-    if (changed.has('overflow') && !OVERFLOWS.includes(this.overflow)) report(this, 'TBR-13', `overflow "${this.overflow}" is not a value of the toolbar; it is drawn as "menu"`);
-    if (changed.has('separation') && !(SEPARATION_VALUES as readonly string[]).includes(this.separation)) report(this, 'TBR-13', `separation "${this.separation}" is not a value of the toolbar; it is drawn as "auto"`);
+    if (DEBUG && changed.has('overflow') && !OVERFLOWS.includes(this.overflow)) report(this, 'TBR-13', `overflow "${this.overflow}" is not a value of the toolbar; it is drawn as "menu"`);
+    if (DEBUG && changed.has('separation') && !(SEPARATION_VALUES as readonly string[]).includes(this.separation)) report(this, 'TBR-13', `separation "${this.separation}" is not a value of the toolbar; it is drawn as "auto"`);
     // TBR-23: without style queries, the name the cascade gives now is written for the styles to match.
     syncSeparation(this, this.container);
     // TBR-30: the container holds a box that scrolls the items before the run kept at the end, and does not scroll.
@@ -651,7 +652,7 @@ export class TanreiToolbar extends TanreiElement implements PlacingGroup {
       if (changed) this.hiddenChanged(before);
       // TBR-18: without a name the overflow button is drawn and works, is exposed unnamed, and the missing word is reported once.
       if (hidden.size && !this.words.get('toolbarOverflowLabel', this.overflowLabel)) {
-        this.words.missing('toolbarOverflowLabel', { prop: 'overflowLabel', id: 'TBR-18', effect: 'the overflow button is drawn and works, and has no accessible name' });
+        this.words.missing('toolbarOverflowLabel', DEBUG && { prop: 'overflowLabel', id: 'TBR-18', effect: 'the overflow button is drawn and works, and has no accessible name' });
       }
       this.rove();
     } finally {
@@ -1110,7 +1111,7 @@ export class TanreiToolbar extends TanreiElement implements PlacingGroup {
     const children = [...this.children];
     const kinds = (child: Element) => !!this.roleOf(child) || child.localName === GROUP || child.localName === SEPARATOR || this.isAnchoredMenu(child);
     const items = [...children, ...this.groups().flatMap((group) => [...group.children])].filter((child) => this.roleOf(child));
-    if (!items.length) report(this, 'TBR-12', 'it holds no item; a toolbar holds <tanrei-button> and <tanrei-button-with-menu> elements, alone or in <tanrei-toolbar-group>s');
+    if (DEBUG && !items.length) report(this, 'TBR-12', 'it holds no item; a toolbar holds <tanrei-button> and <tanrei-button-with-menu> elements, alone or in <tanrei-toolbar-group>s');
     // TBR-29: why a field is none of its kinds here.
     const why = (child: Element) =>
       this.axis === 'block' && [...FIELDS, ...TAILS].includes(child.localName)
@@ -1119,19 +1120,19 @@ export class TanreiToolbar extends TanreiElement implements PlacingGroup {
           ? 'a Text input or a Slider is its last item only, and one at most, because it keeps every arrow key'
           : 'a control that uses the arrow keys would take the keys the toolbar moves focus with';
     for (const child of children.filter((c) => !kinds(c))) {
-      report(this, 'TBR-12', `it holds <${child.localName}>, which is none of its item kinds here; it is laid out, but ${why(child)}`);
+      if (DEBUG) report(this, 'TBR-12', `it holds <${child.localName}>, which is none of its item kinds here; it is laid out, but ${why(child)}`);
     }
     for (const group of this.groups()) {
       for (const child of [...group.children].filter((c) => !this.roleOf(c) && !this.isAnchoredMenu(c))) {
-        report(this, 'TBR-12', `a group holds <${child.localName}>, which is none of its item kinds here; it is laid out, but ${why(child)}`);
+        if (DEBUG) report(this, 'TBR-12', `a group holds <${child.localName}>, which is none of its item kinds here; it is laid out, but ${why(child)}`);
       }
     }
     // Text written directly in the toolbar or a group is assigned to no slot (each slot takes one element), so it is
     // not drawn; the white space between the items is not text of its own. Each text is reported once, by what it says.
     const words = (parent: Element) => [...parent.childNodes].flatMap((node) => (node.nodeType === Node.TEXT_NODE && node.textContent?.trim() ? [node.textContent.trim()] : []));
-    for (const text of words(this)) report(this, 'TBR-12', `it holds the text "${text}", which is none of its item kinds; it is not drawn: a word belongs in an item's label`);
+    for (const text of words(this)) DEBUG && report(this, 'TBR-12', `it holds the text "${text}", which is none of its item kinds; it is not drawn: a word belongs in an item's label`);
     for (const group of this.groups()) {
-      for (const text of words(group)) report(this, 'TBR-12', `a group holds the text "${text}", which is none of its item kinds; it is not drawn: a word belongs in an item's label`);
+      for (const text of words(group)) DEBUG && report(this, 'TBR-12', `a group holds the text "${text}", which is none of its item kinds; it is not drawn: a word belongs in an item's label`);
     }
   }
 
