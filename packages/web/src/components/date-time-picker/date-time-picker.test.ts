@@ -3699,11 +3699,13 @@ test.describe('accessibility: what is drawn over a value', () => {
     const wheels = await contrastChecked(page);
     expect(wheels.violations, 'the faint selected values are reported').toEqual(['10', '30', 'AM']);
     expect(wheels.incomplete, 'nothing is left unchecked').toEqual([]);
-    // The dial of minutes: its numbers faint, under the arm (a box as large as the dial) and the copy inside the handle.
+    // The dial of minutes: its numbers faint, around the arm and the copy inside the handle.
     await mountFixtures(page, spec, { lead: `${tall}<style>tanrei-date-time-picker { ${T('dial-label-color')}: #bbb; }</style>`, fixtures: [opened('d', { mode: 'time', entryMode: 'dial', unit: 'minute', value: '10:30', hourCycle: 'h12' })] });
     const dial = await contrastChecked(page);
     expect(dial.violations, 'the faint numbers are reported').toEqual(['00', '05', '10', '15', '20', '25', '35', '40', '45', '50', '55']);
-    // The number under the handle is drawn over by the handle; its copy, in the handle's colors, is what is checked.
-    expect(dial.incomplete, 'nothing else is left unchecked').toEqual(['30']);
+    // DTM-24: the face does not draw the number the handle covers, so nothing lies under the handle; the copy inside it
+    // draws that number in the handle's colors, and that is what is checked (DTM-24's own test reads which element).
+    expect(dial.passes.filter((text) => text === '30'), "the display's minute and the copy of the number under the handle pass").toEqual(['30', '30']);
+    expect(dial.incomplete, 'nothing is left unchecked').toEqual([]);
   });
 });
