@@ -175,22 +175,35 @@ struct TanreiLoadingIndicatorMotionTests {
   var mark: Bitmap.RGBA { light[.onSurfaceVariant].rgba8() }
 
   /// LDG-4 — Reduce Motion: no turning; the whole circle at the indicator's size and stroke, its opacity easing
-  /// 1 → 0 → 1 once per cycle with `sys.motion.easing.standard`; the container stays still and opaque.
-  @Test("LDG-4 under Reduce Motion the whole circle pulses and the container stays")
+  /// 1 → the pulse's floor → 1 once per cycle with `sys.motion.easing.standard`, never below the floor; the container
+  /// stays still and opaque.
+  @Test("LDG-4 under Reduce Motion the whole circle pulses down to its floor, never below, and the container stays")
   func reducedMotion() throws {
     let standard = TanreiSystem.tanrei.motion.easing.standard
-    #expect(TanreiCycleClock.pulseOpacity(phase: 0, easing: standard) == 1)
-    #expect(abs(TanreiCycleClock.pulseOpacity(phase: 0.5, easing: standard)) < 1e-9)
-    #expect(abs(TanreiCycleClock.pulseOpacity(phase: 0.25, easing: standard) - (1 - TanreiCycleClock.eased(0.5, standard))) < 1e-9)
+    let floor = tokens.motionPulseFloorOpacity
+    #expect(floor > 0 && floor < 1)
+    #expect(TanreiCycleClock.pulseOpacity(phase: 0, easing: standard, floor: floor) == 1)
+    #expect(abs(TanreiCycleClock.pulseOpacity(phase: 0.5, easing: standard, floor: floor) - floor) < 1e-9)
+    #expect(abs(TanreiCycleClock.pulseOpacity(phase: 0.25, easing: standard, floor: floor) - (1 - (1 - floor) * TanreiCycleClock.eased(0.5, standard))) < 1e-9)
+    // Over a whole cycle the opacity never falls below the floor.
+    for step in 0...200 {
+      let phase = Double(step) / 200
+      #expect(TanreiCycleClock.pulseOpacity(phase: phase, easing: standard, floor: floor) >= floor - 1e-9, "\(phase)")
+    }
 
     let metrics = tokens.sizes.large
     let start = try Snapshot.render(indicator(.large, phase: 0, reduceMotion: true))
     for turn in stride(from: 0.05, to: 1, by: 0.1) {
       #expect(onTheArc(start, turn: turn, box: metrics.indicatorSize, size: metrics.indicatorSize, thickness: metrics.indicatorThickness).isClose(to: mark, tolerance: 16), "\(turn)")
     }
-    // Mid-cycle the circle is invisible; the phase does not move anything (two phases with the same opacity match).
+    // As drawn, over a whole cycle: never below the floor, and at the floor mid-cycle — still a circle, not nothing.
+    let surface = light[.surface].rgba8()
+    for phase in stride(from: 0.0, through: 1, by: 0.125) {
+      let drawn = onTheArc(try Snapshot.render(indicator(.large, phase: phase, reduceMotion: true)), turn: 0.1, box: metrics.indicatorSize, size: metrics.indicatorSize, thickness: metrics.indicatorThickness).drawnOpacity(of: mark, over: surface)
+      #expect(drawn >= floor - 0.03, "\(phase): \(drawn)")
+    }
     let middle = try Snapshot.render(indicator(.large, phase: 0.5, reduceMotion: true))
-    #expect(onTheArc(middle, turn: 0.1, box: metrics.indicatorSize, size: metrics.indicatorSize, thickness: metrics.indicatorThickness).isClose(to: light[.surface].rgba8(), tolerance: 2))
+    #expect(abs(onTheArc(middle, turn: 0.1, box: metrics.indicatorSize, size: metrics.indicatorSize, thickness: metrics.indicatorThickness).drawnOpacity(of: mark, over: surface) - floor) <= 0.03)
     // Nothing turns: at the end of a cycle (opacity back to about 1) the circle is where it was at the start.
     let end = try Snapshot.render(indicator(.large, phase: 0.9999, reduceMotion: true))
     #expect(end.mismatch(against: start, channelTolerance: Snapshot.channelTolerance) <= Snapshot.allowedMismatch)

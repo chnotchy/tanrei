@@ -49,7 +49,8 @@ enum TanreiProgressIndicatorVariant {
 ///   the thickness) and a ring's arcs have round caps unless `track.shape` is 0 (PRG-4).
 /// * Where `MediaQuery.disableAnimationsOf` asks for reduced motion, a value change is immediate
 ///   and the indeterminate form stands still: the indicator covers the whole track and its opacity
-///   eases from 1 to 0 and back once per cycle (PRG-7).
+///   eases from 1 down to `motion.pulse-floor-opacity` and back once per cycle, never below that
+///   floor (PRG-7).
 /// * Semantics are those of Flutter's own progress indicators: [semanticsLabel] is the name and,
 ///   when determinate, the value is [semanticsValue] or else the clamped percentage (PRG-8,
 ///   PRG-9). Flutter 3.32 cannot say "progressbar", a range or "busy". Never
@@ -271,6 +272,7 @@ class _TanreiProgressIndicatorState extends State<TanreiProgressIndicator>
       gap: tokens.trackGap,
       stopSize: tokens.stopIndicatorSize,
       cycleCurve: tokens.motionCycleEasing.toCurve(),
+      pulseFloor: tokens.motionPulseFloorOpacity,
       // PRG-2: a ring turns at constant speed, `sys.motion.easing.linear`.
       turnCurve: theme.system.motion.easing.linear.toCurve(),
       // PRG-13: a bar follows the direction, a ring never does.
@@ -323,6 +325,7 @@ class _ProgressPainter extends CustomPainter {
     required this.gap,
     required this.stopSize,
     required this.cycleCurve,
+    required this.pulseFloor,
     required this.turnCurve,
     required this.rtl,
   }) : super(repaint: Listenable.merge(<Listenable>[cycle, change]));
@@ -341,6 +344,7 @@ class _ProgressPainter extends CustomPainter {
   final double gap;
   final double stopSize;
   final Curve cycleCurve;
+  final double pulseFloor;
   final Curve turnCurve;
   final bool rtl;
 
@@ -380,7 +384,11 @@ class _ProgressPainter extends CustomPainter {
       final double t = cycle.value;
       if (reducedMotion) {
         // PRG-7: still, over the whole track, pulsing.
-        segment(0, width, tanreiFade(indicatorColor, tanreiPulseOpacity(cycleCurve, t)));
+        segment(
+          0,
+          width,
+          tanreiFade(indicatorColor, tanreiPulseOpacity(cycleCurve, t, pulseFloor)),
+        );
       } else {
         // PRG-2: two fifths of the track, from beyond its start to beyond its end.
         final double length = width * 2 / 5;
@@ -425,7 +433,7 @@ class _ProgressPainter extends CustomPainter {
       final double t = cycle.value;
       if (reducedMotion) {
         // PRG-7: the whole circle, still, pulsing.
-        arc(top, turn, tanreiFade(indicatorColor, tanreiPulseOpacity(cycleCurve, t)));
+        arc(top, turn, tanreiFade(indicatorColor, tanreiPulseOpacity(cycleCurve, t, pulseFloor)));
       } else {
         // PRG-2: a quarter arc turning clockwise at constant speed (never mirrored, PRG-13).
         arc(top + turn * turnCurve.transform(t), turn / 4, indicatorColor);
@@ -458,6 +466,7 @@ class _ProgressPainter extends CustomPainter {
       oldDelegate.gap != gap ||
       oldDelegate.stopSize != stopSize ||
       oldDelegate.cycleCurve != cycleCurve ||
+      oldDelegate.pulseFloor != pulseFloor ||
       oldDelegate.turnCurve != turnCurve ||
       oldDelegate.rtl != rtl;
 }

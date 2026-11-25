@@ -85,7 +85,7 @@ Rect ringRect(TanreiProgressIndicatorSizeTokens size) {
   );
 }
 
-double pulse(Curve curve, double t) => tanreiPulseOpacity(curve, t);
+double pulse(Curve curve, double t) => tanreiPulseOpacity(curve, t, tokens.motionPulseFloorOpacity);
 
 void main() {
   group('determinate', () {
@@ -417,45 +417,26 @@ void main() {
 
     for (final TanreiProgressIndicatorVariant variant in TanreiProgressIndicatorVariant.values) {
       testWidgets('PRG-7: under reduced motion an indeterminate ${variant.name} indicator does not '
-          'move: it covers the whole track and pulses its opacity 1 → 0 → 1 once per cycle', (
-        WidgetTester tester,
-      ) async {
+          'move: it covers the whole track and pulses its opacity 1 → floor → 1 once per cycle, '
+          'never painted below the floor', (WidgetTester tester) async {
         final Widget subjectWidget = variant == TanreiProgressIndicatorVariant.linear
             ? bar()
             : ring();
         await tester.pumpWidget(tanreiTestApp(subjectWidget, disableAnimations: true));
         final Curve curve = tokens.motionCycleEasing.toCurve();
         final Rect circle = ringRect(tokens.sizes.medium);
-        for (final double t in <double>[0, 0.25, 0.5, 0.75]) {
+        final double floor = tokens.motionPulseFloorOpacity;
+        expect(floor, inExclusiveRange(0, 1));
+        // Sampled over a whole cycle, as painted: the indicator over the still track at the pulse's
+        // opacity, which never falls below the floor.
+        for (int step = 0; step < 8; step++) {
+          final double t = step / 8;
           final double opacity = pulse(curve, t);
+          expect(opacity, greaterThanOrEqualTo(floor - 1e-9), reason: 't $t');
           final Color faded = opacity >= 1
               ? indicator
               : indicator.withValues(alpha: indicator.a * opacity);
-          if (opacity < 1e-9) {
-            // Faded out entirely: only the still track is drawn.
-            expect(
-              subject,
-              variant == TanreiProgressIndicatorVariant.linear
-                  ? isNot(
-                      paints
-                        ..rrect()
-                        ..rrect(),
-                    )
-                  : isNot(
-                      paints
-                        ..arc()
-                        ..arc(),
-                    ),
-              reason: 't $t',
-            );
-            // The still track is drawn.
-            expect(
-              subject,
-              variant == TanreiProgressIndicatorVariant.linear
-                  ? (paints..rrect(rrect: barRRect(0, 200), color: track))
-                  : (paints..arc(startAngle: top, sweepAngle: turn, color: track)),
-            );
-          } else if (variant == TanreiProgressIndicatorVariant.linear) {
+          if (variant == TanreiProgressIndicatorVariant.linear) {
             expect(
               subject,
               paints
@@ -472,11 +453,18 @@ void main() {
               reason: 't $t',
             );
           }
-          await tester.pump(cycle * 0.25);
+          await tester.pump(cycle * 0.125);
         }
         expect(pulse(curve, 0), 1);
-        expect(pulse(curve, 0.5), moreOrLessEquals(0, epsilon: 1e-9));
+        expect(pulse(curve, 0.5), moreOrLessEquals(floor, epsilon: 1e-9));
         expect(pulse(curve, 1), moreOrLessEquals(1, epsilon: 1e-9));
+        for (int step = 0; step <= 200; step++) {
+          expect(
+            pulse(curve, step / 200),
+            greaterThanOrEqualTo(floor - 1e-9),
+            reason: 'at ${step / 200}',
+          );
+        }
       });
     }
 
