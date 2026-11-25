@@ -1,5 +1,6 @@
 import type { ReactiveController, ReactiveControllerHost } from 'lit';
 import { report } from './report.js';
+import { DEBUG } from './debug.js';
 
 /**
  * One open axis of a component: a size or a variant, whose core values have static styles and whose other
@@ -100,7 +101,7 @@ export class OpenAxesController implements ReactiveController {
     if (style.display === '' || (!!this.host.parentElement?.shadowRoot && !this.host.assignedSlot)) return;
     for (const axis of this.pending) {
       const value = this.value(axis);
-      if (!KEY.test(value) || style.getPropertyValue(axis.probe(value)).trim() === '') {
+      if (DEBUG && (!KEY.test(value) || style.getPropertyValue(axis.probe(value)).trim() === '')) {
         report(this.host, this.options.behavior, `${axis.name} "${value}" is not a value of the active design system; it is drawn as "${axis.default}"`);
       }
     }

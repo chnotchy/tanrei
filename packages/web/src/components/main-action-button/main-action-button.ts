@@ -6,6 +6,7 @@ import type { TanreiMainActionButtonSizeRegistry, TanreiMainActionButtonVariantR
 import { AXES, styles } from './main-action-button.styles.js';
 import { focusedAtFirst } from '../../primitives/autofocus.js';
 import { TanreiElement } from '../../primitives/element.js';
+import { DEBUG } from '../../primitives/debug.js';
 
 /** The core variants (filled, tonal, surface), plus any a design system's generated `.d.ts` registers. */
 export type TanreiMainActionButtonVariant = keyof TanreiMainActionButtonVariantRegistry;
@@ -200,13 +201,13 @@ export class TanreiMainActionButton extends TanreiElement {
 
   protected override updated(changed: PropertyValues) {
     // MAB-16: the label is the name; without one it never extends. It still renders; a debug build says what is missing.
-    if (changed.has('label') && !this.label && !namedByProduct(this)) report(this, 'MAB-16', 'label is empty, so the button has no accessible name and stays collapsed; give it a label');
+    if (DEBUG && changed.has('label') && !this.label && !namedByProduct(this)) report(this, 'MAB-16', 'label is empty, so the button has no accessible name and stays collapsed; give it a label');
     // MAB-15: without an icon there is nothing to collapse to — it stays extended, and a debug build says why.
-    if ((changed.has('collapsed') || changed.has('hasIcon') || changed.has('label')) && this.collapsed && !this.hasIcon && this.label) {
+    if (DEBUG && (changed.has('collapsed') || changed.has('hasIcon') || changed.has('label')) && this.collapsed && !this.hasIcon && this.label) {
       report(this, 'MAB-15', 'collapsed is true but there is no icon, so it cannot collapse; it stays extended — give it an icon');
     }
     // MAB-24: a full-width button does not collapse — it stays extended, and a debug build says why.
-    if ((changed.has('collapsed') || changed.has('fullWidth')) && this.fullWidth && this.collapsed && this.label) {
+    if (DEBUG && (changed.has('collapsed') || changed.has('fullWidth')) && this.fullWidth && this.collapsed && this.label) {
       report(this, 'MAB-24', 'collapsed is true but the button is full width, which does not collapse; it stays extended — take off full-width to collapse it');
     }
   }

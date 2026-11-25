@@ -115,7 +115,7 @@ import Callout from '../../../../components/Callout.astro';
 | 多行 | 每个按钮都留在底边 | 发送按钮留在输入区那一行的底边 |
 | 适用于 | 简短的消息、狭窄的面板 | 操作很多、消息分段落来写 |
 
-宽度小于 `comp.chat-composer.layout.inline-min-width` 的胶囊，无论 `layout` 设成什么，都按 stacked 布局。下面那一行没有东西可放的 stacked 输入栏，画成 inline 的样子。行数绝不会改变布局。
+宽度小于 `comp.chat-composer.layout.inline-min-width` 的胶囊，无论 `layout` 设成什么，都按 stacked 布局；操作按钮、计数器和发送按钮留给输入区的宽度不足 `comp.chat-composer.layout.input-min-width` 时也一样：操作越多的输入栏越早变成 stacked，文字不会挤在只有几个字宽的一列里换行。计数器按 `maxLength` 时的宽度计算，所以输入不会改变布局。下面那一行没有东西可放的 stacked 输入栏，画成 inline 的样子。行数绝不会改变布局。
 
 ### 什么情况下可以发送
 

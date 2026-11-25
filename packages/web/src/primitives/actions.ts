@@ -3,6 +3,7 @@ import { cssZoom } from './layout-scale.js';
 import { GROUP_ITEM, type GroupItem } from './group-item.js';
 import { report } from './report.js';
 import { TARGET_CAPS } from './target.js';
+import { DEBUG } from './debug.js';
 
 // The actions at the foot of a host that places them as a full-width Button group places its items (BGR-12…19): a
 // dialog's (DLG-10, DLG-20) and a side sheet's (SSH-11, SSH-17). The host assigns its children to its slots by hand
@@ -116,7 +117,7 @@ export class ActionPlacement {
     for (const action of actions) {
       const confirming = action.hasAttribute('confirming');
       const dismissive = action.hasAttribute('dismissive');
-      if (confirming && dismissive) {
+      if (DEBUG && confirming && dismissive) {
         report(this.host, 'BGR-18', `the action "${action.textContent?.trim() ?? ''}" is both confirming and dismissive; it is placed among the actions with neither`);
       }
       runs[confirming === dismissive ? 'neutral' : confirming ? 'confirming' : 'dismissive'].push(action);

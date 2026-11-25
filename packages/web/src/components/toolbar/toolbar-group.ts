@@ -3,6 +3,7 @@ import { GROUP_AVAILABILITY, GROUP_PLACE, type GroupPlace, type PlacingGroup, ho
 import { TanreiElement } from '../../primitives/element.js';
 import { holdsProductName, nameHost, namedByProduct } from '../../primitives/delegated-aria.js';
 import { spaceStyles } from './toolbar.styles.js';
+import { DEBUG } from '../../primitives/debug.js';
 
 /** Whether a group's toggle Buttons choose (TBR-28): one choice (`single`), a set of choices (`multiple`), or neither. */
 export type TanreiToolbarGroupSelection = 'none' | 'single' | 'multiple';
@@ -188,18 +189,18 @@ export class TanreiToolbarGroup extends TanreiElement implements PlacingGroup {
   /** TBR-28: what a selection group holds that cannot be one of its members, reported in debug builds. */
   private checkMembers() {
     const mode = this.mode;
-    if (this.selection !== 'none' && !mode) report(this, 'TBR-28', `selection "${this.selection}" is not a value of the toolbar group; it is drawn as "none"`);
+    if (DEBUG && this.selection !== 'none' && !mode) report(this, 'TBR-28', `selection "${this.selection}" is not a value of the toolbar group; it is drawn as "none"`);
     if (!mode) return;
     const seen = new Set<string>();
     for (const child of this.laid) {
       if (child.localName === 'tanrei-menu') continue;
       if (child.localName !== 'tanrei-button' || !(child as Member).toggle) {
-        report(this, 'TBR-28', `a group whose selection is ${mode} holds <${child.localName}>${child.localName === 'tanrei-button' ? ' without toggle' : ''}, which cannot be one of its choices; it is laid out as it is`);
+        if (DEBUG) report(this, 'TBR-28', `a group whose selection is ${mode} holds <${child.localName}>${child.localName === 'tanrei-button' ? ' without toggle' : ''}, which cannot be one of its choices; it is laid out as it is`);
         continue;
       }
       const value = (child as Member).value;
-      if (!value) report(this, 'TBR-28', `a member of a group whose selection is ${mode} has no value, so the group cannot hold it; give each member a value of its own`);
-      else if (seen.has(value)) report(this, 'TBR-28', `two members of a group whose selection is ${mode} have the value "${value}"; give each member a value of its own`);
+      if (!value) DEBUG && report(this, 'TBR-28', `a member of a group whose selection is ${mode} has no value, so the group cannot hold it; give each member a value of its own`);
+      else if (DEBUG && seen.has(value)) report(this, 'TBR-28', `two members of a group whose selection is ${mode} have the value "${value}"; give each member a value of its own`);
       seen.add(value);
     }
   }
@@ -269,7 +270,7 @@ export class TanreiToolbarGroup extends TanreiElement implements PlacingGroup {
     // TBR-28: a group whose selection is single is a radio group, named or not (a radio button belongs in one).
     const single = this.mode === 'single';
     hostAria(this, { role: single ? 'radiogroup' : own || namedByProduct(this) ? 'group' : null });
-    if (single && !own && !namedByProduct(this)) report(this, 'TBR-28', 'a group whose selection is single is a radio group, and has no accessible name; give it a label ("Alignment")');
+    if (DEBUG && single && !own && !namedByProduct(this)) report(this, 'TBR-28', 'a group whose selection is single is a radio group, and has no accessible name; give it a label ("Alignment")');
     this.syncMembers();
     this.checkMembers();
     const slots = [...this.renderRoot.querySelectorAll<HTMLSlotElement>('slot.unit')];
