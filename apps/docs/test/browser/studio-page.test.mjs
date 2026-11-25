@@ -507,6 +507,33 @@ for (const engine of ENGINES) {
       }
     });
 
+    test('1440 and 390 wide, in English, Spanish and Arabic: each command of Export’s What next reads whole in the sheet, wrapped, and none scrolls sideways', LIMIT, async () => {
+      for (const viewport of [WIDE, NARROW]) {
+        for (const prefix of ['', '/es', '/ar']) {
+          const { page, problems, close } = await open(browser, { url: `${prefix}/studio/`, viewport });
+          try {
+            await page.locator('[data-export-open]').click();
+            await page.waitForFunction(() => document.querySelector('[data-export-sheet]').open);
+            await page.locator('[data-export-tabs] > tanrei-tab[data-tab="next"]').click();
+            await page.locator('[data-export-command]').first().waitFor();
+            const blocks = await page.locator('[data-export-command]').evaluateAll((els) =>
+              els.map((el) => { const body = el.shadowRoot.querySelector('[part~="body"]'); return { code: el.code, wrap: el.hasAttribute('wrap'), scrolls: body.scrollWidth > body.clientWidth + 1 }; }),
+            );
+            const where = `${viewport.width} ${prefix || '/'}`;
+            assert.deepEqual(blocks.map((block) => block.code), ['npm install --save-dev @tanrei/cli', 'npx tanrei init --from acme.system.json', 'npx tanrei build', 'npx tanrei studio'], where);
+            assert.deepEqual(blocks.filter((block) => !block.wrap || block.scrolls), [], `${where}: every command wrapped and whole`);
+            const sheet = await box(page, '[data-export-sheet] [data-export]');
+            for (const block of await page.locator('[data-export-command]').evaluateAll((els) => els.map((el) => { const r = el.getBoundingClientRect(); return { left: Math.round(r.left), right: Math.round(r.right) }; }))) {
+              assert.ok(block.left >= sheet.left && block.right <= sheet.right, `${where}: the block within the sheet ${JSON.stringify({ sheet, block })}`);
+            }
+            assert.deepEqual(problems, []);
+          } finally {
+            await close();
+          }
+        }
+      }
+    });
+
     test('Export: the file, the next steps as the CLI takes them, and a link to the layer', LIMIT, async () => {
       const { page, problems, close } = await open(browser);
       try {
