@@ -122,7 +122,7 @@ for (const engine of ENGINES) {
       assert.match(react.shown, new RegExp(`^import \\{ Button \\} from '${config.packages.npmScope}/react';`));
       assert.match(react.shown, /<Button\b/);
       assert.equal(react.copied, react.shown);
-      assert.equal(await page.evaluate(() => localStorage.getItem('tanrei-docs-example-code')), 'react', 'the choice is kept');
+      assert.equal(await page.evaluate(() => localStorage.getItem('tanrei-docs-tabs-example-code')), 'react', 'the choice is kept');
 
       // Another frame opened after follows the choice.
       const next = await page.evaluate(() => {
@@ -133,6 +133,9 @@ for (const engine of ENGINES) {
       await drawn(page, next);
       await page.locator(`${next} [data-example-code]`).click();
       await page.waitForFunction((selector) => document.querySelector(selector).querySelector('[data-example-code-panel] tanrei-code-block')?.language === 'jsx', next);
+      // The rows share one choice and keep it with the Tabs' own group and key, not a store of the site's own.
+      assert.equal(await page.locator(`${next} [data-example-flavors]`).evaluate((row) => row.value), 'react', 'the row opened after shows the choice of its group');
+      assert.deepEqual(await page.locator('[data-example-flavors]').evaluateAll((rows) => rows.map((row) => [row.getAttribute('group'), row.getAttribute('remember-as')])), [['example-code', 'tanrei-docs-tabs-example-code'], ['example-code', 'tanrei-docs-tabs-example-code']]);
 
       await button.click();
       assert.equal((await code(page, FIRST)).open, false, 'pressed again, the code closes');
