@@ -10,6 +10,8 @@
 //   line for it and says in the table what the component draws instead — never a line of a length the component does
 //   not have. The lengths not drawn are the record's (src/lib/visuals/lengths-not-drawn.json), which the page writes
 //   into the table before any script runs, and are printed: each is a place where a component and its tokens part.
+//   A part the record says the fixture does not draw (a closed list's options) has no box, and none of its lengths is
+//   in the table.
 //
 //   pnpm --filter @tanrei/docs build && pnpm --filter @tanrei/docs test:browser
 //
@@ -109,6 +111,7 @@ test('every figure: each number once, inside and clear; each line its token’s 
         };
         return {
           kind: frame.dataset.blueprintFigure,
+          partsNotDrawn: (frame.querySelector('[data-blueprint]')?.dataset.partsNotDrawn ?? '').split(' ').filter(Boolean),
           drawn: Boolean(done()),
           modal,
           room: { width: overlay.width, height: overlay.height },
@@ -138,6 +141,8 @@ test('every figure: each number once, inside and clear; each line its token’s 
         }
       } else {
         assert.ok(figure.rows.length > 0, `${name}: a length`);
+        // A part the record says the fixture does not draw has no box in the figure: its lengths are left out of the table.
+        for (const part of recorded[name]?.parts ?? []) assert.ok(figure.partsNotDrawn.includes(part), `${name}: the fixture draws ${part}, which src/lib/visuals/lengths-not-drawn.json says it does not; its lengths belong in the table`);
         for (const row of figure.rows) {
           const line = figure.lines.find((candidate) => candidate.token === row.token);
           if (row.drawn === 'true') {
@@ -156,7 +161,11 @@ test('every figure: each number once, inside and clear; each line its token’s 
   }
   assert.deepEqual(errors, [], 'no script failed');
   // The record says what the figures find, so that each table is laid out from the first frame as it is once drawn.
-  const said = Object.fromEntries(Object.entries(recorded).map(([name, { lengths }]) => [name, Object.fromEntries(Object.entries(lengths).map(([token, value]) => [token, shown(value)]))]));
+  const said = Object.fromEntries(
+    Object.entries(recorded)
+      .filter(([, { lengths }]) => lengths && Object.keys(lengths).length)
+      .map(([name, { lengths }]) => [name, Object.fromEntries(Object.entries(lengths).map(([token, value]) => [token, shown(value)]))]),
+  );
   assert.deepEqual(found, said, 'the lengths the figures do not draw are those src/lib/visuals/lengths-not-drawn.json records, with what each component draws instead: a page writes them before its figure is drawn');
   if (notDrawn.length) console.log(`Lengths not drawn, where a component draws another length than its token's:\n  ${notDrawn.join('\n  ')}`);
   await context.close();
