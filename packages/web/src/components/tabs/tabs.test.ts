@@ -4448,13 +4448,16 @@ test.describe('vertical', () => {
 
   test('TAB-51, TAB-52: the tabs stand one above another, all as wide as the widest, each the container height and at least the minimum target tall, the icon before the label at the start edge; the indicator and every container are the tab less track.padding all round', async ({ page }) => {
     await mountFixtures(page, spec, { icons: true, reducedMotion: true, fixtures: only(V, 'vertical-small', 'vertical-secondary') });
-    // In the default system a small tab is the minimum target (36) tall; a system whose pointer target is larger (a
-    // platform guideline's 44) is where a column's small tabs grow to it.
+    // In the default system a small row is 28 tall and a column's small tabs are the pointer target (36) tall, since
+    // they touch; a system whose pointer target is larger (a platform guideline's 44) is where they grow to it.
+    const [smallRow, pointerTarget] = await Promise.all([T('container-height-small'), '--tanrei-sys-target-pointer'].map((n) => resolveToken(page, n)));
+    expect(smallRow).toBeLessThan(pointerTarget);
+    for (const [n, b] of (await boxes(page, 'vertical-small')).entries()) expect(b.height, `vertical-small ${n}, the default system`).toBeCloseTo(pointerTarget, 0);
     await rootTokens(page, { '--tanrei-sys-target-pointer': '44px' });
     const [inset, padMedium, padSmall, medium, small, target] = await Promise.all(
       [T('track-padding'), T('container-padding-inline-medium'), T('container-padding-inline-small'), T('container-height-medium'), T('container-height-small'), '--tanrei-sys-target-pointer'].map((n) => resolveToken(page, n)),
     );
-    // Small is lower than that target: in a column its tabs are the target tall, not 36.
+    // Small is lower than that target: in a column its tabs are the target tall, not the small row's height.
     expect(small).toBeLessThan(target);
     for (const [id, height, pad] of [[V, Math.max(medium, target), padMedium], ['vertical-small', Math.max(small, target), padSmall], ['vertical-secondary', Math.max(medium, target), padMedium]] as const) {
       const all = await boxes(page, id);

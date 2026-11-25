@@ -7999,7 +7999,7 @@ Two to five related options drawn side by side as the joined segments of one con
 | `selection` | `single` \| `multiple` | `single` | single is a radio group (one value, never cleared by its own segment); multiple switches each segment on and off (none is allowed). Anything else is single; reflected |
 | `value` | string \| `null` | `null` | the selected segment's value while single; `null` selects none. Attribute and property, not reflected |
 | `values` | string[] | `[]` | the selected segments' values while multiple. A property (assign a new array); the `values` attribute is read as a JSON array or as whitespace-separated values, as the list's |
-| `size` | `small` \| `medium` \| `large` (or a value the system adds) | `medium` | 36 / 36 / 40 in the default system, Button's heights. Unknown: drawn as `medium`, reported (SEG-8); reflected |
+| `size` | `small` \| `medium` \| `large` (or a value the system adds) | `medium` | 28 / 36 / 52 in the default system, Button's heights. Unknown: drawn as `medium`, reported (SEG-8); reflected |
 | `label` | string | `""` | the set's accessible name: the question its options answer (an empty one is reported, SEG-22) |
 
 | `<tanrei-segment>` | Type | Default | |
@@ -8488,7 +8488,7 @@ with an empty or repeated value or an empty headline; more than two trailing ele
 ```
 
 **The trigger (SRC-35, SRC-36).** `bar="button"` draws one native `<button>` in the bar's place — the bar's fill,
-elevation and shape at `trigger.container.height` (40), the search glyph at `trigger.leading-icon.size`, the placeholder
+elevation and shape at `trigger.container.height` (36), the search glyph at `trigger.leading-icon.size`, the placeholder
 (or the label) on one line in `trigger.label.typescale`, cut with an ellipsis, and the hint — and `bar="icon"` a medium
 icon-only text `<tanrei-button>` (the host is then `inline-block`). It is named by `label`, says `aria-haspopup="dialog"`
 and `aria-expanded` (for the icon form the search writes them on the Button's native button), shows keyboard focus by

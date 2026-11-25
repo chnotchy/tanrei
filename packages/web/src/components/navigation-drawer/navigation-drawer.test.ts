@@ -374,12 +374,14 @@ test.describe('states, press and focus', () => {
 
   test('NVD-6: the hit area is the whole cell — the drawer’s width, with half of container.gap above and below, never below the minimum target — in both forms; where the cell and the gap give less, the cell is drawn higher, never its hit area over a neighbour’s; hover over any of it answers on the item container', async ({ page }) => {
     await mount(page, [fixture('r', MAIL), rail('c', MAIL)], { reducedMotion: true });
-    const [gap, pointer] = await Promise.all([T('container-gap-medium'), '--tanrei-sys-target-pointer'].map((n) => px(page, n)));
+    const [gap, pointer, medium] = await Promise.all([T('container-gap-medium'), '--tanrei-sys-target-pointer', T('item-container-height-medium')].map((n) => px(page, n)));
     for (const id of ['r', 'c']) {
       await drawer(page, id).scrollIntoViewIfNeeded();
       const box = await bounds(cell(page, id, 1));
       const p = await bounds(panel(page, id));
       expect([box.x, box.width], id).toEqual([p.x, p.width]);
+      // The cell is drawn at its container height, which with the gap already reaches the target in the default system.
+      expect(box.height, id).toBeCloseTo(medium, 1);
       const hit = await cell(page, id, 1).evaluate((el) => Number.parseFloat(getComputedStyle(el, '::before').height));
       expect(hit, id).toBeCloseTo(Math.max(box.height + gap, pointer), 1);
       const at = (x: number, y: number) => page.evaluate(([xx, yy]) => document.elementFromPoint(xx, yy)?.closest('tanrei-navigation-drawer-item')?.getAttribute('value') ?? null, [x, y]);
@@ -1127,7 +1129,7 @@ test.describe('the collapsed form', () => {
     await expect.poll(async () => (await bounds(panel(page, 'mod'))).width).toBeCloseTo(width, 1);
   });
 
-  test('NVD-31: every cell, icon, header button and main action glyph is at the same place in both forms; under the default system a cell is 40 high in both with its icon line 20 below its top; collapsedLabels always grows the cells in both forms alike; a heading keeps its row', async ({ page }) => {
+  test('NVD-31: every cell, icon, header button and main action glyph is at the same place in both forms; under the default system a cell is 36 high in both with its icon line 18 below its top; collapsedLabels always grows the cells in both forms alike; a heading keeps its row', async ({ page }) => {
     const items = [MAIN, section('Mail', MAIL)];
     await mount(page, [fixture('e', [MENU, ...items], { collapsible: true }), rail('c', items), fixture('ea', [MENU, ...items], { collapsible: true, collapsedLabels: 'always' }), rail('ca', items, { collapsedLabels: 'always' })], { reducedMotion: true });
     const [row, pad, ind, gap] = await Promise.all([T('item-container-height-medium'), T('collapsed-item-container-padding-block-medium'), T('item-icon-indicator-height-medium'), T('collapsed-item-gap')].map((n) => px(page, n)));
