@@ -17,10 +17,10 @@ import {
   styleQueries,
   takesText,
 } from '../../primitives/index.js';
-import { debugBuild } from '../../primitives/report.js';
 import { adoptUnlessDrawn } from '../../primitives/sheets.js';
 import { writeCounted } from '../../set-tokens.js';
 import { TanreiLightElement } from '../../primitives/element.js';
+import { DEBUG } from '../../primitives/debug.js';
 
 /** What scrolls (APS-14, APS-15): the whole page in the window, or the main region alone inside a frame as tall as the window. */
 export type TanreiAppShellScroll = 'page' | 'main';
@@ -462,7 +462,7 @@ export class TanreiAppShell extends TanreiLightElement {
     const [medium, expanded] = ['medium', 'expanded'].map((name) => style.getPropertyValue(`--_aps-breakpoint-${name}`).trim());
     // Before its stylesheet has arrived nothing names the widths: nothing is decided on a guess (APS-24).
     if (!medium || !expanded) return null;
-    const tokens = debugBuild() ? ['medium', 'expanded'].map((name) => style.getPropertyValue(`--tanrei-comp-app-shell-breakpoint-${name}`).trim()).join(' ') : '';
+    const tokens = DEBUG ? ['medium', 'expanded'].map((name) => style.getPropertyValue(`--tanrei-comp-app-shell-breakpoint-${name}`).trim()).join(' ') : '';
     return { medium, expanded, tokens };
   }
 
@@ -478,7 +478,7 @@ export class TanreiAppShell extends TanreiLightElement {
       this.widths.expanded.addEventListener('change', this.onWidth);
       // The stylesheet's conditions are written by the build from the tokens of one system: a system or a layer that
       // moves the widths needs the stylesheet written for it, or the frame and a navigation drawer in it part.
-      if (debugBuild() && tokens.trim() && tokens !== text) {
+      if (DEBUG && tokens.trim() && tokens !== text) {
         report(this, 'APS-2', `the stylesheet was written for the window widths ${text}, and comp.app-shell.breakpoint is ${tokens} here: load the app-shell stylesheet built for this design system`);
       }
     }
@@ -613,7 +613,7 @@ export class TanreiAppShell extends TanreiLightElement {
     // APS-21: the landmark of a region whose element does not give it.
     if (header && header.localName !== 'header') this.give(header, 'role', 'banner');
     // APS-34: the menu-button slot is for a frame without a header; with one, it is not shown.
-    if (header && menuSlot) report(this, 'APS-34', 'the menu-button slot is for a frame without a header: put the menu button in the header, marked data-app-shell-menu');
+    if (DEBUG && header && menuSlot) report(this, 'APS-34', 'the menu-button slot is for a frame without a header: put the menu button in the header, marked data-app-shell-menu');
     if (footer && footer.localName !== 'footer') this.give(footer, 'role', 'contentinfo');
     if (aside) {
       // A side sheet is named by its own headline, and is the landmark itself (SSH-22).
@@ -622,13 +622,13 @@ export class TanreiAppShell extends TanreiLightElement {
       const label = String(this.asideLabel ?? '').trim();
       if (!names && label) this.give(aside, 'aria-label', label);
       else this.takeBack(aside, 'aria-label');
-      if (!names && !aside.hasAttribute('aria-label') && !aside.hasAttribute('aria-labelledby')) {
+      if (DEBUG && !names && !aside.hasAttribute('aria-label') && !aside.hasAttribute('aria-labelledby')) {
         report(this, 'APS-21', 'the aside has no name: set aside-label, or aria-label on the aside itself');
       }
     }
     // APS-20: the main region takes focus when the skip link is followed, and is no stop of the Tab order.
     for (const main of mains) this.give(main, 'tabindex', '-1');
-    if (debugBuild()) {
+    if (DEBUG) {
       // A frame that is still being parsed is read again when it is whole.
       if (document.readyState === 'loading') {
         if (!this.awaitingParse) document.addEventListener('DOMContentLoaded', () => ((this.awaitingParse = false), this.read()), { once: true });
@@ -667,10 +667,10 @@ export class TanreiAppShell extends TanreiLightElement {
     }
     this.room();
     const presentation = this.presentation;
-    if (navigation && !this.drawer && presentation && presentation !== 'standard') {
+    if (DEBUG && navigation && !this.drawer && presentation && presentation !== 'standard') {
       report(this, 'APS-4', 'the navigation of a narrow window needs a navigation drawer: what the navigation region holds cannot present itself over the content, and is not shown');
     }
-    if (this.drawer && this.drawer.responsive === false && this.decided) {
+    if (DEBUG && this.drawer && this.drawer.responsive === false && this.decided) {
       report(this, 'APS-4', 'the navigation drawer in the navigation region is not responsive: set its responsive attribute, so that the window’s class chooses its presentation as it chooses the frame’s');
     }
     // NVD-19: the drawer learns whether the header holds it below.
@@ -1166,10 +1166,10 @@ export class TanreiAppShell extends TanreiLightElement {
     ];
     for (const [name, values] of known) {
       const value = String((this as unknown as Record<string, unknown>)[name]);
-      if (changed.has(name) && !values.includes(value)) report(this, 'APS-29', `${name === 'scrolls' ? 'scroll' : name} "${value}" is not a value the app shell defines; it is rendered as "${values[0]}"`);
+      if (DEBUG && changed.has(name) && !values.includes(value)) report(this, 'APS-29', `${name === 'scrolls' ? 'scroll' : name} "${value}" is not a value the app shell defines; it is rendered as "${values[0]}"`);
     }
     // APS-18: a separation the frame does not define is auto.
-    if (changed.has('separation') && !(SEPARATION_VALUES as readonly string[]).includes(this.separation)) {
+    if (DEBUG && changed.has('separation') && !(SEPARATION_VALUES as readonly string[]).includes(this.separation)) {
       report(this, 'APS-18', `separation "${this.separation}" is not a value the app shell defines; it is drawn as "auto"`);
     }
     this.read();

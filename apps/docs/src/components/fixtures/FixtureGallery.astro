@@ -242,10 +242,18 @@ if (system && !systemSheet) throw new Error(`FixtureGallery: no generated styles
     margin: 0;
   }
   /* A fixture is drawn when its stage comes near the view (lib/fixture-stages.ts); until then its canvas holds the
-     room its baseline shows, so that nothing moves when it is drawn. */
+     room its baseline shows, so that nothing moves when it is drawn. The baseline is a picture of the stage clipped to
+     the whole CSS pixels around it, and a stage stands at a fraction of a pixel in the document it was taken in, below
+     stages whose heights are fractions (a line of text is): the picture is the stage's height rounded up, or that and
+     a pixel more (a text field's stage, 100 px tall, is a picture 101 px tall). The canvas is that picture's box, drawn
+     or not — the room the stage held before it is drawn and the room it takes once it is are the same length, read
+     from the same picture — and grows past it only where the page draws the fixture taller than its baseline does.
+     Its width is held only until it is drawn: a stage with a width handle is made narrower than its baseline. */
+  .docs-stage-canvas {
+    min-block-size: var(--docs-stage-reserve-block, 0px);
+  }
   .docs-stage-canvas[data-pending] {
     min-inline-size: min(100%, var(--docs-stage-reserve-inline, 0px));
-    min-block-size: var(--docs-stage-reserve-block, 0px);
   }
   /* A modal fixture's stage: the picture of it open, at its own size (its `width` and `height` hold its room before it
      loads) and never wider than the column, and under it the button that opens it. Its canvas is no part of the

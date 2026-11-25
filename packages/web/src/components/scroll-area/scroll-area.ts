@@ -16,6 +16,7 @@ import { TanreiElement } from '../../primitives/element.js';
 import { delegatedAria, delegatesAria, namedByProduct } from '../../primitives/delegated-aria.js';
 import { readInPhase, readTogether } from '../../primitives/read-phase.js';
 import { CHOICE, EDGES, type Edge, FORMS, LAYERS, SCROLL_EDGES, styles } from './scroll-area.styles.js';
+import { DEBUG } from '../../primitives/debug.js';
 
 /** How an edge shows that content lies beyond it; `auto` takes the design system's answer (`comp.scroll-area.scroll-edge`). */
 export type TanreiScrollAreaScrollEdge = (typeof SCROLL_EDGES)[number];
@@ -196,13 +197,13 @@ export class TanreiScrollArea extends TanreiElement {
 
   protected override willUpdate(changed: PropertyValues<this>) {
     // SCA-15: a scroll edge the area does not define is auto; an edge it does not know is ignored.
-    if (changed.has('scrollEdge') && !(SCROLL_EDGES as readonly string[]).includes(this.scrollEdge)) {
+    if (DEBUG && changed.has('scrollEdge') && !(SCROLL_EDGES as readonly string[]).includes(this.scrollEdge)) {
       report(this, 'SCA-15', `scroll-edge "${this.scrollEdge}" is not a value of the scroll area; it is drawn as "auto"`);
     }
     if (changed.has('edges')) {
       const given = Array.isArray(this.edges) ? this.edges : parseValues(String(this.edges ?? ''));
       for (const name of given) {
-        if (!(EDGES as readonly string[]).includes(name)) report(this, 'SCA-15', `edges names "${name}", which is not an edge of the scroll area (top, bottom, start, end); it is ignored`);
+        if (DEBUG && !(EDGES as readonly string[]).includes(name)) report(this, 'SCA-15', `edges names "${name}", which is not an edge of the scroll area (top, bottom, start, end); it is ignored`);
       }
     }
     // SCA-6: the blur is drawn in as many layers as the token says, read when the area renders — with every other
@@ -231,7 +232,7 @@ export class TanreiScrollArea extends TanreiElement {
     }
     if (changed.has('edges')) this.writeEdges();
     // SCA-10: a focus stop with no name still takes focus, and says so in debug builds.
-    if (((changed as Map<string, unknown>).has('focusStop') || changed.has('label')) && this.focusStop && !this.label && !namedByProduct(this)) {
+    if (DEBUG && ((changed as Map<string, unknown>).has('focusStop') || changed.has('label')) && this.focusStop && !this.label && !namedByProduct(this)) {
       report(this, 'SCA-10', 'the content scrolls and nothing inside it takes focus, so the box is a focus stop of its own, a region — but label is empty and the region has no accessible name; give it a label');
     }
     this.checkProductName();
@@ -239,7 +240,7 @@ export class TanreiScrollArea extends TanreiElement {
 
   /** SCA-18: a name the product gives has no element to stand on while the box is no region — once its fit is known. */
   private checkProductName() {
-    if (this.sized && !this.focusStop && namedByProduct(this)) {
+    if (DEBUG && this.sized && !this.focusStop && namedByProduct(this)) {
       report(this, 'SCA-18', 'the name given on the element (aria-label or aria-labelledby) names nothing while the box is not a focus stop: it is a region only while the content scrolls and nothing inside takes focus (SCA-10); name what is inside, or give the box a label for when it is one');
     }
   }

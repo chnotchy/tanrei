@@ -25,6 +25,7 @@ import { AXES, styles } from './chip.styles.js';
 import { ownDirection } from '../../styles/product-text.js';
 import { focusedAtFirst } from '../../primitives/autofocus.js';
 import { TanreiElement } from '../../primitives/element.js';
+import { DEBUG } from '../../primitives/debug.js';
 
 /** What the chip does: a button (action), an on / off toggle (filter) or an item the user entered and can remove (input). A closed set. */
 export type TanreiChipKind = 'action' | 'filter' | 'input';
@@ -391,16 +392,16 @@ export class TanreiChip extends TanreiElement {
 
   protected override updated(changed: PropertyValues) {
     // CHP-7: a kind this spec does not have is an action chip.
-    if (changed.has('kind') && !KINDS.includes(this.kind)) {
+    if (DEBUG && changed.has('kind') && !KINDS.includes(this.kind)) {
       report(this, 'CHP-7', `kind "${this.kind}" is not a kind of chip; it is drawn and behaves as "action"`);
     }
     // CHP-26: the label is the name, and an input chip's remove action is named by removeLabel. It still renders; a debug build says what is missing.
-    if (changed.has('label') && !this.label && !namedByProduct(this)) report(this, 'CHP-26', 'label is empty, so the chip has no accessible name; give it a label');
-    if ((changed.has('removeLabel') || changed.has('kind') || changed.has('notRemovable')) && this.removes && !this.removeLabel) {
+    if (DEBUG && changed.has('label') && !this.label && !namedByProduct(this)) report(this, 'CHP-26', 'label is empty, so the chip has no accessible name; give it a label');
+    if (DEBUG && (changed.has('removeLabel') || changed.has('kind') || changed.has('notRemovable')) && this.removes && !this.removeLabel) {
       report(this, 'CHP-26', 'removeLabel is empty, so the remove action has no accessible name; give it one that names the item');
     }
     // CHP-15: only an input chip draws an avatar.
-    if ((changed.has('hasAvatar') || changed.has('kind')) && this.hasAvatar && this.effectiveKind !== 'input') {
+    if (DEBUG && (changed.has('hasAvatar') || changed.has('kind')) && this.hasAvatar && this.effectiveKind !== 'input') {
       report(this, 'CHP-15', `an avatar is given to a ${this.effectiveKind} chip, which ignores it; only an input chip draws one`);
     }
   }

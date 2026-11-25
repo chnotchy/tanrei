@@ -1,5 +1,6 @@
 import type { ReactiveController, ReactiveControllerHost } from 'lit';
-import { debugBuild, report } from './report.js';
+import { report } from './report.js';
+import { DEBUG } from './debug.js';
 
 /** What the active system does not ship: `component` or `component:variant`, space-separated, in one string. */
 export const UNAVAILABLE = '--tanrei-unavailable';
@@ -36,7 +37,7 @@ function store(): Store {
  */
 export function setAvailabilityMode(mode: AvailabilityMode): void {
   if (!MODES.includes(mode)) {
-    if (debugBuild()) console.warn(`[tanrei] setAvailabilityMode(): "${String(mode)}" is not a mode (${MODES.join(', ')}); the mode stays "${store().mode}"`);
+    if (DEBUG) console.warn(`[tanrei] setAvailabilityMode(): "${String(mode)}" is not a mode (${MODES.join(', ')}); the mode stays "${store().mode}"`);
     return;
   }
   store().mode = mode;
@@ -215,7 +216,7 @@ export class AvailabilityController implements ReactiveController {
 
   private check() {
     this.checked = this.variant();
-    if (!debugBuild() || !this.host.isConnected) return;
+    if (!DEBUG || !this.host.isConnected) return;
     if (!due.size) queueMicrotask(readDueOnceDrawn);
     due.add(this);
   }
@@ -245,6 +246,6 @@ export class AvailabilityController implements ReactiveController {
     const instead = named.get(use) ?? named.get(entry) ?? [];
     const by = drawn ? outer.component : undefined;
     const message = layer ? outsideMessage(this.component, layer, system, instead, by) : unavailableMessage(drawn ? entry : use, system, instead, by);
-    report(outer.host, 'availability', message, { level: held.mode === 'error' ? 'error' : 'warn' });
+    if (DEBUG) report(outer.host, 'availability', message, { level: held.mode === 'error' ? 'error' : 'warn' });
   }
 }

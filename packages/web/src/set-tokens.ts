@@ -18,7 +18,7 @@
 //
 // A name that already holds its value is not written, and a write that changes nothing adds no marker. Only the
 // element's own style is read, so the write itself forces no style work.
-import { debugBuild } from './primitives/report.js';
+import { DEBUG } from './primitives/debug.js';
 
 /** The names of the markers: `--tanrei-tokens-written-0`, `-1`, … */
 const MARKER = '--tanrei-tokens-written-';
@@ -37,7 +37,7 @@ export function setTokens(tokens: Readonly<Record<string, string | null | undefi
   const values: Record<string, string> = {};
   for (const [name, value] of Object.entries(tokens)) {
     if (name.startsWith('--')) values[name] = value ?? '';
-    else if (debugBuild()) console.warn(`[tanrei] setTokens(): "${name}" is not a custom property; it is ignored`);
+    else if (DEBUG) console.warn(`[tanrei] setTokens(): "${name}" is not a custom property; it is ignored`);
   }
   writeCounted(on.style, values);
 }
