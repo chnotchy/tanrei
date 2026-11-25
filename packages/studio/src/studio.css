@@ -227,8 +227,11 @@
     overscroll-behavior: contain;
     padding: var(--ts-gap);
   }
+  /* The rail is inset by half the gap at its sides, as the approved design's: its rows carry their own padding, and
+     their lines keep the room — the rail's column stays its width, so the preview keeps its columns. */
   .ts-rail {
     border-inline-end: var(--ts-hairline);
+    padding-inline: var(--tanrei-sys-space-space100);
   }
   .ts-inspector {
     border-inline-start: var(--ts-hairline);
@@ -1175,6 +1178,11 @@
   gap: 0.125rem;
   min-inline-size: 0;
 }
+/* The tooltip that shows a cut value whole (rail.ts) wraps the row: the row fills the first column through it. */
+.ts-rail-item > .ts-rail-tip {
+  display: grid;
+  min-inline-size: 0;
+}
 .ts-rail-row,
 .ts-rail-link {
   display: grid;
@@ -1195,6 +1203,7 @@
 .ts-rail-row {
   grid-template-columns: minmax(0, 1fr) auto;
   grid-template-rows: auto auto;
+  column-gap: var(--tanrei-sys-space-space100);
 }
 .ts-rail-link {
   grid-template-columns: auto minmax(0, 1fr) auto;
@@ -1233,7 +1242,7 @@
 /* What the row holds, and after it whether that is what the start gives: one line of text, as the approved design
    draws a row — its name, then that line. Where the line is too long for the rail it is cut at its end with an
    ellipsis: the word after the value goes first, then the value. The whole value is the row's name for assistive
-   technology (its text) and the line's tooltip (rail.ts). */
+   technology (its text) and, while it is cut, the row's tooltip (rail.ts). */
 .ts-rail-line {
   grid-column: 1;
   min-inline-size: 0;

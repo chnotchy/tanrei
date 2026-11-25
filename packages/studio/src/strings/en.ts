@@ -575,7 +575,6 @@ const en = {
     copied: 'Copied to the clipboard.',
     downloaded: (file: string) => `Downloaded ${file}`,
     next: 'What next',
-    put: (path: string) => `Save the file as ${path}`,
     authoritative: 'Commit the layer. tanrei build validates it again, checks every contrast pair and writes tokens and code for each platform you ship. With the CLI, tanrei studio opens this Studio on the file itself.',
     layersLink: 'How layers work',
     jsonLabel: 'The layer file',
@@ -587,6 +586,7 @@ const en = {
     close: 'Close Export',
     views: 'What to export',
     file: 'File',
+    command: 'Command',
     css: 'CSS',
     // The line at the top: what the schema, the token engine and the build's checks say of the file.
     valid: 'Valid: the schema, the token engine and the build’s checks accept this file.',
@@ -605,6 +605,9 @@ const en = {
     copyFailed: 'Could not copy — select the text and copy it by hand.',
     copyCss: 'Copy CSS',
     copyCommand: 'Copy the command',
+    commandLabel: 'Commands to run in your product',
+    commandHelp: (file: string, path: string) => `Save ${file} in your product’s folder and run these there. init --from checks the file, copies it to ${path} and writes tanrei.json; build then writes tokens and code for each output tanrei.json lists.`,
+    commandExisting: (command: string) => `If your product already has tanrei.json, save the file where its "system" points and run only ${command}.`,
     // The CSS tab: what the stylesheet `tanrei build` writes for the web says that the base's does not.
     cssLabel: 'What the stylesheet changes',
     cssHelp: (base: string) => `The declarations of the stylesheet tanrei build writes for the web that differ from ${base}’s, as the build writes them: each color resolved in every scheme, a size that follows a dial left to follow it. The file is what you keep; this is what it changes.`,
@@ -613,7 +616,7 @@ const en = {
     downloadCss: 'Download the whole stylesheet',
     // What next: the commands, in order. Each is the CLI's as it stands; none is shown that it would refuse.
     install: 'Add the command line tool to your product:',
-    init: (file: string) => `Start the layer. This writes tanrei.json and a starter ${file}:`,
+    init: (file: string, path: string) => `Start from the file: save ${file} in your product’s folder and run this there. It checks the file, copies it to ${path} and writes tanrei.json:`,
     build: 'Build tokens and code for every platform you list in tanrei.json:',
     studio: 'Later, open this Studio on the file itself:',
     saved: (file: string) => `The Studio saves every change to ${file} as you make it.`,

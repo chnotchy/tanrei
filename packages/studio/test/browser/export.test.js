@@ -43,6 +43,14 @@ studioTest('Export opens from the bar over the Studio: the line of the checks, t
   assert.deepEqual([file.name, JSON.parse(file.text)], ['acme.system.json', onDisk()]);
   await until(async () => (await said(page)) === 'Downloaded acme.system.json', 'the snackbar says what was saved');
   await axe('[data-export-sheet]', 'Export, at the file');
+  // The tabs, in the prototype's order: the file, the command, the stylesheet, the steps.
+  assert.deepEqual(await page.locator('[data-export-tabs] > tanrei-tab').evaluateAll((els) => els.map((el) => [el.dataset.tab, el.getAttribute('label')])), [['file', 'File'], ['command', 'Command'], ['css', 'CSS'], ['next', 'What next']]);
+  await tab(page, 'command');
+  // The file is in place already: the command builds it.
+  assert.match(await page.locator('[data-export-tabs] .ts-tabpanel').textContent(), /saves every change to acme\.system\.json/);
+  assert.deepEqual(await page.locator('[data-export-command]').evaluateAll((els) => els.map((el) => [el.code, el.hasAttribute('copy')])), [['npx tanrei build', true]]);
+  assert.equal(await page.locator('[data-export-commands]').count(), 0, 'no command takes in a file that is in place');
+  await axe('[data-export-sheet]', 'Export, at the command');
   await tab(page, 'next');
   // The Studio edits a file here: it is saved as it changes, and built with the command.
   assert.match(await page.locator('[data-export-next]').textContent(), /saves every change to acme\.system\.json/);
@@ -121,7 +129,7 @@ for (const locale of ['en-US', 'ja', 'zh-CN', 'hi', 'es', 'ar']) {
   studioTest(`${locale}: Export passes axe in each tab, its targets are 24 by 24, and at 390px it fits the window`, { layer: { id: 'acme', extends: 'cupertino' }, locale, viewport: { width: 390, height: 844 } }, async ({ page, axe, targets, fits }) => {
     await page.locator('[data-export-open]').scrollIntoViewIfNeeded();
     await open(page);
-    for (const name of ['file', 'css', 'next']) {
+    for (const name of ['file', 'command', 'css', 'next']) {
       await tab(page, name);
       await axe('[data-export-sheet]', `Export, ${name} (${locale})`);
       await fits('[data-export-sheet]', `Export, ${name} (${locale})`);
