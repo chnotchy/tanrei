@@ -69,6 +69,7 @@ const STORE = `${studio.namespace}-theme-studio`;
 const EXPORT_GLYPH = 'ios_share';
 const SHUFFLE_GLYPH = 'shuffle';
 const INSPECT_GLYPH = 'description';
+const BUILD_GLYPH = 'build';
 const HISTORY_GLYPHS = { undo: 'undo', redo: 'redo', reset: 'restart_alt' };
 const CLOSE_GLYPH = 'close';
 const NS = studio.namespace;
@@ -256,7 +257,7 @@ export function mountStudio(root: HTMLElement, { lang = 'en', adapter, links = {
   const startPoint = createStartPoint(ctx, { onstart: (id) => startFrom(id), onfile: (chosen) => importFile(chosen) });
   const bar = h(
     'header',
-    { class: `ts-bar${hosted.end?.length ? ' ts-bar-hosted' : ''}`, 'data-bar': true },
+    { class: 'ts-bar', 'data-bar': true },
     hosted.start?.length ? h('div', { class: 'ts-bar-host' }, hosted.start) : null,
     startPoint.el,
     // Each control that shows a glyph alone — everywhere, or on a phone — has a tooltip: its name, or what it does.
@@ -582,26 +583,34 @@ export function mountStudio(root: HTMLElement, { lang = 'en', adapter, links = {
 
   // ── the file (adapter) ────────────────────────────────────────────────────────────────────────
   const buildResult = h('div', { class: 'ts-build', 'data-build-result': true });
+  // Build: made once, a word beside its glyph — the glyph alone on a phone, where the bar is one line.
+  const buildWord = barWord(t.file.build);
+  const buildButton = adapter?.build
+    ? (h('tanrei-button', { variant: 'outlined', size: 'small', label: t.file.build, 'data-build': true, onclick: () => runBuild() }, glyph(BUILD_GLYPH), buildWord) as HTMLElement & { disabled: boolean })
+    : null;
+  if (buildButton) wordBesideGlyph(buildButton, buildWord);
+  const buildTip = buildButton ? tip(buildButton, t.file.build, true) : null;
+  async function runBuild() {
+    if (!adapter?.build || !buildButton) return;
+    buildButton.disabled = true;
+    try {
+      if (saveState === 'unsaved') await saveNow();
+      const result = await adapter.build();
+      buildResult.replaceChildren(
+        h('p', { class: 'ts-subhead', text: t.listed(t.file.built, t.a11y.warnings(result.warnings.length)) }),
+        h('ul', { class: 'ts-checks' }, result.files.map((entry) => h('li', { 'data-state': entry.changed === false ? undefined : 'pending' }, h('span', {}, h('code', { text: entry.path }), ' ', rich((at) => (entry.changed === false ? t.listed(at(ltr(entry.target)), t.file.unchanged) : at(ltr(entry.target)))))))),
+        result.warnings.length ? scrollingList(t.a11y.warnings(result.warnings.length), {}, result.warnings.map((warning) => h('li', {}, isolated(warning)))) : '',
+      );
+    } catch (error) {
+      buildResult.replaceChildren(h('p', { class: 'ts-error', text: (error as Error).message }));
+    }
+    buildButton.disabled = false;
+  }
   function drawFile() {
     if (!adapter) return file.replaceChildren();
-    const run = adapter.build
-      ? button(t.file.build, async () => {
-          run!.disabled = true;
-          try {
-            if (saveState === 'unsaved') await saveNow();
-            const result = await adapter.build!();
-            buildResult.replaceChildren(
-              h('p', { class: 'ts-subhead', text: t.listed(t.file.built, t.a11y.warnings(result.warnings.length)) }),
-              h('ul', { class: 'ts-checks' }, result.files.map((entry) => h('li', { 'data-state': entry.changed === false ? undefined : 'pending' }, h('span', {}, h('code', { text: entry.path }), ' ', rich((at) => (entry.changed === false ? t.listed(at(ltr(entry.target)), t.file.unchanged) : at(ltr(entry.target)))))))),
-              result.warnings.length ? scrollingList(t.a11y.warnings(result.warnings.length), {}, result.warnings.map((warning) => h('li', {}, isolated(warning)))) : '',
-            );
-          } catch (error) {
-            buildResult.replaceChildren(h('p', { class: 'ts-error', text: (error as Error).message }));
-          }
-          run!.disabled = false;
-        }, { 'data-build': true })
-      : null;
-    const parts = [h('span', { class: 'ts-save', 'data-save-state': saveState, title: saveProblem }, h('i'), t.file.states[saveState]), run, saveProblem ? h('p', { class: 'ts-error', text: saveProblem }) : null, buildResult];
+    // The file's state: its dot, and its word — read, and not drawn on a phone, where the dot says it.
+    const state = h('span', { class: 'ts-save', 'data-save-state': saveState, title: saveProblem }, h('i'), h('span', { class: 'ts-save-word', text: t.file.states[saveState] }));
+    const parts = [state, buildTip, saveProblem ? h('p', { class: 'ts-error', text: saveProblem }) : null, buildResult];
     file.replaceChildren(...(parts.filter(Boolean) as HTMLElement[]));
   }
   const setSave = (next: SaveState, problem = '') => ((saveState = next), (saveProblem = problem), drawFile());
