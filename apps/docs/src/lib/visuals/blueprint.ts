@@ -107,6 +107,24 @@ function partOf(element: Element, part: string): Element[] {
   return [];
 }
 
+/** Whether an element or its box generated before or after its content (`::before`, `::after`) is visible. */
+const generatesVisibly = (element: Element) =>
+  ['::before', '::after'].some((pseudo) => {
+    const style = getComputedStyle(element, pseudo);
+    return style.content !== 'none' && style.content !== 'normal' && style.visibility === 'visible';
+  });
+
+/**
+ * Whether a part hidden by `visibility` is drawn as no element: its box, or each of the pieces it is drawn in (a
+ * notched outline's), draws by a visible `::before` or `::after` — a state layer or an edge that lies over a text, kept
+ * out of what a contrast checker takes for an element covering it (the web package's `drawnAsNoElement`). A part
+ * that is not displayed, or faded out, is not.
+ */
+function drawnAsNoElement(element: Element): boolean {
+  if (!(element.checkVisibility?.({ opacityProperty: true }) ?? true)) return false;
+  return generatesVisibly(element) || [...element.children].some(generatesVisibly);
+}
+
 /** The box of what a part's target is, as drawn, in the viewport's coordinates; null where nothing of it is drawn. */
 export function targetBox(host: Element, target: PartTarget): { box: Box; element: Element | null } | null {
   let elements: Element[] = [];
@@ -128,8 +146,9 @@ export function targetBox(host: Element, target: PartTarget): { box: Box; elemen
       }
     }
   } else if ('className' in target) elements = [host.closest('.stage')?.querySelector(`.${target.className}`) ?? host.querySelector(`.${target.className}`)].filter((element): element is Element => element !== null);
-  // What is drawn invisibly (a checkbox's mark while it is unchecked, faded out) is not drawn for the figure.
-  elements = elements.filter((element) => element.checkVisibility?.({ opacityProperty: true, visibilityProperty: true }) ?? true);
+  // What is drawn invisibly (a checkbox's mark while it is unchecked, faded out) is not drawn for the figure; a box
+  // drawn as no element is.
+  elements = elements.filter((element) => (element.checkVisibility?.({ opacityProperty: true, visibilityProperty: true }) ?? true) || drawnAsNoElement(element));
   const rects = range ? [range.getBoundingClientRect()] : elements.map((element) => element.getBoundingClientRect());
   const drawn = rects.filter((rect) => rect.width > NEAR && rect.height > NEAR);
   if (!drawn.length) return null;

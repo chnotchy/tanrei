@@ -92,16 +92,12 @@ const KNOWN_NOT_DRAWN = {
   'menu selected: trailing-icon': AS_ON_MAIN,
   'menu selected: group-title': AS_ON_MAIN,
   'menu selected: divider': AS_ON_MAIN,
-  // TAB-18: at rest the state layer is drawn as no element (hidden, its ::before drawing it, so that a contrast checker
-  // still checks the label under it), which the figure does not find yet.
-  'tabs primary · selected: state-layer': 'drawn as no element (its ::before), which the figure does not find yet',
   'tabs primary · selected: icon': 'the fixture’s tabs have labels and no icons',
   'text-field outlined: field.label': AS_ON_MAIN,
   'text-field outlined: field.label-icon': AS_ON_MAIN,
   'text-field outlined: field.supporting-text': AS_ON_MAIN,
   'text-field outlined: field.error-text': AS_ON_MAIN,
   'text-field outlined: field.counter': AS_ON_MAIN,
-  'text-field outlined: text-input.outline': AS_ON_MAIN,
   'text-field outlined: text-input.required-asterisk': AS_ON_MAIN,
   'text-field outlined: text-input.leading-icon': AS_ON_MAIN,
   'text-field outlined: text-input.trailing-icon': AS_ON_MAIN,

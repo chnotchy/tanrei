@@ -80,18 +80,21 @@ function edgeOf(style: CSSStyleDeclaration): Rgba | null {
 /**
  * The color a part is drawn in, as its paint reads it: a fill's background, a text's color, and an edge where the
  * part draws it — on its own box, on a box it generates before or after its content (`::before`, `::after`), or on
- * the boxes it is drawn in pieces of (a notched outline's), the nearest first; an edge drawn nowhere is transparent.
+ * the boxes it is drawn in pieces of (a notched outline's), or the boxes those generate, the nearest first; an edge
+ * drawn nowhere is transparent.
  */
 function drawnColor(element: Element, paint: 'fill' | 'text' | 'edge'): Rgba {
   const style = getComputedStyle(element);
   if (paint === 'fill') return rgbaOf(style.backgroundColor);
   if (paint === 'text') return rgbaOf(style.color);
-  const generated = (pseudo: string) => {
-    const box = getComputedStyle(element, pseudo);
+  const generated = (of: Element, pseudo: string) => {
+    const box = getComputedStyle(of, pseudo);
     return box.content && box.content !== 'none' && box.content !== 'normal' ? edgeOf(box) : null;
   };
+  // A piece drawn as no element draws its edge by its `::before` (the web package's `drawnAsNoElement`).
+  const pieceEdge = (piece: Element) => edgeOf(getComputedStyle(piece)) ?? generated(piece, '::before') ?? generated(piece, '::after');
   const pieces = [...element.children, ...[...element.children].flatMap((child) => [...child.children])];
-  return edgeOf(style) ?? generated('::before') ?? generated('::after') ?? pieces.map((piece) => edgeOf(getComputedStyle(piece))).find(Boolean) ?? [0, 0, 0, 0];
+  return edgeOf(style) ?? generated(element, '::before') ?? generated(element, '::after') ?? pieces.map(pieceEdge).find(Boolean) ?? [0, 0, 0, 0];
 }
 
 /** The element a node is drawn in: its parent, its slot, or its shadow root's host. */
