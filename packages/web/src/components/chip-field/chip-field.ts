@@ -16,6 +16,7 @@ import { TanreiChip } from '../chip/chip.js';
 import { TanreiField, type TanreiFieldRequiredMark } from '../field/field.js';
 import { TanreiTextInput, type TanreiTextInputActionDetail, type TanreiTextInputSize, type TanreiTextInputType, type TanreiTextInputVariant } from '../text-input/text-input.js';
 import { disabledWaitsWhileFocused } from '../../primitives/disabled-while-focused.js';
+import { DEBUG } from '../../primitives/debug.js';
 
 // The members' own types are the chip field's for what it takes from them.
 export type { TanreiFieldRequiredMark, TanreiTextInputActionDetail, TanreiTextInputSize, TanreiTextInputType, TanreiTextInputVariant };
@@ -241,7 +242,7 @@ export class TanreiChipField extends ComposedElement {
     const given = Array.isArray(value) ? value.map((entry) => String(entry)) : [];
     const kept = given.filter((entry) => entry.trim() !== '');
     // CHF-3: an entry that is empty or only white space is left out.
-    if (kept.length !== given.length) report(this, 'CHF-3', 'value holds an entry that is empty or only white space; it is left out');
+    if (DEBUG && kept.length !== given.length) report(this, 'CHF-3', 'value holds an entry that is empty or only white space; it is left out');
     // CHF-3: focus on an entry that is no longer in the list goes to the typing part, before its chip leaves.
     const focused = this.focusedChip;
     if (focused && !kept.includes(focused.label)) this.input?.focus();
@@ -591,7 +592,7 @@ export class TanreiChipField extends ComposedElement {
     }
     for (const one of refused) {
       // CHF-6: a refusal nobody gave words for still marks the typing part invalid.
-      if (!one.message) report(this, 'CHF-6', `an entry was refused (${one.reason}) and no words say why: give invalidText, duplicateText, limitText or errorText, or a reason in check`);
+      if (DEBUG && !one.message) report(this, 'CHF-6', `an entry was refused (${one.reason}) and no words say why: give invalidText, duplicateText, limitText or errorText, or a reason in check`);
       this.dispatchEvent(new CustomEvent<TanreiChipFieldRejectDetail>('reject', { bubbles: true, composed: true, detail: { text: one.text, reason: one.reason, message: one.message } }));
     }
     return refused.length === 0;
@@ -836,7 +837,7 @@ export class TanreiChipField extends ComposedElement {
     const sentence = this.words.get(key, own);
     if (!sentence) {
       region.replaceChildren();
-      if (effect) this.words.missing(key, { id: 'CHF-23', effect });
+      if (effect) this.words.missing(key, DEBUG && { id: 'CHF-23', effect });
       return;
     }
     this.reportWord(key, sentence, 'it is said as it is written');
@@ -853,7 +854,7 @@ export class TanreiChipField extends ComposedElement {
 
   /** CHF-23: reports what of a sentence is not a place of its word, and a brace that opens or closes nothing. */
   private reportWord(key: keyof typeof WORD_PROPS, sentence: string, effect: string) {
-    reportPlaces(this, 'CHF-23', WORD_PROPS[key], sentence, wordPlaces[key] ?? [], effect);
+    if (DEBUG) reportPlaces(this, 'CHF-23', WORD_PROPS[key], sentence, wordPlaces[key] ?? [], effect);
   }
 
   /**
@@ -892,19 +893,19 @@ export class TanreiChipField extends ComposedElement {
       });
     }
     // CHF-26: only a type the Text input draws as one line of plain text is an entry of a list.
-    if (changed.has('type') && !LINE_TYPES.includes(this.type)) report(this, 'CHF-26', `type "${this.type}" is not a type of an entry (text, email, tel, url); the typing part behaves as "text"`);
+    if (DEBUG && changed.has('type') && !LINE_TYPES.includes(this.type)) report(this, 'CHF-26', `type "${this.type}" is not a type of an entry (text, email, tel, url); the typing part behaves as "text"`);
     // CHF-10: a limit that is no whole number of 0 or more is no limit.
-    if (changed.has('maxEntries') && !(Number.isInteger(this.maxEntries) && this.maxEntries >= 0)) report(this, 'CHF-10', `maxEntries ${String(this.maxEntries)} is not a whole number of 0 or more; there is no limit`);
+    if (DEBUG && changed.has('maxEntries') && !(Number.isInteger(this.maxEntries) && this.maxEntries >= 0)) report(this, 'CHF-10', `maxEntries ${String(this.maxEntries)} is not a whole number of 0 or more; there is no limit`);
     // CHF-9: an empty separator would end an entry at every character.
-    if (changed.has('separators') && Array.isArray(this.separators) && this.separators.some((separator) => separator === '')) report(this, 'CHF-9', 'separators holds an empty text, which is ignored');
+    if (DEBUG && changed.has('separators') && Array.isArray(this.separators) && this.separators.some((separator) => separator === '')) report(this, 'CHF-9', 'separators holds an empty text, which is ignored');
     // CHF-23: the remove actions are drawn and work without a name; two of them with one name cannot be told apart.
     if (this.list.length && !this.readOnly && this.isConnected) {
       const sentence = this.words.get('entryRemoveLabel', this.removeLabel);
-      if (!sentence) this.words.missing('entryRemoveLabel', { id: 'CHF-23', effect: 'each entry\'s remove action is drawn and works, and has no accessible name' });
+      if (!sentence) this.words.missing('entryRemoveLabel', DEBUG && { id: 'CHF-23', effect: 'each entry\'s remove action is drawn and works, and has no accessible name' });
       else {
         this.reportWord('entryRemoveLabel', sentence, 'each remove action is named with it as it is written');
         // The one place of any word that is needed (the spec's `required`): without it two actions have one name.
-        for (const name of placeFaults(sentence, wordPlaces.entryRemoveLabel ?? []).absent) report(this, 'CHF-23', `removeLabel has no place {${name}}, so every remove action has the same name; write it as "Remove {${name}}"`);
+        for (const name of placeFaults(sentence, wordPlaces.entryRemoveLabel ?? []).absent) DEBUG && report(this, 'CHF-23', `removeLabel has no place {${name}}, so every remove action has the same name; write it as "Remove {${name}}"`);
       }
     }
   }

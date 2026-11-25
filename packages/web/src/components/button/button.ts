@@ -39,6 +39,7 @@ import type { TanreiButtonSizeRegistry, TanreiButtonVariantRegistry } from '../.
 import { AXES, CORE_SIZES, WIDTHS, styles } from './button.styles.js';
 import { focusedAtFirst } from '../../primitives/autofocus.js';
 import { TanreiElement } from '../../primitives/element.js';
+import { DEBUG } from '../../primitives/debug.js';
 
 /** The core variants, plus any a design system's generated `.d.ts` registers. */
 export type TanreiButtonVariant = keyof TanreiButtonVariantRegistry;
@@ -565,7 +566,7 @@ export class TanreiButton extends TanreiElement {
       if (event.defaultPrevented || this.refuses) return;
       const form = this.form;
       if (!form) {
-        report(this, 'BTN-29', `a ${action} button has no form: it stands in none, and its form attribute names none; the press emitted click and did nothing more`);
+        if (DEBUG) report(this, 'BTN-29', `a ${action} button has no form: it stands in none, and its form attribute names none; the press emitted click and did nothing more`);
         return;
       }
       if (action === 'reset') form.reset();
@@ -667,21 +668,21 @@ export class TanreiButton extends TanreiElement {
     if (changed.has('busy') && this.busy) {
       const words = this.busyWords;
       announceBusy(this.renderRoot, words, () => this.busy && !this.isDisabled);
-      if (!words) this.words.missing('busyLabel', { id: 'BTN-37', effect: 'it is busy, and nothing tells people who cannot see the arc that it is working ("Saving")' });
+      if (!words) this.words.missing('busyLabel', DEBUG && { id: 'BTN-37', effect: 'it is busy, and nothing tells people who cannot see the arc that it is working ("Saving")' });
     }
     // BTN-32: the update has reflected `disabled` by now. Unset inside a disabled fieldset, the button was rendered
     // from the property alone and is still disabled by the fieldset: it is drawn again.
     if (this.drawnDisabled !== this.isDisabled) this.requestUpdate();
     // BTN-21: a width the button does not define is drawn at the default width (no rule matches it) and reported.
-    if (changed.has('width') && !(WIDTHS as readonly string[]).includes(this.width)) {
+    if (DEBUG && changed.has('width') && !(WIDTHS as readonly string[]).includes(this.width)) {
       report(this, 'BTN-21', `width "${this.width}" is not a value of the button; it is drawn as "default"`);
     }
     // BTN-41: a toggle has no destructive look; the styles draw it as the toggle it is.
-    if ((changed.has('destructive') || changed.has('toggle')) && this.destructive && this.toggle) {
+    if (DEBUG && (changed.has('destructive') || changed.has('toggle')) && this.destructive && this.toggle) {
       report(this, 'BTN-41', 'a toggle has no destructive look: destructive is ignored while toggle is true');
     }
     // BTN-43: a link deletes nothing; the styles draw it as the link of its variant.
-    if ((changed.has('destructive') || changed.has('href') || changed.has('toggle')) && this.destructive && this.link.form) {
+    if (DEBUG && (changed.has('destructive') || changed.has('href') || changed.has('toggle')) && this.destructive && this.link.form) {
       report(this, 'BTN-43', 'a link only leads somewhere and does not itself delete anything: destructive is ignored while href is not empty. The action that deletes is the one at its destination; mark that one destructive');
     }
     if (changed.has('type') || changed.has('toggle') || changed.has('href')) {
@@ -691,21 +692,21 @@ export class TanreiButton extends TanreiElement {
     if (changed.has('label') || changed.has('hasLabel')) this.reportName();
     if (!changed.has('label') && !changed.has('hasLabel') && !changed.has('hasIcon')) return;
     // BTN-16, BTN-17: an icon alone is not a name, and a button with neither label nor icon shows nothing. It still renders.
-    if (!this.hasLabel && !this.hasIcon) report(this, 'BTN-17', 'it has neither a label nor an icon; give it one');
+    if (!this.hasLabel && !this.hasIcon) DEBUG && report(this, 'BTN-17', 'it has neither a label nor an icon; give it one');
     // A button its host keeps from assistive technology needs no name there (a number field's unnamed stepper, NUM-44).
-    else if (!this.hasLabel && !this.label && !namedByProduct(this) && this.getAttribute('aria-hidden') !== 'true') report(this, 'BTN-16', 'it is icon-only and label is empty, so it has no accessible name; give it a label');
+    else if (DEBUG && !this.hasLabel && !this.label && !namedByProduct(this) && this.getAttribute('aria-hidden') !== 'true') report(this, 'BTN-16', 'it is icon-only and label is empty, so it has no accessible name; give it a label');
   }
 
   /** BTN-33: a type the button does not define, and a type a toggle or a link ignores. Each once. */
   private reportType() {
     const { type } = this;
     if (!TYPES.includes(type)) {
-      report(this, 'BTN-33', `type "${type}" is not button, submit or reset; it behaves as "button" and submits nothing`);
+      if (DEBUG) report(this, 'BTN-33', `type "${type}" is not button, submit or reset; it behaves as "button" and submits nothing`);
       return;
     }
     if (type === 'button') return;
-    if (this.toggle) report(this, 'BTN-33', `a toggle cannot ${type} a form; type "${type}" is ignored`);
-    else if (this.link.form) report(this, 'BTN-33', `a link cannot ${type} a form; type "${type}" is ignored`);
+    if (this.toggle) DEBUG && report(this, 'BTN-33', `a toggle cannot ${type} a form; type "${type}" is ignored`);
+    else if (DEBUG && this.link.form) report(this, 'BTN-33', `a link cannot ${type} a form; type "${type}" is ignored`);
   }
 
   /** The text the default slot draws. */
@@ -722,7 +723,7 @@ export class TanreiButton extends TanreiElement {
   private reportName() {
     if (!this.label || !this.hasLabel) return;
     const drawn = spoken(this.drawnText);
-    if (drawn && !spoken(this.label).includes(drawn)) {
+    if (DEBUG && drawn && !spoken(this.label).includes(drawn)) {
       report(this, 'BTN-16', `label "${this.label}" does not contain the text the button draws ("${drawn}"), so a person who says what they see is not heard; label is still its whole name`);
     }
   }

@@ -1735,7 +1735,7 @@ test.describe('the time', () => {
     for (const theme of ['light', 'dark'] as const) {
       await mountFixtures(page, spec, { theme, icons: true, fixtures: [opened('b', { mode: 'time', value: '19:30', hourCycle: 'h23', entryMode: 'dial' })] });
       await motionEnded(page);
-      const results = await (await pickerAxe(page)).withRules(['color-contrast']).analyze();
+      const results = await pickerAxe(page).withRules(['color-contrast']).analyze();
       const nodes = (kind: 'passes' | 'violations' | 'incomplete') => results[kind].flatMap((rule) => rule.nodes).map((node) => ({ target: JSON.stringify(node.target), html: node.html.replace(/<!--[^>]*-->/g, '') }));
       expect(nodes('violations'), theme).toEqual([]);
       const number = /^<span class="[^"]*number[^"]*"[^>]*>(\d\d)<\/span>$/;
@@ -3631,26 +3631,15 @@ test.describe('bounds of the time', () => {
 });
 
 /**
- * axe over the stage, as the picker stands in a product's page.
- * - axe checks the contrast of text only within the boxes of its ancestors whose overflow is hidden. An open modal
- *   picker holds the page (`overflow: hidden` on the root, DTM-1), and the stage's document is as tall as its stage
- *   alone (32 px), so axe took the whole top-layer surface for clipped away by the root and checked the contrast of none
- *   of its text (color-contrast inapplicable in every modal fixture). The root is made as tall as the window, as a page's
- *   root is wherever it is held, so axe reads every word and number of the surface.
- * - A value outside min and max (DTM-50) is one the picker does not offer — a wheel's row, a dial's number, a period —
- *   drawn faded inside a part hidden from assistive technology, whose spin button offers only the others: an inactive
- *   value, whose text WCAG 1.4.3 exempts from contrast. Nothing in the hidden part says so to axe, so the stage says it,
- *   as a disabled control would (`aria-disabled`). Every value the picker offers is held to 4.5:1.
+ * axe over the stage, as the picker stands in a product's page. The page's root is as tall as the window (the harness
+ * sets it, so axe reads the top-layer surface of an open modal picker), and a value outside min and max (DTM-50) is
+ * marked inactive by the picker itself (`aria-disabled`), so axe holds only the values the picker offers to 4.5:1.
  * - The copy inside the dial's handle (DTM-24) holds every number, clipped to the handle: of a number other than the
  *   pending one only a sliver of its edge ever lies under the handle, drawn in the copy's color on the handle, the pair of
  *   the pending number, which is checked. axe reads a number's whole box, and would pair the copy's color with the dial
  *   beside the handle, where the copy draws nothing, so those clipped copies are left out.
  */
-async function pickerAxe(page: P): Promise<AxeBuilder> {
-  await page.addStyleTag({ content: 'html { min-block-size: 100%; }' });
-  await page.evaluate(() => {
-    for (const picker of document.querySelectorAll('tanrei-date-time-picker')) for (const value of picker.shadowRoot!.querySelectorAll('[data-unavailable]')) value.setAttribute('aria-disabled', 'true');
-  });
+function pickerAxe(page: P): AxeBuilder {
   return new AxeBuilder({ page }).include('.stage').exclude({ fromShadowDom: ['tanrei-date-time-picker', '.copy .number:not([data-covered])'] });
 }
 
@@ -3669,7 +3658,7 @@ test.describe('accessibility', () => {
         // its entrance (MOT-4): axe reads it at rest — its contrast is that of the surface at full opacity — once every
         // motion in the page has ended, not after a fixed wait, which a loaded machine's entrance outlasts.
         await motionEnded(page);
-        const results = await (await pickerAxe(page)).analyze();
+        const results = await pickerAxe(page).analyze();
         if (fixture.props.presentation !== 'docked') {
           const contrast = [...results.passes, ...results.violations, ...results.incomplete].filter((rule) => rule.id === 'color-contrast').flatMap((rule) => rule.nodes);
           expect(contrast.length, `${fixture.id} ${theme}: axe checks the contrast of the modal surface's text`).toBeGreaterThan(0);

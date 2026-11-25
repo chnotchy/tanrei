@@ -125,7 +125,7 @@ SwiftUI, Compose, Flutter y React Native están planificados: los nombres que fi
 
 **El cuerpo.** De forma predeterminada, una línea nunca se parte. Una línea que no cabe se desplaza dentro del bloque, y la página nunca se desplaza hacia los lados. `wrap`, en cambio, parte las líneas, y una fila de continuación empieza bajo el código, no bajo los números. `max-lines` limita la altura en líneas, y el resto se desplaza dentro del bloque.
 
-**El botón de copiar** se dibuja siempre, nunca solo al pasar el cursor. Nunca tapa código que no se pueda apartar de él: un cuerpo que se desplaza gana ese mismo espacio en su final, y las filas que saltan de línea se detienen antes de su columna. Copia el código como texto sin formato, sin los números de línea, el prompt, los signos ni las líneas eliminadas. Una selección hecha a mano copia exactamente los caracteres seleccionados.
+**El botón de copiar** se dibuja siempre, nunca solo al pasar el cursor. Está al final de la cabecera —solo, cuando el bloque no tiene título ni etiqueta de lenguaje y tiene más de una línea—, así que nunca tapa el código, por larga que sea la primera línea. Un bloque de una sola línea sin título ni etiqueta de lenguaje, como un comando de instalación, no tiene cabecera: el botón está al final de esa línea, que se desplaza a su lado y nunca por debajo. Copia el código como texto sin formato, sin los números de línea, el prompt, los signos ni las líneas eliminadas. Una selección hecha a mano copia exactamente los caracteres seleccionados.
 
 **Las líneas marcadas** nunca se marcan solo con el color.
 
@@ -253,7 +253,7 @@ Algunos resaltadores nombran lo que encuentran con nombres de ámbito (scopes) s
 
 - El elemento da una caja a cada línea envolviéndola en `<span data-line>`. Mueve tus nodos y divide el texto y los tramos en los saltos de línea, y no añade ningún carácter al código. Un framework que es dueño de los hijos del `<code>` debería pasar `code` en su lugar, o renderizar `[data-line]` él mismo.
 - La etiqueta de una línea marcada es un `<span>` oculto situado antes del código de la línea. Forma parte del `textContent` del `<code>`, y queda fuera de lo que se copia.
-- El aspecto outlined se dibuja sobre aquello en lo que se coloca. Donde eso no sea el color de superficie, indícalo en `--tanrei-code-block-ground`, para que los números de línea y el botón de copiar puedan apoyarse en él mientras el código se desplaza por debajo.
+- El aspecto outlined se dibuja sobre aquello en lo que se coloca. Donde eso no sea el color de superficie, indícalo en `--tanrei-code-block-ground`, para que los números de línea puedan apoyarse en él mientras el código se desplaza por debajo.
 - Antes de que el elemento esté definido, `code.css` dibuja el relleno, las esquinas, el margen interior y los colores de los tramos. La cabecera, el botón de copiar, los números y las marcas necesitan el elemento.
 - `highlight` es true de forma predeterminada, así que su atributo se escribe para desactivarlo: `highlight="false"`. La propiedad acepta un booleano.
 - El elemento escribe sus propios tramos como spans dentro de tu `<code>`, línea a línea, y los marca como suyos. Un framework que es dueño de los hijos del `<code>` debería pasar `code` y dejar que el elemento los escriba.

@@ -4,6 +4,7 @@ import { AvailabilityController, OpenAxesController, Settle, documentPainted, mo
 import type { TanreiTagGroupSpacingRegistry } from '../../registry.js';
 import { AXES, DEFAULT_SPACING, styles } from './tag-group.styles.js';
 import { TanreiElement, focusKept } from '../../primitives/element.js';
+import { DEBUG } from '../../primitives/debug.js';
 
 /** The core spacings (tags, chips), plus any a design system's generated `.d.ts` registers. */
 export type TanreiTagGroupSpacing = keyof TanreiTagGroupSpacingRegistry;
@@ -836,28 +837,28 @@ export class TanreiTagGroup extends TanreiElement {
   /** TGR-4, TGR-11: what a debug build is told. The group renders either way. An empty group is told nothing (TGR-8). */
   private check(members: Element[] = this.content.filter((node): node is Element => node.nodeType === Node.ELEMENT_NODE)) {
     // TGR-4: lines of tags stand closer than a chip's touch target is high.
-    if (this.spacing === TAGS && members.some((member) => member.localName === CHIP)) {
+    if (DEBUG && this.spacing === TAGS && members.some((member) => member.localName === CHIP)) {
       report(this, 'TGR-4', 'it holds a <tanrei-chip> while spacing is "tags"; a set of chips wants spacing="chips", whose lines stand far enough apart for each chip\'s touch target');
     }
     // TGR-11: anything else is laid out and exposed with the others.
     for (const node of this.content) {
-      if (isText(node)) report(this, 'TGR-11', 'it holds text of its own, which is laid out as a member but cannot be an item of the list; put it in a <tanrei-tag>');
+      if (isText(node)) DEBUG && report(this, 'TGR-11', 'it holds text of its own, which is laid out as a member but cannot be an item of the list; put it in a <tanrei-tag>');
       else if (!MEMBERS.includes((node as Element).localName)) {
         const name = (node as Element).localName;
         const item = this.given.has(node as Element) ? 'it is laid out and exposed as an item' : 'it is laid out, but keeps its own role and is not an item of the list — wrap it in a <span>';
-        report(this, 'TGR-11', `it holds <${name}>, which is not a <tanrei-tag> or a <tanrei-chip>; ${item}`);
+        if (DEBUG) report(this, 'TGR-11', `it holds <${name}>, which is not a <tanrei-tag> or a <tanrei-chip>; ${item}`);
       }
     }
     // TGR-17: a selection the group does not have is none.
-    if (!SELECTIONS.includes(this.selection)) report(this, 'TGR-17', `selection "${this.selection}" is not none, single or multiple; the group holds no selection`);
+    if (DEBUG && !SELECTIONS.includes(this.selection)) report(this, 'TGR-17', `selection "${this.selection}" is not none, single or multiple; the group holds no selection`);
     if (!this.selecting || !members.length) return;
     // TGR-18: a filter chip without a value is left out; two with one value are one.
     const seen = new Set<string>();
     for (const chip of this.chips) {
       if (kindOf(chip) !== FILTER) continue;
       const value = valueOf(chip);
-      if (!value) report(this, 'TGR-18', `the filter chip "${chip.getAttribute('label') ?? ''}" has no value, so the selection leaves it out; give each filter chip a value`);
-      else if (seen.has(value)) report(this, 'TGR-18', `two filter chips have the value "${value}"; they go on and off together — give each its own value`);
+      if (!value) DEBUG && report(this, 'TGR-18', `the filter chip "${chip.getAttribute('label') ?? ''}" has no value, so the selection leaves it out; give each filter chip a value`);
+      else if (DEBUG && seen.has(value)) report(this, 'TGR-18', `two filter chips have the value "${value}"; they go on and off together — give each its own value`);
       seen.add(value);
     }
   }

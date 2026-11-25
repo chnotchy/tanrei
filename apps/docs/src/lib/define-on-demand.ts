@@ -101,6 +101,21 @@ export function defineAhead(part: Element) {
   }
 }
 
+/**
+ * The tags of the elements a part holds that are not defined yet and that this page will define (a Tanrei element of a
+ * module it may load, not left to its owner's first use): what lib/example.ts waits for before a stage near the view
+ * lets go of the room it holds. An element of a component the page does not show a system of is left undefined, and
+ * not waited for.
+ */
+export function toBeDefined(part: Element): string[] {
+  const tags = new Set<string>();
+  for (const element of part.querySelectorAll(':not(:defined)')) {
+    const tag = element.localName;
+    if (loaders[tag] && !element.closest(ON_USE) && mayDefine(outside[tag], placeOf(element))) tags.add(tag);
+  }
+  return [...tags];
+}
+
 function watch(root: Document | ShadowRoot) {
   if (watched.has(root)) return;
   watched.add(root);

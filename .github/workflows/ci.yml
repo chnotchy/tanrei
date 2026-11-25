@@ -313,7 +313,7 @@ jobs:
               echo "::warning::ci:web-only — Flutter, Compose, React Native and SwiftUI are not run; CI result fails until the label is removed."
             fi
             # A draft is held (this job does not run for one: see its `if`). Kept for a run that reaches here another way: a push to work in progress then costs about two minutes of one
-            # runner and not 26 web shards and seven macOS jobs. `ci:run` on the draft runs it as if it were ready.
+            # runner and not 27 web shards and seven macOS jobs. `ci:run` on the draft runs it as if it were ready.
             if [ "$(echo "$pr" | jq -r '.draft')" = true ] && ! echo "$labels" | grep -qx 'ci:run'; then
               held=true
               echo "::warning::Draft — held. Mark the pull request ready for review, or add the label ci:run and push or re-run, to run the suites."
@@ -324,16 +324,18 @@ jobs:
           on() { if [ "$held" = true ]; then echo false; elif [ "$targeted" = true ]; then if [ "$1" = web ]; then echo true; else echo false; fi; elif [ "$ALL" = true ]; then echo true; else echo "$FILTER" | jq -r --arg k "$1" '.[$k] // "false"'; fi; }
           echo "docs=$(on docs)" >> "$GITHUB_OUTPUT"
           echo "workflows=$(on workflows)" >> "$GITHUB_OUTPUT"
-          # The web's matrix. Every test in the three engines (26 shards) on a dispatched run, a release and a push without
+          # The web's matrix. Every test in the three engines (27 shards) on a dispatched run, a release and a push without
           # a base to compare with (the first push of a branch, or one whose base could not be read). Otherwise the selection: on a pull request (or a dispatch with `scope: pull-request`) in Chromium alone (the cheap check that
           # gates a merge; the other engines run on main and before a release), on a push to main in all three; its shards from its size, about 400 Chromium tests a shard
           # (a component has about 100, its share of the walks of every component among them; a walk run in full, about 10).
           # A selection of nothing runs no web job.
           web=$(on web)
-          # Each engine's shards in a run of every test: about 26 minutes each of tests on a runner (the seconds of
-          # packages/web/test/durations.json at two workers), so that a runner half again as slow still ends near 41 of
-          # the job's 60. A selection's shards are at most these.
-          full='[{"engine":"chromium","projects":"--project=chromium","n":10},{"engine":"firefox","projects":"--project=firefox --project=firefox-no-style-queries","n":7},{"engine":"webkit","projects":"--project=webkit","n":9}]'
+          # Each engine's shards in a run of every test, by the seconds of packages/web/test/durations.json at two
+          # workers (measured 2026-11-24): Chromium's 10 about 27 minutes of tests each, Firefox's 7 about 26½, WebKit's
+          # 10 about 24 — WebKit's runners vary the most (one ran its shard's files 1.7 times as long as the others did).
+          # With about 2 minutes of setup a shard's job takes 26–29 minutes, and on a runner half again as slow about
+          # 39–44 of the job's 60. A selection's shards are at most these.
+          full='[{"engine":"chromium","projects":"--project=chromium","n":10},{"engine":"firefox","projects":"--project=firefox --project=firefox-no-style-queries","n":7},{"engine":"webkit","projects":"--project=webkit","n":10}]'
           grep=""
           if [ "$targeted" = true ]; then
             # A targeted run's shards: about 400 test runs each (matches × repeat, counted per engine by the step above),
@@ -514,15 +516,15 @@ jobs:
   # record-baselines.yml — scripts/ci/check-playwright-image.sh fails the run until it does. `--ipc=host`: Chromium
   # runs out of shared memory in a container without it (Playwright's Docker guide); `--user 1001`: the runner's own
   # uid, so the checkout stays writable and Firefox does not refuse to start as root.
-  # About 44,000 test runs in the three engines, about 22 hours of tests (two workers a runner), so every Playwright
-  # project runs in shards: 10 of Chromium (which also compares every snapshot), 7 of Firefox, 9 of WebKit, each of about
-  # 26 minutes of tests and a couple of setup. A run of every test, and a selection, deals its files to the shards by the
+  # About 52,000 test runs in the three engines, about 23 hours of tests (two workers a runner), so every Playwright
+  # project runs in shards: 10 of Chromium (which also compares every snapshot), 7 of Firefox, 10 of WebKit, each of
+  # 24–27 minutes of tests and about 2 of setup. A run of every test, and a selection, deals its files to the shards by the
   # seconds each one ran on CI (packages/web/test/durations.json, packages/tools/src/playwright-shards.js: a file longer
   # than a shard's share by its top-level blocks; a file a selection matches in part by its share of the file's tests),
   # since Playwright's `--shard` deals equal counts of tests in file order and its first shards came near or past the
   # 60-minute timeout while the last took 5–8 minutes; web-report measures them again on every run of every test.
   # Baselines are found by `snapshotPathTemplate` (`snapshots/{arg}{ext}`), which names neither
-  # the project, the platform nor the shard. `firefox-no-style-queries` rides with `firefox` (same browser; 46 tests).
+  # the project, the platform nor the shard. `firefox-no-style-queries` rides with `firefox` (same browser; 733 tests).
   web:
     name: Web · ${{ needs.changes.outputs.targeted == 'true' && 'targeted' || 'behavior, a11y, snapshots' }} (${{ matrix.engine }} ${{ matrix.shard }}/${{ matrix.shards }})
     runs-on: ubuntu-24.04
@@ -535,10 +537,14 @@ jobs:
         shell: bash
     needs: [validate, changes]
     if: needs.changes.outputs.web == 'true'
-    timeout-minutes: 60 # a shard takes about 28 minutes; one on a runner half again as slow, about 41
+    # A shard takes 26–29 minutes (24–27 of tests, about 2 of setup); one on a runner half again as slow, 39–44. That
+    # holds while packages/web/test/durations.json is current: in November a WebKit shard dealt files that had grown
+    # since they were last measured (to up to 2½ times their seconds) took 33–55 minutes, and ran out of the 60 on a
+    # slow runner. Refresh the durations when tests grow (CONTRIBUTING.md, "Web shards by time").
+    timeout-minutes: 60
     strategy:
       fail-fast: false # every shard reports, as the single run did
-      # Built by the changes job: every test in 10 Chromium, 7 Firefox and 9 WebKit shards, or a selection in as many or fewer.
+      # Built by the changes job: every test in 10 Chromium, 7 Firefox and 10 WebKit shards, or a selection in as many or fewer.
       matrix: ${{ fromJSON(needs.changes.outputs.web-matrix) }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
