@@ -5,7 +5,7 @@
 // src/primitives/delegated-aria.test.ts.
 import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
-import { type Fixture, acmeSystemCss, loadSpec, mountFixtures, resolveColor, resolveToken, tab, tabTo, rootTokens } from '../../../test/harness.js';
+import { type Fixture, acmeSystemCss, loadSpec, mountFixtures, resolveColor, resolveToken, tab, tabTo, rootTokens, warnings } from '../../../test/harness.js';
 import { decodePng } from '../../../test/png.js';
 import { motionEnded } from '../../../test/motions.js';
 import { transitionsRun, watchTransitions } from '../../../test/transitions.js';
@@ -57,11 +57,6 @@ const listen = (locator: Locator) =>
     }
   });
 const log = (page: P) => page.evaluate(() => (window as any).log as string[]);
-function warnings(page: P) {
-  const seen: string[] = [];
-  page.on('console', (message) => { if (message.type() === 'warning') seen.push(message.text()); });
-  return seen;
-}
 /** Everything a handle and the slider paint, as drawn. */
 const drawn = (page: P, id: string, which: Id = 'end') =>
   host(page, id).evaluate((el, w) => {

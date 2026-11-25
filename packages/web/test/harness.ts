@@ -3,7 +3,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import type { Locator, Page } from '@playwright/test';
+import type { ConsoleMessage, Locator, Page } from '@playwright/test';
 import { resolveFrom, source } from '../../tools/src/from.js';
 import { fixturePicture } from './pictures.ts';
 import { linkCardToHtml } from '../src/links/index.ts';
@@ -3098,6 +3098,33 @@ export async function tabTo(page: Page, host: Locator) {
     return path.join(' > ') || '(nothing)';
   });
   throw new Error(`tabTo: the control was never reached by Tab (the focus ended on ${stuck})`);
+}
+
+// ── What the page's console says ────────────────────────────────────────────────────────────────────────────────────
+// Roboto Mono, the default system's code face (embedded in every fixture document by `textFontFaces()`), draws its
+// no-break space as a composite glyph whose one component is the space, glyph 1, which has no outline. Firefox's font
+// sanitizer (OTS) accepts the face and draws it as it should, but warns once per page that loads it: every Roboto Mono
+// file tried says it (@fontsource static and variable 5.0.0 to 5.3.0, Google Fonts' own, the googlefonts/RobotoMono
+// release 3.001), so it is the face's own glyph, not this repository's copy of it. It is reported upstream to
+// googlefonts/RobotoMono; the issue's link is added here once it is filed. The tests tolerate that one message, whole,
+// as Firefox writes it for the faces embedded here: the latin subset's glyph 225 (its no-break space, in the upright
+// and the italic file alike), the variable face's weight range, and a source it does not print (a `data:` URL). Nothing
+// else Firefox says about a font, and nothing it says about another glyph or another family, is tolerated.
+const ROBOTO_MONO_NO_BREAK_SPACE =
+  /^\[JavaScript Warning: "downloadable font: glyf: empty gid 1 used as component in glyph 225 \(font-family: "Roboto Mono" style:(?:normal|italic) weight:100\.\.700 width:100 src index:0\) source: \(invalid URI\)"\]$/;
+
+/** Whether `message` is Firefox's warning about Roboto Mono's no-break space (above), the one a test may hear. */
+export function isRobotoMonoGlyphWarning(message: ConsoleMessage): boolean {
+  return message.type() === 'warning' && ROBOTO_MONO_NO_BREAK_SPACE.test(message.text());
+}
+
+/** The warnings the page reports from now on (call it before mounting), but for Roboto Mono's (`isRobotoMonoGlyphWarning`). */
+export function warnings(page: Page): string[] {
+  const seen: string[] = [];
+  page.on('console', (message) => {
+    if (message.type() === 'warning' && !isRobotoMonoGlyphWarning(message)) seen.push(message.text());
+  });
+  return seen;
 }
 
 // ── The product's words ─────────────────────────────────────────────────────────────────────────────────────────────

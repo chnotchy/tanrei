@@ -2,7 +2,7 @@
 // fixture has a baseline (drawn on a 320 × 200 window, the spec's stage), and every value is read back from the tokens.
 import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
-import { type Fixture, fixturesDocument, loadSpec, mountFixtures, resolveColor, resolveToken, tab, tabTo, rootTokens } from '../../../test/harness.js';
+import { type Fixture, fixturesDocument, loadSpec, mountFixtures, resolveColor, resolveToken, tab, tabTo, rootTokens, warnings } from '../../../test/harness.js';
 import { appearProbe, bezierOf, expectAppearStart, expectExitEnd, expectTurnedAlone, resolveEasing, turnHeld } from '../../../test/appear.js';
 import { type Frames, expectAnimated, expectNoFlicker, sampleFrames } from '../../../test/frames.js';
 import { motionEnded } from '../../../test/motions.js';
@@ -30,13 +30,6 @@ const bounds = async (locator: Locator) => (await locator.boundingBox())!;
 const override = (page: P, vars: Record<string, string>) => rootTokens(page, vars);
 const shown = (page: P, id: string) => surface(page, id).evaluate((el) => el.matches(':popover-open'));
 const isOpen = (page: P, id: string) => tip(page, id).evaluate((el: any) => el.open as boolean);
-function warnings(page: P) {
-  const seen: string[] = [];
-  page.on('console', (message) => {
-    if (message.type() === 'warning') seen.push(message.text());
-  });
-  return seen;
-}
 const resolveShadow = (page: P, name: string) =>
   page.evaluate((n) => {
     const probe = document.createElement('div');

@@ -14,7 +14,7 @@ import { type Frames, expectAnimated, expectNoFlicker, freezeFirstFrame, sampleF
 import { EVERY_ANIMATION, expectFromNextFrame, motionEnded } from '../../../test/motions.js';
 import { entrances, loadOpen } from '../../../test/mounted-open.js';
 import { expectScrimTakenAwayAtClose } from '../../../test/scrim-at-close.js';
-import { type DocumentOptions, type Fixture, type FixtureItem, type MountOptions, dialogWindow, fixturesDocument, iconFaceArrives, innerStrokeAtEdges, loadSpec, mountFixtures, resolveColor, resolveToken, tab, tabTo, rootTokens, withoutIconFont } from '../../../test/harness.js';
+import { type DocumentOptions, type Fixture, type FixtureItem, type MountOptions, dialogWindow, fixturesDocument, iconFaceArrives, innerStrokeAtEdges, loadSpec, mountFixtures, resolveColor, resolveToken, tab, tabTo, rootTokens, withoutIconFont, isRobotoMonoGlyphWarning } from '../../../test/harness.js';
 import { expectBaseline } from '../../../test/baseline.js';
 import { expectGlyphsHeldBack } from '../../../test/held-glyphs.js';
 import { contrastChecked } from '../../../test/contrast-checked.js';
@@ -45,7 +45,7 @@ const resolveShadow = (page: P, name: string) =>
 function reports(page: P) {
   const seen: { type: string; text: string }[] = [];
   page.on('console', (message) => {
-    if (message.type() === 'warning' || message.type() === 'error') seen.push({ type: message.type(), text: message.text() });
+    if ((message.type() === 'warning' || message.type() === 'error') && !isRobotoMonoGlyphWarning(message)) seen.push({ type: message.type(), text: message.text() });
   });
   return seen;
 }

@@ -5,8 +5,7 @@
 // src/primitives/delegated-aria.test.ts.
 import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
-import {
-  type Fixture,
+import { type Fixture,
   type FixtureItem,
   acmeSystemCss,
   iconFaceArrives,
@@ -17,8 +16,7 @@ import {
   tab,
   tabTo,
   withoutIconFont,
-  rootTokens,
-} from '../../../test/harness.js';
+  rootTokens, warnings } from '../../../test/harness.js';
 import { opticalSize } from '../../../test/icons.js';
 import { motionCount, motionEnded } from '../../../test/motions.js';
 import { mirroring, mirroringAfterDirection } from '../../../test/mirror-word.js';
@@ -49,13 +47,6 @@ const token = (page: P, name: string) => page.evaluate((n) => getComputedStyle(d
 const T = (name: string) => `--tanrei-comp-search-${name}`;
 const S = (name: string) => T(`standard-${name}`);
 const override = (page: P, vars: Record<string, string>) => rootTokens(page, vars);
-function warnings(page: P) {
-  const seen: string[] = [];
-  page.on('console', (message) => {
-    if (message.type() === 'warning') seen.push(message.text());
-  });
-  return seen;
-}
 /** The box-shadow a list of layers resolves to, as the browser serializes it (a probe element). */
 const shadowOf = (page: P, value: string) =>
   page.evaluate((v) => {

@@ -11,7 +11,7 @@ import fs from 'node:fs';
 import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
 import { boxAtRest } from '../../../test/at-rest.js';
-import { loadSpec, missingWords, mountFixtures, resolveToken, setWords, tab } from '../../../test/harness.js';
+import { loadSpec, missingWords, mountFixtures, resolveToken, setWords, tab, warnings } from '../../../test/harness.js';
 import { expectBaseline } from '../../../test/baseline.js';
 
 const spec = loadSpec('chip-field');
@@ -35,13 +35,6 @@ interface Heard {
   data?: [string, string][];
 }
 
-function warnings(page: P) {
-  const seen: string[] = [];
-  page.on('console', (message) => {
-    if (message.type() === 'warning') seen.push(message.text());
-  });
-  return seen;
-}
 const settle = (page: P) =>
   page.evaluate(async () => {
     const all = (root: Document | ShadowRoot | Element): Element[] => [...root.querySelectorAll('*')].flatMap((el) => [el, ...(el.shadowRoot ? all(el.shadowRoot) : [])]);

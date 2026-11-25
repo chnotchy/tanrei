@@ -7,7 +7,7 @@
 // keyframes and timing, and seeks it (`seek`) to the moment it asks about, instead of waiting for it.
 import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
-import { type Fixture, loadSpec, mountFixtures, resolveToken, setWords, tabTo } from '../../../test/harness.js';
+import { type Fixture, loadSpec, mountFixtures, resolveToken, setWords, tabTo, warnings } from '../../../test/harness.js';
 import { motionEnded } from '../../../test/motions.js';
 import { holdClock } from '../../../test/page-clock.js';
 import { expectBaseline } from '../../../test/baseline.js';
@@ -20,14 +20,6 @@ const T = (name: string) => `--tanrei-comp-marquee-text-${name}`;
 const LONG = 'Track 7 — A very long title that does not fit in the row it stands in';
 const fixture = (id: string, props: Fixture['props'] = {}, text = LONG, rest: Partial<Fixture> = {}): Fixture => ({ id, props, slots: { default: text }, ...rest }) as Fixture;
 const only = (...ids: string[]) => spec.fixtures.filter((f) => ids.includes(f.id));
-
-function warnings(page: P) {
-  const seen: string[] = [];
-  page.on('console', (message) => {
-    if (message.type() === 'warning') seen.push(message.text());
-  });
-  return seen;
-}
 
 /** What the line shows now: the parts the tests read, from inside its shadow root. */
 const state = (locator: Locator) =>

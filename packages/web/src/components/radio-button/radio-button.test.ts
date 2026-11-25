@@ -5,7 +5,7 @@
 // src/primitives/delegated-aria.test.ts.
 import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
-import { type Fixture, acmeSystemCss, loadSpec, mountFixtures, resolveColor, resolveToken, tab, tabTo, rootTokens, typeRole } from '../../../test/harness.js';
+import { type Fixture, acmeSystemCss, loadSpec, mountFixtures, resolveColor, resolveToken, tab, tabTo, rootTokens, typeRole, warnings } from '../../../test/harness.js';
 import { pressHoldAsRun } from '../../../test/harsh.js';
 import { BEHIND, INSIDE, RATIOS, atRatio, depth, endMotion, holdMotionAt, offLine, paintedBehind, shoot, stageBehind, worst } from '../../../test/one-shape.js';
 import { transitionsRun, watchTransitions } from '../../../test/transitions.js';
@@ -104,11 +104,6 @@ const RGBA_SOURCE = `(color) => {
 }`;
 type Rgba = { r: number; g: number; b: number; a: number };
 const rgba = (page: P, color: string) => page.evaluate(([source, c]) => (0, eval)(source)(c) as Rgba, [RGBA_SOURCE, color] as const);
-function warnings(page: P) {
-  const seen: string[] = [];
-  page.on('console', (message) => { if (message.type() === 'warning') seen.push(message.text()); });
-  return seen;
-}
 /** Counts every option's click, input and change events on the page, and what each change carried and from whom. */
 const listenAll = (page: P) =>
   page.evaluate(() => {

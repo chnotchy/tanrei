@@ -9,7 +9,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
-import { type Fixture, acmeSystemCss, loadSpec, missingWords, mountFixtures, resolveColor, resolveToken, setWords, tab, tabTo } from '../../../test/harness.js';
+import { type Fixture, acmeSystemCss, loadSpec, missingWords, mountFixtures, resolveColor, resolveToken, setWords, tab, tabTo, warnings } from '../../../test/harness.js';
 import { expectBaseline } from '../../../test/baseline.js';
 
 const spec = loadSpec('embedded-text-input');
@@ -66,13 +66,6 @@ const read = async (page: P, id: string) => {
     return { value: (el as El).value, native: input.value, selection: [input.selectionStart, input.selectionEnd] as [number | null, number | null], focused: el.shadowRoot!.activeElement === input, rows: (el as El).rows };
   });
 };
-function warnings(page: P) {
-  const seen: string[] = [];
-  page.on('console', (message) => {
-    if (message.type() === 'warning') seen.push(message.text());
-  });
-  return seen;
-}
 /** What each part computes of a box: nothing, in any state (ETI-1, ETI-11). */
 const drawn = (page: P, id: string) =>
   host(page, id).evaluate((el) => {

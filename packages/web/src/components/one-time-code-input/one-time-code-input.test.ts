@@ -5,7 +5,7 @@
 // src/primitives/delegated-aria.test.ts.
 import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
-import { type Fixture, type FixtureItem, loadSpec, missingWords, mountFixtures, resolveColor, resolveToken, tab, tabTo, rootTokens, typeRole } from '../../../test/harness.js';
+import { type Fixture, type FixtureItem, loadSpec, missingWords, mountFixtures, resolveColor, resolveToken, tab, tabTo, rootTokens, typeRole, warnings } from '../../../test/harness.js';
 import { expectBaseline } from '../../../test/baseline.js';
 
 const spec = loadSpec('one-time-code-input');
@@ -107,13 +107,6 @@ const clip = async (page: P, id: string, type: 'copy' | 'cut') => {
   await settled(page, id);
   return result;
 };
-function warnings(page: P) {
-  const seen: string[] = [];
-  page.on('console', (message) => {
-    if (message.type() === 'warning') seen.push(message.text());
-  });
-  return seen;
-}
 /** The left edge, width and top of every cell, relative to `origin`. */
 const layout = async (page: P, id: string, origin: Locator = host(page, id)) => {
   const o = await box(origin);

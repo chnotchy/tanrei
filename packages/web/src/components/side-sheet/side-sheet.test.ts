@@ -5,8 +5,8 @@
 import AxeBuilder from '@axe-core/playwright';
 import { atRest } from '../../../test/at-rest.js';
 import { type Locator, type Page, expect, test } from '@playwright/test';
-import { bounds, css, override, warnings } from '../../../test/destinations.js';
-import { type Fixture, type FixtureItem, innerStrokeAtEdges, loadSpec, missingWords, mountFixtures, resolveColor, resolveToken, roleFont, setWords, tab, tabTo } from '../../../test/harness.js';
+import { bounds, css, override } from '../../../test/destinations.js';
+import { type Fixture, type FixtureItem, innerStrokeAtEdges, loadSpec, missingWords, mountFixtures, resolveColor, resolveToken, roleFont, setWords, tab, tabTo, warnings, isRobotoMonoGlyphWarning } from '../../../test/harness.js';
 import { expectWheelKeptFromPage } from '../../../test/contained-wheel.js';
 import { EVERY_ANIMATION, expectFromNextFrame, motionEnded } from '../../../test/motions.js';
 import { transitionsRun, watchTransitions } from '../../../test/transitions.js';
@@ -57,7 +57,7 @@ const paint = (locator: Locator) => locator.locator('button').evaluate((el) => g
 function reports(page: P) {
   const seen: { type: string; text: string }[] = [];
   page.on('console', (message) => {
-    if (message.type() === 'warning' || message.type() === 'error') seen.push({ type: message.type(), text: message.text() });
+    if ((message.type() === 'warning' || message.type() === 'error') && !isRobotoMonoGlyphWarning(message)) seen.push({ type: message.type(), text: message.text() });
   });
   return seen;
 }

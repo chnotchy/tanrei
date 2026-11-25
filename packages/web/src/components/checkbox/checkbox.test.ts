@@ -6,7 +6,7 @@
 import fs from 'node:fs';
 import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
-import { type Fixture, acmeSystemCss, loadSpec, mountFixtures, presetFontFaces, resolveColor, resolveToken, tab, tabTo, rootTokens, typeRole } from '../../../test/harness.js';
+import { type Fixture, acmeSystemCss, loadSpec, mountFixtures, presetFontFaces, resolveColor, resolveToken, tab, tabTo, rootTokens, typeRole, warnings } from '../../../test/harness.js';
 import { pressHoldAsRun } from '../../../test/harsh.js';
 import { RATIOS, atRatio, endMotion, holdMotionAt, paintedBehind, shoot, stageBehind, worst } from '../../../test/one-shape.js';
 import { decodePng } from '../../../test/png.js';
@@ -44,11 +44,6 @@ const listen = (locator: Locator) =>
   });
 const events = (page: P) => page.evaluate(() => (window as any).events as { click: number; input: number; change: number; carried: boolean[]; checkedAtInput: boolean[] });
 const checked = (locator: Locator) => locator.evaluate((el) => ({ checked: (el as any).checked as boolean, indeterminate: (el as any).indeterminate as boolean }));
-function warnings(page: P) {
-  const seen: string[] = [];
-  page.on('console', (message) => { if (message.type() === 'warning') seen.push(message.text()); });
-  return seen;
-}
 const fixture = (id: string, props: Fixture['props']): Fixture => ({ id, props });
 /**
  * From now on, records the duration (ms) of every transition of `property` that starts on the element, read from the

@@ -21,7 +21,7 @@ import { expectWheelKeptFromPage } from '../../../test/contained-wheel.js';
 import { holdClock, releaseClock } from '../../../test/page-clock.js';
 import { LANGUAGES, LANGUAGE_FOUND, LANGUAGE_LABELS, TYPEAHEAD_FOUND, TYPEAHEAD_LABELS, typeaheadAsFiltered, typeaheadByLanguage } from '../../../test/typeahead.js';
 import { expectPressShownAndHeld, watchPress } from '../../../test/watched-press.js';
-import { type Fixture, type FixtureItem, acmeSystemCss, loadSpec, missingWords, mountFixtures, resolveColor, resolveToken, setWords, tab, tabTo, withoutIconFont, iconFaceArrives, inputBoxCopies, inputBoxOwn, inputBoxSetApart, inputBoxToken, rootTokens, mountFixtureAsInAll } from '../../../test/harness.js';
+import { type Fixture, type FixtureItem, acmeSystemCss, loadSpec, missingWords, mountFixtures, resolveColor, resolveToken, setWords, tab, tabTo, withoutIconFont, iconFaceArrives, inputBoxCopies, inputBoxOwn, inputBoxSetApart, inputBoxToken, rootTokens, mountFixtureAsInAll, warnings } from '../../../test/harness.js';
 import { expectBaseline } from '../../../test/baseline.js';
 import { expectGoneWhileSkipped } from '../../../test/skipped-exit.js';
 import { expectBoxTakesContainerSize, expectOptionsTakeDrawnSize } from '../../../test/input-box-size.js';
@@ -70,13 +70,6 @@ const edgeMotion = (edge: Locator) =>
 const px = async (locator: Locator, property: string, pseudo?: string) => Number.parseFloat(await css(locator, property, pseudo));
 const near = (actual: number, expected: number, message = '', tolerance = 0.6) => expect(Math.abs(actual - expected), `${message}: ${actual} ≈ ${expected}`).toBeLessThanOrEqual(tolerance);
 const override = (page: P, vars: Record<string, string>) => rootTokens(page, vars);
-function warnings(page: P) {
-  const seen: string[] = [];
-  page.on('console', (message) => {
-    if (message.type() === 'warning') seen.push(message.text());
-  });
-  return seen;
-}
 const frames = (page: P, count = 3) =>
   page.evaluate(async (n) => {
     for (let i = 0; i < n; i++) await new Promise((resolve) => requestAnimationFrame(resolve));

@@ -7,7 +7,7 @@
 // src/primitives/delegated-aria.test.ts.
 import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
-import { type Fixture, innerStrokeAtEdges, loadSpec, missingWords, mountFixtures, popoverWindow, resolveColor, resolveToken, roleFont, rootTokens, setWords, tab, tabTo } from '../../../test/harness.js';
+import { type Fixture, innerStrokeAtEdges, loadSpec, missingWords, mountFixtures, popoverWindow, resolveColor, resolveToken, roleFont, rootTokens, setWords, tab, tabTo, warnings } from '../../../test/harness.js';
 import { appearProbe, bezierOf, expectAppearStart, expectExitEnd, expectSlideExitEnd, expectSlidOnly, expectTurnedAlone, resolveEasing, sheetProbe, slidOut, turnHeld } from '../../../test/appear.js';
 import { type Frames, expectAnimated, expectNoFlicker, freezeFirstFrame, sampleFrames } from '../../../test/frames.js';
 import { expectFromNextFrame, motionEnded } from '../../../test/motions.js';
@@ -67,13 +67,6 @@ const resolveShadow = (page: P, name: string) =>
     probe.remove();
     return value;
   }, name);
-function warnings(page: P) {
-  const seen: string[] = [];
-  page.on('console', (message) => {
-    if (message.type() === 'warning') seen.push(message.text());
-  });
-  return seen;
-}
 
 /**
  * A page of the test's own markup, wired as a product wires a popover: `toggle` sets `open` to the value it asks for,

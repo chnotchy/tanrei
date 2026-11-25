@@ -8,7 +8,7 @@
 import fs from 'node:fs';
 import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
-import { type Fixture, acmeSystemCss, loadSpec, missingWords, mountFixtures, requirementDrawn, resolveColor, resolveToken, setWords, tab, tabTo, inputBoxCopies, inputBoxSetApart, inputBoxToken, rootTokens, mountFixtureAsInAll } from '../../../test/harness.js';
+import { type Fixture, acmeSystemCss, loadSpec, missingWords, mountFixtures, requirementDrawn, resolveColor, resolveToken, setWords, tab, tabTo, inputBoxCopies, inputBoxSetApart, inputBoxToken, rootTokens, mountFixtureAsInAll, warnings } from '../../../test/harness.js';
 import { appearingFixture } from '../../../test/first-frame.js';
 import { expectFirstFrameAtRest } from '../../../test/frames.js';
 import { opticalSize } from '../../../test/icons.js';
@@ -43,11 +43,6 @@ const T = inputBoxToken('text-input');
 const GLYPH_UNIT = 1 / 64;
 const bounds = async (locator: Locator) => (await locator.boundingBox())!;
 const override = (page: P, vars: Record<string, string>) => rootTokens(page, vars);
-function warnings(page: P) {
-  const seen: string[] = [];
-  page.on('console', (message) => { if (message.type() === 'warning') seen.push(message.text()); });
-  return seen;
-}
 /**
  * A text input inside a Field, as a stage of its own added to the mounted page: what a sentence says of "the Field
  * that frames it". The Field is as wide as the fixtures are drawn; `field` and `props` are set as properties.

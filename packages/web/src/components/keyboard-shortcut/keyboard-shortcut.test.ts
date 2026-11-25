@@ -4,7 +4,7 @@
 // product's label, or the notation of aria-keyshortcuts — the shortcut has no names for keys (KBS-11).
 import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
-import { type Fixture, loadSpec, mountFixtures, resolveColor, resolveToken, setWords, tab, rootTokens } from '../../../test/harness.js';
+import { type Fixture, loadSpec, mountFixtures, resolveColor, resolveToken, setWords, tab, rootTokens, warnings } from '../../../test/harness.js';
 import { type Rgb, offLine, shoot } from '../../../test/one-shape.js';
 import { paintedColor } from '../../../test/png.js';
 import { motionCount } from '../../../test/motions.js';
@@ -24,13 +24,6 @@ const T = (name: string) => `--tanrei-comp-keyboard-shortcut-${name}`;
 const box = async (locator: Locator) => (await locator.boundingBox())!;
 const css = (locator: Locator, property: string) => locator.evaluate((el, p) => getComputedStyle(el).getPropertyValue(p), property);
 const override = (page: P, vars: Record<string, string>) => rootTokens(page, vars);
-function warnings(page: P) {
-  const seen: string[] = [];
-  page.on('console', (message) => {
-    if (message.type() === 'warning') seen.push(message.text());
-  });
-  return seen;
-}
 const fx = (id: string, props: Fixture['props']): Fixture => ({ id, props });
 /** What is drawn: every legend and separator in order, as one string (⇧⌘K, Ctrl+Shift+K), the chords a space apart. */
 const written = (page: P, id: string) =>

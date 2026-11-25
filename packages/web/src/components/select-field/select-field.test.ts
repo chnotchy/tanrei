@@ -9,7 +9,7 @@
 import fs from 'node:fs';
 import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
-import { type FixtureItem, loadSpec, missingWords, mountFixtures, resolveColor, resolveToken, setWords, tab, inputBoxSetApart } from '../../../test/harness.js';
+import { type FixtureItem, loadSpec, missingWords, mountFixtures, resolveColor, resolveToken, setWords, tab, inputBoxSetApart, warnings } from '../../../test/harness.js';
 import { expectBaseline } from '../../../test/baseline.js';
 
 const spec = loadSpec('select-field');
@@ -27,13 +27,6 @@ const bounds = async (locator: Locator) => (await locator.boundingBox())!;
 const css = (locator: Locator, property: string) => locator.evaluate((el, p) => getComputedStyle(el).getPropertyValue(p), property);
 const near = (actual: number, expected: number, message = '', tolerance = 0.6) => expect(Math.abs(actual - expected), `${message}: ${actual} ≈ ${expected}`).toBeLessThanOrEqual(tolerance);
 const read = (file: string) => fs.readFileSync(new URL(`../../../dist/${file}`, import.meta.url), 'utf8');
-function warnings(page: P) {
-  const seen: string[] = [];
-  page.on('console', (message) => {
-    if (message.type() === 'warning') seen.push(message.text());
-  });
-  return seen;
-}
 const OPTIONS = '<tanrei-option value="ca">Canada</tanrei-option><tanrei-option value="fr">France</tanrei-option><tanrei-option value="jp">Japan</tanrei-option>';
 /** A page of the product's own markup, with the default system (or a preset) and every element; every element has updated. */
 async function mountHtml(page: P, body: string, system?: string) {

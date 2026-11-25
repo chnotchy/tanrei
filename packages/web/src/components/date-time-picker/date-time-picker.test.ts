@@ -6,7 +6,7 @@
 // src/primitives/delegated-aria.test.ts.
 import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
-import { type Fixture, acmeSystemCss, loadSpec, missingWords, mountFixtures, pickerWindow, resolveColor, resolveToken, setWords, tab, tabTo, rootTokens, typeRole } from '../../../test/harness.js';
+import { type Fixture, acmeSystemCss, loadSpec, missingWords, mountFixtures, pickerWindow, resolveColor, resolveToken, setWords, tab, tabTo, rootTokens, typeRole, warnings } from '../../../test/harness.js';
 import { appearProbe, bezierOf, expectAppearStart, expectExitEnd, resolveEasing } from '../../../test/appear.js';
 import { type Frames, expectNoFlicker, sampleFrames } from '../../../test/frames.js';
 import { expectWheelKeptFromPage } from '../../../test/contained-wheel.js';
@@ -64,13 +64,6 @@ const resolveShadow = (page: P, name: string) =>
     probe.remove();
     return value;
   }, name);
-function warnings(page: P) {
-  const seen: string[] = [];
-  page.on('console', (message) => {
-    if (message.type() === 'warning') seen.push(message.text());
-  });
-  return seen;
-}
 /** The deepest focused element: a day's date, `year:<y>`, a wheel or selector (`wheel:hour`), a Button's or tab's id or class, or an id. */
 const focused = (page: P) =>
   page.evaluate(() => {

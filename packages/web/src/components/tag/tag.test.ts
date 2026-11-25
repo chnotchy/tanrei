@@ -2,7 +2,7 @@
 // a baseline, and every length and color is read back from the tokens — never from a number written here.
 import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
-import { type Fixture, loadSpec, mountFixtures, resolveColor, resolveToken, tab, rootTokens } from '../../../test/harness.js';
+import { type Fixture, loadSpec, mountFixtures, resolveColor, resolveToken, tab, rootTokens, warnings } from '../../../test/harness.js';
 import { expectBaseline } from '../../../test/baseline.js';
 import { type HeldGlyph, expectGlyphsHeldBack } from '../../../test/held-glyphs.js';
 
@@ -25,13 +25,6 @@ const T = (name: string) => `--tanrei-comp-tag-${name}`;
 const box = async (locator: Locator) => (await locator.boundingBox())!;
 const css = (locator: Locator, property: string) => locator.evaluate((el, p) => getComputedStyle(el).getPropertyValue(p), property);
 const override = (page: P, vars: Record<string, string>) => rootTokens(page, vars);
-function warnings(page: P) {
-  const seen: string[] = [];
-  page.on('console', (message) => {
-    if (message.type() === 'warning') seen.push(message.text());
-  });
-  return seen;
-}
 const fx = (id: string, props: Fixture['props'], extra: Partial<Fixture> = {}): Fixture => ({ id, props, ...extra });
 const glyph = (name: string, attributes = '') => `<span slot="icon"${attributes ? ` ${attributes}` : ''}>${name}</span>`;
 /** What a fixture's tag paints: its fill, its label color, and its mark's color (the glyph's, or the dot's fill). */

@@ -5,7 +5,7 @@
 // src/primitives/delegated-aria.test.ts.
 import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
-import { type Fixture, acmeSystemCss, loadSpec, mountFixtures, resolveColor, resolveToken, tab, tabTo, rootTokens } from '../../../test/harness.js';
+import { type Fixture, acmeSystemCss, loadSpec, mountFixtures, resolveColor, resolveToken, tab, tabTo, rootTokens, warnings } from '../../../test/harness.js';
 import { pressHoldAsRun } from '../../../test/harsh.js';
 import { transitionsRun, watchTransitions } from '../../../test/transitions.js';
 import { decodePng } from '../../../test/png.js';
@@ -77,12 +77,6 @@ const listen = (locator: Locator) =>
     el.addEventListener('click', () => log.click++);
   });
 const events = (page: P) => page.evaluate(() => (window as any).events as { click: number });
-/** Captures what the page reports in debug builds (console warnings). Call before mounting. */
-function warnings(page: P) {
-  const seen: string[] = [];
-  page.on('console', (message) => { if (message.type() === 'warning') seen.push(message.text()); });
-  return seen;
-}
 /** A fixture; `icon: null` is one without an icon. */
 const fixture = (id: string, props: Fixture['props'], icon: string | null = 'edit'): Fixture => ({ id, props, ...(icon === null ? {} : { slots: { icon } }) });
 /** What the container draws: its color, the label color, the elevation and the opacity. */

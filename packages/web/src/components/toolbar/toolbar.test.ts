@@ -8,7 +8,7 @@ import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
 import { expectWheelKeptFromPage } from '../../../test/contained-wheel.js';
 import { motionEnded } from '../../../test/motions.js';
-import { type Fixture, type FixtureItem, loadSpec, missingWords, mountFixtures, resolveColor, resolveToken, rootTokens, setWords, tab, tabTo } from '../../../test/harness.js';
+import { type Fixture, type FixtureItem, loadSpec, missingWords, mountFixtures, resolveColor, resolveToken, rootTokens, setWords, tab, tabTo, warnings } from '../../../test/harness.js';
 import { resolveEasing } from '../../../test/appear.js';
 import { type Probe, expectAnimated, expectFirstFrameAtRest, freezeFirstFrame, sampleFrames } from '../../../test/frames.js';
 import { expectBaseline } from '../../../test/baseline.js';
@@ -25,13 +25,6 @@ const css = (locator: Locator, property: string, pseudo?: string) =>
 const px = async (locator: Locator, property: string, pseudo?: string) => Number.parseFloat(await css(locator, property, pseudo));
 const bounds = async (locator: Locator) => (await locator.boundingBox())!;
 const T = (name: string) => `--tanrei-comp-toolbar-${name}`;
-function warnings(page: P) {
-  const seen: string[] = [];
-  page.on('console', (message) => {
-    if (message.type() === 'warning') seen.push(message.text());
-  });
-  return seen;
-}
 /** The box-shadow a list of layers resolves to, as the browser serializes it (a probe element). */
 const shadowOf = (page: P, value: string) =>
   page.evaluate((v) => {

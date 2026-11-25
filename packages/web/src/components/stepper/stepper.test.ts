@@ -5,8 +5,7 @@
 // src/primitives/delegated-aria.test.ts.
 import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
-import {
-  type Fixture,
+import { type Fixture,
   type FixtureItem,
   acmeSystemCss,
   iconFaceArrives,
@@ -20,8 +19,7 @@ import {
   setWords,
   tab,
   tabTo,
-  withoutIconFont,
-} from '../../../test/harness.js';
+  withoutIconFont, warnings } from '../../../test/harness.js';
 import { pressHoldAsRun } from '../../../test/harsh.js';
 import { holdClock, releaseClock } from '../../../test/page-clock.js';
 import { clickCentre, heldPress } from '../../../test/watched-press.js';
@@ -43,13 +41,6 @@ const token = (page: P, name: string) => page.evaluate((n) => getComputedStyle(d
 const T = (name: string) => `--tanrei-comp-stepper-${name}`;
 const bounds = async (locator: Locator) => (await locator.boundingBox())!;
 const fx = (id: string) => spec.fixtures.find((f) => f.id === id)!;
-function warnings(page: P) {
-  const seen: string[] = [];
-  page.on('console', (message) => {
-    if (message.type() === 'warning') seen.push(message.text());
-  });
-  return seen;
-}
 const WORDS = { completedText: 'Completed', errorText: 'Has an error' };
 const s = (value: string, label: string, props: FixtureItem['props'] = {}): FixtureItem => ({ kind: 'step', props: { value, label, ...props } });
 const ABCD = [s('a', 'Account'), s('b', 'Shipping'), s('c', 'Payment'), s('d', 'Review')];

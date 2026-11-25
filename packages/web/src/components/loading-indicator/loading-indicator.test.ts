@@ -6,7 +6,7 @@
 // src/primitives/delegated-aria.test.ts.
 import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
-import { type Fixture, loadSpec, mountFixtures, resolveColor, resolveToken, tab, rootTokens } from '../../../test/harness.js';
+import { type Fixture, loadSpec, mountFixtures, resolveColor, resolveToken, tab, rootTokens, warnings } from '../../../test/harness.js';
 import { decodePng, paintedColor } from '../../../test/png.js';
 import { motionCount } from '../../../test/motions.js';
 import { transitionsRun, watchTransitions } from '../../../test/transitions.js';
@@ -43,11 +43,6 @@ const shadow = (page: P, name: string) =>
     probe.remove();
     return value;
   }, name);
-function warnings(page: P) {
-  const seen: string[] = [];
-  page.on('console', (message) => { if (message.type() === 'warning') seen.push(message.text()); });
-  return seen;
-}
 const fixture = (id: string, props: Fixture['props']): Fixture => ({ id, props: { label: 'Loading', ...props } });
 const animations = (locator: Locator) =>
   locator.evaluate((el) =>

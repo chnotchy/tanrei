@@ -7,7 +7,7 @@
 // src/primitives/delegated-aria.test.ts.
 import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
-import { type Fixture, acmeSystemCss, iconFaceArrives, loadSpec, missingWords, mountFixtures, resolveToken, setWords, tab, tabTo, withoutIconFont, rootTokens } from '../../../test/harness.js';
+import { type Fixture, acmeSystemCss, iconFaceArrives, loadSpec, missingWords, mountFixtures, resolveToken, setWords, tab, tabTo, withoutIconFont, rootTokens, isRobotoMonoGlyphWarning } from '../../../test/harness.js';
 import { EVERY_ANIMATION, motionCount } from '../../../test/motions.js';
 import { expectBaseline } from '../../../test/baseline.js';
 
@@ -33,7 +33,7 @@ const override = (page: P, vars: Record<string, string>) => rootTokens(page, var
 function logged(page: P, type: 'warning' | 'error' = 'warning') {
   const seen: string[] = [];
   page.on('console', (message) => {
-    if (message.type() === type) seen.push(message.text());
+    if (message.type() === type && !isRobotoMonoGlyphWarning(message)) seen.push(message.text());
   });
   return seen;
 }

@@ -7,7 +7,7 @@
 // src/primitives/delegated-aria.test.ts.
 import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
-import { type Fixture, type FixtureItem, acmeSystemCss, iconFaceArrives, includingSystem, loadSpec, mountFixtures, resolveColor, resolveToken, tab, tabTo, withoutIconFont, rootTokens } from '../../../test/harness.js';
+import { type Fixture, type FixtureItem, acmeSystemCss, iconFaceArrives, includingSystem, loadSpec, mountFixtures, resolveColor, resolveToken, tab, tabTo, withoutIconFont, rootTokens, warnings } from '../../../test/harness.js';
 import { pressHoldAsRun } from '../../../test/harsh.js';
 import { transitionsRun, watchTransitions } from '../../../test/transitions.js';
 import { expectFromNextFrame, motionCount, motionEnded } from '../../../test/motions.js';
@@ -166,14 +166,6 @@ const surround = (page: P) =>
     main.prepend(make('before'));
     main.append(make('after'));
   });
-/** Captures what the page reports in debug builds (console warnings). Call before mounting. */
-function warnings(page: P) {
-  const seen: string[] = [];
-  page.on('console', (message) => {
-    if (message.type() === 'warning') seen.push(message.text());
-  });
-  return seen;
-}
 
 test.describe('behavior', () => {
   // Building the acme fixture system, and the products that include the FAB menu, takes longer than a test's budget on a

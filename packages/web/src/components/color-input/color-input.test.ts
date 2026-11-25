@@ -11,7 +11,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
-import { type Fixture, acmeSystemCss, loadSpec, missingWords, mountFixtures, resolveColor, resolveToken, setWords, tab, tabTo, inputBoxCopies, inputBoxSetApart, inputBoxToken, rootTokens } from '../../../test/harness.js';
+import { type Fixture, acmeSystemCss, loadSpec, missingWords, mountFixtures, resolveColor, resolveToken, setWords, tab, tabTo, inputBoxCopies, inputBoxSetApart, inputBoxToken, rootTokens, warnings } from '../../../test/harness.js';
 import { PICKER_START, channels, fromChannels, given, isValue, picked, read as readText, readCommitted, sameColor, valueOf } from './color-text.js';
 import { expectBaseline } from '../../../test/baseline.js';
 import { expectBoxTakesContainerSize } from '../../../test/input-box-size.js';
@@ -54,13 +54,6 @@ const edgeMotion = (edge: Locator) =>
 const px = async (locator: Locator, property: string, pseudo?: string) => Number.parseFloat(await css(locator, property, pseudo));
 const near = (actual: number, expected: number, message = '', tolerance = 0.6) => expect(Math.abs(actual - expected), `${message}: ${actual} ≈ ${expected}`).toBeLessThanOrEqual(tolerance);
 const override = (page: P, vars: Record<string, string>) => rootTokens(page, vars);
-function warnings(page: P) {
-  const seen: string[] = [];
-  page.on('console', (message) => {
-    if (message.type() === 'warning') seen.push(message.text());
-  });
-  return seen;
-}
 const frames = (page: P, count = 3) =>
   page.evaluate(async (n) => {
     for (let i = 0; i < n; i++) await new Promise((resolve) => requestAnimationFrame(resolve));

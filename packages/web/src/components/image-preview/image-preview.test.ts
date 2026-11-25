@@ -9,8 +9,8 @@
 // src/primitives/delegated-aria.test.ts.
 import AxeBuilder from '@axe-core/playwright';
 import { type Page, expect, test } from '@playwright/test';
-import { override, warnings } from '../../../test/destinations.js';
-import { type Fixture, type FixtureItem, innerStrokeAtEdges, loadSpec, missingWords, mountFixtures, resolveColor, resolveToken, tab, tabTo } from '../../../test/harness.js';
+import { override } from '../../../test/destinations.js';
+import { type Fixture, type FixtureItem, innerStrokeAtEdges, loadSpec, missingWords, mountFixtures, resolveColor, resolveToken, tab, tabTo, warnings } from '../../../test/harness.js';
 import { resolveEasing } from '../../../test/appear.js';
 import { expectAnimated, sampleFrames } from '../../../test/frames.js';
 import { fixturePicture } from '../../../test/pictures.js';
