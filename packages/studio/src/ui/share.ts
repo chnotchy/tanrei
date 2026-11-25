@@ -6,7 +6,7 @@
 // that was. Turned off, the documentation keeps no layer and shows its own look again.
 import { packLayer, withLayer } from '../address.js';
 import { stringifyLayer } from '../core.js';
-import { type Ctx, type Json, type Layer, button, h } from './dom';
+import { type Ctx, type Json, type Layer, barWord, button, h, tip } from './dom';
 
 /** The documentation that hosts the Studio, as the Studio sees it: the layer it keeps for its "My theme", if any. */
 export interface DocsTheme {
@@ -43,7 +43,8 @@ export function createShareMenu(ctx: Ctx, { linked, docs, glyph }: { linked: boo
   const words = t.sharing;
   const system = (studio.systems as Json[]).find((each) => each.id === studio.defaultId)?.name ?? studio.defaultId;
   const id = ctx.uid('ts-share');
-  const opener = h('tanrei-button', { id, variant: 'outlined', size: 'small', 'data-share-open': true }, glyph(SHARE_GLYPH), words.open);
+  const word = barWord(words.open);
+  const opener = h('tanrei-button', { id, variant: 'outlined', size: 'small', label: words.open, 'data-share-open': true }, glyph(SHARE_GLYPH), word);
 
   // The link: what Export's last tab offers too, one press away.
   const linkState = h('span', { class: 'ts-help', role: 'status', 'data-share-link-state': true });
@@ -121,7 +122,10 @@ export function createShareMenu(ctx: Ctx, { linked, docs, glyph }: { linked: boo
   refresh();
 
   return {
-    el: [opener, popover],
+    // (On a phone the button shows its glyph alone: the tooltip shows its name.)
+    el: [tip(opener, words.open, true), popover],
+    opener,
+    word,
     /**
      * The layer this browser keeps (`keeping()`) changed, or may have: while the documentation keeps one of the
      * Studio's, it is given this one once the edits rest — or, while the Studio does not accept it as a file, nothing,

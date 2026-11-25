@@ -42,9 +42,11 @@ function basePanel(ctx: Ctx) {
 /**
  * One number of the layer, a field and a slider, with its reset and — once it is changed — its reason: a dial, or the
  * minimum target (which no dial scales). `current` is what the layer says now; `onvalue` hears every value shown,
- * while it is typed, stepped or dragged too; `after` stands under the slider.
+ * while it is typed, stepped or dragged too; `after` stands under the slider. `named`: the row says the token's id
+ * under its name (Dials, where the person works with the system's own numbers); a row of the rail's panels says only
+ * what the number does — the ids are Inspect's and Export's.
  */
-function numberRow(ctx: Ctx, { id, name, note, current, set, setReason, onvalue, after }: { id: string; name: string; note: string; current: () => Json; set: (value: number) => Json; setReason: (reason: string) => Json; onvalue?: (value: number) => void; after?: HTMLElement }) {
+function numberRow(ctx: Ctx, { id, name, note, current, set, setReason, onvalue, after, named = true }: { id: string; name: string; note: string; current: () => Json; set: (value: number) => Json; setReason: (reason: string) => Json; onvalue?: (value: number) => void; after?: HTMLElement; named?: boolean }) {
   const { t } = ctx;
   const start = current();
   // Shown while it is typed, stepped or dragged; written when that ends (the field's and the slider's `change`).
@@ -55,7 +57,7 @@ function numberRow(ctx: Ctx, { id, name, note, current, set, setReason, onvalue,
   const row = h(
     'div',
     { class: 'ts-row', 'data-dial': id },
-    h('div', { class: 'ts-row-head' }, h('div', { class: 'ts-row-title' }, name, h('small', {}, rich((at) => (note ? t.listed(at(h('code', { text: short(id, ctx.studio.namespace) })), note) : at(h('code', { text: short(id, ctx.studio.namespace) })))))), pair.number, reset),
+    h('div', { class: 'ts-row-head' }, h('div', { class: 'ts-row-title' }, name, named ? h('small', {}, rich((at) => (note ? t.listed(at(h('code', { text: short(id, ctx.studio.namespace) })), note) : at(h('code', { text: short(id, ctx.studio.namespace) }))))) : note ? h('small', { text: note }) : null), pair.number, reset),
     pair.slider,
     after ?? null,
   );
@@ -75,19 +77,21 @@ function numberRow(ctx: Ctx, { id, name, note, current, set, setReason, onvalue,
   return row;
 }
 /** A dial's row (`numberRow`). */
-function dialRow(ctx: Ctx, dial: Json, { name, note, onvalue, after }: { name: string; note: string; onvalue?: (value: number) => void; after?: HTMLElement }) {
+function dialRow(ctx: Ctx, dial: Json, { name, note, onvalue, after, named }: { name: string; note: string; onvalue?: (value: number) => void; after?: HTMLElement; named?: boolean }) {
   const { studio } = ctx;
   const current = () => studio.dials(ctx.layer()).find((d: Json) => d.id === dial.id)!;
-  return numberRow(ctx, { id: dial.id, name, note, current, onvalue, after, set: (value) => studio.setDial(ctx.layer(), dial.id, value), setReason: (reason) => studio.setDial(ctx.layer(), dial.id, current().value, reason) });
+  return numberRow(ctx, { id: dial.id, name, note, current, onvalue, after, named, set: (value) => studio.setDial(ctx.layer(), dial.id, value), setReason: (reason) => studio.setDial(ctx.layer(), dial.id, current().value, reason) });
 }
 
 /** Dials, each a number and a slider: all eight, or the few a row of the rail edits (`keys`). */
 function dialsPanel(ctx: Ctx, { keys, title, help, key = 'dials', rowExtras }: { keys?: string[]; title?: string; help?: string; key?: string; rowExtras?: Record<string, { onvalue?: (value: number) => void; after?: HTMLElement }> } = {}, ...after: HTMLElement[]) {
+  // A row of the rail (`keys`) says what its numbers do; Dials, the system's numbers, says their ids too.
+  const named = !keys;
   const { t, studio } = ctx;
   const shown = (dials: Json[]) => (keys ? keys.map((each) => dials.find((dial) => dial.key === each)!).filter(Boolean) : dials);
   const rows = shown(studio.dials(ctx.layer())).map((dial: Json) => {
     const [name, note] = t.dials.names[dial.key] ?? [dial.key, ''];
-    return dialRow(ctx, dial, { name, note, ...rowExtras?.[dial.key] });
+    return dialRow(ctx, dial, { name, note, named, ...rowExtras?.[dial.key] });
   });
   const resetAll = linkButton(t.resetAll, () => ctx.commit(shown(studio.dials(ctx.layer())).reduce((layer: Json, dial: Json) => studio.setDial(layer, dial.id, dial.base), ctx.layer())), { 'data-reset-dials': key });
   return panel(ctx, { title: title ?? t.dials.title, help: help ?? t.dials.help, key, actions: [resetAll] }, h('div', { class: 'ts-rows', 'data-dials': key }, rows), ...after);
@@ -516,7 +520,7 @@ function sizePanel(ctx: Ctx) {
   const minimum = studio.targetMinimum(ctx.layer()) as Json | null;
   const minimumRow = minimum
     ? numberRow(ctx, {
-      id: minimum.id, name: t.rail.minimum, note: t.rail.target,
+      id: minimum.id, name: t.rail.minimum, note: t.rail.target, named: false,
       current: () => studio.targetMinimum(ctx.layer()) as Json,
       set: (value) => studio.setTargetMinimum(ctx.layer(), value),
       setReason: (reason) => studio.setTargetMinimum(ctx.layer(), (studio.targetMinimum(ctx.layer()) as Json).value, reason),
@@ -529,8 +533,8 @@ function sizePanel(ctx: Ctx) {
   const rows = ['control.height', 'size.unit'].map((key) => dials.find((dial) => dial.key === key)).filter((dial): dial is Json => Boolean(dial)).map((dial) => {
     const [name, note] = t.dials.names[dial.key] ?? [dial.key, ''];
     return dial.key === 'control.height'
-      ? dialRow(ctx, dial, { name, note, onvalue: (value) => ((shown.height = value), drawHeights()), after: h('div', { class: 'ts-size-after' }, heights, sample) })
-      : dialRow(ctx, dial, { name, note, onvalue: (value) => ((shown.unit = value), drawHeights()) });
+      ? dialRow(ctx, dial, { name, note, named: false, onvalue: (value) => ((shown.height = value), drawHeights()), after: h('div', { class: 'ts-size-after' }, heights, sample) })
+      : dialRow(ctx, dial, { name, note, named: false, onvalue: (value) => ((shown.unit = value), drawHeights()) });
   });
   // What the layer says once a value is committed (and every other change: an undo, another base).
   ctx.onUpdate(() => {

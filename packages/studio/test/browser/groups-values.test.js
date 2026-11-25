@@ -18,6 +18,8 @@ studioTest('the brand color and the size reach the file and the preview; another
   await section('size');
   assert.deepEqual(await page.locator('[data-controls] [data-panel]').evaluateAll((els) => els.map((el) => el.dataset.panel)), ['size']);
   assert.deepEqual(await page.locator('[data-panel="size"] [data-dial]').evaluateAll((els) => els.map((el) => el.dataset.dial)), ['tanrei.dial.control.height', 'tanrei.dial.size.unit', 'tanrei.sys.target.minimum']);
+  // Each number is named by what it does: the token ids are Inspect's and Export's, not the row's panel's.
+  assert.deepEqual(await page.locator('[data-panel="size"] .ts-row-title').evaluateAll((els) => els.filter((el) => el.querySelector('code') || /dial\.|sys\./.test(el.textContent)).map((el) => el.textContent)), []);
   const height = page.locator('[data-dial="tanrei.dial.control.height"]');
   const heightBefore = (await css(scope, '--tanrei-dial-control-height')).trim();
   // Under it, a Button, a field, a menu row and a tab of the preview's system.

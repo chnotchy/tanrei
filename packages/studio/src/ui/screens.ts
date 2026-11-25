@@ -99,31 +99,45 @@ type Kit = ReturnType<typeof kit>;
 const section = (k: Kit, title: string, ...children: (Node | null)[]) => h('section', { class: 'ts-s-panel' }, k.text('label', 'h3', title, { class: 'ts-s-eyebrow' }), ...children);
 const row = (attrs: Json, ...children: (Node | Node[] | null)[]) => h('div', { class: 'ts-s-row', ...attrs }, ...children);
 
-// ── overview: every kind of component once, then what the system itself is made of ──────────────────
+// ── overview: each kind of component as a product uses it, then what the system itself is made of ──────────
+/**
+ * The words a product gives a Button of each of these variants, side by side in a form's actions: the main action, a
+ * second one, a way out, a link to more. A variant with no word here is drawn, by its name, when the layer or the
+ * system it starts from adds it.
+ */
+const ACTION_OF: Record<string, 'save' | 'draft' | 'cancel' | 'details'> = { filled: 'save', tonal: 'draft', outlined: 'cancel', text: 'details' };
+/** The tabs a product draws to choose a period: the secondary ones, where the system has them. */
+const PERIOD_TABS = 'secondary';
+
 function overview(drawing: Drawing) {
   const k = kit(drawing);
   const { s, el, view, studio, slotIcon } = k;
   const o = s.overview;
   const variants = (component: string) => variantsOf(view, component, studio.tagPrefix);
+  /** The variants the layer, or the system it starts from, adds to a component: drawn next to the product's own. */
+  const added = (component: string) => {
+    const extensions: string[] = (view.model.components?.[component]?.axes?.variant?.extensions ?? []).map((entry: Json) => entry.value);
+    return variants(component).filter((variant) => extensions.includes(variant));
+  };
+  const words = { save: s.common.save, draft: o.draft, cancel: s.common.cancel, details: o.details };
+  // A form's actions: Save, Save draft, Cancel, Details — and a variant the layer adds, by its name.
+  const actions = variants('button').filter((variant) => ACTION_OF[variant] || added('button').includes(variant));
   const buttons = section(
     k,
     o.buttons,
-    row({ 'data-sample': 'variants' }, variants('button').map((variant) => el('button', { variant }, cap(variant)))),
-    row({ 'data-sample': 'sizes' }, sizesOf(view, 'button').map((size) => el('button', { size }, cap(size))), el('button', { disabled: true }, k.t.sample.disabled)),
+    row({ 'data-sample': 'variants' }, actions.map((variant) => el('button', { variant }, ACTION_OF[variant] ? words[ACTION_OF[variant]] : cap(variant)))),
     row(
       { 'data-sample': 'icons' },
-      el('button', {}, slotIcon('add'), o.add),
-      el('button', { variant: 'tonal', size: 'small' }, slotIcon('edit'), k.s.common.edit),
-      toggle(k, false),
-      toggle(k, true),
-      el('button', { variant: 'tonal', label: o.favorite }, slotIcon('favorite')),
+      el('button', { size: 'small' }, slotIcon('add'), o.add),
+      el('button', { variant: 'tonal', label: s.common.edit }, slotIcon('edit')),
+      toggle(k),
       el('button', { variant: 'filled', destructive: true, size: 'small' }, o.delete),
     ),
   );
   const inputs = section(
     k,
     o.inputs,
-    el('text-field', { label: o.email, type: 'email', placeholder: s.person.email, 'supporting-text': o.emailHint }),
+    el('text-field', { label: o.email, type: 'email', placeholder: o.emailExample, 'supporting-text': o.emailHint }),
     el('select-field', { label: o.plan, value: 'pro' }, ...(['free', 'pro', 'team'] as const).map((plan) => el('option', { value: plan, label: o.plans[plan] }))),
   );
   const selection = section(
@@ -134,47 +148,46 @@ function overview(drawing: Drawing) {
     el('radio-group', { label: o.view, value: 'list', orientation: 'horizontal' }, el('radio-button', { value: 'list', label: o.list }), el('radio-button', { value: 'grid', label: o.grid })),
     el('slider', { label: o.volume, value: 60 }),
   );
-  const tabs = (variant: string) => el('tabs', { variant, value: 'week', label: o.period, 'data-sample': `tabs-${variant}` }, el('tab', { value: 'day', label: o.day }), el('tab', { value: 'week', label: o.week }), el('tab', { value: 'month', label: o.month }));
-  const tagWords = [o.published, o.review, o.drafted];
+  // One row of tabs, as a product chooses a period with them; a variant the layer adds, under it.
+  const tabs = (variant?: string) => el('tabs', { variant, value: 'week', label: o.period, 'data-sample': `tabs-${variant ?? 'default'}` }, el('tab', { value: 'day', label: o.day }), el('tab', { value: 'week', label: o.week }), el('tab', { value: 'month', label: o.month }));
   const choosing = section(
     k,
     o.choosing,
-    ...variants('tabs').map(tabs),
+    tabs(variants('tabs').includes(PERIOD_TABS) ? PERIOD_TABS : undefined),
+    ...added('tabs').map(tabs),
     row(
-      { 'data-sample': 'chip-variants' },
-      variants('chip').map((variant, i) => el('chip', { kind: 'filter', variant, label: [o.unread, o.important][i % 2], selected: i === 0 })),
+      { 'data-sample': 'chips' },
+      el('chip', { kind: 'filter', label: o.unread, selected: true }),
+      el('chip', { kind: 'filter', label: o.important }),
+      added('chip').map((variant) => el('chip', { kind: 'filter', variant, label: cap(variant) })),
       el('chip', { kind: 'input', label: o.design, 'remove-label': s.common.remove.replace('{name}', o.design) }),
     ),
-    row({ 'data-sample': 'tag-variants' }, variants('tag').map((variant, i) => el('tag', { variant, label: tagWords[i % tagWords.length], status: ['success', 'warning', undefined][i % 3] }))),
+    row({ 'data-sample': 'tags' }, el('tag', { label: o.published, status: 'success' }), el('tag', { label: o.review, status: 'warning' }), el('tag', { label: o.drafted }), added('tag').map((variant) => el('tag', { variant, label: cap(variant) }))),
   );
+  const notice = (variant?: string) => el('callout', { variant, status: 'info', headline: o.updateTitle, 'data-sample': `callout-${variant ?? 'default'}` }, o.updateBody);
   const feedback = section(
     k,
     o.feedback,
-    ...variants('callout').map((variant) => el('callout', { variant, status: 'info', headline: o.updateTitle, 'data-sample': `callout-${variant}` }, o.updateBody)),
+    notice(),
+    ...added('callout').map(notice),
     el('progress-indicator', { label: o.uploading, value: 0.64 }),
-    row({}, k.avatar(s.person.initials, s.person.full, 'medium'), el('badge', { count: 3, label: o.messages(3) }, el('button', { variant: 'text', label: s.common.notifications }, slotIcon('notifications')))),
+    // Who is here: two people, the second with what is waiting for them.
+    row({}, k.avatar(s.person.initials, s.person.full, 'medium'), el('badge', { count: 3, label: o.messages(3) }, k.avatar(s.customers.b.initials, s.customers.b.name, 'medium'))),
   );
-  const surfaces = section(
-    k,
-    o.surfaces,
-    ...variants('card').map((variant) =>
-      el(
-        'card',
-        { variant, 'data-sample': `card-${variant}` },
-        h('div', { class: 'ts-s-stack ts-s-pad' }, k.text('heading-5', 'h4', o.reportTitle), k.text('body-small', 'p', o.reportBody, { class: 'ts-s-muted' }), row({}, el('button', { variant: 'tonal', size: 'small' }, o.open))),
-      ),
-    ),
-    el('menu', { inline: true, open: true }, el('menu-item', { label: o.copy, 'leading-icon': 'content_copy', shortcut: 'mod+c' }), el('menu-item', { label: o.duplicate, 'leading-icon': 'library_add' }), el('menu-item', { label: o.delete, 'leading-icon': 'delete', destructive: true })),
-  );
-  return h('div', { class: 'ts-s-overview' }, buttons, inputs, selection, choosing, feedback, surfaces, system(k));
+  const report = (variant?: string) =>
+    el(
+      'card',
+      { variant, 'data-sample': `card-${variant ?? 'default'}` },
+      h('div', { class: 'ts-s-stack ts-s-pad' }, k.text('heading-5', 'h4', o.reportTitle), k.text('body-small', 'p', o.reportBody, { class: 'ts-s-muted' }), row({}, el('button', { variant: 'tonal', size: 'small' }, o.open))),
+    );
+  const card = section(k, o.card, report(), ...added('card').map(report));
+  const menu = section(k, o.menu, el('menu', { inline: true, open: true }, el('menu-item', { label: o.copy, 'leading-icon': 'content_copy', shortcut: 'mod+c' }), el('menu-item', { label: o.duplicate, 'leading-icon': 'library_add' }), el('menu-item', { label: o.delete, 'leading-icon': 'delete', destructive: true })));
+  return h('div', { class: 'ts-s-overview' }, buttons, inputs, selection, choosing, feedback, card, menu, system(k));
 }
 
-/** A toggle is the system's own: a real Button that switches, its glyph filled while it is on (BTN-13). */
-function toggle(k: Kit, pressed: boolean) {
-  const { t } = k;
-  const label = h('span', { text: pressed ? t.sample.selected : t.sample.unselected });
-  const el = h(`${k.studio.tagPrefix}-button` as 'tanrei-button', { toggle: true, variant: 'outlined', size: 'small', selected: pressed, 'data-sample-toggle': true, onchange: () => (label.textContent = el.selected ? t.sample.selected : t.sample.unselected) }, k.slotIcon('favorite'), label);
-  return el;
+/** A toggle is the system's own: a real Button that switches, its glyph filled while it is on (BTN-13), named by its label. */
+function toggle(k: Kit) {
+  return h(`${k.studio.tagPrefix}-button` as 'tanrei-button', { toggle: true, variant: 'outlined', selected: true, label: k.s.overview.favorite, 'data-sample-toggle': true }, k.slotIcon('favorite'));
 }
 
 /** What the system itself is made of: its text styles, its icons, its intents, its steps, and the layer's own tokens. */
@@ -199,6 +212,8 @@ function system(k: Kit) {
     'section',
     { class: 'ts-s-panel ts-s-system' },
     k.text('label', 'h3', k.s.overview.system, { class: 'ts-s-eyebrow' }),
+    // A Button at each size the system declares, a size the layer adds included.
+    h('div', { class: 'ts-s-row', 'data-sample': 'sizes' }, sizesOf(view, 'button').map((size) => k.el('button', { size, variant: 'tonal' }, cap(size)))),
     // The line of code is a left-to-right run in every language: a command, then its comment.
     h('div', { class: 'ts-ramp' }, ramp.map((id) => h('p', { style: font(id), 'data-font': font(id), 'data-sample': id.slice(typescale.length), 'data-emphasized-weight': emphasizedWeight(id) }, id === `${typescale}code` ? ltr(texts.code) : (texts[id.slice(typescale.length)] ?? t.listed(id.slice(typescale.length), t.sample.added))))),
     h('div', { class: 'ts-icon-set', 'data-sample': 'icon-set' }, iconRow(false), iconRow(true)),

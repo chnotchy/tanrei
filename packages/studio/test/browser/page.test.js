@@ -95,7 +95,7 @@ for (const scheme of ['light', 'dark']) {
   });
 }
 
-studioTest('the theme and language switches: dark is a click away; ja translates the chrome, never the vocabulary; the session survives the reload', { layer }, async ({ page, section }) => {
+studioTest('the theme and language switches: dark is a click away; ja translates the chrome, and says a choice in its words on the rail while the panel lists the vocabulary’s names; the session survives the reload', { layer }, async ({ page, section }) => {
   await page.locator('#theme').click();
   assert.equal(await page.locator('html').getAttribute('data-tanrei-theme'), 'dark');
   await section('typeface');
@@ -112,9 +112,12 @@ studioTest('the theme and language switches: dark is a click away; ja translates
   assert.equal(await page.locator('[data-studio]').getAttribute('data-section'), 'typeface', 'so is the section');
   assert.match(await page.locator('[data-panel="typefaces"] h2').textContent(), /書体/);
   assert.equal(await page.locator('[data-rail] [data-row="press"] .ts-rail-label').textContent(), '押したときの表現');
+  // The rail says what a row holds in the person's language: a choice of the vocabulary by its Japanese word (the
+  // layer dims what is pressed).
+  assert.deepEqual(await Promise.all(['press', 'focus'].map((row) => page.locator(`[data-rail] [data-row="${row}"] .ts-rail-value`).textContent())), ['減光', 'リング']);
   await section('behavior');
   assert.match(await page.locator('[data-panel="behavior"] h2').textContent(), /ふるまい/);
-  assert.deepEqual(await page.locator('[data-behavior="pressed-feedback"] tanrei-radio-button').evaluateAll((els) => els.map((el) => el.label)), ['overlay', 'ripple', 'dim', 'none'], 'names are vocabulary: not translated');
+  assert.deepEqual(await page.locator('[data-behavior="pressed-feedback"] tanrei-radio-button').evaluateAll((els) => els.map((el) => el.label)), ['overlay', 'ripple', 'dim', 'none'], 'the panel, where the choice is made, lists the vocabulary’s names, as Inspect and the documentation call them');
   assert.match(await page.locator('[data-save-state]').textContent(), /保存済み/);
 });
 
@@ -320,18 +323,20 @@ for (const locale of ['en-US', 'ja', 'zh-CN', 'hi', 'es', 'ar']) {
       for (const name of VIEWS) {
         await view(name);
         await unfold(page, name);
-        const found = await targets(`${name} at ${width} (${locale})`);
+        // (Inspect is a modal sheet: what is under it is not operable while it is open.)
+        const within = name === 'tokens' || name === 'source' ? '[data-inspect-sheet]' : undefined;
+        const found = await targets(`${name} at ${width} (${locale})`, within);
         // (Its own controls only: a field, a slider, a radio group, a tag — and now every button, the switch and the
         // checkbox — are Tanrei's and keep their own minimum. What is left is the rail's rows, a fold's row, a text
-        // area, a list that scrolls, a link, the tree's rows.)
-        assert.ok(found.length > 4, `the measure saw the panel's controls: ${found.length}`);
+        // area, a list that scrolls, a link, the tree's rows. Inspect's JSON holds its two tabs and the text area.)
+        assert.ok(found.length >= (within ? 3 : 5), `the measure saw the panel's controls: ${found.length}`);
         await hints(`${name} at ${width} (${locale})`);
         if (name === 'tokens') {
           // A role color too: its editor has the tone table, the operation tabs and the list of the other operations.
           await page.locator('[data-search] input').fill('sys.color.primary');
           await page.locator('[data-token="tanrei.sys.color.primary"] > span').click();
           await page.waitForSelector('[data-token-pane] .ts-pointers');
-          await targets(`a role color's editor at ${width} (${locale})`);
+          await targets(`a role color's editor at ${width} (${locale})`, within);
           // The hint is drawn only while the field is empty; a text field cuts it where the field ends, without a mark.
           await page.locator('[data-search] input').fill('');
           const search = await page.locator('[data-search] input').evaluate((input) => {
