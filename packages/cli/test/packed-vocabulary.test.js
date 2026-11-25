@@ -20,11 +20,9 @@ const bin = path.join(pkg, 'bin/tanrei.js');
 const tracer = pathToFileURL(path.join(repo, 'packages/tools/src/read-trace.js')).href;
 /**
  * A path under the repository that is code, not vocabulary: run from the sources, the CLI loads its modules, its
- * packages' manifests, tanrei.config.json and the default system's contrast properties that the CSS emitter reads
- * (JSON imports, which the bundle inlines) from there.
+ * packages' manifests and tanrei.config.json (a JSON import, which the bundle inlines) from there.
  */
-const INLINED = new Set(['tanrei.config.json', path.join('packages', 'tokens-build', 'generated', 'default-contrast.json')]);
-const isCode = (relative) => /\.[cm]?js$/.test(relative) || path.basename(relative) === 'package.json' || INLINED.has(relative) || relative.split(path.sep).includes('node_modules');
+const isCode = (relative) => /\.[cm]?js$/.test(relative) || path.basename(relative) === 'package.json' || relative === 'tanrei.config.json' || relative.split(path.sep).includes('node_modules');
 
 const work = tempDir('cli-packed');
 const copy = path.join(work, 'vocabulary');

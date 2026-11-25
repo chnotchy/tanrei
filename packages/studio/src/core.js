@@ -98,7 +98,7 @@ export function stringifyLayer(layer) {
  * @param {Record<string, object>} deps.layers      shipped system layers by id
  * @param {{ Hct: any, TonalPalette: any }} deps.mcu material-color-utilities, injected (it imports differently in Node and in a bundler)
  * @param {(layer: object) => string[]} [deps.validateSchema]  JSON-Schema problems of a layer
- * @param {(model: object, options: { scope: string, unavailable?: object, outside?: Record<string, string>, replacements?: Record<string, string[]> }) => string} deps.emitCss   tokens-build's src/emit/css.js (no "@" here: TypeScript would read it as a tag and stop listing deps)
+ * @param {(model: object, options: { scope: string, defaultModel?: object, unavailable?: object, outside?: Record<string, string>, replacements?: Record<string, string[]> }) => string} deps.emitCss   tokens-build's src/emit/css.js (no "@" here: TypeScript would read it as a tag and stop listing deps)
  * @param {(ids: string[], read: (id: string) => object) => Map<string, string>} deps.heldComponents   tokens-build's src/layers.js: where each component that lives in a layer lives
  * @param {(ids: string[], read: (id: string) => object) => Map<string, { reason: string, insteadUse: string[] }>} deps.outsideStandIns   the same module: what a system without a component that lives in a layer uses instead, as that layer says
  * @param {(chain: object[], held: Map<string, string>, standIns?: Map<string, { reason: string, insteadUse: string[] }>) => { unavailable: object, outside: Record<string, string>, replacements: Record<string, string[]> }} deps.sheetAvailability   the same module: what a system's sheet says it does not have, and what it uses instead
@@ -268,7 +268,7 @@ export function createStudio({ config, sources, vocabulary, resolver, layers, mc
       sheets,
       // What the system does not have, as `tanrei build` declares it in the product's sheet: an element in the
       // preview reads the layer's lists, not the default system's from `:root`.
-      css: (scope) => sheets.get(scope) ?? sheets.set(scope, emitCss(model, { scope, ...sheetAvailability(computed.chain, homes, standIns) })).get(scope),
+      css: (scope) => sheets.get(scope) ?? sheets.set(scope, emitCss(model, { scope, defaultModel: base(defaultId).model, ...sheetAvailability(computed.chain, homes, standIns) })).get(scope),
       followers: (id) => [...(index ??= dependencyIndex(computed.files)).followers(id)],
     };
   }
@@ -1338,7 +1338,7 @@ export function createStudio({ config, sources, vocabulary, resolver, layers, mc
     const key = `${id}\n${scope}`;
     if (!baseSheets.has(key)) {
       const computed = base(id);
-      baseSheets.set(key, sheetRules(emitCss(computed.model, { scope, ...sheetAvailability(computed.chain, homes, standIns) })));
+      baseSheets.set(key, sheetRules(emitCss(computed.model, { scope, defaultModel: base(defaultId).model, ...sheetAvailability(computed.chain, homes, standIns) })));
     }
     const theirs = new Map(baseSheets.get(key).map((rule) => [JSON.stringify(rule.path), new Map(rule.declarations)]));
     const ours = sheetRules(view.css(scope));

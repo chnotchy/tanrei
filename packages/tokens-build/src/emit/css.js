@@ -1,7 +1,6 @@
 import { ruleDependencies } from '@tanrei/token-engine';
 import { CONFIG } from '../config.js';
 import { GENERATED_HEADER, cssColor, kebab, typeFamily } from '../pure.js';
-import DEFAULT_CONTRAST from '../../generated/default-contrast.json' with { type: 'json' };
 
 const PREFIX = CONFIG.web.cssPrefix;
 const varName = (path) => `${PREFIX}-${kebab(path)}`;
@@ -319,23 +318,32 @@ function changedAt(standard, decls) {
 
 /**
  * The custom properties the contrast blocks of a system's root sheet declare: what its medium or its high level changes.
- * `generated/default-contrast.json` holds the default system's (`tokens.css`), which every system scope restates.
+ * The default system's (`tokens.css`) are what every system scope restates (`emitCss`'s `defaultModel`).
  * @returns {string[]}
  */
 export function contrastProperties(model) {
-  const { standard, level } = contrastLevels(model);
-  return [...new Set([...changedAt(standard, level('-medium')), ...changedAt(standard, level('-high'))])].sort();
+  let names = CONTRAST_PROPERTIES.get(model);
+  if (!names) {
+    const { standard, level } = contrastLevels(model);
+    names = [...new Set([...changedAt(standard, level('-medium')), ...changedAt(standard, level('-high'))])].sort();
+    CONTRAST_PROPERTIES.set(model, names);
+  }
+  return names;
 }
+/** Worked out once per model: every scoped sheet a build writes restates the same default model's. */
+const CONTRAST_PROPERTIES = new WeakMap();
 
 /**
- * @param {{ scope?: string, unavailable?: { components: string[], variants: Record<string, string[]> }, outside?: Record<string, string>, replacements?: Record<string, string[]>, used?: Iterable<string>, restate?: Iterable<string> }} [options]
+ * @param {{ scope?: string, unavailable?: { components: string[], variants: Record<string, string[]> }, outside?: Record<string, string>, replacements?: Record<string, string[]>, used?: Iterable<string>, defaultModel?: object, restate?: Iterable<string> }} [options]
  *   `scope` = a system id: the sheet then applies inside `[data-tanrei-system="<id>"]` instead of `:root`, so several
- *   systems can coexist on one page. Its contrast blocks then restate every custom property the default system's
- *   contrast blocks declare (`restate`; by default `generated/default-contrast.json`), whether the system's own level
+ *   systems can coexist on one page. `defaultModel` = the model of the default system, whose sheet (`tokens.css`) the
+ *   scope is drawn under: the scope's contrast blocks then restate every custom property the default system's contrast
+ *   blocks declare (`contrastProperties(defaultModel)`; or the names in `restate`), whether the system's own level
  *   changes it or not. A product's root that names the system is drawn with `tokens.css` too, whose rule for a level
  *   (`:root:not([data-tanrei-contrast])` under `prefers-contrast: more` weighs two attributes, as much as the scope's
  *   rule and more than its base block) sets the default system's colour wherever the scope's rule for that level is
- *   silent. `unavailable` = what the system does not ship, declared as one string
+ *   silent. Without either, a scope's contrast blocks declare what its own levels change, and nothing more: a sheet a
+ *   product ships is written with it (the build, `tanrei build`, Theme Studio). `unavailable` = what the system does not ship, declared as one string
  *   property (`component` or `component:variant`, space-separated) that a component reads to warn in development. It is
  *   declared even when empty, so a preset's empty list overrides the default system's inherited one. `outside` = the
  *   components that live in a layer the system does not extend (component → that layer), declared the same way: the
@@ -346,7 +354,7 @@ export function contrastProperties(model) {
  *   rule that is left with nothing. Off by default: without it the sheet declares every token. A declaration that is
  *   not a custom property (`color-scheme`) is kept either way.
  */
-export function emitCss(model, { scope, unavailable, outside, replacements, used, restate } = {}) {
+export function emitCss(model, { scope, unavailable, outside, replacements, used, defaultModel, restate } = {}) {
   const NS = CONFIG.namespace;
   const S = scope ? `[data-${NS}-system="${scope}"]` : ':root';
   const { perScheme, componentLevel, level, standard, roles } = contrastLevels(model);
@@ -363,7 +371,7 @@ export function emitCss(model, { scope, unavailable, outside, replacements, used
   // system's contrast blocks declare: at the scope's own level where its colour follows the level, and as its base
   // block writes it where it does not (an alias, or a mix over roles, which reaches the level through var()). A
   // property the scope has no token for is left to the sheet around it.
-  const restated = new Set(scope ? (restate ?? DEFAULT_CONTRAST.properties) : []);
+  const restated = new Set(scope ? (restate ?? (defaultModel ? contrastProperties(defaultModel) : [])) : []);
   const inBase = new Map(base);
   const atLevel = (suffix) => {
     const decls = level(suffix);

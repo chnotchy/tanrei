@@ -83,8 +83,9 @@ test('a system without such a rule: no component color is declared per scheme; t
   // standard contrast and gives it at medium and high (an `alpha` whose amount is a context map): one expression in the base
   // block, raised in the contrast blocks. The presets pin those fills to none.
   const CHECKED = /^\s*--tanrei-comp-(menu-selected(-disabled)?-container-color|(select|combobox)-(stacked|filled|outlined)(-disabled)?-selected-option-container-color): color-mix\(/;
+  const tanrei = await (await resolveSystem({ system: 'tanrei' })).model();
   for (const system of ['tanrei', 'm3-like', 'cupertino']) {
-    const css = emitCss(await (await resolveSystem({ system })).model(), system === 'tanrei' ? {} : { scope: system });
+    const css = emitCss(system === 'tanrei' ? tanrei : await (await resolveSystem({ system })).model(), system === 'tanrei' ? {} : { scope: system, defaultModel: tanrei });
     const base = css.slice(0, css.indexOf('@media (prefers-contrast: more)'));
     const perScheme = base.split('\n').filter((line) => /^\s*--tanrei-comp-[^:]+: light-dark\(/.test(line));
     const contrastBlocks = css.slice(css.indexOf('@media (prefers-contrast: more)'));
@@ -106,7 +107,7 @@ test('a system without such a rule: no component color is declared per scheme; t
       assert.deepEqual(perScheme.filter((line) => !SYNTAX.test(line) && !BANDS.test(line)), [], system);
       // A system scope restates what the default system's contrast blocks declare (its checked fills and its snackbar's
       // inverse colors), as the scope's base block writes them where they do not follow the level here.
-      const restated = new Set(contrastProperties(await (await resolveSystem({ system: 'tanrei' })).model()));
+      const restated = new Set(contrastProperties(tanrei));
       assert.deepEqual(raised.filter((line) => !SYNTAX.test(line) && !(bands && BANDS.test(line)) && !restated.has(line.trim().split(':')[0])), [], `${system}: besides the inherited syntax hues (and m3-like's bands) and what the default system's contrast blocks declare, the contrast blocks hold roles only`);
       assert.ok(raised.some((line) => /-selected-option-container-color:/.test(line)) && raised.some((line) => /snackbar-inverse-/.test(line)), `${system}: the default system's checked fills and inverse snackbar colors are declared again`);
     }

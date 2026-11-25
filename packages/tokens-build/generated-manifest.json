@@ -41,7 +41,6 @@
     "packages/swiftui/Sources/Tanrei/Generated/TanreiSystem+M3Like.swift",
     "packages/swiftui/Sources/Tanrei/Generated/TanreiSystem+Tanrei.swift",
     "packages/swiftui/Sources/Tanrei/Generated/TanreiTokens.swift",
-    "packages/tokens-build/generated/default-contrast.json",
     "packages/web/src/generated/icon-sets.ts",
     "packages/web/src/generated/systems/core.css",
     "packages/web/src/generated/systems/cupertino.css",
