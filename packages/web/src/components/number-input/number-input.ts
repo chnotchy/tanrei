@@ -24,6 +24,7 @@ import type { TanreiInputBoxSizeRegistry, TanreiInputBoxVariantRegistry } from '
 import '../button/button.js';
 import { formOf, pressDefaultButton } from '../../primitives/default-button.js';
 import { FormDisabledController } from '../../primitives/form-disabled.js';
+import { FormDefault } from '../../primitives/form-default.js';
 import { FormSays } from '../../primitives/form-says.js';
 import { AXES, CORE_SIZES, INSET, styles } from './number-input.styles.js';
 import { runDirection } from '../../styles/product-text.js';
@@ -31,6 +32,7 @@ import { type Decimal, type NumberForm, type Reading, ZERO, canonical, clamp, co
 import { disabledWaitsWhileFocused } from '../../primitives/disabled-while-focused.js';
 import { focusedAtFirst } from '../../primitives/autofocus.js';
 import { TanreiElement } from '../../primitives/element.js';
+import { DEBUG } from '../../primitives/debug.js';
 
 /** The three looks of the input box (`comp.input-box`): a filled box whose label is the row of its Field (`stacked`), or the label floating inside a `filled` or `outlined` box. A design system may leave some out or add values. */
 export type TanreiNumberInputVariant = keyof TanreiInputBoxVariantRegistry;
@@ -130,7 +132,7 @@ function whenParsed(task: () => void) {
  * Field it takes the Field's name, description and required, invalid and disabled states, floats the Field's label
  * in the filled and the outlined look, and tells the Field where its number's line starts and ends. It is a
  * form-associated element: it takes `name`, submits its value as a plain decimal number ("12.5") whatever the locale
- * shows, resets to the `value` attribute, is restored on navigation, follows `<fieldset disabled>` and reports
+ * shows, resets to the value it was first given, is restored on navigation, follows `<fieldset disabled>` and reports
  * `valueMissing` while its Field says it is required and it holds no value, and `badInput` while it holds a text that
  * is not a number.
  *
@@ -230,7 +232,7 @@ export class TanreiNumberInput extends TanreiElement {
     return this.sizes.drawn;
   }
 
-  /** The committed number, or null while the input holds none. It changes when the person commits — focus leaves, Enter, a step — not on every keystroke; `input` carries what is being typed. The `value` attribute is a plain decimal number ("12.5"), and the value a form reset returns to. */
+  /** The committed number, or null while the input holds none. It changes when the person commits — focus leaves, Enter, a step — not on every keystroke; `input` carries what is being typed. The `value` attribute is a plain decimal number ("12.5"); the value it is first given — by the attribute or as the property — is what a form reset returns to. */
   get value(): number | null {
     return this.given;
   }
@@ -318,6 +320,8 @@ export class TanreiNumberInput extends TanreiElement {
   /** NMI-15: the input has focus, however it was gained. */
   protected focused = false;
   private readonly fieldset = new FormDisabledController(this);
+  /** What a form's reset returns `value` to: the number it was first given, as a native control's `defaultValue`. */
+  private readonly valueDefault = new FormDefault(this, () => numberOrNull(this.value), 'value', numberOrNull);
   /** A disabled `<fieldset>` around the element, as the platform says it (src/primitives/form-disabled.ts). */
   protected get formDisabled(): boolean {
     return this.fieldset.byFieldset;
@@ -547,7 +551,7 @@ export class TanreiNumberInput extends TanreiElement {
   }
 
   formResetCallback() {
-    this.resetTo(numberOrNull(this.getAttribute('value')));
+    this.resetTo(this.valueDefault.value);
   }
 
   /**
@@ -995,23 +999,23 @@ export class TanreiNumberInput extends TanreiElement {
   private reports(changed: PropertyValues) {
     if (!this.isConnected) return;
     // NMI-12: an input no Field names, with no label of its own, still renders. (A Field with an empty label says so itself: FLD-10.)
-    if (!this.label.trim() && !this.frame.state && !namedByProduct(this)) report(this, 'NMI-12', 'label is empty and no field frames it, so the number input has no accessible name; put it in a field with a label, or give it a label');
+    if (DEBUG && !this.label.trim() && !this.frame.state && !namedByProduct(this)) report(this, 'NMI-12', 'label is empty and no field frames it, so the number input has no accessible name; put it in a field with a label, or give it a label');
     // NMI-44: a stepper nobody named is kept from assistive technology, and said to the developer.
     if (this.steppers && !this.words.get('incrementLabel', this.incrementLabel)) {
-      this.words.missing('incrementLabel', { id: 'NMI-44', effect: 'the stepper that steps up has no name and is kept from assistive technology; the spin button still steps' });
+      this.words.missing('incrementLabel', DEBUG && { id: 'NMI-44', effect: 'the stepper that steps up has no name and is kept from assistive technology; the spin button still steps' });
     }
     if (this.steppers && !this.words.get('decrementLabel', this.decrementLabel)) {
-      this.words.missing('decrementLabel', { id: 'NMI-44', effect: 'the stepper that steps down has no name and is kept from assistive technology; the spin button still steps' });
+      this.words.missing('decrementLabel', DEBUG && { id: 'NMI-44', effect: 'the stepper that steps down has no name and is kept from assistive technology; the spin button still steps' });
     }
-    if (changed.has('step') && !(typeof this.step === 'number' && Number.isFinite(this.step) && this.step > 0)) report(this, 'NMI-22', `step "${String(this.step)}" is not a number above 0; the number input steps by 1`);
+    if (DEBUG && changed.has('step') && !(typeof this.step === 'number' && Number.isFinite(this.step) && this.step > 0)) report(this, 'NMI-22', `step "${String(this.step)}" is not a number above 0; the number input steps by 1`);
     const low = numberOrNull(this.min);
     const high = numberOrNull(this.max);
-    if ((changed.has('min') || changed.has('max')) && low !== null && high !== null && low > high) report(this, 'NMI-30', `min (${low}) is above max (${high}); max is treated as empty`);
-    if ((changed.has('minFractionDigits') || changed.has('maxFractionDigits')) && this.minFractionDigits > this.maxFractionDigits) {
+    if (DEBUG && (changed.has('min') || changed.has('max')) && low !== null && high !== null && low > high) report(this, 'NMI-30', `min (${low}) is above max (${high}); max is treated as empty`);
+    if (DEBUG && (changed.has('minFractionDigits') || changed.has('maxFractionDigits')) && this.minFractionDigits > this.maxFractionDigits) {
       report(this, 'NMI-30', `minFractionDigits (${this.minFractionDigits}) is above maxFractionDigits (${this.maxFractionDigits}); maxFractionDigits is used for both`);
     }
-    if (changed.has('align') && !ALIGNS.includes(this.align)) report(this, 'NMI-43', `align "${this.align}" is not start or end; it behaves as "start"`);
-    if (changed.has('locale') && this.locale && !supportedLocale(this.locale)) report(this, 'NMI-43', `locale "${this.locale}" is not a language tag the browser knows; the number is shown and read in the form of the page's language`);
+    if (DEBUG && changed.has('align') && !ALIGNS.includes(this.align)) report(this, 'NMI-43', `align "${this.align}" is not start or end; it behaves as "start"`);
+    if (DEBUG && changed.has('locale') && this.locale && !supportedLocale(this.locale)) report(this, 'NMI-43', `locale "${this.locale}" is not a language tag the browser knows; the number is shown and read in the form of the page's language`);
   }
 
   protected override render() {

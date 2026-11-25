@@ -1,6 +1,6 @@
 // What a component lays out side by side never takes a press meant for its neighbour (BTN-5, BGR-4 and every row after
 // them: SNK-4, CAL-5, IMP-8, the actions of a dialog, a side sheet and a popover, CCM-2, FIG-9, TXI-71, SEL-72,
-// CMB-20). A hit area that reaches past what is drawn (src/primitives/target.ts) stops toward a neighbour at the middle
+// CMB-19, CMB-20). A hit area that reaches past what is drawn (src/primitives/target.ts) stops toward a neighbour at the middle
 // of the gap between them, so that:
 //
 //  - a press on any pressable's visible bounds goes to that pressable (or to one it holds, or one that holds it), never
@@ -114,7 +114,8 @@ async function overreaching(): Promise<Reach> {
   };
   const out: string[] = [];
   const reached: Reach['reached'] = {};
-  const press = async (stage: HTMLElement) => {
+  // Every pressable a stage holds, through its shadow roots.
+  const pressablesOf = (stage: HTMLElement) => {
     const all: Element[] = [];
     const walk = (root: ParentNode) => {
       for (const el of root.querySelectorAll('*')) {
@@ -123,6 +124,50 @@ async function overreaching(): Promise<Reach> {
       }
     };
     walk(stage);
+    return all;
+  };
+  // Pressed where each box rests, not in a frame of a motion: a narrowed gap starts some (a chat composer's
+  // attachments resize to it, over many frames where motion plays slowly). Where a box moved over the two frames after
+  // a stage scrolled into view, the boxes are read once they have stood still for three frames in a row; frames are
+  // counted, not time, so this holds at any playback rate. The boxes read are those of every stage the window shows
+  // then, and the stages after it that stand wholly in the window, every pressable of theirs too, are pressed where
+  // they stand, at rest, with no scroll and no frames of their own: a field has hundreds of stages, a dozen and more
+  // to a window, and two frames for each of them were most of its time. A scroll and two frames cost more than all of
+  // a field stage's presses.
+  let atRest = new Set<HTMLElement>();
+  const settle = async (stage: HTMLElement, after: HTMLElement[]) => {
+    stage.scrollIntoView({ block: 'start' });
+    const watched = [stage, ...after.filter((other) => {
+      const r = other.getBoundingClientRect();
+      return r.bottom > 0 && r.top < innerHeight;
+    })];
+    const all = watched.flatMap(pressablesOf);
+    const boxes = () =>
+      all
+        .map((el) => {
+          const b = el.getBoundingClientRect();
+          return `${b.x} ${b.y} ${b.width} ${b.height}`;
+        })
+        .join();
+    const scrolled = boxes();
+    await frame();
+    let frames = 0;
+    if (boxes() !== scrolled) {
+      for (let last = boxes(), same = 0; same < 3 && frames < 600; frames++) {
+        await new Promise((resolve) => requestAnimationFrame(resolve));
+        const now = boxes();
+        same = now === last ? same + 1 : 0;
+        last = now;
+      }
+    }
+    if (frames === 600) out.push(`${stage.dataset.fixture}: its pressables, or those of a stage in the window with it, did not stand still in ${frames} frames`);
+    const within = (r: DOMRect) => r.top >= 0 && r.bottom <= innerHeight && r.left >= 0 && r.right <= innerWidth;
+    const whole = (other: HTMLElement) => within(other.getBoundingClientRect()) && pressablesOf(other).every((el) => [...el.getClientRects()].every((r) => (r.width === 0 && r.height === 0) || within(r)));
+    atRest = new Set([stage, ...watched.slice(1).filter(whole)]);
+  };
+  const press = async (stage: HTMLElement, after: HTMLElement[]) => {
+    if (!atRest.has(stage)) await settle(stage, after);
+    const all = pressablesOf(stage);
     const pressables = new Set(all);
     // The boxes a pressable is drawn in: its box, or each line of an inline one that wraps (a link in running text),
     // whose box takes in the ends of the lines around it.
@@ -177,30 +222,6 @@ async function overreaching(): Promise<Reach> {
       for (const [el, value] of lifted.reverse()) el.style.pointerEvents = value;
       return at;
     };
-    // Pressed where each box rests, not in a frame of a motion: a narrowed gap starts some (a chat composer's
-    // attachments resize to it, over many frames where motion plays slowly). Where a box moved over the two frames after
-    // the stage scrolled into view, the boxes are read once they have stood still for three frames in a row; frames are
-    // counted, not time, so this holds at any playback rate. A stage at rest costs no frame more (a field has hundreds).
-    const boxes = () =>
-      all
-        .map((el) => {
-          const b = el.getBoundingClientRect();
-          return `${b.x} ${b.y} ${b.width} ${b.height}`;
-        })
-        .join();
-    stage.scrollIntoView({ block: 'start' });
-    const scrolled = boxes();
-    await frame();
-    let frames = 0;
-    if (boxes() !== scrolled) {
-      for (let last = boxes(), same = 0; same < 3 && frames < 600; frames++) {
-        await new Promise((resolve) => requestAnimationFrame(resolve));
-        const now = boxes();
-        same = now === last ? same + 1 : 0;
-        last = now;
-      }
-    }
-    if (frames === 600) out.push(`${stage.dataset.fixture}: its pressables did not stand still in ${frames} frames`);
     const onScreen = (r: DOMRect) => r.width >= 4 && r.height >= 4 && r.bottom >= 0 && r.top <= innerHeight && r.right >= 0 && r.left <= innerWidth;
     // Inert, itself or by what holds it in the stage, it takes no press (a bottom sheet's handle while the sheet has one
     // height): it is not a pressable a person can reach.
@@ -302,9 +323,10 @@ async function overreaching(): Promise<Reach> {
     walk(stage);
     return open;
   };
-  const alone = async (stage: HTMLElement) => {
+  // `after`: the stages pressed after it, in order, which may be pressed at rest where they stand with it.
+  const alone = async (stage: HTMLElement, after: HTMLElement[] = []) => {
     for (const other of stages) other.inert = other !== stage;
-    await press(stage);
+    await press(stage, after);
   };
   // The stages that hold an open modal dialog, the one the window's presses reach first (the dialog opened last, whose
   // backdrop lies over the others) first; where a press reaches none of them (a dialog drawn outside the window), the
@@ -322,7 +344,7 @@ async function overreaching(): Promise<Reach> {
     stage.remove();
     stages.splice(stages.indexOf(stage), 1);
   }
-  for (const stage of stages) await alone(stage);
+  for (const [at, stage] of stages.entries()) await alone(stage, stages.slice(at + 1));
   for (const stage of stages) stage.inert = false;
   return { found: [...new Set(out)], reached };
 }
@@ -332,18 +354,7 @@ async function overreaching(): Promise<Reach> {
  * shrinks. An entry that no longer matches fails too, so it is taken out with the fix.
  */
 const ALL: Setting[] = ['default', 'm3-like', '2px apart', '8px apart'];
-const CHEVRON = {
-  settings: ALL,
-  // What stands at the end of the input's line: the input, or, while several values are chosen, the chip that ends a line
-  // of entries (CMB-74) — in either direction, at whatever place the fonts of the machine wrap the entries.
-  line: /(tanrei-combobox › input|tanrei-chip › button) .*goes to tanrei-combobox › button/,
-  reason:
-    'CMB-19 gives the chevron the whole gap to the input’s end and at least the minimum target’s width, which reaches over the end of the input where the room is less, and in the same way over the end of a chip that ends a line of entries there, or the nearer half of the gap to it (CMB-74). The neighbour clause for a chevron with a hit part of its own is a change to CMB-19: stop at the middle of container.gap toward the input and the entries.',
-};
 const KNOWN: Record<string, { settings: Setting[]; line: RegExp; reason: string }[]> = {
-  combobox: [CHEVRON],
-  'combobox-field': [CHEVRON],
-  field: [CHEVRON],
   'navigation-drawer': [
     {
       settings: ALL,

@@ -1025,6 +1025,7 @@ private object M3LikeSystemSource {
             containerPartialFraction = 0.5f,
             containerShape = 28.dp,
             contentColor = TanreiPaint.Role(TanreiColorRole.OnSurface),
+            contentPaddingBlockStart = 8.dp,
             dividerColor = TanreiPaint.Role(TanreiColorRole.OutlineVariant),
             dividerVisibility = 1f,
             dividerWidth = 1.dp,
@@ -1200,6 +1201,7 @@ private object M3LikeSystemSource {
             dividerThickness = 1.dp,
             motionBusyCycleDuration = 1000,
             motionBusyFadeDuration = 150,
+            motionBusyPulseFloorOpacity = 0.7f,
             motionFeedbackDuration = 450,
             motionHoverCloseDelay = 300,
             motionHoverOpenDelay = 300,
@@ -1495,6 +1497,7 @@ private object M3LikeSystemSource {
             containerShape = 9999.dp,
             motionBusyCycleDuration = 1000,
             motionBusyFadeDuration = 150,
+            motionBusyPulseFloorOpacity = 0.7f,
             motionFeedbackDuration = 450,
             motionStateEasing = TanreiCubicBezier(x1 = 0.2f, y1 = 0f, x2 = 0f, y2 = 1f),
             toneContainerOpacity = 0.16f,
@@ -2572,6 +2575,7 @@ private object M3LikeSystemSource {
             counterTypescale = typescale.labelSmall,
             inputPaddingBlock = 8.dp,
             layoutInlineMinWidth = 360.dp,
+            layoutInputMinWidth = 160.dp,
             motionGlyphFadeDuration = 150,
             motionResizeDuration = 500,
             motionResizeEasing = TanreiCubicBezier(x1 = 0.27f, y1 = 1.06f, x2 = 0.18f, y2 = 1f),
@@ -5223,6 +5227,7 @@ private object M3LikeSystemSource {
             motionEnterDuration = 200,
             motionEnterEasing = TanreiCubicBezier(x1 = 0f, y1 = 0f, x2 = 0f, y2 = 1f),
             motionEntrance = 0f,
+            motionPulseFloorOpacity = 0.7f,
             motionShowDelay = 300,
             sizes = TanreiLoadingIndicatorSizes(
                 small = TanreiLoadingIndicatorSizeTokens(indicatorSize = 24.dp, indicatorThickness = 4.dp, containerSize = 32.dp),
@@ -6705,6 +6710,7 @@ private object M3LikeSystemSource {
             indicatorColor = TanreiPaint.Role(TanreiColorRole.Primary),
             motionCycleDuration = 1750,
             motionCycleEasing = TanreiCubicBezier(x1 = 0.2f, y1 = 0f, x2 = 0f, y2 = 1f),
+            motionPulseFloorOpacity = 0.7f,
             motionShowDelay = 300,
             motionValueDuration = 300,
             motionValueEasing = TanreiCubicBezier(x1 = 0.2f, y1 = 0f, x2 = 0f, y2 = 1f),
@@ -7553,6 +7559,7 @@ private object M3LikeSystemSource {
             containerPaddingInline = 24.dp,
             containerWidth = 320.dp,
             contentColor = TanreiPaint.Role(TanreiColorRole.OnSurface),
+            contentPaddingBlockStart = 8.dp,
             dividerColor = TanreiPaint.Role(TanreiColorRole.OutlineVariant),
             dividerVisibility = 1f,
             dividerWidth = 1.dp,
@@ -8581,7 +8588,6 @@ private object M3LikeSystemSource {
     @Suppress("UNUSED_PARAMETER")
     fun tabs(typescale: TanreiTypescale, elevation: TanreiElevation): TanreiTabsTokens =
         TanreiTabsTokens(
-            activeIndicatorHeight = 32.dp,
             containerGap = 4.dp,
             containerHeightWithIcon = 64.dp,
             containerShape = 0.dp,

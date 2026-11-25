@@ -17,6 +17,8 @@ import { styles } from './checkbox.styles.js';
 import { disabledWaitsWhileFocused } from '../../primitives/disabled-while-focused.js';
 import { focusedAtFirst } from '../../primitives/autofocus.js';
 import { TanreiElement } from '../../primitives/element.js';
+import { FormDefault } from '../../primitives/form-default.js';
+import { DEBUG } from '../../primitives/debug.js';
 
 /** CHK-12: the glyphs of the icon set the checkbox draws — the spec's names, not values. */
 const CHECK_GLYPH = 'check';
@@ -56,7 +58,7 @@ const NO_VALUE = 'on';
  * design system's decision. How a press is answered and how keyboard focus is drawn are the system's choices of kind
  * (`--tanrei-sys-behavior-*`), read from the cascade.
  *
- * Form-associated: with a `name` it submits `value` (default "on") while checked, resets to its `checked` attribute,
+ * Form-associated: with a `name` it submits `value` (default "on") while checked, resets to the `checked` it was first given,
  * honours `required` and a disabled `<fieldset>`, as a native checkbox does. It switches its own `checked` (and clears
  * `indeterminate`) before it fires `input` and `change`. The semantics are a native checkbox in the shadow root, named
  * by `label`; a click on the visible label toggles it.
@@ -108,7 +110,7 @@ export class TanreiCheckbox extends TanreiElement {
     value: { type: String },
   };
 
-  /** Whether the choice is on. The `checked` attribute is the default a form reset returns to (as on a native checkbox). */
+  /** Whether the choice is on. The `checked` it is first given — by the attribute or as the property — is the default a form reset returns to (as a native checkbox's `defaultChecked`). */
   checked = false;
 
   /** Shows the choice as partly on. Wins over `checked` for what is drawn and announced; activation clears it (CHK-2). */
@@ -140,6 +142,9 @@ export class TanreiCheckbox extends TanreiElement {
 
   /** Web only: what it submits while checked. */
   value = 'on';
+
+  /** What a form's reset returns `checked` to: what it was first given, as a native checkbox's `defaultChecked`. */
+  private readonly checkedDefault = new FormDefault(this, () => this.checked, 'checked', (text) => text !== null);
 
   /** Form association, a click on the host, Enter (src/primitives/selection.ts). */
   private readonly selection = new SelectionController(this, () => this.input, {
@@ -222,7 +227,15 @@ export class TanreiCheckbox extends TanreiElement {
   formResetCallback() {
     // CHK-23: in a group the reset is the group's, which returns to its first value.
     if (this.owner) return;
-    this.checked = this.hasAttribute('checked');
+    this.checked = this.checkedDefault.value;
+  }
+
+  /**
+   * @internal CKG-8: what a form's reset returns `checked` to — the checked it was first given, or the `checked`
+   * attribute the product wrote since. A group whose first value is the markup's resets to these.
+   */
+  get firstChecked(): boolean {
+    return this.checkedDefault.value;
   }
 
   formStateRestoreCallback(state: string | null) {
@@ -302,7 +315,7 @@ export class TanreiCheckbox extends TanreiElement {
     this.selection.syncValidity();
     if (owner && (changed.has('checked') || changed.has('value') || changed.has('disabled'))) owner.memberChanged(this, changed.has('checked'));
     // CHK-16: a checkbox without a name still renders; a debug build says what is missing.
-    if (changed.has('label') && !this.label && !this.selection.field.label && !namedByProduct(this)) report(this, 'CHK-16', 'label is empty, so the checkbox has no accessible name; give it a label');
+    if (DEBUG && changed.has('label') && !this.label && !this.selection.field.label && !namedByProduct(this)) report(this, 'CHK-16', 'label is empty, so the checkbox has no accessible name; give it a label');
   }
 
   protected override render() {

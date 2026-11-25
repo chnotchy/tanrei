@@ -44,8 +44,8 @@ export const sizeBlock = (size: string, selector: string, fallback: string | nul
 }`;
 
 /**
- * A look (COD-1): the container's fill, and the ground — the opaque color the gutter and the copy button's patch stand
- * on while code scrolls under them (COD-10, COD-13). A filled look's ground is its fill. The outlined look has none of
+ * A look (COD-1): the container's fill, and the ground — the opaque color the gutter stands on while code scrolls under
+ * it (COD-13). A filled look's ground is its fill. The outlined look has none of
  * its own (its fill is transparent): it is read on whatever it is placed on, which a stylesheet cannot know, so the
  * ground is `--tanrei-code-block-ground` where the product names it and the surface color otherwise.
  */
@@ -57,7 +57,7 @@ export const variantBlock = (variant: string, selector: string, fallback: string
 /**
  * What the element's shadow styles change by its props, at the values of a block with no header and no copy button:
  * the padding above the first line (COD-3; COD-8 puts the header's own there) and the padding before and after the
- * lines (COD-10 widens the one at the copy button's side).
+ * lines.
  */
 export const layoutBlock = (selector: string) => `${selector} {
   --_code-block-pad-top: var(--_code-block-pad-block);

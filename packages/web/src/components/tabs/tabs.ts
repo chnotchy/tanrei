@@ -45,6 +45,7 @@ import { ownDirection } from '../../styles/product-text.js';
 import { TanreiTooltip } from '../tooltip/tooltip.js';
 import { AXES, ICON_PLACEMENT, INLINE_VARIANTS, ORIENTATIONS, TRACK_CHOICE, TRACK_PROPERTY, TRANSITION_CHOICE, TRANSITION_PROPERTY, TRANSITION_VALUES, panelStyles, tabStyles, tabsStyles } from './tabs.styles.js';
 import { TanreiElement } from '../../primitives/element.js';
+import { DEBUG } from '../../primitives/debug.js';
 
 /** The core variants (primary, secondary, tonal), plus any a design system's generated `.d.ts` registers. */
 export type TanreiTabsVariant = keyof TanreiTabsVariantRegistry | (string & {});
@@ -240,10 +241,14 @@ function rtlOf(element: Element): boolean {
 }
 const num = (n: number) => Math.round(n * 100) / 100;
 
-/** A tab's box and its plain content's box within it, as the row read them, in the row's own pixels. */
+/**
+ * A tab's box and its plain content's box within it, as the row read them, in the row's own pixels; and what the plain
+ * content draws — the box around its icon and label, without its padding — in the content's own coordinates.
+ */
 interface TabFrame {
   size: { w: number; h: number };
   content: Box;
+  ink: Box;
 }
 
 /**
@@ -254,15 +259,21 @@ interface TabFrame {
  * as the browser clamps it: at most half of either side), so a browser that interpolates two of these draws what this
  * function gives for the place in between: a slide's frames (TAB-17) are a drag's (TAB-28).
  */
-function pieces(pill: Box, line: Line, { size, content }: TabFrame, radius: number, edge: LineEdge = 'bottom') {
+function pieces(pill: Box, line: Line, { size, content, ink }: TabFrame, radius: number, edge: LineEdge = 'bottom') {
   // Reaching it by less than what a length is written to (a hundredth of a pixel: two boxes that meet, measured apart)
   // is not reaching it — it would be a hairline of the indicator's color drawn beside the indicator, on its neighbour.
   const reaches = pill.w > HAIR && pill.h > HAIR && pill.x < size.w - HAIR && pill.x + pill.w > HAIR && pill.y < size.h - HAIR && pill.y + pill.h > HAIR;
   const r = Math.max(0, Math.min(radius, pill.w / 2, pill.h / 2));
   const [x, y, w, h] = [pill.x - content.x, pill.y - content.y, pill.w, pill.h];
+  // A point of the plain content inside the cut: within the rounded box, its corners included, to a hair.
+  const cut = (px: number, py: number) => Math.hypot(px - Math.min(Math.max(px, x + r), x + w - r), py - Math.min(Math.max(py, y + r), y + h - r)) <= r + HAIR;
+  const meets = reaches && x < content.w - HAIR && x + w > HAIR && y < content.h - HAIR && y + h > HAIR;
   return {
     reaches,
-    meets: reaches && x < content.w - HAIR && x + w > HAIR && y < content.h - HAIR && y + h > HAIR,
+    meets,
+    // The cut holds all the plain content draws: nothing of it is drawn (the shape is convex, so the four corners of
+    // the box around the icon and the label say it).
+    hides: meets && cut(ink.x, ink.y) && cut(ink.x + ink.w, ink.y) && cut(ink.x, ink.y + ink.h) && cut(ink.x + ink.w, ink.y + ink.h),
     cover: `inset(${px(pill.y)} ${px(size.w - pill.x - pill.w)} ${px(size.h - pill.y - pill.h)} ${px(pill.x)} round ${px(r)})`,
     plain: `path(evenodd, "M-99999 -99999H99999V99999H-99999Z M${num(x + r)} ${num(y)}H${num(x + w - r)}A${num(r)} ${num(r)} 0 0 1 ${num(x + w)} ${num(y + r)}V${num(y + h - r)}A${num(r)} ${num(r)} 0 0 1 ${num(x + w - r)} ${num(y + h)}H${num(x + r)}A${num(r)} ${num(r)} 0 0 1 ${num(x)} ${num(y + h - r)}V${num(y + r)}A${num(r)} ${num(r)} 0 0 1 ${num(x + r)} ${num(y)}Z")`,
     // The corners that face away from the divider are rounded: the top ones of a row's underline, the start ones of a
@@ -535,23 +546,26 @@ export class TanreiTab extends TanreiElement {
 
   /**
    * @internal TAB-16, TAB-24: draws the indicator's and the underline's pieces on this tab. `pill` and `line` are in the
-   * tab's own coordinates (they may reach beyond it: the rest is drawn by its neighbours), `size` is the tab's box and
-   * `content` its plain content's box, `radius` the indicator's corner in px. The covered layer — the indicator's color
+   * tab's own coordinates (they may reach beyond it: the rest is drawn by its neighbours), `frame` the tab's box, its
+   * plain content's box and what that draws, `radius` the indicator's corner in px. The covered layer — the indicator's color
    * and the covered copy — is clipped to the indicator; the plain content has the same shape cut out, so nothing is
    * drawn twice under a translucent indicator. `null` draws neither.
    */
-  paintIndicator(pill: Box | null, line: Line | null, size: { w: number; h: number }, content: Box, radius: number) {
+  paintIndicator(pill: Box | null, line: Line | null, frame: TabFrame, radius: number) {
     const root = this.renderRoot;
     const cover = root?.querySelector<HTMLElement>('.cover');
     const underline = root?.querySelector<HTMLElement>('.underline');
     const plain = root?.querySelector<HTMLElement>('.tab > .content');
     if (!cover || !underline || !plain) return;
-    const piece = pill && line ? pieces(pill, line, { size, content }, radius, this.lineEdge) : null;
+    const piece = pill && line ? pieces(pill, line, frame, radius, this.lineEdge) : null;
     // A tab the indicator does not reach draws no copy at all: hidden, not only clipped away, so that nothing reads it as
     // text on the indicator's color (an accessibility checker does not see a clip).
     cover.style.visibility = piece?.reaches ? '' : 'hidden';
     cover.style.clipPath = piece?.cover ?? '';
     plain.style.clipPath = piece?.meets ? piece.plain : '';
+    // Plain content the cut takes whole is not drawn: hidden, not only clipped away, for the same reason — a checker
+    // would read it as text under the covered layer, which is drawn over it, instead of the copy that is drawn.
+    plain.style.visibility = piece?.hides ? 'hidden' : '';
     underline.style.clipPath = piece?.underline ?? '';
   }
 
@@ -582,7 +596,9 @@ export class TanreiTab extends TanreiElement {
       [cover, passed.reaches ? { clipPath: drawn.map((piece) => piece.cover), visibility: drawn.map(() => 'visible') } : { clipPath: drawn.map((piece) => piece.cover) }],
       [underline, { clipPath: drawn.map((piece) => piece.underline) }],
     ];
-    if (passed.meets) moved.push([plain, { clipPath: drawn.map((piece) => piece.plain) }]);
+    // The plain content the slide passes is drawn while it runs, as cut at each stop: hidden at rest only where the
+    // indicator takes it whole.
+    if (passed.meets) moved.push([plain, { clipPath: drawn.map((piece) => piece.plain), visibility: drawn.map(() => 'visible') }]);
     return moved.map(([element, keyframes]) => {
       const animation = new Animation(new KeyframeEffect(element, keyframes, timing));
       animation.id = SLIDE;
@@ -602,6 +618,14 @@ export class TanreiTab extends TanreiElement {
     const plate = this.renderRoot?.querySelector('.plate');
     return plate ? Number.parseFloat(getComputedStyle(plate).borderTopLeftRadius) || 0 : 0;
   }
+
+  /**
+   * @internal TAB-24: what the plain content draws (`TabFrame.ink`) as the row last measured it, with the content's box
+   * on the page and the scale it was measured at. It moves only with the content: the row measures it again where the
+   * content's box is another size or drawn at another scale, or the tab has drawn other content since (`updated()`),
+   * and never for a selection alone, which moves no content — so a key press reads no tab's icon or label.
+   */
+  inkMeasured: { width: number; height: number; scale: Scale; ink: Box } | null = null;
 
   /** TAB-41: the row measures this tab's label with every other row's (`measureLabel()`), so its next draw does not. */
   private labelDeferred = false;
@@ -699,6 +723,8 @@ export class TanreiTab extends TanreiElement {
       this.observedLabel = label;
       reported = !!label && !!this.labelSize$;
     }
+    // TAB-24: other content is laid out differently within its box, whatever the box's size: measured again when drawn.
+    if (['label', 'icon', 'labelHidden', 'truncated'].some((key) => changed.has(key as keyof TanreiTab))) this.inkMeasured = null;
     if (!label) this.truncated = false;
     else if (reported) {
       // Measured in the coming frame.
@@ -720,9 +746,9 @@ export class TanreiTab extends TanreiElement {
       tabindex: this.disabled ? null : tabStop ? '0' : '-1',
     });
     // TAB-22: a tab without a label, nor a name of the product's, still renders; a debug build says it has no name.
-    if (changed.has('label') && !this.label.trim() && !namedByProduct(this)) report(this, 'TAB-22', 'label is empty, so the tab has no accessible name; give it a label');
+    if (DEBUG && changed.has('label') && !this.label.trim() && !namedByProduct(this)) report(this, 'TAB-22', 'label is empty, so the tab has no accessible name; give it a label');
     // TAB-19: an icon-only tab needs an icon; without one the label is drawn anyway.
-    if ((changed.has('labelHidden') || changed.has('icon')) && this.labelHidden && !this.icon) {
+    if (DEBUG && (changed.has('labelHidden') || changed.has('icon')) && this.labelHidden && !this.icon) {
       report(this, 'TAB-19', 'label-hidden is set but the tab has no icon, so its label is drawn anyway; give it an icon');
     }
     if (changed.has('disabled') && this.disabled) this.spaceDown = false;
@@ -755,11 +781,11 @@ export class TanreiTab extends TanreiElement {
         @pointerleave=${this.press.release}
       >
         <span part="container" class="box" data-tanrei-shape aria-hidden="true"></span>
+        ${label && this.truncated ? html`<tanrei-tooltip class="tip" no-describe aria-hidden="true" .text=${this.label}></tanrei-tooltip>` : nothing}
         <span class="content"><span class="plate"></span>${glyph(true)}${text(true)}</span>
         <span part="active-indicator" class="cover" aria-hidden="true"><span class="content">${glyph(false)}${text(false)}</span></span>
         <span class="ring" data-tanrei-shape aria-hidden="true"></span>
         <span part="underline" class="underline" aria-hidden="true"></span>
-        ${label && this.truncated ? html`<tanrei-tooltip class="tip" no-describe aria-hidden="true" .text=${this.label}></tanrei-tooltip>` : nothing}
       </div>
     `;
   }
@@ -1551,17 +1577,17 @@ export class TanreiTabs extends TanreiElement {
     assign(panelSlot, panels);
 
     const selected = this.selectedTab;
-    if (this.value !== null && this.value !== undefined && !selected && tabs.length) report(this, 'TAB-11', `value "${this.value}" names no tab; none is drawn selected`);
+    if (DEBUG && this.value !== null && this.value !== undefined && !selected && tabs.length) report(this, 'TAB-11', `value "${this.value}" names no tab; none is drawn selected`);
     // Each value's first tab and first panel, looked up once each: a row of N tabs is read in O(N), never a search of
     // every tab for each tab or panel.
     const tabOfValue = new Map<string, TanreiTab>();
     const repeated = new Set<string>();
     for (const tab of tabs) {
-      if (!tab.value) report(this, 'TAB-11', `the tab "${tab.label}" has an empty value; it cannot be selected by value`);
+      if (!tab.value) DEBUG && report(this, 'TAB-11', `the tab "${tab.label}" has an empty value; it cannot be selected by value`);
       else if (tabOfValue.has(tab.value)) repeated.add(tab.value);
       else tabOfValue.set(tab.value, tab);
     }
-    for (const value of repeated) report(this, 'TAB-11', `the value "${value}" is given to more than one tab; the first of them is the one it selects`);
+    for (const value of repeated) DEBUG && report(this, 'TAB-11', `the value "${value}" is given to more than one tab; the first of them is the one it selects`);
     // TAB-2, TAB-12: one Tab stop — the selected tab, or the first enabled tab when that is disabled or there is none.
     const stop = selected && !selected.disabled ? selected : (tabs.find((tab) => !tab.disabled) ?? null);
     const secondary = INLINE_VARIANTS.includes(this.variant);
@@ -1968,7 +1994,7 @@ export class TanreiTabs extends TanreiElement {
       for (const each of read) {
         const pill = mark ? { ...mark.pill, x: mark.pill.x - each.x, y: mark.pill.y - each.y } : null;
         const line = mark ? { at: mark.line.at - (vertical ? each.y : each.x), length: mark.line.length } : null;
-        each.tab.paintIndicator(pill, line, each.size, each.content, radius);
+        each.tab.paintIndicator(pill, line, each, radius);
       }
     };
   }
@@ -1984,6 +2010,7 @@ export class TanreiTabs extends TanreiElement {
       const parts = tab.indicatorParts;
       if (!parts) return [];
       const [box, content] = [this.rect(parts.tab), this.rect(parts.content)];
+      const ink = this.inkOf(tab, parts, content, scale);
       return [
         {
           tab,
@@ -1991,10 +2018,28 @@ export class TanreiTabs extends TanreiElement {
           y: (box.top - origin.top) / scale.y,
           size: { w: box.width / scale.x, h: box.height / scale.y },
           content: { x: (content.left - box.left) / scale.x, y: (content.top - box.top) / scale.y, w: content.width / scale.x, h: content.height / scale.y },
+          ink,
         },
       ];
     });
     return { read, radius };
+  }
+
+  /**
+   * TAB-24: what `tab`'s plain content draws — its icon and label (the plate draws nothing), or its box while it holds
+   * neither — in the content's own coordinates and the row's own pixels. Kept on the tab while its content's box keeps
+   * its size and scale (`inkMeasured`): read again only where the content changed, not on every drawing of the row.
+   */
+  private inkOf(tab: TanreiTab, parts: TabParts, content: DOMRect, scale: Scale): Box {
+    const kept = tab.inkMeasured;
+    if (kept && kept.width === content.width && kept.height === content.height && kept.scale.x === scale.x && kept.scale.y === scale.y) return kept.ink;
+    const drawn = [...parts.content.children].filter((child) => child !== parts.plate).map((child) => this.rect(child));
+    const around = drawn.length ? drawn : [content];
+    const [left, top] = [Math.min(...around.map((r) => r.left)), Math.min(...around.map((r) => r.top))];
+    const [right, bottom] = [Math.max(...around.map((r) => r.right)), Math.max(...around.map((r) => r.bottom))];
+    const ink = { x: (left - content.left) / scale.x, y: (top - content.top) / scale.y, w: (right - left) / scale.x, h: (bottom - top) / scale.y };
+    tab.inkMeasured = { width: content.width, height: content.height, scale: { ...scale }, ink };
+    return ink;
   }
 
   /** The selected tab's indicator corner (TAB-16), once for each reading. */
@@ -2164,7 +2209,7 @@ export class TanreiTabs extends TanreiElement {
     this.rest = to;
     const vertical = this.vertical;
     const lineOn = (line: Line, each: { x: number; y: number }) => ({ at: line.at - (vertical ? each.y : each.x), length: line.length });
-    for (const each of read) each.tab.paintIndicator({ ...to.pill, x: to.pill.x - each.x, y: to.pill.y - each.y }, lineOn(to.line, each), each.size, each.content, radius);
+    for (const each of read) each.tab.paintIndicator({ ...to.pill, x: to.pill.x - each.x, y: to.pill.y - each.y }, lineOn(to.line, each), each, radius);
     // No fill: once finished they leave their elements' animations, and the clock's progress (null) reads as the end.
     const running = clock ?? new Animation(new KeyframeEffect(strip, [], timing));
     const now = strip.ownerDocument.timeline.currentTime;
@@ -2690,7 +2735,7 @@ export class TanreiTabs extends TanreiElement {
     if (followed !== null && followed === this.value && changed.size === 1 && changed.has('value')) return;
     if (changed.has('transition')) {
       // TAB-43: a value the tabs do not define is auto.
-      if (this.transition && !(TRANSITION_VALUES as readonly string[]).includes(this.transition)) report(this, 'TAB-43', `transition "${this.transition}" is not a transition of the tabs; it is taken as "auto"`);
+      if (DEBUG && this.transition && !(TRANSITION_VALUES as readonly string[]).includes(this.transition)) report(this, 'TAB-43', `transition "${this.transition}" is not a transition of the tabs; it is taken as "auto"`);
       // TAB-43: a slide that is running when the row's transition becomes none ends on its tab at once.
       if (this.sliding && this.hasNoTransition) {
         this.stopSliding();
@@ -2700,10 +2745,10 @@ export class TanreiTabs extends TanreiElement {
       }
     }
     // TAB-60: a value the tabs do not define is horizontal. TAB-56: a column does not fill.
-    if (changed.has('orientation') && this.orientation && !(ORIENTATIONS as readonly string[]).includes(this.orientation)) {
+    if (DEBUG && changed.has('orientation') && this.orientation && !(ORIENTATIONS as readonly string[]).includes(this.orientation)) {
       report(this, 'TAB-60', `orientation "${this.orientation}" is not an orientation of the tabs; they are laid out horizontally`);
     }
-    if ((changed.has('orientation') || changed.has('fullWidth')) && this.vertical && this.fullWidth) report(this, 'TAB-56', 'full-width does not apply to vertical tabs; it is ignored');
+    if (DEBUG && (changed.has('orientation') || changed.has('fullWidth')) && this.vertical && this.fullWidth) report(this, 'TAB-56', 'full-width does not apply to vertical tabs; it is ignored');
     // TAB-13: the tab list, named by the row's label. Anything but a new value may change what the tabs are sized from.
     if ([...changed.keys()].some((key) => key !== 'value')) this.reshaped = true;
     this.syncs.now();

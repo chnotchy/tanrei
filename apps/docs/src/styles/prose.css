@@ -14,8 +14,17 @@
  * `docs.focus` is named here, before any component's stylesheet is loaded, so that it is the first of the docs'
  * layers: it holds the site's focus ring for whatever has none of its own (`tanrei-theme.css`), and a component's
  * stylesheet that draws its own indicator — or says that a thing draws none — is read after it and wins.
+ *
+ * `docs-base` is named first of all, before Starlight's layers: every page of the site is a page that uses Tanrei, and
+ * it loads the page's base (`@tanrei/web/base.css`: the surface and its text color on the root, the body face on the
+ * body) as Getting started tells a product to — where a product's own rules win over it. Here those are Starlight's,
+ * the docs' layers and the theme's unlayered rules, so it fills only what none of them sets: the root's surface and
+ * color (Starlight's reset colors the body) and the body's size and weight (the reset gives the body only its face and
+ * line height, which the theme sets from the tokens). Among the docs' layers (`docs.*`, after Starlight's) it would
+ * instead win over the reset's face and line height on the body.
  */
-@layer starlight, docs, docs.focus;
+@layer docs-base, starlight, docs, docs.focus;
+@import '@tanrei/web/base.css' layer(docs-base);
 @import '@tanrei/web/prose.css' layer(docs.prose);
 @import '@tanrei/web/link.css' layer(docs.link);
 /* Inline code outside prose (the class `tanrei-code`) and the code block: its fill, corners, padding and face, its

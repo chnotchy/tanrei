@@ -287,6 +287,44 @@ test.describe('opening and closing', () => {
     expect(await page.evaluate(() => document.querySelectorAll('tanrei-tooltip[open]').length)).toBe(1);
   });
 
+  test('web, TIP-8, TIP-9: inline draws the open container in place, in the positioned box that stands for its window — several stay open at once, none closed by another tooltip opening nor by its anchor leaving the browser window’s view, and they answer no Escape', async ({ page }) => {
+    await mount(page, [f('a', {}), f('b', {}), f('c', {})]);
+    await page.addStyleTag({ content: `.stage:has(> tanrei-tooltip[inline]) { position: relative; }` });
+    for (const id of ['a', 'b']) await tip(page, id).evaluate((el: any) => Object.assign(el, { inline: true, open: true }));
+    const inPlace = (id: string) => surface(page, id).evaluate((el) => !el.matches(':popover-open') && !el.hasAttribute('popover') && getComputedStyle(el).display === 'block');
+    for (const id of ['a', 'b']) await expect.poll(() => inPlace(id), id).toBe(true);
+    // Placed as in the top layer: above its anchor, centred on it, the offset away, inside its stage.
+    for (const id of ['a', 'b']) {
+      const [box, at, stage] = await Promise.all([bounds(surface(page, id)), bounds(anchor(page, id)), bounds(page.locator(`[data-fixture="${id}"]`))]);
+      const offset = await resolveToken(page, T('offset'));
+      expect(Math.abs(box.y + box.height + offset - at.y), id).toBeLessThanOrEqual(0.5);
+      expect(Math.abs(box.x + box.width / 2 - (at.x + at.width / 2)), id).toBeLessThanOrEqual(0.5);
+      expect(box.y, id).toBeGreaterThanOrEqual(stage.y);
+    }
+    // Another tooltip opens in the browser's window: the two in place stay open.
+    await anchor(page, 'c').hover();
+    await expect.poll(() => isOpen(page, 'c')).toBe(true);
+    expect(await Promise.all(['a', 'b'].map((id) => isOpen(page, id)))).toEqual([true, true]);
+    // Escape closes the one in the browser's window, and none in place.
+    await page.keyboard.press('Escape');
+    await expect.poll(() => isOpen(page, 'c')).toBe(false);
+    expect(await Promise.all(['a', 'b'].map((id) => isOpen(page, id)))).toEqual([true, true]);
+    // Back in the top layer once inline is taken away, still open.
+    await tip(page, 'b').evaluate((el: any) => (el.inline = false));
+    await expect.poll(() => shown(page, 'b')).toBe(true);
+    expect(await isOpen(page, 'b')).toBe(true);
+    // The anchors far out of the browser window's view: the one in place is in its own window, and stays open, still
+    // placed against its anchor; the one in the top layer closes (TIP-9).
+    await page.addStyleTag({ content: `[data-fixture="a"] { margin-block-start: 3000px; }` });
+    await expect.poll(async () => (await bounds(anchor(page, 'a'))).y).toBeGreaterThan(2000);
+    await expect.poll(() => isOpen(page, 'b')).toBe(false);
+    const [a, s] = await Promise.all([bounds(anchor(page, 'a')), bounds(surface(page, 'a'))]);
+    expect(Math.abs(s.y + s.height + (await resolveToken(page, T('offset'))) - a.y)).toBeLessThanOrEqual(0.5);
+    expect(await isOpen(page, 'a')).toBe(true);
+    expect(await inPlace('a')).toBe(true);
+    expect(await log(page)).toEqual(['c:true', 'c:false', 'b:false']);
+  });
+
   test('TIP-17: show-delay, hide-delay and touch-timeout are milliseconds used as given in place of the tokens, not scaled by the motion dial; 0 opens and closes at once', async ({ page }) => {
     const set = { showDelay: 150, hideDelay: 50, touchTimeout: 250 };
     // Unset, the tokens; set, the values as written, whatever the motion dial says.
@@ -2002,16 +2040,26 @@ test.describe('motion', () => {
 });
 
 test.describe('accessibility', () => {
-  test('no axe violations in light and dark, open and closed', async ({ page }) => {
-    for (const theme of ['light', 'dark'] as const) {
-      await mountFixtures(page, spec, { theme, icons: true, fixtures: [...spec.fixtures, f('closed', { open: false })] });
-      // The second mount writes its document into a window that was painted already, so an open tooltip may play its
-      // entrance (MOT-4): axe reads it at rest, once every motion in the page has ended.
-      await motionEnded(page);
-      const results = await new AxeBuilder({ page }).include('main').analyze();
-      expect(results.violations, `${theme}: ${results.violations.map((v) => `${v.id} ${v.nodes.map((n) => n.target).join(' ')}`).join(', ')}`).toEqual([]);
-    }
-  });
+  // A test per fixture, each alone on the spec's stage as its baseline is: one tooltip is shown at a time (TIP-8), so
+  // every fixture told to open on one page left none shown, and axe found no tooltip text to check.
+  for (const fixture of [...spec.fixtures, f('closed', { open: false })]) {
+    test(`no axe violations in light and dark: ${fixture.id}`, async ({ page }) => {
+      await page.setViewportSize({ width: 320, height: 200 });
+      for (const theme of ['light', 'dark'] as const) {
+        await mountFixtures(page, spec, { theme, icons: true, fixtures: [fixture] });
+        await expect.poll(() => shown(page, fixture.id), theme).toBe(fixture.props.open !== false);
+        // The second mount writes its document into a window that was painted already, so an open tooltip may play its
+        // entrance (MOT-4): axe reads it at rest, once every motion in the page has ended.
+        await motionEnded(page);
+        const results = await new AxeBuilder({ page }).include('main').analyze();
+        expect(results.violations, `${theme}: ${results.violations.map((v) => `${v.id} ${v.nodes.map((n) => n.target).join(' ')}`).join(', ')}`).toEqual([]);
+        if (fixture.props.open !== false) {
+          const contrast = [...results.passes, ...results.violations, ...results.incomplete].filter((rule) => rule.id === 'color-contrast').flatMap((rule) => rule.nodes);
+          expect(contrast.length, `${theme}: axe checks the contrast of the shown tooltip's text`).toBeGreaterThan(0);
+        }
+      }
+    });
+  }
 });
 
 test.describe('fixtures', () => {

@@ -495,7 +495,11 @@ test.describe('the drag', () => {
     await listen(page);
     await page.locator('#input').focus();
     const before = await bounds(owner(page, 'both-bottom-end'));
-    const at = await centreOf(box(page, 'both-bottom-end'));
+    // The press at the whole pixel nearest the handle's centre: the handle stands below a line of the page's text, so
+    // its centre is part of a pixel down, and Firefox and WebKit deliver a press at a whole pixel. The distance to the
+    // window's edge is reported from where the press arrived (0.5 px from where a fractional one was asked for).
+    const centre = await centreOf(box(page, 'both-bottom-end'));
+    const at = { x: Math.round(centre.x), y: Math.round(centre.y) };
     await page.mouse.move(at.x, at.y);
     await page.mouse.down();
     // Within the slop: nothing yet.

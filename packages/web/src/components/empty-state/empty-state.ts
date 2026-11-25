@@ -16,6 +16,7 @@ import {
 import type { TanreiEmptyStateSizeRegistry } from '../../registry.js';
 import { ALIGNMENTS, AXES, styles } from './empty-state.styles.js';
 import { TanreiElement } from '../../primitives/element.js';
+import { DEBUG } from '../../primitives/debug.js';
 
 /** The core sizes (medium, large), plus any a design system's generated `.d.ts` registers. */
 export type TanreiEmptyStateSize = keyof TanreiEmptyStateSizeRegistry;
@@ -326,17 +327,17 @@ export class TanreiEmptyState extends TanreiElement implements PlacingGroup {
     this.presented = true;
 
     // EMP-17: an alignment this spec does not have is drawn as center. (An unknown size is the axes' to report.)
-    if (has('align') && !(ALIGNMENTS as readonly string[]).includes(this.align)) {
+    if (DEBUG && has('align') && !(ALIGNMENTS as readonly string[]).includes(this.align)) {
       report(this, 'EMP-17', `align "${this.align}" is not an alignment of an empty state; it is drawn as "center"`);
     }
     // EMP-4: a level that is not one of a heading's is drawn as 2.
-    if (has('level') && this.headingLevel !== Number(this.level)) {
+    if (DEBUG && has('level') && this.headingLevel !== Number(this.level)) {
       report(this, 'EMP-4', `level "${String(this.getAttribute('level') ?? this.level)}" is not a whole number from 1 to 6; the title is a heading of level 2`);
     }
     // EMP-18: what a debug build tells the product.
     if (has('headline') || has('hasTitle') || has('hasDescription')) {
-      if (this.empty) report(this, 'EMP-18', 'the empty state has no title and no description, so it draws nothing; a glyph or actions alone do not tell a person what is missing');
-      else if (!this.titled) report(this, 'EMP-18', 'the empty state has a description and no title; say what is missing in the headline attribute or the title slot');
+      if (this.empty) DEBUG && report(this, 'EMP-18', 'the empty state has no title and no description, so it draws nothing; a glyph or actions alone do not tell a person what is missing');
+      else if (DEBUG && !this.titled) report(this, 'EMP-18', 'the empty state has a description and no title; say what is missing in the headline attribute or the title slot');
     }
   }
 

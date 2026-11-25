@@ -118,7 +118,12 @@ function windowedOf(staging, stages) {
   return [...windowed];
 }
 
-/** The size of a fixture's stage in CSS pixels, read from its baseline's IHDR chunk; nothing where it has none. */
+/**
+ * The size of a fixture's stage in CSS pixels, read from its baseline's IHDR chunk; nothing where it has none. The
+ * baseline is taken at a device pixel ratio of 2, so a stage of a fractional height (a line of text is 20.5 px tall in a
+ * face) is that height in half pixels: rounded to a whole pixel, the room its stage holds before it is drawn would be
+ * half a pixel off what it is drawn at, and the page around it would move by that pixel when it is.
+ */
 function baseline(spec, id) {
   const file = path.join(repo, 'packages/web/snapshots', spec, `${id}.png`);
   if (!fs.existsSync(file)) return undefined;
@@ -130,7 +135,7 @@ function baseline(spec, id) {
     fs.closeSync(fd);
   }
   if (header.toString('ascii', 12, 16) !== 'IHDR') return undefined;
-  return { width: Math.round(header.readUInt32BE(16) / 2), height: Math.round(header.readUInt32BE(20) / 2) };
+  return { width: header.readUInt32BE(16) / 2, height: header.readUInt32BE(20) / 2 };
 }
 
 const documents = {};

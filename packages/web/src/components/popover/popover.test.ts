@@ -6,6 +6,7 @@
 // POP-44: the product's ARIA on the host is tested with every other control's, in every engine, in
 // src/primitives/delegated-aria.test.ts.
 import AxeBuilder from '@axe-core/playwright';
+import { coveredText } from '../../../test/covered-text.js';
 import { type Locator, type Page, expect, test } from '@playwright/test';
 import { type Fixture, innerStrokeAtEdges, loadSpec, missingWords, mountFixtures, popoverWindow, resolveColor, resolveToken, roleFont, rootTokens, setWords, tab, tabTo, warnings } from '../../../test/harness.js';
 import { appearProbe, bezierOf, expectAppearStart, expectExitEnd, expectSlideExitEnd, expectSlidOnly, expectTurnedAlone, resolveEasing, sheetProbe, slidOut, turnHeld } from '../../../test/appear.js';
@@ -2856,6 +2857,9 @@ test.describe('triggers', () => {
       await onAnchor(page);
       await expect.poll(() => isShown(page)).toBe(true);
       await settle(page);
+      // At rest: while its open motion (POP-26) runs, its content is still fading in, and axe reads a color part of the
+      // way there (WebKit: the link at 58 % of its opacity over the dark surface, 3.38:1).
+      await motionEnded(surface(page).locator('> .motion'));
       const results = await new AxeBuilder({ page }).analyze();
       expect(results.violations, `${theme}: ${results.violations.map((v) => `${v.id} ${v.nodes.map((n) => n.target).join(' ')}`).join(', ')}`).toEqual([]);
     }
@@ -2869,6 +2873,7 @@ test.describe('accessibility', () => {
       await settle(page);
       const results = await new AxeBuilder({ page }).include('main').analyze();
       expect(results.violations, `${theme}: ${results.violations.map((v) => `${v.id} ${v.nodes.map((n) => n.target).join(' ')}`).join(', ')}`).toEqual([]);
+      expect(await coveredText(page, results), `${theme}: no text left unchecked as covered`).toEqual([]);
       // The real overlay, open against its opener and closed.
       const real: Fixture[] = [
         { ...spec.fixtures.find((f) => f.id === 'arrow-actions')!, id: 'top-layer', props: { ...spec.fixtures.find((f) => f.id === 'arrow-actions')!.props, anchor: 'opener-open' } },
@@ -2883,6 +2888,7 @@ test.describe('accessibility', () => {
       await motionEnded(fixtureHost(page, 'top-layer'));
       const overlay = await new AxeBuilder({ page }).analyze();
       expect(overlay.violations, `${theme}, top layer: ${overlay.violations.map((v) => `${v.id} ${v.nodes.map((n) => n.target).join(' ')}`).join(', ')}`).toEqual([]);
+      expect(await coveredText(page, overlay), `${theme}, top layer: no text left unchecked as covered`).toEqual([]);
     }
   });
 });

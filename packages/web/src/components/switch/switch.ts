@@ -22,6 +22,8 @@ import { PROGRESS, styles } from './switch.styles.js';
 import { disabledWaitsWhileFocused } from '../../primitives/disabled-while-focused.js';
 import { focusedAtFirst } from '../../primitives/autofocus.js';
 import { TanreiElement } from '../../primitives/element.js';
+import { FormDefault } from '../../primitives/form-default.js';
+import { DEBUG } from '../../primitives/debug.js';
 
 const clamp = (value: number) => Math.min(1, Math.max(0, value));
 
@@ -43,7 +45,7 @@ export interface TanreiSwitchChangeDetail {
  * when the pointer is released — to the nearer side, or the side a fling is toward — with one `input` and one `change`;
  * Escape, a cancelled pointer, `disabled` or a `checked` set meanwhile return the handle and fire nothing.
  *
- * Form-associated: while checked it submits `value` (default "on") under `name`, resets to its `checked` attribute and
+ * Form-associated: while checked it submits `value` (default "on") under `name`, resets to the `checked` it was first given and
  * follows a disabled `<fieldset>`, as a native checkbox does. It switches its own `checked` before it fires `input` and
  * `change`. The semantics are a native checkbox with the role switch in the shadow root, named by `label`; a click on
  * the visible label toggles it.
@@ -84,7 +86,7 @@ export class TanreiSwitch extends TanreiElement {
     value: { type: String },
   };
 
-  /** Whether the setting is on. The `checked` attribute is the default a form reset returns to. */
+  /** Whether the setting is on. The `checked` it is first given — by the attribute or as the property — is the default a form reset returns to. */
   checked = false;
 
   /** Prevents interaction and removes the switch from the focus order. */
@@ -113,6 +115,9 @@ export class TanreiSwitch extends TanreiElement {
 
   /** Web only: what it submits while checked. */
   value = 'on';
+
+  /** What a form's reset returns `checked` to: what it was first given, as a native checkbox's `defaultChecked`. */
+  private readonly checkedDefault = new FormDefault(this, () => this.checked, 'checked', (text) => text !== null);
 
   /** Form association, a click on the host, Enter (src/primitives/selection.ts). */
   private readonly selection = new SelectionController(this, () => this.input, { named: () => !!this.label });
@@ -153,7 +158,7 @@ export class TanreiSwitch extends TanreiElement {
   }
 
   formResetCallback() {
-    this.checked = this.hasAttribute('checked');
+    this.checked = this.checkedDefault.value;
   }
 
   formStateRestoreCallback(state: string | null) {
@@ -469,7 +474,7 @@ export class TanreiSwitch extends TanreiElement {
   protected override updated(changed: PropertyValues<this>) {
     this.selection.setFormValue(this.checked ? this.value : null, String(this.checked));
     // SWT-16: a switch without a name still renders; a debug build says what is missing.
-    if (changed.has('label') && !this.label && !this.selection.field.label && !namedByProduct(this)) report(this, 'SWT-16', 'label is empty, so the switch has no accessible name; give it a label');
+    if (DEBUG && changed.has('label') && !this.label && !this.selection.field.label && !namedByProduct(this)) report(this, 'SWT-16', 'label is empty, so the switch has no accessible name; give it a label');
   }
 
   protected override render() {

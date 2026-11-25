@@ -184,7 +184,7 @@ test.describe('the row and a title', () => {
     }
     // The label's style is the token's: another role changes it.
     const before = await px(container(page, 'default', 'File').locator('.label'), 'font-size');
-    await override(page, typeRoleOf(T('label-typescale'), '--tanrei-sys-typescale-headline'));
+    await override(page, typeRoleOf(T('label-typescale'), '--tanrei-sys-typescale-heading-2'));
     expect(await px(container(page, 'default', 'File').locator('.label'), 'font-size')).toBeGreaterThan(before);
   });
 
@@ -928,7 +928,9 @@ test.describe('targets and disabled', () => {
     }
     // A press to either side of the middle goes to the nearer title (a wider gap, so that whole pixels lie on each side).
     await override(page, { [T('bar-gap')]: '10px' });
-    const [go, next] = [await box(menu(page, 'short-titles', 'Go')), await box(menu(page, 'short-titles', 'Do'))];
+    // A point is found only inside the viewport: the bar is brought into it wherever the fixtures above leave it.
+    await bar(page, 'short-titles').scrollIntoViewIfNeeded();
+    const [go, next] =[await box(menu(page, 'short-titles', 'Go')), await box(menu(page, 'short-titles', 'Do'))];
     expect(next.x - go.right).toBeCloseTo(10, 1);
     const middle = (go.right + next.x) / 2;
     const y = go.y + go.height / 2;
@@ -3195,8 +3197,31 @@ test.describe('accessibility', () => {
   });
 });
 
+/**
+ * MBR-9: an open menu of a fixture is drawn holding its items — at least one, each shown inside the menu's surface and
+ * inside the fixture's stage, which is what its picture is taken of. A picture of an open menu is never of an empty
+ * surface (MBR-20's edge), and never of one whose items lie outside what is captured.
+ */
+async function expectOpenMenusDrawn(page: P, f: Fixture) {
+  const stage = await box(page.locator(`[data-fixture="${f.id}"]`));
+  for (const label of f.items!.filter((each) => each.kind === 'menu' && each.props.open).map((each) => String(each.props.label))) {
+    const items = menu(page, f.id, label).locator(':scope > tanrei-menu-item');
+    expect(await items.count(), `${f.id}: ${label} holds items`).toBeGreaterThan(0);
+    const surface = await box(surfaceOf(page, f.id, label));
+    for (const item of await items.all()) {
+      await expect(item, `${f.id}: ${label}`).toBeVisible();
+      const b = await box(item);
+      expect(b.height, `${f.id}: ${label}: an item has a height`).toBeGreaterThan(0);
+      for (const [outer, name] of [[surface, 'surface'], [stage, 'stage']] as const) {
+        expect(b.y, `${f.id}: ${label}: an item inside the ${name}`).toBeGreaterThanOrEqual(outer.y - 0.5);
+        expect(b.bottom, `${f.id}: ${label}: an item inside the ${name}`).toBeLessThanOrEqual(outer.bottom + 0.5);
+      }
+    }
+  }
+}
+
 test.describe('fixtures', () => {
-  test('every fixture is mounted: its titles and its bar items in the row or folded, an open menu over its empty surface in place', async ({ page }) => {
+  test('every fixture is mounted: its titles and its bar items in the row or folded, an open menu in place holding its items', async ({ page }) => {
     await mountFixtures(page, spec, { icons: true });
     for (const f of spec.fixtures) {
       const labels = f.items!.map((each) => String(each.props.label));
@@ -3220,6 +3245,7 @@ test.describe('fixtures', () => {
         if (f.direction === 'rtl') expect(Math.abs(s.right - c.right), f.id).toBeLessThan(0.6);
         else expect(Math.abs(s.x - c.x), f.id).toBeLessThan(0.6);
       }
+      await expectOpenMenusDrawn(page, f);
     }
     // Nothing took focus: the open fixtures are drawn in place.
     expect(await page.evaluate(() => document.activeElement === document.body)).toBe(true);
@@ -3228,6 +3254,8 @@ test.describe('fixtures', () => {
   for (const f of spec.fixtures) {
     test(`snapshot: ${f.id}`, async ({ page }) => {
       await mountFixtures(page, spec, { icons: true });
+      // A picture of an open menu is taken of its items, never of an empty surface.
+      await expectOpenMenusDrawn(page, f);
       await expectBaseline(page.locator(`[data-fixture="${f.id}"]`), [spec.name, `${f.id}.png`]);
     });
   }

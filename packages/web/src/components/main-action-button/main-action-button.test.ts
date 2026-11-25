@@ -42,16 +42,20 @@ const resolveShadow = (page: P, name: string) =>
     probe.remove();
     return value;
   }, name);
-/** A property as a token makes it compute on a probe (a font weight, an easing). */
-const resolveAs = (page: P, property: string, name: string) =>
-  page.evaluate(([p, n]) => {
+/**
+ * A property as a token makes it compute on a probe (a font weight, an easing). A length in `em` (a letter-spacing)
+ * computes against the probe's font size: give the role's (`size`), not the page's body face.
+ */
+const resolveAs = (page: P, property: string, name: string, size?: string) =>
+  page.evaluate(([p, n, s]) => {
     const probe = document.createElement('div');
     probe.style.setProperty(p, `var(${n})`);
+    if (s) probe.style.setProperty('font-size', `var(${s})`);
     document.body.appendChild(probe);
     const value = getComputedStyle(probe).getPropertyValue(p);
     probe.remove();
     return value;
-  }, [property, name] as const);
+  }, [property, name, size ?? null] as const);
 /** The font's axes as drawn: `"FILL" 1, "wght" 300, "GRAD" 0` → { FILL: 1, wght: 300, GRAD: 0 }. */
 // Axis values to 1/1000: Firefox serializes an opsz computed as tan(atan2(48px, 1px)) as 47.9999.
 const axes = (locator: Locator) =>
@@ -300,7 +304,7 @@ test.describe('behavior', () => {
       const label = labelOf(page, id);
       expect(Number.parseFloat(await style(label, 'font-size')), id).toBe(await resolveToken(page, T(`label-typescale-${size}-font-size`)));
       expect(await style(label, 'font-weight'), id).toBe(await resolveAs(page, 'font-weight', T(`label-typescale-${size}-font-weight`)));
-      expect(await style(label, 'letter-spacing'), id).toBe(await resolveAs(page, 'letter-spacing', T(`label-typescale-${size}-letter-spacing`)));
+      expect(await style(label, 'letter-spacing'), id).toBe(await resolveAs(page, 'letter-spacing', T(`label-typescale-${size}-letter-spacing`), T(`label-typescale-${size}-font-size`)));
       expect(await family(label), id).toBe(await familyToken(page, T(`label-typescale-${size}-font-family`)));
     }
     // The icon size of each size, in either form.

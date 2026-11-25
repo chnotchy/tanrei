@@ -16,6 +16,7 @@ import { holdClock, releaseClock } from '../../../test/page-clock.js';
 import { simulateMacClickFocus } from '../../../test/click-focus.js';
 import { expectBaseline } from '../../../test/baseline.js';
 import { type HeldGlyph, expectGlyphsHeldBack } from '../../../test/held-glyphs.js';
+import { laidOutBox } from '../../../test/laid-out-box.js';
 
 const spec = loadSpec('chip');
 type P = Page;
@@ -25,7 +26,8 @@ const removeOf = (page: P, id: string) => host(page, id).locator('.remove');
 const labelOf = (page: P, id: string) => host(page, id).locator('.label');
 const iconOf = (page: P, id: string) => host(page, id).locator('.icon');
 const checkOf = (page: P, id: string) => host(page, id).locator('.check');
-const bounds = async (locator: Locator) => (await locator.boundingBox())!;
+/** A box as the engine laid it out (test/laid-out-box.ts): a chip below a line of the page's text keeps its size in Firefox. */
+const bounds = laidOutBox;
 const style = (locator: Locator, property: string, pseudo?: string) =>
   locator.evaluate((el, [p, ps]) => getComputedStyle(el, ps ?? undefined).getPropertyValue(p as string), [property, pseudo ?? null] as const);
 const css = (page: P, id: string, property: string, pseudo?: string) => style(inner(page, id), property, pseudo);

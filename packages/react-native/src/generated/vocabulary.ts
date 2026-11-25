@@ -738,6 +738,7 @@ export interface TanreiBottomSheetTokens {
   readonly containerPartialFraction: number;
   readonly containerShape: number;
   readonly contentColor: TanreiPaint;
+  readonly contentPaddingBlockStart: number;
   readonly dividerColor: TanreiPaint;
   readonly dividerVisibility: number;
   readonly dividerWidth: number;
@@ -936,6 +937,7 @@ export interface TanreiButtonWithMenuTokens {
   readonly hoveredOpacity: number;
   readonly motionBusyCycleDuration: number;
   readonly motionBusyFadeDuration: number;
+  readonly motionBusyPulseFloorOpacity: number;
   readonly motionFeedbackDuration: number;
   readonly motionHoverCloseDelay: number;
   readonly motionHoverOpenDelay: number;
@@ -1047,6 +1049,7 @@ export interface TanreiButtonTokens {
   readonly hoveredOpacity: number;
   readonly motionBusyCycleDuration: number;
   readonly motionBusyFadeDuration: number;
+  readonly motionBusyPulseFloorOpacity: number;
   readonly motionFeedbackDuration: number;
   readonly motionStateEasing: TanreiCubicBezier;
   readonly pressedContainerShape: number;
@@ -1382,6 +1385,7 @@ export interface TanreiChatComposerTokens {
   readonly hoveredOutlineWidth: number;
   readonly inputPaddingBlock: number;
   readonly layoutInlineMinWidth: number;
+  readonly layoutInputMinWidth: number;
   readonly motionGlyphFadeDuration: number;
   readonly motionResizeDuration: number;
   readonly motionResizeEasing: TanreiCubicBezier;
@@ -3146,6 +3150,7 @@ export interface TanreiLoadingIndicatorTokens {
   readonly motionEnterDuration: number;
   readonly motionEnterEasing: TanreiCubicBezier;
   readonly motionEntrance: number;
+  readonly motionPulseFloorOpacity: number;
   readonly motionShowDelay: number;
   readonly sizes: TanreiLoadingIndicatorSizes;
 }
@@ -4049,6 +4054,7 @@ export interface TanreiProgressIndicatorTokens {
   readonly indicatorColor: TanreiPaint;
   readonly motionCycleDuration: number;
   readonly motionCycleEasing: TanreiCubicBezier;
+  readonly motionPulseFloorOpacity: number;
   readonly motionShowDelay: number;
   readonly motionValueDuration: number;
   readonly motionValueEasing: TanreiCubicBezier;
@@ -4658,6 +4664,7 @@ export interface TanreiSideSheetTokens {
   readonly containerPaddingInline: number;
   readonly containerWidth: number;
   readonly contentColor: TanreiPaint;
+  readonly contentPaddingBlockStart: number;
   readonly dividerColor: TanreiPaint;
   readonly dividerVisibility: number;
   readonly dividerWidth: number;
@@ -5498,7 +5505,6 @@ export type TanreiTabsSizes = { readonly [Key in TanreiCoreTabsSize]: TanreiTabs
  * `<state><Part>`), then one holder per axis (`variants`, `sizes`), keyed by the axis value.
  */
 export interface TanreiTabsTokens {
-  readonly activeIndicatorHeight: number;
   readonly containerGap: number;
   readonly containerHeightWithIcon: number;
   readonly containerShape: number;

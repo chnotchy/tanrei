@@ -104,7 +104,9 @@ body {
    Starlight's and before every component's stylesheet. It is the ring of whatever draws none itself. Unlayered it
    also won over the components that do — a sortable header of the Table, a row of the Tree view, each of which says
    `outline: none` and draws its indicator on another box — and they were drawn with two rings; and the main region,
-   which takes focus from the skip link and is no control, was drawn with one. */
+   which takes focus from the skip link and is no control, was drawn with one. A component whose host takes focus
+   itself (a tab, a tab panel, a list item) and draws its ring inside refuses this one with `outline: none !important`
+   on its host, which no rule of a page outweighs; an element not yet defined (the search's stand-in) takes it. */
 @layer docs.focus {
   :focus-visible {
     outline: var(--tanrei-sys-focus-outer-width) solid var(--tanrei-sys-color-focus-ring);
@@ -124,6 +126,16 @@ body {
 
 /* A page's title is drawn by the page header, tracking and all (PGH-4) — on a page of content by
    components/frame/PageTitle.astro, on the landing page by components/Hero.astro: nothing here. */
+
+/* A Japanese heading — a page's title, the home page's title, a heading of the content — breaks between phrases (文節),
+   as Japanese headlines are set, not anywhere a character allows: the home page's title left 「へ。」 alone on its last
+   line. What prose and the page header leave open (they set `line-break: strict` and balance the lines); a phrase
+   longer than the line still breaks where the text allows. Not a lead or any paragraph: lines of several sentences
+   broken only between phrases leave a ragged edge with a gap at the end of most lines. An engine that does not
+   segment phrases (Firefox, WebKit) ignores the value and wraps as before. */
+:is(h1, h2, h3, h4, h5, h6):lang(ja) {
+  word-break: auto-phrase;
+}
 
 /* A heading's anchor is placed and revealed by prose (PRS-21, PRS-22) and drawn by the Link (LNK-16): nothing here. */
 /* Inline code is Tanrei's inline code, drawn by prose (`@tanrei/web/prose.css`) in the content column and by the class

@@ -6,8 +6,8 @@
 // - its stage is drawn in the other direction when the direction is turned, and as wide as its handle says;
 // - every frame is drawn in the page's look, with no system of its own (a frame pinned to a preset excepted): the
 //   tokens the look's stylesheet gives the root, and the scheme chosen in the appearance menu;
-// - what a stage holds is defined once it comes near the view, not with the page, and a stage away from the view keeps
-//   its room while a tag it holds is defined for another part of the page.
+// - what a stage holds is defined once it comes near the view, not with the page, and a stage below the view takes the
+//   room its elements take drawn once a tag it holds is defined for another part of the page, moving nothing in the view.
 //
 //   pnpm --filter @tanrei/docs build && pnpm --filter @tanrei/docs test:browser
 //   DOCS_ENGINES=chromium node --test test/browser/example.test.mjs   # in one engine (all three by default)
@@ -122,7 +122,7 @@ for (const engine of ENGINES) {
       assert.match(react.shown, new RegExp(`^import \\{ Button \\} from '${config.packages.npmScope}/react';`));
       assert.match(react.shown, /<Button\b/);
       assert.equal(react.copied, react.shown);
-      assert.equal(await page.evaluate(() => localStorage.getItem('tanrei-docs-example-code')), 'react', 'the choice is kept');
+      assert.equal(await page.evaluate(() => localStorage.getItem('tanrei-docs-tabs-example-code')), 'react', 'the choice is kept');
 
       // Another frame opened after follows the choice.
       const next = await page.evaluate(() => {
@@ -133,6 +133,9 @@ for (const engine of ENGINES) {
       await drawn(page, next);
       await page.locator(`${next} [data-example-code]`).click();
       await page.waitForFunction((selector) => document.querySelector(selector).querySelector('[data-example-code-panel] tanrei-code-block')?.language === 'jsx', next);
+      // The rows share one choice and keep it with the Tabs' own group and key, not a store of the site's own.
+      assert.equal(await page.locator(`${next} [data-example-flavors]`).evaluate((row) => row.value), 'react', 'the row opened after shows the choice of its group');
+      assert.deepEqual(await page.locator('[data-example-flavors]').evaluateAll((rows) => rows.map((row) => [row.getAttribute('group'), row.getAttribute('remember-as')])), [['example-code', 'tanrei-docs-tabs-example-code'], ['example-code', 'tanrei-docs-tabs-example-code']]);
 
       await button.click();
       assert.equal((await code(page, FIRST)).open, false, 'pressed again, the code closes');
@@ -222,8 +225,11 @@ for (const engine of ENGINES) {
     });
 
     // The Calendar's page: its first example, in the view, defines the calendar; the six further down hold one each,
-    // which the browser upgrades with it while their stages are still away from the view.
-    test('a stage away from the view keeps its room when a tag it holds is defined for another part of the page, and takes the room it needs when it comes near', LIMIT, async () => {
+    // which the browser upgrades with it while their stages are still away from the view. Each of those, below the view,
+    // takes the calendar's room then — the room it is drawn in, not the room of an undefined element, so that a reader
+    // who reaches it in one move (a page at a time) sees nothing pushed down — while the stage in the view does not move,
+    // and its elements are still held back (its actions are drawn when it comes near).
+    test('a stage below the view takes the room its elements take once a tag it holds is defined for another part of the page, and nothing in the view moves', LIMIT, async () => {
       const context = await browser.newContext({ viewport: WIDE, reducedMotion: 'reduce', colorScheme: 'light' });
       const page = await context.newPage();
       // Every script is held until the page has been read as it is drawn without them.
@@ -241,24 +247,35 @@ for (const engine of ENGINES) {
       await page.evaluate(() => Promise.race([document.fonts.ready, new Promise((resolve) => setTimeout(resolve, 5_000))]));
       const heights = () =>
         page.evaluate(() =>
-          [...document.querySelectorAll('[data-example-stage]:has(> tanrei-calendar)')].map((stage) => ({ id: stage.id, height: stage.getBoundingClientRect().height, pending: stage.hasAttribute('data-example-pending'), defined: stage.querySelector(':scope > tanrei-calendar').matches(':defined') })),
+          [...document.querySelectorAll('[data-example-stage]:has(> tanrei-calendar)')].map((stage) => ({
+            id: stage.id,
+            top: stage.getBoundingClientRect().top,
+            height: stage.getBoundingClientRect().height,
+            pending: stage.hasAttribute('data-example-pending'),
+            held: stage.hasAttribute('data-example-held'),
+            defined: stage.querySelector(':scope > tanrei-calendar').matches(':defined'),
+          })),
         );
       const before = await heights();
       release();
       await page.waitForLoadState('load');
       await page.waitForFunction(() => customElements.get('tanrei-calendar'));
       await settlePage(page, { tags: ['tanrei-calendar'], among: '[data-example-stage]', update: '[data-example-stage] > tanrei-calendar', fonts: false });
+      // (A stage is let go in the frame after its tag is defined.)
+      await page.waitForFunction(() => !document.querySelector('[data-example-stage][data-example-held]:has(> tanrei-calendar:defined)'), null, { timeout: 10_000 });
       const after = await heights();
       const away = after.filter((stage) => stage.pending);
-      assert.ok(after.length - away.length >= 1, 'the first calendar, in the view, is drawn');
-      assert.ok(away.length >= 1, 'a calendar further down is away from the view');
-      for (const stage of away) {
-        const was = before.find((each) => each.id === stage.id);
-        assert.equal(stage.defined, true, `#${stage.id}'s calendar is upgraded with the tag`);
-        assert.ok(Math.abs(stage.height - was.height) < 0.5, `#${stage.id}, away from the view, keeps its room (${was.height} px) once the calendar is defined: it is ${stage.height} px`);
-      }
-      // Once it comes near, it takes the calendar's room, as the first stage did.
       const [first] = after.filter((stage) => !stage.pending);
+      assert.ok(first, 'the first calendar, in the view, is drawn');
+      assert.ok(away.length >= 1, 'a calendar further down is away from the view');
+      const firstBefore = before.find((each) => each.id === first.id);
+      assert.ok(Math.abs(first.top - firstBefore.top) < 0.5, `the stage in the view does not move: its top was ${firstBefore.top} px, it is ${first.top} px`);
+      for (const stage of away) {
+        assert.equal(stage.defined, true, `#${stage.id}'s calendar is upgraded with the tag`);
+        assert.equal(stage.held, false, `#${stage.id}, below the view, no longer holds the room of an undefined calendar`);
+        assert.ok(Math.abs(stage.height - first.height) < 0.5, `#${stage.id}, below the view, is as tall as the first calendar's stage (${first.height} px) before it comes near: it is ${stage.height} px`);
+      }
+      // Once it comes near, it is drawn in that same room.
       const last = away.at(-1);
       await settle(page, `#${last.id}`, { scroll: 'center', pending: '[data-example-pending]' });
       const drawnLast = (await heights()).find((stage) => stage.id === last.id);

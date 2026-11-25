@@ -19,6 +19,7 @@ import { AXES, CORE_SIZES, heightProbe, styles } from './app-bar.styles.js';
 import { ownDirection } from '../../styles/product-text.js';
 import { TanreiElement } from '../../primitives/element.js';
 import { cancelPhaseRead, readInPhase } from '../../primitives/read-phase.js';
+import { DEBUG } from '../../primitives/debug.js';
 
 /** The core sizes (small, large), plus any a design system adds: a size other than small has a title row that collapses. */
 export type TanreiAppBarSize = 'small' | 'large' | (string & {});
@@ -364,7 +365,7 @@ export class TanreiAppBar extends TanreiElement {
       if (!element) {
         // The element may come later in the document: look again on the next frame, once.
         if (attempt === 0) this.retry = requestAnimationFrame(() => this.connectScroll(1));
-        else report(this, 'APB-9', `scroll-target "${name}" names no element; the bar follows nothing and draws what scrolled says`);
+        else DEBUG && report(this, 'APB-9', `scroll-target "${name}" names no element; the bar follows nothing and draws what scrolled says`);
         return;
       }
       this.source = { target: element, read: () => element.scrollTop };
@@ -573,7 +574,7 @@ export class TanreiAppBar extends TanreiElement {
     const menu = this.overflowMenu;
     if (menu?.open) menu.open = false;
     if (out.size && this.menuMode && !this.words.get('toolbarOverflowLabel', this.overflowLabel)) {
-      this.words.missing('toolbarOverflowLabel', { prop: 'overflowLabel', id: 'APB-33', effect: 'the more button is drawn and opens its menu, and has no accessible name' });
+      this.words.missing('toolbarOverflowLabel', DEBUG && { prop: 'overflowLabel', id: 'APB-33', effect: 'the more button is drawn and opens its menu, and has no accessible name' });
     }
     return true;
   }
@@ -732,13 +733,13 @@ export class TanreiAppBar extends TanreiElement {
       this.brands = { ...this.brands, [slot.name]: items.length };
       // APB-22: the images are the link's picture, not its name: the name is brand-label, read once.
       for (const item of items) if (item.getAttribute('aria-hidden') !== 'true') item.setAttribute('aria-hidden', 'true');
-      if (items.length > 1) report(this, 'APB-23', `the ${slot.name} slot holds ${items.length} images; it draws one`);
+      if (DEBUG && items.length > 1) report(this, 'APB-23', `the ${slot.name} slot holds ${items.length} images; it draws one`);
       this.reportBrand();
     } else if (slot.name === 'context') {
       this.hasContext = items.length > 0;
     } else if (slot.name === 'navigation') {
       this.hasNavigation = items.length > 0;
-      if (items.length > 1) report(this, 'APB-13', `the bar holds ${items.length} navigation items; a bar has one navigation button`);
+      if (DEBUG && items.length > 1) report(this, 'APB-13', `the bar holds ${items.length} navigation items; a bar has one navigation button`);
     } else {
       this.actionItems = items as Action[];
       // An element that left the slot is no longer the bar's to hide.
@@ -754,8 +755,8 @@ export class TanreiAppBar extends TanreiElement {
   /** APB-23: a brand without a name, and an image in brand given beside the parts it takes the place of. */
   private reportBrand() {
     const { brand, 'brand-symbol': symbol, 'brand-wordmark': wordmark } = this.brands;
-    if (brand > 0 && symbol + wordmark > 0) report(this, 'APB-23', 'the bar has an image in brand and the symbol or the wordmark beside it; it shows the image in brand alone');
-    if (brand + symbol + wordmark > 0 && !this.brandLabel.trim()) report(this, 'APB-23', 'the bar has a brand and no brand-label; give it the product\'s name');
+    if (DEBUG && brand > 0 && symbol + wordmark > 0) report(this, 'APB-23', 'the bar has an image in brand and the symbol or the wordmark beside it; it shows the image in brand alone');
+    if (DEBUG && brand + symbol + wordmark > 0 && !this.brandLabel.trim()) report(this, 'APB-23', 'the bar has a brand and no brand-label; give it the product\'s name');
   }
 
   /** The boxes whose size moves the centred title's balance and the collapse's range. */
@@ -776,16 +777,16 @@ export class TanreiAppBar extends TanreiElement {
 
   protected override willUpdate(changed: PropertyValues<this>) {
     // APB-18: a divider visibility the bar does not define is drawn as auto (no rule matches it).
-    if (changed.has('dividerVisibility') && !isDividerVisibility(this.dividerVisibility)) {
+    if (DEBUG && changed.has('dividerVisibility') && !isDividerVisibility(this.dividerVisibility)) {
       report(this, 'APB-18', `divider-visibility "${this.dividerVisibility}" is not a value of the app bar; it is drawn as "auto"`);
     }
     // APB-23: a brand layout the bar does not define is drawn as a lockup (shownBrand reads only "responsive").
-    if (changed.has('brandLayout') && !BRAND_LAYOUTS.includes(this.brandLayout)) {
+    if (DEBUG && changed.has('brandLayout') && !BRAND_LAYOUTS.includes(this.brandLayout)) {
       report(this, 'APB-23', `brand-layout "${this.brandLayout}" is not a value of the app bar; it is drawn as "lockup"`);
     }
     if (changed.has('brandLabel') && this.hasUpdated) this.reportBrand();
     // APB-33: an overflow the bar does not define is menu.
-    if (changed.has('overflow') && !OVERFLOWS.includes(this.overflow)) {
+    if (DEBUG && changed.has('overflow') && !OVERFLOWS.includes(this.overflow)) {
       report(this, 'APB-33', `overflow "${this.overflow}" is not a value of the app bar; it is drawn as "menu"`);
     }
   }

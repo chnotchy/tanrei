@@ -23,6 +23,7 @@ import {
 import { AXES, segmentStyles, setStyles } from './segmented-button.styles.js';
 import { TanreiElement } from '../../primitives/element.js';
 import { holdsProductName, nameHost } from '../../primitives/delegated-aria.js';
+import { DEBUG } from '../../primitives/debug.js';
 
 /** One option at a time (a radio group), or each option on and off (toggle buttons). A closed set: anything else is single. */
 export type TanreiSegmentedButtonSelection = 'single' | 'multiple';
@@ -553,7 +554,7 @@ export class TanreiSegmentedButton extends TanreiElement {
     seen.add(message);
     if (this.reported.has(message)) return;
     this.reported.add(message);
-    report(this, id, message);
+    if (DEBUG) report(this, id, message);
   }
 
   /**

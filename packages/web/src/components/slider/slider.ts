@@ -3,11 +3,13 @@ import { styleMap } from 'lit/directives/style-map.js';
 import { AvailabilityController, DIRECTION_PROBE, DirectionController, FieldControlController, FollowController, OpenAxesController, PressController, anchorGone, cssZoom, report, syncFocusStyle, delegatedAria, namedByProduct, delegatesAria } from '../../primitives/index.js';
 import type { TanreiSliderSizeRegistry } from '../../registry.js';
 import { FormDisabledController } from '../../primitives/form-disabled.js';
+import { FormDefault } from '../../primitives/form-default.js';
 import { FormSays } from '../../primitives/form-says.js';
 import { AXES, INDICATOR_REACH, styles } from './slider.styles.js';
 import { FocusedStop, disabledWaitsWhileFocused } from '../../primitives/disabled-while-focused.js';
 import { focusedAtFirst } from '../../primitives/autofocus.js';
 import { TanreiElement } from '../../primitives/element.js';
+import { DEBUG } from '../../primitives/debug.js';
 
 /** The core sizes (small, medium, large), plus any a design system's generated `.d.ts` registers. */
 export type TanreiSliderSize = keyof TanreiSliderSizeRegistry;
@@ -111,7 +113,7 @@ const originPoint = (f: number): End => (f <= 0 ? TRACK_START : f >= 1 ? TRACK_E
  * motion.
  *
  * Form-associated: it submits `value` under `name` (a range submits `start-value`, then `value`, under the same name),
- * resets to its attributes and follows a disabled `<fieldset>`.
+ * resets to the values it was first given and follows a disabled `<fieldset>`.
  *
  * @tag tanrei-slider
  * @csspart track - A piece of the track outside the active part (there are two).
@@ -171,7 +173,7 @@ export class TanreiSlider extends TanreiElement {
   /** `horizontal` (the default) or `vertical`. Anything else draws horizontal (SLD-23). */
   orientation: TanreiSliderOrientation = 'horizontal';
 
-  /** The value of the only handle, or of a range's end handle. The `value` attribute is what a form reset returns to. */
+  /** The value of the only handle, or of a range's end handle. The value it is first given — by the `value` attribute or as the property — is what a form reset returns to. */
   value = 0;
 
   /** The value of a range's start handle (the `start-value` attribute). Ignored while `range` is false. */
@@ -226,6 +228,9 @@ export class TanreiSlider extends TanreiElement {
   private dragging = false;
 
   private readonly fieldset = new FormDisabledController(this);
+  /** What a form's reset returns `value` and `startValue` to: what they were first given, as a native control's defaults. */
+  private readonly valueDefault = new FormDefault(this, () => this.value, 'value', (text) => (text === null ? 0 : Number(text)));
+  private readonly startDefault = new FormDefault(this, () => this.startValue, 'start-value', (text) => (text === null ? 0 : Number(text)));
   /** A disabled `<fieldset>` around the element, as the platform says it (src/primitives/form-disabled.ts). */
   private get formDisabled(): boolean {
     return this.fieldset.byFieldset;
@@ -369,9 +374,8 @@ export class TanreiSlider extends TanreiElement {
   // ─── Form ─────────────────────────────────────────────────────────────────────────────────────────────────────
 
   formResetCallback() {
-    const read = (name: string, fallback: number) => (this.hasAttribute(name) ? Number(this.getAttribute(name)) : fallback);
-    this.value = read('value', 0);
-    this.startValue = read('start-value', 0);
+    this.value = this.valueDefault.value;
+    this.startValue = this.startDefault.value;
   }
 
   formStateRestoreCallback(state: string | File | FormData | null) {
@@ -400,16 +404,16 @@ export class TanreiSlider extends TanreiElement {
 
   protected override willUpdate(changed: PropertyValues<this>) {
     // SLD-23: orientation and valueIndicator are the component's own values; size is an open axis (above).
-    if (changed.has('orientation') && !ORIENTATIONS.includes(this.orientation)) {
+    if (DEBUG && changed.has('orientation') && !ORIENTATIONS.includes(this.orientation)) {
       report(this, 'SLD-23', `orientation "${this.orientation}" is not a value of the slider; it is drawn as "horizontal"`);
     }
-    if (changed.has('valueIndicator') && !INDICATORS.includes(this.valueIndicator)) {
+    if (DEBUG && changed.has('valueIndicator') && !INDICATORS.includes(this.valueIndicator)) {
       report(this, 'SLD-23', `valueIndicator "${this.valueIndicator}" is not a value of the slider; it is drawn as "none"`);
     }
     if (['value', 'startValue', 'min', 'max', 'step', 'origin', 'range'].some((key) => changed.has(key as keyof TanreiSlider))) this.reportValues();
     // SLD-19: a slider without a name still renders; a debug build says what is missing.
-    if (changed.has('label') && !this.label.trim() && !this.field.label && !namedByProduct(this)) report(this, 'SLD-19', 'label is empty, so the slider has no accessible name; give it a label');
-    if ((changed.has('startLabel') || changed.has('range')) && this.range && !this.startLabel.trim()) {
+    if (DEBUG && changed.has('label') && !this.label.trim() && !this.field.label && !namedByProduct(this)) report(this, 'SLD-19', 'label is empty, so the slider has no accessible name; give it a label');
+    if (DEBUG && (changed.has('startLabel') || changed.has('range')) && this.range && !this.startLabel.trim()) {
       report(this, 'SLD-19', 'startLabel is empty, so the range’s start handle has no accessible name; give it a start-label');
     }
     // A handle that is no longer drawn is no longer hovered or pressed.
@@ -421,19 +425,19 @@ export class TanreiSlider extends TanreiElement {
   private reportValues() {
     const [min, max, step] = [Number(this.min), Number(this.max), Number(this.step)];
     const scale = this.scale;
-    if (step < 0) report(this, 'SLD-22', `step ${step} is below 0; it is treated as 0`);
+    if (DEBUG && step < 0) report(this, 'SLD-22', `step ${step} is below 0; it is treated as 0`);
     if (!scale.valid) {
-      report(this, 'SLD-22', `max ${max} is not greater than min ${min}; the handles are drawn at the track's start and it takes no input`);
+      if (DEBUG) report(this, 'SLD-22', `max ${max} is not greater than min ${min}; the handles are drawn at the track's start and it takes no input`);
       return;
     }
     const check = (name: string, value: number) => {
       const drawn = scale.snap(value);
-      if (tidy(value) !== drawn) report(this, 'SLD-22', `${name} ${value} is outside ${min}…${max} or off a step; it is drawn and exposed as ${drawn}`);
+      if (DEBUG && tidy(value) !== drawn) report(this, 'SLD-22', `${name} ${value} is outside ${min}…${max} or off a step; it is drawn and exposed as ${drawn}`);
     };
     check('value', Number(this.value));
     if (this.range) {
       check('startValue', Number(this.startValue));
-      if (scale.snap(Number(this.startValue)) > scale.snap(Number(this.value))) {
+      if (DEBUG && scale.snap(Number(this.startValue)) > scale.snap(Number(this.value))) {
         report(this, 'SLD-22', `startValue ${this.startValue} is greater than value ${this.value}; both handles are drawn at ${scale.snap(Number(this.value))}`);
       }
     } else if (this.origin !== null && this.origin !== undefined) {

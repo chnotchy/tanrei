@@ -1137,12 +1137,25 @@ function breadcrumbsMarkup(_spec: Spec, fixture: Fixture): string {
  * item, the element around the product's own anchor — the label its text, `href` (none while the item is disabled),
  * `target="_blank"` for a new context and `aria-current="page"` on the anchor, `target-label` and `disabled` on the
  * element. The form whose links work without script (MBR-45).
+ *
+ * A fixture cannot fill a bar's menu (its items are the menu's kinds, and a spec's fixtures name only its own), so an
+ * open menu holds what a product's open menu holds: the items of the menu spec's `actions` fixture, written as the
+ * menu's own fixtures write them (MBR-9: the open menu is a Tanrei Menu holding the menu's item kinds). An open menu
+ * left empty is MBR-20's edge, not what an open fixture shows. A closed menu builds nothing (MBR-49) and is left empty.
  */
+export function menubarOpenMenuItems(): FixtureItem[] {
+  const actions = loadSpec('menu').fixtures.find((f) => f.id === 'actions')?.items;
+  if (!actions?.length) throw new Error('menubar: the menu spec has no `actions` fixture with items to fill an open menu');
+  return actions;
+}
+
 function menubarMarkup(spec: Spec, fixture: Fixture): string {
   const escape = (v: unknown) => String(v).replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('"', '&quot;');
+  const menuSpec = loadSpec('menu');
   return (fixture.items ?? [])
     .map((item) => {
       const { label, href, target, targetLabel, current, disabled, ...rest } = item.props;
+      if (item.kind === 'menu' && item.props.open === true) return itemsMarkup(spec, [item], { itemContent: () => itemsMarkup(menuSpec, menubarOpenMenuItems(), {}) });
       if (item.kind !== 'item' || !href) return itemsMarkup(spec, [item], {});
       const tag = spec.platforms.web.items!.item.name;
       const host = attributes(undefined, undefined, { ...rest, ...(disabled ? { disabled } : {}), ...(targetLabel ? { targetLabel } : {}) });
@@ -2342,7 +2355,8 @@ const STAGING: Record<string, Staging> = {
     wrap: (element, f) => framedLanguage(element, f, 'tanrei-slider-field'),
   },
   // A chat composer is as wide as its layout gives it (CCM-1): its stage is a column 480 wide — wider than
-  // `layout.inline-min-width`, so that a fixture is laid out as its `layout` says (CCM-4). `accept` is the
+  // `layout.inline-min-width`, so that a fixture is laid out as its `layout` says (CCM-4), but for one whose actions
+  // would leave the typing area less than `layout.input-min-width` (long-text), which is stacked. `accept` is the
   // comma-separated list a native file input takes. A fixture's string in the send or the stop slot is a labelled
   // Button of the filled variant, and one in the attach, the leading or the trailing slot an icon-only Button of the
   // text variant (the spec's accessibility notes). A File item's picture is the package's own copy (test/pictures.ts).
@@ -2441,12 +2455,13 @@ const STAGING: Record<string, Staging> = {
   // A fixture with an open submenu (MNU-19's verify) is drawn on a stage wide and tall enough for every open level: each
   // open submenu is drawn beside its item, outside the menu's own box, so it gives the stage no size of its own.
   // A menubar spans a 560-wide stage (W 528): the seven titles of `default` fit, and the twelve of `many`, the Arabic
-  // twelve and the four long labels fold (MBR-21's verify). A fixture cannot fill a bar's menu (the item kinds are the
-  // menu's, and a spec names only its own), so a fixture with a menu open draws the open title over an
-  // empty surface, in place (`inline`, as a menu's fixtures are) with room below the bar for it.
+  // twelve and the four long labels fold (MBR-21's verify). A fixture with a menu open draws the open title over its menu,
+  // holding the menu spec's `actions` items (`menubarMarkup`), in place (`inline`, as a menu's fixtures are) with room
+  // below the bar for it: the menu stands out of the bar's flow (it is placed against its title), so the stage keeps
+  // its offset, its surface's block padding and a row per item below its own padding, read from the menu's tokens.
   menubar: {
     css: () => `.stage:has(> tanrei-menubar) { box-sizing: border-box; inline-size: 560px; }
-      .stage:has(> tanrei-menubar[inline]) { padding-block-end: 48px; }`,
+      .stage:has(> tanrei-menubar[inline]) { padding-block-end: calc(16px + var(--tanrei-comp-menu-surface-offset) + 2 * var(--tanrei-comp-menu-surface-padding-block) + ${menubarOpenMenuItems().length} * var(--tanrei-comp-menu-container-height-medium)); }`,
     props: (props, f) => (f.items?.some((item) => item.props.open === true) ? { ...props, inline: true } : props),
     // A link item is the element around the product's own anchor, not one element with its props as attributes.
     items: menubarMarkup,
@@ -2609,6 +2624,12 @@ export function stageMarkup(spec: Spec, f: Fixture, mark: string): string {
  * The document of a spec's fixtures: every fixture (or `options.fixtures`) in its own padded, surface-colored stage,
  * with the tokens, the preset, the faces and the component bundle the stages need. A fixture that names a `direction`
  * has it as its stage's `dir`, whatever the document's is.
+ *
+ * The document is a product's page as Getting started sets one up: the page's base (`@tanrei/web/base.css`), then the
+ * tokens, in the order `tanrei.css` holds them. So the text a fixture slots without a style of its own (a modal
+ * layer's) is in the body face and the surface's text color, as on a product's page, and never in the browser's serif black.
+ * It is embedded whole even where the other sheets are fetched (`assets`): it is small, and a reader of the document
+ * (the site's fixture documents) finds it as the package's stylesheet it is.
  */
 export async function fixturesDocument(spec: Spec, given: DocumentOptions = {}): Promise<string> {
   const options = drawnUnder(spec, given);
@@ -2643,10 +2664,17 @@ export async function fixturesDocument(spec: Spec, given: DocumentOptions = {}):
     <title>${spec.name} fixtures</title>
     ${assets ? sheet(assets.font, fontFace) : embeddedFaceMarkup(`${fontFace()}\n${text}`)}
     ${icons}
+    <style>${read('dist/base.css').replace(/\/\*[\s\S]*?\*\//g, '')}</style>
     ${sheet(assets?.tokens, () => read('dist/tokens.css'))}
     ${options.system ? sheet(assets?.system(options.system), () => systemStyles(options)) : ''}
     <style>
-      body { margin: 0; background: var(--tanrei-sys-color-surface); }
+      /* The root is at least the window's height. A modal overlay holds the page's scroll with \`overflow: hidden\` on the
+         root, and axe clips every element to its overflow-hidden ancestors, the root included, without regard to the top
+         layer: in a document shorter than the window (a single fixture's, 32px tall) a dialog or a sheet open in the top
+         layer lay outside the root's box, and axe found no text in it to check — its \`color-contrast\` was inapplicable,
+         not passed. Nothing is drawn differently: the root's background (the base's surface) is the canvas's, which
+         fills the window whatever the root's height. */
+      html { min-block-size: 100%; }
       ${staging.page ? '' : 'main { display: flex; flex-direction: column; align-items: flex-start; }'}
       .stage { padding: 16px; background: var(--tanrei-sys-color-surface); }
       /* A picture of a stage is clipped to whole CSS pixels around it, so it takes in up to a pixel of the stages beside
@@ -2993,7 +3021,7 @@ export function typeRole(base: string, font: string): Record<string, string> {
   };
 }
 
-/** A type role's tokens that read another role's longhands: `typeRoleOf(T('label-typescale'), '--tanrei-sys-typescale-headline')`. */
+/** A type role's tokens that read another role's longhands: `typeRoleOf(T('label-typescale'), '--tanrei-sys-typescale-heading-2')`. */
 export const typeRoleOf = (base: string, from: string): Record<string, string> => Object.fromEntries(ROLE_LONGHANDS.map((longhand) => [`${base}-${longhand}`, `var(${from}-${longhand})`]));
 
 /**

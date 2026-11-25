@@ -10,6 +10,7 @@ import { conditionBlock } from './selection.js';
 import { stateRules } from './states.js';
 import { reducedMotion } from '../styles/motion.js';
 import { typefaceOf } from '../styles/type.js';
+import { DEBUG } from './debug.js';
 
 /**
  * The destinations of a navigation region (a navigation bar, NVB-*; a navigation drawer, NVD-*): places a person goes
@@ -141,7 +142,12 @@ export type DestinationsHost = ReactiveControllerHost & HTMLElement & { value: s
  * `DESTINATION_ARRIVE` and child changes itself).
  */
 export class DestinationsController<T extends Destination> implements ReactiveController {
-  private readonly children$ = new MutationObserver(() => this.sync());
+  // Only a change that adds or takes away an element can change the destinations or what names them: a change of text
+  // alone (a product rewriting a label's words in the drawer, a button's name) has the region sync nothing — it told
+  // every destination of a drawer of 77 cells again for each such change.
+  private readonly children$ = new MutationObserver((records) => {
+    if (records.some((record) => [...record.addedNodes, ...record.removedNodes].some((node) => node instanceof Element))) this.sync();
+  });
   private readonly reported = new Set<string>();
   /** Whether a sync is already asked for in this batch of updates. */
   private scheduled = false;
@@ -237,7 +243,7 @@ export class DestinationsController<T extends Destination> implements ReactiveCo
     seen.add(message);
     if (this.reported.has(message)) return;
     this.reported.add(message);
-    report(this.host, id, message);
+    if (DEBUG) report(this.host, id, message);
   }
 
   /** Tells every destination what it is now, and reports what a debug build should (NVB-3, NVB-17, NVB-20, NVB-22). */
@@ -356,7 +362,7 @@ export function destinationStyles(
   :host {
     display: flex;
     min-inline-size: 0;
-    outline: none;
+    outline: none !important;
   }
   :host([hidden]) {
     display: none;

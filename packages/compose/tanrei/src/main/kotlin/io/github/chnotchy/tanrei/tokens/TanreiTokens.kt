@@ -1336,6 +1336,7 @@ public data class TanreiBottomSheetTokens(
     public val containerPartialFraction: Float,
     public val containerShape: Dp,
     public val contentColor: TanreiPaint,
+    public val contentPaddingBlockStart: Dp,
     public val dividerColor: TanreiPaint,
     public val dividerVisibility: Float,
     public val dividerWidth: Dp,
@@ -1732,6 +1733,7 @@ public data class TanreiButtonWithMenuTokens(
     public val dividerThickness: Dp,
     public val motionBusyCycleDuration: Int,
     public val motionBusyFadeDuration: Int,
+    public val motionBusyPulseFloorOpacity: Float,
     public val motionFeedbackDuration: Int,
     public val motionHoverCloseDelay: Int,
     public val motionHoverOpenDelay: Int,
@@ -1975,6 +1977,7 @@ public data class TanreiButtonTokens(
     public val containerShape: Dp,
     public val motionBusyCycleDuration: Int,
     public val motionBusyFadeDuration: Int,
+    public val motionBusyPulseFloorOpacity: Float,
     public val motionFeedbackDuration: Int,
     public val motionStateEasing: TanreiCubicBezier,
     public val toneContainerOpacity: Float,
@@ -2708,6 +2711,7 @@ public data class TanreiChatComposerTokens(
     public val counterTypescale: TanreiTextStyle,
     public val inputPaddingBlock: Dp,
     public val layoutInlineMinWidth: Dp,
+    public val layoutInputMinWidth: Dp,
     public val motionGlyphFadeDuration: Int,
     public val motionResizeDuration: Int,
     public val motionResizeEasing: TanreiCubicBezier,
@@ -6302,6 +6306,7 @@ public data class TanreiLoadingIndicatorTokens(
     public val motionEnterDuration: Int,
     public val motionEnterEasing: TanreiCubicBezier,
     public val motionEntrance: Float,
+    public val motionPulseFloorOpacity: Float,
     public val motionShowDelay: Int,
     public val sizes: TanreiLoadingIndicatorSizes,
 ) {
@@ -8127,6 +8132,7 @@ public data class TanreiProgressIndicatorTokens(
     public val indicatorColor: TanreiPaint,
     public val motionCycleDuration: Int,
     public val motionCycleEasing: TanreiCubicBezier,
+    public val motionPulseFloorOpacity: Float,
     public val motionShowDelay: Int,
     public val motionValueDuration: Int,
     public val motionValueEasing: TanreiCubicBezier,
@@ -9348,6 +9354,7 @@ public data class TanreiSideSheetTokens(
     public val containerPaddingInline: Dp,
     public val containerWidth: Dp,
     public val contentColor: TanreiPaint,
+    public val contentPaddingBlockStart: Dp,
     public val dividerColor: TanreiPaint,
     public val dividerVisibility: Float,
     public val dividerWidth: Dp,
@@ -11048,7 +11055,6 @@ public data class TanreiTabsStateTokens(
 /** `comp.tabs`. Members are flat tokens, then per-state tokens, then one holder per axis (`variants[variant]`, `sizes[size]`). */
 @Immutable
 public data class TanreiTabsTokens(
-    public val activeIndicatorHeight: Dp,
     public val containerGap: Dp,
     public val containerHeightWithIcon: Dp,
     public val containerShape: Dp,

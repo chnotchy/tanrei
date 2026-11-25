@@ -16,6 +16,7 @@ import fs from 'node:fs';
 import http from 'node:http';
 import path from 'node:path';
 import AxeBuilder from '@axe-core/playwright';
+import { coveredText } from '../../../test/covered-text.js';
 import { type Locator, type Page, type TestInfo, expect, test } from '@playwright/test';
 import { appearingFixture } from '../../../test/first-frame.js';
 import { type Frame, type Frames, type Probe, expectAnchored, expectAnimated, expectFirstFrameAtRest, expectNoFlicker, sampleFrames } from '../../../test/frames.js';
@@ -2896,6 +2897,7 @@ test.describe('accessibility', () => {
       await mountFixtures(page, spec, { icons: true, theme, fixtures: spec.fixtures.filter((f) => !UNNAMED.includes(f.id)) });
       const results = await new AxeBuilder({ page }).include('.stage').analyze();
       expect(results.violations, theme).toEqual([]);
+      expect(await coveredText(page, results), `${theme}: no text left unchecked as covered`).toEqual([]);
     }
   });
 

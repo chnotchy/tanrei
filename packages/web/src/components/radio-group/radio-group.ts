@@ -4,12 +4,14 @@ import { ComposedElement, exported, fieldDelegatesAria, forward } from '../../pr
 import { delegatedAria } from '../../primitives/delegated-aria.js';
 import { FIELD_CONNECT, FIELD_CONTROL, FieldControlController, type FieldConnection } from '../../primitives/field.js';
 import { FormDisabledController } from '../../primitives/form-disabled.js';
+import { FormDefault } from '../../primitives/form-default.js';
 import { missingValueMessage } from '../../primitives/missing-value.js';
 import { report } from '../../primitives/report.js';
 import { WordsController } from '../../primitives/words.js';
 import { TanreiFieldGroup, type TanreiFieldGroupOrientation, type TanreiFieldGroupRequiredMark } from '../field-group/field-group.js';
 import { TanreiRadioButton, type TanreiRadioButtonOwner } from '../radio-button/radio-button.js';
 import { disabledWaitsWhileFocused } from '../../primitives/disabled-while-focused.js';
+import { DEBUG } from '../../primitives/debug.js';
 
 // The field group's own types are the radio group's, under the names it had before it was built from that element.
 /** What the form asks of the set: nothing, an answer, or that it may be left out. */
@@ -67,7 +69,7 @@ const OTHER_CONTROLS = 'input, button, select, textarea, a[href], [tabindex]:not
  * radio button, or the first enabled one.
  *
  * Form-associated: it submits `value` under `name` — also while the radio button of that value is one the product
- * disabled by itself — returns to its `value` attribute when the form is reset, is restored on navigation, follows
+ * disabled by itself — returns to the value it was first given when the form is reset, is restored on navigation, follows
  * `<fieldset disabled>`, and reports `valueMissing` while `required` and `value` is empty, in the
  * browser's own words for an unanswered set of radio buttons. It never sets `error` itself.
  *
@@ -118,7 +120,7 @@ export class TanreiRadioGroup extends ComposedElement implements TanreiRadioButt
     orientation: { type: String, reflect: true },
   };
 
-  /** The value of the selected radio button; the empty string while none is selected. The `value` attribute is the first value and what a form reset returns to. */
+  /** The value of the selected radio button; the empty string while none is selected. The value it is first given — by the `value` attribute or as the property — is what a form reset returns to. */
   value = '';
 
   /** The name the value is submitted under. A web attribute, not a prop of the spec. */
@@ -167,6 +169,8 @@ export class TanreiRadioGroup extends ComposedElement implements TanreiRadioButt
   orientation: TanreiFieldGroupOrientation = 'vertical';
 
   private readonly fieldset = new FormDisabledController(this);
+  /** What a form's reset returns `value` to: what it was first given, as a native control's `defaultValue`. */
+  private readonly valueDefault = new FormDefault(this, () => this.value, 'value', (text) => text ?? '');
   /** A disabled `<fieldset>` around the element, as the platform says it (src/primitives/form-disabled.ts). */
   protected get formDisabled(): boolean {
     return this.fieldset.byFieldset;
@@ -296,7 +300,7 @@ export class TanreiRadioGroup extends ComposedElement implements TanreiRadioButt
 
   formResetCallback() {
     // RGP-9: back to the value it was first given, without a change.
-    this.value = this.getAttribute('value') ?? '';
+    this.value = this.valueDefault.value;
   }
 
   formStateRestoreCallback(restored: string | File | FormData | null) {
@@ -425,19 +429,19 @@ export class TanreiRadioGroup extends ComposedElement implements TanreiRadioButt
    */
   private reports(options: TanreiRadioButton[]) {
     // RGP-12: a set without a radio button still draws its rows.
-    if (!options.length) report(this, 'RGP-12', 'the radio group holds no radio button; put tanrei-radio-button elements in its default slot');
+    if (DEBUG && !options.length) report(this, 'RGP-12', 'the radio group holds no radio button; put tanrei-radio-button elements in its default slot');
     // RGP-12: radio buttons and nothing else that can be operated.
     const others = [...this.querySelectorAll('*')].some((element) => !(element instanceof TanreiRadioButton) && element.closest(this.localName) === this && (FIELD_CONTROL in element || element.matches(OTHER_CONTROLS)));
-    if (others) report(this, 'RGP-12', 'the radio group holds a control that is not a radio button; it holds radio buttons and nothing else that can be operated');
-    if (options.some((option) => option.name)) report(this, 'RGP-12', 'a radio button of the radio group has a name of its own, which is ignored: the group is its group (RAD-25)');
+    if (DEBUG && others) report(this, 'RGP-12', 'the radio group holds a control that is not a radio button; it holds radio buttons and nothing else that can be operated');
+    if (DEBUG && options.some((option) => option.name)) report(this, 'RGP-12', 'a radio button of the radio group has a name of its own, which is ignored: the group is its group (RAD-25)');
     // RGP-3: values the group cannot select by.
-    if (options.some((option) => option.value === '')) report(this, 'RGP-3', 'a radio button of the radio group has no value, so it cannot be selected: give each a value that is unique in the group');
+    if (DEBUG && options.some((option) => option.value === '')) report(this, 'RGP-3', 'a radio button of the radio group has no value, so it cannot be selected: give each a value that is unique in the group');
     const seen = new Set<string>();
     for (const option of options) {
-      if (option.value !== '' && seen.has(option.value)) report(this, 'RGP-3', `two radio buttons share the value "${option.value}"; the first is the one it selects`);
+      if (DEBUG && option.value !== '' && seen.has(option.value)) report(this, 'RGP-3', `two radio buttons share the value "${option.value}"; the first is the one it selects`);
       seen.add(option.value);
     }
-    if (this.value !== '' && options.length && !seen.has(this.value)) report(this, 'RGP-3', `value "${this.value}" is the value of no radio button, so none is selected; the value is kept`);
+    if (DEBUG && this.value !== '' && options.length && !seen.has(this.value)) report(this, 'RGP-3', `value "${this.value}" is the value of no radio button, so none is selected; the value is kept`);
   }
 
   // RGP-1: the field group's own element, in its radio-group kind, around the slot the product's radio buttons pass

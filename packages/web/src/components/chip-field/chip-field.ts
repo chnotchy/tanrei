@@ -6,6 +6,7 @@ import { ComposedElement, composedHost, exported, fieldDelegatesAria, forward } 
 import { forwardedOwnSize } from '../../primitives/size-cascade.js';
 import { delegatedAria } from '../../primitives/delegated-aria.js';
 import { FormDisabledController } from '../../primitives/form-disabled.js';
+import { FormDefault } from '../../primitives/form-default.js';
 import { hiddenHost } from '../../primitives/hidden.js';
 import { ambientLocale } from '../../primitives/locale-date.js';
 import { missingValueMessage } from '../../primitives/missing-value.js';
@@ -16,6 +17,7 @@ import { TanreiChip } from '../chip/chip.js';
 import { TanreiField, type TanreiFieldRequiredMark } from '../field/field.js';
 import { TanreiTextInput, type TanreiTextInputActionDetail, type TanreiTextInputSize, type TanreiTextInputType, type TanreiTextInputVariant } from '../text-input/text-input.js';
 import { disabledWaitsWhileFocused } from '../../primitives/disabled-while-focused.js';
+import { DEBUG } from '../../primitives/debug.js';
 
 // The members' own types are the chip field's for what it takes from them.
 export type { TanreiFieldRequiredMark, TanreiTextInputActionDetail, TanreiTextInputSize, TanreiTextInputType, TanreiTextInputVariant };
@@ -230,8 +232,8 @@ export class TanreiChipField extends ComposedElement {
    * The entries, in the order they were made: the one value the chip field holds. Each is a text; none is empty. The
    * chip field writes it as the person makes, removes and takes back entries, and fires `change`. What the product
    * sets is shown as given and is not checked — assign a new array — and fires nothing; an entry that is empty or only
-   * white space is left out. The `value` attribute is read once, as a JSON array of strings, and is what a form reset
-   * returns to.
+   * white space is left out. The `value` attribute is read once, as a JSON array of strings; the list it is first given —
+   * by the attribute or as the property — is what a form reset returns to.
    */
   get value(): string[] {
     return this.list;
@@ -241,7 +243,7 @@ export class TanreiChipField extends ComposedElement {
     const given = Array.isArray(value) ? value.map((entry) => String(entry)) : [];
     const kept = given.filter((entry) => entry.trim() !== '');
     // CHF-3: an entry that is empty or only white space is left out.
-    if (kept.length !== given.length) report(this, 'CHF-3', 'value holds an entry that is empty or only white space; it is left out');
+    if (DEBUG && kept.length !== given.length) report(this, 'CHF-3', 'value holds an entry that is empty or only white space; it is left out');
     // CHF-3: focus on an entry that is no longer in the list goes to the typing part, before its chip leaves.
     const focused = this.focusedChip;
     if (focused && !kept.includes(focused.label)) this.input?.focus();
@@ -378,8 +380,8 @@ export class TanreiChipField extends ComposedElement {
 
   /** The `value` attribute has been read: it is read once. */
   private attributeRead = false;
-  /** CHF-24: the list it was first given, where no `value` attribute says it. */
-  private first: string[] | null = null;
+  /** CHF-24: the list it was first given — by its `value` attribute or as the property — which a reset returns to. */
+  private readonly valueDefault = new FormDefault(this, () => [...this.list], 'value', STRINGS.fromAttribute);
   /** CHF-7: an input method is composing in the typing part. */
   private composing = false;
   /** CHF-9: the text of the typing part as the chip field last read or wrote it: what an edit is compared with. */
@@ -470,7 +472,7 @@ export class TanreiChipField extends ComposedElement {
     return this.internals.reportValidity();
   }
 
-  /** CHF-24: the `value` attribute is read once — for markup — and is what a reset returns to. */
+  /** CHF-24: the `value` attribute is read once — for markup —; written again it is what a reset returns to. */
   override attributeChangedCallback(name: string, old: string | null, value: string | null) {
     if (name === 'value') {
       if (this.attributeRead) return;
@@ -481,7 +483,7 @@ export class TanreiChipField extends ComposedElement {
 
   /** CHF-24: the list it was first given, an empty typing part and no entry error. */
   formResetCallback() {
-    this.value = this.hasAttribute('value') ? STRINGS.fromAttribute(this.getAttribute('value')) : [...(this.first ?? [])];
+    this.value = [...this.valueDefault.value];
     this.inputValue = '';
   }
 
@@ -591,7 +593,7 @@ export class TanreiChipField extends ComposedElement {
     }
     for (const one of refused) {
       // CHF-6: a refusal nobody gave words for still marks the typing part invalid.
-      if (!one.message) report(this, 'CHF-6', `an entry was refused (${one.reason}) and no words say why: give invalidText, duplicateText, limitText or errorText, or a reason in check`);
+      if (DEBUG && !one.message) report(this, 'CHF-6', `an entry was refused (${one.reason}) and no words say why: give invalidText, duplicateText, limitText or errorText, or a reason in check`);
       this.dispatchEvent(new CustomEvent<TanreiChipFieldRejectDetail>('reject', { bubbles: true, composed: true, detail: { text: one.text, reason: one.reason, message: one.message } }));
     }
     return refused.length === 0;
@@ -836,7 +838,7 @@ export class TanreiChipField extends ComposedElement {
     const sentence = this.words.get(key, own);
     if (!sentence) {
       region.replaceChildren();
-      if (effect) this.words.missing(key, { id: 'CHF-23', effect });
+      if (effect) this.words.missing(key, DEBUG && { id: 'CHF-23', effect });
       return;
     }
     this.reportWord(key, sentence, 'it is said as it is written');
@@ -853,7 +855,7 @@ export class TanreiChipField extends ComposedElement {
 
   /** CHF-23: reports what of a sentence is not a place of its word, and a brace that opens or closes nothing. */
   private reportWord(key: keyof typeof WORD_PROPS, sentence: string, effect: string) {
-    reportPlaces(this, 'CHF-23', WORD_PROPS[key], sentence, wordPlaces[key] ?? [], effect);
+    if (DEBUG) reportPlaces(this, 'CHF-23', WORD_PROPS[key], sentence, wordPlaces[key] ?? [], effect);
   }
 
   /**
@@ -867,11 +869,6 @@ export class TanreiChipField extends ComposedElement {
   }
 
   // ── Updates ──────────────────────────────────────────────────────────────────────────────────────────────────
-
-  protected override firstUpdated() {
-    // CHF-24: the list it was first given, where markup did not say it.
-    this.first = [...this.list];
-  }
 
   protected override updated(changed: PropertyValues) {
     super.updated(changed);
@@ -892,19 +889,19 @@ export class TanreiChipField extends ComposedElement {
       });
     }
     // CHF-26: only a type the Text input draws as one line of plain text is an entry of a list.
-    if (changed.has('type') && !LINE_TYPES.includes(this.type)) report(this, 'CHF-26', `type "${this.type}" is not a type of an entry (text, email, tel, url); the typing part behaves as "text"`);
+    if (DEBUG && changed.has('type') && !LINE_TYPES.includes(this.type)) report(this, 'CHF-26', `type "${this.type}" is not a type of an entry (text, email, tel, url); the typing part behaves as "text"`);
     // CHF-10: a limit that is no whole number of 0 or more is no limit.
-    if (changed.has('maxEntries') && !(Number.isInteger(this.maxEntries) && this.maxEntries >= 0)) report(this, 'CHF-10', `maxEntries ${String(this.maxEntries)} is not a whole number of 0 or more; there is no limit`);
+    if (DEBUG && changed.has('maxEntries') && !(Number.isInteger(this.maxEntries) && this.maxEntries >= 0)) report(this, 'CHF-10', `maxEntries ${String(this.maxEntries)} is not a whole number of 0 or more; there is no limit`);
     // CHF-9: an empty separator would end an entry at every character.
-    if (changed.has('separators') && Array.isArray(this.separators) && this.separators.some((separator) => separator === '')) report(this, 'CHF-9', 'separators holds an empty text, which is ignored');
+    if (DEBUG && changed.has('separators') && Array.isArray(this.separators) && this.separators.some((separator) => separator === '')) report(this, 'CHF-9', 'separators holds an empty text, which is ignored');
     // CHF-23: the remove actions are drawn and work without a name; two of them with one name cannot be told apart.
     if (this.list.length && !this.readOnly && this.isConnected) {
       const sentence = this.words.get('entryRemoveLabel', this.removeLabel);
-      if (!sentence) this.words.missing('entryRemoveLabel', { id: 'CHF-23', effect: 'each entry\'s remove action is drawn and works, and has no accessible name' });
+      if (!sentence) this.words.missing('entryRemoveLabel', DEBUG && { id: 'CHF-23', effect: 'each entry\'s remove action is drawn and works, and has no accessible name' });
       else {
         this.reportWord('entryRemoveLabel', sentence, 'each remove action is named with it as it is written');
         // The one place of any word that is needed (the spec's `required`): without it two actions have one name.
-        for (const name of placeFaults(sentence, wordPlaces.entryRemoveLabel ?? []).absent) report(this, 'CHF-23', `removeLabel has no place {${name}}, so every remove action has the same name; write it as "Remove {${name}}"`);
+        for (const name of placeFaults(sentence, wordPlaces.entryRemoveLabel ?? []).absent) DEBUG && report(this, 'CHF-23', `removeLabel has no place {${name}}, so every remove action has the same name; write it as "Remove {${name}}"`);
       }
     }
   }

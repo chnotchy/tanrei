@@ -55,6 +55,7 @@ import {
 import { formOf, pressDefaultButton } from '../../primitives/default-button.js';
 import { FormSays } from '../../primitives/form-says.js';
 import { FormDisabledController } from '../../primitives/form-disabled.js';
+import { FormDefault } from '../../primitives/form-default.js';
 import { AXES, CORE_SIZES, INSET, styles } from './text-input.styles.js';
 import { runDirection } from '../../styles/product-text.js';
 import { disabledWaitsWhileFocused } from '../../primitives/disabled-while-focused.js';
@@ -65,6 +66,7 @@ import { wordPlaces } from '../../generated/words.js';
 import { TanreiElement } from '../../primitives/element.js';
 import '../handle/handle.js';
 import type { TanreiHandle, TanreiHandleResizeDetail, TanreiHandleStepDetail } from '../handle/handle.js';
+import { DEBUG } from '../../primitives/debug.js';
 
 /** The looks of the input box (stacked, filled, outlined), plus any a design system's generated `.d.ts` registers for the box. */
 export type TanreiTextInputVariant = keyof TanreiInputBoxVariantRegistry;
@@ -309,7 +311,7 @@ function labelLines(copy: HTMLElement | null): { count: number; widest: number }
  * date can be pasted. With `picker`, the field shows a picker button that asks the product to present a picker
  * (`pickerrequest`); the field presents none itself.
  *
- * Form-associated: with a `name` it submits `value`, resets to its `value` attribute, restores on navigation, joins
+ * Form-associated: with a `name` it submits `value`, resets to the value it was first given, restores on navigation, joins
  * constraint validation (a missing value while its Field says it is required; a date or time field's entry error as badInput,
  * rangeUnderflow, rangeOverflow or a custom error) and is left out while disabled — its own or a `<fieldset>`'s.
  *
@@ -481,7 +483,7 @@ export class TanreiTextInput extends TanreiElement {
   /**
    * The text in the field; for date, time and date-time, the ISO 8601 form of what its segments give (2026-09-27, 14:30,
    * 2026-09-27T14:30), or empty while a segment is empty or the value is not available. Setting it shows it and fires
-   * nothing. The `value` attribute is what a form reset returns to.
+   * nothing. The value it is first given — by the `value` attribute or as the property — is what a form reset returns to.
    */
   // An accessor, not a field: the value is the person's at every moment. The native `input` event
   // is the browser's own and composed — a capturing listener on an ancestor hears it before the element's own listener
@@ -669,6 +671,8 @@ export class TanreiTextInput extends TanreiElement {
   /** TXI-39: a fine pointer is over the field; its resize handle is revealed. */
   protected hovering = false;
   private readonly fieldset = new FormDisabledController(this);
+  /** What a form's reset returns `value` to: what it was first given, as a native control's `defaultValue`. */
+  private readonly valueDefault = new FormDefault(this, () => this.value, 'value', (text) => text ?? '');
   /** A disabled `<fieldset>` around the element, as the platform says it (src/primitives/form-disabled.ts). */
   protected get formDisabled(): boolean {
     return this.fieldset.byFieldset;
@@ -954,7 +958,7 @@ export class TanreiTextInput extends TanreiElement {
   formResetCallback() {
     // TXI-72: a reset form hides a shown password again.
     this.revealed = false;
-    this.value = this.getAttribute('value') ?? '';
+    this.value = this.valueDefault.value;
     this.showValue();
     this.committed = this.value;
   }
@@ -1487,7 +1491,7 @@ export class TanreiTextInput extends TanreiElement {
     if (!sentence) return digits;
     const number = new Intl.NumberFormat(this.resolvedLocale, { maximumFractionDigits: 0 });
     const places: Record<string, string> = limited ? { count: number.format(count), limit: number.format(this.maxLength), remaining: number.format(this.maxLength - count) } : { count: number.format(count) };
-    reportPlaces(this, 'TXI-19', limited ? 'counterText' : 'counterNoLimitText', sentence, wordPlaces[key] ?? [], 'it is said as it is written');
+    if (DEBUG) reportPlaces(this, 'TXI-19', limited ? 'counterText' : 'counterNoLimitText', sentence, wordPlaces[key] ?? [], 'it is said as it is written');
     return fillPlaces(sentence, places)
       .runs.map((run) => run.text)
       .join('');
@@ -2055,12 +2059,12 @@ export class TanreiTextInput extends TanreiElement {
     // move up over the label motion; it keeps the slot's answer from then on.
     if (!this.hasUpdated) this.hasEntries = [...this.children].some((child) => child.slot === 'entries');
     const kind = this.dateKind;
-    if (changed.has('locale') && this.locale.trim() && !supportedLocale(this.locale.trim())) {
+    if (DEBUG && changed.has('locale') && this.locale.trim() && !supportedLocale(this.locale.trim())) {
       report(this, 'TXI-28', `locale "${this.locale}" is not a BCP 47 tag this browser knows; it uses "${FALLBACK_LOCALE}"`);
     }
     // TXI-31: a value, min or max that is not the ISO form of a date or time field's type is treated as empty.
     if (kind && (changed.has('value') || changed.has('type')) && this.value && !isoValue(kind, this.value)) {
-      report(this, 'TXI-31', `value "${this.value}" is not the ISO 8601 form of a ${kind}; it is treated as empty`);
+      if (DEBUG) report(this, 'TXI-31', `value "${this.value}" is not the ISO 8601 form of a ${kind}; it is treated as empty`);
       this.value = '';
       this.userValue = undefined;
     }
@@ -2082,14 +2086,14 @@ export class TanreiTextInput extends TanreiElement {
     }
     if (changed.has('min') || changed.has('max') || changed.has('type')) {
       for (const which of ['min', 'max'] as const) {
-        if (kind && this[which] && !isoValue(kind, this[which])) report(this, 'TXI-31', `${which} "${this[which]}" is not the ISO 8601 form of a ${kind}; it is treated as empty`);
+        if (DEBUG && kind && this[which] && !isoValue(kind, this[which])) report(this, 'TXI-31', `${which} "${this[which]}" is not the ISO 8601 form of a ${kind}; it is treated as empty`);
       }
       const [min, max] = [this.limit('min'), this.limit('max')];
-      if (min && max && min > max) report(this, 'TXI-31', `min "${min}" is later than max "${max}"`);
+      if (DEBUG && min && max && min > max) report(this, 'TXI-31', `min "${min}" is later than max "${max}"`);
     }
     if ((changed as PropertyValues).has('disabledDates') || changed.has('type')) {
       for (const entry of kind && kind !== 'time' ? (this.disabledDates ?? []) : []) {
-        if (typeof entry !== 'string' || !isoValue('date', entry)) report(this, 'TXI-31', `the entry "${String(entry)}" of disabledDates is not an ISO 8601 calendar date; it is ignored`);
+        if (DEBUG && (typeof entry !== 'string' || !isoValue('date', entry))) report(this, 'TXI-31', `the entry "${String(entry)}" of disabledDates is not an ISO 8601 calendar date; it is ignored`);
       }
     }
     // TXI-72: a new type, or a disabled field, hides a shown password again, with no revealchange.
@@ -2158,37 +2162,37 @@ export class TanreiTextInput extends TanreiElement {
     const kind = this.dateKind;
     const any = (...names: string[]) => names.some((name) => (changed as PropertyValues).has(name));
     // TXI-23: an input no Field names, with no label of its own and none of the product's, still renders. (A Field with an empty label says so itself: FLD-10.)
-    if ((changed.has('label') || !this.hasUpdated) && !this.label.trim() && !this.frame.state && !namedByProduct(this)) {
+    if (DEBUG && (changed.has('label') || !this.hasUpdated) && !this.label.trim() && !this.frame.state && !namedByProduct(this)) {
       report(this, 'TXI-23', 'label is empty and no field frames it, so the text input has no accessible name; put it in a field with a label, or give it a label');
     }
-    if (changed.has('type') && !(this.type in TYPES)) report(this, 'TXI-9', `type "${this.type}" is not a type of the text input; it behaves as "text"`);
-    if (any('type', 'multiline') && this.multiline && (this.type === 'password' || kind)) {
+    if (DEBUG && changed.has('type') && !(this.type in TYPES)) report(this, 'TXI-9', `type "${this.type}" is not a type of the text input; it behaves as "text"`);
+    if (DEBUG && any('type', 'multiline') && this.multiline && (this.type === 'password' || kind)) {
       report(this, 'TXI-17', `a ${this.type} field stays single-line; multiline is ignored`);
     }
     // TXI-57: wrap false is read by a multi-line code field alone — prose always wraps, a single line scrolls in its line.
-    if (any('noWrap', 'type', 'multiline') && this.noWrap && !this.unwrapped) {
+    if (DEBUG && any('noWrap', 'type', 'multiline') && this.noWrap && !this.unwrapped) {
       report(this, 'TXI-57', 'no-wrap is ignored: it is read only by a multi-line code field (type="code" with multiline)');
     }
-    if (changed.has('resize') && !RESIZES.includes(this.resize)) report(this, 'TXI-17', `resize "${this.resize}" is not a way the text input is resized; it behaves as "auto"`);
-    if (changed.has('resizeAxis') && !RESIZE_AXES.includes(this.resizeAxis)) report(this, 'TXI-17', `resizeAxis "${this.resizeAxis}" is not an axis the text input resizes; it behaves as "vertical"`);
+    if (DEBUG && changed.has('resize') && !RESIZES.includes(this.resize)) report(this, 'TXI-17', `resize "${this.resize}" is not a way the text input is resized; it behaves as "auto"`);
+    if (DEBUG && changed.has('resizeAxis') && !RESIZE_AXES.includes(this.resizeAxis)) report(this, 'TXI-17', `resizeAxis "${this.resizeAxis}" is not an axis the text input resizes; it behaves as "vertical"`);
     // TXI-41, TXI-52: a handle nobody named is drawn and works; the developer is told.
-    if (this.handleShown && !this.handleName) this.words.missing('resizeLabel', { id: 'TXI-41', effect: 'the resize handle is drawn and works, and has no accessible name' });
+    if (this.handleShown && !this.handleName) this.words.missing('resizeLabel', DEBUG && { id: 'TXI-41', effect: 'the resize handle is drawn and works, and has no accessible name' });
     // TXI-28: what a date, time or date-time field ignores, because every empty segment shows its own placeholder and the row is not free text.
     if (kind && any('type', 'placeholder', 'maxLength', 'prefixText', 'suffixText')) {
       const ignored = { placeholder: !!this.placeholder, maxLength: this.maxLength > 0, prefixText: !!this.prefixText, suffixText: !!this.suffixText };
-      for (const [name, set] of Object.entries(ignored)) if (set) report(this, 'TXI-28', `${name} is ignored by a ${kind} field: its segments each show their own placeholder, and the row is not free text`);
+      for (const [name, set] of Object.entries(ignored)) if (DEBUG && set) report(this, 'TXI-28', `${name} is ignored by a ${kind} field: its segments each show their own placeholder, and the row is not free text`);
     }
-    if (any('type', 'picker') && this.picker && !kind) {
+    if (DEBUG && any('type', 'picker') && this.picker && !kind) {
       report(this, 'TXI-32', `picker is ignored: the type "${this.type}" is not date, time or date-time`);
     }
     // TXI-71: a field that cannot draw the clear button draws none, and says so; one that draws it unnamed says that.
-    if (any('clearable', 'multiline', 'type') && this.clearable && (this.isMultiline || this.dateKind)) {
+    if (DEBUG && any('clearable', 'multiline', 'type') && this.clearable && (this.isMultiline || this.dateKind)) {
       report(this, 'TXI-71', `clearable is ignored by a ${this.isMultiline ? 'multi-line' : this.type} field: it draws no clear button`);
     }
-    if (any('revealable', 'type') && this.revealable && this.type !== 'password') report(this, 'TXI-72', `revealable is ignored: the type "${this.type}" is not password`);
-    if (this.revealShown && !this.words.get('revealLabel', this.revealLabel).trim()) this.words.missing('revealLabel', { id: 'TXI-72', effect: 'the reveal button is drawn and works, and has no accessible name' });
-    if (this.clearShown && !this.words.get('clearLabel', this.clearLabel).trim()) this.words.missing('clearLabel', { id: 'TXI-71', effect: 'the clear button is drawn and works, and has no accessible name' });
-    if (any('picker', 'pickerLabel', 'type', 'readOnly') && this.pickerShown && !this.pickerLabel.trim()) {
+    if (DEBUG && any('revealable', 'type') && this.revealable && this.type !== 'password') report(this, 'TXI-72', `revealable is ignored: the type "${this.type}" is not password`);
+    if (this.revealShown && !this.words.get('revealLabel', this.revealLabel).trim()) this.words.missing('revealLabel', DEBUG && { id: 'TXI-72', effect: 'the reveal button is drawn and works, and has no accessible name' });
+    if (this.clearShown && !this.words.get('clearLabel', this.clearLabel).trim()) this.words.missing('clearLabel', DEBUG && { id: 'TXI-71', effect: 'the clear button is drawn and works, and has no accessible name' });
+    if (DEBUG && any('picker', 'pickerLabel', 'type', 'readOnly') && this.pickerShown && !this.pickerLabel.trim()) {
       report(this, 'TXI-32', 'pickerLabel is empty, so the picker button has no accessible name; give it one ("Choose date")');
     }
   }
@@ -2358,7 +2362,7 @@ export class TanreiTextInput extends TanreiElement {
     const segment = (unit: SegmentUnit) => {
       const said = spoken(row, this.segments, unit, this.words.get('segmentEmptyText', this.segmentEmptyText));
       // TXI-52: an empty segment nobody gave words for has no value and no value text.
-      if (said.now === null && said.text === null) this.words.missing('segmentEmptyText', { id: 'TXI-52', effect: 'an empty date or time segment has no value text' });
+      if (said.now === null && said.text === null) this.words.missing('segmentEmptyText', DEBUG && { id: 'TXI-52', effect: 'an empty date or time segment has no value text' });
       const described = first || error ? describedBy : undefined;
       first = false;
       return html`<span class="unit"
@@ -2566,6 +2570,13 @@ export class TanreiTextInput extends TanreiElement {
         : nothing;
     // The edge: a stacked field's inner line (TXI-26); an outlined field's three-piece outline with the gap for the floated
     // label, and a filled field's active indicator (TXI-13).
+    // TXI-5, TXI-15: the prefix and the suffix are text of the control itself, drawn beside its native element and not
+    // inside it, so the native `disabled` does not reach them. While the input is disabled each says it is part of an
+    // inactive control (`aria-disabled`), as the platform's own control would: to assistive technology, and to a contrast
+    // checker, which WCAG 1.4.3 has leave an inactive control's text alone (axe-core reads only `disabled` on a form
+    // element and `aria-disabled` on the element or an ancestor). On the text spans and not on the container: the
+    // container holds the trailing slot, where a product's own button keeps its own state.
+    const affixDisabled = this.inert_ ? 'true' : nothing;
     const edges = floating
       ? html`<span part="outline" class="outline" aria-hidden="true"
             ><span class="outline-start"></span
@@ -2606,9 +2617,9 @@ export class TanreiTextInput extends TanreiElement {
           <span part="leading-icon" class="icon leading"><slot name="leading-icon" @slotchange=${this.#onSlotChange}></slot></span>
           <div class="body" dir=${(!row && run) || nothing}>
             <span part="entries" class="entries"><slot name="entries" @slotchange=${this.#onSlotChange}></slot></span>
-            <span part="prefix" class="prefix" id="prefix">${row ? nothing : this.prefixText}</span>
+            <span part="prefix" class="prefix" id="prefix" aria-disabled=${affixDisabled}>${row ? nothing : this.prefixText}</span>
             ${control}
-            <span part="suffix" class="suffix" id="suffix">${row ? nothing : this.suffixText}</span>
+            <span part="suffix" class="suffix" id="suffix" aria-disabled=${affixDisabled}>${row ? nothing : this.suffixText}</span>
           </div>
           <span part="trailing-icon" class="icon trailing"><slot name="trailing-icon" @slotchange=${this.#onSlotChange}></slot></span>
           ${this.renderClear()}${this.renderReveal()}${this.renderPicker()}

@@ -376,7 +376,7 @@ test.describe('drawing', () => {
     expect((await drawn('wrapped')).lines.length, 'the long headline wraps').toBeGreaterThan(1);
   });
 
-  test('SSH-8: the header — at least header.height, the headline from padding-inline, the close button header.padding-inline-end from the end and header.gap after the headline, both centred — then the content inset by padding-inline, then padding-block (or the actions); the color reaches under the insets', async ({ page }) => {
+  test('SSH-8: the header — at least header.height, the headline from padding-inline, the close button header.padding-inline-end from the end and header.gap after the headline, both centred — then the content inset by padding-inline, its first line content.padding-block-start below the header, then padding-block (or the actions); the color reaches under the insets', async ({ page }) => {
     await mount(page, [fx('s'), fx('bare', { headline: '', closable: false }), fx('titled', { closable: false })]);
     const [pad, block, height, gap, end] = [await px(page, T('container-padding-inline')), await px(page, T('container-padding-block')), await px(page, T('header-height')), await px(page, T('header-gap')), await px(page, T('header-padding-inline-end'))];
     const s = await bounds(sheet(page));
@@ -389,10 +389,17 @@ test.describe('drawing', () => {
     expect(button.x - (title.x + title.width)).toBeCloseTo(gap, 1);
     expect(title.y + title.height / 2).toBeCloseTo(h.y + h.height / 2, 0);
     expect(button.y + button.height / 2).toBeCloseTo(h.y + h.height / 2, 0);
-    // The content: directly below the header, padding-inline from both edges, padding-block above the bottom.
+    // The content: its box directly below the header, its first line content.padding-block-start lower (8 in the default
+    // system, clear of the header and its divider), padding-inline from both edges, padding-block above the bottom.
     const c = await bounds(content(page));
     const inner = await bounds(host(page).locator('.inner'));
+    const below = await px(page, T('content-padding-block-start'));
+    expect(below).toBe(8);
     expect(c.y).toBeCloseTo(h.y + h.height, 1);
+    expect(inner.y).toBeCloseTo(h.y + h.height + below, 1);
+    // The first line clears the divider below the header by the whole gap.
+    const rule = await bounds(headerDivider(page));
+    expect(inner.y - (rule.y + rule.height)).toBeGreaterThanOrEqual(below - (await px(page, T('divider-width'))) - 0.5);
     expect(inner.x).toBeCloseTo(s.x + pad, 1);
     expect(inner.width).toBeCloseTo(s.width - 2 * pad, 1);
     expect(Number.parseFloat(await css(content(page), 'padding-bottom'))).toBeCloseTo(block, 1);
@@ -1639,6 +1646,11 @@ test.describe('accessibility', () => {
         await motionEnded(page);
         const results = await new AxeBuilder({ page }).include('.stage').analyze();
         expect(results.violations, `${theme} ${f.id}: ${results.violations.map((v) => `${v.id} ${v.nodes.map((n) => n.target).join(' ')}`).join(', ')}`).toEqual([]);
+        // SSH-7: the sheet's text is checked — neither the start edge, drawn above the content by the outline part's
+        // ::before, nor the box that draws the content's focus ring (`focusRingBox()`) is an element covering it.
+        const contrast = (kind: 'passes' | 'incomplete') => results[kind].filter((rule) => rule.id === 'color-contrast').flatMap((rule) => rule.nodes);
+        expect(contrast('passes').length, `${theme} ${f.id}: axe checks the contrast of the sheet's text`).toBeGreaterThan(0);
+        expect(contrast('incomplete').map((node) => node.target), `${theme} ${f.id}: no text left unchecked`).toEqual([]);
       }
     });
   }

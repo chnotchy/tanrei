@@ -3,7 +3,7 @@
 // its presets: layers → DTCG bundle → its tokens (reader.js) → invariants → one file per platform.
 import fs from 'node:fs';
 import path from 'node:path';
-import { ROOT_SYSTEM, heldComponents, listSystems, outsideStandIns, shippedSystems } from './bundle.js';
+import { DEFAULT_SYSTEM, ROOT_SYSTEM, heldComponents, listSystems, outsideStandIns, shippedSystems } from './bundle.js';
 import { CATALOG_FILE, componentsManifest, manifestComment, readComponentCatalog } from './components-manifest.js';
 import { emitCss } from './emit/css.js';
 import { dartSystemNames, emitDart } from './emit/dart.js';
@@ -47,6 +47,16 @@ function productComponents(chain, held, command) {
   return { $comment: manifestComment(chain.at(-1).id, `\`${command}\``), ...componentsManifest(chain, catalog, held, shippedSystems(REPO_ROOT)) };
 }
 
+/** The default system's model, built once per process from the shipped vocabulary. */
+let defaultSystem;
+const defaultSystemModel = () =>
+  (defaultSystem ??= resolveSystem({ system: DEFAULT_SYSTEM })
+    .then((resolved) => resolved.model())
+    .catch((error) => {
+      defaultSystem = undefined;
+      throw error;
+    }));
+
 /** Every output `tanrei build` can write. A product picks the ones it ships. */
 export const TARGETS = ['tokens', 'web', 'swiftui', 'compose', 'flutter', 'react-native', 'tailwind', 'shadcn'];
 const NATIVE = new Set(['swiftui', 'compose', 'flutter', 'react-native']);
@@ -87,6 +97,9 @@ export async function buildProductSystem({ layerFile, layers, dir, targets = TAR
   const resolved = await resolveSystem(input);
   const { id, chain, files: bundle } = resolved;
   const model = await resolved.model();
+  // The sheet a product ships is drawn under the web package's tokens.css: its contrast rules restate the default
+  // system's (emit/css.js).
+  const defaultModel = targets.includes('web') ? (id === DEFAULT_SYSTEM ? model : await defaultSystemModel()) : null;
   const { failures: warnings, checked } = await resolved.audit();
   // A product layer is warned of a violation, not failed — except where the system would draw nothing that works: a hit
   // area under what is drawn.
@@ -120,7 +133,7 @@ export async function buildProductSystem({ layerFile, layers, dir, targets = TAR
       }),
       // The product's sheet says what its system does not have and what it uses instead, as a shipped system's does:
       // declared in its own scope, so that an element there reads the product's lists and not the default system's from `:root`.
-      web: () => ({ [`${id}.css`]: (note ? `/* ${note} */\n` : '') + emitCss(model, { scope: id, ...sheetAvailability(chain, held, standIns) }), ...webRegistry(ir, id), [`${id}.theme-color.json`]: themeColors(documents()) }),
+      web: () => ({ [`${id}.css`]: (note ? `/* ${note} */\n` : '') + emitCss(model, { scope: id, defaultModel, ...sheetAvailability(chain, held, standIns) }), ...webRegistry(ir, id), [`${id}.theme-color.json`]: themeColors(documents()) }),
       swiftui: () => flat(emitSwift(nativeIr, { external: true })),
       compose: () => flat(emitKotlin(nativeIr, { externalPackage: kotlinPackage })),
       flutter: () => flat(emitDart(nativeIr, { external: true })),

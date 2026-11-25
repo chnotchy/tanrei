@@ -6,6 +6,7 @@
 // FPK-32: the product's ARIA on the host is tested with every other control's, in every engine, in
 // src/primitives/delegated-aria.test.ts.
 import AxeBuilder from '@axe-core/playwright';
+import { coveredText } from '../../../test/covered-text.js';
 import { type Locator, type Page, expect, test } from '@playwright/test';
 import { type Fixture, acmeSystemCss, iconFaceArrives, loadSpec, missingWords, mountFixtures, resolveToken, setWords, tab, tabTo, withoutIconFont, rootTokens, isRobotoMonoGlyphWarning } from '../../../test/harness.js';
 import { EVERY_ANIMATION, motionCount } from '../../../test/motions.js';
@@ -2022,6 +2023,7 @@ test.describe('accessibility', () => {
       await mountFixtures(page, spec, { icons: true, theme });
       const results = await new AxeBuilder({ page }).include('.stage').analyze();
       expect(results.violations, theme).toEqual([]);
+      expect(await coveredText(page, results), `${theme}: no text left unchecked as covered`).toEqual([]);
     }
   });
 

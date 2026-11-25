@@ -87,6 +87,7 @@ import '../tabs/tabs.js';
 import { styles } from './date-time-picker.styles.js';
 import { TanreiElement } from '../../primitives/element.js';
 import { startFromNextFrame, statesFromNextFrame } from '../../primitives/motion.js';
+import { DEBUG } from '../../primitives/debug.js';
 
 /** modal: a dialog over a scrim, committed by OK. docked: a surface below its anchor. */
 export type TanreiDateTimePickerPresentation = 'modal' | 'docked';
@@ -321,8 +322,8 @@ export class TanreiDateTimePicker extends TanreiElement {
     if (!this.session) return;
     const say = this.say;
     const { range, mode } = this.cfg;
-    const lacks = (key: WordKey, effect: string) => this.words.missing(key, { id: 'DTM-48', effect });
-    if (!this.label.trim()) report(this, 'DTM-48', 'label is empty, so the title row draws no words and the surface has no accessible name; say what is being chosen ("Check-in"): the product\'s words hold no title');
+    const lacks = (key: WordKey, effect: string) => this.words.missing(key, DEBUG && { id: 'DTM-48', effect });
+    if (DEBUG && !this.label.trim()) report(this, 'DTM-48', 'label is empty, so the title row draws no words and the surface has no accessible name; say what is being chosen ("Check-in"): the product\'s words hold no title');
     if (this.pendingUntilOk) {
       if (!say.cancelLabel) lacks('cancelLabel', 'an icon-only Button with the close glyph is drawn in its place, without a name');
       if (!say.confirmLabel) lacks('confirmLabel', 'an icon-only Button with the check glyph is drawn in its place, without a name');
@@ -687,7 +688,7 @@ export class TanreiDateTimePicker extends TanreiElement {
 
   private closed<T extends string>(values: readonly T[], value: T, fallback: T, name: string): T {
     if (values.includes(value)) return value;
-    report(this, 'DTM-40', `${name} "${value}" is not a value the date-time picker defines; it behaves as "${fallback}"`);
+    if (DEBUG) report(this, 'DTM-40', `${name} "${value}" is not a value the date-time picker defines; it behaves as "${fallback}"`);
     return fallback;
   }
 
@@ -696,7 +697,7 @@ export class TanreiDateTimePicker extends TanreiElement {
     const tag = this.locale.trim();
     if (!tag) return ambientLocale(this);
     const known = supportedLocale(tag);
-    if (!known) report(this, 'DTM-38', `locale "${tag}" is not a BCP 47 tag this browser knows; it uses "${FALLBACK_LOCALE}"`);
+    if (DEBUG && !known) report(this, 'DTM-38', `locale "${tag}" is not a BCP 47 tag this browser knows; it uses "${FALLBACK_LOCALE}"`);
     return known ?? FALLBACK_LOCALE;
   }
 
@@ -718,7 +719,7 @@ export class TanreiDateTimePicker extends TanreiElement {
     }
     if (!moment) {
       const form = mode === 'date' ? 'YYYY-MM-DD' : mode === 'time' ? 'HH:MM' : 'YYYY-MM-DDTHH:MM';
-      report(this, 'DTM-40', `${name} "${text}" is not in the ${mode} mode's form (${form}); it is ignored`);
+      if (DEBUG) report(this, 'DTM-40', `${name} "${text}" is not in the ${mode} mode's form (${form}); it is ignored`);
     }
     return moment;
   }
@@ -738,11 +739,11 @@ export class TanreiDateTimePicker extends TanreiElement {
     const cycle = hourCycle === 'locale' ? localeHourCycle(locale) : clockFor(locale, hourCycle);
     const step = Number(this.minuteStep);
     const known = (MINUTE_STEPS as readonly number[]).includes(step);
-    if (!known) report(this, 'DTM-17', `minuteStep "${this.minuteStep}" is not 1, 5, 10, 15 or 30; it behaves as 1`);
+    if (DEBUG && !known) report(this, 'DTM-17', `minuteStep "${this.minuteStep}" is not 1, 5, 10, 15 or 30; it behaves as 1`);
     const isoDate = (name: string, text: string) => {
       if (!text) return '';
       if (parseIsoDate(text)) return text;
-      report(this, 'DTM-40', `${name} "${text}" is not an ISO 8601 calendar date (YYYY-MM-DD); it is ignored`);
+      if (DEBUG) report(this, 'DTM-40', `${name} "${text}" is not an ISO 8601 calendar date (YYYY-MM-DD); it is ignored`);
       return '';
     };
     const stepped = known ? step : 1;
@@ -753,16 +754,16 @@ export class TanreiDateTimePicker extends TanreiElement {
     let start = this.parseMoment('start', this.start, mode);
     let end = this.parseMoment('end', this.end, mode);
     if (range && value) {
-      report(this, 'DTM-40', `value "${this.value}" is set while range is true, where the choice is start and end; it is ignored`);
+      if (DEBUG) report(this, 'DTM-40', `value "${this.value}" is set while range is true, where the choice is start and end; it is ignored`);
       value = null;
     }
     if (!range && (start || end)) {
-      report(this, 'DTM-40', 'start or end is set while range is false, where the choice is value; they are ignored');
+      if (DEBUG) report(this, 'DTM-40', 'start or end is set while range is false, where the choice is value; they are ignored');
       start = null;
       end = null;
     }
     if (start && end && mode !== 'time' && this.momentText(end, mode) < this.momentText(start, mode)) {
-      report(this, 'DTM-40', `end "${this.end}" is before start "${this.start}"; the end is ignored`);
+      if (DEBUG) report(this, 'DTM-40', `end "${this.end}" is before start "${this.start}"; the end is ignored`);
       end = null;
     }
     const committed: Choice = { value: value ?? EMPTY, start: start ?? EMPTY, end: end ?? EMPTY };
@@ -793,7 +794,7 @@ export class TanreiDateTimePicker extends TanreiElement {
         if (parseIsoDate(date) && clock && !rest.length) return { date, minutes: minutesOf(clock) };
       }
       const form = mode === 'time' ? 'a time of day (HH:MM)' : 'a date and time (YYYY-MM-DDTHH:MM) or a calendar date (YYYY-MM-DD)';
-      report(this, 'DTM-40', `${name} "${text}" is not ${form}, the ${mode} mode's form; it is ignored`);
+      if (DEBUG) report(this, 'DTM-40', `${name} "${text}" is not ${form}, the ${mode} mode's form; it is ignored`);
       return null;
     };
     // A bound's place in time; a calendar date's min is its first minute and its max its last.
@@ -801,7 +802,7 @@ export class TanreiDateTimePicker extends TanreiElement {
     let low = read('min', this.min);
     let high = read('max', this.max);
     if (low && high && at(low, 0) > at(high, DAY_END)) {
-      report(this, 'DTM-40', `min "${this.min}" is after max "${this.max}"; both are ignored`);
+      if (DEBUG) report(this, 'DTM-40', `min "${this.min}" is after max "${this.max}"; both are ignored`);
       return { low: null, high: null };
     }
     if (low && low.minutes !== null) {
@@ -813,7 +814,7 @@ export class TanreiDateTimePicker extends TanreiElement {
     if (high && high.minutes !== null) high = { ...high, minutes: high.minutes - (high.minutes % step) };
     const empty = (low && low.minutes !== null && low.minutes > DAY_END) || (low && high && at(low, 0) > at(high, DAY_END));
     if (empty) {
-      report(this, 'DTM-40', `no time of minuteStep ${step} lies between min "${this.min}" and max "${this.max}"; both are ignored`);
+      if (DEBUG) report(this, 'DTM-40', `no time of minuteStep ${step} lies between min "${this.min}" and max "${this.max}"; both are ignored`);
       return { low: null, high: null };
     }
     return { low, high };
@@ -2259,7 +2260,8 @@ export class TanreiDateTimePicker extends TanreiElement {
   }
 
   /**
-   * DTM-9, DTM-34, DTM-36: the layout — vertical or horizontal as `layout` says; for auto, horizontal only when the
+   * DTM-9, DTM-34, DTM-36: the layout — vertical or horizontal as `layout` says, horizontal only where its columns fit
+   * the surface's width; for auto, horizontal only when the
    * vertical one does not fit the window's height and the horizontal one fits its width — the actions in a row or a
    * column, and the whole surface scrolling as one when the header and the actions leave no room between them.
    *
@@ -2293,6 +2295,12 @@ export class TanreiDateTimePicker extends TanreiElement {
       surface.dataset.arrangement = arrangement;
       surface.classList.remove('whole');
       surface.dataset.layout = auto || layout !== 'horizontal' ? 'vertical' : 'horizontal';
+      if (layout === 'horizontal') {
+        // DTM-9: the horizontal layout the product chose, where its columns fit the width the surface may take, and the
+        // vertical one where they do not (WCAG 1.4.10: no scrolling in two directions at 320 CSS px).
+        this.horizontalIfFits(run, surface, body, arrangement);
+        return;
+      }
       if (!auto) {
         this.arrangeActions(run, surface, body, arrangement);
         return;
@@ -2301,12 +2309,23 @@ export class TanreiDateTimePicker extends TanreiElement {
       this.step(run, () => (body.scrollHeight > body.clientHeight + 0.5 ? true : null), () => {
         surface.dataset.layout = 'horizontal';
         // …and the horizontal one fits its width.
-        this.step(run, () => surface.scrollWidth <= surface.clientWidth + 0.5, (fits) => {
-          if (!fits) surface.dataset.layout = 'vertical';
-          this.arrangeActions(run, surface, body, arrangement);
-        });
+        this.horizontalIfFits(run, surface, body, arrangement);
       }, () => this.arrangeActions(run, surface, body, arrangement));
     };
+  }
+
+  /**
+   * DTM-9: with the horizontal layout set, keeps it where its columns fit the surface's width and takes the vertical one
+   * where they do not. The body scrolls, so what overflows it is its own overflow, never the surface's: read on the
+   * surface alone, a 320 or 360 px window took the horizontal layout and cut the calendar and the time section at its two
+   * edges. The surface's width is the room it may take (the window less the margins, a docked picker's room, the box an
+   * in-place one stands in), and its size is watched, so the layout is decided again when that room changes.
+   */
+  private horizontalIfFits(run: object, surface: HTMLElement, body: HTMLElement, arrangement: string) {
+    this.step(run, () => body.scrollWidth <= body.clientWidth + 0.5 && surface.scrollWidth <= surface.clientWidth + 0.5, (fits) => {
+      if (!fits) surface.dataset.layout = 'vertical';
+      this.arrangeActions(run, surface, body, arrangement);
+    });
   }
 
   /**
@@ -2852,6 +2871,7 @@ export class TanreiDateTimePicker extends TanreiElement {
             html`<span
               class=${classMap({ row: true, on: Math.abs(at - position) < 0.5 })}
               ?data-unavailable=${!this.offersPeriod(at ? 1 : 0)}
+              aria-disabled=${ifDefined(this.offersPeriod(at ? 1 : 0) ? undefined : 'true')}
               style=${styleMap({ '--_at': String(at - position) })}
               >${name}</span
             >`,
@@ -2962,6 +2982,7 @@ export class TanreiDateTimePicker extends TanreiElement {
             html`<span
               class=${classMap({ row: true, on: Math.abs(at - position) < 0.5 })}
               ?data-unavailable=${!this.offers(unit, this.withIndex(unit, at))}
+              aria-disabled=${ifDefined(this.offers(unit, this.withIndex(unit, at)) ? undefined : 'true')}
               style=${styleMap({ '--_at': String(at - position) })}
               >${text(at)}</span
             >`,
@@ -3070,7 +3091,7 @@ export class TanreiDateTimePicker extends TanreiElement {
   }
 
   /** DTM-23: the numbers of a unit around the dial, clockwise from the top (two rings for the 24-hour hours). */
-  /** DTM-23, DTM-50: … each with whether the value it names is available. */
+  /** DTM-23, DTM-50: … each with whether the value it names is available. DTM-24: … and whether it is the pending value, the number the handle covers. */
   private dialNumbers(unit: Unit) {
     const { locale, cycle, step } = this.cfg;
     const time = this.time;
@@ -3080,6 +3101,7 @@ export class TanreiDateTimePicker extends TanreiElement {
         text: numberText(locale, minute, 2),
         inner: false,
         available: this.offers('minute', { ...time, minute }),
+        covered: minute === time.minute,
         ...direction(minute * 6),
       }));
     }
@@ -3088,12 +3110,23 @@ export class TanreiDateTimePicker extends TanreiElement {
         text: numberText(locale, value(index), digits),
         inner,
         available: this.offers('hour', { ...time, hour: hour(value(index)) }),
+        covered: hour(value(index)) === time.hour,
         ...direction(index * 30),
       }));
     if (cycle === 'h12') return ring(false, (index) => (index === 0 ? 12 : index), (value) => hourOf12(value, periodOf(time.hour)), 1);
     return [...ring(false, (index) => index, (value) => value, 2), ...ring(true, (index) => index + 12, (value) => value, 2)];
   }
 
+  /**
+   * The numbers of both units, as the face draws them and as the copy inside the handle does. DTM-24: the shown unit's
+   * pending value is marked `data-covered` in both: the handle lies wholly over it, the face does not draw it, and the
+   * copy draws it there in selected-label.color.
+   *
+   * DTM-50: an unavailable number, like an unavailable wheel row, is marked inactive (`aria-disabled`) as well as faded.
+   * It sits in a subtree hidden from assistive technology, so nothing is announced; it tells a contrast checker (axe's
+   * `color-contrast`) what WCAG 1.4.3 exempts — the text of an inactive control — instead of judging its faded color as
+   * text a person must read to choose it.
+   */
   private numbers() {
     const layer = (unit: Unit) =>
       html`<div class=${classMap({ numbers: true, [`${unit}s`]: true, faded: this.shownUnit !== unit })}>
@@ -3102,6 +3135,8 @@ export class TanreiDateTimePicker extends TanreiElement {
             html`<span
               class=${classMap({ number: true, inner: number.inner, outer: !number.inner })}
               ?data-unavailable=${!number.available}
+              ?data-covered=${number.covered && this.shownUnit === unit}
+              aria-disabled=${ifDefined(number.available ? undefined : 'true')}
               style=${styleMap({ '--_x': String(number.x), '--_y': String(number.y) })}
               >${number.text}</span
             >`,
@@ -3118,6 +3153,7 @@ export class TanreiDateTimePicker extends TanreiElement {
       class="dial"
       aria-hidden="true"
       data-ring=${this.innerRing ? 'inner' : 'outer'}
+      data-rings=${this.shownUnit === 'hour' && this.cfg.cycle === 'h23' ? '2' : '1'}
       ?data-instant=${this.instant}
       style=${styleMap({ '--_angle': `${this.angle}deg` })}
       @pointerdown=${this.onDialDown}
@@ -3131,7 +3167,7 @@ export class TanreiDateTimePicker extends TanreiElement {
       <div class="arm">
         <div class="track"></div>
         <div part="handle" class="handle">
-          <div class="copy">${this.numbers()}</div>
+          <div class="turn"><div class="copy">${this.numbers()}</div></div>
           ${between ? html`<div class="between"></div>` : nothing}
         </div>
       </div>

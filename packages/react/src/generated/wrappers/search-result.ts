@@ -11,7 +11,7 @@ const SearchResultElement = /* @__PURE__ */ createComponent({
   react: React,
   events: {},
 });
-const SearchResultAttributes = { value: ['value', ''], headline: ['headline', ''], excerpt: ['excerpt'], leadingIcon: ['leading-icon', ''], href: ['href', ''], target: ['target', 'same'], targetLabel: ['target-label', ''], rel: ['rel', null], download: ['download', null] } as const;
+const SearchResultAttributes = { value: ['value', ''], headline: ['headline', ''], excerpt: ['excerpt', []], leadingIcon: ['leading-icon', ''], href: ['href', ''], target: ['target', 'same'], targetLabel: ['target-label', ''], rel: ['rel', null], download: ['download', null] } as const;
 /**
  * A thing the search found that the person can go to — the spec's item kind `result`: a page, a section of a page, a message, a file. It is a link, never an option: with `href` its row is an `<a>` in its shadow root, which the browser follows as it follows any link; without one it is a `<button>`, and `select` is all that happens.
  *

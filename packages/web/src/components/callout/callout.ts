@@ -32,6 +32,7 @@ import '../button/button.js';
 import { AXES, STATUSES, styles } from './callout.styles.js';
 import { TanreiElement } from '../../primitives/element.js';
 import { holdsProductName, nameHost } from '../../primitives/delegated-aria.js';
+import { DEBUG } from '../../primitives/debug.js';
 
 /** The core variants (tonal, outlined), plus any a design system's generated `.d.ts` registers. */
 export type TanreiCalloutVariant = keyof TanreiCalloutVariantRegistry;
@@ -607,20 +608,20 @@ export class TanreiCallout extends TanreiElement implements PlacingGroup {
     }
 
     // CLO-30: a status this spec does not have is drawn as default. (An unknown size or variant is the axes' to report.)
-    if (has('status') && this.status !== 'default' && !isStatus(this.status)) {
+    if (DEBUG && has('status') && this.status !== 'default' && !isStatus(this.status)) {
       report(this, 'CLO-30', `status "${this.status}" is not a status of a callout; it is drawn as "default"`);
     }
     // CLO-31: what a debug build tells the product.
-    if (this.empty && (has('headline') || has('hasTitle') || has('hasBody'))) {
+    if (DEBUG && this.empty && (has('headline') || has('hasTitle') || has('hasBody'))) {
       report(this, 'CLO-31', 'the callout has no title and no body, so it draws nothing; a glyph, actions or a close button alone are not a notice');
     }
-    if (!this.empty && this.form !== 'default' && !this.titled && !this.statusLabel.trim()) {
+    if (DEBUG && !this.empty && this.form !== 'default' && !this.titled && !this.statusLabel.trim()) {
       report(this, 'CLO-31', `status is "${this.form}" but the callout has no title and status-label is empty, so the status is not given in words; give it a title that says it, or a status-label`);
     }
     if ((has('closable') || has('closeLabel')) && this.closable && !this.words.get('closeLabel', this.closeLabel)) {
-      this.words.missing('closeLabel', { id: 'CLO-31', effect: 'the close button has no accessible name' });
+      this.words.missing('closeLabel', DEBUG && { id: 'CLO-31', effect: 'the close button has no accessible name' });
     }
-    if ((has('statusLabel') || has('status')) && this.statusLabel.trim() && this.form === 'default') {
+    if (DEBUG && (has('statusLabel') || has('status')) && this.statusLabel.trim() && this.form === 'default') {
       report(this, 'CLO-31', `status-label "${this.statusLabel}" is ignored while status is default; give the callout a status, or put the words in its title`);
     }
   }

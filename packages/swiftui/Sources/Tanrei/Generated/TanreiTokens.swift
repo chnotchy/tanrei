@@ -2058,6 +2058,7 @@ public struct TanreiBottomSheetTokens: Sendable, Equatable {
   public var containerPartialFraction: Double
   public var containerShape: CGFloat
   public var contentColor: TanreiPaint
+  public var contentPaddingBlockStart: CGFloat
   public var dividerColor: TanreiPaint
   public var dividerVisibility: Double
   public var dividerWidth: CGFloat
@@ -2100,6 +2101,7 @@ public struct TanreiBottomSheetTokens: Sendable, Equatable {
     containerPartialFraction: Double,
     containerShape: CGFloat,
     contentColor: TanreiPaint,
+    contentPaddingBlockStart: CGFloat,
     dividerColor: TanreiPaint,
     dividerVisibility: Double,
     dividerWidth: CGFloat,
@@ -2138,6 +2140,7 @@ public struct TanreiBottomSheetTokens: Sendable, Equatable {
     self.containerPartialFraction = containerPartialFraction
     self.containerShape = containerShape
     self.contentColor = contentColor
+    self.contentPaddingBlockStart = contentPaddingBlockStart
     self.dividerColor = dividerColor
     self.dividerVisibility = dividerVisibility
     self.dividerWidth = dividerWidth
@@ -2709,6 +2712,7 @@ public struct TanreiButtonWithMenuTokens: Sendable, Equatable {
   public var dividerThickness: CGFloat
   public var motionBusyCycleDuration: Double
   public var motionBusyFadeDuration: Double
+  public var motionBusyPulseFloorOpacity: Double
   public var motionFeedbackDuration: Double
   public var motionHoverCloseDelay: Double
   public var motionHoverOpenDelay: Double
@@ -2739,6 +2743,7 @@ public struct TanreiButtonWithMenuTokens: Sendable, Equatable {
     dividerThickness: CGFloat,
     motionBusyCycleDuration: Double,
     motionBusyFadeDuration: Double,
+    motionBusyPulseFloorOpacity: Double,
     motionFeedbackDuration: Double,
     motionHoverCloseDelay: Double,
     motionHoverOpenDelay: Double,
@@ -2764,6 +2769,7 @@ public struct TanreiButtonWithMenuTokens: Sendable, Equatable {
     self.dividerThickness = dividerThickness
     self.motionBusyCycleDuration = motionBusyCycleDuration
     self.motionBusyFadeDuration = motionBusyFadeDuration
+    self.motionBusyPulseFloorOpacity = motionBusyPulseFloorOpacity
     self.motionFeedbackDuration = motionFeedbackDuration
     self.motionHoverCloseDelay = motionHoverCloseDelay
     self.motionHoverOpenDelay = motionHoverOpenDelay
@@ -3104,6 +3110,7 @@ public struct TanreiButtonTokens: Sendable, Equatable {
   public var containerShape: CGFloat
   public var motionBusyCycleDuration: Double
   public var motionBusyFadeDuration: Double
+  public var motionBusyPulseFloorOpacity: Double
   public var motionFeedbackDuration: Double
   public var motionStateEasing: TanreiCubicBezier
   public var toneContainerOpacity: Double
@@ -3123,6 +3130,7 @@ public struct TanreiButtonTokens: Sendable, Equatable {
     containerShape: CGFloat,
     motionBusyCycleDuration: Double,
     motionBusyFadeDuration: Double,
+    motionBusyPulseFloorOpacity: Double,
     motionFeedbackDuration: Double,
     motionStateEasing: TanreiCubicBezier,
     toneContainerOpacity: Double,
@@ -3137,6 +3145,7 @@ public struct TanreiButtonTokens: Sendable, Equatable {
     self.containerShape = containerShape
     self.motionBusyCycleDuration = motionBusyCycleDuration
     self.motionBusyFadeDuration = motionBusyFadeDuration
+    self.motionBusyPulseFloorOpacity = motionBusyPulseFloorOpacity
     self.motionFeedbackDuration = motionFeedbackDuration
     self.motionStateEasing = motionStateEasing
     self.toneContainerOpacity = toneContainerOpacity
@@ -4246,6 +4255,7 @@ public struct TanreiChatComposerTokens: Sendable, Equatable {
   public var counterTypescale: TanreiTextStyle
   public var inputPaddingBlock: CGFloat
   public var layoutInlineMinWidth: CGFloat
+  public var layoutInputMinWidth: CGFloat
   public var motionGlyphFadeDuration: Double
   public var motionResizeDuration: Double
   public var motionResizeEasing: TanreiCubicBezier
@@ -4281,6 +4291,7 @@ public struct TanreiChatComposerTokens: Sendable, Equatable {
     counterTypescale: TanreiTextStyle,
     inputPaddingBlock: CGFloat,
     layoutInlineMinWidth: CGFloat,
+    layoutInputMinWidth: CGFloat,
     motionGlyphFadeDuration: Double,
     motionResizeDuration: Double,
     motionResizeEasing: TanreiCubicBezier,
@@ -4312,6 +4323,7 @@ public struct TanreiChatComposerTokens: Sendable, Equatable {
     self.counterTypescale = counterTypescale
     self.inputPaddingBlock = inputPaddingBlock
     self.layoutInlineMinWidth = layoutInlineMinWidth
+    self.layoutInputMinWidth = layoutInputMinWidth
     self.motionGlyphFadeDuration = motionGlyphFadeDuration
     self.motionResizeDuration = motionResizeDuration
     self.motionResizeEasing = motionResizeEasing
@@ -10055,6 +10067,7 @@ public struct TanreiLoadingIndicatorTokens: Sendable, Equatable {
   public var motionEnterDuration: Double
   public var motionEnterEasing: TanreiCubicBezier
   public var motionEntrance: Double
+  public var motionPulseFloorOpacity: Double
   public var motionShowDelay: Double
   public var sizes: TanreiLoadingIndicatorSizes
 
@@ -10068,6 +10081,7 @@ public struct TanreiLoadingIndicatorTokens: Sendable, Equatable {
     motionEnterDuration: Double,
     motionEnterEasing: TanreiCubicBezier,
     motionEntrance: Double,
+    motionPulseFloorOpacity: Double,
     motionShowDelay: Double,
     sizes: TanreiLoadingIndicatorSizes
   ) {
@@ -10080,6 +10094,7 @@ public struct TanreiLoadingIndicatorTokens: Sendable, Equatable {
     self.motionEnterDuration = motionEnterDuration
     self.motionEnterEasing = motionEnterEasing
     self.motionEntrance = motionEntrance
+    self.motionPulseFloorOpacity = motionPulseFloorOpacity
     self.motionShowDelay = motionShowDelay
     self.sizes = sizes
   }
@@ -13053,6 +13068,7 @@ public struct TanreiProgressIndicatorTokens: Sendable, Equatable {
   public var indicatorColor: TanreiPaint
   public var motionCycleDuration: Double
   public var motionCycleEasing: TanreiCubicBezier
+  public var motionPulseFloorOpacity: Double
   public var motionShowDelay: Double
   public var motionValueDuration: Double
   public var motionValueEasing: TanreiCubicBezier
@@ -13067,6 +13083,7 @@ public struct TanreiProgressIndicatorTokens: Sendable, Equatable {
     indicatorColor: TanreiPaint,
     motionCycleDuration: Double,
     motionCycleEasing: TanreiCubicBezier,
+    motionPulseFloorOpacity: Double,
     motionShowDelay: Double,
     motionValueDuration: Double,
     motionValueEasing: TanreiCubicBezier,
@@ -13080,6 +13097,7 @@ public struct TanreiProgressIndicatorTokens: Sendable, Equatable {
     self.indicatorColor = indicatorColor
     self.motionCycleDuration = motionCycleDuration
     self.motionCycleEasing = motionCycleEasing
+    self.motionPulseFloorOpacity = motionPulseFloorOpacity
     self.motionShowDelay = motionShowDelay
     self.motionValueDuration = motionValueDuration
     self.motionValueEasing = motionValueEasing
@@ -15043,6 +15061,7 @@ public struct TanreiSideSheetTokens: Sendable, Equatable {
   public var containerPaddingInline: CGFloat
   public var containerWidth: CGFloat
   public var contentColor: TanreiPaint
+  public var contentPaddingBlockStart: CGFloat
   public var dividerColor: TanreiPaint
   public var dividerVisibility: Double
   public var dividerWidth: CGFloat
@@ -15071,6 +15090,7 @@ public struct TanreiSideSheetTokens: Sendable, Equatable {
     containerPaddingInline: CGFloat,
     containerWidth: CGFloat,
     contentColor: TanreiPaint,
+    contentPaddingBlockStart: CGFloat,
     dividerColor: TanreiPaint,
     dividerVisibility: Double,
     dividerWidth: CGFloat,
@@ -15098,6 +15118,7 @@ public struct TanreiSideSheetTokens: Sendable, Equatable {
     self.containerPaddingInline = containerPaddingInline
     self.containerWidth = containerWidth
     self.contentColor = contentColor
+    self.contentPaddingBlockStart = contentPaddingBlockStart
     self.dividerColor = dividerColor
     self.dividerVisibility = dividerVisibility
     self.dividerWidth = dividerWidth
@@ -17822,7 +17843,6 @@ public struct TanreiTabsStateTokens: Sendable, Equatable {
 
 /// Component tokens of tabs (comp.tabs).
 public struct TanreiTabsTokens: Sendable, Equatable {
-  public var activeIndicatorHeight: CGFloat
   public var containerGap: CGFloat
   public var containerHeightWithIcon: CGFloat
   public var containerShape: CGFloat
@@ -17853,7 +17873,6 @@ public struct TanreiTabsTokens: Sendable, Equatable {
   public var disabled: TanreiTabsStateTokens
 
   public init(
-    activeIndicatorHeight: CGFloat,
     containerGap: CGFloat,
     containerHeightWithIcon: CGFloat,
     containerShape: CGFloat,
@@ -17879,7 +17898,6 @@ public struct TanreiTabsTokens: Sendable, Equatable {
     pressed: TanreiTabsStateTokens,
     disabled: TanreiTabsStateTokens
   ) {
-    self.activeIndicatorHeight = activeIndicatorHeight
     self.containerGap = containerGap
     self.containerHeightWithIcon = containerHeightWithIcon
     self.containerShape = containerShape

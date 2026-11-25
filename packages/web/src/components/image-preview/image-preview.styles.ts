@@ -1,5 +1,5 @@
 import { css, unsafeCSS } from 'lit';
-import { appearStyles, focusRing, iconGlyph, modalExitStyles, rowTargets } from '../../primitives/index.js';
+import { appearStyles, focusRing, focusRingBox, iconGlyph, modalExitStyles, rowTargets } from '../../primitives/index.js';
 import { productText } from '../../styles/product-text.js';
 import { cornerRadius, shape } from '../../styles/shape.js';
 import { reducedMotion } from '../../styles/motion.js';
@@ -187,6 +187,9 @@ export const styles = css`
 
   /* IMP-11, IMP-27: the stage is the whole container: it takes the gestures and the keys and is the one focus stop
      that is not a Button. It draws nothing (IMP-42), and the browser's own pinch and scroll do not take its gestures. */
+  /* It lies under the pages, which take no pointer (below), so that a press on the image or the error text (IMP-31)
+     still reaches it, and no element of the stage's lies over that text, where a contrast checker would take it for
+     one covering the text and check none. */
   .stage {
     position: absolute;
     inset: 0;
@@ -213,6 +216,9 @@ export const styles = css`
     margin-block-end: env(safe-area-inset-bottom, 0px);
   }
   ${focusRing((focus) => `.stage${focus} ~ .fit`, { inside: true })}
+  /* The fit area lies over the image's error text: it draws the indicator by its ::before, as no element, so that a
+     contrast checker still sees the text under it (focusRingBox). */
+  ${focusRingBox('.fit')}
   /* IMP-27: focus the stage took as the preview was opened by a press shows no indicator. */
   .stage[data-focus-quiet]:focus-visible ~ .fit {
     outline: none;
@@ -332,6 +338,8 @@ export const styles = css`
     ${unsafeCSS(cornerRadius('--tanrei-sys-shape-corner-none'))}
   }
   ${focusRing((focus) => `.caption${focus} + .caption-focus`, { inside: true })}
+  /* The box lies over the caption's text: it draws the indicator by its ::before, as no element (focusRingBox). */
+  ${focusRingBox('.caption-focus')}
 
   /* IMP-38: the count, the caption and the error text are each text of their own direction, isolated; the count and
      the caption are still placed, and their lines aligned, by the layout. */
@@ -339,7 +347,10 @@ export const styles = css`
   ${productText('.error-text')}
 
   /* The bar, the two controls at the stage's sides and the caption stand over the stage, which is the whole container;
-     so does the fit area's edge, where the stage's focus is drawn. */
+     so does the fit area's edge, where the stage's focus is drawn. So do the pages, first of them in the paint order
+     (the bar, the controls and the caption stay over a zoomed image): they take no pointer, so a press on them reaches
+     the stage, and the stage lies over no text of theirs (the error text, IMP-31) for a contrast checker. */
+  .pages,
   .bar,
   .previous,
   .next,

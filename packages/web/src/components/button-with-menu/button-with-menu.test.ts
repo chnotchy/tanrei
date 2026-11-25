@@ -14,6 +14,7 @@ import { decodePng, paintedColor } from '../../../test/png.js';
 import { readSeam } from '../../../test/seam.js';
 import { motionEnded } from '../../../test/motions.js';
 import { expectBaseline } from '../../../test/baseline.js';
+import { expectPulseKeepsFloor, resolveOpacity, samplePulse } from '../../../test/pulse-floor.js';
 import { controlledElements } from '../../../test/controlled-list.js';
 import { type HeldGlyph, expectGlyphsHeldBack } from '../../../test/held-glyphs.js';
 
@@ -116,7 +117,11 @@ const focused = (page: P) =>
     return active ? `${active.localName}${active.className ? `.${String(active.className).split(' ')[0]}` : ''}${active.getAttribute('label') ? `[${active.getAttribute('label')}]` : ''}` : null;
   });
 
-test.beforeEach(async ({ page }) => {
+/** A test that draws only on pages of its own (atRatio), at its own device pixel ratio: the shared page is not mounted for it. */
+const OWN_PAGES = '@own-pages';
+
+test.beforeEach(async ({ page }, testInfo) => {
+  if (testInfo.tags.includes(OWN_PAGES)) return;
   await mountFixtures(page, spec, { icons: true });
 });
 
@@ -1878,32 +1883,33 @@ test.describe('seams', () => {
     return { off, lines, inset };
   };
 
-  test('SPB-26, SPB-31: no pixel of a fill, of the outline or of the elevation’s ring is painted twice where the halves meet, and none of the page shows there — a line of pixels through the seam, above and below the rule, is one color (filled, tonal, outlined, elevated; disabled, whose fills are translucent; open; narrow; each size), so the outline and the ring run through the seam in one even color; left-to-right and right-to-left, light and dark, at 1, 2 and 3 device pixels per pixel and half a device pixel off the grid', async ({ browser }) => {
-    test.slow();
-    for (const theme of ['light', 'dark'] as const) {
-      for (const ratio of [1, 2, 3]) {
-        for (const offset of [0, 0.5]) {
+  // One test a page: each page draws the two dozen seams and reads them all, 4–6 s in WebKit in the CI-like container
+  // (the most at three device pixels per pixel), so every test stays well inside the 30 s timeout. All twelve pages in
+  // one test took about 80 s on a runner and ran out of a slow runner's 90 s.
+  const grid = (offset: number) => (offset ? 'half a device pixel off the grid' : 'on the grid');
+  for (const theme of ['light', 'dark'] as const) {
+    for (const ratio of [1, 2, 3]) {
+      for (const offset of [0, 0.5]) {
+        test(`SPB-26, SPB-31: no pixel of a fill, of the outline or of the elevation’s ring is painted twice where the halves meet, and none of the page shows there — a line of pixels through the seam, above and below the rule, is one color (filled, tonal, outlined, elevated; disabled, whose fills are translucent; open; narrow; each size), so the outline and the ring run through the seam in one even color; left-to-right and right-to-left — ${theme}, at ${ratio} device pixel${ratio === 1 ? '' : 's'} per pixel, ${grid(offset)}`, { tag: OWN_PAGES }, async ({ browser }) => {
           const result = await atRatio(browser, ratio, (page) => read(page, { theme, offset }), VIEW);
           expect(result.inset, 'the rule stops short of the edge, so there are lines to read').toBeGreaterThan(2);
           expect(result.lines).toBeGreaterThan(0);
           expect(result.off, `${theme}, ${ratio}x, ${offset} off the grid`).toEqual([]);
-        }
+        });
       }
     }
-  });
+  }
 
   for (const system of ['cupertino', 'm3-like']) {
-    test(`SPB-26, SPB-31: the same under ${system} — its outline widths, its corners, its fills and its elevation meet at the seam without a pixel painted twice`, async ({ browser }) => {
-      // Four pages of two dozen seams each, at two device pixels per pixel.
-      test.slow();
-      for (const theme of ['light', 'dark'] as const) {
-        for (const offset of [0, 0.5]) {
+    for (const theme of ['light', 'dark'] as const) {
+      for (const offset of [0, 0.5]) {
+        test(`SPB-26, SPB-31: the same under ${system} — its outline widths, its corners, its fills and its elevation meet at the seam without a pixel painted twice — ${theme}, at 2 device pixels per pixel, ${grid(offset)}`, { tag: OWN_PAGES }, async ({ browser }) => {
           const result = await atRatio(browser, 2, (page) => read(page, { theme, system, offset }), VIEW);
           expect(result.lines).toBeGreaterThan(0);
           expect(result.off, `${system}, ${theme}, ${offset} off the grid`).toEqual([]);
-        }
+        });
       }
-    });
+    }
   }
 
   test('SPB-26: a half under a divider is a box that ends at the seam and paints its fill; its outline and its elevation are its ::after’s, which reaches past the seam and is cut there — mirrored in right-to-left; under gap nothing is cut', async ({ page }) => {
@@ -2229,7 +2235,7 @@ test.describe('busy', () => {
     }
   });
 
-  test('SPB-39: under reduced motion the label and the icon are drawn again, and stop being drawn, at once, and the arc does not turn: the whole circle, its opacity easing once per cycle', async ({ page }) => {
+  test('SPB-39: under reduced motion the label and the icon are drawn again, and stop being drawn, at once, and the arc does not turn: the whole circle, its opacity easing from 1 down to the floor and back once per cycle', async ({ page }) => {
     await page.emulateMedia({ reducedMotion: 'reduce' });
     await mountFixtures(page, spec, { icons: true, fixtures: [saving] });
     const drawn = await leading(page, 'saving').evaluate((el) => {
@@ -2243,6 +2249,19 @@ test.describe('busy', () => {
       expect(seen.frames[0]!.probe, `busy ${busy}`).toMatchObject({ label: busy ? 0 : 1, icon: busy ? 0 : 1, iconShown: !busy, arc: busy });
       expect(seen.motions.filter((motion) => motion.name === 'opacity' || motion.name === 'visibility'), `busy ${busy}`).toEqual([]);
     }
+  });
+
+  test('SPB-39: under reduced motion the busy circle is never drawn below the pulse floor — sampled over a whole cycle, computed and painted', async ({ page }) => {
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    await mountFixtures(page, spec, { icons: true, fixtures: [saving] });
+    const duration = await resolveToken(page, T('motion-busy-cycle-duration'), 'duration');
+    const floor = await resolveOpacity(page, T('motion-busy-pulse-floor-opacity'));
+    const arc = leading(page, 'saving').locator('.busy-arc');
+    const size = await arc.evaluate((el) => Number.parseFloat(getComputedStyle(el).inlineSize));
+    const stroke = await arc.locator('circle').evaluate((el) => Number.parseFloat(getComputedStyle(el).strokeWidth));
+    // The top of the circle, on the middle of its stroke; and its middle, where the container shows through the label
+    // that is not drawn.
+    expectPulseKeepsFloor(await samplePulse(arc, arc, { duration, mark: [size / 2, stroke / 2], ground: [size / 2, size / 2] }), floor, 'saving');
   });
 
   test('SPB-40: a busy leading half keeps its focus and its place in the focus order, emits no click by any means, exposes aria-disabled and busyLabel after the product’s description, has busyLabel announced once and nothing when it ends; the trailing half still toggles and its menu works; disabled, busy changes nothing; an empty busyLabel is reported', async ({ page }) => {

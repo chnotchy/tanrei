@@ -14,6 +14,7 @@ import { allSettled } from '../../../test/settled.js';
 import { clickCentre, heldPress } from '../../../test/watched-press.js';
 import { MIRRORED, anchorOf, container, countClicks, expectDisabledLink, expectDrawnAlike, expectLinkActivation, expectNewContext, expectRefusals, expectTargetLabel, markOf, painted, settledPaint } from '../../../test/links.js';
 import { expectBaseline } from '../../../test/baseline.js';
+import { expectPulseKeepsFloor, resolveOpacity, samplePulse } from '../../../test/pulse-floor.js';
 
 const spec = loadSpec('button');
 const button = (id: string) => `[data-fixture="${id}"] tanrei-button`;
@@ -968,7 +969,7 @@ test.describe('icon side padding and icon-only widths', () => {
 
   test('BTN-12: the corner is capped at half the shorter side — a circle at the default width and a capsule at the other two under corner.full, a rounded rectangle under a smaller corner; the container grows with the text size and keeps its proportion', async ({ page }) => {
     await mountFixtures(page, spec, { icons: true });
-    const surface = await page.evaluate(() => getComputedStyle(document.body).backgroundColor);
+    const surface = await page.evaluate(() => getComputedStyle(document.documentElement).backgroundColor);
     /** What is under a point of the stage: the button's container, or the stage around it. */
     const drawn = async (id: string, x: number, y: number) => {
       const { decodePng } = await import('../../../test/png.js');
@@ -2742,7 +2743,7 @@ test.describe('busy, reachable while disabled, full width', () => {
     expect(product).toEqual(person);
   });
 
-  test('BTN-36: under reduced motion the busy arc does not turn: the whole circle, its opacity easing once per cycle', async ({ page }) => {
+  test('BTN-36: under reduced motion the busy arc does not turn: the whole circle, its opacity easing from 1 down to the floor and back once per cycle', async ({ page }) => {
     await page.emulateMedia({ reducedMotion: 'reduce' });
     await mountOne(page, [fx('busy', { variant: 'filled', busy: true, busyLabel: 'Deploying' })]);
     const drawn = await inner(page, 'busy').evaluate((el) => {
@@ -2750,6 +2751,22 @@ test.describe('busy, reachable while disabled, full width', () => {
       return { animation: getComputedStyle(arc).animationName, dash: getComputedStyle(arc.querySelector('circle')!).strokeDasharray };
     });
     expect(drawn).toEqual({ animation: 'busy-pulse', dash: 'none' });
+  });
+
+  test('BTN-36: under reduced motion the busy circle is never drawn below the pulse floor — sampled over a whole cycle, computed and painted, on a filled and a text container', async ({ page }) => {
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    await mountOne(page, [fx('filled', { variant: 'filled', busy: true, busyLabel: 'Deploying' }), fx('text', { variant: 'text', busy: true, busyLabel: 'Deploying' })]);
+    const duration = await resolveToken(page, '--tanrei-comp-button-motion-busy-cycle-duration', 'duration');
+    const floor = await resolveOpacity(page, '--tanrei-comp-button-motion-busy-pulse-floor-opacity');
+    for (const id of ['filled', 'text']) {
+      const arc = inner(page, id).locator('.busy-arc');
+      const size = await arc.evaluate((el) => Number.parseFloat(getComputedStyle(el).inlineSize));
+      const stroke = await arc.locator('circle').evaluate((el) => Number.parseFloat(getComputedStyle(el).strokeWidth));
+      // The top of the circle, on the middle of its stroke; and its middle, where the container shows through the label
+      // that is not drawn.
+      const samples = await samplePulse(arc, arc, { duration, mark: [size / 2, stroke / 2], ground: [size / 2, size / 2] });
+      expectPulseKeepsFloor(samples, floor, id);
+    }
   });
 
   test('BTN-37: a busy button keeps its focus and its place in the focus order, emits nothing by any means, exposes aria-disabled and busyLabel as its description, has busyLabel announced once when it becomes busy and nothing when it ends; an empty busyLabel is reported', async ({ page }) => {

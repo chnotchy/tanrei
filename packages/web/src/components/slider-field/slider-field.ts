@@ -1,11 +1,13 @@
 import { type PropertyDeclarations, type PropertyValues, css, html } from 'lit';
 import { ComposedControl, type ValueMember, composedHost, exported, forward, fieldDelegatesAria } from '../../primitives/composed.js';
 import { delegatedAria } from '../../primitives/delegated-aria.js';
+import { FormDefault } from '../../primitives/form-default.js';
 import type { FormEntry } from '../../primitives/form-says.js';
 import { hiddenHost } from '../../primitives/hidden.js';
 import { report } from '../../primitives/report.js';
 import { TanreiField, type TanreiFieldRequiredMark } from '../field/field.js';
 import { TanreiSlider, type TanreiSliderChangeDetail, type TanreiSliderSize, type TanreiSliderValueIndicator } from '../slider/slider.js';
+import { DEBUG } from '../../primitives/debug.js';
 
 // The members' own types are the slider field's: it has no detail type and no type for a prop of its own.
 export type { TanreiFieldRequiredMark, TanreiSliderChangeDetail, TanreiSliderSize, TanreiSliderValueIndicator };
@@ -71,7 +73,7 @@ const BETWEEN = ' – ';
  * element as their target: `event.target.value` is the new value in every listener. It dispatches none itself.
  *
  * Form-associated: it submits the value under `name` — a range the start value and then the value, under the one name;
- * nothing while disabled —, resets to its `value` and `start-value` attributes, is restored on navigation and follows a
+ * nothing while disabled —, resets to the values it was first given, is restored on navigation and follows a
  * disabled `<fieldset>`.
  *
  * The element is not focusable itself and has no role: `focus()` goes to the handle — a range's start handle — and its
@@ -251,15 +253,18 @@ export class TanreiSliderField extends ComposedControl<number> {
     return this.slider;
   }
 
-  /** The value a form's reset returns to — the `value` attribute, as a number; 0 without one, as the Slider's. */
-  protected override firstValue(): number {
-    return this.hasAttribute('value') ? Number(this.getAttribute('value')) : 0;
+  /** The `value` attribute, as a number; 0 without one, as the Slider's. */
+  protected override valueFromAttribute(text: string | null): number {
+    return text === null ? 0 : Number(text);
   }
 
-  /** A form's reset returns a range's start value too, to the `start-value` attribute. */
+  /** What a form's reset returns a range's start value to: what it was first given, as for the value. */
+  private readonly startDefault = new FormDefault(this, () => this.startValue, 'start-value', (text) => (text === null ? 0 : Number(text)));
+
+  /** A form's reset returns a range's start value too. */
   override formResetCallback() {
     super.formResetCallback();
-    this.startValue = this.hasAttribute('start-value') ? Number(this.getAttribute('start-value')) : 0;
+    this.startValue = this.startDefault.value;
   }
 
   /** A restore is passed on: the Slider restores both values; both are then the Slider's. */
@@ -296,7 +301,7 @@ export class TanreiSliderField extends ComposedControl<number> {
     this.fill();
     // SLF-5: a range's end handle with no name of its own is named by `label`, as the start handle is (which the
     // Slider reports itself, SLD-19); a debug build says so.
-    if ((changed.has('range') || changed.has('endLabel')) && this.range && !this.endLabel.trim()) {
+    if (DEBUG && (changed.has('range') || changed.has('endLabel')) && this.range && !this.endLabel.trim()) {
       report(this, 'SLF-5', 'endLabel is empty, so the range’s end handle has no name of its own and is named by label, as the other handle may be; give it an end-label that holds the words of label');
     }
   }

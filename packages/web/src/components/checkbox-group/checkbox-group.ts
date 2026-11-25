@@ -4,11 +4,13 @@ import { ComposedElement, exported, fieldDelegatesAria, forward } from '../../pr
 import { delegatedAria } from '../../primitives/delegated-aria.js';
 import { FIELD_CONNECT, FIELD_CONTROL, FieldControlController, type FieldConnection } from '../../primitives/field.js';
 import { FormDisabledController } from '../../primitives/form-disabled.js';
+import { FormDefault } from '../../primitives/form-default.js';
 import { report } from '../../primitives/report.js';
 import { WordsController } from '../../primitives/words.js';
 import { TanreiCheckbox, type TanreiCheckboxOwner } from '../checkbox/checkbox.js';
 import { TanreiFieldGroup, type TanreiFieldGroupOrientation, type TanreiFieldGroupRequiredMark } from '../field-group/field-group.js';
 import { disabledWaitsWhileFocused } from '../../primitives/disabled-while-focused.js';
+import { DEBUG } from '../../primitives/debug.js';
 
 // The field group's own types are the checkbox group's: it has none of its own for the props it passes on.
 export type { TanreiFieldGroupOrientation, TanreiFieldGroupRequiredMark };
@@ -127,12 +129,10 @@ export class TanreiCheckboxGroup extends ComposedElement implements TanreiCheckb
   set value(value: string[]) {
     const given = Array.isArray(value) ? value.map(String) : [];
     // CKG-2: an entry held twice is held once.
-    if (new Set(given).size !== given.length) report(this, 'CKG-2', 'value holds an entry twice; it is held once');
+    if (DEBUG && new Set(given).size !== given.length) report(this, 'CKG-2', 'value holds an entry twice; it is held once');
     this.list = [...new Set(given)];
     // CKG-3: from here `value` decides, and a checkbox that arrives marked `checked` against it is shown as it says.
     this.decided = true;
-    // CKG-8: what the product gave before the group was first drawn is its first value, which a reset returns to.
-    if (!this.hasUpdated) this.first = [...this.list];
     this.requestUpdate('value');
   }
 
@@ -192,8 +192,11 @@ export class TanreiCheckboxGroup extends ComposedElement implements TanreiCheckb
   /** CKG-3: the product has set `value`. */
   private decided = false;
 
-  /** CKG-8: the value the product gave before the group was first drawn; `null` where the first value is `checked` on the children. */
-  private first: string[] | null = null;
+  /**
+   * CKG-8: the value the product gave first, which a reset returns to (src/primitives/form-default.ts); `null` where it
+   * gave none, and the first value is what the children were first given.
+   */
+  private readonly first = new FormDefault(this, () => (this.decided ? [...this.list] : null));
 
   /** CKG-3, CKG-10: the checkboxes the group has checked by value at least once: one that arrives marked `checked` is not yet among them. */
   private readonly known = new WeakSet<TanreiCheckbox>();
@@ -331,13 +334,14 @@ export class TanreiCheckboxGroup extends ComposedElement implements TanreiCheckb
   }
 
   formResetCallback() {
-    // CKG-8: back to the value it was first given, without a change — the list the product gave before the group was
-    // drawn, or, where it gave none, what the markup says: `checked` on the children, as a native checkbox resets.
-    if (this.first) {
-      this.list = [...this.first];
+    // CKG-8: back to the value it was first given, without a change — the list the product gave, or, where it gave
+    // none, the `checked` each child was first given (in markup or as its property), as native checkboxes reset.
+    const first = this.first.value;
+    if (first) {
+      this.list = [...first];
       this.decided = true;
     } else {
-      this.list = [...new Set(this.checkboxes.filter((checkbox) => checkbox.hasAttribute('checked') && checkbox.entry !== null).map((checkbox) => checkbox.entry!))];
+      this.list = [...new Set(this.checkboxes.filter((checkbox) => checkbox.firstChecked && checkbox.entry !== null).map((checkbox) => checkbox.entry!))];
       this.decided = false;
     }
     this.requestUpdate('value');
@@ -498,7 +502,7 @@ export class TanreiCheckboxGroup extends ComposedElement implements TanreiCheckb
   /** What a debug build tells the developer; the group still renders. */
   private reports(checkboxes: TanreiCheckbox[]) {
     // CKG-11: a set without a checkbox still draws its rows.
-    if (!checkboxes.length) report(this, 'CKG-11', 'the checkbox group holds no checkbox; put tanrei-checkbox elements, each with a value, in it');
+    if (DEBUG && !checkboxes.length) report(this, 'CKG-11', 'the checkbox group holds no checkbox; put tanrei-checkbox elements, each with a value, in it');
     // CKG-11: checkboxes and nothing else that can be operated.
     const others = [...this.querySelectorAll('*')].some((element) => {
       if (element instanceof TanreiCheckbox && checkboxes.includes(element)) return false;
@@ -506,14 +510,14 @@ export class TanreiCheckboxGroup extends ComposedElement implements TanreiCheckb
       if (element.parentElement?.closest(SETS) !== this) return false;
       return FIELD_CONTROL in element || element.matches(OTHER_CONTROLS);
     });
-    if (others) report(this, 'CKG-11', 'the checkbox group holds a control that is not a checkbox of the set; it holds checkboxes and nothing else that can be operated, and makes no entry of its value from another');
+    if (DEBUG && others) report(this, 'CKG-11', 'the checkbox group holds a control that is not a checkbox of the set; it holds checkboxes and nothing else that can be operated, and makes no entry of its value from another');
     // CKG-2: values the list cannot stand for.
-    if (checkboxes.some((checkbox) => checkbox.entry === null)) report(this, 'CKG-2', 'a checkbox of the checkbox group has no value, so it cannot be checked: give each a value that is unique in the group');
+    if (DEBUG && checkboxes.some((checkbox) => checkbox.entry === null)) report(this, 'CKG-2', 'a checkbox of the checkbox group has no value, so it cannot be checked: give each a value that is unique in the group');
     const seen = new Set<string>();
     for (const checkbox of checkboxes) {
       const entry = checkbox.entry;
       if (entry === null) continue;
-      if (seen.has(entry)) report(this, 'CKG-2', `two checkboxes share the value "${entry}"; they are checked and unchecked together`);
+      if (DEBUG && seen.has(entry)) report(this, 'CKG-2', `two checkboxes share the value "${entry}"; they are checked and unchecked together`);
       seen.add(entry);
     }
   }

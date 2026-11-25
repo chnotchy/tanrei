@@ -692,6 +692,7 @@ private let tanreiBottomSheetTokens = TanreiBottomSheetTokens(
   containerPartialFraction: 0.5,
   containerShape: 12,
   contentColor: .role(.onSurface),
+  contentPaddingBlockStart: 8,
   dividerColor: .role(.outlineVariant),
   dividerVisibility: 0,
   dividerWidth: 1,
@@ -876,6 +877,7 @@ private let tanreiButtonWithMenuTokens = TanreiButtonWithMenuTokens(
   dividerThickness: 1,
   motionBusyCycleDuration: 1000,
   motionBusyFadeDuration: 200,
+  motionBusyPulseFloorOpacity: 0.7,
   motionFeedbackDuration: 450,
   motionHoverCloseDelay: 300,
   motionHoverOpenDelay: 300,
@@ -1217,6 +1219,7 @@ private let tanreiButtonTokens = TanreiButtonTokens(
   containerShape: 9999,
   motionBusyCycleDuration: 1000,
   motionBusyFadeDuration: 200,
+  motionBusyPulseFloorOpacity: 0.7,
   motionFeedbackDuration: 450,
   motionStateEasing: TanreiCubicBezier(0.2, 0, 0, 1),
   toneContainerOpacity: 0.16,
@@ -2410,6 +2413,7 @@ private let tanreiChatComposerTokens = TanreiChatComposerTokens(
   counterTypescale: tanreiTypescale.labelSmall,
   inputPaddingBlock: 8,
   layoutInlineMinWidth: 360,
+  layoutInputMinWidth: 160,
   motionGlyphFadeDuration: 200,
   motionResizeDuration: 400,
   motionResizeEasing: TanreiCubicBezier(0.2, 0, 0, 1),
@@ -5331,6 +5335,7 @@ private let tanreiLoadingIndicatorTokens = TanreiLoadingIndicatorTokens(
   motionEnterDuration: 250,
   motionEnterEasing: TanreiCubicBezier(0.2, 0, 0, 1),
   motionEntrance: 0,
+  motionPulseFloorOpacity: 0.7,
   motionShowDelay: 300,
   sizes: TanreiLoadingIndicatorSizes(
     small: TanreiLoadingIndicatorSizeTokens(
@@ -6993,6 +6998,7 @@ private let tanreiProgressIndicatorTokens = TanreiProgressIndicatorTokens(
   indicatorColor: .role(.primary),
   motionCycleDuration: 1000,
   motionCycleEasing: TanreiCubicBezier(0.2, 0, 0, 1),
+  motionPulseFloorOpacity: 0.7,
   motionShowDelay: 300,
   motionValueDuration: 300,
   motionValueEasing: TanreiCubicBezier(0.2, 0, 0, 1),
@@ -7961,6 +7967,7 @@ private let tanreiSideSheetTokens = TanreiSideSheetTokens(
   containerPaddingInline: 24,
   containerWidth: 320,
   contentColor: .role(.onSurface),
+  contentPaddingBlockStart: 8,
   dividerColor: .role(.outlineVariant),
   dividerVisibility: 0,
   dividerWidth: 1,
@@ -9085,7 +9092,6 @@ private let tanreiTableTokens = TanreiTableTokens(
 )
 
 private let tanreiTabsTokens = TanreiTabsTokens(
-  activeIndicatorHeight: 32,
   containerGap: 4,
   containerHeightWithIcon: 64,
   containerShape: 9999,

@@ -8,6 +8,7 @@ import { axTree } from '../../../test/ax-tree.js';
 import { type Locator, type Page, expect, test } from '@playwright/test';
 import { bounds, css, override } from '../../../test/destinations.js';
 import { type Fixture, type FixtureItem, acmeSystemCss, drawerWindow, fixturesDocument, loadSpec, mountFixtures, resolveColor, resolveToken, tab, tabTo, rootTokens, warnings, isRobotoMonoGlyphWarning } from '../../../test/harness.js';
+import { coveredText } from '../../../test/covered-text.js';
 import { pressHoldAsRun } from '../../../test/harsh.js';
 import { appearingFixture, mountForAppearing } from '../../../test/first-frame.js';
 import { type Frames, expectAnimated, expectFirstFrameAtRest, sampleFrames } from '../../../test/frames.js';
@@ -851,6 +852,42 @@ test.describe('drawing', () => {
     const short = item(page, 'c', 0).locator('.short');
     expect(await css(short, 'white-space')).toBe('nowrap');
     expect(await short.evaluate((el) => el.scrollHeight <= el.clientHeight + 1)).toBe(true);
+  });
+
+  test('NVD-23: a destination taken away or added is counted again in the same turn; words changed inside the drawer alone have it tell no destination anything again', async ({ page }) => {
+    await mount(page, only('standard'), { reducedMotion: true });
+    const told = await drawer(page, 'standard').evaluate(async (nav: HTMLElement) => {
+      const turn = () => new Promise((done) => setTimeout(done, 0));
+      const first = nav.querySelector('tanrei-navigation-drawer-item')!;
+      const proto = Object.getPrototypeOf(first) as { setDestinationContext(this: Element, ...rest: unknown[]): void };
+      const own = proto.setDestinationContext;
+      let count = 0;
+      proto.setDestinationContext = function (...rest) {
+        count += 1;
+        return own.apply(this, rest);
+      };
+      const words = document.createElement('span');
+      first.append(words);
+      await turn();
+      const added = count;
+      count = 0;
+      words.textContent = 'New mail';
+      await turn();
+      words.textContent = 'No new mail';
+      await turn();
+      const rewritten = count;
+      words.remove();
+      const last = nav.querySelectorAll('tanrei-navigation-drawer-item')[5]!;
+      last.remove();
+      await turn();
+      const taken = count - rewritten;
+      proto.setDestinationContext = own;
+      return { added, rewritten, taken, size: first.getAttribute('aria-setsize') };
+    });
+    expect(told.added, 'an element added: every destination is told again').toBeGreaterThan(0);
+    expect(told.rewritten, 'words rewritten: no destination is told again').toBe(0);
+    expect(told.taken, 'a destination taken away: the others are told again').toBeGreaterThan(0);
+    expect(told.size, 'and counted without it').toBe('5');
   });
 
   test('NVD-23: a navigation landmark named by the label; each destination a button (a link with href) named by its label in both forms, the selected one aria-current, its position among the items of its level, its icon hidden; modal, also a dialog named by the label; the selected destination is the current page — exactly one, or none, and no second state', async ({ page }) => {
@@ -4540,6 +4577,7 @@ test.describe('accessibility', () => {
         await motionEnded(page);
         const results = await new AxeBuilder({ page }).include('.stage').analyze();
         expect(results.violations, `${label} ${theme}: ${results.violations.map((v) => `${v.id} ${v.nodes.map((n) => n.target).join(' ')}`).join(', ')}`).toEqual([]);
+        expect(await coveredText(page, results), `${label} ${theme}: no text left unchecked as covered`).toEqual([]);
       }
     });
   }

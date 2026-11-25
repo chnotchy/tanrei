@@ -6,6 +6,7 @@ import type { TanreiInputBoxSizeRegistry, TanreiInputBoxVariantRegistry } from '
 import '../button/button.js';
 import { formOf, pressDefaultButton } from '../../primitives/default-button.js';
 import { FormDisabledController } from '../../primitives/form-disabled.js';
+import { FormDefault } from '../../primitives/form-default.js';
 import { FormSays } from '../../primitives/form-says.js';
 import { browserMissingMessage } from '../../primitives/missing-value.js';
 import { AXES, CORE_SIZES, INSET, styles } from './color-input.styles.js';
@@ -13,6 +14,7 @@ import { PICKER_START, given, picked, read, readCommitted } from './color-text.j
 import { disabledWaitsWhileFocused } from '../../primitives/disabled-while-focused.js';
 import { focusedAtFirst } from '../../primitives/autofocus.js';
 import { TanreiElement } from '../../primitives/element.js';
+import { DEBUG } from '../../primitives/debug.js';
 
 /** The three looks of the input box (`comp.input-box`): a filled box that draws no label (`stacked`), or the label floating inside a `filled` or `outlined` box. A design system may leave some out or add values. */
 export type TanreiColorInputVariant = keyof TanreiInputBoxVariantRegistry;
@@ -103,7 +105,7 @@ function deepActiveElement(): Element | null {
  * draws that label floating.
  *
  * It is a block as wide as its place, and exactly as tall as its box (CLI-44). It is a form-associated element: it
- * takes `name`, submits its value, resets to the `value` attribute, is restored on navigation, follows
+ * takes `name`, submits its value, resets to the value it was first given, is restored on navigation, follows
  * `<fieldset disabled>` and reports `valueMissing` while its Field says it is required and `value` is empty, and
  * `badInput` while an entry error lasts.
  *
@@ -186,7 +188,7 @@ export class TanreiColorInput extends TanreiElement {
     return this.sizes.drawn;
   }
 
-  /** The color the input holds: a number sign and six hexadecimal digits in lowercase (`#0f766e`), an opaque sRGB color; or empty for no color. It is never a half-typed text: while the input holds something that is not a color, `value` is empty. A text set in capitals or without its number sign is held in the value's own form; one that is not a color is treated as empty. The `value` attribute is also the value a form reset returns to. */
+  /** The color the input holds: a number sign and six hexadecimal digits in lowercase (`#0f766e`), an opaque sRGB color; or empty for no color. It is never a half-typed text: while the input holds something that is not a color, `value` is empty. A text set in capitals or without its number sign is held in the value's own form; one that is not a color is treated as empty. The value it is first given — by the `value` attribute or as the property — is what a form reset returns to. */
   // An accessor, not a field: the value is the person's at every moment. The `input` of an edit is
   // the browser's own event of the native text element — or of the browser's color input, for a pick — and is
   // composed: a capturing listener on an ancestor hears it before the element's own listener has run. So what the
@@ -248,6 +250,8 @@ export class TanreiColorInput extends TanreiElement {
   /** CLI-22: the input has focus, however it was gained. The picker button's focus is its own. */
   protected focused = false;
   private readonly fieldset = new FormDisabledController(this);
+  /** What a form's reset returns `value` to: the color it was first given, as a native control's `defaultValue`. */
+  private readonly valueDefault = new FormDefault(this, () => given(this.value).value, 'value', (text) => given(text).value);
   /** A disabled `<fieldset>` around the element, as the platform says it (src/primitives/form-disabled.ts). */
   protected get formDisabled(): boolean {
     return this.fieldset.byFieldset;
@@ -431,7 +435,7 @@ export class TanreiColorInput extends TanreiElement {
   }
 
   formResetCallback() {
-    const { value } = given(this.getAttribute('value'));
+    const value = this.valueDefault.value;
     this.value = value;
     // The same value as the one held is still a new one: the text and an entry error go.
     this.took(value);
@@ -730,7 +734,7 @@ export class TanreiColorInput extends TanreiElement {
     if (changed.has('value')) {
       const set = this.held;
       const { value, valid } = given(set);
-      if (!valid) whenParsed(() => report(this, 'CLI-21', `value "${String(set)}" is not a color (a number sign and six hexadecimal digits, like #0f766e); it is treated as empty`, { once: false }));
+      if (!valid) whenParsed(() => (DEBUG && report(this, 'CLI-21', `value "${String(set)}" is not a color (a number sign and six hexadecimal digits, like #0f766e); it is treated as empty`, { once: false })));
       if (set !== value) this.value = value;
       if (value !== this.ownValue) this.took(value);
     }
@@ -762,10 +766,10 @@ export class TanreiColorInput extends TanreiElement {
   private reports() {
     if (!this.isConnected) return;
     // CLI-11: an input no Field names, with no label of its own, still renders. (A Field with an empty label says so itself: FLD-10.)
-    if (!this.label.trim() && !this.frame.state && !namedByProduct(this)) report(this, 'CLI-11', 'label is empty and no field frames it, so the color input has no accessible name; put it in a field with a label, or give it a label');
-    if (this.picker && !this.pickerLabel.trim()) report(this, 'CLI-27', 'pickerLabel is empty, so the picker button has no accessible name; give it one in the product’s language');
+    if (DEBUG && !this.label.trim() && !this.frame.state && !namedByProduct(this)) report(this, 'CLI-11', 'label is empty and no field frames it, so the color input has no accessible name; put it in a field with a label, or give it a label');
+    if (DEBUG && this.picker && !this.pickerLabel.trim()) report(this, 'CLI-27', 'pickerLabel is empty, so the picker button has no accessible name; give it one in the product’s language');
     // CLI-20: framed, the Field reports a refusal it has no words for (FLD-28).
-    if (this.entryError && !this.invalidText && !this.frame.framed) report(this, 'CLI-20', 'the text is not a color and invalidText does not say so; give the color input an invalidText that says the form the value takes');
+    if (DEBUG && this.entryError && !this.invalidText && !this.frame.framed) report(this, 'CLI-20', 'the text is not a color and invalidText does not say so; give the color input an invalidText that says the form the value takes');
   }
 
   protected override render() {

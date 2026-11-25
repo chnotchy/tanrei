@@ -10,6 +10,11 @@ const state = (page) => page.locator('[data-save-state]').getAttribute('data-sav
 const toDials = async (page) => {
   if (!(await page.locator('[data-dial="tanrei.dial.space.unit"]').count())) await page.locator('[data-rail] [data-row="dials"]').click();
 };
+/** Export, open: the file's id and name stand in it. */
+const toExport = async (page) => {
+  await page.locator('[data-export-open]').click();
+  await page.waitForFunction(() => document.querySelector('[data-export-sheet]').open);
+};
 const typeSpacing = async (page, value) => {
   await toDials(page);
   await page.locator('[data-dial="tanrei.dial.space.unit"] tanrei-number-field input').fill(String(value));
@@ -23,8 +28,12 @@ studioTest('the token leaves the address bar, the event stream opens with a tick
   await until(() => requests.some((url) => url.includes('/api/events?ticket=')), 'the event stream');
   await page.reload();
   await page.waitForSelector('[data-save-state="saved"]');
-  assert.match(await page.locator('[data-file]').textContent(), /Saved.*acme\.system\.json/);
+  assert.match(await page.locator('[data-file]').textContent(), /Saved/);
+  assert.equal(await page.locator('[data-bar] [data-file-name]').textContent(), 'acme.system.json', 'the file’s name is on Inspect’s button');
+  await toExport(page);
   assert.equal(await page.locator('[data-id] input').isDisabled(), true, 'the id is the file name: locked');
+  await page.keyboard.press('Escape');
+  await page.waitForFunction(() => !document.querySelector('[data-export-sheet]').open);
   assert.match(await page.title(), /^acme — /);
 
   await typeSpacing(page, 9);
@@ -36,6 +45,7 @@ studioTest('the token leaves the address bar, the event stream opens with a tick
 
 studioTest('a save the server refuses (422) is said in the server’s words, and the next good edit is saved', (t) => ({ server: { validate: (layer) => (layer.name === 'No' ? ['the server says: not this name'] : []) } }), async ({ page, expected, saved, onDisk }) => {
   expected.push(/422/);
+  await toExport(page);
   await page.locator('[data-name] input').fill('No');
   await page.waitForSelector('[data-save-state="error"]');
   assert.match(await page.locator('[data-file] .ts-error').textContent(), /the server says: not this name/);

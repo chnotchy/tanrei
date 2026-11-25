@@ -8,6 +8,7 @@
 // src/primitives/delegated-aria.test.ts.
 import fs from 'node:fs';
 import AxeBuilder from '@axe-core/playwright';
+import { coveredText } from '../../../test/covered-text.js';
 import { type Locator, type Page, expect, test } from '@playwright/test';
 import { loadSpec, missingWords, mountFixtures, setWords, tab, warnings } from '../../../test/harness.js';
 import { motionEnded } from '../../../test/motions.js';
@@ -443,6 +444,7 @@ test.describe('accessibility', () => {
       await expect(page.locator('tanrei-loading-indicator:not([role="progressbar"])')).toHaveCount(0);
       await motionEnded(page);
       const results = await new AxeBuilder({ page }).include('.stage').analyze();
+      expect(await coveredText(page, results), `${theme}: no text left unchecked as covered`).toEqual([]);
       expect(results.violations, `${theme}: ${results.violations.map((v) => `${v.id}: ${v.nodes.map((n) => n.html).join(' | ')}`).join('\n')}`).toEqual([]);
     }
   });

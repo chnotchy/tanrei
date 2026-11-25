@@ -10,6 +10,8 @@ import { type Fixture, loadSpec, mountFixtures, resolveColor, resolveToken, tab,
 import { decodePng, paintedColor } from '../../../test/png.js';
 import { HOLD_NOW, motionCount } from '../../../test/motions.js';
 import { expectBaseline } from '../../../test/baseline.js';
+import { laidOutBox } from '../../../test/laid-out-box.js';
+import { expectPulseKeepsFloor, resolveOpacity, samplePulse } from '../../../test/pulse-floor.js';
 
 const spec = loadSpec('progress-indicator');
 type P = Page;
@@ -21,7 +23,8 @@ const host = (page: P, id: string) => page.locator(`[data-fixture="${id}"] tanre
 const part = (page: P, id: string, name: string) => (name === 'track' ? host(page, id).locator('.track').filter({ visible: true }).first() : host(page, id).locator(`.${name}`).first());
 const stage = (page: P, id: string) => page.locator(`[data-fixture="${id}"]`);
 const T = (name: string) => `--tanrei-comp-progress-indicator-${name}`;
-const box = async (locator: Locator) => (await locator.boundingBox())!;
+/** A box as the engine laid it out (test/laid-out-box.ts): a ring below a line of the page's text keeps its size in Firefox. */
+const box = laidOutBox;
 const css = (locator: Locator, property: string) => locator.evaluate((el, p) => getComputedStyle(el).getPropertyValue(p), property);
 const token = (page: P, name: string) => page.evaluate((n) => getComputedStyle(document.documentElement).getPropertyValue(n).trim(), name);
 /** A token's easing as the browser serializes a timing function. */
@@ -381,7 +384,7 @@ test.describe('behavior', () => {
     expect((await box(part(page, 'linear-determinate', 'indicator'))).width).toBeCloseTo(width * 0.2, 1);
   });
 
-  test('PRG-7: under reduced motion a value change shows at once, and indeterminate pulses the whole indicator’s opacity once per cycle over a still track', async ({ page }) => {
+  test('PRG-7: under reduced motion a value change shows at once, and indeterminate pulses the whole indicator’s opacity from 1 down to the floor and back once per cycle over a still track', async ({ page }) => {
     await mountFixtures(page, spec, { reducedMotion: true });
     const width = (await box(host(page, 'linear-determinate'))).width;
     await host(page, 'linear-determinate').evaluate((el) => ((el as any).value = 0.9));
@@ -394,8 +397,8 @@ test.describe('behavior', () => {
     expect(await animations(bar)).toEqual([{ name: 'pulse', duration, easing: cycleEasing, state: 'running' }]);
     const opacity = async (ms: number) => Number((await at(bar, ms, ['opacity'])).opacity);
     expect(await opacity(0)).toBe(1);
-    expect(await opacity(duration / 2)).toBeCloseTo(0, 5);
-    expect(await opacity(duration * 0.75)).toBeGreaterThan(0);
+    expect(await opacity(duration / 2)).toBeCloseTo(await resolveOpacity(page, T('motion-pulse-floor-opacity')), 5);
+    expect(await opacity(duration * 0.75)).toBeGreaterThan(await opacity(duration / 2));
     expect(await opacity(duration)).toBe(1);
     expect(await animations(part(page, 'linear-indeterminate', 'track'))).toEqual([]);
     // The ring: the whole circle, still.
@@ -406,6 +409,22 @@ test.describe('behavior', () => {
     const [top, bottom] = await ringAt(page, 'circular-indeterminate', [0.5, 0.9]);
     const indicator = await paintedColor(page, `var(${T('indicator-color')})`);
     expect([near(top, indicator), near(bottom, indicator)]).toEqual([true, true]);
+  });
+
+  test('PRG-7: under reduced motion the indeterminate indicator is never drawn below the pulse floor — sampled over a whole cycle, computed and painted, bar and ring', async ({ page }) => {
+    await mountFixtures(page, spec, { reducedMotion: true });
+    const duration = await resolveToken(page, T('motion-cycle-duration'), 'duration');
+    const floor = await resolveOpacity(page, T('motion-pulse-floor-opacity'));
+    // The indicator covers its track whole, so what it is drawn on is the track as painted.
+    const track = await paintedColor(page, `var(${T('track-color')})`);
+    const bar = host(page, 'linear-indeterminate');
+    const { width, height } = await box(bar);
+    expectPulseKeepsFloor(await samplePulse(part(page, 'linear-indeterminate', 'indicator'), bar, { duration, mark: [width / 2, height / 2], ground: track }), floor, 'bar');
+    const ring = host(page, 'circular-indeterminate');
+    const size = (await box(ring)).width;
+    const stroke = Number.parseFloat(await css(ring.locator('.spin > svg > circle.indicator'), 'stroke-width'));
+    // The top of the circle, on the middle of its stroke; every circle that draws the indicator pulses.
+    expectPulseKeepsFloor(await samplePulse(ring.locator('circle.indicator'), ring, { duration, mark: [size / 2, stroke / 2], ground: track }), floor, 'ring');
   });
 
   test('PRG-8: determinate is a progressbar named by label, with min, max, the clamped value and valueText', async ({ page }) => {
