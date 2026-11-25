@@ -387,6 +387,24 @@ test.describe('behavior', () => {
     await expect(page.locator('fieldset tanrei-text-input').getByRole('textbox', { disabled: true })).toHaveCount(1);
   });
 
+  test('TXI-5, TXI-15: the prefix and the suffix of a disabled field are exposed as part of the disabled control — its own disabled or a fieldset’s — and not once it is enabled again', async ({ page }) => {
+    await mountHtml(
+      page,
+      `<tanrei-text-input id="own" label="Price" value="12" prefix-text="US$" suffix-text="per kg" disabled></tanrei-text-input><fieldset disabled><tanrei-text-input id="fieldset" label="Price" value="12" prefix-text="US$" suffix-text="per kg"></tanrei-text-input></fieldset><tanrei-text-input id="enabled" label="Price" value="12" prefix-text="US$" suffix-text="per kg"></tanrei-text-input>`,
+    );
+    const affixes = (id: string) => page.locator(`#${id}`).locator('[part="prefix"], [part="suffix"]');
+    for (const id of ['own', 'fieldset']) {
+      await expect(affixes(id), id).toHaveCount(2);
+      for (const affix of await affixes(id).all()) await expect(affix, id).toHaveAttribute('aria-disabled', 'true');
+    }
+    for (const affix of await affixes('enabled').all()) await expect(affix).not.toHaveAttribute('aria-disabled');
+    // Still read with the value, as TXI-15 has it: the description names both.
+    await expect(page.locator('#own input')).toHaveAttribute('aria-describedby', 'prefix suffix');
+    await page.locator('#own').evaluate((el: HTMLElement & { disabled: boolean }) => (el.disabled = false));
+    await page.locator('fieldset').evaluate((el: HTMLFieldSetElement) => (el.disabled = false));
+    for (const id of ['own', 'fieldset']) for (const affix of await affixes(id).all()) await expect(affix, `${id} enabled again`).not.toHaveAttribute('aria-disabled');
+  });
+
   test('TXI-6: hovered and focused render every part from their tokens, focused over hovered; pointer focus selects focused', async ({ page }) => {
     for (const [id, variant] of [['filled-empty', 'filled'], ['outlined-empty', 'outlined'], ['stacked-empty', 'stacked']] as const) {
       await page.mouse.move(0, 0);

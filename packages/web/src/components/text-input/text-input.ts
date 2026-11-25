@@ -2567,6 +2567,13 @@ export class TanreiTextInput extends TanreiElement {
         : nothing;
     // The edge: a stacked field's inner line (TXI-26); an outlined field's three-piece outline with the gap for the floated
     // label, and a filled field's active indicator (TXI-13).
+    // TXI-5, TXI-15: the prefix and the suffix are text of the control itself, drawn beside its native element and not
+    // inside it, so the native `disabled` does not reach them. While the input is disabled each says it is part of an
+    // inactive control (`aria-disabled`), as the platform's own control would: to assistive technology, and to a contrast
+    // checker, which WCAG 1.4.3 has leave an inactive control's text alone (axe-core reads only `disabled` on a form
+    // element and `aria-disabled` on the element or an ancestor). On the text spans and not on the container: the
+    // container holds the trailing slot, where a product's own button keeps its own state.
+    const affixDisabled = this.inert_ ? 'true' : nothing;
     const edges = floating
       ? html`<span part="outline" class="outline" aria-hidden="true"
             ><span class="outline-start"></span
@@ -2607,9 +2614,9 @@ export class TanreiTextInput extends TanreiElement {
           <span part="leading-icon" class="icon leading"><slot name="leading-icon" @slotchange=${this.#onSlotChange}></slot></span>
           <div class="body" dir=${(!row && run) || nothing}>
             <span part="entries" class="entries"><slot name="entries" @slotchange=${this.#onSlotChange}></slot></span>
-            <span part="prefix" class="prefix" id="prefix">${row ? nothing : this.prefixText}</span>
+            <span part="prefix" class="prefix" id="prefix" aria-disabled=${affixDisabled}>${row ? nothing : this.prefixText}</span>
             ${control}
-            <span part="suffix" class="suffix" id="suffix">${row ? nothing : this.suffixText}</span>
+            <span part="suffix" class="suffix" id="suffix" aria-disabled=${affixDisabled}>${row ? nothing : this.suffixText}</span>
           </div>
           <span part="trailing-icon" class="icon trailing"><slot name="trailing-icon" @slotchange=${this.#onSlotChange}></slot></span>
           ${this.renderClear()}${this.renderReveal()}${this.renderPicker()}
