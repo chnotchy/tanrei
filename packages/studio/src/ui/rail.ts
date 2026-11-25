@@ -265,7 +265,7 @@ export function createRail(ctx: Ctx, { locked, onshow, onlock }: { locked: Set<R
       show.addEventListener('focusin', point);
       show.addEventListener('pointerleave', unmark);
       show.addEventListener('focusout', unmark);
-      const lock = h('tanrei-button', { class: 'ts-rail-lock', variant: 'text', size: 'small', toggle: true, label: t.rail.lock(t.rail.rows[row]), title: t.rail.lockHelp, selected: locked.has(row), 'data-lock': row }, glyph(ctx, locked.has(row) ? LOCK_GLYPHS.held : LOCK_GLYPHS.open, { slot: 'icon' })) as HTMLElement & { selected: boolean };
+      const lock = h('tanrei-button', { class: 'ts-rail-lock', variant: 'text', size: 'small', toggle: true, label: t.rail.lock(t.rail.rows[row]), selected: locked.has(row), 'data-lock': row }, glyph(ctx, locked.has(row) ? LOCK_GLYPHS.held : LOCK_GLYPHS.open, { slot: 'icon' })) as HTMLElement & { selected: boolean };
       lock.addEventListener('change', (event) => {
         if (event.target !== lock) return;
         lock.querySelector('[slot="icon"]')!.textContent = lock.selected ? LOCK_GLYPHS.held : LOCK_GLYPHS.open;
@@ -291,7 +291,10 @@ export function createRail(ctx: Ctx, { locked, onshow, onlock }: { locked: Set<R
       whole.addEventListener('toggle', (event) => {
         if (event.target === whole && whole.open && value.getBoundingClientRect().width <= line.clientWidth + 1) whole.open = false;
       });
-      return h('li', { class: 'ts-rail-item', 'data-rail-row': row }, whole, lock, chevron);
+      // What a lock does is said in a Tanrei tooltip, as the shuffle's is in the bar: pointed at or focused, and as the
+      // button's description (its name is «Lock <row>»), never in the browser's native title.
+      const lockTip = tip(lock, t.rail.lockHelp, false, { class: 'ts-rail-lock-tip' });
+      return h('li', { class: 'ts-rail-item', 'data-rail-row': row }, whole, lockTip, chevron);
     }),
   );
 
