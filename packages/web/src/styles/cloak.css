@@ -21,8 +21,10 @@
  * - Out of the page: an element whose surface is in the top layer (a dialog, a popover, a date and time picker, an
  *   image preview, a modal layer) draws nothing where it stands once it is defined, and takes no room before.
  * - Held: an element whose height its tokens give is the box it will be — `inline-block` where the element is inline,
- *   `block` (or the flex box it will be) where it is a block — at least that tall, and what is written inside it adds
- *   no line of the page's text to that height (a line of the page's face can be taller than a small control):
+ *   `block` (or the flex box it will be) where it is a block — at least that tall, standing on the line where it will
+ *   (centred on it, or, for an element whose label stands on the baseline of the text beside it — a tag, a keycap —
+ *   with that baseline where its label's will be), and what is written inside it adds no line of the page's text to
+ *   that height (a line of the page's face can be taller than a small control):
  *   - a control whose height is a token of its own — its container height or container size (a slider's, or its
  *     handle's height where that is taller), by its `size` (the default's where it names none) and, for an input box,
  *     by its `variant`;
@@ -51,10 +53,11 @@
  *
  * Every value is a `--tanrei-comp-*` token (and private `--_cloak-*` names for heights worked out from them, some of
  * which a container gives the elements it lays out: a stepper its steps, vertical tabs their tabs), arithmetic on
- * them (twice a padding, half a difference), or a keyword; the one value of its own is `line-height: 0`, which takes
- * the page's text written inside an element out of its height rather than giving it one. Every selector has no specificity (`:where()`) and styles the
- * element it asks about, never its children; an element that is `hidden` keeps the browser's `display: none`; and
- * nothing matches once an element is defined.
+ * them (twice a padding, half a difference), or a keyword; the values of its own are `line-height: 0`, which takes
+ * the page's text written inside an element out of its height rather than giving it one, and a zero-width space, the
+ * empty line that sets a baseline. Every selector has no specificity (`:where()`; a `::before` has a type selector's)
+ * and styles the element it asks about (or the `::before` it generates), never its children; an element that is
+ * `hidden` keeps the browser's `display: none`; and nothing matches once an element is defined.
  */
 @layer tanrei.components {
   /* Every element of the package: the build writes their names in place of `tanrei-elements`. */
@@ -173,6 +176,46 @@
   }
   :where(tanrei-keyboard-shortcut[size='small']:not([variant='plain']):not(:defined)) {
     min-block-size: var(--tanrei-comp-keyboard-shortcut-container-height-small);
+  }
+  /* A tag (TAG-13) and a keycap (KBS-15) stand on the baseline of the text beside them, their label's: centred on the
+     line instead, a box taller than the page's line stands out of it by other amounts above and below than once it is
+     defined, and the line and everything after it move when it is (by 0.68 px, a 24 px tag on a 22 px line of the
+     body face, in Firefox and WebKit on Linux). So each is held on its baseline, which is where the element draws its
+     label's: in the middle of the container — inside a keycap's edges, the top and the deeper bottom — plus half the
+     ascent less the descent of the label's face. An empty line of the label's text style (a zero-width space in the
+     `::before`, of no height under the element's `line-height: 0`) centred in the box is the flex box's first item,
+     and so sets its baseline there, in whatever face the label resolves to. */
+  :where(tanrei-tag, tanrei-keyboard-shortcut:not([variant='plain'])):where(:not(:defined):not([hidden])) {
+    display: inline-flex;
+    align-items: center;
+    vertical-align: baseline;
+  }
+  :where(tanrei-keyboard-shortcut:not([variant='plain'])):where(:not(:defined):not([hidden])) {
+    padding-block-start: var(--tanrei-comp-keyboard-shortcut-outline-width);
+    padding-block-end: var(--tanrei-comp-keyboard-shortcut-outline-bottom-width);
+  }
+  :where(tanrei-tag, tanrei-keyboard-shortcut:not([variant='plain'])):where(:not(:defined):not([hidden]))::before {
+    content: '\200b';
+  }
+  :where(tanrei-tag:not(:defined))::before {
+    font-family: var(--tanrei-comp-tag-label-typescale-medium-font-family);
+    font-size: var(--tanrei-comp-tag-label-typescale-medium-font-size);
+    font-weight: var(--tanrei-comp-tag-label-typescale-medium-font-weight);
+  }
+  :where(tanrei-tag[size='small']:not(:defined))::before {
+    font-family: var(--tanrei-comp-tag-label-typescale-small-font-family);
+    font-size: var(--tanrei-comp-tag-label-typescale-small-font-size);
+    font-weight: var(--tanrei-comp-tag-label-typescale-small-font-weight);
+  }
+  :where(tanrei-keyboard-shortcut:not(:defined))::before {
+    font-family: var(--tanrei-comp-keyboard-shortcut-label-typescale-medium-font-family);
+    font-size: var(--tanrei-comp-keyboard-shortcut-label-typescale-medium-font-size);
+    font-weight: var(--tanrei-comp-keyboard-shortcut-label-typescale-medium-font-weight);
+  }
+  :where(tanrei-keyboard-shortcut[size='small']:not(:defined))::before {
+    font-family: var(--tanrei-comp-keyboard-shortcut-label-typescale-small-font-family);
+    font-size: var(--tanrei-comp-keyboard-shortcut-label-typescale-small-font-size);
+    font-weight: var(--tanrei-comp-keyboard-shortcut-label-typescale-small-font-weight);
   }
 
   /* Selection controls and indicators: their container size (a switch: the larger of its track and its container, SWT-27;
