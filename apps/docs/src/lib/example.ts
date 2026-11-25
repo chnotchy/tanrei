@@ -8,7 +8,7 @@
 // stylesheet, and the code opens under the stage only when a reader asks for it.
 import { LOOK_SHEET_EVENT } from './appearance';
 import { SYSTEM_EVENT, systemOf } from './visuals/frame';
-import { defineAhead } from './define-on-demand';
+import { defineAhead, toBeDefined } from './define-on-demand';
 import { RESIZE_EVENT, resizeHandle } from './resize-handle';
 import { htmlOf, reactOf, type ReactNames } from './example-code';
 
@@ -210,8 +210,10 @@ function hold(frame: HTMLElement, stage: HTMLElement, height: number) {
 }
 
 /**
- * The room a stage holds is the room of its elements before they are defined — a few lines of their text, or nothing —
- * not the room they take drawn (an open date picker's 141 px held for its 941), and it is held until the stage comes
+ * The room a stage holds is the room of its elements before they are defined. The web package's cloak, scoped to the
+ * stages (lib/stage-cloak.mjs), makes that the room they take drawn wherever their tokens give it, before any script
+ * runs; where they do not (an element as tall as what it draws: a list's rows, a multiline input's lines), it is a few
+ * lines of their text, or nothing, not the room they take drawn, and it is held until the stage comes
  * near the view. A reader who moves farther than that in a frame (a page at a time, a fling) reaches the stage while
  * it holds the wrong room and sees everything below it pushed down as it is drawn. So right after the page's
  * load, the elements the held stages hold are defined (`defineAhead`: their modules fetched, as a stage near the view
@@ -251,13 +253,30 @@ function draw(frame: HTMLElement) {
   const stage = stageOf(frame);
   if (!stage) return;
   reached.add(frame);
-  // What it holds is defined now (lib/define-on-demand.ts watches the mark), at the room it takes.
+  // What it holds is defined now (lib/define-on-demand.ts watches the mark).
   stage.removeAttribute('data-example-pending');
-  stage.removeAttribute(HELD_ATTR);
-  stage.style.removeProperty(HELD_PROPERTY);
   drawActions(frame, stage);
   widthHandle(stage);
   frame.dispatchEvent(new CustomEvent(NEAR_EVENT));
+  if (stage.hasAttribute(HELD_ATTR)) letGoWhenDefined(stage);
+}
+
+/**
+ * A held stage that comes near the view keeps the room it holds until what it holds is defined — what it held as the
+ * page was parsed, and what a page's script gave it as it came near (the gallery's fixture, lib/fixture-stages.ts) — and
+ * then takes the room it is drawn in, in one frame. Its elements' modules may arrive after the reader has reached it
+ * (a page down within moments of the load, a slow line): the room it holds is the drawn room wherever the page could
+ * know it before any script (the cloak's, lib/stage-cloak.mjs; a fixture's baseline, components/fixtures/FixtureGallery.astro),
+ * and the room of its undefined elements would not be (a fixture is not in the page until its stage comes near).
+ */
+function letGoWhenDefined(stage: HTMLElement) {
+  const letGo = () => {
+    stage.removeAttribute(HELD_ATTR);
+    stage.style.removeProperty(HELD_PROPERTY);
+  };
+  const tags = toBeDefined(stage);
+  if (!tags.length) return letGo();
+  void Promise.all(tags.map((tag) => customElements.whenDefined(tag))).then(() => requestAnimationFrame(letGo));
 }
 
 const near = new IntersectionObserver(
