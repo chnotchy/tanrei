@@ -15,12 +15,14 @@
 // Scoped to the stages, and to nothing else of the page: the cloak hides an element that is never defined, and the
 // frame's own elements (the header's, the search's, the Appearance panel's) are drawn before they are defined by
 // stand-ins of their own, which a page without script still reads. A stage already hides what it holds until it is
-// defined (components/visuals/Example.astro), so the cloak takes nothing away from a page without script.
+// defined (components/visuals/Example.astro), so the cloak takes nothing away from a page without script. The landing
+// page's specimen is a stage too (components/Hero.astro), marked as a figure's is: its Buttons wrap into rows, so it
+// gives each the width it is drawn at as well, which the cloak does not hold.
 //
-// Served as `virtual:tanrei-docs/stage-cloak.css`, imported by the frame of every stage (Example.astro): the package's
-// stylesheet with its one layer, `tanrei.components`, made the docs' layer `docs.cloak`, its rules within
-// `@scope ([data-example-stage])`. A stylesheet of another shape is refused, so the build fails rather than ship a cloak
-// that holds nothing.
+// Served as `virtual:tanrei-docs/stage-cloak.css`, imported by the frame of every stage (Example.astro) and by the
+// specimen (Hero.astro): the package's stylesheet with its one layer, `tanrei.components`, made the docs' layer
+// `docs.cloak`, its rules within `@scope ([data-example-stage])`. A stylesheet of another shape is refused, so the build
+// fails rather than ship a cloak that holds nothing.
 import fs from 'node:fs';
 import { createRequire } from 'node:module';
 
@@ -28,7 +30,7 @@ import { createRequire } from 'node:module';
 export const STAGE_CLOAK = 'virtual:tanrei-docs/stage-cloak.css';
 const RESOLVED = '/@tanrei-docs/stage-cloak.css';
 
-/** What the stage is, as the frame marks it (components/visuals/Example.astro). */
+/** What the stage is, as the frame marks it (components/visuals/Example.astro) and the landing page's specimen (components/Hero.astro). */
 export const STAGE = '[data-example-stage]';
 /** The layer the docs load the cloak into: after Starlight's, as every stylesheet of the package the docs load (styles/prose.css). */
 export const LAYER = 'docs.cloak';
