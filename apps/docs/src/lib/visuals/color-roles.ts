@@ -14,8 +14,9 @@
 // - **The contrast** is the token's color against what is drawn behind the part (the first fill under it that is not
 //   transparent, laid over the ones beneath), computed by the token build's own contrast check (`contrast` of
 //   packages/tokens-build/src/invariants.js), the WCAG 2 ratio.
-// - **A leader** joins each part drawn to its row. Focusing a row (or pointing at it) outlines its part with a dashed
-//   ring and draws its leader heavier: what joins them is a shape, not a color alone.
+// - **A leader** joins each part drawn to its row; a part drawn transparent has none, as it has nothing to end on.
+//   Focusing a row (or pointing at it) outlines its part with a dashed ring and draws its leader heavier: what joins
+//   them is a shape, not a color alone.
 import { contrast } from '../../../../../packages/tokens-build/src/invariants.js';
 import { targetBox } from './blueprint';
 import type { PartTarget } from './anatomy';
@@ -185,7 +186,10 @@ function drawFigure(frame: HTMLElement, overlay: HTMLElement, subject: HTMLEleme
     for (const [key, at] of Object.entries({ x: box.left - origin.left - pad, y: box.top - origin.top - pad, width: box.right - box.left + 2 * pad, height: box.bottom - box.top + 2 * pad, rx: pad })) ring.setAttribute(key, String(at));
     ring.setAttribute('class', 'highlight');
     ring.dataset.roleRing = String(index);
-    svg.append(leader, dot, ring);
+    // A part drawn transparent (a divider the system leaves out) draws nothing for a leader to end on: it has none, and
+    // its row, focused or pointed at, outlines its box.
+    if (drawn[3] > 0) svg.append(leader, dot);
+    svg.append(ring);
   });
   probe.remove();
   const active = table.querySelector<HTMLElement>('[data-role-row][data-active]');
