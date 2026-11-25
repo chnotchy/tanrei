@@ -8879,7 +8879,6 @@ const TanreiSystem tonePerStateSystem = TanreiSystem(
     ),
   ),
   tabs: TanreiTabsTokens(
-    activeIndicatorHeight: 32.0,
     containerGap: 4.0,
     containerHeightWithIcon: 64.0,
     containerShape: 9999.0,

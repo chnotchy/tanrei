@@ -13418,7 +13418,6 @@ export const m3Like = {
       },
     },
     tabs: {
-      activeIndicatorHeight: 32,
       containerGap: 4,
       containerHeightWithIcon: 64,
       containerShape: 0,
