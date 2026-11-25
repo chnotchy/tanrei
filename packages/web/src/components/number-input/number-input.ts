@@ -31,6 +31,7 @@ import { type Decimal, type NumberForm, type Reading, ZERO, canonical, clamp, co
 import { disabledWaitsWhileFocused } from '../../primitives/disabled-while-focused.js';
 import { focusedAtFirst } from '../../primitives/autofocus.js';
 import { TanreiElement } from '../../primitives/element.js';
+import { DEBUG } from '../../primitives/debug.js';
 
 /** The three looks of the input box (`comp.input-box`): a filled box whose label is the row of its Field (`stacked`), or the label floating inside a `filled` or `outlined` box. A design system may leave some out or add values. */
 export type TanreiNumberInputVariant = keyof TanreiInputBoxVariantRegistry;
@@ -995,23 +996,23 @@ export class TanreiNumberInput extends TanreiElement {
   private reports(changed: PropertyValues) {
     if (!this.isConnected) return;
     // NMI-12: an input no Field names, with no label of its own, still renders. (A Field with an empty label says so itself: FLD-10.)
-    if (!this.label.trim() && !this.frame.state && !namedByProduct(this)) report(this, 'NMI-12', 'label is empty and no field frames it, so the number input has no accessible name; put it in a field with a label, or give it a label');
+    if (DEBUG && !this.label.trim() && !this.frame.state && !namedByProduct(this)) report(this, 'NMI-12', 'label is empty and no field frames it, so the number input has no accessible name; put it in a field with a label, or give it a label');
     // NMI-44: a stepper nobody named is kept from assistive technology, and said to the developer.
     if (this.steppers && !this.words.get('incrementLabel', this.incrementLabel)) {
-      this.words.missing('incrementLabel', { id: 'NMI-44', effect: 'the stepper that steps up has no name and is kept from assistive technology; the spin button still steps' });
+      this.words.missing('incrementLabel', DEBUG && { id: 'NMI-44', effect: 'the stepper that steps up has no name and is kept from assistive technology; the spin button still steps' });
     }
     if (this.steppers && !this.words.get('decrementLabel', this.decrementLabel)) {
-      this.words.missing('decrementLabel', { id: 'NMI-44', effect: 'the stepper that steps down has no name and is kept from assistive technology; the spin button still steps' });
+      this.words.missing('decrementLabel', DEBUG && { id: 'NMI-44', effect: 'the stepper that steps down has no name and is kept from assistive technology; the spin button still steps' });
     }
-    if (changed.has('step') && !(typeof this.step === 'number' && Number.isFinite(this.step) && this.step > 0)) report(this, 'NMI-22', `step "${String(this.step)}" is not a number above 0; the number input steps by 1`);
+    if (DEBUG && changed.has('step') && !(typeof this.step === 'number' && Number.isFinite(this.step) && this.step > 0)) report(this, 'NMI-22', `step "${String(this.step)}" is not a number above 0; the number input steps by 1`);
     const low = numberOrNull(this.min);
     const high = numberOrNull(this.max);
-    if ((changed.has('min') || changed.has('max')) && low !== null && high !== null && low > high) report(this, 'NMI-30', `min (${low}) is above max (${high}); max is treated as empty`);
-    if ((changed.has('minFractionDigits') || changed.has('maxFractionDigits')) && this.minFractionDigits > this.maxFractionDigits) {
+    if (DEBUG && (changed.has('min') || changed.has('max')) && low !== null && high !== null && low > high) report(this, 'NMI-30', `min (${low}) is above max (${high}); max is treated as empty`);
+    if (DEBUG && (changed.has('minFractionDigits') || changed.has('maxFractionDigits')) && this.minFractionDigits > this.maxFractionDigits) {
       report(this, 'NMI-30', `minFractionDigits (${this.minFractionDigits}) is above maxFractionDigits (${this.maxFractionDigits}); maxFractionDigits is used for both`);
     }
-    if (changed.has('align') && !ALIGNS.includes(this.align)) report(this, 'NMI-43', `align "${this.align}" is not start or end; it behaves as "start"`);
-    if (changed.has('locale') && this.locale && !supportedLocale(this.locale)) report(this, 'NMI-43', `locale "${this.locale}" is not a language tag the browser knows; the number is shown and read in the form of the page's language`);
+    if (DEBUG && changed.has('align') && !ALIGNS.includes(this.align)) report(this, 'NMI-43', `align "${this.align}" is not start or end; it behaves as "start"`);
+    if (DEBUG && changed.has('locale') && this.locale && !supportedLocale(this.locale)) report(this, 'NMI-43', `locale "${this.locale}" is not a language tag the browser knows; the number is shown and read in the form of the page's language`);
   }
 
   protected override render() {

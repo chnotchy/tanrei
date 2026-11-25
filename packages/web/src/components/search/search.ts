@@ -75,6 +75,7 @@ import { TanreiElement } from '../../primitives/element.js';
 import { PausedAnnouncement } from '../../primitives/paused-announcement.js';
 import { completionOf } from '../../primitives/filter.js';
 import { ambientLocale } from '../../primitives/locale-date.js';
+import { DEBUG } from '../../primitives/debug.js';
 
 /**
  * The glyphs of the system's icon set the search draws — the spec's names, not values; it draws no mark of
@@ -1330,18 +1331,18 @@ export class TanreiSearch extends TanreiElement {
   private checkResults() {
     const seen = new Set(this.suggestions.map((suggestion) => suggestion.value).filter(Boolean));
     const check = (row: TanreiSearchRow, what: string) => {
-      if (!row.value) report(row, 'SRC-27', `the ${what} "${row.headline}" has an empty value; select cannot tell it apart`);
-      else if (seen.has(row.value)) report(row, 'SRC-27', `the value "${row.value}" of the ${what} "${row.headline}" repeats that of another suggestion, result or group; give each its own`);
+      if (!row.value) DEBUG && report(row, 'SRC-27', `the ${what} "${row.headline}" has an empty value; select cannot tell it apart`);
+      else if (DEBUG && seen.has(row.value)) report(row, 'SRC-27', `the value "${row.value}" of the ${what} "${row.headline}" repeats that of another suggestion, result or group; give each its own`);
       seen.add(row.value);
     };
     for (const entry of this.entries) {
       if (entry instanceof TanreiSearchResultGroup) {
         if (entry.linked) check(entry, 'linked group heading');
         const strangers = [...entry.children].filter((child) => child.localName.includes('-') && !(child instanceof TanreiSearchResult));
-        if (strangers.length) report(entry, 'SRC-27', `the result group "${entry.headline}" holds <${strangers[0].localName}>; a group holds results only, and no group`);
+        if (DEBUG && strangers.length) report(entry, 'SRC-27', `the result group "${entry.headline}" holds <${strangers[0].localName}>; a group holds results only, and no group`);
       }
       for (const result of entry instanceof TanreiSearchResultGroup ? entry.results : [entry]) {
-        if (!result.headline?.trim()) report(result, 'SRC-27', `the result "${result.value}" has an empty headline, so it has no text and no accessible name`);
+        if (DEBUG && !result.headline?.trim()) report(result, 'SRC-27', `the result "${result.value}" has an empty headline, so it has no text and no accessible name`);
         check(result, 'result');
       }
     }
@@ -1351,10 +1352,10 @@ export class TanreiSearch extends TanreiElement {
   private checkSuggestions() {
     const seen = new Set<string>();
     for (const suggestion of this.suggestions) {
-      if (!suggestion.value) report(this, 'SRC-27', `the suggestion "${suggestion.headline}" has an empty value; select cannot tell it apart`);
-      else if (seen.has(suggestion.value)) report(this, 'SRC-27', `two suggestions share the value "${suggestion.value}"; give each its own`);
+      if (!suggestion.value) DEBUG && report(this, 'SRC-27', `the suggestion "${suggestion.headline}" has an empty value; select cannot tell it apart`);
+      else if (DEBUG && seen.has(suggestion.value)) report(this, 'SRC-27', `two suggestions share the value "${suggestion.value}"; give each its own`);
       seen.add(suggestion.value);
-      if (!suggestion.headline?.trim()) report(this, 'SRC-27', `the suggestion "${suggestion.value}" has an empty headline, so it has no text and no accessible name`);
+      if (DEBUG && !suggestion.headline?.trim()) report(this, 'SRC-27', `the suggestion "${suggestion.value}" has an empty headline, so it has no text and no accessible name`);
     }
   }
 
@@ -1380,8 +1381,8 @@ export class TanreiSearch extends TanreiElement {
    * display: contents; the Buttons keep their spaces around it (SRC-34).
    */
   private reportTrailing({ elements, texts }: LaidOut) {
-    if (elements.length > 2) report(this, 'SRC-27', `the trailing slot holds ${elements.length} elements; a search bar has room for two icon buttons`);
-    if (texts.length) report(this, 'SRC-27', `the trailing slot holds text (${texts.map((node) => JSON.stringify(node.data.trim())).join(', ')}); it is laid out among the buttons, but the slot holds icon-only Buttons`);
+    if (DEBUG && elements.length > 2) report(this, 'SRC-27', `the trailing slot holds ${elements.length} elements; a search bar has room for two icon buttons`);
+    if (DEBUG && texts.length) report(this, 'SRC-27', `the trailing slot holds text (${texts.map((node) => JSON.stringify(node.data.trim())).join(', ')}); it is laid out among the buttons, but the slot holds icon-only Buttons`);
   }
 
   // ── Opening and closing (SRC-5, SRC-6) ─────────────────────────────────────────────────────────────────
@@ -2447,18 +2448,18 @@ export class TanreiSearch extends TanreiElement {
 
   protected override willUpdate(changed: PropertyValues<this>) {
     // SRC-27: an unknown presentation is drawn as docked, an unknown bar as the field and an unknown status as idle, and reported.
-    if (changed.has('presentation') && !PRESENTATIONS.includes(this.presentation)) {
+    if (DEBUG && changed.has('presentation') && !PRESENTATIONS.includes(this.presentation)) {
       report(this, 'SRC-27', `presentation "${this.presentation}" is not a value the search defines; it is drawn as "docked"`);
     }
-    if (changed.has('bar') && !BARS.includes(this.bar)) report(this, 'SRC-27', `bar "${this.bar}" is not a value the search defines; it is drawn as "field"`);
-    if (changed.has('status') && !STATUSES.includes(this.status)) report(this, 'SRC-27', `status "${this.status}" is not a value the search defines; it is read as "idle"`);
+    if (DEBUG && changed.has('bar') && !BARS.includes(this.bar)) report(this, 'SRC-27', `bar "${this.bar}" is not a value the search defines; it is drawn as "field"`);
+    if (DEBUG && changed.has('status') && !STATUSES.includes(this.status)) report(this, 'SRC-27', `status "${this.status}" is not a value the search defines; it is read as "idle"`);
     // SRC-52: an iconSpace the search does not define is auto, reported; a change decides the column again.
     if (changed.has('iconSpace')) {
-      if (!ICON_SPACES.includes(this.iconSpace)) report(this, 'SRC-52', `iconSpace "${this.iconSpace}" is not a value the search defines; it is drawn as "auto"`);
+      if (DEBUG && !ICON_SPACES.includes(this.iconSpace)) report(this, 'SRC-52', `iconSpace "${this.iconSpace}" is not a value the search defines; it is drawn as "auto"`);
       this.decideIconColumn();
     }
     // SRC-57: a queryRow the search does not define is drawn as first, and reported.
-    if (changed.has('queryRow') && !QUERY_ROWS.includes(this.queryRow)) report(this, 'SRC-57', `queryRow "${this.queryRow}" is not a value the search defines; it is drawn as "first"`);
+    if (DEBUG && changed.has('queryRow') && !QUERY_ROWS.includes(this.queryRow)) report(this, 'SRC-57', `queryRow "${this.queryRow}" is not a value the search defines; it is drawn as "first"`);
     // TXI-4: a value the product set is shown in the input, and ends what the person was doing with the one before: a
     // suggestion an arrow key put in the input, a completion (SRC-14, SRC-55).
     if (changed.has('value') && this.value !== this.ownValue) {
@@ -2504,13 +2505,13 @@ export class TanreiSearch extends TanreiElement {
     WAITING_FOR_CHORDS.delete(this);
     if (this.isConnected && this.bindShortcut && !this.inert_) {
       if (chords.length !== 1) {
-        report(this, 'SRC-39', chords.length ? `bindShortcut is set and shortcut holds ${chords.length} chords; a sequence is not bound, so the search listens for nothing` : 'bindShortcut is set and shortcut is empty, so the search listens for nothing');
+        if (DEBUG) report(this, 'SRC-39', chords.length ? `bindShortcut is set and shortcut holds ${chords.length} chords; a sequence is not bound, so the search listens for nothing` : 'bindShortcut is set and shortcut is empty, so the search listens for nothing');
       } else {
         next = readBinding(chords[0]);
         const owner = next ? BOUND_CHORDS.get(next.id) : undefined;
-        if (!next) report(this, 'SRC-39', `the chord "${chords[0]}" is not modifiers and one key; the search listens for nothing`);
+        if (!next) DEBUG && report(this, 'SRC-39', `the chord "${chords[0]}" is not modifiers and one key; the search listens for nothing`);
         else if (owner && owner !== this) {
-          report(this, 'SRC-39', `another search or navigation drawer shown before this one binds the chord "${chords[0]}"; this one binds nothing`);
+          if (DEBUG) report(this, 'SRC-39', `another search or navigation drawer shown before this one binds the chord "${chords[0]}"; this one binds nothing`);
           WAITING_FOR_CHORDS.add(this);
           next = null;
         }
@@ -2600,13 +2601,16 @@ export class TanreiSearch extends TanreiElement {
     if (changed.size === 0) for (const row of this.rows) row.markIcon();
     this.syncCurrentResult();
     // SRC-36: a docked view has no input of its own, so a trigger opens the dialog view instead.
-    if (this.expanded && this.triggered && this.presentation !== 'dialog' && this.presentation !== 'full-screen') {
+    if (DEBUG && this.expanded && this.triggered && this.presentation !== 'dialog' && this.presentation !== 'full-screen') {
       report(this, 'SRC-36', `presentation "${this.presentation}" with a trigger (bar "${this.barForm}") has no input to type in; the view opens as "dialog"`);
     }
     // SRC-27, SRC-10, SRC-11: what a debug build reports.
-    if (changed.has('label') && !this.label.trim() && !namedByProduct(this)) report(this, 'SRC-27', 'label is empty, so the search field has no accessible name; give it a label');
-    if (this.clearShown && this.words.lacks('clearLabel', this.clearLabel)) report(this, 'SRC-10', 'clearLabel is empty, so the clear button has no accessible name; give it one in the product’s language');
-    if (this.modal && this.expanded && !this.inert_ && this.words.lacks('backLabel', this.backLabel)) report(this, 'SRC-11', 'backLabel is empty, so the back button has no accessible name; give it one in the product’s language');
+    if (DEBUG && changed.has('label') && !this.label.trim() && !namedByProduct(this)) report(this, 'SRC-27', 'label is empty, so the search field has no accessible name; give it a label');
+    // The words are recorded as lacking in every build (`missingWords()`); only the reports are a debug build's.
+    const lacksClear = this.clearShown && this.words.lacks('clearLabel', this.clearLabel);
+    if (DEBUG && lacksClear) report(this, 'SRC-10', 'clearLabel is empty, so the clear button has no accessible name; give it one in the product’s language');
+    const lacksBack = this.modal && this.expanded && !this.inert_ && this.words.lacks('backLabel', this.backLabel);
+    if (DEBUG && lacksBack) report(this, 'SRC-11', 'backLabel is empty, so the back button has no accessible name; give it one in the product’s language');
   }
 
   private get clearShown() {

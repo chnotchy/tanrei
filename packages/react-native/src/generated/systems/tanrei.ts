@@ -3722,6 +3722,7 @@ export const tanrei = {
       hoveredOutlineWidth: 1,
       inputPaddingBlock: 8,
       layoutInlineMinWidth: 360,
+      layoutInputMinWidth: 160,
       motionGlyphFadeDuration: 200,
       motionResizeDuration: 400,
       motionResizeEasing: [0.2, 0, 0, 1],

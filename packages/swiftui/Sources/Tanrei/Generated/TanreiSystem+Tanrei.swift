@@ -2410,6 +2410,7 @@ private let tanreiChatComposerTokens = TanreiChatComposerTokens(
   counterTypescale: tanreiTypescale.labelSmall,
   inputPaddingBlock: 8,
   layoutInlineMinWidth: 360,
+  layoutInputMinWidth: 160,
   motionGlyphFadeDuration: 200,
   motionResizeDuration: 400,
   motionResizeEasing: TanreiCubicBezier(0.2, 0, 0, 1),

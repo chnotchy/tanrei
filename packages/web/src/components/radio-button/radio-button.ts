@@ -6,6 +6,7 @@ import { styles } from './radio-button.styles.js';
 import { FocusedStop, disabledWaitsWhileFocused } from '../../primitives/disabled-while-focused.js';
 import { focusedAtFirst } from '../../primitives/autofocus.js';
 import { TanreiElement } from '../../primitives/element.js';
+import { DEBUG } from '../../primitives/debug.js';
 
 /** What `change` carries: the value of the option that became selected. */
 export interface TanreiRadioButtonChangeDetail {
@@ -383,11 +384,11 @@ export class TanreiRadioButton extends TanreiElement {
       this.selection.internals.setFormValue(null);
       // (Its disabled state as its frame gave it, too: the group's stop is what its form's message is anchored on.)
       if (changed.has('checked') || changed.has('value') || changed.has('disabled') || offChanged) owner.optionChanged(this, changed.has('checked'));
-    } else if (changed.has('name') && !this.name && !this.closest('tanrei-radio-group')) {
+    } else if (DEBUG && changed.has('name') && !this.name && !this.closest('tanrei-radio-group')) {
       report(this, 'RAD-25', 'the radio button stands in no group: put it in a tanrei-radio-group, or give the options that exclude each other one name');
     }
     // RAD-18: an option without a name still renders; a debug build says what is missing.
-    if (changed.has('label') && !this.label && !this.selection.field.label && !namedByProduct(this)) report(this, 'RAD-18', 'label is empty, so the radio button has no accessible name; give it a label');
+    if (DEBUG && changed.has('label') && !this.label && !this.selection.field.label && !namedByProduct(this)) report(this, 'RAD-18', 'label is empty, so the radio button has no accessible name; give it a label');
   }
 
   protected override render() {

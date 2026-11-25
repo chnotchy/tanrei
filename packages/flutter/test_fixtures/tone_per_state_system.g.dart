@@ -2551,6 +2551,7 @@ const TanreiSystem tonePerStateSystem = TanreiSystem(
     counterTypescale: _typescaleLabelSmall,
     inputPaddingBlock: 8.0,
     layoutInlineMinWidth: 360.0,
+    layoutInputMinWidth: 160.0,
     motionGlyphFadeDuration: 200,
     motionResizeDuration: 400,
     motionResizeEasing: TanreiCubicBezier(0.2, 0.0, 0.0, 1.0),

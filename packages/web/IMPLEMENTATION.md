@@ -1572,7 +1572,7 @@ the focus order with `role="region"` and `aria-label` from `label` (no label: st
 neither. What is inside is read when the fit changes, when the slotted content changes and when focus arrives inside — a
 focusable element added deep in the content without any of these is seen at the next. The focus indicator is the system's
 (`focusRing(…, { inside: true })`) on a box over the scroll box and every mark, never masked by the fade and never
-animated, for keyboard focus only. The keys that scroll a focused box are the browser's: Page Up, Page Down, Home, End,
+animated, for keyboard focus only; the box is drawn as no element (`focusRingBox()`), so it covers no text for a contrast check. The keys that scroll a focused box are the browser's: Page Up, Page Down, Home, End,
 Space everywhere, and the arrow keys where the browser gives them to a focused box (WebKit gives them to the page).
 
 **Direction** (SCA-13, SCA-14). The direction is the one the host inherits. Every browser puts a scroll box back at its
@@ -4345,7 +4345,7 @@ product's `<tanrei-file-item>`s while `attachments="given"`, or the file items i
 |---|---|
 | The value member | None: it is a feature. `value` is the typing area's at every moment (an accessor over the member), and the form value is its own — a `FormData` with the text under `name` and each kept file under `files-name` |
 | Focus | Not delegated. `focus()` goes to the typing area; a `mousedown` on the capsule's own ground is passed to it with `focusAt()` and its default prevented |
-| The layouts (CCM-2 to CCM-4) | The typing area and the send button never move in the DOM. The attach button with the leading slot, and the counter with the trailing slot, are drawn before and after the typing area (`inline`) or in `.row` beneath (`stacked`), so that the Tab order is the drawn order (CCM-29). Which it is — `layout`, or a capsule narrower than `layout.inline-min-width` — is read by a `ResizeObserver` of the capsule against a probe of that length: a CSS container query could not move the focus order |
+| The layouts (CCM-2 to CCM-4) | The typing area and the send button never move in the DOM. The attach button with the leading slot, and the counter with the trailing slot, are drawn before and after the typing area (`inline`) or in `.row` beneath (`stacked`), so that the Tab order is the drawn order (CCM-29). Which it is — `layout`, or a capsule narrower than `layout.inline-min-width` or than its parts need to leave the typing area `layout.input-min-width` — is read by a `ResizeObserver` of the capsule and of those parts against probes of those lengths (the counter measured with `maxLength` characters, so that no count moves the layout): a CSS container query could not move the focus order |
 | No custom property | The capsule holds its members, and a custom property on it would be inherited by each. The one property written for the members is the cap of their hit areas (`TARGET_CAPS`, `rowTargets()`, BTN-5), on each Button, File picker and slotted control and on the line and the row that hold them, never on the capsule: no member's token, the channel by which a row tells what it lays out how far to reach. Every state is written out from its own tokens; the corner and the glow come from `heldShape()` and `heldFocusGlow()` (`src/styles/shape.ts`, `src/primitives/focus-ring.ts`); and the one length the stylesheet cannot know — a line of the typing area's text, read from the member's `input` part — is written as rules (`measured()`) in a constructed stylesheet of that line, which every instance that measured the same line shares (`measuredSheet()`), adopted after its static sheet and in no cascade layer |
 | Focus on the capsule (CCM-42) | `data-focused`, set from the typing area's `focusin` and `focusout` — not `:focus-within`, which also holds while a Button or a File item's action has focus |
 | The edge (CCM-41) | Drawn inside the capsule's box by `.outline`, a box over everything the capsule holds that draws nothing itself (`visibility: hidden`): its `::before` draws the border, its widths, colors and their transition, at the same place in the paint order. An element over a text is, to a contrast checker (axe's `color-contrast`, which builds its own paint order and ignores `pointer-events`), an element covering it: the counter was left incomplete instead of checked. A pseudo-element is not seen as one |
@@ -8902,7 +8902,7 @@ own selectors and its own `--tanrei-comp-<name>-*` tokens — nothing in them kn
 | `busyStyles(parts)`, `busyReducedStyles(parts)`, `busyArc()`, `busyStatus()`, `announceBusy(root, words, still)` (`busy.ts`) | a control that keeps its place and its focus while its action is under way (a busy Button, BTN-36, BTN-37; a busy button with menu's leading half, SPB-39, SPB-40): the label laid out and transparent, the glyph boxes hidden once faded, the loading indicator's arc turning at the container's centre (LDG-4's pulse under reduced motion), and the polite region its words are announced through once, a frame after it appears | the busy container's selector, the label's and the glyph boxes' selectors, the property of the arc's box (its icon size) and the NAMES of its own thickness, cycle, fade and easing tokens; the arc inside the container and the region beside it while busy, `iconGlyph()`'s `fade` for its glyph boxes, and the refusal of the activation |
 | `adoptUnlessDrawn(element, sheet, mark)`, `adopt(root, sheet)` (`sheets.ts`) | the stylesheet of an element that is drawn in the document, added to the root the element stands in — once, and only where that root does not draw the element already: a page that loaded `@tanrei/web/<name>.css` is handed no second copy (a sheet added to the document has the browser style the page again), a page that did not and a product's shadow root are handed one for all their instances. The cascade is asked once for a root, while the root's own stylesheets stay as many as they were — not once for each element, nor once for each turn, nor once for each kind (the first question asks it for every kind of `DRAWN_MARKS` that stands in the root, in one style pass), since the question is a read of computed style inside the script that connected the element — and an element inside one of its own kind is answered by the outermost of them | the sheet (one constructed sheet for the page) and `mark`: a private custom property the sheet sets on every element of the kind and no shadow style of the element sets (`test/light-dom.ts` lists each element with its sheet and its mark, for `src/primitives/sheets.test.ts`, which counts the writes, and `src/primitives/passes.test.ts`, which counts the questions and the style passes: add yours) |
 | `OpenAxesController` | sizes and variants a layer adds (one sheet per value for the page, adopted on demand, falling back to the default's tokens) and the debug report of a value the active system lacks | per axis: its core values, default, the block builder and the probe token; the behaviour id |
-| `report(host, id, message)` | a debug-build `console.warn`, once per element and problem | the behaviour id and the message |
+| `report(host, id, message)` | a debug-build `console.warn`, once per element and problem | the behaviour id and the message, the call guarded by `DEBUG` where it starts (`if (DEBUG && …) report(…)`; "Debug builds" below) |
 | `AvailabilityController` (`availability.ts`) | the debug report and the record of a component, or a value of its `variant`, the active system does not have, read from `--tanrei-unavailable`, `--tanrei-unavailable-layer` and `--tanrei-unavailable-replacement` on connect and when `variant` changes, and made under the element the product wrote (AVL-1 to AVL-3) | its spec name (`new AvailabilityController(this, 'fab-menu')`), in every component with a spec |
 | `hostAria(host, attributes)` | semantics a non-interactive component carries on its host (divider, progress, loading), written only when they change | the attributes, `null` to remove |
 | `GlyphMirrorController` (`glyph-mirror.ts`) | `data-tanrei-mirrored` on each glyph whose name the active icon set mirrors in right-to-left, or whose `data-mirror` says `always` (never with `never`): after each render, on `slotchange`, when a slotted glyph's text or `data-mirror` changes, when the root switches the system. `iconGlyph()` draws the mark under `:dir(rtl)`; the component mirrors nothing itself (BTN-19) | `drawn`: a selector for the `iconGlyph()` boxes whose name the component writes; `slots`: a selector for the slots that take the product's glyph (each inside an `iconGlyph()` box) |
@@ -8969,6 +8969,35 @@ own selectors and its own `--tanrei-comp-<name>-*` tokens — nothing in them kn
 The box that draws the ring and holds the ripple is a positioning container with `isolation: isolate`; its `::before` is
 the target and its `::after` the ring. `button.styles.ts` and `button.ts` are the reference: a condition on top of the variant axis
 (a toggle's looks) and its own icon.
+
+### Debug builds: `DEBUG`
+
+The web has no debug build of its own: the product's bundler decides, by `process.env.NODE_ENV` — Vite, webpack,
+Parcel and esbuild define it for the browser by themselves, `"production"` in a production build. Everything a debug
+build tells the developer is guarded by the constant `DEBUG` (`src/primitives/debug.ts`) where it starts, never by a
+call, so that a production bundle leaves out the message with the code that makes it:
+
+- `if (DEBUG && <condition>) report(…)`, `if (DEBUG) report(…)`, `DEBUG ? <read> : ''` — `DEBUG` first. esbuild (the
+  bundler the budgets measure with) puts the constant of another module in place only after it has merged nested `if`s
+  into one `&&` chain and decided what code is used, so a guard in the middle of a chain (`if (a) { if (DEBUG && b) … }`
+  is `a && false && b`) keeps what follows it: write the guard into the outermost condition.
+- A missing word's report is `this.words.missing(key, DEBUG && { id, effect })`: the key is recorded for
+  `missingWords()` in every build, the words of the report only in a debug one. A condition that records something
+  (`this.words.lacks(…)`) is evaluated in every build, before the guard: `const lacks = … && this.words.lacks(…); if
+  (DEBUG && lacks) report(…)`.
+- `report()` and `wordMissing()` check `DEBUG` again, for a call written without the guard; such a call still ships
+  its message.
+
+How the constant reaches each build: `debug.ts` reads `process` in a try (the module a page loads without a bundler,
+and Node's), so there it is a value at run time — true where there is no `process`, so reports stay on, and
+`dist/tanrei.bundle.js` is built as a development bundle. The package's `browser` field maps it onto
+`debug.bundled.ts`, whose constant is the bare `process.env.NODE_ENV !== 'production'`: a bundler that builds for the
+browser takes that module and replaces it (a tool that reads the `browser` field and defines nothing would leave
+`process` unguarded there; esbuild, webpack, Vite and Parcel all define it). A bundler that does not read the `browser` field (Rollup without `@rollup/plugin-node-resolve`'s
+`browser: true`) keeps `debug.ts`: every report stays in the bundle, and in production makes none. What a production bundle still carries: a function or method that only reports (a `check()`, a message
+builder such as `unavailableMessage()`) — a bundler decides that it is used before it replaces the constant, so it stays
+though nothing calls it — and the code before a guard that only makes its message. `test/debug-code.test.mjs` bundles
+`@tanrei/web/all` both ways and looks for a sample of reports in each.
 
 ## Icons
 
@@ -11033,13 +11062,23 @@ Events: `copied` (`detail.text`) and `copyfailed` (`detail.reason`). Parts: `con
   the container that does not scroll.
 - **The gutter** is `position: sticky; left: 0`, filled with the block's ground so code scrolls under it. **The
   outlined look has no ground of its own** (its fill is transparent, and a stylesheet cannot know what it is placed
-  on): the gutter and the copy button's patch use `--tanrei-code-block-ground` where you set it and
-  `sys.color.surface` otherwise.
-- **The copy button's patch** covers whole lines at the top end corner, so no line is half hidden; where the
-  browser has no `round()` it is as tall as the button. Wrapped, no code passes under the button and there is no patch.
-- **Right to left**: the frame mirrors by `:dir()`; without a header the copy button is at the top left and the
-  padding before the lines is widened there. With a gutter as well, the gutter's numbers move right with it and the
-  bars of the first lines are under the button's patch.
+  on): the gutter uses `--tanrei-code-block-ground` where you set it and `sys.color.surface` otherwise.
+- **The copy button is in the header** (COD-10): with `copy` and more than one line the block always draws the
+  header's row, the button alone in it where there is no title and no language label, and the code begins below it —
+  so no line, however long, and nothing scrolled passes under the button, at any width, wrapped or not, in either
+  direction.
+- **One line beside the button** (COD-10): code of one line with no title and no language label (an install command)
+  has no header. The container is one row: the button comes first in the shadow root (the focus and reading order of
+  COD-9) and is drawn at the end with `order`, `header.gap` after the body, which takes what is left — so the line
+  scrolls, or wraps, beside the button. The body's corners at the button's side are square. One line is the count of
+  the code's own lines (`lineCount`, the boxes of `sync()`), never measured, so `code.css` draws the same form before
+  the element is defined, from the page's `[data-line]` boxes (`:has(> pre > code > [data-line]:only-child)`). Code
+  that is text in the `<code>` cannot be counted by a stylesheet: before the element is defined it is drawn as code of
+  more than one line, and a one-line block of text with `copy` and no words grows shorter when the element is
+  defined. Write the lines where the page is made (`highlightToHtml` / `highlightToNodes` with `lines`) and nothing
+  moves.
+- **Right to left**: the frame mirrors by `:dir()`: the title at the right, the language and the copy button at the
+  left, and a one-line block's button at the left of its line. The lines keep the plain inline paddings on both sides.
 - **A band and a bar** are the line's and the gutter's backgrounds; in forced colors the gutter is drawn in system
   colors by name (`forced-color-adjust: none`), because the mode removes a gradient.
 - **It highlights by itself** (COD-19, COD-27 to COD-33). Three sources of color, in order: runs the

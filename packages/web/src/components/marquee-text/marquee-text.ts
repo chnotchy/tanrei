@@ -7,6 +7,7 @@ import { playFromThisFrame } from '../../primitives/motion.js';
 import { readTogether } from '../../primitives/read-phase.js';
 import '../button/button.js';
 import { FADE, GAP, LOOPS, SPEED, TRIGGERS, styles } from './marquee-text.styles.js';
+import { DEBUG } from '../../primitives/debug.js';
 
 /** When the text scrolls (MRQ-3). */
 export type TanreiMarqueeTextTrigger = (typeof TRIGGERS)[number];
@@ -303,17 +304,17 @@ export class TanreiMarqueeText extends TanreiElement {
 
   protected override willUpdate(changed: PropertyValues<this>) {
     // MRQ-15: values the component does not define are their defaults; numbers out of range are null.
-    if (changed.has('trigger') && !(TRIGGERS as readonly string[]).includes(this.trigger)) {
+    if (DEBUG && changed.has('trigger') && !(TRIGGERS as readonly string[]).includes(this.trigger)) {
       report(this, 'MRQ-15', `trigger "${this.trigger}" is not a value of the marquee text; it is drawn as "hover-or-focus"`);
     }
-    if (changed.has('loop') && !(LOOPS as readonly string[]).includes(this.loop)) {
+    if (DEBUG && changed.has('loop') && !(LOOPS as readonly string[]).includes(this.loop)) {
       report(this, 'MRQ-15', `loop "${this.loop}" is not a value of the marquee text; it is drawn as "repeat"`);
     }
-    if (changed.has('speed') && this.speed !== null && this.speed !== undefined && positive(this.speed) === null) {
+    if (DEBUG && changed.has('speed') && this.speed !== null && this.speed !== undefined && positive(this.speed) === null) {
       report(this, 'MRQ-15', `speed ${this.speed} is not a positive number of pixels per second; comp.marquee-text.speed is used`);
     }
     for (const [name, value] of [['startPause', this.startPause], ['endPause', this.endPause], ['iterations', this.iterations]] as const) {
-      if (changed.has(name) && value !== null && value !== undefined && notNegative(value) === null) {
+      if (DEBUG && changed.has(name) && value !== null && value !== undefined && notNegative(value) === null) {
         report(this, 'MRQ-15', `${name} ${value} is negative or not a number; it is treated as null`);
       }
     }
@@ -345,12 +346,12 @@ export class TanreiMarqueeText extends TanreiElement {
     if (!this.playbackControl) {
       if (!this.reportedPause) {
         this.reportedPause = true;
-        report(this, 'MRQ-10', 'trigger is always and the text moves, but playback-control is off: give the page a control that sets paused on every moving part, or set playback-control, so that a person can stop the motion (WCAG 2.2.2)');
+        if (DEBUG) report(this, 'MRQ-10', 'trigger is always and the text moves, but playback-control is off: give the page a control that sets paused on every moving part, or set playback-control, so that a person can stop the motion (WCAG 2.2.2)');
       }
       return;
     }
-    if (!this.words.get('marqueePlayLabel', this.playLabel)) this.words.missing('marqueePlayLabel', { prop: 'playLabel', id: 'MRQ-12', effect: 'the playback control is drawn and has no accessible name while the motion is paused' });
-    if (!this.words.get('marqueePauseLabel', this.pauseLabel)) this.words.missing('marqueePauseLabel', { prop: 'pauseLabel', id: 'MRQ-12', effect: 'the playback control is drawn and has no accessible name while the text moves' });
+    if (!this.words.get('marqueePlayLabel', this.playLabel)) this.words.missing('marqueePlayLabel', DEBUG && { prop: 'playLabel', id: 'MRQ-12', effect: 'the playback control is drawn and has no accessible name while the motion is paused' });
+    if (!this.words.get('marqueePauseLabel', this.pauseLabel)) this.words.missing('marqueePauseLabel', DEBUG && { prop: 'pauseLabel', id: 'MRQ-12', effect: 'the playback control is drawn and has no accessible name while the text moves' });
   }
 
   /**

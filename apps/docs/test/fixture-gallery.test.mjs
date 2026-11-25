@@ -50,7 +50,10 @@ describe('the gallery of fixtures', () => {
         if (stage.kind === 'window') continue;
         const html = document.stages.find((each) => each.id === fixture.id).html;
         assert.equal(stage.html, stage.kind === 'opener' ? closed(spec, html, stage.presence) : html, `${spec.name}/${fixture.id}`);
-        assert.deepEqual(stage.reserve, document.sizes[fixture.id] ?? (stage.modal ? windowOf(spec, fixture) : undefined), `${spec.name}/${fixture.id}`);
+        // In half pixels, as the baseline gives it; a modal fixture's window in whole pixels.
+        const size = document.sizes[fixture.id];
+        const expected = stage.modal ? (size ? { width: Math.round(size.width), height: Math.round(size.height) } : windowOf(spec, fixture)) : size;
+        assert.deepEqual(stage.reserve, expected, `${spec.name}/${fixture.id}`);
       }
     }
     // The components whose fixtures only a window drew while the site had a renderer of its own are drawn in the page

@@ -12,6 +12,8 @@ import { type Fixture, type FixtureItem, loadSpec, missingWords, mountFixtures, 
 import { resolveEasing } from '../../../test/appear.js';
 import { type Probe, expectAnimated, expectFirstFrameAtRest, freezeFirstFrame, sampleFrames } from '../../../test/frames.js';
 import { expectBaseline } from '../../../test/baseline.js';
+import { decodePng } from '../../../test/png.js';
+import { INK } from '../../../test/drawn-box.js';
 
 const spec = loadSpec('toolbar');
 type P = Page;
@@ -2032,7 +2034,75 @@ test.describe('selection groups, fields and the items kept at the end', () => {
     await expect.poll(async () => (await bounds(send)).x).toBeCloseTo((await bounds(surface)).x + pad, 0);
   });
 
-  test('TBR-30: an item whose overflow is never that stands before one that may scroll scrolls with the others; taking never off the last item, or a menu overflow, keeps nothing at the end', async ({ page }) => {
+  test('TBR-30: what scrolls fades out toward an edge the items lie beyond, so that no cut piece of an item stands against Send; the first and the last item are whole once scrolled to; a focused item is scrolled clear of the fade; mirrored right-to-left', async ({ page }) => {
+    const id = 'inline-scroll-pinned';
+    await mountFixtures(page, spec, only(id));
+    const track = bar(page, id).locator('.track');
+    const send = member(page, id, 5);
+    await expect.poll(() => track.evaluate((el) => el.scrollWidth - el.clientWidth)).toBeGreaterThan(0);
+    const depth = await resolveToken(page, '--tanrei-sys-scroll-edge-extent');
+    expect(depth).toBeGreaterThan(2);
+    const frame = () => page.evaluate(() => new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve))));
+    const scrollTo = async (left: number) => {
+      await track.evaluate((el, l) => el.scrollTo({ left: l, behavior: 'instant' }), left);
+      await frame();
+    };
+    // The most a pixel of a band 2 CSS px wide differs from the surface behind the toolbar, in any channel.
+    const inkIn = async (x: number, surface: number[]) => {
+      const lane = await bounds(track);
+      const pixels = decodePng(await page.screenshot({ clip: { x, y: lane.y, width: 2, height: lane.height } }));
+      let most = 0;
+      for (let i = 0; i < pixels.data.length; i += 4) most = Math.max(most, ...[0, 1, 2].map((c) => Math.abs(pixels.data[i + c] - surface[c])));
+      return most;
+    };
+    // At most what the fade lets through 2 px from its edge — it is as deep as the token, or as the items still lie
+    // beyond that edge where that is less — and the faintest difference an engine composites apart.
+    const allowed = (beyond: number) => (255 * 2) / Math.min(depth, beyond) + INK;
+    for (const dir of ['ltr', 'rtl'] as const) {
+      await page.locator(`[data-fixture="${id}"]`).evaluate((el, d) => el.setAttribute('dir', d), dir);
+      await frame();
+      const rtl = dir === 'rtl';
+      const lane = await bounds(track);
+      const at = await bounds(send);
+      // The space between the track and Send is the surface behind the toolbar.
+      const gapX = rtl ? at.x + at.width : lane.x + lane.width;
+      const surfacePixels = decodePng(await page.screenshot({ clip: { x: gapX, y: lane.y, width: 1, height: lane.height } }));
+      const surface = [...surfacePixels.data.slice(0, 3)];
+      const max = await track.evaluate((el) => el.scrollWidth - el.clientWidth);
+      const endBand = rtl ? lane.x : lane.x + lane.width - 2;
+      const startBand = rtl ? lane.x + lane.width - 2 : lane.x;
+      for (let s = 0; s <= max; s++) {
+        await scrollTo(rtl ? -s : s);
+        expect(await inkIn(endBand, surface), `${dir}, scrolled ${s}: the band before Send`).toBeLessThanOrEqual(allowed(max - s));
+        expect(await inkIn(startBand, surface), `${dir}, scrolled ${s}: the band at the start`).toBeLessThanOrEqual(allowed(s));
+      }
+      // Scrolled to either end, the item there is whole: drawn as it is without the fade.
+      for (const [left, n] of [[0, 0], [rtl ? -max : max, 4]] as const) {
+        await scrollTo(left);
+        const box = await bounds(member(page, id, n));
+        const shown = await page.screenshot({ clip: box });
+        await track.evaluate((el) => el.style.setProperty('mask-image', 'none'));
+        await frame();
+        const bare = await page.screenshot({ clip: box });
+        await track.evaluate((el) => el.style.removeProperty('mask-image'));
+        await frame();
+        expect(shown.equals(bare), `${dir}: item ${n} scrolled to`).toBe(true);
+      }
+    }
+    // Focus: an item that stands in the fade is scrolled clear of it, or to the end, where there is none.
+    await page.locator(`[data-fixture="${id}"]`).evaluate((el) => el.setAttribute('dir', 'ltr'));
+    await scrollTo(0);
+    await tabTo(page, member(page, id, 0));
+    for (let n = 1; n <= 3; n++) await page.keyboard.press('ArrowRight');
+    await expect(member(page, id, 3)).toBeFocused();
+    await frame();
+    const lane = await bounds(track);
+    const shown = await bounds(member(page, id, 3).locator('button'));
+    const trail = await track.evaluate((el) => el.scrollWidth - el.clientWidth - el.scrollLeft);
+    expect(shown.x + shown.width).toBeLessThanOrEqual(lane.x + lane.width - Math.min(depth, trail) + 0.5);
+  });
+
+  test('TBR-30: an item whose overflow is never that stands before one that may scroll scrolls with the others;taking never off the last item, or a menu overflow, keeps nothing at the end', async ({ page }) => {
     const id = 'inline-scroll-pinned';
     await mountFixtures(page, spec, only(id));
     const track = bar(page, id).locator('.track');

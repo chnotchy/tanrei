@@ -13,6 +13,7 @@ import { PICKER_START, given, picked, read, readCommitted } from './color-text.j
 import { disabledWaitsWhileFocused } from '../../primitives/disabled-while-focused.js';
 import { focusedAtFirst } from '../../primitives/autofocus.js';
 import { TanreiElement } from '../../primitives/element.js';
+import { DEBUG } from '../../primitives/debug.js';
 
 /** The three looks of the input box (`comp.input-box`): a filled box that draws no label (`stacked`), or the label floating inside a `filled` or `outlined` box. A design system may leave some out or add values. */
 export type TanreiColorInputVariant = keyof TanreiInputBoxVariantRegistry;
@@ -730,7 +731,7 @@ export class TanreiColorInput extends TanreiElement {
     if (changed.has('value')) {
       const set = this.held;
       const { value, valid } = given(set);
-      if (!valid) whenParsed(() => report(this, 'CLI-21', `value "${String(set)}" is not a color (a number sign and six hexadecimal digits, like #0f766e); it is treated as empty`, { once: false }));
+      if (!valid) whenParsed(() => (DEBUG && report(this, 'CLI-21', `value "${String(set)}" is not a color (a number sign and six hexadecimal digits, like #0f766e); it is treated as empty`, { once: false })));
       if (set !== value) this.value = value;
       if (value !== this.ownValue) this.took(value);
     }
@@ -762,10 +763,10 @@ export class TanreiColorInput extends TanreiElement {
   private reports() {
     if (!this.isConnected) return;
     // CLI-11: an input no Field names, with no label of its own, still renders. (A Field with an empty label says so itself: FLD-10.)
-    if (!this.label.trim() && !this.frame.state && !namedByProduct(this)) report(this, 'CLI-11', 'label is empty and no field frames it, so the color input has no accessible name; put it in a field with a label, or give it a label');
-    if (this.picker && !this.pickerLabel.trim()) report(this, 'CLI-27', 'pickerLabel is empty, so the picker button has no accessible name; give it one in the product’s language');
+    if (DEBUG && !this.label.trim() && !this.frame.state && !namedByProduct(this)) report(this, 'CLI-11', 'label is empty and no field frames it, so the color input has no accessible name; put it in a field with a label, or give it a label');
+    if (DEBUG && this.picker && !this.pickerLabel.trim()) report(this, 'CLI-27', 'pickerLabel is empty, so the picker button has no accessible name; give it one in the product’s language');
     // CLI-20: framed, the Field reports a refusal it has no words for (FLD-28).
-    if (this.entryError && !this.invalidText && !this.frame.framed) report(this, 'CLI-20', 'the text is not a color and invalidText does not say so; give the color input an invalidText that says the form the value takes');
+    if (DEBUG && this.entryError && !this.invalidText && !this.frame.framed) report(this, 'CLI-20', 'the text is not a color and invalidText does not say so; give the color input an invalidText that says the form the value takes');
   }
 
   protected override render() {

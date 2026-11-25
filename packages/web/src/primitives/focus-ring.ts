@@ -55,8 +55,8 @@ const glow = (selector: string, color = SYSTEM_COLOR) => `
  * list, a menu item in its surface: LST-10, MNU-11). It is the ring drawn around the element shrunk by the ring's
  * extent, so its corners stay concentric; the glow likewise starts that far inside and spreads out to the edge.
  * Never name an element that scrolls: the inner stroke and the glow are its `::after`, which would move away with what
- * it scrolls. Name a box over it that does not scroll — `(focus) => \`.scroll${focus} ~ .focus\`` — as the code block,
- * the dialog and the snackbar do.
+ * it scrolls. Name a box over it that does not scroll — `(focus) => \`.scroll${focus} ~ .focus\`` — with `focusRingBox()`
+ * for the box, as the code block, the dialog and the snackbar do.
  *
  * `within` is for an element with a known amount of room around it before something clips (a tab's container in its
  * track, TAB-4): a length expression. The indicator is drawn around the element where the room holds all of it, and
