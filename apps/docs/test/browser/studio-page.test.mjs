@@ -40,8 +40,8 @@ before(async () => {
 after(async () => host?.close());
 
 /** The Studio's page, opened and drawn; what the page said in its console is collected. */
-async function open(browser, { viewport = WIDE, url = '/studio/', locale = 'en-US' } = {}) {
-  const context = await browser.newContext({ viewport, locale });
+async function open(browser, { viewport = WIDE, url = '/studio/', locale = 'en-US', colorScheme = 'light' } = {}) {
+  const context = await browser.newContext({ viewport, locale, colorScheme });
   context.setDefaultTimeout(30_000);
   const page = await context.newPage();
   const problems = [];
@@ -96,6 +96,17 @@ for (const engine of ENGINES) {
         assert.equal(await page.locator('[data-rail-rows] [data-row]').count(), 9, 'the nine rows of the look');
         assert.equal(await page.locator('[data-rail] [data-row="color"]').getAttribute('aria-current'), 'true', 'the brand color is the row the panel shows');
         assert.deepEqual(problems, []);
+      } finally {
+        await close();
+      }
+    });
+
+    test('a device in dark: the page follows it, and the preview opens in dark too, until the person chooses', LIMIT, async () => {
+      const { page, close } = await open(browser, { colorScheme: 'dark' });
+      try {
+        assert.equal(await page.locator('html').getAttribute('data-tanrei-theme'), null, 'the page follows the device');
+        assert.equal(await page.locator('[data-modes]').evaluate((tabs) => tabs.value), 'dark');
+        assert.equal(await page.locator('[data-scope]').getAttribute('data-mode'), 'dark');
       } finally {
         await close();
       }

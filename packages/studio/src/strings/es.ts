@@ -391,7 +391,7 @@ const es: Dictionary = {
       card: 'Tarjeta',
       menu: 'Menú',
       system: 'Este sistema',
-      draft: 'Guardar borrador',
+      draft: 'Borrador',
       details: 'Detalles',
       add: 'Añadir',
       favorite: 'Favorito',
@@ -537,7 +537,7 @@ const es: Dictionary = {
   a11y: {
     title: 'Accesibilidad',
     help: 'Contraste y estructura según WCAG, calculados en vivo por las mismas comprobaciones de la compilación. Los umbrales son constantes: 4.5:1 para el texto, 3:1 para lo que no es texto y 7:1 para el texto en contraste alto. En la capa de un producto, un incumplimiento es una advertencia, nunca un bloqueo.',
-    pass: 'Todas las comprobaciones se superan',
+    pass: 'Todo correcto',
     warnings: (count) => (count === 1 ? '1 advertencia' : `${count} advertencias`),
     all: 'Todo lo que notificaría tanrei build',
     none: 'Nada que notificar en ninguno de los seis esquemas.',
@@ -617,7 +617,7 @@ const es: Dictionary = {
     menu: 'Punto de partida',
     starts: 'Empezar desde',
     defaultNote: 'El sistema predeterminado',
-    notInInit: 'Todavía no: la capa raíz de Tanrei ya es neutra —gris, sin color de acento—, pero la línea de comandos aún no puede empezar una capa desde ella (tanrei init --extends core). Se podrá elegir aquí cuando pueda.',
+    notInInit: 'Desde cero (próximamente)',
     gallery: 'Galería de temas',
     exampleNote: (name) => `${name}. Un ejemplo, no un diseño oficial.`,
     file: 'Importar un archivo…',
@@ -708,6 +708,7 @@ const es: Dictionary = {
   app: {
     language: 'Idioma',
     theme: 'Tema',
+    menu: 'Idioma y tema',
     noFile: 'Sin archivo asociado: los cambios se quedan en este navegador',
   },
 };

@@ -383,7 +383,7 @@ const ja: Dictionary = {
       card: 'カード',
       menu: 'メニュー',
       system: 'このシステム',
-      draft: '下書き保存',
+      draft: '下書き',
       details: '詳細',
       add: '追加',
       favorite: 'お気に入り',
@@ -609,7 +609,7 @@ const ja: Dictionary = {
     menu: '開始点',
     starts: 'ここから始める',
     defaultNote: '既定のシステム',
-    notInInit: 'まだ選べません。Tanrei のルートレイヤーはもう中立です（グレーで、アクセントはありません）。ただ、コマンドラインからはまだこのレイヤーを起点にできません（tanrei init --extends core）。できるようになると、ここでも選べます。',
+    notInInit: '白紙から（準備中）',
     gallery: 'テーマギャラリー',
     exampleNote: (name) => `${name}。例であり、公式のデザインではありません。`,
     file: 'ファイルを読み込む…',
@@ -696,6 +696,7 @@ const ja: Dictionary = {
   app: {
     language: '言語',
     theme: 'テーマ',
+    menu: '言語とテーマ',
     noFile: 'ファイル未接続 — ブラウザー内に保存します',
   },
 };

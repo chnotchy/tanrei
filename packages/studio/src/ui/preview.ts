@@ -28,8 +28,11 @@ export function createPreview(ctx: Ctx, { contrast, onContrast }: { contrast: Co
 
   // ── how the preview is seen: kept in this browser, never in the layer ─────────────────────────────
   let screen: Screen = 'overview';
-  // The first time, the scheme the page is drawn in.
-  let mode: Mode = getComputedStyle(document.documentElement).colorScheme === 'dark' || document.documentElement.getAttribute(`data-${NS}-theme`) === 'dark' ? 'dark' : 'light';
+  // The first time, the scheme the page is drawn in: the one its root names, else — a page that follows the device, as
+  // the documentation does until its reader chooses — the device's.
+  const named = document.documentElement.getAttribute(`data-${NS}-theme`);
+  const scheme = getComputedStyle(document.documentElement).colorScheme;
+  let mode: Mode = named === 'dark' || scheme === 'dark' || (!named && scheme !== 'light' && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
   try {
     const stored = JSON.parse(localStorage.getItem(STORE) ?? 'null');
     if (SCREENS.includes(stored?.screen)) screen = stored.screen;

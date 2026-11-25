@@ -118,24 +118,17 @@
   .ts-bar [data-a11y-count] {
     display: none;
   }
-}
-/* A phone, with more of the host's items than one line holds (the standalone app's brand, file, language and theme):
-   they keep the first line, and the Studio's controls take the second. */
-@media (max-width: 40rem) {
-  .ts-bar-hosted::after {
-    content: '';
-    flex-basis: 100%;
-    order: 1;
+  /* The file's state is its dot there, its word read; Build shows its glyph alone. */
+  .ts-bar .ts-file {
+    column-gap: var(--tanrei-sys-space-space50);
   }
-  .ts-bar-hosted > .ts-bar-history,
-  .ts-bar-hosted > .ts-bar-tools {
-    order: 2;
-  }
-  .ts-bar-hosted > .ts-file {
-    order: 3;
-  }
-  .ts-bar-hosted > .ts-bar-inspect {
-    order: 4;
+  .ts-save-word {
+    position: absolute;
+    inline-size: 1px;
+    block-size: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
   }
 }
 
@@ -550,9 +543,24 @@
   .ts-preview-note {
     display: none;
   }
+  /* How the screens are seen is one line under their tabs, in every language: what a phone has no room for scrolls
+     sideways in the line's own box (the bar is not three lines in Spanish), its controls kept whole. */
   .ts-preview-conditions {
+    flex-wrap: nowrap;
     justify-content: flex-start;
     margin-inline-start: 0;
+    overflow-x: auto;
+    overscroll-behavior-inline: contain;
+    scrollbar-width: none;
+    /* Room for a control's focus ring inside the box that clips it. */
+    padding: var(--tanrei-sys-focus-outer-width);
+    margin: calc(-1 * var(--tanrei-sys-focus-outer-width));
+  }
+  .ts-preview-conditions > * {
+    flex: none;
+  }
+  .ts-preview-conditions > tanrei-tabs {
+    max-inline-size: none;
   }
 }
 .ts-stale {
