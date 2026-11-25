@@ -8876,18 +8876,21 @@ only if it lies deeper than every box reported before it in that frame. A write 
 already reported, or of one above it, leaves that box undelivered. The browser then raises "ResizeObserver loop
 completed with undelivered notifications" wherever nothing above the element changes size, as in a box of fixed size.
 Prefer a layout the browser keeps by itself: a text area sized by its text (`field-sizing: content`, the text input's
-auto height), a row that wraps by itself (`flex-wrap`, the number input's steppers). Where something must still be
-written, the report only asks the read phase (`readInPhase()`), whose observer watches the root element, so its writes
-are reported in the same frame. The frame after the change then draws what was there before: say which part in the
-code. Ask the read phase as well when the element first observes, so the first frame painted is already right (the
-number input's wrapping, `FloatingLabelController`, the text input's label). Where what the first frame needs is known
-only from the observer's first report (the chat composer's widths, which it takes from the reports rather than read
-them), that report may be written in the report: every first report comes in the frame's first round of reports, with
-the read phase's report of the root element when the element asked for the phase as it began to observe, so what the
-write changes is reported again in that frame (the snackbar, the chat composer, `AutoHeight`); a later report asks the
-read phase. The tests put the element in a box of fixed size, change its width and expect no error (NMI-36, TXI-37,
-and `src/resize-loop.test.ts` for the components that measure with an observer of their own or a shared one), and a
-test that reads what follows a change of the element's box reads the frame after the change too (`shrink-to-fit`).
+auto height and `AutoHeight`, whose report then only reads the lines), a row that wraps by itself (`flex-wrap`, the
+number input's steppers). Where script must decide in the report, so that the frame of the change draws it, watch
+what the decision reads, never what it changes, and watch it on a box above everything the decision changes: the
+decision's writes are then reported again in the same frame. The chat composer watches its capsule's width on a child
+of the capsule that has no height (`.width`), which its layout cannot change, and not the capsule, whose height the
+layout changes; and it observes only the parts it did not observe yet, since an element observed again is reported
+again, as a new box no deeper than the last one reported. Where neither is possible, the report only asks the read
+phase (`readInPhase()`), whose observer watches the root element, so its writes are reported in the same frame: the
+frame after the change then draws what was there before, which a person sees as a jump on every change of width: say
+which part in the code. Ask the read phase as well when the element first observes, so the first frame painted is
+already right (the number input's wrapping, `FloatingLabelController`, the text input's label). The tests put the
+element in a box of fixed size, change its width and expect no error (NMI-36, TXI-37); `src/resize-loop.test.ts` does the same for every
+component that measures with an observer of its own or a shared one, and expects every change drawn whole in its own
+frame — the snackbar and the popover, which still lay out in the report what changes the boxes they watch, are marked
+there as known to fail.
 
 Every interactive component composes the same pieces from `src/primitives/` (and `src/styles/shape.ts`), each with its
 own selectors and its own `--tanrei-comp-<name>-*` tokens — nothing in them knows which component uses them:

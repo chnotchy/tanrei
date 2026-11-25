@@ -12,12 +12,11 @@
 // and the size transition). Each is put in a box of fixed size and changed in every way that has its observer report:
 // the box's width (or the window's, for a surface in the top layer), the text it holds, the direction, a CSS zoom.
 // Each change is made in a frame callback of its own, before that frame's layout. The probe counts the loop errors —
-// none is allowed — and the frames in which anything the element draws (its host, its shadow root's elements, its
-// children) changed size or place, each read in a task after the frame that drew it: as the element is first drawn,
-// where one is allowed (the first frame painted is at rest, MOT-3: a measure the first frame needs is not put off), and
-// after each change, which is only reported (1 where everything follows in the frame of the change, 2 or 3 where a part
-// is drawn a frame or two late by the read phase, as the component's code says, IMPLEMENTATION.md "Write nothing in a
-// resize observer's report").
+// none is allowed — and the frames in which anything the element draws (its host, what it holds, and what their shadow
+// roots hold) changed size or place, each read in a task after the frame that drew it: one as it is first drawn (MOT-3),
+// and at most one after each change — what the change makes is drawn whole in the frame of the change, and never put
+// off to a later frame to keep the observer quiet (IMPLEMENTATION.md "Write nothing in a resize observer's report").
+// A subject that still fails is marked `known`, with what it does, and expected to fail until it is fixed.
 // affected: each component — each test names in its title the components it draws.
 import { type Page, expect, test } from '@playwright/test';
 import { loadSpec, mountFixtures } from '../test/harness.js';
@@ -41,6 +40,16 @@ interface Subject {
   props: Record<string, unknown>;
   /** The element's children. */
   html?: string;
+  /**
+   * Known to fail in every engine, and why: the test then expects the failure (`test.fail`), and fails once the
+   * subject passes, to be taken off.
+   */
+  known?: string;
+  /** The spec it is drawn from, where the tag is not its own. */
+  spec?: string;
+  /** What a host is asked to show (`show()`) in the task it is connected in, and the element it draws it in. */
+  show?: Record<string, unknown>;
+  shown?: string;
   /** The element's own style attribute. */
   style?: string;
   /** Markup of the holder's own, before the element (an anchor). */
@@ -80,11 +89,38 @@ const SUBJECTS: Subject[] = [
   {
     name: 'snackbar, with its button controls (SNK-16, SNK-23, SNK-25)',
     tag: 'tanrei-snackbar',
+    known:
+      'it lays itself out in its resize watch report and watches its bar and its host, whose height the layout changes: a change of width that moves its action or its expand Button leaves them undelivered',
     props: { message: LONG, title: 'Album updated', action: 'Undo', closable: true, closeLabel: 'Close', expandLabel: 'Show more' },
     width: 600,
     height: 400,
-    fill: false,
     steps: boxSteps(600, 220, (long) => ({ props: { message: long ? LONG : SHORT } })),
+  },
+  {
+    name: 'snackbar, shown by a snackbar-host, with its button controls (SNK-13, SNK-16, SNK-23, SNK-25)',
+    tag: 'tanrei-snackbar-host',
+    spec: 'snackbar',
+    known:
+      'it lays itself out in its resize watch report and watches its bar and its host, whose height the layout changes: the window widened from 320 to 1280 takes its expand Button away and leaves them undelivered',
+    props: {},
+    show: { message: LONG, title: 'Album updated', action: 'Undo', closable: true, closeLabel: 'Close', expandLabel: 'Show more', duration: 'indefinite' },
+    shown: 'tanrei-snackbar',
+    width: 400,
+    height: 100,
+    steps: [
+      { window: { width: 600, height: 720 } },
+      { window: { width: 360, height: 640 } },
+      { window: { width: 1280, height: 720 } },
+      { window: { width: 420, height: 300 } },
+      { dir: 'rtl' },
+      { window: { width: 900, height: 500 } },
+      { window: { width: 320, height: 640 } },
+      { dir: 'ltr' },
+      { window: { width: 1280, height: 720 } },
+      { zoom: 1.5 },
+      { window: { width: 360, height: 640 } },
+      { zoom: 1 },
+    ],
   },
   {
     name: 'chat-composer, with its embedded-text-input, file-picker and button parts (CCM-4, CCM-41)',
@@ -166,6 +202,8 @@ const SUBJECTS: Subject[] = [
   },
   {
     name: 'popover, with a button anchor and button actions (POP-7, POP-30)',
+    known:
+      'it lays its actions out in its resize watch report: its container is both what the layout reads (its width, which the row of actions widens) and what it changes (its height), so the browser reports a loop when a width change turns the actions from a row to a column; and its place beside the anchor follows a change of direction a frame later',
     tag: 'tanrei-popover',
     props: { open: true, headline: 'Storage', anchor: 'probe-anchor', width: 'anchor', closable: true, closeLabel: 'Close' },
     html: `<p data-probe-text>${LONG}</p><tanrei-button slot="actions" dismissive>Cancel</tanrei-button><tanrei-button slot="actions" confirming>Manage the storage</tanrei-button>`,
@@ -272,7 +310,7 @@ interface Seen {
   steps: { frames: number; errors: number }[];
 }
 
-type Probe = { errors: string[]; changed: number; last: string; running: boolean; holder: HTMLElement; element: HTMLElement; append: boolean };
+type Probe = { errors: string[]; changed: number; last: string; running: boolean; holder: HTMLElement; element: HTMLElement; append: boolean; window: string | null };
 
 /** Builds the holder and the element, and starts counting the frames in which what it draws changes. */
 function setUp(subject: Omit<Subject, 'steps' | 'name'>): void {
@@ -290,10 +328,20 @@ function setUp(subject: Omit<Subject, 'steps' | 'name'>): void {
   element.innerHTML = subject.html ?? '';
   if (subject.style) element.setAttribute('style', subject.style);
   holder.append(element);
-  const probe: Probe = { errors, changed: 0, last: '', running: true, holder, element, append: true };
+  const probe: Probe = { errors, changed: 0, last: '', running: true, holder, element, append: true, window: null };
   // Every box the element draws, read in a task after each frame: what that frame drew.
   const signature = () => {
-    const boxes: Element[] = [element, ...element.querySelectorAll('*'), ...(element.shadowRoot?.querySelectorAll('*') ?? [])];
+    // The element, what it holds, and what the shadow roots of each of them hold.
+    const boxes: Element[] = [];
+    const add = (from: Element | ShadowRoot) => {
+      for (const box of from.querySelectorAll('*')) {
+        boxes.push(box);
+        if (box.shadowRoot) add(box.shadowRoot);
+      }
+    };
+    boxes.push(element);
+    add(element);
+    if (element.shadowRoot) add(element.shadowRoot);
     return boxes
       .map((box) => {
         const { x, y, width, height } = box.getBoundingClientRect();
@@ -305,13 +353,17 @@ function setUp(subject: Omit<Subject, 'steps' | 'name'>): void {
     if (!probe.running) return;
     // Not on the page yet: the first frame counted is the first one it is drawn in.
     const now = holder.isConnected ? signature() : '';
-    if (now !== probe.last) probe.changed++;
+    // While the window is on its way to the size a step gives it (Firefox may draw a frame between its width and its
+    // height), what is drawn is the browser's, not the element's: counted from the first frame at that size.
+    const between = probe.window !== null && `${innerWidth}x${innerHeight}` !== probe.window;
+    if (now !== probe.last && !between) probe.changed++;
     probe.last = now;
     // Appended in a task, as a product draws a view: in the task that read the frame before, so that the next frame
     // is the first to draw it and the next reading is of that frame.
     if (probe.append) {
       probe.append = false;
       document.body.append(holder);
+      if (subject.show) void (element as unknown as { show: (options: Record<string, unknown>) => Promise<unknown> }).show(subject.show);
     }
     requestAnimationFrame(() => setTimeout(sample));
   };
@@ -353,15 +405,27 @@ async function run(page: Page, { steps, name: _name, ...subject }: Subject): Pro
   await page.setViewportSize({ width: 1280, height: 720 });
   await page.evaluate(setUp, subject);
   const { frames: mount } = await page.evaluate(apply, { step: null, reset: false });
+  if (subject.shown) {
+    const drawn = await page.evaluate((selector) => {
+      const shown = (window as unknown as { probe: Probe }).probe.element.querySelector(selector);
+      return shown ? shown.getBoundingClientRect().width : 0;
+    }, subject.shown);
+    expect(drawn, `${subject.shown} is drawn`).toBeGreaterThan(0);
+  }
   const seen: Seen['steps'] = [];
   for (const step of steps) {
     if (step.window) {
       // The window is the test's to resize: the change lands between frames, as a person's does.
-      await page.evaluate(() => {
-        (window as unknown as { probe: Probe }).probe.changed = 0;
-      });
+      await page.evaluate((size) => {
+        const probe = (window as unknown as { probe: Probe }).probe;
+        probe.changed = 0;
+        probe.window = size;
+      }, `${step.window.width}x${step.window.height}`);
       await page.setViewportSize(step.window);
       seen.push(await page.evaluate(apply, { step: null, reset: false }));
+      await page.evaluate(() => {
+        (window as unknown as { probe: Probe }).probe.window = null;
+      });
     } else seen.push(await page.evaluate(apply, { step, reset: true }));
   }
   // The browser says what a frame left undelivered after that frame: one more task.
@@ -373,7 +437,8 @@ async function run(page: Page, { steps, name: _name, ...subject }: Subject): Pro
 test.describe('resize observer reports write no size', () => {
   for (const subject of SUBJECTS) {
     test(`${subject.name}: in a box of fixed size whose width, text, direction and zoom change, no frame leaves a change of size undelivered — the browser reports no "ResizeObserver loop" error`, async ({ page }) => {
-      const spec = loadSpec(subject.tag.replace(/^tanrei-/, ''));
+      test.fail(!!subject.known, subject.known);
+      const spec = loadSpec(subject.spec ?? subject.tag.replace(/^tanrei-/, ''));
       const pageErrors: string[] = [];
       page.on('pageerror', (error) => {
         if (/ResizeObserver/.test(error.message)) pageErrors.push(error.message);
@@ -384,6 +449,11 @@ test.describe('resize observer reports write no size', () => {
       expect(seen.errors).toEqual([]);
       expect(pageErrors).toEqual([]);
       expect(seen.mount, 'the frames that changed what it draws from the first one it is drawn in').toBe(1);
+      // Each change is drawn whole in the frame of the change: nothing it draws changes again in a later frame.
+      expect(
+        seen.steps.map(({ frames }, i) => ({ change: JSON.stringify(subject.steps[i]), frames })).filter(({ frames }) => frames > 1),
+        'the changes drawn in more than one frame',
+      ).toEqual([]);
     });
   }
 });
