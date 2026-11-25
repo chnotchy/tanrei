@@ -1166,10 +1166,37 @@ test.describe('the collapsed form', () => {
     expect(ca.cells[0].height).toBeGreaterThan(c.cells[0].height);
     expect(ca.cells[0].height).toBeCloseTo(above + Math.max(row / 2, ind / 2 + pad + gap + line + pad), 0);
     expect(ca.cells[0].height).toBe(68);
-    // The main action's glyph does not move WHERE its padding before the glyph is half the difference of its height and
-    // its glyph (NVD-39): measured here, and reported by the test when the system's button does not have that padding.
+    // The main action's glyph does not move, across or down, whatever the button's padding before its glyph: the drawer
+    // places the button's start from its own tokens in each form (NVD-39).
     expect(Math.abs(c.main.y - e.main.y)).toBeLessThanOrEqual(0.5);
     expect(Math.abs(c.main.x - e.main.x)).toBeLessThanOrEqual(0.5);
+    // At every size of the button, under the systems whose padding before the glyph is not half the difference of the
+    // button's height and its glyph (the default system's small and large, cupertino's), in both directions.
+    for (const system of [undefined, 'cupertino'] as const) {
+      const pairs = (['small', 'medium', 'large'] as const).flatMap((size) =>
+        (['ltr', 'rtl'] as const).map((direction) => {
+          const action = { ...MAIN, props: { label: 'Compose', size } };
+          return [
+            { ...fixture(`e-${size}-${direction}`, [MENU, action, ...MAIL], { collapsible: true }), direction },
+            { ...rail(`c-${size}-${direction}`, [action, ...MAIL]), direction },
+          ];
+        }),
+      );
+      await mount(page, pairs.flat(), { reducedMotion: true, ...(system ? { system } : {}) });
+      const glyph = async (id: string) => {
+        const p = await bounds(panel(page, id));
+        const g = centre(await bounds(drawer(page, id).locator('tanrei-main-action-button span[slot="icon"]').first()));
+        // From the drawer's start edge: its left in left to right, its right in right to left.
+        return { x: g.x - p.x, rtl: p.x + p.width - g.x, y: g.y - p.y };
+      };
+      for (const [expanded, collapsed] of pairs) {
+        const where = `${system ?? 'tanrei'} ${collapsed.id}`;
+        const [g, k] = [await glyph(expanded.id), await glyph(collapsed.id)];
+        const fromStart = (m: { x: number; rtl: number }) => (collapsed.direction === 'rtl' ? m.rtl : m.x);
+        expect(Math.abs(fromStart(k) - fromStart(g)), `${where}: across`).toBeLessThanOrEqual(0.5);
+        expect(Math.abs(k.y - g.y), `${where}: down`).toBeLessThanOrEqual(0.5);
+      }
+    }
   });
 
   test('NVD-32: collapsed, a top-level cell is a square as tall as its row — under the default system 40 by 40 with the expanded row’s corners, its icon at the point it has expanded, no label, filled exactly as the expanded row is and never a capsule — with no trailing content and none of a group’s items', async ({ page }) => {
