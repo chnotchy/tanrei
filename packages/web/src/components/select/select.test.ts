@@ -22,6 +22,7 @@ import { holdClock, releaseClock } from '../../../test/page-clock.js';
 import { LANGUAGES, LANGUAGE_FOUND, LANGUAGE_LABELS, TYPEAHEAD_FOUND, TYPEAHEAD_LABELS, typeaheadAsFiltered, typeaheadByLanguage } from '../../../test/typeahead.js';
 import { expectPressShownAndHeld, watchPress } from '../../../test/watched-press.js';
 import { type Fixture, type FixtureItem, acmeSystemCss, loadSpec, missingWords, mountFixtures, resolveColor, resolveToken, setWords, tab, tabTo, withoutIconFont, iconFaceArrives, inputBoxCopies, inputBoxOwn, inputBoxSetApart, inputBoxToken, rootTokens, mountFixtureAsInAll } from '../../../test/harness.js';
+import { coveredText } from '../../../test/covered-text.js';
 import { expectBaseline } from '../../../test/baseline.js';
 import { expectGoneWhileSkipped } from '../../../test/skipped-exit.js';
 import { expectBoxTakesContainerSize, expectOptionsTakeDrawnSize } from '../../../test/input-box-size.js';
@@ -52,8 +53,22 @@ const token = (page: P, name: string) => resolveToken(page, T(name));
 const duration = (page: P, name: string) => resolveToken(page, T(name), 'duration');
 const color = (page: P, name: string) => resolveColor(page, T(name));
 const box = async (locator: Locator) => (await locator.boundingBox())!;
-const css = (locator: Locator, property: string) => locator.evaluate((el, p) => getComputedStyle(el).getPropertyValue(p), property);
-const px = async (locator: Locator, property: string) => Number.parseFloat(await css(locator, property));
+// An edge part draws nothing itself: its ::before draws the line (EDGE_LINE).
+const css = (locator: Locator, property: string, pseudo?: string) =>
+  locator.evaluate((el, [p, ps]) => getComputedStyle(el, ps ?? undefined).getPropertyValue(p as string), [property, pseudo ?? null] as const);
+const EDGE_LINE = '::before';
+/**
+ * The duration of the transition the edge's line runs when its color changes. WebKit reports a pseudo-element's
+ * transition-duration from before a change of reduced motion, though the transition it then runs has the new one.
+ */
+const edgeMotion = (edge: Locator) =>
+  edge.evaluate((el: HTMLElement) => {
+    el.style.setProperty('--_o', 'rgb(1, 2, 3)');
+    const durations = el.getAnimations({ subtree: true }).map((a) => Number(a.effect!.getTiming().duration));
+    el.style.removeProperty('--_o');
+    return Math.max(0, ...durations);
+  });
+const px = async (locator: Locator, property: string, pseudo?: string) => Number.parseFloat(await css(locator, property, pseudo));
 const near = (actual: number, expected: number, message = '', tolerance = 0.6) => expect(Math.abs(actual - expected), `${message}: ${actual} ≈ ${expected}`).toBeLessThanOrEqual(tolerance);
 const override = (page: P, vars: Record<string, string>) => rootTokens(page, vars);
 function warnings(page: P) {
@@ -396,8 +411,8 @@ test.describe('behavior: the trigger', () => {
     for (const id of ['stacked-error-value', 'framed']) {
       expect(await container(page, id).getAttribute('aria-invalid'), id).toBe('true');
       const edge = part(page, id, '.edge');
-      expect(await css(edge, 'border-top-color'), id).toBe(await color(page, 'stacked-error-outline-color'));
-      near(await px(edge, 'border-top-width'), await token(page, 'outline-width'), `${id}: outline.width`);
+      expect(await css(edge, 'border-top-color', EDGE_LINE), id).toBe(await color(page, 'stacked-error-outline-color'));
+      near(await px(edge, 'border-top-width', EDGE_LINE), await token(page, 'outline-width'), `${id}: outline.width`);
       expect(await css(container(page, id), 'background-color'), id).toBe(await color(page, 'stacked-error-container-color'));
       expect(await css(part(page, id, '.value'), 'color'), id).toBe(await color(page, 'stacked-error-input-color'));
       expect(await css(part(page, id, '.chevron'), 'color'), id).toBe(await color(page, 'stacked-error-trailing-icon-color'));
@@ -721,7 +736,7 @@ test.describe('behavior: the trigger', () => {
     await mountSpec(page, ['stacked-value', 'stacked-error-value', 'filled-value'], { system: 'm3-like', reducedMotion: true });
     const id = 'stacked-value';
     const edge = part(page, id, '.edge');
-    expect(await css(edge, 'border-top-color'), 'no edge at rest').toBe(await color(page, 'stacked-outline-color'));
+    expect(await css(edge, 'border-top-color', EDGE_LINE), 'no edge at rest').toBe(await color(page, 'stacked-outline-color'));
     expect(await color(page, 'stacked-outline-color')).toBe('rgba(0, 0, 0, 0)');
     const height = (await box(container(page, id))).height;
     await container(page, id).hover();
@@ -731,20 +746,20 @@ test.describe('behavior: the trigger', () => {
     // Focused, with the pointer still over it: focused wins.
     await focusSelect(page, id);
     expect(await css(container(page, id), 'background-color')).toBe(await color(page, 'stacked-focused-container-color'));
-    expect(await css(edge, 'border-top-color')).toBe(await color(page, 'stacked-focused-outline-color'));
-    near(await px(edge, 'border-top-width'), await token(page, 'focused-outline-width'), 'the focused width');
+    expect(await css(edge, 'border-top-color', EDGE_LINE)).toBe(await color(page, 'stacked-focused-outline-color'));
+    near(await px(edge, 'border-top-width', EDGE_LINE), await token(page, 'focused-outline-width'), 'the focused width');
     expect(await css(part(page, id, '.chevron'), 'color')).toBe(await color(page, 'stacked-focused-trailing-icon-color'));
     near((await box(container(page, id))).height, height, 'the line takes no layout space');
     // Open, and focus gone from the document's point of view: still focused.
     await page.mouse.move(700, 500);
     await set(page, id, { open: true });
     await container(page, id).evaluate((el) => el.blur());
-    expect(await css(edge, 'border-top-color'), 'drawn focused while its list is open').toBe(await color(page, 'stacked-focused-outline-color'));
+    expect(await css(edge, 'border-top-color', EDGE_LINE), 'drawn focused while its list is open').toBe(await color(page, 'stacked-focused-outline-color'));
     await set(page, id, { open: false });
-    expect(await css(edge, 'border-top-color')).toBe(await color(page, 'stacked-outline-color'));
+    expect(await css(edge, 'border-top-color', EDGE_LINE)).toBe(await color(page, 'stacked-outline-color'));
     // In error, at rest: the error line at outline.width.
-    expect(await css(part(page, 'stacked-error-value', '.edge'), 'border-top-color')).toBe(await color(page, 'stacked-error-outline-color'));
-    near(await px(part(page, 'stacked-error-value', '.edge'), 'border-top-width'), await token(page, 'outline-width'), 'outline.width');
+    expect(await css(part(page, 'stacked-error-value', '.edge'), 'border-top-color', EDGE_LINE)).toBe(await color(page, 'stacked-error-outline-color'));
+    near(await px(part(page, 'stacked-error-value', '.edge'), 'border-top-width', EDGE_LINE), await token(page, 'outline-width'), 'outline.width');
     // Filled: the active indicator's color and width follow the state.
     const indicator = part(page, 'filled-value', '.indicator');
     near((await box(indicator)).height, await token(page, 'active-indicator-width'), 'the indicator at rest');
@@ -755,7 +770,7 @@ test.describe('behavior: the trigger', () => {
     expect(await px(container(page, id), 'transition-duration')).toBe(0);
     await page.emulateMedia({ reducedMotion: 'no-preference' });
     near((await px(container(page, id), 'transition-duration')) * 1000, await duration(page, 'motion-state-duration-medium'), 'motion.state-duration', 1);
-    near((await px(edge, 'transition-duration')) * 1000, await duration(page, 'motion-state-duration-medium'), 'the edge', 1);
+    near(await edgeMotion(edge), await duration(page, 'motion-state-duration-medium'), 'the edge', 1);
   });
 
   test('SEL-21: focus is shown by the focused tokens — the focused edge is the indicator — and never by a ring around the container; where the focus style is glow the container also glows while focused', async ({ page }) => {
@@ -767,6 +782,16 @@ test.describe('behavior: the trigger', () => {
     expect((await css(page.locator('html'), '--tanrei-sys-behavior-focus-style')).trim()).toBe('glow');
     await tabTo(page, container(page, 'one'));
     expect(await part(page, 'one', '.field').getAttribute('data-focus-style')).toBe('glow');
+    // Read in the task the focus arrives in, not a frame later: the field it is written on is not what holds the focus,
+    // and a check of that frame raced the read (BTN-10's fallback).
+    const sameTask = await container(page, 'one').evaluate((el: HTMLElement) => {
+      const field = el.closest<HTMLElement>('.field')!;
+      delete field.dataset.focusStyle;
+      el.blur();
+      el.focus();
+      return field.dataset.focusStyle ?? null;
+    });
+    expect(sameTask, 'written in the task the keyboard focus arrives in').toBe('glow');
     expect(await container(page, 'one').evaluate((el) => getComputedStyle(el, '::after').boxShadow)).not.toBe('none');
     expect(await css(container(page, 'one'), 'outline-style'), 'still no ring').toBe('none');
   });
@@ -885,7 +910,7 @@ test.describe('behavior: the trigger', () => {
     expect((await read(page, id)).focused, 'the product opened it: focus is elsewhere').toBe(false);
     expect(await css(label, 'color'), 'open: the Field’s label is drawn focused').toBe(focused);
     expect(await css(fieldRow(page, id, '.supporting-text'), 'color')).toBe(await resolveColor(page, '--tanrei-comp-field-standard-focused-supporting-text-color'));
-    expect(await css(part(page, id, '.edge'), 'border-top-color')).toBe(await color(page, 'stacked-focused-outline-color'));
+    expect(await css(part(page, id, '.edge'), 'border-top-color', EDGE_LINE)).toBe(await color(page, 'stacked-focused-outline-color'));
     await set(page, id, { open: false });
     expect(await css(label, 'color')).toBe(rest);
     // What it takes: the name, the description and the three states.
@@ -2277,7 +2302,7 @@ test.describe('behavior: conditions, exposure, size and direction', () => {
     expect(await css(part(page, id, '.value'), 'color')).toBe(await color(page, 'stacked-disabled-input-color'));
     expect(await css(part(page, id, '.chevron'), 'color')).toBe(await color(page, 'stacked-disabled-trailing-icon-color'));
     expect(await css(part(page, 'outlined-disabled', '.floating'), 'color')).toBe(await color(page, 'outlined-disabled-label-color'));
-    expect(await css(part(page, 'error', '.edge'), 'border-top-color')).toBe(await color(page, 'stacked-disabled-error-outline-color'));
+    expect(await css(part(page, 'error', '.edge'), 'border-top-color', EDGE_LINE)).toBe(await color(page, 'stacked-disabled-error-outline-color'));
     // Disabled by the Field that frames it: the same, the floating label and its asterisk included.
     expect(await container(page, 'framed').evaluate((el) => [el.getAttribute('aria-disabled'), el.hasAttribute('tabindex')])).toEqual(['true', false]);
     expect(await host(page, 'framed').evaluate((el) => (el as HTMLElement & { disabled: boolean }).disabled), 'its own disabled is not set').toBe(false);
@@ -2312,7 +2337,7 @@ test.describe('behavior: conditions, exposure, size and direction', () => {
     expect([await read(page, id), await heard(page)]).toMatchObject([{ shown: false, focused: true, value: 'jp', expanded: 'false' }, []]);
     await expect(part(page, id, '.chevron')).toHaveCount(0);
     // As an enabled select: the resting, focused and hovered colors of one.
-    expect(await css(part(page, id, '.edge'), 'border-top-color')).toBe(await color(page, 'stacked-focused-outline-color'));
+    expect(await css(part(page, id, '.edge'), 'border-top-color', EDGE_LINE)).toBe(await color(page, 'stacked-focused-outline-color'));
     await container(page, id).evaluate((el) => el.blur());
     await page.mouse.move(700, 600);
     expect(await css(container(page, id), 'background-color')).toBe(await css(container(page, 'stacked-value'), 'background-color'));
@@ -3506,6 +3531,7 @@ test.describe('accessibility', () => {
       await mountFixtures(page, spec, { icons: true, theme });
       const results = await new AxeBuilder({ page }).include('.stage').analyze();
       expect(results.violations.map((v) => `${v.id}: ${v.nodes.map((n) => n.target.join(' ')).slice(0, 3).join(' | ')}`), theme).toEqual([]);
+      expect(await coveredText(page, results), `${theme}: no text left unchecked as covered`).toEqual([]);
     });
 
     test(`axe: the list in the top layer — opened by the keyboard, an option active, one disabled, groups — has no violations in ${theme}`, async ({ page }) => {

@@ -2,7 +2,7 @@
 title: Búsqueda
 description: Una barra de búsqueda, o un activador compacto que la sustituye, que ofrece sugerencias y resultados mientras se escribe, en una vista acoplada bajo la barra, en un diálogo o sobre toda la pantalla.
 translationOf: components/search.mdx
-sourceHash: 11d9e1397261b0819d2bef1e501d6ccb07026567
+sourceHash: 87e54cec8f3d4d2e0768803223eff17b2149817e
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -429,7 +429,7 @@ Carencias conocidas por plataforma:
 - El estado deshabilitado alcanza a los botones de icono de los slots, que la especificación deja en su propio estado: el `.disabled(true)` de SwiftUI los deshabilita también, y en la web una opacidad de deshabilitado inferior a 1 los atenuaría. La opacidad de deshabilitado de todos los sistemas incluidos es 1.
 - SwiftUI dibuja la vista acoplada por encima de lo que el propio contenedor de la búsqueda contiene después de ella, no por encima de todas las vistas de la ventana. Coloca la búsqueda hacia el final de su contenedor, o súbela con `zIndex`. En macOS no se lee la altura de la ventana, así que la vista siempre se abre debajo con su altura natural, y la vista a pantalla completa es una hoja tan grande como la ventana.
 - SwiftUI: el resaltado de la selección sigue el tinte del cursor de texto, no el color de selección del campo de texto. El primer toque en un campo de entrada sin foco pone el cursor de texto al final de la consulta, no donde cayó el toque. Las teclas se prueban solo en macOS, no con un teclado físico en iOS.
-- Compose no puede distinguir un puntero fino de un toque, así que sus filas de sugerencia miden siempre 48 de alto, mientras que las de la web miden 44 con un ratón. Sus pruebas no alcanzan una pulsación fuera de la vista acoplada.
+- Compose no puede distinguir un puntero fino de un toque, así que sus filas de sugerencia miden siempre 48 de alto, mientras que las de la web miden la altura de control con un ratón (40 en el sistema por defecto). Sus pruebas no alcanzan una pulsación fuera de la vista acoplada.
 - Flutter: una vista acoplada que el producto abre con `expand()` mientras el campo de entrada no tiene el foco no se cierra con una pulsación fuera. La vista a pantalla completa necesita un `Navigator`; sin él, la vista es acoplada.
 - React Native: la vista acoplada se coloca cuando se abre y cuando cambian la ventana o el teclado, pero no sigue a la barra mientras esta se desplaza. Esc, las teclas de flecha y Tab llegan solo donde `TextInput` las entrega, y la superposición y los movimientos del foco de la vista a pantalla completa aún no se han comprobado en un dispositivo.
 - Con `cupertino`, la barra no dibuja borde de foco, ya que un campo de búsqueda de iOS muestra el foco solo con su cursor de texto y con el teclado.

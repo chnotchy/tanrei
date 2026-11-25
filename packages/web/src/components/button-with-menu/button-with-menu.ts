@@ -3,6 +3,7 @@ import { classMap } from 'lit/directives/class-map.js';
 import { hiddenHost } from '../../primitives/hidden.js';
 import {
   AvailabilityController,
+  GlyphDrawnController,
   GlyphMirrorController,
   GroupItemController,
   type GroupPlace,
@@ -27,6 +28,7 @@ import { AXES, CORE_SIZES, TRAILING_WIDTHS, styles } from './button-with-menu.st
 import { focusedAtFirst } from '../../primitives/autofocus.js';
 import { TanreiElement } from '../../primitives/element.js';
 import { WordsController } from '../../primitives/words.js';
+import { DEBUG } from '../../primitives/debug.js';
 
 /** The core variants (filled, tonal, elevated, outlined), plus any a design system's generated `.d.ts` registers. */
 export type TanreiButtonWithMenuVariant = keyof TanreiButtonWithMenuVariantRegistry;
@@ -44,6 +46,9 @@ export interface TanreiButtonWithMenuToggleDetail {
 export interface TanreiButtonWithMenuCloseDetail {
   reason: TanreiMenuCloseReason;
 }
+
+/** SPB-13: the chevron the button with menu draws itself, the chevron slot's fallback content. */
+const CHEVRON_GLYPH = 'expand_more';
 
 /** The menu's item kinds, as the menu spec defines them: what the menu slot presents. */
 const MENU_CONTENT = 'tanrei-menu-item, tanrei-menu-checkbox-item, tanrei-menu-radio-item, tanrei-submenu';
@@ -318,6 +323,12 @@ export class TanreiButtonWithMenu extends TanreiElement {
    */
   private readonly mirror = new GlyphMirrorController(this, { slots: 'slot.icon-slot, slot.chevron-slot, slot.chevron-open-slot' });
 
+  /**
+   * SPB-41: the icon's box and each chevron's carry `data-drawn` while the icon set can draw what their slot holds — the
+   * product's glyph, or expand_more; until then they draw nothing (src/primitives/glyph.ts).
+   */
+  private readonly glyphs = new GlyphDrawnController(this, () => this.renderRoot.querySelectorAll<HTMLElement>('.icon, .chevron'), { slotted: true });
+
   // SPB-39: a busy leading half shows no pressed state.
   private readonly leadingPress = new PressController(this, {
     container: () => this.leading,
@@ -472,7 +483,7 @@ export class TanreiButtonWithMenu extends TanreiElement {
   private checkEmptyMenu() {
     if (!this.menuSettled) return;
     const empty = !this.hasItems;
-    if (empty && this.menuWasEmpty !== true) {
+    if (DEBUG && empty && this.menuWasEmpty !== true) {
       report(this, 'SPB-20', 'the menu slot holds no item, so the trailing half toggles but no menu is presented; give it tanrei-menu-item children with slot="menu"', { once: false });
     }
     this.menuWasEmpty = empty;
@@ -664,7 +675,7 @@ export class TanreiButtonWithMenu extends TanreiElement {
     // default by the host's own rules, SPB-8).
     this.sizes.syncState(this.internals);
     // SPB-22: a hoverDelay the button with menu cannot use waits for the token; a debug build says so.
-    if (changed.has('hoverDelay') && this.hoverDelay !== null && this.hoverDelay !== undefined && !this.validHoverDelay) {
+    if (DEBUG && changed.has('hoverDelay') && this.hoverDelay !== null && this.hoverDelay !== undefined && !this.validHoverDelay) {
       report(this, 'SPB-22', `hoverDelay ${String(this.hoverDelay)} is not a number of milliseconds of 0 or more; the menu opens on hover after comp.button-with-menu.motion.hover-open-delay`);
     }
     if (changed.has('open')) {
@@ -711,14 +722,14 @@ export class TanreiButtonWithMenu extends TanreiElement {
     });
     // SPB-21: each chevron slot draws its first glyph; a debug build reports the rest.
     for (const [key, name] of [['chevronChildren', 'chevron'], ['chevronOpenChildren', 'chevron-open']] as const) {
-      if (changed.has(key) && this[key].length > 1) report(this, 'SPB-21', `the ${name} slot holds ${this[key].length} glyphs; only the first is drawn`);
+      if (DEBUG && changed.has(key) && this[key].length > 1) report(this, 'SPB-21', `the ${name} slot holds ${this[key].length} glyphs; only the first is drawn`);
     }
     if (this.turning && (changed.has('open') || changed.has('disabled'))) this.startTurn();
     // SPB-8: a separation or a trailing width it does not define is drawn as the default (no rule matches it) and reported.
-    if (changed.has('separation') && !(SEPARATION_VALUES as readonly string[]).includes(this.separation)) {
+    if (DEBUG && changed.has('separation') && !(SEPARATION_VALUES as readonly string[]).includes(this.separation)) {
       report(this, 'SPB-8', `separation "${this.separation}" is not a value of the button with menu; it is drawn as "auto"`);
     }
-    if (changed.has('trailingWidth') && !(TRAILING_WIDTHS as readonly string[]).includes(this.trailingWidth)) {
+    if (DEBUG && changed.has('trailingWidth') && !(TRAILING_WIDTHS as readonly string[]).includes(this.trailingWidth)) {
       report(this, 'SPB-8', `trailingWidth "${this.trailingWidth}" is not a value of the button with menu; it is drawn as "default"`);
     }
     // SPB-30: without style queries, the name the cascade gives now is written for the styles to match.
@@ -732,11 +743,11 @@ export class TanreiButtonWithMenu extends TanreiElement {
     if ((changed.has('busy') || changed.has('disabled')) && this.busyNow) {
       const words = this.words.get('busyLabel', this.busyLabel);
       if (words) announceBusy(this.renderRoot, words, () => this.busyNow);
-      else this.words.missing('busyLabel', { id: 'SPB-40', effect: 'the leading half is busy and nothing tells people who cannot see the arc that it is working' });
+      else this.words.missing('busyLabel', DEBUG && { id: 'SPB-40', effect: 'the leading half is busy and nothing tells people who cannot see the arc that it is working' });
     }
     // SPB-20: a half without a name still renders; a debug build says so (the empty menu: checkEmptyMenu()).
-    if (changed.has('label') && !this.label.trim() && !namedByProduct(this)) report(this, 'SPB-20', 'label is empty, so the leading half has no accessible name; give it a label');
-    if (changed.has('menuLabel') && !this.menuLabel.trim()) {
+    if (DEBUG && changed.has('label') && !this.label.trim() && !namedByProduct(this)) report(this, 'SPB-20', 'label is empty, so the leading half has no accessible name; give it a label');
+    if (DEBUG && changed.has('menuLabel') && !this.menuLabel.trim()) {
       report(this, 'SPB-20', 'menuLabel is empty, so the trailing half has no accessible name; say what the menu offers ("More save options")');
     }
   }
@@ -803,7 +814,7 @@ export class TanreiButtonWithMenu extends TanreiElement {
           @focus=${this.onFocus}
         >
           <span class="chevrons" aria-hidden="true">
-            <span class="turn"><span part="chevron" class="chevron"><slot class="chevron-slot" name="chevron">expand_more</slot></span></span>
+            <span class="turn"><span part="chevron" class="chevron"><slot class="chevron-slot" name="chevron"><span>${CHEVRON_GLYPH}</span></slot></span></span>
             <span class="glyph-open"><span part="chevron" class="chevron"><slot class="chevron-open-slot" name="chevron-open"></slot></span></span>
           </span>
         </button>

@@ -12,6 +12,7 @@ import { expectBaseline } from '../../../test/baseline.js';
 import { motionCount, motionEnded } from '../../../test/motions.js';
 import { mirroring, mirroringAfterDirection } from '../../../test/mirror-word.js';
 import { CONTROL_HEIGHTS, atControlHeight } from '../../../test/control-height.js';
+import { contrastChecked } from '../../../test/contrast-checked.js';
 
 const spec = loadSpec('tab-view');
 type P = Page;
@@ -1354,9 +1355,13 @@ test.describe('a shared choice', () => {
     expect(await page.evaluate(() => ((window as any).opened as string[]).sort())).toEqual(['f:react', 'k:react', 'r:swiftui']);
     expect([await switches(page, 'r'), await switches(page, 'f'), await switches(page, 'k')]).toEqual([0, 0, 0]);
     // A person's choice on the view is stored under the view's key by the row it draws (TBV-16, TAB-39).
-    await tabAt(page, 'r', 3).click();
+    // The view below is chosen on first: a view's switch keeps its container as tall as the taller panel and takes the
+    // new one's height when it ends (TBV-11), so everything below r — f's row among it — moves a line up at that
+    // moment, and a click on f made while r switches can be pressed on the tab and released beside it. f's own
+    // switch moves only what is below f.
     await tabAt(page, 'f', 0).click();
-    expect(await page.evaluate(() => (window as any).writes)).toEqual([['view-key', 'flutter'], ['group-key', 'web']]);
+    await tabAt(page, 'r', 3).click();
+    expect(await page.evaluate(() => (window as any).writes)).toEqual([['group-key', 'web'], ['view-key', 'flutter']]);
   });
 
   test('TBV-16: the row a view draws itself takes the view’s group and rememberAs, at first and when they change, and is the member of the group', async ({ page }) => {
@@ -1726,4 +1731,17 @@ test.describe('test frames', () => {
       await expectBaseline(page.locator('[data-fixture="default"]'), [spec.name, `${name}.png`]);
     });
   }
+});
+
+test.describe('accessibility: what is drawn over a label', () => {
+  test('TBV-9: the ring over every tab of the view\'s row hides no label from a contrast check — the labels and the panel are checked, a faint text in the panel is reported', async ({ page }) => {
+    // An element drawn over a text is, to axe's color-contrast, an element covering it, whatever its pointer-events: it
+    // left the text incomplete ("overlapped by another element") instead of checking it, so faint text passed unseen.
+    await mountFixtures(page, spec, { icons: true, fixtures: [fixture('marked', [p('overview', '<p data-text="faint" style="margin: 0; color: #bbb">Faint text</p><p data-text="normal" style="margin: 0">Readable text</p>'), p('activity'), p('settings')])] });
+    const checked = await contrastChecked(page);
+    expect(checked.violations, 'the faint text is reported').toEqual(['faint']);
+    expect(checked.passes, 'the row\'s labels and the panel\'s text pass').toEqual(['Activity', 'Overview', 'Settings', 'normal']);
+    // The selected tab's own label lies under its covered copy (TAB-17), which is what is drawn there and is checked.
+    expect(checked.incomplete, 'nothing else is left unchecked').toEqual(['Overview']);
+  });
 });

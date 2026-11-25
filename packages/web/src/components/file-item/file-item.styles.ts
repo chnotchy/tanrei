@@ -1,5 +1,5 @@
 import { css, unsafeCSS } from 'lit';
-import { focusRing, iconGlyph, minimumTarget, pressHold, rippleStyles, stateRules } from '../../primitives/index.js';
+import { drawnAsNoElement, focusRing, iconGlyph, minimumTarget, pressHold, rippleStyles, stateRules } from '../../primitives/index.js';
 import { hiddenHost } from '../../primitives/hidden.js';
 import { productText } from '../../styles/product-text.js';
 import { cornerRadius, shape } from '../../styles/shape.js';
@@ -395,6 +395,15 @@ export const styles = css`
     background-color: var(--_layer);
     transition: background-color ${t('motion-state-duration')} ${t('motion-state-easing')};
   }
+  /* In a row the layer lies over the name and the second line: it holds its color (and runs its transition) and draws
+     it by its ::before, as no element, at the same place in the paint order, under the ripple — an element over a text
+     is what a contrast checker sees covering it, and it would leave that text unchecked. */
+  ${drawnAsNoElement('.layer', ['background-color'], { fill: true })}
+  /* The layer clips what it holds to its corners: the color fills it square and takes its corners from that one clip, as
+     the layer's own background did (rounded twice, by its own radius and by the clip, its corners would be paler). */
+  .layer::before {
+    border-radius: 0;
+  }
   /* A row's pressable body IS those bounds: it is grown by the outset on every side and takes it back as a margin, so
      its content stands where it stood and the row is no larger — and the layer, the focus ring around it (FIT-14) and
      the press that lands on it are one box. A body that is not pressable is left as it is. */
@@ -496,11 +505,11 @@ export const styles = css`
      between two goes to the nearer one. */
   ${minimumTarget('.action')}
   .action::before {
-    inline-size: min(max(100%, var(--_target)), calc(100% + var(--_action-gap)));
-    block-size: min(max(100%, var(--_target)), calc(var(--_lines) + var(--_between)));
+    --_hit-inline-size: min(max(100%, var(--_target)), calc(100% + var(--_action-gap)));
+    --_hit-block-size: min(max(100%, var(--_target)), calc(var(--_lines) + var(--_between)));
   }
   ${unsafeCSS(on('tile'))} .action::before {
-    block-size: min(max(100%, var(--_target)), calc(100% + ${t('tile-action-inset')} * 2));
+    --_hit-block-size: min(max(100%, var(--_target)), calc(100% + ${t('tile-action-inset')} * 2));
   }
   /* FIT-18, FIT-24: the hit area of the action at a file item's end reaches no further toward the end than the item's
      own edge — the row's end, which is the action's; in a tile the inset around it. A hit area that reached past it
@@ -514,7 +523,6 @@ export const styles = css`
     --_end: min(var(--_lacks) / 2, var(--_toward-end));
     inset-inline-start: calc(-1 * min(var(--_lacks) - var(--_end), var(--_toward-start)));
     inset-inline-end: calc(-1 * var(--_end));
-    inline-size: auto;
   }
   /* FIT-18: the action before another reaches half of what it lacks toward the texts, as alone, and half the space
      between the two toward the action after it — which reaches the other half — so that a press between them goes to
@@ -523,13 +531,6 @@ export const styles = css`
     --_lacks: max(0px, var(--_target) - 100%);
     inset-inline-start: calc(-1 * var(--_lacks) / 2);
     inset-inline-end: calc(-1 * var(--_action-gap) / 2);
-    inline-size: auto;
-  }
-  .action:last-child::before,
-  :host(:dir(rtl)) .action:last-child::before,
-  .item .action:not(:last-child)::before,
-  :host(:dir(rtl)) .item .action:not(:last-child)::before {
-    transform: translateY(-50%);
   }
   ${unsafeCSS(on('tile'))} .action:last-child::before {
     --_toward-end: ${t('tile-action-inset')};

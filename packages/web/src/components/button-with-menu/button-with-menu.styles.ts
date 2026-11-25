@@ -411,6 +411,13 @@ export const styles = css`
   .leading:not(.with-icon) .icon {
     display: none;
   }
+  /* SPB-41: nothing in a glyph's place until the icon set can draw it (GlyphDrawnController sets data-drawn) — never its
+     name spelled in a text face; the slotted glyph (or expand_more) inherits the slot's visibility, and the box keeps
+     its size. */
+  .icon:not([data-drawn]) slot,
+  .chevron:not([data-drawn]) slot {
+    visibility: hidden;
+  }
   /* An image or an SVG given as the icon fills the icon box. */
   ::slotted(svg),
   ::slotted(img) {

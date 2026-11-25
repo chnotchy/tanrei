@@ -47,6 +47,7 @@ test('every event prop is `on` and the event in camelCase; the event it listens 
     ['onExpandedChange', 'expandedchange'],
     ['onFilterChange', 'filterchange'],
     ['onPresentationChange', 'presentationchange'],
+    ['onStandardHiddenChange', 'standardhiddenchange'],
     ['onWidthChange', 'widthchange'],
   ]);
   // The snackbar's spec maps its `toggle` onto `expandedchange`: the prop is the event's own name, cased as another spec writes it.

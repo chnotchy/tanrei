@@ -20,6 +20,7 @@ import { fillPlaces, reportPlaces } from '../../primitives/places.js';
 import { WordsController } from '../../primitives/words.js';
 import { AXES, styles } from './pagination.styles.js';
 import { TanreiElement } from '../../primitives/element.js';
+import { DEBUG } from '../../primitives/debug.js';
 
 /** numbered: the page numbers, drawn compact where they do not fit; compact: the controls and the sentence alone. */
 export type TanreiPaginationVariant = 'numbered' | 'compact';
@@ -514,24 +515,24 @@ export class TanreiPagination extends TanreiElement {
     const count = TanreiPagination.whole(this.count);
     if (changed.has('count') && (Number.isNaN(count) || count !== this.count)) {
       const written = this.getAttribute('count') ?? String(this.count);
-      report(this, 'PGN-3', Number.isNaN(count) ? `count "${written}" cannot be read as a number; nothing is drawn` : `count ${written} is not a whole number; it is read as ${count}`);
+      if (DEBUG) report(this, 'PGN-3', Number.isNaN(count) ? `count "${written}" cannot be read as a number; nothing is drawn` : `count ${written} is not a whole number; it is read as ${count}`);
     }
     const pages = this.pages;
     if (pages < 1) return;
-    if ((changed.has('page') || changed.has('count')) && this.current !== this.page) {
+    if (DEBUG && (changed.has('page') || changed.has('count')) && this.current !== this.page) {
       report(this, 'PGN-3', `page ${String(this.page)} is not a whole number from 1 to the count (${pages}); page ${this.current} is drawn as the current one`, { once: false });
     }
     for (const prop of ['siblings', 'boundaries'] as const) {
-      if (changed.has(prop) && TanreiPagination.atLeastZero(this[prop]) !== this[prop]) {
+      if (DEBUG && changed.has(prop) && TanreiPagination.atLeastZero(this[prop]) !== this[prop]) {
         report(this, 'PGN-3', `${prop} ${String(this[prop])} is not a whole number of 0 or more; it is read as ${TanreiPagination.atLeastZero(this[prop])}`);
       }
     }
-    if (!(this.label ?? '').trim() && !namedByProduct(this)) report(this, 'PGN-1', 'label is empty, so the navigation landmark has no accessible name; give it the words ("Pages")');
-    if (!VARIANTS.includes(this.variant)) report(this, 'PGN-11', `variant "${String(this.variant)}" is not a value it defines ("numbered" or "compact"); it is drawn as "numbered"`);
+    if (DEBUG && !(this.label ?? '').trim() && !namedByProduct(this)) report(this, 'PGN-1', 'label is empty, so the navigation landmark has no accessible name; give it the words ("Pages")');
+    if (DEBUG && !VARIANTS.includes(this.variant)) report(this, 'PGN-11', `variant "${String(this.variant)}" is not a value it defines ("numbered" or "compact"); it is drawn as "numbered"`);
     const href = this.href ?? '';
     if (href.trim() && this.template === null) {
       const read = fillPlaces(href, { page: '1' });
-      report(
+      if (DEBUG) report(
         this,
         'PGN-6',
         !read.used.has('page')
@@ -542,18 +543,18 @@ export class TanreiPagination extends TanreiElement {
     const controls: Control[] = this.firstLast ? ['first', 'previous', 'next', 'last'] : ['previous', 'next'];
     const keys = { first: ['firstPageLabel', 'firstLabel'], previous: ['previousPageLabel', 'previousLabel'], next: ['nextPageLabel', 'nextLabel'], last: ['lastPageLabel', 'lastLabel'] } as const;
     for (const control of controls) {
-      if (!this.controlName(control)) this.words.missing(keys[control][0], { prop: keys[control][1], id: 'PGN-8', effect: `the ${control} control is drawn and has no accessible name` });
+      if (!this.controlName(control)) this.words.missing(keys[control][0], DEBUG && { prop: keys[control][1], id: 'PGN-8', effect: `the ${control} control is drawn and has no accessible name` });
     }
     if (this.compact) {
       const sentence = this.words.get('pageCountText', this.countText ?? '');
-      if (!sentence) this.words.missing('pageCountText', { prop: 'countText', id: 'PGN-11', effect: 'the two numbers are drawn with a slash between them' });
-      else if (this.countText) reportPlaces(this, 'PGN-11', 'countText', sentence, wordPlaces.pageCountText ?? [], 'it is drawn as it is written');
+      if (!sentence) this.words.missing('pageCountText', DEBUG && { prop: 'countText', id: 'PGN-11', effect: 'the two numbers are drawn with a slash between them' });
+      else if (DEBUG && this.countText) reportPlaces(this, 'PGN-11', 'countText', sentence, wordPlaces.pageCountText ?? [], 'it is drawn as it is written');
     } else {
       const sentence = this.words.get('pageLabel', this.pageLabel ?? '');
-      if (!sentence) this.words.missing('pageLabel', { prop: 'pageLabel', id: 'PGN-9', effect: 'each page is named by its number alone' });
+      if (!sentence) this.words.missing('pageLabel', DEBUG && { prop: 'pageLabel', id: 'PGN-9', effect: 'each page is named by its number alone' });
       else {
-        if (this.pageLabel) reportPlaces(this, 'PGN-9', 'pageLabel', sentence, wordPlaces.pageLabel ?? [], 'it is used as it is written');
-        if (!fillPlaces(sentence, { page: '' }).used.has('page')) report(this, 'PGN-9', `pageLabel "${sentence}" holds no place {page}, so it would not hold the number drawn; each page is named by its number alone`);
+        if (DEBUG && this.pageLabel) reportPlaces(this, 'PGN-9', 'pageLabel', sentence, wordPlaces.pageLabel ?? [], 'it is used as it is written');
+        if (DEBUG && !fillPlaces(sentence, { page: '' }).used.has('page')) report(this, 'PGN-9', `pageLabel "${sentence}" holds no place {page}, so it would not hold the number drawn; each page is named by its number alone`);
       }
     }
   }

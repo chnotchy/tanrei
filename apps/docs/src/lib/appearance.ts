@@ -34,8 +34,10 @@
 //                       default system's on the root (Theme Studio's page sheet) — under the build's key and the
 //                       layer's hash; computed in a worker where it is not there (lib/custom-theme.ts).
 //   the page            `docs-appearance` (a CustomEvent on `document`, its detail the appearance shown) whenever it
-//                       changes — here, in another tab of the site (the `storage` event), or with the device's scheme
-//                       while the mode is the device's.
+//                       changes — here, in another tab of the site (the `storage` event), with the device's scheme
+//                       while the mode is the device's, or because the look's stylesheet came too late for the page
+//                       (`LATE_ATTR`, which the head's script sets and announces the same way). What is shown is read
+//                       from `<html>`: the header's controls say what is drawn, never what was asked for.
 //   the address         `?look=<id>&mode=<mode>&contrast=<contrast>`: a link to a page as someone else sees it. It is
 //                       shown on that page and not kept: the header offers to keep it (Header.astro), and any choice the
 //                       reader makes from there is kept whole and leaves the address.
@@ -273,6 +275,8 @@ export function linkSheet(href: string, id: string, render: boolean, done: (load
 /** What the head's script and the module are told: the looks and the names. */
 export interface BootConfig {
   key: string;
+  /** The event sent on `document` when the head's script changes the appearance shown (a look that came too late). */
+  event: string;
   /**
    * Every look that is a shipped system, the default first, with the address of the stylesheet that draws it over the
    * default system's on the root (lib/look-sheets.mjs) — null for the default, which every page holds already.
@@ -299,6 +303,7 @@ export interface BootConfig {
  */
 export const bootConfig = (looks: string[], build = '', worker: string | null = null, sheets: Readonly<Record<string, string>> = {}): BootConfig => ({
   key: APPEARANCE_KEY,
+  event: APPEARANCE_EVENT,
   looks: Object.fromEntries(looks.map((look, at) => [look, at === 0 ? null : (sheets[look] ?? null)])),
   defaultLook: looks[0] ?? '',
   names: { theme: THEME_ATTR, tanreiTheme: TANREI_THEME_ATTR, mode: MODE_ATTR, contrast: CONTRAST_ATTR, look: LOOK_ATTR },
@@ -319,10 +324,11 @@ export const sheetKey = (build: string, hash: string) => `${build}:${hash}`;
  * was measured under the default system's tokens is measured again before it is drawn. Where IndexedDB holds no sheet
  * for it, the script starts the worker that computes one (`EARLY_WORKER`, where the build names its script) and runs
  * at once the module after it, which takes the worker. A hidden page is shown after `REVEAL_AFTER` whatever happens: a
- * sheet not in by then is not used on that page (a gallery example's is fetched for the next one, `prefetch`).
+ * sheet not in by then is not used on that page (a gallery example's is fetched for the next one, `prefetch`), and the
+ * change of look is announced as any other is (`docs-appearance`): the header then says what is drawn.
  */
 export function appearanceBootstrap(config: BootConfig): string {
-  return `(function(c){var me=document.currentScript,normalize=${normalize},sharedFrom=${sharedFrom},attributesOf=${attributesOf},customOf=${customOf},readSheet=${readSheet},placeSheet=${placeSheet},linkSheet=${linkSheet};var looks=Object.keys(c.looks),stored=null,custom=null;try{stored=JSON.parse(localStorage.getItem(c.key)||'null')}catch(e){}try{custom=customOf(JSON.parse(localStorage.getItem(c.custom.key)||'null'))}catch(e){}var asked=sharedFrom(location.search),given=stored&&typeof stored==='object'?stored:{},merged={};for(var k in given)merged[k]=given[k];if(asked)for(var a in asked)merged[a]=asked[a];var shown=normalize(merged,looks,c.defaultLook,!!custom),root=document.documentElement,attrs=attributesOf(shown,matchMedia('(prefers-color-scheme: dark)').matches,c.names);for(var n in attrs){if(attrs[n]===null)root.removeAttribute(n);else root.setAttribute(n,attrs[n])}if(asked)root.setAttribute(c.shared,'');if(custom)root.setAttribute(c.custom.available,'');var late=function(){root.setAttribute(c.names.look,c.defaultLook);root.setAttribute(c.sheet.late,shown.look)},href=c.looks[shown.look];if(href){var settled=false,blocks=linkSheet(href,c.sheet.id,true,function(loaded){settled=true;if(!loaded)late();root.removeAttribute(c.sheet.pending)});if(!blocks&&!settled){root.setAttribute(c.sheet.pending,'');setTimeout(function(){if(settled)return;var link=document.getElementById(c.sheet.id);if(link)link.remove();var next=document.createElement('link');next.rel='prefetch';next.href=href;document.head.appendChild(next);late();root.removeAttribute(c.sheet.pending)},c.sheet.wait)}}if(custom&&shown.look===c.custom.look){root.setAttribute(c.sheet.pending,'');var key=c.custom.build+':'+custom.hash;setTimeout(function(){if(!root.hasAttribute(c.sheet.pending))return;if(!document.getElementById(c.sheet.id))late();root.removeAttribute(c.sheet.pending)},c.sheet.wait);var held=null;try{held=localStorage.getItem(c.custom.held)}catch(e){}var answer=function(css){if(root.getAttribute(c.names.look)!==c.custom.look)return;if(css===null){root.setAttribute(c.custom.missing,key);if(c.custom.worker&&typeof Worker==='function')try{window[c.custom.early]=new Worker(c.custom.worker,{type:'module'})}catch(e){}if(me&&me.parentNode&&typeof MutationObserver==='function'){var start=function(){var next=me.nextElementSibling;while(next&&next.localName!=='script')next=next.nextElementSibling;if(!next)return false;if(next.type==='module'&&next.src){var early=document.createElement('script');early.type='module';early.src=next.src;document.head.appendChild(early)}return true};if(!start()){var parsed=new MutationObserver(function(){if(start())parsed.disconnect()});parsed.observe(me.parentNode,{childList:true})}}return}placeSheet(css,key,c.sheet.id);requestAnimationFrame(function(){requestAnimationFrame(function(){root.removeAttribute(c.sheet.pending)})})};if(held===key)readSheet(c.custom.db,c.custom.store,key,answer);else answer(null)}})(${JSON.stringify(config)})`;
+  return `(function(c){var me=document.currentScript,normalize=${normalize},sharedFrom=${sharedFrom},attributesOf=${attributesOf},customOf=${customOf},readSheet=${readSheet},placeSheet=${placeSheet},linkSheet=${linkSheet};var looks=Object.keys(c.looks),stored=null,custom=null;try{stored=JSON.parse(localStorage.getItem(c.key)||'null')}catch(e){}try{custom=customOf(JSON.parse(localStorage.getItem(c.custom.key)||'null'))}catch(e){}var asked=sharedFrom(location.search),given=stored&&typeof stored==='object'?stored:{},merged={};for(var k in given)merged[k]=given[k];if(asked)for(var a in asked)merged[a]=asked[a];var shown=normalize(merged,looks,c.defaultLook,!!custom),root=document.documentElement,attrs=attributesOf(shown,matchMedia('(prefers-color-scheme: dark)').matches,c.names);for(var n in attrs){if(attrs[n]===null)root.removeAttribute(n);else root.setAttribute(n,attrs[n])}if(asked)root.setAttribute(c.shared,'');if(custom)root.setAttribute(c.custom.available,'');var late=function(){root.setAttribute(c.names.look,c.defaultLook);root.setAttribute(c.sheet.late,shown.look);document.dispatchEvent(new CustomEvent(c.event,{detail:{appearance:{mode:shown.mode,contrast:shown.contrast,look:c.defaultLook},shared:!!asked}}))},href=c.looks[shown.look];if(href){var settled=false,blocks=linkSheet(href,c.sheet.id,true,function(loaded){settled=true;if(!loaded)late();root.removeAttribute(c.sheet.pending)});if(!blocks&&!settled){root.setAttribute(c.sheet.pending,'');setTimeout(function(){if(settled)return;var link=document.getElementById(c.sheet.id);if(link)link.remove();var next=document.createElement('link');next.rel='prefetch';next.href=href;document.head.appendChild(next);late();root.removeAttribute(c.sheet.pending)},c.sheet.wait)}}if(custom&&shown.look===c.custom.look){root.setAttribute(c.sheet.pending,'');var key=c.custom.build+':'+custom.hash;setTimeout(function(){if(!root.hasAttribute(c.sheet.pending))return;if(!document.getElementById(c.sheet.id))late();root.removeAttribute(c.sheet.pending)},c.sheet.wait);var held=null;try{held=localStorage.getItem(c.custom.held)}catch(e){}var answer=function(css){if(root.getAttribute(c.names.look)!==c.custom.look)return;if(css===null){root.setAttribute(c.custom.missing,key);if(c.custom.worker&&typeof Worker==='function')try{window[c.custom.early]=new Worker(c.custom.worker,{type:'module'})}catch(e){}if(me&&me.parentNode&&typeof MutationObserver==='function'){var start=function(){var next=me.nextElementSibling;while(next&&next.localName!=='script')next=next.nextElementSibling;if(!next)return false;if(next.type==='module'&&next.src){var early=document.createElement('script');early.type='module';early.src=next.src;document.head.appendChild(early)}return true};if(!start()){var parsed=new MutationObserver(function(){if(start())parsed.disconnect()});parsed.observe(me.parentNode,{childList:true})}}return}placeSheet(css,key,c.sheet.id);requestAnimationFrame(function(){requestAnimationFrame(function(){root.removeAttribute(c.sheet.pending)})})};if(held===key)readSheet(c.custom.db,c.custom.store,key,answer);else answer(null)}})(${JSON.stringify(config)})`;
 }
 
 /**
@@ -393,6 +399,16 @@ export function shownAppearance(): Appearance {
   return normalize({ mode: root.getAttribute(MODE_ATTR), contrast: root.getAttribute(CONTRAST_ATTR) ?? 'standard', look }, looks.length ? looks : [look ?? ''], looks[0] ?? '', look === CUSTOM_LOOK);
 }
 
+/** The look that came too late for this page (`LATE_ATTR`), drawn in the default system: null on any other page. */
+export const lateLook = (): string | null => document.documentElement.getAttribute(LATE_ATTR);
+
+/** The appearance the reader asked for: the one shown, with the look that came too late for this page in its place. */
+function chosenAppearance(): Appearance {
+  const shown = shownAppearance();
+  const late = lateLook();
+  return late ? { ...shown, look: late } : shown;
+}
+
 /** Whether the page shows the appearance its address shares. */
 export const isShared = () => document.documentElement.hasAttribute(SHARED_ATTR);
 
@@ -418,16 +434,21 @@ const drawCustom = () => import('./custom-theme').then((module) => module.showCu
 /** Says that the root's tokens changed: the look's sheet is in, another took its place, or it was taken away. */
 const announceSheet = () => document.dispatchEvent(new CustomEvent(LOOK_SHEET_EVENT));
 
+/** Says that the appearance shown changed: what `<html>` says now. */
+const announce = (shared: boolean) => document.dispatchEvent(new CustomEvent<AppearanceDetail>(APPEARANCE_EVENT, { detail: { appearance: shownAppearance(), shared } }));
+
 /**
  * The look's stylesheet in place, the one way for every look: a gallery example's linked — the one before it kept
  * until it has loaded, so that the page is never drawn in neither — the reader's own theme's put in by
- * lib/custom-theme.ts, and none for the default system, whose tokens are the root's.
+ * lib/custom-theme.ts, and none for the default system, whose tokens are the root's. `late` is the look that came too
+ * late for this page, which it goes on drawing in the default system (`look`), or null.
  */
-function showLook(look: string): void {
+function showLook(look: string, late: string | null): void {
   const root = document.documentElement;
   const custom = keptCustom();
   root.toggleAttribute(CUSTOM_ATTR, custom !== null);
-  root.removeAttribute(LATE_ATTR);
+  if (late) root.setAttribute(LATE_ATTR, late);
+  else root.removeAttribute(LATE_ATTR);
   root.removeAttribute(PENDING_ATTR);
   const href = sheetsOnPage()[look];
   // A link still loading for another look is no longer asked for.
@@ -447,6 +468,7 @@ function showLook(look: string): void {
       root.setAttribute(LOOK_ATTR, looksOnPage()[0] ?? '');
       root.setAttribute(LATE_ATTR, look);
       announceSheet();
+      announce(isShared());
     });
     return;
   }
@@ -457,37 +479,57 @@ function showLook(look: string): void {
   }
 }
 
-function show(appearance: Appearance, shared: boolean): void {
+/**
+ * The appearance `chosen` shown. A look that came too late for this page stays drawn in the default system while it is
+ * still the one chosen, unless `apply`: only the reader's own choice of it puts its sheet in on this page — a sheet put
+ * in by itself would move everything drawn.
+ */
+function show(chosen: Appearance, shared: boolean, apply: boolean): void {
   const root = document.documentElement;
   const before = shownAppearance();
+  const lateBefore = lateLook();
   const scheme = root.getAttribute(THEME_ATTR);
+  const late = !apply && lateBefore !== null && chosen.look === lateBefore ? lateBefore : null;
+  const appearance = late ? { ...chosen, look: looksOnPage()[0] ?? chosen.look } : chosen;
   for (const [name, value] of Object.entries(attributesOf(appearance, deviceDark(), bootConfig([]).names))) {
     if (value === null) root.removeAttribute(name);
     else if (root.getAttribute(name) !== value) root.setAttribute(name, value);
   }
   root.toggleAttribute(SHARED_ATTR, shared);
-  showLook(appearance.look);
-  const changed = before.mode !== appearance.mode || before.contrast !== appearance.contrast || before.look !== appearance.look || scheme !== root.getAttribute(THEME_ATTR);
-  if (changed) document.dispatchEvent(new CustomEvent<AppearanceDetail>(APPEARANCE_EVENT, { detail: { appearance, shared } }));
+  showLook(appearance.look, late);
+  const changed = before.mode !== appearance.mode || before.contrast !== appearance.contrast || before.look !== appearance.look || lateBefore !== late || scheme !== root.getAttribute(THEME_ATTR);
+  if (changed) announce(shared);
 }
 
 /**
- * The reader changes the appearance: what is shown now with `change` over it is kept, shown and announced. A page
- * that showed a shared appearance shows the reader's own from here on, and its address loses the shared names.
+ * The reader changes the appearance: what they chose before with `change` over it is kept, shown and announced. A page
+ * that showed a shared appearance shows the reader's own from here on, and its address loses the shared names. On a
+ * page whose look came too late, that look is still the one kept, and is put in only where `change` chooses it.
  */
 export function setAppearance(change: Partial<Appearance>): Appearance {
   const looks = looksOnPage();
-  const next = normalize({ ...shownAppearance(), ...change }, looks, looks[0] ?? '', keptCustom() !== null);
+  const next = normalize({ ...chosenAppearance(), ...change }, looks, looks[0] ?? '', keptCustom() !== null);
   try {
     localStorage.setItem(APPEARANCE_KEY, JSON.stringify(next));
   } catch {}
   if (isShared()) history.replaceState(history.state, '', withoutShared(location.href));
-  show(next, false);
+  show(next, false, change.look !== undefined);
   return next;
 }
 
 /** The reader keeps the shared appearance as their own. */
 export const keepShared = () => setAppearance({});
+
+/**
+ * The reader asks for the look that came too late for this page on this page: its sheet put in now, as a choice of it
+ * in the panel would. A shared appearance stays the address's, and nothing is kept.
+ */
+export function applyLate(): void {
+  const look = lateLook();
+  if (!look) return;
+  if (isShared()) show({ ...shownAppearance(), look }, true, true);
+  else setAppearance({ look });
+}
 
 /** Calls `listener` with the appearance whenever it changes. */
 export function onAppearance(listener: (detail: AppearanceDetail) => void): void {
@@ -497,8 +539,8 @@ export function onAppearance(listener: (detail: AppearanceDetail) => void): void
 if (typeof document !== 'undefined' && typeof matchMedia === 'function') {
   // The device's scheme, while the mode is the device's.
   matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
-    const shown = shownAppearance();
-    if (shown.mode === 'system') show(shown, isShared());
+    const chosen = chosenAppearance();
+    if (chosen.mode === 'system') show(chosen, isShared(), false);
   });
   // A choice made in another tab of the site, or a theme Theme Studio gave the docs there; a page that shows a shared
   // appearance keeps showing it.
@@ -508,7 +550,7 @@ if (typeof document !== 'undefined' && typeof matchMedia === 'function') {
       document.documentElement.toggleAttribute(CUSTOM_ATTR, keptCustom() !== null);
       return;
     }
-    show(readStored(looksOnPage()), false);
+    show(readStored(looksOnPage()), false, false);
   });
   // The reader's theme, where the head's script found it the look: its stylesheet, if IndexedDB did not hold it (and,
   // where the page could not wait for it, kept for the next page). The head's module (ThemeProvider.astro) has asked for

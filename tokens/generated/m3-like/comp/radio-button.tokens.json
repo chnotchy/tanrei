@@ -74,7 +74,7 @@
           },
           "size": {
             "$type": "dimension",
-            "$description": "The round state layer behind the ring, 40. In the default system it holds the whole target (sys.target.touch, 36); a system whose target is larger reaches beyond it.",
+            "$description": "The round state layer behind the ring, and the height the radio button takes in a row (never less than option.min-height): the control height (40 in the default system), so that a radio button stands as tall as the Buttons and fields beside it and an option with a one-line label is a row of that height. The ring (ring.size) keeps its own size inside it at every control height. In the default system it holds the whole target (sys.target.touch, 36); a system whose target is larger reaches beyond it.",
             "$value": {
               "value": 40,
               "unit": "px"
@@ -84,7 +84,8 @@
                 "fn": "mul",
                 "of": "{tanrei.dial.size.unit}",
                 "by": 10
-              }
+              },
+              "dev.tanrei.aligned": "control"
             }
           }
         },

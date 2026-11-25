@@ -6,6 +6,7 @@ import { AXES, styles } from './loading-indicator.styles.js';
 import { TanreiElement } from '../../primitives/element.js';
 import { holdsProductName, nameHost, namedByProduct } from '../../primitives/delegated-aria.js';
 import { readTogether } from '../../primitives/read-phase.js';
+import { DEBUG } from '../../primitives/debug.js';
 
 /** The core sizes (small, medium, large), plus any a design system's generated `.d.ts` registers. */
 export type TanreiLoadingIndicatorSize = keyof TanreiLoadingIndicatorSizeRegistry;
@@ -188,14 +189,13 @@ export class TanreiLoadingIndicator extends TanreiElement {
 
   protected override willUpdate(changed: PropertyValues<this>) {
     // LDG-10: a moving mark alone is not a name.
-    if (changed.has('label') && !this.label && !namedByProduct(this)) report(this, 'LDG-10', 'label is empty, so the loading indicator has no accessible name; give it a label');
+    if (DEBUG && changed.has('label') && !this.label && !namedByProduct(this)) report(this, 'LDG-10', 'label is empty, so the loading indicator has no accessible name; give it a label');
     // LDG-14: a value it cannot use takes the token, and is reported.
     for (const [name, attribute, token] of [['showDelay', 'show-delay', 'show-delay'], ['enterDuration', 'enter-duration', 'enter-duration']] as const) {
       const shown = changed.has(name) ? unusableMilliseconds(this, this[name], attribute) : null;
-      if (shown === null) continue;
-      report(this, 'LDG-14', `${name} ${shown} is not a finite, non-negative number of milliseconds; it takes comp.loading-indicator.motion.${token}`);
+      if (DEBUG && shown !== null) report(this, 'LDG-14', `${name} ${shown} is not a finite, non-negative number of milliseconds; it takes comp.loading-indicator.motion.${token}`);
     }
-    if (changed.has('entrance') && this.entrance !== 'auto' && !(ENTRANCES as readonly string[]).includes(this.entrance)) {
+    if (DEBUG && changed.has('entrance') && this.entrance !== 'auto' && !(ENTRANCES as readonly string[]).includes(this.entrance)) {
       report(this, 'LDG-14', `entrance "${this.entrance}" is not auto, fade or grow; it takes comp.loading-indicator.motion.entrance`);
     }
     if (this.isConnected) this.expose();

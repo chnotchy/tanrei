@@ -300,14 +300,8 @@ export const styles = css`
      down as --tanrei-set-gap and --tanrei-set-row-gap (an internal contract between Tanrei elements, not a styling
      API); a chip that stands alone has neither, and each bound is then the target itself — the same area as above. */
   .container::before {
-    --_target: var(--tanrei-sys-target-pointer);
-    inline-size: min(max(100%, var(--_target)), calc(100% + var(--tanrei-set-gap, var(--_target))));
-    block-size: min(max(100%, var(--_target)), calc(100% + var(--tanrei-set-row-gap, var(--_target))));
-  }
-  @media (pointer: coarse) {
-    .container::before {
-      --_target: var(--tanrei-sys-target-touch);
-    }
+    --_hit-inline-size: min(max(100%, var(--_target)), calc(100% + var(--tanrei-set-gap, var(--_target))));
+    --_hit-block-size: min(max(100%, var(--_target)), calc(100% + var(--tanrei-set-row-gap, var(--_target))));
   }
 
   /* CHP-3, CHP-6, CHP-8, CHP-9, CHP-12: each state paints from that state's tokens of the current look; pressed > focused
@@ -362,39 +356,34 @@ export const styles = css`
   }
   /* CHP-21: the remove action's hit area — at least the minimum target on both axes around its glyph; toward the label
      it reaches no further than the gap before the glyph, and it extends outward, past the chip's edge, as far as it
-     needs. It is above the chip's own, so the rest of the chip's hit area activates the chip. */
+     needs. It is above the chip's own, so the rest of the chip's hit area activates the chip. Along the block axis it is
+     laid out by its insets, the same on both sides, never centred by a translation, which the layout does not round
+     to its unit as it does an inset (src/primitives/target.ts). */
   .remove::before {
     --_toward-label: calc(var(--_gap) - (var(--_remove) - var(--_icon)) / 2);
+    --_target: var(--tanrei-sys-target-pointer);
+    --_hit-block-size: max(100%, var(--_target));
     content: '';
     position: absolute;
-    inset-block-start: 50%;
     inset-inline-start: calc(var(--_toward-label) * -1);
-    inline-size: max(var(--tanrei-sys-target-pointer), calc(var(--_remove) + var(--_toward-label)));
-    block-size: max(100%, var(--tanrei-sys-target-pointer));
-    transform: translateY(-50%);
+    inline-size: max(var(--_target), calc(var(--_remove) + var(--_toward-label)));
+    inset-block: min(0px, calc((100% - var(--_hit-block-size)) / 2));
   }
   @media (pointer: coarse) {
     .remove::before {
-      inline-size: max(var(--tanrei-sys-target-touch), calc(var(--_remove) + var(--_toward-label)));
-      block-size: max(100%, var(--tanrei-sys-target-touch));
+      --_target: var(--tanrei-sys-target-touch);
     }
   }
   /* TGR-5: in a set, the remove action's hit area too ends at the middle of the gap: outward, half the gap past the
      chip's edge (--_past-end is how far the round container stands from that edge), and above and below, half the
      distance between two lines past the chip. Without a set each bound is beyond the target, and nothing changes. */
   .remove::before {
-    --_target: var(--tanrei-sys-target-pointer);
     --_past-end: max(0px, calc(var(--_pad-remove) - (var(--_remove) - var(--_icon)) / 2));
     inline-size: min(
       max(var(--_target), calc(var(--_remove) + var(--_toward-label))),
       calc(var(--_remove) + var(--_toward-label) + var(--_past-end) + var(--tanrei-set-gap, calc(2 * var(--_target))) / 2)
     );
-    block-size: min(max(100%, var(--_target)), calc(var(--_height) + var(--tanrei-set-row-gap, var(--_target))));
-  }
-  @media (pointer: coarse) {
-    .remove::before {
-      --_target: var(--tanrei-sys-target-touch);
-    }
+    --_hit-block-size: min(max(100%, var(--_target)), calc(var(--_height) + var(--tanrei-set-row-gap, var(--_target))));
   }
 
   /* CHP-20, CHP-27: the remove action's own states, from its remove (or destructive-remove) parts, with CHP-3's
@@ -460,6 +449,20 @@ export const styles = css`
     display: inline-flex;
     align-items: center;
     justify-content: center;
+  }
+  /* The ligature's own width, which GlyphDrawnController compares with the glyph box: a box of its own (the check's box is
+     an inline block, the others flex boxes, where it is never shrunk). */
+  .ink {
+    display: inline-block;
+    flex: none;
+    vertical-align: top;
+  }
+  /* CHP-41: nothing in a glyph's place until the icon set can draw it (GlyphDrawnController sets data-drawn) — never its
+     name spelled in a text face. What is hidden is the glyph inside the box (the slotted glyph inherits the slot's
+     visibility), so the box keeps its size and its own opacity (the check's selection motion) is left alone. */
+  .glyph:not([data-drawn]) > .ink,
+  .glyph.icon:not([data-drawn]) slot {
+    visibility: hidden;
   }
   ::slotted(svg),
   ::slotted(img:not([slot='avatar'])) {

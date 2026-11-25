@@ -3,7 +3,9 @@ import { classMap } from 'lit/directives/class-map.js';
 import {
   AnimatedSize,
   AvailabilityController,
+  BUTTON_SIZES,
   BUTTON_VARIANTS,
+  type ButtonSize,
   GROUP_ITEM,
   GROUP_PLACE,
   GlyphDrawnController,
@@ -13,9 +15,10 @@ import {
   OpenAxesController,
   type PlacingGroup,
   type Tone,
-  compChoice,
+  compChoices,
   focusWithin,
   giveTone,
+  giveSize,
   giveVariant,
   hostAria,
   motionReduced,
@@ -29,6 +32,7 @@ import '../button/button.js';
 import { AXES, STATUSES, styles } from './callout.styles.js';
 import { TanreiElement } from '../../primitives/element.js';
 import { holdsProductName, nameHost } from '../../primitives/delegated-aria.js';
+import { DEBUG } from '../../primitives/debug.js';
 
 /** The core variants (tonal, outlined), plus any a design system's generated `.d.ts` registers. */
 export type TanreiCalloutVariant = keyof TanreiCalloutVariantRegistry;
@@ -102,7 +106,7 @@ let titles = 0;
  * the title is the `headline` attribute or the `title` slot, a glyph of the icon set goes in the `icon` slot, and the
  * product's Buttons or links in the `actions` slot. Every visual value is a `--tanrei-comp-callout-*` token, one set per
  * variant and status; how far its corners ease is the system's amount (`--tanrei-sys-shape-corner-smoothing`). Its close
- * button is a small icon-only `<tanrei-button>` in the variant `--tanrei-comp-callout-close-button-variant` names, drawn
+ * button is an icon-only `<tanrei-button>` of the size `--tanrei-comp-callout-close-button-size` names, in the variant `--tanrei-comp-callout-close-button-variant` names, drawn
  * on a filled look in the body color of the callout's form (a tone): its container that color made translucent, its
  * glyph that color, its states the Button's own.
  *
@@ -221,6 +225,8 @@ export class TanreiCallout extends TanreiElement implements PlacingGroup {
   private announceFirst = false;
   /** Whether it has been drawn once: what changes after that is a change. */
   private presented = false;
+  /** CLO-10: the close button's size, as `comp.callout.close-button.size` named it at the last update. */
+  private closeSize: ButtonSize = BUTTON_SIZES[0];
   private pending = 0;
   /** CLO-21: hears the title and the body change while it is live. */
   private content$: MutationObserver | null = null;
@@ -589,29 +595,33 @@ export class TanreiCallout extends TanreiElement implements PlacingGroup {
     if (has('open') && !this.open) this.announce();
     this.presented = true;
 
-    // CLO-10: the close button's variant, as the system names it now (a system switch is seen at the next update), and on
-    // a filled look the tone of the form — given through the Button's channel; everything else is the Button's own.
+    // CLO-10: the close button's size and variant, as the system names them now (a system switch is seen at the next
+    // update), and on a filled look the tone of the form — the variant and the tone given through the Button's channel;
+    // everything else is the Button's own.
     const button = this.renderRoot.querySelector('tanrei-button.close');
     if (button) {
-      giveVariant(button, compChoice(this, `${PREFIX}-close-button-variant`, BUTTON_VARIANTS));
+      const { size, variant } = compChoices(this, { size: [`${PREFIX}-close-button-size`, BUTTON_SIZES], variant: [`${PREFIX}-close-button-variant`, BUTTON_VARIANTS] });
+      this.closeSize = size;
+      giveSize(button, size);
+      giveVariant(button, variant);
       giveTone(button, toneOf(this.variant, this.form));
     }
 
     // CLO-30: a status this spec does not have is drawn as default. (An unknown size or variant is the axes' to report.)
-    if (has('status') && this.status !== 'default' && !isStatus(this.status)) {
+    if (DEBUG && has('status') && this.status !== 'default' && !isStatus(this.status)) {
       report(this, 'CLO-30', `status "${this.status}" is not a status of a callout; it is drawn as "default"`);
     }
     // CLO-31: what a debug build tells the product.
-    if (this.empty && (has('headline') || has('hasTitle') || has('hasBody'))) {
+    if (DEBUG && this.empty && (has('headline') || has('hasTitle') || has('hasBody'))) {
       report(this, 'CLO-31', 'the callout has no title and no body, so it draws nothing; a glyph, actions or a close button alone are not a notice');
     }
-    if (!this.empty && this.form !== 'default' && !this.titled && !this.statusLabel.trim()) {
+    if (DEBUG && !this.empty && this.form !== 'default' && !this.titled && !this.statusLabel.trim()) {
       report(this, 'CLO-31', `status is "${this.form}" but the callout has no title and status-label is empty, so the status is not given in words; give it a title that says it, or a status-label`);
     }
     if ((has('closable') || has('closeLabel')) && this.closable && !this.words.get('closeLabel', this.closeLabel)) {
-      this.words.missing('closeLabel', { id: 'CLO-31', effect: 'the close button has no accessible name' });
+      this.words.missing('closeLabel', DEBUG && { id: 'CLO-31', effect: 'the close button has no accessible name' });
     }
-    if ((has('statusLabel') || has('status')) && this.statusLabel.trim() && this.form === 'default') {
+    if (DEBUG && (has('statusLabel') || has('status')) && this.statusLabel.trim() && this.form === 'default') {
       report(this, 'CLO-31', `status-label "${this.statusLabel}" is ignored while status is default; give the callout a status, or put the words in its title`);
     }
   }
@@ -647,7 +657,7 @@ export class TanreiCallout extends TanreiElement implements PlacingGroup {
         </div>
         ${this.closable
           ? html`<span class="end"
-              ><tanrei-button part="close-button" class="close" size="small" label=${this.words.get('closeLabel', this.closeLabel).trim()} @click=${this.onClose}
+              ><tanrei-button part="close-button" class="close" size=${this.closeSize} label=${this.words.get('closeLabel', this.closeLabel).trim()} @click=${this.onClose}
                 ><span slot="icon">close</span></tanrei-button
               ></span
             >`

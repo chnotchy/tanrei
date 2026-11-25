@@ -8,7 +8,9 @@ import {
   type AnchoredPlacement,
   AnchoredSurfaceController,
   AvailabilityController,
+  BUTTON_SIZES,
   BUTTON_VARIANTS,
+  type ButtonSize,
   CompactWindow,
   DismissController,
   type DismissReason,
@@ -32,6 +34,7 @@ import {
   documentPainted,
   focusOverlay,
   focusWithin,
+  giveSize,
   giveVariant,
   holdPageScroll,
   hostAria,
@@ -62,6 +65,7 @@ import '../button/button.js';
 import { statesFromNextFrame } from '../../primitives/motion.js';
 import { ARRANGEMENTS, ARROW_PROPERTY, CHOICE, PREFIX, styles } from './popover.styles.js';
 import { TanreiElement } from '../../primitives/element.js';
+import { DEBUG } from '../../primitives/debug.js';
 
 /**
  * Where the popover prefers to stand (POP-2): a side of the anchor (`top`, `bottom`, `start`, `end`), alone to centre it
@@ -326,6 +330,8 @@ export class TanreiPopover extends TanreiElement implements VariantHost, Placing
 
   /** POP-9: whether the popover has at least one action, and any content. */
   private hasActions = false;
+  /** POP-13: the close button's size, as `comp.popover.close-button.size` named it at the last arrangement. */
+  private closeSize: ButtonSize = BUTTON_SIZES[0];
   private hasContent = false;
 
   /** POP-14: the content children, assigned to the default slot. */
@@ -900,15 +906,19 @@ export class TanreiPopover extends TanreiElement implements VariantHost, Placing
   private readArrangement(): () => void {
     const container = this.container;
     if (!container) return () => {};
-    const { close, actions: variant, arrangement } = compChoices(this, {
+    const { close, closeSize, actions: variant, arrangement } = compChoices(this, {
       close: [`${PREFIX}-close-button-variant`, BUTTON_VARIANTS],
+      closeSize: [`${PREFIX}-close-button-size`, BUTTON_SIZES],
       actions: [`${PREFIX}-actions-variant`, BUTTON_VARIANTS],
       arrangement: [`${PREFIX}-actions-arrangement`, ARRANGEMENTS],
     });
-    return () => this.arrangeAs(container, close, variant, arrangement);
+    return () => this.arrangeAs(container, close, closeSize, variant, arrangement);
   }
 
-  private arrangeAs(container: HTMLElement, close: string, variant: string, arrangement: (typeof ARRANGEMENTS)[number]) {
+  private arrangeAs(container: HTMLElement, close: string, closeSize: ButtonSize, variant: string, arrangement: (typeof ARRANGEMENTS)[number]) {
+    // POP-13: the close button's size, as its token names it; kept for the next render, which writes the same.
+    this.closeSize = closeSize;
+    giveSize(this.find('tanrei-button.close'), closeSize);
     giveVariant(this.find('tanrei-button.close'), close);
     this.placement$.give(variant);
     if (container.dataset.arrangement !== arrangement) container.dataset.arrangement = arrangement;
@@ -1041,7 +1051,7 @@ export class TanreiPopover extends TanreiElement implements VariantHost, Placing
     }
     // POP-24: nesting works at any depth; a third level is reported.
     const depth = overlayDepth(this, 'popover');
-    if (depth >= DEEP) report(this, 'POP-24', `it is the popover at depth ${depth} of popovers opened from inside popovers; one popover inside a popover is the most a product should need`, { once: false });
+    if (DEBUG && depth >= DEEP) report(this, 'POP-24', `it is the popover at depth ${depth} of popovers opened from inside popovers; one popover inside a popover is the most a product should need`, { once: false });
   }
 
   /**
@@ -1305,8 +1315,8 @@ export class TanreiPopover extends TanreiElement implements VariantHost, Placing
       document.addEventListener('DOMContentLoaded', () => this.requestUpdate(), { once: true });
     } else if (opening && !want) {
       // POP-29: it stays closed, emits nothing, and says why.
-      if (!anchor) report(this, 'POP-29', this.anchor || this.anchorElement ? `no element with the id "${this.anchor}" was found in its tree, so it stays closed; give it the id of its anchor` : 'it has no anchor, so it stays closed; set anchor to the id of the element it stands beside', { once: false });
-      else if (this.empty) report(this, 'POP-29', 'it opened with no content, no headline and no action, so it draws nothing; give it content', { once: false });
+      if (!anchor) DEBUG && report(this, 'POP-29', this.anchor || this.anchorElement ? `no element with the id "${this.anchor}" was found in its tree, so it stays closed; give it the id of its anchor` : 'it has no anchor, so it stays closed; set anchor to the id of the element it stands beside', { once: false });
+      else if (DEBUG && this.empty) report(this, 'POP-29', 'it opened with no content, no headline and no action, so it draws nothing; give it content', { once: false });
     }
     const mode = changed.has('inline') && this.presented;
     if (mode) {
@@ -1345,47 +1355,47 @@ export class TanreiPopover extends TanreiElement implements VariantHost, Placing
 
   /** What a debug build reports (POP-4, POP-13, POP-29, POP-37, POP-38). */
   private reportProps(changed: PropertyValues<this>) {
-    if (changed.has('dividerVisibility') && !isDividerVisibility(this.dividerVisibility)) {
+    if (DEBUG && changed.has('dividerVisibility') && !isDividerVisibility(this.dividerVisibility)) {
       report(this, 'POP-38', `divider-visibility "${String(this.dividerVisibility)}" is not a value of the popover; it is drawn as "auto"`);
     }
-    if (changed.has('placement') && !PLACEMENTS.includes(this.placement)) {
+    if (DEBUG && changed.has('placement') && !PLACEMENTS.includes(this.placement)) {
       report(this, 'POP-37', `placement "${String(this.placement)}" is not one of ${PLACEMENTS.join(', ')}; the popover is placed as "${DEFAULT_PLACEMENT}"`);
     }
-    if (changed.has('compactPresentation') && !COMPACT_PRESENTATIONS.includes(this.compactPresentation)) {
+    if (DEBUG && changed.has('compactPresentation') && !COMPACT_PRESENTATIONS.includes(this.compactPresentation)) {
       report(this, 'POP-43', `compact-presentation "${String(this.compactPresentation)}" is not one of ${COMPACT_PRESENTATIONS.join(', ')}; the popover is a sheet in a compact window`);
     }
-    if (changed.has('width') && !WIDTHS.includes(this.width)) report(this, 'POP-37', `width "${String(this.width)}" is not one of ${WIDTHS.join(', ')}; the popover is as wide as its content`);
-    if (changed.has('initialFocus') && !INITIAL_FOCUS.includes(this.initialFocus)) {
+    if (DEBUG && changed.has('width') && !WIDTHS.includes(this.width)) report(this, 'POP-37', `width "${String(this.width)}" is not one of ${WIDTHS.join(', ')}; the popover is as wide as its content`);
+    if (DEBUG && changed.has('initialFocus') && !INITIAL_FOCUS.includes(this.initialFocus)) {
       report(this, 'POP-37', `initial-focus "${String(this.initialFocus)}" is not one of ${INITIAL_FOCUS.join(', ')}; focus moves into the popover`);
     }
     if (changed.has('trigger')) {
       const list: unknown[] = Array.isArray(this.trigger) ? this.trigger : [];
       const unknown = list.filter((each) => !TRIGGERS.includes(each as TanreiPopoverTrigger));
-      if (unknown.length) report(this, 'POP-37', `trigger ${unknown.map((each) => JSON.stringify(String(each))).join(', ')} is not one of ${TRIGGERS.join(', ')}; it is ignored`);
-      if (!list.some((each) => TRIGGERS.includes(each as TanreiPopoverTrigger))) report(this, 'POP-37', `trigger names none of ${TRIGGERS.join(', ')}; the popover opens on a press`);
+      if (DEBUG && unknown.length) report(this, 'POP-37', `trigger ${unknown.map((each) => JSON.stringify(String(each))).join(', ')} is not one of ${TRIGGERS.join(', ')}; it is ignored`);
+      if (DEBUG && !list.some((each) => TRIGGERS.includes(each as TanreiPopoverTrigger))) report(this, 'POP-37', `trigger names none of ${TRIGGERS.join(', ')}; the popover opens on a press`);
     }
     for (const [prop, attribute, token] of [
       ['showDelay', 'show-delay', 'comp.popover.motion.show-delay'],
       ['hideDelay', 'hide-delay', 'comp.popover.motion.hide-delay'],
     ] as const) {
       const value: unknown = this[prop];
-      if (changed.has(prop) && value !== null && value !== undefined && !usableLength(value)) {
+      if (DEBUG && changed.has(prop) && value !== null && value !== undefined && !usableLength(value)) {
         report(this, 'POP-51', `${attribute} ${JSON.stringify(String(value))} is not a number of milliseconds of 0 or more; ${token} is waited instead`);
       }
     }
     const offset: unknown = this.offset;
     if (changed.has('offset') && offset !== null && offset !== undefined && !usableLength(offset)) {
       const why = typeof offset === 'number' && Number.isFinite(offset) ? 'is negative' : 'is not a finite number';
-      report(this, 'POP-4', `offset ${JSON.stringify(String(offset))} ${why}; comp.popover.offset is used in its place`);
+      if (DEBUG) report(this, 'POP-4', `offset ${JSON.stringify(String(offset))} ${why}; comp.popover.offset is used in its place`);
     }
     const cross: unknown = this.crossOffset;
-    if (changed.has('crossOffset') && cross !== null && cross !== undefined && !Number.isFinite(cross)) {
+    if (DEBUG && changed.has('crossOffset') && cross !== null && cross !== undefined && !Number.isFinite(cross)) {
       report(this, 'POP-4', `cross-offset ${JSON.stringify(String(cross))} is not a finite number; 0 is used in its place`);
     }
     if ((changed.has('closable') || changed.has('closeLabel')) && this.closable && !this.words.get('closeLabel', this.closeLabel)) {
-      this.words.missing('closeLabel', { id: 'POP-13', effect: 'the close button has no accessible name' });
+      this.words.missing('closeLabel', DEBUG && { id: 'POP-13', effect: 'the close button has no accessible name' });
     }
-    if (changed.has('open') && this.open && !this.headline.trim() && !this.label.trim() && !this.empty && !namedByProduct(this)) {
+    if (DEBUG && changed.has('open') && this.open && !this.headline.trim() && !this.label.trim() && !this.empty && !namedByProduct(this)) {
       report(this, 'POP-29', 'headline and label are both empty, so the dialog has no accessible name; give it a headline, or a label where it draws none');
     }
   }
@@ -1404,7 +1414,7 @@ export class TanreiPopover extends TanreiElement implements VariantHost, Placing
               ${headline ? html`<h2 part="headline" class="headline">${headline}</h2>` : nothing}
               ${this.closable
                 ? html`<span class="close-box"
-                    ><tanrei-button part="close-button" class="close" size="small" label=${this.words.get('closeLabel', this.closeLabel)} @click=${this.onCloseClick}><span slot="icon">close</span></tanrei-button></span
+                    ><tanrei-button part="close-button" class="close" size=${this.closeSize} label=${this.words.get('closeLabel', this.closeLabel)} @click=${this.onCloseClick}><span slot="icon">close</span></tanrei-button></span
                   >`
                 : nothing}
               <div part="divider" class="divider below-header" aria-hidden="true"></div>

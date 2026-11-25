@@ -6,6 +6,7 @@ import { ambientLocale } from '../../primitives/locale-date.js';
 import { hiddenHost } from '../../primitives/hidden.js';
 import { TanreiElement } from '../../primitives/element.js';
 import { AXES, styles } from './rating.styles.js';
+import { DEBUG } from '../../primitives/debug.js';
 
 /** The core sizes (small, medium, large), plus any a design system adds. */
 export type TanreiRatingSize = 'small' | 'medium' | 'large' | (string & {});
@@ -288,8 +289,8 @@ export class TanreiRating extends TanreiElement {
   }
 
   /** `element.focus()` focuses the rating's stop: the checked mark, or the first, or the slider. */
-  override focus(options?: FocusOptions) {
-    if (!this.hasUpdated) return super.focus(options);
+  protected override delegateFocus(options?: FocusOptions) {
+    if (!this.hasUpdated) return super.delegateFocus(options);
     this.stopElement?.focus(options);
   }
 
@@ -446,19 +447,19 @@ export class TanreiRating extends TanreiElement {
     // RAT-15: the score above 0 is submitted under `name`, read-only too; disabled, nothing.
     this.internals.setFormValue(!this.isDisabled && score > 0 ? String(score) : null, String(score));
     // RAT-14: what cannot be shown is drawn and exposed as the nearest that can, and reported.
-    if ((changed.has('value') || changed.has('max') || changed.has('allowHalf')) && Number(this.value) !== score) {
+    if (DEBUG && (changed.has('value') || changed.has('max') || changed.has('allowHalf')) && Number(this.value) !== score) {
       report(this, 'RAT-14', `value ${this.value} is not a score of 0 to ${this.count} in ${this.step < 1 ? 'halves' : 'whole marks'}; it is drawn and exposed as ${score}`);
     }
-    if (changed.has('max') && Number(this.max) !== this.count) report(this, 'RAT-14', `max ${this.max} is not a whole number from 1; it is drawn as ${this.count}`);
+    if (DEBUG && changed.has('max') && Number(this.max) !== this.count) report(this, 'RAT-14', `max ${this.max} is not a whole number from 1; it is drawn as ${this.count}`);
     // RAT-18: what a debug build says of a rating that still renders.
-    if (changed.has('label') && !this.label.trim() && !namedByProduct(this)) report(this, 'RAT-18', 'label is empty, so the rating has no accessible name; give it a label');
+    if (DEBUG && changed.has('label') && !this.label.trim() && !namedByProduct(this)) report(this, 'RAT-18', 'label is empty, so the rating has no accessible name; give it a label');
     const scores = Math.round(this.count / this.givenStep);
     const entries = this.optionLabels?.length ?? 0;
-    if ((changed.has('optionLabels') || changed.has('max') || changed.has('allowHalf')) && entries > 0 && entries !== scores) {
+    if (DEBUG && (changed.has('optionLabels') || changed.has('max') || changed.has('allowHalf')) && entries > 0 && entries !== scores) {
       report(this, 'RAT-18', `optionLabels holds ${entries} entries for ${scores} scores; the scores without an entry are named by their numbers`);
     }
     // RAT-5: a read-only rating with nothing to say.
-    if (this.mode === 'img' && !this.valueText && score === 0) report(this, 'RAT-5', 'the read-only rating has neither valueText nor a value above 0, so nothing describes its score; give it valueText');
+    if (DEBUG && this.mode === 'img' && !this.valueText && score === 0) report(this, 'RAT-5', 'the read-only rating has neither valueText nor a value above 0, so nothing describes its score; give it valueText');
   }
 
   protected override render() {

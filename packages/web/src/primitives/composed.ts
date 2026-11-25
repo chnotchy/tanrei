@@ -132,8 +132,7 @@ export abstract class ComposedElement extends TanreiElement {
   }
 
   /** Focuses the control: the host itself is never focusable. */
-  override focus(options?: FocusOptions) {
-    if (this.keepFocusUntilRendered(options)) return;
+  protected override delegateFocus(options?: FocusOptions) {
     this.control?.focus(options);
   }
 

@@ -28,6 +28,7 @@ import {
 } from '../../primitives/index.js';
 import { missingValueMessage } from '../../primitives/missing-value.js';
 import { stillMoving } from '../../primitives/auto-height.js';
+import { cancelPhaseRead, readInPhase } from '../../primitives/read-phase.js';
 import type { TanreiInputBoxSizeRegistry, TanreiInputBoxVariantRegistry } from '../../registry.js';
 import {
   EMPTY_SEGMENTS,
@@ -64,6 +65,7 @@ import { wordPlaces } from '../../generated/words.js';
 import { TanreiElement } from '../../primitives/element.js';
 import '../handle/handle.js';
 import type { TanreiHandle, TanreiHandleResizeDetail, TanreiHandleStepDetail } from '../handle/handle.js';
+import { DEBUG } from '../../primitives/debug.js';
 
 /** The looks of the input box (stacked, filled, outlined), plus any a design system's generated `.d.ts` registers for the box. */
 export type TanreiTextInputVariant = keyof TanreiInputBoxVariantRegistry;
@@ -197,6 +199,13 @@ function fit(before: string, after: string, max: number): { value: string; caret
 const wholeLines = (lines: number) => (Math.abs(lines - Math.round(lines)) < 0.05 ? Math.max(1, Math.round(lines)) : Math.max(1, lines));
 
 /**
+ * TXI-37: the browser makes this text area as tall as its text by itself (`field-sizing: content`, which the styles
+ * give a field whose lines wrap where the browser has it): its height is read, never written. Read from the cascade,
+ * as the styles decide it.
+ */
+const sizedByContent = (input: HTMLTextAreaElement) => getComputedStyle(input).getPropertyValue('field-sizing') === 'content';
+
+/**
  * TXI-17, TXI-38: the fields whose height is fitted without motion in this turn — the first height of each, one that
  * follows a prop, one that follows the faces' arrival — fitted together: every field takes one step of `fitting()`
  * before any takes the next, so all of them read, then all write. Still in the task that drew them, before any frame.
@@ -310,7 +319,7 @@ function labelLines(copy: HTMLElement | null): { count: number; widest: number }
  * @slot trailing-icon - An icon at the end of the field, or the product's own icon-only Button. The clear button and a date or time field's picker button come after it. A glyph is mirrored in right-to-left as in `leading-icon`.
  * @slot entries - What was entered already — the product's own elements, or the chips of a component that holds the input (a chip field): laid out inside the box before the typing part, in lines that wrap (TXI-64). The text input gives them no role, no focus order and no key (TXI-66).
  * @csspart container - The box around the input: its fill, corners and hover state layer.
- * @csspart outline - The outlined variant's border (with the gap for the floated label); a stacked field's inner line.
+ * @csspart outline - The outlined variant's border (with the gap for the floated label); a stacked field's inner line — a box that draws nothing: the `::before` of it (stacked) or of its pieces (outlined) draws the line.
  * @csspart active-indicator - The filled variant's bottom line.
  * @csspart label - The label that floats in a filled or an outlined box.
  * @csspart requirement-label - The required asterisk, or the optional word, after a floating label.
@@ -931,10 +940,10 @@ export class TanreiTextInput extends TanreiElement {
   }
 
   /** TXI-8, TXI-43: focus given to the element goes to what takes the typing — the native element, or the segment a press would focus. */
-  override focus(options?: FocusOptions) {
+  protected override delegateFocus(options?: FocusOptions) {
     const target = this.inert_ ? null : this.entryTarget;
     if (target) target.focus(options);
-    else super.focus(options);
+    else super.delegateFocus(options);
   }
 
   /** Selects the whole value, as a native input's `select()` does. A date or time field has nothing to select: its first segment takes focus. */
@@ -1479,7 +1488,7 @@ export class TanreiTextInput extends TanreiElement {
     if (!sentence) return digits;
     const number = new Intl.NumberFormat(this.resolvedLocale, { maximumFractionDigits: 0 });
     const places: Record<string, string> = limited ? { count: number.format(count), limit: number.format(this.maxLength), remaining: number.format(this.maxLength - count) } : { count: number.format(count) };
-    reportPlaces(this, 'TXI-19', limited ? 'counterText' : 'counterNoLimitText', sentence, wordPlaces[key] ?? [], 'it is said as it is written');
+    if (DEBUG) reportPlaces(this, 'TXI-19', limited ? 'counterText' : 'counterNoLimitText', sentence, wordPlaces[key] ?? [], 'it is said as it is written');
     return fillPlaces(sentence, places)
       .runs.map((run) => run.text)
       .join('');
@@ -1604,6 +1613,20 @@ export class TanreiTextInput extends TanreiElement {
   *fitting(animate: boolean): Generator<void, void, void> {
     const input = this.textarea;
     if (!input) return;
+    if (this.resizeMode === 'auto' && sizedByContent(input)) {
+      // The browser has made the box as tall as its text (the styles: `field-sizing`): it is read, and what is written
+      // is only the motion from the room shown before — the lines last fitted or read (`sizeChanged`), and what the
+      // bottom margin of a running motion still adds or takes back — and the lines it shows.
+      const style = getComputedStyle(input);
+      const line = this.lineOf(input);
+      const shown = this.lines + (Number.parseFloat(style.marginBottom) || 0) / line;
+      const target = this.clampLines(wholeLines(Number.parseFloat(style.height) / line));
+      this.lastBox = { width: input.clientWidth, line };
+      yield; // ── written from here
+      input.removeAttribute('data-overflows');
+      this.showLines(input, shown, target, animate);
+      return;
+    }
     const shown = this.shownLines(input);
     yield; // ── written from here
     input.removeAttribute('data-resizing');
@@ -1816,6 +1839,16 @@ export class TanreiTextInput extends TanreiElement {
   /**
    * TXI-37, TXI-38: the height follows a changed width and enlarged text too — at once, without the motion. The
    * textarea's own box says both: its width, and (its height being a number of lines) the line of its text style.
+   *
+   * Nothing is written in the observer's report. A box written there changes size after the frame has reported it, and
+   * a frame reports a box again only if it lies deeper than every box reported before it: the text area, the deepest
+   * box this field watches, was left undelivered, and the browser raised "ResizeObserver loop completed with
+   * undelivered notifications" at every change of width of a field that changes the size of nothing above it. Where
+   * the browser sizes a text area by its content (`field-sizing`, the styles) the browser itself makes the height
+   * follow, in the frame of the change, and the report is only read: the lines the box now shows, which the next
+   * motion starts from. Elsewhere — a browser without it, and a field whose lines do not wrap (TXI-58: a width changes
+   * its height only by a sideways scrollbar's room) — the field is fitted in the next frame's read phase
+   * (src/primitives/read-phase.ts), where writing is safe: the frame after the change still draws the height before it.
    */
   private observeSize() {
     const input = this.textarea;
@@ -1829,10 +1862,26 @@ export class TanreiTextInput extends TanreiElement {
   private sizeChanged() {
     const input = this.textarea;
     if (!input || this.drag) return;
-    const [width, line] = [input.clientWidth, this.lineOf(input)];
-    if (width === this.lastBox.width && line === this.lastBox.line) return;
-    this.fitHeight(false);
+    if (this.resizeMode === 'auto' && sizedByContent(input)) {
+      const line = this.lineOf(input);
+      this.lines = this.clampLines(wholeLines(Number.parseFloat(getComputedStyle(input).height) / line));
+      this.lastBox = { width: input.clientWidth, line };
+      return;
+    }
+    readInPhase(this.sizeRead, this.readSize);
   }
+
+  /** Who asks the read phase to fit the height after a change of the text area's box (`sizeChanged`). */
+  private readonly sizeRead = {};
+
+  /** Read in the read phase: a box whose width or line changed is fitted, together with the page's other fields. */
+  private readonly readSize = (): (() => void) | undefined => {
+    const input = this.textarea;
+    if (!input || this.drag || !this.isConnected) return undefined;
+    const [width, line] = [input.clientWidth, this.lineOf(input)];
+    if (width === this.lastBox.width && line === this.lastBox.line) return undefined;
+    return () => fitTogether(this);
+  };
 
   /**
    * The form's view of the input: a missing value while its Field says it is required; a date or time field's entry error as badInput
@@ -1911,19 +1960,35 @@ export class TanreiTextInput extends TanreiElement {
   private labelObserver: ResizeObserver | undefined;
   private observedCopies: Element[] = [];
 
-  /** Returns whether copies are watched from now on that were not before: the observer reports each of them once, after the next layout. */
+  /**
+   * Returns whether copies are watched from now on that were not before: they are measured in the read phase of the
+   * frame they are first laid out in. What the observer is told of is measured, and written, in the next frame's read
+   * phase (src/primitives/read-phase.ts), never in its report: the lines change the container's height, and a box that
+   * changes size in a report is reported again in that frame only if it lies deeper than every box reported before it
+   * (the browser raises "ResizeObserver loop completed with undelivered notifications" for one left undelivered). A
+   * change of the label's lines that follows a changed width is drawn in the frame after it.
+   */
   private observeLabel(): boolean {
     const copies = Array.from(this.renderRoot.querySelectorAll('.measure'));
     if (copies.length === this.observedCopies.length && copies.every((copy, i) => copy === this.observedCopies[i])) return false;
-    this.labelObserver ??= new ResizeObserver(() => this.measureLabel());
+    this.labelObserver ??= new ResizeObserver(this.askLabel);
     this.labelObserver.disconnect();
     for (const copy of copies) this.labelObserver.observe(copy);
     const had = this.observedCopies.length > 0;
     this.observedCopies = copies;
     // No copy any more (the label left, or stands above the container now): what the last measure wrote is taken back.
     if (!copies.length && had) this.measureLabel();
+    if (copies.length) this.askLabel();
     return copies.length > 0;
   }
+
+  /** TXI-13: the label's lines are measured in the next frame's read phase. */
+  private readonly askLabel = () => {
+    readInPhase(this.labelRead, this.readLabel);
+  };
+
+  /** Who asks the read phase to measure the label's lines (`askLabel`). */
+  private readonly labelRead = {};
 
   /**
    * TXI-13: how many lines a floating label takes resting and floated, in the width it is given in each position, and
@@ -1934,20 +1999,27 @@ export class TanreiTextInput extends TanreiElement {
    * stands above the container in the flow and wraps there by itself (TXI-25).
    */
   private measureLabel() {
-    const field = this.renderRoot.querySelector<HTMLElement>('.field');
-    if (!field) return;
+    this.readLabel()?.();
+  }
+
+  /** What `measureLabel()` reads, returning what it then writes. */
+  private readonly readLabel = (): (() => void) | undefined => {
+    const field = this.renderRoot?.querySelector<HTMLElement>('.field');
+    if (!field) return undefined;
     const resting = labelLines(this.renderRoot.querySelector('.measure-resting'));
     const floated = labelLines(this.renderRoot.querySelector('.measure-floated'));
     const wraps = resting.count > 1 || floated.count > 1;
-    field.toggleAttribute('data-label-wraps', wraps);
-    if (wraps) {
-      field.style.setProperty('--_rest-lines', String(resting.count));
-      field.style.setProperty('--_float-lines', String(floated.count));
-      field.style.setProperty('--_float-widest', `${floated.widest}px`);
-    } else {
-      for (const name of ['--_rest-lines', '--_float-lines', '--_float-widest']) field.style.removeProperty(name);
-    }
-  }
+    return () => {
+      field.toggleAttribute('data-label-wraps', wraps);
+      if (wraps) {
+        field.style.setProperty('--_rest-lines', String(resting.count));
+        field.style.setProperty('--_float-lines', String(floated.count));
+        field.style.setProperty('--_float-widest', `${floated.widest}px`);
+      } else {
+        for (const name of ['--_rest-lines', '--_float-lines', '--_float-widest']) field.style.removeProperty(name);
+      }
+    };
+  };
 
   override connectedCallback() {
     super.connectedCallback();
@@ -1966,10 +2038,12 @@ export class TanreiTextInput extends TanreiElement {
     clearTimeout(this.countTimer);
     this.labelObserver?.disconnect();
     this.observedCopies = [];
+    cancelPhaseRead(this.labelRead);
     this.iconObserver?.disconnect();
     this.observedIcons = [];
     this.sizeObserver?.disconnect();
     this.observedInput = null;
+    cancelPhaseRead(this.sizeRead);
     this.drag = null;
   }
 
@@ -1982,12 +2056,12 @@ export class TanreiTextInput extends TanreiElement {
     // move up over the label motion; it keeps the slot's answer from then on.
     if (!this.hasUpdated) this.hasEntries = [...this.children].some((child) => child.slot === 'entries');
     const kind = this.dateKind;
-    if (changed.has('locale') && this.locale.trim() && !supportedLocale(this.locale.trim())) {
+    if (DEBUG && changed.has('locale') && this.locale.trim() && !supportedLocale(this.locale.trim())) {
       report(this, 'TXI-28', `locale "${this.locale}" is not a BCP 47 tag this browser knows; it uses "${FALLBACK_LOCALE}"`);
     }
     // TXI-31: a value, min or max that is not the ISO form of a date or time field's type is treated as empty.
     if (kind && (changed.has('value') || changed.has('type')) && this.value && !isoValue(kind, this.value)) {
-      report(this, 'TXI-31', `value "${this.value}" is not the ISO 8601 form of a ${kind}; it is treated as empty`);
+      if (DEBUG) report(this, 'TXI-31', `value "${this.value}" is not the ISO 8601 form of a ${kind}; it is treated as empty`);
       this.value = '';
       this.userValue = undefined;
     }
@@ -2009,14 +2083,14 @@ export class TanreiTextInput extends TanreiElement {
     }
     if (changed.has('min') || changed.has('max') || changed.has('type')) {
       for (const which of ['min', 'max'] as const) {
-        if (kind && this[which] && !isoValue(kind, this[which])) report(this, 'TXI-31', `${which} "${this[which]}" is not the ISO 8601 form of a ${kind}; it is treated as empty`);
+        if (DEBUG && kind && this[which] && !isoValue(kind, this[which])) report(this, 'TXI-31', `${which} "${this[which]}" is not the ISO 8601 form of a ${kind}; it is treated as empty`);
       }
       const [min, max] = [this.limit('min'), this.limit('max')];
-      if (min && max && min > max) report(this, 'TXI-31', `min "${min}" is later than max "${max}"`);
+      if (DEBUG && min && max && min > max) report(this, 'TXI-31', `min "${min}" is later than max "${max}"`);
     }
     if ((changed as PropertyValues).has('disabledDates') || changed.has('type')) {
       for (const entry of kind && kind !== 'time' ? (this.disabledDates ?? []) : []) {
-        if (typeof entry !== 'string' || !isoValue('date', entry)) report(this, 'TXI-31', `the entry "${String(entry)}" of disabledDates is not an ISO 8601 calendar date; it is ignored`);
+        if (DEBUG && (typeof entry !== 'string' || !isoValue('date', entry))) report(this, 'TXI-31', `the entry "${String(entry)}" of disabledDates is not an ISO 8601 calendar date; it is ignored`);
       }
     }
     // TXI-72: a new type, or a disabled field, hides a shown password again, with no revealchange.
@@ -2085,37 +2159,37 @@ export class TanreiTextInput extends TanreiElement {
     const kind = this.dateKind;
     const any = (...names: string[]) => names.some((name) => (changed as PropertyValues).has(name));
     // TXI-23: an input no Field names, with no label of its own and none of the product's, still renders. (A Field with an empty label says so itself: FLD-10.)
-    if ((changed.has('label') || !this.hasUpdated) && !this.label.trim() && !this.frame.state && !namedByProduct(this)) {
+    if (DEBUG && (changed.has('label') || !this.hasUpdated) && !this.label.trim() && !this.frame.state && !namedByProduct(this)) {
       report(this, 'TXI-23', 'label is empty and no field frames it, so the text input has no accessible name; put it in a field with a label, or give it a label');
     }
-    if (changed.has('type') && !(this.type in TYPES)) report(this, 'TXI-9', `type "${this.type}" is not a type of the text input; it behaves as "text"`);
-    if (any('type', 'multiline') && this.multiline && (this.type === 'password' || kind)) {
+    if (DEBUG && changed.has('type') && !(this.type in TYPES)) report(this, 'TXI-9', `type "${this.type}" is not a type of the text input; it behaves as "text"`);
+    if (DEBUG && any('type', 'multiline') && this.multiline && (this.type === 'password' || kind)) {
       report(this, 'TXI-17', `a ${this.type} field stays single-line; multiline is ignored`);
     }
     // TXI-57: wrap false is read by a multi-line code field alone — prose always wraps, a single line scrolls in its line.
-    if (any('noWrap', 'type', 'multiline') && this.noWrap && !this.unwrapped) {
+    if (DEBUG && any('noWrap', 'type', 'multiline') && this.noWrap && !this.unwrapped) {
       report(this, 'TXI-57', 'no-wrap is ignored: it is read only by a multi-line code field (type="code" with multiline)');
     }
-    if (changed.has('resize') && !RESIZES.includes(this.resize)) report(this, 'TXI-17', `resize "${this.resize}" is not a way the text input is resized; it behaves as "auto"`);
-    if (changed.has('resizeAxis') && !RESIZE_AXES.includes(this.resizeAxis)) report(this, 'TXI-17', `resizeAxis "${this.resizeAxis}" is not an axis the text input resizes; it behaves as "vertical"`);
+    if (DEBUG && changed.has('resize') && !RESIZES.includes(this.resize)) report(this, 'TXI-17', `resize "${this.resize}" is not a way the text input is resized; it behaves as "auto"`);
+    if (DEBUG && changed.has('resizeAxis') && !RESIZE_AXES.includes(this.resizeAxis)) report(this, 'TXI-17', `resizeAxis "${this.resizeAxis}" is not an axis the text input resizes; it behaves as "vertical"`);
     // TXI-41, TXI-52: a handle nobody named is drawn and works; the developer is told.
-    if (this.handleShown && !this.handleName) this.words.missing('resizeLabel', { id: 'TXI-41', effect: 'the resize handle is drawn and works, and has no accessible name' });
+    if (this.handleShown && !this.handleName) this.words.missing('resizeLabel', DEBUG && { id: 'TXI-41', effect: 'the resize handle is drawn and works, and has no accessible name' });
     // TXI-28: what a date, time or date-time field ignores, because every empty segment shows its own placeholder and the row is not free text.
     if (kind && any('type', 'placeholder', 'maxLength', 'prefixText', 'suffixText')) {
       const ignored = { placeholder: !!this.placeholder, maxLength: this.maxLength > 0, prefixText: !!this.prefixText, suffixText: !!this.suffixText };
-      for (const [name, set] of Object.entries(ignored)) if (set) report(this, 'TXI-28', `${name} is ignored by a ${kind} field: its segments each show their own placeholder, and the row is not free text`);
+      for (const [name, set] of Object.entries(ignored)) if (DEBUG && set) report(this, 'TXI-28', `${name} is ignored by a ${kind} field: its segments each show their own placeholder, and the row is not free text`);
     }
-    if (any('type', 'picker') && this.picker && !kind) {
+    if (DEBUG && any('type', 'picker') && this.picker && !kind) {
       report(this, 'TXI-32', `picker is ignored: the type "${this.type}" is not date, time or date-time`);
     }
     // TXI-71: a field that cannot draw the clear button draws none, and says so; one that draws it unnamed says that.
-    if (any('clearable', 'multiline', 'type') && this.clearable && (this.isMultiline || this.dateKind)) {
+    if (DEBUG && any('clearable', 'multiline', 'type') && this.clearable && (this.isMultiline || this.dateKind)) {
       report(this, 'TXI-71', `clearable is ignored by a ${this.isMultiline ? 'multi-line' : this.type} field: it draws no clear button`);
     }
-    if (any('revealable', 'type') && this.revealable && this.type !== 'password') report(this, 'TXI-72', `revealable is ignored: the type "${this.type}" is not password`);
-    if (this.revealShown && !this.words.get('revealLabel', this.revealLabel).trim()) this.words.missing('revealLabel', { id: 'TXI-72', effect: 'the reveal button is drawn and works, and has no accessible name' });
-    if (this.clearShown && !this.words.get('clearLabel', this.clearLabel).trim()) this.words.missing('clearLabel', { id: 'TXI-71', effect: 'the clear button is drawn and works, and has no accessible name' });
-    if (any('picker', 'pickerLabel', 'type', 'readOnly') && this.pickerShown && !this.pickerLabel.trim()) {
+    if (DEBUG && any('revealable', 'type') && this.revealable && this.type !== 'password') report(this, 'TXI-72', `revealable is ignored: the type "${this.type}" is not password`);
+    if (this.revealShown && !this.words.get('revealLabel', this.revealLabel).trim()) this.words.missing('revealLabel', DEBUG && { id: 'TXI-72', effect: 'the reveal button is drawn and works, and has no accessible name' });
+    if (this.clearShown && !this.words.get('clearLabel', this.clearLabel).trim()) this.words.missing('clearLabel', DEBUG && { id: 'TXI-71', effect: 'the clear button is drawn and works, and has no accessible name' });
+    if (DEBUG && any('picker', 'pickerLabel', 'type', 'readOnly') && this.pickerShown && !this.pickerLabel.trim()) {
       report(this, 'TXI-32', 'pickerLabel is empty, so the picker button has no accessible name; give it one ("Choose date")');
     }
   }
@@ -2285,7 +2359,7 @@ export class TanreiTextInput extends TanreiElement {
     const segment = (unit: SegmentUnit) => {
       const said = spoken(row, this.segments, unit, this.words.get('segmentEmptyText', this.segmentEmptyText));
       // TXI-52: an empty segment nobody gave words for has no value and no value text.
-      if (said.now === null && said.text === null) this.words.missing('segmentEmptyText', { id: 'TXI-52', effect: 'an empty date or time segment has no value text' });
+      if (said.now === null && said.text === null) this.words.missing('segmentEmptyText', DEBUG && { id: 'TXI-52', effect: 'an empty date or time segment has no value text' });
       const described = first || error ? describedBy : undefined;
       first = false;
       return html`<span class="unit"

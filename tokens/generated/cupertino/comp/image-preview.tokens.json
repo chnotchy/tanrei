@@ -8,7 +8,7 @@
             "since": "0.1.0"
           },
           "dev.tanrei.llm": {
-            "usage": "Everything an image preview draws itself: the surface that fills the window; the bar at the top (its least height, fill, inset, the gap between its controls and which Button variant they take); the count; which Button variant the previous and next controls take and how far they stand from the edges; the caption (fill, text style, color, padding, widest line); the gap between two pictures while one replaces the other; the mark and the sentence of a picture that did not arrive; and the motion of opening, closing, a zoom step, a move to another picture and the controls' fade. Its controls are Tanrei Buttons and its loading placeholder a Skeleton: their looks are comp.button.* and comp.skeleton.*, never repeated here.",
+            "usage": "Everything an image preview draws itself: the surface that fills the window; the bar at the top (its least height, fill, inset, the gap between its controls and which Button size and variant they take); the count; which Button size and variant the previous and next controls take and how far they stand from the edges; the caption (fill, text style, color, padding, widest line); the gap between two pictures while one replaces the other; the mark and the sentence of a picture that did not arrive; and the motion of opening, closing, a zoom step, a move to another picture and the controls' fade. Its controls are Tanrei Buttons and its loading placeholder a Skeleton: their looks are comp.button.* and comp.skeleton.*, never repeated here.",
             "rules": [
               "The preview is opened by the product: set open and index from the product's own thumbnail, which is a button that says it enlarges the picture. Every picture has an alt; a caption is optional.",
               "Never hide a way out: the close button, the previous and next buttons and the zoom buttons are always in the focus order and exposed to assistive technology, drawn or not. Every gesture has a button and a key.",
@@ -61,13 +61,13 @@
           "gap": {
             "$type": "dimension",
             "$value": "{tanrei.sys.space.space150}",
-            "$description": "Between two controls of the bar. With the small Buttons' own targets (BTN-5) it keeps each whole pointer target apart from the next: 36 and 12 make 48 in the default system, more than sys.target.pointer."
+            "$description": "Between two controls of the bar. With the bar's Buttons' own targets (BTN-5) it keeps each whole pointer target apart from the next: 36 and 12 make 48 in the default system, more than sys.target.pointer."
           },
           "button": {
             "variant": {
               "$type": "number",
               "$value": 4,
-              "$description": "The Button variant of the bar's controls — zoom out, zoom in and close — icon-only small Buttons (IMP-8): tonal in the default system, as every host's close button is, and the zoom controls beside it drawn the same way. The value is an index into dev.tanrei.enum.values, the core Button variants; platforms receive the name.",
+              "$description": "The Button variant of the bar's controls — zoom out, zoom in and close — icon-only Buttons of the size bar.button.size names (IMP-8): tonal in the default system, as every host's close button is, and the zoom controls beside it drawn the same way. The value is an index into dev.tanrei.enum.values, the core Button variants; platforms receive the name.",
               "$extensions": {
                 "dev.tanrei.vocabulary": {
                   "rationale": "One product decides once how the controls of its previews stand out: tonal controls that read as controls on any bar, bare glyphs on a solid bar, or filled controls on a bar that lets the picture through."
@@ -83,6 +83,26 @@
                 },
                 "dev.tanrei.derive": {
                   "fixed": "Apple's photo viewer draws its bar controls as bare glyphs. Keeps the preset's look; the change to tonal controls is the default system's."
+                }
+              }
+            },
+            "size": {
+              "$type": "number",
+              "$value": 0,
+              "$description": "The Button size of the bar's controls — zoom out, zoom in and close — icon-only Buttons (IMP-8): small in the default system, as every host's close button is. The value is an index into dev.tanrei.enum.values, the core Button sizes; platforms receive the name.",
+              "$extensions": {
+                "dev.tanrei.vocabulary": {
+                  "rationale": "One product decides once how large the controls of its previews' bar are: small ones that leave the picture the most room, or the size its other icon buttons take."
+                },
+                "dev.tanrei.enum": {
+                  "values": [
+                    "small",
+                    "medium",
+                    "large"
+                  ]
+                },
+                "dev.tanrei.derive": {
+                  "fixed": "A choice of kind; no dial scales it."
                 }
               }
             }
@@ -110,7 +130,7 @@
             "variant": {
               "$type": "number",
               "$value": 1,
-              "$description": "The Button variant of the previous and next controls, icon-only medium Buttons that stand over the picture's sides (IMP-10). The value is an index into dev.tanrei.enum.values, the core Button variants; platforms receive the name.",
+              "$description": "The Button variant of the previous and next controls, icon-only Buttons of the size navigation.button.size names that stand over the picture's sides (IMP-10). The value is an index into dev.tanrei.enum.values, the core Button variants; platforms receive the name.",
               "$extensions": {
                 "dev.tanrei.vocabulary": {
                   "rationale": "One product's previous and next controls stand on whatever the picture shows, so it chooses a variant with a fill of its own; which fill is the product's."
@@ -122,6 +142,26 @@
                     "elevated",
                     "outlined",
                     "text"
+                  ]
+                },
+                "dev.tanrei.derive": {
+                  "fixed": "A choice of kind; no dial scales it."
+                }
+              }
+            },
+            "size": {
+              "$type": "number",
+              "$value": 1,
+              "$description": "The Button size of the previous and next controls, icon-only Buttons that stand over the picture's sides (IMP-10): medium in the default system. The value is an index into dev.tanrei.enum.values, the core Button sizes; platforms receive the name.",
+              "$extensions": {
+                "dev.tanrei.vocabulary": {
+                  "rationale": "One product's previous and next controls stand over whatever the picture shows; whether they are small, to hide less of it, or larger, to be easier to reach, is the product's choice."
+                },
+                "dev.tanrei.enum": {
+                  "values": [
+                    "small",
+                    "medium",
+                    "large"
                   ]
                 },
                 "dev.tanrei.derive": {

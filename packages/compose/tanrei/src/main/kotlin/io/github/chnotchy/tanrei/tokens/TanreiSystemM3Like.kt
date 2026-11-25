@@ -1015,6 +1015,7 @@ private object M3LikeSystemSource {
     @Suppress("UNUSED_PARAMETER")
     fun bottomSheet(typescale: TanreiTypescale, elevation: TanreiElevation): TanreiBottomSheetTokens =
         TanreiBottomSheetTokens(
+            closeButtonSize = 1f,
             closeButtonVariant = 4f,
             containerColor = TanreiPaint.Role(TanreiColorRole.SurfaceContainerLow),
             containerElevation = elevation.level1,
@@ -2299,6 +2300,7 @@ private object M3LikeSystemSource {
         TanreiCalloutTokens(
             actionsGap = 12.dp,
             actionsItemGap = 8.dp,
+            closeButtonSize = 1f,
             closeButtonVariant = 4f,
             containerGap = 8.dp,
             containerPaddingBlock = 12.dp,
@@ -2479,6 +2481,7 @@ private object M3LikeSystemSource {
             motionScrollEasing = TanreiCubicBezier(x1 = 0.05f, y1 = 0.7f, x2 = 0.1f, y2 = 1f),
             motionStateDuration = 150,
             motionStateEasing = TanreiCubicBezier(x1 = 0.2f, y1 = 0f, x2 = 0f, y2 = 1f),
+            navigationButtonSize = 1f,
             navigationButtonVariant = 2f,
             hovered = TanreiCarouselStateTokens(containerShape = 28.dp, opacity = 1f),
             focused = TanreiCarouselStateTokens(containerShape = 28.dp, opacity = 1f),
@@ -2569,6 +2572,7 @@ private object M3LikeSystemSource {
             counterTypescale = typescale.labelSmall,
             inputPaddingBlock = 8.dp,
             layoutInlineMinWidth = 360.dp,
+            layoutInputMinWidth = 160.dp,
             motionGlyphFadeDuration = 150,
             motionResizeDuration = 500,
             motionResizeEasing = TanreiCubicBezier(x1 = 0.27f, y1 = 1.06f, x2 = 0.18f, y2 = 1f),
@@ -3471,6 +3475,7 @@ private object M3LikeSystemSource {
             actionsArrangement = 1f,
             actionsGap = 8.dp,
             actionsPaddingBlock = 12.dp,
+            actionsSize = 1f,
             actionsVariant = 4f,
             containerGap = 16.dp,
             containerPaddingBlock = 8.dp,
@@ -4429,6 +4434,7 @@ private object M3LikeSystemSource {
     @Suppress("UNUSED_PARAMETER")
     fun imagePreview(typescale: TanreiTypescale, elevation: TanreiElevation): TanreiImagePreviewTokens =
         TanreiImagePreviewTokens(
+            barButtonSize = 1f,
             barButtonVariant = 4f,
             barContainerColor = TanreiPaint.Role(TanreiColorRole.Surface),
             barGap = 12.dp,
@@ -4460,6 +4466,7 @@ private object M3LikeSystemSource {
             motionPageEasing = TanreiCubicBezier(x1 = 0.05f, y1 = 0.7f, x2 = 0.1f, y2 = 1f),
             motionZoomDuration = 250,
             motionZoomEasing = TanreiCubicBezier(x1 = 0.2f, y1 = 0f, x2 = 0f, y2 = 1f),
+            navigationButtonSize = 1f,
             navigationButtonVariant = 1f,
             navigationMarginInline = 8.dp,
         )
@@ -6607,6 +6614,7 @@ private object M3LikeSystemSource {
             arrowInset = 8.dp,
             arrowVisible = 0f,
             arrowWidth = 12.dp,
+            closeButtonSize = 1f,
             closeButtonVariant = 4f,
             compactWindowWidth = 600.dp,
             containerColor = TanreiPaint.Role(TanreiColorRole.SurfaceBright),
@@ -7540,6 +7548,7 @@ private object M3LikeSystemSource {
             actionsGap = 8.dp,
             actionsPaddingBlock = 16.dp,
             actionsVariant = 0f,
+            closeButtonSize = 1f,
             closeButtonVariant = 4f,
             containerPaddingBlock = 24.dp,
             containerPaddingInline = 24.dp,
@@ -7584,7 +7593,7 @@ private object M3LikeSystemSource {
             motionDimDuration = 1000,
             motionDimEasing = TanreiCubicBezier(x1 = 0.2f, y1 = 0f, x2 = 0f, y2 = 1f),
             motionShowDelay = 300,
-            placeholderColor = TanreiPaint.Role(TanreiColorRole.SurfaceVariant),
+            placeholderColor = TanreiPaint.Alpha(of = TanreiPaint.Role(TanreiColorRole.OnSurface), amount = 0.1f),
             placeholderDimOpacity = 0.5f,
             placeholderLastLineInlineSize = 0.6f,
             placeholderShapeBlock = 12.dp,
@@ -7692,6 +7701,7 @@ private object M3LikeSystemSource {
         TanreiSnackbarTokens(
             actionTonalLayerOpacity = 0f,
             breakpointMedium = 600.dp,
+            closeButtonSize = 1f,
             closeButtonVariant = 4f,
             containerColor = TanreiPaint.Role(TanreiColorRole.SurfaceBright),
             containerElevation = elevation.level3,
@@ -7707,7 +7717,7 @@ private object M3LikeSystemSource {
             containerPaddingInlineStart = 16.dp,
             containerShape = 4.dp,
             controlsGap = 4.dp,
-            controlsHeight = 32.dp,
+            controlsHeight = 40.dp,
             controlsLabelTypescale = typescale.label,
             controlsPaddingInline = 14.dp,
             controlsShape = 9999.dp,

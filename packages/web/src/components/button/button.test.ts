@@ -2,7 +2,8 @@
 // src/primitives/delegated-aria.test.ts.
 import AxeBuilder from '@axe-core/playwright';
 import { expect, test } from '@playwright/test';
-import { type Fixture, acmeSystemCss, loadSpec, missingWords, mountFixtures, resolveColor, resolveToken, setWords, tab, tabTo, rootTokens } from '../../../test/harness.js';
+import { type Fixture, acmeSystemCss, iconFaceArrives, loadSpec, missingWords, mountFixtures, resolveColor, resolveToken, setWords, tab, tabTo, rootTokens, withoutIconFont } from '../../../test/harness.js';
+import { type HeldGlyph, expectGlyphsHeldBack } from '../../../test/held-glyphs.js';
 import { pressHoldAsRun } from '../../../test/harsh.js';
 import { axTree } from '../../../test/ax-tree.js';
 import { opticalSize } from '../../../test/icons.js';
@@ -3418,5 +3419,69 @@ test.describe('a tone a host gives (BTN-45)', () => {
     const plain = await drawn('#plain-tonal [part="container"]');
     expect(plain[0]).toBe('solid');
     expect(await drawn('test-tone-host #tonal [part="container"]')).toEqual(plain);
+  });
+});
+
+test.describe('a glyph the icon set cannot draw yet', () => {
+  type P = import('@playwright/test').Page;
+  const host = (page: P, id: string) => page.locator(button(id));
+
+  test('BTN-49: while the icon set cannot draw them, the icon slot’s glyph and the new-context mark draw nothing — never their names — and keep their boxes; the container, the label and the name stay; once it can, the glyphs are drawn where they were', async ({ page }) => {
+    const glyphs: HeldGlyph[] = [
+      { name: 'a leading icon', host: host(page, 'filled-leading-icon'), box: '.icon' },
+      { name: 'a trailing icon', host: host(page, 'filled-trailing-icon-large'), box: '.icon' },
+      { name: 'an icon alone', host: host(page, 'filled-icon'), box: '.icon' },
+      { name: 'the new-context mark', host: host(page, 'outlined-link-new'), box: '.mark' },
+      { name: 'a leading icon beside the mark', host: host(page, 'tonal-link-new-leading-icon'), box: '.icon' },
+      { name: 'the mark beside a leading icon', host: host(page, 'tonal-link-new-leading-icon'), box: '.mark' },
+    ];
+    await expectGlyphsHeldBack(page, glyphs, async () => {
+      // The name and the role are the button's still, and its label is drawn.
+      await expect(host(page, 'filled-icon').getByRole('button', { name: 'Favorite' })).toHaveCount(1);
+      await expect(host(page, 'outlined-link-new').getByRole('link', { name: 'View source' })).toHaveCount(1);
+      expect(await host(page, 'filled-leading-icon').locator('.label').evaluate((el) => getComputedStyle(el).visibility)).toBe('visible');
+    });
+  });
+
+  test('BTN-49: a glyph placed in the icon slot while the icon set cannot draw it is not drawn either, and is drawn once the set can', async ({ page }) => {
+    const target = host(page, 'filled-leading-icon');
+    const family = await withoutIconFont(page);
+    await target.evaluate((el) => {
+      el.querySelector('[slot="icon"]')!.remove();
+      const glyph = document.createElement('span');
+      glyph.slot = 'icon';
+      glyph.className = 'late';
+      glyph.textContent = 'favorite';
+      el.append(glyph);
+    });
+    const late = target.locator('.late');
+    await expect.poll(() => target.locator('.icon').getAttribute('data-drawn')).toBeNull();
+    expect(await late.evaluate((el) => getComputedStyle(el).visibility)).toBe('hidden');
+    await iconFaceArrives(page, family);
+    await expect.poll(() => target.locator('.icon').getAttribute('data-drawn')).not.toBeNull();
+    expect(await late.evaluate((el) => getComputedStyle(el).visibility)).toBe('visible');
+  });
+
+  test('BTN-49: a glyph named by its data-icon is held back as its text form is; an SVG in the icon slot, no glyph of the icon set, is drawn while the set cannot draw', async ({ page }) => {
+    const target = host(page, 'filled-leading-icon');
+    const family = await withoutIconFont(page);
+    await target.evaluate((el) => {
+      el.querySelector('[slot="icon"]')!.remove();
+      const glyph = document.createElement('span');
+      glyph.slot = 'icon';
+      glyph.className = 'tanrei-icon named';
+      glyph.dataset.icon = 'favorite';
+      el.append(glyph);
+    });
+    await expect.poll(() => target.locator('.icon').getAttribute('data-drawn')).toBeNull();
+    expect(await target.locator('.named').evaluate((el) => getComputedStyle(el).visibility)).toBe('hidden');
+    await target.evaluate((el) => {
+      el.querySelector('[slot="icon"]')!.remove();
+      el.insertAdjacentHTML('beforeend', '<svg slot="icon" class="drawing" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8"/></svg>');
+    });
+    await expect.poll(() => target.locator('.icon').getAttribute('data-drawn')).not.toBeNull();
+    expect(await target.locator('.drawing').evaluate((el) => getComputedStyle(el).visibility)).toBe('visible');
+    await iconFaceArrives(page, family);
+    await expect(target.locator('.icon')).toHaveAttribute('data-drawn', '');
   });
 });

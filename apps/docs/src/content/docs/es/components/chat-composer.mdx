@@ -115,7 +115,7 @@ Los miembros aportan la escritura con su altura que crece, las teclas, cada elem
 | Varias líneas | Todos los botones se quedan en el borde inferior | El botón de enviar se queda en el borde inferior de la línea de escritura |
 | Para | Mensajes cortos, un panel estrecho | Muchas acciones, mensajes escritos en párrafos |
 
-Una cápsula más estrecha que `comp.chat-composer.layout.inline-min-width` se dispone como stacked, diga lo que diga `layout`. Un cuadro de redacción stacked que no tiene nada para la fila de debajo se dibuja como uno inline. El número de líneas nunca cambia la disposición.
+Una cápsula más estrecha que `comp.chat-composer.layout.inline-min-width` se dispone como stacked, diga lo que diga `layout`, y también una cuyas acciones, contador y botón de enviar dejarían al cuadro de texto menos ancho que `comp.chat-composer.layout.input-min-width`: un cuadro de redacción con muchas acciones pasa antes a stacked, para que el texto nunca se parta en una columna de pocas letras. El contador se cuenta con el ancho que tiene en `maxLength`, así que escribir nunca cambia la disposición. Un cuadro de redacción stacked que no tiene nada para la fila de debajo se dibuja como uno inline. El número de líneas nunca cambia la disposición.
 
 ### Qué se puede enviar
 

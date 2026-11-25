@@ -1989,8 +1989,11 @@ test.describe('ranges, actions, motion, overflow and semantics', () => {
     expect((await bounds(o)).y).toBeLessThan((await bounds(c)).y);
     // A fixture system: end (1) and text (4).
     await host(page, 'd').evaluate((el: any) => (el.cancelLabel = 'Cancel'));
-    await override(page, { [T('actions-arrangement')]: 'end', [T('actions-variant')]: 'text' });
+    expect(await c.getAttribute('size')).toBe('medium');
+    await override(page, { [T('actions-arrangement')]: 'end', [T('actions-variant')]: 'text', [T('actions-size')]: 'small' });
     await expect(c).toHaveAttribute('variant', 'text');
+    await expect(c).toHaveAttribute('size', 'small');
+    await expect(o).toHaveAttribute('size', 'small');
     await expect.poll(() => surface(page, 'd').getAttribute('data-arrangement')).toBe('end');
     const [c2, o2, s] = [await bounds(c), await bounds(o), await bounds(box)];
     expect(o2.x + o2.width).toBeCloseTo(s.x + s.width - (await px(box, 'padding-right')), 0);
@@ -2213,6 +2216,98 @@ test.describe('ranges, actions, motion, overflow and semantics', () => {
     await expect.poll(async () => (await bounds(surface(page, 'v'))).width).toBeLessThanOrEqual(320 - 2 * margin + 0.5);
   });
 
+  test('DTM-1, DTM-36: a picker drawn in place (the inline test attribute) takes the room of the box it stands in, not that box less the modal margins: in a box just as wide as its parts, nothing of the dial’s time display is cut', async ({ page }) => {
+    await mount(page, [f('m', { open: true, inline: true, mode: 'time', value: '19:30', hourCycle: 'h12', entryMode: 'dial' }), inline('d', { mode: 'time', value: '19:30', hourCycle: 'h12', entryMode: 'dial' })]);
+    for (const id of ['m', 'd']) {
+      const natural = (await bounds(surface(page, id))).width;
+      // The picker in a box exactly as wide as it is drawn (the host draws no box of its own: the surface stands in the box).
+      await host(page, id).evaluate((el, width) => {
+        const box = document.createElement('div');
+        box.style.inlineSize = `${width}px`;
+        el.before(box);
+        box.append(el);
+      }, natural);
+      await page.evaluate(() => new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve))));
+      const [s, p] = [await bounds(surface(page, id)), await bounds(periodBox(page, id))];
+      expect(s.width, `${id}: as wide as its parts`).toBeCloseTo(natural, 0);
+      expect(p.x + p.width, `${id}: the period selector ends inside the surface`).toBeLessThanOrEqual(s.x + s.width + 0.5);
+      expect(await host(page, id).locator('.body').evaluate((el) => el.scrollWidth <= el.clientWidth + 1), `${id}: the body does not scroll sideways`).toBe(true);
+    }
+  });
+
+  /**
+   * DTM-36: nothing of a picker is drawn outside its surface — the surface clips what overflows it — and its body does
+   * not scroll sideways; the time display, its period included, stays inside the time section, and each selector's
+   * value inside its selector.
+   */
+  async function expectNothingCut(page: P, id: string) {
+    const found = await host(page, id).evaluate((el) => {
+      const root = el.shadowRoot!;
+      const box = (part: Element) => part.getBoundingClientRect();
+      const s = box(root.querySelector('.surface')!);
+      const inside = (r: DOMRect, o: DOMRect) => r.left >= o.left - 0.5 && r.right <= o.right + 0.5 && r.top >= o.top - 0.5 && r.bottom <= o.bottom + 0.5;
+      const out: string[] = [];
+      const parts = '.header, .time > .display .selector, .time > .wheels .wheel, .time > .dial, .range-field, tanrei-calendar, .actions';
+      for (const part of root.querySelectorAll(parts)) {
+        // Inside the surface sideways; the body scrolls up and down (DTM-36), so only its inline edges are read.
+        const r = box(part);
+        if (r.left < s.left - 0.5 || r.right > s.right + 0.5) out.push(`${part.className || part.localName} ${r.left.toFixed(1)}–${r.right.toFixed(1)} outside the surface ${s.left.toFixed(1)}–${s.right.toFixed(1)}`);
+      }
+      // The time display's own box is never wider than the section: what it holds is read, part by part.
+      const time = root.querySelector('.time');
+      for (const part of time ? root.querySelectorAll('.time > .display .selector, .time > .display .separator') : []) {
+        const [r, t] = [box(part), box(time!)];
+        if (!inside(r, t)) out.push(`${part.className} ${(part as HTMLElement).dataset.unit ?? ''} ${r.left.toFixed(1)}–${r.right.toFixed(1)} outside the time section ${t.left.toFixed(1)}–${t.right.toFixed(1)}`);
+      }
+      for (const selector of root.querySelectorAll('.time > .display .selector')) {
+        const value = selector.querySelector('.value');
+        if (value && !inside(box(value), box(selector))) out.push(`the value of ${(selector as HTMLElement).dataset.unit} cut`);
+      }
+      const body = root.querySelector('.body') as HTMLElement;
+      if (body.scrollWidth > body.clientWidth + 1) out.push(`the body scrolls sideways by ${body.scrollWidth - body.clientWidth}`);
+      return out;
+    });
+    expect(found, `${id}: nothing cut`).toEqual([]);
+  }
+
+  test('DTM-36, DTM-21, DTM-32: in a window 320 × 640 — the width WCAG 1.4.10 asks content to work at, which leaves a modal picker less than its 12-hour time display needs — the hour and minute selectors narrow equally, never below the target, while the separator and the period keep their widths: nothing of the time display is cut or outside the time section, in en-US, ja-JP (the period first) and ar (right to left)', async ({ page }) => {
+    const window = { width: 320, height: 640 };
+    for (const [locale, direction] of [['en-US'], ['ja-JP'], ['ar-EG', 'rtl']] as const) {
+      const fixture = opened('t', { mode: 'time', value: '19:30', hourCycle: 'h12', entryMode: 'dial', locale });
+      await mount(page, [direction ? { ...fixture, direction } : fixture], { window });
+      const [selectorWidth, periodMinimum, target] = [await resolveToken(page, T('selector-container-width')), await resolveToken(page, T('period-container-width')), await resolveToken(page, '--tanrei-sys-target-touch')];
+      await expectNothingCut(page, 't');
+      const [h, m, p, time] = [await bounds(selector(page, 't', 'hour')), await bounds(selector(page, 't', 'minute')), await bounds(periodBox(page, 't')), await bounds(host(page, 't').locator('.time'))];
+      expect(h.width, `${locale}: the hour selector narrowed`).toBeLessThan(selectorWidth - 0.5);
+      expect(h.width, `${locale}: the two selectors narrow equally`).toBeCloseTo(m.width, 0);
+      expect(p.width, `${locale}: the period keeps its width`).toBeGreaterThanOrEqual(periodMinimum - 0.5);
+      for (const [name, b] of [['hour', h], ['minute', m], ['period', p]] as const) expect(Math.min(b.width, b.height), `${locale}: the ${name} at least the touch target`).toBeGreaterThanOrEqual(target - 0.5);
+      expect(Math.max(h.x + h.width, m.x + m.width, p.x + p.width), `${locale}: the time display ends inside the time section`).toBeLessThanOrEqual(time.x + time.width + 0.5);
+      expect(Math.min(h.x, m.x, p.x), `${locale}: and starts inside it`).toBeGreaterThanOrEqual(time.x - 0.5);
+    }
+    // Every other time picker of a phone's width: the 24-hour display, the wheels, a range — nothing cut either.
+    await mount(page, [
+      opened('a', { mode: 'time', value: '19:30', hourCycle: 'h23', entryMode: 'dial' }),
+      opened('b', { mode: 'time', value: '07:30', hourCycle: 'h12' }),
+      opened('c', { mode: 'time', range: true, start: '09:00', end: '17:30', hourCycle: 'h12', entryMode: 'dial' }),
+    ], { window });
+    for (const id of ['a', 'b', 'c']) await expectNothingCut(page, id);
+    // Where there is the room (360), the selectors are their width again.
+    await mount(page, [opened('t', { mode: 'time', value: '19:30', hourCycle: 'h12', entryMode: 'dial' })], { window: { width: 360, height: 640 } });
+    expect((await bounds(selector(page, 't', 'hour'))).width).toBeCloseTo(await resolveToken(page, T('selector-container-width')), 0);
+  });
+
+  test('DTM-9, DTM-36: layout auto in a window 320 or 360 wide and 640 tall — too short for the vertical date-time picker, too narrow for the horizontal one — stays vertical, its body scrolling between the header and the actions: nothing of the calendar or the time section is cut, and the body does not scroll sideways', async ({ page }) => {
+    for (const width of [320, 360]) {
+      await mount(page, [opened('w', { mode: 'date-time', value: '2026-09-17T19:30', hourCycle: 'h12' }), opened('d', { mode: 'date-time', value: '2026-09-17T19:30', hourCycle: 'h12', entryMode: 'dial' })], { window: { width, height: 640 } });
+      for (const id of ['w', 'd']) {
+        await expect.poll(() => surface(page, id).getAttribute('data-layout'), `${width}: ${id}`).toBe('vertical');
+        expect(await host(page, id).locator('.body').evaluate((el) => el.scrollHeight > el.clientHeight), `${width}: ${id} is too tall for the window`).toBe(true);
+        await expectNothingCut(page, id);
+      }
+    }
+  });
+
   test('DTM-36: a wheel turned on past the end of a docked picker’s body that scrolls, and turned again after a pause, leaves the page behind where it was and the picker open', async ({ page }) => {
     await mount(page, [docked('d', { mode: 'date-time', value: '2026-09-17T19:30', layout: 'vertical' })], { window: { width: 480, height: 420 } });
     await opener(page, 'd').evaluate((el) => ((el as HTMLElement).style.cssText = 'position: fixed; top: 8px; left: 8px;'));
@@ -2358,7 +2453,24 @@ test.describe('ranges, actions, motion, overflow and semantics', () => {
     expect((await bounds(host(page, 'h').locator('.dial'))).x).toBeLessThan((await bounds(shownRow(page, 'h', 'display'))).x);
   });
 
-  test('DTM-40: unknown values of the closed props behave as the default and are reported; malformed values, value with a range, a date-time end before its start and min after max are ignored and reported', async ({ page }) => {
+  test('DTM-39, BTN-5: right to left, the hour and the minute, still left to right, each keep their hit area centred on them — a press in the gap nearer the minute never goes to the hour', async ({ page }) => {
+    await mount(page, [{ ...opened('t', { mode: 'time', value: '07:30', entryMode: 'dial' }), direction: 'rtl' }]);
+    const [hour, minute] = [selector(page, 't', 'hour'), selector(page, 't', 'minute')];
+    const [h, m] = [await bounds(hour), await bounds(minute)];
+    expect(h.x + h.width).toBeLessThan(m.x);
+    await minute.click();
+    await expect(minute).toHaveClass(/selected/);
+    // A selector is at least the target in the default system, so its hit area is its box: the hour's stops at its own
+    // inline end, and nothing of it lies in the gap to the minute (it lay a half selector toward the minute when its
+    // centring followed the picker's direction rather than its own).
+    await page.mouse.click(m.x - 2, m.y + m.height / 2);
+    await expect(minute).toHaveClass(/selected/);
+    await expect(hour).not.toHaveClass(/selected/);
+    await page.mouse.click(h.x + h.width - 2, h.y + h.height / 2);
+    await expect(hour).toHaveClass(/selected/);
+  });
+
+  test('DTM-40:unknown values of the closed props behave as the default and are reported; malformed values, value with a range, a date-time end before its start and min after max are ignored and reported', async ({ page }) => {
     const seen = warnings(page);
     await mount(page, [
       opened('a', { presentation: 'sheet', mode: 'week', hourCycle: 'h24', entryMode: 'text', unit: 'second', layout: 'grid', startView: 'decade', firstDayOfWeek: 'someday', value: '17/09/2026' }),

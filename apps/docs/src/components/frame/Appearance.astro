@@ -15,7 +15,10 @@
 //                resolved tokens, in light and in dark), and a line that says what a showcase system is; and, while
 //                this browser keeps a theme Theme Studio gave the docs, "My theme" (the header's script takes the
 //                item out of the list while it keeps none). Choosing the default system is the one step back from it
-//                (the button names the reader's theme by that word, never by its look's id)
+//                (the button names the reader's theme by that word, never by its look's id). On a page whose look
+//                came too late (lib/appearance.ts, `LATE_ATTR`) the list says the default system, which is drawn, and
+//                a line above it says which look came too late and that it applies from the next page — choosing it
+//                here puts it in now (the header's script writes the line)
 //   the actions  Theme Studio's link ("Edit theme"), and a copy of a link to this page as it looks now
 //                (`?look=&mode=&contrast=`), said in a Snackbar
 // The quick switch between light and dark is the bar's own toggle (Header.astro); the device's mode is chosen here.
@@ -82,6 +85,7 @@ const ids = { mode: `${id}-mode`, contrast: `${id}-contrast`, look: `${id}-look`
           <tanrei-tab value="high" label={t.contrastHigh} />
         </tanrei-tabs>
         <p class="docs-appearance-heading" id={ids.look}>{t.system.choice}</p>
+        <p class="docs-appearance-late" hidden></p>
         <tanrei-list class="docs-appearance-look" selection="single" label={t.system.choice} value={look} size="small">
           {looks.map((each) => (
             <tanrei-list-item value={each.id} label={each.id}>
@@ -118,7 +122,8 @@ const ids = { mode: `${id}-mode`, contrast: `${id}-contrast`, look: `${id}-look`
   .docs-appearance-heading:first-child {
     margin-block-start: 0;
   }
-  .docs-appearance-note {
+  .docs-appearance-note,
+  .docs-appearance-late {
     margin: 0;
     font: var(--tanrei-sys-typescale-body-small-font-weight) var(--tanrei-sys-typescale-body-small-font-size)/var(--tanrei-sys-typescale-body-small-line-height) var(--tanrei-sys-typescale-body-small-font-family);
     letter-spacing: var(--tanrei-sys-typescale-body-small-letter-spacing);

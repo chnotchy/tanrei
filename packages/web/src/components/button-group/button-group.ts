@@ -23,6 +23,7 @@ import { styles } from './button-group.styles.js';
 import type { TanreiButtonSize } from '../button/button.js';
 import { TanreiElement } from '../../primitives/element.js';
 import { holdsProductName, nameHost, namedByProduct } from '../../primitives/delegated-aria.js';
+import { DEBUG } from '../../primitives/debug.js';
 
 /** How the buttons are laid out: spaced apart, or joined into one shape. A closed set (the two differ in structure). */
 export type TanreiButtonGroupVariant = 'standard' | 'connected';
@@ -286,9 +287,9 @@ export class TanreiButtonGroup extends TanreiElement implements PlacingGroup {
   private checkContent() {
     const children = [...this.children];
     const foreign = children.filter((child) => !ITEMS.includes(child.localName));
-    if (children.length < 2) report(this, 'BGR-10', `it holds ${children.length} item${children.length === 1 ? '' : 's'}; a button group holds two or more`);
+    if (DEBUG && children.length < 2) report(this, 'BGR-10', `it holds ${children.length} item${children.length === 1 ? '' : 's'}; a button group holds two or more`);
     for (const child of foreign) {
-      report(this, 'BGR-10', `it holds <${child.localName}>, which is not a <tanrei-button>; it is laid out, but the group cannot set its corners or width`);
+      if (DEBUG) report(this, 'BGR-10', `it holds <${child.localName}>, which is not a <tanrei-button>; it is laid out, but the group cannot set its corners or width`);
     }
   }
 
@@ -299,9 +300,9 @@ export class TanreiButtonGroup extends TanreiElement implements PlacingGroup {
     if (!boxes.length) return;
     const needed = Math.round(Math.max(...boxes.map((box) => box.right)) - Math.min(...boxes.map((box) => box.left)));
     const has = Math.round(this.getBoundingClientRect().width);
-    if (needed > has) report(this, 'BGR-7', `the row needs ${needed} px but has ${has} px, even with its Buttons as narrow as their longest word; it overflows its end`);
+    if (needed > has) DEBUG && report(this, 'BGR-7', `the row needs ${needed} px but has ${has} px, even with its Buttons as narrow as their longest word; it overflows its end`);
     // BGR-17: an item that cannot be as narrow as its share keeps its minimum, and the others share the rest.
-    else if (this.fullWidth && boxes.some((box) => Math.abs(box.width - boxes[0].width) > 0.5)) {
+    else if (DEBUG && this.fullWidth && boxes.some((box) => Math.abs(box.width - boxes[0].width) > 0.5)) {
       report(this, 'BGR-17', 'the row cannot be shared equally: an item is wider than its share even at its minimum width, so it keeps that width and the others share the rest');
     }
   }
@@ -323,11 +324,11 @@ export class TanreiButtonGroup extends TanreiElement implements PlacingGroup {
     // placed order. A child that stays in its slot is not assigned again.
     this.renderRoot.querySelectorAll<HTMLSlotElement>('slot').forEach((slot, i) => assignSlot(slot, this.placed[i] ? [this.placed[i]] : []));
     // BGR-9: an unknown value is drawn as the default (the styles match the defined values alone) and reported.
-    if (changed.has('variant') && !VARIANTS.includes(this.variant)) report(this, 'BGR-9', `variant "${this.variant}" is not a value of the button group; it is drawn as "standard"`);
-    if (changed.has('orientation') && !ORIENTATIONS.includes(this.orientation)) {
+    if (DEBUG && changed.has('variant') && !VARIANTS.includes(this.variant)) report(this, 'BGR-9', `variant "${this.variant}" is not a value of the button group; it is drawn as "standard"`);
+    if (DEBUG && changed.has('orientation') && !ORIENTATIONS.includes(this.orientation)) {
       report(this, 'BGR-9', `orientation "${this.orientation}" is not a value of the button group; it is drawn as "horizontal"`);
     }
-    if (changed.has('separation') && !(SEPARATION_VALUES as readonly string[]).includes(this.separation)) {
+    if (DEBUG && changed.has('separation') && !(SEPARATION_VALUES as readonly string[]).includes(this.separation)) {
       report(this, 'BGR-9', `separation "${this.separation}" is not a value of the button group; it is drawn as "auto"`);
     }
     this.place();

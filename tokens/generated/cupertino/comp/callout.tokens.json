@@ -50,7 +50,7 @@
             }
           },
           "dev.tanrei.llm": {
-            "usage": "Everything a callout reads: its padding, corners and the gaps between its parts; the outlined look's edge; the glyph's size, gap and opacity; the text styles of the title and the body at each size; for each look (tonal, outlined), without a status and in each status (info, warning, error, success), the fill, the title's and the body's colors and the glyph's color; the close button's variant; and the duration and curve in which it opens and closes. The close button is a Tanrei Button with Button's own tokens: the callout names its variant, and on a filled look gives it the body color of its form as its tone.",
+            "usage": "Everything a callout reads: its padding, corners and the gaps between its parts; the outlined look's edge; the glyph's size, gap and opacity; the text styles of the title and the body at each size; for each look (tonal, outlined), without a status and in each status (info, warning, error, success), the fill, the title's and the body's colors and the glyph's color; the close button's size and variant; and the duration and curve in which it opens and closes. The close button is a Tanrei Button with Button's own tokens: the callout names its size and its variant, and on a filled look gives it the body color of its form as its tone.",
             "rules": [
               "A callout is part of the content and stays: a note, a caution, the reason for something, a summary of errors. A message that reports what the app just did and then goes is a snackbar; a choice the person must make before going on is a dialog; a word that names a state is a tag.",
               "A notice for a whole page or screen (often called a banner) is a callout the product places above that region's content, usually live and with an action or a close button. It is not another component, and there is no banner look.",
@@ -232,7 +232,7 @@
           "variant": {
             "$type": "number",
             "$value": 4,
-            "$description": "The Button variant of the close button, an icon-only small Button (CLO-10). The value is an index into dev.tanrei.enum.values, the core Button variants; platforms receive the name. On a filled look the Button draws it in the tone of the callout's form (BTN-45).",
+            "$description": "The Button variant of the close button, an icon-only Button of the size close-button.size names (CLO-10). The value is an index into dev.tanrei.enum.values, the core Button variants; platforms receive the name. On a filled look the Button draws it in the tone of the callout's form (BTN-45).",
             "$extensions": {
               "dev.tanrei.vocabulary": {
                 "rationale": "One product decides once how the close control of its notices stands: a tonal button that reads as a control on the notice's fill, or a bare glyph that leaves the notice to its text."
@@ -248,6 +248,26 @@
               },
               "dev.tanrei.derive": {
                 "fixed": "Keeps the bare close glyph this preset draws on a notice; the change to a tonal close button is the default system's."
+              }
+            }
+          },
+          "size": {
+            "$type": "number",
+            "$value": 0,
+            "$description": "The Button size of the close button, an icon-only Button (CLO-10): small in the default system, as every host's close button is. The value is an index into dev.tanrei.enum.values, the core Button sizes; platforms receive the name.",
+            "$extensions": {
+              "dev.tanrei.vocabulary": {
+                "rationale": "One product decides once how large the close control of its notices is: a small one that keeps a notice compact, or the size its other icon buttons take."
+              },
+              "dev.tanrei.enum": {
+                "values": [
+                  "small",
+                  "medium",
+                  "large"
+                ]
+              },
+              "dev.tanrei.derive": {
+                "fixed": "A choice of kind; no dial scales it."
               }
             }
           }

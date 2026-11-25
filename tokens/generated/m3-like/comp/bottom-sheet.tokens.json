@@ -26,12 +26,12 @@
             }
           },
           "dev.tanrei.llm": {
-            "usage": "Everything a bottom sheet reads: the scrim behind a modal sheet; the container's color, elevation, top-corner shape, maximum width, top margin at full height, the fraction of the area it takes at partial height and the padding of inset content; the content color it hands down; the drag handle's box, grip and margins (the sheet's drag handle is a Handle, given these in place of its own); the header's height, gap and end inset, the headline's style and color, the close button's Button variant, and the divider below the header (its color, width and when it is drawn); for the drag handle (the one pressable control, `drag-handle`) its box, grip and state-layer colors in each state; and the enter, exit, settle and state motion.",
+            "usage": "Everything a bottom sheet reads: the scrim behind a modal sheet; the container's color, elevation, top-corner shape, maximum width, top margin at full height, the fraction of the area it takes at partial height and the padding of inset content; the content color it hands down; the drag handle's box, grip and margins (the sheet's drag handle is a Handle, given these in place of its own); the header's height, gap and end inset, the headline's style and color, the close button's Button size and variant, and the divider below the header (its color, width and when it is drawn); for the drag handle (the one pressable control, `drag-handle`) its box, grip and state-layer colors in each state; and the enter, exit, settle and state motion.",
             "rules": [
               "A standard sheet sits over the bottom of the content while the content stays usable; a modal sheet dims and blocks everything else until it is dismissed. Both read the same container tokens.",
               "The drag handle is a Handle (comp.handle.*): its grip is held to the functional 3:1 boundary, and its box carries hover, focus and press. The sheet gives it its own tokens, which alias the Handle's in the default system: re-value them here to change a sheet's handle alone, or comp.handle.* to change every handle.",
               "A sheet that can be dismissed only by dragging still needs a visible way out for people who cannot drag: its close button (closable) or a Close or Done button in the content.",
-              "The close button is an icon-only Button of the small size in the variant comp.bottom-sheet.close-button.variant names (tonal in the default system), as every host's close button is; the sheet draws it while closable is true, in a header with the headline.",
+              "The close button is an icon-only Button of the size comp.bottom-sheet.close-button.size names (small in the default system) in the variant comp.bottom-sheet.close-button.variant names (tonal in the default system), as every host's close button is; the sheet draws it while closable is true, in a header with the headline.",
               "Restyle through these tokens in a layer; never fork the component.",
               "drag-handle.state-layer.color is the color hover, focus and press mix into the handle's box; it aliases the grip color."
             ]
@@ -191,7 +191,7 @@
           "variant": {
             "$type": "number",
             "$value": 4,
-            "$description": "The Button variant of the close button, an icon-only small Button (BSH-29): tonal in the default system, as every host's close button is. The value is an index into dev.tanrei.enum.values, the core Button variants; platforms receive the name.",
+            "$description": "The Button variant of the close button, an icon-only Button of the size close-button.size names (BSH-29): tonal in the default system, as every host's close button is. The value is an index into dev.tanrei.enum.values, the core Button variants; platforms receive the name.",
             "$extensions": {
               "dev.tanrei.vocabulary": {
                 "rationale": "One product decides once how its bottom sheets' close control stands: a tonal button that reads as a control on any content, or a bare glyph that leaves the header to its headline.",
@@ -208,6 +208,26 @@
               },
               "dev.tanrei.derive": {
                 "fixed": "Material 3 closes a surface with a standard icon button, which is Tanrei's text Button with an icon only, as the side sheet's here; the change to a tonal close button is the default system's."
+              }
+            }
+          },
+          "size": {
+            "$type": "number",
+            "$value": 1,
+            "$description": "The Button size of the close button, an icon-only Button (BSH-29): small in the default system, as every host's close button is. The value is an index into dev.tanrei.enum.values, the core Button sizes; platforms receive the name.",
+            "$extensions": {
+              "dev.tanrei.vocabulary": {
+                "rationale": "One product decides once how large its bottom sheets' close control is: a small one that leaves the header to its headline, or the size its other icon buttons take."
+              },
+              "dev.tanrei.enum": {
+                "values": [
+                  "small",
+                  "medium",
+                  "large"
+                ]
+              },
+              "dev.tanrei.derive": {
+                "fixed": "Material 3 closes a surface with a standard icon button, whose container is 40dp (SmallIconButtonTokens): Tanrei's medium by role, not its small (Material's extra small, 32dp)."
               }
             }
           }

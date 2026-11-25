@@ -224,7 +224,7 @@ export const styles = css`
     transition: opacity var(--_state-duration) var(${unsafeCSS(BOX)}-motion-state-easing);
   }
   /* TXI-16: a stacked field is as tall as a Button of the same size, with the block padding that leaves room for its line
-     in that height; a filled or an outlined field keeps the taller height, which holds the label floated in it. */
+     in that height; a filled or an outlined field reads the box's own height, and a filled one grows to hold its label. */
   ${unsafeCSS(STACKED)} {
     --_height: var(--_stacked-height);
     --_pad-block: var(--_stacked-pad-block);
@@ -446,6 +446,25 @@ export const styles = css`
   textarea.input[data-overflows],
   .field:not([data-resize='auto']) textarea.input {
     overflow-y: auto;
+  }
+  /* TXI-37: where the browser sizes a text area by its content, an auto-resized field whose lines wrap is as tall as its
+     lines by the browser's own layout — a changed width or text size included, in the frame of the change — and the
+     element only reads it (it writes nothing in a resize observer's report). Between minRows and maxRows as above; it
+     scrolls exactly while its text is taller than maxRows lets it be, and so shows no scrollbar while every line fits.
+     Empty, it is minRows lines: a placeholder is no line of text (the browser would size the box by it). TXI-63: the
+     text it holds is no width of the field's — the box is as wide as its place, whatever it holds. A field whose lines
+     do not wrap keeps the element's height (TXI-58: the room a sideways scrollbar takes, which a box sized by its
+     content does not hold). */
+  @supports (field-sizing: content) {
+    .field[data-resize='auto']:not([data-nowrap]) textarea.input {
+      field-sizing: content;
+      block-size: auto;
+      overflow-y: auto;
+      contain: inline-size;
+    }
+    .field[data-resize='auto']:not([data-nowrap]) textarea.input:placeholder-shown {
+      block-size: calc(var(--_rows-min, 2) * var(--_input-line));
+    }
   }
   /* TXI-38: a change of height that follows the value (or the handle's keys, TXI-41) moves over motion.resize-*; the
      element sets data-resizing for that change only, so a changed width or text size changes the height at once.
@@ -943,16 +962,29 @@ export const styles = css`
 
   /* TXI-26: a stacked field's edge is a line inside the container's edge, following its corners, that takes no layout
      space: nothing inside moves as it appears, thickens or goes. At rest its color is transparent (no edge), in error the
-     error line; focused, the focused color and width — over motion.state-* (TXI-14). */
+     error line; focused, the focused color and width — over motion.state-* (TXI-14).
+     The edges stand over the text, and an element there is what a contrast checker (axe's color-contrast) takes for one
+     covering the text: it left the value, the placeholder and the label unchecked. So each edge part is a box that
+     draws nothing (visibility: hidden), and its ::before draws the line, at the same place in the paint order, as no
+     element. */
   .edge {
     position: absolute;
     z-index: 1;
+    inset: 0;
+    border-radius: inherit;
+    corner-shape: inherit;
+    pointer-events: none;
+    visibility: hidden;
+  }
+  .edge::before {
+    content: '';
+    position: absolute;
     inset: 0;
     box-sizing: border-box;
     border: var(--_ow) solid var(--_o);
     border-radius: inherit;
     corner-shape: inherit;
-    pointer-events: none;
+    visibility: visible;
     transition:
       border-color var(--_state-duration) var(${unsafeCSS(BOX)}-motion-state-easing),
       border-width var(--_state-duration) var(${unsafeCSS(BOX)}-motion-state-easing);
@@ -968,6 +1000,7 @@ export const styles = css`
     display: flex;
     pointer-events: none;
     corner-shape: inherit;
+    visibility: hidden;
     /* TXI-34: the pieces are laid out left to right in either direction, and the whole edge is mirrored in right-to-left.
        Laid out in the layout's direction, a piece's start and end edges are its left and right ones in one direction and
        the other way round in the other, so a change of direction while the field is shown swaps the physical widths of
@@ -977,11 +1010,22 @@ export const styles = css`
   :host(:dir(rtl)) .outline {
     scale: -1 1;
   }
+  /* Each piece is a box of its part of the edge, hidden with the outline; its ::before draws its sides (see .edge). */
   .outline > span {
+    position: relative;
+    box-sizing: border-box;
+    corner-shape: inherit;
+  }
+  .outline > span::before {
+    content: '';
+    position: absolute;
+    inset: 0;
     box-sizing: border-box;
     border: 0 solid var(--_o);
     border-block-width: var(--_ow);
+    border-radius: inherit;
     corner-shape: inherit;
+    visibility: visible;
     transition:
       border-color var(--_state-duration) var(${unsafeCSS(BOX)}-motion-state-easing),
       border-width var(--_state-duration) var(${unsafeCSS(BOX)}-motion-state-easing);
@@ -989,22 +1033,23 @@ export const styles = css`
   .outline-start {
     flex: none;
     inline-size: max(calc(var(--tanrei-corner-radius) * var(--_corner-scale)), calc(var(--_pad) - var(${unsafeCSS(BOX)}-outline-notch-padding)));
-    border-inline-start-width: var(--_ow) !important;
     border-start-start-radius: calc(var(--tanrei-corner-radius) * var(--_corner-scale));
     border-end-start-radius: calc(var(--tanrei-corner-radius) * var(--_corner-scale));
+  }
+  .outline > .outline-start::before {
+    border-inline-start-width: var(--_ow);
   }
   .outline-notch {
     flex: none;
     display: grid;
     grid-template-columns: minmax(0, 0fr);
     max-inline-size: calc(100% - var(--_pad) - var(--_end));
-    transition:
-      border-color var(--_state-duration) var(${unsafeCSS(BOX)}-motion-state-easing),
-      border-width var(--_state-duration) var(${unsafeCSS(BOX)}-motion-state-easing),
-      grid-template-columns var(${unsafeCSS(BOX)}-motion-label-duration) var(${unsafeCSS(BOX)}-motion-label-easing) !important;
+    transition: grid-template-columns var(${unsafeCSS(BOX)}-motion-label-duration) var(${unsafeCSS(BOX)}-motion-label-easing);
   }
   ${unsafeCSS(FLOATED)} .outline-notch {
     grid-template-columns: minmax(0, 1fr);
+  }
+  ${unsafeCSS(FLOATED)} .outline-notch::before {
     border-block-start-color: transparent;
   }
   .notch-label {
@@ -1022,9 +1067,11 @@ export const styles = css`
   }
   .outline-end {
     flex: 1 1 auto;
-    border-inline-end-width: var(--_ow) !important;
     border-start-end-radius: calc(var(--tanrei-corner-radius) * var(--_corner-scale));
     border-end-end-radius: calc(var(--tanrei-corner-radius) * var(--_corner-scale));
+  }
+  .outline > .outline-end::before {
+    border-inline-end-width: var(--_ow);
   }
 
   /* The filled variant's active indicator: a line along the bottom, active-indicator.width wide. */
@@ -1096,11 +1143,11 @@ export const styles = css`
     .row,
     .literal,
     .segment::before,
-    .edge,
+    .edge::before,
     .prefix,
     .suffix,
     .icon,
-    .outline > span,
+    .outline > span::before,
     .outline-notch,
     .indicator {
       transition: none !important;
