@@ -314,7 +314,8 @@ const SLIDE = 'tanrei-tabs-slide';
  * hover and keyboard focus; it stays the tab's whole accessible name, and the tooltip is not exposed a second time.
  *
  * @tag tanrei-tab
- * @csspart state-layer - The tab's state layer: hover, focus and press and the ripple, drawn in the box the active indicator has on this tab (a capsule, a circle, or the tab's share in a row that fills), never on the tab's rectangle. The whole tab answers the pointer.
+ * @csspart container - The tab's own box: the area that answers the pointer, at least the container height of the row's size tall, its content container.padding-inline in from its edges. It draws nothing of its own.
+ * @csspart state-layer - The tab's state layer: hover, focus and press and the ripple, drawn in the box the active indicator has on this tab (a capsule, a circle, or the tab's share in a row that fills), never on the tab's container. The whole tab answers the pointer.
  * @csspart icon - The glyph (hidden from assistive technology).
  * @csspart label - The tab's text.
  * @csspart active-indicator - The indicator's piece on this tab, carrying the covered copy of the icon and label, clipped to where the indicator is (hidden from assistive technology).
@@ -773,6 +774,7 @@ export class TanreiTab extends TanreiElement {
     // assistive technology, so each label is exposed once.
     return html`
       <div
+        part="container"
         class=${classMap({ tab: true, p: true, d: this.disabled, selected, wide: secondary, fill, first: position === 1, last: position > 0 && position === size, 'pill-disabled': pillDisabled, vertical, stacked: !secondary && !vertical && icon && label })}
         data-placement=${placement ?? nothing}
         @pointerdown=${this.press.onPointerDown}

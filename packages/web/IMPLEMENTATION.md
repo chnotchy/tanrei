@@ -5356,8 +5356,8 @@ is drawn until then. That box is three things:
   answers the pointer (the state layer takes no pointer events), and a ripple is drawn in the state layer and clipped to
   it wherever on the tab the press lands (`PressController`'s `rippleHost`). On the selected tab it lies above the
   indicator, drawn from the selected parts (`selected.state-layer.color`, the covered content's color), so hover and press
-  show there too. The `container.*` tokens are the whole tab's (its height, padding and gap); the state layer is the box
-  in it that a press colors;
+  show there too. The `container.*` tokens are the whole tab's (its height, padding and gap): the tab's own box, part
+  `container`, which draws nothing of its own; the state layer is the box in it that a press colors;
 - **the focus ring's box**: the ring or the glow surrounds it in its shape, `sys.focus.offset` outside it, above the
   neighbouring tabs and the indicator, and held inside the track: where `track.padding` is less than the ring reaches it
   is drawn further in by the difference (`focusRing(on, { within })`). In the default system the reach is the padding,

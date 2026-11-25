@@ -48144,7 +48144,11 @@
           "name": "TanreiTab",
           "cssParts": [
             {
-              "description": "The tab's state layer: hover, focus and press and the ripple, drawn in the box the active indicator has on this tab (a capsule, a circle, or the tab's share in a row that fills), never on the tab's rectangle. The whole tab answers the pointer.",
+              "description": "The tab's own box: the area that answers the pointer, at least the container height of the row's size tall, its content container.padding-inline in from its edges. It draws nothing of its own.",
+              "name": "container"
+            },
+            {
+              "description": "The tab's state layer: hover, focus and press and the ripple, drawn in the box the active indicator has on this tab (a capsule, a circle, or the tab's share in a row that fills), never on the tab's container. The whole tab answers the pointer.",
               "name": "state-layer"
             },
             {

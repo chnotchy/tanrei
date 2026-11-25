@@ -19,8 +19,12 @@
       "description": "The constant background of the whole row, a capsule in the default system: one color per variant, the same whichever tab is selected and whatever state a tab is in, with no outline. Tabs are one choice among equals, so the track never says which one is selected; the active indicator does. It may be left out (track): the row then stands on the surface it is placed on and keeps the track's inset, corners and clip, so that nothing moves. A layer whose tabs sit on a line makes it transparent."
     },
     {
+      "id": "container",
+      "description": "One tab: its own box, the area that answers hover and a tap and that the tabs lay out side by side (stacked in a column). It is as tall as the row and at least the container height of the row's size (comp.tabs.container.height.small, comp.tabs.container.height.medium, comp.tabs.container.height-with-icon where a primary tab stacks its icon above its label), and its content stands comp.tabs.container.padding-inline in from its start and end edges (none where the tab is drawn as a circle, TAB-14), its icon and label comp.tabs.container.gap apart. It draws nothing of its own: hover, focus and press are drawn in its state layer, inside it."
+    },
+    {
       "id": "state-layer",
-      "description": "One tab's state layer, the area that draws hover, focus and press: the box the active indicator has on this tab while it is selected, or would have if it were. In the default system that is a capsule, or a circle where the tab's content is not wider than it is tall, and in a row that fills it is as wide as the tab; it is never the tab's rectangle. The area that answers hover and a tap is still the whole tab. It is drawn with each look's container.color, transparent at rest in the default system, into which hover, focus and press mix that look's state-layer.color (TAB-3), and its corners are container.shape.",
+      "description": "One tab's state layer, the area that draws hover, focus and press: the box the active indicator has on this tab while it is selected, or would have if it were. In the default system that is a capsule, or a circle where the tab's content is not wider than it is tall, and in a row that fills it is as wide as the tab; it is never the tab's container, the rectangle of the whole tab, which is still the area that answers hover and a tap. It is drawn with each look's container.color, transparent at rest in the default system, into which hover, focus and press mix that look's state-layer.color (TAB-3), and its corners are container.shape.",
       "drawnWith": [
         "container.color"
       ]
@@ -3639,6 +3643,7 @@
       "parts": {
         "tablist": "tablist",
         "track": "track",
+        "container": "tanrei-tab container",
         "state-layer": "tanrei-tab state-layer",
         "icon": "tanrei-tab icon",
         "label": "tanrei-tab label",
