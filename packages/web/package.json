@@ -154,6 +154,9 @@
     "./custom-elements/*.json": "./dist/custom-elements/*.json"
   },
   "customElements": "custom-elements.json",
+  "browser": {
+    "./dist/primitives/debug.js": "./dist/primitives/debug.bundled.js"
+  },
   "bin": {
     "tanrei-links": "./dist/links/node/cli.js"
   },

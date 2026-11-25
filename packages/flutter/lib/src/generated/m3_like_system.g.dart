@@ -2597,6 +2597,7 @@ const TanreiSystem m3LikeSystem = TanreiSystem(
     counterTypescale: _typescaleLabelSmall,
     inputPaddingBlock: 8.0,
     layoutInlineMinWidth: 360.0,
+    layoutInputMinWidth: 160.0,
     motionGlyphFadeDuration: 150,
     motionResizeDuration: 500,
     motionResizeEasing: TanreiCubicBezier(0.27, 1.06, 0.18, 1.0),

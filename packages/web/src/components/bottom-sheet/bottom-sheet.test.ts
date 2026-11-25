@@ -20,6 +20,7 @@ import { type Frames, expectNoFlicker, freezeFirstFrame, sampleFrames } from '..
 import { STOPPED_AFTER, flingThenHold, strokes } from '../../../test/stopped-release.js';
 import { expectBaseline } from '../../../test/baseline.js';
 import { STACKED_DIALOG, STACKED_LAYER, addStackedSurfaces, expectStackedInOrder, focusAmong, setOpenInOneTask } from '../../../test/stacked-surfaces.js';
+import { contrastChecked } from '../../../test/contrast-checked.js';
 
 const spec = loadSpec('bottom-sheet');
 type P = Page;
@@ -1473,6 +1474,11 @@ test.describe('accessibility', () => {
         await motionEnded(page);
         const results = await new AxeBuilder({ page }).include('.stage').analyze();
         expect(results.violations, `${theme} ${f.id}: ${results.violations.map((v) => `${v.id} ${v.nodes.map((n) => n.target).join(' ')}`).join(', ')}`).toEqual([]);
+        // The sheet's text is checked: the box that draws the content's focus ring is drawn as no element
+        // (`focusRingBox()`), so it covers no text.
+        const contrast = (kind: 'passes' | 'incomplete') => results[kind].filter((rule) => rule.id === 'color-contrast').flatMap((rule) => rule.nodes);
+        expect(contrast('passes').length, `${theme} ${f.id}: axe checks the contrast of the sheet's text`).toBeGreaterThan(0);
+        expect(contrast('incomplete').map((node) => node.target), `${theme} ${f.id}: no text left unchecked`).toEqual([]);
       }
     });
   }
@@ -1487,4 +1493,16 @@ test.describe('fixtures', () => {
       await expectBaseline(page, [spec.name, `${f.id}.png`]);
     });
   }
+});
+
+test.describe('accessibility: what is drawn over the content', () => {
+  test('BSH-10: the box that carries the content\'s focus indicator hides no text from a contrast check — faint text is reported, the sheet\'s own colors pass', async ({ page }) => {
+    // An element drawn over a text is, to axe's color-contrast, an element covering it, whatever its pointer-events: it
+    // left the text incomplete ("overlapped by another element") instead of checking it, so faint text passed unseen.
+    await mountFixtures(page, spec, { fixtures: [{ ...fixtureOf('standard'), content: '<p data-text="faint" style="margin: 0; color: #bbb">Faint text</p><p data-text="normal" style="margin: 0">Readable text</p>' }] });
+    const checked = await contrastChecked(page);
+    expect(checked.violations, 'the faint text is reported').toEqual(['faint']);
+    expect(checked.passes, 'the sheet\'s own colors pass').toEqual(['normal']);
+    expect(checked.incomplete, 'nothing is left unchecked').toEqual([]);
+  });
 });

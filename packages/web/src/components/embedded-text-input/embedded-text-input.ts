@@ -12,6 +12,7 @@ import { disabledWaitsWhileFocused } from '../../primitives/disabled-while-focus
 import { focusedAtFirst } from '../../primitives/autofocus.js';
 import { CompositionEnd } from '../../primitives/composition-end.js';
 import { TanreiElement } from '../../primitives/element.js';
+import { DEBUG } from '../../primitives/debug.js';
 
 /** What the value is: the keyboard, autocorrection and autocapitalization, and nothing else (ETI-17). */
 export type TanreiEmbeddedTextInputType = 'text' | 'search' | 'email' | 'url' | 'tel';
@@ -685,9 +686,9 @@ export class TanreiEmbeddedTextInput extends TanreiElement {
   }
 
   private reports(changed: PropertyValues<this>) {
-    if (changed.has('type') && !(this.type in TYPES)) report(this, 'ETI-17', `type "${String(this.type)}" is not a type of the embedded text input; it behaves as "text"`);
-    if (changed.has('enterKey') && !ENTER_KEYS.includes(this.enterKey)) report(this, 'ETI-6', `enter-key "${String(this.enterKey)}" is not a value of enterKey; Enter begins a new line, as with "line-break"`);
-    if (!this.label.trim()) report(this, 'ETI-13', 'label is empty, so the input has no accessible name: nothing is drawn that could name it and it asks no field; give it a label');
+    if (DEBUG && changed.has('type') && !(this.type in TYPES)) report(this, 'ETI-17', `type "${String(this.type)}" is not a type of the embedded text input; it behaves as "text"`);
+    if (DEBUG && changed.has('enterKey') && !ENTER_KEYS.includes(this.enterKey)) report(this, 'ETI-6', `enter-key "${String(this.enterKey)}" is not a value of enterKey; Enter begins a new line, as with "line-break"`);
+    if (DEBUG && !this.label.trim()) report(this, 'ETI-13', 'label is empty, so the input has no accessible name: nothing is drawn that could name it and it asks no field; give it a label');
   }
 
   protected override render() {

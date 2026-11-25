@@ -123,7 +123,7 @@ SwiftUI, Compose, Flutter and React Native are planned: the names beside each pl
 
 **The body.** A line is never broken by default. A line that does not fit scrolls inside the block, and the page never scrolls sideways. `wrap` breaks lines instead, and a continued row starts under the code, not under the numbers. `max-lines` caps the height in lines, and the rest scrolls inside the block.
 
-**The copy button** is always drawn, never only on hover. It never covers code that cannot be moved clear of it: a scrolling body gains that much room at its end, and wrapped rows stop before its column. It copies the code as plain text, without line numbers, the prompt, the signs or the removed lines. A selection made by hand copies exactly the characters selected.
+**The copy button** is always drawn, never only on hover. It stands at the end of the header — alone there when the block has no title, no language label and more than one line — so it never covers the code, however long the first line is. A block of one line with no title and no language label, such as an install command, has no header: the button stands at the end of that line, which scrolls beside it, never under it. It copies the code as plain text, without line numbers, the prompt, the signs or the removed lines. A selection made by hand copies exactly the characters selected.
 
 **Marked lines** are never marked by color alone.
 
@@ -251,7 +251,7 @@ Some highlighters name what they find with dotted scope names from one shared vo
 
 - The element gives each line a box by wrapping it in `<span data-line>`. It moves your nodes and splits text and runs at line breaks, and adds no character to the code. A framework that owns the children of the `<code>` should pass `code` instead, or render `[data-line]` itself.
 - A marked line's label is a hidden `<span>` before the line's code. It is part of the `<code>`'s `textContent`, and is left out of what is copied.
-- The outlined look is drawn on whatever it is placed on. Where that is not the surface color, name it in `--tanrei-code-block-ground`, so the line numbers and the copy button can stand on it while code scrolls under them.
+- The outlined look is drawn on whatever it is placed on. Where that is not the surface color, name it in `--tanrei-code-block-ground`, so the line numbers can stand on it while code scrolls under them.
 - Before the element is defined, `code.css` draws the fill, the corners, the padding and the runs' colors. The header, the copy button, the numbers and the marks need the element.
 - `highlight` is true by default, so its attribute is written to turn it off: `highlight="false"`. The property takes a boolean.
 - The element writes its own runs as spans into your `<code>`, one line at a time, and marks them as its own. A framework that owns the children of the `<code>` should pass `code` and let the element write them.
