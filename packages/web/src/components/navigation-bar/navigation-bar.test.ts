@@ -12,6 +12,7 @@ import { HOLD_NOW, motionCount } from '../../../test/motions.js';
 import { releaseAtRest } from '../../../test/release-at-rest.js';
 import { STOPPED_AFTER, flingThenHold, strokes } from '../../../test/stopped-release.js';
 import { indicatorChoice, indicatorPlace } from '../../primitives/indicator-drag.js';
+import { contrastChecked } from '../../../test/contrast-checked.js';
 
 const spec = loadSpec('navigation-bar');
 type P = Page;
@@ -1979,5 +1980,18 @@ test.describe('the first frame', () => {
       return (window as any).moving(items) as string[];
     });
     expect(after).toContain('color');
+  });
+});
+
+test.describe('accessibility: what is drawn over a label', () => {
+  test('NVB-12, NVB-23: the item container\'s fill hides no label from a contrast check — a faint label is reported, the bar\'s own colors pass, the selected destination\'s covered copy among them', async ({ page }) => {
+    // The fill lies under the label at a negative level, which axe's color-contrast takes for an element over a text that
+    // is not positioned beside it: it left every label incomplete ("overlapped by another element") instead of checking it.
+    const lead = '<style>tanrei-navigation-bar-item[value="sent"]::part(label) { color: #bbb; }</style>';
+    await mountFixtures(page, spec, { icons: true, lead, fixtures: [four('marked')] });
+    const checked = await contrastChecked(page);
+    expect(checked.violations, 'the faint label is reported').toEqual(['Sent']);
+    expect(checked.passes, 'the bar\'s own colors pass').toEqual(expect.arrayContaining(['Inbox']));
+    expect(checked.incomplete, 'nothing is left unchecked').toEqual([]);
   });
 });

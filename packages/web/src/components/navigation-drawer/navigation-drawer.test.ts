@@ -28,6 +28,7 @@ import { expectScrimTakenAwayAtClose } from '../../../test/scrim-at-close.js';
 import { expectGlyphsKeptWhileClosing } from '../../../test/closing-glyphs.js';
 import { STACKED_DIALOG, STACKED_LAYER, addStackedSurfaces, expectStackedInOrder, focusAmong, setOpenInOneTask } from '../../../test/stacked-surfaces.js';
 import { CONTROL_HEIGHTS, atControlHeight } from '../../../test/control-height.js';
+import { contrastChecked } from '../../../test/contrast-checked.js';
 
 const spec = loadSpec('navigation-drawer');
 type P = Page;
@@ -850,6 +851,42 @@ test.describe('drawing', () => {
     const short = item(page, 'c', 0).locator('.short');
     expect(await css(short, 'white-space')).toBe('nowrap');
     expect(await short.evaluate((el) => el.scrollHeight <= el.clientHeight + 1)).toBe(true);
+  });
+
+  test('NVD-23: a destination taken away or added is counted again in the same turn; words changed inside the drawer alone have it tell no destination anything again', async ({ page }) => {
+    await mount(page, only('standard'), { reducedMotion: true });
+    const told = await drawer(page, 'standard').evaluate(async (nav: HTMLElement) => {
+      const turn = () => new Promise((done) => setTimeout(done, 0));
+      const first = nav.querySelector('tanrei-navigation-drawer-item')!;
+      const proto = Object.getPrototypeOf(first) as { setDestinationContext(this: Element, ...rest: unknown[]): void };
+      const own = proto.setDestinationContext;
+      let count = 0;
+      proto.setDestinationContext = function (...rest) {
+        count += 1;
+        return own.apply(this, rest);
+      };
+      const words = document.createElement('span');
+      first.append(words);
+      await turn();
+      const added = count;
+      count = 0;
+      words.textContent = 'New mail';
+      await turn();
+      words.textContent = 'No new mail';
+      await turn();
+      const rewritten = count;
+      words.remove();
+      const last = nav.querySelectorAll('tanrei-navigation-drawer-item')[5]!;
+      last.remove();
+      await turn();
+      const taken = count - rewritten;
+      proto.setDestinationContext = own;
+      return { added, rewritten, taken, size: first.getAttribute('aria-setsize') };
+    });
+    expect(told.added, 'an element added: every destination is told again').toBeGreaterThan(0);
+    expect(told.rewritten, 'words rewritten: no destination is told again').toBe(0);
+    expect(told.taken, 'a destination taken away: the others are told again').toBeGreaterThan(0);
+    expect(told.size, 'and counted without it').toBe('5');
   });
 
   test('NVD-23: a navigation landmark named by the label; each destination a button (a link with href) named by its label in both forms, the selected one aria-current, its position among the items of its level, its icon hidden; modal, also a dialog named by the label; the selected destination is the current page — exactly one, or none, and no second state', async ({ page }) => {
@@ -5960,4 +5997,19 @@ test('web: a section’s title is the headline attribute and property, drawn as 
     await (el as HTMLElement & { updateComplete: Promise<unknown> }).updateComplete;
   });
   await expect(element.locator('[role="heading"]')).toHaveCount(0);
+});
+
+test.describe('accessibility: what is drawn under a row\'s text', () => {
+  test('NVD-13, NVD-74: the item container hides no label or supporting text from a contrast check — a faint label is reported, the drawer\'s own colors pass, in a destination and a group\'s row', async ({ page }) => {
+    // The item container lies under the row at a negative level, which axe's color-contrast takes for an element over a
+    // text that is not positioned beside it: it left every label incomplete ("overlapped by another element") instead of
+    // checking it, so a faint one passed unseen.
+    const lead = '<style>tanrei-navigation-drawer-item[value="sent"]::part(label), tanrei-navigation-drawer-group::part(label) { color: #bbb; }</style>';
+    const items = [d('inbox', 'Inbox', '', { supportingText: 'All mail' }), d('sent', 'Sent'), grp('Projects', [d('alpha', 'Alpha'), d('beta', 'Beta')], { open: true })];
+    await mount(page, [fixture('faint', items, { value: 'alpha' })], { lead });
+    const checked = await contrastChecked(page);
+    expect(checked.violations, 'the faint labels are reported').toEqual(['Projects', 'Sent']);
+    expect(checked.passes, 'the drawer\'s own colors pass, selected and not').toEqual(['All mail', 'Alpha', 'Beta', 'Inbox']);
+    expect(checked.incomplete, 'nothing is left unchecked').toEqual([]);
+  });
 });

@@ -962,16 +962,29 @@ export const styles = css`
 
   /* TXI-26: a stacked field's edge is a line inside the container's edge, following its corners, that takes no layout
      space: nothing inside moves as it appears, thickens or goes. At rest its color is transparent (no edge), in error the
-     error line; focused, the focused color and width — over motion.state-* (TXI-14). */
+     error line; focused, the focused color and width — over motion.state-* (TXI-14).
+     The edges stand over the text, and an element there is what a contrast checker (axe's color-contrast) takes for one
+     covering the text: it left the value, the placeholder and the label unchecked. So each edge part is a box that
+     draws nothing (visibility: hidden), and its ::before draws the line, at the same place in the paint order, as no
+     element. */
   .edge {
     position: absolute;
     z-index: 1;
+    inset: 0;
+    border-radius: inherit;
+    corner-shape: inherit;
+    pointer-events: none;
+    visibility: hidden;
+  }
+  .edge::before {
+    content: '';
+    position: absolute;
     inset: 0;
     box-sizing: border-box;
     border: var(--_ow) solid var(--_o);
     border-radius: inherit;
     corner-shape: inherit;
-    pointer-events: none;
+    visibility: visible;
     transition:
       border-color var(--_state-duration) var(${unsafeCSS(BOX)}-motion-state-easing),
       border-width var(--_state-duration) var(${unsafeCSS(BOX)}-motion-state-easing);
@@ -987,6 +1000,7 @@ export const styles = css`
     display: flex;
     pointer-events: none;
     corner-shape: inherit;
+    visibility: hidden;
     /* TXI-34: the pieces are laid out left to right in either direction, and the whole edge is mirrored in right-to-left.
        Laid out in the layout's direction, a piece's start and end edges are its left and right ones in one direction and
        the other way round in the other, so a change of direction while the field is shown swaps the physical widths of
@@ -996,11 +1010,22 @@ export const styles = css`
   :host(:dir(rtl)) .outline {
     scale: -1 1;
   }
+  /* Each piece is a box of its part of the edge, hidden with the outline; its ::before draws its sides (see .edge). */
   .outline > span {
+    position: relative;
+    box-sizing: border-box;
+    corner-shape: inherit;
+  }
+  .outline > span::before {
+    content: '';
+    position: absolute;
+    inset: 0;
     box-sizing: border-box;
     border: 0 solid var(--_o);
     border-block-width: var(--_ow);
+    border-radius: inherit;
     corner-shape: inherit;
+    visibility: visible;
     transition:
       border-color var(--_state-duration) var(${unsafeCSS(BOX)}-motion-state-easing),
       border-width var(--_state-duration) var(${unsafeCSS(BOX)}-motion-state-easing);
@@ -1008,22 +1033,23 @@ export const styles = css`
   .outline-start {
     flex: none;
     inline-size: max(calc(var(--tanrei-corner-radius) * var(--_corner-scale)), calc(var(--_pad) - var(${unsafeCSS(BOX)}-outline-notch-padding)));
-    border-inline-start-width: var(--_ow) !important;
     border-start-start-radius: calc(var(--tanrei-corner-radius) * var(--_corner-scale));
     border-end-start-radius: calc(var(--tanrei-corner-radius) * var(--_corner-scale));
+  }
+  .outline > .outline-start::before {
+    border-inline-start-width: var(--_ow);
   }
   .outline-notch {
     flex: none;
     display: grid;
     grid-template-columns: minmax(0, 0fr);
     max-inline-size: calc(100% - var(--_pad) - var(--_end));
-    transition:
-      border-color var(--_state-duration) var(${unsafeCSS(BOX)}-motion-state-easing),
-      border-width var(--_state-duration) var(${unsafeCSS(BOX)}-motion-state-easing),
-      grid-template-columns var(${unsafeCSS(BOX)}-motion-label-duration) var(${unsafeCSS(BOX)}-motion-label-easing) !important;
+    transition: grid-template-columns var(${unsafeCSS(BOX)}-motion-label-duration) var(${unsafeCSS(BOX)}-motion-label-easing);
   }
   ${unsafeCSS(FLOATED)} .outline-notch {
     grid-template-columns: minmax(0, 1fr);
+  }
+  ${unsafeCSS(FLOATED)} .outline-notch::before {
     border-block-start-color: transparent;
   }
   .notch-label {
@@ -1041,9 +1067,11 @@ export const styles = css`
   }
   .outline-end {
     flex: 1 1 auto;
-    border-inline-end-width: var(--_ow) !important;
     border-start-end-radius: calc(var(--tanrei-corner-radius) * var(--_corner-scale));
     border-end-end-radius: calc(var(--tanrei-corner-radius) * var(--_corner-scale));
+  }
+  .outline > .outline-end::before {
+    border-inline-end-width: var(--_ow);
   }
 
   /* The filled variant's active indicator: a line along the bottom, active-indicator.width wide. */
@@ -1115,11 +1143,11 @@ export const styles = css`
     .row,
     .literal,
     .segment::before,
-    .edge,
+    .edge::before,
     .prefix,
     .suffix,
     .icon,
-    .outline > span,
+    .outline > span::before,
     .outline-notch,
     .indicator {
       transition: none !important;

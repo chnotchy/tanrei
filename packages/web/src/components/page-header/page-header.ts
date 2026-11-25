@@ -1,10 +1,10 @@
 import type { PropertyDeclarations, PropertyValues } from 'lit';
 import { AvailabilityController, report } from '../../primitives/index.js';
-import { debugBuild } from '../../primitives/report.js';
 import type { TanreiPageHeaderSizeRegistry } from '../../registry.js';
 import { adopt, adoptUnlessDrawn } from '../../primitives/sheets.js';
 import { TanreiLightElement } from '../../primitives/element.js';
 import { TYPE_LONGHANDS } from '../../styles/type.js';
+import { DEBUG } from '../../primitives/debug.js';
 
 /** The core sizes (small, medium, large), plus any a design system's generated `.d.ts` registers. */
 export type TanreiPageHeaderSize = keyof TanreiPageHeaderSizeRegistry;
@@ -198,7 +198,7 @@ export class TanreiPageHeader extends TanreiLightElement {
 
   protected override updated(changed: PropertyValues) {
     // PGH-23: an actions placement the spec does not have is `end` (no rule names it); a debug build says so.
-    if (changed.has('actionsPlacement') && !PLACEMENTS.includes(this.actionsPlacement)) {
+    if (DEBUG && changed.has('actionsPlacement') && !PLACEMENTS.includes(this.actionsPlacement)) {
       report(this, 'PGH-23', `actions-placement "${this.actionsPlacement}" is not a value the page header defines; it is drawn as "end"`);
     }
     if (changed.has('size')) this.readSize();
@@ -214,7 +214,7 @@ export class TanreiPageHeader extends TanreiLightElement {
     if (CORE_SIZES.includes(size)) return;
     const known = KEY.test(size);
     if (known) adopt(this.getRootNode() as Root, writtenSheet(`size:${size}`, () => sizeRules(size)));
-    if (!known || getComputedStyle(this).getPropertyValue(`${PREFIX}-title-typescale-${size}-font-size`).trim() === '') {
+    if (DEBUG && (!known || getComputedStyle(this).getPropertyValue(`${PREFIX}-title-typescale-${size}-font-size`).trim() === '')) {
       report(this, 'PGH-23', `size "${size}" is not a value of the active design system; it is drawn as "${DEFAULT_SIZE}"`);
     }
   }
@@ -224,7 +224,7 @@ export class TanreiPageHeader extends TanreiLightElement {
     const level = Number(this.level);
     if (level === 0) return this.size === 'small' ? 2 : 1;
     if (Number.isInteger(level) && level >= 1 && level <= 6) return level;
-    report(this, 'PGH-23', `level "${String(this.getAttribute('level') ?? this.level)}" is not 0 or a whole number from 1 to 6; the heading takes the level of its size`);
+    if (DEBUG) report(this, 'PGH-23', `level "${String(this.getAttribute('level') ?? this.level)}" is not 0 or a whole number from 1 to 6; the heading takes the level of its size`);
     return this.size === 'small' ? 2 : 1;
   }
 
@@ -282,7 +282,7 @@ export class TanreiPageHeader extends TanreiLightElement {
     }
     // What was written here is not a change of the page's: the observer is not told.
     this.mutations?.takeRecords();
-    if (!debugBuild()) return;
+    if (!DEBUG) return;
     // A head that is still being parsed is read again when it is whole.
     if (document.readyState === 'loading') {
       if (!this.awaitingParse) document.addEventListener('DOMContentLoaded', () => ((this.awaitingParse = false), this.read()), { once: true });

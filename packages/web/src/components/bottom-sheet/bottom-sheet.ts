@@ -41,6 +41,7 @@ import '../handle/handle.js';
 import { styles } from './bottom-sheet.styles.js';
 import { TanreiElement } from '../../primitives/element.js';
 import { statesFromNextFrame } from '../../primitives/motion.js';
+import { DEBUG } from '../../primitives/debug.js';
 
 /** Standard sits over the lower part of its parent while the content above stays usable; modal dims and blocks the rest of the window. */
 export type TanreiBottomSheetVariant = 'standard' | 'modal';
@@ -857,23 +858,23 @@ export class TanreiBottomSheet extends TanreiElement {
   protected override updated(changed: PropertyValues<this>) {
     this.observe();
     // BSH-22, BSH-11, BSH-25: what a debug build reports.
-    if ((changed.has('label') || changed.has('headline') || changed.has('variant')) && !this.label.trim() && !this.headline.trim() && !namedByProduct(this)) {
+    if (DEBUG && (changed.has('label') || changed.has('headline') || changed.has('variant')) && !this.label.trim() && !this.headline.trim() && !namedByProduct(this)) {
       report(this, 'BSH-22', `label and headline are empty, so the ${this.modal ? 'modal dialog' : 'region'} has no accessible name; give it a label or a headline`);
     }
     if ((changed.has('closable') || changed.has('closeLabel')) && this.closable && !this.words.get('closeLabel', this.closeLabel)) {
-      this.words.missing('closeLabel', { id: 'BSH-29', effect: 'the close button has no accessible name' });
+      this.words.missing('closeLabel', DEBUG && { id: 'BSH-29', effect: 'the close button has no accessible name' });
     }
-    if ((changed.has('noHandle') || changed.has('closedBy') || changed.has('closable')) && this.noHandle && this.dismissible && !this.closable) {
+    if (DEBUG && (changed.has('noHandle') || changed.has('closedBy') || changed.has('closable')) && this.noHandle && this.dismissible && !this.closable) {
       report(this, 'BSH-30', 'it has no drag handle and no close button, so it shows no way out a person can see; set closable (with a close-label) or put a Close button in its content');
     }
-    if (changed.has('dividerVisibility') && !isDividerVisibility(this.dividerVisibility)) {
+    if (DEBUG && changed.has('dividerVisibility') && !isDividerVisibility(this.dividerVisibility)) {
       report(this, 'BSH-28', `divider-visibility "${this.dividerVisibility}" is not a value of the bottom sheet; it is drawn as "auto"`);
     }
     if ((changed.has('handleLabel') || changed.has('two' as keyof TanreiBottomSheet) || changed.has('noHandle')) && this.interactive && !this.words.get('handleLabel', this.handleLabel)) {
-      this.words.missing('handleLabel', { id: 'BSH-11', effect: 'the drag handle has no accessible name' });
+      this.words.missing('handleLabel', DEBUG && { id: 'BSH-11', effect: 'the drag handle has no accessible name' });
     }
-    if (changed.has('variant') && !VARIANTS.includes(this.variant)) report(this, 'BSH-25', `variant "${this.variant}" is not defined; the sheet is drawn as modal`);
-    if (changed.has('detent') && !DETENTS.includes(this.detent)) report(this, 'BSH-25', `detent "${this.detent}" is not defined; the sheet rests at partial`);
+    if (DEBUG && changed.has('variant') && !VARIANTS.includes(this.variant)) report(this, 'BSH-25', `variant "${this.variant}" is not defined; the sheet is drawn as modal`);
+    if (DEBUG && changed.has('detent') && !DETENTS.includes(this.detent)) report(this, 'BSH-25', `detent "${this.detent}" is not defined; the sheet rests at partial`);
 
     const variantChanged = changed.has('variant') && changed.get('variant') !== undefined;
     if (variantChanged && this.shown && !this.modal) this.withdraw(false);
