@@ -5,7 +5,9 @@ import {
   ActionPlacement,
   AppearController,
   AvailabilityController,
+  BUTTON_SIZES,
   BUTTON_VARIANTS,
+  type ButtonSize,
   type DividerVisibilityProp,
   OpenAxesController,
   assignSlot,
@@ -13,6 +15,7 @@ import {
   compChoice,
   compChoices,
   containedWheel,
+  giveSize,
   giveVariant,
   SHEET_FLING_VELOCITY,
   SheetDrag,
@@ -41,6 +44,7 @@ import { AXES, styles } from './side-sheet.styles.js';
 import { TanreiElement } from '../../primitives/element.js';
 import { ResizeWatch } from '../../primitives/resize-watch.js';
 import { statesFromNextFrame } from '../../primitives/motion.js';
+import { DEBUG } from '../../primitives/debug.js';
 
 /** The core variants (standard, modal), plus any a design system adds: only `modal` is presented as a modal overlay. */
 export type TanreiSideSheetVariant = 'standard' | 'modal' | (string & {});
@@ -83,7 +87,7 @@ interface Parts {
  *
  * Contract: specs/side-sheet.spec.json. The content is the default slot. The header holds `headline` (the sheet's
  * accessible name, a heading) and, unless `notClosable` (the attribute `not-closable`), an
- * icon-only `<tanrei-button>` of the small size showing the close glyph, named by `close-label`, in the variant
+ * icon-only `<tanrei-button>` of the size `comp.side-sheet.close-button.size` names showing the close glyph, named by `close-label`, in the variant
  * `comp.side-sheet.close-button.variant` names (tonal in the default system), as every host's close button is.
  *
  * The actions are `<tanrei-button slot="actions">` children, each marked `confirming` or `dismissive`, placed below a
@@ -180,6 +184,8 @@ export class TanreiSideSheet extends TanreiElement {
 
   /** SSH-11, SSH-16: whether the sheet has at least one action. */
   private hasActions = false;
+  /** SSH-5: the close button's size, as `comp.side-sheet.close-button.size` named it at the last layout. */
+  private closeSize: ButtonSize = BUTTON_SIZES[0];
 
   /** SSH-10: the content children, assigned to the default slot. */
   private content: Node[] = [];
@@ -471,12 +477,16 @@ export class TanreiSideSheet extends TanreiElement {
       this.laying = false;
       const sheet = this.sheet;
       if (!sheet || !this.isConnected) return this.laidOut();
-      const { close, actions: variant, arrangement } = compChoices(this, {
+      const { close, closeSize, actions: variant, arrangement } = compChoices(this, {
         close: [`${PREFIX}-close-button-variant`, BUTTON_VARIANTS],
+        closeSize: [`${PREFIX}-close-button-size`, BUTTON_SIZES],
         actions: [`${PREFIX}-actions-variant`, BUTTON_VARIANTS],
         arrangement: [`${PREFIX}-actions-arrangement`, ARRANGEMENTS],
       });
       return () => {
+        // SSH-5: the close button's size and variant, as the sheet's tokens name them.
+        this.closeSize = closeSize;
+        giveSize(this.renderRoot.querySelector('tanrei-button.close'), closeSize);
         giveVariant(this.renderRoot.querySelector('tanrei-button.close'), close);
         this.placement.give(variant);
         sheet.dataset.arrangement = arrangement;
@@ -652,7 +662,7 @@ export class TanreiSideSheet extends TanreiElement {
     // SSH-16: counted when it opens — or, in a document that is still being read, once it has been: its actions stand
     // after its start tag, and a sheet whose element was defined before its markup opens before they are there.
     const count = () => {
-      if (this.shown && !this.placement.actions.length) {
+      if (DEBUG && this.shown && !this.placement.actions.length) {
         report(this, 'SSH-16', 'a modal side sheet opened with no action; it must offer at least one: add a <tanrei-button slot="actions">', { once: false, level: 'error' });
       }
     };
@@ -725,15 +735,15 @@ export class TanreiSideSheet extends TanreiElement {
     // Before it is presented or measured: the slots of the element just rendered hold their children.
     this.assign();
     // SSH-12, SSH-5: what a debug build reports.
-    if ((changed.has('headline') || changed.has('variant')) && !this.headline.trim() && !namedByProduct(this)) {
+    if (DEBUG && (changed.has('headline') || changed.has('variant')) && !this.headline.trim() && !namedByProduct(this)) {
       report(this, 'SSH-12', `headline is empty, so the ${this.modal ? 'modal dialog' : 'complementary region'} has no accessible name; give it a headline`);
     }
     if ((changed.has('notClosable') || changed.has('closeLabel')) && !this.notClosable && !this.words.get('closeLabel', this.closeLabel)) {
-      this.words.missing('closeLabel', { id: 'SSH-5', effect: 'the close button has no accessible name' });
+      this.words.missing('closeLabel', DEBUG && { id: 'SSH-5', effect: 'the close button has no accessible name' });
     }
     // SSH-23: a divider visibility the sheet does not define is drawn as auto (no rule matches it).
     if (changed.has('dividerVisibility')) {
-      if (!isDividerVisibility(this.dividerVisibility)) report(this, 'SSH-23', `divider-visibility "${this.dividerVisibility}" is not a value of the side sheet; it is drawn as "auto"`);
+      if (DEBUG && !isDividerVisibility(this.dividerVisibility)) report(this, 'SSH-23', `divider-visibility "${this.dividerVisibility}" is not a value of the side sheet; it is drawn as "auto"`);
       // Drawn by the layout, which reads where the content is scrolled with every other host's reads of the turn.
       this.layout();
     }
@@ -785,7 +795,7 @@ export class TanreiSideSheet extends TanreiElement {
         ? html`<div part="header" class=${classMap({ header: true, closable: !this.notClosable })}>
             ${headline ? html`<h2 part="headline" class="headline">${headline}</h2>` : nothing}
             ${!this.notClosable
-              ? html`<tanrei-button part="close-button" class="close" size="small" label=${this.words.get('closeLabel', this.closeLabel)} @click=${this.onCloseClick}><span slot="icon">close</span></tanrei-button>`
+              ? html`<tanrei-button part="close-button" class="close" size=${this.closeSize} label=${this.words.get('closeLabel', this.closeLabel)} @click=${this.onCloseClick}><span slot="icon">close</span></tanrei-button>`
               : nothing}
             <div part="divider" class="divider below-header" aria-hidden="true"></div>
           </div>`

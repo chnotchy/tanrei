@@ -8,6 +8,7 @@
 // src/primitives/delegated-aria.test.ts.
 import fs from 'node:fs';
 import AxeBuilder from '@axe-core/playwright';
+import { coveredText } from '../../../test/covered-text.js';
 import { type Locator, type Page, expect, test } from '@playwright/test';
 import { type FixtureItem, loadSpec, missingWords, mountFixtures, resolveColor, resolveToken, setWords, tab, inputBoxSetApart } from '../../../test/harness.js';
 import { expectBaseline } from '../../../test/baseline.js';
@@ -511,6 +512,7 @@ test.describe('accessibility', () => {
       await mountFixtures(page, spec, { icons: true, theme, twins: true });
       expect(await page.locator('[data-twin-of]').count()).toBe(spec.fixtures.length);
       const results = await new AxeBuilder({ page }).include('.stage').analyze();
+      expect(await coveredText(page, results), `${theme}: no text left unchecked as covered`).toEqual([]);
       expect(results.violations.map((v) => `${v.id}: ${v.nodes.map((n) => n.target.join(' ')).slice(0, 3).join(' | ')}`), theme).toEqual([]);
     });
   }

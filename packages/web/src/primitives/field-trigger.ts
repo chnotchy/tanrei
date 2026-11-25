@@ -1,5 +1,6 @@
 import { type CSSResult, type ReactiveController, type ReactiveControllerHost, type TemplateResult, html, nothing, unsafeCSS } from 'lit';
 import { labelLines } from './label-lines.js';
+import { cancelPhaseRead, readInPhase } from './read-phase.js';
 import { productText } from '../styles/product-text.js';
 import { TYPE_LONGHANDS, typefaceFrom } from '../styles/type.js';
 
@@ -133,7 +134,7 @@ const FLOATED = `.field:not([data-layout='stacked'])${FLOAT}`;
 /**
  * A stacked box is as tall as a Button of the same size, with the block padding that leaves room for its line in that
  * height (SEL-1, CMB-1, NMI-1, CLI-1): everything that reads `--_height` and `--_pad-block` inside a stacked field reads
- * the stacked box's own. A filled or an outlined box keeps the taller height, which holds the label floated in it.
+ * the stacked box's own. A filled or an outlined box reads the box's own height; a filled one grows to hold its label.
  */
 export const stackedBoxStyles = (): CSSResult =>
   unsafeCSS(`
@@ -263,6 +264,11 @@ export function floatingLabelStyles(): CSSResult {
  * is the floated label's own, measured by a hidden copy of the label in the floated style, and opens over
  * motion.label-*. A filled field's active indicator is a line along the bottom, active-indicator.width wide.
  *
+ * The edges stand over the value, the placeholder and the label, and an element there is what a contrast checker
+ * (axe's color-contrast) takes for one covering the text: it left that text unchecked. So the edge part and the
+ * outline's pieces are boxes that draw nothing (`visibility: hidden`); the `::before` of each draws its line, at the
+ * same place in the paint order, as no element. Forced colors take the parts away, and their lines with them.
+ *
  * Reads `--_ow`, `--_iw`, `--_o`, `--_i`, `--_pad`, `--_end`, `--_float-widest` and the floated text style.
  */
 export function triggerEdgeStyles(): CSSResult {
@@ -274,11 +280,20 @@ export function triggerEdgeStyles(): CSSResult {
     position: absolute;
     z-index: 1;
     inset: 0;
+    border-radius: inherit;
+    corner-shape: inherit;
+    pointer-events: none;
+    visibility: hidden;
+  }
+  .edge::before {
+    content: '';
+    position: absolute;
+    inset: 0;
     box-sizing: border-box;
     border: var(--_ow) solid var(--_o);
     border-radius: inherit;
     corner-shape: inherit;
-    pointer-events: none;
+    visibility: visible;
     transition:
       border-color ${motion},
       border-width ${motion};
@@ -291,12 +306,23 @@ export function triggerEdgeStyles(): CSSResult {
     display: flex;
     pointer-events: none;
     corner-shape: inherit;
+    visibility: hidden;
   }
   .outline > span {
+    position: relative;
+    box-sizing: border-box;
+    corner-shape: inherit;
+  }
+  .outline > span::before {
+    content: '';
+    position: absolute;
+    inset: 0;
     box-sizing: border-box;
     border: 0 solid var(--_o);
     border-block-width: var(--_ow);
+    border-radius: inherit;
     corner-shape: inherit;
+    visibility: visible;
     transition:
       border-color ${motion},
       border-width ${motion};
@@ -304,22 +330,23 @@ export function triggerEdgeStyles(): CSSResult {
   .outline-start {
     flex: none;
     inline-size: max(calc(var(--tanrei-corner-radius) * var(--_corner-scale)), calc(var(--_pad) - var(${P}-outline-notch-padding)));
-    border-inline-start-width: var(--_ow) !important;
     border-start-start-radius: calc(var(--tanrei-corner-radius) * var(--_corner-scale));
     border-end-start-radius: calc(var(--tanrei-corner-radius) * var(--_corner-scale));
+  }
+  .outline > .outline-start::before {
+    border-inline-start-width: var(--_ow);
   }
   .outline-notch {
     flex: none;
     display: grid;
     grid-template-columns: minmax(0, 0fr);
     max-inline-size: calc(100% - var(--_pad) - var(--_end));
-    transition:
-      border-color ${motion},
-      border-width ${motion},
-      grid-template-columns var(${P}-motion-label-duration) var(${P}-motion-label-easing) !important;
+    transition: grid-template-columns var(${P}-motion-label-duration) var(${P}-motion-label-easing);
   }
   ${FLOATED} .outline-notch {
     grid-template-columns: minmax(0, 1fr);
+  }
+  ${FLOATED} .outline-notch::before {
     border-block-start-color: transparent;
   }
   .notch-label {
@@ -336,9 +363,11 @@ export function triggerEdgeStyles(): CSSResult {
   }
   .outline-end {
     flex: 1 1 auto;
-    border-inline-end-width: var(--_ow) !important;
     border-start-end-radius: calc(var(--tanrei-corner-radius) * var(--_corner-scale));
     border-end-end-radius: calc(var(--tanrei-corner-radius) * var(--_corner-scale));
+  }
+  .outline > .outline-end::before {
+    border-inline-end-width: var(--_ow);
   }
   .indicator {
     position: absolute;
@@ -396,6 +425,14 @@ type Host = ReactiveControllerHost & HTMLElement & { renderRoot: HTMLElement | D
  * wraps the field is marked (`data-label-wraps`) and the styles give the lines their room (`--_rest-lines`,
  * `--_float-lines`, `--_float-widest`), so the label is never cut and never over the value. Call `measure()` when a
  * property the label's lines follow changed.
+ *
+ * What the observer is told of is measured, and written, in the frame's read phase (src/primitives/read-phase.ts),
+ * never in its report: the lines change the container's height, and a box that changes size in a report is reported
+ * again in that frame only if it lies deeper than every box reported before it — a field that watches its container
+ * (the number input's wrapping) left it undelivered, and the browser raised "ResizeObserver loop completed with
+ * undelivered notifications". Copies first watched are measured in the read phase of the frame they are first laid
+ * out in, so the first frame painted gives the lines their room; a later change of their lines (a changed width) is
+ * drawn in the frame after it.
  */
 export class FloatingLabelController implements ReactiveController {
   private observer: ResizeObserver | undefined;
@@ -412,6 +449,7 @@ export class FloatingLabelController implements ReactiveController {
   hostDisconnected() {
     this.observer?.disconnect();
     this.copies = [];
+    cancelPhaseRead(this);
   }
 
   hostUpdated() {
@@ -422,28 +460,41 @@ export class FloatingLabelController implements ReactiveController {
     const copies = Array.from(this.host.renderRoot.querySelectorAll('.measure'));
     if (copies.length === this.copies.length && copies.every((copy, i) => copy === this.copies[i])) return;
     if (!copies.length && !this.observer) return;
-    this.observer ??= new ResizeObserver(() => this.measure());
+    this.observer ??= new ResizeObserver(this.ask);
     this.observer.disconnect();
     for (const copy of copies) this.observer.observe(copy);
     this.copies = copies;
     if (!copies.length) this.measure();
+    else this.ask();
   }
+
+  /** Measures in the next frame's read phase. */
+  private readonly ask = () => {
+    readInPhase(this, this.read);
+  };
 
   /** How many lines the label takes resting and floated, and the width of the widest floated line (src/primitives/label-lines.ts). */
   measure() {
+    this.read()?.();
+  }
+
+  /** Reads the lines now; what is returned writes them (nothing where the field already has them). */
+  private readonly read = (): (() => void) | undefined => {
     const root = this.host.renderRoot;
-    const field = root.querySelector<HTMLElement>('.field');
-    if (!field) return;
+    const field = root?.querySelector<HTMLElement>('.field');
+    if (!field) return undefined;
     const resting = labelLines(root.querySelector('.measure-resting'));
     const floated = labelLines(root.querySelector('.measure-floated'));
     const wraps = resting.count > 1 || floated.count > 1;
-    if (field.hasAttribute('data-label-wraps') !== wraps) field.toggleAttribute('data-label-wraps', wraps);
-    if (wraps) {
-      field.style.setProperty('--_rest-lines', String(resting.count));
-      field.style.setProperty('--_float-lines', String(floated.count));
-      field.style.setProperty('--_float-widest', `${floated.widest}px`);
-    } else if (field.style.getPropertyValue('--_rest-lines')) {
-      for (const name of ['--_rest-lines', '--_float-lines', '--_float-widest']) field.style.removeProperty(name);
-    }
-  }
+    return () => {
+      if (field.hasAttribute('data-label-wraps') !== wraps) field.toggleAttribute('data-label-wraps', wraps);
+      if (wraps) {
+        field.style.setProperty('--_rest-lines', String(resting.count));
+        field.style.setProperty('--_float-lines', String(floated.count));
+        field.style.setProperty('--_float-widest', `${floated.widest}px`);
+      } else if (field.style.getPropertyValue('--_rest-lines')) {
+        for (const name of ['--_rest-lines', '--_float-lines', '--_float-widest']) field.style.removeProperty(name);
+      }
+    };
+  };
 }

@@ -684,17 +684,29 @@ test.describe('the bar, the count and the controls', () => {
     expect(seen.some((text) => text.includes('IMP-8') && text.includes('close-label'))).toBe(true);
   });
 
-  test('IMP-8: the presets keep the bare glyphs they inherited — m3-like and cupertino give the bar’s three controls the text variant, at their own small Button size', async ({ page }) => {
-    for (const system of ['m3-like', 'cupertino'] as const) {
+  test('IMP-8: the presets keep the bare glyphs they inherited — m3-like and cupertino give the bar’s three controls the text variant, at the size bar.button.size names (m3-like medium, Material’s standard icon button; cupertino small)', async ({ page }) => {
+    for (const [system, size] of [['m3-like', 'medium'], ['cupertino', 'small']] as const) {
       await mount(page, fx({ index: 1 }), { system });
-      const small = await px(page, '--tanrei-comp-button-container-height-small');
+      const height = await px(page, `--tanrei-comp-button-container-height-${size}`);
       const text = await resolveColor(page, '--tanrei-comp-button-text-container-color');
       for (const name of ['zoom-out', 'zoom-in', 'close'] as const) {
         await expect.poll(() => control(page, name).evaluate((el) => el.shadowRoot!.querySelector('button')!.dataset.hostVariant), `${system} ${name}`).toBe('text');
+        await expect(control(page, name), `${system} ${name}`).toHaveAttribute('size', size);
         expect(await control(page, name).evaluate((el) => getComputedStyle(el.shadowRoot!.querySelector('button')!).backgroundColor), `${system} ${name}`).toBe(text);
-        expect((await control(page, name).boundingBox())!.height, `${system} ${name}`).toBeCloseTo(small, 1);
+        expect((await control(page, name).boundingBox())!.height, `${system} ${name}`).toBeCloseTo(height, 1);
       }
     }
+  });
+
+  test('IMP-8, IMP-10: a system that names other sizes (bar.button.size, navigation.button.size) draws the controls at them', async ({ page }) => {
+    await mount(page, fx({ index: 1 }));
+    await expect(control(page, 'close')).toHaveAttribute('size', 'small');
+    await expect(control(page, 'next')).toHaveAttribute('size', 'medium');
+    await override(page, { [T('bar-button-size')]: 'medium', [T('navigation-button-size')]: 'small' });
+    await page.keyboard.press('ArrowRight');
+    await expect(control(page, 'close')).toHaveAttribute('size', 'medium');
+    await expect(control(page, 'previous')).toHaveAttribute('size', 'small');
+    expect((await control(page, 'close').boundingBox())!.height).toBeCloseTo(await px(page, '--tanrei-comp-button-container-height-medium'), 1);
   });
 
   test('IMP-9: with two or more images the count is drawn at the bar’s start — countText with its two places filled in the digits of the product’s locale — in its role and color, wrapping and growing the bar, and takes no focus; one image draws none, and an empty countText draws none and is reported', async ({ page }) => {

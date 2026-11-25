@@ -418,6 +418,11 @@
       "id": "BTN-48",
       "text": "WHILE size is not set and a container around the button sets a size for what it holds — a button group's size (BGR-26) or a toolbar's (TBR-31), the nearest such container where several do — THE button SHALL be drawn at that size, its height following the system's height ladder as at a size of its own, and at its nearest size where it has none of that name, in the order extra-small, small, medium, large, extra-large, the larger of two as near; a container whose size is not set SHALL pass none. WHILE size is set THE button SHALL be drawn at its own size, whatever a container sets. WHEN the size it takes changes — a container's size set, changed or removed, its own size set or removed, or the button moved into or out of such a container — THE button SHALL be drawn at the size it now takes at once.",
       "verify": "In a button group whose size is small, a Button without a size is as high as comp.button.container.height.small and one with size large as high as comp.button.container.height.large, at control height 40, 48 and 56; removing the group's size, or moving the Button out, draws it at medium; a Button whose size is set to medium keeps medium in a small group."
+    },
+    {
+      "id": "BTN-49",
+      "text": "IF the icon set cannot draw a glyph the button shows yet — the glyph of its icon slot, or the mark of a link that opens a new context (BTN-24); its font is still loading or failed to load — THE button SHALL draw nothing in that glyph's place, never the glyph's name as text, SHALL keep the glyph's box at its size so that nothing else moves, SHALL still draw its container and label and expose its name and state, and SHALL show the glyph once the icon set can draw it, without a motion.",
+      "verify": "Name a family no machine has as the icon set's, then register the default icon face under that name: before, the glyph's box is drawn empty at its size; after, the glyph is drawn in it."
     }
   ],
   "accessibility": {

@@ -8,6 +8,7 @@ import { AXES, INDICATOR_REACH, styles } from './slider.styles.js';
 import { FocusedStop, disabledWaitsWhileFocused } from '../../primitives/disabled-while-focused.js';
 import { focusedAtFirst } from '../../primitives/autofocus.js';
 import { TanreiElement } from '../../primitives/element.js';
+import { DEBUG } from '../../primitives/debug.js';
 
 /** The core sizes (small, medium, large), plus any a design system's generated `.d.ts` registers. */
 export type TanreiSliderSize = keyof TanreiSliderSizeRegistry;
@@ -400,16 +401,16 @@ export class TanreiSlider extends TanreiElement {
 
   protected override willUpdate(changed: PropertyValues<this>) {
     // SLD-23: orientation and valueIndicator are the component's own values; size is an open axis (above).
-    if (changed.has('orientation') && !ORIENTATIONS.includes(this.orientation)) {
+    if (DEBUG && changed.has('orientation') && !ORIENTATIONS.includes(this.orientation)) {
       report(this, 'SLD-23', `orientation "${this.orientation}" is not a value of the slider; it is drawn as "horizontal"`);
     }
-    if (changed.has('valueIndicator') && !INDICATORS.includes(this.valueIndicator)) {
+    if (DEBUG && changed.has('valueIndicator') && !INDICATORS.includes(this.valueIndicator)) {
       report(this, 'SLD-23', `valueIndicator "${this.valueIndicator}" is not a value of the slider; it is drawn as "none"`);
     }
     if (['value', 'startValue', 'min', 'max', 'step', 'origin', 'range'].some((key) => changed.has(key as keyof TanreiSlider))) this.reportValues();
     // SLD-19: a slider without a name still renders; a debug build says what is missing.
-    if (changed.has('label') && !this.label.trim() && !this.field.label && !namedByProduct(this)) report(this, 'SLD-19', 'label is empty, so the slider has no accessible name; give it a label');
-    if ((changed.has('startLabel') || changed.has('range')) && this.range && !this.startLabel.trim()) {
+    if (DEBUG && changed.has('label') && !this.label.trim() && !this.field.label && !namedByProduct(this)) report(this, 'SLD-19', 'label is empty, so the slider has no accessible name; give it a label');
+    if (DEBUG && (changed.has('startLabel') || changed.has('range')) && this.range && !this.startLabel.trim()) {
       report(this, 'SLD-19', 'startLabel is empty, so the range’s start handle has no accessible name; give it a start-label');
     }
     // A handle that is no longer drawn is no longer hovered or pressed.
@@ -421,19 +422,19 @@ export class TanreiSlider extends TanreiElement {
   private reportValues() {
     const [min, max, step] = [Number(this.min), Number(this.max), Number(this.step)];
     const scale = this.scale;
-    if (step < 0) report(this, 'SLD-22', `step ${step} is below 0; it is treated as 0`);
+    if (DEBUG && step < 0) report(this, 'SLD-22', `step ${step} is below 0; it is treated as 0`);
     if (!scale.valid) {
-      report(this, 'SLD-22', `max ${max} is not greater than min ${min}; the handles are drawn at the track's start and it takes no input`);
+      if (DEBUG) report(this, 'SLD-22', `max ${max} is not greater than min ${min}; the handles are drawn at the track's start and it takes no input`);
       return;
     }
     const check = (name: string, value: number) => {
       const drawn = scale.snap(value);
-      if (tidy(value) !== drawn) report(this, 'SLD-22', `${name} ${value} is outside ${min}…${max} or off a step; it is drawn and exposed as ${drawn}`);
+      if (DEBUG && tidy(value) !== drawn) report(this, 'SLD-22', `${name} ${value} is outside ${min}…${max} or off a step; it is drawn and exposed as ${drawn}`);
     };
     check('value', Number(this.value));
     if (this.range) {
       check('startValue', Number(this.startValue));
-      if (scale.snap(Number(this.startValue)) > scale.snap(Number(this.value))) {
+      if (DEBUG && scale.snap(Number(this.startValue)) > scale.snap(Number(this.value))) {
         report(this, 'SLD-22', `startValue ${this.startValue} is greater than value ${this.value}; both handles are drawn at ${scale.snap(Number(this.value))}`);
       }
     } else if (this.origin !== null && this.origin !== undefined) {

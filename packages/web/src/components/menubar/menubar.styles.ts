@@ -53,6 +53,8 @@ export function titleStyles(focused: (focus: string) => string): CSSResult {
   // - `.title`, min-inline-size: MBR-17: a title narrower than the target keeps the target's length in the row, so its
   //   neighbours stand apart.
   // - `.title.p::before`: MBR-17: the hit area — the target's height, centred, and half the gap toward each neighbour.
+  //   Centred by its insets, the same length above and below, never by a translation, which the layout does not round
+  //   to its unit as it does an inset (src/primitives/target.ts).
   // - `.container`: MBR-2, MBR-3: at least container.height tall, as wide as its label and the padding on each side,
   //   its corners the state's shape eased by the smoothing, the fill of its condition over the bar. MBR-27: the height
   //   is a minimum.
@@ -114,10 +116,8 @@ export function titleStyles(focused: (focus: string) => string): CSSResult {
   .title.p::before {
     content: '';
     position: absolute;
-    inset-block-start: 50%;
+    inset-block: min(0px, calc((100% - ${TARGET}) / 2));
     inset-inline: calc(${T('bar-gap')} / -2);
-    block-size: max(100%, ${TARGET});
-    transform: translateY(-50%);
   }
 
   ${conditionBlock(PREFIX, 'unselected', PARTS, '.container')}

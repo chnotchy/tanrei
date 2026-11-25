@@ -3,6 +3,7 @@ import { cssZoom } from './layout-scale.js';
 import { GROUP_ITEM, type GroupItem } from './group-item.js';
 import { report } from './report.js';
 import { TARGET_CAPS } from './target.js';
+import { DEBUG } from './debug.js';
 
 // The actions at the foot of a host that places them as a full-width Button group places its items (BGR-12…19): a
 // dialog's (DLG-10, DLG-20) and a side sheet's (SSH-11, SSH-17). The host assigns its children to its slots by hand
@@ -18,6 +19,26 @@ export const ACTION_ROW: readonly ActionRun[] = ['dismissive', 'neutral', 'confi
 export const ACTION_COLUMN: readonly ActionRun[] = ['confirming', 'neutral', 'dismissive'];
 /** The core Button variants, in the order of a `dev.tanrei.enum` choice of them: the first is the fallback. */
 export const BUTTON_VARIANTS = ['filled', 'tonal', 'elevated', 'outlined', 'text'] as const;
+/** The core Button sizes, in the order of a `dev.tanrei.enum` choice of them: the first is the fallback. */
+export const BUTTON_SIZES = ['small', 'medium', 'large'] as const;
+export type ButtonSize = (typeof BUTTON_SIZES)[number];
+
+/**
+ * Gives a Button the host draws itself the size its host's token names: its `size` attribute, as a product would write
+ * it, so it is read before the element is upgraded as well as after. Written only when it changes.
+ */
+export function giveSize(element: Element | null | undefined, size: ButtonSize) {
+  if (element && element.getAttribute('size') !== size) element.setAttribute('size', size);
+}
+
+/**
+ * CSS that sets `--_close-height` on `scope` to the height of the Button its `button` selector (inside it) is drawn at:
+ * the size it was given, else small. What lays out around a host's own Button (a headline centred on it) reads it.
+ */
+export function closeHeights(scope: string, button = 'tanrei-button.close'): string {
+  const height = (size: string) => `var(--tanrei-comp-button-container-height-${size})`;
+  return [`${scope} { --_close-height: ${height('small')}; }`, ...BUTTON_SIZES.filter((size) => size !== 'small').map((size) => `${scope}:has(${button}[size='${size}']) { --_close-height: ${height(size)}; }`)].join('\n');
+}
 
 const sameNodes = (a: readonly Node[], b: readonly Node[]) => a.length === b.length && a.every((node, i) => node === b[i]);
 
@@ -96,7 +117,7 @@ export class ActionPlacement {
     for (const action of actions) {
       const confirming = action.hasAttribute('confirming');
       const dismissive = action.hasAttribute('dismissive');
-      if (confirming && dismissive) {
+      if (DEBUG && confirming && dismissive) {
         report(this.host, 'BGR-18', `the action "${action.textContent?.trim() ?? ''}" is both confirming and dismissive; it is placed among the actions with neither`);
       }
       runs[confirming === dismissive ? 'neutral' : confirming ? 'confirming' : 'dismissive'].push(action);

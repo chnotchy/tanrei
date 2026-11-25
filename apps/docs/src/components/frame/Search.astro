@@ -97,7 +97,12 @@ const { searching, results, none, noneHint, noneAction, more, unavailable } = wo
       search.setAttribute('bar', compact ? 'icon' : 'button');
       search.setAttribute('presentation', compact ? 'full-screen' : 'dialog');
     };
-    follow(shell?.getAttribute('data-window-class') ?? getComputedStyle(search).getPropertyValue('--tanrei-app-shell-window-class'));
+    // The class the shell has decided, else none yet: the shell tells it when it decides (`windowclasschange`, below),
+    // before the element is defined on use, which the stylesheet draws by the class until then. Read from the cascade
+    // here, while the page's modules ran, it had WebKit style the whole page for this one value.
+    const told = shell?.getAttribute('data-window-class');
+    if (told) follow(told);
+    else if (!shell) follow(getComputedStyle(search).getPropertyValue('--tanrei-app-shell-window-class'));
     // A window that changes its class while the view is open keeps the view it has until it is closed.
     let pending: string | null = null;
     shell?.addEventListener('windowclasschange', (event) => {

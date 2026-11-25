@@ -20,6 +20,7 @@ import { pagePolicies } from './src/lib/csp.mjs';
 import { sheetKeyPlugin } from './src/lib/sheet-key.mjs';
 import { sheetWorkerPlugin } from './src/lib/sheet-worker.mjs';
 import { lookSheetsPlugin } from './src/lib/look-sheets.mjs';
+import { stageCloakPlugin } from './src/lib/stage-cloak.mjs';
 
 const repoRoot = fileURLToPath(new URL('../..', import.meta.url));
 // When each page last changed: the newest commit of what it is made from (its own source; for a component's page, its
@@ -147,8 +148,9 @@ export default defineConfig({
     // The reader's own theme is drawn from a stylesheet kept under the key of what computes it (src/lib/sheet-key.mjs),
     // computed in a worker that the head's script may start, given its address (src/lib/sheet-worker.mjs). Each shipped
     // system the reader may choose instead of the default is drawn from a stylesheet the build computes the same way
-    // and writes into a file named by its contents (src/lib/look-sheets.mjs).
-    plugins: [tanreiStudio(), elementModulesPlugin(), sheetKeyPlugin(repoRoot), sheetWorkerPlugin(), lookSheetsPlugin(config.namespace)],
+    // and writes into a file named by its contents (src/lib/look-sheets.mjs). What a figure's stage holds takes the room
+    // it is drawn in before its elements are defined: the web package's cloak, scoped to the stages (src/lib/stage-cloak.mjs).
+    plugins: [tanreiStudio(), elementModulesPlugin(), sheetKeyPlugin(repoRoot), sheetWorkerPlugin(), lookSheetsPlugin(config.namespace), stageCloakPlugin()],
     // The stylesheet of the reader's own theme is computed in a worker (@tanrei/studio/page-sheet), a module bundled
     // apart, which runs Theme Studio's core: the Studio's plugin bundles it too.
     worker: { format: 'es', plugins: () => [tanreiStudio()] },

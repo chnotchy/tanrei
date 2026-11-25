@@ -53,13 +53,13 @@ const noteHtml = (notes: string | undefined) => (notes ?? '').replace(/&/g, '&am
 <h3>{t.anatomy}</h3>
 {/* The figure numbers the parts over the live component; the table under it is its legend. */}
 <AnatomyDiagram name={spec.name} describedBy={`docs-anatomy-${spec.name}`} />
-<div id={`docs-anatomy-${spec.name}`}><Table label={t.anatomy}><table>
-  <thead><tr><th scope="col">{t.part}</th><th scope="col">{t.description}</th></tr></thead>
-  <tbody>
+<div id={`docs-anatomy-${spec.name}`}><Table label={t.anatomy}><table class="described" role="table">
+  <thead role="rowgroup"><tr role="row"><th scope="col" role="columnheader">{t.part}</th><th scope="col" role="columnheader">{t.description}</th></tr></thead>
+  <tbody role="rowgroup">
     {spec.anatomy.map((part, i) => (
-      <tr>
-        <td data-wrap="false"><span class="num">{i + 1}</span> <code>{part.id}</code>{part.optional && <em class="docs-muted"> · {t.optional}</em>}</td>
-        <td>{part.description}</td>
+      <tr role="row">
+        <td role="cell"><span class="part"><span class="num">{i + 1}</span> <code>{part.id}</code></span>{part.optional && <em class="docs-muted"> · {t.optional}</em>}</td>
+        <td role="cell">{part.description}</td>
       </tr>
     ))}
   </tbody>
@@ -68,19 +68,19 @@ const noteHtml = (notes: string | undefined) => (notes ?? '').replace(/&/g, '&am
 <MeasureDiagram name={spec.name} headingLevel={3} />
 
 <h3>{t.props}</h3>
-<Table label={t.props}><table>
-  <thead><tr><th scope="col">{t.property}</th><th scope="col">{t.type}</th><th scope="col">{t.default_}</th><th scope="col">{t.description}</th></tr></thead>
-  <tbody>
+<Table label={t.props}><table class="described" role="table">
+  <thead role="rowgroup"><tr role="row"><th scope="col" role="columnheader">{t.property}</th><th scope="col" role="columnheader">{t.type}</th><th scope="col" role="columnheader">{t.default_}</th><th scope="col" role="columnheader">{t.description}</th></tr></thead>
+  <tbody role="rowgroup">
     {spec.props.map((prop) => (
-      <tr>
-        <td data-wrap="false"><code>{prop.name}</code></td>
-        <td>
+      <tr role="row">
+        <td role="cell" data-wrap="false"><code>{prop.name}</code></td>
+        <td role="cell" data-label={t.type}>
           {prop.values
             ? prop.values.map((v, i) => (<>{i > 0 && ' | '}<code>{v}</code></>))
             : <code>{prop.type}</code>}
         </td>
-        <td data-wrap="false"><code>{showDefault(prop.default)}</code></td>
-        <td>{prop.description}{member(prop) && <span class="docs-muted from"> — {member(prop)!.href ? <a class="tanrei-link" href={member(prop)!.href}>{member(prop)!.title}</a> : member(prop)!.title}</span>}{prop.note && <> {prop.note}</>}</td>
+        <td role="cell" data-wrap="false" data-label={t.default_}><code>{showDefault(prop.default)}</code></td>
+        <td role="cell">{prop.description}{member(prop) && <span class="docs-muted from"> — {member(prop)!.href ? <a class="tanrei-link" href={member(prop)!.href}>{member(prop)!.title}</a> : member(prop)!.title}</span>}{prop.note && <> {prop.note}</>}</td>
       </tr>
     ))}
   </tbody>
@@ -89,10 +89,10 @@ const noteHtml = (notes: string | undefined) => (notes ?? '').replace(/&/g, '&am
 {spec.slots && spec.slots.length > 0 && (
   <>
     <h3>{t.slots}</h3>
-    <Table label={t.slots}><table>
-      <thead><tr><th scope="col">{t.slot}</th><th scope="col">{t.description}</th></tr></thead>
-      <tbody>
-        {spec.slots.map((slot) => (<tr><td><code>{slot.name}</code></td><td>{slot.description}{member(slot) && <span class="docs-muted from"> — {member(slot)!.href ? <a class="tanrei-link" href={member(slot)!.href}>{member(slot)!.title}</a> : member(slot)!.title}</span>}{slot.note && <> {slot.note}</>}</td></tr>))}
+    <Table label={t.slots}><table class="described" role="table">
+      <thead role="rowgroup"><tr role="row"><th scope="col" role="columnheader">{t.slot}</th><th scope="col" role="columnheader">{t.description}</th></tr></thead>
+      <tbody role="rowgroup">
+        {spec.slots.map((slot) => (<tr role="row"><td role="cell"><code>{slot.name}</code></td><td role="cell">{slot.description}{member(slot) && <span class="docs-muted from"> — {member(slot)!.href ? <a class="tanrei-link" href={member(slot)!.href}>{member(slot)!.title}</a> : member(slot)!.title}</span>}{slot.note && <> {slot.note}</>}</td></tr>))}
       </tbody>
     </table></Table>
   </>
@@ -101,10 +101,10 @@ const noteHtml = (notes: string | undefined) => (notes ?? '').replace(/&/g, '&am
 {spec.events && spec.events.length > 0 && (
   <>
     <h3>{t.events}</h3>
-    <Table label={t.events}><table>
-      <thead><tr><th scope="col">{t.event}</th><th scope="col">{t.description}</th></tr></thead>
-      <tbody>
-        {spec.events.map((event) => (<tr><td><code>{event.name}</code></td><td>{event.description}{member(event) && <span class="docs-muted from"> — {member(event)!.href ? <a class="tanrei-link" href={member(event)!.href}>{member(event)!.title}</a> : member(event)!.title}</span>}{event.note && <> {event.note}</>}</td></tr>))}
+    <Table label={t.events}><table class="described" role="table">
+      <thead role="rowgroup"><tr role="row"><th scope="col" role="columnheader">{t.event}</th><th scope="col" role="columnheader">{t.description}</th></tr></thead>
+      <tbody role="rowgroup">
+        {spec.events.map((event) => (<tr role="row"><td role="cell"><code>{event.name}</code></td><td role="cell">{event.description}{member(event) && <span class="docs-muted from"> — {member(event)!.href ? <a class="tanrei-link" href={member(event)!.href}>{member(event)!.title}</a> : member(event)!.title}</span>}{event.note && <> {event.note}</>}</td></tr>))}
       </tbody>
     </table></Table>
   </>
@@ -119,37 +119,37 @@ const noteHtml = (notes: string | undefined) => (notes ?? '').replace(/&/g, '&am
         <h4><code>{kind.name}</code>{kind.container && <em class="docs-muted"> · {t.container}</em>}</h4>
         <p>{kind.summary}</p>
         {kind.props.length > 0 && (
-          <Table label={`${kind.name} · ${t.props}`}><table>
-            <thead><tr><th scope="col">{t.property}</th><th scope="col">{t.type}</th><th scope="col">{t.default_}</th><th scope="col">{t.description}</th></tr></thead>
-            <tbody>
+          <Table label={`${kind.name} · ${t.props}`}><table class="described" role="table">
+            <thead role="rowgroup"><tr role="row"><th scope="col" role="columnheader">{t.property}</th><th scope="col" role="columnheader">{t.type}</th><th scope="col" role="columnheader">{t.default_}</th><th scope="col" role="columnheader">{t.description}</th></tr></thead>
+            <tbody role="rowgroup">
               {kind.props.map((prop) => (
-                <tr>
-                  <td data-wrap="false"><code>{prop.name}</code></td>
-                  <td>
+                <tr role="row">
+                  <td role="cell" data-wrap="false"><code>{prop.name}</code></td>
+                  <td role="cell" data-label={t.type}>
                     {prop.values
                       ? prop.values.map((v, i) => (<>{i > 0 && ' | '}<code>{v}</code></>))
                       : <code>{prop.type}</code>}
                   </td>
-                  <td data-wrap="false"><code>{showDefault(prop.default)}</code></td>
-                  <td>{prop.description}</td>
+                  <td role="cell" data-wrap="false" data-label={t.default_}><code>{showDefault(prop.default)}</code></td>
+                  <td role="cell">{prop.description}</td>
                 </tr>
               ))}
             </tbody>
           </table></Table>
         )}
         {kind.slots && kind.slots.length > 0 && (
-          <Table label={`${kind.name} · ${t.slots}`}><table>
-            <thead><tr><th scope="col">{t.slot}</th><th scope="col">{t.description}</th></tr></thead>
-            <tbody>
-              {kind.slots.map((slot) => (<tr><td><code>{slot.name}</code></td><td>{slot.description}</td></tr>))}
+          <Table label={`${kind.name} · ${t.slots}`}><table class="described" role="table">
+            <thead role="rowgroup"><tr role="row"><th scope="col" role="columnheader">{t.slot}</th><th scope="col" role="columnheader">{t.description}</th></tr></thead>
+            <tbody role="rowgroup">
+              {kind.slots.map((slot) => (<tr role="row"><td role="cell"><code>{slot.name}</code></td><td role="cell">{slot.description}</td></tr>))}
             </tbody>
           </table></Table>
         )}
         {kind.events && kind.events.length > 0 && (
-          <Table label={`${kind.name} · ${t.events}`}><table>
-            <thead><tr><th scope="col">{t.event}</th><th scope="col">{t.description}</th></tr></thead>
-            <tbody>
-              {kind.events.map((event) => (<tr><td><code>{event.name}</code></td><td>{event.description}</td></tr>))}
+          <Table label={`${kind.name} · ${t.events}`}><table class="described" role="table">
+            <thead role="rowgroup"><tr role="row"><th scope="col" role="columnheader">{t.event}</th><th scope="col" role="columnheader">{t.description}</th></tr></thead>
+            <tbody role="rowgroup">
+              {kind.events.map((event) => (<tr role="row"><td role="cell"><code>{event.name}</code></td><td role="cell">{event.description}</td></tr>))}
             </tbody>
           </table></Table>
         )}
@@ -193,10 +193,10 @@ const noteHtml = (notes: string | undefined) => (notes ?? '').replace(/&/g, '&am
 
 <h3>{t.behavior}</h3>
 <p class="docs-muted">{t.behaviorHelp}</p>
-<Table label={t.behavior}><table class="behavior">
-  <thead><tr><th scope="col">{t.id}</th><th scope="col">{t.requirement}</th></tr></thead>
-  <tbody>
-    {spec.behavior.map((b) => (<tr id={b.id.toLowerCase()}><td><code>{b.id}</code></td><td>{b.text}</td></tr>))}
+<Table label={t.behavior}><table class="behavior" role="table">
+  <thead role="rowgroup"><tr role="row"><th scope="col" role="columnheader">{t.id}</th><th scope="col" role="columnheader">{t.requirement}</th></tr></thead>
+  <tbody role="rowgroup">
+    {spec.behavior.map((b) => (<tr role="row" id={b.id.toLowerCase()}><td role="cell"><code>{b.id}</code></td><td role="cell">{b.text}</td></tr>))}
   </tbody>
 </table></Table>
 
@@ -230,7 +230,7 @@ const noteHtml = (notes: string | undefined) => (notes ?? '').replace(/&/g, '&am
 </table></Table>
 
 <h3>{t.tokens}</h3>
-<Table label={t.tokens} size="small" class="tokens" style={`--docs-token-rows: ${tokenRows}`}><table>
+<div class="tokens" style={`--docs-token-rows: ${tokenRows}`}><Table label={t.tokens} size="small"><table>
   <thead><tr><th scope="col">{t.token}</th><th scope="col">{t.aliases}</th><th scope="col">{t.resolvedLight}</th></tr></thead>
   <tbody>
     {[...compTokens, ...typographyTokens].map((tk) => {
@@ -249,7 +249,7 @@ const noteHtml = (notes: string | undefined) => (notes ?? '').replace(/&/g, '&am
       );
     })}
   </tbody>
-</table></Table>
+</table></Table></div>
 
 <h3>{t.fixtures}</h3>
 <p class="docs-muted">{t.fixturesHelp}</p>
@@ -276,8 +276,100 @@ const noteHtml = (notes: string | undefined) => (notes ?? '').replace(/&/g, '&am
   .states {
     margin-block-start: 1rem;
   }
+  /* A part's number stays with its name; the name breaks after its hyphens and "optional" goes under it, so that on a
+     narrow screen the column is no wider than the longest piece of a name, and the description beside it is not left
+     a word to a line. (Every other name in these tables stays on one line: `td code` below.) */
+  .part {
+    white-space: nowrap;
+  }
+  .part code {
+    white-space: pre-wrap;
+  }
+  /* A column of sentences keeps a readable measure where the table is narrower than its columns (it then scrolls
+     sideways, TBL-17), and never more than the box shows beside a narrow first column: on a phone the reader would
+     otherwise scroll every line of it. 100cqi is the Table's box (it is a size container). */
+  .described td:last-child {
+    min-inline-size: min(16rem, 55cqi);
+  }
   .behavior td:last-child {
-    min-inline-size: 18rem;
+    min-inline-size: min(18rem, 70cqi);
+  }
+  /* Where the Table's box is narrower than a property's four columns need beside a readable description — a phone, a
+     narrow window — each row of a table of sentences stands as one block, as the property tables of other design
+     systems' documentation do on a phone: the name on its line, a property's type and default on the next, each after
+     its column's name, and the description under them at the box's whole width. Each row would otherwise be as tall
+     as its description at its least measure, and scroll sideways with it, while its name, type and default stood in
+     an empty band. The query is the Table's own box (it is an inline-size container), not the window: the same table
+     in a wider column keeps its columns.
+     It is still a table to assistive technology: the elements say their roles (`role="table"`, `row`, `columnheader`,
+     `cell`), for an engine that reads a table's semantics from its display would drop them here, and its header row
+     is still there, out of sight, naming each cell's column; the column's name drawn before a value is generated text, given no text of its
+     own for assistive technology (`/ ""`), which reads the header. The Table's own rules still draw each cell's
+     paddings, its text and the line under the row (the row's last cell, its description, keeps its border); only what
+     makes it a row of columns is taken away. Not the Table's: its spec keeps a data table's columns and scrolls them
+     (TBL-17), and these are the docs' own reference tables, rows of a name and its sentences. */
+  @container (inline-size < 40rem) {
+    .described,
+    .described > tbody,
+    .behavior,
+    .behavior > tbody {
+      display: block;
+    }
+    .described > thead,
+    .behavior > thead {
+      position: absolute;
+      inline-size: 1px;
+      block-size: 1px;
+      overflow: hidden;
+      clip-path: inset(50%);
+      white-space: nowrap;
+    }
+    .described > tbody > tr,
+    .behavior > tbody > tr {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: baseline;
+      block-size: auto;
+    }
+    .described > tbody > tr > td,
+    .behavior > tbody > tr > td {
+      display: block;
+      flex: 1 0 100%;
+      min-inline-size: 0;
+    }
+    /* The description is a paragraph at the box's width: a run longer than the whole line (an API's name in a
+       requirement, `ViewConfiguration.getScaledMinimumFlingVelocity`) breaks where it must rather than make the row
+       scroll sideways — `anywhere`, not `break-word`, so that it does not widen the table either. Nothing shorter than
+       the line is broken. */
+    .described > tbody > tr > td:last-child,
+    .behavior > tbody > tr > td:last-child {
+      overflow-wrap: anywhere;
+    }
+    /* The cells between the first and the last stand on one line where they fit: a property's type and its default. */
+    .described > tbody > tr > td:not(:first-child, :last-child) {
+      flex: 0 1 auto;
+    }
+    /* One band of the row's padding above its first line and one under its last, and the line under the row is its
+       last cell's: the cells between give theirs up. */
+    .described > tbody > tr > td:not(:first-child),
+    .behavior > tbody > tr > td:not(:first-child) {
+      padding-block-start: var(--tanrei-sys-space-space50);
+    }
+    .described > tbody > tr > td:not(:last-child),
+    .behavior > tbody > tr > td:not(:last-child) {
+      padding-block-end: 0;
+      border-block-end-width: 0;
+    }
+    .described > tbody > tr > td[data-label]::before {
+      content: attr(data-label);
+      content: attr(data-label) / '';
+      margin-inline-end: var(--tanrei-sys-space-space100);
+      font:
+        var(--tanrei-comp-table-header-text-typescale-medium-font-weight) var(--tanrei-comp-table-header-text-typescale-medium-font-size) / var(--tanrei-comp-table-header-text-typescale-medium-line-height)
+        var(--tanrei-comp-table-header-text-typescale-medium-font-family);
+      letter-spacing: var(--tanrei-comp-table-header-text-typescale-medium-letter-spacing);
+      color: var(--tanrei-comp-table-header-text-color);
+    }
   }
   .note {
     min-inline-size: 10rem;
@@ -311,7 +403,12 @@ const noteHtml = (notes: string | undefined) => (notes ?? '').replace(/&/g, '&am
      wraps, a shadow); the room it remembers (`auto`) is the room it took once drawn. Its text is still found by the
      browser's find in page, which draws it. The Table reads its sizes again when it is drawn (a size observer), so it is
      a focus stop and a region where it scrolls once it is near. The other tables, whose rows are paragraphs of no
-     height known before they are laid out, are drawn with the page. */
+     height known before they are laid out, are drawn with the page.
+     The box that skips it is a block of its own around the Table, never the Table: the Table is a size container (its
+     caption is 100cqi wide), and WebKit lays out the content of a skipped box that is a size container all the same —
+     every layout of the page laid out its rows, and on a page that reads right to left took two and a half times as
+     long as one without them. (WebKit still restyles skipped content: that, the rows cost with every restyle of the
+     page.) */
   .tokens {
     content-visibility: auto;
     contain-intrinsic-block-size: auto

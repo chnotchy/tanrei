@@ -5,6 +5,7 @@ import { AvailabilityController, FieldControlController, FieldProviderController
 import type { TanreiFieldGroupSpacingRegistry } from '../../registry.js';
 import { AXES, CORE_SPACINGS, PREFIX, styles } from './field-group.styles.js';
 import { TanreiElement } from '../../primitives/element.js';
+import { DEBUG } from '../../primitives/debug.js';
 
 /** What the form asks of the set: nothing, an answer, or that it may be left out. */
 /** How a required set is marked: the design system's answer (auto), a tag, an asterisk, or nothing. */
@@ -221,32 +222,32 @@ export class TanreiFieldGroup extends TanreiElement {
     // FGR-24: a group says the requirement in words whichever mark is drawn; a radio group's required state needs none,
     // so its word is missed only where the tag would be drawn.
     reportFrame(this, this.framed, changed, { unknown: 'FGR-22', words: 'FGR-24', both: 'FGR-26' }, this.words, { prefix: PREFIX, always: !this.isRadioGroup });
-    if (changed.has('orientation') && !(GROUP_ORIENTATIONS as readonly string[]).includes(this.orientation)) {
+    if (DEBUG && changed.has('orientation') && !(GROUP_ORIENTATIONS as readonly string[]).includes(this.orientation)) {
       report(this, 'FGR-22', `orientation "${this.orientation}" is not vertical or horizontal; it is drawn as "vertical"`);
     }
     // FGR-10: a set without a name still renders.
-    if (changed.has('label') && !this.label) report(this, 'FGR-10', 'label is empty, so the set has no accessible name; give it a label (labelHidden hides it and keeps the name)');
+    if (DEBUG && changed.has('label') && !this.label) report(this, 'FGR-10', 'label is empty, so the set has no accessible name; give it a label (labelHidden hides it and keeps the name)');
     const controls = this.controls;
     // FGR-20: a set without a control still draws its rows.
-    if (!controls.length) report(this, 'FGR-20', 'the field group holds no control; put the controls of the set in its default slot');
-    if (changed.has('kind') && !(KINDS as readonly string[]).includes(this.kind)) report(this, 'FGR-22', `kind "${this.kind}" is not group or radio-group; the set is exposed as a group`);
+    if (DEBUG && !controls.length) report(this, 'FGR-20', 'the field group holds no control; put the controls of the set in its default slot');
+    if (DEBUG && changed.has('kind') && !(KINDS as readonly string[]).includes(this.kind)) report(this, 'FGR-22', `kind "${this.kind}" is not group or radio-group; the set is exposed as a group`);
     if (!this.isRadioGroup) {
       // FGR-15: radio buttons are framed like any control, and nothing a set of them needs is added.
-      if (controls.some((element) => element.matches(RADIO_BUTTON))) {
+      if (DEBUG && controls.some((element) => element.matches(RADIO_BUTTON))) {
         report(this, 'FGR-15', 'the field group holds radio buttons, which it frames and does not group: a set of radio buttons is a radio group (RGP-1), or, written by hand, a field group whose kind is radio-group (FGR-25)');
       }
       return;
     }
     // FGR-25: the radio buttons of one group, and no other control.
     const other = [...this.provider.connections.keys()].some((control) => !control.matches(RADIO_BUTTON)) || controls.some((element) => !element.matches(RADIO_BUTTON) && (element.matches(OPERABLE) || !!element.querySelector(`:is(${OPERABLE}):not(${RADIO_BUTTON})`)));
-    if (other) report(this, 'FGR-25', 'the field group is a radio group and holds a control that is not a radio button; it holds the radio buttons of one group and nothing else that can be operated');
+    if (DEBUG && other) report(this, 'FGR-25', 'the field group is a radio group and holds a control that is not a radio button; it holds the radio buttons of one group and nothing else that can be operated');
     // One group: the radio group they stand in, or one name. The set's radio buttons are its controls and those inside
     // the product's own elements — none of a set of its own that stands among them, which is one member and reported above.
     const radios = controls.flatMap((element) => (element.matches(RADIO_BUTTON) ? [element] : [...element.querySelectorAll(RADIO_BUTTON)].filter((radio) => !element.contains(radio.closest(SETS)))));
     const groups = new Set(radios.map((radio) => radio.closest('tanrei-radio-group') ?? (radio as Element & { name?: string }).name ?? radio.getAttribute('name') ?? ''));
-    if (groups.size > 1) report(this, 'FGR-25', 'the field group is a radio group and holds radio buttons of more than one group; give the radio buttons of the set one name');
-    if (changed.has('spacing') || changed.has('kind')) {
-      if (this.spacing !== 'controls') report(this, 'FGR-25', `the field group is a radio group, whose radio buttons are controls; spacing "${this.spacing}" is for another kind of set`);
+    if (DEBUG && groups.size > 1) report(this, 'FGR-25', 'the field group is a radio group and holds radio buttons of more than one group; give the radio buttons of the set one name');
+    if (DEBUG && (changed.has('spacing') || changed.has('kind')) && this.spacing !== 'controls') {
+      report(this, 'FGR-25', `the field group is a radio group, whose radio buttons are controls; spacing "${this.spacing}" is for another kind of set`);
     }
   }
 

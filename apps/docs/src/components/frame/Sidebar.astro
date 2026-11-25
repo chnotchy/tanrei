@@ -102,9 +102,10 @@ const cells = (entries: Entry[], top: boolean): string =>
   <div role="listitem" class="docs-listing-row"><ListingSwitch lang={route.lang} /></div>
   <Fragment set:html={cells(drawn, true)} />
 </tanrei-navigation-drawer>
-{/* Kept across visits, in the origin's localStorage: the width the reader gave the drawer and whether they folded it
-    to its column (the drawer stores neither: it fires `widthchange` and `expandedchange`, and is given them back as
-    `width` and `expanded`). Kept for the session (one tab): which groups are open and how far the list is scrolled.
+{/* Kept across visits, in the origin's localStorage: the width the reader gave the drawer, whether they folded it
+    to its column, and whether they hid it beside the content with the header's menu button (the drawer stores none of
+    them: it fires `widthchange`, `expandedchange` and `standardhiddenchange`, and is given them back as `width`,
+    `expanded` and `standard-hidden`). Kept for the session (one tab): which groups are open and how far the list is scrolled.
     Inline, so that it runs before the first frame whether the elements are upgraded by then or not (attributes and
     properties are taken as the element's own); the width is written as `--tanrei-navigation-drawer-width` too, which
     the app shell and the sidebar's stand-in (styles/frame.css) read until the drawer is defined, so nothing moves when
@@ -141,6 +142,7 @@ const cells = (entries: Entry[], top: boolean): string =>
       drawer.style.setProperty('--tanrei-navigation-drawer-width', `${width}px`);
     }
     if (layout.expanded === false) drawer.setAttribute('expanded', 'false');
+    if (layout.hidden === true) drawer.setAttribute('standard-hidden', '');
     const keepLayout = (change) => {
       try {
         let kept = {};
@@ -158,6 +160,11 @@ const cells = (entries: Entry[], top: boolean): string =>
     // is not kept, and `expanded` is unchanged.
     drawer.addEventListener('expandedchange', (event) => {
       if (event.target === drawer && typeof drawer.expanded === 'boolean') keepLayout({ expanded: drawer.expanded });
+    });
+    // Hidden beside the content, or shown there again: what the reader chose for a wide window. A narrower one opens and
+    // closes the drawer over the content, which is not kept.
+    drawer.addEventListener('standardhiddenchange', (event) => {
+      if (event.target === drawer && typeof drawer.standardHidden === 'boolean') keepLayout({ hidden: drawer.standardHidden });
     });
     const groups = [...drawer.querySelectorAll('tanrei-navigation-drawer-group')];
     const key = 'tanrei-docs-sidebar:' + groups.map((group) => group.getAttribute('label')).join('|');

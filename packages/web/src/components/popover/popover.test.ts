@@ -6,6 +6,7 @@
 // POP-44: the product's ARIA on the host is tested with every other control's, in every engine, in
 // src/primitives/delegated-aria.test.ts.
 import AxeBuilder from '@axe-core/playwright';
+import { coveredText } from '../../../test/covered-text.js';
 import { type Locator, type Page, expect, test } from '@playwright/test';
 import { type Fixture, innerStrokeAtEdges, loadSpec, missingWords, mountFixtures, popoverWindow, resolveColor, resolveToken, roleFont, rootTokens, setWords, tab, tabTo } from '../../../test/harness.js';
 import { appearProbe, bezierOf, expectAppearStart, expectExitEnd, expectSlideExitEnd, expectSlidOnly, expectTurnedAlone, resolveEasing, sheetProbe, slidOut, turnHeld } from '../../../test/appear.js';
@@ -22,6 +23,7 @@ import { expectGoneWhileSkipped } from '../../../test/skipped-exit.js';
 import { expectScrimTakenAwayAtClose } from '../../../test/scrim-at-close.js';
 import { controlledElements, controlledInTree } from '../../../test/controlled-list.js';
 import { STACKED_DIALOG, STACKED_LAYER, addStackedSurfaces, expectStackedInOrder } from '../../../test/stacked-surfaces.js';
+import { contrastChecked } from '../../../test/contrast-checked.js';
 
 const spec = loadSpec('popover');
 /** The fixtures drawn in place on their stages; the `compact-` ones are the real overlay, each alone in its window (POP-39). */
@@ -1160,15 +1162,33 @@ test.describe('size and layout', () => {
     expect(await missingWords(page)).not.toContain('closeLabel');
   });
 
-  test('POP-13: the presets keep the bare close glyph they inherited — m3-like and cupertino give the close button the text variant, at their own small Button size', async ({ page }) => {
-    for (const system of ['m3-like', 'cupertino'] as const) {
+  test('POP-13: the presets keep the bare close glyph they inherited — m3-like and cupertino give the close button the text variant, at the size close-button.size names (m3-like medium, Material’s standard icon button; cupertino small)', async ({ page }) => {
+    for (const [system, size] of [['m3-like', 'medium'], ['cupertino', 'small']] as const) {
       await mountFixtures(page, spec, { icons: true, system, fixtures: spec.fixtures.filter((f) => f.id === 'closable') });
       const button = fixtureHost(page, 'closable').locator('tanrei-button.close');
       await expect(button, system).toHaveCount(1);
       expect(await token(page, T('close-button-variant')), system).toBe('text');
+      expect(await token(page, T('close-button-size')), system).toBe(size);
+      await expect(button, system).toHaveAttribute('size', size);
       await expect.poll(() => button.locator('button').evaluate((el) => getComputedStyle(el).backgroundColor), system).toBe(await resolveColor(page, '--tanrei-comp-button-text-container-color'));
-      expect((await rect(button.locator('button'))).height, system).toBeCloseTo(await resolveToken(page, '--tanrei-comp-button-container-height-small'), 1);
+      expect((await rect(button.locator('button'))).height, system).toBeCloseTo(await resolveToken(page, `--tanrei-comp-button-container-height-${size}`), 1);
     }
+  });
+
+  test('POP-13: the close button takes the size close-button.size names — small in the default system — and a system that names another size draws it at that size, the headline still centred on it', async ({ page }) => {
+    await mount(page, `${anchorAt(200, 60)}${popover('headline="Storage" closable close-label="Close storage" data-keep')}`);
+    await open(page);
+    const button = part(page, 'tanrei-button.close');
+    expect(await token(page, T('close-button-size'))).toBe('small');
+    await expect(button).toHaveAttribute('size', 'small');
+    await override(page, { [T('close-button-size')]: 'medium' });
+    await set(page, { headline: 'Storage used' });
+    await expect(button).toHaveAttribute('size', 'medium');
+    const medium = await resolveToken(page, '--tanrei-comp-button-container-height-medium');
+    await expect.poll(async () => (await rect(button.locator('button'))).height).toBeCloseTo(medium, 1);
+    const headline = await rect(part(page, '.headline'));
+    const close = await rect(button.locator('button'));
+    expect(headline.y + headline.height / 2).toBeCloseTo(close.y + close.height / 2, 0);
   });
 
   test('POP-14: the content inherits comp.popover.content.color and plain text takes the body role; the popover does not lay out or restyle what it holds, which may be anything that takes input', async ({ page }) => {
@@ -2857,6 +2877,7 @@ test.describe('accessibility', () => {
       await settle(page);
       const results = await new AxeBuilder({ page }).include('main').analyze();
       expect(results.violations, `${theme}: ${results.violations.map((v) => `${v.id} ${v.nodes.map((n) => n.target).join(' ')}`).join(', ')}`).toEqual([]);
+      expect(await coveredText(page, results), `${theme}: no text left unchecked as covered`).toEqual([]);
       // The real overlay, open against its opener and closed.
       const real: Fixture[] = [
         { ...spec.fixtures.find((f) => f.id === 'arrow-actions')!, id: 'top-layer', props: { ...spec.fixtures.find((f) => f.id === 'arrow-actions')!.props, anchor: 'opener-open' } },
@@ -2871,6 +2892,7 @@ test.describe('accessibility', () => {
       await motionEnded(fixtureHost(page, 'top-layer'));
       const overlay = await new AxeBuilder({ page }).analyze();
       expect(overlay.violations, `${theme}, top layer: ${overlay.violations.map((v) => `${v.id} ${v.nodes.map((n) => n.target).join(' ')}`).join(', ')}`).toEqual([]);
+      expect(await coveredText(page, overlay), `${theme}, top layer: no text left unchecked as covered`).toEqual([]);
     }
   });
 });
@@ -2944,4 +2966,17 @@ test.describe('compact fixtures', () => {
       await expectBaseline(page, [spec.name, `${f.id}.png`]);
     });
   }
+});
+
+test.describe('accessibility: what is drawn over the content', () => {
+  test('POP-8: the box that carries the content\'s focus indicator hides no text from a contrast check — faint text is reported, the popover\'s own colors pass', async ({ page }) => {
+    // An element drawn over a text is, to axe's color-contrast, an element covering it, whatever its pointer-events: it
+    // left the text incomplete ("overlapped by another element") instead of checking it, so faint text passed unseen.
+    const basic = spec.fixtures.find((x) => x.id === 'basic')!;
+    await mountFixtures(page, spec, { fixtures: [{ ...basic, content: '<p data-text="faint" style="margin: 0; color: #bbb">Faint text</p><p data-text="normal" style="margin: 0">Readable text</p>' }] });
+    const checked = await contrastChecked(page);
+    expect(checked.violations, 'the faint text is reported').toEqual(['faint']);
+    expect(checked.passes, 'the popover\'s own colors pass').toEqual(expect.arrayContaining(['normal']));
+    expect(checked.incomplete, 'nothing is left unchecked').toEqual([]);
+  });
 });

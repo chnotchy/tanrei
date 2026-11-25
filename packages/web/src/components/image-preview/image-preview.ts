@@ -8,7 +8,9 @@ import { hiddenHost } from '../../primitives/hidden.js';
 import {
   AppearController,
   AvailabilityController,
+  BUTTON_SIZES,
   BUTTON_VARIANTS,
+  type ButtonSize,
   GlyphDrawnController,
   SHEET_FLING_VELOCITY,
   SHEET_TOUCH_SLOP,
@@ -19,6 +21,7 @@ import {
   compChoices,
   deepActive,
   focusOverlay,
+  giveSize,
   giveVariant,
   holdPageScroll,
   isLeaving,
@@ -41,6 +44,7 @@ import '../skeleton/skeleton.js';
 import { styles } from './image-preview.styles.js';
 import { TanreiElement } from '../../primitives/element.js';
 import { statesFromNextFrame } from '../../primitives/motion.js';
+import { DEBUG } from '../../primitives/debug.js';
 
 /** Why the preview asks to close (IMP-5): its close control, Escape, the platform's back, or the downward drag by touch. */
 export type TanreiImagePreviewCloseReason = 'button' | 'escape' | 'back' | 'swipe';
@@ -367,6 +371,8 @@ export class TanreiImagePreview extends TanreiElement {
   private opener: Element | null = null;
   /** Presented: in the top layer. */
   private presented = false;
+  /** IMP-8, IMP-10: the controls' sizes, as the bar's and the navigation's tokens named them at the last read. */
+  private controlSizes: { bar: ButtonSize; navigation: ButtonSize } = { bar: 'small', navigation: 'medium' };
   /** It is to open with the reads of the turn (`present()`), and has not yet. */
   private presenting = false;
   /**
@@ -1302,18 +1308,32 @@ export class TanreiImagePreview extends TanreiElement {
 
   // ---- Presenting and focus (IMP-1, IMP-2, IMP-4, IMP-6, IMP-43) ----
 
-  /** IMP-8, IMP-10: each control is told the variant its token names, through the channel a Button reads from the component that places it (BTN-10). */
+  /**
+   * IMP-8, IMP-10: each control is told the size its token names, and the variant through the channel a Button reads
+   * from the component that places it (BTN-10).
+   */
   private giveVariants() {
     this.giveChosen(this.readVariants());
   }
 
-  /** IMP-8, IMP-10: the variants the tokens name, with one computed style. */
+  /** IMP-8, IMP-10: the sizes and variants the tokens name, with one computed style. */
   private readVariants() {
-    return compChoices(this, { bar: [`${PREFIX}-bar-button-variant`, BUTTON_VARIANTS], navigation: [`${PREFIX}-navigation-button-variant`, BUTTON_VARIANTS] });
+    return compChoices(this, {
+      bar: [`${PREFIX}-bar-button-variant`, BUTTON_VARIANTS],
+      barSize: [`${PREFIX}-bar-button-size`, BUTTON_SIZES],
+      navigation: [`${PREFIX}-navigation-button-variant`, BUTTON_VARIANTS],
+      navigationSize: [`${PREFIX}-navigation-button-size`, BUTTON_SIZES],
+    });
   }
 
-  private giveChosen({ bar, navigation }: ReturnType<TanreiImagePreview['readVariants']>) {
-    for (const control of CONTROLS) giveVariant(this.renderRoot?.querySelector(`tanrei-button.${control}`), control === 'previous' || control === 'next' ? navigation : bar);
+  private giveChosen({ bar, barSize, navigation, navigationSize }: ReturnType<TanreiImagePreview['readVariants']>) {
+    this.controlSizes = { bar: barSize, navigation: navigationSize };
+    for (const control of CONTROLS) {
+      const button = this.renderRoot?.querySelector(`tanrei-button.${control}`);
+      const side = control === 'previous' || control === 'next';
+      giveSize(button, side ? navigationSize : barSize);
+      giveVariant(button, side ? navigation : bar);
+    }
   }
 
   /**
@@ -1350,7 +1370,7 @@ export class TanreiImagePreview extends TanreiElement {
       const say = () => {
         if (this.open && !this.presented && !this.images.length && !this.reportedEmpty) {
           this.reportedEmpty = true;
-          report(this, 'IMP-43', 'it was opened with no image, so nothing is presented; give it <tanrei-image-preview-item> children before it opens', { once: false, level: 'error' });
+          if (DEBUG) report(this, 'IMP-43', 'it was opened with no image, so nothing is presented; give it <tanrei-image-preview-item> children before it opens', { once: false, level: 'error' });
         }
       };
       if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', say, { once: true });
@@ -1446,7 +1466,7 @@ export class TanreiImagePreview extends TanreiElement {
     // (A word with places is read in one place: src/primitives/places.ts.) Another text between braces and a brace that
     // opens or closes nothing are drawn as they are written, and reported.
     const { runs } = fillPlaces(sentence, { position: number.format(this.shown + 1), count: number.format(this.images.length) });
-    if (report_) reportPlaces(this, 'IMP-9', 'countText', sentence, wordPlaces.imageCountText ?? [], 'it is drawn as it is written');
+    if (DEBUG && report_) reportPlaces(this, 'IMP-9', 'countText', sentence, wordPlaces.imageCountText ?? [], 'it is drawn as it is written');
     return runs.map((run) => run.text).join('');
   }
 
@@ -1457,7 +1477,7 @@ export class TanreiImagePreview extends TanreiElement {
     // IMP-20, IMP-43: the image shown is `index`, within the images. The product set it: at once, and no `indexchange`.
     const was = images ? ((changed.get('images' as keyof this) as ImageData[] | undefined)?.[this.shown]?.element ?? null) : null;
     const target = this.within(this.index);
-    if (changed.has('index') && this.images.length && target !== this.index) {
+    if (DEBUG && changed.has('index') && this.images.length && target !== this.index) {
       report(this, 'IMP-20', `index is ${this.index}, which is not one of its ${this.images.length} images; the nearest, ${target}, is shown`, { once: false });
     }
     if (target !== this.shown) {
@@ -1474,7 +1494,7 @@ export class TanreiImagePreview extends TanreiElement {
     // IMP-12, IMP-21: the product set the zoom (the element's own writes are what the view already is): taken at once.
     if ((changed.has('zoom') && Math.abs(this.zoom - this.view.z) > EPSILON) || changed.has('maxZoom')) {
       this.zoomGiven = true;
-      if (positive(this.maxZoom) ? this.maxZoom < 1 : this.maxZoom !== null) report(this, 'IMP-12', `max-zoom is ${this.maxZoom}, which is less than 1; it is taken as not given`, { once: false });
+      if (DEBUG && (positive(this.maxZoom) ? this.maxZoom < 1 : this.maxZoom !== null)) report(this, 'IMP-12', `max-zoom is ${this.maxZoom}, which is less than 1; it is taken as not given`, { once: false });
     }
     this.takeZoom();
     // IMP-28: a control that is about to be disabled while it has focus.
@@ -1495,7 +1515,7 @@ export class TanreiImagePreview extends TanreiElement {
     const { max } = this.limits();
     const asked = Number.isFinite(this.zoom) ? this.zoom : 1;
     const zoom = Math.min(max, Math.max(1, asked));
-    if (Math.abs(zoom - asked) > EPSILON) report(this, 'IMP-12', `zoom is ${this.zoom}, which is outside 1 to ${max}; ${zoom} is used`, { once: false });
+    if (DEBUG && Math.abs(zoom - asked) > EPSILON) report(this, 'IMP-12', `zoom is ${this.zoom}, which is outside 1 to ${max}; ${zoom} is used`, { once: false });
     if (Math.abs(zoom - this.view.z) < EPSILON) return;
     this.still();
     this.view = this.zoomedAbout(this.view, zoom, 0, 0);
@@ -1568,9 +1588,9 @@ export class TanreiImagePreview extends TanreiElement {
   }
 
   private reports() {
-    if (!this.label.trim() && !namedByProduct(this)) report(this, 'IMP-7', 'label is empty, so the modal dialog has no accessible name; give it a label');
+    if (DEBUG && !this.label.trim() && !namedByProduct(this)) report(this, 'IMP-7', 'label is empty, so the modal dialog has no accessible name; give it a label');
     const named = (key: 'closeLabel' | 'zoomInLabel' | 'zoomOutLabel' | 'previousImageLabel' | 'nextImageLabel', prop: string, own: string, id: string, what: string) => {
-      if (!this.words.get(key, own)) this.words.missing(key, { prop, id, effect: `the ${what} control is drawn and has no accessible name` });
+      if (!this.words.get(key, own)) this.words.missing(key, DEBUG && { prop, id, effect: `the ${what} control is drawn and has no accessible name` });
     };
     named('closeLabel', 'closeLabel', this.closeLabel, 'IMP-8', 'close');
     named('zoomInLabel', 'zoomInLabel', this.zoomInLabel, 'IMP-8', 'zoom-in');
@@ -1578,7 +1598,7 @@ export class TanreiImagePreview extends TanreiElement {
     if (this.images.length > 1) {
       named('previousImageLabel', 'previousLabel', this.previousLabel, 'IMP-10', 'previous');
       named('nextImageLabel', 'nextLabel', this.nextLabel, 'IMP-10', 'next');
-      if (!this.words.get('imageCountText', this.countText)) this.words.missing('imageCountText', { prop: 'countText', id: 'IMP-9', effect: 'no count is drawn' });
+      if (!this.words.get('imageCountText', this.countText)) this.words.missing('imageCountText', DEBUG && { prop: 'countText', id: 'IMP-9', effect: 'no count is drawn' });
       else this.countSentence(true);
     }
     // IMP-27: judged once the images' own pending updates are done. The images are read from their attributes, and a
@@ -1587,10 +1607,10 @@ export class TanreiImagePreview extends TanreiElement {
     // a preview mounted open first updates. The observer reads the images again in that update, before this goes on.
     void Promise.all(this.images.map((image) => (image.element as Partial<ReactiveElement>).updateComplete)).then(() => {
       const image = this.images[this.shown];
-      if (this.isConnected && this.presented && image && !image.alt.trim()) report(this, 'IMP-27', `the image at ${this.shown} has no alt, so the image shown has no accessible name; give every image an alt`);
+      if (DEBUG && this.isConnected && this.presented && image && !image.alt.trim()) report(this, 'IMP-27', `the image at ${this.shown} has no alt, so the image shown has no accessible name; give every image an alt`);
     });
     if (failed(this.pictureAt(this.shown)) && !this.words.get('imageErrorText', this.errorText)) {
-      this.words.missing('imageErrorText', { prop: 'errorText', id: 'IMP-31', effect: 'the mark is drawn alone and the failure is told to no one' });
+      this.words.missing('imageErrorText', DEBUG && { prop: 'errorText', id: 'IMP-31', effect: 'the mark is drawn alone and the failure is told to no one' });
     }
   }
 
@@ -1639,13 +1659,13 @@ export class TanreiImagePreview extends TanreiElement {
     </div>`;
   }
 
-  /** IMP-8: the bar's three controls are small, as every host's close button is; IMP-10: previous and next are medium. */
+  /** IMP-8: the bar's three controls at the size bar.button.size names; IMP-10: previous and next at navigation.button.size's. */
   private control(control: Control, glyph: string, label: string) {
     return html`<tanrei-button
       part=${control}
       exportparts=${BUTTON_PARTS[control].attribute}
       class=${control}
-      size=${control === 'previous' || control === 'next' ? 'medium' : 'small'}
+      size=${control === 'previous' || control === 'next' ? this.controlSizes.navigation : this.controlSizes.bar}
       label=${label}
       ?disabled=${this.disabledNow(control)}
       @click=${this.onControl(control)}

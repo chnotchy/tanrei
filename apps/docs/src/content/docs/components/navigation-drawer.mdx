@@ -531,14 +531,15 @@ A design system may add variants. A variant it adds behaves as standard.
 
 | Window | Presentation | What the drawer is |
 | --- | --- | --- |
-| At least the wider breakpoint | `standard` | A standard drawer beside the content, shown whatever `open` says, and collapsible in the form `expanded` chooses |
+| At least the wider breakpoint | `standard` | A standard drawer beside the content, shown unless an app shell's menu button hid it there (`standardHidden`), and collapsible in the form `expanded` chooses |
 | At least the narrower one, while `collapsible` | `column` | A modal collapsible drawer: its column of icons in the layout, widening over the content while `open` |
 | Narrower than that | `modal` | A modal drawer that is not collapsible |
 
-- **The presentation is derived, never stored.** It follows the width alone: the drawer does not write it to `variant`, `open` or `expanded`. `presentationChange` says what it is, the first time and whenever the width changes it.
+- **The presentation is derived, never stored.** It follows the width alone: the drawer does not write it to `variant`, `open`, `standardHidden` or `expanded`. `presentationChange` says what it is, the first time and whenever the width changes it.
 - **`open` is kept across presentations.** A change of width fires no `close`. A drawer open over the content stands beside it when the window widens, its scrim gone at once and nothing inert, and is over the content again, still open, when the window narrows; focus that was in what is then behind it moves to the menu button. `expanded`, `value` and each group's `open` are kept too, so the standard presentation comes back in the form it was left in.
+- **An app shell's menu button hides the standard presentation.** Pressed while the drawer stands beside the content, it hides the drawer, in whichever form it has, and the content takes its width: `standardHidden` becomes true and `open` false. Pressed again, it shows the drawer: `standardHidden` becomes false and `open` true, so the drawer is over the content if the window narrows. The drawer slides out and in, fires `standardHiddenChange`, and leaves focus on the button. A drawer hidden so is closed in a narrower window and hidden again when the window widens.
 - **In the `modal` presentation, the menu button is yours.** Show a menu button of your own, in the app bar for example, while the presentation is `modal`, and set `open` from it. The drawer's own menu button only closes it there.
-- **The drawer remembers nothing between visits.** To keep a person's choice of form, store what `expandedChange` carries and set `expanded` from it.
+- **The drawer remembers nothing between visits.** To keep a person's choices, store what `expandedChange` and `standardHiddenChange` carry and set `expanded` and `standardHidden` from them.
 
 ### As a site's sidebar
 

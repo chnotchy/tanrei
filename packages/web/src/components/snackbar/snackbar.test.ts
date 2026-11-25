@@ -14,6 +14,7 @@ import { holdClock, releaseClock } from '../../../test/page-clock.js';
 import { attachPressLog, logPresses, notePress } from '../../../test/press-log.js';
 import { clickCentre, heldPress } from '../../../test/watched-press.js';
 import { expectBaseline } from '../../../test/baseline.js';
+import { contrastChecked } from '../../../test/contrast-checked.js';
 
 const spec = loadSpec('snackbar');
 type P = Page;
@@ -1649,6 +1650,23 @@ test.describe('the bar', () => {
     }
   });
 
+  test('SNK-15, SNK-34: the expand and close buttons take the size close-button.size names — small in the default system, medium under m3-like (Material’s standard icon button), where the action is as tall (controls.height), all centred on the first line', async ({ page }) => {
+    for (const [system, size] of [[undefined, 'small'], ['m3-like', 'medium']] as const) {
+      await mountFixtures(page, spec, { icons: true, system, fixtures: spec.fixtures.filter((x) => x.id === 'action-closable' || x.id === 'collapsed') });
+      const name = system ?? 'tanrei';
+      expect(await token(page, T('close-button-size')), name).toBe(size);
+      const height = await resolveToken(page, `--tanrei-comp-button-container-height-${size}`);
+      expect(await resolveToken(page, T('controls-height')), name).toBe(height);
+      for (const [id, control] of [['action-closable', 'close'], ['collapsed', 'close'], ['collapsed', 'expand']] as const) {
+        await expect(part(page, id, control), `${name} ${id} ${control}`).toHaveAttribute('size', size);
+        expect((await bounds(inner(page, id, control))).height, `${name} ${id} ${control}`).toBeCloseTo(height, 0);
+      }
+      const [action, close] = await Promise.all([bounds(part(page, 'action-closable', 'action')), bounds(inner(page, 'action-closable', 'close'))]);
+      expect(action.height, name).toBeCloseTo(height, 0);
+      expect(close.y + close.height / 2, name).toBeCloseTo(action.y + action.height / 2, 0);
+    }
+  });
+
   test('SNK-16: a title and a message that would need more than two lines put the action on its own row; the expand and close buttons stay on the first row', async ({ page }) => {
     await mountFixtures(page, spec, { icons: true });
     const gap = await resolveToken(page, T('container-gap'));
@@ -3157,4 +3175,17 @@ test.describe('fixtures', () => {
       await expectBaseline(page.locator(`[data-fixture="${fixture.id}"]`), [spec.name, `${fixture.id}.png`]);
     });
   }
+});
+
+test.describe('accessibility: what is drawn over the text', () => {
+  test('SNK-3: the box that carries the text\'s focus indicator hides no text from a contrast check — a faint message is reported, the form\'s own colors pass', async ({ page }) => {
+    // An element drawn over a text is, to axe's color-contrast, an element covering it, whatever its pointer-events: it
+    // left the text incomplete ("overlapped by another element") instead of checking it, so faint text passed unseen.
+    const lead = '<style>[data-fixture="faint"] tanrei-snackbar::part(supporting-text) { color: #bbb; }</style>';
+    await mountFixtures(page, spec, { lead, fixtures: [f('faint', { message: 'Faint' }), f('normal', { message: 'Readable' }), f('titled', { headline: 'Saved', message: 'Readable too' })] });
+    const checked = await contrastChecked(page);
+    expect(checked.violations, 'the faint message is reported').toEqual(['Faint']);
+    expect(checked.passes, 'the form\'s own colors pass').toEqual(['Readable', 'Readable too', 'Saved']);
+    expect(checked.incomplete, 'nothing is left unchecked').toEqual([]);
+  });
 });

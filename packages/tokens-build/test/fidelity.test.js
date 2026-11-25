@@ -59,6 +59,19 @@ test('the harness notices a wrong value', async () => {
   assert.ok(result.fidelity < 1);
 });
 
+test("map.hosts compares the size a host's own Buttons take with the reference object's size", async () => {
+  const input = loadFidelityMap('m3-like');
+  const model = await buildModel(path.join(REPO_ROOT, 'tokens/generated/m3-like'), 'm3-like');
+  const hosts = { ...input, map: { system: 'm3-like', scope: 'test', sizes: input.map.sizes, hosts: input.map.hosts } };
+  const right = measureFidelity(model, hosts);
+  const without = measureFidelity(model, { ...hosts, map: { ...hosts.map, hosts: undefined } });
+  const count = input.map.hosts.map.length;
+  assert.deepEqual([right.total - without.total, right.equal - without.equal, right.unaccounted], [count, count, []]);
+  const id = 'tanrei.comp.popover.close-button.size';
+  const wrong = measureFidelity({ ...model, tokens: { ...model.tokens, [id]: { ...model.tokens[id], value: 0 } } }, hosts);
+  assert.deepEqual(wrong.different.map((d) => [d.tanrei, d.problems[0].expected, d.problems[0].actual]), [[id, 'medium', 'small']]);
+});
+
 test('map.values compares single figures; a section\'s `outside` is listed with its reason and not counted', async () => {
   const model = await buildModel();
   const minimum = model.tokens['tanrei.sys.target.minimum'].value.value;

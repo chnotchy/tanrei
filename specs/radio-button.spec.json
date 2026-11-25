@@ -223,6 +223,11 @@
     {
       "id": "RAD-29",
       "text": "WHERE the platform has ARIA attributes (the web), WHEN the product sets an aria- attribute on the host, by the attribute or by the ARIA property that reflects it, THE radio button SHALL move it to the data-aria- attribute of the same name, so that the host is no second node with its name, description or state, and SHALL expose it on the element that carries its role — an id reference by the elements it names in the host's tree or a tree around it, an error message as part of the description while the radio button is invalid — except those the radio button owns (aria-checked, aria-pressed, aria-disabled), which it SHALL move and not expose. WHEN the product removes the aria- attribute or its data-aria- twin, or sets the ARIA property that reflects it (ariaLabel, ariaDescribedByElements…) to null, THE radio button SHALL take it off that element. WHEN the product sets an aria- attribute the radio button owns THE radio button SHALL report it in debug builds."
+    },
+    {
+      "id": "RAD-30",
+      "text": "WHEN the control height (dial.control.height) is N THE radio button SHALL be N tall in a row: its round container SHALL be drawn at comp.radio-button.container.size, which is sys.control.height.medium, and SHALL be the height the option takes in layout where that is more than comp.radio-button.option.min-height (RAD-21), so that a radio button stands as tall as the Buttons and fields beside it and an option with a label of one line is a row N tall, the label's line centered on the container. The ring (comp.radio-button.ring.size), its strokes and its fill are the sign of the condition drawn inside the container, sized for the eye and no control on a row: they SHALL keep their own sizes at every control height. The hit area SHALL still meet the minimum target (RAD-9).",
+      "verify": "With the control height at 32, 36 and 40 and the minimum target (and so option.min-height) no higher, the radio button of the fixtures unselected and label-hidden and its container are 32, 36 and 40 tall under a fine pointer, the ring 20 at each, and the label of unselected whole inside the row."
     }
   ],
   "accessibility": {

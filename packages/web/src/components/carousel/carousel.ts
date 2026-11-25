@@ -1,12 +1,13 @@
 import { LitElement, type PropertyDeclarations, type PropertyValues, html, nothing } from 'lit';
 import { hiddenHost } from '../../primitives/hidden.js';
 import { exported } from '../../primitives/composed.js';
-import { AvailabilityController, BUTTON_VARIANTS, compChoice, containWheel, DIRECTION_PROBE, DirectionController, giveVariant, PressController, RovingKeys, hostAria, motionReduced, readTogether, report, slottedInteractive, stoppedBefore, SystemWatchController, syncFocusStyle, watchMotionReduced, WordsController } from '../../primitives/index.js';
+import { AvailabilityController, BUTTON_SIZES, BUTTON_VARIANTS, type ButtonSize, compChoices, containWheel, DIRECTION_PROBE, DirectionController, giveSize, giveVariant, PressController, RovingKeys, hostAria, motionReduced, readTogether, report, slottedInteractive, stoppedBefore, SystemWatchController, syncFocusStyle, watchMotionReduced, WordsController } from '../../primitives/index.js';
 import { TanreiButton } from '../button/button.js';
 import { CarouselGeometry, type TanreiCarouselHeroAlignment } from './carousel-geometry.js';
 import { carouselStyles, itemStyles } from './carousel.styles.js';
 import { TanreiElement } from '../../primitives/element.js';
 import { playFromThisFrame } from '../../primitives/motion.js';
+import { DEBUG } from '../../primitives/debug.js';
 
 export type { TanreiCarouselHeroAlignment } from './carousel-geometry.js';
 
@@ -195,7 +196,7 @@ export class TanreiCarouselItem extends TanreiElement {
   /** CRL-20: an item's content holds nothing interactive; a debug build names what it found, on every slot change. */
   private async inspectContent() {
     const found = await slottedInteractive(this.renderRoot.querySelector('slot'));
-    if (found) {
+    if (DEBUG && found) {
       report(this, 'CRL-20', `a carousel item holds an interactive element (<${found.localName}>), which assistive technology cannot reach and whose press would also activate the item; an item is one action — put other actions outside the carousel`);
     }
   }
@@ -209,7 +210,7 @@ export class TanreiCarouselItem extends TanreiElement {
       'aria-setsize': size ? String(size) : null,
     });
     // CRL-20: an item without a label still renders; a debug build says it has no name.
-    if (changed.has('label') && !this.label.trim()) report(this, 'CRL-20', 'label is empty, so the carousel item has no accessible name; give it a label that says what its content shows');
+    if (DEBUG && changed.has('label') && !this.label.trim()) report(this, 'CRL-20', 'label is empty, so the carousel item has no accessible name; give it a label that says what its content shows');
   }
 
   protected override render() {
@@ -733,7 +734,7 @@ export class TanreiCarousel extends TanreiElement {
     this.restingCount = d;
     if (this.indicator && d >= 2 && !this.indicatorFits && this.reported.get('fit') !== `${d}@${next.inner}`) {
       this.reported.set('fit', `${d}@${next.inner}`);
-      report(this, 'CRL-20', `indicator is set but its ${d} dots do not fit beside the playback control at this width, so they are not drawn; a row of dots is for a short featured row`, { once: false });
+      if (DEBUG) report(this, 'CRL-20', `indicator is set but its ${d} dots do not fit beside the playback control at this width, so they are not drawn; a row of dots is for a short featured row`, { once: false });
     }
     // The offset is the one the row was scrolled to in the read (`placeScrolled()`): read again here, after the writes of
     // every carousel arranged with it, it had the browser lay the page out once for each.
@@ -1339,19 +1340,30 @@ export class TanreiCarousel extends TanreiElement {
   private readonly onNext = () => this.navigate(1);
 
   /**
-   * CRL-41: each control is told the variant its token names, through the channel a Button reads from the component that
-   * places it (BTN-10). Asked before the render and read after it, with every other host's of the turn
-   * (src/primitives/read-phase.ts): a control the render makes is drawn with its variant from its first update.
+   * CRL-41: each control is told the size its token names, and the variant through the channel a Button reads from the
+   * component that places it (BTN-10). Asked before the render and read after it, with every other host's of the turn
+   * (src/primitives/read-phase.ts): a control the render makes is drawn with its size and variant from its first update.
    */
   private giveVariants() {
     readTogether(() => {
       if (!this.isConnected) return;
-      const variant = compChoice(this, '--tanrei-comp-carousel-navigation-button-variant', BUTTON_VARIANTS);
+      const { size, variant } = compChoices(this, {
+        size: ['--tanrei-comp-carousel-navigation-button-size', BUTTON_SIZES],
+        variant: ['--tanrei-comp-carousel-navigation-button-variant', BUTTON_VARIANTS],
+      });
       return () => {
-        for (const control of NAV_CONTROLS) giveVariant(this.renderRoot?.querySelector(`tanrei-button.${control}`), variant);
+        this.navigationSize = size;
+        for (const control of NAV_CONTROLS) {
+          const button = this.renderRoot?.querySelector(`tanrei-button.${control}`);
+          giveSize(button, size);
+          giveVariant(button, variant);
+        }
       };
     });
   }
+
+  /** CRL-41: the controls' size, as `comp.carousel.navigation.button.size` named it at the last read. */
+  private navigationSize: ButtonSize = 'medium';
 
   private navControl(control: NavControl) {
     const label = control === 'previous' ? this.words.get('previousItemLabel', this.previousLabel) : this.words.get('nextItemLabel', this.nextLabel);
@@ -1359,7 +1371,7 @@ export class TanreiCarousel extends TanreiElement {
       part=${control}
       exportparts=${NAV_PARTS[control].attribute}
       class="navigation ${control} ${this.drawnNavigation}"
-      size="medium"
+      size=${this.navigationSize}
       label=${label}
       .focusableWhenDisabled=${true}
       .disabled=${control === 'previous' ? this.firstDisabled : this.lastDisabled}
@@ -1635,12 +1647,12 @@ export class TanreiCarousel extends TanreiElement {
   private reportOnce(key: string, value: unknown, id: string, message: string) {
     if (Object.is(this.reported.get(key), value)) return;
     this.reported.set(key, value);
-    report(this, id, message, { once: false });
+    if (DEBUG) report(this, id, message, { once: false });
   }
 
   protected override updated(changed: PropertyValues<this>) {
     // CRL-20: a list and an indicator without a name; a playback control without its names.
-    if (changed.has('label') && !this.label.trim()) report(this, 'CRL-20', 'label is empty, so the carousel’s list and its indicator have no accessible name; give it a label ("Recently played")');
+    if (DEBUG && changed.has('label') && !this.label.trim()) report(this, 'CRL-20', 'label is empty, so the carousel’s list and its indicator have no accessible name; give it a label ("Recently played")');
     if ((changed.has('autoplay') || changed.has('noPlaybackControl') || changed.has('playLabel') || changed.has('pauseLabel')) && this.autoplay && !this.noPlaybackControl) {
       const missing = [this.words.lacks('playLabel', this.playLabel) && 'play-label', this.words.lacks('pauseLabel', this.pauseLabel) && 'pause-label'].filter(Boolean).join(' and ');
       if (missing) this.reportOnce('labels', missing, 'CRL-20', `autoplay is on and the playback control is drawn, but ${missing} is empty, so the control has no accessible name in that state; give it both labels ("Pause the slideshow", "Play the slideshow")`);
@@ -1648,8 +1660,8 @@ export class TanreiCarousel extends TanreiElement {
     }
     // CRL-20: the previous and next controls without their names.
     if (this.navigationDrawn) {
-      if (!this.words.get('previousItemLabel', this.previousLabel)) this.words.missing('previousItemLabel', { prop: 'previousLabel', id: 'CRL-20', effect: 'the previous control is drawn and has no accessible name' });
-      if (!this.words.get('nextItemLabel', this.nextLabel)) this.words.missing('nextItemLabel', { prop: 'nextLabel', id: 'CRL-20', effect: 'the next control is drawn and has no accessible name' });
+      if (!this.words.get('previousItemLabel', this.previousLabel)) this.words.missing('previousItemLabel', DEBUG && { prop: 'previousLabel', id: 'CRL-20', effect: 'the previous control is drawn and has no accessible name' });
+      if (!this.words.get('nextItemLabel', this.nextLabel)) this.words.missing('nextItemLabel', DEBUG && { prop: 'nextLabel', id: 'CRL-20', effect: 'the next control is drawn and has no accessible name' });
     }
     // CRL-24: an unknown alignment is drawn as the default; an itemWidth or autoplayInterval that is not a positive number is null.
     if (changed.has('heroAlignment') && !HERO_ALIGNMENTS.includes(this.heroAlignment)) {

@@ -5,9 +5,10 @@
 //
 //   the menu button   the bar's navigation item, at every width, on pages that have a sidebar: the shell's menu
 //                     button (`data-app-shell-menu`, APS-6, APS-7), the navigation's one, so the drawer has no row of
-//                     its own for one. The shell shows it in every window class and asks the drawer for its other form:
-//                     collapsed or expanded where it stands beside the content, opened over it below the header where
-//                     it is a column or has no place (its presentation, NVD-53), and says which;
+//                     its own for one. The shell shows it in every window class, in the same place: where the drawer
+//                     stands beside the content it hides it there and shows it again, the content taking its room
+//                     (NVD-106, kept across visits by Sidebar.astro); where it is a column or has no place it opens it
+//                     over the content below the header (its presentation, NVD-53); and it says which;
 //   the brand         the bar's brand (APB-19 to APB-23): a link to the language's first page (`brand-href`) named by
 //                     the site's name (`brand-label`), drawn as Tanrei's wordmark (design/brand/wordmark.svg, inline,
 //                     in `comp.app-bar.brand.color`) at every width — the name is read here, so the wordmark, never
@@ -19,7 +20,11 @@
 //                     (Appearance.astro): the color mode, the contrast and the look, a link to this page as it looks
 //                     now, and Theme Studio's link. The choice is lib/appearance.ts's, which the head's script applies
 //                     before the first paint, and the whole page is drawn in it — this header, the sidebar, the content,
-//                     every example and what an example opens. A compact window has no room for it beside
+//                     every example and what an example opens. Every control says what is drawn: where the look's
+//                     stylesheet came too late for the page, which is then drawn in the default system, the button and
+//                     the panel say the default system, the panel says which look came too late and that it applies
+//                     from the next page, and a Snackbar says the same with an action that applies it now (as choosing
+//                     it in the panel does). A compact window has no room for it beside
 //                     the wordmark and the actions: there the same button and panel stand first in the drawer's list
 //                     (Sidebar.astro), and the bar's is not drawn;
 //   the repository    an icon-only Button that is a link to the source repository on GitHub (lib/repository.ts, from
@@ -99,7 +104,7 @@ const languages = [{ dir: '', lang: source.lang, label: source.label }, ...trans
   {languages.map(({ lang, label, href, current }) => <tanrei-menu-item lang={lang} label={label} href={href} current={current || undefined} />)}
 </tanrei-menu>
 {/* The appearance's messages (a link copied, a shared appearance): defined on first use. */}
-<tanrei-snackbar-host class="docs-appearance-snackbars" data-define-on-use data-pagefind-ignore data-shared={words.shared} data-keep={words.keepShared} data-close={words.close}></tanrei-snackbar-host>
+<tanrei-snackbar-host class="docs-appearance-snackbars" data-define-on-use data-pagefind-ignore data-shared={words.shared} data-keep={words.keepShared} data-close={words.close} data-late={words.lateLook} data-late-shared={words.lateShared} data-apply={words.applyNow} data-custom-name={words.myTheme}></tanrei-snackbar-host>
 
 {
   /* Before first paint: the appearance the head's script applied to the root, as the controls' starting values (an
@@ -131,15 +136,15 @@ const languages = [{ dir: '', lang: source.lang, label: source.label }, ...trans
   import '@tanrei/web/components/app-bar';
   import '@tanrei/web/components/button';
   import '@tanrei/web/components/menu';
-  import { CUSTOM_LOOK, isShared, keepShared, linkTo, onAppearance, placeCustomChoices, setAppearance, shownAppearance, type Appearance, type Contrast, type Mode } from '../../lib/appearance';
+  import { CUSTOM_LOOK, applyLate, isShared, keepShared, lateLook, linkTo, onAppearance, placeCustomChoices, setAppearance, shownAppearance, type Appearance, type Contrast, type Mode } from '../../lib/appearance';
 
   type Choice = HTMLElement & { value: string | null };
   type Panel = HTMLElement & { open: boolean };
   const root = document.documentElement;
 
   // ── The appearance ────────────────────────────────────────────────────────────────────────────────────────────────
-  // Every control says what is shown: the look's buttons (the bar's, and the drawer's of a compact window), every
-  // panel's choices and the mode's toggle.
+  // Every control says what is shown, as `<html>` says it: the look's buttons (the bar's, and the drawer's of a compact
+  // window), every panel's choices and the mode's toggle — and, on a page whose look came too late, which look that was.
   /** A choice's value: its property once the element is defined, its attribute (what it starts from) until then. */
   const choose = (control: Choice, value: string) => {
     if (customElements.get(control.localName)) control.value = value;
@@ -158,9 +163,14 @@ const languages = [{ dir: '', lang: source.lang, label: source.label }, ...trans
     for (const list of document.querySelectorAll<Choice>('tanrei-list.docs-appearance-look')) choose(list, appearance.look);
     const toggle = document.getElementById('docs-mode') as (HTMLElement & { selected: boolean }) | null;
     if (toggle) toggle.selected = root.getAttribute('data-theme') === 'dark';
+    const late = lateText(appearance);
+    for (const note of document.querySelectorAll<HTMLElement>('.docs-appearance-late')) {
+      note.hidden = late === null;
+      note.textContent = late ?? '';
+    }
+    tellLate(late);
   };
-  say(shownAppearance());
-  onAppearance(({ appearance }) => say(appearance));
+  // (Said first below, once what a late page says in its Snackbar is defined.)
   // Whether this browser keeps a theme of the reader's own may change in another tab (Theme Studio's Share menu).
   addEventListener('storage', () => queueMicrotask(placeCustomChoices));
 
@@ -202,8 +212,8 @@ const languages = [{ dir: '', lang: source.lang, label: source.label }, ...trans
     });
   }
 
-  // ── What the appearance says in a Snackbar: a link copied, and a page opened with a shared appearance ─────────────
-  type Host = HTMLElement & { show(options: { message: string; action?: string; status?: 'default' | 'error'; statusLabel?: string; closable?: boolean; closeLabel?: string; duration?: string }): Promise<{ result: string }> };
+  // ── What the appearance says in a Snackbar: a link copied, a look that came too late, a shared appearance ─────────
+  type Host = HTMLElement & { show(options: { message: string; action?: string; status?: 'default' | 'error'; statusLabel?: string; closable?: boolean; closeLabel?: string; duration?: string }): Promise<{ result: string }>; dismissCurrent(): void };
   const host = () => document.querySelector<Host>('tanrei-snackbar-host.docs-appearance-snackbars');
   let defined: Promise<unknown> | undefined;
   const defineHost = () => (defined ??= import('@tanrei/web/components/snackbar').then(() => customElements.whenDefined('tanrei-snackbar-host')));
@@ -229,6 +239,34 @@ const languages = [{ dir: '', lang: source.lang, label: source.label }, ...trans
       }
     });
   }
+
+  // A page whose look came too late for it says so — which look, the system it is drawn in instead, and that the look
+  // applies from the next page — and offers to apply it now, as a choice of it in the panel does. The message goes once
+  // that look is drawn, or another is chosen. (A page that shows a shared appearance says only the first: the next page
+  // shows the reader's own.)
+  const lateText = (appearance: Appearance): string | null => {
+    const late = lateLook();
+    const words = host()?.dataset;
+    if (!late || !words) return null;
+    const name = late === CUSTOM_LOOK ? (words.customName ?? late) : late;
+    return ((isShared() ? words.lateShared : words.late) ?? '').replace('{look}', name).replace('{default}', appearance.look);
+  };
+  let toldLate: string | null = null;
+  const tellLate = (message: string | null) => {
+    if (message === toldLate) return;
+    const before = toldLate;
+    toldLate = message;
+    const showing = host()?.querySelector<HTMLElement & { message?: string }>('tanrei-snackbar');
+    if (before !== null && showing?.message === before) host()?.dismissCurrent();
+    if (message === null) return;
+    const words = host()?.dataset;
+    void tell({ message, action: words?.apply, closable: true, closeLabel: words?.close, duration: 'indefinite' }).then((result) => {
+      if (result?.result === 'action') applyLate();
+    });
+  };
+  say(shownAppearance());
+  // What `<html>` says, whoever changed it: the reader, another tab, or the head's script, for a look that came too late.
+  onAppearance(() => say(shownAppearance()));
 
   // A page opened with a shared appearance shows it, and offers to keep it; closed, the page goes on showing it, and
   // the next page the reader's own.

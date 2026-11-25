@@ -1,5 +1,5 @@
 import type { WordPlace } from '../generated/words.js';
-import { debugBuild } from './report.js';
+import { DEBUG } from './debug.js';
 
 // A word of the product's with places to fill. The product writes the whole sentence in its own language and
 // marks the places a component fills — `{headline}: {position} of {count}` — so the order of the words is its
@@ -122,7 +122,7 @@ const reportedOnPage = (): Set<string> => ((globalThis as { [REPORTED]?: Set<str
  * through `setWords()`.
  */
 export function reportPlaces(host: Element, id: string, prop: string, sentence: string, declared: readonly WordPlace[], effect: string): void {
-  if (!debugBuild()) return;
+  if (!DEBUG) return;
   const seen = reportedOnPage();
   for (const fault of placeFaults(sentence, declared).written) {
     const message = `[tanrei] <${host.localName}>: ${prop} ${fault}; ${effect} (${id})`;

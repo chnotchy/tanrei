@@ -12,6 +12,7 @@ import { fileURLToPath } from 'node:url';
 import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
 import { type Fixture, acmeSystemCss, loadSpec, missingWords, mountFixtures, resolveColor, resolveToken, setWords, tab, tabTo, inputBoxCopies, inputBoxSetApart, inputBoxToken, rootTokens, mountFixtureAsInAll } from '../../../test/harness.js';
+import { coveredText } from '../../../test/covered-text.js';
 import { motionEnded } from '../../../test/motions.js';
 import { holdClock, releaseClock } from '../../../test/page-clock.js';
 import { firstStrong, runDirection } from '../../styles/product-text.js';
@@ -72,8 +73,22 @@ const token = (page: P, name: string) => resolveToken(page, T(name));
 const duration = (page: P, name: string) => resolveToken(page, T(name), 'duration');
 const color = (page: P, name: string) => resolveColor(page, T(name));
 const box = async (locator: Locator) => (await locator.boundingBox())!;
-const css = (locator: Locator, property: string) => locator.evaluate((el, p) => getComputedStyle(el).getPropertyValue(p), property);
-const px = async (locator: Locator, property: string) => Number.parseFloat(await css(locator, property));
+// An edge part draws nothing itself: its ::before draws the line (EDGE_LINE).
+const css = (locator: Locator, property: string, pseudo?: string) =>
+  locator.evaluate((el, [p, ps]) => getComputedStyle(el, ps ?? undefined).getPropertyValue(p as string), [property, pseudo ?? null] as const);
+const EDGE_LINE = '::before';
+/**
+ * The duration of the transition the edge's line runs when its color changes. WebKit reports a pseudo-element's
+ * transition-duration from before a change of reduced motion, though the transition it then runs has the new one.
+ */
+const edgeMotion = (edge: Locator) =>
+  edge.evaluate((el: HTMLElement) => {
+    el.style.setProperty('--_o', 'rgb(1, 2, 3)');
+    const durations = el.getAnimations({ subtree: true }).map((a) => Number(a.effect!.getTiming().duration));
+    el.style.removeProperty('--_o');
+    return Math.max(0, ...durations);
+  });
+const px = async (locator: Locator, property: string, pseudo?: string) => Number.parseFloat(await css(locator, property, pseudo));
 const near = (actual: number, expected: number, message = '', tolerance = 0.6) => expect(Math.abs(actual - expected), `${message}: ${actual} ≈ ${expected}`).toBeLessThanOrEqual(tolerance);
 const override = (page: P, vars: Record<string, string>) => rootTokens(page, vars);
 function warnings(page: P) {
@@ -470,8 +485,12 @@ test.describe('behavior: the box', () => {
       expect(await placeholder(id), `${id}: the placeholder shows once the label has floated`).toBe(await color(page, `${id}-focused-placeholder-color`));
       await expect(part(page, id, '.suffix'), `${id}: the suffix shows once the label has floated`).toBeVisible();
       near((await box(container(page, id))).height, height, `${id}: the height does not change`);
-      // Never over the input text.
-      expect(floated.y + floated.height, `${id}: above the input’s line`).toBeLessThanOrEqual((await box(input(page, id))).y + 0.6);
+      // Never over the input text: the letters, not the line boxes — in a box at the control height the half-leading of
+      // an outlined box's floated label, which stands on the edge, and of the input's line may meet; their em boxes never do.
+      const line = await box(input(page, id));
+      const valueTop = line.y + (line.height - (await px(input(page, id), 'font-size'))) / 2;
+      const labelBottom = floated.y + floated.height - (floated.height - (await px(label, 'font-size'))) / 2;
+      expect(labelBottom, `${id}: above the input’s line`).toBeLessThanOrEqual(valueTop + 0.6);
       await blurInput(page, id);
       // It stays floated while the input holds a text, focused or not.
       await set(page, id, { value: 12 });
@@ -486,7 +505,7 @@ test.describe('behavior: the box', () => {
     const notch = await box(part(page, 'outlined', '.outline-notch'));
     const floatedLabel = await box(part(page, 'outlined', '.floating'));
     near(notch.width, floatedLabel.width + 2 * (await token(page, 'outline-notch-padding')), 'the gap in the outline', 1.5);
-    expect(await css(part(page, 'outlined', '.outline-notch'), 'border-top-color')).toBe('rgba(0, 0, 0, 0)');
+    expect(await css(part(page, 'outlined', '.outline-notch'), 'border-top-color', EDGE_LINE)).toBe('rgba(0, 0, 0, 0)');
     // Stacked: no label at all — the label above it is its Field's row — and the placeholder shows, in the placeholder color.
     await expect(part(page, 'stacked', '.floating, .label-row')).toHaveCount(0);
     expect(await placeholder('stacked')).toBe(await color(page, 'stacked-placeholder-color'));
@@ -529,8 +548,8 @@ test.describe('behavior: the box', () => {
     expect(await input(page, id).getAttribute('aria-invalid')).toBe('true');
     expect(await input(page, 'stacked-value').getAttribute('aria-invalid')).toBeNull();
     const edge = part(page, id, '.edge');
-    expect(await css(edge, 'border-top-color')).toBe(await color(page, 'stacked-error-outline-color'));
-    near(await px(edge, 'border-top-width'), await token(page, 'outline-width'), 'outline.width');
+    expect(await css(edge, 'border-top-color', EDGE_LINE)).toBe(await color(page, 'stacked-error-outline-color'));
+    near(await px(edge, 'border-top-width', EDGE_LINE), await token(page, 'outline-width'), 'outline.width');
     expect(await css(container(page, id), 'background-color')).toBe(await color(page, 'stacked-error-container-color'));
     expect(await css(input(page, id), 'color')).toBe(await color(page, 'stacked-error-input-color'));
     await set(page, 'stacked-unit', { error: true });
@@ -551,7 +570,7 @@ test.describe('behavior: the box', () => {
     // Its Field's error (FLD-8): the same box, the same state — and the input's own `error` is not set by it.
     await frame(page, 'framed', { label: 'Quantity', error: true, errorText: 'Order at least 1.' }, { value: 0 });
     expect(await input(page, 'framed').getAttribute('aria-invalid')).toBe('true');
-    expect(await css(part(page, 'framed', '.edge'), 'border-top-color')).toBe(await color(page, 'stacked-error-outline-color'));
+    expect(await css(part(page, 'framed', '.edge'), 'border-top-color', EDGE_LINE)).toBe(await color(page, 'stacked-error-outline-color'));
     expect(await css(container(page, 'framed'), 'background-color')).toBe(await color(page, 'stacked-error-container-color'));
     expect(await host(page, 'framed').evaluate((el) => (el as HTMLElement & { error: boolean }).error)).toBe(false);
     // The words are the Field's row, and the input's description (FLD-7, FLD-11).
@@ -660,12 +679,12 @@ test.describe('behavior: the box', () => {
     const c = await box(container(page, 'one'));
     await page.mouse.move(c.x + 40, c.y + c.height / 2);
     await expect.poll(() => css(container(page, 'one'), 'background-color')).toBe(await color(page, 'stacked-hovered-container-color'));
-    expect(await css(edge, 'border-top-color')).toBe(await color(page, 'stacked-hovered-outline-color'));
+    expect(await css(edge, 'border-top-color', EDGE_LINE)).toBe(await color(page, 'stacked-hovered-outline-color'));
     // Focused by the keyboard, the pointer still over it: focused wins.
     await tabTo(page, input(page, 'one'));
     expect(await css(container(page, 'one'), 'background-color')).toBe(await color(page, 'stacked-focused-container-color'));
-    expect(await css(edge, 'border-top-color')).toBe(await color(page, 'stacked-focused-outline-color'));
-    near(await px(edge, 'border-top-width'), await token(page, 'focused-outline-width'), 'the focused width');
+    expect(await css(edge, 'border-top-color', EDGE_LINE)).toBe(await color(page, 'stacked-focused-outline-color'));
+    near(await px(edge, 'border-top-width', EDGE_LINE), await token(page, 'focused-outline-width'), 'the focused width');
     expect(await css(input(page, 'one'), 'caret-color')).toBe(await color(page, 'stacked-focused-caret-color'));
     expect(await css(part(page, 'one', '.suffix'), 'color')).toBe(await color(page, 'stacked-focused-affix-color'));
     near((await box(container(page, 'one'))).height, height, 'the line takes no layout space');
@@ -688,10 +707,10 @@ test.describe('behavior: the box', () => {
     expect(await input(page, 'one').evaluate((el) => [getComputedStyle(el, '::selection').backgroundColor, getComputedStyle(el, '::selection').color])).toEqual([await color(page, 'selection-color'), await color(page, 'selection-content-color')]);
     // The motion: the state duration, and none where motion is reduced.
     expect(await px(container(page, 'one'), 'transition-duration'), 'reduced: at once').toBe(0);
-    expect(await px(edge, 'transition-duration'), 'reduced: at once').toBe(0);
+    expect(await px(edge, 'transition-duration', EDGE_LINE), 'reduced: at once').toBe(0);
     await page.emulateMedia({ reducedMotion: 'no-preference' });
     near((await px(container(page, 'one'), 'transition-duration')) * 1000, await duration(page, 'motion-state-duration-medium'), 'the container', 1);
-    near((await px(edge, 'transition-duration')) * 1000, await duration(page, 'motion-state-duration-medium'), 'the edge', 1);
+    near(await edgeMotion(edge), await duration(page, 'motion-state-duration-medium'), 'the edge', 1);
     // Glow: the halo around the container while focused, and still no ring.
     await mount(page, [fx('one', { value: 12 })], { system: 'acme', systemCss: await acmeSystemCss() });
     await tabTo(page, input(page, 'one'));
@@ -703,14 +722,14 @@ test.describe('behavior: the box', () => {
   test('NMI-15: under the default system the focused edge takes the focus-ring role at the thick width, by keyboard and by pointer', async ({ page }) => {
     await mount(page, [fx('one', { value: 12 }), fx('other', {})], { reducedMotion: true });
     const edge = part(page, 'one', '.edge');
-    expect(await css(edge, 'border-top-color'), 'no edge at rest').toBe(await color(page, 'stacked-outline-color'));
+    expect(await css(edge, 'border-top-color', EDGE_LINE), 'no edge at rest').toBe(await color(page, 'stacked-outline-color'));
     for (const how of ['keyboard', 'pointer'] as const) {
       if (how === 'keyboard') await tabTo(page, input(page, 'one'));
       else await input(page, 'one').click();
-      expect(await css(edge, 'border-top-color'), how).toBe(await resolveColor(page, '--tanrei-sys-color-focus-ring'));
-      near(await px(edge, 'border-top-width'), await resolveToken(page, '--tanrei-sys-border-thick'), `${how}: the thick width`);
+      expect(await css(edge, 'border-top-color', EDGE_LINE), how).toBe(await resolveColor(page, '--tanrei-sys-color-focus-ring'));
+      near(await px(edge, 'border-top-width', EDGE_LINE), await resolveToken(page, '--tanrei-sys-border-thick'), `${how}: the thick width`);
       await focusInput(page, 'other');
-      expect(await css(edge, 'border-top-color'), `${how}: gone when focus leaves`).toBe(await color(page, 'stacked-outline-color'));
+      expect(await css(edge, 'border-top-color', EDGE_LINE), `${how}: gone when focus leaves`).toBe(await color(page, 'stacked-outline-color'));
     }
   });
 });
@@ -943,7 +962,7 @@ test.describe('behavior: the number', () => {
     expect(await read(page, 'one')).toMatchObject({ text: '12 apples', value: null, invalid: true, now: null });
     expect(await heard(page)).toEqual(['entryerror invalid Enter a number.', 'change null']);
     expect(await described(page, 'one'), 'unframed: invalidText is its description').toBe('Enter a number.');
-    expect(await css(part(page, 'one', '.edge'), 'border-top-color'), 'the error condition, as error puts it').toBe(await color(page, 'stacked-error-outline-color'));
+    expect(await css(part(page, 'one', '.edge'), 'border-top-color', EDGE_LINE), 'the error condition, as error puts it').toBe(await color(page, 'stacked-error-outline-color'));
     expect(await host(page, 'one').evaluate((el) => (el as HTMLElement & { error: boolean }).error), 'the product’s error is untouched').toBe(false);
     // Left again without an edit: nothing more is said.
     await focusInput(page, 'one');
@@ -1551,7 +1570,7 @@ test.describe('behavior: the steppers, the unit and what the product sets', () =
     expect(await css(input(page, id), 'color')).toBe(await color(page, 'stacked-disabled-input-color'));
     expect(await css(part(page, 'unit', '.suffix'), 'color')).toBe(await color(page, 'stacked-disabled-affix-color'));
     expect(await css(container(page, 'wrong'), 'background-color'), 'of its error parts while in error').toBe(await color(page, 'stacked-disabled-error-container-color'));
-    expect(await css(part(page, 'wrong', '.edge'), 'border-top-color'), 'of its error parts while in error').toBe(await color(page, 'stacked-disabled-error-outline-color'));
+    expect(await css(part(page, 'wrong', '.edge'), 'border-top-color', EDGE_LINE), 'of its error parts while in error').toBe(await color(page, 'stacked-disabled-error-outline-color'));
     near(Number(await css(part(page, id, '.field'), 'opacity')), Number(await css(page.locator('html'), T('disabled-opacity'))), 'the disabled opacity', 0.001);
     expect(await container(page, id).getAttribute('aria-disabled')).toBe('true');
     // Out of the focus order.
@@ -1592,7 +1611,7 @@ test.describe('behavior: the steppers, the unit and what the product sets', () =
     for (const property of ['background-color']) expect(await css(container(page, id), property)).toBe(await css(container(page, 'stacked-value'), property));
     expect(await css(input(page, id), 'color')).toBe(await color(page, 'stacked-input-color'));
     await focusInput(page, id);
-    expect(await css(part(page, id, '.edge'), 'border-top-color')).toBe(await color(page, 'stacked-focused-outline-color'));
+    expect(await css(part(page, id, '.edge'), 'border-top-color', EDGE_LINE)).toBe(await color(page, 'stacked-focused-outline-color'));
     await blurInput(page, id);
     const [x, y] = await centre(container(page, id));
     await page.mouse.move(x, y);
@@ -1956,6 +1975,91 @@ test.describe('behavior: exposure, forms, size and direction', () => {
     await expect.poll(() => wrapped('both'), 'back on one row').toBe(false);
     const [line, down] = [await box(part(page, 'both', '.body')), await box(stepper(page, 'both', 'down'))];
     expect(down.x, 'the steppers after the line').toBeGreaterThanOrEqual(line.x + line.width - 0.6);
+  });
+
+  test('NMI-37: an input first drawn too narrow for its steppers beside its line, where nothing else on the page changes size (a fixed box 120 wide), stands its steppers on a row of their own in the frame it is first laid out in, and that frame reports the height the wrapping changed — never left undelivered, which the browser reports as an error', async ({ page }) => {
+    await mountFixtures(page, spec, { fixtures: [] });
+    const errors: string[] = [];
+    page.on('pageerror', (error) => errors.push(`pageerror: ${error.message}`));
+    const seen = await page.evaluate(async () => {
+      const errors: string[] = [];
+      const onError = (event: ErrorEvent) => errors.push(event.message);
+      window.addEventListener('error', onError);
+      // Fixed: the input changes the size of nothing above it, so that no element shallower than its container is
+      // reported in the frame it is first laid out in (a page that observes its root element would hide the error).
+      const holder = document.createElement('div');
+      holder.style.cssText = 'position: fixed; inset-block-start: 0; inset-inline-start: 0; inline-size: 120px; block-size: 300px';
+      const input = Object.assign(document.createElement('tanrei-number-input'), { variant: 'stacked', label: 'Quantity', value: 12, incrementLabel: 'Increase', decrementLabel: 'Decrease' });
+      holder.append(input);
+      document.body.append(holder);
+      // Drawn in microtasks: no frame has passed.
+      await input.updateComplete;
+      const root = input.shadowRoot!;
+      const wrapped = () => root.querySelector('.field')!.hasAttribute('data-wrapped');
+      // An observer made after every observer of the input is told after them, in the same frame: what its first
+      // reading left, before that frame is painted. It watches what lies inside the container, deeper than it.
+      const first = await new Promise<boolean>((resolve) => {
+        const observer = new ResizeObserver(() => {
+          observer.disconnect();
+          resolve(wrapped());
+        });
+        observer.observe(root.querySelector('.input')!);
+      });
+      // The next frame's callbacks: the first frame has been painted, and the browser has said what it left undelivered.
+      await new Promise((resolve) => requestAnimationFrame(resolve));
+      await new Promise((resolve) => setTimeout(resolve, 400));
+      const settled = wrapped();
+      window.removeEventListener('error', onError);
+      holder.remove();
+      return { first, settled, errors };
+    });
+    expect(seen.settled, JSON.stringify(seen)).toBe(true);
+    expect(seen.first, JSON.stringify(seen)).toBe(true);
+    expect(seen.errors).toEqual([]);
+    expect(errors).toEqual([]);
+  });
+
+  test('NMI-36, NMI-37: an input in a box of fixed size whose width changes back and forth across the width its line and its steppers need puts its steppers on a row of their own and back each time, and no frame leaves a change of size undelivered — the browser reports no "ResizeObserver loop" error', async ({ page }) => {
+    await mountFixtures(page, spec, { fixtures: [] });
+    const errors: string[] = [];
+    page.on('pageerror', (error) => errors.push(`pageerror: ${error.message}`));
+    const seen = await page.evaluate(async () => {
+      const errors: string[] = [];
+      const onError = (event: ErrorEvent) => errors.push(event.message);
+      window.addEventListener('error', onError);
+      const frame = () => new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
+      // Fixed: the input changes the size of nothing above it, so that its own boxes are the shallowest a frame reports
+      // (a page that observes its root element would hide the error).
+      const holder = document.createElement('div');
+      holder.style.cssText = 'position: fixed; inset-block-start: 0; inset-inline-start: 0; inline-size: 400px; block-size: 300px';
+      const input = Object.assign(document.createElement('tanrei-number-input'), { variant: 'stacked', label: 'Quantity', value: 12, prefixText: '$', suffixText: 'USD', incrementLabel: 'Increase', decrementLabel: 'Decrease' });
+      // And one whose floating label rests in its line and wraps onto more lines as the box narrows (NMI-8).
+      const floating = Object.assign(document.createElement('tanrei-number-input'), { variant: 'outlined', label: 'How many of each item to order for the next delivery', prefixText: '$', suffixText: 'USD', incrementLabel: 'Increase', decrementLabel: 'Decrease' });
+      holder.append(input, floating);
+      document.body.append(holder);
+      await Promise.all([input.updateComplete, floating.updateComplete]);
+      for (let i = 0; i < 4; i++) await frame();
+      const wrapped = () => input.shadowRoot!.querySelector('.field')!.hasAttribute('data-wrapped');
+      const states: { width: number; wrapped: boolean }[] = [];
+      // Each width is set in a frame callback of its own, before that frame's layout: the frame lays the input out at
+      // it and reports what changed, and the next frame's read phase writes where the steppers stand — so the frame
+      // callbacks of the frame after that find it written.
+      for (const width of [120, 400, 130, 380, 120, 400, 140, 400]) {
+        await frame();
+        holder.style.inlineSize = `${width}px`;
+        await frame();
+        await frame();
+        states.push({ width, wrapped: wrapped() });
+      }
+      // The browser says what a frame left undelivered after that frame: one more task.
+      await new Promise((resolve) => setTimeout(resolve, 100));
+      window.removeEventListener('error', onError);
+      holder.remove();
+      return { states, errors };
+    });
+    expect(seen.errors).toEqual([]);
+    for (const { width, wrapped } of seen.states) expect(wrapped, `${width} wide: ${wrapped ? 'wrapped' : 'one row'}`).toBe(width < 200);
+    expect(errors).toEqual([]);
   });
 
   test('NMI-37: the container and the input’s line are watched for wrapping while the input is on the page and given back when it leaves — after it was drawn, after it came back, and when it left before its first update ended', async ({ page }) => {
@@ -2456,6 +2560,7 @@ test.describe('accessibility', () => {
       await mountFixtures(page, spec, { icons: true, theme });
       const results = await new AxeBuilder({ page }).include('.stage').analyze();
       expect(results.violations.map((v) => `${v.id}: ${v.nodes.map((n) => n.target.join(' ')).slice(0, 3).join(' | ')}`), theme).toEqual([]);
+      expect(await coveredText(page, results), `${theme}: no text left unchecked as covered`).toEqual([]);
     });
 
     test(`axe: a focused field, one in an entry error and one at its limit have no violations in ${theme}`, async ({ page }) => {

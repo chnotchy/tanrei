@@ -4,10 +4,12 @@ import {
   anchoredSurfaceStyles,
   arrowOutlineStyles,
   arrowStyles,
+  closeHeights,
   compactProbeStyles,
   cornerRadius,
   dividerVisibilityHost,
   focusRing,
+  focusRingBox,
   modalExitStyles,
   quietFocus,
   shape,
@@ -155,8 +157,9 @@ export const styles = css`
   ${unsafeCSS(scriptTracking('.headline', String(t('headline-typescale-letter-spacing')), { shadow: true }))}
   /* POP-11: beside a close button taller than its line, the headline's first line is centred on the button. */
   .header.closable .headline {
-    padding-block: max(0px, calc((var(--tanrei-comp-button-container-height-small) - 1lh) / 2));
+    padding-block: max(0px, calc((var(--_close-height) - 1lh) / 2));
   }
+  ${unsafeCSS(closeHeights('.header.closable'))}
   /* POP-35: the headline is its own run, in the direction of its first strong character, so a left-to-right name keeps
      its order in a right-to-left popover; its lines are still aligned to the layout's start edge
      (src/styles/product-text.ts). */
@@ -233,6 +236,9 @@ export const styles = css`
   }
   ${focusRing((focus) => `.content${focus} ~ .focus`, { inside: true })}
   ${focusRing((focus) => `.clip.crowded${focus} ~ .focus`, { inside: true })}
+  /* The box lies over the text: it draws the indicator by its ::before, as no element, so that a contrast checker still
+     sees the text under it (focusRingBox). */
+  ${focusRingBox('.focus')}
 
   /* POP-8: the dividers, divider.width hairlines in divider.color across the container, below the header and above the
      actions while the content scrolls. They take no room, so they show and hide at once and move nothing. POP-38, always:

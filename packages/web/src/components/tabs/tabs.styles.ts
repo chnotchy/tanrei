@@ -1,5 +1,5 @@
 import { css, unsafeCSS } from 'lit';
-import { type OpenAxis, directionProbeStyles, focusRing, iconGlyph, pressHold, rippleStyles, stateRules, whenChosen } from '../../primitives/index.js';
+import { type OpenAxis, directionProbeStyles, drawnAsNoElement, focusRing, focusRingBox, iconGlyph, pressHold, rippleStyles, stateRules, whenChosen } from '../../primitives/index.js';
 import { productText } from '../../styles/product-text.js';
 import { cornerRadius, shape } from '../../styles/shape.js';
 import { reducedMotion } from '../../styles/motion.js';
@@ -463,6 +463,11 @@ export const tabStyles = css`
     background: var(--_c);
     transition: background-color ${unsafeCSS(STATE_MOTION)};
   }
+  /* The container and the ring lie over the label of the selected tab (TAB-18, TAB-4): each holds its values and draws
+     them by its ::before, as no element, at the same place in the paint order — an element over a text is what a
+     contrast checker sees covering it, and it would leave that text unchecked. The ripple in the container stays drawn. */
+  ${drawnAsNoElement('.box', ['background'], { fill: true })}
+  ${focusRingBox('.ring')}
   /* TAB-18: on the selected tab the container — hover, focus, press and the ripple, in the selected parts, whose state
      layer is the covered content's color — lies over the active indicator, so the states show there too; the ring and
      the underline stay above it, in the order they are written. */

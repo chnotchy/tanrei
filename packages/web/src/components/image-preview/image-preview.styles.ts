@@ -1,5 +1,5 @@
 import { css, unsafeCSS } from 'lit';
-import { appearStyles, focusRing, iconGlyph, modalExitStyles, rowTargets } from '../../primitives/index.js';
+import { appearStyles, focusRing, focusRingBox, iconGlyph, modalExitStyles, rowTargets } from '../../primitives/index.js';
 import { productText } from '../../styles/product-text.js';
 import { cornerRadius, shape } from '../../styles/shape.js';
 import { reducedMotion } from '../../styles/motion.js';
@@ -213,6 +213,9 @@ export const styles = css`
     margin-block-end: env(safe-area-inset-bottom, 0px);
   }
   ${focusRing((focus) => `.stage${focus} ~ .fit`, { inside: true })}
+  /* The fit area lies over the image's error text: it draws the indicator by its ::before, as no element, so that a
+     contrast checker still sees the text under it (focusRingBox). */
+  ${focusRingBox('.fit')}
   /* IMP-27: focus the stage took as the preview was opened by a press shows no indicator. */
   .stage[data-focus-quiet]:focus-visible ~ .fit {
     outline: none;
@@ -332,6 +335,8 @@ export const styles = css`
     ${unsafeCSS(cornerRadius('--tanrei-sys-shape-corner-none'))}
   }
   ${focusRing((focus) => `.caption${focus} + .caption-focus`, { inside: true })}
+  /* The box lies over the caption's text: it draws the indicator by its ::before, as no element (focusRingBox). */
+  ${focusRingBox('.caption-focus')}
 
   /* IMP-38: the count, the caption and the error text are each text of their own direction, isolated; the count and
      the caption are still placed, and their lines aligned, by the layout. */

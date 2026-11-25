@@ -320,6 +320,26 @@ const primitiveBasesOnly = {
 };
 
 /**
+ * `focus()` is written once, in `TanreiElement` (it keeps a focus asked for before the element has drawn), and an
+ * element says where its focus goes by overriding the protected `delegateFocus()`. What a product calls is `focus()`, so
+ * an element's own `delegateFocus()` — not the base's, which is the host's own `focus()` and `@internal` — is listed as
+ * its `focus()` method, with its parameters and its description, inherited where it is.
+ */
+const focusGoes = {
+  name: 'tanrei-focus-goes',
+  packageLinkPhase({ customElementsManifest }) {
+    for (const declaration of customElementsManifest.modules.flatMap((module) => module.declarations ?? [])) {
+      if (!declaration.members) continue;
+      declaration.members = declaration.members.map((member) => {
+        if (member.kind !== 'method' || member.name !== 'delegateFocus') return member;
+        const { privacy: _privacy, ...rest } = member;
+        return { ...rest, name: 'focus' };
+      });
+    }
+  },
+};
+
+/**
  * The manifest is what a product, an editor or a coding agent reads of the package: its public surface, and nothing a
  * reader cannot use. Two things the analyzer writes are not that, and were most of its size:
  *   - the private and protected members of every class (`private`, `protected`, `#name`): no product can reach them;
@@ -349,6 +369,7 @@ export default {
     declaredAttributes(),
     primitiveBasesOnly,
     composedFrom(),
+    focusGoes,
     publicSurface,
     {
       // The analyzer emits `modules` in a different order from run to run on unchanged sources, so unsorted, the

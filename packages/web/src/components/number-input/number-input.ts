@@ -9,6 +9,8 @@ import {
   OpenAxesController,
   SizeConsumerController,
   ambientLocale,
+  cancelPhaseRead,
+  readInPhase,
   report,
   supportedLocale,
   syncFocusStyle,
@@ -29,6 +31,7 @@ import { type Decimal, type NumberForm, type Reading, ZERO, canonical, clamp, co
 import { disabledWaitsWhileFocused } from '../../primitives/disabled-while-focused.js';
 import { focusedAtFirst } from '../../primitives/autofocus.js';
 import { TanreiElement } from '../../primitives/element.js';
+import { DEBUG } from '../../primitives/debug.js';
 
 /** The three looks of the input box (`comp.input-box`): a filled box whose label is the row of its Field (`stacked`), or the label floating inside a `filled` or `outlined` box. A design system may leave some out or add values. */
 export type TanreiNumberInputVariant = keyof TanreiInputBoxVariantRegistry;
@@ -50,21 +53,22 @@ type Layout = 'stacked' | 'filled' | 'outlined';
 const ALIGNS: readonly string[] = ['start', 'end'];
 /**
  * NMI-37: whether a number input's steppers stand on a row of their own, below its input's line. One observer for every
- * number input of the page, told when a container or an input's line changes size: every host reads, then every host
- * writes, so the inputs of a page cost one layout between them.
+ * number input of the page, told when a container or an input's line changes size. It writes nothing: what it is told
+ * is read, and written, in the next frame's read phase (src/primitives/read-phase.ts), where every input of the page
+ * reads before any writes, so the inputs of a page cost one layout between them. Wrapping changes the height of the
+ * container it watches, and a box that changes size in an observer's report is reported again in that frame only if
+ * it lies deeper than every box reported before it: written here, an input that changes the size of nothing above it
+ * (in a box of fixed size) left its container undelivered, and the browser raised "ResizeObserver loop completed with
+ * undelivered notifications" at every change of its width. The container wraps by itself (flex-wrap); what the frame
+ * after the change draws late is only what the attribute adds to a row of the steppers alone — their bottom inset, and
+ * where a resting floating label stands and ends.
  */
-const wrapReaders = new WeakMap<Element, () => (() => void) | undefined>();
+const wrapAsks = new WeakMap<Element, () => void>();
 const wrapObserver =
   typeof ResizeObserver === 'undefined'
     ? null
     : new ResizeObserver((entries) => {
-        const readers = new Set<() => (() => void) | undefined>();
-        for (const entry of entries) {
-          const reader = wrapReaders.get(entry.target);
-          if (reader) readers.add(reader);
-        }
-        const writes = [...readers].map((reader) => reader());
-        for (const write of writes) write?.();
+        for (const entry of entries) wrapAsks.get(entry.target)?.();
       });
 
 /** NMI-23: Page Up and Page Down step ten steps: ten times the step, on the step's own grid. */
@@ -137,7 +141,7 @@ function whenParsed(task: () => void) {
  *
  * @tag tanrei-number-input
  * @csspart container - The input's box.
- * @csspart outline - A stacked number input's inner line, or an outlined one's border.
+ * @csspart outline - A stacked number input's inner line, or an outlined one's border — a box that draws nothing: the `::before` of it (stacked) or of its pieces (outlined) draws the line.
  * @csspart active-indicator - The line along the bottom of a filled number input.
  * @csspart label - The label floating in a filled or an outlined number input.
  * @csspart requirement-label - The required asterisk after a floating label.
@@ -529,8 +533,7 @@ export class TanreiNumberInput extends TanreiElement {
   }
 
   /** Moves focus to the input: the number input's one stop in the focus order. */
-  override focus(options?: FocusOptions) {
-    if (this.keepFocusUntilRendered(options)) return;
+  protected override delegateFocus(options?: FocusOptions) {
     this.input?.focus(options);
   }
 
@@ -896,19 +899,32 @@ export class TanreiNumberInput extends TanreiElement {
   private watchWrap(on: boolean) {
     if (!wrapObserver) return;
     for (const element of this.wrapWatched) {
-      wrapReaders.delete(element);
+      wrapAsks.delete(element);
       wrapObserver.unobserve(element);
     }
     this.wrapWatched = [];
+    cancelPhaseRead(this.wrapRead);
     if (!on || !this.isConnected) return;
     for (const selector of ['.container', '.body']) {
       const element = this.renderRoot?.querySelector<HTMLElement>(selector);
       if (!element) continue;
-      wrapReaders.set(element, this.readWrap);
+      wrapAsks.set(element, this.askWrap);
       wrapObserver.observe(element);
       this.wrapWatched.push(element);
     }
+    // The first reading is the read phase of the frame the container is first drawn in, after its layout and before
+    // its paint: the first frame painted shows the steppers where they stand. The phase is reported with the page's
+    // root element, so the height the wrapping changes is reported in the same frame.
+    if (this.wrapWatched.length) this.askWrap();
   }
+
+  /** NMI-37: wrapping is read, and written, in the next frame's read phase — never in the observer's report. */
+  private readonly askWrap = () => {
+    readInPhase(this.wrapRead, this.readWrap);
+  };
+
+  /** Who asks the read phase for a reading of wrapping (`askWrap`). */
+  private readonly wrapRead = {};
 
   override connectedCallback() {
     super.connectedCallback();
@@ -956,9 +972,9 @@ export class TanreiNumberInput extends TanreiElement {
     // NMI-8: the label's lines follow its text — the Field's, where it gives the name —, the asterisk and the size.
     if (this.frameChanged || changed.has('label') || changed.has('labelHidden') || changed.has('variant') || this.sizes.drawnChanged) this.floating.measure();
     this.frameChanged = false;
-    // NMI-37: the steppers stand on a row of their own where the row cannot hold them beside the input's line. The
-    // observer reports the first layout (and every later change of the container's or the line's size), so nothing is
-    // read here — but for steppers taken away, which may leave both sizes as they were.
+    // NMI-37: the steppers stand on a row of their own where the row cannot hold them beside the input's line. The read
+    // phase reads the first layout, and every later change of the container's or the line's size the observer is told
+    // of, so nothing is read here — but for steppers taken away, which may leave both sizes as they were.
     if (!this.hasWatchedWrap) {
       this.hasWatchedWrap = true;
       this.watchWrap(true);
@@ -980,23 +996,23 @@ export class TanreiNumberInput extends TanreiElement {
   private reports(changed: PropertyValues) {
     if (!this.isConnected) return;
     // NMI-12: an input no Field names, with no label of its own, still renders. (A Field with an empty label says so itself: FLD-10.)
-    if (!this.label.trim() && !this.frame.state && !namedByProduct(this)) report(this, 'NMI-12', 'label is empty and no field frames it, so the number input has no accessible name; put it in a field with a label, or give it a label');
+    if (DEBUG && !this.label.trim() && !this.frame.state && !namedByProduct(this)) report(this, 'NMI-12', 'label is empty and no field frames it, so the number input has no accessible name; put it in a field with a label, or give it a label');
     // NMI-44: a stepper nobody named is kept from assistive technology, and said to the developer.
     if (this.steppers && !this.words.get('incrementLabel', this.incrementLabel)) {
-      this.words.missing('incrementLabel', { id: 'NMI-44', effect: 'the stepper that steps up has no name and is kept from assistive technology; the spin button still steps' });
+      this.words.missing('incrementLabel', DEBUG && { id: 'NMI-44', effect: 'the stepper that steps up has no name and is kept from assistive technology; the spin button still steps' });
     }
     if (this.steppers && !this.words.get('decrementLabel', this.decrementLabel)) {
-      this.words.missing('decrementLabel', { id: 'NMI-44', effect: 'the stepper that steps down has no name and is kept from assistive technology; the spin button still steps' });
+      this.words.missing('decrementLabel', DEBUG && { id: 'NMI-44', effect: 'the stepper that steps down has no name and is kept from assistive technology; the spin button still steps' });
     }
-    if (changed.has('step') && !(typeof this.step === 'number' && Number.isFinite(this.step) && this.step > 0)) report(this, 'NMI-22', `step "${String(this.step)}" is not a number above 0; the number input steps by 1`);
+    if (DEBUG && changed.has('step') && !(typeof this.step === 'number' && Number.isFinite(this.step) && this.step > 0)) report(this, 'NMI-22', `step "${String(this.step)}" is not a number above 0; the number input steps by 1`);
     const low = numberOrNull(this.min);
     const high = numberOrNull(this.max);
-    if ((changed.has('min') || changed.has('max')) && low !== null && high !== null && low > high) report(this, 'NMI-30', `min (${low}) is above max (${high}); max is treated as empty`);
-    if ((changed.has('minFractionDigits') || changed.has('maxFractionDigits')) && this.minFractionDigits > this.maxFractionDigits) {
+    if (DEBUG && (changed.has('min') || changed.has('max')) && low !== null && high !== null && low > high) report(this, 'NMI-30', `min (${low}) is above max (${high}); max is treated as empty`);
+    if (DEBUG && (changed.has('minFractionDigits') || changed.has('maxFractionDigits')) && this.minFractionDigits > this.maxFractionDigits) {
       report(this, 'NMI-30', `minFractionDigits (${this.minFractionDigits}) is above maxFractionDigits (${this.maxFractionDigits}); maxFractionDigits is used for both`);
     }
-    if (changed.has('align') && !ALIGNS.includes(this.align)) report(this, 'NMI-43', `align "${this.align}" is not start or end; it behaves as "start"`);
-    if (changed.has('locale') && this.locale && !supportedLocale(this.locale)) report(this, 'NMI-43', `locale "${this.locale}" is not a language tag the browser knows; the number is shown and read in the form of the page's language`);
+    if (DEBUG && changed.has('align') && !ALIGNS.includes(this.align)) report(this, 'NMI-43', `align "${this.align}" is not start or end; it behaves as "start"`);
+    if (DEBUG && changed.has('locale') && this.locale && !supportedLocale(this.locale)) report(this, 'NMI-43', `locale "${this.locale}" is not a language tag the browser knows; the number is shown and read in the form of the page's language`);
   }
 
   protected override render() {

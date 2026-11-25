@@ -1,5 +1,5 @@
 import { css, unsafeCSS } from 'lit';
-import { actionBoxStyles, appearStyles, compactProbeStyles, dividerVisibilityHost, focusRing, iconGlyph, modalExitStyles, sheetLookStyles, sheetScrimStyles, whenScroll, whenChosen as chosen } from '../../primitives/index.js';
+import { actionBoxStyles, appearStyles, compactProbeStyles, dividerVisibilityHost, focusRing, focusRingBox, iconGlyph, modalExitStyles, sheetLookStyles, sheetScrimStyles, whenScroll, whenChosen as chosen } from '../../primitives/index.js';
 import { productText } from '../../styles/product-text.js';
 import { cornerRadius, shape } from '../../styles/shape.js';
 import { scriptTracking } from '../../styles/script-tracking.js';
@@ -309,6 +309,11 @@ export const styles = css`
   .icon {
     color: ${t('icon-color')};
   }
+  /* DLG-30: nothing in the glyph's place until the icon set can draw it (GlyphDrawnController sets data-drawn) — never its
+     name spelled in a text face; the slotted glyph inherits the slot's visibility, and the box keeps its size. */
+  .icon:not([data-drawn]) slot {
+    visibility: hidden;
+  }
   .icon-line {
     display: flex;
     flex: none;
@@ -350,6 +355,9 @@ export const styles = css`
     pointer-events: none;
   }
   ${focusRing((focus) => `.scroll${focus} ~ .focus`, { inside: true })}
+  /* The box lies over the text: it draws the indicator by its ::before, as no element, so that a contrast checker still
+     sees the text under it (focusRingBox). */
+  ${focusRingBox('.focus')}
 
   /* DLG-7: corner smoothing on the container (data-tanrei-shape). */
   ${shape}

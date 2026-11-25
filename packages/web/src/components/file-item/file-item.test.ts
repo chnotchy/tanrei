@@ -6,11 +6,13 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import AxeBuilder from '@axe-core/playwright';
+import { coveredText } from '../../../test/covered-text.js';
 import { type Locator, type Page, expect, test } from '@playwright/test';
 import { type Fixture, acmeSystemCss, iconFaceArrives, loadSpec, missingWords, mountFixtures, resolveToken, setWords, tab, tabTo, withoutIconFont, rootTokens } from '../../../test/harness.js';
 import { EVERY_ANIMATION, motionCount } from '../../../test/motions.js';
 import { mirroring, mirroringAfterDirection } from '../../../test/mirror-word.js';
 import { expectBaseline } from '../../../test/baseline.js';
+import { contrastChecked } from '../../../test/contrast-checked.js';
 
 const spec = loadSpec('file-item');
 type P = Page;
@@ -3305,6 +3307,7 @@ test.describe('accessibility', () => {
       for (const f of spec.fixtures.filter((each) => each.props.previewSrc)) await expect(own(page, f.id, 'preview'), f.id).toHaveAttribute('data-drawn', '');
       const results = await new AxeBuilder({ page }).include('.stage').analyze();
       expect(results.violations, theme).toEqual([]);
+      expect(await coveredText(page, results), `${theme}: no text left unchecked as covered`).toEqual([]);
     }
   });
 
@@ -3382,4 +3385,18 @@ test.describe('fixtures', () => {
       await expectBaseline(stage(page, f.id), [spec.name, `${f.id}.png`]);
     });
   }
+});
+
+test.describe('accessibility: what is drawn over the texts', () => {
+  test('FIT-14: the layer over a pressable row hides no text from a contrast check — a faint name is reported, the row\'s own colors pass', async ({ page }) => {
+    // An element drawn over a text is, to axe's color-contrast, an element covering it, whatever its pointer-events: it
+    // left the text incomplete ("overlapped by another element") instead of checking it, so faint text passed unseen.
+    const lead = '<style>[data-fixture="faint"] tanrei-file-item::part(headline) { color: #bbb; }</style>';
+    const row = (id: string, name: string): Fixture => ({ id, props: { value: id, name, sizeText: '820 KB', interactive: true } });
+    await mountFixtures(page, spec, { lead, fixtures: [row('faint', 'faint.pdf'), row('normal', 'readable.pdf')] });
+    const checked = await contrastChecked(page);
+    expect(checked.violations, 'the faint name is reported').toEqual(['faint.pdf']);
+    expect(checked.passes.filter((text) => !text.includes('KB')), 'the row\'s own colors pass').toEqual(['readable.pdf']);
+    expect(checked.incomplete, 'nothing is left unchecked').toEqual([]);
+  });
 });

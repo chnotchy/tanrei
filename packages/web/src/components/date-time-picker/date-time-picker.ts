@@ -9,7 +9,9 @@ import {
   ActionPlacement,
   AppearController,
   AvailabilityController,
+  BUTTON_SIZES,
   BUTTON_VARIANTS,
+  type ButtonSize,
   type CalendarDate,
   type ClockTime,
   FALLBACK_LOCALE,
@@ -27,7 +29,9 @@ import {
   closeModal,
   closeRequestReason,
   compChoice,
+  compChoices,
   compareDates,
+  giveSize,
   containedWheel,
   deepActive,
   deviceTime,
@@ -83,6 +87,7 @@ import '../tabs/tabs.js';
 import { styles } from './date-time-picker.styles.js';
 import { TanreiElement } from '../../primitives/element.js';
 import { startFromNextFrame, statesFromNextFrame } from '../../primitives/motion.js';
+import { DEBUG } from '../../primitives/debug.js';
 
 /** modal: a dialog over a scrim, committed by OK. docked: a surface below its anchor. */
 export type TanreiDateTimePickerPresentation = 'modal' | 'docked';
@@ -317,8 +322,8 @@ export class TanreiDateTimePicker extends TanreiElement {
     if (!this.session) return;
     const say = this.say;
     const { range, mode } = this.cfg;
-    const lacks = (key: WordKey, effect: string) => this.words.missing(key, { id: 'DTM-48', effect });
-    if (!this.label.trim()) report(this, 'DTM-48', 'label is empty, so the title row draws no words and the surface has no accessible name; say what is being chosen ("Check-in"): the product\'s words hold no title');
+    const lacks = (key: WordKey, effect: string) => this.words.missing(key, DEBUG && { id: 'DTM-48', effect });
+    if (DEBUG && !this.label.trim()) report(this, 'DTM-48', 'label is empty, so the title row draws no words and the surface has no accessible name; say what is being chosen ("Check-in"): the product\'s words hold no title');
     if (this.pendingUntilOk) {
       if (!say.cancelLabel) lacks('cancelLabel', 'an icon-only Button with the close glyph is drawn in its place, without a name');
       if (!say.confirmLabel) lacks('confirmLabel', 'an icon-only Button with the check glyph is drawn in its place, without a name');
@@ -580,6 +585,8 @@ export class TanreiDateTimePicker extends TanreiElement {
   private presenting = false;
   /** DTM-34: the actions' variant as last read (`giveActionsVariant()`); read again in every update that draws them. */
   private actionsVariant: (typeof BUTTON_VARIANTS)[number] = BUTTON_VARIANTS[0];
+  /** DTM-34: the actions' size, as `comp.date-time-picker.actions.size` named it at the last read. */
+  private actionsSize: ButtonSize = 'medium';
   /**
    * DTM-35: a modal picker's appearance, opened and closed (src/primitives/motion.ts): made at once before the first
    * paint (MOT-4), turned round from what it shows (MOT-2). Its `<dialog>` is the surface that appears; a docked or an
@@ -681,7 +688,7 @@ export class TanreiDateTimePicker extends TanreiElement {
 
   private closed<T extends string>(values: readonly T[], value: T, fallback: T, name: string): T {
     if (values.includes(value)) return value;
-    report(this, 'DTM-40', `${name} "${value}" is not a value the date-time picker defines; it behaves as "${fallback}"`);
+    if (DEBUG) report(this, 'DTM-40', `${name} "${value}" is not a value the date-time picker defines; it behaves as "${fallback}"`);
     return fallback;
   }
 
@@ -690,7 +697,7 @@ export class TanreiDateTimePicker extends TanreiElement {
     const tag = this.locale.trim();
     if (!tag) return ambientLocale(this);
     const known = supportedLocale(tag);
-    if (!known) report(this, 'DTM-38', `locale "${tag}" is not a BCP 47 tag this browser knows; it uses "${FALLBACK_LOCALE}"`);
+    if (DEBUG && !known) report(this, 'DTM-38', `locale "${tag}" is not a BCP 47 tag this browser knows; it uses "${FALLBACK_LOCALE}"`);
     return known ?? FALLBACK_LOCALE;
   }
 
@@ -712,7 +719,7 @@ export class TanreiDateTimePicker extends TanreiElement {
     }
     if (!moment) {
       const form = mode === 'date' ? 'YYYY-MM-DD' : mode === 'time' ? 'HH:MM' : 'YYYY-MM-DDTHH:MM';
-      report(this, 'DTM-40', `${name} "${text}" is not in the ${mode} mode's form (${form}); it is ignored`);
+      if (DEBUG) report(this, 'DTM-40', `${name} "${text}" is not in the ${mode} mode's form (${form}); it is ignored`);
     }
     return moment;
   }
@@ -732,11 +739,11 @@ export class TanreiDateTimePicker extends TanreiElement {
     const cycle = hourCycle === 'locale' ? localeHourCycle(locale) : clockFor(locale, hourCycle);
     const step = Number(this.minuteStep);
     const known = (MINUTE_STEPS as readonly number[]).includes(step);
-    if (!known) report(this, 'DTM-17', `minuteStep "${this.minuteStep}" is not 1, 5, 10, 15 or 30; it behaves as 1`);
+    if (DEBUG && !known) report(this, 'DTM-17', `minuteStep "${this.minuteStep}" is not 1, 5, 10, 15 or 30; it behaves as 1`);
     const isoDate = (name: string, text: string) => {
       if (!text) return '';
       if (parseIsoDate(text)) return text;
-      report(this, 'DTM-40', `${name} "${text}" is not an ISO 8601 calendar date (YYYY-MM-DD); it is ignored`);
+      if (DEBUG) report(this, 'DTM-40', `${name} "${text}" is not an ISO 8601 calendar date (YYYY-MM-DD); it is ignored`);
       return '';
     };
     const stepped = known ? step : 1;
@@ -747,16 +754,16 @@ export class TanreiDateTimePicker extends TanreiElement {
     let start = this.parseMoment('start', this.start, mode);
     let end = this.parseMoment('end', this.end, mode);
     if (range && value) {
-      report(this, 'DTM-40', `value "${this.value}" is set while range is true, where the choice is start and end; it is ignored`);
+      if (DEBUG) report(this, 'DTM-40', `value "${this.value}" is set while range is true, where the choice is start and end; it is ignored`);
       value = null;
     }
     if (!range && (start || end)) {
-      report(this, 'DTM-40', 'start or end is set while range is false, where the choice is value; they are ignored');
+      if (DEBUG) report(this, 'DTM-40', 'start or end is set while range is false, where the choice is value; they are ignored');
       start = null;
       end = null;
     }
     if (start && end && mode !== 'time' && this.momentText(end, mode) < this.momentText(start, mode)) {
-      report(this, 'DTM-40', `end "${this.end}" is before start "${this.start}"; the end is ignored`);
+      if (DEBUG) report(this, 'DTM-40', `end "${this.end}" is before start "${this.start}"; the end is ignored`);
       end = null;
     }
     const committed: Choice = { value: value ?? EMPTY, start: start ?? EMPTY, end: end ?? EMPTY };
@@ -787,7 +794,7 @@ export class TanreiDateTimePicker extends TanreiElement {
         if (parseIsoDate(date) && clock && !rest.length) return { date, minutes: minutesOf(clock) };
       }
       const form = mode === 'time' ? 'a time of day (HH:MM)' : 'a date and time (YYYY-MM-DDTHH:MM) or a calendar date (YYYY-MM-DD)';
-      report(this, 'DTM-40', `${name} "${text}" is not ${form}, the ${mode} mode's form; it is ignored`);
+      if (DEBUG) report(this, 'DTM-40', `${name} "${text}" is not ${form}, the ${mode} mode's form; it is ignored`);
       return null;
     };
     // A bound's place in time; a calendar date's min is its first minute and its max its last.
@@ -795,7 +802,7 @@ export class TanreiDateTimePicker extends TanreiElement {
     let low = read('min', this.min);
     let high = read('max', this.max);
     if (low && high && at(low, 0) > at(high, DAY_END)) {
-      report(this, 'DTM-40', `min "${this.min}" is after max "${this.max}"; both are ignored`);
+      if (DEBUG) report(this, 'DTM-40', `min "${this.min}" is after max "${this.max}"; both are ignored`);
       return { low: null, high: null };
     }
     if (low && low.minutes !== null) {
@@ -807,7 +814,7 @@ export class TanreiDateTimePicker extends TanreiElement {
     if (high && high.minutes !== null) high = { ...high, minutes: high.minutes - (high.minutes % step) };
     const empty = (low && low.minutes !== null && low.minutes > DAY_END) || (low && high && at(low, 0) > at(high, DAY_END));
     if (empty) {
-      report(this, 'DTM-40', `no time of minuteStep ${step} lies between min "${this.min}" and max "${this.max}"; both are ignored`);
+      if (DEBUG) report(this, 'DTM-40', `no time of minuteStep ${step} lies between min "${this.min}" and max "${this.max}"; both are ignored`);
       return { low: null, high: null };
     }
     return { low, high };
@@ -2294,8 +2301,10 @@ export class TanreiDateTimePicker extends TanreiElement {
       // For auto, horizontal only when the vertical layout overflows the window's height…
       this.step(run, () => (body.scrollHeight > body.clientHeight + 0.5 ? true : null), () => {
         surface.dataset.layout = 'horizontal';
-        // …and the horizontal one fits its width.
-        this.step(run, () => surface.scrollWidth <= surface.clientWidth + 0.5, (fits) => {
+        // …and the horizontal one fits its width. The body scrolls, so what overflows it is its own overflow, never
+        // the surface's: read on the surface alone, a 320 or 360 px window short enough for this step took the
+        // horizontal layout and cut the calendar and the time section at its two edges.
+        this.step(run, () => body.scrollWidth <= body.clientWidth + 0.5 && surface.scrollWidth <= surface.clientWidth + 0.5, (fits) => {
           if (!fits) surface.dataset.layout = 'vertical';
           this.arrangeActions(run, surface, body, arrangement);
         });
@@ -2637,13 +2646,13 @@ export class TanreiDateTimePicker extends TanreiElement {
       else if (changed.has('min') || changed.has('max') || changed.has('minuteStep')) this.keepWithin();
     }
     if (this.session) this.syncWheels();
-    // DTM-34: the actions' variant, read with every other host's reads of the turn (src/primitives/read-phase.ts) and
-    // given to the Buttons this render makes before they draw: asked before the render, the read comes before their
+    // DTM-34: the actions' size and variant, read with every other host's reads of the turn (src/primitives/read-phase.ts)
+    // and given to the Buttons this render makes before they draw: asked before the render, the read comes before their
     // updates. Read in the render itself, after the picker before it had written, it styled the page once per picker.
     if (this.pendingUntilOk) {
       readTogether(() => {
-        const variant = compChoice(this, `${PREFIX}-actions-variant`, BUTTON_VARIANTS);
-        return () => this.giveActionsVariant(variant);
+        const { size, variant } = compChoices(this, { size: [`${PREFIX}-actions-size`, BUTTON_SIZES], variant: [`${PREFIX}-actions-variant`, BUTTON_VARIANTS] });
+        return () => this.giveActionsVariant(variant, size);
       });
     }
     // DTM-26: the handle turns along the shorter arc to the value it shows.
@@ -2846,6 +2855,7 @@ export class TanreiDateTimePicker extends TanreiElement {
             html`<span
               class=${classMap({ row: true, on: Math.abs(at - position) < 0.5 })}
               ?data-unavailable=${!this.offersPeriod(at ? 1 : 0)}
+              aria-disabled=${ifDefined(this.offersPeriod(at ? 1 : 0) ? undefined : 'true')}
               style=${styleMap({ '--_at': String(at - position) })}
               >${name}</span
             >`,
@@ -2956,6 +2966,7 @@ export class TanreiDateTimePicker extends TanreiElement {
             html`<span
               class=${classMap({ row: true, on: Math.abs(at - position) < 0.5 })}
               ?data-unavailable=${!this.offers(unit, this.withIndex(unit, at))}
+              aria-disabled=${ifDefined(this.offers(unit, this.withIndex(unit, at)) ? undefined : 'true')}
               style=${styleMap({ '--_at': String(at - position) })}
               >${text(at)}</span
             >`,
@@ -3088,6 +3099,10 @@ export class TanreiDateTimePicker extends TanreiElement {
     return [...ring(false, (index) => index, (value) => value, 2), ...ring(true, (index) => index + 12, (value) => value, 2)];
   }
 
+  // DTM-50: an unavailable number, like an unavailable wheel row, is marked inactive (`aria-disabled`) as well as faded.
+  // It sits in a subtree hidden from assistive technology, so nothing is announced; it tells a contrast checker (axe's
+  // `color-contrast`) what WCAG 1.4.3 exempts — the text of an inactive control — instead of judging its faded color as
+  // text a person must read to choose it.
   private numbers() {
     const layer = (unit: Unit) =>
       html`<div class=${classMap({ numbers: true, [`${unit}s`]: true, faded: this.shownUnit !== unit })}>
@@ -3096,6 +3111,7 @@ export class TanreiDateTimePicker extends TanreiElement {
             html`<span
               class=${classMap({ number: true, inner: number.inner, outer: !number.inner })}
               ?data-unavailable=${!number.available}
+              aria-disabled=${ifDefined(number.available ? undefined : 'true')}
               style=${styleMap({ '--_x': String(number.x), '--_y': String(number.y) })}
               >${number.text}</span
             >`,
@@ -3159,28 +3175,31 @@ export class TanreiDateTimePicker extends TanreiElement {
 
   /** DTM-34: Cancel and OK, placed as a full-width Button group places a dismissive and a confirming item. */
   /**
-   * DTM-34: the variant read for the actions (`willUpdate`), on the Buttons drawn now and on those the next render
-   * draws. The render draws the one read last; the read of its own turn follows it there, before the Buttons draw.
+   * DTM-34: the size and variant read for the actions (`willUpdate`), on the Buttons drawn now and on those the next
+   * render draws. The render draws the ones read last; the read of its own turn follows it there, before the Buttons draw.
    */
-  private giveActionsVariant(variant: (typeof BUTTON_VARIANTS)[number]) {
+  private giveActionsVariant(variant: (typeof BUTTON_VARIANTS)[number], size: ButtonSize) {
     this.actionsVariant = variant;
+    this.actionsSize = size;
     for (const button of this.renderRoot?.querySelectorAll('.actions > tanrei-button') ?? []) {
       if (button.getAttribute('variant') !== variant) button.setAttribute('variant', variant);
+      giveSize(button, size);
     }
   }
 
   private renderActions(): TemplateResult | typeof nothing {
     if (!this.pendingUntilOk) return nothing;
     const variant = this.actionsVariant;
+    const size = this.actionsSize;
     const { cancelLabel, confirmLabel } = this.say;
     // DTM-48: without its word a Button draws the glyph that says the same — close, check — alone: the same variant,
     // size and place, and no name.
     const words = (label: string, glyph: string) => (label ? label : html`<span slot="icon">${glyph}</span>`);
     const actions = [
-      { key: 'cancel', template: html`<tanrei-button class="cancel" dismissive variant=${variant} size="medium" @click=${this.onCancel}>${words(cancelLabel, ACTION_GLYPHS.cancel)}</tanrei-button>` },
+      { key: 'cancel', template: html`<tanrei-button class="cancel" dismissive variant=${variant} size=${size} @click=${this.onCancel}>${words(cancelLabel, ACTION_GLYPHS.cancel)}</tanrei-button>` },
       {
         key: 'confirm',
-        template: html`<tanrei-button class="confirm" confirming variant=${variant} size="medium" ?disabled=${!this.confirmable} @click=${this.onConfirm}>${words(confirmLabel, ACTION_GLYPHS.confirm)}</tanrei-button>`,
+        template: html`<tanrei-button class="confirm" confirming variant=${variant} size=${size} ?disabled=${!this.confirmable} @click=${this.onConfirm}>${words(confirmLabel, ACTION_GLYPHS.confirm)}</tanrei-button>`,
       },
     ];
     const ordered = this.stacked ? [actions[1], actions[0]] : actions;

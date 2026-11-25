@@ -61,13 +61,14 @@
               "value": 44,
               "unit": "px"
             },
-            "$description": "Minimum height of a cell (48): the text field’s medium height, so that a code input and a text field in one form are equally tall.",
+            "$description": "Minimum height of a cell: the control height (40 in the default system), a medium text field's, so that a code input and a text field in one form, and the Button that sends the code, are equally tall. Never below the minimum target: a finger aims at each cell.",
             "$extensions": {
               "dev.tanrei.derive": {
                 "fn": "mul",
                 "of": "{tanrei.dial.size.unit}",
                 "by": 11
-              }
+              },
+              "dev.tanrei.aligned": "control"
             }
           },
           "width": {
