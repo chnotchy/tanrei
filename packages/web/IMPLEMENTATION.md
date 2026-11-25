@@ -8880,8 +8880,14 @@ auto height), a row that wraps by itself (`flex-wrap`, the number input's steppe
 written, the report only asks the read phase (`readInPhase()`), whose observer watches the root element, so its writes
 are reported in the same frame. The frame after the change then draws what was there before: say which part in the
 code. Ask the read phase as well when the element first observes, so the first frame painted is already right (the
-number input's wrapping, `FloatingLabelController`, the text input's label). The tests put the element in a box of
-fixed size, change its width and expect no error (NMI-36, TXI-37).
+number input's wrapping, `FloatingLabelController`, the text input's label). Where what the first frame needs is known
+only from the observer's first report (the chat composer's widths, which it takes from the reports rather than read
+them), that report may be written in the report: every first report comes in the frame's first round of reports, with
+the read phase's report of the root element when the element asked for the phase as it began to observe, so what the
+write changes is reported again in that frame (the snackbar, the chat composer, `AutoHeight`); a later report asks the
+read phase. The tests put the element in a box of fixed size, change its width and expect no error (NMI-36, TXI-37,
+and `src/resize-loop.test.ts` for the components that measure with an observer of their own or a shared one), and a
+test that reads what follows a change of the element's box reads the frame after the change too (`shrink-to-fit`).
 
 Every interactive component composes the same pieces from `src/primitives/` (and `src/styles/shape.ts`), each with its
 own selectors and its own `--tanrei-comp-<name>-*` tokens — nothing in them knows which component uses them:
