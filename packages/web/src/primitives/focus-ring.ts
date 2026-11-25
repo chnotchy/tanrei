@@ -68,6 +68,12 @@ const glow = (selector: string, color = SYSTEM_COLOR) => `
  *
  * The indicator element must be a positioning container, carry the shape (`data-tanrei-shape`, whose radius and
  * `--_corner-scale` the ring follows, concentric) and leave its `::after` to the ring.
+ *
+ * A host that takes focus itself (a tab, a tab panel, a list item, a menu's row…) draws its indicator on a box inside
+ * and says `outline: none !important` on `:host`. Not important, it loses to any rule of the page that matches the
+ * host — a page's own `:focus-visible { outline: … }`, a reset's — since the page's normal rules win over a shadow
+ * root's; that page's ring was drawn around the host on top of the component's. An important rule of a shadow root wins
+ * over the page's, important or not (test/host-outline.test.mjs keeps every `:host` outline so).
  */
 export function focusRing(on: FocusSelector, { inside = false, within, color = SYSTEM_COLOR }: FocusRingOptions = {}): CSSResult {
   if (within !== undefined) return heldRing(on, within, color);
