@@ -25,12 +25,12 @@ function basePanel(ctx: Ctx) {
       value: layer.extends,
       attrs: { 'data-base': true },
       onchange: (id) => {
-        // Operations are relative to what they inherit, so another base starts from that base's defaults — and the
-        // person is asked before their edits go. The layer is read NOW: this panel is drawn once, and most edits
-        // (a color, a slider) do not redraw it, so the layer it was drawn with may be an empty one by now.
-        const now = ctx.layer();
-        if (studio.holdsChanges(now) && !window.confirm(t.base.confirm)) return ctx.rebuild();
-        ctx.commit(studio.setBase(now, id), { rebuild: true });
+        // Operations are relative to what they inherit, so another base starts from that base's defaults: one step,
+        // as a new start from the bar is, said with the way to undo it. The layer is read NOW: this panel is drawn
+        // once, and most edits (a color, a slider) do not redraw it, so the layer it was drawn with may be an empty
+        // one by now.
+        ctx.commit(studio.setBase(ctx.layer(), id), { rebuild: true, alone: true });
+        ctx.offerUndo(t.start.started(id));
       },
     }),
     // The system's own description, word for word: a run of its own language's direction inside the panel's.
@@ -205,7 +205,7 @@ function brandPanel(ctx: Ctx) {
   ctx.onUpdate(refresh);
   // Essentials stays small: the tone table shows up only for a palette that HAS fixed tones (m3-like's primary).
   const tones = row().tones ? tonesEditor(ctx, 'primary') : null;
-  return panel(ctx, { title: t.essentials.brand, code: 'palettes.primary', key: 'brand' }, h('div', { class: 'ts-row ts-palette ts-row-first', 'data-palette': 'primary' }, swatch, h('div', { class: 'ts-row-title' }, h('span', { text: t.essentials.brandName }), note), h('div', { class: 'ts-row-actions' }, reset), h('div', { class: 'ts-field' }, seed), tones));
+  return panel(ctx, { title: t.essentials.brand, key: 'brand' }, h('div', { class: 'ts-row ts-palette ts-row-first', 'data-palette': 'primary' }, swatch, h('div', { class: 'ts-row-title' }, h('span', { text: t.essentials.brandName }), note), h('div', { class: 'ts-row-actions' }, reset), h('div', { class: 'ts-field' }, seed), tones));
 }
 
 function paletteRow(ctx: Ctx, palette: Json) {
@@ -293,7 +293,7 @@ function colorPanel(ctx: Ctx) {
 function neutralPanel(ctx: Ctx) {
   const { t, studio } = ctx;
   const rows = (studio.paletteRows(ctx.layer()) as Json[]).filter((row) => row.name === 'neutral' || row.name.startsWith('neutral-'));
-  return panel(ctx, { title: t.rail.rows.neutral, code: 'palettes.neutral', help: t.rail.help.neutral, key: 'neutral' }, h('div', { class: 'ts-rows', 'data-palettes': 'neutral' }, rows.map((row) => paletteRow(ctx, row))));
+  return panel(ctx, { title: t.rail.rows.neutral, help: t.rail.help.neutral, key: 'neutral' }, h('div', { class: 'ts-rows', 'data-palettes': 'neutral' }, rows.map((row) => paletteRow(ctx, row))));
 }
 
 // ── components ───────────────────────────────────────────────────────────────────────────────────

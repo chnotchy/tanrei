@@ -40,6 +40,9 @@ const beforeRest = ({ at, keys }) => at.filter((time) => {
 
 studioTest('typing the layer’s name computes nothing: the file at Source follows every key, and the name is saved', {}, async ({ page, inspect, saved }) => {
   await inspect('source');
+  // The name is Export's, beside the file it names.
+  await page.locator('[data-export-open]').click();
+  await page.waitForFunction(() => document.querySelector('[data-export-sheet]').open);
   const field = page.locator('[data-name] input');
   await field.click();
   await settled(page);

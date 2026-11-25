@@ -118,7 +118,9 @@ studioTest('the theme and language switches: dark is a click away; ja translates
   assert.match(await page.locator('[data-save-state]').textContent(), /保存済み/);
 });
 
-studioTest('the two checks above can fail: text the Studio cannot read and a box wider than the phone are both caught', { viewport: { width: 390, height: 844 } }, async ({ page, axe, fits }) => {
+studioTest('the two checks above can fail: text the Studio cannot read and a box wider than the phone are both caught', { viewport: { width: 390, height: 844 } }, async ({ page, axe, fits, section }) => {
+  // (On a phone the panel is a sheet, open once a row is chosen.)
+  await section('color');
   await fits('body', 'before');
   await axe('body', 'before');
   await page.evaluate(() => {

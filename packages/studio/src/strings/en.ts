@@ -41,7 +41,6 @@ const en = {
   },
   base: {
     title: 'Base system',
-    confirm: 'Operations are relative to the base they inherit from. Switch the base and start from its defaults?',
   },
   essentials: {
     brand: 'Brand color',
@@ -341,7 +340,7 @@ const en = {
   source: {
     title: 'Source',
     label: 'The layer file, as JSON',
-    help: 'Checked as you type: JSON, then system.schema.json, then the token engine — its message is shown word for word. A valid edit is the layer every other level shows.',
+    help: 'Checked as you type: JSON, then system.schema.json, then the token engine — its message is shown word for word. A valid edit is the layer the rest of the Studio shows.',
     keys: 'Tab indents. Press Esc, then Tab, to leave the editor with the keyboard.',
     valid: 'Valid JSON, valid against the schema, accepted by the engine.',
     notObject: 'a layer is a JSON object',
@@ -357,7 +356,7 @@ const en = {
     title: 'Live preview',
     contrast: 'Preview contrast',
     levels: open({ standard: 'Standard', medium: 'Medium', high: 'High' }),
-    stale: 'The layer has a problem: the checks at the foot of the panel say what. The preview shows the last valid state.',
+    stale: 'The layer has a problem: Export says what. The preview shows the last valid state.',
     emphasized: 'Emphasized',
     emphasizedHelp: 'Text styles drawn with their family’s emphasis step added to the weight (sys.typescale.emphasis.*).',
   },
@@ -383,7 +382,7 @@ const en = {
     names: open({ overview: 'Overview', dashboard: 'Dashboard', settings: 'Settings form', list: 'List and detail', docs: 'Docs page' }),
     mode: 'Light or dark',
     modes: open({ light: 'Light', dark: 'Dark', both: 'Side by side' }),
-    conditions: 'How the preview is shown. None of this is saved in the file.',
+    conditions: 'View options (not saved in the file)',
     locale: 'en-US',
     currency: 'USD',
     common: {
@@ -562,13 +561,12 @@ const en = {
     nonText: (threshold: string) => `${threshold} non-text`,
   },
   export: {
-    title: 'Export',
     id: 'id — also the file name',
     name: 'Name (optional)',
+    canonical: 'This file is the theme: every platform’s output is built from it alone.',
     ownNamespace: 'This layer owns tokens under "{id}.…"; their namespace is renamed with the id, so the new id must be a valid one (lowercase words joined by hyphens, not "tanrei").',
     copy: 'Copy JSON',
     download: 'Download',
-    reset: 'Start over',
     copied: 'Copied to the clipboard.',
     downloaded: (file: string) => `Downloaded ${file}`,
     next: 'What next',
@@ -576,11 +574,6 @@ const en = {
     authoritative: 'Commit the layer. tanrei build validates it again, checks every contrast pair and writes tokens and code for each platform you ship. With the CLI, tanrei studio opens this Studio on the file itself.',
     layersLink: 'How layers work',
     jsonLabel: 'The layer file',
-    schemaOk: 'Valid against system.schema.json (Ajv, in your browser)',
-    engineOk: 'Accepted by the token engine: no unknown tokens, no cycles',
-    empty: 'Nothing differs from the base yet.',
-    size: (count: number) => `${count} entries written`,
-    confirmReset: 'Discard every change and start over?',
   },
   // Export, the side sheet the bar opens (ui/export.ts): the file, its stylesheet, and what to do with them.
   exporting: {
@@ -628,7 +621,6 @@ const en = {
     linkCopied: 'Link copied.',
   },
   file: {
-    title: 'File',
     idLocked: 'id — equals the file name; rename the file to rename the system',
     states: open({ loading: 'Loading…', saved: 'Saved', unsaved: 'Unsaved changes', saving: 'Saving…', invalid: 'Not saved — fix the problems first', conflict: 'The file changed on disk', error: 'Could not save' }),
     build: 'Build',
@@ -652,15 +644,14 @@ const en = {
     notInInit: 'Not yet: Tanrei’s root layer is neutral now — grey, with no accent — but the command line cannot start a layer from it yet (tanrei init --extends core). It can be chosen here once it can.',
     // The examples of the gallery, under their own title: each a showcase of what a layer can imitate, not the official
     // design it follows. The title reads as the first group's, «Start from»: a start, said as what it is made from.
-    gallery: 'From the gallery',
+    gallery: 'Theme gallery',
     exampleNote: (name: string) => `${name}. An example, not an official design.`,
     file: 'Import a file…',
     fileNote: 'A layer file, <id>.system.json',
-    confirm: (name: string) => `Start from ${name}? Your changes to this layer are replaced; Undo brings them back.`,
-    // What loading a layer says: `file`, the name of the file; none, the layer was handed to the page's API, which never asks.
-    confirmLoad: (file: string) => `Load ${file}? Your changes to this layer are replaced; Undo brings them back.`,
-    started: (name: string) => `Started from ${name}. Undo takes it back.`,
-    // What importing a file found, said in the panel.
+    // A new start and a file loaded are said in a snackbar that offers Undo; nothing is asked before either.
+    started: (name: string) => `Started from ${name}`,
+    // What loading a layer says (in the panel too, with what it found): `file`, the name of the file; none, the layer
+    // was handed to the page's API.
     imported: (file?: string) => `Loaded ${file ?? 'the layer'}.`,
     importedProblems: (file: string | undefined, count: number) => (count === 1 ? `Loaded ${file ?? 'the layer'}, with 1 problem. tanrei build would refuse it until it is fixed:` : `Loaded ${file ?? 'the layer'}, with ${count} problems. tanrei build would refuse it until they are fixed:`),
     refused: (file?: string) => `${file ?? 'The layer'} was not loaded. The Studio holds a layer that the schema accepts and that extends a system it has:`,
@@ -670,28 +661,35 @@ const en = {
     history: 'History',
     undo: 'Undo',
     redo: 'Redo',
+    reset: 'Reset to the start',
+    resetDone: 'Reset to the start’s values',
     undone: 'Undone.',
     redone: 'Redone.',
     rail: 'The theme',
     panel: 'Properties',
     resize: 'Width of the properties panel',
     width: (px: number) => `${px} pixels`,
+    close: 'Close the properties',
   },
   // The rail (ui/rail.ts): the nine rows of the look, the rest of what a layer holds, the lock and the shuffle.
   rail: {
-    theme: 'The look',
+    theme: 'Theme',
     moreTitle: 'More',
     rows: { color: 'Brand color', neutral: 'Gray', typeface: 'Typeface', size: 'Size', radius: 'Corners', smoothing: 'Corner smoothing', icons: 'Icons', press: 'Press feedback', focus: 'Focus' },
     more: { base: 'Base system', dials: 'Dials', palettes: 'Palettes', components: 'Components', behavior: 'Behaviour', vocabulary: 'Your vocabulary', about: 'About this layer', a11y: 'Accessibility' },
+    moreHelp: { base: 'The system your layer is built on', dials: 'Text size, spacing, corners, strokes, motion…', palettes: 'Error, success, warning, info and accent colors', components: 'Each component’s sizes and variants', behavior: 'Link underlines, required marks, separators…', vocabulary: 'The steps, variants and tokens your layer adds', about: 'Its description, and what it is inspired by', a11y: 'Contrast pairs and the build’s warnings' },
     help: {
       neutral: 'The gray that surfaces, text and outlines take their tones from: a hue with a chroma near zero, or a seed.',
       size: 'The control height is how tall a Button, a field, a menu row, a tab or a list row is at its default size; small and large are a few size units below and above it. Nothing pressable is drawn smaller than the minimum target, which is never above the control height: it is your own value, and no dial moves it.',
       radius: 'Every corner follows this unit: each step of the corner scale is a multiple of it.',
     },
     monochrome: 'none (monochrome)',
+    unchanged: 'default',
+    neutral: 'neutral',
+    none: 'none',
     // A palette given as hue and chroma, and the size row's value: the numbers as the file has them.
     hueChroma: (hue: string, chroma: string) => `hue ${hue} · chroma ${chroma}`,
-    size: (height: string, unit: string, target: string) => `${height} · ${unit} · target ${target}`,
+    size: (height: string, target: string) => `${height} · minimum ${target}`,
     target: 'the least size of anything pressed',
     minimum: 'Minimum target',
     heights: 'Heights at this control height',
@@ -711,6 +709,7 @@ const en = {
     help: 'Every token of the system, and the layer file itself',
     tokens: 'Tokens',
     source: 'Source',
+    lead: 'The theme’s file, and the tokens it settles. Every other control only writes this file.',
     close: 'Close Inspect',
   },
   // The layer of a link, shown in the place of the one this browser kept (ui.ts `showShared`).

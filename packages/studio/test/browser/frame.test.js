@@ -8,7 +8,7 @@ const box = (page, selector) => page.locator(selector).first().evaluate((el) => 
 
 studioTest('1440 wide: the bar holds the app’s items, the start point, undo and redo, the shuffle and Inspect; the rail, the preview and the panel stand side by side under it, and the page does not scroll', {}, async ({ page, axe }) => {
   const bar = page.locator('[data-bar]');
-  assert.deepEqual(await bar.evaluate((el) => [...el.children].map((child) => child.className)), ['ts-bar-host', 'ts-bar-tools ts-bar-start', 'ts-bar-history', 'ts-bar-tools', 'ts-file', 'ts-bar-tools ts-bar-inspect', 'ts-bar-host ts-bar-end']);
+  assert.deepEqual(await bar.evaluate((el) => [...el.children].map((child) => child.className)), ['ts-bar-host', 'ts-bar-tools ts-bar-start', 'ts-bar-history', 'ts-bar-tools', 'ts-bar-tools ts-bar-inspect', 'ts-file', 'ts-bar-tools ts-bar-out', 'ts-bar-host ts-bar-end']);
   assert.equal(await bar.locator('.app-brand').count(), 1, 'the app’s brand is in the Studio’s bar');
   assert.equal(await page.locator('.app-bar').count(), 0, 'and the holder it came in is gone');
   const [rail, preview, panel] = await Promise.all(['[data-rail]', '.ts-preview', '[data-inspector]'].map((selector) => box(page, selector)));
@@ -77,7 +77,6 @@ studioTest('undo and redo step through what was committed, and the file follows;
   const undo = page.locator('[data-undo]');
   const redo = page.locator('[data-redo]');
   assert.equal(await undo.evaluate((el) => el.disabled), true);
-  page.on('dialog', (dialog) => dialog.accept());
   await section('base');
   await page.locator('[data-panel="base"] tanrei-radio-button[data-value="cupertino"]').click();
   await saved((file) => file.extends === 'cupertino', 'the base');

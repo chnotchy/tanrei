@@ -3,8 +3,8 @@
 // file depends on the example or holds every value itself (core.writeOut); then three tabs — the file, what its
 // stylesheet changes (core.sheetChanges), and what to do next, with a link to share. Everything shown is the engine's
 // and the build's own output for this layer, never a sketch of it; a command is shown only as the CLI takes it.
-import { stringifyLayer } from '../core.js';
-import { type Ctx, type Json, type Layer, button, choice, h, isolated, linkButton, rich, tabbed } from './dom';
+import { ID_PATTERN, stringifyLayer } from '../core.js';
+import { type Ctx, type Json, type Layer, button, choice, h, isolated, linkButton, rich, tabbed, textField } from './dom';
 import { copyLayerLink } from './share';
 
 type Tab = 'file' | 'css' | 'next';
@@ -107,6 +107,25 @@ export function createExportSheet(ctx: Ctx, options: ExportOptions) {
     );
   }
 
+  // ── the file's name: its id, which is its file name too, and the name it says of itself ─────────
+  // Drawn once and kept while the sheet is drawn again (a value typed in them is a commit, and the commit redraws the
+  // sheet): their values follow the layer, never under the person's hands.
+  const id = textField({ label: ctx.locked.id ? t.file.idLocked : t.export.id, attrs: { disabled: ctx.locked.id, 'suffix-text': '.system.json', 'data-id': true }, oninput: (value) => {
+    const result = studio.setMeta(ctx.layer(), { id: value.trim() }) as Json;
+    // What is wrong with the id is the field's own error, said under it.
+    id.errorText = result.problem ? t.export.ownNamespace.replace('{id}', ctx.layer().id) : '';
+    if (!result.problem) ctx.commit(result.layer);
+    else id.error = true;
+  } });
+  const name = textField({ label: t.export.name, attrs: { 'data-name': true }, oninput: (value) => ctx.commit(studio.setMeta(ctx.layer(), { name: value }).layer) });
+  const naming = h('div', { class: 'ts-stack ts-export-naming', 'data-export-naming': true }, h('p', { class: 'ts-help', text: t.export.canonical }), id, name);
+  function drawNaming() {
+    const layer = ctx.layer();
+    if (document.activeElement !== id) id.value = layer.id ?? '';
+    if (document.activeElement !== name) name.value = layer.name ?? '';
+    id.error = Boolean(id.errorText) || !ID_PATTERN.test(layer.id ?? '') || studio.systems.some((s: Json) => s.id === layer.id);
+  }
+
   // ── the tabs ──────────────────────────────────────────────────────────────────────────────────
   const tabs = tabbed({ label: words.views, tabs: TABS.map((key) => ({ key, label: key === 'next' ? t.export.next : words[key] })), select: (key) => ((tab = key as Tab), drawTab()) });
   tabs.el.setAttribute('data-export-tabs', '');
@@ -181,7 +200,7 @@ export function createExportSheet(ctx: Ctx, options: ExportOptions) {
   }
 
   // ── the sheet ─────────────────────────────────────────────────────────────────────────────────
-  const body = h('div', { class: 'ts-export ts-stack', 'data-export': true }, status, values, tabs.el);
+  const body = h('div', { class: 'ts-export ts-stack', 'data-export': true }, status, naming, values, tabs.el);
   const sheet = h('tanrei-side-sheet', { variant: 'modal', headline: words.open, 'close-label': words.close, class: 'ts-export-sheet', 'data-export-sheet': true }, body) as HTMLElement & { open: boolean };
   sheet.addEventListener('close', (event) => event.target === sheet && close());
 
@@ -190,6 +209,7 @@ export function createExportSheet(ctx: Ctx, options: ExportOptions) {
     if (!shown) return;
     const file = exported();
     drawStatus(file.problems, file.warnings);
+    drawNaming();
     drawValues(file.out);
     drawTab();
   }
