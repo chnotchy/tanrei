@@ -318,6 +318,8 @@ const SLIDE = 'tanrei-tabs-slide';
  * @csspart icon - The glyph (hidden from assistive technology).
  * @csspart label - The tab's text.
  * @csspart active-indicator - The indicator's piece on this tab, carrying the covered copy of the icon and label, clipped to where the indicator is (hidden from assistive technology).
+ * @csspart covered-icon - The copy of the icon on the indicator's piece, in its covered color (hidden from assistive technology).
+ * @csspart covered-label - The copy of the label on the indicator's piece, in its covered color (hidden from assistive technology).
  * @csspart underline - The underline's piece on the tab's bottom edge (its end edge in a vertical row), clipped to where the underline is (hidden from assistive technology).
  */
 export class TanreiTab extends TanreiElement {
@@ -765,10 +767,10 @@ export class TanreiTab extends TanreiElement {
     const placement = styleQueries() ? null : compChoice(this, '--_size-icon-placement', ICON_PLACEMENT);
     const label = this.drawsLabel;
     const icon = !!this.icon;
-    const glyph = (named: boolean) => (icon ? html`<span part=${named ? 'icon' : nothing} class="icon" aria-hidden="true" data-mirror=${this.mirrorWord.word}>${this.icon}</span>` : nothing);
+    const glyph = (plain: boolean) => (icon ? html`<span part=${plain ? 'icon' : 'covered-icon'} class="icon" aria-hidden="true" data-mirror=${this.mirrorWord.word}>${this.icon}</span>` : nothing);
     // TAB-33, TAB-21: the box that cuts the label has the label's own direction, so it is cut at its own end in every engine.
     // TAB-16, TAB-50: the label keeps the width it needs at the selected weight (the copy its ::after draws, unseen).
-    const text = (named: boolean) => (label ? html`<span part=${named ? 'label' : nothing} class="label" dir=${ownDirection(this.label)} data-label=${this.label}><span class="text">${this.label}</span></span>` : nothing);
+    const text = (plain: boolean) => (label ? html`<span part=${plain ? 'label' : 'covered-label'} class="label" dir=${ownDirection(this.label)} data-label=${this.label}><span class="text">${this.label}</span></span>` : nothing);
     // TAB-13, TAB-24, TAB-25: the tab is named by its host's aria-label; the covered copy and the tooltip are hidden from
     // assistive technology, so each label is exposed once.
     return html`

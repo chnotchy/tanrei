@@ -40,6 +40,16 @@
       "description": "The thumb: the shape behind the selected tab's content — filled in primary and secondary tabs, a translucent layer in tonal ones — and, with the selected label's color, the mark of the selection in the default system. Its height is the row's less the track's inset, the same on every tab, and on the first and the last tab it lies that same inset from the track's end, so the thumb's round end and the track's are concentric at every row height. In a row that hugs it is as wide as the selected tab's content plus padding, and a circle where that content is not wider than it is tall (an icon, one full-width character, a one-letter label); in a row that fills it is as wide as the tab. It slides to the newly selected tab, or is drawn on it at once where the row's transition is none, and follows a finger dragged across the row, and the label and icon take their covered colors wherever it covers them, so their inversion travels with it."
     },
     {
+      "id": "covered-icon",
+      "description": "The copy of the icon drawn on the active indicator, in its covered color, wherever the indicator covers the tab: the icon under it is cut away there, so each point of the glyph is drawn once, in the color that stands on what is behind it. Hidden from assistive technology.",
+      "optional": true
+    },
+    {
+      "id": "covered-label",
+      "description": "The copy of the label drawn on the active indicator, in its covered color, wherever the indicator covers the tab: the label under it is cut away there, so each point of the text is drawn once, in the color that stands on what is behind it. Hidden from assistive technology, which reads the label once.",
+      "optional": true
+    },
+    {
       "id": "underline",
       "description": "The line on the row's bottom edge under the selected tab: as wide as the tab's content in primary tabs, as wide as the tab in secondary tabs. It moves with the active indicator. The default system leaves it transparent; a layer that marks the selection with a line (Material's tabs) colors it."
     },
@@ -3643,6 +3653,8 @@
         "icon": "tanrei-tab icon",
         "label": "tanrei-tab label",
         "active-indicator": "tanrei-tab active-indicator",
+        "covered-icon": "tanrei-tab covered-icon",
+        "covered-label": "tanrei-tab covered-label",
         "underline": "tanrei-tab underline",
         "divider": "divider",
         "panel": "tanrei-tab-panel",

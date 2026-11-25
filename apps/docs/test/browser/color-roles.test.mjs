@@ -91,6 +91,7 @@ const KNOWN_NOT_DRAWN = {
   'menu selected: group-title': AS_ON_MAIN,
   'menu selected: divider': AS_ON_MAIN,
   'tabs primary · selected: icon': 'the fixture’s tabs have labels and no icons',
+  'tabs primary · selected: covered-icon': 'the fixture’s tabs have labels and no icons',
   // TAB-24: at rest the selected tab's own label lies wholly under the active indicator, cut away and hidden; its
   // covered copy is what is drawn there.
   'tabs primary · selected: label': 'the selected tab’s own label is cut away whole under the indicator, where its covered copy is drawn',
