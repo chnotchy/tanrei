@@ -55,6 +55,7 @@ import {
 import { formOf, pressDefaultButton } from '../../primitives/default-button.js';
 import { FormSays } from '../../primitives/form-says.js';
 import { FormDisabledController } from '../../primitives/form-disabled.js';
+import { FormDefault } from '../../primitives/form-default.js';
 import { AXES, CORE_SIZES, INSET, styles } from './text-input.styles.js';
 import { runDirection } from '../../styles/product-text.js';
 import { disabledWaitsWhileFocused } from '../../primitives/disabled-while-focused.js';
@@ -310,7 +311,7 @@ function labelLines(copy: HTMLElement | null): { count: number; widest: number }
  * date can be pasted. With `picker`, the field shows a picker button that asks the product to present a picker
  * (`pickerrequest`); the field presents none itself.
  *
- * Form-associated: with a `name` it submits `value`, resets to its `value` attribute, restores on navigation, joins
+ * Form-associated: with a `name` it submits `value`, resets to the value it was first given, restores on navigation, joins
  * constraint validation (a missing value while its Field says it is required; a date or time field's entry error as badInput,
  * rangeUnderflow, rangeOverflow or a custom error) and is left out while disabled — its own or a `<fieldset>`'s.
  *
@@ -482,7 +483,7 @@ export class TanreiTextInput extends TanreiElement {
   /**
    * The text in the field; for date, time and date-time, the ISO 8601 form of what its segments give (2026-09-27, 14:30,
    * 2026-09-27T14:30), or empty while a segment is empty or the value is not available. Setting it shows it and fires
-   * nothing. The `value` attribute is what a form reset returns to.
+   * nothing. The value it is first given — by the `value` attribute or as the property — is what a form reset returns to.
    */
   // An accessor, not a field: the value is the person's at every moment. The native `input` event
   // is the browser's own and composed — a capturing listener on an ancestor hears it before the element's own listener
@@ -670,6 +671,8 @@ export class TanreiTextInput extends TanreiElement {
   /** TXI-39: a fine pointer is over the field; its resize handle is revealed. */
   protected hovering = false;
   private readonly fieldset = new FormDisabledController(this);
+  /** What a form's reset returns `value` to: what it was first given, as a native control's `defaultValue`. */
+  private readonly valueDefault = new FormDefault(this, () => this.value, 'value', (text) => text ?? '');
   /** A disabled `<fieldset>` around the element, as the platform says it (src/primitives/form-disabled.ts). */
   protected get formDisabled(): boolean {
     return this.fieldset.byFieldset;
@@ -955,7 +958,7 @@ export class TanreiTextInput extends TanreiElement {
   formResetCallback() {
     // TXI-72: a reset form hides a shown password again.
     this.revealed = false;
-    this.value = this.getAttribute('value') ?? '';
+    this.value = this.valueDefault.value;
     this.showValue();
     this.committed = this.value;
   }
