@@ -30,7 +30,7 @@
 // measured there and then: it is one element's, at a keystroke.
 
 import { motionReduced } from './motion.js';
-import { readTogether } from './read-phase.js';
+import { readInPhase, readTogether } from './read-phase.js';
 
 /** What the routine reads and writes; each is asked for when it runs, so an element drawn again is found again. */
 export interface AutoHeightOptions {
@@ -79,6 +79,8 @@ export class AutoHeight {
   private laid: { width: number; line: number } | null = null;
   /** A change made at once has been asked for and not read yet: a second request of the turn is the same one. */
   private asked = false;
+  /** The observer has reported the text area since it began to watch it (`watched()`). */
+  private reported = false;
 
   constructor(private readonly options: AutoHeightOptions) {}
 
@@ -251,13 +253,57 @@ export class AutoHeight {
    * text, another text style — the lines are counted again and the height changes at once (ETI-9). A layout that
    * changed neither (the element's own height, which it wrote itself) is left alone. Call it from a `ResizeObserver`
    * of the native element.
+   *
+   * After the first report it writes nothing in the observer's report: the lines are counted, and the height written,
+   * in the next frame's read phase (src/primitives/read-phase.ts). The height changes the size of the text area the
+   * observer has just reported, and a box that changes size in a report is reported again in that frame only if it lies
+   * deeper than every box reported before it: fitted in the report, a text area whose width changed in a box that
+   * changes the size of nothing above it was left undelivered, and the browser raised "ResizeObserver loop completed
+   * with undelivered notifications". The read phase is reported with the page's root element, so what it writes is
+   * reported in the same frame. What the frame after the change draws late is the height: for one frame the box keeps
+   * the lines it had at the width before, and the text that wrapped onto more lines scrolls inside it (or the room of
+   * the lines it lost stays empty).
+   *
+   * The first report after `watched()` is fitted in the report, so that the first frame painted already has its lines
+   * where a holder laid out in that frame gave the element another width (a chat composer that stacks): `watched()`
+   * asked for the read phase, which reports the page's root element first in that frame, and a first report comes in
+   * the same round of reports, so what the height changes is reported again in that frame. (Watched in the frame
+   * callbacks of the frame it is first drawn in, the read phase comes a frame later, and that first report is left
+   * undelivered as any other.)
    */
   relaid() {
+    if (!this.reported) {
+      this.reported = true;
+      if (this.relaidOut()) this.fit(false);
+      return;
+    }
+    if (this.relaidOut()) readInPhase(this, this.readRelaid);
+  }
+
+  /**
+   * An observer begins to watch the text area, and calls `relaid()` from its reports: its first report is fitted in the
+   * report, in the frame of the read phase asked for here.
+   */
+  watched() {
+    this.reported = false;
+    readInPhase(this, this.readRelaid);
+  }
+
+  /** Whether the text area's width or the line of its text is not the one the last fit was made for. */
+  private relaidOut(): boolean {
     const input = this.options.input();
-    if (!input) return;
+    if (!input?.isConnected) return false;
     const width = input.clientWidth;
     const line = this.lineOf(input);
-    if (this.laid && this.laid.width === width && this.laid.line === line) return;
-    this.fit(false);
+    return !this.laid || this.laid.width !== width || this.laid.line !== line;
   }
+
+  /**
+   * `relaid()` in the read phase: a change made at once, if the text area was not fitted to its new width since. Nothing
+   * before the first report (`watched()`), which is fitted in the report.
+   */
+  private readonly readRelaid = (): (() => void) | void => {
+    if (!this.reported || this.asked || !this.relaidOut()) return;
+    return this.readAtOnce();
+  };
 }

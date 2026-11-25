@@ -621,6 +621,7 @@ export class TanreiEmbeddedTextInput extends TanreiElement {
     TanreiEmbeddedTextInput.natives.set(input, this);
     watch.observe(input);
     this.watched = input;
+    this.height.watched();
   }
 
   private unwatch() {
