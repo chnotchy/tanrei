@@ -134,7 +134,7 @@ const hi: Dictionary = {
   fonts: {
     families: 'फ़ैमिली, क्रम से',
     add: 'जोड़ें',
-    addPlaceholder: 'फ़ैमिली, जैसे IBM Plex Sans',
+    addPlaceholder: 'जैसे IBM Plex Sans',
     // Announced after a family's name and a colon; शामिल does not agree with the name.
     added: (family) => `${family}: स्टैक में शामिल`,
     suggestions: 'सुझाव',

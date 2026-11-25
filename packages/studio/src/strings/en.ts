@@ -135,7 +135,7 @@ const en = {
   fonts: {
     families: 'families, in order',
     add: 'Add',
-    addPlaceholder: 'Family, e.g. IBM Plex Sans',
+    addPlaceholder: 'e.g. IBM Plex Sans',
     added: (family: string) => `${family}: added to the stack`,
     suggestions: 'Suggestions',
     system: 'System font',
@@ -313,7 +313,7 @@ const en = {
     kinds: open({ derive: 'A rule', alias: 'An alias', literal: 'A literal' }),
     onRole: 'onRole — the role drawn on it (registers the pair with the contrast checks)',
     rationale: 'Rationale (required)',
-    rationalePlaceholder: 'Why does this product need it?',
+    rationalePlaceholder: 'Why this product needs it',
     rationaleShort: 'An addition needs a rationale of at least 8 characters. Until then it is not written.',
     declares: 'declares',
     members: 'Every token this creates, as it would resolve',
