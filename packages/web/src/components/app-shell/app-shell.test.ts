@@ -18,6 +18,7 @@ import { type Frames, expectAnimated, expectFirstFrameAtRest, expectNoFlicker, s
 import { expectNeverSideways, sidewaysProbe } from '../../../test/sideways.js';
 import { controlledElements, controlledInTree } from '../../../test/controlled-list.js';
 import { expectGlyphsKeptWhileClosing } from '../../../test/closing-glyphs.js';
+import { restyle } from '../../../test/restyle.js';
 
 const spec = loadSpec('app-shell');
 type P = Page;
@@ -2482,7 +2483,7 @@ test.describe('what scrolls', () => {
     await expect.poll(() => active(page)).toBe('#link2');
     await expect.poll(async () => (await edges(page.locator('#link2'))).top).toBeGreaterThanOrEqual(64);
     // The header grows: the distance is measured again.
-    await page.locator('tanrei-app-bar').evaluate((el) => ((el as HTMLElement).style.blockSize = '80px'));
+    await restyle(page.locator('tanrei-app-bar'), { 'block-size': '80px' });
     await expect.poll(offset).toBe('80px');
     await page.evaluate(() => window.scrollTo(0, 0));
     await page.locator('#first').click();

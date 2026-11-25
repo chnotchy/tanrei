@@ -27,6 +27,7 @@ import { holdClock, releaseClock } from '../../../test/page-clock.js';
 import { clickCentre, heldPress } from '../../../test/watched-press.js';
 import { motionCount, motionEnded, settledCss } from '../../../test/motions.js';
 import { expectBaseline } from '../../../test/baseline.js';
+import { restyle } from '../../../test/restyle.js';
 
 const spec = loadSpec('stepper');
 type P = Page;
@@ -229,11 +230,11 @@ test.describe('conditions, marker, text and layout', () => {
     const least = (await resolveToken(page, T('step-min-width'))) * 4;
     const stage = page.locator('[data-fixture="horizontal"]');
     const horizontal = stepper(page, 'horizontal');
-    await stage.evaluate((el, w) => (el.style.inlineSize = `${w - 1}px`), least);
+    await restyle(stage, { 'inline-size': `${least - 1}px` });
     await expect(horizontal.locator('.compact')).toBeVisible();
     await expect(horizontal.locator('.steps')).toBeHidden();
     expect(await horizontal.evaluate((el: any) => el.value)).toBe('payment');
-    await stage.evaluate((el, w) => (el.style.inlineSize = `${w}px`), least);
+    await restyle(stage, { 'inline-size': `${least}px` });
     await expect(horizontal.locator('.compact')).toHaveCount(0);
     await expect(horizontal.locator('.steps')).toBeVisible();
     // No current step.

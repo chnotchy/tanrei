@@ -14,6 +14,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { type Page, expect, test } from '@playwright/test';
+import { restyle } from '../../test/restyle.js';
 
 const pkg = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 /** The module as it is built: it imports nothing (the host's type alone), so a page can load it alone. */
@@ -124,13 +125,13 @@ for (const subject of SUBJECTS) {
     expect(await checksAtRest(page), 'checks while nothing moves').toBe(0);
     // It still follows: the anchor moved by the page's layout, with no event of its own, takes the surface with it.
     const before = await surfaceTop(page);
-    await page.evaluate(() => ((document.getElementById('spacer') as HTMLElement).style.blockSize = '24px'));
+    await restyle(page.locator('#spacer'), { 'block-size': '24px' });
     await expect.poll(async () => Math.round((await surfaceTop(page)) - before)).toBe(24);
     // …and is at rest again.
     expect(await checksAtRest(page), 'checks while nothing moves, after the move').toBe(0);
     // A size of what is sized that really changes is still a change: the surface made wider is checked again.
     const checks = await page.evaluate(() => (window as unknown as { checks: number }).checks);
-    await page.locator('x-overlay').evaluate((el) => ((el.shadowRoot!.querySelector('.surface') as HTMLElement).style.inlineSize = '160px'));
+    await restyle(page.locator('x-overlay').locator('.surface').first(), { 'inline-size': '160px' });
     await expect.poll(() => page.evaluate(() => (window as unknown as { checks: number }).checks)).toBeGreaterThan(checks);
     expect(await checksAtRest(page), 'checks while nothing moves, after the resize').toBe(0);
   });

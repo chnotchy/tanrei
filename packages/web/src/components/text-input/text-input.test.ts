@@ -20,6 +20,7 @@ import { buildSync } from 'esbuild';
 import { expectBaseline } from '../../../test/baseline.js';
 import { motionCount, motionEnded } from '../../../test/motions.js';
 import { expectBoxTakesContainerSize } from '../../../test/input-box-size.js';
+import { restyle } from '../../../test/restyle.js';
 
 const spec = loadSpec('text-input');
 type P = Page;
@@ -1938,12 +1939,12 @@ test.describe('behavior', () => {
     const id = 'stacked-multiline-auto-grown';
     const below = async () => (await bounds(page.locator('[data-fixture="stacked-multiline-auto-max"]'))).y;
     const [before, belowBefore] = [await lines(id), await below()];
-    await host(page, id).evaluate((el) => ((el as HTMLElement).style.inlineSize = '140px'));
+    await restyle(host(page, id), { 'inline-size': '140px' });
     await expect.poll(() => lines(id)).toBeGreaterThan(before + 0.9);
     const narrow = await lines(id);
     expect(await input(page, id).evaluate((el) => el.scrollHeight <= el.clientHeight + 1), 'every line fits').toBe(true);
     expect((await below()) - belowBefore).toBeCloseTo((narrow - before) * lineOf, 0);
-    await host(page, id).evaluate((el) => ((el as HTMLElement).style.inlineSize = '280px'));
+    await restyle(host(page, id), { 'inline-size': '280px' });
     await expect.poll(() => lines(id)).toBeCloseTo(before, 1);
     // A value the product sets, and deleting.
     await host(page, id).evaluate((el) => ((el as any).value = 'one\ntwo\nthree'));
@@ -3981,7 +3982,7 @@ test.describe('the resize handle', () => {
     await part(page, 'both', GRIP).evaluate((el) => (el as HTMLElement).click());
     await expect.poll(() => width('both')).toBeCloseTo(240, 0);
     // Never wider than the field's own maximum width.
-    await host(page, 'both').evaluate((el) => (el.style.maxInlineSize = '320px'));
+    await restyle(host(page, 'both'), { 'max-inline-size': '320px' });
     await part(page, 'both', GRIP).click();
     await expect.poll(() => width('both')).toBeCloseTo(320, 0);
     await part(page, 'both', GRIP).click();

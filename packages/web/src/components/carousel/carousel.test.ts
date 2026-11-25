@@ -21,6 +21,7 @@ import { expectBaseline } from '../../../test/baseline.js';
 import { contrastChecked } from '../../../test/contrast-checked.js';
 import { type Frame, type Frames, expectAnimated, sampleFrames } from '../../../test/frames.js';
 import { bezierOf, cubicBezier, resolveEasing } from '../../../test/appear.js';
+import { restyle } from '../../../test/restyle.js';
 
 const spec = loadSpec('carousel');
 type P = Page;
@@ -1106,10 +1107,10 @@ test.describe('behavior', () => {
     expect(under[1][0] + under[1][1]).toBeGreaterThan(400);
     expect(await carousel(page, id).locator('.stage').evaluate((el) => getComputedStyle(el).overflowX)).toBe('clip');
     // The product sizes it through CSS: the items follow the height, less the controls row where there is one.
-    await carousel(page, id).evaluate((el) => (el.style.blockSize = '120px'));
+    await restyle(carousel(page, id), { 'block-size': '120px' });
     await expect.poll(async () => (await bounds(item(page, id, 0))).height).toBe(120);
     const controls = await resolveToken(page, T('controls-height'));
-    await carousel(page, 'indicator').evaluate((el) => (el.style.blockSize = '300px'));
+    await restyle(carousel(page, 'indicator'), { 'block-size': '300px' });
     await expect.poll(async () => (await bounds(item(page, 'indicator', 0))).height).toBe(300 - controls);
   });
 
@@ -1863,7 +1864,7 @@ test.describe('behavior', () => {
     expect((await boxes(page, id))[1]).toEqual([16 + 280, 208]);
     // Without motion: every offset it passed through is a final one.
     expect(new Set(await traced(page)).size).toBeLessThanOrEqual(2);
-    await page.locator(`[data-fixture="${id}"]`).evaluate((el) => (el.style.inlineSize = '400px'));
+    await restyle(page.locator(`[data-fixture="${id}"]`), { 'inline-size': '400px' });
     await expect.poll(async () => (await boxes(page, id))[1][1]).toBe(200);
     expect((await boxes(page, id))[1]).toEqual([100, 200]);
   });

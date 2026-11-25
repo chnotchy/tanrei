@@ -24,6 +24,10 @@
 //   `sys.motion.easing.{enter,exit,state,spatial}`) through its own token, so such a test holds it to one system's
 //   value — it fails when the role is re-timed although nothing is wrong, and passes when the component stops reading
 //   its token. Expect the component's token, resolved (`resolveToken(page, …, 'duration')`).
+// - a box's size written by the test (`<locator>.evaluate((el) => (el.style.inlineSize = …))`) and then waited for
+//   (`expect.poll`, `toHaveAttribute`, …) with no frame asked for between: Playwright's headless WebKit on Linux, as CI
+//   runs it, now and then draws no frame after such a write for seconds, so a resize observer is not told and the
+//   component is seen not to answer. Write it with `restyle()` (test/restyle.ts), which asks for a frame after it.
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
@@ -44,6 +48,13 @@ const argument = (text, at) => {
   }
   return text.slice(at).trim();
 };
+
+/** A write of a box's size to an element's inline style. */
+const SIZE_WRITE = /\.style\.(inlineSize|width|blockSize|height|maxInlineSize|maxBlockSize|minInlineSize|minBlockSize)\s*=[^=]|\.style\.setProperty\(\s*['"`](inline-size|width|block-size|height|max-inline-size|max-block-size|min-inline-size|min-block-size)['"`]/;
+/** An assertion that waits: it retries until what it reads changes. */
+const WAITS = /\bexpect\.poll\(|\.(not\.)?to(HaveAttribute|HaveCount|BeVisible|BeHidden|HaveText|HaveCSS|HaveJSProperty|Pass)\(|\bwaitForFunction\(/;
+/** Something that has the page draw a frame: a frame callback asked for, or a helper of the tests' that asks for one. */
+const DRAWS = /requestAnimationFrame|\b(frames?|settle|settled|trace|restyle|twoFrames|atRest|motionEnded)\(/;
 
 /** Each rule: what it counts in one file's text, and today's offenders by file (`<path from packages/web>: <count>`). */
 export const RULES = {
@@ -275,6 +286,30 @@ export const RULES = {
       'src/components/slider/slider.test.ts': 1,
     },
   },
+  'a size written by the test, then waited for with no frame asked for': {
+    // The write made from the test's side: on the line of a `.evaluate(` (or the line after one that opens a block),
+    // not a script of the page's own that sizes what it is making. Then, within the next four lines, an assertion that
+    // waits, before anything that draws a frame.
+    count: (text) => {
+      const lines = text.split('\n');
+      let n = 0;
+      for (const [at, line] of lines.entries()) {
+        if (COMMENT.test(line) || !SIZE_WRITE.test(line)) continue;
+        const before = lines[at - 1] ?? '';
+        if (!line.includes('.evaluate(') && !(before.includes('.evaluate(') && /\{\s*$/.test(before))) continue;
+        for (const next of lines.slice(at + 1, at + 5)) {
+          if (COMMENT.test(next)) continue;
+          if (DRAWS.test(next)) break;
+          if (WAITS.test(next)) {
+            n++;
+            break;
+          }
+        }
+      }
+      return n;
+    },
+    allowed: {},
+  },
 };
 
 /** Planted offenders: each rule counts its own once, and its correct twin not at all. */
@@ -302,6 +337,10 @@ const PLANTED = {
   "goto('about:blank') where the pointer hovers or leaves": [
     "await page.goto('about:blank');\nawait mount(page);\nawait page.hover('#card');",
     "await page.setContent(html);\nawait page.hover('#card');",
+  ],
+  'a size written by the test, then waited for with no frame asked for': [
+    "await stage(page, 'a').evaluate((el) => ((el as HTMLElement).style.inlineSize = '360px'));\nawait expect(host(page, 'a')).toHaveAttribute('data-narrow', '');",
+    "await restyle(stage(page, 'a'), { 'inline-size': '360px' });\nawait expect(host(page, 'a')).toHaveAttribute('data-narrow', '');",
   ],
   'a colour polled with a plain read, then read exactly at that value with no wait for the motion': [
     "await expect.poll(() => css(c, 'background-color')).toBe(hovered);\nawait page.mouse.down();\nexpect(await css(c, 'background-color')).toBe(hovered);",
