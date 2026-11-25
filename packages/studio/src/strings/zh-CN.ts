@@ -128,7 +128,7 @@ const zhCN: Dictionary = {
   fonts: {
     families: '字体族（按顺序）',
     add: '添加',
-    addPlaceholder: '字体族，例如 IBM Plex Sans',
+    addPlaceholder: '例如 IBM Plex Sans',
     added: (family) => `${family} 已添加到字体栈`,
     suggestions: '建议',
     system: '系统字体',

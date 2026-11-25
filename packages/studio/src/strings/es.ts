@@ -130,7 +130,7 @@ const es: Dictionary = {
   fonts: {
     families: 'familias, en orden',
     add: 'Añadir',
-    addPlaceholder: 'Familia, p. ej. IBM Plex Sans',
+    addPlaceholder: 'Ej.: IBM Plex Sans',
     added: (family) => `${family}: se añadió a la pila`,
     suggestions: 'Sugerencias',
     system: 'Fuente del sistema',
@@ -302,7 +302,7 @@ const es: Dictionary = {
     kinds: { derive: 'Una regla', alias: 'Un alias', literal: 'Un literal' },
     onRole: 'onRole: el rol que se dibuja sobre él (registra el par en las comprobaciones de contraste)',
     rationale: 'Justificación (obligatoria)',
-    rationalePlaceholder: '¿Por qué lo necesita este producto?',
+    rationalePlaceholder: '¿Por qué lo necesita?',
     rationaleShort: 'Una adición necesita una justificación de al menos 8 caracteres. Hasta entonces no se escribe.',
     declares: 'declara',
     members: 'Todos los tokens que esto crea, tal como se resolverían',

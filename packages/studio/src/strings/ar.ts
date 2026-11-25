@@ -160,7 +160,7 @@ const ar: Dictionary = {
   fonts: {
     families: 'العائلات بالترتيب',
     add: 'إضافة',
-    addPlaceholder: 'أضف عائلة، مثل IBM Plex Sans',
+    addPlaceholder: 'مثل IBM Plex Sans',
     added: (family) => `تمت إضافة الخط ${family} إلى السلسلة`,
     suggestions: 'اقتراحات',
     system: 'خط النظام',
