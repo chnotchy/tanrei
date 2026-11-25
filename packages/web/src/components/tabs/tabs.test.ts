@@ -26,8 +26,11 @@ type P = Page;
 const row = (page: P, id: string) => page.locator(`[data-fixture="${id}"] tanrei-tabs`);
 const tabs = (page: P, id: string) => row(page, id).locator('tanrei-tab');
 const tabAt = (page: P, id: string, n: number) => tabs(page, id).nth(n);
-/** The whole tab, its part `container`: what answers the pointer and carries `data-pressed`, sized by container.*. */
-const box = (page: P, id: string, n: number) => tabAt(page, id, n).locator('[part="container"]');
+/**
+ * The whole tab, its part `container`: what answers the pointer and carries `data-pressed`, sized by container.*. The
+ * first of that name: the tooltip of a truncated label, inside it, has a part `container` of its own.
+ */
+const box = (page: P, id: string, n: number) => tabAt(page, id, n).locator('[part="container"]').first();
 /** The tab's state layer (TAB-18), its part `state-layer`: drawn in the indicator's box. */
 const layer = (page: P, id: string, n: number) => tabAt(page, id, n).locator('[part="state-layer"]');
 /** The focus ring's element (TAB-4): the same box as the state layer. */
