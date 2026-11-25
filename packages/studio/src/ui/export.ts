@@ -147,7 +147,8 @@ export function createExportSheet(ctx: Ctx, options: ExportOptions) {
   tabs.el.setAttribute('data-export-tabs', '');
   const copyLabels = (copy: string) => ({ copy: true, 'copy-label': copy, 'copied-label': t.export.copied, 'copy-failed-label': words.copyFailed });
   const code = (attrs: Json, text: string) => Object.assign(h('tanrei-code-block', { size: 'small', ...attrs }), { code: text });
-  const command = (text: string) => code({ language: 'sh', label: text, ...copyLabels(words.copyCommand), 'data-export-command': text.split(' ').slice(0, 3).join(' ') }, text);
+  // One command, wrapped as the Command tab's are: it is read whole in the sheet's width, and nothing scrolls sideways.
+  const command = (text: string) => code({ language: 'sh', label: text, wrap: true, ...copyLabels(words.copyCommand), 'data-export-command': text.split(' ').slice(0, 3).join(' ') }, text);
 
   function fileTab(file: { layer: Layer }) {
     const name = options.file ?? fileName(file.layer);

@@ -1219,6 +1219,25 @@
   background: var(--tanrei-sys-color-secondary-container);
   color: var(--tanrei-sys-color-on-secondary-container);
 }
+/* Where the rail is a column, a row of the look is one band, as the approved design draws it: pointed at, or the row
+   the panel shows, the whole row is marked — its words and sample, its lock and its chevron. */
+@media (min-width: 64rem) {
+  .ts-rail-item {
+    border-radius: var(--ts-radius-container);
+  }
+  .ts-rail-item:hover {
+    background: var(--tanrei-sys-color-surface-container);
+  }
+  .ts-rail-item:has(.ts-rail-row[aria-current='true']) {
+    --ts-rail-chevron-color: var(--tanrei-sys-color-on-secondary-container);
+    background: var(--tanrei-sys-color-secondary-container);
+    color: var(--tanrei-sys-color-on-secondary-container);
+  }
+  .ts-rail-item .ts-rail-row:hover,
+  .ts-rail-item .ts-rail-row[aria-current='true'] {
+    background: transparent;
+  }
+}
 .ts-rail-row:focus-visible,
 .ts-rail-link:focus-visible {
   outline: var(--tanrei-sys-focus-outer-width) solid var(--tanrei-sys-color-focus-ring);
@@ -1257,7 +1276,7 @@
 .ts-rail-chevron {
   display: grid;
   place-items: center;
-  color: var(--tanrei-sys-color-on-surface-variant);
+  color: var(--ts-rail-chevron-color, var(--tanrei-sys-color-on-surface-variant));
   font-size: 1.25rem;
   cursor: pointer;
 }
