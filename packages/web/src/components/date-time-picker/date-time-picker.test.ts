@@ -2217,6 +2217,25 @@ test.describe('ranges, actions, motion, overflow and semantics', () => {
     await expect.poll(async () => (await bounds(surface(page, 'v'))).width).toBeLessThanOrEqual(320 - 2 * margin + 0.5);
   });
 
+  test('DTM-1, DTM-36: a picker drawn in place (the inline test attribute) takes the room of the box it stands in, not that box less the modal margins: in a box just as wide as its parts, nothing of the dial’s time display is cut', async ({ page }) => {
+    await mount(page, [f('m', { open: true, inline: true, mode: 'time', value: '19:30', hourCycle: 'h12', entryMode: 'dial' }), inline('d', { mode: 'time', value: '19:30', hourCycle: 'h12', entryMode: 'dial' })]);
+    for (const id of ['m', 'd']) {
+      const natural = (await bounds(surface(page, id))).width;
+      // The picker in a box exactly as wide as it is drawn (the host draws no box of its own: the surface stands in the box).
+      await host(page, id).evaluate((el, width) => {
+        const box = document.createElement('div');
+        box.style.inlineSize = `${width}px`;
+        el.before(box);
+        box.append(el);
+      }, natural);
+      await page.evaluate(() => new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve))));
+      const [s, p] = [await bounds(surface(page, id)), await bounds(periodBox(page, id))];
+      expect(s.width, `${id}: as wide as its parts`).toBeCloseTo(natural, 0);
+      expect(p.x + p.width, `${id}: the period selector ends inside the surface`).toBeLessThanOrEqual(s.x + s.width + 0.5);
+      expect(await host(page, id).locator('.body').evaluate((el) => el.scrollWidth <= el.clientWidth + 1), `${id}: the body does not scroll sideways`).toBe(true);
+    }
+  });
+
   test('DTM-36: a wheel turned on past the end of a docked picker’s body that scrolls, and turned again after a pause, leaves the page behind where it was and the picker open', async ({ page }) => {
     await mount(page, [docked('d', { mode: 'date-time', value: '2026-09-17T19:30', layout: 'vertical' })], { window: { width: 480, height: 420 } });
     await opener(page, 'd').evaluate((el) => ((el as HTMLElement).style.cssText = 'position: fixed; top: 8px; left: 8px;'));

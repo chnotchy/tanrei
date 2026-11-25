@@ -6,6 +6,7 @@ import { FORWARDED_ROWS, type TanreiMenu, type TanreiMenuBarChannel, type Tanrei
 import { barStyles, itemStyles, menuStyles } from './menubar.styles.js';
 import { TanreiElement } from '../../primitives/element.js';
 import { holdsProductName, nameHost, namedByProduct } from '../../primitives/delegated-aria.js';
+import { DEBUG } from '../../primitives/debug.js';
 
 /** What a bar menu's `toggle` carries: its new `open`. */
 export interface TanreiMenubarMenuToggleDetail {
@@ -249,7 +250,7 @@ export class TanreiMenubarMenu extends TanreiElement {
   }
 
   private reportEmpty() {
-    report(this, 'MBR-20', `the menu "${this.label}" holds no item, so its title opens an empty surface; give it tanrei-menu-item children`, { once: false });
+    if (DEBUG) report(this, 'MBR-20', `the menu "${this.label}" holds no item, so its title opens an empty surface; give it tanrei-menu-item children`, { once: false });
   }
 
   /** MBR-11: while a menu of the bar is open, a pointer that can hover moves the open menu along with it. */
@@ -311,9 +312,9 @@ export class TanreiMenubarMenu extends TanreiElement {
     const menu = this.renderRoot.querySelector<TanreiMenu>('tanrei-menu');
     if (menu) menu.positionAnchor = this.containerElement;
     // MBR-20: a title without a label still renders and works; a debug build says it has no name.
-    if (changed.has('label') && !this.label.trim()) report(this, 'MBR-20', 'label is empty, so the title and the menu it opens have no accessible name; give the menu a label ("File")');
+    if (DEBUG && changed.has('label') && !this.label.trim()) report(this, 'MBR-20', 'label is empty, so the title and the menu it opens have no accessible name; give the menu a label ("File")');
     // MBR-44: a destination is a bar item's alone; one written on a menu is ignored, and the menu stays what it is.
-    if (this.hasAttribute('href')) report(this, 'MBR-44', 'href is written on a menu, which opens and goes nowhere; it is ignored — a destination is a bar item\'s: <tanrei-menubar-item><a href="…">…</a></tanrei-menubar-item>');
+    if (DEBUG && this.hasAttribute('href')) report(this, 'MBR-44', 'href is written on a menu, which opens and goes nowhere; it is ignored — a destination is a bar item\'s: <tanrei-menubar-item><a href="…">…</a></tanrei-menubar-item>');
     // MBR-21, MBR-30: the bar measures the title again, and lays its row out for what changed.
     if (changed.has('label') || changed.has('disabled') || (changed as Map<PropertyKey, unknown>).has('place')) this.bar?.entryUpdated();
   }
@@ -804,17 +805,17 @@ export class TanreiMenubarItem extends TanreiElement {
 
   /** What a debug build is told of a bar item the element survives (MBR-38, MBR-39, MBR-44, MBR-45); the link primitive says the rest. */
   private check(anchor: HTMLAnchorElement | null) {
-    if (!this.label.trim() && !(!anchor && namedByProduct(this))) report(this, 'MBR-44', 'label is empty, so the bar item has no accessible name; give an action a label ("Run"), a link item\'s anchor its text');
+    if (DEBUG && !this.label.trim() && !(!anchor && namedByProduct(this))) report(this, 'MBR-44', 'label is empty, so the bar item has no accessible name; give an action a label ("Run"), a link item\'s anchor its text');
     if (!anchor) {
-      if (this.hasAttribute('href')) report(this, 'MBR-45', 'href is written on the element, which holds no anchor; it is ignored and the bar item is an action — a link item is the product\'s own anchor inside the element, <tanrei-menubar-item><a href="…">…</a></tanrei-menubar-item>, so that the link exists before the element is defined');
+      if (DEBUG && this.hasAttribute('href')) report(this, 'MBR-45', 'href is written on the element, which holds no anchor; it is ignored and the bar item is an action — a link item is the product\'s own anchor inside the element, <tanrei-menubar-item><a href="…">…</a></tanrei-menubar-item>, so that the link exists before the element is defined');
       return;
     }
     const address = anchor.hasAttribute('href');
-    if (this.disabled && address) report(this, 'MBR-39', 'it is disabled and its anchor still has an href: it is drawn and exposed disabled, emits no click and has its plain activation prevented, but the browser still gives the address a new tab, a context menu and a drag; write the anchor without href while the bar item is disabled');
-    if (!this.disabled && !address) report(this, 'MBR-44', 'its anchor has no href, so it is an action whose entry is the anchor; write an action with label instead, <tanrei-menubar-item label="…">');
+    if (DEBUG && this.disabled && address) report(this, 'MBR-39', 'it is disabled and its anchor still has an href: it is drawn and exposed disabled, emits no click and has its plain activation prevented, but the browser still gives the address a new tab, a context menu and a drag; write the anchor without href while the bar item is disabled');
+    if (DEBUG && !this.disabled && !address) report(this, 'MBR-44', 'its anchor has no href, so it is an action whose entry is the anchor; write an action with label instead, <tanrei-menubar-item label="…">');
     const target = anchor.getAttribute('target');
-    if (!readTarget(target).known) report(this, 'MBR-44', `its anchor's target "${target}" is not one a bar item defines ("_blank" for a new context); it is drawn and described as one that opens where the person is`);
-    if (this.current && !this.link.form) report(this, 'MBR-38', 'its anchor says aria-current and names no destination; current is ignored');
+    if (DEBUG && !readTarget(target).known) report(this, 'MBR-44', `its anchor's target "${target}" is not one a bar item defines ("_blank" for a new context); it is drawn and described as one that opens where the person is`);
+    if (DEBUG && this.current && !this.link.form) report(this, 'MBR-38', 'its anchor says aria-current and names no destination; current is ignored');
   }
 
   protected override render() {
@@ -1147,11 +1148,11 @@ export class TanreiMenubar extends TanreiElement {
   private checkContent() {
     const children = [...this.children];
     const rows = children.filter(isRow);
-    if (rows.length === 0) report(this, 'MBR-20', 'it holds neither a menu nor a bar item, so the bar is drawn with nothing on it and takes no focus; a menubar holds <tanrei-menubar-menu> elements, and <tanrei-menubar-item> elements beside them', { once: false });
-    else if (!rows.some((row) => row instanceof TanreiMenubarMenu)) report(this, 'MBR-44', 'it holds bar items and no menu: a row of actions alone is a toolbar, and a row of links alone is navigation; it is still drawn and works');
+    if (rows.length === 0) DEBUG && report(this, 'MBR-20', 'it holds neither a menu nor a bar item, so the bar is drawn with nothing on it and takes no focus; a menubar holds <tanrei-menubar-menu> elements, and <tanrei-menubar-item> elements beside them', { once: false });
+    else if (DEBUG && !rows.some((row) => row instanceof TanreiMenubarMenu)) report(this, 'MBR-44', 'it holds bar items and no menu: a row of actions alone is a toolbar, and a row of links alone is navigation; it is still drawn and works');
     for (const child of children) {
       if (isRow(child)) continue;
-      report(this, 'MBR-20', `it holds <${child.localName}>, which is neither a <tanrei-menubar-menu> nor a <tanrei-menubar-item>; it gets no title, no key and no place in the row — a field, a control of the product's own or an entry that holds a state would take the keys the bar moves focus with and would not be a menu item`);
+      if (DEBUG) report(this, 'MBR-20', `it holds <${child.localName}>, which is neither a <tanrei-menubar-menu> nor a <tanrei-menubar-item>; it gets no title, no key and no place in the row — a field, a control of the product's own or an entry that holds a state would take the keys the bar moves focus with and would not be a menu item`);
     }
   }
 
@@ -1236,7 +1237,7 @@ export class TanreiMenubar extends TanreiElement {
     }
     const fresh = this.menus.filter((menu) => menu.open && menu !== this.current);
     if (fresh.length === 0) return;
-    if (fresh.length > 1) report(this, 'MBR-10', `open is set on ${fresh.length} menus; a bar shows one menu at a time, so the first of them is shown`, { once: false });
+    if (DEBUG && fresh.length > 1) report(this, 'MBR-10', `open is set on ${fresh.length} menus; a bar shows one menu at a time, so the first of them is shown`, { once: false });
     for (const menu of fresh.slice(1)) menu.open = false;
     this.present(fresh[0], { opens: false });
   }
@@ -1285,7 +1286,7 @@ export class TanreiMenubar extends TanreiElement {
     requestAnimationFrame(() => {});
     // MBR-38: each is drawn and exposed as given; at most one bar item of a bar names the current page.
     const current = this.items.filter((row) => row instanceof TanreiMenubarItem && row.isCurrent).length;
-    if (current > 1) report(this, 'MBR-38', `${current} bar items say they are the current page; each is drawn and exposed as given — at most one names the page the person is on`);
+    if (DEBUG && current > 1) report(this, 'MBR-38', `${current} bar items say they are the current page; each is drawn and exposed as given — at most one names the page the person is on`);
   }
 
   // ── A bar item's activation (MBR-33, MBR-36, MBR-43) ──
@@ -1652,7 +1653,7 @@ export class TanreiMenubar extends TanreiElement {
     nameHost(this, this.label);
     hostAria(this, { role: 'menubar', 'aria-orientation': 'horizontal' });
     // MBR-20: a bar without a label still renders and works; a debug build says it has no name.
-    if (changed.has('label') && !this.label.trim() && !namedByProduct(this)) report(this, 'MBR-20', 'label is empty, so the menubar has no accessible name; give it a label ("Application menu")');
+    if (DEBUG && changed.has('label') && !this.label.trim() && !namedByProduct(this)) report(this, 'MBR-20', 'label is empty, so the menubar has no accessible name; give it a label ("Application menu")');
     // MBR-21, MBR-22: the menus in the row and the folded ones, each where it is drawn now, none of them moved.
     const row = this.renderRoot.querySelector<HTMLSlotElement>('slot.row');
     const visible = this.visible;
@@ -1666,7 +1667,7 @@ export class TanreiMenubar extends TanreiElement {
     this.observe();
     // MBR-22: without a name the overflow item is drawn and works, is exposed unnamed, and the missing word is reported once.
     if (this.folds > 0 && !this.words.get('menubarOverflowLabel', this.overflowLabel)) {
-      this.words.missing('menubarOverflowLabel', { prop: 'overflowLabel', id: 'MBR-22', effect: 'the overflow item is drawn and works, and has no accessible name' });
+      this.words.missing('menubarOverflowLabel', DEBUG && { prop: 'overflowLabel', id: 'MBR-22', effect: 'the overflow item is drawn and works, and has no accessible name' });
     }
   }
 

@@ -144,6 +144,7 @@
 //                 windowBox(): where the window's own box stands, which what is fixed to it is laid out in — not the root's
 //                 clientWidth, which leaves out no gutter the scroll hold keeps (Chromium);
 //                 focusWithin() and returnFocus(): focus inside a host, and given back to its opener (the sheets);
+//                 focusLost(): focus on nothing, the page or a removed element — the one focus a late answer may move;
 //                 hasFocusVisibleOption(): whether focus() reads `focusVisible`, before a focus is given as a pointer's;
 //                 pressGivesFocus(): where it does not, a press on the element that has focus gives it again, as a pointer's
 //   contained-wheel — containWheel(), containedWheel: a wheel toward an end a scroller already stands at is cancelled,
@@ -352,7 +353,7 @@ export { answersPress, findInteractive, pressTakenWithin, slottedInteractive } f
 export { VisibilityController } from './visibility.js';
 export { ShowDelay, type ShowDelayHost, milliseconds, unusableMilliseconds, usableMilliseconds } from './show-delay.js';
 export { cssZoom, layoutScale } from './layout-scale.js';
-export { deepActive, focusWithin, hasFocusVisibleOption, holdPageScroll, modalLayer, openerFor, pressGivesFocus, returnFocus, SCROLL_HOLD_INSET, tabbables, trapFocus, windowBox } from './modal.js';
+export { deepActive, focusLost, focusWithin, hasFocusVisibleOption, holdPageScroll, modalLayer, openerFor, pressGivesFocus, returnFocus, SCROLL_HOLD_INSET, tabbables, trapFocus, windowBox } from './modal.js';
 export { containWheel, containedWheel } from './contained-wheel.js';
 export { LEAVING, type ModalMoves, atOnce, closeModal, isLeaving, modalExitStyles, openModal } from './modal-exit.js';
 export { SCRIM_FILTER, type SheetScrimOptions, scrimFilter, sheetScrimStyles } from './scrim.js';

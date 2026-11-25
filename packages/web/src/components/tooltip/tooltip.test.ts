@@ -2009,16 +2009,26 @@ test.describe('motion', () => {
 });
 
 test.describe('accessibility', () => {
-  test('no axe violations in light and dark, open and closed', async ({ page }) => {
-    for (const theme of ['light', 'dark'] as const) {
-      await mountFixtures(page, spec, { theme, icons: true, fixtures: [...spec.fixtures, f('closed', { open: false })] });
-      // The second mount writes its document into a window that was painted already, so an open tooltip may play its
-      // entrance (MOT-4): axe reads it at rest, once every motion in the page has ended.
-      await motionEnded(page);
-      const results = await new AxeBuilder({ page }).include('main').analyze();
-      expect(results.violations, `${theme}: ${results.violations.map((v) => `${v.id} ${v.nodes.map((n) => n.target).join(' ')}`).join(', ')}`).toEqual([]);
-    }
-  });
+  // A test per fixture, each alone on the spec's stage as its baseline is: one tooltip is shown at a time (TIP-8), so
+  // every fixture told to open on one page left none shown, and axe found no tooltip text to check.
+  for (const fixture of [...spec.fixtures, f('closed', { open: false })]) {
+    test(`no axe violations in light and dark: ${fixture.id}`, async ({ page }) => {
+      await page.setViewportSize({ width: 320, height: 200 });
+      for (const theme of ['light', 'dark'] as const) {
+        await mountFixtures(page, spec, { theme, icons: true, fixtures: [fixture] });
+        await expect.poll(() => shown(page, fixture.id), theme).toBe(fixture.props.open !== false);
+        // The second mount writes its document into a window that was painted already, so an open tooltip may play its
+        // entrance (MOT-4): axe reads it at rest, once every motion in the page has ended.
+        await motionEnded(page);
+        const results = await new AxeBuilder({ page }).include('main').analyze();
+        expect(results.violations, `${theme}: ${results.violations.map((v) => `${v.id} ${v.nodes.map((n) => n.target).join(' ')}`).join(', ')}`).toEqual([]);
+        if (fixture.props.open !== false) {
+          const contrast = [...results.passes, ...results.violations, ...results.incomplete].filter((rule) => rule.id === 'color-contrast').flatMap((rule) => rule.nodes);
+          expect(contrast.length, `${theme}: axe checks the contrast of the shown tooltip's text`).toBeGreaterThan(0);
+        }
+      }
+    });
+  }
 });
 
 test.describe('fixtures', () => {

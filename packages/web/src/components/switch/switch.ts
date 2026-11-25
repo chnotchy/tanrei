@@ -22,6 +22,7 @@ import { PROGRESS, styles } from './switch.styles.js';
 import { disabledWaitsWhileFocused } from '../../primitives/disabled-while-focused.js';
 import { focusedAtFirst } from '../../primitives/autofocus.js';
 import { TanreiElement } from '../../primitives/element.js';
+import { DEBUG } from '../../primitives/debug.js';
 
 const clamp = (value: number) => Math.min(1, Math.max(0, value));
 
@@ -469,7 +470,7 @@ export class TanreiSwitch extends TanreiElement {
   protected override updated(changed: PropertyValues<this>) {
     this.selection.setFormValue(this.checked ? this.value : null, String(this.checked));
     // SWT-16: a switch without a name still renders; a debug build says what is missing.
-    if (changed.has('label') && !this.label && !this.selection.field.label && !namedByProduct(this)) report(this, 'SWT-16', 'label is empty, so the switch has no accessible name; give it a label');
+    if (DEBUG && changed.has('label') && !this.label && !this.selection.field.label && !namedByProduct(this)) report(this, 'SWT-16', 'label is empty, so the switch has no accessible name; give it a label');
   }
 
   protected override render() {

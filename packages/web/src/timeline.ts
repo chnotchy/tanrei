@@ -17,6 +17,7 @@
 //
 // Nothing else here is needed for a timeline to be drawn or read aloud. It formats no time and reads none (TML-3).
 import { report } from './primitives/report.js';
+import { DEBUG } from './primitives/debug.js';
 
 const TIMELINE = 'tanrei-timeline';
 const MARKER = 'tanrei-timeline-marker';
@@ -75,25 +76,25 @@ function writeStatus(event: Element, words: string) {
 function read(list: Element) {
   const style = getComputedStyle(list);
   const size = list.getAttribute('data-size');
-  if (size !== null && !SIZES.includes(size) && !style.getPropertyValue(`--tanrei-comp-timeline-marker-height-${size}`).trim()) {
+  if (DEBUG && size !== null && !SIZES.includes(size) && !style.getPropertyValue(`--tanrei-comp-timeline-marker-height-${size}`).trim()) {
     report(list, 'TML-21', `data-size "${size}" is not a size it or the active design system defines; it is drawn as "medium"`);
   }
   // TML-15: timelines are not meant to be nested (events inside an event are a list of prose in the body).
-  if (list.parentElement?.closest(`.${TIMELINE} > li`)) report(list, 'TML-15', 'it is a timeline inside an event: it is drawn as a timeline of its own; events inside an event are a list in the body');
+  if (DEBUG && list.parentElement?.closest(`.${TIMELINE} > li`)) report(list, 'TML-15', 'it is a timeline inside an event: it is drawn as a timeline of its own; events inside an event are a list in the body');
   const events = [...list.children].filter((child) => child.localName === 'li');
   // TML-22.
-  if (!events.length) report(list, 'TML-22', 'it holds no event, so nothing is drawn');
+  if (DEBUG && !events.length) report(list, 'TML-22', 'it holds no event, so nothing is drawn');
   for (const event of events) {
     const given = event.getAttribute('data-status');
     const status = statusOf(event);
-    if (given !== null && given !== 'none' && status === 'none') report(event, 'TML-21', `data-status "${given}" is not a status; the event is drawn as one with no status`);
+    if (DEBUG && given !== null && given !== 'none' && status === 'none') report(event, 'TML-21', `data-status "${given}" is not a status; the event is drawn as one with no status`);
     const words = event.getAttribute('data-status-label')?.trim() ?? '';
     const element = [...event.children].find((child) => child.classList.contains(STATUS) && !child.hasAttribute(WRITTEN));
-    if (status !== 'none' && !words && !element?.textContent?.trim()) report(event, 'TML-22', `the event's status "${status}" is not given in words (data-status-label); it is still drawn`);
-    if (status === 'none' && words) report(event, 'TML-22', `data-status-label "${words}" is ignored: the event has no status`);
+    if (DEBUG && status !== 'none' && !words && !element?.textContent?.trim()) report(event, 'TML-22', `the event's status "${status}" is not given in words (data-status-label); it is still drawn`);
+    if (DEBUG && status === 'none' && words) report(event, 'TML-22', `data-status-label "${words}" is ignored: the event has no status`);
     writeStatus(event, status === 'none' ? '' : words);
     const content = [...event.childNodes].some((node) => (node instanceof Element ? !node.classList.contains(MARKER) && !node.classList.contains(STATUS) : !!node.textContent?.trim()));
-    if (!content) report(event, 'TML-22', 'the event has neither a time, a title nor a body; its marker is still drawn and it is counted');
+    if (DEBUG && !content) report(event, 'TML-22', 'the event has neither a time, a title nor a body; its marker is still drawn and it is counted');
   }
   // TML-12: the current item of the list, while exactly one event is under way.
   const under = events.filter((event) => statusOf(event) === 'current');

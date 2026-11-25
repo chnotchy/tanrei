@@ -216,6 +216,9 @@ export const styles = css`
     margin-block-end: env(safe-area-inset-bottom, 0px);
   }
   ${focusRing((focus) => `.stage${focus} ~ .fit`, { inside: true })}
+  /* The fit area lies over the image's error text: it draws the indicator by its ::before, as no element, so that a
+     contrast checker still sees the text under it (focusRingBox). */
+  ${focusRingBox('.fit')}
   /* IMP-27: focus the stage took as the preview was opened by a press shows no indicator. */
   .stage[data-focus-quiet]:focus-visible ~ .fit {
     outline: none;
@@ -223,9 +226,6 @@ export const styles = css`
   .stage[data-focus-quiet]:focus-visible ~ .fit::after {
     display: none;
   }
-  /* The fit area's edge lies over the error text (IMP-31): it draws the indicator by its ::before, as no element, so that
-     a contrast checker still sees the text under it (focusRingBox). */
-  ${focusRingBox('.fit')}
 
   /* IMP-8: the bar across the top, inside the safe area, at least bar.height tall, on its own fill: the count at its
      start, the three controls at its end, bar.gap apart, centred on its height. A zoomed image passes under it.
@@ -338,7 +338,7 @@ export const styles = css`
     ${unsafeCSS(cornerRadius('--tanrei-sys-shape-corner-none'))}
   }
   ${focusRing((focus) => `.caption${focus} + .caption-focus`, { inside: true })}
-  /* It lies over the caption's text: drawn the same way, as no element (focusRingBox). */
+  /* The box lies over the caption's text: it draws the indicator by its ::before, as no element (focusRingBox). */
   ${focusRingBox('.caption-focus')}
 
   /* IMP-38: the count, the caption and the error text are each text of their own direction, isolated; the count and

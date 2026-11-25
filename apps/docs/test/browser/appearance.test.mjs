@@ -22,11 +22,12 @@ import { register } from 'node:module';
 import { after, before, describe, test } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import { serveDist } from './host.mjs';
+import { sheetKept, until } from './kept-sheet.mjs';
 import { bounded, engines, launch, settlePage } from './launch.mjs';
 
 register('../vite-shim.mjs', import.meta.url);
 const { strings } = await import('../../src/lib/i18n.ts');
-const { APPEARANCE_KEY, CUSTOM_KEY, CUSTOM_LOOK, LOOK_SHEET_ID, PENDING_ATTR } = await import('../../src/lib/appearance.ts');
+const { APPEARANCE_KEY, CUSTOM_KEY, CUSTOM_LOOK, LOOK_SHEET_ID, PENDING_ATTR, SHEET_STORE } = await import('../../src/lib/appearance.ts');
 
 const docs = fileURLToPath(new URL('../../', import.meta.url));
 const dist = path.join(docs, 'dist');
@@ -253,10 +254,12 @@ for (const engine of ENGINES) {
         const page = await context.newPage();
         await page.goto(`${origin}${PAGE}${look === CUSTOM_LOOK ? '' : `?look=${look}`}`);
         if (look === CUSTOM_LOOK) {
-          // The first page computes the theme's sheet (it may take the late path, test/browser/custom-theme.test.mjs);
-          // the next one has it kept.
+          // The first page computes the theme's sheet (it may take the late path, test/browser/custom-theme.test.mjs)
+          // and gives it to IndexedDB; the next one reads it there. The page is reloaded once IndexedDB holds it: the
+          // mark in localStorage names the sheet as soon as it is given, before the write is done, and a page reloaded
+          // before then computes the sheet again — past the reveal limit on a loaded machine.
           await bounded(`${engine}: the theme's stylesheet kept`, page.waitForFunction((id) => document.getElementById(id)?.localName === 'style' || document.documentElement.hasAttribute('data-docs-look-late'), LOOK_SHEET_ID, { timeout: 60_000 }));
-          await page.waitForFunction(() => localStorage.getItem('tanrei-docs-custom-sheet'));
+          await until(page, `${engine}: the theme's stylesheet in IndexedDB`, sheetKept, { ...SHEET_STORE, hash: 'look1acme' });
           await page.reload();
         }
         await settled(page);
