@@ -5,6 +5,7 @@
 import { type Locator, type Page, expect } from '@playwright/test';
 import { missingWords, resolveToken, setWords } from './harness.js';
 import { middlePressAimed } from './middle-press.js';
+import { askForFrame } from './frame-asked.js';
 
 /** The warnings a page's debug build reports, collected from now on. */
 export function warnings(page: Page): string[] {
@@ -141,6 +142,7 @@ export async function expectLinkActivation(page: Page, host: Locator, { focus }:
     document.body.style.minBlockSize = '400vh';
     history.replaceState(null, '', '#');
   });
+  await askForFrame(page);
 
   // A pointer: one click, then the address.
   await setHref('#by-pointer');

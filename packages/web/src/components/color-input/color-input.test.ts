@@ -16,6 +16,7 @@ import { type Fixture, acmeSystemCss, loadSpec, missingWords, mountFixtures, res
 import { PICKER_START, channels, fromChannels, given, isValue, picked, read as readText, readCommitted, sameColor, valueOf } from './color-text.js';
 import { expectBaseline } from '../../../test/baseline.js';
 import { expectBoxTakesContainerSize } from '../../../test/input-box-size.js';
+import { askForFrame } from '../../../test/frame-asked.js';
 
 const spec = loadSpec('color-input');
 type P = Page;
@@ -426,6 +427,7 @@ test.describe('behavior: the box, its name and its Field', () => {
         },
         [variant, size] as const,
       );
+      await askForFrame(page);
       const [mine, theirs] = [page.locator('[data-fixture="pair"] > tanrei-color-field'), page.locator('[data-fixture="pair"] > tanrei-text-field')];
       await expect(mine.locator('.field > .container')).toBeVisible();
       await expect(theirs.locator('.field > .container')).toBeVisible();
@@ -466,6 +468,7 @@ test.describe('behavior: the box, its name and its Field', () => {
       field.style.inlineSize = '280px';
       stage.append(field);
     });
+    await askForFrame(page);
     const field = page.locator('[data-fixture="stacked-picker"] > tanrei-text-input');
     await expect(field.locator('.picker-button')).toBeVisible();
     await frames(page, 4);

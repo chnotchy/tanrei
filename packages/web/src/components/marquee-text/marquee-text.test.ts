@@ -11,6 +11,7 @@ import { type Fixture, loadSpec, mountFixtures, resolveToken, setWords, tabTo } 
 import { motionEnded } from '../../../test/motions.js';
 import { holdClock } from '../../../test/page-clock.js';
 import { expectBaseline } from '../../../test/baseline.js';
+import { askForFrame } from '../../../test/frame-asked.js';
 
 const spec = loadSpec('marquee-text');
 type P = Page;
@@ -494,6 +495,7 @@ test.describe('behavior', () => {
       document.body.prepend(spacer);
       window.scrollTo(0, 0);
     });
+    await askForFrame(page);
     await expect.poll(async () => (await state(line)).animations).toBe(0);
     await page.evaluate(() => document.getElementById('spacer')!.remove());
     await expect.poll(async () => (await state(line)).animations).toBe(2);

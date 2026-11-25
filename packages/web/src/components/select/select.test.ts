@@ -29,6 +29,7 @@ import { expectBoxTakesContainerSize, expectOptionsTakeDrawnSize } from '../../.
 import { controlledInTree, controlledList } from '../../../test/controlled-list.js';
 import { CONTROL_HEIGHTS, atControlHeight } from '../../../test/control-height.js';
 import { restyle } from '../../../test/restyle.js';
+import { askForFrame } from '../../../test/frame-asked.js';
 
 const spec = loadSpec('select');
 type P = Page;
@@ -326,6 +327,7 @@ test.describe('behavior: the trigger', () => {
         },
         [variant, size, COUNTRY_OPTIONS] as const,
       );
+      await askForFrame(page);
       const [select, text] = [page.locator('[data-fixture="pair"] > tanrei-select-field'), page.locator('[data-fixture="pair"] > tanrei-text-field')];
       await expect(text.locator('.container')).toBeVisible();
       await expect(select.locator('.value')).toHaveText('Japan');

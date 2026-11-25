@@ -16,6 +16,7 @@ import { motionEnded } from '../../../test/motions.js';
 import { expectBaseline } from '../../../test/baseline.js';
 import { controlledElements } from '../../../test/controlled-list.js';
 import { type HeldGlyph, expectGlyphsHeldBack } from '../../../test/held-glyphs.js';
+import { askForFrame } from '../../../test/frame-asked.js';
 
 const spec = loadSpec('button-with-menu');
 type P = Page;
@@ -792,6 +793,7 @@ test.describe('behavior', () => {
       el.setAttribute('label', 'Save everything to the archive');
       (el as HTMLElement).style.inlineSize = 'min-content';
     });
+    await askForFrame(page);
     await expect.poll(async () => (await bounds(leading(page, 'filled-medium'))).height).toBeGreaterThan(one.height);
     const [a, b] = [await bounds(leading(page, 'filled-medium')), await bounds(trailing(page, 'filled-medium'))];
     expect(b.height).toBe(a.height);

@@ -19,6 +19,7 @@ import { firstStrong, runDirection } from '../../styles/product-text.js';
 import { ZERO, canonical, clamp, decimalFromString, decimalOf, format, numberForm, numberOf, read as readText, round, stepped } from './number-text.js';
 import { expectBaseline } from '../../../test/baseline.js';
 import { expectBoxTakesContainerSize } from '../../../test/input-box-size.js';
+import { askForFrame } from '../../../test/frame-asked.js';
 
 const spec = loadSpec('number-input');
 type P = Page;
@@ -395,6 +396,7 @@ test.describe('behavior: the box', () => {
         },
         [variant, size] as const,
       );
+      await askForFrame(page);
       const field = page.locator('[data-fixture="pair"] > tanrei-text-input');
       await expect(field.locator('.container')).toBeVisible();
       await frames(page);

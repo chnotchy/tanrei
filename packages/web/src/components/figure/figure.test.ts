@@ -10,6 +10,7 @@ import { decodePng } from '../../../test/png.js';
 import { type Fixture, fixturesDocument, loadSpec, mountFixtures, resolveColor, resolveToken, tab, tabTo, rootTokens } from '../../../test/harness.js';
 import { expectBaseline } from '../../../test/baseline.js';
 import { restyle } from '../../../test/restyle.js';
+import { askForFrame } from '../../../test/frame-asked.js';
 
 const spec = loadSpec('figure');
 type P = Page;
@@ -1224,6 +1225,7 @@ test.describe('the element and its stylesheet', () => {
       root.innerHTML = '<tanrei-figure variant="filled"><figure><div data-part="frame"><header><p data-part="title">In a shadow root</p></header><div data-part="stage"><div style="flex: none; inline-size: 900px; block-size: 20px"></div></div></div><figcaption>Its caption</figcaption></figure></tanrei-figure>';
       document.body.append(outer);
     });
+    await askForFrame(page);
     const inner = page.locator('#outer tanrei-figure');
     await expect(inner.locator('[data-part="stage"]')).toHaveAttribute('role', 'group');
     expect(await css(inner.locator('[data-part="frame"]'), 'background-color')).toBe(await resolveColor(page, T('filled-container-color')));

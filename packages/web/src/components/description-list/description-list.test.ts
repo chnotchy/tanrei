@@ -10,6 +10,7 @@ import { decodePng } from '../../../test/png.js';
 import { type Fixture, type FixtureItem, fixturesDocument, loadSpec, mountFixtures, resolveColor, resolveToken, tab, rootTokens } from '../../../test/harness.js';
 import { expectBaseline } from '../../../test/baseline.js';
 import { restyle } from '../../../test/restyle.js';
+import { askForFrame } from '../../../test/frame-asked.js';
 
 const spec = loadSpec('description-list');
 type P = Page;
@@ -1093,6 +1094,7 @@ test.describe('the element and its stylesheet', () => {
       root.innerHTML = '<tanrei-description-list size="small"><dl><div><dt><span style="display: inline-block; inline-size: 96px">Term</span></dt><dd>A value</dd></div></dl></tanrei-description-list>';
       document.body.append(outer);
     });
+    await askForFrame(page);
     const inner = page.locator('#outer tanrei-description-list');
     await expect(inner).toHaveAttribute('data-stacks-below', '248');
     expect(await inner.evaluate((el) => (el.getRootNode() as ShadowRoot).adoptedStyleSheets.length)).toBeGreaterThan(1);
