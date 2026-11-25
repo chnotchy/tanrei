@@ -347,7 +347,7 @@ export const tabStyles = css`
        written by the tab once it knows the row's height). */
     min-inline-size: calc(max(var(--tanrei-sys-target-pointer), var(--_th, 0px)) - var(--_trim, 0px));
     /* TAB-4: the ring is drawn around the container, never around the host. */
-    outline: none;
+    outline: none !important;
   }
   /* TAB-4: the ring reaches over the neighbouring tabs, so the focused tab is drawn above them. */
   :host(:focus-visible) {
@@ -736,7 +736,7 @@ export const tabStyles = css`
 export const panelStyles = css`
   :host {
     display: block;
-    outline: none;
+    outline: none !important;
   }
   :host([hidden]) {
     display: none;
