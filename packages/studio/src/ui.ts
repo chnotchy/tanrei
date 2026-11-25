@@ -72,6 +72,7 @@ const INSPECT_GLYPH = 'description';
 const BUILD_GLYPH = 'build';
 const HISTORY_GLYPHS = { undo: 'undo', redo: 'redo', reset: 'restart_alt' };
 const CLOSE_GLYPH = 'close';
+const DRAFT_GLYPH = 'warning';
 const NS = studio.namespace;
 
 export function mountStudio(root: HTMLElement, { lang = 'en', adapter, links = {}, saveDelay = 600, bar: hosted = {}, address = false, docs }: StudioOptions = {}) {
@@ -240,7 +241,7 @@ export function mountStudio(root: HTMLElement, { lang = 'en', adapter, links = {
     inspectButton.label = t.labelled(t.inspect.title, name);
   }
   // Export: the side sheet of the file, its stylesheet and what to do next (./ui/export.ts).
-  const exportSheet = createExportSheet(ctx, { file: adapter?.label, linked, links, onshow: (to) => show({ section: to }) });
+  const exportSheet = createExportSheet(ctx, { file: adapter?.label, linked, links, onshow: (to) => show({ section: to }), notify: (message) => notify(message) });
   const exportWord = barWord(t.exporting.open);
   const exportButton = h('tanrei-button', { variant: 'filled', size: 'small', label: t.exporting.open, onclick: () => exportSheet.open(), 'data-export-open': true }, glyph(EXPORT_GLYPH), exportWord);
   // Share: the link to the Studio with this layer, and the documentation shown in it (./ui/share.ts).
@@ -403,6 +404,12 @@ export function mountStudio(root: HTMLElement, { lang = 'en', adapter, links = {
       .then(() => snackbars.show({ message, action: t.frame.undo, closable: true, closeLabel: t.shared.close }))
       .then((answer) => answer.result === 'action' && committed === step && undo());
   }
+  /** What an action did (Export's download, its link copied), in a snackbar of its own: an offer to undo goes (Undo in the bar stays). */
+  function notify(message: string) {
+    offered = null;
+    snackbars.clear();
+    void snackbars.show({ message });
+  }
   /** A commit after the step the snackbar offers to undo: the offer goes. */
   function withdrawOffer() {
     if (!offered || committed === offered) return;
@@ -447,9 +454,14 @@ export function mountStudio(root: HTMLElement, { lang = 'en', adapter, links = {
   };
   document.addEventListener('keydown', onKey);
 
-  // Said in words wherever the person is: the text they typed at Source is still there, and is not what is saved.
-  const draftBadge = stateChip(() => show({ inspect: 'source' }), { class: 'ts-draft-badge', 'data-draft-badge': true, title: t.source.draftHelp });
-  draftBadge.say(t.source.draftBadge, 'warning');
+  // Said wherever the person is: the text they typed at Source is still there, and is not what is saved. What goes back
+  // to it: in a wider window than a phone's, a chip that says it in words; on a phone, where the bar is one line, an
+  // icon button in Inspect's place (studio.css), as the bar's other controls are there — its glyph alone, named by its
+  // label, which says the state, and shown it by its tooltip. What the draft is, is the description of each.
+  const draftChip = stateChip(() => show({ inspect: 'source' }), { 'aria-description': t.source.draftHelp, 'data-draft-badge': true });
+  draftChip.say(t.source.draftBadge, DRAFT_GLYPH);
+  const draftButton = h('tanrei-button', { variant: 'outlined', size: 'small', label: t.source.draftBadge, 'aria-description': t.source.draftHelp, onclick: () => show({ inspect: 'source' }), 'data-draft-button': true }, glyph(DRAFT_GLYPH));
+  const draftBadge = h('span', { class: 'ts-draft-badge' }, draftChip, tip(draftButton, t.source.draftBadge, true, { class: 'ts-draft-phone' }));
   /** What the frame says of where the person is: the rail's current row, Inspect open or closed, the draft. */
   function drawFrame() {
     railView.select(section);

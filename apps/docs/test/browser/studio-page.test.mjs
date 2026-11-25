@@ -135,6 +135,44 @@ for (const engine of ENGINES) {
       }
     });
 
+    for (const width of [390, 360]) {
+      test(`${width} wide, in Spanish: the start point's menu lists each example on one line, and on a long start with an invalid edit at Source the bar is still one line`, LIMIT, async () => {
+        const { page, problems, close } = await open(browser, { viewport: { width, height: 844 }, url: '/es/studio/', locale: 'es' });
+        try {
+          await page.locator('[data-start-open]').click();
+          await page.waitForFunction(() => document.querySelector('[data-start-menu]')?.open === true);
+          // The gallery as the approved design lists it, each example's line on one line of the menu.
+          const gallery = await page.locator('[data-start-group="gallery"] tanrei-menu-radio-item').evaluateAll((items) => items.map((item) => { const line = item.shadowRoot.querySelector('[part="supporting-text"]'); return [item.value, line.textContent, Math.round(line.getBoundingClientRect().height / parseFloat(getComputedStyle(line).lineHeight))]; }));
+          assert.deepEqual(gallery, [['m3-like', 'Ejemplo al estilo de Material 3', 1], ['cupertino', 'Ejemplo al estilo de Apple', 1]]);
+          await page.locator('[data-start="cupertino"]').click();
+          await page.waitForFunction(() => document.querySelector('[data-start-short]')?.textContent === 'cupertino');
+          // An edit at Source that does not parse: its button stands in the bar in Inspect's place, its glyph alone, named
+          // and with a tooltip; it opens Inspect, at Source.
+          await page.locator('[data-inspect]').click();
+          await page.locator('[data-inspect-tabs] tanrei-tab[data-value="source"]').click();
+          await page.locator('[data-source]').fill('{ "draft": ');
+          await page.keyboard.press('Escape');
+          await page.waitForFunction(() => document.querySelector('[data-inspect-sheet]')?.open === false);
+          const draft = page.locator('[data-bar] [data-draft-button]');
+          assert.deepEqual(await draft.evaluate((el) => [el.label, el.textContent.trim(), el.parentElement.localName, el.parentElement.text]), ['El JSON tiene ediciones no válidas', 'warning', 'tanrei-tooltip', 'El JSON tiene ediciones no válidas']);
+          assert.equal(await page.locator('[data-bar] [data-draft-badge]').isVisible(), false, 'the chip of a wider window is not drawn');
+          const bar = await page.evaluate(() => {
+            const shown = [...document.querySelectorAll('[data-bar] tanrei-button, [data-bar] a, [data-bar] tanrei-chip')].filter((el) => el.getClientRects().length && getComputedStyle(el).visibility !== 'hidden');
+            const middles = shown.map((el) => { const r = el.getBoundingClientRect(); return Math.round(r.top + r.height / 2); });
+            return { spread: Math.max(...middles) - Math.min(...middles), right: Math.max(...shown.map((el) => Math.round(el.getBoundingClientRect().right))) };
+          });
+          assert.ok(bar.spread <= 2 && bar.right <= width, `the bar is one line, inside the window: ${JSON.stringify(bar)}`);
+          assert.equal(await page.locator('[data-bar] [data-inspect]').isVisible(), false, 'Inspect gives the draft its place');
+          await draft.click();
+          await page.waitForFunction(() => document.querySelector('[data-inspect-sheet]')?.open === true && document.querySelector('[data-inspect-tabs]')?.value === 'source');
+          assert.equal(await page.locator('[data-source]').inputValue(), '{ "draft": ');
+          assert.deepEqual(problems, []);
+        } finally {
+          await close();
+        }
+      });
+    }
+
     test('390 wide: the preview takes the window, the rail is one line at its foot, and a row opens the panel between them; nothing scrolls sideways', LIMIT, async () => {
       const { page, problems, close } = await open(browser, { viewport: NARROW });
       try {
@@ -414,12 +452,18 @@ for (const engine of ENGINES) {
         // Written out, the file extends the root, which `init --extends` does not take: the step starts from the default.
         await page.locator('[data-export-every] tanrei-radio-button[data-value="every"]').click();
         await page.waitForFunction(() => document.querySelector('[data-export-command="npx tanrei init"]')?.code === 'npx tanrei init acme');
-        // The link: the address of this layer.
+        // At the sheet's foot, whichever tab is shown: Download, and the link — the address of this layer — said in a snackbar.
+        assert.deepEqual(await page.locator('[data-export-sheet]').evaluate((el) => [...el.querySelectorAll(':scope > [slot="actions"]')].map((action) => action.dataset.exportCopyLink === '' ? 'copy link' : action.dataset.exportDownload === '' ? 'download' : action.localName)), ['copy link', 'download']);
         if (engine === 'chromium') await page.context().grantPermissions(['clipboard-read', 'clipboard-write']);
         await page.locator('[data-export-copy-link]').click();
-        await page.waitForFunction(() => document.querySelector('[data-export-link-state]').textContent);
+        const snackbar = () => page.locator('tanrei-snackbar').last().evaluate((el) => el.message).catch(() => '');
+        // (Copied, or — where the engine refuses the clipboard — the way to copy it by hand.)
+        const answers = ['Link copied.', 'Could not copy — select the text and copy it by hand.'];
+        const deadline = Date.now() + 5000;
+        while (!answers.includes(await snackbar()) && Date.now() < deadline) await page.waitForTimeout(50);
+        assert.ok(answers.includes(await snackbar()), 'the snackbar says what was done');
         if (engine === 'chromium') {
-          assert.equal(await page.locator('[data-export-link-state]').textContent(), 'Link copied.');
+          assert.equal(await snackbar(), 'Link copied.');
           assert.equal(await page.evaluate(() => navigator.clipboard.readText()), page.url(), 'the address the layer is in');
         }
         const report = await new AxeBuilder({ page }).include('[data-export-sheet]').analyze();

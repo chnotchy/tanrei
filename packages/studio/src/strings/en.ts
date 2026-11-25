@@ -650,7 +650,10 @@ const en = {
     // The examples of the gallery, under their own title: each a showcase of what a layer can imitate, not the official
     // design it follows. The title reads as the first group's, «Start from»: a start, said as what it is made from.
     gallery: 'Theme gallery',
-    exampleNote: (name: string) => `${name}. An example, not an official design.`,
+    // Each example's line, one line of the menu: what it imitates, said as an example made after it (never as the
+    // design it imitates). An example the dictionary does not name here says only that it is one.
+    examples: open({ 'm3-like': 'A Material 3–style example', cupertino: 'An Apple-style example' }),
+    exampleNote: 'An example',
     file: 'Import a file…',
     fileNote: 'A layer file, <id>.system.json',
     // A new start and a file loaded are said in a snackbar that offers Undo; nothing is asked before either.
