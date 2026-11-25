@@ -11,7 +11,7 @@ import { describe, test } from 'node:test';
 import { fileURLToPath } from 'node:url';
 
 register('./vite-shim.mjs', import.meta.url);
-const { specimenFixtures } = await import('../src/lib/fixtures.ts');
+const { SPECIMEN_INLINE_SIZE, specimenFixtures, specimenMarkup } = await import('../src/lib/fixtures.ts');
 const { fixtureDocument } = await import('../src/lib/fixture-documents.ts');
 const { definedTags, specs, webAttribute } = await import('../src/lib/repo.ts');
 
@@ -23,7 +23,8 @@ const isGlobal = (name) => ['class', 'style', 'dir', 'lang', 'slot'].includes(na
 const elements = (html) => [...html.matchAll(/<(tanrei-[a-z0-9-]+)((?:\s+[^\s=<>"]+(?:="[^"]*")?)*)\s*>/g)].map((tag) => ({ tag: tag[1], attributes: [...tag[2].matchAll(/\s+([^\s=<>"]+)(?:="[^"]*")?/g)].map((attribute) => attribute[1]) }));
 
 describe("the landing page's specimen (components/Hero.astro)", () => {
-  const drawn = specimenFixtures(specs.button);
+  const fixtures = specimenFixtures(specs.button);
+  const drawn = fixtures.map(({ html }) => html);
   const tag = specs.button.platforms.web.name;
 
   test('draws Buttons as the web package’s document draws each fixture, and every attribute it writes is one the element reads', () => {
@@ -46,6 +47,26 @@ describe("the landing page's specimen (components/Hero.astro)", () => {
 
   test("goes nowhere and holds no state: no link, no toggle, one size, one width, the page's direction", () => {
     for (const html of drawn) assert.doesNotMatch(html, / (href|target|toggle|selected|size|width|dir)(=|[ >])/, html);
+  });
+
+  test('gives each Button the width its baseline gives it, a pixel over, and a full-width one the whole width of its place', () => {
+    const document = fixtureDocument('button');
+    const padding = Number(document.staging.match(/\.stage\s*\{[^}]*padding:\s*([\d.]+)px/)[1]);
+    for (const { html, inlineSize } of fixtures) {
+      const id = document.stages.find((stage) => stage.html.includes(`>${html}</div>`)).id;
+      const expected = / full-width[ >]/.test(html) ? '100%' : `${document.sizes[id].width - 2 * padding + 1}px`;
+      assert.equal(inlineSize, expected, id);
+    }
+  });
+
+  test('writes that width on the element, and nothing else', () => {
+    for (const fixture of fixtures) {
+      const markup = specimenMarkup(fixture);
+      const [element] = elements(markup);
+      assert.equal(element.tag, tag);
+      assert.ok(markup.includes(` style="${SPECIMEN_INLINE_SIZE}: ${fixture.inlineSize}"`), markup);
+      assert.equal(markup.replace(` style="${SPECIMEN_INLINE_SIZE}: ${fixture.inlineSize}"`, ''), fixture.html);
+    }
   });
 
   test('is markup alone: a component whose document takes a step in script has no specimen', () => {
