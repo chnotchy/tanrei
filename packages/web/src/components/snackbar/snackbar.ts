@@ -8,6 +8,7 @@ import {
   BUTTON_VARIANTS,
   type ButtonSize,
   GlyphDrawnController,
+  type PhaseRead,
   PressController,
   SystemWatchController,
   compChoice,
@@ -20,6 +21,8 @@ import {
   giveVariant,
   modalLayer,
   motionReduced,
+  cancelPhaseRead,
+  readInPhase,
   readTogether,
   report,
   styleQueries,
@@ -235,8 +238,26 @@ export class TanreiSnackbar extends TanreiElement {
 
   /**
    * One resize watch for every snackbar: a frame reports all the snackbars that changed in one callback, and each lays
-   * itself out with every other's of the turn (`readTogether`), all reads before any write. A watch of each snackbar's
-   * own would have each read after the writes of the one before, and the browser lay the page out again for each.
+   * itself out in the next frame's read phase (src/primitives/read-phase.ts), with every other's, all reads before any
+   * write. A watch of each snackbar's own would have each read after the writes of the one before, and the browser lay
+   * the page out again for each.
+   *
+   * A report after the first writes nothing. Where the action goes, whether the expand Button is drawn and whether the
+   * text is a focus stop change the bar's height, and a box that changes size in a report is reported again in that
+   * frame only if it lies deeper than every box reported before it: laid out in the report, a snackbar whose width
+   * changed in a box that changes the size of nothing above it left its bar undelivered, and the browser raised
+   * "ResizeObserver loop completed with undelivered notifications". The read phase is reported with the page's root
+   * element, so what it writes is reported in the same frame. What the frame after a change of width draws late is that
+   * arrangement: for one frame the action stands where it stood (beside the text or on its own row), and the expand
+   * Button is drawn, or not, as before. A change of the snackbar's own (its text, its action, `expanded`) is laid out in
+   * the turn of its render (`updated`), and drawn in the frame of the change.
+   *
+   * The first report is laid out in the report, so that the first frame painted is already arranged — what another
+   * element writes in that frame's read phase (a glyph drawn, `GlyphDrawnController`) may change what the bar holds.
+   * The read phase was asked for when the snackbar began to watch (`firstUpdated`), so the page's root element was
+   * reported first in that frame, and a first report comes in the same round of reports: what the layout changes is
+   * reported again in that frame. (Watched in the frame callbacks of the frame it is first drawn in, the read phase
+   * comes a frame later, and that first report is left undelivered as any other.)
    */
   private static sizes: ResizeObserver | null = null;
   /** The snackbar each watched element belongs to. */
@@ -324,6 +345,11 @@ export class TanreiSnackbar extends TanreiElement {
   appearIn(instant = false) {
     this.shown = true;
     this.appear.enter(instant);
+    // SNK-16, SNK-23: drawn before its host showed it, the bar was laid out nowhere and measured nothing. It is measured
+    // now that it is shown, with every other host's reads of the turn, so that the first frame of its entrance already
+    // stands the action where it goes and draws the expand Button. Its resize watch may have reported the bar while it
+    // was not shown: a later report is laid out a frame late (`sizes`).
+    this.layout();
   }
 
   /**
@@ -476,7 +502,13 @@ export class TanreiSnackbar extends TanreiElement {
         const snackbar = TanreiSnackbar.bars.get(entry.target);
         if (snackbar) changed.add(snackbar);
       }
-      for (const snackbar of changed) snackbar.layout();
+      for (const snackbar of changed) {
+        if (snackbar.reported) readInPhase(snackbar.layoutRead, snackbar.phaseLayout);
+        else {
+          snackbar.reported = true;
+          snackbar.layout();
+        }
+      }
     }));
     const bar = this.renderRoot.querySelector('.bar');
     const text = this.renderRoot.querySelector('.text');
@@ -485,10 +517,15 @@ export class TanreiSnackbar extends TanreiElement {
       TanreiSnackbar.bars.set(target, this);
       sizes.observe(target);
     }
+    // The first report is laid out in the report (`sizes`): the read phase is asked for so that it runs in the frame of
+    // that report, and reports the page's root element first. It reads nothing then (`phaseLayout`).
+    this.reported = false;
+    readInPhase(this.layoutRead, this.phaseLayout);
   }
 
   override disconnectedCallback() {
     super.disconnectedCallback();
+    cancelPhaseRead(this.layoutRead);
     for (const target of this.watched) {
       TanreiSnackbar.sizes?.unobserve(target);
       TanreiSnackbar.bars.delete(target);
@@ -529,19 +566,42 @@ export class TanreiSnackbar extends TanreiElement {
    * it first draws itself.
    */
   private giveButtons() {
-    readTogether(() => {
-      if (!this.isConnected) return;
-      const { size, variant } = compChoices(this, { size: ['--tanrei-comp-snackbar-close-button-size', BUTTON_SIZES], variant: ['--tanrei-comp-snackbar-close-button-variant', BUTTON_VARIANTS] });
-      return () => {
-        this.buttonSize = size;
-        for (const button of this.renderRoot?.querySelectorAll('tanrei-button.expand, tanrei-button.close') ?? []) {
-          giveSize(button, size);
-          giveVariant(button, variant);
-          giveTone(button, BUTTON_TONE);
-        }
-      };
-    });
+    readTogether(this.readButtons);
   }
+
+  /** What `giveButtons` reads, returning what it then writes. */
+  private readonly readButtons = (): (() => void) | void => {
+    if (!this.isConnected) return;
+    const { size, variant } = compChoices(this, { size: ['--tanrei-comp-snackbar-close-button-size', BUTTON_SIZES], variant: ['--tanrei-comp-snackbar-close-button-variant', BUTTON_VARIANTS] });
+    return () => {
+      this.buttonSize = size;
+      for (const button of this.renderRoot?.querySelectorAll('tanrei-button.expand, tanrei-button.close') ?? []) {
+        giveSize(button, size);
+        giveVariant(button, variant);
+        giveTone(button, BUTTON_TONE);
+      }
+    };
+  };
+
+  /** Who asks the read phase to lay the snackbar out after its resize watch was told of a change (`sizes`). */
+  private readonly layoutRead = {};
+  /** The resize watch has reported the snackbar since it began to watch it (`firstUpdated`). */
+  private reported = false;
+
+  /**
+   * `layout()` in the read phase: the Buttons' choices, then the arrangement, read before either is written. Nothing
+   * before the first report, which is laid out in the report (`sizes`): the render laid it out (`updated`).
+   */
+  private readonly phaseLayout: PhaseRead = () => {
+    if (!this.reported) return;
+    const buttons = this.readButtons();
+    const arrangement = this.readLayout();
+    if (!buttons && !arrangement) return;
+    return () => {
+      buttons?.();
+      arrangement?.();
+    };
+  };
 
   /**
    * SNK-24: the expand Button says whether the text is expanded and which text it shows and hides, on the native button
