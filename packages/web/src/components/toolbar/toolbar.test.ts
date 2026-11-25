@@ -2058,10 +2058,28 @@ test.describe('selection groups, fields and the items kept at the end', () => {
     // At most what the fade lets through 2 px from its edge — it is as deep as the token, or as the items still lie
     // beyond that edge where that is less — and the faintest difference an engine composites apart.
     const allowed = (beyond: number) => (255 * 2) / Math.min(depth, beyond) + INK;
+    // Whether item n is drawn as it is without the fade.
+    const whole = async (n: number) => {
+      const box = await bounds(member(page, id, n));
+      const shown = await page.screenshot({ clip: box });
+      await track.evaluate((el) => el.style.setProperty('mask-image', 'none'));
+      await frame();
+      const bare = await page.screenshot({ clip: box });
+      await track.evaluate((el) => el.style.removeProperty('mask-image'));
+      await frame();
+      return shown.equals(bare);
+    };
     for (const dir of ['ltr', 'rtl'] as const) {
+      // Right-to-left is set while the items are scrolled to the end left-to-right (the loop below ends there).
       await page.locator(`[data-fixture="${id}"]`).evaluate((el, d) => el.setAttribute('dir', d), dir);
       await frame();
       const rtl = dir === 'rtl';
+      // The change of direction moves the scroll position, to an end in every engine, and nothing scrolls it after: the
+      // fade is measured again for where the items now stand, so the item at that end is whole (Firefox fires no scroll
+      // event for that move).
+      const since = await track.evaluate((el) => ({ at: Math.abs(el.scrollLeft), max: el.scrollWidth - el.clientWidth }));
+      expect([0, since.max], `${dir}: where the change of direction leaves the items`).toContain(since.at);
+      expect(await whole(since.at === 0 ? 0 : 4), `${dir}: the item at the end the items stand at, once the direction changed`).toBe(true);
       const lane = await bounds(track);
       const at = await bounds(send);
       // The space between the track and Send is the surface behind the toolbar.
@@ -2079,14 +2097,7 @@ test.describe('selection groups, fields and the items kept at the end', () => {
       // Scrolled to either end, the item there is whole: drawn as it is without the fade.
       for (const [left, n] of [[0, 0], [rtl ? -max : max, 4]] as const) {
         await scrollTo(left);
-        const box = await bounds(member(page, id, n));
-        const shown = await page.screenshot({ clip: box });
-        await track.evaluate((el) => el.style.setProperty('mask-image', 'none'));
-        await frame();
-        const bare = await page.screenshot({ clip: box });
-        await track.evaluate((el) => el.style.removeProperty('mask-image'));
-        await frame();
-        expect(shown.equals(bare), `${dir}: item ${n} scrolled to`).toBe(true);
+        expect(await whole(n), `${dir}: item ${n} scrolled to`).toBe(true);
       }
     }
     // Focus: an item that stands in the fade is scrolled clear of it, or to the end, where there is none.

@@ -1,5 +1,5 @@
 import { css, unsafeCSS } from 'lit';
-import { type OpenAxis, separationHost, whenGap } from '../../primitives/index.js';
+import { type OpenAxis, directionProbeStyles, separationHost, whenGap } from '../../primitives/index.js';
 import { shape } from '../../styles/shape.js';
 
 // Every visual value is a token (tokens/comp/toolbar.tokens.json): per variant the container's color, elevation, corners,
@@ -167,6 +167,8 @@ export const styles = [
        the one that scrolls; the container does not, so the run stays in place at the end edge. */
     .track {
       box-sizing: border-box;
+      /* What holds the probe that tells the fade a change of direction (src/primitives/direction.ts). */
+      position: relative;
       flex: 0 1 auto;
       min-inline-size: 0;
       min-block-size: 0;
@@ -206,6 +208,8 @@ export const styles = [
     .container.pins.scrolls > .track::-webkit-scrollbar {
       display: none;
     }
+    /* TBR-30: what tells the fade that the direction changed (src/primitives/direction.ts), in the track's box. */
+    ${directionProbeStyles}
 
     /* TBR-4, TBR-5: floating — at its own size where the layout places it, never wider than its container; the edge
        around the whole shape, rounded by the variant's corners eased by corner smoothing. */
