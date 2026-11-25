@@ -359,6 +359,8 @@ const en = {
     stale: 'The layer has a problem: Export says what. The preview shows the last valid state.',
     emphasized: 'Emphasized',
     emphasizedHelp: 'Text styles drawn with their family’s emphasis step added to the weight (sys.typescale.emphasis.*).',
+    // The button at the end of the preview's bar, and the menu it opens: the contrast and the emphasis.
+    more: 'Contrast and emphasis',
   },
   sample: {
     headline: 'Defaults that feel right',
@@ -622,6 +624,9 @@ const en = {
     shareHelp: 'A link to the Studio with this layer in it. Whoever opens it sees your layer, and keeps their own until they choose.',
     copyLink: 'Copy link',
     linkCopied: 'Link copied.',
+    // The browser refused the clipboard. The link is the page's own address (it holds the layer), so the way to it is
+    // the address bar.
+    linkCopyFailed: 'Couldn’t copy the link. It’s this page’s address — copy it from your browser’s address bar.',
   },
   file: {
     idLocked: 'id — equals the file name; rename the file to rename the system',

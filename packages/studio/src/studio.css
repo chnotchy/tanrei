@@ -510,7 +510,8 @@
   --ts-lit-fade: var(--tanrei-sys-motion-duration-medium2);
 }
 /* The bar: the screens at its start, and at its end how they are seen — the note that none of it is saved, the scheme,
-   the contrast, the emphasis — on one line where the preview has the room, on two where it has not. */
+   and the button of the contrast and the emphasis — on one line beside the rail and the panel of a window 1440px wide,
+   in each of the Studio's languages; on two only where the person has widened the panel past that. */
 .ts-preview-bar {
   display: flex;
   flex-wrap: wrap;
@@ -537,16 +538,20 @@
   min-inline-size: 0;
   max-inline-size: 100%;
 }
+/* The note is the bar's longest words: drawn where the preview has room for it beside the screens in every language
+   (the Spanish ones are the longest), else read as the group's name and not drawn. */
 .ts-preview-note {
+  display: none;
   font: var(--tanrei-sys-typescale-label-small-font-weight) var(--tanrei-sys-typescale-label-small-font-size)/var(--tanrei-sys-typescale-label-small-line-height) var(--tanrei-sys-typescale-label-small-font-family);
   letter-spacing: var(--tanrei-sys-typescale-label-small-letter-spacing);
   color: var(--tanrei-sys-color-on-surface-variant);
 }
-@media (max-width: 63.999rem) {
-  /* The preview is short on a phone: the note is the bar's longest words, and the first to go (the group keeps its name). */
+@container ts-preview (min-width: 68rem) {
   .ts-preview-note {
-    display: none;
+    display: inline;
   }
+}
+@media (max-width: 63.999rem) {
   /* How the screens are seen is one line under their tabs, in every language: what a phone has no room for scrolls
      sideways in the line's own box (the bar is not three lines in Spanish), its controls kept whole. */
   .ts-preview-conditions {
@@ -706,12 +711,13 @@
    as each other; what the system is made of under them, across.
    How many columns is decided by the width the overview itself has — the pane's, inside the preview, beside the rail
    and the panel — never by the window's: three where each panel is still --ts-s-overview-min wide, else two, else
-   one. That least width is the content's: the notice's headline on one line, the card's sentence in at most two, in
-   each of the Studio's languages; a form's actions may take a second row. It gives two columns beside the rail and
-   the panel in a window 1440px wide, three from about 1700px, one on a phone. Three is the most: the prototype's
-   grid, and seven panels read as three rows of it. */
+   one. That least width keeps the approved design's columns beside the rail and the panel: two in a window 1280px
+   wide — with room for a scroll bar that takes its width beside the stage — and 1440px wide, three from about 1550px,
+   one on a phone. The notice's headline stays on one line in each of the Studio's languages; a form's actions may
+   take a second row, and the card's sentence a third in Spanish. Three is the most: the prototype's grid, and seven
+   panels read as three rows of it. */
 .ts-s-overview {
-  --ts-s-overview-min: 20.5rem;
+  --ts-s-overview-min: 17.5rem;
   --ts-s-overview-gap: var(--tanrei-sys-space-space150);
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(max(min(100%, var(--ts-s-overview-min)), calc((100% - 2 * var(--ts-s-overview-gap)) / 3)), 1fr));
@@ -1104,6 +1110,17 @@
 .ts-export-values tanrei-radio-group {
   max-inline-size: 100%;
 }
+/* The id and «.system.json» after it are one file name: a left-to-right run in every layout. A text field lays its
+   value out by the value's own direction and stands its suffix at its end edge, which in a right-to-left page read
+   «.system.json acme» at the field's left. There the suffix stands at the start edge, the right, and the id against
+   it — «acme.system.json», starting from the field's start. (The id is ASCII by the schema: always left-to-right.) */
+.ts-export-naming [data-id]:dir(rtl)::part(suffix) {
+  order: -1;
+  margin-inline: 0 var(--tanrei-comp-input-box-affix-gap);
+}
+.ts-export-naming [data-id]:dir(rtl)::part(input) {
+  text-align: right;
+}
 .ts-next-steps {
   display: grid;
   gap: 0.75rem;
@@ -1213,21 +1230,18 @@
 .ts-rail-link[aria-current='true'] .ts-rail-label {
   color: inherit;
 }
-/* What the row holds, and after it whether that is what the start gives. */
+/* What the row holds, and after it whether that is what the start gives: one line of text, as the approved design
+   draws a row — its name, then that line. Where the line is too long for the rail it is cut at its end with an
+   ellipsis: the word after the value goes first, then the value. The whole value is the row's name for assistive
+   technology (its text) and the line's tooltip (rail.ts). */
 .ts-rail-line {
   grid-column: 1;
-  display: flex;
-  align-items: baseline;
-  gap: var(--tanrei-sys-space-space75);
   min-inline-size: 0;
-}
-/* A value is shown whole: a long one wraps under the row's name rather than being cut. */
-.ts-rail-line {
-  flex-wrap: wrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 .ts-rail-value {
-  min-inline-size: 0;
-  overflow-wrap: anywhere;
   font-weight: 500;
 }
 /* The chevron: a row, or an item, opens its controls. It points toward the end edge. */
@@ -1242,7 +1256,7 @@
   transform: scaleX(-1);
 }
 .ts-rail-default {
-  flex: none;
+  margin-inline-start: var(--tanrei-sys-space-space75);
   font-size: var(--ts-text-2xs);
   color: var(--tanrei-sys-color-on-surface-variant);
 }

@@ -110,4 +110,10 @@ body {
   .app-session[data-shown] {
     display: none;
   }
+  /* The app's bar holds two controls the documentation's does not — Build, with the file's state, and the menu of
+     language and theme — so on a phone it leaves out redo, as the approved design's phone bar leaves out the history:
+     undo stays, and the bar is one line at 360px on the longest start (cupertino) in every language. */
+  .ts-bar-history > tanrei-tooltip:has(> [data-redo]) {
+    display: none;
+  }
 }

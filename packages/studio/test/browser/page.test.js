@@ -163,12 +163,16 @@ studioTest('the measure of the targets can fail: a control drawn 20 pixels high,
   await assert.rejects(targets('a covered button'), /button\.ts-own «low» .* a neighbour answers inside it/);
 });
 
-studioTest('the preview’s contrast switch changes what the real components draw: standard, medium, high', {}, async ({ page, scope, lightPane, choose, css, axe }) => {
+studioTest('the preview’s contrast switch changes what the real components draw: standard, medium, high', {}, async ({ page, scope, lightPane, css, axe }) => {
   const button = lightPane.locator('tanrei-button').first();
   const inner = button.locator('button');
   const seen = {};
+  // The contrast is in the menu at the end of the preview's bar: a group of three levels.
+  const menu = page.locator('[data-view-menu]');
   for (const contrast of ['standard', 'medium', 'high']) {
-    await choose(page.locator('[data-contrast]'), contrast);
+    if (!(await menu.evaluate((el) => el.open))) await page.locator('[data-view-more]').click();
+    await until(async () => menu.evaluate((el) => el.open), 'the menu is open');
+    await page.locator(`[data-contrast] tanrei-menu-radio-item[data-value="${contrast}"]`).click();
     await until(async () => (await scope.getAttribute('data-tanrei-contrast')) === contrast, `the preview scope is at ${contrast}`);
     // Colors transition; read the settled value.
     await until(async () => {
@@ -232,7 +236,30 @@ for (const locale of ['ja', 'es', 'zh-CN', 'hi']) {
     }
     // How the screens are seen stands on one line under their tabs; what a phone has no room for scrolls in its box.
     const conditions = await page.evaluate(() => [...document.querySelector('.ts-preview-conditions').children].filter((el) => el.getClientRects().length).map((el) => { const box = el.getBoundingClientRect(); return Math.round(box.top + box.height / 2); }));
-    assert.ok(conditions.length >= 3 && Math.max(...conditions) - Math.min(...conditions) <= 2, `the scheme, the contrast and the emphasis share a line: ${conditions}`);
+    assert.ok(conditions.length >= 2 && Math.max(...conditions) - Math.min(...conditions) <= 2, `the scheme, and the button of the contrast and the emphasis, share a line: ${conditions}`);
+  });
+}
+
+// The bar at 360px, on a long start, while Source holds an edit that does not parse: one line, as the documentation's
+// Studio page is — the draft's button, its glyph alone, in Inspect's place. The app's bar has Build and its menu
+// besides: on a phone it leaves out redo (undo stays).
+for (const locale of ['es', 'ja']) {
+  studioTest(`${locale}: at 360px on cupertino, with an invalid edit at Source, the bar is still one line`, { layer: { id: 'acme', extends: 'cupertino' }, locale, viewport: { width: 360, height: 800 } }, async ({ page, inspect, closeInspect }) => {
+    await inspect('source');
+    await page.locator('[data-source]').fill('{ "draft": ');
+    await closeInspect();
+    const draft = page.locator('[data-bar] [data-draft-button]');
+    await until(() => draft.isVisible(), 'the draft’s button is in the bar');
+    assert.equal(await page.locator('[data-bar] [data-inspect]').isVisible(), false, 'Inspect gives the draft its place');
+    assert.equal(await page.locator('[data-bar] [data-draft-badge]').isVisible(), false, 'the chip of a wider window is not drawn');
+    assert.deepEqual([await page.locator('[data-bar] [data-undo]').isVisible(), await page.locator('[data-bar] [data-redo]').isVisible(), await page.locator('[data-bar] [data-build]').isVisible()], [true, false, true], 'undo and Build stay, redo is left out');
+    const bar = await page.evaluate(() => {
+      const shown = [...document.querySelectorAll('[data-bar] tanrei-button, [data-bar] tanrei-chip, [data-bar] a, [data-bar] .ts-save')].filter((el) => el.getClientRects().length && getComputedStyle(el).visibility !== 'hidden');
+      const middles = shown.map((el) => { const box = el.getBoundingClientRect(); return Math.round(box.top + box.height / 2); });
+      return { spread: Math.max(...middles) - Math.min(...middles), right: Math.max(...shown.map((el) => Math.round(el.getBoundingClientRect().right))), menu: shown.some((el) => el.id === 'app-menu-open'), shown: shown.map((el, i) => `${el.localName}${el.id ? `#${el.id}` : ''}@${middles[i]}`) };
+    });
+    assert.ok(bar.spread <= 2 && bar.right <= 360 && bar.menu, `the bar is one line, inside the window: ${JSON.stringify(bar)}`);
+    assert.equal(await page.evaluate(() => document.scrollingElement.scrollWidth), 360, 'nothing scrolls sideways');
   });
 }
 

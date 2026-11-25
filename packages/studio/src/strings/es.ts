@@ -347,6 +347,7 @@ const es: Dictionary = {
     stale: 'La capa tiene un problema: Exportar dice cuál. La vista previa muestra el último estado válido.',
     emphasized: 'Con énfasis',
     emphasizedHelp: 'Los estilos de texto se dibujan con el paso de énfasis de su familia sumado al peso (sys.typescale.emphasis.*).',
+    more: 'Contraste y énfasis',
   },
   sample: {
     headline: 'Adecuado de entrada',
@@ -364,7 +365,7 @@ const es: Dictionary = {
   },
   screens: {
     label: 'Pantalla',
-    names: { overview: 'Resumen', dashboard: 'Panel', settings: 'Formulario de ajustes', list: 'Lista y detalle', docs: 'Página de documentación' },
+    names: { overview: 'Resumen', dashboard: 'Panel', settings: 'Formulario de ajustes', list: 'Lista y detalle', docs: 'Documentación' },
     mode: 'Claro u oscuro',
     modes: { light: 'Claro', dark: 'Oscuro', both: 'Uno al lado del otro' },
     conditions: 'Opciones de vista (no se guardan en el archivo)',
@@ -597,6 +598,7 @@ const es: Dictionary = {
     shareHelp: 'Un enlace al Studio con esta capa. Quien lo abra verá tu capa y conservará la suya hasta que decida.',
     copyLink: 'Copiar enlace',
     linkCopied: 'Enlace copiado.',
+    linkCopyFailed: 'No se pudo copiar el enlace. Es la dirección de esta página: cópiala desde la barra de direcciones del navegador.',
   },
   file: {
     idLocked: 'id: es igual al nombre del archivo; cambia el nombre del archivo para cambiar el del sistema',

@@ -24,7 +24,11 @@ const REST = 300;
 /** The glyph of the menu's button: declared, so that the docs site's cut-down icon file has it (packages/tools/src/glyphs.js). */
 const SHARE_GLYPH = 'link';
 
-/** Copies the address of the Studio holding this layer; what was said of it (copied, or not). */
+/**
+ * Copies the address of the Studio holding this layer; what was said of it. Where the browser refuses the clipboard,
+ * the way to the link: it is the page's own address, which the Studio keeps on the layer (`address`), so the address
+ * bar holds it.
+ */
 export async function copyLayerLink(ctx: Ctx): Promise<string> {
   const { t, studio } = ctx;
   try {
@@ -33,7 +37,7 @@ export async function copyLayerLink(ctx: Ctx): Promise<string> {
     await navigator.clipboard.writeText(`${location.origin}${location.pathname}${location.search}${withLayer(location.hash, packed)}`);
     return t.exporting.linkCopied;
   } catch {
-    return t.exporting.copyFailed;
+    return t.exporting.linkCopyFailed;
   }
 }
 
