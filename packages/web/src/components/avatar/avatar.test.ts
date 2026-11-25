@@ -35,6 +35,11 @@ const overflow = (page: P, id: string) => group(page, id).locator('.overflow');
 const T = (name: string) => `--tanrei-comp-avatar-${name}`;
 const token = (page: P, name: string) => resolveToken(page, T(name));
 const box = async (locator: Locator) => (await locator.boundingBox())!;
+/**
+ * A box's width and height to a hundredth of a pixel: Firefox reports a box that begins part of a pixel down (the
+ * stages above it are lines of the page's body text) 0.00002 px taller than the same box on a whole pixel.
+ */
+const sizeOf = (b: { width: number; height: number }) => [b.width, b.height].map((n) => Math.round(n * 100) / 100);
 const css = (locator: Locator, property: string) => locator.evaluate((el, p) => getComputedStyle(el).getPropertyValue(p), property);
 const near = (actual: number, expected: number, message = '', tolerance = 0.6) => expect(Math.abs(actual - expected), `${message}: ${actual} ≈ ${expected}`).toBeLessThanOrEqual(tolerance);
 const override = (page: P, vars: Record<string, string>) => rootTokens(page, vars);
@@ -207,7 +212,7 @@ test.describe('behavior', () => {
       expect(await token(page, `container-size-${size}`), id).toBe(side);
       for (const part of [avatar(page, id), container(avatar(page, id))]) {
         const b = await box(part);
-        expect([b.width, b.height], id).toEqual([side, side]);
+        expect(sizeOf(b), id).toEqual([side, side]);
       }
     }
     const smoothing = Number(await page.evaluate(() => getComputedStyle(document.documentElement).getPropertyValue('--tanrei-sys-shape-corner-smoothing'))) || 0;
@@ -265,7 +270,7 @@ test.describe('behavior', () => {
     for (const id of ['a', 'b', 'c']) {
       for (const part of [page.locator(`#${id}`), container(page.locator(`#${id}`))]) {
         const b = await box(part);
-        expect([b.width, b.height], id).toEqual([40, 40]);
+        expect(sizeOf(b), id).toEqual([40, 40]);
       }
     }
   });
@@ -599,7 +604,7 @@ test.describe('behavior', () => {
       await expect.poll(() => icon.getAttribute('data-drawn'), { message: id }).not.toBeNull();
       const side = await token(page, `icon-size-${size}`);
       const [outer, inner] = [await box(avatar(page, id)), await box(icon)];
-      expect([inner.width, inner.height], id).toEqual([side, side]);
+      expect(sizeOf(inner), id).toEqual([side, side]);
       near(inner.x + inner.width / 2, outer.x + outer.width / 2, `${id} centre x`);
       near(inner.y + inner.height / 2, outer.y + outer.height / 2, `${id} centre y`);
       expect(await css(icon, 'font-size'), id).toBe(`${side}px`);
@@ -618,7 +623,7 @@ test.describe('behavior', () => {
     await expect.poll(async () => (await drawn(avatar(page, 'icon'))).glyph).toBe('smart_toy');
     expect(await avatar(page, 'icon').locator('.ink').count()).toBe(0);
     const [own, given] = [await box(avatar(page, 'glyph').locator('.icon')), await box(avatar(page, 'icon').locator('.icon'))];
-    expect([given.width, given.height]).toEqual([own.width, own.height]);
+    expect(sizeOf(given)).toEqual(sizeOf(own));
     sameColor(await painted(avatar(page, 'icon').locator('> [slot="icon"]'), 'color'), await tokenColor(page, 'icon-color'), 'the slotted glyph');
     // Kept from assistive technology.
     for (const id of ['glyph', 'icon']) expect(await container(avatar(page, id)).getAttribute('aria-hidden'), id).toBe('true');
@@ -778,14 +783,11 @@ test.describe('behavior', () => {
   test('AVT-11: with the text enlarged the avatar keeps its box and its glyph at their sizes, and its initials are held to the glyph’s box of the size, so they still stand inside the avatar (the initials’ text role itself follows the text dial)', async ({ page }) => {
     await mountSpec(page, 'initials', 'initials-small', 'initials-large', 'glyph', 'glyph-small', 'glyph-large', 'square', 'group-max');
     const ids = ['initials', 'initials-small', 'initials-large', 'glyph', 'glyph-small', 'glyph-large', 'square'];
-    // A size to a hundredth of a pixel: Firefox reports a box that begins part of a pixel down (the stages above it are
-    // lines of the page's body text) 0.00002 px taller than the same box on a whole pixel.
-    const size = (b: { width: number; height: number }) => [b.width, b.height].map((n) => Math.round(n * 100) / 100);
-    const measure = async () => Object.fromEntries(await Promise.all(ids.map(async (id) => [id, [await box(avatar(page, id)).then(size), id.startsWith('glyph') ? await box(avatar(page, id).locator('.icon')).then(size) : null]] as const)));
+    const measure = async () => Object.fromEntries(await Promise.all(ids.map(async (id) => [id, [await box(avatar(page, id)).then(sizeOf), id.startsWith('glyph') ? await box(avatar(page, id).locator('.icon')).then(sizeOf) : null]] as const)));
     const before = await measure();
     // The group's size, not its place: the page's body text is enlarged too, so the lines of the stages above it are
     // taller and the group stands further down.
-    const groupSize = async () => box(group(page, 'group-max')).then(size);
+    const groupSize = async () => box(group(page, 'group-max')).then(sizeOf);
     const groupBefore = await groupSize();
     const sizeBefore = Number.parseFloat(await css(avatar(page, 'initials').locator('.label'), 'font-size'));
     // 200 % text.
@@ -833,7 +835,7 @@ test.describe('behavior', () => {
     // Drawn exactly as without one.
     const plain = await pixels(avatar(page, 'plain'));
     const anchor = await box(avatar(page, 'dot'));
-    expect([anchor.width, anchor.height]).toEqual([40, 40]);
+    expect(sizeOf(anchor)).toEqual([40, 40]);
     const badge = await box(page.locator('[data-fixture="dot"] tanrei-badge'));
     expect([badge.x, badge.y, badge.width, badge.height]).toEqual([anchor.x, anchor.y, 40, 40]);
     const anchored = await pixels(avatar(page, 'dot'));
@@ -844,7 +846,7 @@ test.describe('behavior', () => {
     const dot = await box(page.locator('[data-fixture="dot"] tanrei-badge .corner > .container'));
     near(dot.x + dot.width / 2, anchor.x + anchor.width - offset, 'the dot’s centre x');
     near(dot.y + dot.height / 2, anchor.y + offset, 'the dot’s centre y');
-    expect([dot.width, dot.height]).toEqual([dotSize, dotSize]);
+    expect(sizeOf(dot)).toEqual([dotSize, dotSize]);
     // Whole: it is not inside the avatar's clip — the pixel at its centre is the badge's color, not the avatar's.
     const dotColor = rgb(await colorOf(page, 'var(--tanrei-comp-badge-container-color)'));
     const whole = await pixels(stage(page, 'dot'));
@@ -978,7 +980,7 @@ test.describe('behavior', () => {
     // Inside its own box: the mirrored glyph's place, size and color are an unmirrored one's.
     const [mirrored, plain] = [await box(avatar(page, 'icon-rtl').locator('.icon')), await box(avatar(page, 'unmarked').locator('.icon'))];
     near(mirrored.x - (await box(avatar(page, 'icon-rtl'))).x, plain.x - (await box(avatar(page, 'unmarked'))).x, 'the same place');
-    expect([mirrored.width, mirrored.height]).toEqual([plain.width, plain.height]);
+    expect(sizeOf(mirrored)).toEqual(sizeOf(plain));
     expect(await painted(glyph('icon-rtl'), 'color')).toEqual(await painted(glyph('unmarked'), 'color'));
     // The avatar mirrors nothing itself: no part of its own is transformed, nor its picture, nor its initials.
     for (const id of ['icon-rtl', 'initials-rtl', 'picture']) {
@@ -995,14 +997,14 @@ test.describe('behavior', () => {
     // The verify: three medium members are 40 + 36 + 36 = 112 wide; the second covers the last 4 of the first, with 2 of the surface's color between the two.
     expect([await token(page, 'group-overlap-small'), await token(page, 'group-overlap-medium'), await token(page, 'group-overlap-large'), await token(page, 'group-outline-width')]).toEqual([2, 4, 8, 2]);
     const g = await box(group(page, 'group'));
-    expect([g.width, g.height]).toEqual([112, 40]);
+    expect(sizeOf(g)).toEqual([112, 40]);
     const xs = await Promise.all((await members(page, 'group').all()).map(async (m) => (await box(m)).x - g.x));
     expect(xs).toEqual([0, 36, 72]);
     for (const [id, count] of [['group-small', 2], ['group-large', 3], ['group-square', 3], ['group-image', 3]] as const) {
       const size = String(spec.fixtures.find((f) => f.id === id)!.props.size ?? 'medium');
       const [side, overlap] = [await token(page, `container-size-${size}`), await token(page, `group-overlap-${size}`)];
       const b = await box(group(page, id));
-      expect([b.width, b.height], id).toEqual([count * side - (count - 1) * overlap, side]);
+      expect(sizeOf(b), id).toEqual([count * side - (count - 1) * overlap, side]);
     }
     expect(await css(group(page, 'group'), 'display')).toBe('inline-flex');
     expect(await css(group(page, 'group').locator('.row'), 'flex-wrap')).toBe('nowrap');
@@ -1039,7 +1041,7 @@ test.describe('behavior', () => {
     expect(await own.evaluate((el) => [el.shadowRoot!.querySelectorAll('img, .icon').length, el.getAttribute('role'), el.getAttribute('aria-hidden')])).toEqual([0, 'group', null]);
     expect(await members(page, 'own').first().evaluate((el) => [el.getAttribute('size'), el.getAttribute('shape')])).toEqual(['small', 'circle']);
     const o = await box(own);
-    expect([o.width, o.height]).toEqual([2 * 24 - 2, 24]);
+    expect(sizeOf(o)).toEqual([2 * 24 - 2, 24]);
     // A container that stretches what has no size of its own leaves the group as wide as its boxes and as high as one.
     await mountHtml(page, {
       column: '<div style="display:flex;flex-direction:column;inline-size:300px"><tanrei-avatar-group id="col" label="Authors"><tanrei-avatar label="Ada Lovelace" initials="AL"></tanrei-avatar><tanrei-avatar label="Grace Hopper" initials="GH"></tanrei-avatar></tanrei-avatar-group></div>',
@@ -1047,7 +1049,7 @@ test.describe('behavior', () => {
     });
     for (const id of ['col', 'row']) {
       const b = await box(page.locator(`#${id}`));
-      expect([b.width, b.height], id).toEqual([76, 40]);
+      expect(sizeOf(b), id).toEqual([76, 40]);
     }
     await expect(own.locator('> [slot="icon"]')).toBeHidden();
   });
@@ -1081,7 +1083,7 @@ test.describe('behavior', () => {
     for (const [id, size] of [['group-max', 'medium'], ['group-large', 'large'], ['two', 'small']] as const) {
       const [side, overlap] = [await token(page, `container-size-${size}`), await token(page, `group-overlap-${size}`)];
       const [b, last, g] = [await box(overflow(page, id)), await box(members(page, id).nth((await shown(id)).length - 1)), await box(group(page, id))];
-      expect([b.width, b.height], id).toEqual([side, side]);
+      expect(sizeOf(b), id).toEqual([side, side]);
       expect(b.x - last.x, id).toBe(side - overlap);
       near(b.x + b.width, g.x + g.width, `${id}: the last box`);
       sameColor(await painted(overflow(page, id), 'background-color'), await tokenColor(page, 'container-color'), `${id} fill`);
@@ -1233,7 +1235,7 @@ test.describe('behavior', () => {
     near(more.x, g.x, 'the overflow box is leftmost');
     expect(boxes[2].x - more.x).toBe(40 - overlap);
     expect(await overflow(page, 'group-max-rtl').locator('.count').textContent()).toBe('+3');
-    expect([g.width, g.height]).toEqual([4 * 40 - 3 * overlap, 40]);
+    expect(sizeOf(g)).toEqual([4 * 40 - 3 * overlap, 40]);
     // The same size as the left-to-right row.
     expect(g.width).toBe((await box(group(page, 'group-max'))).width);
     // Each following box is above the one before it, over its left end.
@@ -1369,7 +1371,7 @@ test.describe('behavior', () => {
     expect(await look('added')).toMatchObject({ box: [96, 96], radius: '12px', pill: '0' });
     expect(await css(avatar(page, 'added').locator('.label'), 'font-size')).toBe('32px');
     const added = await box(group(page, 'added-group'));
-    expect([added.width, added.height]).toEqual([2 * 96 - 24, 96]);
+    expect(sizeOf(added)).toEqual([2 * 96 - 24, 96]);
     expect((await box(overflow(page, 'added-group'))).width).toBe(96);
     expect(await css(overflow(page, 'added-group'), 'border-top-left-radius')).toBe('12px');
     await frames(page);
@@ -1644,7 +1646,7 @@ test.describe('fixtures', () => {
       const a = avatar(page, f.id);
       await expect(a, f.id).toBeVisible();
       const b = await box(a);
-      expect([b.width, b.height], f.id).toEqual([side, side]);
+      expect(sizeOf(b), f.id).toEqual([side, side]);
       if (f.props.src === 'fixtures/avatar.png') await pictured(a);
       else if (f.props.initials) expect((await drawn(a)).label, f.id).toBe(f.props.initials);
       else await expect.poll(async () => (await drawn(a)).glyph, { message: f.id }).toBe(f.slots?.icon ?? (f.props.shape === 'square' ? 'category' : 'person'));
