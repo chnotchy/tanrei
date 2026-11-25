@@ -67,15 +67,23 @@ const near = (a: string, b: string, within = 10) => {
   const [x, y] = [a, b].map((c) => c.match(/\d+/g)!.map(Number));
   return x.every((v, i) => Math.abs(v - y[i]) <= within);
 };
-/** Pixels on the middle of the arc's stroke at the given turns (0 = the top, clockwise), with the rotation at 0. */
+/**
+ * Pixels on the middle of the arc's stroke at the given turns (0 = the top, clockwise), with the rotation at 0. They are
+ * found from the indicator's box as laid out, in a picture of the whole pixels around it: the indicator can begin part
+ * of a pixel along (in right-to-left, at the end of a stage as wide as its words) or down (below a line of the page's
+ * text), and a picture of the element itself is cut at whole pixels, a pixel larger, with the indicator that part of a
+ * pixel in — its middle is not the picture's.
+ */
 async function arcAt(page: P, id: string, turns: number[]) {
   await at(indicator(page, id), 0, 'rotate');
-  const shot = decodePng(await indicator(page, id).screenshot());
+  const b = await indicator(page, id).evaluate((el) => { const r = el.getBoundingClientRect(); return { x: r.x, y: r.y, width: r.width, height: r.height }; });
+  const clip = { x: Math.floor(b.x), y: Math.floor(b.y), width: Math.ceil(b.x + b.width) - Math.floor(b.x), height: Math.ceil(b.y + b.height) - Math.floor(b.y) };
+  const shot = decodePng(await page.screenshot({ clip }));
   const dpr = await page.evaluate(() => devicePixelRatio);
-  const size = shot.width / dpr;
   const stroke = Number.parseFloat(await css(circle(page, id), 'stroke-width'));
-  const r = (size - stroke) / 2;
-  return turns.map((t) => shot.at(Math.round((size / 2 + r * Math.sin(2 * Math.PI * t)) * dpr), Math.round((size / 2 - r * Math.cos(2 * Math.PI * t)) * dpr)));
+  const r = (b.width - stroke) / 2;
+  const [cx, cy] = [b.x - clip.x + b.width / 2, b.y - clip.y + b.height / 2];
+  return turns.map((t) => shot.at(Math.round((cx + r * Math.sin(2 * Math.PI * t)) * dpr), Math.round((cy - r * Math.cos(2 * Math.PI * t)) * dpr)));
 }
 const SIZES = [['small', 'small'], ['medium', 'medium'], ['large', 'large']] as const;
 
