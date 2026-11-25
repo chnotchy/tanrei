@@ -71,7 +71,7 @@ const PASSED_SLOTS = ['label-icon', 'leading-icon'];
  * listener. It dispatches none itself. `toggle` is composed and does not bubble: it is heard on this element and by no
  * ancestor.
  *
- * Form-associated: it submits the value under `name` — nothing while disabled —, resets to its `value` attribute, is
+ * Form-associated: it submits the value under `name` — nothing while disabled —, resets to the value it was first given, is
  * restored on navigation, follows a disabled `<fieldset>`, and reports a missing value while `required` is
  * set and the value is empty.
  *

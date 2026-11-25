@@ -72,38 +72,58 @@ function serverProps(elementClass: Declared, attributes: ServerAttributes, props
   return html;
 }
 
-/** The ref `focusedAtMount` gives the element for each of the product's: the map itself stands for no ref. */
-const focusing = new WeakMap<object, (element: HTMLElement | null) => unknown>();
+/** An element as the ref sees it: whether it has drawn, and how it is told its first props have been given. */
+type Mounted = HTMLElement & { hasUpdated?: boolean; takeFormDefaults?: () => void };
+
+/** The refs `atMount` gives the element for each of the product's, without and with `autoFocus`: a map itself stands for no ref. */
+const mounting = [new WeakMap<object, (element: Mounted | null) => unknown>(), new WeakMap<object, (element: Mounted | null) => unknown>()] as const;
+
+/** The elements told their first props have been given: each once, whatever ref it is given later. */
+const defaulted = new WeakSet<Element>();
 
 /**
- * React's `autoFocus`, given as React gives it to a native control: the element is focused when it mounts, whatever had
- * focus, and not when the page is hydrated (the server's HTML carries the attribute, which the element answers at load).
- * React leaves a custom element's `autoFocus` to the browser's `autofocus`, which the browser answers only while nothing
- * has focus: a field revealed by a press on a button stayed unfocused. The attribute is still written, so that a dialog
- * or a sheet that opens later gives focus to the control marked with it. Returns the ref to give the element, which
- * then calls the product's.
+ * What the wrapper does when its element mounts. Returns the ref to give the element, which then calls the product's.
  *
- * An element the client mounts is attached before its first update, and keeps a `focus()` called then until it has
- * drawn. An element of a hydrated page has drawn by then, and so has one attached again (a ref given anew at a render):
- * React's own focuses neither. No hook, so that the wrapper's render stays a plain function of its props; one ref for
- * each of the product's, so that a ref that stays the same between renders is not detached and attached again at each.
+ * The props of the first render are the element's first values, which a form's reset returns it to (a native control's
+ * `defaultValue` and `defaultChecked`, as React's own controls take them from the first render). An element the client
+ * mounts takes them before it first draws; an element of a page rendered on a server has drawn already, from the
+ * attributes the server wrote, and takes the rest — a list no attribute carries — only now. So each element is told
+ * once, after the render that gave its first props (`takeFormDefaults()`): the refs are attached before `@lit/react`
+ * sets the props in a layout effect of the same commit, so it is told in a microtask, once the commit has ended.
+ *
+ * `autoFocus` is given as React gives it to a native control: the element is focused when it mounts, whatever had focus,
+ * and not when the page is hydrated (the server's HTML carries the attribute, which the element answers at load). React
+ * leaves a custom element's `autoFocus` to the browser's `autofocus`, which the browser answers only while nothing has
+ * focus: a field revealed by a press on a button stayed unfocused. The attribute is still written, so that a dialog or a
+ * sheet that opens later gives focus to the control marked with it. An element the client mounts is attached before its
+ * first update, and keeps a `focus()` called then until it has drawn. An element of a hydrated page has drawn by then,
+ * and so has one attached again (a ref given anew at a render): React's own focuses neither.
+ *
+ * No hook, so that the wrapper's render stays a plain function of its props; one ref for each of the product's, so that
+ * a ref that stays the same between renders is not detached and attached again at each.
  */
-function focusedAtMount(ref: React.ForwardedRef<unknown>) {
-  let own = focusing.get(ref ?? focusing);
+function atMount(ref: React.ForwardedRef<unknown>, focus: boolean) {
+  const refs = mounting[focus ? 1 : 0];
+  let own = refs.get(ref ?? refs);
   if (!own) {
-    own = (element: (HTMLElement & { hasUpdated?: boolean }) | null) => {
-      if (element?.hasUpdated === false) element.focus();
+    own = (element: Mounted | null) => {
+      if (element && !defaulted.has(element)) {
+        defaulted.add(element);
+        queueMicrotask(() => element.takeFormDefaults?.());
+      }
+      if (focus && element?.hasUpdated === false) element.focus();
       if (typeof ref === 'function') return ref(element);
       if (ref) ref.current = element;
     };
-    focusing.set(ref ?? focusing, own);
+    refs.set(ref ?? refs, own);
   }
   return own;
 }
 
 /**
  * A wrapper that renders on a server as well as in the browser. Where there is a document it renders `Component`, which
- * sets the props as properties once the element mounts (`@lit/react`), and gives React's `autoFocus` (`focusedAtMount`).
+ * sets the props as properties once the element mounts (`@lit/react`), tells the element its first props have been
+ * given and gives React's `autoFocus` (`atMount`).
  * Where there is none (a server: Node, Deno, Bun, an edge runtime) it renders the element's tag with each prop the
  * element reads from an attribute written as that attribute — under the attribute's name, by the element's own
  * converter — so the HTML carries the label, the value and the states before any script runs. The attributes the
@@ -116,7 +136,7 @@ export function withServerAttributes<C>(Component: C, tagName: string, elementCl
     // Whether there is a document never changes while a page or a server runs, so the hooks the client's render calls
     // are called at every render of the wrapper, or at none.
     if (typeof document === 'undefined') return React.createElement(tagName, serverProps(elementClass as Declared, attributes, props), props.children as React.ReactNode);
-    return client.render(props, props.autoFocus ? focusedAtMount(ref) : ref);
+    return client.render(props, atMount(ref, !!props.autoFocus));
   });
   Wrapper.displayName = client.displayName;
   return Wrapper as unknown as C;
