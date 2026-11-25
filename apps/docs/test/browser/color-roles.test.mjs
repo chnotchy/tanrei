@@ -92,9 +92,9 @@ const KNOWN_NOT_DRAWN = {
   'menu selected: trailing-icon': AS_ON_MAIN,
   'menu selected: group-title': AS_ON_MAIN,
   'menu selected: divider': AS_ON_MAIN,
-  // TAB-18: at rest the state layer is drawn as no element (hidden, its ::before drawing it, so that a contrast checker
-  // still checks the label under it), which the figure does not find yet.
-  'tabs primary · selected: state-layer': 'drawn as no element (its ::before), which the figure does not find yet',
+  // TAB-24: on the selected tab the plain label is hidden, and its covered copy is drawn in its place, over the active
+  // indicator in covered-label.color; the figure's fixture shows the selected tab, so its label row has no label drawn.
+  'tabs primary · selected: label': 'the selected tab draws its covered copy of the label (covered-label.color) and hides the plain one',
   'tabs primary · selected: icon': 'the fixture’s tabs have labels and no icons',
   'text-field outlined: field.label': AS_ON_MAIN,
   'text-field outlined: field.label-icon': AS_ON_MAIN,
