@@ -156,7 +156,7 @@ async function rootSystem() {
   return { chain, model, checked };
 }
 
-async function generateSystems(outputs, iconSets, systemIconSets, lockLayers) {
+async function generateSystems(outputs, iconSets, systemIconSets, lockLayers, defaultModel) {
   for (const id of presetIds()) {
     const { files } = buildBundle(REPO_ROOT, layerChain(id, readLayer));
     const bundleDir = `tokens/generated/${id}`;
@@ -180,7 +180,7 @@ async function generateSystems(outputs, iconSets, systemIconSets, lockLayers) {
       [`${bundleDir}/a11y-report.json`]: presetAccessibilityReport(id, measurements, checked),
       // Exactness, measured against the published system this preset reproduces.
       ...(fidelityMaps(REPO_ROOT).includes(id) ? { [`${bundleDir}/fidelity.json`]: measureFidelity(model, loadFidelityMap(id)) } : {}),
-      [`packages/web/src/generated/systems/${id}.css`]: banner + emitCss(model, { scope: id, ...sheetAvailability(layerChain(id, readLayer), held(), standIns()) }),
+      [`packages/web/src/generated/systems/${id}.css`]: banner + emitCss(model, { scope: id, defaultModel, ...sheetAvailability(layerChain(id, readLayer), held(), standIns()) }),
       ...designToolExports(model, `design/tokens/${id}`),
       // Native values of the preset, next to the default system's: same vocabulary types, one more value.
       // Opt-in by reference — an app that never names the constant does not carry it.
@@ -226,12 +226,12 @@ async function generate() {
   }
   const root = await rootSystem();
   const rootSheet = `packages/web/src/generated/systems/${ROOT_SYSTEM}.css`;
-  write(rootSheet, emitCss(root.model, { scope: ROOT_SYSTEM, ...sheetAvailability(root.chain, held(), standIns()) }));
+  write(rootSheet, emitCss(root.model, { scope: ROOT_SYSTEM, defaultModel: model, ...sheetAvailability(root.chain, held(), standIns()) }));
   outputs.push(rootSheet);
   console.log(`✔ root system "${ROOT_SYSTEM}": ${Object.keys(root.model.tokens).length} tokens, all invariants hold — ${checkedLine(root.checked)}`);
   const systemIconSets = { [DEFAULT_SYSTEM]: iconSetOf(ir, iconSets) };
   const lockLayers = {};
-  await generateSystems(outputs, iconSets, systemIconSets, lockLayers);
+  await generateSystems(outputs, iconSets, systemIconSets, lockLayers, model);
   write('tokens/vocabulary.lock.json', vocabularyLock(model, lockLayers));
   outputs.push('tokens/vocabulary.lock.json');
   // The mirrored glyph names of each icon set, and the set of each system: read by the web's icon helper.

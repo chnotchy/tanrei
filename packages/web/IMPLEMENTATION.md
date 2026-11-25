@@ -5340,10 +5340,9 @@ least the minimum target wide and never narrower than its indicator is tall. A l
 a tab that fills truncates it at its end (the left one in RTL) with an ellipsis, and the icon never shrinks. The tabs
 scroll sideways when they do not fit and the scroll bar is hidden (a wheel, a trackpad, a drag from a tab that is not
 selected, or the arrow keys scroll them); a tab brought into view keeps `track.padding` beside it.
-`active-indicator.height` is read by nothing.
 
 **The indicator's box (TAB-16, TAB-18).** Each tab has one box, centred in it: `track.padding` in from the row's top and
-bottom, so the same height on every tab (40 in a 48 row, 56 with stacked icons, in the default system). In a row that hugs
+bottom, so the same height on every tab (28 in a 36 row, 56 in a 64 row with stacked icons, in the default system). In a row that hugs
 it is as wide as the tab's content plus `active-indicator.padding-inline` on each side (the tab itself, by the default
 alias), never wider than the tab and never narrower than it is tall — and exactly as wide as it is tall where the
 content is not wider than it is tall (an icon alone, one full-width character, a one-letter label): a circle. In a row

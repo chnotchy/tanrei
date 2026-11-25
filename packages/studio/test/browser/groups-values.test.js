@@ -18,6 +18,8 @@ studioTest('the brand color and the size reach the file and the preview; another
   await section('size');
   assert.deepEqual(await page.locator('[data-controls] [data-panel]').evaluateAll((els) => els.map((el) => el.dataset.panel)), ['size']);
   assert.deepEqual(await page.locator('[data-panel="size"] [data-dial]').evaluateAll((els) => els.map((el) => el.dataset.dial)), ['tanrei.dial.control.height', 'tanrei.dial.size.unit', 'tanrei.sys.target.minimum']);
+  // Each number is named by what it does: the token ids are Inspect's and Export's, not the row's panel's.
+  assert.deepEqual(await page.locator('[data-panel="size"] .ts-row-title').evaluateAll((els) => els.filter((el) => el.querySelector('code') || /dial\.|sys\./.test(el.textContent)).map((el) => el.textContent)), []);
   const height = page.locator('[data-dial="tanrei.dial.control.height"]');
   const heightBefore = (await css(scope, '--tanrei-dial-control-height')).trim();
   // Under it, a Button, a field, a menu row and a tab of the preview's system.
@@ -29,13 +31,14 @@ studioTest('the brand color and the size reach the file and the preview; another
   await page.keyboard.press('ArrowRight');
   await saved((layer) => layer.tokens?.['tanrei.dial.control.height']?.$value?.value === 37, 'the control height');
   await until(async () => (await css(scope, '--tanrei-dial-control-height')).trim() !== heightBefore, 'the preview’s control height follows');
-  assert.equal(await page.locator('[data-rail] [data-row="size"] .ts-rail-value').textContent(), '37px · 4px · target 36px');
+  assert.equal(await page.locator('[data-rail] [data-row="size"] .ts-rail-value').textContent(), '37px · minimum 36px');
   await until(async () => (await buttonHeight()) === 37, 'the sample Button follows the control height');
   // Under the control height, the heights it gives: the ladder's small, medium and large, what a control of each size draws.
   const heights = page.locator('[data-panel="size"] [data-heights]');
   await until(async () => (await heights.textContent()) === 'Heights at this control height: small 29px · medium 37px · large 53px', 'the heights at 37');
   await height.locator('tanrei-button', { hasText: 'Reset' }).click();
-  await saved((layer) => !layer.tokens['tanrei.dial.control.height'], 'reset');
+  // The brand color writes a palette alone: with the height reset, the layer may hold no token at all.
+  await saved((layer) => !layer.tokens?.['tanrei.dial.control.height'], 'reset');
   await until(async () => (await heights.textContent()) === 'Heights at this control height: small 28px · medium 36px · large 52px', 'the heights at 36');
   const unit = page.locator('[data-dial="tanrei.dial.size.unit"]');
 
@@ -47,7 +50,7 @@ studioTest('the brand color and the size reach the file and the preview; another
   await page.keyboard.press('ArrowLeft');
   await saved((layer) => layer.tokens?.['tanrei.sys.target.minimum']?.$value?.value === 35, 'the minimum target');
   await until(async () => (await css(scope, '--tanrei-sys-target-minimum')).trim() !== targetBefore, 'the preview’s minimum target follows');
-  assert.equal(await page.locator('[data-rail] [data-row="size"] .ts-rail-value').textContent(), '36px · 4px · target 35px');
+  assert.equal(await page.locator('[data-rail] [data-row="size"] .ts-rail-value').textContent(), '36px · minimum 35px');
   // The minimum moves the hit areas, not what a control draws.
   await until(async () => (await heights.textContent()) === 'Heights at this control height: small 28px · medium 36px · large 52px', 'the heights stay');
   // A number past the control's ends is brought within them: the file never holds a minimum the build refuses.
@@ -68,16 +71,16 @@ studioTest('the brand color and the size reach the file and the preview; another
   // The row's reset takes back both.
   await page.locator('[data-reset-dials="size"]').click();
   await saved((layer) => !layer.tokens?.['tanrei.sys.target.minimum'] && !layer.tokens?.['tanrei.dial.size.unit'], 'reset all');
-  assert.ok(onDisk().tokens['tanrei.sys.color.primary'], 'the default system is monochrome: a brand color comes with the roles that use it');
+  // The default system's primary is monochrome: the brand color is a palette alone in the file, and the engine draws
+  // the preview's primary from it — not the default system's near-black the page's own root holds.
+  assert.deepEqual(onDisk(), { id: 'acme', extends: 'tanrei', palettes: { primary: { source: { seed: '#0f766e' } } } });
+  const primary = (await css(scope, '--tanrei-sys-color-primary')).trim();
+  assert.notEqual(primary, (await css(page.locator('html'), '--tanrei-sys-color-primary')).trim(), 'the preview’s primary is the brand’s');
 
-  // Another base: operations are relative to what they inherit, so the person is asked first — and may say no.
+  // Another base: operations are relative to what they inherit, so the layer starts from that base's defaults — one
+  // step, said with the way to undo it, as a new start from the bar is.
   await section('base');
   assert.match(await page.locator('[data-base-description]').textContent(), /\w/);
-  page.once('dialog', (dialog) => dialog.dismiss());
-  await choose(page.locator('[data-base]'), 'm3-like');
-  await until(async () => (await page.locator('[data-base]').evaluate((el) => el.value)) === 'tanrei', 'declined: the base stays, and the control says so');
-  assert.equal(onDisk().extends, 'tanrei');
-  page.once('dialog', (dialog) => dialog.accept());
   await choose(page.locator('[data-base]'), 'm3-like');
   await saved((layer) => layer.extends === 'm3-like', 'the base');
   assert.deepEqual(Object.keys(onDisk()), ['id', 'extends'], 'it starts from that base’s defaults');
@@ -92,8 +95,7 @@ studioTest('a layer with every value written out extends the root: the Base syst
   assert.equal(await base.evaluate((el) => el.value), 'core');
   assert.deepEqual(await base.locator('tanrei-radio-button').evaluateAll((els) => els.filter((el) => el.checked).map((el) => el.value)), ['core'], 'one choice is checked: the base the layer has');
   assert.match(await page.locator('[data-base-description]').textContent(), /root layer/);
-  // Another base is chosen as from any other (the layer holds a color: the person is asked).
-  page.once('dialog', (dialog) => dialog.accept());
+  // Another base is chosen as from any other.
   await choose(base, 'm3-like');
   await saved((layer) => layer.extends === 'm3-like', 'the base');
 });

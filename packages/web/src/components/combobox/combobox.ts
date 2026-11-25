@@ -50,6 +50,7 @@ import '../loading-indicator/loading-indicator.js';
 import '../option/option.js';
 import { formOf, pressDefaultButton } from '../../primitives/default-button.js';
 import { FormDisabledController } from '../../primitives/form-disabled.js';
+import { FormDefault } from '../../primitives/form-default.js';
 import { FormSays } from '../../primitives/form-says.js';
 import { AXES, CORE_SIZES, INSET, PREFIX, styles } from './combobox.styles.js';
 import { disabledWaitsWhileFocused } from '../../primitives/disabled-while-focused.js';
@@ -155,7 +156,7 @@ function whenParsed(task: () => void) {
  * a commit or the clear button.
  *
  * It is a block as wide as its place, with no width of its own. It is a form-associated element: it takes `name`,
- * submits `value` (never an uncommitted text), resets to the `value` attribute, is restored on navigation, follows
+ * submits `value` (never an uncommitted text), resets to the value it was first given, is restored on navigation, follows
  * `<fieldset disabled>` and reports `valueMissing` while the Field that frames it says it is required and `value` is
  * empty. It never validates beyond that, and is never required by itself.
  *
@@ -313,13 +314,13 @@ export class TanreiCombobox extends TanreiElement {
   /** Whether one value is chosen (`single`: `value`, shown as the text of the input) or any number (`multiple`: `values`, each drawn as a chip before the input). Reflected. */
   selection: TanreiComboboxSelection = 'single';
 
-  /** The committed choice while selection is single: the chosen option's value, or, with `allowCustomValue`, a text the person typed that names no option. Empty while nothing is chosen. The `value` attribute is the value a form reset returns to. Ignored while selection is multiple. */
+  /** The committed choice while selection is single: the chosen option's value, or, with `allowCustomValue`, a text the person typed that names no option. Empty while nothing is chosen. The value it is first given — by the `value` attribute or as the property — is what a form reset returns to. Ignored while selection is multiple. */
   value = '';
 
   /**
    * The chosen values while selection is multiple, in the order they were chosen; a value repeated is drawn once.
    * Assign a new array to change it: the combobox assigns one when the person chooses or removes, and fires `change`.
-   * The `values` attribute — a JSON array, or words — is what a form reset returns to. Ignored while selection is single.
+   * The values it is first given — by the `values` attribute (a JSON array, or words) or as the property — are what a form reset returns to. Ignored while selection is single.
    */
   values: string[] = [];
 
@@ -426,6 +427,9 @@ export class TanreiCombobox extends TanreiElement {
   /** CMB-15: the input has focus, however it was gained. */
   protected focused = false;
   private readonly fieldset = new FormDisabledController(this);
+  /** What a form's reset returns `value` and `values` to: what they were first given, as a native control's defaults. */
+  private readonly valueDefault = new FormDefault(this, () => this.value, 'value', (text) => text ?? '');
+  private readonly valuesDefault = new FormDefault(this, () => [...(this.values ?? [])], 'values', parseValues);
   /** A disabled `<fieldset>` around the element, as the platform says it (src/primitives/form-disabled.ts). */
   protected get formDisabled(): boolean {
     return this.fieldset.byFieldset;
@@ -846,9 +850,9 @@ export class TanreiCombobox extends TanreiElement {
   }
 
   formResetCallback() {
-    this.value = this.getAttribute('value') ?? '';
-    // CMB-78: several values reset to the `values` attribute.
-    this.values = parseValues(this.getAttribute('values'));
+    this.value = this.valueDefault.value;
+    // CMB-78: several values reset to the values first given.
+    this.values = [...this.valuesDefault.value];
     if (this.multiple) this.write('');
     this.settle();
     this.requestUpdate();

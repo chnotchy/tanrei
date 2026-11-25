@@ -14,6 +14,7 @@ import { decodePng, paintedColor } from '../../../test/png.js';
 import { readSeam } from '../../../test/seam.js';
 import { motionEnded } from '../../../test/motions.js';
 import { expectBaseline } from '../../../test/baseline.js';
+import { expectPulseKeepsFloor, resolveOpacity, samplePulse } from '../../../test/pulse-floor.js';
 import { controlledElements } from '../../../test/controlled-list.js';
 import { type HeldGlyph, expectGlyphsHeldBack } from '../../../test/held-glyphs.js';
 
@@ -2244,7 +2245,7 @@ test.describe('busy', () => {
     }
   });
 
-  test('SPB-39: under reduced motion the label and the icon are drawn again, and stop being drawn, at once, and the arc does not turn: the whole circle, its opacity easing once per cycle', async ({ page }) => {
+  test('SPB-39: under reduced motion the label and the icon are drawn again, and stop being drawn, at once, and the arc does not turn: the whole circle, its opacity easing from 1 down to the floor and back once per cycle', async ({ page }) => {
     await page.emulateMedia({ reducedMotion: 'reduce' });
     await mountFixtures(page, spec, { icons: true, fixtures: [saving] });
     const drawn = await leading(page, 'saving').evaluate((el) => {
@@ -2258,6 +2259,19 @@ test.describe('busy', () => {
       expect(seen.frames[0]!.probe, `busy ${busy}`).toMatchObject({ label: busy ? 0 : 1, icon: busy ? 0 : 1, iconShown: !busy, arc: busy });
       expect(seen.motions.filter((motion) => motion.name === 'opacity' || motion.name === 'visibility'), `busy ${busy}`).toEqual([]);
     }
+  });
+
+  test('SPB-39: under reduced motion the busy circle is never drawn below the pulse floor — sampled over a whole cycle, computed and painted', async ({ page }) => {
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    await mountFixtures(page, spec, { icons: true, fixtures: [saving] });
+    const duration = await resolveToken(page, T('motion-busy-cycle-duration'), 'duration');
+    const floor = await resolveOpacity(page, T('motion-busy-pulse-floor-opacity'));
+    const arc = leading(page, 'saving').locator('.busy-arc');
+    const size = await arc.evaluate((el) => Number.parseFloat(getComputedStyle(el).inlineSize));
+    const stroke = await arc.locator('circle').evaluate((el) => Number.parseFloat(getComputedStyle(el).strokeWidth));
+    // The top of the circle, on the middle of its stroke; and its middle, where the container shows through the label
+    // that is not drawn.
+    expectPulseKeepsFloor(await samplePulse(arc, arc, { duration, mark: [size / 2, stroke / 2], ground: [size / 2, size / 2] }), floor, 'saving');
   });
 
   test('SPB-40: a busy leading half keeps its focus and its place in the focus order, emits no click by any means, exposes aria-disabled and busyLabel after the product’s description, has busyLabel announced once and nothing when it ends; the trailing half still toggles and its menu works; disabled, busy changes nothing; an empty busyLabel is reported', async ({ page }) => {

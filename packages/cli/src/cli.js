@@ -1,5 +1,6 @@
 // tanrei — build your own design system on Tanrei.
 //   tanrei init <id> [--extends <system>]   write a starter layer file and tanrei.json
+//   tanrei init --from <id>.system.json      put a layer file you have (Theme Studio's download) in place, and tanrei.json
 //   tanrei build [--config tanrei.json]      one layer in → tokens + code for every platform the product ships
 //   tanrei validate [--config tanrei.json]   schema + vocabulary rules + a trial build in memory; nothing written
 //   tanrei explain <token> [--config …]      the value, where it comes from layer by layer, and what a layer may write
@@ -34,6 +35,7 @@ export function shippedSystems() {
 const help = () => `tanrei — build your own design system on Tanrei
 
   tanrei init <id> [--extends ${shippedSystems().join('|')}]
+  tanrei init --from <id>.system.json
   tanrei build     [--config ${CONFIG_FILE}] [--check]
   tanrei validate  [--config ${CONFIG_FILE}]
   tanrei explain <token-id> [--config ${CONFIG_FILE}]
@@ -49,6 +51,9 @@ ${CONFIG_FILE}:
       ${TARGETS.map((t) => `"${t}": "…"`).join(', ')}
     }
   }
+
+init --from takes a layer file you already have — the one Theme Studio's Export downloads — checks it against the
+schema and the vocabulary rules, copies it unchanged to design/<id>.system.json and writes ${CONFIG_FILE} beside it.
 
 --check writes nothing and fails if a committed output is out of date (for CI).
 
@@ -240,7 +245,53 @@ A target under ${TARGET_THRESHOLDS.minimum}px (WCAG 2.5.8) or a pressable height
 under the minimum, or a minimum above the control height, is refused. \`tanrei explain <token-id>\` shows what "${parent}" sets each to.`;
 }
 
-function init([id], flags) {
+/** The starter tanrei.json: the layer, and the two outputs every product has a use for; the others are added by hand. */
+const starterConfig = (id) => `${JSON.stringify({ system: `design/${id}.system.json`, outputs: { tokens: `design/tokens/${id}`, web: 'src/styles' } }, null, 2)}\n`;
+
+/**
+ * `init --from <file>`: start the product from a layer file it already has (Theme Studio's download). The file is
+ * checked against the schema and the vocabulary rules, as `validate` checks it before its trial build — on its own,
+ * with the systems this version ships as its parents, since it is the only file copied — and copied byte for byte to `design/<id>.system.json`, its id read from
+ * the file (a browser may have renamed the download). Nothing is written when it is refused, or when either file is
+ * already there.
+ */
+function initFrom(from, positional) {
+  if (typeof from !== 'string') throw new Error('usage: tanrei init --from <id>.system.json');
+  const source = path.resolve(from);
+  if (!fs.existsSync(source) || !fs.statSync(source).isFile()) throw new Error(`${from} not found`);
+  const text = fs.readFileSync(source, 'utf8');
+  let layer;
+  try {
+    layer = JSON.parse(text);
+  } catch (error) {
+    throw new Error(`${from} is not JSON: ${error.message}`);
+  }
+  const id = layer && typeof layer === 'object' ? layer.id : undefined;
+  if (typeof id !== 'string' || !/^[a-z][a-z0-9-]*$/.test(id)) throw new Error(`${from}: "id" must be lowercase letters, digits and hyphens`);
+  if (positional.length && positional[0] !== id) throw new Error(`${from} is the layer "${id}", not "${positional[0]}": leave the id out, init --from reads it from the file`);
+  const problems = validateSystem({ layers: [layer] });
+  if (problems.length) {
+    console.error(`✖ ${from} is not a layer tanrei build takes — ${problems.length} problem(s):\n${problems.map((p) => `  - ${p}`).join('\n')}`);
+    return 1;
+  }
+  const target = `design/${id}.system.json`;
+  const layerFile = path.resolve(target);
+  if (fs.existsSync(CONFIG_FILE)) throw new Error(`${CONFIG_FILE} already exists: this product has its layer. Put the file where its "system" names instead`);
+  const inPlace = layerFile === source;
+  if (!inPlace && fs.existsSync(layerFile)) throw new Error(`${target} already exists`);
+  if (!inPlace) {
+    fs.mkdirSync(path.dirname(layerFile), { recursive: true });
+    fs.writeFileSync(layerFile, text);
+  }
+  fs.writeFileSync(CONFIG_FILE, starterConfig(id));
+  console.log(`✔ ${inPlace ? `kept ${target}` : `copied ${from} to ${target}`} and wrote ${CONFIG_FILE}. Add the outputs you ship, then run \`tanrei build\`.`);
+  console.log(initGuide(layer.extends));
+  return 0;
+}
+
+function init(positional, flags) {
+  if (flags.from !== undefined) return initFrom(flags.from, positional);
+  const [id] = positional;
   if (!id || !/^[a-z][a-z0-9-]*$/.test(id)) throw new Error('usage: tanrei init <id>   (lowercase letters, digits and hyphens)');
   const parent = typeof flags.extends === 'string' ? flags.extends : 'tanrei';
   if (!shippedSystems().includes(parent)) throw new Error(`"${parent}" is not a shipped system. Try one of: ${shippedSystems().join(', ')}`);
@@ -256,7 +307,7 @@ function init([id], flags) {
   };
   fs.mkdirSync(path.dirname(layerFile), { recursive: true });
   fs.writeFileSync(layerFile, `${JSON.stringify(layer, null, 2)}\n`);
-  fs.writeFileSync(CONFIG_FILE, `${JSON.stringify({ system: `design/${id}.system.json`, outputs: { tokens: `design/tokens/${id}`, web: 'src/styles' } }, null, 2)}\n`);
+  fs.writeFileSync(CONFIG_FILE, starterConfig(id));
   console.log(`✔ wrote design/${id}.system.json and ${CONFIG_FILE}. Edit the layer, add the outputs you ship, then run \`tanrei build\`.`);
   console.log(initGuide(parent));
   return 0;

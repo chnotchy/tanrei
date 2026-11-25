@@ -9,6 +9,7 @@ import fs from 'node:fs';
 import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
 import { type Fixture, acmeSystemCss, loadSpec, missingWords, mountFixtures, requirementDrawn, resolveColor, resolveToken, setWords, tab, tabTo, inputBoxCopies, inputBoxSetApart, inputBoxToken, rootTokens, mountFixtureAsInAll } from '../../../test/harness.js';
+import { coveredText } from '../../../test/covered-text.js';
 import { appearingFixture } from '../../../test/first-frame.js';
 import { expectFirstFrameAtRest } from '../../../test/frames.js';
 import { opticalSize } from '../../../test/icons.js';
@@ -384,6 +385,24 @@ test.describe('behavior', () => {
     await mountHtml(page, `<form><tanrei-text-input name="a" value="1" disabled label="A"></tanrei-text-input><fieldset disabled><tanrei-text-input name="b" value="2" label="B"></tanrei-text-input></fieldset><tanrei-text-input name="c" value="3" label="C"></tanrei-text-input></form>`);
     expect(await page.evaluate(() => [...new FormData(document.querySelector('form')!).entries()])).toEqual([['c', '3']]);
     await expect(page.locator('fieldset tanrei-text-input').getByRole('textbox', { disabled: true })).toHaveCount(1);
+  });
+
+  test('TXI-5, TXI-15: the prefix and the suffix of a disabled field are exposed as part of the disabled control — its own disabled or a fieldset’s — and not once it is enabled again', async ({ page }) => {
+    await mountHtml(
+      page,
+      `<tanrei-text-input id="own" label="Price" value="12" prefix-text="US$" suffix-text="per kg" disabled></tanrei-text-input><fieldset disabled><tanrei-text-input id="fieldset" label="Price" value="12" prefix-text="US$" suffix-text="per kg"></tanrei-text-input></fieldset><tanrei-text-input id="enabled" label="Price" value="12" prefix-text="US$" suffix-text="per kg"></tanrei-text-input>`,
+    );
+    const affixes = (id: string) => page.locator(`#${id}`).locator('[part="prefix"], [part="suffix"]');
+    for (const id of ['own', 'fieldset']) {
+      await expect(affixes(id), id).toHaveCount(2);
+      for (const affix of await affixes(id).all()) await expect(affix, id).toHaveAttribute('aria-disabled', 'true');
+    }
+    for (const affix of await affixes('enabled').all()) await expect(affix).not.toHaveAttribute('aria-disabled');
+    // Still read with the value, as TXI-15 has it: the description names both.
+    await expect(page.locator('#own input')).toHaveAttribute('aria-describedby', 'prefix suffix');
+    await page.locator('#own').evaluate((el: HTMLElement & { disabled: boolean }) => (el.disabled = false));
+    await page.locator('fieldset').evaluate((el: HTMLFieldSetElement) => (el.disabled = false));
+    for (const id of ['own', 'fieldset']) for (const affix of await affixes(id).all()) await expect(affix, `${id} enabled again`).not.toHaveAttribute('aria-disabled');
   });
 
   test('TXI-6: hovered and focused render every part from their tokens, focused over hovered; pointer focus selects focused', async ({ page }) => {
@@ -5259,6 +5278,7 @@ test.describe('accessibility', () => {
       await mountFixtures(page, spec, { theme, icons: true });
       const results = await new AxeBuilder({ page }).include('.stage').analyze();
       expect(results.violations, `${theme}: ${results.violations.map((v) => v.id).join(', ')}`).toEqual([]);
+      expect(await coveredText(page, results), `${theme}: no text left unchecked as covered`).toEqual([]);
     }
   });
 

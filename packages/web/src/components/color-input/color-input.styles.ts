@@ -93,7 +93,7 @@ export const styles = css`
   :host {
     display: block;
     min-inline-size: 0;
-    outline: none;
+    outline: none !important;
   }
   :host([hidden]) {
     display: none;

@@ -234,9 +234,15 @@ test.describe('drawing', () => {
     expect(box.y + box.height).toBeCloseTo(stage.y + stage.height, 1);
   });
 
-  test('BSH-8: the content is inset by container.padding at the start, end and bottom (the top too without a handle), reaches the edges when flush, is clipped, and gets content.color and the body role', async ({ page }) => {
+  test('BSH-8: the content is inset by container.padding at the start, end and bottom (the top too without a handle or a header, content.padding-block-start below a header), reaches the edges when flush, is clipped, and gets content.color and the body role', async ({ page }) => {
     const probe = `<span id="t">${SHORT}</span>`;
-    await mount(page, [fx('s', {}, probe), fx('bare', { handle: false }, probe), fx('flush', { inset: false }, probe)]);
+    await mount(page, [
+      fx('s', {}, probe),
+      fx('bare', { handle: false }, probe),
+      fx('flush', { inset: false }, probe),
+      fx('titled', { headline: 'Save photo', closable: true, closeLabel: 'Close' }, probe),
+      fx('titled-flush', { headline: 'Save photo', inset: false }, probe),
+    ]);
     const pad = await px(page, T('container-padding'));
     const row = (await px(page, T('handle-container-height'))) + 2 * (await px(page, T('handle-margin-block')));
     const inner = (id: string) => bounds(host(page, id).locator('.inner'));
@@ -251,6 +257,16 @@ test.describe('drawing', () => {
     const flush = await bounds(sheet(page, 'flush'));
     expect((await inner('flush')).x).toBeCloseTo(flush.x, 1);
     expect((await inner('flush')).y).toBeCloseTo(flush.y + row, 1);
+    // Below a header: the inset content's first line content.padding-block-start under the header (8 in the default
+    // system, clear of the header and its divider); flush content reaches the header.
+    const below = await px(page, T('content-padding-block-start'));
+    expect(below).toBe(8);
+    const titledHeader = await bounds(host(page, 'titled').locator('.header'));
+    expect((await inner('titled')).y).toBeCloseTo(titledHeader.y + titledHeader.height + below, 1);
+    const rule = await bounds(host(page, 'titled').locator('.header .divider'));
+    expect((await inner('titled')).y - (rule.y + rule.height)).toBeGreaterThanOrEqual(below - (await px(page, T('divider-width'))) - 0.5);
+    const flushHeader = await bounds(host(page, 'titled-flush').locator('.header'));
+    expect((await inner('titled-flush')).y).toBeCloseTo(flushHeader.y + flushHeader.height, 1);
     await expect(content(page)).toHaveCSS('overflow-y', 'auto');
     await expect(content(page)).toHaveCSS('overflow-x', 'hidden');
     // Without a handle the content's top corners are the container's.

@@ -153,7 +153,17 @@ export async function openStudio({ layer = { id: 'acme', extends: 'tanrei' }, pa
   const onDisk = () => JSON.parse(fs.readFileSync(file, 'utf8'));
   const scope = page.locator('[data-scope]');
   const choose = (group, value) => group.locator(`> tanrei-radio-button[data-value="${value}"], > tanrei-tab[data-value="${value}"]`).click();
+  /** Close Inspect, as a person does: its sheet's close button. (Inspect is a modal sheet: the rest waits until it is closed.) */
+  const closeInspect = async () => {
+    const sheet = page.locator('[data-inspect-sheet]');
+    if (!(await sheet.evaluate((el) => el.open))) return;
+    await sheet.getByRole('button', { name: await sheet.getAttribute('close-label'), exact: true }).click();
+    await page.waitForSelector('[data-studio][data-pane="edit"]');
+    // (Until it has slid out, what it holds stands past the window's edge.)
+    await sheet.evaluate((el) => Promise.all(el.shadowRoot.getAnimations().map((animation) => animation.finished.catch(() => {}))));
+  };
   const section = async (name) => {
+    await closeInspect();
     await page.locator(`[data-rail] [data-row="${name}"]`).click();
     await page.waitForSelector(`[data-studio][data-section="${name}"][data-pane="edit"]`);
   };
@@ -182,6 +192,7 @@ export async function openStudio({ layer = { id: 'acme', extends: 'tanrei' }, pa
     section,
     /** Open Inspect at one of its tabs (`tokens`, `source`), as a person does: the bar's Inspect, then the tab. */
     inspect,
+    closeInspect,
     /** A section, or a tab of Inspect: what the panel's column can hold. */
     view: (name) => (VIEWS.slice(-2).includes(name) ? inspect(name) : section(name)),
     /** Choose an option of a `<tanrei-select>`, a `<tanrei-combobox>` or a `<tanrei-combobox-field>` as a person does: open it, type towards the option, press it. */
@@ -227,7 +238,10 @@ export async function openStudio({ layer = { id: 'acme', extends: 'tanrei' }, pa
         // (Up the tree as it is drawn: a row of tabs scrolls its tabs in a box inside its shadow root.)
         const above = (el) => el.assignedSlot ?? el.parentElement ?? el.getRootNode().host;
         // Of a component — its host and what is inside its shadow root — only a box that SCROLLS counts: one that cuts (a card's corners) would hide the fault.
-        const holds = (up) => (up.getRootNode() instanceof ShadowRoot || up.localName.includes('-') ? ['auto', 'scroll'].includes(getComputedStyle(up).overflowX) : getComputedStyle(up).overflowX !== 'visible');
+        // The Studio is the window (its root clips what would spill out of it), and its panel is a column that scrolls
+        // by itself (on a phone, a sheet as wide as the window): what they hold must fit, neither cut off nor scrolled
+        // sideways, so it is measured against the window as the page is.
+        const holds = (up) => !up.matches('[data-inspector], [data-studio]') && (up.getRootNode() instanceof ShadowRoot || up.localName.includes('-') ? ['auto', 'scroll'].includes(getComputedStyle(up).overflowX) : getComputedStyle(up).overflowX !== 'visible');
         const clipped = (el) => { for (let up = above(el); up; up = above(up)) if (up instanceof Element && holds(up) && up.getBoundingClientRect().right <= innerWidth + 1) return true; return false; };
         const hidden = (el) => el.closest('[hidden], details:not([open]) > :not(summary)') || getComputedStyle(el).position === 'absolute' || clipped(el);
         return { page: document.scrollingElement.scrollWidth, width: innerWidth, wide: [...host.querySelectorAll('*')].filter((el) => !hidden(el) && el.getBoundingClientRect().width > 0 && el.getBoundingClientRect().right > innerWidth + 1).map((el) => `<${el.tagName.toLowerCase()} class="${el.className}"> “${(el.textContent ?? '').trim().slice(0, 40)}” in ${el.closest('[data-panel]')?.getAttribute('data-panel') ?? el.parentElement?.className} (right edge ${Math.round(el.getBoundingClientRect().right)})`).slice(0, 5) };

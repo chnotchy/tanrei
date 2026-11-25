@@ -70,6 +70,7 @@ Un sistema de diseño es un pequeño archivo JSON que *extiende* otro. Sobre tod
 | Que este token use otro paso | reorienta el alias |
 | Que este valor concreto no se mueva hagan lo que hagan los diales | fija `$value` con un `reason` |
 | Un color de marca o de dominio con sus propios roles `on-` y `-container`, con el contraste comprobado | declara una paleta con `"roles": "intent"` |
+| Tu color de marca en la acción principal y en los controles seleccionados | declara una paleta llamada `primary`: los roles primarios salen de ella en todos los esquemas, con el contraste comprobado, sea cual sea la paleta de la que los sacaba el sistema que extiendes |
 
 Como el código de todas las plataformas se genera a partir del mismo sistema resuelto, un solo pull request cambia a la vez la web, SwiftUI, Compose, Flutter y React Native.
 

@@ -965,6 +965,7 @@ private object AcmeSystemSource {
             containerPartialFraction = 0.5f,
             containerShape = 12.dp,
             contentColor = TanreiPaint.Role(TanreiColorRole.OnSurface),
+            contentPaddingBlockStart = 8.dp,
             dividerColor = TanreiPaint.Role(TanreiColorRole.OutlineVariant),
             dividerVisibility = 0f,
             dividerWidth = 1.dp,
@@ -1140,6 +1141,7 @@ private object AcmeSystemSource {
             dividerThickness = 1.dp,
             motionBusyCycleDuration = 1000,
             motionBusyFadeDuration = 200,
+            motionBusyPulseFloorOpacity = 0.7f,
             motionFeedbackDuration = 450,
             motionHoverCloseDelay = 300,
             motionHoverOpenDelay = 300,
@@ -1435,6 +1437,7 @@ private object AcmeSystemSource {
             containerShape = 9999.dp,
             motionBusyCycleDuration = 1000,
             motionBusyFadeDuration = 200,
+            motionBusyPulseFloorOpacity = 0.7f,
             motionFeedbackDuration = 450,
             motionStateEasing = TanreiCubicBezier(x1 = 0.2f, y1 = 0f, x2 = 0f, y2 = 1f),
             toneContainerOpacity = 0.16f,
@@ -5282,6 +5285,7 @@ private object AcmeSystemSource {
             motionEnterDuration = 250,
             motionEnterEasing = TanreiCubicBezier(x1 = 0.2f, y1 = 0f, x2 = 0f, y2 = 1f),
             motionEntrance = 0f,
+            motionPulseFloorOpacity = 0.7f,
             motionShowDelay = 300,
             sizes = TanreiLoadingIndicatorSizes(
                 small = TanreiLoadingIndicatorSizeTokens(indicatorSize = 16.dp, indicatorThickness = 2.dp, containerSize = 24.dp),
@@ -6764,6 +6768,7 @@ private object AcmeSystemSource {
             indicatorColor = TanreiPaint.Role(TanreiColorRole.Primary),
             motionCycleDuration = 1000,
             motionCycleEasing = TanreiCubicBezier(x1 = 0.2f, y1 = 0f, x2 = 0f, y2 = 1f),
+            motionPulseFloorOpacity = 0.7f,
             motionShowDelay = 300,
             motionValueDuration = 300,
             motionValueEasing = TanreiCubicBezier(x1 = 0.2f, y1 = 0f, x2 = 0f, y2 = 1f),
@@ -7612,6 +7617,7 @@ private object AcmeSystemSource {
             containerPaddingInline = 24.dp,
             containerWidth = 320.dp,
             contentColor = TanreiPaint.Role(TanreiColorRole.OnSurface),
+            contentPaddingBlockStart = 8.dp,
             dividerColor = TanreiPaint.Role(TanreiColorRole.OutlineVariant),
             dividerVisibility = 0f,
             dividerWidth = 1.dp,
@@ -8640,7 +8646,6 @@ private object AcmeSystemSource {
     @Suppress("UNUSED_PARAMETER")
     fun tabs(typescale: TanreiTypescale, elevation: TanreiElevation): TanreiTabsTokens =
         TanreiTabsTokens(
-            activeIndicatorHeight = 32.dp,
             containerGap = 4.dp,
             containerHeightWithIcon = 64.dp,
             containerShape = 9999.dp,

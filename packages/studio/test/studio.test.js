@@ -92,13 +92,11 @@ test('Essentials: four controls and a color write the minimal layer', async () =
   layer = studio.setEssential(layer, 'shape.unit', 4);
   layer = studio.setEssential(layer, 'type.contrast', 1.2);
   const reason = 'Chosen in Theme Studio.';
-  // The default system's primary is monochrome (valued from neutral): a brand color declares the palette and points
-  // the five primary roles at it. That, the four dials, and the size unit and the control height that spacing takes
-  // with it — nothing else.
+  // The default system's primary is monochrome (valued from neutral): a brand color declares the palette alone, and
+  // the engine draws the primary roles from it. That, the four dials, and the size unit and the control height that
+  // spacing takes with it — nothing else.
   assert.deepEqual(layer.palettes, { primary: { source: { seed: '#0b57d0' } } });
-  const roles = Object.keys(layer.tokens).filter((id) => id.startsWith('tanrei.sys.color.'));
-  assert.deepEqual(roles.sort(), ['inverse-primary', 'on-primary', 'on-primary-container', 'primary', 'primary-container'].map((role) => `tanrei.sys.color.${role}`));
-  assert.deepEqual(Object.fromEntries(Object.entries(layer.tokens).filter(([id]) => !roles.includes(id))), {
+  assert.deepEqual(layer.tokens, {
     'tanrei.dial.type.base': { $value: { value: 17, unit: 'px' }, reason },
     'tanrei.dial.space.unit': { $value: { value: 10, unit: 'px' }, reason },
     // Spacing takes the size unit and the control height with it (8 → 10 is 4 → 5 and 36 → 45), and the control height
@@ -110,8 +108,11 @@ test('Essentials: four controls and a color write the minimal layer', async () =
     'tanrei.dial.type.contrast': { $value: 1.2, reason },
   });
   assert.deepEqual(Object.keys(layer), ['id', 'extends', 'palettes', 'tokens']);
-  assert.deepEqual(studio.setPalette(layer, 'primary', undefined).palettes, undefined, 'resetting the color takes its role operations away too');
-  assert.ok(!Object.keys(studio.setPalette(layer, 'primary', undefined).tokens).some((id) => id.startsWith('tanrei.sys.color.')));
+  assert.deepEqual(studio.setPalette(layer, 'primary', undefined).palettes, undefined);
+  // The brand color is what the primary roles are drawn in, in every scheme: the filled button, the selected
+  // controls, links.
+  const primary = studio.preview(layer).model.colors;
+  for (const scheme of Object.keys(primary)) assert.notEqual(primary[scheme].primary.value.hex, studio.preview(studio.blank()).model.colors[scheme].primary.value.hex, scheme);
   await assertPreviewIsTheBuild(layer, { warnings: (warnings) => assert.ok(!warnings.some((w) => /cannot hold its content/.test(w)), 'proportional sizes keep every button tall enough') });
 
   // Once someone sets the size unit on its own (Groups), Essentials leaves it alone.

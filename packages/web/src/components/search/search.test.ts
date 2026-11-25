@@ -19,6 +19,7 @@ import {
   withoutIconFont,
   rootTokens,
 } from '../../../test/harness.js';
+import { coveredText } from '../../../test/covered-text.js';
 import { opticalSize } from '../../../test/icons.js';
 import { motionCount, motionEnded } from '../../../test/motions.js';
 import { mirroring, mirroringAfterDirection } from '../../../test/mirror-word.js';
@@ -2468,9 +2469,17 @@ test.describe('forwarded trailing content', () => {
       },
       [id, texts] as const,
     );
-  /** The bar's action buttons and the text laid out among them, in the order they are drawn: each one's kind and the space before it, from the end of the one before (rounded to a hundredth). */
+  /**
+   * The bar's action buttons and the text laid out among them, in the order they are drawn: each one's kind and the
+   * space before it, from the end of the one before (rounded to a hundredth).
+   *
+   * A run of text is taken as the box it is laid out in, which begins and ends on the engine's layout unit (1/60 px in
+   * Firefox, 1/64 px in the others) at or outside its glyphs: WebKit reports a range's rectangle as the glyphs' own
+   * advance, up to a unit inside that box, so in the body face a Button 10 px after a text stood 10.0127 px from the
+   * text's last glyph.
+   */
   const row = (page: P, id: string) =>
-    page.evaluate((id) => {
+    page.evaluate(([id, unit]) => {
       const wrapper = document.querySelector(`[data-fixture="${id}"] [data-wrapper]`);
       const search = (wrapper?.shadowRoot ?? document.querySelector(`[data-fixture="${id}"]`)!).querySelector('tanrei-search')!;
       const items: { kind: string; left: number; right: number }[] = [];
@@ -2483,14 +2492,15 @@ test.describe('forwarded trailing content', () => {
           else if (node.textContent!.trim()) {
             const range = document.createRange();
             range.selectNodeContents(node);
-            items.push({ kind: 'text', ...range.getBoundingClientRect().toJSON() });
+            const glyphs = range.getBoundingClientRect();
+            items.push({ kind: 'text', left: Math.floor(glyphs.left / unit + 0.01) * unit, right: Math.ceil(glyphs.right / unit - 0.01) * unit });
           }
         }
       };
       walk((wrapper ?? search).childNodes);
       items.sort((a, b) => a.left - b.left);
       return items.slice(1).map((item, n) => `${item.kind} ${Math.round((item.left - items[n].right) * 100) / 100}`);
-    }, id);
+    }, [id, page.context().browser()!.browserType().name() === 'firefox' ? 1 / 60 : 1 / 64] as const);
 
   test('SRC-34, SRC-27: Buttons forwarded to the trailing slot keep the space SRC-34 keeps before each, the text among them laid out where it is written and taking none of it; the text is reported in a debug build, white space is not', async ({ page }) => {
     const seen = warnings(page);
@@ -2755,6 +2765,7 @@ test.describe('accessibility', () => {
       await motionEnded(page);
       const results = await new AxeBuilder({ page }).include('.stage').analyze();
       expect(results.violations, `${theme}: ${results.violations.map((v) => `${v.id} ${v.nodes.map((n) => n.target).join(' ')}`).join(', ')}`).toEqual([]);
+      expect(await coveredText(page, results), `${theme}: no text left unchecked as covered`).toEqual([]);
     }
     // The live docked view, open with an active suggestion.
     await mount(page, [live('s', { value: 'inv' })]);

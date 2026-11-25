@@ -1306,6 +1306,11 @@
             "$value": "{tanrei.comp.loading-indicator.motion.cycle-duration}",
             "$description": "One turn of the busy arc (BTN-36): the loading indicator's. Under reduced motion it does not turn, and its opacity eases once per this time instead."
           },
+          "busy-pulse-floor-opacity": {
+            "$type": "number",
+            "$value": "{tanrei.comp.loading-indicator.motion.pulse-floor-opacity}",
+            "$description": "The opacity the busy circle eases down to at the low point of each pulse under reduced motion (BTN-36): the loading indicator's, so that a busy button is never drawn as an empty container."
+          },
           "busy-fade-duration": {
             "$type": "duration",
             "$value": "{tanrei.sys.motion.role.state.compact}",

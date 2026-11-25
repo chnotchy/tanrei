@@ -12,6 +12,7 @@ import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
 import { boxAtRest } from '../../../test/at-rest.js';
 import { loadSpec, missingWords, mountFixtures, resolveToken, setWords, tab } from '../../../test/harness.js';
+import { coveredText } from '../../../test/covered-text.js';
 import { expectBaseline } from '../../../test/baseline.js';
 
 const spec = loadSpec('chip-field');
@@ -1302,6 +1303,7 @@ test.describe('accessibility', () => {
       await mountFixtures(page, spec, { theme, icons: true });
       const results = await new AxeBuilder({ page }).include('.stage').analyze();
       expect(results.violations, theme).toEqual([]);
+      expect(await coveredText(page, results), `${theme}: no text left unchecked as covered`).toEqual([]);
     });
   }
 

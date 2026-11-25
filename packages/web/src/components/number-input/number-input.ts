@@ -24,6 +24,7 @@ import type { TanreiInputBoxSizeRegistry, TanreiInputBoxVariantRegistry } from '
 import '../button/button.js';
 import { formOf, pressDefaultButton } from '../../primitives/default-button.js';
 import { FormDisabledController } from '../../primitives/form-disabled.js';
+import { FormDefault } from '../../primitives/form-default.js';
 import { FormSays } from '../../primitives/form-says.js';
 import { AXES, CORE_SIZES, INSET, styles } from './number-input.styles.js';
 import { runDirection } from '../../styles/product-text.js';
@@ -131,7 +132,7 @@ function whenParsed(task: () => void) {
  * Field it takes the Field's name, description and required, invalid and disabled states, floats the Field's label
  * in the filled and the outlined look, and tells the Field where its number's line starts and ends. It is a
  * form-associated element: it takes `name`, submits its value as a plain decimal number ("12.5") whatever the locale
- * shows, resets to the `value` attribute, is restored on navigation, follows `<fieldset disabled>` and reports
+ * shows, resets to the value it was first given, is restored on navigation, follows `<fieldset disabled>` and reports
  * `valueMissing` while its Field says it is required and it holds no value, and `badInput` while it holds a text that
  * is not a number.
  *
@@ -231,7 +232,7 @@ export class TanreiNumberInput extends TanreiElement {
     return this.sizes.drawn;
   }
 
-  /** The committed number, or null while the input holds none. It changes when the person commits — focus leaves, Enter, a step — not on every keystroke; `input` carries what is being typed. The `value` attribute is a plain decimal number ("12.5"), and the value a form reset returns to. */
+  /** The committed number, or null while the input holds none. It changes when the person commits — focus leaves, Enter, a step — not on every keystroke; `input` carries what is being typed. The `value` attribute is a plain decimal number ("12.5"); the value it is first given — by the attribute or as the property — is what a form reset returns to. */
   get value(): number | null {
     return this.given;
   }
@@ -319,6 +320,8 @@ export class TanreiNumberInput extends TanreiElement {
   /** NMI-15: the input has focus, however it was gained. */
   protected focused = false;
   private readonly fieldset = new FormDisabledController(this);
+  /** What a form's reset returns `value` to: the number it was first given, as a native control's `defaultValue`. */
+  private readonly valueDefault = new FormDefault(this, () => numberOrNull(this.value), 'value', numberOrNull);
   /** A disabled `<fieldset>` around the element, as the platform says it (src/primitives/form-disabled.ts). */
   protected get formDisabled(): boolean {
     return this.fieldset.byFieldset;
@@ -548,7 +551,7 @@ export class TanreiNumberInput extends TanreiElement {
   }
 
   formResetCallback() {
-    this.resetTo(numberOrNull(this.getAttribute('value')));
+    this.resetTo(this.valueDefault.value);
   }
 
   /**

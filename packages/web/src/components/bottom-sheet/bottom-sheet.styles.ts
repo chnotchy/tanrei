@@ -316,7 +316,7 @@ export const styles = css`
   )}
 
   /* BSH-8, BSH-10: the content, below the handle's row — inset by container.padding from the start, end and bottom (and
-     the top, without a handle) unless flush; clipped to the container's shape; in the body role; scrolling inside the
+     the top, without a handle or a header; content.padding-block-start below a header) unless flush; clipped to the container's shape; in the body role; scrolling inside the
      container when it is taller than the room the sheet gives it. */
   .middle {
     position: relative;
@@ -355,6 +355,11 @@ export const styles = css`
   }
   .sheet:not(.has-handle):not(.has-header) .content.inset {
     padding-block-start: ${t('container-padding')};
+  }
+  /* BSH-8: below a header, the inset content starts content.padding-block-start lower, so that its first line keeps
+     clear of the header and its divider. */
+  .sheet.has-header .content.inset {
+    padding-block-start: ${t('content-padding-block-start')};
   }
   /* Below a header the content's top corners meet the header, not the container's. */
   .sheet.has-header :is(.content, .focus) {

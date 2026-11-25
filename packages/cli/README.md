@@ -16,6 +16,8 @@ npx tanrei build
 
 `init` writes two files. `design/acme.system.json` is your design system — a *layer*: it changes values of the shared vocabulary and declares palettes; what it adds goes under `vocabulary`, additively and with a `rationale`.
 
+Made your layer in [Theme Studio](../studio/README.md)? Start from the file it downloads instead: `npx tanrei init --from acme.system.json` checks it, copies it unchanged to `design/acme.system.json` and writes `tanrei.json`.
+
 ```json
 {
   "id": "acme",
@@ -80,6 +82,7 @@ The vocabulary *types* always come from the library; a build only writes your sy
 | | |
 |---|---|
 | `tanrei init <id> [--extends <system>]` | starter layer + `tanrei.json`, and a summary of the dials and the minimum target |
+| `tanrei init --from <id>.system.json` | start from a layer file you already have — the one Theme Studio's Export downloads. It is checked against the schema and the vocabulary rules, with the systems this version ships as its parents; then copied unchanged to `design/<id>.system.json`, the id read from the file (not its name), and `tanrei.json` is written. Nothing is written when the file is refused or when `tanrei.json` or the destination already exists. The link Theme Studio copies is not taken: save the file and pass its path |
 | `tanrei build [--check]` | generate; `--check` writes nothing and fails when a committed output is stale (CI). Prints the font families the system names (text: brand, plain, mono; icons: unselected, selected) — fonts are referenced by name and never bundled, so the product installs or registers them |
 | `tanrei validate` | schema and vocabulary rules, then a trial build in memory (nothing is written), failing on what `tanrei build` refuses in every layer (a pointer or touch target under `sys.target.minimum`); prints the accessibility/structure warnings `tanrei build` would print (what concerns the whole system first — e.g. `pressed-feedback: dim` while every pressed opacity is 1), and warns when a font stack has no system or generic fallback |
 | `tanrei explain <token-id>` | the value (a choice of kind by its name), which layer or pattern rule gives it — every matching rule, with the one that wins and why — and what a layer may write for it |

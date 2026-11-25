@@ -365,7 +365,7 @@
     },
     {
       "id": "NMI-32",
-      "text": "WHILE disabled is true — set by the product, or by the Field that frames it (FLD-14) — THE number input SHALL NOT be focusable or editable, SHALL NOT step by any input, SHALL NOT emit input, change, action or entryError, SHALL expose the disabled state to assistive technology, SHALL be left out of form submission on the web, SHALL disable both steppers, and SHALL render every part from the disabled component tokens of its variant (of its error parts WHILE error is true)."
+      "text": "WHILE disabled is true — set by the product, or by the Field that frames it (FLD-14) — THE number input SHALL NOT be focusable or editable, SHALL NOT step by any input, SHALL NOT emit input, change, action or entryError, SHALL expose the disabled state to assistive technology, SHALL expose its prefix and its suffix as text of the disabled control — kept from assistive technology themselves, since the value text says them (NMI-34) — so that the exemption WCAG 1.4.3 gives the text of an inactive control applies to them as it does to the number, SHALL be left out of form submission on the web, SHALL disable both steppers, and SHALL render every part from the disabled component tokens of its variant (of its error parts WHILE error is true)."
     },
     {
       "id": "NMI-33",

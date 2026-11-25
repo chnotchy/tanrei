@@ -11,6 +11,7 @@ import { SYSTEM_EVENT, systemOf } from './visuals/frame';
 import { defineAhead, toBeDefined } from './define-on-demand';
 import { RESIZE_EVENT, resizeHandle } from './resize-handle';
 import { htmlOf, reactOf, type ReactNames } from './example-code';
+import { EXAMPLE_CODE_SYNC, tabsKey } from '../components/tabs/keys.mjs';
 
 /** Sent on a frame's element once it has come near the view, its stage released and its actions drawn. */
 export const NEAR_EVENT = 'docs-example-near';
@@ -25,8 +26,13 @@ const NEAR_SHARE = 0.5;
 const NEAR = `${NEAR_SHARE * 100}% 0px`;
 /** The least width a stage is made narrower to by its handle, in CSS pixels. */
 const LEAST = 160;
-/** Where the code's flavor a reader chose is kept, for every example of every page. */
-const FLAVOR_KEY = 'tanrei-docs-example-code';
+
+/**
+ * Where the code's flavor a reader chose is kept, for every example of every page: the key the rows of tabs of the
+ * code panels remember it under and share it by (their `group` and `remember-as`), read here for the code a frame
+ * copies before any of its panels is open.
+ */
+const FLAVOR_KEY = tabsKey(EXAMPLE_CODE_SYNC);
 
 type Flavor = 'html' | 'react';
 type Choice = HTMLElement & { value: string | null };
@@ -89,16 +95,11 @@ async function writeCode(frame: HTMLElement) {
     block.language = as === 'react' ? 'jsx' : 'html';
     block.code = text;
   }
-  const flavors = panel.querySelector<Choice>('[data-example-flavors]');
-  if (flavors && flavors.value !== as) flavors.value = as;
 }
 
 function choose(next: Flavor) {
   if (next === flavor) return;
   flavor = next;
-  try {
-    localStorage.setItem(FLAVOR_KEY, next);
-  } catch {}
   for (const frame of drawn) void writeCode(frame);
 }
 

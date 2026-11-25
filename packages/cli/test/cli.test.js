@@ -247,6 +247,56 @@ test('explain, systems, init, help', () => {
   assert.doesNotMatch(init.stdout, /\b(44|48)px\b/, 'no platform figure is named as the default');
 });
 
+test('init --from puts a layer file the product already has in place, unchanged, and writes tanrei.json; build takes it', () => {
+  const run = (cwd, args) => spawnSync(process.execPath, [bin, ...args], { cwd, encoding: 'utf8', env: { ...process.env, TANREI_CLI_FROM_SOURCE: '1' } });
+  // Theme Studio's download, as a browser may have renamed it: the id is read from the file, never from its name.
+  const dir = tempDir('init-from');
+  const text = `${JSON.stringify({ ...acme, extends: 'cupertino' }, null, 2)}\n`;
+  fs.writeFileSync(path.join(dir, 'acme (1).system.json'), text);
+  const done = run(dir, ['init', '--from', 'acme (1).system.json']);
+  assert.equal(done.status, 0, done.stderr);
+  assert.match(done.stdout, /copied acme \(1\)\.system\.json to design\/acme\.system\.json and wrote tanrei\.json/);
+  assert.match(done.stdout, /what "cupertino" sets each to/, 'the guide names the system the file extends');
+  assert.equal(fs.readFileSync(path.join(dir, 'design/acme.system.json'), 'utf8'), text, 'byte for byte');
+  assert.deepEqual(JSON.parse(fs.readFileSync(path.join(dir, 'tanrei.json'), 'utf8')), { system: 'design/acme.system.json', outputs: { tokens: 'design/tokens/acme', web: 'src/styles' } });
+  const built = run(dir, ['build']);
+  assert.equal(built.status, 0, built.stderr);
+  assert.ok(fs.existsSync(path.join(dir, 'src/styles/acme.css')));
+  // Run again, it refuses: the product has its layer.
+  const again = run(dir, ['init', '--from', 'acme (1).system.json']);
+  assert.equal(again.status, 1);
+  assert.match(again.stderr, /tanrei\.json already exists/);
+
+  // A file already at its place is kept; only tanrei.json is written.
+  const placed = tempDir('init-from-placed');
+  fs.mkdirSync(path.join(placed, 'design'));
+  fs.writeFileSync(path.join(placed, 'design/acme.system.json'), text);
+  const kept = run(placed, ['init', '--from', 'design/acme.system.json']);
+  assert.equal(kept.status, 0, kept.stderr);
+  assert.match(kept.stdout, /kept design\/acme\.system\.json and wrote tanrei\.json/);
+
+  // What it refuses, it refuses before anything is written: a layer the rules refuse, an id that is not one, another id
+  // than the one named, a parent that is not shipped, a missing file, the flag without its file.
+  const refusals = [
+    [{ id: 'acme', extends: 'tanrei', thresholds: {} }, [], /is not a layer tanrei build takes — 1 problem[\s\S]*additional properties/],
+    [{ id: 'Acme Co', extends: 'tanrei' }, [], /"id" must be lowercase letters, digits and hyphens/],
+    [{ id: 'acme', extends: 'tanrei' }, ['other'], /is the layer "acme", not "other"/],
+    [{ id: 'acme', extends: 'nope' }, [], /system "nope" not found/],
+  ];
+  for (const [layer, ids, said] of refusals) {
+    const at = tempDir('init-from-refused');
+    fs.writeFileSync(path.join(at, 'in.system.json'), JSON.stringify(layer));
+    const refused = run(at, ['init', ...ids, '--from', 'in.system.json']);
+    assert.equal(refused.status, 1, JSON.stringify(layer));
+    assert.match(refused.stderr, said);
+    assert.deepEqual(fs.readdirSync(at), ['in.system.json'], 'nothing written');
+  }
+  const none = tempDir('init-from-none');
+  assert.match(run(none, ['init', '--from', 'missing.system.json']).stderr, /missing\.system\.json not found/);
+  assert.match(run(none, ['init', '--from']).stderr, /usage: tanrei init --from <id>\.system\.json/);
+  assert.deepEqual(fs.readdirSync(none), []);
+});
+
 test('validate refuses what build refuses in every layer: a hit area under the minimum', () => {
   const under = product({ ...acme, tokens: { 'tanrei.sys.target.touch': { $value: { value: 30, unit: 'px' }, reason: 'A touch target under the minimum.' } } }, { web: 'out/web' });
   const refused = under.run(['validate']);

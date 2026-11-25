@@ -199,6 +199,23 @@ import { themeScript } from '@tanrei/web/theme-script';
 
 स्क्रिप्ट से टोकन सेट करने के लिए `@tanrei/web` का `setTokens()` इस्तेमाल करें: रूट पर `setTokens({ '--tanrei-sys-color-primary': '#0b57d0' })`, या पेज के किसी एक हिस्से के लिए `{ on: element }` के साथ। रूट पर `style.setProperty()` से अकेला एक टोकन सेट करने पर Safari कई सेकंड तक पूरे पेज की स्टाइल फिर से निकालता है; `setTokens()` उसे इस तरह लिखता है कि ऐसा न हो।
 
+## अपनी फ़ोकस रिंग
+
+हर एलिमेंट कीबोर्ड फ़ोकस का संकेत ख़ुद बनाता है, सिस्टम के फ़ोकस टोकन (`--tanrei-sys-focus-offset`, `--tanrei-sys-focus-inner-width`, `--tanrei-sys-focus-outer-width`, `--tanrei-sys-color-focus-ring`, `--tanrei-sys-color-focus-ring-inner`) से: इसे बदलना हो तो ये टोकन बदलें। आपके पेज का वह नियम जो हर फ़ोकस वाले एलिमेंट पर लगता है (`:focus-visible { outline: … }`, या किसी reset का) रहने दें। जिस एलिमेंट का होस्ट ख़ुद फ़ोकस लेता है, जैसे टैब, टैब पैनल या सूची का आइटम, वह अपनी रिंग अंदर बनाता है और अपने होस्ट पर `outline: none !important` लगाता है। पेज के नियम shadow root के नियमों पर भारी पड़ते हैं, पर `!important` नियम पर नहीं, इसलिए आपकी outline उसके चारों ओर दोबारा नहीं बनती।
+
+आपके अपने मार्कअप की स्टाइलशीट (`table.css`, `link.css`, `prose.css` और बाक़ी) `@layer tanrei.components` में हैं, और किसी भी लेयर से बाहर का नियम हर लेयर वाले नियम पर भारी पड़ता है: लेयर के बिना आपका फ़ोकस नियम उनकी रिंग की जगह आपकी रिंग बना देता है। उसे अपनी एक लेयर में रखें, जिसका नाम पेज की पहली स्टाइलशीट में Tanrei की लेयर से पहले लिखा हो, तो उनकी रिंग जैसी हैं वैसी बनती हैं:
+
+```css
+@layer base, tanrei;
+
+@layer base {
+  :focus-visible {
+    outline: var(--tanrei-sys-focus-outer-width) solid var(--tanrei-sys-color-focus-ring);
+    outline-offset: var(--tanrei-sys-focus-offset);
+  }
+}
+```
+
 ## टेक्स्ट स्टाइल
 
 टेक्स्ट स्टाइल के नाम उनके स्तर पर रखे गए हैं (`heading-2` एक `h2` है, `body` एक `p`, और `label` किसी कंट्रोल पर लिखा टेक्स्ट), और हर स्टाइल अलग-अलग कस्टम प्रॉपर्टी का एक सेट है: `--tanrei-sys-typescale-<role>-font-family`, `-font-size`, `-font-weight`, `-line-height`, `-letter-spacing` और `-font-weight-emphasized`। कोई शॉर्टहैंड प्रॉपर्टी नहीं है: ऊपर की तरह, जहाँ टेक्स्ट बनता है वहीं इन्हीं से `font` बनाएँ, और स्टाइल बदलते समय एक बार में एक प्रॉपर्टी बदलें। `--tanrei-sys-typescale-body-font-size: 1rem` रूट पर, या पेज के किसी एक एलिमेंट या हिस्से पर, उस टेक्स्ट का साइज़ बदलता है, और कुछ नहीं। दो वैकल्पिक स्टाइलशीट इन्हें आपके लिए एलिमेंट पर लगा देती हैं:

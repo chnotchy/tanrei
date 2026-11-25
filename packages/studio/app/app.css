@@ -92,14 +92,10 @@ body {
 .app-tools {
   display: flex;
   align-items: center;
-  gap: 0.25rem;
 }
-/* The language select: as wide as the longest language name (the select's own intrinsic width), never the bar's. */
-.app-language {
-  flex: none;
-}
-/* A name that is read and not drawn (the theme button's «Theme: Dark»). */
-.app-unseen {
+/* The session line is read, and drawn only when it says what the bar does not (main.ts): while it names the file, the
+   name Inspect bears is the file's. */
+.app-session:not([data-shown]) {
   position: absolute;
   inline-size: 1px;
   block-size: 1px;
@@ -108,8 +104,16 @@ body {
   white-space: nowrap;
 }
 @media (max-width: 40rem) {
-  /* A phone: the brand, the language and the theme stand on one line in every language. */
-  .app-session {
+  /* A phone: the bar is one line in every language, as the Studio's controls leave it. The brand, a link to this same
+     page, is left out there (the window's title names the app), and so is the session line where it is drawn. */
+  .app-brand,
+  .app-session[data-shown] {
+    display: none;
+  }
+  /* The app's bar holds two controls the documentation's does not — Build, with the file's state, and the menu of
+     language and theme — so on a phone it leaves out redo, as the approved design's phone bar leaves out the history:
+     undo stays, and the bar is one line at 360px on the longest start (cupertino) in every language. */
+  .ts-bar-history > tanrei-tooltip:has(> [data-redo]) {
     display: none;
   }
 }

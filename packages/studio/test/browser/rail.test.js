@@ -1,12 +1,12 @@
 // The rail: the nine rows of the look — each with what it holds now and a sample drawn in the layer, and a lock — and
 // the rest of what a layer holds. A row shows its controls in the panel; the shuffle gives every row that is not locked
-// another value, in one step to undo; Inspect opens over the panel with the token tree and the file.
+// another value, in one step to undo; Inspect opens as a side sheet over the Studio with the token tree and the file.
 import assert from 'node:assert/strict';
 import { studioTest } from './harness.js';
 
 const ROWS = ['color', 'neutral', 'typeface', 'size', 'radius', 'smoothing', 'icons', 'press', 'focus'];
 const MORE = ['base', 'dials', 'palettes', 'components', 'behavior', 'vocabulary', 'about', 'a11y'];
-/** What the panel holds for each section, panel by panel; Export stands at the foot of every one. */
+/** What the panel holds for each section, panel by panel: the section's own, and nothing more (the file is Export's). */
 const PANELS = { color: ['brand'], neutral: ['neutral'], typeface: ['typefaces'], size: ['size'], radius: ['radius'], smoothing: ['shape'], icons: ['icons'], press: ['press'], focus: ['focus'], base: ['base'], dials: ['dials'], palettes: ['color'], components: ['components'], behavior: ['behavior'], vocabulary: ['add'], about: ['about'], a11y: ['a11y'] };
 const panels = (page) => page.locator('[data-inspector] [data-panel]').evaluateAll((els) => els.map((el) => el.dataset.panel));
 const current = (page) => page.locator('[data-rail] [data-row][aria-current="true"]').evaluateAll((els) => els.map((el) => el.dataset.row));
@@ -17,14 +17,53 @@ studioTest('the rail lists the nine rows, then the rest; each shows its panel, a
   assert.deepEqual(await page.locator('[data-rail-more] [data-row]').evaluateAll((els) => els.map((el) => el.dataset.row)), MORE);
   assert.equal(await page.locator('[data-rail]').evaluate((el) => el.localName), 'nav', 'a navigation region');
   assert.deepEqual(await current(page), ['color'], 'the brand color first');
-  assert.deepEqual(await panels(page), ['brand', 'export']);
-  // Every row says what it holds, and draws a sample.
-  assert.deepEqual(await Promise.all(ROWS.map((row) => value(page, row))), ['none (monochrome)', 'hue 0 · chroma 0', 'Inter', '36px · 4px · target 36px', '2px', '0', 'Material Symbols Rounded · 300', 'overlay', 'ring']);
+  assert.deepEqual(await panels(page), ['brand']);
+  // Every row says what it holds (an icon set by the name of its style) and draws a sample.
+  assert.deepEqual(await Promise.all(ROWS.map((row) => value(page, row))), ['none (monochrome)', 'neutral', 'Inter', '36px · minimum 36px', '2px', 'none', 'Rounded · 300', 'overlay', 'ring']);
+  // As the approved design draws it, what a row holds is one line: where it is too long for the rail it is cut at its
+  // end with an ellipsis — the word «default» after the value first, then the value — and the whole value is still the
+  // row's: in its accessible name, and the line's tooltip.
+  const lines = () =>
+    page.locator('[data-rail-rows] .ts-rail-line').evaluateAll((els) =>
+      els.map((line) => {
+        const value = line.querySelector('.ts-rail-value');
+        const end = value.getBoundingClientRect();
+        const room = line.getBoundingClientRect();
+        return { row: line.closest('[data-row]').dataset.row, lines: Math.round(room.height / parseFloat(getComputedStyle(line).lineHeight)), cut: line.scrollWidth > line.clientWidth, valueCut: end.right > room.right + 1, title: line.title, tip: line.closest('tanrei-tooltip')?.text, described: line.closest('tanrei-tooltip')?.hasAttribute('no-describe'), text: value.textContent, ellipsis: getComputedStyle(line).textOverflow };
+      }),
+    );
+  const now = await lines();
+  for (const line of now) {
+    assert.deepEqual([line.lines, line.title, line.tip, line.described, line.ellipsis], [1, '', line.text, true, 'ellipsis'], `${line.row}: one line, cut with an ellipsis, its Tanrei tooltip the whole value, adding nothing to the row's name (no native title)`);
+  }
+  assert.deepEqual(now.filter((line) => line.valueCut).map((line) => line.row), [], 'every value of the start is whole beside the rail’s samples');
+  assert.deepEqual(now.filter((line) => line.cut).map((line) => line.row), ['color', 'size'], '«default» gives way after «none (monochrome)» and «36px · minimum 36px»');
+  // A family whose name is longer than the rail: cut, and whole in the row's name and its tooltip.
+  const family = 'Noto Sans Display Extra Condensed SemiBold';
+  assert.equal(await page.evaluate((name) => window.tanreiStudio.applyOperation('tanrei.ref.typeface.brand', { $value: [name, 'sans-serif'], reason: 'Our brand face.' }), family), null);
+  await page.waitForFunction((name) => document.querySelector('[data-rail] [data-row="typeface"] .ts-rail-value')?.textContent === name, family);
+  const typeface = (await lines()).find((line) => line.row === 'typeface');
+  assert.deepEqual([typeface.lines, typeface.cut, typeface.valueCut, typeface.tip], [1, true, true, family]);
+  assert.equal(await page.getByRole('button', { name: `Typeface ${family}`, exact: true }).count(), 1, 'the cut value is whole in the row’s name');
+  // Pointed at, the cut row opens its tooltip with the whole value; a row whose value is whole opens none.
+  const tipOf = (row) => page.locator(`[data-rail-row="${row}"] > .ts-rail-tip`);
+  await page.locator('[data-rail] [data-row="typeface"]').hover();
+  await page.waitForFunction(() => document.querySelector('[data-rail-row="typeface"] > .ts-rail-tip')?.open === true);
+  assert.equal(await tipOf('typeface').evaluate((el) => el.shadowRoot.querySelector('[role="tooltip"]').textContent.trim()), family);
+  // (When the pointer has rested long enough, the color row's tooltip asks to open — its `toggle` — and is shut at once:
+  // its line is cut, but only in the word «default» after the value, which is whole.)
+  await tipOf('color').evaluate((el) => el.addEventListener('toggle', (event) => (el.dataset.asked = String(event.detail.open)), { once: true }));
+  await page.locator('[data-rail] [data-row="color"]').hover();
+  await page.waitForFunction(() => document.querySelector('[data-rail-row="color"] > .ts-rail-tip')?.dataset.asked === 'true');
+  assert.deepEqual(await tipOf('color').evaluate((el) => [el.open, el.shadowRoot.querySelector('[role="tooltip"]').matches(':popover-open')]), [false, false], 'a whole value opens no tooltip, though the word after it is cut');
+  assert.equal(await tipOf('typeface').evaluate((el) => el.open), false);
   assert.equal(await page.locator('[data-rail] .ts-sample').count(), ROWS.length);
+  // Each row, and each item after them, ends in a chevron: it opens its controls.
+  assert.equal(await page.locator('[data-rail] .ts-rail-chevron').count(), ROWS.length + MORE.length);
   for (const name of [...ROWS, ...MORE]) {
     await section(name);
     assert.deepEqual(await current(page), [name], `${name} is current`);
-    assert.deepEqual(await panels(page), [...PANELS[name], 'export'], `${name}: its panels`);
+    assert.deepEqual(await panels(page), PANELS[name], `${name}: its panels`);
   }
   await section('color');
   await axe('[data-studio]', 'the rail and the panel');
@@ -37,6 +76,8 @@ studioTest('a row says what the layer holds, its sample is drawn in the layer, a
   await saved((file) => file.palettes?.primary?.source?.seed === '#0f766e', 'the seed');
   assert.equal(await value(page, 'color'), '#0F766E');
   assert.equal(await page.locator('[data-row="color"]').evaluate((el) => el.hasAttribute('data-changed')), true, 'marked as changed');
+  assert.deepEqual(await page.locator('[data-rail-rows] [data-unchanged]').evaluateAll((els) => els.filter((el) => !el.hidden).map((el) => el.closest('[data-row]').dataset.row)), ROWS.filter((row) => row !== 'color'), 'every other row says it holds what the start gives');
+  assert.equal(await page.locator('[data-row="neutral"] [data-unchanged]').textContent(), 'default');
   // The sample's color is the preview's primary, whatever the Studio's own chrome is drawn in.
   const sample = await page.locator('[data-sample-of="color"] i').evaluate((el) => getComputedStyle(el).backgroundColor);
   const primary = await scope.locator('.ts-pane').first().evaluate((el) => getComputedStyle(el).getPropertyValue('--tanrei-sys-color-primary') && getComputedStyle(el.querySelector('.ts-intent span')).backgroundColor);
@@ -53,7 +94,8 @@ studioTest('a row says what the layer holds, its sample is drawn in the layer, a
   await page.locator('[data-panel="press"] [data-behavior="pressed-feedback"] tanrei-radio-button[data-value="ripple"]').click();
   await saved((file) => file.tokens?.['tanrei.sys.behavior.pressed-feedback'], 'the press feedback');
   assert.equal(await value(page, 'press'), 'ripple');
-  assert.equal(await page.locator('[data-sample-of="press"]').textContent(), 'water_drop', 'and its glyph');
+  // The row's glyph says what the row is, whatever it holds; what it holds is said in words.
+  assert.equal(await page.locator('[data-sample-of="press"]').textContent(), 'touch_app', 'its glyph is the row’s');
   await inspect('tokens');
   assert.deepEqual(await current(page), ['press'], 'Inspect leaves the row current: closing it goes back there');
 });
@@ -78,30 +120,79 @@ studioTest('the shuffle gives every row that is not locked another value, in one
   assert.deepEqual(await page.locator('[data-lock]').evaluateAll((els) => els.filter((el) => el.selected).map((el) => el.dataset.lock)), ['color', 'typeface'], 'the locks are kept');
 });
 
-studioTest('Inspect opens over the panel at the token tree or Source, says it is open, and closes back to the row', {}, async ({ page, section, axe }) => {
-  const button = page.locator('[data-inspect]');
-  await section('icons');
-  assert.equal(await page.locator('[data-inspect-head]').isHidden(), true);
-  await button.click();
-  assert.equal(await button.evaluate((el) => el.selected), true, 'the toggle says Inspect is open');
-  assert.equal(await page.locator('[data-studio]').getAttribute('data-pane'), 'tokens');
-  assert.deepEqual(await panels(page), ['tree', 'rules', 'export']);
-  assert.equal(await page.locator('[data-inspector]').getAttribute('aria-label'), 'Inspect');
-  await page.locator('[data-inspect-tabs] tanrei-tab[data-value="source"]').click();
-  assert.deepEqual(await panels(page), ['source', 'export']);
-  await axe('[data-studio]', 'Inspect at Source');
-  await page.locator('[data-inspect-close]').click();
-  assert.equal(await page.locator('[data-studio]').getAttribute('data-pane'), 'edit');
-  assert.deepEqual(await panels(page), ['icons', 'export'], 'back to the row it was opened from');
-  assert.equal(await page.evaluate(() => document.activeElement?.closest('[data-inspect]') !== null), true, 'the focus goes back to Inspect’s button');
-  // It opens at the tab it was last at.
-  await button.click();
-  assert.equal(await page.locator('[data-studio]').getAttribute('data-pane'), 'source');
-  await button.click();
-  assert.equal(await page.locator('[data-studio]').getAttribute('data-pane'), 'edit', 'and the button closes it');
+studioTest('a row’s lock says what it does in a Tanrei tooltip, its description, and in no native title', {}, async ({ page }) => {
+  const locks = await page.locator('[data-lock]').evaluateAll((els) =>
+    els.map((el) => { const tooltip = el.parentElement.localName === 'tanrei-tooltip' ? el.parentElement : null; return [el.dataset.lock, el.label, el.hasAttribute('title'), tooltip?.text, tooltip?.hasAttribute('no-describe')]; }),
+  );
+  assert.deepEqual(locks.map(([row]) => row), ROWS);
+  for (const [row, label, title, text, named] of locks) assert.deepEqual([label.startsWith('Lock '), title, text, named], [true, false, 'A locked row keeps its value when you shuffle.', false], `${row}: named Lock …, described by its tooltip`);
+  // Pointed at, the lock opens its tooltip, which says what a lock does.
+  await page.locator('[data-lock="color"]').hover();
+  await page.waitForFunction(() => document.querySelector('[data-lock="color"]').parentElement.open === true);
+  assert.equal(await page.locator('[data-rail-row="color"] > .ts-rail-lock-tip').evaluate((el) => el.shadowRoot.querySelector('[role="tooltip"]').textContent.trim()), 'A locked row keeps its value when you shuffle.');
 });
 
-studioTest('a link to a token opens Inspect at it; the warnings count opens Accessibility', {}, async ({ page, section }) => {
+studioTest('in the rail’s column a row of the look is one band: the current row, and a row pointed at, are marked across its words, its lock and its chevron', {}, async ({ page }) => {
+  const band = (row) =>
+    page.locator(`[data-rail-row="${row}"]`).evaluate((item) => {
+      const show = item.querySelector('[data-row]');
+      const [box, lock, chevron] = [item, item.querySelector('[data-lock]'), item.querySelector('.ts-rail-chevron')].map((el) => el.getBoundingClientRect());
+      return { item: getComputedStyle(item).backgroundColor, row: getComputedStyle(show).backgroundColor, holds: lock.left >= box.left && chevron.right <= box.right + 1 };
+    });
+  const tokens = await page.evaluate(() => {
+    const probe = document.createElement('span');
+    document.querySelector('[data-rail]').append(probe);
+    const color = (name) => ((probe.style.backgroundColor = `var(${name})`), getComputedStyle(probe).backgroundColor);
+    const out = { current: color('--tanrei-sys-color-secondary-container'), pointed: color('--tanrei-sys-color-surface-container') };
+    probe.remove();
+    return out;
+  });
+  const clear = 'rgba(0, 0, 0, 0)';
+  assert.deepEqual(await band('color'), { item: tokens.current, row: clear, holds: true }, 'the current row: the whole band');
+  assert.deepEqual(await band('neutral'), { item: clear, row: clear, holds: true }, 'a row neither current nor pointed at');
+  // Pointed at its lock, the row is marked as a whole too.
+  await page.locator('[data-lock="neutral"]').hover();
+  assert.deepEqual(await band('neutral'), { item: tokens.pointed, row: clear, holds: true }, 'a row pointed at, at its lock');
+});
+
+studioTest('Inspect opens as a side sheet over the Studio at the token tree or the JSON, says it is open, and closes back to the row', {}, async ({ page, section, axe }) => {
+  const button = page.locator('[data-inspect]');
+  const sheet = page.locator('[data-inspect-sheet]');
+  // It bears the file's name, and is named Inspect with it.
+  assert.equal(await button.locator('[data-file-name]').textContent(), 'acme.system.json');
+  assert.equal(await button.evaluate((el) => el.label), 'Inspect: acme.system.json');
+  await section('icons');
+  assert.deepEqual(await sheet.evaluate((el) => [el.localName, el.variant, el.open]), ['tanrei-side-sheet', 'modal', false]);
+  await button.click();
+  assert.equal(await button.evaluate((el) => el.selected), true, 'the toggle says Inspect is open');
+  assert.deepEqual(await sheet.evaluate((el) => [el.open, el.headline]), [true, 'Inspect'], 'a modal side sheet, headed Inspect');
+  assert.equal(await page.locator('[data-studio]').getAttribute('data-pane'), 'tokens');
+  assert.deepEqual(await sheet.locator('[data-panel]').evaluateAll((els) => els.map((el) => el.dataset.panel)), ['tree', 'rules']);
+  assert.deepEqual(await panels(page), ['icons'], 'the panel keeps the row under the sheet');
+  // Its two tabs: the tokens, and the file as JSON.
+  assert.deepEqual(await page.locator('[data-inspect-tabs] tanrei-tab').evaluateAll((els) => els.map((el) => el.label)), ['Tokens', 'JSON']);
+  await page.locator('[data-inspect-tabs] tanrei-tab[data-value="source"]').click();
+  assert.deepEqual(await sheet.locator('[data-panel]').evaluateAll((els) => els.map((el) => el.dataset.panel)), ['source']);
+  await axe('[data-inspect-sheet]', 'Inspect at the JSON');
+  // Closed with its own button: back to the row it was opened from, the focus on Inspect's button.
+  await sheet.getByRole('button', { name: 'Close Inspect', exact: true }).click();
+  assert.equal(await page.locator('[data-studio]').getAttribute('data-pane'), 'edit');
+  assert.equal(await sheet.evaluate((el) => el.open), false);
+  assert.deepEqual(await panels(page), ['icons'], 'back to the row it was opened from');
+  await page.waitForFunction(() => document.activeElement?.closest('[data-inspect]') !== null);
+  // It opens at the tab it was last at; Escape closes it too.
+  await button.click();
+  assert.equal(await page.locator('[data-studio]').getAttribute('data-pane'), 'source');
+  await page.keyboard.press('Escape');
+  await page.waitForSelector('[data-studio][data-pane="edit"]');
+  // Its foot leads on to Export.
+  await button.click();
+  await sheet.locator('[data-inspect-export]').click();
+  assert.equal(await page.locator('[data-studio]').getAttribute('data-pane'), 'edit');
+  assert.equal(await page.locator('[data-export-sheet]').evaluate((el) => el.open), true, 'Export is open in its place');
+});
+
+studioTest('a link to a token opens Inspect at it; the warnings count opens Accessibility', {}, async ({ page, section, closeInspect }) => {
   await section('components');
   const button = page.locator('[data-component="button"]');
   await button.locator('summary').first().click();
@@ -109,6 +200,7 @@ studioTest('a link to a token opens Inspect at it; the warnings count opens Acce
   assert.equal(await page.locator('[data-studio]').getAttribute('data-pane'), 'tokens');
   await page.waitForSelector('[data-detail="tanrei.comp.button.container.shape"]');
   assert.equal(await page.locator('[data-token-name]').textContent(), 'comp.button.container.shape', 'the token is chosen');
+  await closeInspect();
   await page.locator('[data-a11y-count]').click();
   assert.deepEqual(await current(page), ['a11y']);
   assert.equal(await page.locator('[data-studio]').getAttribute('data-pane'), 'edit');

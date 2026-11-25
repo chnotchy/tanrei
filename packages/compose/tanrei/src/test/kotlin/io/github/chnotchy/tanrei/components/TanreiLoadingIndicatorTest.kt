@@ -41,6 +41,7 @@ import androidx.compose.ui.unit.dp
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import io.github.chnotchy.tanrei.primitives.TanreiDiagnostics
+import io.github.chnotchy.tanrei.primitives.tanreiPulseAlpha
 import io.github.chnotchy.tanrei.theme.TanreiContrast
 import io.github.chnotchy.tanrei.theme.TanreiTheme
 import io.github.chnotchy.tanrei.theme.TanreiThemeMode
@@ -439,19 +440,29 @@ class TanreiLoadingIndicatorReducedMotionTest {
     }
 
     @Test
-    fun `LDG-4 where motion is reduced the whole circle is drawn and does not turn - its opacity goes 1 to 0 to 1 per cycle, eased`() {
+    fun `LDG-4 where motion is reduced the whole circle is drawn and does not turn - its opacity goes 1 to the floor to 1 per cycle, eased, never below the floor`() {
         set(contained = false)
         val color = colors[TanreiColorRole.OnSurfaceVariant]
         val easing = tanrei.motion.easing.standard.toEasing()
+        val floor = tokens.motionPulseFloorOpacity
+        assertTrue("the floor is above 0 and below 1: $floor", floor > 0f && floor < 1f)
+        // Over a whole cycle the opacity never falls below the floor, and reaches it half way.
+        for (step in 0..200) assertTrue("at ${step / 200f}", tanreiPulseAlpha(step / 200f, easing, floor) >= floor - 1e-6f)
+        assertEquals(floor, tanreiPulseAlpha(0.5f, easing, floor), 1e-6f)
+        // As drawn, sampled over a whole cycle: the circle at the expected opacity, never below the floor.
+        val floorDrawn = color.copy(alpha = color.alpha * floor).compositeOver(surface)
         var elapsed = 0L
-        for (phase in listOf(0f, 0.25f, 0.5f, 0.75f)) {
+        for (phase in listOf(0f, 0.125f, 0.25f, 0.375f, 0.5f, 0.625f, 0.75f, 0.875f)) {
             val target = (phase * tokens.motionCycleDuration).toLong()
             if (target > elapsed) rule.mainClock.advanceTimeBy(target - elapsed)
             elapsed = target
             val half = phase * 2f
-            val alpha = if (half < 1f) 1f - easing.transform(half) else easing.transform(half - 1f)
+            val alpha = if (half < 1f) 1f - (1f - floor) * easing.transform(half) else floor + (1f - floor) * easing.transform(half - 1f)
             val expected = color.copy(alpha = color.alpha * alpha).compositeOver(surface)
-            for (point in compass(map(), contained = false)) assertClose("at $phase: opacity $alpha", point, expected, PULSE_TOLERANCE)
+            for (point in compass(map(), contained = false)) {
+                assertClose("at $phase: opacity $alpha", point, expected, PULSE_TOLERANCE)
+                assertTrue("at $phase: drawn below the floor ($point, the floor draws $floorDrawn)", drawnOpacity(point, color.compositeOver(surface), surface) >= floor - PULSE_TOLERANCE)
+            }
         }
     }
 
@@ -466,7 +477,16 @@ class TanreiLoadingIndicatorReducedMotionTest {
         rule.mainClock.advanceTimeBy(tokens.motionCycleDuration / 2L)
         val half = map()
         assertClose("the fill half a cycle later", half[half.width / 2, half.height / 2], fill)
-        compass(half, contained = true).forEach { assertClose("the circle at opacity 0 shows the fill", it, fill, PULSE_TOLERANCE) }
+        val mark = tokens.containedIndicatorColor.resolve(colors)
+        val atFloor = mark.copy(alpha = mark.alpha * tokens.motionPulseFloorOpacity).compositeOver(fill)
+        compass(half, contained = true).forEach { assertClose("the circle at the floor's opacity, over the fill", it, atFloor, PULSE_TOLERANCE) }
+    }
+
+    /** The opacity [actual] shows [mark] at over [ground], on the channel where the two stand furthest apart. */
+    private fun drawnOpacity(actual: Color, mark: Color, ground: Color): Float {
+        val channels = listOf(Triple(actual.red, mark.red, ground.red), Triple(actual.green, mark.green, ground.green), Triple(actual.blue, mark.blue, ground.blue))
+        val (a, m, g) = channels.maxBy { abs(it.second - it.third) }
+        return (a - g) / (m - g)
     }
 
     private fun assertClose(what: String, actual: Color, expected: Color, tolerance: Float = 3f / 255f) =
