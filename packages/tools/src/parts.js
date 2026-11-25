@@ -67,8 +67,9 @@ export const PARTS_PENDING = {
  * A target is `{ host }`, `{ part }`, `{ slot }` (the default slot is ''), `{ child, part? }` or `{ className }`, where
  * `child` is the path of child elements, each inside the one before it, and `part` one of the last one's parts. A word that
  * is a tag of `tags` is a child element; any other is a CSS part, and only the last word may be one. A child word may
- * name several tags joined by `|`, the first of them found standing for it: a part every kind of a component's items
- * draws (a menu's plain, checkbox and radio items). `problem` says what cannot be read.
+ * name several tags joined by `|`, the first of them that draws the part standing for it: a part several kinds of a
+ * component's items draw (a menu's plain, checkbox and radio items, and a submenu's row). `problem` says what cannot be
+ * read.
  */
 export function readPart(value, tags) {
   if (value && typeof value === 'object') return { noBox: value.noBox };

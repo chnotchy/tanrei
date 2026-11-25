@@ -57,15 +57,15 @@ const SVG = 'http://www.w3.org/2000/svg';
 
 // ── Finding a part ───────────────────────────────────────────────────────────────────────────────────────────────────
 
-/** The first element matching `selector` in `root`'s light tree, else in the shadow trees under it, nearest first. */
-function deepQuery(root: Element, selector: string): Element | null {
-  const light = root.querySelector(selector);
-  if (light) return light;
+/** The elements matching `selector` in `root`'s light tree, else in the nearest shadow tree under it that has any. */
+function deepQueryAll(root: Element, selector: string): Element[] {
+  const light = [...root.querySelectorAll(selector)];
+  if (light.length) return light;
   for (const shadow of [...(root.shadowRoot ? [root.shadowRoot, ...shadowRootsIn(root.shadowRoot)] : []), ...shadowRootsIn(root)]) {
-    const found = shadow.querySelector(selector);
-    if (found) return found;
+    const found = [...shadow.querySelectorAll(selector)];
+    if (found.length) return found;
   }
-  return null;
+  return [];
 }
 
 /**
@@ -219,6 +219,18 @@ function clippedWhole(element: Element): boolean {
   return points.length === 0;
 }
 
+/**
+ * Whether an element is shown: what is drawn invisibly (a checkbox's mark while it is unchecked, faded out) or clipped
+ * away whole is not, and a box drawn as no element is.
+ */
+const isShown = (element: Element) => ((element.checkVisibility?.({ opacityProperty: true, visibilityProperty: true }) ?? true) || drawnAsNoElement(element)) && !clippedWhole(element);
+
+/** Whether an element is shown and has a size. */
+const isDrawn = (element: Element) => {
+  const rect = element.getBoundingClientRect();
+  return rect.width > NEAR && rect.height > NEAR && isShown(element);
+};
+
 /** The box of what a part's target is, as drawn, in the viewport's coordinates; null where nothing of it is drawn. */
 export function targetBox(host: Element, target: PartTarget): { box: Box; element: Element | null } | null {
   let elements: Element[] = [];
@@ -226,10 +238,17 @@ export function targetBox(host: Element, target: PartTarget): { box: Box; elemen
   if ('host' in target) elements = [host];
   else if ('part' in target && !('child' in target)) elements = partOf(host, target.part);
   else if ('child' in target) {
-    let at: Element | null = host;
-    // A word that names several elements (`tanrei-menu-item|tanrei-menu-checkbox-item`) is the first of them drawn.
-    for (const word of target.child) at = at && deepQuery(at, word.split('|').join(', '));
-    elements = at && target.part ? partOf(at, target.part) : at ? [at] : [];
+    // A word that names one element is the first of it; a word that names several kinds of element, any of which may
+    // draw the part (`tanrei-menu-item|tanrei-submenu`: a submenu's row draws a trailing text a plain item may not),
+    // is the first of them, in the document's order, that draws it.
+    let candidates: Element[] = [host];
+    for (const word of target.child) {
+      const tags = word.split('|');
+      candidates = candidates.flatMap((at) => deepQueryAll(at, tags.join(', ')).slice(0, tags.length > 1 ? undefined : 1));
+    }
+    const of = (at: Element) => (target.part ? partOf(at, target.part) : [at]);
+    const chosen = candidates.find((at) => of(at).some(isDrawn)) ?? candidates[0];
+    elements = chosen ? of(chosen) : [];
   } else if ('slot' in target) {
     if (target.slot) elements = [...host.querySelectorAll(`:scope > [slot="${target.slot}"]`)];
     else {
@@ -241,9 +260,7 @@ export function targetBox(host: Element, target: PartTarget): { box: Box; elemen
       }
     }
   } else if ('className' in target) elements = [host.closest('.stage')?.querySelector(`.${target.className}`) ?? host.querySelector(`.${target.className}`)].filter((element): element is Element => element !== null);
-  // What is drawn invisibly (a checkbox's mark while it is unchecked, faded out) or clipped away whole is not drawn for
-  // the figure; a box drawn as no element is.
-  elements = elements.filter((element) => ((element.checkVisibility?.({ opacityProperty: true, visibilityProperty: true }) ?? true) || drawnAsNoElement(element)) && !clippedWhole(element));
+  elements = elements.filter(isShown);
   const rects = range ? [range.getBoundingClientRect()] : elements.map((element) => element.getBoundingClientRect());
   const drawn = rects.filter((rect) => rect.width > NEAR && rect.height > NEAR);
   if (!drawn.length) return null;
