@@ -4,6 +4,7 @@
 // FLD-33: the product's ARIA on the host is tested with every other host's, in every engine, in
 // src/primitives/delegated-aria.test.ts.
 import AxeBuilder from '@axe-core/playwright';
+import { coveredText } from '../../../test/covered-text.js';
 import { type Locator, type Page, expect, test } from '@playwright/test';
 import { type Fixture, type FixtureItem, loadSpec, missingWords, mountFixtures, resolveColor, resolveToken, setWords, tab, tabTo, rootTokens, mountFixtureAsInAll, typeRole } from '../../../test/harness.js';
 import { type Frames, type Probe, expectAnchored, expectAnimated, expectFirstFrameAtRest, expectNoFlicker, sampleFrames } from '../../../test/frames.js';
@@ -2173,6 +2174,7 @@ test.describe('accessibility', () => {
         await mount(page, fixtures, { theme });
         const results = await new AxeBuilder({ page }).include('.stage').analyze();
         expect(results.violations, theme).toEqual([]);
+        expect(await coveredText(page, results), `${name} ${theme}: no text left unchecked as covered`).toEqual([]);
       }
     });
   }

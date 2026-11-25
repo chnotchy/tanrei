@@ -8,7 +8,7 @@
 // stylesheet, and the code opens under the stage only when a reader asks for it.
 import { LOOK_SHEET_EVENT } from './appearance';
 import { SYSTEM_EVENT, systemOf } from './visuals/frame';
-import './define-on-demand';
+import { defineAhead, toBeDefined } from './define-on-demand';
 import { RESIZE_EVENT, resizeHandle } from './resize-handle';
 import { htmlOf, reactOf, type ReactNames } from './example-code';
 import { EXAMPLE_CODE_SYNC, tabsKey } from '../components/tabs/keys.mjs';
@@ -198,12 +198,55 @@ const HELD_PROPERTY = '--docs-example-held';
  * defined for every element of it on the page at once, and the browser upgrades them all: without this, each stage
  * away from the view that holds one would grow to the element's size in the same frame (the Calendar's page grew by
  * about 2.7k px so), and where the browser does not anchor the scroll to what the reader is looking at, push it out of
- * the view (WebKit did, under the focus order's test). Held, a stage moves nothing until it is drawn, and the page's
- * stylesheet lets it go the moment its mark is taken away, however that is done.
+ * the view (WebKit did, under the focus order's test). Held, a stage moves nothing until it is drawn or let go below
+ * the view (`releaseSoon`), and the page's stylesheet lets it go the moment its mark is taken away, however that is done.
  */
-function hold(stage: HTMLElement, height: number) {
+function hold(frame: HTMLElement, stage: HTMLElement, height: number) {
   stage.style.setProperty(HELD_PROPERTY, `${height}px`);
   stage.setAttribute(HELD_ATTR, '');
+  const tags = [...new Set([...stage.querySelectorAll(':not(:defined)')].map((element) => element.localName))];
+  if (!tags.length) return;
+  held.set(frame, { stage, tags });
+  for (const tag of tags) void customElements.whenDefined(tag).then(releaseSoon);
+}
+
+/**
+ * The room a stage holds is the room of its elements before they are defined. The web package's cloak, scoped to the
+ * stages (lib/stage-cloak.mjs), makes that the room they take drawn wherever their tokens give it, before any script
+ * runs; where they do not (an element as tall as what it draws: a list's rows, a multiline input's lines), it is a few
+ * lines of their text, or nothing, not the room they take drawn, and it is held until the stage comes
+ * near the view. A reader who moves farther than that in a frame (a page at a time, a fling) reaches the stage while
+ * it holds the wrong room and sees everything below it pushed down as it is drawn. So right after the page's
+ * load, the elements the held stages hold are defined (`defineAhead`: their modules fetched, as a stage near the view
+ * asks for them, after what the page needed to load), and a held stage whose elements have all been defined — so, or
+ * for a stage near the view — takes the room they take at once, while it is still below the view, where its growing
+ * moves nothing the reader sees, in every engine: the drawn room itself, at the reader's width and in the page's
+ * language. It is still pending until it comes near (its actions undrawn). A stage above the view, which a reader
+ * passed by a jump, keeps holding its room.
+ */
+const held = new Map<HTMLElement, { stage: HTMLElement; tags: string[] }>();
+let releasing = false;
+
+/** Lets go, in one frame and after one reading of the layout, every held stage below the view whose elements are all defined. */
+function releaseSoon() {
+  if (releasing) return;
+  releasing = true;
+  requestAnimationFrame(() => {
+    releasing = false;
+    const ready = [...held].filter(([frame, { stage, tags }]) => {
+      if (reached.has(frame) || !stage.hasAttribute(HELD_ATTR)) {
+        held.delete(frame);
+        return false;
+      }
+      return tags.every((tag) => customElements.get(tag));
+    });
+    const below = ready.filter(([, { stage }]) => stage.getBoundingClientRect().top >= innerHeight);
+    for (const [frame, { stage }] of below) {
+      held.delete(frame);
+      stage.removeAttribute(HELD_ATTR);
+      stage.style.removeProperty(HELD_PROPERTY);
+    }
+  });
 }
 
 /** A frame near the view: its elements are defined, its actions drawn, and a page's script told (`NEAR_EVENT`). */
@@ -211,13 +254,30 @@ function draw(frame: HTMLElement) {
   const stage = stageOf(frame);
   if (!stage) return;
   reached.add(frame);
-  // What it holds is defined now (lib/define-on-demand.ts watches the mark), at the room it takes.
+  // What it holds is defined now (lib/define-on-demand.ts watches the mark).
   stage.removeAttribute('data-example-pending');
-  stage.removeAttribute(HELD_ATTR);
-  stage.style.removeProperty(HELD_PROPERTY);
   drawActions(frame, stage);
   widthHandle(stage);
   frame.dispatchEvent(new CustomEvent(NEAR_EVENT));
+  if (stage.hasAttribute(HELD_ATTR)) letGoWhenDefined(stage);
+}
+
+/**
+ * A held stage that comes near the view keeps the room it holds until what it holds is defined — what it held as the
+ * page was parsed, and what a page's script gave it as it came near (the gallery's fixture, lib/fixture-stages.ts) — and
+ * then takes the room it is drawn in, in one frame. Its elements' modules may arrive after the reader has reached it
+ * (a page down within moments of the load, a slow line): the room it holds is the drawn room wherever the page could
+ * know it before any script (the cloak's, lib/stage-cloak.mjs; a fixture's baseline, components/fixtures/FixtureGallery.astro),
+ * and the room of its undefined elements would not be (a fixture is not in the page until its stage comes near).
+ */
+function letGoWhenDefined(stage: HTMLElement) {
+  const letGo = () => {
+    stage.removeAttribute(HELD_ATTR);
+    stage.style.removeProperty(HELD_PROPERTY);
+  };
+  const tags = toBeDefined(stage);
+  if (!tags.length) return letGo();
+  void Promise.all(tags.map((tag) => customElements.whenDefined(tag))).then(() => requestAnimationFrame(letGo));
 }
 
 const near = new IntersectionObserver(
@@ -254,7 +314,20 @@ for (const { frame, stage, isNear, height } of measured) {
   if (isNear) {
     near.unobserve(frame);
     draw(frame);
-  } else if (stage && height !== null && stage.hasAttribute('data-example-pending')) hold(stage, height);
+  } else if (stage && height !== null && stage.hasAttribute('data-example-pending')) hold(frame, stage, height);
+}
+// The held stages' elements are asked for in the task after the page's load, in every engine, so that their stages
+// take their drawn room before the reader reaches them (`releaseSoon`). Not when the browser is next idle: on a long
+// page on a busy machine that came as late as its time limit allowed, a second or two after the load, and a reader
+// who paged down meanwhile drew the stage near the view in the room of its elements before they are defined and saw
+// it grow in the view as its module arrived (the Arabic Text field's first example, 80 px held for its 236, moved the
+// page by 0.06 so at 390 px).
+if (held.size) {
+  const ahead = () => {
+    for (const [frame, { stage }] of held) if (!reached.has(frame)) defineAhead(stage);
+  };
+  if (document.readyState === 'complete') setTimeout(ahead);
+  else addEventListener('load', () => setTimeout(ahead), { once: true });
 }
 
 /** Whether a frame is near the view now, as the observer reckons it (`NEAR`): a box, within half a window of the view. */

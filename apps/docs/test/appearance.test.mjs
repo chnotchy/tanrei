@@ -12,7 +12,7 @@ import { fileURLToPath } from 'node:url';
 register('./vite-shim.mjs', import.meta.url);
 const appearance = await import('../src/lib/appearance.ts');
 const { manifests } = await import('../src/lib/repo.ts');
-const { APPEARANCE_KEY, CONTRAST_ATTR, CUSTOM_ATTR, CUSTOM_KEY, CUSTOM_LOOK, EARLY_WORKER, LATE_ATTR, LOOK_ATTR, LOOK_SHEET_ID, MISSING_ATTR, MODE_ATTR, PENDING_ATTR, REVEAL_AFTER, SHARED_ATTR, SHEET_HELD_KEY, TANREI_THEME_ATTR, THEME_ATTR, appearanceBootstrap, attributesOf, bootConfig, customOf, linkTo, normalize, sharedFrom, sheetKey, standaloneBootstrap, withoutShared } = appearance;
+const { APPEARANCE_EVENT, APPEARANCE_KEY, CONTRAST_ATTR, CUSTOM_ATTR, CUSTOM_KEY, CUSTOM_LOOK, EARLY_WORKER, LATE_ATTR, LOOK_ATTR, LOOK_SHEET_ID, MISSING_ATTR, MODE_ATTR, PENDING_ATTR, REVEAL_AFTER, SHARED_ATTR, SHEET_HELD_KEY, TANREI_THEME_ATTR, THEME_ATTR, appearanceBootstrap, attributesOf, bootConfig, customOf, linkTo, normalize, sharedFrom, sheetKey, standaloneBootstrap, withoutShared } = appearance;
 /** The key of a build, as lib/sheet-key.mjs gives one. */
 const BUILD = '0123456789abcdef';
 
@@ -31,7 +31,7 @@ const SHEETS = Object.fromEntries(looks.filter((id) => id !== DEFAULT).map((id) 
  * `held` is the key storage says IndexedDB was last given (by default, the key of the sheet `sheets` holds); `reads`
  * counts the times IndexedDB is asked. With `blocking`, the engine blocks rendering on a stylesheet a script asks it to
  * (`blocking="render"`, as Chromium does); without, it does not (Firefox, WebKit). An element's `fire(type)` sends it an
- * event (a link's `load`).
+ * event (a link's `load`). The events it sends on the document are in `events` (`{ type, detail }`).
  */
 function boot({ stored = null, custom = null, sheets = null, held = (sheets && Object.keys(sheets)[0]) || null, search = '', dark = false, after = null, blocking = false, script = appearanceBootstrap(bootConfig(looks, BUILD, null, SHEETS)) } = {}) {
   const attributes = {};
@@ -76,8 +76,16 @@ function boot({ stored = null, custom = null, sheets = null, held = (sheets && O
       observers.splice(observers.findIndex((entry) => entry.observer === this), 1);
     }
   }
+  const events = [];
+  class CustomEvent {
+    constructor(type, init) {
+      this.type = type;
+      this.detail = init?.detail;
+    }
+  }
   const document = {
     currentScript: me,
+    dispatchEvent: (event) => events.push({ type: event.type, detail: event.detail }),
     documentElement: { setAttribute: (name, value) => (attributes[name] = String(value)), removeAttribute: (name) => delete attributes[name], getAttribute: (name) => attributes[name] ?? null, hasAttribute: (name) => name in attributes },
     createElement: element,
     getElementById: (id) => head.find((node) => node.id === id) ?? null,
@@ -109,8 +117,8 @@ function boot({ stored = null, custom = null, sheets = null, held = (sheets && O
   const scope = {};
   // A frame is a turn of the microtasks here: what waits for two of them has waited when a test has waited for a task.
   const requestAnimationFrame = (run) => queueMicrotask(run);
-  new Function('document', 'localStorage', 'location', 'matchMedia', 'URLSearchParams', 'indexedDB', 'setTimeout', 'requestAnimationFrame', 'MutationObserver', 'Worker', 'window', script)(document, localStorage, { search }, matchMedia, URLSearchParams, indexedDB ?? undefined, setTimeout, requestAnimationFrame, MutationObserver, Worker, scope);
-  return { attributes, get sheet() { return head.find((node) => node.id === LOOK_SHEET_ID); }, head, timers, parsed, observers, workers, scope, reads };
+  new Function('document', 'localStorage', 'location', 'matchMedia', 'URLSearchParams', 'indexedDB', 'setTimeout', 'requestAnimationFrame', 'MutationObserver', 'Worker', 'window', 'CustomEvent', script)(document, localStorage, { search }, matchMedia, URLSearchParams, indexedDB ?? undefined, setTimeout, requestAnimationFrame, MutationObserver, Worker, scope, CustomEvent);
+  return { attributes, events, get sheet() { return head.find((node) => node.id === LOOK_SHEET_ID); }, head, timers, parsed, observers, workers, scope, reads };
 }
 
 describe('the appearance', () => {
@@ -171,12 +179,14 @@ describe('the appearance', () => {
     assert.equal(hidden.attributes[PENDING_ATTR], undefined, 'shown once it is in');
     hidden.timers[0].run();
     assert.deepEqual([hidden.attributes[LOOK_ATTR], hidden.attributes[LATE_ATTR], hidden.sheet?.href], [SHOWCASE, undefined, SHEETS[SHOWCASE]], 'the time limit changes nothing once the sheet is in');
+    assert.deepEqual(hidden.events, [], 'and nothing is announced');
     // Not in after REVEAL_AFTER: the page is shown in the default system, and the sheet fetched for the next page.
     const slow = boot({ stored });
     const link = slow.sheet;
     slow.timers[0].run();
     assert.equal(slow.attributes[PENDING_ATTR], undefined);
     assert.deepEqual([slow.attributes[LOOK_ATTR], slow.attributes[LATE_ATTR]], [DEFAULT, SHOWCASE], 'drawn in the default system, and marked with the look that came too late');
+    assert.deepEqual(slow.events, [{ type: APPEARANCE_EVENT, detail: { appearance: { mode: 'system', contrast: 'standard', look: DEFAULT }, shared: false } }], 'and announced as any change of look is: the header says what is drawn');
     assert.equal(slow.sheet, undefined, 'no look’s sheet on this page');
     assert.deepEqual(slow.head.map((node) => [node.rel, node.href]), [['prefetch', SHEETS[SHOWCASE]]]);
     link.fire('load');
@@ -185,6 +195,7 @@ describe('the appearance', () => {
     const failed = boot({ stored, blocking: true });
     failed.sheet.fire('error');
     assert.deepEqual([failed.attributes[LOOK_ATTR], failed.attributes[LATE_ATTR], failed.sheet], [DEFAULT, SHOWCASE, undefined]);
+    assert.deepEqual(failed.events.map((event) => [event.type, event.detail.appearance.look]), [[APPEARANCE_EVENT, DEFAULT]]);
     // A look the build names no sheet for (the dev server's before it serves one) is drawn without one.
     assert.deepEqual(boot({ stored, script: appearanceBootstrap(bootConfig(looks, BUILD)) }).head, []);
   });
@@ -225,6 +236,7 @@ describe('the appearance', () => {
     assert.equal(waiting.attributes[PENDING_ATTR], undefined);
     assert.equal(waiting.attributes[LOOK_ATTR], DEFAULT, 'drawn in the default system');
     assert.equal(waiting.attributes[LATE_ATTR], CUSTOM_LOOK, 'and marked: the modules keep the sheet for the next page');
+    assert.deepEqual(waiting.events, [{ type: APPEARANCE_EVENT, detail: { appearance: { mode: 'dark', contrast: 'standard', look: DEFAULT }, shared: false } }], 'and announced: the header says the default system, not the reader’s theme');
 
     // The sheet in IndexedDB, under this build's key and the theme's hash: put in place, and the page shown.
     const css = '@layer tanrei.tokens { :root { --tanrei-sys-color-primary: #0b6e4f; } }';
@@ -238,6 +250,7 @@ describe('the appearance', () => {
     assert.equal(found.attributes[MISSING_ATTR], undefined);
     found.timers[0].run();
     assert.deepEqual([found.attributes[LOOK_ATTR], found.attributes[LATE_ATTR]], [CUSTOM_LOOK, undefined], 'the time limit changes nothing once the sheet is in');
+    assert.deepEqual(found.events, [], 'and nothing is announced');
     // Another build's sheet is not used.
     const other = boot({ stored, custom, sheets: { [sheetKey('fedcba9876543210', 'k3x9')]: css } });
     await new Promise((resolve) => setTimeout(resolve, 0));

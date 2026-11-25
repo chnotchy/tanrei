@@ -1,5 +1,5 @@
 import { css, unsafeCSS } from 'lit';
-import { TARGET_CAPS, directionProbeStyles, focusRing, iconGlyph, minimumTarget, neighbourTarget, pressHold, rippleStyles, stateRules } from '../../primitives/index.js';
+import { TARGET_CAPS, directionProbeStyles, drawnAsNoElement, focusRing, iconGlyph, minimumTarget, neighbourTarget, pressHold, rippleStyles, stateRules } from '../../primitives/index.js';
 import { cornerRadius, shape } from '../../styles/shape.js';
 import { reducedMotion } from '../../styles/motion.js';
 
@@ -119,6 +119,11 @@ export const itemStyles = css`
     transition-duration: ${t('motion-state-duration')};
     transition-timing-function: ${t('motion-state-easing')};
   }
+  /* The layer lies over the content: it holds its color and its opacity (and runs their transitions) and draws the color
+     by its ::before, as no element, at the same place in the paint order — its opacity applies to the ::before as it
+     applied to its own background. An element over a text is what a contrast checker sees covering it, and it would
+     leave a text in the content unchecked while the item is hovered, focused or pressed. */
+  ${drawnAsNoElement('.state-layer', ['background-color'])}
 
   /* CRL-4: the hit area is the drawn container with half the gap on each side — sys.target.touch for the narrowest small
      item with the default tokens — and, for an item that fills a slot, never less than the target (pointer, or touch for

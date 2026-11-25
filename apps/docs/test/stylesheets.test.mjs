@@ -30,13 +30,15 @@ const shipped = Object.keys(web.exports)
 // appearance's script puts the look's stylesheet after them (components/frame/Head.astro). The icon set, which the
 // framework's `customCss` loads (astro.config.mjs): its class sets the glyph's face, which no rule of Starlight's sets. And the two whose rules prose.css
 // carries word for word (packages/web/src/styles/steps.test.ts and timeline.test.ts hold that they are the same). And
-// three the site does not load: the page's base, because the site's page is Starlight's, which sets its own background,
-// color and face; tanrei.css, which is the base, the tokens and every other one of them in one file; and the cloak,
-// which a page opts into and which would hide every example of the site from a reader whose script does not arrive.
+// two the site does not load: the page's base, because the site's page is Starlight's, which sets its own background,
+// color and face; and tanrei.css, which is the base, the tokens and every other one of them in one file. And the cloak,
+// which would hide whatever is not defined from a reader whose script does not arrive: it is loaded scoped to the
+// figures' stages, which hide what they hold until it is defined anyway, into a layer of the docs' own
+// (lib/stage-cloak.mjs, imported by components/visuals/Example.astro).
 const ELSEWHERE = {
   'base.css': 'not loaded',
   'tanrei.css': 'not loaded',
-  'cloak.css': 'not loaded',
+  'cloak.css': 'stage-cloak',
   'tokens.css': 'Head.astro',
   'icons.css': 'customCss',
   'steps.css': 'prose.css',
@@ -57,6 +59,11 @@ test('every stylesheet the web package ships is loaded into a layer of the docsâ
   const missing = shipped.filter((name) => {
     if (ELSEWHERE[name] === 'not loaded') return false;
     if (ELSEWHERE[name] === 'customCss') return !config.includes(`'@tanrei/web/${name}'`);
+    if (ELSEWHERE[name] === 'stage-cloak') {
+      const example = read(path.join(src, 'components/visuals/Example.astro'));
+      const plugin = read(path.join(src, 'lib/stage-cloak.mjs'));
+      return !(config.includes('stageCloakPlugin()') && example.includes("import 'virtual:tanrei-docs/stage-cloak.css';") && plugin.includes(`resolve('@tanrei/web/${name}')`));
+    }
     if (ELSEWHERE[name] === 'Head.astro') {
       const head = read(path.join(src, 'components/frame/Head.astro'));
       return !(head.includes(`import tokens from '@tanrei/web/${name}?url';`) && /<link rel="stylesheet" href=\{tokens\} \/>\s*<Default \/>/.test(head));

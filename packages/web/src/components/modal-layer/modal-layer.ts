@@ -21,6 +21,7 @@ import {
 import { styles } from './modal-layer.styles.js';
 import { TanreiElement } from '../../primitives/element.js';
 import { statesFromNextFrame } from '../../primitives/motion.js';
+import { DEBUG } from '../../primitives/debug.js';
 
 /** HTML's `closedby` values: `any` (Escape, back and a press on the scrim ask to close) or `none` (nothing does). */
 export type TanreiModalLayerClosedBy = 'any' | 'none' | 'closerequest';
@@ -233,7 +234,7 @@ export class TanreiModalLayer extends TanreiElement {
 
   protected override updated(changed: PropertyValues<this>) {
     // MDL-10: a layer without a label still opens; a debug build says it has no name.
-    if (changed.has('label') && !this.label.trim() && !namedByProduct(this)) report(this, 'MDL-10', 'label is empty, so the modal dialog has no accessible name; give it a label');
+    if (DEBUG && changed.has('label') && !this.label.trim() && !namedByProduct(this)) report(this, 'MDL-10', 'label is empty, so the modal dialog has no accessible name; give it a label');
     if (changed.has('open')) {
       if (this.open) this.present();
       else if (this.shown) this.withdraw(true);

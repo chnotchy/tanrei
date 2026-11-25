@@ -3,6 +3,7 @@ import { AnimatedSize, AvailabilityController, DIRECTION_PROBE, DirectionControl
 import { ambientLocale, localeDirection, supportedLocale } from '../../primitives/locale-date.js';
 import { TanreiElement } from '../../primitives/element.js';
 import { ANIMATIONS, ANIMATION_VALUES, CHOICE, COPIES, LIVE_VALUES, NOTATIONS, NUMBER_STYLES, SIGN_DISPLAYS, TRENDS, styles } from './number-ticker.styles.js';
+import { DEBUG } from '../../primitives/debug.js';
 
 /** How a digit changes; `auto` takes the design system's answer (`comp.number-ticker.animation`). */
 export type TanreiNumberTickerAnimation = (typeof ANIMATION_VALUES)[number];
@@ -232,7 +233,7 @@ export class TanreiNumberTicker extends TanreiElement {
 
   private closed<T extends string>(values: readonly T[], value: string, fallback: T, name: string): T {
     if ((values as readonly string[]).includes(value)) return value as T;
-    report(this, 'NTK-16', `${name} "${value}" is not a value of the number ticker; it is drawn as "${fallback}"`);
+    if (DEBUG) report(this, 'NTK-16', `${name} "${value}" is not a value of the number ticker; it is drawn as "${fallback}"`);
     return fallback;
   }
 
@@ -240,7 +241,7 @@ export class TanreiNumberTicker extends TanreiElement {
     const tag = (this.locale ?? '').trim();
     if (!tag) return ambientLocale(this);
     const known = supportedLocale(tag);
-    if (!known) report(this, 'NTK-16', `locale "${tag}" is not a language tag this browser knows; the language of where the ticker stands is used`);
+    if (DEBUG && !known) report(this, 'NTK-16', `locale "${tag}" is not a language tag this browser knows; the language of where the ticker stands is used`);
     return known ?? ambientLocale(this);
   }
 
@@ -253,19 +254,19 @@ export class TanreiNumberTicker extends TanreiElement {
     const digits = this.fractionDigits;
     if (digits !== null && digits !== undefined) {
       if (Number.isInteger(digits) && digits >= 0 && digits <= 100) Object.assign(options, { minimumFractionDigits: digits, maximumFractionDigits: digits });
-      else report(this, 'NTK-16', `fraction-digits ${digits} is not a whole number from 0 to 100; the formatter's own is used`);
+      else DEBUG && report(this, 'NTK-16', `fraction-digits ${digits} is not a whole number from 0 to 100; the formatter's own is used`);
     }
     if (style === 'currency') {
       const code = (this.currency ?? '').trim().toUpperCase();
       const listed = (Intl as { supportedValuesOf?: (key: string) => string[] }).supportedValuesOf;
       const known = typeof listed === 'function' ? listed('currency').includes(code) : /^[A-Z]{3}$/.test(code);
       if (known) return new Intl.NumberFormat(locale, { ...options, style, currency: code });
-      report(this, 'NTK-12', `currency "${this.currency}" is not a currency code the formatter knows; the number is written as decimal`);
+      if (DEBUG) report(this, 'NTK-12', `currency "${this.currency}" is not a currency code the formatter knows; the number is written as decimal`);
     } else if (style === 'unit') {
       try {
         return new Intl.NumberFormat(locale, { ...options, style, unit: (this.unit ?? '').trim() });
       } catch {
-        report(this, 'NTK-12', `unit "${this.unit}" is not a unit the formatter knows; the number is written as decimal`);
+        if (DEBUG) report(this, 'NTK-12', `unit "${this.unit}" is not a unit the formatter knows; the number is written as decimal`);
       }
     } else if (style === 'percent') {
       return new Intl.NumberFormat(locale, { ...options, style });
@@ -316,7 +317,7 @@ export class TanreiNumberTicker extends TanreiElement {
     const [duration, stagger, reduced] = (style?.transitionDuration ?? '').split(',').map(seconds);
     const own = this.duration;
     const valid = own === null || own === undefined || (Number.isFinite(own) && own > 0);
-    if (!valid) report(this, 'NTK-16', `duration ${own} is not a positive number of milliseconds; comp.number-ticker.motion.duration is used`);
+    if (DEBUG && !valid) report(this, 'NTK-16', `duration ${own} is not a positive number of milliseconds; comp.number-ticker.motion.duration is used`);
     return {
       duration: valid && own ? own : (duration ?? 0),
       stagger: stagger ?? 0,
@@ -332,7 +333,7 @@ export class TanreiNumberTicker extends TanreiElement {
   protected override willUpdate(changed: PropertyValues<this>) {
     if (changed.has('trend')) this.closed(TRENDS, this.trend, 'auto', 'trend');
     if (changed.has('live')) this.closed(LIVE_VALUES, this.live, 'off', 'live');
-    if (changed.has('value') && !Number.isFinite(Number(this.value))) {
+    if (DEBUG && changed.has('value') && !Number.isFinite(Number(this.value))) {
       report(this, 'NTK-12', `value ${this.value} is not a finite number; it is written as the formatter writes it, at once`);
     }
   }
@@ -377,7 +378,7 @@ export class TanreiNumberTicker extends TanreiElement {
   private mode(): Mode | 'none' {
     // Read (and an unknown value reported) where a change starts: the prop matters only then.
     const known = (ANIMATION_VALUES as readonly string[]).includes(this.animation);
-    if (!known) report(this, 'NTK-16', `animation "${this.animation}" is not a value of the number ticker; it is drawn as "auto"`);
+    if (DEBUG && !known) report(this, 'NTK-16', `animation "${this.animation}" is not a value of the number ticker; it is drawn as "auto"`);
     const asked = known ? this.animation : 'auto';
     if (asked === 'none') return 'none';
     return asked === 'auto' ? compChoice(this, CHOICE, ANIMATIONS) : (asked as Mode);

@@ -5,6 +5,7 @@ import type { TanreiSwatchShapeRegistry, TanreiSwatchSizeRegistry } from '../../
 import { AXES, styles } from './swatch.styles.js';
 import { TanreiElement } from '../../primitives/element.js';
 import { holdsProductName, nameHost, namedByProduct } from '../../primitives/delegated-aria.js';
+import { DEBUG } from '../../primitives/debug.js';
 
 /** The core sizes (small, medium, large), plus any a design system's generated `.d.ts` registers. */
 export type TanreiSwatchSize = keyof TanreiSwatchSizeRegistry;
@@ -102,7 +103,7 @@ export class TanreiSwatch extends TanreiElement {
 
   protected override willUpdate(changed: PropertyValues<this>) {
     // SWC-6: a value that reads as no color is drawn as empty, and a debug build names it.
-    if (changed.has('color') && readColor(this.color).refused) report(this, 'SWC-6', `color "${this.color}" reads as no color; the swatch is drawn as empty`, { once: false });
+    if (DEBUG && changed.has('color') && readColor(this.color).refused) report(this, 'SWC-6', `color "${this.color}" reads as no color; the swatch is drawn as empty`, { once: false });
   }
 
   protected override updated(changed: PropertyValues<this>) {
@@ -124,7 +125,7 @@ export class TanreiSwatch extends TanreiElement {
       'aria-description': image && name && supporting ? supporting : null,
       'aria-hidden': hidden ? 'true' : null,
     });
-    if ((changed.has('label') || changed.has('supportingText') || changed.has('decorative')) && nameless && !this.decorative && !productNamed) {
+    if (DEBUG && (changed.has('label') || changed.has('supportingText') || changed.has('decorative')) && nameless && !this.decorative && !productNamed) {
       report(this, 'SWC-12', 'a color is shown without a name, so the swatch exposes nothing; give it a label, or set decorative beside that name in text');
     }
   }
