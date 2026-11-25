@@ -3275,6 +3275,7 @@ class TanreiBottomSheetTokens {
     required this.containerPartialFraction,
     required this.containerShape,
     required this.contentColor,
+    required this.contentPaddingBlockStart,
     required this.dividerColor,
     required this.dividerVisibility,
     required this.dividerWidth,
@@ -3324,6 +3325,8 @@ class TanreiBottomSheetTokens {
   final double containerShape;
   /// `comp.bottom-sheet.content-color`
   final TanreiPaint contentColor;
+  /// `comp.bottom-sheet.content-padding-block-start`
+  final double contentPaddingBlockStart;
   /// `comp.bottom-sheet.divider-color`
   final TanreiPaint dividerColor;
   /// `comp.bottom-sheet.divider-visibility`
@@ -3391,6 +3394,7 @@ class TanreiBottomSheetTokens {
     double? containerPartialFraction,
     double? containerShape,
     TanreiPaint? contentColor,
+    double? contentPaddingBlockStart,
     TanreiPaint? dividerColor,
     double? dividerVisibility,
     double? dividerWidth,
@@ -3429,6 +3433,7 @@ class TanreiBottomSheetTokens {
         containerPartialFraction: containerPartialFraction ?? this.containerPartialFraction,
         containerShape: containerShape ?? this.containerShape,
         contentColor: contentColor ?? this.contentColor,
+        contentPaddingBlockStart: contentPaddingBlockStart ?? this.contentPaddingBlockStart,
         dividerColor: dividerColor ?? this.dividerColor,
         dividerVisibility: dividerVisibility ?? this.dividerVisibility,
         dividerWidth: dividerWidth ?? this.dividerWidth,
@@ -21717,6 +21722,7 @@ class TanreiSideSheetTokens {
     required this.containerPaddingInline,
     required this.containerWidth,
     required this.contentColor,
+    required this.contentPaddingBlockStart,
     required this.dividerColor,
     required this.dividerVisibility,
     required this.dividerWidth,
@@ -21755,6 +21761,8 @@ class TanreiSideSheetTokens {
   final double containerWidth;
   /// `comp.side-sheet.content-color`
   final TanreiPaint contentColor;
+  /// `comp.side-sheet.content-padding-block-start`
+  final double contentPaddingBlockStart;
   /// `comp.side-sheet.divider-color`
   final TanreiPaint dividerColor;
   /// `comp.side-sheet.divider-visibility`
@@ -21800,6 +21808,7 @@ class TanreiSideSheetTokens {
     double? containerPaddingInline,
     double? containerWidth,
     TanreiPaint? contentColor,
+    double? contentPaddingBlockStart,
     TanreiPaint? dividerColor,
     double? dividerVisibility,
     double? dividerWidth,
@@ -21827,6 +21836,7 @@ class TanreiSideSheetTokens {
         containerPaddingInline: containerPaddingInline ?? this.containerPaddingInline,
         containerWidth: containerWidth ?? this.containerWidth,
         contentColor: contentColor ?? this.contentColor,
+        contentPaddingBlockStart: contentPaddingBlockStart ?? this.contentPaddingBlockStart,
         dividerColor: dividerColor ?? this.dividerColor,
         dividerVisibility: dividerVisibility ?? this.dividerVisibility,
         dividerWidth: dividerWidth ?? this.dividerWidth,
