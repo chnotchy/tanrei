@@ -4,7 +4,7 @@
 // where each thing is stays where it was.
 import { CORNER_SMOOTHING } from '../core.js';
 import { SUGGESTED_FAMILIES } from '../fonts.js';
-import { type Ctx, type Json, type Layer, h, ltr, rich, trim } from './dom';
+import { type Ctx, type Json, type Layer, h, ltr, rich, tip, trim } from './dom';
 import { MORE, ROWS, type Row, type Section } from './sections';
 
 const glyph = (ctx: Ctx, name: string, attrs: Json = {}) => h('span', { class: `${ctx.studio.tagPrefix}-icon`, 'aria-hidden': 'true', translate: 'no', ...attrs }, name);
@@ -276,16 +276,22 @@ export function createRail(ctx: Ctx, { locked, onshow, onlock }: { locked: Set<R
         const state = rowState(ctx, layer, row);
         if (typeof state.value === 'string') value.textContent = state.value;
         else value.replaceChildren(...state.value);
-        // A line too long for the rail is cut with an ellipsis (studio.css): pointed at, it shows the whole value. (The
-        // row is named by its text, which holds the whole value.)
-        line.title = value.textContent ?? '';
+        whole.text = value.textContent || t.rail.rows[row];
         unchanged.hidden = state.changed;
         show.toggleAttribute('data-changed', state.changed);
         drawn.draw();
       });
       // The chevron says the row opens its controls; pressing it is pressing the row.
       const chevron = h('span', { class: 'ts-rail-chevron', 'aria-hidden': 'true', onclick: () => show.click() }, glyph(ctx, CHEVRON_GLYPH));
-      return h('li', { class: 'ts-rail-item', 'data-rail-row': row }, show, lock, chevron);
+      // A line too long for the rail is cut with an ellipsis (studio.css): pointed at or focused, the row shows the
+      // whole value in a Tanrei tooltip, as the bar's controls show theirs. Only a cut value opens it: a line cut after
+      // the value, in the word that says it is the start's, shows the value whole already. The row is named by its text, which holds the whole value, so the tooltip adds nothing to that name.
+      // (Its text is the row's name until the rail is first drawn: a tooltip is never left without text.)
+      const whole = tip(show, t.rail.rows[row], true, { class: 'ts-rail-tip', placement: 'top-start' }) as HTMLElement & { text: string; open: boolean };
+      whole.addEventListener('toggle', (event) => {
+        if (event.target === whole && whole.open && value.getBoundingClientRect().width <= line.clientWidth + 1) whole.open = false;
+      });
+      return h('li', { class: 'ts-rail-item', 'data-rail-row': row }, whole, lock, chevron);
     }),
   );
 

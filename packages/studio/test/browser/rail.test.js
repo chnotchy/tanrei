@@ -29,12 +29,12 @@ studioTest('the rail lists the nine rows, then the rest; each shows its panel, a
         const value = line.querySelector('.ts-rail-value');
         const end = value.getBoundingClientRect();
         const room = line.getBoundingClientRect();
-        return { row: line.closest('[data-row]').dataset.row, lines: Math.round(room.height / parseFloat(getComputedStyle(line).lineHeight)), cut: line.scrollWidth > line.clientWidth, valueCut: end.right > room.right + 1, title: line.title, text: value.textContent, ellipsis: getComputedStyle(line).textOverflow };
+        return { row: line.closest('[data-row]').dataset.row, lines: Math.round(room.height / parseFloat(getComputedStyle(line).lineHeight)), cut: line.scrollWidth > line.clientWidth, valueCut: end.right > room.right + 1, title: line.title, tip: line.closest('tanrei-tooltip')?.text, described: line.closest('tanrei-tooltip')?.hasAttribute('no-describe'), text: value.textContent, ellipsis: getComputedStyle(line).textOverflow };
       }),
     );
   const now = await lines();
   for (const line of now) {
-    assert.deepEqual([line.lines, line.title, line.ellipsis], [1, line.text, 'ellipsis'], `${line.row}: one line, cut with an ellipsis, its tooltip the whole value`);
+    assert.deepEqual([line.lines, line.title, line.tip, line.described, line.ellipsis], [1, '', line.text, true, 'ellipsis'], `${line.row}: one line, cut with an ellipsis, its Tanrei tooltip the whole value, adding nothing to the row's name (no native title)`);
   }
   assert.deepEqual(now.filter((line) => line.valueCut).map((line) => line.row), [], 'every value of the start is whole beside the rail’s samples');
   assert.deepEqual(now.filter((line) => line.cut).map((line) => line.row), ['color', 'size'], '«default» gives way after «none (monochrome)» and «40px · minimum 36px»');
@@ -43,8 +43,20 @@ studioTest('the rail lists the nine rows, then the rest; each shows its panel, a
   assert.equal(await page.evaluate((name) => window.tanreiStudio.applyOperation('tanrei.ref.typeface.brand', { $value: [name, 'sans-serif'], reason: 'Our brand face.' }), family), null);
   await page.waitForFunction((name) => document.querySelector('[data-rail] [data-row="typeface"] .ts-rail-value')?.textContent === name, family);
   const typeface = (await lines()).find((line) => line.row === 'typeface');
-  assert.deepEqual([typeface.lines, typeface.cut, typeface.valueCut, typeface.title], [1, true, true, family]);
+  assert.deepEqual([typeface.lines, typeface.cut, typeface.valueCut, typeface.tip], [1, true, true, family]);
   assert.equal(await page.getByRole('button', { name: `Typeface ${family}`, exact: true }).count(), 1, 'the cut value is whole in the row’s name');
+  // Pointed at, the cut row opens its tooltip with the whole value; a row whose value is whole opens none.
+  const tipOf = (row) => page.locator(`[data-rail-row="${row}"] > tanrei-tooltip`);
+  await page.locator('[data-rail] [data-row="typeface"]').hover();
+  await page.waitForFunction(() => document.querySelector('[data-rail-row="typeface"] > tanrei-tooltip')?.open === true);
+  assert.equal(await tipOf('typeface').evaluate((el) => el.shadowRoot.querySelector('[role="tooltip"]').textContent.trim()), family);
+  // (When the pointer has rested long enough, the color row's tooltip asks to open — its `toggle` — and is shut at once:
+  // its line is cut, but only in the word «default» after the value, which is whole.)
+  await tipOf('color').evaluate((el) => el.addEventListener('toggle', (event) => (el.dataset.asked = String(event.detail.open)), { once: true }));
+  await page.locator('[data-rail] [data-row="color"]').hover();
+  await page.waitForFunction(() => document.querySelector('[data-rail-row="color"] > tanrei-tooltip')?.dataset.asked === 'true');
+  assert.deepEqual(await tipOf('color').evaluate((el) => [el.open, el.shadowRoot.querySelector('[role="tooltip"]').matches(':popover-open')]), [false, false], 'a whole value opens no tooltip, though the word after it is cut');
+  assert.equal(await tipOf('typeface').evaluate((el) => el.open), false);
   assert.equal(await page.locator('[data-rail] .ts-sample').count(), ROWS.length);
   // Each row, and each item after them, ends in a chevron: it opens its controls.
   assert.equal(await page.locator('[data-rail] .ts-rail-chevron').count(), ROWS.length + MORE.length);
