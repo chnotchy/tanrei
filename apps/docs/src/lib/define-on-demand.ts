@@ -17,8 +17,9 @@
 // components/frame/Appearance.astro). So is what an example's stage holds while it is away from the
 // view (`data-example-pending`, components/visuals/Example.astro): once lib/example.ts takes the mark away, as the
 // stage comes near, what it holds is defined as what is added later is, so a page of many examples asks, as it loads,
-// only for what the reader is near. An element of a tag defined meanwhile for another part of the page is upgraded with
-// it, as the browser does.
+// only for what the reader is near; right after the page's load, lib/example.ts asks for the rest of what the
+// stages hold (`defineAhead`), so that each takes its drawn room before the reader reaches it. An element of a tag
+// defined meanwhile for another part of the page is upgraded with it, as the browser does.
 //
 // The table holds every module of the package, but the site defines only what `@tanrei/web` registers, the default
 // system's components: one the default system does not have is defined only where the site shows a system that has
@@ -87,6 +88,17 @@ function scan(node: Element | Document | ShadowRoot) {
   };
   if (node instanceof Element) each(node);
   for (const element of node.querySelectorAll('*')) each(element);
+}
+
+/**
+ * Defines the elements a part holds while it still holds them back (`data-example-pending`): what lib/example.ts asks
+ * for, right after the page's load, so that a stage away from the view can take the room its elements take drawn
+ * before the reader reaches it. An element defined on its first use is still left to its owner.
+ */
+export function defineAhead(part: Element) {
+  for (const element of part.querySelectorAll('*')) {
+    if (element.localName.startsWith('tanrei-') && !element.matches(':defined') && !element.closest(ON_USE)) want(element);
+  }
 }
 
 function watch(root: Document | ShadowRoot) {
