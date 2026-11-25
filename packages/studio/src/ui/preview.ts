@@ -194,23 +194,25 @@ export function createPreview(ctx: Ctx, { contrast, onContrast }: { contrast: Co
   const emphasisToggle = h('tanrei-checkbox', { label: t.preview.emphasized, 'data-emphasized-toggle': true, title: t.preview.emphasizedHelp, onchange: () => ((emphasized = emphasisToggle.checked), drawEmphasis()) });
   // A link in a screen goes nowhere: the page's address is the Studio's (it may hold the layer).
   scope.addEventListener('click', (event) => (event.composedPath() as Element[]).some((node) => node instanceof HTMLAnchorElement) && event.preventDefault());
+  // One line, as the bar of a tool's canvas: the screens at its start; at its end how they are seen — said once to be
+  // the viewer's, not the file's — the scheme, the contrast and the emphasis. The preview's name is for whoever reads
+  // the page by its regions; the screen itself says what it is.
   const el = h(
     'div',
     { class: 'ts-preview', 'aria-labelledby': id },
     h(
       'header',
       { class: 'ts-preview-bar' },
-      h('h2', { id, class: 'ts-eyebrow', text: t.preview.title }),
+      h('h2', { id, class: 'ts-hidden', text: t.preview.title }),
       screenTabs,
       h(
         'div',
-        { class: 'ts-preview-conditions', role: 'group', 'aria-label': s.conditions },
+        { class: 'ts-preview-conditions', role: 'group', 'aria-labelledby': note },
+        h('span', { id: note, class: 'ts-preview-note', text: s.conditions }),
         modeTabs,
-        h('span', { class: 'ts-preview-word', 'aria-hidden': 'true', text: t.preview.contrast }),
         contrastTabs,
-        h('span', { class: 'ts-row-actions' }, badge, emphasisToggle),
+        emphasisToggle,
       ),
-      h('p', { id: note, class: 'ts-preview-note', text: s.conditions }),
     ),
     stale,
     sheet,
@@ -221,6 +223,8 @@ export function createPreview(ctx: Ctx, { contrast, onContrast }: { contrast: Co
     apply,
     patch,
     stale,
+    /** The count of the build's warnings, and the way to them: the bar's, beside Share and Export. */
+    badge,
     scopeId,
     short: (tokenId: string) => short(tokenId, NS),
     cssColor,
