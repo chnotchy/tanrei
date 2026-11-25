@@ -8862,6 +8862,7 @@
     [data-tanrei-system="core"]:not([data-tanrei-contrast]) {
       --tanrei-sys-color-elevation-ring: light-dark(var(--tanrei-ref-alpha-black-30), var(--tanrei-ref-alpha-white-40));
       --tanrei-sys-color-error: light-dark(var(--tanrei-ref-palette-error-30), var(--tanrei-ref-palette-error-87));
+      --tanrei-sys-color-focus-ring: var(--tanrei-sys-color-primary);
       --tanrei-sys-color-info: light-dark(var(--tanrei-ref-palette-info-30), var(--tanrei-ref-palette-info-87));
       --tanrei-sys-color-on-error-container: light-dark(var(--tanrei-ref-palette-error-8), var(--tanrei-ref-palette-error-96));
       --tanrei-sys-color-on-info-container: light-dark(var(--tanrei-ref-palette-info-8), var(--tanrei-ref-palette-info-96));
@@ -8893,11 +8894,31 @@
       --tanrei-comp-select-outlined-selected-option-container-color: color-mix(in srgb, var(--tanrei-comp-select-outlined-selected-option-state-layer-color) calc(var(--tanrei-sys-state-selected-state-layer-opacity) * 100%), transparent);
       --tanrei-comp-select-stacked-disabled-selected-option-container-color: color-mix(in srgb, var(--tanrei-sys-color-on-surface) calc(var(--tanrei-sys-state-disabled-container-opacity) * 100%), transparent);
       --tanrei-comp-select-stacked-selected-option-container-color: color-mix(in srgb, var(--tanrei-comp-select-stacked-selected-option-state-layer-color) calc(var(--tanrei-sys-state-selected-state-layer-opacity) * 100%), transparent);
+      --tanrei-comp-code-block-syntax-color-constant: var(--tanrei-sys-color-on-surface);
+      --tanrei-comp-code-block-syntax-color-function: var(--tanrei-sys-color-on-surface);
+      --tanrei-comp-code-block-syntax-color-keyword: var(--tanrei-sys-color-on-surface);
+      --tanrei-comp-code-block-syntax-color-property: var(--tanrei-sys-color-on-surface);
+      --tanrei-comp-code-block-syntax-color-string: var(--tanrei-sys-color-on-surface);
+      --tanrei-comp-code-block-syntax-color-tag: var(--tanrei-sys-color-on-surface);
+      --tanrei-comp-code-block-syntax-color-type: var(--tanrei-sys-color-on-surface);
+      --tanrei-comp-snackbar-inverse-error-icon-color: var(--tanrei-comp-snackbar-inverse-error-supporting-text-color);
+      --tanrei-comp-snackbar-inverse-error-outline-color: var(--tanrei-sys-color-error);
+      --tanrei-comp-snackbar-inverse-error-supporting-text-color: var(--tanrei-sys-color-error-container);
+      --tanrei-comp-snackbar-inverse-info-icon-color: var(--tanrei-comp-snackbar-inverse-info-supporting-text-color);
+      --tanrei-comp-snackbar-inverse-info-outline-color: var(--tanrei-sys-color-info);
+      --tanrei-comp-snackbar-inverse-info-supporting-text-color: var(--tanrei-sys-color-info-container);
+      --tanrei-comp-snackbar-inverse-success-icon-color: var(--tanrei-comp-snackbar-inverse-success-supporting-text-color);
+      --tanrei-comp-snackbar-inverse-success-outline-color: var(--tanrei-sys-color-success);
+      --tanrei-comp-snackbar-inverse-success-supporting-text-color: var(--tanrei-sys-color-success-container);
+      --tanrei-comp-snackbar-inverse-warning-icon-color: var(--tanrei-comp-snackbar-inverse-warning-supporting-text-color);
+      --tanrei-comp-snackbar-inverse-warning-outline-color: var(--tanrei-sys-color-warning);
+      --tanrei-comp-snackbar-inverse-warning-supporting-text-color: var(--tanrei-sys-color-warning-container);
     }
   }
   [data-tanrei-system="core"][data-tanrei-contrast="medium"], [data-tanrei-system="core"] [data-tanrei-contrast="medium"], [data-tanrei-contrast="medium"] [data-tanrei-system="core"]:not([data-tanrei-contrast]) {
     --tanrei-sys-color-elevation-ring: light-dark(var(--tanrei-ref-alpha-black-14), var(--tanrei-ref-alpha-white-22));
     --tanrei-sys-color-error: light-dark(var(--tanrei-ref-palette-error-38), var(--tanrei-ref-palette-error-80));
+    --tanrei-sys-color-focus-ring: var(--tanrei-sys-color-primary);
     --tanrei-sys-color-info: light-dark(var(--tanrei-ref-palette-info-38), var(--tanrei-ref-palette-info-80));
     --tanrei-sys-color-on-error-container: light-dark(var(--tanrei-ref-palette-error-12), var(--tanrei-ref-palette-error-94));
     --tanrei-sys-color-on-info-container: light-dark(var(--tanrei-ref-palette-info-12), var(--tanrei-ref-palette-info-94));
@@ -8929,10 +8950,30 @@
     --tanrei-comp-select-outlined-selected-option-container-color: color-mix(in srgb, var(--tanrei-comp-select-outlined-selected-option-state-layer-color) calc(var(--tanrei-sys-state-selected-state-layer-opacity) * 100%), transparent);
     --tanrei-comp-select-stacked-disabled-selected-option-container-color: color-mix(in srgb, var(--tanrei-sys-color-on-surface) calc(var(--tanrei-sys-state-disabled-container-opacity) * 100%), transparent);
     --tanrei-comp-select-stacked-selected-option-container-color: color-mix(in srgb, var(--tanrei-comp-select-stacked-selected-option-state-layer-color) calc(var(--tanrei-sys-state-selected-state-layer-opacity) * 100%), transparent);
+    --tanrei-comp-code-block-syntax-color-constant: var(--tanrei-sys-color-on-surface);
+    --tanrei-comp-code-block-syntax-color-function: var(--tanrei-sys-color-on-surface);
+    --tanrei-comp-code-block-syntax-color-keyword: var(--tanrei-sys-color-on-surface);
+    --tanrei-comp-code-block-syntax-color-property: var(--tanrei-sys-color-on-surface);
+    --tanrei-comp-code-block-syntax-color-string: var(--tanrei-sys-color-on-surface);
+    --tanrei-comp-code-block-syntax-color-tag: var(--tanrei-sys-color-on-surface);
+    --tanrei-comp-code-block-syntax-color-type: var(--tanrei-sys-color-on-surface);
+    --tanrei-comp-snackbar-inverse-error-icon-color: var(--tanrei-comp-snackbar-inverse-error-supporting-text-color);
+    --tanrei-comp-snackbar-inverse-error-outline-color: var(--tanrei-sys-color-error);
+    --tanrei-comp-snackbar-inverse-error-supporting-text-color: var(--tanrei-sys-color-error-container);
+    --tanrei-comp-snackbar-inverse-info-icon-color: var(--tanrei-comp-snackbar-inverse-info-supporting-text-color);
+    --tanrei-comp-snackbar-inverse-info-outline-color: var(--tanrei-sys-color-info);
+    --tanrei-comp-snackbar-inverse-info-supporting-text-color: var(--tanrei-sys-color-info-container);
+    --tanrei-comp-snackbar-inverse-success-icon-color: var(--tanrei-comp-snackbar-inverse-success-supporting-text-color);
+    --tanrei-comp-snackbar-inverse-success-outline-color: var(--tanrei-sys-color-success);
+    --tanrei-comp-snackbar-inverse-success-supporting-text-color: var(--tanrei-sys-color-success-container);
+    --tanrei-comp-snackbar-inverse-warning-icon-color: var(--tanrei-comp-snackbar-inverse-warning-supporting-text-color);
+    --tanrei-comp-snackbar-inverse-warning-outline-color: var(--tanrei-sys-color-warning);
+    --tanrei-comp-snackbar-inverse-warning-supporting-text-color: var(--tanrei-sys-color-warning-container);
   }
   [data-tanrei-system="core"][data-tanrei-contrast="high"], [data-tanrei-system="core"] [data-tanrei-contrast="high"], [data-tanrei-contrast="high"] [data-tanrei-system="core"]:not([data-tanrei-contrast]) {
     --tanrei-sys-color-elevation-ring: light-dark(var(--tanrei-ref-alpha-black-30), var(--tanrei-ref-alpha-white-40));
     --tanrei-sys-color-error: light-dark(var(--tanrei-ref-palette-error-30), var(--tanrei-ref-palette-error-87));
+    --tanrei-sys-color-focus-ring: var(--tanrei-sys-color-primary);
     --tanrei-sys-color-info: light-dark(var(--tanrei-ref-palette-info-30), var(--tanrei-ref-palette-info-87));
     --tanrei-sys-color-on-error-container: light-dark(var(--tanrei-ref-palette-error-8), var(--tanrei-ref-palette-error-96));
     --tanrei-sys-color-on-info-container: light-dark(var(--tanrei-ref-palette-info-8), var(--tanrei-ref-palette-info-96));
@@ -8964,5 +9005,24 @@
     --tanrei-comp-select-outlined-selected-option-container-color: color-mix(in srgb, var(--tanrei-comp-select-outlined-selected-option-state-layer-color) calc(var(--tanrei-sys-state-selected-state-layer-opacity) * 100%), transparent);
     --tanrei-comp-select-stacked-disabled-selected-option-container-color: color-mix(in srgb, var(--tanrei-sys-color-on-surface) calc(var(--tanrei-sys-state-disabled-container-opacity) * 100%), transparent);
     --tanrei-comp-select-stacked-selected-option-container-color: color-mix(in srgb, var(--tanrei-comp-select-stacked-selected-option-state-layer-color) calc(var(--tanrei-sys-state-selected-state-layer-opacity) * 100%), transparent);
+    --tanrei-comp-code-block-syntax-color-constant: var(--tanrei-sys-color-on-surface);
+    --tanrei-comp-code-block-syntax-color-function: var(--tanrei-sys-color-on-surface);
+    --tanrei-comp-code-block-syntax-color-keyword: var(--tanrei-sys-color-on-surface);
+    --tanrei-comp-code-block-syntax-color-property: var(--tanrei-sys-color-on-surface);
+    --tanrei-comp-code-block-syntax-color-string: var(--tanrei-sys-color-on-surface);
+    --tanrei-comp-code-block-syntax-color-tag: var(--tanrei-sys-color-on-surface);
+    --tanrei-comp-code-block-syntax-color-type: var(--tanrei-sys-color-on-surface);
+    --tanrei-comp-snackbar-inverse-error-icon-color: var(--tanrei-comp-snackbar-inverse-error-supporting-text-color);
+    --tanrei-comp-snackbar-inverse-error-outline-color: var(--tanrei-sys-color-error);
+    --tanrei-comp-snackbar-inverse-error-supporting-text-color: var(--tanrei-sys-color-error-container);
+    --tanrei-comp-snackbar-inverse-info-icon-color: var(--tanrei-comp-snackbar-inverse-info-supporting-text-color);
+    --tanrei-comp-snackbar-inverse-info-outline-color: var(--tanrei-sys-color-info);
+    --tanrei-comp-snackbar-inverse-info-supporting-text-color: var(--tanrei-sys-color-info-container);
+    --tanrei-comp-snackbar-inverse-success-icon-color: var(--tanrei-comp-snackbar-inverse-success-supporting-text-color);
+    --tanrei-comp-snackbar-inverse-success-outline-color: var(--tanrei-sys-color-success);
+    --tanrei-comp-snackbar-inverse-success-supporting-text-color: var(--tanrei-sys-color-success-container);
+    --tanrei-comp-snackbar-inverse-warning-icon-color: var(--tanrei-comp-snackbar-inverse-warning-supporting-text-color);
+    --tanrei-comp-snackbar-inverse-warning-outline-color: var(--tanrei-sys-color-warning);
+    --tanrei-comp-snackbar-inverse-warning-supporting-text-color: var(--tanrei-sys-color-warning-container);
   }
 }

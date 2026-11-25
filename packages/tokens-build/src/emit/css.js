@@ -1,6 +1,7 @@
 import { ruleDependencies } from '@tanrei/token-engine';
 import { CONFIG } from '../config.js';
 import { GENERATED_HEADER, cssColor, kebab, typeFamily } from '../pure.js';
+import DEFAULT_CONTRAST from '../../generated/default-contrast.json' with { type: 'json' };
 
 const PREFIX = CONFIG.web.cssPrefix;
 const varName = (path) => `${PREFIX}-${kebab(path)}`;
@@ -279,25 +280,13 @@ function colorValue(token) {
   return token.alias ? ref(token.alias) : cssColor(token.value);
 }
 
-/**
- * @param {{ scope?: string, unavailable?: { components: string[], variants: Record<string, string[]> }, outside?: Record<string, string>, replacements?: Record<string, string[]> }} [options]
- *   `scope` = a system id: the sheet then applies inside `[data-tanrei-system="<id>"]` instead of `:root`, so several
- *   systems can coexist on one page. `unavailable` = what the system does not ship, declared as one string
- *   property (`component` or `component:variant`, space-separated) that a component reads to warn in development. It is
- *   declared even when empty, so a preset's empty list overrides the default system's inherited one. `outside` = the
- *   components that live in a layer the system does not extend (component → that layer), declared the same way: the
- *   system's sheet has no tokens for them, and a component used there says so. `replacements` = what the system uses
- *   instead of a component it does not have (component → components, the manifest's `insteadUse`), declared the same
- *   way, so that the report names them. `used` = the custom properties a page reads from this sheet: the sheet then
- *   declares only those and every custom property their values read (`var()`, followed to the end), and leaves out a
- *   rule that is left with nothing. Off by default: without it the sheet declares every token. A declaration that is
- *   not a custom property (`color-scheme`) is kept either way.
- */
-export function emitCss(model, { scope, unavailable, outside, replacements, used } = {}) {
-  const NS = CONFIG.namespace;
-  const S = scope ? `[data-${NS}-system="${scope}"]` : ':root';
-  const pair = (light, dark) => (light === dark ? light : `light-dark(${light}, ${dark})`);
+const pair = (light, dark) => (light === dark ? light : `light-dark(${light}, ${dark})`);
 
+/**
+ * The colours a sheet's contrast blocks are written from: every role and every per-scheme component color, at a level.
+ * @returns {{ perScheme: string[], componentLevel: (suffix: string) => string[][], level: (suffix: string) => string[][], standard: string[][], roles: string[] }}
+ */
+function contrastLevels(model) {
   // A component color is normally ONE declaration for all six schemes: an alias or a computation over role variables,
   // which follow the scheme by themselves. Two rules are decided per scheme at build time — `tone` and `contrast-pick`
   // (IR paint kind 'scheme') — and their result is delivered exactly as a role's is: `light-dark()` in the base
@@ -311,14 +300,6 @@ export function emitCss(model, { scope, unavailable, outside, replacements, used
         return model.schemes.some((scheme) => inScheme(id, scheme) !== light);
       });
   const componentLevel = (suffix) => perScheme.map((id) => [idToVar(id), pair(inScheme(id, `light${suffix}`), inScheme(id, `dark${suffix}`))]);
-
-  const base = [];
-  for (const token of Object.values(model.tokens)) {
-    if (token.path[0] === 'sys' && token.path[1] === 'color') continue;
-    if (perScheme.includes(token.id)) base.push(componentLevel('').find(([name]) => name === idToVar(token.id)));
-    else base.push(...declarations(token, model.tokens), ...cornerCompanion(token, model.tokens), ...insetRingCompanion(token));
-  }
-
   const roles = Object.keys(model.colors.light);
   const level = (suffix) => [
     ...roles.map((role) => [
@@ -327,11 +308,74 @@ export function emitCss(model, { scope, unavailable, outside, replacements, used
     ]),
     ...componentLevel(suffix),
   ];
-  // The base block holds the standard level of a per-scheme component color already (in token order).
-  const standard = level('');
-  const changed = (decls) => decls.filter(([n, v]) => standard.find(([sn]) => sn === n)[1] !== v);
-  const medium = changed(level('-medium'));
-  const high = changed(level('-high'));
+  return { perScheme, componentLevel, level, standard: level(''), roles };
+}
+
+/** The names of the declarations of a level that differ from the standard level's. */
+function changedAt(standard, decls) {
+  const was = new Map(standard);
+  return new Set(decls.filter(([name, value]) => was.get(name) !== value).map(([name]) => name));
+}
+
+/**
+ * The custom properties the contrast blocks of a system's root sheet declare: what its medium or its high level changes.
+ * `generated/default-contrast.json` holds the default system's (`tokens.css`), which every system scope restates.
+ * @returns {string[]}
+ */
+export function contrastProperties(model) {
+  const { standard, level } = contrastLevels(model);
+  return [...new Set([...changedAt(standard, level('-medium')), ...changedAt(standard, level('-high'))])].sort();
+}
+
+/**
+ * @param {{ scope?: string, unavailable?: { components: string[], variants: Record<string, string[]> }, outside?: Record<string, string>, replacements?: Record<string, string[]>, used?: Iterable<string>, restate?: Iterable<string> }} [options]
+ *   `scope` = a system id: the sheet then applies inside `[data-tanrei-system="<id>"]` instead of `:root`, so several
+ *   systems can coexist on one page. Its contrast blocks then restate every custom property the default system's
+ *   contrast blocks declare (`restate`; by default `generated/default-contrast.json`), whether the system's own level
+ *   changes it or not. A product's root that names the system is drawn with `tokens.css` too, whose rule for a level
+ *   (`:root:not([data-tanrei-contrast])` under `prefers-contrast: more` weighs two attributes, as much as the scope's
+ *   rule and more than its base block) sets the default system's colour wherever the scope's rule for that level is
+ *   silent. `unavailable` = what the system does not ship, declared as one string
+ *   property (`component` or `component:variant`, space-separated) that a component reads to warn in development. It is
+ *   declared even when empty, so a preset's empty list overrides the default system's inherited one. `outside` = the
+ *   components that live in a layer the system does not extend (component → that layer), declared the same way: the
+ *   system's sheet has no tokens for them, and a component used there says so. `replacements` = what the system uses
+ *   instead of a component it does not have (component → components, the manifest's `insteadUse`), declared the same
+ *   way, so that the report names them. `used` = the custom properties a page reads from this sheet: the sheet then
+ *   declares only those and every custom property their values read (`var()`, followed to the end), and leaves out a
+ *   rule that is left with nothing. Off by default: without it the sheet declares every token. A declaration that is
+ *   not a custom property (`color-scheme`) is kept either way.
+ */
+export function emitCss(model, { scope, unavailable, outside, replacements, used, restate } = {}) {
+  const NS = CONFIG.namespace;
+  const S = scope ? `[data-${NS}-system="${scope}"]` : ':root';
+  const { perScheme, componentLevel, level, standard, roles } = contrastLevels(model);
+
+  const base = [];
+  for (const token of Object.values(model.tokens)) {
+    if (token.path[0] === 'sys' && token.path[1] === 'color') continue;
+    if (perScheme.includes(token.id)) base.push(componentLevel('').find(([name]) => name === idToVar(token.id)));
+    else base.push(...declarations(token, model.tokens), ...cornerCompanion(token, model.tokens), ...insetRingCompanion(token));
+  }
+
+  // The base block holds the standard level of a per-scheme component color already (in token order). A root sheet's
+  // contrast block declares what its level changes. A system scope's declares that and every property the default
+  // system's contrast blocks declare: at the scope's own level where its colour follows the level, and as its base
+  // block writes it where it does not (an alias, or a mix over roles, which reaches the level through var()). A
+  // property the scope has no token for is left to the sheet around it.
+  const restated = new Set(scope ? (restate ?? DEFAULT_CONTRAST.properties) : []);
+  const inBase = new Map(base);
+  const atLevel = (suffix) => {
+    const decls = level(suffix);
+    const changed = changedAt(standard, decls);
+    const named = new Set(decls.map(([name]) => name));
+    return [
+      ...decls.filter(([name]) => changed.has(name) || restated.has(name)),
+      ...[...restated].filter((name) => !named.has(name) && inBase.has(name)).map((name) => [name, inBase.get(name)]),
+    ];
+  };
+  const medium = atLevel('-medium');
+  const high = atLevel('-high');
 
   const attr = (k, v) => `[data-${NS}-${k}="${v}"]`;
   // A system scope takes a contrast set on itself, inside itself, or — unless it says otherwise — around itself

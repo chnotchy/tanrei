@@ -5,7 +5,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { test } from 'node:test';
 import { fileURLToPath } from 'node:url';
-import { emitCss, idToVar } from '../src/emit/css.js';
+import { contrastProperties, emitCss, idToVar } from '../src/emit/css.js';
 import { buildIR } from '../src/ir.js';
 import { resolveSystem } from '../src/resolve.js';
 
@@ -104,7 +104,11 @@ test('a system without such a rule: no component color is declared per scheme; t
       assert.equal(perScheme.length, 7 + bands, system);
       assert.equal(perScheme.filter((line) => BANDS.test(line)).length, bands, system);
       assert.deepEqual(perScheme.filter((line) => !SYNTAX.test(line) && !BANDS.test(line)), [], system);
-      assert.deepEqual(raised.filter((line) => !SYNTAX.test(line) && !(bands && BANDS.test(line))), [], `${system}: besides the inherited syntax hues (and m3-like's bands) the contrast blocks hold roles only`);
+      // A system scope restates what the default system's contrast blocks declare (its checked fills and its snackbar's
+      // inverse colors), as the scope's base block writes them where they do not follow the level here.
+      const restated = new Set(contrastProperties(await (await resolveSystem({ system: 'tanrei' })).model()));
+      assert.deepEqual(raised.filter((line) => !SYNTAX.test(line) && !(bands && BANDS.test(line)) && !restated.has(line.trim().split(':')[0])), [], `${system}: besides the inherited syntax hues (and m3-like's bands) and what the default system's contrast blocks declare, the contrast blocks hold roles only`);
+      assert.ok(raised.some((line) => /-selected-option-container-color:/.test(line)) && raised.some((line) => /snackbar-inverse-/.test(line)), `${system}: the default system's checked fills and inverse snackbar colors are declared again`);
     }
   }
 });
