@@ -48,6 +48,8 @@ import {
   onBackdrop,
   openModal,
   overlayDepth,
+  cancelPhaseRead,
+  readInPhase,
   readTogether,
   registerOverlay,
   report,
@@ -348,9 +350,19 @@ export class TanreiPopover extends TanreiElement implements VariantHost, Placing
 
   /**
    * One resize watch for every popover: a frame reports all the popovers whose parts changed size in one callback, and
-   * each lays its parts out with every other's of the turn (`readTogether`), all reads before any write. A watch of each
-   * popover's own would have each read after the writes of the one before, and the browser lay the page out again for
-   * each.
+   * each lays its parts out in the next frame's read phase (src/primitives/read-phase.ts), with every other's, all reads
+   * before any write. A watch of each popover's own would have each read after the writes of the one before, and the
+   * browser lay the page out again for each.
+   *
+   * Nothing is written in its report. Whether the actions fit a row, and what scrolls, change the container's height,
+   * and a box that changes size in a report is reported again in that frame only if it lies deeper than every box
+   * reported before it: laid out in the report, a popover whose width followed its anchor's (`width="anchor"`) in a box
+   * that changes the size of nothing above it left its parts undelivered, and the browser raised "ResizeObserver loop
+   * completed with undelivered notifications". The read phase is reported with the page's root element, so what it
+   * writes is reported in the same frame. What the frame after a change of width draws late is that arrangement: for
+   * one frame the actions stay a row (or a column) as they were, and the dividers as they were. A change of the
+   * popover's own (its children, its slots) is laid out in its own turn (`#onResize()`), and drawn in the frame of the
+   * change.
    */
   private static sizes: ResizeObserver | null = null;
   /**
@@ -370,11 +382,12 @@ export class TanreiPopover extends TanreiElement implements VariantHost, Placing
         const popover = TanreiPopover.owners.get(entry.target);
         if (popover) changed.add(popover);
       }
-      for (const popover of changed) popover.#onResize();
+      for (const popover of changed) readInPhase(popover.resizeRead, popover.readResized);
     })).observe(element);
   }
 
   private unwatchSizes() {
+    cancelPhaseRead(this.resizeRead);
     for (const element of this.watched) {
       TanreiPopover.sizes?.unobserve(element);
       TanreiPopover.owners.delete(element);
@@ -984,24 +997,36 @@ export class TanreiPopover extends TanreiElement implements VariantHost, Placing
 
   private readonly onScroll = () => this.syncScroll();
 
-  /** A part changed size (its text, the text size, the window): the actions are placed again, and the surface with them. */
+  /**
+   * Its children or its slots changed: the actions are placed again, and the surface with them, with every other
+   * host's of the turn (src/primitives/read-phase.ts).
+   */
   #onResize() {
     if (!this.presented || this.laying) return;
     this.laying = true;
-    // With every other host's of the turn (src/primitives/read-phase.ts): the cascade read, the parts laid out, then
-    // what scrolls read and written.
     readTogether(() => {
       this.laying = false;
-      if (!this.presented) return;
-      const arranging = this.readArrangement();
-      return () => {
-        if (!this.presented) return;
-        arranging();
-        readTogether(() => this.readScroll());
-        this.anchored.request();
-      };
+      return this.readResized();
     });
   }
+
+  /** Who asks the read phase to lay the parts out after the resize watch reported a change (`sizes`). */
+  private readonly resizeRead = {};
+
+  /**
+   * A part changed size (its text, the text size, the window), or the popover's children did: the cascade read, the
+   * parts laid out, then what scrolls read and written.
+   */
+  private readonly readResized = (): (() => void) | void => {
+    if (!this.presented) return;
+    const arranging = this.readArrangement();
+    return () => {
+      if (!this.presented) return;
+      arranging();
+      readTogether(() => this.readScroll());
+      this.anchored.request();
+    };
+  };
 
   /** What changes whether the actions fit and whether the content scrolls: the container, the content and the row. */
   private observe() {
