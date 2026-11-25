@@ -8,7 +8,8 @@
 //   clear of every other number;
 // - a measure figure draws each length of its table as long as its token resolves to, to half a pixel, or draws no
 //   line for it and says in the table what the component draws instead — never a line of a length the component does
-//   not have. The lengths not drawn are printed: each is a place where a component and its tokens part.
+//   not have. The lengths not drawn are the record's (src/lib/visuals/lengths-not-drawn.json), which the page writes
+//   into the table before any script runs, and are printed: each is a place where a component and its tokens part.
 //
 //   pnpm --filter @tanrei/docs build && pnpm --filter @tanrei/docs test:browser
 //
@@ -30,6 +31,10 @@ const dist = path.join(docs, 'dist');
 if (!fs.existsSync(path.join(dist, 'index.html'))) throw new Error('apps/docs/dist holds no site: run `pnpm --filter @tanrei/docs build` first');
 const specs = path.join(docs, '../../specs');
 const NEAR = 0.5;
+/** The lengths each figure does not draw as its token says, as recorded (lib/visuals/measure.ts, `lengthsNotDrawnOf`). */
+const recorded = JSON.parse(fs.readFileSync(path.join(docs, 'src/lib/visuals/lengths-not-drawn.json'), 'utf8'));
+/** A length as a row's note writes it (components/visuals/MeasureDiagram.astro, lib/visuals/blueprint.ts). */
+const shown = (value) => (value === null ? 'no such box' : Number.isInteger(value) ? String(value) : value.toFixed(1));
 
 // The root language's component pages that draw a figure, read from the built HTML.
 const components = path.join(dist, 'components');
@@ -61,6 +66,8 @@ test('every figure: each number once, inside and clear; each line its token’s 
   const errors = [];
   page.on('pageerror', (error) => errors.push(error.message));
   const notDrawn = [];
+  /** What each figure found, by component and token: what it draws instead, in px, or null where it draws no such box. */
+  const found = {};
   for (const name of pages) {
     const component = fs.readdirSync(specs).includes(`${name}.spec.json`) ? name : null;
     await page.goto(`${host.origin}/components/${name}/`);
@@ -140,6 +147,7 @@ test('every figure: each number once, inside and clear; each line its token’s 
             assert.equal(line, undefined, `${name}: ${row.token} is not drawn`);
             assert.ok(row.note.trim(), `${name}: the table says why ${row.token} is not drawn`);
             notDrawn.push(`${name}: ${row.token} — the token ${row.value}px, the component ${Number.isFinite(row.measured) ? `${row.measured}px` : 'no such box'}`);
+            (found[name] ??= {})[row.token] = shown(Number.isFinite(row.measured) ? row.measured : null);
           }
         }
         assert.equal(figure.lines.length, figure.rows.filter((row) => row.drawn === 'true').length, `${name}: a line for each length drawn, and no other`);
@@ -147,6 +155,9 @@ test('every figure: each number once, inside and clear; each line its token’s 
     }
   }
   assert.deepEqual(errors, [], 'no script failed');
+  // The record says what the figures find, so that each table is laid out from the first frame as it is once drawn.
+  const said = Object.fromEntries(Object.entries(recorded).map(([name, { lengths }]) => [name, Object.fromEntries(Object.entries(lengths).map(([token, value]) => [token, shown(value)]))]));
+  assert.deepEqual(found, said, 'the lengths the figures do not draw are those src/lib/visuals/lengths-not-drawn.json records, with what each component draws instead: a page writes them before its figure is drawn');
   if (notDrawn.length) console.log(`Lengths not drawn, where a component draws another length than its token's:\n  ${notDrawn.join('\n  ')}`);
   await context.close();
 });

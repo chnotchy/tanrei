@@ -14,7 +14,7 @@ import { fileURLToPath } from 'node:url';
 
 register('./vite-shim.mjs', import.meta.url);
 const { anatomyOf, anatomyAlt, blueprintStageOf, webPartsOf } = await import('../src/lib/visuals/anatomy.ts');
-const { measureLinesOf, measuresOf } = await import('../src/lib/visuals/measure.ts');
+const { lengthsNotDrawnOf, measureLinesOf, measuresOf } = await import('../src/lib/visuals/measure.ts');
 const { motionDemoOf, motionRoleOf, motionsOf, numbered } = await import('../src/lib/visuals/motion.ts');
 const { roleMapOf, rolesOf } = await import('../src/lib/visuals/roles.ts');
 const { drawnMatrixOf, drawsStateMatrix, matrixOf, PSEUDO_STATES } = await import('../src/lib/visuals/states.ts');
@@ -203,6 +203,19 @@ describe('the parts of the anatomy and measure figures', () => {
         }
       }
     }
+  });
+  test('each length recorded as not drawn is a length of its component’s figure, over the fixture the figure is drawn over', () => {
+    const record = JSON.parse(fs.readFileSync(new URL('../src/lib/visuals/lengths-not-drawn.json', import.meta.url), 'utf8'));
+    assert.ok(Object.keys(record).length > 0);
+    for (const [name, { lengths }] of Object.entries(record)) {
+      const stage = blueprintStageOf(name);
+      assert.ok(stage, `${name}: a figure`);
+      // Throws where the record names another fixture or a length the figure has not.
+      const notDrawn = lengthsNotDrawnOf(name, stage.fixture, measureLinesOf(name, stage.fixture, stage.html));
+      assert.deepEqual([...notDrawn.keys()], Object.keys(lengths), name);
+      for (const value of notDrawn.values()) assert.ok(value === null || (typeof value === 'number' && value >= 0), `${name}: ${value}`);
+    }
+    assert.deepEqual([...lengthsNotDrawnOf('button', blueprintStageOf('button').fixture, []).keys()], [], 'a component the record does not name draws every length');
   });
   test('the measure figure’s text alternative has a sentence for every plural form, with the component and its lengths', () => {
     for (const lang of languages) {

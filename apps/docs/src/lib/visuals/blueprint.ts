@@ -107,6 +107,16 @@ function partOf(element: Element, part: string): Element[] {
   return [];
 }
 
+/**
+ * Whether `element` is hidden by its own `visibility` alone and its `::before` draws in its place: a box drawn as no
+ * element. Shown otherwise (an ancestor's opacity, display or content-visibility), as `checkVisibility` judges it.
+ */
+function drawnByBefore(element: Element): boolean {
+  if (!(element.checkVisibility?.({ opacityProperty: true }) ?? true)) return false;
+  const before = getComputedStyle(element, '::before');
+  return getComputedStyle(element).visibility === 'hidden' && before.visibility === 'visible' && before.content !== 'none' && before.content !== 'normal';
+}
+
 /** The box of what a part's target is, as drawn, in the viewport's coordinates; null where nothing of it is drawn. */
 export function targetBox(host: Element, target: PartTarget): { box: Box; element: Element | null } | null {
   let elements: Element[] = [];
@@ -128,8 +138,10 @@ export function targetBox(host: Element, target: PartTarget): { box: Box; elemen
       }
     }
   } else if ('className' in target) elements = [host.closest('.stage')?.querySelector(`.${target.className}`) ?? host.querySelector(`.${target.className}`)].filter((element): element is Element => element !== null);
-  // What is drawn invisibly (a checkbox's mark while it is unchecked, faded out) is not drawn for the figure.
-  elements = elements.filter((element) => element.checkVisibility?.({ opacityProperty: true, visibilityProperty: true }) ?? true);
+  // What is drawn invisibly (a checkbox's mark while it is unchecked, faded out) is not drawn for the figure. A box drawn
+  // as no element (the web package's drawnAsNoElement: a container or a focus ring's box over a text, hidden so that a
+  // contrast checker still checks the text) is drawn: its ::before draws it, at its place and size.
+  elements = elements.filter((element) => (element.checkVisibility?.({ opacityProperty: true, visibilityProperty: true }) ?? true) || drawnByBefore(element));
   const rects = range ? [range.getBoundingClientRect()] : elements.map((element) => element.getBoundingClientRect());
   const drawn = rects.filter((rect) => rect.width > NEAR && rect.height > NEAR);
   if (!drawn.length) return null;
