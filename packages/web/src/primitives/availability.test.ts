@@ -4,13 +4,13 @@
 // What the system uses instead is named (AVL-2), a use is reported under the element the product wrote — a text
 // field, for the text input it draws — and every use is recorded for `unavailableUses()`, reported as an error in the
 // error mode (AVL-3).
+import { execFileSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import { type Page, expect, test } from '@playwright/test';
 import { setAvailabilityMode, unavailableUses } from '../../test/harness.js';
 import { outsideMessage, parseOutside, parseReplacements, parseUnavailable, unavailableEntry, unavailableMessage, useOf } from './availability.js';
-import { debugBuild } from './report.js';
 
 const web = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 const read = (file: string) => fs.readFileSync(path.join(web, file), 'utf8');
@@ -95,16 +95,16 @@ test.describe('parsing', () => {
     expect(unavailableMessage('segmented-button', null, ['tabs'], 'toolbar')).toBe('toolbar draws segmented-button, which is left out of the active design system; it still works, but the system uses tabs instead');
   });
 
-  test('nothing is reported in a production build', () => {
-    const env = process.env.NODE_ENV;
-    try {
-      process.env.NODE_ENV = 'production';
-      expect(debugBuild()).toBe(false);
-      process.env.NODE_ENV = 'development';
-      expect(debugBuild()).toBe(true);
-    } finally {
-      process.env.NODE_ENV = env;
-    }
+  test('nothing is reported in a production build: DEBUG, read where the module is evaluated, is false under NODE_ENV "production"', () => {
+    // `DEBUG` is a constant of the module, so each value is read in a process of its own (a bundle's is
+    // test/debug-code.test.mjs's, which also evaluates the module where there is no `process`). Unset, it is true.
+    const debug = (env: Record<string, string>) =>
+      execFileSync(process.execPath, ['--input-type=module', '-e', `import { DEBUG } from ${JSON.stringify(pathToFileURL(path.join(web, 'dist/primitives/debug.js')).href)}; process.stdout.write(String(DEBUG));`], {
+        env: { PATH: process.env.PATH ?? '', ...env },
+      }).toString();
+    expect(debug({ NODE_ENV: 'production' })).toBe('false');
+    expect(debug({ NODE_ENV: 'development' })).toBe('true');
+    expect(debug({})).toBe('true');
   });
 });
 

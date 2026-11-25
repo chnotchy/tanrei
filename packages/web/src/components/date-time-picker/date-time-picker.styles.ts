@@ -141,11 +141,15 @@ export const styles = css`
   .surface.inline {
     display: flex;
   }
-  /* In place (the inline test attribute): at its natural size where it stands, without the overlay. */
+  /* In place (the inline test attribute): at its natural size where it stands, without the overlay. The room it may
+     take is the box it stands in, not a window less the modal margins (DTM-1's room is the window's): measured against
+     the box it stands in, those margins took 32 px from a stage that already had its own padding, and at a phone's
+     width cut the dial's period selector off at the surface's edge. */
   .surface.inline {
     position: relative;
     inset: auto;
     opacity: 1;
+    max-inline-size: 100%;
     max-block-size: none;
   }
   /* DTM-35: a docked picker fades in and grows from the edge that faces the anchor; it fades out. At once where motion is reduced. */
@@ -467,7 +471,13 @@ export const styles = css`
      names transition-property, never the transition shorthand, which resets the delay to 0s. */
   .rows {
     position: absolute;
+    /* Above the wheel's control (.entry), which lies over the middle row: drawn as before — the control draws no fill,
+       and only the digits typed, while the middle row hides — and now the rows' text is what a contrast checker (axe's
+       color-contrast) finds at its place: the control covered the value and it went unchecked. A press passes through
+       the rows to what lies under them, as it did. */
+    z-index: 1;
     inset: 0;
+    pointer-events: none;
     transition-property: none;
     transition-delay: ${t('motion-wheel-duration')};
   }
@@ -551,9 +561,11 @@ export const styles = css`
     gap: ${t('period-gap')};
     max-inline-size: 100%;
   }
+  /* DTM-36: the digits are what narrows where the time section is narrower than the display needs (a 320 px window
+     leaves the section 264 px of the about 276 px the 12-hour display needs); the period keeps its width. */
   .display > .digits {
     display: flex;
-    flex: none;
+    flex: 0 1 auto;
     align-items: center;
     gap: ${t('selector-gap')};
   }
@@ -594,6 +606,21 @@ export const styles = css`
     user-select: none;
     -webkit-tap-highlight-color: transparent;
     outline: none;
+  }
+  /* DTM-21, DTM-36: the hour and the minute selector are selector.container.width (and the target) wide where the row
+     has the room, and narrow equally where it has not — each never narrower than its value as drawn, nor than the target.
+     One column: its widest is the width (or the value, where enlarged text needs more); its narrowest is the value, which
+     is at least the target. The selector's own minimum is that column's, so it never cuts its value. */
+  .selector:not(.period) {
+    display: grid;
+    flex: 0 1 auto;
+    grid-template-columns: minmax(min-content, max(${t('selector-container-width')}, var(--_target)));
+    place-items: center;
+    min-inline-size: auto;
+  }
+  .selector:not(.period) > .value {
+    min-inline-size: var(--_target);
+    text-align: center;
   }
   /* DTM-14: the period selector — at least period.container.width (and the target) wide, as tall as the selectors, its
      name in period.label.typescale. It is a selector of the unselected condition in every state: nothing here colors it. */

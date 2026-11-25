@@ -335,6 +335,23 @@ test.describe('the text', () => {
     expect(await page.locator('#text').evaluate((el) => el.scrollWidth <= el.clientWidth)).toBe(true);
   });
 
+  test('ICD-6, TBL-3: in a Table\'s cell a name is never broken inside — it stands on one line and widens its column, beside a column of sentences, in a box narrower than both', async ({ page }) => {
+    const sentence = 'As wide as it is high: a circle at every size, and its hit area reaches the minimum target.';
+    const row = (name: string, id: string, wrap = '') => `<tr><td${wrap}>${CODE(name, `id="${id}"`)}</td><td>${sentence}</td></tr>`;
+    await mount(page, `<tanrei-table id="table"><table><tbody>${row('width', 'short')}${row('tanrei.comp.button.container.height.medium', 'long')}${row('--tanrei-sys-control-height medium', 'spaced', ' data-wrap="false"')}</tbody></table></tanrei-table>`, { width: 160 });
+    // The Table's own stylesheet, which keeps a column marked `data-wrap="false"` on one line.
+    await page.addStyleTag({ content: read('dist/table.css') });
+    for (const id of ['short', 'long', 'spaced']) {
+      const code = page.locator(`#${id}`);
+      expect((await pieces(code)).length, `${id}: one line`).toBe(1);
+      const [cell, run] = [await box(code.locator('xpath=ancestor::td[1]')), await box(code)];
+      expect(cell.width, `${id}: its column holds it`).toBeGreaterThanOrEqual(run.width);
+    }
+    // Outside the Table the same name still breaks with its line (the test above).
+    await mount(page, `<p>${CODE('tanrei.comp.button.container.height.medium', 'id="long"')}</p>`, { width: 160 });
+    expect((await pieces(page.locator('#long'))).length).toBeGreaterThan(1);
+  });
+
   test('ICD-6: every piece of a run that breaks keeps both paddings — the first character of each line stands the padding after its piece’s start, and the last the padding before its end', async ({ page, browserName }) => {
     // WebKit clones the fill and the corners for each piece, and the padding too — except on an inline box that has a
     // `unicode-bidi` of its own, which the run has (`isolate`, ICD-8): measured on a bare `<code>` with the padding,

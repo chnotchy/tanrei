@@ -49,3 +49,34 @@ export async function sheetKept({ db, store, hash }) {
     base.close();
   }
 }
+
+/**
+ * Run in the page as an init script (`page.addInitScript(slowIndexedDB, ms)`): every IndexedDB database the page opens
+ * answers `ms` milliseconds late — what a loaded machine does to the read of the reader's theme's stylesheet (Firefox's
+ * in CI), made certain. Past the reveal limit (`REVEAL_AFTER`), the page is late by design: drawn in the default system,
+ * the sheet kept for the next page. The request answers as the page uses it: through its `on…` handlers and `result`.
+ * @param {number} ms
+ */
+export function slowIndexedDB(ms) {
+  const open = IDBFactory.prototype.open;
+  IDBFactory.prototype.open = function (...args) {
+    const factory = this;
+    const request = { result: undefined, error: null, onsuccess: null, onerror: null, onupgradeneeded: null };
+    setTimeout(() => {
+      const real = open.apply(factory, args);
+      real.onupgradeneeded = (event) => {
+        request.result = real.result;
+        request.onupgradeneeded?.(event);
+      };
+      real.onsuccess = (event) => {
+        request.result = real.result;
+        request.onsuccess?.(event);
+      };
+      real.onerror = (event) => {
+        request.error = real.error;
+        request.onerror?.(event);
+      };
+    }, ms);
+    return request;
+  };
+}

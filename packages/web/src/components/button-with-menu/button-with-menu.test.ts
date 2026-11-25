@@ -116,7 +116,11 @@ const focused = (page: P) =>
     return active ? `${active.localName}${active.className ? `.${String(active.className).split(' ')[0]}` : ''}${active.getAttribute('label') ? `[${active.getAttribute('label')}]` : ''}` : null;
   });
 
-test.beforeEach(async ({ page }) => {
+/** A test that draws only on pages of its own (atRatio), at its own device pixel ratio: the shared page is not mounted for it. */
+const OWN_PAGES = '@own-pages';
+
+test.beforeEach(async ({ page }, testInfo) => {
+  if (testInfo.tags.includes(OWN_PAGES)) return;
   await mountFixtures(page, spec, { icons: true });
 });
 
@@ -1878,32 +1882,33 @@ test.describe('seams', () => {
     return { off, lines, inset };
   };
 
-  test('SPB-26, SPB-31: no pixel of a fill, of the outline or of the elevation’s ring is painted twice where the halves meet, and none of the page shows there — a line of pixels through the seam, above and below the rule, is one color (filled, tonal, outlined, elevated; disabled, whose fills are translucent; open; narrow; each size), so the outline and the ring run through the seam in one even color; left-to-right and right-to-left, light and dark, at 1, 2 and 3 device pixels per pixel and half a device pixel off the grid', async ({ browser }) => {
-    test.slow();
-    for (const theme of ['light', 'dark'] as const) {
-      for (const ratio of [1, 2, 3]) {
-        for (const offset of [0, 0.5]) {
+  // One test a page: each page draws the two dozen seams and reads them all, 4–6 s in WebKit in the CI-like container
+  // (the most at three device pixels per pixel), so every test stays well inside the 30 s timeout. All twelve pages in
+  // one test took about 80 s on a runner and ran out of a slow runner's 90 s.
+  const grid = (offset: number) => (offset ? 'half a device pixel off the grid' : 'on the grid');
+  for (const theme of ['light', 'dark'] as const) {
+    for (const ratio of [1, 2, 3]) {
+      for (const offset of [0, 0.5]) {
+        test(`SPB-26, SPB-31: no pixel of a fill, of the outline or of the elevation’s ring is painted twice where the halves meet, and none of the page shows there — a line of pixels through the seam, above and below the rule, is one color (filled, tonal, outlined, elevated; disabled, whose fills are translucent; open; narrow; each size), so the outline and the ring run through the seam in one even color; left-to-right and right-to-left — ${theme}, at ${ratio} device pixel${ratio === 1 ? '' : 's'} per pixel, ${grid(offset)}`, { tag: OWN_PAGES }, async ({ browser }) => {
           const result = await atRatio(browser, ratio, (page) => read(page, { theme, offset }), VIEW);
           expect(result.inset, 'the rule stops short of the edge, so there are lines to read').toBeGreaterThan(2);
           expect(result.lines).toBeGreaterThan(0);
           expect(result.off, `${theme}, ${ratio}x, ${offset} off the grid`).toEqual([]);
-        }
+        });
       }
     }
-  });
+  }
 
   for (const system of ['cupertino', 'm3-like']) {
-    test(`SPB-26, SPB-31: the same under ${system} — its outline widths, its corners, its fills and its elevation meet at the seam without a pixel painted twice`, async ({ browser }) => {
-      // Four pages of two dozen seams each, at two device pixels per pixel.
-      test.slow();
-      for (const theme of ['light', 'dark'] as const) {
-        for (const offset of [0, 0.5]) {
+    for (const theme of ['light', 'dark'] as const) {
+      for (const offset of [0, 0.5]) {
+        test(`SPB-26, SPB-31: the same under ${system} — its outline widths, its corners, its fills and its elevation meet at the seam without a pixel painted twice — ${theme}, at 2 device pixels per pixel, ${grid(offset)}`, { tag: OWN_PAGES }, async ({ browser }) => {
           const result = await atRatio(browser, 2, (page) => read(page, { theme, system, offset }), VIEW);
           expect(result.lines).toBeGreaterThan(0);
           expect(result.off, `${system}, ${theme}, ${offset} off the grid`).toEqual([]);
-        }
+        });
       }
-    });
+    }
   }
 
   test('SPB-26: a half under a divider is a box that ends at the seam and paints its fill; its outline and its elevation are its ::after’s, which reaches past the seam and is cut there — mirrored in right-to-left; under gap nothing is cut', async ({ page }) => {

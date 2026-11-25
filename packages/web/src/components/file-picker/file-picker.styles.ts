@@ -185,6 +185,12 @@ export const styles = css`
   .icon:not([data-drawn]) {
     visibility: hidden;
   }
+  /* The texts are positioned, after the dashed edge (.outline, a box over the whole area): drawn where they were — the
+     edge's stroke runs along the area's edge, clear of them — and now above that box in the order a contrast checker
+     (axe's color-contrast) reads, which took the edge's box for one covering them and left them unchecked. */
+  .area :is(.label, .line, .supporting) {
+    position: relative;
+  }
   .area .label {
     ${role('label')}
     color: var(--_label);

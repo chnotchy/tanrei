@@ -10,6 +10,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import AxeBuilder from '@axe-core/playwright';
+import { coveredText } from '../../../test/covered-text.js';
 import { type Locator, type Page, expect, test } from '@playwright/test';
 import { type Fixture, acmeSystemCss, loadSpec, missingWords, mountFixtures, resolveColor, resolveToken, setWords, tab, tabTo, inputBoxCopies, inputBoxSetApart, inputBoxToken, rootTokens } from '../../../test/harness.js';
 import { PICKER_START, channels, fromChannels, given, isValue, picked, read as readText, readCommitted, sameColor, valueOf } from './color-text.js';
@@ -36,8 +37,22 @@ const token = (page: P, name: string) => resolveToken(page, T(name));
 const duration = (page: P, name: string) => resolveToken(page, T(name), 'duration');
 const color = (page: P, name: string) => resolveColor(page, T(name));
 const box = async (locator: Locator) => (await locator.boundingBox())!;
-const css = (locator: Locator, property: string) => locator.evaluate((el, p) => getComputedStyle(el).getPropertyValue(p), property);
-const px = async (locator: Locator, property: string) => Number.parseFloat(await css(locator, property));
+// An edge part draws nothing itself: its ::before draws the line (EDGE_LINE).
+const css = (locator: Locator, property: string, pseudo?: string) =>
+  locator.evaluate((el, [p, ps]) => getComputedStyle(el, ps ?? undefined).getPropertyValue(p as string), [property, pseudo ?? null] as const);
+const EDGE_LINE = '::before';
+/**
+ * The duration of the transition the edge's line runs when its color changes. WebKit reports a pseudo-element's
+ * transition-duration from before a change of reduced motion, though the transition it then runs has the new one.
+ */
+const edgeMotion = (edge: Locator) =>
+  edge.evaluate((el: HTMLElement) => {
+    el.style.setProperty('--_o', 'rgb(1, 2, 3)');
+    const durations = el.getAnimations({ subtree: true }).map((a) => Number(a.effect!.getTiming().duration));
+    el.style.removeProperty('--_o');
+    return Math.max(0, ...durations);
+  });
+const px = async (locator: Locator, property: string, pseudo?: string) => Number.parseFloat(await css(locator, property, pseudo));
 const near = (actual: number, expected: number, message = '', tolerance = 0.6) => expect(Math.abs(actual - expected), `${message}: ${actual} ≈ ${expected}`).toBeLessThanOrEqual(tolerance);
 const override = (page: P, vars: Record<string, string>) => rootTokens(page, vars);
 function warnings(page: P) {
@@ -527,12 +542,12 @@ test.describe('behavior: the box, its name and its Field', () => {
     for (const id of ['stacked-error', 'framed']) {
       expect(await input(page, id).getAttribute('aria-invalid'), id).toBe('true');
       const edge = part(page, id, '.edge');
-      expect(await css(edge, 'border-top-color'), id).toBe(await color(page, 'stacked-error-outline-color'));
-      near(await px(edge, 'border-top-width'), await token(page, 'outline-width'), `${id}: outline.width`);
+      expect(await css(edge, 'border-top-color', EDGE_LINE), id).toBe(await color(page, 'stacked-error-outline-color'));
+      near(await px(edge, 'border-top-width', EDGE_LINE), await token(page, 'outline-width'), `${id}: outline.width`);
       expect(await css(container(page, id), 'background-color'), id).toBe(await color(page, 'stacked-error-container-color'));
       expect(await css(input(page, id), 'color'), id).toBe(await color(page, 'stacked-error-input-color'));
       // Under the default system the edge is drawn in the error role.
-      expect(await css(edge, 'border-top-color'), id).toBe(await resolveColor(page, '--tanrei-sys-color-error'));
+      expect(await css(edge, 'border-top-color', EDGE_LINE), id).toBe(await resolveColor(page, '--tanrei-sys-color-error'));
       // The edge takes no layout space: the container is as tall in error as at rest.
       near((await box(container(page, id))).height, (await box(container(page, 'stacked-filled'))).height, `${id}: the container’s height`);
       // The swatch stays as it is drawn: the value, and the one hairline.
@@ -678,7 +693,7 @@ test.describe('behavior: the box, its name and its Field', () => {
     const notch = await box(part(page, 'outlined', '.outline-notch'));
     const floatedLabel = await box(part(page, 'outlined', '.floating'));
     near(notch.width, floatedLabel.width + 2 * (await token(page, 'outline-notch-padding')), 'the gap in the outline', 1.5);
-    expect(await css(part(page, 'outlined', '.outline-notch'), 'border-top-color')).toBe('rgba(0, 0, 0, 0)');
+    expect(await css(part(page, 'outlined', '.outline-notch'), 'border-top-color', EDGE_LINE)).toBe('rgba(0, 0, 0, 0)');
     // A label that does not fit wraps, is never cut, and resting stands between the swatch and the picker button.
     await host(page, 'wrap').evaluate((el) => (el.style.inlineSize = '240px'));
     await frames(page, 6);
@@ -942,7 +957,7 @@ test.describe('behavior: the value and its text', () => {
     await expect(row(page, 'one', '.frame'), 'the Field is in its error condition').toHaveAttribute('data-error', '');
     expect(await css(row(page, 'one', '.error-text'), 'color'), 'drawn exactly as while error is true').toBe(await resolveColor(page, '--tanrei-comp-field-standard-error-text-color'));
     await expect(row(page, 'one', '.supporting-text'), 'in the help’s place (FLD-7)').toHaveCount(0);
-    expect(await css(part(page, 'one', '.edge'), 'border-top-color')).toBe(await color(page, 'stacked-error-outline-color'));
+    expect(await css(part(page, 'one', '.edge'), 'border-top-color', EDGE_LINE)).toBe(await color(page, 'stacked-error-outline-color'));
     expect(await host(page, 'one').evaluate((el) => [(el as HTMLElement & { error: boolean }).error, el.hasAttribute('error')]), 'it never sets error').toEqual([false, false]);
     expect(await fieldOf(page, 'one').evaluate((el) => [(el as HTMLElement & { error: boolean }).error, el.hasAttribute('error')]), 'nor its Field’s').toEqual([false, false]);
     expect(await description(page, 'one'), 'the Field gives the words back in the description, once, in its help’s place').toBe(WORDS);
@@ -1061,19 +1076,19 @@ test.describe('behavior: the value and its text', () => {
     await mount(page, [fx('one', { value: '#0f766e', picker: true, pickerLabel: 'Choose color' }), fx('error', { value: '#0f766e', error: true }), fx('other', {})], { system: 'm3-like', reducedMotion: true });
     const edge = part(page, 'one', '.edge');
     const height = (await box(container(page, 'one'))).height;
-    expect(await css(edge, 'border-top-color'), 'no edge at rest').toBe('rgba(0, 0, 0, 0)');
+    expect(await css(edge, 'border-top-color', EDGE_LINE), 'no edge at rest').toBe('rgba(0, 0, 0, 0)');
     // Hovered: the state layer on the container — and the swatch exactly the value still.
     const c = await box(container(page, 'one'));
     await page.mouse.move(c.x + c.width / 2, c.y + c.height / 2);
     await expect.poll(() => css(container(page, 'one'), 'background-color')).toBe(await color(page, 'stacked-hovered-container-color'));
     expect(await color(page, 'stacked-hovered-container-color'), 'the hovered container differs: the state layer is in it').not.toBe(await color(page, 'stacked-container-color'));
-    expect(await css(edge, 'border-top-color')).toBe(await color(page, 'stacked-hovered-outline-color'));
+    expect(await css(edge, 'border-top-color', EDGE_LINE)).toBe(await color(page, 'stacked-hovered-outline-color'));
     expect((await read(page, 'one')).swatch, 'hovered: the swatch is the value').toBe(rgb('#0f766e'));
     // Focused by the keyboard, the pointer still over it: focused wins.
     await tabTo(page, input(page, 'one'));
     expect(await css(container(page, 'one'), 'background-color')).toBe(await color(page, 'stacked-focused-container-color'));
-    expect(await css(edge, 'border-top-color')).toBe(await color(page, 'stacked-focused-outline-color'));
-    near(await px(edge, 'border-top-width'), await token(page, 'focused-outline-width'), 'the focused width');
+    expect(await css(edge, 'border-top-color', EDGE_LINE)).toBe(await color(page, 'stacked-focused-outline-color'));
+    near(await px(edge, 'border-top-width', EDGE_LINE), await token(page, 'focused-outline-width'), 'the focused width');
     expect(await css(input(page, 'one'), 'caret-color')).toBe(await color(page, 'stacked-focused-caret-color'));
     expect(await css(input(page, 'one'), 'color')).toBe(await color(page, 'stacked-focused-input-color'));
     near((await box(container(page, 'one'))).height, height, 'the line takes no layout space');
@@ -1083,13 +1098,13 @@ test.describe('behavior: the value and its text', () => {
     await tab(page);
     expect((await read(page, 'one')).onButton).toBe(true);
     await expect(part(page, 'one', '.field')).not.toHaveAttribute('data-focused', '');
-    expect(await css(edge, 'border-top-color')).toBe(await color(page, 'stacked-outline-color'));
+    expect(await css(edge, 'border-top-color', EDGE_LINE)).toBe(await color(page, 'stacked-outline-color'));
     // By pointer: a press in the input selects the focused state too.
     await input(page, 'one').click();
-    expect(await css(edge, 'border-top-color')).toBe(await color(page, 'stacked-focused-outline-color'));
+    expect(await css(edge, 'border-top-color', EDGE_LINE)).toBe(await color(page, 'stacked-focused-outline-color'));
     // In error: the error parts, at rest and focused, and the swatch as it is.
-    expect(await css(part(page, 'error', '.edge'), 'border-top-color')).toBe(await color(page, 'stacked-error-outline-color'));
-    near(await px(part(page, 'error', '.edge'), 'border-top-width'), await token(page, 'outline-width'), 'in error: outline.width at rest');
+    expect(await css(part(page, 'error', '.edge'), 'border-top-color', EDGE_LINE)).toBe(await color(page, 'stacked-error-outline-color'));
+    near(await px(part(page, 'error', '.edge'), 'border-top-width', EDGE_LINE), await token(page, 'outline-width'), 'in error: outline.width at rest');
     await focusInput(page, 'error');
     expect(await css(input(page, 'error'), 'caret-color')).toBe(await color(page, 'stacked-focused-error-caret-color'));
     expect((await read(page, 'error')).swatch, 'in error: the swatch is the value').toBe(rgb('#0f766e'));
@@ -1099,21 +1114,21 @@ test.describe('behavior: the value and its text', () => {
     expect(await px(container(page, 'one'), 'transition-duration'), 'reduced: at once').toBe(0);
     await page.emulateMedia({ reducedMotion: 'no-preference' });
     near((await px(container(page, 'one'), 'transition-duration')) * 1000, await duration(page, 'motion-state-duration-medium'), 'the container', 1);
-    near((await px(edge, 'transition-duration')) * 1000, await duration(page, 'motion-state-duration-medium'), 'the edge', 1);
+    near(await edgeMotion(edge), await duration(page, 'motion-state-duration-medium'), 'the edge', 1);
   });
 
   test('CLI-23: the focused edge is the focus indicator — under the default system the focus-ring role at the thick width, by keyboard and by pointer — and no ring is drawn around the container or the input; where the focus style is glow the glow is drawn around the container too', async ({ page }) => {
     await mount(page, [fx('one', { value: '#0f766e' }), fx('other', {})], { reducedMotion: true });
     const edge = part(page, 'one', '.edge');
-    expect(await css(edge, 'border-top-color'), 'no edge at rest').toBe(await color(page, 'stacked-outline-color'));
+    expect(await css(edge, 'border-top-color', EDGE_LINE), 'no edge at rest').toBe(await color(page, 'stacked-outline-color'));
     for (const how of ['keyboard', 'pointer'] as const) {
       if (how === 'keyboard') await tabTo(page, input(page, 'one'));
       else await input(page, 'one').click();
-      expect(await css(edge, 'border-top-color'), how).toBe(await resolveColor(page, '--tanrei-sys-color-focus-ring'));
-      near(await px(edge, 'border-top-width'), await resolveToken(page, '--tanrei-sys-border-thick'), `${how}: the thick width`);
+      expect(await css(edge, 'border-top-color', EDGE_LINE), how).toBe(await resolveColor(page, '--tanrei-sys-color-focus-ring'));
+      near(await px(edge, 'border-top-width', EDGE_LINE), await resolveToken(page, '--tanrei-sys-border-thick'), `${how}: the thick width`);
       expect([await css(input(page, 'one'), 'outline-style'), await css(container(page, 'one'), 'outline-style')], `${how}: no ring`).toEqual(['none', 'none']);
       await focusInput(page, 'other');
-      expect(await css(edge, 'border-top-color'), `${how}: gone when focus leaves`).toBe(await color(page, 'stacked-outline-color'));
+      expect(await css(edge, 'border-top-color', EDGE_LINE), `${how}: gone when focus leaves`).toBe(await color(page, 'stacked-outline-color'));
     }
     // Glow: the halo around the container while focused, and still no ring.
     await mount(page, [fx('one', { value: '#0f766e' })], { system: 'acme', systemCss: await acmeSystemCss() });
@@ -2101,6 +2116,7 @@ test.describe('accessibility', () => {
     test(`axe: every fixture has no violations in ${theme}`, async ({ page }) => {
       await mountFixtures(page, spec, { icons: true, theme });
       const results = await new AxeBuilder({ page }).include('.stage').analyze();
+      expect(await coveredText(page, results), `${theme}: no text left unchecked as covered`).toEqual([]);
       expect(results.violations.map((v) => `${v.id}: ${v.nodes.map((n) => n.target.join(' ')).slice(0, 3).join(' | ')}`), theme).toEqual([]);
     });
 

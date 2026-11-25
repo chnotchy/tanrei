@@ -1173,6 +1173,48 @@ test.describe('reordering', () => {
     await expect.poll(() => announced(page, 'reorderable')).toBe('Helvetica Neue: 1 of 3');
   });
 
+  test('LST-43: a refused move takes back focus that was lost, never focus the person moved elsewhere before the window passed', async ({ page }) => {
+    await mountFixtures(page, spec, { fixtures: [byId('reorderable'), byId('reorderable-wrap')] });
+    await product(page, 'reorderable', 'ignore');
+    const span = await reorderWindow(page);
+    /** A keyboard move of the first item one place down, which the product ignores; the window starts at its drop. */
+    const move = async () => {
+      await tabTo(page, handle(page, 'reorderable', 0));
+      // The window is the list's timer: the page clock holds it, so what happens before it passes is not the machine's.
+      await holdClock(page);
+      await page.keyboard.press('Space');
+      await page.keyboard.press('ArrowDown');
+      await page.keyboard.press('Space');
+      expect((await moves(page)).at(-1), 'the move is emitted').toEqual({ from: 0, to: 1 });
+    };
+    const elsewhere = handle(page, 'reorderable-wrap', 2).locator('button');
+    // Moved elsewhere — another list's handle — before the window passed: the refusal leaves it there.
+    await move();
+    await page.clock.runFor(span - 1);
+    await elsewhere.evaluate((el: HTMLElement) => el.focus());
+    expect(await focused(page), 'focus is on the other list’s handle').toBe('Photo 3:handle');
+    await page.clock.runFor(1);
+    await releaseClock(page);
+    await expect.poll(() => order(page, 'reorderable')).toEqual(NAMES);
+    await page.evaluate(() => new Promise((done) => requestAnimationFrame(() => requestAnimationFrame(done))));
+    expect(await focused(page), 'still where it was moved').toBe('Photo 3:handle');
+    // Lost — the element that held it taken off the page — before the window passed: the refusal gives it to the handle
+    // of the item that stands where the moved one stood.
+    await mountFixtures(page, spec, { fixtures: [byId('reorderable'), byId('reorderable-wrap')] });
+    await product(page, 'reorderable', 'ignore');
+    await move();
+    await page.clock.runFor(span - 1);
+    await page.evaluate(() => {
+      const away = document.createElement('button');
+      document.body.append(away);
+      away.focus();
+      away.remove();
+    });
+    await page.clock.runFor(1);
+    await releaseClock(page);
+    await expect.poll(() => focused(page)).toBe('Inter:handle');
+  });
+
   test('LST-44: one polite live region, empty at rest and drawn nowhere; the places are filled wherever and however often written, the name isolated; another text in braces stays and is reported', async ({ page }) => {
     const seen = warnings(page);
     const region = list(page, 'reorderable').locator('.announcer');
