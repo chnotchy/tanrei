@@ -126,11 +126,14 @@ export const styles = css`
 
   /* DTM-2: a docked picker is a manual popover in the top layer, placed by script below its anchor; its color,
      elevation and corners. Its placement reads its two lengths through real properties. */
+  /* DTM-2, DTM-36: never wider than the window less docked.viewport-margin on each side (100% is the window's width,
+     the containing block of a fixed box in the top layer, without its scroll bar): capped at the whole window, a docked
+     date picker in a window 320 px wide was 320 px wide and stood against both of its edges. */
   .surface.docked {
     position: fixed;
     inset: auto;
     inline-size: fit-content;
-    max-inline-size: 100vw;
+    max-inline-size: calc(100% - 2 * ${t('docked-viewport-margin')});
     background: ${t('docked-container-color')};
     box-shadow: ${t('docked-container-elevation')};
     ${unsafeCSS(cornerRadius(`${PREFIX}-docked-container-shape`))}
@@ -249,6 +252,8 @@ export const styles = css`
     overflow-y: auto;
     overscroll-behavior: contain;
   }
+  /* DTM-9: the horizontal layout is drawn only where its columns fit the surface (the script takes the vertical one
+     where they do not), so the columns are centred in a body they never overflow. */
   .surface[data-layout='horizontal'] .body {
     flex-direction: row;
     align-items: flex-start;
@@ -669,7 +674,11 @@ export const styles = css`
     --_size: ${t('dial-container-size')};
     --_handle: ${t('dial-handle-size')};
     --_outer: calc(var(--_size) / 2 - ${t('dial-padding')} - var(--_handle) / 2);
-    --_inner: calc(var(--_outer) - var(--_handle));
+    /* DTM-23: the inner ring stands where two neighbouring numbers on it are as far apart as the two rings are: the
+       outer radius over 1 + 2 sin 15° (half the 30° between two hours). The handle on any number then leaves its
+       neighbours on its own ring and the numbers of the other ring beside it the same room. Smaller by the handle's
+       size (48 of the outer 96), neighbours stood 24.8 apart and the handle on 19 lay over half of 20. */
+    --_inner: calc(var(--_outer) / (1 + 2 * sin(15deg)));
     --_radius: var(--_outer);
     --_move: ${t('motion-dial-duration')} ${t('motion-dial-easing')};
     position: relative;
@@ -714,6 +723,16 @@ export const styles = css`
   .number.inner {
     --_r: var(--_inner);
   }
+  /* DTM-24: the pending value's number on the face lies wholly under the handle, which the copy inside it draws in
+     selected-label.color: the face's own is not drawn, so that what a contrast check reads there is the copy on the
+     handle. It is taken away as the handle arrives (after the dial motion) and given back at once as the handle leaves. */
+  .face .number[data-covered] {
+    visibility: hidden;
+    transition: visibility 0s linear ${t('motion-dial-duration')};
+  }
+  .dial[data-instant] .face .number[data-covered] {
+    transition: none;
+  }
   /* DTM-50: a number outside min and max keeps its place on the dial, faded. */
   .number[data-unavailable] {
     opacity: ${t('time-unavailable-opacity')};
@@ -730,18 +749,24 @@ export const styles = css`
     pointer-events: none;
   }
   /* DTM-26: the arm turns to the value's angle (along the shorter arc: the element keeps the angle continuous) and the
-     handle moves between the rings over the dial motion; the copy inside the handle turns back by as much. */
+     handle moves between the rings over the dial motion; the copy inside the handle turns back by as much.
+     DTM-24: the arm and the copy are points (the dial's centre, no size) that their parts stand around, never boxes as
+     large as the dial: a box over the numbers, though it draws nothing, is what a contrast check takes for something
+     drawn over them, and it could check none of them. */
   .arm {
     position: absolute;
-    inset: 0;
+    left: 50%;
+    top: 50%;
+    inline-size: 0;
+    block-size: 0;
     rotate: var(--_angle, 0deg);
     transition: rotate var(--_move);
     pointer-events: none;
   }
   .track {
     position: absolute;
-    left: calc(50% - ${t('dial-track-width')} / 2);
-    top: calc(50% - var(--_radius));
+    left: calc(${t('dial-track-width')} / -2);
+    top: calc(-1 * var(--_radius));
     inline-size: ${t('dial-track-width')};
     block-size: var(--_radius);
     background: ${t('dial-track-color')};
@@ -751,8 +776,8 @@ export const styles = css`
   }
   .handle {
     position: absolute;
-    left: calc(50% - var(--_handle) / 2);
-    top: calc(50% - var(--_radius) - var(--_handle) / 2);
+    left: calc(var(--_handle) / -2);
+    top: calc(-1 * var(--_radius) - var(--_handle) / 2);
     inline-size: var(--_handle);
     block-size: var(--_handle);
     border-radius: 50%;
@@ -762,10 +787,10 @@ export const styles = css`
   }
   .copy {
     position: absolute;
-    left: calc(var(--_handle) / 2 - var(--_size) / 2);
-    top: calc(var(--_radius) + var(--_handle) / 2 - var(--_size) / 2);
-    inline-size: var(--_size);
-    block-size: var(--_size);
+    left: calc(var(--_handle) / 2);
+    top: calc(var(--_radius) + var(--_handle) / 2);
+    inline-size: 0;
+    block-size: 0;
     rotate: calc(var(--_angle, 0deg) * -1);
     transition:
       rotate var(--_move),
