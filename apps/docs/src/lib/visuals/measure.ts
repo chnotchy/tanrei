@@ -6,6 +6,7 @@
 import { getSpec } from '../repo';
 import { anatomyOf, webPartsOf, type PartTarget } from './anatomy';
 import { below, componentTokens } from './groups';
+import notDrawn from './lengths-not-drawn.json';
 
 export interface Measure {
   /** The token, dotted (`tanrei.comp.button.container.height.large`). */
@@ -98,11 +99,40 @@ function filledParts(fixture: { props: Record<string, unknown> }, html: string):
 const HOLDERS = ['container', 'surface'];
 
 /**
+ * The parts a component draws where a length of a set it shares names another part as its condition, by component:
+ * the part of its own, and the part of the condition it stands for. A color input's swatch stands where a text input's
+ * leading icon stands (its spec's layout: the swatch at `comp.input-box.container.padding-inline-with-icon` from the
+ * start edge), so the box's padding with an icon holds wherever the swatch is drawn.
+ */
+const IN_PLACE_OF: Record<string, Record<string, string>> = {
+  'color-input': { swatch: 'icon' },
+};
+
+/** The record's entry for a component, where it has one (`lengths-not-drawn.json`, `lengthsNotDrawnOf`). */
+interface NotDrawn {
+  fixture: string;
+  /** The parts the fixture does not draw (no box, `display: none`, not rendered in its state): their lengths are not listed. */
+  parts?: string[];
+  /** The lengths the component draws otherwise, in pixels, or null where the figure finds nothing to measure. */
+  lengths?: Record<string, number | null>;
+}
+const recordOf = (name: string): NotDrawn | undefined => (notDrawn as Record<string, NotDrawn>)[name];
+
+/** The parts a fixture does not draw, as the record says them (the browser test holds the record to what is drawn). */
+export function partsNotDrawnOf(name: string, fixture: string): Set<string> {
+  const record = recordOf(name);
+  return new Set(record?.fixture === fixture ? (record.parts ?? []) : []);
+}
+
+/**
  * The lines a component's measure figure draws over one of its fixtures: each length of a part the web draws as a box
  * (`platforms.web.parts`) that the figure can show (`AXES`), for the fixture's size and variant, the same in every state
  * (a token of a state is not drawn), and where the token holds for the fixture — one that holds with a part the fixture
- * fills, or without one it leaves out, in place of the plain length of the same kind. In the spec's order of parts.
- * `html` is the web package's stage of the fixture (lib/visuals/anatomy.ts, `blueprintStageOf`), which says what it fills.
+ * fills, or without one it leaves out, in place of the plain length of the same kind — and of a part the fixture draws:
+ * none of a part it leaves out, nor of one the record says it does not draw in its state (`partsNotDrawnOf`). A padding
+ * the same at both ends is measured at the start, or at the end where one with a part holds at the start in its place.
+ * In the spec's order of parts. `html` is the web package's stage of the fixture (lib/visuals/anatomy.ts,
+ * `blueprintStageOf`), which says what it fills.
  */
 export function measureLinesOf(name: string, fixtureId: string, html: string): MeasureLine[] {
   const spec = getSpec(name);
@@ -110,20 +140,28 @@ export function measureLinesOf(name: string, fixtureId: string, html: string): M
   const parts = webPartsOf(name);
   if (!fixture || !parts) return [];
   const filled = filledParts(fixture, html);
-  const fills = (part: string) => filled.has(part) || (fixture.props[part] !== undefined && fixture.props[part] !== false && fixture.props[part] !== '');
+  const optional = new Set(parts.filter((part) => part.optional).map((part) => part.id));
+  const own = (part: string) => filled.has(part) || (fixture.props[part] !== undefined && fixture.props[part] !== false && fixture.props[part] !== '');
+  const standsIn = Object.entries(IN_PLACE_OF[name] ?? {});
+  // A part is filled where the fixture fills it, or where a part drawn in its place is drawn (one always drawn, or filled).
+  const fills = (part: string) => own(part) || standsIn.some(([drawn, place]) => place === part && (!optional.has(drawn) || own(drawn)));
+  const skipped = partsNotDrawnOf(name, fixtureId);
   const sizeProp = spec.props.find((prop) => prop.name === 'size');
   const variantProp = spec.props.find((prop) => prop.name === 'variant');
   const size = (fixture.props.size as string | undefined) ?? (typeof sizeProp?.default === 'string' ? sizeProp.default : undefined);
   const variant = (fixture.props.variant as string | undefined) ?? (typeof variantProp?.default === 'string' ? variantProp.default : undefined);
   const boxes = new Map(parts.filter((part) => part.target && (!part.target.aspect || part.target.aspect === 'outline')).map((part) => [part.id, part.target!]));
-  const optional = new Set(parts.filter((part) => part.optional).map((part) => part.id));
   const measures = measuresOf(name, { size, variant });
   const kindsOf = (part: string) => new Set(measures.filter((measure) => measure.part === part).map((measure) => measure.kind));
   const chosen = new Map<string, { measure: Measure; axis: LineAxis; conditional: boolean }>();
+  /** The paddings the same at both ends (`padding-inline`), by part: the plain one, and how many with a part hold. */
+  const both = new Map<string, { plain?: Measure; held: number }>();
   for (const measure of measures) {
     if (!measure.part || measure.qualifiers.length || measure.px <= 0 || !boxes.has(measure.part)) continue;
-    // An optional part the fixture leaves out has no box to measure.
+    // An optional part the fixture leaves out has no box to measure, nor has a part the fixture does not draw in its
+    // state (a closed list's options, an unchecked box's mark).
     if (optional.has(measure.part) && !fills(measure.part)) continue;
+    if (skipped.has(measure.part)) continue;
     const condition = /^(.+?)-(with|without)-(.+)$/.exec(measure.kind);
     const base = condition ? condition[1] : measure.kind;
     const axis = AXES[base];
@@ -138,6 +176,12 @@ export function measureLinesOf(name: string, fixtureId: string, html: string): M
     if ((axis === 'padding-start' || axis === 'padding-end' || axis === 'gap') && !HOLDERS.includes(measure.part)) continue;
     if (axis === 'gap' && filled.size < 2) continue;
     if (condition && fills(condition[3]) !== (condition[2] === 'with')) continue;
+    if (base === 'padding-inline') {
+      const entry = both.get(measure.part) ?? { held: 0 };
+      if (condition?.[2] === 'with') entry.held += 1;
+      else if (!condition) entry.plain = measure;
+      both.set(measure.part, entry);
+    }
     // A padding with a part holds on the side the part stands on: its `<part>Position` (`leading` by default).
     if (condition?.[2] === 'with' && (axis === 'padding-start' || axis === 'padding-end') && base !== 'padding-inline') {
       const position = spec.props.find((prop) => prop.name === `${condition[3]}Position`);
@@ -150,8 +194,46 @@ export function measureLinesOf(name: string, fixtureId: string, html: string): M
     if (held && (held.conditional || !condition)) continue;
     chosen.set(key, { measure, axis, conditional: Boolean(condition) });
   }
+  // A padding the same at both ends is measured at the start; where one with a part holds there in its place (a
+  // leading icon's), the plain one is measured at the end, where no part stands — unless a part stands at the end too
+  // (two with a part hold), or the part has a padding of its own at the end.
+  for (const [part, { plain, held }] of both) {
+    if (plain && held === 1 && chosen.get(`${part} padding-inline`)?.conditional && !chosen.has(`${part} padding-inline-end`)) {
+      chosen.set(`${part} padding-inline-end`, { measure: plain, axis: 'padding-end', conditional: false });
+    }
+  }
   const order = new Map(parts.map((part, index) => [part.id, index]));
   return [...chosen.values()]
     .map(({ measure, axis }) => ({ ...measure, axis, target: boxes.get(measure.part!)! }))
     .sort((a, b) => order.get(a.part!)! - order.get(b.part!)! || ALONG.indexOf(a.axis) - ALONG.indexOf(b.axis));
+}
+
+// ── The lengths a figure does not draw ───────────────────────────────────────────────────────────────────────────────
+
+/**
+ * The lengths of a figure's table that the component does not draw as its token says, and what it draws instead (in
+ * pixels, under the system the figure is drawn under), or `null` where the figure finds nothing to measure: the record
+ * `lengths-not-drawn.json`, by component, of the fixture its figure is drawn over. The same record names the parts that
+ * fixture does not draw (`partsNotDrawnOf`), whose lengths the table does not list.
+ *
+ * The figure finds these in the browser, measuring what the component draws (lib/visuals/blueprint.ts), and says each
+ * in its table's row. The page says them before that, from this record, so that the table is laid out at its drawn size
+ * before any script has run: a note written in only once the figure was drawn grew the table in the reader's view (the
+ * Japanese Select's at a phone's width from 260 px to 1020 px, its lengths' column pushed wide by the note and its
+ * tokens' column broken a few letters to a line). The browser test of every figure (test/browser/blueprint-pages.test.mjs)
+ * holds the record to what each figure finds: a length that comes to be drawn as its token says, one that comes to be
+ * drawn otherwise, or a part recorded as not drawn that comes to be drawn, fails it until the record says so.
+ */
+export function lengthsNotDrawnOf(name: string, fixture: string, lines: readonly Measure[]): Map<string, number | null> {
+  const record = recordOf(name);
+  if (!record) return new Map();
+  if (record.fixture !== fixture) throw new Error(`lengths-not-drawn.json: ${name}'s lengths are recorded over the fixture ${record.fixture}, and its figure is drawn over ${fixture}`);
+  const ids = new Set(anatomyOf(name).map((part) => part.id));
+  const strayParts = (record.parts ?? []).filter((part) => !ids.has(part));
+  if (strayParts.length) throw new Error(`lengths-not-drawn.json: ${name} has no part ${strayParts.join(', ')}`);
+  const lengths = record.lengths ?? {};
+  const tokens = new Set(lines.map((line) => line.token));
+  const stray = Object.keys(lengths).filter((token) => !tokens.has(token));
+  if (stray.length) throw new Error(`lengths-not-drawn.json: ${name}'s figure has no length ${stray.join(', ')}`);
+  return new Map(Object.entries(lengths));
 }

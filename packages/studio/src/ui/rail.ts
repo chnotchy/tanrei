@@ -4,20 +4,26 @@
 // where each thing is stays where it was.
 import { CORNER_SMOOTHING } from '../core.js';
 import { SUGGESTED_FAMILIES } from '../fonts.js';
-import { type Ctx, type Json, type Layer, h, trim } from './dom';
+import { type Ctx, type Json, type Layer, h, ltr, rich, tip, trim } from './dom';
 import { MORE, ROWS, type Row, type Section } from './sections';
 
 const glyph = (ctx: Ctx, name: string, attrs: Json = {}) => h('span', { class: `${ctx.studio.tagPrefix}-icon`, 'aria-hidden': 'true', translate: 'no', ...attrs }, name);
-const PRESS_GLYPHS: Record<string, string> = { overlay: 'layers', ripple: 'water_drop', dim: 'brightness_6', none: 'block' };
-const FOCUS_GLYPHS: Record<string, string> = { ring: 'radio_button_unchecked', glow: 'blur_on' };
-/** A row's sample when its value names no glyph of its own; the lock, held and open. Declared, so that the docs site's cut-down icon file has them (packages/tools/src/glyphs.js). */
-const SAMPLE_GLYPHS = { icons: 'star', press: 'touch_app', focus: 'center_focus_strong' };
+/**
+ * The glyph a row draws for what it is (its value is said in words beside it); the lock, held and open; and the
+ * chevron that says a row opens its controls. Declared, so that the docs site's cut-down icon file has them
+ * (packages/tools/src/glyphs.js).
+ */
+const SAMPLE_GLYPHS = { size: 'height', icons: 'star', press: 'touch_app', focus: 'center_focus_strong' };
 const LOCK_GLYPHS = { held: 'lock', open: 'lock_open' };
+const CHEVRON_GLYPH = 'chevron_right';
+/** An icon family named as its set calls its styles: "Material Symbols Rounded" is Rounded, beside its weight. */
+const ICON_SET = /^Material Symbols\s+/;
 const MORE_GLYPHS: Record<(typeof MORE)[number], string> = { base: 'layers', dials: 'tune', palettes: 'palette', components: 'widgets', behavior: 'touch_app', vocabulary: 'add_box', about: 'description', a11y: 'accessibility_new' };
 
 /** A row's state, read from the layer each time it is drawn. */
 interface RowState {
-  value: string;
+  /** Words, or words with runs of their own direction in them (a length with its unit, inside a sentence). */
+  value: string | (Node | string)[];
   changed: boolean;
 }
 
@@ -31,7 +37,10 @@ function palette(ctx: Ctx, layer: Layer, name: string) {
   return (ctx.studio.paletteRows(layer) as Json[]).find((row) => row.name === name);
 }
 
-/** What each row holds now, in words: values and names as the file has them, never translated. */
+/**
+ * What each row holds now, in words: a number, a color, a family and a behaviour's name as the file has them (a name
+ * is the vocabulary's, as its panel lists it); a gray with no chroma and no smoothing in the Studio's language.
+ */
 export function rowState(ctx: Ctx, layer: Layer, row: Row): RowState {
   const { t, studio } = ctx;
   switch (row) {
@@ -43,16 +52,19 @@ export function rowState(ctx: Ctx, layer: Layer, row: Row): RowState {
     case 'neutral': {
       const neutral = palette(ctx, layer, 'neutral');
       const source = neutral?.source;
-      return { value: source?.seed ? source.seed.toUpperCase() : source ? t.rail.hueChroma(trim(source.hue), trim(source.chroma)) : '—', changed: Boolean(neutral?.changed) };
+      return { value: source?.seed ? source.seed.toUpperCase() : source ? (Number(source.chroma) === 0 ? t.rail.neutral : t.rail.hueChroma(trim(source.hue), trim(source.chroma))) : '—', changed: Boolean(neutral?.changed) };
     }
     case 'typeface': {
       const brand = (studio.typefaces(layer) as Json[]).find((face) => face.key === 'brand');
       return { value: brand?.stack?.[0] ?? '—', changed: Boolean(brand?.changed) };
     }
     case 'size': {
+      // The control height and the minimum target: the size unit, the third value the panel writes, is said there.
+      // Each length is a left-to-right run of its own: after a word written right to left, its digits would otherwise
+      // join that word's run and leave the unit behind them ("36 الأدنىpx").
       const [height, size] = [dial(ctx, layer, 'control.height'), dial(ctx, layer, 'size.unit')];
       const minimum = studio.targetMinimum(layer) as Json | null;
-      return { value: t.rail.size(`${trim(height.value)}${height.unit}`, `${trim(size.value)}${size.unit}`, minimum ? `${trim(minimum.value)}${minimum.unit}` : '—'), changed: height.changed || size.changed || Boolean(minimum?.changed) };
+      return { value: rich((at) => t.rail.size(at(ltr(`${trim(height.value)}${height.unit}`)), minimum ? at(ltr(`${trim(minimum.value)}${minimum.unit}`)) : '—')), changed: height.changed || size.changed || Boolean(minimum?.changed) };
     }
     case 'radius': {
       const shape = dial(ctx, layer, 'shape.unit');
@@ -60,17 +72,18 @@ export function rowState(ctx: Ctx, layer: Layer, row: Row): RowState {
     }
     case 'smoothing': {
       const smoothing = studio.cornerSmoothing(layer) as Json;
-      return { value: trim(smoothing.value), changed: smoothing.changed };
+      return { value: Number(smoothing.value) === 0 ? t.rail.none : trim(smoothing.value), changed: smoothing.changed };
     }
     case 'icons': {
       const icons = studio.iconSet(layer) as Json;
-      const family = (icons.mode === 'variable' ? icons.family : icons.selected)?.[0] ?? '—';
-      return { value: t.listed(family, String(icons.weight)), changed: icons.anyChanged };
+      const family: string = (icons.mode === 'variable' ? icons.family : icons.selected)?.[0] ?? '—';
+      return { value: t.listed(family.replace(ICON_SET, ''), String(icons.weight)), changed: icons.anyChanged };
     }
     case 'press':
     case 'focus': {
+      // A choice by its name in the person's language; the panel lists the vocabulary's names.
       const entry = behavior(ctx, layer, row === 'press' ? 'pressed-feedback' : 'focus-style');
-      return { value: entry.value, changed: entry.changed };
+      return { value: t.rail.choices[entry.value] ?? entry.value, changed: entry.changed };
     }
   }
 }
@@ -84,9 +97,9 @@ function sample(ctx: Ctx, row: Row) {
   const { studio } = ctx;
   const v = (id: string) => `var(${studio.cssVar(`${studio.namespace}.${id}`)})`;
   const el = h('span', { class: 'ts-sample', 'aria-hidden': 'true', 'data-sample-of': row, [`data-${studio.namespace}-system`]: ctx.scope });
-  const draw = (layer: Layer) => {
-    // A sample drawn from the sheet alone is drawn once: the sheet keeps it up to date.
-    if (el.childElementCount && row !== 'press' && row !== 'focus') return;
+  const draw = () => {
+    // A sample is drawn once: the sheet keeps what it draws of the layer up to date, and a glyph says what the row is.
+    if (el.childElementCount) return;
     switch (row) {
       case 'color':
         return el.replaceChildren(h('i', { class: 'ts-sample-swatch', style: `background: ${v('sys.color.primary')};` }));
@@ -95,7 +108,7 @@ function sample(ctx: Ctx, row: Row) {
       case 'typeface':
         return el.replaceChildren(h('i', { class: 'ts-sample-type', style: `font-family: ${v('ref.typeface.brand')};`, text: 'Ag' }));
       case 'size':
-        return el.replaceChildren(h('i', { class: 'ts-sample-size', style: `block-size: min(1.5rem, calc(${v('dial.control.height')} * 0.6));` }));
+        return el.replaceChildren(glyph(ctx, SAMPLE_GLYPHS.size));
       case 'radius':
         return el.replaceChildren(h('i', { class: 'ts-sample-corner', style: `border-start-end-radius: ${v('sys.shape.corner.large')};` }));
       case 'smoothing':
@@ -103,9 +116,9 @@ function sample(ctx: Ctx, row: Row) {
       case 'icons':
         return el.replaceChildren(glyph(ctx, SAMPLE_GLYPHS.icons));
       case 'press':
-        return el.replaceChildren(glyph(ctx, PRESS_GLYPHS[behavior(ctx, layer, 'pressed-feedback').value] ?? SAMPLE_GLYPHS.press));
+        return el.replaceChildren(glyph(ctx, SAMPLE_GLYPHS.press));
       case 'focus':
-        return el.replaceChildren(glyph(ctx, FOCUS_GLYPHS[behavior(ctx, layer, 'focus-style').value] ?? SAMPLE_GLYPHS.focus));
+        return el.replaceChildren(glyph(ctx, SAMPLE_GLYPHS.focus));
     }
   };
   return { el, draw };
@@ -238,9 +251,11 @@ export function createRail(ctx: Ctx, { locked, onshow, onlock }: { locked: Set<R
     { class: 'ts-rail-rows', 'aria-labelledby': rowsId, 'data-rail-rows': true },
     ROWS.map((row) => {
       const value = h('span', { class: 'ts-rail-value', dir: 'auto' });
-      const mark = h('span', { class: 'ts-mark', title: t.changed, 'aria-label': t.changed, role: 'img', hidden: true });
+      // A row the layer leaves as its start gives it says so, after its value: what is left is what was changed.
+      const unchanged = h('span', { class: 'ts-rail-default', 'data-unchanged': true, text: t.rail.unchanged });
       const drawn = sample(ctx, row);
-      const show = h('button', { type: 'button', class: 'ts-rail-row', 'aria-current': 'false', 'data-row': row, onclick: () => onshow(row) }, h('span', { class: 'ts-rail-label' }, t.rail.rows[row], mark), value, drawn.el) as HTMLButtonElement;
+      const line = h('span', { class: 'ts-rail-line' }, value, unchanged);
+      const show = h('button', { type: 'button', class: 'ts-rail-row', 'aria-current': 'false', 'data-row': row, onclick: () => onshow(row) }, h('span', { class: 'ts-rail-label' }, t.rail.rows[row]), line, drawn.el) as HTMLButtonElement;
       buttons.set(row, show);
       // Pointed at or focused, the row marks in the preview what it changes; leaving it takes the marks away.
       const marking = ctx as Ctx & Marking;
@@ -250,7 +265,7 @@ export function createRail(ctx: Ctx, { locked, onshow, onlock }: { locked: Set<R
       show.addEventListener('focusin', point);
       show.addEventListener('pointerleave', unmark);
       show.addEventListener('focusout', unmark);
-      const lock = h('tanrei-button', { class: 'ts-rail-lock', variant: 'text', size: 'small', toggle: true, label: t.rail.lock(t.rail.rows[row]), title: t.rail.lockHelp, selected: locked.has(row), 'data-lock': row }, glyph(ctx, locked.has(row) ? LOCK_GLYPHS.held : LOCK_GLYPHS.open, { slot: 'icon' })) as HTMLElement & { selected: boolean };
+      const lock = h('tanrei-button', { class: 'ts-rail-lock', variant: 'text', size: 'small', toggle: true, label: t.rail.lock(t.rail.rows[row]), selected: locked.has(row), 'data-lock': row }, glyph(ctx, locked.has(row) ? LOCK_GLYPHS.held : LOCK_GLYPHS.open, { slot: 'icon' })) as HTMLElement & { selected: boolean };
       lock.addEventListener('change', (event) => {
         if (event.target !== lock) return;
         lock.querySelector('[slot="icon"]')!.textContent = lock.selected ? LOCK_GLYPHS.held : LOCK_GLYPHS.open;
@@ -259,12 +274,27 @@ export function createRail(ctx: Ctx, { locked, onshow, onlock }: { locked: Set<R
       refreshers.push(() => {
         const layer = ctx.layer();
         const state = rowState(ctx, layer, row);
-        value.textContent = state.value;
-        mark.hidden = !state.changed;
+        if (typeof state.value === 'string') value.textContent = state.value;
+        else value.replaceChildren(...state.value);
+        whole.text = value.textContent || t.rail.rows[row];
+        unchanged.hidden = state.changed;
         show.toggleAttribute('data-changed', state.changed);
-        drawn.draw(layer);
+        drawn.draw();
       });
-      return h('li', { class: 'ts-rail-item', 'data-rail-row': row }, show, lock);
+      // The chevron says the row opens its controls; pressing it is pressing the row.
+      const chevron = h('span', { class: 'ts-rail-chevron', 'aria-hidden': 'true', onclick: () => show.click() }, glyph(ctx, CHEVRON_GLYPH));
+      // A line too long for the rail is cut with an ellipsis (studio.css): pointed at or focused, the row shows the
+      // whole value in a Tanrei tooltip, as the bar's controls show theirs. Only a cut value opens it: a line cut after
+      // the value, in the word that says it is the start's, shows the value whole already. The row is named by its text, which holds the whole value, so the tooltip adds nothing to that name.
+      // (Its text is the row's name until the rail is first drawn: a tooltip is never left without text.)
+      const whole = tip(show, t.rail.rows[row], true, { class: 'ts-rail-tip', placement: 'top-start' }) as HTMLElement & { text: string; open: boolean };
+      whole.addEventListener('toggle', (event) => {
+        if (event.target === whole && whole.open && value.getBoundingClientRect().width <= line.clientWidth + 1) whole.open = false;
+      });
+      // What a lock does is said in a Tanrei tooltip, as the shuffle's is in the bar: pointed at or focused, and as the
+      // button's description (its name is «Lock <row>»), never in the browser's native title.
+      const lockTip = tip(lock, t.rail.lockHelp, false, { class: 'ts-rail-lock-tip' });
+      return h('li', { class: 'ts-rail-item', 'data-rail-row': row }, whole, lockTip, chevron);
     }),
   );
 
@@ -273,7 +303,9 @@ export function createRail(ctx: Ctx, { locked, onshow, onlock }: { locked: Set<R
     'ul',
     { class: 'ts-rail-more', 'aria-labelledby': moreId, 'data-rail-more': true },
     MORE.map((section) => {
-      const show = h('button', { type: 'button', class: 'ts-rail-link', 'aria-current': 'false', 'data-row': section, onclick: () => onshow(section) }, glyph(ctx, MORE_GLYPHS[section]), h('span', { class: 'ts-rail-label', text: t.rail.more[section] })) as HTMLButtonElement;
+      // Each says in a line what it holds: the name is the button's, the line describes it.
+      const help = h('span', { id: ctx.uid('ts-more'), class: 'ts-rail-help', 'aria-hidden': 'true', text: t.rail.moreHelp[section] });
+      const show = h('button', { type: 'button', class: 'ts-rail-link', 'aria-current': 'false', 'aria-describedby': help.id, 'data-row': section, onclick: () => onshow(section) }, glyph(ctx, MORE_GLYPHS[section]), h('span', { class: 'ts-rail-link-text' }, h('span', { class: 'ts-rail-label', text: t.rail.more[section] }), help), glyph(ctx, CHEVRON_GLYPH, { class: `${ctx.studio.tagPrefix}-icon ts-rail-chevron` })) as HTMLButtonElement;
       buttons.set(section, show);
       return h('li', {}, show);
     }),

@@ -199,6 +199,23 @@ import { themeScript } from '@tanrei/web/theme-script';
 
 لتضبط رمزًا من سكربت، استخدم `setTokens()` من `@tanrei/web`: `setTokens({ '--tanrei-sys-color-primary': '#0b57d0' })` على الجذر، أو مع `{ on: element }` لجزء من الصفحة. فضبط رمز واحد وحده على الجذر بالدالة `style.setProperty()` يجعل Safari يعيد حساب أنماط الصفحة كلها لثوانٍ؛ أما `setTokens()` فتكتبه بطريقة لا يحدث معها ذلك.
 
+## حلقة التركيز الخاصة بك
+
+يرسم كل عنصر مؤشر تركيز لوحة المفاتيح بنفسه من رموز التركيز في النظام (`--tanrei-sys-focus-offset`, `--tanrei-sys-focus-inner-width`, `--tanrei-sys-focus-outer-width`, `--tanrei-sys-color-focus-ring`, `--tanrei-sys-color-focus-ring-inner`): غيّرها لتغييره. يمكن أن تبقى قاعدة صفحتك التي تنطبق على كل عنصر عليه التركيز (`:focus-visible { outline: … }`، أو قاعدة ملف إعادة الضبط). العنصر الذي يأخذ مضيفُه التركيز بنفسه، مثل علامة التبويب أو لوحة علامة التبويب أو عنصر القائمة، يرسم حلقته في الداخل ويضع `outline: none !important` على مضيفه. تتغلب قواعد الصفحة على قواعد جذر الظل، لكن ليس على قاعدة مهمة، فلا يُرسم إطارك حوله أيضًا.
+
+أوراق الأنماط الخاصة بترميزك (`table.css` و`link.css` و`prose.css` وغيرها) موجودة في `@layer tanrei.components`، والقاعدة الواقعة خارج أي طبقة تتغلب على كل قاعدة داخل طبقة: من دون طبقة، تستبدل قاعدة التركيز الخاصة بك حلقاتها بحلقتك. ضعها في طبقة خاصة بك، مسمّاة قبل طبقة Tanrei في أول ورقة أنماط تحمّلها الصفحة، فتُرسم حلقاتها كما هي:
+
+```css
+@layer base, tanrei;
+
+@layer base {
+  :focus-visible {
+    outline: var(--tanrei-sys-focus-outer-width) solid var(--tanrei-sys-color-focus-ring);
+    outline-offset: var(--tanrei-sys-focus-offset);
+  }
+}
+```
+
 ## أنماط النص
 
 تُسمّى أنماط النص بحسب المستوى (`heading-2` هو `h2`، و `body` هو `p`، و `label` هو النص على عنصر التحكم)، وكل نمط منها مجموعة من الخصائص المخصصة المفردة: `--tanrei-sys-typescale-<role>-font-family` و `-font-size` و `-font-weight` و `-line-height` و `-letter-spacing` و `-font-weight-emphasized`. ولا خاصية مختصرة: ركّب `font` منها حيث يُرسم النص، كما في المثال أعلاه، وغيّر النمط خاصيةً واحدة في كل مرة. فضبط `--tanrei-sys-typescale-body-font-size: 1rem` على الجذر، أو على عنصر واحد أو قسم من الصفحة، يغيّر حجم ذلك النص ولا شيء غيره. وتوجد ورقتا أنماط اختياريتان تطبّقانها على العناصر عنك:

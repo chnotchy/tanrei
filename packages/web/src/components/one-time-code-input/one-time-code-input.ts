@@ -3,6 +3,7 @@ import { AvailabilityController, FieldControlController, delegatedAria, namedByP
 import { formOf, pressDefaultButton } from '../../primitives/default-button.js';
 import { FormSays } from '../../primitives/form-says.js';
 import { FormDisabledController } from '../../primitives/form-disabled.js';
+import { FormDefault } from '../../primitives/form-default.js';
 import { missingValueMessage } from '../../primitives/missing-value.js';
 import { type CodeState, type CodeType, furthest, readCharacter, readCode, readPermitted, readValue, removeBackward, removeForward, removeRun, replaceAll, settle, typeCharacter, typeText } from './code-text.js';
 import { styles } from './one-time-code-input.styles.js';
@@ -54,7 +55,7 @@ const REMOVES_FORWARD_RUN = new Set(['deleteWordForward', 'deleteSoftLineForward
  * `change` when a changed value is committed (focus leaves, or Enter), `action` on Enter. Nothing else happens when the
  * code is complete: checking it is the product's.
  *
- * Form-associated: it submits the code under `name`, resets to its `value` attribute, is restored on navigation,
+ * Form-associated: it submits the code under `name`, resets to the value it was first given, is restored on navigation,
  * follows a disabled `<fieldset>`, and reports a missing value while its Field says it is required and it is empty.
  *
  * @tag tanrei-one-time-code-input
@@ -101,7 +102,7 @@ export class TanreiOneTimeCodeInput extends TanreiElement {
     composingText: { state: true },
   };
 
-  /** The code entered so far: at most `length` characters, digits or — for `alphanumeric` — digits and upper-case letters, with no separator. The `value` attribute is what a form reset returns to. */
+  /** The code entered so far: at most `length` characters, digits or — for `alphanumeric` — digits and upper-case letters, with no separator. The value it is first given — by the `value` attribute or as the property — is what a form reset returns to. */
   value = '';
 
   /** How many characters the code has, and so how many cells are drawn. A whole number of 1 or more; anything else draws 6. */
@@ -141,6 +142,8 @@ export class TanreiOneTimeCodeInput extends TanreiElement {
   private composingText = '';
 
   private readonly fieldset = new FormDisabledController(this);
+  /** What a form's reset returns `value` to: what it was first given, as a native control's `defaultValue`. */
+  private readonly valueDefault = new FormDefault(this, () => this.value, 'value', (text) => text ?? '');
   /** A disabled `<fieldset>` around the element, as the platform says it (src/primitives/form-disabled.ts). */
   private get formDisabled(): boolean {
     return this.fieldset.byFieldset;
@@ -244,7 +247,7 @@ export class TanreiOneTimeCodeInput extends TanreiElement {
   // ─── Form (OTC-29) ────────────────────────────────────────────────────────────────────────────────────────────
 
   formResetCallback() {
-    this.value = this.getAttribute('value') ?? '';
+    this.value = this.valueDefault.value;
   }
 
   formStateRestoreCallback(state: string | File | FormData | null) {

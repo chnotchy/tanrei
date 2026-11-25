@@ -362,7 +362,7 @@ export function destinationStyles(
   :host {
     display: flex;
     min-inline-size: 0;
-    outline: none;
+    outline: none !important;
   }
   :host([hidden]) {
     display: none;

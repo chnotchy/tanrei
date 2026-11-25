@@ -6236,6 +6236,11 @@
             },
             "$description": "How long the leading half's label and icon take to fade out when the button with menu becomes busy, and back in when it stops (SPB-39), with state-easing: a busy Button's. The arc appears and goes at once, and under reduced motion the label and the icon do too."
           },
+          "busy-pulse-floor-opacity": {
+            "$type": "number",
+            "$value": 0.7,
+            "$description": "The opacity the busy leading half's circle eases down to at the low point of each pulse under reduced motion (SPB-39): a busy Button's, so that the two components agree."
+          },
           "feedback-duration": {
             "$type": "duration",
             "$value": {
@@ -12061,6 +12066,11 @@
               "unit": "ms"
             },
             "$description": "How long the label and the icon take to fade out when the button becomes busy, and back in when it stops (BTN-36), with state-easing: a change of what a small part draws in place, the same at every size. The arc appears and goes at once, and under reduced motion the label and the icon do too."
+          },
+          "busy-pulse-floor-opacity": {
+            "$type": "number",
+            "$value": 0.7,
+            "$description": "The opacity the busy circle eases down to at the low point of each pulse under reduced motion (BTN-36): the loading indicator's, so that a busy button is never drawn as an empty container."
           },
           "feedback-duration": {
             "$type": "duration",
@@ -54596,6 +54606,11 @@
             "$value": 0,
             "$description": "How the indicator enters once its show delay has passed. fade: the whole component eases its opacity from 0 to 1. grow: it fades the same way and grows from nothing to its full size about its center at the same time. Under reduced motion grow is drawn as fade. The value is an index into dev.tanrei.enum.values; platforms receive the name."
           },
+          "pulse-floor-opacity": {
+            "$type": "number",
+            "$value": 0.7,
+            "$description": "The opacity the reduced-motion form eases down to at the low point of each pulse, and back up from: the circle keeps pulsing but never fades to nothing, so a wait is never drawn as an empty space. At 0.7 the indicator still stands 3:1 or more from what it is drawn on, as a mark that is still there; the same floor serves every control that draws the loading indicator's reduced-motion form (a busy button's circle, the progress indicator's pulse)."
+          },
           "show-delay": {
             "$type": "duration",
             "$value": {
@@ -71693,6 +71708,11 @@
               1
             ],
             "$description": "How the bar's indeterminate segment and the reduced-motion pulse move through a cycle. The ring always turns at constant speed."
+          },
+          "pulse-floor-opacity": {
+            "$type": "number",
+            "$value": 0.7,
+            "$description": "The opacity the indeterminate reduced-motion pulse eases down to at the low point of each cycle (PRG-7): the loading indicator's, so that an indicator under way is never drawn as a bare track."
           },
           "show-delay": {
             "$type": "duration",
@@ -92275,14 +92295,6 @@
       },
       "tabs": {
         "active-indicator": {
-          "height": {
-            "$type": "dimension",
-            "$value": {
-              "value": 32,
-              "unit": "px"
-            },
-            "$description": "Read by no behaviour of this revision: the active indicator is as tall as the row less track.padding above and below, so it has no height of its own. It stays so that the platforms still drawing the previous revision keep building; remove it in the commit that brings the last of them up to date."
-          },
           "padding-block": {
             "medium": {
               "$type": "dimension",

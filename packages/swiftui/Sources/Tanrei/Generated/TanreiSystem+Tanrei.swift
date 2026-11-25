@@ -877,6 +877,7 @@ private let tanreiButtonWithMenuTokens = TanreiButtonWithMenuTokens(
   dividerThickness: 1,
   motionBusyCycleDuration: 1000,
   motionBusyFadeDuration: 200,
+  motionBusyPulseFloorOpacity: 0.7,
   motionFeedbackDuration: 450,
   motionHoverCloseDelay: 300,
   motionHoverOpenDelay: 300,
@@ -1218,6 +1219,7 @@ private let tanreiButtonTokens = TanreiButtonTokens(
   containerShape: 9999,
   motionBusyCycleDuration: 1000,
   motionBusyFadeDuration: 200,
+  motionBusyPulseFloorOpacity: 0.7,
   motionFeedbackDuration: 450,
   motionStateEasing: TanreiCubicBezier(0.2, 0, 0, 1),
   toneContainerOpacity: 0.16,
@@ -5333,6 +5335,7 @@ private let tanreiLoadingIndicatorTokens = TanreiLoadingIndicatorTokens(
   motionEnterDuration: 250,
   motionEnterEasing: TanreiCubicBezier(0.2, 0, 0, 1),
   motionEntrance: 0,
+  motionPulseFloorOpacity: 0.7,
   motionShowDelay: 300,
   sizes: TanreiLoadingIndicatorSizes(
     small: TanreiLoadingIndicatorSizeTokens(
@@ -6995,6 +6998,7 @@ private let tanreiProgressIndicatorTokens = TanreiProgressIndicatorTokens(
   indicatorColor: .role(.primary),
   motionCycleDuration: 1000,
   motionCycleEasing: TanreiCubicBezier(0.2, 0, 0, 1),
+  motionPulseFloorOpacity: 0.7,
   motionShowDelay: 300,
   motionValueDuration: 300,
   motionValueEasing: TanreiCubicBezier(0.2, 0, 0, 1),
@@ -9088,7 +9092,6 @@ private let tanreiTableTokens = TanreiTableTokens(
 )
 
 private let tanreiTabsTokens = TanreiTabsTokens(
-  activeIndicatorHeight: 32,
   containerGap: 4,
   containerHeightWithIcon: 64,
   containerShape: 9999,

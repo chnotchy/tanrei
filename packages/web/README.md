@@ -179,6 +179,31 @@ runs. Import the stylesheet of each one you use (or link `dist/<name>.css`):
 page on the surface, its text on-surface in the body face, no margin on `<body>`); a preset's `systems/<id>.css` is not
 in it, and neither is the cloak.
 
+## Your own focus ring
+
+Every Tanrei element draws its own keyboard focus indicator, from the system's focus tokens
+(`--tanrei-sys-focus-offset`, `-inner-width`, `-outer-width`, `--tanrei-sys-color-focus-ring`, `-ring-inner`): change
+those to change it. A rule of your page for every focused element — `:focus-visible { outline: … }`, a reset's — can
+stay. An element whose host takes focus itself (a tab, a tab panel, a list item, a menubar's menu) draws its ring on a
+box inside it and says `outline: none !important` on its host: a page's own rules win over a shadow root's, except
+over an important one, so your outline is not drawn around it as well.
+
+The stylesheets for your own markup (`table.css`, `link.css`, `prose.css`, `code.css` and the others above) are in
+`@layer tanrei.components`, and a rule outside any layer wins over every layered one: unlayered, your focus rule
+replaces their rings with yours. Put it in a layer of your own named before Tanrei's, in the first stylesheet the page
+loads, and theirs are drawn as they are:
+
+```css
+@layer base, tanrei;
+
+@layer base {
+  :focus-visible {
+    outline: var(--tanrei-sys-focus-outer-width) solid var(--tanrei-sys-color-focus-ring);
+    outline-offset: var(--tanrei-sys-focus-offset);
+  }
+}
+```
+
 ## Before the elements are defined
 
 Until its script has run, an element is unknown to the browser: the page shows what is written between its tags,

@@ -40,7 +40,8 @@ test('off by default: the default system’s sheet and a preset’s are the file
   const presetModel = await (await resolveSystem({ system: preset })).model();
   const written = fs.readFileSync(path.join(REPO_ROOT, `packages/web/src/generated/systems/${preset}.css`), 'utf8');
   // The preset's file may open with a note on the measurements that do not apply to it (src/cli.js); the sheet follows it.
-  assert.ok(written.endsWith(emitCss(presetModel, { scope: preset, ...availability(preset) })));
+  // The build writes it under the default system's sheet, whose contrast properties it restates.
+  assert.ok(written.endsWith(emitCss(presetModel, { scope: preset, defaultModel: model, ...availability(preset) })));
 });
 
 test('on: the properties named and what their values read, in the rules that declare them, and nothing else', async () => {

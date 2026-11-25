@@ -56,12 +56,15 @@ internal fun rememberTanreiCycle(durationMillis: Int, running: Boolean): FloatSt
 }
 
 /**
- * The reduced-motion pulse (PRG-7, LDG-4): opacity from 1 to 0 over the first half of a cycle and back to 1 over the
- * second, each half eased by [easing]. At phase 0 — where a cycle starts, and where the baselines are recorded — it is 1.
+ * The reduced-motion pulse (PRG-7, LDG-4): opacity from 1 down to [floor] (the component's pulse-floor-opacity token)
+ * over the first half of a cycle and back to 1 over the second, each half eased by [easing]; never below [floor], so
+ * the mark keeps pulsing and is never drawn as nothing. At phase 0 — where a cycle starts, and where the baselines are
+ * recorded — it is 1.
  */
-internal fun tanreiPulseAlpha(phase: Float, easing: Easing): Float {
+internal fun tanreiPulseAlpha(phase: Float, easing: Easing, floor: Float): Float {
     val half = phase * 2f
-    return if (half < 1f) 1f - easing.transform(half) else easing.transform(half - 1f)
+    val depth = 1f - floor
+    return if (half < 1f) 1f - depth * easing.transform(half) else floor + depth * easing.transform(half - 1f)
 }
 
 /**

@@ -40,15 +40,13 @@ before(async () => {
 after(async () => host?.close());
 
 /** The Studio's page, opened and drawn; what the page said in its console is collected. */
-async function open(browser, { viewport = WIDE, url = '/studio/', locale = 'en-US' } = {}) {
-  const context = await browser.newContext({ viewport, locale });
+async function open(browser, { viewport = WIDE, url = '/studio/', locale = 'en-US', colorScheme = 'light' } = {}) {
+  const context = await browser.newContext({ viewport, locale, colorScheme });
   context.setDefaultTimeout(30_000);
   const page = await context.newPage();
   const problems = [];
   page.on('console', (message) => message.type() === 'error' && problems.push(message.text()));
   page.on('pageerror', (error) => problems.push(error.message));
-  // The base system is switched after a confirmation: the person says yes.
-  page.on('dialog', (dialog) => dialog.accept());
   await page.goto(origin + url);
   await page.waitForSelector('[data-studio][data-pane] [data-rail] [data-row]');
   // Every element of the page defined, the fonts in, and two frames since (each wait bounded: launch.mjs).
@@ -103,6 +101,68 @@ for (const engine of ENGINES) {
       }
     });
 
+    test('1440 wide, in each of the six languages, light and dark: the preview’s bar is one line — the screens, the scheme, and the button of the contrast and the emphasis — each label whole', LIMIT, async () => {
+      for (const prefix of ['', '/ja', '/es', '/ar', '/hi', '/zh-cn']) {
+        for (const colorScheme of ['light', 'dark']) {
+          const { page, problems, close } = await open(browser, { url: `${prefix}/studio/`, colorScheme });
+          try {
+            const bar = await page.evaluate(() => {
+              const shown = [...document.querySelectorAll('.ts-preview-bar > tanrei-tabs, .ts-preview-conditions > *')].filter((el) => el.getClientRects().length);
+              const middles = shown.map((el) => { const r = el.getBoundingClientRect(); return Math.round(r.top + r.height / 2); });
+              const box = document.querySelector('.ts-preview-bar').getBoundingClientRect();
+              // A tab's label cut short: wider than the room its tab gives it. A row of tabs that scrolls: a tab out of sight.
+              const cut = [...document.querySelectorAll('.ts-preview-bar tanrei-tab')].map((tab) => tab.shadowRoot.querySelector('[part~="label"]')).filter((label) => label && label.scrollWidth > label.clientWidth + 1).map((label) => label.textContent);
+              for (const tabs of document.querySelectorAll('.ts-preview-bar tanrei-tabs')) {
+                const scroller = tabs.shadowRoot.querySelector('[part~="scroller"]');
+                if (scroller.scrollWidth > scroller.clientWidth + 1) cut.push(`${tabs.getAttribute('label')} scrolls`);
+              }
+              return { spread: Math.max(...middles) - Math.min(...middles), count: shown.length, inside: shown.every((el) => { const r = el.getBoundingClientRect(); return r.left >= box.left - 1 && r.right <= box.right + 1; }), cut };
+            });
+            assert.ok(bar.spread <= 2 && bar.count >= 3 && bar.inside, `${prefix || '/en'} ${colorScheme}: the bar is one line, inside the preview: ${JSON.stringify(bar)}`);
+            assert.deepEqual(bar.cut, [], `${prefix || '/en'} ${colorScheme}: no label is cut`);
+            const [label, tip] = await page.locator('[data-view-more]').evaluate((el) => [el.label, el.parentElement.localName === 'tanrei-tooltip' && el.parentElement.text]);
+            assert.ok(label && label === tip, `the button that shows its glyph alone is named, and its tooltip says its name: ${label} / ${tip}`);
+            assert.deepEqual(problems, []);
+          } finally {
+            await close();
+          }
+        }
+      }
+    });
+
+    test('1280 wide, in each of the six languages: the overview is two columns beside the rail and the panel, and nothing in it is wider than its panel', LIMIT, async () => {
+      for (const prefix of ['', '/ja', '/es', '/ar', '/hi', '/zh-cn']) {
+        const { page, problems, close } = await open(browser, { url: `${prefix}/studio/`, viewport: { width: 1280, height: 900 } });
+        try {
+          const overview = await page.evaluate(() => {
+            const grid = document.querySelector('[data-scope] .ts-s-overview');
+            const columns = getComputedStyle(grid).gridTemplateColumns.split(' ').length;
+            const wide = [...grid.querySelectorAll('.ts-s-panel *')].filter((el) => {
+              if (!el.getClientRects().length) return false;
+              const [box, panel] = [el.getBoundingClientRect(), el.closest('.ts-s-panel').getBoundingClientRect()];
+              return box.right > panel.right + 1 || box.left < panel.left - 1;
+            }).map((el) => el.localName);
+            return { columns, wide };
+          });
+          assert.deepEqual(overview, { columns: 2, wide: [] }, `${prefix || '/en'}: ${JSON.stringify(overview)}`);
+          assert.deepEqual(problems, []);
+        } finally {
+          await close();
+        }
+      }
+    });
+
+    test('a device in dark: the page follows it, and the preview opens in dark too, until the person chooses', LIMIT, async () => {
+      const { page, close } = await open(browser, { colorScheme: 'dark' });
+      try {
+        assert.equal(await page.locator('html').getAttribute('data-tanrei-theme'), null, 'the page follows the device');
+        assert.equal(await page.locator('[data-modes]').evaluate((tabs) => tabs.value), 'dark');
+        assert.equal(await page.locator('[data-scope]').getAttribute('data-mode'), 'dark');
+      } finally {
+        await close();
+      }
+    });
+
     test('1440 wide: the handle resizes the panel, from the keyboard, between its least and what leaves the preview its own', LIMIT, async () => {
       const { page, close } = await open(browser);
       try {
@@ -126,16 +186,72 @@ for (const engine of ENGINES) {
       }
     });
 
-    test('390 wide: one column under the bar — the rail, the preview, the panel — and nothing scrolls sideways', LIMIT, async () => {
+    for (const width of [390, 360]) {
+      test(`${width} wide, in Spanish: the start point's menu lists each example on one line, and on a long start with an invalid edit at Source the bar is still one line`, LIMIT, async () => {
+        const { page, problems, close } = await open(browser, { viewport: { width, height: 844 }, url: '/es/studio/', locale: 'es' });
+        try {
+          await page.locator('[data-start-open]').click();
+          await page.waitForFunction(() => document.querySelector('[data-start-menu]')?.open === true);
+          // The gallery as the approved design lists it, each example's line on one line of the menu.
+          const gallery = await page.locator('[data-start-group="gallery"] tanrei-menu-radio-item').evaluateAll((items) => items.map((item) => { const line = item.shadowRoot.querySelector('[part="supporting-text"]'); return [item.value, line.textContent, Math.round(line.getBoundingClientRect().height / parseFloat(getComputedStyle(line).lineHeight))]; }));
+          assert.deepEqual(gallery, [['m3-like', 'Ejemplo al estilo de Material 3', 1], ['cupertino', 'Ejemplo al estilo de Apple', 1]]);
+          await page.locator('[data-start="cupertino"]').click();
+          await page.waitForFunction(() => document.querySelector('[data-start-short]')?.textContent === 'cupertino');
+          // An edit at Source that does not parse: its button stands in the bar in Inspect's place, its glyph alone, named
+          // and with a tooltip; it opens Inspect, at Source.
+          await page.locator('[data-inspect]').click();
+          await page.locator('[data-inspect-tabs] tanrei-tab[data-value="source"]').click();
+          await page.locator('[data-source]').fill('{ "draft": ');
+          await page.keyboard.press('Escape');
+          await page.waitForFunction(() => document.querySelector('[data-inspect-sheet]')?.open === false);
+          const draft = page.locator('[data-bar] [data-draft-button]');
+          assert.deepEqual(await draft.evaluate((el) => [el.label, el.textContent.trim(), el.parentElement.localName, el.parentElement.text]), ['El JSON tiene ediciones no válidas', 'warning', 'tanrei-tooltip', 'El JSON tiene ediciones no válidas']);
+          assert.equal(await page.locator('[data-bar] [data-draft-badge]').isVisible(), false, 'the chip of a wider window is not drawn');
+          const bar = await page.evaluate(() => {
+            const shown = [...document.querySelectorAll('[data-bar] tanrei-button, [data-bar] a, [data-bar] tanrei-chip')].filter((el) => el.getClientRects().length && getComputedStyle(el).visibility !== 'hidden');
+            const middles = shown.map((el) => { const r = el.getBoundingClientRect(); return Math.round(r.top + r.height / 2); });
+            return { spread: Math.max(...middles) - Math.min(...middles), right: Math.max(...shown.map((el) => Math.round(el.getBoundingClientRect().right))) };
+          });
+          assert.ok(bar.spread <= 2 && bar.right <= width, `the bar is one line, inside the window: ${JSON.stringify(bar)}`);
+          assert.equal(await page.locator('[data-bar] [data-inspect]').isVisible(), false, 'Inspect gives the draft its place');
+          await draft.click();
+          await page.waitForFunction(() => document.querySelector('[data-inspect-sheet]')?.open === true && document.querySelector('[data-inspect-tabs]')?.value === 'source');
+          assert.equal(await page.locator('[data-source]').inputValue(), '{ "draft": ');
+          assert.deepEqual(problems, []);
+        } finally {
+          await close();
+        }
+      });
+    }
+
+    test('390 wide: the preview takes the window, the rail is one line at its foot, and a row opens the panel between them; nothing scrolls sideways', LIMIT, async () => {
       const { page, problems, close } = await open(browser, { viewport: NARROW });
       try {
-        const [rail, preview, panel] = await Promise.all(['[data-rail]', '.ts-preview', '[data-inspector]'].map((selector) => box(page, selector)));
-        assert.ok(rail.bottom <= preview.top && preview.bottom <= panel.top, `one above the other: ${JSON.stringify({ rail, preview, panel })}`);
-        assert.deepEqual(await page.locator('[data-rail] .ts-rail-rows').evaluate((el) => [getComputedStyle(el).display, getComputedStyle(el).overflowX, el.getBoundingClientRect().right <= innerWidth + 1]), ['flex', 'auto', true], 'the rows stand in one line that scrolls by itself, inside the page');
+        const [bar, preview, rail] = await Promise.all(['[data-bar]', '.ts-preview', '[data-rail]'].map((selector) => box(page, selector)));
+        assert.ok(Math.abs(preview.top - bar.bottom) <= 1 && preview.bottom <= rail.top && rail.bottom === NARROW.height, `the preview under the bar, the rail at the window’s foot: ${JSON.stringify({ bar, preview, rail })}`);
+        assert.equal((await box(page, '[data-inspector]')).width, 0, 'the panel is closed until a row is chosen');
+        // The bar is one line: what it shows stands on one line, a control with a glyph alone is named and has a tooltip.
+        const bar1 = await page.evaluate(() => {
+          const shown = [...document.querySelectorAll('[data-bar] tanrei-button, [data-bar] a, [data-bar] tanrei-chip')].filter((el) => el.getClientRects().length && getComputedStyle(el).visibility !== 'hidden');
+          const middles = shown.map((el) => { const r = el.getBoundingClientRect(); return Math.round(r.top + r.height / 2); });
+          const glyphsAlone = shown.filter((el) => el.localName === 'tanrei-button' && !el.textContent.replace(/\s/g, '').replace(el.querySelector('[slot="icon"]')?.textContent ?? '', ''));
+          return { spread: Math.max(...middles) - Math.min(...middles), unnamed: glyphsAlone.filter((el) => !el.label).map((el) => el.outerHTML.slice(0, 80)), untipped: glyphsAlone.filter((el) => el.parentElement?.localName !== 'tanrei-tooltip').map((el) => el.outerHTML.slice(0, 80)), count: shown.length };
+        });
+        assert.ok(bar1.spread <= 2 && bar1.count >= 6, `the bar is one line: ${JSON.stringify(bar1)}`);
+        assert.deepEqual([bar1.unnamed, bar1.untipped], [[], []], 'a control that shows its glyph alone is named, and has a tooltip');
+        assert.deepEqual(await page.locator('[data-rail] .ts-rail-lists').evaluate((el) => [getComputedStyle(el).display, getComputedStyle(el).overflowX, el.getBoundingClientRect().right <= innerWidth + 1]), ['flex', 'auto', true], 'the rail stands in one line that scrolls by itself, inside the page');
         assert.equal(await page.locator('[data-panel-handle]').evaluate((el) => el.getBoundingClientRect().width), 0, 'no handle: nothing to resize');
-        // (What stands inside a list of the rail is in a box that scrolls by itself.)
-        const wide = await page.evaluate(() => [...document.querySelectorAll('[data-bar] *, [data-rail] *, [data-inspector] [data-panel] > header *')].filter((el) => !el.closest('.ts-rail-rows, .ts-rail-more') && el.getBoundingClientRect().right > innerWidth + 1).map((el) => el.localName));
+        // A row opens the panel: under the preview, over the rail, with the row's name and a way to close it.
+        await page.locator('[data-rail] [data-row="radius"]').click();
+        const [open, panel, under] = await Promise.all(['.ts-preview', '[data-inspector]', '[data-rail]'].map((selector) => box(page, selector)));
+        assert.ok(open.bottom <= panel.top && panel.bottom <= under.top && under.bottom === NARROW.height, `preview, panel, rail: ${JSON.stringify({ open, panel, under })}`);
+        assert.equal(await page.locator('[data-sheet-title]').textContent(), 'Corners');
+        // (What stands inside the rail's line is in a box that scrolls by itself.)
+        const wide = await page.evaluate(() => [...document.querySelectorAll('[data-bar] *, [data-rail] *, [data-inspector] [data-panel] > header *')].filter((el) => !el.closest('.ts-rail-lists') && el.getBoundingClientRect().right > innerWidth + 1).map((el) => el.localName));
         assert.deepEqual({ page: await page.evaluate(() => document.scrollingElement.scrollWidth), wide }, { page: NARROW.width, wide: [] });
+        await page.locator('[data-sheet-close]').click();
+        assert.equal((await box(page, '[data-inspector]')).width, 0, 'closed again');
+        assert.equal(await page.evaluate(() => document.activeElement?.closest('[data-row]')?.dataset.row), 'radius', 'the focus back on the row');
         assert.deepEqual(problems, []);
       } finally {
         await close();
@@ -254,6 +370,8 @@ for (const engine of ENGINES) {
         assert.equal((await layer(page)).extends, 'cupertino', '⇧⌘Z redoes');
         assert.equal(await page.locator('[data-status]').textContent(), 'Redone.', 'and says so');
         // In a field that holds text, the keys are the field's.
+        await page.locator('[data-export-open]').click();
+        await page.waitForFunction(() => document.querySelector('[data-export-sheet]').open);
         await page.locator('[data-id] input').focus();
         await page.keyboard.press('ControlOrMeta+z');
         assert.equal((await layer(page)).extends, 'cupertino', 'not taken from a text field');
@@ -366,6 +484,56 @@ for (const engine of ENGINES) {
       }
     });
 
+    test('390 wide, in each of the six languages: Export’s Command tab fits the window, its commands wrapped and whole, and axe finds nothing', LIMIT, async () => {
+      for (const prefix of ['', '/ja', '/es', '/ar', '/hi', '/zh-cn']) {
+        const { page, problems, close } = await open(browser, { url: `${prefix}/studio/`, viewport: NARROW });
+        try {
+          await page.locator('[data-export-open]').click();
+          await page.waitForFunction(() => document.querySelector('[data-export-sheet]').open);
+          await page.locator('[data-export-tabs] > tanrei-tab[data-tab="command"]').click();
+          const commands = page.locator('[data-export-commands]');
+          await commands.waitFor();
+          assert.match(await commands.evaluate((el) => el.code), /\nnpx tanrei init --from acme\.system\.json\n/, prefix);
+          const sheet = await box(page, '[data-export-sheet] [data-export]');
+          const block = await box(page, '[data-export-commands]');
+          assert.ok(block.left >= sheet.left && block.right <= sheet.right, `${prefix || '/'}: the block within the sheet ${JSON.stringify({ sheet, block })}`);
+          assert.equal(await page.evaluate(() => document.scrollingElement.scrollWidth), NARROW.width, `${prefix || '/'}: nothing wider than the window`);
+          const report = await new AxeBuilder({ page }).include('[data-export-sheet]').analyze();
+          assert.deepEqual(report.violations.map((violation) => `${violation.id}: ${violation.nodes.length} — ${violation.nodes[0]?.target}`), [], `${prefix || '/'}: axe`);
+          assert.deepEqual(problems, []);
+        } finally {
+          await close();
+        }
+      }
+    });
+
+    test('1440 and 390 wide, in English, Spanish and Arabic: each command of Export’s What next reads whole in the sheet, wrapped, and none scrolls sideways', LIMIT, async () => {
+      for (const viewport of [WIDE, NARROW]) {
+        for (const prefix of ['', '/es', '/ar']) {
+          const { page, problems, close } = await open(browser, { url: `${prefix}/studio/`, viewport });
+          try {
+            await page.locator('[data-export-open]').click();
+            await page.waitForFunction(() => document.querySelector('[data-export-sheet]').open);
+            await page.locator('[data-export-tabs] > tanrei-tab[data-tab="next"]').click();
+            await page.locator('[data-export-command]').first().waitFor();
+            const blocks = await page.locator('[data-export-command]').evaluateAll((els) =>
+              els.map((el) => { const body = el.shadowRoot.querySelector('[part~="body"]'); return { code: el.code, wrap: el.hasAttribute('wrap'), scrolls: body.scrollWidth > body.clientWidth + 1 }; }),
+            );
+            const where = `${viewport.width} ${prefix || '/'}`;
+            assert.deepEqual(blocks.map((block) => block.code), ['npm install --save-dev @tanrei/cli', 'npx tanrei init --from acme.system.json', 'npx tanrei build', 'npx tanrei studio'], where);
+            assert.deepEqual(blocks.filter((block) => !block.wrap || block.scrolls), [], `${where}: every command wrapped and whole`);
+            const sheet = await box(page, '[data-export-sheet] [data-export]');
+            for (const block of await page.locator('[data-export-command]').evaluateAll((els) => els.map((el) => { const r = el.getBoundingClientRect(); return { left: Math.round(r.left), right: Math.round(r.right) }; }))) {
+              assert.ok(block.left >= sheet.left && block.right <= sheet.right, `${where}: the block within the sheet ${JSON.stringify({ sheet, block })}`);
+            }
+            assert.deepEqual(problems, []);
+          } finally {
+            await close();
+          }
+        }
+      }
+    });
+
     test('Export: the file, the next steps as the CLI takes them, and a link to the layer', LIMIT, async () => {
       const { page, problems, close } = await open(browser);
       try {
@@ -379,18 +547,40 @@ for (const engine of ENGINES) {
         assert.deepEqual(await page.locator('[data-export-json]').evaluate((el) => JSON.parse(el.code)), await layer(page));
         // The example the layer is on: depend on it (the default), or write every value.
         assert.equal(await page.locator('[data-export-every]').evaluate((el) => el.value), 'depend');
+        // Command: the CLI's commands as one block to copy — the tool, the downloaded file taken in, the build. The CLI
+        // takes the file, never the link, so the block names the file.
+        await page.locator('[data-export-tabs] > tanrei-tab[data-tab="command"]').click();
+        const commands = page.locator('[data-export-commands]');
+        await commands.waitFor();
+        assert.equal(await commands.evaluate((el) => el.code), 'npm install --save-dev @tanrei/cli\nnpx tanrei init --from acme.system.json\nnpx tanrei build');
+        assert.deepEqual(await commands.evaluate((el) => [el.getAttribute('label'), el.hasAttribute('copy'), el.getAttribute('copy-label'), el.hasAttribute('wrap')]), ['Commands to run in your product', true, 'Copy the command', true], 'named, copied whole, and wrapped: nothing scrolls sideways');
+        assert.doesNotMatch(await commands.evaluate((el) => el.code), /https?:|#/, 'no link in the command');
+        // The keyboard reaches its copy button: Tab from the tab row lands in the block.
+        await page.locator('[data-export-tabs] > tanrei-tab[data-tab="command"]').focus();
+        let inBlock = false;
+        for (let step = 0; step < 6 && !inBlock; step += 1) {
+          await page.keyboard.press(engine === 'webkit' ? 'Alt+Tab' : 'Tab');
+          inBlock = await page.evaluate(() => Boolean(document.activeElement?.closest('[data-export-commands]')));
+        }
+        assert.ok(inBlock, 'Tab reaches the copy button of the commands');
         await page.locator('[data-export-tabs] > tanrei-tab[data-tab="next"]').click();
-        assert.deepEqual(await page.locator('[data-export-command]').evaluateAll((els) => els.map((el) => el.code)), ['npm install --save-dev @tanrei/cli', 'npx tanrei init acme --extends cupertino', 'npx tanrei build', 'npx tanrei studio']);
+        assert.deepEqual(await page.locator('[data-export-command]').evaluateAll((els) => els.map((el) => el.code)), ['npm install --save-dev @tanrei/cli', 'npx tanrei init --from acme.system.json', 'npx tanrei build', 'npx tanrei studio']);
         assert.equal(await page.locator('[data-export-next] ~ p a').last().getAttribute('href'), '/getting-started/your-design-system/');
-        // Written out, the file extends the root, which `init --extends` does not take: the step starts from the default.
+        // Written out, the file extends the root: init --from takes it as it is, whatever it extends.
         await page.locator('[data-export-every] tanrei-radio-button[data-value="every"]').click();
-        await page.waitForFunction(() => document.querySelector('[data-export-command="npx tanrei init"]')?.code === 'npx tanrei init acme');
-        // The link: the address of this layer.
+        await page.waitForFunction(() => document.querySelector('[data-export-command="npx tanrei init"]')?.code === 'npx tanrei init --from acme.system.json');
+        // At the sheet's foot, whichever tab is shown: Download, and the link — the address of this layer — said in a snackbar.
+        assert.deepEqual(await page.locator('[data-export-sheet]').evaluate((el) => [...el.querySelectorAll(':scope > [slot="actions"]')].map((action) => action.dataset.exportCopyLink === '' ? 'copy link' : action.dataset.exportDownload === '' ? 'download' : action.localName)), ['copy link', 'download']);
         if (engine === 'chromium') await page.context().grantPermissions(['clipboard-read', 'clipboard-write']);
         await page.locator('[data-export-copy-link]').click();
-        await page.waitForFunction(() => document.querySelector('[data-export-link-state]').textContent);
+        const snackbar = () => page.locator('tanrei-snackbar').last().evaluate((el) => el.message).catch(() => '');
+        // (Copied, or — where the engine refuses the clipboard — where the link is.)
+        const answers = ['Link copied.', 'Couldn’t copy the link. It’s this page’s address — copy it from your browser’s address bar.'];
+        const deadline = Date.now() + 5000;
+        while (!answers.includes(await snackbar()) && Date.now() < deadline) await page.waitForTimeout(50);
+        assert.ok(answers.includes(await snackbar()), 'the snackbar says what was done');
         if (engine === 'chromium') {
-          assert.equal(await page.locator('[data-export-link-state]').textContent(), 'Link copied.');
+          assert.equal(await snackbar(), 'Link copied.');
           assert.equal(await page.evaluate(() => navigator.clipboard.readText()), page.url(), 'the address the layer is in');
         }
         const report = await new AxeBuilder({ page }).include('[data-export-sheet]').analyze();
@@ -402,6 +592,66 @@ for (const engine of ENGINES) {
         assert.deepEqual(problems, []);
       } finally {
         await close();
+      }
+    });
+
+    test('Copy link, where the browser refuses the clipboard: Export and Share say the link is the page’s address, which holds the layer', LIMIT, async () => {
+      for (const [url, said] of [
+        ['/studio/', 'Couldn’t copy the link. It’s this page’s address — copy it from your browser’s address bar.'],
+        ['/ja/studio/', 'リンクをコピーできませんでした。このページのアドレスがリンクです。ブラウザーのアドレスバーからコピーしてください。'],
+      ]) {
+        const { page, problems, close } = await open(browser, { url });
+        try {
+          await chooseBase(page, 'cupertino');
+          await page.waitForFunction(() => new URLSearchParams(location.hash.slice(1)).get('layer'));
+          await page.evaluate(() => Object.defineProperty(navigator, 'clipboard', { configurable: true, value: { writeText: () => Promise.reject(new DOMException('Refused', 'NotAllowedError')) } }));
+          await page.locator('[data-export-open]').click();
+          await page.waitForFunction(() => document.querySelector('[data-export-sheet]').open);
+          await page.locator('[data-export-copy-link]').click();
+          // (The snackbar stands in a shadow root: Playwright's locator reaches it.)
+          const messages = () => page.locator('tanrei-snackbar').evaluateAll((els) => els.map((el) => el.message));
+          const deadline = Date.now() + 5000;
+          while (!(await messages()).includes(said) && Date.now() < deadline) await page.waitForTimeout(50);
+          assert.ok((await messages()).includes(said), `the snackbar says where the link is: ${JSON.stringify(await messages())}`);
+          await page.keyboard.press('Escape');
+          await page.waitForFunction(() => !document.querySelector('[data-export-sheet]').open);
+          await page.locator('[data-share-open]').click();
+          await page.locator('[data-share-copy-link]').click();
+          await page.waitForFunction((text) => document.querySelector('[data-share-link-state]')?.textContent === text, said);
+          // What the words say is so: the address holds this layer.
+          // (The parameter unpacked as the Studio packs it: raw DEFLATE in base64url, packages/studio/src/address.js.)
+          const address = await page.evaluate(async () => {
+            const code = new URLSearchParams(location.hash.slice(1)).get('layer').replace(/-/g, '+').replace(/_/g, '/');
+            const bytes = Uint8Array.from(atob(code + '='.repeat((4 - (code.length % 4)) % 4)), (char) => char.charCodeAt(0));
+            return JSON.parse(await new Response(new Blob([bytes]).stream().pipeThrough(new DecompressionStream('deflate-raw'))).text());
+          });
+          assert.deepEqual(address, await layer(page));
+          assert.deepEqual(problems, []);
+        } finally {
+          await close();
+        }
+      }
+    });
+
+    test('Export, left to right and right to left: the id field reads «acme.system.json», one run from the field’s start edge', LIMIT, async () => {
+      for (const [url, dir] of [['/studio/', 'ltr'], ['/ar/studio/', 'rtl']]) {
+        const { page, problems, close } = await open(browser, { url });
+        try {
+          await page.locator('[data-export-open]').click();
+          await page.waitForFunction(() => document.querySelector('[data-export-sheet]').open);
+          const field = await page.locator('[data-export-naming] [data-id]').evaluate((el, dir) => {
+            const inner = el.shadowRoot.querySelector('[part~="text-input"]').shadowRoot;
+            const [input, suffix, container] = ['[part~="input"]', '[part~="suffix"]', '[part~="container"]'].map((part) => inner.querySelector(part));
+            const [i, s, c] = [input, suffix, container].map((node) => node.getBoundingClientRect());
+            return { value: input.value, suffix: suffix.textContent, align: getComputedStyle(input).textAlign, suffixAfterValue: s.left >= i.right - 1, suffixToStart: dir === 'rtl' ? c.right - s.right < 24 : true, dir: getComputedStyle(el).direction };
+          }, dir);
+          // The value against the suffix, at the field's start (the right), in a right-to-left page; as a text field lays it
+          // out in a left-to-right one.
+          assert.deepEqual(field, { value: 'acme', suffix: '.system.json', align: dir === 'rtl' ? 'right' : 'start', suffixAfterValue: true, suffixToStart: true, dir }, url);
+          assert.deepEqual(problems, []);
+        } finally {
+          await close();
+        }
       }
     });
 

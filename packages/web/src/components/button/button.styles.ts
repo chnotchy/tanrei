@@ -172,6 +172,7 @@ const BUSY: BusyParts = {
   ring: '--_glyph',
   thickness: '--tanrei-comp-button-busy-indicator-thickness',
   cycle: '--tanrei-comp-button-motion-busy-cycle-duration',
+  floor: '--tanrei-comp-button-motion-busy-pulse-floor-opacity',
   fade: '--tanrei-comp-button-motion-busy-fade-duration',
   easing: '--tanrei-comp-button-motion-state-easing',
 };
@@ -453,8 +454,8 @@ const buttonStyles = css`
     button {
       transition: none;
     }
-    /* BTN-36: the label at once, and LDG-4's form of the arc — the whole circle, its opacity easing once per cycle, not
-       turning. */
+    /* BTN-36: the label at once, and LDG-4's form of the arc — the whole circle, not turning, its opacity easing from 1
+       down to the busy pulse's floor and back once per cycle, never to nothing. */
     ${unsafeCSS(busyReducedStyles(BUSY))}
   `)}
   @media (forced-colors: active) {

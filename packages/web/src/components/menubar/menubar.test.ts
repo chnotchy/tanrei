@@ -192,7 +192,7 @@ test.describe('the row and a title', () => {
     }
     // The label's style is the token's: another role changes it.
     const before = await px(container(page, 'default', 'File').locator('.label'), 'font-size');
-    await override(page, typeRoleOf(T('label-typescale'), '--tanrei-sys-typescale-headline'));
+    await override(page, typeRoleOf(T('label-typescale'), '--tanrei-sys-typescale-heading-2'));
     expect(await px(container(page, 'default', 'File').locator('.label'), 'font-size')).toBeGreaterThan(before);
   });
 

@@ -2865,6 +2865,9 @@ test.describe('triggers', () => {
       await onAnchor(page);
       await expect.poll(() => isShown(page)).toBe(true);
       await settle(page);
+      // At rest: while its open motion (POP-26) runs, its content is still fading in, and axe reads a color part of the
+      // way there (WebKit: the link at 58 % of its opacity over the dark surface, 3.38:1).
+      await motionEnded(surface(page).locator('> .motion'));
       const results = await new AxeBuilder({ page }).analyze();
       expect(results.violations, `${theme}: ${results.violations.map((v) => `${v.id} ${v.nodes.map((n) => n.target).join(' ')}`).join(', ')}`).toEqual([]);
     }

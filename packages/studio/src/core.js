@@ -98,7 +98,7 @@ export function stringifyLayer(layer) {
  * @param {Record<string, object>} deps.layers      shipped system layers by id
  * @param {{ Hct: any, TonalPalette: any }} deps.mcu material-color-utilities, injected (it imports differently in Node and in a bundler)
  * @param {(layer: object) => string[]} [deps.validateSchema]  JSON-Schema problems of a layer
- * @param {(model: object, options: { scope: string, unavailable?: object, outside?: Record<string, string>, replacements?: Record<string, string[]> }) => string} deps.emitCss   tokens-build's src/emit/css.js (no "@" here: TypeScript would read it as a tag and stop listing deps)
+ * @param {(model: object, options: { scope: string, defaultModel?: object, unavailable?: object, outside?: Record<string, string>, replacements?: Record<string, string[]> }) => string} deps.emitCss   tokens-build's src/emit/css.js (no "@" here: TypeScript would read it as a tag and stop listing deps)
  * @param {(ids: string[], read: (id: string) => object) => Map<string, string>} deps.heldComponents   tokens-build's src/layers.js: where each component that lives in a layer lives
  * @param {(ids: string[], read: (id: string) => object) => Map<string, { reason: string, insteadUse: string[] }>} deps.outsideStandIns   the same module: what a system without a component that lives in a layer uses instead, as that layer says
  * @param {(chain: object[], held: Map<string, string>, standIns?: Map<string, { reason: string, insteadUse: string[] }>) => { unavailable: object, outside: Record<string, string>, replacements: Record<string, string[]> }} deps.sheetAvailability   the same module: what a system's sheet says it does not have, and what it uses instead
@@ -268,7 +268,7 @@ export function createStudio({ config, sources, vocabulary, resolver, layers, mc
       sheets,
       // What the system does not have, as `tanrei build` declares it in the product's sheet: an element in the
       // preview reads the layer's lists, not the default system's from `:root`.
-      css: (scope) => sheets.get(scope) ?? sheets.set(scope, emitCss(model, { scope, ...sheetAvailability(computed.chain, homes, standIns) })).get(scope),
+      css: (scope) => sheets.get(scope) ?? sheets.set(scope, emitCss(model, { scope, defaultModel: base(defaultId).model, ...sheetAvailability(computed.chain, homes, standIns) })).get(scope),
       followers: (id) => [...(index ??= dependencyIndex(computed.files)).followers(id)],
     };
   }
@@ -697,17 +697,6 @@ export function createStudio({ config, sources, vocabulary, resolver, layers, mc
     for (const [id, op] of Object.entries(system.tokens)) if (id.startsWith(SYS_COLOR) && !own.has(id) && op.derive?.fn === 'tone' && op.derive.palette === name) ops[id] = { $value: `{${SYS_COLOR}primary}` };
     return ops;
   }
-  /** A base with a monochrome primary values those roles from `neutral`: a primary palette needs the roles pointed at it. */
-  function primaryRoles(system, declaration) {
-    const table = engine.roleTable({ ...system, palettes: { ...system.palettes, primary: declaration } }, vocabulary);
-    const ops = {};
-    for (const pattern of vocabulary.sets.intent.roles) {
-      const role = pattern.replace('{name}', 'primary');
-      ops[SYS_COLOR + role] = { derive: { fn: 'tone', ...clone(table.get(role).template) } };
-    }
-    ops[`${SYS_COLOR}inverse-primary`] = { derive: { fn: 'tone', palette: 'primary', tone: { light: [80], dark: [40] } } };
-    return ops;
-  }
   const withoutOps = (layer, ops) => {
     const tokens = { ...layer.tokens };
     for (const [id, op] of Object.entries(ops)) if (same(tokens[id], op)) delete tokens[id];
@@ -772,11 +761,9 @@ export function createStudio({ config, sources, vocabulary, resolver, layers, mc
   function setPalette(layer, name, patch) {
     const { system } = baseOf(layer);
     const inherited = system.palettes[name];
-    const monochrome = name === 'primary' && !inherited;
-    if (patch === undefined) {
-      const next = withEntry(layer, 'palettes', name, undefined);
-      return monochrome && layer.palettes?.primary ? withoutOps(next, primaryRoles(system, layer.palettes.primary)) : next;
-    }
+    // A base whose primary is drawn from `neutral` (monochrome) needs nothing but the palette: the engine draws the
+    // primary roles from a `primary` palette the layer gives it (`roleOperation`), as it does for a file written by hand.
+    if (patch === undefined) return withEntry(layer, 'palettes', name, undefined);
     // A layer's declaration REPLACES the inherited one, so it is edited whole: start from what applies now.
     const current = layer.palettes?.[name] ?? inherited;
     let source = patch.source ?? current?.source;
@@ -797,9 +784,7 @@ export function createStudio({ config, sources, vocabulary, resolver, layers, mc
     } else if (core) declaration = { source };
     else declaration = { description: description || `A product-specific intent named "${name}".`, source, roles: 'intent' };
     if (inherited && sameSource(inherited.source, source) && same({ ...inherited, source }, declaration)) return withEntry(layer, 'palettes', name, undefined);
-    let next = withEntry(layer, 'palettes', name, declaration);
-    if (monochrome) next = tidy({ ...next, tokens: { ...primaryRoles(system, declaration), ...next.tokens } });
-    return next;
+    return withEntry(layer, 'palettes', name, declaration);
   }
   function dropPalette(layer, name) {
     const { system } = baseOf(layer);
@@ -1130,9 +1115,10 @@ export function createStudio({ config, sources, vocabulary, resolver, layers, mc
 
   /** The rule a color role follows: the layer chain's operation, or the tone template its palette gives it. */
   function roleRule(computed, role) {
-    const op = computed.system.tokens[SYS_COLOR + role];
+    const entry = engine.roleTable(computed.system, vocabulary).get(role);
+    const op = engine.roleOperation(computed.system, role, entry);
     if (op?.derive) return op.derive;
-    const template = engine.roleTable(computed.system, vocabulary).get(role)?.template;
+    const template = entry?.template;
     return template ? { fn: 'tone', ...clone(template) } : null;
   }
 
@@ -1338,7 +1324,7 @@ export function createStudio({ config, sources, vocabulary, resolver, layers, mc
     const key = `${id}\n${scope}`;
     if (!baseSheets.has(key)) {
       const computed = base(id);
-      baseSheets.set(key, sheetRules(emitCss(computed.model, { scope, ...sheetAvailability(computed.chain, homes, standIns) })));
+      baseSheets.set(key, sheetRules(emitCss(computed.model, { scope, defaultModel: base(defaultId).model, ...sheetAvailability(computed.chain, homes, standIns) })));
     }
     const theirs = new Map(baseSheets.get(key).map((rule) => [JSON.stringify(rule.path), new Map(rule.declarations)]));
     const ours = sheetRules(view.css(scope));

@@ -1,4 +1,4 @@
-// What is typed into a name, a reason or a description is no value: the Studio shows it at once — the file at Source,
+// What is typed into a name, a reason or a description is no value: the Studio shows it at once — the file in Export,
 // the fields, the checks — and does not compute the layer for it (core.valueKey). Computing the layer is the whole build;
 // done for every key, typing a name of ten letters took ten long tasks of the page, one under each key.
 //
@@ -25,8 +25,8 @@ const watch = (page) =>
   });
 const take = (page) => page.evaluate(() => window.__typing.take());
 const settled = (page) => page.evaluate(() => document.fonts.ready.then(() => new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)))));
-/** The file as Inspect's Source shows it, beside the fields under the panel. */
-const shownJson = (page) => page.locator('[data-source]').evaluate((el) => JSON.parse(el.value));
+/** The file as Export shows it, under the field that names it. (Inspect's JSON is a sheet of its own: one sheet is open at a time.) */
+const shownJson = (page) => page.locator('[data-export-json]').evaluate((el) => JSON.parse(el.code));
 /**
  * The computations that did not wait for the typing to rest: each one started less than the Studio's rest (150 ms)
  * after the key before it. A key that comes later than that — a page held up by something else — lets the Studio
@@ -38,8 +38,10 @@ const beforeRest = ({ at, keys }) => at.filter((time) => {
   return last !== undefined && time - last < REST;
 });
 
-studioTest('typing the layer’s name computes nothing: the file at Source follows every key, and the name is saved', {}, async ({ page, inspect, saved }) => {
-  await inspect('source');
+studioTest('typing the layer’s name computes nothing: the file Export shows follows every key, and the name is saved', {}, async ({ page, saved }) => {
+  // The name is Export's, beside the file it names.
+  await page.locator('[data-export-open]').click();
+  await page.waitForFunction(() => document.querySelector('[data-export-sheet]').open);
   const field = page.locator('[data-name] input');
   await field.click();
   await settled(page);
