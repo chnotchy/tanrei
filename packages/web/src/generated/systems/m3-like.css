@@ -9322,6 +9322,7 @@
   /* Contrast follows prefers-contrast by default; force it with data-tanrei-contrast. */
   @media (prefers-contrast: more) {
     [data-tanrei-system="m3-like"]:not([data-tanrei-contrast]) {
+      --tanrei-sys-color-elevation-ring: var(--tanrei-ref-alpha-black-0);
       --tanrei-sys-color-error: light-dark(var(--tanrei-ref-palette-error-20), var(--tanrei-ref-palette-error-90));
       --tanrei-sys-color-focus-ring: light-dark(var(--tanrei-ref-palette-secondary-20), var(--tanrei-ref-palette-secondary-90));
       --tanrei-sys-color-info: light-dark(var(--tanrei-ref-palette-info-20), var(--tanrei-ref-palette-info-90));
@@ -9339,7 +9340,9 @@
       --tanrei-sys-color-outline: light-dark(var(--tanrei-ref-palette-neutral-variant-30), var(--tanrei-ref-palette-neutral-variant-85));
       --tanrei-sys-color-outline-variant: light-dark(var(--tanrei-ref-palette-neutral-variant-50), var(--tanrei-ref-palette-neutral-variant-60));
       --tanrei-sys-color-primary: light-dark(var(--tanrei-ref-palette-primary-20), var(--tanrei-ref-palette-primary-90));
+      --tanrei-sys-color-primary-container: light-dark(var(--tanrei-ref-palette-primary-90), var(--tanrei-ref-palette-primary-30));
       --tanrei-sys-color-secondary: light-dark(var(--tanrei-ref-palette-secondary-20), var(--tanrei-ref-palette-secondary-90));
+      --tanrei-sys-color-secondary-container: light-dark(var(--tanrei-ref-palette-secondary-90), var(--tanrei-ref-palette-secondary-30));
       --tanrei-sys-color-success: light-dark(var(--tanrei-ref-palette-success-20), var(--tanrei-ref-palette-success-90));
       --tanrei-sys-color-tertiary: light-dark(var(--tanrei-ref-palette-tertiary-20), var(--tanrei-ref-palette-tertiary-90));
       --tanrei-sys-color-warning: light-dark(var(--tanrei-ref-palette-warning-20), var(--tanrei-ref-palette-warning-90));
@@ -9352,9 +9355,36 @@
       --tanrei-comp-code-block-syntax-color-string: light-dark(#00460b, #a3f399);
       --tanrei-comp-code-block-syntax-color-tag: light-dark(#7d0015, #ffd6d4);
       --tanrei-comp-code-block-syntax-color-type: light-dark(#004345, #6bf3f8);
+      --tanrei-comp-combobox-filled-disabled-selected-option-container-color: var(--tanrei-comp-combobox-filled-selected-option-container-color);
+      --tanrei-comp-combobox-filled-selected-option-container-color: var(--tanrei-comp-combobox-filled-option-container-color);
+      --tanrei-comp-combobox-outlined-disabled-selected-option-container-color: var(--tanrei-comp-combobox-outlined-selected-option-container-color);
+      --tanrei-comp-combobox-outlined-selected-option-container-color: var(--tanrei-comp-combobox-outlined-option-container-color);
+      --tanrei-comp-combobox-stacked-disabled-selected-option-container-color: var(--tanrei-comp-combobox-stacked-selected-option-container-color);
+      --tanrei-comp-combobox-stacked-selected-option-container-color: var(--tanrei-comp-combobox-stacked-option-container-color);
+      --tanrei-comp-menu-selected-container-color: var(--tanrei-comp-menu-unselected-container-color);
+      --tanrei-comp-menu-selected-disabled-container-color: var(--tanrei-comp-menu-selected-container-color);
+      --tanrei-comp-select-filled-disabled-selected-option-container-color: var(--tanrei-comp-select-filled-selected-option-container-color);
+      --tanrei-comp-select-filled-selected-option-container-color: var(--tanrei-comp-select-filled-option-container-color);
+      --tanrei-comp-select-outlined-disabled-selected-option-container-color: var(--tanrei-comp-select-outlined-selected-option-container-color);
+      --tanrei-comp-select-outlined-selected-option-container-color: var(--tanrei-comp-select-outlined-option-container-color);
+      --tanrei-comp-select-stacked-disabled-selected-option-container-color: var(--tanrei-comp-select-stacked-selected-option-container-color);
+      --tanrei-comp-select-stacked-selected-option-container-color: var(--tanrei-comp-select-stacked-option-container-color);
+      --tanrei-comp-snackbar-inverse-error-icon-color: var(--tanrei-comp-snackbar-inverse-error-supporting-text-color);
+      --tanrei-comp-snackbar-inverse-error-outline-color: var(--tanrei-sys-color-error);
+      --tanrei-comp-snackbar-inverse-error-supporting-text-color: var(--tanrei-sys-color-on-error);
+      --tanrei-comp-snackbar-inverse-info-icon-color: var(--tanrei-comp-snackbar-inverse-info-supporting-text-color);
+      --tanrei-comp-snackbar-inverse-info-outline-color: var(--tanrei-sys-color-info);
+      --tanrei-comp-snackbar-inverse-info-supporting-text-color: var(--tanrei-sys-color-on-info);
+      --tanrei-comp-snackbar-inverse-success-icon-color: var(--tanrei-comp-snackbar-inverse-success-supporting-text-color);
+      --tanrei-comp-snackbar-inverse-success-outline-color: var(--tanrei-sys-color-success);
+      --tanrei-comp-snackbar-inverse-success-supporting-text-color: var(--tanrei-sys-color-on-success);
+      --tanrei-comp-snackbar-inverse-warning-icon-color: var(--tanrei-comp-snackbar-inverse-warning-supporting-text-color);
+      --tanrei-comp-snackbar-inverse-warning-outline-color: var(--tanrei-sys-color-warning);
+      --tanrei-comp-snackbar-inverse-warning-supporting-text-color: var(--tanrei-sys-color-on-warning);
     }
   }
   [data-tanrei-system="m3-like"][data-tanrei-contrast="medium"], [data-tanrei-system="m3-like"] [data-tanrei-contrast="medium"], [data-tanrei-contrast="medium"] [data-tanrei-system="m3-like"]:not([data-tanrei-contrast]) {
+    --tanrei-sys-color-elevation-ring: var(--tanrei-ref-alpha-black-0);
     --tanrei-sys-color-error: light-dark(var(--tanrei-ref-palette-error-30), var(--tanrei-ref-palette-error-85));
     --tanrei-sys-color-focus-ring: light-dark(var(--tanrei-ref-palette-secondary-30), var(--tanrei-ref-palette-secondary-85));
     --tanrei-sys-color-info: light-dark(var(--tanrei-ref-palette-info-30), var(--tanrei-ref-palette-info-85));
@@ -9372,7 +9402,9 @@
     --tanrei-sys-color-outline: light-dark(var(--tanrei-ref-palette-neutral-variant-40), var(--tanrei-ref-palette-neutral-variant-70));
     --tanrei-sys-color-outline-variant: light-dark(var(--tanrei-ref-palette-neutral-variant-70), var(--tanrei-ref-palette-neutral-variant-40));
     --tanrei-sys-color-primary: light-dark(var(--tanrei-ref-palette-primary-30), var(--tanrei-ref-palette-primary-85));
+    --tanrei-sys-color-primary-container: light-dark(var(--tanrei-ref-palette-primary-90), var(--tanrei-ref-palette-primary-30));
     --tanrei-sys-color-secondary: light-dark(var(--tanrei-ref-palette-secondary-30), var(--tanrei-ref-palette-secondary-85));
+    --tanrei-sys-color-secondary-container: light-dark(var(--tanrei-ref-palette-secondary-90), var(--tanrei-ref-palette-secondary-30));
     --tanrei-sys-color-success: light-dark(var(--tanrei-ref-palette-success-30), var(--tanrei-ref-palette-success-85));
     --tanrei-sys-color-tertiary: light-dark(var(--tanrei-ref-palette-tertiary-30), var(--tanrei-ref-palette-tertiary-85));
     --tanrei-sys-color-warning: light-dark(var(--tanrei-ref-palette-warning-30), var(--tanrei-ref-palette-warning-85));
@@ -9383,8 +9415,35 @@
     --tanrei-comp-code-block-syntax-color-string: light-dark(#075b14, #90df88);
     --tanrei-comp-code-block-syntax-color-tag: light-dark(#981925, #ffbbb8);
     --tanrei-comp-code-block-syntax-color-type: light-dark(#00575a, #53dfe4);
+    --tanrei-comp-combobox-filled-disabled-selected-option-container-color: var(--tanrei-comp-combobox-filled-selected-option-container-color);
+    --tanrei-comp-combobox-filled-selected-option-container-color: var(--tanrei-comp-combobox-filled-option-container-color);
+    --tanrei-comp-combobox-outlined-disabled-selected-option-container-color: var(--tanrei-comp-combobox-outlined-selected-option-container-color);
+    --tanrei-comp-combobox-outlined-selected-option-container-color: var(--tanrei-comp-combobox-outlined-option-container-color);
+    --tanrei-comp-combobox-stacked-disabled-selected-option-container-color: var(--tanrei-comp-combobox-stacked-selected-option-container-color);
+    --tanrei-comp-combobox-stacked-selected-option-container-color: var(--tanrei-comp-combobox-stacked-option-container-color);
+    --tanrei-comp-menu-selected-container-color: var(--tanrei-comp-menu-unselected-container-color);
+    --tanrei-comp-menu-selected-disabled-container-color: var(--tanrei-comp-menu-selected-container-color);
+    --tanrei-comp-select-filled-disabled-selected-option-container-color: var(--tanrei-comp-select-filled-selected-option-container-color);
+    --tanrei-comp-select-filled-selected-option-container-color: var(--tanrei-comp-select-filled-option-container-color);
+    --tanrei-comp-select-outlined-disabled-selected-option-container-color: var(--tanrei-comp-select-outlined-selected-option-container-color);
+    --tanrei-comp-select-outlined-selected-option-container-color: var(--tanrei-comp-select-outlined-option-container-color);
+    --tanrei-comp-select-stacked-disabled-selected-option-container-color: var(--tanrei-comp-select-stacked-selected-option-container-color);
+    --tanrei-comp-select-stacked-selected-option-container-color: var(--tanrei-comp-select-stacked-option-container-color);
+    --tanrei-comp-snackbar-inverse-error-icon-color: var(--tanrei-comp-snackbar-inverse-error-supporting-text-color);
+    --tanrei-comp-snackbar-inverse-error-outline-color: var(--tanrei-sys-color-error);
+    --tanrei-comp-snackbar-inverse-error-supporting-text-color: var(--tanrei-sys-color-on-error);
+    --tanrei-comp-snackbar-inverse-info-icon-color: var(--tanrei-comp-snackbar-inverse-info-supporting-text-color);
+    --tanrei-comp-snackbar-inverse-info-outline-color: var(--tanrei-sys-color-info);
+    --tanrei-comp-snackbar-inverse-info-supporting-text-color: var(--tanrei-sys-color-on-info);
+    --tanrei-comp-snackbar-inverse-success-icon-color: var(--tanrei-comp-snackbar-inverse-success-supporting-text-color);
+    --tanrei-comp-snackbar-inverse-success-outline-color: var(--tanrei-sys-color-success);
+    --tanrei-comp-snackbar-inverse-success-supporting-text-color: var(--tanrei-sys-color-on-success);
+    --tanrei-comp-snackbar-inverse-warning-icon-color: var(--tanrei-comp-snackbar-inverse-warning-supporting-text-color);
+    --tanrei-comp-snackbar-inverse-warning-outline-color: var(--tanrei-sys-color-warning);
+    --tanrei-comp-snackbar-inverse-warning-supporting-text-color: var(--tanrei-sys-color-on-warning);
   }
   [data-tanrei-system="m3-like"][data-tanrei-contrast="high"], [data-tanrei-system="m3-like"] [data-tanrei-contrast="high"], [data-tanrei-contrast="high"] [data-tanrei-system="m3-like"]:not([data-tanrei-contrast]) {
+    --tanrei-sys-color-elevation-ring: var(--tanrei-ref-alpha-black-0);
     --tanrei-sys-color-error: light-dark(var(--tanrei-ref-palette-error-20), var(--tanrei-ref-palette-error-90));
     --tanrei-sys-color-focus-ring: light-dark(var(--tanrei-ref-palette-secondary-20), var(--tanrei-ref-palette-secondary-90));
     --tanrei-sys-color-info: light-dark(var(--tanrei-ref-palette-info-20), var(--tanrei-ref-palette-info-90));
@@ -9402,7 +9461,9 @@
     --tanrei-sys-color-outline: light-dark(var(--tanrei-ref-palette-neutral-variant-30), var(--tanrei-ref-palette-neutral-variant-85));
     --tanrei-sys-color-outline-variant: light-dark(var(--tanrei-ref-palette-neutral-variant-50), var(--tanrei-ref-palette-neutral-variant-60));
     --tanrei-sys-color-primary: light-dark(var(--tanrei-ref-palette-primary-20), var(--tanrei-ref-palette-primary-90));
+    --tanrei-sys-color-primary-container: light-dark(var(--tanrei-ref-palette-primary-90), var(--tanrei-ref-palette-primary-30));
     --tanrei-sys-color-secondary: light-dark(var(--tanrei-ref-palette-secondary-20), var(--tanrei-ref-palette-secondary-90));
+    --tanrei-sys-color-secondary-container: light-dark(var(--tanrei-ref-palette-secondary-90), var(--tanrei-ref-palette-secondary-30));
     --tanrei-sys-color-success: light-dark(var(--tanrei-ref-palette-success-20), var(--tanrei-ref-palette-success-90));
     --tanrei-sys-color-tertiary: light-dark(var(--tanrei-ref-palette-tertiary-20), var(--tanrei-ref-palette-tertiary-90));
     --tanrei-sys-color-warning: light-dark(var(--tanrei-ref-palette-warning-20), var(--tanrei-ref-palette-warning-90));
@@ -9415,5 +9476,31 @@
     --tanrei-comp-code-block-syntax-color-string: light-dark(#00460b, #a3f399);
     --tanrei-comp-code-block-syntax-color-tag: light-dark(#7d0015, #ffd6d4);
     --tanrei-comp-code-block-syntax-color-type: light-dark(#004345, #6bf3f8);
+    --tanrei-comp-combobox-filled-disabled-selected-option-container-color: var(--tanrei-comp-combobox-filled-selected-option-container-color);
+    --tanrei-comp-combobox-filled-selected-option-container-color: var(--tanrei-comp-combobox-filled-option-container-color);
+    --tanrei-comp-combobox-outlined-disabled-selected-option-container-color: var(--tanrei-comp-combobox-outlined-selected-option-container-color);
+    --tanrei-comp-combobox-outlined-selected-option-container-color: var(--tanrei-comp-combobox-outlined-option-container-color);
+    --tanrei-comp-combobox-stacked-disabled-selected-option-container-color: var(--tanrei-comp-combobox-stacked-selected-option-container-color);
+    --tanrei-comp-combobox-stacked-selected-option-container-color: var(--tanrei-comp-combobox-stacked-option-container-color);
+    --tanrei-comp-menu-selected-container-color: var(--tanrei-comp-menu-unselected-container-color);
+    --tanrei-comp-menu-selected-disabled-container-color: var(--tanrei-comp-menu-selected-container-color);
+    --tanrei-comp-select-filled-disabled-selected-option-container-color: var(--tanrei-comp-select-filled-selected-option-container-color);
+    --tanrei-comp-select-filled-selected-option-container-color: var(--tanrei-comp-select-filled-option-container-color);
+    --tanrei-comp-select-outlined-disabled-selected-option-container-color: var(--tanrei-comp-select-outlined-selected-option-container-color);
+    --tanrei-comp-select-outlined-selected-option-container-color: var(--tanrei-comp-select-outlined-option-container-color);
+    --tanrei-comp-select-stacked-disabled-selected-option-container-color: var(--tanrei-comp-select-stacked-selected-option-container-color);
+    --tanrei-comp-select-stacked-selected-option-container-color: var(--tanrei-comp-select-stacked-option-container-color);
+    --tanrei-comp-snackbar-inverse-error-icon-color: var(--tanrei-comp-snackbar-inverse-error-supporting-text-color);
+    --tanrei-comp-snackbar-inverse-error-outline-color: var(--tanrei-sys-color-error);
+    --tanrei-comp-snackbar-inverse-error-supporting-text-color: var(--tanrei-sys-color-on-error);
+    --tanrei-comp-snackbar-inverse-info-icon-color: var(--tanrei-comp-snackbar-inverse-info-supporting-text-color);
+    --tanrei-comp-snackbar-inverse-info-outline-color: var(--tanrei-sys-color-info);
+    --tanrei-comp-snackbar-inverse-info-supporting-text-color: var(--tanrei-sys-color-on-info);
+    --tanrei-comp-snackbar-inverse-success-icon-color: var(--tanrei-comp-snackbar-inverse-success-supporting-text-color);
+    --tanrei-comp-snackbar-inverse-success-outline-color: var(--tanrei-sys-color-success);
+    --tanrei-comp-snackbar-inverse-success-supporting-text-color: var(--tanrei-sys-color-on-success);
+    --tanrei-comp-snackbar-inverse-warning-icon-color: var(--tanrei-comp-snackbar-inverse-warning-supporting-text-color);
+    --tanrei-comp-snackbar-inverse-warning-outline-color: var(--tanrei-sys-color-warning);
+    --tanrei-comp-snackbar-inverse-warning-supporting-text-color: var(--tanrei-sys-color-on-warning);
   }
 }
