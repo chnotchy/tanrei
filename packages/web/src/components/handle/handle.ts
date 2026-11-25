@@ -6,6 +6,7 @@ import { AvailabilityController, OpenAxesController, PressController, TOUCH_SLOP
 import type { TanreiHandleSizeRegistry } from '../../registry.js';
 import { AXES, AXES_OF_RESIZE, CORNERS, REACHES, styles } from './handle.styles.js';
 import { TanreiElement } from '../../primitives/element.js';
+import { DEBUG } from '../../primitives/debug.js';
 
 /** Which size the handle changes: a height (`vertical`), a width (`horizontal`), or both at once at a corner. */
 export type TanreiHandleAxis = 'vertical' | 'horizontal' | 'both';
@@ -380,10 +381,10 @@ export class TanreiHandle extends TanreiElement {
   }
 
   override updated(changed: PropertyValues<this>) {
-    if (changed.has('label') && !this.label.trim() && !namedByProduct(this)) report(this, 'HDL-8', 'label is empty, so the handle has no accessible name; give it a label that says what it resizes');
-    if (changed.has('axis') && this.axis !== this.shownAxis) report(this, 'HDL-20', `axis "${this.axis}" is not a value of the handle; it is drawn as "vertical"`);
-    if (changed.has('corner') && this.corner !== this.shownCorner) report(this, 'HDL-20', `corner "${this.corner}" is not a value of the handle; it is drawn as "bottom-end"`);
-    if (changed.has('reach') && this.reach !== this.shownReach) report(this, 'HDL-20', `reach "${this.reach}" is not a value of the handle; it is drawn as "container"`);
+    if (DEBUG && changed.has('label') && !this.label.trim() && !namedByProduct(this)) report(this, 'HDL-8', 'label is empty, so the handle has no accessible name; give it a label that says what it resizes');
+    if (DEBUG && changed.has('axis') && this.axis !== this.shownAxis) report(this, 'HDL-20', `axis "${this.axis}" is not a value of the handle; it is drawn as "vertical"`);
+    if (DEBUG && changed.has('corner') && this.corner !== this.shownCorner) report(this, 'HDL-20', `corner "${this.corner}" is not a value of the handle; it is drawn as "bottom-end"`);
+    if (DEBUG && changed.has('reach') && this.reach !== this.shownReach) report(this, 'HDL-20', `reach "${this.reach}" is not a value of the handle; it is drawn as "container"`);
   }
 
   private lineTemplate() {

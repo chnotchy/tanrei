@@ -21,6 +21,7 @@ import {
   countWork,
   deepActive,
   fillPlaces,
+  focusLost,
   focusWithin,
   hostAria,
   linkAttributes,
@@ -48,6 +49,7 @@ import { TanreiElement } from '../../primitives/element.js';
 import { SETTLING } from '../../styles/motion.js';
 import { startFromNextFrame } from '../../primitives/motion.js';
 import { delegatedAria, delegatesAria, holdsProductName, nameHost, namedByProduct, syncDelegation } from '../../primitives/delegated-aria.js';
+import { DEBUG } from '../../primitives/debug.js';
 
 /** LST-21: the glyph of the icon set a selected option draws — the spec's name, not a value. */
 const CHECK_GLYPH = 'check';
@@ -626,7 +628,7 @@ export class TanreiListItem extends TanreiElement {
   private async inspectContent() {
     if (this.mode === 'static') return;
     const found = await slottedInteractive(this.renderRoot.querySelector('.content slot'));
-    if (found) {
+    if (DEBUG && found) {
       report(this, 'LST-20', `${this.mode === 'option' ? 'an option' : this.mode === 'link' ? 'a link item' : 'an interactive item'} holds an interactive element (<${found.localName}>) in its content, which assistive technology cannot reach and whose press would also activate the item; make the item static and let that element be its control`);
     }
   }
@@ -652,7 +654,7 @@ export class TanreiListItem extends TanreiElement {
 
   /** LST-19: an item that must be named and is not. */
   private reportName() {
-    if ((this.mode !== 'static' || this.context.reorder) && !this.name && !namedByProduct(this)) {
+    if (DEBUG && (this.mode !== 'static' || this.context.reorder) && !this.name && !namedByProduct(this)) {
       report(this, 'LST-19', 'the item has no name — an empty label and no text in its content — so assistive technology cannot tell it apart; give it a label');
     }
   }
@@ -735,7 +737,7 @@ export class TanreiListItem extends TanreiElement {
     if (changed.has('label') || changed.has('interactive') || changed.has('href') || contextChanged) this.reportName();
     if (changed.has('disabled') && this.disabled) this.spaceDown = false;
     // LST-31: a reorderable list's item that asks to be a button or a link is drawn static; a debug build says so.
-    if (this.context.reorder && (this.interactive || this.href.trim())) {
+    if (DEBUG && this.context.reorder && (this.interactive || this.href.trim())) {
       report(this, 'LST-31', `an item of a reorderable list is static: its ${this.interactive ? 'interactive' : 'href'} is ignored, because an item that is itself one ${this.interactive ? 'button' : 'link'} is taken by a press that a drag would take`);
     }
     // The list re-reads its items when one of the props it depends on changes; an internal event, kept out of the item's public API.
@@ -1226,11 +1228,11 @@ export class TanreiList extends TanreiElement {
         ['movedText', this.words.get('movedText', this.movedText), 'nothing is announced when an item reaches another place'],
         ['cancelledText', this.words.get('cancelledText', this.cancelledText), 'nothing is announced when a move with the keyboard is cancelled'],
       ];
-      for (const [key, word, effect] of effects) if (!word) this.words.missing(key, { id: 'LST-47', effect });
+      for (const [key, word, effect] of effects) if (!word) this.words.missing(key, DEBUG && { id: 'LST-47', effect });
       if (this.handleName) {
         const declared = wordPlaces.dragHandleLabel ?? [];
-        reportPlaces(this, 'LST-47', 'dragHandleLabel', this.handleName, declared, 'every handle is named with it as it is written');
-        if (placeFaults(this.handleName, declared).absent.length) report(this, 'LST-47', 'dragHandleLabel has no place {label}, so the handles of every item have the same name; write it as "Reorder {label}"');
+        if (DEBUG) reportPlaces(this, 'LST-47', 'dragHandleLabel', this.handleName, declared, 'every handle is named with it as it is written');
+        if (DEBUG && placeFaults(this.handleName, declared).absent.length) report(this, 'LST-47', 'dragHandleLabel has no place {label}, so the handles of every item have the same name; write it as "Reorder {label}"');
       }
     }
     this.settle(items);
@@ -1248,11 +1250,11 @@ export class TanreiList extends TanreiElement {
       if (this.mode === 'none' || !this.isConnected) return;
       const seen = new Set<string>();
       items.forEach((item, index) => {
-        if (!item.value) report(this, 'LST-25', `option ${index + 1} ("${item.name}") has no value, so it can never be selected`);
-        else if (seen.has(item.value)) report(this, 'LST-25', `option ${index + 1} ("${item.name}") repeats the value "${item.value}"; values must be unique within the list`);
+        if (!item.value) DEBUG && report(this, 'LST-25', `option ${index + 1} ("${item.name}") has no value, so it can never be selected`);
+        else if (DEBUG && seen.has(item.value)) report(this, 'LST-25', `option ${index + 1} ("${item.name}") repeats the value "${item.value}"; values must be unique within the list`);
         seen.add(item.value);
       });
-      for (const named of this.chosen) if (!items.some((item) => item.value === named)) report(this, 'LST-25', `the selection names "${named}", which no option has as its value`);
+      for (const named of this.chosen) if (DEBUG && !items.some((item) => item.value === named)) report(this, 'LST-25', `the selection names "${named}", which no option has as its value`);
     });
   }
 
@@ -1294,9 +1296,11 @@ export class TanreiList extends TanreiElement {
       this.holding = false;
       this.release(true);
     }
+    // LST-43: focus that was lost (the menu it was in is gone) is given to the handle; focus the person has moved
+    // elsewhere since the move was emitted — another list's menu, a field — is not taken from there.
     if (pending.focused) {
       const at = this.items[pending.from];
-      if (at && !focusWithin(this)) void at.focusHandle();
+      if (at && focusLost()) void at.focusHandle();
     }
   }
 
@@ -1318,9 +1322,8 @@ export class TanreiList extends TanreiElement {
     this.pending = null;
     this.say('movedText', this.movedText, at.name, pending.to + 1, items.length);
     if (!pending.focused) return;
-    // The product may have taken focus for itself in its handler: then it is the product's.
-    const active = deepActive();
-    if (active && active !== document.body && active !== document.documentElement && !focusWithin(this) && active.isConnected) return;
+    // The product may have taken focus for itself in its handler, or the person moved it elsewhere: then it stays there.
+    if (!focusLost() && !focusWithin(this)) return;
     this.heldFocus = { item: at, index: pending.to };
     void at.focusHandle();
   }
@@ -1354,7 +1357,7 @@ export class TanreiList extends TanreiElement {
     }
     const number = new Intl.NumberFormat(ambientLocale(this), { maximumFractionDigits: 0 });
     const { runs } = fillPlaces(sentence, { label: name, position: number.format(position), count: number.format(count) });
-    reportPlaces(this, 'LST-44', key, sentence, wordPlaces[key] ?? [], 'it is announced as it is written');
+    if (DEBUG) reportPlaces(this, 'LST-44', key, sentence, wordPlaces[key] ?? [], 'it is announced as it is written');
     region.replaceChildren(
       ...runs.map((run) => {
         if (run.place !== 'label') return run.text;
@@ -2239,8 +2242,7 @@ export class TanreiList extends TanreiElement {
       held.index = items.indexOf(held.item);
       return;
     }
-    const active = deepActive();
-    if (active && active !== document.body && active !== document.documentElement && active.isConnected) return;
+    if (!focusLost()) return;
     if (!items.length) {
       this.heldFocus = null;
       return;
@@ -2307,10 +2309,10 @@ export class TanreiList extends TanreiElement {
     // LST-52: while reorderable the list role is carried inside: what the product writes on the host is moved there.
     syncDelegation(this);
     // LST-6: a value the list does not define is drawn as the default; a debug build says so.
-    if (changed.has('selection') && !SELECTIONS.includes(this.selection)) report(this, 'LST-6', `selection "${this.selection}" is not a value the list defines; it is drawn as "none"`);
-    if (changed.has('orientation') && !ORIENTATIONS.includes(this.orientation)) report(this, 'LST-6', `orientation "${this.orientation}" is not a value the list defines; it is drawn as "vertical"`);
-    if (changed.has('gap') && !GAPS.includes(this.gap)) report(this, 'LST-6', `gap "${this.gap}" is not a value the list defines; it is drawn as "none"`);
-    if (changed.has('iconSpace') && !ICON_SPACES.includes(this.iconSpace)) report(this, 'LST-50', `iconSpace "${this.iconSpace}" is not a value the list defines; it is drawn as "auto"`);
+    if (DEBUG && changed.has('selection') && !SELECTIONS.includes(this.selection)) report(this, 'LST-6', `selection "${this.selection}" is not a value the list defines; it is drawn as "none"`);
+    if (DEBUG && changed.has('orientation') && !ORIENTATIONS.includes(this.orientation)) report(this, 'LST-6', `orientation "${this.orientation}" is not a value the list defines; it is drawn as "vertical"`);
+    if (DEBUG && changed.has('gap') && !GAPS.includes(this.gap)) report(this, 'LST-6', `gap "${this.gap}" is not a value the list defines; it is drawn as "none"`);
+    if (DEBUG && changed.has('iconSpace') && !ICON_SPACES.includes(this.iconSpace)) report(this, 'LST-50', `iconSpace "${this.iconSpace}" is not a value the list defines; it is drawn as "auto"`);
     // LST-35, LST-40: the product changed what the list is while an item was carried: it goes back.
     if (this.carry && (changed.has('reorderable') || changed.has('selection'))) {
       const keyboard = this.carry.by === 'keyboard';
@@ -2336,15 +2338,15 @@ export class TanreiList extends TanreiElement {
       'aria-multiselectable': mode === 'multiple' ? 'true' : null,
       'aria-orientation': mode !== 'none' && this.axis === 'horizontal' && !this.wrap ? 'horizontal' : null,
     });
-    if ((changed.has('label') || changed.has('selection') || changed.has('reorderable')) && (mode !== 'none' || reorder) && !this.label.trim() && !namedByProduct(this)) {
+    if (DEBUG && (changed.has('label') || changed.has('selection') || changed.has('reorderable')) && (mode !== 'none' || reorder) && !this.label.trim() && !namedByProduct(this)) {
       report(this, 'LST-18', `a ${reorder ? 'reorderable' : 'selectable'} list has no label, so the ${reorder ? 'list' : 'listbox'} has no accessible name; say what the items are`);
     }
     // LST-31: a selectable list is never reorderable; a debug build says so.
-    if ((changed.has('reorderable') || changed.has('selection')) && mode !== 'none' && this.reorderable) {
+    if (DEBUG && (changed.has('reorderable') || changed.has('selection')) && mode !== 'none' && this.reorderable) {
       report(this, 'LST-31', `reorderable is ignored while selection is "${mode}": an option is chosen by a press that a drag would take`);
     }
     // LST-3: a wrapping list draws no dividers.
-    if ((changed.has('dividers') || changed.has('wrap')) && this.dividers && this.wrap) {
+    if (DEBUG && (changed.has('dividers') || changed.has('wrap')) && this.dividers && this.wrap) {
       report(this, 'LST-3', 'dividers is ignored while wrap is true: the lines of a grid are told apart by their gap');
     }
     if (!reorder) this.heldFocus = null;

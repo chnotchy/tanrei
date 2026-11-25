@@ -28,12 +28,42 @@ function loadEnded(event: Event) {
   for (const changed of [...connected.values()]) changed(faces);
 }
 
+/**
+ * The watchers that measured since the last frame, and the frame callback that asks the set of fonts whether a face is
+ * loading. `document.fonts.status` is a read of the page's style: WebKit brings the whole document's style up to date to
+ * answer it. Asked in the task of a measurement — a Button's label changed by a press, a list's mark — it styled the
+ * page once more in the task of the press, before its frame (a press on a docs page with ten thousand elements: 7 to
+ * 50 ms each time in CI's WebKit). Asked in the next frame callback instead, it is answered with the style that frame
+ * computes anyway, once for every watcher that measured meanwhile. A face that started loading in the measurement's
+ * layout is still loading then, or its load has ended, and then `loadingdone` has told every connected watcher (the
+ * listener was there before that load began; a load it was not there for is `unheard`).
+ */
+const asked = new Set<FacesWatch>();
+/** Whether a load that was under way when the page's fonts were first listened to (`connect`) is still under way. */
+let unheard = false;
+
+function askStatus() {
+  const fonts = fontSet();
+  if (fonts?.status === 'loading') for (const watch of asked) if (connected.has(watch)) waitFor(watch, fonts);
+  asked.clear();
+}
+
+/** `watch` is told when the faces are ready. */
+function waitFor(watch: FacesWatch, fonts: FontFaceSet) {
+  waiting.add(watch);
+  awaitReady(fonts);
+}
+
 function awaitReady(fonts: FontFaceSet) {
   const ready = fonts.ready;
   if (ready === awaited) return;
   awaited = ready;
   void ready.then(() => {
     if (awaited === ready) awaited = null;
+    // The faces are ready, so the load `connect` found is over too. Cleared only by that load's own `ready`, `unheard`
+    // stayed set where WebKit had not settled it yet: a watcher told here measured again, waited on this settled
+    // `ready`, and was told again in the next microtask — for ever, and the page never finished loading.
+    unheard = false;
     // A watcher that measures again while another face is loading waits again, on the `ready` of that load.
     const told = [...waiting];
     waiting.clear();
@@ -52,6 +82,12 @@ export class FacesWatch {
     if (!connected.size) {
       fonts.addEventListener('loadingdone', loadEnded);
       fonts.addEventListener('loadingerror', loadEnded);
+      // A load already under way is one no `loadingdone` may tell of (WebKit on Linux): until the faces are ready, a
+      // measurement waits for them without asking.
+      if (fonts.status === 'loading') {
+        unheard = true;
+        void fonts.ready.then(() => (unheard = false));
+      }
     }
     connected.set(this, this.changed);
   }
@@ -68,12 +104,15 @@ export class FacesWatch {
 
   /**
    * Call after the host measured its text (after the layout its reads forced, in which a face its text first asks for
-   * starts loading): while a face is loading, `changed` is called once more when the faces are ready.
+   * starts loading): while a face is loading, `changed` is called once more when the faces are ready. Whether one is
+   * loading is asked in the next frame callback (`askStatus`).
    */
   measured() {
     const fonts = fontSet();
-    if (!fonts || fonts.status !== 'loading' || !connected.has(this)) return;
-    waiting.add(this);
-    awaitReady(fonts);
+    if (!fonts || !connected.has(this)) return;
+    if (unheard) return waitFor(this, fonts);
+    if (!asked.size) requestAnimationFrame(askStatus);
+    asked.add(this);
   }
+
 }

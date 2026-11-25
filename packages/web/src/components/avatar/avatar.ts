@@ -8,6 +8,7 @@ import type { TanreiAvatarShapeRegistry, TanreiAvatarSizeRegistry } from '../../
 import { AXES, GROUP_AXES, groupStyles, styles } from './avatar.styles.js';
 import { TanreiElement } from '../../primitives/element.js';
 import { holdsProductName, nameHost, namedByProduct } from '../../primitives/delegated-aria.js';
+import { DEBUG } from '../../primitives/debug.js';
 
 /** The core sizes (small, medium, large), plus any a design system's generated `.d.ts` registers. */
 export type TanreiAvatarSize = keyof TanreiAvatarSizeRegistry;
@@ -177,7 +178,7 @@ export class TanreiAvatar extends TanreiElement {
   private readonly onError = () => {
     this.failed = true;
     this.loaded = false;
-    report(this, 'AVT-4', `the picture "${this.address}" could not be loaded; the fallback is drawn and the picture is not asked for again`);
+    if (DEBUG) report(this, 'AVT-4', `the picture "${this.address}" could not be loaded; the fallback is drawn and the picture is not asked for again`);
   };
 
   override connectedCallback() {
@@ -215,19 +216,19 @@ export class TanreiAvatar extends TanreiElement {
     hostAria(this, { role: named ? 'img' : null, 'aria-hidden': named ? null : 'true' });
 
     if ((has('label') || has('decorative') || has('member')) && label === '' && !named) {
-      if (this.member) report(this, 'AVT-19', 'a member of a group has no label, so the group exposes nothing for it; give it the name it stands for');
-      else if (!this.decorative) report(this, 'AVT-9', 'the avatar has no label, so it has no name; give it the name it stands for, or set decorative beside that name in text');
+      if (this.member) DEBUG && report(this, 'AVT-19', 'a member of a group has no label, so the group exposes nothing for it; give it the name it stands for');
+      else if (DEBUG && !this.decorative) report(this, 'AVT-9', 'the avatar has no label, so it has no name; give it the name it stands for, or set decorative beside that name in text');
     }
     if (has('initials')) {
       const given = characters((this.initials ?? '').trim());
-      if (given.length > INITIALS) report(this, 'AVT-5', `initials "${this.initials}" are ${given.length} characters; the first ${INITIALS} are drawn ("${this.drawnInitials}")`);
+      if (DEBUG && given.length > INITIALS) report(this, 'AVT-5', `initials "${this.initials}" are ${given.length} characters; the first ${INITIALS} are drawn ("${this.drawnInitials}")`);
     }
   }
 
   protected override firstUpdated() {
     // AVT-23: the group's props mean nothing on an avatar that has no members: the group is <tanrei-avatar-group>.
     const stray = ['max', 'total', 'overflow-label'].filter((name) => this.hasAttribute(name));
-    if (stray.length) report(this, 'AVT-23', `${stray.join(', ')} ${stray.length > 1 ? 'are' : 'is'} ignored on an avatar that has no members; the group form is <${GROUP}>`);
+    if (DEBUG && stray.length) report(this, 'AVT-23', `${stray.join(', ')} ${stray.length > 1 ? 'are' : 'is'} ignored on an avatar that has no members; the group form is <${GROUP}>`);
   }
 
   protected override render() {
@@ -447,25 +448,25 @@ export class TanreiAvatarGroup extends TanreiElement {
     nameHost(this, shown ? label : null);
     hostAria(this, { role: shown ? 'group' : null });
 
-    if ((has('label') || has('members')) && shown && !label && !namedByProduct(this)) {
+    if (DEBUG && (has('label') || has('members')) && shown && !label && !namedByProduct(this)) {
       report(this, 'AVT-19', 'the group has no label, so its members are exposed without a group’s name; give it one ("Reviewers")');
     }
     // AVT-22: what a debug build tells the product about max and total.
-    if (has('max') && this.max !== 0 && this.limit === 0) {
+    if (DEBUG && has('max') && this.max !== 0 && this.limit === 0) {
       report(this, 'AVT-22', `max ${this.max} is not a whole number of 2 or more; every member is drawn, as for 0`);
     }
-    if ((has('total') || has('members')) && this.total !== null && this.total !== undefined && this.count !== this.total) {
+    if (DEBUG && (has('total') || has('members')) && this.total !== null && this.total !== undefined && this.count !== this.total) {
       report(this, 'AVT-22', `total ${this.total} is not a whole number of at least the ${this.members.length} members given; the members given are counted`);
     }
     // AVT-19: what of the sentence is not its place, and a sentence that does not say how many.
     const sentence = shown && this.count > this.drawn ? (this.words.get('avatarGroupOverflowLabel', this.overflowLabel ?? '') ?? '').trim() : '';
     if (sentence) {
       const declared = wordPlaces.avatarGroupOverflowLabel ?? [];
-      reportPlaces(this, 'AVT-19', 'overflowLabel', sentence, declared, 'it is read as it is written');
-      for (const name of placeFaults(sentence, declared).absent) report(this, 'AVT-19', `overflow-label has no place {${name}}, so it does not say how many are not drawn; write it as "{${name}} more"`);
+      if (DEBUG) reportPlaces(this, 'AVT-19', 'overflowLabel', sentence, declared, 'it is read as it is written');
+      for (const name of placeFaults(sentence, declared).absent) DEBUG && report(this, 'AVT-19', `overflow-label has no place {${name}}, so it does not say how many are not drawn; write it as "{${name}} more"`);
     }
     // AVT-23: a group's props with no members to count.
-    if (!shown && (this.max !== 0 || (this.total !== null && this.total !== undefined) || (this.overflowLabel ?? '') !== '')) {
+    if (DEBUG && !shown && (this.max !== 0 || (this.total !== null && this.total !== undefined) || (this.overflowLabel ?? '') !== '')) {
       report(this, 'AVT-23', 'max, total or overflow-label is set on a group that has no members; it draws nothing');
     }
   }

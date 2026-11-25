@@ -22,6 +22,7 @@ import { type FileJudgement, type FileRefused, type FileRejectReason, countLimit
 import { notifyArrival } from '../../primitives/file-item-holder.js';
 import { PREFIX, styles } from './file-picker.styles.js';
 import { TanreiElement } from '../../primitives/element.js';
+import { DEBUG } from '../../primitives/debug.js';
 
 /** How choosing is offered: the trigger alone (`button`), or a bounded place around it that also takes a drop (`drop-area`). */
 export type TanreiFilePickerLayout = 'button' | 'drop-area';
@@ -522,29 +523,29 @@ export class TanreiFilePicker extends TanreiElement implements PlacingGroup {
     const triggers = this.triggers;
     // FPK-5: without a trigger, files cannot be chosen by keyboard, by touch or with assistive technology.
     if (triggers.length === 0) {
-      report(this, 'FPK-5', 'the trigger slot is empty, so files cannot be chosen by keyboard, by touch or with assistive technology; put a tanrei-button in slot="trigger"', { level: 'error' });
+      if (DEBUG) report(this, 'FPK-5', 'the trigger slot is empty, so files cannot be chosen by keyboard, by touch or with assistive technology; put a tanrei-button in slot="trigger"', { level: 'error' });
     } else {
-      if (triggers.length > 1) report(this, 'FPK-5', `the trigger slot holds ${triggers.length} elements; the first is the trigger and the others are not used`);
+      if (DEBUG && triggers.length > 1) report(this, 'FPK-5', `the trigger slot holds ${triggers.length} elements; the first is the trigger and the others are not used`);
       // FPK-30: an element that is not a Button still opens the picker when it is clicked.
-      if (triggers[0]!.localName !== BUTTON) report(this, 'FPK-30', `<${triggers[0]!.localName}> in the trigger slot is not a tanrei-button; it opens the picker when it is clicked, and its keys and its name are its own to give`);
+      if (DEBUG && triggers[0]!.localName !== BUTTON) report(this, 'FPK-30', `<${triggers[0]!.localName}> in the trigger slot is not a tanrei-button; it opens the picker when it is clicked, and its keys and its name are its own to give`);
     }
     // FPK-30: a child that is neither the trigger nor the glyph is not drawn.
     const strays = [...this.childNodes].filter((node) => (node instanceof Element ? !node.slot : node.nodeType === Node.TEXT_NODE && !!node.textContent?.trim()));
-    if (strays.length) report(this, 'FPK-30', 'the file picker holds content that is neither its trigger nor its glyph; it is not drawn');
+    if (DEBUG && strays.length) report(this, 'FPK-30', 'the file picker holds content that is neither its trigger nor its glyph; it is not drawn');
   }
 
   private reports(changed: PropertyValues<this>, all = false) {
     const has = (name: keyof TanreiFilePicker) => all || changed.has(name);
-    if (has('layout') && !LAYOUTS.includes(this.layout)) report(this, 'FPK-27', `layout "${this.layout}" is not a layout of the file picker; it is drawn as "button"`);
-    if (has('maxSize') && this.maxSize !== null && sizeLimit(this.maxSize) === null) report(this, 'FPK-27', `max-size "${String(this.maxSize)}" is not a number above zero; no size limit is set`);
-    if (has('maxFiles') && this.maxFiles !== null && countLimit(this.maxFiles) === null) report(this, 'FPK-27', `max-files "${String(this.maxFiles)}" is not a whole number of zero or more; no limit of files is set`);
+    if (DEBUG && has('layout') && !LAYOUTS.includes(this.layout)) report(this, 'FPK-27', `layout "${this.layout}" is not a layout of the file picker; it is drawn as "button"`);
+    if (DEBUG && has('maxSize') && this.maxSize !== null && sizeLimit(this.maxSize) === null) report(this, 'FPK-27', `max-size "${String(this.maxSize)}" is not a number above zero; no size limit is set`);
+    if (DEBUG && has('maxFiles') && this.maxFiles !== null && countLimit(this.maxFiles) === null) report(this, 'FPK-27', `max-files "${String(this.maxFiles)}" is not a whole number of zero or more; no limit of files is set`);
     const list = acceptList(this.accept);
     if (has('accept')) {
       const { ignored } = readAccept(list);
-      if (ignored.length) report(this, 'FPK-27', `accept holds ${ignored.map((entry) => `"${entry}"`).join(', ')}, which is neither an extension with its dot nor a media type; it is ignored`);
+      if (DEBUG && ignored.length) report(this, 'FPK-27', `accept holds ${ignored.map((entry) => `"${entry}"`).join(', ')}, which is neither an extension with its dot nor a media type; it is ignored`);
     }
     // FPK-18: a limit that is enforced and not said.
-    if (!this.constraintsText.trim() && (list.length > 0 || sizeLimit(this.maxSize) !== null || (this.multiple && countLimit(this.maxFiles) !== null))) {
+    if (DEBUG && !this.constraintsText.trim() && (list.length > 0 || sizeLimit(this.maxSize) !== null || (this.multiple && countLimit(this.maxFiles) !== null))) {
       report(this, 'FPK-18', 'accept, max-size or max-files sets a limit and constraints-text is empty, so the limit is enforced and not said; say it in constraints-text');
     }
   }

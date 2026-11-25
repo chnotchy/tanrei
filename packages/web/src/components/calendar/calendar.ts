@@ -57,6 +57,7 @@ import {
 import '../button/button.js';
 import { PROGRESS, styles } from './calendar.styles.js';
 import { TanreiElement } from '../../primitives/element.js';
+import { DEBUG } from '../../primitives/debug.js';
 
 /** single: one date (`value`). range: one contiguous span (`start` … `end`, inclusive). */
 export type TanreiCalendarMode = 'single' | 'range';
@@ -481,7 +482,7 @@ export class TanreiCalendar extends TanreiElement {
 
   private closed<T extends string>(values: readonly T[], value: T, fallback: T, name: string): T {
     if (values.includes(value)) return value;
-    report(this, 'CAL-27', `${name} "${value}" is not a value the calendar defines; it behaves as "${fallback}"`);
+    if (DEBUG) report(this, 'CAL-27', `${name} "${value}" is not a value the calendar defines; it behaves as "${fallback}"`);
     return fallback;
   }
 
@@ -490,7 +491,7 @@ export class TanreiCalendar extends TanreiElement {
     const tag = this.locale.trim();
     if (!tag) return ambientLocale(this);
     const known = supportedLocale(tag);
-    if (!known) report(this, 'CAL-24', `locale "${tag}" is not a BCP 47 tag this browser knows; it uses "${FALLBACK_LOCALE}"`);
+    if (DEBUG && !known) report(this, 'CAL-24', `locale "${tag}" is not a BCP 47 tag this browser knows; it uses "${FALLBACK_LOCALE}"`);
     return known ?? FALLBACK_LOCALE;
   }
 
@@ -503,13 +504,13 @@ export class TanreiCalendar extends TanreiElement {
     const date = (name: string, text: string) => {
       if (!text) return null;
       const parsed = parseIsoDate(text);
-      if (!parsed) report(this, 'CAL-27', `${name} "${text}" is not an ISO 8601 calendar date (YYYY-MM-DD); it is ignored`);
+      if (DEBUG && !parsed) report(this, 'CAL-27', `${name} "${text}" is not an ISO 8601 calendar date (YYYY-MM-DD); it is ignored`);
       return parsed;
     };
     let min = date('min', this.min);
     let max = date('max', this.max);
     if (min && max && compareDates(min, max) > 0) {
-      report(this, 'CAL-27', `min "${this.min}" is after max "${this.max}"; both are ignored`);
+      if (DEBUG) report(this, 'CAL-27', `min "${this.min}" is after max "${this.max}"; both are ignored`);
       min = null;
       max = null;
     }
@@ -517,20 +518,20 @@ export class TanreiCalendar extends TanreiElement {
     let start = date('start', this.start);
     let end = date('end', this.end);
     if (mode === 'range' && value) {
-      report(this, 'CAL-27', `value "${this.value}" is set in range mode, where the choice is start and end; it is ignored`);
+      if (DEBUG) report(this, 'CAL-27', `value "${this.value}" is set in range mode, where the choice is start and end; it is ignored`);
       value = null;
     }
     if (mode === 'single' && (start || end)) {
-      report(this, 'CAL-27', 'start or end is set in single mode, where the choice is value; they are ignored');
+      if (DEBUG) report(this, 'CAL-27', 'start or end is set in single mode, where the choice is value; they are ignored');
       start = null;
       end = null;
     }
     if (start && end && compareDates(end, start) < 0) {
-      report(this, 'CAL-27', `end "${this.end}" is before start "${this.start}"; the end is ignored`);
+      if (DEBUG) report(this, 'CAL-27', `end "${this.end}" is before start "${this.start}"; the end is ignored`);
       end = null;
     }
     if (end && !start) {
-      report(this, 'CAL-27', `end "${this.end}" is set without a start; it is ignored`);
+      if (DEBUG) report(this, 'CAL-27', `end "${this.end}" is set without a start; it is ignored`);
       end = null;
     }
     const disabled = new Set<string>();
@@ -1593,11 +1594,11 @@ export class TanreiCalendar extends TanreiElement {
   private reportWords() {
     const { choice } = this.cfg;
     if (this.view !== 'year') {
-      if (!this.words.get('previousMonthLabel', this.previousMonthLabel)) this.words.missing('previousMonthLabel', { id: 'CAL-35', effect: 'the previous-month button is drawn and works, and has no accessible name' });
-      if (!this.words.get('nextMonthLabel', this.nextMonthLabel)) this.words.missing('nextMonthLabel', { id: 'CAL-35', effect: 'the next-month button is drawn and works, and has no accessible name' });
+      if (!this.words.get('previousMonthLabel', this.previousMonthLabel)) this.words.missing('previousMonthLabel', DEBUG && { id: 'CAL-35', effect: 'the previous-month button is drawn and works, and has no accessible name' });
+      if (!this.words.get('nextMonthLabel', this.nextMonthLabel)) this.words.missing('nextMonthLabel', DEBUG && { id: 'CAL-35', effect: 'the next-month button is drawn and works, and has no accessible name' });
     }
-    if (choice.start && !this.words.get('startLabel', this.startLabel)) this.words.missing('startLabel', { id: 'CAL-35', effect: 'the start of the range has no description' });
-    if (choice.end && !this.words.get('endLabel', this.endLabel)) this.words.missing('endLabel', { id: 'CAL-35', effect: 'the end of the range has no description' });
+    if (choice.start && !this.words.get('startLabel', this.startLabel)) this.words.missing('startLabel', DEBUG && { id: 'CAL-35', effect: 'the start of the range has no description' });
+    if (choice.end && !this.words.get('endLabel', this.endLabel)) this.words.missing('endLabel', DEBUG && { id: 'CAL-35', effect: 'the end of the range has no description' });
   }
 
   protected override updated() {

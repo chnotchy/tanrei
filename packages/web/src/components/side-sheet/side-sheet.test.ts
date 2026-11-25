@@ -19,6 +19,7 @@ import { decodePng } from '../../../test/png.js';
 import { STOPPED_AFTER, flingThenHold, strokes } from '../../../test/stopped-release.js';
 import { expectBaseline } from '../../../test/baseline.js';
 import { STACKED_DIALOG, STACKED_LAYER, addStackedSurfaces, expectStackedInOrder, focusAmong, setOpenInOneTask } from '../../../test/stacked-surfaces.js';
+import { contrastChecked } from '../../../test/contrast-checked.js';
 
 const spec = loadSpec('side-sheet');
 type P = Page;
@@ -228,10 +229,13 @@ test.describe('drawing', () => {
     expect(Number.parseFloat(await css(sheet(page), 'border-top-left-radius'))).toBeCloseTo(await px(page, T('container-shape-standard')), 1);
     expect(Number.parseFloat(await css(holder, 'border-top-left-radius'))).toBeCloseTo(await px(page, T('container-shape-standard')), 1);
     expect([await css(holder, 'border-top-right-radius'), await css(holder, 'border-bottom-right-radius')]).toEqual(['0px', '0px']);
+    // The edge part holds the edge's color; its ::before draws the edge (drawn as no element, so the text under it is
+    // checked for contrast) and takes that color.
     const edgeBox = host(page).locator('.edge');
-    expect(Number.parseFloat(await css(edgeBox, 'border-left-width'))).toBeCloseTo(edge, 1);
+    expect(Number.parseFloat(await css(edgeBox, 'border-left-width', '::before'))).toBeCloseTo(edge, 1);
     await expect(edgeBox).toHaveCSS('border-left-color', await resolveColor(page, T('outline-color-standard')));
-    await expect(edgeBox).toHaveCSS('border-right-width', '0px');
+    expect(await css(edgeBox, 'border-left-color', '::before')).toBe(await resolveColor(page, T('outline-color-standard')));
+    expect(await css(edgeBox, 'border-right-width', '::before')).toBe('0px');
     // Modal: at the window's end edge, its full height, over the content.
     await mount(page, [fx('s', { variant: 'modal' })]);
     box = await bounds(sheet(page));
@@ -257,7 +261,7 @@ test.describe('drawing', () => {
     await expect.poll(async () => (await bounds(sheet(page))).x).toBe(0);
     expect(Number.parseFloat(await css(sheet(page), 'border-top-right-radius'))).toBeCloseTo(radius, 1);
     expect(await css(sheet(page), 'border-top-left-radius')).toBe('0px');
-    expect(Number.parseFloat(await css(host(page, 'std').locator('.edge'), 'border-right-width'))).toBeCloseTo(edge, 1);
+    expect(Number.parseFloat(await css(host(page, 'std').locator('.edge'), 'border-right-width', '::before'))).toBeCloseTo(edge, 1);
     const std = await bounds(sheet(page, 'std'));
     expect(std.x).toBe((await bounds(page.locator('[data-fixture="std"]'))).x);
     const close = await bounds(host(page, 'std').locator('tanrei-button.close'));
@@ -1635,6 +1639,11 @@ test.describe('accessibility', () => {
         await motionEnded(page);
         const results = await new AxeBuilder({ page }).include('.stage').analyze();
         expect(results.violations, `${theme} ${f.id}: ${results.violations.map((v) => `${v.id} ${v.nodes.map((n) => n.target).join(' ')}`).join(', ')}`).toEqual([]);
+        // SSH-7: the sheet's text is checked — neither the start edge, drawn above the content by the outline part's
+        // ::before, nor the box that draws the content's focus ring (`focusRingBox()`) is an element covering it.
+        const contrast = (kind: 'passes' | 'incomplete') => results[kind].filter((rule) => rule.id === 'color-contrast').flatMap((rule) => rule.nodes);
+        expect(contrast('passes').length, `${theme} ${f.id}: axe checks the contrast of the sheet's text`).toBeGreaterThan(0);
+        expect(contrast('incomplete').map((node) => node.target), `${theme} ${f.id}: no text left unchecked`).toEqual([]);
       }
     });
   }
@@ -1649,4 +1658,16 @@ test.describe('fixtures', () => {
       await expectBaseline(page, [spec.name, `${f.id}.png`]);
     });
   }
+});
+
+test.describe('accessibility: what is drawn over the content', () => {
+  test('SSH-7, SSH-10: the start edge and the box that carries the content\'s focus indicator hide no text from a contrast check — faint text is reported, the sheet\'s own colors pass', async ({ page }) => {
+    // An element drawn over a text is, to axe's color-contrast, an element covering it, whatever its pointer-events: it
+    // left the text incomplete ("overlapped by another element") instead of checking it, so faint text passed unseen.
+    await mountFixtures(page, spec, { fixtures: [{ ...fixtureOf('standard'), content: '<p data-text="faint" style="margin: 0; color: #bbb">Faint text</p><p data-text="normal" style="margin: 0">Readable text</p>' }] });
+    const checked = await contrastChecked(page);
+    expect(checked.violations, 'the faint text is reported').toEqual(['faint']);
+    expect(checked.passes, 'the sheet\'s own colors pass').toEqual(['Filters', 'normal']);
+    expect(checked.incomplete, 'nothing is left unchecked').toEqual([]);
+  });
 });

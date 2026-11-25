@@ -6,6 +6,7 @@ import { hiddenHost } from '../../primitives/hidden.js';
 import { report } from '../../primitives/report.js';
 import { TanreiField, type TanreiFieldRequiredMark } from '../field/field.js';
 import { TanreiSlider, type TanreiSliderChangeDetail, type TanreiSliderSize, type TanreiSliderValueIndicator } from '../slider/slider.js';
+import { DEBUG } from '../../primitives/debug.js';
 
 // The members' own types are the slider field's: it has no detail type and no type for a prop of its own.
 export type { TanreiFieldRequiredMark, TanreiSliderChangeDetail, TanreiSliderSize, TanreiSliderValueIndicator };
@@ -296,7 +297,7 @@ export class TanreiSliderField extends ComposedControl<number> {
     this.fill();
     // SLF-5: a range's end handle with no name of its own is named by `label`, as the start handle is (which the
     // Slider reports itself, SLD-19); a debug build says so.
-    if ((changed.has('range') || changed.has('endLabel')) && this.range && !this.endLabel.trim()) {
+    if (DEBUG && (changed.has('range') || changed.has('endLabel')) && this.range && !this.endLabel.trim()) {
       report(this, 'SLF-5', 'endLabel is empty, so the range’s end handle has no name of its own and is named by label, as the other handle may be; give it an end-label that holds the words of label');
     }
   }

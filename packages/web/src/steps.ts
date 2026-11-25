@@ -16,6 +16,7 @@
 //
 // Nothing else here is needed for the steps to be drawn, numbered or read aloud.
 import { report } from './primitives/report.js';
+import { DEBUG } from './primitives/debug.js';
 
 const STEPS = 'tanrei-steps';
 /** The sizes the spec defines; a design system may add one, which is known by its tokens. */
@@ -71,7 +72,7 @@ function read(list: Element) {
   const given = list.getAttribute('start');
   let start = given;
   if (start !== null && !/^[-+]?\d+$/.test(start.trim())) {
-    report(list, 'STP-19', `start "${start}" is not a whole number; it is taken off and the steps number from 1`);
+    if (DEBUG) report(list, 'STP-19', `start "${start}" is not a whole number; it is taken off and the steps number from 1`);
     list.removeAttribute('start');
     start = null;
   }
@@ -79,16 +80,16 @@ function read(list: Element) {
   if ((starts.has(list) ? starts.get(list) : given) !== start) recount(list as HTMLElement);
   starts.set(list, start);
   const size = list.getAttribute('data-size');
-  if (size !== null && !SIZES.includes(size) && !getComputedStyle(list).getPropertyValue(`--tanrei-comp-steps-marker-height-${size}`).trim()) {
+  if (DEBUG && size !== null && !SIZES.includes(size) && !getComputedStyle(list).getPropertyValue(`--tanrei-comp-steps-marker-height-${size}`).trim()) {
     report(list, 'STP-19', `data-size "${size}" is not a size it or the active design system defines; it is drawn as "medium"`);
   }
   // STP-9: steps are not meant to be nested in steps (sub-steps are an ordered list in the body).
-  if (list.parentElement?.closest(`.${STEPS} > li`)) report(list, 'STP-9', 'it is a set of steps inside a step: it is drawn as a set of its own, numbered from its own start; sub-steps are an ordered list without the class');
+  if (DEBUG && list.parentElement?.closest(`.${STEPS} > li`)) report(list, 'STP-9', 'it is a set of steps inside a step: it is drawn as a set of its own, numbered from its own start; sub-steps are an ordered list without the class');
   // STP-20.
   const steps = [...list.children].filter((child) => child.localName === 'li');
-  if (!steps.length) report(list, 'STP-20', 'it holds no step, so nothing is drawn');
+  if (DEBUG && !steps.length) report(list, 'STP-20', 'it holds no step, so nothing is drawn');
   for (const step of steps) {
-    if (!step.childElementCount && !step.textContent?.trim()) report(step, 'STP-20', 'the step has neither a title nor a body; its marker is still drawn and its number counted');
+    if (DEBUG && !step.childElementCount && !step.textContent?.trim()) report(step, 'STP-20', 'the step has neither a title nor a body; its marker is still drawn and its number counted');
   }
   measure(list as HTMLElement);
 }

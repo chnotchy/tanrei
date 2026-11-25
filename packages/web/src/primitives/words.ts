@@ -1,7 +1,7 @@
 import type { ReactiveController, ReactiveControllerHost } from 'lit';
 import { type TanreiWords, type WordKey, wordKeys, wordPlaces } from '../generated/words.js';
 import { placeFaults } from './places.js';
-import { debugBuild } from './report.js';
+import { DEBUG } from './debug.js';
 
 // The product's words. No component has words of its own: a word a component draws or exposes is the
 // instance's own prop, else what the product said once for every component — here — else nothing. The keys are the
@@ -79,7 +79,7 @@ export function setWords(words: TanreiWords, options: { lang?: string } = {}): v
   let changed = false;
   for (const [key, text] of Object.entries(words ?? {}) as [WordKey, unknown][]) {
     if (!KEYS.has(key)) {
-      if (debugBuild()) console.warn(`[tanrei] setWords(): "${key}" is not a key of the product's words; it is ignored`);
+      if (DEBUG) console.warn(`[tanrei] setWords(): "${key}" is not a key of the product's words; it is ignored`);
       continue;
     }
     if (given(text as string)) {
@@ -105,7 +105,7 @@ export function setWords(words: TanreiWords, options: { lang?: string } = {}): v
  */
 function checkPlaces(held: Store, key: WordKey, sentence: string): void {
   const declared = wordPlaces[key];
-  if (!declared || !debugBuild()) return;
+  if (!declared || !DEBUG) return;
   const { written, absent } = placeFaults(sentence, declared);
   const faults = [...written, ...absent.map((name) => `is without the place {${name}}, which it needs`)];
   if (faults.length === 0) return;
@@ -171,13 +171,16 @@ export interface MissingWord {
  * Records that `key` was needed by `element` and given by nobody (`missingWords()`), and in a debug build reports it —
  * once per key and page, naming the prop. Call it only after `wordFor()` returned nothing, and only
  * where the part that needs the word is drawn. An element that is not in the page records and reports nothing.
+ * `about` is what the report says, read in a debug build only: a caller writes `DEBUG && { id, effect }`, so that a
+ * production bundle leaves the words of the report out.
  */
-export function wordMissing(element: Element, key: WordKey, { prop = key, id, effect }: MissingWord): void {
+export function wordMissing(element: Element, key: WordKey, about: MissingWord | false): void {
   if (!element.isConnected) return;
   const held = store();
   held.missing.add(key);
-  if (held.reported.has(key) || !debugBuild()) return;
+  if (!DEBUG || !about || held.reported.has(key)) return;
   held.reported.add(key);
+  const { prop = key, id, effect } = about;
   console.warn(`[tanrei] <${element.localName}>: ${attributeOf(prop)} is empty and the product's words have no ${key}${effect ? `: ${effect}` : ''}; give the word on the element, or once with setWords() (${id})`, element);
 }
 
@@ -217,7 +220,7 @@ export class WordsController implements ReactiveController {
   /** The count of changes `drawnWith` was found at. */
   private drawnAt = -1;
   /** What the host did not record while it was out of the page: the key, the prop's text then, and what a report says. */
-  private readonly unrecorded = new Map<WordKey, { own: string; about?: MissingWord }>();
+  private readonly unrecorded = new Map<WordKey, { own: string; about?: MissingWord | false }>();
 
   constructor(private readonly host: Host) {
     host.addController(this);
@@ -285,7 +288,7 @@ export class WordsController implements ReactiveController {
   }
 
   /** `wordMissing()` for the host; out of the page nothing is recorded, and the key is asked again when the host is placed. */
-  missing(key: WordKey, about: MissingWord): void {
+  missing(key: WordKey, about: MissingWord | false): void {
     if (this.host.isConnected) wordMissing(this.host, key, about);
     else this.unrecorded.set(key, { own: '', about });
   }

@@ -89,6 +89,13 @@
   white-space: nowrap;
 }
 
+/* The note a row of the lengths' table gets where the component draws another length than its token (blueprint.ts):
+   a sentence of its own under the length's name, not run into the name on the name's one line. */
+.docs-blueprint-note:not([hidden]) {
+  display: block;
+  white-space: normal;
+}
+
 /* What the script resolves a token's length with: given it as a width, in the overlay's scope, and never seen. */
 .docs-blueprint-probe {
   position: absolute;

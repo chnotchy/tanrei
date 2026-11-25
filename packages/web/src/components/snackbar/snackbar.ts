@@ -29,6 +29,7 @@ import {
 import '../button/button.js';
 import { BUTTON_TONE, INVERSE, INVERSE_PROPERTY, INVERSE_TOKEN, STATUSES, hostStyles, mouthStyles, styles } from './snackbar.styles.js';
 import { TanreiElement } from '../../primitives/element.js';
+import { DEBUG } from '../../primitives/debug.js';
 
 /** How long a snackbar stays by itself: auto is short without an action and indefinite with one (WCAG 2.2.1). */
 export type TanreiSnackbarDuration = 'auto' | 'short' | 'long' | 'indefinite';
@@ -574,17 +575,19 @@ export class TanreiSnackbar extends TanreiElement {
       this.holder?.refresh();
     }
     // SNK-20: what a debug build tells the product.
-    if (has('message') && !this.message.trim()) report(this, 'SNK-20', 'message is empty; give the snackbar a message');
+    if (DEBUG && has('message') && !this.message.trim()) report(this, 'SNK-20', 'message is empty; give the snackbar a message');
     if ((has('closable') || has('closeLabel')) && this.closable && !this.words.get('closeLabel', this.closeLabel)) {
-      this.words.missing('closeLabel', { id: 'SNK-20', effect: 'the close button has no accessible name' });
+      this.words.missing('closeLabel', DEBUG && { id: 'SNK-20', effect: 'the close button has no accessible name' });
     }
-    if ((has('status') || has('statusLabel')) && this.form !== 'default' && !this.statusLabel.trim()) {
+    if (DEBUG && (has('status') || has('statusLabel')) && this.form !== 'default' && !this.statusLabel.trim()) {
       report(this, 'SNK-20', `status is "${this.form}" but status-label is empty, so the status is not given in words; give it a status-label`);
     }
-    if ((has('expandable') || has('expandLabel')) && this.expandable && this.words.lacks('expandLabel', this.expandLabel)) {
+    // The word is recorded as lacking in every build (`missingWords()`); only the report is a debug build's.
+    const lacksExpand = (has('expandable') || has('expandLabel')) && this.expandable && this.words.lacks('expandLabel', this.expandLabel);
+    if (DEBUG && lacksExpand) {
       report(this, 'SNK-20', 'the text is longer than its collapsed limit, so the expand button is drawn, but expand-label is empty and it has no accessible name; give it an expand-label');
     }
-    if ((has('duration') || has('action')) && this.action && (this.duration === 'short' || this.duration === 'long')) {
+    if (DEBUG && (has('duration') || has('action')) && this.action && (this.duration === 'short' || this.duration === 'long')) {
       report(this, 'SNK-20', `a snackbar that times out (duration "${this.duration}") has the action "${this.action}"; offer it elsewhere too, because a person may not reach it in time (WCAG 2.2.1)`);
     }
   }
