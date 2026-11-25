@@ -128,6 +128,7 @@ const BUSY: BusyParts = {
   ring: '--_icon',
   thickness: `${PREFIX}-busy-indicator-thickness`,
   cycle: `${PREFIX}-motion-busy-cycle-duration`,
+  floor: `${PREFIX}-motion-busy-pulse-floor-opacity`,
   fade: `${PREFIX}-motion-busy-fade-duration`,
   easing: `${PREFIX}-motion-state-easing`,
 };

@@ -8,7 +8,10 @@
 //   clear of every other number;
 // - a measure figure draws each length of its table as long as its token resolves to, to half a pixel, or draws no
 //   line for it and says in the table what the component draws instead — never a line of a length the component does
-//   not have. The lengths not drawn are printed: each is a place where a component and its tokens part.
+//   not have. The lengths not drawn are the record's (src/lib/visuals/lengths-not-drawn.json), which the page writes
+//   into the table before any script runs, and are printed: each is a place where a component and its tokens part.
+//   A part the record says the fixture does not draw (a closed list's options) has no box, and none of its lengths is
+//   in the table.
 //
 //   pnpm --filter @tanrei/docs build && pnpm --filter @tanrei/docs test:browser
 //
@@ -30,6 +33,10 @@ const dist = path.join(docs, 'dist');
 if (!fs.existsSync(path.join(dist, 'index.html'))) throw new Error('apps/docs/dist holds no site: run `pnpm --filter @tanrei/docs build` first');
 const specs = path.join(docs, '../../specs');
 const NEAR = 0.5;
+/** The lengths each figure does not draw as its token says, as recorded (lib/visuals/measure.ts, `lengthsNotDrawnOf`). */
+const recorded = JSON.parse(fs.readFileSync(path.join(docs, 'src/lib/visuals/lengths-not-drawn.json'), 'utf8'));
+/** A length as a row's note writes it (components/visuals/MeasureDiagram.astro, lib/visuals/blueprint.ts). */
+const shown = (value) => (value === null ? 'no such box' : Number.isInteger(value) ? String(value) : value.toFixed(1));
 
 // The root language's component pages that draw a figure, read from the built HTML.
 const components = path.join(dist, 'components');
@@ -61,6 +68,10 @@ test('every figure: each number once, inside and clear; each line its token’s 
   const errors = [];
   page.on('pageerror', (error) => errors.push(error.message));
   const notDrawn = [];
+  /** The parts whose outline the test held to the part's own box, found from its target. */
+  const checked = [];
+  /** What each figure found, by component and token: what it draws instead, in px, or null where it draws no such box. */
+  const found = {};
   for (const name of pages) {
     const component = fs.readdirSync(specs).includes(`${name}.spec.json`) ? name : null;
     await page.goto(`${host.origin}/components/${name}/`);
@@ -102,12 +113,44 @@ test('every figure: each number once, inside and clear; each line its token’s 
         };
         return {
           kind: frame.dataset.blueprintFigure,
+          partsNotDrawn: (frame.querySelector('[data-blueprint]')?.dataset.partsNotDrawn ?? '').split(' ').filter(Boolean),
           drawn: Boolean(done()),
           modal,
           room: { width: overlay.width, height: overlay.height },
           markers: [...frame.querySelectorAll('.docs-blueprint-marker')].map((marker) => ({ n: Number(marker.dataset.n), part: marker.dataset.part, box: box(marker) })),
           rows: [...frame.querySelectorAll('[data-measure-row]')].map((row) => ({ token: row.dataset.measureRow, drawn: row.dataset.drawn, measured: Number(row.dataset.measured), value: Number(row.dataset.value), note: row.querySelector('[data-measure-note]').hidden ? '' : row.querySelector('[data-measure-note]').textContent })),
-          lines: [...frame.querySelectorAll('.docs-blueprint-length')].map((label) => ({ token: label.dataset.token, value: Number(label.dataset.value), measured: Number(label.dataset.measured) })),
+          lines: [...frame.querySelectorAll('.docs-blueprint-length')].map((label) => ({ token: label.dataset.token, part: label.dataset.part, value: Number(label.dataset.value), measured: Number(label.dataset.measured) })),
+          // Each part the lines measure, as the figure outlines it, and the same part found here from the spec's target
+          // (the element, a part it exports, or a part of its first child of a tag): the boxes of every element of it.
+          outlined: [...frame.querySelectorAll('.docs-blueprint-lines rect.measured')].map((rect) => {
+            const data = JSON.parse(frame.querySelector('[data-blueprint]').dataset.blueprint);
+            const target = data.parts.find((part) => part.id === rect.dataset.part)?.target ?? null;
+            const host = frame.querySelector(`.docs-blueprint-stage ${data.tag}`);
+            /** @type {Element[] | null | undefined} */
+            let elements = null;
+            if (target && host && !target.aspect) {
+              if ('host' in target) elements = [host];
+              else if ('part' in target && !('child' in target)) elements = [...(host.shadowRoot?.querySelectorAll(`[part~="${target.part}"]`) ?? [])];
+              else if ('child' in target && target.child.length === 1) {
+                const child = host.querySelector(target.child[0]);
+                elements = child && target.part ? [...(child.shadowRoot?.querySelectorAll(`[part~="${target.part}"]`) ?? [])] : child ? [child] : [];
+              }
+            }
+            // What is drawn: an element shown and of some size (a hidden copy kept for measuring is not the part).
+            elements = elements?.filter((element) => {
+              const r = element.getBoundingClientRect();
+              const shown = element.checkVisibility?.({ opacityProperty: true, visibilityProperty: true }) ?? true;
+              const before = getComputedStyle(element, '::before');
+              const byBefore = getComputedStyle(element).visibility === 'hidden' && before.visibility === 'visible' && before.content !== 'none' && before.content !== 'normal';
+              return (shown || byBefore) && r.width > 0.5 && r.height > 0.5;
+            });
+            const real = elements?.length
+              ? elements.map(box).reduce((a, b) => ({ left: Math.min(a.left, b.left), top: Math.min(a.top, b.top), right: Math.max(a.right, b.right), bottom: Math.max(a.bottom, b.bottom) }))
+              : null;
+            const x = Number(rect.getAttribute('x'));
+            const y = Number(rect.getAttribute('y'));
+            return { part: rect.dataset.part, drawn: { left: x, top: y, right: x + Number(rect.getAttribute('width')), bottom: y + Number(rect.getAttribute('height')) }, real };
+          }),
         };
       }, at));
     }
@@ -131,6 +174,8 @@ test('every figure: each number once, inside and clear; each line its token’s 
         }
       } else {
         assert.ok(figure.rows.length > 0, `${name}: a length`);
+        // A part the record says the fixture does not draw has no box in the figure: its lengths are left out of the table.
+        for (const part of recorded[name]?.parts ?? []) assert.ok(figure.partsNotDrawn.includes(part), `${name}: the fixture draws ${part}, which src/lib/visuals/lengths-not-drawn.json says it does not; its lengths belong in the table`);
         for (const row of figure.rows) {
           const line = figure.lines.find((candidate) => candidate.token === row.token);
           if (row.drawn === 'true') {
@@ -140,13 +185,32 @@ test('every figure: each number once, inside and clear; each line its token’s 
             assert.equal(line, undefined, `${name}: ${row.token} is not drawn`);
             assert.ok(row.note.trim(), `${name}: the table says why ${row.token} is not drawn`);
             notDrawn.push(`${name}: ${row.token} — the token ${row.value}px, the component ${Number.isFinite(row.measured) ? `${row.measured}px` : 'no such box'}`);
+            (found[name] ??= {})[row.token] = shown(Number.isFinite(row.measured) ? row.measured : null);
           }
         }
         assert.equal(figure.lines.length, figure.rows.filter((row) => row.drawn === 'true').length, `${name}: a line for each length drawn, and no other`);
+        // The box the lines measure is the part's own, where the browser draws it: outlined once for each part a line is
+        // drawn on, and, where the test finds the part itself, edge for edge its elements' box (one tab of a row, not
+        // the row, nor the room beside it).
+        assert.deepEqual(figure.outlined.map(({ part }) => part).sort(), [...new Set(figure.lines.map(({ part }) => part))].sort(), `${name}: each part measured is outlined once`);
+        for (const { part, drawn, real } of figure.outlined) {
+          if (!real) continue;
+          for (const edge of ['left', 'top', 'right', 'bottom']) assert.ok(Math.abs(drawn[edge] - real[edge]) <= NEAR, `${name}: the ${part} outlined has its ${edge} edge at ${drawn[edge]}, the part's is at ${real[edge]}`);
+          checked.push(`${name} ${part}`);
+        }
       }
     }
   }
   assert.deepEqual(errors, [], 'no script failed');
+  console.log(`Outlines held to their parts' boxes (${checked.length}): ${checked.join(', ')}`);
+  assert.ok(checked.includes('tabs container') && checked.includes('button container'), `the outlines held to their parts' boxes: ${checked.join(', ')}`);
+  // The record says what the figures find, so that each table is laid out from the first frame as it is once drawn.
+  const said = Object.fromEntries(
+    Object.entries(recorded)
+      .filter(([, { lengths }]) => lengths && Object.keys(lengths).length)
+      .map(([name, { lengths }]) => [name, Object.fromEntries(Object.entries(lengths).map(([token, value]) => [token, shown(value)]))]),
+  );
+  assert.deepEqual(found, said, 'the lengths the figures do not draw are those src/lib/visuals/lengths-not-drawn.json records, with what each component draws instead: a page writes them before its figure is drawn');
   if (notDrawn.length) console.log(`Lengths not drawn, where a component draws another length than its token's:\n  ${notDrawn.join('\n  ')}`);
   await context.close();
 });

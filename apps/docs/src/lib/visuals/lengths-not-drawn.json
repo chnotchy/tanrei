@@ -1,0 +1,6 @@
+{
+  "checkbox": { "fixture": "unselected", "parts": ["mark"] },
+  "combobox": { "fixture": "stacked-empty", "parts": ["option"] },
+  "fab-menu": { "fixture": "filled-closed", "parts": ["item"] },
+  "select": { "fixture": "stacked-empty", "parts": ["option"] }
+}

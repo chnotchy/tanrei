@@ -721,7 +721,7 @@ TanreiProgressIndicator("Loading", variant: .circular, size: .small)            
 - **Motion (PRG-2, PRG-6, PRG-7, PRG-14).** A value change eases over `motion.value-duration`. Indeterminate, a bar moves
   a segment two fifths long across the track once per `motion.cycle-duration` with `motion.cycle-easing`; a ring turns
   a quarter arc once per cycle at constant speed. Under Reduce Motion a value changes at once, and an indeterminate
-  indicator covers the whole track and pulses its opacity 1 → 0 → 1 once per cycle. The loop runs on the display's
+  indicator covers the whole track and pulses its opacity 1 → `motion.pulse-floor-opacity` → 1 once per cycle, never below that floor. The loop runs on the display's
   timeline (`TimelineView`), which does not tick in the background; it also stops when the view leaves the hierarchy
   and, on iOS 18 / macOS 15, when it is scrolled out of view.
 - **Right to left (PRG-13).** A bar fills from the right (SwiftUI mirrors shapes); a ring is drawn left to right in
@@ -755,7 +755,7 @@ TanreiLoadingIndicator("Refreshing", size: .large, contained: true)   // over co
   is exactly that square in `indicator.color`; contained, it is centered on a `container.size` circle
   (`container.shape`) in `contained.container.color`, raised by `contained.container.elevation`, in
   `contained.indicator.color`.
-- **Reduce Motion (LDG-4).** The arc stops; the whole circle pulses its opacity 1 → 0 → 1 once per cycle with
+- **Reduce Motion (LDG-4).** The arc stops; the whole circle pulses its opacity 1 → `motion.pulse-floor-opacity` → 1 once per cycle, never below that floor, with
   `sys.motion.easing.standard`. The container stays still and opaque.
 - **Visibility (LDG-7).** The loop is the progress indicator's (`TimelineView`, paused out of the hierarchy and, on
   iOS 18 / macOS 15, out of the scroll view's visible area).

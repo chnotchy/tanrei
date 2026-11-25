@@ -41,7 +41,6 @@ const en = {
   },
   base: {
     title: 'Base system',
-    confirm: 'Operations are relative to the base they inherit from. Switch the base and start from its defaults?',
   },
   essentials: {
     brand: 'Brand color',
@@ -136,7 +135,7 @@ const en = {
   fonts: {
     families: 'families, in order',
     add: 'Add',
-    addPlaceholder: 'Family, e.g. IBM Plex Sans',
+    addPlaceholder: 'e.g. IBM Plex Sans',
     added: (family: string) => `${family}: added to the stack`,
     suggestions: 'Suggestions',
     system: 'System font',
@@ -267,7 +266,7 @@ const en = {
     target: 'Points at',
     pick: 'Pick a token…',
     reason: 'Reason (required)',
-    reasonPlaceholder: 'Why must this never move?',
+    reasonPlaceholder: 'Why is it fixed?',
     reasonShort: 'A pin needs a reason of at least 8 characters. Until then it is not written.',
     of: 'of',
     by: '× coefficient',
@@ -314,7 +313,7 @@ const en = {
     kinds: open({ derive: 'A rule', alias: 'An alias', literal: 'A literal' }),
     onRole: 'onRole — the role drawn on it (registers the pair with the contrast checks)',
     rationale: 'Rationale (required)',
-    rationalePlaceholder: 'Why does this product need it?',
+    rationalePlaceholder: 'Why this product needs it',
     rationaleShort: 'An addition needs a rationale of at least 8 characters. Until then it is not written.',
     declares: 'declares',
     members: 'Every token this creates, as it would resolve',
@@ -339,27 +338,29 @@ const en = {
     inherited: 'Inherited rules',
   },
   source: {
-    title: 'Source',
+    title: 'JSON',
     label: 'The layer file, as JSON',
-    help: 'Checked as you type: JSON, then system.schema.json, then the token engine — its message is shown word for word. A valid edit is the layer every other level shows.',
+    help: 'Checked as you type: JSON, then system.schema.json, then the token engine — its message is shown word for word. A valid edit is the layer the rest of the Studio shows.',
     keys: 'Tab indents. Press Esc, then Tab, to leave the editor with the keyboard.',
     valid: 'Valid JSON, valid against the schema, accepted by the engine.',
     notObject: 'a layer is a JSON object',
     invalidJson: 'That is not valid JSON',
     line: (line: number) => `Line ${line}`,
     format: 'Format',
-    draftBadge: 'Source has invalid edits',
+    draftBadge: 'The JSON has invalid edits',
     draftTitle: 'This text is not valid JSON yet, so it is a draft.',
-    draftHelp: 'It is kept exactly as typed — also while you visit the other levels — but it is not the layer: the preview, the other levels and the saved file stay at the last text that parsed, until this one does.',
+    draftHelp: 'It is kept exactly as typed — also while you look at the rest of the Studio — but it is not the layer: the preview, the other controls and the saved file stay at the last text that parsed, until this one does.',
     draftDiscard: 'Discard the draft',
   },
   preview: {
     title: 'Live preview',
     contrast: 'Preview contrast',
     levels: open({ standard: 'Standard', medium: 'Medium', high: 'High' }),
-    stale: 'The layer has a problem: the checks at the foot of the panel say what. The preview shows the last valid state.',
+    stale: 'The layer has a problem: Export says what. The preview shows the last valid state.',
     emphasized: 'Emphasized',
     emphasizedHelp: 'Text styles drawn with their family’s emphasis step added to the weight (sys.typescale.emphasis.*).',
+    // The button at the end of the preview's bar, and the menu it opens: the contrast and the emphasis.
+    more: 'Contrast and emphasis',
   },
   sample: {
     headline: 'Defaults that feel right',
@@ -383,7 +384,7 @@ const en = {
     names: open({ overview: 'Overview', dashboard: 'Dashboard', settings: 'Settings form', list: 'List and detail', docs: 'Docs page' }),
     mode: 'Light or dark',
     modes: open({ light: 'Light', dark: 'Dark', both: 'Side by side' }),
-    conditions: 'How the preview is shown. None of this is saved in the file.',
+    conditions: 'View options (not saved in the file)',
     locale: 'en-US',
     currency: 'USD',
     common: {
@@ -406,7 +407,8 @@ const en = {
       selection: 'Selection',
       choosing: 'Tabs, chips and tags',
       feedback: 'Feedback',
-      surfaces: 'Cards and menus',
+      card: 'Card',
+      menu: 'Menu',
       system: 'This system',
       draft: 'Save draft',
       details: 'Details',
@@ -415,6 +417,8 @@ const en = {
       delete: 'Delete',
       email: 'Email',
       emailHint: 'You sign in with this address.',
+      // The address a field shows as its example, short enough for the field in a narrow column.
+      emailExample: 'me@example.com',
       plan: 'Plan',
       plans: { free: 'Free', pro: 'Pro', team: 'Team' },
       notify: 'Get notifications',
@@ -562,25 +566,18 @@ const en = {
     nonText: (threshold: string) => `${threshold} non-text`,
   },
   export: {
-    title: 'Export',
     id: 'id — also the file name',
     name: 'Name (optional)',
+    canonical: 'This file is the theme: every platform’s output is built from it alone.',
     ownNamespace: 'This layer owns tokens under "{id}.…"; their namespace is renamed with the id, so the new id must be a valid one (lowercase words joined by hyphens, not "tanrei").',
     copy: 'Copy JSON',
     download: 'Download',
-    reset: 'Start over',
     copied: 'Copied to the clipboard.',
     downloaded: (file: string) => `Downloaded ${file}`,
     next: 'What next',
-    put: (path: string) => `Save the file as ${path}`,
     authoritative: 'Commit the layer. tanrei build validates it again, checks every contrast pair and writes tokens and code for each platform you ship. With the CLI, tanrei studio opens this Studio on the file itself.',
     layersLink: 'How layers work',
     jsonLabel: 'The layer file',
-    schemaOk: 'Valid against system.schema.json (Ajv, in your browser)',
-    engineOk: 'Accepted by the token engine: no unknown tokens, no cycles',
-    empty: 'Nothing differs from the base yet.',
-    size: (count: number) => `${count} entries written`,
-    confirmReset: 'Discard every change and start over?',
   },
   // Export, the side sheet the bar opens (ui/export.ts): the file, its stylesheet, and what to do with them.
   exporting: {
@@ -589,6 +586,7 @@ const en = {
     close: 'Close Export',
     views: 'What to export',
     file: 'File',
+    command: 'Command',
     css: 'CSS',
     // The line at the top: what the schema, the token engine and the build's checks say of the file.
     valid: 'Valid: the schema, the token engine and the build’s checks accept this file.',
@@ -607,6 +605,9 @@ const en = {
     copyFailed: 'Could not copy — select the text and copy it by hand.',
     copyCss: 'Copy CSS',
     copyCommand: 'Copy the command',
+    commandLabel: 'Commands to run in your product',
+    commandHelp: (file: string, path: string) => `Save ${file} in your product’s folder and run these there. init --from checks the file, copies it to ${path} and writes tanrei.json; build then writes tokens and code for each output tanrei.json lists.`,
+    commandExisting: (command: string) => `If your product already has tanrei.json, save the file where its "system" points and run only ${command}.`,
     // The CSS tab: what the stylesheet `tanrei build` writes for the web says that the base's does not.
     cssLabel: 'What the stylesheet changes',
     cssHelp: (base: string) => `The declarations of the stylesheet tanrei build writes for the web that differ from ${base}’s, as the build writes them: each color resolved in every scheme, a size that follows a dial left to follow it. The file is what you keep; this is what it changes.`,
@@ -615,7 +616,7 @@ const en = {
     downloadCss: 'Download the whole stylesheet',
     // What next: the commands, in order. Each is the CLI's as it stands; none is shown that it would refuse.
     install: 'Add the command line tool to your product:',
-    init: (file: string) => `Start the layer. This writes tanrei.json and a starter ${file}:`,
+    init: (file: string, path: string) => `Start from the file: save ${file} in your product’s folder and run this there. It checks the file, copies it to ${path} and writes tanrei.json:`,
     build: 'Build tokens and code for every platform you list in tanrei.json:',
     studio: 'Later, open this Studio on the file itself:',
     saved: (file: string) => `The Studio saves every change to ${file} as you make it.`,
@@ -626,9 +627,11 @@ const en = {
     shareHelp: 'A link to the Studio with this layer in it. Whoever opens it sees your layer, and keeps their own until they choose.',
     copyLink: 'Copy link',
     linkCopied: 'Link copied.',
+    // The browser refused the clipboard. The link is the page's own address (it holds the layer), so the way to it is
+    // the address bar.
+    linkCopyFailed: 'Couldn’t copy the link. It’s this page’s address — copy it from your browser’s address bar.',
   },
   file: {
-    title: 'File',
     idLocked: 'id — equals the file name; rename the file to rename the system',
     states: open({ loading: 'Loading…', saved: 'Saved', unsaved: 'Unsaved changes', saving: 'Saving…', invalid: 'Not saved — fix the problems first', conflict: 'The file changed on disk', error: 'Could not save' }),
     build: 'Build',
@@ -648,19 +651,23 @@ const en = {
     menu: 'Start point',
     starts: 'Start from',
     defaultNote: 'The default system',
-    // The root, listed but not offered: why it cannot be chosen yet.
-    notInInit: 'Not yet: Tanrei’s root layer is neutral now — grey, with no accent — but the command line cannot start a layer from it yet (tanrei init --extends core). It can be chosen here once it can.',
+    // The root, listed but not offered: what it will be, and that it is not offered yet — in a few words, as a menu
+    // item's line says it (why it is not yet is the documentation's: its values are neutral, and the command line
+    // cannot start a layer from it yet).
+    notInInit: 'A blank start (coming soon)',
     // The examples of the gallery, under their own title: each a showcase of what a layer can imitate, not the official
     // design it follows. The title reads as the first group's, «Start from»: a start, said as what it is made from.
-    gallery: 'From the gallery',
-    exampleNote: (name: string) => `${name}. An example, not an official design.`,
+    gallery: 'Theme gallery',
+    // Each example's line, one line of the menu: what it imitates, said as an example made after it (never as the
+    // design it imitates). An example the dictionary does not name here says only that it is one.
+    examples: open({ 'm3-like': 'A Material 3–style example', cupertino: 'An Apple-style example' }),
+    exampleNote: 'An example',
     file: 'Import a file…',
     fileNote: 'A layer file, <id>.system.json',
-    confirm: (name: string) => `Start from ${name}? Your changes to this layer are replaced; Undo brings them back.`,
-    // What loading a layer says: `file`, the name of the file; none, the layer was handed to the page's API, which never asks.
-    confirmLoad: (file: string) => `Load ${file}? Your changes to this layer are replaced; Undo brings them back.`,
-    started: (name: string) => `Started from ${name}. Undo takes it back.`,
-    // What importing a file found, said in the panel.
+    // A new start and a file loaded are said in a snackbar that offers Undo; nothing is asked before either.
+    started: (name: string) => `Started from ${name}`,
+    // What loading a layer says (in the panel too, with what it found): `file`, the name of the file; none, the layer
+    // was handed to the page's API.
     imported: (file?: string) => `Loaded ${file ?? 'the layer'}.`,
     importedProblems: (file: string | undefined, count: number) => (count === 1 ? `Loaded ${file ?? 'the layer'}, with 1 problem. tanrei build would refuse it until it is fixed:` : `Loaded ${file ?? 'the layer'}, with ${count} problems. tanrei build would refuse it until they are fixed:`),
     refused: (file?: string) => `${file ?? 'The layer'} was not loaded. The Studio holds a layer that the schema accepts and that extends a system it has:`,
@@ -670,28 +677,37 @@ const en = {
     history: 'History',
     undo: 'Undo',
     redo: 'Redo',
+    reset: 'Reset to the start',
+    resetDone: 'Reset to the start’s values',
     undone: 'Undone.',
     redone: 'Redone.',
     rail: 'The theme',
     panel: 'Properties',
     resize: 'Width of the properties panel',
     width: (px: number) => `${px} pixels`,
+    close: 'Close the properties',
   },
   // The rail (ui/rail.ts): the nine rows of the look, the rest of what a layer holds, the lock and the shuffle.
   rail: {
-    theme: 'The look',
+    theme: 'Theme',
     moreTitle: 'More',
     rows: { color: 'Brand color', neutral: 'Gray', typeface: 'Typeface', size: 'Size', radius: 'Corners', smoothing: 'Corner smoothing', icons: 'Icons', press: 'Press feedback', focus: 'Focus' },
     more: { base: 'Base system', dials: 'Dials', palettes: 'Palettes', components: 'Components', behavior: 'Behaviour', vocabulary: 'Your vocabulary', about: 'About this layer', a11y: 'Accessibility' },
+    moreHelp: { base: 'The system your layer is built on', dials: 'Text size, spacing, corners, strokes, motion…', palettes: 'Error, success, warning, info and accent colors', components: 'Each component’s sizes and variants', behavior: 'Link underlines, required marks, separators…', vocabulary: 'The steps, variants and tokens your layer adds', about: 'Its description, and what it is inspired by', a11y: 'Contrast pairs and the build’s warnings' },
     help: {
       neutral: 'The gray that surfaces, text and outlines take their tones from: a hue with a chroma near zero, or a seed.',
       size: 'The control height is how tall a Button, a field, a menu row, a tab or a list row is at its default size; small and large are a few size units below and above it. Nothing pressable is drawn smaller than the minimum target, which is never above the control height: it is your own value, and no dial moves it.',
       radius: 'Every corner follows this unit: each step of the corner scale is a multiple of it.',
     },
     monochrome: 'none (monochrome)',
+    unchanged: 'default',
+    neutral: 'neutral',
+    none: 'none',
+    // The choices of the press feedback and the focus style, as the rail says them; the panel lists the vocabulary's names.
+    choices: open({ overlay: 'overlay', ripple: 'ripple', dim: 'dim', none: 'none', ring: 'ring', glow: 'glow' }),
     // A palette given as hue and chroma, and the size row's value: the numbers as the file has them.
     hueChroma: (hue: string, chroma: string) => `hue ${hue} · chroma ${chroma}`,
-    size: (height: string, unit: string, target: string) => `${height} · ${unit} · target ${target}`,
+    size: (height: string, target: string) => `${height} · minimum ${target}`,
     target: 'the least size of anything pressed',
     minimum: 'Minimum target',
     heights: 'Heights at this control height',
@@ -705,13 +721,15 @@ const en = {
     shuffled: 'Every row was shuffled.',
     shuffledKept: (count: number) => (count === 1 ? 'Shuffled. 1 locked row kept its value.' : `Shuffled. ${count} locked rows kept their values.`),
   },
-  // Inspect: over the panel, every token in its tree and the layer file itself.
+  // Inspect: a side sheet over the Studio, every token in its tree and the layer file itself, as JSON.
   inspect: {
     title: 'Inspect',
     help: 'Every token of the system, and the layer file itself',
     tokens: 'Tokens',
-    source: 'Source',
+    source: 'JSON',
+    lead: 'The theme’s file, and the tokens it settles. Every other control only writes this file.',
     close: 'Close Inspect',
+    toExport: 'Go to Export',
   },
   // The layer of a link, shown in the place of the one this browser kept (ui.ts `showShared`).
   shared: {
@@ -741,6 +759,8 @@ const en = {
   app: {
     language: 'Language',
     theme: 'Theme',
+    // The menu at the end of the app's bar that holds the two: its name, and its tooltip.
+    menu: 'Language and theme',
     noFile: 'No file attached — changes stay in this browser',
   },
 };

@@ -438,6 +438,12 @@ function drawMeasures(drawing: Drawing) {
   const { relative, host, stage, rtl, room } = frameOf(drawing);
   if (!host || !data.lines) return;
   const boxes = partBoxes(drawing, host, relative);
+  // The parts this fixture does not draw, for the browser test to hold the record of them to (lib/visuals/measure.ts,
+  // `partsNotDrawnOf`): none of their lengths is in the table.
+  subject.dataset.partsNotDrawn = data.parts
+    .filter((part) => part.target && part.target.aspect !== 'backdrop' && !boxes.has(part.id))
+    .map((part) => part.id)
+    .join(' ');
   const style = getComputedStyle(subject);
   const rowsRoom = parseFloat(style.paddingBlockStart) || 0;
   const columnsRoom = parseFloat(style.paddingInlineEnd) || 0;
@@ -452,11 +458,21 @@ function drawMeasures(drawing: Drawing) {
       .filter(([other, { box: b, aspect }]) => other !== id && aspect !== 'focus-ring' && b.left >= box.left - NEAR && b.right <= box.right + NEAR && b.top >= box.top - NEAR && b.bottom <= box.bottom + NEAR)
       .filter(([, { box: b }]) => !(Math.abs(b.left - box.left) < NEAR && Math.abs(b.right - box.right) < NEAR && Math.abs(b.top - box.top) < NEAR && Math.abs(b.bottom - box.bottom) < NEAR))
       .map(([, { box: b }]) => b);
+  /**
+   * The parts a padding is measured to: those drawn inside the box, less those that draw its edge (an outline) and
+   * those as wide as it (a header, a divider, a cell across it), which stand at its edges and not at its padding — the
+   * spec places at the padding what such a region holds, or what stands beside it (an app bar's navigation and actions,
+   * a drawer's item containers, a sheet's content and actions).
+   */
+  const outlines = new Set([...boxes.values()].filter(({ aspect }) => aspect === 'outline').map(({ box: b }) => b));
+  const padded = (id: string, box: Box) => inside(id, box).filter((b) => !outlines.has(b) && !(Math.abs(b.left - box.left) < NEAR && Math.abs(b.right - box.right) < NEAR));
   const startOf = (b: Box) => (rtl ? b.right : b.left);
   const endOf = (b: Box) => (rtl ? b.left : b.right);
   const toward = rtl ? -1 : 1;
   let rowAt = 0;
   let columnAt = 0;
+  /** The parts a line is drawn on, each outlined once: the box the lines measure, where the browser draws it. */
+  const outlined = new Set<string>();
   for (const measure of data.lines) {
     const part = boxes.get(measure.part);
     const value = valueOf(overlay, measure.cssVar);
@@ -481,7 +497,7 @@ function drawMeasures(drawing: Drawing) {
           const edge = atStart ? startOf(box) + toward * border : endOf(box) - toward * border;
           ways.push(atStart ? [edge, edge + toward * padding] : [edge - toward * padding, edge]);
         }
-        const held = inside(measure.part, box);
+        const held = padded(measure.part, box);
         if (held.length) {
           const nearest = atStart ? (rtl ? Math.max(...held.map(startOf)) : Math.min(...held.map(startOf))) : rtl ? Math.min(...held.map(endOf)) : Math.max(...held.map(endOf));
           ways.push(atStart ? [startOf(box), nearest] : [nearest, endOf(box)]);
@@ -520,6 +536,17 @@ function drawMeasures(drawing: Drawing) {
     const isBlock = measure.axis === 'block';
     const at = isBlock ? columnAt++ : rowAt++;
     if (!agrees || from === null || to === null || !part) continue;
+    if (!outlined.has(measure.part)) {
+      // The part's own box, dashed as the extension lines are, so that a reader sees which box is measured — one tab of
+      // a row, not the row — and where its edges are.
+      outlined.add(measure.part);
+      const box = part.box;
+      const outline = document.createElementNS(SVG, 'rect');
+      for (const [name, value] of Object.entries({ x: box.left, y: box.top, width: box.right - box.left, height: box.bottom - box.top })) outline.setAttribute(name, String(value));
+      outline.setAttribute('class', 'measured');
+      outline.setAttribute('data-part', measure.part);
+      svg.prepend(outline);
+    }
     const text = `${measure.kind} · ${shown(value)}`;
     const attributes = { 'data-token': measure.token, 'data-part': measure.part, 'data-axis': measure.axis, 'data-value': String(value), 'data-measured': String(measured) };
     if (isBlock) {

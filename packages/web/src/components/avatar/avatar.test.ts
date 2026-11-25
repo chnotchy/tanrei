@@ -14,6 +14,7 @@ import { type Fixture, type FixtureItem, avatarPicture, declarations, iconFaceAr
 import { motionEnded } from '../../../test/motions.js';
 import { decodePng } from '../../../test/png.js';
 import { expectBaseline } from '../../../test/baseline.js';
+import { laidOutBox } from '../../../test/laid-out-box.js';
 
 const spec = loadSpec('avatar');
 type P = Page;
@@ -34,7 +35,8 @@ const container = (host: Locator) => host.locator('.container').first();
 const overflow = (page: P, id: string) => group(page, id).locator('.overflow');
 const T = (name: string) => `--tanrei-comp-avatar-${name}`;
 const token = (page: P, name: string) => resolveToken(page, T(name));
-const box = async (locator: Locator) => (await locator.boundingBox())!;
+/** A box as the engine laid it out (test/laid-out-box.ts): an avatar below a line of the page's text keeps its size in Firefox. */
+const box = laidOutBox;
 const css = (locator: Locator, property: string) => locator.evaluate((el, p) => getComputedStyle(el).getPropertyValue(p), property);
 const near = (actual: number, expected: number, message = '', tolerance = 0.6) => expect(Math.abs(actual - expected), `${message}: ${actual} ≈ ${expected}`).toBeLessThanOrEqual(tolerance);
 const override = (page: P, vars: Record<string, string>) => rootTokens(page, vars);
@@ -778,15 +780,19 @@ test.describe('behavior', () => {
   test('AVT-11: with the text enlarged the avatar keeps its box and its glyph at their sizes, and its initials are held to the glyph’s box of the size, so they still stand inside the avatar (the initials’ text role itself follows the text dial)', async ({ page }) => {
     await mountSpec(page, 'initials', 'initials-small', 'initials-large', 'glyph', 'glyph-small', 'glyph-large', 'square', 'group-max');
     const ids = ['initials', 'initials-small', 'initials-large', 'glyph', 'glyph-small', 'glyph-large', 'square'];
-    const measure = async () => Object.fromEntries(await Promise.all(ids.map(async (id) => [id, [await box(avatar(page, id)).then((b) => [b.width, b.height]), id.startsWith('glyph') ? await box(avatar(page, id).locator('.icon')).then((b) => [b.width, b.height]) : null]] as const)));
+    const size = (b: { width: number; height: number }) => [b.width, b.height];
+    const measure = async () => Object.fromEntries(await Promise.all(ids.map(async (id) => [id, [await box(avatar(page, id)).then(size), id.startsWith('glyph') ? await box(avatar(page, id).locator('.icon')).then(size) : null]] as const)));
     const before = await measure();
-    const groupBefore = await box(group(page, 'group-max'));
+    // The group's size, not its place: the page's body text is enlarged too, so the lines of the stages above it are
+    // taller and the group stands further down.
+    const groupSize = async () => box(group(page, 'group-max')).then(size);
+    const groupBefore = await groupSize();
     const sizeBefore = Number.parseFloat(await css(avatar(page, 'initials').locator('.label'), 'font-size'));
     // 200 % text.
     await override(page, { '--tanrei-dial-type-base': '32px' });
     await frames(page);
     expect(await measure()).toEqual(before);
-    expect(await box(group(page, 'group-max'))).toEqual(groupBefore);
+    expect(await groupSize()).toEqual(groupBefore);
     const sizes = { 'initials-small': 'small', initials: 'medium', 'initials-large': 'large', square: 'medium' } as const;
     for (const [id, size] of Object.entries(sizes)) {
       const label = avatar(page, id).locator('.label');

@@ -4,13 +4,15 @@
 //
 // Above the screen, how it is seen: which of the five screens, light, dark or the two side by side, and the
 // contrast. None of that is the layer's: it is not saved in the file, only remembered in this browser.
-import { type Contrast, type Ctx, type Json, cssColor, h, short, stateChip } from './dom';
+import { type Contrast, type Ctx, type Json, cssColor, h, short, stateChip, tip } from './dom';
 import { createHighlighter } from './highlight';
 import { SCREENS, type Screen, drawScreen } from './screens';
 
 export type Mode = 'light' | 'dark' | 'both';
 const MODES: Mode[] = ['light', 'dark', 'both'];
 const MODE_ICONS: Record<Mode, string> = { light: 'light_mode', dark: 'dark_mode', both: 'splitscreen_left' };
+/** The glyph of the button that opens the contrast and the emphasis (declared: the docs site's icon file is cut to it). */
+const MORE_GLYPH = 'tune';
 const CONTRASTS: Contrast[] = ['standard', 'medium', 'high'];
 
 let scopes = 0;
@@ -28,8 +30,11 @@ export function createPreview(ctx: Ctx, { contrast, onContrast }: { contrast: Co
 
   // ── how the preview is seen: kept in this browser, never in the layer ─────────────────────────────
   let screen: Screen = 'overview';
-  // The first time, the scheme the page is drawn in.
-  let mode: Mode = getComputedStyle(document.documentElement).colorScheme === 'dark' || document.documentElement.getAttribute(`data-${NS}-theme`) === 'dark' ? 'dark' : 'light';
+  // The first time, the scheme the page is drawn in: the one its root names, else — a page that follows the device, as
+  // the documentation does until its reader chooses — the device's.
+  const named = document.documentElement.getAttribute(`data-${NS}-theme`);
+  const scheme = getComputedStyle(document.documentElement).colorScheme;
+  let mode: Mode = named === 'dark' || scheme === 'dark' || (!named && scheme !== 'light' && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
   try {
     const stored = JSON.parse(localStorage.getItem(STORE) ?? 'null');
     if (SCREENS.includes(stored?.screen)) screen = stored.screen;
@@ -132,7 +137,7 @@ export function createPreview(ctx: Ctx, { contrast, onContrast }: { contrast: Co
 
   function apply(next: Json, level: Contrast) {
     scope.setAttribute(`data-${NS}-contrast`, level);
-    contrastTabs.value = level;
+    contrastGroup.value = level;
     // A layer is computed once for its values (core.preview), so the same computation is the same sheet and the same
     // panes: a level drawn again, another contrast, or a name or a reason typed, writes neither. The sheet is the
     // system's whole — written again it has the browser read it again, and style and lay out the whole page with it —
@@ -189,28 +194,39 @@ export function createPreview(ctx: Ctx, { contrast, onContrast }: { contrast: Co
   };
   const screenTabs = tabs({ label: s.label, variant: 'secondary', 'data-screens': true }, SCREENS.map((value) => ({ value, label: s.names[value] })), screen, setScreen);
   const modeTabs = tabs({ label: s.mode, variant: 'tonal', track: 'false', transition: 'none', 'data-modes': true, 'data-condition': true }, MODES.map((value) => ({ value, label: s.modes[value], icon: MODE_ICONS[value] })), mode, setMode);
-  // The contrast, as the documentation's header chooses it: the word, then three quiet tabs.
-  const contrastTabs = tabs({ label: t.preview.contrast, variant: 'tonal', track: 'false', transition: 'none', 'data-contrast': true, 'data-condition': true }, CONTRASTS.map((value) => ({ value, label: t.preview.levels[value] })), contrast, onContrast);
-  const emphasisToggle = h('tanrei-checkbox', { label: t.preview.emphasized, 'data-emphasized-toggle': true, title: t.preview.emphasizedHelp, onchange: () => ((emphasized = emphasisToggle.checked), drawEmphasis()) });
+  // The contrast and the emphasis, in a menu that a button with a glyph opens: the contrast as the documentation's
+  // header chooses it, three levels in a group of their own, then the emphasis, switched on and off.
+  const contrastGroup = h('tanrei-menu-group', { label: t.preview.contrast, 'data-contrast': true }, CONTRASTS.map((value) => h('tanrei-menu-radio-item', { value, label: t.preview.levels[value], 'data-value': value }))) as HTMLElement & { value: string | null };
+  contrastGroup.value = contrast;
+  contrastGroup.addEventListener('change', (event) => event.target === contrastGroup && contrastGroup.value && onContrast(contrastGroup.value as Contrast));
+  const emphasisToggle = h('tanrei-menu-checkbox-item', { label: t.preview.emphasized, title: t.preview.emphasizedHelp, 'data-emphasized-toggle': true }) as HTMLElement & { checked: boolean };
+  emphasisToggle.addEventListener('change', (event) => event.target === emphasisToggle && ((emphasized = emphasisToggle.checked), drawEmphasis()));
+  const moreId = ctx.uid('ts-view');
+  const moreButton = h('tanrei-button', { id: moreId, variant: 'text', size: 'small', label: t.preview.more, 'data-view-more': true, onclick: () => (moreMenu.open = !moreMenu.open) }, h('span', { class: `${studio.tagPrefix}-icon`, slot: 'icon', 'aria-hidden': 'true', translate: 'no' }, MORE_GLYPH));
+  const moreMenu = h('tanrei-menu', { anchor: moreId, placement: 'bottom-end', 'aria-label': t.preview.more, 'data-view-menu': true }, contrastGroup, emphasisToggle) as HTMLElement & { open: boolean };
+  moreMenu.addEventListener('close', (event) => event.target === moreMenu && (moreMenu.open = false));
   // A link in a screen goes nowhere: the page's address is the Studio's (it may hold the layer).
   scope.addEventListener('click', (event) => (event.composedPath() as Element[]).some((node) => node instanceof HTMLAnchorElement) && event.preventDefault());
+  // One line, as the bar of a tool's canvas: the screens at its start; at its end how they are seen — said once to be
+  // the viewer's, not the file's (the note is drawn where the preview has the room for it, and names the group
+  // everywhere) — the scheme, and the button of the contrast and the emphasis. The preview's name is for whoever reads
+  // the page by its regions; the screen itself says what it is.
   const el = h(
     'div',
     { class: 'ts-preview', 'aria-labelledby': id },
     h(
       'header',
       { class: 'ts-preview-bar' },
-      h('h2', { id, class: 'ts-eyebrow', text: t.preview.title }),
+      h('h2', { id, class: 'ts-hidden', text: t.preview.title }),
       screenTabs,
       h(
         'div',
-        { class: 'ts-preview-conditions', role: 'group', 'aria-label': s.conditions },
+        { class: 'ts-preview-conditions', role: 'group', 'aria-labelledby': note },
+        h('span', { id: note, class: 'ts-preview-note', text: s.conditions }),
         modeTabs,
-        h('span', { class: 'ts-preview-word', 'aria-hidden': 'true', text: t.preview.contrast }),
-        contrastTabs,
-        h('span', { class: 'ts-row-actions' }, badge, emphasisToggle),
+        tip(moreButton, t.preview.more, true),
+        moreMenu,
       ),
-      h('p', { id: note, class: 'ts-preview-note', text: s.conditions }),
     ),
     stale,
     sheet,
@@ -221,6 +237,8 @@ export function createPreview(ctx: Ctx, { contrast, onContrast }: { contrast: Co
     apply,
     patch,
     stale,
+    /** The count of the build's warnings, and the way to them: the bar's, beside Share and Export. */
+    badge,
     scopeId,
     short: (tokenId: string) => short(tokenId, NS),
     cssColor,

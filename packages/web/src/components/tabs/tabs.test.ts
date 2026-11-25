@@ -26,8 +26,11 @@ type P = Page;
 const row = (page: P, id: string) => page.locator(`[data-fixture="${id}"] tanrei-tabs`);
 const tabs = (page: P, id: string) => row(page, id).locator('tanrei-tab');
 const tabAt = (page: P, id: string, n: number) => tabs(page, id).nth(n);
-/** The whole tab: what answers the pointer and carries `data-pressed`. */
-const box = (page: P, id: string, n: number) => tabAt(page, id, n).locator('.tab');
+/**
+ * The whole tab, its part `container`: what answers the pointer and carries `data-pressed`, sized by container.*. The
+ * first of that name: the tooltip of a truncated label, inside it, has a part `container` of its own.
+ */
+const box = (page: P, id: string, n: number) => tabAt(page, id, n).locator('[part="container"]').first();
 /** The tab's state layer (TAB-18), its part `state-layer`: drawn in the indicator's box. */
 const layer = (page: P, id: string, n: number) => tabAt(page, id, n).locator('[part="state-layer"]');
 /** The focus ring's element (TAB-4): the same box as the state layer. */
@@ -819,6 +822,11 @@ test.describe('layout', () => {
     expect((await bounds(tabAt(page, 'primary', 0))).height).toBeCloseTo(height, 1);
     expect((await bounds(tabAt(page, 'primary-icons', 0))).height).toBeCloseTo(withIcon, 1);
     expect((await bounds(tabAt(page, 'secondary-icons', 0))).height).toBeCloseTo(height, 1);
+    // The part container is the tab's own box, the one the container lengths size: the whole tab, its height, and its
+    // content container.padding-inline in from its edges.
+    const [host, own] = [await bounds(tabAt(page, 'primary', 0)), await bounds(box(page, 'primary', 0))];
+    expect([own.x, own.width, own.height]).toEqual([expect.closeTo(host.x, 1), expect.closeTo(host.width, 1), expect.closeTo(height, 1)]);
+    expect(Number.parseFloat(await css(box(page, 'primary', 0), 'padding-inline-start'))).toBeCloseTo(await resolveToken(page, T('container-padding-inline-medium')), 1);
     // Every tab of a row is as tall as the row: a tab without an icon beside one that stacks one, and its indicator too.
     const [tallTab, plainTab, r] = [await bounds(tabAt(page, 'mixed', 0)), await bounds(tabAt(page, 'mixed', 1)), await bounds(track(page, 'mixed'))];
     expect([tallTab.height, plainTab.height]).toEqual([expect.closeTo(withIcon, 1), expect.closeTo(withIcon, 1)]);

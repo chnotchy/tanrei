@@ -5340,10 +5340,9 @@ least the minimum target wide and never narrower than its indicator is tall. A l
 a tab that fills truncates it at its end (the left one in RTL) with an ellipsis, and the icon never shrinks. The tabs
 scroll sideways when they do not fit and the scroll bar is hidden (a wheel, a trackpad, a drag from a tab that is not
 selected, or the arrow keys scroll them); a tab brought into view keeps `track.padding` beside it.
-`active-indicator.height` is read by nothing.
 
 **The indicator's box (TAB-16, TAB-18).** Each tab has one box, centred in it: `track.padding` in from the row's top and
-bottom, so the same height on every tab (40 in a 48 row, 56 with stacked icons, in the default system). In a row that hugs
+bottom, so the same height on every tab (32 in a 40 row, 56 in a 64 row with stacked icons, in the default system). In a row that hugs
 it is as wide as the tab's content plus `active-indicator.padding-inline` on each side (the tab itself, by the default
 alias), never wider than the tab and never narrower than it is tall — and exactly as wide as it is tall where the
 content is not wider than it is tall (an icon alone, one full-width character, a one-letter label): a circle. In a row
@@ -5357,8 +5356,8 @@ is drawn until then. That box is three things:
   answers the pointer (the state layer takes no pointer events), and a ripple is drawn in the state layer and clipped to
   it wherever on the tab the press lands (`PressController`'s `rippleHost`). On the selected tab it lies above the
   indicator, drawn from the selected parts (`selected.state-layer.color`, the covered content's color), so hover and press
-  show there too. The `container.*` tokens are the whole tab's (its height, padding and gap); the state layer is the box
-  in it that a press colors;
+  show there too. The `container.*` tokens are the whole tab's (its height, padding and gap): the tab's own box, part
+  `container`, which draws nothing of its own; the state layer is the box in it that a press colors;
 - **the focus ring's box**: the ring or the glow surrounds it in its shape, `sys.focus.offset` outside it, above the
   neighbouring tabs and the indicator, and held inside the track: where `track.padding` is less than the ring reaches it
   is drawn further in by the difference (`focusRing(on, { within })`). In the default system the reach is the padding,

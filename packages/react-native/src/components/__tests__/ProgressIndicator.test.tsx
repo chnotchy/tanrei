@@ -5,6 +5,7 @@ import { AccessibilityInfo, Animated, AppState, type AppStateStatus } from 'reac
 import { tanrei } from '../../generated/systems/tanrei';
 import type { TanreiCoreProgressIndicatorSize, TanreiPaint, TanreiProgressIndicatorTokens, TanreiScheme, TanreiSystem } from '../../generated/vocabulary';
 import { describeFixtureBaselines, painted, settleMotion, viewStyle, withComponent, type Instance } from '../../testing/harness';
+import { expectPulseKeepsFloor } from '../../testing/pulse';
 import { loadSpec } from '../../testing/spec';
 import { resetLookupReports } from '../../theme/lookup';
 import { toEasing } from '../../theme/motion';
@@ -317,7 +318,7 @@ describe('behavior', () => {
     expect(viewStyle(part('indicator')!).width).toBe('60%');
   });
 
-  test.each(['linear', 'circular'] as const)('PRG-7: under reduced motion an indeterminate %s does not move: the whole track in the indicator color, pulsing 1 → 0 → 1 once per cycle', async (variant) => {
+  test.each(['linear', 'circular'] as const)('PRG-7: under reduced motion an indeterminate %s does not move: the whole track in the indicator color, pulsing 1 → floor → 1 once per cycle, never below the floor', async (variant) => {
     const loops = captureLoops();
     const timing = jest.spyOn(Animated, 'timing');
     await mount({ variant });
@@ -332,12 +333,16 @@ describe('behavior', () => {
     // Recorded at the start of a cycle: opacity 1.
     expect(loops).toHaveLength(1);
     const pulse = timing.mock.calls.slice(-2);
-    expect(pulse.map(([, config]) => config.toValue)).toEqual([0, 1]);
+    const floor = tokens.motionPulseFloorOpacity;
+    expect(floor).toBeGreaterThan(0);
+    expect(floor).toBeLessThan(1);
+    expect(pulse.map(([, config]) => config.toValue)).toEqual([floor, 1]);
     const curve = toEasing(tokens.motionCycleEasing);
     for (const [, config] of pulse) {
       expect(config).toMatchObject({ duration: tokens.motionCycleDuration / 2, useNativeDriver: true });
       expect(config.easing!(0.3)).toBeCloseTo(curve(0.3), 10);
     }
+    expectPulseKeepsFloor(pulse.map(([, config]) => config), floor);
     // The track stays still: a plain view, no animated style.
     expect(viewStyle(part('track')!).opacity).toBeUndefined();
   });

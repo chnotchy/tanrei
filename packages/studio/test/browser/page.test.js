@@ -84,10 +84,16 @@ for (const scheme of ['light', 'dark']) {
       await unfold(page, name);
       await fits('body', `${name} (${scheme})`);
     }
-    // The draft badge (left by Source above) has to fit in the bar too.
+    // The draft's button (left by Source above) has to fit in the bar too: its glyph alone, named by its label, in
+    // Inspect's place, and the bar still one line.
     await section('color');
-    assert.ok(await page.locator('[data-draft-badge]').isVisible());
+    assert.ok(await page.locator('[data-draft-button]').isVisible());
+    assert.equal(await page.locator('[data-draft-badge]').isVisible(), false, 'the chip of a wider window is not drawn');
+    assert.equal(await page.locator('[data-bar] [data-inspect]').isVisible(), false);
+    assert.deepEqual(await page.locator('[data-draft-button]').evaluate((el) => [el.label, el.textContent.trim(), el.parentElement.localName, el.parentElement.text]), ['The JSON has invalid edits', 'warning', 'tanrei-tooltip', 'The JSON has invalid edits']);
     await fits('body', `the draft badge (${scheme})`);
+    const middles = await page.locator('[data-bar]').evaluate((bar) => [...bar.querySelectorAll('tanrei-button')].filter((el) => el.getClientRects().length).map((el) => { const box = el.getBoundingClientRect(); return box.top + box.height / 2; }));
+    assert.ok(Math.max(...middles) - Math.min(...middles) < 8, `the bar is one line with the draft (${scheme}): ${middles.join(', ')}`);
     // A panel the Studio scrolls to lands below the sticky preview, not under it.
     await section('icons');
     const landed = await page.evaluate(() => { const el = document.querySelector('[data-panel="icons"]'); el.scrollIntoView({ block: 'start' }); return { top: el.getBoundingClientRect().top, sticky: document.querySelector('.ts-preview').getBoundingClientRect().bottom }; });
@@ -95,16 +101,24 @@ for (const scheme of ['light', 'dark']) {
   });
 }
 
-studioTest('the theme and language switches: dark is a click away; ja translates the chrome, never the vocabulary; the session survives the reload', { layer }, async ({ page, section }) => {
-  await page.locator('#theme').click();
+studioTest('the menu of language and theme: dark is two clicks away; ja translates the chrome, and says a choice in its words on the rail while the panel lists the vocabulary’s names; the session survives the reload', { layer }, async ({ page, section }) => {
+  // One glyph at the end of the bar, named by its label and shown its name by its tooltip, opens a menu of the two.
+  const opener = page.locator('#app-menu-open');
+  assert.deepEqual(await opener.evaluate((el) => [el.label, el.parentElement.localName, el.parentElement.text]), ['Language and theme', 'tanrei-tooltip', 'Language and theme']);
+  const openMenu = async () => {
+    if (!(await page.locator('#app-menu').evaluate((menu) => menu.open))) await opener.click();
+    await until(async () => (await page.locator('#app-menu').evaluate((menu) => menu.open)) === true, 'the menu opens');
+  };
+  await openMenu();
+  assert.equal(await page.locator('#theme').evaluate((group) => group.value), 'light', 'the theme drawn is the one checked');
+  await page.locator('#theme tanrei-menu-radio-item[value="dark"]').click();
   assert.equal(await page.locator('html').getAttribute('data-tanrei-theme'), 'dark');
   await section('typeface');
-  // The language switch is a select of the offered languages, each under its own name; choosing one reloads the page.
-  assert.deepEqual(await page.locator('#lang tanrei-option').evaluateAll((options) => options.map((option) => [option.getAttribute('value'), option.getAttribute('label'), option.lang])), [['en', 'English', 'en'], ['ja', '日本語', 'ja'], ['zh-CN', '简体中文', 'zh-CN'], ['hi', 'हिन्दी', 'hi'], ['es', 'Español', 'es'], ['ar', 'العربية', 'ar']]);
-  await page.locator('#lang').evaluate((select) => {
-    select.value = 'ja';
-    select.dispatchEvent(new Event('change', { bubbles: true, composed: true }));
-  });
+  // The languages are radio items, each under its own name and marked as its language; choosing one reloads the page.
+  assert.deepEqual(await page.locator('#lang tanrei-menu-radio-item').evaluateAll((items) => items.map((item) => [item.getAttribute('value'), item.getAttribute('label'), item.lang])), [['en', 'English', 'en'], ['ja', '日本語', 'ja'], ['zh-CN', '简体中文', 'zh-CN'], ['hi', 'हिन्दी', 'hi'], ['es', 'Español', 'es'], ['ar', 'العربية', 'ar']]);
+  assert.equal(await page.locator('#lang').evaluate((group) => group.value), 'en');
+  await openMenu();
+  await page.locator('#lang tanrei-menu-radio-item[value="ja"]').click();
   await page.waitForSelector('[data-panel="typefaces"]');
   await until(async () => (await page.locator('#session').textContent())?.includes('acme.system.json'), 'the session after the language switch');
   assert.equal(await page.locator('html').getAttribute('lang'), 'ja');
@@ -112,13 +126,18 @@ studioTest('the theme and language switches: dark is a click away; ja translates
   assert.equal(await page.locator('[data-studio]').getAttribute('data-section'), 'typeface', 'so is the section');
   assert.match(await page.locator('[data-panel="typefaces"] h2').textContent(), /書体/);
   assert.equal(await page.locator('[data-rail] [data-row="press"] .ts-rail-label').textContent(), '押したときの表現');
+  // The rail says what a row holds in the person's language: a choice of the vocabulary by its Japanese word (the
+  // layer dims what is pressed).
+  assert.deepEqual(await Promise.all(['press', 'focus'].map((row) => page.locator(`[data-rail] [data-row="${row}"] .ts-rail-value`).textContent())), ['減光', 'リング']);
   await section('behavior');
   assert.match(await page.locator('[data-panel="behavior"] h2').textContent(), /ふるまい/);
-  assert.deepEqual(await page.locator('[data-behavior="pressed-feedback"] tanrei-radio-button').evaluateAll((els) => els.map((el) => el.label)), ['overlay', 'ripple', 'dim', 'none'], 'names are vocabulary: not translated');
+  assert.deepEqual(await page.locator('[data-behavior="pressed-feedback"] tanrei-radio-button').evaluateAll((els) => els.map((el) => el.label)), ['overlay', 'ripple', 'dim', 'none'], 'the panel, where the choice is made, lists the vocabulary’s names, as Inspect and the documentation call them');
   assert.match(await page.locator('[data-save-state]').textContent(), /保存済み/);
 });
 
-studioTest('the two checks above can fail: text the Studio cannot read and a box wider than the phone are both caught', { viewport: { width: 390, height: 844 } }, async ({ page, axe, fits }) => {
+studioTest('the two checks above can fail: text the Studio cannot read and a box wider than the phone are both caught', { viewport: { width: 390, height: 844 } }, async ({ page, axe, fits, section }) => {
+  // (On a phone the panel is a sheet, open once a row is chosen.)
+  await section('color');
   await fits('body', 'before');
   await axe('body', 'before');
   await page.evaluate(() => {
@@ -144,12 +163,16 @@ studioTest('the measure of the targets can fail: a control drawn 20 pixels high,
   await assert.rejects(targets('a covered button'), /button\.ts-own «low» .* a neighbour answers inside it/);
 });
 
-studioTest('the preview’s contrast switch changes what the real components draw: standard, medium, high', {}, async ({ page, scope, lightPane, choose, css, axe }) => {
+studioTest('the preview’s contrast switch changes what the real components draw: standard, medium, high', {}, async ({ page, scope, lightPane, css, axe }) => {
   const button = lightPane.locator('tanrei-button').first();
   const inner = button.locator('button');
   const seen = {};
+  // The contrast is in the menu at the end of the preview's bar: a group of three levels.
+  const menu = page.locator('[data-view-menu]');
   for (const contrast of ['standard', 'medium', 'high']) {
-    await choose(page.locator('[data-contrast]'), contrast);
+    if (!(await menu.evaluate((el) => el.open))) await page.locator('[data-view-more]').click();
+    await until(async () => menu.evaluate((el) => el.open), 'the menu is open');
+    await page.locator(`[data-contrast] tanrei-menu-radio-item[data-value="${contrast}"]`).click();
     await until(async () => (await scope.getAttribute('data-tanrei-contrast')) === contrast, `the preview scope is at ${contrast}`);
     // Colors transition; read the settled value.
     await until(async () => {
@@ -193,25 +216,66 @@ for (const locale of ['en-US', 'ar']) {
 // the six languages found can break without a word changing: a label that no longer fits a phone, and — in a language
 // written right-to-left — the runs that must stay left-to-right, and the page that must not scroll to the left.
 for (const locale of ['ja', 'es', 'zh-CN', 'hi']) {
-  studioTest(`${locale}: at 390px nothing scrolls sideways in any section or tab of Inspect, and the bar's three parts stand on one line`, { layer, locale, viewport: { width: 390, height: 844 } }, async ({ page, view, fits }) => {
+  studioTest(`${locale}: at 390px nothing scrolls sideways in any section or tab of Inspect, and the bar is one line`, { layer, locale, viewport: { width: 390, height: 844 } }, async ({ page, view, fits }) => {
     assert.equal(await page.locator('html').getAttribute('lang'), locale);
-    assert.equal(await page.locator('#lang').evaluate((select) => select.value), locale);
+    assert.equal(await page.locator('#lang').evaluate((group) => group.value), locale);
+    // The bar is one line, the app's menu of language and theme at its end: what it draws shares a line, and the
+    // brand — a link to this same page — is left out there. (Measured before Source leaves a draft: its badge says so
+    // in words beside Inspect.)
+    const bar = await page.evaluate(() => {
+      const shown = [...document.querySelectorAll('[data-bar] tanrei-button, [data-bar] tanrei-chip, [data-bar] a, [data-bar] .ts-save')].filter((el) => el.getClientRects().length && getComputedStyle(el).visibility !== 'hidden');
+      const middles = shown.map((el) => { const box = el.getBoundingClientRect(); return Math.round(box.top + box.height / 2); });
+      return { spread: Math.max(...middles) - Math.min(...middles), count: shown.length, menu: shown.some((el) => el.id === 'app-menu-open'), shown: shown.map((el, i) => `${el.localName}${el.id ? `#${el.id}` : ''}${el.className ? `.${String(el.className).split(' ')[0]}` : ''}@${middles[i]}`) };
+    });
+    assert.ok(bar.spread <= 2 && bar.count >= 7 && bar.menu, `the bar is one line: ${JSON.stringify(bar)}`);
+    assert.equal(await page.locator('.app-brand').isVisible(), false);
     for (const name of VIEWS) {
       await view(name);
       await unfold(page, name);
       await fits('body', `${name} (${locale})`);
     }
-    const bar = await page.evaluate(() => ['.app-brand', '#lang', '#theme'].map((selector) => { const box = document.querySelector(selector).getBoundingClientRect(); return Math.round(box.top + box.height / 2); }));
-    assert.ok(Math.max(...bar) - Math.min(...bar) <= 2, `the brand, the language and the theme share a line: ${bar}`);
-    assert.ok((await page.locator('#theme').evaluate((button) => button.getBoundingClientRect().height)) <= 38, 'the theme button says its word on one line (a small Button is 36 high)');
+    // How the screens are seen stands on one line under their tabs; what a phone has no room for scrolls in its box.
+    const conditions = await page.evaluate(() => [...document.querySelector('.ts-preview-conditions').children].filter((el) => el.getClientRects().length).map((el) => { const box = el.getBoundingClientRect(); return Math.round(box.top + box.height / 2); }));
+    assert.ok(conditions.length >= 2 && Math.max(...conditions) - Math.min(...conditions) <= 2, `the scheme, and the button of the contrast and the emphasis, share a line: ${conditions}`);
+  });
+}
+
+// The bar at 360px, on a long start, while Source holds an edit that does not parse: one line, as the documentation's
+// Studio page is — the draft's button, its glyph alone, in Inspect's place. The app's bar has Build and its menu
+// besides: on a phone it leaves out redo (undo stays).
+for (const locale of ['es', 'ja']) {
+  studioTest(`${locale}: at 360px on cupertino, with an invalid edit at Source, the bar is still one line`, { layer: { id: 'acme', extends: 'cupertino' }, locale, viewport: { width: 360, height: 800 } }, async ({ page, inspect, closeInspect }) => {
+    await inspect('source');
+    await page.locator('[data-source]').fill('{ "draft": ');
+    await closeInspect();
+    const draft = page.locator('[data-bar] [data-draft-button]');
+    await until(() => draft.isVisible(), 'the draft’s button is in the bar');
+    assert.equal(await page.locator('[data-bar] [data-inspect]').isVisible(), false, 'Inspect gives the draft its place');
+    assert.equal(await page.locator('[data-bar] [data-draft-badge]').isVisible(), false, 'the chip of a wider window is not drawn');
+    assert.deepEqual([await page.locator('[data-bar] [data-undo]').isVisible(), await page.locator('[data-bar] [data-redo]').isVisible(), await page.locator('[data-bar] [data-build]').isVisible()], [true, false, true], 'undo and Build stay, redo is left out');
+    const bar = await page.evaluate(() => {
+      const shown = [...document.querySelectorAll('[data-bar] tanrei-button, [data-bar] tanrei-chip, [data-bar] a, [data-bar] .ts-save')].filter((el) => el.getClientRects().length && getComputedStyle(el).visibility !== 'hidden');
+      const middles = shown.map((el) => { const box = el.getBoundingClientRect(); return Math.round(box.top + box.height / 2); });
+      return { spread: Math.max(...middles) - Math.min(...middles), right: Math.max(...shown.map((el) => Math.round(el.getBoundingClientRect().right))), menu: shown.some((el) => el.id === 'app-menu-open'), shown: shown.map((el, i) => `${el.localName}${el.id ? `#${el.id}` : ''}@${middles[i]}`) };
+    });
+    assert.ok(bar.spread <= 2 && bar.right <= 360 && bar.menu, `the bar is one line, inside the window: ${JSON.stringify(bar)}`);
+    assert.equal(await page.evaluate(() => document.scrollingElement.scrollWidth), 360, 'nothing scrolls sideways');
   });
 }
 
 studioTest('ar: right-to-left — axe passes and nothing scrolls sideways at 390px in any section or tab of Inspect; ids, values, ratios, code and JSON stay left-to-right runs', { layer, locale: 'ar', viewport: { width: 390, height: 844 } }, async ({ page, view, section, inspect, fits, axe }) => {
   assert.deepEqual(await page.locator('html').evaluate((html) => [html.lang, html.dir]), ['ar', 'rtl']);
-  // The product's name is one left-to-right run: the mark, then «Tanrei Theme Studio» as it is written.
+  // The Size row says its two lengths in an Arabic sentence: the sentence is read from the right, and each length is a
+  // run of its own, its unit kept beside its digits.
+  const size = page.locator('[data-rail] [data-row="size"] .ts-rail-value');
+  assert.equal(await size.evaluate((el) => getComputedStyle(el).direction), 'rtl');
+  assert.deepEqual(await size.locator('bdi[dir="ltr"]').allTextContents(), ['40px', '36px']);
+  // The product's name is one left-to-right run: the mark, then «Tanrei Theme Studio» as it is written (wider than a
+  // phone, where the brand is drawn).
+  await page.setViewportSize({ width: 1280, height: 844 });
   const name = await page.locator('.app-brand').evaluate((brand) => { const [first, second] = [brand.querySelector('.app-name').firstChild, brand.querySelector('.app-name span')].map((node) => { const range = document.createRange(); range.selectNodeContents(node); return range.getBoundingClientRect().left; }); return { first, second, mark: brand.querySelector('.app-mark').getBoundingClientRect().left }; });
   assert.ok(name.first < name.second && name.second < name.mark, `«Tanrei» stands left of «Theme Studio», and the mark at the start, on the right: ${JSON.stringify(name)}`);
+  await page.setViewportSize({ width: 390, height: 844 });
   for (const name of VIEWS) {
     await view(name);
     await unfold(page, name);
@@ -318,18 +382,20 @@ for (const locale of ['en-US', 'ja', 'zh-CN', 'hi', 'es', 'ar']) {
       for (const name of VIEWS) {
         await view(name);
         await unfold(page, name);
-        const found = await targets(`${name} at ${width} (${locale})`);
+        // (Inspect is a modal sheet: what is under it is not operable while it is open.)
+        const within = name === 'tokens' || name === 'source' ? '[data-inspect-sheet]' : undefined;
+        const found = await targets(`${name} at ${width} (${locale})`, within);
         // (Its own controls only: a field, a slider, a radio group, a tag — and now every button, the switch and the
         // checkbox — are Tanrei's and keep their own minimum. What is left is the rail's rows, a fold's row, a text
-        // area, a list that scrolls, a link, the tree's rows.)
-        assert.ok(found.length > 4, `the measure saw the panel's controls: ${found.length}`);
+        // area, a list that scrolls, a link, the tree's rows. Inspect's JSON holds its two tabs and the text area.)
+        assert.ok(found.length >= (within ? 3 : 5), `the measure saw the panel's controls: ${found.length}`);
         await hints(`${name} at ${width} (${locale})`);
         if (name === 'tokens') {
           // A role color too: its editor has the tone table, the operation tabs and the list of the other operations.
           await page.locator('[data-search] input').fill('sys.color.primary');
           await page.locator('[data-token="tanrei.sys.color.primary"] > span').click();
           await page.waitForSelector('[data-token-pane] .ts-pointers');
-          await targets(`a role color's editor at ${width} (${locale})`);
+          await targets(`a role color's editor at ${width} (${locale})`, within);
           // The hint is drawn only while the field is empty; a text field cuts it where the field ends, without a mark.
           await page.locator('[data-search] input').fill('');
           const search = await page.locator('[data-search] input').evaluate((input) => {

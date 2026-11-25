@@ -4209,6 +4209,7 @@ class TanreiButtonWithMenuTokens {
     required this.dividerThickness,
     required this.motionBusyCycleDuration,
     required this.motionBusyFadeDuration,
+    required this.motionBusyPulseFloorOpacity,
     required this.motionFeedbackDuration,
     required this.motionHoverCloseDelay,
     required this.motionHoverOpenDelay,
@@ -4246,6 +4247,8 @@ class TanreiButtonWithMenuTokens {
   final int motionBusyCycleDuration;
   /// `comp.button-with-menu.motion-busy-fade-duration`
   final int motionBusyFadeDuration;
+  /// `comp.button-with-menu.motion-busy-pulse-floor-opacity`
+  final double motionBusyPulseFloorOpacity;
   /// `comp.button-with-menu.motion-feedback-duration`
   final int motionFeedbackDuration;
   /// `comp.button-with-menu.motion-hover-close-delay`
@@ -4286,6 +4289,7 @@ class TanreiButtonWithMenuTokens {
     double? dividerThickness,
     int? motionBusyCycleDuration,
     int? motionBusyFadeDuration,
+    double? motionBusyPulseFloorOpacity,
     int? motionFeedbackDuration,
     int? motionHoverCloseDelay,
     int? motionHoverOpenDelay,
@@ -4311,6 +4315,7 @@ class TanreiButtonWithMenuTokens {
         dividerThickness: dividerThickness ?? this.dividerThickness,
         motionBusyCycleDuration: motionBusyCycleDuration ?? this.motionBusyCycleDuration,
         motionBusyFadeDuration: motionBusyFadeDuration ?? this.motionBusyFadeDuration,
+        motionBusyPulseFloorOpacity: motionBusyPulseFloorOpacity ?? this.motionBusyPulseFloorOpacity,
         motionFeedbackDuration: motionFeedbackDuration ?? this.motionFeedbackDuration,
         motionHoverCloseDelay: motionHoverCloseDelay ?? this.motionHoverCloseDelay,
         motionHoverOpenDelay: motionHoverOpenDelay ?? this.motionHoverOpenDelay,
@@ -4776,6 +4781,7 @@ class TanreiButtonTokens {
     required this.containerShape,
     required this.motionBusyCycleDuration,
     required this.motionBusyFadeDuration,
+    required this.motionBusyPulseFloorOpacity,
     required this.motionFeedbackDuration,
     required this.motionStateEasing,
     required this.toneContainerOpacity,
@@ -4795,6 +4801,8 @@ class TanreiButtonTokens {
   final int motionBusyCycleDuration;
   /// `comp.button.motion-busy-fade-duration`
   final int motionBusyFadeDuration;
+  /// `comp.button.motion-busy-pulse-floor-opacity`
+  final double motionBusyPulseFloorOpacity;
   /// `comp.button.motion-feedback-duration`
   final int motionFeedbackDuration;
   /// `comp.button.motion-state-easing`
@@ -4820,6 +4828,7 @@ class TanreiButtonTokens {
     double? containerShape,
     int? motionBusyCycleDuration,
     int? motionBusyFadeDuration,
+    double? motionBusyPulseFloorOpacity,
     int? motionFeedbackDuration,
     TanreiCubicBezier? motionStateEasing,
     double? toneContainerOpacity,
@@ -4834,6 +4843,7 @@ class TanreiButtonTokens {
         containerShape: containerShape ?? this.containerShape,
         motionBusyCycleDuration: motionBusyCycleDuration ?? this.motionBusyCycleDuration,
         motionBusyFadeDuration: motionBusyFadeDuration ?? this.motionBusyFadeDuration,
+        motionBusyPulseFloorOpacity: motionBusyPulseFloorOpacity ?? this.motionBusyPulseFloorOpacity,
         motionFeedbackDuration: motionFeedbackDuration ?? this.motionFeedbackDuration,
         motionStateEasing: motionStateEasing ?? this.motionStateEasing,
         toneContainerOpacity: toneContainerOpacity ?? this.toneContainerOpacity,
@@ -14639,6 +14649,7 @@ class TanreiLoadingIndicatorTokens {
     required this.motionEnterDuration,
     required this.motionEnterEasing,
     required this.motionEntrance,
+    required this.motionPulseFloorOpacity,
     required this.motionShowDelay,
     required this.sizes,
   });
@@ -14661,6 +14672,8 @@ class TanreiLoadingIndicatorTokens {
   final TanreiCubicBezier motionEnterEasing;
   /// `comp.loading-indicator.motion-entrance`
   final double motionEntrance;
+  /// `comp.loading-indicator.motion-pulse-floor-opacity`
+  final double motionPulseFloorOpacity;
   /// `comp.loading-indicator.motion-show-delay`
   final int motionShowDelay;
   /// The `size` axis: `sizes[size]`.
@@ -14677,6 +14690,7 @@ class TanreiLoadingIndicatorTokens {
     int? motionEnterDuration,
     TanreiCubicBezier? motionEnterEasing,
     double? motionEntrance,
+    double? motionPulseFloorOpacity,
     int? motionShowDelay,
     TanreiLoadingIndicatorSizes? sizes,
   }) => TanreiLoadingIndicatorTokens(
@@ -14689,6 +14703,7 @@ class TanreiLoadingIndicatorTokens {
         motionEnterDuration: motionEnterDuration ?? this.motionEnterDuration,
         motionEnterEasing: motionEnterEasing ?? this.motionEnterEasing,
         motionEntrance: motionEntrance ?? this.motionEntrance,
+        motionPulseFloorOpacity: motionPulseFloorOpacity ?? this.motionPulseFloorOpacity,
         motionShowDelay: motionShowDelay ?? this.motionShowDelay,
         sizes: sizes ?? this.sizes,
       );
@@ -18899,6 +18914,7 @@ class TanreiProgressIndicatorTokens {
     required this.indicatorColor,
     required this.motionCycleDuration,
     required this.motionCycleEasing,
+    required this.motionPulseFloorOpacity,
     required this.motionShowDelay,
     required this.motionValueDuration,
     required this.motionValueEasing,
@@ -18916,6 +18932,8 @@ class TanreiProgressIndicatorTokens {
   final int motionCycleDuration;
   /// `comp.progress-indicator.motion-cycle-easing`
   final TanreiCubicBezier motionCycleEasing;
+  /// `comp.progress-indicator.motion-pulse-floor-opacity`
+  final double motionPulseFloorOpacity;
   /// `comp.progress-indicator.motion-show-delay`
   final int motionShowDelay;
   /// `comp.progress-indicator.motion-value-duration`
@@ -18940,6 +18958,7 @@ class TanreiProgressIndicatorTokens {
     TanreiPaint? indicatorColor,
     int? motionCycleDuration,
     TanreiCubicBezier? motionCycleEasing,
+    double? motionPulseFloorOpacity,
     int? motionShowDelay,
     int? motionValueDuration,
     TanreiCubicBezier? motionValueEasing,
@@ -18953,6 +18972,7 @@ class TanreiProgressIndicatorTokens {
         indicatorColor: indicatorColor ?? this.indicatorColor,
         motionCycleDuration: motionCycleDuration ?? this.motionCycleDuration,
         motionCycleEasing: motionCycleEasing ?? this.motionCycleEasing,
+        motionPulseFloorOpacity: motionPulseFloorOpacity ?? this.motionPulseFloorOpacity,
         motionShowDelay: motionShowDelay ?? this.motionShowDelay,
         motionValueDuration: motionValueDuration ?? this.motionValueDuration,
         motionValueEasing: motionValueEasing ?? this.motionValueEasing,
@@ -25743,7 +25763,6 @@ class TanreiTabsStateTokens {
 @immutable
 class TanreiTabsTokens {
   const TanreiTabsTokens({
-    required this.activeIndicatorHeight,
     required this.containerGap,
     required this.containerHeightWithIcon,
     required this.containerShape,
@@ -25770,8 +25789,6 @@ class TanreiTabsTokens {
     required this.disabled,
   });
 
-  /// `comp.tabs.active-indicator-height`
-  final double activeIndicatorHeight;
   /// `comp.tabs.container-gap`
   final double containerGap;
   /// `comp.tabs.container-height-with-icon`
@@ -25823,7 +25840,6 @@ class TanreiTabsTokens {
 
   /// A copy with the given tokens replaced.
   TanreiTabsTokens copyWith({
-    double? activeIndicatorHeight,
     double? containerGap,
     double? containerHeightWithIcon,
     double? containerShape,
@@ -25849,7 +25865,6 @@ class TanreiTabsTokens {
     TanreiTabsStateTokens? pressed,
     TanreiTabsStateTokens? disabled,
   }) => TanreiTabsTokens(
-        activeIndicatorHeight: activeIndicatorHeight ?? this.activeIndicatorHeight,
         containerGap: containerGap ?? this.containerGap,
         containerHeightWithIcon: containerHeightWithIcon ?? this.containerHeightWithIcon,
         containerShape: containerShape ?? this.containerShape,

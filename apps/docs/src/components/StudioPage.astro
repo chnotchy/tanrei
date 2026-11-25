@@ -2,7 +2,7 @@
 // Theme Studio, the whole page: `/studio/`, and `/<language>/studio/` in each translation (pages/studio/index.astro,
 // pages/[locale]/studio/index.astro). A tool, not a page of text: it stands outside the documentation's frame — no
 // header, no navigation — and the Studio's own bar holds what the page adds to it: the brand, which leads back to the
-// documentation's first page in this language, and a link to the page about the tool.
+// documentation's first page in this language, and beside the tool's name a link to the page about the tool.
 //
 // The Studio lives in @tanrei/studio; this page only hosts it. Its chrome is drawn with Tanrei's default tokens on
 // :root, so nothing a visitor edits restyles the page: edits apply inside the Studio's preview. The layer is kept in
@@ -51,9 +51,10 @@ const languages = [source, ...translations];
     <link rel="stylesheet" href={studioCss} />
   </head>
   <body>
-    <a class="docs-studio-brand" href={`${base}/`} title={t.studioPage.back} data-studio-bar="start"><img src="/favicon.svg" alt="" />Tanrei</a>
+    <a class="docs-studio-brand" href={`${base}/`} title={t.studioPage.back} data-studio-bar="start"><img src="/favicon.svg" alt="" /><span class="docs-studio-name">Tanrei</span></a>
     <h1 class="docs-studio-title" data-studio-bar="start">Theme Studio</h1>
-    <a class="docs-studio-about" href={`${base}/foundations/theme-studio/`} data-studio-bar="end">{t.studioPage.about}</a>
+    {/* The page about the tool: a glyph beside the tool's name, its words in its tooltip and read with it (on a phone, left out: the bar is one line, and the brand leads to the documentation). */}
+    <tanrei-tooltip class="docs-studio-about-tip" text={t.studioPage.about} no-describe data-studio-bar="start"><a class="docs-studio-about" href={`${base}/foundations/theme-studio/`}><span class="tanrei-icon" aria-hidden="true" translate="no" data-pagefind-ignore>info</span><span class="docs-studio-word">{t.studioPage.about}</span></a></tanrei-tooltip>
     <div data-theme-studio data-lang={lang} data-layers={`${base}/foundations/design-systems/`} data-start={`${base}/getting-started/your-design-system/`}></div>
     <script>
       import '../lib/register-web';

@@ -188,7 +188,7 @@ private fun TanreiProgressIndicatorImpl(
             progress != null -> drawCircularDeterminate(paint, fraction.value, metrics.circularThickness, shape, tokens.trackGap)
             reduced -> {
                 // PRG-7: nothing moves — the indicator covers the whole track and pulses over the still track.
-                val alpha = tanreiPulseAlpha(cycle.floatValue, tokens.motionCycleEasing.toEasing())
+                val alpha = tanreiPulseAlpha(cycle.floatValue, tokens.motionCycleEasing.toEasing(), tokens.motionPulseFloorOpacity)
                 if (variant == TanreiProgressIndicatorVariant.Linear) drawLinearPulse(paint, alpha, shape) else drawCircularPulse(paint, alpha, metrics.circularThickness, shape)
             }
             variant == TanreiProgressIndicatorVariant.Linear ->
