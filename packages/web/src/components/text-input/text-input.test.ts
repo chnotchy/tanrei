@@ -29,6 +29,8 @@ const part = (page: P, id: string, selector: string) => host(page, id).locator(s
 const GRIP = '.resize-handle .container';
 const css = (locator: Locator, property: string, pseudo?: string) =>
   locator.evaluate((el, [p, ps]) => getComputedStyle(el, ps ?? undefined).getPropertyValue(p as string), [property, pseudo ?? null] as const);
+// An edge part draws nothing itself: its ::before draws the line.
+const EDGE_LINE = '::before';
 const token = (page: P, name: string) => page.evaluate((n) => getComputedStyle(document.documentElement).getPropertyValue(n).trim(), name);
 // The box is drawn from the one set of tokens every input box is drawn from (TXI-68); a segment, the
 // code face, the entries place and the motion of a height from the text input's own.
@@ -105,7 +107,7 @@ const drawn = (page: P, id: string) =>
     return {
       container: s('.field > .container').backgroundColor,
       indicator: stacked ? null : s('.indicator').backgroundColor,
-      outline: stacked ? s('.edge').borderTopColor : s('.outline-end').borderTopColor,
+      outline: stacked ? s('.edge', '::before').borderTopColor : s('.outline-end', '::before').borderTopColor,
       label: root.querySelector('.label') ? s('.label').color : null,
       input: s('.input').color,
       caret: s('.input').caretColor,
@@ -396,8 +398,8 @@ test.describe('behavior', () => {
       const width = (await resolveToken(page, T('focused-outline-width')));
       expect(width).toBeGreaterThan(await resolveToken(page, T('outline-width')));
       // The edge widens over the state transition: read it once it has arrived, as for stacked.
-      if (variant === 'outlined') await expect.poll(() => css(part(page, id, '.outline-end'), 'border-top-width').then(Number.parseFloat)).toBe(width);
-      else if (variant === 'stacked') await expect.poll(() => css(part(page, id, '.edge'), 'border-top-width').then(Number.parseFloat)).toBe(width);
+      if (variant === 'outlined') await expect.poll(() => css(part(page, id, '.outline-end'), 'border-top-width', EDGE_LINE).then(Number.parseFloat)).toBe(width);
+      else if (variant === 'stacked') await expect.poll(() => css(part(page, id, '.edge'), 'border-top-width', EDGE_LINE).then(Number.parseFloat)).toBe(width);
       else expect((await bounds(part(page, id, '.indicator'))).height).toBe(await resolveToken(page, T('focused-active-indicator-width')));
       await page.locator('body').click({ position: { x: 1, y: 1 } });
     }
@@ -446,7 +448,7 @@ test.describe('behavior', () => {
     expect(await css(part(page, id, '.field > .container'), 'content', '::after')).toBe('none');
     // A stacked field: its inner line is the focus indicator (TXI-26), and no ring is drawn either.
     await tabTo(page, host(page, 'stacked-empty'));
-    await expect.poll(() => css(part(page, 'stacked-empty', '.edge'), 'border-top-color')).toBe(await resolveColor(page, T('stacked-focused-outline-color')));
+    await expect.poll(() => css(part(page, 'stacked-empty', '.edge'), 'border-top-color', EDGE_LINE)).toBe(await resolveColor(page, T('stacked-focused-outline-color')));
     for (const target of [input(page, 'stacked-empty'), part(page, 'stacked-empty', '.field > .container')]) expect(await css(target, 'outline-style')).toBe('none');
     expect(await css(part(page, 'stacked-empty', '.field > .container'), 'content', '::after')).toBe('none');
     expect(await token(page, '--tanrei-sys-behavior-focus-style')).toBe('ring');
@@ -646,7 +648,7 @@ test.describe('behavior', () => {
     const notch = await bounds(part(page, 'outlined-filled', '.outline-notch'));
     expect(notch.x).toBeCloseTo(ol.x - pad, 0);
     expect(notch.width).toBeCloseTo(ol.width + 2 * pad, 0);
-    expect(await css(part(page, 'outlined-filled', '.outline-notch'), 'border-top-color')).toBe('rgba(0, 0, 0, 0)');
+    expect(await css(part(page, 'outlined-filled', '.outline-notch'), 'border-top-color', EDGE_LINE)).toBe('rgba(0, 0, 0, 0)');
     // No gap while the label rests.
     await page.locator('body').click({ position: { x: 1, y: 1 } });
     expect((await bounds(part(page, 'outlined-empty', '.outline-notch'))).width).toBe(0);
@@ -799,10 +801,10 @@ test.describe('behavior', () => {
         root.querySelector<HTMLElement>('.input')!.focus();
         const read = (selector: string) =>
           // Whole milliseconds, as the token is: Firefox reports a token of 200 ms as 200.000015 (a float of seconds).
-          root.querySelector(selector)!.getAnimations().map((a) => [(a as CSSTransition).transitionProperty, Math.round(Number(a.effect!.getTiming().duration))] as const);
+          root.querySelector(selector)!.getAnimations({ subtree: true }).map((a) => [(a as CSSTransition).transitionProperty, Math.round(Number(a.effect!.getTiming().duration))] as const);
         return { label: read('.label'), notch: read('.outline-notch'), end: read('.outline-end') };
       });
-    const idle = () => host(page, id).evaluate((el) => ['.label', '.outline-notch', '.outline-end'].every((s) => el.shadowRoot!.querySelector(s)!.getAnimations().length === 0));
+    const idle = () => host(page, id).evaluate((el) => ['.label', '.outline-notch', '.outline-end'].every((s) => el.shadowRoot!.querySelector(s)!.getAnimations({ subtree: true }).length === 0));
     await expect.poll(idle).toBe(true);
     const focused = await focusAndRead();
     // (Chromium names a logical property's transition by its physical side.)
@@ -1375,13 +1377,13 @@ test.describe('behavior', () => {
     const [focusedColor, focusedWidth] = [await resolveColor(page, T('stacked-focused-outline-color')), await resolveToken(page, T('focused-outline-width'))];
     for (const id of ['stacked-icons', 'stacked-date-picker']) {
       const edge = part(page, id, '.edge');
-      expect(await css(edge, 'border-top-color'), `${id} at rest`).toBe('rgba(0, 0, 0, 0)');
+      expect(await css(edge, 'border-top-color', EDGE_LINE), `${id} at rest`).toBe('rgba(0, 0, 0, 0)');
       const before = await layout(id);
       // The line is drawn over the container, not around it: its box is the container's.
       expect(before.find((b) => b?.[0] === '.edge')!.slice(1)).toEqual(before.find((b) => b?.[0] === '.field > .container')!.slice(1));
       await entry(page, id).focus();
-      await expect.poll(() => css(edge, 'border-top-color'), `${id} focused`).toBe(focusedColor);
-      await expect.poll(() => css(edge, 'border-top-width').then(Number.parseFloat)).toBe(focusedWidth);
+      await expect.poll(() => css(edge, 'border-top-color', EDGE_LINE), `${id} focused`).toBe(focusedColor);
+      await expect.poll(() => css(edge, 'border-top-width', EDGE_LINE).then(Number.parseFloat)).toBe(focusedWidth);
       expect(await layout(id), `${id}: nothing moved`).toEqual(before);
       await blurAll(page);
     }
@@ -1390,19 +1392,19 @@ test.describe('behavior', () => {
     const running = await host(page, 'stacked-empty').evaluate((el) => {
       const root = el.shadowRoot!;
       root.querySelector<HTMLElement>('.input')!.focus();
-      return root.querySelector('.edge')!.getAnimations().map((a) => [(a as CSSTransition).transitionProperty, Math.round(Number(a.effect!.getTiming().duration))]);
+      return root.querySelector('.edge')!.getAnimations({ subtree: true }).map((a) => [(a as CSSTransition).transitionProperty, Math.round(Number(a.effect!.getTiming().duration))]);
     });
     expect(running).toContainEqual(['border-top-color', duration]);
     await blurAll(page);
     // In error: the error line at rest, at outline.width.
     const error = part(page, 'stacked-error', '.edge');
-    expect(await css(error, 'border-top-color')).toBe(await resolveColor(page, T('stacked-error-outline-color')));
+    expect(await css(error, 'border-top-color', EDGE_LINE)).toBe(await resolveColor(page, T('stacked-error-outline-color')));
     expect(await resolveColor(page, T('stacked-error-outline-color'))).toBe(await resolveColor(page, '--tanrei-sys-color-error'));
-    expect(Number.parseFloat(await css(error, 'border-top-width'))).toBe(await resolveToken(page, T('outline-width')));
+    expect(Number.parseFloat(await css(error, 'border-top-width', EDGE_LINE))).toBe(await resolveToken(page, T('outline-width')));
     // Hovered: the state layer on the container, and no edge.
     await part(page, 'stacked-empty', '.field > .container').hover();
     await expect.poll(() => css(part(page, 'stacked-empty', '.field > .container'), 'background-color')).toBe(await resolveColor(page, T('stacked-hovered-container-color')));
-    expect(await css(part(page, 'stacked-empty', '.edge'), 'border-top-color')).toBe('rgba(0, 0, 0, 0)');
+    expect(await css(part(page, 'stacked-empty', '.edge'), 'border-top-color', EDGE_LINE)).toBe('rgba(0, 0, 0, 0)');
   });
 
   test('TXI-28: a date, time or date-time value is the ISO 8601 form of what its segments give, drawn as a row in the locale’s numeric form; placeholder, maxLength, prefixText and suffixText are ignored and reported', async ({ page }) => {
@@ -1586,7 +1588,7 @@ test.describe('behavior', () => {
     await expect(row(page, id, '.error-text')).toHaveText('Finish the date.');
     await expect(row(page, id, '.supporting-text'), 'the error text stands in the help’s place (FLD-7)').toHaveCount(0);
     await expect(host(page, id).getByRole('spinbutton', { name: 'year, Due' })).toHaveAccessibleDescription('Finish the date.');
-    await expect.poll(() => host(page, id).evaluate((el) => getComputedStyle(el.shadowRoot!.querySelector('.edge')!).borderTopColor)).toBe(await resolveColor(page, T('stacked-error-outline-color')));
+    await expect.poll(() => host(page, id).evaluate((el) => getComputedStyle(el.shadowRoot!.querySelector('.edge')!, '::before').borderTopColor)).toBe(await resolveColor(page, T('stacked-error-outline-color')));
     expect(await part(page, id, '.field').getAttribute('data-error')).not.toBeNull();
     expect(await host(page, id).evaluate((el) => [(el as any).validity.badInput, (el as any).validity.valid])).toEqual([true, false]);
     // Committing the same row again begins no second entry error.
@@ -1850,7 +1852,7 @@ test.describe('behavior', () => {
     const id = 'stacked-date-picker';
     await expect.poll(() => css(part(page, id, '.row'), 'color')).toBe(await resolveColor(page, T('stacked-input-color')));
     await seg(page, id, 'day').click();
-    await expect.poll(() => css(part(page, id, '.edge'), 'border-top-color')).toBe(await resolveColor(page, T('stacked-focused-outline-color')));
+    await expect.poll(() => css(part(page, id, '.edge'), 'border-top-color', EDGE_LINE)).toBe(await resolveColor(page, T('stacked-focused-outline-color')));
     await expect.poll(() => css(part(page, id, '.row'), 'color')).toBe(await resolveColor(page, T('stacked-focused-input-color')));
     expect(await css(seg(page, id, 'day'), 'background-color')).toBe(await resolveColor(page, T('selection-color')));
     expect(await css(seg(page, id, 'day'), 'color')).toBe(await resolveColor(page, T('selection-content-color')));
@@ -2725,7 +2727,7 @@ test.describe('behavior', () => {
     // The field counts as focused while any segment has focus, and draws the focused one as selected text, with no caret.
     await seg(page, id, 'day').click();
     expect(await focusedUnit(page, id)).toBe('day');
-    await expect.poll(() => css(part(page, id, '.edge'), 'border-top-color')).toBe(await resolveColor(page, T('stacked-focused-outline-color')));
+    await expect.poll(() => css(part(page, id, '.edge'), 'border-top-color', EDGE_LINE)).toBe(await resolveColor(page, T('stacked-focused-outline-color')));
     expect(await css(seg(page, id, 'day'), 'background-color')).toBe(await resolveColor(page, T('selection-color')));
     expect(await css(seg(page, id, 'day'), 'outline-style')).toBe('none');
     const [cell, text] = await seg(page, id, 'day').evaluate((el) => {
@@ -2736,7 +2738,7 @@ test.describe('behavior', () => {
     expect(cell, 'the highlight spans the segment’s width').toBeGreaterThanOrEqual(text);
     // The picker button's focus is not the field's.
     await part(page, id, '.picker-button').locator('button').focus();
-    await expect.poll(() => css(part(page, id, '.edge'), 'border-top-color')).toBe('rgba(0, 0, 0, 0)');
+    await expect.poll(() => css(part(page, id, '.edge'), 'border-top-color', EDGE_LINE)).toBe('rgba(0, 0, 0, 0)');
     // A press on the field anywhere else: the first empty segment — or the last while none is empty.
     const press = async (of: string, where: 'padding' | 'separator') => {
       await blurAll(page);

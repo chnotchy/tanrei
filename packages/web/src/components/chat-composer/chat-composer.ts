@@ -35,6 +35,7 @@ import { TanreiFileItem, type TanreiFileItemDetail, type TanreiFileItemForm, typ
 import { TanreiFilePicker, type TanreiFilePickerRefused, type TanreiFilePickerRejectDetail, type TanreiFilePickerRejectReason, type TanreiFilePickerSelectDetail } from '../file-picker/file-picker.js';
 import { measuredSheet, styles } from './chat-composer.styles.js';
 import { disabledWaitsWhileFocused } from '../../primitives/disabled-while-focused.js';
+import { DEBUG } from '../../primitives/debug.js';
 
 // The members' own types are the chat composer's where an item's prop or an event's detail is the member's.
 export type { TanreiFileItemDetail, TanreiFileItemForm, TanreiFileItemStatus };
@@ -227,7 +228,8 @@ const DEFAULT_TRUE = { fromAttribute: (value: string | null) => value !== 'false
  *
  * `layout="inline"` (the default) puts every action on the line being written; `layout="stacked"` keeps the send
  * button on that line and puts everything else in a row beneath it, inside the capsule. A capsule narrower than
- * `comp.chat-composer.layout.inline-min-width` is laid out stacked whatever `layout` says; a stacked composer with
+ * `comp.chat-composer.layout.inline-min-width`, or whose actions would leave the typing area less than
+ * `comp.chat-composer.layout.input-min-width`, is laid out stacked whatever `layout` says; a stacked composer with
  * nothing for the row beneath is drawn as an inline one. Tab moves through it in the order it is drawn.
  *
  * Enter sends and Shift+Enter begins a new line; with `send-key="modifier"` Enter begins a new line. Control+Enter and
@@ -473,7 +475,7 @@ export class TanreiChatComposer extends ComposedElement implements PlacingGroup 
   protected typing = false;
   /** CCM-23: files are dragged over the capsule. */
   protected receiving = false;
-  /** CCM-4: the capsule is narrower than `layout.inline-min-width`. */
+  /** CCM-4: the capsule is narrower than `layout.inline-min-width`, or than the inline layout needs beside the typing area. */
   protected narrow = false;
   /** CCM-43: how many File items the product gave. */
   protected count = 0;
@@ -539,8 +541,13 @@ export class TanreiChatComposer extends ComposedElement implements PlacingGroup 
   private lineSheet: CSSStyleSheet | null = null;
   /** The measures have been asked for and not read yet: a second request of the turn is the same one. */
   private measureAsked = false;
-  /** What the shared resize watch observes of this element: its capsule and its typing area. */
+  /** What the shared resize watch observes of this element: its capsule, its typing area, the parts beside it and the probes. */
   private watched: Element[] = [];
+  /**
+   * CCM-4: the inline size of each watched element, as the resize watch last reported it — read from its report, never
+   * from the layout: the decision costs no read of its own, however many parts share the typing area's line.
+   */
+  private readonly sizes = new WeakMap<Element, number>();
   /** What the product's own Buttons in the slots were given, to take back (CCM-10, CCM-26). */
   private readonly lent = new Set<Element>();
 
@@ -661,6 +668,12 @@ export class TanreiChatComposer extends ComposedElement implements PlacingGroup 
   private get counterText(): string {
     const most = this.lengthLimit;
     return `${graphemes(this.value)}${most ? `/${most}` : ''}`;
+  }
+
+  /** CCM-4: the counter as wide as it is drawn with `maxLength` characters, or as it is now where no limit is set. */
+  private get widestCount(): string {
+    const most = this.lengthLimit;
+    return most ? `${most}/${most}` : this.counterText;
   }
 
   /** The elements the product placed in a named slot. */
@@ -978,7 +991,7 @@ export class TanreiChatComposer extends ComposedElement implements PlacingGroup 
    */
   addFiles(files: Iterable<File>): TanreiChatComposerRefused[] {
     if (this.attaches !== 'own') {
-      report(this, 'CCM-22', `addFiles() was called while attachments is "${String(this.attachments)}": the chat composer keeps files only while it is "own", and nothing was added`);
+      if (DEBUG) report(this, 'CCM-22', `addFiles() was called while attachments is "${String(this.attachments)}": the chat composer keeps files only while it is "own", and nothing was added`);
       return [];
     }
     const given = typeof File === 'undefined' ? [] : [...(files ?? [])].filter((file): file is File => file instanceof File);
@@ -1610,7 +1623,8 @@ export class TanreiChatComposer extends ComposedElement implements PlacingGroup 
    * CCM-41: one line of the typing area's text — the member's computed line height, never its token — from which the
    * capsule's corners and the least height of its groups are drawn, by the stylesheet of that line, which every
    * instance that measured it shares (`measuredSheet()`), adopted after the element's stylesheet and in no cascade
-   * layer. CCM-4: whether the capsule is narrower than `layout.inline-min-width`, by its own width.
+   * layer. CCM-4: whether the capsule is narrower than `layout.inline-min-width`, by its own width, or than the inline
+   * layout needs to leave the typing area `layout.input-min-width` (`inlineNeeds()`).
    *
    * Read with every other host's of the turn (src/primitives/read-phase.ts), after the renders, before any of them
    * writes: a chat composer that measured in its own turn had the browser style and lay the page out for it, once per
@@ -1631,8 +1645,9 @@ export class TanreiChatComposer extends ComposedElement implements PlacingGroup 
     if (!capsule || !this.isConnected) return;
     const typed = this.input?.shadowRoot?.querySelector('[part~="input"]');
     const line = typed ? getComputedStyle(typed).lineHeight : '';
-    const probe = capsule.querySelector('.probe');
-    const [width, least] = [capsule.getBoundingClientRect().width, probe?.getBoundingClientRect().width ?? 0];
+    const width = this.sizes.get(capsule);
+    const least = this.sizeOf(capsule.querySelector('.probe[data-of="inline"]'));
+    const needs = this.inlineNeeds(capsule);
     return () => {
       if (/^[\d.]+px$/.test(line) && line !== this.line) {
         this.line = line;
@@ -1643,13 +1658,40 @@ export class TanreiChatComposer extends ComposedElement implements PlacingGroup 
           this.lineSheet = sheet;
         }
       }
-      const narrow = width > 0 && least > 0 && width < least - 0.01;
+      // Not yet reported, the capsule keeps the layout it has.
+      if (width === undefined) return;
+      const narrow = width > 0 && least > 0 && (width < least - 0.01 || width < needs - 0.01);
       if (narrow !== this.narrow) this.narrow = narrow;
     };
   }
 
   /**
-   * CCM-4, CCM-41: one observer watches the capsule and the typing area of every chat composer, so that a frame reports
+   * CCM-4: the inline size the inline layout needs to leave the typing area `layout.input-min-width` — the parts it puts
+   * on that line (CCM-2) at their own widths, which are the same in either layout, with the paddings and the gaps
+   * between them; the counter as wide as it is with `maxLength` characters. 0 while a length is not yet reported. Every
+   * width is the resize watch's report (`sizes`): nothing here reads the layout.
+   */
+  private inlineNeeds(capsule: HTMLElement): number {
+    const length = (of: string) => this.sizeOf(capsule.querySelector(`.probe[data-of="${of}"]`));
+    const input = length('input');
+    if (!input) return 0;
+    const gap = length('gap');
+    const widths = (elements: (Element | null | undefined)[]) => elements.map((element) => this.sizeOf(element)).filter((each) => each > 0);
+    // Each part of a group stands one gap from the next; the last of the group after the typing area, from the send button.
+    const parts = (each: number[]) => each.reduce((sum, w) => sum + w + gap, 0);
+    const start = widths([this.attachShown ? this.renderRoot.querySelector('tanrei-file-picker') : null, ...this.slotted('leading')]);
+    const end = widths([this.counts ? this.renderRoot.querySelector('.measures > .widest') : null, ...this.slotted('trailing')]);
+    const [send] = widths([this.renderRoot.querySelector('.group.send')]);
+    return input + (send ?? 0) + parts(end) + (start.length ? length('start') + parts(start) - gap : length('padding'));
+  }
+
+  /** CCM-4: a watched element's inline size as the resize watch last reported it; 0 for one not reported. */
+  private sizeOf(element: Element | null | undefined): number {
+    return (element && this.sizes.get(element)) || 0;
+  }
+
+  /**
+   * CCM-4, CCM-41: one observer watches the capsule, the typing area and the parts beside it of every chat composer, so that a frame reports
    * all that were resized in one callback, all of them read before any writes (`measure()`).
    */
   private static sizeWatch: ResizeObserver | null = null;
@@ -1657,12 +1699,24 @@ export class TanreiChatComposer extends ComposedElement implements PlacingGroup 
   private static readonly owners = new WeakMap<Element, TanreiChatComposer>();
 
   private watch() {
-    const next = [this.capsule, this.input].filter((element): element is HTMLElement => !!element);
+    // CCM-4: and the parts the inline layout puts beside the typing area, whose widths say whether it is laid out stacked.
+    const root = this.renderRoot;
+    const parts = [root?.querySelector('tanrei-file-picker'), ...this.slotted('leading'), ...this.slotted('trailing'), root?.querySelector('.measures > .widest'), root?.querySelector('.group.send')];
+    // And the probes, whose widths are the tokens' lengths: a system or a scale changed is reported as a resize.
+    const probes = [...(this.capsule?.querySelectorAll('.measures > .probe') ?? [])];
+    const next = [this.capsule, this.input, ...parts, ...probes].filter((element): element is HTMLElement => !!element);
     if (next.length === this.watched.length && next.every((element, index) => element === this.watched[index])) return;
     this.unwatch();
     if (typeof ResizeObserver === 'undefined') return;
     const watch = (TanreiChatComposer.sizeWatch ??= new ResizeObserver((entries) => {
-      for (const entry of entries) TanreiChatComposer.owners.get(entry.target)?.measure();
+      for (const entry of entries) {
+        const owner = TanreiChatComposer.owners.get(entry.target);
+        if (!owner) continue;
+        // The report's own size: the border box's inline size, which reading it again from the layout would only repeat.
+        const box = entry.borderBoxSize?.[0];
+        owner.sizes.set(entry.target, box ? box.inlineSize : entry.target.getBoundingClientRect().width);
+        owner.measure();
+      }
     }));
     for (const element of next) {
       TanreiChatComposer.owners.set(element, this);
@@ -1828,26 +1882,26 @@ export class TanreiChatComposer extends ComposedElement implements PlacingGroup 
 
   private reports(changed: PropertyValues<this>, all = false) {
     const has = (name: keyof TanreiChatComposer) => all || changed.has(name);
-    if (has('layout') && !LAYOUTS.includes(this.layout)) report(this, 'CCM-4', `layout "${String(this.layout)}" is not a layout of the chat composer; it is laid out as "inline"`);
-    if (has('sendKey') && !SEND_KEYS.includes(this.sendKey)) report(this, 'CCM-12', `send-key "${String(this.sendKey)}" is not a value of sendKey; Enter sends, as with "enter"`);
-    if (has('attachments') && !ATTACHMENTS.includes(this.attachments)) report(this, 'CCM-38', `attachments "${String(this.attachments)}" is not a way of holding attachments; none can be attached, as with "none"`);
-    if (has('attachmentForm') && !FORMS.includes(this.attachmentForm)) report(this, 'CCM-44', `attachment-form "${String(this.attachmentForm)}" is not a form of the attachments; each file's form is chosen, as with "auto"`);
+    if (DEBUG && has('layout') && !LAYOUTS.includes(this.layout)) report(this, 'CCM-4', `layout "${String(this.layout)}" is not a layout of the chat composer; it is laid out as "inline"`);
+    if (DEBUG && has('sendKey') && !SEND_KEYS.includes(this.sendKey)) report(this, 'CCM-12', `send-key "${String(this.sendKey)}" is not a value of sendKey; Enter sends, as with "enter"`);
+    if (DEBUG && has('attachments') && !ATTACHMENTS.includes(this.attachments)) report(this, 'CCM-38', `attachments "${String(this.attachments)}" is not a way of holding attachments; none can be attached, as with "none"`);
+    if (DEBUG && has('attachmentForm') && !FORMS.includes(this.attachmentForm)) report(this, 'CCM-44', `attachment-form "${String(this.attachmentForm)}" is not a form of the attachments; each file's form is chosen, as with "auto"`);
     // CCM-7: an element in the attach slot while nothing can be attached is not drawn.
-    if (this.attaches === 'none' && this.slotted('attach').length) report(this, 'CCM-7', 'the attach slot holds an element while attachments is "none"; it is not drawn — say attachments="own" or "given"');
+    if (DEBUG && this.attaches === 'none' && this.slotted('attach').length) report(this, 'CCM-7', 'the attach slot holds an element while attachments is "none"; it is not drawn — say attachments="own" or "given"');
     // CCM-8: what a slot holds is laid out as it is; one that is not a Button is said.
     for (const name of ['leading', 'trailing'] as const) {
       const other = this.slotted(name).find((element) => element.localName !== BUTTON);
-      if (other) report(this, 'CCM-8', `<${other.localName}> in the ${name} slot is not a tanrei-button; it is laid out in its place as it is`);
+      if (DEBUG && other) report(this, 'CCM-8', `<${other.localName}> in the ${name} slot is not a tanrei-button; it is laid out in its place as it is`);
     }
     // CCM-31: a control that assistive technology cannot name is a functional failure.
-    if (!this.groupName) report(this, 'CCM-31', 'label is empty and no field names the chat composer, so the group and its typing area have no accessible name; give it a label, or put it in a tanrei-field', { level: 'error' });
+    if (DEBUG && !this.groupName) report(this, 'CCM-31', 'label is empty and no field names the chat composer, so the group and its typing area have no accessible name; give it a label, or put it in a tanrei-field', { level: 'error' });
     const stop = this.sending && this.stoppable;
-    if (!stop && !this.slotted('send').length && !this.words.get('sendLabel', this.sendLabel)) this.words.missing('sendLabel', { id: 'CCM-31', effect: 'the send button is drawn and works, and has no accessible name' });
-    if (stop && !this.slotted('stop').length && !this.words.get('stopLabel', this.stopLabel)) this.words.missing('stopLabel', { id: 'CCM-31', effect: 'the stop button is drawn and works, and has no accessible name' });
-    if (this.attachShown && !this.slotted('attach').length && !this.words.get('attachLabel', this.attachLabel)) this.words.missing('attachLabel', { id: 'CCM-31', effect: 'the attach button is drawn and works, and has no accessible name' });
+    if (!stop && !this.slotted('send').length && !this.words.get('sendLabel', this.sendLabel)) this.words.missing('sendLabel', DEBUG && { id: 'CCM-31', effect: 'the send button is drawn and works, and has no accessible name' });
+    if (stop && !this.slotted('stop').length && !this.words.get('stopLabel', this.stopLabel)) this.words.missing('stopLabel', DEBUG && { id: 'CCM-31', effect: 'the stop button is drawn and works, and has no accessible name' });
+    if (this.attachShown && !this.slotted('attach').length && !this.words.get('attachLabel', this.attachLabel)) this.words.missing('attachLabel', DEBUG && { id: 'CCM-31', effect: 'the attach button is drawn and works, and has no accessible name' });
     // CCM-22, CCM-31: a refused file's File item without the product's sentence for its reason is drawn with its mark and its name.
     for (const reason of ['type', 'size', 'count'] as const) {
-      if (this.refused.some((own) => own.reason === reason) && !this.sentence(reason)) this.words.missing(REASON_WORDS[reason], { id: 'CCM-22', effect: `a file refused for its ${reason} is drawn as a failed row without a sentence that says why` });
+      if (this.refused.some((own) => own.reason === reason) && !this.sentence(reason)) this.words.missing(REASON_WORDS[reason], DEBUG && { id: 'CCM-22', effect: `a file refused for its ${reason} is drawn as a failed row without a sentence that says why` });
     }
   }
 
@@ -1985,7 +2039,10 @@ export class TanreiChatComposer extends ComposedElement implements PlacingGroup 
           <div class="group send">${this.sendPart(disabled, sendable)}</div>
         </div>
         ${stacked ? html`<div class="row">${start}${end}</div>` : nothing}
-        <div class="measures" aria-hidden="true"><span class="probe"></span><span class="timing"></span></div>
+        <div class="measures" aria-hidden="true">
+          <span class="probe" data-of="inline"></span><span class="probe" data-of="input"></span><span class="probe" data-of="start"></span
+          ><span class="probe" data-of="padding"></span><span class="probe" data-of="gap"></span>${this.counts ? html`<span class="widest">${this.widestCount}</span>` : nothing}<span class="timing"></span>
+        </div>
         <div class="announce" aria-live="polite" aria-atomic="true"></div>
       </div>
     `;

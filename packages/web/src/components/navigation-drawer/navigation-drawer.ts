@@ -79,6 +79,7 @@ import { AXES, cellStyles, drawerStyles, groupStyles, sectionStyles } from './na
 import { TanreiElement } from '../../primitives/element.js';
 import { startFromNextFrame, statesFromNextFrame } from '../../primitives/motion.js';
 import { cancelPhaseRead, readInPhase, readTogether } from '../../primitives/read-phase.js';
+import { DEBUG } from '../../primitives/debug.js';
 
 export type { TanreiNavigationChangeDetail } from '../../primitives/index.js';
 
@@ -617,7 +618,7 @@ abstract class DrawerCell extends TanreiElement {
       this.growIndicator();
     }
     // NVD-34: the short label should be a part of the label, which stays the accessible name.
-    if ((changed.has('shortLabel') || changed.has('label')) && this.shortLabel && !this.label.toLowerCase().includes(this.shortLabel.toLowerCase())) {
+    if (DEBUG && (changed.has('shortLabel') || changed.has('label')) && this.shortLabel && !this.label.toLowerCase().includes(this.shortLabel.toLowerCase())) {
       report(this, 'NVD-34', `shortLabel "${this.shortLabel}" is not a part of label "${this.label}", so the visible name is not part of the accessible name; make it a part of the label`);
     }
   }
@@ -703,7 +704,7 @@ abstract class DrawerCell extends TanreiElement {
     // One plain element holding text only is a glyph of the icon set (a ligature), drawn at trailing-icon.size.
     const glyph = assigned.length === 1 && !assigned[0].localName.includes('-') && !assigned[0].children.length && !!assigned[0].textContent?.trim();
     this.trailing = { filled: assigned.length > 0, glyph, text };
-    if (assigned.some((element) => findInteractive(element))) report(this, 'NVD-43', 'the trailing slot holds a focusable element; trailing content is not interactive, so it is kept out of the focus order');
+    if (DEBUG && assigned.some((element) => findInteractive(element))) report(this, 'NVD-43', 'the trailing slot holds a focusable element; trailing content is not interactive, so it is kept out of the focus order');
   }
 
   /**
@@ -891,7 +892,7 @@ export class TanreiNavigationDrawerItem extends DrawerCell implements Destinatio
   protected override updated(changed: PropertyValues<this>) {
     super.updated(changed);
     // NVD-43: the slot's content is drawn; trailingText beside it is not.
-    if ((changed.has('trailingText') || has(changed, 'trailing')) && this.trailing.filled && this.trailingText) {
+    if (DEBUG && (changed.has('trailingText') || has(changed, 'trailing')) && this.trailing.filled && this.trailingText) {
       report(this, 'NVD-43', `the trailing slot has content and trailingText is "${this.trailingText}" as well; the slot's content is drawn`);
     }
     // The value as it was given, for a selector or a product that reads it; a link's href is not written back as one.
@@ -1256,9 +1257,9 @@ export class TanreiNavigationDrawerGroup extends DrawerCell {
   protected override updated(changed: PropertyValues<this>) {
     super.updated(changed);
     // NVD-68: without a chevron, a group that has no icon shows nothing on screen of being open or closed.
-    if (this.context.chevron === 'none' && this.context.expandable && !this.icon && !this.openIcon && this.hasUpdated) report(this, 'NVD-68', `the group "${this.label}" has no icon and no openIcon while chevron is none, so nothing on screen shows whether it is open; give it an icon`);
+    if (DEBUG && this.context.chevron === 'none' && this.context.expandable && !this.icon && !this.openIcon && this.hasUpdated) report(this, 'NVD-68', `the group "${this.label}" has no icon and no openIcon while chevron is none, so nothing on screen shows whether it is open; give it an icon`);
     // NVD-46: a group without a label is a button and a list without a name.
-    if (changed.has('label') && !this.label.trim() && !namedByProduct(this)) report(this, 'NVD-46', 'label is empty, so the group has no accessible name; give it a label');
+    if (DEBUG && changed.has('label') && !this.label.trim() && !namedByProduct(this)) report(this, 'NVD-46', 'label is empty, so the group has no accessible name; give it a label');
     // The value as it was given, for a selector or a product that reads it; an href is not written back as one.
     if (changed.has('value')) {
       if (this.given) {
@@ -1487,8 +1488,8 @@ export class TanreiNavigationDrawerSection extends TanreiElement {
     super.connectedCallback();
     const outer = this.parentElement?.closest(`${SECTION}, ${GROUP}`);
     this.nested = !!outer;
-    if (outer?.localName === SECTION) report(this, 'NVD-17', 'a section holds a section; sections do not nest, so the inner one draws only its items, in its place');
-    else if (outer) report(this, 'NVD-17', 'a group holds a section; sections do not go inside a group, so it draws only its items, in its place');
+    if (outer?.localName === SECTION) DEBUG && report(this, 'NVD-17', 'a section holds a section; sections do not nest, so the inner one draws only its items, in its place');
+    else if (DEBUG && outer) report(this, 'NVD-17', 'a group holds a section; sections do not go inside a group, so it draws only its items, in its place');
   }
 
   /** @internal The drawer's side: the drawer's form, and whether a filter leaves the section no row to show (NVD-82). */
@@ -2708,13 +2709,13 @@ export class TanreiNavigationDrawer extends TanreiElement {
     let next: Binding | null = null;
     WAITING_FOR_CHORDS.delete(this);
     if (this.isConnected && this.filterable && this.shownForChord) {
-      if (chords.length > 1) report(this, 'NVD-87', `filterShortcut holds ${chords.length} chords; a sequence is not bound, so the drawer listens for nothing and draws no hint`);
+      if (chords.length > 1) DEBUG && report(this, 'NVD-87', `filterShortcut holds ${chords.length} chords; a sequence is not bound, so the drawer listens for nothing and draws no hint`);
       else if (chords.length === 1) {
         next = readBinding(chords[0]);
         const owner = next ? BOUND_CHORDS.get(next.id) : undefined;
-        if (!next) report(this, 'NVD-87', `the chord "${chords[0]}" of filterShortcut is not modifiers and one key; the drawer listens for nothing`);
+        if (!next) DEBUG && report(this, 'NVD-87', `the chord "${chords[0]}" of filterShortcut is not modifiers and one key; the drawer listens for nothing`);
         else if (owner && owner !== this) {
-          report(this, 'NVD-87', `another navigation drawer or search shown before this one binds the chord "${chords[0]}"; this one binds nothing`);
+          if (DEBUG) report(this, 'NVD-87', `another navigation drawer or search shown before this one binds the chord "${chords[0]}"; this one binds nothing`);
           WAITING_FOR_CHORDS.add(this);
           next = null;
         }
@@ -2785,12 +2786,14 @@ export class TanreiNavigationDrawer extends TanreiElement {
   /** NVD-79…95: the debug reports of a field that is drawn. */
   private reportFilter() {
     if (!this.fieldShown) return;
-    if (!this.filterLabel.trim()) report(this, 'NVD-95', 'filterable is true and filterLabel is empty, so the filter field has no accessible name; give it one in the product’s language');
-    if (!this.words.get('filterPlaceholder', this.filterPlaceholder)) this.words.missing('filterPlaceholder', { id: 'NVD-79', effect: 'the empty filter field shows no hint' });
-    if (this.filterValue && this.words.lacks('clearLabel', this.filterClearLabel)) report(this, 'NVD-89', 'filterClearLabel is empty and the product’s words give none, so the clear button has no accessible name; give it one in the product’s language');
+    if (DEBUG && !this.filterLabel.trim()) report(this, 'NVD-95', 'filterable is true and filterLabel is empty, so the filter field has no accessible name; give it one in the product’s language');
+    if (!this.words.get('filterPlaceholder', this.filterPlaceholder)) this.words.missing('filterPlaceholder', DEBUG && { id: 'NVD-79', effect: 'the empty filter field shows no hint' });
+    // The word is recorded as lacking in every build (`missingWords()`); only the report is a debug build's.
+    const lacksClear = this.filterValue && this.words.lacks('clearLabel', this.filterClearLabel);
+    if (DEBUG && lacksClear) report(this, 'NVD-89', 'filterClearLabel is empty and the product’s words give none, so the clear button has no accessible name; give it one in the product’s language');
     const { applied, matches } = this.filter;
-    if (applied && !matches.size && !this.words.get('filterEmptyText', this.filterEmptyText)) this.words.missing('filterEmptyText', { id: 'NVD-90', effect: 'a filter that matches nothing draws and says nothing' });
-    if (applied && matches.size && !this.words.get('filterCountText', this.filterCountText)) this.words.missing('filterCountText', { id: 'NVD-91', effect: 'no count of the rows that match is drawn or said' });
+    if (applied && !matches.size && !this.words.get('filterEmptyText', this.filterEmptyText)) this.words.missing('filterEmptyText', DEBUG && { id: 'NVD-90', effect: 'a filter that matches nothing draws and says nothing' });
+    if (applied && matches.size && !this.words.get('filterCountText', this.filterCountText)) this.words.missing('filterCountText', DEBUG && { id: 'NVD-91', effect: 'no count of the rows that match is drawn or said' });
   }
 
   /** NVD-79, NVD-87, NVD-89: the filter field — the search glyph at its start; at its end the key hint while it is empty and has no focus, or the clear button while it holds text. */
@@ -3506,14 +3509,14 @@ export class TanreiNavigationDrawer extends TanreiElement {
       const context = this.cellContext(group, group === shower);
       group.setDrawerContext(context);
       // NVD-66: a value or an address on a group whose drawer does not make groups destinations is ignored.
-      if (!this.selectableGroups && (group.value || group.href)) report(this, 'NVD-66', `the group "${group.label}" has a value or an href and selectableGroups is false, so it only opens and closes; set selectable-groups to make it a destination`);
+      if (DEBUG && !this.selectableGroups && (group.value || group.href)) report(this, 'NVD-66', `the group "${group.label}" has a value or an href and selectableGroups is false, so it only opens and closes; set selectable-groups to make it a destination`);
       // NVD-48: deeper than three levels is still drawn, and reported.
-      if (context.level + 1 > DEEPEST) report(this, 'NVD-48', `groups nest ${context.level + 1} levels deep; a drawer is made for at most ${DEEPEST}`);
+      if (DEBUG && context.level + 1 > DEEPEST) report(this, 'NVD-48', `groups nest ${context.level + 1} levels deep; a drawer is made for at most ${DEEPEST}`);
     }
     for (const section of this.querySelectorAll(SECTION)) if (section instanceof TanreiNavigationDrawerSection) section.setDrawerContext({ collapsed: this.collapsed, filterHidden: this.filter.hidden.has(section) });
     this.filterSynced();
     // NVD-49: a collapsed drawer needs an icon on every top-level destination and group.
-    if (this.collapsed && top.some((cell) => !cell.icon)) report(this, 'NVD-49', 'a top-level destination or group has no icon; a collapsible drawer needs an icon on every top-level destination and group');
+    if (DEBUG && this.collapsed && top.some((cell) => !cell.icon)) report(this, 'NVD-49', 'a top-level destination or group has no icon; a collapsible drawer needs an icon on every top-level destination and group');
   }
 
   // ---- activation, the menu button and the groups (NVD-21, NVD-37, NVD-47) ----
@@ -4635,7 +4638,7 @@ export class TanreiNavigationDrawer extends TanreiElement {
     this.hasMain = actions.length > 0;
     // NVD-39: the first is drawn; the rest are reported.
     actions.forEach((action, index) => action.toggleAttribute('data-tanrei-drawer-extra', index > 0));
-    if (actions.length > 1) report(this, 'NVD-39', `it holds ${actions.length} main actions; the first is drawn`);
+    if (DEBUG && actions.length > 1) report(this, 'NVD-39', `it holds ${actions.length} main actions; the first is drawn`);
     this.observeSizes();
     this.syncMainAction();
   }
@@ -4684,11 +4687,11 @@ export class TanreiNavigationDrawer extends TanreiElement {
     const header = this.renderRoot?.querySelector('.header');
     if (this.collapses && header && main.offsetHeight) {
       const column = Number.parseFloat(getComputedStyle(header).gridTemplateColumns);
-      if (column && main.offsetHeight > column + 0.5) {
+      if (DEBUG && column && main.offsetHeight > column + 0.5) {
         report(this, 'NVD-39', `the main action's collapsed square is ${main.offsetHeight} wide and the icon column ${column}; its glyph stays on the column's centre line, so the button reaches past the column's start edge; choose a smaller size`);
       }
     }
-    if (main.getAttribute('icon-position') === 'trailing') report(this, 'NVD-39', 'the main action has a trailing glyph, which leaves the icon column while the drawer is expanded; give it a leading glyph');
+    if (DEBUG && main.getAttribute('icon-position') === 'trailing') report(this, 'NVD-39', 'the main action has a trailing glyph, which leaves the icon column while the drawer is expanded; give it a leading glyph');
   }
 
   /** NVD-37: the menu button says whether the drawer is expanded, and that it controls it, on its native button. */
@@ -4845,7 +4848,7 @@ export class TanreiNavigationDrawer extends TanreiElement {
       // Read with every other host's of the turn (src/primitives/read-phase.ts), once the drawer is drawn: what the
       // handle says follows what it was given. An update that only drew what was read reads nothing again.
       if (!(changed.size === 1 && changed.has('resizeValues' as keyof TanreiNavigationDrawer))) readTogether(() => this.readResize());
-      if (this.resizeShown && (changed.has('label') || changed.has('resizeLabel') || changed.has('resizable')) && !this.resizeLabel.trim() && !this.label.trim()) {
+      if (DEBUG && this.resizeShown && (changed.has('label') || changed.has('resizeLabel') || changed.has('resizable')) && !this.resizeLabel.trim() && !this.label.trim()) {
         report(this, 'NVD-102', 'resizeLabel and label are empty, so the resize handle has no accessible name; give the drawer a label');
       }
     } else this.style.removeProperty('--_nvd-room');
@@ -4866,10 +4869,10 @@ export class TanreiNavigationDrawer extends TanreiElement {
     if (this.fieldShown) this.exposeFilter();
     this.reportFilter();
     // NVD-24: a modal drawer without a label is a dialog without a name.
-    if ((changed.has('label') || changed.has('variant')) && this.modal && !this.label.trim() && !namedByProduct(this)) report(this, 'NVD-24', 'label is empty, so the modal drawer is a dialog without a name; give it a label');
+    if (DEBUG && (changed.has('label') || changed.has('variant')) && this.modal && !this.label.trim() && !namedByProduct(this)) report(this, 'NVD-24', 'label is empty, so the modal drawer is a dialog without a name; give it a label');
     // NVD-37: a collapsible drawer whose user cannot change its form.
     // (An app shell's menu button that controls it is the one its user has: APS-7.)
-    if ((changed.has('collapsible') || has(changed, 'hasButtons')) && this.collapsible && !this.headerButtons.length && !this.shellMenu) {
+    if (DEBUG && (changed.has('collapsible') || has(changed, 'hasButtons')) && this.collapsible && !this.headerButtons.length && !this.shellMenu) {
       report(this, 'NVD-37', 'it is collapsible but has no header button, so its user cannot change its form; give it a menu button (slot="header-button")', { once: false });
     }
     const presentationChanged = has(changed, 'decided') || (changed.has('responsive') && changed.get('responsive') !== undefined);

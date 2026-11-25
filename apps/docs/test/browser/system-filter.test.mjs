@@ -20,6 +20,7 @@ import { after, before, describe, test } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import { watchNetwork } from './network-quiet.mjs';
 import { serveDist } from './host.mjs';
+import { sheetKept, until } from './kept-sheet.mjs';
 import { engines, launch, settlePage } from './launch.mjs';
 
 // Each test's limit, the backstop for a wait with none of its own (launch.mjs): the slowest, the FAB menu’s page at
@@ -28,6 +29,7 @@ const LIMIT = { timeout: 120_000 };
 
 register('../vite-shim.mjs', import.meta.url);
 const { strings } = await import('../../src/lib/i18n.ts');
+const { PENDING_ATTR, SHEET_STORE } = await import('../../src/lib/appearance.ts');
 
 const docs = fileURLToPath(new URL('../../', import.meta.url));
 const dist = path.join(docs, 'dist');
@@ -171,31 +173,17 @@ for (const engine of ENGINES) {
                 // script a quiet network would wait for).
                 const first = await context.newPage();
                 await first.goto(`${origin}/components/`, { waitUntil: 'load' });
-                // Kept in IndexedDB, not only named in localStorage (written before IndexedDB's write is done).
-                await first.waitForFunction(
-                  () =>
-                    new Promise((resolve) => {
-                      const key = localStorage.getItem('tanrei-docs-custom-sheet');
-                      if (!key) return resolve(false);
-                      const open = indexedDB.open('tanrei-docs', 1);
-                      open.onerror = () => resolve(false);
-                      open.onsuccess = () => {
-                        try {
-                          const get = open.result.transaction('sheets', 'readonly').objectStore('sheets').get(key);
-                          get.onsuccess = () => (open.result.close(), resolve(typeof get.result === 'string'));
-                          get.onerror = () => (open.result.close(), resolve(false));
-                        } catch {
-                          open.result.close();
-                          resolve(false);
-                        }
-                      };
-                    }),
-                  null,
-                  { timeout: 60_000, polling: 250 },
-                );
+                // Kept in IndexedDB, not only named in localStorage (written before IndexedDB's write is done). Asked
+                // until IndexedDB answers yes (kept-sheet.mjs): `waitForFunction` takes the promise a function returns
+                // as its answer, a truthy one, so it would not wait at all — the page under test would compute the
+                // sheet itself and, on a loaded runner, pass the reveal limit and be drawn in the default system.
+                await until(first, `${engine}: the theme's stylesheet in IndexedDB`, sheetKept, { ...SHEET_STORE, hash: 'lists1' });
                 await first.close();
               }
               const page = await open(context, '/components/');
+              // The look the reader sees once the page is shown: a page still hidden for its look's stylesheet names
+              // the look it waits for, which it may yet give up after the reveal limit.
+              await page.waitForFunction((pending) => !document.documentElement.hasAttribute(pending), PENDING_ATTR);
               assert.equal(await page.evaluate(() => document.documentElement.dataset.docsLook), look);
               assert.ok(outOfDefault.length > 0, 'the premise: the default system leaves a component out');
               // Off, a reader's first visit: none of them in either list.

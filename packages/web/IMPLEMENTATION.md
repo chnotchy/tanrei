@@ -1981,8 +1981,9 @@ minimum target extends the container vertically (a 48 container already is the t
 
 **Stacked (TXI-26).** The label above a stacked input is its Field's row (FLD-2); the input draws none. The
 container has no edge at rest (`stacked.outline.color` is transparent); focused, a line of the focused outline color
-and width is drawn **inside** the container's edge — an absolutely placed box with a border, following the corners
-(`corner-shape: inherit`), so nothing inside moves as it appears; in error the same line is drawn at rest in
+and width is drawn **inside** the container's edge — the border of an absolutely placed box (the `::before` of the
+hidden `outline` part: see "The edges draw as no element" below), following the corners (`corner-shape: inherit`), so
+nothing inside moves as it appears; in error the same line is drawn at rest in
 `stacked.error.outline.color` at `outline.width`. Hover is the state layer on the container. The placeholder and the
 affixes show whenever the value is empty, because the label is never in the input line.
 
@@ -2889,6 +2890,28 @@ and `<state>-opacity`); the number input where its steppers stand and how a hold
 shape and hairline (its size is the box's `icon-size-*`). `size` and `variant` of the five are the box's
 (`TanreiInputBoxSizeRegistry`, `TanreiInputBoxVariantRegistry` in `@tanrei/web/registry`): a layer that adds a look or
 a size adds it to the box and all five take it; the select offers `small`, the four others do not.
+
+**The edges draw as no element.** The edges stand over the box's text: a stacked box's inner line (`::part(outline)`,
+`.edge`) and an outlined box's outline (`::part(outline)`, `.outline`, its three pieces `.outline-start`,
+`.outline-notch` and `.outline-end`) are boxes over the container, above the value, the placeholder and the floating
+label in the paint order. An element there is, to a contrast checker (axe's `color-contrast`, which builds its own
+paint order of every visible element with a size and ignores `pointer-events`), an element covering the text: it left
+every text of every input box incomplete ("overlapped by another element") instead of checking it, so faint text in a
+field was never reported. So the edge part and the pieces are `visibility: hidden` and draw nothing, and the `::before`
+of each draws its line — the border, its widths, its colors and their transition (`border-color`, `border-width` over
+`motion.state-*`) — at the same place in the paint order, a box of the same size. A pseudo-element is not seen as an
+element. Read an edge's drawn color or width from its `::before` (`getComputedStyle(edge, '::before')`); WebKit reports
+a pseudo-element's `transition-duration` from before a change of reduced motion, though the transition it runs has the
+new one, so a test reads the duration of the transition the line runs. In forced colors the parts are not displayed and
+the container draws its system-color edge. A filled box's active indicator, a line along the bottom, covers no text and
+stays an element. The shared rules are `triggerEdgeStyles()` (`src/primitives/field-trigger.ts`) for the select, the
+combobox, the number input and the color input, and the text input's own (`src/primitives/input-box-contrast.test.ts`
+checks every control and field of the box). What is drawn is the same, at rest and hovered, in every engine; in
+Chromium, an outlined box whose input has focus draws a few pixels of its outline's corners with a different
+antialiasing (a channel off by 1 in most, by up to 49 at a corner): the outline that drew itself was composited as a
+layer of its own over the focused input, and an outline that draws nothing is not. A select's placeholder under its
+resting label is hidden as well as transparent (SEL-16), so that no text drawn in no color is left for a checker to find
+under the label.
 
 ## `<tanrei-combobox>`
 
@@ -4322,9 +4345,10 @@ product's `<tanrei-file-item>`s while `attachments="given"`, or the file items i
 |---|---|
 | The value member | None: it is a feature. `value` is the typing area's at every moment (an accessor over the member), and the form value is its own — a `FormData` with the text under `name` and each kept file under `files-name` |
 | Focus | Not delegated. `focus()` goes to the typing area; a `mousedown` on the capsule's own ground is passed to it with `focusAt()` and its default prevented |
-| The layouts (CCM-2 to CCM-4) | The typing area and the send button never move in the DOM. The attach button with the leading slot, and the counter with the trailing slot, are drawn before and after the typing area (`inline`) or in `.row` beneath (`stacked`), so that the Tab order is the drawn order (CCM-29). Which it is — `layout`, or a capsule narrower than `layout.inline-min-width` — is read by a `ResizeObserver` of the capsule against a probe of that length: a CSS container query could not move the focus order |
+| The layouts (CCM-2 to CCM-4) | The typing area and the send button never move in the DOM. The attach button with the leading slot, and the counter with the trailing slot, are drawn before and after the typing area (`inline`) or in `.row` beneath (`stacked`), so that the Tab order is the drawn order (CCM-29). Which it is — `layout`, or a capsule narrower than `layout.inline-min-width` or than its parts need to leave the typing area `layout.input-min-width` — is read by a `ResizeObserver` of the capsule and of those parts against probes of those lengths (the counter measured with `maxLength` characters, so that no count moves the layout): a CSS container query could not move the focus order |
 | No custom property | The capsule holds its members, and a custom property on it would be inherited by each. The one property written for the members is the cap of their hit areas (`TARGET_CAPS`, `rowTargets()`, BTN-5), on each Button, File picker and slotted control and on the line and the row that hold them, never on the capsule: no member's token, the channel by which a row tells what it lays out how far to reach. Every state is written out from its own tokens; the corner and the glow come from `heldShape()` and `heldFocusGlow()` (`src/styles/shape.ts`, `src/primitives/focus-ring.ts`); and the one length the stylesheet cannot know — a line of the typing area's text, read from the member's `input` part — is written as rules (`measured()`) in a constructed stylesheet of that line, which every instance that measured the same line shares (`measuredSheet()`), adopted after its static sheet and in no cascade layer |
 | Focus on the capsule (CCM-42) | `data-focused`, set from the typing area's `focusin` and `focusout` — not `:focus-within`, which also holds while a Button or a File item's action has focus |
+| The edge (CCM-41) | Drawn inside the capsule's box by `.outline`, a box over everything the capsule holds that draws nothing itself (`visibility: hidden`): its `::before` draws the border, its widths, colors and their transition, at the same place in the paint order. An element over a text is, to a contrast checker (axe's `color-contrast`, which builds its own paint order and ignores `pointer-events`), an element covering it: the counter was left incomplete instead of checked. A pseudo-element is not seen as one |
 | What can be sent (CCM-9) | `reasons()`, read on demand; `sendablechange` after each update in which the answer or the reasons changed. The element's own `disabled` is read with the platform's present answer (`:disabled`), so that unsetting it says one change and not two |
 | Files (CCM-21 to CCM-24) | The file picker's `select` and `reject` are stopped and answered once, at its arrival event; a drop on the host and a paste into the typing area are judged with `judge()`. `own`: `kept` and `refused`, drawn with `repeat()`; each file item is given `file`, `form`, `preview` and `nameHidden` as properties and the rest through the file-item channel |
 | Stopped at the shadow root | The embedded text input's `action`, `change` and `rowschange`; the file picker's `select` and `reject`; `remove`, `retry` and `click` of a file item it drew. The typing area's `input` leaves as it is |
@@ -8496,9 +8520,14 @@ is reduced.
 
 **Results (SRC-42…46, SRC-49, SRC-50).** `<tanrei-search-result>` draws a suggestion's row from the suggestion tokens in
 its own shadow root. Its link is its own `<a href>` (a `<button>` without `href`, or with a `javascript:` one), which the
-element keeps as its **first child in the light DOM**, slotted over the whole row and drawn as nothing — `all: unset` and
-an absolute inset of 0, set through the CSSOM as important, so a page's rules for anchors and buttons neither move nor
-paint it; the row draws the focus the link shows (`:focus-visible`), and the row's own text is hidden from assistive
+element keeps as its **first child in the light DOM**, slotted across the whole row and drawn as nothing — `all: unset`,
+an absolute inset of 0 and `z-index: -1`, set through the CSSOM as important, so a page's rules for anchors and buttons
+neither move nor paint it. It lies under the row's icon and text, which take no pointer (`pointer-events: none`), so
+every press still reaches it, and which are positioned at no level of their own (axe puts an element of any level, a
+negative one too, above a text that has none): an element over a text is, to a contrast checker (axe's `color-contrast`, which builds its
+own paint order and ignores `pointer-events`), an element covering it, and the headline and the excerpt were left
+incomplete instead of checked. The row is its own stacking context (`isolation: isolate`), so the link's level orders it
+inside the row alone, above the row's fill; the row draws the focus the link shows (`:focus-visible`), and the row's own text is hidden from assistive
 technology, so the link is the one node said. It is a child of the document, not of the result's shadow root, so that the
 search's input can name it as its active descendant by element reflection (`ariaActiveDescendantElement`): an id cannot
 cross a shadow root, and reflection reaches out into the document, never into another shadow root. Content that replaces
@@ -8873,7 +8902,7 @@ own selectors and its own `--tanrei-comp-<name>-*` tokens — nothing in them kn
 | `busyStyles(parts)`, `busyReducedStyles(parts)`, `busyArc()`, `busyStatus()`, `announceBusy(root, words, still)` (`busy.ts`) | a control that keeps its place and its focus while its action is under way (a busy Button, BTN-36, BTN-37; a busy button with menu's leading half, SPB-39, SPB-40): the label laid out and transparent, the glyph boxes hidden once faded, the loading indicator's arc turning at the container's centre (LDG-4's pulse under reduced motion), and the polite region its words are announced through once, a frame after it appears | the busy container's selector, the label's and the glyph boxes' selectors, the property of the arc's box (its icon size) and the NAMES of its own thickness, cycle, fade and easing tokens; the arc inside the container and the region beside it while busy, `iconGlyph()`'s `fade` for its glyph boxes, and the refusal of the activation |
 | `adoptUnlessDrawn(element, sheet, mark)`, `adopt(root, sheet)` (`sheets.ts`) | the stylesheet of an element that is drawn in the document, added to the root the element stands in — once, and only where that root does not draw the element already: a page that loaded `@tanrei/web/<name>.css` is handed no second copy (a sheet added to the document has the browser style the page again), a page that did not and a product's shadow root are handed one for all their instances. The cascade is asked once for a root, while the root's own stylesheets stay as many as they were — not once for each element, nor once for each turn, nor once for each kind (the first question asks it for every kind of `DRAWN_MARKS` that stands in the root, in one style pass), since the question is a read of computed style inside the script that connected the element — and an element inside one of its own kind is answered by the outermost of them | the sheet (one constructed sheet for the page) and `mark`: a private custom property the sheet sets on every element of the kind and no shadow style of the element sets (`test/light-dom.ts` lists each element with its sheet and its mark, for `src/primitives/sheets.test.ts`, which counts the writes, and `src/primitives/passes.test.ts`, which counts the questions and the style passes: add yours) |
 | `OpenAxesController` | sizes and variants a layer adds (one sheet per value for the page, adopted on demand, falling back to the default's tokens) and the debug report of a value the active system lacks | per axis: its core values, default, the block builder and the probe token; the behaviour id |
-| `report(host, id, message)` | a debug-build `console.warn`, once per element and problem | the behaviour id and the message |
+| `report(host, id, message)` | a debug-build `console.warn`, once per element and problem | the behaviour id and the message, the call guarded by `DEBUG` where it starts (`if (DEBUG && …) report(…)`; "Debug builds" below) |
 | `AvailabilityController` (`availability.ts`) | the debug report and the record of a component, or a value of its `variant`, the active system does not have, read from `--tanrei-unavailable`, `--tanrei-unavailable-layer` and `--tanrei-unavailable-replacement` on connect and when `variant` changes, and made under the element the product wrote (AVL-1 to AVL-3) | its spec name (`new AvailabilityController(this, 'fab-menu')`), in every component with a spec |
 | `hostAria(host, attributes)` | semantics a non-interactive component carries on its host (divider, progress, loading), written only when they change | the attributes, `null` to remove |
 | `GlyphMirrorController` (`glyph-mirror.ts`) | `data-tanrei-mirrored` on each glyph whose name the active icon set mirrors in right-to-left, or whose `data-mirror` says `always` (never with `never`): after each render, on `slotchange`, when a slotted glyph's text or `data-mirror` changes, when the root switches the system. `iconGlyph()` draws the mark under `:dir(rtl)`; the component mirrors nothing itself (BTN-19) | `drawn`: a selector for the `iconGlyph()` boxes whose name the component writes; `slots`: a selector for the slots that take the product's glyph (each inside an `iconGlyph()` box) |
@@ -8902,6 +8931,8 @@ own selectors and its own `--tanrei-comp-<name>-*` tokens — nothing in them kn
 | `focusRing(on, { inside: true })` | the ring or glow drawn inside the element (its outer stroke on the element's edge), for a row a parent would clip (LST-10, MNU-11) | as `focusRing` |
 | `focusRing(on, { within: '<length>' })` | the ring or glow around an element with that much room before something clips it: drawn around it where the room holds its reach, and further in by what is missing, on every side alike (TAB-4) | as `focusRing`, and the room as a CSS length expression |
 | `focusRing(on, { color: '<color>' })` | the same ring or glow with its outer stroke (the halo's outer color) in a color the component names, for an indicator drawn on a surface the system's focus color is not held against (a snackbar's bar, SNK-3); left out, it is `sys.color.focus-ring`. Combines with `inside` and `within` | as `focusRing`, a CSS color expression |
+| `drawnAsNoElement(selector, inherited, { fill })` (`no-element.ts`) | a box of the component's own that lies over its text — a panel's edge kept above what scrolls in it, a state layer over a row's text or over a covered copy — drawn as no element: the box keeps its place, holds the values and runs their transitions but is `visibility: hidden`, and its `::before` inherits `inherited` and the box's corners and draws the same thing at the same place in the paint order (`fill`: at level -2, under a ripple at -1, for a box that is its own stacking context). What the box holds (a ripple) and its `::after` stay drawn. Why: axe-core's `color-contrast` builds its own paint order of every visible element with a size, whatever its `pointer-events`, and leaves a text under any of them incomplete ("overlapped by another element") instead of checking it, so faint text there passes unseen; a pseudo-element is not one of them. A box that only fills behind the text is not one: drawn as no element, its color would not be seen as the text's background — order it below the text in a way the checker reads (the navigation bar's fill lies at a negative level, which axe-core takes for one above a text that is not positioned: the column is positioned). `test/contrast-checked.ts` names each text in each outcome | the box's selector (positioned, no border of its own, its pseudo-elements free), the properties it draws with |
+| `focusRingBox(selector)` (`focus-ring.ts`) | `drawnAsNoElement()` for a box added only to carry `focusRing()` over content (a text that scrolls, a tab's `.ring`): its `::before` draws the outline, its `::after` stays the ring's | the box's plain selector, beside its `focusRing()` |
 | `conditionStates(prefix, parts, { container, root, on })` (`selection.ts`) | the state rules of any component whose conditions are its state variants: every part, opacity and shape per state, on `root` | the parts, the root, where each state is read (equal specificity) |
 | `itemRowStyles()`, `rowTarget()` (`item-row.ts`) | a row of a column of items (list, menu): condition blocks, state rules, paints and their motion, the ripple; the minimum target as row height | the prefix, parts, condition selectors, where states are read, which element paints which part |
 | `RovingKeys` (`roving.ts`), `labelBegins` (`filter.ts`) | Up / Down Arrow (wrapping or not), Home, End and typeahead (one second) over a column of items; a Space continues a search; with `repeat`, one character typed again moves on to the next item that begins with it (SEL-33). `labelBegins` is how typeahead compares: a run of the label's first letters, without the spaces around it, compares equal to the typed text as the filters compare (`filter.ts`, CMB-25: by `Intl.Collator(lang, { usage: 'search', sensitivity: 'base' })` of the label's language, one collator per language, the kana sound marks kept by a check of its own) — so typing to an item and filtering for it find the same labels | the items' focusability and labels, each item's language (`lang`, its `ambientLocale()`; a getter, read only for the items compared), and `labelBegins` where the column has typeahead (without it a printable key is not the column's); the component moves focus. The menubar's own one-character typeahead compares with `labelBegins` too |
@@ -8938,6 +8969,35 @@ own selectors and its own `--tanrei-comp-<name>-*` tokens — nothing in them kn
 The box that draws the ring and holds the ripple is a positioning container with `isolation: isolate`; its `::before` is
 the target and its `::after` the ring. `button.styles.ts` and `button.ts` are the reference: a condition on top of the variant axis
 (a toggle's looks) and its own icon.
+
+### Debug builds: `DEBUG`
+
+The web has no debug build of its own: the product's bundler decides, by `process.env.NODE_ENV` — Vite, webpack,
+Parcel and esbuild define it for the browser by themselves, `"production"` in a production build. Everything a debug
+build tells the developer is guarded by the constant `DEBUG` (`src/primitives/debug.ts`) where it starts, never by a
+call, so that a production bundle leaves out the message with the code that makes it:
+
+- `if (DEBUG && <condition>) report(…)`, `if (DEBUG) report(…)`, `DEBUG ? <read> : ''` — `DEBUG` first. esbuild (the
+  bundler the budgets measure with) puts the constant of another module in place only after it has merged nested `if`s
+  into one `&&` chain and decided what code is used, so a guard in the middle of a chain (`if (a) { if (DEBUG && b) … }`
+  is `a && false && b`) keeps what follows it: write the guard into the outermost condition.
+- A missing word's report is `this.words.missing(key, DEBUG && { id, effect })`: the key is recorded for
+  `missingWords()` in every build, the words of the report only in a debug one. A condition that records something
+  (`this.words.lacks(…)`) is evaluated in every build, before the guard: `const lacks = … && this.words.lacks(…); if
+  (DEBUG && lacks) report(…)`.
+- `report()` and `wordMissing()` check `DEBUG` again, for a call written without the guard; such a call still ships
+  its message.
+
+How the constant reaches each build: `debug.ts` reads `process` in a try (the module a page loads without a bundler,
+and Node's), so there it is a value at run time — true where there is no `process`, so reports stay on, and
+`dist/tanrei.bundle.js` is built as a development bundle. The package's `browser` field maps it onto
+`debug.bundled.ts`, whose constant is the bare `process.env.NODE_ENV !== 'production'`: a bundler that builds for the
+browser takes that module and replaces it (a tool that reads the `browser` field and defines nothing would leave
+`process` unguarded there; esbuild, webpack, Vite and Parcel all define it). A bundler that does not read the `browser` field (Rollup without `@rollup/plugin-node-resolve`'s
+`browser: true`) keeps `debug.ts`: every report stays in the bundle, and in production makes none. What a production bundle still carries: a function or method that only reports (a `check()`, a message
+builder such as `unavailableMessage()`) — a bundler decides that it is used before it replaces the constant, so it stays
+though nothing calls it — and the code before a guard that only makes its message. `test/debug-code.test.mjs` bundles
+`@tanrei/web/all` both ways and looks for a sample of reports in each.
 
 ## Icons
 
