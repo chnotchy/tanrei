@@ -21,9 +21,11 @@ const tracer = pathToFileURL(path.join(repo, 'packages/tools/src/read-trace.js')
 const readJson = (...parts) => JSON.parse(fs.readFileSync(path.join(...parts), 'utf8'));
 /**
  * A path under the repository that is code, not vocabulary: run from the sources, the server loads its modules, its
- * packages' manifests and tanrei.config.json (a JSON import, which the bundle inlines) from there.
+ * packages' manifests, tanrei.config.json and the default system's contrast properties that the CSS emitter reads
+ * (JSON imports, which the bundle inlines) from there.
  */
-const isCode = (relative) => /\.[cm]?js$/.test(relative) || path.basename(relative) === 'package.json' || relative === 'tanrei.config.json' || relative.split(path.sep).includes('node_modules');
+const INLINED = new Set(['tanrei.config.json', path.join('packages', 'tokens-build', 'generated', 'default-contrast.json')]);
+const isCode = (relative) => /\.[cm]?js$/.test(relative) || path.basename(relative) === 'package.json' || INLINED.has(relative) || relative.split(path.sep).includes('node_modules');
 
 const work = tempDir('mcp-packed');
 const copy = path.join(work, 'vocabulary');
