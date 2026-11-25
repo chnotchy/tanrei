@@ -45,6 +45,7 @@ import { ownDirection } from '../../styles/product-text.js';
 import { TanreiTooltip } from '../tooltip/tooltip.js';
 import { AXES, ICON_PLACEMENT, INLINE_VARIANTS, ORIENTATIONS, TRACK_CHOICE, TRACK_PROPERTY, TRANSITION_CHOICE, TRANSITION_PROPERTY, TRANSITION_VALUES, panelStyles, tabStyles, tabsStyles } from './tabs.styles.js';
 import { TanreiElement } from '../../primitives/element.js';
+import { DEBUG } from '../../primitives/debug.js';
 
 /** The core variants (primary, secondary, tonal), plus any a design system's generated `.d.ts` registers. */
 export type TanreiTabsVariant = keyof TanreiTabsVariantRegistry | (string & {});
@@ -720,9 +721,9 @@ export class TanreiTab extends TanreiElement {
       tabindex: this.disabled ? null : tabStop ? '0' : '-1',
     });
     // TAB-22: a tab without a label, nor a name of the product's, still renders; a debug build says it has no name.
-    if (changed.has('label') && !this.label.trim() && !namedByProduct(this)) report(this, 'TAB-22', 'label is empty, so the tab has no accessible name; give it a label');
+    if (DEBUG && changed.has('label') && !this.label.trim() && !namedByProduct(this)) report(this, 'TAB-22', 'label is empty, so the tab has no accessible name; give it a label');
     // TAB-19: an icon-only tab needs an icon; without one the label is drawn anyway.
-    if ((changed.has('labelHidden') || changed.has('icon')) && this.labelHidden && !this.icon) {
+    if (DEBUG && (changed.has('labelHidden') || changed.has('icon')) && this.labelHidden && !this.icon) {
       report(this, 'TAB-19', 'label-hidden is set but the tab has no icon, so its label is drawn anyway; give it an icon');
     }
     if (changed.has('disabled') && this.disabled) this.spaceDown = false;
@@ -1551,17 +1552,17 @@ export class TanreiTabs extends TanreiElement {
     assign(panelSlot, panels);
 
     const selected = this.selectedTab;
-    if (this.value !== null && this.value !== undefined && !selected && tabs.length) report(this, 'TAB-11', `value "${this.value}" names no tab; none is drawn selected`);
+    if (DEBUG && this.value !== null && this.value !== undefined && !selected && tabs.length) report(this, 'TAB-11', `value "${this.value}" names no tab; none is drawn selected`);
     // Each value's first tab and first panel, looked up once each: a row of N tabs is read in O(N), never a search of
     // every tab for each tab or panel.
     const tabOfValue = new Map<string, TanreiTab>();
     const repeated = new Set<string>();
     for (const tab of tabs) {
-      if (!tab.value) report(this, 'TAB-11', `the tab "${tab.label}" has an empty value; it cannot be selected by value`);
+      if (!tab.value) DEBUG && report(this, 'TAB-11', `the tab "${tab.label}" has an empty value; it cannot be selected by value`);
       else if (tabOfValue.has(tab.value)) repeated.add(tab.value);
       else tabOfValue.set(tab.value, tab);
     }
-    for (const value of repeated) report(this, 'TAB-11', `the value "${value}" is given to more than one tab; the first of them is the one it selects`);
+    for (const value of repeated) DEBUG && report(this, 'TAB-11', `the value "${value}" is given to more than one tab; the first of them is the one it selects`);
     // TAB-2, TAB-12: one Tab stop — the selected tab, or the first enabled tab when that is disabled or there is none.
     const stop = selected && !selected.disabled ? selected : (tabs.find((tab) => !tab.disabled) ?? null);
     const secondary = INLINE_VARIANTS.includes(this.variant);
@@ -2690,7 +2691,7 @@ export class TanreiTabs extends TanreiElement {
     if (followed !== null && followed === this.value && changed.size === 1 && changed.has('value')) return;
     if (changed.has('transition')) {
       // TAB-43: a value the tabs do not define is auto.
-      if (this.transition && !(TRANSITION_VALUES as readonly string[]).includes(this.transition)) report(this, 'TAB-43', `transition "${this.transition}" is not a transition of the tabs; it is taken as "auto"`);
+      if (DEBUG && this.transition && !(TRANSITION_VALUES as readonly string[]).includes(this.transition)) report(this, 'TAB-43', `transition "${this.transition}" is not a transition of the tabs; it is taken as "auto"`);
       // TAB-43: a slide that is running when the row's transition becomes none ends on its tab at once.
       if (this.sliding && this.hasNoTransition) {
         this.stopSliding();
@@ -2700,10 +2701,10 @@ export class TanreiTabs extends TanreiElement {
       }
     }
     // TAB-60: a value the tabs do not define is horizontal. TAB-56: a column does not fill.
-    if (changed.has('orientation') && this.orientation && !(ORIENTATIONS as readonly string[]).includes(this.orientation)) {
+    if (DEBUG && changed.has('orientation') && this.orientation && !(ORIENTATIONS as readonly string[]).includes(this.orientation)) {
       report(this, 'TAB-60', `orientation "${this.orientation}" is not an orientation of the tabs; they are laid out horizontally`);
     }
-    if ((changed.has('orientation') || changed.has('fullWidth')) && this.vertical && this.fullWidth) report(this, 'TAB-56', 'full-width does not apply to vertical tabs; it is ignored');
+    if (DEBUG && (changed.has('orientation') || changed.has('fullWidth')) && this.vertical && this.fullWidth) report(this, 'TAB-56', 'full-width does not apply to vertical tabs; it is ignored');
     // TAB-13: the tab list, named by the row's label. Anything but a new value may change what the tabs are sized from.
     if ([...changed.keys()].some((key) => key !== 'value')) this.reshaped = true;
     this.syncs.now();

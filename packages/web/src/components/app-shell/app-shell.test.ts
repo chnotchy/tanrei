@@ -2403,27 +2403,33 @@ test.describe('what scrolls', () => {
     /** Scrolls the window until the top of `#id` stands at `y` in the window. */
     const scrollTopTo = (id: string, y: number) =>
       page.evaluate(([id, y]) => window.scrollBy(0, document.getElementById(id)!.getBoundingClientRect().top - y), [id, y] as const);
-    // What a page puts in its main region: a Code block, whose copy button stands over its corner at a z-index of its
-    // own, and an element of the product's raised by a large one.
+    // What a page puts in its main region: a component of the library that draws a part of itself at a z-index of its
+    // own — an outlined Select, whose edge is drawn over its field — and an element of the product's raised by a
+    // large one.
     const content = (page: P) =>
       page.evaluate(() => {
         const first = document.querySelector('tanrei-app-shell > main')!.firstElementChild!;
         first.insertAdjacentHTML(
           'afterend',
-          `<tanrei-code-block id="code" label="Example" copy copy-label="Copy" code="${'const line = 1;\n'.repeat(8)}"></tanrei-code-block>
+          `<tanrei-select id="field" variant="outlined" label="Country" value="fr"><tanrei-option value="ca">Canada</tanrei-option><tanrei-option value="fr">France</tanrei-option></tanrei-select>
            <div id="raised" style="position: relative; z-index: 10; block-size: 160px; background: rgb(255, 0, 0)">raised</div>`,
         );
       });
     await mount(page, real({ sections: 6, footer: false }), { width: 1280 });
     await content(page);
-    await page.locator('#code').evaluate(async (el) => {
-      await customElements.whenDefined('tanrei-code-block');
+    // The case a page meets: a part of the component, positioned, at a z-index of its own. Found by what it computes,
+    // not by a class name, so the case stays whatever the component's parts are called.
+    const raisedParts = await page.locator('#field').evaluate(async (el) => {
+      await customElements.whenDefined('tanrei-select');
       await (el as unknown as { updateComplete: Promise<unknown> }).updateComplete;
+      return [...el.shadowRoot!.querySelectorAll('*')].filter((part) => {
+        const style = getComputedStyle(part);
+        return style.position !== 'static' && style.zIndex !== 'auto';
+      }).length;
     });
-    // The Code block's copy button stands over its corner (COD-9) at a z-index of its own: the case a page meets.
-    expect(await page.locator('#code').evaluate((el) => getComputedStyle(el.shadowRoot!.querySelector('.corner')!).zIndex)).not.toBe('auto');
+    expect(raisedParts, 'parts of the Select drawn at a z-index of their own').toBeGreaterThan(0);
     const header = await edges(region(page, 'header'));
-    for (const id of ['code', 'raised']) {
+    for (const id of ['field', 'raised']) {
       await scrollTopTo(id, header.bottom - header.height / 2);
       await frame(page);
       expect((await edges(page.locator(`#${id}`))).top, id).toBeLessThan(header.bottom);

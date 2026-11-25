@@ -28,6 +28,7 @@ import { focusedAtFirst } from '../../primitives/autofocus.js';
 import { TanreiElement } from '../../primitives/element.js';
 import { holdsProductName, nameHost } from '../../primitives/delegated-aria.js';
 import { statesFromNextFrame } from '../../primitives/motion.js';
+import { DEBUG } from '../../primitives/debug.js';
 
 /** FBM-11: the glyph of the system's icon set the open toggle draws — the spec's name, not a value. */
 const CLOSE_GLYPH = 'close';
@@ -211,8 +212,8 @@ export class TanreiFabMenuItem extends TanreiElement {
       'aria-setsize': this.context.size ? String(this.context.size) : null,
     });
     // FBM-23: an item without a label or an icon still renders; a debug build says what is missing.
-    if (changed.has('label') && !this.label.trim() && !namedByProduct(this)) report(this, 'FBM-23', 'label is empty, so the item has no accessible name; give it a label');
-    if (changed.has('icon') && !this.icon.trim()) report(this, 'FBM-23', 'icon is empty; give the item the name of a glyph of the icon set');
+    if (DEBUG && changed.has('label') && !this.label.trim() && !namedByProduct(this)) report(this, 'FBM-23', 'label is empty, so the item has no accessible name; give it a label');
+    if (DEBUG && changed.has('icon') && !this.icon.trim()) report(this, 'FBM-23', 'icon is empty; give the item the name of a glyph of the icon set');
   }
 
   protected override render() {
@@ -430,7 +431,7 @@ export class TanreiFabMenu extends TanreiElement {
     items.forEach((item, index) => item.setMenuContext({ position: index + 1, size: items.length }));
     // FBM-19: an item added while the items are shown appears with no stagger (whole at once in place).
     if (this.presented) for (const item of items) if (!item.entered) item.enter(0, this.inline);
-    if (this.settled && (items.length < FEWEST || items.length > MOST)) {
+    if (DEBUG && this.settled && (items.length < FEWEST || items.length > MOST)) {
       report(this, 'FBM-23', `it holds ${items.length} item${items.length === 1 ? '' : 's'}; a FAB menu holds two to six`);
     }
   }
@@ -627,7 +628,7 @@ export class TanreiFabMenu extends TanreiElement {
 
   protected override updated(changed: PropertyValues<this>) {
     // FBM-23: a FAB menu without a label still renders; a debug build says it has no accessible name.
-    if (changed.has('label') && !this.label.trim() && !namedByProduct(this)) report(this, 'FBM-23', 'label is empty, so the toggle and the list have no accessible name; give it a label ("Create")');
+    if (DEBUG && changed.has('label') && !this.label.trim() && !namedByProduct(this)) report(this, 'FBM-23', 'label is empty, so the toggle and the list have no accessible name; give it a label ("Create")');
     if (this.turning && (changed.has('open') || changed.has('disabled'))) this.startTurn();
     if (changed.has('open') || changed.has('disabled') || changed.has('inline')) {
       this.closeRequested = false;

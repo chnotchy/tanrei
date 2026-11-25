@@ -2,6 +2,7 @@ import { type PropertyDeclarations, type PropertyValues, html, nothing } from 'l
 import { AvailabilityController, ariaAttribute, asComponent, report } from '../../primitives/index.js';
 import { styles } from './badge.styles.js';
 import { TanreiElement } from '../../primitives/element.js';
+import { DEBUG } from '../../primitives/debug.js';
 
 /** A larger count shows as `max` followed by a plus sign. */
 const DEFAULT_MAX = 999;
@@ -151,15 +152,15 @@ export class TanreiBadge extends TanreiElement {
     // BDG-14: the value is drawn as the spec says, and a debug build names it.
     if (changed.has('count')) {
       const count = this.count;
-      if (typeof count === 'number' && Number.isNaN(count)) report(this, 'BDG-14', 'count is not a number; it is drawn as 0');
-      else if (typeof count === 'number' && count < 0) report(this, 'BDG-14', `count ${count} is negative; it is drawn as 0`);
-      else if (typeof count === 'number' && !Number.isInteger(count)) report(this, 'BDG-14', `count ${count} is not a whole number; it is drawn as ${Math.floor(count)}`);
+      if (typeof count === 'number' && Number.isNaN(count)) DEBUG && report(this, 'BDG-14', 'count is not a number; it is drawn as 0');
+      else if (typeof count === 'number' && count < 0) DEBUG && report(this, 'BDG-14', `count ${count} is negative; it is drawn as 0`);
+      else if (DEBUG && typeof count === 'number' && !Number.isInteger(count)) report(this, 'BDG-14', `count ${count} is not a whole number; it is drawn as ${Math.floor(count)}`);
     }
-    if (changed.has('max') && !(typeof this.max === 'number' && this.max >= 1)) {
+    if (DEBUG && changed.has('max') && !(typeof this.max === 'number' && this.max >= 1)) {
       report(this, 'BDG-14', `max ${this.max} is below 1; the default ${DEFAULT_MAX} is used`);
     }
     // BDG-9: a dot with no label tells assistive technology nothing.
-    if ((changed.has('count') || changed.has('label')) && this.shown === null && !this.label) {
+    if (DEBUG && (changed.has('count') || changed.has('label')) && this.shown === null && !this.label) {
       report(this, 'BDG-9', 'the dot has no label, so it tells assistive technology nothing; give it a label ("New messages")');
     }
   }
@@ -171,7 +172,7 @@ export class TanreiBadge extends TanreiElement {
     const missing = this.assigned && !this.anchor;
     const began = missing && !this.missing;
     this.missing = missing;
-    if (began) {
+    if (DEBUG && began) {
       report(this, 'BDG-16', 'the badge has no anchor, so it draws nothing; wrap the icon, button, navigation item or avatar it marks. A count that stands by itself in a row is that row\'s text', { once: false });
     }
     // BDG-8 / BDG-10 / BDG-5: the anchor's description follows count and label; nothing is announced by the badge.

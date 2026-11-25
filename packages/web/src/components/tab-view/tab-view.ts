@@ -5,6 +5,7 @@ import { type LinkedTabView, type TanreiTab, TanreiTabPanel, TanreiTabs, type Ta
 import { tabViewStyles } from './tab-view.styles.js';
 import { MIRROR } from '../../styles/icons.js';
 import { TanreiElement } from '../../primitives/element.js';
+import { DEBUG } from '../../primitives/debug.js';
 
 /** What `change` carries: the value of the panel the user selected or swiped to, which the view's `value` (and its tabs') now holds. */
 export interface TanreiTabViewChangeDetail {
@@ -585,25 +586,25 @@ export class TanreiTabView extends TanreiElement implements LinkedTabView {
       if (elsewhere) {
         // TBV-17: the row's props are the view's own row's, and a linked view draws none.
         const unused = [this.variant !== 'primary' && 'variant', this.size !== 'medium' && 'size', this.track !== null && 'track', this.fullWidth && 'full-width', this.label && 'label', this.group && 'group', this.rememberAs && 'remember-as'].filter(Boolean);
-        if (unused.length) report(this, 'TBV-17', `${unused.join(', ')} apply only to a row the view draws itself; linked to other tabs, the view draws none and they are unused`);
+        if (DEBUG && unused.length) report(this, 'TBV-17', `${unused.join(', ')} apply only to a row the view draws itself; linked to other tabs, the view draws none and they are unused`);
       }
       if (!tabs) {
-        report(this, 'TBV-14', `tabs="${this.tabs}" names no <tanrei-tabs> in this tree; its panels have no tabs`);
-        if (hasValue && !this.panelFor(this.value!)) report(this, 'TBV-14', `no panel has the value "${this.value}"; none is shown`);
+        if (DEBUG) report(this, 'TBV-14', `tabs="${this.tabs}" names no <tanrei-tabs> in this tree; its panels have no tabs`);
+        if (DEBUG && hasValue && !this.panelFor(this.value!)) report(this, 'TBV-14', `no panel has the value "${this.value}"; none is shown`);
       } else if (!elsewhere) {
-        if (!panels.length) report(this, 'TBV-14', 'it holds no <tanrei-tab-panel>, so its own row has no tab');
-        else if (hasValue && !tabs.selectedTab) report(this, 'TBV-14', `no panel has the value "${this.value}"; none is shown`);
+        if (!panels.length) DEBUG && report(this, 'TBV-14', 'it holds no <tanrei-tab-panel>, so its own row has no tab');
+        else if (DEBUG && hasValue && !tabs.selectedTab) report(this, 'TBV-14', `no panel has the value "${this.value}"; none is shown`);
       } else {
         const selected = tabs.selectedTab;
-        if (selected && !this.panelFor(selected.value)) report(this, 'TBV-14', `the selected tab "${selected.value}" has no panel; none is shown`);
-        if (tabs.ownPanels.length) report(this, 'TBV-15', `the linked <tanrei-tabs> hold ${tabs.ownPanels.length} panel(s) of their own; they stay hidden and this view's panels take their place`);
+        if (DEBUG && selected && !this.panelFor(selected.value)) report(this, 'TBV-14', `the selected tab "${selected.value}" has no panel; none is shown`);
+        if (DEBUG && tabs.ownPanels.length) report(this, 'TBV-15', `the linked <tanrei-tabs> hold ${tabs.ownPanels.length} panel(s) of their own; they stay hidden and this view's panels take their place`);
       }
       const values = panels.map((panel) => panel.value);
       const ownRow = tabs && !elsewhere;
       panels.forEach((panel, index) => {
-        if (!panel.value) report(this, 'TBV-15', `panel ${index + 1} has an empty value; it is never shown${ownRow ? ' and has no tab' : ''}`);
-        else if (values.indexOf(panel.value) !== index) report(this, 'TBV-15', `the value "${panel.value}" is given to more than one panel; only the first of them is shown${ownRow ? ' and has a tab' : ''}`);
-        else if (tabs && elsewhere && !tabs.tabs.some((tab) => tab.value === panel.value)) report(this, 'TBV-15', `the panel "${panel.value}" has the value of no tab of the linked tabs; it is never shown`);
+        if (!panel.value) DEBUG && report(this, 'TBV-15', `panel ${index + 1} has an empty value; it is never shown${ownRow ? ' and has no tab' : ''}`);
+        else if (values.indexOf(panel.value) !== index) DEBUG && report(this, 'TBV-15', `the value "${panel.value}" is given to more than one panel; only the first of them is shown${ownRow ? ' and has a tab' : ''}`);
+        else if (DEBUG && tabs && elsewhere && !tabs.tabs.some((tab) => tab.value === panel.value)) report(this, 'TBV-15', `the panel "${panel.value}" has the value of no tab of the linked tabs; it is never shown`);
       });
     });
   }
@@ -933,7 +934,7 @@ export class TanreiTabView extends TanreiElement implements LinkedTabView {
   private passAria() {
     if (this.linkedElsewhere) {
       for (const name of delegatedNames(this)) {
-        if (this.hasAttribute(`data-${name}`)) report(this, 'TBV-24', `${name} on the element reaches nothing: linked to tabs placed elsewhere, the view draws no row; set it on the linked tanrei-tabs`);
+        if (DEBUG && this.hasAttribute(`data-${name}`)) report(this, 'TBV-24', `${name} on the element reaches nothing: linked to tabs placed elsewhere, the view draws no row; set it on the linked tanrei-tabs`);
       }
     } else if (this.ownRow) this.rowAria.write(this.ownRow, this);
   }
@@ -949,7 +950,7 @@ export class TanreiTabView extends TanreiElement implements LinkedTabView {
     }
     if (changed.has('transition')) {
       // TBV-22: a value the view does not define is auto.
-      if (this.transition && !(TRANSITION_VALUES as readonly string[]).includes(this.transition)) report(this, 'TBV-22', `transition "${this.transition}" is not a transition of the Tab view; it is taken as "auto"`);
+      if (DEBUG && this.transition && !(TRANSITION_VALUES as readonly string[]).includes(this.transition)) report(this, 'TBV-22', `transition "${this.transition}" is not a transition of the Tab view; it is taken as "auto"`);
       // TBV-23: a switch that is drawn ends at once, as if it had finished; the next one has the new form. The row
       // follows a form the view names; the system's answer is read when something begins.
       if (changed.get('transition') !== undefined) {

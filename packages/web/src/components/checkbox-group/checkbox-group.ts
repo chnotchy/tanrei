@@ -9,6 +9,7 @@ import { WordsController } from '../../primitives/words.js';
 import { TanreiCheckbox, type TanreiCheckboxOwner } from '../checkbox/checkbox.js';
 import { TanreiFieldGroup, type TanreiFieldGroupOrientation, type TanreiFieldGroupRequiredMark } from '../field-group/field-group.js';
 import { disabledWaitsWhileFocused } from '../../primitives/disabled-while-focused.js';
+import { DEBUG } from '../../primitives/debug.js';
 
 // The field group's own types are the checkbox group's: it has none of its own for the props it passes on.
 export type { TanreiFieldGroupOrientation, TanreiFieldGroupRequiredMark };
@@ -127,7 +128,7 @@ export class TanreiCheckboxGroup extends ComposedElement implements TanreiCheckb
   set value(value: string[]) {
     const given = Array.isArray(value) ? value.map(String) : [];
     // CKG-2: an entry held twice is held once.
-    if (new Set(given).size !== given.length) report(this, 'CKG-2', 'value holds an entry twice; it is held once');
+    if (DEBUG && new Set(given).size !== given.length) report(this, 'CKG-2', 'value holds an entry twice; it is held once');
     this.list = [...new Set(given)];
     // CKG-3: from here `value` decides, and a checkbox that arrives marked `checked` against it is shown as it says.
     this.decided = true;
@@ -498,7 +499,7 @@ export class TanreiCheckboxGroup extends ComposedElement implements TanreiCheckb
   /** What a debug build tells the developer; the group still renders. */
   private reports(checkboxes: TanreiCheckbox[]) {
     // CKG-11: a set without a checkbox still draws its rows.
-    if (!checkboxes.length) report(this, 'CKG-11', 'the checkbox group holds no checkbox; put tanrei-checkbox elements, each with a value, in it');
+    if (DEBUG && !checkboxes.length) report(this, 'CKG-11', 'the checkbox group holds no checkbox; put tanrei-checkbox elements, each with a value, in it');
     // CKG-11: checkboxes and nothing else that can be operated.
     const others = [...this.querySelectorAll('*')].some((element) => {
       if (element instanceof TanreiCheckbox && checkboxes.includes(element)) return false;
@@ -506,14 +507,14 @@ export class TanreiCheckboxGroup extends ComposedElement implements TanreiCheckb
       if (element.parentElement?.closest(SETS) !== this) return false;
       return FIELD_CONTROL in element || element.matches(OTHER_CONTROLS);
     });
-    if (others) report(this, 'CKG-11', 'the checkbox group holds a control that is not a checkbox of the set; it holds checkboxes and nothing else that can be operated, and makes no entry of its value from another');
+    if (DEBUG && others) report(this, 'CKG-11', 'the checkbox group holds a control that is not a checkbox of the set; it holds checkboxes and nothing else that can be operated, and makes no entry of its value from another');
     // CKG-2: values the list cannot stand for.
-    if (checkboxes.some((checkbox) => checkbox.entry === null)) report(this, 'CKG-2', 'a checkbox of the checkbox group has no value, so it cannot be checked: give each a value that is unique in the group');
+    if (DEBUG && checkboxes.some((checkbox) => checkbox.entry === null)) report(this, 'CKG-2', 'a checkbox of the checkbox group has no value, so it cannot be checked: give each a value that is unique in the group');
     const seen = new Set<string>();
     for (const checkbox of checkboxes) {
       const entry = checkbox.entry;
       if (entry === null) continue;
-      if (seen.has(entry)) report(this, 'CKG-2', `two checkboxes share the value "${entry}"; they are checked and unchecked together`);
+      if (DEBUG && seen.has(entry)) report(this, 'CKG-2', `two checkboxes share the value "${entry}"; they are checked and unchecked together`);
       seen.add(entry);
     }
   }

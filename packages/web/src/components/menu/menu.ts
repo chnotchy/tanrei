@@ -61,6 +61,7 @@ import { TanreiElement } from '../../primitives/element.js';
 import { statesFromNextFrame } from '../../primitives/motion.js';
 import { PointerMovedController } from '../../primitives/pointer-moved.js';
 import { DelegatedAriaWriter, delegatesAria, holdsProductName, nameHost, namedByProduct, syncDelegation } from '../../primitives/delegated-aria.js';
+import { DEBUG } from '../../primitives/debug.js';
 
 /** Where the surface goes against the anchor. A closed set; an unknown value is drawn as `bottom-start` (MNU-14). */
 export type TanreiMenuPlacement = MenuPlacement;
@@ -645,14 +646,14 @@ export abstract class TanreiMenuRowBase extends TanreiElement {
     this.hadFocus = false;
     // MNU-57: a kind that holds a state, or opens another level, takes no destination; one written on it is ignored.
     const held = this.holds;
-    if (held && this.getAttribute('href')?.trim()) {
+    if (DEBUG && held && this.getAttribute('href')?.trim()) {
       report(this, 'MNU-57', `${held} cannot be a link: a control that holds a state, or a second action, is not a destination; href, target and targetLabel are ignored`);
     }
     this.syncMark();
     // MNU-26: an item without a label still renders; a debug build says it has no name.
-    if (changed.has('label') && !this.label.trim() && !namedByProduct(this)) report(this, 'MNU-26', 'label is empty, so the item has no accessible name; give it a label');
+    if (DEBUG && changed.has('label') && !this.label.trim() && !namedByProduct(this)) report(this, 'MNU-26', 'label is empty, so the item has no accessible name; give it a label');
     // MNU-31: a shortcut and trailing text both given draw the shortcut, and a debug build says so.
-    if (this.hasShortcut && this.trailingText && [...changed.keys()].some((key) => key === 'shortcut' || key === 'trailingText')) {
+    if (DEBUG && this.hasShortcut && this.trailingText && [...changed.keys()].some((key) => key === 'shortcut' || key === 'trailingText')) {
       report(this, 'MNU-31', `the item "${this.label}" has both a shortcut and trailing text; the shortcut is drawn and the trailing text is not`);
     }
     if (changed.has('disabled') && this.disabled) this.spaceDown = false;
@@ -887,7 +888,7 @@ export class TanreiMenuItem extends TanreiMenuItemBase {
   protected override updated(changed: PropertyValues<this>) {
     super.updated(changed);
     // MNU-58: current names a destination; without one it is ignored, and a debug build says so.
-    if ((changed.has('current') || changed.has('href')) && this.current && !this.isLink) {
+    if (DEBUG && (changed.has('current') || changed.has('href')) && this.current && !this.isLink) {
       report(this, 'MNU-58', 'current is set on an item with no destination; it is ignored — current marks the link item of the page the person is on');
     }
   }
@@ -1697,7 +1698,7 @@ export class TanreiMenu extends TanreiElement {
     for (const group of this.groups) {
       let nested = false;
       for (let at = flatParent(group); at && at !== this && !(at instanceof TanreiSubmenu); at = flatParent(at)) if (at instanceof TanreiMenuGroup) nested = true;
-      if (nested) report(this, 'MNU-29', `the group "${group.label}" is inside another group; its items are drawn as the outer group's, without its title or a divider`);
+      if (DEBUG && nested) report(this, 'MNU-29', `the group "${group.label}" is inside another group; its items are drawn as the outer group's, without its title or a divider`);
       group.setMenuContext({ nested });
     }
     // MNU-31: the form the shortcuts are drawn in, as the cascade gives it now — never cached, so a system switch is seen
@@ -1745,12 +1746,12 @@ export class TanreiMenu extends TanreiElement {
       }
       for (const [group, members] of radios) {
         if (!group) {
-          for (const radio of members) report(this, 'MNU-29', `the radio item "${radio.label}" is not inside a group, so it is never checked`);
+          for (const radio of members) DEBUG && report(this, 'MNU-29', `the radio item "${radio.label}" is not inside a group, so it is never checked`);
           continue;
         }
         const values = members.map((radio) => radio.value);
-        if (group.value !== null && group.value !== undefined && !values.includes(group.value)) report(this, 'MNU-29', `the group "${group.label}" has the value "${group.value}", which none of its radio items has`);
-        for (const value of new Set(values)) if (values.filter((each) => each === value).length > 1) report(this, 'MNU-29', `two radio items of the group "${group.label}" share the value "${value}"`);
+        if (DEBUG && group.value !== null && group.value !== undefined && !values.includes(group.value)) report(this, 'MNU-29', `the group "${group.label}" has the value "${group.value}", which none of its radio items has`);
+        for (const value of new Set(values)) if (DEBUG && values.filter((each) => each === value).length > 1) report(this, 'MNU-29', `two radio items of the group "${group.label}" share the value "${value}"`);
       }
       rows.forEach((row, index) => {
         const group = this.groupOf(row);
@@ -1774,9 +1775,9 @@ export class TanreiMenu extends TanreiElement {
         if (!tree.get(submenu)?.length) syncSeparation(submenu, submenu.scrollElement);
         continue;
       }
-      if (depth > 2) report(this, 'MNU-52', `the submenu "${submenu.label}" is ${depth} levels below the menu; keep to one level of submenus where possible and never more than two — a set that needs more belongs in a dialog, a sheet or a page`);
+      if (DEBUG && depth > 2) report(this, 'MNU-52', `the submenu "${submenu.label}" is ${depth} levels below the menu; keep to one level of submenus where possible and never more than two — a set that needs more belongs in a dialog, a sheet or a page`);
       if (!tree.get(submenu)?.length) {
-        report(this, 'MNU-52', `the submenu "${submenu.label}" holds no item, so it opens nothing; give it items or remove it`);
+        if (DEBUG) report(this, 'MNU-52', `the submenu "${submenu.label}" holds no item, so it opens nothing; give it items or remove it`);
         syncSeparation(submenu, submenu.scrollElement);
       }
     }
@@ -2723,19 +2724,19 @@ export class TanreiMenu extends TanreiElement {
 
   protected override willUpdate(changed: PropertyValues<this>) {
     // MNU-14: a placement the menu does not define is drawn as bottom-start; a debug build says so.
-    if (changed.has('placement') && !PLACEMENTS.includes(this.placement)) {
+    if (DEBUG && changed.has('placement') && !PLACEMENTS.includes(this.placement)) {
       report(this, 'MNU-14', `placement "${this.placement}" is not a value the menu defines; it is drawn as "bottom-start"`);
     }
     // MNU-60: a trigger the menu does not define is anchor; a debug build says so.
-    if (changed.has('trigger') && !TRIGGERS.includes(this.trigger)) {
+    if (DEBUG && changed.has('trigger') && !TRIGGERS.includes(this.trigger)) {
       report(this, 'MNU-60', `trigger "${this.trigger}" is not a value the menu defines; it is treated as "anchor"`);
     }
     // MNU-35: a separation the menu does not define is auto (no rule matches the attribute); a debug build says so.
-    if (changed.has('separation') && !(SEPARATION_VALUES as readonly string[]).includes(this.separation)) {
+    if (DEBUG && changed.has('separation') && !(SEPARATION_VALUES as readonly string[]).includes(this.separation)) {
       report(this, 'MNU-35', `separation "${this.separation}" is not a value the menu defines; it is drawn as "auto"`);
     }
     // MNU-59: an iconSpace the menu does not define is auto; a debug build says so.
-    if (changed.has('iconSpace') && !ICON_SPACES.includes(this.iconSpace)) {
+    if (DEBUG && changed.has('iconSpace') && !ICON_SPACES.includes(this.iconSpace)) {
       report(this, 'MNU-59', `iconSpace "${this.iconSpace}" is not a value the menu defines; it is drawn as "auto"`);
     }
   }
