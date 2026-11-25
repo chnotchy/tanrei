@@ -258,6 +258,11 @@ export const styles = css`
     flex-direction: row;
     align-items: flex-start;
     justify-content: center;
+    /* WCAG 1.4.10: centred, yet never past the body's start. Plain centring of columns wider than the body put their
+       start before the scroll range's, where no scroll reaches (128 px of a calendar at 320 px); safe centring aligns
+       them to the start instead, should they ever overflow while the layout is decided again. Where a browser lacks
+       \`safe\`, the declaration before stands. */
+    justify-content: safe center;
   }
   .surface.whole {
     overflow-y: auto;
@@ -758,16 +763,27 @@ export const styles = css`
     pointer-events: none;
   }
   .track {
+    --_length: var(--_radius);
     position: absolute;
     left: calc(${t('dial-track-width')} / -2);
-    top: calc(-1 * var(--_radius));
+    top: calc(-1 * var(--_length));
     inline-size: ${t('dial-track-width')};
-    block-size: var(--_radius);
+    block-size: var(--_length);
     background: ${t('dial-track-color')};
     transition:
       top var(--_move),
       block-size var(--_move);
   }
+  /* DTM-24: with the handle on the outer ring of the 24-hour dial, the inner ring's number at the same angle stands
+     between the centre and the handle; the track ends half the handle's size short of that number's place, as long as it
+     is on the inner ring, and never runs through it. */
+  .dial[data-rings='2'][data-ring='outer'] .track {
+    --_length: calc(var(--_inner) - var(--_handle) / 2);
+  }
+  /* DTM-24: the handle turns back by the arm's angle, so that it stands square to the dial: its box is the circle's
+     own square, never the larger square around a turned one, which covered the centres of the numbers beside it and of
+     two beyond it, so that a contrast check could not read them. The turn inside it takes the arm's angle again, so that
+     the copy stands where it stood. */
   .handle {
     position: absolute;
     left: calc(var(--_handle) / -2);
@@ -777,7 +793,16 @@ export const styles = css`
     border-radius: 50%;
     overflow: hidden;
     background: ${t('dial-handle-color')};
-    transition: top var(--_move);
+    rotate: calc(var(--_angle, 0deg) * -1);
+    transition:
+      top var(--_move),
+      rotate var(--_move);
+  }
+  .turn {
+    position: absolute;
+    inset: 0;
+    rotate: var(--_angle, 0deg);
+    transition: rotate var(--_move);
   }
   .copy {
     position: absolute;
@@ -804,7 +829,7 @@ export const styles = css`
     background: ${t('dial-selected-label-color')};
   }
   /* DTM-25: a press or a drag moves the handle without animation. */
-  .dial[data-instant] :is(.arm, .track, .handle, .copy) {
+  .dial[data-instant] :is(.arm, .track, .handle, .turn, .copy) {
     transition: none;
   }
 

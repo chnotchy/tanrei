@@ -1727,28 +1727,85 @@ test.describe('the time', () => {
     }
   });
 
-  test('DTM-24: the number under the handle is drawn by the copy inside it in dial.selected-label.color, and axe checks its contrast on the handle — the face’s covered number is not drawn and not checked — in light and dark', async ({ page }) => {
+  test('DTM-23, DTM-24: with the handle on each of the 24 hours, in en-US, ja-JP and ar, the handle and the track lie over no number but the pending one — that one wholly under the handle, drawn by the copy alone; of every other number the glyphs stand on the dial but for a sliver at most a third of their height deep, which the copy draws where it lies in dial.selected-label.color; with the handle on the outer ring, the track ends short of the inner ring’s number', async ({ page }) => {
+    test.setTimeout(90_000);
+    for (const locale of ['en-US', 'ja-JP', 'ar-EG']) {
+      // Reduced motion: the handle is where the value is as soon as it changes (DTM-26).
+      await mount(page, [opened('b', { mode: 'time', value: '00:30', hourCycle: 'h23', entryMode: 'dial', locale })], { reducedMotion: true });
+      const [handleSize, selectedLabel] = [await resolveToken(page, T('dial-handle-size')), await resolveColor(page, T('dial-selected-label-color'))];
+      await selector(page, 'b', 'hour').focus();
+      for (let hour = 0; hour < 24; hour++) {
+        if (hour) await page.keyboard.press('ArrowUp');
+        await expect(selector(page, 'b', 'hour')).toHaveAttribute('aria-valuenow', String(hour));
+        const what = `${locale} ${hour}`;
+        const found = await dialInk(page, 'b');
+        expect(found.covered.length, `${what}: one number is covered`).toBe(1);
+        expect(found.covered[0]!.farthest, `${what}: the covered number's glyphs lie wholly under the handle`).toBeLessThanOrEqual(handleSize / 2);
+        expect(found.covered[0]!.visibility, `${what}: the face does not draw the covered number`).toBe('hidden');
+        expect(found.covered[0]!.copy, `${what}: the copy draws it, in selected-label.color`).toEqual({ at: true, visibility: 'visible', color: selectedLabel });
+        for (const other of found.others) {
+          const which = `${what}: ${other.text}`;
+          expect(other.visibility, `${which} is drawn`).toBe('visible');
+          // How far its glyphs' box reaches under the handle's circle (0 or less: clear of it). With the tokens' handle,
+          // dial and label no inner ring leaves every neighbour wholly clear (about 35 px between the rings and 34.5
+          // between two inner neighbours would need an outer radius of about 102, and it is 96): a corner of the box of
+          // 02, 04, 08, 10 or 20 meets the circle by up to 3 px, which the copy draws.
+          // A third of the glyphs' height at most: in the rings before, the handle on 19 lay over half of 20.
+          expect(other.under, `${which} stands on the dial, but for a sliver`).toBeLessThanOrEqual(other.height / 3);
+          if (other.under > 0) expect(other.copy, `${which}: the sliver under the handle is drawn by the copy, in selected-label.color`).toEqual({ at: true, visibility: 'visible', color: selectedLabel });
+          expect(other.track, `${which}: the track does not run over it`).toBeGreaterThan(found.trackWidth / 2);
+        }
+        if (hour < 12) expect(found.trackEnd, `${what}: on the outer ring, the track ends half the handle's size short of the inner ring`).toBeCloseTo(found.inner - handleSize / 2, 0);
+        else expect(found.trackEnd, `${what}: on the inner ring, the track runs to the handle's centre`).toBeCloseTo(found.inner, 0);
+      }
+    }
+  });
+
+  test('DTM-24: axe checks the contrast of the numbers of the 24-hour dial with the handle on each of the 24 hours, in light and dark: the number under the handle as the copy draws it in dial.selected-label.color, the face’s covered number not at all, and every other number on the dial but those whose box reaches into the handle’s own square, where axe cannot tell the circle from its box', async ({ page }) => {
+    test.setTimeout(240_000);
     // The picker alone in the stage, as the accessibility tests mount it: `mount` would put the product's opener button
     // before it, drawn in the browser's own button colors, which are the engine's and not the picker's (on Linux
     // WebKit's dark scheme, below 4.5:1), and axe would check that button too.
     await page.setViewportSize({ width: 480, height: 720 });
+    const number = /^<span class="[^"]*number[^"]*"[^>]*>(\d\d)<\/span>$/;
     for (const theme of ['light', 'dark'] as const) {
-      await mountFixtures(page, spec, { theme, icons: true, fixtures: [opened('b', { mode: 'time', value: '19:30', hourCycle: 'h23', entryMode: 'dial' })] });
+      await mountFixtures(page, spec, { theme, icons: true, reducedMotion: true, fixtures: [opened('b', { mode: 'time', value: '00:30', hourCycle: 'h23', entryMode: 'dial' })] });
       await motionEnded(page);
-      const results = await pickerAxe(page).withRules(['color-contrast']).analyze();
-      const nodes = (kind: 'passes' | 'violations' | 'incomplete') => results[kind].flatMap((rule) => rule.nodes).map((node) => ({ target: JSON.stringify(node.target), html: node.html.replace(/<!--[^>]*-->/g, '') }));
-      expect(nodes('violations'), theme).toEqual([]);
-      const number = /^<span class="[^"]*number[^"]*"[^>]*>(\d\d)<\/span>$/;
-      const copy = nodes('passes').filter((node) => node.target.includes('.copy') && node.html.includes('data-covered'));
-      expect(copy.map((node) => number.exec(node.html)?.[1]), `${theme}: the copy's 19 on the handle is checked, and passes`).toEqual(['19']);
-      expect(nodes('passes').filter((node) => node.target.includes('.face') && node.html.includes('data-covered')), `${theme}: the face's 19, which the handle covers, is not drawn and not checked`).toEqual([]);
-      // The face's other 23 numbers are checked on the dial, but for the four whose centres lie inside the box of the
-      // turned handle (axe reads a turned element as the box around it, not as the circle it draws), which it leaves
-      // undecided, never failed: 18 and 20 beside the handle, 06 and 07 beyond it.
-      const face = new Set(nodes('passes').filter((node) => node.target.includes('.face')).map((node) => number.exec(node.html)?.[1]));
-      const all = Array.from({ length: 24 }, (_, hour) => String(hour).padStart(2, '0')).filter((hour) => hour !== '19');
-      expect(all.filter((hour) => !face.has(hour)), `${theme}: the face's numbers axe leaves undecided`).toEqual(['06', '07', '18', '20']);
-      expect(await css(host(page, 'b').locator('.copy .hours .number').filter({ hasText: /^19$/ }), 'color')).toBe(await resolveColor(page, T('dial-selected-label-color')));
+      const label = await resolveColor(page, T('dial-label-color'));
+      await selector(page, 'b', 'hour').focus();
+      for (let hour = 0; hour < 24; hour++) {
+        if (hour) await page.keyboard.press('ArrowUp');
+        await expect(selector(page, 'b', 'hour')).toHaveAttribute('aria-valuenow', String(hour));
+        const what = `${theme} ${hour}`;
+        const pending = String(hour).padStart(2, '0');
+        const results = await pickerAxe(page).withRules(['color-contrast']).analyze();
+        const nodes = (kind: 'passes' | 'violations' | 'incomplete') => results[kind].flatMap((rule) => rule.nodes).map((node) => ({ target: JSON.stringify(node.target), html: node.html.replace(/<!--[^>]*-->/g, '') }));
+        expect(nodes('violations'), what).toEqual([]);
+        const copy = nodes('passes').filter((node) => node.target.includes('.copy') && node.html.includes('data-covered'));
+        expect(copy.map((node) => number.exec(node.html)?.[1]), `${what}: the copy's ${pending} on the handle is checked, and passes`).toEqual([pending]);
+        expect(nodes('passes').filter((node) => node.target.includes('.face') && node.html.includes('data-covered')), `${what}: the face's ${pending}, which the handle covers, is not drawn and not checked`).toEqual([]);
+        // axe reads every box as the rectangle it is. A number whose box reaches into the handle's square has its copy
+        // inside the handle drawn where the two meet, and axe takes that copy for a box over the whole number: it leaves
+        // the number undecided, never failed, though its glyphs stand on the dial (the test above). The handle stands
+        // square to the dial, so that its square is the circle's own and no larger.
+        const inSquare = await host(page, 'b').evaluate((el) => {
+          const root = el.shadowRoot!;
+          const h = root.querySelector('.handle')!.getBoundingClientRect();
+          return [...root.querySelectorAll<HTMLElement>('.face .hours .number:not([data-covered])')]
+            .filter((n) => {
+              const r = n.getBoundingClientRect();
+              return r.left < h.right && r.right > h.left && r.top < h.bottom && r.bottom > h.top;
+            })
+            .map((n) => n.textContent!)
+            .sort();
+        });
+        const face = new Set(nodes('passes').filter((node) => node.target.includes('.face')).map((node) => number.exec(node.html)?.[1]));
+        const shown = Array.from({ length: 24 }, (_, h) => String(h).padStart(2, '0')).filter((h) => h !== pending);
+        const undecided = shown.filter((h) => !face.has(h));
+        expect(undecided.filter((h) => !inSquare.includes(h)), `${what}: axe checks every number whose box stays out of the handle's square`).toEqual([]);
+        // Those it leaves are drawn in the color of the numbers it passed on the dial.
+        for (const text of undecided) expect(await css(host(page, 'b').locator('.face .hours .number').filter({ hasText: new RegExp(`^${text}$`) }), 'color'), `${what}: ${text}`).toBe(label);
+      }
     }
   });
 
@@ -2415,6 +2472,34 @@ test.describe('ranges, actions, motion, overflow and semantics', () => {
     await page.setViewportSize({ width: 800, height: 640 });
     await expect.poll(() => surface(page, 'h').getAttribute('data-layout')).toBe('horizontal');
     await expectReflowed(page, 'h', '800 again');
+  });
+
+  test('DTM-9, DTM-36: in a window 320 wide, the horizontal layout’s columns, wider than the body for as long as they are drawn before the vertical layout is taken, are centred no further than the body’s start: every part of them is within the body’s scroll range, in en-US and ar (right to left)', async ({ page }) => {
+    for (const [locale, direction] of [['en-US'], ['ar-EG', 'rtl']] as const) {
+      const fixture = opened('h', { mode: 'date-time', layout: 'horizontal', value: '2026-09-17T19:30', hourCycle: 'h12', locale });
+      await mount(page, [direction ? { ...fixture, direction } : fixture], { window: { width: 320, height: 640 } });
+      await expect.poll(() => surface(page, 'h').getAttribute('data-layout'), locale).toBe('vertical');
+      // The columns as they stand in the frames before the layout is decided again (a window that has just narrowed).
+      const found = await host(page, 'h').evaluate((el) => {
+        const root = el.shadowRoot!;
+        const s = root.querySelector<HTMLElement>('.surface')!;
+        s.dataset.layout = 'horizontal';
+        const body = root.querySelector<HTMLElement>('.body')!;
+        const b = body.getBoundingClientRect();
+        const padding = Number.parseFloat(getComputedStyle(body).paddingInlineStart);
+        const parts = [root.querySelector('tanrei-calendar')!, root.querySelector('.time')!].map((p) => p.getBoundingClientRect());
+        const rtl = getComputedStyle(body).direction === 'rtl';
+        // The scroll range runs from the body's start edge (its padding box) to its end, scrollWidth beyond it.
+        const range = rtl ? { left: b.right - body.clientLeft - body.scrollWidth, right: b.right - body.clientLeft } : { left: b.left + body.clientLeft, right: b.left + body.clientLeft + body.scrollWidth };
+        const startOfColumns = rtl ? Math.max(...parts.map((p) => p.right)) : Math.min(...parts.map((p) => p.left));
+        const out = { overflows: body.scrollWidth > body.clientWidth + 0.5, start: rtl ? b.right - body.clientLeft - padding - startOfColumns : startOfColumns - (b.left + body.clientLeft + padding), within: parts.every((p) => p.left >= range.left - 0.5 && p.right <= range.right + 0.5) };
+        s.dataset.layout = 'vertical';
+        return out;
+      });
+      expect(found.overflows, `${locale}: the columns are wider than the body at 320`).toBe(true);
+      expect(found.start, `${locale}: the columns begin at the body's start, inside its padding`).toBeCloseTo(0, 0);
+      expect(found.within, `${locale}: every part of the columns can be scrolled to`).toBe(true);
+    }
   });
 
   test('DTM-9, DTM-2: a docked picker with layout horizontal in a window 320 wide draws the vertical layout, inside the window on both axes, nothing cut and nothing scrolling sideways, in en-US and ar (right to left)', async ({ page }) => {
@@ -3629,6 +3714,73 @@ test.describe('bounds of the time', () => {
     await expect(selector(page, 'd', 'hour')).toHaveAttribute('aria-valuenow', '11');
   });
 });
+
+/**
+ * DTM-23, DTM-24: what the dial's hour numbers, its handle and its track draw, read in the page: for each number the box
+ * of its glyphs (its text's box narrowed to the ink the font measures), how far that box reaches under the handle's
+ * circle, its distance from the part of the track the handle leaves visible, and whether the copy inside the handle
+ * draws the same number at the same place, and in which color.
+ */
+function dialInk(page: P, id: string) {
+  return host(page, id).evaluate((el) => {
+    const root = el.shadowRoot!;
+    const dial = root.querySelector('.dial')!.getBoundingClientRect();
+    const handle = root.querySelector<HTMLElement>('.handle')!;
+    const track = root.querySelector<HTMLElement>('.track')!;
+    const h = handle.getBoundingClientRect();
+    const radius = handle.offsetWidth / 2;
+    const o = { x: dial.left + dial.width / 2, y: dial.top + dial.height / 2 };
+    const c = { x: h.left + h.width / 2, y: h.top + h.height / 2 };
+    const toHandle = Math.hypot(c.x - o.x, c.y - o.y);
+    const along = { x: (c.x - o.x) / toHandle, y: (c.y - o.y) / toHandle };
+    // The track's visible part: from the centre along the arm to its end, or to the handle's edge where that is nearer.
+    const visible = Math.min(track.offsetHeight, toHandle - radius);
+    const canvas = document.createElement('canvas').getContext('2d')!;
+    type Box = { left: number; right: number; top: number; bottom: number };
+    const ink = (n: HTMLElement): Box => {
+      const range = document.createRange();
+      range.selectNodeContents(n);
+      const r = range.getBoundingClientRect();
+      const style = getComputedStyle(n);
+      canvas.font = `${style.fontWeight} ${style.fontSize} ${style.fontFamily}`;
+      const m = canvas.measureText(n.textContent!);
+      const baseline = r.top + m.fontBoundingBoxAscent;
+      return { left: r.left - m.actualBoundingBoxLeft, right: r.left + m.actualBoundingBoxRight, top: baseline - m.actualBoundingBoxAscent, bottom: baseline + m.actualBoundingBoxDescent };
+    };
+    const distance = (b: Box, p: { x: number; y: number }) => Math.hypot(Math.max(b.left - p.x, 0, p.x - b.right), Math.max(b.top - p.y, 0, p.y - b.bottom));
+    const copies = [...root.querySelectorAll<HTMLElement>('.copy .hours .number')];
+    const copyOf = (n: HTMLElement, index: number) => {
+      const copy = copies[index]!;
+      const [a, b] = [n.getBoundingClientRect(), copy.getBoundingClientRect()];
+      const style = getComputedStyle(copy);
+      return { at: copy.textContent === n.textContent && Math.abs(a.left - b.left) < 0.5 && Math.abs(a.top - b.top) < 0.5, visibility: style.visibility, color: style.color };
+    };
+    const numbers = [...root.querySelectorAll<HTMLElement>('.face .hours .number')].map((n, index) => {
+      const b = ink(n);
+      let fromTrack = Infinity;
+      for (let t = 0; t <= visible; t += 0.25) fromTrack = Math.min(fromTrack, distance(b, { x: o.x + along.x * t, y: o.y + along.y * t }));
+      const corners = [[b.left, b.top], [b.right, b.top], [b.left, b.bottom], [b.right, b.bottom]].map(([x, y]) => Math.hypot(x! - c.x, y! - c.y));
+      return {
+        text: n.textContent!,
+        covered: n.hasAttribute('data-covered'),
+        visibility: getComputedStyle(n).visibility,
+        height: b.bottom - b.top,
+        under: radius - distance(b, c),
+        farthest: Math.max(...corners),
+        track: fromTrack,
+        copy: copyOf(n, index),
+      };
+    });
+    const inner = root.querySelector('.face .hours .inner')!.getBoundingClientRect();
+    return {
+      covered: numbers.filter((n) => n.covered),
+      others: numbers.filter((n) => !n.covered),
+      trackWidth: track.offsetWidth,
+      trackEnd: track.offsetHeight,
+      inner: Math.hypot(inner.left + inner.width / 2 - o.x, inner.top + inner.height / 2 - o.y),
+    };
+  });
+}
 
 /**
  * axe over the stage, as the picker stands in a product's page. The page's root is as tall as the window (the harness
