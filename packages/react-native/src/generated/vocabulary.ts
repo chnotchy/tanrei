@@ -937,6 +937,7 @@ export interface TanreiButtonWithMenuTokens {
   readonly hoveredOpacity: number;
   readonly motionBusyCycleDuration: number;
   readonly motionBusyFadeDuration: number;
+  readonly motionBusyPulseFloorOpacity: number;
   readonly motionFeedbackDuration: number;
   readonly motionHoverCloseDelay: number;
   readonly motionHoverOpenDelay: number;
@@ -1048,6 +1049,7 @@ export interface TanreiButtonTokens {
   readonly hoveredOpacity: number;
   readonly motionBusyCycleDuration: number;
   readonly motionBusyFadeDuration: number;
+  readonly motionBusyPulseFloorOpacity: number;
   readonly motionFeedbackDuration: number;
   readonly motionStateEasing: TanreiCubicBezier;
   readonly pressedContainerShape: number;
@@ -3148,6 +3150,7 @@ export interface TanreiLoadingIndicatorTokens {
   readonly motionEnterDuration: number;
   readonly motionEnterEasing: TanreiCubicBezier;
   readonly motionEntrance: number;
+  readonly motionPulseFloorOpacity: number;
   readonly motionShowDelay: number;
   readonly sizes: TanreiLoadingIndicatorSizes;
 }
@@ -4051,6 +4054,7 @@ export interface TanreiProgressIndicatorTokens {
   readonly indicatorColor: TanreiPaint;
   readonly motionCycleDuration: number;
   readonly motionCycleEasing: TanreiCubicBezier;
+  readonly motionPulseFloorOpacity: number;
   readonly motionShowDelay: number;
   readonly motionValueDuration: number;
   readonly motionValueEasing: TanreiCubicBezier;

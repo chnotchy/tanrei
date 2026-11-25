@@ -84,8 +84,8 @@
     },
     {
       "id": "LDG-4",
-      "text": "WHERE reduced motion is requested THE loading indicator SHALL NOT turn: it SHALL draw the whole circle at the indicator's size and stroke and ease its opacity from 1 to 0 and back to 1 once per comp.loading-indicator.motion.cycle-duration with sys.motion.easing.standard; a container, when contained, SHALL stay still and opaque.",
-      "verify": "Fixtures are recorded with reduced motion requested, at the start of a cycle (opacity 1), so their baselines are deterministic on every platform; the turning arc is tested by unit tests that read its angle at fixed times."
+      "text": "WHERE reduced motion is requested THE loading indicator SHALL NOT turn: it SHALL draw the whole circle at the indicator's size and stroke and ease its opacity from 1 down to comp.loading-indicator.motion.pulse-floor-opacity and back to 1 once per comp.loading-indicator.motion.cycle-duration with sys.motion.easing.standard, each half on that curve, so that it keeps pulsing and is never drawn below that floor; a container, when contained, SHALL stay still and opaque.",
+      "verify": "Fixtures are recorded with reduced motion requested, at the start of a cycle (opacity 1), so their baselines are deterministic on every platform; the turning arc is tested by unit tests that read its angle at fixed times, and the pulse by unit tests that sample its opacity over a whole cycle, as painted where the platform can read pixels, and find it never below the floor."
     },
     {
       "id": "LDG-5",
@@ -157,7 +157,7 @@
       "Text size does not change the indicator: it is not text. Where it replaces an icon in a control, the control keeps its size.",
       "A product marks the region it loads as busy (aria-busy on the web) and says when the content has arrived; a wait that may exceed a few seconds, or whose length can be measured, belongs to the progress indicator.",
       "A wait shorter than the show delay shows and exposes nothing (LDG-11): no mark that flashes for a sighted person, and no progressbar that appears and vanishes for a screen-reader user. The product's own busy marking of the region does not wait for the delay; aria-busy and its equivalents announce nothing by themselves.",
-      "Reduced motion replaces the turning arc with an opacity pulse of at most one per second (LDG-4), below the three-per-second flash threshold, and turns a grow entrance into a fade (LDG-13). The show delay is kept: it is a wait, not motion (LDG-15)."
+      "Reduced motion replaces the turning arc with an opacity pulse of at most one per second (LDG-4), below the three-per-second flash threshold, that never fades below comp.loading-indicator.motion.pulse-floor-opacity, so a wait is never drawn as an empty space (0.7 in the default system: at its low point the indicator still stands at least 3:1 from what it is drawn on), and turns a grow entrance into a fade (LDG-13). The show delay is kept: it is a wait, not motion (LDG-15)."
     ]
   },
   "tokens": "comp.loading-indicator",

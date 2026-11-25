@@ -57,8 +57,8 @@ export const styles = [
     }
 
     /* PRG-7: under reduced motion (a value change shows at once: the shared drawing) the indeterminate form stands
-       still — the indicator over the whole track, its opacity easing from 1 to 0 and back once per cycle, over a track
-       that does not move. */
+       still — the indicator over the whole track, its opacity easing from 1 down to the pulse's floor and back once per
+       cycle, never fading to nothing, over a track that does not move. */
     ${reducedMotion(css`
       .bar.indeterminate .indicator {
         inset-inline-start: 0;
@@ -70,6 +70,7 @@ export const styles = [
       }
       .bar.indeterminate .indicator,
       .ring.indeterminate circle.indicator {
+        --_pulse-floor: ${unsafeCSS(T('motion-pulse-floor-opacity'))};
         animation: pulse ${unsafeCSS(T('motion-cycle-duration'))} ${unsafeCSS(T('motion-cycle-easing'))} infinite;
       }
       .ring.indeterminate .spin {

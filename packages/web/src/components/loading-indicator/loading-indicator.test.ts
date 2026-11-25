@@ -11,6 +11,7 @@ import { decodePng, paintedColor } from '../../../test/png.js';
 import { motionCount } from '../../../test/motions.js';
 import { transitionsRun, watchTransitions } from '../../../test/transitions.js';
 import { expectBaseline } from '../../../test/baseline.js';
+import { expectPulseKeepsFloor, resolveOpacity, samplePulse } from '../../../test/pulse-floor.js';
 
 const spec = loadSpec('loading-indicator');
 type P = Page;
@@ -149,15 +150,16 @@ test.describe('behavior', () => {
     }
   });
 
-  test('LDG-4: under reduced motion it does not turn — the whole circle pulses its opacity once per cycle with easing.standard; a container stays still and opaque', async ({ page }) => {
+  test('LDG-4: under reduced motion it does not turn — the whole circle pulses its opacity from 1 down to the floor and back once per cycle with easing.standard, never fading to nothing; a container stays still and opaque', async ({ page }) => {
     await mountFixtures(page, spec, { reducedMotion: true });
     const duration = await resolveToken(page, T('motion-cycle-duration'), 'duration');
+    const floor = await resolveOpacity(page, T('motion-pulse-floor-opacity'));
     for (const id of ['medium', 'contained-medium']) {
       expect(await animations(indicator(page, id)), id).toEqual([{ name: 'pulse', duration, easing: await easing(page, '--tanrei-sys-motion-easing-standard'), state: 'running' }]);
       expect(await css(circle(page, id), 'stroke-dasharray'), id).toBe('none');
       const opacity = async (ms: number) => Number(await at(indicator(page, id), ms, 'opacity'));
       expect(await opacity(0), id).toBe(1);
-      expect(await opacity(duration / 2), id).toBeCloseTo(0, 5);
+      expect(await opacity(duration / 2), id).toBeCloseTo(floor, 5);
       expect(await opacity(duration), id).toBe(1);
       expect(await at(indicator(page, id), duration / 4, 'rotate'), id).toBe('none');
     }
@@ -166,6 +168,19 @@ test.describe('behavior', () => {
     // The whole circle, at the indicator's size and stroke.
     const color = await paintedColor(page, `var(${T('indicator-color')})`);
     expect((await arcAt(page, 'large', [0.1, 0.35, 0.6, 0.85])).map((p) => near(p, color))).toEqual([true, true, true, true]);
+  });
+
+  test('LDG-4: under reduced motion the circle is never drawn below the pulse floor — sampled over a whole cycle, computed and painted, bare and contained', async ({ page }) => {
+    await mountFixtures(page, spec, { reducedMotion: true });
+    const duration = await resolveToken(page, T('motion-cycle-duration'), 'duration');
+    const floor = await resolveOpacity(page, T('motion-pulse-floor-opacity'));
+    for (const id of ['large', 'contained-large']) {
+      const size = (await laidOut(indicator(page, id))).width;
+      const stroke = Number.parseFloat(await css(circle(page, id), 'stroke-width'));
+      // The top of the circle, on the middle of its stroke; and its middle, which the circle does not cover.
+      const samples = await samplePulse(indicator(page, id), indicator(page, id), { duration, mark: [size / 2, stroke / 2], ground: [size / 2, size / 2] });
+      expectPulseKeepsFloor(samples, floor, id);
+    }
   });
 
   test('LDG-5: shown, a progressbar named by label, with no current value, busy', async ({ page }) => {

@@ -170,6 +170,16 @@
             "$value": "{tanrei.sys.motion.duration.extra-long4}",
             "$description": "One full turn of the arc, and one pulse of the reduced-motion form."
           },
+          "pulse-floor-opacity": {
+            "$type": "number",
+            "$value": 0.7,
+            "$description": "The opacity the reduced-motion form eases down to at the low point of each pulse, and back up from: the circle keeps pulsing but never fades to nothing, so a wait is never drawn as an empty space. At 0.7 the indicator still stands 3:1 or more from what it is drawn on, as a mark that is still there; the same floor serves every control that draws the loading indicator's reduced-motion form (a busy button's circle, the progress indicator's pulse).",
+            "$extensions": {
+              "dev.tanrei.derive": {
+                "fixed": "An opacity is a proportion; no dial scales it, and the motion dial scales durations, not depths. sys.state holds the state-layer and disabled opacities, which are other decisions."
+              }
+            }
+          },
           "show-delay": {
             "$type": "duration",
             "$value": "{tanrei.sys.motion.role.show-delay}",

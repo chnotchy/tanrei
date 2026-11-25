@@ -47,20 +47,21 @@ export function LoadingIndicator({ size = 'medium', contained = false, accessibi
     if (__DEV__ && unnamed) console.warn(`Tanrei: a LoadingIndicator${testID ? ` (testID "${testID}")` : ''} has no accessibilityLabel. Say what is loading ("Loading messages").`);
   }, [unnamed, testID]);
 
-  // LDG-1 / LDG-4 / LDG-7: one loop — the turn at constant speed, or under reduced motion the opacity pulse with
-  // sys.motion.easing.standard — only while the app is in the foreground, and not before the platform has said whether
+  // LDG-1 / LDG-4 / LDG-7: one loop — the turn at constant speed, or under reduced motion the opacity pulse down to
+  // motion.pulse-floor-opacity and back with sys.motion.easing.standard, never below that floor — only while the app is in the foreground, and not before the platform has said whether
   // motion is reduced (a person who asked for less motion never sees it start).
   const motionSetting = useReduceMotionSetting();
   const reduceMotion = motionSetting === true;
   const cycle = tokens.motionCycleDuration;
   const { linear, standard } = theme.system.motion.easing;
-  const loop = motionSetting === null ? null : reduceMotion ? `pulse:${cycle}:${standard}` : `turn:${cycle}:${linear}`;
+  const floor = tokens.motionPulseFloorOpacity;
+  const loop = motionSetting === null ? null : reduceMotion ? `pulse:${cycle}:${standard}:${floor}` : `turn:${cycle}:${linear}`;
   const progress = useLoop(
     loop,
     (at) => {
       if (reduceMotion) {
         const half = { duration: cycle / 2, easing: toEasing(standard), useNativeDriver: true };
-        return Animated.sequence([Animated.timing(at, { ...half, toValue: 0 }), Animated.timing(at, { ...half, toValue: 1 })]);
+        return Animated.sequence([Animated.timing(at, { ...half, toValue: floor }), Animated.timing(at, { ...half, toValue: 1 })]);
       }
       return Animated.timing(at, { toValue: 1, duration: cycle, easing: toEasing(linear), useNativeDriver: true });
     },
