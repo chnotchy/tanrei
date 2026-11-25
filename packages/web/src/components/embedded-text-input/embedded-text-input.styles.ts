@@ -128,6 +128,28 @@ export const styles = css`
   textarea.input[data-overflows] {
     overflow-y: auto;
   }
+  /* ETI-7, ETI-9: where the browser sizes a text area by its text, it is as tall as its lines by the browser's own
+     layout — between minRows and maxRows, and in the frame a changed width or text size changes them — and the
+     routine only reads it: it writes no height in a resize observer's report. It scrolls while its text is taller than
+     maxRows lets it be (data-overflows, above, which changes no size of the box). The text it holds is no width of the
+     input's: it is as wide as its layout gives it (ETI-1). */
+  @supports (field-sizing: content) {
+    textarea.input {
+      field-sizing: content;
+      block-size: auto;
+      min-block-size: calc(var(--_rows-min, 1) * var(--_line));
+      max-block-size: calc(var(--_rows-max) * var(--_line));
+      contain: inline-size;
+    }
+    /* ETI-22: empty, it is as tall as its placeholder's lines, which the routine measures and writes (--_rows), as
+       where the browser sizes nothing by its text: WebKit sizes it by its placeholder past maxRows. */
+    textarea.input:placeholder-shown {
+      field-sizing: fixed;
+      block-size: calc(var(--_rows, var(--_rows-min, 1)) * var(--_line));
+      min-block-size: 0;
+      max-block-size: none;
+    }
+  }
   /* ETI-20: in a multi-line input each paragraph takes the direction and the alignment of its own first strong
      character; an empty one keeps the layout's (the element writes dir="auto" once the value has a letter). */
   textarea.input[dir='auto'] {

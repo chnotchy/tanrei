@@ -621,7 +621,6 @@ export class TanreiEmbeddedTextInput extends TanreiElement {
     TanreiEmbeddedTextInput.natives.set(input, this);
     watch.observe(input);
     this.watched = input;
-    this.height.watched();
   }
 
   private unwatch() {
@@ -702,14 +701,16 @@ export class TanreiEmbeddedTextInput extends TanreiElement {
     const label = this.label.trim();
     const description = this.description.trim();
     const multiline = this.multiline;
-    // ETI-7: the fewest lines, for the frame before the routine has measured.
+    // ETI-7: the fewest lines, for the frame before the routine has measured, and the most (none for a maxRows of 0; never
+    // fewer than the fewest), which bound the height where the browser sizes the text area by its text.
     const least = Number.isFinite(Number(this.minRows)) && Number(this.minRows) >= 1 ? Math.floor(Number(this.minRows)) : 1;
+    const most = Number.isFinite(Number(this.maxRows)) && Number(this.maxRows) > 0 ? Math.max(least, Math.floor(Number(this.maxRows))) : 0;
     const control = multiline
       ? html`<textarea
           part="input"
           class="input"
           rows="1"
-          style=${`--_rows-min: ${least}`}
+          style=${most ? `--_rows-min: ${least}; --_rows-max: ${most}` : `--_rows-min: ${least}`}
           inputmode=${ifDefined(kind.inputmode)}
           enterkeyhint="enter"
           autocapitalize=${kind.plain ? 'none' : nothing}

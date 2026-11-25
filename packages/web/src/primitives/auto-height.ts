@@ -30,7 +30,7 @@
 // measured there and then: it is one element's, at a keystroke.
 
 import { motionReduced } from './motion.js';
-import { readInPhase, readTogether } from './read-phase.js';
+import { readTogether } from './read-phase.js';
 
 /** What the routine reads and writes; each is asked for when it runs, so an element drawn again is found again. */
 export interface AutoHeightOptions {
@@ -53,6 +53,12 @@ export interface AutoHeightOptions {
   /** The number of lines shown is about to change, or is first known: called once, before any motion of that change begins. */
   rows?: (rows: number, scrolling: boolean) => void;
 }
+
+/**
+ * Whether the browser sizes the text area by its text (`field-sizing: content`, which the component's stylesheet gives
+ * it where the browser has it), as the cascade decides it.
+ */
+const sizedByContent = (style: CSSStyleDeclaration) => style.getPropertyValue('field-sizing') === 'content';
 
 /** The lines a measured height is: a whole number, a hair's breadth forgiven (a line of 24.5 px reported as 24). */
 const wholeLines = (lines: number) => Math.max(1, Math.ceil(lines - 0.05));
@@ -79,8 +85,6 @@ export class AutoHeight {
   private laid: { width: number; line: number } | null = null;
   /** A change made at once has been asked for and not read yet: a second request of the turn is the same one. */
   private asked = false;
-  /** The observer has reported the text area since it began to watch it (`watched()`). */
-  private reported = false;
 
   constructor(private readonly options: AutoHeightOptions) {}
 
@@ -210,11 +214,16 @@ export class AutoHeight {
       this.unlaid(box, input);
       return;
     }
-    const shown = animate ? box.getBoundingClientRect().height : 0;
+    // The height shown: a running motion's, or the lines last fitted — where the browser sizes the text area by its
+    // text, the box at rest already has the new height, which the value written has given it.
+    const shown = !animate ? 0 : this.rows && !box.hasAttribute('data-resizing') && sizedByContent(getComputedStyle(input)) ? this.rows * line : box.getBoundingClientRect().height;
     const { blockSize } = input.style;
     input.style.blockSize = '0px';
     const needed = this.needed(input, line);
     input.style.blockSize = blockSize;
+    // ETI-10: the number of lines is said while the height is still the one shown — which, where the browser sizes the
+    // text area by its text, the box must hold until it is said.
+    if (animate) box.style.blockSize = `${shown}px`;
     this.write(box, input, needed, { width, line });
     if (!animate || this.options.still?.() || motionReduced()) return;
     const end = box.getBoundingClientRect().height;
@@ -254,56 +263,35 @@ export class AutoHeight {
    * changed neither (the element's own height, which it wrote itself) is left alone. Call it from a `ResizeObserver`
    * of the native element.
    *
-   * After the first report it writes nothing in the observer's report: the lines are counted, and the height written,
-   * in the next frame's read phase (src/primitives/read-phase.ts). The height changes the size of the text area the
-   * observer has just reported, and a box that changes size in a report is reported again in that frame only if it lies
-   * deeper than every box reported before it: fitted in the report, a text area whose width changed in a box that
-   * changes the size of nothing above it was left undelivered, and the browser raised "ResizeObserver loop completed
-   * with undelivered notifications". The read phase is reported with the page's root element, so what it writes is
-   * reported in the same frame. What the frame after the change draws late is the height: for one frame the box keeps
-   * the lines it had at the width before, and the text that wrapped onto more lines scrolls inside it (or the room of
-   * the lines it lost stays empty).
-   *
-   * The first report after `watched()` is fitted in the report, so that the first frame painted already has its lines
-   * where a holder laid out in that frame gave the element another width (a chat composer that stacks): `watched()`
-   * asked for the read phase, which reports the page's root element first in that frame, and a first report comes in
-   * the same round of reports, so what the height changes is reported again in that frame. (Watched in the frame
-   * callbacks of the frame it is first drawn in, the read phase comes a frame later, and that first report is left
-   * undelivered as any other.)
+   * Where the browser sizes the text area by its text (`field-sizing: content`, which the component's stylesheet gives
+   * it where the browser has it), the browser has already made the height follow, in the layout of the frame of the
+   * change: the lines are only read and said here, and no size is written. A box that changes size in an observer's
+   * report is reported again in that frame only if it lies deeper than every box reported before it, so a height
+   * written here left the text area undelivered whenever nothing above it changed size (a box of fixed size), and the
+   * browser raised "ResizeObserver loop completed with undelivered notifications". Elsewhere the height is still
+   * fitted here, in the frame of the change, as it must be for that frame to show it.
    */
   relaid() {
-    if (!this.reported) {
-      this.reported = true;
-      if (this.relaidOut()) this.fit(false);
+    const input = this.options.input();
+    if (!input?.isConnected) return;
+    const style = getComputedStyle(input);
+    const width = input.clientWidth;
+    const line = Number.parseFloat(style.lineHeight) || 0;
+    if (this.laid && this.laid.width === width && this.laid.line === line) return;
+    if (!sizedByContent(style)) {
+      this.fit(false);
       return;
     }
-    if (this.relaidOut()) readInPhase(this, this.readRelaid);
+    const box = this.options.box();
+    if (!box || !line || !width) return;
+    // ETI-9: a motion under way ends where the lines now are, at once.
+    this.settle(box);
+    const { min, max } = this.bounds();
+    const rows = Math.max(min, Math.min(wholeLines((Number.parseFloat(style.height) || 0) / line), max));
+    const scrolling = input.scrollHeight > input.clientHeight + 1;
+    this.tell(rows, scrolling);
+    this.laid = { width, line };
+    input.style.setProperty('--_rows', String(rows));
+    input.toggleAttribute('data-overflows', scrolling);
   }
-
-  /**
-   * An observer begins to watch the text area, and calls `relaid()` from its reports: its first report is fitted in the
-   * report, in the frame of the read phase asked for here.
-   */
-  watched() {
-    this.reported = false;
-    readInPhase(this, this.readRelaid);
-  }
-
-  /** Whether the text area's width or the line of its text is not the one the last fit was made for. */
-  private relaidOut(): boolean {
-    const input = this.options.input();
-    if (!input?.isConnected) return false;
-    const width = input.clientWidth;
-    const line = this.lineOf(input);
-    return !this.laid || this.laid.width !== width || this.laid.line !== line;
-  }
-
-  /**
-   * `relaid()` in the read phase: a change made at once, if the text area was not fitted to its new width since. Nothing
-   * before the first report (`watched()`), which is fitted in the report.
-   */
-  private readonly readRelaid = (): (() => void) | void => {
-    if (!this.reported || this.asked || !this.relaidOut()) return;
-    return this.readAtOnce();
-  };
 }
