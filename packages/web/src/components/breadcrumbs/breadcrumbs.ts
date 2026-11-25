@@ -15,7 +15,6 @@ import {
   syncFocusStyle,
 } from '../../primitives/index.js';
 import { LINK_KEYS, readDestination } from '../../primitives/link.js';
-import { debugBuild } from '../../primitives/report.js';
 import { WordsController } from '../../primitives/words.js';
 import { MIRRORED } from '../../styles/icons.js';
 // BRC-11: the levels taken out of the trail are listed in a menu, which the breadcrumbs define wherever they are imported.
@@ -25,6 +24,7 @@ import { styles } from './breadcrumbs.styles.js';
 import { adoptUnlessDrawn } from '../../primitives/sheets.js';
 import { TanreiElement } from '../../primitives/element.js';
 import { FacesWatch } from '../../primitives/faces.js';
+import { DEBUG } from '../../primitives/debug.js';
 
 /** What a trail longer than its width does (BRC-9, BRC-15): fold its middle behind the overflow button, or run over several lines. */
 export type TanreiBreadcrumbsOverflow = 'collapse' | 'wrap';
@@ -300,7 +300,7 @@ export class TanreiBreadcrumbs extends TanreiElement {
     const levels: Level[] = [];
     for (const element of this.children) {
       if (!(element instanceof HTMLElement) || (element.localName !== 'a' && element.localName !== 'span')) {
-        report(this, 'BRC-1', `a <${element.localName}> child is not a level and is not drawn: a level is an <a href> or a <span>`);
+        if (DEBUG) report(this, 'BRC-1', `a <${element.localName}> child is not a level and is not drawn: a level is an <a href> or a <span>`);
         continue;
       }
       const given = element.localName === 'a' ? element.getAttribute('href') : null;
@@ -310,7 +310,7 @@ export class TanreiBreadcrumbs extends TanreiElement {
         href = read.href;
         if (href === null) {
           element.removeAttribute('href');
-          report(
+          if (DEBUG) report(
             this,
             'BRC-3',
             read.refusal === 'script'
@@ -330,21 +330,23 @@ export class TanreiBreadcrumbs extends TanreiElement {
       });
     }
     this.levels = levels;
-    if (debugBuild()) this.check();
+    if (DEBUG) this.check();
   }
 
   /** What a debug build says about a trail it still draws (BRC-1, BRC-4, BRC-7, BRC-10, BRC-29). */
   private check() {
     // A trail that is still being parsed is read again when it is whole.
     if (document.readyState === 'loading' || !this.levels.length) return;
-    if (!this.label.trim() && !namedByProduct(this)) report(this, 'BRC-1', 'label is empty: the navigation landmark has no accessible name; give it the words ("Breadcrumbs")');
+    if (DEBUG && !this.label.trim() && !namedByProduct(this)) report(this, 'BRC-1', 'label is empty: the navigation landmark has no accessible name; give it the words ("Breadcrumbs")');
     this.levels.forEach((level, index) => {
-      if (level.current && index < this.levels.length - 1) report(this, 'BRC-4', `the level "${level.label}" is marked as the current page and is not the last; it is drawn as if it were not current`);
-      if (!level.label) report(this, 'BRC-7', 'a level has no label, so it has no name; give it its text (a glyph alone keeps its text as its name)');
+      if (DEBUG && level.current && index < this.levels.length - 1) report(this, 'BRC-4', `the level "${level.label}" is marked as the current page and is not the last; it is drawn as if it were not current`);
+      if (DEBUG && !level.label) report(this, 'BRC-7', 'a level has no label, so it has no name; give it its text (a glyph alone keeps its text as its name)');
     });
-    if (!UNDERLINES.includes(this.underline)) report(this, 'BRC-30', `underline "${this.underline}" is not a value it defines ("auto", "always", "hover" or "never"); it is treated as "auto"`);
-    if (!OVERFLOWS.includes(this.overflow)) report(this, 'BRC-29', `overflow "${this.overflow}" is not a value it defines ("collapse" or "wrap"); it behaves as "collapse"`);
-    if (!this.wraps && this.out > 0 && this.words.lacks('breadcrumbsOverflowLabel', this.overflowLabel)) {
+    if (DEBUG && !UNDERLINES.includes(this.underline)) report(this, 'BRC-30', `underline "${this.underline}" is not a value it defines ("auto", "always", "hover" or "never"); it is treated as "auto"`);
+    if (DEBUG && !OVERFLOWS.includes(this.overflow)) report(this, 'BRC-29', `overflow "${this.overflow}" is not a value it defines ("collapse" or "wrap"); it behaves as "collapse"`);
+    // The word is recorded as lacking in every build (`missingWords()`); only the report is a debug build's.
+    const lacksOverflow = !this.wraps && this.out > 0 && this.words.lacks('breadcrumbsOverflowLabel', this.overflowLabel);
+    if (DEBUG && lacksOverflow) {
       report(this, 'BRC-10', 'overflowLabel is empty: the overflow button has no accessible name; give it the words ("Show hidden levels")');
     }
   }
@@ -587,7 +589,7 @@ export class TanreiBreadcrumbs extends TanreiElement {
 
   protected override willUpdate(changed: PropertyValues) {
     if (this.levelsStale) this.readLevels();
-    else if (debugBuild() && (changed.has('label') || changed.has('overflow') || changed.has('overflowLabel') || changed.has('underline') || changed.has('out'))) this.check();
+    else if (DEBUG && (changed.has('label') || changed.has('overflow') || changed.has('overflowLabel') || changed.has('underline') || changed.has('out'))) this.check();
     // BRC-10, BRC-15: no level out — no overflow button, and no menu of it.
     if (this.wraps || this.out > this.levels.length - 1) {
       this.out = 0;

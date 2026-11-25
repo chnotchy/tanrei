@@ -184,6 +184,24 @@ export const styles = [
       overflow-y: hidden;
       overscroll-behavior: contain;
       scrollbar-width: none;
+      /* TBR-30: the items fade out toward an edge they lie beyond — none of them at the edge, all of them
+         sys.scroll-edge.extent in, or as far in as they still lie beyond it (--_lead, --_trail: the script writes how
+         far the box is scrolled from each end) — so that a cut piece of an item never stands against the kept items or
+         the toolbar's edge, and the first and the last item are whole once scrolled to. A mask on the items, not a
+         color: the toolbar's own surface, or what lies behind an inline toolbar, shows through. The scroll padding is
+         the fade's depth, so that an item brought into view (TBR-8) stands clear of it. */
+      --_e: var(--tanrei-sys-scroll-edge-extent);
+      --_from-start: to right;
+      --_from-end: to left;
+      scroll-padding-inline: var(--_e);
+      mask-image:
+        linear-gradient(var(--_from-start), transparent, black min(var(--_e), var(--_lead, 0px))),
+        linear-gradient(var(--_from-end), transparent, black min(var(--_e), var(--_trail, 0px)));
+      mask-composite: intersect;
+    }
+    :host(:dir(rtl)) .container.pins.scrolls > .track {
+      --_from-start: to left;
+      --_from-end: to right;
     }
     .container.pins.scrolls > .track::-webkit-scrollbar {
       display: none;
@@ -220,6 +238,11 @@ export const styles = [
     ${unsafeCSS(VERTICAL)} .container.pins.scrolls > .track {
       overflow-x: hidden;
       overflow-y: auto;
+      /* TBR-30, TBR-7: top to bottom whatever the direction. */
+      --_from-start: to bottom;
+      --_from-end: to top;
+      scroll-padding-inline: 0;
+      scroll-padding-block: var(--_e);
     }
     ${unsafeCSS(PACKED)} .container {
       --_tanrei-toolbar-grow: 0;

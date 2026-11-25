@@ -27,7 +27,6 @@ import { GeneratedGlyphMirror } from '../../primitives/glyph-mirror.js';
 import { DirAttributeWatch, directionOf } from '../../primitives/direction.js';
 import { type CutTextContent, CutTextTip, isCut } from '../../primitives/cut-text.js';
 import { TanreiTooltip } from '../tooltip/tooltip.js';
-import { debugBuild } from '../../primitives/report.js';
 import { WordsController } from '../../primitives/words.js';
 import type { TanreiTreeViewSizeRegistry } from '../../registry.js';
 import '../loading-indicator/loading-indicator.js';
@@ -40,6 +39,7 @@ import { adopt, adoptUnlessDrawn } from '../../primitives/sheets.js';
 import { TanreiLightElement } from '../../primitives/element.js';
 import { holdsProductName, nameHost, namedByProduct } from '../../primitives/delegated-aria.js';
 import { TYPE_LONGHANDS } from '../../styles/type.js';
+import { DEBUG } from '../../primitives/debug.js';
 
 /** Whether people choose items: none (read and opened), single (one item), multiple (any number, each by itself). */
 export type TanreiTreeViewSelection = 'none' | 'single' | 'multiple';
@@ -651,7 +651,7 @@ export class TanreiTreeView extends TanreiLightElement {
 
   protected override updated(changed: PropertyValues) {
     // TRV-41: a selection the tree does not define is none (no rule matches the attribute); a debug build says so.
-    if (changed.has('selection') && !SELECTIONS.includes(this.selection)) {
+    if (DEBUG && changed.has('selection') && !SELECTIONS.includes(this.selection)) {
       report(this, 'TRV-41', `selection "${this.selection}" is not a value the tree view defines; it is drawn as "none"`);
     }
     // TRV-41, TRV-73: the size it draws — its own or its container's — when that changed.
@@ -664,13 +664,13 @@ export class TanreiTreeView extends TanreiLightElement {
       ['highlight', HIGHLIGHTS, 'indented'],
     ] as const) {
       const value = String(this[name]);
-      if (changed.has(name) && !values.includes(value)) report(this, 'TRV-41', `${name} "${value}" is not a value the tree view defines; it is drawn as "${fallback}"`);
+      if (DEBUG && changed.has(name) && !values.includes(value)) report(this, 'TRV-41', `${name} "${value}" is not a value the tree view defines; it is drawn as "${fallback}"`);
     }
     // TRV-3, TRV-2: a number of points the product chose, written where tree-view.css reads it.
     if (changed.has('indent')) this.writeLength('indent', '--_trv-indent-own', this.indent);
     if (changed.has('iconGap')) this.writeLength('iconGap', '--_trv-icon-gap-own', this.iconGap);
     if (changed.has('indent')) mark(this, 'data-tanrei-flat', this.indent === 0 ? '' : null);
-    if (changed.has('stickyMax') && !(Number.isFinite(this.stickyMax) && this.stickyMax >= 0)) report(this, 'TRV-41', `sticky-max "${this.stickyMax}" is not a number of zero or more; it is drawn as 2`);
+    if (DEBUG && changed.has('stickyMax') && !(Number.isFinite(this.stickyMax) && this.stickyMax >= 0)) report(this, 'TRV-41', `sticky-max "${this.stickyMax}" is not a number of zero or more; it is drawn as 2`);
     // TRV-49: every parent open, or as its open says, at once.
     if (changed.has('expandable') && changed.get('expandable') !== undefined) this.reexpand();
     if (changed.has('chevron') && changed.get('chevron') !== undefined && this.chevron === 'none') for (const item of this.querySelectorAll<Item>('li[role="none"]')) if (isItem(item)) this.checkChevronless(item);
@@ -681,7 +681,7 @@ export class TanreiTreeView extends TanreiLightElement {
       // the rest of the tree's semantics, on the element that is the tree).
       this.writeTreeSemantics();
       // TRV-32: still rendered; a debug build says that the tree has no accessible name.
-      if (!this.label && !namedByProduct(this)) report(this, 'TRV-32', 'the tree has no accessible name; give it a label');
+      if (DEBUG && !this.label && !namedByProduct(this)) report(this, 'TRV-32', 'the tree has no accessible name; give it a label');
     }
     // (No property changed: the product's words did — src/primitives/words.ts.)
     if (changed.has('loadingLabel') || changed.size === 0) for (const loader of this.querySelectorAll<HTMLLIElement>(`li[${LOADING}]`)) this.writeLoader(loader);
@@ -908,7 +908,7 @@ export class TanreiTreeView extends TanreiLightElement {
   private readRow(item: Item) {
     const row = rowOf(item);
     if (!row) {
-      report(item, 'TRV-32', 'the item has no row: its first child element is its row, with its label; wrap the item’s own text in a <span>');
+      if (DEBUG) report(item, 'TRV-32', 'the item has no row: its first child element is its row, with its label; wrap the item’s own text in a <span>');
       return;
     }
     const ids: string[] = [];
@@ -940,7 +940,7 @@ export class TanreiTreeView extends TanreiLightElement {
       this.labelled.delete(row);
       row.removeAttribute('aria-label');
     }
-    if (!debugBuild()) return;
+    if (!DEBUG) return;
     this.checkChevronless(item);
     // TRV-6: a label written as the row's own text cannot be cut with an ellipsis: it wraps. Said once a tree.
     if (!this.labelWrap && !this.bareReported && [...row.childNodes].some((node) => node.nodeType === Node.TEXT_NODE && !!node.nodeValue?.trim())) {
@@ -1019,8 +1019,8 @@ export class TanreiTreeView extends TanreiLightElement {
   /** TRV-15: a value that names no item selects nothing; two items with one value are both selected. A debug build says each. */
   private reportNamed(name: string, count: number) {
     // (A tree that is still being parsed may not hold the item yet: it is selected when it arrives.)
-    if (count === 0 && document.readyState !== 'loading') report(this, 'TRV-15', `the selection names "${name}", which is the value of no item; nothing is selected for it`);
-    if (count > 1) report(this, 'TRV-15', `${count} items carry the value "${name}"; each is drawn as selected, and a value should be unique within the tree`);
+    if (DEBUG && count === 0 && document.readyState !== 'loading') report(this, 'TRV-15', `the selection names "${name}", which is the value of no item; nothing is selected for it`);
+    if (DEBUG && count > 1) report(this, 'TRV-15', `${count} items carry the value "${name}"; each is drawn as selected, and a value should be unique within the tree`);
   }
 
   /** TRV-41: a size the core does not have was added by a design system, or is unknown to the active one. */
@@ -1028,14 +1028,14 @@ export class TanreiTreeView extends TanreiLightElement {
     if (CORE_SIZES.includes(value)) return;
     const known = KEY.test(value);
     if (known) adopt(this.getRootNode() as Root, sheet(`size:${value}`, () => sizeRules(value)));
-    if (!known || getComputedStyle(this).getPropertyValue(`${PREFIX}-container-height-${value}`).trim() === '') {
+    if (DEBUG && (!known || getComputedStyle(this).getPropertyValue(`${PREFIX}-container-height-${value}`).trim() === '')) {
       report(this, 'TRV-41', `size "${value}" is not a value of the active design system; it is drawn as "${DEFAULT_SIZE}"`);
     }
   }
 
   /** What a debug build says about a tree it still draws, once what changed has settled (TRV-13). */
   private check() {
-    if (!debugBuild() || this.checking) return;
+    if (!DEBUG || this.checking) return;
     this.checking = true;
     queueMicrotask(() => {
       this.checking = false;
@@ -1055,7 +1055,7 @@ export class TanreiTreeView extends TanreiLightElement {
   private checkChevronless(item: Item) {
     if (this.chevron !== 'none' || !this.expandable || !isParent(item) || this.toggleIcon(item) || this.chevronlessReported.has(item)) return;
     this.chevronlessReported.add(item);
-    report(item, 'TRV-44', 'the tree’s chevron is none and this parent has no icon: nothing on screen shows whether it is open (the arrow keys still open it); give it an icon and an open icon (data-open-icon)');
+    if (DEBUG) report(item, 'TRV-44', 'the tree’s chevron is none and this parent has no icon: nothing on screen shows whether it is open (the arrow keys still open it); give it an icon and an open icon (data-open-icon)');
   }
   private readonly chevronlessReported = new WeakSet<Element>();
   private bareReported = false;
@@ -1066,7 +1066,7 @@ export class TanreiTreeView extends TanreiLightElement {
     else if (Number.isFinite(value) && value >= 0) this.style.setProperty(property, `${value}px`);
     else {
       this.style.removeProperty(property);
-      report(this, 'TRV-41', `${name} "${value}" is not a number of zero or more; it is drawn as auto`);
+      if (DEBUG) report(this, 'TRV-41', `${name} "${value}" is not a number of zero or more; it is drawn as auto`);
     }
   }
 
@@ -1087,7 +1087,7 @@ export class TanreiTreeView extends TanreiLightElement {
 
   /** TRV-3: a level whose indent takes more than half of the tree's width is drawn where the deepest one that fits begins; a debug build says the depth, once. Read when the user first acts: it reads the layout. */
   private checkDepth() {
-    if (this.depthChecked || !debugBuild()) return;
+    if (this.depthChecked || !DEBUG) return;
     this.depthChecked = true;
     const step = treeLengths(this).indent;
     const width = this.clientWidth;
@@ -1559,7 +1559,7 @@ export class TanreiTreeView extends TanreiLightElement {
   private nameField(field: TanreiEmbeddedTextInput) {
     const name = this.words.get('editLabel', this.editLabel);
     field.label = name;
-    if (!name) this.words.missing('editLabel', { id: 'TRV-32', effect: 'the edit field opens and works, and has no accessible name' });
+    if (!name) this.words.missing('editLabel', DEBUG && { id: 'TRV-32', effect: 'the edit field opens and works, and has no accessible name' });
   }
 
   /**
@@ -2128,13 +2128,15 @@ export class TanreiTreeView extends TanreiLightElement {
   /** TRV-54, TRV-62, TRV-64 to TRV-66, TRV-71: what a debug build says about a field that is drawn. */
   private reportFilter() {
     if (!this.filterBox) return;
-    if (!this.filterLabel.trim()) report(this, 'TRV-71', 'filterable is true and filterLabel is empty, so the filter field has no accessible name; give it one in the product’s language');
-    if (chordsOf(this.filterShortcut).length > 1) report(this, 'TRV-62', `filterShortcut holds ${chordsOf(this.filterShortcut).length} chords; a sequence is not bound, so the rows answer no chord for the field`);
-    if (!this.words.get('filterPlaceholder', this.filterPlaceholder)) this.words.missing('filterPlaceholder', { id: 'TRV-54', effect: 'the empty filter field shows no hint' });
-    if (this.filterValue && this.words.lacks('clearLabel', this.filterClearLabel)) report(this, 'TRV-64', 'filterClearLabel is empty and the product’s words give none, so the clear button has no accessible name; give it one in the product’s language');
+    if (DEBUG && !this.filterLabel.trim()) report(this, 'TRV-71', 'filterable is true and filterLabel is empty, so the filter field has no accessible name; give it one in the product’s language');
+    if (DEBUG && chordsOf(this.filterShortcut).length > 1) report(this, 'TRV-62', `filterShortcut holds ${chordsOf(this.filterShortcut).length} chords; a sequence is not bound, so the rows answer no chord for the field`);
+    if (!this.words.get('filterPlaceholder', this.filterPlaceholder)) this.words.missing('filterPlaceholder', DEBUG && { id: 'TRV-54', effect: 'the empty filter field shows no hint' });
+    // The word is recorded as lacking in every build (`missingWords()`); only the report is a debug build's.
+    const lacksClear = this.filterValue && this.words.lacks('clearLabel', this.filterClearLabel);
+    if (DEBUG && lacksClear) report(this, 'TRV-64', 'filterClearLabel is empty and the product’s words give none, so the clear button has no accessible name; give it one in the product’s language');
     const { applied, matches } = this.filter;
-    if (applied && !matches.size && !this.words.get('filterEmptyText', this.filterEmptyText)) this.words.missing('filterEmptyText', { id: 'TRV-65', effect: 'a filter that matches nothing draws and says nothing' });
-    if (applied && matches.size && !this.words.get('filterCountText', this.filterCountText)) this.words.missing('filterCountText', { id: 'TRV-66', effect: 'no count of the rows that match is drawn or said' });
+    if (applied && !matches.size && !this.words.get('filterEmptyText', this.filterEmptyText)) this.words.missing('filterEmptyText', DEBUG && { id: 'TRV-65', effect: 'a filter that matches nothing draws and says nothing' });
+    if (applied && matches.size && !this.words.get('filterCountText', this.filterCountText)) this.words.missing('filterCountText', DEBUG && { id: 'TRV-66', effect: 'no count of the rows that match is drawn or said' });
   }
 
   /**

@@ -1,11 +1,11 @@
 import type { PropertyDeclarations, PropertyValues } from 'lit';
 import { AvailabilityController, SEPARATIONS, SEPARATION_VALUES, type SeparationProp, SizeConsumerController, compChoice, report, styleQueries } from '../../primitives/index.js';
-import { debugBuild } from '../../primitives/report.js';
 import type { TanreiDescriptionListSizeRegistry } from '../../registry.js';
 import { adopt, adoptUnlessDrawn } from '../../primitives/sheets.js';
 import { TanreiLightElement } from '../../primitives/element.js';
 import { FacesWatch } from '../../primitives/faces.js';
 import { TYPE_LONGHANDS } from '../../styles/type.js';
+import { DEBUG } from '../../primitives/debug.js';
 
 /** How a fact is drawn (DSL-3, DSL-5, DSL-6): the term beside its value, above it, or under it as a figure's label. */
 export type TanreiDescriptionListLayout = 'inline' | 'stacked' | 'stat';
@@ -283,11 +283,11 @@ export class TanreiDescriptionList extends TanreiLightElement {
 
   protected override updated(changed: PropertyValues) {
     // DSL-13: a separation the list does not define is auto (no rule matches the attribute); a debug build says so.
-    if (changed.has('separation') && !(SEPARATION_VALUES as readonly string[]).includes(this.separation)) {
+    if (DEBUG && changed.has('separation') && !(SEPARATION_VALUES as readonly string[]).includes(this.separation)) {
       report(this, 'DSL-13', `separation "${this.separation}" is not a value the description list defines; it is drawn as "auto"`);
     }
     // DSL-23: so is a layout the spec does not have — inline, which no rule needs an attribute for.
-    if (changed.has('layout') && !LAYOUTS.includes(this.layout)) {
+    if (DEBUG && changed.has('layout') && !LAYOUTS.includes(this.layout)) {
       report(this, 'DSL-23', `layout "${this.layout}" is not a value the description list defines; it is drawn as "inline"`);
     }
     // DSL-23, DSL-25: the size it draws — its own or its container's — when that changed.
@@ -304,7 +304,7 @@ export class TanreiDescriptionList extends TanreiLightElement {
     if (CORE_SIZES.includes(size)) return;
     const known = KEY.test(size);
     if (known) adopt(this.getRootNode() as Root, writtenSheet(`size:${size}`, () => sizeRules(size)));
-    if (!known || getComputedStyle(this).getPropertyValue(`${PREFIX}-fact-gap-${size}`).trim() === '') {
+    if (DEBUG && (!known || getComputedStyle(this).getPropertyValue(`${PREFIX}-fact-gap-${size}`).trim() === '')) {
       report(this, 'DSL-23', `size "${size}" is not a value of the active design system; it is drawn as "${DEFAULT_SIZE}"`);
     }
   }
@@ -313,11 +313,11 @@ export class TanreiDescriptionList extends TanreiLightElement {
   private readColumns() {
     const columns = Number(this.columns);
     if (!Number.isInteger(columns) || columns < 1) {
-      report(this, 'DSL-7', `columns "${String(this.getAttribute('columns') ?? this.columns)}" is not a whole number of at least 1; the list is drawn in one column`);
+      if (DEBUG) report(this, 'DSL-7', `columns "${String(this.getAttribute('columns') ?? this.columns)}" is not a whole number of at least 1; the list is drawn in one column`);
       return;
     }
     if (columns > 1 && this.layout !== 'stacked' && this.layout !== 'stat') {
-      report(this, 'DSL-7', `an inline list has one column; columns ${columns} is drawn as 1 (the stacked and stat layouts draw columns)`);
+      if (DEBUG) report(this, 'DSL-7', `an inline list has one column; columns ${columns} is drawn as 1 (the stacked and stat layouts draw columns)`);
       return;
     }
     if (columns > COLUMNS_IN_SHEET) adopt(this.getRootNode() as Root, writtenSheet(`columns:${columns}`, () => columnsRule(columns)));
@@ -359,7 +359,7 @@ export class TanreiDescriptionList extends TanreiLightElement {
     const read = live.map((box) => {
       const list = box.list;
       if (!list) return null;
-      if (debugBuild()) {
+      if (DEBUG) {
         // A list that is still being parsed is read again when it is whole.
         if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', box.read, { once: true });
         else box.check(list);
@@ -382,11 +382,11 @@ export class TanreiDescriptionList extends TanreiLightElement {
   /** What a debug build says about a list it still draws (DSL-7, DSL-11). */
   private check(list: HTMLDListElement) {
     const grouped = !!list.querySelector(':scope > div');
-    if (!grouped && list.firstElementChild && (this.layout === 'stat' || Number(this.columns) > 1)) {
+    if (DEBUG && !grouped && list.firstElementChild && (this.layout === 'stat' || Number(this.columns) > 1)) {
       report(this, 'DSL-7', 'the stat layout and columns need each fact in a group: a <div> around its <dt> and its <dd>s; the list is drawn in one column, its terms above their values');
     }
     const untermed = grouped ? list.querySelector(':scope > div:not(:has(> dt)):has(> dd)') : list.firstElementChild?.localName === 'dd' ? list.firstElementChild : null;
-    if (untermed) report(this, 'DSL-11', 'a value has no term; it is drawn where it would be, and nothing names it');
+    if (DEBUG && untermed) report(this, 'DSL-11', 'a value has no term; it is drawn where it would be, and nothing names it');
   }
 
   /**

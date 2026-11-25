@@ -21411,6 +21411,14 @@
               "unit": "px"
             },
             "$description": "The capsule's own inline size under which the inline layout is drawn stacked: every action but the send button moves to a row below the typing area, which shares its line with the send button alone. A width of the composer, not of the window, and not a size of anything drawn. It grows with enlarged text, so a composer whose text has doubled stacks sooner."
+          },
+          "input-min-width": {
+            "$type": "dimension",
+            "$value": {
+              "value": 160,
+              "unit": "px"
+            },
+            "$description": "The least inline size the inline layout may leave the typing area beside everything it puts on the same line — the attach button, the product's Buttons, the counter and the send button. Where they would leave it less, the composer is drawn stacked, however wide the capsule is. A width of the line being written, not a size of anything drawn. It grows with enlarged text, as inline-min-width does."
           }
         },
         "motion": {

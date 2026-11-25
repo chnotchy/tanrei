@@ -3912,6 +3912,7 @@ export const m3Like = {
       hoveredOutlineWidth: 1,
       inputPaddingBlock: 8,
       layoutInlineMinWidth: 360,
+      layoutInputMinWidth: 160,
       motionGlyphFadeDuration: 150,
       motionResizeDuration: 500,
       motionResizeEasing: [0.27, 1.06, 0.18, 1],

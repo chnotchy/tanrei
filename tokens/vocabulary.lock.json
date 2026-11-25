@@ -1550,6 +1550,7 @@
     "tanrei.comp.chat-composer.hovered.outline.width": "dimension",
     "tanrei.comp.chat-composer.input.padding-block": "dimension",
     "tanrei.comp.chat-composer.layout.inline-min-width": "dimension",
+    "tanrei.comp.chat-composer.layout.input-min-width": "dimension",
     "tanrei.comp.chat-composer.motion.glyph-fade-duration": "duration",
     "tanrei.comp.chat-composer.motion.resize-duration": "duration",
     "tanrei.comp.chat-composer.motion.resize-easing": "cubicBezier",

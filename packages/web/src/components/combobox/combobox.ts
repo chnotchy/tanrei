@@ -58,6 +58,7 @@ import { TanreiElement } from '../../primitives/element.js';
 import { containsText, letters, matchRun, sameText } from '../../primitives/filter.js';
 import { ambientLocale } from '../../primitives/locale-date.js';
 import { PausedAnnouncement } from '../../primitives/paused-announcement.js';
+import { DEBUG } from '../../primitives/debug.js';
 
 /** The three looks of the input box (`comp.input-box`): a filled box with no label of its own (`stacked`: the label above is its Field's), or the label floating inside a `filled` or `outlined` box. A design system may leave some out or add values. */
 export type TanreiComboboxVariant = keyof TanreiInputBoxVariantRegistry;
@@ -1061,10 +1062,10 @@ export class TanreiCombobox extends TanreiElement {
     const sentence = this.words.get(key, own);
     if (!sentence) {
       region.replaceChildren();
-      this.words.missing(key, { prop: WORD_PROPS[key], id: 'CMB-79', effect });
+      this.words.missing(key, DEBUG && { prop: WORD_PROPS[key], id: 'CMB-79', effect });
       return;
     }
-    reportPlaces(this, 'CMB-79', WORD_PROPS[key], sentence, wordPlaces[key] ?? [], 'it is said as it is written');
+    if (DEBUG) reportPlaces(this, 'CMB-79', WORD_PROPS[key], sentence, wordPlaces[key] ?? [], 'it is said as it is written');
     region.replaceChildren(
       ...fillPlaces(sentence, { entry }).runs.map((run) => {
         if (run.place !== 'entry') return run.text;
@@ -1441,7 +1442,7 @@ export class TanreiCombobox extends TanreiElement {
     this.hasLeading = slot.assignedNodes({ flatten: true }).some((node) => node.nodeType === Node.ELEMENT_NODE || !!node.textContent?.trim());
     // CMB-18: the slot's content is a glyph only.
     void slottedInteractive(slot).then((found) => {
-      if (found) report(this, 'CMB-18', `the leading-icon slot holds an interactive element (<${found.localName}>); it takes a glyph only`);
+      if (DEBUG && found) report(this, 'CMB-18', `the leading-icon slot holds an interactive element (<${found.localName}>); it takes a glyph only`);
     });
   }
 
@@ -1564,30 +1565,32 @@ export class TanreiCombobox extends TanreiElement {
   private reports(changed: PropertyValues) {
     if (!this.isConnected) return;
     // CMB-12: a combobox no Field names, with no label of its own, still renders. (A Field with an empty label says so itself: FLD-10.)
-    if (!this.label.trim() && !this.frame.state && !namedByProduct(this)) report(this, 'CMB-12', 'label is empty and no field frames it, so the combobox has no accessible name; put it in a field with a label, or give it a label');
-    if (this.clearable && this.words.lacks('clearLabel', this.clearLabel)) report(this, 'CMB-20', 'clearLabel is empty, so the clear button has no accessible name; give it one ("Clear")');
+    if (DEBUG && !this.label.trim() && !this.frame.state && !namedByProduct(this)) report(this, 'CMB-12', 'label is empty and no field frames it, so the combobox has no accessible name; put it in a field with a label, or give it a label');
+    // The word is recorded as lacking in every build (`missingWords()`); only the report is a debug build's.
+    const lacksClear = this.clearable && this.words.lacks('clearLabel', this.clearLabel);
+    if (DEBUG && lacksClear) report(this, 'CMB-20', 'clearLabel is empty, so the clear button has no accessible name; give it one ("Clear")');
     // CMB-32, CMB-60: only where the row would be drawn — a person typed, or the product opened the list on, a text that
     // matches nothing. (Without the words the list has nothing to show and is not open: `open` is taken back.)
     if (this.emptyAsked && !this.emptyWords && !this.inert_ && !this.readOnly && (this.focused || this.open || changed.has('open'))) {
-      this.words.missing('emptyText', { id: 'CMB-32', effect: 'a text that matches nothing draws no row in the list' });
+      this.words.missing('emptyText', DEBUG && { id: 'CMB-32', effect: 'a text that matches nothing draws no row in the list' });
     }
-    if (changed.has('selection') && this.selection !== 'single' && this.selection !== 'multiple') report(this, 'CMB-70', `selection "${this.selection}" is not single or multiple; it behaves as "single"`);
+    if (DEBUG && changed.has('selection') && this.selection !== 'single' && this.selection !== 'multiple') report(this, 'CMB-70', `selection "${this.selection}" is not single or multiple; it behaves as "single"`);
     // CMB-79: the remove actions are drawn and work without a name; two of them with one name cannot be told apart.
     if (this.hasEntries && !this.readOnly && !this.inert_) {
       const sentence = this.words.get('entryRemoveLabel', this.removeLabel);
-      if (!sentence) this.words.missing('entryRemoveLabel', { prop: 'removeLabel', id: 'CMB-79', effect: 'each chosen value\'s remove action is drawn and works, and has no accessible name' });
+      if (!sentence) this.words.missing('entryRemoveLabel', DEBUG && { prop: 'removeLabel', id: 'CMB-79', effect: 'each chosen value\'s remove action is drawn and works, and has no accessible name' });
       else {
-        reportPlaces(this, 'CMB-79', 'removeLabel', sentence, wordPlaces.entryRemoveLabel ?? [], 'each remove action is named with it as it is written');
-        for (const place of placeFaults(sentence, wordPlaces.entryRemoveLabel ?? []).absent) report(this, 'CMB-79', `removeLabel has no place {${place}}, so every remove action has the same name; write it as "Remove {${place}}"`);
+        if (DEBUG) reportPlaces(this, 'CMB-79', 'removeLabel', sentence, wordPlaces.entryRemoveLabel ?? [], 'each remove action is named with it as it is written');
+        for (const place of placeFaults(sentence, wordPlaces.entryRemoveLabel ?? []).absent) DEBUG && report(this, 'CMB-79', `removeLabel has no place {${place}}, so every remove action has the same name; write it as "Remove {${place}}"`);
       }
     }
-    if (changed.has('filter') && !FILTERS.includes(this.filter)) report(this, 'CMB-56', `filter "${this.filter}" is not contains or none; it behaves as "contains"`);
-    if (changed.has('status') && !STATUSES.includes(this.status)) report(this, 'CMB-56', `status "${this.status}" is not idle, loading or error; it behaves as "idle"`);
-    if (changed.has('separation') && !(SEPARATION_VALUES as readonly string[]).includes(this.separation)) {
+    if (DEBUG && changed.has('filter') && !FILTERS.includes(this.filter)) report(this, 'CMB-56', `filter "${this.filter}" is not contains or none; it behaves as "contains"`);
+    if (DEBUG && changed.has('status') && !STATUSES.includes(this.status)) report(this, 'CMB-56', `status "${this.status}" is not idle, loading or error; it behaves as "idle"`);
+    if (DEBUG && changed.has('separation') && !(SEPARATION_VALUES as readonly string[]).includes(this.separation)) {
       report(this, 'CMB-44', `separation "${this.separation}" is not auto, divider or gap; it behaves as "auto"`);
     }
     // CMB-67: an iconSpace the combobox does not define is auto; a debug build says so.
-    if (changed.has('iconSpace') && !OPTION_ICON_SPACES.includes(this.iconSpace)) {
+    if (DEBUG && changed.has('iconSpace') && !OPTION_ICON_SPACES.includes(this.iconSpace)) {
       report(this, 'CMB-67', `iconSpace "${this.iconSpace}" is not auto, always or never; it behaves as "auto"`);
     }
     const { options, nested } = this.options$.model;
@@ -1595,14 +1598,14 @@ export class TanreiCombobox extends TanreiElement {
     const signature = `${options.map((option) => `${option.value}\u0001${option.label}`).join('\u0000')}\u0000${nested.length}`;
     if (signature === this.reportedOptions) return;
     this.reportedOptions = signature;
-    if (options.some((option) => !option.label)) report(this, 'CMB-57', `an option has an empty label, so it has no accessible name; give each <${OPTION_TAG}> a label or a text`);
-    if (options.some((option) => option.value === '')) report(this, 'CMB-57', `an option has the empty value, which means that nothing is chosen: it is drawn and cannot be chosen; give each <${OPTION_TAG}> a value`);
+    if (DEBUG && options.some((option) => !option.label)) report(this, 'CMB-57', `an option has an empty label, so it has no accessible name; give each <${OPTION_TAG}> a label or a text`);
+    if (DEBUG && options.some((option) => option.value === '')) report(this, 'CMB-57', `an option has the empty value, which means that nothing is chosen: it is drawn and cannot be chosen; give each <${OPTION_TAG}> a value`);
     const seen = new Set<string>();
     for (const option of options) {
-      if (seen.has(option.value)) report(this, 'CMB-57', `two options share the value "${option.value}"; the first is the one both stand for`);
+      if (DEBUG && seen.has(option.value)) report(this, 'CMB-57', `two options share the value "${option.value}"; the first is the one both stand for`);
       seen.add(option.value);
     }
-    if (nested.length) report(this, 'CMB-43', `a <${OPTION_GROUP_TAG}> stands inside another; its options are drawn as the outer group's, with no title or separation of its own`);
+    if (DEBUG && nested.length) report(this, 'CMB-43', `a <${OPTION_GROUP_TAG}> stands inside another; its options are drawn as the outer group's, with no title or separation of its own`);
   }
 
   /** CMB-38: an option's label with the first run that matched the text in a `<mark>`: one text, drawn heavier there. */

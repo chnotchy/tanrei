@@ -1,9 +1,9 @@
 import type { PropertyDeclarations, PropertyValues } from 'lit';
 import { AvailabilityController, SEPARATIONS, SEPARATION_VALUES, type SeparationProp, compChoice, report, styleQueries } from '../../primitives/index.js';
-import { debugBuild } from '../../primitives/report.js';
 import type { TanreiFigureVariantRegistry } from '../../registry.js';
 import { adopt, adoptUnlessDrawn } from '../../primitives/sheets.js';
 import { TanreiLightElement } from '../../primitives/element.js';
+import { DEBUG } from '../../primitives/debug.js';
 
 /** The core looks (outlined, filled, plain), plus any a design system's generated `.d.ts` registers. */
 export type TanreiFigureVariant = keyof TanreiFigureVariantRegistry;
@@ -240,11 +240,11 @@ export class TanreiFigure extends TanreiLightElement {
 
   protected override updated(changed: PropertyValues) {
     // FIG-12: a separation the figure does not define is auto (no rule matches the attribute); a debug build says so.
-    if (changed.has('separation') && !(SEPARATION_VALUES as readonly string[]).includes(this.separation)) {
+    if (DEBUG && changed.has('separation') && !(SEPARATION_VALUES as readonly string[]).includes(this.separation)) {
       report(this, 'FIG-12', `separation "${this.separation}" is not a value the figure defines; it is drawn as "auto"`);
     }
     // FIG-26: a pattern the figure does not define draws none (no rule draws it); a debug build says so.
-    if (changed.has('pattern') && !PATTERNS.includes(String(this.pattern ?? ''))) {
+    if (DEBUG && changed.has('pattern') && !PATTERNS.includes(String(this.pattern ?? ''))) {
       report(this, 'FIG-26', `pattern "${this.pattern}" is not a value the figure defines; no pattern is drawn`);
     }
     if (changed.has('variant')) this.readVariant();
@@ -260,7 +260,7 @@ export class TanreiFigure extends TanreiLightElement {
     if (CORE_VARIANTS.includes(variant)) return;
     const known = KEY.test(variant);
     if (known) adopt(this.getRootNode() as Root, sheet(`variant:${variant}`, () => variantRules(variant)));
-    if (!known || getComputedStyle(this).getPropertyValue(`${PREFIX}-${variant}-container-color`).trim() === '') {
+    if (DEBUG && (!known || getComputedStyle(this).getPropertyValue(`${PREFIX}-${variant}-container-color`).trim() === '')) {
       report(this, 'FIG-24', `variant "${variant}" is not a value of the active design system; it is drawn as "${DEFAULT_VARIANT}"`);
     }
   }
@@ -291,7 +291,7 @@ export class TanreiFigure extends TanreiLightElement {
     const shows = filled(stage) || !!this.within(` > :is(${PICTURES})`) || !!this.within(` > [data-part="frame"] > :is(${PICTURES})`);
     mark(this, 'data-empty', shows ? null : '');
     if (figure) this.readName(figure, shows);
-    if (debugBuild() && !shows) {
+    if (DEBUG && !shows) {
       // A figure that is still being parsed is read again when it is whole.
       if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', () => this.read(), { once: true });
       else report(this, 'FIG-25', 'the figure shows nothing: its stage is empty, so nothing is drawn (a title, a caption or an attachment alone is not a figure)');
@@ -412,7 +412,7 @@ export class TanreiFigure extends TanreiLightElement {
       'aria-label': !title && !caption && this.label ? this.label : null,
     };
     this.give(figure, this.named, wanted);
-    if (shows && !title && !caption && !this.label && !figure.hasAttribute('aria-label') && !figure.hasAttribute('aria-labelledby')) {
+    if (DEBUG && shows && !title && !caption && !this.label && !figure.hasAttribute('aria-label') && !figure.hasAttribute('aria-labelledby')) {
       report(this, 'FIG-16', 'the figure has no name; give it a title, a caption, or a label where it draws neither');
     }
   }
