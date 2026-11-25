@@ -465,7 +465,7 @@
     },
     {
       "id": "TXI-5",
-      "text": "WHILE disabled is true — set by the product, or by the Field that frames it (FLD-14) — THE text input SHALL NOT be focusable or editable, SHALL NOT emit input, change or action, SHALL expose the disabled state to assistive technology, SHALL be left out of form submission on the web, and SHALL render every part from the disabled component tokens of its variant (of its error parts WHILE error is true)."
+      "text": "WHILE disabled is true — set by the product, or by the Field that frames it (FLD-14) — THE text input SHALL NOT be focusable or editable, SHALL NOT emit input, change or action, SHALL expose the disabled state to assistive technology, SHALL expose its prefix and its suffix as text of the disabled control — still part of the input's description (TXI-15) — so that the exemption WCAG 1.4.3 gives the text of an inactive control applies to them as it does to the value, SHALL be left out of form submission on the web, and SHALL render every part from the disabled component tokens of its variant (of its error parts WHILE error is true)."
     },
     {
       "id": "TXI-6",
