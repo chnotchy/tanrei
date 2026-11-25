@@ -197,6 +197,23 @@ Every token is a custom property named after its path: `tanrei.sys.color.primary
 
 To set a token from script, use `setTokens()` from `@tanrei/web`: `setTokens({ '--tanrei-sys-color-primary': '#0b57d0' })` on the root, or with `{ on: element }` for one part of the page. One token set alone on the root with `style.setProperty()` makes Safari restyle the whole page for seconds; `setTokens()` writes it so that it does not.
 
+## Your own focus ring
+
+Every element draws its own keyboard focus indicator from the system's focus tokens (`--tanrei-sys-focus-offset`, `--tanrei-sys-focus-inner-width`, `--tanrei-sys-focus-outer-width`, `--tanrei-sys-color-focus-ring`, `--tanrei-sys-color-focus-ring-inner`): change those to change it. Your page's rule for every focused element (`:focus-visible { outline: … }`, or a reset's) can stay. An element whose host takes focus itself, such as a tab, a tab panel or a list item, draws its ring inside and sets `outline: none !important` on its host. A page's own rules win over a shadow root's, but not over an important one, so your outline is not drawn around it as well.
+
+The stylesheets for your own markup (`table.css`, `link.css`, `prose.css` and the others) are in `@layer tanrei.components`, and a rule outside any layer wins over every layered one: unlayered, your focus rule replaces their rings with yours. Put it in a layer of your own, named before Tanrei's in the first stylesheet the page loads, and theirs are drawn as they are:
+
+```css
+@layer base, tanrei;
+
+@layer base {
+  :focus-visible {
+    outline: var(--tanrei-sys-focus-outer-width) solid var(--tanrei-sys-color-focus-ring);
+    outline-offset: var(--tanrei-sys-focus-offset);
+  }
+}
+```
+
 ## Text styles
 
 Text styles are named by level (`heading-2` is an `h2`, `body` a `p`, `label` the text on a control), and each one is a set of custom properties, its longhands: `--tanrei-sys-typescale-<role>-font-family`, `-font-size`, `-font-weight`, `-line-height`, `-letter-spacing` and `-font-weight-emphasized`. There is no shorthand property: compose `font` from the longhands where the text is drawn, as above, and change a style one longhand at a time. `--tanrei-sys-typescale-body-font-size: 1rem`, on the root or on one element or section of the page, changes the size of that text and nothing else. Two optional stylesheets put them on elements for you:

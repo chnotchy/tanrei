@@ -259,7 +259,7 @@ export const menuStyles = css`
     display: flex;
     flex: none;
     /* The ring is drawn around the container, never around the host. */
-    outline: none;
+    outline: none !important;
   }
   :host([hidden]) {
     display: none;
@@ -301,7 +301,7 @@ export const itemStyles = css`
     display: flex;
     flex: none;
     /* The ring is drawn around the container, never around the host. */
-    outline: none;
+    outline: none !important;
   }
   :host([data-tanrei-folded]) {
     display: contents;
