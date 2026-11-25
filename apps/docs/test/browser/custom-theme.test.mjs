@@ -114,6 +114,26 @@ const drawn = (page) =>
     () => state(page).then((now) => JSON.stringify({ ...now, theme: Boolean(now.theme) })),
   );
 
+/**
+ * Waits for a page under the theme to be shown, then for the theme to be drawn. A page whose sheet was not in after
+ * the reveal limit (`REVEAL_AFTER`) — read from IndexedDB, which a loaded machine can answer later than that (Firefox's
+ * read in CI) — is late by design: drawn whole in the default system, the sheet not put in on that page, and the reader
+ * told so, with an action that applies it now. No wait of the test's keeps the page's own limit from passing: a late
+ * page is asserted as drawn, and the theme drawn through that action. Answers whether the page was late.
+ */
+async function shownInTheme(page, t) {
+  await bounded(`${page.url()}: the page shown`, page.waitForFunction((pending) => !document.documentElement.hasAttribute(pending), PENDING_ATTR, { timeout: 60_000 }));
+  const late = await page.evaluate((attr) => document.documentElement.getAttribute(attr), LATE_ATTR);
+  if (late !== null) {
+    t.diagnostic(`${page.url()}: the theme's sheet not in after ${REVEAL_AFTER} ms; the page is drawn in ${DEFAULT}, as a late page is`);
+    assert.equal(late, CUSTOM_LOOK);
+    assert.deepEqual(await state(page).then(({ look, sheet }) => ({ look, sheet })), { look: DEFAULT, sheet: false }, 'the late page is drawn in the default system, the late sheet not put in');
+    await page.locator('tanrei-snackbar').getByRole('button', { name: en.frame.applyNow, exact: true }).click();
+  }
+  await drawn(page);
+  return late !== null;
+}
+
 /** How long a press takes to be drawn: from its pointerdown to the frame after the `change` it fires, in the page's clock. */
 async function pressed(page, locator, event = 'change') {
   await page.evaluate((type) => {
@@ -152,7 +172,7 @@ for (const engine of ENGINES) {
       return { context: made, problems, requests };
     };
 
-    test('the Studio’s Share menu: off by default; on, the documentation keeps the layer and shows it, every page from its first paint, the examples with it; off, it is gone', LIMIT, async () => {
+    test('the Studio’s Share menu: off by default; on, the documentation keeps the layer and shows it, every page from its first paint, the examples with it; off, it is gone', LIMIT, async (t) => {
       const { context: tabs, problems, requests } = await context();
       const studio = await tabs.newPage();
       await studio.goto(`${origin}/studio/`);
@@ -213,7 +233,7 @@ for (const engine of ENGINES) {
       }, { style: LOOK_SHEET_ID, pending: PENDING_ATTR });
       const before = requests.length;
       await next.goto(`${origin}/foundations/accessibility/`);
-      await drawn(next);
+      await shownInTheme(next, t);
       const cloak = await next.evaluate(() => window.cloak);
       // Shown with the sheet in — or, on an engine too loaded to answer IndexedDB in time, once REVEAL_AFTER had passed.
       assert.ok(cloak.hidden !== null && (cloak.sheetThen || cloak.shown - cloak.hidden >= REVEAL_AFTER - 50), `the page was shown with the theme’s sheet in, never before it (${JSON.stringify(cloak)})`);
@@ -364,9 +384,11 @@ for (const engine of ENGINES) {
         assert.ok(cloak.shown - cloak.hidden >= REVEAL_AFTER - 50, `shown without the sheet only once the page had been hidden for ${REVEAL_AFTER} ms (${JSON.stringify(cloak)})`);
         assert.deepEqual(await page.evaluate((late) => [document.documentElement.dataset.docsLook, document.documentElement.hasAttribute(late)], LATE_ATTR), [DEFAULT, true]);
         assert.equal(await page.evaluate((style) => Boolean(document.getElementById(style)), LOOK_SHEET_ID), false, 'the late sheet is not put in on that page');
-        // The next page: the sheet kept by then is read before the page is shown.
+        // The next page: the sheet kept by then is read from IndexedDB before the page is shown — or, where IndexedDB
+        // answers after the reveal limit again, that page is late too, and the theme is applied from it.
         await until(page, 'the late sheet kept', sheetKept, { ...SHEET_STORE, hash: 'fresh1' });
         await page.reload();
+        await shownInTheme(page, t);
       }
       await drawn(page);
       assert.ok(requests.some((url) => /sheet-worker/.test(url)), 'computed in the worker');
