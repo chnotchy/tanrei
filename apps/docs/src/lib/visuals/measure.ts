@@ -6,6 +6,7 @@
 import { getSpec } from '../repo';
 import { anatomyOf, webPartsOf, type PartTarget } from './anatomy';
 import { below, componentTokens } from './groups';
+import notDrawn from './lengths-not-drawn.json';
 
 export interface Measure {
   /** The token, dotted (`tanrei.comp.button.container.height.large`). */
@@ -154,4 +155,29 @@ export function measureLinesOf(name: string, fixtureId: string, html: string): M
   return [...chosen.values()]
     .map(({ measure, axis }) => ({ ...measure, axis, target: boxes.get(measure.part!)! }))
     .sort((a, b) => order.get(a.part!)! - order.get(b.part!)! || ALONG.indexOf(a.axis) - ALONG.indexOf(b.axis));
+}
+
+// ── The lengths a figure does not draw ───────────────────────────────────────────────────────────────────────────────
+
+/**
+ * The lengths of a figure's table that the component does not draw as its token says, and what it draws instead (in
+ * pixels, under the system the figure is drawn under), or `null` where the fixture draws no such box: the record
+ * `lengths-not-drawn.json`, by component, of the fixture its figure is drawn over.
+ *
+ * The figure finds these in the browser, measuring what the component draws (lib/visuals/blueprint.ts), and says each
+ * in its table's row. The page says them before that, from this record, so that the table is laid out at its drawn size
+ * before any script has run: a note written in only once the figure was drawn grew the table in the reader's view (the
+ * Japanese Select's at a phone's width from 260 px to 1020 px, its lengths' column pushed wide by the note and its
+ * tokens' column broken a few letters to a line). The browser test of every figure (test/browser/blueprint-pages.test.mjs)
+ * holds the record to what each figure finds: a length that comes to be drawn as its token says, or one that comes to
+ * be drawn otherwise, fails it until the record says so.
+ */
+export function lengthsNotDrawnOf(name: string, fixture: string, lines: readonly Measure[]): Map<string, number | null> {
+  const record = (notDrawn as Record<string, { fixture: string; lengths: Record<string, number | null> }>)[name];
+  if (!record) return new Map();
+  if (record.fixture !== fixture) throw new Error(`lengths-not-drawn.json: ${name}'s lengths are recorded over the fixture ${record.fixture}, and its figure is drawn over ${fixture}`);
+  const tokens = new Set(lines.map((line) => line.token));
+  const stray = Object.keys(record.lengths).filter((token) => !tokens.has(token));
+  if (stray.length) throw new Error(`lengths-not-drawn.json: ${name}'s figure has no length ${stray.join(', ')}`);
+  return new Map(Object.entries(record.lengths));
 }
