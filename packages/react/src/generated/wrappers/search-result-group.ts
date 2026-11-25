@@ -11,7 +11,7 @@ const SearchResultGroupElement = /* @__PURE__ */ createComponent({
   react: React,
   events: {},
 });
-const SearchResultGroupAttributes = { value: ['value', ''], headline: ['headline', ''], excerpt: ['excerpt'], leadingIcon: ['leading-icon', ''], href: ['href', ''], target: ['target', 'same'], targetLabel: ['target-label', ''], rel: ['rel', null], download: ['download', null] } as const;
+const SearchResultGroupAttributes = { value: ['value', ''], headline: ['headline', ''], excerpt: ['excerpt', []], leadingIcon: ['leading-icon', ''], href: ['href', ''], target: ['target', 'same'], targetLabel: ['target-label', ''], rel: ['rel', null], download: ['download', null] } as const;
 /**
  * Results that belong together, under one heading — the spec's item kind `result-group`: the sections found in one page, or the results of one kind. With `href` its heading is itself a result (the page), drawn as a result's row, and its `<tanrei-search-result>` children are inset under it as its parts; without one its heading is a quiet title.
  *
