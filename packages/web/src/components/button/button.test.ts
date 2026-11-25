@@ -975,7 +975,7 @@ test.describe('icon side padding and icon-only widths', () => {
 
   test('BTN-12: the corner is capped at half the shorter side — a circle at the default width and a capsule at the other two under corner.full, a rounded rectangle under a smaller corner; the container grows with the text size and keeps its proportion', async ({ page }) => {
     await mountFixtures(page, spec, { icons: true });
-    const surface = await page.evaluate(() => getComputedStyle(document.body).backgroundColor);
+    const surface = await page.evaluate(() => getComputedStyle(document.documentElement).backgroundColor);
     /** What is under a point of the stage: the button's container, or the stage around it. */
     const drawn = async (id: string, x: number, y: number) => {
       const { decodePng } = await import('../../../test/png.js');

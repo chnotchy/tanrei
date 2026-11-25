@@ -10,6 +10,7 @@ import { type Fixture, loadSpec, mountFixtures, resolveColor, resolveToken, tab,
 import { decodePng, paintedColor } from '../../../test/png.js';
 import { HOLD_NOW, motionCount } from '../../../test/motions.js';
 import { expectBaseline } from '../../../test/baseline.js';
+import { laidOutBox } from '../../../test/laid-out-box.js';
 
 const spec = loadSpec('progress-indicator');
 type P = Page;
@@ -21,7 +22,8 @@ const host = (page: P, id: string) => page.locator(`[data-fixture="${id}"] tanre
 const part = (page: P, id: string, name: string) => (name === 'track' ? host(page, id).locator('.track').filter({ visible: true }).first() : host(page, id).locator(`.${name}`).first());
 const stage = (page: P, id: string) => page.locator(`[data-fixture="${id}"]`);
 const T = (name: string) => `--tanrei-comp-progress-indicator-${name}`;
-const box = async (locator: Locator) => (await locator.boundingBox())!;
+/** A box as the engine laid it out (test/laid-out-box.ts): a ring below a line of the page's text keeps its size in Firefox. */
+const box = laidOutBox;
 const css = (locator: Locator, property: string) => locator.evaluate((el, p) => getComputedStyle(el).getPropertyValue(p), property);
 const token = (page: P, name: string) => page.evaluate((n) => getComputedStyle(document.documentElement).getPropertyValue(n).trim(), name);
 /** A token's easing as the browser serializes a timing function. */
