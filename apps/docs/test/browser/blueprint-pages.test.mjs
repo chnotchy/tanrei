@@ -126,24 +126,30 @@ test('every figure: each number once, inside and clear; each line its token’s 
             const data = JSON.parse(frame.querySelector('[data-blueprint]').dataset.blueprint);
             const target = data.parts.find((part) => part.id === rect.dataset.part)?.target ?? null;
             const host = frame.querySelector(`.docs-blueprint-stage ${data.tag}`);
+            // What is drawn: an element shown and of some size (a hidden copy kept for measuring is not the part).
+            const isDrawn = (element) => {
+              const r = element.getBoundingClientRect();
+              const shown = element.checkVisibility?.({ opacityProperty: true, visibilityProperty: true }) ?? true;
+              const before = getComputedStyle(element, '::before');
+              const byBefore = getComputedStyle(element).visibility === 'hidden' && before.visibility === 'visible' && before.content !== 'none' && before.content !== 'normal';
+              return (shown || byBefore) && r.width > 0.5 && r.height > 0.5;
+            };
             /** @type {Element[] | null | undefined} */
             let elements = null;
             if (target && host && !target.aspect) {
               if ('host' in target) elements = [host];
               else if ('part' in target && !('child' in target)) elements = [...(host.shadowRoot?.querySelectorAll(`[part~="${target.part}"]`) ?? [])];
               else if ('child' in target && target.child.length === 1) {
-                const child = host.querySelector(target.child[0]);
-                elements = child && target.part ? [...(child.shadowRoot?.querySelectorAll(`[part~="${target.part}"]`) ?? [])] : child ? [child] : [];
+                // A word that names several kinds of element (`tanrei-menu-item|tanrei-submenu`) is the first of them,
+                // in the document's order, that draws the part; a word that names one is the first of it.
+                const tags = target.child[0].split('|');
+                const of = (child) => (target.part ? [...(child.shadowRoot?.querySelectorAll(`[part~="${target.part}"]`) ?? [])] : [child]);
+                const candidates = tags.length > 1 ? [...host.querySelectorAll(tags.join(', '))] : [host.querySelector(tags[0])].filter(Boolean);
+                const child = candidates.find((candidate) => of(candidate).some(isDrawn)) ?? candidates[0];
+                elements = child ? of(child) : [];
               }
             }
-            // What is drawn: an element shown and of some size (a hidden copy kept for measuring is not the part).
-            elements = elements?.filter((element) => {
-              const r = element.getBoundingClientRect();
-              const shown = element.checkVisibility?.({ opacityProperty: true, visibilityProperty: true }) ?? true;
-              const before = getComputedStyle(element, '::before');
-              const byBefore = getComputedStyle(element).visibility === 'hidden' && before.visibility === 'visible' && before.content !== 'none' && before.content !== 'normal';
-              return (shown || byBefore) && r.width > 0.5 && r.height > 0.5;
-            });
+            elements = elements?.filter(isDrawn);
             const real = elements?.length
               ? elements.map(box).reduce((a, b) => ({ left: Math.min(a.left, b.left), top: Math.min(a.top, b.top), right: Math.max(a.right, b.right), bottom: Math.max(a.bottom, b.bottom) }))
               : null;
