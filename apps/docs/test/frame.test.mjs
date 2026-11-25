@@ -59,7 +59,7 @@ describe('the header’s controls', () => {
   const panel = read('components/frame/Appearance.astro');
   test('every word of the menu button, the appearance’s button and panel, the mode’s toggle, the language’s button and the repository’s link is in the six languages', async () => {
     const { strings } = await import('../src/lib/i18n.ts');
-    const keys = ['menu', 'appearance', 'appearanceOf', 'mode', 'modeAuto', 'darkMode', 'lookDefault', 'showcase', 'showcaseNote', 'copyLink', 'linkCopied', 'copyFailed', 'shared', 'keepShared', 'close', 'editTheme', 'language', 'repository'];
+    const keys = ['menu', 'appearance', 'appearanceOf', 'mode', 'modeAuto', 'darkMode', 'lookDefault', 'showcase', 'showcaseNote', 'copyLink', 'linkCopied', 'copyFailed', 'shared', 'keepShared', 'lateLook', 'lateShared', 'applyNow', 'close', 'editTheme', 'language', 'repository'];
     const english = strings(source.lang).frame;
     for (const { lang } of [source, ...translations]) {
       const words = strings(lang).frame;
@@ -68,6 +68,8 @@ describe('the header’s controls', () => {
         if (lang !== source.lang) assert.notEqual(words[key], english[key], `${lang}: frame.${key} is not translated`);
       }
       assert.deepEqual([...words.appearanceOf.matchAll(/\{(\w+)\}/g)].map((match) => match[1]), ['look'], `${lang}: frame.appearanceOf has one place, for the look`);
+      for (const key of ['lateLook', 'lateShared']) assert.deepEqual([...words[key].matchAll(/\{(\w+)\}/g)].map((match) => match[1]), ['look', 'default'], `${lang}: frame.${key} names the look that came too late and the system drawn`);
+      assert.ok(words.lateLook.startsWith(words.lateShared), `${lang}: frame.lateLook is frame.lateShared and what happens next`);
     }
   });
   test('the icon-only buttons are named from the dictionary; the language’s opens its menu, the appearance’s its panel', () => {
@@ -83,7 +85,7 @@ describe('the header’s controls', () => {
     assert.match(panel, /<tanrei-popover class="docs-appearance-panel" data-define-on-use anchor=\{id\} placement="bottom-start" headline=\{words\.appearance\} closable close-label=\{words\.close\}/);
   });
   test('the appearance’s panel: the color mode, then the contrast, then the design system, then the link and Theme Studio’s', () => {
-    const order = ['docs-appearance-mode', 'value="system"', 'value="light"', 'value="dark"', 'docs-appearance-contrast', 'value="standard"', 'value="medium"', 'value="high"', 'docs-appearance-look', 'docs-appearance-note', 'docs-appearance-copy', 'href={studio}'].map((mark) => panel.indexOf(mark));
+    const order = ['docs-appearance-mode', 'value="system"', 'value="light"', 'value="dark"', 'docs-appearance-contrast', 'value="standard"', 'value="medium"', 'value="high"', 'docs-appearance-late', 'docs-appearance-look', 'docs-appearance-note', 'docs-appearance-copy', 'href={studio}'].map((mark) => panel.indexOf(mark));
     assert.ok(order.every((at) => at >= 0), JSON.stringify(order));
     assert.deepEqual([...order].sort((a, b) => a - b), order);
   });
