@@ -5,7 +5,7 @@
 Tabs run vertically. `<tanrei-tabs orientation="vertical">` stacks its tabs in a column at the start edge, beside the
 panels it switches — the categories of a settings page or a dialog. Every tab is as wide as the widest (or as
 `::part(tablist)` makes the column), with its icon before its label at the start edge, and at least the minimum target
-tall. The indicator and the hover, focus and press container are the tab less the track's inset on every side, and the
+tall. The indicator and the hover, focus and press state layer are the tab less the track's inset on every side, and the
 track's corners are the indicator's plus that inset, so the two stay concentric at the ends — derived from the existing
 tokens; no token is added. Down and Up Arrow move and select (Right and Left do nothing), the tab list has
 `aria-orientation="vertical"`, the tabs scroll up and down inside the track when the row has a height, and only a mouse

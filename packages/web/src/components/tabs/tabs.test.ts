@@ -28,9 +28,9 @@ const tabs = (page: P, id: string) => row(page, id).locator('tanrei-tab');
 const tabAt = (page: P, id: string, n: number) => tabs(page, id).nth(n);
 /** The whole tab: what answers the pointer and carries `data-pressed`. */
 const box = (page: P, id: string, n: number) => tabAt(page, id, n).locator('.tab');
-/** The tab's container (TAB-18): the state layer, drawn in the indicator's box. */
-const layer = (page: P, id: string, n: number) => tabAt(page, id, n).locator('.box');
-/** The focus ring's element (TAB-4): the same box as the container. */
+/** The tab's state layer (TAB-18), its part `state-layer`: drawn in the indicator's box. */
+const layer = (page: P, id: string, n: number) => tabAt(page, id, n).locator('[part="state-layer"]');
+/** The focus ring's element (TAB-4): the same box as the state layer. */
 const ring = (page: P, id: string, n: number) => tabAt(page, id, n).locator('.ring');
 /** The track (TAB-27): the scroller. */
 const track = (page: P, id: string) => row(page, id).locator('.scroller');
@@ -208,7 +208,7 @@ const meetX = async (page: P, id: string, a: number, b: number) => {
   const [ba, bb] = [await bounds(tabAt(page, id, a)), await bounds(tabAt(page, id, b))];
   return (ba.x + ba.width + bb.x) / 2;
 };
-/** A tab's container on the page: the box the indicator has on it (TAB-16, TAB-18). */
+/** A tab's state layer on the page: the box the indicator has on it (TAB-16, TAB-18). */
 const seat = (page: P, id: string, n: number) => bounds(layer(page, id, n));
 const frames = (page: P, n = 2) =>
   page.evaluate(async (count) => {
@@ -243,7 +243,7 @@ const focused = (page: P) =>
     return active?.localName === 'tanrei-tab' ? active.value : (active?.id ?? null);
   });
 
-/** What a tab draws: its container, label, covered label, underline piece, indicator piece and opacity. */
+/** What a tab draws: its state layer, label, covered label, underline piece, indicator piece and opacity. */
 const drawn = (page: P, id: string, n: number) =>
   tabAt(page, id, n).evaluate((el) => {
     const root = el.shadowRoot!;
@@ -406,9 +406,10 @@ test.describe('selection and keyboard', () => {
 });
 
 /**
- * TAB-18's container box in parts: the box of each tab whose form it checks, the pointer at the corner of each tab it
- * presses, the order of the layers, and m3-like's square container. Each entry is a test of its own on a page it mounts;
- * the coverage test below holds that every (tab, check) pair the one test walked is walked exactly once, in its order.
+ * TAB-18's state layer box in parts: the box of each tab whose form it checks, the pointer at the corner of each tab it
+ * presses, the order of the layers, and m3-like's square state layer. Each entry is a test of its own on a page it
+ * mounts; the coverage test below holds that every (tab, check) pair the one test walked is walked exactly once, in its
+ * order.
  */
 const TAB_18_BOX = [
   ...([
@@ -426,7 +427,7 @@ const TAB_18_BOX = [
   { part: 'm3-like' as const },
 ];
 
-test('TAB-18: the parts of the container walk check each tab and each check exactly once, in order', () => {
+test('TAB-18: the parts of the state layer walk check each tab and each check exactly once, in order', () => {
   expect(TAB_18_BOX.map((unit) => ('id' in unit ? `${unit.part} ${unit.id}/${unit.n}${'form' in unit ? ` ${unit.form}` : ''}` : unit.part))).toEqual([
     'the box primary/1 capsule',
     'the box primary-icon-only/1 circle',
@@ -883,8 +884,8 @@ test.describe('layout', () => {
       }
       if (unit.part === 'the pointer') {
         const { id, n } = unit;
-        // A pointer at the tab's corner — outside the container — shows the hovered state, in the container; the tab's own
-        // rectangle draws nothing, in any state.
+        // A pointer at the tab's corner — outside the state layer — shows the hovered state, in the state layer; the
+        // tab's own rectangle draws nothing, in any state.
         await mountFixtures(page, spec, { icons: true });
         const hoveredColor = await resolveColor(page, T('primary-hovered-container-color'));
         expect(hoveredColor).not.toBe(await resolveColor(page, T('primary-container-color')));
@@ -902,7 +903,8 @@ test.describe('layout', () => {
         return;
       }
       if (unit.part === 'the layers') {
-        // Above the track (inside it) and under the indicator: the container comes before the content and the covered layer.
+        // Above the track (inside it) and under the indicator: the state layer comes before the content and the covered
+        // layer.
         await mountFixtures(page, spec, { icons: true });
         expect(
           await tabAt(page, 'primary', 0).evaluate((el) => {
@@ -914,9 +916,10 @@ test.describe('layout', () => {
         return;
       }
       expect(unit.part).toBe('m3-like');
-      // m3-like (track.padding nothing, container.shape square): the container is the whole tab, square — on a tab whose
-      // content is not wider than it is tall in a row that hugs too, since such a tab is as wide as its indicator's box
-      // (the row's height) and no wider (TAB-14): the container is as wide as the row is tall, and that is the tab.
+      // m3-like (track.padding nothing, container.shape square): the state layer is the whole tab, square — on a tab
+      // whose content is not wider than it is tall in a row that hugs too, since such a tab is as wide as its
+      // indicator's box (the row's height) and no wider (TAB-14): the state layer is as wide as the row is tall, and
+      // that is the tab.
       await mountFixtures(page, spec, { icons: true, system: 'm3-like' });
       for (const id of ['primary', 'primary-fill', 'primary-icon-only-fill', 'secondary-icons']) {
         const [whole, c] = [await bounds(tabAt(page, id, 1)), await seat(page, id, 1)];
@@ -1042,7 +1045,7 @@ test.describe('layout', () => {
       const [s, b] = [await bounds(scroller), await bounds(tabAt(page, 'r', n))];
       return b.x >= s.x - 1 && b.x + b.width <= s.x + s.width + 1;
     };
-    /** The row's direction, which way its tabs run, and whether the indicator rests on the selected tab's container. */
+    /** The row's direction, which way its tabs run, and whether the indicator rests on the selected tab's state layer. */
     const laidOut = async () => {
       const [first, second] = [await bounds(tabAt(page, 'r', 0)), await bounds(tabAt(page, 'r', 1))];
       const [seated, thumb] = [await seat(page, 'r', 6), await pill(page, 'r', 6)];
@@ -1621,7 +1624,7 @@ test.describe('concentric at every size', () => {
         expect(Math.abs(centre - outer.height / 2), `${where}: the end's centre is ${centre} from the track's end`).toBeLessThanOrEqual(scrolled ? 0.5 : half);
         expect(thumb.y + thumb.height / 2, where).toBeCloseTo(outer.y + outer.height / 2, 1);
         heights.add(outer.height);
-        // The tab's container and its focus ring are drawn in the indicator's box: the same place.
+        // The tab's state layer and its focus ring are drawn in the indicator's box: the same place.
         const [c, r] = [await seat(page, f.id, n), await bounds(ring(page, f.id, n))];
         for (const part of [c, r]) expect([part.x, part.y, part.width, part.height], where).toEqual([expect.closeTo(thumb.x, 1), expect.closeTo(thumb.y, 1), expect.closeTo(thumb.width, 1), expect.closeTo(thumb.height, 1)]);
       }
@@ -1637,14 +1640,14 @@ test.describe('concentric at every size', () => {
     }
   });
 
-  test('TAB-34: hovered and focused, the first and the last tab’s container and focus ring lie in the indicator’s box, track.padding from the track’s top, bottom and end; the ring meets the track’s edge and stays inside it', async ({ page }) => {
+  test('TAB-34: hovered and focused, the first and the last tab’s state layer and focus ring lie in the indicator’s box, track.padding from the track’s top, bottom and end; the ring meets the track’s edge and stays inside it', async ({ page }) => {
     await mountFixtures(page, spec, { icons: true, reducedMotion: true, fixtures: spec.fixtures.filter((f) => ['primary', 'primary-icons', 'primary-fill', 'primary-icon-only', 'primary-two-icons', 'secondary-two-icons'].includes(f.id)) });
     const inset = await resolveToken(page, T('track-padding'));
     const half = await halfPixel(page);
     for (const f of spec.fixtures.filter((each) => ['primary', 'primary-icons', 'primary-fill', 'primary-icon-only', 'primary-two-icons', 'secondary-two-icons'].includes(each.id))) {
       const last = f.items!.length - 1;
       for (const [n, side] of [[0, 'start'], [last, 'end']] as const) {
-        // The tab that is not selected: its container shows on hover.
+        // The tab that is not selected: its state layer shows on hover.
         await choose(page, f.id, n === 0 ? last : 0);
         const where = `${f.id}/${n}`;
         await tabAt(page, f.id, n).hover();
@@ -2543,11 +2546,11 @@ test.describe('states, press, corners and focus style', () => {
     await page.keyboard.up('Space');
   });
 
-  test('TAB-4: keyboard focus shows the ring around the tab’s container, concentric and in its shape — a capsule or a circle — sys.focus.offset outside it, held inside the track, above the neighbours and the indicator, without animation; pointer focus does not', async ({ page }) => {
+  test('TAB-4: keyboard focus shows the ring around the tab’s state layer, concentric and in its shape — a capsule or a circle — sys.focus.offset outside it, held inside the track, above the neighbours and the indicator, without animation; pointer focus does not', async ({ page }) => {
     await mountFixtures(page, spec, { fixtures: EARLIER, icons: true });
     const [outer, inner, offset, inset] = await Promise.all(['--tanrei-sys-focus-outer-width', '--tanrei-sys-focus-inner-width', '--tanrei-sys-focus-offset', T('track-padding')].map((n) => resolveToken(page, n)));
-    // The default system: the ring reaches offset + widths beyond the container, which is track.padding — so it is drawn
-    // around the container, and meets the track's edge without crossing it.
+    // The default system: the ring reaches offset + widths beyond the state layer, which is track.padding — so it is
+    // drawn around the state layer, and meets the track's edge without crossing it.
     expect(offset + inner + outer).toBe(inset);
     await box(page, 'primary', 1).click();
     await expect(ring(page, 'primary', 1)).toHaveCSS('outline-style', 'none');
@@ -2564,7 +2567,7 @@ test.describe('states, press, corners and focus style', () => {
       await expect(r).toHaveCSS('outline-width', `${outer}px`);
       await expect(r).toHaveCSS('outline-offset', `${offset + inner}px`);
       await expect(r).toHaveCSS('outline-color', await resolveColor(page, '--tanrei-sys-color-focus-ring'));
-      // The same box as the container — where the indicator is on this tab — and its shape: never a rectangle.
+      // The same box as the state layer — where the indicator is on this tab — and its shape: never a rectangle.
       const [rb, c, tr] = [await bounds(r), await seat(page, id, n), await bounds(track(page, id))];
       expect([rb.x, rb.y, rb.width, rb.height], id).toEqual([expect.closeTo(c.x, 1), expect.closeTo(c.y, 1), expect.closeTo(c.width, 1), expect.closeTo(c.height, 1)]);
       expect(Number.parseFloat(await css(r, 'border-top-left-radius')), id).toBeGreaterThanOrEqual(rb.height / 2);
@@ -2590,7 +2593,7 @@ test.describe('states, press, corners and focus style', () => {
     // Less room than the ring reaches: it is drawn further in by the difference, on every side alike.
     await override(page, { [T('track-padding')]: '1px' });
     await expect(ring(page, 'primary-second-selected', 0)).toHaveCSS('outline-offset', `${offset + inner - (offset + inner + outer - 1)}px`);
-    // m3-like: no room at all (track.padding is nothing), so the ring is wholly inside the container, square.
+    // m3-like: no room at all (track.padding is nothing), so the ring is wholly inside the state layer, square.
     await mountFixtures(page, spec, { fixtures: EARLIER, system: 'm3-like' });
     const m3outer = await resolveToken(page, '--tanrei-sys-focus-outer-width');
     await tabTo(page, tabAt(page, 'primary', 0));
@@ -2719,7 +2722,7 @@ test.describe('states, press, corners and focus style', () => {
     };
     const overlay = await press();
     expect(overlay).toMatchObject({ pressed: 'overlay', ripple: 0, label: 'rgb(0, 0, 255)', covered: 'rgb(0, 128, 0)' });
-    // Every answer is drawn in the container (the indicator's box): the tab's rectangle draws none.
+    // Every answer is drawn in the state layer (the indicator's box): the tab's rectangle draws none.
     expect(overlay.rectangle).toBe('rgba(0, 0, 0, 0)');
     expect(overlay.bg).toBe(await resolveColor(page, T('primary-pressed-container-color')));
     const ripple = await press('m3-like');
@@ -2746,15 +2749,16 @@ test.describe('states, press, corners and focus style', () => {
     expect(grown.x).toBeCloseTo(0.5, 5);
     expect(grown.grow).toBe(await resolveToken(page, T('motion-feedback-duration'), 'duration'));
     expect(grown.fade).toBe(await resolveToken(page, T('motion-state-duration'), 'duration'));
-    // The ripple is the container's: wherever on the tab the press lands — its corner, outside the container — the layer
-    // is the container's box, clipped to its shape, growing from the nearest point of it.
+    // The ripple is the state layer's: wherever on the tab the press lands — its corner, outside the state layer — the
+    // ripple is in the state layer's box, clipped to its shape, growing from the nearest point of it.
     await mountFixtures(page, spec, { fixtures: EARLIER, icons: true });
-    // Under a target wider than the container (a platform guideline's 44) a tab's corner lies outside its container.
+    // Under a target wider than the state layer (a platform guideline's 44) a tab's corner lies outside its state
+    // layer.
     await override(page, { '--tanrei-sys-behavior-pressed-feedback': 'ripple', '--tanrei-sys-target-pointer': '44px' });
-    // The new target widens the tabs at once, but the row narrows each container to its circle and moves the tabs by
+    // The new target widens the tabs at once, but the row narrows each state layer to its circle and moves the tabs by
     // what the end tabs reach into the track's inset in its resize observer's pass, a frame later: the corner is read
     // once the tab stands still (read before that pass, the tab lay right of where the press found it, and the point
-    // pressed fell inside the container).
+    // pressed fell inside the state layer).
     const whole = await boxAtRest(tabAt(page, 'primary-icon-only', 1));
     await page.mouse.move(whole.left + 1, whole.top + 1);
     await page.mouse.down();
@@ -2768,10 +2772,10 @@ test.describe('states, press, corners and focus style', () => {
     expect(drawnIn.radius).toBeGreaterThanOrEqual(drawnIn.height / 2);
   });
 
-  test('TAB-10 corner smoothing and focus-style: cupertino eases a rounded container’s and track’s corners, the ring concentric; acme shows focus as a glow around the container, held inside the track', async ({ page }) => {
+  test('TAB-10 corner smoothing and focus-style: cupertino eases a rounded state layer’s and track’s corners, the ring concentric; acme shows focus as a glow around the state layer, held inside the track', async ({ page }) => {
     await mountFixtures(page, spec, { fixtures: EARLIER, system: 'cupertino' });
     expect(await token(page, '--tanrei-sys-shape-corner-smoothing')).toBe('0.6');
-    // The default containers and track are fully rounded, which no amount changes: give them a corner below full.
+    // The default state layers and track are fully rounded, which no amount changes: give them a corner below full.
     await override(page, { [T('container-shape')]: '12px', [`${T('container-shape')}-pill`]: '0', [T('track-shape')]: '12px', [`${T('track-shape')}-pill`]: '0' });
     const b = layer(page, 'primary', 1);
     const r = ring(page, 'primary', 1);
@@ -2883,7 +2887,7 @@ test.describe('the indicator at the first paint', () => {
       await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
     }, style);
 
-  test('TAB-16, TAB-24: a row first drawn while an ancestor scales it (a surface growing in from 0.9) draws one thumb, at the selected tab’s container, a capsule or a circle, with the covered copy’s clip and the plain content’s cut the same box — while it is scaled and after, untouched', async ({ page }) => {
+  test('TAB-16, TAB-24: a row first drawn while an ancestor scales it (a surface growing in from 0.9) draws one thumb, at the selected tab’s state layer, a capsule or a circle, with the covered copy’s clip and the plain content’s cut the same box — while it is scaled and after, untouched', async ({ page }) => {
     await mountFixtures(page, spec, { icons: true, fixtures });
     await everyThumb(page, 'at rest');
     for (const scale of ['scale(0.9)', 'scale(0.5)', 'scale(1.25, 0.8)']) {
@@ -2978,7 +2982,7 @@ test.describe('the indicator at the first paint', () => {
     await everyThumb(page, 'with the face');
   });
 
-  test('TAB-16, TAB-24: a row whose container resizes after the first paint — a row that fills growing and shrinking, enlarged text, a longer label — keeps one thumb at the selected tab’s container, a capsule whatever its size', async ({ page }) => {
+  test('TAB-16, TAB-24: a row whose state layers resize after the first paint — a row that fills growing and shrinking, enlarged text, a longer label — keeps one thumb at the selected tab’s state layer, a capsule whatever its size', async ({ page }) => {
     await mountFixtures(page, spec, { icons: true, fixtures });
     await drawAnewIn(page, 'transform: scale(0.9); transform-origin: 0 0;');
     for (const width of ['520px', '240px', '360px']) {
@@ -3134,7 +3138,7 @@ const moving = (page: P, id: string) =>
     reveal: el.shadowRoot!.querySelector('.scroller')!.getAnimations().filter((a) => a.id === 'tanrei-tabs-reveal').length,
     colors: [...el.querySelectorAll(':scope > tanrei-tab')].flatMap((each) => each.shadowRoot!.getAnimations()).length,
   }));
-/** Whether the indicator is drawn whole on tab `n`: its piece there is the tab's container. */
+/** Whether the indicator is drawn whole on tab `n`: its piece there is the tab's state layer. */
 const wholeOn = async (page: P, id: string, n: number) => {
   const [piece, box] = [await clipped(cover(page, id, n)), await seat(page, id, n)];
   return !!piece && Math.abs(piece.x - box.x) < 0.5 && Math.abs(piece.width - box.width) < 0.5;
@@ -3849,7 +3853,7 @@ test.describe('variants, the track, sizes and the transition', () => {
         const z = (selector: string) => getComputedStyle(root.querySelector(selector)!).zIndex;
         return [z('.cover'), z('.box'), z('.ring'), z('.underline')];
       })).toEqual(['auto', '1', '1', '1']);
-      // A tab that is not selected keeps its container under the indicator.
+      // A tab that is not selected keeps its state layer under the indicator.
       expect(await css(layer(page, variant, 1), 'z-index'), variant).toBe('auto');
       await page.mouse.move(0, 0);
     }
@@ -4139,7 +4143,7 @@ test.describe('variants, the track, sizes and the transition', () => {
       expect(frame.tabs.map((each) => each.moving), `${id} ${act}`).toEqual([0, 0, 0]);
       expect(frame.tabs.map((each) => each.covered), `${id} ${act}`).toEqual([0, 1, 2].map((n) => n === to));
       expect(frame.tabs.map((each) => each.label), `${id} ${act}`).toEqual([0, 1, 2].map((n) => (n === to ? 'rgb(255, 0, 0)' : plain[variant])));
-      // At its full size: the tab's own container.
+      // At its full size: the tab's own state layer.
       const [p, s] = [await pill(page, id, to), await seat(page, id, to)];
       expect([p.x, p.width, p.height], id).toEqual([expect.closeTo(s.x, 0), expect.closeTo(s.width, 0), expect.closeTo(s.height, 0)]);
     }
@@ -4446,7 +4450,7 @@ test.describe('vertical', () => {
     await expect(tabAt(page, 'no-panels', 4)).toHaveAttribute('aria-posinset', '5');
   });
 
-  test('TAB-51, TAB-52: the tabs stand one above another, all as wide as the widest, each the container height and at least the minimum target tall, the icon before the label at the start edge; the indicator and every container are the tab less track.padding all round', async ({ page }) => {
+  test('TAB-51, TAB-52: the tabs stand one above another, all as wide as the widest, each the container height and at least the minimum target tall, the icon before the label at the start edge; the indicator and every state layer are the tab less track.padding all round', async ({ page }) => {
     await mountFixtures(page, spec, { icons: true, reducedMotion: true, fixtures: only(V, 'vertical-small', 'vertical-secondary') });
     // In the default system a small tab is the minimum target (36) tall; a system whose pointer target is larger (a
     // platform guideline's 44) is where a column's small tabs grow to it.
@@ -4466,13 +4470,13 @@ test.describe('vertical', () => {
         const [i, l] = [await bounds(icon(page, id, n)), await bounds(label(page, id, n))];
         expect(i.x, `${id} ${n}`).toBeCloseTo(b.x + pad, 0);
         expect(l.x, `${id} ${n}`).toBeGreaterThan(i.x + i.width - 0.5);
-        // The container, hovered or not, is the tab less the inset all round.
+        // The state layer, hovered or not, is the tab less the inset all round.
         const c = await seat(page, id, n);
         expect([c.x - b.x, c.y - b.y, b.x + b.width - (c.x + c.width), b.y + b.height - (c.y + c.height)], `${id} ${n}`).toEqual([expect.closeTo(inset, 0), expect.closeTo(inset, 0), expect.closeTo(inset, 0), expect.closeTo(inset, 0)]);
       }
       // The column hugs its widest tab: narrower than the 360 the stage gives the row.
       expect((await bounds(track(page, id))).width, id).toBeLessThan(300);
-      // The indicator is the selected tab's container.
+      // The indicator is the selected tab's state layer.
       const f = spec.fixtures.find((each) => each.id === id)!;
       const n = f.items!.findIndex((item) => item.props.value === f.props.value);
       const [p, c] = [await pill(page, id, n), await seat(page, id, n)];
@@ -4694,7 +4698,7 @@ test.describe('fixtures', () => {
 });
 
 test.describe('accessibility: what is drawn over a label', () => {
-  test('TAB-4, TAB-18: the ring over every tab and the container over the selected one hide no label from a contrast check — a faint label is reported, the row\'s own colors pass', async ({ page }) => {
+  test('TAB-4, TAB-18: the ring over every tab and the state layer over the selected one hide no label from a contrast check — a faint label is reported, the row\'s own colors pass', async ({ page }) => {
     // An element drawn over a text is, to axe's color-contrast, an element covering it, whatever its pointer-events: it
     // left the text incomplete ("overlapped by another element") instead of checking it, so faint text passed unseen.
     const lead = '<style>tanrei-tab[value="faint"]::part(label) { color: #bbb; }</style>';

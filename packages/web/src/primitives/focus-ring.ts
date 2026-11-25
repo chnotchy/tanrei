@@ -58,8 +58,8 @@ const glow = (selector: string, color = SYSTEM_COLOR) => `
  * it scrolls. Name a box over it that does not scroll — `(focus) => \`.scroll${focus} ~ .focus\`` — with `focusRingBox()`
  * for the box, as the code block, the dialog and the snackbar do.
  *
- * `within` is for an element with a known amount of room around it before something clips (a tab's container in its
- * track, TAB-4): a length expression. The indicator is drawn around the element where the room holds all of it, and
+ * `within` is for an element with a known amount of room around it before something clips (a tab's state layer in
+ * its track, TAB-4): a length expression. The indicator is drawn around the element where the room holds all of it, and
  * further in by what is missing, on every side alike and still concentric — with room for all of it this is the ring
  * above, with no room at all it is `inside`, and in between it is neither.
  *
