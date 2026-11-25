@@ -6,8 +6,9 @@
 //   longhand overrides (a role's `font`, the slider handle's `background`) and wrote `all` out as every longhand;
 // - on the slider's and the navigation drawer's pages, the element the anatomy figure held focused to read its focus
 //   ring (the slider, a drawer item) keeps the held copies, and computes, in each of its shadow tree's elements and
-//   their `::before` and `::after`, the same value of every property as with its own sheets: at rest; held focused, as
-//   the live element focused from the keyboard; and held hovered, as the live element under the pointer. The
+//   the `::before` and `::after` they generate, the same value of every property as with its own sheets: at rest;
+//   held focused, as the live element focused from the keyboard; and held hovered, as the live element under the
+//   pointer. The
 //   transitions are left out, since a held element is still by design, and so is what the element inherits from what
 //   holds it where that differs too (a drawer is focused within while its item has the focus; the figure holds the
 //   item, not the drawer).
@@ -156,14 +157,29 @@ for (const { page: name, element: tag } of FIGURES) {
       const own = element.constructor.elementStyles.map((style) => (style instanceof CSSStyleSheet ? style : style.styleSheet));
       const copies = [...element.shadowRoot.adoptedStyleSheets];
       const SKIP = /^transition/;
-      /** Every computed value of the host and of each element of its shadow tree, and of their `::before` and `::after`. */
+      /**
+       * Every computed value of the host and of each element of its shadow tree, and of the `::before` and `::after` they
+       * generate. A computed style lists every custom property in scope, the site's tokens with them (some ten thousand
+       * an element): read for three boxes of each of some twenty elements, six times, the values took most of the test's
+       * two minutes on CI. A `::before` or an `::after` whose `content` is `none` is not generated and draws nothing:
+       * only its `content` is read, so that one generated in one reading and not in the other still differs.
+       */
       const read = () => {
         for (const node of [element, ...element.shadowRoot.querySelectorAll('*')]) for (const animation of node.getAnimations({ subtree: true })) if (animation.effect?.getTiming().iterations !== Infinity) animation.finish();
         const values = new Map();
         [element, ...element.shadowRoot.querySelectorAll('*')].forEach((node, at) => {
+          const name = `${at} <${node.localName}${node.className && typeof node.className === 'string' ? ` class="${node.className}"` : ''}>`;
           for (const pseudo of [null, '::before', '::after']) {
             const style = getComputedStyle(node, pseudo);
-            for (let k = 0; k < style.length; k++) if (!SKIP.test(style[k])) values.set(`${at} <${node.localName}${node.className && typeof node.className === 'string' ? ` class="${node.className}"` : ''}>${pseudo ?? ''} ${style[k]}`, style.getPropertyValue(style[k]));
+            const box = `${name}${pseudo ?? ''} `;
+            if (pseudo && style.getPropertyValue('content') === 'none') {
+              values.set(`${box}content`, 'none');
+              continue;
+            }
+            for (let k = 0; k < style.length; k++) {
+              const property = style[k];
+              if (!SKIP.test(property)) values.set(box + property, style.getPropertyValue(property));
+            }
           }
         });
         // What holds the element: what it inherits from there is not the figure's to hold.
@@ -239,16 +255,20 @@ for (const { page: name, element: tag } of FIGURES) {
       return { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 };
     });
     await page.mouse.move(box.x, box.y);
-    const live = await page.evaluate(() => [...window.heldUnderTest.read()]);
+    // The live reading stays in the page, not carried out and back in: with every custom property in scope of every
+    // box, some two hundred thousand values.
+    await page.evaluate(() => {
+      window.heldUnderTest.live = window.heldUnderTest.read();
+    });
     await page.mouse.move(0, 0);
-    const hoverDifferences = await page.evaluate((live) => {
-      const { read, diff, adopt, element } = window.heldUnderTest;
+    const hoverDifferences = await page.evaluate(() => {
+      const { read, diff, adopt, element, live } = window.heldUnderTest;
       adopt('copies');
       element.setAttribute('data-docs-state', 'hovered');
       const held = read();
       element.removeAttribute('data-docs-state');
-      return diff(new Map(live), held);
-    }, live);
+      return diff(live, held);
+    });
     assert.deepEqual(hoverDifferences, [], `${name}: held hovered, it draws what it draws under the pointer`);
     assert.deepEqual(errors, [], `${name}: no error on the page`);
     await context.close();
