@@ -242,7 +242,7 @@ export const linkButton = (text: string, onclick: () => void, attrs: Json = {}) 
  */
 export const button = (text: string, onclick: (() => void) | null, { primary = false, ...attrs }: Json = {}) => pressable(primary ? 'filled' : 'outlined', text, onclick, attrs);
 /**
- * A short state that is pressed to go where it is told in full (the count of contrast findings, the draft at Source):
+ * A short state that is pressed to go where it is told in full (the count of contrast findings):
  * a small `<tanrei-chip>` with the glyph of its state. Write its `label` to say something else.
  */
 export function stateChip(onclick: () => void, attrs: Json = {}) {

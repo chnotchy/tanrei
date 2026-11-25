@@ -84,10 +84,16 @@ for (const scheme of ['light', 'dark']) {
       await unfold(page, name);
       await fits('body', `${name} (${scheme})`);
     }
-    // The draft badge (left by Source above) has to fit in the bar too.
+    // The draft's button (left by Source above) has to fit in the bar too: its glyph alone, named by its label, in
+    // Inspect's place, and the bar still one line.
     await section('color');
-    assert.ok(await page.locator('[data-draft-badge]').isVisible());
+    assert.ok(await page.locator('[data-draft-button]').isVisible());
+    assert.equal(await page.locator('[data-draft-badge]').isVisible(), false, 'the chip of a wider window is not drawn');
+    assert.equal(await page.locator('[data-bar] [data-inspect]').isVisible(), false);
+    assert.deepEqual(await page.locator('[data-draft-button]').evaluate((el) => [el.label, el.textContent.trim(), el.parentElement.localName, el.parentElement.text]), ['The JSON has invalid edits', 'warning', 'tanrei-tooltip', 'The JSON has invalid edits']);
     await fits('body', `the draft badge (${scheme})`);
+    const middles = await page.locator('[data-bar]').evaluate((bar) => [...bar.querySelectorAll('tanrei-button')].filter((el) => el.getClientRects().length).map((el) => { const box = el.getBoundingClientRect(); return box.top + box.height / 2; }));
+    assert.ok(Math.max(...middles) - Math.min(...middles) < 8, `the bar is one line with the draft (${scheme}): ${middles.join(', ')}`);
     // A panel the Studio scrolls to lands below the sticky preview, not under it.
     await section('icons');
     const landed = await page.evaluate(() => { const el = document.querySelector('[data-panel="icons"]'); el.scrollIntoView({ block: 'start' }); return { top: el.getBoundingClientRect().top, sticky: document.querySelector('.ts-preview').getBoundingClientRect().bottom }; });

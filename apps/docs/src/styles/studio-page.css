@@ -22,8 +22,9 @@
 
 /* The page's items of the Studio's bar, at its start: the brand, a link back to the documentation's first page, the
    page's heading, and the page about the tool, a glyph whose words are its tooltip's. On a phone, where the bar is one
-   line, the brand is its mark and the heading is read, not drawn. Until the Studio has mounted they stand where its
-   bar will be. */
+   line, the brand is its mark, the heading is read, not drawn, and the page about the tool is left out (as the
+   approved design leaves it: the brand alone; the documentation it leads to links the page). Until the Studio has
+   mounted they stand where its bar will be. */
 .docs-studio-brand {
   display: inline-flex;
   align-items: center;
@@ -73,6 +74,9 @@
     overflow: hidden;
     clip-path: inset(50%);
     white-space: nowrap;
+  }
+  .docs-studio-about-tip {
+    display: none;
   }
 }
 .docs-studio-brand:focus-visible,

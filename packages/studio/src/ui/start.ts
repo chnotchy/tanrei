@@ -9,6 +9,13 @@ const FILE_GLYPH = 'upload_file';
 
 type Point = { id: string; name: string; kind: 'default' | 'root' | 'example'; offered: boolean; reason?: string };
 
+/**
+ * The order of the theme gallery, as the approved design lists it: the examples named here first, in this order (the
+ * Material 3 example, then the one of Apple's platforms); any other example after them, as the start points list it.
+ */
+const GALLERY_ORDER = ['m3-like', 'cupertino'];
+const galleryRank = (id: string) => (GALLERY_ORDER.includes(id) ? GALLERY_ORDER.indexOf(id) : GALLERY_ORDER.length);
+
 export function createStartPoint(ctx: Ctx, { onstart, onfile }: { onstart: (id: string) => void; onfile: (file: File) => void }) {
   const { t, studio } = ctx;
   const points = studio.startPoints() as Point[];
@@ -17,7 +24,7 @@ export function createStartPoint(ctx: Ctx, { onstart, onfile }: { onstart: (id: 
     const point = points.find((each) => each.id === id);
     return point ? (point.kind === 'example' ? point.id : point.name) : id;
   };
-  const note = (point: Point) => (point.kind === 'default' ? t.start.defaultNote : point.kind === 'root' ? (point.offered ? '' : t.start.notInInit) : t.start.exampleNote(point.name));
+  const note = (point: Point) => (point.kind === 'default' ? t.start.defaultNote : point.kind === 'root' ? (point.offered ? '' : t.start.notInInit) : (t.start.examples[point.id] ?? t.start.exampleNote));
   const item = (point: Point) => h('tanrei-menu-radio-item', { value: point.id, label: nameOf(point.id), 'supporting-text': note(point), disabled: !point.offered, 'data-start': point.id });
   const id = ctx.uid('ts-start');
   // What the button says: "Start: Tanrei" — on a phone, the start's name alone is drawn, and the whole is read.
@@ -27,7 +34,7 @@ export function createStartPoint(ctx: Ctx, { onstart, onfile }: { onstart: (id: 
   // The default system and the root, then the examples of the gallery under their own title.
   const groups = [
     h('tanrei-menu-group', { label: t.start.starts, 'data-start-group': 'start' }, points.filter((point) => point.kind !== 'example').map(item)),
-    h('tanrei-menu-group', { label: t.start.gallery, 'data-start-group': 'gallery' }, points.filter((point) => point.kind === 'example').map(item)),
+    h('tanrei-menu-group', { label: t.start.gallery, 'data-start-group': 'gallery' }, points.filter((point) => point.kind === 'example').sort((a, b) => galleryRank(a.id) - galleryRank(b.id)).map(item)),
   ] as (HTMLElement & { value: string | null })[];
   // The file is chosen with the browser's own picker; the item opens it.
   const input = h('input', { type: 'file', accept: '.json,application/json', hidden: true, tabindex: '-1', 'aria-hidden': 'true', 'data-start-input': true }) as HTMLInputElement;
