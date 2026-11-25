@@ -5,7 +5,10 @@ import * as React from 'react';
  * the attribute's name with — where the manifest gives one — the value the element has while the attribute is absent.
  * A mark (an attribute with no property behind it) is listed under its own name; a boolean one is absent while false.
  */
-export type ServerAttributes = Readonly<Record<string, readonly [attribute: string, initial?: string | number | boolean | null]>>;
+export type ServerAttributes = Readonly<Record<string, readonly [attribute: string, initial?: ServerValue]>>;
+
+/** A value the manifest can give as an element's default: a primitive, or a list of them (`values = []`). */
+type ServerValue = string | number | boolean | null | readonly (string | number | boolean | null)[];
 
 type Converter = { fromAttribute?: (text: string | null, type?: unknown) => unknown; toAttribute?: (value: unknown, type?: unknown) => unknown };
 /** How a Lit element declares a property (`static elementProperties`): only what writing its attribute needs. */
@@ -27,27 +30,71 @@ const REACT_PROPS = new Set(['children', 'ref', 'key']);
 
 /** Lit's own reading and writing of an attribute (`defaultConverter`), for a property declared without a converter. */
 const plain = (type: unknown): Required<Converter> => ({
-  toAttribute: (value) => (type === Boolean ? (value ? '' : null) : value),
-  fromAttribute: (text) => (type === Boolean ? text !== null : type === Number ? (text === null ? null : Number(text)) : text),
+  toAttribute: (value) => (type === Boolean ? (value ? '' : null) : type === Array || type === Object ? (value == null ? value : JSON.stringify(value)) : value),
+  fromAttribute: (text) => {
+    if (type === Boolean) return text !== null;
+    if (type === Number) return text === null ? null : Number(text);
+    if (type === Array || type === Object) {
+      try {
+        return JSON.parse(text as string);
+      } catch {
+        return null;
+      }
+    }
+    return text;
+  },
 });
+
+/**
+ * Whether `a` and `b` are the same value: primitives by `Object.is`, arrays and plain objects by their entries. Anything
+ * else (a `Set`, a `Date`, a class's instance) is the same only as itself, so no text an attribute holds is taken for it.
+ */
+function same(a: unknown, b: unknown): boolean {
+  if (Object.is(a, b)) return true;
+  if (Array.isArray(a) || Array.isArray(b)) return Array.isArray(a) && Array.isArray(b) && a.length === b.length && a.every((each, i) => same(each, b[i]));
+  const plainObject = (v: unknown): v is Record<string, unknown> => !!v && typeof v === 'object' && [Object.prototype, null].includes(Object.getPrototypeOf(v));
+  if (!plainObject(a) || !plainObject(b)) return false;
+  const keys = Object.keys(a);
+  return keys.length === Object.keys(b).length && keys.every((key) => Object.hasOwn(b, key) && same(a[key], b[key]));
+}
+
+/** What `run` returns, or `undefined` where it throws: a converter given a value it was not written for. */
+function attempt(run: () => unknown): unknown {
+  try {
+    return run();
+  } catch {
+    return undefined;
+  }
+}
 
 /**
  * The text of the attribute that gives the element `value`, by the element's own converter, or `null` for no attribute.
  * No attribute is right only where the element has that value without one (`entry[1]`), so a prop at its default writes
- * nothing and a false is never written as present. A value no attribute gives writes nothing either: the client sets it
- * once it mounts.
+ * nothing and a false is never written as present. A text is written only where the element reads it back as `value`
+ * (a list by its entries): a value no attribute gives writes nothing, and the client sets it once it mounts.
+ *
+ * A list (or an object) is tried as the element's converter writes it (`toAttribute`, where it has one) and as JSON,
+ * which every list converter of the package reads: `<ChipField value={['a', 'b']}>` is `value='["a","b"]'`.
  */
-export function attributeText(declaration: Declaration | undefined, value: string | number | boolean, entry: ServerAttributes[string]): string | null {
+export function attributeText(declaration: Declaration | undefined, value: unknown, entry: ServerAttributes[string]): string | null {
   const type = declaration?.type ?? (typeof value === 'boolean' ? Boolean : undefined);
   const own = declaration?.converter;
   const fallback = plain(type);
-  const toAttribute = typeof own === 'object' && own.toAttribute ? own.toAttribute : fallback.toAttribute;
+  const ownTo = typeof own === 'object' ? own.toAttribute : undefined;
+  const toAttribute = ownTo ?? fallback.toAttribute;
   const fromAttribute = typeof own === 'function' ? own : typeof own === 'object' && own.fromAttribute ? own.fromAttribute : fallback.fromAttribute;
-  const reads = (text: string | null) => (text === null ? (entry.length > 1 ? entry[1] : undefined) : fromAttribute(text, type));
-  const converted = toAttribute(value, type);
-  // Absent first; then the element's own text for the value; then, for a boolean, the texts the element may read it from.
-  const candidates = [null, converted === undefined || converted === null ? null : String(converted), ...(typeof value === 'boolean' ? ['', 'false'] : [])];
-  for (const text of candidates) if (Object.is(reads(text), value)) return text;
+  const reads = (text: string | null) => (text === null ? (entry.length > 1 ? entry[1] : undefined) : attempt(() => fromAttribute(text, type)));
+  const textOf = (converted: unknown) => (converted === undefined || converted === null ? null : String(converted));
+  const listed = typeof value === 'object' && value !== null;
+  // Absent first; then the element's own text for the value; then, for a boolean, the texts the element may read it
+  // from, and for a list or an object its JSON.
+  const candidates = [
+    null,
+    textOf(attempt(() => toAttribute(value, type))),
+    ...(typeof value === 'boolean' ? ['', 'false'] : []),
+    ...(listed ? [textOf(attempt(() => JSON.stringify(value)))] : []),
+  ];
+  for (const text of candidates) if (same(reads(text), value)) return text;
   return null;
 }
 
@@ -59,11 +106,13 @@ function serverProps(elementClass: Declared, attributes: ServerAttributes, props
     if (REACT_PROPS.has(key) || value === undefined || value === null || typeof value === 'function') continue;
     const entry = Object.hasOwn(attributes, key) ? attributes[key] : undefined;
     if (entry) {
-      if (typeof value !== 'string' && typeof value !== 'number' && typeof value !== 'boolean') continue;
+      // A primitive, or a list or an object an attribute may carry; `attributeText` writes it only where the element
+      // reads the text back as the same value.
+      if (typeof value !== 'string' && typeof value !== 'number' && typeof value !== 'boolean' && typeof value !== 'object') continue;
       const text = attributeText(elementClass.elementProperties?.get(key), value, entry);
       if (text !== null) html[entry[0]] = text;
     } else if (key === 'className') html.class = value; // as `@lit/react` writes it: a custom element takes `class`
-    // A property with no attribute (an object, an array) is the client's to set.
+    // A property with no attribute (a checkbox group's `value`) is the client's to set.
     else if (!(key in elementClass.prototype)) html[key] = value;
   }
   // What the element's own stylesheet reads before it is defined, beside the product's own style.
