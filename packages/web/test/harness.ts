@@ -2338,7 +2338,8 @@ const STAGING: Record<string, Staging> = {
     wrap: (element, f) => framedLanguage(element, f, 'tanrei-slider-field'),
   },
   // A chat composer is as wide as its layout gives it (CCM-1): its stage is a column 480 wide — wider than
-  // `layout.inline-min-width`, so that a fixture is laid out as its `layout` says (CCM-4). `accept` is the
+  // `layout.inline-min-width`, so that a fixture is laid out as its `layout` says (CCM-4), but for one whose actions
+  // would leave the typing area less than `layout.input-min-width` (long-text), which is stacked. `accept` is the
   // comma-separated list a native file input takes. A fixture's string in the send or the stop slot is a labelled
   // Button of the filled variant, and one in the attach, the leading or the trailing slot an icon-only Button of the
   // text variant (the spec's accessibility notes). A File item's picture is the package's own copy (test/pictures.ts).

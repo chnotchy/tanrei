@@ -61,7 +61,7 @@ const state = (on: string, condition: 'standard' | 'error', name: '' | 'hovered'
     background-color: ${part('container-color')};
     box-shadow: ${part('container-elevation')};${name ? `\n    opacity: ${T(`${name}-opacity`)};` : ''}
   }
-  .capsule:where(${on}) > .outline {
+  .capsule:where(${on}) > .outline::before {
     border-color: ${part('outline-color')};
     border-width: ${T(`${name ? `${name}-` : ''}outline-width`)};
   }`;
@@ -88,7 +88,7 @@ export const styles = css`
 
   /* ── The capsule (CCM-1, CCM-41) ── one container behind everything it holds: as wide as its layout gives it, as tall
      as what it holds and never less than container.height; filled and lifted by its condition; its edge drawn inside
-     its box (.outline), so that no state moves what it holds. It is the box of the text (CCM-5): the pointer over its
+     its box (.outline::before), so that no state moves what it holds. It is the box of the text (CCM-5): the pointer over its
      own ground is a text pointer, and it answers no press. */
   .capsule {
     box-sizing: border-box;
@@ -107,13 +107,27 @@ export const styles = css`
       box-shadow ${unsafeCSS(MOTION)},
       opacity ${unsafeCSS(MOTION)};
   }
+  /* The edge's box stands over what the capsule holds and draws nothing itself: an element over a text is, to a contrast
+     checker (axe's color-contrast, which builds its own paint order and ignores pointer-events), an element covering
+     it, and it left the counter unchecked. Its ::before draws the edge, at the same place in the paint order, as no
+     element. */
   .outline {
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    corner-shape: inherit;
+    pointer-events: none;
+    visibility: hidden;
+  }
+  .outline::before {
+    content: '';
     position: absolute;
     inset: 0;
     box-sizing: border-box;
     border: ${t('outline-width')} solid ${t('standard-outline-color')};
     border-radius: inherit;
     corner-shape: inherit;
+    visibility: visible;
     pointer-events: none;
     transition:
       border-color ${unsafeCSS(MOTION)},
@@ -134,7 +148,7 @@ export const styles = css`
   .capsule:where([data-receiving]) {
     background-color: ${t('receiving-container-color')};
   }
-  .capsule:where([data-receiving]) > .outline {
+  .capsule:where([data-receiving]) > .outline::before {
     border-color: ${t('receiving-outline-color')};
     border-width: ${t('receiving-outline-width')};
   }
@@ -288,8 +302,10 @@ export const styles = css`
     pointer-events: none;
   }
 
-  /* ── The counter (CCM-19) ── on one line, as text of its own direction, in digits of equal width. */
-  .counter {
+  /* ── The counter (CCM-19) ── on one line, as text of its own direction, in digits of equal width; and, measured and
+     never drawn, the counter as wide as it is with maxLength characters (CCM-4). */
+  .counter,
+  .widest {
     flex: none;
     ${typefaceOf(t, 'counter-typescale')}
     letter-spacing: ${t('counter-typescale-letter-spacing')};
@@ -319,6 +335,27 @@ export const styles = css`
     inline-size: ${t('layout-inline-min-width')};
     block-size: 0;
   }
+  /* CCM-4: and what the inline layout needs beside the parts it puts on the typing area's line — the typing area's
+     least width with the end padding and the gap before what follows it; the start padding and the gap after the
+     group before it, or the start padding where no group is there; and the gap between two parts of a group. The
+     counter is measured as wide as it is with maxLength characters (.widest, with the counter's text), so that no count changes the layout. */
+  .probe[data-of='input'] {
+    inline-size: calc(${t('layout-input-min-width')} + ${t('container-padding-inline-with-button')} + ${t('container-gap')});
+  }
+  .probe[data-of='start'] {
+    inline-size: calc(${t('container-padding-inline-with-button')} + ${t('container-gap')});
+  }
+  .probe[data-of='padding'] {
+    inline-size: ${t('container-padding-inline')};
+  }
+  .probe[data-of='gap'] {
+    inline-size: ${t('actions-gap')};
+  }
+  .widest {
+    position: absolute;
+    inset-block-start: 0;
+    inset-inline-start: 0;
+  }
   /* CCM-35: the times and the curves of the motions the element runs itself — the items' fades and moves, then the
      glyph's cross-fade — as the cascade computes them (a duration token is an expression: it is computed through a
      real property, here one that moves nothing). */
@@ -336,7 +373,7 @@ export const styles = css`
   /* CCM-35: where motion is reduced a change of state is made at once. */
   ${reducedMotion(css`
     .capsule,
-    .outline,
+    .outline::before,
     .counter {
       transition: none;
     }
@@ -351,20 +388,20 @@ export const styles = css`
       background-color: Canvas;
       box-shadow: none;
     }
-    .capsule > .outline,
-    .capsule:where([data-error], :hover) > .outline {
+    .capsule > .outline::before,
+    .capsule:where([data-error], :hover) > .outline::before {
       border-color: CanvasText;
       border-width: ${t('outline-width')};
     }
-    .capsule:where([data-focused]) > .outline {
+    .capsule:where([data-focused]) > .outline::before {
       border-color: Highlight;
       border-width: ${t('focused-outline-width')};
     }
-    .capsule:where([data-receiving]) > .outline {
+    .capsule:where([data-receiving]) > .outline::before {
       border-color: Highlight;
       border-width: calc(2 * ${t('receiving-outline-width')});
     }
-    .capsule:where([data-disabled]) > .outline {
+    .capsule:where([data-disabled]) > .outline::before {
       border-color: GrayText;
       border-width: ${t('outline-width')};
     }

@@ -34,6 +34,7 @@ import type { TanreiKeyboardShortcut } from '../keyboard-shortcut/keyboard-short
 import { ARROW_PROPERTY, CHOICE, INVERSE_PROPERTY, styles } from './tooltip.styles.js';
 import { PLACEMENTS, type TanreiTooltipPlacement, type TooltipArrow, type TooltipSide, placeTooltip } from './tooltip-placement.js';
 import { TanreiElement } from '../../primitives/element.js';
+import { DEBUG } from '../../primitives/debug.js';
 
 export { type TanreiTooltipPlacement, type TooltipArrow, type TooltipBox, type TooltipPlace, type TooltipSide, placeTooltip } from './tooltip-placement.js';
 
@@ -905,29 +906,29 @@ export class TanreiTooltip extends TanreiElement {
 
   protected override updated(changed: PropertyValues<this>) {
     this.sync();
-    if (changed.has('text') && !this.hasText) report(this, 'TIP-16', 'text is empty, so the tooltip never opens and describes nothing; give it text');
-    if ((changed.has('headline') || changed.has('variant')) && this.variant !== 'rich' && this.headline.trim()) {
+    if (DEBUG && changed.has('text') && !this.hasText) report(this, 'TIP-16', 'text is empty, so the tooltip never opens and describes nothing; give it text');
+    if (DEBUG && (changed.has('headline') || changed.has('variant')) && this.variant !== 'rich' && this.headline.trim()) {
       report(this, 'TIP-16', `a plain tooltip ignores its headline "${this.headline}"; use variant="rich" to draw it`);
     }
     for (const { prop, attribute, token } of WAITS) {
       const value: unknown = this[prop];
       if (!changed.has(prop) || value === null || value === undefined || usable(value)) continue;
       const why = typeof value === 'number' && Number.isFinite(value) ? 'is negative' : 'is not a finite number';
-      report(this, 'TIP-17', `${attribute} ${JSON.stringify(String(value))} ${why}; ${token} is used in its place`);
+      if (DEBUG) report(this, 'TIP-17', `${attribute} ${JSON.stringify(String(value))} ${why}; ${token} is used in its place`);
     }
-    if (changed.has('placement') && !PLACEMENTS.includes(this.placement)) {
+    if (DEBUG && changed.has('placement') && !PLACEMENTS.includes(this.placement)) {
       report(this, 'TIP-22', `placement "${String(this.placement)}" is not one of ${PLACEMENTS.join(', ')}; the tooltip is placed as "top"`);
     }
     const offset: unknown = this.offset;
     if (changed.has('offset') && offset !== null && offset !== undefined && !usable(offset)) {
       const why = typeof offset === 'number' && Number.isFinite(offset) ? 'is negative' : 'is not a finite number';
-      report(this, 'TIP-24', `offset ${JSON.stringify(String(offset))} ${why}; comp.tooltip.offset is used in its place`);
+      if (DEBUG) report(this, 'TIP-24', `offset ${JSON.stringify(String(offset))} ${why}; comp.tooltip.offset is used in its place`);
     }
     const cross: unknown = this.crossOffset;
-    if (changed.has('crossOffset') && cross !== null && cross !== undefined && !Number.isFinite(cross)) {
+    if (DEBUG && changed.has('crossOffset') && cross !== null && cross !== undefined && !Number.isFinite(cross)) {
       report(this, 'TIP-24', `cross-offset ${JSON.stringify(String(cross))} is not a finite number; 0 is used in its place`);
     }
-    if ((changed.has('shortcut') || changed.has('variant')) && this.variant === 'rich' && chordsOf(this.shortcut).length) {
+    if (DEBUG && (changed.has('shortcut') || changed.has('variant')) && this.variant === 'rich' && chordsOf(this.shortcut).length) {
       report(this, 'TIP-27', `a rich tooltip ignores its shortcut "${chordsOf(this.shortcut).join(' ')}"; a plain tooltip draws it`);
     }
     // TIP-26: where a browser has no style queries, the look the cascade names now is written for the same rules.
