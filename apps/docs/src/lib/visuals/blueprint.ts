@@ -125,8 +125,40 @@ function drawnAsNoElement(element: Element): boolean {
   return generatesVisibly(element) || [...element.children].some(generatesVisibly);
 }
 
-/** A length of a computed `clip-path` in pixels: `px`, or `%` of `whole`. */
-const lengthIn = (text: string, whole: number) => (text.endsWith('%') ? (parseFloat(text) / 100) * whole : parseFloat(text) || 0);
+/**
+ * A length of a computed `clip-path` in pixels, its percentages of `whole`: `px` and `%` read as written, anything else
+ * (a `calc()` of the two) resolved by the browser as a margin of a box `whole` wide, which may be negative.
+ */
+function lengthIn(text: string, whole: number): number {
+  if (/^-?[\d.]+px$/.test(text)) return parseFloat(text);
+  if (/^-?[\d.]+%$/.test(text)) return (parseFloat(text) / 100) * whole;
+  const room = document.createElement('div');
+  room.style.cssText = `position: absolute; visibility: hidden; inline-size: ${whole}px; block-size: 0; direction: ltr; writing-mode: horizontal-tb`;
+  const probe = document.createElement('div');
+  probe.style.marginLeft = text;
+  room.append(probe);
+  document.body.append(room);
+  const length = parseFloat(getComputedStyle(probe).marginLeft);
+  room.remove();
+  return Number.isFinite(length) ? length : 0;
+}
+
+/** The words of a computed value, parted by spaces outside parentheses (`calc(100% + 2px)` is one). */
+function wordsOf(text: string): string[] {
+  const words: string[] = [];
+  let depth = 0;
+  let word = '';
+  for (const char of text.trim()) {
+    if (char === '(') depth += 1;
+    if (char === ')') depth -= 1;
+    if (/\s/.test(char) && depth === 0) {
+      if (word) words.push(word);
+      word = '';
+    } else word += char;
+  }
+  if (word) words.push(word);
+  return words;
+}
 
 let clipPen: CanvasRenderingContext2D | null = null;
 /**
@@ -139,7 +171,8 @@ function clipKeeps(clip: string, width: number, height: number): ((x: number, y:
   if (!shape) return null;
   const [, kind, body] = shape;
   if (kind === 'inset') {
-    const values = body.split(/\s+round\s+/)[0].trim().split(/\s+/);
+    const words = wordsOf(body);
+    const values = words.includes('round') ? words.slice(0, words.indexOf('round')) : words;
     const [top, right = top, bottom = top, left = right] = values;
     const [t, r, b, l] = [lengthIn(top, height), lengthIn(right, width), lengthIn(bottom, height), lengthIn(left, width)];
     return (x, y) => x >= l && x <= width - r && y >= t && y <= height - b;
@@ -155,8 +188,8 @@ function clipKeeps(clip: string, width: number, height: number): ((x: number, y:
     path = new Path2D(data);
   } else {
     path = new Path2D();
-    (rest ?? '').split(',').forEach((pair, index) => {
-      const [x, y] = pair.trim().split(/\s+/);
+    (rest ?? '').split(/,(?![^(]*\))/).forEach((pair, index) => {
+      const [x, y] = wordsOf(pair);
       if (index === 0) path.moveTo(lengthIn(x, width), lengthIn(y, height));
       else path.lineTo(lengthIn(x, width), lengthIn(y, height));
     });
