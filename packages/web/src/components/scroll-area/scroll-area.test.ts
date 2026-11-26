@@ -5,7 +5,7 @@
 // src/primitives/delegated-aria.test.ts.
 import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
-import { type Fixture, loadSpec, mountFixtures, resolveColor, resolveToken, rootTokens, tab, tabTo } from '../../../test/harness.js';
+import { type Fixture, loadSpec, mountFixtures, resolveColor, resolveToken, rootTokens, tab, tabTo, warnings } from '../../../test/harness.js';
 import { decodePng } from '../../../test/png.js';
 import { motionEnded } from '../../../test/motions.js';
 import { allSettled } from '../../../test/settled.js';
@@ -36,13 +36,6 @@ const easing = (page: P, name: string) =>
     probe.remove();
     return value;
   }, name);
-function warnings(page: P) {
-  const seen: string[] = [];
-  page.on('console', (message) => {
-    if (message.type() === 'warning') seen.push(message.text());
-  });
-  return seen;
-}
 /** Colors in a screenshot are compared within antialiasing and compositing noise. */
 const near = (a: string, b: string, within = 6) => {
   const [x, y] = [a, b].map((c) => c.match(/\d+(\.\d+)?/g)!.slice(0, 3).map(Number));

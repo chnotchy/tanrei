@@ -6,15 +6,6 @@ import { type Locator, type Page, expect } from '@playwright/test';
 import { missingWords, resolveToken, setWords } from './harness.js';
 import { middlePressAimed } from './middle-press.js';
 
-/** The warnings a page's debug build reports, collected from now on. */
-export function warnings(page: Page): string[] {
-  const seen: string[] = [];
-  page.on('console', (message) => {
-    if (message.type() === 'warning') seen.push(message.text());
-  });
-  return seen;
-}
-
 /** The styled part of a component — the native element, or the anchor of its link form: `[part="container"]`. */
 export const container = (host: Locator) => host.locator('[part="container"]');
 

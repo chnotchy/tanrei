@@ -6,7 +6,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
-import { type Fixture, type FixtureItem, declarations, fixturesDocument, loadSpec, markMarkup, mountFixtures, resolveColor, resolveToken, tab, tabTo, roleFont, rootTokens, typeRoleOf } from '../../../test/harness.js';
+import { type Fixture, type FixtureItem, declarations, fixturesDocument, loadSpec, markMarkup, mountFixtures, resolveColor, resolveToken, tab, tabTo, roleFont, rootTokens, typeRoleOf, warnings } from '../../../test/harness.js';
 import { motionCount, motionEnded } from '../../../test/motions.js';
 import { transitionsRun, watchTransitions } from '../../../test/transitions.js';
 import { expectBaseline } from '../../../test/baseline.js';
@@ -21,13 +21,6 @@ const T = (name: string) => `--tanrei-comp-app-bar-${name}`;
 const bounds = async (locator: Locator) => (await locator.boundingBox())!;
 const css = (locator: Locator, property: string) => locator.evaluate((el, p) => getComputedStyle(el).getPropertyValue(p), property);
 const override = (page: P, vars: Record<string, string>) => rootTokens(page, vars);
-function warnings(page: P) {
-  const seen: string[] = [];
-  page.on('console', (message) => {
-    if (message.type() === 'warning') seen.push(message.text());
-  });
-  return seen;
-}
 /** A shadow as the browser computes it for a token (an elevation is a list of shadows). */
 const resolveShadow = (page: P, name: string) =>
   page.evaluate((n) => {

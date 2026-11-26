@@ -6,7 +6,7 @@
 // src/primitives/delegated-aria.test.ts.
 import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
-import { type Fixture, loadSpec, mountFixtures, resolveColor, resolveToken, tab, rootTokens } from '../../../test/harness.js';
+import { type Fixture, loadSpec, mountFixtures, resolveColor, resolveToken, tab, rootTokens, warnings } from '../../../test/harness.js';
 import { decodePng, paintedColor } from '../../../test/png.js';
 import { HOLD_NOW, motionCount } from '../../../test/motions.js';
 import { expectBaseline } from '../../../test/baseline.js';
@@ -38,11 +38,6 @@ const easing = (page: P, name: string) =>
     return value;
   }, name);
 const override = (page: P, vars: Record<string, string>) => rootTokens(page, vars);
-function warnings(page: P) {
-  const seen: string[] = [];
-  page.on('console', (message) => { if (message.type() === 'warning') seen.push(message.text()); });
-  return seen;
-}
 const fixture = (id: string, props: Fixture['props']): Fixture => ({ id, props: { label: 'Uploading', ...props } });
 /** The running CSS animations of an element in the shadow root, with the name, timing and play state of each. */
 const animations = (locator: Locator) =>

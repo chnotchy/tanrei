@@ -5,7 +5,7 @@
 // src/primitives/delegated-aria.test.ts.
 import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
-import { type Fixture, type FixtureItem, acmeSystemCss, fixturesDocument, iconFaceArrives, loadSpec, mountFixtures, resolveColor, resolveToken, tab, tabTo, withoutIconFont, rootTokens, mountFixtureAsInAll, typeRole } from '../../../test/harness.js';
+import { type Fixture, type FixtureItem, acmeSystemCss, fixturesDocument, iconFaceArrives, loadSpec, mountFixtures, resolveColor, resolveToken, tab, tabTo, withoutIconFont, rootTokens, mountFixtureAsInAll, typeRole, warnings, isRobotoMonoGlyphWarning } from '../../../test/harness.js';
 import { pressHoldAsRun } from '../../../test/harsh.js';
 import { expectOneThumb, readThumb } from '../../../test/thumb.js';
 import { releaseAtRest } from '../../../test/release-at-rest.js';
@@ -138,13 +138,6 @@ const token = (page: P, name: string) => page.evaluate((n) => getComputedStyle(d
 const T = (name: string) => `--tanrei-comp-tabs-${name}`;
 const bounds = async (locator: Locator) => (await locator.boundingBox())!;
 const override = (page: P, vars: Record<string, string>) => rootTokens(page, vars);
-function warnings(page: P) {
-  const seen: string[] = [];
-  page.on('console', (message) => {
-    if (message.type() === 'warning') seen.push(message.text());
-  });
-  return seen;
-}
 
 /** One move of a dispatched drag: the pointer's clientX (and how far below the press it is), `dt` ms after the event before. */
 interface Step {
@@ -3558,7 +3551,7 @@ test.describe('a shared choice', () => {
 
   test('TAB-39: with a storage that is blocked — reaching for it throws, and so does every access — the rows work, the choice is kept for as long as the document lasts, and nothing is thrown or logged', async ({ page }) => {
     const said: string[] = [];
-    page.on('console', (message) => said.push(`${message.type()}: ${message.text()}`));
+    page.on('console', (message) => !isRobotoMonoGlyphWarning(message) && said.push(`${message.type()}: ${message.text()}`));
     page.on('pageerror', (error) => said.push(`error: ${error.message}`));
     await serve(page, [fixture('r', PLATFORMS, { label: 'Platform', rememberAs: 'k' }), member('m', 'react', { rememberAs: 'k' }), member('n', 'web')], { blocked: true });
     await hear(page);
@@ -3581,7 +3574,7 @@ test.describe('a shared choice', () => {
 
   test('TAB-39: a document that has no storage at all — no origin to keep one for — draws its rows and keeps their choices, silently', async ({ page }) => {
     const said: string[] = [];
-    page.on('console', (message) => said.push(`${message.type()}: ${message.text()}`));
+    page.on('console', (message) => !isRobotoMonoGlyphWarning(message) && said.push(`${message.type()}: ${message.text()}`));
     page.on('pageerror', (error) => said.push(`error: ${error.message}`));
     // The harness's own document: `setContent` on about:blank.
     await mountFixtures(page, spec, { fixtures: [fixture('r', PLATFORMS, { label: 'Platform', rememberAs: 'k' })] });

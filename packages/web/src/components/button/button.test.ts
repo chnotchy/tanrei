@@ -2,7 +2,7 @@
 // src/primitives/delegated-aria.test.ts.
 import AxeBuilder from '@axe-core/playwright';
 import { expect, test } from '@playwright/test';
-import { type Fixture, acmeSystemCss, iconFaceArrives, loadSpec, missingWords, mountFixtures, resolveColor, resolveToken, setWords, tab, tabTo, rootTokens, withoutIconFont } from '../../../test/harness.js';
+import { type Fixture, acmeSystemCss, iconFaceArrives, loadSpec, missingWords, mountFixtures, resolveColor, resolveToken, setWords, tab, tabTo, rootTokens, withoutIconFont, warnings } from '../../../test/harness.js';
 import { type HeldGlyph, expectGlyphsHeldBack } from '../../../test/held-glyphs.js';
 import { pressHoldAsRun } from '../../../test/harsh.js';
 import { axTree } from '../../../test/ax-tree.js';
@@ -12,7 +12,7 @@ import { resolveEasing } from '../../../test/appear.js';
 import { type Frames, type Probe, expectAnimated, expectFirstFrameAtRest, expectNoFlicker, freezeFirstFrame, sampleFrames } from '../../../test/frames.js';
 import { allSettled } from '../../../test/settled.js';
 import { clickCentre, heldPress } from '../../../test/watched-press.js';
-import { MIRRORED, anchorOf, container, countClicks, expectDisabledLink, expectDrawnAlike, expectLinkActivation, expectNewContext, expectRefusals, expectTargetLabel, markOf, painted, settledPaint, warnings } from '../../../test/links.js';
+import { MIRRORED, anchorOf, container, countClicks, expectDisabledLink, expectDrawnAlike, expectLinkActivation, expectNewContext, expectRefusals, expectTargetLabel, markOf, painted, settledPaint } from '../../../test/links.js';
 import { expectBaseline } from '../../../test/baseline.js';
 import { expectPulseKeepsFloor, resolveOpacity, samplePulse } from '../../../test/pulse-floor.js';
 
@@ -877,13 +877,6 @@ test.describe('icon side padding and icon-only widths', () => {
       const [outer, own] = [el.getBoundingClientRect(), el.querySelector(selector)!.getBoundingClientRect()];
       return { left: Math.round((own.left - outer.left) * 100) / 100, right: Math.round((outer.right - own.right) * 100) / 100 };
     }, part);
-  const warnings = (page: P) => {
-    const seen: string[] = [];
-    page.on('console', (message) => {
-      if (message.type() === 'warning') seen.push(message.text());
-    });
-    return seen;
-  };
   const SIZES = [['small', '-small'], ['medium', ''], ['large', '-large']] as const;
 
   test('BTN-11: the icon sits on the side iconPosition names, the label container.gap from it, with the icon-side padding on its side and the plain padding on the other; without an icon the plain padding on both sides', async ({ page }) => {
@@ -1132,13 +1125,6 @@ test.describe('icon, accessible name and toggle', () => {
       const [boxStyle, style] = [getComputedStyle(box), getComputedStyle(slotted)];
       return { size: box.getBoundingClientRect().width, color: boxStyle.color, family: style.fontFamily.replaceAll('"', ''), settings: style.fontVariationSettings, hidden: box.getAttribute('aria-hidden') };
     });
-  const warnings = (page: P) => {
-    const seen: string[] = [];
-    page.on('console', (message) => {
-      if (message.type() === 'warning') seen.push(message.text());
-    });
-    return seen;
-  };
   const sys = (page: P, name: string) => token(page, `--tanrei-sys-${name}`).then((value) => value.replaceAll('"', ''));
 
   test('BTN-13: the icon is drawn at icon.size beside a label and icon.size-without-label alone, in the family and fill of its selection — selected only for a toggle that is on — taking the label color beside a label and the icon color alone', async ({ page }) => {
@@ -1952,13 +1938,6 @@ test.describe('link form', () => {
 // ── The Button in a form (BTN-27 … BTN-33) ─────────────────────────────────────────────────────
 test.describe('in a form', () => {
   type P = import('@playwright/test').Page;
-  const warnings = (page: P) => {
-    const seen: string[] = [];
-    page.on('console', (message) => {
-      if (message.type() === 'warning') seen.push(message.text());
-    });
-    return seen;
-  };
   /**
    * The page's own markup before the (empty) stages, and one log for the page: `click:<id>` for every button with an
    * id, `submit:<form>` with what is sent — read both ways a product reads the pressed button — `reset:<form>` and
