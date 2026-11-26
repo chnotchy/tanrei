@@ -8,11 +8,12 @@
 // Every module that defines an element is held back until the test lets it through: the page is parsed and drawn
 // without them, its faces in, and paged through from its top to its end, as a reader pages through it. Each of the
 // page's own figures (a stage that is not one of the gallery's: those hold their baseline's box, layout-shift.test.mjs)
-// and each table is read the first time it is in the view: that is the room the reader sees it take. Then the modules
-// are let through and the page is paged through again, each step once what is in the view is defined: every figure and
-// table is as high as it was, to half a pixel. What it holds before is the web package's cloak
-// (`@tanrei/web/cloak.css`, scoped to the stages: lib/stage-cloak.mjs) and the tables' own rooms
-// (components/Table.astro, ComponentSpecs.astro).
+// and each table — and the description lists of status tags: a component's grid of its platforms, the status page's
+// legend — is read the first time it is in the view: that is the room the reader sees it take. Then the modules are let
+// through and the page is paged through again, each step once what is in the view is defined: every figure, table and
+// list is as high as it was, to half a pixel. What it holds before is the web package's cloak
+// (`@tanrei/web/cloak.css`, scoped to the stages: lib/stage-cloak.mjs), the tables' own rooms
+// (components/Table.astro, ComponentSpecs.astro) and the status tag's (components/StatusBadge.astro).
 //
 // In Chromium, the Layout Instability API also says how far the page moved under a reader who is looking at a figure
 // when its modules arrive: the view put on it while the modules are held, then the modules let through. The shifts,
@@ -26,6 +27,8 @@ import { after, before, describe, test } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import { serveDist } from './host.mjs';
 import { engines, launch, settlePage } from './launch.mjs';
+
+const { APPEARANCE_KEY } = await import('../../src/lib/appearance.ts');
 
 /** Each test's limit, the backstop for a wait with none of its own (launch.mjs). */
 const LIMIT = { timeout: 240_000 };
@@ -50,6 +53,10 @@ const elementChunks = new Set(
   fs.readdirSync(path.join(dist, '_astro')).filter((file) => file.endsWith('.js') && fs.readFileSync(path.join(dist, '_astro', file), 'utf8').includes('customElements.define(')),
 );
 
+/** The description lists of status tags, as the read names them. */
+const GRID = "the platforms' grid";
+const LEGEND = 'the status legend';
+
 const PHONE = { width: 390, height: 844 };
 const WIDE = { width: 1440, height: 900 };
 
@@ -61,14 +68,23 @@ const WIDE = { width: 1440, height: 900 };
  *   stage of two was 64 px tall before and 1033 px drawn);
  * - the Select's in Japanese, whose tables wrap their rows at a phone's width (its keyboard table drawn in words before
  *   its keys were defined, 1248 px tall at a phone's width, was 1126 to 1148 px once the keys were drawn in the reader's
- *   convention: components/visuals/KeyboardMap.astro now draws the reader's keys before).
+ *   convention: components/visuals/KeyboardMap.astro now draws the reader's keys before);
+ * - a component's page and the status page, in each design system a reader may choose (`system`) and in scripts other
+ *   than the Latin, whose platforms' grid and legend are rows of status tags (components/StatusBadge.astro): drawn as
+ *   their words before they were defined, a line of the label's text tall, each tag was 4 px lower than the small tag's
+ *   container, and the grid and the legend grew when they were defined (the grid by 2 px in a desktop's window in
+ *   cupertino and by 3 px at a phone's width in m3-like, the legend by 2 to 3 px). `lists` names what each must read.
  */
 const CASES = [
-  { url: '/components/text-field/', viewport: PHONE, look: '#docs-figure-7-stage' },
-  { url: '/components/text-field/', viewport: WIDE, look: '#docs-figure-7-stage' },
+  { url: '/components/text-field/', viewport: PHONE, look: '#docs-figure-7-stage', lists: [GRID] },
+  { url: '/components/text-field/', viewport: WIDE, look: '#docs-figure-7-stage', lists: [GRID] },
   { url: '/components/date-time-picker/', viewport: PHONE, look: '#docs-figure-2-stage' },
   { url: '/components/date-time-picker/', viewport: WIDE, look: '#docs-figure-2-stage' },
-  { url: '/ja/components/select/', viewport: PHONE, look: '.docs-keyboard-map' },
+  { url: '/ja/components/select/', viewport: PHONE, look: '.docs-keyboard-map', lists: [GRID] },
+  { url: '/components/link/', viewport: WIDE, system: 'cupertino', look: '.availability .platforms', lists: [GRID] },
+  { url: '/ar/components/link/', viewport: PHONE, system: 'm3-like', lists: [GRID] },
+  { url: '/status/', viewport: WIDE, system: 'm3-like', lists: [LEGEND] },
+  { url: '/hi/status/', viewport: PHONE, look: '.matrix tanrei-description-list', lists: [LEGEND] },
 ];
 
 /**
@@ -102,11 +118,12 @@ function observeShifts() {
 
 /**
  * Runs in the page: pages through it from its top to its end, a window less 120 px at a time, and reads the height of
- * each of its own figures' stages and of each table the first time it is in the view. With `defined`, each step waits
- * (up to that many ms) until every element in the view is defined, its faces in, then two frames: an element is
- * defined once its stage comes near the view (lib/define-on-demand.ts), so the page is defined as it is paged through.
+ * each of its own figures' stages, of each table and of each list of status tags (named `grid` and `legend`) the first
+ * time it is in the view. With `defined`, each step waits (up to that many ms) until every element in the view is
+ * defined, its faces in, then two frames: an element is defined once its stage comes near the view
+ * (lib/define-on-demand.ts), so the page is defined as it is paged through.
  */
-async function pageThrough(defined) {
+async function pageThrough({ defined, grid, legend }) {
   const seen = {};
   const lost = new Set();
   const frame = () => new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
@@ -114,7 +131,7 @@ async function pageThrough(defined) {
     const rect = box.getBoundingClientRect();
     return rect.height > 0 && rect.bottom > 0 && rect.top < innerHeight;
   };
-  const boxes = () => [...document.querySelectorAll('[data-example-stage][id], tanrei-table')].filter((box) => !box.closest('[data-fixture-gallery]') && inView(box));
+  const boxes = () => [...document.querySelectorAll('[data-example-stage][id], tanrei-table, .availability .platforms, .matrix tanrei-description-list')].filter((box) => !box.closest('[data-fixture-gallery]') && inView(box));
   for (let top = 0; ; top += innerHeight - 120) {
     scrollTo(0, top);
     await frame();
@@ -130,7 +147,10 @@ async function pageThrough(defined) {
       await frame();
     }
     for (const box of boxes()) {
-      const key = box.localName !== 'tanrei-table' ? `#${box.id}` : `${box.classList.contains('docs-keyboard-map') ? 'keyboard table' : 'table'} "${box.getAttribute('label')}"`;
+      const key =
+        box.localName === 'tanrei-description-list'
+          ? box.matches('.platforms') ? grid : legend
+          : box.localName !== 'tanrei-table' ? `#${box.id}` : `${box.classList.contains('docs-keyboard-map') ? 'keyboard table' : 'table'} "${box.getAttribute('label')}"`;
       seen[key] ??= box.getBoundingClientRect().height;
     }
     if (scrollY + innerHeight >= document.documentElement.scrollHeight - 1) break;
@@ -162,9 +182,11 @@ async function nearDefined(bound) {
  * Opens `url` with every element's module held back until `release()` is called. Resolves once the page has been
  * parsed and drawn without them and its faces are in.
  */
-async function openHeld(context, url) {
+async function openHeld(context, url, system) {
   const page = await context.newPage();
   await page.addInitScript(observeShifts);
+  // The design system the reader chose, as the Appearance panel keeps it (lib/appearance.ts).
+  if (system) await page.addInitScript(({ key, look }) => localStorage.setItem(key, JSON.stringify({ look })), { key: APPEARANCE_KEY, look: system });
   let release;
   const released = new Promise((resolve) => (release = resolve));
   let held = 0;
@@ -203,14 +225,16 @@ for (const engine of ENGINES) {
       await browser?.close();
     });
 
-    for (const { url, viewport, look } of CASES) {
-      const name = `${url} at ${viewport.width}`;
+    for (const { url, viewport, look, system, lists = [] } of CASES) {
+      const name = `${url} at ${viewport.width}${system ? ` in ${system}` : ''}`;
       const phone = viewport.width < 800;
-      test(`${name}: each of its own figures and each table, paged through before its elements are defined, is as high once they are`, LIMIT, async (t) => {
+      test(`${name}: each of its own figures, each table and each list of status tags, paged through before its elements are defined, is as high once they are`, LIMIT, async (t) => {
         const context = await browser.newContext({ viewport, isMobile: phone && engine !== 'firefox', hasTouch: phone });
         try {
-          const { page, release, held } = await openHeld(context, host.origin + url);
-          const { seen: before } = await page.evaluate(pageThrough, 0);
+          const { page, release, held } = await openHeld(context, host.origin + url, system);
+          const { seen: before } = await page.evaluate(pageThrough, { defined: 0, grid: GRID, legend: LEGEND });
+          if (system) assert.equal(await page.evaluate(() => document.documentElement.dataset.docsLook), system, `${name}: the page is not drawn in ${system}`);
+          for (const list of lists) assert.ok(list in before, `${name}: ${list} was not read, and this test holds nothing of it`);
           // Before they are defined, a keyboard table's keys are drawn, not an empty box: each key of the reader's
           // convention is painted (the cloak, where a stage holds one, leaves keys the page wrote to their own sheet).
           const keys = await page.evaluate(() => {
@@ -224,8 +248,8 @@ for (const engine of ENGINES) {
           assert.equal(keys.unpainted, 0, `${name}: ${keys.unpainted} of a keyboard table's ${keys.shown} keys were not painted before their elements were defined`);
           release();
           // Once to define the page as a reader would reach it, and again to read it as it stands then.
-          await page.evaluate(pageThrough, DEFINED);
-          const { seen: after, lost } = await page.evaluate(pageThrough, DEFINED);
+          await page.evaluate(pageThrough, { defined: DEFINED, grid: GRID, legend: LEGEND });
+          const { seen: after, lost } = await page.evaluate(pageThrough, { defined: DEFINED, grid: GRID, legend: LEGEND });
           assert.deepEqual(lost, [], `${name}: elements in the view not defined once their modules were let through`);
           assert.ok(held() > 0, 'no element module was asked for: the build names its chunks otherwise, and this test held nothing');
           const changed = Object.entries(before)
@@ -248,7 +272,7 @@ for (const engine of ENGINES) {
       test(`${name}: a reader looking at ${look} when its modules arrive sees the page move by no more than ${BUDGET}`, LIMIT, async (t) => {
         const context = await browser.newContext({ viewport, isMobile: phone, hasTouch: phone });
         try {
-          const { page, release } = await openHeld(context, host.origin + url);
+          const { page, release } = await openHeld(context, host.origin + url, system);
           await page.evaluate((selector) => document.querySelector(selector).scrollIntoView({ block: 'start' }), look);
           await settlePage(page, { fonts: false });
           await page.evaluate(() => (window.__docsLayoutShifts.length = 0));
