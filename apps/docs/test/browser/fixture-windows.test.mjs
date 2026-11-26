@@ -218,5 +218,61 @@ for (const engine of engines('chromium,firefox,webkit')) {
         await context.close();
       }
     });
+
+    // A window is a document of its own, which inherits nothing from the page: a fixture that names no direction is
+    // drawn in the page's, as a stage in the page is, and one that names a direction keeps it. Every window of an
+    // Arabic page was drawn left to right while the page's own stages were drawn right to left.
+    for (const pathname of ['/components/app-shell/', '/ar/components/app-shell/', '/ar/components/navigation-drawer/']) {
+      test(`each window of ${pathname} is drawn in its fixture’s direction, else the page’s, and turns with the frame’s action`, LIMIT, async () => {
+        const context = await browsers.get(engine).newContext({ viewport: { width: 1440, height: 1000 }, reducedMotion: 'reduce' });
+        try {
+          const page = await context.newPage();
+          await page.goto(`${origin}${pathname}`, { waitUntil: 'load' });
+          const pageDirection = await page.evaluate(() => getComputedStyle(document.body).direction);
+          assert.equal(pageDirection, pathname.startsWith('/ar/') ? 'rtl' : 'ltr', 'the page is drawn in its language’s direction');
+          const frames = page.locator('iframe.docs-window-frame');
+          const count = await frames.count();
+          assert.ok(count > 0, `${pathname} has no window`);
+          const drawnIn = (element) => {
+            const stage = element.contentDocument?.querySelector('body > .stages > .stage');
+            return stage && element.contentDocument.readyState === 'complete' ? { id: stage.dataset.fixture, named: stage.getAttribute('dir'), direction: getComputedStyle(stage).direction } : null;
+          };
+          const wrong = [];
+          let undirected;
+          let directed = 0;
+          for (let i = 0; i < count; i++) {
+            const frame = frames.nth(i);
+            await frame.scrollIntoViewIfNeeded();
+            const drawn = await page.waitForFunction(drawnIn, await frame.elementHandle(), { timeout: 15_000 }).then((handle) => handle.jsonValue());
+            const wanted = drawn.named ?? pageDirection;
+            if (drawn.direction !== wanted) wrong.push(`${drawn.id}: drawn ${drawn.direction}, not ${wanted} (${drawn.named ? 'its fixture’s' : 'the page’s'})`);
+            if (drawn.named) directed++;
+            else undirected ??= drawn.id;
+          }
+          assert.deepEqual(wrong, []);
+          assert.ok(undirected, `${pathname} has no window of a fixture that names no direction`);
+          if (pathname === '/ar/components/app-shell/') assert.ok(directed > 0, `${pathname} has no window of a fixture that names a direction`);
+
+          // The frame's action turns the window of a fixture that names no direction, and turns it back.
+          const stage = page.locator(`.docs-stage[data-fixture-id="${undirected}"]`);
+          const frame = stage.locator('iframe.docs-window-frame');
+          const button = stage.locator('[data-example-direction]');
+          await frame.scrollIntoViewIfNeeded();
+          await page.waitForFunction(drawnIn, await frame.elementHandle(), { timeout: 15_000 });
+          await button.waitFor({ timeout: 10_000 });
+          const other = pageDirection === 'rtl' ? 'ltr' : 'rtl';
+          for (const turned of [other, pageDirection]) {
+            await button.click();
+            await page
+              .waitForFunction(({ element, turned }) => element.contentDocument?.querySelector('body > .stages > .stage') && getComputedStyle(element.contentDocument.querySelector('body > .stages > .stage')).direction === turned, { element: await frame.elementHandle(), turned }, { timeout: 5_000 })
+              .catch(() => {});
+            const now = await frame.evaluate((element) => getComputedStyle(element.contentDocument.querySelector('body > .stages > .stage')).direction);
+            assert.equal(now, turned, `${undirected}: the frame’s action turns its window to ${turned}`);
+          }
+        } finally {
+          await context.close();
+        }
+      });
+    }
   });
 }
