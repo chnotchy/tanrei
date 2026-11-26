@@ -18,7 +18,7 @@ private object TanreiSystemSource {
         val elevation = elevation()
         TanreiSystem(
             id = "tanrei",
-            dials = TanreiDials(controlHeight = 40f, motionUnit = 50f, shapeUnit = 2f, sizeUnit = 4f, spaceUnit = 8f, strokeUnit = 1f, typeBase = 16f, typeContrast = 1f),
+            dials = TanreiDials(controlHeight = 36f, motionUnit = 50f, shapeUnit = 2f, sizeUnit = 4f, spaceUnit = 8f, strokeUnit = 1f, typeBase = 16f, typeContrast = 1f),
             intents = listOf(TanreiColorRole("accent"), TanreiColorRole.Error, TanreiColorRole.Info, TanreiColorRole.Primary, TanreiColorRole.Secondary, TanreiColorRole.Success, TanreiColorRole.Warning),
             colors = TanreiColorSchemes(
                 light = lightColors(),
@@ -795,7 +795,7 @@ private object TanreiSystemSource {
             ),
             sizes = TanreiAccordionSizes(
                 small = TanreiAccordionSizeTokens(containerHeight = 36.dp, containerPaddingBlock = 6.dp, containerPaddingInline = 12.dp, labelTypescale = typescale.label, supportingTextTypescale = typescale.bodySmall, trailingTextTypescale = typescale.bodySmall, iconSize = 20.dp, chevronSize = 20.dp, contentPaddingBlockEnd = 12.dp),
-                medium = TanreiAccordionSizeTokens(containerHeight = 40.dp, containerPaddingBlock = 8.dp, containerPaddingInline = 16.dp, labelTypescale = typescale.heading5, supportingTextTypescale = typescale.body, trailingTextTypescale = typescale.body, iconSize = 24.dp, chevronSize = 24.dp, contentPaddingBlockEnd = 16.dp),
+                medium = TanreiAccordionSizeTokens(containerHeight = 36.dp, containerPaddingBlock = 6.dp, containerPaddingInline = 16.dp, labelTypescale = typescale.heading5, supportingTextTypescale = typescale.body, trailingTextTypescale = typescale.body, iconSize = 24.dp, chevronSize = 24.dp, contentPaddingBlockEnd = 16.dp),
             ),
         )
 
@@ -1068,7 +1068,7 @@ private object TanreiSystemSource {
             connectedVerticalOuterShape = 12.dp,
             motionStateDuration = 250,
             motionStateEasing = TanreiCubicBezier(x1 = 0.2f, y1 = 0f, x2 = 0f, y2 = 1f),
-            standardGap = 0.dp,
+            standardGap = 8.dp,
         )
 
     @Suppress("UNUSED_PARAMETER")
@@ -1085,6 +1085,7 @@ private object TanreiSystemSource {
             dividerThickness = 1.dp,
             motionBusyCycleDuration = 1000,
             motionBusyFadeDuration = 200,
+            motionBusyPulseFloorOpacity = 0.7f,
             motionFeedbackDuration = 450,
             motionHoverCloseDelay = 300,
             motionHoverOpenDelay = 300,
@@ -1097,9 +1098,9 @@ private object TanreiSystemSource {
             pressed = TanreiButtonWithMenuStateTokens(containerShape = 9999.dp, opacity = 1f),
             disabled = TanreiButtonWithMenuStateTokens(containerShape = 9999.dp, opacity = 1f),
             sizes = TanreiButtonWithMenuSizes(
-                small = TanreiButtonWithMenuSizeTokens(containerHeight = 36.dp, containerPaddingBlock = 8.dp, containerGap = 8.dp, leadingPaddingInlineStart = 16.dp, leadingPaddingInlineStartWithIcon = 12.dp, leadingPaddingInlineEnd = 16.dp, trailingPaddingInline = 8.dp, trailingPaddingInlineNarrow = 4.dp, labelTypescale = typescale.label, iconSize = 20.dp, outlineWidth = 1.dp),
-                medium = TanreiButtonWithMenuSizeTokens(containerHeight = 40.dp, containerPaddingBlock = 6.dp, containerGap = 8.dp, leadingPaddingInlineStart = 16.dp, leadingPaddingInlineStartWithIcon = 12.dp, leadingPaddingInlineEnd = 16.dp, trailingPaddingInline = 8.dp, trailingPaddingInlineNarrow = 4.dp, labelTypescale = typescale.label, iconSize = 24.dp, outlineWidth = 1.dp),
-                large = TanreiButtonWithMenuSizeTokens(containerHeight = 56.dp, containerPaddingBlock = 6.dp, containerGap = 8.dp, leadingPaddingInlineStart = 24.dp, leadingPaddingInlineStartWithIcon = 16.dp, leadingPaddingInlineEnd = 24.dp, trailingPaddingInline = 16.dp, trailingPaddingInlineNarrow = 4.dp, labelTypescale = typescale.label, iconSize = 24.dp, outlineWidth = 1.dp),
+                small = TanreiButtonWithMenuSizeTokens(containerHeight = 28.dp, containerPaddingBlock = 4.dp, containerGap = 8.dp, leadingPaddingInlineStart = 16.dp, leadingPaddingInlineStartWithIcon = 12.dp, leadingPaddingInlineEnd = 16.dp, trailingPaddingInline = 4.dp, trailingPaddingInlineNarrow = 4.dp, labelTypescale = typescale.label, iconSize = 20.dp, outlineWidth = 1.dp),
+                medium = TanreiButtonWithMenuSizeTokens(containerHeight = 36.dp, containerPaddingBlock = 4.dp, containerGap = 8.dp, leadingPaddingInlineStart = 16.dp, leadingPaddingInlineStartWithIcon = 12.dp, leadingPaddingInlineEnd = 16.dp, trailingPaddingInline = 6.dp, trailingPaddingInlineNarrow = 4.dp, labelTypescale = typescale.label, iconSize = 24.dp, outlineWidth = 1.dp),
+                large = TanreiButtonWithMenuSizeTokens(containerHeight = 52.dp, containerPaddingBlock = 4.dp, containerGap = 8.dp, leadingPaddingInlineStart = 24.dp, leadingPaddingInlineStartWithIcon = 16.dp, leadingPaddingInlineEnd = 24.dp, trailingPaddingInline = 14.dp, trailingPaddingInlineNarrow = 4.dp, labelTypescale = typescale.label, iconSize = 24.dp, outlineWidth = 1.dp),
             ),
             variants = TanreiButtonWithMenuVariants(
                 filled = TanreiButtonWithMenuVariantTokens(
@@ -1380,6 +1381,7 @@ private object TanreiSystemSource {
             containerShape = 9999.dp,
             motionBusyCycleDuration = 1000,
             motionBusyFadeDuration = 200,
+            motionBusyPulseFloorOpacity = 0.7f,
             motionFeedbackDuration = 450,
             motionStateEasing = TanreiCubicBezier(x1 = 0.2f, y1 = 0f, x2 = 0f, y2 = 1f),
             toneContainerOpacity = 0.16f,
@@ -1388,9 +1390,9 @@ private object TanreiSystemSource {
             pressed = TanreiButtonStateTokens(containerShape = 9999.dp, opacity = 1f),
             disabled = TanreiButtonStateTokens(containerShape = 9999.dp, opacity = 1f),
             sizes = TanreiButtonSizes(
-                small = TanreiButtonSizeTokens(containerHeight = 36.dp, containerPaddingInlineNarrow = 4.dp, containerWidthWide = 40.dp, containerPaddingInlineStart = 16.dp, containerPaddingInlineEnd = 16.dp, containerPaddingInlineStartWithIcon = 12.dp, containerPaddingInlineEndWithIcon = 12.dp, containerPaddingBlock = 8.dp, labelTypescale = typescale.label, iconSize = 20.dp, iconSizeWithoutLabel = 20.dp, containerGap = 8.dp, outlineWidth = 1.dp, motionStateDuration = 200),
-                medium = TanreiButtonSizeTokens(containerHeight = 40.dp, containerPaddingInlineNarrow = 4.dp, containerWidthWide = 52.dp, containerPaddingInlineStart = 16.dp, containerPaddingInlineEnd = 16.dp, containerPaddingInlineStartWithIcon = 12.dp, containerPaddingInlineEndWithIcon = 12.dp, containerPaddingBlock = 6.dp, labelTypescale = typescale.label, iconSize = 24.dp, iconSizeWithoutLabel = 24.dp, containerGap = 8.dp, outlineWidth = 1.dp, motionStateDuration = 250),
-                large = TanreiButtonSizeTokens(containerHeight = 56.dp, containerPaddingInlineNarrow = 4.dp, containerWidthWide = 72.dp, containerPaddingInlineStart = 24.dp, containerPaddingInlineEnd = 24.dp, containerPaddingInlineStartWithIcon = 16.dp, containerPaddingInlineEndWithIcon = 16.dp, containerPaddingBlock = 6.dp, labelTypescale = typescale.label, iconSize = 24.dp, iconSizeWithoutLabel = 24.dp, containerGap = 8.dp, outlineWidth = 1.dp, motionStateDuration = 250),
+                small = TanreiButtonSizeTokens(containerHeight = 28.dp, containerPaddingInlineNarrow = 4.dp, containerWidthWide = 40.dp, containerPaddingInlineStart = 16.dp, containerPaddingInlineEnd = 16.dp, containerPaddingInlineStartWithIcon = 12.dp, containerPaddingInlineEndWithIcon = 12.dp, containerPaddingBlock = 4.dp, labelTypescale = typescale.label, iconSize = 20.dp, iconSizeWithoutLabel = 20.dp, containerGap = 8.dp, outlineWidth = 1.dp, motionStateDuration = 200),
+                medium = TanreiButtonSizeTokens(containerHeight = 36.dp, containerPaddingInlineNarrow = 4.dp, containerWidthWide = 52.dp, containerPaddingInlineStart = 16.dp, containerPaddingInlineEnd = 16.dp, containerPaddingInlineStartWithIcon = 12.dp, containerPaddingInlineEndWithIcon = 12.dp, containerPaddingBlock = 4.dp, labelTypescale = typescale.label, iconSize = 24.dp, iconSizeWithoutLabel = 24.dp, containerGap = 8.dp, outlineWidth = 1.dp, motionStateDuration = 250),
+                large = TanreiButtonSizeTokens(containerHeight = 52.dp, containerPaddingInlineNarrow = 4.dp, containerWidthWide = 72.dp, containerPaddingInlineStart = 24.dp, containerPaddingInlineEnd = 24.dp, containerPaddingInlineStartWithIcon = 16.dp, containerPaddingInlineEndWithIcon = 16.dp, containerPaddingBlock = 4.dp, labelTypescale = typescale.label, iconSize = 24.dp, iconSizeWithoutLabel = 24.dp, containerGap = 8.dp, outlineWidth = 1.dp, motionStateDuration = 250),
             ),
             variants = TanreiButtonVariants(
                 filled = TanreiButtonVariantTokens(
@@ -1986,7 +1988,7 @@ private object TanreiSystemSource {
         TanreiCalendarTokens(
             cellSize = 48.dp,
             dayContainerShape = 9999.dp,
-            dayContainerSize = 40.dp,
+            dayContainerSize = 36.dp,
             dayLabelTypescale = typescale.body,
             motionFeedbackDuration = 450,
             motionPageDuration = 250,
@@ -1996,7 +1998,7 @@ private object TanreiSystemSource {
             navigationAxis = 0f,
             navigationGap = 8.dp,
             outlineWidth = 1.dp,
-            viewToggleContainerHeight = 40.dp,
+            viewToggleContainerHeight = 36.dp,
             viewToggleContainerPaddingInline = 12.dp,
             viewToggleContainerShape = 9999.dp,
             viewToggleGap = 4.dp,
@@ -2004,7 +2006,7 @@ private object TanreiSystemSource {
             viewToggleLabelTypescale = typescale.label,
             weekdayColor = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant),
             weekdayTypescale = typescale.labelSmall,
-            yearContainerHeight = 40.dp,
+            yearContainerHeight = 36.dp,
             yearContainerShape = 9999.dp,
             yearContainerWidth = 72.dp,
             yearLabelTypescale = typescale.body,
@@ -2343,8 +2345,8 @@ private object TanreiSystemSource {
             containerShape = 12.dp,
             containerSmallMaxWidth = 56.dp,
             containerSmallMinWidth = 40.dp,
-            controlsButtonSize = 40.dp,
-            controlsHeight = 40.dp,
+            controlsButtonSize = 36.dp,
+            controlsHeight = 36.dp,
             controlsIconSize = 24.dp,
             controlsIndicatorPaddingInline = 12.dp,
             controlsShape = 9999.dp,
@@ -2532,7 +2534,7 @@ private object TanreiSystemSource {
             boxShape = 2.dp,
             boxSize = 18.dp,
             containerShape = 9999.dp,
-            containerSize = 40.dp,
+            containerSize = 36.dp,
             labelGap = 4.dp,
             labelTypescale = typescale.body,
             markSize = 20.dp,
@@ -3092,7 +3094,7 @@ private object TanreiSystemSource {
     @Suppress("UNUSED_PARAMETER")
     fun combobox(typescale: TanreiTypescale, elevation: TanreiElevation): TanreiComboboxTokens =
         TanreiComboboxTokens(
-            containerActionGap = 6.dp,
+            containerActionGap = 2.dp,
             dividerColor = TanreiPaint.Role(TanreiColorRole.OutlineVariant),
             dividerSpace = 4.dp,
             dividerThickness = 1.dp,
@@ -3338,7 +3340,7 @@ private object TanreiSystemSource {
             ),
             optionSizes = TanreiComboboxOptionSizes(
                 small = TanreiComboboxOptionSizeTokens(optionHeight = 36.dp, optionPaddingInline = 8.dp, optionPaddingBlock = 8.dp, optionGap = 8.dp, optionLeadingIconSize = 20.dp, optionMarkSize = 20.dp, groupTitlePaddingInline = 8.dp),
-                medium = TanreiComboboxOptionSizeTokens(optionHeight = 40.dp, optionPaddingInline = 12.dp, optionPaddingBlock = 8.dp, optionGap = 12.dp, optionLeadingIconSize = 24.dp, optionMarkSize = 24.dp, groupTitlePaddingInline = 12.dp),
+                medium = TanreiComboboxOptionSizeTokens(optionHeight = 36.dp, optionPaddingInline = 12.dp, optionPaddingBlock = 6.dp, optionGap = 12.dp, optionLeadingIconSize = 24.dp, optionMarkSize = 24.dp, groupTitlePaddingInline = 12.dp),
             ),
         )
 
@@ -3414,7 +3416,7 @@ private object TanreiSystemSource {
             periodContainerWidth = 56.dp,
             periodGap = 8.dp,
             periodLabelTypescale = typescale.heading5,
-            rangeFieldContainerHeight = 40.dp,
+            rangeFieldContainerHeight = 36.dp,
             rangeFieldContainerPaddingInline = 16.dp,
             rangeFieldGap = 8.dp,
             rangeFieldLabelTypescale = typescale.heading5,
@@ -3644,7 +3646,7 @@ private object TanreiSystemSource {
         TanreiFabMenuTokens(
             containerShapeOpen = 9999.dp,
             itemGap = 8.dp,
-            itemHeight = 40.dp,
+            itemHeight = 36.dp,
             itemIconSize = 20.dp,
             itemLabelTypescale = typescale.label,
             itemPaddingInlineEnd = 20.dp,
@@ -4384,9 +4386,9 @@ private object TanreiSystemSource {
             focused = TanreiInputBoxStateTokens(activeIndicatorWidth = 2.dp, opacity = 1f, outlineWidth = 2.dp),
             disabled = TanreiInputBoxStateTokens(activeIndicatorWidth = 1.dp, opacity = 1f, outlineWidth = 1.dp),
             sizes = TanreiInputBoxSizes(
-                small = TanreiInputBoxSizeTokens(containerHeight = 36.dp, stackedContainerHeight = 36.dp, containerPaddingInline = 12.dp, containerPaddingInlineWithIcon = 8.dp, containerPaddingBlock = 6.dp, stackedContainerPaddingBlock = 6.dp, containerPaddingBlockWithLabel = 2.dp, containerGap = 8.dp, labelTypescale = typescale.label, labelFloatedTypescale = typescale.labelSmall, inputTypescale = typescale.body, iconSize = 20.dp, motionStateDuration = 200),
-                medium = TanreiInputBoxSizeTokens(containerHeight = 40.dp, stackedContainerHeight = 40.dp, containerPaddingInline = 16.dp, containerPaddingInlineWithIcon = 12.dp, containerPaddingBlock = 6.dp, stackedContainerPaddingBlock = 6.dp, containerPaddingBlockWithLabel = 4.dp, containerGap = 16.dp, labelTypescale = typescale.label, labelFloatedTypescale = typescale.labelSmall, inputTypescale = typescale.bodyLarge, iconSize = 24.dp, motionStateDuration = 250),
-                large = TanreiInputBoxSizeTokens(containerHeight = 56.dp, stackedContainerHeight = 56.dp, containerPaddingInline = 16.dp, containerPaddingInlineWithIcon = 12.dp, containerPaddingBlock = 14.dp, stackedContainerPaddingBlock = 14.dp, containerPaddingBlockWithLabel = 4.dp, containerGap = 16.dp, labelTypescale = typescale.label, labelFloatedTypescale = typescale.labelSmall, inputTypescale = typescale.bodyLarge, iconSize = 24.dp, motionStateDuration = 250),
+                small = TanreiInputBoxSizeTokens(containerHeight = 28.dp, stackedContainerHeight = 28.dp, containerPaddingInline = 12.dp, containerPaddingInlineWithIcon = 8.dp, containerPaddingBlock = 2.dp, stackedContainerPaddingBlock = 2.dp, containerPaddingBlockWithLabel = 0.dp, containerGap = 8.dp, labelTypescale = typescale.label, labelFloatedTypescale = typescale.labelSmall, inputTypescale = typescale.body, iconSize = 20.dp, motionStateDuration = 200),
+                medium = TanreiInputBoxSizeTokens(containerHeight = 36.dp, stackedContainerHeight = 36.dp, containerPaddingInline = 16.dp, containerPaddingInlineWithIcon = 12.dp, containerPaddingBlock = 4.dp, stackedContainerPaddingBlock = 4.dp, containerPaddingBlockWithLabel = 2.dp, containerGap = 16.dp, labelTypescale = typescale.label, labelFloatedTypescale = typescale.labelSmall, inputTypescale = typescale.bodyLarge, iconSize = 24.dp, motionStateDuration = 250),
+                large = TanreiInputBoxSizeTokens(containerHeight = 52.dp, stackedContainerHeight = 52.dp, containerPaddingInline = 16.dp, containerPaddingInlineWithIcon = 12.dp, containerPaddingBlock = 12.dp, stackedContainerPaddingBlock = 12.dp, containerPaddingBlockWithLabel = 2.dp, containerGap = 16.dp, labelTypescale = typescale.label, labelFloatedTypescale = typescale.labelSmall, inputTypescale = typescale.bodyLarge, iconSize = 24.dp, motionStateDuration = 250),
             ),
             variants = TanreiInputBoxVariants(
                 stacked = TanreiInputBoxVariantTokens(
@@ -4989,7 +4991,7 @@ private object TanreiSystemSource {
             trailingTextTypescale = typescale.bodySmall,
             sizes = TanreiListRowSizes(
                 small = TanreiListRowSizeTokens(containerHeightOneLine = 36.dp, containerHeightTwoLine = 56.dp, containerHeightThreeLine = 76.dp, containerPaddingBlock = 4.dp),
-                medium = TanreiListRowSizeTokens(containerHeightOneLine = 40.dp, containerHeightTwoLine = 60.dp, containerHeightThreeLine = 80.dp, containerPaddingBlock = 8.dp),
+                medium = TanreiListRowSizeTokens(containerHeightOneLine = 36.dp, containerHeightTwoLine = 56.dp, containerHeightThreeLine = 76.dp, containerPaddingBlock = 6.dp),
             ),
         )
 
@@ -5089,7 +5091,7 @@ private object TanreiSystemSource {
             ),
             sizes = TanreiListSizes(
                 small = TanreiListSizeTokens(containerHeight = 36.dp, containerPaddingBlock = 6.dp),
-                medium = TanreiListSizeTokens(containerHeight = 40.dp, containerPaddingBlock = 8.dp),
+                medium = TanreiListSizeTokens(containerHeight = 36.dp, containerPaddingBlock = 6.dp),
             ),
         )
 
@@ -5105,6 +5107,7 @@ private object TanreiSystemSource {
             motionEnterDuration = 250,
             motionEnterEasing = TanreiCubicBezier(x1 = 0.2f, y1 = 0f, x2 = 0f, y2 = 1f),
             motionEntrance = 0f,
+            motionPulseFloorOpacity = 0.7f,
             motionShowDelay = 300,
             sizes = TanreiLoadingIndicatorSizes(
                 small = TanreiLoadingIndicatorSizeTokens(indicatorSize = 16.dp, indicatorThickness = 2.dp, containerSize = 24.dp),
@@ -5125,9 +5128,9 @@ private object TanreiSystemSource {
             pressed = TanreiMainActionButtonStateTokens(opacity = 1f),
             disabled = TanreiMainActionButtonStateTokens(opacity = 1f),
             sizes = TanreiMainActionButtonSizes(
-                small = TanreiMainActionButtonSizeTokens(containerHeight = 40.dp, containerShape = 9999.dp, containerPaddingInlineStart = 16.dp, containerPaddingInlineEnd = 16.dp, containerPaddingInlineStartWithIcon = 12.dp, containerPaddingInlineEndWithIcon = 12.dp, containerPaddingBlock = 6.dp, containerGap = 8.dp, labelTypescale = typescale.label, iconSize = 24.dp, motionStateDuration = 200),
-                medium = TanreiMainActionButtonSizeTokens(containerHeight = 56.dp, containerShape = 9999.dp, containerPaddingInlineStart = 20.dp, containerPaddingInlineEnd = 20.dp, containerPaddingInlineStartWithIcon = 16.dp, containerPaddingInlineEndWithIcon = 20.dp, containerPaddingBlock = 6.dp, containerGap = 12.dp, labelTypescale = typescale.label, iconSize = 24.dp, motionStateDuration = 250),
-                large = TanreiMainActionButtonSizeTokens(containerHeight = 96.dp, containerShape = 9999.dp, containerPaddingInlineStart = 32.dp, containerPaddingInlineEnd = 32.dp, containerPaddingInlineStartWithIcon = 24.dp, containerPaddingInlineEndWithIcon = 32.dp, containerPaddingBlock = 6.dp, containerGap = 16.dp, labelTypescale = typescale.heading5, iconSize = 32.dp, motionStateDuration = 250),
+                small = TanreiMainActionButtonSizeTokens(containerHeight = 36.dp, containerShape = 9999.dp, containerPaddingInlineStart = 16.dp, containerPaddingInlineEnd = 16.dp, containerPaddingInlineStartWithIcon = 10.dp, containerPaddingInlineEndWithIcon = 12.dp, containerPaddingBlock = 4.dp, containerGap = 8.dp, labelTypescale = typescale.label, iconSize = 24.dp, motionStateDuration = 200),
+                medium = TanreiMainActionButtonSizeTokens(containerHeight = 52.dp, containerShape = 9999.dp, containerPaddingInlineStart = 20.dp, containerPaddingInlineEnd = 20.dp, containerPaddingInlineStartWithIcon = 14.dp, containerPaddingInlineEndWithIcon = 20.dp, containerPaddingBlock = 4.dp, containerGap = 12.dp, labelTypescale = typescale.label, iconSize = 24.dp, motionStateDuration = 250),
+                large = TanreiMainActionButtonSizeTokens(containerHeight = 92.dp, containerShape = 9999.dp, containerPaddingInlineStart = 32.dp, containerPaddingInlineEnd = 32.dp, containerPaddingInlineStartWithIcon = 22.dp, containerPaddingInlineEndWithIcon = 32.dp, containerPaddingBlock = 4.dp, containerGap = 16.dp, labelTypescale = typescale.heading5, iconSize = 32.dp, motionStateDuration = 250),
             ),
             variants = TanreiMainActionButtonVariants(
                 filled = TanreiMainActionButtonVariantTokens(
@@ -5608,7 +5611,7 @@ private object TanreiSystemSource {
             ),
             sizes = TanreiMenuSizes(
                 small = TanreiMenuSizeTokens(containerHeight = 36.dp, containerPaddingInline = 8.dp, containerPaddingBlock = 8.dp, containerGap = 8.dp, leadingIconSize = 20.dp, trailingIconSize = 20.dp, markSize = 20.dp, groupTitlePaddingInline = 8.dp),
-                medium = TanreiMenuSizeTokens(containerHeight = 40.dp, containerPaddingInline = 12.dp, containerPaddingBlock = 8.dp, containerGap = 12.dp, leadingIconSize = 24.dp, trailingIconSize = 24.dp, markSize = 24.dp, groupTitlePaddingInline = 12.dp),
+                medium = TanreiMenuSizeTokens(containerHeight = 36.dp, containerPaddingInline = 12.dp, containerPaddingBlock = 6.dp, containerGap = 12.dp, leadingIconSize = 24.dp, trailingIconSize = 24.dp, markSize = 24.dp, groupTitlePaddingInline = 12.dp),
             ),
         )
 
@@ -5620,7 +5623,7 @@ private object TanreiSystemSource {
             barPaddingBlock = 4.dp,
             barPaddingInline = 4.dp,
             containerGap = 4.dp,
-            containerHeight = 40.dp,
+            containerHeight = 36.dp,
             containerPaddingInline = 12.dp,
             containerShape = 6.dp,
             iconSize = 24.dp,
@@ -6255,7 +6258,7 @@ private object TanreiSystemSource {
                 ),
             ),
             sizes = TanreiNavigationDrawerSizes(
-                medium = TanreiNavigationDrawerSizeTokens(containerGap = 4.dp, itemContainerHeight = 40.dp, itemPaddingInline = 12.dp, itemPaddingBlock = 4.dp, itemNestIndent = 36.dp, itemIconSize = 24.dp, itemIconIndicatorWidth = 24.dp, itemIconIndicatorHeight = 24.dp, itemLabelTypescale = typescale.label, itemTrailingIconSize = 20.dp, collapsedContainerWidth = 72.dp, collapsedItemContainerWidth = 40.dp, collapsedItemContainerPaddingBlock = 8.dp, headingHeight = 36.dp),
+                medium = TanreiNavigationDrawerSizeTokens(containerGap = 4.dp, itemContainerHeight = 36.dp, itemPaddingInline = 12.dp, itemPaddingBlock = 2.dp, itemNestIndent = 36.dp, itemIconSize = 24.dp, itemIconIndicatorWidth = 24.dp, itemIconIndicatorHeight = 24.dp, itemLabelTypescale = typescale.label, itemTrailingIconSize = 20.dp, collapsedContainerWidth = 72.dp, collapsedItemContainerWidth = 36.dp, collapsedItemContainerPaddingBlock = 6.dp, headingHeight = 36.dp),
                 small = TanreiNavigationDrawerSizeTokens(containerGap = 2.dp, itemContainerHeight = 36.dp, itemPaddingInline = 8.dp, itemPaddingBlock = 4.dp, itemNestIndent = 24.dp, itemIconSize = 16.dp, itemIconIndicatorWidth = 16.dp, itemIconIndicatorHeight = 16.dp, itemLabelTypescale = typescale.label, itemTrailingIconSize = 16.dp, collapsedContainerWidth = 56.dp, collapsedItemContainerWidth = 36.dp, collapsedItemContainerPaddingBlock = 10.dp, headingHeight = 28.dp),
             ),
         )
@@ -6287,7 +6290,7 @@ private object TanreiSystemSource {
         TanreiOneTimeCodeInputTokens(
             caretWidth = 1.dp,
             containerGap = 6.dp,
-            containerHeight = 40.dp,
+            containerHeight = 36.dp,
             containerPaddingInline = 4.dp,
             containerShape = 6.dp,
             containerWidth = 40.dp,
@@ -6413,8 +6416,8 @@ private object TanreiSystemSource {
             pressed = TanreiPaginationStateTokens(containerShape = 9999.dp, opacity = 1f),
             disabled = TanreiPaginationStateTokens(containerShape = 9999.dp, opacity = 1f),
             sizes = TanreiPaginationSizes(
-                small = TanreiPaginationSizeTokens(containerHeight = 36.dp),
-                medium = TanreiPaginationSizeTokens(containerHeight = 40.dp),
+                small = TanreiPaginationSizeTokens(containerHeight = 28.dp),
+                medium = TanreiPaginationSizeTokens(containerHeight = 36.dp),
             ),
             parts = TanreiPaginationParts(
                 item = TanreiPaginationPartTokens(
@@ -6587,6 +6590,7 @@ private object TanreiSystemSource {
             indicatorColor = TanreiPaint.Role(TanreiColorRole.Primary),
             motionCycleDuration = 1000,
             motionCycleEasing = TanreiCubicBezier(x1 = 0.2f, y1 = 0f, x2 = 0f, y2 = 1f),
+            motionPulseFloorOpacity = 0.7f,
             motionShowDelay = 300,
             motionValueDuration = 300,
             motionValueEasing = TanreiCubicBezier(x1 = 0.2f, y1 = 0f, x2 = 0f, y2 = 1f),
@@ -6640,7 +6644,7 @@ private object TanreiSystemSource {
     fun radioButton(typescale: TanreiTypescale, elevation: TanreiElevation): TanreiRadioButtonTokens =
         TanreiRadioButtonTokens(
             containerShape = 9999.dp,
-            containerSize = 40.dp,
+            containerSize = 36.dp,
             fillInset = 0.dp,
             fillOpacity = 0.16f,
             labelGap = 4.dp,
@@ -6931,8 +6935,8 @@ private object TanreiSystemSource {
     fun search(typescale: TanreiTypescale, elevation: TanreiElevation): TanreiSearchTokens =
         TanreiSearchTokens(
             containerButtonGap = 0.dp,
-            containerGap = 0.dp,
-            containerHeight = 40.dp,
+            containerGap = 8.dp,
+            containerHeight = 36.dp,
             containerPaddingInline = 16.dp,
             containerPaddingInlineWithButton = 8.dp,
             containerShape = 9999.dp,
@@ -6968,7 +6972,7 @@ private object TanreiSystemSource {
             suggestionHeadlineTypescale = typescale.label,
             suggestionSupportingTextTypescale = typescale.bodySmall,
             triggerContainerGap = 8.dp,
-            triggerContainerHeight = 40.dp,
+            triggerContainerHeight = 36.dp,
             triggerContainerPaddingInline = 12.dp,
             triggerLabelTypescale = typescale.body,
             triggerLeadingIconSize = 20.dp,
@@ -7068,7 +7072,7 @@ private object TanreiSystemSource {
             ),
             sizes = TanreiSearchSizes(
                 small = TanreiSearchSizeTokens(suggestionContainerHeight = 36.dp, suggestionContainerPaddingInline = 8.dp, suggestionContainerPaddingBlock = 8.dp, suggestionContainerGap = 8.dp, suggestionLeadingIconSize = 20.dp),
-                medium = TanreiSearchSizeTokens(suggestionContainerHeight = 40.dp, suggestionContainerPaddingInline = 12.dp, suggestionContainerPaddingBlock = 8.dp, suggestionContainerGap = 12.dp, suggestionLeadingIconSize = 24.dp),
+                medium = TanreiSearchSizeTokens(suggestionContainerHeight = 36.dp, suggestionContainerPaddingInline = 12.dp, suggestionContainerPaddingBlock = 6.dp, suggestionContainerGap = 12.dp, suggestionLeadingIconSize = 24.dp),
             ),
         )
 
@@ -7093,9 +7097,9 @@ private object TanreiSystemSource {
             pressed = TanreiSegmentedButtonStateTokens(containerShape = 0.dp, opacity = 1f),
             disabled = TanreiSegmentedButtonStateTokens(containerShape = 0.dp, opacity = 1f),
             sizes = TanreiSegmentedButtonSizes(
-                small = TanreiSegmentedButtonSizeTokens(containerHeight = 36.dp, containerPaddingInline = 12.dp, containerPaddingBlock = 8.dp, containerGap = 8.dp, labelTypescale = typescale.label, iconSize = 16.dp, checkSize = 16.dp, motionStateDuration = 200),
-                medium = TanreiSegmentedButtonSizeTokens(containerHeight = 40.dp, containerPaddingInline = 14.dp, containerPaddingBlock = 6.dp, containerGap = 8.dp, labelTypescale = typescale.label, iconSize = 16.dp, checkSize = 16.dp, motionStateDuration = 250),
-                large = TanreiSegmentedButtonSizeTokens(containerHeight = 56.dp, containerPaddingInline = 16.dp, containerPaddingBlock = 6.dp, containerGap = 8.dp, labelTypescale = typescale.label, iconSize = 16.dp, checkSize = 16.dp, motionStateDuration = 250),
+                small = TanreiSegmentedButtonSizeTokens(containerHeight = 28.dp, containerPaddingInline = 12.dp, containerPaddingBlock = 4.dp, containerGap = 8.dp, labelTypescale = typescale.label, iconSize = 16.dp, checkSize = 16.dp, motionStateDuration = 200),
+                medium = TanreiSegmentedButtonSizeTokens(containerHeight = 36.dp, containerPaddingInline = 14.dp, containerPaddingBlock = 4.dp, containerGap = 8.dp, labelTypescale = typescale.label, iconSize = 16.dp, checkSize = 16.dp, motionStateDuration = 250),
+                large = TanreiSegmentedButtonSizeTokens(containerHeight = 52.dp, containerPaddingInline = 16.dp, containerPaddingBlock = 4.dp, containerGap = 8.dp, labelTypescale = typescale.label, iconSize = 16.dp, checkSize = 16.dp, motionStateDuration = 250),
             ),
             conditions = TanreiSegmentedButtonConditions(
                 unselected = TanreiSegmentedButtonConditionTokens(
@@ -7178,7 +7182,7 @@ private object TanreiSystemSource {
     @Suppress("UNUSED_PARAMETER")
     fun select(typescale: TanreiTypescale, elevation: TanreiElevation): TanreiSelectTokens =
         TanreiSelectTokens(
-            containerActionGap = 6.dp,
+            containerActionGap = 2.dp,
             dividerColor = TanreiPaint.Role(TanreiColorRole.OutlineVariant),
             dividerSpace = 4.dp,
             dividerThickness = 1.dp,
@@ -7418,7 +7422,7 @@ private object TanreiSystemSource {
             ),
             optionSizes = TanreiSelectOptionSizes(
                 small = TanreiSelectOptionSizeTokens(optionHeight = 36.dp, optionPaddingInline = 8.dp, optionPaddingBlock = 8.dp, optionGap = 8.dp, optionLeadingIconSize = 20.dp, optionMarkSize = 20.dp, groupTitlePaddingInline = 8.dp),
-                medium = TanreiSelectOptionSizeTokens(optionHeight = 40.dp, optionPaddingInline = 12.dp, optionPaddingBlock = 8.dp, optionGap = 12.dp, optionLeadingIconSize = 24.dp, optionMarkSize = 24.dp, groupTitlePaddingInline = 12.dp),
+                medium = TanreiSelectOptionSizeTokens(optionHeight = 36.dp, optionPaddingInline = 12.dp, optionPaddingBlock = 6.dp, optionGap = 12.dp, optionLeadingIconSize = 24.dp, optionMarkSize = 24.dp, groupTitlePaddingInline = 12.dp),
             ),
         )
 
@@ -7487,7 +7491,7 @@ private object TanreiSystemSource {
     fun slider(typescale: TanreiTypescale, elevation: TanreiElevation): TanreiSliderTokens =
         TanreiSliderTokens(
             containerShape = 9999.dp,
-            containerSize = 40.dp,
+            containerSize = 36.dp,
             handleOutlineWidth = 3.dp,
             handleShape = 9999.dp,
             motionFeedbackDuration = 450,
@@ -7598,8 +7602,8 @@ private object TanreiSystemSource {
             containerPaddingInlineEndWithControls = 8.dp,
             containerPaddingInlineStart = 16.dp,
             containerShape = 8.dp,
-            controlsGap = 4.dp,
-            controlsHeight = 36.dp,
+            controlsGap = 8.dp,
+            controlsHeight = 28.dp,
             controlsLabelTypescale = typescale.label,
             controlsPaddingInline = 14.dp,
             controlsShape = 9999.dp,
@@ -8099,7 +8103,7 @@ private object TanreiSystemSource {
     fun switch(typescale: TanreiTypescale, elevation: TanreiElevation): TanreiSwitchTokens =
         TanreiSwitchTokens(
             containerShape = 9999.dp,
-            containerSize = 40.dp,
+            containerSize = 36.dp,
             handleSizeWithIcon = 24.dp,
             iconSize = 16.dp,
             iconWeight = 500f,
@@ -8261,7 +8265,7 @@ private object TanreiSystemSource {
             compactListPaddingBlock = 8.dp,
             compactListPaddingInline = 16.dp,
             compactRowGap = 8.dp,
-            compactRowHeight = 40.dp,
+            compactRowHeight = 36.dp,
             compactRowPaddingInline = 16.dp,
             compactSupportingTextColor = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant),
             compactSupportingTextTypescale = typescale.bodySmall,
@@ -8354,7 +8358,7 @@ private object TanreiSystemSource {
             ),
             sizes = TanreiTableOfContentsSizes(
                 small = TanreiTableOfContentsSizeTokens(rowHeight = 36.dp, rowPaddingBlock = 8.dp),
-                medium = TanreiTableOfContentsSizeTokens(rowHeight = 40.dp, rowPaddingBlock = 10.dp),
+                medium = TanreiTableOfContentsSizeTokens(rowHeight = 36.dp, rowPaddingBlock = 8.dp),
             ),
         )
 
@@ -8456,15 +8460,14 @@ private object TanreiSystemSource {
                 ),
             ),
             sizes = TanreiTableSizes(
-                small = TanreiTableSizeTokens(rowHeight = 32.dp, cellPaddingBlock = 6.dp, cellPaddingInline = 12.dp, cellTextTypescale = typescale.bodySmall, headerTextTypescale = typescale.labelSmall),
-                medium = TanreiTableSizeTokens(rowHeight = 40.dp, cellPaddingBlock = 9.dp, cellPaddingInline = 16.dp, cellTextTypescale = typescale.body, headerTextTypescale = typescale.label),
+                small = TanreiTableSizeTokens(rowHeight = 28.dp, cellPaddingBlock = 4.dp, cellPaddingInline = 12.dp, cellTextTypescale = typescale.bodySmall, headerTextTypescale = typescale.labelSmall),
+                medium = TanreiTableSizeTokens(rowHeight = 36.dp, cellPaddingBlock = 7.dp, cellPaddingInline = 16.dp, cellTextTypescale = typescale.body, headerTextTypescale = typescale.label),
             ),
         )
 
     @Suppress("UNUSED_PARAMETER")
     fun tabs(typescale: TanreiTypescale, elevation: TanreiElevation): TanreiTabsTokens =
         TanreiTabsTokens(
-            activeIndicatorHeight = 32.dp,
             containerGap = 4.dp,
             containerHeightWithIcon = 64.dp,
             containerShape = 9999.dp,
@@ -8841,8 +8844,8 @@ private object TanreiSystemSource {
                 ),
             ),
             sizes = TanreiTabsSizes(
-                small = TanreiTabsSizeTokens(containerHeight = 36.dp, containerPaddingInline = 12.dp, activeIndicatorPaddingInline = 12.dp, activeIndicatorPaddingBlock = 2.dp, iconSize = 20.dp, iconPlacement = 1f),
-                medium = TanreiTabsSizeTokens(containerHeight = 40.dp, containerPaddingInline = 16.dp, activeIndicatorPaddingInline = 16.dp, activeIndicatorPaddingBlock = 4.dp, iconSize = 24.dp, iconPlacement = 0f),
+                small = TanreiTabsSizeTokens(containerHeight = 28.dp, containerPaddingInline = 12.dp, activeIndicatorPaddingInline = 12.dp, activeIndicatorPaddingBlock = 0.dp, iconSize = 20.dp, iconPlacement = 1f),
+                medium = TanreiTabsSizeTokens(containerHeight = 36.dp, containerPaddingInline = 16.dp, activeIndicatorPaddingInline = 16.dp, activeIndicatorPaddingBlock = 2.dp, iconSize = 24.dp, iconPlacement = 0f),
             ),
         )
 
@@ -8987,7 +8990,7 @@ private object TanreiSystemSource {
         TanreiTextInputTokens(
             codeTabSize = 2f,
             codeTypescale = typescale.code,
-            containerActionGap = 6.dp,
+            containerActionGap = 2.dp,
             entriesGap = 8.dp,
             entriesRowGap = 8.dp,
             entriesTypingMinWidth = 72.dp,
@@ -9033,8 +9036,8 @@ private object TanreiSystemSource {
             outlineWidth = 1.dp,
             separation = 0f,
             variants = TanreiToolbarVariants(
-                inline = TanreiToolbarVariantTokens(containerColor = TanreiPaint.None, containerElevation = elevation.level0, containerShape = 8.dp, containerSize = 40.dp, containerPaddingInline = 0.dp, containerGap = 4.dp, outlineColor = TanreiPaint.None),
-                docked = TanreiToolbarVariantTokens(containerColor = TanreiPaint.Role(TanreiColorRole.Surface), containerElevation = elevation.level0, containerShape = 0.dp, containerSize = 64.dp, containerPaddingInline = 16.dp, containerGap = 0.dp, outlineColor = TanreiPaint.Role(TanreiColorRole.OutlineVariant)),
+                inline = TanreiToolbarVariantTokens(containerColor = TanreiPaint.None, containerElevation = elevation.level0, containerShape = 8.dp, containerSize = 36.dp, containerPaddingInline = 0.dp, containerGap = 4.dp, outlineColor = TanreiPaint.None),
+                docked = TanreiToolbarVariantTokens(containerColor = TanreiPaint.Role(TanreiColorRole.Surface), containerElevation = elevation.level0, containerShape = 0.dp, containerSize = 64.dp, containerPaddingInline = 16.dp, containerGap = 8.dp, outlineColor = TanreiPaint.Role(TanreiColorRole.OutlineVariant)),
                 floating = TanreiToolbarVariantTokens(containerColor = TanreiPaint.Role(TanreiColorRole.SurfaceBright), containerElevation = elevation.level3, containerShape = 9999.dp, containerSize = 64.dp, containerPaddingInline = 12.dp, containerGap = 0.dp, outlineColor = TanreiPaint.None),
             ),
         )
@@ -9212,7 +9215,7 @@ private object TanreiSystemSource {
             ),
             sizes = TanreiTreeViewSizes(
                 small = TanreiTreeViewSizeTokens(containerHeight = 36.dp, containerPaddingBlock = 8.dp, containerPaddingInline = 8.dp, containerGap = 8.dp, levelIndent = 24.dp, labelTypescale = typescale.bodySmall, iconSize = 16.dp, chevronSize = 16.dp),
-                medium = TanreiTreeViewSizeTokens(containerHeight = 40.dp, containerPaddingBlock = 8.dp, containerPaddingInline = 12.dp, containerGap = 12.dp, levelIndent = 32.dp, labelTypescale = typescale.body, iconSize = 24.dp, chevronSize = 20.dp),
+                medium = TanreiTreeViewSizeTokens(containerHeight = 36.dp, containerPaddingBlock = 6.dp, containerPaddingInline = 12.dp, containerGap = 12.dp, levelIndent = 32.dp, labelTypescale = typescale.body, iconSize = 24.dp, chevronSize = 20.dp),
             ),
         )
 }

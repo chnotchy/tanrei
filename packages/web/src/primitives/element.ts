@@ -1,6 +1,7 @@
 import { type CSSResultGroup, type CSSResultOrNative, LitElement, ReactiveElement } from 'lit';
 import { settleStyles, stillPointerStyles } from '../styles/motion.js';
 import { flatParent, focusedIn } from './flat-tree.js';
+import { takeFormDefaults } from './form-default.js';
 import { Settle } from './motion.js';
 
 // The base every element of this package extends, so that what each of them owes from its first frame is written once.
@@ -169,6 +170,17 @@ export abstract class TanreiElement extends LitElement {
    */
   protected delegateFocus(options?: FocusOptions) {
     super.focus(options);
+  }
+
+  /**
+   * @internal What the element holds at its next update is what the product gave it first: the default a form's reset
+   * returns its value to (`FormDefault`, src/primitives/form-default.ts). A framework's binding calls it once the element
+   * is mounted with its first props — `@tanrei/react` does, so that a page rendered on a server, whose lists arrive
+   * after the element first drew, resets to them as the same page rendered by the client does. Nothing for an element
+   * that holds no form value.
+   */
+  takeFormDefaults() {
+    takeFormDefaults(this);
   }
 
   /** `blur()` gives up a focus kept until the element has drawn. */

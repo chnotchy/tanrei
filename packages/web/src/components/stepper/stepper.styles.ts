@@ -178,7 +178,7 @@ export const stepStyles = css`
   :host {
     display: block;
     min-inline-size: 0;
-    outline: none;
+    outline: none !important;
     /* SPR-18: a step's container is at least the minimum target. */
     --_target: var(--tanrei-sys-target-pointer);
     --_pad: ${t('container-padding')};

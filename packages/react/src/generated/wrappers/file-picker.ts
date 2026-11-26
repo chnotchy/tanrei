@@ -15,7 +15,7 @@ const FilePickerElement = /* @__PURE__ */ createComponent({
     onReject: 'reject' as EventName<TanreiEvent<TanreiFilePickerElement>>,
   },
 });
-const FilePickerAttributes = { layout: ['layout', 'button'], multiple: ['multiple', false], accept: ['accept'], maxSize: ['max-size', null], maxFiles: ['max-files', null], label: ['label', ''], constraintsText: ['constraints-text', ''], dropText: ['drop-text', ''], selectionText: ['selection-text', ''], disabled: ['disabled', false], error: ['error', false], required: ['required', false] } as const;
+const FilePickerAttributes = { layout: ['layout', 'button'], multiple: ['multiple', false], accept: ['accept', []], maxSize: ['max-size', null], maxFiles: ['max-files', null], label: ['label', ''], constraintsText: ['constraints-text', ''], dropText: ['drop-text', ''], selectionText: ['selection-text', ''], disabled: ['disabled', false], error: ['error', false], required: ['required', false] } as const;
 /**
  * Lets people choose files through the browser's own picker — from the product's Button and, where there is room, from a place files can also be dragged onto — says the limits in words before the choice, judges what was chosen against them, and hands over what passed and what was refused. **It keeps nothing, lists nothing and takes no part in a form** (FPK-7): whoever holds the files shows them — a `<tanrei-file-upload>` does, with a list and a form value.
  *

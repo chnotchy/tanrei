@@ -604,6 +604,7 @@
     --tanrei-comp-button-with-menu-leading-padding-inline-start-small: var(--tanrei-sys-space-space200);
     --tanrei-comp-button-with-menu-motion-busy-cycle-duration: var(--tanrei-comp-button-motion-busy-cycle-duration);
     --tanrei-comp-button-with-menu-motion-busy-fade-duration: var(--tanrei-comp-button-motion-busy-fade-duration);
+    --tanrei-comp-button-with-menu-motion-busy-pulse-floor-opacity: var(--tanrei-comp-button-motion-busy-pulse-floor-opacity);
     --tanrei-comp-button-with-menu-motion-feedback-duration: var(--tanrei-sys-motion-role-feedback);
     --tanrei-comp-button-with-menu-motion-hover-close-delay: var(--tanrei-sys-motion-duration-medium2);
     --tanrei-comp-button-with-menu-motion-hover-open-delay: var(--tanrei-sys-motion-duration-medium2);
@@ -1062,6 +1063,7 @@
     --tanrei-comp-button-label-typescale-xxlarge-line-height: var(--tanrei-sys-typescale-heading-1-line-height);
     --tanrei-comp-button-motion-busy-cycle-duration: var(--tanrei-comp-loading-indicator-motion-cycle-duration);
     --tanrei-comp-button-motion-busy-fade-duration: var(--tanrei-sys-motion-role-state-compact);
+    --tanrei-comp-button-motion-busy-pulse-floor-opacity: var(--tanrei-comp-loading-indicator-motion-pulse-floor-opacity);
     --tanrei-comp-button-motion-feedback-duration: var(--tanrei-sys-motion-role-feedback);
     --tanrei-comp-button-motion-state-duration-large: var(--tanrei-sys-motion-role-state-large);
     --tanrei-comp-button-motion-state-duration-medium: var(--tanrei-sys-motion-role-state-default);
@@ -1749,7 +1751,7 @@
     --tanrei-comp-carousel-container-shape-pill: 0;
     --tanrei-comp-carousel-container-small-max-width: round(nearest, calc(var(--tanrei-dial-size-unit) * 14), 0.25px);
     --tanrei-comp-carousel-container-small-min-width: round(nearest, calc(var(--tanrei-dial-size-unit) * 10), 0.25px);
-    --tanrei-comp-carousel-controls-button-size: round(nearest, calc(var(--tanrei-dial-size-unit) * 10), 0.25px);
+    --tanrei-comp-carousel-controls-button-size: max(var(--tanrei-sys-target-minimum), var(--tanrei-sys-control-height-medium));
     --tanrei-comp-carousel-controls-height: max(var(--tanrei-sys-target-touch), var(--tanrei-comp-carousel-controls-button-size));
     --tanrei-comp-carousel-controls-icon-size: var(--tanrei-sys-icon-medium);
     --tanrei-comp-carousel-controls-indicator-padding-inline: var(--tanrei-sys-space-space150);
@@ -4157,7 +4159,7 @@
     --tanrei-comp-keyboard-shortcut-chord-gap-medium: var(--tanrei-sys-space-space50);
     --tanrei-comp-keyboard-shortcut-chord-gap-small: var(--tanrei-sys-space-space25);
     --tanrei-comp-keyboard-shortcut-container-color: var(--tanrei-sys-color-surface-container-high);
-    --tanrei-comp-keyboard-shortcut-container-height-medium: var(--tanrei-sys-control-height-extra-small);
+    --tanrei-comp-keyboard-shortcut-container-height-medium: round(nearest, calc(var(--tanrei-dial-size-unit) * 6), var(--tanrei-dial-size-unit));
     --tanrei-comp-keyboard-shortcut-container-height-small: round(nearest, calc(var(--tanrei-dial-size-unit) * 5), var(--tanrei-dial-size-unit));
     --tanrei-comp-keyboard-shortcut-container-padding-inline-medium: var(--tanrei-sys-space-space75);
     --tanrei-comp-keyboard-shortcut-container-padding-inline-small: var(--tanrei-sys-space-space50);
@@ -4530,6 +4532,7 @@
     --tanrei-comp-loading-indicator-motion-enter-duration: var(--tanrei-sys-motion-duration-short4);
     --tanrei-comp-loading-indicator-motion-enter-easing: var(--tanrei-sys-motion-easing-standard-decelerate);
     --tanrei-comp-loading-indicator-motion-entrance: fade;
+    --tanrei-comp-loading-indicator-motion-pulse-floor-opacity: 0.7;
     --tanrei-comp-loading-indicator-motion-show-delay: var(--tanrei-sys-motion-role-show-delay);
     --tanrei-comp-main-action-button-container-gap-large: var(--tanrei-sys-space-space200);
     --tanrei-comp-main-action-button-container-gap-medium: var(--tanrei-sys-space-space150);
@@ -4546,9 +4549,9 @@
     --tanrei-comp-main-action-button-container-padding-inline-end-large: var(--tanrei-sys-space-space400);
     --tanrei-comp-main-action-button-container-padding-inline-end-medium: var(--tanrei-sys-space-space250);
     --tanrei-comp-main-action-button-container-padding-inline-end-small: var(--tanrei-sys-space-space200);
-    --tanrei-comp-main-action-button-container-padding-inline-start-with-icon-large: var(--tanrei-sys-space-space300);
-    --tanrei-comp-main-action-button-container-padding-inline-start-with-icon-medium: var(--tanrei-sys-space-space200);
-    --tanrei-comp-main-action-button-container-padding-inline-start-with-icon-small: var(--tanrei-sys-space-space150);
+    --tanrei-comp-main-action-button-container-padding-inline-start-with-icon-large: max(0px, round(nearest, calc(var(--tanrei-sys-space-space300) + (var(--tanrei-comp-main-action-button-container-height-large) - var(--tanrei-comp-main-action-button-container-height-large)) / 2), 0.25px));
+    --tanrei-comp-main-action-button-container-padding-inline-start-with-icon-medium: max(0px, round(nearest, calc(var(--tanrei-sys-space-space200) + (var(--tanrei-comp-main-action-button-container-height-medium) - var(--tanrei-comp-main-action-button-container-height-medium)) / 2), 0.25px));
+    --tanrei-comp-main-action-button-container-padding-inline-start-with-icon-small: max(0px, round(nearest, calc(var(--tanrei-sys-space-space150) + (var(--tanrei-comp-main-action-button-container-height-small) - var(--tanrei-comp-main-action-button-container-height-small)) / 2), 0.25px));
     --tanrei-comp-main-action-button-container-padding-inline-start-large: var(--tanrei-sys-space-space400);
     --tanrei-comp-main-action-button-container-padding-inline-start-medium: var(--tanrei-sys-space-space250);
     --tanrei-comp-main-action-button-container-padding-inline-start-small: var(--tanrei-sys-space-space200);
@@ -5766,7 +5769,7 @@
     --tanrei-comp-page-header-title-typescale-small-line-height: var(--tanrei-sys-typescale-heading-2-line-height);
     --tanrei-comp-page-header-wide-container-width: round(nearest, calc(var(--tanrei-dial-size-unit) * 120), 0.25px);
     --tanrei-comp-pagination-container-height-medium: max(var(--tanrei-sys-target-minimum), var(--tanrei-sys-control-height-medium));
-    --tanrei-comp-pagination-container-height-small: max(var(--tanrei-sys-target-minimum), var(--tanrei-sys-control-height-small));
+    --tanrei-comp-pagination-container-height-small: var(--tanrei-sys-control-height-small);
     --tanrei-comp-pagination-container-padding-inline: var(--tanrei-sys-space-space100);
     --tanrei-comp-pagination-container-shape: var(--tanrei-sys-shape-corner-full);
     --tanrei-comp-pagination-container-shape-pill: 1;
@@ -5953,6 +5956,7 @@
     --tanrei-comp-progress-indicator-linear-thickness-small: var(--tanrei-dial-size-unit);
     --tanrei-comp-progress-indicator-motion-cycle-duration: round(nearest, calc(var(--tanrei-dial-motion-unit) * 35), 1ms);
     --tanrei-comp-progress-indicator-motion-cycle-easing: var(--tanrei-sys-motion-easing-standard);
+    --tanrei-comp-progress-indicator-motion-pulse-floor-opacity: var(--tanrei-comp-loading-indicator-motion-pulse-floor-opacity);
     --tanrei-comp-progress-indicator-motion-show-delay: var(--tanrei-sys-motion-role-show-delay);
     --tanrei-comp-progress-indicator-motion-value-duration: var(--tanrei-sys-motion-duration-medium2);
     --tanrei-comp-progress-indicator-motion-value-easing: var(--tanrei-sys-motion-easing-standard);
@@ -7842,15 +7846,14 @@
     --tanrei-comp-table-status-text-typescale-line-height: var(--tanrei-sys-typescale-body-small-line-height);
     --tanrei-comp-table-sticky-container-color: var(--tanrei-sys-color-surface);
     --tanrei-comp-table-stripe-container-color: var(--tanrei-sys-color-surface-container-low);
-    --tanrei-comp-tabs-active-indicator-height: round(nearest, calc(var(--tanrei-dial-size-unit) * 8), 0.25px);
     --tanrei-comp-tabs-active-indicator-padding-block-medium: max(0px, round(nearest, calc(var(--tanrei-sys-space-space50) + (var(--tanrei-comp-tabs-container-height-medium) - var(--tanrei-comp-tabs-container-height-medium)) / 2), 0.25px));
-    --tanrei-comp-tabs-active-indicator-padding-block-small: var(--tanrei-sys-space-space25);
+    --tanrei-comp-tabs-active-indicator-padding-block-small: max(0px, round(nearest, calc(var(--tanrei-sys-space-space25) + (var(--tanrei-comp-tabs-container-height-small) - calc(max(var(--tanrei-dial-control-height), 2.5rem) + var(--tanrei-dial-size-unit) * -2)) / 2), 0.25px));
     --tanrei-comp-tabs-active-indicator-padding-inline-medium: var(--tanrei-comp-tabs-container-padding-inline-medium);
     --tanrei-comp-tabs-active-indicator-padding-inline-small: var(--tanrei-comp-tabs-container-padding-inline-small);
     --tanrei-comp-tabs-container-gap: var(--tanrei-sys-space-space50);
     --tanrei-comp-tabs-container-height-with-icon: max(var(--tanrei-sys-target-minimum), round(nearest, calc(var(--tanrei-dial-size-unit) * 16), var(--tanrei-dial-size-unit)));
     --tanrei-comp-tabs-container-height-medium: round(nearest, calc(var(--tanrei-dial-size-unit) * 12), 0.25px);
-    --tanrei-comp-tabs-container-height-small: max(var(--tanrei-sys-target-minimum), var(--tanrei-sys-control-height-small));
+    --tanrei-comp-tabs-container-height-small: var(--tanrei-sys-control-height-small);
     --tanrei-comp-tabs-container-padding-inline-medium: var(--tanrei-sys-space-space200);
     --tanrei-comp-tabs-container-padding-inline-small: var(--tanrei-sys-space-space150);
     --tanrei-comp-tabs-container-shape: var(--tanrei-sys-shape-corner-none);
@@ -8231,9 +8234,9 @@
     --tanrei-comp-tag-group-row-gap-chips: var(--tanrei-sys-space-space200);
     --tanrei-comp-tag-group-row-gap-tags: var(--tanrei-sys-space-space100);
     --tanrei-comp-tag-container-gap: var(--tanrei-sys-space-space50);
-    --tanrei-comp-tag-container-height-medium: var(--tanrei-sys-control-height-extra-small);
+    --tanrei-comp-tag-container-height-medium: round(nearest, calc(var(--tanrei-dial-size-unit) * 6), var(--tanrei-dial-size-unit));
     --tanrei-comp-tag-container-height-small: round(nearest, calc(var(--tanrei-dial-size-unit) * 5), var(--tanrei-dial-size-unit));
-    --tanrei-comp-tag-container-padding-block-medium: max(0px, round(nearest, calc(var(--tanrei-sys-space-space25) + (var(--tanrei-comp-tag-container-height-medium) - calc(max(var(--tanrei-dial-control-height), 2.5rem) + var(--tanrei-dial-size-unit) * -4)) / 2), 0.25px));
+    --tanrei-comp-tag-container-padding-block-medium: max(0px, round(nearest, calc(var(--tanrei-sys-space-space25) + (var(--tanrei-comp-tag-container-height-medium) - var(--tanrei-comp-tag-container-height-medium)) / 2), 0.25px));
     --tanrei-comp-tag-container-padding-block-small: max(0px, round(nearest, calc(var(--tanrei-sys-space-space25) + (var(--tanrei-comp-tag-container-height-small) - var(--tanrei-comp-tag-container-height-small)) / 2), 0.25px));
     --tanrei-comp-tag-container-padding-inline-with-icon-medium: var(--tanrei-sys-space-space75);
     --tanrei-comp-tag-container-padding-inline-with-icon-small: var(--tanrei-sys-space-space50);
@@ -9323,6 +9326,7 @@
   /* Contrast follows prefers-contrast by default; force it with data-tanrei-contrast. */
   @media (prefers-contrast: more) {
     [data-tanrei-system="m3-like"]:not([data-tanrei-contrast]) {
+      --tanrei-sys-color-elevation-ring: var(--tanrei-ref-alpha-black-0);
       --tanrei-sys-color-error: light-dark(var(--tanrei-ref-palette-error-20), var(--tanrei-ref-palette-error-90));
       --tanrei-sys-color-focus-ring: light-dark(var(--tanrei-ref-palette-secondary-20), var(--tanrei-ref-palette-secondary-90));
       --tanrei-sys-color-info: light-dark(var(--tanrei-ref-palette-info-20), var(--tanrei-ref-palette-info-90));
@@ -9340,7 +9344,9 @@
       --tanrei-sys-color-outline: light-dark(var(--tanrei-ref-palette-neutral-variant-30), var(--tanrei-ref-palette-neutral-variant-85));
       --tanrei-sys-color-outline-variant: light-dark(var(--tanrei-ref-palette-neutral-variant-50), var(--tanrei-ref-palette-neutral-variant-60));
       --tanrei-sys-color-primary: light-dark(var(--tanrei-ref-palette-primary-20), var(--tanrei-ref-palette-primary-90));
+      --tanrei-sys-color-primary-container: light-dark(var(--tanrei-ref-palette-primary-90), var(--tanrei-ref-palette-primary-30));
       --tanrei-sys-color-secondary: light-dark(var(--tanrei-ref-palette-secondary-20), var(--tanrei-ref-palette-secondary-90));
+      --tanrei-sys-color-secondary-container: light-dark(var(--tanrei-ref-palette-secondary-90), var(--tanrei-ref-palette-secondary-30));
       --tanrei-sys-color-success: light-dark(var(--tanrei-ref-palette-success-20), var(--tanrei-ref-palette-success-90));
       --tanrei-sys-color-tertiary: light-dark(var(--tanrei-ref-palette-tertiary-20), var(--tanrei-ref-palette-tertiary-90));
       --tanrei-sys-color-warning: light-dark(var(--tanrei-ref-palette-warning-20), var(--tanrei-ref-palette-warning-90));
@@ -9353,9 +9359,36 @@
       --tanrei-comp-code-block-syntax-color-string: light-dark(#00460b, #a3f399);
       --tanrei-comp-code-block-syntax-color-tag: light-dark(#7d0015, #ffd6d4);
       --tanrei-comp-code-block-syntax-color-type: light-dark(#004345, #6bf3f8);
+      --tanrei-comp-combobox-filled-disabled-selected-option-container-color: var(--tanrei-comp-combobox-filled-selected-option-container-color);
+      --tanrei-comp-combobox-filled-selected-option-container-color: var(--tanrei-comp-combobox-filled-option-container-color);
+      --tanrei-comp-combobox-outlined-disabled-selected-option-container-color: var(--tanrei-comp-combobox-outlined-selected-option-container-color);
+      --tanrei-comp-combobox-outlined-selected-option-container-color: var(--tanrei-comp-combobox-outlined-option-container-color);
+      --tanrei-comp-combobox-stacked-disabled-selected-option-container-color: var(--tanrei-comp-combobox-stacked-selected-option-container-color);
+      --tanrei-comp-combobox-stacked-selected-option-container-color: var(--tanrei-comp-combobox-stacked-option-container-color);
+      --tanrei-comp-menu-selected-container-color: var(--tanrei-comp-menu-unselected-container-color);
+      --tanrei-comp-menu-selected-disabled-container-color: var(--tanrei-comp-menu-selected-container-color);
+      --tanrei-comp-select-filled-disabled-selected-option-container-color: var(--tanrei-comp-select-filled-selected-option-container-color);
+      --tanrei-comp-select-filled-selected-option-container-color: var(--tanrei-comp-select-filled-option-container-color);
+      --tanrei-comp-select-outlined-disabled-selected-option-container-color: var(--tanrei-comp-select-outlined-selected-option-container-color);
+      --tanrei-comp-select-outlined-selected-option-container-color: var(--tanrei-comp-select-outlined-option-container-color);
+      --tanrei-comp-select-stacked-disabled-selected-option-container-color: var(--tanrei-comp-select-stacked-selected-option-container-color);
+      --tanrei-comp-select-stacked-selected-option-container-color: var(--tanrei-comp-select-stacked-option-container-color);
+      --tanrei-comp-snackbar-inverse-error-icon-color: var(--tanrei-comp-snackbar-inverse-error-supporting-text-color);
+      --tanrei-comp-snackbar-inverse-error-outline-color: var(--tanrei-sys-color-error);
+      --tanrei-comp-snackbar-inverse-error-supporting-text-color: var(--tanrei-sys-color-on-error);
+      --tanrei-comp-snackbar-inverse-info-icon-color: var(--tanrei-comp-snackbar-inverse-info-supporting-text-color);
+      --tanrei-comp-snackbar-inverse-info-outline-color: var(--tanrei-sys-color-info);
+      --tanrei-comp-snackbar-inverse-info-supporting-text-color: var(--tanrei-sys-color-on-info);
+      --tanrei-comp-snackbar-inverse-success-icon-color: var(--tanrei-comp-snackbar-inverse-success-supporting-text-color);
+      --tanrei-comp-snackbar-inverse-success-outline-color: var(--tanrei-sys-color-success);
+      --tanrei-comp-snackbar-inverse-success-supporting-text-color: var(--tanrei-sys-color-on-success);
+      --tanrei-comp-snackbar-inverse-warning-icon-color: var(--tanrei-comp-snackbar-inverse-warning-supporting-text-color);
+      --tanrei-comp-snackbar-inverse-warning-outline-color: var(--tanrei-sys-color-warning);
+      --tanrei-comp-snackbar-inverse-warning-supporting-text-color: var(--tanrei-sys-color-on-warning);
     }
   }
   [data-tanrei-system="m3-like"][data-tanrei-contrast="medium"], [data-tanrei-system="m3-like"] [data-tanrei-contrast="medium"], [data-tanrei-contrast="medium"] [data-tanrei-system="m3-like"]:not([data-tanrei-contrast]) {
+    --tanrei-sys-color-elevation-ring: var(--tanrei-ref-alpha-black-0);
     --tanrei-sys-color-error: light-dark(var(--tanrei-ref-palette-error-30), var(--tanrei-ref-palette-error-85));
     --tanrei-sys-color-focus-ring: light-dark(var(--tanrei-ref-palette-secondary-30), var(--tanrei-ref-palette-secondary-85));
     --tanrei-sys-color-info: light-dark(var(--tanrei-ref-palette-info-30), var(--tanrei-ref-palette-info-85));
@@ -9373,7 +9406,9 @@
     --tanrei-sys-color-outline: light-dark(var(--tanrei-ref-palette-neutral-variant-40), var(--tanrei-ref-palette-neutral-variant-70));
     --tanrei-sys-color-outline-variant: light-dark(var(--tanrei-ref-palette-neutral-variant-70), var(--tanrei-ref-palette-neutral-variant-40));
     --tanrei-sys-color-primary: light-dark(var(--tanrei-ref-palette-primary-30), var(--tanrei-ref-palette-primary-85));
+    --tanrei-sys-color-primary-container: light-dark(var(--tanrei-ref-palette-primary-90), var(--tanrei-ref-palette-primary-30));
     --tanrei-sys-color-secondary: light-dark(var(--tanrei-ref-palette-secondary-30), var(--tanrei-ref-palette-secondary-85));
+    --tanrei-sys-color-secondary-container: light-dark(var(--tanrei-ref-palette-secondary-90), var(--tanrei-ref-palette-secondary-30));
     --tanrei-sys-color-success: light-dark(var(--tanrei-ref-palette-success-30), var(--tanrei-ref-palette-success-85));
     --tanrei-sys-color-tertiary: light-dark(var(--tanrei-ref-palette-tertiary-30), var(--tanrei-ref-palette-tertiary-85));
     --tanrei-sys-color-warning: light-dark(var(--tanrei-ref-palette-warning-30), var(--tanrei-ref-palette-warning-85));
@@ -9384,8 +9419,35 @@
     --tanrei-comp-code-block-syntax-color-string: light-dark(#075b14, #90df88);
     --tanrei-comp-code-block-syntax-color-tag: light-dark(#981925, #ffbbb8);
     --tanrei-comp-code-block-syntax-color-type: light-dark(#00575a, #53dfe4);
+    --tanrei-comp-combobox-filled-disabled-selected-option-container-color: var(--tanrei-comp-combobox-filled-selected-option-container-color);
+    --tanrei-comp-combobox-filled-selected-option-container-color: var(--tanrei-comp-combobox-filled-option-container-color);
+    --tanrei-comp-combobox-outlined-disabled-selected-option-container-color: var(--tanrei-comp-combobox-outlined-selected-option-container-color);
+    --tanrei-comp-combobox-outlined-selected-option-container-color: var(--tanrei-comp-combobox-outlined-option-container-color);
+    --tanrei-comp-combobox-stacked-disabled-selected-option-container-color: var(--tanrei-comp-combobox-stacked-selected-option-container-color);
+    --tanrei-comp-combobox-stacked-selected-option-container-color: var(--tanrei-comp-combobox-stacked-option-container-color);
+    --tanrei-comp-menu-selected-container-color: var(--tanrei-comp-menu-unselected-container-color);
+    --tanrei-comp-menu-selected-disabled-container-color: var(--tanrei-comp-menu-selected-container-color);
+    --tanrei-comp-select-filled-disabled-selected-option-container-color: var(--tanrei-comp-select-filled-selected-option-container-color);
+    --tanrei-comp-select-filled-selected-option-container-color: var(--tanrei-comp-select-filled-option-container-color);
+    --tanrei-comp-select-outlined-disabled-selected-option-container-color: var(--tanrei-comp-select-outlined-selected-option-container-color);
+    --tanrei-comp-select-outlined-selected-option-container-color: var(--tanrei-comp-select-outlined-option-container-color);
+    --tanrei-comp-select-stacked-disabled-selected-option-container-color: var(--tanrei-comp-select-stacked-selected-option-container-color);
+    --tanrei-comp-select-stacked-selected-option-container-color: var(--tanrei-comp-select-stacked-option-container-color);
+    --tanrei-comp-snackbar-inverse-error-icon-color: var(--tanrei-comp-snackbar-inverse-error-supporting-text-color);
+    --tanrei-comp-snackbar-inverse-error-outline-color: var(--tanrei-sys-color-error);
+    --tanrei-comp-snackbar-inverse-error-supporting-text-color: var(--tanrei-sys-color-on-error);
+    --tanrei-comp-snackbar-inverse-info-icon-color: var(--tanrei-comp-snackbar-inverse-info-supporting-text-color);
+    --tanrei-comp-snackbar-inverse-info-outline-color: var(--tanrei-sys-color-info);
+    --tanrei-comp-snackbar-inverse-info-supporting-text-color: var(--tanrei-sys-color-on-info);
+    --tanrei-comp-snackbar-inverse-success-icon-color: var(--tanrei-comp-snackbar-inverse-success-supporting-text-color);
+    --tanrei-comp-snackbar-inverse-success-outline-color: var(--tanrei-sys-color-success);
+    --tanrei-comp-snackbar-inverse-success-supporting-text-color: var(--tanrei-sys-color-on-success);
+    --tanrei-comp-snackbar-inverse-warning-icon-color: var(--tanrei-comp-snackbar-inverse-warning-supporting-text-color);
+    --tanrei-comp-snackbar-inverse-warning-outline-color: var(--tanrei-sys-color-warning);
+    --tanrei-comp-snackbar-inverse-warning-supporting-text-color: var(--tanrei-sys-color-on-warning);
   }
   [data-tanrei-system="m3-like"][data-tanrei-contrast="high"], [data-tanrei-system="m3-like"] [data-tanrei-contrast="high"], [data-tanrei-contrast="high"] [data-tanrei-system="m3-like"]:not([data-tanrei-contrast]) {
+    --tanrei-sys-color-elevation-ring: var(--tanrei-ref-alpha-black-0);
     --tanrei-sys-color-error: light-dark(var(--tanrei-ref-palette-error-20), var(--tanrei-ref-palette-error-90));
     --tanrei-sys-color-focus-ring: light-dark(var(--tanrei-ref-palette-secondary-20), var(--tanrei-ref-palette-secondary-90));
     --tanrei-sys-color-info: light-dark(var(--tanrei-ref-palette-info-20), var(--tanrei-ref-palette-info-90));
@@ -9403,7 +9465,9 @@
     --tanrei-sys-color-outline: light-dark(var(--tanrei-ref-palette-neutral-variant-30), var(--tanrei-ref-palette-neutral-variant-85));
     --tanrei-sys-color-outline-variant: light-dark(var(--tanrei-ref-palette-neutral-variant-50), var(--tanrei-ref-palette-neutral-variant-60));
     --tanrei-sys-color-primary: light-dark(var(--tanrei-ref-palette-primary-20), var(--tanrei-ref-palette-primary-90));
+    --tanrei-sys-color-primary-container: light-dark(var(--tanrei-ref-palette-primary-90), var(--tanrei-ref-palette-primary-30));
     --tanrei-sys-color-secondary: light-dark(var(--tanrei-ref-palette-secondary-20), var(--tanrei-ref-palette-secondary-90));
+    --tanrei-sys-color-secondary-container: light-dark(var(--tanrei-ref-palette-secondary-90), var(--tanrei-ref-palette-secondary-30));
     --tanrei-sys-color-success: light-dark(var(--tanrei-ref-palette-success-20), var(--tanrei-ref-palette-success-90));
     --tanrei-sys-color-tertiary: light-dark(var(--tanrei-ref-palette-tertiary-20), var(--tanrei-ref-palette-tertiary-90));
     --tanrei-sys-color-warning: light-dark(var(--tanrei-ref-palette-warning-20), var(--tanrei-ref-palette-warning-90));
@@ -9416,5 +9480,31 @@
     --tanrei-comp-code-block-syntax-color-string: light-dark(#00460b, #a3f399);
     --tanrei-comp-code-block-syntax-color-tag: light-dark(#7d0015, #ffd6d4);
     --tanrei-comp-code-block-syntax-color-type: light-dark(#004345, #6bf3f8);
+    --tanrei-comp-combobox-filled-disabled-selected-option-container-color: var(--tanrei-comp-combobox-filled-selected-option-container-color);
+    --tanrei-comp-combobox-filled-selected-option-container-color: var(--tanrei-comp-combobox-filled-option-container-color);
+    --tanrei-comp-combobox-outlined-disabled-selected-option-container-color: var(--tanrei-comp-combobox-outlined-selected-option-container-color);
+    --tanrei-comp-combobox-outlined-selected-option-container-color: var(--tanrei-comp-combobox-outlined-option-container-color);
+    --tanrei-comp-combobox-stacked-disabled-selected-option-container-color: var(--tanrei-comp-combobox-stacked-selected-option-container-color);
+    --tanrei-comp-combobox-stacked-selected-option-container-color: var(--tanrei-comp-combobox-stacked-option-container-color);
+    --tanrei-comp-menu-selected-container-color: var(--tanrei-comp-menu-unselected-container-color);
+    --tanrei-comp-menu-selected-disabled-container-color: var(--tanrei-comp-menu-selected-container-color);
+    --tanrei-comp-select-filled-disabled-selected-option-container-color: var(--tanrei-comp-select-filled-selected-option-container-color);
+    --tanrei-comp-select-filled-selected-option-container-color: var(--tanrei-comp-select-filled-option-container-color);
+    --tanrei-comp-select-outlined-disabled-selected-option-container-color: var(--tanrei-comp-select-outlined-selected-option-container-color);
+    --tanrei-comp-select-outlined-selected-option-container-color: var(--tanrei-comp-select-outlined-option-container-color);
+    --tanrei-comp-select-stacked-disabled-selected-option-container-color: var(--tanrei-comp-select-stacked-selected-option-container-color);
+    --tanrei-comp-select-stacked-selected-option-container-color: var(--tanrei-comp-select-stacked-option-container-color);
+    --tanrei-comp-snackbar-inverse-error-icon-color: var(--tanrei-comp-snackbar-inverse-error-supporting-text-color);
+    --tanrei-comp-snackbar-inverse-error-outline-color: var(--tanrei-sys-color-error);
+    --tanrei-comp-snackbar-inverse-error-supporting-text-color: var(--tanrei-sys-color-on-error);
+    --tanrei-comp-snackbar-inverse-info-icon-color: var(--tanrei-comp-snackbar-inverse-info-supporting-text-color);
+    --tanrei-comp-snackbar-inverse-info-outline-color: var(--tanrei-sys-color-info);
+    --tanrei-comp-snackbar-inverse-info-supporting-text-color: var(--tanrei-sys-color-on-info);
+    --tanrei-comp-snackbar-inverse-success-icon-color: var(--tanrei-comp-snackbar-inverse-success-supporting-text-color);
+    --tanrei-comp-snackbar-inverse-success-outline-color: var(--tanrei-sys-color-success);
+    --tanrei-comp-snackbar-inverse-success-supporting-text-color: var(--tanrei-sys-color-on-success);
+    --tanrei-comp-snackbar-inverse-warning-icon-color: var(--tanrei-comp-snackbar-inverse-warning-supporting-text-color);
+    --tanrei-comp-snackbar-inverse-warning-outline-color: var(--tanrei-sys-color-warning);
+    --tanrei-comp-snackbar-inverse-warning-supporting-text-color: var(--tanrei-sys-color-on-warning);
   }
 }

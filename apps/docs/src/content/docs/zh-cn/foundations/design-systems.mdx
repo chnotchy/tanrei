@@ -29,7 +29,7 @@ Tanrei 的核心词汇，是**一个设计系统在一个产品之内可能呈�
 | `dial.type.contrast` | 1 | 标题与正文拉开多大的差距 |
 | `dial.space.unit` | 8px | 所有间距 |
 | `dial.size.unit` | 4px | 控件各尺寸之间的距离、图标尺寸 |
-| `dial.control.height` | 40px | 控件和行在默认尺寸下的高度；small 和 large 与它相差整数个尺寸单位（[尺寸与密度](/zh-cn/foundations/size-and-density/)） |
+| `dial.control.height` | 36px | 控件和行在默认尺寸下的高度；small 和 large 与它相差整数个尺寸单位（[尺寸与密度](/zh-cn/foundations/size-and-density/)） |
 | `dial.shape.unit` | 2px | 所有圆角 |
 | `dial.stroke.unit` | 1px | 边框、圆环、焦点指示 |
 | `dial.motion.unit` | 50ms | 所有时长 |
@@ -70,6 +70,7 @@ Tanrei 的核心词汇，是**一个设计系统在一个产品之内可能呈�
 | 让这个令牌使用另一个级别 | 重新指向别名 |
 | 无论调节量怎么变，这一个值都保持不动 | 用带 `reason` 的 `$value` 固定它 |
 | 一种品牌色或领域色，带有自己的 `on-` 和 `-container` 角色，并经过对比度检查 | 用 `"roles": "intent"` 声明一个调色板 |
+| 让主要操作和选中的控件使用你的品牌色 | 声明一个名为 `primary` 的调色板：无论所扩展的系统原先从哪里取主色，主色角色在每种配色方案中都由它生成，并经过对比度检查 |
 
 每个平台的代码都由同一个解析后的系统生成，所以一个拉取请求（Pull Request）就能同时改变 Web、SwiftUI、Compose、Flutter 和 React Native。
 

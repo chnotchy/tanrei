@@ -9,12 +9,18 @@
 // - **A cap is drawn in the reader's own convention** (the Keyboard shortcut's `auto`: Apple's symbols on Apple's
 //   platforms, the names elsewhere), and **read in the page's language**: the Keyboard shortcut has no names for keys,
 //   so each chord's `label` is made from the dictionary's (`keys` in lib/i18n.ts).
-// - **It is text before script runs and holds its room**: until the element is defined, and where no script runs, a
-//   chord is its words in the page's language, in a cap's box of the Keyboard shortcut's own tokens.
+// - **It holds its room before script runs**: between its tags each Keyboard shortcut holds what the web package writes
+//   for it (`keyboardShortcutContent`: the element's own legends, in both conventions), and the package's stylesheet
+//   draws that until the element is defined (`@tanrei/web/keyboard-shortcut.css`, loaded by styles/prose.css), the
+//   reader's convention shown as the element resolves `auto` — by the platform's, which the head puts on the root
+//   (frame/Head.astro, `keyboardPlatformScript`), or an ancestor's. A row wraps where it will once the element draws its
+//   keys, and nothing moves (test/browser/held-room.test.mjs). The site writes no key itself: the keys are the
+//   element's, before and after. Where no script runs, the standard convention is shown.
 import Table from '../Table.astro';
 import { contentLang, strings } from '../../lib/i18n';
 import { getSpec } from '../../lib/repo';
 import { keySegments, shortcutKeys, spokenChord } from '../../lib/visuals/keyboard';
+import { keyboardShortcutContent } from '@tanrei/web/keyboard-convention';
 
 interface Props {
   /** The component, by its spec's name. */
@@ -44,12 +50,11 @@ if (keys && rows.length === 0) throw new Error(`KeyboardMap: no row of ${name}'s
                 {row.segments.map((segment) => {
                   if ('chord' in segment) {
                     const label = spokenChord(segment.chord, t.keys);
+                    const shortcut = shortcutKeys(segment.chord);
                     return (
                       <>
                         {' '}
-                        <tanrei-keyboard-shortcut class="docs-key" size="small" keys={shortcutKeys(segment.chord)} label={label}>
-                          {label}
-                        </tanrei-keyboard-shortcut>{' '}
+                        <tanrei-keyboard-shortcut class="docs-key" size="small" keys={shortcut} label={label} set:html={keyboardShortcutContent(shortcut, { label })} />{' '}
                       </>
                     );
                   }
@@ -90,21 +95,5 @@ if (keys && rows.length === 0) throw new Error(`KeyboardMap: no row of ${name}'s
   }
   .docs-keys-or {
     margin-inline: var(--tanrei-sys-space-space50);
-  }
-  /* A chord until its element is defined, and where no script runs: its words in the page's language, in a cap's box
-     of the Keyboard shortcut's own tokens, so that it is read and nothing moves much when the caps are drawn. */
-  .docs-key:not(:defined) {
-    box-sizing: border-box;
-    display: inline-flex;
-    align-items: center;
-    min-block-size: var(--tanrei-comp-keyboard-shortcut-container-height-small);
-    padding-inline: var(--tanrei-comp-keyboard-shortcut-container-padding-inline-small);
-    border-radius: var(--tanrei-comp-keyboard-shortcut-container-shape-small);
-    background: var(--tanrei-comp-keyboard-shortcut-container-color);
-    color: var(--tanrei-comp-keyboard-shortcut-keycap-label-color);
-    font: var(--tanrei-comp-keyboard-shortcut-label-typescale-small-font-weight) var(--tanrei-comp-keyboard-shortcut-label-typescale-small-font-size)/var(--tanrei-comp-keyboard-shortcut-label-typescale-small-line-height) var(--tanrei-comp-keyboard-shortcut-label-typescale-small-font-family);
-    letter-spacing: var(--tanrei-comp-keyboard-shortcut-label-typescale-small-letter-spacing);
-    white-space: nowrap;
-    vertical-align: baseline;
   }
 </style>

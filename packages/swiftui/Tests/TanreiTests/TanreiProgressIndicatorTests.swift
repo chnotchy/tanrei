@@ -445,23 +445,34 @@ struct TanreiProgressIndicatorMotionTests {
   #endif
 
   /// PRG-7 — Reduce Motion: an indeterminate indicator does not move; the indicator covers the whole track (the whole
-  /// circle) and its opacity pulses 1 → 0 → 1 once per cycle with the cycle easing, over a still track.
-  @Test("PRG-7 under Reduce Motion the indeterminate forms pulse instead of moving")
+  /// circle) and its opacity pulses 1 → the pulse's floor → 1 once per cycle with the cycle easing, never below the
+  /// floor, over a still track.
+  @Test("PRG-7 under Reduce Motion the indeterminate forms pulse down to their floor instead of moving")
   func reducedMotion() throws {
     let easing = tokens.motionCycleEasing
-    #expect(TanreiCycleClock.pulseOpacity(phase: 0, easing: easing) == 1)
-    #expect(abs(TanreiCycleClock.pulseOpacity(phase: 0.5, easing: easing)) < 1e-9)
-    #expect(abs(TanreiCycleClock.pulseOpacity(phase: 0.25, easing: easing) - (1 - TanreiCycleClock.eased(0.5, easing))) < 1e-9)
-    #expect(abs(TanreiCycleClock.pulseOpacity(phase: 0.75, easing: easing) - TanreiCycleClock.eased(0.5, easing)) < 1e-9)
-    #expect(abs(TanreiCycleClock.pulseOpacity(phase: 0.999_999, easing: easing) - 1) < 1e-3)
+    let floor = tokens.motionPulseFloorOpacity
+    #expect(floor > 0 && floor < 1)
+    #expect(TanreiCycleClock.pulseOpacity(phase: 0, easing: easing, floor: floor) == 1)
+    #expect(abs(TanreiCycleClock.pulseOpacity(phase: 0.5, easing: easing, floor: floor) - floor) < 1e-9)
+    #expect(abs(TanreiCycleClock.pulseOpacity(phase: 0.25, easing: easing, floor: floor) - (1 - (1 - floor) * TanreiCycleClock.eased(0.5, easing))) < 1e-9)
+    #expect(abs(TanreiCycleClock.pulseOpacity(phase: 0.75, easing: easing, floor: floor) - (floor + (1 - floor) * TanreiCycleClock.eased(0.5, easing))) < 1e-9)
+    #expect(abs(TanreiCycleClock.pulseOpacity(phase: 0.999_999, easing: easing, floor: floor) - 1) < 1e-3)
+    for step in 0...200 {
+      let phase = Double(step) / 200
+      #expect(TanreiCycleClock.pulseOpacity(phase: phase, easing: easing, floor: floor) >= floor - 1e-9, "\(phase)")
+    }
 
     let thickness = tokens.sizes.medium.linearThickness
     // Start of a cycle: the whole bar in the indicator color, whatever the phase would have moved.
     let start = alongTheBar(try Snapshot.render(bar(nil).frozen(phase: 0, reduceMotion: true)), thickness: thickness)
     #expect(start.dropFirst(Int(thickness)).dropLast(Int(thickness)).allSatisfy { $0.isClose(to: indicatorColor) })
-    // Mid-cycle: invisible; the track is still there.
-    let middle = alongTheBar(try Snapshot.render(bar(nil).frozen(phase: 0.5, reduceMotion: true)), thickness: thickness)
-    #expect(middle.dropFirst(Int(thickness)).dropLast(Int(thickness)).allSatisfy { $0.isClose(to: trackColor) })
+    // As drawn, over a whole cycle: never below the floor over the still track, and at the floor mid-cycle.
+    for phase in stride(from: 0.0, through: 1, by: 0.125) {
+      let along = alongTheBar(try Snapshot.render(bar(nil).frozen(phase: phase, reduceMotion: true)), thickness: thickness)
+      let drawn = along.dropFirst(Int(thickness)).dropLast(Int(thickness)).map { $0.drawnOpacity(of: indicatorColor, over: trackColor) }
+      #expect(drawn.allSatisfy { $0 >= floor - 0.03 }, "\(phase): \(drawn.min() ?? -1)")
+      if phase == 0.5 { #expect(drawn.allSatisfy { abs($0 - floor) <= 0.03 }) }
+    }
     // The ring: the whole circle at the start of a cycle.
     let metrics = tokens.sizes.large
     let ringBitmap = try Snapshot.render(ring(nil, size: .large).frozen(phase: 0, reduceMotion: true))

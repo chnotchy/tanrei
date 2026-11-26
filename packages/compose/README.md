@@ -576,7 +576,7 @@ TanreiProgressIndicator(contentDescription = "Loading results")   // indetermina
   its end with `motionCycleEasing`, a ring turns a quarter arc at constant speed, once per `motionCycleDuration`. Where
   motion is reduced — Android's animator duration scale 0 ("Remove animations"), which Compose hands to animations as
   `MotionDurationScale` — a value change is immediate and the indeterminate form stops moving: the whole track in the
-  indicator color, its opacity pulsing 1 → 0 → 1 once per cycle. The loop runs on frame time
+  indicator color, its opacity pulsing 1 → `motion.pulse-floor-opacity` → 1 once per cycle, never below that floor. The loop runs on frame time
   (`withInfiniteAnimationFrameMillis`) and only while the indicator is on screen (`onVisibilityChanged`): scrolled out
   of its window it stops, and it resumes where it stopped; an app in the background gets no frames.
 - **Semantics (PRG-8…11).** One node that merges its descendants: `contentDescription`, `progressBarRangeInfo` (the
@@ -610,7 +610,7 @@ TanreiContainedLoadingIndicator(contentDescription = "Refreshing", size = Tanrei
   smoothing, filled with `containedContainerColor` and raised by `containedContainerElevation` (`tanreiElevation`), the
   mark centered in it in `containedIndicatorColor`.
 - **Motion (LDG-4, LDG-7).** Where motion is reduced (the animator duration scale 0) it does not turn: the whole circle
-  at the mark's size and stroke pulses its opacity 1 → 0 → 1 once per cycle with `sys.motion.easing.standard`; the
+  at the mark's size and stroke pulses its opacity 1 → `motion.pulse-floor-opacity` → 1 once per cycle, never below that floor, with `sys.motion.easing.standard`; the
   container stays still and opaque. The loop is the progress indicator's (frame time, only while on screen).
 - **Semantics (LDG-5, LDG-6).** One node that merges its descendants: `contentDescription` and
   `ProgressBarRangeInfo.Indeterminate` (TalkBack's busy progress bar), no value. Never focusable, never a live region.

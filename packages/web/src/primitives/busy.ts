@@ -5,7 +5,7 @@ import { type TemplateResult, html, svg } from 'lit';
  * Button (BTN-36, BTN-37), the leading half of a busy button with menu (SPB-39, SPB-40). Its label and its glyphs stay
  * laid out and are not drawn, fading out as it becomes busy and back in as it stops; the loading indicator's arc (LDG-1)
  * turns at the centre of its container, appearing and going at once, and under reduced motion it is LDG-4's whole
- * circle, its opacity easing once per cycle; and what it says to assistive technology is said once, politely, through a
+ * circle, its opacity easing down to a floor and back once per cycle, never to nothing; and what it says to assistive technology is said once, politely, through a
  * status region that exists only while it is busy.
  *
  * Each piece takes the component's own selectors and the NAMES of its own tokens; nothing here knows which component
@@ -25,9 +25,13 @@ export interface BusyParts {
   glyphs: string;
   /** The custom property NAME of the arc's box: the icon size the control draws. */
   ring: string;
-  /** The token NAMES of the arc's stroke, of one turn of it, of the fade, and of the fade's easing. */
+  /**
+   * The token NAMES of the arc's stroke, of one turn of it, of the opacity its reduced-motion pulse eases down to, of the
+   * fade, and of the fade's easing.
+   */
   thickness: string;
   cycle: string;
+  floor: string;
   fade: string;
   easing: string;
 }
@@ -99,7 +103,7 @@ export function busyStyles(p: BusyParts): string {
       opacity: 1;
     }
     50% {
-      opacity: 0;
+      opacity: var(${p.floor});
     }
   }
   .live {
@@ -117,7 +121,7 @@ export function busyStyles(p: BusyParts): string {
 /**
  * The reduced form, for the component's `reducedMotion()` block: the label is drawn again, and stops being drawn, at
  * once (the glyph boxes too: `iconGlyph()` turns their transition off), and the arc is LDG-4's whole circle, not
- * turning, its opacity easing once per cycle.
+ * turning, its opacity easing from 1 down to `floor` and back once per cycle.
  */
 export function busyReducedStyles(p: BusyParts): string {
   return `

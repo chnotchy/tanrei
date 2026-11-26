@@ -23,7 +23,7 @@ export interface ThumbPiece {
   scale: number;
   scaleY: number;
   tab: { w: number; h: number };
-  /** The container: the indicator's box on this tab, in the tab's coordinates. */
+  /** The state layer: the indicator's box on this tab, in the tab's coordinates. */
   box: Rect;
   /** The plain content's box and, in a row that hugs, the width a capsule has: the content plus the indicator's padding. */
   content: Rect;
@@ -94,10 +94,10 @@ export const readThumb = (row: Locator) =>
   }, [EVERY_ANIMATION, HOLD_NOW] as const);
 
 /**
- * TAB-16, TAB-24: exactly one thumb is drawn in `row`, on the selected tab, at that tab's container; the container is
- * the box the spec gives it (`circle`: as wide as it is tall; `capsule`: the content plus the indicator's padding, wider
- * than it is tall; `fill`: the tab's whole share); its corner is half its shorter side — a capsule or a circle, never a
- * rounded rectangle; and the hole cut out of the plain content is the same box with the same corner.
+ * TAB-16, TAB-24: exactly one thumb is drawn in `row`, on the selected tab, at that tab's state layer; the state layer
+ * is the box the spec gives it (`circle`: as wide as it is tall; `capsule`: the content plus the indicator's padding,
+ * wider than it is tall; `fill`: the tab's whole share); its corner is half its shorter side — a capsule or a circle,
+ * never a rounded rectangle; and the hole cut out of the plain content is the same box with the same corner.
  */
 export async function expectOneThumb(row: Locator, shape: 'circle' | 'capsule' | 'fill', hint = '') {
   const pieces = await readThumb(row);
@@ -119,8 +119,8 @@ export async function expectOneThumb(row: Locator, shape: 'circle' | 'capsule' |
   const { box } = piece;
   // What is read through a scale is as exact as the page's rounding divided by it.
   const TOLERANCE = TOLERANCE_AT_REST / Math.min(1, piece.scale, piece.scaleY);
-  for (const k of ['x', 'y', 'w', 'h'] as const) expect(Math.abs(clip[k] - box[k]), `the thumb's ${k} is its container's: ${say}`).toBeLessThan(TOLERANCE);
-  // The container itself: as wide as its shape says.
+  for (const k of ['x', 'y', 'w', 'h'] as const) expect(Math.abs(clip[k] - box[k]), `the thumb's ${k} is its state layer's: ${say}`).toBeLessThan(TOLERANCE);
+  // The state layer itself: as wide as its shape says.
   if (shape === 'circle') expect(Math.abs(box.w - box.h), `a circle: ${say}`).toBeLessThan(TOLERANCE);
   else if (shape === 'fill') expect(Math.abs(box.w - piece.tab.w), `the tab's whole share: ${say}`).toBeLessThan(TOLERANCE);
   else {

@@ -577,8 +577,8 @@ test.describe('behavior', () => {
     expect(stage.x + stage.width - (square.x + square.width)).toBe(16);
     expect(stage.y + stage.height - (square.y + square.height)).toBe(16);
     const first = await bounds(box(page, 'filled-open', 'Document'));
-    // Three items of 40 — a menu item's height at the default control height (FBM-29) — above the toggle.
-    expect(first.y - stage.y).toBeCloseTo(320 - 208, 0);
+    // Three items of 36 — a menu item's height at the default control height (FBM-29) — above the toggle.
+    expect(first.y - stage.y).toBeCloseTo(320 - 196, 0);
     expect(await list(page, 'filled-open').evaluate((el) => el.matches(':popover-open'))).toBe(false);
     // Closed fixtures present nothing.
     expect(await list(page, 'filled-closed').evaluate((el) => getComputedStyle(el).display)).toBe('none');

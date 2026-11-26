@@ -15,7 +15,7 @@ const MenuCheckboxItemElement = /* @__PURE__ */ createComponent({
     onClick: 'click' as EventName<TanreiEvent<TanreiMenuCheckboxItemElement, MouseEvent>>,
   },
 });
-const MenuCheckboxItemAttributes = { checked: ['checked', false], markIcon: ['mark-icon', ''], trailingIcon: ['trailing-icon', ''], shortcut: ['shortcut'], label: ['label', ''], supportingText: ['supporting-text', ''], leadingIcon: ['leading-icon', ''], trailingText: ['trailing-text', ''], disabled: ['disabled', false] } as const;
+const MenuCheckboxItemAttributes = { checked: ['checked', false], markIcon: ['mark-icon', ''], trailingIcon: ['trailing-icon', ''], shortcut: ['shortcut', []], label: ['label', ''], supportingText: ['supporting-text', ''], leadingIcon: ['leading-icon', ''], trailingText: ['trailing-text', ''], disabled: ['disabled', false] } as const;
 /**
  * An option switched on or off on its own — the spec's item kind `checkbox-item`. Its `checked` is its own: the menu switches it when the item is activated and fires the item's `change`. A checked item's row is filled, and it is marked as the design system chooses (`comp.menu.checkbox-item.mark`: the checkbox look, a box in both conditions, in the default system; the icon set's check in m3-like and cupertino) unless the item or its group names a glyph.
  *

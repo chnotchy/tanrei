@@ -14,6 +14,7 @@ import { allSettled } from '../../../test/settled.js';
 import { clickCentre, heldPress } from '../../../test/watched-press.js';
 import { MIRRORED, anchorOf, container, countClicks, expectDisabledLink, expectDrawnAlike, expectLinkActivation, expectNewContext, expectRefusals, expectTargetLabel, markOf, painted, settledPaint, warnings } from '../../../test/links.js';
 import { expectBaseline } from '../../../test/baseline.js';
+import { expectPulseKeepsFloor, resolveOpacity, samplePulse } from '../../../test/pulse-floor.js';
 
 const spec = loadSpec('button');
 const button = (id: string) => `[data-fixture="${id}"] tanrei-button`;
@@ -151,15 +152,24 @@ test.describe('behavior', () => {
       });
       expect(hit.h).toBeGreaterThanOrEqual(pointer);
       expect(hit.w).toBeGreaterThanOrEqual(pointer);
-      // Where the visual size is below the target: a click just outside the visual bounds, inside the target, still
-      // activates. (The large size is taller than the target, and extends nothing.)
-      // In the default system no size is drawn below the target (the small one is held at the minimum), so the hit
-      // area is what is drawn.
-      expect(height).toBeGreaterThanOrEqual(pointer);
+      // In the default system the small size is drawn below the target, at its step (28), and its hit area reaches
+      // the target past it; the medium and large sizes are at least the target, and extend nothing.
+      if (size === 'small') expect(height).toBeLessThan(pointer);
+      else expect(height).toBeGreaterThanOrEqual(pointer);
     }
-    expect(await resolveToken(page, '--tanrei-comp-button-container-height-small')).toBe(pointer);
-    // Under a system whose pointer target is above the minimum (one that follows a platform guideline), a click just
-    // outside the small Button's visual bounds, inside the target, still activates.
+    expect(await resolveToken(page, '--tanrei-comp-button-container-height-small')).toBe(await resolveToken(page, '--tanrei-sys-control-height-small'));
+    // A click just outside the small Button's visual bounds, inside the target, activates it: under the default
+    // system's target, and under a larger one (a system that follows a platform guideline).
+    {
+      const target = page.locator(button('filled-small'));
+      const box = (await target.locator('button').boundingBox())!;
+      await target.evaluate((el) => {
+        (window as any).defaultClicks = 0;
+        el.addEventListener('click', () => (window as any).defaultClicks++);
+      });
+      await page.mouse.click(box.x + box.width / 2, box.y - (pointer - box.height) / 2 + 1);
+      expect(await page.evaluate(() => (window as any).defaultClicks)).toBe(1);
+    }
     const raised = 48;
     await rootTokens(page, { '--tanrei-sys-target-pointer': `${raised}px` });
     const target = page.locator(button('filled-small'));
@@ -300,10 +310,12 @@ test.describe('behavior', () => {
         await rootTokens(page, { '--tanrei-dial-control-height': height, '--tanrei-sys-target-minimum': minimum });
         const size = await tokens();
         const at = `control height ${height}, minimum ${minimum}`;
-        // Each size's height is its ladder step, held at the minimum (the token engine's rule, read back here).
+        // Each size's height is its ladder step (the token engine's rule, read back here): the small one drawn at it,
+        // its hit area reaching the minimum past it; the medium and the large held at the minimum.
         const min = await resolveToken(page, '--tanrei-sys-target-minimum');
         for (const name of ['small', 'medium', 'large'] as const) {
-          expect(size[name], `${at}: ${name}`).toBe(Math.max(min, await resolveToken(page, `--tanrei-sys-control-height-${name}`)));
+          const step = await resolveToken(page, `--tanrei-sys-control-height-${name}`);
+          expect(size[name], `${at}: ${name}`).toBe(name === 'small' ? step : Math.max(min, step));
         }
         expect(await heights(...all), at).toEqual({
           taken: size.small,
@@ -927,8 +939,9 @@ test.describe('icon side padding and icon-only widths', () => {
       // Narrow has no width of its own: the glyph's box and the inset twice.
       const narrow = (await resolveToken(page, T(`icon-size-without-label-${size}`))) + 2 * (await resolveToken(page, T(`container-padding-inline-narrow-${size}`)));
       const wide = await resolveToken(page, T(`container-width-wide-${size}`));
-      // Three different widths at one height.
-      expect(narrow, size).toBeLessThan(height);
+      // Three widths at one height — at the default system's small size the narrow one is the default's (28): its 20
+      // glyph and 4 on each side is the small step.
+      expect(narrow, size).toBeLessThanOrEqual(height);
       expect(wide, size).toBeGreaterThan(height);
       for (const [id, width] of [[`filled-icon${suffix}`, height], [`filled-icon-narrow${suffix}`, narrow], [`filled-icon-wide${suffix}`, wide]] as const) {
         const drawn = await box(page, id);
@@ -975,7 +988,7 @@ test.describe('icon side padding and icon-only widths', () => {
 
   test('BTN-12: the corner is capped at half the shorter side — a circle at the default width and a capsule at the other two under corner.full, a rounded rectangle under a smaller corner; the container grows with the text size and keeps its proportion', async ({ page }) => {
     await mountFixtures(page, spec, { icons: true });
-    const surface = await page.evaluate(() => getComputedStyle(document.body).backgroundColor);
+    const surface = await page.evaluate(() => getComputedStyle(document.documentElement).backgroundColor);
     /** What is under a point of the stage: the button's container, or the stage around it. */
     const drawn = async (id: string, x: number, y: number) => {
       const { decodePng } = await import('../../../test/png.js');
@@ -2763,7 +2776,7 @@ test.describe('busy, reachable while disabled, full width', () => {
     expect(product).toEqual(person);
   });
 
-  test('BTN-36: under reduced motion the busy arc does not turn: the whole circle, its opacity easing once per cycle', async ({ page }) => {
+  test('BTN-36: under reduced motion the busy arc does not turn: the whole circle, its opacity easing from 1 down to the floor and back once per cycle', async ({ page }) => {
     await page.emulateMedia({ reducedMotion: 'reduce' });
     await mountOne(page, [fx('busy', { variant: 'filled', busy: true, busyLabel: 'Deploying' })]);
     const drawn = await inner(page, 'busy').evaluate((el) => {
@@ -2771,6 +2784,22 @@ test.describe('busy, reachable while disabled, full width', () => {
       return { animation: getComputedStyle(arc).animationName, dash: getComputedStyle(arc.querySelector('circle')!).strokeDasharray };
     });
     expect(drawn).toEqual({ animation: 'busy-pulse', dash: 'none' });
+  });
+
+  test('BTN-36: under reduced motion the busy circle is never drawn below the pulse floor — sampled over a whole cycle, computed and painted, on a filled and a text container', async ({ page }) => {
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    await mountOne(page, [fx('filled', { variant: 'filled', busy: true, busyLabel: 'Deploying' }), fx('text', { variant: 'text', busy: true, busyLabel: 'Deploying' })]);
+    const duration = await resolveToken(page, '--tanrei-comp-button-motion-busy-cycle-duration', 'duration');
+    const floor = await resolveOpacity(page, '--tanrei-comp-button-motion-busy-pulse-floor-opacity');
+    for (const id of ['filled', 'text']) {
+      const arc = inner(page, id).locator('.busy-arc');
+      const size = await arc.evaluate((el) => Number.parseFloat(getComputedStyle(el).inlineSize));
+      const stroke = await arc.locator('circle').evaluate((el) => Number.parseFloat(getComputedStyle(el).strokeWidth));
+      // The top of the circle, on the middle of its stroke; and its middle, where the container shows through the label
+      // that is not drawn.
+      const samples = await samplePulse(arc, arc, { duration, mark: [size / 2, stroke / 2], ground: [size / 2, size / 2] });
+      expectPulseKeepsFloor(samples, floor, id);
+    }
   });
 
   test('BTN-37: a busy button keeps its focus and its place in the focus order, emits nothing by any means, exposes aria-disabled and busyLabel as its description, has busyLabel announced once when it becomes busy and nothing when it ends; an empty busyLabel is reported', async ({ page }) => {
@@ -3298,9 +3327,9 @@ test.describe('a tone a host gives (BTN-45)', () => {
     }
     for (const id of ['tonal', 'filled', 'elevated', 'text', 'outlined']) {
       expect(await glyph(page, id), id).toBe(await color(page, T));
-      // Its own size: small is 36 × 36 in the default system, held at the minimum target.
+      // Its own size: small is 28 × 28 in the default system, its step; its hit area reaches the target past it.
       const box = (await inner(page, id).boundingBox())!;
-      expect([box.width, box.height], id).toEqual([36, 36]);
+      expect([box.width, box.height], id).toEqual([28, 28]);
     }
     // The variants that draw no container at rest draw none on a tone either; an outlined edge takes the tone's
     // translucent color in place of its own.

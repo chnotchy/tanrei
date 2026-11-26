@@ -3949,7 +3949,7 @@
               "value": 8,
               "unit": "px"
             },
-            "$description": "Space between the visible bounds of two items of a standard group, side by side or one above the other. Neighbouring hit areas meet at the middle of it (BGR-4), so it is what keeps each item's target whole: it is the room a neighbour's target needs beyond what the narrowest and lowest item draws — sys.target.touch less a small icon-only Button's side, never below zero. 36 − 36 = 0 in the default system, where every Button is drawn at least as large as the target, so the items touch."
+            "$description": "Space between the visible bounds of two items of a standard group, side by side or one above the other. Neighbouring hit areas meet at the middle of it (BGR-4), so it is what keeps each item's target whole: it is the room a neighbour's target needs beyond what the narrowest and lowest item draws — sys.target.touch less a small icon-only Button's side, never below zero. 36 − 28 = 8 in the default system, where a small Button is drawn at its step (28) and reaches the 36 target past what it draws."
           }
         }
       },
@@ -6042,6 +6042,11 @@
               "unit": "ms"
             },
             "$description": "How long the leading half's label and icon take to fade out when the button with menu becomes busy, and back in when it stops (SPB-39), with state-easing: a busy Button's. The arc appears and goes at once, and under reduced motion the label and the icon do too."
+          },
+          "busy-pulse-floor-opacity": {
+            "$type": "number",
+            "$value": 0.7,
+            "$description": "The opacity the busy leading half's circle eases down to at the low point of each pulse under reduced motion (SPB-39): a busy Button's, so that the two components agree."
           },
           "feedback-duration": {
             "$type": "duration",
@@ -11446,6 +11451,11 @@
               "unit": "ms"
             },
             "$description": "How long the label and the icon take to fade out when the button becomes busy, and back in when it stops (BTN-36), with state-easing: a change of what a small part draws in place, the same at every size. The arc appears and goes at once, and under reduced motion the label and the icon do too."
+          },
+          "busy-pulse-floor-opacity": {
+            "$type": "number",
+            "$value": 0.7,
+            "$description": "The opacity the busy circle eases down to at the low point of each pulse under reduced motion (BTN-36): the loading indicator's, so that a busy button is never drawn as an empty container."
           },
           "feedback-duration": {
             "$type": "duration",
@@ -17945,7 +17955,7 @@
                 "value": 36,
                 "unit": "px"
               },
-              "$description": "The least height of the month-and-year button: the control height (40 in the default system), so that it stands as tall as the previous and next Buttons beside it in the navigation row. Never below the minimum target; its hit area extends to the pointer and touch targets."
+              "$description": "The least height of the month-and-year button: the control height (36 in the default system), so that it stands as tall as the previous and next Buttons beside it in the navigation row. Never below the minimum target; its hit area extends to the pointer and touch targets."
             },
             "padding-inline": {
               "$type": "dimension",
@@ -18050,7 +18060,7 @@
                 "value": 36,
                 "unit": "px"
               },
-              "$description": "The height of a year's container: the control height (40 in the default system), as a day's container is, centred in its row of cell.size. Never below the minimum target."
+              "$description": "The height of a year's container: the control height (36 in the default system), as a day's container is, centred in its row of cell.size. Never below the minimum target."
             },
             "shape": {
               "$type": "dimension",
@@ -20231,7 +20241,7 @@
               "value": 40,
               "unit": "px"
             },
-            "$description": "The playback control's square, and the height of the dots' container, 40, around a 24 glyph."
+            "$description": "The playback control's square, and the height of the dots' container, around a 24 glyph: the control height (36 in the default system), held at the minimum target, so that the controls row stands as tall as an icon-only Button of the default size."
           },
           "height": {
             "$type": "dimension",
@@ -20239,7 +20249,7 @@
               "value": 44,
               "unit": "px"
             },
-            "$description": "The controls row below the items, drawn while the dots or the playback control are. As tall as a touch target, and never lower than the controls it holds (controls.button-size), so both controls keep their whole target inside it: 40 in the default system."
+            "$description": "The controls row below the items, drawn while the dots or the playback control are. As tall as a touch target, and never lower than the controls it holds (controls.button-size), so both controls keep their whole target inside it: the control height in the default system."
           },
           "icon": {
             "size": {
@@ -21802,7 +21812,7 @@
               "value": 28,
               "unit": "px"
             },
-            "$description": "The round state layer behind the box, and the height the checkbox takes in a row: the control height (40 in the default system), so that a checkbox stands as tall as the Buttons and fields beside it and a checkbox with a one-line label is a row of that height. The box (box.size) and its mark keep their own sizes inside it at every control height. In the default system it holds the whole target (sys.target.touch, 36); a system whose target is larger reaches beyond it."
+            "$description": "The round state layer behind the box, and the height the checkbox takes in a row: the control height (36 in the default system), so that a checkbox stands as tall as the Buttons and fields beside it and a checkbox with a one-line label is a row of that height. The box (box.size) and its mark keep their own sizes inside it at every control height. In the default system it holds the whole target (sys.target.touch, 36); a system whose target is larger reaches beyond it."
           }
         },
         "disabled": {
@@ -28551,7 +28561,7 @@
               "value": 4,
               "unit": "px"
             },
-            "$description": "Between the clear button and the chevron at the end of the container. The clear button is a small Button centred on its glyph, so the gap gives half of what that Button gains above the small step's 32 (a pad of the small Button's height): its box meets the chevron's and never overlaps it. 6 in the default system, where the small Button is held at 36."
+            "$description": "Between the clear button and the chevron at the end of the container. The clear button is a small Button centred on its glyph, so the gap gives half of what that Button gains above the small step's 32 at the control height's reference of 40 (a pad of the small Button's height): its box meets the chevron's and never overlaps it. 6 in the default system, where the small Button is held at 36."
           }
         },
         "disabled": {
@@ -32494,7 +32504,7 @@
                 "value": 48,
                 "unit": "px"
               },
-              "$description": "The least height of a range field, one end of a span of times in the range display: the control height (40 in the default system), so that the range display stands as tall as a field and the Buttons of the picker. Never below the minimum target, because a press on it chooses which end the wheels or the dial set."
+              "$description": "The least height of a range field, one end of a span of times in the range display: the control height (36 in the default system), so that the range display stands as tall as a field and the Buttons of the picker. Never below the minimum target, because a press on it chooses which end the wheels or the dial set."
             },
             "padding-inline": {
               "$type": "dimension",
@@ -47366,7 +47376,7 @@
                 "value": 4,
                 "unit": "px"
               },
-              "$description": "4 above and below a small row's line at the small step's height (32), and half of what the row gains above that: the text keeps the list's one text style, whose line is taller than the tree view's small label, so the tree's 6 would make a 32 row 36. 6 in the default system's 36 row."
+              "$description": "4 above and below a small row's line at the small step's height at the control height's reference (32), and half of what the row gains above that: the text keeps the list's one text style, whose line is taller than the tree view's small label, so the tree's 6 would make a 32 row 36. 6 in the default system's 36 row."
             }
           },
           "padding-inline-end": {
@@ -48473,6 +48483,11 @@
             "$type": "number",
             "$value": 0,
             "$description": "How the indicator enters once its show delay has passed. fade: the whole component eases its opacity from 0 to 1. grow: it fades the same way and grows from nothing to its full size about its center at the same time. Under reduced motion grow is drawn as fade. The value is an index into dev.tanrei.enum.values; platforms receive the name."
+          },
+          "pulse-floor-opacity": {
+            "$type": "number",
+            "$value": 0.7,
+            "$description": "The opacity the reduced-motion form eases down to at the low point of each pulse, and back up from: the circle keeps pulsing but never fades to nothing, so a wait is never drawn as an empty space. At 0.7 the indicator still stands 3:1 or more from what it is drawn on, as a mark that is still there; the same floor serves every control that draws the loading indicator's reduced-motion form (a busy button's circle, the progress indicator's pulse)."
           },
           "show-delay": {
             "$type": "duration",
@@ -52642,7 +52657,7 @@
               "value": 16,
               "unit": "px"
             },
-            "$description": "Under gap: the empty space between a group and what is next to it, in place of the divider and its two spaces. Sixteen, so that the step between two groups is plainly larger than the step between two rows of one group (at the default height about 28 of clear space lies between two labels of one group, and 44 across the gap). Not read under divider."
+            "$description": "Under gap: the empty space between a group and what is next to it, in place of the divider and its two spaces. Sixteen, so that the step between two groups is plainly larger than the step between two rows of one group (at the default height about 24 of clear space lies between two labels of one group, and 40 across the gap). Not read under divider."
           }
         },
         "hovered": {
@@ -54567,7 +54582,7 @@
               "value": 4,
               "unit": "px"
             },
-            "$description": "Space above and below the titles. With container.height it gives the bar's height: 4 + 40 + 4 = 48 in the default system, at least sys.target.touch, so that a title's touch target lies inside the bar."
+            "$description": "Space above and below the titles. With container.height it gives the bar's height: 4 + 36 + 4 = 44 in the default system, at least sys.target.touch, so that a title's touch target lies inside the bar."
           },
           "padding-inline": {
             "$type": "dimension",
@@ -61907,7 +61922,7 @@
               "value": 0,
               "unit": "px"
             },
-            "$description": "Between the two steppers. 0 in the default system: they stand as close as their targets allow, each keeping sys.target.touch along the row: in the default system a 40 button is wider than the target, so the two touch; under a 48 target they would stand 8 apart."
+            "$description": "Between the two steppers. 0 in the default system: they stand as close as their targets allow, each keeping sys.target.touch along the row: in the default system a 36 button is as wide as the target, so the two touch; under a 48 target they would stand 12 apart."
           },
           "inset": {
             "$type": "dimension",
@@ -61915,7 +61930,7 @@
               "value": 4,
               "unit": "px"
             },
-            "$description": "From the container's end edge to the stepper nearest it. In the default system a medium stacked box is as tall as its 40 steppers, so they fill its height and stand this far from its end."
+            "$description": "From the container's end edge to the stepper nearest it. In the default system a medium stacked box is as tall as its 36 steppers, so they fill its height and stand this far from its end."
           }
         }
       },
@@ -62008,7 +62023,7 @@
               "value": 44,
               "unit": "px"
             },
-            "$description": "Minimum height of a cell: the control height (40 in the default system), a medium text field's, so that a code input and a text field in one form, and the Button that sends the code, are equally tall. Never below the minimum target: a finger aims at each cell."
+            "$description": "Minimum height of a cell: the control height (36 in the default system), a medium text field's, so that a code input and a text field in one form, and the Button that sends the code, are equally tall. Never below the minimum target: a finger aims at each cell."
           },
           "padding-inline": {
             "$type": "dimension",
@@ -65201,6 +65216,11 @@
             ],
             "$description": "How the bar's indeterminate segment and the reduced-motion pulse move through a cycle. The ring always turns at constant speed."
           },
+          "pulse-floor-opacity": {
+            "$type": "number",
+            "$value": 0.7,
+            "$description": "The opacity the indeterminate reduced-motion pulse eases down to at the low point of each cycle (PRG-7): the loading indicator's, so that an indicator under way is never drawn as a bare track."
+          },
           "show-delay": {
             "$type": "duration",
             "$value": {
@@ -65649,7 +65669,7 @@
               "value": 28,
               "unit": "px"
             },
-            "$description": "The round state layer behind the ring, and the height the radio button takes in a row (never less than option.min-height): the control height (40 in the default system), so that a radio button stands as tall as the Buttons and fields beside it and an option with a one-line label is a row of that height. The ring (ring.size) keeps its own size inside it at every control height. In the default system it holds the whole target (sys.target.touch, 36); a system whose target is larger reaches beyond it."
+            "$description": "The round state layer behind the ring, and the height the radio button takes in a row (never less than option.min-height): the control height (36 in the default system), so that a radio button stands as tall as the Buttons and fields beside it and an option with a one-line label is a row of that height. The ring (ring.size) keeps its own size inside it at every control height. In the default system it holds the whole target (sys.target.touch, 36); a system whose target is larger reaches beyond it."
           }
         },
         "disabled": {
@@ -68345,7 +68365,7 @@
               "value": 8,
               "unit": "px"
             },
-            "$description": "Between two neighbouring action buttons of the bar: the clear button and the icon-only Buttons of the trailing slot. 0 in the default system: the buttons stand as close as their targets allow, each keeping sys.target.touch along the row (SRC-34): in the default system every Button is at least that wide, so they touch; under a 48 target two medium buttons (40) would stand 8 apart."
+            "$description": "Between two neighbouring action buttons of the bar: the clear button and the icon-only Buttons of the trailing slot. 0 in the default system: the buttons stand as close as their targets allow, each keeping sys.target.touch along the row (SRC-34): in the default system a medium Button is that wide, so two of them touch, and the small clear button (28) stands 4 from the next; under a 48 target two medium buttons (36) would stand 12 apart."
           },
           "gap": {
             "$type": "dimension",
@@ -68353,7 +68373,7 @@
               "value": 8,
               "unit": "px"
             },
-            "$description": "Between the bar's elements (glyph or leading button, input, the first action button; after the glyph, at least leading-icon.gap) and the full-screen header's (back button, input, clear button). Neighbouring hit areas meet at the middle of it (SRC-25), so it is what keeps an icon button's target whole on the side where it meets the input: at sys.target.touch minus a button's width or more, the button keeps its full target there. So it is derived as sys.target.touch less the narrowest button there (the bar's small clear button), never below zero: 36 − 36 = 0 in the default system. The action buttons stand button-gap from one another instead."
+            "$description": "Between the bar's elements (glyph or leading button, input, the first action button; after the glyph, at least leading-icon.gap) and the full-screen header's (back button, input, clear button). Neighbouring hit areas meet at the middle of it (SRC-25), so it is what keeps an icon button's target whole on the side where it meets the input: at sys.target.touch minus a button's width or more, the button keeps its full target there. So it is derived as sys.target.touch less the narrowest button there (the bar's small clear button), never below zero: 36 − 28 = 8 in the default system. The action buttons stand button-gap from one another instead."
           },
           "height": {
             "$type": "dimension",
@@ -68361,7 +68381,7 @@
               "value": 36,
               "unit": "px"
             },
-            "$description": "The bar's minimum height: the control height (40 in the default system), so that a search bar stands as tall as the Buttons, the fields and the button trigger beside it, never below the minimum target. The icon-only Buttons it holds are of that height and stand in it as they stand in a row."
+            "$description": "The bar's minimum height: the control height (36 in the default system), so that a search bar stands as tall as the Buttons, the fields and the button trigger beside it, never below the minimum target. The icon-only Buttons it holds are of that height and stand in it as they stand in a row."
           },
           "padding-inline": {
             "$type": "dimension",
@@ -68562,7 +68582,7 @@
               "value": 8,
               "unit": "px"
             },
-            "$description": "The least space between the bar's search glyph and the input: the input stands the larger of this and container.gap after the glyph (SRC-1). container.gap is derived from the buttons' targets and is 0 in the default system; the glyph is no button, so no target depends on the space after it, and the text would touch the glyph. The trigger's gap, so that the bar and the trigger that stands for it set their text as far from their glyph."
+            "$description": "The least space between the bar's search glyph and the input: the input stands the larger of this and container.gap after the glyph (SRC-1). container.gap is derived from the buttons' targets (8 in the default system, as this is); the glyph is no button, so no target depends on the space after it, and the text would touch the glyph. The trigger's gap, so that the bar and the trigger that stands for it set their text as far from their glyph."
           },
           "size": {
             "$type": "dimension",
@@ -74905,7 +74925,7 @@
               "value": 32,
               "unit": "px"
             },
-            "$description": "The diameter of the round state layer centered on each handle: the control height (40 in the default system), so that a horizontal slider, as thick as the larger of it and the handle, stands as tall as the Buttons and fields beside it. It sets how far the track is inset from the slider's ends, so that a handle and its state layer stay inside the slider at min and max. The track and the handle keep their own sizes at every control height. 0 draws no state layer."
+            "$description": "The diameter of the round state layer centered on each handle: the control height (36 in the default system), so that a horizontal slider, as thick as the larger of it and the handle, stands as tall as the Buttons and fields beside it. It sets how far the track is inset from the slider's ends, so that a handle and its state layer stay inside the slider at min and max. The track and the handle keep their own sizes at every control height. 0 draws no state layer."
           }
         },
         "disabled": {
@@ -78040,7 +78060,7 @@
               "value": 4,
               "unit": "px"
             },
-            "$description": "Between the action, the expand button and the close button."
+            "$description": "Between the action, the expand button and the close button. Neighbouring hit areas meet at the middle of it (SNK-4, BTN-5), so it is what keeps each small Button's target whole: sys.target.touch less the small Button's side, never below zero — 36 − 28 = 8 in the default system."
           },
           "height": {
             "$type": "dimension",
@@ -82407,7 +82427,7 @@
               "value": 28,
               "unit": "px"
             },
-            "$description": "The round state layer centered on the handle, and the least height the switch takes in a row: the control height (40 in the default system), so that a switch stands as tall as the Buttons, fields and checkboxes beside it and a switch with a one-line label is a row of that height, its track centered in it. It moves with the handle and reaches beyond the track's ends without taking room along the track. The track and the handle keep their own sizes at every control height."
+            "$description": "The round state layer centered on the handle, and the least height the switch takes in a row: the control height (36 in the default system), so that a switch stands as tall as the Buttons, fields and checkboxes beside it and a switch with a one-line label is a row of that height, its track centered in it. It moves with the handle and reaches beyond the track's ends without taking room along the track. The track and the handle keep their own sizes at every control height."
           }
         },
         "disabled": {
@@ -84195,7 +84215,7 @@
                 "value": 48,
                 "unit": "px"
               },
-              "$description": "The least height of the compact form's row: the control height (40 in the default system), as tall as the Buttons and fields beside it. The compact form is the form of narrow windows, so for touch the row is never lower than the touch target, whatever this says (TOC-24). A minimum: it grows with enlarged text."
+              "$description": "The least height of the compact form's row: the control height (36 in the default system), as tall as the Buttons and fields beside it. The compact form is the form of narrow windows, so for touch the row is never lower than the touch target, whatever this says (TOC-24). A minimum: it grows with enlarged text."
             },
             "padding-inline": {
               "$type": "dimension",
@@ -86249,14 +86269,6 @@
       },
       "tabs": {
         "active-indicator": {
-          "height": {
-            "$type": "dimension",
-            "$value": {
-              "value": 32,
-              "unit": "px"
-            },
-            "$description": "Read by no behaviour of this revision: the active indicator is as tall as the row less track.padding above and below, so it has no height of its own. It stays so that the platforms still drawing the previous revision keep building; remove it in the commit that brings the last of them up to date."
-          },
           "padding-block": {
             "medium": {
               "$type": "dimension",
@@ -86305,7 +86317,7 @@
               "value": 64,
               "unit": "px"
             },
-            "$description": "Minimum height of a primary tab with its icon above its label. Only a medium row stacks: at small the icon stands before the label in every variant, and this is not read."
+            "$description": "Minimum height of a primary tab with its icon above its label. Only a medium row stacks: at small the icon stands before the label in every variant, and this is not read. It holds two lines, the icon's and the label's, and keeps its own size at every control height."
           },
           "height": {
             "medium": {
@@ -101579,7 +101591,7 @@
             "value": 28,
             "unit": "px"
           },
-          "$description": "The least height — and, for an icon-only control, width — at which anything a person presses is drawn."
+          "$description": "The least height — and, for an icon-only control, width — of the area a press is taken from, and the least height a row that touches its neighbours is drawn at. A control that stands alone may be drawn lower; its hit area reaches this past what it draws."
         },
         "pointer": {
           "$type": "dimension",

@@ -17,6 +17,7 @@ import { releaseClock } from '../../../test/page-clock.js';
 import { STOPPED_AFTER, flingThenHold, strokes } from '../../../test/stopped-release.js';
 import { expectOneThumb, readThumb } from '../../../test/thumb.js';
 import { expectBaseline } from '../../../test/baseline.js';
+import { contrastChecked } from '../../../test/contrast-checked.js';
 import { expectGoneWhileSkipped } from '../../../test/skipped-exit.js';
 import { expectScrimTakenAwayAtClose } from '../../../test/scrim-at-close.js';
 import { controlledElements, controlledInTree } from '../../../test/controlled-list.js';
@@ -1681,6 +1682,134 @@ test.describe('the time', () => {
     expect(await host(page, 'a').locator('.dial').evaluate((el) => el.style.getPropertyValue('--_angle'))).toBe('192deg');
   });
 
+  test('DTM-23, DTM-24: on the 24-hour dial the inner ring stands where its neighbouring numbers are as far apart as the two rings, so the handle on any of the 24 hours leaves every other number’s centre at least half the handle and half the label’s size away; the one number it covers lies wholly under it and is drawn only by the copy inside it, in en-US, ja-JP and ar', async ({ page }) => {
+    for (const locale of ['en-US', 'ja-JP', 'ar-EG']) {
+      // Reduced motion: the handle is where the value is as soon as it changes (DTM-26).
+      await mount(page, [opened('b', { mode: 'time', value: '00:30', hourCycle: 'h23', entryMode: 'dial', locale })], { reducedMotion: true });
+      const [handleSize, fontSize] = [await resolveToken(page, T('dial-handle-size')), await resolveToken(page, T('dial-label-typescale-font-size'))];
+      const rings = await host(page, 'b').evaluate((el) => {
+        const root = el.shadowRoot!;
+        const d = root.querySelector('.dial')!.getBoundingClientRect();
+        const radius = (n: Element) => {
+          const r = n.getBoundingClientRect();
+          return Math.hypot(r.left + r.width / 2 - (d.left + d.width / 2), r.top + r.height / 2 - (d.top + d.height / 2));
+        };
+        return { outer: radius(root.querySelector('.face .hours .outer')!), inner: radius(root.querySelector('.face .hours .inner')!) };
+      });
+      expect(rings.inner, `${locale}: the inner ring's radius`).toBeCloseTo(rings.outer / (1 + 2 * Math.sin(Math.PI / 12)), 0);
+      await selector(page, 'b', 'hour').focus();
+      for (let hour = 0; hour < 24; hour++) {
+        if (hour) await page.keyboard.press('ArrowUp');
+        await expect(selector(page, 'b', 'hour')).toHaveAttribute('aria-valuenow', String(hour));
+        const found = await host(page, 'b').evaluate((el) => {
+          const root = el.shadowRoot!;
+          const h = root.querySelector('.handle')!.getBoundingClientRect();
+          const centre = { x: h.left + h.width / 2, y: h.top + h.height / 2 };
+          const covered = [...root.querySelectorAll<HTMLElement>('.face .hours .number[data-covered]')];
+          const others = [...root.querySelectorAll<HTMLElement>('.face .hours .number:not([data-covered])')].map((n) => {
+            const r = n.getBoundingClientRect();
+            return { text: n.textContent!, distance: Math.hypot(r.left + r.width / 2 - centre.x, r.top + r.height / 2 - centre.y), visibility: getComputedStyle(n).visibility };
+          });
+          const corners = covered.flatMap((n) => {
+            const r = n.getBoundingClientRect();
+            return [[r.left, r.top], [r.right, r.top], [r.left, r.bottom], [r.right, r.bottom]].map(([x, y]) => Math.hypot(x! - centre.x, y! - centre.y));
+          });
+          return { covered: covered.map((n) => ({ text: n.textContent!, visibility: getComputedStyle(n).visibility })), others, farthestCorner: Math.max(...corners) };
+        });
+        const what = `${locale} ${hour}`;
+        expect(found.covered.length, `${what}: one number is covered`).toBe(1);
+        expect(found.covered[0]!.visibility, `${what}: the face does not draw the covered number`).toBe('hidden');
+        expect(found.farthestCorner, `${what}: the covered number lies wholly under the handle`).toBeLessThanOrEqual(handleSize / 2);
+        for (const other of found.others) {
+          expect(other.distance, `${what}: ${other.text} stands clear of the handle`).toBeGreaterThanOrEqual(handleSize / 2 + fontSize / 2 - 0.5);
+          expect(other.visibility, `${what}: ${other.text} is drawn`).toBe('visible');
+        }
+      }
+    }
+  });
+
+  test('DTM-23, DTM-24: with the handle on each of the 24 hours, in en-US, ja-JP and ar, the handle and the track lie over no number but the pending one — that one wholly under the handle, drawn by the copy alone; of every other number the glyphs stand on the dial but for a sliver at most a third of their height deep, which the copy draws where it lies in dial.selected-label.color; with the handle on the outer ring, the track ends short of the inner ring’s number', async ({ page }) => {
+    test.setTimeout(90_000);
+    for (const locale of ['en-US', 'ja-JP', 'ar-EG']) {
+      // Reduced motion: the handle is where the value is as soon as it changes (DTM-26).
+      await mount(page, [opened('b', { mode: 'time', value: '00:30', hourCycle: 'h23', entryMode: 'dial', locale })], { reducedMotion: true });
+      const [handleSize, selectedLabel] = [await resolveToken(page, T('dial-handle-size')), await resolveColor(page, T('dial-selected-label-color'))];
+      await selector(page, 'b', 'hour').focus();
+      for (let hour = 0; hour < 24; hour++) {
+        if (hour) await page.keyboard.press('ArrowUp');
+        await expect(selector(page, 'b', 'hour')).toHaveAttribute('aria-valuenow', String(hour));
+        const what = `${locale} ${hour}`;
+        const found = await dialInk(page, 'b');
+        expect(found.covered.length, `${what}: one number is covered`).toBe(1);
+        expect(found.covered[0]!.farthest, `${what}: the covered number's glyphs lie wholly under the handle`).toBeLessThanOrEqual(handleSize / 2);
+        expect(found.covered[0]!.visibility, `${what}: the face does not draw the covered number`).toBe('hidden');
+        expect(found.covered[0]!.copy, `${what}: the copy draws it, in selected-label.color`).toEqual({ at: true, visibility: 'visible', color: selectedLabel });
+        for (const other of found.others) {
+          const which = `${what}: ${other.text}`;
+          expect(other.visibility, `${which} is drawn`).toBe('visible');
+          // How far its glyphs' box reaches under the handle's circle (0 or less: clear of it). With the tokens' handle,
+          // dial and label no inner ring leaves every neighbour wholly clear (about 35 px between the rings and 34.5
+          // between two inner neighbours would need an outer radius of about 102, and it is 96): a corner of the box of
+          // 02, 04, 08, 10 or 20 meets the circle by up to 3 px, which the copy draws.
+          // A third of the glyphs' height at most: in the rings before, the handle on 19 lay over half of 20.
+          expect(other.under, `${which} stands on the dial, but for a sliver`).toBeLessThanOrEqual(other.height / 3);
+          if (other.under > 0) expect(other.copy, `${which}: the sliver under the handle is drawn by the copy, in selected-label.color`).toEqual({ at: true, visibility: 'visible', color: selectedLabel });
+          expect(other.track, `${which}: the track does not run over it`).toBeGreaterThan(found.trackWidth / 2);
+        }
+        if (hour < 12) expect(found.trackEnd, `${what}: on the outer ring, the track ends half the handle's size short of the inner ring`).toBeCloseTo(found.inner - handleSize / 2, 0);
+        else expect(found.trackEnd, `${what}: on the inner ring, the track runs to the handle's centre`).toBeCloseTo(found.inner, 0);
+      }
+    }
+  });
+
+  test('DTM-24: axe checks the contrast of the numbers of the 24-hour dial with the handle on each of the 24 hours, in light and dark: the number under the handle as the copy draws it in dial.selected-label.color, the face’s covered number not at all, and every other number on the dial but those whose box reaches into the handle’s own square, where axe cannot tell the circle from its box', async ({ page }) => {
+    test.setTimeout(240_000);
+    // The picker alone in the stage, as the accessibility tests mount it: `mount` would put the product's opener button
+    // before it, drawn in the browser's own button colors, which are the engine's and not the picker's (on Linux
+    // WebKit's dark scheme, below 4.5:1), and axe would check that button too.
+    await page.setViewportSize({ width: 480, height: 720 });
+    const number = /^<span class="[^"]*number[^"]*"[^>]*>(\d\d)<\/span>$/;
+    for (const theme of ['light', 'dark'] as const) {
+      await mountFixtures(page, spec, { theme, icons: true, reducedMotion: true, fixtures: [opened('b', { mode: 'time', value: '00:30', hourCycle: 'h23', entryMode: 'dial' })] });
+      await motionEnded(page);
+      const label = await resolveColor(page, T('dial-label-color'));
+      await selector(page, 'b', 'hour').focus();
+      for (let hour = 0; hour < 24; hour++) {
+        if (hour) await page.keyboard.press('ArrowUp');
+        await expect(selector(page, 'b', 'hour')).toHaveAttribute('aria-valuenow', String(hour));
+        const what = `${theme} ${hour}`;
+        const pending = String(hour).padStart(2, '0');
+        const results = await pickerAxe(page).withRules(['color-contrast']).analyze();
+        const nodes = (kind: 'passes' | 'violations' | 'incomplete') => results[kind].flatMap((rule) => rule.nodes).map((node) => ({ target: JSON.stringify(node.target), html: node.html.replace(/<!--[^>]*-->/g, '') }));
+        expect(nodes('violations'), what).toEqual([]);
+        const copy = nodes('passes').filter((node) => node.target.includes('.copy') && node.html.includes('data-covered'));
+        expect(copy.map((node) => number.exec(node.html)?.[1]), `${what}: the copy's ${pending} on the handle is checked, and passes`).toEqual([pending]);
+        expect(nodes('passes').filter((node) => node.target.includes('.face') && node.html.includes('data-covered')), `${what}: the face's ${pending}, which the handle covers, is not drawn and not checked`).toEqual([]);
+        // axe reads every box as the rectangle it is. A number whose box reaches into the handle's square has its copy
+        // inside the handle drawn where the two meet, and axe takes that copy for a box over the whole number: it leaves
+        // the number undecided, never failed, though its glyphs stand on the dial (the test above). The handle stands
+        // square to the dial, so that its square is the circle's own and no larger.
+        const inSquare = await host(page, 'b').evaluate((el) => {
+          const root = el.shadowRoot!;
+          const h = root.querySelector('.handle')!.getBoundingClientRect();
+          return [...root.querySelectorAll<HTMLElement>('.face .hours .number:not([data-covered])')]
+            .filter((n) => {
+              const r = n.getBoundingClientRect();
+              return r.left < h.right && r.right > h.left && r.top < h.bottom && r.bottom > h.top;
+            })
+            .map((n) => n.textContent!)
+            .sort();
+        });
+        const face = new Set(nodes('passes').filter((node) => node.target.includes('.face')).map((node) => number.exec(node.html)?.[1]));
+        const shown = Array.from({ length: 24 }, (_, h) => String(h).padStart(2, '0')).filter((h) => h !== pending);
+        const undecided = shown.filter((h) => !face.has(h));
+        expect(undecided.filter((h) => !inSquare.includes(h)), `${what}: axe checks every number whose box stays out of the handle's square`).toEqual([]);
+        // Those it leaves are drawn in the color of the numbers it passed on the dial.
+        for (const text of undecided) expect(await css(host(page, 'b').locator('.face .hours .number').filter({ hasText: new RegExp(`^${text}$`) }), 'color'), `${what}: ${text}`).toBe(label);
+      }
+    }
+  });
+
   test('DTM-25: a press or drag on the dial moves the handle at once to the nearest value (the nearer ring for 24 hours, a minute of the step); a press on the hour dial ends on the minute dial, focus moved there from the hour selector; the dial is hidden', async ({ page }) => {
     await mount(page, [inline('a', { mode: 'time', value: '07:30', hourCycle: 'h12', entryMode: 'dial' }), inline('b', { mode: 'time', value: '07:30', hourCycle: 'h23', entryMode: 'dial' })], { window: { width: 480, height: 1600 } });
     const dial = host(page, 'a').locator('.dial');
@@ -2307,6 +2436,109 @@ test.describe('ranges, actions, motion, overflow and semantics', () => {
       }
     }
   });
+
+  /** DTM-9, DTM-36: the picker stands inside the window on both axes, and nothing of it is cut or scrolls sideways. */
+  async function expectReflowed(page: P, id: string, what: string) {
+    const [s, window] = [await bounds(surface(page, id)), await page.evaluate(() => ({ width: document.documentElement.clientWidth, height: document.documentElement.clientHeight }))];
+    expect(s.x, `${what}: inside the window's start`).toBeGreaterThanOrEqual(-0.5);
+    expect(s.x + s.width, `${what}: inside the window's end`).toBeLessThanOrEqual(window.width + 0.5);
+    expect(s.y, `${what}: inside the window's top`).toBeGreaterThanOrEqual(-0.5);
+    expect(s.y + s.height, `${what}: inside the window's bottom`).toBeLessThanOrEqual(window.height + 0.5);
+    await expectNothingCut(page, id);
+  }
+
+  test('DTM-9, DTM-36: layout horizontal in a window 320 or 390 wide, where its columns do not fit the surface, draws the vertical layout — nothing overflows the window on either axis, nothing is cut and nothing scrolls sideways (WCAG 1.4.10) — for a date and time and for a time on the dial, in en-US, ja-JP and ar (right to left)', async ({ page }) => {
+    for (const width of [320, 390]) {
+      for (const [locale, direction] of [['en-US'], ['ja-JP'], ['ar-EG', 'rtl']] as const) {
+        const fixtures = [
+          opened('h', { mode: 'date-time', layout: 'horizontal', value: '2026-09-17T19:30', hourCycle: 'h12', locale }),
+          opened('t', { mode: 'time', layout: 'horizontal', entryMode: 'dial', value: '19:30', hourCycle: 'h12', locale }),
+        ];
+        await mount(page, fixtures.map((fixture) => (direction ? { ...fixture, direction } : fixture)), { window: { width, height: 640 } });
+        for (const id of ['h', 't']) {
+          await expect.poll(() => surface(page, id).getAttribute('data-layout'), `${width} ${locale} ${id}`).toBe('vertical');
+          await expectReflowed(page, id, `${width} ${locale} ${id}`);
+        }
+      }
+    }
+  });
+
+  test('DTM-9: layout horizontal is kept where its columns fit the surface, and decided again as the surface’s room changes: horizontal at 800 wide, vertical at 320, horizontal again at 800', async ({ page }) => {
+    await mount(page, [opened('h', { mode: 'date-time', layout: 'horizontal', value: '2026-09-17T19:30', hourCycle: 'h12' })], { window: { width: 800, height: 640 } });
+    await expect.poll(() => surface(page, 'h').getAttribute('data-layout')).toBe('horizontal');
+    await expectReflowed(page, 'h', '800');
+    await page.setViewportSize({ width: 320, height: 640 });
+    await expect.poll(() => surface(page, 'h').getAttribute('data-layout')).toBe('vertical');
+    await expectReflowed(page, 'h', '320');
+    await page.setViewportSize({ width: 800, height: 640 });
+    await expect.poll(() => surface(page, 'h').getAttribute('data-layout')).toBe('horizontal');
+    await expectReflowed(page, 'h', '800 again');
+  });
+
+  test('DTM-9, DTM-36: in a window 320 wide, the horizontal layout’s columns, wider than the body for as long as they are drawn before the vertical layout is taken, are centred no further than the body’s start: every part of them is within the body’s scroll range, in en-US and ar (right to left)', async ({ page }) => {
+    for (const [locale, direction] of [['en-US'], ['ar-EG', 'rtl']] as const) {
+      const fixture = opened('h', { mode: 'date-time', layout: 'horizontal', value: '2026-09-17T19:30', hourCycle: 'h12', locale });
+      await mount(page, [direction ? { ...fixture, direction } : fixture], { window: { width: 320, height: 640 } });
+      await expect.poll(() => surface(page, 'h').getAttribute('data-layout'), locale).toBe('vertical');
+      // The columns as they stand in the frames before the layout is decided again (a window that has just narrowed).
+      const found = await host(page, 'h').evaluate((el) => {
+        const root = el.shadowRoot!;
+        const s = root.querySelector<HTMLElement>('.surface')!;
+        s.dataset.layout = 'horizontal';
+        const body = root.querySelector<HTMLElement>('.body')!;
+        const b = body.getBoundingClientRect();
+        const padding = Number.parseFloat(getComputedStyle(body).paddingInlineStart);
+        const parts = [root.querySelector('tanrei-calendar')!, root.querySelector('.time')!].map((p) => p.getBoundingClientRect());
+        const rtl = getComputedStyle(body).direction === 'rtl';
+        // The scroll range runs from the body's start edge (its padding box) to its end, scrollWidth beyond it.
+        const range = rtl ? { left: b.right - body.clientLeft - body.scrollWidth, right: b.right - body.clientLeft } : { left: b.left + body.clientLeft, right: b.left + body.clientLeft + body.scrollWidth };
+        const startOfColumns = rtl ? Math.max(...parts.map((p) => p.right)) : Math.min(...parts.map((p) => p.left));
+        const out = { overflows: body.scrollWidth > body.clientWidth + 0.5, start: rtl ? b.right - body.clientLeft - padding - startOfColumns : startOfColumns - (b.left + body.clientLeft + padding), within: parts.every((p) => p.left >= range.left - 0.5 && p.right <= range.right + 0.5) };
+        s.dataset.layout = 'vertical';
+        return out;
+      });
+      expect(found.overflows, `${locale}: the columns are wider than the body at 320`).toBe(true);
+      expect(found.start, `${locale}: the columns begin at the body's start, inside its padding`).toBeCloseTo(0, 0);
+      expect(found.within, `${locale}: every part of the columns can be scrolled to`).toBe(true);
+    }
+  });
+
+  test('DTM-9, DTM-2: a docked picker with layout horizontal in a window 320 wide draws the vertical layout, inside the window on both axes, nothing cut and nothing scrolling sideways, in en-US and ar (right to left)', async ({ page }) => {
+    for (const [locale, direction] of [['en-US'], ['ar-EG', 'rtl']] as const) {
+      const fixture = docked('d', { mode: 'date-time', layout: 'horizontal', value: '2026-09-17T19:30', hourCycle: 'h12', locale });
+      await mount(page, [direction ? { ...fixture, direction } : fixture], { window: { width: 320, height: 640 } });
+      await opener(page, 'd').evaluate((el) => ((el as HTMLElement).style.cssText = 'position: fixed; top: 8px; inset-inline-start: 16px;'));
+      await open(page, 'd');
+      await expect.poll(() => surface(page, 'd').getAttribute('data-layout'), locale).toBe('vertical');
+      await expectReflowed(page, 'd', `docked ${locale}`);
+    }
+  });
+
+  // DTM-36's verify: a docked picker below an anchor at the window's start edge, in a window 320 × 640.
+  const DOCKED_AT_320: [string, Fixture['props']][] = [
+    ['date', { mode: 'date', value: '2026-09-17' }],
+    ['date range', { mode: 'date', range: true, start: '2026-09-10', end: '2026-09-16' }],
+    ['time, the wheels', { mode: 'time', value: '07:30', hourCycle: 'h12' }],
+    ['time, the 12-hour dial', { mode: 'time', value: '19:30', hourCycle: 'h12', entryMode: 'dial' }],
+    ['time, the 24-hour dial', { mode: 'time', value: '19:30', hourCycle: 'h23', entryMode: 'dial' }],
+    ['date and time', { mode: 'date-time', value: '2026-09-17T19:30', hourCycle: 'h12', layout: 'vertical' }],
+  ];
+  for (const [what, props] of DOCKED_AT_320) {
+    test(`DTM-2, DTM-36: a docked picker (${what}) in a window 320 × 640 stands at least the viewport margin inside each side of the window, and nothing of it is cut, in en-US, ja-JP and ar (right to left)`, async ({ page }) => {
+      for (const [locale, direction] of [['en-US'], ['ja-JP'], ['ar-EG', 'rtl']] as const) {
+        const fixture = docked('d', { ...props, locale });
+        await mount(page, [direction ? { ...fixture, direction } : fixture], { window: { width: 320, height: 640 } });
+        await opener(page, 'd').evaluate((el) => ((el as HTMLElement).style.cssText = 'position: fixed; top: 8px; inset-inline-start: 8px;'));
+        await open(page, 'd');
+        const margin = await resolveToken(page, T('docked-viewport-margin'));
+        const s = await bounds(surface(page, 'd'));
+        const width = await page.evaluate(() => document.documentElement.clientWidth);
+        expect(s.x, `${locale}: the start of the window`).toBeGreaterThanOrEqual(margin - 0.5);
+        expect(s.x + s.width, `${locale}: the end of the window`).toBeLessThanOrEqual(width - margin + 0.5);
+        await expectNothingCut(page, 'd');
+      }
+    });
+  }
 
   test('DTM-36: a wheel turned on past the end of a docked picker’s body that scrolls, and turned again after a pause, leaves the page behind where it was and the picker open', async ({ page }) => {
     await mount(page, [docked('d', { mode: 'date-time', value: '2026-09-17T19:30', layout: 'vertical' })], { window: { width: 480, height: 420 } });
@@ -3484,6 +3716,86 @@ test.describe('bounds of the time', () => {
   });
 });
 
+/**
+ * DTM-23, DTM-24: what the dial's hour numbers, its handle and its track draw, read in the page: for each number the box
+ * of its glyphs (its text's box narrowed to the ink the font measures), how far that box reaches under the handle's
+ * circle, its distance from the part of the track the handle leaves visible, and whether the copy inside the handle
+ * draws the same number at the same place, and in which color.
+ */
+function dialInk(page: P, id: string) {
+  return host(page, id).evaluate((el) => {
+    const root = el.shadowRoot!;
+    const dial = root.querySelector('.dial')!.getBoundingClientRect();
+    const handle = root.querySelector<HTMLElement>('.handle')!;
+    const track = root.querySelector<HTMLElement>('.track')!;
+    const h = handle.getBoundingClientRect();
+    const radius = handle.offsetWidth / 2;
+    const o = { x: dial.left + dial.width / 2, y: dial.top + dial.height / 2 };
+    const c = { x: h.left + h.width / 2, y: h.top + h.height / 2 };
+    const toHandle = Math.hypot(c.x - o.x, c.y - o.y);
+    const along = { x: (c.x - o.x) / toHandle, y: (c.y - o.y) / toHandle };
+    // The track's visible part: from the centre along the arm to its end, or to the handle's edge where that is nearer.
+    const visible = Math.min(track.offsetHeight, toHandle - radius);
+    const canvas = document.createElement('canvas').getContext('2d')!;
+    type Box = { left: number; right: number; top: number; bottom: number };
+    const ink = (n: HTMLElement): Box => {
+      const range = document.createRange();
+      range.selectNodeContents(n);
+      const r = range.getBoundingClientRect();
+      const style = getComputedStyle(n);
+      canvas.font = `${style.fontWeight} ${style.fontSize} ${style.fontFamily}`;
+      const m = canvas.measureText(n.textContent!);
+      const baseline = r.top + m.fontBoundingBoxAscent;
+      return { left: r.left - m.actualBoundingBoxLeft, right: r.left + m.actualBoundingBoxRight, top: baseline - m.actualBoundingBoxAscent, bottom: baseline + m.actualBoundingBoxDescent };
+    };
+    const distance = (b: Box, p: { x: number; y: number }) => Math.hypot(Math.max(b.left - p.x, 0, p.x - b.right), Math.max(b.top - p.y, 0, p.y - b.bottom));
+    const copies = [...root.querySelectorAll<HTMLElement>('.copy .hours .number')];
+    const copyOf = (n: HTMLElement, index: number) => {
+      const copy = copies[index]!;
+      const [a, b] = [n.getBoundingClientRect(), copy.getBoundingClientRect()];
+      const style = getComputedStyle(copy);
+      return { at: copy.textContent === n.textContent && Math.abs(a.left - b.left) < 0.5 && Math.abs(a.top - b.top) < 0.5, visibility: style.visibility, color: style.color };
+    };
+    const numbers = [...root.querySelectorAll<HTMLElement>('.face .hours .number')].map((n, index) => {
+      const b = ink(n);
+      let fromTrack = Infinity;
+      for (let t = 0; t <= visible; t += 0.25) fromTrack = Math.min(fromTrack, distance(b, { x: o.x + along.x * t, y: o.y + along.y * t }));
+      const corners = [[b.left, b.top], [b.right, b.top], [b.left, b.bottom], [b.right, b.bottom]].map(([x, y]) => Math.hypot(x! - c.x, y! - c.y));
+      return {
+        text: n.textContent!,
+        covered: n.hasAttribute('data-covered'),
+        visibility: getComputedStyle(n).visibility,
+        height: b.bottom - b.top,
+        under: radius - distance(b, c),
+        farthest: Math.max(...corners),
+        track: fromTrack,
+        copy: copyOf(n, index),
+      };
+    });
+    const inner = root.querySelector('.face .hours .inner')!.getBoundingClientRect();
+    return {
+      covered: numbers.filter((n) => n.covered),
+      others: numbers.filter((n) => !n.covered),
+      trackWidth: track.offsetWidth,
+      trackEnd: track.offsetHeight,
+      inner: Math.hypot(inner.left + inner.width / 2 - o.x, inner.top + inner.height / 2 - o.y),
+    };
+  });
+}
+
+/**
+ * axe over the stage, as the picker stands in a product's page. The page's root is as tall as the window (the harness
+ * sets it, so axe reads the top-layer surface of an open modal picker), and a value outside min and max (DTM-50) is
+ * marked inactive by the picker itself (`aria-disabled`), so axe holds only the values the picker offers to 4.5:1.
+ * - The copy inside the dial's handle (DTM-24) holds every number, clipped to the handle: of a number other than the
+ *   pending one only a sliver of its edge ever lies under the handle, drawn in the copy's color on the handle, the pair of
+ *   the pending number, which is checked. axe reads a number's whole box, and would pair the copy's color with the dial
+ *   beside the handle, where the copy draws nothing, so those clipped copies are left out.
+ */
+function pickerAxe(page: P): AxeBuilder {
+  return new AxeBuilder({ page }).include('.stage').exclude({ fromShadowDom: ['tanrei-date-time-picker', '.copy .number:not([data-covered])'] });
+}
+
 test.describe('accessibility', () => {
   // A test per fixture — each alone in its window, a docked one open from its anchor — and so a page per fixture, of
   // two mounts (light, dark). One page that mounted all 31 fixtures in both themes (62 mounts, each document carrying
@@ -3499,7 +3811,11 @@ test.describe('accessibility', () => {
         // its entrance (MOT-4): axe reads it at rest — its contrast is that of the surface at full opacity — once every
         // motion in the page has ended, not after a fixed wait, which a loaded machine's entrance outlasts.
         await motionEnded(page);
-        const results = await new AxeBuilder({ page }).include('.stage').analyze();
+        const results = await pickerAxe(page).analyze();
+        if (fixture.props.presentation !== 'docked') {
+          const contrast = [...results.passes, ...results.violations, ...results.incomplete].filter((rule) => rule.id === 'color-contrast').flatMap((rule) => rule.nodes);
+          expect(contrast.length, `${fixture.id} ${theme}: axe checks the contrast of the modal surface's text`).toBeGreaterThan(0);
+        }
         expect(results.violations, `${fixture.id} ${theme}: ${results.violations.map((v) => `${v.id} ${v.nodes.map((n) => n.target).join(' ')}`).join(', ')}`).toEqual([]);
       }
     });
@@ -3520,4 +3836,28 @@ test.describe('fixtures', () => {
       await expectBaseline(page, [spec.name, `${fixture.id}.png`]);
     });
   }
+});
+
+test.describe('accessibility: what is drawn over a value', () => {
+  test('DTM-20, DTM-23, DTM-24: the wheels\' controls over their middle rows and the dial\'s arm and copy over its numbers hide no value from a contrast check — a faint value is reported, nothing else is left unchecked', async ({ page }) => {
+    // An element drawn over a text is, to axe's color-contrast, an element covering it, whatever its pointer-events: it
+    // left the text incomplete ("overlapped by another element") instead of checking it, so faint text passed unseen.
+    // A modal picker locks the page's scroll (overflow: hidden on the root), and axe takes a text below the root's box
+    // for one the root hides: the page is as tall as the window here, as a page under a picker is.
+    const tall = '<style>html { min-block-size: 100vh; }</style>';
+    // Every value has two characters: axe leaves a faint text of one character unchecked on its own ("too short").
+    // The wheels: the selected values faint, each under its wheel's control (a spin button on the middle row).
+    await mountFixtures(page, spec, { lead: `${tall}<style>tanrei-date-time-picker { ${T('wheel-selected-label-color')}: #bbb; }</style>`, fixtures: [inline('w', { mode: 'time', value: '10:30', hourCycle: 'h12' })] });
+    const wheels = await contrastChecked(page);
+    expect(wheels.violations, 'the faint selected values are reported').toEqual(['10', '30', 'AM']);
+    expect(wheels.incomplete, 'nothing is left unchecked').toEqual([]);
+    // The dial of minutes: its numbers faint, around the arm and the copy inside the handle.
+    await mountFixtures(page, spec, { lead: `${tall}<style>tanrei-date-time-picker { ${T('dial-label-color')}: #bbb; }</style>`, fixtures: [opened('d', { mode: 'time', entryMode: 'dial', unit: 'minute', value: '10:30', hourCycle: 'h12' })] });
+    const dial = await contrastChecked(page);
+    expect(dial.violations, 'the faint numbers are reported').toEqual(['00', '05', '10', '15', '20', '25', '35', '40', '45', '50', '55']);
+    // DTM-24: the face does not draw the number the handle covers, so nothing lies under the handle; the copy inside it
+    // draws that number in the handle's colors, and that is what is checked (DTM-24's own test reads which element).
+    expect(dial.passes.filter((text) => text === '30'), "the display's minute and the copy of the number under the handle pass").toEqual(['30', '30']);
+    expect(dial.incomplete, 'nothing is left unchecked').toEqual([]);
+  });
 });

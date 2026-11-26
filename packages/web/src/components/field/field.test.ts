@@ -653,9 +653,9 @@ test.describe('behavior', () => {
     const [rowGap, line] = [await token(page, 'supporting-text-gap'), Math.round((await box(control(page, 'grow'))).height)];
     const appearing = await sampleFrames(stage(page, 'grow'), () => setNow(page, 'grow', { error: true }), { probe: rowProbe });
     const [before, rest] = [appearing.before.probe, appearing.rest.probe];
-    // About 40 to 60: the control alone, then the control, the row's gap and one line of error text.
+    // About 36 to 56: the control alone, then the control, the row's gap and one line of error text.
     expect([Math.round(Number(before.height)), Math.round(Number(rest.height))]).toEqual([line, line + rowGap + 16]);
-    expect(line, 'an outlined text input of the default size, the control height').toBe(40);
+    expect(line, 'an outlined text input of the default size, the control height').toBe(36);
     expectAnimated(appearing, 'height', { minSteps: 4 });
     // One motion: the height never turns back, and never leaves the path from 40 to 60 (MOT-2).
     const heights = [before, ...appearing.frames.map((frame) => frame.probe), rest].map((probe) => Number(probe.height));

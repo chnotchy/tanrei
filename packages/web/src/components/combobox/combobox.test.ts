@@ -351,8 +351,8 @@ test.describe('behavior: the box, and what it takes from the Field that frames i
       near(await px(container(page, id), 'border-top-left-radius'), await token(page, 'container-shape'), `${id} corner`);
       near(await px(container(page, id), 'border-bottom-right-radius'), await token(page, 'container-shape'), `${id} bottom corner`);
     }
-    // The default system's numbers: a stacked box 40 and 56, as tall as a Button of its size, 16 and 12, and a 24 glyph.
-    expect([await token(page, 'stacked-container-height-medium'), await token(page, 'stacked-container-height-large')]).toEqual([40, 56]);
+    // The default system's numbers: a stacked box 36 and 52, as tall as a Button of its size, 16 and 12, and a 24 glyph.
+    expect([await token(page, 'stacked-container-height-medium'), await token(page, 'stacked-container-height-large')]).toEqual([36, 52]);
     expect([await token(page, 'container-padding-inline-medium'), await token(page, 'container-padding-inline-with-icon-medium'), await token(page, 'icon-size-medium')]).toEqual([16, 12, 24]);
     // The clear button's box, then the chevron: action-gap apart, the first of them container.gap after the input.
     const clear = await box(part(page, 'stacked-clearable', '.clear-box'));
@@ -903,7 +903,7 @@ test.describe('behavior: the box, and what it takes from the Field that frames i
     await expect(part(page, 'stacked-value', '.leading-own')).toBeHidden();
   });
 
-  test('CMB-19: the chevron is the icon set’s expand_more at the end of the container, at icon.size in the trailing-icon color, the same glyph closed and open and never mirrored; its hit area reaches from the container’s end edge to the input over the whole height; a press opens and closes the list, keeps focus in the input and draws no press answer; it is no focus stop and is a button named by label with its expanded state; chevron false or read-only draws none', async ({ page }) => {
+  test('CMB-19: the chevron is the icon set’s expand_more at the end of the container, at icon.size in the trailing-icon color, the same glyph closed and open and never mirrored; its hit area reaches from the container’s end edge to the middle of the gap before it over the whole height; a press opens and closes the list, keeps focus in the input and draws no press answer; it is no focus stop and is a button named by label with its expanded state; chevron false or read-only draws none', async ({ page }) => {
     await mountSpec(page, ['stacked-value', 'stacked-no-chevron', 'stacked-read-only', 'stacked-error', 'stacked-required-rtl']);
     const id = 'stacked-value';
     const glyph = part(page, id, '.chevron-glyph');
@@ -913,7 +913,8 @@ test.describe('behavior: the box, and what it takes from the Field that frames i
     expect(await css(glyph, 'color')).toBe(await color(page, 'stacked-trailing-icon-color'));
     expect(await css(part(page, 'stacked-error', '.chevron-glyph'), 'color')).toBe(await color(page, 'stacked-error-trailing-icon-color'));
     expect(await button.evaluate((el) => [el.localName, el.getAttribute('tabindex'), el.getAttribute('aria-label'), el.getAttribute('aria-expanded')])).toEqual(['button', '-1', 'City', 'false']);
-    // The hit area: every point from the input's end to the container's end edge, top to bottom, is the chevron's.
+    // The hit area: every point from the middle of the gap after the input to the container's end edge, top to bottom, is
+    // the chevron's (the half of the gap nearer the input is not: the tests below).
     const c = await box(container(page, id));
     const field = await box(input(page, id));
     const at = (x: number, y: number) =>
@@ -929,7 +930,7 @@ test.describe('behavior: the box, and what it takes from the Field that frames i
         },
         [x, y],
       );
-    for (const [x, y] of [[c.x + c.width - 1, c.y + 1], [c.x + c.width - 1, c.y + c.height - 1], [field.x + field.width + 2, c.y + c.height / 2]]) expect(await at(x, y), `${x},${y}`).toBe('chevron');
+    for (const [x, y] of [[c.x + c.width - 1, c.y + 1], [c.x + c.width - 1, c.y + c.height - 1], [(field.x + field.width + (await box(button)).x) / 2 + 1, c.y + c.height / 2]]) expect(await at(x, y), `${x},${y}`).toBe('chevron');
     expect(await button.evaluate((el) => Number.parseFloat(getComputedStyle(el, '::before').width))).toBeGreaterThanOrEqual((await resolveToken(page, '--tanrei-sys-target-pointer')) - 0.6);
     // A press opens, a second closes with the reason press; focus is the input's; nothing turns, nothing is pressed.
     await listen(page, id);
@@ -953,6 +954,101 @@ test.describe('behavior: the box, and what it takes from the Field that frames i
     await focusInput(page, 'stacked-no-chevron');
     await page.keyboard.press('ArrowDown');
     await shownList(page, 'stacked-no-chevron').toBe(true);
+  });
+
+  /**
+   * CMB-19: what a press at a point reaches (hit-testing, through the shadow roots): 'chevron', 'input', 'chip' (an
+   * entry, or its remove button), 'clear' (the clear button), or another part's class.
+   */
+  const reaches = (page: P, x: number, y: number) =>
+    page.evaluate(
+      ([px_, py]) => {
+        let node: Element | null = document.elementFromPoint(px_, py);
+        while (node?.shadowRoot) {
+          const inner = node.shadowRoot.elementFromPoint(px_, py);
+          if (!inner || inner === node) break;
+          node = inner;
+        }
+        const host = (node?.getRootNode() as ShadowRoot | undefined)?.host;
+        if (host?.localName === 'tanrei-chip') return 'chip';
+        if (host?.localName === 'tanrei-button' || node?.localName === 'tanrei-button') return 'clear';
+        if (node?.closest('.chevron')) return 'chevron';
+        if (node?.localName === 'input') return 'input';
+        return String(node?.className || node?.localName || '');
+      },
+      [x, y],
+    );
+  /** The inline size of the chevron's hit area, which runs from the container's end edge toward the input. */
+  const chevronReach = (page: P, id: string) => part(page, id, '.chevron').evaluate((el) => Number.parseFloat(getComputedStyle(el, '::before').width));
+  /**
+   * CMB-19: presses the last 8 px of `before` (the box the gap before the chevron follows) and the gap. Everything up to
+   * the gap's middle is `owner`'s or no one's, never the chevron's; past it, and the chevron's middle, are the chevron's;
+   * the hit area runs from the container's end edge to the gap's middle.
+   */
+  async function hitStops(page: P, id: string, before: { x: number; y: number; width: number; height: number }, owner: string) {
+    const chevron = await box(part(page, id, '.chevron'));
+    const c = await box(container(page, id));
+    const rtl = chevron.x < before.x;
+    const beforeEnd = rtl ? before.x : before.x + before.width;
+    const chevronStart = rtl ? chevron.x + chevron.width : chevron.x;
+    const gap = Math.abs(chevronStart - beforeEnd);
+    const middle = (beforeEnd + chevronStart) / 2;
+    const toward = rtl ? -1 : 1;
+    const y = before.y + before.height / 2;
+    for (let d = 0.5; d <= 8; d += 1.5) expect(await reaches(page, beforeEnd - toward * d, y), `${id}: ${d} px before the end of the ${owner}`).toBe(owner);
+    const nearer = await reaches(page, beforeEnd + (toward * gap) / 4, y);
+    expect(nearer === 'chevron' ? nearer : 'not the chevron', `${id}: the gap's half nearer the ${owner} (a gap of ${gap} px)`).toBe('not the chevron');
+    // The clear button is drawn wider than its box, over the gap (CMB-20), and over the chevron's hit area there.
+    if (owner !== 'clear') expect(await reaches(page, beforeEnd + (toward * gap * 3) / 4, y), `${id}: the gap's half nearer the chevron`).toBe('chevron');
+    expect(await reaches(page, chevron.x + chevron.width / 2, chevron.y + chevron.height / 2), `${id}: the chevron's middle`).toBe('chevron');
+    near(await chevronReach(page, id), rtl ? middle - c.x : c.x + c.width - middle, `${id}: the hit area runs from the container's end edge to the middle of the gap`, 0.75);
+  }
+
+  test('CMB-19: the chevron’s hit area stops at the middle of the gap before it — a press on the input’s last 8 px, on the chip that ends a line of entries or on the clear button is theirs, under targets of 48 too; the chevron’s middle and the far half of the gap are the chevron’s, and its hit area is the minimum target wide where the room allows', async ({ page }) => {
+    await mountSpec(page, ['stacked-value', 'stacked-small', 'filled-large', 'outlined-rtl', 'stacked-clearable', 'multiple-values']);
+    // The default system: the room medium and large leave is at least the minimum target, and the hit area takes it all.
+    const pointer = await resolveToken(page, '--tanrei-sys-target-pointer');
+    for (const id of ['stacked-value', 'filled-large']) expect(await chevronReach(page, id), id).toBeGreaterThanOrEqual(pointer - 0.6);
+    // Targets of 48 (a layer's, or a touch screen's): more than any size leaves, so the gap's middle decides.
+    await override(page, { '--tanrei-sys-target-pointer': '48px', '--tanrei-sys-target-touch': '48px' });
+    for (const id of ['stacked-value', 'stacked-small', 'filled-large', 'outlined-rtl']) await hitStops(page, id, await box(input(page, id)), 'input');
+    // Beside the clear button: the middle of action-gap.
+    await hitStops(page, 'stacked-clearable', await box(part(page, 'stacked-clearable', '.clear-box')), 'clear');
+    // Several values: the box narrowed until the last chip ends its line 0.5 px short of the gap before the chevron, and
+    // the input wraps to a line of its own.
+    const id = 'multiple-values';
+    const last = host(page, id).locator('tanrei-chip').last();
+    const chevron = await box(part(page, id, '.chevron'));
+    const field = await box(input(page, id));
+    const gap = chevron.x - (field.x + field.width);
+    const width = (await box(host(page, id))).width;
+    const lastBox = await box(last);
+    await host(page, id).evaluate((el, w) => ((el as HTMLElement).style.inlineSize = `${w}px`), width - (chevron.x - gap - (lastBox.x + lastBox.width)) + 0.5);
+    await expect.poll(async () => (await box(input(page, id))).y, 'the input wrapped').toBeGreaterThan(lastBox.y + lastBox.height / 2);
+    const ending = await box(last);
+    near(ending.x + ending.width, (await box(part(page, id, '.chevron'))).x - gap - 0.5, 'the chip ends its line by the gap', 1);
+    await hitStops(page, id, ending, 'chip');
+  });
+
+  test('CMB-19: on a touch screen (a coarse pointer) the chevron’s hit area is the touch target wide, a tap on the input’s end places the caret and opens nothing, a tap on the chevron opens the list, and the end of the last chip is the chip’s', async ({ browser, browserName }) => {
+    test.skip(browserName !== 'chromium', 'only Chromium emulates a coarse pointer; the hit area is the same in every engine (the test above)');
+    const context = await browser.newContext({ hasTouch: true, isMobile: true, viewport: { width: 600, height: 900 } });
+    const page = await context.newPage();
+    await mountSpec(page, ['stacked-value', 'multiple-values']);
+    expect(await page.evaluate(() => matchMedia('(pointer: coarse)').matches)).toBe(true);
+    const id = 'stacked-value';
+    expect(await chevronReach(page, id)).toBeGreaterThanOrEqual((await resolveToken(page, '--tanrei-sys-target-touch')) - 0.6);
+    const field = await box(input(page, id));
+    await page.touchscreen.tap(field.x + field.width - 4, field.y + field.height / 2);
+    await expect.poll(async () => (await read(page, id)).focused).toBe(true);
+    expect((await read(page, id)).open).toBe(false);
+    // Before the list opens over it: the end of the last chip is the chip's.
+    const last = await box(host(page, 'multiple-values').locator('tanrei-chip').last());
+    expect(await reaches(page, last.x + last.width - 4, last.y + last.height / 2)).toBe('chip');
+    const chevron = await box(part(page, id, '.chevron'));
+    await page.touchscreen.tap(chevron.x + chevron.width / 2, chevron.y + chevron.height / 2);
+    await shownList(page, id).toBe(true);
+    await context.close();
   });
 
   test('CMB-20: a clearable combobox with a text draws a clear button before the chevron — an icon-only text Button of the small size showing close, named by clearLabel, a focus stop after the input; activating it empties the text and the value, emits input once and change once while the value was not empty, moves focus to the input and leaves the list as it is; an empty clearLabel is reported', async ({ page }) => {
@@ -2518,8 +2614,10 @@ test.describe('behavior: the list', () => {
     expect(mail.font).toBe(mailMedium.font);
     const titles = part(page, 'size-small', '.group-title');
     near(await px(titles.first(), 'padding-inline-start'), small.title, 'a group title’s inset');
-    // The box is the box's size: a small combobox's box is lower than a medium one's.
-    expect((await box(container(page, 'size-small'))).height, 'the field’s box').toBeLessThan((await box(container(page, 'size-medium'))).height);
+    // The box is the box's size: a small combobox's box is a small box's, a medium one's a medium box's (both 36 in the
+    // default system, where the small one is held at the minimum target).
+    near((await box(container(page, 'size-small'))).height, await resolveToken(page, T('stacked-container-height-small')), 'the field’s small box');
+    near((await box(container(page, 'size-medium'))).height, await resolveToken(page, T('stacked-container-height-medium')), 'the field’s medium box');
     // An unknown size is drawn as medium, and a debug build says so.
     near((await drawn('size-odd', 'Mail')).height, mailMedium.height, 'an unknown size');
     await expect.poll(() => seen.filter((w) => w.includes('CMB-68') && w.includes('"huge"')).length).toBe(1);

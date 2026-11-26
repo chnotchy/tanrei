@@ -1122,10 +1122,10 @@ test.describe('size and layout', () => {
     expect(await button.evaluate((el) => [el.getAttribute('size'), el.hasAttribute('variant'), el.querySelector('[slot="icon"]')!.textContent, el.getAttribute('part')])).toEqual(['small', false, 'close', 'close-button']);
     await page.mouse.move(0, 0);
     expect(await button.locator('button').evaluate((el) => getComputedStyle(el).backgroundColor)).toBe(await resolveColor(page, '--tanrei-comp-button-tonal-container-color'));
-    // Small: 36 × 36 in the default system, the small Button's own height (held at the minimum target).
+    // Small: 28 × 28 in the default system, the small Button's own height, its step.
     const box = await rect(button.locator('button'));
     expect(box.height).toBeCloseTo(await resolveToken(page, '--tanrei-comp-button-container-height-small'), 1);
-    expect([Math.round(box.width), Math.round(box.height)]).toEqual([36, 36]);
+    expect([Math.round(box.width), Math.round(box.height)]).toEqual([28, 28]);
     await expect(page.getByRole('button', { name: 'Close storage', exact: true })).toHaveCount(1);
     // It answers as any Button does: hover paints the Button's own hovered container.
     await button.hover();
@@ -2865,6 +2865,9 @@ test.describe('triggers', () => {
       await onAnchor(page);
       await expect.poll(() => isShown(page)).toBe(true);
       await settle(page);
+      // At rest: while its open motion (POP-26) runs, its content is still fading in, and axe reads a color part of the
+      // way there (WebKit: the link at 58 % of its opacity over the dark surface, 3.38:1).
+      await motionEnded(surface(page).locator('> .motion'));
       const results = await new AxeBuilder({ page }).analyze();
       expect(results.violations, `${theme}: ${results.violations.map((v) => `${v.id} ${v.nodes.map((n) => n.target).join(' ')}`).join(', ')}`).toEqual([]);
     }

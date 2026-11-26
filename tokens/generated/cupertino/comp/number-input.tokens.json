@@ -29,12 +29,12 @@
           "gap": {
             "$type": "dimension",
             "$value": "{tanrei.sys.space.space0}",
-            "$description": "Between the two steppers. 0 in the default system: they stand as close as their targets allow, each keeping sys.target.touch along the row: in the default system a 40 button is wider than the target, so the two touch; under a 48 target they would stand 8 apart."
+            "$description": "Between the two steppers. 0 in the default system: they stand as close as their targets allow, each keeping sys.target.touch along the row: in the default system a 36 button is as wide as the target, so the two touch; under a 48 target they would stand 12 apart."
           },
           "inset": {
             "$type": "dimension",
             "$value": "{tanrei.sys.space.space50}",
-            "$description": "From the container's end edge to the stepper nearest it. In the default system a medium stacked box is as tall as its 40 steppers, so they fill its height and stand this far from its end."
+            "$description": "From the container's end edge to the stepper nearest it. In the default system a medium stacked box is as tall as its 36 steppers, so they fill its height and stand this far from its end."
           }
         },
         "motion": {

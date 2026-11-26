@@ -14,7 +14,7 @@ import { fileURLToPath } from 'node:url';
 
 register('./vite-shim.mjs', import.meta.url);
 const { anatomyOf, anatomyAlt, blueprintStageOf, webPartsOf } = await import('../src/lib/visuals/anatomy.ts');
-const { measureLinesOf, measuresOf } = await import('../src/lib/visuals/measure.ts');
+const { lengthsNotDrawnOf, measureFigureOf, measureLinesOf, measuresOf, partsNotDrawnOf } = await import('../src/lib/visuals/measure.ts');
 const { motionDemoOf, motionRoleOf, motionsOf, numbered } = await import('../src/lib/visuals/motion.ts');
 const { roleMapOf, rolesOf } = await import('../src/lib/visuals/roles.ts');
 const { drawnMatrixOf, drawsStateMatrix, matrixOf, PSEUDO_STATES } = await import('../src/lib/visuals/states.ts');
@@ -155,13 +155,23 @@ describe('the parts of the anatomy and measure figures', () => {
       if (!stage) continue;
       const document = fixtureDocument(name);
       assert.equal(stage.fixture, specs[name].anatomyFixture ?? specs[name].fixtures[0].id, name);
-      assert.equal(stage.html, document.stages.find((candidate) => candidate.id === stage.fixture).html, name);
+      const own = document.stages.find((candidate) => candidate.id === stage.fixture).html;
+      // A surface the page's top layer would draw beside its anchor is drawn in place: the same stage, its element `inline`.
+      if (stage.html !== own) assert.equal(stage.html, own.replace(`<${stage.tag}`, `<${stage.tag} inline`), name);
       assert.deepEqual(stage.room, document.sizes[stage.fixture], name);
       assert.equal(stage.tag, specs[name].platforms.web.name);
       assert.ok(!document.windowed.includes(stage.fixture), `${name}: a fixture drawn in a window has no figure in the page`);
     }
     assert.equal(blueprintStageOf('button').fixture, 'filled-leading-icon', 'the button’s figure shows its icon');
     assert.match(blueprintStageOf('button').html, /^<div class="stage" data-fixture="filled-leading-icon"><tanrei-button\b/);
+    assert.equal(blueprintStageOf('button').staging, fixtureDocument('button').staging, 'a figure drawn in the page takes the staging as it is');
+  });
+  test('an open tooltip is drawn in place in a figure, in a stage that stands for its window', () => {
+    // In the page's window it would close: another figure's opening closes it (TIP-8), and so does its anchor being out
+    // of the window's view as the page loads (TIP-9). In place, each figure's is open in a window of its own.
+    const stage = blueprintStageOf('tooltip');
+    assert.match(stage.html, /<tanrei-tooltip inline\b[^>]*\sopen[\s>]/, stage.html);
+    assert.match(stage.staging, /\.stage:has\(> tanrei-tooltip\[inline\]\) \{ position: relative; \}/);
   });
   test('the button’s lines, with its icon: the padding on the icon’s side, the gap, the other padding, the heights', () => {
     const { fixture, html } = blueprintStageOf('button');
@@ -187,6 +197,24 @@ describe('the parts of the anatomy and measure figures', () => {
     const trailing = fixtureDocument('button').stages.find((stage) => stage.id === 'filled-trailing-icon').html;
     assert.ok(measureLinesOf('button', 'filled-trailing-icon', trailing).some(({ token }) => token === `${comp}.container.padding-inline-end-with-icon.medium`));
   });
+  test('a part drawn in the place of another holds that part’s padding, and the padding of both ends is measured at the other', () => {
+    // A color input's swatch stands where a text input's leading icon stands: the box's padding with an icon at the
+    // start, and its plain padding at the end, where the input ends without a picker button.
+    const { fixture, html } = blueprintStageOf('color-input');
+    const box = `${NS}.comp.input-box.container`;
+    const paddings = measureLinesOf('color-input', fixture, html).filter(({ kind }) => kind.startsWith('padding-inline'));
+    assert.deepEqual(
+      paddings.map(({ token, axis }) => [token, axis]),
+      [
+        [`${box}.padding-inline-with-icon.medium`, 'padding-start'],
+        [`${box}.padding-inline.medium`, 'padding-end'],
+      ],
+    );
+    // A text input with no icon: the plain padding, at the start.
+    const plain = blueprintStageOf('text-input');
+    const textPaddings = measureLinesOf('text-input', plain.fixture, plain.html).filter(({ kind }) => kind.startsWith('padding-inline'));
+    assert.deepEqual(textPaddings.map(({ token, axis }) => [token, axis]), [[`${box}.padding-inline.medium`, 'padding-start']]);
+  });
   test('every line is a length of a part the web draws as a box, the same in every state, for the fixture’s size and variant', () => {
     for (const name of withParts.filter(inDefault)) {
       const stage = blueprintStageOf(name);
@@ -203,6 +231,85 @@ describe('the parts of the anatomy and measure figures', () => {
         }
       }
     }
+  });
+  test('each length recorded as not drawn is a length of its component’s figure, over the fixture the figure is drawn over', () => {
+    const record = JSON.parse(fs.readFileSync(new URL('../src/lib/visuals/lengths-not-drawn.json', import.meta.url), 'utf8'));
+    assert.ok(Object.keys(record).length > 0);
+    for (const [name, { lengths = {}, parts = [] }] of Object.entries(record)) {
+      const stage = blueprintStageOf(name);
+      assert.ok(stage, `${name}: a figure`);
+      // Throws where the record names another fixture, a part the component has not, or a length the figure has not.
+      const lines = measureLinesOf(name, stage.fixture, stage.html);
+      const notDrawn = lengthsNotDrawnOf(name, stage.fixture, lines);
+      assert.deepEqual([...notDrawn.keys()], Object.keys(lengths), name);
+      for (const value of notDrawn.values()) assert.ok(value === null || (typeof value === 'number' && value >= 0), `${name}: ${value}`);
+      // A part recorded as not drawn has no line, and the figure still has lines to draw (its browser test reads the record there).
+      assert.ok(lines.length > 0, `${name}: the figure has a length besides the parts the fixture does not draw`);
+      for (const part of parts) {
+        assert.ok(!lines.some((line) => line.part === part), `${name}: no length of ${part}, which the fixture does not draw`);
+        assert.ok(measuresOf(name).some((measure) => measure.part === part), `${name}: ${part} has a length to leave out`);
+      }
+      assert.deepEqual([...partsNotDrawnOf(name, stage.fixture)], parts, name);
+    }
+    assert.deepEqual([...lengthsNotDrawnOf('button', blueprintStageOf('button').fixture, []).keys()], [], 'a component the record does not name draws every length');
+  });
+  // A component page whose spec has lengths and draws no measure figure, and why. A page that loses its figure (its
+  // lengths come to name no part of its anatomy, as the Tabs' did when the part named container was renamed and no part
+  // was the tab's own box) fails until it draws one again or is listed here; one that comes to draw one leaves the list.
+  const NO_WEB_PARTS = 'its spec does not say where the web draws its parts (platforms.web.parts), so the figure has no part to measure';
+  const NO_STAGE = 'no fixture a figure can stand on in the page (blueprintStageOf: a page, a window, a modal one, a step in script, or no baseline)';
+  const WHOLE = 'its lengths name no part of its anatomy: they are the whole component’s (the gaps between its members, a size of its own)';
+  const WITHOUT_MEASURE_FIGURE = {
+    ...Object.fromEntries(
+      ['accordion', 'app-shell', 'avatar', 'breadcrumbs', 'calendar', 'carousel', 'code-block', 'date-time-picker', 'description-list', 'dialog', 'figure', 'image-preview', 'inline-code', 'link', 'link-card', 'marquee-text', 'modal-layer', 'number-ticker', 'page-header', 'popover', 'scroll-area', 'search', 'steps', 'table', 'table-of-contents', 'timeline', 'tree-view'].map((name) => [name, NO_WEB_PARTS]),
+    ),
+    ...Object.fromEntries(['chat-composer', 'drop-zone', 'file-upload', 'previous-next-links'].map((name) => [name, NO_STAGE])),
+    ...Object.fromEntries(
+      ['chip-field', 'color-field', 'combobox-field', 'number-field', 'one-time-code-field', 'radio-group', 'select-field', 'size-transition', 'slider-field', 'tag-group', 'text-field'].map((name) => [name, WHOLE]),
+    ),
+    'button-group': 'its lengths are the whole group’s (its gaps, insets and corners) and its divider’s inset and stroke, which the figure does not draw',
+    'bottom-sheet': 'its fixture draws no header, whose lengths the figure would draw; the rest are margins, an all-round padding, a maximum width and corners, which it does not',
+    card: 'its lengths are an all-round padding, corners and an outline’s stroke, which the figure does not draw',
+    'checkbox-group': 'its lengths are the gaps between its parts and of parts its fixture leaves out; the figure measures a gap only inside a container',
+    field: 'its lengths are the gaps between its parts and of parts its fixture leaves out; the figure measures a gap only inside a container',
+    'field-group': 'its lengths are the gaps between its parts and of parts its fixture leaves out; the figure measures a gap only inside a container',
+    divider: 'its lengths are a stroke, an inset and the pattern of a dashed, dotted or wavy line, which the figure does not draw',
+    'file-item': 'its lengths are each of one layout (row, tile) or one status, which the figure does not tell apart, or of parts its fixture leaves out',
+    'file-picker': 'its fixture is the button, without the drop area whose box most of its lengths are; the rest are an outline’s stroke and corners',
+    handle: 'its lengths are a breadth and a length along its axis, strokes and corners, which the figure does not draw',
+    list: 'its lengths are a layout’s (a column’s gap), the gaps between items, strokes, corners and a mark its fixture leaves out',
+    meter: 'its lengths are the track’s gap to its indicator, corners, strokes and a stop indicator of 0, which the figure does not draw',
+    'progress-indicator': 'its lengths are the track’s gap to its indicator, corners, strokes and a stop indicator of 0, which the figure does not draw',
+    'one-time-code-input': 'its slots’ lengths name no part; the caret and the separator are strokes or parts its fixture leaves out',
+    'resizable-frame': 'its lengths are minimum sizes, corners and its size indicator’s, which the figure does not draw',
+    skeleton: 'its lengths are its placeholders’ corners and a gap of its host, which holds no content to measure it to',
+    'split-view': 'its one length is its divider’s width, a stroke the figure does not draw',
+    'tab-view': 'its lengths are a corner of 0 and a swipe’s distance and blur, which the figure does not draw',
+  };
+  test('every component page whose spec has lengths draws a measure figure, but for the pages listed with why', () => {
+    const dir = here('../src/content/docs/components');
+    const pages = fs
+      .readdirSync(dir)
+      .map((file) => /<ComponentSpecs name="([a-z0-9-]+)"/.exec(fs.readFileSync(`${dir}/${file}`, 'utf8'))?.[1])
+      .filter(Boolean)
+      .sort();
+    assert.ok(pages.includes('tabs') && pages.includes('button'), 'the component pages are read');
+    const without = pages.filter((name) => measuresOf(name).length > 0 && measureFigureOf(name).lines.length === 0);
+    assert.deepEqual(without, Object.keys(WITHOUT_MEASURE_FIGURE).sort(), 'a page whose lengths draw no figure is listed with why (one that comes to draw one leaves the list)');
+    for (const [name, why] of Object.entries(WITHOUT_MEASURE_FIGURE)) {
+      const { parts, stage } = measureFigureOf(name);
+      if (why === NO_WEB_PARTS) assert.equal(parts, null, `${name}: ${why}`);
+      else assert.ok(parts, `${name} has its web parts; its reason is not ${NO_WEB_PARTS}`);
+      if (why === NO_STAGE) assert.equal(stage, null, `${name}: ${why}`);
+      else if (parts) assert.ok(stage, `${name} has a stage; its reason is not ${NO_STAGE}`);
+      if (why === WHOLE) assert.ok(measuresOf(name).every((measure) => measure.part === null), `${name}: ${why}`);
+    }
+    // The Tabs' figure draws a tab's own box, the part named container: its height and its inline padding.
+    const tabs = measureFigureOf('tabs').lines.map(({ token, part, axis }) => [token, part, axis]);
+    assert.deepEqual(tabs, [
+      [`${NS}.comp.tabs.container.padding-inline.medium`, 'container', 'padding-start'],
+      [`${NS}.comp.tabs.container.height.medium`, 'container', 'block'],
+    ]);
   });
   test('the measure figure’s text alternative has a sentence for every plural form, with the component and its lengths', () => {
     for (const lang of languages) {
@@ -353,6 +460,24 @@ describe('color roles', () => {
     assert.equal(field.rows.find((row) => row.part === 'text-input.outline').token, `${NS}.comp.input-box.outlined.outline.color`);
     assert.equal(field.rows.find((row) => row.part === 'field.label').token, `${NS}.comp.field.standard.label.color`);
     assert.throws(() => roleMapOf('button', { variant: 'plaid' }), /not one of its variants/);
+  });
+  test('a part the spec says is drawn with another part’s tokens (drawnWith) takes those, and no token takes it by its name', () => {
+    // A tab's state layer is drawn at rest with its look's container.color; its state-layer.color is what hover, focus
+    // and press mix in, which no part is drawn in at rest.
+    const tabs = roleMapOf('tabs', { variant: 'primary', selected: true });
+    const layer = tabs.rows.filter((row) => row.part === 'state-layer');
+    assert.deepEqual(layer.map((row) => [row.token, row.paint]), [[`${NS}.comp.tabs.primary.selected.container.color`, 'fill']]);
+    assert.ok(!tabs.rows.some((row) => row.token.endsWith('.state-layer.color')), 'no row is a state-layer.color');
+    assert.ok(tabs.rows.some((row) => row.part === 'label' && row.token === `${NS}.comp.tabs.primary.selected.label.color`), 'the label keeps its own token');
+    const roles = rolesOf('tabs', ['primary']);
+    assert.equal(roles.find((role) => role.token === `${NS}.comp.tabs.primary.container.color`).part, 'state-layer');
+    assert.equal(roles.find((role) => role.token === `${NS}.comp.tabs.primary.state-layer.color`).part, null);
+    // Every part that says what it is drawn with is drawn with tokens that exist: each end names a token of its group.
+    for (const name of names) {
+      for (const part of specs[name].anatomy.filter((each) => each.drawnWith)) {
+        for (const end of part.drawnWith) assert.ok(rolesOf(name).some((role) => role.token.endsWith(`.${end}`)), `${name} ${part.id}: ${end}`);
+      }
+    }
   });
   test('every role map a page places has rows, and every language’s page places the same', () => {
     const placedIn = (base) => {

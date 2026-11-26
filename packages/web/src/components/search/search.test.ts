@@ -48,6 +48,14 @@ const px = async (locator: Locator, property: string, pseudo?: string) => Number
 const bounds = async (locator: Locator) => (await locator.boundingBox())!;
 const token = (page: P, name: string) => page.evaluate((n) => getComputedStyle(document.documentElement).getPropertyValue(n).trim(), name);
 const T = (name: string) => `--tanrei-comp-search-${name}`;
+/**
+ * What the header keeps after the back button beyond container.gap (SRC-1): what the gap and the inset the Button holds
+ * its glyph at lack of leading-icon.gap, never below zero (2 in the default system: a 36 button holds its 24 glyph 6 in).
+ */
+const backKept = async (page: Page, width: number) => {
+  const [gap, leading, glyph] = [await resolveToken(page, T('container-gap')), await resolveToken(page, T('leading-icon-gap')), await resolveToken(page, '--tanrei-comp-button-icon-size-without-label-medium')];
+  return Math.max(0, leading - gap - (width - glyph) / 2);
+};
 const S = (name: string) => T(`standard-${name}`);
 const override = (page: P, vars: Record<string, string>) => rootTokens(page, vars);
 function warnings(page: P) {
@@ -208,17 +216,20 @@ test.describe('layout', () => {
       for (const id of headers) expect(await space(host(page, id).locator('.header .back .button-glyph'), headerInput(page, id), rtl), `${id}${rtl ? ', rtl' : ''}`).toBeGreaterThanOrEqual(want - 0.5);
       return { gap, leading };
     };
-    // The default system: the gap is 0 (SRC-25), so the text stands leading-icon.gap from the glyph.
+    // The default system: the gap is 8 (SRC-25: the touch target less the small clear button), as leading-icon.gap is.
     const { gap, leading } = await measure(false);
-    expect(gap).toBe(0);
-    expect(leading).toBeGreaterThan(0);
+    expect([gap, leading]).toEqual([8, 8]);
+    // A layer whose gap is 0: the text never touches the glyph, standing leading-icon.gap from it.
+    await override(page, { [T('container-gap')]: '0px' });
+    expect((await measure(false)).gap).toBe(0);
+    await override(page, { [T('container-gap')]: '' });
     // Right to left, with a query written right to left, so that its text begins at the start edge beside the glyph.
     await page.evaluate(() => (document.documentElement.dir = 'rtl'));
     for (const id of [...bars, ...headers]) await host(page, id).evaluate((el) => ((el as unknown as { value: string }).value = 'חשבונית'));
     for (const id of bars) await expect(input(page, id)).toHaveValue('חשבונית');
     for (const id of headers) await expect(headerInput(page, id)).toHaveValue('חשבונית');
     await measure(true);
-    // Under a 48 target the gap is 12, larger than leading-icon.gap: the text stands the gap from the glyph.
+    // Under a 48 target the gap is 20, larger than leading-icon.gap: the text stands the gap from the glyph.
     await override(page, { '--tanrei-sys-target-touch': '48px' });
     const wider = await measure(true);
     expect(wider.gap).toBeGreaterThan(wider.leading);
@@ -228,24 +239,25 @@ test.describe('layout', () => {
     const slots = (id: string): Fixture => ({ ...spec.fixtures.find((f) => f.id === 'bar-value-slots')!, id });
     await mountFixtures(page, spec, { icons: true, reducedMotion: true, fixtures: [slots('bar-value-slots'), slots('zero'), slots('large'), slots('wide-gap'), ...spec.fixtures.filter((f) => f.id === 'bar-slots' || f.id === 'bar-value')] });
     let [gap, buttonGap, padButton, touch] = [await resolveToken(page, T('container-gap')), await resolveToken(page, T('container-button-gap')), await resolveToken(page, T('container-padding-inline-with-button')), await resolveToken(page, '--tanrei-sys-target-touch')];
-    // SRC-25's verify, under the default system: the gap is the touch target less the small clear button, 36 − 36.
-    expect([gap, buttonGap, padButton, touch]).toEqual([0, 0, 8, 36]);
+    // SRC-25's verify, under the default system: the gap is the touch target less the small clear button, 36 − 28.
+    expect([gap, buttonGap, padButton, touch]).toEqual([8, 0, 8, 36]);
     const actions = (id: string) => [host(page, id).locator('.bar > .clear'), host(page, id).locator('tanrei-button[slot="trailing"]').nth(0), host(page, id).locator('tanrei-button[slot="trailing"]').nth(1)];
     const visible = (id: string) => Promise.all(actions(id).map((action) => bounds(action.locator('button'))));
     const apart = async (id: string) => {
       const boxes = await visible(id);
       return boxes.slice(1).map((box, n) => Math.round((box.x - (boxes[n].x + boxes[n].width)) * 100) / 100);
     };
-    // SRC-34's verify: in the default system no action button is narrower than the touch target, so they touch.
-    await expect.poll(() => apart('bar-value-slots')).toEqual([0, 0]);
-    // Under a 48 touch target (a platform guideline's): the small clear button (36) and the first trailing Button (40)
-    // stand 10 apart (6 + 4), and the two trailing Buttons 8 apart (4 + 4); the gap after the input is 48 − 36.
+    // SRC-34's verify: in the default system the small clear button (28) stands half of what it lacks of the touch
+    // target from the next, 4; the medium Buttons (36) are as wide as the target, and touch.
+    await expect.poll(() => apart('bar-value-slots')).toEqual([4, 0]);
+    // Under a 48 touch target (a platform guideline's): the small clear button (28) and the first trailing Button (36)
+    // stand 16 apart (10 + 6), and the two trailing Buttons 12 apart (6 + 6); the gap after the input is 48 − 28.
     await override(page, { '--tanrei-sys-target-touch': '48px' });
     [gap, touch] = [await resolveToken(page, T('container-gap')), await resolveToken(page, '--tanrei-sys-target-touch')];
-    expect([gap, touch]).toEqual([12, 48]);
-    await expect.poll(() => apart('bar-value-slots')).toEqual([10, 8]);
+    expect([gap, touch]).toEqual([20, 48]);
+    await expect.poll(() => apart('bar-value-slots')).toEqual([16, 12]);
     const boxes = await visible('bar-value-slots');
-    expect(boxes.map((box) => box.width)).toEqual([36, 40, 40]);
+    expect(boxes.map((box) => box.width)).toEqual([28, 36, 36]);
     // The first action button still stands container.gap after the input, the last padding-inline-with-button from the end.
     const own = await bounds(bar(page, 'bar-value-slots'));
     const field = await bounds(input(page, 'bar-value-slots'));
@@ -257,11 +269,11 @@ test.describe('layout', () => {
       expect([boxes[n].width, boxes[n].height]).toEqual([side, side]);
       expect((await bounds(actions('bar-value-slots')[n])).width).toBe(side);
     }
-    // Without the clear button the first trailing Button is the first action button: the gap after the input, 8 to the next.
+    // Without the clear button the first trailing Button is the first action button: the gap after the input, 12 to the next.
     const pair = await Promise.all([0, 1].map((n) => bounds(host(page, 'bar-slots').locator('tanrei-button[slot="trailing"]').nth(n))));
     const slotsField = await bounds(input(page, 'bar-slots'));
     expect(pair[0].x - (slotsField.x + slotsField.width)).toBeCloseTo(gap, 1);
-    expect(pair[1].x - (pair[0].x + pair[0].width)).toBeCloseTo(8, 1);
+    expect(pair[1].x - (pair[0].x + pair[0].width)).toBeCloseTo(12, 1);
     // The clear button alone: the gap after the input, and nothing kept beside it.
     const lone = await bounds(host(page, 'bar-value').locator('.bar > .clear'));
     const loneBar = await bounds(bar(page, 'bar-value'));
@@ -272,17 +284,17 @@ test.describe('layout', () => {
     const cleared = await Promise.all([0, 1].map((n) => bounds(host(page, 'bar-value-slots').locator('tanrei-button[slot="trailing"]').nth(n))));
     const clearedField = await bounds(input(page, 'bar-value-slots'));
     expect(cleared[0].x - (clearedField.x + clearedField.width)).toBeCloseTo(gap, 1);
-    expect(cleared[1].x - (cleared[0].x + cleared[0].width)).toBeCloseTo(8, 1);
+    expect(cleared[1].x - (cleared[0].x + cleared[0].width)).toBeCloseTo(12, 1);
     expect(cleared[1].x).toBeCloseTo(boxes[2].x, 1);
     await host(page, 'bar-value-slots').evaluate(async (el: any) => { el.value = 'invoice'; await el.updateComplete; });
-    await expect.poll(() => apart('bar-value-slots')).toEqual([10, 8]);
+    await expect.poll(() => apart('bar-value-slots')).toEqual([16, 12]);
     // Unit: with sys.target.touch set to 0 in a test layer the three buttons touch.
     await page.evaluate(() => (document.querySelector('[data-fixture="zero"]') as HTMLElement).style.setProperty('--tanrei-sys-target-touch', '0px'));
     await expect.poll(() => apart('zero')).toEqual([0, 0]);
-    // Unit: with two large (56) Buttons in the trailing slot they touch under the 48 target; the small clear button stands its 6 from the first.
+    // Unit: with two large (52) Buttons in the trailing slot they touch under the 48 target; the small clear button stands its 10 from the first.
     await host(page, 'large').evaluate((el) => { for (const button of el.querySelectorAll('tanrei-button[slot="trailing"]')) button.setAttribute('size', 'large'); });
-    await expect.poll(() => apart('large')).toEqual([6, 0]);
-    expect((await visible('large')).map((box) => box.width)).toEqual([36, 56, 56]);
+    await expect.poll(() => apart('large')).toEqual([10, 0]);
+    expect((await visible('large')).map((box) => box.width)).toEqual([28, 52, 52]);
     // A layer whose button gap is wider than what the targets need (a preset's: its gap): the gap is the space.
     await page.evaluate((name) => (document.querySelector('[data-fixture="wide-gap"]') as HTMLElement).style.setProperty(name, '16px'), T('container-button-gap'));
     await expect.poll(() => apart('wide-gap')).toEqual([16, 16]);
@@ -292,7 +304,7 @@ test.describe('layout', () => {
       await cdp.send('Emulation.setTouchEmulationEnabled', { enabled: true, maxTouchPoints: 1 });
       await cdp.send('Emulation.setEmitTouchEventsForMouse', { enabled: true, configuration: 'mobile' });
       expect(await page.evaluate(() => matchMedia('(pointer: coarse)').matches)).toBe(true);
-      expect(await apart('bar-value-slots')).toEqual([10, 8]);
+      expect(await apart('bar-value-slots')).toEqual([16, 12]);
       // SRC-25: under a coarse pointer every action button's hit area is at least sys.target.touch wide, and two
       // neighbours' stop where the lengths kept for them meet — they touch and never overlap.
       const hit = (action: Locator) =>
@@ -314,7 +326,7 @@ test.describe('layout', () => {
     await expect.poll(async () => {
       const mirrored = await visible('bar-value-slots');
       return mirrored.slice(1).map((box, n) => Math.round((mirrored[n].x - (box.x + box.width)) * 100) / 100);
-    }).toEqual([10, 8]);
+    }).toEqual([16, 12]);
   });
 
   test('SRC-2: the search glyph is drawn at leading-icon.size in the unselected family, fill and weight, in its color, hidden from assistive technology', async ({ page }) => {
@@ -612,7 +624,7 @@ test.describe('layout', () => {
     const field = await bounds(headerInput(page, 'full-screen'));
     const clear = await bounds(header.locator('.clear'));
     expect(back.x - h.x).toBeCloseTo(pad, 1);
-    expect(field.x - (back.x + back.width)).toBeCloseTo(gap, 1);
+    expect(field.x - (back.x + back.width)).toBeCloseTo(gap + (await backKept(page, back.width)), 1);
     expect(clear.x - (field.x + field.width)).toBeCloseTo(gap, 1);
     expect(h.x + h.width - (clear.x + clear.width)).toBeCloseTo(pad, 1);
     for (const box of [back, field, clear]) expect(box.y + box.height / 2).toBeCloseTo(h.y + h.height / 2, 0);
@@ -2457,9 +2469,17 @@ test.describe('forwarded trailing content', () => {
       },
       [id, texts] as const,
     );
-  /** The bar's action buttons and the text laid out among them, in the order they are drawn: each one's kind and the space before it, from the end of the one before (rounded to a hundredth). */
+  /**
+   * The bar's action buttons and the text laid out among them, in the order they are drawn: each one's kind and the
+   * space before it, from the end of the one before (rounded to a hundredth).
+   *
+   * A run of text is taken as the box it is laid out in, which begins and ends on the engine's layout unit (1/60 px in
+   * Firefox, 1/64 px in the others) at or outside its glyphs: WebKit reports a range's rectangle as the glyphs' own
+   * advance, up to a unit inside that box, so in the body face a Button 10 px after a text stood 10.0127 px from the
+   * text's last glyph.
+   */
   const row = (page: P, id: string) =>
-    page.evaluate((id) => {
+    page.evaluate(([id, unit]) => {
       const wrapper = document.querySelector(`[data-fixture="${id}"] [data-wrapper]`);
       const search = (wrapper?.shadowRoot ?? document.querySelector(`[data-fixture="${id}"]`)!).querySelector('tanrei-search')!;
       const items: { kind: string; left: number; right: number }[] = [];
@@ -2472,31 +2492,32 @@ test.describe('forwarded trailing content', () => {
           else if (node.textContent!.trim()) {
             const range = document.createRange();
             range.selectNodeContents(node);
-            items.push({ kind: 'text', ...range.getBoundingClientRect().toJSON() });
+            const glyphs = range.getBoundingClientRect();
+            items.push({ kind: 'text', left: Math.floor(glyphs.left / unit + 0.01) * unit, right: Math.ceil(glyphs.right / unit - 0.01) * unit });
           }
         }
       };
       walk((wrapper ?? search).childNodes);
       items.sort((a, b) => a.left - b.left);
       return items.slice(1).map((item, n) => `${item.kind} ${Math.round((item.left - items[n].right) * 100) / 100}`);
-    }, id);
+    }, [id, page.context().browser()!.browserType().name() === 'firefox' ? 1 / 60 : 1 / 64] as const);
 
   test('SRC-34, SRC-27: Buttons forwarded to the trailing slot keep the space SRC-34 keeps before each, the text among them laid out where it is written and taking none of it; the text is reported in a debug build, white space is not', async ({ page }) => {
     const seen = warnings(page);
     const ids = ['white-space', 'start', 'between', 'end', 'no-clear', 'late'];
     await mountFixtures(page, spec, { icons: true, reducedMotion: true, fixtures: [...ids.filter((id) => id !== 'no-clear').map((id) => forwarded(id)), forwarded('no-clear', ''), forwarded('contents')] });
-    // Under a 48 touch target the small clear button (36) and a medium Button (40) stand 10 apart, two medium Buttons 8.
+    // Under a 48 touch target the small clear button (28) and a medium Button (36) stand 16 apart, two medium Buttons 12.
     await override(page, { '--tanrei-sys-target-touch': '48px' });
     const texts: Record<string, number[]> = { 'white-space': [], start: [0], between: [1], end: [2], 'no-clear': [0, 1], late: [] };
     for (const id of ids) await forward(page, id, texts[id]);
     // The text stands right after what comes before it (the clear button's end is the trailing box's start), and the
     // space SRC-34 keeps for a Button stands right before it.
-    await expect.poll(() => row(page, 'white-space')).toEqual(['button 10', 'button 8']);
-    await expect.poll(() => row(page, 'start')).toEqual(['text 0', 'button 10', 'button 8']);
-    await expect.poll(() => row(page, 'between')).toEqual(['button 10', 'text 0', 'button 8']);
-    await expect.poll(() => row(page, 'end')).toEqual(['button 10', 'button 8', 'text 0']);
+    await expect.poll(() => row(page, 'white-space')).toEqual(['button 16', 'button 12']);
+    await expect.poll(() => row(page, 'start')).toEqual(['text 0', 'button 16', 'button 12']);
+    await expect.poll(() => row(page, 'between')).toEqual(['button 16', 'text 0', 'button 12']);
+    await expect.poll(() => row(page, 'end')).toEqual(['button 16', 'button 12', 'text 0']);
     // Without the clear button the first Button keeps none: nothing stands before it among the action buttons.
-    await expect.poll(() => row(page, 'no-clear')).toEqual(['button 0', 'text 0', 'button 8']);
+    await expect.poll(() => row(page, 'no-clear')).toEqual(['button 0', 'text 0', 'button 12']);
     // Text an element of display: contents holds, slotted there itself, is laid out as an item of the row too.
     await page.evaluate(() => {
       const search = document.querySelector('[data-fixture="contents"] tanrei-search')!;
@@ -2506,11 +2527,11 @@ test.describe('forwarded trailing content', () => {
       span.textContent = 'more';
       search.querySelector('[slot="trailing"]')!.before(span);
     });
-    await expect.poll(() => row(page, 'contents')).toEqual(['text 0', 'button 10', 'button 8']);
+    await expect.poll(() => row(page, 'contents')).toEqual(['text 0', 'button 16', 'button 12']);
     // Text written later moves the spaces with it.
-    await expect.poll(() => row(page, 'late')).toEqual(['button 10', 'button 8']);
+    await expect.poll(() => row(page, 'late')).toEqual(['button 16', 'button 12']);
     await page.evaluate(() => document.querySelector('[data-fixture="late"] [data-wrapper]')!.prepend('later'));
-    await expect.poll(() => row(page, 'late')).toEqual(['text 0', 'button 10', 'button 8']);
+    await expect.poll(() => row(page, 'late')).toEqual(['text 0', 'button 16', 'button 12']);
     // SRC-27: the slot holds icon-only Buttons; the text is reported, once for each search that holds it — the text an
     // element of display: contents holds as well.
     const reported = () => seen.filter((w) => w.includes('SRC-27') && w.includes('trailing slot holds text'));
@@ -2549,26 +2570,26 @@ test.describe('forwarded trailing content', () => {
   test('SRC-25, SRC-34, BTN-5: the trailing slot’s first Button, where no clear button stands before it, reaches toward the input no further than the middle of container.gap, and the Buttons after it keep the length SRC-34 keeps for them — forwarded by a product’s slot or held by an element of display: contents as when slotted themselves; the cap follows the clear button as it comes and goes', async ({ page }) => {
     const ids = ['slotted', 'forwarded', 'held', 'forwarded-held'];
     await mountFixtures(page, spec, { icons: true, reducedMotion: true, fixtures: [...ids.map((id) => forwarded(id, '')), forwarded('with-clear')] });
-    // Targets that leave every action button short (a 48 target over the medium Buttons' 40: each lacks 4 on either
+    // Targets that leave every action button short (a 48 target over the medium Buttons' 36: each lacks 6 on either
     // side), and a layer's gap narrowed to 2, whose middle is 1 from each side.
     await override(page, { '--tanrei-sys-target-touch': '48px', '--tanrei-sys-target-pointer': '48px', [T('container-gap')]: '2px' });
     for (const id of ['forwarded', 'forwarded-held', 'with-clear']) await forward(page, id, []);
     for (const id of ['held', 'forwarded-held']) await holdButtons(page, id);
-    for (const id of ids) await expect.poll(() => reaches(page, id), id).toEqual([1, 4]);
+    for (const id of ids) await expect.poll(() => reaches(page, id), id).toEqual([1, 6]);
     // After the clear button the first trailing Button reaches what it lacks toward it, as the next one does; when the
     // clear button goes, the first takes the cap, and gives it back when the clear button returns.
     const search = page.locator('[data-fixture="with-clear"] [data-wrapper] tanrei-search');
-    await expect.poll(() => reaches(page, 'with-clear')).toEqual([4, 4]);
+    await expect.poll(() => reaches(page, 'with-clear')).toEqual([6, 6]);
     await search.evaluate(async (el: HTMLElement & { value: string; updateComplete: Promise<boolean> }) => { el.value = ''; await el.updateComplete; });
-    await expect.poll(() => reaches(page, 'with-clear')).toEqual([1, 4]);
+    await expect.poll(() => reaches(page, 'with-clear')).toEqual([1, 6]);
     await search.evaluate(async (el: HTMLElement & { value: string; updateComplete: Promise<boolean> }) => { el.value = 'invoice'; await el.updateComplete; });
-    await expect.poll(() => reaches(page, 'with-clear')).toEqual([4, 4]);
+    await expect.poll(() => reaches(page, 'with-clear')).toEqual([6, 6]);
     // The cap is the search's, written on the Button it lays out first, and taken off when another one is first.
     await page.evaluate(() => {
       const wrapper = document.querySelector('[data-fixture="forwarded"] [data-wrapper]')!;
       wrapper.append(wrapper.querySelector('tanrei-button')!);
     });
-    await expect.poll(() => reaches(page, 'forwarded')).toEqual([1, 4]);
+    await expect.poll(() => reaches(page, 'forwarded')).toEqual([1, 6]);
   });
 
   test('SRC-34, SRC-27: text that comes among the trailing Buttons without a change of what the slot holds — white space that becomes text, text written into an element of display: contents, slotted or forwarded — moves the spaces with it, and so does text that goes', async ({ page }) => {
@@ -2588,36 +2609,36 @@ test.describe('forwarded trailing content', () => {
         (wrapper ?? stage.querySelector('tanrei-search')!).querySelector(':scope > tanrei-button')!.before(holder);
       }
     });
-    for (const id of ids) await expect.poll(() => row(page, id), id).toEqual(['button 10', 'button 8']);
+    for (const id of ids) await expect.poll(() => row(page, id), id).toEqual(['button 16', 'button 12']);
     // The white space a product's slot forwards before the first Button becomes text; text is written into the holders.
     await page.evaluate(() => {
       (document.querySelector('[data-fixture="data"] [data-wrapper]')!.firstChild as Text).data = 'more';
       for (const id of ['held', 'forwarded-held']) document.querySelector(`[data-fixture="${id}"] [data-holder]`)!.append('more');
     });
-    for (const id of ids) await expect.poll(() => row(page, id), id).toEqual(['text 0', 'button 10', 'button 8']);
+    for (const id of ids) await expect.poll(() => row(page, id), id).toEqual(['text 0', 'button 16', 'button 12']);
     // …and becomes white space again.
     await page.evaluate(() => {
       (document.querySelector('[data-fixture="data"] [data-wrapper]')!.firstChild as Text).data = '\n  ';
       for (const id of ['held', 'forwarded-held']) (document.querySelector(`[data-fixture="${id}"] [data-holder]`)!.firstChild as Text).data = ' ';
     });
-    for (const id of ids) await expect.poll(() => row(page, id), id).toEqual(['button 10', 'button 8']);
+    for (const id of ids) await expect.poll(() => row(page, id), id).toEqual(['button 16', 'button 12']);
   });
 
   test('SRC-34: a Button an element of display: contents holds in the trailing slot — slotted there, or forwarded — keeps the space SRC-34 keeps before it, as a Button slotted itself does, and so does one written into that element later', async ({ page }) => {
     const ids = ['held', 'forwarded-held', 'both-held'];
     await mountFixtures(page, spec, { icons: true, reducedMotion: true, fixtures: ids.map((id) => forwarded(id)) });
-    // Under a 48 touch target the small clear button (36) and a medium Button (40) stand 10 apart, two medium Buttons 8.
+    // Under a 48 touch target the small clear button (28) and a medium Button (36) stand 16 apart, two medium Buttons 12.
     await override(page, { '--tanrei-sys-target-touch': '48px' });
     await forward(page, 'forwarded-held', []);
     for (const id of ['held', 'forwarded-held']) await holdButtons(page, id);
     await holdButtons(page, 'both-held', 2);
-    for (const id of ids) await expect.poll(() => row(page, id), id).toEqual(['button 10', 'button 8']);
+    for (const id of ids) await expect.poll(() => row(page, id), id).toEqual(['button 16', 'button 12']);
     // A third Button written into the holder later (no change of what the slot holds) is laid out and spaced as the others.
     await page.evaluate(() => {
       const holder = document.querySelector('[data-fixture="held"] [data-holder]')!;
       holder.append(holder.querySelector('tanrei-button')!.cloneNode(true));
     });
-    await expect.poll(() => row(page, 'held')).toEqual(['button 10', 'button 8', 'button 8']);
+    await expect.poll(() => row(page, 'held')).toEqual(['button 16', 'button 12', 'button 12']);
   });
 
   test('SRC-27: text the trailing box lays out is reported whatever brought it — white space a product’s slot forwards that becomes text, text an element of display: contents holds, slotted or forwarded, or that is written into it later — each text once, as the box lays it out', async ({ page }) => {
@@ -2643,7 +2664,7 @@ test.describe('forwarded trailing content', () => {
     // What is drawn, in its order (the spaces around text are the other tests'; a text's width is not a whole pixel).
     const kinds = async (id: string) => (await row(page, id)).map((item) => item.split(' ')[0]);
     for (const id of ['held', 'forwarded-held']) await expect.poll(() => kinds(id), id).toEqual(['text', 'button', 'button']);
-    for (const id of ['data', 'later']) await expect.poll(() => row(page, id), id).toEqual(['button 10', 'button 8']);
+    for (const id of ['data', 'later']) await expect.poll(() => row(page, id), id).toEqual(['button 16', 'button 12']);
     // Text that comes with no slotchange: the white space forwarded before the first Button becomes text, and text is
     // written into the empty holder.
     await page.evaluate(() => {
@@ -2683,14 +2704,14 @@ test.describe('forwarded trailing content', () => {
       }
     });
     await holdButtons(page, 'written', 1);
-    for (const id of ['held', 'forwarded-held']) await expect.poll(() => row(page, id), id).toEqual(['button 10', 'button 8', 'button 8']);
-    for (const id of ['written', 'two']) await expect.poll(() => row(page, id), id).toEqual(['button 10', 'button 8']);
+    for (const id of ['held', 'forwarded-held']) await expect.poll(() => row(page, id), id).toEqual(['button 16', 'button 12', 'button 12']);
+    for (const id of ['written', 'two']) await expect.poll(() => row(page, id), id).toEqual(['button 16', 'button 12']);
     // A third Button written into the holder, with no slotchange.
     await page.evaluate(() => {
       const holder = document.querySelector('[data-fixture="written"] [data-holder]')!;
       holder.append(holder.querySelector('tanrei-button')!.cloneNode(true));
     });
-    await expect.poll(() => row(page, 'written')).toEqual(['button 10', 'button 8', 'button 8']);
+    await expect.poll(() => row(page, 'written')).toEqual(['button 16', 'button 12', 'button 12']);
     // Three for each of the three searches that lay out three Buttons; none for the one whose holder holds its two.
     const counts = () => seen.filter((w) => w.includes('SRC-27') && /trailing slot holds \d+ elements/.test(w)).map((w) => /holds (\d+) elements/.exec(w)![1]);
     await expect.poll(counts).toEqual(['3', '3', '3']);
@@ -3337,7 +3358,7 @@ test.describe('dialog view', () => {
     expect(h.height).toBeCloseTo(headerHeight, 1);
     // The back button SRC-11 describes — a medium icon-only text Button showing arrow_back, named by backLabel — header.padding-inline from the start.
     expect(back.x - h.x).toBeCloseTo(headerPad, 1);
-    expect(field.x - (back.x + back.width)).toBeCloseTo(gap, 1);
+    expect(field.x - (back.x + back.width)).toBeCloseTo(gap + (await backKept(page, back.width)), 1);
     expect(await header.locator('.back').evaluate((el: any) => [el.variant, el.size, el.label, el.textContent.trim()])).toEqual(['text', 'medium', 'Back', 'arrow_back']);
     await expect(header.locator('.back button')).toHaveAccessibleName('Back');
     await expect(header.locator('.glyph')).toHaveCount(0);

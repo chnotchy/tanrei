@@ -29,7 +29,7 @@ Un sistema de diseño debería resultar adecuado de entrada y seguirte cuando ca
 | `dial.type.contrast` | 1 | cuánto se separan los títulos del texto de cuerpo |
 | `dial.space.unit` | 8px | todas las distancias |
 | `dial.size.unit` | 4px | la distancia entre los tamaños de los controles y los tamaños de los iconos |
-| `dial.control.height` | 40px | la altura de los controles y las filas en su tamaño predeterminado; small y large quedan a unidades de tamaño enteras de ella ([Tamaño y densidad](/es/foundations/size-and-density/)) |
+| `dial.control.height` | 36px | la altura de los controles y las filas en su tamaño predeterminado; small y large quedan a unidades de tamaño enteras de ella ([Tamaño y densidad](/es/foundations/size-and-density/)) |
 | `dial.shape.unit` | 2px | todas las esquinas |
 | `dial.stroke.unit` | 1px | los bordes, los anillos, el indicador de foco |
 | `dial.motion.unit` | 50ms | todas las duraciones |
@@ -70,6 +70,7 @@ Un sistema de diseño es un pequeño archivo JSON que *extiende* otro. Sobre tod
 | Que este token use otro paso | reorienta el alias |
 | Que este valor concreto no se mueva hagan lo que hagan los diales | fija `$value` con un `reason` |
 | Un color de marca o de dominio con sus propios roles `on-` y `-container`, con el contraste comprobado | declara una paleta con `"roles": "intent"` |
+| Tu color de marca en la acción principal y en los controles seleccionados | declara una paleta llamada `primary`: los roles primarios salen de ella en todos los esquemas, con el contraste comprobado, sea cual sea la paleta de la que los sacaba el sistema que extiendes |
 
 Como el código de todas las plataformas se genera a partir del mismo sistema resuelto, un solo pull request cambia a la vez la web, SwiftUI, Compose, Flutter y React Native.
 

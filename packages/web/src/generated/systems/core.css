@@ -428,7 +428,7 @@
     --tanrei-comp-button-with-menu-container-gap-small: var(--tanrei-sys-space-space100);
     --tanrei-comp-button-with-menu-container-height-large: max(var(--tanrei-sys-target-minimum), var(--tanrei-sys-control-height-large));
     --tanrei-comp-button-with-menu-container-height-medium: max(var(--tanrei-sys-target-minimum), var(--tanrei-sys-control-height-medium));
-    --tanrei-comp-button-with-menu-container-height-small: max(var(--tanrei-sys-target-minimum), var(--tanrei-sys-control-height-small));
+    --tanrei-comp-button-with-menu-container-height-small: var(--tanrei-sys-control-height-small);
     --tanrei-comp-button-with-menu-container-inner-gap: var(--tanrei-sys-space-space25);
     --tanrei-comp-button-with-menu-container-inner-shape: var(--tanrei-sys-shape-corner-small);
     --tanrei-comp-button-with-menu-container-inner-shape-pill: 0;
@@ -604,6 +604,7 @@
     --tanrei-comp-button-with-menu-leading-padding-inline-start-small: var(--tanrei-sys-space-space200);
     --tanrei-comp-button-with-menu-motion-busy-cycle-duration: var(--tanrei-comp-button-motion-busy-cycle-duration);
     --tanrei-comp-button-with-menu-motion-busy-fade-duration: var(--tanrei-comp-button-motion-busy-fade-duration);
+    --tanrei-comp-button-with-menu-motion-busy-pulse-floor-opacity: var(--tanrei-comp-button-motion-busy-pulse-floor-opacity);
     --tanrei-comp-button-with-menu-motion-feedback-duration: var(--tanrei-sys-motion-role-feedback);
     --tanrei-comp-button-with-menu-motion-hover-close-delay: var(--tanrei-sys-motion-duration-medium2);
     --tanrei-comp-button-with-menu-motion-hover-open-delay: var(--tanrei-sys-motion-duration-medium2);
@@ -740,8 +741,8 @@
     --tanrei-comp-button-with-menu-trailing-padding-inline-narrow-large: var(--tanrei-sys-space-space50);
     --tanrei-comp-button-with-menu-trailing-padding-inline-narrow-medium: var(--tanrei-sys-space-space50);
     --tanrei-comp-button-with-menu-trailing-padding-inline-narrow-small: var(--tanrei-sys-space-space50);
-    --tanrei-comp-button-with-menu-trailing-padding-inline-large: var(--tanrei-sys-space-space200);
-    --tanrei-comp-button-with-menu-trailing-padding-inline-medium: var(--tanrei-sys-space-space100);
+    --tanrei-comp-button-with-menu-trailing-padding-inline-large: max(0px, round(nearest, calc(var(--tanrei-sys-space-space200) + (var(--tanrei-comp-button-with-menu-container-height-large) - calc(max(var(--tanrei-dial-control-height), 2.5rem) + var(--tanrei-dial-size-unit) * 4)) / 2), 0.25px));
+    --tanrei-comp-button-with-menu-trailing-padding-inline-medium: max(0px, round(nearest, calc(var(--tanrei-sys-space-space100) + (var(--tanrei-comp-button-with-menu-container-height-medium) - calc(max(var(--tanrei-dial-control-height), 2.5rem) + var(--tanrei-dial-size-unit) * 0)) / 2), 0.25px));
     --tanrei-comp-button-with-menu-trailing-padding-inline-small: max(0px, round(nearest, calc(var(--tanrei-sys-space-space75) + (var(--tanrei-comp-button-with-menu-container-height-small) - calc(max(var(--tanrei-dial-control-height), 2.5rem) + var(--tanrei-dial-size-unit) * -2)) / 2), 0.25px));
     --tanrei-comp-button-busy-indicator-thickness: var(--tanrei-comp-loading-indicator-indicator-thickness-small);
     --tanrei-comp-button-container-gap-large: var(--tanrei-sys-space-space100);
@@ -749,7 +750,7 @@
     --tanrei-comp-button-container-gap-small: var(--tanrei-sys-space-space100);
     --tanrei-comp-button-container-height-large: max(var(--tanrei-sys-target-minimum), var(--tanrei-sys-control-height-large));
     --tanrei-comp-button-container-height-medium: max(var(--tanrei-sys-target-minimum), var(--tanrei-sys-control-height-medium));
-    --tanrei-comp-button-container-height-small: max(var(--tanrei-sys-target-minimum), var(--tanrei-sys-control-height-small));
+    --tanrei-comp-button-container-height-small: var(--tanrei-sys-control-height-small);
     --tanrei-comp-button-container-padding-block-large: max(0px, round(nearest, calc(var(--tanrei-sys-space-space75) + (var(--tanrei-comp-button-container-height-large) - calc(max(var(--tanrei-dial-control-height), 2.5rem) + var(--tanrei-dial-size-unit) * 4)) / 2), 0.25px));
     --tanrei-comp-button-container-padding-block-medium: max(0px, round(nearest, calc(var(--tanrei-sys-space-space75) + (var(--tanrei-comp-button-container-height-medium) - calc(max(var(--tanrei-dial-control-height), 2.5rem) + var(--tanrei-dial-size-unit) * 0)) / 2), 0.25px));
     --tanrei-comp-button-container-padding-block-small: max(0px, round(nearest, calc(var(--tanrei-sys-space-space75) + (var(--tanrei-comp-button-container-height-small) - calc(max(var(--tanrei-dial-control-height), 2.5rem) + var(--tanrei-dial-size-unit) * -2)) / 2), 0.25px));
@@ -1028,6 +1029,7 @@
     --tanrei-comp-button-label-typescale-small-line-height: var(--tanrei-sys-typescale-label-line-height);
     --tanrei-comp-button-motion-busy-cycle-duration: var(--tanrei-comp-loading-indicator-motion-cycle-duration);
     --tanrei-comp-button-motion-busy-fade-duration: var(--tanrei-sys-motion-role-state-compact);
+    --tanrei-comp-button-motion-busy-pulse-floor-opacity: var(--tanrei-comp-loading-indicator-motion-pulse-floor-opacity);
     --tanrei-comp-button-motion-feedback-duration: var(--tanrei-sys-motion-role-feedback);
     --tanrei-comp-button-motion-state-duration-large: var(--tanrei-sys-motion-role-state-large);
     --tanrei-comp-button-motion-state-duration-medium: var(--tanrei-sys-motion-role-state-default);
@@ -1711,7 +1713,7 @@
     --tanrei-comp-carousel-container-shape-pill: 0;
     --tanrei-comp-carousel-container-small-max-width: round(nearest, calc(var(--tanrei-dial-size-unit) * 14), 0.25px);
     --tanrei-comp-carousel-container-small-min-width: round(nearest, calc(var(--tanrei-dial-size-unit) * 10), 0.25px);
-    --tanrei-comp-carousel-controls-button-size: round(nearest, calc(var(--tanrei-dial-size-unit) * 10), 0.25px);
+    --tanrei-comp-carousel-controls-button-size: max(var(--tanrei-sys-target-minimum), var(--tanrei-sys-control-height-medium));
     --tanrei-comp-carousel-controls-height: max(var(--tanrei-sys-target-touch), var(--tanrei-comp-carousel-controls-button-size));
     --tanrei-comp-carousel-controls-icon-size: var(--tanrei-sys-icon-medium);
     --tanrei-comp-carousel-controls-indicator-padding-inline: var(--tanrei-sys-space-space150);
@@ -3447,7 +3449,7 @@
     --tanrei-comp-input-box-container-gap-small: var(--tanrei-sys-space-space100);
     --tanrei-comp-input-box-container-height-large: max(var(--tanrei-sys-target-minimum), var(--tanrei-sys-control-height-large));
     --tanrei-comp-input-box-container-height-medium: max(var(--tanrei-sys-target-minimum), var(--tanrei-sys-control-height-medium));
-    --tanrei-comp-input-box-container-height-small: max(var(--tanrei-sys-target-minimum), var(--tanrei-sys-control-height-small));
+    --tanrei-comp-input-box-container-height-small: var(--tanrei-sys-control-height-small);
     --tanrei-comp-input-box-container-padding-block-with-label-large: max(0px, round(nearest, calc(var(--tanrei-sys-space-space50) + (var(--tanrei-comp-input-box-container-height-large) - calc(max(var(--tanrei-dial-control-height), 2.5rem) + var(--tanrei-dial-size-unit) * 4)) / 2), 0.25px));
     --tanrei-comp-input-box-container-padding-block-with-label-medium: max(0px, round(nearest, calc(var(--tanrei-sys-space-space50) + (var(--tanrei-comp-input-box-container-height-medium) - calc(max(var(--tanrei-dial-control-height), 2.5rem) + var(--tanrei-dial-size-unit) * 0)) / 2), 0.25px));
     --tanrei-comp-input-box-container-padding-block-with-label-small: max(0px, round(nearest, calc(var(--tanrei-sys-space-space0) + (var(--tanrei-comp-input-box-container-height-small) - calc(max(var(--tanrei-dial-control-height), 2.5rem) + var(--tanrei-dial-size-unit) * -2)) / 2), 0.25px));
@@ -3838,7 +3840,7 @@
     --tanrei-comp-keyboard-shortcut-chord-gap-medium: var(--tanrei-sys-space-space50);
     --tanrei-comp-keyboard-shortcut-chord-gap-small: var(--tanrei-sys-space-space25);
     --tanrei-comp-keyboard-shortcut-container-color: var(--tanrei-sys-color-surface-container-highest);
-    --tanrei-comp-keyboard-shortcut-container-height-medium: var(--tanrei-sys-control-height-extra-small);
+    --tanrei-comp-keyboard-shortcut-container-height-medium: round(nearest, calc(var(--tanrei-dial-size-unit) * 6), var(--tanrei-dial-size-unit));
     --tanrei-comp-keyboard-shortcut-container-height-small: round(nearest, calc(var(--tanrei-dial-size-unit) * 5), var(--tanrei-dial-size-unit));
     --tanrei-comp-keyboard-shortcut-container-padding-inline-medium: var(--tanrei-sys-space-space75);
     --tanrei-comp-keyboard-shortcut-container-padding-inline-small: var(--tanrei-sys-space-space50);
@@ -4211,14 +4213,15 @@
     --tanrei-comp-loading-indicator-motion-enter-duration: var(--tanrei-sys-motion-role-state-large);
     --tanrei-comp-loading-indicator-motion-enter-easing: var(--tanrei-sys-motion-easing-enter);
     --tanrei-comp-loading-indicator-motion-entrance: fade;
+    --tanrei-comp-loading-indicator-motion-pulse-floor-opacity: 0.7;
     --tanrei-comp-loading-indicator-motion-show-delay: var(--tanrei-sys-motion-role-show-delay);
     --tanrei-comp-main-action-button-container-gap-large: var(--tanrei-sys-space-space200);
     --tanrei-comp-main-action-button-container-gap-medium: var(--tanrei-sys-space-space150);
     --tanrei-comp-main-action-button-container-gap-small: var(--tanrei-sys-space-space100);
-    --tanrei-comp-main-action-button-container-height-large: max(var(--tanrei-sys-target-minimum), round(nearest, calc(var(--tanrei-dial-size-unit) * 24), var(--tanrei-dial-size-unit)));
+    --tanrei-comp-main-action-button-container-height-large: round(nearest, calc(var(--tanrei-sys-control-height-extra-large) * 1.3333), var(--tanrei-dial-size-unit));
     --tanrei-comp-main-action-button-container-height-medium: max(var(--tanrei-sys-target-minimum), var(--tanrei-sys-control-height-large));
     --tanrei-comp-main-action-button-container-height-small: max(var(--tanrei-sys-target-minimum), var(--tanrei-sys-control-height-medium));
-    --tanrei-comp-main-action-button-container-padding-block-large: max(0px, round(nearest, calc(var(--tanrei-sys-space-space75) + (var(--tanrei-comp-main-action-button-container-height-large) - round(nearest, calc(var(--tanrei-dial-size-unit) * 24), var(--tanrei-dial-size-unit))) / 2), 0.25px));
+    --tanrei-comp-main-action-button-container-padding-block-large: max(0px, round(nearest, calc(var(--tanrei-sys-space-space75) + (var(--tanrei-comp-main-action-button-container-height-large) - round(nearest, calc(calc(max(var(--tanrei-dial-control-height), 2.5rem) + var(--tanrei-dial-size-unit) * 8) * 1.3333), var(--tanrei-dial-size-unit))) / 2), 0.25px));
     --tanrei-comp-main-action-button-container-padding-block-medium: max(0px, round(nearest, calc(var(--tanrei-sys-space-space75) + (var(--tanrei-comp-main-action-button-container-height-medium) - calc(max(var(--tanrei-dial-control-height), 2.5rem) + var(--tanrei-dial-size-unit) * 4)) / 2), 0.25px));
     --tanrei-comp-main-action-button-container-padding-block-small: max(0px, round(nearest, calc(var(--tanrei-sys-space-space75) + (var(--tanrei-comp-main-action-button-container-height-small) - calc(max(var(--tanrei-dial-control-height), 2.5rem) + var(--tanrei-dial-size-unit) * 0)) / 2), 0.25px));
     --tanrei-comp-main-action-button-container-padding-inline-end-with-icon-large: var(--tanrei-sys-space-space400);
@@ -4227,9 +4230,9 @@
     --tanrei-comp-main-action-button-container-padding-inline-end-large: var(--tanrei-sys-space-space400);
     --tanrei-comp-main-action-button-container-padding-inline-end-medium: var(--tanrei-sys-space-space250);
     --tanrei-comp-main-action-button-container-padding-inline-end-small: var(--tanrei-sys-space-space200);
-    --tanrei-comp-main-action-button-container-padding-inline-start-with-icon-large: var(--tanrei-sys-space-space300);
-    --tanrei-comp-main-action-button-container-padding-inline-start-with-icon-medium: var(--tanrei-sys-space-space200);
-    --tanrei-comp-main-action-button-container-padding-inline-start-with-icon-small: var(--tanrei-sys-space-space150);
+    --tanrei-comp-main-action-button-container-padding-inline-start-with-icon-large: max(0px, round(nearest, calc(var(--tanrei-sys-space-space300) + (var(--tanrei-comp-main-action-button-container-height-large) - round(nearest, calc(calc(max(var(--tanrei-dial-control-height), 2.5rem) + var(--tanrei-dial-size-unit) * 8) * 1.3333), var(--tanrei-dial-size-unit))) / 2), 0.25px));
+    --tanrei-comp-main-action-button-container-padding-inline-start-with-icon-medium: max(0px, round(nearest, calc(var(--tanrei-sys-space-space200) + (var(--tanrei-comp-main-action-button-container-height-medium) - calc(max(var(--tanrei-dial-control-height), 2.5rem) + var(--tanrei-dial-size-unit) * 4)) / 2), 0.25px));
+    --tanrei-comp-main-action-button-container-padding-inline-start-with-icon-small: max(0px, round(nearest, calc(var(--tanrei-sys-space-space150) + (var(--tanrei-comp-main-action-button-container-height-small) - calc(max(var(--tanrei-dial-control-height), 2.5rem) + var(--tanrei-dial-size-unit) * 0)) / 2), 0.25px));
     --tanrei-comp-main-action-button-container-padding-inline-start-large: var(--tanrei-sys-space-space400);
     --tanrei-comp-main-action-button-container-padding-inline-start-medium: var(--tanrei-sys-space-space250);
     --tanrei-comp-main-action-button-container-padding-inline-start-small: var(--tanrei-sys-space-space200);
@@ -5447,7 +5450,7 @@
     --tanrei-comp-page-header-title-typescale-small-line-height: var(--tanrei-sys-typescale-heading-2-line-height);
     --tanrei-comp-page-header-wide-container-width: round(nearest, calc(var(--tanrei-dial-size-unit) * 120), 0.25px);
     --tanrei-comp-pagination-container-height-medium: max(var(--tanrei-sys-target-minimum), var(--tanrei-sys-control-height-medium));
-    --tanrei-comp-pagination-container-height-small: max(var(--tanrei-sys-target-minimum), var(--tanrei-sys-control-height-small));
+    --tanrei-comp-pagination-container-height-small: var(--tanrei-sys-control-height-small);
     --tanrei-comp-pagination-container-padding-inline: var(--tanrei-sys-space-space100);
     --tanrei-comp-pagination-container-shape: var(--tanrei-sys-shape-corner-full);
     --tanrei-comp-pagination-container-shape-pill: 1;
@@ -5634,6 +5637,7 @@
     --tanrei-comp-progress-indicator-linear-thickness-small: round(nearest, calc(var(--tanrei-dial-size-unit) * 0.5), 0.25px);
     --tanrei-comp-progress-indicator-motion-cycle-duration: var(--tanrei-sys-motion-duration-extra-long4);
     --tanrei-comp-progress-indicator-motion-cycle-easing: var(--tanrei-sys-motion-easing-standard);
+    --tanrei-comp-progress-indicator-motion-pulse-floor-opacity: var(--tanrei-comp-loading-indicator-motion-pulse-floor-opacity);
     --tanrei-comp-progress-indicator-motion-show-delay: var(--tanrei-sys-motion-role-show-delay);
     --tanrei-comp-progress-indicator-motion-value-duration: var(--tanrei-sys-motion-duration-medium2);
     --tanrei-comp-progress-indicator-motion-value-easing: var(--tanrei-sys-motion-easing-standard);
@@ -6112,7 +6116,7 @@
     --tanrei-comp-segmented-button-container-gap-small: var(--tanrei-sys-space-space100);
     --tanrei-comp-segmented-button-container-height-large: max(var(--tanrei-sys-target-minimum), var(--tanrei-sys-control-height-large));
     --tanrei-comp-segmented-button-container-height-medium: max(var(--tanrei-sys-target-minimum), var(--tanrei-sys-control-height-medium));
-    --tanrei-comp-segmented-button-container-height-small: max(var(--tanrei-sys-target-minimum), var(--tanrei-sys-control-height-small));
+    --tanrei-comp-segmented-button-container-height-small: var(--tanrei-sys-control-height-small);
     --tanrei-comp-segmented-button-container-padding-block-large: max(0px, round(nearest, calc(var(--tanrei-sys-space-space75) + (var(--tanrei-comp-segmented-button-container-height-large) - calc(max(var(--tanrei-dial-control-height), 2.5rem) + var(--tanrei-dial-size-unit) * 4)) / 2), 0.25px));
     --tanrei-comp-segmented-button-container-padding-block-medium: max(0px, round(nearest, calc(var(--tanrei-sys-space-space75) + (var(--tanrei-comp-segmented-button-container-height-medium) - calc(max(var(--tanrei-dial-control-height), 2.5rem) + var(--tanrei-dial-size-unit) * 0)) / 2), 0.25px));
     --tanrei-comp-segmented-button-container-padding-block-small: max(0px, round(nearest, calc(var(--tanrei-sys-space-space75) + (var(--tanrei-comp-segmented-button-container-height-small) - calc(max(var(--tanrei-dial-control-height), 2.5rem) + var(--tanrei-dial-size-unit) * -2)) / 2), 0.25px));
@@ -6766,7 +6770,7 @@
     --tanrei-comp-snackbar-container-padding-inline-start: var(--tanrei-sys-space-space200);
     --tanrei-comp-snackbar-container-shape: var(--tanrei-sys-shape-corner-medium);
     --tanrei-comp-snackbar-container-shape-pill: 0;
-    --tanrei-comp-snackbar-controls-gap: var(--tanrei-sys-space-space50);
+    --tanrei-comp-snackbar-controls-gap: max(0px, calc(var(--tanrei-sys-target-touch) - var(--tanrei-comp-button-container-height-small)));
     --tanrei-comp-snackbar-controls-height: var(--tanrei-comp-button-container-height-small);
     --tanrei-comp-snackbar-controls-label-typescale-font-family: var(--tanrei-sys-typescale-label-font-family);
     --tanrei-comp-snackbar-controls-label-typescale-font-size: var(--tanrei-sys-typescale-label-font-size);
@@ -7523,15 +7527,14 @@
     --tanrei-comp-table-status-text-typescale-line-height: var(--tanrei-sys-typescale-body-small-line-height);
     --tanrei-comp-table-sticky-container-color: var(--tanrei-sys-color-surface);
     --tanrei-comp-table-stripe-container-color: var(--tanrei-sys-color-surface-container-low);
-    --tanrei-comp-tabs-active-indicator-height: round(nearest, calc(var(--tanrei-dial-size-unit) * 8), 0.25px);
     --tanrei-comp-tabs-active-indicator-padding-block-medium: max(0px, round(nearest, calc(var(--tanrei-sys-space-space50) + (var(--tanrei-comp-tabs-container-height-medium) - calc(max(var(--tanrei-dial-control-height), 2.5rem) + var(--tanrei-dial-size-unit) * 0)) / 2), 0.25px));
-    --tanrei-comp-tabs-active-indicator-padding-block-small: var(--tanrei-sys-space-space25);
+    --tanrei-comp-tabs-active-indicator-padding-block-small: max(0px, round(nearest, calc(var(--tanrei-sys-space-space25) + (var(--tanrei-comp-tabs-container-height-small) - calc(max(var(--tanrei-dial-control-height), 2.5rem) + var(--tanrei-dial-size-unit) * -2)) / 2), 0.25px));
     --tanrei-comp-tabs-active-indicator-padding-inline-medium: var(--tanrei-comp-tabs-container-padding-inline-medium);
     --tanrei-comp-tabs-active-indicator-padding-inline-small: var(--tanrei-comp-tabs-container-padding-inline-small);
     --tanrei-comp-tabs-container-gap: var(--tanrei-sys-space-space50);
     --tanrei-comp-tabs-container-height-with-icon: max(var(--tanrei-sys-target-minimum), round(nearest, calc(var(--tanrei-dial-size-unit) * 16), var(--tanrei-dial-size-unit)));
     --tanrei-comp-tabs-container-height-medium: max(var(--tanrei-sys-target-minimum), var(--tanrei-sys-control-height-medium));
-    --tanrei-comp-tabs-container-height-small: max(var(--tanrei-sys-target-minimum), var(--tanrei-sys-control-height-small));
+    --tanrei-comp-tabs-container-height-small: var(--tanrei-sys-control-height-small);
     --tanrei-comp-tabs-container-padding-inline-medium: var(--tanrei-sys-space-space200);
     --tanrei-comp-tabs-container-padding-inline-small: var(--tanrei-sys-space-space150);
     --tanrei-comp-tabs-container-shape: var(--tanrei-sys-shape-corner-full);
@@ -7917,9 +7920,9 @@
     --tanrei-comp-tag-group-row-gap-chips: var(--tanrei-sys-space-space200);
     --tanrei-comp-tag-group-row-gap-tags: var(--tanrei-sys-space-space100);
     --tanrei-comp-tag-container-gap: var(--tanrei-sys-space-space50);
-    --tanrei-comp-tag-container-height-medium: var(--tanrei-sys-control-height-extra-small);
+    --tanrei-comp-tag-container-height-medium: round(nearest, calc(var(--tanrei-dial-size-unit) * 6), var(--tanrei-dial-size-unit));
     --tanrei-comp-tag-container-height-small: round(nearest, calc(var(--tanrei-dial-size-unit) * 5), var(--tanrei-dial-size-unit));
-    --tanrei-comp-tag-container-padding-block-medium: max(0px, round(nearest, calc(var(--tanrei-sys-space-space25) + (var(--tanrei-comp-tag-container-height-medium) - calc(max(var(--tanrei-dial-control-height), 2.5rem) + var(--tanrei-dial-size-unit) * -4)) / 2), 0.25px));
+    --tanrei-comp-tag-container-padding-block-medium: max(0px, round(nearest, calc(var(--tanrei-sys-space-space25) + (var(--tanrei-comp-tag-container-height-medium) - var(--tanrei-comp-tag-container-height-medium)) / 2), 0.25px));
     --tanrei-comp-tag-container-padding-block-small: max(0px, round(nearest, calc(var(--tanrei-sys-space-space25) + (var(--tanrei-comp-tag-container-height-small) - var(--tanrei-comp-tag-container-height-small)) / 2), 0.25px));
     --tanrei-comp-tag-container-padding-inline-with-icon-medium: var(--tanrei-sys-space-space75);
     --tanrei-comp-tag-container-padding-inline-with-icon-small: var(--tanrei-sys-space-space50);
@@ -8337,7 +8340,7 @@
     --tanrei-comp-tree-view-unselected-state-layer-color: var(--tanrei-comp-tree-view-unselected-label-color);
     --tanrei-comp-tree-view-unselected-supporting-text-color: var(--tanrei-sys-color-on-surface-variant);
     --tanrei-comp-tree-view-unselected-trailing-text-color: var(--tanrei-sys-color-on-surface-variant);
-    --tanrei-dial-control-height: 2.5rem;
+    --tanrei-dial-control-height: 2.25rem;
     --tanrei-dial-motion-unit: 50ms;
     --tanrei-dial-shape-unit: 2px;
     --tanrei-dial-size-unit: 0.25rem;
@@ -8864,6 +8867,7 @@
     [data-tanrei-system="core"]:not([data-tanrei-contrast]) {
       --tanrei-sys-color-elevation-ring: light-dark(var(--tanrei-ref-alpha-black-30), var(--tanrei-ref-alpha-white-40));
       --tanrei-sys-color-error: light-dark(var(--tanrei-ref-palette-error-30), var(--tanrei-ref-palette-error-87));
+      --tanrei-sys-color-focus-ring: var(--tanrei-sys-color-primary);
       --tanrei-sys-color-info: light-dark(var(--tanrei-ref-palette-info-30), var(--tanrei-ref-palette-info-87));
       --tanrei-sys-color-on-error-container: light-dark(var(--tanrei-ref-palette-error-8), var(--tanrei-ref-palette-error-96));
       --tanrei-sys-color-on-info-container: light-dark(var(--tanrei-ref-palette-info-8), var(--tanrei-ref-palette-info-96));
@@ -8895,11 +8899,31 @@
       --tanrei-comp-select-outlined-selected-option-container-color: color-mix(in srgb, var(--tanrei-comp-select-outlined-selected-option-state-layer-color) calc(var(--tanrei-sys-state-selected-state-layer-opacity) * 100%), transparent);
       --tanrei-comp-select-stacked-disabled-selected-option-container-color: color-mix(in srgb, var(--tanrei-sys-color-on-surface) calc(var(--tanrei-sys-state-disabled-container-opacity) * 100%), transparent);
       --tanrei-comp-select-stacked-selected-option-container-color: color-mix(in srgb, var(--tanrei-comp-select-stacked-selected-option-state-layer-color) calc(var(--tanrei-sys-state-selected-state-layer-opacity) * 100%), transparent);
+      --tanrei-comp-code-block-syntax-color-constant: var(--tanrei-sys-color-on-surface);
+      --tanrei-comp-code-block-syntax-color-function: var(--tanrei-sys-color-on-surface);
+      --tanrei-comp-code-block-syntax-color-keyword: var(--tanrei-sys-color-on-surface);
+      --tanrei-comp-code-block-syntax-color-property: var(--tanrei-sys-color-on-surface);
+      --tanrei-comp-code-block-syntax-color-string: var(--tanrei-sys-color-on-surface);
+      --tanrei-comp-code-block-syntax-color-tag: var(--tanrei-sys-color-on-surface);
+      --tanrei-comp-code-block-syntax-color-type: var(--tanrei-sys-color-on-surface);
+      --tanrei-comp-snackbar-inverse-error-icon-color: var(--tanrei-comp-snackbar-inverse-error-supporting-text-color);
+      --tanrei-comp-snackbar-inverse-error-outline-color: var(--tanrei-sys-color-error);
+      --tanrei-comp-snackbar-inverse-error-supporting-text-color: var(--tanrei-sys-color-error-container);
+      --tanrei-comp-snackbar-inverse-info-icon-color: var(--tanrei-comp-snackbar-inverse-info-supporting-text-color);
+      --tanrei-comp-snackbar-inverse-info-outline-color: var(--tanrei-sys-color-info);
+      --tanrei-comp-snackbar-inverse-info-supporting-text-color: var(--tanrei-sys-color-info-container);
+      --tanrei-comp-snackbar-inverse-success-icon-color: var(--tanrei-comp-snackbar-inverse-success-supporting-text-color);
+      --tanrei-comp-snackbar-inverse-success-outline-color: var(--tanrei-sys-color-success);
+      --tanrei-comp-snackbar-inverse-success-supporting-text-color: var(--tanrei-sys-color-success-container);
+      --tanrei-comp-snackbar-inverse-warning-icon-color: var(--tanrei-comp-snackbar-inverse-warning-supporting-text-color);
+      --tanrei-comp-snackbar-inverse-warning-outline-color: var(--tanrei-sys-color-warning);
+      --tanrei-comp-snackbar-inverse-warning-supporting-text-color: var(--tanrei-sys-color-warning-container);
     }
   }
   [data-tanrei-system="core"][data-tanrei-contrast="medium"], [data-tanrei-system="core"] [data-tanrei-contrast="medium"], [data-tanrei-contrast="medium"] [data-tanrei-system="core"]:not([data-tanrei-contrast]) {
     --tanrei-sys-color-elevation-ring: light-dark(var(--tanrei-ref-alpha-black-14), var(--tanrei-ref-alpha-white-22));
     --tanrei-sys-color-error: light-dark(var(--tanrei-ref-palette-error-38), var(--tanrei-ref-palette-error-80));
+    --tanrei-sys-color-focus-ring: var(--tanrei-sys-color-primary);
     --tanrei-sys-color-info: light-dark(var(--tanrei-ref-palette-info-38), var(--tanrei-ref-palette-info-80));
     --tanrei-sys-color-on-error-container: light-dark(var(--tanrei-ref-palette-error-12), var(--tanrei-ref-palette-error-94));
     --tanrei-sys-color-on-info-container: light-dark(var(--tanrei-ref-palette-info-12), var(--tanrei-ref-palette-info-94));
@@ -8931,10 +8955,30 @@
     --tanrei-comp-select-outlined-selected-option-container-color: color-mix(in srgb, var(--tanrei-comp-select-outlined-selected-option-state-layer-color) calc(var(--tanrei-sys-state-selected-state-layer-opacity) * 100%), transparent);
     --tanrei-comp-select-stacked-disabled-selected-option-container-color: color-mix(in srgb, var(--tanrei-sys-color-on-surface) calc(var(--tanrei-sys-state-disabled-container-opacity) * 100%), transparent);
     --tanrei-comp-select-stacked-selected-option-container-color: color-mix(in srgb, var(--tanrei-comp-select-stacked-selected-option-state-layer-color) calc(var(--tanrei-sys-state-selected-state-layer-opacity) * 100%), transparent);
+    --tanrei-comp-code-block-syntax-color-constant: var(--tanrei-sys-color-on-surface);
+    --tanrei-comp-code-block-syntax-color-function: var(--tanrei-sys-color-on-surface);
+    --tanrei-comp-code-block-syntax-color-keyword: var(--tanrei-sys-color-on-surface);
+    --tanrei-comp-code-block-syntax-color-property: var(--tanrei-sys-color-on-surface);
+    --tanrei-comp-code-block-syntax-color-string: var(--tanrei-sys-color-on-surface);
+    --tanrei-comp-code-block-syntax-color-tag: var(--tanrei-sys-color-on-surface);
+    --tanrei-comp-code-block-syntax-color-type: var(--tanrei-sys-color-on-surface);
+    --tanrei-comp-snackbar-inverse-error-icon-color: var(--tanrei-comp-snackbar-inverse-error-supporting-text-color);
+    --tanrei-comp-snackbar-inverse-error-outline-color: var(--tanrei-sys-color-error);
+    --tanrei-comp-snackbar-inverse-error-supporting-text-color: var(--tanrei-sys-color-error-container);
+    --tanrei-comp-snackbar-inverse-info-icon-color: var(--tanrei-comp-snackbar-inverse-info-supporting-text-color);
+    --tanrei-comp-snackbar-inverse-info-outline-color: var(--tanrei-sys-color-info);
+    --tanrei-comp-snackbar-inverse-info-supporting-text-color: var(--tanrei-sys-color-info-container);
+    --tanrei-comp-snackbar-inverse-success-icon-color: var(--tanrei-comp-snackbar-inverse-success-supporting-text-color);
+    --tanrei-comp-snackbar-inverse-success-outline-color: var(--tanrei-sys-color-success);
+    --tanrei-comp-snackbar-inverse-success-supporting-text-color: var(--tanrei-sys-color-success-container);
+    --tanrei-comp-snackbar-inverse-warning-icon-color: var(--tanrei-comp-snackbar-inverse-warning-supporting-text-color);
+    --tanrei-comp-snackbar-inverse-warning-outline-color: var(--tanrei-sys-color-warning);
+    --tanrei-comp-snackbar-inverse-warning-supporting-text-color: var(--tanrei-sys-color-warning-container);
   }
   [data-tanrei-system="core"][data-tanrei-contrast="high"], [data-tanrei-system="core"] [data-tanrei-contrast="high"], [data-tanrei-contrast="high"] [data-tanrei-system="core"]:not([data-tanrei-contrast]) {
     --tanrei-sys-color-elevation-ring: light-dark(var(--tanrei-ref-alpha-black-30), var(--tanrei-ref-alpha-white-40));
     --tanrei-sys-color-error: light-dark(var(--tanrei-ref-palette-error-30), var(--tanrei-ref-palette-error-87));
+    --tanrei-sys-color-focus-ring: var(--tanrei-sys-color-primary);
     --tanrei-sys-color-info: light-dark(var(--tanrei-ref-palette-info-30), var(--tanrei-ref-palette-info-87));
     --tanrei-sys-color-on-error-container: light-dark(var(--tanrei-ref-palette-error-8), var(--tanrei-ref-palette-error-96));
     --tanrei-sys-color-on-info-container: light-dark(var(--tanrei-ref-palette-info-8), var(--tanrei-ref-palette-info-96));
@@ -8966,5 +9010,24 @@
     --tanrei-comp-select-outlined-selected-option-container-color: color-mix(in srgb, var(--tanrei-comp-select-outlined-selected-option-state-layer-color) calc(var(--tanrei-sys-state-selected-state-layer-opacity) * 100%), transparent);
     --tanrei-comp-select-stacked-disabled-selected-option-container-color: color-mix(in srgb, var(--tanrei-sys-color-on-surface) calc(var(--tanrei-sys-state-disabled-container-opacity) * 100%), transparent);
     --tanrei-comp-select-stacked-selected-option-container-color: color-mix(in srgb, var(--tanrei-comp-select-stacked-selected-option-state-layer-color) calc(var(--tanrei-sys-state-selected-state-layer-opacity) * 100%), transparent);
+    --tanrei-comp-code-block-syntax-color-constant: var(--tanrei-sys-color-on-surface);
+    --tanrei-comp-code-block-syntax-color-function: var(--tanrei-sys-color-on-surface);
+    --tanrei-comp-code-block-syntax-color-keyword: var(--tanrei-sys-color-on-surface);
+    --tanrei-comp-code-block-syntax-color-property: var(--tanrei-sys-color-on-surface);
+    --tanrei-comp-code-block-syntax-color-string: var(--tanrei-sys-color-on-surface);
+    --tanrei-comp-code-block-syntax-color-tag: var(--tanrei-sys-color-on-surface);
+    --tanrei-comp-code-block-syntax-color-type: var(--tanrei-sys-color-on-surface);
+    --tanrei-comp-snackbar-inverse-error-icon-color: var(--tanrei-comp-snackbar-inverse-error-supporting-text-color);
+    --tanrei-comp-snackbar-inverse-error-outline-color: var(--tanrei-sys-color-error);
+    --tanrei-comp-snackbar-inverse-error-supporting-text-color: var(--tanrei-sys-color-error-container);
+    --tanrei-comp-snackbar-inverse-info-icon-color: var(--tanrei-comp-snackbar-inverse-info-supporting-text-color);
+    --tanrei-comp-snackbar-inverse-info-outline-color: var(--tanrei-sys-color-info);
+    --tanrei-comp-snackbar-inverse-info-supporting-text-color: var(--tanrei-sys-color-info-container);
+    --tanrei-comp-snackbar-inverse-success-icon-color: var(--tanrei-comp-snackbar-inverse-success-supporting-text-color);
+    --tanrei-comp-snackbar-inverse-success-outline-color: var(--tanrei-sys-color-success);
+    --tanrei-comp-snackbar-inverse-success-supporting-text-color: var(--tanrei-sys-color-success-container);
+    --tanrei-comp-snackbar-inverse-warning-icon-color: var(--tanrei-comp-snackbar-inverse-warning-supporting-text-color);
+    --tanrei-comp-snackbar-inverse-warning-outline-color: var(--tanrei-sys-color-warning);
+    --tanrei-comp-snackbar-inverse-warning-supporting-text-color: var(--tanrei-sys-color-warning-container);
   }
 }

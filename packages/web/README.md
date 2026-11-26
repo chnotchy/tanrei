@@ -179,6 +179,31 @@ runs. Import the stylesheet of each one you use (or link `dist/<name>.css`):
 page on the surface, its text on-surface in the body face, no margin on `<body>`); a preset's `systems/<id>.css` is not
 in it, and neither is the cloak.
 
+## Your own focus ring
+
+Every Tanrei element draws its own keyboard focus indicator, from the system's focus tokens
+(`--tanrei-sys-focus-offset`, `-inner-width`, `-outer-width`, `--tanrei-sys-color-focus-ring`, `-ring-inner`): change
+those to change it. A rule of your page for every focused element — `:focus-visible { outline: … }`, a reset's — can
+stay. An element whose host takes focus itself (a tab, a tab panel, a list item, a menubar's menu) draws its ring on a
+box inside it and says `outline: none !important` on its host: a page's own rules win over a shadow root's, except
+over an important one, so your outline is not drawn around it as well.
+
+The stylesheets for your own markup (`table.css`, `link.css`, `prose.css`, `code.css` and the others above) are in
+`@layer tanrei.components`, and a rule outside any layer wins over every layered one: unlayered, your focus rule
+replaces their rings with yours. Put it in a layer of your own named before Tanrei's, in the first stylesheet the page
+loads, and theirs are drawn as they are:
+
+```css
+@layer base, tanrei;
+
+@layer base {
+  :focus-visible {
+    outline: var(--tanrei-sys-focus-outer-width) solid var(--tanrei-sys-color-focus-ring);
+    outline-offset: var(--tanrei-sys-focus-offset);
+  }
+}
+```
+
 ## Before the elements are defined
 
 Until its script has run, an element is unknown to the browser: the page shows what is written between its tags,
@@ -197,6 +222,21 @@ defined — on a page whose script never arrives, its content is never shown. A 
 controls that stand side by side in a row of their own (a flex row with a gap) rather than in a line of text. A text is
 held at one line: a label or a help that wraps moves what is below it by the lines it adds. The stylesheet's comment
 lists what it does not hold.
+
+A keyboard shortcut in a line of text is not held by the cloak: its width is its keys, and the keys are the reader's
+(⇧⌘K on Apple's platforms, Ctrl+Shift+K elsewhere). A page written on a server writes the keys the element will draw
+between its tags, and `keyboard-shortcut.css` draws them until it is defined, in the reader's convention:
+
+```js
+import { keyboardPlatformScript, keyboardShortcutContent } from '@tanrei/web/keyboard-convention';
+import '@tanrei/web/keyboard-shortcut.css';
+
+const head = `<script>${keyboardPlatformScript()}</script>`; // the platform's convention on <html>, by the element's own test
+const shortcut = `<tanrei-keyboard-shortcut keys="mod+k" label="Command K">${keyboardShortcutContent('mod+k', { label: 'Command K' })}</tanrei-keyboard-shortcut>`;
+```
+
+The content holds the keys in both conventions and the text read in their place; the stylesheet shows the shortcut's
+own `convention`, else an ancestor's `data-tanrei-keyboard-convention`, else the platform's, as the element does.
 
 ## Browser support
 

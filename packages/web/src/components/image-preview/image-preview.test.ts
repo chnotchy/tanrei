@@ -21,6 +21,7 @@ import { holdClock, releaseClock } from '../../../test/page-clock.js';
 import { releaseAtRest } from '../../../test/release-at-rest.js';
 import { STOPPED_AFTER, flingThenHold, strokes } from '../../../test/stopped-release.js';
 import { expectBaseline } from '../../../test/baseline.js';
+import { contrastChecked } from '../../../test/contrast-checked.js';
 import { STACKED_DIALOG, STACKED_LAYER, addStackedSurfaces, expectStackedInOrder } from '../../../test/stacked-surfaces.js';
 
 const spec = loadSpec('image-preview');
@@ -661,9 +662,9 @@ test.describe('the bar, the count and the controls', () => {
       { size: 'small', own: null, given: 'tonal', name: 'Zoom in', glyph: 'zoom_in', text: 'zoom_in' },
       { size: 'small', own: null, given: 'tonal', name: 'Close', glyph: 'close', text: 'close' },
     ]);
-    // The three are alike: the small Button's 36 × 36 in the default system (held at the minimum target), each drawing the tonal container.
+    // The three are alike: the small Button's 28 × 28 in the default system (its step; its hit area reaches the target past it), each drawing the tonal container.
     const small = await px(page, '--tanrei-comp-button-container-height-small');
-    expect(small).toBe(36);
+    expect(small).toBe(28);
     for (const box of [out, into, close]) expect([box.width, box.height]).toEqual([small, small]);
     // Zoom out is disabled at fit (IMP-13): the tonal variant's disabled container.
     const tonal = await resolveColor(page, '--tanrei-comp-button-tonal-container-color');
@@ -2876,4 +2877,23 @@ test.describe('fixtures', () => {
       await expectBaseline(page, [spec.name, `compact-${id}.png`]);
     });
   }
+});
+
+test.describe('accessibility: what is drawn over a text', () => {
+  test('IMP-27, IMP-31, IMP-42: the stage and the boxes that carry its and the caption\'s focus indicators hide no text from a contrast check — a faint error text and a faint caption are reported', async ({ page }) => {
+    // An element drawn over a text is, to axe's color-contrast, an element covering it, whatever its pointer-events: it
+    // left the text incomplete ("overlapped by another element") instead of checking it, so faint text passed unseen.
+    // The preview locks the page's scroll (overflow: hidden on the root), and axe takes a text below the root's box for
+    // one the root hides: the page is as tall as the window here, as a page under a preview is.
+    const faint = (token: string) => `<style>html { min-block-size: 100vh; } tanrei-image-preview { --tanrei-comp-image-preview-${token}: #bbb; }</style>`;
+    await mountFixtures(page, spec, { lead: faint('error-text-color'), fixtures: [fixtureOf('error')] });
+    await expect(page.locator('tanrei-image-preview .error-text')).toBeVisible();
+    const error = await contrastChecked(page);
+    expect(error.violations, 'the faint error text is reported').toEqual(['This image could not be loaded']);
+    expect(error.incomplete, 'nothing is left unchecked').toEqual([]);
+    await mountFixtures(page, spec, { lead: faint('caption-color'), fixtures: [fixtureOf('caption')] });
+    const caption = await contrastChecked(page);
+    expect(caption.violations, 'the faint caption is reported').toEqual([fixtureOf('caption').items![0].props.caption]);
+    expect(caption.incomplete, 'nothing is left unchecked').toEqual([]);
+  });
 });

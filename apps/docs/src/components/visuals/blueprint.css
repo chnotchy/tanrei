@@ -49,6 +49,7 @@
   fill: var(--tanrei-comp-badge-container-color);
 }
 .docs-blueprint-lines .ring,
+.docs-blueprint-lines .measured,
 .docs-blueprint-lines .extension {
   stroke: var(--tanrei-sys-color-outline);
   stroke-dasharray: var(--tanrei-sys-space-space50) var(--tanrei-sys-space-space25);
@@ -101,6 +102,16 @@
   position: absolute;
   block-size: 0;
   visibility: hidden;
+}
+
+/* A length the component does not draw as its token says: its row says what it draws instead, on lines of its own
+   under the length's name, as wide as the column is without it. The name stays on one line (`data-wrap="false"`), and
+   the note, a sentence, does not: a note on that line pushed the column as wide as the sentence and broke the tokens'
+   column a few letters to a line (the Japanese Select's row at a phone's width was 392 px tall). */
+.docs-blueprint-note:not([hidden]) {
+  display: block;
+  contain: inline-size;
+  white-space: normal;
 }
 
 @media (forced-colors: active) {

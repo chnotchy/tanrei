@@ -21,6 +21,26 @@ export function anatomyOf(name: string): AnatomyPart[] {
 }
 
 /**
+ * What the spec says a component's parts are drawn with, where a token's path names another part than the one it draws
+ * (`drawnWith`: a tab's `state-layer` is drawn with `container.color`). `of(path)` is the part a token of that path
+ * (after the component's group: `['primary', 'selected', 'container', 'color']`) draws by such a word, with what the
+ * path says before it (its variant, state and look), or null; `declared` are the parts that say it, which no token draws
+ * by naming them: only the tokens they name.
+ */
+export function drawnWithOf(name: string): { declared: Set<string>; of: (path: readonly string[]) => { part: string; keys: string[] } | null } {
+  const anatomy = getSpec(name).anatomy;
+  const ends = anatomy.flatMap((part) => (part.drawnWith ?? []).map((end) => ({ part: part.id, end })));
+  return {
+    declared: new Set(anatomy.filter((part) => part.drawnWith).map((part) => part.id)),
+    of: (path) => {
+      const joined = path.join('.');
+      const found = ends.find(({ end }) => joined === end || joined.endsWith(`.${end}`));
+      return found ? { part: found.part, keys: path.slice(0, path.length - found.end.split('.').length) } : null;
+    },
+  };
+}
+
+/**
  * The figure's text alternative in the page's language: the dictionary's sentence (`visuals.anatomyAlt`, one for each
  * plural form of the language, `other` for the rest) for the number of parts, with `{component}` the component's title,
  * `{count}` that number and `{list}` the parts' ids as a list in that language. Every spec has at least one part, so it
@@ -125,5 +145,21 @@ export function blueprintStageOf(name: string, fixture = anatomyFixtureOf(name))
   const room = document.sizes[fixture];
   if (!stage || !room || !new RegExp(`<${tag}[\\s/>]`).test(stage.html)) return null;
   const system = spec.layer && spec.layer !== 'core' ? spec.layer : undefined;
-  return { fixture, html: stage.html, staging: document.staging, room, tag, system };
+  if (shown.kind !== 'opener') return { fixture, html: stage.html, staging: document.staging, room, tag, system };
+  // A surface the page's own top layer would draw beside its anchor (a tooltip, a popover) is drawn in place in a
+  // figure: its element's `inline`, in the stage, which is positioned and stands for its window. In the page's window
+  // it could not stay open as a picture: at most one tooltip is open in a window, so the next figure's would close it
+  // (TIP-8), and one whose anchor is out of the window's view closes (TIP-9) — a figure below the fold, as it loads.
+  const html = inPlace(stage.html, tag);
+  const staging = `${document.staging}\n.stage:has(> ${tag}[inline]) { position: relative; }`;
+  return { fixture, html, staging, room, tag, system };
+}
+
+/** A stage's markup with its element drawn in place: `inline` added to its first `tag`, where it is not there already. */
+function inPlace(html: string, tag: string): string {
+  const opening = new RegExp(`<${tag}(?=[\\s/>])((?:\\s+[^\\s=>]+(?:="[^"]*")?)*)`).exec(html);
+  if (!opening) return html;
+  if (/\sinline(?:=""|(?=\s|$))/.test(opening[1])) return html;
+  const at = opening.index + tag.length + 1;
+  return `${html.slice(0, at)} inline${html.slice(at)}`;
 }

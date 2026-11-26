@@ -9,7 +9,9 @@
 // - The lines are measured from the parts the browser draws (lib/visuals/blueprint.ts), never from the tokens, and a
 //   line is drawn only where the two agree: where the component draws another length, the figure draws no line and the
 //   table says what it found (`visuals.measureDiffers`), so a figure never shows a length the component does not have,
-//   and a page shows where an implementation and its tokens part.
+//   and a page shows where an implementation and its tokens part. What it finds is recorded (lib/visuals/measure.ts,
+//   `lengthsNotDrawnOf`), and the page writes it into the table from the first frame, so that the table is laid out at
+//   its drawn size before any script runs and does not grow under the reader when the figure is drawn.
 // - The inline lengths stand in rows above the stage, the block lengths in columns at its end edge, each row and column
 //   holding its room before anything is defined (space tokens), so nothing moves when the lines are drawn.
 // - The component is a picture here, as in the anatomy figure: `inert` and hidden from assistive technology.
@@ -17,8 +19,7 @@ import Example from './Example.astro';
 import Table from '../Table.astro';
 import { contentLang, strings } from '../../lib/i18n';
 import { stagingStyle } from '../../lib/fixture-gallery';
-import { blueprintStageOf, webPartsOf } from '../../lib/visuals/anatomy';
-import { measureLinesOf } from '../../lib/visuals/measure';
+import { lengthsNotDrawnOf, measureFigureOf } from '../../lib/visuals/measure';
 import type { BlueprintData } from '../../lib/visuals/blueprint';
 import { getSpec } from '../../lib/repo';
 import './blueprint.css';
@@ -35,9 +36,9 @@ const { name, fixture, headingLevel } = Astro.props;
 const lang = contentLang(Astro);
 const t = strings(lang);
 const spec = getSpec(name);
-const parts = webPartsOf(name);
-const stage = parts ? blueprintStageOf(name, fixture) : null;
-const lines = stage ? measureLinesOf(name, stage.fixture, stage.html) : [];
+const { parts, stage, lines } = measureFigureOf(name, fixture);
+/** The lengths the component draws otherwise, as recorded (lib/visuals/measure.ts): their rows say so from the first frame. */
+const notDrawn = stage ? lengthsNotDrawnOf(name, stage.fixture, lines) : new Map<string, number | null>();
 const rows = lines.filter((line) => line.axis !== 'block').length;
 const columns = lines.length - rows;
 /** A row of an inline length: its label above its line. A column of a block length: its line, and its label beside it. */
@@ -55,6 +56,12 @@ const alt = (forms[new Intl.PluralRules(lang).select(lines.length)] ?? forms.oth
 const Heading = headingLevel ? (`h${headingLevel}` as const) : null;
 const [before = '', after = ''] = t.visuals.drawnFrom.split('{fixture}');
 const shown = (value: number) => (Number.isInteger(value) ? String(value) : value.toFixed(1));
+/** A row's note, as the figure writes it once it has measured the component (lib/visuals/blueprint.ts): empty where the length is drawn. */
+const noteOf = (token: string) => {
+  if (!notDrawn.has(token)) return '';
+  const measured = notDrawn.get(token);
+  return typeof measured === 'number' ? t.visuals.measureDiffers.replace('{measured}', shown(measured)) : t.visuals.measureAbsent;
+};
 ---
 
 {
@@ -95,7 +102,7 @@ const shown = (value: number) => (Number.isInteger(value) ? String(value) : valu
                     <tr data-measure-row={line.token}>
                       <td data-wrap="false">
                         <code>{line.part}</code> {line.kind}
-                        <span class="docs-muted docs-blueprint-note" data-measure-note hidden />
+                        <span class="docs-muted docs-blueprint-note" data-measure-note hidden={!noteOf(line.token)}>{noteOf(line.token)}</span>
                       </td>
                       <td>
                         <code>{line.token}</code>

@@ -126,7 +126,7 @@ export class TanreiCopyButton extends TanreiElement {
   variant: TanreiCopyButtonVariant = DEFAULT_VARIANT;
 
   /**
-   * The Button size it is drawn at: `small`, `medium` or `large` (36 / 40 / 56 under the default system, never below
+   * The Button size it is drawn at: `small`, `medium` or `large` (28 / 36 / 52 under the default system, never below
    * `sys.target.minimum`). While it is not set the copy button is drawn at the size its nearest container sets, as a
    * Button is (CPY-21), and at `medium` where none does; reading it then gives `medium`. Setting it (to any value,
    * `medium` included) makes it its own, whatever a container sets; removing the attribute gives that back.

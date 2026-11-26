@@ -376,8 +376,8 @@ test.describe('behavior: the box, its name and its Field', () => {
       } else near(c.x + c.width - (field.x + field.width), await token(page, `container-padding-inline-${size}`), `${id}: the input ends padding-inline from the end edge`);
       near(c.width, (await box(host(page, id))).width, `${id}: as wide as the field`);
     }
-    // The default system's numbers: a stacked box 40 and 56 high, as tall as a Button of its size; the swatch 24, 12 from the start edge; the value 16 after it.
-    expect([await token(page, 'stacked-container-height-medium'), await token(page, 'stacked-container-height-large'), await token(page, 'icon-size-medium'), await token(page, 'container-padding-inline-with-icon-medium'), await token(page, 'container-gap-medium')]).toEqual([40, 56, 24, 12, 16]);
+    // The default system's numbers: a stacked box 36 and 52 high, as tall as a Button of its size; the swatch 24, 12 from the start edge; the value 16 after it.
+    expect([await token(page, 'stacked-container-height-medium'), await token(page, 'stacked-container-height-large'), await token(page, 'icon-size-medium'), await token(page, 'container-padding-inline-with-icon-medium'), await token(page, 'container-gap-medium')]).toEqual([36, 52, 24, 12, 16]);
     // As wide as its layout gives it: the host is a block.
     expect(await css(host(page, 'stacked-filled'), 'display')).toBe('block');
     await host(page, 'stacked-filled').evaluate((el) => (el.parentElement!.style.inlineSize = '400px'));
@@ -661,7 +661,9 @@ test.describe('behavior: the box, its name and its Field', () => {
       const s = await box(swatch(page, id));
       near(await px(label, 'font-size'), await token(page, 'label-typescale-medium-font-size'), `${id}: resting in label.typescale`);
       near(resting.y + resting.height / 2, c.y + c.height / 2, `${id}: resting in the input line`);
-      near(resting.x - (s.x + s.width), await token(page, 'container-gap-medium'), `${id}: after the swatch`);
+      // After the box of the icon's size the swatch stands in (an outlined swatch is drawn smaller inside it, CLI-25).
+      const side = await token(page, 'icon-size-medium');
+      near(resting.x - (s.x + s.width) - (side - s.width) / 2, await token(page, 'container-gap-medium'), `${id}: after the swatch`);
       const height = c.height;
       await focusInput(page, id);
       await frames(page);

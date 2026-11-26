@@ -714,7 +714,7 @@ test.describe('open and closed', () => {
     await page.addStyleTag({ content: `[data-fixture="small"] { block-size: 150px; overflow: auto; padding: 0 !important; }` });
     const box = stage(page, 'small');
     // Its row stays; what follows moves.
-    await box.evaluate((el) => (el.scrollTop = 200));
+    await box.evaluate((el) => (el.scrollTop = 170));
     const scrolled = await edges(row(page, 'small', 'Beta'));
     const next = (await edges(row(page, 'small', 'Gamma'))).top;
     const view = await edges(box);
@@ -722,7 +722,7 @@ test.describe('open and closed', () => {
     expect(scrolled.bottom).toBeLessThanOrEqual(view.bottom);
     await page.mouse.click(scrolled.right - 30, scrolled.top + 10);
     expect((await edges(row(page, 'small', 'Beta'))).top).toBe(scrolled.top);
-    expect(await box.evaluate((el) => el.scrollTop)).toBe(200);
+    expect(await box.evaluate((el) => el.scrollTop)).toBe(170);
     near((await edges(row(page, 'small', 'Gamma'))).top, next + scrolled.height);
     await page.mouse.click(scrolled.right - 30, scrolled.top + 10);
     expect((await edges(row(page, 'small', 'Beta'))).top).toBe(scrolled.top);
@@ -2844,7 +2844,7 @@ test.describe('before the element is defined, without script, in a shadow root',
         }),
       );
     // The look, with no script at all.
-    expect((await edges(row(page, 'all-parts', 'package.json'))).height).toBe(40);
+    expect((await edges(row(page, 'all-parts', 'package.json'))).height).toBe(36);
     const src = await drawn(row(page, 'all-parts', 'src'));
     expect(src.chevron.content).toContain('chevron_right');
     expect(src.chevron.rotate).toBe('90deg');
@@ -2911,7 +2911,7 @@ test.describe('before the element is defined, without script, in a shadow root',
     const inner = page.locator('#shadowed tanrei-tree-view');
     await expect.poll(() => css(inner.locator('li').first().locator('> span'), 'display')).toBe('grid');
     const first = inner.locator('li').first().locator('> span');
-    expect((await edges(first)).height).toBe(40);
+    expect((await edges(first)).height).toBe(36);
     await expect.poll(() => css(inner.locator('li[data-value="a1"] > span'), 'background-color', '::after')).toBe(await resolveColor(page, T('selected-container-color')));
     near(Number.parseFloat(await css(inner.locator('li[data-value="a1"] > span'), 'left', '::after')), (await resolveToken(page, T('chevron-size-medium'))) + (await resolveToken(page, T('container-gap-medium'))));
     // Read in the task of the click, after the element has answered it (as TRV-11's turn is): asked for afterwards, the

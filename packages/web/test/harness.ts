@@ -2621,6 +2621,12 @@ export function stageMarkup(spec: Spec, f: Fixture, mark: string): string {
  * The document of a spec's fixtures: every fixture (or `options.fixtures`) in its own padded, surface-colored stage,
  * with the tokens, the preset, the faces and the component bundle the stages need. A fixture that names a `direction`
  * has it as its stage's `dir`, whatever the document's is.
+ *
+ * The document is a product's page as Getting started sets one up: the page's base (`@tanrei/web/base.css`), then the
+ * tokens, in the order `tanrei.css` holds them. So the text a fixture slots without a style of its own (a modal
+ * layer's) is in the body face and the surface's text color, as on a product's page, and never in the browser's serif black.
+ * It is embedded whole even where the other sheets are fetched (`assets`): it is small, and a reader of the document
+ * (the site's fixture documents) finds it as the package's stylesheet it is.
  */
 export async function fixturesDocument(spec: Spec, given: DocumentOptions = {}): Promise<string> {
   const options = drawnUnder(spec, given);
@@ -2654,6 +2660,7 @@ export async function fixturesDocument(spec: Spec, given: DocumentOptions = {}):
     <title>${spec.name} fixtures</title>
     ${assets ? sheet(assets.font, fontFace) : embeddedFaceMarkup(`${fontFace()}\n${text}`)}
     ${icons}
+    <style>${read('dist/base.css').replace(/\/\*[\s\S]*?\*\//g, '')}</style>
     ${sheet(assets?.tokens, () => read('dist/tokens.css'))}
     ${options.system ? sheet(assets?.system(options.system), () => systemStyles(options)) : ''}
     <style>
@@ -2661,9 +2668,9 @@ export async function fixturesDocument(spec: Spec, given: DocumentOptions = {}):
          root, and axe clips every element to its overflow-hidden ancestors, the root included, without regard to the top
          layer: in a document shorter than the window (a single fixture's, 32px tall) a dialog or a sheet open in the top
          layer lay outside the root's box, and axe found no text in it to check — its \`color-contrast\` was inapplicable,
-         not passed. Nothing is drawn differently: the root paints no background of its own (the body's is the canvas's). */
+         not passed. Nothing is drawn differently: the root's background (the base's surface) is the canvas's, which
+         fills the window whatever the root's height. */
       html { min-block-size: 100%; }
-      body { margin: 0; background: var(--tanrei-sys-color-surface); }
       ${staging.page ? '' : 'main { display: flex; flex-direction: column; align-items: flex-start; }'}
       .stage { padding: 16px; background: var(--tanrei-sys-color-surface); }
       /* A picture of a stage is clipped to whole CSS pixels around it, so it takes in up to a pixel of the stages beside
@@ -3023,7 +3030,7 @@ export function typeRole(base: string, font: string): Record<string, string> {
   };
 }
 
-/** A type role's tokens that read another role's longhands: `typeRoleOf(T('label-typescale'), '--tanrei-sys-typescale-headline')`. */
+/** A type role's tokens that read another role's longhands: `typeRoleOf(T('label-typescale'), '--tanrei-sys-typescale-heading-2')`. */
 export const typeRoleOf = (base: string, from: string): Record<string, string> => Object.fromEntries(ROLE_LONGHANDS.map((longhand) => [`${base}-${longhand}`, `var(${from}-${longhand})`]));
 
 /**
