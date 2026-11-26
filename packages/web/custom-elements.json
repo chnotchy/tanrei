@@ -2547,7 +2547,7 @@
               "type": {
                 "text": "TanreiButtonWithMenuSize"
               },
-              "description": "Visual height: `comp.button-with-menu.container.height.<size>`, Button's heights, never below `sys.target.minimum`\n(36 / 40 / 56 in the default system, the small one held at the minimum). The hit areas always meet the minimum\ntarget. While it is not set the button with menu draws the size its nearest container sets — a toolbar's `size`\n(SPB-37) — and `medium` where none does; reading it then gives `medium`. Setting it (to any value, `medium`\nincluded) makes it its own, whatever a container sets; removing the attribute gives that back.",
+              "description": "Visual height: `comp.button-with-menu.container.height.<size>`, Button's heights, never below `sys.target.minimum`\n(28 / 36 / 52 in the default system, the small one at its step, its hit area reaching the minimum). The hit areas always meet the minimum\ntarget. While it is not set the button with menu draws the size its nearest container sets — a toolbar's `size`\n(SPB-37) — and `medium` where none does; reading it then gives `medium`. Setting it (to any value, `medium`\nincluded) makes it its own, whatever a container sets; removing the attribute gives that back.",
               "attribute": "size"
             },
             {
@@ -2728,7 +2728,7 @@
               "type": {
                 "text": "TanreiButtonWithMenuSize"
               },
-              "description": "Visual height: `comp.button-with-menu.container.height.<size>`, Button's heights, never below `sys.target.minimum`\n(36 / 40 / 56 in the default system, the small one held at the minimum). The hit areas always meet the minimum\ntarget. While it is not set the button with menu draws the size its nearest container sets — a toolbar's `size`\n(SPB-37) — and `medium` where none does; reading it then gives `medium`. Setting it (to any value, `medium`\nincluded) makes it its own, whatever a container sets; removing the attribute gives that back.",
+              "description": "Visual height: `comp.button-with-menu.container.height.<size>`, Button's heights, never below `sys.target.minimum`\n(28 / 36 / 52 in the default system, the small one at its step, its hit area reaching the minimum). The hit areas always meet the minimum\ntarget. While it is not set the button with menu draws the size its nearest container sets — a toolbar's `size`\n(SPB-37) — and `medium` where none does; reading it then gives `medium`. Setting it (to any value, `medium`\nincluded) makes it its own, whatever a container sets; removing the attribute gives that back.",
               "fieldName": "size"
             },
             {
@@ -3063,7 +3063,7 @@
               "type": {
                 "text": "TanreiButtonSize"
               },
-              "description": "Visual height: `comp.button.container.height.<size>`, never below `sys.target.minimum` (36 / 40 / 56 under the\ndefault system, the small one held at the minimum), which is also an icon-only button's width at its default width.\nThe hit area always meets the minimum target. While it is not set the button draws the size its nearest container\nsets — a button group's or a toolbar's `size` (BTN-48) — and `medium` where none does; reading it then gives\n`medium`. Setting it (to any value, `medium` included) makes it the button's own, whatever a container sets;\nremoving the attribute gives that back.",
+              "description": "Visual height: `comp.button.container.height.<size>`, its hit area never below `sys.target.minimum` (28 / 36 / 52 under the\ndefault system, the small one held at the minimum), which is also an icon-only button's width at its default width.\nThe hit area always meets the minimum target. While it is not set the button draws the size its nearest container\nsets — a button group's or a toolbar's `size` (BTN-48) — and `medium` where none does; reading it then gives\n`medium`. Setting it (to any value, `medium` included) makes it the button's own, whatever a container sets;\nremoving the attribute gives that back.",
               "attribute": "size"
             },
             {
@@ -3074,7 +3074,7 @@
                 "text": "TanreiButtonWidth"
               },
               "default": "'default'",
-              "description": "How wide an icon-only button is: `default` as wide as it is high, `comp.button.container.height` of its size\n(36 / 40 / 56 in the default system), `narrow` its glyph and\n`comp.button.container.padding-inline-narrow` on each side of it (28 / 32 / 32 in the default system, whose inset\nis 4 at every size; it has no narrow width of its own, so it follows its glyph) for a tight row of icon actions,\n`wide` (40 / 52 / 72) for the one action of a row that should weigh more. Ignored with a label. The height does\nnot change, and the hit area meets the minimum target at every width — a narrow button is never drawn wider to\nreach it. Anything else is drawn as `default` (reported in debug builds, BTN-21).",
+              "description": "How wide an icon-only button is: `default` as wide as it is high, `comp.button.container.height` of its size\n(28 / 36 / 52 in the default system), `narrow` its glyph and\n`comp.button.container.padding-inline-narrow` on each side of it (28 / 32 / 32 in the default system, whose inset\nis 4 at every size; it has no narrow width of its own, so it follows its glyph) for a tight row of icon actions,\n`wide` (40 / 52 / 72) for the one action of a row that should weigh more. Ignored with a label. The height does\nnot change, and the hit area meets the minimum target at every width — a narrow button is never drawn wider to\nreach it. Anything else is drawn as `default` (reported in debug builds, BTN-21).",
               "attribute": "width",
               "reflects": true
             },
@@ -3417,7 +3417,7 @@
               "type": {
                 "text": "TanreiButtonSize"
               },
-              "description": "Visual height: `comp.button.container.height.<size>`, never below `sys.target.minimum` (36 / 40 / 56 under the\ndefault system, the small one held at the minimum), which is also an icon-only button's width at its default width.\nThe hit area always meets the minimum target. While it is not set the button draws the size its nearest container\nsets — a button group's or a toolbar's `size` (BTN-48) — and `medium` where none does; reading it then gives\n`medium`. Setting it (to any value, `medium` included) makes it the button's own, whatever a container sets;\nremoving the attribute gives that back.",
+              "description": "Visual height: `comp.button.container.height.<size>`, its hit area never below `sys.target.minimum` (28 / 36 / 52 under the\ndefault system, the small one held at the minimum), which is also an icon-only button's width at its default width.\nThe hit area always meets the minimum target. While it is not set the button draws the size its nearest container\nsets — a button group's or a toolbar's `size` (BTN-48) — and `medium` where none does; reading it then gives\n`medium`. Setting it (to any value, `medium` included) makes it the button's own, whatever a container sets;\nremoving the attribute gives that back.",
               "fieldName": "size"
             },
             {
@@ -3426,7 +3426,7 @@
                 "text": "TanreiButtonWidth"
               },
               "default": "'default'",
-              "description": "How wide an icon-only button is: `default` as wide as it is high, `comp.button.container.height` of its size\n(36 / 40 / 56 in the default system), `narrow` its glyph and\n`comp.button.container.padding-inline-narrow` on each side of it (28 / 32 / 32 in the default system, whose inset\nis 4 at every size; it has no narrow width of its own, so it follows its glyph) for a tight row of icon actions,\n`wide` (40 / 52 / 72) for the one action of a row that should weigh more. Ignored with a label. The height does\nnot change, and the hit area meets the minimum target at every width — a narrow button is never drawn wider to\nreach it. Anything else is drawn as `default` (reported in debug builds, BTN-21).",
+              "description": "How wide an icon-only button is: `default` as wide as it is high, `comp.button.container.height` of its size\n(28 / 36 / 52 in the default system), `narrow` its glyph and\n`comp.button.container.padding-inline-narrow` on each side of it (28 / 32 / 32 in the default system, whose inset\nis 4 at every size; it has no narrow width of its own, so it follows its glyph) for a tight row of icon actions,\n`wide` (40 / 52 / 72) for the one action of a row that should weigh more. Ignored with a label. The height does\nnot change, and the hit area meets the minimum target at every width — a narrow button is never drawn wider to\nreach it. Anything else is drawn as `default` (reported in debug builds, BTN-21).",
               "fieldName": "width"
             },
             {
@@ -8204,7 +8204,7 @@
                 "text": "TanreiTextInputSize"
               },
               "attribute": "size",
-              "description": "Minimum height of a single-line field's container: stacked 36 / 40 / 56, as tall as a Button of the same size, and\nfilled and outlined 40 / 48 / 56 in the default system. The hit area always meets the minimum target. While it is\nnot set the field draws the size its nearest container sets — a toolbar's `size` (TXI-73) — and `medium` where none\ndoes; reading it then gives `medium`. Setting it (to any value, `medium` included) makes it the field's own, whatever\na container sets; removing the attribute gives that back."
+              "description": "Minimum height of a single-line field's container: stacked 28 / 36 / 52, as tall as a Button of the same size, and\nfilled and outlined 40 / 48 / 56 in the default system. The hit area always meets the minimum target. While it is\nnot set the field draws the size its nearest container sets — a toolbar's `size` (TXI-73) — and `medium` where none\ndoes; reading it then gives `medium`. Setting it (to any value, `medium` included) makes it the field's own, whatever\na container sets; removing the attribute gives that back."
             },
             {
               "kind": "field",
@@ -8663,7 +8663,7 @@
                 "text": "TanreiTextInputSize"
               },
               "fieldName": "size",
-              "description": "Minimum height of a single-line field's container: stacked 36 / 40 / 56, as tall as a Button of the same size, and\nfilled and outlined 40 / 48 / 56 in the default system. The hit area always meets the minimum target. While it is\nnot set the field draws the size its nearest container sets — a toolbar's `size` (TXI-73) — and `medium` where none\ndoes; reading it then gives `medium`. Setting it (to any value, `medium` included) makes it the field's own, whatever\na container sets; removing the attribute gives that back."
+              "description": "Minimum height of a single-line field's container: stacked 28 / 36 / 52, as tall as a Button of the same size, and\nfilled and outlined 40 / 48 / 56 in the default system. The hit area always meets the minimum target. While it is\nnot set the field draws the size its nearest container sets — a toolbar's `size` (TXI-73) — and `medium` where none\ndoes; reading it then gives `medium`. Setting it (to any value, `medium` included) makes it the field's own, whatever\na container sets; removing the attribute gives that back."
             },
             {
               "name": "type",
@@ -10651,7 +10651,7 @@
                 "text": "TanreiColorInputSize"
               },
               "attribute": "size",
-              "description": "The container's minimum height: `small`, `medium` or `large` — stacked 36 / 40 / 56, as tall as a Button of the same\nsize, and filled and outlined 40 / 48 / 56 in the default system. Reflected while it is set.\nThe hit area always meets the minimum target. While it is not set the color input draws the size its nearest container\nsets — a toolbar's `size` (CLI-47) — and `medium` where none does; reading it then gives `medium`. Setting it (to any\nvalue, `medium` included) makes it the color input's own, whatever a container sets; removing the attribute gives that back."
+              "description": "The container's minimum height: `small`, `medium` or `large` — stacked 28 / 36 / 52, as tall as a Button of the same\nsize, and filled and outlined 40 / 48 / 56 in the default system. Reflected while it is set.\nThe hit area always meets the minimum target. While it is not set the color input draws the size its nearest container\nsets — a toolbar's `size` (CLI-47) — and `medium` where none does; reading it then gives `medium`. Setting it (to any\nvalue, `medium` included) makes it the color input's own, whatever a container sets; removing the attribute gives that back."
             },
             {
               "kind": "field",
@@ -11013,7 +11013,7 @@
                 "text": "TanreiColorInputSize"
               },
               "fieldName": "size",
-              "description": "The container's minimum height: `small`, `medium` or `large` — stacked 36 / 40 / 56, as tall as a Button of the same\nsize, and filled and outlined 40 / 48 / 56 in the default system. Reflected while it is set.\nThe hit area always meets the minimum target. While it is not set the color input draws the size its nearest container\nsets — a toolbar's `size` (CLI-47) — and `medium` where none does; reading it then gives `medium`. Setting it (to any\nvalue, `medium` included) makes it the color input's own, whatever a container sets; removing the attribute gives that back."
+              "description": "The container's minimum height: `small`, `medium` or `large` — stacked 28 / 36 / 52, as tall as a Button of the same\nsize, and filled and outlined 40 / 48 / 56 in the default system. Reflected while it is set.\nThe hit area always meets the minimum target. While it is not set the color input draws the size its nearest container\nsets — a toolbar's `size` (CLI-47) — and `medium` where none does; reading it then gives `medium`. Setting it (to any\nvalue, `medium` included) makes it the color input's own, whatever a container sets; removing the attribute gives that back."
             },
             {
               "name": "value",
@@ -11298,7 +11298,7 @@
               "type": {
                 "text": "TanreiColorInputSize"
               },
-              "description": "The container's minimum height: `small`, `medium` or `large` — stacked 36 / 40 / 56, as tall as a Button of the same\nsize, and filled and outlined 40 / 48 / 56 in the default system. Reflected while it is set.\nThe hit area always meets the minimum target. While it is not set the color input draws the size its nearest container\nsets — a toolbar's `size` (CLI-47) — and `medium` where none does; reading it then gives `medium`. Setting it (to any\nvalue, `medium` included) makes it the color input's own, whatever a container sets; removing the attribute gives that back.",
+              "description": "The container's minimum height: `small`, `medium` or `large` — stacked 28 / 36 / 52, as tall as a Button of the same\nsize, and filled and outlined 40 / 48 / 56 in the default system. Reflected while it is set.\nThe hit area always meets the minimum target. While it is not set the color input draws the size its nearest container\nsets — a toolbar's `size` (CLI-47) — and `medium` where none does; reading it then gives `medium`. Setting it (to any\nvalue, `medium` included) makes it the color input's own, whatever a container sets; removing the attribute gives that back.",
               "attribute": "size"
             },
             {
@@ -11543,7 +11543,7 @@
               "type": {
                 "text": "TanreiColorInputSize"
               },
-              "description": "The container's minimum height: `small`, `medium` or `large` — stacked 36 / 40 / 56, as tall as a Button of the same\nsize, and filled and outlined 40 / 48 / 56 in the default system. Reflected while it is set.\nThe hit area always meets the minimum target. While it is not set the color input draws the size its nearest container\nsets — a toolbar's `size` (CLI-47) — and `medium` where none does; reading it then gives `medium`. Setting it (to any\nvalue, `medium` included) makes it the color input's own, whatever a container sets; removing the attribute gives that back.",
+              "description": "The container's minimum height: `small`, `medium` or `large` — stacked 28 / 36 / 52, as tall as a Button of the same\nsize, and filled and outlined 40 / 48 / 56 in the default system. Reflected while it is set.\nThe hit area always meets the minimum target. While it is not set the color input draws the size its nearest container\nsets — a toolbar's `size` (CLI-47) — and `medium` where none does; reading it then gives `medium`. Setting it (to any\nvalue, `medium` included) makes it the color input's own, whatever a container sets; removing the attribute gives that back.",
               "fieldName": "size"
             },
             {
@@ -12225,7 +12225,7 @@
                 "text": "TanreiComboboxSize"
               },
               "attribute": "size",
-              "description": "The container's minimum height: `small`, `medium` or `large` — stacked 36 / 40 / 56, as tall as a Button of the same\nsize, and filled and outlined 40 / 48 / 56 in the default system. Reflected while it is set.\nThe hit area always meets the minimum target. While it is not set the combobox draws the size its nearest container\nsets — a toolbar's `size` (CMB-83) — and `medium` where none does; reading it then gives `medium`. Setting it (to any\nvalue, `medium` included) makes it the combobox's own, whatever a container sets; removing the attribute gives that back.\nThe size it is drawn at, its own or its container's, is also the size of the options of its list (CMB-68): a small\nbox opens small rows, a medium or a large one medium rows."
+              "description": "The container's minimum height: `small`, `medium` or `large` — stacked 28 / 36 / 52, as tall as a Button of the same\nsize, and filled and outlined 40 / 48 / 56 in the default system. Reflected while it is set.\nThe hit area always meets the minimum target. While it is not set the combobox draws the size its nearest container\nsets — a toolbar's `size` (CMB-83) — and `medium` where none does; reading it then gives `medium`. Setting it (to any\nvalue, `medium` included) makes it the combobox's own, whatever a container sets; removing the attribute gives that back.\nThe size it is drawn at, its own or its container's, is also the size of the options of its list (CMB-68): a small\nbox opens small rows, a medium or a large one medium rows."
             },
             {
               "kind": "field",
@@ -12727,7 +12727,7 @@
                 "text": "TanreiComboboxSize"
               },
               "fieldName": "size",
-              "description": "The container's minimum height: `small`, `medium` or `large` — stacked 36 / 40 / 56, as tall as a Button of the same\nsize, and filled and outlined 40 / 48 / 56 in the default system. Reflected while it is set.\nThe hit area always meets the minimum target. While it is not set the combobox draws the size its nearest container\nsets — a toolbar's `size` (CMB-83) — and `medium` where none does; reading it then gives `medium`. Setting it (to any\nvalue, `medium` included) makes it the combobox's own, whatever a container sets; removing the attribute gives that back.\nThe size it is drawn at, its own or its container's, is also the size of the options of its list (CMB-68): a small\nbox opens small rows, a medium or a large one medium rows."
+              "description": "The container's minimum height: `small`, `medium` or `large` — stacked 28 / 36 / 52, as tall as a Button of the same\nsize, and filled and outlined 40 / 48 / 56 in the default system. Reflected while it is set.\nThe hit area always meets the minimum target. While it is not set the combobox draws the size its nearest container\nsets — a toolbar's `size` (CMB-83) — and `medium` where none does; reading it then gives `medium`. Setting it (to any\nvalue, `medium` included) makes it the combobox's own, whatever a container sets; removing the attribute gives that back.\nThe size it is drawn at, its own or its container's, is also the size of the options of its list (CMB-68): a small\nbox opens small rows, a medium or a large one medium rows."
             },
             {
               "name": "value",
@@ -13252,7 +13252,7 @@
               "type": {
                 "text": "TanreiComboboxSize"
               },
-              "description": "The container's minimum height: `small`, `medium` or `large` — stacked 36 / 40 / 56, as tall as a Button of the same\nsize, and filled and outlined 40 / 48 / 56 in the default system. Reflected while it is set.\nThe hit area always meets the minimum target. While it is not set the combobox draws the size its nearest container\nsets — a toolbar's `size` (CMB-83) — and `medium` where none does; reading it then gives `medium`. Setting it (to any\nvalue, `medium` included) makes it the combobox's own, whatever a container sets; removing the attribute gives that back.\nThe size it is drawn at, its own or its container's, is also the size of the options of its list (CMB-68): a small\nbox opens small rows, a medium or a large one medium rows.",
+              "description": "The container's minimum height: `small`, `medium` or `large` — stacked 28 / 36 / 52, as tall as a Button of the same\nsize, and filled and outlined 40 / 48 / 56 in the default system. Reflected while it is set.\nThe hit area always meets the minimum target. While it is not set the combobox draws the size its nearest container\nsets — a toolbar's `size` (CMB-83) — and `medium` where none does; reading it then gives `medium`. Setting it (to any\nvalue, `medium` included) makes it the combobox's own, whatever a container sets; removing the attribute gives that back.\nThe size it is drawn at, its own or its container's, is also the size of the options of its list (CMB-68): a small\nbox opens small rows, a medium or a large one medium rows.",
               "attribute": "size"
             },
             {
@@ -13705,7 +13705,7 @@
               "type": {
                 "text": "TanreiComboboxSize"
               },
-              "description": "The container's minimum height: `small`, `medium` or `large` — stacked 36 / 40 / 56, as tall as a Button of the same\nsize, and filled and outlined 40 / 48 / 56 in the default system. Reflected while it is set.\nThe hit area always meets the minimum target. While it is not set the combobox draws the size its nearest container\nsets — a toolbar's `size` (CMB-83) — and `medium` where none does; reading it then gives `medium`. Setting it (to any\nvalue, `medium` included) makes it the combobox's own, whatever a container sets; removing the attribute gives that back.\nThe size it is drawn at, its own or its container's, is also the size of the options of its list (CMB-68): a small\nbox opens small rows, a medium or a large one medium rows.",
+              "description": "The container's minimum height: `small`, `medium` or `large` — stacked 28 / 36 / 52, as tall as a Button of the same\nsize, and filled and outlined 40 / 48 / 56 in the default system. Reflected while it is set.\nThe hit area always meets the minimum target. While it is not set the combobox draws the size its nearest container\nsets — a toolbar's `size` (CMB-83) — and `medium` where none does; reading it then gives `medium`. Setting it (to any\nvalue, `medium` included) makes it the combobox's own, whatever a container sets; removing the attribute gives that back.\nThe size it is drawn at, its own or its container's, is also the size of the options of its list (CMB-68): a small\nbox opens small rows, a medium or a large one medium rows.",
               "fieldName": "size"
             },
             {
@@ -14112,7 +14112,7 @@
               "type": {
                 "text": "TanreiCopyButtonSize"
               },
-              "description": "The Button size it is drawn at: `small`, `medium` or `large` (36 / 40 / 56 under the default system, never below\n`sys.target.minimum`). While it is not set the copy button is drawn at the size its nearest container sets, as a\nButton is (CPY-21), and at `medium` where none does; reading it then gives `medium`. Setting it (to any value,\n`medium` included) makes it its own, whatever a container sets; removing the attribute gives that back.",
+              "description": "The Button size it is drawn at: `small`, `medium` or `large` (28 / 36 / 52 under the default system, never below\n`sys.target.minimum`). While it is not set the copy button is drawn at the size its nearest container sets, as a\nButton is (CPY-21), and at `medium` where none does; reading it then gives `medium`. Setting it (to any value,\n`medium` included) makes it its own, whatever a container sets; removing the attribute gives that back.",
               "attribute": "size"
             },
             {
@@ -14218,7 +14218,7 @@
               "type": {
                 "text": "TanreiCopyButtonSize"
               },
-              "description": "The Button size it is drawn at: `small`, `medium` or `large` (36 / 40 / 56 under the default system, never below\n`sys.target.minimum`). While it is not set the copy button is drawn at the size its nearest container sets, as a\nButton is (CPY-21), and at `medium` where none does; reading it then gives `medium`. Setting it (to any value,\n`medium` included) makes it its own, whatever a container sets; removing the attribute gives that back.",
+              "description": "The Button size it is drawn at: `small`, `medium` or `large` (28 / 36 / 52 under the default system, never below\n`sys.target.minimum`). While it is not set the copy button is drawn at the size its nearest container sets, as a\nButton is (CPY-21), and at `medium` where none does; reading it then gives `medium`. Setting it (to any value,\n`medium` included) makes it its own, whatever a container sets; removing the attribute gives that back.",
               "fieldName": "size"
             },
             {
@@ -30943,7 +30943,7 @@
                 "text": "TanreiNumberInputSize"
               },
               "attribute": "size",
-              "description": "The container's minimum height: `small`, `medium` or `large` — stacked 36 / 40 / 56, as tall as a Button of the same\nsize, and filled and outlined 40 / 48 / 56 in the default system. Reflected while it is set.\nThe hit area always meets the minimum target. While it is not set the number input draws the size its nearest container\nsets — a toolbar's `size` (NMI-49) — and `medium` where none does; reading it then gives `medium`. Setting it (to any\nvalue, `medium` included) makes it the number input's own, whatever a container sets; removing the attribute gives that back."
+              "description": "The container's minimum height: `small`, `medium` or `large` — stacked 28 / 36 / 52, as tall as a Button of the same\nsize, and filled and outlined 40 / 48 / 56 in the default system. Reflected while it is set.\nThe hit area always meets the minimum target. While it is not set the number input draws the size its nearest container\nsets — a toolbar's `size` (NMI-49) — and `medium` where none does; reading it then gives `medium`. Setting it (to any\nvalue, `medium` included) makes it the number input's own, whatever a container sets; removing the attribute gives that back."
             },
             {
               "kind": "field",
@@ -31450,7 +31450,7 @@
                 "text": "TanreiNumberInputSize"
               },
               "fieldName": "size",
-              "description": "The container's minimum height: `small`, `medium` or `large` — stacked 36 / 40 / 56, as tall as a Button of the same\nsize, and filled and outlined 40 / 48 / 56 in the default system. Reflected while it is set.\nThe hit area always meets the minimum target. While it is not set the number input draws the size its nearest container\nsets — a toolbar's `size` (NMI-49) — and `medium` where none does; reading it then gives `medium`. Setting it (to any\nvalue, `medium` included) makes it the number input's own, whatever a container sets; removing the attribute gives that back."
+              "description": "The container's minimum height: `small`, `medium` or `large` — stacked 28 / 36 / 52, as tall as a Button of the same\nsize, and filled and outlined 40 / 48 / 56 in the default system. Reflected while it is set.\nThe hit area always meets the minimum target. While it is not set the number input draws the size its nearest container\nsets — a toolbar's `size` (NMI-49) — and `medium` where none does; reading it then gives `medium`. Setting it (to any\nvalue, `medium` included) makes it the number input's own, whatever a container sets; removing the attribute gives that back."
             },
             {
               "name": "value",
@@ -31891,7 +31891,7 @@
               "type": {
                 "text": "TanreiNumberInputSize"
               },
-              "description": "The container's minimum height: `small`, `medium` or `large` — stacked 36 / 40 / 56, as tall as a Button of the same\nsize, and filled and outlined 40 / 48 / 56 in the default system. Reflected while it is set.\nThe hit area always meets the minimum target. While it is not set the number input draws the size its nearest container\nsets — a toolbar's `size` (NMI-49) — and `medium` where none does; reading it then gives `medium`. Setting it (to any\nvalue, `medium` included) makes it the number input's own, whatever a container sets; removing the attribute gives that back.",
+              "description": "The container's minimum height: `small`, `medium` or `large` — stacked 28 / 36 / 52, as tall as a Button of the same\nsize, and filled and outlined 40 / 48 / 56 in the default system. Reflected while it is set.\nThe hit area always meets the minimum target. While it is not set the number input draws the size its nearest container\nsets — a toolbar's `size` (NMI-49) — and `medium` where none does; reading it then gives `medium`. Setting it (to any\nvalue, `medium` included) makes it the number input's own, whatever a container sets; removing the attribute gives that back.",
               "attribute": "size"
             },
             {
@@ -32280,7 +32280,7 @@
               "type": {
                 "text": "TanreiNumberInputSize"
               },
-              "description": "The container's minimum height: `small`, `medium` or `large` — stacked 36 / 40 / 56, as tall as a Button of the same\nsize, and filled and outlined 40 / 48 / 56 in the default system. Reflected while it is set.\nThe hit area always meets the minimum target. While it is not set the number input draws the size its nearest container\nsets — a toolbar's `size` (NMI-49) — and `medium` where none does; reading it then gives `medium`. Setting it (to any\nvalue, `medium` included) makes it the number input's own, whatever a container sets; removing the attribute gives that back.",
+              "description": "The container's minimum height: `small`, `medium` or `large` — stacked 28 / 36 / 52, as tall as a Button of the same\nsize, and filled and outlined 40 / 48 / 56 in the default system. Reflected while it is set.\nThe hit area always meets the minimum target. While it is not set the number input draws the size its nearest container\nsets — a toolbar's `size` (NMI-49) — and `medium` where none does; reading it then gives `medium`. Setting it (to any\nvalue, `medium` included) makes it the number input's own, whatever a container sets; removing the attribute gives that back.",
               "fieldName": "size"
             },
             {
@@ -35570,7 +35570,7 @@
                 "text": "TanreiPaginationSize"
               },
               "default": "'medium'",
-              "description": "An item's height, `comp.pagination.container.height` of its size (36 / 40 in the default system, never below `sys.target.minimum`). The hit area always meets the minimum target.",
+              "description": "An item's height, `comp.pagination.container.height` of its size (28 / 36 in the default system, its hit area never below `sys.target.minimum`). The hit area always meets the minimum target.",
               "attribute": "size",
               "reflects": true
             },
@@ -35742,7 +35742,7 @@
                 "text": "TanreiPaginationSize"
               },
               "default": "'medium'",
-              "description": "An item's height, `comp.pagination.container.height` of its size (36 / 40 in the default system, never below `sys.target.minimum`). The hit area always meets the minimum target.",
+              "description": "An item's height, `comp.pagination.container.height` of its size (28 / 36 in the default system, its hit area never below `sys.target.minimum`). The hit area always meets the minimum target.",
               "fieldName": "size"
             },
             {
@@ -40765,7 +40765,7 @@
                 "text": "TanreiSegmentedButtonSize"
               },
               "default": "'medium'",
-              "description": "Visual height (32 / 36 / 40 in the default system, Button's heights). The hit area always meets the minimum target.",
+              "description": "Visual height (28 / 36 / 52 in the default system, Button's heights; the hit area of the small one reaches the minimum target). The hit area always meets the minimum target.",
               "attribute": "size",
               "reflects": true
             },
@@ -40857,7 +40857,7 @@
                 "text": "TanreiSegmentedButtonSize"
               },
               "default": "'medium'",
-              "description": "Visual height (32 / 36 / 40 in the default system, Button's heights). The hit area always meets the minimum target.",
+              "description": "Visual height (28 / 36 / 52 in the default system, Button's heights; the hit area of the small one reaches the minimum target). The hit area always meets the minimum target.",
               "fieldName": "size"
             },
             {
@@ -41233,7 +41233,7 @@
                 "text": "TanreiSelectSize"
               },
               "attribute": "size",
-              "description": "The container's minimum height: `small`, `medium` or `large` — stacked 36 / 40 / 56, as tall as a Button of the same\nsize, and filled and outlined 40 / 48 / 56 in the default system. Reflected while it is set.\nThe hit area always meets the minimum target. While it is not set the select draws the size its nearest container\nsets — a toolbar's `size` (SEL-73) — and `medium` where none does; reading it then gives `medium`. Setting it (to any\nvalue, `medium` included) makes it the select's own, whatever a container sets; removing the attribute gives that back.\nThe size it is drawn at, its own or its container's, is also the size of the options of its list (SEL-70): a small\nbox opens small rows, a medium or a large one medium rows."
+              "description": "The container's minimum height: `small`, `medium` or `large` — stacked 28 / 36 / 52, as tall as a Button of the same\nsize, and filled and outlined 40 / 48 / 56 in the default system. Reflected while it is set.\nThe hit area always meets the minimum target. While it is not set the select draws the size its nearest container\nsets — a toolbar's `size` (SEL-73) — and `medium` where none does; reading it then gives `medium`. Setting it (to any\nvalue, `medium` included) makes it the select's own, whatever a container sets; removing the attribute gives that back.\nThe size it is drawn at, its own or its container's, is also the size of the options of its list (SEL-70): a small\nbox opens small rows, a medium or a large one medium rows."
             },
             {
               "kind": "field",
@@ -41665,7 +41665,7 @@
                 "text": "TanreiSelectSize"
               },
               "fieldName": "size",
-              "description": "The container's minimum height: `small`, `medium` or `large` — stacked 36 / 40 / 56, as tall as a Button of the same\nsize, and filled and outlined 40 / 48 / 56 in the default system. Reflected while it is set.\nThe hit area always meets the minimum target. While it is not set the select draws the size its nearest container\nsets — a toolbar's `size` (SEL-73) — and `medium` where none does; reading it then gives `medium`. Setting it (to any\nvalue, `medium` included) makes it the select's own, whatever a container sets; removing the attribute gives that back.\nThe size it is drawn at, its own or its container's, is also the size of the options of its list (SEL-70): a small\nbox opens small rows, a medium or a large one medium rows."
+              "description": "The container's minimum height: `small`, `medium` or `large` — stacked 28 / 36 / 52, as tall as a Button of the same\nsize, and filled and outlined 40 / 48 / 56 in the default system. Reflected while it is set.\nThe hit area always meets the minimum target. While it is not set the select draws the size its nearest container\nsets — a toolbar's `size` (SEL-73) — and `medium` where none does; reading it then gives `medium`. Setting it (to any\nvalue, `medium` included) makes it the select's own, whatever a container sets; removing the attribute gives that back.\nThe size it is drawn at, its own or its container's, is also the size of the options of its list (SEL-70): a small\nbox opens small rows, a medium or a large one medium rows."
             },
             {
               "name": "value",
@@ -42119,7 +42119,7 @@
               "type": {
                 "text": "TanreiSelectSize"
               },
-              "description": "The container's minimum height: `small`, `medium` or `large` — stacked 36 / 40 / 56, as tall as a Button of the same\nsize, and filled and outlined 40 / 48 / 56 in the default system. Reflected while it is set.\nThe hit area always meets the minimum target. While it is not set the select draws the size its nearest container\nsets — a toolbar's `size` (SEL-73) — and `medium` where none does; reading it then gives `medium`. Setting it (to any\nvalue, `medium` included) makes it the select's own, whatever a container sets; removing the attribute gives that back.\nThe size it is drawn at, its own or its container's, is also the size of the options of its list (SEL-70): a small\nbox opens small rows, a medium or a large one medium rows.",
+              "description": "The container's minimum height: `small`, `medium` or `large` — stacked 28 / 36 / 52, as tall as a Button of the same\nsize, and filled and outlined 40 / 48 / 56 in the default system. Reflected while it is set.\nThe hit area always meets the minimum target. While it is not set the select draws the size its nearest container\nsets — a toolbar's `size` (SEL-73) — and `medium` where none does; reading it then gives `medium`. Setting it (to any\nvalue, `medium` included) makes it the select's own, whatever a container sets; removing the attribute gives that back.\nThe size it is drawn at, its own or its container's, is also the size of the options of its list (SEL-70): a small\nbox opens small rows, a medium or a large one medium rows.",
               "attribute": "size"
             },
             {
@@ -42439,7 +42439,7 @@
               "type": {
                 "text": "TanreiSelectSize"
               },
-              "description": "The container's minimum height: `small`, `medium` or `large` — stacked 36 / 40 / 56, as tall as a Button of the same\nsize, and filled and outlined 40 / 48 / 56 in the default system. Reflected while it is set.\nThe hit area always meets the minimum target. While it is not set the select draws the size its nearest container\nsets — a toolbar's `size` (SEL-73) — and `medium` where none does; reading it then gives `medium`. Setting it (to any\nvalue, `medium` included) makes it the select's own, whatever a container sets; removing the attribute gives that back.\nThe size it is drawn at, its own or its container's, is also the size of the options of its list (SEL-70): a small\nbox opens small rows, a medium or a large one medium rows.",
+              "description": "The container's minimum height: `small`, `medium` or `large` — stacked 28 / 36 / 52, as tall as a Button of the same\nsize, and filled and outlined 40 / 48 / 56 in the default system. Reflected while it is set.\nThe hit area always meets the minimum target. While it is not set the select draws the size its nearest container\nsets — a toolbar's `size` (SEL-73) — and `medium` where none does; reading it then gives `medium`. Setting it (to any\nvalue, `medium` included) makes it the select's own, whatever a container sets; removing the attribute gives that back.\nThe size it is drawn at, its own or its container's, is also the size of the options of its list (SEL-70): a small\nbox opens small rows, a medium or a large one medium rows.",
               "fieldName": "size"
             },
             {
@@ -48477,7 +48477,7 @@
                 "text": "TanreiTabsSize"
               },
               "default": "'medium'",
-              "description": "The row's height (small 32 / medium 48) and what shrinks with it: a tab's padding, the active indicator's margins\nand the icon. A primary tab stacks its icon above its label or puts it before it as the size's\n`comp.tabs.icon.placement` says (medium stacks and small does not, in the default system), and a small row's tabs\nstill answer a press within the minimum target.",
+              "description": "The row's height (28 / 36 in the default system) and what shrinks with it: a tab's padding, the active indicator's margins\nand the icon. A primary tab stacks its icon above its label or puts it before it as the size's\n`comp.tabs.icon.placement` says (medium stacks and small does not, in the default system), and a small row's tabs\nstill answer a press within the minimum target.",
               "attribute": "size",
               "reflects": true
             },
@@ -48625,7 +48625,7 @@
                 "text": "TanreiTabsSize"
               },
               "default": "'medium'",
-              "description": "The row's height (small 32 / medium 48) and what shrinks with it: a tab's padding, the active indicator's margins\nand the icon. A primary tab stacks its icon above its label or puts it before it as the size's\n`comp.tabs.icon.placement` says (medium stacks and small does not, in the default system), and a small row's tabs\nstill answer a press within the minimum target.",
+              "description": "The row's height (28 / 36 in the default system) and what shrinks with it: a tab's padding, the active indicator's margins\nand the icon. A primary tab stacks its icon above its label or puts it before it as the size's\n`comp.tabs.icon.placement` says (medium stacks and small does not, in the default system), and a small row's tabs\nstill answer a press within the minimum target.",
               "fieldName": "size"
             },
             {
@@ -49615,7 +49615,7 @@
                 "text": "TanreiTextInputSize"
               },
               "attribute": "size",
-              "description": "Minimum height of a single-line field's container: stacked 36 / 40 / 56, as tall as a Button of the same size, and\nfilled and outlined 40 / 48 / 56 in the default system. The hit area always meets the minimum target. While it is\nnot set the field draws the size its nearest container sets — a toolbar's `size` (TXI-73) — and `medium` where none\ndoes; reading it then gives `medium`. Setting it (to any value, `medium` included) makes it the field's own, whatever\na container sets; removing the attribute gives that back."
+              "description": "Minimum height of a single-line field's container: stacked 28 / 36 / 52, as tall as a Button of the same size, and\nfilled and outlined 40 / 48 / 56 in the default system. The hit area always meets the minimum target. While it is\nnot set the field draws the size its nearest container sets — a toolbar's `size` (TXI-73) — and `medium` where none\ndoes; reading it then gives `medium`. Setting it (to any value, `medium` included) makes it the field's own, whatever\na container sets; removing the attribute gives that back."
             },
             {
               "kind": "field",
@@ -50314,7 +50314,7 @@
                 "text": "TanreiTextInputSize"
               },
               "fieldName": "size",
-              "description": "Minimum height of a single-line field's container: stacked 36 / 40 / 56, as tall as a Button of the same size, and\nfilled and outlined 40 / 48 / 56 in the default system. The hit area always meets the minimum target. While it is\nnot set the field draws the size its nearest container sets — a toolbar's `size` (TXI-73) — and `medium` where none\ndoes; reading it then gives `medium`. Setting it (to any value, `medium` included) makes it the field's own, whatever\na container sets; removing the attribute gives that back."
+              "description": "Minimum height of a single-line field's container: stacked 28 / 36 / 52, as tall as a Button of the same size, and\nfilled and outlined 40 / 48 / 56 in the default system. The hit area always meets the minimum target. While it is\nnot set the field draws the size its nearest container sets — a toolbar's `size` (TXI-73) — and `medium` where none\ndoes; reading it then gives `medium`. Setting it (to any value, `medium` included) makes it the field's own, whatever\na container sets; removing the attribute gives that back."
             },
             {
               "name": "type",
@@ -51606,7 +51606,7 @@
               "type": {
                 "text": "TanreiTextInputSize"
               },
-              "description": "Minimum height of a single-line field's container: stacked 36 / 40 / 56, as tall as a Button of the same size, and\nfilled and outlined 40 / 48 / 56 in the default system. The hit area always meets the minimum target. While it is\nnot set the field draws the size its nearest container sets — a toolbar's `size` (TXI-73) — and `medium` where none\ndoes; reading it then gives `medium`. Setting it (to any value, `medium` included) makes it the field's own, whatever\na container sets; removing the attribute gives that back.",
+              "description": "Minimum height of a single-line field's container: stacked 28 / 36 / 52, as tall as a Button of the same size, and\nfilled and outlined 40 / 48 / 56 in the default system. The hit area always meets the minimum target. While it is\nnot set the field draws the size its nearest container sets — a toolbar's `size` (TXI-73) — and `medium` where none\ndoes; reading it then gives `medium`. Setting it (to any value, `medium` included) makes it the field's own, whatever\na container sets; removing the attribute gives that back.",
               "attribute": "size"
             },
             {
@@ -52195,7 +52195,7 @@
               "type": {
                 "text": "TanreiTextInputSize"
               },
-              "description": "Minimum height of a single-line field's container: stacked 36 / 40 / 56, as tall as a Button of the same size, and\nfilled and outlined 40 / 48 / 56 in the default system. The hit area always meets the minimum target. While it is\nnot set the field draws the size its nearest container sets — a toolbar's `size` (TXI-73) — and `medium` where none\ndoes; reading it then gives `medium`. Setting it (to any value, `medium` included) makes it the field's own, whatever\na container sets; removing the attribute gives that back.",
+              "description": "Minimum height of a single-line field's container: stacked 28 / 36 / 52, as tall as a Button of the same size, and\nfilled and outlined 40 / 48 / 56 in the default system. The hit area always meets the minimum target. While it is\nnot set the field draws the size its nearest container sets — a toolbar's `size` (TXI-73) — and `medium` where none\ndoes; reading it then gives `medium`. Setting it (to any value, `medium` included) makes it the field's own, whatever\na container sets; removing the attribute gives that back.",
               "fieldName": "size"
             },
             {
@@ -52780,7 +52780,7 @@
           "type": {
             "text": "array"
           },
-          "default": "[ spaceStyles, css` /* TBR-17, TBR-13: the inline structure — every variant but docked and floating, and the default. In place where the layout puts it, as long as its items need and never longer than the layout allows; no inset is read. */ :host { display: inline-flex; vertical-align: middle; max-inline-size: 100%; } ${unsafeCSS(variantBlock(DEFAULT_VARIANT, ':host'))} ${unsafeCSS( CORE_VARIANTS.filter((v) => v !== DEFAULT_VARIANT) .map((v) => variantBlock(v, `:host([variant='${v}'])`)) .join('\\n'), )} :host([hidden]) { display: none; } /* TBR-23: the separation it draws — its attribute's, else comp.toolbar.separation's. */ ${separationHost(`${PREFIX}-separation`)} /* One line in reading order (logical: right-to-left starts at the right, TBR-7), padding-inline at each end, each item centred across the line; the fill, elevation, corners and edge are the variant's. */ .container { box-sizing: border-box; flex: 1 1 auto; min-inline-size: 0; display: flex; flex-direction: row; flex-wrap: nowrap; align-items: center; justify-content: flex-start; gap: 0; min-block-size: var(--_size); padding-inline: var(--_pad); background: var(--_bg); box-shadow: var(--_elevation), inset 0 0 0 ${t('outline-width')} var(--_edge); --tanrei-corner-radius: var(--_shape); --tanrei-corner-pill: var(--_shape-pill); --_tanrei-toolbar-gap: var(--_gap); } /* TBR-1, TBR-2, TBR-3: docked — the parent's full width; the container at least container.size high above the bottom inset, its color reaching under the bottom and side insets while the items stay inside them; the items spread with equal space between them, never less than the gap; the edge is the container's top inset line. */ ${unsafeCSS(DOCKED)} { display: flex; max-inline-size: none; --_inset-bottom: env(safe-area-inset-bottom, 0px); --_inset-left: env(safe-area-inset-left, 0px); --_inset-right: env(safe-area-inset-right, 0px); } ${unsafeCSS(DOCKED)} .container { min-block-size: calc(var(--_size) + var(--_inset-bottom)); padding-block-end: var(--_inset-bottom); padding-left: calc(var(--_inset-left) + var(--_pad)); padding-right: calc(var(--_inset-right) + var(--_pad)); box-shadow: var(--_elevation), inset 0 ${t('outline-width')} 0 0 var(--_edge); --_tanrei-toolbar-grow: 1; --_tanrei-toolbar-basis: 0px; --_tanrei-toolbar-min: var(--_gap); } /* TBR-2: one item is centred — by the container, not by a margin on the item. */ ${unsafeCSS(DOCKED)} .container.only { justify-content: center; } /* TBR-8, TBR-9: every item keeps its own size (it never shrinks, and a Button's label stays on one line). */ ::slotted(*) { flex: none; } /* TBR-8: overflow scroll — items that need more length than the toolbar has scroll along its axis. Only then is the container a scroll container, so at rest nothing of an item — its target, its ring, an elevated Button's shadow — is clipped. */ .container.scrolls { overflow-x: auto; overflow-y: hidden; overscroll-behavior: contain; scrollbar-width: none; } .container.scrolls::-webkit-scrollbar { display: none; } /* TBR-30: while a run of items is kept at the end, the box before it holds the other items in the same line and is the one that scrolls; the container does not, so the run stays in place at the end edge. */ .track { box-sizing: border-box; flex: 0 1 auto; min-inline-size: 0; min-block-size: 0; align-self: stretch; display: flex; flex-direction: inherit; flex-wrap: nowrap; align-items: center; } .container.pins.scrolls { overflow: visible; } .container.pins.scrolls > .track { overflow-x: auto; overflow-y: hidden; overscroll-behavior: contain; scrollbar-width: none; /* TBR-30: the items fade out toward an edge they lie beyond — none of them at the edge, all of them sys.scroll-edge.extent in, or as far in as they still lie beyond it (--_lead, --_trail: the script writes how far the box is scrolled from each end) — so that a cut piece of an item never stands against the kept items or the toolbar's edge, and the first and the last item are whole once scrolled to. A mask on the items, not a color: the toolbar's own surface, or what lies behind an inline toolbar, shows through. The scroll padding is the fade's depth, so that an item brought into view (TBR-8) stands clear of it. */ --_e: var(--tanrei-sys-scroll-edge-extent); --_from-start: to right; --_from-end: to left; scroll-padding-inline: var(--_e); mask-image: linear-gradient(var(--_from-start), transparent, black min(var(--_e), var(--_lead, 0px))), linear-gradient(var(--_from-end), transparent, black min(var(--_e), var(--_trail, 0px))); mask-composite: intersect; } :host(:dir(rtl)) .container.pins.scrolls > .track { --_from-start: to left; --_from-end: to right; } .container.pins.scrolls > .track::-webkit-scrollbar { display: none; } /* TBR-4, TBR-5: floating — at its own size where the layout places it, never wider than its container; the edge around the whole shape, rounded by the variant's corners eased by corner smoothing. */ ${unsafeCSS(FLOATING)} .container { box-shadow: var(--_elevation), inset 0 0 0 ${t('outline-width')} var(--_edge); } /* TBR-6: vertical (inline and floating) — the items stacked top to bottom in the order given, whatever the direction (TBR-7), the paddings along the block axis, at least container.size wide, never taller than its container. */ ${unsafeCSS(VERTICAL)} { flex-direction: column; max-inline-size: none; max-block-size: 100%; } ${unsafeCSS(VERTICAL)} .container { flex-direction: column; min-inline-size: var(--_size); min-block-size: 0; padding-block: var(--_pad); padding-left: 0; padding-right: 0; } ${unsafeCSS(VERTICAL)} .container.scrolls { overflow-x: hidden; overflow-y: auto; } ${unsafeCSS(VERTICAL)} .container.pins.scrolls { overflow: visible; } ${unsafeCSS(VERTICAL)} .container.pins.scrolls > .track { overflow-x: hidden; overflow-y: auto; /* TBR-30, TBR-7: top to bottom whatever the direction. */ --_from-start: to bottom; --_from-end: to top; scroll-padding-inline: 0; scroll-padding-block: var(--_e); } ${unsafeCSS(PACKED)} .container { --_tanrei-toolbar-grow: 0; } /* TBR-23: the line between two groups, or where a separator item stands — divider.thickness thick, divider.length long across the axis, centred, in divider.color, with group.gap on each side. A border, not a background: engines snap a border to whole device pixels, and forced colors keep it. Docked, the space it stands in grows with the other spaces, so that the items stay evenly spread. */ .sep { flex: var(--_tanrei-toolbar-grow, 0) var(--_tanrei-toolbar-grow, 0) var(--_tanrei-toolbar-basis, auto); align-self: stretch; display: flex; align-items: center; justify-content: center; box-sizing: content-box; padding-inline: ${t('group-gap')}; min-inline-size: ${t('divider-thickness')}; } .sep::before { content: ''; box-sizing: border-box; inline-size: 0; block-size: ${t('divider-length')}; border-inline-start: ${t('divider-thickness')} solid ${t('divider-color')}; } ${unsafeCSS(VERTICAL)} .sep { padding-inline: 0; padding-block: ${t('group-gap')}; min-inline-size: 0; min-block-size: ${t('divider-thickness')}; } ${unsafeCSS(VERTICAL)} .sep::before { inline-size: ${t('divider-length')}; block-size: 0; border-inline-start: 0; border-block-start: ${t('divider-thickness')} solid ${t('divider-color')}; } /* TBR-23: gap — twice group.gap of empty space and no line. */ ${whenGap( '.container', (container) => ` ${container} .sep { min-inline-size: 0; min-block-size: 0; } ${container} .sep::before { display: none; }`, )} /* TBR-24: a Menu anchored to an item is the product's, and is neither laid out nor counted: its host stands out of the line, and its surface is in the top layer. */ .menus { position: absolute; inline-size: 0; block-size: 0; } /* TBR-4: corner smoothing, the shared rule, on the container (data-tanrei-shape). */ ${shape} @media (forced-colors: active) { ${unsafeCSS(DOCKED)} .container { border-block-start: ${t('outline-width')} solid CanvasText; } ${unsafeCSS(FLOATING)} .container { border: ${t('outline-width')} solid CanvasText; } .sep::before { border-color: CanvasText; } } `, ]"
+          "default": "[ spaceStyles, css` /* TBR-17, TBR-13: the inline structure — every variant but docked and floating, and the default. In place where the layout puts it, as long as its items need and never longer than the layout allows; no inset is read. */ :host { display: inline-flex; vertical-align: middle; max-inline-size: 100%; } ${unsafeCSS(variantBlock(DEFAULT_VARIANT, ':host'))} ${unsafeCSS( CORE_VARIANTS.filter((v) => v !== DEFAULT_VARIANT) .map((v) => variantBlock(v, `:host([variant='${v}'])`)) .join('\\n'), )} :host([hidden]) { display: none; } /* TBR-23: the separation it draws — its attribute's, else comp.toolbar.separation's. */ ${separationHost(`${PREFIX}-separation`)} /* One line in reading order (logical: right-to-left starts at the right, TBR-7), padding-inline at each end, each item centred across the line; the fill, elevation, corners and edge are the variant's. */ .container { box-sizing: border-box; flex: 1 1 auto; min-inline-size: 0; display: flex; flex-direction: row; flex-wrap: nowrap; align-items: center; justify-content: flex-start; gap: 0; min-block-size: var(--_size); padding-inline: var(--_pad); background: var(--_bg); box-shadow: var(--_elevation), inset 0 0 0 ${t('outline-width')} var(--_edge); --tanrei-corner-radius: var(--_shape); --tanrei-corner-pill: var(--_shape-pill); --_tanrei-toolbar-gap: var(--_gap); } /* TBR-1, TBR-2, TBR-3: docked — the parent's full width; the container at least container.size high above the bottom inset, its color reaching under the bottom and side insets while the items stay inside them; the items spread with equal space between them, never less than the gap; the edge is the container's top inset line. */ ${unsafeCSS(DOCKED)} { display: flex; max-inline-size: none; --_inset-bottom: env(safe-area-inset-bottom, 0px); --_inset-left: env(safe-area-inset-left, 0px); --_inset-right: env(safe-area-inset-right, 0px); } ${unsafeCSS(DOCKED)} .container { min-block-size: calc(var(--_size) + var(--_inset-bottom)); padding-block-end: var(--_inset-bottom); padding-left: calc(var(--_inset-left) + var(--_pad)); padding-right: calc(var(--_inset-right) + var(--_pad)); box-shadow: var(--_elevation), inset 0 ${t('outline-width')} 0 0 var(--_edge); --_tanrei-toolbar-grow: 1; --_tanrei-toolbar-basis: 0px; --_tanrei-toolbar-min: var(--_gap); } /* TBR-2: one item is centred — by the container, not by a margin on the item. */ ${unsafeCSS(DOCKED)} .container.only { justify-content: center; } /* TBR-8, TBR-9: every item keeps its own size (it never shrinks, and a Button's label stays on one line). */ ::slotted(*) { flex: none; } /* TBR-8: overflow scroll — items that need more length than the toolbar has scroll along its axis. Only then is the container a scroll container, so at rest nothing of an item — its target, its ring, an elevated Button's shadow — is clipped. */ .container.scrolls { overflow-x: auto; overflow-y: hidden; overscroll-behavior: contain; scrollbar-width: none; } .container.scrolls::-webkit-scrollbar { display: none; } /* TBR-30: while a run of items is kept at the end, the box before it holds the other items in the same line and is the one that scrolls; the container does not, so the run stays in place at the end edge. */ .track { box-sizing: border-box; /* What holds the probe that tells the fade a change of direction (src/primitives/direction.ts). */ position: relative; flex: 0 1 auto; min-inline-size: 0; min-block-size: 0; align-self: stretch; display: flex; flex-direction: inherit; flex-wrap: nowrap; align-items: center; } .container.pins.scrolls { overflow: visible; } .container.pins.scrolls > .track { overflow-x: auto; overflow-y: hidden; overscroll-behavior: contain; scrollbar-width: none; /* TBR-30: the items fade out toward an edge they lie beyond — none of them at the edge, all of them sys.scroll-edge.extent in, or as far in as they still lie beyond it (--_lead, --_trail: the script writes how far the box is scrolled from each end) — so that a cut piece of an item never stands against the kept items or the toolbar's edge, and the first and the last item are whole once scrolled to. A mask on the items, not a color: the toolbar's own surface, or what lies behind an inline toolbar, shows through. The scroll padding is the fade's depth, so that an item brought into view (TBR-8) stands clear of it. */ --_e: var(--tanrei-sys-scroll-edge-extent); --_from-start: to right; --_from-end: to left; scroll-padding-inline: var(--_e); mask-image: linear-gradient(var(--_from-start), transparent, black min(var(--_e), var(--_lead, 0px))), linear-gradient(var(--_from-end), transparent, black min(var(--_e), var(--_trail, 0px))); mask-composite: intersect; } :host(:dir(rtl)) .container.pins.scrolls > .track { --_from-start: to left; --_from-end: to right; } .container.pins.scrolls > .track::-webkit-scrollbar { display: none; } /* TBR-30: what tells the fade that the direction changed (src/primitives/direction.ts), in the track's box. */ ${directionProbeStyles} /* TBR-4, TBR-5: floating — at its own size where the layout places it, never wider than its container; the edge around the whole shape, rounded by the variant's corners eased by corner smoothing. */ ${unsafeCSS(FLOATING)} .container { box-shadow: var(--_elevation), inset 0 0 0 ${t('outline-width')} var(--_edge); } /* TBR-6: vertical (inline and floating) — the items stacked top to bottom in the order given, whatever the direction (TBR-7), the paddings along the block axis, at least container.size wide, never taller than its container. */ ${unsafeCSS(VERTICAL)} { flex-direction: column; max-inline-size: none; max-block-size: 100%; } ${unsafeCSS(VERTICAL)} .container { flex-direction: column; min-inline-size: var(--_size); min-block-size: 0; padding-block: var(--_pad); padding-left: 0; padding-right: 0; } ${unsafeCSS(VERTICAL)} .container.scrolls { overflow-x: hidden; overflow-y: auto; } ${unsafeCSS(VERTICAL)} .container.pins.scrolls { overflow: visible; } ${unsafeCSS(VERTICAL)} .container.pins.scrolls > .track { overflow-x: hidden; overflow-y: auto; /* TBR-30, TBR-7: top to bottom whatever the direction. */ --_from-start: to bottom; --_from-end: to top; scroll-padding-inline: 0; scroll-padding-block: var(--_e); } ${unsafeCSS(PACKED)} .container { --_tanrei-toolbar-grow: 0; } /* TBR-23: the line between two groups, or where a separator item stands — divider.thickness thick, divider.length long across the axis, centred, in divider.color, with group.gap on each side. A border, not a background: engines snap a border to whole device pixels, and forced colors keep it. Docked, the space it stands in grows with the other spaces, so that the items stay evenly spread. */ .sep { flex: var(--_tanrei-toolbar-grow, 0) var(--_tanrei-toolbar-grow, 0) var(--_tanrei-toolbar-basis, auto); align-self: stretch; display: flex; align-items: center; justify-content: center; box-sizing: content-box; padding-inline: ${t('group-gap')}; min-inline-size: ${t('divider-thickness')}; } .sep::before { content: ''; box-sizing: border-box; inline-size: 0; block-size: ${t('divider-length')}; border-inline-start: ${t('divider-thickness')} solid ${t('divider-color')}; } ${unsafeCSS(VERTICAL)} .sep { padding-inline: 0; padding-block: ${t('group-gap')}; min-inline-size: 0; min-block-size: ${t('divider-thickness')}; } ${unsafeCSS(VERTICAL)} .sep::before { inline-size: ${t('divider-length')}; block-size: 0; border-inline-start: 0; border-block-start: ${t('divider-thickness')} solid ${t('divider-color')}; } /* TBR-23: gap — twice group.gap of empty space and no line. */ ${whenGap( '.container', (container) => ` ${container} .sep { min-inline-size: 0; min-block-size: 0; } ${container} .sep::before { display: none; }`, )} /* TBR-24: a Menu anchored to an item is the product's, and is neither laid out nor counted: its host stands out of the line, and its surface is in the top layer. */ .menus { position: absolute; inline-size: 0; block-size: 0; } /* TBR-4: corner smoothing, the shared rule, on the container (data-tanrei-shape). */ ${shape} @media (forced-colors: active) { ${unsafeCSS(DOCKED)} .container { border-block-start: ${t('outline-width')} solid CanvasText; } ${unsafeCSS(FLOATING)} .container { border: ${t('outline-width')} solid CanvasText; } .sep::before { border-color: CanvasText; } } `, ]"
         }
       ],
       "exports": [

@@ -268,7 +268,7 @@ test.describe('behavior', () => {
       near((await box(native(page, id))).width, count * width + (count - 1) * gap, `${id} row width`);
     }
     // The default system's numbers (the spec's verify).
-    expect([width, gap, height]).toEqual([40, 6, 40]);
+    expect([width, gap, height]).toEqual([40, 6, 36]);
     near((await box(native(page, 'empty'))).width, 270, 'six cells');
     // Where nothing gives it a width it is as wide as its row.
     await mount(page, [fx('free')]);

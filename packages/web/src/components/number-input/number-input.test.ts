@@ -344,8 +344,8 @@ test.describe('behavior: the box', () => {
       near(await px(container(page, id), 'border-top-left-radius'), await token(page, 'container-shape'), `${id} corner`);
       near(await px(container(page, id), 'border-bottom-right-radius'), await token(page, 'container-shape'), `${id} bottom corner`);
     }
-    // The default system's numbers: a stacked box 40 and 56, as tall as a Button of its size, and 16.
-    expect([await token(page, 'stacked-container-height-medium'), await token(page, 'stacked-container-height-large'), await token(page, 'container-padding-inline-medium')]).toEqual([40, 56, 16]);
+    // The default system's numbers: a stacked box 36 and 52, as tall as a Button of its size, and 16.
+    expect([await token(page, 'stacked-container-height-medium'), await token(page, 'stacked-container-height-large'), await token(page, 'container-padding-inline-medium')]).toEqual([36, 52, 16]);
     // The row: the prefix, the input, the suffix, the steppers — in that order, on one line.
     const id = 'stacked-prefix';
     const [prefix, field, suffix, down, up] = [await box(part(page, id, '.prefix')), await box(input(page, id)), await box(part(page, id, '.suffix')), await box(stepper(page, id, 'down')), await box(stepper(page, id, 'up'))];
@@ -1218,9 +1218,9 @@ test.describe('behavior: the steppers, the unit and what the product sets', () =
     // Each keeps the touch target along the row: two buttons narrower than it stand apart by what is missing.
     near(up.x - (down.x + down.width), Math.max(await token(page, 'stepper-gap'), touch - button), 'the two stand apart by what their targets lack');
     near(c.x + c.width - (up.x + up.width), await token(page, 'stepper-inset'), 'stepper.inset from the end edge');
-    // Under the default system: 40 each, wider than the touch target (36), so touching — 80 of the container's width —
+    // Under the default system: 36 each, as wide as the touch target (36), so touching — 72 of the container's width —
     // and 4 from its end.
-    expect([button, up.x + up.width - down.x, await token(page, 'stepper-inset')]).toEqual([40, 80, 4]);
+    expect([button, up.x + up.width - down.x, await token(page, 'stepper-inset')]).toEqual([36, 72, 4]);
     // Buttons, named, outside the focus order: the native button carries tabindex -1 and is still a button.
     for (const [which, name] of [['down', 'Decrease'], ['up', 'Increase']] as const) {
       const native = stepper(page, id, which).locator('button');

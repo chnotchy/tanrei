@@ -477,8 +477,9 @@ export class TanreiTab extends TanreiElement {
     const height = parts.box.getBoundingClientRect().height / scale.y;
     // The tab's own width is what it has before an end of the row takes some of it back (TAB-34): what is drawn, or its
     // least width — what was taken added back to the least width it is laid out at now — where that is more. What was
-    // taken lowers only the least width: a tab drawn wider than that by its content gave nothing back (a circle of 32
-    // in a 36 tab that 8 were taken from is drawn 32, and is a 36 tab, not a 40 one). So the second reading of a row
+    // taken lowers only the least width: a tab drawn wider than that by its content gave nothing back (the default
+    // system's 28 circle in its 36 tab, were 12 taken from it, is laid out at 24 and drawn 28, and is a 36 tab, not a
+    // 40 one). So the second reading of a row
     // (`boxes()`) finds what the row comes to rest at: a row that a later placement still moved would have the observer
     // report again, in the same frame, a box it has already reported, which the browser leaves undelivered as an error.
     const drawnWidth = parts.tab.getBoundingClientRect().width / scale.x;
@@ -949,7 +950,7 @@ export class TanreiTabs extends TanreiElement {
   variant: TanreiTabsVariant = 'primary';
 
   /**
-   * The row's height (small 32 / medium 48) and what shrinks with it: a tab's padding, the active indicator's margins
+   * The row's height (28 / 36 in the default system) and what shrinks with it: a tab's padding, the active indicator's margins
    * and the icon. A primary tab stacks its icon above its label or puts it before it as the size's
    * `comp.tabs.icon.placement` says (medium stacks and small does not, in the default system), and a small row's tabs
    * still answer a press within the minimum target.

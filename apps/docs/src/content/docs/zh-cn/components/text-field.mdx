@@ -19,7 +19,7 @@ import Playground from '../../../../components/visuals/Playground.astro';
 <ComponentAvailability name="text-field" />
 
 :::note[规格已修订，但尚未在所有平台上实现]
-本页描述的是规格当前所定的文本字段：`stacked` 变体，它是默认变体，标签位于文本字段上方；`filled` 和 `outlined` 只为 Material 和 cupertino 预设保留；各变体的高度均为 36、40 和 56，medium 即控件高度（显示标签的 filled 文本字段会增高，以容纳浮在值上方的标签）；带选择器按钮的日期和时间类型；随文本增高、或用调整手柄调整大小的多行文本字段（`resize`）；按分段逐个单位输入的日期或时间；以及把文本字段标记为必填或选填的 `required` 和 `optional`。Web 组件已经全部做到，演示也是如此。文本字段还可以保存代码（`type="code"`，以及决定代码行是否换行的 `wrap`）：Web 已经实现，其他平台都还没有。文本字段是包住一个文本输入框的字段，也就是本页描述的样子：Web 也已经实现，并且在 Web 上 `required` 属性（attribute）已经不存在了。SwiftUI、Compose、Flutter 和 React Native 在上方标记为“待跟进”：在跟上之前，它们提供的是上一版——默认为 outlined，高度为 36 和 40，`required` 标志不绘制任何标记，没有 `stacked` 变体，没有日期或时间类型，没有选择器按钮，也没有调整大小的模式——它们的示例展示的也是那一版。
+本页描述的是规格当前所定的文本字段：`stacked` 变体，它是默认变体，标签位于文本字段上方；`filled` 和 `outlined` 只为 Material 和 cupertino 预设保留；在默认系统中，各变体的高度均为 28、36 和 52，medium 即控件高度，small 从它周围 36 的目标接收按下（显示标签的 filled 文本字段会增高，以容纳浮在值上方的标签）；带选择器按钮的日期和时间类型；随文本增高、或用调整手柄调整大小的多行文本字段（`resize`）；按分段逐个单位输入的日期或时间；以及把文本字段标记为必填或选填的 `required` 和 `optional`。Web 组件已经全部做到，演示也是如此。文本字段还可以保存代码（`type="code"`，以及决定代码行是否换行的 `wrap`）：Web 已经实现，其他平台都还没有。文本字段是包住一个文本输入框的字段，也就是本页描述的样子：Web 也已经实现，并且在 Web 上 `required` 属性（attribute）已经不存在了。SwiftUI、Compose、Flutter 和 React Native 在上方标记为“待跟进”：在跟上之前，它们提供的是上一版——默认为 outlined，高度为 36 和 40，`required` 标志不绘制任何标记，没有 `stacked` 变体，没有日期或时间类型，没有选择器按钮，也没有调整大小的模式——它们的示例展示的也是那一版。
 :::
 
 <Example label="默认的 Stacked：一个必填的文本字段，以及带选择器按钮的日期" column>
@@ -351,7 +351,7 @@ input.addEventListener('input', () => (field.countText = input.countText));
 
 在所有系统里，包括各个预设，默认都是 stacked。想要 Material 式浮动标签的 Material 产品，可以把文本字段的 `variant` 设为 `outlined` 或 `filled`。在 Tanrei 系统下，`filled` 和 `outlined` 仍然可用，但开发时会给出警告。
 
-`medium`（40）是紧凑的文本字段，`large`（56）是标准的文本字段。筛选条件和密集的设置界面使用 `medium`，登录和结账表单使用 `large`。`small`（32）是小号下拉选择框的高度，用于应用栏、工具栏或一排紧凑控件中的文本字段，此时输入文本为 14。在默认系统中，另外两种尺寸的输入文本都是 16。高度是最小值：文本放大时，文本字段会随之增高，点击区域也始终满足最小目标尺寸。
+`medium`（36）是紧凑的文本字段，`large`（52）是标准的文本字段。筛选条件和密集的设置界面使用 `medium`，登录和结账表单使用 `large`。`small`（28，点击区域达到 36 的目标）是小号下拉选择框的高度，用于应用栏、工具栏或一排紧凑控件中的文本字段，此时输入文本为 14。在默认系统中，另外两种尺寸的输入文本都是 16。高度是最小值：文本放大时，文本字段会随之增高，点击区域也始终满足最小目标尺寸。
 
 ### 标签和占位符
 

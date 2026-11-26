@@ -54,7 +54,8 @@
  * `avatar.css`, `menu.css`, `menubar.css`, `callout.css`, `empty-state.css`, `code.css`) are hidden here and held by
  * that stylesheet. src/fouce.test.ts holds every fixture of every element held here to the height it is drawn at.
  *
- * Every value is a `--tanrei-comp-*` token (and private `--_cloak-*` names for heights worked out from them, some of
+ * Every value is a `--tanrei-comp-*` token or the pointer target `--tanrei-sys-target-pointer`, which a column of tabs
+ * that touch is held at (and private `--_cloak-*` names for heights worked out from them, some of
  * which a container gives the elements it lays out: a stepper its steps, vertical tabs their tabs), arithmetic on
  * them (twice a padding, half a difference), or a keyword; the values of its own are `line-height: 0`, which takes
  * the page's text written inside an element out of its height rather than giving it one, and a zero-width space, the
@@ -584,17 +585,18 @@
   :where(tanrei-tabs:is(:not([variant]), [variant='primary']):not([size='small'], [orientation='vertical']):not(:defined):has(> tanrei-tab[icon]:not([icon=''], [label-hidden]))) {
     min-block-size: var(--tanrei-comp-tabs-container-height-with-icon);
   }
-  /* Vertical tabs: a column of its tabs, each the container height of the row's size. */
+  /* Vertical tabs: a column of its tabs, each the container height of the row's size, and at least the pointer target
+     tall: in a column the tabs touch above and below (TAB-51). (A coarse pointer's larger target is not held: above.) */
   :where(tanrei-tabs[orientation='vertical']):where(:not(:defined):not([hidden])) {
     display: flex;
     flex-direction: column;
   }
   :where(tanrei-tabs[orientation='vertical']:not(:defined)) {
-    --_cloak-tab: var(--tanrei-comp-tabs-container-height-medium);
+    --_cloak-tab: max(var(--tanrei-comp-tabs-container-height-medium), var(--tanrei-sys-target-pointer));
     min-block-size: var(--_cloak-tab);
   }
   :where(tanrei-tabs[orientation='vertical'][size='small']:not(:defined)) {
-    --_cloak-tab: var(--tanrei-comp-tabs-container-height-small);
+    --_cloak-tab: max(var(--tanrei-comp-tabs-container-height-small), var(--tanrei-sys-target-pointer));
   }
   :where(tanrei-tab):where(:not(:defined):not([hidden])) {
     display: block;

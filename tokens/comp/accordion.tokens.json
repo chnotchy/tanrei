@@ -92,10 +92,10 @@
         "container": {
           "height": {
             "$type": "dimension",
-            "$description": "A header's least height, per size: the row that opens and closes an item, which carries hover, focus and press. Medium is the control height (40 in the default system), so that a header of the default size stands as tall as the Buttons and fields beside it, and as a navigation drawer's row; it holds one line of a title, for a page a person reads. Small is the small step (36 in the default system, held at the minimum target), a small navigation drawer row's height, for a panel among controls. Neither is ever lower than the target, because rows that touch cannot extend a hit area over each other. A minimum: a header grows with a wrapped label, a supporting text and enlarged text.",
+            "$description": "A header's least height, per size: the row that opens and closes an item, which carries hover, focus and press. Medium is the control height (36 in the default system), so that a header of the default size stands as tall as the Buttons and fields beside it, and as a navigation drawer's row; it holds one line of a title, for a page a person reads. Small is the small step (36 in the default system, held at the minimum target), a small navigation drawer row's height, for a panel among controls. Neither is ever lower than the target, because rows that touch cannot extend a hit area over each other. A minimum: a header grows with a wrapped label, a supporting text and enlarged text.",
             "medium": {
               "$value": {
-                "value": 40,
+                "value": 36,
                 "unit": "px"
               },
               "$extensions": {
@@ -128,7 +128,7 @@
             "$description": "Above the first line and below the last line of a header's text, per size: 8 at medium, which with one line of the label gives the height exactly, and 6 at small in the default system, the small header's 36 sharing what is left above and below the label. Each gives up half of what its header loses below its step at the control height's reference and takes half of what the target adds to it, so that one line of the label fits at every control height and size unit; it holds the room when the text is enlarged or wraps.",
             "medium": {
               "$value": {
-                "value": 8,
+                "value": 6,
                 "unit": "px"
               },
               "$extensions": {

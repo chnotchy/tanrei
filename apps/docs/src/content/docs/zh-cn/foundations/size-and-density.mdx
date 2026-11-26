@@ -12,17 +12,17 @@ import SystemValues from '../../../../components/tokens/SystemValues.astro';
 
 ## 尺寸阶梯
 
-阶梯是 `tanrei.sys.control.height.*` 这五个高度，控件的尺寸从这里读取：`medium` 就是控件高度 `tanrei.dial.control.height`（默认 40），其余各级在它下方和上方相差整数个尺寸单位（`dial.size.unit`，默认 4px）：`small` 低两个、`extra-small` 低四个，`large` 高四个、`extra-large` 高八个。下表是几个控件高度下的高度，由令牌自身的规则计算得出：
+阶梯是 `tanrei.sys.control.height.*` 这五个高度，控件的尺寸从这里读取：`medium` 就是控件高度 `tanrei.dial.control.height`（默认 36；m3-like 和 cupertino 预设保留 40），其余各级在它下方和上方相差整数个尺寸单位（`dial.size.unit`，默认 4px）：`small` 低两个、`extra-small` 低四个，`large` 高四个、`extra-large` 高八个。下表是几个控件高度下的高度，由令牌自身的规则计算得出：
 
 <DialHeights group="sys.control.height" dial="control.height" values={[36, 40, 44, 48, 56]} source="tokens/sys/measure.tokens.json" />
 
-许多组件的高度都读取这些级别，读取同一级的组件在任何控件高度下都一样高：Button 的 `small`、`medium` 和 `large` 分别读取 small、medium 和 large 这三级。阶梯本身没有下限，因为 `extra-small` 用于没有人会按的东西，例如标签或键盘快捷键。
+许多组件的高度都读取这些级别，读取同一级的组件在任何控件高度下都一样高：Button 的 `small`、`medium` 和 `large` 分别读取 small、medium 和 large 这三级。阶梯本身没有下限，因为 `extra-small` 用于没有人会按的东西。标签和键盘快捷键的大小由文字决定，它们有自己的高度，不随控件高度变化。
 
 ## 最小目标
 
-`tanrei.sys.target.minimum` 是任何供人按下的东西的最小绘制高度，对只有图标的控件来说也是最小宽度。每个可按下的盒子或行的高度都以它为下限推导，所以无论尺寸如何，都不会画得更低。它是开发者自己定的值：没有调节量会缩放它，因为一个随着被限制的东西一起缩小的下限，就不再是下限。
+`tanrei.sys.target.minimum` 是接收按下的区域的最小高度，对只有图标的控件来说也是这个区域的最小宽度。独立放置的控件，例如按钮、输入框或分段按钮，按其尺寸对应的那一级绘制，并从周围的目标区域接收按下。与相邻项相接的行，例如菜单、列表或树的行，无法越过相邻的行，所以它们的高度以这个最小值为下限推导，无论尺寸如何，都不会画得更低。它是开发者自己定的值：没有调节量会缩放它，因为一个随着被限制的东西一起缩小的下限，就不再是下限。
 
-在默认系统中，最小目标为 36，鼠标和手指都一样。Button 的高度能说明它的作用：括号里的值是尺寸和控件高度给出的高度，前面的值是最小目标让按钮保持的高度。
+在默认系统中，最小目标为 36，鼠标和手指都一样。它就是控件高度本身。小号 Button 绘制为 28 高，从周围的 36 接收按下；小号菜单行绘制为 36 高。在任何控件高度下，Button 的高度都遵循阶梯：
 
 <DialHeights group="comp.button.container.height" dial="control.height" values={[36, 40, 44, 48, 56]} source="tokens/comp/button.tokens.json" />
 

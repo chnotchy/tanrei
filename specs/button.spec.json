@@ -62,7 +62,7 @@
         "large"
       ],
       "default": "medium",
-      "description": "Visual height: comp.button.container.height.<size>, never drawn below sys.target.minimum (36 / 40 / 56 under the default system, the small one held at the minimum), which is also an icon-only button's width at its default width. The hit area always meets the minimum target. While it is not set the button is drawn at the size its nearest container sets — a button group's or a toolbar's size (BTN-48) — and at medium where none does. A design system may add values.",
+      "description": "Visual height: comp.button.container.height.<size>, its hit area never below sys.target.minimum (28 / 36 / 52 under the default system, the small one drawn at its step), which is also an icon-only button's width at its default width. The hit area always meets the minimum target. While it is not set the button is drawn at the size its nearest container sets — a button group's or a toolbar's size (BTN-48) — and at medium where none does. A design system may add values.",
       "axis": "tanrei.comp.button.size"
     },
     {
@@ -74,7 +74,7 @@
         "wide"
       ],
       "default": "default",
-      "description": "How wide an icon-only button is. default: as wide as it is high (36 / 40 / 56 under the default system). narrow: its glyph with a small inset on each side (28 / 32 / 32), for a tight row of icon actions. wide: 40 / 52 / 72, for the one action of a row that should weigh more. Ignored when the button has a label, and while fullWidth is true. The hit area meets the minimum target at every width."
+      "description": "How wide an icon-only button is. default: as wide as it is high (28 / 36 / 52 under the default system). narrow: its glyph with a small inset on each side (28 / 32 / 32), for a tight row of icon actions. wide: 40 / 52 / 72, for the one action of a row that should weigh more. Ignored when the button has a label, and while fullWidth is true. The hit area meets the minimum target at every width."
     },
     {
       "name": "fullWidth",
@@ -373,7 +373,7 @@
     {
       "id": "BTN-39",
       "text": "WHILE fullWidth is true and no host lays the button out THE button SHALL take the whole inline size its container gives it, and SHALL keep the height, the paddings, the corners, the outline and the minimum target of its size, variant and state, centring its content in that width — the label and the icon as one row, in the order and at the gap BTN-11 gives them, or an icon-only button's glyph, whatever width says. WHERE that width is narrower than the label THE button SHALL wrap the label, its lines centred, rather than truncate it or draw past its container. WHILE a host lays the button out (a button group, a toolbar, or the actions of a dialog, a side sheet, a popover, a callout or an empty state) THE button SHALL take the width that host gives it and ignore fullWidth: the host's own full width (BGR-17) is how a row of buttons shares one width.",
-      "verify": "The fixture full-width is as wide as its 320-wide stage, 40 high, its label centred; full-width-leading-icon centres its icon and label as one row. A full-width Button inside a standard button group is laid out as the same Button without fullWidth."
+      "verify": "The fixture full-width is as wide as its 320-wide stage, 36 high, its label centred; full-width-leading-icon centres its icon and label as one row. A full-width Button inside a standard button group is laid out as the same Button without fullWidth."
     },
     {
       "id": "BTN-40",

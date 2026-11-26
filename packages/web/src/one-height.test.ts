@@ -42,8 +42,9 @@ for (const name of BOXES) {
       // the value's line).
       for (const variant of ['filled', 'outlined']) expect(await container(page, `${variant}-${size}`, tag), `${name} ${variant} ${size}`).toBeGreaterThanOrEqual(own - 0.01);
     }
-    // The small one is held at the default system's minimum target (36).
-    expect(await Promise.all(SIZES.map((size) => button(page, size))), 'the premise: the default system\'s Buttons').toEqual([36, 40, 56]);
+    // The steps of the default system's ladder: the small one is drawn at its step, its hit area reaching the minimum
+    // target.
+    expect(await Promise.all(SIZES.map((size) => button(page, size))), 'the premise: the default system\'s Buttons').toEqual([28, 36, 52]);
   });
 }
 

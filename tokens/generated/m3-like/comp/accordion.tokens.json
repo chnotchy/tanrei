@@ -92,7 +92,7 @@
         "container": {
           "height": {
             "$type": "dimension",
-            "$description": "A header's least height, per size: the row that opens and closes an item, which carries hover, focus and press. Medium is the control height (40 in the default system), so that a header of the default size stands as tall as the Buttons and fields beside it, and as a navigation drawer's row; it holds one line of a title, for a page a person reads. Small is the small step (36 in the default system, held at the minimum target), a small navigation drawer row's height, for a panel among controls. Neither is ever lower than the target, because rows that touch cannot extend a hit area over each other. A minimum: a header grows with a wrapped label, a supporting text and enlarged text.",
+            "$description": "A header's least height, per size: the row that opens and closes an item, which carries hover, focus and press. Medium is the control height (36 in the default system), so that a header of the default size stands as tall as the Buttons and fields beside it, and as a navigation drawer's row; it holds one line of a title, for a page a person reads. Small is the small step (36 in the default system, held at the minimum target), a small navigation drawer row's height, for a panel among controls. Neither is ever lower than the target, because rows that touch cannot extend a hit area over each other. A minimum: a header grows with a wrapped label, a supporting text and enlarged text.",
             "medium": {
               "$value": {
                 "value": 56,

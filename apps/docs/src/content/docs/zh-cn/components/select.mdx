@@ -153,7 +153,7 @@ import Example from '../../../../components/visuals/Example.astro';
 
 三种变体就是文本输入框的那三种。默认系统只提供 `stacked`；`filled` 和 `outlined` 留给以这种方式绘制文本输入框的系统。一个表单只用一种样式。
 
-`small`（32）、`medium`（40）和 `large`（56）是文本输入框的高度。`small` 用于栏、工具栏或一排紧凑的控件，在那里小号选择框和小号文本输入框高度一致。
+`small`（28）、`medium`（36）和 `large`（52）是默认系统中文本输入框的高度；small 从它周围 36 的目标接收按下。`small` 用于栏、工具栏或一排紧凑的控件，在那里小号选择框和小号文本输入框高度一致。
 
 ### 哪些属于下拉选择框，哪些属于字段
 
@@ -178,7 +178,7 @@ import Example from '../../../../components/visuals/Example.astro';
 
 选项的字形位于标签前的一列中。没有字形的选项是否保留这一列的空间，由 `iconSpace` 决定。`auto`（默认）在同一区段中另有选项带字形时保留这一列，使该区段的标签从同一条线开始；在没有字形的区段中不保留。区段是一个组，或组外相邻的一串选项。`always` 在每个选项中都保留，`never` 只在带字形的选项中设这一列。[菜单](/zh-cn/components/menu/)也有同样的 `iconSpace`，取值和默认值都相同。
 
-选项采用选择器的 `size`。`small` 的选择器打开 small 选项（高 36，图标 20，即[菜单](/zh-cn/components/menu/)的 small 行），`medium` 或 `large` 的选择器打开 medium 选项（高为控件高度，默认系统中为 40）。文字大小不变，选项绝不低于目标。
+选项采用选择器的 `size`。`small` 的选择器打开 small 选项（高 36，图标 20，即[菜单](/zh-cn/components/menu/)的 small 行），`medium` 或 `large` 的选择器打开 medium 选项（高为控件高度，默认系统中为 36）。文字大小不变，选项绝不低于目标。
 
 值为空字符串的选项与其他选项一样是一个选择，用于“无”或“不限”。下拉选择框自己没有回到“尚未选择”的办法：允许不作选择的地方，请提供一个表明这一点的选项。
 

@@ -18,6 +18,7 @@ import { motionCount, motionEnded } from '../../../test/motions.js';
 import { transitionsRun, watchTransitions } from '../../../test/transitions.js';
 import { CarouselGeometry, type CarouselMetrics } from './carousel-geometry.js';
 import { expectBaseline } from '../../../test/baseline.js';
+import { CONTROL_HEIGHTS, atControlHeight } from '../../../test/control-height.js';
 import { contrastChecked } from '../../../test/contrast-checked.js';
 import { type Frame, type Frames, expectAnimated, sampleFrames } from '../../../test/frames.js';
 import { bezierOf, cubicBezier, resolveEasing } from '../../../test/appear.js';
@@ -2987,6 +2988,16 @@ test.describe('behavior', () => {
     expect(await offset(page, id), 'from zero').toBe(0);
     await page.clock.runFor(200);
     await expect.poll(() => offset(page, id)).toBe(s);
+  });
+
+  test('CRL-44: the playback control and the dots’ container are the control height at 32, 36 and 40', async ({ page }) => {
+    if (!(await page.evaluate(() => matchMedia('(pointer: fine)').matches))) test.skip(true, 'measured under a fine pointer');
+    await mountFixtures(page, spec, { icons: true, fixtures: only('playback-control', 'indicator') });
+    for (const h of CONTROL_HEIGHTS) {
+      await atControlHeight(page, h);
+      await expect.poll(async () => { const box = await bounds(playback(page, 'playback-control')); return [box.width, box.height]; }, `the playback control at ${h}`).toEqual([h, h]);
+      await expect.poll(async () => (await bounds(indicator(page, 'indicator'))).height, `the dots' container at ${h}`).toBe(h);
+    }
   });
 
   test('CRL-35: the playback control — pause while playing, play_arrow while paused, named by pauseLabel and playLabel, no pressed state; it toggles paused, fires pausedchange and keeps focus', async ({ page }) => {

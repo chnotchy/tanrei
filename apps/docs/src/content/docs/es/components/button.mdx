@@ -134,7 +134,7 @@ Un botón de solo icono tiene tres anchos. Su altura nunca cambia con ellos, y u
 
 | `width` | En el sistema predeterminado (small / medium / large) | Úsalo para |
 | --- | --- | --- |
-| `default` | Tan ancho como alto: 36 / 40 / 56, un círculo | La mayoría de las acciones de icono. |
+| `default` | Tan ancho como alto: 28 / 36 / 52, un círculo | La mayoría de las acciones de icono. |
 | `narrow` | El glifo y un pequeño margen interior a cada lado: 28 / 32 / 32, una cápsula | Una fila apretada de acciones de icono, como las herramientas al final de un campo o una fila de tabla densa. |
 | `wide` | 40 / 52 / 72, una cápsula | La única acción de una fila que debe pesar más que sus vecinas. |
 
@@ -443,7 +443,7 @@ Un botón sin `variant` es filled, con una excepción: colocado como acción de 
 - Escribe las etiquetas como un verbo, o un verbo y un sustantivo, que digan qué va a ocurrir: **Desplegar**, **Guardar borrador**, **Añadir miembro**.
 - Mantén un solo botón filled por vista. Si dos acciones parecen igual de principales, es probable que la vista esté haciendo dos trabajos.
 - Coloca la acción principal donde la esperan quienes usan la plataforma y mantén ese orden en todo el producto.
-- Usa `small` (32) en barras de herramientas y tablas densas, `medium` (40) de forma predeterminada y `large` (56) para ubicaciones pensadas para el tacto o muy destacadas. El área de pulsación es segura en todos los tamaños.
+- Usa `small` (28, con un área de pulsación que llega al objetivo de 36) en barras de herramientas y tablas densas, `medium` (36, la altura de control) de forma predeterminada y `large` (52) para ubicaciones pensadas para el tacto o muy destacadas. El área de pulsación es segura en todos los tamaños.
 - Define `destructive` en una acción que elimina o descarta algo, y elige su variante por su énfasis, como para cualquier otra acción.
 - Haz que un enlace al lugar donde se elimina algo sea un enlace corriente, cuya etiqueta diga adónde lleva. Define `destructive` en el botón que elimina, en ese lugar.
 - Usa el slot de icono para reforzar una etiqueta. Omite la etiqueta solo cuando el glifo se entienda de forma generalizada (buscar, cerrar, más) y da nombre al botón con `label`.
