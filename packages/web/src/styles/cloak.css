@@ -52,7 +52,10 @@
  * container rather than its own `size`, and the larger target of a coarse pointer where it makes a vertical step
  * taller. The elements with a stylesheet of their own for the time before they are defined (`app-bar.css`,
  * `avatar.css`, `menu.css`, `menubar.css`, `callout.css`, `empty-state.css`, `code.css`) are hidden here and held by
- * that stylesheet. src/fouce.test.ts holds every fixture of every element held here to the height it is drawn at.
+ * that stylesheet. A keyboard shortcut that holds the keys a page wrote for it (`keyboardShortcutContent()`, a
+ * `[data-tanrei-keys]` child) is neither held nor hidden here: `keyboard-shortcut.css` draws those keys where the
+ * element will, and shows them. src/fouce.test.ts holds every fixture of every element held here to the height it is
+ * drawn at.
  *
  * Every value is a `--tanrei-comp-*` token or the pointer target `--tanrei-sys-target-pointer`, which a column of tabs
  * that touch is held at (and private `--_cloak-*` names for heights worked out from them, some of
@@ -173,7 +176,7 @@
      control (in Firefox and WebKit on Linux, a line of the default face is 21px where a small tag is 20px). So a
      control is held at its token's height whatever face the page's text resolves to, and its width, which is not
      held, is the same. */
-  :where(tanrei-button, tanrei-button-with-menu, tanrei-checkbox, tanrei-chip, tanrei-copy-button, tanrei-keyboard-shortcut, tanrei-loading-indicator, tanrei-main-action-button, tanrei-radio-button, tanrei-rating, tanrei-segmented-button, tanrei-select, tanrei-switch, tanrei-tag):where(:not(:defined):not([hidden])) {
+  :where(tanrei-button, tanrei-button-with-menu, tanrei-checkbox, tanrei-chip, tanrei-copy-button, tanrei-keyboard-shortcut:not(:has(> [data-tanrei-keys])), tanrei-loading-indicator, tanrei-main-action-button, tanrei-radio-button, tanrei-rating, tanrei-segmented-button, tanrei-select, tanrei-switch, tanrei-tag):where(:not(:defined):not([hidden])) {
     display: inline-block;
     box-sizing: border-box;
     vertical-align: middle;
@@ -265,10 +268,10 @@
   :where(tanrei-tag[size='small']:not(:defined)) {
     min-block-size: var(--tanrei-comp-tag-container-height-small);
   }
-  :where(tanrei-keyboard-shortcut:not([variant='plain']):not(:defined)) {
+  :where(tanrei-keyboard-shortcut:not(:has(> [data-tanrei-keys])):not([variant='plain']):not(:defined)) {
     min-block-size: var(--tanrei-comp-keyboard-shortcut-container-height-medium);
   }
-  :where(tanrei-keyboard-shortcut[size='small']:not([variant='plain']):not(:defined)) {
+  :where(tanrei-keyboard-shortcut:not(:has(> [data-tanrei-keys]))[size='small']:not([variant='plain']):not(:defined)) {
     min-block-size: var(--tanrei-comp-keyboard-shortcut-container-height-small);
   }
   /* A tag (TAG-13) and a keycap (KBS-15) stand on the baseline of the text beside them, their label's: centred on the
@@ -279,16 +282,16 @@
      ascent less the descent of the label's face. An empty line of the label's text style (a zero-width space in the
      `::before`, of no height under the element's `line-height: 0`) centred in the box is the flex box's first item,
      and so sets its baseline there, in whatever face the label resolves to. */
-  :where(tanrei-tag, tanrei-keyboard-shortcut:not([variant='plain'])):where(:not(:defined):not([hidden])) {
+  :where(tanrei-tag, tanrei-keyboard-shortcut:not(:has(> [data-tanrei-keys])):not([variant='plain'])):where(:not(:defined):not([hidden])) {
     display: inline-flex;
     align-items: center;
     vertical-align: baseline;
   }
-  :where(tanrei-keyboard-shortcut:not([variant='plain'])):where(:not(:defined):not([hidden])) {
+  :where(tanrei-keyboard-shortcut:not(:has(> [data-tanrei-keys])):not([variant='plain'])):where(:not(:defined):not([hidden])) {
     padding-block-start: var(--tanrei-comp-keyboard-shortcut-outline-width);
     padding-block-end: var(--tanrei-comp-keyboard-shortcut-outline-bottom-width);
   }
-  :where(tanrei-tag, tanrei-keyboard-shortcut:not([variant='plain'])):where(:not(:defined):not([hidden]))::before {
+  :where(tanrei-tag, tanrei-keyboard-shortcut:not(:has(> [data-tanrei-keys])):not([variant='plain'])):where(:not(:defined):not([hidden]))::before {
     content: '\200b';
   }
   :where(tanrei-tag:not(:defined))::before {
@@ -301,12 +304,12 @@
     font-size: var(--tanrei-comp-tag-label-typescale-small-font-size);
     font-weight: var(--tanrei-comp-tag-label-typescale-small-font-weight);
   }
-  :where(tanrei-keyboard-shortcut:not(:defined))::before {
+  :where(tanrei-keyboard-shortcut:not(:has(> [data-tanrei-keys])):not(:defined))::before {
     font-family: var(--tanrei-comp-keyboard-shortcut-label-typescale-medium-font-family);
     font-size: var(--tanrei-comp-keyboard-shortcut-label-typescale-medium-font-size);
     font-weight: var(--tanrei-comp-keyboard-shortcut-label-typescale-medium-font-weight);
   }
-  :where(tanrei-keyboard-shortcut[size='small']:not(:defined))::before {
+  :where(tanrei-keyboard-shortcut:not(:has(> [data-tanrei-keys]))[size='small']:not(:defined))::before {
     font-family: var(--tanrei-comp-keyboard-shortcut-label-typescale-small-font-family);
     font-size: var(--tanrei-comp-keyboard-shortcut-label-typescale-small-font-size);
     font-weight: var(--tanrei-comp-keyboard-shortcut-label-typescale-small-font-weight);

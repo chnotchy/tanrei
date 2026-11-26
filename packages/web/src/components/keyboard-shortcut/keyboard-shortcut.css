@@ -1,0 +1,171 @@
+/*
+ * Keyboard shortcut before its element is defined (specs/keyboard-shortcut.spec.json; KBS-2, KBS-6…8, KBS-10, KBS-15):
+ * `<tanrei-keyboard-shortcut>` draws its keys in its shadow root, in the reader's convention, so a page rendered on a
+ * server shows only what it wrote between the tags until the script runs — and a line of text around it wraps again
+ * when the caps are drawn. This stylesheet draws what `keyboardShortcutContent()` (`@tanrei/web/keyboard-convention`)
+ * writes there as the element will draw it:
+ *
+ *   <script>{keyboardPlatformScript()}</script>                                    in <head>, inline
+ *   <tanrei-keyboard-shortcut keys="mod+k" label="Command K">{keyboardShortcutContent('mod+k', { label })}</tanrei-keyboard-shortcut>
+ *
+ * - the keys in both conventions, of which the reader's is shown, as the element resolves `auto` (KBS-2): the element's
+ *   own `convention`, else the nearest ancestor's `data-tanrei-keyboard-convention`, else the platform's, which
+ *   `keyboardPlatformScript()` puts on the root (`data-tanrei-keyboard-platform`) by the element's own test. Where no
+ *   script runs, the standard convention is shown;
+ * - the chords a sequence gap apart, the keys of a chord a chord gap apart, each key in a cap of its size's height,
+ *   padding and corners, filled and edged as the element's (KBS-6), or a run of text in the plain variant (KBS-7);
+ *   the legends and the + between them in the size's text role and the variant's color, disabled faded (KBS-9);
+ * - the drawn keys hidden from assistive technology and the text read in their place visually hidden (KBS-10).
+ *
+ * What it cannot give: a size or a variant a design system added (drawn as the default). With the cloak (`cloak.css`),
+ * a shortcut that holds these keys is shown and drawn by this stylesheet; one that holds none is the cloak's.
+ *
+ * Every value is a `--tanrei-comp-keyboard-shortcut-*` token. Every selector has no specificity (`:where()`), each
+ * element it styles is named by an attribute, and none matches once the element is defined.
+ */
+@layer tanrei.components {
+  :where(tanrei-keyboard-shortcut:not(:defined)) {
+    --_kbs-height: var(--tanrei-comp-keyboard-shortcut-container-height-medium);
+    --_kbs-pad: var(--tanrei-comp-keyboard-shortcut-container-padding-inline-medium);
+    --_kbs-shape: var(--tanrei-comp-keyboard-shortcut-container-shape-medium);
+    --_kbs-shape-pill: var(--tanrei-comp-keyboard-shortcut-container-shape-medium-pill);
+    --_kbs-chord: var(--tanrei-comp-keyboard-shortcut-chord-gap-medium);
+    --_kbs-sequence: var(--tanrei-comp-keyboard-shortcut-sequence-gap-medium);
+    --_kbs-font-weight: var(--tanrei-comp-keyboard-shortcut-label-typescale-medium-font-weight);
+    --_kbs-font-size: var(--tanrei-comp-keyboard-shortcut-label-typescale-medium-font-size);
+    --_kbs-line-height: var(--tanrei-comp-keyboard-shortcut-label-typescale-medium-line-height);
+    --_kbs-font-family: var(--tanrei-comp-keyboard-shortcut-label-typescale-medium-font-family);
+    --_kbs-tracking: var(--tanrei-comp-keyboard-shortcut-label-typescale-medium-letter-spacing);
+    --_kbs-legend: var(--tanrei-comp-keyboard-shortcut-keycap-label-color);
+    --_kbs-legend-d: var(--tanrei-comp-keyboard-shortcut-keycap-disabled-label-color);
+    position: relative;
+    display: inline-flex;
+    align-items: baseline;
+    vertical-align: baseline;
+    max-inline-size: 100%;
+    direction: ltr;
+    unicode-bidi: isolate;
+  }
+  :where(tanrei-keyboard-shortcut[size='small']:not(:defined)) {
+    --_kbs-height: var(--tanrei-comp-keyboard-shortcut-container-height-small);
+    --_kbs-pad: var(--tanrei-comp-keyboard-shortcut-container-padding-inline-small);
+    --_kbs-shape: var(--tanrei-comp-keyboard-shortcut-container-shape-small);
+    --_kbs-shape-pill: var(--tanrei-comp-keyboard-shortcut-container-shape-small-pill);
+    --_kbs-chord: var(--tanrei-comp-keyboard-shortcut-chord-gap-small);
+    --_kbs-sequence: var(--tanrei-comp-keyboard-shortcut-sequence-gap-small);
+    --_kbs-font-weight: var(--tanrei-comp-keyboard-shortcut-label-typescale-small-font-weight);
+    --_kbs-font-size: var(--tanrei-comp-keyboard-shortcut-label-typescale-small-font-size);
+    --_kbs-line-height: var(--tanrei-comp-keyboard-shortcut-label-typescale-small-line-height);
+    --_kbs-font-family: var(--tanrei-comp-keyboard-shortcut-label-typescale-small-font-family);
+    --_kbs-tracking: var(--tanrei-comp-keyboard-shortcut-label-typescale-small-letter-spacing);
+  }
+  :where(tanrei-keyboard-shortcut[variant='plain']:not(:defined)) {
+    --_kbs-legend: var(--tanrei-comp-keyboard-shortcut-plain-label-color);
+    --_kbs-legend-d: var(--tanrei-comp-keyboard-shortcut-plain-disabled-label-color);
+  }
+
+  /* KBS-2: one convention's keys, and the text read in their place. The reader's is laid out as if it were not there
+     (its children stand in the shortcut's box); the other is not drawn. Which is the reader's is an inherited value,
+     so the nearest of the shortcut's own `convention`, its ancestors' `data-tanrei-keyboard-convention` and the root's
+     platform decides, as the element resolves `auto`; where none says, the standard convention is drawn. */
+  :where(:root[data-tanrei-keyboard-platform='apple']) {
+    --_tanrei-keys-apple: contents;
+    --_tanrei-keys-standard: none;
+  }
+  :where(:root[data-tanrei-keyboard-platform='standard']) {
+    --_tanrei-keys-apple: none;
+    --_tanrei-keys-standard: contents;
+  }
+  /* After the platform's, so that a root that also chooses a convention is its choice. */
+  :where([data-tanrei-keyboard-convention='apple']:not(tanrei-keyboard-shortcut), tanrei-keyboard-shortcut[convention='apple']:not(:defined)) {
+    --_tanrei-keys-apple: contents;
+    --_tanrei-keys-standard: none;
+  }
+  :where([data-tanrei-keyboard-convention='standard']:not(tanrei-keyboard-shortcut), tanrei-keyboard-shortcut[convention='standard']:not(:defined)) {
+    --_tanrei-keys-apple: none;
+    --_tanrei-keys-standard: contents;
+  }
+  :where(tanrei-keyboard-shortcut:not(:defined)) > :where([data-tanrei-keys='apple']) {
+    display: var(--_tanrei-keys-apple, none);
+  }
+  :where(tanrei-keyboard-shortcut:not(:defined)) > :where([data-tanrei-keys='standard']) {
+    display: var(--_tanrei-keys-standard, contents);
+  }
+  /* Under the cloak (`cloak.css`), which hides every element until it is defined, the keys a page wrote are still
+     shown: the cloak leaves a shortcut that holds them to this stylesheet, and its hidden value does not reach them. */
+  :where(tanrei-keyboard-shortcut:not(:defined)) > :where([data-tanrei-keys]) {
+    visibility: visible;
+  }
+
+  /* KBS-10: the one text read in place of the drawn keys, never drawn. */
+  :where(tanrei-keyboard-shortcut:not(:defined)) > :where([data-tanrei-keys]) > :where([data-tanrei-keys-spoken]) {
+    position: absolute;
+    inline-size: 1px;
+    block-size: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+  /* KBS-8, KBS-15: the chords in order, a sequence gap apart, breaking a line only between chords. */
+  :where(tanrei-keyboard-shortcut:not(:defined)) > :where([data-tanrei-keys]) > :where([data-tanrei-keys-sequence]) {
+    display: inline-flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    column-gap: var(--_kbs-sequence);
+    row-gap: var(--_kbs-chord);
+    max-inline-size: 100%;
+  }
+  /* KBS-6, KBS-15: the keys of a chord, a chord gap apart, never broken across lines. */
+  :where(tanrei-keyboard-shortcut:not(:defined)) :where([data-tanrei-keys-chord]) {
+    display: inline-flex;
+    align-items: baseline;
+    column-gap: var(--_kbs-chord);
+    white-space: nowrap;
+    font: inherit;
+  }
+  :where(tanrei-keyboard-shortcut:not(:defined)) :where([data-tanrei-keys-key], [data-tanrei-keys-separator]) {
+    font: var(--_kbs-font-weight) var(--_kbs-font-size)/var(--_kbs-line-height) var(--_kbs-font-family);
+    letter-spacing: var(--_kbs-tracking);
+    color: var(--_kbs-legend);
+    white-space: nowrap;
+  }
+  /* KBS-6: a cap at least its size's height tall and as wide as tall, its fill and its edge, its size's corners. */
+  :where(tanrei-keyboard-shortcut:not(:defined)) :where([data-tanrei-keys-key]) {
+    box-sizing: border-box;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-block-size: var(--_kbs-height);
+    min-inline-size: var(--_kbs-height);
+    padding-inline: var(--_kbs-pad);
+    background: var(--tanrei-comp-keyboard-shortcut-container-color);
+    border: var(--tanrei-comp-keyboard-shortcut-outline-width) solid var(--tanrei-comp-keyboard-shortcut-outline-color);
+    border-block-end-width: var(--tanrei-comp-keyboard-shortcut-outline-bottom-width);
+    --tanrei-corner-radius: var(--_kbs-shape);
+    --tanrei-corner-pill: var(--_kbs-shape-pill);
+    border-radius: var(--_kbs-shape);
+  }
+  /* KBS-7: the plain form writes each chord as one run of text: no cap, fill or edge, and nothing between the keys. */
+  :where(tanrei-keyboard-shortcut[variant='plain']:not(:defined)) :where([data-tanrei-keys-chord]) {
+    column-gap: 0;
+  }
+  :where(tanrei-keyboard-shortcut[variant='plain']:not(:defined)) :where([data-tanrei-keys-key]) {
+    min-block-size: 0;
+    min-inline-size: 0;
+    padding-inline: 0;
+    background: none;
+    border: 0;
+  }
+  /* KBS-9: disabled fades the legends and separators. */
+  :where(tanrei-keyboard-shortcut[disabled]:not(:defined)) :where([data-tanrei-keys-key], [data-tanrei-keys-separator]) {
+    color: var(--_kbs-legend-d);
+  }
+  @media (forced-colors: active) {
+    :where(tanrei-keyboard-shortcut:not([variant='plain']):not(:defined)) :where([data-tanrei-keys-key]) {
+      border-color: CanvasText;
+    }
+    :where(tanrei-keyboard-shortcut[disabled]:not(:defined)) :where([data-tanrei-keys-key], [data-tanrei-keys-separator]) {
+      color: GrayText;
+    }
+  }
+}
