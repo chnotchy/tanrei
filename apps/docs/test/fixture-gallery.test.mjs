@@ -63,6 +63,23 @@ describe('the gallery of fixtures', () => {
     }
   });
 
+  test('a stage knows the direction its fixture names, which its document’s stage carries', () => {
+    let named = 0;
+    for (const spec of implemented) {
+      const document = fixtureDocument(spec.name);
+      for (const fixture of spec.fixtures) {
+        const stage = stageOf(spec, fixture);
+        assert.equal(stage.direction, fixture.direction, `${spec.name}/${fixture.id}`);
+        // The document's stage carries the direction the fixture names, and none where it names none.
+        const html = document.stages.find((each) => each.id === fixture.id).html;
+        const dir = /^<div class="stage"[^>]*?\sdir="(\w+)"/.exec(html)?.[1];
+        assert.equal(dir, fixture.direction, `${spec.name}/${fixture.id}`);
+        if (fixture.direction) named++;
+      }
+    }
+    assert.ok(named > 20, `${named} fixtures name a direction`);
+  });
+
   test('a presented fixture is drawn in the page where its document draws it in place, and closed with an opener where it stands in the top layer — beside its anchor, or modal', () => {
     const kinds = {};
     for (const spec of implemented) {
