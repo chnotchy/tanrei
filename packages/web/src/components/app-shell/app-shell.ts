@@ -17,6 +17,8 @@ import {
   styleQueries,
   takesText,
 } from '../../primitives/index.js';
+import { documentPainted } from '../../primitives/first-paint.js';
+import { readInPhase } from '../../primitives/read-phase.js';
 import { adoptUnlessDrawn } from '../../primitives/sheets.js';
 import { TanreiLightElement } from '../../primitives/element.js';
 import { DEBUG } from '../../primitives/debug.js';
@@ -361,10 +363,13 @@ export class TanreiAppShell extends TanreiLightElement {
 
   override connectedCallback() {
     // Asked for before the element's own first update is (which `super` asks for): the frames connected in one turn
-    // are all read before any of them is drawn.
-    this.watchTogether();
+    // are all read before any of them is drawn. Before the first paint they are read in the read phase, after the
+    // question whether the root draws the frame (`adoptUnlessDrawn`), whose sheet is the one that names the widths.
+    const painted = documentPainted();
+    if (painted) this.watchTogether();
     super.connectedCallback();
     adoptUnlessDrawn(this, sheet(), '--_aps-breakpoint-medium');
+    if (!painted) this.watchTogether();
     this.mutations?.observe(this, { childList: true });
     // APS-5: the window's width as the page has it, of which the navigation is left what the main region and the aside
     // do not need.
@@ -423,6 +428,14 @@ export class TanreiAppShell extends TanreiLightElement {
    */
   private watchTogether() {
     const due = TanreiAppShell.connecting;
+    // Until the document has been painted once, in the read phase of the coming frame, after its layout and before its
+    // paint: read in a microtask of the turn that connected them, the widths had the browser style the whole page for
+    // them there and then, while a loading page's modules upgrade one kind of element after another.
+    if (!documentPainted()) {
+      due.add(this);
+      readInPhase(due, TanreiAppShell.readConnected);
+      return;
+    }
     if (!due.size) {
       queueMicrotask(() => {
         const all = [...due];
@@ -433,6 +446,19 @@ export class TanreiAppShell extends TanreiLightElement {
     }
     due.add(this);
   }
+
+  /** The read phase's `watch()` for the frames connected before the first paint: all read, then all told their class. */
+  private static readonly readConnected = () => {
+    const all = [...TanreiAppShell.connecting];
+    TanreiAppShell.connecting.clear();
+    const read = all.map((each) => each.readWidths());
+    return () => {
+      // A frame whose stylesheet was added in this phase (`adoptUnlessDrawn`) is read again, now that it has it.
+      const again = all.filter((each, index) => !read[index] && each.isConnected);
+      const late = again.map((each) => each.readWidths());
+      all.forEach((each, index) => each.takeWidths(read[index] ?? late[again.indexOf(each)] ?? null));
+    };
+  };
 
   /** The reading half of `watch()`: the widths the frame's stylesheet was written for, and the tokens' here. */
   private readWidths(): { medium: string; expanded: string; tokens: string } | null {
@@ -1118,7 +1144,7 @@ export class TanreiAppShell extends TanreiLightElement {
 
   protected override willUpdate() {
     // The stylesheet may have arrived since the element was connected (a page that loads it late).
-    if (!this.widths) this.watch();
+    if (!this.widths && !TanreiAppShell.connecting.has(this)) this.watch();
   }
 
   protected override updated(changed: PropertyValues) {

@@ -33,7 +33,7 @@ import { syncFocusStyle } from './primitives/focus-ring.js';
 import { LINK_KEYS, linkRel, readDestination } from './primitives/link.js';
 import { PressController } from './primitives/press.js';
 import { report } from './primitives/report.js';
-import { styleQueries } from './primitives/separation.js';
+import { styleQueries, whenNoStyleQueries } from './primitives/separation.js';
 import { setWords, watchWords, wordFor, wordLacking } from './primitives/words.js';
 import { DEBUG } from './primitives/debug.js';
 
@@ -616,12 +616,25 @@ export function observeLinks(root: Document | ShadowRoot = document): () => void
   });
   observer.observe(root, { attributes: true, attributeFilter: ATTRIBUTES, childList: true, subtree: true });
   // Where there are no style queries the root's own attributes may name another design system: its choices are read again.
-  const systemObserver = styleQueries() ? null : new MutationObserver(() => syncSystem(doc));
-  systemObserver?.observe(doc.documentElement, { attributes: true });
+  let systemObserver: MutationObserver | null = null;
+  const watchSystem = () => {
+    if (systemObserver || styleQueries()) return;
+    systemObserver = new MutationObserver(() => syncSystem(doc));
+    systemObserver.observe(doc.documentElement, { attributes: true });
+  };
+  watchSystem();
   syncSystem(doc);
   const reread = () => readAll(links(root.querySelectorAll('a')));
   settings().reread.add(reread);
   reread();
+  // Asked before the document was painted, `styleQueries()` answers yes until its probe has answered: a no then has
+  // the root's choices watched and read, and every link read again.
+  whenNoStyleQueries(() => {
+    if (observed[OBSERVING] !== stop) return;
+    watchSystem();
+    syncSystem(doc);
+    reread();
+  });
 
   const stop = () => {
     observer.disconnect();

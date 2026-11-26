@@ -2196,6 +2196,8 @@ export class TanreiNavigationDrawer extends TanreiElement {
   private painted = false;
   /** Who asks for the drawer's first frame in the read phase. */
   private readonly firstFrame = {};
+  /** NVD-97: what asks for `readResize()` in the read phase, before the document has been painted. */
+  private readonly resizeRead = {};
   /** NVD-62: the first frame's order is owed: the cells are drawn, and the items wait for the phase to be placed. */
   private firstLook = false;
 
@@ -3364,6 +3366,7 @@ export class TanreiNavigationDrawer extends TanreiElement {
     this.removeAttribute('data-person-resize');
     this.unwatchWidths();
     cancelPhaseRead(this.firstFrame);
+    cancelPhaseRead(this.resizeRead);
     cancelAnimationFrame(this.instantFrame);
     cancelPhaseRead(this.pinsRead);
     this.watchPinnedRows(false);
@@ -4847,7 +4850,13 @@ export class TanreiNavigationDrawer extends TanreiElement {
     if (this.beside) {
       // Read with every other host's of the turn (src/primitives/read-phase.ts), once the drawer is drawn: what the
       // handle says follows what it was given. An update that only drew what was read reads nothing again.
-      if (!(changed.size === 1 && changed.has('resizeValues' as keyof TanreiNavigationDrawer))) readTogether(() => this.readResize());
+      // Until the document has been painted, in the read phase of the coming frame instead, after its layout and before
+      // its paint: read in the turn of the render, it had the browser lay the whole page out, while a loading page's
+      // modules upgrade one kind of element after another.
+      if (!(changed.size === 1 && changed.has('resizeValues' as keyof TanreiNavigationDrawer))) {
+        if (documentPainted()) readTogether(() => this.readResize());
+        else readInPhase(this.resizeRead, () => this.readResize());
+      }
       if (DEBUG && this.resizeShown && (changed.has('label') || changed.has('resizeLabel') || changed.has('resizable')) && !this.resizeLabel.trim() && !this.label.trim()) {
         report(this, 'NVD-102', 'resizeLabel and label are empty, so the resize handle has no accessible name; give the drawer a label');
       }

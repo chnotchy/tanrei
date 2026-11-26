@@ -24,6 +24,8 @@ import { styles } from './breadcrumbs.styles.js';
 import { adoptUnlessDrawn } from '../../primitives/sheets.js';
 import { TanreiElement } from '../../primitives/element.js';
 import { FacesWatch } from '../../primitives/faces.js';
+import { documentPainted } from '../../primitives/first-paint.js';
+import { readInPhase } from '../../primitives/read-phase.js';
 import { DEBUG } from '../../primitives/debug.js';
 
 /** What a trail longer than its width does (BRC-9, BRC-15): fold its middle behind the overflow button, or run over several lines. */
@@ -226,8 +228,12 @@ export class TanreiBreadcrumbs extends TanreiElement {
       ? null
       : new ResizeObserver((entries) => {
           const trails = new Set(entries.map((entry) => TanreiBreadcrumbs.owners.get(entry.target)).filter((trail): trail is TanreiBreadcrumbs => !!trail));
-          TanreiBreadcrumbs.decideTogether([...trails], true);
+          // A trail the read phase decided in this frame was decided after this frame's layout: what is reported now is
+          // that layout, or what the decision itself drew.
+          TanreiBreadcrumbs.decideTogether([...trails].filter((trail) => !TanreiBreadcrumbs.phased.has(trail)), true);
         });
+  /** The trails the read phase decided in this frame (`updated`), which its observer's reports of the frame leave be. */
+  private static readonly phased = new Set<TanreiBreadcrumbs>();
   /** The trails drawn in this turn, which are measured together after it (`updated`). */
   private static readonly due = new Set<TanreiBreadcrumbs>();
   private watched: Element | null = null;
@@ -385,6 +391,16 @@ export class TanreiBreadcrumbs extends TanreiElement {
    * again in its own report of sizes, had the page laid out for itself each time (fifty trails drawn at once: 251
    * style passes and 152 layouts).
    */
+  /** The read phase's measure of the trails drawn before the first paint: written, then read, after the phase's reads. */
+  private static readonly decidePhased = () => () => {
+    const trails = [...TanreiBreadcrumbs.due];
+    TanreiBreadcrumbs.due.clear();
+    TanreiBreadcrumbs.decideTogether(trails, false);
+    const phased = TanreiBreadcrumbs.phased;
+    if (!phased.size) requestAnimationFrame(() => phased.clear());
+    for (const trail of trails) phased.add(trail);
+  };
+
   private static decideTogether(trails: TanreiBreadcrumbs[], observed: boolean) {
     const live = trails.flatMap((trail) => {
       const list = trail.renderRoot?.querySelector('ol');
@@ -633,8 +649,15 @@ export class TanreiBreadcrumbs extends TanreiElement {
       this.watched = probe;
     }
     // Measured with every other trail drawn in this turn, in one microtask after their updates — still in the task
-    // that drew them, before any frame.
+    // that drew them, before any frame. Until the document has been painted, in the read phase of the coming frame,
+    // after its writes and before its paint: measured in the turn of the render, the trails had the browser lay the
+    // whole page out for them, while a loading page's modules upgrade one kind of element after another.
     const due = TanreiBreadcrumbs.due;
+    if (!documentPainted()) {
+      due.add(this);
+      readInPhase(due, TanreiBreadcrumbs.decidePhased);
+      return;
+    }
     if (!due.size) {
       queueMicrotask(() => {
         const trails = [...due];
