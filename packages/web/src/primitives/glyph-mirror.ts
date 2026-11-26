@@ -1,6 +1,7 @@
 import { type ReactiveController, type ReactiveControllerHost, nothing } from 'lit';
 import { type IconSet, iconSets, systemIconSets } from '../generated/icon-sets.js';
 import { ICON_NAME, MIRROR, MIRRORED } from '../styles/icons.js';
+import { hearLightHosts } from './icon-roots.js';
 
 // A glyph that shows a direction along the line is drawn mirrored in a right-to-left layout, and the icon set says
 // which names those are. A stylesheet cannot read a name from an element's text, so script reads it and
@@ -385,18 +386,34 @@ export function mirrorWordOf(element: Element | null | undefined): string | type
 }
 
 const ICON = '.tanrei-icon';
-const observing = new WeakMap<Node, () => void>();
+/** Each root observed: what stops its observer, and how many callers still hold on to it. */
+const observing = new WeakMap<Node, { stop: () => void; callers: number }>();
+
+/** One caller's hold on the observation of `root`: the first call of the function it returns lets go, once. */
+function holdOn(root: Node, running: { stop: () => void; callers: number }): () => void {
+  running.callers++;
+  let held = true;
+  return () => {
+    if (!held) return;
+    held = false;
+    if (--running.callers) return;
+    running.stop();
+    observing.delete(root);
+  };
+}
 
 /**
  * Marks every bare `.tanrei-icon` under `root`, now and as the page changes:
  * icons added later, a glyph's name (its text or its `data-icon`) or `data-mirror` changed, the class given to an element, the design system
- * switched. `@tanrei/web` and `@tanrei/web/icons` call it for the document when they load; call it yourself for a
- * shadow root of your own, which the document's observer cannot see into. Calling it twice for one root observes once.
- * Returns a function that stops observing that root (the marks already written stay).
+ * switched. `@tanrei/web` and `@tanrei/web/icons` call it for the document when they load, and for each shadow root
+ * that an element of the package drawn in the light DOM (an accordion, a tree view) is used in, while it is used there
+ * (src/primitives/icon-roots.ts). Call it yourself for a shadow root of your own that holds none of them, which the
+ * document's observer cannot see into. Calling it twice for one root observes once. Returns a function that lets go of
+ * the observation: the root is observed until every caller has let go (the marks already written stay).
  */
 export function observeIcons(root: Document | ShadowRoot | Element = document): () => void {
   const running = observing.get(root);
-  if (running) return running;
+  if (running) return holdOn(root, running);
   if (typeof MutationObserver === 'undefined') return () => {};
   const all = () => {
     for (const icon of root.querySelectorAll(ICON)) markGlyph(icon);
@@ -419,11 +436,31 @@ export function observeIcons(root: Document | ShadowRoot | Element = document): 
   observer.observe(root, { attributes: true, attributeFilter: ['class', MIRROR, ICON_NAME], characterData: true, childList: true, subtree: true });
   watchSystem(all);
   all();
-  const stop = () => {
-    observer.disconnect();
-    unwatchSystem(all);
-    observing.delete(root);
+  const started = {
+    stop: () => {
+      observer.disconnect();
+      unwatchSystem(all);
+    },
+    callers: 0,
   };
-  observing.set(root, stop);
-  return stop;
+  observing.set(root, started);
+  return holdOn(root, started);
+}
+
+/** For each light-DOM element connected in a shadow root, its hold on that root's observation. */
+const heldRoots = new WeakMap<Element, () => void>();
+
+/**
+ * Observes, with `observeIcons()`, each shadow root a light-DOM element of the package (an accordion, a tree view) is
+ * connected in, while it is connected there: the glyphs the product puts in it are marked as in the document, whose
+ * observer cannot see into a shadow root. Each element holds on to its root, so the root is let go when the last one
+ * leaves it (or when nothing else holds it: a product's own call keeps it). `@tanrei/web/icons` calls it once.
+ */
+export function observeIconsWhereUsed(): void {
+  hearLightHosts((host, connected) => {
+    heldRoots.get(host)?.();
+    heldRoots.delete(host);
+    const root = connected ? host.getRootNode() : null;
+    if (root instanceof ShadowRoot) heldRoots.set(host, observeIcons(root));
+  });
 }
