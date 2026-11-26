@@ -438,7 +438,7 @@
     {
       "id": "TAB-52",
       "text": "WHILE orientation is vertical THE tabs SHALL draw the selected tab's active indicator, and every tab's state layer (TAB-18), as the tab's box less comp.tabs.track.padding on every side: as wide as the column less the inset on each side and as tall as the tab less the inset above and below, whatever the tab holds, never a circle, its corners rounded by the variant's active-indicator shape, each at most half its height (TAB-16); and SHALL slide and resize it from one tab to another along the column over comp.tabs.motion.indicator-duration with comp.tabs.motion.indicator-easing, as TAB-17 says, the covered label and icon following it as TAB-24 says.",
-      "verify": "Under the default system, in `vertical`: the indicator is 4 in from the track's left, right and top edges on the first tab and 40 tall; Down Arrow slides it down to the next tab over the indicator motion, the first and the last frame of the slide being its box on the one tab and on the other."
+      "verify": "Under the default system, in `vertical`: the indicator is 4 in from the track's left, right and top edges on the first tab, which is 36 tall (the control height), and 28 tall; Down Arrow slides it down to the next tab over the indicator motion, the first and the last frame of the slide being its box on the one tab and on the other."
     },
     {
       "id": "TAB-53",
@@ -468,7 +468,7 @@
     {
       "id": "TAB-58",
       "text": "WHILE orientation is vertical THE tabs SHALL round each corner of the track by the smaller of comp.tabs.track.shape and the active indicator's corner radius (the variant's active-indicator shape, at most half the indicator's height) plus comp.tabs.track.padding, so that the track's corners are concentric with the indicator's on the first and the last tab however tall the column is.",
-      "verify": "Under the default system (track and indicator fully rounded, track padding 4) the track of `vertical` has a corner of 24, the indicator's 20 plus 4, and not half the column's width; at 200 % text, where the tabs are taller, the corner grows with the indicator's. Under a system whose track shape is smaller than that sum the track keeps its own."
+      "verify": "Under the default system (track and indicator fully rounded, track padding 4) the track of `vertical` has a corner of 18, the indicator's 14 plus 4, and not half the column's width; at 200 % text, where the tabs are taller, the corner grows with the indicator's. Under a system whose track shape is smaller than that sum the track keeps its own."
     },
     {
       "id": "TAB-59",

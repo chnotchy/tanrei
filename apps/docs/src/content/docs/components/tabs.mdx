@@ -369,7 +369,7 @@ Set `orientation` to `vertical` to stack the tabs in a column at the start edge,
   </tanrei-tabs>
 </Example>
 
-- **The column.** Every tab is as wide as the widest, with its icon before its label at the start edge, in every variant and at every size. The tabs touch above and below, so each is at least the minimum target tall: a small column's tabs are 44 tall (48 with touch input), not 32. Make the column wider with `::part(tablist)`. In a column narrower than its widest tab, a label is truncated and shown whole in a tooltip.
+- **The column.** Every tab is as wide as the widest, with its icon before its label at the start edge, in every variant and at every size. The tabs touch above and below, so each is at least the minimum target tall: in the default system a small column's tabs are 36 tall, not 28. Make the column wider with `::part(tablist)`. In a column narrower than its widest tab, a label is truncated and shown whole in a tooltip.
 - **The indicator and the track.** The indicator is the tab less the track's inset on every side. The track's corners are the indicator's plus that inset, so the two stay concentric at the ends however tall the column is. A design system that draws a line under the selected tab draws it on the column's end edge, beside the panel, with the divider down that edge.
 - **Keys.** Down and Up Arrow move to the next and previous tab and select it, and Home and End go to the ends. Right and Left Arrow do nothing, so they stay the page's. Assistive technology is told the tab list is vertical.
 - **Scrolling.** Give the row a height, and tabs that do not fit scroll up and down inside the track. A touch scrolls them; only a mouse or a pen drags the indicator. `fullWidth` does not apply to a column.

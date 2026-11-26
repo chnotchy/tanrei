@@ -4465,6 +4465,13 @@ test.describe('vertical', () => {
     const [smallRow, pointerTarget] = await Promise.all([T('container-height-small'), '--tanrei-sys-target-pointer'].map((n) => resolveToken(page, n)));
     expect(smallRow).toBeLessThan(pointerTarget);
     for (const [n, b] of (await boxes(page, 'vertical-small')).entries()) expect(b.height, `vertical-small ${n}, the default system`).toBeCloseTo(pointerTarget, 0);
+    // TAB-52's numbers in the default system: in `vertical` the first tab is selected and 36 tall (the control height),
+    // and its indicator is 4 in from the track's left, right and top edges and 28 tall.
+    {
+      const [p, outer, first] = [await pill(page, V, 0), await bounds(track(page, V)), (await boxes(page, V))[0]];
+      expect(first.height).toBeCloseTo(36, 0);
+      expect([p.x - outer.x, outer.x + outer.width - (p.x + p.width), p.y - outer.y, p.height]).toEqual([expect.closeTo(4, 0), expect.closeTo(4, 0), expect.closeTo(4, 0), expect.closeTo(28, 0)]);
+    }
     await rootTokens(page, { '--tanrei-sys-target-pointer': '44px' });
     const [inset, padMedium, padSmall, medium, small, target] = await Promise.all(
       [T('track-padding'), T('container-padding-inline-medium'), T('container-padding-inline-small'), T('container-height-medium'), T('container-height-small'), '--tanrei-sys-target-pointer'].map((n) => resolveToken(page, n)),
@@ -4617,6 +4624,8 @@ test.describe('vertical', () => {
     const p = await pill(page, V, 0);
     expect(p.radius).toBeCloseTo(p.height / 2, 1);
     expect(await corner()).toBeCloseTo(p.height / 2 + inset, 1);
+    // The default system's numbers: the indicator's corner 14 (half its 28) plus the inset 4.
+    expect([p.radius, inset, await corner()]).toEqual([expect.closeTo(14, 1), 4, expect.closeTo(18, 1)]);
     expect(await corner()).toBeLessThan((await bounds(track(page, V))).width / 2 - 10);
     // A row's track is as before: its own shape, at most half its height.
     expect(await track(page, 'primary').evaluate((el) => Number.parseFloat(getComputedStyle(el).borderTopLeftRadius))).toBeGreaterThan(1000);
