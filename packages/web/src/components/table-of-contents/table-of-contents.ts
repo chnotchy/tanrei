@@ -8,7 +8,7 @@ import { ownDirection } from '../../styles/product-text.js';
 import { styles } from './table-of-contents.styles.js';
 import { adopt, adoptUnlessDrawn } from '../../primitives/sheets.js';
 import { documentPainted } from '../../primitives/first-paint.js';
-import { readInPhase } from '../../primitives/read-phase.js';
+import { cancelPhaseRead, readInPhase } from '../../primitives/read-phase.js';
 import { TanreiElement } from '../../primitives/element.js';
 import { flatParent } from '../../primitives/flat-tree.js';
 import { DEBUG } from '../../primitives/debug.js';
@@ -353,6 +353,8 @@ export class TanreiTableOfContents extends TanreiElement {
     clearTimeout(this.closeTimer);
     cancelAnimationFrame(this.frame);
     this.frame = 0;
+    cancelPhaseRead(this.phaseRead);
+    cancelPhaseRead(this.rowRead);
     this.opening?.disconnect();
     this.opening = null;
     for (const press of this.pressControllers) press.hostDisconnected();
@@ -466,8 +468,7 @@ export class TanreiTableOfContents extends TanreiElement {
    * the page has always reached it; at the end of a view that has room to scroll, the last item. The line is where the
    * browser rests a target: the view's start edge, its scroll padding, and the target's own scroll margin.
    */
-  private byRule(): string {
-    const view = this.watching?.view ?? this.findView();
+  private byRule(view: Element | null = this.watching?.view ?? this.findView()): string {
     const page = document.scrollingElement ?? document.documentElement;
     const scroller = view ?? page;
     const styled = getComputedStyle(view ?? document.documentElement);
@@ -589,11 +590,49 @@ export class TanreiTableOfContents extends TanreiElement {
 
   /** One decision in the next frame, however many events asked for it. Nothing is asked for at rest. */
   private schedule() {
-    if (this.frame || !this.isConnected) return;
+    if (!this.isConnected) return;
+    if (!documentPainted()) {
+      this.decideInPhase();
+      return;
+    }
+    if (this.frame) return;
     this.frame = requestAnimationFrame(() => {
       this.frame = 0;
       this.watch();
       this.decide();
+    });
+  }
+
+  /** What asks for `decideInPhase()`'s read. */
+  private readonly phaseRead = {};
+
+  /**
+   * `schedule()` until the document has been painted: where the targets scroll and the rule are read in the read phase
+   * of the coming frame, after its layout and before its paint (src/primitives/read-phase.ts), and the item is given
+   * with the phase's writes. Read in a frame callback, before the frame's layout, they had the browser style and lay
+   * the page out for them there (in WebKit, half a second as a long page loaded). What is listened to and observed is
+   * taken up in the next frame's callbacks, from the view read here: an observer given the root element while the
+   * phase's observer reports would have its first report left for later, with a loop error.
+   */
+  private decideInPhase() {
+    readInPhase(this.phaseRead, () => {
+      if (!this.isConnected) return;
+      const tracks = this.auto && this.trackable.length > 0;
+      const view = tracks ? this.findView() : null;
+      const href = this.reads ? this.byRule(view) : null;
+      return () => {
+        if (!this.isConnected) return;
+        if (tracks) {
+          cancelAnimationFrame(this.frame);
+          this.frame = requestAnimationFrame(() => {
+            this.frame = 0;
+            if (this.isConnected && this.auto && this.trackable.length) this.watchView(view);
+          });
+        } else this.unwatch();
+        // What changed in between (an item held, the element gone) decides as it always does.
+        if (href !== null && this.reads) this.give(href);
+        else if (!this.reads) this.decide();
+      };
     });
   }
 
@@ -687,7 +726,11 @@ export class TanreiTableOfContents extends TanreiElement {
       this.unwatch();
       return;
     }
-    const view = this.findView();
+    this.watchView(this.findView());
+  }
+
+  /** `watch()` with the view that scrolls the targets already read: it reads nothing. */
+  private watchView(view: Element | null) {
     if (this.watching && this.watching.view === view) return;
     this.unwatch();
     const source: EventTarget = view ?? document;
@@ -732,8 +775,24 @@ export class TanreiTableOfContents extends TanreiElement {
     return null;
   }
 
-  /** Scrolls the list's region, and no other, by the least distance that shows `row` whole. */
+  /**
+   * Scrolls the list's region, and no other, by the least distance that shows `row` whole. Until the document has been
+   * painted, it is read in the read phase of the coming frame and scrolled with its writes: read in the update that
+   * follows the rule's decision, it had the page laid out again for it.
+   */
   private showRow(row: Element, { atOnce = false } = {}) {
+    if (!documentPainted()) {
+      readInPhase(this.rowRead, () => (row.isConnected ? this.rowScroll(row, atOnce) : undefined));
+      return;
+    }
+    this.rowScroll(row, atOnce)?.();
+  }
+
+  /** What asks for `showRow()`'s read in the read phase. */
+  private readonly rowRead = {};
+
+  /** The reading half of `showRow()`: the scroll that shows `row` whole, or nothing where none is needed. */
+  private rowScroll(row: Element, atOnce: boolean): (() => void) | undefined {
     const region = this.listRegion();
     if (!region) return;
     const [box, around] = [row.getBoundingClientRect(), region.getBoundingClientRect()];
@@ -742,7 +801,8 @@ export class TanreiTableOfContents extends TanreiElement {
     // A row taller than the region is shown from its start.
     const by = box.top < top || box.height > region.clientHeight ? box.top - top : box.bottom > bottom ? box.bottom - bottom : 0;
     if (Math.abs(by) < SLACK) return;
-    region.scrollTo({ top: region.scrollTop + by, behavior: atOnce || motionReduced() ? 'instant' : 'smooth' });
+    const to = region.scrollTop + by;
+    return () => region.scrollTo({ top: to, behavior: atOnce || motionReduced() ? 'instant' : 'smooth' });
   }
 
   /** TOC-27: the list is shown — its current row is brought into its visible part without a motion, and kept there while the list's height moves. */
