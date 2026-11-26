@@ -38,7 +38,7 @@ const INPUT_PARTS = exported(TanreiOneTimeCodeInput);
  * `value` is at every moment the One-time-code input's, and the four events are that input's own, with this element
  * as their target: `event.target.value` is the code in every listener. It dispatches none itself.
  *
- * Form-associated: it submits the code under `name` — nothing while disabled —, resets to its `value` attribute, is
+ * Form-associated: it submits the code under `name` — nothing while disabled —, resets to the value it was first given, is
  * restored on navigation, follows a disabled `<fieldset>`, and reports a missing value while `required` is
  * set and it is empty. Enter in the cells presses the default button of this element's form.
  *

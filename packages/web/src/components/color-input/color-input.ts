@@ -6,6 +6,7 @@ import type { TanreiInputBoxSizeRegistry, TanreiInputBoxVariantRegistry } from '
 import '../button/button.js';
 import { formOf, pressDefaultButton } from '../../primitives/default-button.js';
 import { FormDisabledController } from '../../primitives/form-disabled.js';
+import { FormDefault } from '../../primitives/form-default.js';
 import { FormSays } from '../../primitives/form-says.js';
 import { browserMissingMessage } from '../../primitives/missing-value.js';
 import { AXES, CORE_SIZES, INSET, styles } from './color-input.styles.js';
@@ -104,7 +105,7 @@ function deepActiveElement(): Element | null {
  * draws that label floating.
  *
  * It is a block as wide as its place, and exactly as tall as its box (CLI-44). It is a form-associated element: it
- * takes `name`, submits its value, resets to the `value` attribute, is restored on navigation, follows
+ * takes `name`, submits its value, resets to the value it was first given, is restored on navigation, follows
  * `<fieldset disabled>` and reports `valueMissing` while its Field says it is required and `value` is empty, and
  * `badInput` while an entry error lasts.
  *
@@ -162,7 +163,7 @@ export class TanreiColorInput extends TanreiElement {
   variant: TanreiColorInputVariant = 'stacked';
 
   /**
-   * The container's minimum height: `small`, `medium` or `large` — stacked 36 / 40 / 56, as tall as a Button of the same
+   * The container's minimum height: `small`, `medium` or `large` — stacked 28 / 36 / 52, as tall as a Button of the same
    * size, and filled and outlined 40 / 48 / 56 in the default system. Reflected while it is set.
    * The hit area always meets the minimum target. While it is not set the color input draws the size its nearest container
    * sets — a toolbar's `size` (CLI-47) — and `medium` where none does; reading it then gives `medium`. Setting it (to any
@@ -187,7 +188,7 @@ export class TanreiColorInput extends TanreiElement {
     return this.sizes.drawn;
   }
 
-  /** The color the input holds: a number sign and six hexadecimal digits in lowercase (`#0f766e`), an opaque sRGB color; or empty for no color. It is never a half-typed text: while the input holds something that is not a color, `value` is empty. A text set in capitals or without its number sign is held in the value's own form; one that is not a color is treated as empty. The `value` attribute is also the value a form reset returns to. */
+  /** The color the input holds: a number sign and six hexadecimal digits in lowercase (`#0f766e`), an opaque sRGB color; or empty for no color. It is never a half-typed text: while the input holds something that is not a color, `value` is empty. A text set in capitals or without its number sign is held in the value's own form; one that is not a color is treated as empty. The value it is first given — by the `value` attribute or as the property — is what a form reset returns to. */
   // An accessor, not a field: the value is the person's at every moment. The `input` of an edit is
   // the browser's own event of the native text element — or of the browser's color input, for a pick — and is
   // composed: a capturing listener on an ancestor hears it before the element's own listener has run. So what the
@@ -249,6 +250,8 @@ export class TanreiColorInput extends TanreiElement {
   /** CLI-22: the input has focus, however it was gained. The picker button's focus is its own. */
   protected focused = false;
   private readonly fieldset = new FormDisabledController(this);
+  /** What a form's reset returns `value` to: the color it was first given, as a native control's `defaultValue`. */
+  private readonly valueDefault = new FormDefault(this, () => given(this.value).value, 'value', (text) => given(text).value);
   /** A disabled `<fieldset>` around the element, as the platform says it (src/primitives/form-disabled.ts). */
   protected get formDisabled(): boolean {
     return this.fieldset.byFieldset;
@@ -432,7 +435,7 @@ export class TanreiColorInput extends TanreiElement {
   }
 
   formResetCallback() {
-    const { value } = given(this.getAttribute('value'));
+    const value = this.valueDefault.value;
     this.value = value;
     // The same value as the one held is still a new one: the text and an entry error go.
     this.took(value);

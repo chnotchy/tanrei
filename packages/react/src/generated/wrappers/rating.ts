@@ -23,7 +23,7 @@ const RatingElement = /* @__PURE__ */ createComponent({
   },
 });
 const withRatingMarks = /* @__PURE__ */ withMarks<RatingMarks>([], ['form']);
-const RatingAttributes = { value: ['value', 0], max: ['max', 5], allowHalf: ['allow-half', false], size: ['size', 'medium'], icon: ['icon', ''], label: ['label', ''], optionLabels: ['option-labels'], valueText: ['value-text', ''], readOnly: ['read-only', false], disabled: ['disabled', false], name: ['name', ''], form: ['form'] } as const;
+const RatingAttributes = { value: ['value', 0], max: ['max', 5], allowHalf: ['allow-half', false], size: ['size', 'medium'], icon: ['icon', ''], label: ['label', ''], optionLabels: ['option-labels', []], valueText: ['value-text', ''], readOnly: ['read-only', false], disabled: ['disabled', false], name: ['name', ''], form: ['form'] } as const;
 /**
  * Lets a person give a score out of a few marks — stars by default — or shows a score already given, a whole mark or, where the product allows it, a half mark at a time.
  *

@@ -175,9 +175,9 @@ test.describe('the parts and their sizes', () => {
     for (const c of [cell(page, 'run', 'thead', 1, 2), cell(page, 'run', 'tbody', 1, 2)]) expect(await lines(c)).toBe(1);
   });
 
-  test('TBL-4: a cell’s paddings and text style by size, its color, figures of equal width, a row as tall as its tallest cell and at least its size’s row height (40, the control height, and 32, the small step, for one line in the default system), cells aligned to the top', async ({ page }) => {
+  test('TBL-4: a cell’s paddings and text style by size, its color, figures of equal width, a row as tall as its tallest cell and at least its size’s row height (36, the control height, and 28, the small step, for one line in the default system), cells aligned to the top', async ({ page }) => {
     await mountFixtures(page, spec, { fixtures: some('basic', 'small', 'long-cells', 'totals') });
-    for (const [id, size, height] of [['basic', 'medium', 40], ['small', 'small', 32]] as const) {
+    for (const [id, size, height] of [['basic', 'medium', 36], ['small', 'small', 28]] as const) {
       const padBlock = await resolveToken(page, T(`cell-padding-block-${size}`));
       const padInline = await resolveToken(page, T(`cell-padding-inline-${size}`));
       const line = await resolveToken(page, T('divider-thickness'));
@@ -692,7 +692,8 @@ test.describe('scrolling in its own box', () => {
     await size(page, 'sticky-header', { height: 240 });
     const limited = await scroll(host(page, 'sticky-header'));
     expect(limited.clientHeight).toBe(240);
-    expect(limited.height).toBeGreaterThan(500);
+    // Rows taller than the box: its scroll height is more than twice its height.
+    expect(limited.height).toBeGreaterThan(480);
     // The caption is above the rows, and the page does not scroll for them.
     const at = await box(host(page, 'sticky-header'));
     await page.mouse.move(at.x + at.width / 2, at.y + 120);
@@ -1696,7 +1697,7 @@ test.describe('the element and its stylesheet', () => {
     expect(await host(page, 'many').evaluate((el) => el.querySelectorAll('*').length)).toBe(300 * 4 + 1 + 3 + 2 + 1);
     // No cell and no row was written to.
     expect(await table(page, 'many').evaluate((el) => [...el.querySelectorAll('tr, td')].filter((part) => part.getAttributeNames().some((name) => name !== 'data-wrap')).length)).toBe(0);
-    near((await box(table(page, 'many').locator('> tbody > tr').nth(150))).height, 32, 0.1);
+    near((await box(table(page, 'many').locator('> tbody > tr').nth(150))).height, 28, 0.1);
     // The element's own work on the table that is already there, measured in the page: reading it again and measuring it.
     const work = await host(page, 'many').evaluate((el) => {
       const element = el as unknown as { read(): void };
@@ -3475,11 +3476,11 @@ test.describe('a loading body', () => {
     await page.addStyleTag({ content: fs.readFileSync(path.join(pkg, 'dist/skeleton.css'), 'utf8') });
     for (const id of ['loading-placeholders', 'held']) await settled(page, id);
     const id = 'loading-placeholders';
-    // The verify: five rows of empty cells, each as high as a row of one line (40 under the default system), no checkbox, the header checkbox disabled.
+    // The verify: five rows of empty cells, each as high as a row of one line (36 under the default system), no checkbox, the header checkbox disabled.
     const rows = await table(page, id).locator('> tbody > tr').all();
     expect(rows).toHaveLength(5);
     const line = (await box(table(page, 'selection').locator('> tbody > tr').first())).height;
-    near(line, 40, 0.1);
+    near(line, 36, 0.1);
     for (const tr of rows.slice(0, 4)) near((await box(tr)).height, line, 0.1);
     expect(await table(page, id).evaluate((el: HTMLTableElement) => [...el.tBodies[0].rows].every((tr) => [...tr.cells].every((c) => c.childNodes.length === 0)))).toBe(true);
     expect(await said(check(page, id, 'thead', 1))).toBe('unchecked disabled');

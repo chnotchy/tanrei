@@ -19,7 +19,7 @@ studioTest('the rail lists the nine rows, then the rest; each shows its panel, a
   assert.deepEqual(await current(page), ['color'], 'the brand color first');
   assert.deepEqual(await panels(page), ['brand']);
   // Every row says what it holds (an icon set by the name of its style) and draws a sample.
-  assert.deepEqual(await Promise.all(ROWS.map((row) => value(page, row))), ['none (monochrome)', 'neutral', 'Inter', '40px · minimum 36px', '2px', 'none', 'Rounded · 300', 'overlay', 'ring']);
+  assert.deepEqual(await Promise.all(ROWS.map((row) => value(page, row))), ['none (monochrome)', 'neutral', 'Inter', '36px · minimum 36px', '2px', 'none', 'Rounded · 300', 'overlay', 'ring']);
   // As the approved design draws it, what a row holds is one line: where it is too long for the rail it is cut at its
   // end with an ellipsis — the word «default» after the value first, then the value — and the whole value is still the
   // row's: in its accessible name, and the line's tooltip.
@@ -37,7 +37,7 @@ studioTest('the rail lists the nine rows, then the rest; each shows its panel, a
     assert.deepEqual([line.lines, line.title, line.tip, line.described, line.ellipsis], [1, '', line.text, true, 'ellipsis'], `${line.row}: one line, cut with an ellipsis, its Tanrei tooltip the whole value, adding nothing to the row's name (no native title)`);
   }
   assert.deepEqual(now.filter((line) => line.valueCut).map((line) => line.row), [], 'every value of the start is whole beside the rail’s samples');
-  assert.deepEqual(now.filter((line) => line.cut).map((line) => line.row), ['color', 'size'], '«default» gives way after «none (monochrome)» and «40px · minimum 36px»');
+  assert.deepEqual(now.filter((line) => line.cut).map((line) => line.row), ['color', 'size'], '«default» gives way after «none (monochrome)» and «36px · minimum 36px»');
   // A family whose name is longer than the rail: cut, and whole in the row's name and its tooltip.
   const family = 'Noto Sans Display Extra Condensed SemiBold';
   assert.equal(await page.evaluate((name) => window.tanreiStudio.applyOperation('tanrei.ref.typeface.brand', { $value: [name, 'sans-serif'], reason: 'Our brand face.' }), family), null);

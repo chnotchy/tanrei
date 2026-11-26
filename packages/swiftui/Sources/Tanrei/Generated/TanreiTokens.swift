@@ -2712,6 +2712,7 @@ public struct TanreiButtonWithMenuTokens: Sendable, Equatable {
   public var dividerThickness: CGFloat
   public var motionBusyCycleDuration: Double
   public var motionBusyFadeDuration: Double
+  public var motionBusyPulseFloorOpacity: Double
   public var motionFeedbackDuration: Double
   public var motionHoverCloseDelay: Double
   public var motionHoverOpenDelay: Double
@@ -2742,6 +2743,7 @@ public struct TanreiButtonWithMenuTokens: Sendable, Equatable {
     dividerThickness: CGFloat,
     motionBusyCycleDuration: Double,
     motionBusyFadeDuration: Double,
+    motionBusyPulseFloorOpacity: Double,
     motionFeedbackDuration: Double,
     motionHoverCloseDelay: Double,
     motionHoverOpenDelay: Double,
@@ -2767,6 +2769,7 @@ public struct TanreiButtonWithMenuTokens: Sendable, Equatable {
     self.dividerThickness = dividerThickness
     self.motionBusyCycleDuration = motionBusyCycleDuration
     self.motionBusyFadeDuration = motionBusyFadeDuration
+    self.motionBusyPulseFloorOpacity = motionBusyPulseFloorOpacity
     self.motionFeedbackDuration = motionFeedbackDuration
     self.motionHoverCloseDelay = motionHoverCloseDelay
     self.motionHoverOpenDelay = motionHoverOpenDelay
@@ -3107,6 +3110,7 @@ public struct TanreiButtonTokens: Sendable, Equatable {
   public var containerShape: CGFloat
   public var motionBusyCycleDuration: Double
   public var motionBusyFadeDuration: Double
+  public var motionBusyPulseFloorOpacity: Double
   public var motionFeedbackDuration: Double
   public var motionStateEasing: TanreiCubicBezier
   public var toneContainerOpacity: Double
@@ -3126,6 +3130,7 @@ public struct TanreiButtonTokens: Sendable, Equatable {
     containerShape: CGFloat,
     motionBusyCycleDuration: Double,
     motionBusyFadeDuration: Double,
+    motionBusyPulseFloorOpacity: Double,
     motionFeedbackDuration: Double,
     motionStateEasing: TanreiCubicBezier,
     toneContainerOpacity: Double,
@@ -3140,6 +3145,7 @@ public struct TanreiButtonTokens: Sendable, Equatable {
     self.containerShape = containerShape
     self.motionBusyCycleDuration = motionBusyCycleDuration
     self.motionBusyFadeDuration = motionBusyFadeDuration
+    self.motionBusyPulseFloorOpacity = motionBusyPulseFloorOpacity
     self.motionFeedbackDuration = motionFeedbackDuration
     self.motionStateEasing = motionStateEasing
     self.toneContainerOpacity = toneContainerOpacity
@@ -10061,6 +10067,7 @@ public struct TanreiLoadingIndicatorTokens: Sendable, Equatable {
   public var motionEnterDuration: Double
   public var motionEnterEasing: TanreiCubicBezier
   public var motionEntrance: Double
+  public var motionPulseFloorOpacity: Double
   public var motionShowDelay: Double
   public var sizes: TanreiLoadingIndicatorSizes
 
@@ -10074,6 +10081,7 @@ public struct TanreiLoadingIndicatorTokens: Sendable, Equatable {
     motionEnterDuration: Double,
     motionEnterEasing: TanreiCubicBezier,
     motionEntrance: Double,
+    motionPulseFloorOpacity: Double,
     motionShowDelay: Double,
     sizes: TanreiLoadingIndicatorSizes
   ) {
@@ -10086,6 +10094,7 @@ public struct TanreiLoadingIndicatorTokens: Sendable, Equatable {
     self.motionEnterDuration = motionEnterDuration
     self.motionEnterEasing = motionEnterEasing
     self.motionEntrance = motionEntrance
+    self.motionPulseFloorOpacity = motionPulseFloorOpacity
     self.motionShowDelay = motionShowDelay
     self.sizes = sizes
   }
@@ -13059,6 +13068,7 @@ public struct TanreiProgressIndicatorTokens: Sendable, Equatable {
   public var indicatorColor: TanreiPaint
   public var motionCycleDuration: Double
   public var motionCycleEasing: TanreiCubicBezier
+  public var motionPulseFloorOpacity: Double
   public var motionShowDelay: Double
   public var motionValueDuration: Double
   public var motionValueEasing: TanreiCubicBezier
@@ -13073,6 +13083,7 @@ public struct TanreiProgressIndicatorTokens: Sendable, Equatable {
     indicatorColor: TanreiPaint,
     motionCycleDuration: Double,
     motionCycleEasing: TanreiCubicBezier,
+    motionPulseFloorOpacity: Double,
     motionShowDelay: Double,
     motionValueDuration: Double,
     motionValueEasing: TanreiCubicBezier,
@@ -13086,6 +13097,7 @@ public struct TanreiProgressIndicatorTokens: Sendable, Equatable {
     self.indicatorColor = indicatorColor
     self.motionCycleDuration = motionCycleDuration
     self.motionCycleEasing = motionCycleEasing
+    self.motionPulseFloorOpacity = motionPulseFloorOpacity
     self.motionShowDelay = motionShowDelay
     self.motionValueDuration = motionValueDuration
     self.motionValueEasing = motionValueEasing

@@ -3153,6 +3153,7 @@ export class TanreiDateTimePicker extends TanreiElement {
       class="dial"
       aria-hidden="true"
       data-ring=${this.innerRing ? 'inner' : 'outer'}
+      data-rings=${this.shownUnit === 'hour' && this.cfg.cycle === 'h23' ? '2' : '1'}
       ?data-instant=${this.instant}
       style=${styleMap({ '--_angle': `${this.angle}deg` })}
       @pointerdown=${this.onDialDown}
@@ -3166,7 +3167,7 @@ export class TanreiDateTimePicker extends TanreiElement {
       <div class="arm">
         <div class="track"></div>
         <div part="handle" class="handle">
-          <div class="copy">${this.numbers()}</div>
+          <div class="turn"><div class="copy">${this.numbers()}</div></div>
           ${between ? html`<div class="between"></div>` : nothing}
         </div>
       </div>

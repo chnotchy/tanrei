@@ -171,7 +171,7 @@
         "small"
       ],
       "default": "medium",
-      "description": "How much room a row takes, in a tree view's words. medium (a row at the control height, 40 in the default system, with a 24 glyph: a menu item's row) is the drawer of a product used by touch as well as by pointer. small (the small step, 36 in the default system, with a 16 glyph: a tree view's small row) is for a tool used with a pointer whose drawer lists many places. It sets the rows, the section headings, the paddings, the glyphs, the nesting indent and the collapsed column alike — never the gap between the icon and the label — so both forms follow it; for touch a row is never lower than the touch target at either. A design system may add values.",
+      "description": "How much room a row takes, in a tree view's words. medium (a row at the control height, 36 in the default system, with a 24 glyph: a menu item's row) is the drawer of a product used by touch as well as by pointer. small (the small step, 36 in the default system, with a 16 glyph: a tree view's small row) is for a tool used with a pointer whose drawer lists many places. It sets the rows, the section headings, the paddings, the glyphs, the nesting indent and the collapsed column alike — never the gap between the icon and the label — so both forms follow it; for touch a row is never lower than the touch target at either. A design system may add values.",
       "axis": "tanrei.comp.navigation-drawer.size"
     },
     {
@@ -745,7 +745,7 @@
     {
       "id": "NVD-6",
       "text": "THE navigation drawer SHALL make each cell (a destination's or a group's row) its hit area, across the drawer's full width inside its insets, however deep it is nested (NVD-13), and the cell's height with half of comp.navigation-drawer.container.gap.medium above and below it, in both forms, and SHALL NOT let it fall below sys.target.pointer high for a fine pointer WHILE size is medium, nor below sys.target.touch for touch; WHERE a system's cell and gap give less, THE navigation drawer SHALL draw the cell higher, at least that target less the gap, and SHALL NOT extend its hit area over a neighbouring cell's, because cells laid out a gap apart cannot extend their hit areas over each other (BTN-5). WHILE size is small, for a fine pointer the hit area SHALL be the cell and half of the gap above and below it, the one place where a cell of the drawer is lower than the pointer target (still above the 24 of WCAG 2.5.8); WHERE input is touch, or the platform cannot tell the input type, a small cell SHALL be drawn at least sys.target.touch high, because cells whose hit areas touch cannot extend them over each other. Hover and press over any part of the hit area SHALL answer on the item container.",
-      "verify": "Under the default system: a medium cell is 40 high, the control height, and its hit area 44 for every input; a small cell is 36 high, the minimum target, and its hit area 38 for a mouse; under a layer that sets sys.target.touch to 48 a small cell is drawn 48 high for touch; under a layer whose targets are 48 and whose container.gap.medium is 2, a medium cell is drawn 46 high and its hit area is 48, and a press on a cell's visible bounds is never its neighbour's."
+      "verify": "Under the default system: a medium cell is 36 high, the control height, and its hit area 40 for every input; a small cell is 36 high, the minimum target, and its hit area 38 for a mouse; under a layer that sets sys.target.touch to 48 a small cell is drawn 48 high for touch; under a layer whose targets are 48 and whose container.gap.medium is 2, a medium cell is drawn 46 high and its hit area is 48, and a press on a cell's visible bounds is never its neighbour's."
     },
     {
       "id": "NVD-7",
@@ -849,12 +849,12 @@
     {
       "id": "NVD-31",
       "text": "WHILE collapsible is true THE navigation drawer SHALL give every cell the same height and the same place in both forms, so that each icon, each header button and the main action's glyph is drawn at exactly the same point expanded, collapsed and while moving between them: a cell's icon line SHALL lie below its top by the larger of half the expanded row's height (NVD-13) and comp.navigation-drawer.collapsed.item.container.padding-block.medium plus half of comp.navigation-drawer.item.icon-indicator.height.medium, and the cell SHALL reach below that line by the larger of half the expanded row's height and half of comp.navigation-drawer.item.icon-indicator.height.medium plus comp.navigation-drawer.collapsed.item.container.padding-block.medium (the item container's lower half) plus, WHILE collapsedLabels is not never, comp.navigation-drawer.collapsed.item.gap, one line of comp.navigation-drawer.collapsed.item.label.typescale and comp.navigation-drawer.collapsed.item.container.padding-block.medium again (the short label under the item container, NVD-32); both forms SHALL center the icon on that line. A section heading's row, and the header slot's row, SHALL keep their heights in both forms. The one exception is an open group, whose items the collapsed drawer does not draw (NVD-47): the cells after it move up while the drawer collapses and back while it expands. WHILE collapsible is false a cell SHALL be the expanded row alone.",
-      "verify": "Under the default system, with collapsedLabels never, a cell is 40 high in both forms and its icon line is 20 below its top: `collapsed` and `collapsible-expanded` draw every icon, the menu button and the main action's glyph at the same points. With collapsedLabels always a cell grows to hold the short label in both forms alike, to 68 (`collapsed-labels-always`)."
+      "verify": "Under the default system, with collapsedLabels never, a cell is 36 high in both forms and its icon line is 18 below its top: `collapsed` and `collapsible-expanded` draw every icon, the menu button and the main action's glyph at the same points. With collapsedLabels always a cell grows to hold the short label in both forms alike, to 62 (`collapsed-labels-always`)."
     },
     {
       "id": "NVD-32",
       "text": "WHILE the drawer is collapsed THE navigation drawer SHALL draw only the cells that are not inside a group (top-level destinations and groups, in a section or not), each as an item container comp.navigation-drawer.collapsed.item.container.width.medium wide, centered in the icon column, with corners comp.navigation-drawer.collapsed.item.container.shape, each at most half its height, holding, comp.navigation-drawer.collapsed.item.container.padding-block.medium below its top, the icon indicator, comp.navigation-drawer.item.icon-indicator.width.medium wide and comp.navigation-drawer.item.icon-indicator.height.medium high with corners comp.navigation-drawer.item.icon-indicator.shape, its icon centered in it on the cell's icon line, and comp.navigation-drawer.collapsed.item.container.padding-block.medium below the icon indicator, where the item container ends whether or not a short label is drawn: the item container, and with it the state layer and the focus indicator, lies behind the icon alone, as Material's navigation rail draws its active indicator. WHILE its short label is drawn (NVD-33) THE navigation drawer SHALL draw it outside the item container, comp.navigation-drawer.collapsed.item.gap below it, centered on the icon column on one line in comp.navigation-drawer.collapsed.item.label.typescale, across nearly the column's width (comp.navigation-drawer.collapsed.container.width.medium less comp.navigation-drawer.collapsed.item.label.padding-inline on each side) and not the item container's, as Material's navigation rail lets its label span the item, truncated at its end with an ellipsis where it is wider, with comp.navigation-drawer.collapsed.item.container.padding-block.medium below it; the cell's hit area (NVD-6) still covers the icon and the short label. It SHALL draw no trailing content. Every part is laid out in every system; a transparent color hides a part without changing the layout.",
-      "verify": "Under the default system, in `collapsed`: every cell's item container is 40 by 40 with the expanded row's corners (comp.navigation-drawer.item.container.shape), its icon at the point it has in `collapsible-expanded`, and no label is drawn; the selected one is filled exactly as the expanded row is, and none is a capsule. In `collapsed-labels-always` the item container is the same 40 by 40 square and the short label is drawn 4 below it, 64 wide (the 72 column less 4 on each side) and centred in the column, so that every label of `collapsed-labels-always`, `collapsed-labels-selected` and `collapsed-short-labels` but Notifications is drawn whole. Under `m3-like`, in `collapsed-labels-always`, the cell is Material's: a 56 by 32 indicator behind the glyph and the short label under it."
+      "verify": "Under the default system, in `collapsed`: every cell's item container is 36 by 36 with the expanded row's corners (comp.navigation-drawer.item.container.shape), its icon at the point it has in `collapsible-expanded`, and no label is drawn; the selected one is filled exactly as the expanded row is, and none is a capsule. In `collapsed-labels-always` the item container is the same 40 by 40 square and the short label is drawn 4 below it, 64 wide (the 72 column less 4 on each side) and centred in the column, so that every label of `collapsed-labels-always`, `collapsed-labels-selected` and `collapsed-short-labels` but Notifications is drawn whole. Under `m3-like`, in `collapsed-labels-always`, the cell is Material's: a 56 by 32 indicator behind the glyph and the short label under it."
     },
     {
       "id": "NVD-33",
@@ -963,7 +963,7 @@
     {
       "id": "NVD-57",
       "text": "WHEN the navigation drawer first appears in the layout with a selected destination, and WHEN value changes while it is shown, THE navigation drawer SHALL bring the row that shows the selection (the selected destination, or the group's row NVD-47 names) into view: IF that row is not wholly inside the space its items scroll in THE navigation drawer SHALL scroll them so that the row is centered in that space, as far as the scroll range allows, and otherwise it SHALL NOT scroll at all, so that a drawer whose selection is already in view stays where it is from one page to the next. It SHALL do so at once, without motion, WHEN the drawer first appears in its first frame (in the order NVD-62 gives), and SHALL NOT move keyboard focus. A modal presentation is brought there WHEN it opens, by the focus NVD-19 gives.",
-      "verify": "Under the default system, in a frame 800 high: `site-sidebar-long` (77 cells, 3408 tall, the selected row 2960 from the start of the items) is drawn with its items scrolled by 2580 and the selected row centered; `site-sidebar-restored`, the same drawer given scrollOffset 2364, is drawn at 2364, because the row is in view there. Test that no frame before either shows the items at 0, and that focus is where it was."
+      "verify": "Under the default system, in a frame 800 high: `site-sidebar-long` (78 cells, 3140 tall, the selected row 2692 from the start of the items) is drawn with its items scrolled by 2310 and the selected row centered; `site-sidebar-restored`, the same drawer given scrollOffset 2096, is drawn at 2096, because the row is in view there. Test that no frame before either shows the items at 0, and that focus is where it was."
     },
     {
       "id": "NVD-58",
@@ -983,7 +983,7 @@
     {
       "id": "NVD-61",
       "text": "THE navigation drawer SHALL hold how far its items are scrolled from their start as scrollOffset, in the units of its layout: it SHALL give the present distance whenever the product reads it, and WHEN the product sets it, before the drawer first appears included, SHALL scroll there at once and without motion, held inside the scroll range, the header staying in place (NVD-12). Scrolling by the user SHALL emit no event. WHILE the items can scroll, a scroll that reaches either end of them SHALL NOT go on to scroll what is beside or behind the drawer. WHEN a group opens or closes (NVD-44) THE navigation drawer SHALL keep that group's row where it is in view and move only the cells after it; WHEN keyboard focus moves to a cell that is not wholly in view it SHALL scroll that cell into view by the least distance that shows it whole.",
-      "verify": "Test in `site-sidebar-long`: setting scrollOffset to 5000 gives 2608, the end of the range in a frame 800 high; a wheel turned past the end of the items leaves the page behind where it was; closing Foundations with its row at 200 from the top leaves the row at 200."
+      "verify": "Test in `site-sidebar-long`: setting scrollOffset to 5000 gives 2340, the end of the range in a frame 800 high; a wheel turned past the end of the items leaves the page behind where it was; closing Foundations with its row at 200 from the top leaves the row at 200."
     },
     {
       "id": "NVD-62",
@@ -1071,7 +1071,7 @@
     {
       "id": "NVD-79",
       "text": "WHILE filterable is true and the drawer is expanded THE navigation drawer SHALL draw a filter field after its header (NVD-38: its header buttons, its header slot and its main action) and comp.navigation-drawer.header.gap below it (at the padding WHILE the header is empty), across the drawer's width inside comp.navigation-drawer.container.padding-inline, and SHALL lay out what stands under the field — the status line of NVD-90 while there is one, then the items — comp.navigation-drawer.filter.gap below it; the field SHALL stay in place while the items scroll, as the header does (NVD-12). The field SHALL be a Text input component of type search in its default variant, of the medium size WHILE size is medium and the small size WHILE size is small, showing the glyph search of the system's icon set in its leading-icon slot, filterPlaceholder as its placeholder and filterValue as its value, drawn and answering as that text input draws and answers (its own sentences hold, its tokens are its own). WHILE the drawer is collapsed it SHALL draw no field, SHALL keep filterValue, and SHALL draw its cells as though no filter were applied; WHEN it is expanded again the filter SHALL apply again.",
-      "verify": "Fixtures filter and filter-compact: the field stands 24 below the header buttons, 12 above the first row, inside the 12 padding; a medium drawer draws a medium (40) text input, a small one a small (36) one. collapsed with filterable true and a filterValue draws every top-level cell and no field."
+      "verify": "Fixtures filter and filter-compact: the field stands 24 below the header buttons, 12 above the first row, inside the 12 padding; a medium drawer draws a medium (36) text input, a small one a small (36) one. collapsed with filterable true and a filterValue draws every top-level cell and no field."
     },
     {
       "id": "NVD-80",
@@ -3175,6 +3175,14 @@
                 "label": "March",
                 "icon": "event"
               }
+            },
+            {
+              "kind": "destination",
+              "props": {
+                "value": "a-5",
+                "label": "April",
+                "icon": "event"
+              }
             }
           ]
         },
@@ -4411,6 +4419,13 @@
                 "href": "/project/license/",
                 "label": "License"
               }
+            },
+            {
+              "kind": "destination",
+              "props": {
+                "href": "/project/changelog/",
+                "label": "Changelog"
+              }
             }
           ]
         }
@@ -4422,7 +4437,7 @@
         "open": true,
         "value": "/components/navigation-drawer/",
         "label": "Documentation",
-        "scrollOffset": 2364
+        "scrollOffset": 2096
       },
       "items": [
         {
@@ -4970,6 +4985,13 @@
               "props": {
                 "href": "/project/license/",
                 "label": "License"
+              }
+            },
+            {
+              "kind": "destination",
+              "props": {
+                "href": "/project/changelog/",
+                "label": "Changelog"
               }
             }
           ]

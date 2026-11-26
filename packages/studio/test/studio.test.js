@@ -99,10 +99,11 @@ test('Essentials: four controls and a color write the minimal layer', async () =
   assert.deepEqual(layer.tokens, {
     'tanrei.dial.type.base': { $value: { value: 17, unit: 'px' }, reason },
     'tanrei.dial.space.unit': { $value: { value: 10, unit: 'px' }, reason },
-    // Spacing takes the size unit and the control height with it (8 → 10 is 4 → 5 and 40 → 50): a control's height
-    // must hold its padding.
+    // Spacing takes the size unit and the control height with it (8 → 10 is 4 → 5 and 36 → 45), and the control height
+    // goes on up to where every height holds its padding and its line at this type (47: at 45 a small Button, a small
+    // set and the accordion's header are a fraction of a pixel short).
     'tanrei.dial.size.unit': { $value: { value: 5, unit: 'px' }, reason },
-    'tanrei.dial.control.height': { $value: { value: 50, unit: 'px' }, reason },
+    'tanrei.dial.control.height': { $value: { value: 47, unit: 'px' }, reason },
     'tanrei.dial.shape.unit': { $value: { value: 4, unit: 'px' }, reason },
     'tanrei.dial.type.contrast': { $value: 1.2, reason },
   });
@@ -126,22 +127,22 @@ test('the Size row: the control height and the heights it gives, and the minimum
   const MINIMUM = 'tanrei.sys.target.minimum';
   const targets = (layer) => Object.fromEntries(['minimum', 'touch', 'pointer'].map((kind) => [kind, studio.preview(layer).model.tokens[`tanrei.sys.target.${kind}`].value.value]));
   const blank = { ...studio.blank(), id: 'size-row' };
-  assert.deepEqual(studio.targetMinimum(blank), { id: MINIMUM, base: 36, unit: 'px', value: 36, min: 24, max: 40, step: 1, changed: false, reason: '' });
+  assert.deepEqual(studio.targetMinimum(blank), { id: MINIMUM, base: 36, unit: 'px', value: 36, min: 24, max: 36, step: 1, changed: false, reason: '' });
 
   // No dial moves the targets: none scales the minimum, and touch and pointer alias it.
   for (const [dial, value] of [['size.unit', 3], ['size.unit', 7], ['control.height', 48], ['control.height', 64]]) {
     assert.deepEqual(targets(studio.setDial(blank, `tanrei.dial.${dial}`, value)), { minimum: 36, touch: 36, pointer: 36 }, `${dial} ${value}`);
   }
 
-  // The control writes a whole pixel from 24 to the control height (40; at most 48), as a dial is written; the base's
-  // own value writes nothing.
-  const set = studio.setTargetMinimum(blank, 38);
-  assert.deepEqual(set.tokens, { [MINIMUM]: { $value: { value: 38, unit: 'px' }, reason: 'Chosen in Theme Studio.' } });
-  assert.deepEqual(targets(set), { minimum: 38, touch: 38, pointer: 38 });
+  // The control writes a whole pixel from 24 to the control height (36, the minimum's own value, in the default system;
+  // at most 48), as a dial is written; the base's own value writes nothing.
+  const set = studio.setTargetMinimum(blank, 32);
+  assert.deepEqual(set.tokens, { [MINIMUM]: { $value: { value: 32, unit: 'px' }, reason: 'Chosen in Theme Studio.' } });
+  assert.deepEqual(targets(set), { minimum: 32, touch: 32, pointer: 32 });
   assert.deepEqual(studio.setTargetMinimum(set, 36), blank);
-  for (const refused of [23, 41, 30.5, Number.NaN, '40']) assert.equal(studio.setTargetMinimum(blank, refused), blank, `${refused} is refused`);
+  for (const refused of [23, 37, 30.5, Number.NaN, '32']) assert.equal(studio.setTargetMinimum(blank, refused), blank, `${refused} is refused`);
   assert.equal(studio.targetMinimum(studio.setDial(blank, 'tanrei.dial.control.height', 56)).max, 48, 'never above 48');
-  assert.equal(studio.setTargetMinimum(set, 40, 'Our product is used on the move.').tokens[MINIMUM].reason, 'Our product is used on the move.');
+  assert.equal(studio.setTargetMinimum(set, 34, 'Our product is used on the move.').tokens[MINIMUM].reason, 'Our product is used on the move.');
 
   // A system whose touch and pointer targets stand apart from the minimum keeps it under them, and under the control
   // height: the build refuses a minimum above any of them.
@@ -156,13 +157,14 @@ test('the Size row: the control height and the heights it gives, and the minimum
     assert.equal(studio.setTargetMinimum(layer, under + 1).tokens, undefined, `${base}: ${under + 1} is above its touch or pointer target`);
   }
 
-  // The heights the control height gives, by the engine: the ladder's small, medium and large, read through the minimum.
-  const heights = (view, at) => studio.heights(view, at).map(({ size, step, drawn, held }) => [size, step, drawn, held]);
+  // The heights the control height gives, by the engine: the ladder's small, medium and large, what a control of each
+  // size that stands alone is drawn at (its hit area reaches the minimum target past it).
+  const heights = (view, at) => studio.heights(view, at).map(({ size, step }) => [size, step]);
   const view = studio.preview(blank);
-  assert.deepEqual(heights(view), [['small', 32, 36, true], ['medium', 40, 40, false], ['large', 56, 56, false]]);
+  assert.deepEqual(heights(view), [['small', 28], ['medium', 36], ['large', 52]]);
   // At a value being dragged, before the layer is computed with it — and what computing it gives is the same.
   // A control height under the minimum takes the minimum down with it: the build refuses a minimum above it.
-  for (const [height, minimum, expected] of [[32, 32, [['small', 24, 32, true], ['medium', 32, 32, false], ['large', 48, 48, false]]], [36, 36, [['small', 28, 36, true], ['medium', 36, 36, false], ['large', 52, 52, false]]], [48, 36, [['small', 40, 40, false], ['medium', 48, 48, false], ['large', 64, 64, false]]]]) {
+  for (const [height, minimum, expected] of [[32, 32, [['small', 24], ['medium', 32], ['large', 48]]], [36, 36, [['small', 28], ['medium', 36], ['large', 52]]], [48, 36, [['small', 40], ['medium', 48], ['large', 64]]]]) {
     assert.deepEqual(heights(view, { height, minimum }), expected, `control height ${height}`);
     const layer = studio.setDial(blank, 'tanrei.dial.control.height', height);
     assert.equal(studio.targetMinimum(layer).value, minimum, `control height ${height}: the minimum`);
@@ -171,8 +173,9 @@ test('the Size row: the control height and the heights it gives, and the minimum
     assert.deepEqual(heights(computed), expected, `control height ${height}, computed`);
     assert.deepEqual(heights(computed).map(([size]) => computed.model.tokens[`tanrei.sys.control.height.${size}`].value.value), expected.map(([, step]) => step));
   }
-  assert.deepEqual(heights(view, { minimum: 40 }), [['small', 32, 40, true], ['medium', 40, 40, false], ['large', 56, 56, false]]);
-  assert.deepEqual(heights(studio.preview(studio.setTargetMinimum(blank, 40))), heights(view, { minimum: 40 }));
+  // The minimum target moves the hit areas, not what a control is drawn at.
+  assert.deepEqual(heights(view, { minimum: 34 }), heights(view));
+  assert.deepEqual(heights(studio.preview(studio.setTargetMinimum(blank, 34))), heights(view));
 
   // Both ends of the minimum, at both ends of the control height, build with nothing said of a target: the layer the
   // Studio writes passes the build's checks.
@@ -312,7 +315,8 @@ for (const [kind, fragment] of Object.entries(EXTENSIONS)) {
 }
 
 test('an added size is 84px tall, follows the dial, and shows up on its axis; an added variant is valued by the pattern rules', () => {
-  let layer = extend({ ...studio.blank(), id: 'hero' }, EXTENSIONS['a size, with one member overridden']);
+  // At the control height of 40, which the arithmetic below is written for (the default system's is 36).
+  let layer = studio.setDial(extend({ ...studio.blank(), id: 'hero' }, EXTENSIONS['a size, with one member overridden']), `${NS}.dial.control.height`, 40);
   layer = extend(layer, EXTENSIONS['a variant, with its resting colors']);
   const view = studio.preview(layer);
   assert.equal(view.valueOf(`${NS}.comp.button.container.height.3x`).value, 84, 'large (56 = the control height and four size units) × 1.5');

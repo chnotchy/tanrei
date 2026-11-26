@@ -14,6 +14,7 @@ import { decodePng, paintedColor } from '../../../test/png.js';
 import { readSeam } from '../../../test/seam.js';
 import { motionEnded } from '../../../test/motions.js';
 import { expectBaseline } from '../../../test/baseline.js';
+import { expectPulseKeepsFloor, resolveOpacity, samplePulse } from '../../../test/pulse-floor.js';
 import { controlledElements } from '../../../test/controlled-list.js';
 import { type HeldGlyph, expectGlyphsHeldBack } from '../../../test/held-glyphs.js';
 
@@ -596,7 +597,9 @@ test.describe('behavior', () => {
       // agrees with the Button's, as here, the half is a narrow icon-only Button of its size (BTN-12) and the outer padding.
       const narrow = `filled-narrow${size === 'medium' ? '' : `-${size}`}`;
       const narrowPad = await resolveToken(page, T(`trailing-padding-inline-narrow-${size}`));
-      expect(narrowPad, narrow).toBeLessThan(pad);
+      // (At the small size of the default system the default trailing half is as slim as the narrow one: a 28 half holds
+      // its 20 chevron 4 from each side, the narrow inset.)
+      expect(narrowPad, narrow).toBeLessThanOrEqual(pad);
       const slim = await insets(narrow, 'trailing', '.turn .chevron');
       expect(slim.left, narrow).toBeCloseTo(narrowPad, 1);
       expect(slim.right, narrow).toBeCloseTo(narrowPad + outer, 1);
@@ -1512,10 +1515,18 @@ test.describe('behavior', () => {
     };
     for (const [closed, open] of [['filled-medium', 'filled-open'], ['filled-gap', 'filled-gap-open'], ['elevated-gap', 'elevated-gap-open'], ['filled-narrow', 'filled-narrow-open']] as const) {
       expect(await form(open), open).toEqual(await form(closed));
-      // Painted: outside the chevron's box the two stages are the same picture.
-      const [origin, glyph] = [await bounds(page.locator(`[data-fixture="${open}"]`)), await bounds(host(page, open).locator('.turn .chevron'))];
+      // Painted: outside the chevron's box the two forms are the same picture. Both are taken of the one stage, the closed
+      // fixture's, before and after its button opens: two stages stand at different places on the page, and the engine
+      // rasterizes an antialiased edge or shadow by where it falls, so two places differ by a level on a few pixels
+      // whatever they draw.
+      const stage = page.locator(`[data-fixture="${closed}"]`);
+      const one = decodePng(await stage.screenshot({ animations: 'disabled' }));
+      await host(page, closed).evaluate(async (el: any) => { el.open = true; await el.updateComplete; });
+      await expect(host(page, closed).locator('button.trailing')).toHaveClass(/\bopen\b/);
+      await page.evaluate(() => new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r))));
+      const [origin, glyph] = [await bounds(stage), await bounds(host(page, closed).locator('.turn .chevron'))];
       const scale = await page.evaluate(() => devicePixelRatio);
-      const [one, other] = await Promise.all([closed, open].map(async (id) => decodePng(await page.locator(`[data-fixture="${id}"]`).screenshot({ animations: 'disabled' }))));
+      const other = decodePng(await stage.screenshot({ animations: 'disabled' }));
       expect([other.width, other.height]).toEqual([one.width, one.height]);
       const box = { left: (glyph.x - origin.x) * scale - 1, right: (glyph.x + glyph.width - origin.x) * scale + 1, top: (glyph.y - origin.y) * scale - 1, bottom: (glyph.y + glyph.height - origin.y) * scale + 1 };
       let different = 0;
@@ -1739,7 +1750,7 @@ test.describe('separation', () => {
     // SPB-32's verify, filled-medium: the label 20 from the start edge and 16 from the leading half's end edge; the
     // trailing half 44 wide, its chevron's centre 20 from the seam and 24 from the end edge.
     const wide = { labelFromStart: start + outer, labelFromSeam: end, trailing: icon + 2 * pad + outer, chevronFromSeam: pad + icon / 2, chevronFromEnd: pad + icon / 2 + outer };
-    expect(wide).toEqual({ labelFromStart: 20, labelFromSeam: 16, trailing: 44, chevronFromSeam: 20, chevronFromEnd: 24 });
+    expect(wide).toEqual({ labelFromStart: 20, labelFromSeam: 16, trailing: 40, chevronFromSeam: 18, chevronFromEnd: 22 });
     // filled-narrow, outlined-narrow, filled-gap-narrow and outlined-gap-narrow: the trailing half is 36 wide — the
     // outer padding included — and its chevron's centre 16 from the seam (or from the gap) and 20 from the end edge; the
     // leading half is as in filled-medium.
@@ -2234,7 +2245,7 @@ test.describe('busy', () => {
     }
   });
 
-  test('SPB-39: under reduced motion the label and the icon are drawn again, and stop being drawn, at once, and the arc does not turn: the whole circle, its opacity easing once per cycle', async ({ page }) => {
+  test('SPB-39: under reduced motion the label and the icon are drawn again, and stop being drawn, at once, and the arc does not turn: the whole circle, its opacity easing from 1 down to the floor and back once per cycle', async ({ page }) => {
     await page.emulateMedia({ reducedMotion: 'reduce' });
     await mountFixtures(page, spec, { icons: true, fixtures: [saving] });
     const drawn = await leading(page, 'saving').evaluate((el) => {
@@ -2248,6 +2259,19 @@ test.describe('busy', () => {
       expect(seen.frames[0]!.probe, `busy ${busy}`).toMatchObject({ label: busy ? 0 : 1, icon: busy ? 0 : 1, iconShown: !busy, arc: busy });
       expect(seen.motions.filter((motion) => motion.name === 'opacity' || motion.name === 'visibility'), `busy ${busy}`).toEqual([]);
     }
+  });
+
+  test('SPB-39: under reduced motion the busy circle is never drawn below the pulse floor — sampled over a whole cycle, computed and painted', async ({ page }) => {
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    await mountFixtures(page, spec, { icons: true, fixtures: [saving] });
+    const duration = await resolveToken(page, T('motion-busy-cycle-duration'), 'duration');
+    const floor = await resolveOpacity(page, T('motion-busy-pulse-floor-opacity'));
+    const arc = leading(page, 'saving').locator('.busy-arc');
+    const size = await arc.evaluate((el) => Number.parseFloat(getComputedStyle(el).inlineSize));
+    const stroke = await arc.locator('circle').evaluate((el) => Number.parseFloat(getComputedStyle(el).strokeWidth));
+    // The top of the circle, on the middle of its stroke; and its middle, where the container shows through the label
+    // that is not drawn.
+    expectPulseKeepsFloor(await samplePulse(arc, arc, { duration, mark: [size / 2, stroke / 2], ground: [size / 2, size / 2] }), floor, 'saving');
   });
 
   test('SPB-40: a busy leading half keeps its focus and its place in the focus order, emits no click by any means, exposes aria-disabled and busyLabel after the product’s description, has busyLabel announced once and nothing when it ends; the trailing half still toggles and its menu works; disabled, busy changes nothing; an empty busyLabel is reported', async ({ page }) => {
