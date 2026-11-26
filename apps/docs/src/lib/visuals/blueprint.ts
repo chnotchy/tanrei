@@ -243,7 +243,7 @@ const isDrawn = (element: Element) => {
  * `firstOfOne` keeps a word that names one kind of element to the first of it: a color role figure shows one element
  * in one state (the first tab, selected), and a part another child draws is drawn in another state's color.
  */
-export function targetBox(host: Element, target: PartTarget, { firstOfOne = false } = {}): { box: Box; element: Element | null } | null {
+export function targetBox(host: Element, target: PartTarget, { firstOfOne = false } = {}): { box: Box; element: Element | null; pieces: Box[] } | null {
   let elements: Element[] = [];
   let range: Range | null = null;
   if ('host' in target) elements = [host];
@@ -273,7 +273,11 @@ export function targetBox(host: Element, target: PartTarget, { firstOfOne = fals
   const drawn = rects.filter((rect) => rect.width > NEAR && rect.height > NEAR);
   if (!drawn.length) return null;
   const box = { left: Math.min(...drawn.map((r) => r.left)), top: Math.min(...drawn.map((r) => r.top)), right: Math.max(...drawn.map((r) => r.right)), bottom: Math.max(...drawn.map((r) => r.bottom)) };
-  return { box, element: elements[0] ?? null };
+  // What the part is drawn as, one box for each element of it: the items a slot holds, each where it stands (a toolbar's
+  // Buttons), where the part's box is the whole run of them. A gap is measured between two of these (`drawMeasures`).
+  const slotted = range ? [...host.children].filter((child) => !child.hasAttribute('slot') && isShown(child)) : elements;
+  const pieces = slotted.map((element) => element.getBoundingClientRect()).filter((rect) => rect.width > NEAR && rect.height > NEAR);
+  return { box, element: elements[0] ?? null, pieces: pieces.length ? pieces.map(({ left, top, right, bottom }) => ({ left, top, right, bottom })) : [box] };
 }
 
 /** The element whose shadow tree holds `element`'s rules: its shadow host, or itself where it is in the light tree. */
@@ -355,9 +359,12 @@ function frameOf({ overlay, subject, data }: Drawing) {
   return { origin, relative, host, stage: relative(stage.getBoundingClientRect()), rtl, room: { width: origin.width, height: origin.height } };
 }
 
-/** Each part's drawn box, relative to the overlay, by id; a focus ring as far out as it is drawn. */
+/**
+ * Each part's drawn box, relative to the overlay, by id; a focus ring as far out as it is drawn. `pieces` are the boxes
+ * of the elements it is drawn as (`targetBox`), the whole box where it is one.
+ */
 function partBoxes(drawing: Drawing, host: Element, relative: (box: Box) => Box) {
-  const boxes = new Map<string, { n: number; box: Box; aspect?: PartTarget['aspect']; radius?: number; element: Element | null }>();
+  const boxes = new Map<string, { n: number; box: Box; pieces: Box[]; aspect?: PartTarget['aspect']; radius?: number; element: Element | null }>();
   for (const part of drawing.data.parts) {
     if (!part.target || part.target.aspect === 'backdrop') continue;
     const found = targetBox(host, part.target);
@@ -369,7 +376,8 @@ function partBoxes(drawing: Drawing, host: Element, relative: (box: Box) => Box)
       box = { left: box.left - ring.reach, top: box.top - ring.reach, right: box.right + ring.reach, bottom: box.bottom + ring.reach };
       radius = ring.radius;
     }
-    boxes.set(part.id, { n: part.n, box, aspect: part.target.aspect, radius, element: found.element });
+    const pieces = part.target.aspect === 'focus-ring' ? [box] : found.pieces.map(relative);
+    boxes.set(part.id, { n: part.n, box, pieces, aspect: part.target.aspect, radius, element: found.element });
   }
   return boxes;
 }
@@ -461,11 +469,11 @@ function drawMeasures(drawing: Drawing) {
   const column = blockLines.length ? columnsRoom / blockLines.length : 0;
   const tick = row / 6 || column / 12;
   /** The parts drawn inside a box, less those as large as it (its outline, the part it is). */
-  const inside = (id: string, box: Box) =>
+  const partsInside = (id: string, box: Box) =>
     [...boxes]
       .filter(([other, { box: b, aspect }]) => other !== id && aspect !== 'focus-ring' && b.left >= box.left - NEAR && b.right <= box.right + NEAR && b.top >= box.top - NEAR && b.bottom <= box.bottom + NEAR)
-      .filter(([, { box: b }]) => !(Math.abs(b.left - box.left) < NEAR && Math.abs(b.right - box.right) < NEAR && Math.abs(b.top - box.top) < NEAR && Math.abs(b.bottom - box.bottom) < NEAR))
-      .map(([, { box: b }]) => b);
+      .filter(([, { box: b }]) => !(Math.abs(b.left - box.left) < NEAR && Math.abs(b.right - box.right) < NEAR && Math.abs(b.top - box.top) < NEAR && Math.abs(b.bottom - box.bottom) < NEAR));
+  const inside = (id: string, box: Box) => partsInside(id, box).map(([, { box: b }]) => b);
   /**
    * The parts a padding is measured to: those drawn inside the box, less those that draw its edge (an outline) and
    * those as wide as it (a header, a divider, a cell across it), which stand at its edges and not at its padding — the
@@ -513,7 +521,9 @@ function drawMeasures(drawing: Drawing) {
         const chosen = ways.find(([a, b]) => Math.abs(Math.abs(b - a) - value) <= NEAR) ?? ways.at(-1);
         if (chosen) [from, to] = chosen;
       } else {
-        const held = inside(measure.part, box);
+        // Each part as the elements it is drawn as: a gap stands between two items a slot holds (a docked toolbar's
+        // Buttons) as well as between two parts (a label and an icon).
+        const held = partsInside(measure.part, box).flatMap(([, { pieces }]) => pieces);
         if (measure.axis === 'gap') {
           // The parts that hold no other drawn part, in the order they stand along the line; the first two side by side.
           const leaves = held.filter((b) => !held.some((c) => c !== b && c.left >= b.left - NEAR && c.right <= b.right + NEAR && c.top >= b.top - NEAR && c.bottom <= b.bottom + NEAR)).sort((a, b) => (rtl ? b.right - a.right : a.left - b.left));
