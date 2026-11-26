@@ -21,3 +21,6 @@ before its script defines it, read from the same tokens, so a page moves less wh
   holds the members it will draw and the box.
 - A control in a slot of an app bar that is not defined is left to `app-bar.css`, which takes it out of the page until
   the bar draws it: where the cloak came after it, the cloak laid the bar's Buttons out in a column under its title.
+- A checkbox or a radio button in a table's selection cell keeps the height `table.css` gives it, a line of the cell's
+  text: the cloak held it at its container's height, and each row of a table that can be chosen was taller before
+  its elements were defined (a row of radio buttons 8 px taller in the cupertino preset, 20 px in m3-like).

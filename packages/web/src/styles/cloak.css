@@ -351,10 +351,17 @@
      its control wide, so that one that draws no label takes its room in a row. */
   :where(tanrei-checkbox:not(:defined)) {
     min-inline-size: var(--tanrei-comp-checkbox-container-size);
-    min-block-size: var(--tanrei-comp-checkbox-container-size);
   }
   :where(tanrei-radio-button:not(:defined)) {
     min-inline-size: var(--tanrei-comp-radio-button-container-size);
+  }
+  /* In a table's selection cell (a cell marked `data-part="selection"`), the table's stylesheet gives a checkbox or a
+     radio button its height — a line of the cell's text, its container centred on it, before it is defined and after
+     (`table.css`, TBL-42) — which this would raise to the container's, and a row with it. */
+  :where(tanrei-checkbox:not(:defined):not(:is(td, th)[data-part='selection'] > *)) {
+    min-block-size: var(--tanrei-comp-checkbox-container-size);
+  }
+  :where(tanrei-radio-button:not(:defined):not(:is(td, th)[data-part='selection'] > *)) {
     min-block-size: max(var(--tanrei-comp-radio-button-container-size), var(--tanrei-comp-radio-button-option-min-height));
   }
   :where(tanrei-switch:not(:defined)) {
