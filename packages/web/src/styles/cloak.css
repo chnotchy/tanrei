@@ -521,13 +521,13 @@
     --_cloak-min-rows: 1;
   }
   /* `min-rows`: one line where it is given and is no count read below; each whole count from 1 to the build's limit
-     (the build writes one rule for each in place of the rule naming `tanrei-row-count`); and where the browser reads an
+     (the build writes one rule for each in place of the rule naming `tanrei-count`); and where the browser reads an
      attribute as a number, the number itself — a text input's as it is, an embedded one's rounded down — never below 1. */
   :where(tanrei-text-input, tanrei-text-field, tanrei-embedded-text-input):where([multiline][min-rows]):where(:not(:defined)) {
     --_cloak-min-rows: 1;
   }
-  :where(tanrei-text-input, tanrei-text-field, tanrei-embedded-text-input):where([multiline][min-rows='tanrei-row-count']):where(:not(:defined)) {
-    --_cloak-min-rows: tanrei-row-count;
+  :where(tanrei-text-input, tanrei-text-field, tanrei-embedded-text-input):where([multiline][min-rows='tanrei-count']):where(:not(:defined)) {
+    --_cloak-min-rows: tanrei-count;
   }
   @supports (x: attr(x type(*))) {
     :where(tanrei-text-input, tanrei-text-field):where([multiline][min-rows]):where(:not(:defined)) {
