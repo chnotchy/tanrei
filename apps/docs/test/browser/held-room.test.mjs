@@ -27,6 +27,8 @@ import { fileURLToPath } from 'node:url';
 import { serveDist } from './host.mjs';
 import { engines, launch, settlePage } from './launch.mjs';
 
+const { APPEARANCE_KEY } = await import('../../src/lib/appearance.ts');
+
 /** Each test's limit, the backstop for a wait with none of its own (launch.mjs). */
 const LIMIT = { timeout: 240_000 };
 
@@ -61,7 +63,17 @@ const WIDE = { width: 1440, height: 900 };
  *   stage of two was 64 px tall before and 1033 px drawn);
  * - the Select's in Japanese, whose tables wrap their rows at a phone's width (its keyboard table drawn in words before
  *   its keys were defined, 1248 px tall at a phone's width, was 1126 to 1148 px once the keys were drawn in the reader's
- *   convention: components/visuals/KeyboardMap.astro now draws the reader's keys before).
+ *   convention: components/visuals/KeyboardMap.astro now draws the reader's keys before);
+ * - pages whose rows of tags, of switches and of avatars wrap where they will, and whose cards, dividers and badges keep
+ *   their box, in the design system a reader may choose (`system`): when the cloak held a tag or a switch at no width,
+ *   their rows wrapped only once they were drawn (the Tag's figures 88 to 90 px high before, 128 to 216 px drawn); a
+ *   group of avatars held every member it was given (a row of six, 160 px high at a phone's width, was 104 px with
+ *   three and its overflow box); a card's content stood without its padding (each card 32 px lower before), a divider
+ *   was no line at all (a figure of wavy and thick ones 136 px high before, 156 px drawn), and a badge was as high as
+ *   the line of text it stood in rather than as its icon (88.53 px before, 88 px drawn);
+ * - the App bar's, whose bars stood with their slots' Buttons laid out in a column under the title (the cloak's rule
+ *   for a Button won over the bar's own stand-in, a small bar 230 px high before and 128 px drawn), and whose large
+ *   bar took the header's box (82 px before, 138 px drawn).
  */
 const CASES = [
   { url: '/components/text-field/', viewport: PHONE, look: '#docs-figure-7-stage' },
@@ -69,6 +81,15 @@ const CASES = [
   { url: '/components/date-time-picker/', viewport: PHONE, look: '#docs-figure-2-stage' },
   { url: '/components/date-time-picker/', viewport: WIDE, look: '#docs-figure-2-stage' },
   { url: '/ja/components/select/', viewport: PHONE, look: '.docs-keyboard-map' },
+  { url: '/components/tag/', viewport: WIDE, look: '#docs-figure-2-stage' },
+  { url: '/components/tag/', viewport: PHONE, system: 'cupertino' },
+  { url: '/components/divider/', viewport: WIDE, system: 'cupertino', look: '#docs-figure-4-stage' },
+  { url: '/ar/components/switch/', viewport: PHONE, system: 'm3-like', look: '#docs-figure-2-stage' },
+  { url: '/components/card/', viewport: WIDE, look: '#docs-figure-1-stage' },
+  { url: '/ar/components/avatar/', viewport: PHONE, look: '#docs-figure-1-stage' },
+  { url: '/components/badge/', viewport: WIDE, system: 'cupertino' },
+  { url: '/components/app-bar/', viewport: WIDE, look: '#docs-figure-2-stage' },
+  { url: '/components/app-bar/', viewport: PHONE, system: 'cupertino' },
 ];
 
 /**
@@ -81,6 +102,12 @@ const KNOWN = [
     width: PHONE.width,
     box: '#docs-figure-4-stage',
     why: "a range field's time wraps where the surface is narrower than its words (\"6:00 AM next day\" on two lines at a phone's width), and the cloak holds a range field at one line: how many lines it takes is a matter of the words, the width and the face, which no token says",
+  },
+  {
+    url: '/components/app-bar/',
+    width: WIDE.width,
+    box: 'table "Anatomy"',
+    why: "in Firefox the table's automatic layout gives its first column 159.6 px before the table is defined and 139.1 px once it is, so its last row's description takes one line fewer (646 → 624 px): the table's own room (components/Table.astro), which holds no element but the table",
   },
 ];
 const knownFor = (url, width, key) => KNOWN.find((known) => (!known.url || known.url === url) && (!known.width || known.width === width) && known.box === key);
@@ -162,9 +189,11 @@ async function nearDefined(bound) {
  * Opens `url` with every element's module held back until `release()` is called. Resolves once the page has been
  * parsed and drawn without them and its faces are in.
  */
-async function openHeld(context, url) {
+async function openHeld(context, url, system) {
   const page = await context.newPage();
   await page.addInitScript(observeShifts);
+  // The design system the reader chose, as the Appearance panel keeps it (lib/appearance.ts).
+  if (system) await page.addInitScript(({ key, look }) => localStorage.setItem(key, JSON.stringify({ look })), { key: APPEARANCE_KEY, look: system });
   let release;
   const released = new Promise((resolve) => (release = resolve));
   let held = 0;
@@ -203,14 +232,15 @@ for (const engine of ENGINES) {
       await browser?.close();
     });
 
-    for (const { url, viewport, look } of CASES) {
-      const name = `${url} at ${viewport.width}`;
+    for (const { url, viewport, look, system } of CASES) {
+      const name = `${url} at ${viewport.width}${system ? ` in ${system}` : ''}`;
       const phone = viewport.width < 800;
       test(`${name}: each of its own figures and each table, paged through before its elements are defined, is as high once they are`, LIMIT, async (t) => {
         const context = await browser.newContext({ viewport, isMobile: phone && engine !== 'firefox', hasTouch: phone });
         try {
-          const { page, release, held } = await openHeld(context, host.origin + url);
+          const { page, release, held } = await openHeld(context, host.origin + url, system);
           const { seen: before } = await page.evaluate(pageThrough, 0);
+          if (system) assert.equal(await page.evaluate(() => document.documentElement.dataset.docsLook), system, `${name}: the page is not drawn in ${system}`);
           // Before they are defined, a keyboard table's keys are drawn, not an empty box: each key of the reader's
           // convention is painted (the cloak, where a stage holds one, leaves keys the page wrote to their own sheet).
           const keys = await page.evaluate(() => {
@@ -248,7 +278,7 @@ for (const engine of ENGINES) {
       test(`${name}: a reader looking at ${look} when its modules arrive sees the page move by no more than ${BUDGET}`, LIMIT, async (t) => {
         const context = await browser.newContext({ viewport, isMobile: phone, hasTouch: phone });
         try {
-          const { page, release } = await openHeld(context, host.origin + url);
+          const { page, release } = await openHeld(context, host.origin + url, system);
           await page.evaluate((selector) => document.querySelector(selector).scrollIntoView({ block: 'start' }), look);
           await settlePage(page, { fonts: false });
           await page.evaluate(() => (window.__docsLayoutShifts.length = 0));
