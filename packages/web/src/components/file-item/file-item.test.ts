@@ -3059,6 +3059,37 @@ test.describe('behavior', () => {
     expect(warnings.filter((text) => text.includes('FIT-29')).length).toBe(10);
   });
 
+  test('FIT-29: a glyph the icon set does not have is reported where the marks are written only once the page draws again — after its faces arrived, before its first paint', async ({ page }) => {
+    // The page draws nothing for a while as it loads, as Playwright's headless WebKit on Linux now and then does: no
+    // frame callback runs, the resize observer is told nothing and no paint is reported until the test lets it go. So
+    // the document is not painted, and the glyphs are decided by the observer alone, once the faces have arrived.
+    const held = `<script>(() => {
+      const waiting = [];
+      let holding = true;
+      const later = (run) => (holding ? waiting.push(run) : run());
+      window.tanreiLetGo = () => { holding = false; for (const run of waiting.splice(0)) run(); };
+      const Observer = window.ResizeObserver;
+      window.ResizeObserver = class extends Observer { constructor(told) { super((entries, observer) => later(() => told(entries, observer))); } };
+      const frame = window.requestAnimationFrame.bind(window);
+      window.requestAnimationFrame = (callback) => frame((time) => later(() => callback(time)));
+      const entries = performance.getEntriesByType.bind(performance);
+      performance.getEntriesByType = (type) => (type === 'paint' && holding ? [] : entries(type));
+    })();</script>`;
+    const warnings = logged(page);
+    const lacking = (id: string, form: 'row' | 'tile') => fx(id, { form, name: 'four.bin', glyph: 'no_such_glyph_of_the_set', ...WORDS });
+    await mount(page, [lacking('glyph', 'row'), lacking('glyph-tile', 'tile')], { lead: held, beforePaint: true });
+    const reported = () => warnings.filter((text) => text.includes('FIT-29') && text.includes('glyph "no_such_glyph_of_the_set"')).length;
+    expect(await page.evaluate(() => document.fonts.status), 'the faces have arrived').toBe('loaded');
+    await turn(page, 200);
+    expect(await own(page, 'glyph', 'remove').locator('.glyph').getAttribute('data-drawn'), 'nothing is decided while the page draws nothing').toBeNull();
+    expect(reported(), 'nor reported').toBe(0);
+    await page.evaluate(() => (window as unknown as { tanreiLetGo: () => void }).tanreiLetGo());
+    await frames(page, 1);
+    await expect(own(page, 'glyph', 'remove').locator('.glyph'), 'the set draws its other glyphs').toHaveAttribute('data-drawn', '');
+    await expect.poll(reported, { message: 'a glyph the set lacks is reported for each file item, once the marks are written' }).toBe(2);
+    expect(await own(page, 'glyph', 'icon').getAttribute('data-drawn')).toBeNull();
+  });
+
   test('FIT-30: a prop that changes while the file item is shown is drawn and exposed at once, keeping its focus, and nothing is announced; when the retry action leaves while focus is on it — the status is no longer error, retryable or readOnly changed — focus moves to the remove action, or to the body where that is pressable and no remove action is drawn; focus moves at no other time', async ({ page }) => {
     await mount(page, [
       fx('a', { name: 'kept.txt', sizeText: '1 KB', status: 'error', errorText: 'Lost.', retryable: true, ...WORDS }),

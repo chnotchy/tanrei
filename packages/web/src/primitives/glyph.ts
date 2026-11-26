@@ -114,6 +114,7 @@ const observer =
         // trail took it out (16 px where its layout said 0), and a frame painted after the paint would show that mark.
         const painted = documentPainted();
         mark([...[...hosts].flatMap((host) => (painted ? host.read(true) : host.reported())), ...[...heard].flatMap((host) => host.decided())]);
+        for (const host of [...hosts, ...heard]) host.marksWritten();
       });
 
 /**
@@ -145,6 +146,7 @@ function decideTogether(host: GlyphDrawnController, again = false) {
       const hosts = [...deciding];
       deciding.clear();
       watchAgain(mark(hosts.flatMap(([each, all]) => each.read(all))));
+      for (const [each] of hosts) each.marksWritten();
     });
   }
   deciding.set(host, again || !!deciding.get(host));
@@ -319,13 +321,23 @@ export class GlyphDrawnController implements ReactiveController {
    *
    * `slotted`: the glyph boxes hold the product's glyph in a slot (above); it is always decided by the observer's
    * reports, so `firstInFrame` changes nothing for it.
+   *
+   * `marked`: called each time this host's glyphs have just been decided and their marks written — in the turn of a
+   * render, in the observer's callback, or after a face arrived — whether a mark changed or not. What the host infers
+   * from the marks (a glyph the set does not have, FIT-29) is looked at there: the moment they are written is the
+   * observer's, after a layout, before the first paint, and no timer or promise of the host's own can know it.
    */
   constructor(
     private readonly host: ReactiveControllerHost & Element,
     private readonly glyphs: () => Iterable<HTMLElement>,
-    private readonly options: { firstInFrame?: boolean; slotted?: boolean } = {},
+    private readonly options: { firstInFrame?: boolean; slotted?: boolean; marked?: () => void } = {},
   ) {
     host.addController(this);
+  }
+
+  /** This host's glyphs were just decided and their marks written: its `marked` is told. */
+  marksWritten() {
+    if (this.connected) this.options.marked?.();
   }
 
   /** Whether the glyph boxes hold a slot. */
@@ -377,6 +389,7 @@ export class GlyphDrawnController implements ReactiveController {
       if (!this.connected) return;
       if (observer) for (const glyph of this.glyphs()) if (this.slottedIn(glyph).some(isNamed)) this.watch(glyph, probeOf(glyph));
       mark(this.decided());
+      this.marksWritten();
       return;
     }
     const watching = !!observer && this.connected;

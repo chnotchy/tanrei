@@ -14,6 +14,10 @@ load in WebKit. What is drawn does not change.
   layout of the frame and before its paint, from the sizes it reports: their boxes are now observed as well as their
   inks, and nothing of the layout is read for them there. A glyph that appears without motion is held with no
   transition until the next frame's read phase, instead of being styled at once.
+- File item: whether the icon set lacks the glyph `glyph` names is looked at each time its glyphs have been decided,
+  wherever that is (the resize observer's report, before the first paint), until it is known, instead of at two
+  moments of its own — the turn of the render, and a task after the faces were ready — which could both come before
+  the marks; the glyph is then reported in every browser, however late the page draws its first frame.
 - Tabs: a tab whose label the observer has not reported yet leaves its truncation to that first report, rather than
   measuring it when the row first tells it what it is.
 - Until the document has been painted once, these read in the first frame's read phase, after its layout and before
