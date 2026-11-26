@@ -54,6 +54,13 @@ const files = firstFamilies(stacks).map((family) => {
 // em. Once the page has loaded, `document.fonts.load` waits for each family's face to arrive or fail: a family that
 // cannot draw then never will.
 //
+// While the page loads, the script reads nothing of the layout itself: each probe's width is the one the resize
+// observer reports, after the layout of a frame and before its paint, and the switch is set or taken off there. A
+// probe measured as it was laid out — in the head, and again at DOMContentLoaded — had the browser lay the page out
+// for it there and then: at DOMContentLoaded, the whole page as it had been read and upgraded (in WebKit, on the Arabic
+// button page, 0.8 s). In the head, before the faces are registered, a probe could draw only from a family installed on
+// the machine.
+//
 // The probes are first laid out from the head, under the root element, not once the body has been read: the switch is
 // an inherited value on the root, and taking it off has the browser style every element of the page again. Taken off
 // while the page is still being read, that is a few elements; taken off at DOMContentLoaded, it was the whole page,
@@ -76,10 +83,18 @@ const iconsReady = `(() => {
   root.style.setProperty(SWITCH, 'hidden');
   let probes = [];
   let waiting = false;
-  const drawn = () => probes.every((probe) => { const width = probe.getBoundingClientRect().width; return width > 0 && width <= EM * 1.5; });
-  const sizes = new ResizeObserver(() => drawn() && ready());
+  const draws = (width) => width > 0 && width <= EM * 1.5;
+  const drawn = () => probes.every((probe) => draws(probe.getBoundingClientRect().width));
+  // Each probe's width as the observer last reported it, after the layout of its frame and before its paint.
+  const widths = new Map();
+  const sizes = new ResizeObserver((entries) => {
+    for (const entry of entries) widths.set(entry.target, entry.borderBoxSize?.[0]?.inlineSize ?? entry.contentRect.width);
+    if (probes.every((probe) => draws(widths.get(probe) ?? 0))) return ready();
+    if (!root.style.getPropertyValue(SWITCH)) root.style.setProperty(SWITCH, 'hidden');
+  });
   const ready = () => {
     sizes.disconnect();
+    widths.clear();
     for (const probe of probes) probe.remove();
     probes = [];
     if (root.style.getPropertyValue(SWITCH)) root.style.removeProperty(SWITCH);
@@ -93,8 +108,6 @@ const iconsReady = `(() => {
       probe.style.cssText = 'position: absolute; inset-block-start: 0; inset-inline-start: 0; visibility: hidden; pointer-events: none; white-space: nowrap; font: normal ' + EM + 'px/1 var(' + family + '); letter-spacing: normal; font-feature-settings: \\'liga\\'; text-transform: none';
       return root.appendChild(probe);
     });
-    if (drawn()) return ready();
-    if (!root.style.getPropertyValue(SWITCH)) root.style.setProperty(SWITCH, 'hidden');
     for (const probe of probes) sizes.observe(probe);
     if (waiting) return;
     waiting = true;
