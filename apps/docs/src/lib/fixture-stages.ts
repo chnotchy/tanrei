@@ -293,14 +293,19 @@ const drawnDocument = (frame: HTMLIFrameElement) => {
   return doc?.querySelector('body > .stages > .stage') ? doc : null;
 };
 
-/** The look a window's document is drawn in now. */
+/**
+ * The look a window's document is drawn in now. Its direction is the stage's as the page draws it: the page's, or the
+ * one the frame's action turned the stage to. A window is a document of its own, which inherits nothing from the page,
+ * so its root is given that direction, as an inline stage inherits it; a fixture that names a direction keeps it on its
+ * own stage (`dir` on `.stage`).
+ */
 function lookOf(win: WindowStage): Look {
   const held = stageSchemes.get(win.box);
   return {
     theme: held ? schemeOf(held) : pageScheme(),
     contrast: document.documentElement.dataset.tanreiContrast,
     sheet: lookSheet(),
-    dir: win.box.getAttribute('dir') ?? undefined,
+    dir: getComputedStyle(win.box).direction,
   };
 }
 
