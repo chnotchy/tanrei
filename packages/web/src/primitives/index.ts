@@ -195,6 +195,8 @@
 //                 an element's first frames, MOT-3), holdStillPointer() (no hover transition in what a surface holds
 //                 until the person acts after it opened: a pointer at rest is over it from the first frame; the rule is
 //                 stillPointerStyles, which an element that draws nothing under a pointer leaves out)
+//   first-paint — documentPainted() and afterFirstPaint() (MOT-4), apart from motion so that what waits for the first
+//                 paint to read the layout does not bring the motions; motion re-exports them
 //   element     — TanreiElement and TanreiLightElement (element.ts): the base every element extends, which settles it
 //                 (MOT-3) — settleStyles composed last in a shadow root; the build writes settleRule() into a light-DOM sheet;
 //                 TanreiElement keeps a focus() that lands nowhere while it, or what holds it, has an update to draw, until

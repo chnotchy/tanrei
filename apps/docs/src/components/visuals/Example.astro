@@ -157,6 +157,15 @@ const stageId = givenStageId ?? `${id}-stage`;
 const DIRECTION_ICONS = { ltr: 'format_textdirection_r_to_l', rtl: 'format_textdirection_l_to_r' };
 /** The one inline script of every frame that shows what its stage holds as code: the same text, so one hash in the page's policy (lib/csp.mjs). */
 const SNAPSHOT = '(window.docsExampleSources ??= new WeakMap()).set(document.currentScript.previousElementSibling, document.currentScript.previousElementSibling.innerHTML)';
+/**
+ * The one inline script of every frame that has the browser say, in the frames it draws while the page is parsed,
+ * whether the frame is near the view — within half a window of it, as lib/example.ts reckons it (`NEAR`) — with no read
+ * of the layout: lib/example.ts draws the frames it said were near as its module runs, before any later script, in an
+ * engine that runs the page's scripts one after another before its next frame (Firefox). The same text in every frame,
+ * so one hash in the page's policy (lib/csp.mjs).
+ */
+const NEAR_WATCH =
+  "(window.docsExampleNear ??= Object.assign(new IntersectionObserver((entries) => { for (const entry of entries) window.docsExampleNear.seen.set(entry.target, entry.isIntersecting); }, { rootMargin: '50% 0px' }), { seen: new WeakMap() })).observe(document.currentScript.closest('[data-example]'))";
 ---
 
 {stylesheet && <link rel="stylesheet" href={stylesheet} />}
@@ -230,6 +239,7 @@ const SNAPSHOT = '(window.docsExampleSources ??= new WeakMap()).set(document.cur
            before one writes attributes of its own (lib/example.ts reads it for the code). */
         code && !source && <script is:inline set:html={SNAPSHOT}></script>
       }
+      <script is:inline set:html={NEAR_WATCH}></script>
       {code && source && <script type="application/json" data-example-source set:html={JSON.stringify(source).replaceAll('<', '\\u003c')}></script>}
       {
         /* A playground's controls (Playground.astro), under the stage and above the code: what the reader sets, not

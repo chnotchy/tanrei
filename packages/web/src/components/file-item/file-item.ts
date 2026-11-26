@@ -256,7 +256,7 @@ export class TanreiFileItem extends TanreiElement {
   private readonly mirrorWord = new MirrorWordController(this);
 
   /** FIT-31: each glyph box carries `data-drawn` while the icon set can draw its ligature; until then it draws nothing. */
-  protected readonly glyphs = new GlyphDrawnController(this, () => this.renderRoot?.querySelectorAll<HTMLElement>('.icon, .glyph, .mark') ?? []);
+  protected readonly glyphs = new GlyphDrawnController(this, () => this.renderRoot?.querySelectorAll<HTMLElement>('.icon, .glyph, .mark') ?? [], { marked: () => this.marksWritten() });
 
   /** FIT-13: the link the body is while it has a destination (src/primitives/link.ts). */
   private readonly link = new LinkController(this, { ids: { refused: 'FIT-13', newContext: 'FIT-13' }, disabled: () => this.isDisabled });
@@ -647,25 +647,32 @@ export class TanreiFileItem extends TanreiElement {
   /**
    * FIT-29: whether the icon set draws the glyph `glyph` names is known once the set's font can draw at all — which
    * another glyph of this file item shows (an action's, a mark's: each a name the set has, FIT-5's `verify`). A box that
-   * stays empty beside a glyph that is drawn names a glyph the set does not have. The marks are written after the
-   * render, in its turn (GlyphDrawnController), and again when the face arrives: looked at after each, never at rest.
+   * stays empty beside a glyph that is drawn names a glyph the set does not have. It is looked at each time the marks
+   * are written (GlyphDrawnController's `marked`) — in the turn of the render, in the resize observer's callback (where
+   * they are decided until the document has been painted once), after a face arrived — until it is known: never at a
+   * moment of its own, which could come before the marks and be the last look.
    * A file item with no other glyph (read-only, with no status mark) has nothing to compare with and reports nothing.
    */
-  private lookForGlyph(again = true) {
-    const named = this.glyph;
-    const look = () => {
-      if (!this.isConnected || this.glyph !== named || this.hasIcon) return true;
-      const icon = this.renderRoot.querySelector('.icon');
-      const others = [...this.renderRoot.querySelectorAll('.glyph, .mark')];
-      if (!icon || !others.some((other) => other.hasAttribute('data-drawn'))) return false;
-      if (DEBUG && !icon.hasAttribute('data-drawn')) report(this, 'FIT-29', `glyph "${named}" is not a glyph the icon set draws; nothing is drawn in its box`);
-      return true;
-    };
-    // After the marks of this turn; and, where the face was not there yet, once more when the page's faces have arrived.
-    queueMicrotask(() => {
-      if (look() || !again || typeof document === 'undefined' || !document.fonts) return;
-      void document.fonts.ready.then(() => setTimeout(() => void look(), 0));
-    });
+  private lookForGlyph() {
+    if (DEBUG) this.sought = this.glyph;
+  }
+
+  /** FIT-29: the name `glyph` gave whose glyph is not known yet to be drawn or not (`lookForGlyph`); empty when none is. */
+  private sought = '';
+
+  /** FIT-29: the marks were just written — the glyph `sought` names is looked at. */
+  private marksWritten() {
+    const named = this.sought;
+    if (!named) return;
+    if (this.glyph !== named || this.hasIcon) {
+      this.sought = '';
+      return;
+    }
+    const icon = this.renderRoot.querySelector('.icon');
+    const others = [...this.renderRoot.querySelectorAll('.glyph, .mark')];
+    if (!icon || !others.some((other) => other.hasAttribute('data-drawn'))) return;
+    this.sought = '';
+    if (DEBUG && !icon.hasAttribute('data-drawn')) report(this, 'FIT-29', `glyph "${named}" is not a glyph the icon set draws; nothing is drawn in its box`);
   }
 
   // ─── Rendering ────────────────────────────────────────────────────────────────────────────────────────────────

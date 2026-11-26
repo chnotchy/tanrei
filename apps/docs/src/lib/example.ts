@@ -300,34 +300,76 @@ for (const frame of frames()) {
   });
 }
 // The frames near the view already are drawn now, not at the observer's first notice: Firefox gives that notice only
-// once the page's later scripts have run (it runs those that have arrived one after another, before any other task,
-// a timer's included), so on a component's page, with the gallery's, the tables' and the diagrams' scripts after this
-// one, the frame the reader is looking at would wait for all of them before even asking for its elements. The
-// observer is left the frames further down, each holding the room its stage has now (`hold`). Every frame's place is
-// read before any is drawn or held, so the page is laid out once for all of them, not once for each.
-const measured = [...frames()].map((frame) => {
-  const stage = stageOf(frame);
-  // A stage with no box (in a closed panel) has no room to keep: it is laid out when it is shown, and drawn as it comes near.
-  return { frame, stage, isNear: nearNow(frame), height: stage?.getClientRects().length ? stage.getBoundingClientRect().height : null };
-});
-for (const { frame, stage, isNear, height } of measured) {
-  if (isNear) {
+// once the page's later scripts have run (it runs those that have arrived one after another, before any other task, a
+// timer's and a frame's included), so on a component's page, with the gallery's, the tables' and the diagrams' scripts
+// after this one, the frame the reader is looking at would wait for all of them before even asking for its elements.
+// Which are near is what the browser said in the frames it drew while the page was parsed — each frame's inline script
+// gave it to an observer of its own (components/visuals/Example.astro, `NEAR_WATCH`) — and nothing of the layout is read
+// here: read at the top of the module, the places had the browser style and lay out the page there and then, with every
+// element the modules before this one had upgraded since the last layout (three quarters of a second of a long page's
+// load in CI's WebKit).
+const early = (window as Window & { docsExampleNear?: IntersectionObserver & { seen: WeakMap<Element, boolean> } }).docsExampleNear;
+if (early) {
+  for (const entry of early.takeRecords()) early.seen.set(entry.target, entry.isIntersecting);
+  early.disconnect();
+  for (const frame of frames()) {
+    if (early.seen.get(frame) !== true) continue;
     near.unobserve(frame);
     draw(frame);
-  } else if (stage && height !== null && stage.hasAttribute('data-example-pending')) hold(frame, stage, height);
+  }
 }
+// The others are placed in the first frame, after its layout and before its paint: one near the view (one the browser
+// had not said anything of yet) is drawn, and the observer is left the frames further down, each holding the room its
+// stage has then (`hold`). Every frame's place is read before any is drawn or held, so the page is laid out once for all
+// of them, and read after the frame's layout, the places cost nothing.
+afterFirstLayout(() => {
+  const measured = [...frames()].map((frame) => {
+    const stage = stageOf(frame);
+    // A stage with no box (in a closed panel) has no room to keep: it is laid out when it is shown, and drawn as it comes near.
+    return { frame, stage, isNear: !reached.has(frame) && nearNow(frame), height: stage?.getClientRects().length ? stage.getBoundingClientRect().height : null };
+  });
+  for (const { frame, stage, isNear, height } of measured) {
+    if (reached.has(frame)) continue;
+    if (isNear) {
+      near.unobserve(frame);
+      draw(frame);
+    } else if (stage && height !== null && stage.hasAttribute('data-example-pending')) hold(frame, stage, height);
+  }
+  askAhead();
+});
 // The held stages' elements are asked for in the task after the page's load, in every engine, so that their stages
 // take their drawn room before the reader reaches them (`releaseSoon`). Not when the browser is next idle: on a long
 // page on a busy machine that came as late as its time limit allowed, a second or two after the load, and a reader
 // who paged down meanwhile drew the stage near the view in the room of its elements before they are defined and saw
 // it grow in the view as its module arrived (the Arabic Text field's first example, 80 px held for its 236, moved the
 // page by 0.06 so at 390 px).
-if (held.size) {
+function askAhead() {
+  if (!held.size) return;
   const ahead = () => {
     for (const [frame, { stage }] of held) if (!reached.has(frame)) defineAhead(stage);
   };
   if (document.readyState === 'complete') setTimeout(ahead);
   else addEventListener('load', () => setTimeout(ahead), { once: true });
+}
+
+/**
+ * Runs `then` once, after the layout of the next frame and before its paint: a resize observer's first report of the
+ * root element, given to it in a frame callback. A root element with no box is reported never: then in a task after
+ * that frame callback.
+ */
+function afterFirstLayout(then: () => void) {
+  requestAnimationFrame(() => {
+    let ran = false;
+    const run = () => {
+      if (ran) return;
+      ran = true;
+      root.disconnect();
+      then();
+    };
+    const root = new ResizeObserver(run);
+    root.observe(document.documentElement);
+    setTimeout(run);
+  });
 }
 
 /** Whether a frame is near the view now, as the observer reckons it (`NEAR`): a box, within half a window of the view. */
