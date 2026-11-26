@@ -39,7 +39,7 @@ export interface PressOptions {
   origin?: (at: Point) => Point | null;
   /**
    * The element the ripple is drawn in, when that is not the pressed element itself: a control whose state layer is a
-   * box of its own inside the area that answers the press (a tab's container, TAB-9, TAB-18). The layer is clipped to
+   * box of its own inside the area that answers the press (a tab's state layer, TAB-9, TAB-18). The layer is clipped to
    * it, and the point of contact is clamped into it. It must carry the shape and be its own stacking context.
    */
   rippleHost?: () => HTMLElement | null;

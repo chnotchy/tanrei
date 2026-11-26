@@ -352,6 +352,8 @@ function drawMeasures(drawing: Drawing) {
   const toward = rtl ? -1 : 1;
   let rowAt = 0;
   let columnAt = 0;
+  /** The parts a line is drawn on, each outlined once: the box the lines measure, where the browser draws it. */
+  const outlined = new Set<string>();
   for (const measure of data.lines) {
     const part = boxes.get(measure.part);
     const value = valueOf(overlay, measure.cssVar);
@@ -415,6 +417,17 @@ function drawMeasures(drawing: Drawing) {
     const isBlock = measure.axis === 'block';
     const at = isBlock ? columnAt++ : rowAt++;
     if (!agrees || from === null || to === null || !part) continue;
+    if (!outlined.has(measure.part)) {
+      // The part's own box, dashed as the extension lines are, so that a reader sees which box is measured — one tab of
+      // a row, not the row — and where its edges are.
+      outlined.add(measure.part);
+      const box = part.box;
+      const outline = document.createElementNS(SVG, 'rect');
+      for (const [name, value] of Object.entries({ x: box.left, y: box.top, width: box.right - box.left, height: box.bottom - box.top })) outline.setAttribute(name, String(value));
+      outline.setAttribute('class', 'measured');
+      outline.setAttribute('data-part', measure.part);
+      svg.prepend(outline);
+    }
     const text = `${measure.kind} · ${shown(value)}`;
     const attributes = { 'data-token': measure.token, 'data-part': measure.part, 'data-axis': measure.axis, 'data-value': String(value), 'data-measured': String(measured) };
     if (isBlock) {

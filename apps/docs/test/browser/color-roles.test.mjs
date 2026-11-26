@@ -70,6 +70,42 @@ const KNOWN = {
   // `control` and `control-mark` tokens), which no part of the anatomy names; `mark.color` is the glyph look's.
   'menu selected: mark': 'the default system draws the control look (MNU-38); the mark token is the glyph look’s',
 };
+/**
+ * The rows whose part the figure's fixture does not draw, as the figures find them today, each with why. A row that
+ * comes to be drawn leaves the list; one that stops being drawn (a text whose contrast is no longer measured) fails
+ * until it is understood, as a part drawn in another color does (KNOWN). The rows of AS_ON_MAIN were not drawn when
+ * the list was written; each is still to be examined.
+ */
+const AS_ON_MAIN = 'not drawn when this list was written; not yet examined';
+const KNOWN_NOT_DRAWN = {
+  'menu Color roles: mark': AS_ON_MAIN,
+  'menu Color roles: supporting-text': AS_ON_MAIN,
+  'menu Color roles: trailing-text': AS_ON_MAIN,
+  'menu Color roles: trailing-icon': AS_ON_MAIN,
+  'menu Color roles: group-title': AS_ON_MAIN,
+  'menu Color roles: divider': AS_ON_MAIN,
+  'menu selected: container': AS_ON_MAIN,
+  'menu selected: leading-icon': AS_ON_MAIN,
+  'menu selected: label': AS_ON_MAIN,
+  'menu selected: supporting-text': AS_ON_MAIN,
+  'menu selected: trailing-text': AS_ON_MAIN,
+  'menu selected: trailing-icon': AS_ON_MAIN,
+  'menu selected: group-title': AS_ON_MAIN,
+  'menu selected: divider': AS_ON_MAIN,
+  // TAB-24: on the selected tab the plain label is hidden, and its covered copy is drawn in its place, over the active
+  // indicator in covered-label.color; the figure's fixture shows the selected tab, so its label row has no label drawn.
+  'tabs primary · selected: label': 'the selected tab draws its covered copy of the label (covered-label.color) and hides the plain one',
+  'tabs primary · selected: icon': 'the fixture’s tabs have labels and no icons',
+  'text-field outlined: field.label': AS_ON_MAIN,
+  'text-field outlined: field.label-icon': AS_ON_MAIN,
+  'text-field outlined: field.supporting-text': AS_ON_MAIN,
+  'text-field outlined: field.error-text': AS_ON_MAIN,
+  'text-field outlined: field.counter': AS_ON_MAIN,
+  'text-field outlined: text-input.outline': AS_ON_MAIN,
+  'text-field outlined: text-input.required-asterisk': AS_ON_MAIN,
+  'text-field outlined: text-input.leading-icon': AS_ON_MAIN,
+  'text-field outlined: text-input.trailing-icon': AS_ON_MAIN,
+};
 const FIGURE = '[data-color-roles-figure]';
 
 let host;
@@ -156,7 +192,7 @@ describe('the color role maps', () => {
               assert.equal(row.name, row.role.split('.').slice(1).join('.'), `${where}: the row names its role`);
               assert.ok(role && near(hexOf(role), hexOf(value)), `${where}: the token is ${row.role} itself, which resolves to ${role && hexOf(role)}`);
             }
-            if (row.drawn !== 'true') notDrawn.push(where);
+            if (row.drawn !== 'true') notDrawn.push({ key: `${name} ${figure.title}: ${row.part}`, where });
             else if (row.matches !== 'true') findings.push({ key: `${name} ${figure.title}: ${row.part}`, said: `${where}: drawn in ${row.drawnColor}, its token is ${row.value}` });
           }
           // A text on the container it stands in: the ratio is the token build's contrast of the two tokens.
@@ -169,13 +205,18 @@ describe('the color role maps', () => {
         }
       }
       await context.close();
-      if (notDrawn.length) console.log(`Rows whose part the figure's fixture does not draw (${notDrawn.length}):\n  ${notDrawn.join('\n  ')}`);
+      if (notDrawn.length) console.log(`Rows whose part the figure's fixture does not draw (${notDrawn.length}):\n  ${notDrawn.map(({ where }) => where).join('\n  ')}`);
       if (findings.length) console.log(`Parts drawn in another color than their token (${findings.length}):\n  ${findings.map(({ said, key }) => `${said}${KNOWN[key] ? ` — known: ${KNOWN[key]}` : ''}`).join('\n  ')}`);
       assert.deepEqual(errors, [], 'the pages throw nothing');
       assert.deepEqual(
         findings.map(({ key }) => key).sort(),
         Object.keys(KNOWN).sort(),
         'every part found is drawn in its token, but for the known ones (a new one is a binding to look at; one that left the list leaves KNOWN)',
+      );
+      assert.deepEqual(
+        [...new Set(notDrawn.map(({ key }) => key))].sort(),
+        Object.keys(KNOWN_NOT_DRAWN).sort(),
+        'every row is drawn but for the known ones (a row that stops being drawn has lost its part, and its text its contrast; one that comes to be drawn leaves KNOWN_NOT_DRAWN)',
       );
     });
   }

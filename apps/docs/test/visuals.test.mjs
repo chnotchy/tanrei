@@ -14,7 +14,7 @@ import { fileURLToPath } from 'node:url';
 
 register('./vite-shim.mjs', import.meta.url);
 const { anatomyOf, anatomyAlt, blueprintStageOf, webPartsOf } = await import('../src/lib/visuals/anatomy.ts');
-const { lengthsNotDrawnOf, measureLinesOf, measuresOf, partsNotDrawnOf } = await import('../src/lib/visuals/measure.ts');
+const { lengthsNotDrawnOf, measureFigureOf, measureLinesOf, measuresOf, partsNotDrawnOf } = await import('../src/lib/visuals/measure.ts');
 const { motionDemoOf, motionRoleOf, motionsOf, numbered } = await import('../src/lib/visuals/motion.ts');
 const { roleMapOf, rolesOf } = await import('../src/lib/visuals/roles.ts');
 const { drawnMatrixOf, drawsStateMatrix, matrixOf, PSEUDO_STATES } = await import('../src/lib/visuals/states.ts');
@@ -253,6 +253,64 @@ describe('the parts of the anatomy and measure figures', () => {
     }
     assert.deepEqual([...lengthsNotDrawnOf('button', blueprintStageOf('button').fixture, []).keys()], [], 'a component the record does not name draws every length');
   });
+  // A component page whose spec has lengths and draws no measure figure, and why. A page that loses its figure (its
+  // lengths come to name no part of its anatomy, as the Tabs' did when the part named container was renamed and no part
+  // was the tab's own box) fails until it draws one again or is listed here; one that comes to draw one leaves the list.
+  const NO_WEB_PARTS = 'its spec does not say where the web draws its parts (platforms.web.parts), so the figure has no part to measure';
+  const NO_STAGE = 'no fixture a figure can stand on in the page (blueprintStageOf: a page, a window, a modal one, a step in script, or no baseline)';
+  const WHOLE = 'its lengths name no part of its anatomy: they are the whole component’s (the gaps between its members, a size of its own)';
+  const WITHOUT_MEASURE_FIGURE = {
+    ...Object.fromEntries(
+      ['accordion', 'app-shell', 'avatar', 'breadcrumbs', 'calendar', 'carousel', 'code-block', 'date-time-picker', 'description-list', 'dialog', 'figure', 'image-preview', 'inline-code', 'link', 'link-card', 'marquee-text', 'modal-layer', 'number-ticker', 'page-header', 'popover', 'scroll-area', 'search', 'steps', 'table', 'table-of-contents', 'timeline', 'tree-view'].map((name) => [name, NO_WEB_PARTS]),
+    ),
+    ...Object.fromEntries(['chat-composer', 'drop-zone', 'file-upload', 'previous-next-links'].map((name) => [name, NO_STAGE])),
+    ...Object.fromEntries(
+      ['chip-field', 'color-field', 'combobox-field', 'number-field', 'one-time-code-field', 'radio-group', 'select-field', 'size-transition', 'slider-field', 'tag-group', 'text-field'].map((name) => [name, WHOLE]),
+    ),
+    'button-group': 'its lengths are the whole group’s (its gaps, insets and corners) and its divider’s inset and stroke, which the figure does not draw',
+    'bottom-sheet': 'its fixture draws no header, whose lengths the figure would draw; the rest are margins, an all-round padding, a maximum width and corners, which it does not',
+    card: 'its lengths are an all-round padding, corners and an outline’s stroke, which the figure does not draw',
+    'checkbox-group': 'its lengths are the gaps between its parts and of parts its fixture leaves out; the figure measures a gap only inside a container',
+    field: 'its lengths are the gaps between its parts and of parts its fixture leaves out; the figure measures a gap only inside a container',
+    'field-group': 'its lengths are the gaps between its parts and of parts its fixture leaves out; the figure measures a gap only inside a container',
+    divider: 'its lengths are a stroke, an inset and the pattern of a dashed, dotted or wavy line, which the figure does not draw',
+    'file-item': 'its lengths are each of one layout (row, tile) or one status, which the figure does not tell apart, or of parts its fixture leaves out',
+    'file-picker': 'its fixture is the button, without the drop area whose box most of its lengths are; the rest are an outline’s stroke and corners',
+    handle: 'its lengths are a breadth and a length along its axis, strokes and corners, which the figure does not draw',
+    list: 'its lengths are a layout’s (a column’s gap), the gaps between items, strokes, corners and a mark its fixture leaves out',
+    meter: 'its lengths are the track’s gap to its indicator, corners, strokes and a stop indicator of 0, which the figure does not draw',
+    'progress-indicator': 'its lengths are the track’s gap to its indicator, corners, strokes and a stop indicator of 0, which the figure does not draw',
+    'one-time-code-input': 'its slots’ lengths name no part; the caret and the separator are strokes or parts its fixture leaves out',
+    'resizable-frame': 'its lengths are minimum sizes, corners and its size indicator’s, which the figure does not draw',
+    skeleton: 'its lengths are its placeholders’ corners and a gap of its host, which holds no content to measure it to',
+    'split-view': 'its one length is its divider’s width, a stroke the figure does not draw',
+    'tab-view': 'its lengths are a corner of 0 and a swipe’s distance and blur, which the figure does not draw',
+  };
+  test('every component page whose spec has lengths draws a measure figure, but for the pages listed with why', () => {
+    const dir = here('../src/content/docs/components');
+    const pages = fs
+      .readdirSync(dir)
+      .map((file) => /<ComponentSpecs name="([a-z0-9-]+)"/.exec(fs.readFileSync(`${dir}/${file}`, 'utf8'))?.[1])
+      .filter(Boolean)
+      .sort();
+    assert.ok(pages.includes('tabs') && pages.includes('button'), 'the component pages are read');
+    const without = pages.filter((name) => measuresOf(name).length > 0 && measureFigureOf(name).lines.length === 0);
+    assert.deepEqual(without, Object.keys(WITHOUT_MEASURE_FIGURE).sort(), 'a page whose lengths draw no figure is listed with why (one that comes to draw one leaves the list)');
+    for (const [name, why] of Object.entries(WITHOUT_MEASURE_FIGURE)) {
+      const { parts, stage } = measureFigureOf(name);
+      if (why === NO_WEB_PARTS) assert.equal(parts, null, `${name}: ${why}`);
+      else assert.ok(parts, `${name} has its web parts; its reason is not ${NO_WEB_PARTS}`);
+      if (why === NO_STAGE) assert.equal(stage, null, `${name}: ${why}`);
+      else if (parts) assert.ok(stage, `${name} has a stage; its reason is not ${NO_STAGE}`);
+      if (why === WHOLE) assert.ok(measuresOf(name).every((measure) => measure.part === null), `${name}: ${why}`);
+    }
+    // The Tabs' figure draws a tab's own box, the part named container: its height and its inline padding.
+    const tabs = measureFigureOf('tabs').lines.map(({ token, part, axis }) => [token, part, axis]);
+    assert.deepEqual(tabs, [
+      [`${NS}.comp.tabs.container.padding-inline.medium`, 'container', 'padding-start'],
+      [`${NS}.comp.tabs.container.height.medium`, 'container', 'block'],
+    ]);
+  });
   test('the measure figure’s text alternative has a sentence for every plural form, with the component and its lengths', () => {
     for (const lang of languages) {
       const forms = strings(lang).visuals.measureAlt;
@@ -402,6 +460,24 @@ describe('color roles', () => {
     assert.equal(field.rows.find((row) => row.part === 'text-input.outline').token, `${NS}.comp.input-box.outlined.outline.color`);
     assert.equal(field.rows.find((row) => row.part === 'field.label').token, `${NS}.comp.field.standard.label.color`);
     assert.throws(() => roleMapOf('button', { variant: 'plaid' }), /not one of its variants/);
+  });
+  test('a part the spec says is drawn with another part’s tokens (drawnWith) takes those, and no token takes it by its name', () => {
+    // A tab's state layer is drawn at rest with its look's container.color; its state-layer.color is what hover, focus
+    // and press mix in, which no part is drawn in at rest.
+    const tabs = roleMapOf('tabs', { variant: 'primary', selected: true });
+    const layer = tabs.rows.filter((row) => row.part === 'state-layer');
+    assert.deepEqual(layer.map((row) => [row.token, row.paint]), [[`${NS}.comp.tabs.primary.selected.container.color`, 'fill']]);
+    assert.ok(!tabs.rows.some((row) => row.token.endsWith('.state-layer.color')), 'no row is a state-layer.color');
+    assert.ok(tabs.rows.some((row) => row.part === 'label' && row.token === `${NS}.comp.tabs.primary.selected.label.color`), 'the label keeps its own token');
+    const roles = rolesOf('tabs', ['primary']);
+    assert.equal(roles.find((role) => role.token === `${NS}.comp.tabs.primary.container.color`).part, 'state-layer');
+    assert.equal(roles.find((role) => role.token === `${NS}.comp.tabs.primary.state-layer.color`).part, null);
+    // Every part that says what it is drawn with is drawn with tokens that exist: each end names a token of its group.
+    for (const name of names) {
+      for (const part of specs[name].anatomy.filter((each) => each.drawnWith)) {
+        for (const end of part.drawnWith) assert.ok(rolesOf(name).some((role) => role.token.endsWith(`.${end}`)), `${name} ${part.id}: ${end}`);
+      }
+    }
   });
   test('every role map a page places has rows, and every language’s page places the same', () => {
     const placedIn = (base) => {

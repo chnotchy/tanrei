@@ -49,6 +49,7 @@
   fill: var(--tanrei-comp-badge-container-color);
 }
 .docs-blueprint-lines .ring,
+.docs-blueprint-lines .measured,
 .docs-blueprint-lines .extension {
   stroke: var(--tanrei-sys-color-outline);
   stroke-dasharray: var(--tanrei-sys-space-space50) var(--tanrei-sys-space-space25);
