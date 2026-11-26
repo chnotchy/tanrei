@@ -27,7 +27,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { type Locator, type Page, expect, test } from '@playwright/test';
 import { forwards } from '../../../tools/src/from.js';
-import { type Fixture, type MadeFileRow, type Spec, avatarPicture, fileUploadTwin, loadSpec, mountFixtures, tab, twinOf } from '../../test/harness.js';
+import { type Fixture, type MadeFileRow, type Spec, avatarPicture, fileUploadTwin, loadSpec, mountFixtures, tab, twinOf, isRobotoMonoGlyphWarning } from '../../test/harness.js';
 import { axTree, insideHost } from '../../test/ax-tree.js';
 import { decodePng } from '../../test/png.js';
 import { exported } from './composed.js';
@@ -691,7 +691,7 @@ const reports = (seen: string[]) => seen.filter((text) => text.includes('[tanrei
 function warnings(page: Page) {
   const seen: string[] = [];
   page.on('console', (message) => {
-    if (message.type() === 'warning' || message.type() === 'error') seen.push(message.text());
+    if ((message.type() === 'warning' || message.type() === 'error') && !isRobotoMonoGlyphWarning(message)) seen.push(message.text());
   });
   return seen;
 }

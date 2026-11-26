@@ -4,7 +4,7 @@
 // on the element of the content under the pointer.
 import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
-import { type Fixture, iconFaceArrives, loadSpec, missingWords, mountFixtures, resolveToken, rootTokens, setWords, tab, withoutIconFont } from '../../../test/harness.js';
+import { type Fixture, iconFaceArrives, loadSpec, missingWords, mountFixtures, resolveToken, rootTokens, setWords, tab, withoutIconFont, isRobotoMonoGlyphWarning } from '../../../test/harness.js';
 import { motionEnded } from '../../../test/motions.js';
 import { expectBaseline } from '../../../test/baseline.js';
 
@@ -27,7 +27,7 @@ const token = (page: P, name: string) => resolveToken(page, T(name));
 function logged(page: P, type: 'warning' | 'error' = 'warning') {
   const seen: string[] = [];
   page.on('console', (message) => {
-    if (message.type() === type) seen.push(message.text());
+    if (message.type() === type && !isRobotoMonoGlyphWarning(message)) seen.push(message.text());
   });
   return seen;
 }

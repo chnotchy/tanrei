@@ -231,7 +231,8 @@ const noteHtml = (notes: string | undefined) => (notes ?? '').replace(/&/g, '&am
 
 <h3>{t.tokens}</h3>
 <div class="tokens" style={`--docs-token-rows: ${tokenRows}`}><Table label={t.tokens} size="small"><table>
-  <thead><tr><th scope="col">{t.token}</th><th scope="col">{t.aliases}</th><th scope="col">{t.resolvedLight}</th></tr></thead>
+  {/* No cell of it wraps, its header cells included: every row is one line, the room it holds until it is drawn (below). */}
+  <thead><tr><th scope="col" data-wrap="false">{t.token}</th><th scope="col" data-wrap="false">{t.aliases}</th><th scope="col" data-wrap="false">{t.resolvedLight}</th></tr></thead>
   <tbody>
     {[...compTokens, ...typographyTokens].map((tk) => {
       const alias = sourceAlias(tk.name);
@@ -239,9 +240,10 @@ const noteHtml = (notes: string | undefined) => (notes ?? '').replace(/&/g, '&am
         <tr>
           <td data-wrap="false"><code>{tk.cssVar}</code></td>
           {/* Each row is as few elements as it can be: a component's page holds hundreds of them. */}
-          {alias ? <td><code>{alias.replace(`${ns}.`, '')}</code></td> : <td class="docs-muted">—</td>}
-          {/* A color's swatch and its value stand on one line: the value is not broken under its swatch. */}
-          <td data-wrap={tk.type === 'color' ? 'false' : undefined}>
+          {alias ? <td data-wrap="false"><code>{alias.replace(`${ns}.`, '')}</code></td> : <td class="docs-muted" data-wrap="false">—</td>}
+          {/* A value is one line, a color's swatch beside it: a shadow's layers and an easing's four numbers read as the
+              one value they are, as a stylesheet writes them, and the column is as wide as its longest value. */}
+          <td data-wrap="false">
             {tk.type === 'color' && <tanrei-swatch class="chip" decorative size="small" shape="circle" color={tk.value.hex} />}
             <span class="docs-mono">{formatValue(tk)}</span>
           </td>
@@ -399,9 +401,13 @@ const noteHtml = (notes: string | undefined) => (notes ?? '').replace(/&/g, '&am
   /* The tokens' table is the longest thing on a component's page — hundreds of rows, half of the page's elements, far
      below its head — and it is neither styled nor laid out until it comes near the view: the browser restyled every
      row of it each time a script read the layout as the page loaded. Until then it holds the room of its rows and its
-     header row, each one line of the Table's small cell (every row of it is one line, but a long value the column
-     wraps, a shadow); the room it remembers (`auto`) is the room it took once drawn. Its text is still found by the
-     browser's find in page, which draws it. The Table reads its sizes again when it is drawn (a size observer), so it is
+     header row, each one line of the Table's small cell, and that is the room it takes once drawn, at every width and
+     in every language: no cell of it wraps (`data-wrap="false"` on every column), so a row is one line whatever its
+     column's width, and where its columns need more than the box the Table scrolls them sideways. (A cell its column
+     broke — a shadow, an easing, a header in a narrow column — made the table taller than the room it held, by up to
+     3000 px, and a browser without scroll anchoring moved what was in view when it was drawn above it.) The room it
+     remembers (`auto`) is the room it took once drawn. Its text is still found by the browser's find in page, which
+     draws it. The Table reads its sizes again when it is drawn (a size observer), so it is
      a focus stop and a region where it scrolls once it is near. The other tables, whose rows are paragraphs of no
      height known before they are laid out, are drawn with the page.
      The box that skips it is a block of its own around the Table, never the Table: the Table is a size container (its

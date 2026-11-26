@@ -5,7 +5,7 @@
 // src/primitives/delegated-aria.test.ts.
 import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
-import { type Fixture, acmeSystemCss, loadSpec, missingWords, mountFixtures, resolveColor, resolveToken, setWords, tab, tabTo, rootTokens, typeRole } from '../../../test/harness.js';
+import { type Fixture, acmeSystemCss, loadSpec, missingWords, mountFixtures, resolveColor, resolveToken, setWords, tab, tabTo, rootTokens, typeRole, warnings } from '../../../test/harness.js';
 import { expectKeyPressOutlastsPointer } from '../../../test/key-press-pointer-leaves.js';
 import { expectWheelKeptFromPage } from '../../../test/contained-wheel.js';
 import { withoutFocusVisibleOption } from '../../../test/focus-visible-option.js';
@@ -31,13 +31,6 @@ const token = (page: P, name: string) => page.evaluate((n) => getComputedStyle(d
 const T = (name: string) => `--tanrei-comp-calendar-${name}`;
 const bounds = async (locator: Locator) => (await locator.boundingBox())!;
 const override = (page: P, vars: Record<string, string>) => rootTokens(page, vars);
-function warnings(page: P) {
-  const seen: string[] = [];
-  page.on('console', (message) => {
-    if (message.type() === 'warning') seen.push(message.text());
-  });
-  return seen;
-}
 /** The deepest focused element: a day's date, `year:<y>`, `toggle`, a Button's class, or a tag. */
 const focused = (page: P) =>
   page.evaluate(() => {

@@ -8,6 +8,7 @@
 //   pnpm --filter @tanrei/docs test:node
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
+import path from 'node:path';
 import { register } from 'node:module';
 import { describe, test } from 'node:test';
 import { fileURLToPath } from 'node:url';
@@ -18,7 +19,7 @@ const { lengthsNotDrawnOf, measureFigureOf, measureLinesOf, measuresOf, partsNot
 const { motionDemoOf, motionRoleOf, motionsOf, numbered } = await import('../src/lib/visuals/motion.ts');
 const { roleMapOf, rolesOf } = await import('../src/lib/visuals/roles.ts');
 const { drawnMatrixOf, drawsStateMatrix, matrixOf, PSEUDO_STATES } = await import('../src/lib/visuals/states.ts');
-const { holdSelector, holdSelectorList, wordsOf } = await import('../src/lib/visuals/pseudo-states.ts');
+const { heldText, holdSelector, holdSelectorList, wordsOf } = await import('../src/lib/visuals/pseudo-states.ts');
 const { fixtureDocument } = await import('../src/lib/fixture-documents.ts');
 const { CODE_FLAVORS, controlsAndGaps, controlsOf, NATIVE_CODE, playgroundOf, SIDE_BY_SIDE } = await import('../src/lib/visuals/playground.ts');
 const { attributeOf, fromAttribute, hashEntries, hashKey, hashOf, isDefault, propertyOf, stateFromHash, writeHash } = await import('../src/lib/visuals/playground-state.ts');
@@ -612,14 +613,23 @@ describe('holding a state', () => {
       [":host(:not([variant])) button[data-pressed]:not([data-pressed='none'])", ':host(:not([variant])[data-docs-state~="pressed"][data-docs-state]) button'],
       // A condition that was a compound of its own leaves the universal selector.
       ['.list :hover', ':host(:where([data-docs-state~="hovered"])) .list *'],
+      // In `:where()`, which weighs nothing: the host is required in `:where()` too (the slider's handle, the drawer's item).
+      ['.knob:where(:has(> .handle:focus-visible:not([data-pointer-focus])))', ':where(:host([data-docs-state~="focused"])) .knob:where(:has(> .handle:not([data-pointer-focus])))'],
+      [':where(.thumb[data-hovered]) .knob', ':where(:host([data-docs-state~="hovered"])) :where(.thumb) .knob'],
+      ['.cell:where(:hover, .split:hover > *):where(:not(.static))', ':where(:host([data-docs-state~="hovered"])) .cell:where(*, .split > *):where(:not(.static))'],
+      // In `:is()` or `:has()`: what the argument lost by it, nothing where another of its selectors weighs as much.
+      ['.cell:is(:focus-visible, .filter-active) .container::after', ':where(:host([data-docs-state~="focused"])) .cell:is(*, .filter-active) .container::after'],
+      ['.cell:has(> .container[data-pressed="overlay"]) .label', ':host(:where([data-docs-state~="pressed-overlay"])) .cell:has(> .container) .label'],
+      [':host(.x) .cell:where(:hover)', ':host(.x:where([data-docs-state~="hovered"])) .cell:where(*)'],
+      [':host(:is(:focus-visible, [data-tanrei-focus])) .title > .container', ':host(:is(*, [data-tanrei-focus]):where([data-docs-state~="focused"])) .title > .container'],
     ];
     for (const [selector, held] of cases) assert.equal(holdSelector(selector), held, selector);
   });
-  test('a list keeps the selectors that name a condition; one inside :not() or :has(), or none at all, is not held', () => {
+  test('a list keeps the selectors that name a condition; one inside :not(), or none at all, is not held', () => {
     assert.equal(holdSelectorList('button[data-pressed="ripple"], button[data-pressed="dim"]'), ':host(:where([data-docs-state~="pressed-ripple"])) button, :host(:where([data-docs-state~="pressed-dim"])) button');
     assert.equal(holdSelectorList(':host(:focus-within) .ring, .a'), ':host([data-docs-state~="focused"]) .ring');
     assert.equal(holdSelectorList('button:not(:hover)'), null);
-    assert.equal(holdSelectorList('.cell:has(> .container[data-pressed="overlay"]) .label'), null);
+    assert.equal(holdSelectorList('.cell:has(> .a:not(:hover)) .label'), null);
     assert.equal(holdSelectorList(':host([disabled]) button'), null);
   });
   test('a press is drawn as the system answers one: a ripple as the overlay it ends as, nothing for none', () => {
@@ -629,6 +639,129 @@ describe('holding a state', () => {
     assert.deepEqual(wordsOf('pressed', 'none'), []);
     assert.deepEqual(wordsOf('hovered', 'none'), ['hovered']);
     assert.deepEqual(wordsOf('', 'overlay'), []);
+  });
+
+  // A copied sheet is written from the text the component's style was written as: every rule of it, character for
+  // character, and after each rule a figure can hold, its copy, whose block is the rule's own. The rules are read here
+  // by a reader of the test's own (braces, comments and strings minded), so the check does not lean on the one it checks.
+  const COPY = /data-docs-state/;
+  /** The rules of a list as written: the prelude (white space and comments before it kept) and the block, braces included. */
+  const rulesIn = (text) => {
+    const rules = [];
+    let start = 0;
+    let depth = 0;
+    let open = -1;
+    for (let at = 0; at < text.length; at++) {
+      if (text.startsWith('/*', at)) at = text.indexOf('*/', at + 2) + 1;
+      else if (text[at] === '"' || text[at] === "'") {
+        const quote = text[at];
+        for (at++; at < text.length && text[at] !== quote; at++) if (text[at] === '\\') at++;
+      } else if (text[at] === '\\') at++;
+      else if (text[at] === '{' && depth++ === 0) open = at;
+      else if (text[at] === '}' && --depth === 0) {
+        rules.push({ prelude: text.slice(start, open), block: text.slice(open, at + 1) });
+        start = at + 1;
+      } else if (text[at] === ';' && depth === 0) {
+        rules.push({ prelude: text.slice(start, at + 1), block: null });
+        start = at + 1;
+      }
+    }
+    if (start < text.length) rules.push({ prelude: text.slice(start), block: null });
+    return rules;
+  };
+  const selectorOf = (prelude) => prelude.replace(/\/\*[\s\S]*?\*\//g, ' ').trim();
+  const GROUPING = /^@(?:media|supports|container|layer|scope|starting-style|document)(?![\w-])/i;
+  const HOVER = /^@media\s*\(\s*hover\s*:\s*hover\s*\)$/i;
+  /**
+   * The held text with its copies taken out, after asking that each copy is its rule's block under the held selector,
+   * and that each rule a figure can hold has one. `where` names the list for a failure.
+   */
+  const withoutCopies = (held, where) => {
+    let text = '';
+    /** The rules a copy may stand for, in order: the last rule written, or every rule of a hover-only group. */
+    let pending = [];
+    for (const { prelude, block } of rulesIn(held)) {
+      const name = selectorOf(prelude);
+      if (block !== null && COPY.test(name)) {
+        const of = pending.shift();
+        assert.ok(of, `${where}: a copy stands after a rule it copies (${name.slice(0, 120)})`);
+        assert.equal(block, of.block, `${where}: the copy of ${of.selector.slice(0, 120)} has its rule's block, character for character`);
+        assert.equal(name, holdSelectorList(of.selector), `${where}: the copy of ${of.selector.slice(0, 120)} is held as its selector says`);
+        continue;
+      }
+      assert.deepEqual(pending.map(({ selector }) => selector), [], `${where}: each rule a figure can hold is copied`);
+      if (block !== null && GROUPING.test(name) && !HOVER.test(name)) {
+        text += `${prelude}{${withoutCopies(block.slice(1, -1), `${where} ${name}`)}}`;
+        pending = [];
+      } else if (block !== null && HOVER.test(name)) {
+        text += prelude + block;
+        pending = rulesIn(block.slice(1, -1)).filter((inner) => inner.block !== null && holdSelectorList(selectorOf(inner.prelude))).map((inner) => ({ selector: selectorOf(inner.prelude), block: inner.block }));
+      } else {
+        text += prelude + (block ?? '');
+        pending = block !== null && !name.startsWith('@') && holdSelectorList(name) ? [{ selector: name, block }] : [];
+      }
+    }
+    assert.deepEqual(pending.map(({ selector }) => selector), [], `${where}: each rule a figure can hold is copied`);
+    return text;
+  };
+  /** Asks that `text`, held, is `text` with a copy after each rule a figure can hold, and nothing else. */
+  const holdsExactly = (text, where) => {
+    assert.ok(!COPY.test(text), `${where}: the sheet names no state of a figure`);
+    assert.equal(withoutCopies(heldText(text), where), text, `${where}: every rule is kept as written`);
+  };
+  const copiesIn = (held) => (held.match(/\[data-docs-state~=/g) ?? []).length;
+
+  test('a sheet is copied from its text: a var() shorthand a later longhand overrides, `all`, groups and comments are kept as written', () => {
+    const text = `/* a comment { with a brace */
+  .label { font: var(--w) var(--s)/var(--l) var(--f); font-variant-numeric: tabular-nums; }
+  .handle:hover { background: var(--_h); background-clip: content-box; --_x: var(--_y, "}"); }
+  .reset:focus-visible { --_c: var(--_c-r); all: unset; color: red !important; }
+  @layer base { .a:hover { --_h: var(--_h-h); } }
+  @supports (color: red) { @container (width > 10px) { :host(:hover) .b { color: blue; } } }
+  @media (hover: hover) { .c:hover { color: green; } .d { color: green; } }
+  @property --_h { syntax: '*'; inherits: false; }
+  @keyframes spin { from { rotate: 0deg; } to { rotate: 1turn; } }
+  @layer one, two;
+`;
+    holdsExactly(text, 'the written case');
+    const held = heldText(text);
+    // A copy for each rule a figure can hold: two at the top, two in groups, one after the hover-only group.
+    assert.equal(copiesIn(held), 5);
+    assert.match(held, /:host\(:where\(\[data-docs-state~="hovered"\]\)\) \.handle \{ background: var\(--_h\); background-clip: content-box; --_x: var\(--_y, "\}"\); \}/);
+    assert.match(held, /@media \(hover: hover\) \{[^}]*\}[^}]*\}\s*\}\n:host\(:where\(\[data-docs-state~="hovered"\]\)\) \.c \{ color: green; \}/);
+  });
+
+  test("the slider's and the navigation drawer item's sheets, and every other component sheet, are copied with every declaration", async () => {
+    const dist = here('../../../packages/web/dist/components');
+    const modules = fs
+      .readdirSync(dist, { recursive: true })
+      .filter((file) => file.endsWith('.styles.js'))
+      .sort();
+    assert.ok(modules.length > 50, `the web package's style modules are built (${modules.length})`);
+    let sheets = 0;
+    let copies = 0;
+    const named = new Map();
+    for (const file of modules) {
+      const module = await import(path.join(dist, file));
+      for (const [name, value] of Object.entries(module)) {
+        if (!value || typeof value !== 'object' || typeof value.cssText !== 'string' || !value._$cssResult$) continue;
+        holdsExactly(value.cssText, `${file} ${name}`);
+        sheets++;
+        const made = copiesIn(heldText(value.cssText));
+        copies += made;
+        named.set(`${file} ${name}`, { text: value.cssText, made });
+      }
+    }
+    // The two whose copies lost declarations to the browser's serialization: the handle's fill, the trailing text's type.
+    const slider = named.get(path.join('slider', 'slider.styles.js') + ' styles');
+    const item = named.get(path.join('navigation-drawer', 'navigation-drawer.styles.js') + ' cellStyles');
+    assert.ok(slider && item, 'the slider and the navigation drawer item have their sheets');
+    assert.ok(slider.made > 0 && item.made > 0, 'both have rules a figure holds');
+    const sliderHeld = heldText(slider.text);
+    assert.match(sliderHeld, /\.handle\s*\{[^}]*background:\s*var\(--_h\);\s*background-clip:\s*content-box;/, "the slider's handle keeps its fill");
+    const itemHeld = heldText(item.text);
+    assert.match(itemHeld, /\.trailing-text\s*\{\s*font:\s*var\([^;]+;[^}]*font-variant-numeric:\s*tabular-nums;/, "the trailing text keeps its type and its figures");
+    assert.ok(sheets > 70 && copies > 100, `every sheet read (${sheets}) and its copies made (${copies})`);
   });
 });
 

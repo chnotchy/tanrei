@@ -11,7 +11,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
-import { type Fixture, acmeSystemCss, loadSpec, missingWords, mountFixtures, resolveColor, resolveToken, setWords, tab, tabTo, inputBoxCopies, inputBoxSetApart, inputBoxToken, rootTokens, mountFixtureAsInAll } from '../../../test/harness.js';
+import { type Fixture, acmeSystemCss, loadSpec, missingWords, mountFixtures, resolveColor, resolveToken, setWords, tab, tabTo, inputBoxCopies, inputBoxSetApart, inputBoxToken, rootTokens, mountFixtureAsInAll, warnings } from '../../../test/harness.js';
 import { coveredText } from '../../../test/covered-text.js';
 import { motionEnded } from '../../../test/motions.js';
 import { holdClock, releaseClock } from '../../../test/page-clock.js';
@@ -19,6 +19,7 @@ import { firstStrong, runDirection } from '../../styles/product-text.js';
 import { ZERO, canonical, clamp, decimalFromString, decimalOf, format, numberForm, numberOf, read as readText, round, stepped } from './number-text.js';
 import { expectBaseline } from '../../../test/baseline.js';
 import { expectBoxTakesContainerSize } from '../../../test/input-box-size.js';
+import { askForFrame } from '../../../test/frame-asked.js';
 
 const spec = loadSpec('number-input');
 type P = Page;
@@ -91,13 +92,6 @@ const edgeMotion = (edge: Locator) =>
 const px = async (locator: Locator, property: string, pseudo?: string) => Number.parseFloat(await css(locator, property, pseudo));
 const near = (actual: number, expected: number, message = '', tolerance = 0.6) => expect(Math.abs(actual - expected), `${message}: ${actual} ≈ ${expected}`).toBeLessThanOrEqual(tolerance);
 const override = (page: P, vars: Record<string, string>) => rootTokens(page, vars);
-function warnings(page: P) {
-  const seen: string[] = [];
-  page.on('console', (message) => {
-    if (message.type() === 'warning') seen.push(message.text());
-  });
-  return seen;
-}
 const frames = (page: P, count = 3) =>
   page.evaluate(async (n) => {
     for (let i = 0; i < n; i++) await new Promise((resolve) => requestAnimationFrame(resolve));
@@ -395,6 +389,7 @@ test.describe('behavior: the box', () => {
         },
         [variant, size] as const,
       );
+      await askForFrame(page);
       const field = page.locator('[data-fixture="pair"] > tanrei-text-input');
       await expect(field.locator('.container')).toBeVisible();
       await frames(page);

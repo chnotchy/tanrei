@@ -3,13 +3,14 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import type { Locator, Page } from '@playwright/test';
+import type { ConsoleMessage, Locator, Page } from '@playwright/test';
 import { resolveFrom, source } from '../../tools/src/from.js';
 import { fixturePicture } from './pictures.ts';
 import { linkCardToHtml } from '../src/links/index.ts';
 import { buildSync } from 'esbuild';
 import { specimenHtml, specimenInline, specimenMarkdown } from './specimen.ts';
 import { countMount } from './mounts-per-page.ts';
+import { askForFrame } from './frame-asked.ts';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const pkg = path.resolve(here, '..');
@@ -337,9 +338,9 @@ function embeddedFaceMarkup(rules: string): string {
 
 const registered = new Map<string, Promise<string>>();
 /**
- * @font-face rules for families a PRESET names (m3-like: Roboto, Material Symbols Outlined), embedded, from the
- * development-only @fontsource packages — the same registration our sites use (packages/tools/src/font-faces.js).
- * The default fixtures do not use it: their baselines are drawn with `fontFace()` above and must not move.
+ * @font-face rules for families a system names (Roboto Mono for the default's code, Roboto and Material Symbols Outlined
+ * for m3-like), embedded, from the development-only @fontsource packages — the same registration our sites use
+ * (packages/tools/src/font-faces.js).
  */
 export function presetFontFaces(families: string[]): Promise<string> {
   const key = families.join('|');
@@ -366,16 +367,20 @@ export async function iconFamilies(defaultCss: string, systemCss: string): Promi
 }
 
 /**
- * The @font-face rules for the text families a PRESET names first (`--tanrei-ref-typeface-brand` / `-plain` / `-mono`
- * in its sheet) that this repository can register — Roboto and Roboto Mono for m3-like. Without
- * them a preset's text is drawn in whatever the machine has: a Mac with Roboto installed drew m3-like's labels in Roboto
- * 500, the Linux CI image (which has no Roboto) in a fallback of another width and weight. Inter is `fontFace()`'s, and
- * a family this repository cannot ship (cupertino's -apple-system) is left to fall back, as on a machine without it.
+ * The @font-face rules for the text families the drawn system names first (`--tanrei-ref-typeface-brand` / `-plain` /
+ * `-mono`) that this repository can register: Roboto Mono for the default's code, Roboto and Roboto Mono for m3-like.
+ * Each stack is the system's sheet's where it sets one, else the default's (`defaultCss`), as the cascade draws it.
+ * Without them that text is drawn in whatever the machine has: a Mac with Roboto installed drew m3-like's labels in
+ * Roboto 500, the Linux CI image (which has neither Roboto nor Roboto Mono) in a fallback of another width and weight,
+ * and the default's code in a monospace narrower than Roboto Mono, which wrapped a multiline code field onto fewer
+ * lines than the docs site (which loads Roboto Mono) draws. Inter is `fontFace()`'s, and a family this repository
+ * cannot ship (cupertino's -apple-system, ui-monospace) is left to fall back, as on a machine without it.
  */
-async function presetTextFontFaces(systemCss: string): Promise<string> {
+async function textFontFaces(defaultCss: string, systemCss: string): Promise<string> {
   const { FONT_PACKAGES } = await import('../../tools/src/font-faces.js');
-  const first = [...systemCss.matchAll(/--tanrei-ref-typeface-(?:brand|plain|mono):\s*([^;]+);/g)].map((m) => m[1].split(',')[0].trim().replace(/^["']|["']$/g, ''));
-  const families = [...new Set(first)].filter((family) => family in FONT_PACKAGES && family !== 'Inter').sort();
+  const firsts = (css: string) => new Map([...css.matchAll(/--tanrei-ref-typeface-(brand|plain|mono):\s*([^;]+);/g)].map((m) => [m[1], m[2].split(',')[0].trim().replace(/^["']|["']$/g, '')]));
+  const stacks = new Map([...firsts(defaultCss), ...firsts(systemCss)]);
+  const families = [...new Set(stacks.values())].filter((family) => family in FONT_PACKAGES && family !== 'Inter').sort();
   return families.length ? presetFontFaces(families) : '';
 }
 
@@ -2647,9 +2652,10 @@ export async function fixturesDocument(spec: Spec, given: DocumentOptions = {}):
   const iconFaces = families.length && !assets ? await presetFontFaces(families) : '';
   const sheet = (href: string | undefined, embed: () => string) => (href ? `<link rel="stylesheet" href="${href}" />` : `<style>${embed()}</style>`);
   const icons = families.length ? sheet(assets?.icons(families), () => iconFaces) : '';
-  // A preset's own text faces (Roboto for the m3 presets), registered from their bytes before the body with Inter
-  // (`embeddedFaceMarkup`); a page given asset URLs has them in its shared font sheet.
-  const text = options.system && !assets ? await presetTextFontFaces(systemStyles(options)) : '';
+  // The system's own text faces besides Inter (Roboto Mono for the default's code, Roboto for the m3 presets),
+  // registered from their bytes before the body with Inter (`embeddedFaceMarkup`); a page given asset URLs has them in
+  // its shared font sheet.
+  const text = assets ? '' : await textFontFaces(read('dist/tokens.css'), systemStyles(options));
   // A page's frame holds the page's own main region: its stages stand in a `div` (see `Staging.page`).
   const holder = staging.page ? 'div' : 'main';
   return `<!doctype html>
@@ -2959,7 +2965,10 @@ export async function withoutIconFont(page: Page, family = MISSING_ICON_FAMILY):
   return family;
 }
 
-/** The font of `withoutIconFont()` arrives: the default system's icon face, registered under the missing family's name. */
+/**
+ * The font of `withoutIconFont()` arrives: the default system's icon face, registered under the missing family's name;
+ * then a frame (`askForFrame()`): the glyphs are laid out again in it.
+ */
 export async function iconFaceArrives(page: Page, family = MISSING_ICON_FAMILY) {
   const [real] = await iconFamilies(read('dist/tokens.css'), '');
   await page.addStyleTag({ content: (await presetFontFaces([real])).replaceAll(real, family) });
@@ -2967,6 +2976,7 @@ export async function iconFaceArrives(page: Page, family = MISSING_ICON_FAMILY) 
     await document.fonts.load(`24px "${name}"`, 'check');
   }, family);
   await page.evaluate(facesReady);
+  await askForFrame(page);
 }
 
 /**
@@ -2977,8 +2987,9 @@ export async function iconFaceArrives(page: Page, family = MISSING_ICON_FAMILY) 
  * first that differs, when the two have the same size (1 to 10 s for a page of fixtures); a set of another size is not
  * compared (README, "A single token set on the root from script is slow in WebKit"). What the page draws is the same.
  *
- * Self-contained, so that it can be given to `page.evaluate()`; `rootTokens()` is that call, and `rootTokensInPage()`
- * leaves it on the page as `window.rootTokens` for a script of the page that writes in the middle of its own work.
+ * Self-contained, so that it can be given to `page.evaluate()`; `rootTokens()` makes that call (then asks for a frame),
+ * and `rootTokensInPage()` leaves it on the page as `window.rootTokens` for a script of the page that writes in the
+ * middle of its own work.
  */
 export function writeRootTokens(vars: Record<string, string>): void {
   const root = document.documentElement.style;
@@ -2990,7 +3001,15 @@ export function writeRootTokens(vars: Record<string, string>): void {
   }
   for (; own > 0; own--) root.setProperty(`--root-write-${(counter.tanreiRootWrites = (counter.tanreiRootWrites ?? 0) + 1)}`, '1');
 }
-export const rootTokens = (page: Page, vars: Record<string, string>): Promise<void> => page.evaluate(writeRootTokens, vars);
+/**
+ * Sets custom properties on the root from the test (`writeRootTokens()`), then has the page draw a frame: a token on the
+ * root changes what the page lays out, and Playwright's headless WebKit on Linux now and then draws no frame after
+ * such a write for seconds (`askForFrame()`, test/frame-asked.ts).
+ */
+export async function rootTokens(page: Page, vars: Record<string, string>): Promise<void> {
+  await page.evaluate(writeRootTokens, vars);
+  await askForFrame(page);
+}
 /** The longhands of a type role that a component composes its `font` from (src/styles/type.ts). */
 const ROLE_LONGHANDS = ['font-weight', 'font-size', 'line-height', 'font-family'] as const;
 
@@ -3123,6 +3142,33 @@ export async function tabTo(page: Page, host: Locator) {
   throw new Error(`tabTo: the control was never reached by Tab (the focus ended on ${stuck})`);
 }
 
+// ── What the page's console says ────────────────────────────────────────────────────────────────────────────────────
+// Roboto Mono, the default system's code face (embedded in every fixture document by `textFontFaces()`), draws its
+// no-break space as a composite glyph whose one component is the space, glyph 1, which has no outline. Firefox's font
+// sanitizer (OTS) accepts the face and draws it as it should, but warns once per page that loads it: every Roboto Mono
+// file tried says it (@fontsource static and variable 5.0.0 to 5.3.0, Google Fonts' own, the googlefonts/RobotoMono
+// release 3.001), so it is the face's own glyph, not this repository's copy of it. It is reported upstream to
+// googlefonts/RobotoMono; the issue's link is added here once it is filed. The tests tolerate that one message, whole,
+// as Firefox writes it for the faces embedded here: the latin subset's glyph 225 (its no-break space, in the upright
+// and the italic file alike), the variable face's weight range, and a source it does not print (a `data:` URL). Nothing
+// else Firefox says about a font, and nothing it says about another glyph or another family, is tolerated.
+const ROBOTO_MONO_NO_BREAK_SPACE =
+  /^\[JavaScript Warning: "downloadable font: glyf: empty gid 1 used as component in glyph 225 \(font-family: "Roboto Mono" style:(?:normal|italic) weight:100\.\.700 width:100 src index:0\) source: \(invalid URI\)"\]$/;
+
+/** Whether `message` is Firefox's warning about Roboto Mono's no-break space (above), the one a test may hear. */
+export function isRobotoMonoGlyphWarning(message: ConsoleMessage): boolean {
+  return message.type() === 'warning' && ROBOTO_MONO_NO_BREAK_SPACE.test(message.text());
+}
+
+/** The warnings the page reports from now on (call it before mounting), but for Roboto Mono's (`isRobotoMonoGlyphWarning`). */
+export function warnings(page: Page): string[] {
+  const seen: string[] = [];
+  page.on('console', (message) => {
+    if (message.type() === 'warning' && !isRobotoMonoGlyphWarning(message)) seen.push(message.text());
+  });
+  return seen;
+}
+
 // ── The product's words ─────────────────────────────────────────────────────────────────────────────────────────────
 // A test is the product there: it gives its words itself, by a fixture's props or — for what a product says once — by
 // `setWords()`, as a product does. The page's components come from the bundle, whose exports a mounted document cannot
@@ -3143,10 +3189,14 @@ async function wordsApi(page: Page) {
   await page.addScriptTag({ content: wordsScript });
 }
 
-/** `setWords()` of `@tanrei/web`, called in the page as a product calls it. */
+/**
+ * `setWords()` of `@tanrei/web`, called in the page as a product calls it; then a frame (`askForFrame()`): the words
+ * change what the components draw and lay out.
+ */
 export async function setWords(page: Page, words: Record<string, string>, options: { lang?: string } = {}) {
   await wordsApi(page);
   await page.evaluate(([w, o]) => (globalThis as unknown as { tanreiWordsApi: { setWords: (words: unknown, options: unknown) => void } }).tanreiWordsApi.setWords(w, o), [words, options] as const);
+  await askForFrame(page);
 }
 
 /** `missingWords()` of `@tanrei/web`, asked in the page. */

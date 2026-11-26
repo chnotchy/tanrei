@@ -7,7 +7,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { type Page, expect, test } from '@playwright/test';
-import { type Fixture, loadSpec, missingWords, mountFixtures, setWords, rootTokens } from '../../test/harness.js';
+import { type Fixture, loadSpec, missingWords, mountFixtures, setWords, rootTokens, warnings } from '../../test/harness.js';
 import { allSettled } from '../../test/settled.js';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
@@ -29,13 +29,6 @@ const drawn = (page: P, id: string) =>
     const asterisk = row.querySelector('.asterisk');
     return asterisk && getComputedStyle(asterisk).display !== 'none' ? '*' : '';
   });
-function warnings(page: P) {
-  const seen: string[] = [];
-  page.on('console', (message) => {
-    if (message.type() === 'warning') seen.push(message.text());
-  });
-  return seen;
-}
 /** Gives `stage` (a fixture's own box) a `lang`, as a product writes it on a part of its page. */
 const lang = (page: P, id: string, tag: string) => page.locator(`[data-fixture="${id}"]`).evaluate((el, t) => el.setAttribute('lang', t), tag);
 

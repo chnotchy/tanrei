@@ -10,6 +10,7 @@ import { type Locator, type Page, expect, test } from '@playwright/test';
 import { declarations, resolved, tokensIn, writeConditions } from '../../../scripts/conditions.js';
 import { type Fixture, fixturesDocument, loadSpec, mountFixtures, resolveColor, resolveToken, tab, rootTokens } from '../../../test/harness.js';
 import { expectBaseline } from '../../../test/baseline.js';
+import { restyle } from '../../../test/restyle.js';
 
 const spec = loadSpec('page-header');
 type P = Page;
@@ -90,10 +91,7 @@ const some = (...ids: string[]) => ids.map(fixture);
 const raw = (id: string, props: Fixture['props'], content: string, extra: Partial<Fixture> = {}): Fixture => ({ id, props, content, ...extra });
 /** The head's width (a fixture cannot state the size of its stage: PGH-10, PGH-12, PGH-18). */
 const size = async (page: P, id: string, width: number) => {
-  await stage(page, id).evaluate((el, w) => {
-    (el as HTMLElement).style.maxInlineSize = 'none';
-    (el as HTMLElement).style.inlineSize = `${w + 32}px`;
-  }, width);
+  await restyle(stage(page, id), { 'max-inline-size': 'none', 'inline-size': `${width + 32}px` });
   await frame(page);
 };
 const near = (a: number, b: number, tolerance = 0.6) => expect(Math.abs(a - b), `${a} ≈ ${b}`).toBeLessThanOrEqual(tolerance);

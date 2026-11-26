@@ -290,8 +290,6 @@ const ownerOf = (element: Element): HTMLElement => ((element.getRootNode() as Sh
 function focusReach(element: Element): { reach: number; radius: number } {
   const owner = ownerOf(element);
   const had = owner.getAttribute(STATE_ATTRIBUTE);
-  // The element is given back its own sheets after: a held copy of a sheet is the figure's, not the component's.
-  const sheets = owner.shadowRoot ? [...owner.shadowRoot.adoptedStyleSheets] : undefined;
   hold(owner, ['focused']);
   const style = getComputedStyle(element);
   const drawn = style.outlineStyle !== 'none' && parseFloat(style.outlineWidth) > 0;
@@ -301,7 +299,6 @@ function focusReach(element: Element): { reach: number; radius: number } {
   const radius = parseFloat(style.borderStartStartRadius) || 0;
   if (had === null) owner.removeAttribute(STATE_ATTRIBUTE);
   else owner.setAttribute(STATE_ATTRIBUTE, had);
-  if (owner.shadowRoot && sheets) owner.shadowRoot.adoptedStyleSheets = sheets;
   return { reach, radius: Math.max(0, radius + reach) };
 }
 

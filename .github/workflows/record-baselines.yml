@@ -139,9 +139,10 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: bash scripts/ci/check-playwright-image.sh
       - run: pnpm --filter @tanrei/web build
-      # Component baselines come from src/components/<name>/ (a component made of CSS alone, such as the timeline:
-      # src/styles/<name>.test.ts), preset baselines from src/systems.test.ts (`snapshot: <name>/<fixture>`); all
-      # are titled `snapshot: …` (playwright.config.ts).
+      # Component baselines come from src/components/<name>/, or, for a component made of CSS alone, from the test file
+      # the tools' conventions name for its spec (inline code's is src/styles/code.test.ts); preset baselines from
+      # src/systems.test.ts (`snapshot: <name>/<fixture>`), where not every component has a gallery. All are titled
+      # `snapshot: …` (playwright.config.ts).
       - name: Record
         working-directory: packages/web
         env:
@@ -157,10 +158,14 @@ jobs:
           else
             dirs=()
             for c in $COMPONENTS; do
-              if [ -d "src/components/$c" ]; then dirs+=("src/components/$c/"); else dirs+=("src/styles/$c.test.ts"); fi
+              if [ -d "src/components/$c" ]; then
+                dirs+=("src/components/$c/")
+              else
+                dirs+=("$(node --input-type=module -e "const { PLATFORMS } = await import('../tools/src/conventions.js'); console.log(PLATFORMS.web.test(process.argv[1]).replace('packages/web/', ''))" "$c")")
+              fi
             done
             record --grep 'snapshot: ' "${dirs[@]}"
-            record --grep "snapshot: ($(echo "$COMPONENTS" | tr ' ' '|'))/" src/systems.test.ts
+            record --pass-with-no-tests --grep "snapshot: ($(echo "$COMPONENTS" | tr ' ' '|'))/" src/systems.test.ts
           fi
       - name: Collect the changed baselines
         run: bash scripts/ci/collect-baselines.sh "$RUNNER_TEMP/baselines" packages/web/snapshots

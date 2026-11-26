@@ -1,4 +1,5 @@
 import { type Page, expect } from '@playwright/test';
+import { askForFrame } from './frame-asked.js';
 
 /**
  * Modal surfaces opened in one task stack in the order their `open` was set, the later on top, whatever their kinds
@@ -15,7 +16,10 @@ export const STACKED_DIALOG = 'stacked-dialog';
 /** A modal layer, added at the end of `main`, whose marked button takes focus as it opens (MDL-3). */
 export const STACKED_LAYER = 'stacked-layer';
 
-/** Adds the dialog and the modal layer (closed) and a button before everything, `opener`, which has focus. */
+/**
+ * Adds the dialog and the modal layer (closed) and a button before everything, `opener`, which has focus; then a frame
+ * (`askForFrame()`, test/frame-asked.ts: the page's layout changed).
+ */
 export async function addStackedSurfaces(page: Page): Promise<void> {
   await page.evaluate(
     ([dialog, layer]) => {
@@ -33,15 +37,16 @@ export async function addStackedSurfaces(page: Page): Promise<void> {
     for (const id of ids) await (document.getElementById(id) as HTMLElement & { updateComplete: Promise<boolean> }).updateComplete;
   }, [STACKED_DIALOG, STACKED_LAYER]);
   await page.locator('#opener').focus();
+  await askForFrame(page);
 }
 
 /**
  * Sets `open` (a search's `expanded`) on each element (by id) to `open`, in that order, in one task, and waits for their
- * updates. An id `inserted` gives markup for is not there yet: that markup, written open, is inserted at the end of
- * `main` in its place in the order.
+ * updates, then for a frame (`askForFrame()`, test/frame-asked.ts). An id `inserted` gives markup for is not there yet:
+ * that markup, written open, is inserted at the end of `main` in its place in the order.
  */
-export const setOpenInOneTask = (page: Page, ids: string[], open: boolean, inserted: Record<string, string> = {}): Promise<void> =>
-  page.evaluate(
+export async function setOpenInOneTask(page: Page, ids: string[], open: boolean, inserted: Record<string, string> = {}): Promise<void> {
+  await page.evaluate(
     async ([list, value, opens, markup]) => {
       type Surface = Record<string, boolean> & HTMLElement & { updateComplete: Promise<boolean> };
       const elements: Surface[] = [];
@@ -56,6 +61,8 @@ export const setOpenInOneTask = (page: Page, ids: string[], open: boolean, inser
     },
     [ids, open, OPENS, inserted] as const,
   );
+  await askForFrame(page);
+}
 
 /**
  * Where focus is: `<the focused element's id, else its tag> in <the id of the innermost of the surfaces it is inside>`,
@@ -124,4 +131,5 @@ export async function expectStackedInOrder(page: Page, ids: string[], { order: [
   await setOpenInOneTask(page, [first], false);
   await expect.poll(() => focusAmong(page, ids), { message: name }).toBe(last);
   await page.evaluate((list) => list.forEach((id) => document.getElementById(id)?.remove()), Object.keys(inserted));
+  await askForFrame(page);
 }

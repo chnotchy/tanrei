@@ -4,8 +4,8 @@
 // src/primitives/delegated-aria.test.ts.
 import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
-import { bounds, css, override, warnings } from '../../../test/destinations.js';
-import { type Fixture, acmeSystemCss, loadSpec, mountFixtureAsInAll, mountFixtures, resolveColor, resolveToken, tab, tabTo } from '../../../test/harness.js';
+import { bounds, css, override } from '../../../test/destinations.js';
+import { type Fixture, acmeSystemCss, loadSpec, mountFixtureAsInAll, mountFixtures, resolveColor, resolveToken, tab, tabTo, warnings } from '../../../test/harness.js';
 import { motionEnded } from '../../../test/motions.js';
 import { holdClock, releaseClock } from '../../../test/page-clock.js';
 import { transitionsRun, watchTransitions } from '../../../test/transitions.js';

@@ -4,7 +4,7 @@
 // src/primitives/delegated-aria.test.ts.
 import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
-import { type Fixture, declarations, loadSpec, mountFixtureAsInAll, mountFixtures, resolveColor, resolveToken, rootTokens, tab, typeRole } from '../../../test/harness.js';
+import { type Fixture, declarations, loadSpec, mountFixtureAsInAll, mountFixtures, resolveColor, resolveToken, rootTokens, tab, typeRole, warnings } from '../../../test/harness.js';
 import { decodePng, paintedColor } from '../../../test/png.js';
 import { expectBaseline } from '../../../test/baseline.js';
 import { laidOutBox } from '../../../test/laid-out-box.js';
@@ -27,13 +27,6 @@ const near = (actual: number, expected: number, message = '', tolerance = 0.6) =
 const override = (page: P, vars: Record<string, string>) => rootTokens(page, vars);
 const fx = (id: string, props: Fixture['props'], extra: Partial<Fixture> = {}): Fixture => ({ id, props, ...extra });
 const mount = (page: P, fixtures: Fixture[] = spec.fixtures, options: Parameters<typeof mountFixtures>[2] = {}) => mountFixtures(page, spec, { fixtures, ...options });
-function warnings(page: P) {
-  const seen: string[] = [];
-  page.on('console', (message) => {
-    if (message.type() === 'warning') seen.push(message.text());
-  });
-  return seen;
-}
 const frames = (page: P, count = 3) =>
   page.evaluate(async (n) => {
     for (let i = 0; i < n; i++) await new Promise((resolve) => requestAnimationFrame(resolve));

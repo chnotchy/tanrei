@@ -3,12 +3,13 @@
 // (its tests hold how each is drawn and how it takes a drag and a key); these hold what the frame does with them.
 import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
-import { bounds, css, warnings } from '../../../test/destinations.js';
-import { type Fixture, loadSpec, mountFixtureAsInAll, mountFixtures, resolveColor, resolveToken, tab, tabTo } from '../../../test/harness.js';
+import { bounds, css } from '../../../test/destinations.js';
+import { type Fixture, loadSpec, mountFixtureAsInAll, mountFixtures, resolveColor, resolveToken, tab, tabTo, warnings } from '../../../test/harness.js';
 import { resolveEasing } from '../../../test/appear.js';
 import { motionEnded } from '../../../test/motions.js';
 import { transitionsRun, watchTransitions } from '../../../test/transitions.js';
 import { expectBaseline } from '../../../test/baseline.js';
+import { restyle } from '../../../test/restyle.js';
 
 const spec = loadSpec('resizable-frame');
 type P = Page;
@@ -115,7 +116,7 @@ test.describe('the box', () => {
     await expect(box(page, 'default')).toHaveCSS('overflow-y', 'auto');
     await expect(box(page, 'default')).not.toHaveAttribute('tabindex');
     // Content taller than the box scrolls inside it, and the box takes keyboard focus so that a keyboard scrolls it.
-    await host(page, 'tall').evaluate((el) => (el.querySelector('.resizable-frame-content') as HTMLElement).style.setProperty('block-size', '600px'));
+    await restyle(host(page, 'tall').locator('.resizable-frame-content').first(), { 'block-size': '600px' });
     await expect(box(page, 'tall')).toHaveAttribute('tabindex', '0');
     expect(await box(page, 'tall').evaluate((el) => el.scrollHeight > el.clientHeight)).toBe(true);
     expect((await size(page, 'tall'))[1]).toBe(200);
@@ -461,13 +462,13 @@ test.describe('the product and the layout', () => {
     });
     await expect.poll(() => size(page, 'default')).toEqual([400, 300]);
     expect(await sizeMotions(page, 'default')).toEqual([]);
-    await host(page, 'default').evaluate((el: any) => (el.style.inlineSize = '360px'));
+    await restyle(host(page, 'default'), { 'inline-size': '360px' });
     const narrow = await bounds(room(page, 'default'));
     const end = await bounds(handle(page, 'default', 'end'));
     const gap = await px(page, T('handle-gap'));
     await expect.poll(async () => (await size(page, 'default'))[0]).toBe(Math.round(narrow.width - end.width - gap));
     expect(await host(page, 'default').evaluate((el: any) => el.width)).toBe(400);
-    await host(page, 'default').evaluate((el: any) => (el.style.inlineSize = ''));
+    await restyle(host(page, 'default'), { 'inline-size': '' });
     await expect.poll(async () => (await size(page, 'default'))[0]).toBe(400);
     expect(await log(page)).toEqual([]);
   });

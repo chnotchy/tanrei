@@ -188,6 +188,54 @@ describe(`the layout shifts by no more than ${BUDGET} while a page loads`, { con
   }
 });
 
+// ── The home page in every language ──────────────────────────────────────────────────────────────────────────────
+
+/**
+ * The home page of each language — the root one and each language's directory (a folder of the content with its own
+ * `components`) — at a laptop's width, where the hero's copy and its specimen stand side by side and the platforms and
+ * the figures are drawn under the taller of the two. Each language draws the copy in its own words and faces, so each
+ * wraps it on its own lines: none may move the page by more than the budget, loaded as a slow line delivers it (every
+ * script held until the page has been drawn, as above) or as the files come (nothing held).
+ */
+const content = path.join(docs, 'src/content/docs');
+const HOMES = ['/', ...fs.readdirSync(content).filter((name) => fs.existsSync(path.join(content, name, 'components'))).map((lang) => `/${lang}/`)];
+const LAPTOP = { width: 1280, height: 900 };
+
+/** The shifts of one load of `url` in `context`, nothing held: the files as they come. */
+async function deliveredShifts(context, url) {
+  const page = await context.newPage();
+  await page.addInitScript(observeShifts);
+  const network = await watchNetwork(page);
+  await page.goto(origin + url, { waitUntil: 'load' });
+  await network.quiet({ worker: /\/sheet-worker-[^/]*\.js$/ });
+  const shifts = await shiftsAtRest(page);
+  await page.close();
+  return shifts;
+}
+
+describe(`the home page moves by no more than ${BUDGET} while it loads, in every language, at ${LAPTOP.width}`, { concurrency: 2 }, () => {
+  test('there is a home page in every language', () => assert.ok(HOMES.length >= 6, HOMES.join(', ')));
+  for (const url of HOMES) {
+    for (const [load, shiftsOf] of [
+      ['its scripts held until it is drawn', loadShifts],
+      ['nothing held', deliveredShifts],
+    ]) {
+      test(`${url}, ${load}`, LIMIT, async (t) => {
+        const context = await browser.newContext({ viewport: LAPTOP });
+        try {
+          const shifts = await shiftsOf(context, url);
+          const total = shifts.reduce((sum, { value }) => sum + value, 0);
+          t.diagnostic(`layout shift ${total.toFixed(4)} in ${shifts.length} entr${shifts.length === 1 ? 'y' : 'ies'}`);
+          const moved = shifts.filter(({ value }) => value > 0).map(({ value, sources }) => `${value.toFixed(4)}:\n      ${sources.join('\n      ') || '(no source named)'}`);
+          assert.ok(total <= BUDGET, `${url} at ${LAPTOP.width} × ${LAPTOP.height}, ${load}, shifts by ${total.toFixed(4)} as it loads (at most ${BUDGET}):\n  ${moved.join('\n  ')}`);
+        } finally {
+          await context.close();
+        }
+      });
+    }
+  }
+});
+
 // ── Read through ─────────────────────────────────────────────────────────────────────────────────────────────────
 
 /**

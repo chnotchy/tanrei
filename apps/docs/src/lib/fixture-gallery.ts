@@ -47,6 +47,11 @@ export interface Stage {
   drawn: boolean;
   kind: Kind;
   /**
+   * The direction the fixture names, which its document's stage carries (`dir`) and is drawn in whatever the page's or
+   * the frame's direction: the fixture exists to show it, so its frame offers no other.
+   */
+  direction?: 'ltr' | 'rtl';
+  /**
    * The document's stage, as HTML (`<div class="stage" data-fixture="…">…</div>`): what the page draws in the stage, or
    * writes into its window. An opener's is closed: its element without the attribute that presents it.
    */
@@ -257,7 +262,7 @@ function kindOf(spec: Spec, fixture: Fixture, html: string, document: { page: bo
 
 /** One fixture's stage. */
 export function stageOf(spec: Spec, fixture: Fixture): Stage {
-  const base = { id: fixture.id, facts: factsOf(spec, fixture), holds: { items: fixture.items?.length ?? 0, slots: Object.keys(fixture.slots ?? {}) } };
+  const base = { id: fixture.id, facts: factsOf(spec, fixture), holds: { items: fixture.items?.length ?? 0, slots: Object.keys(fixture.slots ?? {}) }, ...(fixture.direction ? { direction: fixture.direction } : {}) };
   const document = fixtureDocument(spec.name);
   const stage = document?.stages.find((each) => each.id === fixture.id);
   if (!document || !stage) return { ...base, drawn: false, kind: 'inline' };

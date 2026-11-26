@@ -7,6 +7,8 @@ import type { TanreiTableOfContentsSizeRegistry } from '../../registry.js';
 import { ownDirection } from '../../styles/product-text.js';
 import { styles } from './table-of-contents.styles.js';
 import { adopt, adoptUnlessDrawn } from '../../primitives/sheets.js';
+import { documentPainted } from '../../primitives/first-paint.js';
+import { readInPhase } from '../../primitives/read-phase.js';
 import { TanreiElement } from '../../primitives/element.js';
 import { flatParent } from '../../primitives/flat-tree.js';
 import { DEBUG } from '../../primitives/debug.js';
@@ -538,21 +540,36 @@ export class TanreiTableOfContents extends TanreiElement {
       return;
     }
     const due = TanreiTableOfContents.deciding;
+    // Until the document has been painted, in the read phase of the coming frame, after its layout and before its
+    // paint: read in a microtask of the turn, the rule had the browser lay the whole page out for it, while a loading
+    // page's modules upgrade one kind of element after another.
+    if (!documentPainted()) {
+      due.add(this);
+      readInPhase(due, TanreiTableOfContents.ruleTogether);
+      return;
+    }
     if (!due.size) {
       queueMicrotask(() => {
-        const all = [...due];
-        due.clear();
-        const ruled = all.map((each) => (each.reads ? each.byRule() : null));
-        all.forEach((each, index) => {
-          const href = ruled[index];
-          // What changed in between (an item held, the element gone) decides as it always does.
-          if (href !== null && each.reads) each.give(href);
-          else each.decide();
-        });
+        const write = TanreiTableOfContents.ruleTogether();
+        write();
       });
     }
     due.add(this);
   }
+
+  /** The rule read for every element of `deciding`, then each given its item (`decideTogether`). */
+  private static readonly ruleTogether = () => {
+    const all = [...TanreiTableOfContents.deciding];
+    TanreiTableOfContents.deciding.clear();
+    const ruled = all.map((each) => (each.reads ? each.byRule() : null));
+    return () =>
+      all.forEach((each, index) => {
+        const href = ruled[index];
+        // What changed in between (an item held, the element gone) decides as it always does.
+        if (href !== null && each.reads) each.give(href);
+        else each.decide();
+      });
+  };
 
   private readonly onParsed = () => {
     if (!this.isConnected) return;
@@ -961,7 +978,11 @@ export class TanreiTableOfContents extends TanreiElement {
       if (!this.matches(':hover') && !this.matches(':focus-within')) this.showRow(item.a);
     }
     this.syncControls();
-    this.watch();
+    // Until the document has been painted, in the next frame callback with the rule's decision (`schedule`): what the
+    // targets scroll in is read from the cascade of their ancestors, and read in the turn of the render it had the
+    // browser style the whole page for it, while a loading page's modules upgrade one kind of element after another.
+    if (documentPainted()) this.watch();
+    else this.schedule();
   }
 
   /**

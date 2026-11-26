@@ -8,7 +8,7 @@
 import AxeBuilder from '@axe-core/playwright';
 import { coveredText } from '../../../test/covered-text.js';
 import { type Locator, type Page, expect, test } from '@playwright/test';
-import { type Fixture, innerStrokeAtEdges, loadSpec, missingWords, mountFixtures, popoverWindow, resolveColor, resolveToken, roleFont, rootTokens, setWords, tab, tabTo } from '../../../test/harness.js';
+import { type Fixture, innerStrokeAtEdges, loadSpec, missingWords, mountFixtures, popoverWindow, resolveColor, resolveToken, roleFont, rootTokens, setWords, tab, tabTo, warnings } from '../../../test/harness.js';
 import { appearProbe, bezierOf, expectAppearStart, expectExitEnd, expectSlideExitEnd, expectSlidOnly, expectTurnedAlone, resolveEasing, sheetProbe, slidOut, turnHeld } from '../../../test/appear.js';
 import { type Frames, expectAnimated, expectNoFlicker, freezeFirstFrame, sampleFrames } from '../../../test/frames.js';
 import { expectFromNextFrame, motionEnded } from '../../../test/motions.js';
@@ -24,6 +24,7 @@ import { expectScrimTakenAwayAtClose } from '../../../test/scrim-at-close.js';
 import { controlledElements, controlledInTree } from '../../../test/controlled-list.js';
 import { STACKED_DIALOG, STACKED_LAYER, addStackedSurfaces, expectStackedInOrder } from '../../../test/stacked-surfaces.js';
 import { contrastChecked } from '../../../test/contrast-checked.js';
+import { restyle } from '../../../test/restyle.js';
 
 const spec = loadSpec('popover');
 /** The fixtures drawn in place on their stages; the `compact-` ones are the real overlay, each alone in its window (POP-39). */
@@ -68,13 +69,6 @@ const resolveShadow = (page: P, name: string) =>
     probe.remove();
     return value;
   }, name);
-function warnings(page: P) {
-  const seen: string[] = [];
-  page.on('console', (message) => {
-    if (message.type() === 'warning') seen.push(message.text());
-  });
-  return seen;
-}
 
 /**
  * A page of the test's own markup, wired as a product wires a popover: `toggle` sets `open` to the value it asks for,
@@ -770,13 +764,13 @@ test.describe('size and layout', () => {
     await host(page).evaluate((el) => (el.textContent = 'Trash counts.'));
     await set(page, { width: 'anchor' });
     await expect.poll(width).toBeCloseTo(240, 1);
-    await page.locator('#a').evaluate((el) => (el.style.inlineSize = '520px'));
+    await restyle(page.locator('#a'), { 'inline-size': '520px' });
     await expect.poll(width).toBeCloseTo(520, 1);
     expect(520).toBeGreaterThan(max);
-    await page.locator('#a').evaluate((el) => (el.style.inlineSize = '60px'));
+    await restyle(page.locator('#a'), { 'inline-size': '60px' });
     await expect.poll(width).toBeCloseTo(min, 1);
     // The window: never wider than it less the margin on each side, in either mode — below the least width where it must.
-    await page.locator('#a').evaluate((el) => (el.style.inlineSize = '520px'));
+    await restyle(page.locator('#a'), { 'inline-size': '520px' });
     await page.setViewportSize({ width: 320, height: 600 });
     await expect.poll(width).toBeCloseTo(320 - 2 * margin, 1);
     await set(page, { width: 'content' });

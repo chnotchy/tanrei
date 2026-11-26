@@ -6,10 +6,11 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
-import { type Fixture, type FixtureItem, declarations, fixturesDocument, loadSpec, markMarkup, mountFixtures, resolveColor, resolveToken, tab, tabTo, roleFont, rootTokens, typeRoleOf } from '../../../test/harness.js';
+import { type Fixture, type FixtureItem, declarations, fixturesDocument, loadSpec, markMarkup, mountFixtures, resolveColor, resolveToken, tab, tabTo, roleFont, rootTokens, typeRoleOf, warnings } from '../../../test/harness.js';
 import { motionCount, motionEnded } from '../../../test/motions.js';
 import { transitionsRun, watchTransitions } from '../../../test/transitions.js';
 import { expectBaseline } from '../../../test/baseline.js';
+import { restyle } from '../../../test/restyle.js';
 
 const spec = loadSpec('app-bar');
 const dist = (file: string) => fs.readFileSync(path.join(path.dirname(fileURLToPath(import.meta.url)), '../../../dist', file), 'utf8');
@@ -21,13 +22,6 @@ const T = (name: string) => `--tanrei-comp-app-bar-${name}`;
 const bounds = async (locator: Locator) => (await locator.boundingBox())!;
 const css = (locator: Locator, property: string) => locator.evaluate((el, p) => getComputedStyle(el).getPropertyValue(p), property);
 const override = (page: P, vars: Record<string, string>) => rootTokens(page, vars);
-function warnings(page: P) {
-  const seen: string[] = [];
-  page.on('console', (message) => {
-    if (message.type() === 'warning') seen.push(message.text());
-  });
-  return seen;
-}
 /** A shadow as the browser computes it for a token (an elevation is a list of shadows). */
 const resolveShadow = (page: P, name: string) =>
   page.evaluate((n) => {
@@ -638,9 +632,7 @@ test.describe('insets and items', () => {
     // The large bar still has its (empty) title row.
     expect((await bounds(bar(page, 'large-untitled'))).height).toBeGreaterThanOrEqual(await resolveToken(page, T('container-height-large')));
     // Four actions, on a stage with room for them beside two navigation items: every one is drawn (APB-26).
-    await stage(page, 'crowded').evaluate((el: HTMLElement) => {
-      el.style.inlineSize = '480px';
-    });
+    await restyle(stage(page, 'crowded'), { 'inline-size': '480px' });
     const items = bar(page, 'crowded').locator(':scope > tanrei-button');
     await expect(items).toHaveCount(6);
     for (const i of [0, 1, 2, 3, 4, 5]) await expect(items.nth(i)).toBeVisible();
@@ -842,7 +834,7 @@ test.describe('brand', () => {
     const CONTEXT = '<tanrei-button id="context" variant="text" slot="context" icon-position="trailing">tanrei<span slot="icon">expand_more</span></tanrei-button>';
     const control = () => brandBar(page).locator('#context');
     // The stage of a bar is a phone's width; a menu button, a wordmark, the control and an action need more.
-    const widen = () => page.locator('#brand-stage').evaluate((el: HTMLElement) => (el.style.inlineSize = '600px'));
+    const widen = () => restyle(page.locator('#brand-stage'), { 'inline-size': '600px' });
     await brandPage(page, NAMED, WORDMARK + CONTEXT);
     await widen();
     const gap = await resolveToken(page, T('actions-gap'));
@@ -1048,10 +1040,8 @@ test.describe('overflow', () => {
   const more = (page: P, id: string) => stage(page, id).getByRole('button', { name: 'More actions' });
   const moreHost = (page: P, id: string) => bar(page, id).locator('[part~="overflow-button"]');
   const overflowMenu = (page: P, id: string) => bar(page, id).locator('.overflow-menu');
-  const widen = (page: P, id: string, width: string) =>
-    stage(page, id).evaluate((el: HTMLElement, w) => {
-      el.style.inlineSize = w;
-    }, width);
+  /** The stage's width, with a frame after the write (`restyle()`), so that the bar's observer of sizes is told. */
+  const widen = (page: P, id: string, width: string) => restyle(stage(page, id), { 'inline-size': width });
   const settled = (page: P, id: string) => bar(page, id).evaluate(() => new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve))));
   const ALL = ['Search', 'Share', 'Edit', 'Archive', 'Delete', 'Print'];
   const OVERFLOW_FIXTURES = spec.fixtures.filter((f) => f.id.startsWith('small-overflow'));

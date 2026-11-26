@@ -1,5 +1,7 @@
 import type { PropertyDeclarations, PropertyValues } from 'lit';
 import { AvailabilityController, SystemWatchController, VisibilityController, WordsController, report, styleQueries } from '../../primitives/index.js';
+import { documentPainted } from '../../primitives/first-paint.js';
+import { readInPhase } from '../../primitives/read-phase.js';
 import { adopt, adoptUnlessDrawn } from '../../primitives/sheets.js';
 import { TanreiLightElement } from '../../primitives/element.js';
 import { DEBUG } from '../../primitives/debug.js';
@@ -240,10 +242,28 @@ export class TanreiSkeleton extends TanreiLightElement {
     due.add(each);
   }
 
+  /** Every skeleton of a turn begins: all read, then each writes what follows (`together`). */
+  private static readonly beginAll = (all: TanreiSkeleton[]) => {
+    const read = all.map((skeleton) => skeleton.beginning());
+    all.forEach((skeleton, index) => skeleton.begin(read[index]));
+  };
+
+  /**
+   * The read phase's beginning for the skeletons inserted before the first paint. It is asked for after the question
+   * whether their root draws them (`adoptUnlessDrawn`), so its write comes after the one that adds their sheet: they are
+   * read there, with their rules in place, and before the frame is painted.
+   */
+  private static readonly beginPhased = () => () => {
+    const all = [...TanreiSkeleton.beginning].filter((skeleton) => skeleton.isConnected);
+    TanreiSkeleton.beginning.clear();
+    TanreiSkeleton.beginAll(all);
+  };
+
   override connectedCallback() {
     clearTimeout(this.timer);
     this.timer = undefined;
     const atOnce = usable(this.showDelay) && this.showDelay <= 0;
+    const painted = documentPainted();
     if (atOnce) {
       // SKL-8: no delay — shown at once, and nothing is asked of the cascade for it.
       TanreiSkeleton.beginning.delete(this);
@@ -255,13 +275,19 @@ export class TanreiSkeleton extends TanreiLightElement {
       // wait and may have shown it, and nothing it draws may change (SKL-6) — it is only read.
       this.shown = false;
       if (!defining) this.setAttribute('data-waiting', '');
-      TanreiSkeleton.together(TanreiSkeleton.beginning, this, (all) => {
-        const read = all.map((skeleton) => skeleton.beginning());
-        all.forEach((skeleton, index) => skeleton.begin(read[index]));
-      });
+      if (painted) TanreiSkeleton.together(TanreiSkeleton.beginning, this, TanreiSkeleton.beginAll);
     }
     super.connectedCallback();
     adoptUnlessDrawn(this, sheet('skeleton', () => SKELETON_CSS), '--_skl-gap');
+    // Until the document has been painted once, whether its root draws the skeleton is asked in the read phase of the
+    // coming frame (`adoptUnlessDrawn`), and the sheet is added there: the delay, the stylesheet's wait and whether it
+    // is drawn are read in that phase too, after the sheet is in place. Read before it, in a microtask of the turn, a
+    // skeleton in a root that does not have the sheet yet (one an overlay held open by a loading page renders in its
+    // shadow root) found no delay, was shown at once, and began to pulse as the sheet arrived.
+    if (!atOnce && !painted) {
+      TanreiSkeleton.beginning.add(this);
+      readInPhase(TanreiSkeleton.beginning, TanreiSkeleton.beginPhased);
+    }
     this.authored ??= new Set(EXPOSURE.filter((name) => this.hasAttribute(name)));
     if (atOnce) this.show();
     else if (!defining) this.expose();

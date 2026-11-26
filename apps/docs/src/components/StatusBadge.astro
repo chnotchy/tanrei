@@ -46,13 +46,27 @@ const look = LOOKS[status];
 
 <style>
   /* Until the element is defined (the script has not run yet, or never will), the status is still its word: the label
-     as plain text in the tag's own text style, and the glyph's name — which would be spelled out — not shown. */
+     as plain text in the tag's own text style, and the glyph's name — which would be spelled out — not shown. The word
+     stands in the box the tag draws, read from the tag's tokens at its small size, so that nothing around it (a row of
+     the platforms, a row of the legend) moves when the tag is defined: at least container.height, the paddings around
+     the taller of the label's line and the glyph's box (TAG-1, TAG-6), the glyph's room and its gap before the word, and
+     the label on the baseline it will have — the middle of the box, as the tag centres its row (TAG-13). */
   .status-tag:not(:defined) {
-    display: inline-block;
+    box-sizing: border-box;
+    display: inline-flex;
+    align-items: center;
+    vertical-align: baseline;
+    min-block-size: var(--tanrei-comp-tag-container-height-small);
+    padding-block: var(--tanrei-comp-tag-container-padding-block-small);
+    padding-inline: var(--tanrei-comp-tag-container-padding-inline-small);
     font: var(--tanrei-comp-tag-label-typescale-small-font-weight) var(--tanrei-comp-tag-label-typescale-small-font-size)/var(--tanrei-comp-tag-label-typescale-small-line-height) var(--tanrei-comp-tag-label-typescale-small-font-family);
     letter-spacing: var(--tanrei-comp-tag-label-typescale-small-letter-spacing);
     color: var(--tanrei-sys-color-on-surface);
     white-space: nowrap;
+  }
+  .status-tag:has(> [slot='icon']):not(:defined) {
+    min-block-size: max(var(--tanrei-comp-tag-container-height-small), calc(2 * var(--tanrei-comp-tag-container-padding-block-small) + var(--tanrei-comp-tag-icon-size)));
+    padding-inline-start: calc(var(--tanrei-comp-tag-container-padding-inline-with-icon-small) + var(--tanrei-comp-tag-icon-size) + var(--tanrei-comp-tag-container-gap));
   }
   .status-tag:not(:defined)::before {
     content: attr(label);

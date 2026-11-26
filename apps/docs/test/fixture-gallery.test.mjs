@@ -63,6 +63,23 @@ describe('the gallery of fixtures', () => {
     }
   });
 
+  test('a stage knows the direction its fixture names, which its document’s stage carries', () => {
+    let named = 0;
+    for (const spec of implemented) {
+      const document = fixtureDocument(spec.name);
+      for (const fixture of spec.fixtures) {
+        const stage = stageOf(spec, fixture);
+        assert.equal(stage.direction, fixture.direction, `${spec.name}/${fixture.id}`);
+        // The document's stage carries the direction the fixture names, and none where it names none.
+        const html = document.stages.find((each) => each.id === fixture.id).html;
+        const dir = /^<div class="stage"[^>]*?\sdir="(\w+)"/.exec(html)?.[1];
+        assert.equal(dir, fixture.direction, `${spec.name}/${fixture.id}`);
+        if (fixture.direction) named++;
+      }
+    }
+    assert.ok(named > 20, `${named} fixtures name a direction`);
+  });
+
   test('a presented fixture is drawn in the page where its document draws it in place, and closed with an opener where it stands in the top layer — beside its anchor, or modal', () => {
     const kinds = {};
     for (const spec of implemented) {
@@ -147,6 +164,25 @@ describe('the gallery of fixtures', () => {
     assert.match(stageOf(specs.dialog, specs.dialog.fixtures[0]).markup, /^<tanrei-dialog[^>]* open[\s>]/);
   });
 
+  // A fixture that names a direction is drawn in it on every component's page, whatever the component: its stage
+  // carries it as `dir`, as the web package's document gives it, in the page and in a window alike. One that names none
+  // carries no `dir`, and takes the page's. (While the site had a renderer of its own, it wrote the direction only for
+  // the components it staged by name: the Select's right-to-left fixtures were drawn left to right on its page, and
+  // right to left on the Select field's.) The browser's test of the gallery reads the direction each stage is drawn in.
+  test('every fixture that names a direction is drawn in it, whatever the component; one that names none, in the page’s', () => {
+    const named = [];
+    for (const spec of implemented) {
+      for (const fixture of spec.fixtures) {
+        const stage = stageOf(spec, fixture);
+        const dir = /^<div class="stage"[^>]*?\sdir="([^"]*)"/.exec(stage.html)?.[1];
+        assert.ok(/^<div class="stage"[\s>]/.test(stage.html), `${spec.name}/${fixture.id}: its stage is the document's`);
+        assert.equal(dir, fixture.direction, `${spec.name}/${fixture.id}: its stage's dir`);
+        if (fixture.direction) named.push(`${spec.name}/${fixture.id}`);
+      }
+    }
+    assert.ok(named.length > 200, `fixtures that name a direction: ${named.length}`);
+    for (const id of ['open-rtl', 'long-value-rtl', 'outlined-rtl']) assert.ok(named.includes(`select/${id}`), `select/${id}`);
+  });
 });
 
 describe('what the gallery writes into the page', () => {

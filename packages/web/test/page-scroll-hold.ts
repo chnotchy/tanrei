@@ -3,6 +3,7 @@
 // holds the page's scroll. The engines and their scroll bars are each test file's: see
 // src/primitives/page-scroll-hold.test.ts, which says which engine takes which branch of the hold.
 import { type Locator, type Page, expect } from '@playwright/test';
+import { askForFrame } from './frame-asked.js';
 import { fixtureHost, loadSpec, mountFixtures } from './harness.js';
 import { motionEnded } from './motions.js';
 
@@ -47,6 +48,8 @@ export async function mount(page: Page, bar: string, { height = 3000, viewport =
     },
     { bar, inset: SCROLL_HOLD_INSET, height },
   );
+  // The page grew a scroll range: a frame, as after any change of layout the test makes (test/frame-asked.ts).
+  await askForFrame(page);
   return fixtureHost(page, SPEC, FIXTURE);
 }
 

@@ -9,12 +9,13 @@ import { coveredText } from '../../../test/covered-text.js';
 import { type Locator, type Page, expect, test } from '@playwright/test';
 import { expectWheelKeptFromPage } from '../../../test/contained-wheel.js';
 import { motionEnded } from '../../../test/motions.js';
-import { type Fixture, type FixtureItem, loadSpec, missingWords, mountFixtures, resolveColor, resolveToken, rootTokens, setWords, tab, tabTo } from '../../../test/harness.js';
+import { type Fixture, type FixtureItem, loadSpec, missingWords, mountFixtures, resolveColor, resolveToken, rootTokens, setWords, tab, tabTo, warnings } from '../../../test/harness.js';
 import { resolveEasing } from '../../../test/appear.js';
 import { type Probe, expectAnimated, expectFirstFrameAtRest, freezeFirstFrame, sampleFrames } from '../../../test/frames.js';
 import { expectBaseline } from '../../../test/baseline.js';
 import { decodePng } from '../../../test/png.js';
 import { INK } from '../../../test/drawn-box.js';
+import { restyle } from '../../../test/restyle.js';
 
 const spec = loadSpec('toolbar');
 type P = Page;
@@ -28,13 +29,6 @@ const css = (locator: Locator, property: string, pseudo?: string) =>
 const px = async (locator: Locator, property: string, pseudo?: string) => Number.parseFloat(await css(locator, property, pseudo));
 const bounds = async (locator: Locator) => (await locator.boundingBox())!;
 const T = (name: string) => `--tanrei-comp-toolbar-${name}`;
-function warnings(page: P) {
-  const seen: string[] = [];
-  page.on('console', (message) => {
-    if (message.type() === 'warning') seen.push(message.text());
-  });
-  return seen;
-}
 /** The box-shadow a list of layers resolves to, as the browser serializes it (a probe element). */
 const shadowOf = (page: P, value: string) =>
   page.evaluate((v) => {
@@ -1947,7 +1941,7 @@ test.describe('selection groups, fields and the items kept at the end', () => {
   test('TBR-29: a field is never hidden into the overflow menu, and the overflow button stands before the last Text input; right-to-left, the Number input leaves for the next item at the end of its text', async ({ page }) => {
     const id = 'inline-fields';
     await mountFixtures(page, spec, only(id));
-    await page.locator(`[data-fixture="${id}"]`).evaluate((el: HTMLElement) => (el.style.inlineSize = '460px'));
+    await restyle(page.locator(`[data-fixture="${id}"]`), { 'inline-size': '460px' });
     const overflow = bar(page, id).locator('.overflow');
     await expect(overflow).toBeVisible();
     // The toggles went; the fields stayed.
@@ -1960,10 +1954,8 @@ test.describe('selection groups, fields and the items kept at the end', () => {
     await page.keyboard.press('End');
     await expect(overflow).toBeFocused();
     // Right-to-left: the key toward the end of the number's own run, at its end, moves to the next item.
-    await page.locator(`[data-fixture="${id}"]`).evaluate((el: HTMLElement) => {
-      el.style.inlineSize = '';
-      el.setAttribute('dir', 'rtl');
-    });
+    await page.locator(`[data-fixture="${id}"]`).evaluate((el: HTMLElement) => el.setAttribute('dir', 'rtl'));
+    await restyle(page.locator(`[data-fixture="${id}"]`), { 'inline-size': '' });
     await expect(overflow).toBeHidden();
     const number = bar(page, id).locator('tanrei-number-input');
     await tabTo(page, bar(page, id).locator('tanrei-select'));

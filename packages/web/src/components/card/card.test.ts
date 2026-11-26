@@ -6,7 +6,7 @@
 import fs from 'node:fs';
 import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
-import { type Fixture, acmeSystemCss, loadSpec, mountFixtures, resolveColor, resolveToken, tab, tabTo, rootTokens } from '../../../test/harness.js';
+import { type Fixture, acmeSystemCss, loadSpec, mountFixtures, resolveColor, resolveToken, tab, tabTo, rootTokens, warnings } from '../../../test/harness.js';
 import { pressHoldAsRun } from '../../../test/harsh.js';
 import { transitionsRun, watchTransitions } from '../../../test/transitions.js';
 import { anchorOf as linkAnchor, expectDisabledLink, expectDrawnAlike, expectLinkActivation, expectNewContext, expectRefusals, expectTargetLabel, painted, settledPaint } from '../../../test/links.js';
@@ -49,12 +49,6 @@ const listen = (locator: Locator) =>
     el.addEventListener('click', () => log.click++);
   });
 const clicks = (page: P) => page.evaluate(() => (window as any).events.click as number);
-/** Captures what the page reports in debug builds (console warnings). Call before mounting. */
-function warnings(page: P) {
-  const seen: string[] = [];
-  page.on('console', (message) => { if (message.type() === 'warning') seen.push(message.text()); });
-  return seen;
-}
 const TEXT = 'Quarterly report. Revenue grew 12% over the previous quarter.';
 const body = (text = TEXT) => `<div class="tanrei-text-body">${text}</div>`;
 const fixture = (id: string, props: Fixture['props'], markup = body()): Fixture => ({ id, props, content: markup });

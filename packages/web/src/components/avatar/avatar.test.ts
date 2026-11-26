@@ -10,7 +10,7 @@ import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
 import { resolveEasing } from '../../../test/appear.js';
 import { expectAnimated, expectNoFlicker, sampleFrames } from '../../../test/frames.js';
-import { type Fixture, type FixtureItem, avatarPicture, declarations, iconFaceArrives, loadSpec, mountFixtures, resolveToken, setWords, tab, typeRole, withoutIconFont, rootTokens } from '../../../test/harness.js';
+import { type Fixture, type FixtureItem, avatarPicture, declarations, iconFaceArrives, loadSpec, mountFixtures, resolveToken, setWords, tab, typeRole, withoutIconFont, rootTokens, warnings } from '../../../test/harness.js';
 import { motionEnded } from '../../../test/motions.js';
 import { decodePng } from '../../../test/png.js';
 import { expectBaseline } from '../../../test/baseline.js';
@@ -40,13 +40,6 @@ const box = laidOutBox;
 const css = (locator: Locator, property: string) => locator.evaluate((el, p) => getComputedStyle(el).getPropertyValue(p), property);
 const near = (actual: number, expected: number, message = '', tolerance = 0.6) => expect(Math.abs(actual - expected), `${message}: ${actual} ≈ ${expected}`).toBeLessThanOrEqual(tolerance);
 const override = (page: P, vars: Record<string, string>) => rootTokens(page, vars);
-function warnings(page: P) {
-  const seen: string[] = [];
-  page.on('console', (message) => {
-    if (message.type() === 'warning') seen.push(message.text());
-  });
-  return seen;
-}
 const member = (label: string, initials = '', props: Fixture['props'] = {}): FixtureItem => ({ kind: 'member', props: { label, ...(initials ? { initials } : {}), ...props } });
 const fx = (id: string, props: Fixture['props'], extra: Partial<Fixture> = {}): Fixture => ({ id, props, ...extra });
 const mount = (page: P, fixtures: Fixture[], options: Parameters<typeof mountFixtures>[2] = {}) => mountFixtures(page, spec, { icons: true, fixtures, ...options });

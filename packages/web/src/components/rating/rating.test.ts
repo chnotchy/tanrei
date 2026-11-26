@@ -3,7 +3,7 @@
 // written here.
 import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
-import { type Fixture, loadSpec, mountFixtures, resolveColor, resolveToken, rootTokens, tab, tabTo } from '../../../test/harness.js';
+import { type Fixture, loadSpec, mountFixtures, resolveColor, resolveToken, rootTokens, tab, tabTo, warnings } from '../../../test/harness.js';
 import { expectBaseline } from '../../../test/baseline.js';
 import { motionCount, motionEnded, settledCss } from '../../../test/motions.js';
 import { mirroring, mirroringAfterDirection } from '../../../test/mirror-word.js';
@@ -37,13 +37,6 @@ const listen = (page: P, id: string) =>
     el.addEventListener('preview', (e) => log.preview.push((e as CustomEvent<{ value: number | null }>).detail.value));
   });
 const logged = (page: P) => page.evaluate(() => (window as unknown as { __log: { change: number[]; preview: (number | null)[] } }).__log);
-function warnings(page: P) {
-  const seen: string[] = [];
-  page.on('console', (message) => {
-    if (message.type() === 'warning') seen.push(message.text());
-  });
-  return seen;
-}
 const fixture = (id: string, props: Fixture['props'], direction?: 'rtl'): Fixture => ({ id, props: { label: 'Your rating', ...props }, ...(direction ? { direction } : {}) }) as Fixture;
 /** The point at `share` of a mark's width from its left edge, on its middle line. */
 async function pointOn(page: P, id: string, n: number, share = 0.75) {
