@@ -21,8 +21,8 @@ load in WebKit. What is drawn does not change.
   stylesheet is added there when it does not; Table, Accordion, App shell, Breadcrumbs, Table of contents and the
   others), the App shell's window widths, the Navigation drawer's room, the App bar's first fit of
   its actions, the Breadcrumbs' first measure, the Table of contents' view and first rule, and an open Menu's
-  shortcut form. Whether the browser answers style container queries is probed there too; until then the answer is
-  yes, and where the probe says no every element is drawn again before that frame is painted. An overlay open before
+  shortcut form. A Skeleton inserted then reads its show delay in that phase too, once its stylesheet is in place.
+  Whether the browser answers style container queries is probed there too; until then the answer is yes, and where the probe says no every element is drawn again before that frame is painted. An overlay open before
   the first paint holds its transitions for two frames instead of being styled at once. The steps' wait on the faces
   is asked in a frame callback.
 - Docs: the examples are placed without a read of the layout at the top of their module, where the page was laid out

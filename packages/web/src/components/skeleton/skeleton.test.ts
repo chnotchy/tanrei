@@ -1286,6 +1286,35 @@ test.describe('skeleton', () => {
     expect(seen).toEqual(['block', 66, '14px', 'progressbar']);
   });
 
+  test('SKL-7 inside a shadow root of a page that is still loading, with no stylesheet of the page there: defined before the document is first painted, it waits its whole show delay before it is drawn or pulses', async ({ page }) => {
+    // A navigation, not `setContent`: the document's first paint is then the page's own, and the skeleton's root is
+    // asked whether it draws it in the first frame (src/primitives/sheets.ts), not in its connection.
+    const url = 'http://skeleton-loading.test/';
+    const body = `<div id="outer"><template shadowrootmode="open"><div style="inline-size: 200px"><tanrei-skeleton label="Loading"><span class="tanrei-skeleton-placeholder" data-shape="block"></span></tanrei-skeleton></div></template></div>
+<script>(() => {
+  customElements.whenDefined('tanrei-skeleton').then(() => (window.__defined = performance.now()));
+  const began = (window.__began = []);
+  document.getElementById('outer').shadowRoot.addEventListener('animationstart', (event) => began.push({ name: event.animationName, at: performance.now() }));
+})();</script>
+<script type="module" src="/tanrei.bundle.js"></script>`;
+    await page.route(url, (route) => route.fulfill({ contentType: 'text/html; charset=utf-8', body: bare(body) }));
+    await page.route(`${url}tanrei.bundle.js`, (route) => route.fulfill({ contentType: 'text/javascript; charset=utf-8', body: dist('tanrei.bundle.js') }));
+    await page.goto(url);
+    const delay = await token(page, 'motion-show-delay', 'duration');
+    expect(delay).toBeGreaterThan(0);
+    const seen = () =>
+      page.evaluate(() => {
+        const el = document.getElementById('outer')!.shadowRoot!.querySelector('tanrei-skeleton')!;
+        const { __defined: defined, __began: began } = window as unknown as { __defined: number; __began: { name: string; at: number }[] };
+        return { role: el.getAttribute('role'), defined, pulses: began.filter((run) => run.name === 'tanrei-skeleton-pulse').map((run) => run.at) };
+      });
+    // Shown once its delay has passed, and only then does it pulse: not as soon as it is defined.
+    await expect.poll(async () => (await seen()).role).toBe('progressbar');
+    await expect.poll(async () => (await seen()).pulses.length).toBe(1);
+    const { defined, pulses } = await seen();
+    expect(pulses[0] - defined, `the pulse began ${Math.round(pulses[0] - defined)} ms after the skeleton was defined; its delay is ${delay} ms`).toBeGreaterThanOrEqual(delay);
+  });
+
   test('no axe violations in light and dark, every fixture mounted', async ({ page }) => {
     for (const theme of ['light', 'dark'] as const) {
       await mountFixtures(page, spec, { theme });
