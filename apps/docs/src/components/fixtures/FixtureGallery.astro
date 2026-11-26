@@ -5,7 +5,8 @@
 // of its own. Each stage is the docs' one frame (components/visuals/Example.astro): the fixture's id as its title, its
 // actions in its header — the stage's scheme and, as every frame's, the fixture's code as a product writes it, its
 // copy and the stage's direction — what the fixture draws on its stage, and the props that make it as the caption. The stages stand in groups by the first axis of the spec that
-// tells its fixtures apart (`variant`, else `size`, …).
+// tells its fixtures apart (`variant`, else `size`, …). A fixture that names a direction exists to show it, and its
+// stage carries it (`dir`, over the frame's): its frame offers no other direction, as it would turn nothing.
 //
 // The stages stand one to a row, each as wide as the column, in one column — as a specification's figures stand one
 // under another, and as a reader scrolls them. A fixture drawn in the page is the document's stage, with the
@@ -75,6 +76,7 @@ if (system && !systemSheet) throw new Error(`FixtureGallery: no generated styles
                 system={system}
                 code={stage.drawn}
                 source={stage.markup}
+                rtl={stage.drawn && !stage.direction}
                 resize={false}
                 actions={stage.drawn ? (stage.kind === 'inline' || stage.modal ? 1 : 2) : 0}
                 stageClass="docs-stage-box"

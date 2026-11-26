@@ -3,7 +3,8 @@
 // - its code is closed until a reader opens it, under the stage; it is what the stage held as the page was built, in
 //   HTML or — the reader's choice, kept for every example — in React with the React package's wrappers; the copy button
 //   copies the code in the flavor chosen;
-// - its stage is drawn in the other direction when the direction is turned, and as wide as its handle says;
+// - its stage is drawn in the other direction when the direction is turned, and as wide as its handle says; a gallery
+//   stage whose fixture names a direction offers no other;
 // - every frame is drawn in the page's look, with no system of its own (a frame pinned to a preset excepted): the
 //   tokens the look's stylesheet gives the root, and the scheme chosen in the appearance menu;
 // - what a stage holds is defined once it comes near the view, not with the page, and a stage below the view takes the
@@ -33,6 +34,8 @@ const docs = fileURLToPath(new URL('../../', import.meta.url));
 const dist = path.join(docs, 'dist');
 if (!fs.existsSync(path.join(dist, 'index.html'))) throw new Error('apps/docs/dist holds no site: run `pnpm --filter @tanrei/docs build` first');
 const config = JSON.parse(fs.readFileSync(path.join(docs, '../../tanrei.config.json'), 'utf8'));
+/** The select's spec: the fixtures its page's gallery draws, some of which name a direction. */
+const SELECT = JSON.parse(fs.readFileSync(path.join(docs, '../../specs/select.spec.json'), 'utf8'));
 
 const ENGINES = engines('chromium,firefox,webkit');
 let host;
@@ -177,6 +180,48 @@ for (const engine of ENGINES) {
       assert.equal(await toggle.getAttribute('label'), strings('ar').example.direction.rtl);
       await context.close();
     });
+
+    // A fixture that names a direction exists to show it, and its document's stage carries it (`dir`), over the
+    // frame's: a button that turned the frame would turn nothing. Its stage offers none; one whose fixture names none
+    // does, and turns it.
+    for (const [lang, url] of [['en', '/components/select/'], ['ar', '/ar/components/select/']]) {
+      test(`a gallery stage offers the other direction only where its fixture names none (${lang})`, LIMIT, async () => {
+        const { context, page } = await open(url);
+        const pageDirection = lang === 'ar' ? 'rtl' : 'ltr';
+        const named = SELECT.fixtures.filter((fixture) => fixture.direction);
+        const unnamed = SELECT.fixtures.find((fixture) => !fixture.direction);
+        assert.ok(named.length > 0, 'a fixture of the select names a direction');
+        /** The frame of a fixture's stage drawn: its actions, the room they held, and the direction its fixture is drawn in. */
+        const stageOf = async (id) => {
+          const selector = `[data-example][data-fixture-id="${id}"]`;
+          await drawn(page, selector);
+          await page.waitForFunction((selector) => document.querySelector(selector).querySelector('[data-example-stage] .stage'), selector);
+          return page.locator(selector).evaluate((frame) => {
+            const holder = frame.querySelector('[data-example-actions]');
+            return {
+              held: Number(holder.dataset.exampleActions),
+              actions: holder.querySelectorAll(':scope > :is(tanrei-button, tanrei-copy-button)').length,
+              direction: !!holder.querySelector('[data-example-direction]'),
+              drawnIn: getComputedStyle(frame.querySelector('[data-example-stage] .stage')).direction,
+            };
+          });
+        };
+        for (const fixture of named) {
+          const stage = await stageOf(fixture.id);
+          assert.equal(stage.direction, false, `${fixture.id}: its fixture names ${fixture.direction}, and its stage offers to turn it`);
+          assert.equal(stage.actions, stage.held, `${fixture.id}: its actions hold the room of ${stage.held} and draw ${stage.actions}`);
+          assert.equal(stage.drawnIn, fixture.direction, `${fixture.id}: drawn ${stage.drawnIn}`);
+        }
+        const before = await stageOf(unnamed.id);
+        assert.equal(before.direction, true, `${unnamed.id}: its fixture names no direction, and its stage offers none`);
+        assert.equal(before.actions, before.held);
+        assert.equal(before.drawnIn, pageDirection, `${unnamed.id}: drawn in the page's direction`);
+        await page.locator(`[data-example][data-fixture-id="${unnamed.id}"] [data-example-direction]`).click();
+        const turned = pageDirection === 'ltr' ? 'rtl' : 'ltr';
+        await page.waitForFunction(({ id, turned }) => getComputedStyle(document.querySelector(`[data-example][data-fixture-id="${id}"] [data-example-stage] .stage`)).direction === turned, { id: unnamed.id, turned });
+        await context.close();
+      });
+    }
 
     test('every frame is drawn in the look and the scheme the reader chose for the page, with no system of its own', LIMIT, async () => {
       const { context, page } = await open();
