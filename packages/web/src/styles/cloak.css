@@ -279,9 +279,9 @@
      defined, and the line and everything after it move when it is (by 0.68 px, a 24 px tag on a 22 px line of the
      body face, in Firefox and WebKit on Linux). So each is held on its baseline, which is where the element draws its
      label's: in the middle of the container — inside a keycap's edges, the top and the deeper bottom — plus half the
-     ascent less the descent of the label's face. An empty line of the label's text style (a zero-width space in the
-     `::before`, of no height under the element's `line-height: 0`) centred in the box is the flex box's first item,
-     and so sets its baseline there, in whatever face the label resolves to. */
+     ascent less the descent of the label's face. A line of the label's text style centred in the box is the flex box's
+     first item, and so sets its baseline there, in whatever face the label resolves to: a keycap's an empty one (a
+     zero-width space in the `::before`, of no height under the element's `line-height: 0`), a tag's its label (below). */
   :where(tanrei-tag, tanrei-keyboard-shortcut:not(:has(> [data-tanrei-keys])):not([variant='plain'])):where(:not(:defined):not([hidden])) {
     display: inline-flex;
     align-items: center;
@@ -294,15 +294,42 @@
   :where(tanrei-tag, tanrei-keyboard-shortcut:not(:has(> [data-tanrei-keys])):not([variant='plain'])):where(:not(:defined):not([hidden]))::before {
     content: '\200b';
   }
+  /* A tag is as wide and as high as it is drawn (TAG-1): its label (`label`, an attribute: the `::before` writes it, in
+     the label's text style, on one line, centred in the container's height, its baseline the tag's) between the size's
+     paddings, and before it the glyph (an element in the `icon` slot) or the
+     dot (`dot`, or an outlined tag with a status, TAG-7) with the container's gap, the start padding then the one that
+     goes with a lead. What is written between its tags — a glyph's name — is no text of its own until it is drawn
+     (`font-size: 0`): the tag's width is the label's, so a tag in a row of them wraps where it will. */
+  :where(tanrei-tag):where(:not(:defined):not([hidden])) {
+    --_cloak-pad: var(--tanrei-comp-tag-container-padding-inline-medium);
+    --_cloak-pad-lead: var(--tanrei-comp-tag-container-padding-inline-with-icon-medium);
+    max-inline-size: 100%;
+    padding-block: var(--tanrei-comp-tag-container-padding-block-medium);
+    padding-inline: var(--_cloak-pad);
+    font-size: 0;
+  }
+  :where(tanrei-tag[size='small']):where(:not(:defined):not([hidden])) {
+    --_cloak-pad: var(--tanrei-comp-tag-container-padding-inline-small);
+    --_cloak-pad-lead: var(--tanrei-comp-tag-container-padding-inline-with-icon-small);
+    padding-block: var(--tanrei-comp-tag-container-padding-block-small);
+  }
+  :where(tanrei-tag:is([dot], [variant='outlined']:is([status='info'], [status='warning'], [status='error'], [status='success']))):where(:not(:defined):not([hidden])) {
+    padding-inline-start: calc(var(--_cloak-pad-lead) + var(--tanrei-comp-tag-dot-size) + var(--tanrei-comp-tag-container-gap));
+  }
+  :where(tanrei-tag:has(> [slot='icon'])):where(:not(:defined):not([hidden])) {
+    padding-inline-start: calc(var(--_cloak-pad-lead) + var(--tanrei-comp-tag-icon-size) + var(--tanrei-comp-tag-container-gap));
+  }
   :where(tanrei-tag:not(:defined))::before {
-    font-family: var(--tanrei-comp-tag-label-typescale-medium-font-family);
-    font-size: var(--tanrei-comp-tag-label-typescale-medium-font-size);
-    font-weight: var(--tanrei-comp-tag-label-typescale-medium-font-weight);
+    content: attr(label);
+    flex: 0 1 auto;
+    min-inline-size: 0;
+    white-space: nowrap;
+    font: var(--tanrei-comp-tag-label-typescale-medium-font-weight) var(--tanrei-comp-tag-label-typescale-medium-font-size)/var(--tanrei-comp-tag-label-typescale-medium-line-height) var(--tanrei-comp-tag-label-typescale-medium-font-family);
+    letter-spacing: var(--tanrei-comp-tag-label-typescale-medium-letter-spacing);
   }
   :where(tanrei-tag[size='small']:not(:defined))::before {
-    font-family: var(--tanrei-comp-tag-label-typescale-small-font-family);
-    font-size: var(--tanrei-comp-tag-label-typescale-small-font-size);
-    font-weight: var(--tanrei-comp-tag-label-typescale-small-font-weight);
+    font: var(--tanrei-comp-tag-label-typescale-small-font-weight) var(--tanrei-comp-tag-label-typescale-small-font-size)/var(--tanrei-comp-tag-label-typescale-small-line-height) var(--tanrei-comp-tag-label-typescale-small-font-family);
+    letter-spacing: var(--tanrei-comp-tag-label-typescale-small-letter-spacing);
   }
   :where(tanrei-keyboard-shortcut:not(:has(> [data-tanrei-keys])):not(:defined))::before {
     font-family: var(--tanrei-comp-keyboard-shortcut-label-typescale-medium-font-family);
