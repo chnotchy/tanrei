@@ -211,6 +211,17 @@ for (const engine of ENGINES) {
         try {
           const { page, release, held } = await openHeld(context, host.origin + url);
           const { seen: before } = await page.evaluate(pageThrough, 0);
+          // Before they are defined, a keyboard table's keys are drawn, not an empty box: each key of the reader's
+          // convention is painted (the cloak, where a stage holds one, leaves keys the page wrote to their own sheet).
+          const keys = await page.evaluate(() => {
+            const shown = [...document.querySelectorAll('.docs-keyboard-map [data-tanrei-keys-key]')].filter((key) => getComputedStyle(key.closest('[data-tanrei-keys]')).display !== 'none');
+            const shortcuts = document.querySelectorAll('.docs-keyboard-map tanrei-keyboard-shortcut').length;
+            return { shortcuts, shown: shown.length, unpainted: shown.filter((key) => getComputedStyle(key).visibility !== 'visible' || key.getBoundingClientRect().width === 0).length, defined: !!customElements.get('tanrei-keyboard-shortcut') };
+          });
+          assert.equal(keys.defined, false, `${name}: the Keyboard shortcut was defined while its module was held`);
+          // A table whose rows name no chord (the Text field's: «Printable characters») has no key to draw.
+          if (keys.shortcuts) assert.ok(keys.shown >= keys.shortcuts, `${name}: a keyboard table drew ${keys.shown} keys for its ${keys.shortcuts} shortcuts before its elements were defined`);
+          assert.equal(keys.unpainted, 0, `${name}: ${keys.unpainted} of a keyboard table's ${keys.shown} keys were not painted before their elements were defined`);
           release();
           // Once to define the page as a reader would reach it, and again to read it as it stands then.
           await page.evaluate(pageThrough, DEFINED);

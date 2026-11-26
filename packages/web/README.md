@@ -199,11 +199,19 @@ held at one line: a label or a help that wraps moves what is below it by the lin
 lists what it does not hold.
 
 A keyboard shortcut in a line of text is not held by the cloak: its width is its keys, and the keys are the reader's
-(⇧⌘K on Apple's platforms, Ctrl+Shift+K elsewhere). A page written on a server can draw them itself, between the tags,
-as the element will: `keyboardPlatformScript()` from `@tanrei/web/keyboard-convention`, inline in `<head>`, puts the
-platform's convention on `<html>` (`data-tanrei-keyboard-platform="apple|standard"`) by the element's own test, and
-`shortcutLegends(keys, convention)` gives the legends of each chord in each convention, for the page to draw both and
-show the reader's — the standard convention with a + between two keys of a chord.
+(⇧⌘K on Apple's platforms, Ctrl+Shift+K elsewhere). A page written on a server writes the keys the element will draw
+between its tags, and `keyboard-shortcut.css` draws them until it is defined, in the reader's convention:
+
+```js
+import { keyboardPlatformScript, keyboardShortcutContent } from '@tanrei/web/keyboard-convention';
+import '@tanrei/web/keyboard-shortcut.css';
+
+const head = `<script>${keyboardPlatformScript()}</script>`; // the platform's convention on <html>, by the element's own test
+const shortcut = `<tanrei-keyboard-shortcut keys="mod+k" label="Command K">${keyboardShortcutContent('mod+k', { label: 'Command K' })}</tanrei-keyboard-shortcut>`;
+```
+
+The content holds the keys in both conventions and the text read in their place; the stylesheet shows the shortcut's
+own `convention`, else an ancestor's `data-tanrei-keyboard-convention`, else the platform's, as the element does.
 
 ## Browser support
 

@@ -144,6 +144,7 @@
     "./avatar.css": "./dist/avatar.css",
     "./empty-state.css": "./dist/empty-state.css",
     "./menu.css": "./dist/menu.css",
+    "./keyboard-shortcut.css": "./dist/keyboard-shortcut.css",
     "./menubar.css": "./dist/menubar.css",
     "./app-bar.css": "./dist/app-bar.css",
     "./cloak.css": "./dist/cloak.css",

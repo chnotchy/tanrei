@@ -9,18 +9,18 @@
 // - **A cap is drawn in the reader's own convention** (the Keyboard shortcut's `auto`: Apple's symbols on Apple's
 //   platforms, the names elsewhere), and **read in the page's language**: the Keyboard shortcut has no names for keys,
 //   so each chord's `label` is made from the dictionary's (`keys` in lib/i18n.ts).
-// - **It holds its room before script runs**: until the element is defined, a chord is drawn as the element will draw
-//   it — its caps, of the Keyboard shortcut's own tokens and its own legends (`shortcutLegends`), in both conventions —
-//   and the reader's is shown, by the platform's convention the head puts on the root (frame/Head.astro: the element's
-//   own test) or an ancestor's `data-tanrei-keyboard-convention`, as the element resolves `auto`. A row wraps where it
-//   will once the caps are the element's, and nothing moves (test/browser/held-room.test.mjs). Its words in the page's
-//   language are read in place of the caps, as the element reads its `label`. Where no script runs, the caps are the
-//   standard convention's.
+// - **It holds its room before script runs**: between its tags each Keyboard shortcut holds what the web package writes
+//   for it (`keyboardShortcutContent`: the element's own legends, in both conventions), and the package's stylesheet
+//   draws that until the element is defined (`@tanrei/web/keyboard-shortcut.css`, loaded by styles/prose.css), the
+//   reader's convention shown as the element resolves `auto` — by the platform's, which the head puts on the root
+//   (frame/Head.astro, `keyboardPlatformScript`), or an ancestor's. A row wraps where it will once the element draws its
+//   keys, and nothing moves (test/browser/held-room.test.mjs). The site writes no key itself: the keys are the
+//   element's, before and after. Where no script runs, the standard convention is shown.
 import Table from '../Table.astro';
 import { contentLang, strings } from '../../lib/i18n';
 import { getSpec } from '../../lib/repo';
 import { keySegments, shortcutKeys, spokenChord } from '../../lib/visuals/keyboard';
-import { type KeyboardConvention, shortcutLegends } from '@tanrei/web/keyboard-convention';
+import { keyboardShortcutContent } from '@tanrei/web/keyboard-convention';
 
 interface Props {
   /** The component, by its spec's name. */
@@ -36,8 +36,6 @@ const rows = spec.accessibility.keyboard
   .map((row) => ({ ...row, segments: keySegments(row.keys) }))
   .filter((row) => !keys || row.segments.some((segment) => 'chord' in segment && segment.chord.some((key) => keys.includes(key) || (key === 'arrows' && keys.some((one) => one.startsWith('arrow'))))));
 if (keys && rows.length === 0) throw new Error(`KeyboardMap: no row of ${name}'s keyboard table presses ${keys.join(', ')}`);
-// Both conventions are drawn before the element is defined; the stylesheet shows the reader's.
-const CONVENTIONS: KeyboardConvention[] = ['apple', 'standard'];
 ---
 
 <Table label={t.keyboard} class="docs-keyboard-map">
@@ -56,25 +54,7 @@ const CONVENTIONS: KeyboardConvention[] = ['apple', 'standard'];
                     return (
                       <>
                         {' '}
-                        <tanrei-keyboard-shortcut class="docs-key" size="small" keys={shortcut} label={label}>
-                          <span class="docs-key-spoken">{label}</span>
-                          {CONVENTIONS.map((convention) => (
-                            <span class="docs-key-sequence" data-convention={convention} aria-hidden="true">
-                              {shortcutLegends(shortcut, convention).map((chord) => (
-                                <kbd class="docs-key-chord">
-                                  {chord.map((legend, index) => (
-                                    <>
-                                      {convention === 'standard' && index > 0 && <span class="docs-key-separator">+</span>}
-                                      <kbd class="docs-key-cap" data-tanrei-shape>
-                                        {legend}
-                                      </kbd>
-                                    </>
-                                  ))}
-                                </kbd>
-                              ))}
-                            </span>
-                          ))}
-                        </tanrei-keyboard-shortcut>{' '}
+                        <tanrei-keyboard-shortcut class="docs-key" size="small" keys={shortcut} label={label} set:html={keyboardShortcutContent(shortcut, { label })} />{' '}
                       </>
                     );
                   }
@@ -115,79 +95,5 @@ const CONVENTIONS: KeyboardConvention[] = ['apple', 'standard'];
   }
   .docs-keys-or {
     margin-inline: var(--tanrei-sys-space-space50);
-  }
-  /* A chord until its element is defined, and where no script runs: drawn as the Keyboard shortcut draws it
-     (keyboard-shortcut.styles.ts, size small, the keycap variant) — the chords a sequence gap apart, the keys of a chord
-     a chord gap apart, each in a cap of the size's height, padding and corners with its fill and edge, the legends and
-     the + between them in the size's text role — so that a row is as wide and wraps as it will once the element is
-     defined. The words are read in place of the caps, as the element reads its label. */
-  .docs-key:not(:defined) {
-    position: relative;
-    display: inline-flex;
-    align-items: baseline;
-    vertical-align: baseline;
-    max-inline-size: 100%;
-    direction: ltr;
-    unicode-bidi: isolate;
-  }
-  .docs-key-spoken {
-    position: absolute;
-    inline-size: 1px;
-    block-size: 1px;
-    overflow: hidden;
-    clip-path: inset(50%);
-    white-space: nowrap;
-  }
-  .docs-key-sequence {
-    display: inline-flex;
-    flex-wrap: wrap;
-    align-items: baseline;
-    column-gap: var(--tanrei-comp-keyboard-shortcut-sequence-gap-small);
-    row-gap: var(--tanrei-comp-keyboard-shortcut-chord-gap-small);
-    max-inline-size: 100%;
-  }
-  /* The reader's convention, as the element resolves `auto`: an ancestor's choice, else the platform's (the head's
-     script puts it on the root; where no script runs, there is none, and the standard convention is shown). */
-  :where(:root:not([data-tanrei-keyboard-platform='apple'])) .docs-key-sequence[data-convention='apple'],
-  :where(:root[data-tanrei-keyboard-platform='apple']) .docs-key-sequence[data-convention='standard'],
-  [data-tanrei-keyboard-convention='apple'] .docs-key-sequence[data-convention='standard'],
-  [data-tanrei-keyboard-convention='standard'] .docs-key-sequence[data-convention='apple'] {
-    display: none;
-  }
-  [data-tanrei-keyboard-convention='apple'] .docs-key-sequence[data-convention='apple'],
-  [data-tanrei-keyboard-convention='standard'] .docs-key-sequence[data-convention='standard'] {
-    display: inline-flex;
-  }
-  .docs-key-chord {
-    display: inline-flex;
-    align-items: baseline;
-    column-gap: var(--tanrei-comp-keyboard-shortcut-chord-gap-small);
-    white-space: nowrap;
-  }
-  .docs-key-cap {
-    box-sizing: border-box;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    min-block-size: var(--tanrei-comp-keyboard-shortcut-container-height-small);
-    min-inline-size: var(--tanrei-comp-keyboard-shortcut-container-height-small);
-    padding-inline: var(--tanrei-comp-keyboard-shortcut-container-padding-inline-small);
-    background: var(--tanrei-comp-keyboard-shortcut-container-color);
-    border: var(--tanrei-comp-keyboard-shortcut-outline-width) solid var(--tanrei-comp-keyboard-shortcut-outline-color);
-    border-block-end-width: var(--tanrei-comp-keyboard-shortcut-outline-bottom-width);
-    --tanrei-corner-radius: var(--tanrei-comp-keyboard-shortcut-container-shape-small);
-    --tanrei-corner-pill: var(--tanrei-comp-keyboard-shortcut-container-shape-small-pill);
-  }
-  .docs-key-cap,
-  .docs-key-separator {
-    font: var(--tanrei-comp-keyboard-shortcut-label-typescale-small-font-weight) var(--tanrei-comp-keyboard-shortcut-label-typescale-small-font-size)/var(--tanrei-comp-keyboard-shortcut-label-typescale-small-line-height) var(--tanrei-comp-keyboard-shortcut-label-typescale-small-font-family);
-    letter-spacing: var(--tanrei-comp-keyboard-shortcut-label-typescale-small-letter-spacing);
-    color: var(--tanrei-comp-keyboard-shortcut-keycap-label-color);
-    white-space: nowrap;
-  }
-  @media (forced-colors: active) {
-    .docs-key-cap {
-      border-color: CanvasText;
-    }
   }
 </style>

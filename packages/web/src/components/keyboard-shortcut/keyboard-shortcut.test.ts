@@ -10,8 +10,14 @@ import { paintedColor } from '../../../test/png.js';
 import { motionCount } from '../../../test/motions.js';
 import { transitionsRun, watchTransitions } from '../../../test/transitions.js';
 import { expectBaseline } from '../../../test/baseline.js';
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { keyboardPlatformScript, keyboardShortcutContent } from '../../keyboard-convention.js';
 
 const spec = loadSpec('keyboard-shortcut');
+const pkg = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../..');
+const dist = (file: string) => fs.readFileSync(path.join(pkg, 'dist', file), 'utf8');
 type P = Page;
 const TAG = 'tanrei-keyboard-shortcut';
 const host = (page: P, id: string) => page.locator(`[data-fixture="${id}"] ${TAG}`);
@@ -725,6 +731,105 @@ test.describe('behavior', () => {
     // Valid keys report nothing.
     expect(all).not.toMatch(/"mod\+k"/);
   });
+});
+
+// A page written on a server writes the keys the element will draw (`@tanrei/web/keyboard-convention`), and
+// `keyboard-shortcut.css` draws them until the element is defined: in the reader's convention, as the element resolves
+// `auto` (KBS-2) — the platform's, which the head's script puts on the root by the element's own test, else an
+// ancestor's or the shortcut's own — each shortcut where and as large as the element then draws it, in a line that
+// wraps the same, and the same text read in place of the keys (KBS-10, KBS-11).
+test.describe('before it is defined', () => {
+  const SHORTCUTS: [id: string, attributes: string, keys: string, label: string][] = [
+    ['medium', '', 'mod+shift+k', 'Shift Command K'],
+    ['small', 'size="small"', 'shift+tab', ''],
+    ['sequence', 'size="small"', 'mod+k mod+c', 'Command K, Command C'],
+    ['arrows', 'size="small"', 'arrow-up arrow-down arrow-left arrow-right', 'Arrow keys'],
+    ['named', '', 'ctrl+alt+delete', ''],
+    ['plain', 'variant="plain"', 'mod+alt+page-down', ''],
+    ['disabled', 'size="small" disabled', 'mod+enter', ''],
+    ['own', 'convention="standard"', 'mod+escape', ''],
+    ['escaped', 'size="small"', 'shift+<', ''],
+  ];
+  const line = (n: number) =>
+    `<p class="line">Press ${SHORTCUTS.map(([id, attributes, keys, label]) => `<tanrei-keyboard-shortcut id="${id}-${n}" ${attributes} keys="${keys.replace(/</g, '&lt;')}"${label ? ` label="${label}"` : ''}>${keyboardShortcutContent(keys, { label })}</tanrei-keyboard-shortcut> or`).join(' ')} the menu.<span class="mark" id="mark-${n}">after</span></p>`;
+  // Lines 0–2: the platform's, an ancestor's apple, an ancestor's standard. Lines 3 and 4: two ancestors, the nearest
+  // deciding (standard inside apple, apple inside standard), as `ambientConvention()` reads them.
+  const LINES = 5;
+  for (const [platform, convention, cloak] of [
+    ['MacIntel', 'apple', false],
+    ['Win32', 'standard', false],
+    ['MacIntel', 'apple', true],
+    ['Win32', 'standard', true],
+  ] as const) {
+    test(`KBS-2, KBS-6…8, KBS-10, KBS-15: on ${platform}${cloak ? ', under the cloak' : ''}, each shortcut is drawn in the ${convention} convention, or its nearest ancestor’s or its own, where and as large as the element draws it once defined, and reads the same`, async ({ page }) => {
+      await pretendPlatform(page, platform);
+      const body =
+        `${line(0)}<section data-tanrei-keyboard-convention="apple">${line(1)}</section><section data-tanrei-keyboard-convention="standard">${line(2)}</section>` +
+        `<section data-tanrei-keyboard-convention="apple"><div data-tanrei-keyboard-convention="standard">${line(3)}</div></section>` +
+        `<section data-tanrei-keyboard-convention="standard"><div data-tanrei-keyboard-convention="apple">${line(4)}</div></section>`;
+      await page.setContent(`<!doctype html><html lang="en" data-tanrei-theme="light"><head><meta charset="utf-8"><title>before definition</title>
+        <script>${keyboardPlatformScript()}</script>
+        <style>${dist('tokens.css')}</style><style>${dist('shape.css')}</style><style>${dist('keyboard-shortcut.css')}</style>${cloak ? `<style>${dist('cloak.css')}</style>` : ''}
+        <style>body { margin: 16px; inline-size: 300px; font: var(--tanrei-sys-typescale-body-font-weight) var(--tanrei-sys-typescale-body-font-size)/var(--tanrei-sys-typescale-body-line-height) var(--tanrei-sys-typescale-body-font-family); } p.line { margin: 8px 0; line-height: 28px; }</style></head><body>${body}</body></html>`);
+      expect(await page.evaluate(() => !!customElements.get('tanrei-keyboard-shortcut'))).toBe(false);
+      expect(await page.evaluate(() => document.documentElement.getAttribute('data-tanrei-keyboard-platform'))).toBe(convention);
+      const measure = () =>
+        page.evaluate(() => {
+          const rect = (el: Element) => {
+            const r = el.getBoundingClientRect();
+            return [r.left, r.top, r.width, r.height].map((v) => Math.round(v * 4) / 4);
+          };
+          return Object.fromEntries([...document.querySelectorAll('tanrei-keyboard-shortcut, .mark')].map((el) => [el.id, rect(el)]));
+        });
+      /** What is drawn and read: before, the shown face's legends and separators and its hidden text; after, the shadow root's. */
+      const read = () =>
+        page.evaluate(() =>
+          Object.fromEntries(
+            [...document.querySelectorAll('tanrei-keyboard-shortcut')].map((el) => {
+              if (el.shadowRoot) {
+                const chords = [...el.shadowRoot.querySelectorAll('.chord')].map((chord) => [...chord.querySelectorAll('.label, .separator')].map((n) => n.textContent).join(''));
+                return [el.id, { drawn: chords.join(' '), spoken: el.shadowRoot.querySelector('.spoken')?.textContent ?? '' }];
+              }
+              const face = [...el.querySelectorAll(':scope > [data-tanrei-keys]')].find((each) => getComputedStyle(each).display !== 'none')!;
+              const chords = [...face.querySelectorAll('[data-tanrei-keys-chord]')].map((chord) => [...chord.querySelectorAll('[data-tanrei-keys-key], [data-tanrei-keys-separator]')].map((n) => n.textContent).join(''));
+              return [el.id, { drawn: chords.join(' '), spoken: face.querySelector('[data-tanrei-keys-spoken]')?.textContent ?? '' }];
+            }),
+          ),
+        );
+      const before = await measure();
+      const said = await read();
+      // Exactly one face is drawn in each, and its keys are hidden from assistive technology.
+      expect(await page.evaluate(() => [...document.querySelectorAll('tanrei-keyboard-shortcut')].map((el) => [...el.children].filter((face) => getComputedStyle(face).display !== 'none').length))).toEqual(Array(SHORTCUTS.length * LINES).fill(1));
+      expect(await page.locator('[data-tanrei-keys-sequence]:not([aria-hidden="true"])').count()).toBe(0);
+      // Every key of the shown face is painted, the cloak or not: a box of its own, and visible.
+      expect(
+        await page.evaluate(() =>
+          [...document.querySelectorAll('[data-tanrei-keys-key]')]
+            .filter((key) => getComputedStyle(key.closest('[data-tanrei-keys]')!).display !== 'none')
+            .filter((key) => getComputedStyle(key).visibility !== 'visible' || key.getBoundingClientRect().width === 0)
+            .map((key) => key.closest('tanrei-keyboard-shortcut')!.id),
+        ),
+      ).toEqual([]);
+      // The lines wrap: what is held is a line that breaks between shortcuts.
+      expect(new Set(Object.values(before).map(([, top]) => top)).size).toBeGreaterThan(6);
+      await page.addScriptTag({ type: 'module', content: dist('tanrei.bundle.js') });
+      await page.waitForFunction(() => !!customElements.get('tanrei-keyboard-shortcut'));
+      await page.evaluate(() => new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve))));
+      expect(await read()).toEqual(said);
+      expect(said['medium-0'].drawn).toBe(convention === 'apple' ? '⇧⌘K' : 'Ctrl+Shift+K');
+      expect(said['medium-1'].drawn).toBe('⇧⌘K');
+      expect(said['medium-2'].drawn).toBe('Ctrl+Shift+K');
+      expect(said['medium-3'].drawn).toBe('Ctrl+Shift+K');
+      expect(said['medium-4'].drawn).toBe('⇧⌘K');
+      expect(said['own-1'].drawn).toBe('Ctrl+Esc');
+      expect(said['own-4'].drawn).toBe('Ctrl+Esc');
+      expect(said['escaped-0'].drawn).toBe(convention === 'apple' ? '⇧<' : 'Shift+<');
+      expect(await measure()).toEqual(before);
+      // The stylesheet's rules match nothing once the element is defined, and are in the components' layer.
+      expect(dist('keyboard-shortcut.css')).toContain('@layer tanrei.components');
+      expect(await page.evaluate(() => document.querySelectorAll('tanrei-keyboard-shortcut:not(:defined)').length)).toBe(0);
+    });
+  }
 });
 
 test.describe('accessibility', () => {
