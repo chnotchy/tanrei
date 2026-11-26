@@ -241,6 +241,13 @@ if (system && !systemSheet) throw new Error(`FixtureGallery: no generated styles
   .docs-stage-canvas[data-fixture-scope] > :global(.stage) {
     margin: 0;
   }
+  /* A stage that cannot be laid out at its row's width without being drawn otherwise than its baseline (one that stands
+     for an area of a window, one whose drawing would reach past it) is laid out at its baseline's width and scaled down
+     to the row, as a window is (lib/fixture-stages.ts, `fitStage`): by `zoom`, so that the canvas holds the room it
+     is drawn in, and what it draws stays live. */
+  .docs-stage-canvas[data-fixture-scope] > :global(.stage) {
+    zoom: var(--docs-stage-scale, 1);
+  }
   /* A fixture is drawn when its stage comes near the view (lib/fixture-stages.ts); until then its canvas holds the
      room its baseline shows, so that nothing moves when it is drawn. The baseline is a picture of the stage clipped to
      the whole CSS pixels around it, and a stage stands at a fraction of a pixel in the document it was taken in, below
@@ -250,7 +257,7 @@ if (system && !systemSheet) throw new Error(`FixtureGallery: no generated styles
      from the same picture — and grows past it only where the page draws the fixture taller than its baseline does.
      Its width is held only until it is drawn: a stage with a width handle is made narrower than its baseline. */
   .docs-stage-canvas {
-    min-block-size: var(--docs-stage-reserve-block, 0px);
+    min-block-size: calc(var(--docs-stage-reserve-block, 0px) * var(--docs-stage-scale, 1));
   }
   .docs-stage-canvas[data-pending] {
     min-inline-size: min(100%, var(--docs-stage-reserve-inline, 0px));

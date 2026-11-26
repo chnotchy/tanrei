@@ -8,7 +8,10 @@
 // past the table's visible box (the reader had to scroll the table sideways to find it), and where the drawing of
 // nine components was missing altogether. Every fixture of a component the web implements is drawn: in the page (a modal one closed, under the
 // picture of it open), or alone in a window whose document the page writes from the web package's own document of it. No address on the site
-// is a fixture's document.
+// is a fixture's document. Earlier still, a fixture's box was as large as what it drew, and a component that fills its
+// place had none to fill: every divider was drawn 0 wide, every slider as a lone handle, every linear indicator not at
+// all. So each element a stage holds is asked for both its lengths, and what the fixture draws for its place in its
+// stage's box: at 390 wide a calendar 336 wide, a menu's open submenus and a side sheet's page reached past it.
 //
 //   pnpm --filter @tanrei/docs build && pnpm --filter @tanrei/docs test:browser
 //
@@ -276,7 +279,7 @@ async function openPage(what, options) {
  * the elements are defined and every stage is laid out. Every wait is bounded: one that ends without what it waited for
  * throws, naming what did not come.
  */
-async function measure() {
+async function measure({ name, EMPTY }) {
   const step = (what) => console.debug(`[step] ${what}`);
   const within = (ms, missing, promise) => {
     let timer;
@@ -356,8 +359,61 @@ async function measure() {
   await within(10_000, () => `the faces ${[...document.fonts].filter((f) => f.status === 'loading').map((f) => f.family).join(', ') || 'of the page'} did not load`, document.fonts.ready);
   step('laying out');
   for (let k = 0; k < 4; k++) await frame();
+  // A stage drawn in the page is fitted to its row once it has settled (lib/fixture-stages.ts, `fitStage`): scaled down,
+  // where laid out at the row's width it would draw otherwise than its baseline.
+  const fitting = () => [...gallery.querySelectorAll('.docs-stage-canvas[data-fitting]')];
+  step('fitting the stages');
+  await within(10_000, () => `the stages ${fitting().map((canvas) => canvas.closest('.docs-stage')?.dataset.fixtureId).join(', ')} were not fitted`, (async () => {
+    while (fitting().length) await frame();
+  })());
+  for (let k = 0; k < 2; k++) await frame();
   step('measuring');
 
+  // The flat tree's parent of a node: the slot it is assigned to, its parent, or its shadow root's host.
+  const flatParent = (node) => node.assignedSlot ?? node.parentElement ?? node.parentNode?.host ?? null;
+  // What of an element is seen: its box, cut by every box above it, below `stage`, that clips what reaches past it — a
+  // component's own scroller, track or surface (a carousel's slides, a code block's long line, a tab row that scrolls) —
+  // or nothing, inside a box that skips drawing what it holds.
+  const seen = (element, stage) => {
+    const q = element.getBoundingClientRect();
+    let { left, top, right, bottom } = q;
+    for (let above = flatParent(element); above && above !== stage; above = flatParent(above)) {
+      const style = getComputedStyle(above);
+      if (style.display === 'contents') continue;
+      // What a box skips drawing (a closed list of a tree, `content-visibility: hidden`) is not seen at all.
+      if (style.contentVisibility === 'hidden') return { left: 0, top: 0, right: 0, bottom: 0 };
+      const all = style.contain.includes('paint') || style.clipPath !== 'none';
+      const x = all || style.overflowX !== 'visible';
+      const y = all || style.overflowY !== 'visible';
+      if (!x && !y) continue;
+      const box = above.getBoundingClientRect();
+      if (x) [left, right] = [Math.max(left, box.left), Math.min(right, box.right)];
+      if (y) [top, bottom] = [Math.max(top, box.top), Math.min(bottom, box.bottom)];
+    }
+    return { left, top, right, bottom };
+  };
+  // What a stage draws: the box around every element seen in it (shadow roots included), or null where none is. What
+  // is in the top layer or placed against the window is not drawn on the stage.
+  const drawing = (stage) => {
+    let ink = null;
+    const visit = (root) => {
+      for (const element of root.querySelectorAll('*')) {
+        if (['style', 'script', 'slot', 'template'].includes(element.localName)) continue;
+        if (element.closest(':popover-open, :modal')) continue;
+        const style = getComputedStyle(element);
+        if (style.position === 'fixed') continue;
+        const q = element.getBoundingClientRect();
+        if (q.width >= 1 && q.height >= 1 && style.visibility !== 'hidden') {
+          const s = seen(element, stage);
+          if (s.right - s.left >= 1 && s.bottom - s.top >= 1)
+            ink = ink ? { left: Math.min(ink.left, s.left), top: Math.min(ink.top, s.top), right: Math.max(ink.right, s.right), bottom: Math.max(ink.bottom, s.bottom) } : s;
+        }
+        if (element.shadowRoot) visit(element.shadowRoot);
+      }
+    };
+    visit(stage);
+    return ink;
+  };
   const column = gallery.getBoundingClientRect();
   const outside = (inner, outer, slack = 1) => inner.left < outer.left - slack || inner.right > outer.right + slack || inner.top < outer.top - slack || inner.bottom > outer.bottom + slack;
   const stages = [...gallery.querySelectorAll('.docs-stage')];
@@ -379,16 +435,32 @@ async function measure() {
       continue;
     }
     const r = drawn.getBoundingClientRect();
-    // One length drawn and the other none: it fills a length its stage does not give it. No width is always that (a
-    // divider, a linear indicator, a slider drawn 0 wide); no height is that unless nothing inside it is drawn either
-    // (a Tab view without its panel draws nothing, by design).
-    const inside = (root) => [...root.querySelectorAll('*')].some((n) => {
-      const q = n.getBoundingClientRect();
-      return (q.width >= 1 && q.height >= 1) || (n.shadowRoot && inside(n.shadowRoot));
-    });
-    const empty = !inside(drawn) && !(drawn.shadowRoot && inside(drawn.shadowRoot));
-    if ((r.width < 1 && r.height >= 1) || (r.height < 1 && r.width >= 1 && !empty)) found.push(`${id}: what it draws has no length (${Math.round(r.width)} × ${Math.round(r.height)})`);
+    if (r.width < 1 || r.height < 1) found.push(`${id}: its stage has no length (${Math.round(r.width)} × ${Math.round(r.height)})`);
     else if (outside(r, area)) found.push(`${id}: what it draws is cut by its stage (${Math.round(r.width)} × ${Math.round(r.height)} in ${Math.round(area.width)} × ${Math.round(area.height)})`);
+    // The rest asks what a fixture drawn in the page draws, inside its stage's padding: a window's document and a modal
+    // fixture's picture are not drawn in the page.
+    if (stage.dataset.stage === 'window' || stage.dataset.stageModal !== undefined) continue;
+    // Every element the stage holds, and the fixture's own, has both its lengths: one that fills its container draws
+    // nothing where its container gives it none (a divider, a linear indicator or a slider 0 wide; a side sheet's page
+    // 0 wide beside the sheet). The fixture's element of one listed in EMPTY draws nothing, by design, and is asked to.
+    const empty = EMPTY[`${name}/${id}`];
+    const tag = gallery.dataset.fixtureTag;
+    const own = tag ? [...drawn.querySelectorAll(tag)] : [];
+    for (const element of new Set([...drawn.children, ...own])) {
+      // Left out: an element the box tree leaves out, and one its component does not draw (an avatar past a group's
+      // most, `display: none` where it is slotted).
+      if (getComputedStyle(element).display === 'contents' || !element.checkVisibility()) continue;
+      const q = element.getBoundingClientRect();
+      const none = q.width < 1 || q.height < 1;
+      const meant = empty !== undefined && own.includes(element);
+      if (none && !meant) found.push(`${id}: ${element.localName} has no length (${Math.round(q.width)} × ${Math.round(q.height)})`);
+      if (!none && meant) found.push(`${id}: ${element.localName} draws ${Math.round(q.width)} × ${Math.round(q.height)}, and is listed as drawing nothing (${empty})`);
+    }
+    const ink = drawing(drawn);
+    if (!ink) found.push(`${id}: it draws nothing`);
+    // What it draws stands inside its stage's box, not only its stage: an element wider than the stage reaches past it
+    // (a calendar 336 wide, a menu's open submenus), and the box clips it.
+    if (ink && outside(ink, area)) found.push(`${id}: what it draws reaches past its stage's box (${Math.round(ink.left - area.left)}…${Math.round(ink.right - area.left)} × ${Math.round(ink.top - area.top)}…${Math.round(ink.bottom - area.top)} in ${Math.round(area.width)} × ${Math.round(area.height)})`);
   }
   // A stage drawn in the page holds its baseline's room before it is drawn, and is as tall once it is — unless it is
   // drawn narrower than its baseline (a layout wider than the column, laid out at the column's width), where it is
@@ -417,6 +489,14 @@ async function measure() {
     found,
   };
 }
+
+/**
+ * The fixtures whose component's element is meant to draw nothing, `<component>/<id>`, and why. Every other element a
+ * stage drawn in the page holds has both its lengths, and every such stage draws something.
+ */
+const EMPTY = {
+  'tab-view/missing-panel': 'its value names a tab whose panel the fixture does not hold, and a Tab view shows only the panel of its value',
+};
 
 // The fixture documents the site was built with (scripts/fixture-documents.mjs): each component's stages and the size
 // of each stage's baseline.
@@ -483,7 +563,7 @@ describe('every component page shows its fixtures, each whole, on a stage of its
         const { page, close } = await openPage(`/components/${name}/ at ${viewport.width}`, { viewport, reducedMotion: 'reduce' });
         try {
           await page.goto(`${origin}/components/${name}/`, { waitUntil: 'load' });
-          const result = await evaluateBounded(page, `/components/${name}/ at ${viewport.width}`, measure);
+          const result = await evaluateBounded(page, `/components/${name}/ at ${viewport.width}`, measure, { name, EMPTY });
           const at = `${viewport.width}`;
           if (!result.gallery) {
             problems.push(`${at}: the page has no gallery of fixtures`);
