@@ -178,15 +178,16 @@
      to makes it — `line-height: normal` is the face's ascent, descent and line gap — and that can be taller than the
      control (in Firefox and WebKit on Linux, a line of the default face is 21px where a small tag is 20px). So a
      control is held at its token's height whatever face the page's text resolves to, and its width, which is not
-     held, is the same. */
-  :where(tanrei-button, tanrei-button-with-menu, tanrei-checkbox, tanrei-chip, tanrei-copy-button, tanrei-keyboard-shortcut:not(:has(> [data-tanrei-keys])), tanrei-loading-indicator, tanrei-main-action-button, tanrei-radio-button, tanrei-rating, tanrei-segmented-button, tanrei-select, tanrei-switch, tanrei-tag):where(:not(:defined):not([hidden])) {
+     held, is the same. A control in a slot of an app bar that is not defined is the bar's to hold (`app-bar.css` takes
+     it out of the page until the bar draws it): laid out here, a bar's buttons stood in a column under its title. */
+  :where(tanrei-button, tanrei-button-with-menu, tanrei-checkbox, tanrei-chip, tanrei-copy-button, tanrei-keyboard-shortcut:not(:has(> [data-tanrei-keys])), tanrei-loading-indicator, tanrei-main-action-button, tanrei-radio-button, tanrei-rating, tanrei-segmented-button, tanrei-select, tanrei-switch, tanrei-tag):where(:not(:defined):not([hidden]):not(tanrei-app-bar:not(:defined) > [slot])) {
     display: inline-block;
     box-sizing: border-box;
     vertical-align: middle;
     line-height: 0;
   }
   /* A block control: the width of its place. */
-  :where(tanrei-color-input, tanrei-combobox, tanrei-list-row, tanrei-navigation-bar, tanrei-number-input, tanrei-one-time-code-input, tanrei-pagination, tanrei-search, tanrei-slider, tanrei-tabs, tanrei-text-input):where(:not(:defined):not([hidden])) {
+  :where(tanrei-color-input, tanrei-combobox, tanrei-list-row, tanrei-navigation-bar, tanrei-number-input, tanrei-one-time-code-input, tanrei-pagination, tanrei-search, tanrei-slider, tanrei-tabs, tanrei-text-input):where(:not(:defined):not([hidden]):not(tanrei-app-bar:not(:defined) > [slot])) {
     display: block;
     box-sizing: border-box;
     line-height: 0;
