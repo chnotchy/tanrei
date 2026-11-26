@@ -9,8 +9,7 @@ import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
 import { decodePng } from '../../../test/png.js';
 import { transitionsRun, watchTransitions } from '../../../test/transitions.js';
-import {
-  type Fixture,
+import { type Fixture,
   acmeSystemCss,
   iconFamilies,
   loadSpec,
@@ -21,8 +20,7 @@ import {
   tab,
   tabTo,
   rootTokens,
-  typeRole,
-} from '../../../test/harness.js';
+  typeRole, warnings } from '../../../test/harness.js';
 import { pressHoldAsRun } from '../../../test/harsh.js';
 import { clickCentre, heldPress } from '../../../test/watched-press.js';
 import { motionCount, motionEnded } from '../../../test/motions.js';
@@ -191,11 +189,6 @@ const listen = (locator: Locator) =>
   });
 const events = (page: P) => page.evaluate(() => (window as any).events as { click: number; input: number; change: number; carried: boolean[]; checkedAtInput: boolean[] });
 const isOn = (locator: Locator) => locator.evaluate((el) => (el as any).checked as boolean);
-function warnings(page: P) {
-  const seen: string[] = [];
-  page.on('console', (message) => { if (message.type() === 'warning') seen.push(message.text()); });
-  return seen;
-}
 /**
  * Everything a condition paints, as drawn. The elevation and the glyph are those of the condition `checked` holds: each
  * condition has its own layer (SWT-19), and at rest only that one shows. `icon` is null where the handle has no glyph

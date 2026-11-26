@@ -198,6 +198,9 @@ export async function comparePreviews({ componentCss, still, bounds }) {
     // A fixture's stage stands in a box of its staging's scope that the page's rules draw as they draw its canvas (the
     // text style it inherits), as in the page.
     if (element.parentElement.matches('[data-fixture-scope]')) for (const { name, value } of element.parentElement.attributes) if (name !== 'style' && name !== 'id' && name !== 'data-pending') wrap.setAttribute(name, value);
+    // One the gallery scaled down to its row (lib/fixture-stages.ts, `fitStage`) is scaled in its copy too.
+    const scale = element.parentElement.style.getPropertyValue('--docs-stage-scale');
+    if (scale) wrap.style.setProperty('--docs-stage-scale', scale);
     wrap.style.inlineSize = `${layout.clientWidth - parseFloat(around.paddingLeft) - parseFloat(around.paddingRight) + 1}px`;
     for (const property of ['display', 'flex-direction', 'flex-wrap', 'align-items', 'justify-content']) wrap.style.setProperty(property, around.getPropertyValue(property));
     const copy = document.importNode(source[index], true);

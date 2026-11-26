@@ -6,8 +6,8 @@ import AxeBuilder from '@axe-core/playwright';
 import { atRest } from '../../../test/at-rest.js';
 import { axTree } from '../../../test/ax-tree.js';
 import { type Locator, type Page, expect, test } from '@playwright/test';
-import { bounds, css, override, warnings } from '../../../test/destinations.js';
-import { type Fixture, type FixtureItem, acmeSystemCss, drawerWindow, fixturesDocument, loadSpec, mountFixtures, resolveColor, resolveToken, tab, tabTo, rootTokens } from '../../../test/harness.js';
+import { bounds, css, override } from '../../../test/destinations.js';
+import { type Fixture, type FixtureItem, acmeSystemCss, drawerWindow, fixturesDocument, loadSpec, mountFixtures, resolveColor, resolveToken, tab, tabTo, rootTokens, warnings, isRobotoMonoGlyphWarning } from '../../../test/harness.js';
 import { coveredText } from '../../../test/covered-text.js';
 import { pressHoldAsRun } from '../../../test/harsh.js';
 import { appearingFixture, mountForAppearing } from '../../../test/first-frame.js';
@@ -30,6 +30,7 @@ import { expectGlyphsKeptWhileClosing } from '../../../test/closing-glyphs.js';
 import { STACKED_DIALOG, STACKED_LAYER, addStackedSurfaces, expectStackedInOrder, focusAmong, setOpenInOneTask } from '../../../test/stacked-surfaces.js';
 import { CONTROL_HEIGHTS, atControlHeight } from '../../../test/control-height.js';
 import { contrastChecked } from '../../../test/contrast-checked.js';
+import { restyle } from '../../../test/restyle.js';
 
 const spec = loadSpec('navigation-drawer');
 type P = Page;
@@ -1168,10 +1169,37 @@ test.describe('the collapsed form', () => {
     expect(ca.cells[0].height).toBeGreaterThan(c.cells[0].height);
     expect(ca.cells[0].height).toBeCloseTo(above + Math.max(row / 2, ind / 2 + pad + gap + line + pad), 0);
     expect(ca.cells[0].height).toBe(62);
-    // The main action's glyph does not move WHERE its padding before the glyph is half the difference of its height and
-    // its glyph (NVD-39): measured here, and reported by the test when the system's button does not have that padding.
+    // The main action's glyph does not move, across or down, whatever the button's padding before its glyph: the drawer
+    // places the button's start from its own tokens in each form (NVD-39).
     expect(Math.abs(c.main.y - e.main.y)).toBeLessThanOrEqual(0.5);
     expect(Math.abs(c.main.x - e.main.x)).toBeLessThanOrEqual(0.5);
+    // At every size of the button, under the systems whose padding before the glyph is not half the difference of the
+    // button's height and its glyph (the default system's small and large, cupertino's), in both directions.
+    for (const system of [undefined, 'cupertino'] as const) {
+      const pairs = (['small', 'medium', 'large'] as const).flatMap((size) =>
+        (['ltr', 'rtl'] as const).map((direction) => {
+          const action = { ...MAIN, props: { label: 'Compose', size } };
+          return [
+            { ...fixture(`e-${size}-${direction}`, [MENU, action, ...MAIL], { collapsible: true }), direction },
+            { ...rail(`c-${size}-${direction}`, [action, ...MAIL]), direction },
+          ];
+        }),
+      );
+      await mount(page, pairs.flat(), { reducedMotion: true, ...(system ? { system } : {}) });
+      const glyph = async (id: string) => {
+        const p = await bounds(panel(page, id));
+        const g = centre(await bounds(drawer(page, id).locator('tanrei-main-action-button span[slot="icon"]').first()));
+        // From the drawer's start edge: its left in left to right, its right in right to left.
+        return { x: g.x - p.x, rtl: p.x + p.width - g.x, y: g.y - p.y };
+      };
+      for (const [expanded, collapsed] of pairs) {
+        const where = `${system ?? 'tanrei'} ${collapsed.id}`;
+        const [g, k] = [await glyph(expanded.id), await glyph(collapsed.id)];
+        const fromStart = (m: { x: number; rtl: number }) => (collapsed.direction === 'rtl' ? m.rtl : m.x);
+        expect(Math.abs(fromStart(k) - fromStart(g)), `${where}: across`).toBeLessThanOrEqual(0.5);
+        expect(Math.abs(k.y - g.y), `${where}: down`).toBeLessThanOrEqual(0.5);
+      }
+    }
   });
 
   test('NVD-32: collapsed, a top-level cell is a square as tall as its row — under the default system 36 by 36 with the expanded row’s corners, its icon at the point it has expanded, no label, filled exactly as the expanded row is and never a capsule — with no trailing content and none of a group’s items', async ({ page }) => {
@@ -4058,7 +4086,7 @@ test.describe('size', () => {
 
   test('NVD-26: a size the active system does not have is drawn as medium and reported; a size a layer added is drawn from its own tokens', async ({ page }) => {
     const seen: string[] = [];
-    page.on('console', (message) => seen.push(message.text()));
+    page.on('console', (message) => !isRobotoMonoGlyphWarning(message) && seen.push(message.text()));
     await mount(page, [fixture('r', MAIL, { size: 'roomy' })], { reducedMotion: true });
     expect((await bounds(box(page, 'r', 0))).height).toBe(await px(page, T('item-container-height-medium')));
     await expect.poll(() => seen.some((line) => line.includes('NVD-26') && line.includes('size "roomy"'))).toBe(true);
@@ -4112,7 +4140,7 @@ test.describe('groups that are destinations', () => {
 
   test('NVD-66: with selectableGroups a group with a value is a destination — selected by value and drawn from the selected parts, the current page, chosen by its row (change, then reselect) without opening or closing; one without a value only opens and closes; with selectableGroups false every group only opens and closes, and a value on one is reported', async ({ page }) => {
     const seen: string[] = [];
-    page.on('console', (message) => seen.push(message.text()));
+    page.on('console', (message) => !isRobotoMonoGlyphWarning(message) && seen.push(message.text()));
     await mount(page, [SELECTABLE], { reducedMotion: true });
     await wire(page);
     const id = 'selectable-groups';
@@ -5354,9 +5382,9 @@ test.describe('resizable', () => {
     await listenResize(page);
     const stage = page.locator('[data-fixture="w320"]');
     // The stage's padding at its end is 16: its content box is 260 wide.
-    await stage.evaluate((el: HTMLElement) => (el.style.inlineSize = '276px'));
+    await restyle(stage, { 'inline-size': '276px' });
     await expect.poll(() => drawnWidth(page, 'w320')).toBe(260);
-    await stage.evaluate((el: HTMLElement) => (el.style.inlineSize = '400px'));
+    await restyle(stage, { 'inline-size': '400px' });
     await expect.poll(() => drawnWidth(page, 'w320')).toBe(320);
     expect(await resizeLog(page)).toEqual([]);
     // Over the content it is container.width.
@@ -5374,7 +5402,7 @@ test.describe('resizable', () => {
       expect((await bounds(box(page, id, 0))).width, id).toBe(360 - 2 * pad);
       expect(await item(page, id, 0).locator('.label').evaluate((el) => el.scrollWidth > el.clientWidth), id).toBe(false);
       // The stage's padding at its end is 16: its content box is 280 wide.
-      await stage.evaluate((el: HTMLElement) => (el.style.inlineSize = '296px'));
+      await restyle(stage, { 'inline-size': '296px' });
       await expect.poll(() => drawnWidth(page, id), id).toBe(280);
       // The host is held at once; the rows follow in the same frame, before it is painted (a resize observer).
       await page.evaluate(() => new Promise((done) => requestAnimationFrame(() => requestAnimationFrame(done))));
@@ -5393,7 +5421,7 @@ test.describe('resizable', () => {
       expect(await label.evaluate((el) => el.scrollWidth > el.clientWidth), id).toBe(true);
       expect(await css(label, 'text-overflow'), id).toBe('ellipsis');
       // The room comes back: the width, and the rows at it.
-      await stage.evaluate((el: HTMLElement) => (el.style.inlineSize = '400px'));
+      await restyle(stage, { 'inline-size': '400px' });
       await expect.poll(() => drawnWidth(page, id), id).toBe(360);
       await expect.poll(async () => (await bounds(box(page, id, 0))).width, id).toBe(360 - 2 * pad);
     }
@@ -5412,7 +5440,7 @@ test.describe('resizable', () => {
     ] as const) {
       const stage = page.locator(`[data-fixture="${id}"]`);
       // The stage's padding at its end is 16.
-      await stage.evaluate((el: HTMLElement, w) => (el.style.inlineSize = `${w}px`), room + 16);
+      await restyle(stage, { 'inline-size': `${room + 16}px` });
       await expect.poll(() => drawnWidth(page, id), id).toBe(room);
       // The host is held at once; the rows follow in the same frame, before it is painted (a resize observer): read
       // after that frame, the rows laid out at the room, inside the drawer, and nothing reaching past the parent's end.
@@ -5440,7 +5468,7 @@ test.describe('resizable', () => {
       }
       expect(await resizeLog(page), id).toEqual([]);
       // The room comes back: the width given (n's 360; m's container.width held at its least, 300).
-      await stage.evaluate((el: HTMLElement) => (el.style.inlineSize = '400px'));
+      await restyle(stage, { 'inline-size': '400px' });
       await expect.poll(() => drawnWidth(page, id), id).toBe(back);
       await expect(separator(page, id), id).toHaveAttribute('aria-valuenow', String(back));
       await expect(separator(page, id), id).toHaveAttribute('aria-valuemin', String(id === 'n' ? least : 300));
@@ -5456,7 +5484,7 @@ test.describe('resizable', () => {
     const column = await px(page, T('collapsed-container-width-medium'));
     const room = 160;
     await listenResize(page);
-    await page.locator('[data-fixture="c"]').evaluate((el: HTMLElement, w) => (el.style.inlineSize = `${w}px`), room + 16);
+    await restyle(page.locator('[data-fixture="c"]'), { 'inline-size': `${room + 16}px` });
     await expect.poll(() => drawnWidth(page, 'c')).toBe(room);
     await expect(separator(page, 'c')).toHaveAttribute('aria-valuenow', String(room));
     await expect(separator(page, 'c')).toHaveAttribute('aria-valuemin', String(column));
@@ -5882,7 +5910,7 @@ test.describe('the room over the content and a column’s room', () => {
       expect(column).toBe(72);
       // The stage's padding at its end is 16: its content box is 56 wide, narrower than the column.
       const room = 56;
-      for (const id of ['c', 'mc']) await page.locator(`[data-fixture="${id}"]`).evaluate((el: HTMLElement, w) => (el.style.inlineSize = `${w}px`), room + 16);
+      for (const id of ['c', 'mc']) await restyle(page.locator(`[data-fixture="${id}"]`), { 'inline-size': `${room + 16}px` });
       for (const id of ['c', 'mc']) {
         await expect.poll(() => drawnWidth(page, id), id).toBe(room);
         const host = await bounds(drawer(page, id));
@@ -5920,7 +5948,7 @@ test.describe('the room over the content and a column’s room', () => {
       // narrower than container.width) and narrows back to 56, from its own start edge.
       // (Alone in its page: opened, it makes the other drawer inert, whose header button then changes its colors.)
       await mount(page, [rail('mc', MAIL, { variant: 'modal', open: false })], { dir });
-      await page.locator('[data-fixture="mc"]').evaluate((el: HTMLElement, w) => (el.style.inlineSize = `${w}px`), room + 16);
+      await restyle(page.locator('[data-fixture="mc"]'), { 'inline-size': `${room + 16}px` });
       await rootTokens(page, { '--tanrei-sys-target-touch': '64px' });
       await expect.poll(() => drawnWidth(page, 'mc')).toBe(room);
       const host = await bounds(drawer(page, 'mc'));
@@ -5950,7 +5978,7 @@ test.describe('the room over the content and a column’s room', () => {
       // The stage's padding at its end is 16: its content box is 56 wide, narrower than the column.
       const room = 56;
       const stage = page.locator('[data-fixture="c"]');
-      await stage.evaluate((el: HTMLElement, w) => (el.style.inlineSize = `${w}px`), room + 16);
+      await restyle(stage, { 'inline-size': `${room + 16}px` });
       await expect.poll(() => drawnWidth(page, 'c')).toBe(room);
       /** The panel against its host and the parent's content box, to a tenth, in each frame. */
       const against = (root: Element) => {

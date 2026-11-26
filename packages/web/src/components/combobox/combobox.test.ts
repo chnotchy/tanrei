@@ -14,18 +14,20 @@ import { appearProbe, bezierOf, expectAppearStart, expectExitEnd, resolveEasing 
 import { expectFirstFrameAtRest, expectNoFlicker, sampleFrames } from '../../../test/frames.js';
 import { appearingFixture } from '../../../test/first-frame.js';
 import { motionCount, motionEnded } from '../../../test/motions.js';
+import { restyle } from '../../../test/restyle.js';
 import { mirroring, mirroringAfterDirection } from '../../../test/mirror-word.js';
 import { entrances, loadOpen, mountOpenAgain, runsAtRest } from '../../../test/mounted-open.js';
 import { expectWheelKeptFromPage } from '../../../test/contained-wheel.js';
 import { holdClock } from '../../../test/page-clock.js';
 import { expectPressShownAndHeld, watchPress } from '../../../test/watched-press.js';
-import { type Fixture, type FixtureItem, acmeSystemCss, loadSpec, missingWords, mountFixtures, resolveColor, resolveToken, setWords, tab, tabTo, iconFaceArrives, withoutIconFont, inputBoxCopies, inputBoxOwn, inputBoxSetApart, inputBoxToken, rootTokens, mountFixtureAsInAll } from '../../../test/harness.js';
+import { type Fixture, type FixtureItem, acmeSystemCss, loadSpec, missingWords, mountFixtures, resolveColor, resolveToken, setWords, tab, tabTo, iconFaceArrives, withoutIconFont, inputBoxCopies, inputBoxOwn, inputBoxSetApart, inputBoxToken, rootTokens, mountFixtureAsInAll, warnings } from '../../../test/harness.js';
 import { coveredText } from '../../../test/covered-text.js';
 import { expectBaseline } from '../../../test/baseline.js';
 import { expectGoneWhileSkipped } from '../../../test/skipped-exit.js';
 import { expectBoxTakesContainerSize, expectOptionsTakeDrawnSize } from '../../../test/input-box-size.js';
 import { controlledInTree, controlledList } from '../../../test/controlled-list.js';
 import { CONTROL_HEIGHTS, atControlHeight } from '../../../test/control-height.js';
+import { askForFrame } from '../../../test/frame-asked.js';
 
 const spec = loadSpec('combobox');
 type P = Page;
@@ -68,13 +70,6 @@ const edgeMotion = (edge: Locator) =>
 const px = async (locator: Locator, property: string, pseudo?: string) => Number.parseFloat(await css(locator, property, pseudo));
 const near = (actual: number, expected: number, message = '', tolerance = 0.6) => expect(Math.abs(actual - expected), `${message}: ${actual} ≈ ${expected}`).toBeLessThanOrEqual(tolerance);
 const override = (page: P, vars: Record<string, string>) => rootTokens(page, vars);
-function warnings(page: P) {
-  const seen: string[] = [];
-  page.on('console', (message) => {
-    if (message.type() === 'warning') seen.push(message.text());
-  });
-  return seen;
-}
 const frames = (page: P, count = 3) =>
   page.evaluate(async (n) => {
     for (let i = 0; i < n; i++) await new Promise((resolve) => requestAnimationFrame(resolve));
@@ -404,6 +399,7 @@ test.describe('behavior: the box, and what it takes from the Field that frames i
         },
         [variant, size] as const,
       );
+      await askForFrame(page);
       const field = page.locator('[data-fixture="pair"] > tanrei-text-field');
       await expect(field.locator('.container')).toBeVisible();
       await frames(page);
@@ -1021,7 +1017,7 @@ test.describe('behavior: the box, and what it takes from the Field that frames i
     const gap = chevron.x - (field.x + field.width);
     const width = (await box(host(page, id))).width;
     const lastBox = await box(last);
-    await host(page, id).evaluate((el, w) => ((el as HTMLElement).style.inlineSize = `${w}px`), width - (chevron.x - gap - (lastBox.x + lastBox.width)) + 0.5);
+    await restyle(host(page, id), { 'inline-size': `${width - (chevron.x - gap - (lastBox.x + lastBox.width)) + 0.5}px` });
     await expect.poll(async () => (await box(input(page, id))).y, 'the input wrapped').toBeGreaterThan(lastBox.y + lastBox.height / 2);
     const ending = await box(last);
     near(ending.x + ending.width, (await box(part(page, id, '.chevron'))).x - gap - 0.5, 'the chip ends its line by the gap', 1);

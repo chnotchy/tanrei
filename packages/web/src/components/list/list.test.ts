@@ -5,7 +5,7 @@
 // src/primitives/delegated-aria.test.ts.
 import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
-import { type Fixture, acmeSystemCss, iconFaceArrives, loadSpec, mountFixtures, resolveColor, resolveToken, rootTokens, setWords, tabTo, withoutIconFont } from '../../../test/harness.js';
+import { type Fixture, acmeSystemCss, iconFaceArrives, loadSpec, mountFixtures, resolveColor, resolveToken, rootTokens, setWords, tabTo, withoutIconFont, warnings } from '../../../test/harness.js';
 import { heldTaskFrame, motionCount, motionEnded } from '../../../test/motions.js';
 import { type Frame, type Frames, type Probe, expectAnchored, expectAnimated, expectFirstFrameAtRest, expectNoFlicker, sampleFrames } from '../../../test/frames.js';
 import { bezierOf, resolveEasing } from '../../../test/appear.js';
@@ -48,14 +48,6 @@ const listen = (page: P) =>
     for (const element of document.querySelectorAll('tanrei-list')) element.addEventListener('change', (e) => log.changes.push((e as CustomEvent).detail));
   });
 const events = (page: P) => page.evaluate(() => (window as any).events as { clicks: string[]; changes: unknown[] });
-/** Captures what the page reports in debug builds (console warnings). Call before mounting. */
-function warnings(page: P) {
-  const seen: string[] = [];
-  page.on('console', (message) => {
-    if (message.type() === 'warning') seen.push(message.text());
-  });
-  return seen;
-}
 /** Everything a state paints on an item, as drawn. */
 const drawn = (page: P, id: string, n: number) =>
   item(page, id, n).evaluate((el) => {

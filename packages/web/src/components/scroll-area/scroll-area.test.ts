@@ -5,13 +5,14 @@
 // src/primitives/delegated-aria.test.ts.
 import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
-import { type Fixture, loadSpec, mountFixtures, resolveColor, resolveToken, rootTokens, tab, tabTo } from '../../../test/harness.js';
+import { type Fixture, loadSpec, mountFixtures, resolveColor, resolveToken, rootTokens, tab, tabTo, warnings } from '../../../test/harness.js';
 import { decodePng } from '../../../test/png.js';
 import { motionEnded } from '../../../test/motions.js';
 import { allSettled } from '../../../test/settled.js';
 import { transitionsRun, watchTransitions } from '../../../test/transitions.js';
 import { expectBaseline } from '../../../test/baseline.js';
 import { contrastChecked } from '../../../test/contrast-checked.js';
+import { restyle } from '../../../test/restyle.js';
 
 const spec = loadSpec('scroll-area');
 type P = Page;
@@ -36,13 +37,6 @@ const easing = (page: P, name: string) =>
     probe.remove();
     return value;
   }, name);
-function warnings(page: P) {
-  const seen: string[] = [];
-  page.on('console', (message) => {
-    if (message.type() === 'warning') seen.push(message.text());
-  });
-  return seen;
-}
 /** Colors in a screenshot are compared within antialiasing and compositing noise. */
 const near = (a: string, b: string, within = 6) => {
   const [x, y] = [a, b].map((c) => c.match(/\d+(\.\d+)?/g)!.slice(0, 3).map(Number));
@@ -473,7 +467,7 @@ test.describe('behavior', () => {
     await page.locator('#added').evaluate((el) => el.remove());
     await expect.poll(() => stop('named')).toEqual(['0', 'region', 'Messages']);
     // The content made to fit: no stop.
-    await host(page, 'named').evaluate((el) => el.style.setProperty('block-size', '2000px'));
+    await restyle(host(page, 'named'), { 'block-size': '2000px' });
     await expect.poll(() => stop('named')).toEqual([null, null, null]);
   });
 

@@ -21,7 +21,7 @@ import { type Locator, type Page, type TestInfo, expect, test } from '@playwrigh
 import { appearingFixture } from '../../../test/first-frame.js';
 import { type Frame, type Frames, type Probe, expectAnchored, expectAnimated, expectFirstFrameAtRest, expectNoFlicker, sampleFrames } from '../../../test/frames.js';
 import { bezierOf, resolveEasing } from '../../../test/appear.js';
-import { type Fixture, avatarPicture, fixturesDocument, loadSpec, missingWords, mountFixtures, resolveToken, setWords, tab, tabTo, withoutIconFont } from '../../../test/harness.js';
+import { type Fixture, avatarPicture, fixturesDocument, loadSpec, missingWords, mountFixtures, resolveToken, setWords, tab, tabTo, withoutIconFont, isRobotoMonoGlyphWarning } from '../../../test/harness.js';
 import { EVERY_ANIMATION, motionCount, motionEnded } from '../../../test/motions.js';
 import { expectBaseline } from '../../../test/baseline.js';
 
@@ -75,7 +75,7 @@ const near = (actual: number, expected: number, message = '', tolerance = 0.6) =
 function logged(page: P, type: 'warning' | 'error' = 'warning') {
   const seen: string[] = [];
   page.on('console', (message) => {
-    if (message.type() === type) seen.push(message.text());
+    if (message.type() === type && !isRobotoMonoGlyphWarning(message)) seen.push(message.text());
   });
   return seen;
 }

@@ -9,8 +9,9 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
-import { type Fixture, acmeSystemCss, loadSpec, missingWords, mountFixtures, resolveColor, resolveToken, setWords, tab, tabTo } from '../../../test/harness.js';
+import { type Fixture, acmeSystemCss, loadSpec, missingWords, mountFixtures, resolveColor, resolveToken, setWords, tab, tabTo, warnings } from '../../../test/harness.js';
 import { expectBaseline } from '../../../test/baseline.js';
+import { restyle } from '../../../test/restyle.js';
 
 const spec = loadSpec('embedded-text-input');
 const fieldSpec = loadSpec('field');
@@ -66,13 +67,6 @@ const read = async (page: P, id: string) => {
     return { value: (el as El).value, native: input.value, selection: [input.selectionStart, input.selectionEnd] as [number | null, number | null], focused: el.shadowRoot!.activeElement === input, rows: (el as El).rows };
   });
 };
-function warnings(page: P) {
-  const seen: string[] = [];
-  page.on('console', (message) => {
-    if (message.type() === 'warning') seen.push(message.text());
-  });
-  return seen;
-}
 /** What each part computes of a box: nothing, in any state (ETI-1, ETI-11). */
 const drawn = (page: P, id: string) =>
   host(page, id).evaluate((el) => {
@@ -639,7 +633,7 @@ test.describe('behavior', () => {
     near(await heightOf(page, 'five'), 5 * one, 'five lines in the first frame');
     // A changed width.
     const before = await heightOf(page, 'w');
-    await host(page, 'w').evaluate((el) => (el.style.inlineSize = '120px'));
+    await restyle(host(page, 'w'), { 'inline-size': '120px' });
     await page.waitForFunction(([id, h]) => document.querySelector(`[data-fixture="${id}"] tanrei-embedded-text-input`)!.getBoundingClientRect().height > (h as number), ['w', before] as const);
     expect(await moving('w')).toBe(0);
     // minRows and maxRows.

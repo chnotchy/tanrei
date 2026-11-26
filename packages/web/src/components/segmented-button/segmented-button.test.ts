@@ -5,8 +5,7 @@
 // src/primitives/delegated-aria.test.ts.
 import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
-import {
-  type Fixture,
+import { type Fixture,
   type FixtureItem,
   acmeSystemCss,
   iconFaceArrives,
@@ -17,8 +16,7 @@ import {
   tab,
   tabTo,
   withoutIconFont,
-  rootTokens,
-} from '../../../test/harness.js';
+  rootTokens, warnings } from '../../../test/harness.js';
 import { pressHoldAsRun } from '../../../test/harsh.js';
 import { opticalSizeAxis } from '../../../test/icons.js';
 import { clickCentre, heldPress } from '../../../test/watched-press.js';
@@ -38,13 +36,6 @@ const token = (page: P, name: string) => page.evaluate((n) => getComputedStyle(d
 const T = (name: string) => `--tanrei-comp-segmented-button-${name}`;
 const bounds = async (locator: Locator) => (await locator.boundingBox())!;
 const override = (page: P, vars: Record<string, string>) => rootTokens(page, vars);
-function warnings(page: P) {
-  const seen: string[] = [];
-  page.on('console', (message) => {
-    if (message.type() === 'warning') seen.push(message.text());
-  });
-  return seen;
-}
 /** A shadow resolved through a real property, as the browser serializes it. */
 const resolveShadow = (page: P, name: string) =>
   page.evaluate((n) => {

@@ -8,7 +8,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
-import { type Fixture, loadSpec, mountFixtures, resolveToken, tab } from '../../../test/harness.js';
+import { type Fixture, loadSpec, mountFixtures, resolveToken, tab, warnings } from '../../../test/harness.js';
 import { EVERY_ANIMATION, heldTaskFrame, motionCount, motionEnded } from '../../../test/motions.js';
 import { expectBaseline } from '../../../test/baseline.js';
 
@@ -18,13 +18,6 @@ const T = (name: string) => `--tanrei-comp-size-transition-${name}`;
 const host = (page: P, id: string) => page.locator(`[data-fixture="${id}"] tanrei-size-transition`).first();
 const stage = (page: P, id: string) => page.locator(`[data-fixture="${id}"]`);
 const fixture = (id: string, props: Fixture['props'], content: string, extra: Partial<Fixture> = {}): Fixture => ({ id, props, content, ...extra });
-function warnings(page: P) {
-  const seen: string[] = [];
-  page.on('console', (message) => {
-    if (message.type() === 'warning') seen.push(message.text());
-  });
-  return seen;
-}
 
 /** A paragraph of `lines` short lines, each its own block, so that a line's height is the size step. */
 const lines = (n: number, first = 1) => Array.from({ length: n }, (_, i) => `<div class="line">Line ${first + i}</div>`).join('');

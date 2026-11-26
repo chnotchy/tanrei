@@ -44,19 +44,31 @@ const matches = (element: Element, selector: string) => {
   }
 };
 
+/** What the staging makes as wide as a layout, and whether it stands for an area: `laidOutBy`. */
+interface Layout {
+  sized: HTMLElement;
+  width: number;
+  /** The staging gives the stage both of its lengths in pixels: it stands for an area of a window (`area`). */
+  area: boolean;
+}
+
 /**
  * What the staging makes as wide as a layout, in a drawn stage: the fixture's element, or else the stage, where a rule
  * of the staging that matches it gives it a width in pixels (`.stage > tanrei-text-field { inline-size: 280px }`, a
  * table's stage 752 wide). Nothing where the fixture is as wide as what it draws (a Button). Where both have a width,
- * the stage is the layout when it is the wider (a popover's 480 stage around an anchor 240 wide).
+ * the stage is the layout when it is the wider (a popover's 480 stage around an anchor 240 wide). A stage that the
+ * rule gives a height in pixels too is an area of a window (a popover's 480 × 480 around its anchor, a docked picker's
+ * 800 × 640, a side sheet's page 720 × 480): what it draws is placed by that area's size.
  */
-function laidOutBy(stage: Element): { sized: HTMLElement; width: number } | undefined {
+function laidOutBy(stage: Element): Layout | undefined {
   const widthOf = (rule: CSSStyleRule) => rule.style.getPropertyValue('inline-size') || rule.style.getPropertyValue('width');
-  const rules = stagingRules().filter((rule) => /^[\d.]+px$/.test(widthOf(rule)));
+  const heightOf = (rule: CSSStyleRule) => rule.style.getPropertyValue('block-size') || rule.style.getPropertyValue('height');
+  const inPixels = (value: string) => /^[\d.]+px$/.test(value);
+  const rules = stagingRules().filter((rule) => inPixels(widthOf(rule)));
   const sized = [stage.firstElementChild, stage].flatMap((element) => {
     // The last rule that matches is the one in effect, as their order in the staging says.
     const rule = element instanceof HTMLElement ? rules.findLast((each) => matches(element, each.selectorText)) : undefined;
-    return rule ? [{ sized: element as HTMLElement, width: parseFloat(widthOf(rule)) }] : [];
+    return rule ? [{ sized: element as HTMLElement, width: parseFloat(widthOf(rule)), area: element === stage && inPixels(heightOf(rule)) }] : [];
   });
   const [own, ofStage] = sized.length === 2 ? sized : [sized[0], undefined];
   return ofStage && own && ofStage.width > own.width ? ofStage : own;
@@ -70,48 +82,130 @@ function laidOutBy(stage: Element): { sized: HTMLElement; width: number } | unde
  * its time on it on a page of hundreds (the Field's has 368).
  */
 const fitters = new Map<Element, () => () => void>();
+/** What each row asks of its stage once it has settled after a change of its width (`fitStage`). */
+const askers = new Map<Element, (width: number) => void>();
 const rows = new ResizeObserver((entries) => {
   const writes = entries.flatMap((entry) => fitters.get(entry.target)?.() ?? []);
   for (const write of writes) write();
+  // The width each row was told of, read from the observer: nothing is read from the layout after the writes.
+  for (const entry of entries) askers.get(entry.target)?.(entry.contentRect.width);
 });
 
+/** The property the canvas scales its stage by (`zoom`, components/fixtures/FixtureGallery.astro). */
+const SCALE = '--docs-stage-scale';
+
 /**
- * An inline stage whose fixture is as wide as its layout: it starts at the width its staging gives it, and is never
- * wider than the stage's row — a layout wider than the column is laid out at the column's width, as a product's is.
- * The handle sets the width the reader wants, which the stage keeps for as long as the row has room for it.
+ * Whether what a stage draws reaches past it sideways, laid out as it is: a calendar 336 wide in a stage that is
+ * narrower, a menu's open submenus beside it. Its scrollable overflow, which holds every box it draws that its
+ * component does not clip (a carousel's track, a code block's long line, a tab row that scrolls are clipped by their
+ * own component, and are not this), on the side its text runs to.
  */
-function inlineStage(canvas: HTMLElement, { sized, width: natural }: { sized: HTMLElement; width: number }, handle: HTMLElement) {
+const reachesPast = (stage: HTMLElement) => stage.scrollWidth > stage.clientWidth + 1;
+
+/**
+ * A stage drawn in the page, fitted to its row. Its fixture is laid out at the row's width where the row is narrower
+ * than its baseline — a layout wider than the column is laid out at the column's width, as a product's is — and the
+ * handle, where it has one, sets the width the reader wants, which the stage keeps for as long as the row has room.
+ *
+ * Except where that would draw it otherwise than its baseline: a stage that stands for an area of a window (`area`), and
+ * one whose drawing, laid out at the row's width, reaches past it (`reachesPast`). Each is drawn as a window is: laid
+ * out at its baseline's width (the width the staging gives it, else its baseline picture's), or the handle's, and
+ * scaled down to the row (`zoom`, so that the canvas holds the room it is drawn in). Once scaled it stays so: laid out
+ * at its baseline's width, it no longer shows whether the row's would do.
+ */
+function fitStage(canvas: HTMLElement, stage: HTMLElement, layout: Layout | undefined, handle: HTMLElement | null) {
+  const reserve = parseFloat(canvas.style.getPropertyValue('--docs-stage-reserve-inline')) || 0;
+  const natural = layout?.width;
   let wanted = natural;
+  let scaled = layout?.area ?? false;
   // What the canvas draws around the sized element, in the sized element's own terms: the stage's padding and border
   // where the fixture's element is sized; where the stage is, its padding unless its width holds it (`border-box`).
   const around = () => {
-    const stage = canvas.querySelector<HTMLElement>(':scope > .stage');
-    if (!stage) return 0;
+    if (!layout) return 0;
     const box = getComputedStyle(stage);
     const edges = parseFloat(box.paddingLeft) + parseFloat(box.paddingRight) + parseFloat(box.borderLeftWidth) + parseFloat(box.borderRightWidth);
-    return sized === stage ? (box.boxSizing === 'border-box' ? 0 : edges) : edges;
+    return layout.sized === stage ? (box.boxSizing === 'border-box' ? 0 : edges) : edges;
   };
+  // The width a scaled stage is laid out at, its padding and border included: its baseline's, or the handle's.
+  let laid: number | undefined;
+  const baseline = () => (natural !== undefined ? natural + around() : reserve);
   // Reads the layout and returns the write it calls for: the observer of rows reads every stage it is told of before it
   // writes any.
   const fit = () => {
-    const width = Math.max(LEAST - around(), Math.min(wanted, room(canvas) - around()));
+    const free = room(canvas);
+    if (scaled) {
+      const width = Math.max(LEAST, laid ?? baseline());
+      const scale = Math.min(1, free / width);
+      // The stage's own width, in its own box: its padding and border left out where its width does not hold them.
+      const box = getComputedStyle(stage);
+      const edges = box.boxSizing === 'border-box' ? 0 : parseFloat(box.paddingLeft) + parseFloat(box.paddingRight) + parseFloat(box.borderLeftWidth) + parseFloat(box.borderRightWidth);
+      const next = `${width - edges}px`;
+      return () => {
+        if (layout && layout.sized !== stage && layout.sized.style.inlineSize) layout.sized.style.inlineSize = '';
+        if (stage.style.inlineSize !== next) stage.style.inlineSize = next;
+        canvas.style.setProperty(SCALE, scale < 1 ? String(scale) : '');
+      };
+    }
+    if (!layout || natural === undefined || wanted === undefined) return () => {};
+    const width = Math.max(LEAST - around(), Math.min(wanted, free - around()));
     const next = Math.abs(width - natural) < 0.5 ? '' : `${width}px`;
     return () => {
-      if (sized.style.inlineSize !== next) sized.style.inlineSize = next;
+      if (layout.sized.style.inlineSize !== next) layout.sized.style.inlineSize = next;
     };
   };
-  resizeHandle(handle, {
-    value: () => canvas.getBoundingClientRect().width,
-    min: () => LEAST,
-    max: () => room(canvas),
-  });
-  handle.addEventListener(RESIZE_EVENT, (event) => {
-    wanted = (event as CustomEvent<{ value: number }>).detail.value - around();
-    fit()();
-  });
+  if (handle && layout) {
+    resizeHandle(handle, {
+      value: () => (scaled ? Math.max(LEAST, laid ?? baseline()) : canvas.getBoundingClientRect().width),
+      min: () => LEAST,
+      max: () => (scaled ? Math.max(baseline(), room(canvas)) : room(canvas)),
+    });
+    handle.addEventListener(RESIZE_EVENT, (event) => {
+      const value = (event as CustomEvent<{ value: number }>).detail.value;
+      if (scaled) laid = value;
+      else wanted = value - around();
+      fit()();
+    });
+  } else handle?.remove();
   const row = canvas.parentElement ?? canvas;
   fitters.set(row, fit);
+  // Whether what it draws reaches past it is asked once it has settled, as it is drawn and each time its row's width
+  // changes: not before its elements are defined (their markup is laid out as text, wider than any of them draws), nor
+  // before its faces have loaded and a component has had the frames it takes to fit itself to its width (asked as soon
+  // as they were defined, every Tabs fixture at 390 wide read as reaching past its stage, and none does). The canvas
+  // carries `data-fitting` while it is being asked: whatever reads the stage as drawn waits for it.
+  let asked = 0;
+  const ask = async () => {
+    const turn = ++asked;
+    canvas.setAttribute('data-fitting', '');
+    try {
+      await settled(stage);
+      if (turn !== asked || scaled || !reachesPast(stage)) return;
+      scaled = true;
+      fit()();
+    } finally {
+      if (turn === asked) canvas.removeAttribute('data-fitting');
+    }
+  };
+  let width: number | undefined;
+  askers.set(row, (now) => {
+    if (now === width) return;
+    width = now;
+    void ask();
+  });
+  // Observed once its fitter and its asker are both set: the observer tells of it at once, and fits and asks it then.
   rows.observe(row);
+}
+
+/** How many frames a stage is left to settle in before what it draws is asked. */
+const SETTLE_FRAMES = 3;
+
+/** Once every element a stage holds is defined and has drawn itself, its faces are loaded, and it has had its frames to settle. */
+async function settled(stage: HTMLElement) {
+  const tags = new Set([...stage.querySelectorAll(':not(:defined)')].map((element) => element.localName));
+  await Promise.all([...tags].map((tag) => customElements.whenDefined(tag)));
+  await Promise.all([...stage.querySelectorAll('*')].map((element) => (element as Element & { updateComplete?: Promise<unknown> }).updateComplete));
+  await document.fonts.ready;
+  for (let frame = 0; frame < SETTLE_FRAMES; frame++) await new Promise((resolve) => requestAnimationFrame(resolve));
 }
 
 
@@ -592,8 +686,8 @@ export function drawFixture(figure: HTMLElement) {
   canvas.removeAttribute('data-pending');
   const stage = canvas.querySelector<HTMLElement>(':scope > .stage');
   const handle = canvas.querySelector<HTMLElement>(':scope > [data-resize-handle]');
-  const layout = stage && laidOutBy(stage);
-  if (layout && handle) inlineStage(canvas, layout, handle);
+  // A modal fixture's closed stage draws nothing in the page (it opens over it), and is not fitted.
+  if (stage && !canvas.closest('.docs-stage-opener')) fitStage(canvas, stage, laidOutBy(stage), handle);
   else handle?.remove();
   const tag = gallery.dataset.fixtureTag;
   if (stage && tag && gallery.dataset.fixtureStep !== undefined) {

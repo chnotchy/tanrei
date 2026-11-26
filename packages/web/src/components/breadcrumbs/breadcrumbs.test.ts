@@ -16,6 +16,7 @@ import { motionEnded } from '../../../test/motions.js';
 import { expectPressShownAndHeld, watchPress } from '../../../test/watched-press.js';
 import { middlePressAimed } from '../../../test/middle-press.js';
 import { expectBaseline } from '../../../test/baseline.js';
+import { restyle } from '../../../test/restyle.js';
 
 const spec = loadSpec('breadcrumbs');
 type P = Page;
@@ -60,11 +61,7 @@ function warnings(page: P) {
 const settled = (page: P) => page.evaluate(() => new Promise<void>((resolve) => requestAnimationFrame(() => requestAnimationFrame(() => resolve()))));
 /** Gives the trail of a fixture this width (the stage has 16 of padding on each side). */
 async function give(page: P, id: string, width: number) {
-  await stage(page, id).evaluate((el, w) => {
-    (el as HTMLElement).style.boxSizing = 'border-box';
-    (el as HTMLElement).style.inlineSize = `${w + 32}px`;
-    (el as HTMLElement).style.maxInlineSize = 'none';
-  }, width);
+  await restyle(stage(page, id), { 'box-sizing': 'border-box', 'inline-size': `${width + 32}px`, 'max-inline-size': 'none' });
   await settled(page);
 }
 /** The labels of the levels that are drawn, in the trail's order; `…` where the overflow button stands. */

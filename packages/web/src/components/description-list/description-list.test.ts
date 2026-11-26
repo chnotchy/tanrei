@@ -9,6 +9,8 @@ import { type Locator, type Page, expect, test } from '@playwright/test';
 import { decodePng } from '../../../test/png.js';
 import { type Fixture, type FixtureItem, fixturesDocument, loadSpec, mountFixtures, resolveColor, resolveToken, tab, rootTokens } from '../../../test/harness.js';
 import { expectBaseline } from '../../../test/baseline.js';
+import { restyle } from '../../../test/restyle.js';
+import { askForFrame } from '../../../test/frame-asked.js';
 
 const spec = loadSpec('description-list');
 type P = Page;
@@ -90,12 +92,8 @@ const fixture = (id: string) => spec.fixtures.find((f) => f.id === id)!;
 const some = (...ids: string[]) => ids.map(fixture);
 /** A term that is exactly `width` wide, whatever the face. */
 const wide = (width: number, name = 'Term') => `<span style="display: inline-block; inline-size: ${width}px">${name}</span>`;
-/** The list's width (a fixture cannot state the size of its stage: DSL-4, DSL-7). */
-const size = (page: P, id: string, width: number) =>
-  stage(page, id).evaluate((el, w) => {
-    (el as HTMLElement).style.maxInlineSize = 'none';
-    (el as HTMLElement).style.inlineSize = `${w + 32}px`;
-  }, width);
+/** The list's width (a fixture cannot state the size of its stage: DSL-4, DSL-7), with a frame after the write (`restyle()`). */
+const size = (page: P, id: string, width: number) => restyle(stage(page, id), { 'max-inline-size': 'none', 'inline-size': `${width + 32}px` });
 const near = (a: number, b: number, tolerance = 0.6) => expect(Math.abs(a - b), `${a} ≈ ${b}`).toBeLessThanOrEqual(tolerance);
 /** The values of a fact, as the fixture gives them. */
 const valuesOf = (item: FixtureItem) => (item.items ? item.items.map((v) => v.content ?? '') : [item.content ?? '']);
@@ -1096,6 +1094,7 @@ test.describe('the element and its stylesheet', () => {
       root.innerHTML = '<tanrei-description-list size="small"><dl><div><dt><span style="display: inline-block; inline-size: 96px">Term</span></dt><dd>A value</dd></div></dl></tanrei-description-list>';
       document.body.append(outer);
     });
+    await askForFrame(page);
     const inner = page.locator('#outer tanrei-description-list');
     await expect(inner).toHaveAttribute('data-stacks-below', '248');
     expect(await inner.evaluate((el) => (el.getRootNode() as ShadowRoot).adoptedStyleSheets.length)).toBeGreaterThan(1);

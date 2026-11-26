@@ -5,7 +5,7 @@
 // src/primitives/delegated-aria.test.ts.
 import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
-import { type Fixture, type FixtureItem, acmeSystemCss, fixturesDocument, iconFaceArrives, loadSpec, mountFixtures, resolveColor, resolveToken, tab, tabTo, withoutIconFont, rootTokens, mountFixtureAsInAll, typeRole } from '../../../test/harness.js';
+import { type Fixture, type FixtureItem, acmeSystemCss, fixturesDocument, iconFaceArrives, loadSpec, mountFixtures, resolveColor, resolveToken, tab, tabTo, withoutIconFont, rootTokens, mountFixtureAsInAll, typeRole, warnings, isRobotoMonoGlyphWarning } from '../../../test/harness.js';
 import { pressHoldAsRun } from '../../../test/harsh.js';
 import { expectOneThumb, readThumb } from '../../../test/thumb.js';
 import { releaseAtRest } from '../../../test/release-at-rest.js';
@@ -18,6 +18,8 @@ import { boxAtRest } from '../../../test/at-rest.js';
 import { CONTROL_HEIGHTS, atControlHeight } from '../../../test/control-height.js';
 import { expectBaseline } from '../../../test/baseline.js';
 import { contrastChecked } from '../../../test/contrast-checked.js';
+import { restyle } from '../../../test/restyle.js';
+import { askForFrame } from '../../../test/frame-asked.js';
 
 const spec = loadSpec('tabs');
 /** The fixtures whose tabs run in a row: what the horizontal rules of layout (TAB-14, TAB-16, TAB-34) are held to. */
@@ -138,13 +140,6 @@ const token = (page: P, name: string) => page.evaluate((n) => getComputedStyle(d
 const T = (name: string) => `--tanrei-comp-tabs-${name}`;
 const bounds = async (locator: Locator) => (await locator.boundingBox())!;
 const override = (page: P, vars: Record<string, string>) => rootTokens(page, vars);
-function warnings(page: P) {
-  const seen: string[] = [];
-  page.on('console', (message) => {
-    if (message.type() === 'warning') seen.push(message.text());
-  });
-  return seen;
-}
 
 /** One move of a dispatched drag: the pointer's clientX (and how far below the press it is), `dt` ms after the event before. */
 interface Step {
@@ -1241,7 +1236,7 @@ test.describe('layout', () => {
     await page.keyboard.press('ArrowLeft');
     await expect.poll(() => open(1)).toBe(false);
     // Once the labels fit (a wider row), no tooltip at all.
-    await row(page, 'cut').evaluate((el) => ((el as HTMLElement).style.inlineSize = '720px'));
+    await restyle(row(page, 'cut'), { 'inline-size': '720px' });
     await expect(row(page, 'cut').locator('tanrei-tooltip')).toHaveCount(0);
   });
 
@@ -3558,7 +3553,7 @@ test.describe('a shared choice', () => {
 
   test('TAB-39: with a storage that is blocked — reaching for it throws, and so does every access — the rows work, the choice is kept for as long as the document lasts, and nothing is thrown or logged', async ({ page }) => {
     const said: string[] = [];
-    page.on('console', (message) => said.push(`${message.type()}: ${message.text()}`));
+    page.on('console', (message) => !isRobotoMonoGlyphWarning(message) && said.push(`${message.type()}: ${message.text()}`));
     page.on('pageerror', (error) => said.push(`error: ${error.message}`));
     await serve(page, [fixture('r', PLATFORMS, { label: 'Platform', rememberAs: 'k' }), member('m', 'react', { rememberAs: 'k' }), member('n', 'web')], { blocked: true });
     await hear(page);
@@ -3581,7 +3576,7 @@ test.describe('a shared choice', () => {
 
   test('TAB-39: a document that has no storage at all — no origin to keep one for — draws its rows and keeps their choices, silently', async ({ page }) => {
     const said: string[] = [];
-    page.on('console', (message) => said.push(`${message.type()}: ${message.text()}`));
+    page.on('console', (message) => !isRobotoMonoGlyphWarning(message) && said.push(`${message.type()}: ${message.text()}`));
     page.on('pageerror', (error) => said.push(`error: ${error.message}`));
     // The harness's own document: `setContent` on about:blank.
     await mountFixtures(page, spec, { fixtures: [fixture('r', PLATFORMS, { label: 'Platform', rememberAs: 'k' })] });
@@ -3976,6 +3971,7 @@ test.describe('variants, the track, sizes and the transition', () => {
       el.style.cssText += ';box-sizing:border-box;inline-size:320px;overflow-x:auto';
       (el.querySelector('tanrei-tabs') as HTMLElement).style.inlineSize = 'auto';
     });
+    await askForFrame(page);
     await expect.poll(async () => (await bounds(track(page, id))).height).toBeGreaterThan(before + 4);
     for (let n = 0; n < (await tabs(page, id).count()); n++) expect(await truncated(label(page, id, n)), `${n}`).toBe(false);
     expect(await track(page, id).evaluate((el) => el.scrollWidth > el.clientWidth)).toBe(true);

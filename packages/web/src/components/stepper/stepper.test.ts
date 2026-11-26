@@ -5,8 +5,7 @@
 // src/primitives/delegated-aria.test.ts.
 import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
-import {
-  type Fixture,
+import { type Fixture,
   type FixtureItem,
   acmeSystemCss,
   iconFaceArrives,
@@ -20,13 +19,13 @@ import {
   setWords,
   tab,
   tabTo,
-  withoutIconFont,
-} from '../../../test/harness.js';
+  withoutIconFont, warnings } from '../../../test/harness.js';
 import { pressHoldAsRun } from '../../../test/harsh.js';
 import { holdClock, releaseClock } from '../../../test/page-clock.js';
 import { clickCentre, heldPress } from '../../../test/watched-press.js';
 import { motionCount, motionEnded, settledCss } from '../../../test/motions.js';
 import { expectBaseline } from '../../../test/baseline.js';
+import { restyle } from '../../../test/restyle.js';
 
 const spec = loadSpec('stepper');
 type P = Page;
@@ -43,13 +42,6 @@ const token = (page: P, name: string) => page.evaluate((n) => getComputedStyle(d
 const T = (name: string) => `--tanrei-comp-stepper-${name}`;
 const bounds = async (locator: Locator) => (await locator.boundingBox())!;
 const fx = (id: string) => spec.fixtures.find((f) => f.id === id)!;
-function warnings(page: P) {
-  const seen: string[] = [];
-  page.on('console', (message) => {
-    if (message.type() === 'warning') seen.push(message.text());
-  });
-  return seen;
-}
 const WORDS = { completedText: 'Completed', errorText: 'Has an error' };
 const s = (value: string, label: string, props: FixtureItem['props'] = {}): FixtureItem => ({ kind: 'step', props: { value, label, ...props } });
 const ABCD = [s('a', 'Account'), s('b', 'Shipping'), s('c', 'Payment'), s('d', 'Review')];
@@ -229,11 +221,11 @@ test.describe('conditions, marker, text and layout', () => {
     const least = (await resolveToken(page, T('step-min-width'))) * 4;
     const stage = page.locator('[data-fixture="horizontal"]');
     const horizontal = stepper(page, 'horizontal');
-    await stage.evaluate((el, w) => (el.style.inlineSize = `${w - 1}px`), least);
+    await restyle(stage, { 'inline-size': `${least - 1}px` });
     await expect(horizontal.locator('.compact')).toBeVisible();
     await expect(horizontal.locator('.steps')).toBeHidden();
     expect(await horizontal.evaluate((el: any) => el.value)).toBe('payment');
-    await stage.evaluate((el, w) => (el.style.inlineSize = `${w}px`), least);
+    await restyle(stage, { 'inline-size': `${least}px` });
     await expect(horizontal.locator('.compact')).toHaveCount(0);
     await expect(horizontal.locator('.steps')).toBeVisible();
     // No current step.

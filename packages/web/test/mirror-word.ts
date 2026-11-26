@@ -1,6 +1,7 @@
 // The product's word on mirroring a glyph a component draws from a name it was given — `data-mirror` on the element that
 // names it (src/primitives/glyph-mirror.ts, MirrorWordController) — read the same way in every component's tests.
 import type { Locator } from '@playwright/test';
+import { askForFrame } from './frame-asked.js';
 
 /** The computed `transform` of a glyph drawn mirrored left to right in its own box. */
 export const MIRRORED = 'matrix(-1, 0, 0, 1, 0, 0)';
@@ -18,7 +19,8 @@ export function mirroring(glyphs: readonly Locator[]): Promise<Mirroring[]> {
 /**
  * Writes `dir` on `ancestor` and reads how each of `glyphs` is drawn in the same task, before any frame: what a change of
  * direction draws at once. (A motion it started would leave a glyph between the two at its first frame; the caller
- * counts the host's motions after it.)
+ * counts the host's motions after it.) Then the page draws a frame (`askForFrame()`, test/frame-asked.ts): the
+ * direction changed its layout.
  */
 export async function mirroringAfterDirection(ancestor: Locator, direction: 'ltr' | 'rtl', glyphs: readonly Locator[]): Promise<Mirroring[]> {
   const handles = await Promise.all(glyphs.map((glyph) => glyph.elementHandle()));
@@ -30,5 +32,6 @@ export async function mirroringAfterDirection(ancestor: Locator, direction: 'ltr
     [direction, handles] as const,
   );
   await Promise.all(handles.map((handle) => handle.dispose()));
+  await askForFrame(ancestor.page());
   return transforms.map(reading);
 }
