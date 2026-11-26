@@ -638,8 +638,8 @@ test.describe('layout', () => {
       const f = spec.fixtures.find((each) => each.id === id)!;
       return f.items!.findIndex((item) => item.props.value === f.props.value);
     };
-    // The same height on every tab of every row: the row less track.padding above and below — 32 without stacked icons
-    // (a row at the control height, 40), 56 with them (the default system's numbers, read from its tokens). (A column is
+    // The same height on every tab of every row: the row less track.padding above and below — 28 without stacked icons
+    // (a row at the control height, 36), 56 with them (the default system's numbers, read from its tokens). (A column is
     // held to TAB-51 and TAB-52 by its own tests.)
     for (const f of ROWS) {
       const n = selectedOf(f.id);
@@ -1830,7 +1830,7 @@ test.describe('concentric at every size', () => {
     }
   });
 
-  test('TAB-35: selecting the other tab slides the thumb across as that circle — 28 wide in every frame, its centre travelling one tab’s width — and a drag carries it the same way; the tab that is not selected hovers and focuses as a 32 circle concentric with the track’s other end', async ({ page }) => {
+  test('TAB-35: selecting the other tab slides the thumb across as that circle — 28 wide in every frame, its centre travelling one tab’s width — and a drag carries it the same way; the tab that is not selected hovers and focuses as a 28 circle concentric with the track’s other end', async ({ page }) => {
     await mountFixtures(page, spec, { icons: true, reducedMotion: false, fixtures: spec.fixtures.filter((f) => f.id === 'primary-two-icons') });
     const id = 'primary-two-icons';
     await override(page, { [T('motion-indicator-duration')]: '60s' });

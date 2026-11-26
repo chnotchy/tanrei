@@ -949,7 +949,7 @@ export class TanreiTabs extends TanreiElement {
   variant: TanreiTabsVariant = 'primary';
 
   /**
-   * The row's height (small 32 / medium 48) and what shrinks with it: a tab's padding, the active indicator's margins
+   * The row's height (28 / 36 in the default system) and what shrinks with it: a tab's padding, the active indicator's margins
    * and the icon. A primary tab stacks its icon above its label or puts it before it as the size's
    * `comp.tabs.icon.placement` says (medium stacks and small does not, in the default system), and a small row's tabs
    * still answer a press within the minimum target.
