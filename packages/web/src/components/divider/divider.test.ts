@@ -7,6 +7,7 @@ import { decodePng, paintedColor } from '../../../test/png.js';
 import { motionCount } from '../../../test/motions.js';
 import { transitionsRun, watchTransitions } from '../../../test/transitions.js';
 import { expectBaseline } from '../../../test/baseline.js';
+import { restyle } from '../../../test/restyle.js';
 
 const spec = loadSpec('divider');
 type P = Page;
@@ -541,7 +542,7 @@ test.describe('behavior', () => {
     const steep = await box(host(page, 'horizontal-steep'));
     expect(radii((await wave(page, 'horizontal-steep')).d)[0].r).toBeCloseTo(steep.width / Math.round(steep.width / 16) / 4, 2);
     // Laid out again when its length changes.
-    await stage(page, 'horizontal-wavy').evaluate((el) => (el.style.inlineSize = '100px'));
+    await restyle(stage(page, 'horizontal-wavy'), { 'inline-size': '100px' });
     await expect.poll(async () => radii((await wave(page, 'horizontal-wavy')).d).length).toBe(2 * Math.max(1, Math.round(100 / wavelength)));
   });
 
@@ -614,7 +615,7 @@ test.describe('behavior', () => {
     const mask = () => line(page, 'horizontal-dotted').evaluate((el) => (el as HTMLElement).style.getPropertyValue('--_pattern'));
     const narrow = await mask();
     expect(narrow).not.toBe('');
-    await stage(page, 'horizontal-dotted').evaluate((el) => ((el as HTMLElement).style.inlineSize = '311px'));
+    await restyle(stage(page, 'horizontal-dotted'), { 'inline-size': '311px' });
     await expect.poll(mask).not.toBe(narrow);
   });
 

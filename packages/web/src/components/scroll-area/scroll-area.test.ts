@@ -12,6 +12,7 @@ import { allSettled } from '../../../test/settled.js';
 import { transitionsRun, watchTransitions } from '../../../test/transitions.js';
 import { expectBaseline } from '../../../test/baseline.js';
 import { contrastChecked } from '../../../test/contrast-checked.js';
+import { restyle } from '../../../test/restyle.js';
 
 const spec = loadSpec('scroll-area');
 type P = Page;
@@ -466,7 +467,7 @@ test.describe('behavior', () => {
     await page.locator('#added').evaluate((el) => el.remove());
     await expect.poll(() => stop('named')).toEqual(['0', 'region', 'Messages']);
     // The content made to fit: no stop.
-    await host(page, 'named').evaluate((el) => el.style.setProperty('block-size', '2000px'));
+    await restyle(host(page, 'named'), { 'block-size': '2000px' });
     await expect.poll(() => stop('named')).toEqual([null, null, null]);
   });
 

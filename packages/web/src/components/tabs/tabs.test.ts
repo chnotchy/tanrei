@@ -18,6 +18,7 @@ import { boxAtRest } from '../../../test/at-rest.js';
 import { CONTROL_HEIGHTS, atControlHeight } from '../../../test/control-height.js';
 import { expectBaseline } from '../../../test/baseline.js';
 import { contrastChecked } from '../../../test/contrast-checked.js';
+import { restyle } from '../../../test/restyle.js';
 
 const spec = loadSpec('tabs');
 /** The fixtures whose tabs run in a row: what the horizontal rules of layout (TAB-14, TAB-16, TAB-34) are held to. */
@@ -1234,7 +1235,7 @@ test.describe('layout', () => {
     await page.keyboard.press('ArrowLeft');
     await expect.poll(() => open(1)).toBe(false);
     // Once the labels fit (a wider row), no tooltip at all.
-    await row(page, 'cut').evaluate((el) => ((el as HTMLElement).style.inlineSize = '720px'));
+    await restyle(row(page, 'cut'), { 'inline-size': '720px' });
     await expect(row(page, 'cut').locator('tanrei-tooltip')).toHaveCount(0);
   });
 
