@@ -2,7 +2,7 @@
 // fixture has a baseline, and every length and color is read back from the tokens — never from a number written here.
 import AxeBuilder from '@axe-core/playwright';
 import { type Page, expect, test } from '@playwright/test';
-import { type Fixture, loadSpec, mountFixtures, resolveColor, resolveToken, tab, rootTokens } from '../../../test/harness.js';
+import { type Fixture, loadSpec, mountFixtures, resolveColor, resolveToken, tab, rootTokens, warnings } from '../../../test/harness.js';
 import { decodePng, paintedColor } from '../../../test/png.js';
 import { motionCount } from '../../../test/motions.js';
 import { transitionsRun, watchTransitions } from '../../../test/transitions.js';
@@ -24,12 +24,6 @@ const container = (page: P, id: string) =>
     const [t, rr, b, l] = [s.paddingTop, s.paddingRight, s.paddingBottom, s.paddingLeft].map(Number.parseFloat);
     return { x: r.x + l, y: r.y + t, width: r.width - l - rr, height: r.height - t - b };
   });
-/** Captures what the page reports in debug builds (console warnings). Call before mounting. */
-function warnings(page: P) {
-  const seen: string[] = [];
-  page.on('console', (message) => { if (message.type() === 'warning') seen.push(message.text()); });
-  return seen;
-}
 const fixture = (id: string, props: Fixture['props']): Fixture => ({ id, props });
 const props = (id: string) => spec.fixtures.find((f) => f.id === id)!.props as Record<string, unknown>;
 const styleOf = (id: string) => (props(id).lineStyle as string | undefined) ?? 'solid';

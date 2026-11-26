@@ -6,7 +6,7 @@
 // src/primitives/delegated-aria.test.ts.
 import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
-import { type Fixture, type FixtureItem, acmeSystemCss, fixturesDocument, loadSpec, mountFixtures, resolveToken, tab, tabTo, rootTokens } from '../../../test/harness.js';
+import { type Fixture, type FixtureItem, acmeSystemCss, fixturesDocument, loadSpec, mountFixtures, resolveToken, tab, tabTo, rootTokens, warnings } from '../../../test/harness.js';
 import { STOPPED_AFTER, flingThenHold, strokes } from '../../../test/stopped-release.js';
 import { expectBaseline } from '../../../test/baseline.js';
 import { motionCount, motionEnded } from '../../../test/motions.js';
@@ -29,13 +29,6 @@ const css = (locator: Locator, property: string, pseudo?: string) =>
   locator.evaluate((el, [p, ps]) => getComputedStyle(el, ps ?? undefined).getPropertyValue(p as string), [property, pseudo ?? null] as const);
 const bounds = async (locator: Locator) => (await locator.boundingBox())!;
 const override = (page: P, vars: Record<string, string>) => rootTokens(page, vars);
-function warnings(page: P) {
-  const seen: string[] = [];
-  page.on('console', (message) => {
-    if (message.type() === 'warning') seen.push(message.text());
-  });
-  return seen;
-}
 /** The easing token as the browser serializes a timing function. */
 const easingToken = (page: P, name: string) =>
   page.evaluate((n) => {

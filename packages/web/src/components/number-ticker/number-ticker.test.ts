@@ -4,7 +4,7 @@
 // read is the same on any machine.
 import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
-import { type Fixture, loadSpec, mountFixtures, resolveToken, rootTokens } from '../../../test/harness.js';
+import { type Fixture, loadSpec, mountFixtures, resolveToken, rootTokens, warnings } from '../../../test/harness.js';
 import { KEEP_PAUSED, motionCount, motionEnded } from '../../../test/motions.js';
 import { expectBaseline } from '../../../test/baseline.js';
 
@@ -14,13 +14,6 @@ const T = (name: string) => `--tanrei-comp-number-ticker-${name}`;
 const host = (page: P, id: string) => page.locator(`[data-fixture="${id}"] tanrei-number-ticker`);
 const stage = (page: P, id: string) => page.locator(`[data-fixture="${id}"]`);
 const fixture = (id: string, props: Fixture['props'], extra: Partial<Fixture> = {}): Fixture => ({ id, props, ...extra });
-function warnings(page: P) {
-  const seen: string[] = [];
-  page.on('console', (message) => {
-    if (message.type() === 'warning') seen.push(message.text());
-  });
-  return seen;
-}
 
 /**
  * Sets props on the ticker and returns once it has updated, its animations paused at their start — the moment the

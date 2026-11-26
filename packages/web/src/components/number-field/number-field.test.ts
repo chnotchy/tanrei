@@ -10,7 +10,7 @@ import fs from 'node:fs';
 import AxeBuilder from '@axe-core/playwright';
 import { coveredText } from '../../../test/covered-text.js';
 import { type Locator, type Page, expect, test } from '@playwright/test';
-import { loadSpec, missingWords, mountFixtures, resolveToken, setWords, tab } from '../../../test/harness.js';
+import { loadSpec, missingWords, mountFixtures, resolveToken, setWords, tab, warnings } from '../../../test/harness.js';
 import { expectBaseline } from '../../../test/baseline.js';
 
 const spec = loadSpec('number-field');
@@ -27,13 +27,6 @@ const stepper = (element: Locator, which: 'down' | 'up') => box(element).locator
 const bounds = async (locator: Locator) => (await locator.boundingBox())!;
 const css = (locator: Locator, property: string) => locator.evaluate((el, p) => getComputedStyle(el).getPropertyValue(p), property);
 const read = (file: string) => fs.readFileSync(new URL(`../../../dist/${file}`, import.meta.url), 'utf8');
-function warnings(page: P) {
-  const seen: string[] = [];
-  page.on('console', (message) => {
-    if (message.type() === 'warning') seen.push(message.text());
-  });
-  return seen;
-}
 /** A page of the product's own markup, with the default system and every element; every element has updated. */
 async function mountHtml(page: P, body: string, system = '') {
   const sheet = system ? read(`systems/${system}.css`) : '';

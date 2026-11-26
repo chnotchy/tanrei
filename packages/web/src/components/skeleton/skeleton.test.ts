@@ -10,7 +10,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
-import { type Fixture, loadSpec, missingWords, mountFixtures, resolveColor, resolveToken, setWords, tab } from '../../../test/harness.js';
+import { type Fixture, loadSpec, missingWords, mountFixtures, resolveColor, resolveToken, setWords, tab, warnings } from '../../../test/harness.js';
 import { decodePng, paintedColor } from '../../../test/png.js';
 import { holdClock } from '../../../test/page-clock.js';
 import { expectBaseline } from '../../../test/baseline.js';
@@ -36,13 +36,6 @@ const rect = (locator: Locator): Promise<Box> =>
   });
 const css = (locator: Locator, property: string, pseudo?: string) => locator.evaluate((el, [p, s]) => getComputedStyle(el, s ?? undefined).getPropertyValue(p!), [property, pseudo ?? null] as const);
 const near = (actual: number, expected: number, message = '', tolerance = 0.6) => expect(Math.abs(actual - expected), `${message}: ${actual} ≈ ${expected}`).toBeLessThanOrEqual(tolerance);
-function warnings(page: P) {
-  const seen: string[] = [];
-  page.on('console', (message) => {
-    if (message.type() === 'warning') seen.push(message.text());
-  });
-  return seen;
-}
 const fx = (id: string, props: Fixture['props'], content?: string, extra: Partial<Fixture> = {}): Fixture => ({ id, props, ...(content === undefined ? {} : { content }), ...extra });
 const of = (...ids: string[]) => ids.map((id) => spec.fixtures.find((f) => f.id === id)!);
 const mount = (page: P, fixtures: Fixture[], options: Parameters<typeof mountFixtures>[2] = {}) => mountFixtures(page, spec, { fixtures, ...options });

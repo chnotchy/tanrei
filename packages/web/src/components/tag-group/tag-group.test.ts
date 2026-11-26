@@ -7,7 +7,7 @@ import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
 import { resolveEasing } from '../../../test/appear.js';
 import { type Frames, expectAnimated, expectFirstFrameAtRest, sampleFrames } from '../../../test/frames.js';
-import { type Fixture, loadSpec, mountFixtures, resolveColor, resolveToken, tab, tabTo, rootTokens } from '../../../test/harness.js';
+import { type Fixture, loadSpec, mountFixtures, resolveColor, resolveToken, tab, tabTo, rootTokens, warnings } from '../../../test/harness.js';
 import { motionEnded } from '../../../test/motions.js';
 import { expectBaseline } from '../../../test/baseline.js';
 
@@ -35,13 +35,6 @@ const filters = (...labels: string[]) => labels.map((label) => `<tanrei-chip kin
 const inputs = (...labels: string[]) => labels.map((label) => `<tanrei-chip kind="input" label="${label}" remove-label="Remove ${label}"></tanrei-chip>`).join('');
 const FIVE = ['Ada', 'Grace', 'Katherine', 'Margaret', 'Hedy'];
 
-function warnings(page: P) {
-  const seen: string[] = [];
-  page.on('console', (message) => {
-    if (message.type() === 'warning') seen.push(message.text());
-  });
-  return seen;
-}
 const frames = (page: P, count = 2) =>
   page.evaluate(async (n) => {
     for (let i = 0; i < n; i++) await new Promise((resolve) => requestAnimationFrame(resolve));

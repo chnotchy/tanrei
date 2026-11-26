@@ -9,7 +9,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
-import { type Fixture, type FixtureItem, acmeSystemCss, loadSpec, missingWords, mountFixtures, resolveColor, resolveToken, setWords, tab, rootTokens, typeRoleOf } from '../../../test/harness.js';
+import { type Fixture, type FixtureItem, acmeSystemCss, loadSpec, missingWords, mountFixtures, resolveColor, resolveToken, setWords, tab, rootTokens, typeRoleOf, warnings } from '../../../test/harness.js';
 import { expectKeyPressOutlastsPointer } from '../../../test/key-press-pointer-leaves.js';
 import { type Frames, type Probe, expectNoFlicker, sampleFrames } from '../../../test/frames.js';
 import { holdClock, releaseClock } from '../../../test/page-clock.js';
@@ -36,13 +36,6 @@ const css = (locator: Locator, property: string, pseudo?: string) =>
 const px = async (locator: Locator, property: string, pseudo?: string) => Number.parseFloat(await css(locator, property, pseudo));
 const box = async (locator: Locator) => locator.evaluate((el) => (({ x, y, width, height }) => ({ x, y, width, height, right: x + width, bottom: y + height }))(el.getBoundingClientRect()));
 const override = (page: P, vars: Record<string, string>) => rootTokens(page, vars);
-function warnings(page: P) {
-  const seen: string[] = [];
-  page.on('console', (message) => {
-    if (message.type() === 'warning') seen.push(message.text());
-  });
-  return seen;
-}
 /** The colors have arrived: nothing of the bar is still moving between two states. */
 const settled = (page: P) =>
   page.evaluate(async () => {

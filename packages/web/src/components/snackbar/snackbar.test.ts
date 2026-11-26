@@ -3,7 +3,7 @@
 // tokens — never from a number written here.
 import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
-import { type Fixture, acmeSystemCss, iconFaceArrives, innerStrokeAtEdges, loadSpec, missingWords, mountFixtures, resolveColor, resolveToken, tab, tabTo, withoutIconFont, rootTokens, rootTokensInPage, setWords } from '../../../test/harness.js';
+import { type Fixture, acmeSystemCss, iconFaceArrives, innerStrokeAtEdges, loadSpec, missingWords, mountFixtures, resolveColor, resolveToken, tab, tabTo, withoutIconFont, rootTokens, rootTokensInPage, setWords, warnings } from '../../../test/harness.js';
 import { pressHoldAsRun } from '../../../test/harsh.js';
 import { type Turn, bezierOf, expectAppearStart, expectExitEnd, expectTurnedAlone, resolveEasing } from '../../../test/appear.js';
 import { expectWheelKeptFromPage } from '../../../test/contained-wheel.js';
@@ -35,13 +35,6 @@ const resolveShadow = (page: P, name: string) =>
     probe.remove();
     return value;
   }, name);
-function warnings(page: P) {
-  const seen: string[] = [];
-  page.on('console', (message) => {
-    if (message.type() === 'warning') seen.push(message.text());
-  });
-  return seen;
-}
 const f = (id: string, props: Fixture['props']): Fixture => ({ id, props: { message: 'Conversation archived', ...props } });
 const fixture = (id: string) => spec.fixtures.find((x) => x.id === id)!;
 /** A message longer than three lines at any width a snackbar has (expanded-scrolls'), and a title. */

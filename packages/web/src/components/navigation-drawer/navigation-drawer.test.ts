@@ -6,8 +6,8 @@ import AxeBuilder from '@axe-core/playwright';
 import { atRest } from '../../../test/at-rest.js';
 import { axTree } from '../../../test/ax-tree.js';
 import { type Locator, type Page, expect, test } from '@playwright/test';
-import { bounds, css, override, warnings } from '../../../test/destinations.js';
-import { type Fixture, type FixtureItem, acmeSystemCss, drawerWindow, fixturesDocument, loadSpec, mountFixtures, resolveColor, resolveToken, tab, tabTo, rootTokens } from '../../../test/harness.js';
+import { bounds, css, override } from '../../../test/destinations.js';
+import { type Fixture, type FixtureItem, acmeSystemCss, drawerWindow, fixturesDocument, loadSpec, mountFixtures, resolveColor, resolveToken, tab, tabTo, rootTokens, warnings, isRobotoMonoGlyphWarning } from '../../../test/harness.js';
 import { coveredText } from '../../../test/covered-text.js';
 import { pressHoldAsRun } from '../../../test/harsh.js';
 import { appearingFixture, mountForAppearing } from '../../../test/first-frame.js';
@@ -4058,7 +4058,7 @@ test.describe('size', () => {
 
   test('NVD-26: a size the active system does not have is drawn as medium and reported; a size a layer added is drawn from its own tokens', async ({ page }) => {
     const seen: string[] = [];
-    page.on('console', (message) => seen.push(message.text()));
+    page.on('console', (message) => !isRobotoMonoGlyphWarning(message) && seen.push(message.text()));
     await mount(page, [fixture('r', MAIL, { size: 'roomy' })], { reducedMotion: true });
     expect((await bounds(box(page, 'r', 0))).height).toBe(await px(page, T('item-container-height-medium')));
     await expect.poll(() => seen.some((line) => line.includes('NVD-26') && line.includes('size "roomy"'))).toBe(true);
@@ -4112,7 +4112,7 @@ test.describe('groups that are destinations', () => {
 
   test('NVD-66: with selectableGroups a group with a value is a destination — selected by value and drawn from the selected parts, the current page, chosen by its row (change, then reselect) without opening or closing; one without a value only opens and closes; with selectableGroups false every group only opens and closes, and a value on one is reported', async ({ page }) => {
     const seen: string[] = [];
-    page.on('console', (message) => seen.push(message.text()));
+    page.on('console', (message) => !isRobotoMonoGlyphWarning(message) && seen.push(message.text()));
     await mount(page, [SELECTABLE], { reducedMotion: true });
     await wire(page);
     const id = 'selectable-groups';

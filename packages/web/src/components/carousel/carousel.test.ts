@@ -7,7 +7,7 @@
 // the start has no fixture: the tests that need one build it (`fixture(id, { heroAlignment: 'start' })`).
 import AxeBuilder from '@axe-core/playwright';
 import { type Browser, type Locator, type Page, expect, test } from '@playwright/test';
-import { type Fixture, acmeSystemCss, loadSpec, mountFixtures, resolveColor, resolveToken, tab, tabTo, rootTokens } from '../../../test/harness.js';
+import { type Fixture, acmeSystemCss, loadSpec, mountFixtures, resolveColor, resolveToken, tab, tabTo, rootTokens, warnings } from '../../../test/harness.js';
 import { pressHoldAsRun } from '../../../test/harsh.js';
 import { expectWheelKeptFromPage } from '../../../test/contained-wheel.js';
 import { decodePng } from '../../../test/png.js';
@@ -255,14 +255,6 @@ const listen = (page: P, id: string) =>
     for (const el of host.querySelectorAll('tanrei-carousel-item')) el.addEventListener('click', () => (log[el.getAttribute('label')!] = (log[el.getAttribute('label')!] ?? 0) + 1));
   });
 const clicks = (page: P) => page.evaluate(() => (window as any).clicks as Record<string, number>);
-/** Captures what the page reports in debug builds (console warnings). Call before mounting. */
-function warnings(page: P) {
-  const seen: string[] = [];
-  page.on('console', (message) => {
-    if (message.type() === 'warning') seen.push(message.text());
-  });
-  return seen;
-}
 /** What has keyboard focus: an item by its label, or the carousel's own control by its class. */
 const focused = (page: P) =>
   page.evaluate(() => {

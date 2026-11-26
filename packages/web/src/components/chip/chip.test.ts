@@ -5,7 +5,7 @@
 // src/primitives/delegated-aria.test.ts.
 import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
-import { type Fixture, acmeSystemCss, loadSpec, mountFixtures, resolveColor, resolveToken, tab, tabTo, rootTokens } from '../../../test/harness.js';
+import { type Fixture, acmeSystemCss, loadSpec, mountFixtures, resolveColor, resolveToken, tab, tabTo, rootTokens, warnings } from '../../../test/harness.js';
 import { pressHoldAsRun } from '../../../test/harsh.js';
 import { transitionsRun, watchTransitions } from '../../../test/transitions.js';
 import { MIRRORED, anchorOf, expectDisabledLink, expectDrawnAlike, expectLinkActivation, expectNewContext, expectRefusals, expectTargetLabel, markOf, settledPaint } from '../../../test/links.js';
@@ -110,11 +110,6 @@ const stillPage = (page: P) =>
   );
 /** Whether focus is on the element or anywhere in its shadow root. */
 const holdsFocus = (locator: Locator) => locator.evaluate((el) => document.activeElement === el || el.shadowRoot!.activeElement !== null);
-function warnings(page: P) {
-  const seen: string[] = [];
-  page.on('console', (message) => { if (message.type() === 'warning') seen.push(message.text()); });
-  return seen;
-}
 /** A fixture; `content: null` is one without a leading element. */
 const fixture = (id: string, props: Fixture['props'], content: string | null = null): Fixture => ({ id, props, ...(content === null ? {} : { content }) });
 /** What the chip's container draws: its color, label color, icon color, box-shadow (outline and elevation) and opacity. */
