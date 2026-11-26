@@ -374,12 +374,14 @@ test.describe('states, press and focus', () => {
 
   test('NVD-6: the hit area is the whole cell — the drawer’s width, with half of container.gap above and below, never below the minimum target — in both forms; where the cell and the gap give less, the cell is drawn higher, never its hit area over a neighbour’s; hover over any of it answers on the item container', async ({ page }) => {
     await mount(page, [fixture('r', MAIL), rail('c', MAIL)], { reducedMotion: true });
-    const [gap, pointer] = await Promise.all([T('container-gap-medium'), '--tanrei-sys-target-pointer'].map((n) => px(page, n)));
+    const [gap, pointer, medium] = await Promise.all([T('container-gap-medium'), '--tanrei-sys-target-pointer', T('item-container-height-medium')].map((n) => px(page, n)));
     for (const id of ['r', 'c']) {
       await drawer(page, id).scrollIntoViewIfNeeded();
       const box = await bounds(cell(page, id, 1));
       const p = await bounds(panel(page, id));
       expect([box.x, box.width], id).toEqual([p.x, p.width]);
+      // The cell is drawn at its container height, which with the gap already reaches the target in the default system.
+      expect(box.height, id).toBeCloseTo(medium, 1);
       const hit = await cell(page, id, 1).evaluate((el) => Number.parseFloat(getComputedStyle(el, '::before').height));
       expect(hit, id).toBeCloseTo(Math.max(box.height + gap, pointer), 1);
       const at = (x: number, y: number) => page.evaluate(([xx, yy]) => document.elementFromPoint(xx, yy)?.closest('tanrei-navigation-drawer-item')?.getAttribute('value') ?? null, [x, y]);
@@ -636,11 +638,11 @@ test.describe('drawing', () => {
     // groups-nested: Foundations (group, an icon) › Color, Design tokens (group, no icon) › Overview, Tiers.
     const top = await bounds(group(page, full, 0).locator('.row > .container').first());
     expect(top.x - p.x).toBe(12);
-    expect(top.height).toBe(40);
-    // The top-level icon has 12 on its start side inside its item container, and 8 above and below it in a row at the
-    // control height (40).
+    expect(top.height).toBe(36);
+    // The top-level icon has 12 on its start side inside its item container, and 6 above and below it in a row at the
+    // control height (36).
     const topIcon = await bounds(group(page, full, 0).locator('.icon').first());
-    expect([topIcon.x - top.x, topIcon.y - top.y, top.y + top.height - (topIcon.y + topIcon.height)]).toEqual([12, 8, 8]);
+    expect([topIcon.x - top.x, topIcon.y - top.y, top.y + top.height - (topIcon.y + topIcon.height)]).toEqual([12, 6, 6]);
     expect(topIcon.x + topIcon.width / 2 - p.x).toBe(36);
     // One level deep (auto): one icon and gap further, so the label is under its group's label, 60.
     expect(await startOf(item(page, full, 0).locator('.label'))).toBe(60);
@@ -1127,7 +1129,7 @@ test.describe('the collapsed form', () => {
     await expect.poll(async () => (await bounds(panel(page, 'mod'))).width).toBeCloseTo(width, 1);
   });
 
-  test('NVD-31: every cell, icon, header button and main action glyph is at the same place in both forms; under the default system a cell is 40 high in both with its icon line 20 below its top; collapsedLabels always grows the cells in both forms alike; a heading keeps its row', async ({ page }) => {
+  test('NVD-31: every cell, icon, header button and main action glyph is at the same place in both forms; under the default system a cell is 36 high in both with its icon line 18 below its top; collapsedLabels always grows the cells in both forms alike; a heading keeps its row', async ({ page }) => {
     const items = [MAIN, section('Mail', MAIL)];
     await mount(page, [fixture('e', [MENU, ...items], { collapsible: true }), rail('c', items), fixture('ea', [MENU, ...items], { collapsible: true, collapsedLabels: 'always' }), rail('ca', items, { collapsedLabels: 'always' })], { reducedMotion: true });
     const [row, pad, ind, gap] = await Promise.all([T('item-container-height-medium'), T('collapsed-item-container-padding-block-medium'), T('item-icon-indicator-height-medium'), T('collapsed-item-gap')].map((n) => px(page, n)));
@@ -1155,24 +1157,24 @@ test.describe('the collapsed form', () => {
     expect(c.icons).toEqual(e.icons);
     expect(c.menu).toEqual(e.menu);
     expect(c.heading).toBeCloseTo(e.heading, 0);
-    // The verify: 40 high in both forms (the control height), the icon line 20 below the top.
-    expect(c.cells[0].height).toBe(40);
-    expect(c.icons[0].y - c.cells[0].y).toBe(20);
+    // The verify: 36 high in both forms (the control height), the icon line 18 below the top.
+    expect(c.cells[0].height).toBe(36);
+    expect(c.icons[0].y - c.cells[0].y).toBe(18);
     expect(c.cells[0].height).toBeCloseTo(above + Math.max(row / 2, ind / 2 + pad), 0);
     // With labels: a cell grows to hold the short label under its item container (the item container's lower half, the
-    // gap, the line and collapsed padding-block again), in both forms alike; the verify: 68 high.
+    // gap, the line and collapsed padding-block again), in both forms alike; the verify: 62 high.
     expect(ca.cells).toEqual(ea.cells);
     expect(ca.icons).toEqual(ea.icons);
     expect(ca.cells[0].height).toBeGreaterThan(c.cells[0].height);
     expect(ca.cells[0].height).toBeCloseTo(above + Math.max(row / 2, ind / 2 + pad + gap + line + pad), 0);
-    expect(ca.cells[0].height).toBe(68);
+    expect(ca.cells[0].height).toBe(62);
     // The main action's glyph does not move WHERE its padding before the glyph is half the difference of its height and
     // its glyph (NVD-39): measured here, and reported by the test when the system's button does not have that padding.
     expect(Math.abs(c.main.y - e.main.y)).toBeLessThanOrEqual(0.5);
     expect(Math.abs(c.main.x - e.main.x)).toBeLessThanOrEqual(0.5);
   });
 
-  test('NVD-32: collapsed, a top-level cell is a square as tall as its row — under the default system 40 by 40 with the expanded row’s corners, its icon at the point it has expanded, no label, filled exactly as the expanded row is and never a capsule — with no trailing content and none of a group’s items', async ({ page }) => {
+  test('NVD-32: collapsed, a top-level cell is a square as tall as its row — under the default system 36 by 36 with the expanded row’s corners, its icon at the point it has expanded, no label, filled exactly as the expanded row is and never a capsule — with no trailing content and none of a group’s items', async ({ page }) => {
     await mount(page, only('collapsed', 'collapsible-expanded', 'collapsed-groups'), { reducedMotion: true });
     const [column, cw, pad, iw, ih, shape, rowShape] = await Promise.all(
       [T('collapsed-container-width-medium'), T('collapsed-item-container-width-medium'), T('collapsed-item-container-padding-block-medium'), T('item-icon-indicator-width-medium'), T('item-icon-indicator-height-medium'), T('collapsed-item-container-shape'), T('item-container-shape')].map((n) => px(page, n)),
@@ -1181,8 +1183,8 @@ test.describe('the collapsed form', () => {
     const e = await bounds(panel(page, 'collapsible-expanded'));
     for (const n of [0, 1, 2, 3]) {
       const [c, indicator, icon] = await Promise.all(['.row > .container', '.icon-indicator', '.icon'].map((s) => bounds(item(page, 'collapsed', n).locator(s))));
-      // The verify: 40 by 40 (the control height), centred in the icon column.
-      expect([c.width, c.height], `${n}`).toEqual([40, 40]);
+      // The verify: 36 by 36 (the control height), centred in the icon column.
+      expect([c.width, c.height], `${n}`).toEqual([36, 36]);
       expect([c.width, column]).toEqual([cw, 72]);
       expect(centre(c).x - p.x).toBeCloseTo(column / 2, 1);
       expect([indicator.width, indicator.height]).toEqual([iw, ih]);
@@ -1221,9 +1223,9 @@ test.describe('the collapsed form', () => {
     const p = await bounds(panel(page, 'collapsed-labels-always'));
     for (const n of [0, 1, 2, 3]) {
       const [c, indicator, short, hit] = await Promise.all(['.row > .container', '.icon-indicator', '.short', '.cell'].map((s) => bounds(item(page, 'collapsed-labels-always', n).locator(s))));
-      // The verify: the item container is the same 40 by 40 square with a label as without one, behind the icon alone.
+      // The verify: the item container is the same 36 by 36 square with a label as without one, behind the icon alone.
       expect([c.width, c.height], `${n}`).toEqual([cw, cw]);
-      expect([c.width, c.height]).toEqual([40, 40]);
+      expect([c.width, c.height]).toEqual([36, 36]);
       expect(indicator.y - c.y).toBeCloseTo(pad, 1);
       expect(c.y + c.height - (indicator.y + indicator.height)).toBeCloseTo(pad, 1);
       // The short label: the gap under the item container, collapsed padding-block below it inside the cell.
@@ -1616,7 +1618,8 @@ test.describe('the collapsed form', () => {
         // Reported: a collapsed square wider than the column — the large one in the default system's columns.
         if (!system) {
           await expect.poll(() => seen.filter((w) => w.includes('NVD-39') && w.includes('collapsed square')).length).toBe(2);
-          expect(seen.filter((w) => w.includes('NVD-39') && w.includes('collapsed square') && !w.includes('is 96 wide'))).toEqual([]);
+          const large = await resolveToken(page, '--tanrei-comp-main-action-button-container-height-large');
+          expect(seen.filter((w) => w.includes('NVD-39') && w.includes('collapsed square') && !w.includes(`is ${large} wide`))).toEqual([]);
         }
       }
     }
@@ -3385,10 +3388,10 @@ test.describe('a site’s sidebar', () => {
       }
     });
 
-  test('NVD-57: in site-sidebar-long, a frame 800 high, the items are scrolled by 2580 in the first frame and the selected row is centred; site-sidebar-restored stays at its 2364 because the row is in view there; no frame shows the items at 0 and focus does not move', async ({ page }) => {
+  test('NVD-57: in site-sidebar-long, a frame 800 high, the items are scrolled by 2310 in the first frame and the selected row is centred; site-sidebar-restored stays at its 2096 because the row is in view there; no frame shows the items at 0 and focus does not move', async ({ page }) => {
     for (const [f, top, row] of [
-      [LONG, 2580, 380],
-      [RESTORED, 2364, 596],
+      [LONG, 2310, 382],
+      [RESTORED, 2096, 596],
     ] as const) {
       await watched(page, [f]);
       const { frames, events } = await seen(page);
@@ -3396,9 +3399,9 @@ test.describe('a site’s sidebar', () => {
       expect(frames.every((each) => each.focus)).toBe(true);
       expect(events).toEqual([]);
       const at = await scrolled(page, f.id);
-      // 77 cells of 40 a gap of 4 apart, 3408 tall, in a frame 800 high; the selected row 2960 from the start of the items.
-      expect(at).toMatchObject({ offset: top, top, height: 3408, space: 800, range: 2608, row });
-      expect(at.row! + top).toBe(2960);
+      // 78 cells of 36 a gap of 4 apart, 3140 tall, in a frame 800 high; the selected row 2692 from the start of the items.
+      expect(at).toMatchObject({ offset: top, top, height: 3140, space: 800, range: 2340, row });
+      expect(at.row! + top).toBe(2692);
     }
     expect((await scrolled(page, RESTORED.id)).centre).not.toBe(0);
     await watched(page, [LONG]);
@@ -3422,27 +3425,27 @@ test.describe('a site’s sidebar', () => {
     expect(await set('/foundations/principles/')).toEqual({ top: 100, body: true });
     // Half out of view counts as out of view.
     const half = await rowOf(longItem(page, '/getting-started/web/'));
-    await drawer(page, LONG.id).evaluate((el: any, to) => (el.scrollOffset = to), half.fromStart + 20);
+    await drawer(page, LONG.id).evaluate((el: any, to) => (el.scrollOffset = to), half.fromStart + 18);
     expect((await set('/getting-started/web/')).top).toBe(0);
     // Out of view below: centred exactly.
     const far = await rowOf(longItem(page, '/components/button/'));
-    expect(await set('/components/button/')).toEqual({ top: far.fromStart + 20 - 400, body: true });
+    expect(await set('/components/button/')).toEqual({ top: far.fromStart + 18 - 400, body: true });
     expect((await scrolled(page, LONG.id)).centre).toBe(0);
     // The last page: centred as far as the end of the range allows.
-    expect((await set('/roadmap/')).top).toBe(2608);
+    expect((await set('/roadmap/')).top).toBe(2340);
     // NVD-47's row: Components closed, its row shows the selection and is what is brought into view.
     await mount(page, [long({}, (label) => (label === 'Components' ? false : undefined))]);
     const closed = await scrolled(page, LONG.id);
     await expect(longGroup(page, 'Components').locator('.cell').first()).toHaveClass(/\bselected\b/);
     expect(closed.row).not.toBeNull();
-    expect(closed.row! >= 0 && closed.row! + 40 <= closed.space).toBe(true);
+    expect(closed.row! >= 0 && closed.row! + 36 <= closed.space).toBe(true);
     // Centred, as far as the range allows: with Components closed the items end before the row reaches the middle.
     expect(closed.centre === 0 || closed.top === closed.range, JSON.stringify(closed)).toBe(true);
     // A standard drawer that was closed takes its place only now: the offset it was given, then its selection.
-    await mount(page, [long({ open: false, scrollOffset: 2364 }), { ...long({ open: false }), id: RESTORED.id }], { reducedMotion: true });
+    await mount(page, [long({ open: false, scrollOffset: 2096 }), { ...long({ open: false }), id: RESTORED.id }], { reducedMotion: true });
     for (const id of [LONG.id, RESTORED.id]) await setProps(page, id, { open: true });
-    expect(await scrolled(page, LONG.id)).toMatchObject({ top: 2364, row: 596 });
-    expect(await scrolled(page, RESTORED.id)).toMatchObject({ top: 2580, centre: 0 });
+    expect(await scrolled(page, LONG.id)).toMatchObject({ top: 2096, row: 596 });
+    expect(await scrolled(page, RESTORED.id)).toMatchObject({ top: 2310, centre: 0 });
   });
 
   test('NVD-58: in site-sidebar every group’s open is false and revealSelected draws Components open in the first frame, without the disclosure motion, with one toggle and no change, reselect or close; closed again by its row it shows the selection and stays closed until value changes; without revealSelected group-closed-selected is as before', async ({ page }) => {
@@ -3455,7 +3458,7 @@ test.describe('a site’s sidebar', () => {
     expect(new Set(heights).size).toBe(1);
     expect(frames[0].groups[0]).toBe(0);
     expect(frames[0].groups[1]).toBe(0);
-    expect(frames[0].groups[2]).toBe(4 * 44);
+    expect(frames[0].groups[2]).toBe(4 * 40);
     expect(frames[0].groups[3]).toBe(0);
     expect(frames.flatMap((each) => each.moving)).toEqual([]);
     expect(events).toEqual(['toggle:Components:true']);
@@ -3634,13 +3637,13 @@ test.describe('a site’s sidebar', () => {
     expect(await said()).toEqual(['click:drawer:prevented']);
   });
 
-  test('NVD-61: scrollOffset reads the present distance and writes it at once, held inside the range (5000 gives 2608 in site-sidebar-long); the attribute is read for the first frame only; a wheel turned past the end of the items leaves the page where it was; closing and opening Foundations with its row 200 from the top leaves the row at 200; keyboard focus on a cell that is not wholly in view scrolls it by the least distance', async ({ page }) => {
+  test('NVD-61: scrollOffset reads the present distance and writes it at once, held inside the range (5000 gives 2340 in site-sidebar-long); the attribute is read for the first frame only; a wheel turned past the end of the items leaves the page where it was; closing and opening Foundations with its row 200 from the top leaves the row at 200; keyboard focus on a cell that is not wholly in view scrolls it by the least distance', async ({ page }) => {
     await page.setViewportSize({ width: 1280, height: 720 });
     await mount(page, [LONG], { reducedMotion: true });
     const long = drawer(page, LONG.id);
     const offset = (to?: number) => long.evaluate((el: any, to) => (to === undefined ? el.scrollOffset : ((el.scrollOffset = to), el.scrollOffset)), to);
-    expect(await offset()).toBe(2580);
-    expect(await offset(5000)).toBe(2608);
+    expect(await offset()).toBe(2310);
+    expect(await offset(5000)).toBe(2340);
     expect(await offset(-40)).toBe(0);
     expect(await offset(1234)).toBe(1234);
     expect((await scrolled(page, LONG.id)).top).toBe(1234);
@@ -3663,17 +3666,17 @@ test.describe('a site’s sidebar', () => {
     // The same wheel beside the drawer does scroll the page.
     await page.evaluate(() => (document.body.style.minBlockSize = '3000px'));
     expect(await long.evaluate((el) => getComputedStyle(el.shadowRoot!.querySelector('.items')!).overscrollBehaviorY)).toBe('contain');
-    await offset(2608 - 200);
+    await offset(2340 - 200);
     for (let turn = 0; turn < 4; turn++) await page.mouse.wheel(0, 400);
     await atRest(page);
-    await expect.poll(() => offset()).toBe(2608);
+    await expect.poll(() => offset()).toBe(2340);
     expect(await page.evaluate(() => window.scrollY)).toBe(0);
     // Longer than Gecko keeps the gesture, on the browser's own clock, which no page clock holds: the next turn is a new one.
     await page.waitForTimeout(1600);
     for (let turn = 0; turn < 4; turn++) await page.mouse.wheel(0, 400);
     await atRest(page);
     expect(await page.evaluate(() => window.scrollY)).toBe(0);
-    expect(await offset()).toBe(2608);
+    expect(await offset()).toBe(2340);
     // What the drawer cancels is only a wheel its items cannot take and nothing else would: one toward the end they are
     // at. Not one back up, not one with Ctrl (the page's zoom, and how a trackpad's pinch arrives), not one sideways,
     // and not one that a scroller inside the items can still take.
@@ -3690,7 +3693,7 @@ test.describe('a site’s sidebar', () => {
     await long.evaluate((el) => el.querySelector('.inner')!.remove());
     await offset(0);
     expect([await cancelled({ deltaY: -100 }), await cancelled({ deltaY: 100 })]).toEqual([true, false]);
-    await offset(2608);
+    await offset(2340);
     await page.mouse.move(900, 300);
     await page.mouse.wheel(0, 400);
     await expect.poll(() => page.evaluate(() => window.scrollY)).toBeGreaterThan(0);
@@ -3708,7 +3711,7 @@ test.describe('a site’s sidebar', () => {
     await row.click();
     await expect(row).toHaveAttribute('aria-expanded', 'false');
     expect((await rowOf(foundations)).inView).toBe(200);
-    expect((await rowOf(below)).inView).toBe(before - 14 * 44);
+    expect((await rowOf(below)).inView).toBe(before - 14 * 40);
     await row.click();
     await expect(row).toHaveAttribute('aria-expanded', 'true');
     expect((await rowOf(foundations)).inView).toBe(200);
@@ -3721,10 +3724,10 @@ test.describe('a site’s sidebar', () => {
     await offset(next.fromStart - 800 + 20);
     await tab(page);
     await expect(cells.nth(41)).toBeFocused();
-    expect(await offset()).toBe(next.fromStart + 40 - 800);
+    expect(await offset()).toBe(next.fromStart + 36 - 800);
     await tab(page);
     await expect(cells.nth(42)).toBeFocused();
-    expect(await offset()).toBe(next.fromStart + 40 - 800 + 44);
+    expect(await offset()).toBe(next.fromStart + 36 - 800 + 40);
     const previous = await rowOf(cells.nth(41));
     await offset(previous.fromStart + 20);
     await tab(page, { back: true });
@@ -3744,7 +3747,7 @@ test.describe('a site’s sidebar', () => {
     await watched(page, [SITE], `document.querySelectorAll('tanrei-navigation-drawer-group').forEach((group) => { if (customElements.get('tanrei-navigation-drawer-group')) throw new Error('upgraded already'); group.open = false; });`);
     let { frames, events } = await seen(page);
     expect(new Set(frames.map((each) => each.groups.join(','))).size, 'the same in every frame').toBe(1);
-    expect(frames[0].groups).toEqual([0, 0, 4 * 44, 0]);
+    expect(frames[0].groups).toEqual([0, 0, 4 * 40, 0]);
     expect(frames.flatMap((each) => each.moving)).toEqual([]);
     expect(events).toEqual(['toggle:Components:true']);
     expect(await opens()).toEqual([false, false, true, false]);
@@ -3763,7 +3766,7 @@ test.describe('a site’s sidebar', () => {
     // script that gave the state back late, above, was that case.)
     await watched(page, [SITE], `document.addEventListener('toggle', (event) => { if (!window.seen.frames.length) queueMicrotask(() => (event.target.open = false)); });`);
     ({ frames, events } = await seen(page));
-    expect(frames[0].groups).toEqual([0, 0, 4 * 44, 0]);
+    expect(frames[0].groups).toEqual([0, 0, 4 * 40, 0]);
     expect(new Set(frames.map((each) => each.groups.join(','))).size).toBe(1);
     expect(frames.flatMap((each) => each.moving)).toEqual([]);
     expect(events).toEqual(['toggle:Components:true']);
@@ -4471,7 +4474,30 @@ test.describe('the row model shared with the tree view', () => {
     const scroller = drawer(page, id).locator('[part="content"]');
     const pinned = () => drawer(page, id).evaluate((el) => [...el.querySelectorAll<any>('tanrei-navigation-drawer-group')].filter((g) => g.isPinned).map((g) => g.label));
     expect(await pinned()).toEqual([]);
-    await scroller.evaluate((el) => (el.scrollTop = 186));
+    // The scroll distance at which the first row shown under the pinned rows begins 2 below their band (\`under\`), found
+    // by scrolling a pixel at a time, and 4 higher up (\`over\`): the distances follow the rows' heights.
+    const under = await page.evaluate(
+      async ([fixture]) => {
+        const drawerEl = document.querySelector(`[data-fixture="${fixture}"] tanrei-navigation-drawer`)!;
+        const box = drawerEl.shadowRoot!.querySelector('[part="content"]') as HTMLElement;
+        const groups = [...drawerEl.querySelectorAll<any>('tanrei-navigation-drawer-group')];
+        const items = [...drawerEl.querySelectorAll<any>('tanrei-navigation-drawer-item')];
+        const row = (host: any) => host.shadowRoot.querySelector('.cell').getBoundingClientRect();
+        // From where the inner group's row has reached the top under the outer one's.
+        for (let to = 0; to <= box.scrollHeight - box.clientHeight; to++) {
+          box.scrollTop = to;
+          await new Promise((resolve) => requestAnimationFrame(resolve));
+          const [outer, inner, week] = [row(groups[0]), row(groups[1]), row(items[4])];
+          if (inner.top > outer.bottom + 8) continue;
+          if (Math.round(week.top - inner.bottom) === 2) return to;
+        }
+        return -1;
+      },
+      [id] as const,
+    );
+    expect(under, 'a scroll distance with the row 2 under the band').toBeGreaterThan(0);
+    const over = under - 4;
+    await scroller.evaluate((el, to) => (el.scrollTop = to), over);
     await expect.poll(pinned).toEqual(['2026', 'February']);
     const top = (await bounds(scroller)).y;
     const rows = await Promise.all([0, 1].map(async (n) => bounds(groupRow(page, id, n))));
@@ -4504,27 +4530,27 @@ test.describe('the row model shared with the tree view', () => {
     // Under the last pinned row the rows scroll by: 4 further, the first row shown under it (Week 4) begins 2 below it,
     // less than the gap. A press in that room goes to the nearer row (BTN-5): the pinned row reaches half of it, not half
     // the gap, which would take the row's own upper edge.
-    await scroller.evaluate((el) => (el.scrollTop = 190));
+    await scroller.evaluate((el, to) => (el.scrollTop = to), under);
     const band = rows[1].y + rows[1].height;
     await expect.poll(async () => (await bounds(cell(page, id, 4))).y - band).toBeCloseTo(2, 0);
     await expect.poll(() => pressed(band + 0.25)).toBe('February');
     expect(await pressed(band + 1.5)).toBe('Week 4');
-    await scroller.evaluate((el) => (el.scrollTop = 186));
+    await scroller.evaluate((el, to) => (el.scrollTop = to), over);
     // A focused row under the pinned rows is brought in below them.
     await page.mouse.click(790, 5);
     const target = cell(page, id, 3);
     await target.evaluate((el: any) => el.scrollIntoView({ block: 'start' }));
-    await scroller.evaluate((el) => (el.scrollTop = 186));
+    await scroller.evaluate((el, to) => (el.scrollTop = to), over);
     await tabTo(page, target);
     const b = await bounds(target);
     expect(b.y).toBeGreaterThanOrEqual(rows[1].y + rows[1].height - 1);
     // stickyMax 1: the innermost alone.
     await setProps(page, id, { stickyMax: 1 });
-    await scroller.evaluate((el) => (el.scrollTop = 221));
+    await scroller.evaluate((el, to) => (el.scrollTop = to), over + 32);
     await expect.poll(pinned).toEqual(['February']);
     // Off: none.
     await setProps(page, id, { stickyParents: false });
-    await scroller.evaluate((el) => (el.scrollTop = 222));
+    await scroller.evaluate((el, to) => (el.scrollTop = to), over + 33);
     await expect.poll(pinned).toEqual([]);
   });
 

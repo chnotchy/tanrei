@@ -1056,10 +1056,10 @@ test.describe('layout', () => {
       for (const stage of document.querySelectorAll<HTMLElement>('#group > .stage')) stage.style.display = 'contents';
     });
     expect(await page.locator('#group > .stage > tanrei-radio-button').count()).toBe(3);
-    // In the default system the token (the touch target, 36) is lower than the container (40): each option is the
-    // container's height, and options stacked with no gap still keep whole targets.
+    // In the default system the token (the touch target, 36) is the container's height (36, the control height): each
+    // option is that height, and options stacked with no gap still keep whole targets.
     const own = await resolveToken(page, T('container-size'));
-    expect(await resolveToken(page, T('option-min-height'))).toBeLessThan(own);
+    expect(await resolveToken(page, T('option-min-height'))).toBeLessThanOrEqual(own);
     for (const id of ['o0', 'o1', 'o2']) expect((await bounds(host(page, id))).height, id).toBeCloseTo(own, 3);
     // Under a 48 touch target (a platform guideline) the token is taller than the container: what this test holds.
     await raiseTargets(page);

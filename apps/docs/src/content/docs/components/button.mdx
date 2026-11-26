@@ -132,7 +132,7 @@ An icon-only button has three widths. Its height never changes with them, and a 
 
 | `width` | In the default system (small / medium / large) | Use for |
 | --- | --- | --- |
-| `default` | As wide as it is high: 36 / 40 / 56, a circle | Most icon actions. |
+| `default` | As wide as it is high: 28 / 36 / 52, a circle | Most icon actions. |
 | `narrow` | The glyph and a small inset on each side: 28 / 32 / 32, a capsule | A tight row of icon actions, such as the tools at the end of a field or a dense table row. |
 | `wide` | 40 / 52 / 72, a capsule | The one action of a row that should weigh more than its neighbours. |
 
@@ -441,7 +441,7 @@ A button without a `variant` is filled, with one exception: placed as a [dialog]
 - Write labels as a verb, or a verb and a noun, that say what will happen: **Deploy**, **Save draft**, **Add member**.
 - Keep one filled button per view. If two actions feel equally primary, the view is probably doing two jobs.
 - Place the primary action where the platform's users expect it, and keep that order across the product.
-- Use `small` (32) in dense toolbars and tables, `medium` (40) by default, and `large` (56) for touch-first or hero placements. The hit area is safe at every size.
+- Use `small` (28, its hit area reaching the 36 target) in dense toolbars and tables, `medium` (36, the control height) by default, and `large` (52) for touch-first or hero placements. The hit area is safe at every size.
 - Set `destructive` on an action that deletes or discards something, and choose its variant for its emphasis, as for any other action.
 - Make a link to the place where something is deleted an ordinary link, whose label says where it goes. Set `destructive` on the button that deletes, at that place.
 - Use the icon slot to reinforce a label. Leave the label out only where the glyph is widely understood (search, close, more), and name the button with `label`.

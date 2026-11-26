@@ -216,7 +216,7 @@ import Example from '../../../../components/visuals/Example.astro';
 | 保存 | 值、文本、列表是否打开、它在表单中的位置、事件 | 什么都不保存 |
 | 告诉辅助技术 | 它是一个带列表的组合框，是否已展开，以及哪个选项是活动选项 | 名称、帮助文本或错误文本、必填、无效、禁用 |
 
-三种变体和三种尺寸——`small`（32）、`medium`（40）和 `large`（56）——都是文本输入框的：组合框和文本输入框并排时，每一条线都对齐。默认系统只提供 `stacked`。
+三种变体和三种尺寸——`small`（28）、`medium`（36）和 `large`（52）——都是文本输入框的：组合框和文本输入框并排时，每一条线都对齐。默认系统只提供 `stacked`。
 
 ### 单独使用，没有字段
 
@@ -233,7 +233,7 @@ import Example from '../../../../components/visuals/Example.astro';
 
 选项的字形位于标签前的一列中。没有字形的选项是否保留这一列的空间，由 `iconSpace` 决定。`auto`（默认）在同一区段中另有选项带字形时保留这一列，使该区段的标签从同一条线开始；在没有字形的区段中不保留。区段是一个组，或组外相邻的一串选项。`always` 在每个选项中都保留，`never` 只在带字形的选项中设这一列。[菜单](/zh-cn/components/menu/)也有同样的 `iconSpace`，取值和默认值都相同。被筛选隐藏的选项不计入。
 
-选项采用组合框的 `size`。`small` 的组合框打开 small 选项（高 36，图标 20，即[菜单](/zh-cn/components/menu/)的 small 行），`medium` 或 `large` 的组合框打开 medium 选项（高为控件高度，默认系统中为 40）。文字大小不变，选项绝不低于目标。
+选项采用组合框的 `size`。`small` 的组合框打开 small 选项（高 36，图标 20，即[菜单](/zh-cn/components/menu/)的 small 行），`medium` 或 `large` 的组合框打开 medium 选项（高为控件高度，默认系统中为 36）。文字大小不变，选项绝不低于目标。
 
 <ComponentSpecs name="combobox" />
 

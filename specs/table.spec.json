@@ -119,7 +119,7 @@
         "medium"
       ],
       "default": "medium",
-      "description": "How close the rows are, in a list's and a tree view's words: a row's least height, a cell's paddings and the text styles of a cell and of a column header. medium (a row at the control height, 40 in the default system) is for a table a person reads: a few rows, cells that wrap. small (a 32 row, the small step, smaller text) is for a table a person scans: hundreds of rows, identifiers and values. Its row heights follow the system's height ladder at either size and a cell's paddings give up what a row loses (TBL-63), and a row that holds a control is never lower than the target at either (TBL-40, TBL-47). Material's data table row is 52, taller than its controls; here a row of the default size is the control height, so that a table set beside the product's controls and lists is drawn at their height and moves with it. While it is not set the table is drawn at the size its nearest container sets (TBL-62), and at medium where none does. A design system may add values.",
+      "description": "How close the rows are, in a list's and a tree view's words: a row's least height, a cell's paddings and the text styles of a cell and of a column header. medium (a row at the control height, 36 in the default system) is for a table a person reads: a few rows, cells that wrap. small (a 28 row in the default system, the small step, smaller text) is for a table a person scans: hundreds of rows, identifiers and values. Its row heights follow the system's height ladder at either size and a cell's paddings give up what a row loses (TBL-63), and a row that holds a control is never lower than the target at either (TBL-40, TBL-47). Material's data table row is 52, taller than its controls; here a row of the default size is the control height, so that a table set beside the product's controls and lists is drawn at their height and moves with it. While it is not set the table is drawn at the size its nearest container sets (TBL-62), and at medium where none does. A design system may add values.",
       "axis": "tanrei.comp.table.size"
     },
     {
@@ -399,7 +399,7 @@
     {
       "id": "TBL-4",
       "text": "THE table SHALL pad every cell at the top and bottom by comp.table.cell.padding-block.medium and at the start and end by comp.table.cell.padding-inline.medium at the medium size, and by comp.table.cell.padding-block.small and comp.table.cell.padding-inline.small at the small size, the first and the last cell of a row included; SHALL set a cell's text in comp.table.cell.text.typescale.medium or comp.table.cell.text.typescale.small by size, in comp.table.cell.text.color, with digits in figures of equal width so that the numbers of a column line up; SHALL make a row as tall as its tallest cell and at least the row height of its size (comp.table.row.height.medium for medium and comp.table.row.height.small for small: TBL-63), the header row, a body row, a placeholder row and a footer row alike, so that a row of one-line cells is exactly the row height; and SHALL align the cells of a row to the top, so that the first lines of a row share a baseline.",
-      "verify": "Under the default system a medium row of one-line cells is 40 high (9 + 22 + 9, the control height) and a small one 32 (6 + 20 + 6, the small step)."
+      "verify": "Under the default system a medium row of one-line cells is 36 high (7 + 22 + 7, the control height) and a small one 28 (4 + 20 + 4, the small step)."
     },
     {
       "id": "TBL-5",
@@ -609,7 +609,7 @@
     {
       "id": "TBL-50",
       "text": "WHERE a row's placeholder is true THE table SHALL draw it as a body row — counted for stripes, parted from its neighbours as TBL-9 says, with a cell's paddings — at least as tall as a body row holding one line of text at the table's size, however little its cells hold; SHALL place in each cell what the product gives it there (a Skeleton, by TBL-15) or nothing; SHALL draw no checkbox or radio button in its selection cell and count it neither as a body row for the header checkbox (TBL-45) nor as a row for the empty slot (TBL-48); and SHALL hide the row from assistive technology, so that a person hears that the table is busy and not a row of nothing. IF a row's placeholder is true while loading is false THE table SHALL draw it all the same and in debug builds report it.",
-      "verify": "The fixture loading-placeholders: five rows of empty cells, each 40 high under the default system, no checkbox in any of them, and the header checkbox disabled."
+      "verify": "The fixture loading-placeholders: five rows of empty cells, each 36 high under the default system, no checkbox in any of them, and the header checkbox disabled."
     },
     {
       "id": "TBL-51",

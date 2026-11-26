@@ -269,7 +269,7 @@ studioTest('ar: right-to-left — axe passes and nothing scrolls sideways at 390
   // run of its own, its unit kept beside its digits.
   const size = page.locator('[data-rail] [data-row="size"] .ts-rail-value');
   assert.equal(await size.evaluate((el) => getComputedStyle(el).direction), 'rtl');
-  assert.deepEqual(await size.locator('bdi[dir="ltr"]').allTextContents(), ['40px', '36px']);
+  assert.deepEqual(await size.locator('bdi[dir="ltr"]').allTextContents(), ['36px', '36px']);
   // The product's name is one left-to-right run: the mark, then «Tanrei Theme Studio» as it is written (wider than a
   // phone, where the brand is drawn).
   await page.setViewportSize({ width: 1280, height: 844 });

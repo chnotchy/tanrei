@@ -390,9 +390,9 @@ import DoDont from '../../../../components/visuals/DoDont.astro';
 
 组的标题从行内容开始的位置画起：菜单画出对勾列或前置图标列时，标题位于这些列的上方；两者都不画时，标题位于标签的上方。它在距另一侧边缘相同距离处结束，会换行，会随文本变大而增高，在从右到左的布局中会镜像。
 
-<ColorRoleMap name="menu" fixture="icons-shortcut" headingLevel={3} />
+<ColorRoleMap name="menu" fixture="submenu-icons-trailing-text" headingLevel={3} />
 
-<ColorRoleMap name="menu" fixture="checkbox-checked" selected />
+<ColorRoleMap name="menu" fixture="marks-icons-shortcut" selected />
 
 <ComponentSpecs name="menu" />
 
@@ -438,7 +438,7 @@ import DoDont from '../../../../components/visuals/DoDont.astro';
 
 ### 尺寸
 
-`size` 决定一行占多大空间。`medium`（默认：行高为控件高度，默认系统中为 40，图标 24）适用于既用触摸也用指针的产品。`small`（行高 36，图标 20，即[树视图](/zh-cn/components/tree-view/)的 small 行）适用于用鼠标操作、菜单很长且经常打开的工具。两者的文字大小相同，行高绝不低于目标。每个子菜单都采用其菜单的尺寸。
+`size` 决定一行占多大空间。`medium`（默认：行高为控件高度，默认系统中为 36，图标 24）适用于既用触摸也用指针的产品。`small`（行高 36，图标 20，即[树视图](/zh-cn/components/tree-view/)的 small 行）适用于用鼠标操作、菜单很长且经常打开的工具。两者的文字大小相同，行高绝不低于目标。每个子菜单都采用其菜单的尺寸。
 
 菜单不从周围的元素获取尺寸。从 small [工具栏](/zh-cn/components/toolbar/)中的按钮打开的菜单，除非设置它自己的 `size`，否则仍是 medium：菜单在页面之上打开，与按钮周围的控件分开。
 

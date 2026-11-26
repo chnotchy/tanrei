@@ -184,7 +184,7 @@
             "$description": "An option's minimum height.",
             "medium": {
               "$value": {
-                "value": 40,
+                "value": 36,
                 "unit": "px"
               },
               "$extensions": {
@@ -235,7 +235,7 @@
             "$description": "Padding above and below an option's content.",
             "medium": {
               "$value": {
-                "value": 8,
+                "value": 6,
                 "unit": "px"
               },
               "$extensions": {

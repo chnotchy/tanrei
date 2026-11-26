@@ -9,7 +9,7 @@
   "anatomy": [
     {
       "id": "container",
-      "description": "The round state layer behind the box: the control height across (40 in the default system, Material Design 3's 40), and the height the checkbox takes in a row (CHK-26). It carries hover, focus and press and is invisible at rest."
+      "description": "The round state layer behind the box: the control height across (36 in the default system; Material Design 3's is 40), and the height the checkbox takes in a row (CHK-26). It carries hover, focus and press and is invisible at rest."
     },
     {
       "id": "box",

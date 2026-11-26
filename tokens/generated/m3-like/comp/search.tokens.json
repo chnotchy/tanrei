@@ -75,7 +75,7 @@
         "container": {
           "height": {
             "$type": "dimension",
-            "$description": "The bar's minimum height: the control height (40 in the default system), so that a search bar stands as tall as the Buttons, the fields and the button trigger beside it, never below the minimum target. The icon-only Buttons it holds are of that height and stand in it as they stand in a row.",
+            "$description": "The bar's minimum height: the control height (36 in the default system), so that a search bar stands as tall as the Buttons, the fields and the button trigger beside it, never below the minimum target. The icon-only Buttons it holds are of that height and stand in it as they stand in a row.",
             "$value": {
               "value": 56,
               "unit": "px"
@@ -106,13 +106,13 @@
           },
           "gap": {
             "$type": "dimension",
-            "$description": "Between the bar's elements (glyph or leading button, input, the first action button; after the glyph, at least leading-icon.gap) and the full-screen header's (back button, input, clear button). Neighbouring hit areas meet at the middle of it (SRC-25), so it is what keeps an icon button's target whole on the side where it meets the input: at sys.target.touch minus a button's width or more, the button keeps its full target there. So it is derived as sys.target.touch less the narrowest button there (the bar's small clear button), never below zero: 36 − 36 = 0 in the default system. The action buttons stand button-gap from one another instead.",
+            "$description": "Between the bar's elements (glyph or leading button, input, the first action button; after the glyph, at least leading-icon.gap) and the full-screen header's (back button, input, clear button). Neighbouring hit areas meet at the middle of it (SRC-25), so it is what keeps an icon button's target whole on the side where it meets the input: at sys.target.touch minus a button's width or more, the button keeps its full target there. So it is derived as sys.target.touch less the narrowest button there (the bar's small clear button), never below zero: 36 − 28 = 8 in the default system. The action buttons stand button-gap from one another instead.",
             "$value": "{tanrei.sys.space.space100}",
             "$extensions": {}
           },
           "button-gap": {
             "$type": "dimension",
-            "$description": "Between two neighbouring action buttons of the bar: the clear button and the icon-only Buttons of the trailing slot. 0 in the default system: the buttons stand as close as their targets allow, each keeping sys.target.touch along the row (SRC-34): in the default system every Button is at least that wide, so they touch; under a 48 target two medium buttons (40) would stand 8 apart.",
+            "$description": "Between two neighbouring action buttons of the bar: the clear button and the icon-only Buttons of the trailing slot. 0 in the default system: the buttons stand as close as their targets allow, each keeping sys.target.touch along the row (SRC-34): in the default system a medium Button is that wide, so two of them touch, and the small clear button (28) stands 4 from the next; under a 48 target two medium buttons (36) would stand 12 apart.",
             "$extensions": {
               "dev.tanrei.vocabulary": {
                 "rationale": "One product sets the actions at the end of its search bar as one tight cluster while the input keeps its distance from them: the space between two actions and the space between the text and an action are two decisions, and a system that draws its bar's icons evenly spaced gives both the same value.",
@@ -129,7 +129,7 @@
           },
           "gap": {
             "$type": "dimension",
-            "$description": "The least space between the bar's search glyph and the input: the input stands the larger of this and container.gap after the glyph (SRC-1). container.gap is derived from the buttons' targets and is 0 in the default system; the glyph is no button, so no target depends on the space after it, and the text would touch the glyph. The trigger's gap, so that the bar and the trigger that stands for it set their text as far from their glyph.",
+            "$description": "The least space between the bar's search glyph and the input: the input stands the larger of this and container.gap after the glyph (SRC-1). container.gap is derived from the buttons' targets (8 in the default system, as this is); the glyph is no button, so no target depends on the space after it, and the text would touch the glyph. The trigger's gap, so that the bar and the trigger that stands for it set their text as far from their glyph.",
             "$value": "{tanrei.comp.search.trigger.container.gap}",
             "$extensions": {
               "dev.tanrei.vocabulary": {

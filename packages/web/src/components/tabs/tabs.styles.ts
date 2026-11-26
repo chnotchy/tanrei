@@ -5,10 +5,10 @@ import { cornerRadius, shape } from '../../styles/shape.js';
 import { reducedMotion } from '../../styles/motion.js';
 import { typefaceOf } from '../../styles/type.js';
 
-// Every visual value is a token (tokens/comp/tabs.tokens.json). A tab has two looks in each variant: a tab
-// that is not selected reads the variant's own parts, the selected tab its `selected.` parts. How a state looks is the
-// design system's decision: hover, focus and press mix each look's container with its `state-layer.color` in the default
-// system and draw nothing in cupertino, by value; the component only says which state's tokens are drawn.
+// Every visual value is a token (tokens/comp/tabs.tokens.json). A tab has two looks in each variant: a tab that is not
+// selected reads the variant's own parts, the selected tab its `selected.` parts. How a state looks is the design
+// system's decision: hover, focus and press mix each look's `container.color` with its `state-layer.color` in the
+// default system and draw nothing in cupertino, by value; the component only says which state's tokens are drawn.
 export const CORE_VARIANTS = ['primary', 'secondary', 'tonal'] as const;
 const DEFAULT_VARIANT = 'primary';
 /** TAB-44: the sizes every design system has; a layer may add values. */
@@ -47,8 +47,8 @@ const ref = (name: (variant: string) => string, variant: string, fallback: strin
 
 /**
  * One variant's parts, in every look and state, as private custom properties on the tabs (`--_selected-c-h` is the
- * selected look's container, hovered; `--_ut-r` the underline's thickness at rest). The row declares them on its slotted
- * tabs, so the variant is the row's and every tab inherits it. The token of a look and a state is
+ * selected look's container color, hovered; `--_ut-r` the underline's thickness at rest). The row declares them on its
+ * slotted tabs, so the variant is the row's and every tab inherits it. The token of a look and a state is
  * `<variant>-<state>-<look>-<part>`.
  */
 const variantBlock = (variant: string, selector: string, fallback: string | null = null) =>
@@ -312,7 +312,7 @@ export const tabsStyles = css`
 // The pieces every control shares (src/primitives): the state rules and their precedence, the ripple, the focus ring
 // drawn inside the tab, the carrier of press-hold and the icon glyph, plus the one corner rule (styles/shape.ts).
 /**
- * Where each state is read (TAB-3): hover and press on the tab's container, keyboard focus on its host (the tab takes
+ * Where each state is read (TAB-3): hover and press on the whole tab (.tab), keyboard focus on its host (the tab takes
  * focus itself), disabled from `.d`. Every selector has the same specificity, so the order is the precedence.
  */
 const on = (state: string) => {
@@ -333,11 +333,11 @@ const STATE_MOTION = `${T('motion-state-duration')} ${T('motion-state-easing')}`
 
 /**
  * One tab (TAB-3…6, TAB-8…10, TAB-14, TAB-16, TAB-18, TAB-19, TAB-23, TAB-24): the whole tab answers the pointer; its
- * container (.box) — the state layer and the ripple — is drawn in the box the active indicator has on this tab, or would
- * have if it were selected, never on the tab's rectangle; its icon and label on one line, centred and kept clear of the
- * underline; the covered layer over them, which is the indicator's piece on this tab and carries the covered copy of
- * the icon and label; the underline's piece on its bottom edge (both clipped by the row to where the indicator is,
- * TAB-17); and, above them all, the focus ring around the same box (.ring).
+ * state layer (.box, part state-layer) — hover, focus, press and the ripple — is drawn in the box the active indicator
+ * has on this tab, or would have if it were selected, never on the tab's rectangle; its icon and label on one line,
+ * centred and kept clear of the underline; the covered layer over them, which is the indicator's piece on this tab and
+ * carries the covered copy of the icon and label; the underline's piece on its bottom edge (both clipped by the row to
+ * where the indicator is, TAB-17); and, above them all, the focus ring around the same box (.ring).
  */
 export const tabStyles = css`
   :host {
@@ -346,7 +346,7 @@ export const tabStyles = css`
     /* TAB-14: nor is it ever narrower than its indicator, which is as tall as the row less the track's padding (--_th,
        written by the tab once it knows the row's height). */
     min-inline-size: calc(max(var(--tanrei-sys-target-pointer), var(--_th, 0px)) - var(--_trim, 0px));
-    /* TAB-4: the ring is drawn around the container, never around the host. */
+    /* TAB-4: the ring is drawn around the state layer, never around the host. */
     outline: none !important;
   }
   /* TAB-4: the ring reaches over the neighbouring tabs, so the focused tab is drawn above them. */
@@ -395,7 +395,7 @@ export const tabStyles = css`
      TAB-34: at an end of the row, where that width is more than the circle and the track's inset on each side (a small
      row's 24 circle in a 44 tab), the tab ends at the track's edge — it is laid out narrower by what would lie beyond
      it (--_trim, written by the tab) — and its circle keeps the inset from the track's end: the content leans toward
-     that end by the same amount (--_lean-*), and the container and the ring with it. */
+     that end by the same amount (--_lean-*), and the state layer and the ring with it. */
   .tab[data-round],
   .tab[data-round] .cover {
     padding-inline: var(--_lean-start, 0px) var(--_lean-end, 0px);
@@ -422,7 +422,7 @@ export const tabStyles = css`
   }
   .tab {
     position: relative;
-    /* Its own stacking context: the container under the content, the ring above everything. */
+    /* Its own stacking context: the state layer under the content, the ring above everything. */
     isolation: isolate;
     flex: 1 1 auto;
     ${unsafeCSS(set('-r'))}
@@ -438,7 +438,7 @@ export const tabStyles = css`
   .tab.selected {
     touch-action: pan-y pinch-zoom;
   }
-  /* TAB-18, TAB-9: the container — hover, focus and press, and the ripple, clipped to it — in the indicator's box:
+  /* TAB-18, TAB-9: the state layer — hover, focus and press, and the ripple, clipped to it — in the indicator's box:
      track.padding in from the row's top and bottom, centred in the tab, as wide as the tab's content plus
      active-indicator.padding-inline on each side and exactly as wide as it is tall where that content is not wider than
      it is tall (--_bw, measured by the tab; the whole tab until then), and the tab's whole share in a row that fills.
@@ -458,19 +458,20 @@ export const tabStyles = css`
     inline-size: auto;
   }
   .box {
-    /* Its own stacking context, so the ripple sits above the container color. */
+    /* Its own stacking context, so the ripple sits above the state layer's color. */
     isolation: isolate;
     background: var(--_c);
     transition: background-color ${unsafeCSS(STATE_MOTION)};
   }
-  /* The container and the ring lie over the label of the selected tab (TAB-18, TAB-4): each holds its values and draws
-     them by its ::before, as no element, at the same place in the paint order — an element over a text is what a
-     contrast checker sees covering it, and it would leave that text unchecked. The ripple in the container stays drawn. */
+  /* The state layer and the ring lie over the label of the selected tab (TAB-18, TAB-4): each holds its values and
+     draws them by its ::before, as no element, at the same place in the paint order — an element over a text is what a
+     contrast checker sees covering it, and it would leave that text unchecked. The ripple in the state layer stays
+     drawn. */
   ${drawnAsNoElement('.box', ['background'], { fill: true })}
   ${focusRingBox('.ring')}
-  /* TAB-18: on the selected tab the container — hover, focus, press and the ripple, in the selected parts, whose state
-     layer is the covered content's color — lies over the active indicator, so the states show there too; the ring and
-     the underline stay above it, in the order they are written. */
+  /* TAB-18: on the selected tab the state layer — hover, focus, press and the ripple, in the selected parts, whose
+     color is the covered content's — lies over the active indicator, so the states show there too; the ring and the
+     underline stay above it, in the order they are written. */
   .tab.selected :is(.box, .ring, .underline) {
     z-index: 1;
   }
@@ -559,7 +560,7 @@ export const tabStyles = css`
   }
   /* TAB-50, TAB-16: the selected label gains its variant's selected.label.emphasis of weight; every label keeps the room
      it needs at that weight — the label once more, at the heavier weight, unseen and of no height, in the same cell —
-     so no tab, indicator or container changes width when the selection moves. */
+     so no tab, indicator or state layer changes width when the selection moves. */
   .tab.selected .label {
     font-weight: calc(${t('label-typescale-font-weight')} + var(--_emph, 0));
   }
@@ -603,9 +604,9 @@ export const tabStyles = css`
     pointer-events: none;
     transition: background-color ${unsafeCSS(STATE_MOTION)};
   }
-  /* TAB-51, TAB-52: in a column the content starts at the tab's start edge, and the container and the ring are the tab
-     less track.padding on every side; nothing of an end tab reaches beyond the track (TAB-34 is the row's). TAB-53: the
-     underline's piece lies on the column's end edge, as tall as the tab. */
+  /* TAB-51, TAB-52: in a column the content starts at the tab's start edge, and the state layer and the ring are the
+     tab less track.padding on every side; nothing of an end tab reaches beyond the track (TAB-34 is the row's). TAB-53:
+     the underline's piece lies on the column's end edge, as tall as the tab. */
   .tab.vertical,
   .tab.vertical .cover {
     justify-content: flex-start;
@@ -644,10 +645,10 @@ export const tabStyles = css`
     pointer-events: none;
   }
 
-  /* TAB-3, TAB-6, TAB-8, TAB-9: each state paints from that state's tokens of the tab's look; pressed > focused > hovered,
-     disabled over all. Pressed is data-pressed="<feedback>" (PressController): overlay paints the pressed tokens on the
-     whole container; ripple and dim paint everything else from them while the container color stays with the state
-     under the press; none paints nothing. */
+  /* TAB-3, TAB-6, TAB-8, TAB-9: each state paints from that state's tokens of the tab's look; pressed > focused >
+     hovered, disabled over all. Pressed is data-pressed="<feedback>" (PressController): overlay paints the pressed
+     tokens on the whole state layer; ripple and dim paint everything else from them while the state layer's color stays
+     with the state under the press; none paints nothing. */
   ${stateRules(on, {
     hovered: `${set('-h')}
     opacity: ${T('hovered-opacity')};`,
@@ -680,12 +681,12 @@ export const tabStyles = css`
     easing: `${PREFIX}-motion-state-easing`,
   })}
 
-  /* TAB-4, TAB-10: the ring (or the glow) around the container, concentric and in its shape, sys.focus.offset outside
+  /* TAB-4, TAB-10: the ring (or the glow) around the state layer, concentric and in its shape, sys.focus.offset outside
      it, and held inside the track: where track.padding is less than the ring reaches it is drawn further in by the
      difference. For keyboard focus only, never animated; drawn over the covered layer and the neighbouring tabs. */
   ${focusRing((focus) => `:host(${focus}) .ring`, { within: T('track-padding') })}
 
-  /* TAB-10: corner smoothing on the container and the ring (data-tanrei-shape). */
+  /* TAB-10: corner smoothing on the state layer and the ring (data-tanrei-shape). */
   ${shape}
 
   /* TAB-18: the icon, drawn with the system's icon set in the family and fill of the tab's selection. TAB-32: iconGlyph()

@@ -102,9 +102,9 @@ test.describe('layout', () => {
     });
     const standardGap = await resolveToken(page, T('standard-gap'));
     const connectedGap = await resolveToken(page, T('connected-gap'));
-    // The default system draws every Button at least as large as its target, so a standard group needs no room
-    // between its items for their targets: they touch (BGR-4).
-    expect(standardGap).toBe(0);
+    // The default system draws a small Button at its step (28), below its target (36): a standard group keeps the room
+    // the narrowest item's target needs between its items, 36 − 28 (BGR-4).
+    expect(standardGap).toBe(8);
     expect(connectedGap).toBeGreaterThan(0);
     // The default system's separation is divider: a connected fixture that leaves it auto touches (BGR-21).
     const rows = [['standard', standardGap], ['standard-icon-only', standardGap], ['mixed-standard', standardGap], ['connected-gap', connectedGap], ['connected-gap-toggles', connectedGap], ['connected', 0], ['connected-divider', 0], ['connected-large', 0], ['mixed-connected', 0]] as const;

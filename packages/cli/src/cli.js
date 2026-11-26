@@ -229,7 +229,7 @@ export function initGuide(parent) {
   };
   walk(JSON.parse(fs.readFileSync(path.join(REPO_ROOT, 'tokens/dial/dial.tokens.json'), 'utf8'))[ns].dial, []);
   const rows = [
-    [`${ns}.dial.control.height`, 'the height controls and rows are drawn at in their default size (40 in the core);'],
+    [`${ns}.dial.control.height`, 'the height controls and rows are drawn at in their default size (36 in the core);'],
     ['', 'small and large are whole size units below and above it. Never under the minimum'],
     [`${ns}.dial.size.unit`, 'the distance between the control sizes, and the scale of icons'],
     [`${ns}.sys.target.minimum`, 'the least height anything a person presses is drawn at; no dial scales it.'],

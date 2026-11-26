@@ -512,7 +512,7 @@ function sizePanel(ctx: Ctx) {
     heights.hidden = !rows.length;
     const px = (value: number, unit: string) => `${trim(value)}${unit}`;
     heights.replaceChildren(...rich((at) => rows.reduce((line: string, row: Json) => {
-      const value = row.held ? t.rail.held(at(ltr(px(row.drawn, row.unit))), at(ltr(px(row.step, row.unit)))) : at(ltr(px(row.drawn, row.unit)));
+      const value = at(ltr(px(row.step, row.unit)));
       const item = `${at(h('code', { text: row.size }))} ${value}`;
       return line ? t.listed(line, item) : t.labelled(t.rail.heights, item);
     }, '')));

@@ -607,7 +607,7 @@ test.describe('items', () => {
     for (const id of ['docked', 'docked-button']) for (const n of [0, 1, 2, 3]) { const h = await hit(id, n); expect(h.right - h.left, `${id} ${n}`).toBeGreaterThanOrEqual(touch - 0.5); }
   });
 
-  test('TBR-16: in the default system, whose touch target (36) no Button is shorter than, a floating toolbar’s items touch — four medium icon-only Buttons 184 long, small and large ones touching too, in a row and in a column', async ({ page }) => {
+  test('TBR-16: in the default system, whose touch target (36) no medium or large Button is shorter than, a floating toolbar’s items touch — four medium icon-only Buttons 168 long, large ones touching too, small ones (28) 8 apart, in a row and in a column', async ({ page }) => {
     const row = (size: string, count = 3) => GLYPHS.slice(0, count).map((g) => a(g, { size }));
     await mountFixtures(page, spec, { icons: true, fixtures: [...spec.fixtures, fixture('large', row('large'), { variant: 'floating' }), fixture('small', row('small'), { variant: 'floating' }), fixture('small-vertical', row('small'), { variant: 'floating', orientation: 'vertical' })] as Fixture[] });
     const [gap, touch, pad] = [await resolveToken(page, T('container-gap-floating')), await resolveToken(page, '--tanrei-sys-target-touch'), await resolveToken(page, T('container-padding-inline-floating'))];
@@ -618,13 +618,15 @@ test.describe('items', () => {
         return boxes.slice(1).map((box, n) => Math.round((column ? box.y - (boxes[n].y + boxes[n].height) : box.x - (boxes[n].x + boxes[n].width)) * 100) / 100);
       }, id);
     await apart('floating', 4).toEqual([0, 0, 0]);
-    expect((await bounds(bar(page, 'floating'))).width).toBe(4 * 40 + 2 * pad);
+    expect((await bounds(bar(page, 'floating'))).width).toBe(4 * 36 + 2 * pad);
     await apart('floating-vertical', 3, true).toEqual([0, 0]);
-    for (const id of ['large', 'small']) await apart(id, 3).toEqual([0, 0]);
-    await apart('small-vertical', 3, true).toEqual([0, 0]);
+    await apart('large', 3).toEqual([0, 0]);
+    // A small Button (28) lacks 8 of the target: two stand 4 + 4 apart.
+    await apart('small', 3).toEqual([8, 8]);
+    await apart('small-vertical', 3, true).toEqual([8, 8]);
   });
 
-  test('TBR-16: a floating toolbar lays its items container.gap.floating apart and moves two neighbours further only as far as each needs to keep sys.target.touch of length along the axis — under a 48 touch target medium items 8 apart and the toolbar 208 long, large ones touching, small ones 12 apart, every size touching where the target is 0 — along the column when vertical, the same for every pointer, with nothing of an item changed; a docked toolbar is unchanged', async ({ page }) => {
+  test('TBR-16: a floating toolbar lays its items container.gap.floating apart and moves two neighbours further only as far as each needs to keep sys.target.touch of length along the axis — under a 48 touch target medium items 12 apart and the toolbar 204 long, large ones touching, small ones 12 apart, every size touching where the target is 0 — along the column when vertical, the same for every pointer, with nothing of an item changed; a docked toolbar is unchanged', async ({ page }) => {
     const row = (size: string, count = 3) => GLYPHS.slice(0, count).map((g) => a(g, { size }));
     const fixtures = [
       ...spec.fixtures,
@@ -650,29 +652,29 @@ test.describe('items', () => {
       return { lengths: boxes.map((box) => (column ? box.height : box.width)), apart: boxes.slice(1).map((box, n) => (column ? box.y - (boxes[n].y + boxes[n].height) : box.x - (boxes[n].x + boxes[n].width))) };
     };
     const settled = (id: string, count: number, expected: number[], column = false) => expect.poll(async () => (await along(id, count, column)).apart.map((value) => Math.round(value * 100) / 100), id).toEqual(expected);
-    // TBR-16's verify: four medium icon-only Buttons (40) stand 8 apart (4 + 4), and the toolbar is 208 long.
-    await settled('floating', 4, [8, 8, 8]);
-    expect((await along('floating', 4)).lengths).toEqual([40, 40, 40, 40]);
-    expect((await bounds(bar(page, 'floating'))).width).toBe(208);
-    expect((await bounds(bar(page, 'floating'))).width).toBe(4 * 40 + 3 * 8 + 2 * pad);
-    await settled('floating-filled-action', 4, [8, 8, 8]);
+    // TBR-16's verify: four medium icon-only Buttons (36) stand 12 apart (6 + 6), and the toolbar is 204 long.
+    await settled('floating', 4, [12, 12, 12]);
+    expect((await along('floating', 4)).lengths).toEqual([36, 36, 36, 36]);
+    expect((await bounds(bar(page, 'floating'))).width).toBe(204);
+    expect((await bounds(bar(page, 'floating'))).width).toBe(4 * 36 + 3 * 12 + 2 * pad);
+    await settled('floating-filled-action', 4, [12, 12, 12]);
     // The same along the column.
-    await settled('floating-vertical', 3, [8, 8], true);
-    expect((await bounds(bar(page, 'floating-vertical'))).height).toBe(3 * 40 + 2 * 8 + 2 * pad);
-    // Large (56) Buttons touch; small (36) ones stand 12 apart, in a row and in a column.
+    await settled('floating-vertical', 3, [12, 12], true);
+    expect((await bounds(bar(page, 'floating-vertical'))).height).toBe(3 * 36 + 2 * 12 + 2 * pad);
+    // Large (52) Buttons touch; small (28) ones stand 20 apart, in a row and in a column.
     await settled('large', 3, [0, 0, ]);
-    expect((await along('large', 3)).lengths).toEqual([56, 56, 56]);
-    await settled('small', 3, [12, 12]);
-    await settled('small-vertical', 3, [12, 12], true);
-    // Neighbours of two sizes: each stands half of what it lacks away — small · medium 6 + 4, medium · large 4 + 0,
-    // large · small 0 + 6.
-    await settled('mixed', 4, [10, 4, 6]);
+    expect((await along('large', 3)).lengths).toEqual([52, 52, 52]);
+    await settled('small', 3, [20, 20]);
+    await settled('small-vertical', 3, [20, 20], true);
+    // Neighbours of two sizes: each stands half of what it lacks away — small · medium 10 + 6, medium · large 6 + 0,
+    // large · small 0 + 10.
+    await settled('mixed', 4, [16, 6, 10]);
     // A labelled Button is measured as it is: one longer than the target lacks nothing, so the medium icon-only Button
-    // between two of them stands its own 4 from each.
+    // between two of them stands its own 6 from each.
     const text = await along('text', 3);
     expect(Math.min(text.lengths[0], text.lengths[2])).toBeGreaterThan(touch);
     await settled('text', 3, [kept(gap, touch, text.lengths[0], text.lengths[1]), kept(gap, touch, text.lengths[1], text.lengths[2])].map((value) => Math.round(value * 100) / 100));
-    expect(text.apart).toEqual([4, 4]);
+    expect(text.apart).toEqual([6, 6]);
     // Nothing of an item is widened, resized or restyled to do so (TBR-9): its box is its own, and so is its element's.
     for (const [id, n, size] of [['floating', 1, 'medium'], ['small', 1, 'small'], ['large', 1, 'large']] as const) {
       const height = await resolveToken(page, `--tanrei-comp-button-container-height-${size}`);
@@ -685,7 +687,7 @@ test.describe('items', () => {
       for (const stage of document.querySelectorAll<HTMLElement>('[data-fixture^="zero-"]')) stage.style.setProperty('--tanrei-sys-target-touch', '0px');
     });
     for (const size of ['medium', 'large', 'small']) await settled(`zero-${size}`, 3, [0, 0]);
-    expect((await bounds(bar(page, 'zero-medium'))).width).toBe(3 * 40 + 2 * pad);
+    expect((await bounds(bar(page, 'zero-medium'))).width).toBe(3 * 36 + 2 * pad);
     // A layer with a gap wider than what the targets need: the gap is the space, and nothing is added to it.
     await page.evaluate((name) => (document.querySelector('[data-fixture="wide-gap"]') as HTMLElement).style.setProperty(name, '20px'), T('container-gap-floating'));
     await settled('wide-gap', 3, [20, 20]);
@@ -697,15 +699,15 @@ test.describe('items', () => {
       await cdp.send('Emulation.setEmitTouchEventsForMouse', { enabled: true, configuration: 'mobile' });
       expect(await page.evaluate(() => matchMedia('(pointer: coarse)').matches)).toBe(true);
       expect(await along('small', 3)).toEqual(before);
-      expect((await along('floating', 4)).apart).toEqual([8, 8, 8]);
+      expect((await along('floating', 4)).apart).toEqual([12, 12, 12]);
     }
     // Right-to-left: the same spaces, mirrored.
     await page.evaluate(() => document.querySelector('[data-fixture="mixed"]')!.setAttribute('dir', 'rtl'));
     await expect.poll(async () => {
       const boxes = await Promise.all([0, 1, 2, 3].map((n) => bounds(inner(page, 'mixed', n))));
       return boxes.slice(1).map((box, n) => Math.round((boxes[n].x - (box.x + box.width)) * 100) / 100);
-    }).toEqual([10, 4, 6]);
-    // An item that comes or goes is followed: the fourth medium item removed, the three stand as they did; one added small, 10 from the last.
+    }).toEqual([16, 6, 10]);
+    // An item that comes or goes is followed: the fourth medium item removed, the three stand as they did; one added small, 16 from the last.
     await bar(page, 'floating').evaluate((el) => {
       const next = document.createElement('tanrei-button');
       next.setAttribute('variant', 'text');
@@ -714,17 +716,17 @@ test.describe('items', () => {
       next.innerHTML = '<span slot="icon" class="tanrei-icon">more_vert</span>';
       el.append(next);
     });
-    await settled('floating', 5, [8, 8, 8, 10]);
+    await settled('floating', 5, [12, 12, 12, 16]);
     await bar(page, 'floating').evaluate((el) => el.firstElementChild!.remove());
-    await settled('floating', 4, [8, 8, 10]);
+    await settled('floating', 4, [12, 12, 16]);
     // The spaces are the container's own elements, one between two items; nothing is written on the items.
     expect(await container(page, 'floating').evaluate((el) => el.querySelectorAll(':scope > .space:not([data-off])').length), 'one space between two items').toBe(3);
     expect(await bar(page, 'floating').evaluate((el) => [...el.children].map((child) => (child as HTMLElement).style.cssText)), 'nothing on the items').toEqual(['', '', '', '']);
     // Docked: unchanged — the items spread across the width with container.gap.docked as the least space, and no item
     // is given a margin.
     const dockedGap = await resolveToken(page, T('container-gap-docked'));
-    // sys.target.touch less a small Button: 48 − 36 under this test's target (0 in the default system).
-    expect(dockedGap).toBe(12);
+    // sys.target.touch less a small Button: 48 − 28 under this test's target (8 in the default system).
+    expect(dockedGap).toBe(20);
     for (const id of ['docked', 'docked-small']) {
       const own = await bounds(container(page, id));
       const boxes = await Promise.all([0, 1, 2, 3].map((n) => bounds(inner(page, id, n))));
@@ -1005,7 +1007,7 @@ test.describe('inline, groups, separators and the overflow menu', () => {
     const pad = await resolveToken(page, T('container-padding-inline-inline'));
     const gap = await resolveToken(page, T('container-gap-inline'));
     const touch = await resolveToken(page, '--tanrei-sys-target-touch');
-    expect([size, pad, gap]).toEqual([40, 0, 4]);
+    expect([size, pad, gap]).toEqual([36, 0, 4]);
     const id = 'inline-formatting';
     const own = await bounds(bar(page, id));
     const stage = await bounds(page.locator(`[data-fixture="${id}"]`));
@@ -1062,8 +1064,8 @@ test.describe('inline, groups, separators and the overflow menu', () => {
     const size = await resolveToken(page, T('container-size-inline'));
     const gap = await resolveToken(page, T('container-gap-inline'));
     const touch = await resolveToken(page, '--tanrei-sys-target-touch');
-    // Under the default system: small 36 (held at the minimum), the inline toolbar 40, its gap 4.
-    expect([small, medium, large, halves, size, gap]).toEqual([36, 40, 56, 36, 40, 4]);
+    // Under the default system: small 28 (its step), the inline toolbar 36, its gap 4.
+    expect([small, medium, large, halves, size, gap]).toEqual([28, 36, 52, 28, 36, 4]);
     /** The heights of the first `count` items' boxes, a Button with menu's by its two halves. */
     const heights = (id: string, count: number) =>
       bar(page, id).evaluate(
@@ -1083,7 +1085,8 @@ test.describe('inline, groups, separators and the overflow menu', () => {
     const [undo, redo] = [await bounds(inner(page, 'inline-small', 0)), await bounds(inner(page, 'inline-small', 1))];
     expect([undo.width, redo.width]).toEqual([small, small]);
     expect(redo.x - (undo.x + undo.width)).toBeCloseTo(kept(gap, touch, small, small), 1);
-    expect(redo.x - (undo.x + undo.width)).toBeCloseTo(4, 1);
+    // Each lacks 8 of the 36 target: 4 + 4.
+    expect(redo.x - (undo.x + undo.width)).toBeCloseTo(8, 1);
     // Its own size across the axis, around smaller items; as large as a larger one.
     expect((await bounds(bar(page, 'inline-small'))).height).toBeCloseTo(size, 1);
     expect(await heights('small-own-large', 2)).toEqual([small, large]);
@@ -1117,7 +1120,7 @@ test.describe('inline, groups, separators and the overflow menu', () => {
     await bar(page, 'small-overflow').evaluate((el) => el.removeAttribute('size'));
     await expect.poll(async () => (await bounds(overflowButton(page, 'small-overflow').locator('button'))).height).toBe(medium);
 
-    // Under a 48 touch target the gaps follow the lengths the items are drawn at: small ones (36) stand 12 apart, as
+    // Under a 48 touch target the gaps follow the lengths the items are drawn at: small ones (28) stand 20 apart, as
     // TBR-16 says of small items that set their own size.
     await mountFixtures(page, spec, {
       icons: true,
@@ -1129,7 +1132,7 @@ test.describe('inline, groups, separators and the overflow menu', () => {
         const boxes = await Promise.all([0, 1, 2].map((n) => bounds(inner(page, 'floating-small', n))));
         return boxes.slice(1).map((box, n) => Math.round((box.x - (boxes[n].x + boxes[n].width)) * 100) / 100);
       })
-      .toEqual([12, 12]);
+      .toEqual([20, 20]);
     expect((await bounds(inner(page, 'floating-small', 0))).height).toBe(small);
   });
 
@@ -2049,10 +2052,28 @@ test.describe('selection groups, fields and the items kept at the end', () => {
     // At most what the fade lets through 2 px from its edge — it is as deep as the token, or as the items still lie
     // beyond that edge where that is less — and the faintest difference an engine composites apart.
     const allowed = (beyond: number) => (255 * 2) / Math.min(depth, beyond) + INK;
+    // Whether item n is drawn as it is without the fade.
+    const whole = async (n: number) => {
+      const box = await bounds(member(page, id, n));
+      const shown = await page.screenshot({ clip: box });
+      await track.evaluate((el) => el.style.setProperty('mask-image', 'none'));
+      await frame();
+      const bare = await page.screenshot({ clip: box });
+      await track.evaluate((el) => el.style.removeProperty('mask-image'));
+      await frame();
+      return shown.equals(bare);
+    };
     for (const dir of ['ltr', 'rtl'] as const) {
+      // Right-to-left is set while the items are scrolled to the end left-to-right (the loop below ends there).
       await page.locator(`[data-fixture="${id}"]`).evaluate((el, d) => el.setAttribute('dir', d), dir);
       await frame();
       const rtl = dir === 'rtl';
+      // The change of direction moves the scroll position, to an end in every engine, and nothing scrolls it after: the
+      // fade is measured again for where the items now stand, so the item at that end is whole (Firefox fires no scroll
+      // event for that move).
+      const since = await track.evaluate((el) => ({ at: Math.abs(el.scrollLeft), max: el.scrollWidth - el.clientWidth }));
+      expect([0, since.max], `${dir}: where the change of direction leaves the items`).toContain(since.at);
+      expect(await whole(since.at === 0 ? 0 : 4), `${dir}: the item at the end the items stand at, once the direction changed`).toBe(true);
       const lane = await bounds(track);
       const at = await bounds(send);
       // The space between the track and Send is the surface behind the toolbar.
@@ -2070,14 +2091,7 @@ test.describe('selection groups, fields and the items kept at the end', () => {
       // Scrolled to either end, the item there is whole: drawn as it is without the fade.
       for (const [left, n] of [[0, 0], [rtl ? -max : max, 4]] as const) {
         await scrollTo(left);
-        const box = await bounds(member(page, id, n));
-        const shown = await page.screenshot({ clip: box });
-        await track.evaluate((el) => el.style.setProperty('mask-image', 'none'));
-        await frame();
-        const bare = await page.screenshot({ clip: box });
-        await track.evaluate((el) => el.style.removeProperty('mask-image'));
-        await frame();
-        expect(shown.equals(bare), `${dir}: item ${n} scrolled to`).toBe(true);
+        expect(await whole(n), `${dir}: item ${n} scrolled to`).toBe(true);
       }
     }
     // Focus: an item that stands in the fade is scrolled clear of it, or to the end, where there is none.

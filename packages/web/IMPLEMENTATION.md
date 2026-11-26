@@ -25,7 +25,7 @@ import '@tanrei/web/shape.css';    // optional: corner smoothing on your own box
 
 Those specifiers are the package's `exports`, resolved by a bundler. A browser does not resolve a bare specifier in
 `<link href>` or `<script src>`: without a bundler, serve `node_modules/@tanrei/web/dist/` and reference the files
-by path — `dist/tokens.css`, `dist/icons.css`, `dist/text.css`, `dist/prose.css`, `dist/link.css`, `dist/table.css`, `dist/app-shell.css`, `dist/page-header.css`, `dist/shape.css`, `dist/callout.css`, `dist/empty-state.css`, `dist/menu.css`, `dist/menubar.css`, `dist/skeleton.css`, `dist/avatar.css`, `dist/app-bar.css`, `dist/cloak.css`,
+by path — `dist/tokens.css`, `dist/icons.css`, `dist/text.css`, `dist/prose.css`, `dist/link.css`, `dist/table.css`, `dist/app-shell.css`, `dist/page-header.css`, `dist/shape.css`, `dist/callout.css`, `dist/empty-state.css`, `dist/menu.css`, `dist/menubar.css`, `dist/skeleton.css`, `dist/avatar.css`, `dist/keyboard-shortcut.css`, `dist/app-bar.css`, `dist/cloak.css`,
 `dist/systems/<id>.css`, and `dist/tanrei.bundle.js`, a self-contained ES module (Lit included) that registers every
 element:
 
@@ -974,6 +974,18 @@ unknown name), drawn as it can be.
 the element from its own tokens), the caps keep the shortcut's own, nothing is exposed (`aria-hidden` on the element), and
 the host exposes `ariaKeyShortcuts` as its own `aria-keyshortcuts`. When the convention changes without the host, the
 shortcut tells it with an internal, non-composed event, so the host re-reads the form.
+
+**Before it is defined (`keyboard-shortcut.css`, `@tanrei/web/keyboard-convention`).** A page written on a server writes
+`keyboardShortcutContent(keys, { label })` between the tags: for each convention, the keys as the element draws them
+(`<kbd data-tanrei-keys-chord>` holding a `<kbd data-tanrei-keys-key>` per key, the standard convention's + between them),
+hidden, and the text read in their place. The legends and the order come from the same table the element draws from
+(`primitives/keyboard-writing.ts`). `keyboardPlatformScript()`, inline in `<head>`, puts the platform's convention on
+`<html>` (`data-tanrei-keyboard-platform`) by the element's own `platformConvention()`, its text inlined. The stylesheet
+draws the content with the element's tokens and shows one convention as KBS-2 resolves it: the shortcut's own
+`convention`, else an ancestor's `data-tanrei-keyboard-convention`, else the platform's (the standard convention where no
+script ran). Its rules have no specificity and none matches once the element is defined, which draws its shadow root and
+none of the content. A size or a variant a layer adds is drawn as the default; nested ancestors that set different
+conventions are not ordered (the shortcut's own `convention` is).
 
 ## `<tanrei-progress-indicator>`
 
@@ -5293,7 +5305,7 @@ the tabs (their slot); the panels are slotted after it, so the list owns nothing
 `aria-selected`, `aria-posinset` / `aria-setsize`, `aria-label` (its label, drawn or not), `aria-disabled` and
 `aria-controls` (its panel). Each panel's host is a `tabpanel` named by its tab (`aria-labelledby`); the others are
 `hidden`. A panel with nothing focusable gets `tabindex="0"`. Tabs and panels without an id get one. The icon, the
-container, the indicator with its covered copy of the label and icon, the focus ring's box, the underline and the divider
+state layer, the indicator with its covered copy of the label and icon, the focus ring's box, the underline and the divider
 are `aria-hidden`, and the track is the scroller's own background, so each label is exposed once.
 
 **A row without panels is a radio group (TAB-42).** While the row has no panel — no `<tanrei-tab-panel>` of its own, and
@@ -5342,7 +5354,7 @@ scroll sideways when they do not fit and the scroll bar is hidden (a wheel, a tr
 selected, or the arrow keys scroll them); a tab brought into view keeps `track.padding` beside it.
 
 **The indicator's box (TAB-16, TAB-18).** Each tab has one box, centred in it: `track.padding` in from the row's top and
-bottom, so the same height on every tab (32 in a 40 row, 56 in a 64 row with stacked icons, in the default system). In a row that hugs
+bottom, so the same height on every tab (28 in a 36 row, 56 in a 64 row with stacked icons, in the default system). In a row that hugs
 it is as wide as the tab's content plus `active-indicator.padding-inline` on each side (the tab itself, by the default
 alias), never wider than the tab and never narrower than it is tall — and exactly as wide as it is tall where the
 content is not wider than it is tall (an icon alone, one full-width character, a one-letter label): a circle. In a row
@@ -5351,11 +5363,13 @@ the content, the row's height or the padding changes) and writes the width as a 
 is drawn until then. That box is three things:
 
 - **the active indicator** on the selected tab, its corners `active-indicator.shape`;
-- **the container** (part `container`): hover, focus and press are drawn in it on every tab, selected or not, its corners
-  `container.shape`, above the track and under the indicator, never on the tab's rectangle. The whole tab still answers
-  the pointer (the container takes no pointer events), and a ripple is drawn in the container and clipped to it wherever
-  on the tab the press lands (`PressController`'s `rippleHost`). On the selected tab the indicator covers it exactly, so
-  hover and press are not seen there;
+- **the state layer** (part `state-layer`): hover, focus and press are drawn in it on every tab, selected or not, its
+  corners `container.shape`, above the track and under the indicator, never on the tab's rectangle. The whole tab still
+  answers the pointer (the state layer takes no pointer events), and a ripple is drawn in the state layer and clipped to
+  it wherever on the tab the press lands (`PressController`'s `rippleHost`). On the selected tab it lies above the
+  indicator, drawn from the selected parts (`selected.state-layer.color`, the covered content's color), so hover and press
+  show there too. The `container.*` tokens are the whole tab's (its height, padding and gap): the tab's own box, part
+  `container`, which draws nothing of its own; the state layer is the box in it that a press colors;
 - **the focus ring's box**: the ring or the glow surrounds it in its shape, `sys.focus.offset` outside it, above the
   neighbouring tabs and the indicator, and held inside the track: where `track.padding` is less than the ring reaches it
   is drawn further in by the difference (`focusRing(on, { within })`). In the default system the reach is the padding,
@@ -5468,13 +5482,13 @@ tab's `value` (never its label):
   it has not been upgraded to read. A page that is rendered on a server guards that as it guards any element not yet
   defined (the docs site hides every panel but the first until `tanrei-tab-view` is defined).
 
-**States (TAB-3…10).** Two looks per variant, the plain one and `selected.`, each colors the container, label, icon,
+**States (TAB-3…10).** Two looks per variant, the plain one and `selected.`, each colors the state layer, label, icon,
 covered label and icon, active indicator and underline in every state; the row declares its variant's values on its
 slotted tabs (`::slotted(tanrei-tab)`), so a tab takes the row's variant, and its track color on itself. Everything else
 is Button's: the state precedence, press-hold, the four `pressed-feedback` answers (the ripple grows inside the
-container, under the indicator), ring or glow around the container and held inside the track, corner smoothing on the
-container, the ring and the track (fully rounded in the default system, which no amount changes), and the state motion.
-Parts: `tablist`, `scroller` / `track`, `divider` (row); `container`, `icon`, `label`, `active-indicator`, `underline`
+state layer), ring or glow around the state layer and held inside the track, corner smoothing on the
+state layer, the ring and the track (fully rounded in the default system, which no amount changes), and the state motion.
+Parts: `tablist`, `scroller` / `track`, `divider` (row); `state-layer`, `icon`, `label`, `active-indicator`, `underline`
 (tab).
 
 **Variants, sizes, the track and the transition (TAB-5, TAB-42…45, TAB-49, TAB-50).** The row declares
@@ -7999,7 +8013,7 @@ Two to five related options drawn side by side as the joined segments of one con
 | `selection` | `single` \| `multiple` | `single` | single is a radio group (one value, never cleared by its own segment); multiple switches each segment on and off (none is allowed). Anything else is single; reflected |
 | `value` | string \| `null` | `null` | the selected segment's value while single; `null` selects none. Attribute and property, not reflected |
 | `values` | string[] | `[]` | the selected segments' values while multiple. A property (assign a new array); the `values` attribute is read as a JSON array or as whitespace-separated values, as the list's |
-| `size` | `small` \| `medium` \| `large` (or a value the system adds) | `medium` | 36 / 36 / 40 in the default system, Button's heights. Unknown: drawn as `medium`, reported (SEG-8); reflected |
+| `size` | `small` \| `medium` \| `large` (or a value the system adds) | `medium` | 28 / 36 / 52 in the default system, Button's heights. Unknown: drawn as `medium`, reported (SEG-8); reflected |
 | `label` | string | `""` | the set's accessible name: the question its options answer (an empty one is reported, SEG-22) |
 
 | `<tanrei-segment>` | Type | Default | |
@@ -8488,7 +8502,7 @@ with an empty or repeated value or an empty headline; more than two trailing ele
 ```
 
 **The trigger (SRC-35, SRC-36).** `bar="button"` draws one native `<button>` in the bar's place — the bar's fill,
-elevation and shape at `trigger.container.height` (40), the search glyph at `trigger.leading-icon.size`, the placeholder
+elevation and shape at `trigger.container.height` (36), the search glyph at `trigger.leading-icon.size`, the placeholder
 (or the label) on one line in `trigger.label.typescale`, cut with an ellipsis, and the hint — and `bar="icon"` a medium
 icon-only text `<tanrei-button>` (the host is then `inline-block`). It is named by `label`, says `aria-haspopup="dialog"`
 and `aria-expanded` (for the icon form the search writes them on the Button's native button), shows keyboard focus by
@@ -8888,7 +8902,7 @@ own selectors and its own `--tanrei-comp-<name>-*` tokens — nothing in them kn
 | Piece | What it gives | The component supplies |
 |---|---|---|
 | `stateRules(on, paints)` | hovered, focused, pressed (`overlay` / `ripple`+`dim` / `none`) and disabled, in precedence order, pressed without a transition in | `on(state)` → the selector that paints it (`` (s) => `button${s}` ``), and each state's declarations from that state's tokens |
-| `PressController` + `pressHold(selector)` | `data-pressed="<feedback>"` on pointer down and on its keys, held for `sys.motion.duration.press-hold`, the ripple's lifecycle | the container, the element that carries press-hold, `disabled`, the keys (default Enter and Space), and optionally where the ripple grows from (`origin`); optionally `rippleHost`, the element the ripple is drawn in when that is not the pressed element (a tab's container, TAB-9) |
+| `PressController` + `pressHold(selector)` | `data-pressed="<feedback>"` on pointer down and on its keys, held for `sys.motion.duration.press-hold`, the ripple's lifecycle | the container, the element that carries press-hold, `disabled`, the keys (default Enter and Space), and optionally where the ripple grows from (`origin`); optionally `rippleHost`, the element the ripple is drawn in when that is not the pressed element (a tab's state layer, TAB-9) |
 | `rippleStyles(tokens)` | the `.ripple` layer, its growth, fade and reduced-motion overlay | the custom property NAMES of its color, inset, growth, fade and easing |
 | `focusRing(on)` + `syncFocusStyle()` | the ring (`outline` + `::after`), or the glow under `focus-style: glow`, never animated | `on(focus)` → the indicator's selector |
 | `focusGlow(on)` | the glow alone, for a control whose own edge is its focus indicator (a text field): no ring, the halo under `focus-style: glow` | `on(focus)` → the indicator's selector under the control's own focus condition |
