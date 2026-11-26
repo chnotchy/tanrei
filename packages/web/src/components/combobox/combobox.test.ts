@@ -27,6 +27,7 @@ import { expectGoneWhileSkipped } from '../../../test/skipped-exit.js';
 import { expectBoxTakesContainerSize, expectOptionsTakeDrawnSize } from '../../../test/input-box-size.js';
 import { controlledInTree, controlledList } from '../../../test/controlled-list.js';
 import { CONTROL_HEIGHTS, atControlHeight } from '../../../test/control-height.js';
+import { askForFrame } from '../../../test/frame-asked.js';
 
 const spec = loadSpec('combobox');
 type P = Page;
@@ -398,6 +399,7 @@ test.describe('behavior: the box, and what it takes from the Field that frames i
         },
         [variant, size] as const,
       );
+      await askForFrame(page);
       const field = page.locator('[data-fixture="pair"] > tanrei-text-field');
       await expect(field.locator('.container')).toBeVisible();
       await frames(page);

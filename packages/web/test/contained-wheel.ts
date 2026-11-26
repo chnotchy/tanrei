@@ -1,5 +1,6 @@
 import { type Locator, type Page, expect } from '@playwright/test';
 import { atRest } from './at-rest.js';
+import { askForFrame } from './frame-asked.js';
 
 /**
  * A real wheel, turned over `scroller` (a box that keeps its scroll from the page: `overscroll-behavior: contain` and
@@ -51,4 +52,6 @@ export async function expectWheelKeptFromPage(page: Page, scroller: Locator, axi
   expect(await pageOffset(), 'the page did not move after the pause').toEqual([0, 0]);
   expect(await offset(), 'the box is still at its end').toBe(Math.round(end));
   await page.evaluate(() => document.querySelector('[data-wheel-room]')?.remove());
+  // The page's scroll range is gone with the box: a frame, as after any change of layout the test makes (test/frame-asked.ts).
+  await askForFrame(page);
 }

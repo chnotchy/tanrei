@@ -10,6 +10,7 @@ import { linkCardToHtml } from '../src/links/index.ts';
 import { buildSync } from 'esbuild';
 import { specimenHtml, specimenInline, specimenMarkdown } from './specimen.ts';
 import { countMount } from './mounts-per-page.ts';
+import { askForFrame } from './frame-asked.ts';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const pkg = path.resolve(here, '..');
@@ -2964,7 +2965,10 @@ export async function withoutIconFont(page: Page, family = MISSING_ICON_FAMILY):
   return family;
 }
 
-/** The font of `withoutIconFont()` arrives: the default system's icon face, registered under the missing family's name. */
+/**
+ * The font of `withoutIconFont()` arrives: the default system's icon face, registered under the missing family's name;
+ * then a frame (`askForFrame()`): the glyphs are laid out again in it.
+ */
 export async function iconFaceArrives(page: Page, family = MISSING_ICON_FAMILY) {
   const [real] = await iconFamilies(read('dist/tokens.css'), '');
   await page.addStyleTag({ content: (await presetFontFaces([real])).replaceAll(real, family) });
@@ -2972,6 +2976,7 @@ export async function iconFaceArrives(page: Page, family = MISSING_ICON_FAMILY) 
     await document.fonts.load(`24px "${name}"`, 'check');
   }, family);
   await page.evaluate(facesReady);
+  await askForFrame(page);
 }
 
 /**
@@ -2982,8 +2987,9 @@ export async function iconFaceArrives(page: Page, family = MISSING_ICON_FAMILY) 
  * first that differs, when the two have the same size (1 to 10 s for a page of fixtures); a set of another size is not
  * compared (README, "A single token set on the root from script is slow in WebKit"). What the page draws is the same.
  *
- * Self-contained, so that it can be given to `page.evaluate()`; `rootTokens()` is that call, and `rootTokensInPage()`
- * leaves it on the page as `window.rootTokens` for a script of the page that writes in the middle of its own work.
+ * Self-contained, so that it can be given to `page.evaluate()`; `rootTokens()` makes that call (then asks for a frame),
+ * and `rootTokensInPage()` leaves it on the page as `window.rootTokens` for a script of the page that writes in the
+ * middle of its own work.
  */
 export function writeRootTokens(vars: Record<string, string>): void {
   const root = document.documentElement.style;
@@ -2995,7 +3001,15 @@ export function writeRootTokens(vars: Record<string, string>): void {
   }
   for (; own > 0; own--) root.setProperty(`--root-write-${(counter.tanreiRootWrites = (counter.tanreiRootWrites ?? 0) + 1)}`, '1');
 }
-export const rootTokens = (page: Page, vars: Record<string, string>): Promise<void> => page.evaluate(writeRootTokens, vars);
+/**
+ * Sets custom properties on the root from the test (`writeRootTokens()`), then has the page draw a frame: a token on the
+ * root changes what the page lays out, and Playwright's headless WebKit on Linux now and then draws no frame after
+ * such a write for seconds (`askForFrame()`, test/frame-asked.ts).
+ */
+export async function rootTokens(page: Page, vars: Record<string, string>): Promise<void> {
+  await page.evaluate(writeRootTokens, vars);
+  await askForFrame(page);
+}
 /** The longhands of a type role that a component composes its `font` from (src/styles/type.ts). */
 const ROLE_LONGHANDS = ['font-weight', 'font-size', 'line-height', 'font-family'] as const;
 
@@ -3175,10 +3189,14 @@ async function wordsApi(page: Page) {
   await page.addScriptTag({ content: wordsScript });
 }
 
-/** `setWords()` of `@tanrei/web`, called in the page as a product calls it. */
+/**
+ * `setWords()` of `@tanrei/web`, called in the page as a product calls it; then a frame (`askForFrame()`): the words
+ * change what the components draw and lay out.
+ */
 export async function setWords(page: Page, words: Record<string, string>, options: { lang?: string } = {}) {
   await wordsApi(page);
   await page.evaluate(([w, o]) => (globalThis as unknown as { tanreiWordsApi: { setWords: (words: unknown, options: unknown) => void } }).tanreiWordsApi.setWords(w, o), [words, options] as const);
+  await askForFrame(page);
 }
 
 /** `missingWords()` of `@tanrei/web`, asked in the page. */

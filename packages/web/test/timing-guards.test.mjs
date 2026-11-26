@@ -28,6 +28,12 @@
 //   (`expect.poll`, `toHaveAttribute`, …) with no frame asked for between: Playwright's headless WebKit on Linux, as CI
 //   runs it, now and then draws no frame after such a write for seconds, so a resize observer is not told and the
 //   component is seen not to answer. Write it with `restyle()` (test/restyle.ts), which asks for a frame after it.
+// - the same for an attribute set or taken off, or an element put in or taken out (its markup or text replaced): the
+//   engine stops drawing after those as after a size (test/frame-asked.ts has the measurements). Write it with
+//   `rewrite()`, or call `askForFrame()` after the `.evaluate(` (test/frame-asked.ts). A token on the root is written
+//   with `rootTokens()`, words with `setWords()`: both ask for a frame after the write.
+//   Both rules read the whole function a `.evaluate(` runs, and count a function of the file's own that makes such a
+//   write wherever it is called; they cannot see a write that a function of another file makes.
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
@@ -51,10 +57,88 @@ const argument = (text, at) => {
 
 /** A write of a box's size to an element's inline style. */
 const SIZE_WRITE = /\.style\.(inlineSize|width|blockSize|height|maxInlineSize|maxBlockSize|minInlineSize|minBlockSize)\s*=[^=]|\.style\.setProperty\(\s*['"`](inline-size|width|block-size|height|max-inline-size|max-block-size|min-inline-size|min-block-size)['"`]/;
+/**
+ * A write of another kind that changes what the page lays out: an attribute set or taken off, an element put in or
+ * taken out, its markup or text replaced.
+ */
+const LAYOUT_WRITE = /\.(setAttribute|toggleAttribute|removeAttribute|append|appendChild|prepend|insertAdjacentHTML|insertAdjacentElement|insertBefore|replaceChildren|replaceWith|removeChild)\(|\.remove\(\)|\.(hidden|dir|lang|innerHTML|outerHTML|textContent|innerText)\s*=[^=]/;
 /** An assertion that waits: it retries until what it reads changes. */
 const WAITS = /\bexpect\.poll\(|\.(not\.)?to(HaveAttribute|HaveCount|BeVisible|BeHidden|HaveText|HaveCSS|HaveJSProperty|Pass)\(|\bwaitForFunction\(/;
-/** Something that has the page draw a frame: a frame callback asked for, or a helper of the tests' that asks for one. */
-const DRAWS = /requestAnimationFrame|\b(frames?|settle|settled|trace|restyle|twoFrames|atRest|motionEnded)\(/;
+/**
+ * Something that has the page draw a frame: a frame callback asked for, a helper of the tests' that asks for one
+ * (test/frame-asked.ts; `rootTokens()` and `setWords()` of the harness ask for one after their write), or an action of
+ * Playwright's that waits for its element to be stable, which it tells by frame callbacks (a click, a hover, a tap, a
+ * check, a drag: not the mouse's or the keyboard's own inputs).
+ */
+const DRAWS = /requestAnimationFrame|\b(frames?|settle|settled|trace|restyle|rewrite|askForFrame|rootTokens|setWords|twoFrames|atRest|motionEnded)\(|(?<!mouse)\.(click|dblclick|hover|tap|check|uncheck|setChecked|dragTo|scrollIntoViewIfNeeded)\(/;
+
+/** The index of the parenthesis that closes the call whose arguments start at `at` (the text's end where none does). */
+const closing = (text, at) => {
+  for (let depth = 0, i = at; i < text.length; i++) {
+    if (text[i] === '(') depth++;
+    else if (text[i] === ')' && depth-- === 0) return i;
+  }
+  return text.length;
+};
+/** A function of the file's own, defined on this line: `const name = (…) => …`, `async function name(…)`. */
+const DEFINES = /^\s*(?:export\s+)?(?:(?:const|let)\s+(\w+)\s*=\s*(?:async\s*)?(?:\([^)]*\)|\w+)\s*(?::[^=]*)?=>|(?:async\s+)?function\s+(\w+)\s*[(<])/;
+const indent = (line) => /^\s*/.exec(line)[0].length;
+
+/**
+ * Counts each write of `write`'s kind that the test makes in the page and then waits for, with no frame asked for
+ * between: a `.evaluate(` whose function makes the write and asks for no frame, followed within four lines of its end
+ * by an assertion that waits, before anything that draws a frame. A function of the file's own that makes such a
+ * write (`const narrow = (page) => stage(page).evaluate((el) => …)`) is a write wherever it is called.
+ */
+function writtenThenWaited(text, write) {
+  const lines = text.split('\n');
+  const starts = [];
+  for (let at = 0, offset = 0; at < lines.length; offset += lines[at].length + 1, at++) starts.push(offset);
+  const lineOf = (index) => {
+    let at = 0;
+    while (at + 1 < starts.length && starts[at + 1] <= index) at++;
+    return at;
+  };
+  // The file's own functions that write: their whole definition — the line, and the lines indented under it or closing it.
+  const writers = [];
+  // The lines of their definitions: a write there is counted where the function is called.
+  const within = new Set();
+  for (const [at, line] of lines.entries()) {
+    const defined = DEFINES.exec(line);
+    if (!defined || COMMENT.test(line)) continue;
+    let end = at + 1;
+    while (end < lines.length && lines[end].trim() !== '' && (indent(lines[end]) > indent(line) || /^[)\]}]/.test(lines[end].trim()))) end++;
+    const body = lines.slice(at, end).join('\n');
+    if (body.includes('.evaluate(') && write.test(body) && !DRAWS.test(body)) {
+      writers.push(defined[1] ?? defined[2]);
+      for (let inside = at; inside < end; inside++) within.add(inside);
+    }
+  }
+  const calls = writers.length ? new RegExp(`(?<![.\\w])(${writers.join('|')})\\(`) : null;
+  let n = 0;
+  for (const [at, line] of lines.entries()) {
+    if (COMMENT.test(line)) continue;
+    let end = -1;
+    const call = line.indexOf('.evaluate(');
+    if (call >= 0 && !within.has(at)) {
+      const from = starts[at] + call + '.evaluate('.length;
+      const to = closing(text, from);
+      const made = text.slice(from, to);
+      if (write.test(made) && !DRAWS.test(made)) end = lineOf(to);
+    }
+    if (end < 0 && calls?.test(line) && !DEFINES.test(line)) end = at;
+    if (end < 0) continue;
+    for (const next of lines.slice(end + 1, end + 5)) {
+      if (COMMENT.test(next)) continue;
+      if (DRAWS.test(next)) break;
+      if (WAITS.test(next)) {
+        n++;
+        break;
+      }
+    }
+  }
+  return n;
+}
 
 /** Each rule: what it counts in one file's text, and today's offenders by file (`<path from packages/web>: <count>`). */
 export const RULES = {
@@ -287,28 +371,112 @@ export const RULES = {
     },
   },
   'a size written by the test, then waited for with no frame asked for': {
-    // The write made from the test's side: on the line of a `.evaluate(` (or the line after one that opens a block),
-    // not a script of the page's own that sizes what it is making. Then, within the next four lines, an assertion that
-    // waits, before anything that draws a frame.
-    count: (text) => {
-      const lines = text.split('\n');
-      let n = 0;
-      for (const [at, line] of lines.entries()) {
-        if (COMMENT.test(line) || !SIZE_WRITE.test(line)) continue;
-        const before = lines[at - 1] ?? '';
-        if (!line.includes('.evaluate(') && !(before.includes('.evaluate(') && /\{\s*$/.test(before))) continue;
-        for (const next of lines.slice(at + 1, at + 5)) {
-          if (COMMENT.test(next)) continue;
-          if (DRAWS.test(next)) break;
-          if (WAITS.test(next)) {
-            n++;
-            break;
-          }
-        }
-      }
-      return n;
-    },
+    count: (text) => writtenThenWaited(text, SIZE_WRITE),
     allowed: {},
+  },
+  'an attribute, an element put in or taken out by the test, then waited for with no frame asked for': {
+    count: (text) => writtenThenWaited(text, LAYOUT_WRITE),
+    // Today's offenders, written before the rule: a write and a wait as the rule reads them (it cannot tell a wait for
+    // what an update draws, which needs no frame, from a wait for an observer). Each moves to `rewrite()` or
+    // `askForFrame()` as its file is worked on; the list only shrinks.
+    allowed: {
+      'src/components/accordion/accordion.test.ts': 1,
+      'src/components/app-bar/app-bar.test.ts': 13,
+      'src/components/app-shell/app-shell.test.ts': 14,
+      'src/components/avatar/avatar.test.ts': 4,
+      'src/components/badge/badge.test.ts': 4,
+      'src/components/bottom-sheet/bottom-sheet.test.ts': 1,
+      'src/components/breadcrumbs/breadcrumbs.test.ts': 1,
+      'src/components/button-group/button-group.test.ts': 3,
+      'src/components/button-with-menu/button-with-menu.test.ts': 5,
+      'src/components/button/button.test.ts': 15,
+      'src/components/calendar/calendar.test.ts': 1,
+      'src/components/callout/callout.test.ts': 18,
+      'src/components/card/card.test.ts': 2,
+      'src/components/carousel/carousel.test.ts': 9,
+      'src/components/chat-composer/chat-composer.test.ts': 1,
+      'src/components/checkbox/checkbox.test.ts': 2,
+      'src/components/chip/chip.test.ts': 5,
+      'src/components/code-block/code-block.test.ts': 11,
+      'src/components/color-input/color-input.test.ts': 4,
+      'src/components/combobox-field/combobox-field.test.ts': 5,
+      'src/components/combobox/combobox.test.ts': 17,
+      'src/components/date-time-picker/date-time-picker.test.ts': 2,
+      'src/components/description-list/description-list.test.ts': 5,
+      'src/components/dialog/dialog.test.ts': 17,
+      'src/components/divider/divider.test.ts': 2,
+      'src/components/drop-zone/drop-zone.test.ts': 6,
+      'src/components/empty-state/empty-state.test.ts': 10,
+      'src/components/fab-menu/fab-menu.test.ts': 8,
+      'src/components/field/field.test.ts': 1,
+      'src/components/figure/figure.test.ts': 3,
+      'src/components/file-item/file-item.test.ts': 18,
+      'src/components/file-picker/file-picker.test.ts': 6,
+      'src/components/file-upload/file-upload.test.ts': 30,
+      'src/components/handle/handle.test.ts': 2,
+      'src/components/image-preview/image-preview.test.ts': 7,
+      'src/components/keyboard-shortcut/keyboard-shortcut.test.ts': 5,
+      'src/components/link-card/link-card.test.ts': 20,
+      'src/components/list-row/list-row.test.ts': 2,
+      'src/components/list/list.test.ts': 18,
+      'src/components/loading-indicator/loading-indicator.test.ts': 6,
+      'src/components/main-action-button/main-action-button.test.ts': 3,
+      'src/components/marquee-text/marquee-text.test.ts': 7,
+      'src/components/menu/menu.test.ts': 25,
+      'src/components/menubar/menubar.test.ts': 25,
+      'src/components/meter/meter.test.ts': 4,
+      'src/components/modal-layer/modal-layer.test.ts': 3,
+      'src/components/navigation-bar/navigation-bar.test.ts': 4,
+      'src/components/navigation-drawer/navigation-drawer.scrollbar.test.ts': 1,
+      'src/components/navigation-drawer/navigation-drawer.test.ts': 19,
+      'src/components/number-field/number-field.test.ts': 1,
+      'src/components/number-input/number-input.test.ts': 6,
+      'src/components/number-ticker/number-ticker.test.ts': 4,
+      'src/components/one-time-code-field/one-time-code-field.test.ts': 3,
+      'src/components/page-header/page-header.test.ts': 6,
+      'src/components/popover/popover.test.ts': 21,
+      'src/components/progress-indicator/progress-indicator.test.ts': 8,
+      'src/components/radio-button/radio-button.test.ts': 3,
+      'src/components/radio-group/radio-group.test.ts': 3,
+      'src/components/rating/rating.test.ts': 2,
+      'src/components/resizable-frame/resizable-frame.test.ts': 6,
+      'src/components/scroll-area/scroll-area.test.ts': 3,
+      'src/components/search/search.test.ts': 63,
+      'src/components/segmented-button/segmented-button.test.ts': 8,
+      'src/components/select-field/select-field.test.ts': 1,
+      'src/components/select/select.test.ts': 25,
+      'src/components/side-sheet/side-sheet.test.ts': 14,
+      'src/components/size-transition/size-transition.test.ts': 2,
+      'src/components/skeleton/skeleton.test.ts': 8,
+      'src/components/slider-field/slider-field.test.ts': 1,
+      'src/components/slider/slider.test.ts': 8,
+      'src/components/snackbar/snackbar.test.ts': 30,
+      'src/components/split-view/split-view.test.ts': 3,
+      'src/components/stepper/stepper.test.ts': 1,
+      'src/components/switch/switch.test.ts': 4,
+      'src/components/tab-view/tab-view.test.ts': 6,
+      'src/components/table-of-contents/table-of-contents.test.ts': 5,
+      'src/components/table/table.test.ts': 21,
+      'src/components/tabs/tabs.test.ts': 7,
+      'src/components/tag-group/tag-group.test.ts': 10,
+      'src/components/tag/tag.test.ts': 11,
+      'src/components/text-field/text-field.test.ts': 1,
+      'src/components/text-input/text-input.test.ts': 9,
+      'src/components/toolbar/toolbar.test.ts': 18,
+      'src/components/tooltip/tooltip.test.ts': 17,
+      'src/components/tree-view/tree-view.perf.test.ts': 1,
+      'src/components/tree-view/tree-view.test.ts': 34,
+      'src/control-height-fields.test.ts': 1,
+      'src/icons.test.ts': 6,
+      'src/idle.test.ts': 2,
+      'src/primitives/autofocus.test.ts': 1,
+      'src/primitives/availability.test.ts': 5,
+      'src/primitives/motion.test.ts': 6,
+      'src/styles/link.test.ts': 13,
+      'src/styles/previous-next-links.test.ts': 5,
+      'src/styles/steps.test.ts': 7,
+      'src/styles/timeline.test.ts': 11,
+    },
   },
 };
 
@@ -339,8 +507,39 @@ const PLANTED = {
     "await page.setContent(html);\nawait page.hover('#card');",
   ],
   'a size written by the test, then waited for with no frame asked for': [
-    "await stage(page, 'a').evaluate((el) => ((el as HTMLElement).style.inlineSize = '360px'));\nawait expect(host(page, 'a')).toHaveAttribute('data-narrow', '');",
-    "await restyle(stage(page, 'a'), { 'inline-size': '360px' });\nawait expect(host(page, 'a')).toHaveAttribute('data-narrow', '');",
+    [
+      "await stage(page, 'a').evaluate((el) => ((el as HTMLElement).style.inlineSize = '360px'));\nawait expect(host(page, 'a')).toHaveAttribute('data-narrow', '');",
+      "await restyle(stage(page, 'a'), { 'inline-size': '360px' });\nawait expect(host(page, 'a')).toHaveAttribute('data-narrow', '');",
+    ],
+    // Written further down a function the page runs, after what it makes.
+    [
+      "await page.evaluate(() => {\n  const outer = document.createElement('div');\n  outer.id = 'outer';\n  outer.style.inlineSize = '300px';\n});\nawait expect.poll(() => inner.count()).toBe(1);",
+      "await page.evaluate(() => {\n  const outer = document.createElement('div');\n  outer.id = 'outer';\n  outer.style.inlineSize = '300px';\n});\nawait askForFrame(page);\nawait expect.poll(() => inner.count()).toBe(1);",
+    ],
+  ],
+  'an attribute, an element put in or taken out by the test, then waited for with no frame asked for': [
+    [
+      "await stage(page, 'a').evaluate((el) => el.setAttribute('data-narrow', ''));\nawait expect(host(page, 'a')).toHaveAttribute('data-released', '');",
+      "await rewrite(stage(page, 'a'), (el) => el.setAttribute('data-narrow', ''));\nawait expect(host(page, 'a')).toHaveAttribute('data-released', '');",
+    ],
+    [
+      "await host(page, 'a').evaluate((el) => el.querySelector('li')!.remove());\nawait expect.poll(() => focused(page)).toBe('Inter');",
+      "await rewrite(host(page, 'a'), (el) => el.querySelector('li')!.remove());\nawait expect.poll(() => focused(page)).toBe('Inter');",
+    ],
+    [
+      "await page.evaluate((html) => {\n  document.querySelector('main')!.insertAdjacentHTML('beforeend', html);\n}, markup);\nawait expect(page.locator('tanrei-tabs')).toHaveAttribute('data-overflow', '');",
+      "await page.evaluate(async (html) => {\n  document.querySelector('main')!.insertAdjacentHTML('beforeend', html);\n  await new Promise((resolve) => requestAnimationFrame(resolve));\n}, markup);\nawait expect(page.locator('tanrei-tabs')).toHaveAttribute('data-overflow', '');",
+    ],
+    // A function of the file's own that writes: each call is a write.
+    [
+      "const narrow = (page: P) =>\n  stage(page).evaluate((el) => {\n    el.toggleAttribute('data-narrow', true);\n  });\nawait narrow(page);\nawait expect(host(page)).toHaveAttribute('data-released', '');",
+      "const narrow = (page: P) => rewrite(stage(page), (el) => el.toggleAttribute('data-narrow', true));\nawait narrow(page);\nawait expect(host(page)).toHaveAttribute('data-released', '');",
+    ],
+    // A click waits for its element to be stable, which Playwright tells by frame callbacks: a frame is asked for.
+    [
+      "await host(page, 'a').evaluate((el) => el.setAttribute('open', ''));\nawait expect(menu(page)).toBeVisible();",
+      "await host(page, 'a').evaluate((el) => el.setAttribute('open', ''));\nawait item(page, 0).click();\nawait expect(menu(page)).toBeVisible();",
+    ],
   ],
   'a colour polled with a plain read, then read exactly at that value with no wait for the motion': [
     "await expect.poll(() => css(c, 'background-color')).toBe(hovered);\nawait page.mouse.down();\nexpect(await css(c, 'background-color')).toBe(hovered);",
@@ -370,8 +569,11 @@ for (const [rule, { count, allowed }] of Object.entries(RULES)) {
   });
 
   test(`timing guard: ${rule} — catches a planted offender`, () => {
-    const [wrong, right] = PLANTED[rule];
-    assert.equal(count(wrong), 1);
-    assert.equal(count(right), 0);
+    // One pair, or several: [offender, its correct form].
+    const pairs = Array.isArray(PLANTED[rule][0]) ? PLANTED[rule] : [PLANTED[rule]];
+    for (const [wrong, right] of pairs) {
+      assert.equal(count(wrong), 1, wrong);
+      assert.equal(count(right), 0, right);
+    }
   });
 }

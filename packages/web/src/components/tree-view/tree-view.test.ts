@@ -16,6 +16,7 @@ import { TYPEAHEAD_FOUND, TYPEAHEAD_LABELS, typeaheadAsFiltered } from '../../..
 import { expectBaseline } from '../../../test/baseline.js';
 import { EVERY_ANIMATION, motionEnded } from '../../../test/motions.js';
 import { CONTROL_HEIGHTS, atControlHeight } from '../../../test/control-height.js';
+import { askForFrame } from '../../../test/frame-asked.js';
 
 const spec = loadSpec('tree-view');
 type P = Page;
@@ -2906,6 +2907,7 @@ test.describe('before the element is defined, without script, in a shadow root',
       outer.attachShadow({ mode: 'open' }).innerHTML = `<tanrei-tree-view label="In a shadow root" selection="single" value="a1">${lists}</tanrei-tree-view>`;
       document.querySelector('main')!.append(outer);
     }, SMALL);
+    await askForFrame(page);
     const inner = page.locator('#shadowed tanrei-tree-view');
     await expect.poll(() => css(inner.locator('li').first().locator('> span'), 'display')).toBe('grid');
     const first = inner.locator('li').first().locator('> span');
