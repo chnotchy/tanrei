@@ -28,6 +28,7 @@ import { expectGoneWhileSkipped } from '../../../test/skipped-exit.js';
 import { expectBoxTakesContainerSize, expectOptionsTakeDrawnSize } from '../../../test/input-box-size.js';
 import { controlledInTree, controlledList } from '../../../test/controlled-list.js';
 import { CONTROL_HEIGHTS, atControlHeight } from '../../../test/control-height.js';
+import { restyle } from '../../../test/restyle.js';
 
 const spec = loadSpec('select');
 type P = Page;
@@ -1012,7 +1013,7 @@ test.describe('behavior: the list', () => {
     near(c.y - (l.y + l.height), offset, 'list.offset above');
     expect(await part(page, 'one', '.surface').getAttribute('data-side')).toBe('top');
     // Neither side has room for all of it: limited to the room, inside the window's margin, and scrolling.
-    await page.evaluate(() => (document.querySelector<HTMLElement>('[data-moved]')!.style.blockSize = '60px'));
+    await restyle(page.locator('[data-moved]').first(), { 'block-size': '60px' });
     await expect.poll(async () => (await box(container(page, 'one'))).y).toBeLessThan(200);
     await page.setViewportSize({ width: 800, height: 260 });
     const margin = await token(page, 'list-viewport-margin');
@@ -1131,7 +1132,7 @@ test.describe('behavior: the list', () => {
     // A container wider than list.max-width: the list is as wide as the container (a narrower max-width here, so that
     // the stage has room for it).
     await override(page, { [T('list-max-width')]: '200px' });
-    await host(page, 'wraps').evaluate((el) => (el.style.inlineSize = '240px'));
+    await restyle(host(page, 'wraps'), { 'inline-size': '240px' });
     await expect.poll(async () => Math.round((await box(part(page, 'wraps', '.list'))).width)).toBe(240);
     expect(Math.round((await box(container(page, 'wraps'))).width)).toBe(240);
     await override(page, { [T('list-max-width')]: '' });
@@ -1154,7 +1155,7 @@ test.describe('behavior: the list', () => {
     await part(page, 'open-many', '.scroll').evaluate((el) => (el.scrollTop = 0));
     near((await box(rows(page, 'open-many').first())).y - many.y, await token(page, 'list-padding-block'), 'the padding scrolls with the options');
     // It follows the container's width.
-    await host(page, 'stacked-open').evaluate((el) => (el.style.inlineSize = '240px'));
+    await restyle(host(page, 'stacked-open'), { 'inline-size': '240px' });
     await expect.poll(async () => Math.round((await box(list)).width)).toBe(240);
   });
 
@@ -2504,7 +2505,7 @@ test.describe('behavior: conditions, exposure, size and direction', () => {
     expect(await placeholder.evaluate((el) => el.scrollWidth <= el.clientWidth)).toBe(true);
     // Never wider than its layout; and it fills a width it is given.
     near((await box(host(page, 'long-value'))).width, 280, 'cut at its layout’s width');
-    await host(page, 'stacked-value').evaluate((el) => (el.style.inlineSize = '260px'));
+    await restyle(host(page, 'stacked-value'), { 'inline-size': '260px' });
     await expect.poll(async () => Math.round((await box(container(page, 'stacked-value'))).width)).toBe(260);
     // In a Field 280 wide: the same select has a container 280 wide, whichever option is chosen.
     const icons = spec.fixtures.find((f) => f.id === id)!;
@@ -2515,7 +2516,7 @@ test.describe('behavior: conditions, exposure, size and direction', () => {
     }
     expect(await css(host(page, 'framed'), 'display'), 'framed: a block-level box').toBe('flex');
     // The width of the pair is given to the Field.
-    await field(page, 'framed').evaluate((el) => ((el as HTMLElement).style.inlineSize = '200px'));
+    await restyle(field(page, 'framed'), { 'inline-size': '200px' });
     await expect.poll(async () => Math.round((await box(container(page, 'framed'))).width)).toBe(200);
     // Taken out of its Field it is a bare select again: as wide as its widest option.
     await page.evaluate(() => {

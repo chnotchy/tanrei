@@ -11,6 +11,7 @@ import { fileURLToPath } from 'node:url';
 import { type Page, expect, test } from '@playwright/test';
 import { type Fixture, type Spec, fixtureHost, loadSpec, mountFixtures } from '../test/harness.js';
 import { motionEnded } from '../test/motions.js';
+import { restyle } from '../test/restyle.js';
 
 const repo = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../..');
 const inventory = JSON.parse(fs.readFileSync(path.join(repo, 'specs/inventory.json'), 'utf8')) as { components: { name: string }[] };
@@ -106,7 +107,7 @@ test.describe('at rest', () => {
     const folded = await out();
     expect(await atRest(page)).toEqual({ frames: 0, layouts: 0 });
     // …and it still follows: a narrower trail folds more.
-    await page.evaluate(() => ((document.querySelector('.stage') as HTMLElement).style.inlineSize = '300px'));
+    await restyle(page.locator('.stage').first(), { 'inline-size': '300px' });
     await expect.poll(out).toBeGreaterThan(folded);
     expect((await atRest(page)).frames).toBe(0);
   });

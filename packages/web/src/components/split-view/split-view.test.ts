@@ -9,6 +9,7 @@ import { type Fixture, loadSpec, mountFixtureAsInAll, mountFixtures, resolveColo
 import { resolveEasing } from '../../../test/appear.js';
 import { motionEnded } from '../../../test/motions.js';
 import { transitionsRun, watchTransitions } from '../../../test/transitions.js';
+import { restyle } from '../../../test/restyle.js';
 
 const spec = loadSpec('split-view');
 type P = Page;
@@ -475,7 +476,7 @@ test.describe('the product and the layout', () => {
     await mount(page, [fx('room', { value: 40 })]);
     await listen(page);
     await watchTransitions(pane(page, 'room', 'start'));
-    await host(page, 'room').evaluate((el) => el.style.setProperty('inline-size', '300px'));
+    await restyle(host(page, 'room'), { 'inline-size': '300px' });
     await expect.poll(async () => Math.round(await sizeOf(page, 'room', 'start'))).toBe(Math.round((await region(page, 'room')) * 0.4));
     expect(await valueOf(page, 'room')).toBe(40);
     expect(await sizeMotions(pane(page, 'room', 'start'))).toEqual([]);
@@ -565,7 +566,7 @@ test.describe('the product and the layout', () => {
     await page.keyboard.press('Home');
     expect(await valueOf(page, 'least')).toBeCloseTo(tidy((240 * 100) / room), 1);
     // A narrower region: 240 pixels are a larger share of it.
-    await host(page, 'least').evaluate((el) => el.style.setProperty('inline-size', '400px'));
+    await restyle(host(page, 'least'), { 'inline-size': '400px' });
     await expect.poll(async () => Math.round(await sizeOf(page, 'least', 'start'))).toBe(240);
   });
 });

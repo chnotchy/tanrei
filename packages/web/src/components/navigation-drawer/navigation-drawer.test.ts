@@ -30,6 +30,7 @@ import { expectGlyphsKeptWhileClosing } from '../../../test/closing-glyphs.js';
 import { STACKED_DIALOG, STACKED_LAYER, addStackedSurfaces, expectStackedInOrder, focusAmong, setOpenInOneTask } from '../../../test/stacked-surfaces.js';
 import { CONTROL_HEIGHTS, atControlHeight } from '../../../test/control-height.js';
 import { contrastChecked } from '../../../test/contrast-checked.js';
+import { restyle } from '../../../test/restyle.js';
 
 const spec = loadSpec('navigation-drawer');
 type P = Page;
@@ -5354,9 +5355,9 @@ test.describe('resizable', () => {
     await listenResize(page);
     const stage = page.locator('[data-fixture="w320"]');
     // The stage's padding at its end is 16: its content box is 260 wide.
-    await stage.evaluate((el: HTMLElement) => (el.style.inlineSize = '276px'));
+    await restyle(stage, { 'inline-size': '276px' });
     await expect.poll(() => drawnWidth(page, 'w320')).toBe(260);
-    await stage.evaluate((el: HTMLElement) => (el.style.inlineSize = '400px'));
+    await restyle(stage, { 'inline-size': '400px' });
     await expect.poll(() => drawnWidth(page, 'w320')).toBe(320);
     expect(await resizeLog(page)).toEqual([]);
     // Over the content it is container.width.
@@ -5374,7 +5375,7 @@ test.describe('resizable', () => {
       expect((await bounds(box(page, id, 0))).width, id).toBe(360 - 2 * pad);
       expect(await item(page, id, 0).locator('.label').evaluate((el) => el.scrollWidth > el.clientWidth), id).toBe(false);
       // The stage's padding at its end is 16: its content box is 280 wide.
-      await stage.evaluate((el: HTMLElement) => (el.style.inlineSize = '296px'));
+      await restyle(stage, { 'inline-size': '296px' });
       await expect.poll(() => drawnWidth(page, id), id).toBe(280);
       // The host is held at once; the rows follow in the same frame, before it is painted (a resize observer).
       await page.evaluate(() => new Promise((done) => requestAnimationFrame(() => requestAnimationFrame(done))));
@@ -5393,7 +5394,7 @@ test.describe('resizable', () => {
       expect(await label.evaluate((el) => el.scrollWidth > el.clientWidth), id).toBe(true);
       expect(await css(label, 'text-overflow'), id).toBe('ellipsis');
       // The room comes back: the width, and the rows at it.
-      await stage.evaluate((el: HTMLElement) => (el.style.inlineSize = '400px'));
+      await restyle(stage, { 'inline-size': '400px' });
       await expect.poll(() => drawnWidth(page, id), id).toBe(360);
       await expect.poll(async () => (await bounds(box(page, id, 0))).width, id).toBe(360 - 2 * pad);
     }
@@ -5412,7 +5413,7 @@ test.describe('resizable', () => {
     ] as const) {
       const stage = page.locator(`[data-fixture="${id}"]`);
       // The stage's padding at its end is 16.
-      await stage.evaluate((el: HTMLElement, w) => (el.style.inlineSize = `${w}px`), room + 16);
+      await restyle(stage, { 'inline-size': `${room + 16}px` });
       await expect.poll(() => drawnWidth(page, id), id).toBe(room);
       // The host is held at once; the rows follow in the same frame, before it is painted (a resize observer): read
       // after that frame, the rows laid out at the room, inside the drawer, and nothing reaching past the parent's end.
@@ -5440,7 +5441,7 @@ test.describe('resizable', () => {
       }
       expect(await resizeLog(page), id).toEqual([]);
       // The room comes back: the width given (n's 360; m's container.width held at its least, 300).
-      await stage.evaluate((el: HTMLElement) => (el.style.inlineSize = '400px'));
+      await restyle(stage, { 'inline-size': '400px' });
       await expect.poll(() => drawnWidth(page, id), id).toBe(back);
       await expect(separator(page, id), id).toHaveAttribute('aria-valuenow', String(back));
       await expect(separator(page, id), id).toHaveAttribute('aria-valuemin', String(id === 'n' ? least : 300));
@@ -5456,7 +5457,7 @@ test.describe('resizable', () => {
     const column = await px(page, T('collapsed-container-width-medium'));
     const room = 160;
     await listenResize(page);
-    await page.locator('[data-fixture="c"]').evaluate((el: HTMLElement, w) => (el.style.inlineSize = `${w}px`), room + 16);
+    await restyle(page.locator('[data-fixture="c"]'), { 'inline-size': `${room + 16}px` });
     await expect.poll(() => drawnWidth(page, 'c')).toBe(room);
     await expect(separator(page, 'c')).toHaveAttribute('aria-valuenow', String(room));
     await expect(separator(page, 'c')).toHaveAttribute('aria-valuemin', String(column));
@@ -5882,7 +5883,7 @@ test.describe('the room over the content and a column’s room', () => {
       expect(column).toBe(72);
       // The stage's padding at its end is 16: its content box is 56 wide, narrower than the column.
       const room = 56;
-      for (const id of ['c', 'mc']) await page.locator(`[data-fixture="${id}"]`).evaluate((el: HTMLElement, w) => (el.style.inlineSize = `${w}px`), room + 16);
+      for (const id of ['c', 'mc']) await restyle(page.locator(`[data-fixture="${id}"]`), { 'inline-size': `${room + 16}px` });
       for (const id of ['c', 'mc']) {
         await expect.poll(() => drawnWidth(page, id), id).toBe(room);
         const host = await bounds(drawer(page, id));
@@ -5920,7 +5921,7 @@ test.describe('the room over the content and a column’s room', () => {
       // narrower than container.width) and narrows back to 56, from its own start edge.
       // (Alone in its page: opened, it makes the other drawer inert, whose header button then changes its colors.)
       await mount(page, [rail('mc', MAIL, { variant: 'modal', open: false })], { dir });
-      await page.locator('[data-fixture="mc"]').evaluate((el: HTMLElement, w) => (el.style.inlineSize = `${w}px`), room + 16);
+      await restyle(page.locator('[data-fixture="mc"]'), { 'inline-size': `${room + 16}px` });
       await rootTokens(page, { '--tanrei-sys-target-touch': '64px' });
       await expect.poll(() => drawnWidth(page, 'mc')).toBe(room);
       const host = await bounds(drawer(page, 'mc'));
@@ -5950,7 +5951,7 @@ test.describe('the room over the content and a column’s room', () => {
       // The stage's padding at its end is 16: its content box is 56 wide, narrower than the column.
       const room = 56;
       const stage = page.locator('[data-fixture="c"]');
-      await stage.evaluate((el: HTMLElement, w) => (el.style.inlineSize = `${w}px`), room + 16);
+      await restyle(stage, { 'inline-size': `${room + 16}px` });
       await expect.poll(() => drawnWidth(page, 'c')).toBe(room);
       /** The panel against its host and the parent's content box, to a tenth, in each frame. */
       const against = (root: Element) => {

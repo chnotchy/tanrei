@@ -16,6 +16,7 @@ import { holdClock, releaseClock } from '../../../test/page-clock.js';
 import { TYPEAHEAD_FOUND, TYPEAHEAD_LABELS, typeaheadAsFiltered } from '../../../test/typeahead.js';
 import { expectBaseline } from '../../../test/baseline.js';
 import { CONTROL_HEIGHTS, atControlHeight } from '../../../test/control-height.js';
+import { restyle } from '../../../test/restyle.js';
 
 const spec = loadSpec('menubar');
 type P = Page;
@@ -124,8 +125,8 @@ async function focusTitle(page: P, id: string, label: string) {
   await menu(page, id, label).focus();
   await expect.poll(() => focus(page, id)).toBe(`title:${label}`);
 }
-/** The stage's inline size: what the bar's parent gives it. */
-const stageWidth = (page: P, id: string, width: number) => page.locator(`[data-fixture="${id}"]`).evaluate((el, w) => ((el as HTMLElement).style.inlineSize = `${w}px`), width);
+/** The stage's inline size: what the bar's parent gives it, with a frame after the write (`restyle()`), so that the bar's observer of sizes is told. */
+const stageWidth = (page: P, id: string, width: number) => restyle(page.locator(`[data-fixture="${id}"]`), { 'inline-size': `${width}px` });
 /** Whether the focused row of a menu was focused by a pointer's act (no ring), as the menu marks it. */
 const quiet = (page: P) =>
   page.evaluate(() => {

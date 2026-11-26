@@ -21,6 +21,7 @@ import { STOPPED_AFTER, flingThenHold, strokes } from '../../../test/stopped-rel
 import { expectBaseline } from '../../../test/baseline.js';
 import { STACKED_DIALOG, STACKED_LAYER, addStackedSurfaces, expectStackedInOrder, focusAmong, setOpenInOneTask } from '../../../test/stacked-surfaces.js';
 import { contrastChecked } from '../../../test/contrast-checked.js';
+import { restyle } from '../../../test/restyle.js';
 
 const spec = loadSpec('bottom-sheet');
 type P = Page;
@@ -227,7 +228,7 @@ test.describe('drawing', () => {
 
   test('BSH-6: a standard sheet takes its heights from the parent the product placed it in', async ({ page }) => {
     await mount(page, [fx('s', { variant: 'standard' }, LONG)]);
-    await page.locator('[data-fixture="s"]').evaluate((el) => ((el as HTMLElement).style.blockSize = '500px'));
+    await restyle(page.locator('[data-fixture="s"]'), { 'block-size': '500px' });
     await expect.poll(async () => Math.round((await bounds(sheet(page))).height)).toBe(250);
     const stage = await bounds(page.locator('[data-fixture="s"]'));
     const box = await bounds(sheet(page));

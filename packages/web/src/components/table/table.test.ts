@@ -13,6 +13,7 @@ import { expectPressShownAndHeld, watchPress } from '../../../test/watched-press
 import { middlePressAimed } from '../../../test/middle-press.js';
 import { type Fixture, type FixtureItem, acmeSystemCss, fixturesDocument, iconFaceArrives, loadSpec, missingWords, mountFixtures, resolveColor, resolveToken, setWords, tab, tabTo, tableNameSuffix, withoutIconFont, rootTokens } from '../../../test/harness.js';
 import { expectBaseline } from '../../../test/baseline.js';
+import { restyle } from '../../../test/restyle.js';
 import { CONTROL_HEIGHTS, atControlHeight } from '../../../test/control-height.js';
 
 const spec = loadSpec('table');
@@ -75,15 +76,14 @@ const fixture = (id: string) => spec.fixtures.find((f) => f.id === id)!;
 /** A fixture's name on a page of fixtures: the spec's, and its id where another fixture has the same name (the harness's `tableNameSuffix`). */
 const named = (f: Fixture) => `${String(f.props.caption ?? f.props.label)}${tableNameSuffix(spec, f)}`;
 const some = (...ids: string[]) => spec.fixtures.filter((f) => ids.includes(f.id));
-/** The stage's width, and the height its table's box may take (a fixture cannot state either: TBL-17, TBL-19). */
-const size = (page: P, id: string, { width, height }: { width?: number; height?: number }) =>
-  stage(page, id).evaluate(
-    (el, [w, h]) => {
-      if (w !== null) (el as HTMLElement).style.inlineSize = `${w + 32}px`;
-      if (h !== null) (el.querySelector('tanrei-table') as HTMLElement).style.maxBlockSize = `${h}px`;
-    },
-    [width ?? null, height ?? null] as const,
-  );
+/**
+ * The stage's width, and the height its table's box may take (a fixture cannot state either: TBL-17, TBL-19), each
+ * written with a frame after it (`restyle()`), so that the table's observer of sizes is told.
+ */
+const size = async (page: P, id: string, { width, height }: { width?: number; height?: number }) => {
+  if (height !== undefined) await restyle(host(page, id).first(), { 'max-block-size': `${height}px` });
+  if (width !== undefined) await restyle(stage(page, id), { 'inline-size': `${width + 32}px` });
+};
 const near = (a: number, b: number, tolerance = 0.6) => expect(Math.abs(a - b), `${a} ≈ ${b}`).toBeLessThanOrEqual(tolerance);
 const NUMBERS = ['Region', 'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August'];
 
@@ -1050,7 +1050,7 @@ test.describe('scrolling in its own box', () => {
     // No longer scrolling, it is no stop and no region.
     await size(page, 'wide', { width: 1200 });
     await page.setViewportSize({ width: 1400, height: 900 });
-    await stage(page, 'wide').evaluate((el) => ((el as HTMLElement).style.maxInlineSize = 'none'));
+    await restyle(stage(page, 'wide'), { 'max-inline-size': 'none' });
     await expect(host(page, 'wide')).not.toHaveAttribute('tabindex', '0');
     expect(await host(page, 'wide').evaluate((el) => [el.hasAttribute('role'), el.hasAttribute('aria-labelledby')])).toEqual([false, false]);
   });
