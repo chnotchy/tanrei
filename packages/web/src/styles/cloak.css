@@ -342,16 +342,64 @@
     font-weight: var(--tanrei-comp-keyboard-shortcut-label-typescale-small-font-weight);
   }
 
-  /* Selection controls and indicators: their container size (a switch: the larger of its track and its container, SWT-27;
-     a loading indicator that is not contained: its indicator). */
+  /* Selection controls and indicators: their container size (a switch: the larger of its track and its container, SWT-27,
+     and its track's length; a loading indicator that is not contained: its indicator). A selection control is at least
+     its control wide, so that one that draws no label takes its room in a row. */
   :where(tanrei-checkbox:not(:defined)) {
+    min-inline-size: var(--tanrei-comp-checkbox-container-size);
     min-block-size: var(--tanrei-comp-checkbox-container-size);
   }
   :where(tanrei-radio-button:not(:defined)) {
-    min-block-size: var(--tanrei-comp-radio-button-container-size);
+    min-inline-size: var(--tanrei-comp-radio-button-container-size);
+    min-block-size: max(var(--tanrei-comp-radio-button-container-size), var(--tanrei-comp-radio-button-option-min-height));
   }
   :where(tanrei-switch:not(:defined)) {
+    min-inline-size: var(--tanrei-comp-switch-track-width);
     min-block-size: max(var(--tanrei-comp-switch-track-height), var(--tanrei-comp-switch-container-size));
+  }
+  /* A checkbox, a radio button or a switch that draws its label (CHK-15, RAD-17, SWT-15) is as wide and as high as it is
+     drawn: the control's width (its container, a switch's track) and the label's gap at the start, then the label
+     (`label`, an attribute: the `::before` writes it in the label's text style), wrapping where it will, its first line
+     centred on the control's row — half of what the row is taller than a line above and below it — and every line after
+     it below. A label that is hidden or empty is not drawn, and the control is its row alone. */
+  :where(tanrei-checkbox, tanrei-radio-button, tanrei-switch):where([label]:not([label=''], [label-hidden])):where(:not(:defined):not([hidden])) {
+    display: inline-flex;
+    align-items: flex-start;
+    max-inline-size: 100%;
+  }
+  :where(tanrei-checkbox[label]:not([label=''], [label-hidden])):where(:not(:defined):not([hidden])) {
+    --_cloak-row: var(--tanrei-comp-checkbox-container-size);
+    padding-inline-start: calc(var(--tanrei-comp-checkbox-container-size) + var(--tanrei-comp-checkbox-label-gap));
+  }
+  :where(tanrei-radio-button[label]:not([label=''], [label-hidden])):where(:not(:defined):not([hidden])) {
+    --_cloak-row: var(--tanrei-comp-radio-button-container-size);
+    padding-block: calc((var(--tanrei-comp-radio-button-option-min-height) - var(--tanrei-comp-radio-button-container-size)) / 2);
+    padding-inline-start: calc(var(--tanrei-comp-radio-button-container-size) + var(--tanrei-comp-radio-button-label-gap));
+  }
+  :where(tanrei-switch[label]:not([label=''], [label-hidden])):where(:not(:defined):not([hidden])) {
+    --_cloak-row: max(var(--tanrei-comp-switch-track-height), var(--tanrei-comp-switch-container-size));
+    padding-inline-start: calc(var(--tanrei-comp-switch-track-width) + var(--tanrei-comp-switch-label-gap));
+  }
+  :where(tanrei-checkbox, tanrei-radio-button, tanrei-switch):where([label]:not([label=''], [label-hidden])):where(:not(:defined):not([hidden]))::before {
+    content: attr(label);
+    flex: 0 1 auto;
+    min-inline-size: 0;
+    padding-block: calc((var(--_cloak-row) - 1lh) / 2);
+    overflow-wrap: break-word;
+    unicode-bidi: plaintext;
+    line-break: strict;
+  }
+  :where(tanrei-checkbox[label]:not([label=''], [label-hidden]):not(:defined))::before {
+    font: var(--tanrei-comp-checkbox-label-typescale-font-weight) var(--tanrei-comp-checkbox-label-typescale-font-size)/var(--tanrei-comp-checkbox-label-typescale-line-height) var(--tanrei-comp-checkbox-label-typescale-font-family);
+    letter-spacing: var(--tanrei-comp-checkbox-label-typescale-letter-spacing);
+  }
+  :where(tanrei-radio-button[label]:not([label=''], [label-hidden]):not(:defined))::before {
+    font: var(--tanrei-comp-radio-button-label-typescale-font-weight) var(--tanrei-comp-radio-button-label-typescale-font-size)/var(--tanrei-comp-radio-button-label-typescale-line-height) var(--tanrei-comp-radio-button-label-typescale-font-family);
+    letter-spacing: var(--tanrei-comp-radio-button-label-typescale-letter-spacing);
+  }
+  :where(tanrei-switch[label]:not([label=''], [label-hidden]):not(:defined))::before {
+    font: var(--tanrei-comp-switch-label-typescale-font-weight) var(--tanrei-comp-switch-label-typescale-font-size)/var(--tanrei-comp-switch-label-typescale-line-height) var(--tanrei-comp-switch-label-typescale-font-family);
+    letter-spacing: var(--tanrei-comp-switch-label-typescale-letter-spacing);
   }
   /* A horizontal slider: as thick as the larger of its container's size and its handle's height, by its size (SLD-7) —
      a system's handle may be taller than the container. */
