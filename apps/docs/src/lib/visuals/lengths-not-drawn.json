@@ -2,6 +2,5 @@
   "checkbox": { "fixture": "unselected", "parts": ["mark"] },
   "combobox": { "fixture": "stacked-empty", "parts": ["option"] },
   "fab-menu": { "fixture": "filled-closed", "parts": ["item"] },
-  "select": { "fixture": "stacked-empty", "parts": ["option"] },
-  "tabs": { "fixture": "primary", "lengths": { "tanrei.comp.tabs.container.height.medium": 28, "tanrei.comp.tabs.container.padding-inline.medium": 0 } }
+  "select": { "fixture": "stacked-empty", "parts": ["option"] }
 }

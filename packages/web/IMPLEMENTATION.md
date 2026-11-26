@@ -5293,7 +5293,7 @@ the tabs (their slot); the panels are slotted after it, so the list owns nothing
 `aria-selected`, `aria-posinset` / `aria-setsize`, `aria-label` (its label, drawn or not), `aria-disabled` and
 `aria-controls` (its panel). Each panel's host is a `tabpanel` named by its tab (`aria-labelledby`); the others are
 `hidden`. A panel with nothing focusable gets `tabindex="0"`. Tabs and panels without an id get one. The icon, the
-container, the indicator with its covered copy of the label and icon, the focus ring's box, the underline and the divider
+state layer, the indicator with its covered copy of the label and icon, the focus ring's box, the underline and the divider
 are `aria-hidden`, and the track is the scroller's own background, so each label is exposed once.
 
 **A row without panels is a radio group (TAB-42).** While the row has no panel — no `<tanrei-tab-panel>` of its own, and
@@ -5351,11 +5351,13 @@ the content, the row's height or the padding changes) and writes the width as a 
 is drawn until then. That box is three things:
 
 - **the active indicator** on the selected tab, its corners `active-indicator.shape`;
-- **the container** (part `container`): hover, focus and press are drawn in it on every tab, selected or not, its corners
-  `container.shape`, above the track and under the indicator, never on the tab's rectangle. The whole tab still answers
-  the pointer (the container takes no pointer events), and a ripple is drawn in the container and clipped to it wherever
-  on the tab the press lands (`PressController`'s `rippleHost`). On the selected tab the indicator covers it exactly, so
-  hover and press are not seen there;
+- **the state layer** (part `state-layer`): hover, focus and press are drawn in it on every tab, selected or not, its
+  corners `container.shape`, above the track and under the indicator, never on the tab's rectangle. The whole tab still
+  answers the pointer (the state layer takes no pointer events), and a ripple is drawn in the state layer and clipped to
+  it wherever on the tab the press lands (`PressController`'s `rippleHost`). On the selected tab it lies above the
+  indicator, drawn from the selected parts (`selected.state-layer.color`, the covered content's color), so hover and press
+  show there too. The `container.*` tokens are the whole tab's (its height, padding and gap): the tab's own box, part
+  `container`, which draws nothing of its own; the state layer is the box in it that a press colors;
 - **the focus ring's box**: the ring or the glow surrounds it in its shape, `sys.focus.offset` outside it, above the
   neighbouring tabs and the indicator, and held inside the track: where `track.padding` is less than the ring reaches it
   is drawn further in by the difference (`focusRing(on, { within })`). In the default system the reach is the padding,
@@ -5468,13 +5470,13 @@ tab's `value` (never its label):
   it has not been upgraded to read. A page that is rendered on a server guards that as it guards any element not yet
   defined (the docs site hides every panel but the first until `tanrei-tab-view` is defined).
 
-**States (TAB-3…10).** Two looks per variant, the plain one and `selected.`, each colors the container, label, icon,
+**States (TAB-3…10).** Two looks per variant, the plain one and `selected.`, each colors the state layer, label, icon,
 covered label and icon, active indicator and underline in every state; the row declares its variant's values on its
 slotted tabs (`::slotted(tanrei-tab)`), so a tab takes the row's variant, and its track color on itself. Everything else
 is Button's: the state precedence, press-hold, the four `pressed-feedback` answers (the ripple grows inside the
-container, under the indicator), ring or glow around the container and held inside the track, corner smoothing on the
-container, the ring and the track (fully rounded in the default system, which no amount changes), and the state motion.
-Parts: `tablist`, `scroller` / `track`, `divider` (row); `container`, `icon`, `label`, `active-indicator`, `underline`
+state layer), ring or glow around the state layer and held inside the track, corner smoothing on the
+state layer, the ring and the track (fully rounded in the default system, which no amount changes), and the state motion.
+Parts: `tablist`, `scroller` / `track`, `divider` (row); `state-layer`, `icon`, `label`, `active-indicator`, `underline`
 (tab).
 
 **Variants, sizes, the track and the transition (TAB-5, TAB-42…45, TAB-49, TAB-50).** The row declares
@@ -8888,7 +8890,7 @@ own selectors and its own `--tanrei-comp-<name>-*` tokens — nothing in them kn
 | Piece | What it gives | The component supplies |
 |---|---|---|
 | `stateRules(on, paints)` | hovered, focused, pressed (`overlay` / `ripple`+`dim` / `none`) and disabled, in precedence order, pressed without a transition in | `on(state)` → the selector that paints it (`` (s) => `button${s}` ``), and each state's declarations from that state's tokens |
-| `PressController` + `pressHold(selector)` | `data-pressed="<feedback>"` on pointer down and on its keys, held for `sys.motion.duration.press-hold`, the ripple's lifecycle | the container, the element that carries press-hold, `disabled`, the keys (default Enter and Space), and optionally where the ripple grows from (`origin`); optionally `rippleHost`, the element the ripple is drawn in when that is not the pressed element (a tab's container, TAB-9) |
+| `PressController` + `pressHold(selector)` | `data-pressed="<feedback>"` on pointer down and on its keys, held for `sys.motion.duration.press-hold`, the ripple's lifecycle | the container, the element that carries press-hold, `disabled`, the keys (default Enter and Space), and optionally where the ripple grows from (`origin`); optionally `rippleHost`, the element the ripple is drawn in when that is not the pressed element (a tab's state layer, TAB-9) |
 | `rippleStyles(tokens)` | the `.ripple` layer, its growth, fade and reduced-motion overlay | the custom property NAMES of its color, inset, growth, fade and easing |
 | `focusRing(on)` + `syncFocusStyle()` | the ring (`outline` + `::after`), or the glow under `focus-style: glow`, never animated | `on(focus)` → the indicator's selector |
 | `focusGlow(on)` | the glow alone, for a control whose own edge is its focus indicator (a text field): no ring, the halo under `focus-style: glow` | `on(focus)` → the indicator's selector under the control's own focus condition |

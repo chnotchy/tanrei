@@ -52,7 +52,11 @@ const SIZED_BY_THE_PAGE = ['tanrei-scroll-area', 'tanrei-split-view'];
  */
 type Grows = { grows: (props: Record<string, unknown>, fixture: Fixture) => boolean; why: string };
 const CHIPS: Grows = { grows: (props) => props.selection === 'multiple', why: 'a combobox of several values draws them as chips, on as many rows as they need' };
-const ROWS: Grows = { grows: (props) => !!props.multiline, why: 'a multiline input is as tall as its rows' };
+/**
+ * A multi-line input is held at its fewest rows (`min-rows`, from its tokens: the multi-line fixtures below); one that
+ * holds a value and follows its lines can take more than those, as many as its words and its width make.
+ */
+const ROWS: Grows = { grows: (props) => !!props.multiline && String(props.value ?? '') !== '' && props.resize !== 'fixed', why: 'a multiline input that holds a value is as tall as its lines, and the cloak holds its fewest rows' };
 const ENTRIES: Grows = { grows: (props) => (Array.isArray(props.value) && props.value.length > 0) || (Array.isArray(props.entries) && props.entries.length > 0), why: 'its entries are drawn as chips in its box, on as many rows as they need' };
 const VALUE_LINE: Grows = { grows: (_props, fixture) => fixture.id.endsWith('long-value-text'), why: 'a value text too long to share the label’s line takes a line of its own under it' };
 /** A Field's control, the fixture's one item: by the reasons its own spec has. */
@@ -228,8 +232,15 @@ test.describe('an element whose surface is in the top layer takes no room before
   }
 });
 
+/**
+ * The elements the cloak holds only as they are drawn in place for documentation and tests, not as their spec's
+ * fixtures draw them (in the top layer, where the cloak takes them out of the page): each is held below with its
+ * fixtures drawn in place.
+ */
+const HELD_IN_PLACE = ['tanrei-date-time-picker'];
+
 test.describe('the cloak holds every control it names at the height it will be drawn', () => {
-  const tags = [...new Set([...tagsWith(/min-block-size:|padding-block-(?:start|end):/), ...SIZED_BY_THE_PAGE])].sort();
+  const tags = [...new Set([...tagsWith(/min-block-size:|padding-block-(?:start|end):/), ...SIZED_BY_THE_PAGE])].filter((tag) => !HELD_IN_PLACE.includes(tag)).sort();
   test('it holds the controls whose height is a token of their own, and lays out the elements the page sizes', () => {
     // The list the tests below go through: a rule of the stylesheet that no longer holds anything would shrink it.
     expect(tags.length).toBeGreaterThan(40);
@@ -328,6 +339,86 @@ test.describe('the cloak holds a slider as thick as it will be drawn, in every s
         await page.close();
       });
     }
+  }
+});
+
+test.describe('the cloak holds an open date and time picker drawn in place as its surface, in every system', () => {
+  // DTM's surface drawn where it stands (`inline`, as the docs draw it): the header, the calendar and the time section,
+  // and the actions, from its tokens. Each fixture of the spec, drawn in place in the layout it draws there (the
+  // vertical one; the horizontal one the product chooses is not held), under the default system and each preset, whose
+  // entry modes and actions' size differ.
+  const spec = loadSpec('date-time-picker');
+  const fixtures: Fixture[] = spec.fixtures
+    .filter((fixture) => fixture.props?.layout !== 'horizontal')
+    .map((fixture) => ({ ...fixture, props: { ...fixture.props, inline: true } }));
+  test('the spec has fixtures to draw in place', () => {
+    expect(HELD_IN_PLACE).toEqual(['tanrei-date-time-picker']);
+    expect(fixtures.length).toBeGreaterThan(20);
+  });
+  for (const system of [undefined, ...PRESETS]) {
+    test(`${system ?? 'the default system'}, date-time-picker: with the cloak and no script, each fixture drawn in place is as high as once it is defined, and so is its stage`, async ({ page: first, browserName }) => {
+      const { page, before, after } = await mountedLate(first, 'tanrei-date-time-picker', browserName, { ...(system ? { system } : {}), fixtures });
+      expect(before.filter((stage) => !stage.held).map((stage) => stage.id)).toEqual([]);
+      expect(before.filter((stage) => stage.visibility !== 'hidden').map((stage) => stage.id)).toEqual([]);
+      // Defined, the element is no box of its own (`display: contents`): its surface is, and the stage is as high as it.
+      const wrong = before.flatMap((stage, i) => {
+        const drawn = after[i]!;
+        if (Math.abs(stage.stage - drawn.stage) <= 0.5) return [];
+        return [`${stage.id}: held ${stage.height}px in a stage of ${stage.stage}px, drawn in ${drawn.stage}px`];
+      });
+      expect(wrong).toEqual([]);
+      if (browserName === 'chromium') {
+        const { sum, moved } = await shifts(page);
+        expect(sum, moved).toBeLessThanOrEqual(SHIFT_BUDGET);
+      }
+      await page.close();
+    });
+  }
+});
+
+test.describe('the cloak holds a multi-line input at its fewest rows, at every size and in every variant', () => {
+  // TXI-17, TXI-51: a multi-line box is its first line's offset, min-rows lines of its input text and its block padding;
+  // ETI-7: an embedded input is min-rows lines. Held from the tokens and the attribute, an empty field is as high
+  // before it is defined as after, whatever min-rows says — a docs page's fields of three rows grew from one when the
+  // cloak held a line.
+  const SIZES = ['small', 'medium', 'large'];
+  const ROW_COUNTS = [undefined, 1, 3, 5];
+  const LOOKS: Record<string, string | boolean>[] = [
+    { variant: 'stacked', label: 'Message' },
+    { variant: 'outlined', label: 'Message' },
+    { variant: 'filled', label: 'Message' },
+    { variant: 'filled', label: 'Message', labelHidden: true },
+  ];
+  const boxes = (multiline: boolean): Fixture[] =>
+    SIZES.flatMap((size) =>
+      ROW_COUNTS.flatMap((minRows) =>
+        LOOKS.map((look) => ({
+          id: `${size}-${look.variant}${look.labelHidden ? '-label-hidden' : ''}-${minRows ?? 'default'}`,
+          props: { size, multiline, ...look, ...(minRows === undefined ? {} : { minRows }) },
+        })),
+      ),
+    );
+  const SUBJECTS: { tag: string; fixtures: Fixture[] }[] = [
+    { tag: 'tanrei-text-input', fixtures: boxes(true) },
+    { tag: 'tanrei-text-field', fixtures: [...boxes(true), ...SIZES.map((size) => ({ id: `${size}-help-manual`, props: { size, multiline: true, minRows: 3, label: 'Notes', supportingText: 'A few lines', resize: 'manual', resizeLabel: 'Resize notes' } }))] },
+    { tag: 'tanrei-embedded-text-input', fixtures: ROW_COUNTS.map((minRows) => ({ id: `rows-${minRows ?? 'default'}`, props: { multiline: true, label: 'Message', ...(minRows === undefined ? {} : { minRows }) } })) },
+  ];
+  for (const { tag, fixtures } of SUBJECTS) {
+    test(`${tag.replace(/^tanrei-/, '')}: with the cloak and no script, each multi-line fixture is as high as once it is defined, and so is its stage`, async ({ page: first, browserName }) => {
+      const { page, before, after } = await mountedLate(first, tag, browserName, { fixtures });
+      expect(before.filter((stage) => !stage.held).map((stage) => stage.id)).toEqual([]);
+      const wrong = before.flatMap((stage, i) => {
+        const drawn = after[i]!;
+        if (Math.abs(stage.height - drawn.height) <= 0.5 && Math.abs(stage.stage - drawn.stage) <= 0.5) return [];
+        return [`${stage.id}: held ${stage.height}px in a stage of ${stage.stage}px, drawn ${drawn.height}px in ${drawn.stage}px`];
+      });
+      expect(wrong).toEqual([]);
+      if (browserName === 'chromium') {
+        const { sum, moved } = await shifts(page);
+        expect(sum, moved).toBeLessThanOrEqual(SHIFT_BUDGET);
+      }
+      await page.close();
+    });
   }
 });
 

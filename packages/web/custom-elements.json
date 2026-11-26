@@ -48011,7 +48011,7 @@
         {
           "kind": "variable",
           "name": "tabStyles",
-          "description": "One tab (TAB-3…6, TAB-8…10, TAB-14, TAB-16, TAB-18, TAB-19, TAB-23, TAB-24): the whole tab answers the pointer; its\ncontainer (.box) — the state layer and the ripple — is drawn in the box the active indicator has on this tab, or would\nhave if it were selected, never on the tab's rectangle; its icon and label on one line, centred and kept clear of the\nunderline; the covered layer over them, which is the indicator's piece on this tab and carries the covered copy of\nthe icon and label; the underline's piece on its bottom edge (both clipped by the row to where the indicator is,\nTAB-17); and, above them all, the focus ring around the same box (.ring)."
+          "description": "One tab (TAB-3…6, TAB-8…10, TAB-14, TAB-16, TAB-18, TAB-19, TAB-23, TAB-24): the whole tab answers the pointer; its\nstate layer (.box, part state-layer) — hover, focus, press and the ripple — is drawn in the box the active indicator\nhas on this tab, or would have if it were selected, never on the tab's rectangle; its icon and label on one line,\ncentred and kept clear of the underline; the covered layer over them, which is the indicator's piece on this tab and\ncarries the covered copy of the icon and label; the underline's piece on its bottom edge (both clipped by the row to\nwhere the indicator is, TAB-17); and, above them all, the focus ring around the same box (.ring)."
         },
         {
           "kind": "variable",
@@ -48144,8 +48144,12 @@
           "name": "TanreiTab",
           "cssParts": [
             {
-              "description": "The tab's state layer: hover, focus and press and the ripple, drawn in the box the active indicator has on this tab (a capsule, a circle, or the tab's share in a row that fills), never on the tab's rectangle. The whole tab answers the pointer.",
+              "description": "The tab's own box: the area that answers the pointer, at least the container height of the row's size tall, its content container.padding-inline in from its edges. It draws nothing of its own.",
               "name": "container"
+            },
+            {
+              "description": "The tab's state layer: hover, focus and press and the ripple, drawn in the box the active indicator has on this tab (a capsule, a circle, or the tab's share in a row that fills), never on the tab's container. The whole tab answers the pointer.",
+              "name": "state-layer"
             },
             {
               "description": "The glyph (hidden from assistive technology).",
@@ -48158,6 +48162,14 @@
             {
               "description": "The indicator's piece on this tab, carrying the covered copy of the icon and label, clipped to where the indicator is (hidden from assistive technology).",
               "name": "active-indicator"
+            },
+            {
+              "description": "The copy of the icon on the indicator's piece, in its covered color (hidden from assistive technology).",
+              "name": "covered-icon"
+            },
+            {
+              "description": "The copy of the label on the indicator's piece, in its covered color (hidden from assistive technology).",
+              "name": "covered-label"
             },
             {
               "description": "The underline's piece on the tab's bottom edge (its end edge in a vertical row), clipped to where the underline is (hidden from assistive technology).",

@@ -138,7 +138,7 @@ interface Mark {
 /** TAB-16, TAB-53: the edge of a tab the underline lies on: the bottom of a row, the end of a column (left in RTL). */
 type LineEdge = 'bottom' | 'right' | 'left';
 
-/** What the row measures of a tab to place the indicator: the tab, its container (the indicator's box) and its plain content. */
+/** What the row measures of a tab to place the indicator: the tab, its state layer (the indicator's box) and its plain content. */
 interface TabParts {
   tab: HTMLElement;
   box: HTMLElement;
@@ -147,7 +147,7 @@ interface TabParts {
   plate: HTMLElement;
 }
 
-/** TAB-16: what a tab read of itself to size its container — the indicator's height, and its width in a row that hugs. */
+/** TAB-16: what a tab read of itself to size its state layer — the indicator's height, and its width in a row that hugs. */
 interface BoxSize {
   height: number;
   width: number;
@@ -314,10 +314,13 @@ const SLIDE = 'tanrei-tabs-slide';
  * hover and keyboard focus; it stays the tab's whole accessible name, and the tooltip is not exposed a second time.
  *
  * @tag tanrei-tab
- * @csspart container - The tab's state layer: hover, focus and press and the ripple, drawn in the box the active indicator has on this tab (a capsule, a circle, or the tab's share in a row that fills), never on the tab's rectangle. The whole tab answers the pointer.
+ * @csspart container - The tab's own box: the area that answers the pointer, at least the container height of the row's size tall, its content container.padding-inline in from its edges. It draws nothing of its own.
+ * @csspart state-layer - The tab's state layer: hover, focus and press and the ripple, drawn in the box the active indicator has on this tab (a capsule, a circle, or the tab's share in a row that fills), never on the tab's container. The whole tab answers the pointer.
  * @csspart icon - The glyph (hidden from assistive technology).
  * @csspart label - The tab's text.
  * @csspart active-indicator - The indicator's piece on this tab, carrying the covered copy of the icon and label, clipped to where the indicator is (hidden from assistive technology).
+ * @csspart covered-icon - The copy of the icon on the indicator's piece, in its covered color (hidden from assistive technology).
+ * @csspart covered-label - The copy of the label on the indicator's piece, in its covered color (hidden from assistive technology).
  * @csspart underline - The underline's piece on the tab's bottom edge (its end edge in a vertical row), clipped to where the underline is (hidden from assistive technology).
  */
 export class TanreiTab extends TanreiElement {
@@ -372,7 +375,7 @@ export class TanreiTab extends TanreiElement {
   /** TAB-8 / TAB-9: the pressed state, press-hold and the answer the system chooses (src/primitives/press.ts). */
   private readonly press = new PressController(this, {
     container: () => this.renderRoot?.querySelector<HTMLElement>('.tab') ?? null,
-    // TAB-9, TAB-18: the ripple is drawn in the container (the indicator's box) and clipped to it, wherever the press lands.
+    // TAB-9, TAB-18: the ripple is drawn in the state layer (the indicator's box), clipped to it, wherever a press lands.
     rippleHost: () => this.renderRoot?.querySelector<HTMLElement>('.box') ?? null,
     holdCarrier: () => this.renderRoot.querySelector('.content'),
     disabled: () => this.disabled,
@@ -460,10 +463,10 @@ export class TanreiTab extends TanreiElement {
   }
 
   /**
-   * @internal TAB-16, TAB-18: reads what sizes the container, which is the indicator's box on this tab. Its height is the
-   * tab's (the row's) less track.padding above and below — the box's own, by its insets. In a row that hugs its width
-   * is the content plus active-indicator.padding-inline on each side (the probe), never wider than the tab and never
-   * narrower than its height — and exactly its height where the content is not wider than it is tall: a circle.
+   * @internal TAB-16, TAB-18: reads what sizes the state layer, which is the indicator's box on this tab. Its height is
+   * the tab's (the row's) less track.padding above and below — the box's own, by its insets. In a row that hugs its
+   * width is the content plus active-indicator.padding-inline on each side (the probe), never wider than the tab and
+   * never narrower than its height — and exactly its height where the content is not wider than it is tall: a circle.
    * Everything is in the tab's own pixels: what is read on the page is divided by the row's `scale`, so a row first
    * drawn while its surface scales in sizes its tabs as it does at rest (the padding and what is written are never
    * scaled).
@@ -502,7 +505,7 @@ export class TanreiTab extends TanreiElement {
   private trimmed = 0;
 
   /**
-   * @internal TAB-14, TAB-16, TAB-34: writes what `readBox()` read — the container's width, the tab's least width,
+   * @internal TAB-14, TAB-16, TAB-34: writes what `readBox()` read — the state layer's width, the tab's least width,
    * whether the tab is its circle (no inline padding), and how much wider than its indicator the tab is at each side
    * (`--_wider`: what is left of the track's inset beside an end tab is that tab's hit area). Returns whether what it
    * wrote changes the tab's own width, so that the row reads the tabs again.
@@ -517,7 +520,7 @@ export class TanreiTab extends TanreiElement {
     const wider = px(Math.max(0, (size.tab - size.width) / 2));
     if (this.style.getPropertyValue('--_wider') !== wider) this.style.setProperty('--_wider', wider);
     // TAB-34: at an end of the row a circle's tab that is wider than the circle by more than the track's inset ends at
-    // the track's edge: it is laid out that much narrower on that side, and its content, its container and its ring
+    // the track's edge: it is laid out that much narrower on that side, and its content, its state layer and its ring
     // lean the same way, so that the circle lies the inset from the track's end and one tab's width from its
     // neighbour's. (The track clips what would reach beyond it; the row answers a press there, `tabBeside()`.)
     const { position, size: count } = this.context;
@@ -765,14 +768,15 @@ export class TanreiTab extends TanreiElement {
     const placement = styleQueries() ? null : compChoice(this, '--_size-icon-placement', ICON_PLACEMENT);
     const label = this.drawsLabel;
     const icon = !!this.icon;
-    const glyph = (named: boolean) => (icon ? html`<span part=${named ? 'icon' : nothing} class="icon" aria-hidden="true" data-mirror=${this.mirrorWord.word}>${this.icon}</span>` : nothing);
+    const glyph = (plain: boolean) => (icon ? html`<span part=${plain ? 'icon' : 'covered-icon'} class="icon" aria-hidden="true" data-mirror=${this.mirrorWord.word}>${this.icon}</span>` : nothing);
     // TAB-33, TAB-21: the box that cuts the label has the label's own direction, so it is cut at its own end in every engine.
     // TAB-16, TAB-50: the label keeps the width it needs at the selected weight (the copy its ::after draws, unseen).
-    const text = (named: boolean) => (label ? html`<span part=${named ? 'label' : nothing} class="label" dir=${ownDirection(this.label)} data-label=${this.label}><span class="text">${this.label}</span></span>` : nothing);
+    const text = (plain: boolean) => (label ? html`<span part=${plain ? 'label' : 'covered-label'} class="label" dir=${ownDirection(this.label)} data-label=${this.label}><span class="text">${this.label}</span></span>` : nothing);
     // TAB-13, TAB-24, TAB-25: the tab is named by its host's aria-label; the covered copy and the tooltip are hidden from
     // assistive technology, so each label is exposed once.
     return html`
       <div
+        part="container"
         class=${classMap({ tab: true, p: true, d: this.disabled, selected, wide: secondary, fill, first: position === 1, last: position > 0 && position === size, 'pill-disabled': pillDisabled, vertical, stacked: !secondary && !vertical && icon && label })}
         data-placement=${placement ?? nothing}
         @pointerdown=${this.press.onPointerDown}
@@ -780,7 +784,7 @@ export class TanreiTab extends TanreiElement {
         @pointercancel=${this.press.release}
         @pointerleave=${this.press.release}
       >
-        <span part="container" class="box" data-tanrei-shape aria-hidden="true"></span>
+        <span part="state-layer" class="box" data-tanrei-shape aria-hidden="true"></span>
         ${label && this.truncated ? html`<tanrei-tooltip class="tip" no-describe aria-hidden="true" .text=${this.label}></tanrei-tooltip>` : nothing}
         <span class="content"><span class="plate"></span>${glyph(true)}${text(true)}</span>
         <span part="active-indicator" class="cover" aria-hidden="true"><span class="content">${glyph(false)}${text(false)}</span></span>
@@ -1082,7 +1086,7 @@ export class TanreiTabs extends TanreiElement {
   /** What reads the tabs' context in the task it runs in reads it re-read (a key press, a press, focus). */
   private readonly flushSyncs = () => this.syncs.flush();
   /**
-   * TAB-14, TAB-16: whether what the tabs' containers are sized from may have changed since the row last sized them —
+   * TAB-14, TAB-16: whether what the tabs' state layers are sized from may have changed since the row last sized them —
    * a tab, a panel, the row's own props, its link — so that the next re-read sizes them again. A new selection alone
    * changes no tab's size (TAB-50), and is not re-sized: what does change a size later (a font, the text size) is seen
    * by the resize observer.
@@ -1835,8 +1839,8 @@ export class TanreiTabs extends TanreiElement {
   }
 
   /**
-   * TAB-14, TAB-16, TAB-18: every tab sizes its container — the indicator's box on it — from the row's height and its own
-   * content: all read first, then all written. Also says whether the tabs scroll inside the track (TAB-28).
+   * TAB-14, TAB-16, TAB-18: every tab sizes its state layer — the indicator's box on it — from the row's height and its
+   * own content: all read first, then all written. Also says whether the tabs scroll inside the track (TAB-28).
    */
   private boxes() {
     // A tab that became its circle (or stopped being it) changed its own width: what is written from the tabs' widths
@@ -1850,7 +1854,7 @@ export class TanreiTabs extends TanreiElement {
     this.readAgain();
   }
 
-  /** The reading half of `boxes()`: what every tab says of its container now, or null while the row is drawn flat. */
+  /** The reading half of `boxes()`: what every tab says of its state layer now, or null while the row is drawn flat. */
   private readBoxes(): (BoxSize | null)[] | null {
     if (this.flat()) return null;
     const scale = this.scale();
@@ -1858,8 +1862,8 @@ export class TanreiTabs extends TanreiElement {
   }
 
   /**
-   * The writing half of `boxes()`: every tab's container as `sizes` say, and how far the end tabs reach into the track's
-   * inset. Says whether a tab changed its own width by it, so that the tabs are read once more.
+   * The writing half of `boxes()`: every tab's state layer as `sizes` say, and how far the end tabs reach into the
+   * track's inset. Says whether a tab changed its own width by it, so that the tabs are read once more.
    */
   private writeBoxes(sizes: (BoxSize | null)[] | null): boolean {
     if (!sizes) return false;
@@ -1951,11 +1955,11 @@ export class TanreiTabs extends TanreiElement {
 
   /**
    * TAB-16: where the indicator and the underline go on `tab`, in the strip's coordinates. The indicator is the tab's
-   * container (its box): as tall as the row less track.padding above and below and, in a row that hugs, as wide as the
-   * content plus active-indicator.padding-inline on each side — a circle where the content is not wider than it is tall
-   * — or, in a row that fills, as wide as the tab. The underline spans the content (primary) or the tab (secondary).
-   * TAB-52, TAB-53: in a column the indicator is the tab less the inset all round, and the underline is as tall as the
-   * tab, in every variant.
+   * state layer (its box): as tall as the row less track.padding above and below and, in a row that hugs, as wide as
+   * the content plus active-indicator.padding-inline on each side — a circle where the content is not wider than it is
+   * tall — or, in a row that fills, as wide as the tab. The underline spans the content (primary) or the tab
+   * (secondary). TAB-52, TAB-53: in a column the indicator is the tab less the inset all round, and the underline is as
+   * tall as the tab, in every variant.
    */
   private measure(tab: TanreiTab): Mark | null {
     const strip = this.strip;
