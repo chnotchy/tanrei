@@ -33,6 +33,7 @@ import { markdownPathOf } from '../../lib/page-markdown.mjs';
 import { sampleGlyph } from '../../lib/repo';
 import { translations } from '../../../i18n/locales.mjs';
 import { ns, tokensIn } from '../../lib/tokens';
+import { keyboardPlatformScript } from '@tanrei/web/keyboard-convention';
 
 const FILES: Record<string, string> = { Inter: inter, 'Roboto Mono': robotoMono };
 
@@ -115,6 +116,10 @@ const iconsReady = `(() => {
   // of the page as it was read are asked again.
   document.addEventListener('DOMContentLoaded', () => probes.length || measure(), { once: true });
 })();`;
+// And it puts the platform's keyboard convention on the root before anything is drawn (`data-tanrei-keyboard-platform`,
+// by the Keyboard shortcut's own test of the platform): a keyboard table draws its keys in both conventions until the
+// element is defined, and shows the reader's by it, so a row is as wide before as after (visuals/KeyboardMap.astro).
+const keyboardPlatform = keyboardPlatformScript();
 const route = Astro.locals.starlightRoute;
 const markdown = route.entry.data.pagefind === false ? undefined : markdownPathOf(Astro.url.pathname, translations.map(({ dir }) => dir));
 ---
@@ -125,6 +130,7 @@ const markdown = route.entry.data.pagefind === false ? undefined : markdownPathO
 <link rel="stylesheet" href={tokens} />
 <Default />
 <script is:inline set:html={iconsReady} />
+<script is:inline set:html={keyboardPlatform} />
 
 <script>
   import '../../lib/link-fallback';

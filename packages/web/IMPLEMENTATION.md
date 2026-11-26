@@ -25,7 +25,7 @@ import '@tanrei/web/shape.css';    // optional: corner smoothing on your own box
 
 Those specifiers are the package's `exports`, resolved by a bundler. A browser does not resolve a bare specifier in
 `<link href>` or `<script src>`: without a bundler, serve `node_modules/@tanrei/web/dist/` and reference the files
-by path — `dist/tokens.css`, `dist/icons.css`, `dist/text.css`, `dist/prose.css`, `dist/link.css`, `dist/table.css`, `dist/app-shell.css`, `dist/page-header.css`, `dist/shape.css`, `dist/callout.css`, `dist/empty-state.css`, `dist/menu.css`, `dist/menubar.css`, `dist/skeleton.css`, `dist/avatar.css`, `dist/app-bar.css`, `dist/cloak.css`,
+by path — `dist/tokens.css`, `dist/icons.css`, `dist/text.css`, `dist/prose.css`, `dist/link.css`, `dist/table.css`, `dist/app-shell.css`, `dist/page-header.css`, `dist/shape.css`, `dist/callout.css`, `dist/empty-state.css`, `dist/menu.css`, `dist/menubar.css`, `dist/skeleton.css`, `dist/avatar.css`, `dist/keyboard-shortcut.css`, `dist/app-bar.css`, `dist/cloak.css`,
 `dist/systems/<id>.css`, and `dist/tanrei.bundle.js`, a self-contained ES module (Lit included) that registers every
 element:
 
@@ -974,6 +974,18 @@ unknown name), drawn as it can be.
 the element from its own tokens), the caps keep the shortcut's own, nothing is exposed (`aria-hidden` on the element), and
 the host exposes `ariaKeyShortcuts` as its own `aria-keyshortcuts`. When the convention changes without the host, the
 shortcut tells it with an internal, non-composed event, so the host re-reads the form.
+
+**Before it is defined (`keyboard-shortcut.css`, `@tanrei/web/keyboard-convention`).** A page written on a server writes
+`keyboardShortcutContent(keys, { label })` between the tags: for each convention, the keys as the element draws them
+(`<kbd data-tanrei-keys-chord>` holding a `<kbd data-tanrei-keys-key>` per key, the standard convention's + between them),
+hidden, and the text read in their place. The legends and the order come from the same table the element draws from
+(`primitives/keyboard-writing.ts`). `keyboardPlatformScript()`, inline in `<head>`, puts the platform's convention on
+`<html>` (`data-tanrei-keyboard-platform`) by the element's own `platformConvention()`, its text inlined. The stylesheet
+draws the content with the element's tokens and shows one convention as KBS-2 resolves it: the shortcut's own
+`convention`, else an ancestor's `data-tanrei-keyboard-convention`, else the platform's (the standard convention where no
+script ran). Its rules have no specificity and none matches once the element is defined, which draws its shadow root and
+none of the content. A size or a variant a layer adds is drawn as the default; nested ancestors that set different
+conventions are not ordered (the shortcut's own `convention` is).
 
 ## `<tanrei-progress-indicator>`
 

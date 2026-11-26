@@ -521,6 +521,7 @@ export {
   unwatchConvention,
   watchConvention,
 } from './keyboard-convention.js';
+export { type DrawnChord, type DrawnKey, drawnChords, writeChord, writeChords } from './keyboard-writing.js';
 export { FILTER_SETTLE_MS, completionOf, containsText, filterWords, holdsWords, labelBegins, letters, matchRun, sameText } from './filter.js';
 export { type IndicatorDragOptions, IndicatorDragController, type IndicatorPlace, type IndicatorStop, indicatorChoice, indicatorPlace } from './indicator-drag.js';
 export { type SharedChoice, keepInPlace, remember, remembered, sharedChoice } from './shared-choice.js';
