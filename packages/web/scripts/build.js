@@ -63,7 +63,16 @@ const CLOAK_ELEMENTS = ':where(tanrei-elements:not(:defined))';
 // light-DOM stylesheet's is (`writeReducedMotion()`).
 const cloakSource = writeReducedMotion(fs.readFileSync('src/styles/cloak.css', 'utf8'));
 if (cloakSource.split(CLOAK_ELEMENTS).length !== 2) throw new Error(`cloak.css: expected one ${CLOAK_ELEMENTS} to write the element names into`);
-fs.writeFileSync('dist/cloak.css', cloakSource.replace(CLOAK_ELEMENTS, [...new Set(tags)].map((tag) => `:where(${tag}:not(:defined))`).join(',\n  ')));
+// A multi-line input's fewest rows (`min-rows`) is held where the browser reads an attribute as a number, and counted
+// where it does not: the one rule that names `tanrei-row-count` is written once for each whole count from 1 to
+// COUNTED_ROWS (a count beyond it is held at one row, lower than it is drawn, never higher), as code.css counts a code
+// block's `max-lines` (src/components/code-block/code-block.before.ts).
+const COUNTED_ROWS = 50;
+const ROW_COUNT = /^ *[^\n{}]*tanrei-row-count[^\n{}]*\{[^{}]*\}\n/gm;
+const rowRules = cloakSource.match(ROW_COUNT) ?? [];
+if (rowRules.length !== 1) throw new Error(`cloak.css: expected one rule naming tanrei-row-count to write the counted rows into, found ${rowRules.length}`);
+const cloakCounted = cloakSource.replace(ROW_COUNT, () => Array.from({ length: COUNTED_ROWS }, (_, index) => rowRules[0].replaceAll('tanrei-row-count', String(index + 1))).join(''));
+fs.writeFileSync('dist/cloak.css', cloakCounted.replace(CLOAK_ELEMENTS, [...new Set(tags)].map((tag) => `:where(${tag}:not(:defined))`).join(',\n  ')));
 // The corner-smoothing rule is one source (src/styles/shape.ts, shared by the components' shadow styles); for a
 // light-DOM box it is the same text as a stylesheet.
 const { SHAPE_CSS } = await import('../dist/styles/shape.js');
