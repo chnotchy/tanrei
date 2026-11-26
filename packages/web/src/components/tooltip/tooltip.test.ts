@@ -6,6 +6,7 @@ import { type Fixture, fixturesDocument, loadSpec, mountFixtures, resolveColor, 
 import { appearProbe, bezierOf, expectAppearStart, expectExitEnd, expectTurnedAlone, resolveEasing, turnHeld } from '../../../test/appear.js';
 import { type Frames, expectAnimated, expectNoFlicker, sampleFrames } from '../../../test/frames.js';
 import { motionEnded } from '../../../test/motions.js';
+import { askForFrame } from '../../../test/frame-asked.js';
 import { entrances, loadOpen } from '../../../test/mounted-open.js';
 import { decodePng } from '../../../test/png.js';
 import { PLACEMENTS, type TanreiTooltipPlacement, type TooltipArrow, placeTooltip } from './tooltip-placement.js';
@@ -291,6 +292,7 @@ test.describe('opening and closing', () => {
     await mount(page, [f('a', {}), f('b', {}), f('c', {})]);
     await page.addStyleTag({ content: `.stage:has(> tanrei-tooltip[inline]) { position: relative; }` });
     for (const id of ['a', 'b']) await tip(page, id).evaluate((el: any) => Object.assign(el, { inline: true, open: true }));
+    await askForFrame(page);
     const inPlace = (id: string) => surface(page, id).evaluate((el) => !el.matches(':popover-open') && !el.hasAttribute('popover') && getComputedStyle(el).display === 'block');
     for (const id of ['a', 'b']) await expect.poll(() => inPlace(id), id).toBe(true);
     // Placed as in the top layer: above its anchor, centred on it, the offset away, inside its stage.

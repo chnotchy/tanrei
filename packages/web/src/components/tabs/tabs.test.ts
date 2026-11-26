@@ -19,6 +19,7 @@ import { CONTROL_HEIGHTS, atControlHeight } from '../../../test/control-height.j
 import { expectBaseline } from '../../../test/baseline.js';
 import { contrastChecked } from '../../../test/contrast-checked.js';
 import { restyle } from '../../../test/restyle.js';
+import { askForFrame } from '../../../test/frame-asked.js';
 
 const spec = loadSpec('tabs');
 /** The fixtures whose tabs run in a row: what the horizontal rules of layout (TAB-14, TAB-16, TAB-34) are held to. */
@@ -3970,6 +3971,7 @@ test.describe('variants, the track, sizes and the transition', () => {
       el.style.cssText += ';box-sizing:border-box;inline-size:320px;overflow-x:auto';
       (el.querySelector('tanrei-tabs') as HTMLElement).style.inlineSize = 'auto';
     });
+    await askForFrame(page);
     await expect.poll(async () => (await bounds(track(page, id))).height).toBeGreaterThan(before + 4);
     for (let n = 0; n < (await tabs(page, id).count()); n++) expect(await truncated(label(page, id, n)), `${n}`).toBe(false);
     expect(await track(page, id).evaluate((el) => el.scrollWidth > el.clientWidth)).toBe(true);

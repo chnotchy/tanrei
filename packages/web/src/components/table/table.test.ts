@@ -15,6 +15,7 @@ import { type Fixture, type FixtureItem, acmeSystemCss, fixturesDocument, iconFa
 import { expectBaseline } from '../../../test/baseline.js';
 import { restyle } from '../../../test/restyle.js';
 import { CONTROL_HEIGHTS, atControlHeight } from '../../../test/control-height.js';
+import { askForFrame } from '../../../test/frame-asked.js';
 
 const spec = loadSpec('table');
 type P = Page;
@@ -1593,6 +1594,7 @@ test.describe('the element and its stylesheet', () => {
       root.innerHTML = `<tanrei-table size="small"><table><caption>In a shadow root</caption><thead><tr>${['Region', 'January', 'February', 'March', 'April'].map((n, i) => `<th data-wrap="false"${i ? ' data-align="end"' : ''}>${n} of the year</th>`).join('')}</tr></thead><tbody><tr><td>North</td><td>1</td><td>2</td><td>3</td><td>4</td></tr></tbody></table></tanrei-table>`;
       document.body.append(outer);
     });
+    await askForFrame(page);
     const inner = page.locator('#outer tanrei-table');
     await expect(inner).toHaveAttribute('role', 'region');
     expect(await inner.evaluate((el) => getComputedStyle(el).overflowX)).toBe('auto');
