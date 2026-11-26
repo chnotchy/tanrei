@@ -4,7 +4,7 @@ import type { TanreiDescriptionListSizeRegistry } from '../../registry.js';
 import { adopt, adoptUnlessDrawn } from '../../primitives/sheets.js';
 import { TanreiLightElement } from '../../primitives/element.js';
 import { FacesWatch } from '../../primitives/faces.js';
-import { documentPainted } from '../../primitives/first-paint.js';
+import { afterFirstPaint, documentPainted } from '../../primitives/first-paint.js';
 import { readInPhase } from '../../primitives/read-phase.js';
 import { TYPE_LONGHANDS } from '../../styles/type.js';
 import { DEBUG } from '../../primitives/debug.js';
@@ -382,7 +382,7 @@ export class TanreiDescriptionList extends TanreiLightElement {
         else box.check(list);
       }
       // DSL-13: where the browser answers style queries the stylesheet reads the choice itself, and nothing is written.
-      return { list, separation: styleQueries() ? null : compChoice(box, '--_dl-separation', SEPARATIONS), width: box.measure(list) };
+      return { list, separation: styleQueries() ? null : compChoice(box, '--_dl-separation', SEPARATIONS), width: box.measure(list), room: box.room() };
     });
     live.forEach((box, index) => box.release(held[index]));
     live.forEach((box, index) => {
@@ -392,7 +392,7 @@ export class TanreiDescriptionList extends TanreiLightElement {
         return;
       }
       mark(each.list, 'data-separation', each.separation);
-      box.write(each.width);
+      box.write(each.width, each.room);
     });
   }
 
@@ -443,8 +443,28 @@ export class TanreiDescriptionList extends TanreiLightElement {
     return (Math.ceil((term + gap + least) * 100) / 100).toString();
   }
 
-  private write(width: string | null) {
-    if (width !== null) adopt(this.getRootNode() as Root, writtenSheet(`stack:${width}`, () => stackRule(width)));
+  /** The width the list's container query compares with its width (DSL-4): its content box, read with `measure()`. */
+  private room(): number {
+    const style = getComputedStyle(this);
+    return this.clientWidth - (Number.parseFloat(style.paddingLeft) || 0) - (Number.parseFloat(style.paddingRight) || 0);
+  }
+
+  /**
+   * Writes the width under which the list stacks, and the rule that stacks it there (DSL-4). A rule added to the page's
+   * sheets has the browser build every rule of the page again and style the whole page once more — in WebKit, on a long
+   * page, as long as a layout of it (0.8 s). So while the page has not been painted, the rule of a list that has `room`
+   * to stay in two columns is added once the page has been painted, in the frame callbacks before the frame's own style:
+   * until then no rule could draw that list otherwise. A list narrower than its width now has its rule at once, and is
+   * stacked in the frame it is measured in.
+   */
+  private write(width: string | null, room = 0) {
+    if (width !== null) {
+      const root = this.getRootNode() as Root;
+      const add = () => adopt(root, writtenSheet(`stack:${width}`, () => stackRule(width)));
+      // A pixel of slack: what is compared is the layout's width, which the read may round.
+      if (documentPainted() || room < Number(width) + 1) add();
+      else void afterFirstPaint().then(add);
+    }
     mark(this, 'data-stacks-below', width);
   }
 
