@@ -432,6 +432,73 @@ test.describe('forced passes do not grow with the number of instances (a Chromiu
   }
 });
 
+/**
+ * Markup a page holds before the module that defines its elements runs, as a product's page loads: a Button that slots
+ * an image (a glyph drawn whatever the font, marked the moment it renders) and one that slots a glyph's name, a
+ * checkbox and a switch (glyphs their own shadow roots draw), and a row of tabs.
+ */
+const PARSED = [
+  `<tanrei-button label="Add"><svg slot="icon" viewBox="0 0 24 24" width="24" height="24"><path d="M11 5h2v14h-2zM5 11h14v2H5z"></path></svg></tanrei-button>`,
+  `<tanrei-button label="Add"><span slot="icon" data-icon="add"></span></tanrei-button>`,
+  `<tanrei-checkbox label="Email me" checked></tanrei-checkbox>`,
+  `<tanrei-switch label="Wi-Fi" checked checked-icon="check" unchecked-icon="close"></tanrei-switch>`,
+  `<tanrei-tabs label="Sections" value="a"><tanrei-tab value="a" label="Overview"></tanrei-tab><tanrei-tab value="b" label="Specifications"></tanrei-tab><tanrei-tab-panel value="a">One</tanrei-tab-panel><tanrei-tab-panel value="b">Two</tanrei-tab-panel></tanrei-tabs>`,
+];
+/** The address that page is served at (nothing else is fetched from it). */
+const UPGRADE_PAGE = 'http://upgrade.test/';
+
+// A page is parsed before its modules run, and while it loads each module upgrades its elements in a task of its own: a
+// read of the cascade or the layout there — in an element's connection, its render, or a microtask after it — has the
+// browser style and lay out the whole page for it, once for each module, before it is painted. On a long docs page in
+// WebKit each of those passes took half a second or more. What the elements must read is read in the first frame, after
+// its layout (src/primitives/read-phase.ts), or by an observer of sizes there; nothing is read in their upgrade.
+test.describe('upgrading a page that is still loading (a Chromium trace)', () => {
+  test.skip(({ browserName }) => browserName !== 'chromium', 'the passes are counted from a Chromium trace');
+
+  test('defining the elements of a parsed page forces no style or layout pass before DOMContentLoaded', async ({ page }) => {
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    const bundle = await production();
+    const html = (markup: string) =>
+      `<!doctype html><html lang="en"><head><meta charset="utf-8"><style>${read('dist/tanrei.css')}</style><style>body { margin: 0; }</style></head><body><div id="pane">${markup}</div><script type="module">${bundle}</script></body></html>`;
+    // The passes forced before the page's DOMContentLoaded: what its module and its elements' upgrade forced, in their
+    // task and the microtasks it queued (a frame may come between them, and its own pass is not counted). What a frame
+    // reads after its layout is the frame's, and held by the budgets above.
+    const beforeLoaded = async () => {
+      const events: TraceEvent[] = [];
+      const cdp = await page.context().newCDPSession(page);
+      cdp.on('Tracing.dataCollected', ({ value }) => events.push(...(value as unknown as TraceEvent[])));
+      await cdp.send('Tracing.start', { traceConfig: { includedCategories: ['devtools.timeline', 'disabled-by-default-devtools.timeline.stack'] }, transferMode: 'ReportEvents' });
+      await page.goto(UPGRADE_PAGE);
+      await framesOfWork(page);
+      const complete = new Promise<void>((resolve) => cdp.once('Tracing.tracingComplete', () => resolve()));
+      await cdp.send('Tracing.end');
+      await complete;
+      await cdp.detach();
+      const parsed = events.find((event) => event.name === 'MarkDOMContent');
+      if (!parsed) throw new Error('the trace has no MarkDOMContent event');
+      return forcedPasses(events)
+        .filter((event) => event.ts < parsed.ts)
+        .map((event) => `${event.name} ${event.args!.beginData!.stackTrace!.slice(0, 4).map((frame) => `${frame.functionName || '(anonymous)'}:${frame.lineNumber}:${frame.columnNumber ?? 0}`).join(' < ')}`);
+    };
+    // A navigation, not `setContent`: that writes into the document already loaded, which has been painted.
+    let served = '';
+    await page.route(UPGRADE_PAGE, (route) => route.fulfill({ contentType: 'text/html; charset=utf-8', body: served }));
+    // Loaded once first: the runs counted compile nothing the first did not.
+    served = html(PARSED.join(''));
+    await page.goto(UPGRADE_PAGE);
+    // What the module forces on a page with none of its elements (a probe of the engine, once for the document).
+    served = html('');
+    const empty = await beforeLoaded();
+    served = html(PARSED.join(''));
+    const parsed = await beforeLoaded();
+    const defined = await page.evaluate(() => ['tanrei-button', 'tanrei-checkbox', 'tanrei-switch', 'tanrei-tabs'].every((tag) => !!customElements.get(tag)));
+    expect(defined, 'the bundle defined the elements').toBe(true);
+    const line = `${parsed.length} passes forced before DOMContentLoaded with the elements parsed, ${empty.length} without them`;
+    console.log(`perf-budget ${line}`);
+    expect(parsed.length, [line, ...parsed].join('\n')).toBeLessThanOrEqual(empty.length);
+  });
+});
+
 test.describe('the run-time budgets (perf-budgets.json)', () => {
   test.skip(({ browserName }) => browserName !== 'chromium', 'the budgets are measured in Chromium');
 

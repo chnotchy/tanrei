@@ -358,8 +358,16 @@ export class TanreiTab extends TanreiElement {
   private truncated = false;
 
   /** TAB-25: the label's box changes with the row's width and the text's (a font arriving, the text size). */
-  private readonly labelSize$ = typeof ResizeObserver === 'undefined' ? null : new ResizeObserver(() => this.measureTruncation());
+  private readonly labelSize$ =
+    typeof ResizeObserver === 'undefined'
+      ? null
+      : new ResizeObserver(() => {
+          this.labelReported = true;
+          this.measureTruncation();
+        });
   private observedLabel: Element | null = null;
+  /** TAB-25: whether the observer has reported the label it watches since it was given it — its first measure. */
+  private labelReported = false;
 
   /**
    * TAB-32: the tab's glyph, in both of its copies (TAB-24), is marked when the icon set mirrors its name in
@@ -716,18 +724,21 @@ export class TanreiTab extends TanreiElement {
     // A label that is watched from this update on is measured when the observer first reports it — after the layout
     // of the frame it is first drawn in, with every other tab's — and not here, in this tab's own turn, where the read
     // would have the page laid out once for each tab.
-    let reported = false;
+    // Until the observer has first reported it, an update that would measure it leaves that to the report too: the row
+    // tells a tab what it is in an update of its own after the tab's first (the first it is told), and a read there,
+    // before the frame, had the page laid out for it — while a page loads, once more for each module that upgrades.
     if (label !== this.observedLabel) {
       if (this.observedLabel) this.labelSize$?.unobserve(this.observedLabel);
       if (label) this.labelSize$?.observe(label);
       this.observedLabel = label;
-      reported = !!label && !!this.labelSize$;
+      this.labelReported = false;
     }
+    const awaitingReport = !!label && !!this.labelSize$ && !this.labelReported;
     // TAB-24: other content is laid out differently within its box, whatever the box's size: measured again when drawn.
     if (['label', 'icon', 'labelHidden', 'truncated'].some((key) => changed.has(key as keyof TanreiTab))) this.inkMeasured = null;
     if (!label) this.truncated = false;
-    else if (reported) {
-      // Measured in the coming frame.
+    else if (awaitingReport) {
+      // Measured in the coming frame, when the observer first reports it.
     } else if (['label', 'icon', 'labelHidden'].some((key) => changed.has(key as keyof TanreiTab)) || (this.labelRoomChanged(changed) && !this.labelDeferred)) this.measureTruncation();
     const { selected, tabStop, position, size, choice } = this.context;
     // TAB-2, TAB-12, TAB-13: the tab role, its selection, position and name; one Tab stop per row; a disabled tab takes

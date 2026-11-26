@@ -1,6 +1,10 @@
 import type { ReactiveController, ReactiveControllerHost } from 'lit';
 import { FacesWatch } from './faces.js';
 import { DRAWN_WIDTH } from './glyph-drawn-width.js';
+import { documentPainted } from './motion.js';
+// Imported before the observer below is made: the read phase's observer is then told of a frame before it, so the
+// phase's reads come before the marks this module writes in that frame (src/primitives/read-phase.ts).
+import { readInPhase } from './read-phase.js';
 import { adopt } from './sheets.js';
 
 // Whether a glyph of the icon set can be drawn yet is read from its ink's width: at most `DRAWN_WIDTH` of its box
@@ -32,33 +36,65 @@ function mark(readings: readonly Reading[]): HTMLElement[] {
  * loaded — after the element that draws it has settled, on a page loaded cold — and a style that fades its mark in and
  * out (a menu's or a select's check: `visibility` and `opacity`) would otherwise start a transition from the hidden mark
  * it never showed. A transition is started by the style a change leads to, so each glyph and what is in it are styled
- * once with `transition-property: none` (inline, and important over a rule of the component's), marked, and let go; a
- * transition or an animation already running on the glyph ends where it was going.
+ * with `transition-property: none` (inline, and important over a rule of the component's) and marked, and are let go
+ * once a frame has styled them so (`letGo`); a transition or an animation already running on the glyph ends where it
+ * was going.
+ *
+ * They are let go in the read phase of the next frame, after its layout, not styled here in the task of the mark: a
+ * style read here (`getComputedStyle`) had the browser style the whole page for it there and then — in the render of
+ * every Button that slots an SVG, while a long page's modules upgrade one kind of element after another, two thirds of
+ * a second of its load in CI's WebKit. Nothing is painted before that frame, and whatever styles a glyph meanwhile (a
+ * script's read) styles it with no transition, as the frame does: the mark is drawn without motion either way.
  */
 function appearAtOnce(glyphs: readonly HTMLElement[]) {
-  const quiet = glyphs.flatMap((glyph) => [glyph, ...glyph.querySelectorAll<HTMLElement>('*')]);
-  const own = quiet.map((element) => ({
-    attribute: element.hasAttribute('style'),
-    value: element.style.getPropertyValue('transition-property'),
-    priority: element.style.getPropertyPriority('transition-property'),
-  }));
-  for (const element of quiet) element.style.setProperty('transition-property', 'none', 'important');
-  for (const glyph of glyphs) glyph.setAttribute('data-drawn', '');
-  // Styled now, each of them: an engine styles only what the element asked about needs.
-  for (const element of quiet) void getComputedStyle(element).visibility;
-  quiet.forEach((element, at) => {
-    const { attribute, value, priority } = own[at]!;
-    if (value) element.style.setProperty('transition-property', value, priority);
-    else element.style.removeProperty('transition-property');
-    if (!attribute && !element.style.length) element.removeAttribute('style');
-  });
-  for (const animation of glyphs.flatMap((glyph) => glyph.getAnimations())) animation.finish();
+  for (const element of glyphs.flatMap((glyph) => [glyph, ...glyph.querySelectorAll<HTMLElement>('*')])) {
+    // An element still held from a mark not let go yet keeps what its own style said before that one.
+    if (!stilled.has(element)) {
+      stilled.set(element, {
+        attribute: element.hasAttribute('style'),
+        value: element.style.getPropertyValue('transition-property'),
+        priority: element.style.getPropertyPriority('transition-property'),
+      });
+    }
+    element.style.setProperty('transition-property', 'none', 'important');
+  }
+  for (const glyph of glyphs) {
+    glyph.setAttribute('data-drawn', '');
+    appeared.add(glyph);
+  }
+  readInPhase(stilled, letGo);
+}
+
+/** The elements `appearAtOnce` holds still until a frame has styled them, with what their own style said before. */
+const stilled = new Map<HTMLElement, { attribute: boolean; value: string; priority: string }>();
+/** The glyphs marked drawn since the last phase: an animation running on one ends where it was going. */
+const appeared = new Set<HTMLElement>();
+
+/**
+ * In the read phase of the frame after a mark, which styled the glyphs with no transition: the animations still running
+ * on the glyphs are read, then ended, and each element's own `transition-property` is given back — unless something
+ * else set it meanwhile, which is left as it is.
+ */
+function letGo() {
+  const running = [...appeared].flatMap((glyph) => glyph.getAnimations());
+  appeared.clear();
+  const held = [...stilled];
+  stilled.clear();
+  return () => {
+    for (const animation of running) animation.finish();
+    for (const [element, { attribute, value, priority }] of held) {
+      if (element.style.getPropertyValue('transition-property') !== 'none' || element.style.getPropertyPriority('transition-property') !== 'important') continue;
+      if (value) element.style.setProperty('transition-property', value, priority);
+      else element.style.removeProperty('transition-property');
+      if (!attribute && !element.style.length) element.removeAttribute('style');
+    }
+  };
 }
 
 /**
- * One observer for every glyph of the page: it is told of them all after a layout, every host reads its glyphs, and
- * only then are the marks written — so the glyphs of a page are decided in one pass, not one layout for each host.
- * A `slotted` host reads nothing of the layout: it is given the sizes the observer reports (`sizes`).
+ * One observer for every glyph of the page: it is told of them all after a layout, every host decides its glyphs from
+ * the sizes it reports (`sizes`), reading nothing of the layout, and only then are the marks written — so the glyphs of
+ * a page are decided in one pass, not one layout for each host.
  */
 const owners = new WeakMap<Element, GlyphDrawnController>();
 const observer =
@@ -70,18 +106,17 @@ const observer =
         for (const entry of entries) {
           const owner = owners.get(entry.target);
           if (!owner) continue;
-          if (owner.slotted) {
-            sizes.set(entry.target, entry.borderBoxSize?.[0]?.inlineSize ?? entry.contentRect.width);
-            heard.add(owner);
-          } else hosts.add(owner);
+          sizes.set(entry.target, entry.borderBoxSize?.[0]?.inlineSize ?? entry.contentRect.width);
+          (owner.slotted ? heard : hosts).add(owner);
         }
-        mark([...[...hosts].flatMap((host) => host.read(true)), ...[...heard].flatMap((host) => host.decided())]);
+        mark([...[...hosts].flatMap((host) => host.reported()), ...[...heard].flatMap((host) => host.decided())]);
       });
 
 /**
- * The inline size the observer last reported of each element a `slotted` host gives it — a glyph box, and the ink of
- * the probe it holds (`probeOf`). Taken from the observer's report, after the frame's own layout: no element is asked
- * for its size, so a page that builds a hundred Buttons reads nothing of its layout for them.
+ * The inline size the observer last reported of each element it is given — a glyph box and its ink, or, for a
+ * `slotted` host, a glyph box and the ink of the probe it holds (`probeOf`). Taken from the observer's report, after
+ * the frame's own layout: no element is asked for its size, so a page that builds a hundred Buttons reads nothing of
+ * its layout for them, and what the observer decides reads nothing of it either (`reported`).
  */
 const sizes = new WeakMap<Element, number>();
 
@@ -91,9 +126,16 @@ const sizes = new WeakMap<Element, number>();
  * laid out once for itself (fifty layouts).
  * The hosts of one turn are read in ONE microtask after their renders — one layout for them all — and only then are
  * the marks written. The decision is still made in the task of the render, before any frame.
+ *
+ * Until the document has been painted once, the observer decides instead, after the layout of the coming frame and
+ * before its paint (`reportAgain`): there is no frame yet that a mark decided later could be missing from. While a
+ * page loads, each module upgrades its elements in a task of its own, and a read in the turn of their renders had the
+ * browser style and lay out the whole page there and then, once for each module that defines a host — on a long page,
+ * half a second or more of its load in CI's WebKit, for each.
  */
 const deciding = new Map<GlyphDrawnController, boolean>();
 function decideTogether(host: GlyphDrawnController, again = false) {
+  if (!documentPainted() && host.reportAgain()) return;
   if (!deciding.size) {
     queueMicrotask(() => {
       const hosts = [...deciding];
@@ -119,6 +161,27 @@ const underOf = (ink: HTMLElement) => `${ink.textContent}\n${getComputedStyle(in
 /** The families an ink was read in: a face of another family that arrives cannot change what a glyph draws. */
 const iconFamilies = new Set<string>();
 const familyName = (family: string) => family.trim().replace(/^["']|["']$/g, '').toLowerCase();
+
+/** Keeps the name and family `ink` is read under now (`readUnder`), and its families among the icon set's. */
+function keepUnder(ink: HTMLElement) {
+  const under = underOf(ink);
+  readUnder.set(ink, under);
+  for (const name of under.slice(under.indexOf('\n') + 1).split(',')) iconFamilies.add(familyName(name));
+}
+
+/**
+ * The inks the observer decided whose name and family are to be kept (`keepUnder`): in the read phase of the next
+ * frame, before its writes, where the cascade costs nothing to read. Until then a render of one is read in its turn, as
+ * one never read; a face that arrives meanwhile changes the width of the inks it draws, which the observer reports.
+ */
+const unnoted = new Set<HTMLElement>();
+function noteUnder(ink: HTMLElement) {
+  unnoted.add(ink);
+  readInPhase(unnoted, () => {
+    for (const each of unnoted) if (each.isConnected && owners.has(each)) keepUnder(each);
+    unnoted.clear();
+  });
+}
 
 /**
  * One watch of the fonts of the page for every host (`FacesWatch`). A face that finishes loading, or fails to, has
@@ -223,8 +286,9 @@ const isNamed = (ink: Element) =>
 /**
  * Marks each glyph the host draws with `data-drawn` while the icon set can draw it, and removes the mark while it cannot,
  * so the component's styles draw nothing in its place until then. Each glyph is a box styled by `iconGlyph()` holding
- * ONE inline-block child with the ligature text — the child's width is the ink's. A ResizeObserver on that child hears
- * the font arrive (or a system switch to another icon set) in the frame it changes the layout, before it is painted.
+ * ONE inline-block child with the ligature text — the child's width is the ink's. A ResizeObserver on that child (and
+ * on the box) hears the font arrive (or a system switch to another icon set) in the frame it changes the layout, before
+ * it is painted, and decides from the widths it reports.
  * When a glyph becomes drawable, no transition starts on it or in it, and one running on it ends: it appears without
  * motion (`appearAtOnce`).
  *
@@ -316,14 +380,64 @@ export class GlyphDrawnController implements ReactiveController {
     for (const glyph of this.glyphs()) {
       const ink = glyph.firstElementChild;
       if (ink && watching && !this.observed.has(ink)) {
-        this.observed.add(ink);
-        owners.set(ink, this);
-        observer.observe(ink);
+        this.watch(glyph, ink);
       } else {
         decide = true;
       }
     }
     if (decide) decideTogether(this);
+  }
+
+  /**
+   * Has the observer report the ink of every glyph after the next layout, whatever its width is then, and decide them
+   * there (`read(true)`): the inks it has are given to it anew, and those it has not are given to it. False, and nothing
+   * given, where it cannot decide them: no observer, a host that is not connected or is `slotted`, or a glyph with no
+   * ink (which a read decides at once: not drawn).
+   */
+  reportAgain(): boolean {
+    if (!observer || !this.connected || this.options.slotted) return false;
+    const inks: Element[] = [];
+    for (const glyph of this.glyphs()) {
+      const ink = glyph.firstElementChild;
+      if (!ink) return false;
+      inks.push(ink);
+    }
+    for (const ink of inks) {
+      for (const element of [ink.parentElement!, ink]) {
+        if (this.observed.has(element)) observer.unobserve(element);
+        else {
+          this.observed.add(element);
+          owners.set(element, this);
+        }
+        observer.observe(element);
+      }
+    }
+    return true;
+  }
+
+  /**
+   * Each glyph, and whether its ink is the ligature, from the widths the observer last reported of the glyph's box and
+   * of its ink (`sizes`) — what `read(true)` reads of the layout, with no read of it. The observer's callback decides
+   * so: read there, the widths had the browser lay the page out again whenever an observer told before it had written
+   * (a table's sizes, the marks of the read phase), in the middle of the frame. A glyph either of whose widths has not
+   * been reported (no box) is not drawn. The name and family each ink is read under (`readUnder`) are read in the next
+   * frame's read phase (`noteUnder`): a read of the cascade here would style the page for it in the same way.
+   */
+  reported(): Reading[] {
+    const readings: Reading[] = [];
+    if (!this.connected || this.options.slotted) return readings;
+    for (const glyph of this.glyphs()) {
+      const ink = glyph.firstElementChild as HTMLElement | null;
+      const box = sizes.get(glyph);
+      const width = ink ? sizes.get(ink) : undefined;
+      const laid = box !== undefined && box > 0;
+      readings.push([glyph, laid && width !== undefined && width <= box * DRAWN_WIDTH]);
+      if (!ink || !this.observed.has(ink)) continue;
+      if (laid) noteUnder(ink);
+      else readUnder.delete(ink);
+    }
+    if (readings.length) faces.measured();
+    return readings;
   }
 
   /** With `slotted`: gives the observer what it does not have yet of these elements. */
@@ -382,7 +496,7 @@ export class GlyphDrawnController implements ReactiveController {
 
   /**
    * Each glyph, and whether its ink is the ligature: a reading of the layout. None for a host that is not connected,
-   * nor for a `slotted` one (`decided`). `again`: read every glyph (a face arrived, the observer reported a size);
+   * nor for a `slotted` one (`decided`). `again`: read every glyph (a face arrived);
    * otherwise only the glyphs whose name or family changed since they were read (`readUnder`) — the others are left
    * out, and keep their mark.
    *
@@ -403,11 +517,8 @@ export class GlyphDrawnController implements ReactiveController {
       const box = glyph.clientWidth;
       readings.push([glyph, !!ink && box > 0 && ink.offsetWidth <= box * DRAWN_WIDTH]);
       if (!watched) continue;
-      if (box > 0) {
-        const under = underOf(ink!);
-        readUnder.set(ink!, under);
-        for (const name of under.slice(under.indexOf('\n') + 1).split(',')) iconFamilies.add(familyName(name));
-      } else readUnder.delete(ink!);
+      if (box > 0) keepUnder(ink!);
+      else readUnder.delete(ink!);
     }
     // After the layout the reads forced: the icon face a glyph first asked for in it is loading now.
     if (readings.length) faces.measured();
