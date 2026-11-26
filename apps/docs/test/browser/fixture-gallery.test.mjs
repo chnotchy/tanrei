@@ -1,8 +1,9 @@
 // Every component page's fixtures, as a reader sees them: the Specs tab has a gallery of fixtures, with a stage for each
 // fixture of the spec; and every fixture it draws can be seen whole, at a desktop's width and at a phone's — its stage
 // stands inside the page's column and the window, and what the fixture draws stands inside its stage (an element as
-// wide as a layout is made narrower with its stage, a window is scaled down with it). The page itself never scrolls
-// sideways.
+// wide as a layout is made narrower with its stage, a window is scaled down with it). A stage drawn in the page is
+// drawn in the direction its fixture names, whatever the component, or else in the page's. The page itself never
+// scrolls sideways.
 //
 // It was written after the fixtures stood in a table, where at 390 wide the drawing of 1953 of 2390 fixtures began
 // past the table's visible box (the reader had to scroll the table sideways to find it), and where the drawing of
@@ -35,11 +36,12 @@ const dist = path.join(docs, 'dist');
 const repo = path.join(docs, '../..');
 if (!fs.existsSync(path.join(dist, 'index.html'))) throw new Error('apps/docs/dist holds no site: run `pnpm --filter @tanrei/docs build` first');
 
-// Every component page of the root language, and the fixtures its spec lists.
+// Every component page of the root language, the fixtures its spec lists, and the direction each of them names, by id.
 const pages = fs
   .readdirSync(path.join(dist, 'components'), { withFileTypes: true })
   .filter((entry) => entry.isDirectory() && fs.existsSync(path.join(repo, 'specs', `${entry.name}.spec.json`)))
-  .map((entry) => ({ name: entry.name, fixtures: JSON.parse(fs.readFileSync(path.join(repo, 'specs', `${entry.name}.spec.json`), 'utf8')).fixtures.map((f) => f.id) }))
+  .map((entry) => ({ name: entry.name, listed: JSON.parse(fs.readFileSync(path.join(repo, 'specs', `${entry.name}.spec.json`), 'utf8')).fixtures }))
+  .map(({ name, listed }) => ({ name, fixtures: listed.map((f) => f.id), directions: Object.fromEntries(listed.filter((f) => f.direction).map((f) => [f.id, f.direction])) }))
   .sort((a, b) => a.name.localeCompare(b.name));
 
 let host;
@@ -277,9 +279,10 @@ async function openPage(what, options) {
 /**
  * Runs IN THE PAGE: the gallery's stages, and for each drawn one what stands outside where it must stand. Measured once
  * the elements are defined and every stage is laid out. Every wait is bounded: one that ends without what it waited for
- * throws, naming what did not come.
+ * throws, naming what did not come. `directions` is the direction each fixture names, by id: a stage drawn in the page
+ * is drawn in it, and one whose fixture names none in the page's.
  */
-async function measure({ name, EMPTY }) {
+async function measure({ name, EMPTY, directions }) {
   const step = (what) => console.debug(`[step] ${what}`);
   const within = (ms, missing, promise) => {
     let timer;
@@ -434,6 +437,12 @@ async function measure({ name, EMPTY }) {
       found.push(`${id}: nothing is drawn on its stage`);
       continue;
     }
+    // The direction it is drawn in: the one its fixture names, whatever the component, or else the page's. (A window
+    // is not waited for here; its document holds the same stage, fixture-windows.test.mjs.)
+    const fixtureStage = stage.querySelector('[data-fixture-scope] > .stage');
+    const direction = fixtureStage && getComputedStyle(fixtureStage).direction;
+    const wanted = directions[id] ?? getComputedStyle(document.documentElement).direction;
+    if (fixtureStage && direction !== wanted) found.push(`${id}: it is drawn ${direction}, and ${directions[id] ? 'its fixture names' : 'the page is'} ${wanted}`);
     const r = drawn.getBoundingClientRect();
     if (r.width < 1 || r.height < 1) found.push(`${id}: its stage has no length (${Math.round(r.width)} × ${Math.round(r.height)})`);
     else if (outside(r, area)) found.push(`${id}: what it draws is cut by its stage (${Math.round(r.width)} × ${Math.round(r.height)} in ${Math.round(area.width)} × ${Math.round(area.height)})`);
@@ -556,14 +565,14 @@ const drawing = [];
 
 describe('every component page shows its fixtures, each whole, on a stage of its own', { concurrency: 4 }, () => {
   test('there are component pages', () => assert.ok(pages.length > 80, `found ${pages.length} component pages`));
-  for (const { name, fixtures } of pages) {
+  for (const { name, fixtures, directions } of pages) {
     test(name, LIMIT, async () => {
       const problems = [];
       for (const viewport of [{ width: 1440, height: 1000 }, { width: 390, height: 844 }]) {
         const { page, close } = await openPage(`/components/${name}/ at ${viewport.width}`, { viewport, reducedMotion: 'reduce' });
         try {
           await page.goto(`${origin}/components/${name}/`, { waitUntil: 'load' });
-          const result = await evaluateBounded(page, `/components/${name}/ at ${viewport.width}`, measure, { name, EMPTY });
+          const result = await evaluateBounded(page, `/components/${name}/ at ${viewport.width}`, measure, { name, EMPTY, directions });
           const at = `${viewport.width}`;
           if (!result.gallery) {
             problems.push(`${at}: the page has no gallery of fixtures`);
