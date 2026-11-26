@@ -119,7 +119,7 @@
           },
           "height": {
             "$type": "dimension",
-            "$description": "A row's least height, per size: the header row, a body row, a placeholder row and a footer row are each at least this tall, and taller where a cell's content needs more. Medium is the control height (40 in the default system), so that a row of the default size stands as tall as the Buttons, fields and list items beside the table; a cell's block padding gives up what the row loses, so that one line of a cell fills it exactly. Small is the small step (32 in the default system), for a table a person scans; it is not held at the target, because nobody presses a row that holds no control, and a row that holds one is held there (TBL-40, TBL-47).",
+            "$description": "A row's least height, per size: the header row, a body row, a placeholder row and a footer row are each at least this tall, and taller where a cell's content needs more. Medium is the control height (36 in the default system), so that a row of the default size stands as tall as the Buttons, fields and list items beside the table; a cell's block padding gives up what the row loses, so that one line of a cell fills it exactly. Small is the small step (28 in the default system), for a table a person scans; it is not held at the target, because nobody presses a row that holds no control, and a row that holds one is held there (TBL-40, TBL-47).",
             "$extensions": {
               "dev.tanrei.vocabulary": {
                 "rationale": "One product sets its tables beside its controls and its lists, in a panel or under a toolbar, and wants a row of the default size as tall as the controls of that size, so that a table moves with the product's control height as everything around it does; and it packs a table a person scans as close as its small controls.",
@@ -128,7 +128,7 @@
             },
             "medium": {
               "$value": {
-                "value": 40,
+                "value": 36,
                 "unit": "px"
               },
               "$extensions": {
@@ -221,10 +221,10 @@
         "cell": {
           "padding-block": {
             "$type": "dimension",
-            "$description": "Space above and below a cell's content, per size. Each is half of what one line of a cell's text leaves of its size's row height at the control height's reference (9 at medium and 6 at small in the default system), and gives up half of what the row loses below it, so that a row of one-line cells is exactly row.height tall at every control height. A row is as tall as its tallest cell — this padding twice and the lines of that cell's text — and at least row.height, and a row that holds a control at least the target (TBL-40, TBL-47).",
+            "$description": "Space above and below a cell's content, per size. Each is half of what one line of a cell's text leaves of its size's row height at the control height's reference (9 at medium and 6 at small at the reference of 40; 7 and 4 in the default system), and gives up half of what the row loses below it, so that a row of one-line cells is exactly row.height tall at every control height. A row is as tall as its tallest cell — this padding twice and the lines of that cell's text — and at least row.height, and a row that holds a control at least the target (TBL-40, TBL-47).",
             "medium": {
               "$value": {
-                "value": 9,
+                "value": 7,
                 "unit": "px"
               },
               "$extensions": {
@@ -238,7 +238,7 @@
             },
             "small": {
               "$value": {
-                "value": 6,
+                "value": 4,
                 "unit": "px"
               },
               "$extensions": {

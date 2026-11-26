@@ -782,8 +782,18 @@
           },
           "gap": {
             "$type": "dimension",
-            "$value": "{tanrei.sys.space.space50}",
-            "$description": "Between the action, the expand button and the close button."
+            "$value": {
+              "value": 8,
+              "unit": "px"
+            },
+            "$description": "Between the action, the expand button and the close button. Neighbouring hit areas meet at the middle of it (SNK-4, BTN-5), so it is what keeps each small Button's target whole: sys.target.touch less the small Button's side, never below zero — 36 − 28 = 8 in the default system.",
+            "$extensions": {
+              "dev.tanrei.derive": {
+                "fn": "sub",
+                "of": "{tanrei.sys.target.touch}",
+                "by": "{tanrei.comp.button.container.height.small}"
+              }
+            }
           },
           "label": {
             "typescale": {

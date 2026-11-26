@@ -667,7 +667,6 @@ const zhCN: Dictionary = {
     minimum: '最小目标',
     heights: '此控件高度下的高度',
     sample: { label: '按此控件高度绘制', button: '按钮', field: '输入框', menuRow: '菜单行', tabs: '标签页', tab: '标签页' },
-    held: (drawn, step) => `${drawn}（${step}，提升到最小目标）`,
     lock: (row) => `锁定${row}`,
     lockHelp: '锁定的行在随机搭配时保持原值。',
     shuffle: '随机搭配',

@@ -712,8 +712,6 @@ const en = {
     minimum: 'Minimum target',
     heights: 'Heights at this control height',
     sample: { label: 'Drawn at this control height', button: 'Button', field: 'Field', menuRow: 'Menu row', tabs: 'Tabs', tab: 'Tab' },
-    // A height the minimum target holds up: what it is drawn at, and the ladder's own height under it.
-    held: (drawn: string, step: string) => `${drawn} (${step}, raised to the minimum target)`,
     lock: (row: string) => `Lock ${row}`,
     lockHelp: 'A locked row keeps its value when you shuffle.',
     shuffle: 'Shuffle',

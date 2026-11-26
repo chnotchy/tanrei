@@ -214,8 +214,8 @@ for (const engine of ENGINES) {
       await context.close();
     });
 
-    // No component draws a length other than its token today (lib/visuals/lengths-not-drawn.json records none), so no
-    // page has a note of its own to read. The test writes one into a row as the figure writes it once it has measured
+    // A note is written only where a component draws a length other than its token (lib/visuals/lengths-not-drawn.json),
+    // which the Select does not. The test writes one into a row as the figure writes it once it has measured
     // the component (lib/visuals/blueprint.ts: the row's note shown, the table's `data-differs` sentence in it): the
     // Japanese Select's, at a phone's width, where a note run into its length's name once broke the tokens' column a
     // few letters to a line.

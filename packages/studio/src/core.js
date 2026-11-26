@@ -612,7 +612,32 @@ export function createStudio({ config, sources, vocabulary, resolver, layers, mc
       const [spaceDial, heightDial] = [baseOf(layer).dials.find((d) => d.key === 'space.unit'), baseOf(layer).dials.find((d) => d.key === 'control.height')];
       if (heightDial) next = setDial(next, heightDial.id, Math.round((heightDial.value * value) / spaceDial.value));
     }
-    return next;
+    // What spacing and type take with them is whatever a control's height needs to hold its padding and its line.
+    return linked && key !== 'shape.unit' ? fitControlHeight(next) : next;
+  }
+
+  /**
+   * The least control height, from the layer's own up, at which no height the control height moves fails to hold its
+   * content. A block padding is written for the box at the control height's reference (40) and keeps its value above it,
+   * while spacing scales it and type scales the line: a control height scaled in proportion from a default under the
+   * reference (36) can leave a box a fraction of a pixel short of its padding and a larger line. Essentials raises the
+   * control height a whole pixel at a time while that lessens what is short, and stops where nothing is, or where a pixel
+   * more mends nothing more (what is short then is no matter of the control height).
+   */
+  function fitControlHeight(layer) {
+    const heightDial = baseOf(layer).dials.find((d) => d.key === 'control.height');
+    if (!heightDial) return layer;
+    const short = (view) => view.warnings.filter((w) => /cannot hold its content/.test(w)).length;
+    let [current, count] = [layer, short(preview(layer))];
+    while (count > 0) {
+      const height = dials(current).find((d) => d.key === 'control.height').value;
+      if (height + 1 > DIAL_RANGES['control.height'].max) break;
+      const raised = setDial(current, heightDial.id, height + 1);
+      const fewer = short(preview(raised));
+      if (fewer >= count) break;
+      [current, count] = [raised, fewer];
+    }
+    return current;
   }
 
   // ── the size row: the control height, the minimum target, and the heights they give ─────────────
@@ -660,9 +685,10 @@ export function createStudio({ config, sources, vocabulary, resolver, layers, mc
   /**
    * The heights the ladder's small, medium and large give in a computed view, by the engine's own arithmetic
    * (`evaluateNumeric`): each step's rule, with `dial.control.height`, `dial.size.unit` and `sys.target.minimum` taken from
-   * `at` (`height`, `unit`, `minimum`) where it gives them (a value being dragged) and from the view otherwise. `step` is the ladder's height; `drawn` is what a
-   * pressable control of that size is drawn at, the step read through the minimum (`mul` by 1 with `min`, as every
-   * pressable height reads it). A step the layer wrote as a value is that value at any control height.
+   * `at` (`height`, `unit`, `minimum`) where it gives them (a value being dragged) and from the view otherwise. `step` is the ladder's height, what a
+   * control of that size that stands alone is drawn at (its hit area reaching the minimum target past it; a row that
+   * touches its neighbours is drawn at least the minimum). A step the layer wrote as a value is that value at any
+   * control height.
    */
   function heights(view, at = {}) {
     const tokens = view.model?.tokens;
@@ -680,10 +706,9 @@ export function createStudio({ config, sources, vocabulary, resolver, layers, mc
       if (!token) continue;
       try {
         const step = typeof token.derive?.fn === 'string' ? evaluateNumeric(token.derive, lookup, { type: token.type }) : token.value;
-        const drawn = evaluateNumeric({ fn: 'mul', of: `{${LADDER + size}}`, by: 1, min: `{${MINIMUM}}` }, (id) => (id === LADDER + size ? step : lookup(id)), { type: token.type });
-        out.push({ size, id: token.id, step: step.value, drawn: drawn.value, unit: drawn.unit, held: drawn.value > step.value });
+        out.push({ size, id: token.id, step: step.value, unit: step.unit });
       } catch {
-        out.push({ size, id: token.id, step: token.value.value, drawn: token.value.value, unit: token.value.unit, held: false });
+        out.push({ size, id: token.id, step: token.value.value, unit: token.value.unit });
       }
     }
     return out;

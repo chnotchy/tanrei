@@ -140,7 +140,7 @@
     {
       "id": "LRW-3",
       "text": "THE list row SHALL count its lines of text: one line WHILE it has a headline alone; two lines WHILE it has an overline or a supporting text of one line besides the headline; three lines WHILE it has both an overline and a supporting text, or a supporting text WHILE supportingLines is 2. It SHALL be at least the height of that count at its size — comp.list-row.container.height.one-line.medium, comp.list-row.container.height.two-line.medium or comp.list-row.container.height.three-line.medium for medium, comp.list-row.container.height.one-line.small, comp.list-row.container.height.two-line.small or comp.list-row.container.height.three-line.small for small — growing with its text and never clipping it, and SHALL centre its text in the height it has. WHILE it has one or two lines it SHALL centre the leading and the trailing part on the text; WHILE it has three it SHALL align them with the top of the text, so that a picture beside three lines stays with the headline.",
-      "verify": "The fixtures one-line, two-line and three-line are 40, 60 and 80 tall in the default system, and small-one-line and small 36 and 56. In three-line the glyph's top is level with the overline's top; in two-line the glyph is centred on the text."
+      "verify": "The fixtures one-line, two-line and three-line are 36, 56 and 76 tall in the default system, and small-one-line and small 36 and 56. In three-line the glyph's top is level with the overline's top; in two-line the glyph is centred on the text."
     },
     {
       "id": "LRW-4",

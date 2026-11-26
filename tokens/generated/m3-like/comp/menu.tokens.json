@@ -524,7 +524,7 @@
           "gap": {
             "$type": "dimension",
             "$value": "{tanrei.sys.space.space200}",
-            "$description": "Under gap: the empty space between a group and what is next to it, in place of the divider and its two spaces. Sixteen, so that the step between two groups is plainly larger than the step between two rows of one group (at the default height about 28 of clear space lies between two labels of one group, and 44 across the gap). Not read under divider.",
+            "$description": "Under gap: the empty space between a group and what is next to it, in place of the divider and its two spaces. Sixteen, so that the step between two groups is plainly larger than the step between two rows of one group (at the default height about 24 of clear space lies between two labels of one group, and 40 across the gap). Not read under divider.",
             "$extensions": {
               "dev.tanrei.vocabulary": {
                 "rationale": "One product that parts its groups by space decides how much: enough to read as a break between rows that have no edge of their own, without a line. It is not the divider's space, which only has to clear a line.",

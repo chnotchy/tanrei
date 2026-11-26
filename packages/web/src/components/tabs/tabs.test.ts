@@ -638,8 +638,8 @@ test.describe('layout', () => {
       const f = spec.fixtures.find((each) => each.id === id)!;
       return f.items!.findIndex((item) => item.props.value === f.props.value);
     };
-    // The same height on every tab of every row: the row less track.padding above and below — 32 without stacked icons
-    // (a row at the control height, 40), 56 with them (the default system's numbers, read from its tokens). (A column is
+    // The same height on every tab of every row: the row less track.padding above and below — 28 without stacked icons
+    // (a row at the control height, 36), 56 with them (the default system's numbers, read from its tokens). (A column is
     // held to TAB-51 and TAB-52 by its own tests.)
     for (const f of ROWS) {
       const n = selectedOf(f.id);
@@ -657,7 +657,7 @@ test.describe('layout', () => {
       const c = await bounds(content(page, f.id, n));
       expect([centre(p).x, centre(p).y], f.id).toEqual([expect.closeTo(centre(c).x, 0), expect.closeTo(centre(c).y, 0)]);
     }
-    expect(plain - 2 * inset).toBe(32);
+    expect(plain - 2 * inset).toBe(28);
     expect(stacked - 2 * inset).toBe(56);
     // Hugging, content wider than tall: the content plus the padding, which is the tab's own (the alias), so the whole tab
     // — in primary and in secondary alike.
@@ -677,7 +677,7 @@ test.describe('layout', () => {
     ] as const) {
       const [p, b] = [await pill(page, id, n), await bounds(tabAt(page, id, n))];
       expect(p.width, id).toBeCloseTo(p.height, 1);
-      expect(p.width, id).toBeCloseTo(32, 0);
+      expect(p.width, id).toBeCloseTo(28, 0);
       expect(p.radius, id).toBeCloseTo(p.height / 2, 1);
       expect(centre(p).x, id).toBeCloseTo(centre(b).x, 0);
       expect(p.width, id).toBeLessThanOrEqual(b.width + 0.5);
@@ -707,7 +707,7 @@ test.describe('layout', () => {
     await expect.poll(async () => (await pill(page, 'primary', 0)).width).toBeCloseTo((await bounds(label(page, 'primary', 0))).width + 12, 0);
     expect(centre(await pill(page, 'primary', 0)).x).toBeCloseTo(centre(await bounds(tabAt(page, 'primary', 0))).x, 0);
     // …but never narrower than it is tall, and the circle stays a circle.
-    expect((await pill(page, 'primary-single-characters', 1)).width).toBeCloseTo(32, 0);
+    expect((await pill(page, 'primary-single-characters', 1)).width).toBeCloseTo(28, 0);
     await override(page, { [T('active-indicator-padding-inline-medium')]: '' });
     await expect.poll(async () => (await pill(page, 'primary', 0)).width).toBeCloseTo((await bounds(tabAt(page, 'primary', 0))).width, 0);
     // The underline: on the row's bottom edge, over the divider, its variant's thickness, the content (primary) or the tab
@@ -862,14 +862,14 @@ test.describe('layout', () => {
       if (unit.part === 'the box') {
         const { id, n, form } = unit;
         await mountFixtures(page, spec, { icons: true });
-        // In the default system a circle's tab is the 36 target wide, wider than its 32 circle; under a larger target (a
+        // In the default system a circle's tab is the 36 target wide, wider than its 28 circle; under a larger target (a
         // platform guideline's 44) the tab is wider than its circle, and the box is still the circle, not the tab.
         if (form === 'circle') await rootTokens(page, { '--tanrei-sys-target-pointer': '44px' });
         const inset = await resolveToken(page, T('track-padding'));
         const [whole, c] = [await bounds(tabAt(page, id, n)), await seat(page, id, n)];
         // The box: the row less track.padding above and below, centred in the tab.
         expect([c.y, c.height], id).toEqual([expect.closeTo(whole.y + inset, 1), expect.closeTo(whole.height - 2 * inset, 1)]);
-        expect(c.height, id).toBeCloseTo(32, 0);
+        expect(c.height, id).toBeCloseTo(28, 0);
         // Centred in the tab — but an end tab whose circle is narrower than the target by more than twice the inset is held
         // at the track's edge (TAB-34): its box is cut by what passes the edge, and the circle stands off its centre by
         // half of that.
@@ -1418,7 +1418,7 @@ test.describe('concentric at every size', () => {
     }
   });
 
-  test('TAB-34, TAB-35: a row of circles narrower than their tabs (the two-icon row, a 32 circle in a 36 tab) is at its settled width once it is first placed, and the frame reports every size it changed — the observer of the row never finds the row it has just written moving again, which the browser reports as an error', async ({ page }) => {
+  test('TAB-34, TAB-35: a row of circles narrower than their tabs (the two-icon row, a 28 circle in a 36 tab) is at its settled width once it is first placed, and the frame reports every size it changed — the observer of the row never finds the row it has just written moving again, which the browser reports as an error', async ({ page }) => {
     await mountFixtures(page, spec, { fixtures: spec.fixtures.slice(0, 1), icons: true });
     const [inset, height] = await Promise.all([resolveToken(page, T('track-padding')), resolveToken(page, T('container-height-medium'))]);
     const target = await resolveToken(page, '--tanrei-sys-target-pointer');
@@ -1637,14 +1637,14 @@ test.describe('concentric at every size', () => {
         for (const part of [c, r]) expect([part.x, part.y, part.width, part.height], where).toEqual([expect.closeTo(thumb.x, 1), expect.closeTo(thumb.y, 1), expect.closeTo(thumb.width, 1), expect.closeTo(thumb.height, 1)]);
       }
     }
-    // The row heights were measured: 36 small, 40, and 64 where a primary tab stacks its icon above its label.
-    expect([...heights].sort((a, b) => a - b)).toEqual([await resolveToken(page, T('container-height-small')), await resolveToken(page, T('container-height-medium')), await resolveToken(page, T('container-height-with-icon'))]);
-    // The circles: 20 from the end and 20 from the top — the centre of the track's half circle.
+    // The row heights were measured: 28 small, 36 medium, and 64 where a primary tab stacks its icon above its label.
+    expect([...heights].sort((a, b) => a - b)).toEqual([...new Set([await resolveToken(page, T('container-height-small')), await resolveToken(page, T('container-height-medium')), await resolveToken(page, T('container-height-with-icon'))])].sort((a, b) => a - b));
+    // The circles: 18 from the end and 18 from the top — the centre of the track's half circle.
     for (const id of ['primary-icon-only', 'primary-single-characters', 'primary-two-icons']) {
       await choose(page, id, 0);
       const [thumb, outer] = [await pill(page, id, 0), await bounds(track(page, id))];
       expect(thumb.width, id).toBeCloseTo(thumb.height, 1);
-      expect([thumb.x + thumb.width / 2 - outer.x, thumb.y + thumb.height / 2 - outer.y], id).toEqual([expect.closeTo(20, 1), expect.closeTo(20, 1)]);
+      expect([thumb.x + thumb.width / 2 - outer.x, thumb.y + thumb.height / 2 - outer.y], id).toEqual([expect.closeTo(18, 1), expect.closeTo(18, 1)]);
     }
   });
 
@@ -1781,16 +1781,16 @@ test.describe('concentric at every size', () => {
     return { outer, seats, circle, pitch, inset };
   };
 
-  test('TAB-35: the two-icon row in the default system — a 76 by 40 track, two 32 circles 4 apart with a 24 glyph at each centre, centres 20 and 56 from the start, each hit area half the track, for every input (each tab is the 36 target wide, wider than its circle); the second-selected fixture is its mirror image and the secondary one has the same geometry in its thumb’s color', async ({ page }) => {
+  test('TAB-35: the two-icon row in the default system — a 72 by 36 track, two 28 circles 8 apart with a 24 glyph at each centre, centres 18 and 54 from the start, each hit area half the track, for every input (each tab is the 36 target wide, wider than its circle); the second-selected fixture is its mirror image and the secondary one has the same geometry in its thumb’s color', async ({ page }) => {
     await mountFixtures(page, spec, { icons: true, reducedMotion: true });
     const target = await resolveToken(page, '--tanrei-sys-target-pointer');
     const a = await twoIcons(page, 'primary-two-icons', target);
-    // The table's numbers, in the default system: a row at the control height (40), a tab the target (36) wide, wider
+    // The table's numbers, in the default system: a row at the control height (36), a tab the target (36) wide, wider
     // than its circle.
-    expect([a.outer.width, a.outer.height, a.circle, a.pitch]).toEqual([76, 40, 32, 36]);
-    expect(a.seats.map((c) => c.x + 16 - a.outer.x)).toEqual([expect.closeTo(20, 1), expect.closeTo(56, 1)]);
-    expect(a.seats[1].x - (a.seats[0].x + 32)).toBeCloseTo(4, 1);
-    expect(a.outer.width / 2).toBe(38);
+    expect([a.outer.width, a.outer.height, a.circle, a.pitch]).toEqual([72, 36, 28, 36]);
+    expect(a.seats.map((c) => c.x + 14 - a.outer.x)).toEqual([expect.closeTo(18, 1), expect.closeTo(54, 1)]);
+    expect(a.seats[1].x - (a.seats[0].x + 28)).toBeCloseTo(8, 1);
+    expect(a.outer.width / 2).toBe(36);
     const b = await twoIcons(page, 'primary-two-icons-second-selected', target);
     const c = await twoIcons(page, 'secondary-two-icons', target);
     for (const other of [b, c]) {
@@ -1803,12 +1803,12 @@ test.describe('concentric at every size', () => {
     expect(b.outer.x + b.outer.width - (thumbB.x + thumbB.width)).toBeCloseTo(thumbA.x - a.outer.x, 1);
     // Secondary: the same thumb, in the secondary thumb's color.
     const thumbC = await pill(page, 'secondary-two-icons', 0);
-    expect([thumbC.x - c.outer.x, thumbC.width, thumbC.height]).toEqual([expect.closeTo(thumbA.x - a.outer.x, 1), expect.closeTo(32, 1), expect.closeTo(32, 1)]);
+    expect([thumbC.x - c.outer.x, thumbC.width, thumbC.height]).toEqual([expect.closeTo(thumbA.x - a.outer.x, 1), expect.closeTo(28, 1), expect.closeTo(28, 1)]);
     await expect.poll(async () => (await drawn(page, 'secondary-two-icons', 0)).pill).toBe(await resolveColor(page, T('secondary-selected-active-indicator-color')));
     await expect.poll(async () => (await drawn(page, 'primary-two-icons', 0)).pill).toBe(await resolveColor(page, T('primary-selected-active-indicator-color')));
   });
 
-  test('TAB-35: the two-icon row with touch input under a 48 touch target — an 88 by 40 track, two 32 circles 16 apart, centres 20 and 68 from the start, each tab 44 wide, reaching to the track’s edge and no further', async ({ page, browserName }) => {
+  test('TAB-35: the two-icon row with touch input under a 48 touch target — an 84 by 36 track, two 28 circles 20 apart, centres 18 and 66 from the start, each tab 42 wide, reaching to the track’s edge and no further', async ({ page, browserName }) => {
     test.skip(browserName !== 'chromium', 'only Chromium can emulate a coarse pointer (touch emulation over CDP)');
     await mountFixtures(page, spec, { icons: true, reducedMotion: true });
     // A system whose touch target is larger than a circle (a platform guideline's 48): each tab is that wide.
@@ -1818,19 +1818,19 @@ test.describe('concentric at every size', () => {
     expect(target).toBe(48);
     for (const id of ['primary-two-icons', 'primary-two-icons-second-selected', 'secondary-two-icons']) {
       const a = await twoIcons(page, id, target);
-      expect([a.outer.width, a.outer.height, a.circle, a.pitch], id).toEqual([88, 40, 32, 48]);
-      expect(a.seats.map((c) => c.x + 16 - a.outer.x), id).toEqual([expect.closeTo(20, 1), expect.closeTo(68, 1)]);
-      expect(a.seats[1].x - (a.seats[0].x + 32), id).toBeCloseTo(16, 1);
-      // The first tab starts at the track's edge — its 48 box would reach 8 into an inset of 4, and is held at the edge —
-      // and each tab is a 44 by 40 half of the track.
+      expect([a.outer.width, a.outer.height, a.circle, a.pitch], id).toEqual([84, 36, 28, 48]);
+      expect(a.seats.map((c) => c.x + 14 - a.outer.x), id).toEqual([expect.closeTo(18, 1), expect.closeTo(66, 1)]);
+      expect(a.seats[1].x - (a.seats[0].x + 28), id).toBeCloseTo(20, 1);
+      // The first tab starts at the track's edge — its 48 box would reach 10 into an inset of 4, and is held at the edge —
+      // and each tab is a 42 by 36 half of the track.
       for (const n of [0, 1]) {
         const whole = await bounds(tabAt(page, id, n));
-        expect([whole.x - a.outer.x, whole.width, whole.height], `${id}/${n}`).toEqual([expect.closeTo(44 * n, 1), expect.closeTo(44, 1), expect.closeTo(40, 1)]);
+        expect([whole.x - a.outer.x, whole.width, whole.height], `${id}/${n}`).toEqual([expect.closeTo(42 * n, 1), expect.closeTo(42, 1), expect.closeTo(36, 1)]);
       }
     }
   });
 
-  test('TAB-35: selecting the other tab slides the thumb across as that circle — 32 wide in every frame, its centre travelling one tab’s width — and a drag carries it the same way; the tab that is not selected hovers and focuses as a 32 circle concentric with the track’s other end', async ({ page }) => {
+  test('TAB-35: selecting the other tab slides the thumb across as that circle — 28 wide in every frame, its centre travelling one tab’s width — and a drag carries it the same way; the tab that is not selected hovers and focuses as a 28 circle concentric with the track’s other end', async ({ page }) => {
     await mountFixtures(page, spec, { icons: true, reducedMotion: false, fixtures: spec.fixtures.filter((f) => f.id === 'primary-two-icons') });
     const id = 'primary-two-icons';
     await override(page, { [T('motion-indicator-duration')]: '60s' });
@@ -1839,8 +1839,8 @@ test.describe('concentric at every size', () => {
     const seats = [await seat(page, id, 0), await seat(page, id, 1)];
     const circle = seats[0].width;
     const travel = seats[1].x - seats[0].x;
-    // One tab's width: the circle, or the target where that is wider (36 in the default system, whose circle is 32).
-    expect([circle, travel]).toEqual([expect.closeTo(32, 1), expect.closeTo(Math.max(32, await resolveToken(page, '--tanrei-sys-target-pointer')), 1)]);
+    // One tab's width: the circle, or the target where that is wider (36 in the default system, whose circle is 28).
+    expect([circle, travel]).toEqual([expect.closeTo(28, 1), expect.closeTo(Math.max(28, await resolveToken(page, '--tanrei-sys-target-pointer')), 1)]);
     // The slide: every frame held is the circle, between the two places.
     await tabAt(page, id, 1).click();
     const xs: number[] = [];
@@ -1879,7 +1879,7 @@ test.describe('concentric at every size', () => {
     await expect(tabAt(page, id, 0)).toHaveAttribute('aria-checked', 'true');
     await frames(page, 3);
     expect((await pill(page, id, 0)).x).toBeCloseTo(seats[0].x, 1);
-    // The tab that is not selected (the second): hovered, then focused — a 32 circle concentric with the other end.
+    // The tab that is not selected (the second): hovered, then focused — a 28 circle concentric with the other end.
     await tabAt(page, id, 1).hover();
     await expect.poll(() => css(layer(page, id, 1), 'background-color')).not.toBe('rgba(0, 0, 0, 0)');
     for (const part of [await seat(page, id, 1), await bounds(ring(page, id, 1))]) {
@@ -2085,7 +2085,7 @@ test.describe('the track and the drag', () => {
   test('TAB-28: the look changes continuously with the pointer, with no threshold — a circle widens into a capsule, nothing jumps where two tabs meet — and a frame of a tap’s slide is the frame a drag draws at that place (TAB-17)', async ({ page }) => {
     await mountFixtures(page, spec, { fixtures: only('primary-single-characters', 'primary'), reducedMotion: false });
     // A target wider than a circle (a platform guideline's 44), so that a circle and its neighbour's capsule meet
-    // between tabs wider than their circles; the default system's (36) is only 4 wider than its 32 circle.
+    // between tabs wider than their circles; the default system's (36) is only 8 wider than its 28 circle.
     await override(page, { [T('motion-state-duration')]: '0s', '--tanrei-sys-target-pointer': '44px' });
     const id = 'primary-single-characters';
     const seats = await Promise.all([0, 1, 2, 3].map((n) => seat(page, id, n)));
@@ -3903,7 +3903,7 @@ test.describe('variants, the track, sizes and the transition', () => {
     }
   });
 
-  test('TAB-44, TAB-14, TAB-18, TAB-34, TAB-35: a small row is 36 tall (the minimum target) with a 28 indicator, its size’s paddings and glyph, the icon before the label in every variant; a medium one 40 and 32; nothing else differs, and an unknown size is the default’s (TAB-7)', async ({ page }) => {
+  test('TAB-44, TAB-14, TAB-18, TAB-34, TAB-35: a small row is 28 tall (its step) with a 20 indicator, its size’s paddings and glyph, the icon before the label in every variant; a medium one 36 and 28, the control height; nothing else differs, and an unknown size is the default’s (TAB-7)', async ({ page }) => {
     const seen = warnings(page);
     await mountFixtures(page, spec, {
       icons: true,
@@ -3918,8 +3918,8 @@ test.describe('variants, the track, sizes and the transition', () => {
       glyph: await resolveToken(page, T(`icon-size-${size}`)),
     });
     const [small, medium] = [await of('small'), await of('medium')];
-    // The small row is held at the default system's minimum target (36); the medium one is the control height (40).
-    expect([small.height, medium.height]).toEqual([36, 40]);
+    // The small row is the small step (28), its hit area reaching the minimum target; the medium one is the control height (36).
+    expect([small.height, medium.height]).toEqual([28, 36]);
     for (const [id, size] of [['primary', medium], ['tonal-no-track', medium], ['primary-small', small], ['tonal-small-no-track', small]] as const) {
       const [r, p, tabBox, text] = [await bounds(track(page, id)), await pill(page, id, 0), await bounds(tabAt(page, id, 0)), await bounds(label(page, id, 0))];
       expect([r.height, tabBox.height, p.height], id).toEqual([expect.closeTo(size.height, 1), expect.closeTo(size.height, 1), expect.closeTo(size.height - 2 * inset, 1)]);
@@ -3935,7 +3935,7 @@ test.describe('variants, the track, sizes and the transition', () => {
     // The same label style, gap and track at both sizes.
     for (const property of ['font-size', 'line-height', 'font-weight', 'letter-spacing']) expect(await css(label(page, 'primary-small', 0), property), property).toBe(await css(label(page, 'primary', 0), property));
     expect(await css(track(page, 'primary-small'), 'background-color')).toBe(await css(track(page, 'primary'), 'background-color'));
-    // TAB-18: at small no variant stacks — the icon stands before the label, and the row stays 36.
+    // TAB-18: at small no variant stacks — the icon stands before the label, and the row stays 28.
     for (const id of ['primary-small-icons', 'secondary-small-icons']) {
       const [i, l] = [await bounds(icon(page, id, 0)), await bounds(label(page, id, 0))];
       expect(i.x + i.width, id).toBeLessThanOrEqual(l.x + 0.5);
@@ -3986,8 +3986,8 @@ test.describe('variants, the track, sizes and the transition', () => {
   test('TAB-5: a small row answers a press just above and just below it, in line with a tab, without being taller; a control under the row keeps its own press, and so does a press that selects text', async ({ page }) => {
     await mountFixtures(page, spec, { fixtures: only('primary-small', 'tonal-small-no-track', 'primary') });
     await wire(page);
-    // The default system's small row is the minimum target (36) tall and reaches nothing; a system whose pointer target
-    // is taller (a platform guideline's 48) is where its hit area reaches above and below it.
+    // The default system's small row is its step (28) tall and reaches 4 above and below it to the target (36); a system
+    // whose pointer target is taller (a platform guideline's 48) reaches further, which this reads.
     await rootTokens(page, { '--tanrei-sys-target-pointer': '48px' });
     const pointer = await resolveToken(page, '--tanrei-sys-target-pointer');
     for (const id of ['primary-small', 'tonal-small-no-track']) {
@@ -3999,7 +3999,7 @@ test.describe('variants, the track, sizes and the transition', () => {
         (el.querySelector('#under') as HTMLElement).addEventListener('click', () => ((window as any).pressedUnder = ((window as any).pressedUnder ?? 0) + 1));
       });
       const r = await bounds(track(page, id));
-      expect(r.height).toBeCloseTo(36, 1);
+      expect(r.height).toBeCloseTo(28, 1);
       const reach = (pointer - r.height) / 2;
       expect(reach).toBeGreaterThanOrEqual(5);
       const x = (n: number) => centreX(page, id, n);
@@ -4460,13 +4460,23 @@ test.describe('vertical', () => {
 
   test('TAB-51, TAB-52: the tabs stand one above another, all as wide as the widest, each the container height and at least the minimum target tall, the icon before the label at the start edge; the indicator and every state layer are the tab less track.padding all round', async ({ page }) => {
     await mountFixtures(page, spec, { icons: true, reducedMotion: true, fixtures: only(V, 'vertical-small', 'vertical-secondary') });
-    // In the default system a small tab is the minimum target (36) tall; a system whose pointer target is larger (a
-    // platform guideline's 44) is where a column's small tabs grow to it.
+    // In the default system a small row is 28 tall and a column's small tabs are the pointer target (36) tall, since
+    // they touch; a system whose pointer target is larger (a platform guideline's 44) is where they grow to it.
+    const [smallRow, pointerTarget] = await Promise.all([T('container-height-small'), '--tanrei-sys-target-pointer'].map((n) => resolveToken(page, n)));
+    expect(smallRow).toBeLessThan(pointerTarget);
+    for (const [n, b] of (await boxes(page, 'vertical-small')).entries()) expect(b.height, `vertical-small ${n}, the default system`).toBeCloseTo(pointerTarget, 0);
+    // TAB-52's numbers in the default system: in `vertical` the first tab is selected and 36 tall (the control height),
+    // and its indicator is 4 in from the track's left, right and top edges and 28 tall.
+    {
+      const [p, outer, first] = [await pill(page, V, 0), await bounds(track(page, V)), (await boxes(page, V))[0]];
+      expect(first.height).toBeCloseTo(36, 0);
+      expect([p.x - outer.x, outer.x + outer.width - (p.x + p.width), p.y - outer.y, p.height]).toEqual([expect.closeTo(4, 0), expect.closeTo(4, 0), expect.closeTo(4, 0), expect.closeTo(28, 0)]);
+    }
     await rootTokens(page, { '--tanrei-sys-target-pointer': '44px' });
     const [inset, padMedium, padSmall, medium, small, target] = await Promise.all(
       [T('track-padding'), T('container-padding-inline-medium'), T('container-padding-inline-small'), T('container-height-medium'), T('container-height-small'), '--tanrei-sys-target-pointer'].map((n) => resolveToken(page, n)),
     );
-    // Small is lower than that target: in a column its tabs are the target tall, not 36.
+    // Small is lower than that target: in a column its tabs are the target tall, not the small row's height.
     expect(small).toBeLessThan(target);
     for (const [id, height, pad] of [[V, Math.max(medium, target), padMedium], ['vertical-small', Math.max(small, target), padSmall], ['vertical-secondary', Math.max(medium, target), padMedium]] as const) {
       const all = await boxes(page, id);
@@ -4614,6 +4624,8 @@ test.describe('vertical', () => {
     const p = await pill(page, V, 0);
     expect(p.radius).toBeCloseTo(p.height / 2, 1);
     expect(await corner()).toBeCloseTo(p.height / 2 + inset, 1);
+    // The default system's numbers: the indicator's corner 14 (half its 28) plus the inset 4.
+    expect([p.radius, inset, await corner()]).toEqual([expect.closeTo(14, 1), 4, expect.closeTo(18, 1)]);
     expect(await corner()).toBeLessThan((await bounds(track(page, V))).width / 2 - 10);
     // A row's track is as before: its own shape, at most half its height.
     expect(await track(page, 'primary').evaluate((el) => Number.parseFloat(getComputedStyle(el).borderTopLeftRadius))).toBeGreaterThan(1000);

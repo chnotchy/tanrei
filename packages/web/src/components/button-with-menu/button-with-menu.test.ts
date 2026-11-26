@@ -597,7 +597,9 @@ test.describe('behavior', () => {
       // agrees with the Button's, as here, the half is a narrow icon-only Button of its size (BTN-12) and the outer padding.
       const narrow = `filled-narrow${size === 'medium' ? '' : `-${size}`}`;
       const narrowPad = await resolveToken(page, T(`trailing-padding-inline-narrow-${size}`));
-      expect(narrowPad, narrow).toBeLessThan(pad);
+      // (At the small size of the default system the default trailing half is as slim as the narrow one: a 28 half holds
+      // its 20 chevron 4 from each side, the narrow inset.)
+      expect(narrowPad, narrow).toBeLessThanOrEqual(pad);
       const slim = await insets(narrow, 'trailing', '.turn .chevron');
       expect(slim.left, narrow).toBeCloseTo(narrowPad, 1);
       expect(slim.right, narrow).toBeCloseTo(narrowPad + outer, 1);
@@ -1513,10 +1515,18 @@ test.describe('behavior', () => {
     };
     for (const [closed, open] of [['filled-medium', 'filled-open'], ['filled-gap', 'filled-gap-open'], ['elevated-gap', 'elevated-gap-open'], ['filled-narrow', 'filled-narrow-open']] as const) {
       expect(await form(open), open).toEqual(await form(closed));
-      // Painted: outside the chevron's box the two stages are the same picture.
-      const [origin, glyph] = [await bounds(page.locator(`[data-fixture="${open}"]`)), await bounds(host(page, open).locator('.turn .chevron'))];
+      // Painted: outside the chevron's box the two forms are the same picture. Both are taken of the one stage, the closed
+      // fixture's, before and after its button opens: two stages stand at different places on the page, and the engine
+      // rasterizes an antialiased edge or shadow by where it falls, so two places differ by a level on a few pixels
+      // whatever they draw.
+      const stage = page.locator(`[data-fixture="${closed}"]`);
+      const one = decodePng(await stage.screenshot({ animations: 'disabled' }));
+      await host(page, closed).evaluate(async (el: any) => { el.open = true; await el.updateComplete; });
+      await expect(host(page, closed).locator('button.trailing')).toHaveClass(/\bopen\b/);
+      await page.evaluate(() => new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r))));
+      const [origin, glyph] = [await bounds(stage), await bounds(host(page, closed).locator('.turn .chevron'))];
       const scale = await page.evaluate(() => devicePixelRatio);
-      const [one, other] = await Promise.all([closed, open].map(async (id) => decodePng(await page.locator(`[data-fixture="${id}"]`).screenshot({ animations: 'disabled' }))));
+      const other = decodePng(await stage.screenshot({ animations: 'disabled' }));
       expect([other.width, other.height]).toEqual([one.width, one.height]);
       const box = { left: (glyph.x - origin.x) * scale - 1, right: (glyph.x + glyph.width - origin.x) * scale + 1, top: (glyph.y - origin.y) * scale - 1, bottom: (glyph.y + glyph.height - origin.y) * scale + 1 };
       let different = 0;
@@ -1740,7 +1750,7 @@ test.describe('separation', () => {
     // SPB-32's verify, filled-medium: the label 20 from the start edge and 16 from the leading half's end edge; the
     // trailing half 44 wide, its chevron's centre 20 from the seam and 24 from the end edge.
     const wide = { labelFromStart: start + outer, labelFromSeam: end, trailing: icon + 2 * pad + outer, chevronFromSeam: pad + icon / 2, chevronFromEnd: pad + icon / 2 + outer };
-    expect(wide).toEqual({ labelFromStart: 20, labelFromSeam: 16, trailing: 44, chevronFromSeam: 20, chevronFromEnd: 24 });
+    expect(wide).toEqual({ labelFromStart: 20, labelFromSeam: 16, trailing: 40, chevronFromSeam: 18, chevronFromEnd: 22 });
     // filled-narrow, outlined-narrow, filled-gap-narrow and outlined-gap-narrow: the trailing half is 36 wide — the
     // outer padding included — and its chevron's centre 16 from the seam (or from the gap) and 20 from the end edge; the
     // leading half is as in filled-medium.

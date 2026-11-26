@@ -15,6 +15,7 @@ import { holdClock, releaseClock } from '../../../test/page-clock.js';
 import { holdTransitions, stepTransitions } from '../../../test/stepped-transitions.js';
 import { motionCount, motionEnded } from '../../../test/motions.js';
 import { expectBaseline } from '../../../test/baseline.js';
+import { CONTROL_HEIGHTS, atControlHeight } from '../../../test/control-height.js';
 import { type HeldGlyph, expectGlyphsHeldBack } from '../../../test/held-glyphs.js';
 
 const spec = loadSpec('main-action-button');
@@ -404,6 +405,17 @@ test.describe('behavior', () => {
         if (pill) expect(radius, where).toBeGreaterThanOrEqual(side / 2);
         else if ((await token(page, '--tanrei-sys-shape-corner-smoothing')) === '0') expect(radius, where).toBe(await resolveToken(page, T(`container-shape-${size}`)));
         await iconCentered(page, id);
+      }
+    }
+  });
+
+  test('MAB-27: the three sizes take their heights from the control height ladder — small the medium step, medium the large step, large a third above the extra-large step on the size unit’s grid — at 32, 36 and 40', async ({ page }) => {
+    if (!(await page.evaluate(() => matchMedia('(pointer: fine)').matches))) test.skip(true, 'measured under a fine pointer');
+    const unit = await resolveToken(page, '--tanrei-dial-size-unit');
+    for (const h of CONTROL_HEIGHTS) {
+      await atControlHeight(page, h);
+      for (const [id, side] of [['filled-small-collapsed', h], ['filled-collapsed', h + 4 * unit], ['filled-large-collapsed', Math.round(((h + 8 * unit) * 4) / 3 / unit) * unit]] as const) {
+        await expect.poll(async () => { const box = await bounds(inner(page, id)); return [box.width, box.height]; }, `${id} at ${h}`).toEqual([side, side]);
       }
     }
   });

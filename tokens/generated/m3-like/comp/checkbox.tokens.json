@@ -62,7 +62,7 @@
           },
           "size": {
             "$type": "dimension",
-            "$description": "The round state layer behind the box, and the height the checkbox takes in a row: the control height (40 in the default system), so that a checkbox stands as tall as the Buttons and fields beside it and a checkbox with a one-line label is a row of that height. The box (box.size) and its mark keep their own sizes inside it at every control height. In the default system it holds the whole target (sys.target.touch, 36); a system whose target is larger reaches beyond it.",
+            "$description": "The round state layer behind the box, and the height the checkbox takes in a row: the control height (36 in the default system), so that a checkbox stands as tall as the Buttons and fields beside it and a checkbox with a one-line label is a row of that height. The box (box.size) and its mark keep their own sizes inside it at every control height. In the default system it holds the whole target (sys.target.touch, 36); a system whose target is larger reaches beyond it.",
             "$value": {
               "value": 40,
               "unit": "px"

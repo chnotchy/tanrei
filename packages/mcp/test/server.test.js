@@ -333,7 +333,7 @@ test('resolve: value, where it comes from, and the CSS custom property', async (
   const ext = (await server.call('resolve', { tokens: ['acme.comp.rating.star.size', 'acme.comp.rating.star.color', 'tanrei.comp.button.container.height.3x', 'tanrei.sys.color.brand-glow'], layerFile: extendedFile })).data.tokens;
   assert.deepEqual(ext[0], { id: 'acme.comp.rating.star.size', $type: 'dimension', value: '20px', kind: 'derived', rule: { fn: 'mul', of: '{tanrei.dial.size.unit}', by: 5 }, inputs: { 'tanrei.dial.size.unit': '4px' }, extension: true, declaredBy: 'acme', cssVar: '--acme-comp-rating-star-size' });
   assert.deepEqual([ext[1].cssVar, ext[1].aliasChain[0]], ['--acme-comp-rating-star-color', 'tanrei.sys.color.warning']);
-  assert.deepEqual([ext[2].value, ext[2].cssVar, ext[2].declaredBy], ['84px', '--tanrei-comp-button-container-height-3x', 'acme'], 'large (56px) × 1.5');
+  assert.deepEqual([ext[2].value, ext[2].cssVar, ext[2].declaredBy], ['78px', '--tanrei-comp-button-container-height-3x', 'acme'], 'large (52px at the default control height of 36) × 1.5');
   assert.deepEqual([ext[3].kind, ext[3].rule.fn, ext[3].extension], ['derived', 'tone', true]);
 });
 
@@ -431,7 +431,7 @@ test('explain_token: an extension says who declared it and why; every token says
   // A member of a declared size.
   const height = await explain('tanrei.comp.button.container.height.3x');
   assert.deepEqual([height.extension, height.declaredBy, height.rationale], [true, 'acme', 'A hero call-to-action on the landing screen.']);
-  assert.deepEqual([height.value, height.kind, height.rule], ['84px', 'derived', { fn: 'mul', of: '{tanrei.sys.control.height.large}', by: 1.5, min: '{tanrei.sys.target.minimum}' }], 'large (the ladder\'s large step, never below the minimum target) × 1.5');
+  assert.deepEqual([height.value, height.kind, height.rule], ['78px', 'derived', { fn: 'mul', of: '{tanrei.sys.control.height.large}', by: 1.5, min: '{tanrei.sys.target.minimum}' }], 'large (the ladder\'s large step, never below the minimum target) × 1.5');
   assert.match(height.touchedBy, /after "acme" declared it/);
   assert.deepEqual(height.howToChange[0].write, { tokens: { 'tanrei.comp.button.container.height.3x': { scale: 1.5 } } }, 'an extension takes operations like any core token');
   // A member that the layer also values under `tokens`, and the layer's own token.
@@ -483,8 +483,10 @@ test('explain_token: an extension says who declared it and why; every token says
 test('diff_systems: counts first, details paginated', async () => {
   const diff = (await server.call('diff_systems', { a: 'tanrei', b: 'm3-like', limit: 5 })).data;
   assert.equal(diff.changes.length, 5);
-  assert.deepEqual(diff.changes[0], { id: 'tanrei.dial.shape.unit', a: '2px', b: '4px', setBy: ['m3-like'] });
-  assert.equal(diff.byTier.dial, 1);
+  // m3-like keeps Material's 40 control height where the default system draws 36, and its own shape unit.
+  assert.deepEqual(diff.changes[0], { id: 'tanrei.dial.control.height', a: '36px', b: '40px', setBy: ['m3-like'] });
+  assert.deepEqual(diff.changes[1], { id: 'tanrei.dial.shape.unit', a: '2px', b: '4px', setBy: ['m3-like'] });
+  assert.equal(diff.byTier.dial, 2);
   assert.equal(diff.byTier.dial + diff.byTier.ref + diff.byTier.sys + diff.byTier.comp, diff.changed);
   assert.equal(Object.values(diff.byGroup).reduce((a, b) => a + b, 0), diff.changed);
   assert.equal(diff.nextOffset, 5);
@@ -589,9 +591,9 @@ test('validate_layer: the philosophy is enforced, with the way out', async () =>
     'tree-view.container.height.small',
   ].map((rest) => `tanrei.comp.${rest}`);
   assert.equal(valid.warnings.total, HEIGHTS_WITHOUT_ROOM_AT_18.length);
-  assert.deepEqual(valid.warnings.first.map((w) => w.split(':')[0]), HEIGHTS_WITHOUT_ROOM_AT_18, 'type base 18px: the button with menu, the small button and the segmented button no longer hold a label, and neither does the tag at either size (16 + 2 × 2 = 20 and 20 + 2 × 2 = 24 at a 16px base) nor the medium header of the accordion (24 + 2 × 8 = 40, at the control height), nor a row of the tree view at either size (20 + 2 × 8 = 36 with nothing to spare, and 22 + 2 × 12 = 46 in 48, which a line of 24.75 passes)');
-  assert.match(valid.warnings.first[0], /accordion\.container\.height\.medium: 40px cannot hold its content — 2 × padding-block \(8px\) \+ one label line = 43px/);
-  assert.match(valid.warnings.first[1], /container\.height\.small: 36px cannot hold its content — 2 × padding-block \(8px\) \+ one label line = 38\.5px/);
+  assert.deepEqual(valid.warnings.first.map((w) => w.split(':')[0]), HEIGHTS_WITHOUT_ROOM_AT_18, 'type base 18px: the button with menu, the small button and the segmented button no longer hold a label, and neither does the tag at either size (16 + 2 × 2 = 20 and 20 + 2 × 2 = 24 at a 16px base) nor the medium header of the accordion (24 + 2 × 6 = 36, at the control height), nor a row of the tree view at either size (20 + 2 × 8 = 36 with nothing to spare at small, and 22 + 2 × 6 = 34 in 36 at medium, which a line of 24.75 does not pass)');
+  assert.match(valid.warnings.first[0], /accordion\.container\.height\.medium: 36px cannot hold its content — 2 × padding-block \(6px\) \+ one label line = 39px/);
+  assert.match(valid.warnings.first[1], /container\.height\.small: 28px cannot hold its content — 2 × padding-block \(4px\) \+ one label line = 30\.5px/);
   assert.match(valid.warnings.first[4], /tag\.container\.height\.medium: 24px cannot hold its content — 2 × padding-block \(2px\) \+ one label line = 26\.5px/);
   assert.match(valid.warnings.first[5], /tag\.container\.height\.small: 20px cannot hold its content — 2 × padding-block \(2px\) \+ one label line = 22px/);
   assert.match(valid.next, /tanrei build/);
@@ -690,7 +692,7 @@ test('propose_extension: a ready, verified `vocabulary` fragment for each kind o
   assert.deepEqual(Object.keys(made).sort(), SIZE_MEMBERS.map((member) => `tanrei.comp.button.${member}.3x`).sort(), 'every member of the size axis');
   assert.equal(size.verified.newTokens.total, SIZE_MEMBERS.length);
   // Large is 56px high with 24px paddings.
-  assert.equal(made['tanrei.comp.button.container.height.3x'], '84px', '56px × 1.5');
+  assert.equal(made['tanrei.comp.button.container.height.3x'], '78px', '52px × 1.5');
   assert.equal(made['tanrei.comp.button.container.padding-inline-start.3x'], '36px', '24px × 1.5');
   assert.equal(made['tanrei.comp.button.container.padding-inline-end.3x'], '36px');
   assert.equal(made['tanrei.comp.button.container.gap.3x'], '12px', '8px × 1.5: the icon-to-label gap is per size');
@@ -707,8 +709,9 @@ test('propose_extension: a ready, verified `vocabulary` fragment for each kind o
   // `near` is enough to name the component, the axis and `from`; the product's own layer file is where it goes.
   const near = (await propose({ kind: 'axis-value', near: 'tanrei.comp.button.container.height.small', value: 'xs', scale: 0.75, layerFile: acmeFile })).data;
   assert.deepEqual(near.write.vocabulary, { 'tanrei.comp.button.size.xs': { from: 'small', scale: 0.75, rationale: PLACEHOLDER } });
-  // 32 × 0.75 is 24, held at the minimum target (36): a size scaled from a floored height keeps the floor.
-  assert.deepEqual([near.layer, near.verified.newTokens.values['tanrei.comp.button.container.height.xs']], ['acme', '36px']);
+  // 28 × 0.75 is 21: a size scaled from the small step, which a control that stands alone is drawn at (its hit area
+  // reaches the minimum target past it).
+  assert.deepEqual([near.layer, near.verified.newTokens.values['tanrei.comp.button.container.height.xs']], ['acme', '21px']);
   assert.ok(near.verified.newWarnings.some((w) => /height\.xs/.test(w)), 'thresholds are constants for extensions too: the xs button cannot hold its content, and the proposal says so');
 
   // A variant: the declaration, plus the resting colors to re-point under `tokens`; its state tokens come from the pattern rules.

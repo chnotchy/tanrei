@@ -4104,6 +4104,17 @@
               },
               "reason": "Material 3's corner scale steps in 4dp."
             },
+            "tanrei.comp.snackbar.controls.gap": {
+              "$value": "{tanrei.sys.space.space50}",
+              "reason": "This preset keeps the gap it drew between the snackbar's controls (4), where the default system keeps each small Button's target whole by the gap."
+            },
+            "tanrei.dial.control.height": {
+              "$value": {
+                "value": 40,
+                "unit": "px"
+              },
+              "reason": "Material 3's default button and icon button are 40dp (ButtonSmallTokens.ContainerHeight), Tanrei's medium: this preset keeps its controls and rows on a ladder from 40 (24, 32, 40, 56, 72), where the default system draws them from 36."
+            },
             "tanrei.sys.target.minimum": {
               "$value": {
                 "value": 32,
@@ -8250,6 +8261,9 @@
             "dev.tanrei.reference": {
               "value": 40,
               "unit": "px"
+            },
+            "dev.tanrei.derive": {
+              "fixed": "Material 3's default button and icon button are 40dp (ButtonSmallTokens.ContainerHeight), Tanrei's medium: this preset keeps its controls and rows on a ladder from 40 (24, 32, 40, 56, 72), where the default system draws them from 36."
             }
           }
         }

@@ -107,21 +107,20 @@
             "$description": "The container's height, per size, and the width of an icon-only button at its default width.",
             "small": {
               "$value": {
-                "value": 36,
+                "value": 28,
                 "unit": "px"
               },
               "$extensions": {
                 "dev.tanrei.derive": {
                   "fn": "mul",
                   "of": "{tanrei.sys.control.height.small}",
-                  "by": 1,
-                  "min": "{tanrei.sys.target.minimum}"
+                  "by": 1
                 }
               }
             },
             "medium": {
               "$value": {
-                "value": 40,
+                "value": 36,
                 "unit": "px"
               },
               "$extensions": {
@@ -136,7 +135,7 @@
             },
             "large": {
               "$value": {
-                "value": 56,
+                "value": 52,
                 "unit": "px"
               },
               "$extensions": {
@@ -292,7 +291,7 @@
             "$description": "Vertical padding. Heights are minimums, so this only shows when the label wraps or text is enlarged.",
             "small": {
               "$value": {
-                "value": 8,
+                "value": 4,
                 "unit": "px"
               },
               "$extensions": {
@@ -305,7 +304,7 @@
             },
             "medium": {
               "$value": {
-                "value": 6,
+                "value": 4,
                 "unit": "px"
               },
               "$extensions": {
@@ -318,7 +317,7 @@
             },
             "large": {
               "$value": {
-                "value": 6,
+                "value": 4,
                 "unit": "px"
               },
               "$extensions": {

@@ -57,7 +57,8 @@ export function measuresOf(name: string, { size, variant }: { size?: string; var
  * - `block`: the part's box from its top to its bottom (`height`, and `size`, a square's side);
  * - `inline`: the part's box from its start edge to its end edge (`width`);
  * - `padding-start`, `padding-end`: from the part's start (end) edge to the nearest edge of the parts drawn inside it;
- * - `gap`: between the first two parts drawn side by side inside it.
+ * - `gap`: between the first two parts drawn side by side inside it, each part as the elements it is drawn as (the
+ *   items a slot holds, each where it stands).
  * The start and the end are the writing direction's: in a right-to-left stage, the start is the right edge.
  */
 export type LineAxis = 'block' | 'inline' | 'padding-start' | 'padding-end' | 'gap';
