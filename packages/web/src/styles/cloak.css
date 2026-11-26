@@ -36,18 +36,21 @@
  *     its calendar and its time section, and its actions;
  *   - a list row by its number of lines; a stepper's steps; a snackbar's lines; a swatch's sample and text; an embedded
  *     text input's line or rows; a chat composer laid out inline; a carousel's row and controls; a toolbar along a line;
- *     vertical tabs; a progress indicator's and a meter's bar or ring;
- *   - an element the page sizes (a scroll area, a split view) is laid out as the box the size applies to.
+ *     vertical tabs; a progress indicator's and a meter's bar or ring; a divider's thickness, or a wave's;
+ *   - an element the page sizes (a scroll area, a split view) is laid out as the box the size applies to;
+ *   - a card's content between its paddings; a badge as the box of its anchor.
  *   A text is held at one line: a label, a help or an error longer than its line wraps when the element is defined,
- *   and the page below it moves down by the lines it adds. The width is not held: it is the width of the words and
- *   glyphs the element draws, so words that follow a control on the same line of text move sideways when it is
- *   defined. Controls that stand side by side in a row of their own (a flex or grid row with a gap, as a toolbar is)
- *   move nothing that was painted.
+ *   and the page below it moves down by the lines it adds — but the label a checkbox, a radio button or a switch draws
+ *   beside its control, which is written (its `label`) in the label's text style and wraps where it will. The width is
+ *   held where the element draws its words from an attribute — a tag's label, a selection control's — so that a row of
+ *   them wraps where it will; elsewhere it is the width of the words and glyphs written inside the element, so words
+ *   that follow a control on the same line of text move sideways when it is defined. Controls that stand side by side
+ *   in a row of their own (a flex or grid row with a gap, as a toolbar is) move nothing that was painted.
  *
  * What it does not hold: a height that depends on what the element draws beyond its tokens (a list's items, a
  * composer's attachments or a stacked composer's row, the file picker, the file upload and their rows, a drop zone, a
- * resizable frame's size, which its attributes give, a card's and a tab view's content, a multiline input's lines
- * beyond its fewest rows (the lines of a value it already holds), a combobox's chips, a docked search's results, vertical sliders, a row of choices or of tags
+ * resizable frame's size, which its attributes give, a tab view's content, a multiline input's lines
+ * beyond its fewest rows (the lines of a value it already holds), a combobox's chips, a docked search's results, vertical sliders, a row of chips
  * that wraps), a size or a variant a design system added (held at the default's), a size an element takes from its
  * container rather than its own `size`, and the larger target of a coarse pointer where it makes a vertical step
  * taller. The elements with a stylesheet of their own for the time before they are defined (`app-bar.css`,
@@ -937,5 +940,63 @@
   }
   :where(tanrei-toolbar[variant='floating']:not([orientation='vertical']):not(:defined)) {
     min-block-size: var(--tanrei-comp-toolbar-container-size-floating);
+  }
+  /* A badge (BDG-2, BDG-7): the box of the anchor it wraps — a flex box of its one item, as it is drawn — whose dot or
+     count stands at its corner and takes no room. Laid out as the line of text it is in, an icon anchor would be as high
+     as that line rather than as its own box. */
+  :where(tanrei-badge):where(:not(:defined):not([hidden])) {
+    display: inline-flex;
+    flex: none;
+  }
+
+  /* A card (CRD-12): a block whose content — the element's own children, laid out as they will be — is inset by the
+     container's padding on every side (not with `flush`), so that it wraps at the width it is drawn at. */
+  :where(tanrei-card):where(:not(:defined):not([hidden])) {
+    display: block;
+    box-sizing: border-box;
+  }
+  :where(tanrei-card:not([flush]):not(:defined)) {
+    padding-block-start: var(--tanrei-comp-card-container-padding);
+    padding-block-end: var(--tanrei-comp-card-container-padding);
+    padding-inline-start: var(--tanrei-comp-card-container-padding);
+    padding-inline-end: var(--tanrei-comp-card-container-padding);
+  }
+
+  /* A divider (DIV-1, DIV-2): the whole length of its place and exactly the line's thickness across it — a horizontal one
+     a block that stretches, a vertical one as thick as that across the length its place gives it — and a wavy one
+     (DIV-12) twice the wave's amplitude and the thickness across. A thickness the divider is given (`thickness`, DIV-16)
+     stands in for the token, and scales the amplitude the token gives by that thickness over the token's; an amplitude
+     it is given (`amplitude`) is taken as it is. Each is read where the browser reads an attribute as a length (in CSS
+     pixels, as the element takes it); elsewhere, and for a thickness of 0 or less, which the element draws at the
+     token's, a divider given one is held at the token's. */
+  :where(tanrei-divider):where(:not(:defined):not([hidden])) {
+    --_cloak-thickness: var(--tanrei-comp-divider-line-thickness);
+    --_cloak-scale: 1;
+    --_cloak-amplitude: calc(var(--tanrei-comp-divider-line-wave-amplitude) * var(--_cloak-scale));
+    --_cloak-across: var(--_cloak-thickness);
+    display: block;
+    box-sizing: border-box;
+    flex: none;
+    align-self: stretch;
+    justify-self: stretch;
+    line-height: 0;
+    min-block-size: var(--_cloak-across);
+  }
+  @supports (x: attr(x px)) {
+    :where(tanrei-divider[thickness]:not(:defined)) {
+      --_cloak-thickness: attr(thickness px, var(--tanrei-comp-divider-line-thickness));
+      --_cloak-scale: tan(atan2(var(--_cloak-thickness), var(--tanrei-comp-divider-line-thickness)));
+    }
+    :where(tanrei-divider[amplitude]:not(:defined)) {
+      --_cloak-amplitude: attr(amplitude px, calc(var(--tanrei-comp-divider-line-wave-amplitude) * var(--_cloak-scale)));
+    }
+  }
+  :where(tanrei-divider[line-style='wavy']:not(:defined)) {
+    --_cloak-across: calc(2 * var(--_cloak-amplitude) + var(--_cloak-thickness));
+  }
+  :where(tanrei-divider[orientation='vertical']):where(:not(:defined):not([hidden])) {
+    justify-self: auto;
+    min-block-size: 0;
+    inline-size: var(--_cloak-across);
   }
 }
