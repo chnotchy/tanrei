@@ -299,16 +299,29 @@ for (const frame of frames()) {
     if (drawn.has(frame) || frame.querySelector('[data-example-code-panel]')) void writeCode(frame);
   });
 }
-// The frames near the view already are drawn in the first frame, after its layout and before its paint, with no wait
-// for the observer's first notice; the observer is left the frames further down, each holding the room its stage has
-// then (`hold`). Every frame's place is read before any is drawn or held, so the page is laid out once for all of them.
-// Read after the frame's layout, the places cost nothing: read here, at the top of the module, they had the browser
-// style and lay out the page there and then, with every element the modules before this one had upgraded since the
-// last layout, and again for the next module's — three quarters of a second of a long page's load in CI's WebKit.
-// Nothing near the view is drawn without it meanwhile: no frame is painted before the first. (Firefox draws its first
-// frame, and gives the observer's first notice, only once the page's later scripts have run — it runs those that have
-// arrived one after another, before any other task — so there the frame the reader is looking at asks for its
-// elements after the gallery's, the tables' and the diagrams' scripts, where the read at the top asked before them.)
+// The frames near the view already are drawn now, not at the observer's first notice: Firefox gives that notice only
+// once the page's later scripts have run (it runs those that have arrived one after another, before any other task, a
+// timer's and a frame's included), so on a component's page, with the gallery's, the tables' and the diagrams' scripts
+// after this one, the frame the reader is looking at would wait for all of them before even asking for its elements.
+// Which are near is what the browser said in the frames it drew while the page was parsed — each frame's inline script
+// gave it to an observer of its own (components/visuals/Example.astro, `NEAR_WATCH`) — and nothing of the layout is read
+// here: read at the top of the module, the places had the browser style and lay out the page there and then, with every
+// element the modules before this one had upgraded since the last layout (three quarters of a second of a long page's
+// load in CI's WebKit).
+const early = (window as Window & { docsExampleNear?: IntersectionObserver & { seen: WeakMap<Element, boolean> } }).docsExampleNear;
+if (early) {
+  for (const entry of early.takeRecords()) early.seen.set(entry.target, entry.isIntersecting);
+  early.disconnect();
+  for (const frame of frames()) {
+    if (early.seen.get(frame) !== true) continue;
+    near.unobserve(frame);
+    draw(frame);
+  }
+}
+// The others are placed in the first frame, after its layout and before its paint: one near the view (one the browser
+// had not said anything of yet) is drawn, and the observer is left the frames further down, each holding the room its
+// stage has then (`hold`). Every frame's place is read before any is drawn or held, so the page is laid out once for all
+// of them, and read after the frame's layout, the places cost nothing.
 afterFirstLayout(() => {
   const measured = [...frames()].map((frame) => {
     const stage = stageOf(frame);
