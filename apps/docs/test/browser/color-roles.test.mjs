@@ -73,38 +73,28 @@ const KNOWN = {
 /**
  * The rows whose part the figure's fixture does not draw, as the figures find them today, each with why. A row that
  * comes to be drawn leaves the list; one that stops being drawn (a text whose contrast is no longer measured) fails
- * until it is understood, as a part drawn in another color does (KNOWN). The rows of AS_ON_MAIN were not drawn when
- * the list was written; each is still to be examined.
+ * until it is understood, as a part drawn in another color does (KNOWN). Each figure is drawn over the fixture of its
+ * look that draws the most of its parts; what no such fixture draws is here.
  */
-const AS_ON_MAIN = 'not drawn when this list was written; not yet examined';
 const KNOWN_NOT_DRAWN = {
-  'menu Color roles: mark': AS_ON_MAIN,
-  'menu Color roles: supporting-text': AS_ON_MAIN,
-  'menu Color roles: trailing-text': AS_ON_MAIN,
-  'menu Color roles: trailing-icon': AS_ON_MAIN,
-  'menu Color roles: group-title': AS_ON_MAIN,
-  'menu Color roles: divider': AS_ON_MAIN,
-  'menu selected: container': AS_ON_MAIN,
-  'menu selected: leading-icon': AS_ON_MAIN,
-  'menu selected: label': AS_ON_MAIN,
-  'menu selected: supporting-text': AS_ON_MAIN,
-  'menu selected: trailing-text': AS_ON_MAIN,
-  'menu selected: trailing-icon': AS_ON_MAIN,
-  'menu selected: group-title': AS_ON_MAIN,
-  'menu selected: divider': AS_ON_MAIN,
-  // TAB-24: on the selected tab the plain label is hidden, and its covered copy is drawn in its place, over the active
-  // indicator in covered-label.color; the figure's fixture shows the selected tab, so its label row has no label drawn.
-  'tabs primary · selected: label': 'the selected tab draws its covered copy of the label (covered-label.color) and hides the plain one',
-  'tabs primary · selected: icon': 'the fixture’s tabs have labels and no icons',
-  'text-field outlined: field.label': AS_ON_MAIN,
-  'text-field outlined: field.label-icon': AS_ON_MAIN,
-  'text-field outlined: field.supporting-text': AS_ON_MAIN,
-  'text-field outlined: field.error-text': AS_ON_MAIN,
-  'text-field outlined: field.counter': AS_ON_MAIN,
-  'text-field outlined: text-input.outline': AS_ON_MAIN,
-  'text-field outlined: text-input.required-asterisk': AS_ON_MAIN,
-  'text-field outlined: text-input.leading-icon': AS_ON_MAIN,
-  'text-field outlined: text-input.trailing-icon': AS_ON_MAIN,
+  'menu Color roles: mark': 'the fixture has no checkbox or radio item; the selected figure draws the mark',
+  'menu Color roles: trailing-icon': 'no item of the fixture has a trailing icon',
+  'menu Color roles: group-title': 'the fixture’s items stand in no titled group; the selected figure draws a group title',
+  'menu Color roles: divider': 'the fixture has no groups to divide; the selected figure draws the divider',
+  'menu selected: supporting-text': 'no item of the fixture has a supporting text',
+  'menu selected: trailing-text': 'no item of the fixture has a trailing text',
+  'menu selected: trailing-icon': 'no item of the fixture has a trailing icon',
+  // TAB-24: at rest the selected tab's own icon and label lie wholly under the active indicator, cut away and hidden;
+  // their covered copies are what is drawn there.
+  'tabs primary · selected: icon': 'the selected tab’s own icon is cut away whole under the indicator, where its covered copy is drawn',
+  'tabs primary · selected: label': 'the selected tab’s own label is cut away whole under the indicator, where its covered copy is drawn',
+  // The outlined look floats its label in the box (text-input.label): the Field draws no label row of its own.
+  'text-field outlined: field.label': 'the outlined look draws no Field label; its label floats in the box (text-input.label)',
+  'text-field outlined: field.label-icon': 'the outlined look draws no Field label, and so no label icon',
+  'text-field outlined: field.supporting-text': 'the fixture has no supporting text',
+  'text-field outlined: field.error-text': 'the figure draws the field enabled, not in error',
+  'text-field outlined: field.counter': 'the fixture counts no characters',
+  'text-field outlined: text-input.required-asterisk': 'the fixture is not required',
 };
 const FIGURE = '[data-color-roles-figure]';
 

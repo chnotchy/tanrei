@@ -1146,7 +1146,7 @@ test.describe('layout', () => {
     await expect.poll(() => seen.filter((w) => w.includes('TAB-22')).length).toBe(1);
   });
 
-  test('TAB-24: each label and icon is drawn again in its look’s covered colors, clipped to the indicator: wholly covered when it lands in every fixture, partly while it slides; a clip, not a blend; each label exposed once', async ({ page }) => {
+  test('TAB-24: each label and icon is drawn again (the parts covered-label and covered-icon) in its look’s covered colors, clipped to the indicator: wholly covered when it lands in every fixture, partly while it slides; a clip, not a blend; each label exposed once', async ({ page }) => {
     test.setTimeout(120_000); // every fixture of the spec is walked: 77 rows
     // Read at once: a row's first appearance draws every tab in its colors without a motion (the first appearance tests).
     await mountFixtures(page, spec, { icons: true });
@@ -1159,10 +1159,10 @@ test.describe('layout', () => {
       const p = await pill(page, f.id, n);
       for (const part of [label(page, f.id, n), icon(page, f.id, n)]) if (await part.count()) expect(within(await bounds(part), p), f.id).toBe(true);
       if (await label(page, f.id, n).count()) {
-        expect(await css(tabAt(page, f.id, n).locator('.cover .label'), 'color'), f.id).toBe(await resolveColor(page, T(`${variant}-${state}selected-covered-label-color`)));
+        expect(await css(tabAt(page, f.id, n).locator('.cover [part="covered-label"]'), 'color'), f.id).toBe(await resolveColor(page, T(`${variant}-${state}selected-covered-label-color`)));
       }
       if (await icon(page, f.id, n).count()) {
-        expect(await css(tabAt(page, f.id, n).locator('.cover .icon'), 'color'), f.id).toBe(await resolveColor(page, T(`${variant}-${state}selected-covered-icon-color`)));
+        expect(await css(tabAt(page, f.id, n).locator('.cover [part="covered-icon"]'), 'color'), f.id).toBe(await resolveColor(page, T(`${variant}-${state}selected-covered-icon-color`)));
       }
       expect(await css(content(page, f.id, n), 'clip-path'), f.id).toMatch(/^path\(evenodd/);
       // The others are not covered: nothing of their copy is drawn, and their plain content is whole. Every other tab

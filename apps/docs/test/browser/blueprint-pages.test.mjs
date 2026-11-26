@@ -5,7 +5,8 @@
 // - no figure makes anything modal over the page: a figure is a picture, and a modal fixture (`showModal()`) drawn in
 //   the page would cover the whole site and hold its focus;
 // - an anatomy figure numbers at least one part, each number once and as the spec numbers it, inside the figure and
-//   clear of every other number;
+//   clear of every other number, and numbers every part some element of its fixture draws (one tab's label, where the
+//   selected tab hides its own);
 // - a measure figure draws each length of its table as long as its token resolves to, to half a pixel, or draws no
 //   line for it and says in the table what the component draws instead — never a line of a length the component does
 //   not have. The lengths not drawn are the record's (src/lib/visuals/lengths-not-drawn.json), which the page writes
@@ -70,6 +71,8 @@ test('every figure: each number once, inside and clear; each line its token’s 
   const notDrawn = [];
   /** The parts whose outline the test held to the part's own box, found from its target. */
   const checked = [];
+  /** The parts the test found drawn in an anatomy figure's fixture, each held to have its number. */
+  const shownChecked = [];
   /** What each figure found, by component and token: what it draws instead, in px, or null where it draws no such box. */
   const found = {};
   for (const name of pages) {
@@ -111,6 +114,32 @@ test('every figure: each number once, inside and clear; each line its token’s 
           const r = element.getBoundingClientRect();
           return { left: r.left - overlay.left, top: r.top - overlay.top, right: r.right - overlay.left, bottom: r.bottom - overlay.top };
         };
+        const data = JSON.parse(frame.querySelector('[data-blueprint]')?.dataset.blueprint ?? '{"parts":[]}');
+        const host = data.tag ? frame.querySelector(`.docs-blueprint-stage ${data.tag}`) : null;
+        // What is drawn: an element shown and of some size (a hidden copy kept for measuring is not the part).
+        const isDrawn = (element) => {
+          const r = element.getBoundingClientRect();
+          const shown = element.checkVisibility?.({ opacityProperty: true, visibilityProperty: true }) ?? true;
+          const before = getComputedStyle(element, '::before');
+          const byBefore = getComputedStyle(element).visibility === 'hidden' && before.visibility === 'visible' && before.content !== 'none' && before.content !== 'normal';
+          return (shown || byBefore) && r.width > 0.5 && r.height > 0.5;
+        };
+        /**
+         * The elements that may be a part, found here from the spec's target (the element, a part of its shadow tree, or
+         * a part of each of its children of a tag, `a|b` any of several), each as the elements that draw it; null where
+         * this does not read the target (an aspect, a slot, a part exported from deeper).
+         * @returns {Element[][] | null}
+         */
+        const candidatesOf = (target) => {
+          if (!target || !host || target.aspect) return null;
+          if ('host' in target) return [[host]];
+          if ('part' in target && !('child' in target)) return [[...(host.shadowRoot?.querySelectorAll(`[part~="${target.part}"]`) ?? [])]];
+          if ('child' in target && target.child.length === 1) {
+            const of = (child) => (target.part ? [...(child.shadowRoot?.querySelectorAll(`[part~="${target.part}"]`) ?? [])] : [child]);
+            return [...host.querySelectorAll(target.child[0].split('|').join(', '))].map(of);
+          }
+          return null;
+        };
         return {
           kind: frame.dataset.blueprintFigure,
           partsNotDrawn: (frame.querySelector('[data-blueprint]')?.dataset.partsNotDrawn ?? '').split(' ').filter(Boolean),
@@ -118,32 +147,15 @@ test('every figure: each number once, inside and clear; each line its token’s 
           modal,
           room: { width: overlay.width, height: overlay.height },
           markers: [...frame.querySelectorAll('.docs-blueprint-marker')].map((marker) => ({ n: Number(marker.dataset.n), part: marker.dataset.part, box: box(marker) })),
+          // The parts some element of the fixture draws, found here from the spec's targets: each is to be numbered.
+          shown: data.parts.filter((part) => candidatesOf(part.target)?.some((elements) => elements.some(isDrawn))).map((part) => part.id),
           rows: [...frame.querySelectorAll('[data-measure-row]')].map((row) => ({ token: row.dataset.measureRow, drawn: row.dataset.drawn, measured: Number(row.dataset.measured), value: Number(row.dataset.value), note: row.querySelector('[data-measure-note]').hidden ? '' : row.querySelector('[data-measure-note]').textContent })),
           lines: [...frame.querySelectorAll('.docs-blueprint-length')].map((label) => ({ token: label.dataset.token, part: label.dataset.part, value: Number(label.dataset.value), measured: Number(label.dataset.measured) })),
-          // Each part the lines measure, as the figure outlines it, and the same part found here from the spec's target
-          // (the element, a part it exports, or a part of its first child of a tag): the boxes of every element of it.
+          // Each part the lines measure, as the figure outlines it, and the same part found here from the spec's target:
+          // the boxes of every element of it, on the first child, in the document's order, that draws it.
           outlined: [...frame.querySelectorAll('.docs-blueprint-lines rect.measured')].map((rect) => {
-            const data = JSON.parse(frame.querySelector('[data-blueprint]').dataset.blueprint);
-            const target = data.parts.find((part) => part.id === rect.dataset.part)?.target ?? null;
-            const host = frame.querySelector(`.docs-blueprint-stage ${data.tag}`);
-            /** @type {Element[] | null | undefined} */
-            let elements = null;
-            if (target && host && !target.aspect) {
-              if ('host' in target) elements = [host];
-              else if ('part' in target && !('child' in target)) elements = [...(host.shadowRoot?.querySelectorAll(`[part~="${target.part}"]`) ?? [])];
-              else if ('child' in target && target.child.length === 1) {
-                const child = host.querySelector(target.child[0]);
-                elements = child && target.part ? [...(child.shadowRoot?.querySelectorAll(`[part~="${target.part}"]`) ?? [])] : child ? [child] : [];
-              }
-            }
-            // What is drawn: an element shown and of some size (a hidden copy kept for measuring is not the part).
-            elements = elements?.filter((element) => {
-              const r = element.getBoundingClientRect();
-              const shown = element.checkVisibility?.({ opacityProperty: true, visibilityProperty: true }) ?? true;
-              const before = getComputedStyle(element, '::before');
-              const byBefore = getComputedStyle(element).visibility === 'hidden' && before.visibility === 'visible' && before.content !== 'none' && before.content !== 'normal';
-              return (shown || byBefore) && r.width > 0.5 && r.height > 0.5;
-            });
+            const candidates = candidatesOf(data.parts.find((part) => part.id === rect.dataset.part)?.target ?? null);
+            const elements = candidates ? ((candidates.find((each) => each.some(isDrawn)) ?? candidates[0]) ?? []).filter(isDrawn) : null;
             const real = elements?.length
               ? elements.map(box).reduce((a, b) => ({ left: Math.min(a.left, b.left), top: Math.min(a.top, b.top), right: Math.max(a.right, b.right), bottom: Math.max(a.bottom, b.bottom) }))
               : null;
@@ -162,6 +174,11 @@ test('every figure: each number once, inside and clear; each line its token’s 
       if (figure.kind === 'anatomy') {
         assert.ok(figure.markers.length > 0, `${name}: a part is numbered`);
         assert.equal(new Set(figure.markers.map((marker) => marker.n)).size, figure.markers.length, `${name}: each number once`);
+        // A part the fixture draws is numbered, on whichever of its elements draws it: one tab's label, where the
+        // selected tab hides its own under the indicator.
+        const numbered = new Set(figure.markers.map((marker) => marker.part));
+        for (const part of figure.shown) assert.ok(numbered.has(part), `${name}: ${part} is drawn in the fixture and is numbered`);
+        shownChecked.push(...figure.shown.map((part) => `${name} ${part}`));
         for (const marker of figure.markers) {
           if (anatomy.length) assert.equal(anatomy[marker.n - 1], marker.part, `${name}: number ${marker.n} is the spec's ${marker.n}th part`);
           assert.ok(marker.box.left >= -NEAR && marker.box.top >= -NEAR && marker.box.right <= figure.room.width + NEAR && marker.box.bottom <= figure.room.height + NEAR, `${name}: number ${marker.n} is inside the figure`);
@@ -204,6 +221,8 @@ test('every figure: each number once, inside and clear; each line its token’s 
   assert.deepEqual(errors, [], 'no script failed');
   console.log(`Outlines held to their parts' boxes (${checked.length}): ${checked.join(', ')}`);
   assert.ok(checked.includes('tabs container') && checked.includes('button container'), `the outlines held to their parts' boxes: ${checked.join(', ')}`);
+  console.log(`Parts drawn and held to be numbered (${shownChecked.length}): ${shownChecked.join(', ')}`);
+  assert.ok(shownChecked.includes('tabs label') && shownChecked.includes('segmented-button check'), `the parts held to be numbered: ${shownChecked.join(', ')}`);
   // The record says what the figures find, so that each table is laid out from the first frame as it is once drawn.
   const said = Object.fromEntries(
     Object.entries(recorded)

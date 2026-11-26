@@ -57,15 +57,15 @@ const SVG = 'http://www.w3.org/2000/svg';
 
 // ── Finding a part ───────────────────────────────────────────────────────────────────────────────────────────────────
 
-/** The first element matching `selector` in `root`'s light tree, else in the shadow trees under it, nearest first. */
-function deepQuery(root: Element, selector: string): Element | null {
-  const light = root.querySelector(selector);
-  if (light) return light;
+/** The elements matching `selector` in `root`'s light tree, else in the nearest shadow tree under it that has any. */
+function deepQueryAll(root: Element, selector: string): Element[] {
+  const light = [...root.querySelectorAll(selector)];
+  if (light.length) return light;
   for (const shadow of [...(root.shadowRoot ? [root.shadowRoot, ...shadowRootsIn(root.shadowRoot)] : []), ...shadowRootsIn(root)]) {
-    const found = shadow.querySelector(selector);
-    if (found) return found;
+    const found = [...shadow.querySelectorAll(selector)];
+    if (found.length) return found;
   }
-  return null;
+  return [];
 }
 
 /**
@@ -107,26 +107,156 @@ function partOf(element: Element, part: string): Element[] {
   return [];
 }
 
+/** Whether an element or its box generated before or after its content (`::before`, `::after`) is visible. */
+const generatesVisibly = (element: Element) =>
+  ['::before', '::after'].some((pseudo) => {
+    const style = getComputedStyle(element, pseudo);
+    return style.content !== 'none' && style.content !== 'normal' && style.visibility === 'visible';
+  });
+
 /**
- * Whether `element` is hidden by its own `visibility` alone and its `::before` draws in its place: a box drawn as no
- * element. Shown otherwise (an ancestor's opacity, display or content-visibility), as `checkVisibility` judges it.
+ * Whether a part hidden by `visibility` is drawn as no element: its box, or each of the pieces it is drawn in (a
+ * notched outline's), draws by a visible `::before` or `::after` — a state layer or an edge that lies over a text, kept
+ * out of what a contrast checker takes for an element covering it (the web package's `drawnAsNoElement`). A part
+ * that is not displayed, or faded out, is not.
  */
-function drawnByBefore(element: Element): boolean {
+function drawnAsNoElement(element: Element): boolean {
   if (!(element.checkVisibility?.({ opacityProperty: true }) ?? true)) return false;
-  const before = getComputedStyle(element, '::before');
-  return getComputedStyle(element).visibility === 'hidden' && before.visibility === 'visible' && before.content !== 'none' && before.content !== 'normal';
+  return generatesVisibly(element) || [...element.children].some(generatesVisibly);
 }
 
-/** The box of what a part's target is, as drawn, in the viewport's coordinates; null where nothing of it is drawn. */
-export function targetBox(host: Element, target: PartTarget): { box: Box; element: Element | null } | null {
+/**
+ * A length of a computed `clip-path` in pixels, its percentages of `whole`: `px` and `%` read as written, anything else
+ * (a `calc()` of the two) resolved by the browser as a margin of a box `whole` wide, which may be negative.
+ */
+function lengthIn(text: string, whole: number): number {
+  if (/^-?[\d.]+px$/.test(text)) return parseFloat(text);
+  if (/^-?[\d.]+%$/.test(text)) return (parseFloat(text) / 100) * whole;
+  const room = document.createElement('div');
+  room.style.cssText = `position: absolute; visibility: hidden; inline-size: ${whole}px; block-size: 0; direction: ltr; writing-mode: horizontal-tb`;
+  const probe = document.createElement('div');
+  probe.style.marginLeft = text;
+  room.append(probe);
+  document.body.append(room);
+  const length = parseFloat(getComputedStyle(probe).marginLeft);
+  room.remove();
+  return Number.isFinite(length) ? length : 0;
+}
+
+/** The words of a computed value, parted by spaces outside parentheses (`calc(100% + 2px)` is one). */
+function wordsOf(text: string): string[] {
+  const words: string[] = [];
+  let depth = 0;
+  let word = '';
+  for (const char of text.trim()) {
+    if (char === '(') depth += 1;
+    if (char === ')') depth -= 1;
+    if (/\s/.test(char) && depth === 0) {
+      if (word) words.push(word);
+      word = '';
+    } else word += char;
+  }
+  if (word) words.push(word);
+  return words;
+}
+
+let clipPen: CanvasRenderingContext2D | null = null;
+/**
+ * Whether a point is inside a computed `clip-path`, the point given from the top left of the clipped element's
+ * border box, the shape's reference box (`inset()`, `polygon()`, `path()`); null for a shape this does not read, which
+ * is taken to keep the point. An `inset()`'s rounded corners are taken square.
+ */
+function clipKeeps(clip: string, width: number, height: number): ((x: number, y: number) => boolean) | null {
+  const shape = clip.match(/^(inset|polygon|path)\((.*)\)(?:\s+border-box)?$/s);
+  if (!shape) return null;
+  const [, kind, body] = shape;
+  if (kind === 'inset') {
+    const words = wordsOf(body);
+    const values = words.includes('round') ? words.slice(0, words.indexOf('round')) : words;
+    const [top, right = top, bottom = top, left = right] = values;
+    const [t, r, b, l] = [lengthIn(top, height), lengthIn(right, width), lengthIn(bottom, height), lengthIn(left, width)];
+    return (x, y) => x >= l && x <= width - r && y >= t && y <= height - b;
+  }
+  clipPen ??= document.createElement('canvas').getContext('2d');
+  const pen = clipPen;
+  if (!pen) return null;
+  const [, rule = 'nonzero', rest] = body.match(/^\s*(?:(nonzero|evenodd)\s*,\s*)?(.*)$/s) ?? [];
+  let path: Path2D;
+  if (kind === 'path') {
+    const data = rest?.match(/^"(.*)"$/s)?.[1];
+    if (data === undefined) return null;
+    path = new Path2D(data);
+  } else {
+    path = new Path2D();
+    (rest ?? '').split(/,(?![^(]*\))/).forEach((pair, index) => {
+      const [x, y] = wordsOf(pair);
+      if (index === 0) path.moveTo(lengthIn(x, width), lengthIn(y, height));
+      else path.lineTo(lengthIn(x, width), lengthIn(y, height));
+    });
+    path.closePath();
+  }
+  return (x, y) => pen.isPointInPath(path, x, y, rule as CanvasFillRule);
+}
+
+/**
+ * Whether the clip paths of an element and of the boxes it is drawn in leave none of its box drawn — a tab's label
+ * where the active indicator's shape is cut out of it whole, drawn by the covered copy instead. Read at points of a
+ * grid across its box, an element's visibility (`checkVisibility()`) does not see a clip.
+ */
+function clippedWhole(element: Element): boolean {
+  const rect = element.getBoundingClientRect();
+  if (rect.width <= NEAR || rect.height <= NEAR) return false;
+  const steps = 6;
+  let points: [number, number][] = [];
+  for (let i = 0; i <= steps; i++) for (let j = 0; j <= steps; j++) points.push([rect.left + 0.5 + ((rect.width - 1) * i) / steps, rect.top + 0.5 + ((rect.height - 1) * j) / steps]);
+  for (let at: Element | null = element; at && points.length; at = at.assignedSlot ?? at.parentElement ?? ((at.getRootNode() as ShadowRoot).host || null)) {
+    const clip = getComputedStyle(at).clipPath;
+    if (!clip || clip === 'none') continue;
+    const box = at.getBoundingClientRect();
+    const keeps = clipKeeps(clip, box.width, box.height);
+    if (keeps) points = points.filter(([x, y]) => keeps(x - box.left, y - box.top));
+  }
+  return points.length === 0;
+}
+
+/**
+ * Whether an element is shown: what is drawn invisibly (a checkbox's mark while it is unchecked, faded out) or clipped
+ * away whole is not, and a box drawn as no element is.
+ */
+const isShown = (element: Element) => ((element.checkVisibility?.({ opacityProperty: true, visibilityProperty: true }) ?? true) || drawnAsNoElement(element)) && !clippedWhole(element);
+
+/** Whether an element is shown and has a size. */
+const isDrawn = (element: Element) => {
+  const rect = element.getBoundingClientRect();
+  return rect.width > NEAR && rect.height > NEAR && isShown(element);
+};
+
+/**
+ * The box of what a part's target is, as drawn, in the viewport's coordinates; null where nothing of it is drawn.
+ *
+ * A part of a child is found on the first child the words name, in the document's order, that draws it: the anatomy
+ * and the measure figures number and measure the part wherever the fixture draws it — on the first tab whose own label
+ * is shown, where the selected tab hides its label under the indicator and draws its covered copy instead. Where a
+ * word names several kinds of element (`tanrei-menu-item|tanrei-submenu`: a submenu's row draws a trailing text a
+ * plain item may not), it is the first of any of them; where none draws it, the first element named.
+ *
+ * `firstOfOne` keeps a word that names one kind of element to the first of it: a color role figure shows one element
+ * in one state (the first tab, selected), and a part another child draws is drawn in another state's color.
+ */
+export function targetBox(host: Element, target: PartTarget, { firstOfOne = false } = {}): { box: Box; element: Element | null } | null {
   let elements: Element[] = [];
   let range: Range | null = null;
   if ('host' in target) elements = [host];
   else if ('part' in target && !('child' in target)) elements = partOf(host, target.part);
   else if ('child' in target) {
-    let at: Element | null = host;
-    for (const tag of target.child) at = at && deepQuery(at, tag);
-    elements = at && target.part ? partOf(at, target.part) : at ? [at] : [];
+    let candidates: Element[] = [host];
+    for (const word of target.child) {
+      const tags = word.split('|');
+      candidates = candidates.flatMap((at) => deepQueryAll(at, tags.join(', ')).slice(0, firstOfOne && tags.length === 1 ? 1 : undefined));
+    }
+    const of = (at: Element) => (target.part ? partOf(at, target.part) : [at]);
+    const chosen = candidates.find((at) => of(at).some(isDrawn)) ?? candidates[0];
+    elements = chosen ? of(chosen) : [];
   } else if ('slot' in target) {
     if (target.slot) elements = [...host.querySelectorAll(`:scope > [slot="${target.slot}"]`)];
     else {
@@ -138,10 +268,7 @@ export function targetBox(host: Element, target: PartTarget): { box: Box; elemen
       }
     }
   } else if ('className' in target) elements = [host.closest('.stage')?.querySelector(`.${target.className}`) ?? host.querySelector(`.${target.className}`)].filter((element): element is Element => element !== null);
-  // What is drawn invisibly (a checkbox's mark while it is unchecked, faded out) is not drawn for the figure. A box drawn
-  // as no element (the web package's drawnAsNoElement: a container or a focus ring's box over a text, hidden so that a
-  // contrast checker still checks the text) is drawn: its ::before draws it, at its place and size.
-  elements = elements.filter((element) => (element.checkVisibility?.({ opacityProperty: true, visibilityProperty: true }) ?? true) || drawnByBefore(element));
+  elements = elements.filter(isShown);
   const rects = range ? [range.getBoundingClientRect()] : elements.map((element) => element.getBoundingClientRect());
   const drawn = rects.filter((rect) => rect.width > NEAR && rect.height > NEAR);
   if (!drawn.length) return null;

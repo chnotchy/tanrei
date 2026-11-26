@@ -48164,6 +48164,14 @@
               "name": "active-indicator"
             },
             {
+              "description": "The copy of the icon on the indicator's piece, in its covered color (hidden from assistive technology).",
+              "name": "covered-icon"
+            },
+            {
+              "description": "The copy of the label on the indicator's piece, in its covered color (hidden from assistive technology).",
+              "name": "covered-label"
+            },
+            {
               "description": "The underline's piece on the tab's bottom edge (its end edge in a vertical row), clipped to where the underline is (hidden from assistive technology).",
               "name": "underline"
             }
