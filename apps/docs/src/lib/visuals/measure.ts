@@ -4,7 +4,7 @@
 // fixture (`measureLinesOf`) and labels it with the token, so the drawing and the tokens cannot disagree: the browser
 // test measures each drawn line against the value its token resolves to.
 import { getSpec } from '../repo';
-import { anatomyOf, webPartsOf, type PartTarget } from './anatomy';
+import { anatomyOf, blueprintStageOf, webPartsOf, type BlueprintStage, type DrawnPart, type PartTarget } from './anatomy';
 import { below, componentTokens } from './groups';
 import notDrawn from './lengths-not-drawn.json';
 
@@ -206,6 +206,18 @@ export function measureLinesOf(name: string, fixtureId: string, html: string): M
   return [...chosen.values()]
     .map(({ measure, axis }) => ({ ...measure, axis, target: boxes.get(measure.part!)! }))
     .sort((a, b) => order.get(a.part!)! - order.get(b.part!)! || ALONG.indexOf(a.axis) - ALONG.indexOf(b.axis));
+}
+
+/**
+ * What a component's measure figure stands on and draws: the parts the web draws (`webPartsOf`), the stage of the
+ * fixture (`blueprintStageOf`: the spec's anatomy fixture unless one is named) and the lines over it (`measureLinesOf`).
+ * The page draws the figure where there are lines, and nothing where there are none (components/visuals/MeasureDiagram.astro);
+ * the docs' tests hold every page whose spec has lengths to have one, or to say why it has none.
+ */
+export function measureFigureOf(name: string, fixture?: string): { parts: DrawnPart[] | null; stage: BlueprintStage | null; lines: MeasureLine[] } {
+  const parts = webPartsOf(name);
+  const stage = parts ? blueprintStageOf(name, fixture) : null;
+  return { parts, stage, lines: stage ? measureLinesOf(name, stage.fixture, stage.html) : [] };
 }
 
 // ── The lengths a figure does not draw ───────────────────────────────────────────────────────────────────────────────

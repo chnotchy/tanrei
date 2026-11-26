@@ -237,6 +237,13 @@ test('`words` is a key of the product\'s words on a string prop, and nothing els
   assert.deepEqual(wordsProblems('f', [{ name: 'closeLabel', type: 'string', default: '', words: 'closeLabel' }], 'prop'), []);
 });
 
+test('a part drawn with another part’s tokens (`drawnWith`) names the end of a token of its component', () => {
+  const tabs = structuredClone(loadSpecs().find(({ spec }) => spec.name === 'tabs'));
+  assert.deepEqual(specProblems(tabs.file, tabs.spec), [], 'the accepted spec: its state layer is drawn with container.color');
+  tabs.spec.anatomy.find((part) => part.id === 'state-layer').drawnWith = ['container.colour'];
+  assert.deepEqual(specProblems(tabs.file, tabs.spec), [`${tabs.file}: anatomy "state-layer" is drawnWith "container.colour", which ends no token of comp.tabs`]);
+});
+
 test('`validate` holds every spec to it: an English default fails and names the prop, in a spec and in an item kind', () => {
   const load = (name) => structuredClone(loadSpecs().find(({ spec }) => spec.name === name));
   const field = load('field');

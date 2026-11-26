@@ -68,6 +68,8 @@ test('every figure: each number once, inside and clear; each line its token’s 
   const errors = [];
   page.on('pageerror', (error) => errors.push(error.message));
   const notDrawn = [];
+  /** The parts whose outline the test held to the part's own box, found from its target. */
+  const checked = [];
   /** What each figure found, by component and token: what it draws instead, in px, or null where it draws no such box. */
   const found = {};
   for (const name of pages) {
@@ -117,7 +119,38 @@ test('every figure: each number once, inside and clear; each line its token’s 
           room: { width: overlay.width, height: overlay.height },
           markers: [...frame.querySelectorAll('.docs-blueprint-marker')].map((marker) => ({ n: Number(marker.dataset.n), part: marker.dataset.part, box: box(marker) })),
           rows: [...frame.querySelectorAll('[data-measure-row]')].map((row) => ({ token: row.dataset.measureRow, drawn: row.dataset.drawn, measured: Number(row.dataset.measured), value: Number(row.dataset.value), note: row.querySelector('[data-measure-note]').hidden ? '' : row.querySelector('[data-measure-note]').textContent })),
-          lines: [...frame.querySelectorAll('.docs-blueprint-length')].map((label) => ({ token: label.dataset.token, value: Number(label.dataset.value), measured: Number(label.dataset.measured) })),
+          lines: [...frame.querySelectorAll('.docs-blueprint-length')].map((label) => ({ token: label.dataset.token, part: label.dataset.part, value: Number(label.dataset.value), measured: Number(label.dataset.measured) })),
+          // Each part the lines measure, as the figure outlines it, and the same part found here from the spec's target
+          // (the element, a part it exports, or a part of its first child of a tag): the boxes of every element of it.
+          outlined: [...frame.querySelectorAll('.docs-blueprint-lines rect.measured')].map((rect) => {
+            const data = JSON.parse(frame.querySelector('[data-blueprint]').dataset.blueprint);
+            const target = data.parts.find((part) => part.id === rect.dataset.part)?.target ?? null;
+            const host = frame.querySelector(`.docs-blueprint-stage ${data.tag}`);
+            /** @type {Element[] | null | undefined} */
+            let elements = null;
+            if (target && host && !target.aspect) {
+              if ('host' in target) elements = [host];
+              else if ('part' in target && !('child' in target)) elements = [...(host.shadowRoot?.querySelectorAll(`[part~="${target.part}"]`) ?? [])];
+              else if ('child' in target && target.child.length === 1) {
+                const child = host.querySelector(target.child[0]);
+                elements = child && target.part ? [...(child.shadowRoot?.querySelectorAll(`[part~="${target.part}"]`) ?? [])] : child ? [child] : [];
+              }
+            }
+            // What is drawn: an element shown and of some size (a hidden copy kept for measuring is not the part).
+            elements = elements?.filter((element) => {
+              const r = element.getBoundingClientRect();
+              const shown = element.checkVisibility?.({ opacityProperty: true, visibilityProperty: true }) ?? true;
+              const before = getComputedStyle(element, '::before');
+              const byBefore = getComputedStyle(element).visibility === 'hidden' && before.visibility === 'visible' && before.content !== 'none' && before.content !== 'normal';
+              return (shown || byBefore) && r.width > 0.5 && r.height > 0.5;
+            });
+            const real = elements?.length
+              ? elements.map(box).reduce((a, b) => ({ left: Math.min(a.left, b.left), top: Math.min(a.top, b.top), right: Math.max(a.right, b.right), bottom: Math.max(a.bottom, b.bottom) }))
+              : null;
+            const x = Number(rect.getAttribute('x'));
+            const y = Number(rect.getAttribute('y'));
+            return { part: rect.dataset.part, drawn: { left: x, top: y, right: x + Number(rect.getAttribute('width')), bottom: y + Number(rect.getAttribute('height')) }, real };
+          }),
         };
       }, at));
     }
@@ -156,10 +189,21 @@ test('every figure: each number once, inside and clear; each line its token’s 
           }
         }
         assert.equal(figure.lines.length, figure.rows.filter((row) => row.drawn === 'true').length, `${name}: a line for each length drawn, and no other`);
+        // The box the lines measure is the part's own, where the browser draws it: outlined once for each part a line is
+        // drawn on, and, where the test finds the part itself, edge for edge its elements' box (one tab of a row, not
+        // the row, nor the room beside it).
+        assert.deepEqual(figure.outlined.map(({ part }) => part).sort(), [...new Set(figure.lines.map(({ part }) => part))].sort(), `${name}: each part measured is outlined once`);
+        for (const { part, drawn, real } of figure.outlined) {
+          if (!real) continue;
+          for (const edge of ['left', 'top', 'right', 'bottom']) assert.ok(Math.abs(drawn[edge] - real[edge]) <= NEAR, `${name}: the ${part} outlined has its ${edge} edge at ${drawn[edge]}, the part's is at ${real[edge]}`);
+          checked.push(`${name} ${part}`);
+        }
       }
     }
   }
   assert.deepEqual(errors, [], 'no script failed');
+  console.log(`Outlines held to their parts' boxes (${checked.length}): ${checked.join(', ')}`);
+  assert.ok(checked.includes('tabs container') && checked.includes('button container'), `the outlines held to their parts' boxes: ${checked.join(', ')}`);
   // The record says what the figures find, so that each table is laid out from the first frame as it is once drawn.
   const said = Object.fromEntries(
     Object.entries(recorded)

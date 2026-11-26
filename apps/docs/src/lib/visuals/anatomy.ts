@@ -21,6 +21,26 @@ export function anatomyOf(name: string): AnatomyPart[] {
 }
 
 /**
+ * What the spec says a component's parts are drawn with, where a token's path names another part than the one it draws
+ * (`drawnWith`: a tab's `state-layer` is drawn with `container.color`). `of(path)` is the part a token of that path
+ * (after the component's group: `['primary', 'selected', 'container', 'color']`) draws by such a word, with what the
+ * path says before it (its variant, state and look), or null; `declared` are the parts that say it, which no token draws
+ * by naming them: only the tokens they name.
+ */
+export function drawnWithOf(name: string): { declared: Set<string>; of: (path: readonly string[]) => { part: string; keys: string[] } | null } {
+  const anatomy = getSpec(name).anatomy;
+  const ends = anatomy.flatMap((part) => (part.drawnWith ?? []).map((end) => ({ part: part.id, end })));
+  return {
+    declared: new Set(anatomy.filter((part) => part.drawnWith).map((part) => part.id)),
+    of: (path) => {
+      const joined = path.join('.');
+      const found = ends.find(({ end }) => joined === end || joined.endsWith(`.${end}`));
+      return found ? { part: found.part, keys: path.slice(0, path.length - found.end.split('.').length) } : null;
+    },
+  };
+}
+
+/**
  * The figure's text alternative in the page's language: the dictionary's sentence (`visuals.anatomyAlt`, one for each
  * plural form of the language, `other` for the rest) for the number of parts, with `{component}` the component's title,
  * `{count}` that number and `{list}` the parts' ids as a list in that language. Every spec has at least one part, so it

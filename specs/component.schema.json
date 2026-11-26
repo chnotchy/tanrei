@@ -119,6 +119,16 @@
           "optional": {
             "type": "boolean",
             "default": false
+          },
+          "drawnWith": {
+            "type": "array",
+            "minItems": 1,
+            "uniqueItems": true,
+            "items": {
+              "type": "string",
+              "pattern": "^[a-z0-9]+(-[a-z0-9]+)*(\\.[a-z0-9]+(-[a-z0-9]+)*)+$"
+            },
+            "description": "The component's tokens this part is drawn with at rest, where their path names another part than its id: each the end of a token's path (`container.color`), whatever variant, size or look stands before it. A part is otherwise drawn with the tokens whose path names its id (`label.color` for `label`); where it says `drawnWith`, those tokens and no others name it. `validate` holds that each is the end of a token of the component's group."
           }
         }
       }
