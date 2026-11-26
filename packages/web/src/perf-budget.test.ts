@@ -435,7 +435,7 @@ test.describe('forced passes do not grow with the number of instances (a Chromiu
 /**
  * Markup a page holds before the module that defines its elements runs, as a product's page loads: a Button that slots
  * an image (a glyph drawn whatever the font, marked the moment it renders) and one that slots a glyph's name, a
- * checkbox and a switch (glyphs their own shadow roots draw), and a row of tabs.
+ * checkbox and a switch (glyphs their own shadow roots draw), and a row of tabs (`PARSED_FIXTURES` adds more).
  */
 const PARSED = [
   `<tanrei-button label="Add"><svg slot="icon" viewBox="0 0 24 24" width="24" height="24"><path d="M11 5h2v14h-2zM5 11h14v2H5z"></path></svg></tanrei-button>`,
@@ -444,6 +444,8 @@ const PARSED = [
   `<tanrei-switch label="Wi-Fi" checked checked-icon="check" unchecked-icon="close"></tanrei-switch>`,
   `<tanrei-tabs label="Sections" value="a"><tanrei-tab value="a" label="Overview"></tanrei-tab><tanrei-tab value="b" label="Specifications"></tanrei-tab><tanrei-tab-panel value="a">One</tanrei-tab-panel><tanrei-tab-panel value="b">Two</tanrei-tab-panel></tanrei-tabs>`,
 ];
+/** And the first fixture of each component a docs page holds that measures itself as it is drawn. */
+const PARSED_FIXTURES = ['app-shell', 'app-bar', 'navigation-drawer', 'breadcrumbs', 'table-of-contents', 'menu', 'table', 'description-list'];
 /** The address that page is served at (nothing else is fetched from it). */
 const UPGRADE_PAGE = 'http://upgrade.test/';
 
@@ -464,6 +466,8 @@ test.describe('upgrading a page that is still loading (a Chromium trace)', () =>
     // task and the microtasks it queued (a frame may come between them, and its own pass is not counted). What a frame
     // reads after its layout is the frame's, and held by the budgets above.
     const beforeLoaded = async () => {
+      // Nothing of the page before it is in the trace: its frames go on after its load.
+      await page.goto('about:blank');
       const events: TraceEvent[] = [];
       const cdp = await page.context().newCDPSession(page);
       cdp.on('Tracing.dataCollected', ({ value }) => events.push(...(value as unknown as TraceEvent[])));
@@ -483,19 +487,23 @@ test.describe('upgrading a page that is still loading (a Chromium trace)', () =>
     // A navigation, not `setContent`: that writes into the document already loaded, which has been painted.
     let served = '';
     await page.route(UPGRADE_PAGE, (route) => route.fulfill({ contentType: 'text/html; charset=utf-8', body: served }));
+    const markup = [...PARSED, ...PARSED_FIXTURES.map((name) => fixtureMarkup(name, loadSpec(name).fixtures[0]!.id))].join('');
     // Loaded once first: the runs counted compile nothing the first did not.
-    served = html(PARSED.join(''));
+    served = html(markup);
     await page.goto(UPGRADE_PAGE);
-    // What the module forces on a page with none of its elements (a probe of the engine, once for the document).
+    // And a page with none of its elements: the module itself forces nothing either (what it asks of the engine — its
+    // probe of style queries, the wait on the faces — is asked in a frame).
     served = html('');
     const empty = await beforeLoaded();
-    served = html(PARSED.join(''));
+    served = html(markup);
     const parsed = await beforeLoaded();
-    const defined = await page.evaluate(() => ['tanrei-button', 'tanrei-checkbox', 'tanrei-switch', 'tanrei-tabs'].every((tag) => !!customElements.get(tag)));
+    const tags = ['tanrei-button', 'tanrei-checkbox', 'tanrei-switch', 'tanrei-tabs', ...PARSED_FIXTURES.map((name) => `tanrei-${name}`)];
+    const defined = await page.evaluate((all) => all.every((tag) => !!customElements.get(tag)), tags);
     expect(defined, 'the bundle defined the elements').toBe(true);
     const line = `${parsed.length} passes forced before DOMContentLoaded with the elements parsed, ${empty.length} without them`;
     console.log(`perf-budget ${line}`);
-    expect(parsed.length, [line, ...parsed].join('\n')).toBeLessThanOrEqual(empty.length);
+    expect(empty, [line, ...empty].join('\n')).toEqual([]);
+    expect(parsed, [line, ...parsed].join('\n')).toEqual([]);
   });
 });
 

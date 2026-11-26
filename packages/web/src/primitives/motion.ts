@@ -1,5 +1,6 @@
 import { type CSSResult, type ReactiveController, type ReactiveControllerHost, unsafeCSS } from 'lit';
 import { APPEARING, REDUCED_MOTION_ATTRIBUTE, REDUCED_MOTION_MEDIA, REDUCED_MOTION_VALUE, SETTLING, STILL_POINTER, reducedMotion } from '../styles/motion.js';
+import { afterFirstPaint, documentPainted } from './first-paint.js';
 import { flatParent } from './flat-tree.js';
 import { type PhaseRead, readThenWrite, readTogether } from './read-together.js';
 
@@ -23,37 +24,9 @@ import { type PhaseRead, readThenWrite, readTogether } from './read-together.js'
 
 type Host = ReactiveControllerHost & HTMLElement;
 
-// ── The document's first paint (MOT-4) ────────────────────────────────────────────────────────────────────────────────
+// ── The document's first paint (MOT-4): src/primitives/first-paint.ts ────────────────────────────────────────────
 
-let painted = false;
-// The promise `afterFirstPaint()` answers with is made when it is first asked for, not at the top of the module: a
-// promise made there is kept in the bundle of every element that imports this module, and few of them ever ask.
-let whenPainted: Promise<void> | undefined;
-let tellPainted: (() => void) | undefined;
-const markPainted = () => {
-  painted = true;
-  tellPainted?.();
-};
-// The second frame callback after the document is parsed runs once its first frame has been painted. Paint Timing would
-// say so too, but Firefox reports no `first-paint`, and a `first-contentful-paint` before the parse ends (a browser may
-// paint parsed content before the module scripts run) is a page whose overlays the module has not upgraded yet: they
-// are still being mounted, and appear at once. A module that arrives after the parse (a chunk loaded later) finds a
-// page that was painted where Paint Timing says so, and waits the two frames where it says nothing.
-const twoFrames = () => requestAnimationFrame(() => requestAnimationFrame(markPainted));
-if (typeof document !== 'undefined' && typeof requestAnimationFrame === 'function') {
-  const navigation = performance.getEntriesByType?.('navigation')[0] as PerformanceNavigationTiming | undefined;
-  const parsed = document.readyState === 'complete' || (navigation?.domContentLoadedEventEnd ?? 0) > 0;
-  if (!parsed) document.addEventListener('DOMContentLoaded', twoFrames, { once: true });
-  else if (performance.getEntriesByType?.('paint').length) markPainted();
-  else twoFrames();
-}
-
-/** Whether the document has been painted once (MOT-4): false until then, and always on a server. */
-export const documentPainted = (): boolean => painted;
-
-/** Resolves once the document has been painted (MOT-4); never on a server. */
-export const afterFirstPaint = (): Promise<void> =>
-  (whenPainted ??= painted ? Promise.resolve() : new Promise<void>((resolve) => (tellPainted = resolve)));
+export { afterFirstPaint, documentPainted } from './first-paint.js';
 
 // ── Reduced motion (MOT-6) ────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -580,6 +553,27 @@ function atOnce(element: HTMLElement) {
   else element.style.removeProperty('transition-property');
 }
 
+/**
+ * `atOnce` for a surface that opens before the document has been painted, with no read of the style: its transitions
+ * are held as `none` until the second frame callback after it, when a frame has styled it so — no transition starts
+ * on it, and none had started before (nothing was drawn). Styled at once instead, in the connection of an overlay that
+ * a loading page holds open, the read had the browser style and lay out the whole page there and then, while the
+ * page's modules upgrade one kind of element after another. A transition set on it meanwhile is left as it was set.
+ */
+function atOnceFromFirstFrame(element: HTMLElement) {
+  const value = element.style.getPropertyValue('transition-property');
+  const priority = element.style.getPropertyPriority('transition-property');
+  if (value === 'none' && priority === 'important') return;
+  element.style.setProperty('transition-property', 'none', 'important');
+  requestAnimationFrame(() =>
+    requestAnimationFrame(() => {
+      if (element.style.getPropertyValue('transition-property') !== 'none' || element.style.getPropertyPriority('transition-property') !== 'important') return;
+      if (value) element.style.setProperty('transition-property', value, priority);
+      else element.style.removeProperty('transition-property');
+    }),
+  );
+}
+
 export interface AppearControllerOptions {
   /** The motion element `appearStyles()` styles (it is given `data-tanrei-appear`, which settling leaves alone). */
   motion: () => HTMLElement | null;
@@ -685,8 +679,10 @@ export class AppearController implements ReactiveController {
     if (this.instant || !documentPainted() || !motion.isConnected) {
       this.arriving = null;
       // Made at once, it has no entrance: `atOnce` finished every transition and put the transitions back with no value
-      // changed, which starts none. Asking for them again had the page styled once more for nothing.
-      atOnce(motion);
+      // changed, which starts none. Asking for them again had the page styled once more for nothing. Before the first
+      // paint nothing is read: the transitions are held until a frame has styled it (`atOnceFromFirstFrame`).
+      if (documentPainted()) atOnce(motion);
+      else atOnceFromFirstFrame(motion);
       this.entrance = [];
       return;
     }

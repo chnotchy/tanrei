@@ -125,11 +125,19 @@ export function observeSteps(root: Document | ShadowRoot = document): () => void
   });
   observer.observe(root, { attributes: true, attributeFilter: ATTRIBUTES, childList: true, subtree: true });
   for (const list of root.querySelectorAll(`.${STEPS}`)) read(list);
-  // The markers are measured in the faces they are drawn in: once more when those have arrived.
+  // The markers are measured in the faces they are drawn in: once more when those have arrived. The set of fonts is
+  // asked in the next frame callback, with the style that frame computes anyway: `ready` is a read of the page's style
+  // in Chromium, and asked here, as the module loads, it had the browser style the whole page that is still loading.
   let stopped = false;
-  void (root.ownerDocument ?? (root as Document)).fonts?.ready.then(() => {
-    if (!stopped) for (const list of root.querySelectorAll<HTMLElement>(`.${STEPS}`)) measure(list);
-  });
+  const fonts = (root.ownerDocument ?? (root as Document)).fonts;
+  if (fonts && typeof requestAnimationFrame === 'function') {
+    requestAnimationFrame(() => {
+      if (stopped) return;
+      void fonts.ready.then(() => {
+        if (!stopped) for (const list of root.querySelectorAll<HTMLElement>(`.${STEPS}`)) measure(list);
+      });
+    });
+  }
   const stop = () => {
     stopped = true;
     observer.disconnect();

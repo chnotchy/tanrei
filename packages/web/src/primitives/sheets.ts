@@ -18,7 +18,9 @@
 //     many as they were: not once per instance, not once per turn, and not once per kind — the first question asks it
 //     for every kind of element that stands in the root (`DRAWN_MARKS`), in one style pass.
 
+import { documentPainted } from './first-paint.js';
 import { flatParent } from './flat-tree.js';
+import { readInPhase } from './read-phase.js';
 
 type Root = Document | ShadowRoot;
 
@@ -102,19 +104,56 @@ const kind = (tag: string, mark: string) => `${tag} ${mark}`;
  * Adds `sheet` to the root `element` stands in, unless that root draws the element already — it has the sheet, or the
  * page loaded the same rules as a stylesheet of its own (`mark` is a custom property the sheet sets on every element
  * of this element's kind, and on nothing else).
+ *
+ * Until the document has been painted once, the cascade is asked in the read phase of the coming frame, after its
+ * layout and before its paint (`decideAwaiting`), and the sheet a root needs is added there: asked in the connection
+ * of the element, while a page's modules upgrade one kind of element after another, the question had the browser
+ * style the whole page for it there and then, once for each module that defines one. No frame is painted before the
+ * phase, so the element is never drawn without its rules.
  */
 export function adoptUnlessDrawn(element: Element, sheet: CSSStyleSheet | null | undefined, mark: `--${string}`) {
   const root = element.getRootNode();
   if (!sheet || !isRoot(root) || root.adoptedStyleSheets.includes(sheet)) return;
+  if (!documentPainted()) {
+    awaiting.set(element, { sheet, mark });
+    readInPhase(awaiting, decideAwaiting);
+    return;
+  }
+  if (!drawnIn(root, element, mark)) adopt(root, sheet);
+}
+
+/** The elements connected before the first paint whose root is asked in the read phase (`adoptUnlessDrawn`). */
+const awaiting = new Map<Element, { sheet: CSSStyleSheet; mark: `--${string}` }>();
+
+/** The read phase's question for every element that awaits it: all read, then every sheet a root needs added. */
+function decideAwaiting() {
+  const needed: [Root, CSSStyleSheet][] = [];
+  for (const [element, { sheet, mark }] of awaiting) {
+    if (!element.isConnected) continue;
+    const root = element.getRootNode();
+    if (!isRoot(root) || root.adoptedStyleSheets.includes(sheet)) continue;
+    if (!drawnIn(root, element, mark)) needed.push([root, sheet]);
+  }
+  awaiting.clear();
+  if (!needed.length) return;
+  return () => {
+    for (const [root, sheet] of needed) adopt(root, sheet);
+  };
+}
+
+/**
+ * Whether `root` draws `element` already (by `mark`): the answer kept for its kind while the root's stylesheets stay
+ * as many as they were, else the cascade's — and the first question of a root asks it for every other kind that stands
+ * in it, in the same style pass, before any sheet is added and has the page styled again.
+ */
+function drawnIn(root: Root, element: Element, mark: `--${string}`): boolean {
   const count = loaded(root);
   let answers = found.get(root);
   if (!answers || answers.count !== count) found.set(root, (answers = { count, asked: false, drawn: new Set() }));
   const own = kind(element.localName, mark);
-  if (answers.drawn.has(own)) return;
+  if (answers.drawn.has(own)) return true;
   const drawnHere = drawn(element, mark);
   if (drawnHere) answers.drawn.add(own);
-  // The first question of the root: the other kinds that stand in it are asked in the same style pass, before the
-  // sheet below (if any) is added and has the page styled again.
   if (!answers.asked) {
     answers.asked = true;
     for (const [tag, name] of Object.entries(DRAWN_MARKS)) {
@@ -124,5 +163,5 @@ export function adoptUnlessDrawn(element: Element, sheet: CSSStyleSheet | null |
       if (instance && drawn(instance, name)) answers.drawn.add(other);
     }
   }
-  if (!drawnHere) adopt(root, sheet);
+  return drawnHere;
 }

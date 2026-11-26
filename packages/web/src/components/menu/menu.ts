@@ -5,6 +5,8 @@ import { html as staticHtml, literal } from 'lit/static-html.js';
 import {
   AppearController,
   AvailabilityController,
+  documentPainted,
+  readInPhase,
   CoalescedSync,
   FollowController,
   GlyphDrawnController,
@@ -1456,6 +1458,31 @@ export class TanreiMenu extends TanreiElement {
   private levels: Map<Level, TanreiMenuRowBase[]> | null = null;
   /** MNU-31: the form of the shortcuts the cascade gave when the menu was last open (read in `sync()` while it is). */
   private shortcutVariant = DEFAULT_SHORTCUT_VARIANT;
+  /** MNU-31: what asks for the form in the read phase, and whether it has answered, before the document is painted. */
+  private readonly variantRead = {};
+  private variantAnswered = false;
+
+  /**
+   * MNU-31: the form of the shortcuts as the cascade gives it now. Until the document has been painted it is read in
+   * the read phase of the coming frame, after its layout and before its paint, and the rows are drawn again with it if
+   * it is not the one they were drawn with: read in the menu's own turn, it had the browser style the whole page for
+   * it, in every open menu of a page that is still loading, while its modules upgrade one kind of element after another.
+   */
+  private readShortcutVariant(): string {
+    const read = () => getComputedStyle(this).getPropertyValue(SHORTCUT_VARIANT).trim() || DEFAULT_SHORTCUT_VARIANT;
+    if (documentPainted()) return (this.shortcutVariant = read());
+    if (this.variantAnswered) return this.shortcutVariant;
+    readInPhase(this.variantRead, () => {
+      const variant = read();
+      return () => {
+        this.variantAnswered = true;
+        if (variant === this.shortcutVariant || !this.isConnected) return;
+        this.shortcutVariant = variant;
+        this.sync();
+      };
+    });
+    return this.shortcutVariant;
+  }
   /**
    * The re-read of the items (`sync()`), once per turn however many items said they changed in it: a menu of N items
    * built, or N labels changed at once, re-reads its N items once — not once per item, which made the build O(N²).
@@ -1708,7 +1735,7 @@ export class TanreiMenu extends TanreiElement {
     // and its rows keep the form last read until it opens (`updated()` re-reads them then) — a read in a closed menu's
     // first update had the browser style the whole page for it, once for every menu of a page that is still loading.
     let variant: string | null = null;
-    const shortcut = () => (variant ??= this.open ? (this.shortcutVariant = getComputedStyle(this).getPropertyValue(SHORTCUT_VARIANT).trim() || DEFAULT_SHORTCUT_VARIANT) : this.shortcutVariant);
+    const shortcut = () => (variant ??= this.open ? this.readShortcutVariant() : this.shortcutVariant);
     // MNU-59: an unknown value is auto.
     const space: TanreiMenuIconSpace = ICON_SPACES.includes(this.iconSpace) ? this.iconSpace : 'auto';
     const marks = (row: TanreiMenuRowBase) => row instanceof TanreiMenuCheckboxItem || row instanceof TanreiMenuRadioItem;

@@ -12,6 +12,7 @@ import {
   syncDividerVisibility,
 } from '../../primitives/index.js';
 import { WordsController } from '../../primitives/words.js';
+import { documentPainted } from '../../primitives/first-paint.js';
 import '../button/button.js';
 import '../menu/menu.js';
 import type { TanreiMenu } from '../menu/menu.js';
@@ -457,6 +458,9 @@ export class TanreiAppBar extends TanreiElement {
    */
   private settling = false;
   private again = false;
+  /** APB-32: whether the bar has decided once; the first decision before the first paint is the read phase's. */
+  private fitted = false;
+  private readonly firstFit = {};
   private async settle() {
     if (this.settling) {
       this.again = true;
@@ -468,7 +472,20 @@ export class TanreiAppBar extends TanreiElement {
         this.again = false;
         await this.updateComplete;
         await Promise.all([...this.actionItems, this.moreButton].map((element) => element?.updateComplete));
-        if (this.isConnected) this.fit();
+        if (!this.isConnected) continue;
+        // The bar's first decision before the document has been painted is the read phase's, after the layout of the
+        // coming frame and before its paint, with every other host's reads: made here, in the turn of the render, it had
+        // the browser lay the whole page out for it, while a loading page's modules upgrade one kind of element after
+        // another. What it asks for then (the more button drawn) is decided in that frame, at once, as here.
+        if (!this.fitted && !documentPainted()) {
+          readInPhase(this.firstFit, () => () => {
+            this.fitted = true;
+            if (this.isConnected) this.fit();
+          });
+        } else {
+          this.fitted = true;
+          this.fit();
+        }
       } while (this.again);
     } finally {
       this.settling = false;

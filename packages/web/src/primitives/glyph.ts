@@ -1,7 +1,7 @@
 import type { ReactiveController, ReactiveControllerHost } from 'lit';
 import { FacesWatch } from './faces.js';
 import { DRAWN_WIDTH } from './glyph-drawn-width.js';
-import { documentPainted } from './motion.js';
+import { documentPainted } from './first-paint.js';
 // Imported before the observer below is made: the read phase's observer is then told of a frame before it, so the
 // phase's reads come before the marks this module writes in that frame (src/primitives/read-phase.ts).
 import { readInPhase } from './read-phase.js';
@@ -109,7 +109,11 @@ const observer =
           sizes.set(entry.target, entry.borderBoxSize?.[0]?.inlineSize ?? entry.contentRect.width);
           (owner.slotted ? heard : hosts).add(owner);
         }
-        mark([...[...hosts].flatMap((host) => host.reported()), ...[...heard].flatMap((host) => host.decided())]);
+        // Before the first paint, from the sizes reported, reading nothing (`reported`); after it, from the layout the
+        // frame has just made (`read`): Firefox was seen to report a trail's glyph box at the width it had before the
+        // trail took it out (16 px where its layout said 0), and a frame painted after the paint would show that mark.
+        const painted = documentPainted();
+        mark([...[...hosts].flatMap((host) => (painted ? host.read(true) : host.reported())), ...[...heard].flatMap((host) => host.decided())]);
       });
 
 /**
@@ -418,7 +422,8 @@ export class GlyphDrawnController implements ReactiveController {
   /**
    * Each glyph, and whether its ink is the ligature, from the widths the observer last reported of the glyph's box and
    * of its ink (`sizes`) — what `read(true)` reads of the layout, with no read of it. The observer's callback decides
-   * so: read there, the widths had the browser lay the page out again whenever an observer told before it had written
+   * so until the document has been painted: read there, the widths had the browser lay the page out again whenever an
+   * observer told before it had written
    * (a table's sizes, the marks of the read phase), in the middle of the frame. A glyph either of whose widths has not
    * been reported (no box) is not drawn. The name and family each ink is read under (`readUnder`) are read in the next
    * frame's read phase (`noteUnder`): a read of the cascade here would style the page for it in the same way.

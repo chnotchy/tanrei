@@ -1,5 +1,7 @@
 import { type CSSResult, unsafeCSS } from 'lit';
 import { compChoice } from './actions.js';
+import { documentPainted } from './first-paint.js';
+import { readInPhase } from './read-phase.js';
 
 // Separation: how parts that sit side by side inside one component are told apart — by a
 // line where they touch (`divider`) or by empty space (`gap`). One choice of kind for the whole system
@@ -62,15 +64,67 @@ export function separationOf(host: Element): Separation {
 }
 
 let queries: boolean | undefined;
+/** What asked to be told that the probe answered no after `styleQueries()` had answered yes for it (`answerInPhase`). */
+const unanswered = new Set<() => void>();
 
 /**
  * Whether this browser answers style container queries: asked once, with a probe that is gone when it returns. The
  * probe's rule stands in a shadow root of the probe's own, never in the document's sheets: a sheet added to the
  * document and taken away again has the browser build the document's rules twice for one answer.
+ *
+ * Until the document has been painted once, the probe is made in the read phase of the coming frame, after its layout
+ * and before its paint (`answerInPhase`), and the answer meanwhile is yes, which every current engine gives: made in
+ * the turn of the first element that asks, while a loading page's modules upgrade one kind of element after another,
+ * the probe had the browser style the whole page for it there and then. Where the probe then answers no, every Tanrei
+ * element of the document is drawn again, and what asked with `whenNoStyleQueries` is told, before that frame is
+ * painted.
  */
 export function styleQueries(): boolean {
   if (queries !== undefined) return queries;
   if (typeof document === 'undefined' || typeof CSSStyleSheet === 'undefined') return (queries = false);
+  if (!documentPainted()) {
+    readInPhase(unanswered, answerInPhase);
+    return true;
+  }
+  return (queries = probe());
+}
+
+/**
+ * Calls `told` if this browser turns out to answer no style container queries after `styleQueries()` had answered yes
+ * before the document was painted; never once the probe has answered.
+ */
+export function whenNoStyleQueries(told: () => void): void {
+  if (queries === undefined) unanswered.add(told);
+}
+
+/** The read phase's probe (`styleQueries`), and what follows from a no: written after the phase's reads. */
+function answerInPhase() {
+  if (queries !== undefined) return;
+  queries = probe();
+  const told = [...unanswered];
+  unanswered.clear();
+  if (queries) return;
+  return () => {
+    for (const each of told) each();
+    for (const element of tanreiElements(document)) element.requestUpdate();
+  };
+}
+
+type Updating = Element & { requestUpdate(): void };
+
+/** Every Tanrei element of `root`, and of the shadow roots in it. */
+function tanreiElements(root: Document | ShadowRoot): Updating[] {
+  const found: Updating[] = [];
+  for (const element of root.querySelectorAll('*')) {
+    if (element.localName.startsWith('tanrei-') && typeof (element as Partial<Updating>).requestUpdate === 'function') found.push(element as Updating);
+    if (element.shadowRoot) found.push(...tanreiElements(element.shadowRoot));
+  }
+  return found;
+}
+
+/** The probe itself: whether a style container query on a custom property matches. */
+function probe(): boolean {
+  let answer = false;
   try {
     const sheet = new CSSStyleSheet();
     sheet.replaceSync('@container style(--tanrei-style-query-probe: on) { [data-tanrei-style-query-probe] { --tanrei-style-query-answer: yes; } }');
@@ -83,12 +137,12 @@ export function styleQueries(): boolean {
     root.adoptedStyleSheets = [sheet];
     root.append(inner);
     document.documentElement.append(outer);
-    queries = getComputedStyle(inner).getPropertyValue('--tanrei-style-query-answer').trim() === 'yes';
+    answer = getComputedStyle(inner).getPropertyValue('--tanrei-style-query-answer').trim() === 'yes';
     outer.remove();
   } catch {
-    queries = false;
+    answer = false;
   }
-  return queries;
+  return answer;
 }
 
 /**

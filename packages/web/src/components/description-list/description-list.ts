@@ -4,6 +4,8 @@ import type { TanreiDescriptionListSizeRegistry } from '../../registry.js';
 import { adopt, adoptUnlessDrawn } from '../../primitives/sheets.js';
 import { TanreiLightElement } from '../../primitives/element.js';
 import { FacesWatch } from '../../primitives/faces.js';
+import { documentPainted } from '../../primitives/first-paint.js';
+import { readInPhase } from '../../primitives/read-phase.js';
 import { TYPE_LONGHANDS } from '../../styles/type.js';
 import { DEBUG } from '../../primitives/debug.js';
 
@@ -335,6 +337,14 @@ export class TanreiDescriptionList extends TanreiLightElement {
   private readonly read = () => {
     if (!this.isConnected) return;
     const due = TanreiDescriptionList.due;
+    // Until the document has been painted, in the read phase of the coming frame, after its writes and before its
+    // paint: read in a microtask of the turn, the lists had the browser style and lay out the whole page for them, while
+    // a loading page's modules upgrade one kind of element after another.
+    if (!documentPainted()) {
+      due.add(this);
+      readInPhase(due, TanreiDescriptionList.readPhased);
+      return;
+    }
     if (!due.size) {
       queueMicrotask(() => {
         const boxes = [...due];
@@ -349,6 +359,13 @@ export class TanreiDescriptionList extends TanreiLightElement {
    * `read()` for every box of a turn: each finds its list and is laid out for measuring; then everything is read —
    * one style pass and one layout for them all; then everything is written.
    */
+  /** The read phase's `read()` for the lists that asked before the first paint: laid out, read and written there. */
+  private static readonly readPhased = () => () => {
+    const boxes = [...TanreiDescriptionList.due];
+    TanreiDescriptionList.due.clear();
+    TanreiDescriptionList.readTogether(boxes);
+  };
+
   private static readTogether(boxes: TanreiDescriptionList[]) {
     const live = boxes.filter((box) => box.isConnected);
     for (const box of live) {

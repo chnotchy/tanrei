@@ -326,8 +326,10 @@ test.describe('the sheets an element adds to its root', () => {
 
   // On a page whose elements are defined one module after another — each defining its elements in a task of its own,
   // as a site's chunks arrive — a question of each kind in its own definition had the browser style the page once for
-  // each. The first question of the document asks it for every kind that stands in it, before the next is defined.
-  test('a page that loaded every stylesheet: the first element defined asks the cascade for every kind on the page, and none defined after it asks again', async ({ page }) => {
+  // each. While the page has not been painted, the elements defined ask nothing in their definition: the question is
+  // asked in the read phase of the first frame, after every one of them was defined, for every kind that stands
+  // in the document.
+  test('a page that loaded every stylesheet: the cascade is asked for every kind on the page in the first frame, after every element was defined', async ({ page }) => {
     await page.addInitScript((marks) => {
       const log: string[] = [];
       (window as unknown as { __log: string[] }).__log = log;
@@ -350,10 +352,11 @@ test.describe('the sheets an element adds to its root', () => {
     const defined = log.flatMap((entry, at) => (tags.includes(entry.replace('define ', '')) ? [at] : []));
     const asked = log.flatMap((entry, at) => (entry.startsWith('define ') ? [] : [at]));
     expect(defined).toHaveLength(SUBJECTS.length);
-    // Every question about the marks is asked inside the definition of the first of the kinds (an element may also read
+    // No question about the marks is asked in a definition; every one is asked after the last (an element may also read
     // its own mark for a purpose of its own later, as the app shell reads its breakpoint: that is not the question).
-    const second = defined[1];
-    const questions = new Set(asked.filter((at) => at < second).map((at) => log[at]));
+    const last = defined.at(-1)!;
+    expect(asked.filter((at) => at < last).map((at) => log[at]), 'asked while the elements were being defined').toEqual([]);
+    const questions = new Set(asked.map((at) => log[at]));
     expect([...questions].sort()).toEqual(SUBJECTS.map((subject) => subject.mark).sort());
     // And each kind is drawn by the page's stylesheet: no element handed its root a sheet of its own.
     const { writes } = await seen(page);
