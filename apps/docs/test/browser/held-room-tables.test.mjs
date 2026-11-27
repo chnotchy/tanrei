@@ -1,7 +1,8 @@
 // The pages whose tables, keyboard maps and lists of status tags hold the room they will take, in each engine, before
 // the modules that define their elements have arrived, and whose figures of multi-line fields and open pickers do too:
 // held-room.mjs holds the tests and says how they read the page. The pages whose figures the web package's cloak holds at
-// the box they are drawn in are in held-room-figures.test.mjs.
+// the box they are drawn in are in held-room-figures.test.mjs, held-room-buttons.test.mjs and
+// held-room-actions.test.mjs.
 //
 //   pnpm --filter @tanrei/docs build && pnpm --filter @tanrei/docs test:browser
 //   DOCS_ENGINES=chromium node --test test/browser/held-room-tables.test.mjs   # in one engine (all three by default)
