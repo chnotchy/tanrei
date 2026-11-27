@@ -58,7 +58,7 @@ const noteHtml = (notes: string | undefined) => (notes ?? '').replace(/&/g, '&am
   <tbody role="rowgroup">
     {spec.anatomy.map((part, i) => (
       <tr role="row">
-        <td role="cell"><span class="part"><span class="num">{i + 1}</span> <code>{part.id}</code></span>{part.optional && <em class="docs-muted"> · {t.optional}</em>}</td>
+        <td role="cell"><span class="part"><span class="num">{i + 1}</span>&nbsp;<code>{part.id}</code></span>{part.optional && <em class="docs-muted"> · {t.optional}</em>}</td>
         <td role="cell">{part.description}</td>
       </tr>
     ))}
@@ -280,7 +280,10 @@ const noteHtml = (notes: string | undefined) => (notes ?? '').replace(/&/g, '&am
   }
   /* A part's number stays with its name; the name breaks after its hyphens and "optional" goes under it, so that on a
      narrow screen the column is no wider than the longest piece of a name, and the description beside it is not left
-     a word to a line. (Every other name in these tables stays on one line: `td code` below.) */
+     a word to a line. (Every other name in these tables stays on one line: `td code` below.) The number is held to its
+     name by a no-break space, not by `nowrap` alone: where a space under `nowrap` stands before a name that may wrap,
+     Firefox gave the line a break there once the page's elements were defined and none before, so the column's least
+     width, and the App bar's table at 1440 px, changed as they were defined (159.6 px before, 139.1 px after). */
   .part {
     white-space: nowrap;
   }
