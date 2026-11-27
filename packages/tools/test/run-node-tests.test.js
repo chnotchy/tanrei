@@ -7,7 +7,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { after, describe, test } from 'node:test';
 import { fileURLToPath } from 'node:url';
-import { balance, shard, uncountedFailures } from '../src/run-node-tests.js';
+import { balance, inOrderConfig, jobSeconds, longestFirst, shard, uncountedFailures } from '../src/run-node-tests.js';
 import { measured, refreshed } from '../src/shard-weights.js';
 import { leavesNothingBehind, tempDir } from '../src/test-tmp.js';
 
@@ -133,6 +133,65 @@ describe('shards by measured time (--shard-weights)', () => {
       ran.push(...names);
     }
     assert.deepEqual(ran.sort(), [...files].sort());
+  });
+
+  test('a shard starts its files longest first by the weights, a file they do not name at their median', () => {
+    // The names run against the weights: in name order `a` (the shortest) would start first and `e` (the longest) last.
+    const dir = tempDir('node-test-weights-order');
+    const log = path.join(dir, 'started.txt');
+    const table = { 'a.test.mjs': 1, 'b.test.mjs': 2, 'c.test.mjs': 30, 'e.test.mjs': 50 }; // median 16 for d
+    for (const name of ['a', 'b', 'c', 'd', 'e']) {
+      fs.writeFileSync(path.join(dir, `${name}.test.mjs`), `import fs from 'node:fs';\nimport { test } from 'node:test';\nfs.appendFileSync(${JSON.stringify(log)}, '${name}\\n');\ntest('${name}', () => {});\n`);
+    }
+    fs.writeFileSync(path.join(dir, 'durations.json'), JSON.stringify(table));
+    assert.deepEqual(longestFirst(['a.test.mjs', 'b.test.mjs', 'c.test.mjs', 'd.test.mjs', 'e.test.mjs'], table), ['e.test.mjs', 'c.test.mjs', 'd.test.mjs', 'b.test.mjs', 'a.test.mjs']);
+    // One at a time, so each file has started before the next one does; `--test-force-exit` as the docs pass it.
+    const child = spawnSync(process.execPath, [runner, '--shard-weights=durations.json', '--test-concurrency=1', '--test-force-exit', '*.test.mjs'], { cwd: dir, env: { ...childEnv(), TEST_SHARD: '1/1' }, encoding: 'utf8' });
+    assert.equal(child.status, 0, `${child.stdout}${child.stderr}`);
+    assert.deepEqual(fs.readFileSync(log, 'utf8').trim().split('\n'), ['e', 'c', 'd', 'b', 'a']);
+    assert.match(child.stdout, /^# this shard starts its files longest first, by the weights: e\.test\.mjs, c\.test\.mjs, d\.test\.mjs, b\.test\.mjs, a\.test\.mjs$/m);
+    // Its report still ends with each file's seconds, in name order.
+    assert.deepEqual([...child.stdout.matchAll(/^# file-duration (\S+) \d+\.\d$/gm)].map((m) => m[1]), ['a.test.mjs', 'b.test.mjs', 'c.test.mjs', 'd.test.mjs', 'e.test.mjs']);
+  });
+
+  test('a run sharded by weights ends under --test-force-exit with its report written, and refuses a flag it would drop', () => {
+    const dir = tempDir('node-test-weights-exit');
+    fs.writeFileSync(path.join(dir, 'lingers.test.mjs'), "import { test } from 'node:test';\nsetInterval(() => {}, 1000);\ntest('lingers', () => {});\n");
+    fs.writeFileSync(path.join(dir, 'durations.json'), '{}');
+    const child = spawnSync(process.execPath, [runner, '--shard-weights=durations.json', '--test-force-exit', '*.test.mjs'], { cwd: dir, env: { ...childEnv(), TEST_SHARD: '1/1' }, encoding: 'utf8', timeout: 60_000 });
+    assert.equal(child.status, 0, `${child.stdout}${child.stderr}`);
+    assert.match(child.stdout, /^# file-duration lingers\.test\.mjs \d+\.\d$/m);
+    const options = { shown: 'tap', report: '/r.tap' };
+    const config = inOrderConfig(['--test-force-exit', '--test-concurrency=3', '--test-timeout=5000', '--test-name-pattern=x'], ['b', 'a'], options);
+    assert.deepEqual({ ...config, reporters: config.reporters.map((r) => r.destination) }, { files: ['b', 'a'], forceExit: true, only: false, concurrency: 3, timeout: 5000, testNamePatterns: ['x'], reporters: ['stdout', '/r.tap'] });
+    assert.deepEqual(inOrderConfig(['--test-reporter=dot', '--test-reporter-destination=out.txt'], [], options).reporters[0], { reporter: 'dot', destination: 'out.txt' });
+    for (const flags of [['--test-shard=1/2'], ['--experimental-test-coverage'], ['--test-concurrency=many']]) assert.throws(() => inOrderConfig(flags, [], options), /--test-/);
+  });
+
+  test('started longest first, every shared docs browser job of three CI runs takes less time, by the seconds its files ran', () => {
+    // A job runs its files three at a time (`--test-concurrency` by default: CI's 4 cores less one), each as a place
+    // comes free. In name order its time was close to what it took in CI; longest first, it is shorter, and never
+    // under what three places can do (the longest file, or a third of the files' seconds).
+    assert.equal(jobSeconds([10, 1, 1, 1, 9], 3), 10);
+    assert.equal(jobSeconds([1, 1, 1, 9, 10], 3), 11);
+    const { weights, jobs } = JSON.parse(fs.readFileSync(path.join(pkg, 'test/fixtures/docs-browser-jobs.json'), 'utf8'));
+    const report = [];
+    for (const [job, seconds] of Object.entries(jobs)) {
+      const files = Object.keys(seconds);
+      const before = jobSeconds([...files].sort().map((file) => seconds[file]), 3);
+      const after = jobSeconds(longestFirst(files, weights).map((file) => seconds[file]), 3);
+      const bound = Math.max(Object.values(seconds).reduce((sum, s) => sum + s, 0) / 3, ...Object.values(seconds));
+      report.push(`${job}: ${Math.round(before)} → ${Math.round(after)} s (at best ${Math.round(bound)})`);
+      assert.ok(after <= before && after >= bound - 1e-9, report.at(-1));
+      // Within 2 % of the best three places can do, where name order lost up to a fifth.
+      assert.ok(after <= bound * 1.02, report.at(-1));
+    }
+    const total = (order) => Object.values(jobs).reduce((sum, seconds) => sum + jobSeconds(order(Object.keys(seconds)).map((file) => seconds[file]), 3), 0);
+    assert.ok(total((files) => longestFirst(files, weights)) < total((files) => [...files].sort()) * 0.9, report.join('\n'));
+    // The job that reached its 20-minute limit: about 940 s of tests in name order, its 620 s page actions started last.
+    const cut = jobs['45993351303 8/10'];
+    assert.equal(Math.round(jobSeconds(Object.keys(cut).sort().map((file) => cut[file]), 3)), 939);
+    assert.equal(Math.round(jobSeconds(longestFirst(Object.keys(cut), weights).map((file) => cut[file]), 3)), 721);
   });
 
   test('a failure in a run sharded by weights fails it, a describe body that throws among them', () => {
