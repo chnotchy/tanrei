@@ -2,8 +2,8 @@
 '@tanrei/web': patch
 ---
 
-Before their elements are defined, lists, menus drawn in place, menu bars and fields whose help or error text wraps
-keep the box they are drawn in.
+Before their elements are defined, lists, menus drawn in place, menu bars, fields whose help or error text wraps and
+file items keep the box they are drawn in.
 
 - The cloak (`@tanrei/web/cloak.css`) lays a list out as the list lays out its items: a column, a line or lines that
   wrap, its `gap` apart. In a reorderable list each item keeps its handle's room; an action, a link or an option keeps
@@ -22,3 +22,9 @@ keep the box they are drawn in.
   field draws it, from the start of its control's content, so a text that wraps holds its lines. Before, the cloak held
   one line of it: a docs figure of two narrow color fields was 248 px high before and 280 px drawn. A label that wraps,
   and a help beside a count, are still held at fewer lines than they may take.
+- The cloak holds a file item: a row at its name's lines (laid out, unpainted, between its lead and its actions), its
+  second line and its upload bar; a tile at its box (the token's square, or its `width` and `height` where the browser
+  reads attributes as lengths) and the name and second line beneath it, the error text's lines where they are the
+  second line's only words. Before, a file item had no height: a docs figure of six rows was 144 px high before and
+  432 px drawn. Not held: the further lines of a second line that joins a format or a size to its status, and a row's
+  actions moved onto a line of their own.

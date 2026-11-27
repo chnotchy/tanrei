@@ -37,7 +37,8 @@
  *     rows of days, seven cells wide;
  *   - a list row by its number of lines; a list's items, laid out as it lays them out (a column, a line or lines that
  *     wrap, its gap apart), each with its handle's room and an action's, a link's or an option's paddings and least
- *     height where it draws them; a stepper's steps; a snackbar's lines; a swatch's sample and text; an embedded
+ *     height where it draws them; a file item's row (its name's lines, its second line and its bar) or its tile; a
+ *     stepper's steps; a snackbar's lines; a swatch's sample and text; an embedded
  *     text input's line or rows; a chat composer laid out inline; a carousel's row and controls; a toolbar along a line;
  *     vertical tabs; a progress indicator's and a meter's bar or ring; a divider's thickness, or a wave's;
  *   - an element the page sizes (a scroll area, a split view) is laid out as the box the size applies to;
@@ -1623,6 +1624,136 @@
   :where(tanrei-snackbar[headline]:not([headline='']):not([popover]):not(:defined)) {
     --_cloak-title: calc(var(--tanrei-comp-snackbar-title-typescale-line-height) * var(--tanrei-comp-snackbar-title-typescale-font-size));
     min-block-size: max(var(--tanrei-comp-snackbar-container-min-height), max(var(--tanrei-comp-snackbar-container-padding-block), (var(--tanrei-comp-snackbar-container-min-height) - var(--_cloak-title)) / 2) + var(--_cloak-title) + var(--tanrei-comp-snackbar-title-gap) + var(--_cloak-message) + var(--tanrei-comp-snackbar-container-padding-block));
+  }
+
+  /* A file item in a row (FIT-2, FIT-4, FIT-10, FIT-11): a block of its texts between its lead and its actions —
+     the glyph's box, or a preview's square, and row.container.gap before the texts; after them, where it is not
+     read-only, row.container.gap and its actions (the remove action, and the retry action before it while it failed
+     and can be retried), each action.size wide, the actions' gap apart. The texts are its name in the headline's text
+     role, laid out unpainted (the `::before`), which wraps as the item wraps it, and the second line under it (the
+     `::after`), held at one line of the supporting text, or at the error text's lines where they are its only words
+     (below); the row is never lower than those two lines, on which its lead and its actions are centred. While it
+     uploads, its bar stands progress.gap under the texts. Not held: the further lines of a second line that joins a
+     format or a size to its status, the actions on a line of their own where the texts would have less than half the
+     row (FIT-24), and the mark of a new context. */
+  :where(tanrei-file-item):where(:not(:defined):not([hidden])) {
+    --_cloak-target: var(--tanrei-sys-target-pointer);
+    --_cloak-action-gap: max(var(--tanrei-comp-file-item-action-gap), (var(--_cloak-target) - var(--tanrei-comp-file-item-action-size)) * 2);
+    --_cloak-lead: var(--tanrei-comp-file-item-row-icon-size);
+    --_cloak-actions: calc(var(--tanrei-comp-file-item-row-container-gap) + var(--tanrei-comp-file-item-action-size));
+    --_cloak-bar: 0px;
+    display: block;
+    box-sizing: border-box;
+    min-inline-size: 0;
+    line-height: 0;
+  }
+  @media (pointer: coarse) {
+    :where(tanrei-file-item):where(:not(:defined):not([hidden])) {
+      --_cloak-target: var(--tanrei-sys-target-touch);
+    }
+  }
+  :where(tanrei-file-item[preview]:not(:defined)) {
+    --_cloak-lead: var(--tanrei-comp-file-item-row-media-height);
+  }
+  :where(tanrei-file-item[status='error'][retryable]:not(:defined)) {
+    --_cloak-actions: calc(var(--tanrei-comp-file-item-row-container-gap) + 2 * var(--tanrei-comp-file-item-action-size) + var(--_cloak-action-gap));
+  }
+  :where(tanrei-file-item[readonly]:not(:defined)) {
+    --_cloak-actions: 0px;
+  }
+  :where(tanrei-file-item[status='uploading']:not(:defined)) {
+    --_cloak-bar: calc(var(--tanrei-comp-file-item-progress-gap) + var(--tanrei-comp-file-item-progress-thickness));
+  }
+  :where(tanrei-file-item:not([form='tile']):not(:defined)) {
+    min-block-size: calc(var(--tanrei-comp-file-item-headline-typescale-line-height) * var(--tanrei-comp-file-item-headline-typescale-font-size) + var(--tanrei-comp-file-item-supporting-text-typescale-line-height) * var(--tanrei-comp-file-item-supporting-text-typescale-font-size) + var(--_cloak-bar));
+    padding-block-end: var(--_cloak-bar);
+    padding-inline: calc(var(--_cloak-lead) + var(--tanrei-comp-file-item-row-container-gap)) var(--_cloak-actions);
+  }
+  :where(tanrei-file-item:not([form='tile']):not(:defined))::before {
+    content: attr(name);
+    display: block;
+    min-block-size: 1lh;
+    font: var(--tanrei-comp-file-item-headline-typescale-font-weight) var(--tanrei-comp-file-item-headline-typescale-font-size)/var(--tanrei-comp-file-item-headline-typescale-line-height) var(--tanrei-comp-file-item-headline-typescale-font-family);
+    letter-spacing: var(--tanrei-comp-file-item-headline-typescale-letter-spacing);
+    overflow-wrap: anywhere;
+    unicode-bidi: plaintext;
+  }
+  :where(tanrei-file-item:not([form='tile']):not(:defined))::after {
+    content: '';
+    display: block;
+    min-block-size: 1lh;
+    font: var(--tanrei-comp-file-item-supporting-text-typescale-font-weight) var(--tanrei-comp-file-item-supporting-text-typescale-font-size)/var(--tanrei-comp-file-item-supporting-text-typescale-line-height) var(--tanrei-comp-file-item-supporting-text-typescale-font-family);
+  }
+  /* A tile (FIT-3, FIT-4, FIT-8): an inline block on the top of its line, exactly as wide as its box, never narrower
+     than its actions and their insets need nor wider than its place, the box at least as high as an action and its
+     insets — the box of tile.media.height, a square, where its attributes give no size; `width` and `height` where
+     the browser reads an attribute as a length, the box then in their proportion, and a square of the one given where
+     only one is — then, where it draws a text beneath, tile.container.gap and its texts: the name on one line, but a
+     name hidden over a picture (FIT-8), and the second line, where it has words or a status's mark (FIT-4), held at
+     one line. Not held: a width or a height given as attributes where the browser cannot read them so (the box is
+     held at the token's square), and a second line that wraps. */
+  :where(tanrei-file-item[form='tile']):where(:not(:defined):not([hidden])) {
+    --_cloak-box: var(--tanrei-comp-file-item-tile-media-height);
+    --_cloak-ratio: 1;
+    --_cloak-name: calc(var(--tanrei-comp-file-item-headline-typescale-line-height) * var(--tanrei-comp-file-item-headline-typescale-font-size));
+    --_cloak-second: 0px;
+    --_cloak-beneath: var(--tanrei-comp-file-item-tile-container-gap);
+    display: inline-block;
+    vertical-align: top;
+    max-inline-size: 100%;
+    inline-size: max(calc(2 * var(--tanrei-comp-file-item-action-size) + var(--_cloak-action-gap) + 2 * var(--tanrei-comp-file-item-tile-action-inset)), var(--_cloak-box));
+    min-block-size: calc(var(--tanrei-comp-file-item-action-size) + 2 * var(--tanrei-comp-file-item-tile-action-inset));
+  }
+  :where(tanrei-file-item[form='tile']:not(:defined)):where([format-text]:not([format-text='']), [size-text]:not([size-text='']), [status-text]:not([status-text='']), [status='done'], [status='error']) {
+    --_cloak-second: calc(var(--tanrei-comp-file-item-supporting-text-typescale-line-height) * var(--tanrei-comp-file-item-supporting-text-typescale-font-size));
+  }
+  :where(tanrei-file-item[form='tile'][name-hidden][preview]:not(:defined)) {
+    --_cloak-name: 0px;
+  }
+  :where(tanrei-file-item[form='tile'][name-hidden][preview]:not(:defined)):not([format-text]:not([format-text='']), [size-text]:not([size-text='']), [status-text]:not([status-text='']), [status='done'], [status='error']) {
+    --_cloak-beneath: 0px;
+  }
+  @supports (x: attr(x px)) {
+    :where(tanrei-file-item[form='tile'][height]:not(:defined)) {
+      --_cloak-box: attr(height px, var(--tanrei-comp-file-item-tile-media-height));
+    }
+    :where(tanrei-file-item[form='tile'][width]:not(:defined)) {
+      --_cloak-box: attr(width px, var(--tanrei-comp-file-item-tile-media-height));
+    }
+    :where(tanrei-file-item[form='tile'][width][height]:not(:defined)) {
+      --_cloak-ratio: attr(width type(<number>), 1) / attr(height type(<number>), 1);
+    }
+  }
+  :where(tanrei-file-item[form='tile']:not(:defined))::before {
+    content: '';
+    display: block;
+    aspect-ratio: var(--_cloak-ratio);
+    min-block-size: calc(var(--tanrei-comp-file-item-action-size) + 2 * var(--tanrei-comp-file-item-tile-action-inset));
+  }
+  :where(tanrei-file-item[form='tile']:not(:defined))::after {
+    content: '';
+    display: block;
+    margin-block-start: var(--_cloak-beneath);
+    block-size: calc(var(--_cloak-name) + var(--_cloak-second));
+  }
+  /* A row or a tile that failed and says why, with no format or size before it: its second line is the error text
+     after the status's mark, which wraps as it is drawn (a tile's under its name's one line). */
+  :where(tanrei-file-item:not([form='tile'])[status='error'][error-text]:not([error-text='']):not(:defined)):not([format-text]:not([format-text='']), [size-text]:not([size-text='']))::after {
+    content: attr(error-text);
+    letter-spacing: var(--tanrei-comp-file-item-supporting-text-typescale-letter-spacing);
+    text-indent: calc(var(--tanrei-comp-file-item-status-icon-size) + var(--tanrei-comp-file-item-status-icon-gap));
+    overflow-wrap: anywhere;
+    unicode-bidi: plaintext;
+  }
+  :where(tanrei-file-item[form='tile'][status='error'][error-text]:not([error-text='']):not(:defined)):not([format-text]:not([format-text='']), [size-text]:not([size-text='']))::after {
+    content: attr(error-text);
+    block-size: auto;
+    padding-block-start: var(--_cloak-name);
+    font: var(--tanrei-comp-file-item-supporting-text-typescale-font-weight) var(--tanrei-comp-file-item-supporting-text-typescale-font-size)/var(--tanrei-comp-file-item-supporting-text-typescale-line-height) var(--tanrei-comp-file-item-supporting-text-typescale-font-family);
+    letter-spacing: var(--tanrei-comp-file-item-supporting-text-typescale-letter-spacing);
+    text-indent: calc(var(--tanrei-comp-file-item-status-icon-size) + var(--tanrei-comp-file-item-status-icon-gap));
+    overflow-wrap: anywhere;
+    unicode-bidi: plaintext;
   }
 
   /* A swatch: inline, centred on the line, as high as its sample or as its text beside it where that is higher — the
