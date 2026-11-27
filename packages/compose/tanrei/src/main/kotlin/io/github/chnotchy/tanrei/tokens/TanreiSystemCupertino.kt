@@ -5765,7 +5765,7 @@ private object CupertinoSystemSource {
             itemIconIndicatorShape = 9999.dp,
             itemIconIndicatorWidth = 24.dp,
             itemIconSize = 24.dp,
-            itemLabelTypescale = typescale.caption,
+            itemLabelTypescale = typescale.extra.getValue("caption-small"),
             motionFeedbackDuration = 450,
             motionSelectionDuration = 250,
             motionSelectionEasing = TanreiCubicBezier(x1 = 0.2f, y1 = 0f, x2 = 0f, y2 = 1f),
@@ -7078,8 +7078,8 @@ private object CupertinoSystemSource {
             pressed = TanreiSegmentedButtonStateTokens(containerShape = 8.dp, opacity = 0.7f),
             disabled = TanreiSegmentedButtonStateTokens(containerShape = 8.dp, opacity = 1f),
             sizes = TanreiSegmentedButtonSizes(
-                small = TanreiSegmentedButtonSizeTokens(containerHeight = 28.dp, containerPaddingInline = 12.dp, containerPaddingBlock = 4.dp, containerGap = 8.dp, labelTypescale = typescale.labelSmall, iconSize = 16.dp, checkSize = 0.dp, motionStateDuration = 200),
-                medium = TanreiSegmentedButtonSizeTokens(containerHeight = 32.dp, containerPaddingInline = 14.dp, containerPaddingBlock = 6.dp, containerGap = 8.dp, labelTypescale = typescale.labelSmall, iconSize = 16.dp, checkSize = 0.dp, motionStateDuration = 250),
+                small = TanreiSegmentedButtonSizeTokens(containerHeight = 28.dp, containerPaddingInline = 12.dp, containerPaddingBlock = 2.dp, containerGap = 8.dp, labelTypescale = typescale.labelSmall, iconSize = 16.dp, checkSize = 0.dp, motionStateDuration = 200),
+                medium = TanreiSegmentedButtonSizeTokens(containerHeight = 32.dp, containerPaddingInline = 14.dp, containerPaddingBlock = 4.dp, containerGap = 8.dp, labelTypescale = typescale.labelSmall, iconSize = 16.dp, checkSize = 0.dp, motionStateDuration = 250),
                 large = TanreiSegmentedButtonSizeTokens(containerHeight = 40.dp, containerPaddingInline = 16.dp, containerPaddingBlock = 6.dp, containerGap = 8.dp, labelTypescale = typescale.extra.getValue("body-subhead"), iconSize = 16.dp, checkSize = 0.dp, motionStateDuration = 250),
             ),
             conditions = TanreiSegmentedButtonConditions(

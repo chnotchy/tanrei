@@ -4696,7 +4696,8 @@
               "$value": "{tanrei.sys.color.primary}"
             },
             "tanrei.comp.navigation-bar.item.label.typescale": {
-              "$value": "{tanrei.sys.typescale.caption}"
+              "$value": "{tanrei.sys.typescale.caption-small}",
+              "reason": "The bar is 49 and the glyph's box 32 with the title 2 below it: Caption 1's 16pt line makes 50, taller than the bar. Caption 2 (11pt, caption-small here), the next text style down and nearer the small titles of Apple's tab bar, fits."
             },
             "tanrei.comp.navigation-bar.item.gap": {
               "$value": "{tanrei.sys.space.space25}"
@@ -4858,7 +4859,12 @@
               "reason": "This preset keeps the large set it drew (40), where the default system draws it at the large step; whether Apple's large control size is drawn so is a fidelity decision for this preset."
             },
             "tanrei.comp.segmented-button.container.padding-block.small": {
-              "$value": "{tanrei.sys.space.space50}"
+              "$value": "{tanrei.sys.space.space25}",
+              "reason": "The small set is 28 and its segments are inset 2 in the track (set.padding), so a segment is 24: one Footnote line (18) and twice this padding fit in it, and the set stays 28."
+            },
+            "tanrei.comp.segmented-button.container.padding-block.medium": {
+              "$value": "{tanrei.sys.space.space50}",
+              "reason": "The set is Apple's 32 and its segments are inset 2 in the track (set.padding), so a segment is 28: one Footnote line (18) and twice this padding fit in it, and the set stays 32."
             },
             "tanrei.comp.segmented-button.label.typescale.small": {
               "$value": "{tanrei.sys.typescale.label-small}",

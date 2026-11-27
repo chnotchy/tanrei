@@ -115,10 +115,16 @@ export const styles = css`
   /* KBS-6: a cap at least its size's height tall and as wide as tall, growing with its legend (KBS-15), the legend centered
      with the size's padding on each side; its fill, and its edge inside its size — the deeper edge at its bottom — and the
      size's corners eased by the smoothing. The edge is a border of the tokens' widths and nothing else: a width of 0
-     (both, in the default system) is no border at all — no least width is applied — and the cap is its fill alone. */
+     (both, in the default system) is no border at all — no least width is applied — and the cap is its fill alone.
+     The edge is inside the cap's size and takes no room from its legend: the cap is its size's height tall, or one line
+     of its legend where that is taller (KBS-15), and only the difference between the bottom edge and the top edge is
+     added, so that the legend stays centred on the face between them; the leading of the legend's line may reach under
+     the edges. The cap carries its legend's text role, so that 1lh is one line of it. */
   ${unsafeCSS(CAPS)} {
     box-sizing: border-box;
+    font: var(--_font-weight) var(--_font-size)/var(--_line-height) var(--_font-family);
     min-block-size: var(--_height);
+    block-size: max(var(--_height), calc(1lh + max(${T('outline-bottom-width')} - ${T('outline-width')}, ${T('outline-width')} - ${T('outline-bottom-width')})));
     min-inline-size: var(--_height);
     padding-inline: var(--_pad);
     background: ${T('container-color')};
@@ -146,6 +152,7 @@ export const styles = css`
     color: var(--_legend-d);
   }
   /* KBS-13: hosted in another component's part, the legends take that part's text style and color. */
+  .sequence.hosted .key,
   .sequence.hosted .label,
   .sequence.hosted .separator {
     font: inherit;

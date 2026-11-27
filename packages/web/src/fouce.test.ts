@@ -15,7 +15,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { type Page, expect, test } from '@playwright/test';
-import { type Fixture, fixturesDocument, loadSpec } from '../test/harness.js';
+import { type Fixture, type FixtureItem, fixturesDocument, loadSpec } from '../test/harness.js';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const dist = (file: string) => fs.readFileSync(path.join(here, '../dist', file), 'utf8');
@@ -153,6 +153,11 @@ const shifts = (page: Page) =>
 async function define<T>(page: Page, scripts: string[], read: () => Promise<T>): Promise<T> {
   for (const content of scripts) await page.addScriptTag({ type: 'module', content });
   await page.evaluate(() => Promise.all([...new Set([...document.querySelectorAll('*')].map((el) => el.localName).filter((name) => name.startsWith('tanrei-')))].map((name) => customElements.whenDefined(name))));
+  return settled(page, read);
+}
+
+/** Waits until the page's faces are loaded and three frames running have drawn the same `read`. */
+async function settled<T>(page: Page, read: () => Promise<T>): Promise<T> {
   await page.evaluate(() => document.fonts.ready);
   let last = '';
   let same = 0;
@@ -421,6 +426,138 @@ test.describe('an element with a stylesheet of its own for the time before it is
   }
 });
 
+/**
+ * Runs in the page before its scripts: `customElements.define` holds back the elements named in `held` — as if their
+ * modules had not arrived — until `window.__tanreiRelease()` defines them.
+ */
+function holdBack(held: string[]) {
+  const registry = window.customElements;
+  const define = registry.define.bind(registry);
+  const waiting: Parameters<CustomElementRegistry['define']>[] = [];
+  registry.define = (...args: Parameters<CustomElementRegistry['define']>) => {
+    if (held.includes(args[0])) waiting.push(args);
+    else define(...args);
+  };
+  (window as unknown as { __tanreiRelease: () => void }).__tanreiRelease = () => {
+    registry.define = define;
+    for (const args of waiting.splice(0)) define(...args);
+  };
+}
+
+/**
+ * Runs in the page: each fixture's container (by the spec's tag) — its box, and whether a rule holds its height, as
+ * `stages()` reads them — its stage's height, and the height of each Button in it (0 where it is not drawn).
+ */
+function buttonsIn({ tag }: { tag: string }) {
+  return [...document.querySelectorAll('[data-fixture]')].map((stage) => {
+    const element = stage.querySelector(tag)!;
+    const style = getComputedStyle(element);
+    return {
+      id: stage.getAttribute('data-fixture')!,
+      stage: stage.getBoundingClientRect().height,
+      width: element.getBoundingClientRect().width,
+      height: element.getBoundingClientRect().height,
+      held: !['0px', 'auto'].includes(style.minBlockSize) || style.paddingBlockStart !== '0px' || style.paddingBlockEnd !== '0px',
+      buttons: [...element.querySelectorAll('tanrei-button')].map((button) => button.getBoundingClientRect().height),
+    };
+  });
+}
+
+test.describe('a Button Group and a Toolbar are drawn as they will be whichever of their modules arrives first, in every system', () => {
+  // Each element's module may arrive on its own. BGR-26, TBR-31, BTN-48: a Button that sets no size draws the size its
+  // nearest Button Group or Toolbar sets — also while that container is not defined yet: a Button defined before its
+  // group drew itself medium, then shrank when the group was defined (a small group of the default system, 36 px high
+  // and then 28) — and the cloak holds a Button not defined yet at the size of a container that is. BGR-3, BGR-23: a
+  // Button not defined yet in a connected row of a group that is takes the target and the outer padding the group
+  // gives it. Every fixture of each spec, with one of the two held back, read once the other is defined and again once
+  // both are: each Button is as high meanwhile (it draws its size), and so is the container where the cloak holds its
+  // height, and its stage; a Button Group, whose layout the cloak holds, is as wide too (a Toolbar's width is not held:
+  // src/styles/cloak.css). Under a fine pointer in every engine, and in Chromium under a coarse one too (the touch
+  // target, emulated).
+  const ORDERS = [
+    { first: 'the Buttons', held: (tag: string) => [tag] },
+    { first: 'the container', held: () => ['tanrei-button'] },
+  ];
+  // BTN-48: the precedence holds while the group is not defined: a Button's own size wins over the group's, a medium
+  // one included, and one that sets none takes the group's — as the heights of their sizes, before and after.
+  test('button-group: the Buttons defined first, a Button’s own size wins over the size of its group, and one that sets none takes it', async ({ page: opener }) => {
+    const spec = loadSpec('button-group');
+    const item = (content: string, size?: string): FixtureItem => ({ kind: 'button', props: { variant: 'outlined', ...(size ? { size } : {}) }, content });
+    const fixtures: Fixture[] = [{ id: 'own', props: { variant: 'standard', size: 'small' }, items: [item('Taken'), item('Large', 'large'), item('Medium', 'medium')] }];
+    const page = await opener.context().newPage();
+    const { page: markup, scripts } = withoutScripts(await fixturesDocument(spec, { icons: true, fixtures }), true);
+    await page.setContent(markup);
+    await page.evaluate(holdBack, ['tanrei-button-group']);
+    for (const content of scripts) await page.addScriptTag({ type: 'module', content });
+    await page.evaluate(() => customElements.whenDefined('tanrei-button'));
+    const read = () =>
+      page.evaluate(() => {
+        const height = (size: string) => {
+          const probe = document.body.appendChild(document.createElement('div'));
+          probe.style.blockSize = `var(--tanrei-comp-button-container-height-${size})`;
+          const value = probe.getBoundingClientRect().height;
+          probe.remove();
+          return value;
+        };
+        const drawn = [...document.querySelectorAll('[data-fixture="own"] tanrei-button')].map((button) => button.getBoundingClientRect().height);
+        return { drawn, sizes: ['small', 'large', 'medium'].map(height) };
+      });
+    const before = await settled(page, read);
+    expect(await page.evaluate(() => !!customElements.get('tanrei-button-group'))).toBe(false);
+    expect(new Set(before.sizes).size).toBe(3);
+    expect(before.drawn).toEqual(before.sizes);
+    await page.evaluate(() => (window as unknown as { __tanreiRelease: () => void }).__tanreiRelease());
+    expect((await define(page, [], read)).drawn).toEqual(before.sizes);
+    await page.close();
+  });
+  for (const tag of ['tanrei-button-group', 'tanrei-toolbar']) {
+    const wide = tag === 'tanrei-button-group';
+    for (const system of [undefined, ...PRESETS]) {
+      for (const { first, held } of ORDERS) {
+        for (const pointer of ['fine', 'coarse'] as const) {
+          test(`${system ?? 'the default system'}, ${tag.replace(/^tanrei-/, '')}: ${first} defined first, under a ${pointer} pointer, each fixture is drawn as once both are defined`, async ({ page: opener, browserName }) => {
+            test.skip(pointer === 'coarse' && browserName !== 'chromium', 'touch emulation through CDP');
+            const spec = loadSpec(tag.replace(/^tanrei-/, ''));
+            const page = await opener.context().newPage();
+            if (pointer === 'coarse') {
+              const cdp = await page.context().newCDPSession(page);
+              await cdp.send('Emulation.setTouchEmulationEnabled', { enabled: true, maxTouchPoints: 1 });
+              await cdp.send('Emulation.setEmitTouchEventsForMouse', { enabled: true, configuration: 'mobile' });
+            }
+            const { page: markup, scripts } = withoutScripts(await fixturesDocument(spec, { icons: true, ...(system ? { system } : {}) }), true);
+            await page.setContent(markup);
+            if (pointer === 'coarse') expect(await page.evaluate(() => matchMedia('(pointer: coarse)').matches)).toBe(true);
+            const holding = held(tag);
+            await page.evaluate(holdBack, holding);
+            const read = () => page.evaluate(buttonsIn, { tag });
+            for (const content of scripts) await page.addScriptTag({ type: 'module', content });
+            const others = await page.evaluate((names) => [...new Set([...document.querySelectorAll('*')].map((el) => el.localName))].filter((name) => name.startsWith('tanrei-') && !names.includes(name)), holding);
+            await page.evaluate((names) => Promise.all(names.map((name) => customElements.whenDefined(name))), others);
+            const before = await settled(page, read);
+            expect(await page.evaluate((names) => names.filter((name) => !!customElements.get(name)), holding)).toEqual([]);
+            await page.evaluate(() => (window as unknown as { __tanreiRelease: () => void }).__tanreiRelease());
+            const after = await define(page, [], read);
+            expect(before.length).toBe(spec.fixtures.length);
+            expect(before.filter((stage) => stage.buttons.length).length, 'the fixtures hold Buttons').toBeGreaterThan(0);
+            const near = (a: number, b: number) => Math.abs(a - b) <= 0.5;
+            const wrong = before.flatMap((stage, i) => {
+              const drawn = after[i]!;
+              const box = (!wide || near(stage.width, drawn.width)) && (!(wide || stage.held) || (near(stage.height, drawn.height) && near(stage.stage, drawn.stage)));
+              // A Button a Toolbar keeps in its overflow menu is not drawn (0 px high) in one of the two reads: a Toolbar
+              // that is not defined lays every item out, and one that is measures what it holds (a width).
+              const buttons = stage.buttons.every((height, n) => !height || !drawn.buttons[n] || near(height, drawn.buttons[n]!));
+              if (box && buttons) return [];
+              return [`${stage.id}: ${stage.width}×${stage.height}px in a stage of ${stage.stage}px, Buttons ${stage.buttons.join(', ')}px high; then ${drawn.width}×${drawn.height}px in ${drawn.stage}px, Buttons ${drawn.buttons.join(', ')}px high`];
+            });
+            expect(wrong).toEqual([]);
+            await page.close();
+          });
+        }
+      }
+    }
+  }
+});
+
 test.describe('the cloak holds an open date and time picker drawn in place as its surface, in every system', () => {
   // DTM's surface drawn where it stands (`inline`, as the docs draw it): the header, the calendar and the time section,
   // and the actions, from its tokens. Each fixture of the spec, drawn in place in the layout it draws there (the
@@ -444,6 +581,32 @@ test.describe('the cloak holds an open date and time picker drawn in place as it
         const drawn = after[i]!;
         if (Math.abs(stage.stage - drawn.stage) <= 0.5) return [];
         return [`${stage.id}: held ${stage.height}px in a stage of ${stage.stage}px, drawn in ${drawn.stage}px`];
+      });
+      expect(wrong).toEqual([]);
+      if (browserName === 'chromium') {
+        const { sum, moved } = await shifts(page);
+        expect(sum, moved).toBeLessThanOrEqual(SHIFT_BUDGET);
+      }
+      await page.close();
+    });
+  }
+});
+
+test.describe('the cloak holds a calendar as the box it draws, in every system', () => {
+  // CAL-1: a calendar is its navigation row, its weekday row and six rows of days, each a cell (cell.size, never less
+  // than the target), seven cells wide, with no surface or padding of its own; CAL-7: the year view takes the room of
+  // the weekday row and the days. Held at no box, a docs page's figure of a calendar was 64 px high before it was
+  // defined and 448 px drawn. Each fixture of the spec — one month, a range, a week from Monday, Japanese, unavailable
+  // days, the neighbouring months' days, the year view — under the default system and each preset.
+  for (const system of [undefined, ...PRESETS]) {
+    test(`${system ?? 'the default system'}, calendar: with the cloak and no script, each fixture is as wide and as high as once it is defined, and so is its stage`, async ({ page: first, browserName }) => {
+      const { page, before, after } = await mountedLate(first, 'tanrei-calendar', browserName, system ? { system } : {});
+      expect(before.filter((stage) => !stage.held).map((stage) => stage.id)).toEqual([]);
+      expect(before.filter((stage) => stage.visibility !== 'hidden').map((stage) => stage.id)).toEqual([]);
+      const wrong = before.flatMap((stage, i) => {
+        const drawn = after[i]!;
+        if (Math.abs(stage.width - drawn.width) <= 0.5 && Math.abs(stage.height - drawn.height) <= 0.5 && Math.abs(stage.stage - drawn.stage) <= 0.5) return [];
+        return [`${stage.id}: held ${stage.width}×${stage.height}px in a stage of ${stage.stage}px, drawn ${drawn.width}×${drawn.height}px in ${drawn.stage}px`];
       });
       expect(wrong).toEqual([]);
       if (browserName === 'chromium') {

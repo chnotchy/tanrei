@@ -460,6 +460,47 @@ test('a control height that cannot hold its padding and one label line is report
   assert.match(checkInvariants(squeezed).join('\n'), /height\.small: 20px cannot hold its content/);
 });
 
+test('a set that insets its segments counts the inset above and below against its height', () => {
+  const id = 'tanrei.comp.segmented-button.set.padding';
+  const inset = { ...model, tokens: { ...model.tokens, [id]: { ...model.tokens[id], alias: undefined, value: { value: 6, unit: 'px' } } } };
+  assert.match(checkInvariants(inset).join('\n'), /segmented-button\.container\.height\.medium: 36px cannot hold its content — 2 × padding-block \(4px\) \+ 2 × set\.padding \(6px\)/);
+});
+
+// A token set to a length of its own, in place of the alias or rule it had.
+const withLength = (from, id, value) => ({ ...from, tokens: { ...from.tokens, [id]: { ...from.tokens[id], alias: undefined, aliasFinal: undefined, value: { value, unit: 'px' } } } });
+const stackedFindings = (from) => checkInvariants(from).filter((f) => f.includes('cannot hold its stacked'));
+
+test('a navigation bar whose height cannot hold its glyph box, its gap and one label line is reported', () => {
+  assert.deepEqual(stackedFindings(model), []);
+  // 2 × 4 + 2 × 4 + 24 + 4 + 16 = 60 in the default system.
+  assert.deepEqual(stackedFindings(withLength(model, 'tanrei.comp.navigation-bar.container.height', 60)), []);
+  assert.deepEqual(stackedFindings(withLength(model, 'tanrei.comp.navigation-bar.container.height', 59)), [
+    'tanrei.comp.navigation-bar.container.height: 59px cannot hold its stacked destination — 2 × container.padding (4px) + 2 × item.container.padding-block (4px) + item.icon-indicator.height (24px) + item.gap (4px) + one item.label.typescale line (16px) = 60px',
+  ]);
+});
+
+test('cupertino: a 49 bar holds its 32 glyph box and its title in Caption 2, and not in Caption 1', async () => {
+  const cupertino = await buildModel(path.join(REPO_ROOT, 'tokens/generated/cupertino'), 'cupertino');
+  assert.deepEqual(stackedFindings(cupertino), []);
+  const id = 'tanrei.comp.navigation-bar.item.label.typescale';
+  const caption = { ...cupertino, tokens: { ...cupertino.tokens, [id]: { ...cupertino.tokens[id], alias: 'tanrei.sys.typescale.caption', aliasFinal: 'tanrei.sys.typescale.caption', value: cupertino.tokens['tanrei.sys.typescale.caption'].value } } };
+  assert.deepEqual(stackedFindings(caption), [
+    'tanrei.comp.navigation-bar.container.height: 49px cannot hold its stacked destination — 2 × container.padding (0px) + 2 × item.container.padding-block (0px) + item.icon-indicator.height (32px) + item.gap (2px) + one item.label.typescale line (16px) = 50px',
+  ]);
+});
+
+test('a primary tab that stacks its icon is held to container.height-with-icon, the underline counted where it is thicker than the inset', () => {
+  // max(track.padding 4, underline 3) × 2 + 2 × 2 + 24 + 4 + 20 = 60 in the default system.
+  assert.match(stackedFindings(withLength(model, 'tanrei.comp.tabs.container.height-with-icon', 59)).join('\n'), /^tanrei\.comp\.tabs\.container\.height-with-icon: 59px cannot hold its stacked primary tab \(medium\) — 2 × track\.padding \(4px\) \+ 2 × active-indicator\.padding-block\.medium \(2px\) \+ icon\.size\.medium \(24px\) \+ container\.gap \(4px\) \+ one label\.typescale line \(20px\) = 60px$/);
+  // An underline thicker than the inset in any state stands there instead: 2 × 8 + 4 + 24 + 4 + 20 = 68.
+  assert.match(stackedFindings(withLength(model, 'tanrei.comp.tabs.primary.hovered.underline.thickness', 8)).join('\n'), /height-with-icon: 64px cannot hold its stacked primary tab \(medium\) — 2 × primary\.hovered\.underline\.thickness \(8px\) \+ .* = 68px/);
+  // A size whose icon.placement is inline puts its icon before its label: it is not a stack, and height-with-icon does
+  // not hold it (the small size, in the default system).
+  const placement = 'tanrei.comp.tabs.icon.placement.medium';
+  const inline = { ...model, tokens: { ...model.tokens, [placement]: { ...model.tokens[placement], value: model.tokens[placement].enum.values.indexOf('inline') } } };
+  assert.deepEqual(stackedFindings(withLength(inline, 'tanrei.comp.tabs.container.height-with-icon', 40)), []);
+});
+
 test('the Figma sync plan covers the vocabulary and only aliases what it contains', async () => {
   const { emitFigmaPlan, FIGMA_MODES } = await import('../src/emit/figma.js');
   const plan = emitFigmaPlan(model);
