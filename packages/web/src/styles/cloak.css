@@ -42,7 +42,7 @@
  *   A text is held at one line: a label, a help or an error longer than its line wraps when the element is defined,
  *   and the page below it moves down by the lines it adds — but the label a checkbox, a radio button or a switch draws
  *   beside its control, which is written (its `label`) in the label's text style and wraps where it will. The width is
- *   held where the element draws its words from an attribute — a tag's label, a selection control's, a main action
+ *   held where the element draws its words from an attribute — a tag's label, a chip's, a selection control's, a main action
  *   button's, a button with menu's, a segment's — and where it draws the words written between its tags — a button's
  *   label, in the label's text style — with the glyph's box in place of its name, so that a row of them wraps where it
  *   will and the words that follow one on a line of text stay where they are; a button group and a segmented button
@@ -843,6 +843,72 @@
     font: var(--tanrei-comp-tag-label-typescale-small-font-weight) var(--tanrei-comp-tag-label-typescale-small-font-size)/var(--tanrei-comp-tag-label-typescale-small-line-height) var(--tanrei-comp-tag-label-typescale-small-font-family);
     letter-spacing: var(--tanrei-comp-tag-label-typescale-small-letter-spacing);
   }
+
+  /* A chip is as wide and as high as it is drawn (CHP-16, CHP-17): its label (`label`, an attribute: the `::before`
+     writes it, in the label's text style of its size, on one line that is cut at the end where the chip is given less
+     width than it needs), centred in the container's height, between the size's block paddings and its inline ones —
+     the start's the plain padding, or before a lead (an element in the `icon` slot, or a filter chip's check while it
+     is on, CHP-13) the padding that goes with a glyph, the glyph's box and the container's gap, or before an input
+     chip's avatar (CHP-15) the padding that goes with an avatar, the avatar's box and the gap; the end's the plain
+     padding, or after an input chip's remove glyph (CHP-18; not one that is `not-removable`, CHP-38) the gap, the
+     glyph's box and the padding that goes with the remove action, or after the mark of a link chip that opens a new
+     context (CHP-35) the gap, the glyph's box and the padding that goes with a glyph. What is written between its
+     tags — a glyph's name, an avatar's element — is no text of its own until it is drawn (`font-size: 0`): the chip's
+     width is the label's and its parts', so a chip in a row of them wraps where it will. */
+  :where(tanrei-chip):where(:not(:defined):not([hidden]):not(tanrei-app-bar:not(:defined) > [slot])) {
+    --_cloak-pad: var(--tanrei-comp-chip-container-padding-inline-medium);
+    --_cloak-pad-icon: var(--tanrei-comp-chip-container-padding-inline-with-icon-medium);
+    --_cloak-pad-avatar: var(--tanrei-comp-chip-container-padding-inline-with-avatar-medium);
+    --_cloak-pad-remove: var(--tanrei-comp-chip-container-padding-inline-with-remove-medium);
+    --_cloak-gap: var(--tanrei-comp-chip-container-gap-medium);
+    --_cloak-icon: var(--tanrei-comp-chip-icon-size-medium);
+    --_cloak-avatar: var(--tanrei-comp-chip-avatar-size-medium);
+    --_cloak-start: var(--_cloak-pad);
+    --_cloak-end: var(--_cloak-pad);
+    display: inline-flex;
+    align-items: center;
+    max-inline-size: 100%;
+    padding-block: var(--tanrei-comp-chip-container-padding-block-medium);
+    padding-inline: var(--_cloak-start) var(--_cloak-end);
+    font-size: 0;
+  }
+  :where(tanrei-chip[size='small']):where(:not(:defined):not([hidden])) {
+    --_cloak-pad: var(--tanrei-comp-chip-container-padding-inline-small);
+    --_cloak-pad-icon: var(--tanrei-comp-chip-container-padding-inline-with-icon-small);
+    --_cloak-pad-avatar: var(--tanrei-comp-chip-container-padding-inline-with-avatar-small);
+    --_cloak-pad-remove: var(--tanrei-comp-chip-container-padding-inline-with-remove-small);
+    --_cloak-gap: var(--tanrei-comp-chip-container-gap-small);
+    --_cloak-icon: var(--tanrei-comp-chip-icon-size-small);
+    --_cloak-avatar: var(--tanrei-comp-chip-avatar-size-small);
+    padding-block: var(--tanrei-comp-chip-container-padding-block-small);
+  }
+  :where(tanrei-chip:is(:has(> [slot='icon']), [kind='filter'][selected])):where(:not(:defined):not([hidden])) {
+    --_cloak-start: calc(var(--_cloak-pad-icon) + var(--_cloak-icon) + var(--_cloak-gap));
+  }
+  :where(tanrei-chip[kind='input']:has(> [slot='avatar'])):where(:not(:defined):not([hidden])) {
+    --_cloak-start: calc(var(--_cloak-pad-avatar) + var(--_cloak-avatar) + var(--_cloak-gap));
+  }
+  :where(tanrei-chip[kind='input']:not([not-removable])):where(:not(:defined):not([hidden])) {
+    --_cloak-end: calc(var(--_cloak-gap) + var(--_cloak-icon) + var(--_cloak-pad-remove));
+  }
+  :where(tanrei-chip[href]:not([href='']):is([target='new'], [target='_blank']):not([kind='filter'], [kind='input'])):where(:not(:defined):not([hidden])) {
+    --_cloak-end: calc(var(--_cloak-gap) + var(--_cloak-icon) + var(--_cloak-pad-icon));
+  }
+  :where(tanrei-chip:not(:defined))::before {
+    content: attr(label);
+    flex: 0 1 auto;
+    min-inline-size: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font: var(--tanrei-comp-chip-label-typescale-medium-font-weight) var(--tanrei-comp-chip-label-typescale-medium-font-size)/var(--tanrei-comp-chip-label-typescale-medium-line-height) var(--tanrei-comp-chip-label-typescale-medium-font-family);
+    letter-spacing: var(--tanrei-comp-chip-label-typescale-medium-letter-spacing);
+  }
+  :where(tanrei-chip[size='small']:not(:defined))::before {
+    font: var(--tanrei-comp-chip-label-typescale-small-font-weight) var(--tanrei-comp-chip-label-typescale-small-font-size)/var(--tanrei-comp-chip-label-typescale-small-line-height) var(--tanrei-comp-chip-label-typescale-small-font-family);
+    letter-spacing: var(--tanrei-comp-chip-label-typescale-small-letter-spacing);
+  }
+
   :where(tanrei-keyboard-shortcut:not(:has(> [data-tanrei-keys])):not(:defined))::before {
     font-family: var(--tanrei-comp-keyboard-shortcut-label-typescale-medium-font-family);
     font-size: var(--tanrei-comp-keyboard-shortcut-label-typescale-medium-font-size);

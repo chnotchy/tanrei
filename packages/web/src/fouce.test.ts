@@ -363,7 +363,10 @@ test.describe('the cloak holds the width of an element as it is drawn, in every 
   // glyph's box, or the width an icon-only one names; CPY-7, CPY-19: a Copy Button is the Button it is drawn by; MAB-11,
   // MAB-13: a Main Action Button is its label, its glyph and its paddings, or a square while collapsed. Held at the
   // width of the words written in them, a docs page's rows of buttons wrapped where they were not drawn wrapping.
-  for (const tag of ['tanrei-tag', 'tanrei-checkbox', 'tanrei-radio-button', 'tanrei-switch', 'tanrei-button', 'tanrei-copy-button', 'tanrei-main-action-button', 'tanrei-button-with-menu', 'tanrei-button-group', 'tanrei-segmented-button', 'tanrei-fab-menu']) {
+  // CHP-16, CHP-17: a chip is its label between its paddings, with its glyph, its check or its avatar, and its remove
+  // glyph or its new-context mark. Held at no width, the chips of a docs page's row (100 px high before, 152 px drawn)
+  // wrapped only once they were defined.
+  for (const tag of ['tanrei-tag', 'tanrei-chip', 'tanrei-checkbox', 'tanrei-radio-button', 'tanrei-switch', 'tanrei-button', 'tanrei-copy-button', 'tanrei-main-action-button', 'tanrei-button-with-menu', 'tanrei-button-group', 'tanrei-segmented-button', 'tanrei-fab-menu']) {
     // A component that lives in a layer (the FAB Menu, in m3-like) is drawn in the systems that ship it: its tokens are
     // in their stylesheets. The default system's fixtures are drawn under the layer that ships it (test/harness.ts).
     const tokens = `--tanrei-comp-${tag.replace(/^tanrei-/, '')}-`;

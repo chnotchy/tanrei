@@ -219,7 +219,7 @@ import '@tanrei/web/cloak.css';
 
 Opt in: it is in no other stylesheet, `tanrei.css` included, because an element stays hidden for as long as it is not
 defined — on a page whose script never arrives, its content is never shown. A control's width is held: its words —
-from an attribute (a tag's `label`, a checkbox's, a radio button's, a switch's, a main action button's, a button with
+from an attribute (a tag's `label`, a chip's, a checkbox's, a radio button's, a switch's, a main action button's, a button with
 menu's, a segment's) or written between its tags (a button's label) — in the label's text style, with the glyph's box
 in place of a glyph's name, between its paddings; a button group and a segmented button lay their items out as they
 will, and a button defined before its connected group keeps the room the group will give it. Write a button's glyph before its label (`<span slot="icon">arrow_forward</span>Next`), also where it is drawn
