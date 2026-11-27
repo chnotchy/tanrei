@@ -12,6 +12,7 @@ import { drawnOpticalSize, opticalSize } from '../../test/icons.js';
 import { fixturePicture } from '../../test/pictures.js';
 import { decodePng } from '../../test/png.js';
 import { expectBaseline } from '../../test/baseline.js';
+import { askForFrame } from '../../test/frame-asked.js';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const pkg = path.resolve(here, '../..');
@@ -1315,6 +1316,71 @@ test.describe('forced colors, scaling, direction', () => {
     });
     // The "!" after the link belongs to the sentence: it stands at the left of the link, not at its right.
     expect(mark).toBeLessThanOrEqual((await box(page.locator('#in'))).x + 0.5);
+  });
+
+  test('LNK-26 LNK-14 inside a product’s shadow root that holds an element drawn in the light DOM — declared in the page’s markup, or attached by script — a standalone link takes its label’s own direction as in the document: an app shell’s skip link, and a link in its main region whose trailing glyph stands after its last word; the root is followed while such an element is in it', async ({ page }) => {
+    // The product's own sheets in its root (a document's rules do not reach into a shadow root; tokens are inherited).
+    const sheets = `<style>${read('dist/icons.css')}\n${read('dist/link.css')}\n${read('dist/app-shell.css')}</style>`;
+    const markup =
+      '<div dir="rtl"><tanrei-app-shell><a class="tanrei-link" data-standalone slot="skip-link" href="#main" id="skip">Skip to content!</a><main id="main" tabindex="-1"><p><a class="tanrei-link" data-standalone href="#a" data-icon-position="trailing" id="next">Next page!<span class="tanrei-icon" aria-hidden="true">arrow_forward</span></a></p></main></tanrei-app-shell></div>';
+    await fresh(page);
+    await mountFixtures(page, spec, { icons: true, fixtures: spec.fixtures.filter((f) => f.id === 'standalone'), lead: `<div id="declared"><template shadowrootmode="open">${sheets}${markup}</template></div>` });
+    await page.evaluate(
+      ([given, html]) => {
+        const outer = document.createElement('div');
+        outer.id = 'scripted';
+        outer.attachShadow({ mode: 'open' }).innerHTML = given + html;
+        document.body.append(outer);
+      },
+      [sheets, markup] as const,
+    );
+    await askForFrame(page);
+    /** In the root of `host`: each link's `dir`, and where the next link's text and glyph are drawn. */
+    const drawn = (host: string) =>
+      page.evaluate((id) => {
+        const root = document.getElementById(id)!.shadowRoot!;
+        const next = root.querySelector('#next')!;
+        const text = next.firstChild!;
+        const range = document.createRange();
+        const char = (i: number) => {
+          range.setStart(text, i);
+          range.setEnd(text, i + 1);
+          return range.getBoundingClientRect();
+        };
+        const last = text.textContent!.length - 1;
+        return {
+          skip: root.querySelector('#skip')!.getAttribute('dir'),
+          next: next.getAttribute('dir'),
+          // The label in its own order: its first character at the left of its last ("!" ends it).
+          ownOrder: char(0).left < char(last).left,
+          // LNK-14: the trailing glyph after the last word in the label's own direction — at its right.
+          glyphAfter: next.querySelector('.tanrei-icon')!.getBoundingClientRect().left >= char(last).right - 0.5,
+        };
+      }, host);
+    for (const host of ['declared', 'scripted']) await expect.poll(() => drawn(host), host).toEqual({ skip: 'ltr', next: 'ltr', ownOrder: true, glyphAfter: true });
+    // A label changed later is read again there, as in the document.
+    await page.evaluate(() => (document.getElementById('scripted')!.shadowRoot!.querySelector('#skip')!.textContent = 'انتقل إلى المحتوى'));
+    await askForFrame(page);
+    await expect.poll(async () => (await drawn('scripted')).skip).toBe('rtl');
+    // The root is followed while any such element is in it: a second app shell added and taken away again leaves the
+    // first's followed…
+    await page.evaluate(() => {
+      const root = document.getElementById('declared')!.shadowRoot!;
+      const second = root.querySelector('div[dir]')!.cloneNode(true) as Element;
+      root.append(second);
+      second.remove();
+      root.querySelector('#skip')!.textContent = 'انتقل إلى المحتوى';
+    });
+    await askForFrame(page);
+    await expect.poll(async () => (await drawn('declared')).skip).toBe('rtl');
+    // …and once the last one has left, the root is no longer followed: a link written there afterwards is not read.
+    await page.evaluate(() => {
+      const root = document.getElementById('scripted')!.shadowRoot!;
+      root.querySelector('tanrei-app-shell')!.remove();
+      root.querySelector('div[dir]')!.insertAdjacentHTML('beforeend', '<a class="tanrei-link" data-standalone href="#b" id="later">Later</a>');
+    });
+    await askForFrame(page);
+    expect(await page.evaluate(() => document.getElementById('scripted')!.shadowRoot!.querySelector('#later')!.getAttribute('dir'))).toBeNull();
   });
 
   for (const [kind, side] of [['standalone', 'its own direction'], ['marked', 'the direction the page marked']] as const) {

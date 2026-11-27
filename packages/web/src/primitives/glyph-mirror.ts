@@ -1,7 +1,7 @@
 import { type ReactiveController, type ReactiveControllerHost, nothing } from 'lit';
 import { type IconSet, iconSets, systemIconSets } from '../generated/icon-sets.js';
 import { ICON_NAME, MIRROR, MIRRORED } from '../styles/icons.js';
-import { hearLightHosts } from './icon-roots.js';
+import { hearLightHosts } from './light-hosts.js';
 
 // A glyph that shows a direction along the line is drawn mirrored in a right-to-left layout, and the icon set says
 // which names those are. A stylesheet cannot read a name from an element's text, so script reads it and
@@ -407,7 +407,7 @@ function holdOn(root: Node, running: { stop: () => void; callers: number }): () 
  * icons added later, a glyph's name (its text or its `data-icon`) or `data-mirror` changed, the class given to an element, the design system
  * switched. `@tanrei/web` and `@tanrei/web/icons` call it for the document when they load, and for each shadow root
  * that an element of the package drawn in the light DOM (an accordion, a tree view) is used in, while it is used there
- * (src/primitives/icon-roots.ts). Call it yourself for a shadow root of your own that holds none of them, which the
+ * (src/primitives/light-hosts.ts). Call it yourself for a shadow root of your own that holds none of them, which the
  * document's observer cannot see into. Calling it twice for one root observes once. Returns a function that lets go of
  * the observation: the root is observed until every caller has let go (the marks already written stay).
  */
