@@ -28,3 +28,6 @@ does not change.
 - Docs: the head's icon probes are decided by the resize observer's report, not by a read of the layout in the head
   and at DOMContentLoaded (0.8 s in WebKit); a stage's width handle reads its first value once the page has loaded.
   A browser test holds a loading docs page to no forced style or layout pass before DOMContentLoaded from these scripts.
+- A production bundle leaves out more of what only a debug build runs: the message an element's availability report
+  would make (every element), and the App shell's check of its values (APS-29). The probe is written in fewer bytes.
+  The App shell's bundle stays within its budget with the changes above.

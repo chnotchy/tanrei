@@ -1149,15 +1149,19 @@ export class TanreiAppShell extends TanreiLightElement {
 
   protected override updated(changed: PropertyValues) {
     // APS-29: a value the frame does not define renders with the default (no rule matches it); a debug build says so.
-    const known: [string, readonly string[], string][] = [
-      ['scrolls', SCROLLS, 'page'],
-      ['headerPosition', HEADER_POSITIONS, 'sticky'],
-      ['mainWidth', MAIN_WIDTHS, 'contained'],
-      ['asideOrder', ASIDE_ORDERS, 'after'],
-    ];
-    for (const [name, values, fallback] of known) {
-      const value = String((this as unknown as Record<string, unknown>)[name]);
-      if (DEBUG && changed.has(name) && !values.includes(value)) report(this, 'APS-29', `${name === 'scrolls' ? 'scroll' : name} "${value}" is not a value the app shell defines; it is rendered as "${fallback}"`);
+    // One statement that the constant guards, so that a production bundle leaves the whole check out.
+    if (DEBUG) {
+      (
+        [
+          ['scrolls', SCROLLS, 'page'],
+          ['headerPosition', HEADER_POSITIONS, 'sticky'],
+          ['mainWidth', MAIN_WIDTHS, 'contained'],
+          ['asideOrder', ASIDE_ORDERS, 'after'],
+        ] as const
+      ).forEach(([name, values, fallback]) => {
+        const value = String((this as unknown as Record<string, unknown>)[name]);
+        if (changed.has(name) && !values.includes(value)) report(this, 'APS-29', `${name === 'scrolls' ? 'scroll' : name} "${value}" is not a value the app shell defines; it is rendered as "${fallback}"`);
+      });
     }
     // APS-18: a separation the frame does not define is auto.
     if (DEBUG && changed.has('separation') && !(SEPARATION_VALUES as readonly string[]).includes(this.separation)) {
