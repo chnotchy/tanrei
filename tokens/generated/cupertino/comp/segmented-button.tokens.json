@@ -191,21 +191,12 @@
             "$type": "dimension",
             "$description": "Vertical padding, per size. Each gives up half of what its height loses below its step at the control height's reference, so that one line of the label fits at every control height. Heights are minimums, so this shows only when a label wraps or text is enlarged.",
             "small": {
-              "$value": "{tanrei.sys.space.space50}",
+              "$value": "{tanrei.sys.space.space25}",
               "$extensions": {}
             },
             "medium": {
-              "$value": {
-                "value": 6,
-                "unit": "px"
-              },
-              "$extensions": {
-                "dev.tanrei.derive": {
-                  "fn": "pad",
-                  "of": "{tanrei.sys.space.space75}",
-                  "height": "{tanrei.comp.segmented-button.container.height.medium}"
-                }
-              }
+              "$value": "{tanrei.sys.space.space50}",
+              "$extensions": {}
             },
             "large": {
               "$value": {

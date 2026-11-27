@@ -460,6 +460,12 @@ test('a control height that cannot hold its padding and one label line is report
   assert.match(checkInvariants(squeezed).join('\n'), /height\.small: 20px cannot hold its content/);
 });
 
+test('a set that insets its segments counts the inset above and below against its height', () => {
+  const id = 'tanrei.comp.segmented-button.set.padding';
+  const inset = { ...model, tokens: { ...model.tokens, [id]: { ...model.tokens[id], alias: undefined, value: { value: 6, unit: 'px' } } } };
+  assert.match(checkInvariants(inset).join('\n'), /segmented-button\.container\.height\.medium: 36px cannot hold its content — 2 × padding-block \(4px\) \+ 2 × set\.padding \(6px\)/);
+});
+
 test('the Figma sync plan covers the vocabulary and only aliases what it contains', async () => {
   const { emitFigmaPlan, FIGMA_MODES } = await import('../src/emit/figma.js');
   const plan = emitFigmaPlan(model);
