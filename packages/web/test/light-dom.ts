@@ -69,7 +69,7 @@ export const LIGHT_DOM_SUBJECTS: LightDomSubject[] = [
   {
     tag: 'tanrei-link-card',
     css: 'link-card.css',
-    mark: '--_lc-container',
+    mark: '--_lc-media-fill',
     html: (n) => `<tanrei-link-card><a href="#c${n}">Card ${n}</a></tanrei-link-card>`,
     drawn: { part: '', property: 'display' },
     inside: '',

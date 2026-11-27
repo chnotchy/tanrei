@@ -31,3 +31,7 @@ root for is now `--_toc-row-floor`.
 Tree view: a size a design system added is no longer a sheet the element adds to the page. Its private custom
 properties are written in the element's own style and taken off for a size of the core. The name the element asks its
 root for is now `--_trv-target`.
+
+Link card: a look a design system added is no longer a sheet the element adds to the page. Its paints are written in
+the element's own style and taken off for a look of the core. The name the element asks its root for is now
+`--_lc-media-fill`.

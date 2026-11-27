@@ -2,7 +2,7 @@ import type { PropertyDeclarations, PropertyValues } from 'lit';
 import { type TanreiLinkCardNode, displayHost, hostNodes, isExternal, pictureAddress, plainText, repeatsHost } from '../../links/index.js';
 import { AvailabilityController, LINK_KEYS, PressController, SETTLING, linkRel, motionReduced, readDestination, readTarget, report, syncFocusStyle, watchWords, wordFor } from '../../primitives/index.js';
 import type { TanreiLinkCardVariantRegistry } from '../../registry.js';
-import { adopt, adoptUnlessDrawn } from '../../primitives/sheets.js';
+import { adoptUnlessDrawn, writeValues } from '../../primitives/sheets.js';
 import { TanreiLightElement } from '../../primitives/element.js';
 import { DEBUG } from '../../primitives/debug.js';
 
@@ -25,7 +25,6 @@ const LINK_CARD_CSS: string = (() => {
   }
 })();
 
-const TAG = 'tanrei-link-card';
 const PREFIX = '--tanrei-comp-link-card';
 const CORE_VARIANTS: readonly string[] = ['outlined', 'filled'];
 const DEFAULT_VARIANT = 'outlined';
@@ -70,7 +69,6 @@ interface DrawnBox {
   height: number;
 }
 
-type Root = Document | ShadowRoot;
 
 const sheets = new Map<string, CSSStyleSheet>();
 /** A stylesheet of the page, made once and shared by every root that needs it. */
@@ -90,11 +88,12 @@ function sheet(id: string, text: () => string): CSSStyleSheet | null {
 }
 
 /**
- * LKC-27: a look a design system added — each paint from that look's tokens, falling back to the default's.
- * In no cascade layer, so that it also wins over a copy of link-card.css a page loads into a layer of its own.
+ * LKC-27: what a look a design system added draws — each paint from that look's tokens, falling back to the default's.
+ * Written in the element's own style (`writeValues`), never as a rule added to the page: a rule added to the page has
+ * the engine build every rule of the page again.
  */
-const variantRules = (variant: string) =>
-  `:where(${TAG}[variant='${variant}']) { ${STATES.flatMap((state) => PAINTS.map((paint) => `--_lc-${state}${paint}: var(${PREFIX}-${variant}-${state}${paint}-color, var(${PREFIX}-${DEFAULT_VARIANT}-${state}${paint}-color));`)).join(' ')} }`;
+const variantValues = (variant: string): [`--${string}`, string][] =>
+  STATES.flatMap((state) => PAINTS.map((paint): [`--${string}`, string] => [`--_lc-${state}${paint}`, `var(${PREFIX}-${variant}-${state}${paint}-color, var(${PREFIX}-${DEFAULT_VARIANT}-${state}${paint}-color))`]));
 
 /** Writes an attribute only when it differs: what is written here is observed, and must settle. */
 function mark(element: Element, name: string, value: string | null) {
@@ -234,6 +233,8 @@ export class TanreiLinkCard extends TanreiLightElement {
   private readonly given = new Set<string>();
   private wroteExternal: string | null = null;
   private wroteTarget = false;
+  /** LKC-27: the names written in the element's style for a look a design system added (`readVariant`). */
+  private variantWritten: string[] = [];
   /** The words part and the host part this element wrote: what the document holds otherwise is the product's. */
   private ownWords: string | null = null;
   private productWords = '';
@@ -273,7 +274,9 @@ export class TanreiLinkCard extends TanreiLightElement {
 
   override connectedCallback() {
     super.connectedCallback();
-    adoptUnlessDrawn(this, sheet('link-card', () => LINK_CARD_CSS), '--_lc-container');
+    // The mark is a name link-card.css sets on every card and the element never writes: a look a design system added
+    // is written in the element's own style (`readVariant`), which would answer for a root without the rules.
+    adoptUnlessDrawn(this, sheet('link-card', () => LINK_CARD_CSS), '--_lc-media-fill');
     this.mutations?.observe(this, { childList: true, subtree: true, characterData: true, attributes: true, attributeFilter: ['href', 'target', 'src', 'data-external'] });
     for (const [type, listener] of this.listeners) this.addEventListener(type, listener, true);
     linkSettings().reread?.add(this.reread);
@@ -329,14 +332,16 @@ export class TanreiLinkCard extends TanreiLightElement {
   }
 
   /**
-   * LKC-27: a look the core does not have was added by a design system — its rule is added to the root, falling back
-   * to the default's tokens — or is unknown to the active one, which a debug build says.
+   * LKC-27: a look the core does not have was added by a design system — what it draws is written in the element's
+   * style, falling back to the default's tokens, and taken off again for a look of the core — or is unknown to the
+   * active one, which a debug build says.
    */
   private readVariant() {
     const variant = String(this.variant ?? '');
-    if (CORE_VARIANTS.includes(variant)) return;
     const known = KEY.test(variant);
-    if (known) adopt(this.getRootNode() as Root, sheet(`variant:${variant}`, () => variantRules(variant)));
+    const added = known && !CORE_VARIANTS.includes(variant);
+    if (added || this.variantWritten.length) this.variantWritten = writeValues(this, this.variantWritten, added ? variantValues(variant) : []);
+    if (CORE_VARIANTS.includes(variant)) return;
     if (DEBUG && (!known || getComputedStyle(this).getPropertyValue(`${PREFIX}-${variant}-container-color`).trim() === '')) {
       report(this, 'LKC-27', `variant "${variant}" is not a value of the active design system; it is drawn as "${DEFAULT_VARIANT}"`);
     }
