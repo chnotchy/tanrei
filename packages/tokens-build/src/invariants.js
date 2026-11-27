@@ -422,6 +422,8 @@ export function auditInvariants(model) {
 
   // A control's height must hold what is put inside it: block padding twice plus one line of its label.
   // Platforms treat the height as a minimum, so a height that is too small silently renders as another size.
+  // A component whose containers stand inset in a set (`set.padding`: a segmented button's track) is that height
+  // tall as a set, so the inset above and below is counted too.
   for (const token of Object.values(model.tokens)) {
     const [tier, component, part, property, size] = token.path;
     if (tier !== 'comp' || part !== 'container' || property !== 'height') continue;
@@ -429,8 +431,9 @@ export function auditInvariants(model) {
     const padding = at('container', 'padding-block', size)?.value?.value;
     const label = at('label', 'typescale', size)?.value;
     if (padding === undefined || !label?.fontSize) continue;
-    const needed = 2 * padding + Math.round(label.fontSize.value * label.lineHeight * 100) / 100;
-    if (token.value.value < needed) failures.push(`${token.id}: ${token.value.value}px cannot hold its content — 2 × padding-block (${padding}px) + one label line = ${needed}px`);
+    const inset = at('set', 'padding')?.value?.value ?? 0;
+    const needed = 2 * padding + 2 * inset + Math.round(label.fontSize.value * label.lineHeight * 100) / 100;
+    if (token.value.value < needed) failures.push(`${token.id}: ${token.value.value}px cannot hold its content — 2 × padding-block (${padding}px)${inset ? ` + 2 × set.padding (${inset}px)` : ''} + one label line = ${needed}px`);
   }
 
   // A component that names the color of its own focus indicator (the snackbar, one per form) draws it
