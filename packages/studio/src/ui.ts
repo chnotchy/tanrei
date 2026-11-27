@@ -114,6 +114,8 @@ export function mountStudio(root: HTMLElement, { lang = 'en', adapter, links = {
   let saveProblem = '';
   let savedText = '';
   let timer: number | undefined;
+  /** The save the host has not answered yet (`saveNow`). */
+  let sendingSave: Promise<void> | null = null;
   let theirs: { layer: Layer; etag?: string } | null = null;
 
   // Text typed at "Source" that does not parse (./draft.js). It is remembered with the rest, so a reload keeps it too.
@@ -635,11 +637,22 @@ export function mountStudio(root: HTMLElement, { lang = 'en', adapter, links = {
     if (saveState === 'conflict') return; // the person decides first
     setSave(latest.ok ? 'unsaved' : 'invalid');
     window.clearTimeout(timer);
-    if (latest.ok) timer = window.setTimeout(saveNow, saveDelay);
+    // While a save is on its way, the next one waits for its answer (`saveNow`): the answer arms it.
+    if (latest.ok && !sendingSave) timer = window.setTimeout(saveNow, saveDelay);
   }
-  async function saveNow() {
-    if (!adapter || !latest.ok) return;
+  /**
+   * One save at a time. A save sent before the host has answered the last one carries the etag that answer replaces:
+   * the host would refuse it as a conflict with the Studio's own write. So a save asked for meanwhile (the autosave, a
+   * Build, `api.save`) is sent once the answer has come, if something is still unsaved.
+   */
+  function saveNow(): Promise<void> {
     window.clearTimeout(timer);
+    if (sendingSave) return sendingSave.then(() => (saveState === 'unsaved' ? saveNow() : undefined));
+    sendingSave = send().finally(() => (sendingSave = null));
+    return sendingSave;
+  }
+  async function send() {
+    if (!adapter || !latest.ok) return;
     const text = stringifyLayer(committed);
     const sending = committed;
     setSave('saving');
@@ -649,6 +662,8 @@ export function mountStudio(root: HTMLElement, { lang = 'en', adapter, links = {
       etag = result.etag;
       savedText = text;
       if (committed === sending) setSave('saved');
+      // A commit made while the save was on its way has said the file is unsaved already: only its save is due now.
+      else if (saveState === 'unsaved' && latest.ok) timer = window.setTimeout(saveNow, saveDelay);
       else scheduleSave();
     } catch (error) {
       setSave('error', (error as Error).message);

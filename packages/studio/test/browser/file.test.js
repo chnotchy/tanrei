@@ -55,6 +55,29 @@ studioTest('a save the server refuses (422) is said in the server’s words, and
   await page.waitForSelector('[data-save-state="saved"]');
 });
 
+// A host slow to answer: the first save is written, and answered 1.5 s later — longer than the autosave's delay
+// (600 ms), so an edit made meanwhile would be due for its own save while the first one is still unanswered.
+const slowFirstAnswer = () => {
+  let answered = 0;
+  return { server: { answer: () => (answered++ ? undefined : new Promise((resolve) => setTimeout(resolve, 1500))) } };
+};
+studioTest('one save at a time: an edit made while the last save is unanswered is saved after its answer, and the file is never in conflict with the Studio’s own write', slowFirstAnswer, async ({ page, saved }) => {
+  await toDials(page);
+  // Every state the file is drawn in, from here on.
+  await page.evaluate(() => {
+    const states = (window.__states = []);
+    new MutationObserver(() => states.push(document.querySelector('[data-save-state]')?.dataset.saveState)).observe(document.querySelector('[data-save-state]').parentElement, { childList: true });
+  });
+  await typeSpacing(page, 9);
+  await saved((layer) => layer.tokens?.['tanrei.dial.space.unit']?.$value.value === 9, 'the first edit, written; its answer is held');
+  await typeSpacing(page, 10);
+  assert.equal(await state(page), 'unsaved', 'the second edit is said to be unsaved while the first save is on its way');
+  await saved((layer) => layer.tokens?.['tanrei.dial.space.unit']?.$value.value === 10, 'the second edit, after the first save’s answer');
+  await page.waitForSelector('[data-save-state="saved"]');
+  // Each edit says once that the file is unsaved: the first save's answer, come after the second edit, says nothing.
+  assert.deepEqual(await page.evaluate(() => window.__states), ['unsaved', 'saving', 'unsaved', 'saving', 'saved'], 'one save at a time, and no conflict');
+});
+
 studioTest('409: the file changed underneath an unsaved edit — nothing is overwritten until the person chooses; "Keep mine" and "Reload from disk" both do what they say', { server: { announce: false } }, async ({ page, file, write, expected, onDisk, css, scope }) => {
   expected.push(/409/);
   // Someone edits the file in their editor (this mock says nothing over the event stream, so the SAVE finds out).
