@@ -1520,12 +1520,16 @@
   }
 
   /* A list row: the least height of its number of lines, for its own size — one (a headline), two (an overline or a
-     supporting text with it), three (a supporting text with an overline, or a supporting text of two lines). */
+     supporting text with it), three (a supporting text with an overline, or a supporting text of two lines). In an
+     action, a link or an option of a list that is defined (its module can arrive before the row's), the item draws
+     the paddings and the row keeps that height less them (LRW-8), as it will once it is defined. */
   :where(tanrei-list-row:not(:defined)) {
     --_cloak-one: var(--tanrei-comp-list-row-container-height-one-line-medium);
     --_cloak-two: var(--tanrei-comp-list-row-container-height-two-line-medium);
     --_cloak-three: var(--tanrei-comp-list-row-container-height-three-line-medium);
-    min-block-size: var(--_cloak-one);
+    --_cloak-row: var(--_cloak-one);
+    --_cloak-boxed: 0px;
+    min-block-size: calc(var(--_cloak-row) - 2 * var(--_cloak-boxed));
   }
   :where(tanrei-list-row[size='small']:not(:defined)) {
     --_cloak-one: var(--tanrei-comp-list-row-container-height-one-line-small);
@@ -1533,10 +1537,14 @@
     --_cloak-three: var(--tanrei-comp-list-row-container-height-three-line-small);
   }
   :where(tanrei-list-row:not(:defined)):where([overline]:not([overline='']), [supporting-text]:not([supporting-text=''])) {
-    min-block-size: var(--_cloak-two);
+    --_cloak-row: var(--_cloak-two);
   }
   :where(tanrei-list-row:not(:defined)):where([supporting-text]:not([supporting-text=''])):where([overline]:not([overline='']), [supporting-lines='2']) {
-    min-block-size: var(--_cloak-three);
+    --_cloak-row: var(--_cloak-three);
+  }
+  :where(tanrei-list:not([reorderable])) > :where(tanrei-list-item:is([interactive], [href]:not([href=''])):defined) > :where(tanrei-list-row:not(:defined)),
+  :where(tanrei-list:is([selection='single'], [selection='multiple'])) > :where(tanrei-list-item:defined) > :where(tanrei-list-row:not(:defined)) {
+    --_cloak-boxed: var(--_lst-padding-block, var(--tanrei-comp-list-container-padding-block-medium));
   }
 
   /* A list lays its items out as it will: a column (LST-1), a line along `orientation="horizontal"` (each item as wide
