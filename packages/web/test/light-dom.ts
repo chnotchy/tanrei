@@ -78,7 +78,7 @@ export const LIGHT_DOM_SUBJECTS: LightDomSubject[] = [
   {
     tag: 'tanrei-tree-view',
     css: 'tree-view.css',
-    mark: '--_trv-gap',
+    mark: '--_trv-target',
     html: (n) => `<tanrei-tree-view label="Tree ${n}"><ul><li data-value="a${n}"><span>Item</span></li></ul></tanrei-tree-view>`,
     drawn: { part: 'ul', property: 'padding-left' },
     inside: 'li',

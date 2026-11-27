@@ -10446,7 +10446,7 @@ the whole hierarchy as the nested list it is, every level shown and no chevron d
 | `selection` | `none` \| `single` \| `multiple` | `none` | whether items are chosen |
 | `value` | text \| `null` | `null` | the chosen item's `data-value` (single); set by the tree at a choice, with `change` |
 | `values` | a JSON array (attribute), `string[]` (property) | `[]` | the chosen items' values (multiple) |
-| `size` | `small` \| `medium` (a design system may add values) | the size its nearest container sets, else `medium` | 48 rows with the body text, or 36 rows (the minimum target) with the small one; without script a tree is drawn at the size it sets, or at medium |
+| `size` | `small` \| `medium` (a design system may add values) | the size its nearest container sets, else `medium` | 48 rows with the body text, or 36 rows (the minimum target) with the small one; without script a tree is drawn at the size it sets, or at medium; a size a design system adds is written by the element in its own style, as the size's private custom properties (never a rule added to the page) |
 | `guides` | boolean | off | a hairline down from each open parent beside the rows it holds |
 | `loading-label` / `loadingLabel` | text | `''` | the words of a loading row |
 

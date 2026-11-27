@@ -82,7 +82,7 @@ export const DRAWN_MARKS: Readonly<Record<string, `--${string}`>> = {
   'tanrei-skeleton': '--_skl-gap',
   'tanrei-table': '--_table-pad-block',
   'tanrei-table-of-contents': '--_toc-row-floor',
-  'tanrei-tree-view': '--_trv-gap',
+  'tanrei-tree-view': '--_trv-target',
 };
 
 /**
