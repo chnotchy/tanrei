@@ -34,7 +34,7 @@ import { isExternal } from './links/index.js';
 import { syncFocusStyle } from './primitives/focus-ring.js';
 import { LINK_KEYS, linkRel, readDestination } from './primitives/link.js';
 import { PressController } from './primitives/press.js';
-import { hearLightHosts } from './primitives/light-hosts.js';
+import { hearHostRoots } from './primitives/host-roots.js';
 import { report } from './primitives/report.js';
 import { styleQueries, whenNoStyleQueries } from './primitives/separation.js';
 import { setWords, watchWords, wordFor, wordLacking } from './primitives/words.js';
@@ -523,11 +523,10 @@ function holdOn(stop: Stop): () => void {
 /**
  * Adds the script side of the Link to every `a.tanrei-link` and every anchor of a `.tanrei-prose` under `root`, now
  * and as the page changes. `@tanrei/web` and `@tanrei/web/link` call it for the document when they load, and for each
- * shadow root that an element of the package drawn in the light DOM (an app shell, a table, an accordion) is used in,
- * while it is used there (src/primitives/light-hosts.ts). Call it yourself for a shadow root of your own that holds none
- * of them, which the document's listeners cannot see into. Calling it twice for one root observes once. Returns a
- * function that lets go of the observation: the root is observed until every caller has let go (what was already
- * written on an anchor stays).
+ * shadow root that an element of the package (an app shell, a table, a dialog) is used in, while it is used there
+ * (src/primitives/host-roots.ts). Call it yourself for a shadow root of your own that holds none of them, which the
+ * document's listeners cannot see into. Calling it twice for one root observes once. Returns a function that lets go of
+ * the observation: the root is observed until every caller has let go (what was already written on an anchor stays).
  */
 export function observeLinks(root: Document | ShadowRoot = document): () => void {
   const observed = root as Observed;
@@ -667,22 +666,21 @@ export function observeLinks(root: Document | ShadowRoot = document): () => void
   return holdOn(stop);
 }
 
-/** For each light-DOM element connected in a shadow root, its hold on that root's observation. */
+/** For each element of the package connected in a shadow root, its hold on that root's observation. */
 const heldRoots = new WeakMap<Element, () => void>();
 
 /**
- * Observes, with `observeLinks()`, each shadow root a light-DOM element of the package (an app shell, a table) is
+ * Observes, with `observeLinks()`, each shadow root an element of the package (an app shell, a table, a dialog) is
  * connected in, while it is connected there: the links the product puts in it — an app shell's skip link, a link in a
- * cell — are given what the script adds, as in the document, whose listeners cannot see into a shadow root. Each
- * element holds on to its root, so the root is let go when the last one leaves it (or when nothing else holds it: a
- * product's own call keeps it).
+ * cell or slotted into a dialog's body — are given what the script adds, as in the document, whose listeners cannot see
+ * into a shadow root. Each element holds on to its root, so the root is let go when the last one leaves it (or when
+ * nothing else holds it: a product's own call keeps it).
  */
 function observeLinksWhereUsed(): void {
-  hearLightHosts((host, connected) => {
+  hearHostRoots((host, root) => {
     heldRoots.get(host)?.();
     heldRoots.delete(host);
-    const root = connected ? host.getRootNode() : null;
-    if (root instanceof ShadowRoot) heldRoots.set(host, observeLinks(root));
+    if (root) heldRoots.set(host, observeLinks(root));
   });
 }
 
