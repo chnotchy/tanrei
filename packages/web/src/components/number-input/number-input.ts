@@ -869,6 +869,11 @@ export class TanreiNumberInput extends TanreiElement {
     const field = this.renderRoot.querySelector<HTMLElement>('.field');
     const box = this.renderRoot.querySelector<HTMLElement>('.steppers');
     if (!field) return undefined;
+    // A field that is not rendered (itself or an ancestor `display: none`) lays nothing out: the steppers read 0 wide,
+    // and the label, given their room back, moved its end (a transition) from there in the frame it was shown again in.
+    // It keeps the length it had, and is measured again when the steppers' observer reports them laid out. Steppers
+    // that are not drawn take no room, rendered or not.
+    if (box && !field.getClientRects().length) return undefined;
     const length = box ? `${Math.round(box.getBoundingClientRect().width * 100) / 100}px` : '';
     if (field.style.getPropertyValue('--_steppers') === length) return undefined;
     return () => {

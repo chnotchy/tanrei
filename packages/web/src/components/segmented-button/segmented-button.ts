@@ -540,7 +540,10 @@ export class TanreiSegmentedButton extends TanreiElement {
   private measure() {
     readTogether(() => {
       const probe = this.renderRoot?.querySelector<HTMLElement>('.probe');
-      if (!probe || !this.isConnected) return;
+      // A set that is not rendered (itself or an ancestor `display: none`) lays nothing out: the probe reads 0 wide,
+      // which would say the size draws no check. It keeps what it had, and is measured again when the probe's observer
+      // reports it laid out: taken off while hidden, the check of a selected segment grew in from nothing once shown.
+      if (!probe || !this.isConnected || !probe.getClientRects().length) return;
       const check = probe.getBoundingClientRect().width > 0;
       return () => {
         if (check !== this.check) this.check = check;

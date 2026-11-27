@@ -2315,6 +2315,11 @@ export class TanreiTreeView extends TanreiLightElement {
     const box = this.scroller;
     const max = Math.floor(this.stickyMax);
     if (!box || !box.isConnected || !this.stickyParents || !(max > 0)) return this.unpin();
+    // A scrolling box that is not rendered (itself or an ancestor `display: none`) lays nothing out: every row reads at
+    // its top, which would say that nothing scrolled under it. The rows pinned stay pinned, as the box keeps its scroll:
+    // a change of the tree's items while it was hidden unpinned them, and nothing pinned them again once it was shown
+    // until the box was scrolled.
+    if (!box.getClientRects().length) return;
     // (A pinned row sticks to the box's content edge: inside its padding.)
     const edge = box.getBoundingClientRect().top + box.clientTop + (Number.parseFloat(getComputedStyle(box).paddingTop) || 0);
     // TRV-54: the filter field and the gap under it stay at the top: the pinned rows stand under them.

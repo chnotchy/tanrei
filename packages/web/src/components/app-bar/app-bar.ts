@@ -348,6 +348,17 @@ export class TanreiAppBar extends TanreiElement {
     return this.renderRoot?.querySelector<T>(selector) ?? null;
   }
 
+  /**
+   * Whether the bar's top row is laid out. A bar that is not rendered (itself or an ancestor `display: none`, a panel
+   * that is hidden) lays nothing out: every box reads 0, which would say that no action is drawn (APB-26 then hid the
+   * actions, and an action hidden is measured at 0 again, so a bar shown again kept none), that nothing is beside a
+   * centred title (APB-6), or that a large bar has no expanded title to collapse (APB-8). It decides nothing then and
+   * keeps what it had; its observer reports the boxes again when it is shown.
+   */
+  private get laidOut(): boolean {
+    return !!this.find<HTMLElement>('.row')?.getClientRects().length;
+  }
+
   // ---- APB-8, APB-9: the connected scrolling element ----
 
   private disconnectScroll() {
@@ -397,6 +408,8 @@ export class TanreiAppBar extends TanreiElement {
   private follow() {
     if (!this.connected) return;
     const block = this.find<HTMLElement>('.block');
+    // Only a bar that expands reads its layout here (a small one reads nothing, and is asked nothing of it).
+    if (this.expands && block && !this.laidOut) return;
     const range = this.expands && block ? block.offsetHeight : 0;
     this.collapse = this.expands ? clamp(this.offset, 0, range) : 0;
     this.covered = this.expands ? this.coveredPart(block, range) : 1;
@@ -429,7 +442,7 @@ export class TanreiAppBar extends TanreiElement {
   private resized(entries: ResizeObserverEntry[]) {
     // Nothing moved since the bar last read these boxes: read in its observer's report, after another observer's report
     // wrote, they had the browser lay the page out again for nothing.
-    if (entries.every((entry) => this.asKnown(entry))) return;
+    if (entries.every((entry) => this.asKnown(entry)) || !this.laidOut) return;
     this.measure();
     if (!this.fit() || !this.resize$) return;
     this.resize$.disconnect();
@@ -558,7 +571,7 @@ export class TanreiAppBar extends TanreiElement {
   private readFit(): { out: Set<Element> } | 'more' | null {
     const row = this.find<HTMLElement>('.row');
     const metrics = this.find<HTMLElement>('.metrics');
-    if (!row || !metrics || !this.isConnected) return null;
+    if (!row || !metrics || !this.isConnected || !this.laidOut) return null;
     // APB-32: each action's width while it is drawn; an action that is out keeps the width it had.
     for (const item of this.actionItems) if (!item.hasAttribute(OUT)) this.actionWidths.set(item, item.getBoundingClientRect().width);
     for (const item of [...this.actionWidths.keys()]) if (!this.actionItems.includes(item as Action)) this.actionWidths.delete(item);
@@ -787,6 +800,7 @@ export class TanreiAppBar extends TanreiElement {
       area.style.removeProperty('--_balance-end');
       return;
     }
+    if (!this.laidOut) return;
     const r = row.getBoundingClientRect();
     const a = area.getBoundingClientRect();
     const rtl = getComputedStyle(this).direction === 'rtl';

@@ -1938,7 +1938,10 @@ export class TanreiTextInput extends TanreiElement {
    */
   private measureIcons(entries: ResizeObserverEntry[]) {
     const field = this.renderRoot.querySelector<HTMLElement>('.field');
-    if (!field) return;
+    // A field that is not rendered (itself or an ancestor `display: none`) lays nothing out: every box reads 0. It keeps
+    // the lengths it had, and the label and the text their place beside them — let go while hidden, they moved back
+    // once it was shown again (both move over a transition). Its observer reports the boxes when it is shown.
+    if (!field || !field.getClientRects().length) return;
     let changed = false;
     for (const entry of entries) {
       const box = entry.target as HTMLElement;
@@ -2009,8 +2012,14 @@ export class TanreiTextInput extends TanreiElement {
   private readonly readLabel = (): (() => void) | undefined => {
     const field = this.renderRoot?.querySelector<HTMLElement>('.field');
     if (!field) return undefined;
-    const resting = labelLines(this.renderRoot.querySelector('.measure-resting'));
-    const floated = labelLines(this.renderRoot.querySelector('.measure-floated'));
+    const [restingCopy, floatedCopy] = [this.renderRoot.querySelector<HTMLElement>('.measure-resting'), this.renderRoot.querySelector<HTMLElement>('.measure-floated')];
+    // A field that is not rendered (itself or an ancestor `display: none`) lays its copies out nowhere: each reads as one
+    // line, which would take a wrapped label's room away, to be given back a frame after it is shown again. It keeps
+    // what it had; the copies' observer reports them laid out when it is shown, and they are measured then. (Without
+    // copies there is nothing to lay out: one line.)
+    if ((restingCopy || floatedCopy) && !field.getClientRects().length) return undefined;
+    const resting = labelLines(restingCopy);
+    const floated = labelLines(floatedCopy);
     const wraps = resting.count > 1 || floated.count > 1;
     return () => {
       field.toggleAttribute('data-label-wraps', wraps);

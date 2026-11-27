@@ -2984,6 +2984,11 @@ export class TanreiNavigationDrawer extends TanreiElement {
    */
   private reckonPins(): () => void {
     const scroller = this.scroller;
+    // A drawer that is not rendered (itself or an ancestor `display: none`) lays nothing out: its space reads no height,
+    // which would say that nothing scrolled under the top. It keeps the rows it pinned, and reckons them again when it
+    // is shown (its observer of the groups reports them laid out): unpinned while hidden, they were drawn in the list
+    // in the frame it was shown in, and pinned only in the next.
+    if (scroller && !scroller.getClientRects().length) return () => {};
     const groups = this.groups;
     const max = Number.isInteger(this.stickyMax) && this.stickyMax > 0 ? this.stickyMax : 2;
     const pinned: TanreiNavigationDrawerGroup[] = [];

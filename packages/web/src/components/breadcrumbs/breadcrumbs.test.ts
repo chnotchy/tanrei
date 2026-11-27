@@ -17,6 +17,8 @@ import { expectPressShownAndHeld, watchPress } from '../../../test/watched-press
 import { middlePressAimed } from '../../../test/middle-press.js';
 import { expectBaseline } from '../../../test/baseline.js';
 import { restyle } from '../../../test/restyle.js';
+import { expectFirstFrameAtRest } from '../../../test/frames.js';
+import { shownAgain } from '../../../test/shown-again.js';
 
 const spec = loadSpec('breadcrumbs');
 type P = Page;
@@ -401,6 +403,19 @@ test.describe('one line, and what is folded away', () => {
     await settled(page);
     const entries = await host(page, 'default').evaluate((el) => [...el.shadowRoot!.querySelectorAll('li.level')].reduce((sum, li) => sum + li.getBoundingClientRect().width, 0));
     near((await edges(host(page, 'default'))).width, entries, 0.2);
+  });
+
+  test('BRC-8: a trail that is not rendered (an ancestor `display: none`) keeps the width it needs, and is drawn at it from the frame it is shown again in — levels of no width in no room do not read as a trail that needs none', async ({ page }) => {
+    const id = 'default';
+    await mountFixtures(page, spec, { icons: true, fixtures: spec.fixtures.filter((f) => f.id === id) });
+    const needs = () => host(page, id).locator('.sizer').evaluate((el: SVGElement) => el.style.inlineSize);
+    await expect.poll(needs).toMatch(/^[1-9][\d.]*px$/);
+    const before = await needs();
+    const seen = await shownAgain(stage(page, id), {
+      whileHidden: async () => expect(await needs(), 'the width the trail needs while it is not rendered').toBe(before),
+    });
+    expectFirstFrameAtRest(seen);
+    expect(await needs()).toBe(before);
   });
 
   test('BRC-9: a trail wider than its width takes levels out and draws the overflow button once in the place of the first: the levels between the first and the last from the one next to the first, each only while what is left does not fit, then the first — never the last and never more than the width asks for, measured by its own width', async ({ page }) => {

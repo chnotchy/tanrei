@@ -366,14 +366,27 @@ export class TanreiDescriptionList extends TanreiLightElement {
     TanreiDescriptionList.readTogether(boxes);
   };
 
+  /**
+   * Whether the list can be measured: it is laid out (an element that is not rendered, itself or an ancestor `display:
+   * none`, has no box), or its layout is one no width stacks (nothing is read of it).
+   */
+  private static laidOut(box: TanreiDescriptionList): boolean {
+    return box.layout === 'stacked' || box.layout === 'stat' || box.getClientRects().length > 0;
+  }
+
   private static readTogether(boxes: TanreiDescriptionList[]) {
     const live = boxes.filter((box) => box.isConnected);
     for (const box of live) {
       box.list = box.querySelector<HTMLDListElement>(':scope > dl');
       box.watch(box.list);
     }
-    const held = live.map((box) => box.hold());
-    const read = live.map((box) => {
+    // A list that is not rendered (itself or an ancestor `display: none`) lays nothing out: its terms have no column to
+    // read, which would say that the list is not drawn and stacks under no width (DSL-4: a list stacked by its width
+    // was drawn in two columns in the frame it was shown in again). It keeps the width it had; its observer reports it
+    // laid out when it is shown, and it is measured then. Its list is found, watched and marked all the same.
+    const drawn = live.map((box) => TanreiDescriptionList.laidOut(box));
+    const held = live.map((box, index) => drawn[index] && box.hold());
+    const read = live.map((box, index) => {
       const list = box.list;
       if (!list) return null;
       if (DEBUG) {
@@ -382,7 +395,8 @@ export class TanreiDescriptionList extends TanreiLightElement {
         else box.check(list);
       }
       // DSL-13: where the browser answers style queries the stylesheet reads the choice itself, and nothing is written.
-      return { list, separation: styleQueries() ? null : compChoice(box, '--_dl-separation', SEPARATIONS), width: box.measure(list), room: box.room() };
+      const separation = styleQueries() ? null : compChoice(box, '--_dl-separation', SEPARATIONS);
+      return drawn[index] ? { list, separation, width: box.measure(list), room: box.room() } : { list, separation, width: undefined, room: 0 };
     });
     live.forEach((box, index) => box.release(held[index]));
     live.forEach((box, index) => {
@@ -392,7 +406,7 @@ export class TanreiDescriptionList extends TanreiLightElement {
         return;
       }
       mark(each.list, 'data-separation', each.separation);
-      box.write(each.width, each.room);
+      if (each.width !== undefined) box.write(each.width, each.room);
     });
   }
 
@@ -476,7 +490,7 @@ export class TanreiDescriptionList extends TanreiLightElement {
    * written and no frame is asked for: the list's container query draws the other form at the new width.
    */
   private static resized(boxes: Set<TanreiDescriptionList>) {
-    const live = [...boxes].filter((box) => box.isConnected && box.list);
+    const live = [...boxes].filter((box) => box.isConnected && box.list && TanreiDescriptionList.laidOut(box));
     const held = live.map((box) => box.hold());
     const widths = live.map((box) => box.measure(box.list!));
     live.forEach((box, index) => box.release(held[index]));

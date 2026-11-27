@@ -11,6 +11,8 @@ import { type Fixture, type FixtureItem, fixturesDocument, loadSpec, mountFixtur
 import { expectBaseline } from '../../../test/baseline.js';
 import { restyle } from '../../../test/restyle.js';
 import { askForFrame } from '../../../test/frame-asked.js';
+import { expectFirstFrameAtRest } from '../../../test/frames.js';
+import { shownAgain } from '../../../test/shown-again.js';
 
 const spec = loadSpec('description-list');
 type P = Page;
@@ -270,6 +272,20 @@ test.describe('layouts', () => {
     await expect.poll(async () => [await drawn(page, 'own', 1), await drawn(page, 'own', 2)]).toEqual(['stacked', 'stacked']);
     await size(page, 'own', 256);
     await expect.poll(async () => [await drawn(page, 'own', 1), await drawn(page, 'own', 2)]).toEqual(['inline', 'inline']);
+  });
+
+  test('DSL-4: a list that is not rendered (an ancestor `display: none`) keeps the width under which it stacks, and is drawn stacked from the frame it is shown again in — a list with no box does not read as one that never stacks', async ({ page }) => {
+    const id = 'inline-falls-back';
+    await mountFixtures(page, spec, { fixtures: spec.fixtures.filter((f) => f.id === id) });
+    const below = () => host(page, id).getAttribute('data-stacks-below');
+    const before = await below();
+    expect(before).not.toBeNull();
+    expect(await drawn(page, id, 1)).toBe('stacked');
+    const seen = await shownAgain(stage(page, id), {
+      whileHidden: async () => expect(await below(), 'the width it stacks under while it is not rendered').toBe(before),
+    });
+    expectFirstFrameAtRest(seen);
+    expect(await drawn(page, id, 1)).toBe('stacked');
   });
 
   test('DSL-5:stacked — the term on lines of its own and its values below it after stack.gap, both at the start edge of the fact’s column and no wider than it', async ({ page }) => {

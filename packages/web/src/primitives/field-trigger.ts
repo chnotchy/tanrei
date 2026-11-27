@@ -483,8 +483,14 @@ export class FloatingLabelController implements ReactiveController {
     const root = this.host.renderRoot;
     const field = root?.querySelector<HTMLElement>('.field');
     if (!field) return undefined;
-    const resting = labelLines(root.querySelector('.measure-resting'));
-    const floated = labelLines(root.querySelector('.measure-floated'));
+    const [restingCopy, floatedCopy] = [root.querySelector<HTMLElement>('.measure-resting'), root.querySelector<HTMLElement>('.measure-floated')];
+    // A field that is not rendered (itself or an ancestor `display: none`) lays its copies out nowhere: each reads as one
+    // line, which would take a wrapped label's room away, to be given back a frame after it is shown again. It keeps
+    // what it had; the copies' observer reports them laid out when it is shown, and they are measured then. (Without
+    // copies there is nothing to lay out: one line.)
+    if ((restingCopy || floatedCopy) && !field.getClientRects().length) return undefined;
+    const resting = labelLines(restingCopy);
+    const floated = labelLines(floatedCopy);
     const wraps = resting.count > 1 || floated.count > 1;
     return () => {
       if (field.hasAttribute('data-label-wraps') !== wraps) field.toggleAttribute('data-label-wraps', wraps);

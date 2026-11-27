@@ -402,9 +402,13 @@ export class TanreiBreadcrumbs extends TanreiElement {
   };
 
   private static decideTogether(trails: TanreiBreadcrumbs[], observed: boolean) {
+    // A trail that is not rendered (itself or an ancestor `display: none`) lays nothing out: every level reads 0 wide in
+    // no room, which would say that the whole trail fits and needs no width (BRC-8: the sizer let go, drawn at an SVG's
+    // own 300 px in the frame the trail was shown in again). It decides nothing and keeps what it had; its observer
+    // reports its boxes again when it is shown.
     const live = trails.flatMap((trail) => {
       const list = trail.renderRoot?.querySelector('ol');
-      return list && trail.isConnected && trail.hasUpdated ? [{ trail, list }] : [];
+      return list && trail.isConnected && trail.hasUpdated && list.getClientRects().length ? [{ trail, list }] : [];
     });
     for (const { list } of live) list.classList.add('measure');
     const read = live.map(({ list }) => ({ widths: [...list.querySelectorAll('li.level')].map(width), button: width(list.querySelector('li.more')), room: width(list) }));
