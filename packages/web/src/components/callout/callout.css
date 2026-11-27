@@ -98,14 +98,26 @@
      ones): a box whose lines wrap, the title (the slot's, or the headline's) and the body each a line of their own, then
      a line of no content as tall as the actions' gap less the item gap, then the actions, item-gap apart along a line
      and item-gap above each, centred on their line — so actions.gap below the body, and item-gap between two lines of
-     them. */
+     them.
+     `:has()` is asked of the callout alone, the element it styles (src/styles/has.test.ts says why): what the title and
+     the actions take in the row reaches them as values the callout passes down (`--_callout-*`). A callout without the
+     row passes none, so that one written inside another's takes nothing of the outer one's row. */
+  :where(tanrei-callout:not(:defined)) {
+    --_callout-line: initial;
+    --_callout-title-order: initial;
+    --_callout-actions-order: initial;
+    --_callout-actions-above: initial;
+  }
   :where(tanrei-callout:not(:defined):has(> [slot='actions']):not(:has(> :not([slot])))) {
+    --_callout-line: 100%;
+    --_callout-title-order: -1;
+    --_callout-actions-order: 2;
+    --_callout-actions-above: var(--tanrei-comp-callout-actions-item-gap);
     display: flex;
     flex-wrap: wrap;
     align-items: center;
     column-gap: var(--tanrei-comp-callout-actions-item-gap);
   }
-  :where(tanrei-callout:not(:defined):has(> [slot='actions']):not(:has(> :not([slot])))) > :where([slot='title']),
   :where(tanrei-callout:not(:defined):has(> [slot='actions']):not(:has(> :not([slot]))))::before {
     flex-basis: 100%;
     order: -1;
@@ -116,10 +128,20 @@
     order: 1;
     block-size: calc(var(--tanrei-comp-callout-actions-gap) - var(--tanrei-comp-callout-actions-item-gap));
   }
-  :where(tanrei-callout:not(:defined):has(> [slot='actions']):not(:has(> :not([slot])))) > :where([slot='actions']) {
-    order: 2;
-    max-inline-size: 100%;
-    margin-block-start: var(--tanrei-comp-callout-actions-item-gap);
+  /* The children read what the callout passes them; where it passes nothing, a declaration is `revert-layer`, and the
+     child is laid out as if it were not written. They stand in a layer of their own, below the rest of this one, so
+     that `revert-layer` takes back these declarations alone: what the cloak gives the same child (a Chip's
+     `max-inline-size`, in cloak.css) stays, and wins over them. */
+  @layer children {
+    :where(tanrei-callout:not(:defined)) > :where([slot='title']) {
+      flex-basis: var(--_callout-line, revert-layer);
+      order: var(--_callout-title-order, revert-layer);
+    }
+    :where(tanrei-callout:not(:defined)) > :where([slot='actions']) {
+      order: var(--_callout-actions-order, revert-layer);
+      max-inline-size: var(--_callout-line, revert-layer);
+      margin-block-start: var(--_callout-actions-above, revert-layer);
+    }
   }
   /* CLO-7: the title's letter-spacing follows its script (src/styles/script-tracking.ts). */
   /* script-tracking: :where(tanrei-callout:not(:defined)) > :where([slot='title']) | var(--tanrei-comp-callout-title-typescale-medium-letter-spacing) */

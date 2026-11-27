@@ -128,8 +128,24 @@
      the slotted ones): a box whose lines wrap, centred (at the start for `align="start"`), the media, the title (the
      slot's, or the headline's) and the description each a line of their own, then a line of no content as tall as the
      actions' gap less the item gap, then the actions, item-gap apart along a line and item-gap above each, centred on
-     their line — so actions.gap below the description, and item-gap between two lines of them. */
+     their line — so actions.gap below the description, and item-gap between two lines of them.
+     `:has()` is asked of the empty state alone, the element it styles (src/styles/has.test.ts says why): what the
+     media, the title and the actions take in the row reaches them as values the empty state passes down
+     (`--_empty-state-*`). An empty state without the row passes none, so that one written inside another's takes
+     nothing of the outer one's row. */
+  :where(tanrei-empty-state:not(:defined)) {
+    --_empty-state-line: initial;
+    --_empty-state-media-order: initial;
+    --_empty-state-title-order: initial;
+    --_empty-state-actions-order: initial;
+    --_empty-state-actions-above: initial;
+  }
   :where(tanrei-empty-state:not(:defined):has(> [slot='actions']):not(:has(> :not([slot])))) {
+    --_empty-state-line: 100%;
+    --_empty-state-media-order: -2;
+    --_empty-state-title-order: -1;
+    --_empty-state-actions-order: 2;
+    --_empty-state-actions-above: var(--tanrei-comp-empty-state-actions-item-gap);
     display: flex;
     flex-wrap: wrap;
     align-items: center;
@@ -139,13 +155,6 @@
   :where(tanrei-empty-state[align='start']:not(:defined):has(> [slot='actions']):not(:has(> :not([slot])))) {
     justify-content: flex-start;
   }
-  :where(tanrei-empty-state:not(:defined):has(> [slot='actions']):not(:has(> :not([slot])))) > :where([slot='media']) {
-    order: -2;
-  }
-  :where(tanrei-empty-state:not(:defined):has(> [slot='actions']):not(:has(> :not([slot])))) > :where([slot='media']:not(img, svg, picture, video, canvas)) {
-    flex-basis: 100%;
-  }
-  :where(tanrei-empty-state:not(:defined):has(> [slot='actions']):not(:has(> :not([slot])))) > :where([slot='title']),
   :where(tanrei-empty-state:not(:defined):has(> [slot='actions']):not(:has(> :not([slot]))))::before {
     flex-basis: 100%;
     order: -1;
@@ -156,10 +165,26 @@
     order: 1;
     block-size: calc(var(--tanrei-comp-empty-state-actions-gap) - var(--tanrei-comp-empty-state-actions-item-gap));
   }
-  :where(tanrei-empty-state:not(:defined):has(> [slot='actions']):not(:has(> :not([slot])))) > :where([slot='actions']) {
-    order: 2;
-    max-inline-size: 100%;
-    margin-block-start: var(--tanrei-comp-empty-state-actions-item-gap);
+  /* The children read what the empty state passes them; where it passes nothing, a declaration is `revert-layer`, and
+     the child is laid out as if it were not written. They stand in a layer of their own, below the rest of this one,
+     so that `revert-layer` takes back these declarations alone: what the cloak gives the same child (a Chip's
+     `max-inline-size`, in cloak.css) stays, and wins over them. */
+  @layer children {
+    :where(tanrei-empty-state:not(:defined)) > :where([slot='media']) {
+      order: var(--_empty-state-media-order, revert-layer);
+    }
+    :where(tanrei-empty-state:not(:defined)) > :where([slot='media']:not(img, svg, picture, video, canvas)) {
+      flex-basis: var(--_empty-state-line, revert-layer);
+    }
+    :where(tanrei-empty-state:not(:defined)) > :where([slot='title']) {
+      flex-basis: var(--_empty-state-line, revert-layer);
+      order: var(--_empty-state-title-order, revert-layer);
+    }
+    :where(tanrei-empty-state:not(:defined)) > :where([slot='actions']) {
+      order: var(--_empty-state-actions-order, revert-layer);
+      max-inline-size: var(--_empty-state-line, revert-layer);
+      margin-block-start: var(--_empty-state-actions-above, revert-layer);
+    }
   }
   /* EMP-4: the title's letter-spacing follows its script (src/styles/script-tracking.ts). */
   /* script-tracking: :where(tanrei-empty-state:not(:defined)) > :where([slot='title']) | var(--tanrei-comp-empty-state-title-typescale-medium-letter-spacing) */
