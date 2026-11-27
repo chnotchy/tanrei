@@ -700,8 +700,17 @@ export class TanreiAppShell extends TanreiLightElement {
   // ---- APS-17: the scroll offset ----
 
   private resized(entries: ResizeObserverEntry[]) {
+    // Twice over the report: first what reads the layout (the top and the bar, which write only on the root once they
+    // have read), then the lengths written on the frame. A length written on the frame before a read had the browser
+    // style the whole frame — the page — again for that read, and once more for the frame (a frame whose main region
+    // scrolls, or that has no header: 0.3 s in WebKit and 0.14 s in Chromium, on a page of 17 000 elements).
     for (const entry of entries) {
       const size = entry.borderBoxSize?.[0]?.blockSize ?? entry.contentRect.height;
+      if (entry.target === this.top) this.measure(size);
+      else if (entry.target === this.announcement) this.measure();
+      else if (entry.target === this.bar) this.measureBar(size);
+    }
+    for (const entry of entries) {
       // APS-5: the root's content width, not 100vw: a scrollbar that takes room in the window (a classic one, or the
       // gutter scrollbar-gutter keeps) is no room of the row's. The root, never the frame: the root's width does not
       // follow what it holds, where a frame in a box as wide as its content would follow the room it gives and shrink
@@ -709,12 +718,9 @@ export class TanreiAppShell extends TanreiLightElement {
       if (entry.target === document.documentElement) this.length(WINDOW, entry.contentRect.width);
       // APS-5: the sheet's width in every frame it slides, so that the navigation leaves it room as it comes.
       else if (entry.target === this.sheet) this.length(ASIDE, entry.borderBoxSize?.[0]?.inlineSize ?? entry.contentRect.width);
-      else if (entry.target === this.top) this.measure(size);
-      else if (entry.target === this.announcement) this.measure();
-      else if (entry.target === this.bar) this.measureBar(size);
       // APS-11: where the navigation and the aside stop staying in view (a browser keeps a sticky part inside the
       // frame, not inside its row: the stylesheet takes this much off the end of what it may reach).
-      else if (entry.target === this.footer) this.length(FOOTER, size);
+      else if (entry.target === this.footer) this.length(FOOTER, entry.borderBoxSize?.[0]?.blockSize ?? entry.contentRect.height);
     }
   }
 
@@ -742,8 +748,10 @@ export class TanreiAppShell extends TanreiLightElement {
     // block-start margin) from the top of the window.
     const kept = top !== this.header ? size + (parseFloat(getComputedStyle(top).marginBlockStart) || 0) : this.headerPosition !== 'static' ? size : null;
     const page = this.scrolls !== 'main';
+    // Read before either is written.
+    const inset = page ? kept : top.getBoundingClientRect().bottom - this.getBoundingClientRect().top;
     publish(this, OFFSET, page ? kept : null);
-    publish(this, INSET_TOP, page ? kept : top.getBoundingClientRect().bottom - this.getBoundingClientRect().top);
+    publish(this, INSET_TOP, inset);
   }
 
   /** APS-17: the navigation bar's height while it is shown: over the bottom of the window, and of the scrolling view while the page scrolls. */
