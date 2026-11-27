@@ -1383,6 +1383,55 @@ test.describe('forced colors, scaling, direction', () => {
     expect(await page.evaluate(() => document.getElementById('scripted')!.shadowRoot!.querySelector('#later')!.getAttribute('dir'))).toBeNull();
   });
 
+  test('LNK-26 LNK-14 inside a product’s shadow root that holds only elements drawn in a shadow root of their own — declared in the page’s markup, or attached by script — a standalone link slotted into a dialog’s body takes its label’s own direction as in the document, its trailing glyph after its last word; the root is followed while such an element is in it', async ({ page }) => {
+    const sheets = `<style>${read('dist/icons.css')}\n${read('dist/link.css')}</style>`;
+    /** A right-to-left dialog, open in the declared root only (one modal at a time), with a left-to-right link in its body. */
+    const markup = (open: boolean) =>
+      `<div dir="rtl"><tanrei-dialog ${open ? 'open ' : ''}headline="الصفحة التالية"><p><a class="tanrei-link" data-standalone href="#a" data-icon-position="trailing" id="next">Next page!<span class="tanrei-icon" aria-hidden="true">arrow_forward</span></a></p><tanrei-button slot="actions" dismissive>إغلاق</tanrei-button></tanrei-dialog></div>`;
+    await fresh(page);
+    await mountFixtures(page, spec, { icons: true, fixtures: spec.fixtures.filter((f) => f.id === 'standalone'), lead: `<div id="declared"><template shadowrootmode="open">${sheets}${markup(true)}</template></div>` });
+    await page.evaluate(
+      ([given, html]) => {
+        const outer = document.createElement('div');
+        outer.id = 'scripted';
+        outer.attachShadow({ mode: 'open' }).innerHTML = given + html;
+        document.body.append(outer);
+      },
+      [sheets, markup(false)] as const,
+    );
+    await askForFrame(page);
+    const dir = (host: string, id: string) => page.evaluate(([h, i]) => document.getElementById(h)!.shadowRoot!.querySelector(`#${i}`)!.getAttribute('dir'), [host, id] as const);
+    for (const host of ['declared', 'scripted']) await expect.poll(() => dir(host, 'next'), host).toBe('ltr');
+    // Drawn in the open dialog: the label in its own order, the trailing glyph after its last word, at its right.
+    const drawn = () =>
+      page.evaluate(() => {
+        const next = document.getElementById('declared')!.shadowRoot!.querySelector('#next')!;
+        const text = next.firstChild!;
+        const range = document.createRange();
+        const char = (i: number) => {
+          range.setStart(text, i);
+          range.setEnd(text, i + 1);
+          return range.getBoundingClientRect();
+        };
+        const last = text.textContent!.length - 1;
+        return { ownOrder: char(0).left < char(last).left, glyphAfter: next.querySelector('.tanrei-icon')!.getBoundingClientRect().left >= char(last).right - 0.5 };
+      });
+    await expect.poll(drawn).toEqual({ ownOrder: true, glyphAfter: true });
+    // A label changed later is read again there, as in the document (its words replaced, its glyph kept).
+    await page.evaluate(() => document.getElementById('scripted')!.shadowRoot!.querySelector('#next')!.firstChild!.replaceWith('الصفحة التالية'));
+    await askForFrame(page);
+    await expect.poll(() => dir('scripted', 'next')).toBe('rtl');
+    // Once the last element of the package has left the root, it is no longer followed: a link written there afterwards
+    // is not read.
+    await page.evaluate(() => {
+      const root = document.getElementById('scripted')!.shadowRoot!;
+      root.querySelector('tanrei-dialog')!.remove();
+      root.querySelector('div[dir]')!.insertAdjacentHTML('beforeend', '<a class="tanrei-link" data-standalone href="#b" id="later">Later</a>');
+    });
+    await askForFrame(page);
+    expect(await page.evaluate(() => document.getElementById('scripted')!.shadowRoot!.querySelector('#later')!.getAttribute('dir'))).toBeNull();
+  });
+
   for (const [kind, side] of [['standalone', 'its own direction'], ['marked', 'the direction the page marked']] as const) {
     test(`LNK-26 LNK-14 LNK-31 a left-to-right link in right-to-left text (${kind}) has its glyphs at the ends of its label in ${side}: the leading glyph before its first word, a trailing glyph and the mark’s room after its last, unmirrored, at every width`, async ({ page }) => {
       const label = 'Read the accessibility guide of the example site';
