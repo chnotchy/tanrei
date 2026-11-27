@@ -27,6 +27,7 @@
 //   width (a drawer's breakpoints) reads the stage's. A window is drawn scaled down where the column is narrower than
 //   it. Nothing is fetched for it, so the host's refusal to let any document be framed does not reach it.
 import { fixtureDocument, stageMarkup } from './fixture-documents';
+import { areaOf } from './stage-area';
 import type { Spec, SpecProp } from './repo';
 
 type Fixture = Spec['fixtures'][number] & { slots?: Record<string, string | string[]>; direction?: 'ltr' | 'rtl' };
@@ -78,6 +79,13 @@ export interface Stage {
    * caption names.
    */
   reserve?: Size;
+  /**
+   * For a stage drawn in the page that stands for an area of a window (the staging gives it both of its lengths in
+   * pixels, lib/stage-area.ts): the width it is laid out at and its height, padding and border included. It is scaled
+   * down to its row, and its canvas holds that scaled room from the page's first layout
+   * (components/fixtures/FixtureGallery.astro), not its baseline's.
+   */
+  area?: Size;
 }
 
 /** Where a stage draws its fixture: in the page, in the page closed with an action that opens it, or in a window of its own. */
@@ -281,11 +289,17 @@ export function stageOf(spec: Spec, fixture: Fixture): Stage {
     // Its stage draws it closed, and opens it: the props are those it opens with, less the one that opens it.
     const facts = base.facts.filter((fact) => !fact.startsWith(`${presence}: `));
     const opener = { ...base, facts, drawn: true, kind: 'opener' as const, html: closed(spec, stage.html, presence), presence, markup };
-    if (kind !== 'modal') return { ...opener, reserve: size };
+    if (kind !== 'modal') return { ...opener, reserve: size, ...areaFor(document, opener.html) };
     const picture = size && { src: picturePath(spec.name, fixture.id), width: Math.round(size.width * PICTURE_SCALE), height: Math.round(size.height * PICTURE_SCALE) };
     return { ...opener, modal: true, reserve: whole ?? windowOf(spec, fixture), ...(picture ? { picture } : {}) };
   }
-  return { ...base, drawn: true, kind, html: stage.html, markup, reserve: size };
+  return { ...base, drawn: true, kind, html: stage.html, markup, reserve: size, ...areaFor(document, stage.html) };
+}
+
+/** A stage's area of a window, where it stands for one (`Stage.area`). */
+function areaFor(document: { staging: string; page: boolean }, html: string): { area?: Size } {
+  const area = areaOf(document.staging, html, document.page);
+  return area ? { area } : {};
 }
 
 /** The spec's fixtures as groups of stages: by the grouping axis's values in the spec's order (then any other), or one group. */
