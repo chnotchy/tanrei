@@ -23,3 +23,7 @@ longer the figure's. The name the element asks its root for is now `--_figure-ed
 Page header: a size a design system added is no longer a rule the element inserts into a sheet of the page. Its private
 custom properties are written in the element's own style and taken off for a size of the core. The name the element
 asks its root for is now `--_pgh-dot-color`.
+
+Table of contents: a size a design system added is no longer a sheet the element adds to the page. Its private custom
+properties are written in the element's own style and taken off for a size of the core. The name the element asks its
+root for is now `--_toc-row-floor`.

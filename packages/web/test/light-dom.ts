@@ -96,7 +96,7 @@ export const LIGHT_DOM_SUBJECTS: LightDomSubject[] = [
   {
     tag: 'tanrei-table-of-contents',
     css: 'table-of-contents.css',
-    mark: '--_toc-row-height',
+    mark: '--_toc-row-floor',
     html: (n) => `<tanrei-table-of-contents label="Contents ${n}"><ul><li><a href="#s${n}">Section</a></li></ul></tanrei-table-of-contents>`,
     drawn: { part: 'ul', property: 'padding-left' },
     inside: 'li',

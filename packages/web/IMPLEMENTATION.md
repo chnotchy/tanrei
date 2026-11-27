@@ -9831,7 +9831,7 @@ How it is built, and what follows from it:
 - **The compact form's height** is its layout's: give the element a `max-block-size` (or hold it in a flex or grid track) and the list scrolls inside while the row stays.
 - **`select` and focus in the compact form.** The list closes after the browser has taken the navigation, and nothing is focused: the next Tab continues from the chosen heading, as after any link to a place on the page.
 - **A size taken from a container** (TOC-42) is drawn once the element is defined: it carries the size it draws as the custom state `size-<name>`, which table-of-contents.css matches beside the `size` attribute.
-- **A size a design system adds** gets its rules from the element, read from that size's tokens with the default's as fallbacks.
+- **A size a design system adds** is written by the element in its own style, as the size's private custom properties read from that size's tokens with the default's as fallbacks, and taken off again for a size of the core — never as a rule added to the page.
 - **Inside a shadow root** the element adds the stylesheet to that root. Targets are looked up in the document.
 
 ## `<tanrei-app-shell>` (`app-shell.css`)
