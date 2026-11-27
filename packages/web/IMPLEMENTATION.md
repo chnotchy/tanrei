@@ -125,7 +125,11 @@ And in every engine, whatever is registered:
 
   `setTokens(tokens, { on })` of `@tanrei/web` (`src/set-tokens.ts`) writes the tokens this way: each write also adds or
   takes off names of its own (`--tanrei-tokens-written-<n>`), so the number of names always changes and an element holds
-  a few at most. 2,000 elements: 0.08 s with it, 9.9 s without. (A write that itself adds a name the root did not declare, or takes
+  a few at most. 2,000 elements: 0.08 s with it, 9.9 s without. Each name it adds is one never written before, on any
+  element: the number compared is each element's own, what it holds and what it inherits, and a name added on the root
+  that an element below already held of its own leaves that element's number — and that of everything it holds — as it
+  was (the app shell writes on the root, on itself and on its navigation region: with the same few names on each, one
+  header height in three took 6.9 s on a page of 17,000 elements). (A write that itself adds a name the root did not declare, or takes
   one off, changes the number already: toggling a second name with it can leave the number as it was. The package's
   own tests set every root token through one helper, `rootTokens()` in `test/harness.ts`, which adds a new name of its
   own with each write, and one more for each name it takes off.) A component token can also be set one element lower

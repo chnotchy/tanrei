@@ -137,7 +137,9 @@ const drawn = (element: Element) => element.getClientRects().length > 0;
 const px = (size: number) => `${Math.round(size * 100) / 100}px`;
 
 // Every custom property the frame writes — on the root, on itself, on the navigation region — is written with
-// `writeCounted()`, as `setTokens()` writes: in one write that changes the number of the element's custom properties.
+// `writeCounted()`, as `setTokens()` writes: in one write that changes the number of the element's custom properties,
+// and of every element below it (the names it adds to change the number are new each time: one the root added that
+// the frame or its navigation region already held would leave theirs as it was).
 // WebKit compares an element's set of custom properties with the one before, value by value, for every element that
 // inherits them, when the two are the same size — and each of them holds the whole token set, ten thousand names. A
 // header's height written alone on the root of a documentation page stood WebKit still for 30 to 110 s; with the size

@@ -14,14 +14,21 @@
 //   most the number it takes off;
 // - so adding one marker more than it takes off makes the size grow whatever the write did, and taking off one more
 //   than it gives a value makes it shrink;
-// - it takes them off when the element holds enough, and adds them otherwise, so an element holds at most a few.
+// - it takes them off when the element holds enough, and adds them otherwise, so an element holds at most a few;
+// - each marker it adds is a name this module has not written before, on any element. The size WebKit compares is
+//   each element's own: every name it holds, its own and those it inherits. A marker that an element below already
+//   held (the app shell writes on the root, on itself and on its navigation region) added to the root left that
+//   element's size as it was — one name more inherited, one name of its own fewer — and the comparison ran for it and
+//   everything it holds: 6.9 s for one header height in three on a page of 17,000 elements, when the markers were
+//   `-0`, `-1`, … on every element.
 //
 // A name that already holds its value is not written, and a write that changes nothing adds no marker. Only the
 // element's own style is read, so the write itself forces no style work.
 import { DEBUG } from './primitives/debug.js';
 
-/** The names of the markers: `--tanrei-tokens-written-0`, `-1`, … */
+/** The names of the markers: `--tanrei-tokens-written-<n>`, each `n` once, in the order written. */
 const MARKER = '--tanrei-tokens-written-';
+let markers = 0;
 
 export interface SetTokensOptions {
   /** The element whose own style holds the tokens: the root (`document.documentElement`) when left out. */
@@ -61,13 +68,12 @@ export function writeCounted(style: CSSStyleDeclaration, values: Readonly<Record
     }
   }
   if (given + taken === 0) return;
-  let held = 0;
-  while (style.getPropertyValue(MARKER + held)) held++;
+  const held = [...style].filter((name) => name.startsWith(MARKER));
   // Taking off one more than the write can have added, where the element holds that many: the set is smaller, whatever
-  // the write did. Otherwise adding one more than the write can have taken off: the set is larger.
-  const shrink = held > given;
+  // the write did. Otherwise adding one more than the write can have taken off, each a new name: the set is larger.
+  const shrink = held.length > given;
   for (let n = 0; n <= (shrink ? given : taken); n++) {
-    if (shrink) style.removeProperty(MARKER + (held - 1 - n));
-    else style.setProperty(MARKER + (held + n), '1');
+    if (shrink) style.removeProperty(held[n]);
+    else style.setProperty(MARKER + markers++, '1');
   }
 }

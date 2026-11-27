@@ -21,6 +21,13 @@ What the frame draws is unchanged.
 none of its own names (it changed the number of the element's custom properties, and so restyled what it holds, all
 the same). The app shell writes through the same code.
 
+Each name `setTokens()` adds to change the number (`--tanrei-tokens-written-<n>`) is now one it has not written
+before, on any element. It took `-0`, `-1`, … on every element it wrote, and the number WebKit compares is each
+element's own — what it holds and what it inherits: a name added on the root that an element below already held of its
+own (the app shell writes on the root, on itself and on its navigation region) left that element's number as it was,
+and WebKit compared the token set value by value for it and for everything it holds. On a page of 17,000 elements with
+`scroll="main"`, one header height in three took 6.9 s; each now takes 0.1 s.
+
 The text of its stylesheet that an element drawn in the light DOM carries, to add to a root that does not load the
 stylesheet (the app shell, the table, the description list and the others of that form), is now printed without the
 whitespace that changes nothing, by esbuild's CSS printer: what each draws is unchanged, and their bundles are smaller
