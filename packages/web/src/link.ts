@@ -622,8 +622,8 @@ export function observeLinks(root: Document | ShadowRoot = document): () => void
         if (record.target instanceof HTMLAnchorElement) anchors.add(record.target);
         continue;
       }
-      // A glyph or a text added to an anchor changes what names it.
-      const around = record.target instanceof Element ? record.target.closest('a') : null;
+      // A glyph or a text added to an anchor, or its text changed in place, changes what names it and its direction.
+      const around = (record.target instanceof Element ? record.target : record.target.parentElement)?.closest('a');
       if (around) anchors.add(around);
       for (const node of record.addedNodes) {
         if (!(node instanceof Element)) continue;
@@ -633,7 +633,7 @@ export function observeLinks(root: Document | ShadowRoot = document): () => void
     }
     readAll(links(anchors));
   });
-  observer.observe(root, { attributes: true, attributeFilter: ATTRIBUTES, childList: true, subtree: true });
+  observer.observe(root, { attributes: true, attributeFilter: ATTRIBUTES, childList: true, characterData: true, subtree: true });
   // Where there are no style queries the root's own attributes may name another design system: its choices are read again.
   let systemObserver: MutationObserver | null = null;
   const watchSystem = () => {

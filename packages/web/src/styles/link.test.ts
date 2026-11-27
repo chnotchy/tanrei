@@ -1461,6 +1461,39 @@ test.describe('forced colors, scaling, direction', () => {
     await page.locator('#given').evaluate((el) => el.removeAttribute('data-standalone'));
     await expect(page.locator('#given')).toHaveAttribute('dir', 'rtl');
   });
+
+  test('LNK-26 LNK-14 a label whose text is changed in place — the text node’s data, as a framework updates it — is read again: its direction follows, and with it the side of its trailing glyph', async ({ page }) => {
+    await mount(
+      page,
+      '<p><a class="tanrei-link" data-standalone href="#a" id="plain">ابدأ</a></p><p><a class="tanrei-link" data-standalone href="#a" id="trail" data-icon-position="trailing">الصفحة التالية<span class="tanrei-icon" aria-hidden="true">arrow_forward</span></a></p><p><a class="tanrei-link" data-standalone href="#a" id="nested"><span>ابدأ</span></a></p>',
+      { direction: 'rtl' },
+    );
+    for (const id of ['plain', 'trail', 'nested']) await expect(page.locator(`#${id}`)).toHaveAttribute('dir', 'rtl');
+    /** Whether the trailing glyph stands after the label's last character in the label's direction. */
+    const glyphAfter = () =>
+      page.locator('#trail').evaluate((el) => {
+        const text = el.firstChild as Text;
+        const range = document.createRange();
+        range.setStart(text, text.length - 1);
+        range.setEnd(text, text.length);
+        const last = range.getBoundingClientRect();
+        const glyph = el.querySelector('.tanrei-icon')!.getBoundingClientRect();
+        return getComputedStyle(el).direction === 'rtl' ? glyph.right <= last.left + 0.5 : glyph.left >= last.right - 0.5;
+      });
+    expect(await glyphAfter()).toBe(true);
+    // The text nodes are changed in place: a characterData mutation, no node added or taken away.
+    await page.evaluate(() => {
+      (document.getElementById('plain')!.firstChild as Text).data = 'Get started';
+      (document.getElementById('trail')!.firstChild as Text).data = 'Next page';
+      (document.querySelector('#nested > span')!.firstChild as Text).data = 'Get started';
+    });
+    for (const id of ['plain', 'trail', 'nested']) await expect(page.locator(`#${id}`)).toHaveAttribute('dir', 'ltr');
+    expect(await css(page.locator('#trail'), 'direction')).toBe('ltr');
+    expect(await glyphAfter()).toBe(true);
+    // And back: an in-place change to a right-to-left label takes the link back to right to left.
+    await page.evaluate(() => ((document.getElementById('plain')!.firstChild as Text).data = 'ابدأ'));
+    await expect(page.locator('#plain')).toHaveAttribute('dir', 'rtl');
+  });
 });
 
 test.describe('prose', () => {
