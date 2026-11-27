@@ -14,6 +14,10 @@ import { forwardAs } from './forward.js';
 // "Nearest" is taken up the composed tree — the parent element, or the host of the shadow root an element is in — so a
 // component the product places in a container's light DOM takes that container's size, and one a component draws in
 // its own shadow root takes the size of the containers around that component.
+//
+// Each element's module may arrive on its own, so a component can be defined before the container around it: a
+// container that is not defined yet provides the size its `size` attribute sets (PROVIDERS), as it will once it is
+// defined. Its module arriving then changes nothing a component already draws.
 
 /** The size names a container may pass, smallest first: what a component that lacks one is drawn at is read here. */
 export const SIZE_LADDER = ['extra-small', 'small', 'medium', 'large', 'extra-large'] as const;
@@ -21,6 +25,9 @@ export const SIZE_LADDER = ['extra-small', 'small', 'medium', 'large', 'extra-la
 /** What a providing container answers: the size set on it, or null while none is. */
 const PROVIDES = Symbol('tanrei.size-provider');
 type Provider = Element & { [PROVIDES]?: () => string | null };
+
+/** The containers that provide a size (`SizeProviderController`): one not defined yet provides its `size` attribute. */
+const PROVIDERS = ['tanrei-button-group', 'tanrei-toolbar', 'tanrei-list'];
 
 /** Every component connected to a page that takes a size its container sets: asked again when a container changes. */
 const consumers = new Set<SizeConsumerController>();
@@ -34,7 +41,8 @@ const parentOf = (node: Node): Element | null => {
 /** The size the nearest container around `element` that has one set provides, or null. */
 function providedTo(element: Element): string | null {
   for (let node = parentOf(element); node; node = parentOf(node)) {
-    const size = (node as Provider)[PROVIDES]?.();
+    const provides = (node as Provider)[PROVIDES];
+    const size = provides ? provides() : PROVIDERS.includes(node.localName) && node.getAttribute('size');
     if (size) return size;
   }
   return null;
