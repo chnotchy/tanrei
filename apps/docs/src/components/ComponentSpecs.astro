@@ -51,14 +51,17 @@ const noteHtml = (notes: string | undefined) => (notes ?? '').replace(/&/g, '&am
 {/* In the page's Markdown, the spec's own Markdown stands in place of everything drawn here (lib/page-markdown.mjs). */}
 <Fragment set:html={markdownMark.spec(spec.name)} />
 <h3>{t.anatomy}</h3>
-{/* The figure numbers the parts over the live component; the table under it is its legend. */}
+{/* The figure numbers the parts over the live component; the table under it is its legend. A part's number and its name
+    are parted by a no-break space: a space under `nowrap` before a name that wraps after its hyphens (`.part` below) is
+    a place to break that Firefox did not count when it first sized the table's first column and counted once the
+    page's elements were defined, so the column narrowed and the table changed height as the page loaded. */}
 <AnatomyDiagram name={spec.name} describedBy={`docs-anatomy-${spec.name}`} />
 <div id={`docs-anatomy-${spec.name}`}><Table label={t.anatomy}><table class="described" role="table">
   <thead role="rowgroup"><tr role="row"><th scope="col" role="columnheader">{t.part}</th><th scope="col" role="columnheader">{t.description}</th></tr></thead>
   <tbody role="rowgroup">
     {spec.anatomy.map((part, i) => (
       <tr role="row">
-        <td role="cell"><span class="part"><span class="num">{i + 1}</span> <code>{part.id}</code></span>{part.optional && <em class="docs-muted"> · {t.optional}</em>}</td>
+        <td role="cell"><span class="part"><span class="num">{i + 1}</span>&nbsp;<code>{part.id}</code></span>{part.optional && <em class="docs-muted"> · {t.optional}</em>}</td>
         <td role="cell">{part.description}</td>
       </tr>
     ))}

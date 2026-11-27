@@ -33,17 +33,4 @@ const CASES = [
   { url: '/components/app-bar/', viewport: PHONE, system: 'cupertino' },
 ];
 
-/**
- * What is known to change its height once its elements are defined, and why: each is still read and reported, as a
- * TODO rather than a failure, once every other assertion of its test holds. Take one off once it keeps its height.
- */
-const KNOWN = [
-  {
-    url: '/components/app-bar/',
-    width: WIDE.width,
-    box: 'table "Anatomy"',
-    why: "in Firefox the table's automatic layout gives its first column 159.6 px before the table is defined and 139.1 px once it is, so its last row's description takes one line fewer (646 → 624 px): the table's own room (components/Table.astro), which holds no element but the table",
-  },
-];
-
-heldRoomTests({ cases: CASES, known: KNOWN });
+heldRoomTests({ cases: CASES });
