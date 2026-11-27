@@ -3197,24 +3197,23 @@ export class TanreiNavigationDrawer extends TanreiElement {
   /** NVD-62: the first frame is laid out, its order taken, and about to be painted. */
   private firstFrameDrawn() {
     this.painted = true;
-    // The first frame is about to be drawn: an offset that was written into it has done its work, and what was given so
-    // far is settled in the styles before the motions are given back (the frame's own style, unless a write of the
-    // phase changed it since).
+    // The first frame is about to be drawn: an offset that was written into it has done its work.
     if (!this.unwritten) this.givenOffset = null;
-    // Settled once for every drawer of the phase, after all its writes and before its paint: a drawer that settled the
-    // styles itself would have the browser style the page again for each, after the one before gave its motions back.
+    // The motions are given back in a task after this frame, which the frame has styled with them held — what was given
+    // so far, and what the phase writes, included: they come back with no value changed, and start nothing. Nothing is
+    // read for it. Given back in the phase instead, the frame's style had to be taken first (a read of the layout after
+    // every write of the phase), or the motions would have started from it: on a loading page that read had the browser
+    // style and lay out the whole page once more before its first paint. One task for every drawer of the phase.
     const arrived = TanreiNavigationDrawer.arrived;
     if (!arrived.length) {
-      queueMicrotask(() => {
-        const due = arrived.splice(0);
-        void due.find((drawer) => drawer.isConnected)?.offsetHeight;
-        for (const drawer of due) drawer.removeAttribute('data-arriving');
+      setTimeout(() => {
+        for (const drawer of arrived.splice(0)) drawer.removeAttribute('data-arriving');
       });
     }
     arrived.push(this);
   }
 
-  /** NVD-62: the drawers whose first frame is drawn, given their motions back together once the phase has written. */
+  /** NVD-62: the drawers whose first frame is drawn, given their motions back together in a task after that frame. */
   private static readonly arrived: TanreiNavigationDrawer[] = [];
 
   // ---- what the drawer is drawn as (NVD-30, NVD-53…55) ----
