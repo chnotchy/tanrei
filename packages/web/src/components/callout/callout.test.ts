@@ -1279,7 +1279,7 @@ test.describe('behavior', () => {
     expect(await page.locator('#in-page').evaluate((el) => [getComputedStyle(el).maxWidth, getComputedStyle(el).minWidth])).toEqual(['none', expect.stringMatching(/^(0px|auto)$/)]);
   });
 
-  test('CLO-22, CLO-13: content written in the page keeps its place before the element is defined — the stylesheet gives it the box the element will have — so nothing moves when it is defined, and one that starts closed takes no space', async ({ page }) => {
+  test('CLO-22, CLO-13, CLO-7, CLO-9: content written in the page keeps its place before the element is defined — the stylesheet gives it the box the element will have, a title given as `headline` and the row of its actions — so nothing moves when it is defined, and one that starts closed takes no space', async ({ page }) => {
     const callouts = `
       <tanrei-callout id="a" status="info"><p slot="title">A revised spec, not yet on every platform</p>The web draws this revision. SwiftUI, Compose, Flutter and React Native still draw the previous one.</tanrei-callout>
       <p class="after">After a.</p>
@@ -1289,6 +1289,12 @@ test.describe('behavior', () => {
       <p class="after">After c.</p>
       <tanrei-callout id="d">Sizes are minimums: a control grows with enlarged text.</tanrei-callout>
       <p class="after">After d.</p>
+      <tanrei-callout id="e" status="warning" headline="The file changed on disk">You have edits here that are not in it. Nothing is overwritten until you choose.<a slot="actions" href="#reload">Reload from disk</a><a slot="actions" href="#keep">Keep mine</a></tanrei-callout>
+      <p class="after">After e.</p>
+      <tanrei-callout id="f" size="large" headline="Search now covers the release notes">Press the close button to close it.</tanrei-callout>
+      <p class="after">After f.</p>
+      <tanrei-callout id="g" headline="A title alone"></tanrei-callout>
+      <p class="after">After g.</p>
       <tanrei-callout id="closed" open="false" status="error" live>Shown later.</tanrei-callout>
       <p class="after">After the closed one.</p>`;
     const bundle = dist('tanrei.bundle.js');
@@ -1311,7 +1317,7 @@ test.describe('behavior', () => {
           return rect(range);
         };
         return {
-          callouts: [...document.querySelectorAll('tanrei-callout')].map((el) => ({ id: el.id, box: rect(el), text: text(el), title: el.querySelector('[slot="title"]') ? rect(el.querySelector('[slot="title"]')!) : null, blocks: [...el.querySelectorAll('.tanrei-prose > *')].map(rect) })),
+          callouts: [...document.querySelectorAll('tanrei-callout')].map((el) => ({ id: el.id, box: rect(el), text: text(el), title: el.querySelector('[slot="title"]') ? rect(el.querySelector('[slot="title"]')!) : null, blocks: [...el.querySelectorAll('.tanrei-prose > *')].map(rect), actions: [...el.querySelectorAll('[slot="actions"]')].map(rect) })),
           after: [...document.querySelectorAll('.after')].map(rect),
         };
       });
@@ -1339,6 +1345,7 @@ test.describe('behavior', () => {
       close(was.text, now.text, `${was.id} text`);
       close(was.title, now.title, `${was.id} title`);
       was.blocks.forEach((block, n) => close(block, now.blocks[n], `${was.id} block ${n}`));
+      was.actions.forEach((action, n) => close(action, now.actions[n], `${was.id} action ${n}`));
     }
     before.after.forEach((was, i) => close(was, after.after[i], `what follows callout ${i}`));
     // …and it is the element now: the fill, the glyph, the close button.
