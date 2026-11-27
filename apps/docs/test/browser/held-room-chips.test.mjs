@@ -34,12 +34,6 @@ const CASES = [
  */
 const ENTRIES = "a chip field draws its entries from its `value`, a list written as JSON, which CSS cannot read as a list: the cloak holds its box at one line, and its chips take as many lines as they need once it is defined";
 const KNOWN = [
-  {
-    url: '/components/chip/',
-    width: WIDE.width,
-    box: 'table "Anatomy"',
-    why: "in Firefox the table's automatic layout gives its columns other widths before the table is defined than once it is, so its descriptions take other numbers of lines (486 → 464 px): the table's own room (components/Table.astro), which holds no element but the table, as on the App bar's page",
-  },
   { url: '/components/chip-field/', box: '#docs-figure-1-stage', why: ENTRIES },
   { url: '/components/chip-field/', box: '#docs-figure-3-stage', why: ENTRIES },
   {
