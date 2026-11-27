@@ -341,7 +341,11 @@
     opacity: 0;
     transition: opacity var(--tanrei-comp-tree-view-motion-state-duration) var(--tanrei-comp-tree-view-motion-state-easing);
   }
-  :where(tanrei-tree-view[guides='hover']:is(:hover, :focus-within)) :where(li) > :where(ul, ol)::before {
+  /* One selector for each condition, never `:is(:hover, :focus-within)`: WebKit cannot tell which element such a list
+     depends on, and restyles everything inside each element whose hover or focus-within changes — the whole page, for
+     any pointer move or focus change on it (60 ms on a long page of the documentation), tree or no tree. */
+  :where(tanrei-tree-view[guides='hover']:hover) :where(li) > :where(ul, ol)::before,
+  :where(tanrei-tree-view[guides='hover']:focus-within) :where(li) > :where(ul, ol)::before {
     opacity: 1;
   }
 
