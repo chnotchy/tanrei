@@ -9056,7 +9056,7 @@ and everything vertical are not. Which names mirror is a fact about the icon set
 | Where the glyph is | What mirrors it |
 |---|---|
 | a component's own glyph (search's back arrow) and a glyph in a component's icon slot (`<span slot="icon">arrow_forward</span>`, a `.tanrei-icon`) | the component: it reads the name and marks the element (`data-tanrei-mirrored`); its icon styles mirror the mark under `:dir(rtl)` |
-| a bare `<span class="tanrei-icon">arrow_back</span>` | the observer `@tanrei/web` installs when it loads — `import '@tanrei/web/icons'` is that script alone, for a page that uses `icons.css` without the components. `observeIcons(root)` does the same for a shadow root of your own, which the document's observer cannot see into |
+| a bare `<span class="tanrei-icon">arrow_back</span>` | the observer `@tanrei/web` installs when it loads — `import '@tanrei/web/icons'` is that script alone, for a page that uses `icons.css` without the components. The document's observer cannot see into a shadow root: in a shadow root of yours that holds an element drawn in the light DOM (an accordion, a tree view, a table…), the element tells when it is connected and disconnected (`TanreiLightElement`, `src/primitives/light-hosts.ts`) and the same script observes that root while one is there (`observeIconsWhereUsed()`), so a `.tanrei-icon` in its header or row mirrors as in the document. `observeIcons(root)` does the same for a shadow root of your own that holds none; its function lets go of the root, which is observed until every caller has let go |
 | a page with no script at all | nothing reads the names: write `data-mirror="always"` yourself on each glyph that shows a direction |
 | an `<svg>`, an `<img>` or any element of yours in a slot | never mirrored for you — Tanrei cannot know what a picture shows. `data-mirror="always"` on it mirrors it |
 | a glyph a light-DOM stylesheet draws itself as generated content (a tree view's start chevron, a row's `::before`) | the element, on its own box: a pseudo-element can carry no mark, so `GeneratedGlyphMirror` asks the same question of the set — for the family the stylesheet draws it with, `sys.icon.family.unselected` — when the element is connected and when the system is switched, and the element writes its answer on itself (`data-tanrei-chevron-unmirrored` where the set does not mark `chevron_right`). Every set Tanrei ships marks it, so the stylesheet mirrors it where that mark is absent, before the element is defined too; under a product layer's own set it is drawn, and turned while open, as in left-to-right |
@@ -10653,7 +10653,12 @@ text, with no white space between them** (a space there is drawn, and widens the
 **The stylesheet alone** draws the whole look and every state, including the press: `:active` is the overlay, held for
 `sys.motion.duration.press-hold`. **The script** — `@tanrei/web` loads it; `@tanrei/web/link` is the script alone;
 `observeLinks(root)` for a shadow root of your own — adds, through listeners on the document, what a stylesheet
-cannot: the shared press primitive (`data-pressed`: overlay, ripple, dim, none — on pointer down and Enter, never
+cannot. The document's listeners cannot see into a shadow root: in a shadow root of yours that holds an element drawn
+in the light DOM (an app shell, whose skip link is a `.tanrei-link`; a table, an accordion…), the element tells when it
+is connected and disconnected (`TanreiLightElement`, `src/primitives/light-hosts.ts`) and the same script observes that
+root while one is there, so a link in it is read as in the document. `observeLinks(root)` does the same for a shadow
+root of yours that holds none; its function lets go of the root, which is observed until every caller has let go. What
+it adds: the shared press primitive (`data-pressed`: overlay, ripple, dim, none — on pointer down and Enter, never
 Space), `noopener` on a link that opens a new context, the refusals of LNK-21 (the address is taken off the anchor, so
 it has no role and takes no focus), `data-focus-style` where the browser has no style queries, a disabled link that
 still carries an address opening nothing, what leaves the site and the words for it (below), and the debug reports

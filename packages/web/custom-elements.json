@@ -54547,7 +54547,7 @@
         },
         {
           "kind": "class",
-          "description": "An element of this package that draws in the light DOM: MOT-3's settling; its stylesheet carries the rule (`settleRule()`).",
+          "description": "An element of this package that draws in the light DOM: MOT-3's settling; its stylesheet carries the rule\n(`settleRule()`). It tells when it is connected and disconnected, so that what the product puts in it is read in a\nshadow root too, as it is in the document, whose observers cannot see into one (src/primitives/light-hosts.ts): a\n`.tanrei-icon` in an accordion's header or a tree view's row is marked to mirror in right-to-left, and a\n`.tanrei-link` (an app shell's skip link) is given what the Link's script adds, its label's own direction among it.",
           "name": "TanreiLightElement",
           "superclass": {
             "name": "ReactiveElement",
