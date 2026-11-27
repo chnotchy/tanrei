@@ -1087,14 +1087,19 @@ test.describe('behavior', () => {
       expect(await textStyle(title)).toEqual(await role(page, `title-typescale-${size}`));
       sameColor(await painted(title, 'color'), await tokenColor(page, 'title-color'));
       expect(await css(title, 'margin-block-end')).toBe(`${await token(page, 'title-gap')}px`);
-      // A glyph's name is not shown as text.
-      await expect(e.locator('> [slot="media"]')).toBeHidden();
+      // A glyph is the box it will be drawn in, the media gap above the title; its name is not shown as text.
+      const glyph = e.locator('> [slot="media"]');
+      const glyphBox = await box(glyph);
+      near(glyphBox.width, await token(page, `media-size-${size}`), `${id}: the glyph's box is the media size wide`, 0.5);
+      near(glyphBox.height, await token(page, `media-size-${size}`), `${id}: the glyph's box is the media size high`, 0.5);
+      expect(await css(glyph, 'font-size')).toBe('0px');
+      expect(await css(glyph, 'margin-block-end')).toBe(`${await token(page, 'media-gap')}px`);
       before[id] = await box(e);
     }
     // A picture is shown, in its place.
     await expect(el('pic').locator('> img')).toBeVisible();
     near(middle(await box(el('pic').locator('> img'))), middle(await box(el('pic'))), 'the picture is centred', 1);
-    // Defined: none of those rules matches, and the block is where it was — taller by the glyph it now draws.
+    // Defined: none of those rules matches, and the block is where it was, as high as it was.
     await page.addScriptTag({ content: dist('tanrei.bundle.js'), type: 'module' });
     await page.waitForFunction((tag) => !!customElements.get(tag), TAG);
     await frames(page);
@@ -1103,7 +1108,7 @@ test.describe('behavior', () => {
       expect(await css(e, 'padding-block-start')).toBe('0px');
       const after = await box(e);
       expect(after.width).toBe(before[id].width);
-      near(after.height, before[id].height + (await token(page, `media-size-${size}`)) + (await token(page, 'media-gap')), `${id}: the same block, with its glyph`, 1);
+      near(after.height, before[id].height, `${id}: the same block, its glyph drawn in the box it kept`, 1);
     }
   });
 });
