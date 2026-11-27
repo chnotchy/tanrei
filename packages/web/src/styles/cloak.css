@@ -43,9 +43,11 @@
  *   - an element the page sizes (a scroll area, a split view) is laid out as the box the size applies to;
  *   - a card's content between its paddings; a badge as the box of its anchor;
  *   - a tag group's lines, and a text input's entries (chips in its `entries` slot) and its typing part.
- *   A text is held at one line: a label, a help or an error longer than its line wraps when the element is defined,
- *   and the page below it moves down by the lines it adds — but the label a checkbox, a radio button or a switch draws
- *   beside its control, which is written (its `label`) in the label's text style and wraps where it will. The width is
+ *   A text is held at one line: a label longer than its line wraps when the element is defined, and the page below it
+ *   moves down by the lines it adds — but the label a checkbox, a radio button or a switch draws beside its control,
+ *   which is written (its `label`) in the label's text style and wraps where it will, and a field's help or error
+ *   text, written in the supporting text's style where the field draws it (a help beside a count, whose width CSS
+ *   cannot measure, may still take a line more). The width is
  *   held where the element draws its words from an attribute — a tag's label, a chip's, a selection control's, a main action
  *   button's, a button with menu's, a segment's — and where it draws the words written between its tags — a button's
  *   label, in the label's text style — with the glyph's box in place of its name, so that a row of them wraps where it
@@ -1294,10 +1296,10 @@
        float it in its own box (a stacked one) — one line of the label's text role, and the label's gap below it. A
        glyph before the label, a requirement tag after it and a value text at its end are drawn within that line.
      - The supporting row, where it is drawn: a help, an error text while the field is in error, or a count — the
-       supporting text's gap, then one line of its text role. Under the `replace` placement (the first value) the
-       error text stands in the help's place; under `append` it is drawn below the help, the error text's gap
+       supporting text's gap, then the text in its text role (below). Under the `replace` placement (the first value)
+       the error text stands in the help's place; under `append` it is drawn below the help, the error text's gap
        between.
-     A label or a text longer than its line wraps when the field is defined, and is held at one line. */
+     A label longer than its line wraps when the field is defined, and is held at one line. */
   :where(tanrei-chip-field, tanrei-color-field, tanrei-combobox-field, tanrei-number-field, tanrei-one-time-code-field, tanrei-select-field, tanrei-slider-field, tanrei-text-field):where(:not(:defined)):where([label]:not([label=''], [label-hidden], [variant='outlined'], [variant='filled'])) {
     padding-block-start: calc(var(--tanrei-comp-field-label-typescale-line-height) * var(--tanrei-comp-field-label-typescale-font-size) + var(--tanrei-comp-field-label-gap));
   }
@@ -1322,13 +1324,70 @@
   :where(tanrei-field):where(:not(:defined)):where([label]:not([label=''], [label-hidden])):where(:has(> :is(tanrei-color-input, tanrei-combobox, tanrei-number-input, tanrei-select, tanrei-text-input)[variant='filled']:not([label]:not([label=''])))) {
     padding-block-start: calc(max(var(--_cloak-box), var(--_cloak-labelled)) - var(--_cloak-box));
   }
+  /* The supporting row: the supporting text's gap below the control (the element's padding), and the row's text laid
+     out in its text role, unpainted, as the field will draw it (the element's `::after`): the help, or the error text
+     in the help's place while the field is in error — or, where it draws a count alone, one empty line — so that a text
+     that wraps holds its lines. It starts and ends where the control's content does (FLD-26): the input box's
+     padding, or its leading glyph's room; at its end the narrower of the box's two paddings (its padding beside a
+     trailing glyph, which a clear button, a chevron or a password's toggle may draw), so that the text is never held
+     narrower than it is drawn. A Field takes them from an input box between its tags, at the default size; the other
+     controls say no inset. A composed field keeps its control's box above the text (the `::before`, as high as the
+     element's least height, on the line of what is written between its tags). */
   :where(tanrei-chip-field, tanrei-color-field, tanrei-combobox-field, tanrei-field, tanrei-number-field, tanrei-one-time-code-field, tanrei-select-field, tanrei-slider-field, tanrei-text-field):where(:not(:defined)):where([supporting-text]:not([supporting-text='']), [error][error-text]:not([error-text='']), [counter], [count-text]:not([count-text=''])) {
-    padding-block-end: calc(var(--tanrei-comp-field-supporting-text-gap) + var(--tanrei-comp-field-supporting-text-typescale-line-height) * var(--tanrei-comp-field-supporting-text-typescale-font-size));
+    padding-block-end: var(--tanrei-comp-field-supporting-text-gap);
   }
+  :where(tanrei-chip-field, tanrei-color-field, tanrei-combobox-field, tanrei-number-field, tanrei-one-time-code-field, tanrei-select-field, tanrei-slider-field, tanrei-text-field):where(:not(:defined)):where([supporting-text]:not([supporting-text='']), [error][error-text]:not([error-text='']), [counter], [count-text]:not([count-text='']))::before {
+    content: '';
+    display: inline-block;
+    vertical-align: top;
+    min-block-size: inherit;
+  }
+  :where(tanrei-chip-field, tanrei-color-field, tanrei-combobox-field, tanrei-field, tanrei-number-field, tanrei-one-time-code-field, tanrei-select-field, tanrei-slider-field, tanrei-text-field):where(:not(:defined)):where([supporting-text]:not([supporting-text='']), [error][error-text]:not([error-text='']), [counter], [count-text]:not([count-text='']))::after {
+    content: '';
+    display: block;
+    flex: none;
+    min-block-size: 1lh;
+    padding-inline: var(--_cloak-inset-start, 0px) var(--_cloak-inset-end, 0px);
+    font: var(--tanrei-comp-field-supporting-text-typescale-font-weight) var(--tanrei-comp-field-supporting-text-typescale-font-size)/var(--tanrei-comp-field-supporting-text-typescale-line-height) var(--tanrei-comp-field-supporting-text-typescale-font-family);
+    letter-spacing: var(--tanrei-comp-field-supporting-text-typescale-letter-spacing);
+    overflow-wrap: break-word;
+    unicode-bidi: plaintext;
+  }
+  :where(tanrei-chip-field, tanrei-color-field, tanrei-combobox-field, tanrei-field, tanrei-number-field, tanrei-one-time-code-field, tanrei-select-field, tanrei-slider-field, tanrei-text-field):where(:not(:defined)):where([supporting-text]:not([supporting-text='']))::after {
+    content: attr(supporting-text);
+  }
+  :where(tanrei-chip-field, tanrei-color-field, tanrei-combobox-field, tanrei-field, tanrei-number-field, tanrei-one-time-code-field, tanrei-select-field, tanrei-slider-field, tanrei-text-field):where(:not(:defined)):where([error][error-text]:not([error-text='']))::after {
+    content: attr(error-text);
+  }
+  /* Under `append` the error text is drawn below the help, the error text's gap between, and is held at one line. */
   @container style(--tanrei-comp-field-error-text-placement: append) {
-    :where(tanrei-chip-field, tanrei-color-field, tanrei-combobox-field, tanrei-field, tanrei-number-field, tanrei-one-time-code-field, tanrei-select-field, tanrei-slider-field, tanrei-text-field):where(:not(:defined)):where([supporting-text]:not([supporting-text=''])):where([error][error-text]:not([error-text=''])) {
-      padding-block-end: calc(var(--tanrei-comp-field-supporting-text-gap) + 2 * var(--tanrei-comp-field-supporting-text-typescale-line-height) * var(--tanrei-comp-field-supporting-text-typescale-font-size) + var(--tanrei-comp-field-error-text-gap));
+    :where(tanrei-chip-field, tanrei-color-field, tanrei-combobox-field, tanrei-field, tanrei-number-field, tanrei-one-time-code-field, tanrei-select-field, tanrei-slider-field, tanrei-text-field):where(:not(:defined)):where([supporting-text]:not([supporting-text=''])):where([error][error-text]:not([error-text='']))::after {
+      content: attr(supporting-text);
+      padding-block-end: calc(var(--tanrei-comp-field-error-text-gap) + 1lh);
     }
+  }
+  :where(tanrei-field:has(> :is(tanrei-color-input, tanrei-combobox, tanrei-number-input, tanrei-select, tanrei-text-input))):where(:not(:defined)) {
+    --_cloak-inset-start: min(var(--tanrei-comp-input-box-container-padding-inline-medium), var(--tanrei-comp-input-box-container-padding-inline-with-icon-medium));
+    --_cloak-inset-end: var(--_cloak-inset-start);
+  }
+  :where(tanrei-chip-field, tanrei-color-field, tanrei-combobox-field, tanrei-number-field, tanrei-select-field, tanrei-text-field):where(:not(:defined)) {
+    --_cloak-inset-start: var(--tanrei-comp-input-box-container-padding-inline-medium);
+    --_cloak-inset-end: min(var(--tanrei-comp-input-box-container-padding-inline-medium), var(--tanrei-comp-input-box-container-padding-inline-with-icon-medium));
+    --_cloak-inset-lead: calc(var(--tanrei-comp-input-box-container-padding-inline-with-icon-medium) + var(--tanrei-comp-input-box-icon-size-medium) + var(--tanrei-comp-input-box-container-gap-medium));
+  }
+  :where(tanrei-chip-field, tanrei-color-field, tanrei-combobox-field, tanrei-number-field, tanrei-select-field, tanrei-text-field):where([size='small']):where(:not(:defined)) {
+    --_cloak-inset-start: var(--tanrei-comp-input-box-container-padding-inline-small);
+    --_cloak-inset-end: min(var(--tanrei-comp-input-box-container-padding-inline-small), var(--tanrei-comp-input-box-container-padding-inline-with-icon-small));
+    --_cloak-inset-lead: calc(var(--tanrei-comp-input-box-container-padding-inline-with-icon-small) + var(--tanrei-comp-input-box-icon-size-small) + var(--tanrei-comp-input-box-container-gap-small));
+  }
+  :where(tanrei-chip-field, tanrei-color-field, tanrei-combobox-field, tanrei-number-field, tanrei-select-field, tanrei-text-field):where([size='large']):where(:not(:defined)) {
+    --_cloak-inset-start: var(--tanrei-comp-input-box-container-padding-inline-large);
+    --_cloak-inset-end: min(var(--tanrei-comp-input-box-container-padding-inline-large), var(--tanrei-comp-input-box-container-padding-inline-with-icon-large));
+    --_cloak-inset-lead: calc(var(--tanrei-comp-input-box-container-padding-inline-with-icon-large) + var(--tanrei-comp-input-box-icon-size-large) + var(--tanrei-comp-input-box-container-gap-large));
+  }
+  :where(tanrei-combobox-field, tanrei-select-field, tanrei-text-field):where([leading-icon]:not([leading-icon='']), :has(> [slot='leading-icon'])):where(:not(:defined)),
+  :where(tanrei-color-field:not(:defined)) {
+    --_cloak-inset-start: var(--_cloak-inset-lead);
   }
 
   /* A group of fields or of choices: its controls between its rows, from the group's tokens — the label row (a label

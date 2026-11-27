@@ -2,7 +2,8 @@
 '@tanrei/web': patch
 ---
 
-Before their elements are defined, lists, menus drawn in place and menu bars keep the box they are drawn in.
+Before their elements are defined, lists, menus drawn in place, menu bars and fields whose help or error text wraps
+keep the box they are drawn in.
 
 - The cloak (`@tanrei/web/cloak.css`) lays a list out as the list lays out its items: a column, a line or lines that
   wrap, its `gap` apart. In a reorderable list each item keeps its handle's room; an action, a link or an option keeps
@@ -17,3 +18,7 @@ Before their elements are defined, lists, menus drawn in place and menu bars kee
   text, which the element draws from what CSS cannot measure.
 - `menubar.css` holds a bar at the height it is drawn: one row of titles between its paddings, where it holds no link
   item to show. Before, a bar of titles was as tall as its paddings alone (72 px before, 108 px drawn).
+- The cloak lays a field's help, or its error text while it is in error, out in the supporting text's style where the
+  field draws it, from the start of its control's content, so a text that wraps holds its lines. Before, the cloak held
+  one line of it: a docs figure of two narrow color fields was 248 px high before and 280 px drawn. A label that wraps,
+  and a help beside a count, are still held at fewer lines than they may take.

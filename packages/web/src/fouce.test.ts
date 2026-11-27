@@ -670,6 +670,48 @@ test.describe('the cloak holds a multi-line input at its fewest rows, at every s
   }
 });
 
+test.describe('the cloak holds a field’s help and its error text at the lines they wrap onto', () => {
+  // FLD-7, FLD-26, FLD-31: a help or an error text longer than its line wraps where the field draws it, from the start
+  // of the control's content. The cloak held one line of it, so a narrow field grew when it was defined: on the docs'
+  // Color field page, two fields 17.5rem wide were 248 px high before and 280 px drawn. Held here in fields narrow
+  // enough that their texts take two lines or more, at each size, with a leading glyph, and in a Field around a box.
+  const HELP = 'Six hexadecimal digits, like #0f766e, or a name the browser knows.';
+  const ERROR = 'We cannot ship there yet. Choose another country, or ask when we will.';
+  const style = 'inline-size: 13rem';
+  const texts = (base: Record<string, unknown>): Fixture[] => [
+    ...['small', 'medium', 'large'].map((size) => ({ id: `help-${size}`, props: { ...base, size, label: 'Color', supportingText: HELP, style } })),
+    { id: 'error', props: { ...base, label: 'Color', error: true, errorText: ERROR, style } },
+    { id: 'help-and-error', props: { ...base, label: 'Color', supportingText: HELP, error: true, errorText: ERROR, style } },
+    { id: 'outlined', props: { ...base, variant: 'outlined', label: 'Color', supportingText: HELP, style } },
+  ];
+  const SUBJECTS: { tag: string; fixtures: Fixture[] }[] = [
+    { tag: 'tanrei-text-field', fixtures: [...texts({}), { id: 'leading-icon', props: { label: 'Search', leadingIcon: 'search', supportingText: HELP, style } }] },
+    { tag: 'tanrei-select-field', fixtures: texts({}) },
+    { tag: 'tanrei-combobox-field', fixtures: texts({}) },
+    { tag: 'tanrei-color-field', fixtures: texts({ value: '#0f766e' }) },
+    { tag: 'tanrei-number-field', fixtures: texts({}) },
+    { tag: 'tanrei-field', fixtures: [{ id: 'help', props: { label: 'Color', supportingText: HELP, style }, items: [{ kind: 'text-input', props: {} }] }, { id: 'error', props: { label: 'Color', error: true, errorText: ERROR, style }, items: [{ kind: 'text-input', props: {} }] }] },
+  ];
+  for (const { tag, fixtures } of SUBJECTS) {
+    test(`${tag.replace(/^tanrei-/, '')}: with the cloak and no script, each field whose help or error text wraps is as high as once it is defined, and so is its stage`, async ({ page: first, browserName }) => {
+      const { page, before, after } = await mountedLate(first, tag, browserName, { fixtures });
+      // The texts are drawn on more lines than one: what this holds.
+      expect(after.filter((stage) => !stage.wraps).map((stage) => stage.id)).toEqual([]);
+      const wrong = before.flatMap((stage, i) => {
+        const drawn = after[i]!;
+        if (Math.abs(stage.height - drawn.height) <= 0.5 && Math.abs(stage.stage - drawn.stage) <= 0.5) return [];
+        return [`${stage.id}: held ${stage.height}px in a stage of ${stage.stage}px, drawn ${drawn.height}px in ${drawn.stage}px`];
+      });
+      expect(wrong).toEqual([]);
+      if (browserName === 'chromium') {
+        const { sum, moved } = await shifts(page);
+        expect(sum, moved).toBeLessThanOrEqual(SHIFT_BUDGET);
+      }
+      await page.close();
+    });
+  }
+});
+
 /**
  * A page of a product's: a heading and a paragraph, then a form and a toolbar of the controls a page is most often
  * made of, then text below them. The controls that stand side by side are in rows of their own, as a product lays out
