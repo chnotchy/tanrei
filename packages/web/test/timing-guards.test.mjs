@@ -406,7 +406,7 @@ export const RULES = {
       'src/components/dialog/dialog.test.ts': 17,
       'src/components/divider/divider.test.ts': 2,
       'src/components/drop-zone/drop-zone.test.ts': 6,
-      'src/components/empty-state/empty-state.test.ts': 10,
+      'src/components/empty-state/empty-state.test.ts': 9,
       'src/components/fab-menu/fab-menu.test.ts': 8,
       'src/components/field/field.test.ts': 1,
       'src/components/figure/figure.test.ts': 3,
