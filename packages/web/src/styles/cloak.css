@@ -75,9 +75,11 @@
  * the page's text written inside an element out of its height rather than giving it one, and a zero-width space, the
  * empty line that sets a baseline. Every selector has no specificity (`:where()`; a `::before` has a type selector's)
  * and styles the element it asks about (or the `::before` it generates) — an element of the package, which may be
- * asked about as the item of a container that is not defined either (a button group's Buttons, a segmented button's
- * segments) — never a child of the product's: a glyph written in a Button is given its box by the Button's own grid;
- * an element that is `hidden` keeps the browser's `display: none`; and nothing matches once an element is defined.
+ * asked about as the item of a container that is not defined (a button group's Buttons, a segmented button's
+ * segments; a Button defined before its connected group is held at what the group will give it) — never a child of
+ * the product's: a glyph written in a Button is given its box by the Button's own grid; an element that is `hidden`
+ * keeps the browser's `display: none`; and nothing matches once an element, and the container it is an item of, are
+ * defined.
  */
 @layer tanrei.components {
   /* Every element of the package: the build writes their names in place of `tanrei-elements`. */
@@ -440,8 +442,33 @@
     inline-size: calc(var(--_cloak-width) + var(--tanrei-comp-button-group-connected-horizontal-outer-inset));
     min-inline-size: calc(max(var(--_cloak-width), var(--_cloak-target)) + var(--tanrei-comp-button-group-connected-horizontal-outer-inset));
   }
+  /* A Button defined before the connected group it stands in (each element's module may arrive on its own) draws
+     itself as it does alone until the group is defined and places it: the group's minimum along the join and its
+     padding at a row's outer ends do not reach it yet. Its room holds them meanwhile, as the group will give them —
+     at least the target along the join, and in a row connected.horizontal.outer-inset more at an outer end — so that
+     nothing moves when the group is defined (on a docs page, a column of icon-only Buttons held at the touch target
+     shrank to their own height for as long as the group's module took, and grew back). A connected column is a grid
+     whose rows are at least the target high, its items stretched to them, defined or not; in a connected row a
+     defined Button's own box is held. */
   :where(tanrei-button-group[variant='connected'][orientation='vertical']):where(:not(:defined):not([hidden])) {
     --_cloak-min-block: var(--_cloak-target);
+    display: inline-grid;
+    grid-auto-rows: minmax(var(--_cloak-target), auto);
+  }
+  :where(tanrei-button-group[variant='connected'][orientation='vertical'][full-width]):where(:not(:defined):not([hidden])) {
+    display: grid;
+  }
+  :where(tanrei-button-group[variant='connected']:not([orientation='vertical']):not(:defined) > tanrei-button:defined:not([hidden])) {
+    box-sizing: border-box;
+    min-inline-size: var(--_cloak-target);
+  }
+  :where(tanrei-button-group[variant='connected']:not([orientation='vertical']):not(:defined) > tanrei-button:first-child:not(:last-child):defined:not([hidden])) {
+    padding-inline-start: var(--tanrei-comp-button-group-connected-horizontal-outer-inset);
+    min-inline-size: calc(var(--_cloak-target) + var(--tanrei-comp-button-group-connected-horizontal-outer-inset));
+  }
+  :where(tanrei-button-group[variant='connected']:not([orientation='vertical']):not(:defined) > tanrei-button:last-child:not(:first-child):defined:not([hidden])) {
+    padding-inline-end: var(--tanrei-comp-button-group-connected-horizontal-outer-inset);
+    min-inline-size: calc(var(--_cloak-target) + var(--tanrei-comp-button-group-connected-horizontal-outer-inset));
   }
 
   /* A Segmented Button is as wide as it is drawn (SEG-6, SEG-13, SEG-14, SEG-22, SEG-30): a row of equal columns —
