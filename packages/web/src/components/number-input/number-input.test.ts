@@ -2057,6 +2057,40 @@ test.describe('behavior: exposure, forms, size and direction', () => {
     expect(errors).toEqual([]);
   });
 
+  test('NMI-37: an input that is not rendered (an ancestor `display: none`) keeps its steppers beside its line, and is drawn so from the frame it is shown again in — a box of nothing does not read as steppers below the line', async ({ page }) => {
+    await mountFixtures(page, spec, { fixtures: [] });
+    const seen = await page.evaluate(async () => {
+      const frame = () => new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
+      const holder = document.createElement('div');
+      holder.style.cssText = 'inline-size: 280px';
+      const input = Object.assign(document.createElement('tanrei-number-input'), { variant: 'outlined', label: 'Quantity', required: true, requiredText: 'Required', incrementLabel: 'Increase', decrementLabel: 'Decrease' });
+      holder.append(input);
+      document.body.append(holder);
+      await input.updateComplete;
+      for (let i = 0; i < 4; i++) await frame();
+      const root = input.shadowRoot!;
+      const wrapped = () => root.querySelector('.field')!.hasAttribute('data-wrapped');
+      const drawn = wrapped();
+      // Hidden: the frame after reports every box at nothing, and the read phase of the next one reads them.
+      holder.style.display = 'none';
+      for (let i = 0; i < 4; i++) await frame();
+      const hidden = wrapped();
+      // Shown again: an observer made after every observer of the input is told after them, in the frame the input is
+      // laid out again in — what it finds is what that frame paints.
+      holder.style.removeProperty('display');
+      const shown = await new Promise<boolean>((resolve) => {
+        const observer = new ResizeObserver(() => {
+          observer.disconnect();
+          resolve(wrapped());
+        });
+        observer.observe(root.querySelector('.input')!);
+      });
+      holder.remove();
+      return { drawn, hidden, shown };
+    });
+    expect(seen).toEqual({ drawn: false, hidden: false, shown: false });
+  });
+
   test('NMI-37: the container and the input’s line are watched for wrapping while the input is on the page and given back when it leaves — after it was drawn, after it came back, and when it left before its first update ended', async ({ page }) => {
     await mountFixtures(page, spec, { fixtures: [] });
     const watched = await page.evaluate(async () => {
