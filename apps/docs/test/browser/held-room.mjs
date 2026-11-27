@@ -5,10 +5,11 @@
 //   pnpm --filter @tanrei/docs build && pnpm --filter @tanrei/docs test:browser
 //   DOCS_ENGINES=chromium node --test test/browser/held-room-tables.test.mjs   # in one engine (all three by default)
 //
-// This module only defines the tests: `heldRoomTests({ cases, known })`, called by a test file. Its pages are in two
+// This module only defines the tests: `heldRoomTests({ cases, known })`, called by a test file. Its pages are in three
 // files, so that the shards of CI's docs jobs, which take whole files, can place them in different jobs: the pages whose
-// tables, keyboard maps and lists of status tags hold their room (held-room-tables.test.mjs), and the pages whose
-// figures the web package's cloak holds at the box they are drawn in (held-room-figures.test.mjs).
+// tables, keyboard maps and lists of status tags hold their room (held-room-tables.test.mjs), the pages whose tables
+// of measurements hold theirs in a look a reader may choose other than the default (held-room-measures.test.mjs), and
+// the pages whose figures the web package's cloak holds at the box they are drawn in (held-room-figures.test.mjs).
 //
 // Every module that defines an element is held back until the test lets it through: the page is parsed and drawn
 // without them, its faces in, and paged through from its top to its end, as a reader pages through it. Each of the
@@ -18,7 +19,8 @@
 // through and the page is paged through again, each step once what is in the view is defined: every figure, table and
 // list is as high as it was, to half a pixel. What it holds before is the web package's cloak
 // (`@tanrei/web/cloak.css`, scoped to the stages: lib/stage-cloak.mjs), the tables' own rooms
-// (components/Table.astro, ComponentSpecs.astro) and the status tag's (components/StatusBadge.astro).
+// (components/Table.astro, ComponentSpecs.astro, and the values and notes a table of measurements holds for each look:
+// visuals/MeasureDiagram.astro) and the status tag's (components/StatusBadge.astro).
 //
 // In Chromium, the Layout Instability API also says how far the page moved under a reader who is looking at a figure
 // when its modules arrive: the view put on it while the modules are held, then the modules let through. The shifts,

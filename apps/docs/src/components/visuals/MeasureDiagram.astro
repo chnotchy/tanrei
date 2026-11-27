@@ -12,6 +12,14 @@
 //   and a page shows where an implementation and its tokens part. What it finds is recorded (lib/visuals/measure.ts,
 //   `lengthsNotDrawnOf`), and the page writes it into the table from the first frame, so that the table is laid out at
 //   its drawn size before any script runs and does not grow under the reader when the figure is drawn.
+// - A figure pinned to no system follows the look the reader chose, and so does its table: where a look a reader may
+//   choose resolves a length to another value, or its component draws a length otherwise there (the record's
+//   `systems`), the row holds each look's value and note, each marked with the looks it is for (`data-measure-for`),
+//   and a rule of the page draws only the reader's look's from the first frame; under the reader's own theme, the
+//   default's, as the figure measures it (lib/visuals/frame.ts, `systemOf`). Once drawn, the figure writes the row
+//   again for the look it is drawn in (lib/visuals/blueprint.ts). Before that, in Cupertino, the Main action button's
+//   table at a phone's width grew from 323.78 to 341.77 px when its figure wrote a note in, and the Navigation bar's
+//   from 59.97 to 113.92 px.
 // - The inline lengths stand in rows above the stage, the block lengths in columns at its end edge, each row and column
 //   holding its room before anything is defined (space tokens), so nothing moves when the lines are drawn.
 // - The component is a picture here, as in the anatomy figure: `inert` and hidden from assistive technology.
@@ -19,7 +27,9 @@ import Example from './Example.astro';
 import Table from '../Table.astro';
 import { contentLang, strings } from '../../lib/i18n';
 import { stagingStyle } from '../../lib/fixture-gallery';
-import { lengthsNotDrawnOf, measureFigureOf } from '../../lib/visuals/measure';
+import { lengthsNotDrawnOf, measureFigureOf, pxIn } from '../../lib/visuals/measure';
+import { ns, shippedSystems } from '../../lib/tokens';
+import { LOOK_ATTR } from '../../lib/appearance';
 import type { BlueprintData } from '../../lib/visuals/blueprint';
 import { getSpec } from '../../lib/repo';
 import './blueprint.css';
@@ -37,8 +47,13 @@ const lang = contentLang(Astro);
 const t = strings(lang);
 const spec = getSpec(name);
 const { parts, stage, lines } = measureFigureOf(name, fixture);
-/** The lengths the component draws otherwise, as recorded (lib/visuals/measure.ts): their rows say so from the first frame. */
-const notDrawn = stage ? lengthsNotDrawnOf(name, stage.fixture, lines) : new Map<string, number | null>();
+/**
+ * The looks the table is written for: each shipped system, the default first, where the figure follows the reader's
+ * look; only the one it is drawn under where it is pinned to one. The lengths each draws otherwise, as recorded
+ * (lib/visuals/measure.ts): their rows say so from the first frame.
+ */
+const looks = stage?.system ? [stage.system] : shippedSystems.map((shipped) => shipped.id);
+const notDrawn = new Map(looks.map((look) => [look, stage ? lengthsNotDrawnOf(name, stage.fixture, lines, stage.system ? undefined : look) : new Map<string, number | null>()]));
 const rows = lines.filter((line) => line.axis !== 'block').length;
 const columns = lines.length - rows;
 /** A row of an inline length: its label above its line. A column of a block length: its line, and its label beside it. */
@@ -56,12 +71,31 @@ const alt = (forms[new Intl.PluralRules(lang).select(lines.length)] ?? forms.oth
 const Heading = headingLevel ? (`h${headingLevel}` as const) : null;
 const [before = '', after = ''] = t.visuals.drawnFrom.split('{fixture}');
 const shown = (value: number) => (Number.isInteger(value) ? String(value) : value.toFixed(1));
-/** A row's note, as the figure writes it once it has measured the component (lib/visuals/blueprint.ts): empty where the length is drawn. */
-const noteOf = (token: string) => {
-  if (!notDrawn.has(token)) return '';
-  const measured = notDrawn.get(token);
+/** A row's note in a look, as the figure writes it once it has measured the component (lib/visuals/blueprint.ts): empty where the length is drawn. */
+const noteOf = (token: string, look: string) => {
+  const lengths = notDrawn.get(look)!;
+  if (!lengths.has(token)) return '';
+  const measured = lengths.get(token);
   return typeof measured === 'number' ? t.visuals.measureDiffers.replace('{measured}', shown(measured)) : t.visuals.measureAbsent;
 };
+/** What a row says in each look, by what it says: each with the looks it is said in, in the order of `looks`. */
+const byLook = (say: (look: string) => string) => {
+  const said = new Map<string, string[]>();
+  for (const look of looks) said.set(say(look), [...(said.get(say(look)) ?? []), look]);
+  return [...said].map(([text, those]) => ({ text, for: those.join(' ') }));
+};
+/** A length's value in a look: its token's there, or the default's where the look has no such token. */
+const valueIn = (line: (typeof lines)[number], look: string) => shown(pxIn(look, line.token) ?? line.px);
+/**
+ * Draws, of what a row says in several looks, only what it says in the reader's: in a preset, what is marked for it;
+ * in the default system or under the reader's own theme (no preset), what is marked for the default.
+ */
+const presets = looks.filter((look) => look !== ns);
+const lookRule = `${[
+  ...presets.map((look) => `:root[${LOOK_ATTR}="${look}"] [data-measure-for]:not([data-measure-for~="${look}"])`),
+  `:root${presets.length ? `:not(${presets.map((look) => `[${LOOK_ATTR}="${look}"]`).join(', ')})` : ''} [data-measure-for]:not([data-measure-for~="${ns}"])`,
+].join(',\n')} { display: none; }`;
+const anyLook = lines.some((line) => byLook((look) => valueIn(line, look)).length > 1 || byLook((look) => noteOf(line.token, look)).length > 1);
 ---
 
 {
@@ -69,6 +103,7 @@ const noteOf = (token: string) => {
     <>
       {Heading && <Heading>{t.visuals.measureTitle}</Heading>}
       <Fragment set:html={stagingStyle(stage.staging)} />
+      {anyLook && <Fragment set:html={`<style>${lookRule}</style>`} />}
       <Example
         label={t.visuals.measureTitle}
         reserve={{ block: [`${stage.room.height}px`, ...times(rows, ROW)], inline: [`${stage.room.width}px`, ...times(columns, COLUMN)] }}
@@ -98,20 +133,28 @@ const noteOf = (token: string) => {
               </thead>
               <tbody>
                 {
-                  lines.map((line) => (
-                    <tr data-measure-row={line.token}>
-                      <td data-wrap="false">
-                        <code>{line.part}</code> {line.kind}
-                        <span class="docs-muted docs-blueprint-note" data-measure-note hidden={!noteOf(line.token)}>{noteOf(line.token)}</span>
-                      </td>
-                      <td>
-                        <code>{line.token}</code>
-                      </td>
-                      <td data-align="end" data-measure-value>
-                        {shown(line.px)}
-                      </td>
-                    </tr>
-                  ))
+                  lines.map((line) => {
+                    const notes = byLook((look) => noteOf(line.token, look));
+                    const values = byLook((look) => valueIn(line, look));
+                    return (
+                      <tr data-measure-row={line.token}>
+                        <td data-wrap="false">
+                          <code>{line.part}</code> {line.kind}
+                          {notes.length === 1 ? (
+                            <span class="docs-muted docs-blueprint-note" data-measure-note hidden={!notes[0].text}>{notes[0].text}</span>
+                          ) : (
+                            notes.filter((note) => note.text).map((note) => <span class="docs-muted docs-blueprint-note" data-measure-note data-measure-for={note.for}>{note.text}</span>)
+                          )}
+                        </td>
+                        <td>
+                          <code>{line.token}</code>
+                        </td>
+                        <td data-align="end" data-measure-value>
+                          {values.length === 1 ? values[0].text : values.map((value) => <span data-measure-for={value.for}>{value.text}</span>)}
+                        </td>
+                      </tr>
+                    );
+                  })
                 }
               </tbody>
             </table>
