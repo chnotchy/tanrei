@@ -6,7 +6,7 @@ import { LINK_KEYS } from '../../primitives/link.js';
 import type { TanreiTableOfContentsSizeRegistry } from '../../registry.js';
 import { ownDirection } from '../../styles/product-text.js';
 import { styles } from './table-of-contents.styles.js';
-import { adopt, adoptUnlessDrawn } from '../../primitives/sheets.js';
+import { adopt, adoptUnlessDrawn, awaitsSheet } from '../../primitives/sheets.js';
 import { documentPainted } from '../../primitives/first-paint.js';
 import { cancelPhaseRead, readInPhase } from '../../primitives/read-phase.js';
 import { TanreiElement } from '../../primitives/element.js';
@@ -540,15 +540,14 @@ export class TanreiTableOfContents extends TanreiElement {
       this.decide();
       return;
     }
-    const due = TanreiTableOfContents.deciding;
     // Until the document has been painted, in the read phase of the coming frame, after its layout and before its
-    // paint: read in a microtask of the turn, the rule had the browser lay the whole page out for it, while a loading
-    // page's modules upgrade one kind of element after another.
+    // paint (`decideInPhase`): read in a microtask of the turn, the rule had the browser lay the whole page out for it,
+    // while a loading page's modules upgrade one kind of element after another.
     if (!documentPainted()) {
-      due.add(this);
-      readInPhase(due, TanreiTableOfContents.ruleAfterSheets);
+      this.decideInPhase();
       return;
     }
+    const due = TanreiTableOfContents.deciding;
     if (!due.size) {
       queueMicrotask(() => {
         const write = TanreiTableOfContents.ruleTogether();
@@ -572,16 +571,6 @@ export class TanreiTableOfContents extends TanreiElement {
       });
   };
 
-  /**
-   * The read phase's `ruleTogether` for the elements that asked before the first paint. It is asked for after the
-   * question whether their root draws them (`adoptUnlessDrawn`), and is read in the phase's writes, after the one that
-   * adds their stylesheet: the room the list takes moves every target that follows it. Read with the phase's reads, a
-   * list in a root that did not have the sheet yet (a shadow root of the product's, its targets slotted after it) was
-   * measured as the browser draws a bare list, and an item whose target stood past the line was current for a frame,
-   * and told.
-   */
-  private static readonly ruleAfterSheets = () => () => TanreiTableOfContents.ruleTogether()();
-
   private readonly onParsed = () => {
     if (!this.isConnected) return;
     this.readItems();
@@ -600,9 +589,8 @@ export class TanreiTableOfContents extends TanreiElement {
 
   /**
    * One decision in the next frame, however many events asked for it. Nothing is asked for at rest. Until the document
-   * has been painted the frame callback only watches, and the rule is read in that frame's read phase, with every
-   * other element's, once the stylesheets added there draw what they draw (`decideTogether`): a frame callback runs
-   * before the phase, and in the first frame its rule was read from a list its stylesheet did not draw yet.
+   * has been painted, in that frame's read phase instead (`decideInPhase`): a frame callback runs before the frame's
+   * layout, and in the first frame its rule was read from a list its stylesheet did not draw yet.
    */
   private schedule() {
     if (!this.isConnected) return;
@@ -614,8 +602,7 @@ export class TanreiTableOfContents extends TanreiElement {
     this.frame = requestAnimationFrame(() => {
       this.frame = 0;
       this.watch();
-      if (documentPainted()) this.decide();
-      else this.decideTogether();
+      this.decide();
     });
   }
 
@@ -629,27 +616,45 @@ export class TanreiTableOfContents extends TanreiElement {
    * the page out for them there (in WebKit, half a second as a long page loaded). What is listened to and observed is
    * taken up in the next frame's callbacks, from the view read here: an observer given the root element while the
    * phase's observer reports would have its first report left for later, with a loop error.
+   *
+   * The rule is read once the element's stylesheet draws the list: the room the list takes moves every target that
+   * follows it. Where the page draws it already, that is the phase's reads, before any write — read in the phase's
+   * writes, it came after the other elements' (a glyph's style given back) and had the page styled again for it. Where
+   * the phase's writes add the sheet to the element's root (a shadow root of the product's, its targets slotted after
+   * the list: `awaitsSheet`), it is read after them, in the same frame: read before, the list was measured as the
+   * browser draws a bare list, and an item whose target stood past the line was current for a frame, and told.
    */
   private decideInPhase() {
     readInPhase(this.phaseRead, () => {
       if (!this.isConnected) return;
-      const tracks = this.auto && this.trackable.length > 0;
-      const view = tracks ? this.findView() : null;
-      const href = this.reads ? this.byRule(view) : null;
+      if (!awaitsSheet(this)) return this.ruleInPhase();
       return () => {
         if (!this.isConnected) return;
-        if (tracks) {
-          cancelAnimationFrame(this.frame);
-          this.frame = requestAnimationFrame(() => {
-            this.frame = 0;
-            if (this.isConnected && this.auto && this.trackable.length) this.watchView(view);
-          });
-        } else this.unwatch();
-        // What changed in between (an item held, the element gone) decides as it always does.
-        if (href !== null && this.reads) this.give(href);
-        else if (!this.reads) this.decide();
+        // The sheet is added by a write still to come: the rule is read in the next frame's phase.
+        if (awaitsSheet(this)) this.decideInPhase();
+        else this.ruleInPhase()();
       };
     });
+  }
+
+  /** The reading half of `decideInPhase()`: the view and the rule, and the write that watches the view and gives the item. */
+  private ruleInPhase(): () => void {
+    const tracks = this.auto && this.trackable.length > 0;
+    const view = tracks ? this.findView() : null;
+    const href = this.reads ? this.byRule(view) : null;
+    return () => {
+      if (!this.isConnected) return;
+      if (tracks) {
+        cancelAnimationFrame(this.frame);
+        this.frame = requestAnimationFrame(() => {
+          this.frame = 0;
+          if (this.isConnected && this.auto && this.trackable.length) this.watchView(view);
+        });
+      } else this.unwatch();
+      // What changed in between (an item held, the element gone) decides as it always does.
+      if (href !== null && this.reads) this.give(href);
+      else if (!this.reads) this.decide();
+    };
   }
 
   /** TOC-13: the address names the target of one of the items — that item is held as a chosen one is. */

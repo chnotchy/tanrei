@@ -22,7 +22,10 @@ does not change.
   added once the page has been painted, where the list has room to stay in two columns; a list narrower than that has
   it at once. A rule added to the page's sheets had WebKit build every rule of the page again (0.8 s).
 - Table of contents: until the document has been painted, where the targets scroll, the rule and the row kept in view
-  are read in the read phase, not in a frame callback or the update.
+  are read in the read phase, not in a frame callback or the update. The rule is read with the phase's reads where the
+  root already draws the list, and after the phase's writes only where those writes add the list's stylesheet to its
+  root: read in the writes everywhere, it came after other elements' writes (a glyph's style given back) and had the
+  page styled again for it.
 - Navigation drawer: the motions of its first frame are given back in the next frame's callbacks, not after a read of
   the layout; a report of its resize watch that finds it at the size it was read at reads nothing.
 - Docs: the head's icon probes are decided by the resize observer's report, not by a read of the layout in the head
