@@ -49,12 +49,40 @@ export function shadowRootsIn(root: ParentNode): ShadowRoot[] {
  * drawn for the figure). A motion that never ends (a spinner's turn) or that stands still is not waited for.
  */
 export async function settled(root: Element): Promise<void> {
-  const all = () => [root, ...root.querySelectorAll('*'), ...shadowRootsIn(root).flatMap((shadow) => [...shadow.querySelectorAll('*')])];
-  await Promise.all(all().map((element) => (element as Element & { updateComplete?: Promise<unknown> }).updateComplete).filter(Boolean));
+  await Promise.all(elementsIn(root).map((element) => (element as Element & { updateComplete?: Promise<unknown> }).updateComplete).filter(Boolean));
   await document.fonts.ready;
-  const moving = new Set(all().flatMap((element) => element.getAnimations({ subtree: true })));
-  const ending = [...moving].filter((animation) => animation.playState === 'running' && Number.isFinite(Number(animation.effect?.getComputedTiming().endTime)));
+  const ending = motionsIn(root).filter((animation) => animation.playState === 'running' && Number.isFinite(Number(animation.effect?.getComputedTiming().endTime)));
   await Promise.all(ending.map((animation) => animation.finished.catch(() => undefined)));
+}
+
+/** `root` and every element under it, its shadow trees included. */
+const elementsIn = (root: Element) => [root, ...root.querySelectorAll('*'), ...shadowRootsIn(root).flatMap((shadow) => [...shadow.querySelectorAll('*')])];
+/** Every motion of `root` and of the elements under it, once each. */
+const motionsIn = (root: Element) => [...new Set(elementsIn(root).flatMap((element) => element.getAnimations({ subtree: true })))];
+
+/**
+ * Calls `read` with every motion under `root` that never ends (a spinner's turn), running or paused, held at its start,
+ * and lets each go on from where it stood once `read` returns, before anything is painted: a figure measures the box
+ * the component lays out, not that box turned part of the way round. (The Loading indicator's square of 24 px, turned
+ * by its spin when the figure was drawn, measured 31.7 px across, and its table said the component drew another size.)
+ */
+export function atStart<T>(root: Element, read: () => T): T {
+  const endless = motionsIn(root).filter((animation) => animation.playState !== 'idle' && !Number.isFinite(Number(animation.effect?.getComputedTiming().endTime)));
+  const stood = endless.map((animation) => ({ time: animation.currentTime, running: animation.playState === 'running' }));
+  // Paused, not only moved: WebKit, which runs a turn off the main thread, measured a box still turned a little
+  // (25.03 px across for 24) where the motion was only moved to its start.
+  for (const animation of endless) {
+    animation.pause();
+    animation.currentTime = 0;
+  }
+  try {
+    return read();
+  } finally {
+    endless.forEach((animation, at) => {
+      animation.currentTime = stood[at].time;
+      if (stood[at].running) animation.play();
+    });
+  }
 }
 
 /**

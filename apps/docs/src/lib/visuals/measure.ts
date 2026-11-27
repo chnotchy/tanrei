@@ -7,6 +7,7 @@ import { getSpec } from '../repo';
 import { anatomyOf, blueprintStageOf, webPartsOf, type BlueprintStage, type DrawnPart, type PartTarget } from './anatomy';
 import { below, componentTokens } from './groups';
 import notDrawn from './lengths-not-drawn.json';
+import { ns, shippedSystems } from '../tokens';
 
 export interface Measure {
   /** The token, dotted (`tanrei.comp.button.container.height.large`). */
@@ -116,6 +117,12 @@ interface NotDrawn {
   parts?: string[];
   /** The lengths the component draws otherwise, in pixels, or null where the figure finds nothing to measure. */
   lengths?: Record<string, number | null>;
+  /**
+   * In each look a reader may choose that is not the default system (a shipped preset), the lengths the component draws
+   * otherwise there, as `lengths` says them: a figure that is pinned to no system follows the look, and so does its
+   * table. A look not named here draws every length as its token says, whatever the default's `lengths` say.
+   */
+  systems?: Record<string, { lengths?: Record<string, number | null> }>;
 }
 const recordOf = (name: string): NotDrawn | undefined => (notDrawn as Record<string, NotDrawn>)[name];
 
@@ -226,7 +233,8 @@ export function measureFigureOf(name: string, fixture?: string): { parts: DrawnP
 /**
  * The lengths of a figure's table that the component does not draw as its token says, and what it draws instead (in
  * pixels, under the system the figure is drawn under), or `null` where the figure finds nothing to measure: the record
- * `lengths-not-drawn.json`, by component, of the fixture its figure is drawn over. The same record names the parts that
+ * `lengths-not-drawn.json`, by component, of the fixture its figure is drawn over. With `system`, a look a reader may
+ * choose, what it draws in that look (`systems.<id>.lengths`): a figure pinned to no system follows the look. The same record names the parts that
  * fixture does not draw (`partsNotDrawnOf`), whose lengths the table does not list.
  *
  * The figure finds these in the browser, measuring what the component draws (lib/visuals/blueprint.ts), and says each
@@ -237,16 +245,32 @@ export function measureFigureOf(name: string, fixture?: string): { parts: DrawnP
  * holds the record to what each figure finds: a length that comes to be drawn as its token says, one that comes to be
  * drawn otherwise, or a part recorded as not drawn that comes to be drawn, fails it until the record says so.
  */
-export function lengthsNotDrawnOf(name: string, fixture: string, lines: readonly Measure[]): Map<string, number | null> {
+export function lengthsNotDrawnOf(name: string, fixture: string, lines: readonly Measure[], system?: string): Map<string, number | null> {
   const record = recordOf(name);
   if (!record) return new Map();
   if (record.fixture !== fixture) throw new Error(`lengths-not-drawn.json: ${name}'s lengths are recorded over the fixture ${record.fixture}, and its figure is drawn over ${fixture}`);
   const ids = new Set(anatomyOf(name).map((part) => part.id));
   const strayParts = (record.parts ?? []).filter((part) => !ids.has(part));
   if (strayParts.length) throw new Error(`lengths-not-drawn.json: ${name} has no part ${strayParts.join(', ')}`);
-  const lengths = record.lengths ?? {};
+  const presets = new Set(shippedSystems.map((shipped) => shipped.id).filter((id) => id !== ns));
+  const strayLooks = Object.keys(record.systems ?? {}).filter((id) => !presets.has(id));
+  if (strayLooks.length) throw new Error(`lengths-not-drawn.json: ${name}'s lengths are recorded for ${strayLooks.join(', ')}, which is no look a reader may choose but the default`);
   const tokens = new Set(lines.map((line) => line.token));
-  const stray = Object.keys(lengths).filter((token) => !tokens.has(token));
-  if (stray.length) throw new Error(`lengths-not-drawn.json: ${name}'s figure has no length ${stray.join(', ')}`);
+  for (const [where, lengths] of [['', record.lengths ?? {}], ...Object.entries(record.systems ?? {}).map(([id, entry]) => [` in ${id}`, entry.lengths ?? {}] as const)] as const) {
+    const stray = Object.keys(lengths).filter((token) => !tokens.has(token));
+    if (stray.length) throw new Error(`lengths-not-drawn.json: ${name}'s figure has no length ${stray.join(', ')}${where}`);
+  }
+  const lengths = system && system !== ns ? (record.systems?.[system]?.lengths ?? {}) : (record.lengths ?? {});
   return new Map(Object.entries(lengths));
+}
+
+/**
+ * A length token's value in pixels as a shipped system resolves it (design/tokens/<id>/), or null where the system has
+ * no such length: what a measure figure's table says in that look before its figure is drawn.
+ */
+export function pxIn(system: string, token: string): number | null {
+  const tree = shippedSystems.find((shipped) => shipped.id === system)?.tree;
+  const node = token.split('.').reduce<Record<string, any> | undefined>((at, key) => at?.[key], tree);
+  const value = node?.$value;
+  return value && typeof value === 'object' && value.unit === 'px' && typeof value.value === 'number' ? value.value : null;
 }

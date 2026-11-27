@@ -149,7 +149,7 @@ test('every figure: each number once, inside and clear; each line its token’s 
           markers: [...frame.querySelectorAll('.docs-blueprint-marker')].map((marker) => ({ n: Number(marker.dataset.n), part: marker.dataset.part, box: box(marker) })),
           // The parts some element of the fixture draws, found here from the spec's targets: each is to be numbered.
           shown: data.parts.filter((part) => candidatesOf(part.target)?.some((elements) => elements.some(isDrawn))).map((part) => part.id),
-          rows: [...frame.querySelectorAll('[data-measure-row]')].map((row) => ({ token: row.dataset.measureRow, drawn: row.dataset.drawn, measured: Number(row.dataset.measured), value: Number(row.dataset.value), note: row.querySelector('[data-measure-note]').hidden ? '' : row.querySelector('[data-measure-note]').textContent })),
+          rows: [...frame.querySelectorAll('[data-measure-row]')].map((row) => ({ token: row.dataset.measureRow, drawn: row.dataset.drawn, measured: Number(row.dataset.measured), value: Number(row.dataset.value), note: [...row.querySelectorAll('[data-measure-note]')].find((note) => note.checkVisibility())?.textContent ?? '' })),
           lines: [...frame.querySelectorAll('.docs-blueprint-length')].map((label) => ({ token: label.dataset.token, part: label.dataset.part, value: Number(label.dataset.value), measured: Number(label.dataset.measured) })),
           // Each part the lines measure, as the figure outlines it, and the same part found here from the spec's target:
           // the boxes of every element of it, on the first child, in the document's order, that draws it.
@@ -233,3 +233,63 @@ test('every figure: each number once, inside and clear; each line its token’s 
   if (notDrawn.length) console.log(`Lengths not drawn, where a component draws another length than its token's:\n  ${notDrawn.join('\n  ')}`);
   await context.close();
 });
+
+// In each look a reader may choose but the default's (the shipped presets, as the Appearance panel lists them:
+// `data-docs-looks`), each measure figure that follows the look draws each length of its table, or no line and the
+// table says what the component draws instead; and the lengths it does not draw are those the record holds for that
+// look (`systems.<look>.lengths`), which the page writes into the table before any script runs. A figure pinned to a
+// system (`data-pinned`) is drawn under it in every look: its lengths are the record's own.
+const looks = (/data-docs-looks="([^"]+)"/.exec(fs.readFileSync(path.join(dist, 'index.html'), 'utf8'))?.[1] ?? '').split(' ').filter(Boolean);
+const { APPEARANCE_KEY } = await import('../../src/lib/appearance.ts');
+const measured = pages.filter((name) => /data-blueprint-figure="measure"/.test(fs.readFileSync(path.join(components, name, 'index.html'), 'utf8')));
+test('the looks a reader may choose are read from the built site', () => {
+  assert.ok(looks.length > 1, `looks: ${looks.join(', ')}`);
+});
+for (const look of looks.slice(1)) {
+  test(`in ${look}, every measure figure: each line its token’s length, or none and the table says why, as the record says for ${look}`, LIMIT, async () => {
+    const context = await browser.newContext({ viewport: { width: 1280, height: 900 }, reducedMotion: 'reduce', colorScheme: 'light' });
+    await context.addInitScript(({ key, look }) => localStorage.setItem(key, JSON.stringify({ look })), { key: APPEARANCE_KEY, look });
+    const page = await context.newPage();
+    const errors = [];
+    page.on('pageerror', (error) => errors.push(error.message));
+    const found = {};
+    const said = {};
+    for (const name of measured) {
+      await page.goto(`${host.origin}/components/${name}/`);
+      await page.waitForLoadState('load');
+      assert.equal(await page.evaluate(() => document.documentElement.dataset.docsLook), look, `${name}: the page is drawn in ${look}`);
+      const figure = await page.evaluate(async () => {
+        const frame = document.querySelector('[data-blueprint-figure="measure"]');
+        frame.scrollIntoView({ block: 'center' });
+        const until = Date.now() + 15_000;
+        const done = () => frame.querySelector('[data-example-overlay][data-drawn]:not([data-drawing])');
+        while (!done() && Date.now() < until) await new Promise((resolve) => setTimeout(resolve, 50));
+        // The note a reader sees: whichever of the row's notes is drawn.
+        const note = (row) => [...row.querySelectorAll('[data-measure-note]')].find((each) => each.checkVisibility())?.textContent ?? '';
+        return {
+          drawn: Boolean(done()),
+          pinned: frame.hasAttribute('data-pinned'),
+          rows: [...frame.querySelectorAll('[data-measure-row]')].map((row) => ({ token: row.dataset.measureRow, drawn: row.dataset.drawn, measured: Number(row.dataset.measured), note: note(row) })),
+          lines: [...frame.querySelectorAll('.docs-blueprint-length')].map((label) => ({ token: label.dataset.token, value: Number(label.dataset.value), measured: Number(label.dataset.measured) })),
+        };
+      });
+      assert.ok(figure.drawn, `${name}: the measure figure is drawn in ${look}`);
+      const record = figure.pinned ? recorded[name] : recorded[name]?.systems?.[look];
+      if (record?.lengths && Object.keys(record.lengths).length) said[name] = Object.fromEntries(Object.entries(record.lengths).map(([token, value]) => [token, shown(value)]));
+      for (const row of figure.rows) {
+        const line = figure.lines.find((candidate) => candidate.token === row.token);
+        if (row.drawn === 'true') {
+          assert.ok(line && Math.abs(line.measured - line.value) <= NEAR, `${name} in ${look}: ${row.token} has its line, as long as its token`);
+          assert.equal(row.note, '', `${name} in ${look}: ${row.token} is drawn, and its row says nothing else`);
+        } else {
+          assert.equal(line, undefined, `${name} in ${look}: ${row.token} is not drawn`);
+          assert.ok(row.note.trim(), `${name} in ${look}: the table says why ${row.token} is not drawn`);
+          (found[name] ??= {})[row.token] = shown(Number.isFinite(row.measured) ? row.measured : null);
+        }
+      }
+    }
+    assert.deepEqual(errors, [], 'no script failed');
+    assert.deepEqual(found, said, `in ${look}, the lengths the figures do not draw are those src/lib/visuals/lengths-not-drawn.json records for it (systems.${look}.lengths), with what each component draws instead: a page writes them before its figure is drawn`);
+    await context.close();
+  });
+}

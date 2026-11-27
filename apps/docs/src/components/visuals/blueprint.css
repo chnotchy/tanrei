@@ -15,6 +15,11 @@
   text-transform: initial;
   white-space: initial;
   color: CanvasText;
+  /* At its own width, never narrowed to the canvas's: where a look draws the component wider than the room the default
+     system's holds, the stage scrolls sideways and the component is drawn as a product draws it. Narrowed, Cupertino's
+     Main action button wrapped its label onto two lines at a phone's width, was 56 px high for its 48, and the table
+     under it said so only once the figure had measured it. */
+  flex: none;
 }
 .docs-blueprint > .docs-blueprint-stage > .stage {
   margin: 0;

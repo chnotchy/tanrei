@@ -236,14 +236,23 @@ describe('the parts of the anatomy and measure figures', () => {
   test('each length recorded as not drawn is a length of its component’s figure, over the fixture the figure is drawn over', () => {
     const record = JSON.parse(fs.readFileSync(new URL('../src/lib/visuals/lengths-not-drawn.json', import.meta.url), 'utf8'));
     assert.ok(Object.keys(record).length > 0);
-    for (const [name, { lengths = {}, parts = [] }] of Object.entries(record)) {
+    for (const [name, { lengths = {}, parts = [], systems = {} }] of Object.entries(record)) {
       const stage = blueprintStageOf(name);
       assert.ok(stage, `${name}: a figure`);
-      // Throws where the record names another fixture, a part the component has not, or a length the figure has not.
+      // Throws where the record names another fixture, a part the component has not, a length the figure has not, or a
+      // look no reader may choose.
       const lines = measureLinesOf(name, stage.fixture, stage.html);
       const notDrawn = lengthsNotDrawnOf(name, stage.fixture, lines);
       assert.deepEqual([...notDrawn.keys()], Object.keys(lengths), name);
       for (const value of notDrawn.values()) assert.ok(value === null || (typeof value === 'number' && value >= 0), `${name}: ${value}`);
+      // A figure pinned to a system is drawn under it in every look: what it draws is the record's own lengths.
+      if (Object.keys(systems).length) assert.equal(stage.system, undefined, `${name}: its figure is pinned to ${stage.system}, and follows no look`);
+      for (const [look, { lengths: there = {} }] of Object.entries(systems)) {
+        const inLook = lengthsNotDrawnOf(name, stage.fixture, lines, look);
+        assert.deepEqual([...inLook.keys()], Object.keys(there), `${name} in ${look}`);
+        assert.ok(inLook.size > 0, `${name} in ${look}: a look recorded draws some length otherwise`);
+        for (const value of inLook.values()) assert.ok(value === null || (typeof value === 'number' && value >= 0), `${name} in ${look}: ${value}`);
+      }
       // A part recorded as not drawn has no line, and the figure still has lines to draw (its browser test reads the record there).
       assert.ok(lines.length > 0, `${name}: the figure has a length besides the parts the fixture does not draw`);
       for (const part of parts) {
