@@ -546,7 +546,7 @@ export class TanreiTableOfContents extends TanreiElement {
     // page's modules upgrade one kind of element after another.
     if (!documentPainted()) {
       due.add(this);
-      readInPhase(due, TanreiTableOfContents.ruleTogether);
+      readInPhase(due, TanreiTableOfContents.ruleAfterSheets);
       return;
     }
     if (!due.size) {
@@ -572,6 +572,16 @@ export class TanreiTableOfContents extends TanreiElement {
       });
   };
 
+  /**
+   * The read phase's `ruleTogether` for the elements that asked before the first paint. It is asked for after the
+   * question whether their root draws them (`adoptUnlessDrawn`), and is read in the phase's writes, after the one that
+   * adds their stylesheet: the room the list takes moves every target that follows it. Read with the phase's reads, a
+   * list in a root that did not have the sheet yet (a shadow root of the product's, its targets slotted after it) was
+   * measured as the browser draws a bare list, and an item whose target stood past the line was current for a frame,
+   * and told.
+   */
+  private static readonly ruleAfterSheets = () => () => TanreiTableOfContents.ruleTogether()();
+
   private readonly onParsed = () => {
     if (!this.isConnected) return;
     this.readItems();
@@ -588,7 +598,12 @@ export class TanreiTableOfContents extends TanreiElement {
     this.dispatchEvent(new CustomEvent<TanreiTableOfContentsCurrentChangeDetail>('currentchange', { bubbles: true, detail: { href } }));
   }
 
-  /** One decision in the next frame, however many events asked for it. Nothing is asked for at rest. */
+  /**
+   * One decision in the next frame, however many events asked for it. Nothing is asked for at rest. Until the document
+   * has been painted the frame callback only watches, and the rule is read in that frame's read phase, with every
+   * other element's, once the stylesheets added there draw what they draw (`decideTogether`): a frame callback runs
+   * before the phase, and in the first frame its rule was read from a list its stylesheet did not draw yet.
+   */
   private schedule() {
     if (!this.isConnected) return;
     if (!documentPainted()) {
@@ -599,7 +614,8 @@ export class TanreiTableOfContents extends TanreiElement {
     this.frame = requestAnimationFrame(() => {
       this.frame = 0;
       this.watch();
-      this.decide();
+      if (documentPainted()) this.decide();
+      else this.decideTogether();
     });
   }
 
@@ -1038,7 +1054,7 @@ export class TanreiTableOfContents extends TanreiElement {
       if (!this.matches(':hover') && !this.matches(':focus-within')) this.showRow(item.a);
     }
     this.syncControls();
-    // Until the document has been painted, in the next frame callback with the rule's decision (`schedule`): what the
+    // Until the document has been painted, in the next frame callback, the rule's decision in that frame's read phase (`schedule`): what the
     // targets scroll in is read from the cascade of their ancestors, and read in the turn of the render it had the
     // browser style the whole page for it, while a loading page's modules upgrade one kind of element after another.
     if (documentPainted()) this.watch();

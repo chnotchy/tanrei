@@ -435,7 +435,8 @@ test.describe('forced passes do not grow with the number of instances (a Chromiu
 /**
  * Markup a page holds before the module that defines its elements runs, as a product's page loads: a Button that slots
  * an image (a glyph drawn whatever the font, marked the moment it renders) and one that slots a glyph's name, a
- * checkbox and a switch (glyphs their own shadow roots draw), and a row of tabs (`PARSED_FIXTURES` adds more).
+ * checkbox and a switch (glyphs their own shadow roots draw), a row of tabs, and a Tree view with a filter (its field
+ * stays at the top of the scrolling box it stands in, which reads the cascade) — `PARSED_FIXTURES` adds more.
  */
 const PARSED = [
   `<tanrei-button label="Add"><svg slot="icon" viewBox="0 0 24 24" width="24" height="24"><path d="M11 5h2v14h-2zM5 11h14v2H5z"></path></svg></tanrei-button>`,
@@ -443,6 +444,7 @@ const PARSED = [
   `<tanrei-checkbox label="Email me" checked></tanrei-checkbox>`,
   `<tanrei-switch label="Wi-Fi" checked checked-icon="check" unchecked-icon="close"></tanrei-switch>`,
   `<tanrei-tabs label="Sections" value="a"><tanrei-tab value="a" label="Overview"></tanrei-tab><tanrei-tab value="b" label="Specifications"></tanrei-tab><tanrei-tab-panel value="a">One</tanrei-tab-panel><tanrei-tab-panel value="b">Two</tanrei-tab-panel></tanrei-tabs>`,
+  fixtureMarkup('tree-view', 'filter'),
 ];
 /** And the first fixture of each component a docs page holds that measures itself as it is drawn. */
 const PARSED_FIXTURES = ['app-shell', 'app-bar', 'navigation-drawer', 'breadcrumbs', 'table-of-contents', 'menu', 'table', 'description-list'];
@@ -497,7 +499,7 @@ test.describe('upgrading a page that is still loading (a Chromium trace)', () =>
     const empty = await beforeLoaded();
     served = html(markup);
     const parsed = await beforeLoaded();
-    const tags = ['tanrei-button', 'tanrei-checkbox', 'tanrei-switch', 'tanrei-tabs', ...PARSED_FIXTURES.map((name) => `tanrei-${name}`)];
+    const tags = ['tanrei-button', 'tanrei-checkbox', 'tanrei-switch', 'tanrei-tabs', 'tanrei-tree-view', ...PARSED_FIXTURES.map((name) => `tanrei-${name}`)];
     const defined = await page.evaluate((all) => all.every((tag) => !!customElements.get(tag)), tags);
     expect(defined, 'the bundle defined the elements').toBe(true);
     const line = `${parsed.length} passes forced before DOMContentLoaded with the elements parsed, ${empty.length} without them`;

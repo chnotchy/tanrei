@@ -35,8 +35,7 @@ fs.copyFileSync('src/generated/tokens.css', 'dist/tokens.css');
 fs.writeFileSync('dist/text.css', sheet('src/styles/text.css'));
 // The callout before its element is defined (CLO-13, CLO-22): the box its server-rendered content keeps a place in.
 fs.writeFileSync('dist/callout.css', sheet('src/components/callout/callout.css'));
-// The avatar before its element is defined (AVT-1, AVT-16): the box it will have, so a page of avatars does not move.
-fs.copyFileSync('src/components/avatar/avatar.css', 'dist/avatar.css');
+// The avatar before its element is defined: below, where the counted rules are written.
 // The empty state before its element is defined (EMP-1, EMP-2): the place its server-rendered words keep.
 fs.writeFileSync('dist/empty-state.css', sheet('src/components/empty-state/empty-state.css'));
 // The menu drawn in place before its elements are defined (MNU-19's verify): the block size its surface will have.
@@ -64,15 +63,21 @@ const CLOAK_ELEMENTS = ':where(tanrei-elements:not(:defined))';
 // light-DOM stylesheet's is (`writeReducedMotion()`).
 const cloakSource = writeReducedMotion(fs.readFileSync('src/styles/cloak.css', 'utf8'));
 if (cloakSource.split(CLOAK_ELEMENTS).length !== 2) throw new Error(`cloak.css: expected one ${CLOAK_ELEMENTS} to write the element names into`);
-// A multi-line input's fewest rows (`min-rows`) is held where the browser reads an attribute as a number, and counted
-// where it does not: the one rule that names `tanrei-row-count` is written once for each whole count from 1 to
-// COUNTED_ROWS (a count beyond it is held at one row, lower than it is drawn, never higher), as code.css counts a code
-// block's `max-lines` (src/components/code-block/code-block.before.ts).
-const COUNTED_ROWS = 50;
-const ROW_COUNT = /^ *[^\n{}]*tanrei-row-count[^\n{}]*\{[^{}]*\}\n/gm;
-const rowRules = cloakSource.match(ROW_COUNT) ?? [];
-if (rowRules.length !== 1) throw new Error(`cloak.css: expected one rule naming tanrei-row-count to write the counted rows into, found ${rowRules.length}`);
-const cloakCounted = cloakSource.replace(ROW_COUNT, () => Array.from({ length: COUNTED_ROWS }, (_, index) => rowRules[0].replaceAll('tanrei-row-count', String(index + 1))).join(''));
+// An attribute whose number gives a size — a multi-line input's fewest rows (`min-rows`), an avatar group's `max` and
+// `total` — is counted where the browser does not read an attribute as a number: each rule that names `tanrei-count` is
+// written once for each whole count from 1 to COUNTED (a count beyond it is held as the element's default, never
+// higher than it is drawn), as code.css counts a code block's `max-lines` (src/components/code-block/code-block.before.ts).
+const COUNTED = 50;
+const COUNT = /^ *[^\n{}]*tanrei-count[^\n{}]*\{[^{}]*\}\n/gm;
+const counted = (source, file) => {
+  const rules = source.match(COUNT) ?? [];
+  if (!rules.length) throw new Error(`${file}: expected a rule naming tanrei-count to write the counts into`);
+  return source.replace(COUNT, (rule) => Array.from({ length: COUNTED }, (_, index) => rule.replaceAll('tanrei-count', String(index + 1))).join(''));
+};
+// The avatar before its element is defined (AVT-1, AVT-16): the box it will have, so a page of avatars does not move;
+// a group's overflow box is counted by its `max` and its `total`.
+fs.writeFileSync('dist/avatar.css', counted(fs.readFileSync('src/components/avatar/avatar.css', 'utf8'), 'avatar.css'));
+const cloakCounted = counted(cloakSource, 'cloak.css');
 fs.writeFileSync('dist/cloak.css', cloakCounted.replace(CLOAK_ELEMENTS, [...new Set(tags)].map((tag) => `:where(${tag}:not(:defined))`).join(',\n  ')));
 // The corner-smoothing rule is one source (src/styles/shape.ts, shared by the components' shadow styles); for a
 // light-DOM box it is the same text as a stylesheet.

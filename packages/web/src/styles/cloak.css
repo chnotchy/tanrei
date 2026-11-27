@@ -36,18 +36,21 @@
  *     its calendar and its time section, and its actions;
  *   - a list row by its number of lines; a stepper's steps; a snackbar's lines; a swatch's sample and text; an embedded
  *     text input's line or rows; a chat composer laid out inline; a carousel's row and controls; a toolbar along a line;
- *     vertical tabs; a progress indicator's and a meter's bar or ring;
- *   - an element the page sizes (a scroll area, a split view) is laid out as the box the size applies to.
+ *     vertical tabs; a progress indicator's and a meter's bar or ring; a divider's thickness, or a wave's;
+ *   - an element the page sizes (a scroll area, a split view) is laid out as the box the size applies to;
+ *   - a card's content between its paddings; a badge as the box of its anchor.
  *   A text is held at one line: a label, a help or an error longer than its line wraps when the element is defined,
- *   and the page below it moves down by the lines it adds. The width is not held: it is the width of the words and
- *   glyphs the element draws, so words that follow a control on the same line of text move sideways when it is
- *   defined. Controls that stand side by side in a row of their own (a flex or grid row with a gap, as a toolbar is)
- *   move nothing that was painted.
+ *   and the page below it moves down by the lines it adds — but the label a checkbox, a radio button or a switch draws
+ *   beside its control, which is written (its `label`) in the label's text style and wraps where it will. The width is
+ *   held where the element draws its words from an attribute — a tag's label, a selection control's — so that a row of
+ *   them wraps where it will; elsewhere it is the width of the words and glyphs written inside the element, so words
+ *   that follow a control on the same line of text move sideways when it is defined. Controls that stand side by side
+ *   in a row of their own (a flex or grid row with a gap, as a toolbar is) move nothing that was painted.
  *
  * What it does not hold: a height that depends on what the element draws beyond its tokens (a list's items, a
  * composer's attachments or a stacked composer's row, the file picker, the file upload and their rows, a drop zone, a
- * resizable frame's size, which its attributes give, a card's and a tab view's content, a multiline input's lines
- * beyond its fewest rows (the lines of a value it already holds), a combobox's chips, a docked search's results, vertical sliders, a row of choices or of tags
+ * resizable frame's size, which its attributes give, a tab view's content, a multiline input's lines
+ * beyond its fewest rows (the lines of a value it already holds), a combobox's chips, a docked search's results, vertical sliders, a row of chips
  * that wraps), a size or a variant a design system added (held at the default's), a size an element takes from its
  * container rather than its own `size`, and the larger target of a coarse pointer where it makes a vertical step
  * taller. The elements with a stylesheet of their own for the time before they are defined (`app-bar.css`,
@@ -175,15 +178,16 @@
      to makes it — `line-height: normal` is the face's ascent, descent and line gap — and that can be taller than the
      control (in Firefox and WebKit on Linux, a line of the default face is 21px where a small tag is 20px). So a
      control is held at its token's height whatever face the page's text resolves to, and its width, which is not
-     held, is the same. */
-  :where(tanrei-button, tanrei-button-with-menu, tanrei-checkbox, tanrei-chip, tanrei-copy-button, tanrei-keyboard-shortcut:not(:has(> [data-tanrei-keys])), tanrei-loading-indicator, tanrei-main-action-button, tanrei-radio-button, tanrei-rating, tanrei-segmented-button, tanrei-select, tanrei-switch, tanrei-tag):where(:not(:defined):not([hidden])) {
+     held, is the same. A control in a slot of an app bar that is not defined is the bar's to hold (`app-bar.css` takes
+     it out of the page until the bar draws it): laid out here, a bar's buttons stood in a column under its title. */
+  :where(tanrei-button, tanrei-button-with-menu, tanrei-checkbox, tanrei-chip, tanrei-copy-button, tanrei-keyboard-shortcut:not(:has(> [data-tanrei-keys])), tanrei-loading-indicator, tanrei-main-action-button, tanrei-radio-button, tanrei-rating, tanrei-segmented-button, tanrei-select, tanrei-switch, tanrei-tag):where(:not(:defined):not([hidden]):not(tanrei-app-bar:not(:defined) > [slot])) {
     display: inline-block;
     box-sizing: border-box;
     vertical-align: middle;
     line-height: 0;
   }
   /* A block control: the width of its place. */
-  :where(tanrei-color-input, tanrei-combobox, tanrei-list-row, tanrei-navigation-bar, tanrei-number-input, tanrei-one-time-code-input, tanrei-pagination, tanrei-search, tanrei-slider, tanrei-tabs, tanrei-text-input):where(:not(:defined):not([hidden])) {
+  :where(tanrei-color-input, tanrei-combobox, tanrei-list-row, tanrei-navigation-bar, tanrei-number-input, tanrei-one-time-code-input, tanrei-pagination, tanrei-search, tanrei-slider, tanrei-tabs, tanrei-text-input):where(:not(:defined):not([hidden]):not(tanrei-app-bar:not(:defined) > [slot])) {
     display: block;
     box-sizing: border-box;
     line-height: 0;
@@ -279,9 +283,9 @@
      defined, and the line and everything after it move when it is (by 0.68 px, a 24 px tag on a 22 px line of the
      body face, in Firefox and WebKit on Linux). So each is held on its baseline, which is where the element draws its
      label's: in the middle of the container — inside a keycap's edges, the top and the deeper bottom — plus half the
-     ascent less the descent of the label's face. An empty line of the label's text style (a zero-width space in the
-     `::before`, of no height under the element's `line-height: 0`) centred in the box is the flex box's first item,
-     and so sets its baseline there, in whatever face the label resolves to. */
+     ascent less the descent of the label's face. A line of the label's text style centred in the box is the flex box's
+     first item, and so sets its baseline there, in whatever face the label resolves to: a keycap's an empty one (a
+     zero-width space in the `::before`, of no height under the element's `line-height: 0`), a tag's its label (below). */
   :where(tanrei-tag, tanrei-keyboard-shortcut:not(:has(> [data-tanrei-keys])):not([variant='plain'])):where(:not(:defined):not([hidden])) {
     display: inline-flex;
     align-items: center;
@@ -294,15 +298,42 @@
   :where(tanrei-tag, tanrei-keyboard-shortcut:not(:has(> [data-tanrei-keys])):not([variant='plain'])):where(:not(:defined):not([hidden]))::before {
     content: '\200b';
   }
+  /* A tag is as wide and as high as it is drawn (TAG-1): its label (`label`, an attribute: the `::before` writes it, in
+     the label's text style, on one line, centred in the container's height, its baseline the tag's) between the size's
+     paddings, and before it the glyph (an element in the `icon` slot) or the
+     dot (`dot`, or an outlined tag with a status, TAG-7) with the container's gap, the start padding then the one that
+     goes with a lead. What is written between its tags — a glyph's name — is no text of its own until it is drawn
+     (`font-size: 0`): the tag's width is the label's, so a tag in a row of them wraps where it will. */
+  :where(tanrei-tag):where(:not(:defined):not([hidden])) {
+    --_cloak-pad: var(--tanrei-comp-tag-container-padding-inline-medium);
+    --_cloak-pad-lead: var(--tanrei-comp-tag-container-padding-inline-with-icon-medium);
+    max-inline-size: 100%;
+    padding-block: var(--tanrei-comp-tag-container-padding-block-medium);
+    padding-inline: var(--_cloak-pad);
+    font-size: 0;
+  }
+  :where(tanrei-tag[size='small']):where(:not(:defined):not([hidden])) {
+    --_cloak-pad: var(--tanrei-comp-tag-container-padding-inline-small);
+    --_cloak-pad-lead: var(--tanrei-comp-tag-container-padding-inline-with-icon-small);
+    padding-block: var(--tanrei-comp-tag-container-padding-block-small);
+  }
+  :where(tanrei-tag:is([dot], [variant='outlined']:is([status='info'], [status='warning'], [status='error'], [status='success']))):where(:not(:defined):not([hidden])) {
+    padding-inline-start: calc(var(--_cloak-pad-lead) + var(--tanrei-comp-tag-dot-size) + var(--tanrei-comp-tag-container-gap));
+  }
+  :where(tanrei-tag:has(> [slot='icon'])):where(:not(:defined):not([hidden])) {
+    padding-inline-start: calc(var(--_cloak-pad-lead) + var(--tanrei-comp-tag-icon-size) + var(--tanrei-comp-tag-container-gap));
+  }
   :where(tanrei-tag:not(:defined))::before {
-    font-family: var(--tanrei-comp-tag-label-typescale-medium-font-family);
-    font-size: var(--tanrei-comp-tag-label-typescale-medium-font-size);
-    font-weight: var(--tanrei-comp-tag-label-typescale-medium-font-weight);
+    content: attr(label);
+    flex: 0 1 auto;
+    min-inline-size: 0;
+    white-space: nowrap;
+    font: var(--tanrei-comp-tag-label-typescale-medium-font-weight) var(--tanrei-comp-tag-label-typescale-medium-font-size)/var(--tanrei-comp-tag-label-typescale-medium-line-height) var(--tanrei-comp-tag-label-typescale-medium-font-family);
+    letter-spacing: var(--tanrei-comp-tag-label-typescale-medium-letter-spacing);
   }
   :where(tanrei-tag[size='small']:not(:defined))::before {
-    font-family: var(--tanrei-comp-tag-label-typescale-small-font-family);
-    font-size: var(--tanrei-comp-tag-label-typescale-small-font-size);
-    font-weight: var(--tanrei-comp-tag-label-typescale-small-font-weight);
+    font: var(--tanrei-comp-tag-label-typescale-small-font-weight) var(--tanrei-comp-tag-label-typescale-small-font-size)/var(--tanrei-comp-tag-label-typescale-small-line-height) var(--tanrei-comp-tag-label-typescale-small-font-family);
+    letter-spacing: var(--tanrei-comp-tag-label-typescale-small-letter-spacing);
   }
   :where(tanrei-keyboard-shortcut:not(:has(> [data-tanrei-keys])):not(:defined))::before {
     font-family: var(--tanrei-comp-keyboard-shortcut-label-typescale-medium-font-family);
@@ -315,16 +346,71 @@
     font-weight: var(--tanrei-comp-keyboard-shortcut-label-typescale-small-font-weight);
   }
 
-  /* Selection controls and indicators: their container size (a switch: the larger of its track and its container, SWT-27;
-     a loading indicator that is not contained: its indicator). */
+  /* Selection controls and indicators: their container size (a switch: the larger of its track and its container, SWT-27,
+     and its track's length; a loading indicator that is not contained: its indicator). A selection control is at least
+     its control wide, so that one that draws no label takes its room in a row. */
   :where(tanrei-checkbox:not(:defined)) {
-    min-block-size: var(--tanrei-comp-checkbox-container-size);
+    min-inline-size: var(--tanrei-comp-checkbox-container-size);
   }
   :where(tanrei-radio-button:not(:defined)) {
-    min-block-size: var(--tanrei-comp-radio-button-container-size);
+    min-inline-size: var(--tanrei-comp-radio-button-container-size);
+  }
+  /* In a table's selection cell (a cell marked `data-part="selection"`), the table's stylesheet gives a checkbox or a
+     radio button its height — a line of the cell's text, its container centred on it, before it is defined and after
+     (`table.css`, TBL-42) — which this would raise to the container's, and a row with it. */
+  :where(tanrei-checkbox:not(:defined):not(:is(td, th)[data-part='selection'] > *)) {
+    min-block-size: var(--tanrei-comp-checkbox-container-size);
+  }
+  :where(tanrei-radio-button:not(:defined):not(:is(td, th)[data-part='selection'] > *)) {
+    min-block-size: max(var(--tanrei-comp-radio-button-container-size), var(--tanrei-comp-radio-button-option-min-height));
   }
   :where(tanrei-switch:not(:defined)) {
+    min-inline-size: var(--tanrei-comp-switch-track-width);
     min-block-size: max(var(--tanrei-comp-switch-track-height), var(--tanrei-comp-switch-container-size));
+  }
+  /* A checkbox, a radio button or a switch that draws its label (CHK-15, RAD-17, SWT-15) is as wide and as high as it is
+     drawn: the control's width (its container, a switch's track) and the label's gap at the start, then the label
+     (`label`, an attribute: the `::before` writes it in the label's text style), wrapping where it will, its first line
+     centred on the control's row — half of what the row is taller than a line above and below it — and every line after
+     it below. A label that is hidden or empty is not drawn, and the control is its row alone. */
+  :where(tanrei-checkbox, tanrei-radio-button, tanrei-switch):where([label]:not([label=''], [label-hidden])):where(:not(:defined):not([hidden])) {
+    display: inline-flex;
+    align-items: flex-start;
+    max-inline-size: 100%;
+  }
+  :where(tanrei-checkbox[label]:not([label=''], [label-hidden])):where(:not(:defined):not([hidden])) {
+    --_cloak-row: var(--tanrei-comp-checkbox-container-size);
+    padding-inline-start: calc(var(--tanrei-comp-checkbox-container-size) + var(--tanrei-comp-checkbox-label-gap));
+  }
+  :where(tanrei-radio-button[label]:not([label=''], [label-hidden])):where(:not(:defined):not([hidden])) {
+    --_cloak-row: var(--tanrei-comp-radio-button-container-size);
+    padding-block: calc((var(--tanrei-comp-radio-button-option-min-height) - var(--tanrei-comp-radio-button-container-size)) / 2);
+    padding-inline-start: calc(var(--tanrei-comp-radio-button-container-size) + var(--tanrei-comp-radio-button-label-gap));
+  }
+  :where(tanrei-switch[label]:not([label=''], [label-hidden])):where(:not(:defined):not([hidden])) {
+    --_cloak-row: max(var(--tanrei-comp-switch-track-height), var(--tanrei-comp-switch-container-size));
+    padding-inline-start: calc(var(--tanrei-comp-switch-track-width) + var(--tanrei-comp-switch-label-gap));
+  }
+  :where(tanrei-checkbox, tanrei-radio-button, tanrei-switch):where([label]:not([label=''], [label-hidden])):where(:not(:defined):not([hidden]))::before {
+    content: attr(label);
+    flex: 0 1 auto;
+    min-inline-size: 0;
+    padding-block: calc((var(--_cloak-row) - 1lh) / 2);
+    overflow-wrap: break-word;
+    unicode-bidi: plaintext;
+    line-break: strict;
+  }
+  :where(tanrei-checkbox[label]:not([label=''], [label-hidden]):not(:defined))::before {
+    font: var(--tanrei-comp-checkbox-label-typescale-font-weight) var(--tanrei-comp-checkbox-label-typescale-font-size)/var(--tanrei-comp-checkbox-label-typescale-line-height) var(--tanrei-comp-checkbox-label-typescale-font-family);
+    letter-spacing: var(--tanrei-comp-checkbox-label-typescale-letter-spacing);
+  }
+  :where(tanrei-radio-button[label]:not([label=''], [label-hidden]):not(:defined))::before {
+    font: var(--tanrei-comp-radio-button-label-typescale-font-weight) var(--tanrei-comp-radio-button-label-typescale-font-size)/var(--tanrei-comp-radio-button-label-typescale-line-height) var(--tanrei-comp-radio-button-label-typescale-font-family);
+    letter-spacing: var(--tanrei-comp-radio-button-label-typescale-letter-spacing);
+  }
+  :where(tanrei-switch[label]:not([label=''], [label-hidden]):not(:defined))::before {
+    font: var(--tanrei-comp-switch-label-typescale-font-weight) var(--tanrei-comp-switch-label-typescale-font-size)/var(--tanrei-comp-switch-label-typescale-line-height) var(--tanrei-comp-switch-label-typescale-font-family);
+    letter-spacing: var(--tanrei-comp-switch-label-typescale-letter-spacing);
   }
   /* A horizontal slider: as thick as the larger of its container's size and its handle's height, by its size (SLD-7) —
      a system's handle may be taller than the container. */
@@ -442,13 +528,13 @@
     --_cloak-min-rows: 1;
   }
   /* `min-rows`: one line where it is given and is no count read below; each whole count from 1 to the build's limit
-     (the build writes one rule for each in place of the rule naming `tanrei-row-count`); and where the browser reads an
+     (the build writes one rule for each in place of the rule naming `tanrei-count`); and where the browser reads an
      attribute as a number, the number itself — a text input's as it is, an embedded one's rounded down — never below 1. */
   :where(tanrei-text-input, tanrei-text-field, tanrei-embedded-text-input):where([multiline][min-rows]):where(:not(:defined)) {
     --_cloak-min-rows: 1;
   }
-  :where(tanrei-text-input, tanrei-text-field, tanrei-embedded-text-input):where([multiline][min-rows='tanrei-row-count']):where(:not(:defined)) {
-    --_cloak-min-rows: tanrei-row-count;
+  :where(tanrei-text-input, tanrei-text-field, tanrei-embedded-text-input):where([multiline][min-rows='tanrei-count']):where(:not(:defined)) {
+    --_cloak-min-rows: tanrei-count;
   }
   @supports (x: attr(x type(*))) {
     :where(tanrei-text-input, tanrei-text-field):where([multiline][min-rows]):where(:not(:defined)) {
@@ -862,5 +948,63 @@
   }
   :where(tanrei-toolbar[variant='floating']:not([orientation='vertical']):not(:defined)) {
     min-block-size: var(--tanrei-comp-toolbar-container-size-floating);
+  }
+  /* A badge (BDG-2, BDG-7): the box of the anchor it wraps — a flex box of its one item, as it is drawn — whose dot or
+     count stands at its corner and takes no room. Laid out as the line of text it is in, an icon anchor would be as high
+     as that line rather than as its own box. */
+  :where(tanrei-badge):where(:not(:defined):not([hidden])) {
+    display: inline-flex;
+    flex: none;
+  }
+
+  /* A card (CRD-12): a block whose content — the element's own children, laid out as they will be — is inset by the
+     container's padding on every side (not with `flush`), so that it wraps at the width it is drawn at. */
+  :where(tanrei-card):where(:not(:defined):not([hidden])) {
+    display: block;
+    box-sizing: border-box;
+  }
+  :where(tanrei-card:not([flush]):not(:defined)) {
+    padding-block-start: var(--tanrei-comp-card-container-padding);
+    padding-block-end: var(--tanrei-comp-card-container-padding);
+    padding-inline-start: var(--tanrei-comp-card-container-padding);
+    padding-inline-end: var(--tanrei-comp-card-container-padding);
+  }
+
+  /* A divider (DIV-1, DIV-2): the whole length of its place and exactly the line's thickness across it — a horizontal one
+     a block that stretches, a vertical one as thick as that across the length its place gives it — and a wavy one
+     (DIV-12) twice the wave's amplitude and the thickness across. A thickness the divider is given (`thickness`, DIV-16)
+     stands in for the token, and scales the amplitude the token gives by that thickness over the token's; an amplitude
+     it is given (`amplitude`) is taken as it is. Each is read where the browser reads an attribute as a length (in CSS
+     pixels, as the element takes it); elsewhere, and for a thickness of 0 or less, which the element draws at the
+     token's, a divider given one is held at the token's. */
+  :where(tanrei-divider):where(:not(:defined):not([hidden])) {
+    --_cloak-thickness: var(--tanrei-comp-divider-line-thickness);
+    --_cloak-scale: 1;
+    --_cloak-amplitude: calc(var(--tanrei-comp-divider-line-wave-amplitude) * var(--_cloak-scale));
+    --_cloak-across: var(--_cloak-thickness);
+    display: block;
+    box-sizing: border-box;
+    flex: none;
+    align-self: stretch;
+    justify-self: stretch;
+    line-height: 0;
+    min-block-size: var(--_cloak-across);
+  }
+  @supports (x: attr(x px)) {
+    :where(tanrei-divider[thickness]:not(:defined)) {
+      --_cloak-thickness: attr(thickness px, var(--tanrei-comp-divider-line-thickness));
+      --_cloak-scale: tan(atan2(var(--_cloak-thickness), var(--tanrei-comp-divider-line-thickness)));
+    }
+    :where(tanrei-divider[amplitude]:not(:defined)) {
+      --_cloak-amplitude: attr(amplitude px, calc(var(--tanrei-comp-divider-line-wave-amplitude) * var(--_cloak-scale)));
+    }
+  }
+  :where(tanrei-divider[line-style='wavy']:not(:defined)) {
+    --_cloak-across: calc(2 * var(--_cloak-amplitude) + var(--_cloak-thickness));
+  }
+  :where(tanrei-divider[orientation='vertical']):where(:not(:defined):not([hidden])) {
+    justify-self: auto;
+    min-block-size: 0;
+    inline-size: var(--_cloak-across);
   }
 }

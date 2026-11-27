@@ -18,7 +18,8 @@ import {
   styleQueries,
   syncFocusStyle,
 } from '../../primitives/index.js';
-import { readTogether } from '../../primitives/read-phase.js';
+import { type PhaseRead, readInPhase, readTogether } from '../../primitives/read-phase.js';
+import { documentPainted } from '../../primitives/first-paint.js';
 import { FILTER_SETTLE_MS, filterWords, holdsWords, labelBegins } from '../../primitives/filter.js';
 import { ambientLocale } from '../../primitives/locale-date.js';
 import { fillPlaces } from '../../primitives/places.js';
@@ -1739,8 +1740,15 @@ export class TanreiTreeView extends TanreiLightElement {
       this.insertBefore(box, first);
       this.insertBefore(line, first);
     }
-    // TRV-54: the field stays at the top of the scrolling box the tree stands in (where it stands in one).
-    mark(box, 'data-tanrei-sticky', scrollBoxOf(this) ? '' : null);
+    // TRV-54: the field stays at the top of the scrolling box the tree stands in (where it stands in one). The box reads
+    // the cascade: with every other read, not in this update.
+    readSoon(this.stickyRead, () => {
+      if (box !== this.filterBox || !this.isConnected) return;
+      const sticky = !!scrollBoxOf(this);
+      return () => {
+        if (box === this.filterBox) mark(box, 'data-tanrei-sticky', sticky ? '' : null);
+      };
+    });
     const field = this.filterField!;
     const value = this.filterValue ?? '';
     if (field.label !== this.filterLabel) field.label = this.filterLabel;
@@ -1966,12 +1974,19 @@ export class TanreiTreeView extends TanreiLightElement {
     if (focusedItem && !this.shown(focusedItem) && this.filterField && (!now || now === document.body || stillThere)) this.focusField(false);
     // TRV-67: a changed text brings the field and the first row into view; the end of the filter keeps a focused row where it was.
     // The scrolling box is looked for only then: it reads the cascade, and a tree built with no filter has nothing to keep.
+    // Until the document has been painted, in the first frame's read phase: a page still loading upgrades the tree in a
+    // task of its own, and a read there would style and lay out the whole page for it.
     if (next.applied && keyChanged) {
-      const scroller = scrollBoxOf(this);
-      if (!scroller) return;
-      const box = scroller.getBoundingClientRect();
-      const top = this.getBoundingClientRect().top - box.top - scroller.clientTop - (Number.parseFloat(getComputedStyle(scroller).paddingTop) || 0);
-      if (top < 0) scroller.scrollTop += top;
+      const reveal: PhaseRead = () => {
+        if (!this.isConnected || this.filterKey !== key) return;
+        const scroller = scrollBoxOf(this);
+        if (!scroller) return;
+        const box = scroller.getBoundingClientRect();
+        const top = this.getBoundingClientRect().top - box.top - scroller.clientTop - (Number.parseFloat(getComputedStyle(scroller).paddingTop) || 0);
+        if (top < 0) return () => (scroller.scrollTop += top);
+      };
+      if (documentPainted()) reveal()?.();
+      else readInPhase(this.revealRead, reveal);
     } else if (kept && keptTop !== null && kept.isConnected) {
       const scroller = scrollBoxOf(this);
       const moved = scroller ? kept.getBoundingClientRect().top - keptTop : 0;
@@ -2244,6 +2259,10 @@ export class TanreiTreeView extends TanreiLightElement {
     }
   };
   private scrollRoot: Document | ShadowRoot | null = null;
+  /** Who asks for each read of the scrolling box in the first frame's read phase (`readSoon`): a later request replaces an earlier one. */
+  private readonly scrollRead = {};
+  private readonly stickyRead = {};
+  private readonly revealRead = {};
 
   /** Finds the scrolling box and follows its scroll, or pins nothing where there is none or pinning is off. */
   private watchScroll() {
@@ -2251,8 +2270,8 @@ export class TanreiTreeView extends TanreiLightElement {
     if (!this.isConnected || !this.stickyParents || !(this.stickyMax > 0)) return;
     const root = (this.scrollRoot = this.getRootNode() as Document | ShadowRoot);
     root.addEventListener('scroll', this.onScroll, { passive: true, capture: true });
-    // The scrolling box reads the cascade: with every other tree's reads of the turn, not in this one's update.
-    readTogether(() => {
+    // The scrolling box reads the cascade: with every other tree's reads, not in this one's update.
+    readSoon(this.scrollRead, () => {
       if (this.scrollRoot !== root || !this.isConnected) return;
       const scroller = scrollBoxOf(this);
       return () => {
@@ -2749,6 +2768,17 @@ function firstBelow(items: Item[], y: number): Item | null {
     else low = middle + 1;
   }
   return items[low] ?? null;
+}
+
+/**
+ * A read of the cascade or the layout, made with every other host's: until the document has been painted, in the first
+ * frame's read phase, after its layout and before its paint (a page still loading upgrades its elements in a task of
+ * each module's own, and a read there has the browser style and lay out the whole page for it); then with every other
+ * read of the turn (`readTogether`). `owner` asks once per phase.
+ */
+function readSoon(owner: object, read: PhaseRead) {
+  if (documentPainted()) readTogether(read);
+  else readInPhase(owner, read);
 }
 
 /** TRV-53: the scrolling box an element stands in — the nearest ancestor (across shadow roots) that scrolls its content; the page's own scrolling is not one. */
