@@ -5,6 +5,9 @@
 // its `verify` texts describe (`reading()`).
 // TOC-41: the product's ARIA on the host is tested with every other control's, in every engine, in
 // src/primitives/delegated-aria.test.ts.
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import AxeBuilder from '@axe-core/playwright';
 import { expectPressHeldAtEveryMoment } from '../../../test/held-press.js';
 import { expectPressShownAndHeld, watchPress, watchedPress } from '../../../test/watched-press.js';
@@ -17,6 +20,9 @@ import { CONTROL_HEIGHTS, atControlHeight } from '../../../test/control-height.j
 
 const spec = loadSpec('table-of-contents');
 type P = Page;
+const pkg = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../..');
+/** A file the package's build wrote. */
+const dist = (file: string) => fs.readFileSync(path.join(pkg, 'dist', file), 'utf8');
 const TAG = 'tanrei-table-of-contents';
 const T = (name: string) => `--tanrei-comp-table-of-contents-${name}`;
 const ROW = `${TAG} li > a`;
@@ -454,6 +460,63 @@ test.describe('which item is current', () => {
     expect(await current(page)).toBe('#s1');
     await scrollPage(page, withMargin);
     expect(await current(page)).toBe('#s2');
+  });
+
+  test('TOC-9 inside a shadow root of a page that is still loading, with no stylesheet of the page there: defined before the document is first painted, the rule reads where the targets are once the list is drawn by its stylesheet — no other item is current first, and nothing else is told', async ({ page }) => {
+    // A navigation, not `setContent`: the document's first paint is then the page's own, and the stylesheet of the list
+    // is added to the element's root in the first frame (src/primitives/sheets.ts), not in its connection. The element
+    // stands above the sections, in the shadow root of a product's own element that slots them: the room its list
+    // takes moves every target, and the page's line is between where the first one stands without the stylesheet and
+    // where it stands with it.
+    const url = 'http://toc-loading.test/';
+    const list = Array.from({ length: 8 }, (_, i) => `<li><a href="#s${i + 1}">Section ${i + 1}</a></li>`).join('');
+    const sections = Array.from({ length: 8 }, (_, i) => `<section><h2 id="s${i + 1}">Section ${i + 1}</h2><p style="block-size: ${GAP}px">Text</p></section>`).join('');
+    const body = (shadowStyle: string, line: number) =>
+      `<!doctype html><html lang="en" data-tanrei-theme="light"><head><meta charset="utf-8"><style>${dist('tokens.css')}</style><style>html { scroll-padding-top: ${line}px; } body { margin: 0; }</style></head><body>
+<div id="host"><template shadowrootmode="open">${shadowStyle}<tanrei-table-of-contents label="On this page"><ul>${list}</ul></tanrei-table-of-contents><slot></slot></template>${sections}</div>
+<script>(() => {
+  const root = document.getElementById('host').shadowRoot;
+  const told = (window.__told = []);
+  root.addEventListener('currentchange', (event) => told.push(event.detail.href));
+  const seen = (window.__seen = []);
+  const step = () => {
+    const el = root.querySelector('tanrei-table-of-contents');
+    if (el.matches(':defined')) seen.push(el.querySelector('[aria-current]')?.getAttribute('href') ?? '');
+    if (seen.length < 20) requestAnimationFrame(step);
+  };
+  requestAnimationFrame(step);
+})();</script>
+<script type="module" src="/tanrei.bundle.js"></script></body></html>`;
+    let served = '';
+    await page.route(url, (route) => route.fulfill({ contentType: 'text/html; charset=utf-8', body: served }));
+    await page.route(`${url}tanrei.bundle.js`, (route) => route.fulfill({ contentType: 'text/javascript; charset=utf-8', body: dist('tanrei.bundle.js') }));
+    const firstTarget = async () => {
+      await expect.poll(() => page.evaluate(() => (window as unknown as { __seen: string[] }).__seen.length)).toBe(20);
+      return page.evaluate(() => document.getElementById('s1')!.getBoundingClientRect().top);
+    };
+    // Where the first target stands with the list's stylesheet in the root, and where it stands without it: a root
+    // that sets the name the element asks its root for (`--_toc-row-height`) is taken to draw it, and is given nothing.
+    served = body(`<style>${dist('table-of-contents.css')}</style>`, 0);
+    await page.goto(url);
+    const drawn = await firstTarget();
+    served = body(`<style>tanrei-table-of-contents { --_toc-row-height: 1px; }</style>`, 0);
+    await page.goto(url);
+    const bare = await firstTarget();
+    expect(Math.abs(drawn - bare), 'the list’s stylesheet moves the first target').toBeGreaterThan(16);
+    const line = Math.round((drawn + bare) / 2);
+    // The page itself: nothing in the root draws the list, and its element brings its stylesheet.
+    served = body('', line);
+    await page.goto(url);
+    expect(await firstTarget()).toBe(drawn);
+    const atRest = drawn < line ? '#s1' : '';
+    const { current: rested, told, seen } = await page.evaluate(() => {
+      const { __told: told, __seen: seen } = window as unknown as { __told: string[]; __seen: string[] };
+      const el = document.getElementById('host')!.shadowRoot!.querySelector('tanrei-table-of-contents') as unknown as { current: string };
+      return { current: el.current, told, seen: [...new Set(seen)] };
+    });
+    expect(rested).toBe(atRest);
+    expect(seen, 'the items drawn current, frame by frame').toEqual([atRest]);
+    expect(told).toEqual(atRest ? [atRest] : []);
   });
 
   test('TOC-9: the view is the nearest scrolling ancestor of the targets — a region of the page that scrolls its own sections — and its own scroll padding is its line', async ({ page }) => {
