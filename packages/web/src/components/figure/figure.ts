@@ -4,6 +4,7 @@ import type { TanreiFigureVariantRegistry } from '../../registry.js';
 import { adopt, adoptUnlessDrawn } from '../../primitives/sheets.js';
 import { TanreiLightElement } from '../../primitives/element.js';
 import { DEBUG } from '../../primitives/debug.js';
+import { cancelPhaseRead, readInPhase } from '../../primitives/read-phase.js';
 
 /** The core looks (outlined, filled, plain), plus any a design system's generated `.d.ts` registers. */
 export type TanreiFigureVariant = keyof TanreiFigureVariantRegistry;
@@ -181,7 +182,7 @@ export class TanreiFigure extends TanreiLightElement {
   /**
    * One observer of sizes for every figure of the page, so that the figures whose stages change size in one frame —
    * every figure of a page when it is first laid out, or when the window or the text size changes — are reported, and
-   * measured, together (`measureDue`).
+   * measured, together, in the next frame's read phase (`measureLater`).
    */
   private static readonly owners = new WeakMap<Element, TanreiFigure>();
   private static readonly resizes =
@@ -190,13 +191,11 @@ export class TanreiFigure extends TanreiLightElement {
       : new ResizeObserver((entries) => {
           for (const entry of entries) {
             const figure = TanreiFigure.owners.get(entry.target);
-            if (figure) TanreiFigure.due.add(figure);
+            if (figure) figure.measureLater();
           }
-          TanreiFigure.measureDue();
         });
-  /** The figures to measure in the next frame (`measureLater`), and the frame asked for. */
+  /** The figures to measure in the next read phase (`measureLater`). */
   private static readonly due = new Set<TanreiFigure>();
-  private static frame = 0;
   private readonly mutations = typeof MutationObserver === 'undefined' ? null : new MutationObserver(() => this.read());
   /** The stage the figure has now, and what the observer of sizes watches: the stage and what stands in it. */
   private stage: HTMLElement | null = null;
@@ -232,10 +231,7 @@ export class TanreiFigure extends TanreiLightElement {
     this.watched.clear();
     this.mutations?.disconnect();
     TanreiFigure.due.delete(this);
-    if (TanreiFigure.frame && !TanreiFigure.due.size) {
-      cancelAnimationFrame(TanreiFigure.frame);
-      TanreiFigure.frame = 0;
-    }
+    if (!TanreiFigure.due.size) cancelPhaseRead(TanreiFigure.due);
   }
 
   protected override updated(changed: PropertyValues) {
@@ -449,33 +445,34 @@ export class TanreiFigure extends TanreiLightElement {
     if (!stage) this.stop.clear();
   }
 
-  /** Asks for the figure to be measured in the next frame, with every other figure that asks before it. */
+  /**
+   * Asks for the figure to be measured in the next frame's read phase (src/primitives/read-phase.ts), after its layout
+   * and before its paint, with every other figure that asks before it — and with every other element that reads there.
+   */
   private measureLater() {
     TanreiFigure.due.add(this);
-    TanreiFigure.frame ||= requestAnimationFrame(() => {
-      TanreiFigure.frame = 0;
-      TanreiFigure.measureDue();
-    });
+    readInPhase(TanreiFigure.due, TanreiFigure.measureDue);
   }
 
-  /** Measures every figure that asked to be, now, and leaves none asking. */
-  private static measureDue() {
-    if (TanreiFigure.frame) {
-      cancelAnimationFrame(TanreiFigure.frame);
-      TanreiFigure.frame = 0;
-    }
+  /** Measures every figure that asked to be — every stage read first — and returns what each then writes. */
+  private static readonly measureDue = () => {
     const figures = [...TanreiFigure.due].filter((figure) => figure.isConnected && figure.stage);
     TanreiFigure.due.clear();
-    // Every stage is read first — one layout for them all — and then each figure writes.
-    const scrolls = figures.map((figure) => figure.stage!.scrollWidth - figure.stage!.clientWidth > SLACK);
-    figures.forEach((figure, index) => figure.giveStop(figure.stage!, scrolls[index]));
-  }
+    const read = figures.map((figure) => ({ figure, stage: figure.stage!, scrolls: figure.stage!.scrollWidth - figure.stage!.clientWidth > SLACK }));
+    return () => {
+      for (const { figure, stage, scrolls } of read) if (figure.isConnected && figure.stage === stage) figure.giveStop(stage, scrolls);
+    };
+  };
 
   /**
    * FIG-6: while the stage scrolls sideways it is one stop in the focus order and a group with the figure's name, and
-   * neither otherwise; it writes attributes of the stage alone. Measured once a frame for every figure that was read,
-   * or whose stage or what stands in it changed size, all of them together (`measureDue`): a figure that measured
-   * itself in its own update, after the figure before it had written its name, had the page laid out for itself.
+   * neither otherwise; it writes attributes of the stage alone, which change nothing that is drawn. Measured in a
+   * frame's read phase for every figure that was read, or whose stage or what stands in it changed size, all of them
+   * together (`measureDue`): a figure that measured itself in its own update, after the figure before it had written its
+   * name, had the page laid out for itself; and measured in the report of its observer of sizes, after an observer
+   * reported before it had written (an app shell's lengths, the page's whole style), had the page laid out again for
+   * it. What the observer reports is measured in the next frame's phase, a frame later: only a stop and a name follow
+   * from it.
    */
   private giveStop(stage: HTMLElement, scrolls: boolean) {
     const figure = this.within('');

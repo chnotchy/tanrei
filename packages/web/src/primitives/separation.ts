@@ -72,22 +72,28 @@ const unanswered = new Set<() => void>();
  * probe's rule stands in a shadow root of the probe's own, never in the document's sheets: a sheet added to the
  * document and taken away again has the browser build the document's rules twice for one answer.
  *
- * Until the document has been painted once, the probe is made in the read phase of the coming frame, after its layout
- * and before its paint (`answerInPhase`), and the answer meanwhile is yes, which every current engine gives: made in
- * the turn of the first element that asks, while a loading page's modules upgrade one kind of element after another,
- * the probe had the browser style the whole page for it there and then. Where the probe then answers no, every Tanrei
- * element of the document is drawn again, and what asked with `whenNoStyleQueries` is told, before that frame is
- * painted.
+ * Until the document has been painted once, the answer is yes, which every current engine gives, and the probe is put
+ * in the page as the first element asks, then read in the read phase of the coming frame, after its layout and before
+ * its paint (`answerInPhase`): the frame has styled it with the page, so reading it costs nothing, and it is taken out
+ * with the phase's writes. Made and read in the turn of the first element that asks, while a loading page's modules
+ * upgrade one kind of element after another, the probe had the browser style the whole page for it there and then;
+ * made and read in the read phase, it had the next read of the phase lay the page out again. Where the probe then
+ * answers no, every Tanrei element of the document is drawn again, and what asked with `whenNoStyleQueries` is told,
+ * before that frame is painted.
  */
 export function styleQueries(): boolean {
   if (queries !== undefined) return queries;
   if (typeof document === 'undefined' || typeof CSSStyleSheet === 'undefined') return (queries = false);
-  if (!documentPainted()) {
+  if (documentPainted()) return (queries = probe());
+  if (placed === undefined) {
+    placed = placeProbe();
     readInPhase(unanswered, answerInPhase);
-    return true;
   }
-  return (queries = probe());
+  return true;
 }
+
+/** The probe put in the page before the first paint, until the read phase has read it (`answerInPhase`); null where it could not be made. */
+let placed: HTMLElement | null | undefined;
 
 /**
  * Calls `told` if this browser turns out to answer no style container queries after `styleQueries()` had answered yes
@@ -97,14 +103,16 @@ export function whenNoStyleQueries(told: () => void): void {
   if (queries === undefined) unanswered.add(told);
 }
 
-/** The read phase's probe (`styleQueries`), and what follows from a no: written after the phase's reads. */
+/** The read phase's reading of the probe (`styleQueries`), and what follows from a no: written after the phase's reads. */
 function answerInPhase() {
-  if (queries !== undefined) return;
-  queries = probe();
+  const outer = placed;
+  queries ??= outer?.isConnected ? answerOf(outer) : probe();
   const told = [...unanswered];
   unanswered.clear();
-  if (queries) return;
+  const answer = queries;
   return () => {
+    outer?.remove();
+    if (answer) return;
     for (const each of told) each();
     for (const element of tanreiElements(document)) element.requestUpdate();
   };
@@ -122,26 +130,45 @@ function tanreiElements(root: Document | ShadowRoot): Updating[] {
   return found;
 }
 
-/** The probe itself: whether a style container query on a custom property matches. */
-function probe(): boolean {
-  let answer = false;
+/**
+ * The probe, put in the page: an element that sets a custom property, and in its shadow root a style container query
+ * on it and the one element the query styles. It has a box, of no size and painted nowhere, so a frame styles and lays
+ * it out with the page: in WebKit an element of no box put in the root element and taken out again had the whole page
+ * laid out once more (0.7 s on a long page). Its hidden visibility keeps it from assistive technology and the pointer
+ * as well, and its strict containment clips what it holds. Null where the browser cannot make it.
+ */
+function placeProbe(): HTMLElement | null {
   try {
     const sheet = new CSSStyleSheet();
     sheet.replaceSync('@container style(--tanrei-style-query-probe: on) { [data-tanrei-style-query-probe] { --tanrei-style-query-answer: yes; } }');
     const outer = document.createElement('div');
     const inner = document.createElement('div');
-    outer.style.setProperty('--tanrei-style-query-probe', 'on');
-    outer.style.display = 'none';
+    outer.style.cssText = 'position:absolute;inset:0;inline-size:0;block-size:0;visibility:hidden;contain:strict;--tanrei-style-query-probe:on';
     inner.setAttribute('data-tanrei-style-query-probe', '');
     const root = outer.attachShadow({ mode: 'open' });
     root.adoptedStyleSheets = [sheet];
     root.append(inner);
     document.documentElement.append(outer);
-    answer = getComputedStyle(inner).getPropertyValue('--tanrei-style-query-answer').trim() === 'yes';
-    outer.remove();
+    return outer;
   } catch {
-    answer = false;
+    return null;
   }
+}
+
+/** What the probe says: whether the query matched the element in its shadow root. */
+function answerOf(outer: HTMLElement): boolean {
+  try {
+    return getComputedStyle(outer.shadowRoot!.firstElementChild!).getPropertyValue('--tanrei-style-query-answer').trim() === 'yes';
+  } catch {
+    return false;
+  }
+}
+
+/** The probe at once: put in the page, read and taken out — whether a style container query on a custom property matches. */
+function probe(): boolean {
+  const outer = placeProbe();
+  const answer = !!outer && answerOf(outer);
+  outer?.remove();
   return answer;
 }
 

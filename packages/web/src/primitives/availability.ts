@@ -240,12 +240,21 @@ export class AvailabilityController implements ReactiveController {
     const { use, drawn } = useOf(entry, { component: outer.component, variant: variantOf(outer.host) }, this.component);
     const held = store();
     held.uses.add(use);
-    const system = unquote(style.getPropertyValue(SYSTEM)) || scopeSystem(this.host);
-    // AVL-2: what the system names instead — of the use as the product wrote it, else of what the element draws.
-    const named = parseReplacements(style.getPropertyValue(UNAVAILABLE_REPLACEMENT));
-    const instead = named.get(use) ?? named.get(entry) ?? [];
-    const by = drawn ? outer.component : undefined;
-    const message = layer ? outsideMessage(this.component, layer, system, instead, by) : unavailableMessage(drawn ? entry : use, system, instead, by);
-    if (DEBUG) report(outer.host, 'availability', message, { level: held.mode === 'error' ? 'error' : 'warn' });
+    // The message is made in the report's own arguments, which a production bundle leaves out with the call.
+    if (DEBUG) {
+      report(
+        outer.host,
+        'availability',
+        (() => {
+          const system = unquote(style.getPropertyValue(SYSTEM)) || scopeSystem(this.host);
+          // AVL-2: what the system names instead — of the use as the product wrote it, else of what the element draws.
+          const named = parseReplacements(style.getPropertyValue(UNAVAILABLE_REPLACEMENT));
+          const instead = named.get(use) ?? named.get(entry) ?? [];
+          const by = drawn ? outer.component : undefined;
+          return layer ? outsideMessage(this.component, layer, system, instead, by) : unavailableMessage(drawn ? entry : use, system, instead, by);
+        })(),
+        { level: held.mode === 'error' ? 'error' : 'warn' },
+      );
+    }
   }
 }

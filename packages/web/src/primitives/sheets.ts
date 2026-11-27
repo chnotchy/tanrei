@@ -122,22 +122,33 @@ export function adoptUnlessDrawn(element: Element, sheet: CSSStyleSheet | null |
   if (!drawnIn(root, element, mark)) adopt(root, sheet);
 }
 
-/** The elements connected before the first paint whose root is asked in the read phase (`adoptUnlessDrawn`). */
+/**
+ * The elements connected before the first paint whose root is asked in the read phase (`adoptUnlessDrawn`): each is
+ * let go when its root is found to draw it, or once the sheet it needs is added, in the phase's writes.
+ */
 const awaiting = new Map<Element, { sheet: CSSStyleSheet; mark: `--${string}` }>();
+
+/**
+ * Whether `element`'s root is still to be asked whether it draws it, or to be given its sheet in this phase's writes
+ * (`adoptUnlessDrawn`). Read in the read phase after the question, false means that the layout read there is the one
+ * the element's stylesheet draws.
+ */
+export const awaitsSheet = (element: Element): boolean => awaiting.has(element);
 
 /** The read phase's question for every element that awaits it: all read, then every sheet a root needs added. */
 function decideAwaiting() {
-  const needed: [Root, CSSStyleSheet][] = [];
+  const needed: [Element, Root, CSSStyleSheet][] = [];
   for (const [element, { sheet, mark }] of awaiting) {
-    if (!element.isConnected) continue;
     const root = element.getRootNode();
-    if (!isRoot(root) || root.adoptedStyleSheets.includes(sheet)) continue;
-    if (!drawnIn(root, element, mark)) needed.push([root, sheet]);
+    if (element.isConnected && isRoot(root) && !root.adoptedStyleSheets.includes(sheet) && !drawnIn(root, element, mark)) needed.push([element, root, sheet]);
+    else awaiting.delete(element);
   }
-  awaiting.clear();
   if (!needed.length) return;
   return () => {
-    for (const [root, sheet] of needed) adopt(root, sheet);
+    for (const [element, root, sheet] of needed) {
+      adopt(root, sheet);
+      awaiting.delete(element);
+    }
   };
 }
 
