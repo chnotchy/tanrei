@@ -217,7 +217,7 @@ async function mountedLate(first: Page, tag: string, browserName: string, option
 test.describe('an element whose surface is in the top layer takes no room before it is defined, as after', () => {
   const tags = tagsWith(/display: none/);
   test('the cloak takes the overlays out of the page', () => {
-    expect(tags).toEqual(['tanrei-date-time-picker', 'tanrei-dialog', 'tanrei-image-preview', 'tanrei-modal-layer', 'tanrei-popover']);
+    expect(tags).toEqual(['tanrei-bottom-sheet', 'tanrei-date-time-picker', 'tanrei-dialog', 'tanrei-image-preview', 'tanrei-modal-layer', 'tanrei-popover', 'tanrei-side-sheet']);
   });
 
   for (const tag of tags) {
@@ -343,19 +343,43 @@ test.describe('the cloak holds a slider as thick as it will be drawn, in every s
   }
 });
 
-test.describe('the cloak holds the width of an element that draws its words from an attribute, in every system', () => {
+/**
+ * The fixtures whose width the cloak holds narrower than they are drawn, by spec, with why: what makes the difference
+ * is something CSS cannot see. Each is still held at its height, and no wider than it is drawn.
+ */
+const NARROWER: Record<string, Grows> = {
+  button: {
+    grows: (props, fixture) => !!props.label && !!fixture.slots?.icon && !!fixture.content,
+    why: 'a Button named by `label` that has a glyph is held as the icon-only one: CSS cannot see that words are written beside the glyph too',
+  },
+};
+
+test.describe('the cloak holds the width of an element as it is drawn, in every system', () => {
   // TAG-1: a tag is its label between its paddings, with its glyph or its dot; CHK-15, RAD-17, SWT-15: a selection
   // control is its control, the label's gap and the label it draws. The words are attributes, which the cloak writes in
   // their text style: held at the width the element is drawn at, a row of them wraps where it will once they are
   // defined (a docs page's row of tags, 88 px high before, was 128 px drawn when they were held at no width).
-  for (const tag of ['tanrei-tag', 'tanrei-checkbox', 'tanrei-radio-button', 'tanrei-switch']) {
-    for (const system of [undefined, ...PRESETS]) {
+  // BTN-11, BTN-12: a Button is the label written between its tags, in its text style, between its paddings, with its
+  // glyph's box, or the width an icon-only one names; CPY-7, CPY-19: a Copy Button is the Button it is drawn by; MAB-11,
+  // MAB-13: a Main Action Button is its label, its glyph and its paddings, or a square while collapsed. Held at the
+  // width of the words written in them, a docs page's rows of buttons wrapped where they were not drawn wrapping.
+  for (const tag of ['tanrei-tag', 'tanrei-checkbox', 'tanrei-radio-button', 'tanrei-switch', 'tanrei-button', 'tanrei-copy-button', 'tanrei-main-action-button', 'tanrei-button-with-menu', 'tanrei-button-group', 'tanrei-segmented-button', 'tanrei-fab-menu']) {
+    // A component that lives in a layer (the FAB Menu, in m3-like) is drawn in the systems that ship it: its tokens are
+    // in their stylesheets. The default system's fixtures are drawn under the layer that ships it (test/harness.ts).
+    const tokens = `--tanrei-comp-${tag.replace(/^tanrei-/, '')}-`;
+    const ships = (system: string) => dist(`systems/${system}.css`).includes(tokens) || dist('tokens.css').includes(tokens);
+    for (const system of [undefined, ...PRESETS.filter(ships)]) {
       test(`${system ?? 'the default system'}, ${tag.replace(/^tanrei-/, '')}: with the cloak and no script, each fixture is as wide and as high as once it is defined`, async ({ page: first, browserName }) => {
-        const { page, before, after } = await mountedLate(first, tag, browserName, system ? { system } : {});
+        const { spec, page, before, after } = await mountedLate(first, tag, browserName, system ? { system } : {});
+        const fixtures = new Map(spec.fixtures.map((fixture) => [fixture.id, fixture]));
+        const reason = NARROWER[tag.replace(/^tanrei-/, '')];
         const wrong = before.flatMap((stage, i) => {
           const drawn = after[i]!;
-          if (Math.abs(stage.width - drawn.width) <= 0.5 && Math.abs(stage.height - drawn.height) <= 0.5 && Math.abs(stage.stage - drawn.stage) <= 0.5) return [];
-          return [`${stage.id}: held ${stage.width}×${stage.height}px in a stage of ${stage.stage}px, drawn ${drawn.width}×${drawn.height}px in ${drawn.stage}px`];
+          const fixture = fixtures.get(stage.id)!;
+          const narrower = !!reason?.grows((fixture.props ?? {}) as Record<string, unknown>, fixture);
+          const width = narrower ? stage.width <= drawn.width + 0.5 : Math.abs(stage.width - drawn.width) <= 0.5;
+          if (width && Math.abs(stage.height - drawn.height) <= 0.5 && Math.abs(stage.stage - drawn.stage) <= 0.5) return [];
+          return [`${stage.id}: held ${stage.width}×${stage.height}px in a stage of ${stage.stage}px, drawn ${drawn.width}×${drawn.height}px in ${drawn.stage}px${narrower ? ` (held narrower: ${reason!.why})` : ''}`];
         });
         expect(wrong).toEqual([]);
         await page.close();

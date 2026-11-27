@@ -1,7 +1,8 @@
 // The pages whose figures the web package's cloak holds at the box they are drawn in, in each engine, before the modules
 // that define their elements have arrived: rows of tags, of switches and of avatars, cards, dividers, badges and app
-// bars. held-room.mjs holds the tests and says how they read the page. The pages whose tables, keyboard maps and lists of
-// status tags hold their room are in held-room-tables.test.mjs.
+// bars. held-room.mjs holds the tests and says how they read the page. The pages of buttons and other actions
+// are in held-room-buttons.test.mjs and held-room-actions.test.mjs; the pages whose tables, keyboard maps and lists of status tags hold their room are in
+// held-room-tables.test.mjs.
 //
 //   pnpm --filter @tanrei/docs build && pnpm --filter @tanrei/docs test:browser
 //   DOCS_ENGINES=chromium node --test test/browser/held-room-figures.test.mjs   # in one engine (all three by default)
