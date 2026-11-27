@@ -33,7 +33,7 @@ export const LIGHT_DOM_SUBJECTS: LightDomSubject[] = [
   {
     tag: 'tanrei-description-list',
     css: 'description-list.css',
-    mark: '--_dl-fact-gap',
+    mark: '--_dl-line',
     html: (n) => `<tanrei-description-list><dl><div><dt>Term ${n}</dt><dd>Fact</dd></div></dl></tanrei-description-list>`,
     drawn: { part: 'dd', property: 'margin-left' },
     inside: 'dd',
