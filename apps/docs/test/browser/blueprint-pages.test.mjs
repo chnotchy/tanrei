@@ -25,8 +25,8 @@ import { fileURLToPath } from 'node:url';
 import { serveDist } from './host.mjs';
 import { launch, settlePage } from './launch.mjs';
 
-// Each test's limit, the backstop for a wait with none of its own (launch.mjs): the slowest, the figures of every page,
-// took 122 s in CI.
+// Each test's limit, the backstop for a wait with none of its own (launch.mjs): a page's figures take seconds; the
+// figures of every page, when they were one test, took 190 to 224 s in CI's green runs.
 const LIMIT = { timeout: 360_000 };
 
 const docs = fileURLToPath(new URL('../../', import.meta.url));
@@ -50,9 +50,17 @@ const pages = fs
 
 let host;
 let browser;
+/**
+ * The page every component page is opened in, one after another, as one test opened them when it was one: opened
+ * before the tests, so that a page's test that fails (launch.mjs closes what a failed test opened) leaves it to the
+ * pages after.
+ */
+let page;
 before(async () => {
   host = await serveDist(dist);
   browser = await launch();
+  const context = await browser.newContext({ viewport: { width: 1280, height: 900 }, reducedMotion: 'reduce', colorScheme: 'light' });
+  page = await context.newPage();
 });
 after(async () => {
   await browser?.close();
@@ -63,25 +71,31 @@ test('the figures are drawn on the pages of the components whose specs say where
   assert.ok(pages.includes('button') && pages.includes('tabs') && pages.includes('slider'), `pages with a figure: ${pages.join(', ')}`);
 });
 
-test('every figure: each number once, inside and clear; each line its token’s length, or none and the table says why', LIMIT, async () => {
-  const context = await browser.newContext({ viewport: { width: 1280, height: 900 }, reducedMotion: 'reduce', colorScheme: 'light' });
-  const page = await context.newPage();
+// Every page is a test of its own, each with its limit, in one context: the figures of all the pages, one test, took
+// 190 to 224 s in CI's green runs, and more than its limit (360 s) in a run whose job was busier. What the pages find
+// together is held after the last of them.
+const notDrawn = [];
+/** The parts whose outline the test held to the part's own box, found from its target. */
+const checked = [];
+/** The parts the test found drawn in an anatomy figure's fixture, each held to have its number. */
+const shownChecked = [];
+/** What each figure found, by component and token: what it draws instead, in px, or null where it draws no such box. */
+const found = {};
+/** The pages whose figures were all read and held. */
+const read = [];
+const specNames = fs.readdirSync(specs);
+for (const name of pages) test(`/components/${name}/, every figure: each number once, inside and clear; each line its token’s length, or none and the table says why`, LIMIT, async (t) => {
   const errors = [];
-  page.on('pageerror', (error) => errors.push(error.message));
-  const notDrawn = [];
-  /** The parts whose outline the test held to the part's own box, found from its target. */
-  const checked = [];
-  /** The parts the test found drawn in an anatomy figure's fixture, each held to have its number. */
-  const shownChecked = [];
-  /** What each figure found, by component and token: what it draws instead, in px, or null where it draws no such box. */
-  const found = {};
-  for (const name of pages) {
-    const component = fs.readdirSync(specs).includes(`${name}.spec.json`) ? name : null;
+  const failed = (error) => errors.push(error.message);
+  page.on('pageerror', failed);
+  t.after(() => page.off('pageerror', failed));
+  {
+    const component = specNames.includes(`${name}.spec.json`) ? name : null;
+    // `goto` waits for the page's load.
     await page.goto(`${host.origin}/components/${name}/`);
-    await page.waitForLoadState('load');
     // Each figure brought into view and given 15 s to be drawn, with two frames drawn on the way (bounded: launch.mjs).
     const figures = [];
-    const count = await page.locator('[data-blueprint-figure]').count();
+    const count = await page.evaluate(() => document.querySelectorAll('[data-blueprint-figure]').length);
     for (let at = 0; at < count; at += 1) {
       const deadline = Date.now() + 15_000;
       const drawn = ({ at, left, scroll }) => {
@@ -95,10 +109,12 @@ test('every figure: each number once, inside and clear; each line its token’s 
       };
       await page.evaluate(drawn, { at, left: deadline - Date.now(), scroll: true });
       await settlePage(page, { fonts: false });
-      await page.evaluate(drawn, { at, left: Math.max(0, deadline - Date.now()), scroll: false });
-      figures.push(await page.evaluate((at) => {
+      // Drawn again if the frames since asked for it, then read, in one script.
+      figures.push(await page.evaluate(async ({ at, left }) => {
         const frame = document.querySelectorAll('[data-blueprint-figure]')[at];
         const done = () => frame.querySelector('[data-example-overlay][data-drawn]:not([data-drawing])');
+        const until = Date.now() + left;
+        while (!done() && Date.now() < until) await new Promise((resolve) => setTimeout(resolve, 50));
         // A figure is a picture: nothing of it is modal over the page (a modal fixture is drawn closed in the gallery,
         // opened only from its stage, and stands under no figure). `:modal` is looked for in every shadow tree, where a dialog is.
         const modal = [];
@@ -164,7 +180,7 @@ test('every figure: each number once, inside and clear; each line its token’s 
             return { part: rect.dataset.part, drawn: { left: x, top: y, right: x + Number(rect.getAttribute('width')), bottom: y + Number(rect.getAttribute('height')) }, real };
           }),
         };
-      }, at));
+      }, { at, left: Math.max(0, deadline - Date.now()) }));
     }
     assert.ok(figures.length > 0, `${name}: a figure`);
     const anatomy = component ? JSON.parse(fs.readFileSync(path.join(specs, `${component}.spec.json`), 'utf8')).anatomy.map((part) => part.id) : [];
@@ -218,7 +234,12 @@ test('every figure: each number once, inside and clear; each line its token’s 
       }
     }
   }
-  assert.deepEqual(errors, [], 'no script failed');
+  assert.deepEqual(errors, [], `${name}: no script failed`);
+  read.push(name);
+});
+
+test('every figure of every page: the outlines and numbers held, and the lengths not drawn those the record holds', () => {
+  assert.deepEqual(pages.filter((name) => !read.includes(name)), [], 'every page’s figures were read and held (each page’s own test says why one was not)');
   console.log(`Outlines held to their parts' boxes (${checked.length}): ${checked.join(', ')}`);
   assert.ok(checked.includes('tabs container') && checked.includes('button container'), `the outlines held to their parts' boxes: ${checked.join(', ')}`);
   console.log(`Parts drawn and held to be numbered (${shownChecked.length}): ${shownChecked.join(', ')}`);
@@ -231,5 +252,4 @@ test('every figure: each number once, inside and clear; each line its token’s 
   );
   assert.deepEqual(found, said, 'the lengths the figures do not draw are those src/lib/visuals/lengths-not-drawn.json records, with what each component draws instead: a page writes them before its figure is drawn');
   if (notDrawn.length) console.log(`Lengths not drawn, where a component draws another length than its token's:\n  ${notDrawn.join('\n  ')}`);
-  await context.close();
 });
