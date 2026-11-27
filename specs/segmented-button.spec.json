@@ -285,8 +285,8 @@
     },
     {
       "id": "SEG-32",
-      "text": "WHEN the control height (dial.control.height) is N THE segmented button's default set SHALL be N tall: the set and every segment of a medium segmented button SHALL be drawn at comp.segmented-button.container.height.medium, which is sys.control.height.medium held at sys.target.minimum, a medium Button's height, and those of a small and a large one at the small and the large step, so that a set stands as tall as the Buttons of its size beside it; a segment's block padding SHALL give up half of what its height loses below the control height's reference, so that one line of its label still fits, and the hit area SHALL still meet the minimum target.",
-      "verify": "With the control height at 32, 36 and 40 and the minimum target no higher, the set of the fixture single and every segment in it are 32, 36 and 40 tall under a fine pointer, every label whole inside its segment; large is 56 at 40."
+      "text": "WHEN the control height (dial.control.height) is N THE segmented button's default set SHALL be N tall: the set of a medium segmented button SHALL be drawn at comp.segmented-button.container.height.medium, which is sys.control.height.medium held at sys.target.minimum, a medium Button's height, and those of a small and a large one at the small and the large step, so that a set stands as tall as the Buttons of its size beside it, and every segment SHALL be the set's height less comp.segmented-button.set.padding above and below (SEG-13); a segment's block padding SHALL give up half of what its height loses below the control height's reference, so that one line of its label still fits, and the hit area SHALL still meet the minimum target.",
+      "verify": "With the control height at 32, 36 and 40 and the minimum target no higher, the set of the fixture single is 32, 36 and 40 tall under a fine pointer and every segment in it that height less twice set.padding, every label whole inside its segment; large is 56 at 40."
     }
   ],
   "accessibility": {
