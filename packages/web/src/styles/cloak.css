@@ -40,7 +40,8 @@
  *     height where it draws them; a file item's row (its name's lines, its second line and its bar) or its tile; a
  *     stepper's steps; a snackbar's lines; a swatch's sample and text; an embedded
  *     text input's line or rows; a chat composer laid out inline; a carousel's row and controls; a toolbar along a line;
- *     vertical tabs; a progress indicator's and a meter's bar or ring; a divider's thickness, or a wave's;
+ *     vertical tabs; the row of a tab view and the first panel under a row of tabs or in a tab view; a progress
+ *     indicator's and a meter's bar or ring; a divider's thickness, or a wave's;
  *   - an element the page sizes (a scroll area, a split view) is laid out as the box the size applies to;
  *   - a card's content between its paddings; a badge as the box of its anchor;
  *   - a tag group's lines, and a text input's entries (chips in its `entries` slot) and its typing part.
@@ -59,7 +60,7 @@
  *   side in a row of their own (a flex or grid row with a gap, as a toolbar is) move nothing that was painted.
  *
  * What it does not hold: a height that depends on what the element draws beyond its tokens (a composer's attachments or a stacked composer's row, the file picker, the file upload and their rows, a drop zone, a
- * resizable frame's size, which its attributes give, a tab view's content, a multiline input's lines
+ * resizable frame's size, which its attributes give, the panel a row's `value` names where it is not the first, a multiline input's lines
  * beyond its fewest rows (the lines of a value it already holds), a combobox's chips and a chip field's (drawn from its
  * `value`, which CSS cannot read as a list), a docked search's results, vertical sliders), a size or a variant a design system added (held at the default's), a size an element takes from its
  * container rather than its own `size` (but a Button's and a Button with Menu's from a Button Group or a Toolbar that
@@ -1527,6 +1528,55 @@
   :where(tanrei-tab):where(:not(:defined):not([hidden])) {
     display: block;
     min-block-size: var(--_cloak-tab);
+  }
+  /* The panels a row of tabs or a tab view holds (TAB-13, TBV-1, TBV-9): one is shown, under the row — beside the
+     column of vertical tabs — and the others take no room. The panel shown is the selected tab's, which CSS cannot
+     tell from the row's `value`: the first panel is held, as it is where the row names no value or names its first.
+     A row with panels keeps its own row's height above them; a tab view draws its row (a primary one of the default
+     size taller where a panel shows a glyph over its label), but a view linked to a row elsewhere (`tabs`), which draws
+     none. Each panel lays its content out in a box of its own, as it is drawn. */
+  :where(tanrei-tabs, tanrei-tab-view):where(:not(:defined)) > :where(tanrei-tab-panel) {
+    display: flow-root;
+  }
+  :where(tanrei-tabs, tanrei-tab-view):where(:not(:defined)) > :where(tanrei-tab-panel:not(:first-of-type)) {
+    display: none;
+  }
+  :where(tanrei-tabs:not([orientation='vertical']):not(:defined):has(> tanrei-tab-panel)) {
+    padding-block-start: var(--tanrei-comp-tabs-container-height-medium);
+  }
+  :where(tanrei-tabs[size='small']:not([orientation='vertical']):not(:defined):has(> tanrei-tab-panel)) {
+    padding-block-start: var(--tanrei-comp-tabs-container-height-small);
+  }
+  :where(tanrei-tabs:is(:not([variant]), [variant='primary']):not([size='small'], [orientation='vertical']):not(:defined):has(> tanrei-tab[icon]:not([icon=''], [label-hidden])):has(> tanrei-tab-panel)) {
+    padding-block-start: var(--tanrei-comp-tabs-container-height-with-icon);
+  }
+  /* Vertical tabs with panels: the column of tabs at the start, the panel beside it, as tall as the taller of the
+     two (the panel spans more rows than a column of tabs holds; those it spans and no tab fills are empty). */
+  :where(tanrei-tabs[orientation='vertical']:not(:defined):has(> tanrei-tab-panel)) {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    grid-auto-flow: dense;
+    align-content: start;
+  }
+  :where(tanrei-tabs[orientation='vertical']:not(:defined)) > :where(tanrei-tab) {
+    grid-column: 1;
+  }
+  :where(tanrei-tabs[orientation='vertical']:not(:defined)) > :where(tanrei-tab-panel) {
+    grid-column: 2;
+    grid-row: 1 / span 100;
+  }
+  :where(tanrei-tab-view):where(:not(:defined):not([hidden])) {
+    display: block;
+    box-sizing: border-box;
+  }
+  :where(tanrei-tab-view:not([tabs]):not(:defined)) {
+    padding-block-start: var(--tanrei-comp-tabs-container-height-medium);
+  }
+  :where(tanrei-tab-view[size='small']:not([tabs]):not(:defined)) {
+    padding-block-start: var(--tanrei-comp-tabs-container-height-small);
+  }
+  :where(tanrei-tab-view:is(:not([variant]), [variant='primary']):not([size='small'], [tabs]):not(:defined):has(> tanrei-tab-panel[icon]:not([icon=''], [label-hidden]))) {
+    padding-block-start: var(--tanrei-comp-tabs-container-height-with-icon);
   }
   :where(tanrei-pagination:not(:defined)) {
     min-block-size: var(--tanrei-comp-pagination-container-height-medium);

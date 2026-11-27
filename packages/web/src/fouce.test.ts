@@ -25,17 +25,34 @@ const SHIFT_BUDGET = 0.01;
 
 /**
  * The elements a rule of the cloak gives `declaration` — read from the built stylesheet, so a component it starts
- * holding, or takes out of the page, is tested here without anyone editing a list.
+ * holding, or takes out of the page, is tested here without anyone editing a list. With `styled`, only the elements
+ * the rule styles (named in its last compound), not those it asks about on the way (a tab view whose panels after the
+ * first it takes out of the page is not itself taken out).
  */
-function tagsWith(declaration: RegExp): string[] {
+function tagsWith(declaration: RegExp, { styled = false } = {}): string[] {
   const css = dist('cloak.css').replace(/\/\*[\s\S]*?\*\//g, '');
   const tags = new Set<string>();
   for (const [, selector, body] of css.matchAll(/([^{}]+)\{([^{}]*)\}/g)) {
     if (!declaration.test(body!)) continue;
-    for (const [tag] of selector!.matchAll(/tanrei-[a-z-]+/g)) tags.add(tag);
+    for (const one of styled ? topLevel(selector!, ',').map((each) => topLevel(each.trim(), ' ').at(-1)!) : [selector!]) {
+      for (const [tag] of one.matchAll(/tanrei-[a-z-]+/g)) tags.add(tag);
+    }
   }
   // An element that stands only inside another (a tab, a stepper's step) is tested in its container's fixtures.
   return [...tags].filter((tag) => fs.existsSync(path.join(here, '../../../specs', `${tag.replace(/^tanrei-/, '')}.spec.json`))).sort();
+}
+
+/** `text` split at each `separator` that stands outside any parentheses or brackets. */
+function topLevel(text: string, separator: string): string[] {
+  const out = [''];
+  let depth = 0;
+  for (const char of text) {
+    if (char === '(' || char === '[') depth += 1;
+    if (char === ')' || char === ']') depth -= 1;
+    if (char === separator && depth === 0) out.push('');
+    else out[out.length - 1] += char;
+  }
+  return out.filter((part) => part.trim() !== '' && part.trim() !== '>');
 }
 
 /**
@@ -94,6 +111,12 @@ const GROWS: Record<string, Grows[]> = {
   snackbar: [{ grows: (props) => !!props.action, why: 'an action that does not fit beside the text takes a row of its own under it' }],
   'text-input': [ROWS],
   'text-field': [ROWS],
+  'tab-view': [
+    {
+      grows: (props, fixture) => props.value !== undefined && props.value !== null && fixture.items?.[0]?.props?.value !== props.value,
+      why: 'the panel shown is the one its value names, which CSS cannot match to a panel: the cloak holds the first panel, here a lower one',
+    },
+  ],
 };
 
 /**
@@ -232,7 +255,7 @@ async function mountedLate(first: Page, tag: string, browserName: string, option
 }
 
 test.describe('an element whose surface is in the top layer takes no room before it is defined, as after', () => {
-  const tags = tagsWith(/display: none/);
+  const tags = tagsWith(/display: none/, { styled: true });
   test('the cloak takes the overlays out of the page', () => {
     expect(tags).toEqual(['tanrei-bottom-sheet', 'tanrei-date-time-picker', 'tanrei-dialog', 'tanrei-image-preview', 'tanrei-modal-layer', 'tanrei-popover', 'tanrei-side-sheet']);
   });

@@ -12,9 +12,9 @@
 // pages whose figures the web package's cloak holds at the box they are drawn in — tags, switches, avatars, cards,
 // dividers, badges and app bars (held-room-figures.test.mjs), buttons (held-room-buttons.test.mjs), the other actions
 // (held-room-actions.test.mjs), calendars (held-room-calendar.test.mjs), chips, with the callouts and empty states
-// that their own stylesheets hold (held-room-chips.test.mjs), and lists, menus, fields, file items and inline values
-// (held-room-lists.test.mjs) — and the pages whose anatomy tables Firefox laid out otherwise once their elements were
-// defined (held-room-anatomy.test.mjs).
+// that their own stylesheets hold (held-room-chips.test.mjs), and lists, menus, fields, file items, inline values and
+// tabs (held-room-lists.test.mjs) — and the pages whose anatomy tables Firefox laid out otherwise once their elements
+// were defined (held-room-anatomy.test.mjs).
 //
 // Every module that defines an element is held back until the test lets it through: the page is parsed and drawn
 // without them, its faces in, and paged through from its top to its end, as a reader pages through it. Each of the

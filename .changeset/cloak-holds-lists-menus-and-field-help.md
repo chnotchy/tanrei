@@ -3,7 +3,7 @@
 ---
 
 Before their elements are defined, lists, menus drawn in place, menu bars, fields whose help or error text wraps, file
-items, ratings, swatches and number tickers keep the box they are drawn in.
+items, ratings, swatches, number tickers, and tabs and tab views with their panels keep the box they are drawn in.
 
 - The cloak (`@tanrei/web/cloak.css`) lays a list out as the list lays out its items: a column, a line or lines that
   wrap, its `gap` apart. In a reorderable list each item keeps its handle's room; an action, a link or an option keeps
@@ -32,3 +32,7 @@ items, ratings, swatches and number tickers keep the box they are drawn in.
   text (its `label` and `supporting-text` laid out, unpainted, in their text styles), and a number ticker at a line of
   the text around it, as wide as its `value` written plainly. Before, a row of them wrapped only once they were drawn:
   a docs figure of four ratings was 96 px high before and 240 px drawn.
+- The cloak holds a row of tabs' panels and a tab view: the first panel is shown under the row (beside a column of
+  vertical tabs) and the others take no room, and a tab view keeps its row's height above it. Before, every panel stood
+  under the row: a docs figure of vertical tabs was 238 px high before and 172 px drawn. Not held: a panel the row's
+  `value` names where it is not the first, which CSS cannot match.
