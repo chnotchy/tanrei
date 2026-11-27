@@ -1,6 +1,7 @@
 // A glyph that shows a direction is drawn mirrored in a right-to-left layout wherever the component is used — in the
 // document, and in a shadow root of the product's, which is where a web component library is often used. The tests of
-// each light-DOM element that holds a product's `.tanrei-icon` read it the same way: the element in a `dir="rtl"`
+// each element that holds a product's `.tanrei-icon` — in the light DOM, or slotted into its own shadow root — read it
+// the same way: the element in a `dir="rtl"`
 // container inside two shadow roots of the product's, one declared in the page's markup (parsed with the page, before
 // the bundle defines the element) and one attached by script after, each with `icons.css` in it as the product's own
 // sheet (the `.tanrei-icon` rules of the document do not reach into a shadow root).
@@ -18,10 +19,11 @@ export type ShadowHost = (typeof SHADOW_HOSTS)[number];
 
 /**
  * The markup that declares the first shadow root, for `mountFixtures(…, { lead })`: `markup` in it after `icons.css`
- * and the element's own stylesheet `sheet` (dist/), so the root holds the sheet before the element is defined.
+ * and the element's own stylesheet `sheet` (dist/) where it has one — an element drawn in the light DOM — so the root
+ * holds the sheet before the element is defined.
  */
-export function declaredShadowRoot(markup: string, sheet: string): string {
-  return `<div id="declared"><template shadowrootmode="open"><style>${dist('icons.css')}\n${dist(sheet)}</style>${markup}</template></div>`;
+export function declaredShadowRoot(markup: string, sheet?: string): string {
+  return `<div id="declared"><template shadowrootmode="open"><style>${dist('icons.css')}${sheet ? `\n${dist(sheet)}` : ''}</style>${markup}</template></div>`;
 }
 
 /**

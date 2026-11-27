@@ -33,7 +33,8 @@
  *     from its tokens — the label's line and gap above, the supporting text's gap and line below — each where the
  *     attributes say it is drawn;
  *   - a multi-line input by its fewest rows (`min-rows`); an open date and time picker drawn in place by its header,
- *     its calendar and its time section, and its actions;
+ *     its calendar and its time section, and its actions; a calendar by its navigation row, its weekday row and its six
+ *     rows of days, seven cells wide;
  *   - a list row by its number of lines; a stepper's steps; a snackbar's lines; a swatch's sample and text; an embedded
  *     text input's line or rows; a chat composer laid out inline; a carousel's row and controls; a toolbar along a line;
  *     vertical tabs; a progress indicator's and a meter's bar or ring; a divider's thickness, or a wave's;
@@ -70,16 +71,17 @@
  * column of tabs that touch is held at, and which the items of a connected button group and a segmented button's
  * segments are at least as long as — the touch target `--tanrei-sys-target-touch` under a coarse pointer, as they are
  * drawn (and private `--_cloak-*` names for lengths worked out from them, some of
- * which a container gives the elements it lays out: a stepper its steps, vertical tabs their tabs), arithmetic on
+ * which a container gives the elements it lays out: a stepper its steps, vertical tabs their tabs; and the lengths a
+ * defined button group gives its items from its own tokens and the target, `--tanrei-group-*`), arithmetic on
  * them (twice a padding, half a difference), or a keyword; the values of its own are `line-height: 0`, which takes
  * the page's text written inside an element out of its height rather than giving it one, and a zero-width space, the
  * empty line that sets a baseline. Every selector has no specificity (`:where()`; a `::before` has a type selector's)
  * and styles the element it asks about (or the `::before` it generates) — an element of the package, which may be
- * asked about as the item of a container that is not defined (a button group's Buttons, a segmented button's
+ * asked about as the item of a container, defined or not (a button group's Buttons, a toolbar's, a segmented button's
  * segments; a Button defined before its connected group is held at what the group will give it) — never a child of
  * the product's: a glyph written in a Button is given its box by the Button's own grid; an element that is `hidden`
- * keeps the browser's `display: none`; and nothing matches once an element, and the container it is an item of, are
- * defined.
+ * keeps the browser's `display: none`; and nothing matches once an element is defined, but a Button's room while the
+ * connected group it stands in is not.
  */
 @layer tanrei.components {
   /* Every element of the package: the build writes their names in place of `tanrei-elements`. */
@@ -185,6 +187,26 @@
     }
   }
 
+  /* A calendar (CAL-1) is the box it draws: the navigation row, the weekday row and six rows of days — six whatever the
+     month needs, and the year view in the same room — each a cell (cell.size, never less than the target: the pointer
+     target, the touch target under a coarse pointer), seven cells wide and never wider than its place, with no surface
+     and no padding of its own; an inline block on the top of its line, as it is drawn. */
+  :where(tanrei-calendar):where(:not(:defined):not([hidden])) {
+    --_cloak-cell: max(var(--tanrei-comp-calendar-cell-size), var(--tanrei-sys-target-pointer));
+    display: inline-block;
+    box-sizing: border-box;
+    vertical-align: top;
+    inline-size: calc(7 * var(--_cloak-cell));
+    max-inline-size: 100%;
+    min-block-size: calc(8 * var(--_cloak-cell));
+    line-height: 0;
+  }
+  @media (pointer: coarse) {
+    :where(tanrei-calendar):where(:not(:defined):not([hidden])) {
+      --_cloak-cell: max(var(--tanrei-comp-calendar-cell-size), var(--tanrei-sys-target-touch));
+    }
+  }
+
   /* An inline control: a box on the line, centred on it. Inside it and inside a block control, what is written between
      the tags (a glyph's name in a slot, a label) is laid out in the page's text until the element is defined, and
      takes no height of its own (`line-height: 0`): a line of the page's text is as tall as the face the page resolves
@@ -251,10 +273,10 @@
   :where(tanrei-button-with-menu:not(:defined)) {
     min-block-size: var(--tanrei-comp-button-with-menu-container-height-medium);
   }
-  :where(tanrei-button-with-menu[size='small']:not(:defined), tanrei-toolbar[size='small']:not(:defined) tanrei-button-with-menu:not([size]):not(:defined)) {
+  :where(tanrei-button-with-menu[size='small']:not(:defined), tanrei-toolbar[size='small'] tanrei-button-with-menu:not([size]):not(:defined)) {
     min-block-size: var(--tanrei-comp-button-with-menu-container-height-small);
   }
-  :where(tanrei-button-with-menu[size='large']:not(:defined), tanrei-toolbar[size='large']:not(:defined) tanrei-button-with-menu:not([size]):not(:defined)) {
+  :where(tanrei-button-with-menu[size='large']:not(:defined), tanrei-toolbar[size='large'] tanrei-button-with-menu:not([size]):not(:defined)) {
     min-block-size: var(--tanrei-comp-button-with-menu-container-height-large);
   }
   :where(tanrei-main-action-button:not(:defined)) {
@@ -315,7 +337,7 @@
     font: var(--tanrei-comp-button-label-typescale-medium-font-weight) var(--tanrei-comp-button-label-typescale-medium-font-size)/var(--tanrei-comp-button-label-typescale-medium-line-height) var(--tanrei-comp-button-label-typescale-medium-font-family);
     letter-spacing: var(--tanrei-comp-button-label-typescale-medium-letter-spacing);
   }
-  :where(tanrei-button[size='small'], tanrei-button-group[size='small']:not(:defined) > tanrei-button:not([size]), tanrei-toolbar[size='small']:not(:defined) tanrei-button:not([size])):where(:not(:defined):not([hidden])) {
+  :where(tanrei-button[size='small'], tanrei-button-group[size='small'] > tanrei-button:not([size]), tanrei-toolbar[size='small'] tanrei-button:not([size])):where(:not(:defined):not([hidden])) {
     --_cloak-height: var(--tanrei-comp-button-container-height-small);
     --_cloak-pad-start: var(--tanrei-comp-button-container-padding-inline-start-small);
     --_cloak-pad-start-icon: var(--tanrei-comp-button-container-padding-inline-start-with-icon-small);
@@ -329,7 +351,7 @@
     font: var(--tanrei-comp-button-label-typescale-small-font-weight) var(--tanrei-comp-button-label-typescale-small-font-size)/var(--tanrei-comp-button-label-typescale-small-line-height) var(--tanrei-comp-button-label-typescale-small-font-family);
     letter-spacing: var(--tanrei-comp-button-label-typescale-small-letter-spacing);
   }
-  :where(tanrei-button[size='large'], tanrei-button-group[size='large']:not(:defined) > tanrei-button:not([size]), tanrei-toolbar[size='large']:not(:defined) tanrei-button:not([size])):where(:not(:defined):not([hidden])) {
+  :where(tanrei-button[size='large'], tanrei-button-group[size='large'] > tanrei-button:not([size]), tanrei-toolbar[size='large'] tanrei-button:not([size])):where(:not(:defined):not([hidden])) {
     --_cloak-height: var(--tanrei-comp-button-container-height-large);
     --_cloak-pad-start: var(--tanrei-comp-button-container-padding-inline-start-large);
     --_cloak-pad-start-icon: var(--tanrei-comp-button-container-padding-inline-start-with-icon-large);
@@ -470,6 +492,26 @@
     padding-inline-end: var(--tanrei-comp-button-group-connected-horizontal-outer-inset);
     min-inline-size: calc(var(--_cloak-target) + var(--tanrei-comp-button-group-connected-horizontal-outer-inset));
   }
+  /* A Button not defined yet in a group that is: the group places it as it will place it defined, and gives it, by its
+     place, what a connected group gives its items (`--tanrei-group-*`, from the group's tokens and the target; none in
+     a standard group, which gives nothing) — the minimum along the join, and in a row the padding at an outer end. Its
+     room holds them as the Button will draw them (BTN-10, BGR-3, BGR-23): the padding added to its own on that side,
+     and at least the minimum and those paddings wide (an icon-only one: the larger of its own width and the minimum,
+     and the paddings), or the minimum high. What the group does not give adds nothing (a length of zero, from a
+     token). */
+  :where(tanrei-button-group:defined > tanrei-button):where(:not(:defined):not([hidden])) {
+    --_cloak-none: calc(var(--_cloak-height) * 0);
+    --_cloak-outer-start: var(--tanrei-group-outer-start, var(--_cloak-none));
+    --_cloak-outer-end: var(--tanrei-group-outer-end, var(--_cloak-none));
+    --_cloak-min-block: var(--tanrei-group-min-height, var(--_cloak-height));
+    padding-inline: calc(var(--_cloak-start) + var(--_cloak-outer-start)) calc(var(--_cloak-end) + var(--_cloak-outer-end));
+    min-inline-size: calc(var(--tanrei-group-min-width, var(--_cloak-none)) + var(--_cloak-outer-start) + var(--_cloak-outer-end));
+  }
+  :where(tanrei-button-group:defined > tanrei-button[label]:has(> [slot='icon'])):where(:not(:defined):not([hidden])) {
+    padding-inline: var(--_cloak-outer-start) var(--_cloak-outer-end);
+    inline-size: calc(var(--_cloak-width) + var(--_cloak-outer-start) + var(--_cloak-outer-end));
+    min-inline-size: calc(max(var(--_cloak-width), var(--tanrei-group-min-width, var(--_cloak-none))) + var(--_cloak-outer-start) + var(--_cloak-outer-end));
+  }
 
   /* A Segmented Button is as wide as it is drawn (SEG-6, SEG-13, SEG-14, SEG-22, SEG-30): a row of equal columns —
      each as wide as the widest segment, at least the target (the touch target under a coarse pointer) — divider.width apart, inset by set.padding;
@@ -570,7 +612,7 @@
     padding-inline: calc(var(--tanrei-comp-button-with-menu-container-outer-inset) + var(--_cloak-pad-start)) var(--_cloak-trail);
     font-size: 0;
   }
-  :where(tanrei-button-with-menu[size='small'], tanrei-toolbar[size='small']:not(:defined) tanrei-button-with-menu:not([size])):where(:not(:defined):not([hidden])) {
+  :where(tanrei-button-with-menu[size='small'], tanrei-toolbar[size='small'] tanrei-button-with-menu:not([size])):where(:not(:defined):not([hidden])) {
     --_cloak-pad-start: var(--tanrei-comp-button-with-menu-leading-padding-inline-start-small);
     --_cloak-pad-start-icon: var(--tanrei-comp-button-with-menu-leading-padding-inline-start-with-icon-small);
     --_cloak-pad-end: var(--tanrei-comp-button-with-menu-leading-padding-inline-end-small);
@@ -578,7 +620,7 @@
     --_cloak-icon: var(--tanrei-comp-button-with-menu-icon-size-small);
     --_cloak-gap: var(--tanrei-comp-button-with-menu-container-gap-small);
   }
-  :where(tanrei-button-with-menu[size='large'], tanrei-toolbar[size='large']:not(:defined) tanrei-button-with-menu:not([size])):where(:not(:defined):not([hidden])) {
+  :where(tanrei-button-with-menu[size='large'], tanrei-toolbar[size='large'] tanrei-button-with-menu:not([size])):where(:not(:defined):not([hidden])) {
     --_cloak-pad-start: var(--tanrei-comp-button-with-menu-leading-padding-inline-start-large);
     --_cloak-pad-start-icon: var(--tanrei-comp-button-with-menu-leading-padding-inline-start-with-icon-large);
     --_cloak-pad-end: var(--tanrei-comp-button-with-menu-leading-padding-inline-end-large);
@@ -617,11 +659,11 @@
     font: var(--tanrei-comp-button-with-menu-label-typescale-medium-font-weight) var(--tanrei-comp-button-with-menu-label-typescale-medium-font-size)/var(--tanrei-comp-button-with-menu-label-typescale-medium-line-height) var(--tanrei-comp-button-with-menu-label-typescale-medium-font-family);
     letter-spacing: var(--tanrei-comp-button-with-menu-label-typescale-medium-letter-spacing);
   }
-  :where(tanrei-button-with-menu[size='small']:not(:defined), tanrei-toolbar[size='small']:not(:defined) tanrei-button-with-menu:not([size]):not(:defined))::before {
+  :where(tanrei-button-with-menu[size='small']:not(:defined), tanrei-toolbar[size='small'] tanrei-button-with-menu:not([size]):not(:defined))::before {
     font: var(--tanrei-comp-button-with-menu-label-typescale-small-font-weight) var(--tanrei-comp-button-with-menu-label-typescale-small-font-size)/var(--tanrei-comp-button-with-menu-label-typescale-small-line-height) var(--tanrei-comp-button-with-menu-label-typescale-small-font-family);
     letter-spacing: var(--tanrei-comp-button-with-menu-label-typescale-small-letter-spacing);
   }
-  :where(tanrei-button-with-menu[size='large']:not(:defined), tanrei-toolbar[size='large']:not(:defined) tanrei-button-with-menu:not([size]):not(:defined))::before {
+  :where(tanrei-button-with-menu[size='large']:not(:defined), tanrei-toolbar[size='large'] tanrei-button-with-menu:not([size]):not(:defined))::before {
     font: var(--tanrei-comp-button-with-menu-label-typescale-large-font-weight) var(--tanrei-comp-button-with-menu-label-typescale-large-font-size)/var(--tanrei-comp-button-with-menu-label-typescale-large-line-height) var(--tanrei-comp-button-with-menu-label-typescale-large-font-family);
     letter-spacing: var(--tanrei-comp-button-with-menu-label-typescale-large-letter-spacing);
   }

@@ -129,13 +129,16 @@
     color: var(--_kbs-legend);
     white-space: nowrap;
   }
-  /* KBS-6: a cap at least its size's height tall and as wide as tall, its fill and its edge, its size's corners. */
+  /* KBS-6: a cap at least its size's height tall and as wide as tall, its fill and its edge, its size's corners. The
+     edge is inside the cap's size: the cap is its height, or one line of its legend where that is taller, and only
+     the difference between the bottom and the top edge is added, as the element draws it. */
   :where(tanrei-keyboard-shortcut:not(:defined)) :where([data-tanrei-keys-key]) {
     box-sizing: border-box;
     display: inline-flex;
     align-items: center;
     justify-content: center;
     min-block-size: var(--_kbs-height);
+    block-size: max(var(--_kbs-height), calc(1lh + max(var(--tanrei-comp-keyboard-shortcut-outline-bottom-width) - var(--tanrei-comp-keyboard-shortcut-outline-width), var(--tanrei-comp-keyboard-shortcut-outline-width) - var(--tanrei-comp-keyboard-shortcut-outline-bottom-width))));
     min-inline-size: var(--_kbs-height);
     padding-inline: var(--_kbs-pad);
     background: var(--tanrei-comp-keyboard-shortcut-container-color);
@@ -151,6 +154,7 @@
   }
   :where(tanrei-keyboard-shortcut[variant='plain']:not(:defined)) :where([data-tanrei-keys-key]) {
     min-block-size: 0;
+    block-size: auto;
     min-inline-size: 0;
     padding-inline: 0;
     background: none;

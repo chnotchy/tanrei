@@ -210,7 +210,7 @@ Until its script has run, an element is unknown to the browser: the page shows w
 unstyled, and moves when the element is defined. `cloak.css` hides every Tanrei element until it is defined, holds
 each element whose height its tokens give at that height — a control (a button, a text input, a checkbox, tabs…), a
 field with its label and its help (a text field, a select field…), a group of fields or of choices, a list row, a
-stepper, a snackbar and others — and takes an element whose surface is in the top layer (a dialog, a popover) out of
+stepper, a snackbar, a calendar and others — and takes an element whose surface is in the top layer (a dialog, a popover) out of
 the page:
 
 ```js
@@ -222,7 +222,9 @@ defined — on a page whose script never arrives, its content is never shown. A 
 from an attribute (a tag's `label`, a checkbox's, a radio button's, a switch's, a main action button's, a button with
 menu's, a segment's) or written between its tags (a button's label) — in the label's text style, with the glyph's box
 in place of a glyph's name, between its paddings; a button group and a segmented button lay their items out as they
-will, and a button defined before its connected group keeps the room the group will give it. Write a button's glyph before its label (`<span slot="icon">arrow_forward</span>Next`), also where it is drawn
+will, and a button defined before its connected group keeps the room the group will give it. Whichever of a button
+and its button group or toolbar is defined first, the button is drawn, and held, at the size the group or the toolbar
+sets: a button reads the size of a group or a toolbar that is not defined yet from its `size` attribute. Write a button's glyph before its label (`<span slot="icon">arrow_forward</span>Next`), also where it is drawn
 after it (`icon-position="trailing"`): the cloak gives the first thing written in a button the glyph's box. Two widths
 are not held: a button named by `label` that has words beside its glyph is held as an icon-only one, and a labelled
 copy button is as wide as the texts it is given as attributes (`label`, `copied-label`,

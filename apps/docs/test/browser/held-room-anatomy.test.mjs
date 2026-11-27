@@ -1,7 +1,7 @@
 // The pages whose anatomy tables hold the room they will take, in each engine, at a desktop's width, before the
 // modules that define their elements have arrived: held-room.mjs holds the tests and says how they read the page. The
-// App bar's is in held-room-figures.test.mjs with its figures; the pages whose other tables, keyboard maps and lists of
-// status tags hold their room are in held-room-tables.test.mjs.
+// App bar's is in held-room-figures.test.mjs with its figures, and the Calendar's in held-room-calendar.test.mjs; the
+// pages whose other tables, keyboard maps and lists of status tags hold their room are in held-room-tables.test.mjs.
 //
 //   pnpm --filter @tanrei/docs build && pnpm --filter @tanrei/docs test:browser
 //   DOCS_ENGINES=firefox node --test test/browser/held-room-anatomy.test.mjs   # in one engine (all three by default)
@@ -18,8 +18,8 @@ import { heldRoomTests, WIDE } from './held-room.mjs';
  * that changed were four pages': the App bar's, the Calendar's and the FAB menu's in each system, and the Bottom
  * sheet's in the default one (the Calendar's in the default system changed its first column, not its height); at
  * 390 px the table stands as blocks and none did. The Calendar's table (597 → 618 px in Cupertino) keeps its height
- * now too, but its page is not read here: its figures do not yet hold their room before the Calendar is defined (each
- * 64 px high before, 448 px drawn), which this test would report as well.
+ * now too: its page is read at 1440 px in the default system and in Cupertino in held-room-calendar.test.mjs, with its
+ * figures, as the App bar's is in held-room-figures.test.mjs.
  */
 const CASES = [
   { url: '/components/bottom-sheet/', viewport: WIDE },

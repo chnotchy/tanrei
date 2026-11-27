@@ -82,3 +82,50 @@ studioTest('undo and redo step through what was committed, and the file follows;
   await saved((file) => file.extends === 'cupertino', '⇧⌘Z');
   assert.equal(await page.locator('[data-status]').textContent(), 'Redone.');
 });
+
+// A host that answers a save only when the test lets it: the file is written at once, its answer waits.
+const heldAnswers = (t) => {
+  const gate = (t.gate = { held: null, hold: () => (gate.held = Promise.withResolvers()), release: () => (gate.held?.resolve(), (gate.held = null)) });
+  return { layer: { id: 'acme', extends: 'tanrei' }, server: { answer: () => gate.held?.promise } };
+};
+const watchStates = (page) => page.evaluate(() => {
+  const states = (window.__states = []);
+  new MutationObserver(() => states.push(document.querySelector('[data-save-state]')?.dataset.saveState)).observe(document.querySelector('[data-save-state]').parentElement, { childList: true });
+});
+studioTest('a redo made while the undo’s save is unanswered is saved after that answer: the file ends at what was committed last', heldAnswers, async ({ page, saved, section }, { gate }) => {
+  await section('base');
+  await page.locator('[data-panel="base"] tanrei-radio-button[data-value="cupertino"]').click();
+  await saved((file) => file.extends === 'cupertino', 'the base');
+  await page.waitForSelector('[data-save-state="saved"]');
+  // Every state the file is drawn in, from here on.
+  await watchStates(page);
+  gate.hold();
+  await page.locator('[data-undo]').click();
+  await saved((file) => file.extends === 'tanrei', 'undone; its answer is held');
+  // Back to what the save before the undo wrote: the file holds the undo now, so this is unsaved.
+  await page.locator('[data-redo]').click();
+  assert.equal(await page.locator('[data-save-state]').getAttribute('data-save-state'), 'unsaved', 'the redo is said to be unsaved while the undo’s save is on its way');
+  gate.release();
+  await saved((file) => file.extends === 'cupertino', 'redone, after the undo’s answer');
+  await page.waitForSelector('[data-save-state="saved"]');
+  // Each commit says once that the file is unsaved, and the Studio's own write is never a conflict.
+  assert.deepEqual(await page.evaluate(() => window.__states), ['unsaved', 'saving', 'unsaved', 'saving', 'saved']);
+});
+
+studioTest('a commit back to what the unanswered save holds is said to be on its way, and saved by its answer', heldAnswers, async ({ page, saved, section, onDisk }, { gate }) => {
+  await section('base');
+  await page.locator('[data-panel="base"] tanrei-radio-button[data-value="cupertino"]').click();
+  await saved((file) => file.extends === 'cupertino', 'the base');
+  await page.waitForSelector('[data-save-state="saved"]');
+  await watchStates(page);
+  gate.hold();
+  await page.locator('[data-undo]').click();
+  await saved((file) => file.extends === 'tanrei', 'undone; its answer is held');
+  await page.locator('[data-redo]').click();
+  await page.locator('[data-undo]').click();
+  assert.equal(await page.locator('[data-save-state]').getAttribute('data-save-state'), 'saving', 'back to the undo, which the file holds and the host has not answered');
+  gate.release();
+  await page.waitForSelector('[data-save-state="saved"]');
+  assert.equal(onDisk().extends, 'tanrei');
+  assert.deepEqual(await page.evaluate(() => window.__states), ['unsaved', 'saving', 'unsaved', 'saving', 'saved']);
+});

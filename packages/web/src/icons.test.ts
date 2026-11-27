@@ -6,6 +6,8 @@ import { fileURLToPath } from 'node:url';
 import { type Page, expect, test } from '@playwright/test';
 import { acmeSystemCss, glyphsDrawn, glyphsSpelled, loadSpec, mountFixtures, presetFontFaces, resolveToken } from '../test/harness.js';
 import { opticalSize } from '../test/icons.js';
+import { askForFrame } from '../test/frame-asked.js';
+import { SHADOW_HOSTS, type ShadowHost, attachShadowRoot, declaredShadowRoot, glyphsIn } from '../test/shadow-mirror.js';
 
 const pkg = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const read = (file: string) => fs.readFileSync(path.join(pkg, file), 'utf8');
@@ -221,6 +223,62 @@ test('a glyph drawn as its name is found — without a face the page registered,
 // The name in an element's text is text of the page: it is in textContent and innerText, in what people copy and in
 // what a test compares. `data-icon` gives the same glyph as generated content with an empty alternative, so the name is
 // in none of it — and in no accessible name.
+test('a bare icon slotted into an element drawn in a shadow root of its own — a button’s label, a dialog’s body — inside a product’s shadow root, declared in the page’s markup or attached by script, is marked to mirror in right to left as in the document; the root is followed while such an element is in it, and a shadow root the package draws itself is not', async ({ page }) => {
+  // The dialog stays closed: the glyphs in its body are marked whether it is shown or not; the button's is drawn.
+  const markup =
+    '<div dir="rtl"><tanrei-button>التالي <span class="tanrei-icon" aria-hidden="true">arrow_forward</span></tanrei-button><tanrei-dialog headline="الإعدادات"><p><span class="tanrei-icon" aria-hidden="true">arrow_back</span>نص <span class="tanrei-icon" aria-hidden="true">settings</span></p><tanrei-button slot="actions" dismissive>إغلاق</tanrei-button></tanrei-dialog></div>';
+  await mount(page, declaredShadowRoot(markup));
+  await attachShadowRoot(page, markup);
+  const marks = async (id: ShadowHost) => (await glyphsIn(page, id)).map(({ name, marked }) => ({ name, marked }));
+  for (const id of SHADOW_HOSTS) {
+    await expect.poll(() => marks(id), id).toEqual([
+      { name: 'arrow_forward', marked: true },
+      { name: 'arrow_back', marked: true },
+      { name: 'settings', marked: false },
+    ]);
+    expect((await glyphsIn(page, id))[0]!.transform, `${id}: the button's glyph is drawn mirrored`).toBe('matrix(-1, 0, 0, 1, 0, 0)');
+  }
+  // The root is followed while any element of the package is in it: with the button taken away the dialog holds it,
+  // and a glyph named later there is decided again…
+  await page.evaluate(() => {
+    const root = document.getElementById('scripted')!.shadowRoot!;
+    root.querySelector('div[dir] > tanrei-button')!.remove();
+    root.querySelectorAll('.tanrei-icon')[1]!.textContent = 'send';
+  });
+  await askForFrame(page);
+  await expect.poll(async () => (await marks('scripted'))[1]).toEqual({ name: 'send', marked: true });
+  // …and once the last one has left, a glyph written there is not.
+  await page.evaluate(() => {
+    const root = document.getElementById('scripted')!.shadowRoot!;
+    root.querySelector('tanrei-dialog')!.remove();
+    root.querySelector('div[dir]')!.insertAdjacentHTML('beforeend', '<span class="tanrei-icon" aria-hidden="true">arrow_forward</span>');
+  });
+  await askForFrame(page);
+  expect(await marks('scripted')).toEqual([{ name: 'arrow_forward', marked: false }]);
+  // A shadow root the package draws itself (a button with a menu draws its menu there) is not the product's: an element
+  // of the package connected in it does not have it followed. Of two glyphs written at once, one in the product's root
+  // and one in the package's, the product's is marked and the package's is not.
+  await page.evaluate(() => document.getElementById('declared')!.shadowRoot!.querySelector('div[dir]')!.insertAdjacentHTML('beforeend', '<tanrei-button-with-menu id="more" label="المزيد"></tanrei-button-with-menu>'));
+  await askForFrame(page);
+  await page.waitForFunction(() => !!document.getElementById('declared')!.shadowRoot!.querySelector('#more')!.shadowRoot?.querySelector('tanrei-menu'));
+  await page.evaluate(() => {
+    const root = document.getElementById('declared')!.shadowRoot!;
+    for (const [id, where] of [['own', root.querySelector('#more')!.shadowRoot!], ['product', root.querySelector('div[dir]')!]] as const) {
+      const glyph = document.createElement('span');
+      glyph.className = 'tanrei-icon';
+      glyph.id = id;
+      glyph.textContent = 'arrow_forward';
+      where.append(glyph);
+    }
+  });
+  await askForFrame(page);
+  const product = () => page.evaluate(() => document.getElementById('declared')!.shadowRoot!.querySelector('#product')!.hasAttribute('data-tanrei-mirrored'));
+  const own = () => page.evaluate(() => document.getElementById('declared')!.shadowRoot!.querySelector('#more')!.shadowRoot!.querySelector('#own')!.hasAttribute('data-tanrei-mirrored'));
+  await expect.poll(product).toBe(true);
+  await askForFrame(page);
+  expect(await own()).toBe(false);
+});
+
 test.describe('the name as data-icon', () => {
   /** The text form and the attribute form side by side, one pair per row: what a pair draws must be the same. */
   const PAIRS = [
