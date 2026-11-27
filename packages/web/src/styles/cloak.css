@@ -1140,11 +1140,11 @@
      from the start edge that wrap, every item centred on its line, entries.gap apart along a line and entries.row-gap
      between two lines, between the text's inline paddings and, above the first line and below the last, the distance
      at which a single-line box of its variant and size sets its one line — the block padding, or half of what the
-     box's height leaves of the input's line where that is more; then the typing part (the `::after`), which takes what
-     is left of the last line while that is entries.typing-min-width at least, and a line of its own otherwise, one line
-     of the input's text role tall — none where it is read-only and holds no typed text. Held at one line: a filled box
-     that draws its label sets its first line under the floated label's band once it is defined; and a leading or a
-     trailing icon, which moves the text's paddings. */
+     box's height leaves of the input's line where that is more; then the typing part (the `::before`, laid out after
+     the entries), which takes what is left of the last line while that is entries.typing-min-width at least, and a
+     line of its own otherwise, one line of the input's text role tall — none where it is read-only and holds no typed
+     text. Not held: a filled box that draws its label sets its first line under the floated label's band once it is
+     defined; and a leading or a trailing icon moves the text's paddings. */
   :where(tanrei-text-input:has(> [slot='entries'])):where(:not(:defined):not([hidden])) {
     --_cloak-pad-block: var(--tanrei-comp-input-box-stacked-container-padding-block-medium);
     --_cloak-pad-inline: var(--tanrei-comp-input-box-container-padding-inline-medium);
@@ -1176,13 +1176,14 @@
   :where(tanrei-text-input:is([variant='outlined'], [variant='filled'])[size='large']:has(> [slot='entries'])):where(:not(:defined):not([hidden])) {
     --_cloak-pad-block: var(--tanrei-comp-input-box-container-padding-block-large);
   }
-  :where(tanrei-text-input:has(> [slot='entries']):not(:defined))::after {
+  :where(tanrei-text-input:has(> [slot='entries']):not(:defined))::before {
     content: '';
+    order: 1;
     flex: 1 1 var(--tanrei-comp-text-input-entries-typing-min-width);
     min-inline-size: 0;
     block-size: var(--_cloak-input-line);
   }
-  :where(tanrei-text-input[readonly]:not([value]:not([value=''])):has(> [slot='entries']):not(:defined))::after {
+  :where(tanrei-text-input[readonly]:not([value]:not([value=''])):has(> [slot='entries']):not(:defined))::before {
     content: none;
   }
 
