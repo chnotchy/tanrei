@@ -2,9 +2,7 @@
   "checkbox": { "fixture": "unselected", "parts": ["mark"] },
   "combobox": { "fixture": "stacked-empty", "parts": ["option"] },
   "fab-menu": { "fixture": "filled-closed", "parts": ["item"] },
-  "keyboard-shortcut": { "fixture": "keycap-apple", "systems": { "cupertino": { "lengths": { "tanrei.comp.keyboard-shortcut.container.height.medium": 24.98 } } } },
-  "navigation-bar": { "fixture": "four-destinations", "systems": { "cupertino": { "lengths": { "tanrei.comp.navigation-bar.container.height": 49.98 } } } },
-  "segmented-button": { "fixture": "single", "systems": { "cupertino": { "lengths": { "tanrei.comp.segmented-button.container.height.medium": 29.98 } } } },
+  "segmented-button": { "fixture": "single", "systems": { "cupertino": { "lengths": { "tanrei.comp.segmented-button.container.height.medium": 28 } } } },
   "select": { "fixture": "stacked-empty", "parts": ["option"] },
   "toolbar": {
     "fixture": "docked",

@@ -15,8 +15,10 @@ import { heldRoomTests, PHONE, WIDE } from './held-room.mjs';
  * component, so a table grew where the look draws a length otherwise than its token, and the figure measured that:
  * - Cupertino's Main action button at a phone's width (323.78 → 341.77 px): the figure narrowed the button to the room
  *   the default system's holds, its label wrapped onto two lines, and the button was 56 px high for its 48;
- * - Cupertino's Segmented button (89.95 → 125.92 px), Keyboard shortcut (89.95 → 125.92 px) and Navigation bar
- *   (59.97 → 113.92 px), each a hairline taller than its token's height there (lib/visuals/lengths-not-drawn.json);
+ * - Cupertino's Segmented button (89.95 → 125.92 px), whose segment is the set's height less the track's inset on each
+ *   side, where its token is the set's (lib/visuals/lengths-not-drawn.json); and its Keyboard shortcut (89.95 →
+ *   125.92 px) and Navigation bar (59.97 → 113.92 px), which it drew a hairline off their tokens' heights then
+ *   (KNOWN holds what is left of the Keyboard shortcut's);
  * - the Loading indicator's in m3-like (59.97 → 107.92 px): its square was measured part of the way through its turn
  *   (31.7 px across for 24).
  */
@@ -28,19 +30,18 @@ const CASES = [
   { url: '/components/loading-indicator/', viewport: WIDE, system: 'm3-like' },
 ];
 
-/** A component drawn a hairline taller in Cupertino than its token says, which the cloak holds it at. */
-const HAIRLINE = (component, height) =>
-  `in Cupertino the ${component} is drawn a hairline taller than its token's height (${height}; lib/visuals/lengths-not-drawn.json), and the web package's cloak holds it at the token's: where the component and its token part is the web package's to settle, not the page's`;
-const figures = (url, width, numbers, why) => numbers.map((n) => ({ url, width, box: `#docs-figure-${n}-stage`, why }));
-
 /**
  * What is known to change its height once its elements are defined, and why: each is still read and reported, as a
  * TODO rather than a failure, once every other assertion of its test holds. Take one off once it keeps its height.
  * None is a table: each is a figure the web package's cloak holds (`@tanrei/web/cloak.css`).
  */
 const KNOWN = [
-  ...figures('/components/keyboard-shortcut/', WIDE.width, [1, 2, 3, 4], HAIRLINE('Keyboard shortcut', '24.98 px for 24')),
-  ...figures('/components/navigation-bar/', WIDE.width, [1, 2, 3, 4], HAIRLINE('Navigation bar', '49.98 px for 49')),
+  {
+    url: '/components/keyboard-shortcut/',
+    width: WIDE.width,
+    box: '#docs-figure-2-stage',
+    why: "in Cupertino, in Chromium, the line of text that holds two small shortcuts is 20.5 px high while the cloak holds them and 21.48 px once they are defined: each 20 px cap stands 0.98 px lower on the line's baseline than the cloak stands it. Where the cloak puts a shortcut's baseline is the web package's to settle, not the page's",
+  },
 ];
 
 heldRoomTests({ cases: CASES, known: KNOWN });

@@ -8,8 +8,8 @@ it loads.
 - **A table of measurements follows the look the reader chose from the first frame.** Its figure is drawn in that
   look, and the table now holds, before any script runs, each look's value for every length and the note of each
   length a component draws otherwise in that look. In Cupertino the Main action button's table at a phone's width grew
-  from 323.78 to 341.77 px, the Segmented button's and the Keyboard shortcut's from 89.95 to 125.92 px and the
-  Navigation bar's from 59.97 to 113.92 px; the Loading indicator's in m3-like from 59.97 to 107.92 px. The record of
+  from 323.78 to 341.77 px and the Segmented button's from 89.95 to 125.92 px (its segment is 28 inside a set of 32);
+  the Loading indicator's in m3-like from 59.97 to 107.92 px. The record of
   the lengths a component draws otherwise (`lengths-not-drawn.json`) now says them for each look (`systems`), and the
   test of every figure holds it in each look.
 - **A figure measures the box a component lays out.** A motion that never ends is held at its start while the figure
