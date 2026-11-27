@@ -319,6 +319,49 @@ const choiceOf = (model, name) => {
   return token?.enum?.values?.[token.value];
 };
 
+/** The name a component's choice of kind has, following an alias to the choice it follows; undefined if it is absent. */
+const choiceOfToken = (model, token) => {
+  const target = token?.alias ? model.tokens[token.aliasFinal ?? token.alias] : token;
+  return token?.enum?.values?.[target?.value];
+};
+
+/**
+ * The items that stack a glyph above a label inside a fixed height, each part by its token (relative to the
+ * component). `around` lists the bands that stand above the stack and again below it, each band the largest of its
+ * lengths (`<state>.` is every state of the part, and nothing); `glyph` is the box the glyph is laid out in, `gap` the
+ * space between it and the label, and `label` the text style whose one line the label takes. A component whose items
+ * stack only in one size, or only by a choice, names its sizes and the choice (`when`: the choice, the name that
+ * stacks, and the choice a size that does not declare one follows).
+ *
+ * The navigation drawer's collapsed item also stacks its label under its glyph, but its cell grows to hold the label:
+ * no height is fixed there, so nothing is held here.
+ */
+const STACKED_ITEMS = [
+  {
+    component: 'navigation-bar',
+    what: 'destination',
+    height: 'container.height',
+    around: [['container.padding'], ['item.container.padding-block']],
+    glyph: 'item.icon-indicator.height',
+    gap: 'item.gap',
+    label: 'item.label.typescale',
+  },
+  {
+    component: 'tabs',
+    what: 'primary tab',
+    height: 'container.height-with-icon',
+    sizes: (tokens) => Object.keys(tokens).map((id) => id.match(new RegExp(`^${CONFIG.namespace}\\.comp\\.tabs\\.icon\\.size\\.([a-z0-9-]+)$`))?.[1]).filter(Boolean),
+    when: ['icon.placement.<size>', 'stacked', 'icon.placement.medium'],
+    // The content stands inside the indicator's box, held in by track.padding or by the primary underline's thickness,
+    // whichever is more, and keeps the active indicator's padding-block inside it.
+    around: [['track.padding', 'primary.<state>.underline.thickness'], ['active-indicator.padding-block.<size>']],
+    glyph: 'icon.size.<size>',
+    gap: 'container.gap',
+    label: 'label.typescale',
+  },
+];
+const STACK_STATES = ['', 'hovered.', 'focused.', 'pressed.', 'disabled.'];
+
 /**
  * Every finding of the fixed ruler, and how many contrast pairs it measured in each scheme of the model. A pair is one
  * comparison that can produce one finding: `rolePairs` are the pairs of color roles (a foreground role on each
@@ -434,6 +477,35 @@ export function auditInvariants(model) {
     const inset = at('set', 'padding')?.value?.value ?? 0;
     const needed = 2 * padding + 2 * inset + Math.round(label.fontSize.value * label.lineHeight * 100) / 100;
     if (token.value.value < needed) failures.push(`${token.id}: ${token.value.value}px cannot hold its content — 2 × padding-block (${padding}px)${inset ? ` + 2 × set.padding (${inset}px)` : ''} + one label line = ${needed}px`);
+  }
+
+  // An item that stacks its glyph above its label inside a fixed height (`STACKED_ITEMS`) must hold them: what stands
+  // above and below the stack, twice, plus the glyph's box, the gap and one line of the label. As for a control's
+  // height, a height that is too small is drawn as another size, taller than its token.
+  for (const stack of STACKED_ITEMS) {
+    const of = (part) => model.tokens[`${CONFIG.namespace}.comp.${stack.component}.${part}`];
+    const height = of(stack.height)?.value?.value;
+    if (typeof height !== 'number') continue;
+    for (const size of stack.sizes ? stack.sizes(model.tokens) : ['']) {
+      const named = (part) => part.replaceAll('<size>', size);
+      if (stack.when && (choiceOfToken(model, of(named(stack.when[0]))) ?? choiceOfToken(model, of(stack.when[2]))) !== stack.when[1]) continue;
+      const label = of(named(stack.label))?.value;
+      if (!label?.fontSize) continue;
+      // Above and below the stack: in each band, the largest of the lengths that stand there.
+      const around = stack.around.map((band) =>
+        band
+          .flatMap((part) => (part.includes('<state>.') ? STACK_STATES.map((state) => named(part).replace('<state>.', state)) : [named(part)]))
+          .map((part) => [part, of(part)?.value?.value])
+          .filter(([, value]) => typeof value === 'number')
+          .reduce((most, each) => (each[1] > most[1] ? each : most), [named(band[0]).replace('<state>.', ''), 0]),
+      );
+      const [glyph, gap] = [stack.glyph, stack.gap].map((part) => [named(part), of(named(part))?.value?.value ?? 0]);
+      const line = Math.round(label.fontSize.value * label.lineHeight * 100) / 100;
+      const needed = Math.round((around.reduce((sum, [, value]) => sum + 2 * value, 0) + glyph[1] + gap[1] + line) * 100) / 100;
+      if (height >= needed) continue;
+      const terms = [...around.map(([part, value]) => `2 × ${part} (${value}px)`), `${glyph[0]} (${glyph[1]}px)`, `${gap[0]} (${gap[1]}px)`, `one ${named(stack.label)} line (${line}px)`];
+      failures.push(`${CONFIG.namespace}.comp.${stack.component}.${stack.height}: ${height}px cannot hold its stacked ${stack.what}${size ? ` (${size})` : ''} — ${terms.join(' + ')} = ${needed}px`);
+    }
   }
 
   // A component that names the color of its own focus indicator (the snackbar, one per form) draws it
