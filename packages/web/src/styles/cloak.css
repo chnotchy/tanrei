@@ -1442,6 +1442,25 @@
   :where(tanrei-color-field:not(:defined)) {
     --_cloak-inset-start: var(--_cloak-inset-lead);
   }
+  /* A color box keeps its padding at its end, and a number box at both. */
+  :where(tanrei-color-field, tanrei-number-field):where(:not(:defined)) {
+    --_cloak-inset-end: var(--tanrei-comp-input-box-container-padding-inline-medium);
+  }
+  :where(tanrei-color-field, tanrei-number-field):where([size='small']):where(:not(:defined)) {
+    --_cloak-inset-end: var(--tanrei-comp-input-box-container-padding-inline-small);
+  }
+  :where(tanrei-color-field, tanrei-number-field):where([size='large']):where(:not(:defined)) {
+    --_cloak-inset-end: var(--tanrei-comp-input-box-container-padding-inline-large);
+  }
+  :where(tanrei-field:has(> tanrei-color-input:not([size]), > :is(tanrei-combobox, tanrei-select, tanrei-text-input):not([size])[leading-icon]:not([leading-icon='']))):where(:not(:defined)) {
+    --_cloak-inset-start: calc(var(--tanrei-comp-input-box-container-padding-inline-with-icon-medium) + var(--tanrei-comp-input-box-icon-size-medium) + var(--tanrei-comp-input-box-container-gap-medium));
+  }
+  :where(tanrei-field:has(> :is(tanrei-color-input, tanrei-number-input):not([size]))):where(:not(:defined)) {
+    --_cloak-inset-end: var(--tanrei-comp-input-box-container-padding-inline-medium);
+  }
+  :where(tanrei-field:has(> tanrei-number-input:not([size]))):where(:not(:defined)) {
+    --_cloak-inset-start: var(--tanrei-comp-input-box-container-padding-inline-medium);
+  }
 
   /* A group of fields or of choices: its controls between its rows, from the group's tokens — the label row (a label
      that is not empty and not hidden: one line of its text role), the description under it (a help: the supporting
