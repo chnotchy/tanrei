@@ -12,10 +12,11 @@ const MIME = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; cha
 const etagOf = (text) => `"${crypto.createHash('sha256').update(text).digest('hex').slice(0, 32)}"`;
 
 /**
- * @param {{ file: string, appDir?: string, port?: number, token?: string, validate?: (layer: object) => string[], build?: (file: string) => Promise<object>, announce?: boolean }} options
+ * @param {{ file: string, appDir?: string, port?: number, token?: string, validate?: (layer: object) => string[], build?: (file: string) => Promise<object>, announce?: boolean, answer?: (layer: object) => Promise<void> | void }} options
  *   `announce: false` — say nothing over the event stream (a test that needs the 409 of a save, not the announcement that would come first)
+ *   `answer` — a host slow to answer: awaited after a save is written to the file, before the save is answered
  */
-export async function startMockServer({ file, appDir, port = 0, token = crypto.randomBytes(12).toString('hex'), validate = () => [], build, announce = true }) {
+export async function startMockServer({ file, appDir, port = 0, token = crypto.randomBytes(12).toString('hex'), validate = () => [], build, announce = true, answer }) {
   const listeners = new Set();
   const read = () => fs.readFileSync(file, 'utf8');
   let lastSeen = etagOf(read());
@@ -94,9 +95,10 @@ export async function startMockServer({ file, appDir, port = 0, token = crypto.r
       const problems = [...(layer?.id !== JSON.parse(current).id ? ['"id" must stay equal to the file name; rename the file to rename the system'] : []), ...validate(layer ?? {})];
       if (problems.length) return json(res, 422, { problems });
       const text = `${JSON.stringify(layer, null, 2)}\n`;
-      lastSeen = etagOf(text);
+      const etag = (lastSeen = etagOf(text));
       fs.writeFileSync(file, text);
-      return json(res, 200, { etag: lastSeen });
+      await answer?.(layer);
+      return json(res, 200, { etag });
     }
     if (route === 'POST /api/build') {
       if (building) return json(res, 429, { problems: ['a build is already running — try again when it has finished'] });
