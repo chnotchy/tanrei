@@ -670,6 +670,21 @@ test.describe('the cloak holds a multi-line input at its fewest rows, at every s
   }
 });
 
+test.describe('the cloak holds a rating and a swatch at the width they are drawn', () => {
+  // RAT-1, RAT-14: a rating is its marks' containers in a row, `max` of them; SWC-1, SWC-7: a swatch is its sample,
+  // the gap and its column of text. The cloak held their height and no width, so a row of them wrapped only once they
+  // were drawn: on the docs' Rating page, a figure of four ratings was 96 px high before and 240 px drawn at a phone's
+  // width, and the Swatch page's first figure 106 px before and 164 px drawn. Each fixture is as wide as it is drawn.
+  for (const tag of ['tanrei-rating', 'tanrei-swatch']) {
+    test(`${tag.replace(/^tanrei-/, '')}: with the cloak and no script, every fixture is as wide as once it is defined`, async ({ page: first, browserName }) => {
+      const { page, before, after } = await mountedLate(first, tag, browserName);
+      const wrong = before.flatMap((stage, i) => (Math.abs(stage.width - after[i]!.width) <= 0.5 ? [] : [`${stage.id}: held ${stage.width}px wide, drawn ${after[i]!.width}px`]));
+      expect(wrong).toEqual([]);
+      await page.close();
+    });
+  }
+});
+
 test.describe('the cloak holds a field’s help and its error text at the lines they wrap onto', () => {
   // FLD-7, FLD-26, FLD-31: a help or an error text longer than its line wraps where the field draws it, from the start
   // of the control's content. The cloak held one line of it, so a narrow field grew when it was defined: on the docs'

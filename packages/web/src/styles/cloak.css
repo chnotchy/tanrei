@@ -48,9 +48,10 @@
  *   moves down by the lines it adds — but the label a checkbox, a radio button or a switch draws beside its control,
  *   which is written (its `label`) in the label's text style and wraps where it will, and a field's help or error
  *   text, written in the supporting text's style where the field draws it (a help beside a count, whose width CSS
- *   cannot measure, may still take a line more). The width is
- *   held where the element draws its words from an attribute — a tag's label, a chip's, a selection control's, a main action
- *   button's, a button with menu's, a segment's — and where it draws the words written between its tags — a button's
+ *   cannot measure, may still take a line more). The width is held where the element draws its words from an
+ *   attribute — a tag's label, a chip's, a selection control's, a main action button's, a button with menu's, a
+ *   segment's, a swatch's, a number ticker's (its `value` written plainly), and a rating's marks — and
+ *   where it draws the words written between its tags — a button's
  *   label, in the label's text style — with the glyph's box in place of its name, so that a row of them wraps where it
  *   will and the words that follow one on a line of text stay where they are; a button group and a segmented button
  *   lay their items out as they will. Elsewhere it is the width of the words and glyphs written inside the element, so
@@ -1081,14 +1082,65 @@
   :where(tanrei-slider[size='large']:not([orientation='vertical']):not(:defined)) {
     min-block-size: max(var(--tanrei-comp-slider-container-size), var(--tanrei-comp-slider-handle-height-large));
   }
+  /* A rating (RAT-1, RAT-14): its marks' containers in a row, touching — `max` of them, the whole number below it and
+     at least 1, 5 where it names none — each its size's container size across, never wider than its place. `max` is
+     read as a number where the browser can, and as one of the counts 1 to 10 otherwise; another is held at 5. */
   :where(tanrei-rating:not(:defined)) {
-    min-block-size: var(--tanrei-comp-rating-container-size-medium);
+    --_cloak-mark: var(--tanrei-comp-rating-container-size-medium);
+    --_cloak-marks: 5;
+    min-block-size: var(--_cloak-mark);
+    inline-size: calc(var(--_cloak-marks) * var(--_cloak-mark));
+    max-inline-size: 100%;
   }
   :where(tanrei-rating[size='small']:not(:defined)) {
-    min-block-size: var(--tanrei-comp-rating-container-size-small);
+    --_cloak-mark: var(--tanrei-comp-rating-container-size-small);
   }
   :where(tanrei-rating[size='large']:not(:defined)) {
-    min-block-size: var(--tanrei-comp-rating-container-size-large);
+    --_cloak-mark: var(--tanrei-comp-rating-container-size-large);
+  }
+  :where(tanrei-rating[max='1']:not(:defined)) {
+    --_cloak-marks: 1;
+  }
+  :where(tanrei-rating[max='2']:not(:defined)) {
+    --_cloak-marks: 2;
+  }
+  :where(tanrei-rating[max='3']:not(:defined)) {
+    --_cloak-marks: 3;
+  }
+  :where(tanrei-rating[max='4']:not(:defined)) {
+    --_cloak-marks: 4;
+  }
+  :where(tanrei-rating[max='6']:not(:defined)) {
+    --_cloak-marks: 6;
+  }
+  :where(tanrei-rating[max='7']:not(:defined)) {
+    --_cloak-marks: 7;
+  }
+  :where(tanrei-rating[max='8']:not(:defined)) {
+    --_cloak-marks: 8;
+  }
+  :where(tanrei-rating[max='9']:not(:defined)) {
+    --_cloak-marks: 9;
+  }
+  :where(tanrei-rating[max='10']:not(:defined)) {
+    --_cloak-marks: 10;
+  }
+  @supports (x: attr(x type(*))) {
+    :where(tanrei-rating[max]:not(:defined)) {
+      --_cloak-marks: max(1, round(down, attr(max type(<number>), 1), 1));
+    }
+  }
+  /* A number ticker (NTK-1, NTK-5): inline, one line of the text around it in that text's style, in tabular figures,
+     as wide as its `value` written plainly (the `::before`). The element writes the number in its locale's form —
+     grouped, with a currency's sign or a percent, from its start value — which can be wider or narrower. */
+  :where(tanrei-number-ticker):where(:not(:defined):not([hidden])) {
+    display: inline-block;
+    white-space: nowrap;
+    unicode-bidi: isolate;
+    font-variant-numeric: tabular-nums;
+  }
+  :where(tanrei-number-ticker:not(:defined))::before {
+    content: attr(value);
   }
   :where(tanrei-loading-indicator:not(:defined)) {
     min-block-size: var(--tanrei-comp-loading-indicator-indicator-size-medium);
@@ -1756,39 +1808,60 @@
     unicode-bidi: plaintext;
   }
 
-  /* A swatch: inline, centred on the line, as high as its sample or as its text beside it where that is higher — the
-     label's line, the supporting text's line under it — for its size. A swatch whose label is hidden, or that is
-     decorative, draws its sample alone. */
+  /* A swatch (SWC-1, SWC-7): inline, centred on the line, as wide as it is drawn — its sample, the gap and its
+     column of text — and as high as its sample or as that column where it is higher, for its size. The column is the
+     label over the supporting text, each laid out unpainted in its text role (the `::before` and the `::after`),
+     wrapping as they wrap. A swatch whose label is hidden, or that is decorative, draws its sample alone. */
   :where(tanrei-swatch):where(:not(:defined):not([hidden])) {
-    display: inline-block;
+    display: inline-flex;
+    flex-direction: column;
+    justify-content: center;
     box-sizing: border-box;
     vertical-align: middle;
+    max-inline-size: 100%;
     line-height: 0;
+    overflow-wrap: break-word;
   }
   :where(tanrei-swatch:not(:defined)) {
     --_cloak-side: var(--tanrei-comp-swatch-container-size-medium);
-    --_cloak-label: calc(var(--tanrei-comp-swatch-label-typescale-medium-line-height) * var(--tanrei-comp-swatch-label-typescale-medium-font-size));
-    --_cloak-supporting: calc(var(--tanrei-comp-swatch-supporting-text-typescale-medium-line-height) * var(--tanrei-comp-swatch-supporting-text-typescale-medium-font-size));
+    --_cloak-gap: var(--tanrei-comp-swatch-gap-medium);
+    --_cloak-label-font: var(--tanrei-comp-swatch-label-typescale-medium-font-weight) var(--tanrei-comp-swatch-label-typescale-medium-font-size)/var(--tanrei-comp-swatch-label-typescale-medium-line-height) var(--tanrei-comp-swatch-label-typescale-medium-font-family);
+    --_cloak-label-tracking: var(--tanrei-comp-swatch-label-typescale-medium-letter-spacing);
+    --_cloak-supporting-font: var(--tanrei-comp-swatch-supporting-text-typescale-medium-font-weight) var(--tanrei-comp-swatch-supporting-text-typescale-medium-font-size)/var(--tanrei-comp-swatch-supporting-text-typescale-medium-line-height) var(--tanrei-comp-swatch-supporting-text-typescale-medium-font-family);
+    --_cloak-supporting-tracking: var(--tanrei-comp-swatch-supporting-text-typescale-medium-letter-spacing);
     min-block-size: var(--_cloak-side);
+    padding-inline-start: var(--_cloak-side);
   }
   :where(tanrei-swatch[size='small']:not(:defined)) {
     --_cloak-side: var(--tanrei-comp-swatch-container-size-small);
-    --_cloak-label: calc(var(--tanrei-comp-swatch-label-typescale-small-line-height) * var(--tanrei-comp-swatch-label-typescale-small-font-size));
-    --_cloak-supporting: calc(var(--tanrei-comp-swatch-supporting-text-typescale-small-line-height) * var(--tanrei-comp-swatch-supporting-text-typescale-small-font-size));
+    --_cloak-gap: var(--tanrei-comp-swatch-gap-small);
+    --_cloak-label-font: var(--tanrei-comp-swatch-label-typescale-small-font-weight) var(--tanrei-comp-swatch-label-typescale-small-font-size)/var(--tanrei-comp-swatch-label-typescale-small-line-height) var(--tanrei-comp-swatch-label-typescale-small-font-family);
+    --_cloak-label-tracking: var(--tanrei-comp-swatch-label-typescale-small-letter-spacing);
+    --_cloak-supporting-font: var(--tanrei-comp-swatch-supporting-text-typescale-small-font-weight) var(--tanrei-comp-swatch-supporting-text-typescale-small-font-size)/var(--tanrei-comp-swatch-supporting-text-typescale-small-line-height) var(--tanrei-comp-swatch-supporting-text-typescale-small-font-family);
+    --_cloak-supporting-tracking: var(--tanrei-comp-swatch-supporting-text-typescale-small-letter-spacing);
   }
   :where(tanrei-swatch[size='large']:not(:defined)) {
     --_cloak-side: var(--tanrei-comp-swatch-container-size-large);
-    --_cloak-label: calc(var(--tanrei-comp-swatch-label-typescale-large-line-height) * var(--tanrei-comp-swatch-label-typescale-large-font-size));
-    --_cloak-supporting: calc(var(--tanrei-comp-swatch-supporting-text-typescale-large-line-height) * var(--tanrei-comp-swatch-supporting-text-typescale-large-font-size));
+    --_cloak-gap: var(--tanrei-comp-swatch-gap-large);
+    --_cloak-label-font: var(--tanrei-comp-swatch-label-typescale-large-font-weight) var(--tanrei-comp-swatch-label-typescale-large-font-size)/var(--tanrei-comp-swatch-label-typescale-large-line-height) var(--tanrei-comp-swatch-label-typescale-large-font-family);
+    --_cloak-label-tracking: var(--tanrei-comp-swatch-label-typescale-large-letter-spacing);
+    --_cloak-supporting-font: var(--tanrei-comp-swatch-supporting-text-typescale-large-font-weight) var(--tanrei-comp-swatch-supporting-text-typescale-large-font-size)/var(--tanrei-comp-swatch-supporting-text-typescale-large-line-height) var(--tanrei-comp-swatch-supporting-text-typescale-large-font-family);
+    --_cloak-supporting-tracking: var(--tanrei-comp-swatch-supporting-text-typescale-large-letter-spacing);
   }
-  :where(tanrei-swatch:not([label-hidden], [decorative]):not(:defined)):where([label]:not([label=''])) {
-    min-block-size: max(var(--_cloak-side), var(--_cloak-label));
+  :where(tanrei-swatch:not([label-hidden], [decorative]):not(:defined)):where([label]:not([label='']), [supporting-text]:not([supporting-text=''])) {
+    padding-inline-start: calc(var(--_cloak-side) + var(--_cloak-gap));
   }
-  :where(tanrei-swatch:not([label-hidden], [decorative]):not(:defined)):where([supporting-text]:not([supporting-text=''])) {
-    min-block-size: max(var(--_cloak-side), var(--_cloak-supporting));
+  :where(tanrei-swatch:not([label-hidden], [decorative]):not(:defined)):where([label]:not([label='']))::before {
+    content: attr(label);
+    font: var(--_cloak-label-font);
+    letter-spacing: var(--_cloak-label-tracking);
+    unicode-bidi: plaintext;
   }
-  :where(tanrei-swatch:not([label-hidden], [decorative]):not(:defined)):where([label]:not([label=''])):where([supporting-text]:not([supporting-text=''])) {
-    min-block-size: max(var(--_cloak-side), var(--_cloak-label) + var(--_cloak-supporting));
+  :where(tanrei-swatch:not([label-hidden], [decorative]):not(:defined)):where([supporting-text]:not([supporting-text='']))::after {
+    content: attr(supporting-text);
+    font: var(--_cloak-supporting-font);
+    letter-spacing: var(--_cloak-supporting-tracking);
+    unicode-bidi: plaintext;
   }
 
   /* An embedded text input: one line of its input's text role; a multi-line one `min-rows` whole lines of it, 1 by

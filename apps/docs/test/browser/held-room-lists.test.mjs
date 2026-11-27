@@ -1,8 +1,8 @@
-// The pages of lists, menus, fields and file items whose figures the web package's cloak and the elements' own
+// The pages of lists, menus, fields, file items and inline values whose figures the web package's cloak and the elements' own
 // stylesheets hold at the box they are drawn in, in each engine, before the modules that define their elements have
 // arrived: lists, laid out by the cloak as they will lay out their items, menus drawn in place and menu bars
-// (`menu.css`, `menubar.css`), fields whose help or error text wraps, and file items. held-room.mjs holds the tests and
-// says how they read the page. The other pages whose figures the cloak holds are in held-room-figures.test.mjs,
+// (`menu.css`, `menubar.css`), fields whose help or error text wraps, file items, and ratings, swatches and number
+// tickers. held-room.mjs holds the tests and says how they read the page. The other pages whose figures the cloak holds are in held-room-figures.test.mjs,
 // held-room-buttons.test.mjs, held-room-actions.test.mjs and held-room-chips.test.mjs; the pages whose tables,
 // keyboard maps and lists of status tags hold their room in held-room-tables.test.mjs.
 //
@@ -28,7 +28,10 @@ import { heldRoomTests, PHONE, WIDE } from './held-room.mjs';
  *   field in error explains it in two lines, 468 px before and 484 px drawn;
  * - the File item's: when the cloak did not hold a file item, a row or a tile had no height at all, so its second
  *   figure, a column of six rows, was 144 px high before and 432 px drawn at a phone's width, and a grid of ten rows
- *   100 px before and 520 px drawn.
+ *   100 px before and 520 px drawn;
+ * - the Rating's, the Swatch's and the Number ticker's: when the cloak held a rating and a swatch at their height and no
+ *   width, and a number ticker at none, a row of them wrapped only once they were drawn — a figure of four ratings
+ *   96 px high before and 240 px drawn at a phone's width, of swatches 106 px and 164 px, of tickers 64 px and 160 px.
  */
 const CASES = [
   { url: '/components/list/', viewport: WIDE, look: '#docs-figure-2-stage' },
@@ -43,6 +46,9 @@ const CASES = [
   { url: '/components/combobox-field/', viewport: PHONE, system: 'm3-like' },
   { url: '/components/file-item/', viewport: PHONE, look: '#docs-figure-2-stage' },
   { url: '/components/file-item/', viewport: WIDE, system: 'cupertino' },
+  { url: '/components/rating/', viewport: PHONE, look: '#docs-figure-3-stage' },
+  { url: '/components/swatch/', viewport: PHONE, system: 'm3-like' },
+  { url: '/components/number-ticker/', viewport: PHONE, look: '#docs-figure-2-stage' },
 ];
 
 heldRoomTests({ cases: CASES });
