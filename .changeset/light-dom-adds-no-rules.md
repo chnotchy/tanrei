@@ -19,3 +19,7 @@ Figure: a variant a design system added is no longer a sheet the element adds to
 element's own style, and the ground a pattern is drawn on in the stage's (read there, as before, so that a stage scoped
 to another system draws that system's); both are taken off for a variant of the core, and from a stage that is no
 longer the figure's. The name the element asks its root for is now `--_figure-edge-color`.
+
+Page header: a size a design system added is no longer a rule the element inserts into a sheet of the page. Its private
+custom properties are written in the element's own style and taken off for a size of the core. The name the element
+asks its root for is now `--_pgh-dot-color`.

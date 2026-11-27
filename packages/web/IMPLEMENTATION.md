@@ -10070,7 +10070,9 @@ Good to know:
 - **No tracking in scripts a tracked word falls apart in** (PGH-4): the title and the eyebrow take `letter-spacing: 0`
   under `:lang()` of Japanese, Chinese, Korean, Arabic, Persian, Urdu, Hindi and the like — set `lang`.
 - **An empty head** (no element child) is `display: none`; one built by script appears when its parts are written.
-- **A size a design system adds** gets its rules from the element, falling back to `medium`'s tokens.
+- **A size a design system adds** is written by the element in its own style, as the size's private custom properties
+  read from its tokens, each falling back to `medium`'s, and taken off again for a size of the core — never as a rule
+  added to the page.
 - **In prose** the element is an island (PRS-16): prose's heading and paragraph rules do not reach its `h1` and `p`.
 - `text-wrap: balance`: Chromium 114, Firefox 121, Safari 17.5 (lines break as usual before). Container queries:
   Chromium 105, Firefox 110, Safari 16.

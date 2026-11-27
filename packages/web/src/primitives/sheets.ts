@@ -78,7 +78,7 @@ export const DRAWN_MARKS: Readonly<Record<string, `--${string}`>> = {
   'tanrei-description-list': '--_dl-fact-gap',
   'tanrei-figure': '--_figure-edge-color',
   'tanrei-link-card': '--_lc-container',
-  'tanrei-page-header': '--_pgh-title-font-size',
+  'tanrei-page-header': '--_pgh-dot-color',
   'tanrei-skeleton': '--_skl-gap',
   'tanrei-table': '--_table-pad-block',
   'tanrei-table-of-contents': '--_toc-row-height',
