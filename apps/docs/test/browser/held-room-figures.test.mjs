@@ -1,8 +1,9 @@
 // The pages whose figures the web package's cloak holds at the box they are drawn in, in each engine, before the modules
 // that define their elements have arrived: rows of tags, of switches and of avatars, cards, dividers, badges and app
-// bars. held-room.mjs holds the tests and says how they read the page. The pages of buttons and other actions
-// are in held-room-buttons.test.mjs and held-room-actions.test.mjs; the pages whose tables, keyboard maps and lists of status tags hold their room are in
-// held-room-tables.test.mjs.
+// bars. held-room.mjs holds the tests and says how they read the page. The pages of buttons and other actions are in
+// held-room-buttons.test.mjs and held-room-actions.test.mjs; the pages whose tables, keyboard maps and lists of status
+// tags hold their room are in held-room-tables.test.mjs, and those whose tables of measurements hold theirs in a look a
+// reader may choose in held-room-measures.test.mjs.
 //
 //   pnpm --filter @tanrei/docs build && pnpm --filter @tanrei/docs test:browser
 //   DOCS_ENGINES=chromium node --test test/browser/held-room-figures.test.mjs   # in one engine (all three by default)
@@ -19,7 +20,9 @@ import { heldRoomTests, PHONE, WIDE } from './held-room.mjs';
  *   the line of text it stood in rather than as its icon (88.53 px before, 88 px drawn);
  * - the App bar's, whose bars stood with their slots' Buttons laid out in a column under the title (the cloak's rule
  *   for a Button won over the bar's own stand-in, a small bar 230 px high before and 128 px drawn), and whose large
- *   bar took the header's box (82 px before, 138 px drawn).
+ *   bar took the header's box (82 px before, 138 px drawn); and whose anatomy table, in Firefox at a desktop's width,
+ *   was 646 px high before and 624 px once the page's elements were defined: the engine gave each part's line a break
+ *   between its number and its name only then, which a no-break space now holds together (components/ComponentSpecs.astro).
  */
 const CASES = [
   { url: '/components/tag/', viewport: WIDE, look: '#docs-figure-2-stage' },

@@ -52,9 +52,7 @@ const noteHtml = (notes: string | undefined) => (notes ?? '').replace(/&/g, '&am
 <Fragment set:html={markdownMark.spec(spec.name)} />
 <h3>{t.anatomy}</h3>
 {/* The figure numbers the parts over the live component; the table under it is its legend. A part's number and its name
-    are parted by a no-break space: a space under `nowrap` before a name that wraps after its hyphens (`.part` below) is
-    a place to break that Firefox did not count when it first sized the table's first column and counted once the
-    page's elements were defined, so the column narrowed and the table changed height as the page loaded. */}
+    are parted by a no-break space (`.part` below says why). */}
 <AnatomyDiagram name={spec.name} describedBy={`docs-anatomy-${spec.name}`} />
 <div id={`docs-anatomy-${spec.name}`}><Table label={t.anatomy}><table class="described" role="table">
   <thead role="rowgroup"><tr role="row"><th scope="col" role="columnheader">{t.part}</th><th scope="col" role="columnheader">{t.description}</th></tr></thead>
@@ -283,7 +281,11 @@ const noteHtml = (notes: string | undefined) => (notes ?? '').replace(/&/g, '&am
   }
   /* A part's number stays with its name; the name breaks after its hyphens and "optional" goes under it, so that on a
      narrow screen the column is no wider than the longest piece of a name, and the description beside it is not left
-     a word to a line. (Every other name in these tables stays on one line: `td code` below.) */
+     a word to a line. (Every other name in these tables stays on one line: `td code` below.) The number is held to its
+     name by a no-break space, not by `nowrap` alone: where a space under `nowrap` stands before a name that may wrap,
+     Firefox gave the line a break there once the page's elements were defined and none before, so the column's least
+     width, and the height of the App bar's, the Bottom sheet's, the Calendar's and the FAB menu's tables at 1440 px,
+     changed as they were defined (the App bar's first column 159.6 px wide before, 139.1 px after). */
   .part {
     white-space: nowrap;
   }
