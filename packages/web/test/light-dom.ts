@@ -42,7 +42,7 @@ export const LIGHT_DOM_SUBJECTS: LightDomSubject[] = [
   {
     tag: 'tanrei-figure',
     css: 'figure.css',
-    mark: '--_figure-fill',
+    mark: '--_figure-edge-color',
     html: (n) => `<tanrei-figure><figure><div>content ${n}</div><figcaption>Caption</figcaption></figure></tanrei-figure>`,
     drawn: { part: 'figure', property: 'margin-left' },
     inside: 'figure > div',

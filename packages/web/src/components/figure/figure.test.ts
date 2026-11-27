@@ -10,7 +10,8 @@ import { decodePng } from '../../../test/png.js';
 import { type Fixture, fixturesDocument, loadSpec, mountFixtures, resolveColor, resolveToken, tab, tabTo, rootTokens } from '../../../test/harness.js';
 import { expectBaseline } from '../../../test/baseline.js';
 import { restyle } from '../../../test/restyle.js';
-import { askForFrame } from '../../../test/frame-asked.js';
+import { askForFrame, rewrite } from '../../../test/frame-asked.js';
+import { countingRules, ruleWrites } from '../../../test/rule-writes.js';
 
 const spec = loadSpec('figure');
 type P = Page;
@@ -994,6 +995,37 @@ test.describe('text size, forced colors, direction, unknown values', () => {
     await expect.poll(() => css(frame(page, 'added'), 'background-color')).toBe('rgb(10, 20, 30)');
     // FIG-26: its fill is also the ground its pattern is drawn on.
     expect(await css(shown(page, 'added-pattern'), 'background-color')).toBe('rgb(10, 20, 30)');
+  });
+
+  test('FIG-24, FIG-26: the element adds no rule to the page: a variant a design system adds draws its fill from the figure’s own style and its pattern’s ground from the stage’s, taken off again for a variant of the core', async ({ page }) => {
+    const fixtures = [{ ...fixture('outlined'), id: 'added', props: { variant: 'tinted', label: 'Added' } }, { ...fixture('outlined'), id: 'added-pattern', props: { variant: 'tinted', pattern: 'grid', label: 'Added, on a grid' } }, ...some('filled-pattern-grid')];
+    await page.setContent(countingRules(await fixturesDocument(spec, { fixtures }), TAG));
+    await page.waitForFunction((tag) => !!customElements.get(tag) && [...document.querySelectorAll(tag)].every((el) => el.matches(':defined')), TAG);
+    await page.evaluate(() => document.fonts.ready);
+    await drawnFrame(page);
+    await override(page, { [T('tinted-container-color')]: 'rgb(10, 20, 30)' });
+    await expect.poll(() => css(frame(page, 'added'), 'background-color')).toBe('rgb(10, 20, 30)');
+    expect(await css(shown(page, 'added-pattern'), 'background-color')).toBe('rgb(10, 20, 30)');
+    // Drawn so with no rule inserted anywhere and no sheet added to the document.
+    expect(await ruleWrites(page)).toEqual({ inserted: 0, adopted: 0 });
+    // A stage put in place of the one that was: the new one is drawn on the ground, and the old one is left as it was found.
+    const old = await shown(page, 'added-pattern').evaluateHandle((el) => el);
+    await rewrite(frame(page, 'added-pattern'), (el) => {
+      const made = document.createElement('div');
+      made.setAttribute('data-part', 'stage');
+      made.innerHTML = '<p>Another stage</p>';
+      el.querySelector(':scope > [data-part="stage"]')!.replaceWith(made);
+    });
+    await expect.poll(() => css(shown(page, 'added-pattern'), 'background-color')).toBe('rgb(10, 20, 30)');
+    expect(await old.evaluate((el) => (el as HTMLElement).style.length)).toBe(0);
+    // Back to a variant of the core: what the added one wrote is taken off, and the figure is drawn as that variant.
+    await host(page, 'added-pattern').evaluate((el) => ((el as unknown as { variant: string }).variant = 'filled'));
+    await drawnFrame(page);
+    expect(await host(page, 'added-pattern').evaluate((el) => (el as HTMLElement).style.length)).toBe(0);
+    expect(await shown(page, 'added-pattern').evaluate((el) => (el as HTMLElement).style.length)).toBe(0);
+    expect(await css(shown(page, 'added-pattern'), 'background-color')).toBe(await css(shown(page, 'filled-pattern-grid'), 'background-color'));
+    expect(await css(frame(page, 'added-pattern'), 'background-color')).toBe(await css(frame(page, 'filled-pattern-grid'), 'background-color'));
+    expect(await ruleWrites(page)).toEqual({ inserted: 0, adopted: 0 });
   });
 
   test('FIG-25: a figure whose stage holds nothing draws nothing, takes no space and exposes nothing, and that is reported — a title, a caption or an attachment alone is not a figure; label is ignored while a title or a caption is given', async ({ page }) => {

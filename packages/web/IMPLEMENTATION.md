@@ -9708,7 +9708,8 @@ Good to know:
 - **A browser without style container queries** draws the separation the tokens name when the element reads the
   figure (`data-separation` on the `<figure>`); the attribute is exact everywhere.
 - **A variant a design system adds** gets its fill from the element (`comp.figure.<variant>.container.color`),
-  with the outlined look's edge; without script it is drawn as `outlined`.
+  with the outlined look's edge, written in the element's own style — and the ground a pattern is drawn on in the
+  stage's — never as a rule added to the page; without script it is drawn as `outlined`.
 - **In prose** the element is an island: prose spaces it as a block at its full width, and keeps its caption — and a
   bare `<figure>`'s — to the measure (PRS-18).
 - Corner smoothing follows `sys.shape.corner-smoothing` through the shared rule; the stage's focus ring takes the
