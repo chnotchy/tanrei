@@ -9769,7 +9769,7 @@ How it is built, and what follows from it:
 - **A heading in a summary** keeps its role and its level in the document. What a screen reader does with a heading inside a button differs; see the docs page.
 - **A label of bare text takes the layout direction.** A stylesheet cannot give a text node a direction of its own: wrap a label that may be written in the other direction in a `<span>`.
 - **A size taken from a container** (ACC-37) is drawn once the element is defined: it carries the size it draws as the custom state `size-<name>`, which the stylesheet matches beside the `size` attribute. Without script an accordion is drawn at the size it sets, or at medium.
-- **A size or a variant a design system adds** gets its rules from the element, read from that value's tokens with the default's as fallbacks.
+- **A size or a variant a design system adds** is written by the element in its own style, as the value's private custom properties read from that value's tokens with the default's as fallbacks, and taken off again for a value of the core — never as a rule added to the page, which would have the browser build every rule of the page again.
 - **Without `::details-content`** an item opens and closes at once, inset by the item's own padding.
 
 ## `<tanrei-table-of-contents>` (`table-of-contents.css`)

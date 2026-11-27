@@ -9,3 +9,8 @@ rule of the page again. It now writes the lines in the placeholder's own style (
 list of shadows the first bar draws, `--_skl-shadows`, which `@tanrei/web/skeleton.css` reads before its own), and
 takes them off when the placeholder's `data-lines` becomes a value the stylesheet reads. Nothing a skeleton draws
 changes.
+
+Accordion: a size or a variant a design system added is no longer a sheet the element adds to the page. Its private
+custom properties (read from that value's tokens, each falling back to the default's) are written in the element's own
+style, and taken off when the accordion draws a value of the core again. The name the element asks its root for, to
+tell whether the root has `accordion.css`, is now `--_acc-edge-color`, which only the stylesheet sets.

@@ -71,7 +71,7 @@ function drawn(element: Element, mark: string): boolean {
  * `test/light-dom.ts`).
  */
 export const DRAWN_MARKS: Readonly<Record<string, `--${string}`>> = {
-  'tanrei-accordion': '--_acc-container',
+  'tanrei-accordion': '--_acc-edge-color',
   'tanrei-app-shell': '--_aps-breakpoint-medium',
   'tanrei-breadcrumbs': '--_brc-start',
   'tanrei-code-block': '--_code-block-light',

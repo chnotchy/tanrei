@@ -60,7 +60,7 @@ export const LIGHT_DOM_SUBJECTS: LightDomSubject[] = [
   {
     tag: 'tanrei-accordion',
     css: 'accordion.css',
-    mark: '--_acc-container',
+    mark: '--_acc-edge-color',
     html: (n) => `<tanrei-accordion><details><summary>Question ${n}</summary><div>Answer</div></details></tanrei-accordion>`,
     drawn: { part: 'summary', property: 'display' },
     inside: 'details > div',
