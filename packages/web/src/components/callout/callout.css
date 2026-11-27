@@ -12,11 +12,18 @@
  * - a block with the callout's paddings, in the body's text style of its size;
  * - room at the start for the glyph of a status or of the `icon` slot (whose glyph name is not shown as text), and at
  *   the end for the close button;
- * - the title slot in the title's text style, the title's gap above the body;
- * - nothing at all for `open="false"`.
+ * - the title — the title slot's, or the `headline` attribute's written before the body where nothing is in the slot
+ *   — in the title's text style, the title's gap above the body;
+ * - the row of the `actions` slot below the body, the actions' gap above it, item-gap between two actions and between
+ *   two lines of them, where the body is text alone (below);
+ * - nothing at all for `open="false"` or `hidden`.
  *
- * What it cannot give: a title in the `headline` attribute (it is drawn by the element — content pages use the title
- * slot), and the row of the `actions` slot (its Buttons are elements that are not defined yet either).
+ * What it cannot give: the actions' row where the body holds elements of its own (a paragraph, a link, a word in
+ * `<code>`): CSS can lay out a row below the text only by making each child a box of its own, which would set such a
+ * body otherwise than the element does, so its actions stand in the body's last line until it is defined. The actions
+ * themselves are the product's: a Tanrei Button among them is held at its own box by the cloak (`cloak.css`), and
+ * without it is a line of text. A headline in a script that takes no tracking (CLO-7) keeps the title's until the
+ * element is defined.
  *
  * Every value is a `--tanrei-comp-callout-*` token. Every selector has no specificity (`:where()`), and none matches
  * once the element is defined.
@@ -38,10 +45,6 @@
       var(--tanrei-comp-callout-body-typescale-large-font-weight) var(--tanrei-comp-callout-body-typescale-large-font-size)/var(--tanrei-comp-callout-body-typescale-large-line-height)
       var(--tanrei-comp-callout-body-typescale-large-font-family);
     letter-spacing: var(--tanrei-comp-callout-body-typescale-large-letter-spacing);
-  }
-  /* CLO-13: a callout that starts closed takes no space before it is defined either. */
-  :where(tanrei-callout[open='false' i]:not(:defined)) {
-    display: none;
   }
   /* The glyph's room: a status's, or the product's own. */
   :where(tanrei-callout:not(:defined):is([status='info'], [status='warning'], [status='error'], [status='success'], :has(> [slot='icon']))) {
@@ -70,7 +73,82 @@
       var(--tanrei-comp-callout-title-typescale-large-font-family);
     letter-spacing: var(--tanrei-comp-callout-title-typescale-large-letter-spacing);
   }
+  /* CLO-7: a title given as text (`headline`) where nothing is in the title slot, written before the body as a block of
+     the title's text style, the title's gap above the body. */
+  :where(tanrei-callout[headline]:not([headline='']):not(:has(> [slot='title'])):not(:defined))::before {
+    content: attr(headline);
+    display: block;
+    margin-block-end: var(--tanrei-comp-callout-title-gap);
+    font:
+      var(--tanrei-comp-callout-title-typescale-medium-font-weight) var(--tanrei-comp-callout-title-typescale-medium-font-size)/var(--tanrei-comp-callout-title-typescale-medium-line-height)
+      var(--tanrei-comp-callout-title-typescale-medium-font-family);
+    letter-spacing: var(--tanrei-comp-callout-title-typescale-medium-letter-spacing);
+  }
+  :where(tanrei-callout[size='large'][headline]:not([headline='']):not(:has(> [slot='title'])):not(:defined))::before {
+    font:
+      var(--tanrei-comp-callout-title-typescale-large-font-weight) var(--tanrei-comp-callout-title-typescale-large-font-size)/var(--tanrei-comp-callout-title-typescale-large-line-height)
+      var(--tanrei-comp-callout-title-typescale-large-font-family);
+    letter-spacing: var(--tanrei-comp-callout-title-typescale-large-letter-spacing);
+  }
+  /* With nothing written between its tags, it has no body, and no gap below its title. */
+  :where(tanrei-callout[headline]:empty:not(:defined))::before {
+    margin-block-end: 0;
+  }
+  /* CLO-9: the actions, a row below the body, where the body is text alone (no element of its own beside the slotted
+     ones): a box whose lines wrap, the title (the slot's, or the headline's) and the body each a line of their own, then
+     a line of no content as tall as the actions' gap less the item gap, then the actions, item-gap apart along a line
+     and item-gap above each, centred on their line — so actions.gap below the body, and item-gap between two lines of
+     them.
+     `:has()` is asked of the callout alone, the element it styles (src/styles/has.test.ts says why): what the title and
+     the actions take in the row reaches them as values the callout passes down (`--_callout-*`). A callout without the
+     row passes none, so that one written inside another's takes nothing of the outer one's row. */
+  :where(tanrei-callout:not(:defined)) {
+    --_callout-line: initial;
+    --_callout-title-order: initial;
+    --_callout-actions-order: initial;
+    --_callout-actions-above: initial;
+  }
+  :where(tanrei-callout:not(:defined):has(> [slot='actions']):not(:has(> :not([slot])))) {
+    --_callout-line: 100%;
+    --_callout-title-order: -1;
+    --_callout-actions-order: 2;
+    --_callout-actions-above: var(--tanrei-comp-callout-actions-item-gap);
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    column-gap: var(--tanrei-comp-callout-actions-item-gap);
+  }
+  :where(tanrei-callout:not(:defined):has(> [slot='actions']):not(:has(> :not([slot]))))::before {
+    flex-basis: 100%;
+    order: -1;
+  }
+  :where(tanrei-callout:not(:defined):has(> [slot='actions']):not(:has(> :not([slot]))))::after {
+    content: '';
+    flex-basis: 100%;
+    order: 1;
+    block-size: calc(var(--tanrei-comp-callout-actions-gap) - var(--tanrei-comp-callout-actions-item-gap));
+  }
+  /* The children read what the callout passes them; where it passes nothing, a declaration is `revert-layer`, and the
+     child is laid out as if it were not written. They stand in a layer of their own, below the rest of this one, so
+     that `revert-layer` takes back these declarations alone: what the cloak gives the same child (a Chip's
+     `max-inline-size`, in cloak.css) stays, and wins over them. */
+  @layer children {
+    :where(tanrei-callout:not(:defined)) > :where([slot='title']) {
+      flex-basis: var(--_callout-line, revert-layer);
+      order: var(--_callout-title-order, revert-layer);
+    }
+    :where(tanrei-callout:not(:defined)) > :where([slot='actions']) {
+      order: var(--_callout-actions-order, revert-layer);
+      max-inline-size: var(--_callout-line, revert-layer);
+      margin-block-start: var(--_callout-actions-above, revert-layer);
+    }
+  }
   /* CLO-7: the title's letter-spacing follows its script (src/styles/script-tracking.ts). */
   /* script-tracking: :where(tanrei-callout:not(:defined)) > :where([slot='title']) | var(--tanrei-comp-callout-title-typescale-medium-letter-spacing) */
   /* script-tracking: :where(tanrei-callout[size='large']:not(:defined)) > :where([slot='title']) | var(--tanrei-comp-callout-title-typescale-large-letter-spacing) */
+  /* CLO-13: a callout that starts closed, or hidden, takes no space before it is defined either (after every rule that
+     lays it out, which would otherwise win over the browser's own rule for `hidden`). */
+  :where(tanrei-callout:not(:defined):is([open='false' i], [hidden])) {
+    display: none;
+  }
 }
