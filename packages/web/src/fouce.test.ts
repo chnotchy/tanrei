@@ -98,11 +98,15 @@ const GROWS: Record<string, Grows[]> = {
  */
 const WRAPS = 'a text it draws wraps onto more lines than one, and the cloak holds one';
 
-/** The page as a server sends it: `markup` with no script, and the cloak's stylesheet when `cloak` is set; the scripts it held back. */
-function withoutScripts(markup: string, cloak: boolean): { page: string; scripts: string[] } {
+/**
+ * The page as a server sends it: `markup` with no script, and the cloak's stylesheet when `cloak` is set, then the
+ * package's stylesheets named in `sheets` (an element's own for the time before it is defined: `callout.css`); the
+ * scripts it held back.
+ */
+function withoutScripts(markup: string, cloak: boolean, sheets: string[] = []): { page: string; scripts: string[] } {
   const at = markup.indexOf('<script type="module">');
   const scripts = [...markup.slice(at).matchAll(/<script type="module">([\s\S]*?)<\/script>/g)].map((match) => match[1]!);
-  const head = cloak ? `<style>${dist('cloak.css')}</style></head>` : '</head>';
+  const head = `${[...(cloak ? ['cloak.css'] : []), ...sheets].map((sheet) => `<style>${dist(sheet)}</style>`).join('')}</head>`;
   return { page: `${markup.slice(0, at).replace('</head>', head)}<p id="after">After the fixtures.</p></body></html>`, scripts };
 }
 
@@ -196,12 +200,14 @@ function stages({ tag, sized }: { tag: string; sized: boolean }) {
  * A spec's fixtures written with the cloak and no script, read in their first frames (`before`), then defined and read
  * again (`after`). In a new window: one that has run the bundle keeps its elements defined, whatever document is
  * written into it. Chromium's layout shifts are summed from just before the script runs. `system` draws the page under
- * a preset, and `fixtures` mounts those in place of the spec's.
+ * a preset, `fixtures` mounts those in place of the spec's, and `sheets` loads those stylesheets of the package after
+ * the cloak.
  */
-async function mountedLate(first: Page, tag: string, browserName: string, options: { system?: string; fixtures?: Fixture[] } = {}) {
+async function mountedLate(first: Page, tag: string, browserName: string, options: { system?: string; fixtures?: Fixture[]; sheets?: string[] } = {}) {
   const spec = loadSpec(tag.replace(/^tanrei-/, ''));
   const page = await first.context().newPage();
-  const { page: markup, scripts } = withoutScripts(await fixturesDocument(spec, { icons: true, ...options }), true);
+  const { sheets, ...written } = options;
+  const { page: markup, scripts } = withoutScripts(await fixturesDocument(spec, { icons: true, ...written }), true, sheets);
   await page.setContent(markup);
   await page.evaluate(() => document.fonts.ready);
   await frames(page, 2);
@@ -383,6 +389,29 @@ test.describe('the cloak holds the width of an element as it is drawn, in every 
           const width = narrower ? stage.width <= drawn.width + 0.5 : Math.abs(stage.width - drawn.width) <= 0.5;
           if (width && Math.abs(stage.height - drawn.height) <= 0.5 && Math.abs(stage.stage - drawn.stage) <= 0.5) return [];
           return [`${stage.id}: held ${stage.width}×${stage.height}px in a stage of ${stage.stage}px, drawn ${drawn.width}×${drawn.height}px in ${drawn.stage}px${narrower ? ` (held narrower: ${reason!.why})` : ''}`];
+        });
+        expect(wrong).toEqual([]);
+        await page.close();
+      });
+    }
+  }
+});
+
+test.describe('an element with a stylesheet of its own for the time before it is defined holds its box, in every system', () => {
+  // CLO-1, CLO-7, CLO-9, CLO-10: a callout is its paddings, its glyph's and its close button's room, its title — the
+  // slot's or the `headline` attribute's — the body, and the row of its actions (callout.css). It held neither its
+  // `headline` nor its actions before: a docs page's figure of three callouts was 322 px high before and 404 px drawn.
+  // Each fixture is written as a server sends it, with the cloak (which holds the Buttons among its actions) and the
+  // element's own stylesheet.
+  for (const tag of ['tanrei-callout']) {
+    const name = tag.replace(/^tanrei-/, '');
+    for (const system of [undefined, ...PRESETS]) {
+      test(`${system ?? 'the default system'}, ${name}: with the cloak, ${name}.css and no script, each fixture is as wide and as high as once it is defined, and so is its stage`, async ({ page: first, browserName }) => {
+        const { page, before, after } = await mountedLate(first, tag, browserName, { ...(system ? { system } : {}), sheets: [`${name}.css`] });
+        const wrong = before.flatMap((stage, i) => {
+          const drawn = after[i]!;
+          if (Math.abs(stage.width - drawn.width) <= 0.5 && Math.abs(stage.height - drawn.height) <= 0.5 && Math.abs(stage.stage - drawn.stage) <= 0.5) return [];
+          return [`${stage.id}: held ${stage.width}×${stage.height}px in a stage of ${stage.stage}px, drawn ${drawn.width}×${drawn.height}px in ${drawn.stage}px`];
         });
         expect(wrong).toEqual([]);
         await page.close();
