@@ -2193,6 +2193,7 @@ test.describe('missing, unknown, empty, changed', () => {
     await page.waitForFunction((tag) => !!customElements.get(tag) && [...document.querySelectorAll(tag)].every((el) => el.matches(':defined')), TAG);
     await page.evaluate(() => document.fonts.ready);
     await nameItems(page);
+    await askForFrame(page);
     await defined(page);
     await override(page, { [T('container-height-roomy')]: '72px', [T('container-gap-roomy')]: '20px' });
     await expect.poll(async () => (await edges(row(page, 'added', 'Alpha'))).height).toBe(72);
