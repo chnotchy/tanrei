@@ -5,14 +5,15 @@
 //   pnpm --filter @tanrei/docs build && pnpm --filter @tanrei/docs test:browser
 //   DOCS_ENGINES=chromium node --test test/browser/held-room-tables.test.mjs   # in one engine (all three by default)
 //
-// This module only defines the tests: `heldRoomTests({ cases, known })`, called by a test file. Its pages are in seven
+// This module only defines the tests: `heldRoomTests({ cases, known })`, called by a test file. Its pages are in eight
 // files, so that the shards of CI's docs jobs, which take whole files, can place them in different jobs: the pages whose
 // tables, keyboard maps and lists of status tags hold their room (held-room-tables.test.mjs), the pages whose tables
 // of measurements hold theirs in a look a reader may choose other than the default (held-room-measures.test.mjs), the
 // pages whose figures the web package's cloak holds at the box they are drawn in — tags, switches, avatars, cards,
 // dividers, badges and app bars (held-room-figures.test.mjs), buttons (held-room-buttons.test.mjs), the other actions
-// (held-room-actions.test.mjs) and calendars (held-room-calendar.test.mjs) — and the pages whose anatomy tables Firefox
-// laid out otherwise once their elements were defined (held-room-anatomy.test.mjs).
+// (held-room-actions.test.mjs), calendars (held-room-calendar.test.mjs), and chips, with the callouts and empty states
+// that their own stylesheets hold (held-room-chips.test.mjs) — and the pages whose anatomy tables Firefox laid out
+// otherwise once their elements were defined (held-room-anatomy.test.mjs).
 //
 // Every module that defines an element is held back until the test lets it through: the page is parsed and drawn
 // without them, its faces in, and paged through from its top to its end, as a reader pages through it. Each of the
