@@ -189,11 +189,16 @@ const previousNextSource = writeGlyphAxes(sheet('src/styles/previous-next-links.
 if (!previousNextSource.includes(PREVIOUS_NEXT_SHAPE)) throw new Error('previous-next-links.css: nowhere to write the corner rule');
 fs.writeFileSync('dist/previous-next-links.css', previousNextSource.replace(PREVIOUS_NEXT_SHAPE, shapeFor(':where(.tanrei-previous-next-links-item)')));
 // The table (specs/table.spec.json) is an element with no shadow root and one stylesheet that draws everything:
-// dist/table.css is the source as it is, for a page that draws its tables before any script runs, and the same text
-// (without its comments) is written into the element, which adds it to the root it is connected to — the compiled
-// module here, the bundle below.
+// dist/table.css is the source, with the rules by column position written at its `table:positions` mark (the element
+// adds none to the page for the positions they cover: src/components/table/table.positions.ts), for a page that draws
+// its tables before any script runs; and the same text (without its comments) is written into the element, which
+// adds it to the root it is connected to — the compiled module here, the bundle below.
 const TABLE_CSS_NAME = 'TANREI_TABLE_CSS';
-const tableSource = settled('tanrei-table', sheet('src/styles/table.css'));
+const TABLE_POSITIONS = '/* table:positions */';
+const { shippedPositionRules } = await import('../dist/components/table/table.positions.js');
+const tableSheet = sheet('src/styles/table.css');
+if (tableSheet.split(TABLE_POSITIONS).length !== 2) throw new Error('table.css: expected one mark to write the rules by column position at');
+const tableSource = settled('tanrei-table', tableSheet.replace(TABLE_POSITIONS, () => shippedPositionRules().replace(/\n/g, '\n  ')));
 fs.writeFileSync('dist/table.css', tableSource);
 const tableText = JSON.stringify(
   tableSource

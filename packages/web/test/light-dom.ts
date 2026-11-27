@@ -24,7 +24,7 @@ export const LIGHT_DOM_SUBJECTS: LightDomSubject[] = [
   {
     tag: 'tanrei-table',
     css: 'table.css',
-    mark: '--_table-pad-block',
+    mark: '--_table-start',
     html: (n) => `<tanrei-table><table><thead><tr><th>Name</th><th>Value</th></tr></thead><tbody><tr><td>row ${n}</td><td>${n}</td></tr></tbody></table></tanrei-table>`,
     drawn: { part: 'td', property: 'padding-top' },
     inside: 'td',

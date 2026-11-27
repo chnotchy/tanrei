@@ -22,6 +22,7 @@ import { TanreiLightElement } from '../../primitives/element.js';
 import { readInPhase } from '../../primitives/read-phase.js';
 import { DirAttributeWatch } from '../../primitives/direction.js';
 import { TYPE_LONGHANDS } from '../../styles/type.js';
+import { SHIPPED_POSITIONS, columnRules, surplusRule } from './table.positions.js';
 import { DEBUG } from '../../primitives/debug.js';
 
 /** The core sizes (small, medium), plus any a design system's generated `.d.ts` registers. */
@@ -71,7 +72,7 @@ const SIZE_MEMBERS: readonly (readonly [string, string])[] = [
 ];
 /** The height of a line of a header's label at a size a design system added: its two tokens, multiplied (table.css). */
 const SIZE_LEADING = (size: string) =>
-  `--_table-header-leading: calc(var(${PREFIX}-header-text-typescale-${size}-line-height, var(${PREFIX}-header-text-typescale-${DEFAULT_SIZE}-line-height)) * var(${PREFIX}-header-text-typescale-${size}-font-size, var(${PREFIX}-header-text-typescale-${DEFAULT_SIZE}-font-size)));`;
+  `calc(var(${PREFIX}-header-text-typescale-${size}-line-height, var(${PREFIX}-header-text-typescale-${DEFAULT_SIZE}-line-height)) * var(${PREFIX}-header-text-typescale-${size}-font-size, var(${PREFIX}-header-text-typescale-${DEFAULT_SIZE}-font-size)))`;
 /** The control of a sortable column's header, from anything inside it (TBL-32): the product's button, or its anchor. */
 const SORT_CONTROL = 'th[aria-sort] > button, th[aria-sort] > a[href]';
 /** The same, from its header cell. */
@@ -83,8 +84,6 @@ const passes = (record: MutationRecord) => record.type === 'childList' && [...re
 const SORT_GLYPH = 'swap_vert';
 /** Attribute values are interpolated into CSS: only token-name characters are accepted. */
 const KEY = /^[a-z0-9][a-z0-9-]*$/;
-/** The sections of a table and their rows, as table.css reaches them. */
-const ROWS = ':where(tanrei-table) > :where(table) > :where(thead, tbody, tfoot) > :where(tr)';
 /** What the observer re-reads the table for, besides its children. */
 const ATTRIBUTES = ['data-align', 'data-wrap', 'align', 'colspan', 'id', 'aria-label', 'aria-labelledby', 'aria-sort', 'data-part', 'data-value', 'data-selected', 'data-placeholder', 'name'];
 /** The cell that holds a row's control (TBL-42), and the control in it: a checkbox, or under single selection a radio button (TBL-60) — Tanrei's, or the browser's own. */
@@ -130,44 +129,29 @@ function sheet(id: string, text: () => string): CSSStyleSheet | null {
   return made;
 }
 
-// The rules the element writes — a size a design system added, a column's alignment by position, the surplus cells
-// — are in NO cascade layer: a page may load a copy of table.css into a layer of its own that comes after
-// `tanrei.components` (a site whose framework's reset is layered does), and a later layer wins whatever the order of
-// the rules, so the copy's `text-align: start` on every cell would undo a column's alignment. They keep no
-// specificity, so one class of the product's, outside any layer, still wins. (The description list and the figure
-// write theirs the same way.) Each names the cells it styles (`th, td`), so that an engine restyles the cells when the
-// wrapper's attribute changes, not everything inside them.
-
 /**
- * TBL-31: a size a design system added — the default's rules, read from that size's tokens — for a table that sets it
- * and for one that takes it from its container (TBL-62: the custom state that carries the size the table draws).
+ * TBL-31: what a size a design system added draws — the default's members, read from that size's tokens, each falling
+ * back to the default's — for a table that sets it and for one that takes it from its container (TBL-62). Written in
+ * the element's own style, as custom properties: a value written on an element costs the page nothing but that
+ * element's style, where a rule added to the page has the engine build every rule of the page again.
  */
-const sizeRules = (size: string) =>
-  `:where(${TAG}[size='${size}'], ${TAG}:state(size-${size})) { ${SIZE_MEMBERS.map(
-    ([name, token]) => `${name}: var(${PREFIX}-${token.replace('*', size)}, var(${PREFIX}-${token.replace('*', DEFAULT_SIZE)}));`,
-  ).join(' ')} ${SIZE_LEADING(size)} }`;
-
-/**
- * The rules of one column position (TBL-3, TBL-7): its cells take the alignment and the wrapping the column's header
- * cell names — which the element writes on the wrapper as lists of positions — unless a cell names its own.
- */
-const columnRules = (position: number) => [
-  `:where(${TAG}[data-columns-center~='${position}']) > :where(table) > :where(thead, tbody, tfoot) > :where(tr) > :where(th, td):where(:nth-child(${position}):not([data-align], [align])) { text-align: center; }`,
-  `:where(${TAG}[data-columns-end~='${position}']) > :where(table) > :where(thead, tbody, tfoot) > :where(tr) > :where(th, td):where(:nth-child(${position}):not([data-align], [align])) { text-align: var(--_table-end); }`,
-  `:where(${TAG}[data-columns-nowrap~='${position}']) > :where(table) > :where(thead, tbody, tfoot) > :where(tr) > :where(th, td):where(:nth-child(${position}):not([data-wrap])) { white-space: nowrap; }`,
+const sizeValues = (size: string): [name: string, value: string][] => [
+  ...SIZE_MEMBERS.map(([name, token]): [string, string] => [name, `var(${PREFIX}-${token.replace('*', size)}, var(${PREFIX}-${token.replace('*', DEFAULT_SIZE)}))`]),
+  ['--_table-header-leading', SIZE_LEADING(size)],
 ];
 
-/** TBL-14: a row draws only as many cells as the table has columns. */
-const surplusRule = (columns: number) => `${ROWS.replace(TAG, `${TAG}[data-columns='${columns}']`)} > :where(th, td):where(:nth-child(n + ${columns + 1})) { display: none; }`;
-
-/** The sheet of the rules by position: one per page, grown as tables need a position it does not have yet. */
-const positions = { columns: 0, surplus: new Set<number>() };
+/**
+ * The sheet of the rules by position beyond the ones table.css holds (table.positions.ts): one per page, grown only
+ * as a table wider than SHIPPED_POSITIONS columns needs a position or a column count it does not have yet.
+ */
+const positions = { columns: SHIPPED_POSITIONS, surplus: new Set<number>() };
 function positionSheet(columns: number, count: number): CSSStyleSheet | null {
+  if (columns <= SHIPPED_POSITIONS && count <= SHIPPED_POSITIONS) return null;
   const made = sheet('positions', () => '');
   if (!made) return null;
   try {
     for (; positions.columns < columns; positions.columns++) for (const rule of columnRules(positions.columns + 1)) made.insertRule(rule, made.cssRules.length);
-    if (count > 0 && !positions.surplus.has(count)) {
+    if (count > SHIPPED_POSITIONS && !positions.surplus.has(count)) {
       made.insertRule(surplusRule(count), made.cssRules.length);
       positions.surplus.add(count);
     }
@@ -429,6 +413,8 @@ export class TanreiTable extends TanreiLightElement {
 
   /** TBL-31: the size last read for a value the core does not have. */
   private sizeRead = DEFAULT_SIZE;
+  /** TBL-31: whether the element's style holds what a size a design system added draws (`readSize`). */
+  private sizeWritten = false;
 
   /** How a row is told from the row next to it: `divider` is one hairline, `gap` empty space and no line; `auto` takes `comp.table.separation`, the design system's answer. */
   separation: TanreiTableSeparation = 'auto';
@@ -544,7 +530,9 @@ export class TanreiTable extends TanreiLightElement {
 
   override connectedCallback() {
     super.connectedCallback();
-    adoptUnlessDrawn(this, sheet('table', () => TABLE_CSS), '--_table-pad-block');
+    // The mark is a name table.css sets on every table and the element never writes: a size a design system added
+    // writes the size's members in the element's own style (`readSize`), which would answer for a root without the rules.
+    adoptUnlessDrawn(this, sheet('table', () => TABLE_CSS), '--_table-start');
     this.addEventListener('scroll', this.readScroll, { passive: true });
     observeSize(this, this);
     this.mutations?.observe(this, { childList: true, subtree: true, attributes: true, attributeFilter: ATTRIBUTES });
@@ -589,13 +577,19 @@ export class TanreiTable extends TanreiLightElement {
   }
 
   /**
-   * TBL-31: a size the core does not have was added by a design system — its rules are added to the root, falling
-   * back to the default's tokens — or is unknown to the active one, which a debug build says.
+   * TBL-31: a size the core does not have was added by a design system — what it draws is written in the element's
+   * style, falling back to the default's tokens (`sizeValues`), and taken off again for a core size — or is unknown
+   * to the active one, which a debug build says.
    */
   private readSize(size: string) {
-    if (CORE_SIZES.includes(size)) return;
     const known = KEY.test(size);
-    if (known) adopt(this.getRootNode() as Root, sheet(`size:${size}`, () => sizeRules(size)));
+    const added = known && !CORE_SIZES.includes(size);
+    if (added || this.sizeWritten) for (const [name, value] of sizeValues(size)) {
+      if (added) this.style.setProperty(name, value);
+      else this.style.removeProperty(name);
+    }
+    this.sizeWritten = added;
+    if (CORE_SIZES.includes(size)) return;
     if (DEBUG && (!known || getComputedStyle(this).getPropertyValue(`${PREFIX}-cell-padding-block-${size}`).trim() === '')) {
       report(this, 'TBL-31', `size "${size}" is not a value of the active design system; it is drawn as "${DEFAULT_SIZE}"`);
     }
@@ -1447,7 +1441,9 @@ export class TanreiTable extends TanreiLightElement {
       const cell = row?.getAttribute('data-part') === 'empty' && row.cells.length === 1 ? row.cells[0] : null;
       if (cell && columns && cell.colSpan !== columns) cell.colSpan = columns;
     }
-    adopt(this.getRootNode() as Root, positionSheet(Math.max(0, ...center, ...end, ...nowrap), columns));
+    // Nothing is added to the page for a table of SHIPPED_POSITIONS columns or fewer: table.css has their rules.
+    const beyond = positionSheet(Math.max(0, ...center, ...end, ...nowrap), columns);
+    if (beyond) adopt(this.getRootNode() as Root, beyond);
   }
 
   /** TBL-6: where `rowHeaders` is set on a table whose first cells are plain cells, they are exposed as row headers. */
