@@ -152,6 +152,36 @@ describe('the gallery of fixtures', () => {
     assert.deepEqual(windowOf(specs.tooltip, { id: 'x', props: {} }), { width: 320, height: 200 });
   });
 
+  // A stage the staging gives both of its lengths in pixels stands for an area of a window: it is scaled down to its
+  // row, and its canvas holds the scaled room from the page's first layout. The area is read from the staging when the
+  // site is built, as the browser reads it, and is the room its baseline was taken in.
+  test('a stage that stands for an area of a window carries its lengths, its baseline’s; no other stage does', () => {
+    const area = (name, id) => stageOf(specs[name], specs[name].fixtures.find((f) => f.id === id)).area;
+    assert.deepEqual(area('date-time-picker', 'docked-date'), { width: 480, height: 720 });
+    assert.deepEqual(area('date-time-picker', 'docked-date-time'), { width: 800, height: 640 });
+    assert.deepEqual(area('popover', 'compact'), { width: 360, height: 640 });
+    assert.deepEqual(area('side-sheet', 'standard'), { width: 720, height: 480 });
+    // The stage's padding is its own where its width does not hold it: a button group's 400 × 96, and 16 around.
+    assert.deepEqual(area('button-group', 'standard'), { width: 432, height: 128 });
+    // A modal fixture opens over the page; a stage the staging gives no height, or a layout's width alone, is no area.
+    assert.equal(area('date-time-picker', 'modal-date'), undefined);
+    assert.equal(area('button', specs.button.fixtures[0].id), undefined);
+    assert.equal(area('text-field', specs['text-field'].fixtures[0].id), undefined);
+    let areas = 0;
+    for (const spec of implemented) {
+      const document = fixtureDocument(spec.name);
+      for (const fixture of spec.fixtures) {
+        const stage = stageOf(spec, fixture);
+        if (!stage.area) continue;
+        areas++;
+        const size = document.sizes[fixture.id];
+        // Never narrower than a stage is laid out at: a vertical slider's 96 wide stage is laid out 160 wide.
+        if (size && size.width >= 160) assert.deepEqual(stage.area, { width: size.width, height: size.height }, `${spec.name}/${fixture.id}: its area is its baseline's`);
+      }
+    }
+    assert.ok(areas > 100, `stages that stand for an area: ${areas}`);
+  });
+
   test('the copied markup is what the document’s stage holds, without its inlined pictures', () => {
     for (const spec of implemented) {
       for (const fixture of spec.fixtures) {
