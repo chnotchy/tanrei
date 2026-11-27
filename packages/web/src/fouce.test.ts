@@ -45,6 +45,12 @@ function tagsWith(declaration: RegExp): string[] {
 const SIZED_BY_THE_PAGE = ['tanrei-scroll-area', 'tanrei-split-view'];
 
 /**
+ * The elements whose height is their items' (a list's column, line or grid of the product's content): the cloak lays
+ * each out as the box it will be, its items in it, and holds it by that layout rather than by a height of its own.
+ */
+const LAID_OUT = ['tanrei-list'];
+
+/**
  * The fixtures whose element the cloak holds lower than it will be drawn, by spec, with why: the cloak holds a
  * control's one row, and these grow past it by what they draw once they are defined — by what no token says (how many
  * rows, chips or attachments there are, or how wide the words are). None is held higher than it will be (the test asks
@@ -194,7 +200,7 @@ function stages({ tag, sized }: { tag: string; sized: boolean }) {
       width: element?.getBoundingClientRect().width ?? 0,
       visibility: style?.visibility ?? '',
       // A rule holds its height: a minimum, or a row it keeps the room of (a field's label and supporting rows) — or, for
-      // an element the page sizes, the box the size applies to.
+      // an element the page sizes, the box the size applies to, and for one whose height is its items', their layout.
       held: !!style && (!['0px', 'auto'].includes(style.minBlockSize) || style.paddingBlockStart !== '0px' || style.paddingBlockEnd !== '0px' || (sized && style.display !== 'inline')),
       wraps: !!element && ((!!element.shadowRoot && wraps(element.shadowRoot)) || wraps(element)),
     };
@@ -217,7 +223,7 @@ async function mountedLate(first: Page, tag: string, browserName: string, option
   await page.evaluate(() => document.fonts.ready);
   await frames(page, 2);
   expect(await page.evaluate((t) => !!customElements.get(t), tag)).toBe(false);
-  const sized = SIZED_BY_THE_PAGE.includes(tag);
+  const sized = SIZED_BY_THE_PAGE.includes(tag) || LAID_OUT.includes(tag);
   const before = await page.evaluate(stages, { tag, sized });
   expect(before.length).toBe((options.fixtures ?? spec.fixtures).length);
   if (browserName === 'chromium') await observeShifts(page);

@@ -35,7 +35,9 @@
  *   - a multi-line input by its fewest rows (`min-rows`); an open date and time picker drawn in place by its header,
  *     its calendar and its time section, and its actions; a calendar by its navigation row, its weekday row and its six
  *     rows of days, seven cells wide;
- *   - a list row by its number of lines; a stepper's steps; a snackbar's lines; a swatch's sample and text; an embedded
+ *   - a list row by its number of lines; a list's items, laid out as it lays them out (a column, a line or lines that
+ *     wrap, its gap apart), each with its handle's room and an action's, a link's or an option's paddings and least
+ *     height where it draws them; a stepper's steps; a snackbar's lines; a swatch's sample and text; an embedded
  *     text input's line or rows; a chat composer laid out inline; a carousel's row and controls; a toolbar along a line;
  *     vertical tabs; a progress indicator's and a meter's bar or ring; a divider's thickness, or a wave's;
  *   - an element the page sizes (a scroll area, a split view) is laid out as the box the size applies to;
@@ -52,8 +54,7 @@
  *   words that follow a control on the same line of text move sideways when it is defined. Controls that stand side by
  *   side in a row of their own (a flex or grid row with a gap, as a toolbar is) move nothing that was painted.
  *
- * What it does not hold: a height that depends on what the element draws beyond its tokens (a list's items, a
- * composer's attachments or a stacked composer's row, the file picker, the file upload and their rows, a drop zone, a
+ * What it does not hold: a height that depends on what the element draws beyond its tokens (a composer's attachments or a stacked composer's row, the file picker, the file upload and their rows, a drop zone, a
  * resizable frame's size, which its attributes give, a tab view's content, a multiline input's lines
  * beyond its fewest rows (the lines of a value it already holds), a combobox's chips and a chip field's (drawn from its
  * `value`, which CSS cannot read as a list), a docked search's results, vertical sliders), a size or a variant a design system added (held at the default's), a size an element takes from its
@@ -1424,6 +1425,84 @@
   }
   :where(tanrei-list-row:not(:defined)):where([supporting-text]:not([supporting-text=''])):where([overline]:not([overline='']), [supporting-lines='2']) {
     min-block-size: var(--_cloak-three);
+  }
+
+  /* A list lays its items out as it will: a column (LST-1), a line along `orientation="horizontal"` (each item as wide
+     as its content), or lines that wrap (`wrap`, LST-2: each item never wider than the list), the gap its `gap` names
+     apart, none where it names none (LST-6). The list and its items are defined together, and what an item is depends
+     on its list, which hands its measures on as inherited values (set on every list, so that a list inside an item of
+     another takes nothing of the outer one's):
+     - in a reorderable list, an item draws its handle before its content (LST-32, LST-48): the room of a small
+       icon-only Button and the item's gap, and at least the handle's height;
+     - an action, a link or an option — an `interactive` item or one with an `href` in a list that is not
+       reorderable, or any item of a list with a `selection` — is padded by its list's size and at least its container
+       height and the target tall (LST-8, LST-11, LST-51), what is written in it in the content's text style; an option
+       keeps the check's room at its end (LST-21), and a row is at least as tall as its handle and its check between
+       its paddings. One that holds a List row is the row's height (LRW-8: the row draws the item's paddings as its own), which the row's own rule holds. */
+  :where(tanrei-list):where(:not(:defined):not([hidden])) {
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+  }
+  :where(tanrei-list:not(:defined)) {
+    --_cloak-list-height: var(--tanrei-comp-list-container-height-medium);
+    --_cloak-list-padding: var(--tanrei-comp-list-container-padding-block-medium);
+    --_cloak-list-target: var(--tanrei-sys-target-pointer);
+    --_cloak-list-handle: 0px;
+    --_cloak-list-mark: 0px;
+  }
+  @media (pointer: coarse) {
+    :where(tanrei-list:not(:defined)) {
+      --_cloak-list-target: var(--tanrei-sys-target-touch);
+    }
+  }
+  :where(tanrei-list[size='small']:not(:defined)) {
+    --_cloak-list-height: var(--tanrei-comp-list-container-height-small);
+    --_cloak-list-padding: var(--tanrei-comp-list-container-padding-block-small);
+  }
+  :where(tanrei-list[gap='small']:not(:defined)) {
+    gap: var(--tanrei-comp-list-gap-small);
+  }
+  :where(tanrei-list[gap='medium']:not(:defined)) {
+    gap: var(--tanrei-comp-list-gap-medium);
+  }
+  :where(tanrei-list[gap='large']:not(:defined)) {
+    gap: var(--tanrei-comp-list-gap-large);
+  }
+  :where(tanrei-list[orientation='horizontal']:not(:defined)) {
+    flex-direction: row;
+    align-items: stretch;
+  }
+  :where(tanrei-list[wrap]:not(:defined)) {
+    flex-wrap: wrap;
+    align-items: flex-start;
+    align-content: flex-start;
+  }
+  :where(tanrei-list[reorderable]:not(:defined)) {
+    --_cloak-list-handle: var(--tanrei-comp-button-container-height-small);
+  }
+  :where(tanrei-list:is([selection='single'], [selection='multiple']):not(:defined)) {
+    --_cloak-list-mark: var(--tanrei-comp-list-mark-size);
+  }
+  :where(tanrei-list-item):where(:not(:defined):not([hidden])) {
+    display: block;
+    flex: none;
+    box-sizing: border-box;
+  }
+  :where(tanrei-list[wrap]:not(:defined)) > :where(tanrei-list-item) {
+    max-inline-size: 100%;
+  }
+  :where(tanrei-list[reorderable]:not([selection='single'], [selection='multiple']):not(:defined)) > :where(tanrei-list-item) {
+    min-block-size: var(--_cloak-list-handle);
+    padding-inline-start: calc(var(--_cloak-list-handle) + var(--tanrei-comp-list-container-gap));
+  }
+  :where(tanrei-list:not([reorderable]):not(:defined)) > :where(tanrei-list-item:is([interactive], [href]:not([href=''])):not(:has(> tanrei-list-row))),
+  :where(tanrei-list:is([selection='single'], [selection='multiple']):not(:defined)) > :where(tanrei-list-item:not(:has(> tanrei-list-row))) {
+    min-block-size: max(var(--_cloak-list-height), var(--_cloak-list-target), 2 * var(--_cloak-list-padding) + max(var(--_cloak-list-handle), var(--_cloak-list-mark)));
+    padding-block: var(--_cloak-list-padding);
+    padding-inline: calc(var(--tanrei-comp-list-container-padding-inline-start) + var(--_cloak-list-handle) + min(var(--_cloak-list-handle), var(--tanrei-comp-list-container-gap))) calc(var(--tanrei-comp-list-container-padding-inline-end) + var(--_cloak-list-mark) + min(var(--_cloak-list-mark), var(--tanrei-comp-list-container-gap)));
+    font: var(--tanrei-comp-list-content-typescale-font-weight) var(--tanrei-comp-list-content-typescale-font-size)/var(--tanrei-comp-list-content-typescale-line-height) var(--tanrei-comp-list-content-typescale-font-family);
+    letter-spacing: var(--tanrei-comp-list-content-typescale-letter-spacing);
   }
 
   /* A stepper: its steps side by side (horizontal, the default) or one under another (vertical), each step held by the
