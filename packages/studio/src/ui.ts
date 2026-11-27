@@ -116,6 +116,12 @@ export function mountStudio(root: HTMLElement, { lang = 'en', adapter, links = {
   let timer: number | undefined;
   /** The save the host has not answered yet (`saveNow`). */
   let sendingSave: Promise<void> | null = null;
+  /**
+   * What that save holds, until its answer. The host has written it already, so a commit is saved or not against it,
+   * not against `savedText`, which still holds the save before: an undo saved, then a redo back to what that save before
+   * wrote, would otherwise be drawn saved and never sent.
+   */
+  let sendingText: string | null = null;
   let theirs: { layer: Layer; etag?: string } | null = null;
 
   // Text typed at "Source" that does not parse (./draft.js). It is remembered with the rest, so a reload keeps it too.
@@ -633,12 +639,13 @@ export function mountStudio(root: HTMLElement, { lang = 'en', adapter, links = {
     remember();
     if (linked) writeAddress();
     if (!adapter || saveState === 'loading') return;
-    if (stringifyLayer(committed) === savedText && saveState !== 'conflict') return setSave('saved');
     if (saveState === 'conflict') return; // the person decides first
+    // Back to what is on its way: its answer says it is saved.
+    if (stringifyLayer(committed) === (sendingText ?? savedText)) return setSave(sendingText === null ? 'saved' : 'saving');
     setSave(latest.ok ? 'unsaved' : 'invalid');
     window.clearTimeout(timer);
-    // While a save is on its way, the next one waits for its answer (`saveNow`): the answer arms it.
-    if (latest.ok && !sendingSave) timer = window.setTimeout(saveNow, saveDelay);
+    // While a save is on its way, the next one waits for its answer (`send`): the answer arms it.
+    if (latest.ok && sendingText === null) timer = window.setTimeout(saveNow, saveDelay);
   }
   /**
    * One save at a time. A save sent before the host has answered the last one carries the etag that answer replaces:
@@ -653,21 +660,26 @@ export function mountStudio(root: HTMLElement, { lang = 'en', adapter, links = {
   }
   async function send() {
     if (!adapter || !latest.ok) return;
-    const text = stringifyLayer(committed);
     const sending = committed;
+    const text = (sendingText = stringifyLayer(sending));
     setSave('saving');
+    let result: Awaited<ReturnType<StudioAdapter['save']>>;
     try {
-      const result = await adapter.save(sending, etag);
-      if (result.conflict) return conflict(result.conflict);
-      etag = result.etag;
-      savedText = text;
-      if (committed === sending) setSave('saved');
-      // A commit made while the save was on its way has said the file is unsaved already: only its save is due now.
-      else if (saveState === 'unsaved' && latest.ok) timer = window.setTimeout(saveNow, saveDelay);
-      else scheduleSave();
+      result = await adapter.save(sending, etag);
     } catch (error) {
-      setSave('error', (error as Error).message);
+      return setSave('error', (error as Error).message);
+    } finally {
+      sendingText = null;
     }
+    if (result.conflict) return conflict(result.conflict);
+    etag = result.etag;
+    savedText = text;
+    // What the file holds now against what was committed last: by what they hold, as an undo and a redo give back
+    // layers that were committed before.
+    if (stringifyLayer(committed) === text) setSave('saved');
+    // A commit made while the save was on its way has said the file is unsaved already: only its save is due now.
+    else if (saveState === 'unsaved' && latest.ok) timer = window.setTimeout(saveNow, saveDelay);
+    else scheduleSave();
   }
   /** The file changed underneath us: never overwrite it, never drop our edits, without being told to. */
   function conflict(remote: { layer: Layer; etag?: string }) {
