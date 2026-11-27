@@ -26,6 +26,8 @@ import { expectPressShownAndHeld, watchPress } from '../../../test/watched-press
 import { middlePressAimed } from '../../../test/middle-press.js';
 import { expectBaseline } from '../../../test/baseline.js';
 import { CONTROL_HEIGHTS, atControlHeight } from '../../../test/control-height.js';
+import { askForFrame } from '../../../test/frame-asked.js';
+import { SHADOW_HOSTS, attachShadowRoot, declaredShadowRoot, glyphsIn } from '../../../test/shadow-mirror.js';
 
 const spec = loadSpec('accordion');
 type P = Page;
@@ -1729,6 +1731,32 @@ test.describe('right to left', () => {
     // The product's word for one use.
     await glyph(1).evaluate((el) => el.setAttribute('data-mirror', 'never'));
     expect(await css(glyph(1), 'transform')).toBe('none');
+  });
+
+  test('ACC-30: inside a product’s shadow root — declared in the page’s markup with the stylesheet in it, or attached by script without it — an icon the set marks is drawn mirrored in right-to-left exactly as in the document', async ({ page }) => {
+    const markup =
+      '<div dir="rtl"><tanrei-accordion><details><summary><span class="tanrei-icon" aria-hidden="true">arrow_forward</span>التالي</summary>x</details><details><summary><span class="tanrei-icon" aria-hidden="true">settings</span>الإعدادات</summary>y</details></tanrei-accordion></div>';
+    await mountFixtures(page, spec, { icons: true, fixtures: some('icon-rtl'), lead: declaredShadowRoot(markup, 'accordion.css') });
+    await attachShadowRoot(page, markup);
+    const drawn = [
+      { name: 'arrow_forward', marked: true, transform: 'matrix(-1, 0, 0, 1, 0, 0)' },
+      { name: 'settings', marked: false, transform: 'none' },
+    ];
+    for (const id of SHADOW_HOSTS) await expect.poll(() => glyphsIn(page, id), id).toEqual(drawn);
+    // A glyph named later is decided again there, as in the document.
+    await page.evaluate(() => (document.getElementById('scripted')!.shadowRoot!.querySelectorAll('.tanrei-icon')[1]!.textContent = 'arrow_back'));
+    await askForFrame(page);
+    await expect.poll(async () => (await glyphsIn(page, 'scripted'))[1]).toEqual({ name: 'arrow_back', marked: true, transform: 'matrix(-1, 0, 0, 1, 0, 0)' });
+    // The root is followed while any accordion is used in it: a second one added and taken away again leaves the first’s followed.
+    await page.evaluate(() => {
+      const root = document.getElementById('scripted')!.shadowRoot!;
+      const second = root.querySelector('div[dir]')!.cloneNode(true) as Element;
+      root.append(second);
+      second.remove();
+      root.querySelectorAll('.tanrei-icon')[0]!.textContent = 'settings';
+    });
+    await askForFrame(page);
+    await expect.poll(async () => (await glyphsIn(page, 'scripted'))[0]).toEqual({ name: 'settings', marked: false, transform: 'none' });
   });
 
   test('ACC-31: a left-to-right label in a right-to-left header begins at the right edge of the text column and reads left to right, with the chevron at the left; the supporting and the trailing text are each text of their own direction, placed by the layout’s, and a trailing text is cut at the end of its own', async ({ page }) => {
