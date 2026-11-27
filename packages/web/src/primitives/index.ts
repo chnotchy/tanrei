@@ -158,6 +158,9 @@
 //                 document's first paint, it and its scrim are drawn open at once (MOT-4); atOnce(): a change of a
 //                 dialog with no transition on it or
 //                 its scrim (a dialog drawn in place, opened before that paint)
+//   modal-order — openInOrder(): where a modal surface opens (MDL-8): in the write that follows the turn's reads; before
+//                 the document's first paint, every surface asked by then in the document's order — in the first
+//                 frame's read phase where one of them asked for it
 //   scrim       — scrimFilter() and SCRIM_FILTER: a modal surface's scrim blur as a backdrop filter only where there is
 //                 a blur to draw (MDL-1); sheetScrimStyles(): a sliding sheet's or a centred dialog's scrim, fading in
 //                 in step with its entrance (MDL-7), over the cross-fade that replaces it where motion is reduced
@@ -361,6 +364,7 @@ export { cssZoom, layoutScale } from './layout-scale.js';
 export { deepActive, focusLost, focusWithin, hasFocusVisibleOption, holdPageScroll, modalLayer, openerFor, pressGivesFocus, returnFocus, SCROLL_HOLD_INSET, tabbables, trapFocus, windowBox } from './modal.js';
 export { containWheel, containedWheel } from './contained-wheel.js';
 export { LEAVING, type ModalMoves, atOnce, closeModal, isLeaving, modalExitStyles, openModal } from './modal-exit.js';
+export { openInOrder } from './modal-order.js';
 export { SCRIM_FILTER, type SheetScrimOptions, scrimFilter, sheetScrimStyles } from './scrim.js';
 export {
   POINTER_STOPPED_TIME,

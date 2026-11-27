@@ -448,6 +448,24 @@ const PARSED = [
 ];
 /** And the first fixture of each component a docs page holds that measures itself as it is drawn. */
 const PARSED_FIXTURES = ['app-shell', 'app-bar', 'navigation-drawer', 'breadcrumbs', 'table-of-contents', 'menu', 'table', 'description-list'];
+/**
+ * And fixtures past the first that take other paths while the page loads: a responsive Navigation drawer with a main
+ * action and a header button (the action's report, the header's sizes), and an open modal one (its focus moved into it).
+ */
+const PARSED_OTHER: [string, string][] = [
+  ['navigation-drawer', 'responsive-wide'],
+  ['navigation-drawer', 'modal'],
+];
+/**
+ * Passes that page is still known to force before DOMContentLoaded, by the function of the package its stack names (a
+ * method's name survives the minifier), with why each is left: a finding, not a budget. Each must still be seen —
+ * remove its entry once it is gone. Nothing else is exempt.
+ */
+const LOADING_KNOWN: Record<string, string> = {
+  // NVD-53, NVD-55: a responsive drawer reads its system's two widths from its computed style as it connects, so that
+  // its first frame draws the presentation of the window's width. When it should read them is still to be decided.
+  watchWidths: 'Navigation drawer: a responsive drawer reads its breakpoints from its computed style as it connects',
+};
 /** The address that page is served at (nothing else is fetched from it). */
 const UPGRADE_PAGE = 'http://upgrade.test/';
 
@@ -489,7 +507,11 @@ test.describe('upgrading a page that is still loading (a Chromium trace)', () =>
     // A navigation, not `setContent`: that writes into the document already loaded, which has been painted.
     let served = '';
     await page.route(UPGRADE_PAGE, (route) => route.fulfill({ contentType: 'text/html; charset=utf-8', body: served }));
-    const markup = [...PARSED, ...PARSED_FIXTURES.map((name) => fixtureMarkup(name, loadSpec(name).fixtures[0]!.id))].join('');
+    const markup = [
+      ...PARSED,
+      ...PARSED_FIXTURES.map((name) => fixtureMarkup(name, loadSpec(name).fixtures[0]!.id)),
+      ...PARSED_OTHER.map(([name, id]) => fixtureMarkup(name, id)),
+    ].join('');
     // Loaded once first: the runs counted compile nothing the first did not.
     served = html(markup);
     await page.goto(UPGRADE_PAGE);
@@ -502,10 +524,16 @@ test.describe('upgrading a page that is still loading (a Chromium trace)', () =>
     const tags = ['tanrei-button', 'tanrei-checkbox', 'tanrei-switch', 'tanrei-tabs', 'tanrei-tree-view', ...PARSED_FIXTURES.map((name) => `tanrei-${name}`)];
     const defined = await page.evaluate((all) => all.every((tag) => !!customElements.get(tag)), tags);
     expect(defined, 'the bundle defined the elements').toBe(true);
-    const line = `${parsed.length} passes forced before DOMContentLoaded with the elements parsed, ${empty.length} without them`;
+    const knownAt = (pass: string) => Object.keys(LOADING_KNOWN).find((name) => pass.includes(` ${name}:`) || pass.includes(`.${name}:`));
+    const known = parsed.filter((pass) => knownAt(pass));
+    const unknown = parsed.filter((pass) => !knownAt(pass));
+    const line = `${parsed.length} passes forced before DOMContentLoaded with the elements parsed (${known.length} known), ${empty.length} without them`;
     console.log(`perf-budget ${line}`);
     expect(empty, [line, ...empty].join('\n')).toEqual([]);
-    expect(parsed, [line, ...parsed].join('\n')).toEqual([]);
+    expect(unknown, [line, ...parsed].join('\n')).toEqual([]);
+    for (const [name, why] of Object.entries(LOADING_KNOWN)) {
+      expect(known.some((pass) => knownAt(pass) === name), `LOADING_KNOWN.${name} (${why}) is no longer seen: remove it`).toBe(true);
+    }
   });
 });
 

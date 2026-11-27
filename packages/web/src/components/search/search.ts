@@ -56,8 +56,8 @@ import {
   closeModal,
   isLeaving,
   modalLayer,
+  openInOrder,
   openModal,
-  readTogether,
 } from '../../primitives/index.js';
 import '../button/button.js';
 // SRC-37: the shortcut hint is drawn by the keyboard shortcut; SRC-47: the status row's indicator is the loading indicator.
@@ -2335,7 +2335,7 @@ export class TanreiSearch extends TanreiElement {
    * SRC-9, SRC-40: modal over the whole window (or hung from its top), the page held, focus to the header's input with
    * the caret at the end.
    *
-   * It opens in the write that follows the turn's reads (src/primitives/read-together.ts), as every modal surface does (a
+   * It opens in the write that follows the turn's reads (src/primitives/modal-order.ts), as every modal surface does (a
    * dialog, a modal layer, a modal sheet, a picker, an image preview, a modal drawer, a popover's sheet): surfaces whose
    * `open` is set in one task open in the order of their updates, the later on top. Opened in its own update, it went
    * under a dialog set open before it, which opens in that write. What it reads to open — the keyboard's cover — is read
@@ -2344,7 +2344,7 @@ export class TanreiSearch extends TanreiElement {
   private presentFull() {
     if (!this.dialog || this.fullShown || this.presenting || !this.isConnected) return;
     this.presenting = true;
-    readTogether(() => {
+    openInOrder(this, () => {
       this.presenting = false;
       const cover = this.readCover();
       return () => {

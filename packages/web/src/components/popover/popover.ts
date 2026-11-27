@@ -46,6 +46,7 @@ import {
   modalSheetKeys,
   numericAttribute,
   onBackdrop,
+  openInOrder,
   openModal,
   overlayDepth,
   readTogether,
@@ -1134,7 +1135,7 @@ export class TanreiPopover extends TanreiElement implements VariantHost, Placing
    * POP-39, POP-40, POP-41: as a sheet — a modal `<dialog>` in the top layer over the bottom sheet's scrim, the page inert
    * and held from scrolling — sliding up, or at once (`instant`, POP-42); `then` once it is.
    *
-   * POP-40: it opens in the write that follows the turn's reads (src/primitives/read-together.ts), as every modal surface
+   * POP-40: it opens in the write that follows the turn's reads (src/primitives/modal-order.ts), as every modal surface
    * does (a dialog, a modal layer, a modal sheet, a picker, an image preview, a modal drawer, a search's view): surfaces
    * whose `open` is set in one task open in the order of their updates, the later on top. Opened in its own update, it
    * went under a dialog set open before it, which opens in that write. What it reads to open — its choices of kind, the
@@ -1143,7 +1144,7 @@ export class TanreiPopover extends TanreiElement implements VariantHost, Placing
   private presentSheet(instant: boolean, then: () => void) {
     if (!this.sheetDialog || this.presenting || !this.isConnected || !this.anchorNode?.isConnected) return;
     this.presenting = true;
-    readTogether(() => {
+    openInOrder(this, () => {
       this.presenting = false;
       const arranging = this.readArrangement();
       const cover = keyboardCover();

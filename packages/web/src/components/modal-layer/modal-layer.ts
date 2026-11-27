@@ -12,8 +12,8 @@ import {
   modalLayer,
   modalSheetKeys,
   onBackdrop,
+  openInOrder,
   openModal,
-  readTogether,
   report,
   returnFocus,
   watchEscape,
@@ -184,12 +184,14 @@ export class TanreiModalLayer extends TanreiElement {
    * reads to open — the keyboard — is read with every other host's reads of the turn (src/primitives/read-phase.ts),
    * and it opens in the write that follows: still in the task, before a script that waits for the update
    * (`updateComplete`) goes on. Read after its own `showModal()`, it had the browser lay the page out once per layer.
+   * Before the document's first paint, it opens with every modal surface asked to open by then, in the document's order
+   * (src/primitives/modal-order.ts).
    */
   private present() {
     const dialog = this.dialog;
     if (!dialog || this.shown || this.presenting || !this.isConnected) return;
     this.presenting = true;
-    readTogether(() => {
+    openInOrder(this, () => {
       this.presenting = false;
       const covered = keyboardCover();
       // Closed or taken out of the document since it was asked for, it does not open.

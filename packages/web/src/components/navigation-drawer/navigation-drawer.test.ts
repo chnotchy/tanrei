@@ -27,7 +27,7 @@ import { controlledElements, controlledInTree } from '../../../test/controlled-l
 import { transitionsRun, watchTransitions } from '../../../test/transitions.js';
 import { expectScrimTakenAwayAtClose } from '../../../test/scrim-at-close.js';
 import { expectGlyphsKeptWhileClosing } from '../../../test/closing-glyphs.js';
-import { STACKED_DIALOG, STACKED_LAYER, addStackedSurfaces, expectStackedInOrder, focusAmong, setOpenInOneTask } from '../../../test/stacked-surfaces.js';
+import { STACKED_DIALOG, STACKED_LAYER, addStackedSurfaces, expectStackedInOrder, focusAmong, hitAmong, modalAmong, setOpenInOneTask } from '../../../test/stacked-surfaces.js';
 import { CONTROL_HEIGHTS, atControlHeight } from '../../../test/control-height.js';
 import { contrastChecked } from '../../../test/contrast-checked.js';
 import { restyle } from '../../../test/restyle.js';
@@ -2736,6 +2736,36 @@ test.describe('stacked in one task with other modal surfaces', () => {
       for (const order of [['mounted', other], [other, 'mounted']] as [string, string][]) {
         await expectStackedInOrder(page, ids, { name: `${order.join(', then ')} (inserted open)`, order, backInFirst: target(order[0]), inserted: { mounted: MOUNTED } });
       }
+    }
+  });
+
+  test('NVD-19, DLG-15, MDL-8: a dialog and a modal drawer written open in a loading page’s markup stack in the order they stand in the document, either way — the later above, focus in it only, given back on its closing to where the earlier gives it as it opens', async ({ page }) => {
+    await page.setViewportSize(drawerWindow('modal'));
+    // Written open, and opened before the document's first paint: the order their elements are defined in (the
+    // bundle's) says nothing of the page, and neither surface was shown before the other.
+    const markup: Record<string, string> = {
+      [STACKED_DIALOG]: `<tanrei-dialog id="${STACKED_DIALOG}" headline="Dialog" open><button id="${STACKED_DIALOG}-marked" autofocus>D</button><tanrei-button slot="actions" confirming>OK</tanrei-button></tanrei-dialog>`,
+      drawer:
+        '<tanrei-navigation-drawer id="drawer" variant="modal" open value="inbox" label="Mail">' +
+        ['inbox', 'sent', 'drafts'].map((value) => `<tanrei-navigation-drawer-item value="${value}" label="${value}"></tanrei-navigation-drawer-item>`).join('') +
+        '</tanrei-navigation-drawer>',
+    };
+    const ids = ['drawer', STACKED_DIALOG];
+    // The drawer gives focus to its selected destination (NVD-19): the cell inside Inbox's item; the dialog to its
+    // marked button (DLG-2).
+    const target = (id: string) => (id === 'drawer' ? / in drawer$/ : new RegExp(`^${STACKED_DIALOG}-marked in ${STACKED_DIALOG}$`));
+    for (const order of [['drawer', STACKED_DIALOG], [STACKED_DIALOG, 'drawer']] as [string, string][]) {
+      const [first, later] = order;
+      const name = `${order.join(', then ')} in the markup`;
+      await loadOpen(page, spec, { tail: order.map((id) => markup[id]).join('') });
+      expect(await modalAmong(page, order), name).toEqual([true, true]);
+      // Above the earlier one: a point that the earlier one's scrim or surface covers hits the later one.
+      expect(await hitAmong(page, ids), name).toBe(later);
+      // Focus in the later one only, where it gives focus as it opens.
+      await expect.poll(() => focusAmong(page, ids), { message: name }).toMatch(target(later));
+      // Closed, the later gives focus back where the earlier gave it as it opened.
+      await setOpenInOneTask(page, [later], false);
+      await expect.poll(() => focusAmong(page, ids), { message: name }).toMatch(target(first));
     }
   });
 

@@ -79,6 +79,7 @@ import { AXES, cellStyles, drawerStyles, groupStyles, sectionStyles } from './na
 import { TanreiElement } from '../../primitives/element.js';
 import { startFromNextFrame, statesFromNextFrame } from '../../primitives/motion.js';
 import { cancelPhaseRead, readInPhase, readTogether } from '../../primitives/read-phase.js';
+import { openInOrder } from '../../primitives/modal-order.js';
 import { DEBUG } from '../../primitives/debug.js';
 
 export type { TanreiNavigationChangeDetail } from '../../primitives/index.js';
@@ -2210,6 +2211,10 @@ export class TanreiNavigationDrawer extends TanreiElement {
   private readonly firstFrame = {};
   /** NVD-97: what asks for `readResize()` in the read phase, before the document has been painted. */
   private readonly resizeRead = {};
+  /** NVD-38: what asks for the first header button's width in the read phase, before the document has been painted. */
+  private readonly sizesRead = {};
+  /** NVD-39: what asks for the main action's debug report in the read phase, before the document has been painted. */
+  private readonly mainActionRead = {};
   /** NVD-62: the first frame's order is owed: the cells are drawn, and the items wait for the phase to be placed. */
   private firstLook = false;
 
@@ -3378,6 +3383,8 @@ export class TanreiNavigationDrawer extends TanreiElement {
     this.unwatchWidths();
     cancelPhaseRead(this.firstFrame);
     cancelPhaseRead(this.resizeRead);
+    cancelPhaseRead(this.sizesRead);
+    cancelPhaseRead(this.mainActionRead);
     cancelAnimationFrame(this.instantFrame);
     cancelPhaseRead(this.pinsRead);
     this.watchPinnedRows(false);
@@ -4102,7 +4109,7 @@ export class TanreiNavigationDrawer extends TanreiElement {
   /**
    * NVD-19: the modal drawer in the top layer; the page held; focus inside.
    *
-   * It opens in the write that follows the turn's reads (src/primitives/read-together.ts), as every modal surface does
+   * It opens in the write that follows the turn's reads (src/primitives/modal-order.ts), as every modal surface does
    * (a dialog, a modal layer, a sheet, a picker, an image preview): surfaces whose `open` is set in one task open in the
    * order of their updates, the later on top (MDL-8). Opened in its own update, it went under a dialog set open before
    * it, which opens in that write. A held drawer is drawn in the frame, not in the top layer: it opens in its update. So
@@ -4122,12 +4129,22 @@ export class TanreiNavigationDrawer extends TanreiElement {
     }
     if (this.shown || this.opening || !this.isConnected) return;
     this.opening = true;
-    readTogether(() => {
-      this.opening = false;
-      return () => {
-        if (this.open && this.modal && !this.held && !this.shown && this.isConnected) this.show();
-      };
-    });
+    // MOT-4, NVD-19, MDL-8: until the document has been painted (a drawer written open in the page's markup), it is shown
+    // with every other modal surface asked to open before that paint, in the writes of the first frame's read phase, in
+    // the document's order (src/primitives/modal-order.ts): drawn open at once there, and focus moved in, in the first
+    // frame painted. Shown in the write of its upgrade's turn, its showing — the dialog drawn at once with no transition,
+    // the room the page's scroll bar takes, the focus given — had the browser style and lay out the whole page several
+    // times while the page still loaded.
+    openInOrder(
+      this,
+      () => {
+        this.opening = false;
+        return () => {
+          if (this.open && this.modal && !this.held && !this.shown && this.isConnected) this.show();
+        };
+      },
+      readInPhase,
+    );
   }
 
   /**
@@ -4675,11 +4692,27 @@ export class TanreiNavigationDrawer extends TanreiElement {
    * is computed from — a size a design system added falls back to medium's tokens where the system lacks it, as the
    * button itself does.
    */
-  private measure() {
+  private measure(width?: number) {
     const [button] = this.headerButtons;
     const [main] = this.mainActions;
     const next: Record<string, string> = {};
-    if (button?.offsetWidth) next['--_lead'] = `calc(var(--_nvd-column) / 2 + ${button.offsetWidth / 2}px)`;
+    const now = this.measured;
+    // Until the document has been painted, the button's width is read in the first frame's read phase
+    // (src/primitives/read-phase.ts), after its layout, and written with the phase's writes, before that frame is painted:
+    // read here — as its slot tells the drawer what it holds, while a loading page upgrades its elements — it had the
+    // browser style and lay out the whole page. What was written stands until then.
+    if (button && width === undefined && !documentPainted()) {
+      readInPhase(this.sizesRead, () => {
+        const read = button.offsetWidth;
+        return () => {
+          if (this.headerButtons[0] === button) this.measure(read);
+        };
+      });
+      if (now['--_lead']) next['--_lead'] = now['--_lead'];
+    } else {
+      const drawn = width ?? button?.offsetWidth;
+      if (drawn) next['--_lead'] = `calc(var(--_nvd-column) / 2 + ${drawn / 2}px)`;
+    }
     if (main) {
       const given = main.getAttribute('size') ?? '';
       const size = /^[a-z0-9][a-z0-9-]*$/.test(given) ? given : 'medium';
@@ -4691,7 +4724,6 @@ export class TanreiNavigationDrawer extends TanreiElement {
     }
     // NVD-39: a trailing glyph keeps the collapsed start while expanded.
     this.toggleAttribute('data-main-trailing', main?.getAttribute('icon-position') === 'trailing');
-    const now = this.measured;
     if (Object.keys(next).length !== Object.keys(now).length || Object.entries(next).some(([key, value]) => now[key] !== value)) this.measured = next;
   }
 
@@ -4700,15 +4732,24 @@ export class TanreiNavigationDrawer extends TanreiElement {
    * a collapsed square wider than the column (it reaches past the column's start edge), and a trailing glyph (it leaves
    * the column while the drawer is expanded).
    */
-  private reportMainAction(main: HTMLElement) {
-    const header = this.renderRoot?.querySelector('.header');
-    if (this.collapses && header && main.offsetHeight) {
-      const column = Number.parseFloat(getComputedStyle(header).gridTemplateColumns);
-      if (DEBUG && column && main.offsetHeight > column + 0.5) {
-        report(this, 'NVD-39', `the main action's collapsed square is ${main.offsetHeight} wide and the icon column ${column}; its glyph stays on the column's centre line, so the button reaches past the column's start edge; choose a smaller size`);
+  private reportMainAction(main: HTMLElement, inPhase = false) {
+    // Read only for what a debug build reports: a production build reads nothing. Until the document has been painted,
+    // read in the first frame's read phase (src/primitives/read-phase.ts), after its layout: read in the turn of the
+    // drawer's render while a loading page upgrades its elements, it had the browser style and lay out the whole page.
+    if (DEBUG && !inPhase && !documentPainted()) {
+      readInPhase(this.mainActionRead, () => {
+        if (main.isConnected && this.mainActions[0] === main) this.reportMainAction(main, true);
+      });
+    } else if (DEBUG) {
+      const header = this.renderRoot?.querySelector('.header');
+      if (this.collapses && header && main.offsetHeight) {
+        const column = Number.parseFloat(getComputedStyle(header).gridTemplateColumns);
+        if (column && main.offsetHeight > column + 0.5) {
+          report(this, 'NVD-39', `the main action's collapsed square is ${main.offsetHeight} wide and the icon column ${column}; its glyph stays on the column's centre line, so the button reaches past the column's start edge; choose a smaller size`);
+        }
       }
+      if (main.getAttribute('icon-position') === 'trailing') report(this, 'NVD-39', 'the main action has a trailing glyph, which leaves the icon column while the drawer is expanded; give it a leading glyph');
     }
-    if (DEBUG && main.getAttribute('icon-position') === 'trailing') report(this, 'NVD-39', 'the main action has a trailing glyph, which leaves the icon column while the drawer is expanded; give it a leading glyph');
   }
 
   /** NVD-37: the menu button says whether the drawer is expanded, and that it controls it, on its native button. */
