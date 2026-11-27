@@ -777,7 +777,8 @@ test.describe('states, press, target, corners and focus style', () => {
     const pointer = await resolveToken(page, '--tanrei-sys-target-pointer');
     expect(pointer).toBe(48);
     const b = await bounds(btn(page, 'icon-only', 1));
-    expect(b.height).toBeCloseTo(await resolveToken(page, T('container-height-medium')), 1);
+    // A segment is the set's height less set.padding above and below (SEG-13, SEG-32).
+    expect(b.height).toBeCloseTo((await resolveToken(page, T('container-height-medium'))) - 2 * (await resolveToken(page, T('set-padding'))), 1);
     expect(b.width).toBeGreaterThanOrEqual(pointer - 0.5);
     const target = await btn(page, 'icon-only', 1).evaluate((el) => {
       const r = getComputedStyle(el, '::before');
