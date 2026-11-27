@@ -33,7 +33,8 @@
  *     from its tokens — the label's line and gap above, the supporting text's gap and line below — each where the
  *     attributes say it is drawn;
  *   - a multi-line input by its fewest rows (`min-rows`); an open date and time picker drawn in place by its header,
- *     its calendar and its time section, and its actions;
+ *     its calendar and its time section, and its actions; a calendar by its navigation row, its weekday row and its six
+ *     rows of days, seven cells wide;
  *   - a list row by its number of lines; a stepper's steps; a snackbar's lines; a swatch's sample and text; an embedded
  *     text input's line or rows; a chat composer laid out inline; a carousel's row and controls; a toolbar along a line;
  *     vertical tabs; a progress indicator's and a meter's bar or ring; a divider's thickness, or a wave's;
@@ -182,6 +183,26 @@
   @container style(--tanrei-comp-date-time-picker-actions-size: large) {
     :where(tanrei-date-time-picker[inline][open]):where(:not(:defined)) {
       --_cloak-button: var(--tanrei-comp-button-container-height-large);
+    }
+  }
+
+  /* A calendar (CAL-1) is the box it draws: the navigation row, the weekday row and six rows of days — six whatever the
+     month needs, and the year view in the same room — each a cell (cell.size, never less than the target: the pointer
+     target, the touch target under a coarse pointer), seven cells wide and never wider than its place, with no surface
+     and no padding of its own; an inline block on the top of its line, as it is drawn. */
+  :where(tanrei-calendar):where(:not(:defined):not([hidden])) {
+    --_cloak-cell: max(var(--tanrei-comp-calendar-cell-size), var(--tanrei-sys-target-pointer));
+    display: inline-block;
+    box-sizing: border-box;
+    vertical-align: top;
+    inline-size: calc(7 * var(--_cloak-cell));
+    max-inline-size: 100%;
+    min-block-size: calc(8 * var(--_cloak-cell));
+    line-height: 0;
+  }
+  @media (pointer: coarse) {
+    :where(tanrei-calendar):where(:not(:defined):not([hidden])) {
+      --_cloak-cell: max(var(--tanrei-comp-calendar-cell-size), var(--tanrei-sys-target-touch));
     }
   }
 
