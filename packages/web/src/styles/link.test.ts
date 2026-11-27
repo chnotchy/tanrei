@@ -1494,6 +1494,54 @@ test.describe('forced colors, scaling, direction', () => {
     await page.evaluate(() => ((document.getElementById('plain')!.firstChild as Text).data = 'ابدأ'));
     await expect(page.locator('#plain')).toHaveAttribute('dir', 'rtl');
   });
+
+  test('LNK-14 in a dialog’s body a trailing glyph stays inside the body at every label length — in the document, and in a product’s shadow root that loads icons.css and link.css as its own sheets, where the document says nothing of icons.css', async ({ page }) => {
+    const words = 'Read the accessibility guide of the example site before you go on'.split(' ');
+    const arabic = 'اقرأ دليل إمكانية الوصول في موقع المثال قبل أن تنتقل'.split(' ');
+    // A dialog sizes itself to its content (fit-content), so its body's line is as long as the label and its glyph's room.
+    const dialog = (dir: string) =>
+      `<div dir="${dir}"><tanrei-dialog open headline="Settings"><p><a class="tanrei-link" data-standalone href="#a" data-icon-position="trailing" dir="ltr" id="en">x<span class="tanrei-icon" aria-hidden="true">arrow_forward</span></a></p><p><a class="tanrei-link" data-standalone href="#a" data-icon-position="trailing" dir="rtl" id="ar">x<span class="tanrei-icon" aria-hidden="true">arrow_forward</span></a></p><tanrei-button slot="actions" dismissive>Close</tanrei-button></tanrei-dialog></div>`;
+    const sheets = `<style>${read('dist/icons.css')}\n${read('dist/link.css')}</style>`;
+    for (const [where, dir] of [['document', 'ltr'], ['document', 'rtl'], ['shadow', 'rtl'], ['shadow', 'ltr']] as const) {
+      await fresh(page);
+      await mountFixtures(page, spec, {
+        icons: true,
+        fixtures: spec.fixtures.filter((f) => f.id === 'standalone'),
+        lead: where === 'document' ? dialog(dir) : `<div id="declared"><template shadowrootmode="open">${sheets}${dialog(dir)}</template></div>`,
+      });
+      // A document that loads no icons.css of its own: the page's stylesheet says it is loaded on the document's root,
+      // and taking that back leaves the product's root to say it for itself.
+      if (where === 'shadow') await rootTokens(page, { '--tanrei-icons': 'initial' });
+      for (let n = 1; n <= words.length; n++) {
+        const placed = await page.evaluate(
+          ([inShadow, en, ar]) => {
+            const root: Document | ShadowRoot = inShadow ? document.getElementById('declared')!.shadowRoot! : document;
+            (root.querySelector('#en')!.firstChild as Text).data = en;
+            (root.querySelector('#ar')!.firstChild as Text).data = ar;
+            const body = root.querySelector('tanrei-dialog')!.shadowRoot!.querySelector('[part="content"]')!.getBoundingClientRect();
+            return ['#en', '#ar'].map((id) => {
+              const anchor = root.querySelector(id)!;
+              const text = anchor.firstChild as Text;
+              const range = document.createRange();
+              range.setStart(text, text.length - 1);
+              range.setEnd(text, text.length);
+              const last = [...range.getClientRects()].at(-1)!;
+              const glyph = anchor.querySelector('.tanrei-icon')!.getBoundingClientRect();
+              const rtl = getComputedStyle(anchor).direction === 'rtl';
+              return {
+                id,
+                inside: glyph.left >= body.left - 0.5 && glyph.right <= body.right + 0.5,
+                after: rtl ? glyph.right <= last.left + 0.5 : glyph.left >= last.right - 0.5,
+                sameLine: Math.abs(glyph.top + glyph.height / 2 - (last.top + last.height / 2)) <= 1,
+              };
+            });
+          },
+          [where === 'shadow', words.slice(0, n).join(' '), arabic.slice(0, Math.min(n, arabic.length)).join(' ')] as const,
+        );
+        for (const { id, ...at } of placed) expect(at, `${where}, ${dir} dialog, ${id}, ${n} words`).toEqual({ inside: true, after: true, sameLine: true });
+      }
+    }
+  });
 });
 
 test.describe('prose', () => {
