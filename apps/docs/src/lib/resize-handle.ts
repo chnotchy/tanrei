@@ -34,9 +34,14 @@ export function resizeHandle(handle: HTMLElement, range: ResizeRange): void {
     show(next);
     handle.dispatchEvent(new CustomEvent(RESIZE_EVENT, { bubbles: true, detail: { value: next } }));
   };
-  // Its first value is read in the next frame, not now: a handle set up as its stage is drawn would otherwise lay the
-  // page out at once, for each stage drawn, between one stage's writes and the next's.
-  requestAnimationFrame(() => show(clamp(range.value())));
+  // Its first value is read in a task after a frame has been laid out and painted, and not before the page has loaded:
+  // read now, a handle set up as its stage is drawn laid the page out at once, for each stage drawn, between one stage's
+  // writes and the next's; read in a frame callback, before that frame's layout, it laid out what the page's modules
+  // had upgraded since the last frame, while the page loaded. Until then the separator has no value; a key or a
+  // pointer reads the value it starts from itself.
+  const first = () => requestAnimationFrame(() => setTimeout(() => handle.isConnected && show(clamp(range.value()))));
+  if (document.readyState === 'complete') first();
+  else addEventListener('load', first, { once: true });
   // The handle stands at the stage's end: in a right-to-left layout that is its left, and moving it left widens the stage.
   const sign = () => (getComputedStyle(handle).direction === 'rtl' ? -1 : 1);
 

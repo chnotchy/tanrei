@@ -2,7 +2,7 @@
 // other than the default, before the modules that define their elements have arrived: held-room.mjs holds the tests
 // and says how they read the page. The pages whose tables, keyboard maps and lists of status tags hold their room in
 // the default look are in held-room-tables.test.mjs, and those whose figures the web package's cloak holds in
-// held-room-figures.test.mjs.
+// held-room-figures.test.mjs, held-room-buttons.test.mjs and held-room-actions.test.mjs.
 //
 //   pnpm --filter @tanrei/docs build && pnpm --filter @tanrei/docs test:browser
 //   DOCS_ENGINES=chromium node --test test/browser/held-room-measures.test.mjs   # in one engine (all three by default)
@@ -39,8 +39,6 @@ const figures = (url, width, numbers, why) => numbers.map((n) => ({ url, width, 
  * None is a table: each is a figure the web package's cloak holds (`@tanrei/web/cloak.css`).
  */
 const KNOWN = [
-  ...figures('/components/main-action-button/', PHONE.width, [2, 3, 4], "the cloak holds a Main action button with a label at its icon's square (30 px wide) where it is drawn with its label (133 to 154 px), so a row of them wraps only once they are drawn (the figure of the sizes 128 px high before, 272 px drawn)"),
-  ...figures('/components/segmented-button/', WIDE.width, [2], 'the cloak holds a Segmented button at no width where it is drawn with its segments (275 px each), so the row of its sizes wraps only once they are drawn (112 px high before, 168 px drawn)'),
   ...figures('/components/keyboard-shortcut/', WIDE.width, [1, 2, 3, 4], HAIRLINE('Keyboard shortcut', '24.98 px for 24')),
   ...figures('/components/navigation-bar/', WIDE.width, [1, 2, 3, 4], HAIRLINE('Navigation bar', '49.98 px for 49')),
 ];

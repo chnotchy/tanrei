@@ -218,10 +218,15 @@ import '@tanrei/web/cloak.css';
 ```
 
 Opt in: it is in no other stylesheet, `tanrei.css` included, because an element stays hidden for as long as it is not
-defined — on a page whose script never arrives, its content is never shown. A control's width is held where it draws
-its words from an attribute (a tag's `label`, a checkbox's, a radio button's and a switch's), and not where they are
-written between its tags (a button's), so lay out controls that stand side by side in a row of their own (a flex row
-with a gap) rather than in a line of text. A text is held at one line — but the label a checkbox, a radio button or a
+defined — on a page whose script never arrives, its content is never shown. A control's width is held: its words —
+from an attribute (a tag's `label`, a checkbox's, a radio button's, a switch's, a main action button's, a button with
+menu's, a segment's) or written between its tags (a button's label) — in the label's text style, with the glyph's box
+in place of a glyph's name, between its paddings; a button group and a segmented button lay their items out as they
+will, and a button defined before its connected group keeps the room the group will give it. Write a button's glyph before its label (`<span slot="icon">arrow_forward</span>Next`), also where it is drawn
+after it (`icon-position="trailing"`): the cloak gives the first thing written in a button the glyph's box. Two widths
+are not held: a button named by `label` that has words beside its glyph is held as an icon-only one, and a labelled
+copy button is as wide as the texts it is given as attributes (`label`, `copied-label`,
+`failed-label`), not the words of the page's language it falls back to. A text is held at one line — but the label a checkbox, a radio button or a
 switch draws, which wraps where it will: a label or a help that wraps moves what is below it by the lines it adds. The
 stylesheet's comment lists what it does not hold.
 

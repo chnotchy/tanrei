@@ -1959,13 +1959,25 @@ export class TanreiNavigationDrawer extends TanreiElement {
   private static readonly resizeWatched = new WeakMap<Element, TanreiNavigationDrawer>();
   /** What this drawer's resize watch observes now. */
   private resizeTargets: Element[] = [];
+  /** The drawer's border box when `readResize()` last read it beside the content; null where it read nothing. */
+  private resizeSeen: [width: number, height: number] | null = null;
+
+  /** Whether a report of the resize watch finds the drawer as `readResize()` last read it, to half a pixel. */
+  private readAtSize(entry: ResizeObserverEntry): boolean {
+    const seen = this.resizeSeen;
+    const box = entry.borderBoxSize?.[0];
+    return !!seen && !!box && Math.abs(seen[0] - box.inlineSize) < 0.5 && Math.abs(seen[1] - box.blockSize) < 0.5;
+  }
 
   private static watchResize(): ResizeObserver {
     return (TanreiNavigationDrawer.resizeWatch ??= new ResizeObserver((entries) => {
       const drawers = new Set<TanreiNavigationDrawer>();
       for (const entry of entries) {
         const drawer = TanreiNavigationDrawer.resizeWatched.get(entry.target);
-        if (drawer) drawers.add(drawer);
+        // A drawer the report finds at the size it was last read at — its first report, after the read phase read it —
+        // has nothing new to read: read here, after another observer's report had written, it had the page laid out
+        // again for nothing.
+        if (drawer && !drawer.readAtSize(entry)) drawers.add(drawer);
       }
       const writes: (() => void)[] = [];
       for (const drawer of drawers) {
@@ -3635,8 +3647,11 @@ export class TanreiNavigationDrawer extends TanreiElement {
 
   /** What syncResize reads, returning what it then writes: the reads of many drawers can be made together, before any write. */
   private readResize(): (() => void) | void {
+    this.resizeSeen = null;
     if (!this.beside) return;
     const metrics = this.resizeMetrics();
+    const box = this.getBoundingClientRect();
+    this.resizeSeen = [box.width, box.height];
     // NVD-97: where the parent gives less room than the width, the rows are laid out at the room (the host is drawn
     // there by its `max-inline-size`, and keeps asking for its width, so that it sees the room come back).
     const narrowed = metrics.narrowed === null ? '' : `${metrics.narrowed}px`;
