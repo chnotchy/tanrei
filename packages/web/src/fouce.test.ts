@@ -559,6 +559,32 @@ test.describe('the cloak holds an open date and time picker drawn in place as it
   }
 });
 
+test.describe('the cloak holds a calendar as the box it draws, in every system', () => {
+  // CAL-1: a calendar is its navigation row, its weekday row and six rows of days, each a cell (cell.size, never less
+  // than the target), seven cells wide, with no surface or padding of its own; CAL-7: the year view takes the room of
+  // the weekday row and the days. Held at no box, a docs page's figure of a calendar was 64 px high before it was
+  // defined and 448 px drawn. Each fixture of the spec — one month, a range, a week from Monday, Japanese, unavailable
+  // days, the neighbouring months' days, the year view — under the default system and each preset.
+  for (const system of [undefined, ...PRESETS]) {
+    test(`${system ?? 'the default system'}, calendar: with the cloak and no script, each fixture is as wide and as high as once it is defined, and so is its stage`, async ({ page: first, browserName }) => {
+      const { page, before, after } = await mountedLate(first, 'tanrei-calendar', browserName, system ? { system } : {});
+      expect(before.filter((stage) => !stage.held).map((stage) => stage.id)).toEqual([]);
+      expect(before.filter((stage) => stage.visibility !== 'hidden').map((stage) => stage.id)).toEqual([]);
+      const wrong = before.flatMap((stage, i) => {
+        const drawn = after[i]!;
+        if (Math.abs(stage.width - drawn.width) <= 0.5 && Math.abs(stage.height - drawn.height) <= 0.5 && Math.abs(stage.stage - drawn.stage) <= 0.5) return [];
+        return [`${stage.id}: held ${stage.width}×${stage.height}px in a stage of ${stage.stage}px, drawn ${drawn.width}×${drawn.height}px in ${drawn.stage}px`];
+      });
+      expect(wrong).toEqual([]);
+      if (browserName === 'chromium') {
+        const { sum, moved } = await shifts(page);
+        expect(sum, moved).toBeLessThanOrEqual(SHIFT_BUDGET);
+      }
+      await page.close();
+    });
+  }
+});
+
 test.describe('the cloak holds a multi-line input at its fewest rows, at every size and in every variant', () => {
   // TXI-17, TXI-51: a multi-line box is its first line's offset, min-rows lines of its input text and its block padding;
   // ETI-7: an embedded input is min-rows lines. Held from the tokens and the attribute, an empty field is as high

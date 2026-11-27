@@ -3,7 +3,7 @@
 // held-room.mjs holds the tests and says how they read the page. The pages whose tables of measurements hold their room
 // in a look a reader may choose other than the default are in held-room-measures.test.mjs, and the pages whose figures
 // the web package's cloak holds at the box they are drawn in are in held-room-figures.test.mjs,
-// held-room-buttons.test.mjs and held-room-actions.test.mjs.
+// held-room-buttons.test.mjs, held-room-actions.test.mjs and held-room-calendar.test.mjs.
 //
 //   pnpm --filter @tanrei/docs build && pnpm --filter @tanrei/docs test:browser
 //   DOCS_ENGINES=chromium node --test test/browser/held-room-tables.test.mjs   # in one engine (all three by default)

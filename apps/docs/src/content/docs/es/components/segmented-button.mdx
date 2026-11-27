@@ -319,7 +319,7 @@ Carencias conocidas por plataforma:
 - Compose no tiene un rol de grupo de botones de opción. El conjunto es un grupo seleccionable, y cada segmento es un botón de opción (single) o un botón conmutable (multiple), como el chip de filtro.
 - Flutter no expone ni la posición de un segmento ni el número de segmentos, y un conjunto de elección múltiple es un contenedor que recibe su nombre de su etiqueta en lugar de un grupo, porque la semántica de Flutter no tiene ninguna de las dos propiedades.
 - React Native: los anchos iguales salen de medir cada etiqueta después de la primera pasada de diseño, así que un conjunto cuyo padre sea más estrecho que él en el primer fotograma puede tomar un ancho menor que el de su etiqueta más ancha. Las teclas de flecha en un teclado físico, y la sombra de la selección elevada sobre sus vecinos en Android, no se han comprobado en un dispositivo.
-- Con el sistema `cupertino`, los conjuntos small y medium miden 30 y 34 de alto en lugar de 28 y 32, y las esquinas interiores de los segmentos de los extremos son más redondeadas que las exteriores. Ambas cosas esperan una decisión de token o de especificación.
+- Con el sistema `cupertino`, las esquinas interiores de los segmentos de los extremos son más redondeadas que las exteriores. Esto espera una decisión de token o de especificación.
 
 ### Qué debes hacer tú
 

@@ -2,7 +2,7 @@
 // other than the default, before the modules that define their elements have arrived: held-room.mjs holds the tests
 // and says how they read the page. The pages whose tables, keyboard maps and lists of status tags hold their room in
 // the default look are in held-room-tables.test.mjs, and those whose figures the web package's cloak holds in
-// held-room-figures.test.mjs, held-room-buttons.test.mjs and held-room-actions.test.mjs.
+// held-room-figures.test.mjs, held-room-buttons.test.mjs, held-room-actions.test.mjs and held-room-calendar.test.mjs.
 //
 //   pnpm --filter @tanrei/docs build && pnpm --filter @tanrei/docs test:browser
 //   DOCS_ENGINES=chromium node --test test/browser/held-room-measures.test.mjs   # in one engine (all three by default)
