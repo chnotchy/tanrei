@@ -176,3 +176,21 @@ function drawnIn(root: Root, element: Element, mark: `--${string}`): boolean {
   }
   return drawnHere;
 }
+
+/**
+ * Writes `values` — custom properties — in `element`'s own style, and takes off each name of `before` (what the last
+ * call wrote) that it no longer writes; returns the names it wrote, for the next call. Each is written only when it
+ * differs, so a caller that observes its element's `style` settles.
+ *
+ * What a light-DOM element draws for a value its stylesheet cannot name (a size or a variant a design system added, a
+ * count beyond the ones the sheet holds) is written here, and never as a rule added to its root: a rule inserted into
+ * a sheet of the document, or a sheet added to it, has the engine build every rule of the page again — WebKit takes a
+ * quarter of a second for one on a long page — where a value written on an element costs that element's style alone.
+ */
+export function writeValues(element: HTMLElement, before: readonly string[], values: readonly (readonly [name: `--${string}`, value: string])[]): string[] {
+  const style = element.style;
+  const names = values.map(([name]) => name);
+  for (const name of before) if (!names.includes(name as `--${string}`) && style.getPropertyValue(name) !== '') style.removeProperty(name);
+  for (const [name, value] of values) if (style.getPropertyValue(name) !== value) style.setProperty(name, value);
+  return names;
+}
