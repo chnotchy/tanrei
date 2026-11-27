@@ -39,7 +39,7 @@
  *     vertical tabs; a progress indicator's and a meter's bar or ring; a divider's thickness, or a wave's;
  *   - an element the page sizes (a scroll area, a split view) is laid out as the box the size applies to;
  *   - a card's content between its paddings; a badge as the box of its anchor;
- *   - a tag group's lines.
+ *   - a tag group's lines, and a text input's entries (chips in its `entries` slot) and its typing part.
  *   A text is held at one line: a label, a help or an error longer than its line wraps when the element is defined,
  *   and the page below it moves down by the lines it adds — but the label a checkbox, a radio button or a switch draws
  *   beside its control, which is written (its `label`) in the label's text style and wraps where it will. The width is
@@ -54,7 +54,8 @@
  * What it does not hold: a height that depends on what the element draws beyond its tokens (a list's items, a
  * composer's attachments or a stacked composer's row, the file picker, the file upload and their rows, a drop zone, a
  * resizable frame's size, which its attributes give, a tab view's content, a multiline input's lines
- * beyond its fewest rows (the lines of a value it already holds), a combobox's chips, a docked search's results, vertical sliders), a size or a variant a design system added (held at the default's), a size an element takes from its
+ * beyond its fewest rows (the lines of a value it already holds), a combobox's chips and a chip field's (drawn from its
+ * `value`, which CSS cannot read as a list), a docked search's results, vertical sliders), a size or a variant a design system added (held at the default's), a size an element takes from its
  * container rather than its own `size` (but a Button's and a Button with Menu's from a Button Group or a Toolbar that
  * names one), the width of a Button whose glyph is written after its label, of a Button named by `label` that has words
  * beside its glyph (held as the icon-only one) and of
@@ -1133,6 +1134,56 @@
     :where(tanrei-embedded-text-input):where([multiline][min-rows]):where(:not(:defined)) {
       --_cloak-min-rows: max(1, round(down, attr(min-rows type(<number>), 1), 1));
     }
+  }
+
+  /* A text input that holds entries (TXI-64: elements in its `entries` slot, as chips) lays them out as it will: lines
+     from the start edge that wrap, every item centred on its line, entries.gap apart along a line and entries.row-gap
+     between two lines, between the text's inline paddings and, above the first line and below the last, the distance
+     at which a single-line box of its variant and size sets its one line — the block padding, or half of what the
+     box's height leaves of the input's line where that is more; then the typing part (the `::after`), which takes what
+     is left of the last line while that is entries.typing-min-width at least, and a line of its own otherwise, one line
+     of the input's text role tall — none where it is read-only and holds no typed text. Held at one line: a filled box
+     that draws its label sets its first line under the floated label's band once it is defined; and a leading or a
+     trailing icon, which moves the text's paddings. */
+  :where(tanrei-text-input:has(> [slot='entries'])):where(:not(:defined):not([hidden])) {
+    --_cloak-pad-block: var(--tanrei-comp-input-box-stacked-container-padding-block-medium);
+    --_cloak-pad-inline: var(--tanrei-comp-input-box-container-padding-inline-medium);
+    --_cloak-input-line: calc(var(--tanrei-comp-input-box-input-typescale-medium-line-height) * var(--tanrei-comp-input-box-input-typescale-medium-font-size));
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    align-content: flex-start;
+    gap: var(--tanrei-comp-text-input-entries-row-gap) var(--tanrei-comp-text-input-entries-gap);
+    padding-block: max(var(--_cloak-pad-block), calc((var(--_cloak-control) - var(--_cloak-input-line)) / 2));
+    padding-inline: var(--_cloak-pad-inline);
+  }
+  :where(tanrei-text-input[size='small']:has(> [slot='entries'])):where(:not(:defined):not([hidden])) {
+    --_cloak-pad-block: var(--tanrei-comp-input-box-stacked-container-padding-block-small);
+    --_cloak-pad-inline: var(--tanrei-comp-input-box-container-padding-inline-small);
+    --_cloak-input-line: calc(var(--tanrei-comp-input-box-input-typescale-small-line-height) * var(--tanrei-comp-input-box-input-typescale-small-font-size));
+  }
+  :where(tanrei-text-input[size='large']:has(> [slot='entries'])):where(:not(:defined):not([hidden])) {
+    --_cloak-pad-block: var(--tanrei-comp-input-box-stacked-container-padding-block-large);
+    --_cloak-pad-inline: var(--tanrei-comp-input-box-container-padding-inline-large);
+    --_cloak-input-line: calc(var(--tanrei-comp-input-box-input-typescale-large-line-height) * var(--tanrei-comp-input-box-input-typescale-large-font-size));
+  }
+  :where(tanrei-text-input:is([variant='outlined'], [variant='filled']):has(> [slot='entries'])):where(:not(:defined):not([hidden])) {
+    --_cloak-pad-block: var(--tanrei-comp-input-box-container-padding-block-medium);
+  }
+  :where(tanrei-text-input:is([variant='outlined'], [variant='filled'])[size='small']:has(> [slot='entries'])):where(:not(:defined):not([hidden])) {
+    --_cloak-pad-block: var(--tanrei-comp-input-box-container-padding-block-small);
+  }
+  :where(tanrei-text-input:is([variant='outlined'], [variant='filled'])[size='large']:has(> [slot='entries'])):where(:not(:defined):not([hidden])) {
+    --_cloak-pad-block: var(--tanrei-comp-input-box-container-padding-block-large);
+  }
+  :where(tanrei-text-input:has(> [slot='entries']):not(:defined))::after {
+    content: '';
+    flex: 1 1 var(--tanrei-comp-text-input-entries-typing-min-width);
+    min-inline-size: 0;
+    block-size: var(--_cloak-input-line);
+  }
+  :where(tanrei-text-input[readonly]:not([value]:not([value=''])):has(> [slot='entries']):not(:defined))::after {
+    content: none;
   }
 
   /* A field's control that is not an input box: the slider's thickness — the larger of its container's size and its
