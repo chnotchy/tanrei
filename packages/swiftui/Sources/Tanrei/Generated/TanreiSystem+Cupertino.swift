@@ -6086,7 +6086,7 @@ private let cupertinoNavigationBarTokens = TanreiNavigationBarTokens(
   itemIconIndicatorShape: 9999,
   itemIconIndicatorWidth: 24,
   itemIconSize: 24,
-  itemLabelTypescale: cupertinoTypescale.caption,
+  itemLabelTypescale: cupertinoTypescaleCaptionSmall,
   motionFeedbackDuration: 450,
   motionSelectionDuration: 250,
   motionSelectionEasing: TanreiCubicBezier(0.2, 0, 0, 1),
@@ -7543,7 +7543,7 @@ private let cupertinoSegmentedButtonTokens = TanreiSegmentedButtonTokens(
     small: TanreiSegmentedButtonSizeTokens(
       containerHeight: 28,
       containerPaddingInline: 12,
-      containerPaddingBlock: 4,
+      containerPaddingBlock: 2,
       containerGap: 8,
       labelTypescale: cupertinoTypescale.labelSmall,
       iconSize: 16,
@@ -7553,7 +7553,7 @@ private let cupertinoSegmentedButtonTokens = TanreiSegmentedButtonTokens(
     medium: TanreiSegmentedButtonSizeTokens(
       containerHeight: 32,
       containerPaddingInline: 14,
-      containerPaddingBlock: 6,
+      containerPaddingBlock: 4,
       containerGap: 8,
       labelTypescale: cupertinoTypescale.labelSmall,
       iconSize: 16,

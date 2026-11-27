@@ -7600,7 +7600,7 @@ export const cupertino = {
       itemIconIndicatorShape: 9999,
       itemIconIndicatorWidth: 24,
       itemIconSize: 24,
-      itemLabelTypescale: "caption",
+      itemLabelTypescale: "captionSmall",
       motionFeedbackDuration: 450,
       motionSelectionDuration: 250,
       motionSelectionEasing: [0.2, 0, 0, 1],
@@ -9233,8 +9233,8 @@ export const cupertino = {
       setPadding: 2,
       setShape: 8,
       sizes: {
-        small: { containerHeight: 28, containerPaddingInline: 12, containerPaddingBlock: 4, containerGap: 8, labelTypescale: "labelSmall", iconSize: 16, checkSize: 0, motionStateDuration: 200 },
-        medium: { containerHeight: 32, containerPaddingInline: 14, containerPaddingBlock: 6, containerGap: 8, labelTypescale: "labelSmall", iconSize: 16, checkSize: 0, motionStateDuration: 250 },
+        small: { containerHeight: 28, containerPaddingInline: 12, containerPaddingBlock: 2, containerGap: 8, labelTypescale: "labelSmall", iconSize: 16, checkSize: 0, motionStateDuration: 200 },
+        medium: { containerHeight: 32, containerPaddingInline: 14, containerPaddingBlock: 4, containerGap: 8, labelTypescale: "labelSmall", iconSize: 16, checkSize: 0, motionStateDuration: 250 },
         large: { containerHeight: 40, containerPaddingInline: 16, containerPaddingBlock: 6, containerGap: 8, labelTypescale: "bodySubhead", iconSize: 16, checkSize: 0, motionStateDuration: 250 },
       },
       conditions: {

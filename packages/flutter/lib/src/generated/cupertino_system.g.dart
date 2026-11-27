@@ -6193,7 +6193,7 @@ const TanreiSystem cupertinoSystem = TanreiSystem(
     itemIconIndicatorShape: 9999.0,
     itemIconIndicatorWidth: 24.0,
     itemIconSize: 24.0,
-    itemLabelTypescale: _typescaleCaption,
+    itemLabelTypescale: _typescaleCaptionSmall,
     motionFeedbackDuration: 450,
     motionSelectionDuration: 250,
     motionSelectionEasing: TanreiCubicBezier(0.2, 0.0, 0.0, 1.0),
@@ -7634,7 +7634,7 @@ const TanreiSystem cupertinoSystem = TanreiSystem(
       small: TanreiSegmentedButtonSizeTokens(
         containerHeight: 28.0,
         containerPaddingInline: 12.0,
-        containerPaddingBlock: 4.0,
+        containerPaddingBlock: 2.0,
         containerGap: 8.0,
         labelTypescale: _typescaleLabelSmall,
         iconSize: 16.0,
@@ -7644,7 +7644,7 @@ const TanreiSystem cupertinoSystem = TanreiSystem(
       medium: TanreiSegmentedButtonSizeTokens(
         containerHeight: 32.0,
         containerPaddingInline: 14.0,
-        containerPaddingBlock: 6.0,
+        containerPaddingBlock: 4.0,
         containerGap: 8.0,
         labelTypescale: _typescaleLabelSmall,
         iconSize: 16.0,
