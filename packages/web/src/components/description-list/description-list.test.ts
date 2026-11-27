@@ -1113,11 +1113,41 @@ test.describe('the element and its stylesheet', () => {
     await askForFrame(page);
     const inner = page.locator('#outer tanrei-description-list');
     await expect(inner).toHaveAttribute('data-stacks-below', '248');
-    expect(await inner.evaluate((el) => (el.getRootNode() as ShadowRoot).adoptedStyleSheets.length)).toBeGreaterThan(1);
+    // The list's own sheet, and no other: the width it stacks under is written on the list, never as a rule of the root.
+    expect(await inner.evaluate((el) => (el.getRootNode() as ShadowRoot).adoptedStyleSheets.map((sheet) => [...sheet.cssRules].some((rule) => rule.cssText.includes('tanrei-description-list'))))).toEqual([true]);
     expect(await px(inner.locator('dt'), 'font-size')).toBe(await resolveToken(page, T('term-typescale-small-font-size')));
     expect((await edges(inner.locator('dd'))).left).toBeGreaterThan((await edges(inner.locator('dt'))).right);
     await page.locator('#outer').evaluate((el) => ((el as HTMLElement).style.inlineSize = '247px'));
     expect((await edges(inner.locator('dd'))).top).toBeGreaterThanOrEqual((await edges(inner.locator('dt'))).bottom);
+  });
+
+  test('the element adds no rule to the page: lists of other widths and a larger number of columns, measured after the page is painted, leave its sheets as they were — what each decides is written on the list, and draws it (DSL-4, DSL-7)', async ({ page }) => {
+    await mountFixtures(page, spec, { fixtures: some('inline') });
+    await askForFrame(page);
+    // A rule added to a page's sheets, or a sheet added to them, has WebKit build every rule of the page again and style
+    // the whole page once more; a name or an attribute on the list restyles the list alone.
+    const sheetsOf = () => page.evaluate(() => [...document.adoptedStyleSheets, ...document.styleSheets].map((sheet) => sheet.cssRules.length));
+    const before = await sheetsOf();
+    await page.evaluate(() => {
+      const box = document.createElement('div');
+      box.id = 'added';
+      box.innerHTML = [96, 120, 150]
+        .map((width) => `<div style="inline-size: ${width + 160}px"><tanrei-description-list><dl><div><dt><span style="display: inline-block; inline-size: ${width}px">Term</span></dt><dd>A value</dd></div></dl></tanrei-description-list></div>`)
+        .join('') + '<tanrei-description-list layout="stacked" columns="8"><dl><div><dt>A</dt><dd>1</dd></div></dl></tanrei-description-list>';
+      document.body.append(box);
+    });
+    await askForFrame(page);
+    const added = page.locator('#added tanrei-description-list');
+    // 96 + 16 + 144 and so on: two columns where the list has 4 more than that, stacked once it has 1 less.
+    for (const [n, width] of [96, 120, 150].entries()) {
+      await expect(added.nth(n)).toHaveAttribute('data-stacks-below', String(width + 160));
+      expect((await edges(added.nth(n).locator('dd'))).left).toBeGreaterThan((await edges(added.nth(n).locator('dt'))).right);
+      await added.nth(n).evaluate((el) => (el.parentElement!.style.inlineSize = `${Number(el.getAttribute('data-stacks-below')) - 1}px`));
+      await askForFrame(page);
+      expect((await edges(added.nth(n).locator('dd'))).top).toBeGreaterThanOrEqual((await edges(added.nth(n).locator('dt'))).bottom);
+    }
+    expect(await added.nth(3).evaluate((el) => getComputedStyle(el).getPropertyValue('--_dl-columns').trim())).toBe('8');
+    expect(await sheetsOf()).toEqual(before);
   });
 
   test('a list without groups is drawn in one column, inline or stacked, with the line above each term that follows a value; columns and stat need the groups, which is reported; a list inside a value is the product’s (DSL-3, DSL-5, DSL-7, DSL-10, DSL-12)', async ({ page }) => {

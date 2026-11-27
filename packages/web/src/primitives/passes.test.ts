@@ -138,8 +138,13 @@ interface Subject {
 //    the class the one before it had written (now: read for the frames of a turn together);
 //  - table 52 and 1, page header 51 and 1: nothing — they were the engine's own passes for size containers (`each`),
 //    and are held here so that they stay that.
+// The description list is held to two passes for each list, not one (fifty lists: 105, where 55 were counted). WebKit
+// builds every rule of the page again when a rule is added to the page's sheets while it runs (0.8 s on the docs'
+// Arabic Button page, and 0.2 s for each list after it), so the list writes the width under which it stacks on its own
+// wrapper, as the line height its one container query compares with its width, and adds no rule. Chromium pays for it
+// with one more style pass for each list once it is measured, each over that list's own elements (about 3 ms for fifty).
 const LIGHT: [tag: string, most: Passes, more?: Pick<Subject, 'each' | 'style'>][] = [
-  ['tanrei-description-list', { style: 56, layout: 5 }, { each: 1 }],
+  ['tanrei-description-list', { style: 106, layout: 5 }, { each: 2 }],
   ['tanrei-breadcrumbs', { style: 8, layout: 6 }],
   ['tanrei-skeleton', { style: 5, layout: 2 }, { style: ':root { --tanrei-comp-skeleton-motion-animation: none; }' }],
   ['tanrei-link-card', { style: 53, layout: 2 }, { each: 1 }],
