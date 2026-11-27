@@ -11,12 +11,21 @@
  *
  * - a block with the paddings of its size, in the description's text style and color;
  * - its lines centred, or at the start for `align="start"`;
- * - the title slot in the title's text style and color, the title's gap above the description;
- * - a glyph's name in the `media` slot is not shown as text (a picture is, centred or at the start).
+ * - the title — the title slot's, or the `headline` attribute's written before the description where nothing is in the
+ *   slot — in the title's text style and color, the title's gap above the description;
+ * - the glyph in the `media` slot as the box of its size, its name not shown as text (a picture is shown, centred or
+ *   at the start), the media's gap below it;
+ * - the row of the `actions` slot below the description, the actions' gap above it, item-gap between two actions and
+ *   between two lines of them, centred or at the start, where the description is text alone (below);
+ * - nothing at all for `hidden`.
  *
- * What it cannot give: a title in the `headline` attribute (it is drawn by the element — a page that must read without
- * script gives the title in the slot), the glyph, the measure of the text, and the row of the `actions` slot (its
- * Buttons are elements that are not defined yet either).
+ * What it cannot give: the measure of the text (`content.measure`: the lines are as long as the block's, which they
+ * are in a block no wider than the measure), and the actions' row where the description holds elements of its own (a
+ * paragraph, a link): CSS can lay out a row below the text only by making each child a box of its own, which would set
+ * such a description otherwise than the element does, so its actions stand in the description's last line until it is
+ * defined. The actions themselves are the product's: a Tanrei Button among them is held at its own box by the cloak
+ * (`cloak.css`), and without it is a line of text. A headline in a script that takes no tracking (EMP-4) keeps the
+ * title's until the element is defined.
  *
  * Every value is a `--tanrei-comp-empty-state-*` token. Every selector has no specificity (`:where()`), and none
  * matches once the element is defined.
@@ -45,9 +54,26 @@
   :where(tanrei-empty-state[align='start']:not(:defined)) {
     text-align: start;
   }
-  /* A glyph is a name until its element draws it: the name is not shown. A picture is the product's own and is. */
+  /* A glyph is a name until its element draws it: its box, of the media size of its size, centred or at the start, the
+     name not shown (`font-size: 0`). A picture is the product's own and is shown. */
   :where(tanrei-empty-state:not(:defined)) > :where([slot='media']:not(img, svg, picture, video, canvas)) {
-    display: none;
+    display: block;
+    box-sizing: border-box;
+    inline-size: var(--tanrei-comp-empty-state-media-size-medium);
+    block-size: var(--tanrei-comp-empty-state-media-size-medium);
+    margin: 0;
+    margin-block-end: var(--tanrei-comp-empty-state-media-gap);
+    margin-inline: auto;
+    padding: 0;
+    overflow: hidden;
+    font-size: 0;
+  }
+  :where(tanrei-empty-state[size='large']:not(:defined)) > :where([slot='media']:not(img, svg, picture, video, canvas)) {
+    inline-size: var(--tanrei-comp-empty-state-media-size-large);
+    block-size: var(--tanrei-comp-empty-state-media-size-large);
+  }
+  :where(tanrei-empty-state[align='start']:not(:defined)) > :where([slot='media']:not(img, svg, picture, video, canvas)) {
+    margin-inline: 0 auto;
   }
   :where(tanrei-empty-state:not(:defined)) > :where([slot='media']:is(img, svg, picture, video, canvas)) {
     display: block;
@@ -75,7 +101,72 @@
       var(--tanrei-comp-empty-state-title-typescale-large-font-family);
     letter-spacing: var(--tanrei-comp-empty-state-title-typescale-large-letter-spacing);
   }
+  /* EMP-4: a title given as text (`headline`) where nothing is in the title slot, written before the description as a
+     block of the title's text style and color, the title's gap above the description. */
+  :where(tanrei-empty-state[headline]:not([headline='']):not(:has(> [slot='title'])):not(:defined))::before {
+    content: attr(headline);
+    display: block;
+    margin-block-end: var(--tanrei-comp-empty-state-title-gap);
+    font:
+      var(--tanrei-comp-empty-state-title-typescale-medium-font-weight) var(--tanrei-comp-empty-state-title-typescale-medium-font-size)/var(--tanrei-comp-empty-state-title-typescale-medium-line-height)
+      var(--tanrei-comp-empty-state-title-typescale-medium-font-family);
+    letter-spacing: var(--tanrei-comp-empty-state-title-typescale-medium-letter-spacing);
+    color: var(--tanrei-comp-empty-state-title-color);
+    overflow-wrap: break-word;
+  }
+  :where(tanrei-empty-state[size='large'][headline]:not([headline='']):not(:has(> [slot='title'])):not(:defined))::before {
+    font:
+      var(--tanrei-comp-empty-state-title-typescale-large-font-weight) var(--tanrei-comp-empty-state-title-typescale-large-font-size)/var(--tanrei-comp-empty-state-title-typescale-large-line-height)
+      var(--tanrei-comp-empty-state-title-typescale-large-font-family);
+    letter-spacing: var(--tanrei-comp-empty-state-title-typescale-large-letter-spacing);
+  }
+  /* With nothing written between its tags, it has no body, and no gap below its title. */
+  :where(tanrei-empty-state[headline]:empty:not(:defined))::before {
+    margin-block-end: 0;
+  }
+  /* EMP-6: the actions, a row below the description, where the description is text alone (no element of its own beside
+     the slotted ones): a box whose lines wrap, centred (at the start for `align="start"`), the media, the title (the
+     slot's, or the headline's) and the description each a line of their own, then a line of no content as tall as the
+     actions' gap less the item gap, then the actions, item-gap apart along a line and item-gap above each, centred on
+     their line — so actions.gap below the description, and item-gap between two lines of them. */
+  :where(tanrei-empty-state:not(:defined):has(> [slot='actions']):not(:has(> :not([slot])))) {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    column-gap: var(--tanrei-comp-empty-state-actions-item-gap);
+  }
+  :where(tanrei-empty-state[align='start']:not(:defined):has(> [slot='actions']):not(:has(> :not([slot])))) {
+    justify-content: flex-start;
+  }
+  :where(tanrei-empty-state:not(:defined):has(> [slot='actions']):not(:has(> :not([slot])))) > :where([slot='media']) {
+    order: -2;
+  }
+  :where(tanrei-empty-state:not(:defined):has(> [slot='actions']):not(:has(> :not([slot])))) > :where([slot='media']:not(img, svg, picture, video, canvas)) {
+    flex-basis: 100%;
+  }
+  :where(tanrei-empty-state:not(:defined):has(> [slot='actions']):not(:has(> :not([slot])))) > :where([slot='title']),
+  :where(tanrei-empty-state:not(:defined):has(> [slot='actions']):not(:has(> :not([slot]))))::before {
+    flex-basis: 100%;
+    order: -1;
+  }
+  :where(tanrei-empty-state:not(:defined):has(> [slot='actions']):not(:has(> :not([slot]))))::after {
+    content: '';
+    flex-basis: 100%;
+    order: 1;
+    block-size: calc(var(--tanrei-comp-empty-state-actions-gap) - var(--tanrei-comp-empty-state-actions-item-gap));
+  }
+  :where(tanrei-empty-state:not(:defined):has(> [slot='actions']):not(:has(> :not([slot])))) > :where([slot='actions']) {
+    order: 2;
+    max-inline-size: 100%;
+    margin-block-start: var(--tanrei-comp-empty-state-actions-item-gap);
+  }
   /* EMP-4: the title's letter-spacing follows its script (src/styles/script-tracking.ts). */
   /* script-tracking: :where(tanrei-empty-state:not(:defined)) > :where([slot='title']) | var(--tanrei-comp-empty-state-title-typescale-medium-letter-spacing) */
   /* script-tracking: :where(tanrei-empty-state[size='large']:not(:defined)) > :where([slot='title']) | var(--tanrei-comp-empty-state-title-typescale-large-letter-spacing) */
+  /* An empty state that is hidden (a live one, until it is shown) takes no space before it is defined either (after
+     every rule that lays it out, which would otherwise win over the browser's own rule for `hidden`). */
+  :where(tanrei-empty-state[hidden]:not(:defined)) {
+    display: none;
+  }
 }

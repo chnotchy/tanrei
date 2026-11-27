@@ -399,11 +399,12 @@ test.describe('the cloak holds the width of an element as it is drawn, in every 
 
 test.describe('an element with a stylesheet of its own for the time before it is defined holds its box, in every system', () => {
   // CLO-1, CLO-7, CLO-9, CLO-10: a callout is its paddings, its glyph's and its close button's room, its title — the
-  // slot's or the `headline` attribute's — the body, and the row of its actions (callout.css). It held neither its
-  // `headline` nor its actions before: a docs page's figure of three callouts was 322 px high before and 404 px drawn.
-  // Each fixture is written as a server sends it, with the cloak (which holds the Buttons among its actions) and the
-  // element's own stylesheet.
-  for (const tag of ['tanrei-callout']) {
+  // slot's or the `headline` attribute's — the body, and the row of its actions (callout.css); EMP-1 to EMP-6: an empty
+  // state is its paddings, its glyph's box, its title, its description and the row of its actions (empty-state.css).
+  // Neither held its `headline` or its actions before: a docs page's figure of three callouts was 322 px high before
+  // and 404 px drawn. Each fixture is written as a server sends it, with the cloak (which holds the Buttons among its
+  // actions) and the element's own stylesheet.
+  for (const tag of ['tanrei-callout', 'tanrei-empty-state']) {
     const name = tag.replace(/^tanrei-/, '');
     for (const system of [undefined, ...PRESETS]) {
       test(`${system ?? 'the default system'}, ${name}: with the cloak, ${name}.css and no script, each fixture is as wide and as high as once it is defined, and so is its stage`, async ({ page: first, browserName }) => {
