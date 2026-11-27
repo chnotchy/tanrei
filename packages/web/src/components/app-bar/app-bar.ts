@@ -255,7 +255,13 @@ export class TanreiAppBar extends TanreiElement {
   private source: { target: EventTarget; read: () => number } | null = null;
   private retry = 0;
   private offset = 0;
-  private readonly resize$ = typeof ResizeObserver === 'undefined' ? null : new ResizeObserver(() => this.resized());
+  private readonly resize$ = typeof ResizeObserver === 'undefined' ? null : new ResizeObserver((entries) => this.resized(entries));
+  /**
+   * The border box of every box the observer watches, as the bar last read them to decide what fits (`readFit`): a
+   * report that finds each as it was read — the first report of a box just watched, after the read phase decided —
+   * changes nothing, and is not read again.
+   */
+  private readonly known = new Map<Element, [width: number, height: number]>();
   /** Between a decision made in the observer's callback and the next frame, nothing is observed (see `resized`). */
   private resting = false;
 
@@ -420,7 +426,10 @@ export class TanreiAppBar extends TanreiElement {
    * shown, the observation is laid down and taken up again in the next frame, where its first report decides once more
    * and finds nothing to change.
    */
-  private resized() {
+  private resized(entries: ResizeObserverEntry[]) {
+    // Nothing moved since the bar last read these boxes: read in its observer's report, after another observer's report
+    // wrote, they had the browser lay the page out again for nothing.
+    if (entries.every((entry) => this.asKnown(entry))) return;
     this.measure();
     if (!this.fit() || !this.resize$) return;
     this.resize$.disconnect();
@@ -477,10 +486,21 @@ export class TanreiAppBar extends TanreiElement {
         // coming frame and before its paint, with every other host's reads: made here, in the turn of the render, it had
         // the browser lay the whole page out for it, while a loading page's modules upgrade one kind of element after
         // another. What it asks for then (the more button drawn) is decided in that frame, at once, as here.
+        // Its boxes are read with the phase's reads, and what it decides is written with its writes: read in the writes,
+        // after another element's, they had the page laid out again for the bar.
         if (!this.fitted && !documentPainted()) {
-          readInPhase(this.firstFit, () => () => {
-            this.fitted = true;
-            if (this.isConnected) this.fit();
+          readInPhase(this.firstFit, () => {
+            const decision = this.fitting ? null : this.readFit();
+            return () => {
+              this.fitted = true;
+              if (this.fitting) return;
+              this.fitting = true;
+              try {
+                this.applyFit(decision);
+              } finally {
+                this.fitting = false;
+              }
+            };
           });
         } else {
           this.fitted = true;
@@ -521,47 +541,81 @@ export class TanreiAppBar extends TanreiElement {
    */
   private fitting = false;
   private fit(): boolean {
-    const row = this.find<HTMLElement>('.row');
-    const metrics = this.find<HTMLElement>('.metrics');
-    if (!row || !metrics || this.fitting || !this.isConnected) return false;
+    if (this.fitting || !this.isConnected) return false;
     this.fitting = true;
     try {
-      // APB-32: each action's width while it is drawn; an action that is out keeps the width it had.
-      for (const item of this.actionItems) if (!item.hasAttribute(OUT)) this.actionWidths.set(item, item.getBoundingClientRect().width);
-      for (const item of [...this.actionWidths.keys()]) if (!this.actionItems.includes(item as Action)) this.actionWidths.delete(item);
-      const rowStyle = getComputedStyle(row);
-      const metricsStyle = getComputedStyle(metrics);
-      const lead = this.find<HTMLElement>('.lead');
-      const more = this.moreButton;
-      const room = {
-        start: px(rowStyle, 'padding-inline-start'),
-        lead: lead ? lead.getBoundingClientRect().width : 0,
-        title: this.titleRoom(),
-        gap: px(rowStyle, 'column-gap'),
-        actionsGap: px(getComputedStyle(this.find<HTMLElement>('.actions') ?? row), 'column-gap'),
-        // APB-4: the row ends padding-inline from the end edge after an action, title.inset where there is none.
-        endActions: px(metricsStyle, 'padding-inline-start'),
-        endNone: px(metricsStyle, 'padding-inline-end'),
-        more: more ? more.getBoundingClientRect().width : 0,
-      };
-      const has = row.getBoundingClientRect().width;
-      const fits = (out: ReadonlySet<Element>) => has <= 0 || this.needs(out, room) <= has + 0.5;
-      const out = new Set<Element>();
-      for (const item of this.actionItems.filter((each) => this.mayLeave(each)).reverse()) {
-        if (fits(out)) break;
-        out.add(item);
-      }
-      // APB-28: the more button's width is needed before the decision is drawn: it is drawn (unseen), and the decision
-      // is made again once it is — before the frame (APB-32).
-      if (out.size && this.menuMode && !more) {
-        this.moreWanted = true;
-        void this.settle();
-        return false;
-      }
-      return this.apply(out);
+      return this.applyFit(this.readFit());
     } finally {
       this.fitting = false;
     }
+  }
+
+  /**
+   * APB-26, APB-32: the reading half of `fit()` — every box and style it decides from, and the decision: the actions
+   * that are out, `more` where the more button must be drawn first, or null where there is nothing to decide. It writes
+   * nothing of the page.
+   */
+  private readFit(): { out: Set<Element> } | 'more' | null {
+    const row = this.find<HTMLElement>('.row');
+    const metrics = this.find<HTMLElement>('.metrics');
+    if (!row || !metrics || !this.isConnected) return null;
+    // APB-32: each action's width while it is drawn; an action that is out keeps the width it had.
+    for (const item of this.actionItems) if (!item.hasAttribute(OUT)) this.actionWidths.set(item, item.getBoundingClientRect().width);
+    for (const item of [...this.actionWidths.keys()]) if (!this.actionItems.includes(item as Action)) this.actionWidths.delete(item);
+    const rowStyle = getComputedStyle(row);
+    const metricsStyle = getComputedStyle(metrics);
+    const lead = this.find<HTMLElement>('.lead');
+    const more = this.moreButton;
+    const room = {
+      start: px(rowStyle, 'padding-inline-start'),
+      lead: lead ? lead.getBoundingClientRect().width : 0,
+      title: this.titleRoom(),
+      gap: px(rowStyle, 'column-gap'),
+      actionsGap: px(getComputedStyle(this.find<HTMLElement>('.actions') ?? row), 'column-gap'),
+      // APB-4: the row ends padding-inline from the end edge after an action, title.inset where there is none.
+      endActions: px(metricsStyle, 'padding-inline-start'),
+      endNone: px(metricsStyle, 'padding-inline-end'),
+      more: more ? more.getBoundingClientRect().width : 0,
+    };
+    const has = row.getBoundingClientRect().width;
+    this.noteSizes();
+    const fits = (out: ReadonlySet<Element>) => has <= 0 || this.needs(out, room) <= has + 0.5;
+    const out = new Set<Element>();
+    for (const item of this.actionItems.filter((each) => this.mayLeave(each)).reverse()) {
+      if (fits(out)) break;
+      out.add(item);
+    }
+    // APB-28: the more button's width is needed before the decision is drawn: it is drawn (unseen), and the decision
+    // is made again once it is — before the frame (APB-32).
+    return out.size && this.menuMode && !more ? 'more' : { out };
+  }
+
+  /** The writing half of `fit()`: draws what `readFit` decided. Returns whether what is shown changed. */
+  private applyFit(decision: ReturnType<TanreiAppBar['readFit']>): boolean {
+    if (!decision || !this.isConnected) return false;
+    if (decision === 'more') {
+      this.moreWanted = true;
+      void this.settle();
+      return false;
+    }
+    return this.apply(decision.out);
+  }
+
+  /** The border box of every box the observer watches, as it is now (`known`). Read with the others of `readFit`. */
+  private noteSizes() {
+    this.known.clear();
+    for (const element of this.watchedBoxes()) {
+      const box = element.getBoundingClientRect();
+      this.known.set(element, [box.width, box.height]);
+    }
+  }
+
+  /** Whether a report finds its box as the bar last read it (`known`), to half a pixel. */
+  private asKnown(entry: ResizeObserverEntry): boolean {
+    const known = this.known.get(entry.target);
+    const box = entry.borderBoxSize?.[0];
+    if (!known || !box) return false;
+    return Math.abs(known[0] - box.inlineSize) < 0.5 && Math.abs(known[1] - box.blockSize) < 0.5;
   }
 
   /** APB-26, APB-30, APB-31: draws the decision — an action out as nothing — and hands on the focus an action had. */
@@ -779,11 +833,15 @@ export class TanreiAppBar extends TanreiElement {
   /** The boxes whose size moves the centred title's balance and the collapse's range. */
   private observe() {
     if (this.resting) return;
-    for (const selector of ['.row', '.lead', '.actions', '.block', '.metrics > span', '.more']) {
-      for (const element of this.renderRoot?.querySelectorAll(selector) ?? []) this.resize$?.observe(element);
-    }
-    // APB-27: each action drawn; one that is out is drawn as nothing.
-    for (const item of this.actionItems) if (!item.hasAttribute(OUT)) this.resize$?.observe(item);
+    for (const element of this.watchedBoxes()) this.resize$?.observe(element);
+  }
+
+  /** What the observer watches: the boxes of the row, and each action drawn (APB-27; one that is out is drawn as nothing). */
+  private watchedBoxes(): Element[] {
+    const boxes: Element[] = [];
+    for (const selector of ['.row', '.lead', '.actions', '.block', '.metrics > span', '.more']) boxes.push(...(this.renderRoot?.querySelectorAll(selector) ?? []));
+    for (const item of this.actionItems) if (!item.hasAttribute(OUT)) boxes.push(item);
+    return boxes;
   }
 
   protected override firstUpdated() {
