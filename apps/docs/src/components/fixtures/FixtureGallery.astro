@@ -123,13 +123,21 @@ if (system && !systemSheet) throw new Error(`FixtureGallery: no generated styles
                 ) : (
                   /* The document's stage is drawn in this canvas, from the gallery's data, when the stage comes near
                      the view (lib/fixture-stages.ts) — an opener's closed; until then the canvas holds the room its
-                     baseline shows. Its handle is kept where the staging gives the fixture a layout's width, and taken
-                     away elsewhere. */
+                     baseline shows, or, for a stage that stands for an area of a window, the room it is drawn in once
+                     scaled to its row. Its handle is kept where the staging gives the fixture a layout's width, and
+                     taken away elsewhere. */
                   <div
                     class="docs-stage-canvas"
                     {...scope}
                     data-pending
-                    style={stage.reserve ? `--docs-stage-reserve-inline: ${stage.reserve.width}px; --docs-stage-reserve-block: ${stage.reserve.height}px` : undefined}
+                    data-stage-area={stage.area ? '' : undefined}
+                    style={
+                      stage.area
+                        ? `--docs-stage-area-width: ${stage.area.width}; --docs-stage-area-height: ${stage.area.height}`
+                        : stage.reserve
+                          ? `--docs-stage-reserve-inline: ${stage.reserve.width}px; --docs-stage-reserve-block: ${stage.reserve.height}px`
+                          : undefined
+                    }
                   >
                     <ResizeHandle label={named(t.stages.width, { id: stage.id })} controls={stageId} />
                   </div>
@@ -263,6 +271,16 @@ if (system && !systemSheet) throw new Error(`FixtureGallery: no generated styles
   }
   .docs-stage-canvas[data-pending] {
     min-inline-size: min(100%, var(--docs-stage-reserve-inline, 0px));
+  }
+  /* A stage that stands for an area of a window is scaled down to its row once it is drawn (lib/fixture-stages.ts),
+     and its canvas holds that room before, as a window's does: as wide as the stage and never wider than the column,
+     as tall as that width keeps its proportions (lib/stage-area.ts). The room its baseline shows is the stage
+     unscaled, which the canvas would hold until the stage was drawn, and shrink from in the reader's view. Once drawn,
+     the canvas is the scaled stage's box: the scale is written before the stage is (`drawFixture`), so it takes the
+     same room, and a width the reader sets with its handle is its own. */
+  .docs-stage-canvas[data-pending][data-stage-area] {
+    inline-size: min(100%, calc(var(--docs-stage-area-width) * 1px));
+    aspect-ratio: var(--docs-stage-area-width) / var(--docs-stage-area-height);
   }
   /* A modal fixture's stage: the picture of it open, at its own size (its `width` and `height` hold its room before it
      loads) and never wider than the column, and under it the button that opens it. Its canvas is no part of the

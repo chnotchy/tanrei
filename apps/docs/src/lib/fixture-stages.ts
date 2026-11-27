@@ -10,10 +10,8 @@ import { RESIZE_EVENT, resizeHandle } from './resize-handle';
 import { CONTRAST_ATTR, LOOK_SHEET_EVENT, LOOK_SHEET_ID, THEME_ATTR } from './appearance';
 import { whenNear } from './example';
 import { SUBJECT_ATTR } from './omitted-elements';
+import { LEAST } from './stage-least';
 import windowSheet from '../styles/fixture-window.css?url';
-
-/** The least width a stage is made narrower to by its handle, in CSS pixels. */
-const LEAST = 160;
 
 /** The width a stage can give its canvas: the stage's box (as wide as the column), less its padding. */
 function room(canvas: HTMLElement): number {
@@ -44,31 +42,28 @@ const matches = (element: Element, selector: string) => {
   }
 };
 
-/** What the staging makes as wide as a layout, and whether it stands for an area: `laidOutBy`. */
+/** What the staging makes as wide as a layout: `laidOutBy`. */
 interface Layout {
   sized: HTMLElement;
   width: number;
-  /** The staging gives the stage both of its lengths in pixels: it stands for an area of a window (`area`). */
-  area: boolean;
 }
 
 /**
  * What the staging makes as wide as a layout, in a drawn stage: the fixture's element, or else the stage, where a rule
  * of the staging that matches it gives it a width in pixels (`.stage > tanrei-text-field { inline-size: 280px }`, a
  * table's stage 752 wide). Nothing where the fixture is as wide as what it draws (a Button). Where both have a width,
- * the stage is the layout when it is the wider (a popover's 480 stage around an anchor 240 wide). A stage that the
- * rule gives a height in pixels too is an area of a window (a popover's 480 × 480 around its anchor, a docked picker's
- * 800 × 640, a side sheet's page 720 × 480): what it draws is placed by that area's size.
+ * the stage is the layout when it is the wider (a popover's 480 stage around an anchor 240 wide). Whether the stage
+ * stands for an area of a window is read when the site is built, from the same rule (lib/stage-area.ts), and its canvas
+ * says so (`areaOf`).
  */
 function laidOutBy(stage: Element): Layout | undefined {
   const widthOf = (rule: CSSStyleRule) => rule.style.getPropertyValue('inline-size') || rule.style.getPropertyValue('width');
-  const heightOf = (rule: CSSStyleRule) => rule.style.getPropertyValue('block-size') || rule.style.getPropertyValue('height');
   const inPixels = (value: string) => /^[\d.]+px$/.test(value);
   const rules = stagingRules().filter((rule) => inPixels(widthOf(rule)));
   const sized = [stage.firstElementChild, stage].flatMap((element) => {
     // The last rule that matches is the one in effect, as their order in the staging says.
     const rule = element instanceof HTMLElement ? rules.findLast((each) => matches(element, each.selectorText)) : undefined;
-    return rule ? [{ sized: element as HTMLElement, width: parseFloat(widthOf(rule)), area: element === stage && inPixels(heightOf(rule)) }] : [];
+    return rule ? [{ sized: element as HTMLElement, width: parseFloat(widthOf(rule)) }] : [];
   });
   const [own, ofStage] = sized.length === 2 ? sized : [sized[0], undefined];
   return ofStage && own && ofStage.width > own.width ? ofStage : own;
@@ -95,6 +90,15 @@ const rows = new ResizeObserver((entries) => {
 const SCALE = '--docs-stage-scale';
 
 /**
+ * The width a stage that stands for an area of a window is laid out at, padding and border included, as the build read
+ * it from the staging (lib/stage-area.ts) and wrote it on its canvas; nothing for any other stage.
+ */
+function areaOf(canvas: HTMLElement): number | undefined {
+  if (!canvas.hasAttribute('data-stage-area')) return undefined;
+  return parseFloat(canvas.style.getPropertyValue('--docs-stage-area-width')) || undefined;
+}
+
+/**
  * Whether what a stage draws reaches past it sideways, laid out as it is: a calendar 336 wide in a stage that is
  * narrower, a menu's open submenus beside it. Its scrollable overflow, which holds every box it draws that its
  * component does not clip (a carousel's track, a code block's long line, a tab row that scrolls are clipped by their
@@ -107,17 +111,19 @@ const reachesPast = (stage: HTMLElement) => stage.scrollWidth > stage.clientWidt
  * than its baseline — a layout wider than the column is laid out at the column's width, as a product's is — and the
  * handle, where it has one, sets the width the reader wants, which the stage keeps for as long as the row has room.
  *
- * Except where that would draw it otherwise than its baseline: a stage that stands for an area of a window (`area`), and
- * one whose drawing, laid out at the row's width, reaches past it (`reachesPast`). Each is drawn as a window is: laid
- * out at its baseline's width (the width the staging gives it, else its baseline picture's), or the handle's, and
- * scaled down to the row (`zoom`, so that the canvas holds the room it is drawn in). Once scaled it stays so: laid out
- * at its baseline's width, it no longer shows whether the row's would do.
+ * Except where that would draw it otherwise than its baseline: a stage that stands for an area of a window (`area`, the
+ * width the build read it is laid out at: `areaOf`), and one whose drawing, laid out at the row's width, reaches past
+ * it (`reachesPast`). Each is drawn as a window is: laid out at its baseline's width (the area's, else the width the
+ * staging gives it, else its baseline picture's), or the handle's, and scaled down to the row (`zoom`, so that the
+ * canvas holds the room it is drawn in). An area is scaled from the start (`drawFixture`); a stage is known to reach
+ * past its row only once it is drawn. Once scaled it stays so: laid out at its baseline's width, it no longer shows
+ * whether the row's would do.
  */
-function fitStage(canvas: HTMLElement, stage: HTMLElement, layout: Layout | undefined, handle: HTMLElement | null) {
+function fitStage(canvas: HTMLElement, stage: HTMLElement, layout: Layout | undefined, handle: HTMLElement | null, area: number | undefined) {
   const reserve = parseFloat(canvas.style.getPropertyValue('--docs-stage-reserve-inline')) || 0;
   const natural = layout?.width;
   let wanted = natural;
-  let scaled = layout?.area ?? false;
+  let scaled = area !== undefined;
   // What the canvas draws around the sized element, in the sized element's own terms: the stage's padding and border
   // where the fixture's element is sized; where the stage is, its padding unless its width holds it (`border-box`).
   const around = () => {
@@ -128,7 +134,7 @@ function fitStage(canvas: HTMLElement, stage: HTMLElement, layout: Layout | unde
   };
   // The width a scaled stage is laid out at, its padding and border included: its baseline's, or the handle's.
   let laid: number | undefined;
-  const baseline = () => (natural !== undefined ? natural + around() : reserve);
+  const baseline = () => area ?? (natural !== undefined ? natural + around() : reserve);
   // Reads the layout and returns the write it calls for: the observer of rows reads every stage it is told of before it
   // writes any.
   const fit = () => {
@@ -687,12 +693,19 @@ export function drawFixture(figure: HTMLElement) {
   const html = drawingsOf(gallery)[figure.dataset.fixtureId ?? ''];
   const template = document.createElement('template');
   template.innerHTML = html ?? '';
+  // A stage that stands for an area is scaled to its row before it is drawn: its first layout is the scaled one, in
+  // the room its canvas held (components/fixtures/FixtureGallery.astro), and nothing moves as it is drawn.
+  const area = areaOf(canvas);
+  if (area !== undefined) {
+    const scale = Math.min(1, room(canvas) / Math.max(LEAST, area));
+    canvas.style.setProperty(SCALE, scale < 1 ? String(scale) : '');
+  }
   canvas.prepend(document.importNode(template.content, true));
   canvas.removeAttribute('data-pending');
   const stage = canvas.querySelector<HTMLElement>(':scope > .stage');
   const handle = canvas.querySelector<HTMLElement>(':scope > [data-resize-handle]');
   // A modal fixture's closed stage draws nothing in the page (it opens over it), and is not fitted.
-  if (stage && !canvas.closest('.docs-stage-opener')) fitStage(canvas, stage, laidOutBy(stage), handle);
+  if (stage && !canvas.closest('.docs-stage-opener')) fitStage(canvas, stage, laidOutBy(stage), handle, area);
   else handle?.remove();
   const tag = gallery.dataset.fixtureTag;
   if (stage && tag && gallery.dataset.fixtureStep !== undefined) {

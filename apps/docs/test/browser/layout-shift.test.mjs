@@ -356,7 +356,12 @@ const elementChunks = new Set(
  * example is a column of fields 236 px tall drawn (80 px before they are defined, without the cloak), in English and in
  * Arabic (right to left); the Select's, in English and in Japanese (its own faces), whose measure figure's table names a
  * length the component does not draw; and the Button's, whose tokens' table is the longest of the site; each at a
- * phone's width and a desktop's.
+ * phone's width and a desktop's. And at a phone's width, the pages whose galleries hold stages that stand for an area
+ * of a window, wider than the column and scaled down to it (lib/stage-area.ts): the Date and time picker's docked
+ * pickers (480 × 720, 800 × 640), the Popover's, the Side sheet's and the Search's. Each such canvas holds the scaled
+ * room from the first paint; while it held the stage's unscaled height until it was drawn, the Date and time picker's
+ * docked stages shrank from 784 px to 529 (the horizontal one from 704 to 312) in the view, and its page moved by
+ * 0.0555 as it was read through.
  *
  * - A page's own figure does not change its height while it is in the view: what its stage holds takes its drawn room
  *   before any script runs (lib/stage-cloak.mjs), and a stage below the view takes it before the reader reaches it
@@ -382,6 +387,10 @@ const LATE_READS = [
   { url: '/components/select/', viewport: { width: 1440, height: 900 }, late: 1_000 },
   { url: '/components/button/', viewport: PHONE, late: 2_000 },
   { url: '/components/button/', viewport: { width: 1440, height: 900 }, late: 2_000 },
+  { url: '/components/date-time-picker/', viewport: PHONE, late: 1_000 },
+  { url: '/components/popover/', viewport: PHONE, late: 1_000 },
+  { url: '/components/side-sheet/', viewport: PHONE, late: 1_000 },
+  { url: '/components/search/', viewport: PHONE, late: 1_000 },
 ];
 
 /**
