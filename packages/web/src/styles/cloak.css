@@ -854,8 +854,11 @@
      padding, or after an input chip's remove glyph (CHP-18; not one that is `not-removable`, CHP-38) the gap, the
      glyph's box and the padding that goes with the remove action, or after the mark of a link chip that opens a new
      context (CHP-35) the gap, the glyph's box and the padding that goes with a glyph. What is written between its
-     tags — a glyph's name, an avatar's element — is no text of its own until it is drawn (`font-size: 0`): the chip's
-     width is the label's and its parts', so a chip in a row of them wraps where it will. */
+     tags — a glyph's name — is no text of its own until it is drawn (`font-size: 0`); a chip with a glyph or an avatar
+     written in it is a grid of one row, a line of the label's text style tall, whose first column is the lead's box (the
+     glyph's or the avatar's and the gap): the element written there — a glyph's name, an `<img>` or an `<svg>` of any
+     size — is laid out in that box and not by its own size, and the chip clips what stands out of it. The chip's width
+     is the label's and its parts', so a chip in a row of them wraps where it will. */
   :where(tanrei-chip):where(:not(:defined):not([hidden]):not(tanrei-app-bar:not(:defined) > [slot])) {
     --_cloak-pad: var(--tanrei-comp-chip-container-padding-inline-medium);
     --_cloak-pad-icon: var(--tanrei-comp-chip-container-padding-inline-with-icon-medium);
@@ -864,6 +867,7 @@
     --_cloak-gap: var(--tanrei-comp-chip-container-gap-medium);
     --_cloak-icon: var(--tanrei-comp-chip-icon-size-medium);
     --_cloak-avatar: var(--tanrei-comp-chip-avatar-size-medium);
+    --_cloak-line: calc(var(--tanrei-comp-chip-label-typescale-medium-line-height) * var(--tanrei-comp-chip-label-typescale-medium-font-size));
     --_cloak-start: var(--_cloak-pad);
     --_cloak-end: var(--_cloak-pad);
     display: inline-flex;
@@ -881,13 +885,30 @@
     --_cloak-gap: var(--tanrei-comp-chip-container-gap-small);
     --_cloak-icon: var(--tanrei-comp-chip-icon-size-small);
     --_cloak-avatar: var(--tanrei-comp-chip-avatar-size-small);
+    --_cloak-line: calc(var(--tanrei-comp-chip-label-typescale-small-line-height) * var(--tanrei-comp-chip-label-typescale-small-font-size));
     padding-block: var(--tanrei-comp-chip-container-padding-block-small);
   }
-  :where(tanrei-chip:is(:has(> [slot='icon']), [kind='filter'][selected])):where(:not(:defined):not([hidden])) {
+  :where(tanrei-chip[kind='filter'][selected]):where(:not(:defined):not([hidden])) {
     --_cloak-start: calc(var(--_cloak-pad-icon) + var(--_cloak-icon) + var(--_cloak-gap));
   }
+  :where(tanrei-chip:has(> [slot='icon'])):where(:not(:defined):not([hidden])) {
+    --_cloak-start: var(--_cloak-pad-icon);
+    --_cloak-lead: calc(var(--_cloak-icon) + var(--_cloak-gap));
+  }
   :where(tanrei-chip[kind='input']:has(> [slot='avatar'])):where(:not(:defined):not([hidden])) {
-    --_cloak-start: calc(var(--_cloak-pad-avatar) + var(--_cloak-avatar) + var(--_cloak-gap));
+    --_cloak-start: var(--_cloak-pad-avatar);
+    --_cloak-lead: calc(var(--_cloak-avatar) + var(--_cloak-gap));
+  }
+  :where(tanrei-chip:is(:has(> [slot='icon']), [kind='input']:has(> [slot='avatar']))):where(:not(:defined):not([hidden]):not(tanrei-app-bar:not(:defined) > [slot])) {
+    display: inline-grid;
+    grid-auto-flow: column;
+    grid-template-columns: var(--_cloak-lead);
+    grid-template-rows: var(--_cloak-line);
+    align-items: center;
+    overflow: clip;
+  }
+  :where(tanrei-chip:is(:has(> [slot='icon']), [kind='input']:has(> [slot='avatar'])):not(:defined))::before {
+    grid-column: 2;
   }
   :where(tanrei-chip[kind='input']:not([not-removable])):where(:not(:defined):not([hidden])) {
     --_cloak-end: calc(var(--_cloak-gap) + var(--_cloak-icon) + var(--_cloak-pad-remove));
