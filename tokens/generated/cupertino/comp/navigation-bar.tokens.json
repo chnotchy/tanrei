@@ -177,7 +177,7 @@
           "label": {
             "typescale": {
               "$type": "typography",
-              "$value": "{tanrei.sys.typescale.caption}",
+              "$value": "{tanrei.sys.typescale.caption-small}",
               "$extensions": {}
             }
           },
