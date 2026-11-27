@@ -210,7 +210,7 @@ Until its script has run, an element is unknown to the browser: the page shows w
 unstyled, and moves when the element is defined. `cloak.css` hides every Tanrei element until it is defined, holds
 each element whose height its tokens give at that height — a control (a button, a text input, a checkbox, tabs…), a
 field with its label and its help (a text field, a select field…), a group of fields or of choices, a list row, a
-stepper, a snackbar and others — and takes an element whose surface is in the top layer (a dialog, a popover) out of
+stepper, a snackbar, a calendar and others — and takes an element whose surface is in the top layer (a dialog, a popover) out of
 the page:
 
 ```js
