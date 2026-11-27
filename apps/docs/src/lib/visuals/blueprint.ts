@@ -21,12 +21,13 @@
 //   and what the token says (`data-value`); a row whose length is not drawn says in words what was found instead. The
 //   table is written again when the system changes.
 // - **It is drawn once the stage is at rest**: its elements have drawn, the fonts have arrived, and the motions that
-//   end (an entrance, a fade) have ended.
+//   end (an entrance, a fade) have ended; a motion that never ends (a spinner's turn) is held at its start while the
+//   parts are measured.
 // - **It is drawn again** when the stage changes size or direction, when the fonts arrive, and when the page's look
 //   changes (lib/visuals/frame.ts, `SYSTEM_EVENT`).
 import type { PartTarget } from './anatomy';
 import type { LineAxis } from './measure';
-import { SYSTEM_EVENT, settled, shadowRootsIn, whenDrawn } from './frame';
+import { SYSTEM_EVENT, atStart, settled, shadowRootsIn, systemOf, whenDrawn } from './frame';
 import { STATE_ATTRIBUTE, hold } from './pseudo-states';
 
 /** Sent on a figure's frame each time its overlay has been drawn. */
@@ -541,8 +542,18 @@ function drawMeasures(drawing: Drawing) {
       const cell = row_.querySelector<HTMLElement>('[data-measure-value]');
       if (cell && Number.isFinite(value)) cell.textContent = shown(value);
       Object.assign(row_.dataset, { measured: String(measured), value: String(value), drawn: String(agrees) });
-      const note = row_.querySelector<HTMLElement>('[data-measure-note]');
+      // The note of the look the figure is drawn in, where the page wrote one for each look (`data-measure-for`,
+      // MeasureDiagram.astro), else the row's one note, else one written now; the others are hidden.
+      const notes = [...row_.querySelectorAll<HTMLElement>('[data-measure-note]')];
+      const look = systemOf(frame);
+      let note = notes.find((each) => each.dataset.measureFor?.split(' ').includes(look)) ?? notes.find((each) => !each.dataset.measureFor);
       const table = row_.closest<HTMLElement>('table');
+      if (!note && notes.length) {
+        note = notes[0].cloneNode() as HTMLElement;
+        note.dataset.measureFor = look;
+        notes.at(-1)!.after(note);
+      }
+      for (const other of notes) if (other !== note) other.hidden = true;
       if (note && table) {
         note.hidden = agrees;
         note.textContent = agrees ? '' : Number.isFinite(measured) ? (table.dataset.differs ?? '').replace('{measured}', shown(measured)) : (table.dataset.absent ?? '');
@@ -609,8 +620,8 @@ for (const subject of document.querySelectorAll<HTMLElement>('[data-blueprint]')
         queued = false;
         void settled(subject)
           .then(() => {
-            if (data.kind === 'anatomy') drawAnatomy(drawing);
-            else drawMeasures(drawing);
+            // Measured with a spinner's turn at its start: the box laid out, not the box turned (frame.ts, `atStart`).
+            atStart(subject, () => (data.kind === 'anatomy' ? drawAnatomy(drawing) : drawMeasures(drawing)));
             overlay.dataset.drawn = '';
             frame.dispatchEvent(new CustomEvent(DRAWN_EVENT));
           })
