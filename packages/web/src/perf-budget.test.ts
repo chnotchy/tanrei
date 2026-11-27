@@ -507,6 +507,36 @@ test.describe('upgrading a page that is still loading (a Chromium trace)', () =>
     expect(empty, [line, ...empty].join('\n')).toEqual([]);
     expect(parsed, [line, ...parsed].join('\n')).toEqual([]);
   });
+
+  // A frame tells its observers of sizes one after another, in the order they were made, and an observer told after
+  // another one wrote reads a page that is styled and laid out for nothing but that read. A docs page's Tag group was
+  // told its list's first size after another element's observer had written, now and then, and read its members there:
+  // a pass of the whole loading page for the group. Before the first paint it reads them with the read phase's reads
+  // (src/primitives/read-phase.ts), whose observer comes first; its own first report then finds them as they were read.
+  test('a Tag group put in a loading page after another observer of sizes was made reads nothing in its first report (TGR-5)', async ({ page }) => {
+    const bundle = await production();
+    // An observer of the page's own, made before the group's, that writes in its first report.
+    const writer = `const box = document.getElementById('writer'); new ResizeObserver(() => { box.style.blockSize = '1px'; }).observe(box); document.getElementById('pane').innerHTML = ${JSON.stringify(fixtureMarkup('tag-group', 'tags'))};`;
+    const html = `<!doctype html><html lang="en"><head><meta charset="utf-8"><style>${read('dist/tanrei.css')}</style><style>body { margin: 0; }</style></head><body><div id="writer"></div><div id="pane"></div><script type="module">${bundle}</script><script type="module">${writer}</script></body></html>`;
+    await page.route(UPGRADE_PAGE, (route) => route.fulfill({ contentType: 'text/html; charset=utf-8', body: html }));
+    // Loaded once first: the run counted compiles nothing the first did not.
+    await page.goto(UPGRADE_PAGE);
+    await page.goto('about:blank');
+    const events: TraceEvent[] = [];
+    const cdp = await page.context().newCDPSession(page);
+    cdp.on('Tracing.dataCollected', ({ value }) => events.push(...(value as unknown as TraceEvent[])));
+    await cdp.send('Tracing.start', { traceConfig: { includedCategories: ['devtools.timeline', 'disabled-by-default-devtools.timeline.stack'] }, transferMode: 'ReportEvents' });
+    await page.goto(UPGRADE_PAGE);
+    await framesOfWork(page);
+    const complete = new Promise<void>((resolve) => cdp.once('Tracing.tracingComplete', () => resolve()));
+    await cdp.send('Tracing.end');
+    await complete;
+    await cdp.detach();
+    const rendered = await page.evaluate(() => document.querySelector('tanrei-tag-group')?.shadowRoot?.querySelector('.list') !== null);
+    expect(rendered, 'the group rendered its list').toBe(true);
+    const forced = forcedPasses(events).map((event) => `${event.name} ${event.args!.beginData!.stackTrace!.slice(0, 4).map((frame) => `${frame.functionName || '(anonymous)'}:${frame.lineNumber}:${frame.columnNumber ?? 0}`).join(' < ')}`);
+    expect(forced, 'passes forced while the page loads and paints').toEqual([]);
+  });
 });
 
 test.describe('the run-time budgets (perf-budgets.json)', () => {

@@ -1,6 +1,6 @@
 import { type PropertyDeclarations, type PropertyValues, html, nothing } from 'lit';
 import { delegatedAria, delegatesAria } from '../../primitives/delegated-aria.js';
-import { AvailabilityController, OpenAxesController, Settle, documentPainted, motionReduced, parseValues, report } from '../../primitives/index.js';
+import { AvailabilityController, OpenAxesController, Settle, cancelPhaseRead, documentPainted, motionReduced, parseValues, readInPhase, report } from '../../primitives/index.js';
 import type { TanreiTagGroupSpacingRegistry } from '../../registry.js';
 import { AXES, DEFAULT_SPACING, styles } from './tag-group.styles.js';
 import { TanreiElement, focusKept } from '../../primitives/element.js';
@@ -35,6 +35,17 @@ const isContent = (node: Node) => node.nodeType === Node.ELEMENT_NODE || (isText
 const sameOrder = (a: readonly Node[], b: readonly Node[]) => a.length === b.length && a.every((node, i) => node === b[i]);
 
 /** Whether motion is reduced for this person (TGR-10). */
+
+/** TGR-5, TGR-10: a member as `readPlaces()` read it: where it is laid out from the list's corner, and how far its move draws it from there. */
+interface Laid {
+  member: Element;
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  bottom: number;
+  shown: { x: number; y: number };
+}
 
 /** TGR-10: where a member was laid out at the last look, from the list's corner and without its move, its size, and the line it stood on. */
 interface Place {
@@ -234,9 +245,17 @@ export class TanreiTagGroup extends TanreiElement {
 
   /**
    * TGR-5, TGR-10: the list's box and each member's are watched while they are in the page, and the members placed
-   * again when one of them changes — after its layout, before it is drawn. Nothing is measured at rest.
+   * again when one of them changes — after its layout, before it is drawn. Nothing is measured at rest. Before the
+   * document's first paint a report that finds every box as the read phase last read it is the one the phase placed
+   * the members from already (`placeInPhase`), and is not read again.
    */
-  private readonly lines$ = typeof ResizeObserver === 'function' ? new ResizeObserver(() => this.place()) : null;
+  private readonly lines$ =
+    typeof ResizeObserver === 'function'
+      ? new ResizeObserver((entries) => {
+          if (!documentPainted() && entries.every((entry) => this.asRead(entry))) return;
+          this.place();
+        })
+      : null;
   private observed: Element | null = null;
   /** TGR-10: the members whose box is watched. */
   private readonly sized = new Set<Element>();
@@ -248,7 +267,9 @@ export class TanreiTagGroup extends TanreiElement {
     if (this.observed) this.lines$?.unobserve(this.observed);
     if (rendered) this.lines$?.observe(rendered);
     this.observed = rendered;
-    if (!rendered) this.place();
+    // A list rendered before the first paint is placed in the coming frame's read phase, ahead of its observer's first
+    // report, which then finds every box as it was read.
+    if (!rendered || !documentPainted()) this.place();
   }
 
   /** TGR-10: each member's box is watched while it is here: a member that changes its size moves the others. */
@@ -317,8 +338,9 @@ export class TanreiTagGroup extends TanreiElement {
    * fades end too.
    */
   private place(byMembers = false) {
-    const list = this.observed;
-    if (!list || !this.isConnected) {
+    if (!this.observed || !this.isConnected) {
+      cancelPhaseRead(this.placing);
+      this.phaseByMembers = null;
       this.stopMoves();
       this.places = new Map();
       this.placedBy = '';
@@ -326,15 +348,80 @@ export class TanreiTagGroup extends TanreiElement {
       this.wrap(false);
       return;
     }
+    // Before the first paint the members are read with the read phase's reads (src/primitives/read-phase.ts): read in
+    // the group's observer's report, after another observer's report or the phase's writes had written, they had the
+    // browser style and lay out the whole loading page for the group. Nothing moves before the first paint, so a place
+    // read a frame later than the report changes nothing drawn but that frame's custom state `wrapped`.
+    if (!documentPainted()) {
+      this.placeInPhase(byMembers);
+      return;
+    }
+    this.placeAsRead(this.readPlaces(), byMembers);
+  }
+
+  /** TGR-5, TGR-10: who asks the read phase to place the members (`placeInPhase`), and whether all that asked were members that came. */
+  private readonly placing = {};
+  private phaseByMembers: boolean | null = null;
+  /** The border box of the list and of each member as the read phase last read them, before the first paint (`asRead`). */
+  private phaseRead = new Map<Element, readonly [width: number, height: number]>();
+
+  /** TGR-5, TGR-10: the members are placed in the next frame's read phase: read with its reads, placed with its writes. */
+  private placeInPhase(byMembers: boolean) {
+    this.phaseByMembers = (this.phaseByMembers ?? true) && byMembers;
+    readInPhase(this.placing, () => {
+      const by = this.phaseByMembers ?? byMembers;
+      this.phaseByMembers = null;
+      const list = this.observed;
+      if (!list || !this.isConnected) return () => this.place(by);
+      const read = this.readPlaces();
+      this.phaseRead = read.boxes;
+      return () => {
+        if (this.observed === list && this.isConnected) this.placeAsRead(read, by);
+        else this.place(by);
+      };
+    });
+  }
+
+  /** Whether a report finds its box as the read phase last read it (`phaseRead`), to half a pixel. */
+  private asRead(entry: ResizeObserverEntry): boolean {
+    const read = this.phaseRead.get(entry.target);
+    const box = entry.borderBoxSize?.[0];
+    if (!read || !box) return false;
+    return Math.abs(read[0] - box.inlineSize) < 0.5 && Math.abs(read[1] - box.blockSize) < 0.5;
+  }
+
+  /**
+   * TGR-5, TGR-10: the reading half of `place()` — where each member is laid out now, without its move, what laid the
+   * members out besides themselves, and the time and curve of a move. It writes nothing of the page.
+   */
+  private readPlaces() {
+    const list = this.observed!;
     const origin = list.getBoundingClientRect();
-    const laid: { member: Element; x: number; y: number; width: number; height: number; bottom: number; shown: { x: number; y: number } }[] = [];
+    const laid: Laid[] = [];
+    const boxes = new Map<Element, readonly [width: number, height: number]>([[list, [origin.width, origin.height]]]);
     for (const member of this.members) {
       const box = member.getBoundingClientRect();
+      boxes.set(member, [box.width, box.height]);
       if (box.width === 0 && box.height === 0) continue;
       const shown = this.shownOffset(member);
       const y = box.top - origin.top - shown.y;
       laid.push({ member, x: box.left - origin.left - shown.x, y, width: box.width, height: box.height, bottom: y + box.height, shown });
     }
+    const style = getComputedStyle(list);
+    return {
+      laid,
+      boxes,
+      width: origin.width,
+      by: [style.direction, style.columnGap, style.rowGap].join(' '),
+      ...this.moveTiming(),
+      // A face that arrives while the page loads resizes members without anyone's act: they are placed at once (MOT-1).
+      loading: typeof document !== 'undefined' && document.fonts?.status === 'loading',
+    };
+  }
+
+  /** TGR-5, TGR-10: the writing half of `place()`: the lines, the custom state `wrapped` and the moves, from what `readPlaces()` read. */
+  private placeAsRead(read: ReturnType<TanreiTagGroup['readPlaces']>, byMembers: boolean) {
+    const { laid, by, duration, easing, loading } = read;
     // A member starts a line when it stands wholly below the line before (TGR-1: each is centred on its line's middle).
     const lines: Element[][] = [];
     let bottom = Number.NEGATIVE_INFINITY;
@@ -350,15 +437,10 @@ export class TanreiTagGroup extends TanreiElement {
     this.wrap(lines.length > 1);
     const lineOf = new Map(lines.flatMap((line) => line.map((member) => [member, line] as const)));
     const before = this.places;
-    const style = getComputedStyle(list);
-    const by = [style.direction, style.columnGap, style.rowGap].join(' ');
-    const relaid = by !== this.placedBy || (!byMembers && Math.abs(origin.width - this.placedWidth) >= 0.5);
+    const relaid = by !== this.placedBy || (!byMembers && Math.abs(read.width - this.placedWidth) >= 0.5);
     this.places = new Map(laid.map((one) => [one.member, { x: one.x, y: one.y, width: one.width, height: one.height, line: lineOf.get(one.member)! }]));
     this.placedBy = by;
-    this.placedWidth = origin.width;
-    const { duration, easing } = this.moveTiming();
-    // A face that arrives while the page loads resizes members without anyone's act: they are placed at once (MOT-1).
-    const loading = typeof document !== 'undefined' && document.fonts?.status === 'loading';
+    this.placedWidth = read.width;
     // At a new width, direction or gap the members that fade are drawn as they will be, too.
     if (relaid) this.endPresence();
     if (relaid || !before.size || !duration || loading || this.settle.settling || !documentPainted() || motionReduced()) {
@@ -780,6 +862,9 @@ export class TanreiTagGroup extends TanreiElement {
     this.lines$?.disconnect();
     this.observed = null;
     this.sized.clear();
+    cancelPhaseRead(this.placing);
+    this.phaseByMembers = null;
+    this.phaseRead = new Map();
     this.stopMoves();
     this.endPresence();
     this.places = new Map();
