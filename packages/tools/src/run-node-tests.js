@@ -59,10 +59,55 @@ export function shard(env) {
 }
 
 /**
+ * A file's weight: its seconds, or the median of the weights' seconds for a file they do not name (1 when they name
+ * none) — a new file runs, in some shard, before anyone has measured it.
+ * @param {Record<string, number | string | string[]>} weights
+ * @returns {(file: string) => number}
+ */
+export function weigher(weights) {
+  const known = Object.values(weights).filter((value) => typeof value === 'number').sort((a, b) => a - b);
+  const median = known.length === 0 ? 1 : known.length % 2 ? known[(known.length - 1) / 2] : (known[known.length / 2 - 1] + known[known.length / 2]) / 2;
+  return (file) => (typeof weights[file] === 'number' ? weights[file] : median);
+}
+
+/**
+ * The files longest first by their weights, the files of one weight by name: the order a shard starts its files in,
+ * and the order the shards are dealt them in. A job runs its files a few at a time (`--test-concurrency`, by default
+ * the cores less one: three on CI's 4 cores), each as a place comes free; in name order a long file whose name comes
+ * late started only as the others ended and ran alone at the end — the eighth docs browser job of CI run 45993351303,
+ * whose files weigh 2145 s, about 715 s at best three at a time, would take about 940 s that way, its 620 s page
+ * actions started last, and it reached its 20-minute limit. Started longest first, the short files fill in beside
+ * the long ones.
+ * @param {string[]} files
+ * @param {Record<string, number | string | string[]>} weights
+ * @returns {string[]}
+ */
+export function longestFirst(files, weights) {
+  const weightOf = weigher(weights);
+  return [...files].sort((a, b) => weightOf(b) - weightOf(a) || (a < b ? -1 : a > b ? 1 : 0));
+}
+
+/**
+ * How long a job runs files of these seconds, started in this order `at` at a time, each as a place comes free (the
+ * earliest free place; the lower one on a tie): what the order of a shard's files costs, without a run.
+ * @param {number[]} seconds in the order the files start
+ * @param {number} at how many run at once
+ * @returns {number}
+ */
+export function jobSeconds(seconds, at) {
+  const free = Array.from({ length: Math.max(1, at) }, () => 0);
+  for (const s of seconds) {
+    const k = free.indexOf(Math.min(...free));
+    free[k] += s;
+  }
+  return Math.max(...free);
+}
+
+/**
  * The files split into `total` shards of about the same time: longest first, each to the shard that has the least so
  * far (the lower index on a tie), the files of one weight taken by name — the same split on every machine, whatever
  * order the files were found in. A file the weights do not name weighs their median: a new file runs, in some shard,
- * before anyone has measured it. Each shard's files are in name order.
+ * before anyone has measured it. Each shard's files are in name order (a shard starts them longest first: weightedShard).
  *
  * A file the weights list under `$alone` takes a shard of its own, the first ones, and the others share the rest: a
  * file that keeps the machine busy for its whole run slows every file beside it (the docs' fixture gallery, about two
@@ -80,9 +125,7 @@ export function shard(env) {
 export function balance(files, weights, total, start = []) {
   const alone = (Array.isArray(weights.$alone) ? weights.$alone : []).filter((file) => files.includes(file)).sort();
   if (alone.length >= total) throw new Error(`the weights put ${alone.length} files in shards of their own (${alone.join(', ')}), and there are ${total} shards: the others need at least one`);
-  const known = Object.values(weights).filter((value) => typeof value === 'number').sort((a, b) => a - b);
-  const median = known.length === 0 ? 1 : known.length % 2 ? known[(known.length - 1) / 2] : (known[known.length / 2 - 1] + known[known.length / 2]) / 2;
-  const weightOf = (file) => (typeof weights[file] === 'number' ? weights[file] : median);
+  const weightOf = weigher(weights);
   const shards = Array.from({ length: total }, (_, k) => ({ files: [], seconds: start[k] ?? 0, guessed: [] }));
   alone.forEach((file, k) => {
     shards[k].files.push(file);
@@ -90,7 +133,7 @@ export function balance(files, weights, total, start = []) {
     if (typeof weights[file] !== 'number') shards[k].guessed.push(file);
   });
   const shared = shards.slice(alone.length);
-  const order = [...new Set(files)].filter((file) => !alone.includes(file)).sort((a, b) => weightOf(b) - weightOf(a) || (a < b ? -1 : a > b ? 1 : 0));
+  const order = longestFirst([...new Set(files)].filter((file) => !alone.includes(file)), weights);
   for (const file of order) {
     const least = shared.reduce((best, s) => (s.seconds < best.seconds ? s : best));
     least.files.push(file);
@@ -102,9 +145,10 @@ export function balance(files, weights, total, start = []) {
 }
 
 /**
- * This shard's files, when the arguments name a weights file (`--shard-weights=<file>`: seconds by test file, its keys
- * relative to the weights file's directory) and `TEST_SHARD` is set; null otherwise. The other arguments are the
- * files' patterns and node --test's own flags, each flag written `--flag=value`.
+ * This shard's files, longest first by the weights (the order they start in), when the arguments name a weights file
+ * (`--shard-weights=<file>`: seconds by test file, its keys relative to the weights file's directory) and `TEST_SHARD`
+ * is set; null otherwise. The other arguments are the files' patterns and node --test's own flags, each flag written
+ * `--flag=value`.
  * @param {string[]} args
  * @param {{ cwd: string, env: NodeJS.ProcessEnv }} options
  * @returns {{ args: string[], weights: string | null, files: string[] | null, shards: ReturnType<typeof balance> | null, index: number }}
@@ -126,7 +170,7 @@ export function weightedShard(args, { cwd, env }) {
   const found = [...new Set(patterns.flatMap((pattern) => fs.globSync(pattern, { cwd })))].sort();
   const byKey = new Map(found.map((file) => [key(file), file]));
   const shards = balance([...byKey.keys()], table, which.total);
-  const files = shards[which.index - 1].files.map((k) => byKey.get(k));
+  const files = longestFirst(shards[which.index - 1].files, table).map((k) => byKey.get(k));
   return { args: rest.filter((arg) => arg.startsWith('-')), weights, files, shards, index: which.index };
 }
 
@@ -141,7 +185,44 @@ export function describeShards(shards, index) {
 }
 
 /**
- * Run `node --test` with these arguments; the exit status the run should have.
+ * What run-test-files-in-order.js is given for a shard's files: node --test's flags (each written `--flag=value`) as
+ * run()'s options, and the reporters — those the flags name, each to its destination, or `shown` to stdout — and
+ * `report`'s, the TAP report with each file's duration. A flag it does not know is an error, not a flag left out.
+ * @param {string[]} flags
+ * @param {string[]} files in the order they start
+ * @param {{ shown: string, report: string }} reporters
+ */
+export function inOrderConfig(flags, files, { shown, report }) {
+  const config = { files, forceExit: false, only: false, testNamePatterns: [], reporters: [] };
+  const named = [];
+  const destinations = [];
+  for (const flag of flags) {
+    const m = /^(--[a-z-]+)(?:=(.*))?$/s.exec(flag);
+    const [name, value] = m ? [m[1], m[2]] : [flag, undefined];
+    const number = () => {
+      if (value === undefined || !/^\d+$/.test(value)) throw new Error(`${name} needs a number, written ${name}=<n>`);
+      return Number(value);
+    };
+    if (name === '--test-force-exit' && value === undefined) config.forceExit = true;
+    else if (name === '--test-only' && value === undefined) config.only = true;
+    else if (name === '--test-concurrency') config.concurrency = number();
+    else if (name === '--test-timeout') config.timeout = number();
+    else if (name === '--test-name-pattern' && value !== undefined) config.testNamePatterns.push(value);
+    else if (name === '--test-reporter' && value !== undefined) named.push(value);
+    else if (name === '--test-reporter-destination' && value !== undefined) destinations.push(value);
+    else throw new Error(`a run sharded by weights takes ${flag} nowhere: run-test-files-in-order.js passes on --test-force-exit, --test-only, --test-concurrency, --test-timeout, --test-name-pattern, --test-reporter and --test-reporter-destination (each written --flag=value)`);
+  }
+  if (named.length !== destinations.length && !(named.length === 1 && destinations.length === 0)) throw new Error(`${named.length} --test-reporter and ${destinations.length} --test-reporter-destination: one destination each`);
+  if (named.length === 0) config.reporters.push({ reporter: shown, destination: 'stdout' });
+  else named.forEach((reporter, k) => config.reporters.push({ reporter, destination: destinations[k] ?? 'stdout' }));
+  config.reporters.push({ reporter: pathToFileURL(path.join(here, 'file-durations-reporter.js')).href, destination: report });
+  return config;
+}
+
+/**
+ * Run `node --test` with these arguments; the exit status the run should have. A shard sharded by weights runs its
+ * files through run-test-files-in-order.js instead, which starts them longest first: `node --test` sorts the files
+ * it is given by name.
  * @param {string[]} args
  * @param {{ cwd?: string, env?: NodeJS.ProcessEnv, stdio?: import('node:child_process').StdioOptions }} [options]
  * @returns {number}
@@ -152,14 +233,16 @@ export function runNodeTests(args, { cwd = process.cwd(), env = process.env, std
   if (weighted.files) {
     console.log(describeShards(weighted.shards, weighted.index));
     if (weighted.files.length === 0) return 0; // more shards than files: with no file named, node --test would run its default patterns
+    console.log(`# this shard starts its files longest first, by the weights: ${weighted.files.map((file) => path.basename(file)).join(', ')}`);
   }
   // Node adds its default reporter only when no reporter is named: name it, as it would have chosen it.
   const shown = args.some((arg) => arg.startsWith('--test-reporter')) ? [] : ['--test-reporter', process.stdout.isTTY ? 'spec' : 'tap', '--test-reporter-destination', 'stdout'];
   // A run sharded by weights says how long each of its files ran, so that the weights can be measured again from its
   // log: its TAP report ends with a line for each file, printed once the run has ended.
-  const reporter = weighted.files ? pathToFileURL(path.join(here, 'file-durations-reporter.js')).href : 'tap';
-  const tail = weighted.files ? [...weighted.args, ...weighted.files] : [...shard(env), ...weighted.args];
-  const run = spawnSync(process.execPath, ['--test', ...shown, '--test-reporter', reporter, '--test-reporter-destination', report, ...tail], { cwd, env, stdio });
+  const command = weighted.files
+    ? [path.join(here, 'run-test-files-in-order.js'), JSON.stringify(inOrderConfig(weighted.args, weighted.files, { shown: process.stdout.isTTY ? 'spec' : 'tap', report }))]
+    : ['--test', ...shown, '--test-reporter', 'tap', '--test-reporter-destination', report, ...shard(env), ...weighted.args];
+  const run = spawnSync(process.execPath, command, { cwd, env, stdio });
   if (run.error) throw run.error;
   if (weighted.files && fs.existsSync(report)) {
     const lines = fs.readFileSync(report, 'utf8').match(DURATION_LINE) ?? [];
