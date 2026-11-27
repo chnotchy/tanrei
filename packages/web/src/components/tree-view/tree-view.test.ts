@@ -17,6 +17,7 @@ import { expectBaseline } from '../../../test/baseline.js';
 import { EVERY_ANIMATION, motionEnded } from '../../../test/motions.js';
 import { CONTROL_HEIGHTS, atControlHeight } from '../../../test/control-height.js';
 import { askForFrame } from '../../../test/frame-asked.js';
+import { SHADOW_HOSTS, attachShadowRoot, declaredShadowRoot, glyphsIn } from '../../../test/shadow-mirror.js';
 
 const spec = loadSpec('tree-view');
 type P = Page;
@@ -1955,6 +1956,22 @@ test.describe('right to left', () => {
     expect(await css(glyph('icons', 'src'), 'transform')).toBe('none');
     expect((await drawn(row(page, 'icons', 'src'))).chevron).toMatchObject({ scale: 'none', rotate: '90deg' });
     expect((await drawn(row(page, 'icons-rtl', 'عام'))).chevron).toMatchObject({ scale: '-1 1', rotate: '-90deg' });
+  });
+
+  test('TRV-38: inside a product’s shadow root — declared in the page’s markup with the stylesheet in it, or attached by script without it — an icon the set marks is drawn mirrored in right-to-left exactly as in the document', async ({ page }) => {
+    const markup =
+      '<div dir="rtl"><tanrei-tree-view label="الإعدادات"><ul><li><span><span class="tanrei-icon">arrow_forward</span>اللغة</span></li><li><span><span class="tanrei-icon">settings</span>عام</span></li></ul></tanrei-tree-view></div>';
+    await mount(page, { fixtures: some('icons-rtl'), lead: declaredShadowRoot(markup, 'tree-view.css') });
+    await attachShadowRoot(page, markup);
+    const drawn = [
+      { name: 'arrow_forward', marked: true, transform: 'matrix(-1, 0, 0, 1, 0, 0)' },
+      { name: 'settings', marked: false, transform: 'none' },
+    ];
+    for (const id of SHADOW_HOSTS) await expect.poll(() => glyphsIn(page, id), id).toEqual(drawn);
+    // An item added later is decided there too, as in the document.
+    await page.evaluate(() => document.getElementById('scripted')!.shadowRoot!.querySelector('ul')!.insertAdjacentHTML('beforeend', '<li><span><span class="tanrei-icon">arrow_back</span>رجوع</span></li>'));
+    await askForFrame(page);
+    await expect.poll(async () => (await glyphsIn(page, 'scripted'))[2]).toEqual({ name: 'arrow_back', marked: true, transform: 'matrix(-1, 0, 0, 1, 0, 0)' });
   });
 
   test('TRV-38, TRV-36, TRV-4: a start chevron is drawn mirrored in right-to-left exactly when the icon set marks chevron_right — a closed one points left under the default set, and right, as in left-to-right, under a product layer’s set that marks nothing (acme), the tree mirroring no glyph itself — and an open one points down in both directions under both; under that set a change of direction turns nothing, and a switch of the design system that changes the answer is drawn at once', async ({ page }) => {

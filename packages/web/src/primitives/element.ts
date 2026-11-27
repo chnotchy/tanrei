@@ -2,6 +2,7 @@ import { type CSSResultGroup, type CSSResultOrNative, LitElement, ReactiveElemen
 import { settleStyles, stillPointerStyles } from '../styles/motion.js';
 import { flatParent, focusedIn } from './flat-tree.js';
 import { takeFormDefaults } from './form-default.js';
+import { lightHost } from './icon-roots.js';
 import { Settle } from './motion.js';
 
 // The base every element of this package extends, so that what each of them owes from its first frame is written once.
@@ -203,10 +204,25 @@ export abstract class TanreiElement extends LitElement {
   }
 }
 
-/** An element of this package that draws in the light DOM: MOT-3's settling; its stylesheet carries the rule (`settleRule()`). */
+/**
+ * An element of this package that draws in the light DOM: MOT-3's settling; its stylesheet carries the rule
+ * (`settleRule()`). It tells when it is connected and disconnected, so that the glyphs the product puts in it (a
+ * `.tanrei-icon` in an accordion's header or a tree view's row) are marked to mirror in right-to-left in a shadow root
+ * too, as they are in the document, whose observer cannot see into one (src/primitives/icon-roots.ts).
+ */
 export abstract class TanreiLightElement extends ReactiveElement {
   constructor() {
     super();
     new Settle(this);
+  }
+
+  override connectedCallback() {
+    super.connectedCallback();
+    lightHost(this, true);
+  }
+
+  override disconnectedCallback() {
+    super.disconnectedCallback();
+    lightHost(this, false);
   }
 }

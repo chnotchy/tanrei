@@ -29,6 +29,8 @@
 //                 draws as generated content, which no mark can be written on, handed to its host (TRV-38), and
 //                 generatedGlyphMirrors() that answer once (the previous and next links' arrows, PNL-21);
 //                 watchIconSet(): told when the design system is switched on the document's root
+//   icon-roots  — lightHost(): a light-DOM element (TanreiLightElement) tells when it is connected and disconnected;
+//                 `@tanrei/web/icons` hears it (observeIconsWhereUsed()) and observes the shadow root it is used in
 //   axes        — OpenAxesController: sizes and variants a design system adds, and a value it does not have
 //   size-cascade — SizeProviderController and SizeConsumerController: a size set on a container is the size of what it
 //                 holds that sets none (BGR-26, BTN-48); nearestSize(): a size a component lacks, taken as its nearest;
