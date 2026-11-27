@@ -101,8 +101,10 @@
      which its height includes, and inside the left and right ones. The package's stand-in gives the top inset as the
      padding above the row; the row's height here adds it too, and the inline padding adds the side insets, so that on
      a device with a notch or a status bar over the page the header is as tall, and its items stand where they will,
-     before the bar is defined (test/browser/header.test.mjs). */
-  tanrei-app-bar:not(:defined) {
+     before the bar is defined (test/browser/header.test.mjs). The header's bar alone (`.docs-app-bar`): an app bar a
+     page shows in a figure keeps the package's stand-in, as it is drawn — given this box too, a large bar in a figure
+     was held at the small bar's height, 82 px where it is drawn at 138. */
+  tanrei-app-bar.docs-app-bar:not(:defined) {
     /* An item's box: the cell of the minimum target the bar centres each item in (APB-11), or the medium Button each
        item of the header is (or is as tall as) where that is larger — the bar's own brand cell (APB-19). */
     --_docs-item-cell: max(var(--tanrei-sys-target-pointer), var(--tanrei-comp-button-container-height-medium));
@@ -117,11 +119,10 @@
     background: var(--tanrei-comp-app-bar-flat-container-color);
   }
   @media (pointer: coarse) {
-    tanrei-app-bar:not(:defined) {
+    tanrei-app-bar.docs-app-bar:not(:defined) {
       --_docs-item-cell: max(var(--tanrei-sys-target-touch), var(--tanrei-comp-button-container-height-medium));
     }
   }
-  /* The header's bar alone: an app bar a page shows as an example keeps the package's stand-in. */
   tanrei-app-bar.docs-app-bar:not(:defined) {
     flex-direction: row;
     justify-content: normal;

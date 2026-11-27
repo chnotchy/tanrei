@@ -9,12 +9,17 @@
  * - nothing inside it: no picture, no initials, no glyph (the name of a glyph in the `icon` slot is not shown as text)
  *   and no name — which is why a byline writes the name as text beside a decorative avatar;
  * - a `<tanrei-avatar-group>` as a row of those boxes, each over the one before it by the overlap of the group's size,
- *   with the gap around each.
+ *   with the gap around each;
+ *
+ * - a group that draws an overflow box (AVT-17, AVT-18) — more members than its `max`, or a `total` above the members
+ *   given — as the members it will draw and then a box of its size for the overflow: with `max`, one fewer than it.
  *
  * What it cannot give: the corner smoothing (a square is drawn with circular corners until the element is defined;
- * nothing moves), a size or a shape a design system added (drawn as the default), and a group's `max` — every member
- * given is a box until the element counts them, so a group that will draw an overflow box is wider before than after.
- * A page that must not move gives a group the members it will draw, and the rest as `total`.
+ * nothing moves), a size or a shape a design system added (drawn as the default), a `max` that is not a whole number
+ * from 2 to the build's limit (the build writes one rule for each in place of each rule naming `tanrei-count`; every
+ * member given is a box until the element counts them), a `total` that is no whole number (held as one above the
+ * members given) or a whole one beyond the limit that is not above them, and a group given exactly `max` members and a
+ * larger `total`, which is drawn with one member fewer than the members given.
  *
  * Every value is a `--tanrei-comp-avatar-*` token. Every selector has no specificity (`:where()`), and none matches
  * once the element is defined.
@@ -82,5 +87,44 @@
   /* What is not a member is not drawn by the group. */
   :where(tanrei-avatar-group:not(:defined)) > :where(:not(tanrei-avatar)) {
     display: none;
+  }
+  /* The overflow box (AVT-17, AVT-18): with more members than `max`, the group draws one fewer than `max` and then the
+     box; with a `total` above the members given, all of them and then the box. The box is the row's last item (its
+     `::after`), a box of the group's size drawn as a member is. A `total` is above the members given unless a member
+     stands at its place (or it is 0); one that is no whole number is held as one above them. */
+  :where(tanrei-avatar-group:not([max='1'])[max='tanrei-count']:not(:defined)) > :where(tanrei-avatar:nth-of-type(tanrei-count):not(:last-of-type), tanrei-avatar:nth-of-type(tanrei-count) ~ tanrei-avatar) {
+    display: none;
+  }
+  :where(tanrei-avatar-group[total]:not([total='']):not(:defined))::after {
+    content: '';
+  }
+  :where(tanrei-avatar-group[total='0']:not(:defined))::after {
+    content: none;
+  }
+  :where(tanrei-avatar-group[total='tanrei-count']:not(:defined):has(> tanrei-avatar:nth-of-type(tanrei-count)))::after {
+    content: none;
+  }
+  :where(tanrei-avatar-group:not([max='1'])[max='tanrei-count']:not(:defined):has(> tanrei-avatar:nth-of-type(tanrei-count) ~ tanrei-avatar))::after {
+    content: '';
+  }
+  :where(tanrei-avatar-group:not(:defined))::after {
+    box-sizing: border-box;
+    inline-size: var(--_avatar-side);
+    block-size: var(--_avatar-side);
+    border-radius: var(--tanrei-comp-avatar-container-shape-circle);
+    background: var(--tanrei-comp-avatar-container-color);
+    box-shadow: 0 0 0 var(--tanrei-comp-avatar-group-outline-width) var(--tanrei-comp-avatar-group-outline-color);
+  }
+  :where(tanrei-avatar-group:not(:defined)) {
+    --_avatar-side: var(--tanrei-comp-avatar-container-size-medium);
+  }
+  :where(tanrei-avatar-group[size='small']:not(:defined)) {
+    --_avatar-side: var(--tanrei-comp-avatar-container-size-small);
+  }
+  :where(tanrei-avatar-group[size='large']:not(:defined)) {
+    --_avatar-side: var(--tanrei-comp-avatar-container-size-large);
+  }
+  :where(tanrei-avatar-group[shape='square']:not(:defined))::after {
+    border-radius: var(--tanrei-comp-avatar-container-shape-square);
   }
 }

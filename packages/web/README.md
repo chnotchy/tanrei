@@ -218,10 +218,12 @@ import '@tanrei/web/cloak.css';
 ```
 
 Opt in: it is in no other stylesheet, `tanrei.css` included, because an element stays hidden for as long as it is not
-defined — on a page whose script never arrives, its content is never shown. A control's width is not held, so lay out
-controls that stand side by side in a row of their own (a flex row with a gap) rather than in a line of text. A text is
-held at one line: a label or a help that wraps moves what is below it by the lines it adds. The stylesheet's comment
-lists what it does not hold.
+defined — on a page whose script never arrives, its content is never shown. A control's width is held where it draws
+its words from an attribute (a tag's `label`, a checkbox's, a radio button's and a switch's), and not where they are
+written between its tags (a button's), so lay out controls that stand side by side in a row of their own (a flex row
+with a gap) rather than in a line of text. A text is held at one line — but the label a checkbox, a radio button or a
+switch draws, which wraps where it will: a label or a help that wraps moves what is below it by the lines it adds. The
+stylesheet's comment lists what it does not hold.
 
 A keyboard shortcut in a line of text is not held by the cloak: its width is its keys, and the keys are the reader's
 (⇧⌘K on Apple's platforms, Ctrl+Shift+K elsewhere). A page written on a server writes the keys the element will draw
